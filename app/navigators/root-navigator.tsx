@@ -7,7 +7,9 @@
 import React from "react"
 import { NavigationContainer, NavigationContainerRef } from "@react-navigation/native"
 import { createStackNavigator } from "@react-navigation/stack"
+import { createNativeStackNavigator } from "react-native-screens/native-stack"
 import { MainNavigator } from "./main-navigator"
+import { SelectStationScreen } from "../screens"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -23,23 +25,29 @@ export type RootParamList = {
   mainStack: undefined
 }
 
-const Stack = createStackNavigator<RootParamList>()
+export type SelectStationStackParamList = {
+  selectStation: undefined
+}
+
+const Stack = createNativeStackNavigator<RootParamList>()
+const SelectStationStack = createNativeStackNavigator<SelectStationStackParamList>()
 
 const RootStack = () => {
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <Stack.Screen
-        name="mainStack"
-        component={MainNavigator}
-        options={{
-          headerShown: false,
-        }}
-      />
+    <Stack.Navigator screenOptions={{ headerShown: false, stackPresentation: "modal" }}>
+      <Stack.Screen name="mainStack" component={MainNavigator} />
+      <Stack.Screen name="stationStack" component={SelectStation} />
     </Stack.Navigator>
+  )
+}
+
+const SelectStation = () => {
+  return (
+    <SelectStationStack.Navigator
+      screenOptions={{ stackPresentation: "modal", headerShown: false }}
+    >
+      <SelectStationStack.Screen name="selectStation" component={SelectStationScreen} />
+    </SelectStationStack.Navigator>
   )
 }
 

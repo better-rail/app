@@ -3,7 +3,7 @@ import { observer } from "mobx-react-lite"
 import { ImageBackground, View, ViewStyle } from "react-native"
 import { Screen, Text, DummyInput } from "../../components"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-// import { useNavigation } from "@react-navigation/native"
+import { useNavigation } from "@react-navigation/native"
 // import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
 
@@ -31,8 +31,7 @@ export const PlannerScreen = observer(function PlannerScreen() {
   // Pull in one of our MST stores
   // const { someStore, anotherStore } = useStores()
 
-  // Pull in navigation via hook
-  // const navigation = useNavigation()
+  const navigation = useNavigation()
 
   const insets = useSafeAreaInsets()
 
@@ -51,7 +50,7 @@ export const PlannerScreen = observer(function PlannerScreen() {
             onPress={() => alert(1)}
             style={{ marginBottom: spacing[3] }}
           />
-          <DummyInput placeholder="עכשיו" onPress={() => alert(1)} />
+          <DummyInput placeholder="עכשיו" onPress={() => navigation.navigate("stationStack")} />
         </View>
       </ImageBackground>
     </Screen>
