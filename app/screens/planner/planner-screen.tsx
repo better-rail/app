@@ -40,8 +40,18 @@ export const PlannerScreen = observer(function PlannerScreen() {
     <Screen style={ROOT} preset="fixed" unsafe={true}>
       <ImageBackground source={background} style={[BACKGROUND, { paddingTop: insets.top }]}>
         <View style={CONTENT_WRAPPER}>
-          <Text preset="header" text="תכנון מסלול" style={{ marginBottom: 12 }} />
-          <DummyInput onPress={() => alert(1)} />
+          <Text preset="header" text="תכנון מסלול" style={{ marginBottom: spacing[3] }} />
+          <DummyInput
+            placeholder="תחנת מוצא"
+            onPress={() => alert(1)}
+            style={{ marginBottom: spacing[3] }}
+          />
+          <DummyInput
+            placeholder="תחנת היעד"
+            onPress={() => alert(1)}
+            style={{ marginBottom: spacing[3] }}
+          />
+          <DummyInput placeholder="עכשיו" onPress={() => alert(1)} />
         </View>
       </ImageBackground>
     </Screen>

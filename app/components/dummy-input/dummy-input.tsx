@@ -8,6 +8,10 @@ const CONTAINER: ViewStyle = {
   padding: spacing[4],
   backgroundColor: "#fff",
   borderRadius: 12,
+  shadowOffset: { width: 0, height: 0 },
+  shadowColor: color.dim,
+  shadowRadius: 1,
+  shadowOpacity: 0.1,
 }
 
 const TEXT: TextStyle = {
@@ -21,17 +25,22 @@ export interface DummyInputProps extends PressableProps {
    * An optional style override useful for padding & margin.
    */
   style?: ViewStyle
+
+  /**
+   * Text to display when no value is provided
+   */
+  placeholder: string
 }
 
 /**
  * Looks like an input, yet simply a pressable that display the provided text.
  */
 export const DummyInput = observer(function DummyInput(props: DummyInputProps) {
-  const { style, ...rest } = props
+  const { placeholder, style, ...rest } = props
 
   return (
     <Pressable style={[CONTAINER, style]} {...rest}>
-      <Text style={TEXT}>תחנת מוצא</Text>
+      <Text style={TEXT}>{placeholder}</Text>
     </Pressable>
   )
 })
