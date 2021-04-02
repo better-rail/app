@@ -1,5 +1,5 @@
 import * as React from "react"
-import { TextStyle, Pressable, View, ViewStyle } from "react-native"
+import { TextStyle, Pressable, View, ViewStyle, PressableProps } from "react-native"
 import { observer } from "mobx-react-lite"
 import { color, spacing, typography } from "../../theme"
 import { Text } from "../"
@@ -16,7 +16,7 @@ const TEXT: TextStyle = {
   color: color.dim,
 }
 
-export interface DummyInputProps {
+export interface DummyInputProps extends PressableProps {
   /**
    * An optional style override useful for padding & margin.
    */

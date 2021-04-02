@@ -1,6 +1,6 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
-import { Image, ImageBackground, View, ViewStyle } from "react-native"
+import { ImageBackground, View, ViewStyle } from "react-native"
 import { Screen, Text, DummyInput } from "../../components"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 // import { useNavigation } from "@react-navigation/native"
@@ -40,8 +40,8 @@ export const PlannerScreen = observer(function PlannerScreen() {
     <Screen style={ROOT} preset="fixed" unsafe={true}>
       <ImageBackground source={background} style={[BACKGROUND, { paddingTop: insets.top }]}>
         <View style={CONTENT_WRAPPER}>
-          <Text preset="header" text="תכנון מסלול" />
-          <DummyInput />
+          <Text preset="header" text="תכנון מסלול" style={{ marginBottom: 12 }} />
+          <DummyInput onPress={() => alert(1)} />
         </View>
       </ImageBackground>
     </Screen>
