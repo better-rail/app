@@ -6,7 +6,7 @@
  */
 import React from "react"
 import { createStackNavigator } from "@react-navigation/stack"
-import { WelcomeScreen, DemoScreen, DemoListScreen } from "../screens"
+import { WelcomeScreen, DemoScreen, DemoListScreen, PlannerScreen } from "../screens"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -24,6 +24,7 @@ export type PrimaryParamList = {
   welcome: undefined
   demo: undefined
   demoList: undefined
+  planner: undefined
 }
 
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
@@ -36,6 +37,7 @@ export function MainNavigator() {
         headerShown: false,
       }}
     >
+      <Stack.Screen name="planner" component={PlannerScreen} />
       <Stack.Screen name="welcome" component={WelcomeScreen} />
       <Stack.Screen name="demo" component={DemoScreen} />
       <Stack.Screen name="demoList" component={DemoListScreen} />
