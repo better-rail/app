@@ -5,8 +5,8 @@
  * You'll likely spend most of your time in this file.
  */
 import React from "react"
-import { createStackNavigator } from "@react-navigation/stack"
-import { PlannerScreen } from "../screens"
+import { createStackNavigator, StackScreenProps } from "@react-navigation/stack"
+import { PlannerScreen, SelectStationScreen } from "../screens"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -22,7 +22,11 @@ import { PlannerScreen } from "../screens"
  */
 export type PrimaryParamList = {
   planner: undefined
+  selectStation: { onStationPress: (station: string) => void }
 }
+
+export type PlannerScreenProps = StackScreenProps<PrimaryParamList, "planner">
+export type SelectStationScreenProps = StackScreenProps<PrimaryParamList, "selectStation">
 
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
 const Stack = createStackNavigator<PrimaryParamList>()
@@ -35,6 +39,7 @@ export function MainNavigator() {
       }}
     >
       <Stack.Screen name="planner" component={PlannerScreen} />
+      <Stack.Screen name="selectStation" component={SelectStationScreen} />
     </Stack.Navigator>
   )
 }

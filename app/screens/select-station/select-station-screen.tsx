@@ -3,7 +3,7 @@ import { observer } from "mobx-react-lite"
 import { FlatList, LayoutAnimation, View, TextInput, TextStyle, ViewStyle, Pressable } from "react-native"
 import { Screen, Text, StationCard } from "../../components"
 // import { useStores } from "../../models"
-import { SelectStationScreenProps } from "../../navigators/root-navigator"
+import { SelectStationScreenProps } from "../../navigators/main-navigator"
 import { color, spacing, typography } from "../../theme"
 import useStationFiltering from "./useStationFiltering"
 

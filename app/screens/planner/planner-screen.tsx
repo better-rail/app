@@ -52,7 +52,14 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           />
           <DummyInput
             placeholder="תחנת היעד"
-            onPress={() => navigation.navigate("stationStack")}
+            onPress={() =>
+              navigation.navigate("selectStation", {
+                onStationPress: (stationName) => {
+                  routePlan.setDestination(stationName)
+                },
+              })
+            }
+            value={routePlan.destination}
             style={{ marginBottom: spacing[3] }}
           />
           <DummyInput placeholder="עכשיו" onPress={() => navigation.navigate("stationStack")} />

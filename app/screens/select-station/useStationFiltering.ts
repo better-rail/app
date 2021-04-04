@@ -1,23 +1,14 @@
+import stations from "../../data/stations.js"
+
 type StationItem = {
   id: number
   name: string
 }
 
-const STATIONS: [StationItem] = [
-  {
-    id: 1,
-    name: "ירושלים - יצחק נבון",
-    image: require("../../../assets/jlm.jpg"),
-  },
-  {
-    id: 2,
-    name: "ירושלים - מלחה",
-    image: require("../../../assets/malha.jpg"),
-  },
-]
-
 export default function useStationItems(searchTerm: string): [StationItem] {
-  return STATIONS.filter((item) => {
+  console.log(searchTerm)
+  console.log(stations[0].name.indexOf(searchTerm) > -1)
+  return stations.filter((item) => {
     return item.name.indexOf(searchTerm) > -1
   })
 }

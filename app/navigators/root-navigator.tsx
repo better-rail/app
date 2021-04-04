@@ -6,10 +6,8 @@
  */
 import React from "react"
 import { NavigationContainer, NavigationContainerRef } from "@react-navigation/native"
-import { createStackNavigator, StackScreenProps, TransitionPresets } from "@react-navigation/stack"
-import { createNativeStackNavigator } from "react-native-screens/native-stack"
+import { createStackNavigator, TransitionPresets } from "@react-navigation/stack"
 import { MainNavigator } from "./main-navigator"
-import { SelectStationScreen } from "../screens"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -22,16 +20,8 @@ import { SelectStationScreen } from "../screens"
  *   https://reactnavigation.org/docs/typescript#type-checking-the-navigator
  */
 export type RootParamList = { mainStack: undefined }
-export type SelectStationScreenProps = StackScreenProps<SelectStationStackParamList, "selectStation">
-
-export type SelectStationStackParamList = {
-  selectStation: { onStationPress: (station: string) => void }
-}
-
-export type PlannerScreenProps = StackScreenProps<SelectStationStackParamList, "selectStation">
 
 const Stack = createStackNavigator<RootParamList>()
-const SelectStationStack = createStackNavigator<SelectStationStackParamList>()
 
 const RootStack = () => {
   return (
@@ -43,16 +33,7 @@ const RootStack = () => {
       }}
     >
       <Stack.Screen name="mainStack" component={MainNavigator} />
-      <Stack.Screen name="stationStack" component={SelectStation} />
     </Stack.Navigator>
-  )
-}
-
-const SelectStation = () => {
-  return (
-    <SelectStationStack.Navigator screenOptions={{ headerShown: false }}>
-      <SelectStationStack.Screen name="selectStation" component={SelectStationScreen} />
-    </SelectStationStack.Navigator>
   )
 }
 
