@@ -10,7 +10,7 @@ import useStationFiltering from "./useStationFiltering"
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
   flex: 1,
-  padding: spacing[3],
+  paddingHorizontal: spacing[3],
 }
 
 const SEARCH_BAR_WRAPPER: ViewStyle = {
@@ -43,7 +43,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
       image={station.image}
       style={{ marginBottom: spacing[3] }}
       onPress={() => {
-        route.params.onStationPress(station)
+        route.params.onStationPress({ id: station.id, name: station.name })
         navigation.goBack()
       }}
     />

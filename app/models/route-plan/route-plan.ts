@@ -1,10 +1,9 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 
-const StationModel = types.model({
-  id: types.identifier,
+const StationSchema = {
+  id: types.string,
   name: types.string,
-  image: types.maybe(types.string),
-})
+}
 
 /**
  * Model description here for TypeScript hints.
@@ -12,16 +11,16 @@ const StationModel = types.model({
 export const RoutePlanModel = types
   .model("RoutePlan")
   .props({
-    origin: types.maybe(types.map(StationModel)),
-    destination: types.maybe(types.map(StationModel)),
+    origin: types.maybe(types.model(StationSchema)),
+    destination: types.maybe(types.model(StationSchema)),
   })
   .views((self) => ({})) // eslint-disable-line @typescript-eslint/no-unused-vars
   .actions((self) => ({
-    setOrigin(stationName) {
-      self.origin = stationName
+    setOrigin(station) {
+      self.origin = station
     },
-    setDestination(stationName) {
-      self.destination = stationName
+    setDestination(station) {
+      self.destination = station
     },
   }))
 

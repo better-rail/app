@@ -391,6 +391,7 @@ const stations = [
     english: "Ofakim",
     russian: "Офаким",
     arabic: "أوفاكيم",
+    image: require("../../assets/station-images/ofakim.jpg"),
   },
   {
     id: "3310",

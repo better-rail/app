@@ -40,11 +40,11 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           <Text preset="header" text="תכנון מסלול" style={{ marginBottom: spacing[3] }} />
           <DummyInput
             placeholder="תחנת מוצא"
-            value={routePlan.origin.name}
+            value={routePlan.origin?.name}
             onPress={() =>
               navigation.navigate("selectStation", {
                 onStationPress: (station) => {
-                  routePlan.origin.put(station)
+                  routePlan.setOrigin(station)
                 },
               })
             }
@@ -59,7 +59,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
                 },
               })
             }
-            value={routePlan.destination}
+            value={routePlan.destination?.name}
             style={{ marginBottom: spacing[3] }}
           />
           <DummyInput placeholder="עכשיו" onPress={() => navigation.navigate("stationStack")} />
