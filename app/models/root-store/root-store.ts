@@ -1,5 +1,6 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { CharacterStoreModel } from "../character-store/character-store"
+import { RoutePlanModel } from "../route-plan/route-plan"
 
 /**
  * A RootStore model.
@@ -7,6 +8,7 @@ import { CharacterStoreModel } from "../character-store/character-store"
 // prettier-ignore
 export const RootStoreModel = types.model("RootStore").props({
   characterStore: types.optional(CharacterStoreModel, {} as any),
+  routePlan: types.optional(RoutePlanModel, {} as any)
 })
 
 /**

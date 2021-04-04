@@ -6,7 +6,7 @@
  */
 import React from "react"
 import { NavigationContainer, NavigationContainerRef } from "@react-navigation/native"
-import { createStackNavigator } from "@react-navigation/stack"
+import { createStackNavigator, TransitionPresets } from "@react-navigation/stack"
 import { MainNavigator } from "./main-navigator"
 
 /**
@@ -19,39 +19,32 @@ import { MainNavigator } from "./main-navigator"
  *   https://reactnavigation.org/docs/params/
  *   https://reactnavigation.org/docs/typescript#type-checking-the-navigator
  */
-export type RootParamList = {
-  mainStack: undefined
-}
+export type RootParamList = { mainStack: undefined }
 
 const Stack = createStackNavigator<RootParamList>()
 
 const RootStack = () => {
   return (
     <Stack.Navigator
+      mode="modal"
       screenOptions={{
         headerShown: false,
+        ...TransitionPresets.ScaleFromCenterAndroid,
       }}
     >
-      <Stack.Screen
-        name="mainStack"
-        component={MainNavigator}
-        options={{
-          headerShown: false,
-        }}
-      />
+      <Stack.Screen name="mainStack" component={MainNavigator} />
     </Stack.Navigator>
   )
 }
 
-export const RootNavigator = React.forwardRef<
-  NavigationContainerRef,
-  Partial<React.ComponentProps<typeof NavigationContainer>>
->((props, ref) => {
-  return (
-    <NavigationContainer {...props} ref={ref}>
-      <RootStack />
-    </NavigationContainer>
-  )
-})
+export const RootNavigator = React.forwardRef<NavigationContainerRef, Partial<React.ComponentProps<typeof NavigationContainer>>>(
+  (props, ref) => {
+    return (
+      <NavigationContainer {...props} ref={ref}>
+        <RootStack />
+      </NavigationContainer>
+    )
+  },
+)
 
 RootNavigator.displayName = "RootNavigator"
