@@ -2,11 +2,12 @@ import React, { useState } from "react"
 import { observer } from "mobx-react-lite"
 import { FlatList, LayoutAnimation, View, TextInput, TextStyle, ViewStyle, Pressable } from "react-native"
 import { Screen, Text, StationCard } from "../../components"
-// import { useStores } from "../../models"
+import { useStores } from "../../models"
 import { SelectStationScreenProps } from "../../navigators/main-navigator"
 import { color, spacing, typography } from "../../theme"
 import useStationFiltering from "./useStationFiltering"
 
+// #region styles
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
   flex: 1,
@@ -29,14 +30,19 @@ const SEARCH_BAR: TextStyle = {
 }
 
 const CANCEL_LINK: TextStyle = {
-  // padding: spacing[2],
   paddingEnd: spacing[3],
   color: color.link,
 }
 
+const LIST_CONTENT_WRAPPER: ViewStyle = {
+  paddingHorizontal: spacing[3],
+}
+// #endregion
+
 export const SelectStationScreen = observer(function SelectStationScreen({ navigation, route }: SelectStationScreenProps) {
+  const { routePlan } = useStores()
   const [searchTerm, setSearchTerm] = useState("")
-  const stations = useStationFiltering(searchTerm)
+  const stations = useStationFiltering(searchTerm, routePlan.origin)
 
   const renderItem = (station) => (
     <StationCard
@@ -80,7 +86,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
       </View>
 
       <FlatList
-        contentContainerStyle={{ paddingHorizontal: 12 }}
+        contentContainerStyle={LIST_CONTENT_WRAPPER}
         data={stations}
         renderItem={({ item }) => renderItem(item)}
         keyExtractor={(item) => item.id}

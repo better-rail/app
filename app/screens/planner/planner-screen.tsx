@@ -6,10 +6,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useNavigation } from "@react-navigation/native"
 import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
-import { PlannerScreenProps } from "../../navigators/root-navigator"
+import { PlannerScreenProps } from "../../navigators/main-navigator"
 
 const background = require("../../../assets/planner-background.png")
 
+// #region styles
 const ROOT: ViewStyle = {
   backgroundColor: color.transparent,
   flex: 1,
@@ -27,6 +28,7 @@ const CONTENT_WRAPPER: ViewStyle = {
   backgroundColor: color.line,
   borderRadius: 20,
 }
+// #endregion
 
 export const PlannerScreen = observer(function PlannerScreen({ navigation }: PlannerScreenProps) {
   const { routePlan } = useStores()
