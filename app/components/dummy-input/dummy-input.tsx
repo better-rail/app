@@ -30,17 +30,22 @@ export interface DummyInputProps extends PressableProps {
    * Text to display when no value is provided
    */
   placeholder: string
+
+  /**
+   * A dummy value
+   */
+  value?: string
 }
 
 /**
  * Looks like an input, yet simply a pressable that display the provided text.
  */
 export const DummyInput = observer(function DummyInput(props: DummyInputProps) {
-  const { placeholder, style, ...rest } = props
+  const { placeholder, value, style, ...rest } = props
 
   return (
     <Pressable style={[CONTAINER, style]} {...rest}>
-      <Text style={TEXT}>{placeholder}</Text>
+      <Text style={TEXT}>{value || placeholder}</Text>
     </Pressable>
   )
 })

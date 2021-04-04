@@ -1,17 +1,9 @@
 import React, { useState } from "react"
 import { observer } from "mobx-react-lite"
-import {
-  FlatList,
-  LayoutAnimation,
-  View,
-  TextInput,
-  TextStyle,
-  ViewStyle,
-  Pressable,
-} from "react-native"
+import { FlatList, LayoutAnimation, View, TextInput, TextStyle, ViewStyle, Pressable } from "react-native"
 import { Screen, Text, StationCard } from "../../components"
-import { useNavigation } from "@react-navigation/native"
 // import { useStores } from "../../models"
+import { SelectStationScreenProps } from "../../navigators/root-navigator"
 import { color, spacing, typography } from "../../theme"
 import useStationFiltering from "./useStationFiltering"
 
@@ -41,13 +33,20 @@ const CANCEL_LINK: TextStyle = {
   color: color.link,
 }
 
-export const SelectStationScreen = observer(function SelectStationScreen() {
+export const SelectStationScreen = observer(function SelectStationScreen({ navigation, route }: SelectStationScreenProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const stations = useStationFiltering(searchTerm)
-  const navigation = useNavigation()
 
   const renderItem = (item) => (
-    <StationCard name={item.name} image={item.image} style={{ marginBottom: spacing[3] }} />
+    <StationCard
+      name={item.name}
+      image={item.image}
+      style={{ marginBottom: spacing[3] }}
+      onPress={() => {
+        route.params.onStationPress(item.name)
+        navigation.goBack()
+      }}
+    />
   )
 
   return (

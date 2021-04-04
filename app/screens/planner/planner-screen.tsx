@@ -4,8 +4,9 @@ import { ImageBackground, View, ViewStyle } from "react-native"
 import { Screen, Text, DummyInput } from "../../components"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useNavigation } from "@react-navigation/native"
-// import { useStores } from "../../models"
+import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
+import { PlannerScreenProps } from "../../navigators/root-navigator"
 
 const background = require("../../../assets/planner-background.png")
 
@@ -27,11 +28,8 @@ const CONTENT_WRAPPER: ViewStyle = {
   borderRadius: 20,
 }
 
-export const PlannerScreen = observer(function PlannerScreen() {
-  // Pull in one of our MST stores
-  // const { someStore, anotherStore } = useStores()
-
-  const navigation = useNavigation()
+export const PlannerScreen = observer(function PlannerScreen({ navigation }: PlannerScreenProps) {
+  const { routePlan } = useStores()
 
   const insets = useSafeAreaInsets()
 
@@ -42,7 +40,14 @@ export const PlannerScreen = observer(function PlannerScreen() {
           <Text preset="header" text="תכנון מסלול" style={{ marginBottom: spacing[3] }} />
           <DummyInput
             placeholder="תחנת מוצא"
-            onPress={() => navigation.navigate("stationStack")}
+            value={routePlan.origin}
+            onPress={() =>
+              navigation.navigate("selectStation", {
+                onStationPress: (stationName) => {
+                  routePlan.setOrigin(stationName)
+                },
+              })
+            }
             style={{ marginBottom: spacing[3] }}
           />
           <DummyInput

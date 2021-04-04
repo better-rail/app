@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { ImageBackground, TextStyle, ImageSourcePropType, ViewStyle } from "react-native"
-import TouchableScale from "react-native-touchable-scale"
+import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import LinearGradient from "react-native-linear-gradient"
 import { observer } from "mobx-react-lite"
 import { color, spacing, typography } from "../../theme"
@@ -40,7 +40,7 @@ const GARDIENT: ViewStyle = {
   borderRadius: 6,
 }
 
-export interface StationCardProps {
+export interface StationCardProps extends TouchableScaleProps {
   /**
    * The station name to display on the card.
    */
@@ -59,10 +59,10 @@ export interface StationCardProps {
  * Describe your component here
  */
 export const StationCard = observer(function StationCard(props: StationCardProps) {
-  const { name, image, style } = props
+  const { name, image, style, ...rest } = props
 
   return (
-    <TouchableScale style={[CONTAINER, style]} activeScale={0.94} friction={7}>
+    <TouchableScale style={[CONTAINER, style]} activeScale={0.94} friction={7} {...rest}>
       <ImageBackground imageStyle={{ borderRadius: 6 }} source={image} style={BACKGROUND}>
         <LinearGradient style={GARDIENT} colors={["rgba(0, 0, 0, 0.05)", "rgba(0, 0, 0, 0.75)"]} />
 

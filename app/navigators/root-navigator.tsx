@@ -6,7 +6,7 @@
  */
 import React from "react"
 import { NavigationContainer, NavigationContainerRef } from "@react-navigation/native"
-import { createStackNavigator, TransitionPresets } from "@react-navigation/stack"
+import { createStackNavigator, StackScreenProps, TransitionPresets } from "@react-navigation/stack"
 import { createNativeStackNavigator } from "react-native-screens/native-stack"
 import { MainNavigator } from "./main-navigator"
 import { SelectStationScreen } from "../screens"
@@ -21,13 +21,14 @@ import { SelectStationScreen } from "../screens"
  *   https://reactnavigation.org/docs/params/
  *   https://reactnavigation.org/docs/typescript#type-checking-the-navigator
  */
-export type RootParamList = {
-  mainStack: undefined
-}
+export type RootParamList = { mainStack: undefined }
+export type SelectStationScreenProps = StackScreenProps<SelectStationStackParamList, "selectStation">
 
 export type SelectStationStackParamList = {
-  selectStation: undefined
+  selectStation: { onStationPress: (station: string) => void }
 }
+
+export type PlannerScreenProps = StackScreenProps<SelectStationStackParamList, "selectStation">
 
 const Stack = createStackNavigator<RootParamList>()
 const SelectStationStack = createStackNavigator<SelectStationStackParamList>()
@@ -55,15 +56,14 @@ const SelectStation = () => {
   )
 }
 
-export const RootNavigator = React.forwardRef<
-  NavigationContainerRef,
-  Partial<React.ComponentProps<typeof NavigationContainer>>
->((props, ref) => {
-  return (
-    <NavigationContainer {...props} ref={ref}>
-      <RootStack />
-    </NavigationContainer>
-  )
-})
+export const RootNavigator = React.forwardRef<NavigationContainerRef, Partial<React.ComponentProps<typeof NavigationContainer>>>(
+  (props, ref) => {
+    return (
+      <NavigationContainer {...props} ref={ref}>
+        <RootStack />
+      </NavigationContainer>
+    )
+  },
+)
 
 RootNavigator.displayName = "RootNavigator"
