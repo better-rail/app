@@ -10,6 +10,9 @@ import { Text } from "../"
 
 const CONTAINER: ViewStyle = {
   borderRadius: 6,
+  shadowColor: color.palette.black,
+  shadowOffset: { height: 1, width: 0 },
+  shadowOpacity: 0.25,
 }
 
 const BACKGROUND: ViewStyle = {
