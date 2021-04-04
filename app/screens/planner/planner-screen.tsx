@@ -42,12 +42,12 @@ export const PlannerScreen = observer(function PlannerScreen() {
           <Text preset="header" text="תכנון מסלול" style={{ marginBottom: spacing[3] }} />
           <DummyInput
             placeholder="תחנת מוצא"
-            onPress={() => alert(1)}
+            onPress={() => navigation.navigate("stationStack")}
             style={{ marginBottom: spacing[3] }}
           />
           <DummyInput
             placeholder="תחנת היעד"
-            onPress={() => alert(1)}
+            onPress={() => navigation.navigate("stationStack")}
             style={{ marginBottom: spacing[3] }}
           />
           <DummyInput placeholder="עכשיו" onPress={() => navigation.navigate("stationStack")} />

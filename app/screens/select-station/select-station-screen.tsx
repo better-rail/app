@@ -1,10 +1,19 @@
-import React from "react"
+import React, { useState } from "react"
 import { observer } from "mobx-react-lite"
-import { TextInput, TextStyle, ViewStyle } from "react-native"
-import { Screen, Text } from "../../components"
-// import { useNavigation } from "@react-navigation/native"
+import {
+  FlatList,
+  LayoutAnimation,
+  View,
+  TextInput,
+  TextStyle,
+  ViewStyle,
+  Pressable,
+} from "react-native"
+import { Screen, Text, StationCard } from "../../components"
+import { useNavigation } from "@react-navigation/native"
 // import { useStores } from "../../models"
 import { color, spacing, typography } from "../../theme"
+import useStationFiltering from "./useStationFiltering"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -12,8 +21,13 @@ const ROOT: ViewStyle = {
   padding: spacing[3],
 }
 
+const SEARCH_BAR_WRAPPER: ViewStyle = {
+  flexDirection: "row-reverse",
+  alignItems: "center",
+}
+
 const SEARCH_BAR: TextStyle = {
-  width: "100%",
+  flex: 1,
   padding: spacing[3],
   textAlign: "right",
   fontFamily: typography.primary,
@@ -21,15 +35,56 @@ const SEARCH_BAR: TextStyle = {
   backgroundColor: color.line,
 }
 
-export const SelectStationScreen = observer(function SelectStationScreen() {
-  // Pull in one of our MST stores
-  // const { someStore, anotherStore } = useStores()
+const CANCEL_LINK: TextStyle = {
+  // padding: spacing[2],
+  paddingEnd: spacing[3],
+  color: color.link,
+}
 
-  // Pull in navigation via hook
-  // const navigation = useNavigation()
+export const SelectStationScreen = observer(function SelectStationScreen() {
+  const [searchTerm, setSearchTerm] = useState("")
+  const stations = useStationFiltering(searchTerm)
+  const navigation = useNavigation()
+
+  const renderItem = (item) => (
+    <StationCard name={item.name} image={item.image} style={{ marginBottom: spacing[3] }} />
+  )
+
   return (
-    <Screen style={ROOT} preset="scroll" unsafe={true}>
-      <TextInput style={SEARCH_BAR} placeholder="חיפוש תחנה" />
+    <Screen style={ROOT} preset="fixed" unsafe={false} statusBar="dark-content">
+      <View style={SEARCH_BAR_WRAPPER}>
+        <TextInput
+          style={SEARCH_BAR}
+          placeholder="חיפוש תחנה"
+          onChangeText={(text) => {
+            LayoutAnimation.configureNext({
+              duration: 300,
+              create: {
+                type: LayoutAnimation.Types.spring,
+                property: LayoutAnimation.Properties.opacity,
+                springDamping: 1,
+              },
+              delete: {
+                type: LayoutAnimation.Types.spring,
+                property: LayoutAnimation.Properties.opacity,
+                springDamping: 1,
+              },
+            })
+            setSearchTerm(text)
+          }}
+          autoFocus={true}
+        />
+        <Pressable onPress={() => navigation.goBack()}>
+          <Text style={CANCEL_LINK}>ביטול</Text>
+        </Pressable>
+      </View>
+
+      <FlatList
+        contentContainerStyle={{ paddingTop: 12 }}
+        data={stations}
+        renderItem={({ item }) => renderItem(item)}
+        keyExtractor={(item) => item.id}
+      />
     </Screen>
   )
 })

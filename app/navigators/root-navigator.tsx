@@ -6,7 +6,7 @@
  */
 import React from "react"
 import { NavigationContainer, NavigationContainerRef } from "@react-navigation/native"
-import { createStackNavigator } from "@react-navigation/stack"
+import { createStackNavigator, TransitionPresets } from "@react-navigation/stack"
 import { createNativeStackNavigator } from "react-native-screens/native-stack"
 import { MainNavigator } from "./main-navigator"
 import { SelectStationScreen } from "../screens"
@@ -29,12 +29,18 @@ export type SelectStationStackParamList = {
   selectStation: undefined
 }
 
-const Stack = createNativeStackNavigator<RootParamList>()
-const SelectStationStack = createNativeStackNavigator<SelectStationStackParamList>()
+const Stack = createStackNavigator<RootParamList>()
+const SelectStationStack = createStackNavigator<SelectStationStackParamList>()
 
 const RootStack = () => {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false, stackPresentation: "modal" }}>
+    <Stack.Navigator
+      mode="modal"
+      screenOptions={{
+        headerShown: false,
+        ...TransitionPresets.ScaleFromCenterAndroid,
+      }}
+    >
       <Stack.Screen name="mainStack" component={MainNavigator} />
       <Stack.Screen name="stationStack" component={SelectStation} />
     </Stack.Navigator>
@@ -43,9 +49,7 @@ const RootStack = () => {
 
 const SelectStation = () => {
   return (
-    <SelectStationStack.Navigator
-      screenOptions={{ stackPresentation: "modal", headerShown: false }}
-    >
+    <SelectStationStack.Navigator screenOptions={{ headerShown: false }}>
       <SelectStationStack.Screen name="selectStation" component={SelectStationScreen} />
     </SelectStationStack.Navigator>
   )
