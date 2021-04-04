@@ -10,12 +10,13 @@ import useStationFiltering from "./useStationFiltering"
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
   flex: 1,
-  paddingHorizontal: spacing[3],
 }
 
 const SEARCH_BAR_WRAPPER: ViewStyle = {
   flexDirection: "row-reverse",
   alignItems: "center",
+  paddingHorizontal: spacing[3],
+  marginBottom: spacing[3],
 }
 
 const SEARCH_BAR: TextStyle = {
@@ -57,7 +58,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
           placeholder="חיפוש תחנה"
           onChangeText={(text) => {
             LayoutAnimation.configureNext({
-              duration: 300,
+              duration: 400,
               create: {
                 type: LayoutAnimation.Types.spring,
                 property: LayoutAnimation.Properties.opacity,
@@ -79,10 +80,11 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
       </View>
 
       <FlatList
-        contentContainerStyle={{ paddingTop: 12 }}
+        contentContainerStyle={{ paddingHorizontal: 12 }}
         data={stations}
         renderItem={({ item }) => renderItem(item)}
         keyExtractor={(item) => item.id}
+        keyboardShouldPersistTaps="handled"
       />
     </Screen>
   )
