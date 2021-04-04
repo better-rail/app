@@ -481,5 +481,7 @@ const stations = [
 
 // We  only  support hebrew at the moment.
 const USER_LANGUAGE = "hebrew"
-const normalizeStationNames = stations.map((station) => ({ id: station.id, name: station[USER_LANGUAGE] }))
+const normalizeStationNames = stations
+  .map((station) => ({ id: station.id, name: station[USER_LANGUAGE], image: station.image }))
+  .sort((a, b) => a.name > b.name)
 export default normalizeStationNames
