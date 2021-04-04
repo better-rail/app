@@ -1,7 +1,7 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 
 const StationModel = types.model({
-  id: types.identifierNumber,
+  id: types.identifier,
   name: types.string,
   image: types.maybe(types.string),
 })

@@ -37,13 +37,13 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
   const [searchTerm, setSearchTerm] = useState("")
   const stations = useStationFiltering(searchTerm)
 
-  const renderItem = (item) => (
+  const renderItem = (station) => (
     <StationCard
-      name={item.name}
-      image={item.image}
+      name={station.name}
+      image={station.image}
       style={{ marginBottom: spacing[3] }}
       onPress={() => {
-        route.params.onStationPress(item.name)
+        route.params.onStationPress(station)
         navigation.goBack()
       }}
     />
