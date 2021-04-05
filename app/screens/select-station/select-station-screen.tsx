@@ -50,8 +50,15 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
       image={station.image}
       style={{ marginBottom: spacing[3] }}
       onPress={() => {
-        route.params.onStationPress({ id: station.id, name: station.name })
-        navigation.goBack()
+        if (route.params.selectionType === "origin") {
+          routePlan.setOrigin(station)
+          navigation.navigate("planner")
+        } else if (route.params.selectionType === "destination") {
+          routePlan.setDestination(station)
+          navigation.navigate("planner")
+        } else {
+          throw new Error("Selection type was not provided.")
+        }
       }}
     />
   )
@@ -80,7 +87,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
           }}
           autoFocus={true}
         />
-        <Pressable onPress={() => navigation.goBack()}>
+        <Pressable onPress={() => navigation.navigate("planner")}>
           <Text style={CANCEL_LINK}>ביטול</Text>
         </Pressable>
       </View>

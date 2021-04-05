@@ -22,7 +22,7 @@ import { PlannerScreen, SelectStationScreen } from "../screens"
  */
 export type PrimaryParamList = {
   planner: undefined
-  selectStation: { onStationPress: (station: string) => void }
+  selectStation: { selectionType: "origin" | "destination" }
 }
 
 export type PlannerScreenProps = StackScreenProps<PrimaryParamList, "planner">

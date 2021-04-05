@@ -3,7 +3,6 @@ import { observer } from "mobx-react-lite"
 import { ImageBackground, View, ViewStyle } from "react-native"
 import { Screen, Text, DummyInput } from "../../components"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { useNavigation } from "@react-navigation/native"
 import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
 import { PlannerScreenProps } from "../../navigators/main-navigator"
@@ -43,24 +42,12 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           <DummyInput
             placeholder="תחנת מוצא"
             value={routePlan.origin?.name}
-            onPress={() =>
-              navigation.navigate("selectStation", {
-                onStationPress: (station) => {
-                  routePlan.setOrigin(station)
-                },
-              })
-            }
+            onPress={() => navigation.navigate("selectStation", { selectionType: "origin" })}
             style={{ marginBottom: spacing[3] }}
           />
           <DummyInput
             placeholder="תחנת היעד"
-            onPress={() =>
-              navigation.navigate("selectStation", {
-                onStationPress: (stationName) => {
-                  routePlan.setDestination(stationName)
-                },
-              })
-            }
+            onPress={() => navigation.navigate("selectStation", { selectionType: "destination" })}
             value={routePlan.destination?.name}
             style={{ marginBottom: spacing[3] }}
           />
