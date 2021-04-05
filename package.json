@@ -39,6 +39,7 @@
     "ramda": "0.27.1",
     "react": "16.14.0",
     "react-native": "^0.63.4",
+    "react-native-date-picker": "^3.2.10",
     "react-native-gesture-handler": "1.8.0",
     "react-native-keychain": "6.2.0",
     "react-native-linear-gradient": "^2.5.6",
