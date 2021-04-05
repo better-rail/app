@@ -1,6 +1,7 @@
-import React from "react"
+import React, { useState } from "react"
 import { observer } from "mobx-react-lite"
 import { ImageBackground, View, ViewStyle } from "react-native"
+import DateTimePickerModal from "react-native-modal-datetime-picker"
 import { Screen, Text, DummyInput } from "../../components"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useStores } from "../../models"
@@ -34,6 +35,22 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
 
   const insets = useSafeAreaInsets()
 
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
+
+  const showDatePicker = () => {
+    setDatePickerVisibility(true)
+  }
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false)
+  }
+
+  const handleConfirm = (date) => {
+    console.warn("A date has been picked: ", date)
+    hideDatePicker()
+    routePlan.setDate(date)
+  }
+
   return (
     <Screen style={ROOT} preset="fixed" unsafe={true}>
       <ImageBackground source={background} style={[BACKGROUND, { paddingTop: insets.top }]}>
@@ -51,7 +68,17 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
             value={routePlan.destination?.name}
             style={{ marginBottom: spacing[3] }}
           />
-          <DummyInput placeholder="עכשיו" onPress={() => navigation.navigate("stationStack")} />
+          <DummyInput placeholder="עכשיו" onPress={() => showDatePicker()} />
+          <DateTimePickerModal
+            isVisible={isDatePickerVisible}
+            mode="datetime"
+            onConfirm={handleConfirm}
+            onCancel={hideDatePicker}
+            locale={"he_IL"}
+            customHeaderIOS={() => null}
+            customCancelButtonIOS={() => null}
+            confirmTextIOS="אישור"
+          />
         </View>
       </ImageBackground>
     </Screen>

@@ -13,6 +13,7 @@ export const RoutePlanModel = types
   .props({
     origin: types.maybe(types.model(StationSchema)),
     destination: types.maybe(types.model(StationSchema)),
+    date: types.optional(types.Date, () => new Date()),
   })
   .views((self) => ({})) // eslint-disable-line @typescript-eslint/no-unused-vars
   .actions((self) => ({
@@ -21,6 +22,9 @@ export const RoutePlanModel = types
     },
     setDestination(station) {
       self.destination = station
+    },
+    setDate(date) {
+      self.date = date
     },
   }))
 
