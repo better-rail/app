@@ -14,7 +14,7 @@ const ROOT: ViewStyle = {
 }
 
 const SEARCH_BAR_WRAPPER: ViewStyle = {
-  flexDirection: "row-reverse",
+  flexDirection: "row",
   alignItems: "center",
   paddingHorizontal: spacing[3],
   marginBottom: spacing[3],
@@ -30,7 +30,7 @@ const SEARCH_BAR: TextStyle = {
 }
 
 const CANCEL_LINK: TextStyle = {
-  paddingEnd: spacing[3],
+  paddingStart: spacing[3],
   color: color.link,
 }
 
