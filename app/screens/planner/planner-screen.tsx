@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { ImageBackground, View, ViewStyle } from "react-native"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
-import { Screen, Text, DummyInput } from "../../components"
+import { Screen, Button, Text, StationCard, DummyInput } from "../../components"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
 import { PlannerScreenProps } from "../../navigators/main-navigator"
+import stations from "../../data/stations"
 import { formatRelative } from "date-fns"
 import { he } from "date-fns/locale"
 
@@ -26,7 +27,7 @@ const BACKGROUND: ViewStyle = {
 
 const CONTENT_WRAPPER: ViewStyle = {
   flex: 1,
-  marginTop: 200,
+  marginTop: 175,
   padding: spacing[4],
   backgroundColor: color.line,
   borderRadius: 20,
@@ -34,7 +35,7 @@ const CONTENT_WRAPPER: ViewStyle = {
 // #endregion
 
 export const PlannerScreen = observer(function PlannerScreen({ navigation }: PlannerScreenProps) {
-  const { routePlan } = useStores()
+  const { routePlan, route } = useStores()
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
   const insets = useSafeAreaInsets()
 
@@ -50,9 +51,40 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     }
   }, [routePlan.date])
 
+  const originData = React.useMemo(() => {
+    // Since we can't keep the image serialized via mobx, we have to import the station images here
+    let origin = routePlan.origin
+
+    if (origin) {
+      const originImage = stations.find((s) => s.id === routePlan.origin.id).image
+      if (originImage) {
+        origin = Object.assign(origin, { image: originImage })
+      }
+    }
+
+    return origin
+  }, [routePlan.origin])
+
+  const destinationData = React.useMemo(() => {
+    let destination = routePlan.destination
+
+    if (destination) {
+      const destinationImage = stations.find((s) => s.id === routePlan.destination.id).image
+      if (destinationImage) {
+        destination = Object.assign(destination, { image: destinationImage })
+      }
+    }
+
+    return destination
+  }, [routePlan.destination])
+
   useEffect(() => {
     // Reset the previous presisted date
     routePlan.setDate(now)
+  }, [])
+
+  useEffect(() => {
+    route.getRoute()
   }, [])
 
   return (
@@ -60,19 +92,30 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
       <ImageBackground source={background} style={[BACKGROUND, { paddingTop: insets.top }]}>
         <View style={CONTENT_WRAPPER}>
           <Text preset="header" text="תכנון מסלול" style={{ marginBottom: spacing[3] }} />
-          <DummyInput
-            placeholder="תחנת מוצא"
-            value={routePlan.origin?.name}
+
+          <Text preset="fieldLabel" text="תחנת מוצא" style={{ marginBottom: spacing[1] }} />
+          <StationCard
+            name={originData?.name}
+            image={originData?.image}
+            style={{ marginBottom: spacing[3] }}
             onPress={() => navigation.navigate("selectStation", { selectionType: "origin" })}
-            style={{ marginBottom: spacing[3] }}
           />
-          <DummyInput
-            placeholder="תחנת היעד"
+
+          <Text preset="fieldLabel" text="תחנת יעד" style={{ marginBottom: spacing[1] }} />
+          <StationCard
+            name={destinationData?.name}
+            image={destinationData?.image}
+            style={{ marginBottom: spacing[3] }}
             onPress={() => navigation.navigate("selectStation", { selectionType: "destination" })}
-            value={routePlan.destination?.name}
-            style={{ marginBottom: spacing[3] }}
           />
-          <DummyInput placeholder="עכשיו" value={formattedDate} onPress={() => setDatePickerVisibility(true)} />
+          <Text preset="fieldLabel" text="זמן יציאה" style={{ marginBottom: spacing[3] }} />
+          <DummyInput
+            placeholder="עכשיו"
+            value={formattedDate}
+            style={{ marginBottom: spacing[3] }}
+            onPress={() => setDatePickerVisibility(true)}
+          />
+          <Button title="חישוב מסלול" />
           <DateTimePickerModal
             isVisible={isDatePickerVisible}
             mode="datetime"

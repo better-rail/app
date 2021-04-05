@@ -27,7 +27,7 @@ export const color = {
   /**
    * The main tinting color.
    */
-  primary: palette.orange,
+  primary: palette.blurple,
   /**
    * The main tinting color, but darker.
    */
@@ -48,6 +48,10 @@ export const color = {
    * Secondary information.
    */
   dim: palette.lightGrey,
+  /**
+   * Secondary information.
+   */
+  dimmer: palette.lighterGrey,
   /**
    * Error messages and icons.
    */
