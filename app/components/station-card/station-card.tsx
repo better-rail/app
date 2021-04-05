@@ -22,12 +22,13 @@ const BACKGROUND: ViewStyle = {
 }
 
 const TEXT: TextStyle = {
-  marginRight: spacing[3],
+  marginStart: spacing[3],
   marginBottom: spacing[2],
   color: color.palette.white,
   fontFamily: typography.primary,
   fontSize: 22,
   fontWeight: "700",
+  textAlign: "left",
   textShadowColor: color.palette.black,
   textShadowOffset: { width: 0, height: 1 },
   textShadowRadius: 3,

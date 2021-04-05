@@ -17,6 +17,7 @@ const CONTAINER: ViewStyle = {
 const TEXT: TextStyle = {
   fontFamily: typography.primary,
   fontSize: 16,
+  textAlign: "left",
   color: color.dim,
 }
 

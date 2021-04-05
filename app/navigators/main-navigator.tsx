@@ -5,7 +5,7 @@
  * You'll likely spend most of your time in this file.
  */
 import React from "react"
-import { createStackNavigator, StackScreenProps } from "@react-navigation/stack"
+import { createStackNavigator, StackScreenProps, TransitionPresets } from "@react-navigation/stack"
 import { PlannerScreen, SelectStationScreen } from "../screens"
 
 /**
@@ -39,7 +39,7 @@ export function MainNavigator() {
       }}
     >
       <Stack.Screen name="planner" component={PlannerScreen} />
-      <Stack.Screen name="selectStation" component={SelectStationScreen} />
+      <Stack.Screen name="selectStation" component={SelectStationScreen} options={{ ...TransitionPresets.ModalTransition }} />
     </Stack.Navigator>
   )
 }

@@ -8,7 +8,7 @@ const BASE: TextStyle = {
   fontFamily: typography.primary,
   color: color.text,
   fontSize: 15,
-  textAlign: "right",
+  textAlign: "left",
 }
 
 /**
