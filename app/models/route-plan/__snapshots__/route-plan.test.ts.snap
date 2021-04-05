@@ -2,7 +2,7 @@
 
 exports[`can be created 1`] = `
 Object {
-  "date": 1617623457694,
+  "date": Any<Number>,
   "destination": Object {
     "id": "3500",
     "name": "הרצליה",
