@@ -1,5 +1,5 @@
-import { types, getSnapshot } from "mobx-state-tree"
-import { RoutePlan, RoutePlanModel } from "./route-plan"
+import { getSnapshot } from "mobx-state-tree"
+import { RoutePlanModel } from "./route-plan"
 
 test("can be created", () => {
   const origin = {
@@ -14,5 +14,5 @@ test("can be created", () => {
 
   const instance = RoutePlanModel.create({ origin, destination })
 
-  expect(getSnapshot(instance)).toMatchSnapshot()
+  expect(getSnapshot(instance)).toMatchSnapshot({ date: expect.any(Number) })
 })
