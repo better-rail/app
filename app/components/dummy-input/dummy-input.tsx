@@ -1,6 +1,5 @@
 import * as React from "react"
-import { TextStyle, Pressable, View, ViewStyle, PressableProps } from "react-native"
-import { observer } from "mobx-react-lite"
+import { TextStyle, Pressable, ViewStyle, PressableProps } from "react-native"
 import { color, spacing, typography } from "../../theme"
 import { Text } from "../"
 
@@ -41,7 +40,7 @@ export interface DummyInputProps extends PressableProps {
 /**
  * Looks like an input, yet simply a pressable that display the provided text.
  */
-export const DummyInput = observer(function DummyInput(props: DummyInputProps) {
+export const DummyInput = function DummyInput(props: DummyInputProps) {
   const { placeholder, value, style, ...rest } = props
 
   return (
@@ -49,4 +48,4 @@ export const DummyInput = observer(function DummyInput(props: DummyInputProps) {
       <Text style={TEXT}>{value || placeholder}</Text>
     </Pressable>
   )
-})
+}
