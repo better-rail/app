@@ -19,7 +19,7 @@ test("can be created", () => {
     patches.push(patch)
   })
 
-  instance.setDate(new Date())
+  instance.setDate(new Date("2021-04-05T02:24:00"))
 
   expect(patches).toMatchSnapshot()
 })
