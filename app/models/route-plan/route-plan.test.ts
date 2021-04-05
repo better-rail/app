@@ -1,5 +1,5 @@
-import { types, getSnapshot, onPatch } from "mobx-state-tree"
-import { RoutePlan, RoutePlanModel } from "./route-plan"
+import { getSnapshot } from "mobx-state-tree"
+import { RoutePlanModel } from "./route-plan"
 
 test("can be created", () => {
   const origin = {
@@ -14,12 +14,5 @@ test("can be created", () => {
 
   const instance = RoutePlanModel.create({ origin, destination })
 
-  const patches = []
-  onPatch(instance, (patch) => {
-    patches.push(patch)
-  })
-
-  instance.setDate(new Date("2021-04-05T02:24:00"))
-
-  expect(patches).toMatchSnapshot()
+  expect(getSnapshot(instance)).toMatchSnapshot()
 })

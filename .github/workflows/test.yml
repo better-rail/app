@@ -7,5 +7,3 @@ jobs:
       - uses: actions/checkout@v2
       - uses: bahmutov/npm-install@v1
       - run: npm t
-      - name: Run tests
-        run: yarn test
