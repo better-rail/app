@@ -10,6 +10,8 @@ import { PlannerScreenProps } from "../../navigators/main-navigator"
 import { formatRelative } from "date-fns"
 import { he } from "date-fns/locale"
 
+import { RouteApi } from "../../services/api/route-api"
+
 const background = require("../../../assets/planner-background.png")
 const now = new Date()
 
@@ -34,7 +36,7 @@ const CONTENT_WRAPPER: ViewStyle = {
 // #endregion
 
 export const PlannerScreen = observer(function PlannerScreen({ navigation }: PlannerScreenProps) {
-  const { routePlan } = useStores()
+  const { routePlan, route } = useStores()
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
   const insets = useSafeAreaInsets()
 
@@ -53,6 +55,10 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   useEffect(() => {
     // Reset the previous presisted date
     routePlan.setDate(now)
+  }, [])
+
+  useEffect(() => {
+    route.getRoute()
   }, [])
 
   return (
