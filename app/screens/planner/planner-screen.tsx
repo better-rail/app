@@ -9,7 +9,7 @@ import { color, spacing } from "../../theme"
 import { PlannerScreenProps } from "../../navigators/main-navigator"
 
 const background = require("../../../assets/planner-background.png")
-
+const today = new Date()
 // #region styles
 const ROOT: ViewStyle = {
   backgroundColor: color.transparent,
@@ -32,23 +32,12 @@ const CONTENT_WRAPPER: ViewStyle = {
 
 export const PlannerScreen = observer(function PlannerScreen({ navigation }: PlannerScreenProps) {
   const { routePlan } = useStores()
-
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
   const insets = useSafeAreaInsets()
 
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
-
-  const showDatePicker = () => {
-    setDatePickerVisibility(true)
-  }
-
-  const hideDatePicker = () => {
-    setDatePickerVisibility(false)
-  }
-
   const handleConfirm = (date) => {
-    console.warn("A date has been picked: ", date)
-    hideDatePicker()
     routePlan.setDate(date)
+    setDatePickerVisibility(false)
   }
 
   return (
@@ -68,13 +57,14 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
             value={routePlan.destination?.name}
             style={{ marginBottom: spacing[3] }}
           />
-          <DummyInput placeholder="עכשיו" onPress={() => showDatePicker()} />
+          <DummyInput placeholder="עכשיו" onPress={() => setDatePickerVisibility(true)} />
           <DateTimePickerModal
             isVisible={isDatePickerVisible}
             mode="datetime"
             onConfirm={handleConfirm}
-            onCancel={hideDatePicker}
+            onCancel={() => setDatePickerVisibility(false)}
             locale={"he_IL"}
+            minimumDate={today}
             customHeaderIOS={() => null}
             customCancelButtonIOS={() => null}
             confirmTextIOS="אישור"
