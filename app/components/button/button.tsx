@@ -1,37 +1,41 @@
 import * as React from "react"
-import { TouchableOpacity } from "react-native"
-import { Text } from "../text/text"
-import { viewPresets, textPresets } from "./button.presets"
-import { ButtonProps } from "./button.props"
-import { mergeAll, flatten } from "ramda"
+import { TouchableOpacity, TextStyle, View, ViewStyle, ButtonProps } from "react-native"
+import { color, spacing, typography } from "../../theme"
+import { Text } from "../"
+
+const CONTAINER: ViewStyle = {
+  padding: spacing[4],
+  backgroundColor: color.primary,
+  borderRadius: 12,
+  shadowOffset: { width: 0, height: 0 },
+  shadowColor: color.dim,
+  shadowRadius: 1,
+  shadowOpacity: 0.1,
+}
+
+const TEXT: TextStyle = {
+  fontFamily: typography.primary,
+  fontWeight: "700",
+  fontSize: 16,
+  textAlign: "center",
+  color: color.background,
+}
+export interface CustomButtonProps extends ButtonProps {
+  /**
+   * An optional style override useful for padding & margin.
+   */
+  style?: ViewStyle
+}
 
 /**
- * For your text displaying needs.
- *
- * This component is a HOC over the built-in React Native one.
+ * Describe your component here
  */
-export function Button(props: ButtonProps) {
-  // grab the props
-  const {
-    preset = "primary",
-    tx,
-    text,
-    style: styleOverride,
-    textStyle: textStyleOverride,
-    children,
-    ...rest
-  } = props
-
-  const viewStyle = mergeAll(flatten([viewPresets[preset] || viewPresets.primary, styleOverride]))
-  const textStyle = mergeAll(
-    flatten([textPresets[preset] || textPresets.primary, textStyleOverride]),
-  )
-
-  const content = children || <Text tx={tx} text={text} style={textStyle} />
+export const Button = function Button(props: CustomButtonProps) {
+  const { title, style } = props
 
   return (
-    <TouchableOpacity style={viewStyle} {...rest}>
-      {content}
+    <TouchableOpacity style={[CONTAINER, style]} activeOpacity={0.8}>
+      <Text style={TEXT}>{title}</Text>
     </TouchableOpacity>
   )
 }

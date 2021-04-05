@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { ImageBackground, View, ViewStyle } from "react-native"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
-import { Screen, Text, DummyInput } from "../../components"
+import { Screen, Button, Text, DummyInput } from "../../components"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
@@ -78,7 +78,13 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
             value={routePlan.destination?.name}
             style={{ marginBottom: spacing[3] }}
           />
-          <DummyInput placeholder="עכשיו" value={formattedDate} onPress={() => setDatePickerVisibility(true)} />
+          <DummyInput
+            placeholder="עכשיו"
+            value={formattedDate}
+            style={{ marginBottom: spacing[3] }}
+            onPress={() => setDatePickerVisibility(true)}
+          />
+          <Button title="חישוב מסלול" />
           <DateTimePickerModal
             isVisible={isDatePickerVisible}
             mode="datetime"
