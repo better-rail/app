@@ -15,6 +15,7 @@ const CONTAINER: ViewStyle = {
 
 const TEXT: TextStyle = {
   fontFamily: typography.primary,
+  fontWeight: "500",
   fontSize: 16,
   textAlign: "left",
   color: color.dim,
@@ -45,7 +46,7 @@ export const DummyInput = function DummyInput(props: DummyInputProps) {
 
   return (
     <Pressable style={[CONTAINER, style]} {...rest}>
-      <Text style={TEXT}>{value || placeholder}</Text>
+      <Text style={[TEXT, value && { color: color.text }]}>{value || placeholder}</Text>
     </Pressable>
   )
 }
