@@ -7,10 +7,10 @@ const CONTAINER: ViewStyle = {
   padding: spacing[4],
   backgroundColor: "#fff",
   borderRadius: 12,
-  shadowOffset: { width: 0, height: 0 },
-  shadowColor: color.dim,
-  shadowRadius: 1,
-  shadowOpacity: 0.1,
+  shadowColor: color.palette.black,
+  shadowOffset: { height: 0, width: 0 },
+  shadowOpacity: 0.2,
+  shadowRadius: 0,
 }
 
 const TEXT: TextStyle = {

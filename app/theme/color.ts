@@ -49,6 +49,10 @@ export const color = {
    */
   dim: palette.lightGrey,
   /**
+   * Secondary information.
+   */
+  dimmer: palette.lighterGrey,
+  /**
    * Error messages and icons.
    */
   error: palette.angry,
