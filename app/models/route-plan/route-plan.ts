@@ -15,7 +15,6 @@ export const RoutePlanModel = types
     destination: types.maybe(types.model(StationSchema)),
     date: types.optional(types.Date, () => new Date()),
   })
-  .views((self) => ({})) // eslint-disable-line @typescript-eslint/no-unused-vars
   .actions((self) => ({
     setOrigin(station) {
       self.origin = station
