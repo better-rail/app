@@ -1,8 +1,18 @@
-import { RoutePlanModel } from "./route-plan"
+import { types, getSnapshot } from "mobx-state-tree"
+import { RoutePlan, RoutePlanModel } from "./route-plan"
 
 test("can be created", () => {
-  const instance = RoutePlanModel.create({ origin: "ירושלים", destination: "תל אביב" })
+  const origin = {
+    name: "ירושלים - יצחק נבון",
+    id: "680",
+  }
 
-  expect(instance.origin).toBe("ירושלים")
-  expect(instance.destination).toBe("תל אביב")
+  const destination = {
+    name: "הרצליה",
+    id: "3500",
+  }
+
+  const instance = RoutePlanModel.create({ origin, destination })
+
+  expect(getSnapshot(instance)).toMatchSnapshot()
 })
