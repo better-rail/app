@@ -1,14 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`can be created 1`] = `
-Object {
-  "destination": Object {
-    "id": "3500",
-    "name": "הרצליה",
+Array [
+  Object {
+    "op": "replace",
+    "path": "/date",
+    "value": 1617622545584,
   },
-  "origin": Object {
-    "id": "680",
-    "name": "ירושלים - יצחק נבון",
-  },
-}
+]
 `;
