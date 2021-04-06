@@ -1,7 +1,7 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
-import { ViewStyle } from "react-native"
-import { Screen, Text } from "../../components"
+import { View, ViewStyle } from "react-native"
+import { Screen, RouteCard } from "../../components"
 // import { useNavigation } from "@react-navigation/native"
 // import { useStores } from "../../models"
 import { color } from "../../theme"
@@ -19,7 +19,9 @@ export const RouteListScreen = observer(function RouteListScreen() {
   // const navigation = useNavigation()
   return (
     <Screen style={ROOT} preset="scroll" statusBar="dark-content">
-      <Text preset="header" text="" />
+      <View style={{ padding: 12 }}>
+        <RouteCard />
+      </View>
     </Screen>
   )
 })
