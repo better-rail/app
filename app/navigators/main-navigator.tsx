@@ -6,7 +6,8 @@
  */
 import React from "react"
 import { createStackNavigator, StackScreenProps, TransitionPresets } from "@react-navigation/stack"
-import { PlannerScreen, SelectStationScreen } from "../screens"
+import { PlannerScreen, SelectStationScreen, RouteListScreen } from "../screens"
+import { typography } from "../theme"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -23,6 +24,7 @@ import { PlannerScreen, SelectStationScreen } from "../screens"
 export type PrimaryParamList = {
   planner: undefined
   selectStation: { selectionType: "origin" | "destination" }
+  routeList: { originId: string; destId: string; date: string; hour: string }
 }
 
 export type PlannerScreenProps = StackScreenProps<PrimaryParamList, "planner">
@@ -33,13 +35,19 @@ const Stack = createStackNavigator<PrimaryParamList>()
 
 export function MainNavigator() {
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="planner" component={PlannerScreen} />
       <Stack.Screen name="selectStation" component={SelectStationScreen} options={{ ...TransitionPresets.ModalTransition }} />
+      <Stack.Screen
+        name="routeList"
+        component={RouteListScreen}
+        options={{
+          headerShown: true,
+          headerTitle: "תכנון מסלול",
+          headerTitleStyle: { fontFamily: typography.primary },
+          headerBackTitleVisible: false,
+        }}
+      />
     </Stack.Navigator>
   )
 }

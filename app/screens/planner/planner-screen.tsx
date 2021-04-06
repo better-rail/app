@@ -8,7 +8,7 @@ import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
 import { PlannerScreenProps } from "../../navigators/main-navigator"
 import stations from "../../data/stations"
-import { formatRelative, differenceInMinutes } from "date-fns"
+import { format, formatRelative, differenceInMinutes } from "date-fns"
 import { he } from "date-fns/locale"
 
 const background = require("../../../assets/planner-background.png")
@@ -74,6 +74,12 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     return destination
   }, [routePlan.destination.name])
 
+  const onGetRoutePress = () => {
+    const date = format(routePlan.date, "dd/MM/yyyy")
+    const hour = format(routePlan.date, "HH:mm")
+    navigation.navigate("routeList", { originId: routePlan.origin.id, destId: routePlan.destination.id, date, hour })
+  }
+
   useEffect(() => {
     route.getRoute()
   }, [])
@@ -106,7 +112,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
             style={{ marginBottom: spacing[5] }}
             onPress={() => setDatePickerVisibility(true)}
           />
-          <Button title="חישוב מסלול" />
+          <Button title="חישוב מסלול" onPress={onGetRoutePress} />
           <DateTimePickerModal
             isVisible={isDatePickerVisible}
             mode="datetime"
