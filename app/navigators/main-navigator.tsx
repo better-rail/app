@@ -34,14 +34,10 @@ const Stack = createStackNavigator<PrimaryParamList>()
 
 export function MainNavigator() {
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="planner" component={PlannerScreen} />
       <Stack.Screen name="selectStation" component={SelectStationScreen} options={{ ...TransitionPresets.ModalTransition }} />
-      <Stack.Screen name="routeList" component={RouteListScreen} options={{ ...TransitionPresets.ModalTransition }} />
+      <Stack.Screen name="routeList" component={RouteListScreen} />
     </Stack.Navigator>
   )
 }
