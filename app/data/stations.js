@@ -99,7 +99,7 @@ const stations = [
   },
   {
     id: "8700",
-    hebrew: "כפר סבא - נורדאו (א' קוסטיוק)",
+    hebrew: "כפר סבא - נורדאו",
     english: "Kfar Sava-Nordau (A.Kostyuk)",
     russian: "Кфар-Саба – Нордау (А. Костюк)",
     arabic: "كفار سابا - نورداو",
@@ -124,6 +124,7 @@ const stations = [
     english: "Bet Shemesh",
     russian: "Бейт Шемеш",
     arabic: "بيت شيمش",
+    image: require("../../assets/station-images/beit-shemesh.jpg"),
   },
   {
     id: "7000",
@@ -187,6 +188,7 @@ const stations = [
     english: "Be'er Ya'akov",
     russian: "Беер-Яаков",
     arabic: "بئير يعكوف",
+    image: require("../../assets/station-images/beer-yaakov.jpg"),
   },
   {
     id: "5200",
@@ -215,6 +217,7 @@ const stations = [
     english: "Ashdod-Ad Halom (M.Bar Kochva)",
     russian: "Ашдод-ад-Халом (М. Бар Кохва)",
     arabic: "أشدود - عاد هلوم",
+    image: require("../../assets/station-images/ashdod.jpg"),
   },
   {
     id: "4250",
@@ -229,6 +232,7 @@ const stations = [
     english: "Bnei Brak",
     russian: "Бней-Брак",
     arabic: "بني براك",
+    image: require("../../assets/station-images/bnei-brak.jpg"),
   },
   {
     id: "3600",
@@ -236,6 +240,7 @@ const stations = [
     english: "Tel Aviv-University",
     russian: "Тель-Авив - Университет",
     arabic: "تل أبيب - الجامعة",
+    image: require("../../assets/station-images/tlv-university.jpg"),
   },
   {
     id: "7320",
@@ -243,6 +248,7 @@ const stations = [
     english: "Be'er Sheva-Center",
     russian: "Беер-Шева Мерказ",
     arabic: "بئر السبع - المركز",
+    image: require("../../assets/station-images/beer-sheva-center.jpg"),
   },
   {
     id: "1220",
@@ -293,6 +299,7 @@ const stations = [
     english: "Hod HaSharon-Sokolov",
     russian: "Ход Хашарон - Соколов",
     arabic: "هود هشارون - سوكولوڤ",
+    image: require("../../assets/station-images/hod_hasharon_sokolov.jpg"),
   },
   {
     id: "4170",

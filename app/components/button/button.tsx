@@ -25,16 +25,24 @@ export interface CustomButtonProps extends ButtonProps {
    * An optional style override useful for padding & margin.
    */
   style?: ViewStyle
+
+  disabled?: boolean
 }
 
 /**
  * Describe your component here
  */
 export const Button = function Button(props: CustomButtonProps) {
-  const { title, style } = props
+  const { title, onPress, disabled, style } = props
 
   return (
-    <TouchableOpacity style={[CONTAINER, style]} activeOpacity={0.8}>
+    <TouchableOpacity
+      style={[CONTAINER, style]}
+      activeOpacity={0.8}
+      onPress={() => {
+        disabled ? null : onPress()
+      }}
+    >
       <Text style={TEXT}>{title}</Text>
     </TouchableOpacity>
   )

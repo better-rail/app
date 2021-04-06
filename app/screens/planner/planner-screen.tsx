@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { ImageBackground, View, ViewStyle } from "react-native"
+import { Alert, ImageBackground, View, ViewStyle } from "react-native"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
 import { Screen, Button, Text, StationCard, DummyInput } from "../../components"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -27,7 +27,7 @@ const BACKGROUND: ViewStyle = {
 
 const CONTENT_WRAPPER: ViewStyle = {
   flex: 1,
-  marginTop: 175,
+  marginTop: 125,
   padding: spacing[4],
   backgroundColor: color.line,
   borderRadius: 20,
@@ -56,27 +56,23 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     let origin = routePlan.origin
 
     if (origin) {
-      const originImage = stations.find((s) => s.id === routePlan.origin.id).image
-      if (originImage) {
-        origin = Object.assign(origin, { image: originImage })
-      }
+      const originImage = stations.find((s) => s.id === origin.id).image
+      origin = Object.assign(origin, { image: originImage })
     }
 
     return origin
-  }, [routePlan.origin])
+  }, [routePlan.origin.name])
 
   const destinationData = React.useMemo(() => {
     let destination = routePlan.destination
 
     if (destination) {
-      const destinationImage = stations.find((s) => s.id === routePlan.destination.id).image
-      if (destinationImage) {
-        destination = Object.assign(destination, { image: destinationImage })
-      }
+      const destinationImage = stations.find((s) => s.id === destination.id).image
+      destination = Object.assign(destination, { image: destinationImage })
     }
 
     return destination
-  }, [routePlan.destination])
+  }, [routePlan.destination.name])
 
   useEffect(() => {
     // Reset the previous presisted date
@@ -90,7 +86,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   return (
     <Screen style={ROOT} preset="fixed" unsafe={true}>
       <ImageBackground source={background} style={[BACKGROUND, { paddingTop: insets.top }]}>
-        <View style={CONTENT_WRAPPER}>
+        <View style={[CONTENT_WRAPPER, { marginTop: CONTENT_WRAPPER.marginTop - insets.bottom }]}>
           <Text preset="header" text="תכנון מסלול" style={{ marginBottom: spacing[3] }} />
 
           <Text preset="fieldLabel" text="תחנת מוצא" style={{ marginBottom: spacing[1] }} />
@@ -108,11 +104,11 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
             style={{ marginBottom: spacing[3] }}
             onPress={() => navigation.navigate("selectStation", { selectionType: "destination" })}
           />
-          <Text preset="fieldLabel" text="זמן יציאה" style={{ marginBottom: spacing[3] }} />
+          <Text preset="fieldLabel" text="זמן יציאה" style={{ marginBottom: spacing[1] }} />
           <DummyInput
             placeholder="עכשיו"
             value={formattedDate}
-            style={{ marginBottom: spacing[3] }}
+            style={{ marginBottom: spacing[5] }}
             onPress={() => setDatePickerVisibility(true)}
           />
           <Button title="חישוב מסלול" />

@@ -9,7 +9,7 @@ import { color, spacing, typography } from "../../theme"
 import { Text } from "../"
 
 const CONTAINER: ViewStyle = {
-  borderRadius: 6,
+  borderRadius: 12,
   shadowColor: color.palette.black,
   shadowOffset: { height: 1, width: 0 },
   shadowOpacity: 0.2,
@@ -20,7 +20,7 @@ const EMPTY_CARD_WRAPPER: ViewStyle = {
   height: 137.5,
   justifyContent: "center",
   alignItems: "center",
-  borderRadius: 6,
+  borderRadius: 12,
   backgroundColor: color.dimmer,
 }
 
@@ -54,7 +54,7 @@ const GARDIENT: ViewStyle = {
   right: 0,
   top: 0,
   opacity: 1,
-  borderRadius: 6,
+  borderRadius: 12,
 }
 
 export interface StationCardProps extends TouchableScaleProps {
