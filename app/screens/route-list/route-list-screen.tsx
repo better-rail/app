@@ -7,7 +7,7 @@ import { Screen, Text } from "../../components"
 import { color } from "../../theme"
 
 const ROOT: ViewStyle = {
-  backgroundColor: color.palette.black,
+  backgroundColor: color.background,
   flex: 1,
 }
 
@@ -18,7 +18,7 @@ export const RouteListScreen = observer(function RouteListScreen() {
   // Pull in navigation via hook
   // const navigation = useNavigation()
   return (
-    <Screen style={ROOT} preset="scroll">
+    <Screen style={ROOT} preset="scroll" statusBar="dark-content">
       <Text preset="header" text="" />
     </Screen>
   )

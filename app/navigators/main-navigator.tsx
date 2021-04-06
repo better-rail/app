@@ -7,6 +7,7 @@
 import React from "react"
 import { createStackNavigator, StackScreenProps, TransitionPresets } from "@react-navigation/stack"
 import { PlannerScreen, SelectStationScreen, RouteListScreen } from "../screens"
+import { typography } from "../theme"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -37,7 +38,16 @@ export function MainNavigator() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="planner" component={PlannerScreen} />
       <Stack.Screen name="selectStation" component={SelectStationScreen} options={{ ...TransitionPresets.ModalTransition }} />
-      <Stack.Screen name="routeList" component={RouteListScreen} />
+      <Stack.Screen
+        name="routeList"
+        component={RouteListScreen}
+        options={{
+          headerShown: true,
+          headerTitle: "תכנון מסלול",
+          headerTitleStyle: { fontFamily: typography.primary },
+          headerBackTitleVisible: false,
+        }}
+      />
     </Stack.Navigator>
   )
 }
