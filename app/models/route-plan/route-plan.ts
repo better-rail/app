@@ -1,4 +1,5 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { omit } from "ramda"
 
 const StationSchema = {
   id: types.string,
@@ -26,6 +27,7 @@ export const RoutePlanModel = types
       self.date = date
     },
   }))
+  .postProcessSnapshot(omit(["date"]))
 
 type RoutePlanType = Instance<typeof RoutePlanModel>
 export interface RoutePlan extends RoutePlanType {}

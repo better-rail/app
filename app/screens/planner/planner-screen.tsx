@@ -75,11 +75,6 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   }, [routePlan.destination.name])
 
   useEffect(() => {
-    // Reset the previous presisted date
-    routePlan.setDate(now)
-  }, [])
-
-  useEffect(() => {
     route.getRoute()
   }, [])
 
