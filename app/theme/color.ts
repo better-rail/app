@@ -20,21 +20,16 @@ export const color = {
    * by their under-powered GPUs.
    */
   transparent: "rgba(0, 0, 0, 0)",
-  /**
-   * The screen background.
-   */
+
   background: palette.offWhite,
   secondaryBackground: palette.white,
 
-  /**
-   * The main tinting color.
-   */
   primary: palette.blurple,
   primaryLighter: palette.lightBurple,
-  /**
-   * The main tinting color, but darker.
-   */
-  primaryDarker: palette.orangeDarker,
+
+  secondary: palette.pinky,
+  secondaryLighter: palette.orangeLighter,
+
   /**
    * A subtle color used for borders and lines.
    */

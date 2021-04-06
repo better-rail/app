@@ -4,6 +4,8 @@ export const palette = {
   offWhite: "#f6f6fe",
   orange: "#FBA928",
   orangeDarker: "#EB9918",
+  orangeLighter: "rgba(255,136,0,0.25)",
+  pinky: "#FA827E",
   blue: "#007aff",
   blueDarker: "#0984ff",
   blurple: "#5B5ED0",
