@@ -6,7 +6,7 @@
  */
 import React from "react"
 import { createStackNavigator, StackScreenProps, TransitionPresets } from "@react-navigation/stack"
-import { PlannerScreen, SelectStationScreen } from "../screens"
+import { PlannerScreen, SelectStationScreen, RouteListScreen } from "../screens"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -23,6 +23,7 @@ import { PlannerScreen, SelectStationScreen } from "../screens"
 export type PrimaryParamList = {
   planner: undefined
   selectStation: { selectionType: "origin" | "destination" }
+  routeList: { originId: string; destId: string; date: string; hour: string }
 }
 
 export type PlannerScreenProps = StackScreenProps<PrimaryParamList, "planner">
@@ -40,6 +41,7 @@ export function MainNavigator() {
     >
       <Stack.Screen name="planner" component={PlannerScreen} />
       <Stack.Screen name="selectStation" component={SelectStationScreen} options={{ ...TransitionPresets.ModalTransition }} />
+      <Stack.Screen name="routeList" component={RouteListScreen} options={{ ...TransitionPresets.ModalTransition }} />
     </Stack.Navigator>
   )
 }
