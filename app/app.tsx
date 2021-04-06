@@ -29,7 +29,7 @@ enableScreens()
 
 export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
 
-// I18nManager.forceRTL(true)
+I18nManager.forceRTL(true)
 
 /**
  * This is the root component of our app.

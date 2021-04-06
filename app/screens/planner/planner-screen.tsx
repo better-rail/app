@@ -30,7 +30,8 @@ const CONTENT_WRAPPER: ViewStyle = {
   marginTop: 125,
   padding: spacing[4],
   backgroundColor: color.line,
-  borderRadius: 20,
+  borderTopLeftRadius: 20,
+  borderTopRightRadius: 20,
 }
 // #endregion
 
@@ -61,7 +62,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     }
 
     return origin
-  }, [routePlan.origin.name])
+  }, [routePlan.origin?.name])
 
   const destinationData = React.useMemo(() => {
     let destination = routePlan.destination
@@ -72,7 +73,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     }
 
     return destination
-  }, [routePlan.destination.name])
+  }, [routePlan.destination?.name])
 
   const onGetRoutePress = () => {
     const date = format(routePlan.date, "dd/MM/yyyy")

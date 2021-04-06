@@ -7,7 +7,7 @@
 import React from "react"
 import { createStackNavigator, StackScreenProps, TransitionPresets } from "@react-navigation/stack"
 import { PlannerScreen, SelectStationScreen, RouteListScreen } from "../screens"
-import { typography } from "../theme"
+import { color, typography } from "../theme"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -43,9 +43,10 @@ export function MainNavigator() {
         component={RouteListScreen}
         options={{
           headerShown: true,
-          headerTitle: "תכנון מסלול",
-          headerTitleStyle: { fontFamily: typography.primary },
           headerBackTitleVisible: false,
+          headerTitle: "מסלול נסיעה",
+          headerTitleStyle: { fontSize: 18, fontFamily: typography.primary },
+          headerTintColor: color.primary,
         }}
       />
     </Stack.Navigator>

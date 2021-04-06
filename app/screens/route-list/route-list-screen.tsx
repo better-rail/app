@@ -51,8 +51,8 @@ const ROUTE_DETAILS_STATION_TEXT: TextStyle = {
 }
 
 const ROUTE_INFO_CIRCLE: ViewStyle = {
-  width: 39,
-  height: 39,
+  width: 34,
+  height: 34,
   position: "absolute",
   alignItems: "center",
   justifyContent: "center",
@@ -61,8 +61,8 @@ const ROUTE_INFO_CIRCLE: ViewStyle = {
 }
 
 const ARROW_ICON: ImageStyle = {
-  width: 18,
-  height: 18,
+  width: 15,
+  height: 15,
   tintColor: color.background,
 }
 
