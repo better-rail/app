@@ -12,6 +12,5 @@ If you haven't used Ignite before, it's recommended to take a look over their RE
 
 ### License
 
-The source code is released under the [AGPL-3.0 license](https://github.com/act-1/native/blob/main/LICENSE).
-
+The source code is released under the [AGPL-3.0 license](https://github.com/act-1/native/blob/main/LICENSE).  
 The project assets - the user interface, app branding, images, illustations, icons and fonts are outside the scope of the license.
