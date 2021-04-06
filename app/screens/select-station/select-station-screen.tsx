@@ -18,6 +18,7 @@ const SEARCH_BAR_WRAPPER: ViewStyle = {
   alignItems: "center",
   paddingHorizontal: spacing[3],
   marginBottom: spacing[3],
+  marginTop: spacing[2],
 }
 
 const SEARCH_BAR: TextStyle = {
@@ -26,7 +27,7 @@ const SEARCH_BAR: TextStyle = {
   textAlign: "right",
   fontFamily: typography.primary,
   borderRadius: 8,
-  backgroundColor: color.line,
+  backgroundColor: color.dimmer,
 }
 
 const CANCEL_LINK: TextStyle = {
@@ -69,6 +70,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
         <TextInput
           style={SEARCH_BAR}
           placeholder="חיפוש תחנה"
+          placeholderTextColor={color.dim}
           onChangeText={(text) => {
             LayoutAnimation.configureNext({
               duration: 400,
