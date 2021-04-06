@@ -14,5 +14,5 @@ test("can be created", () => {
 
   const instance = RoutePlanModel.create({ origin, destination })
 
-  expect(getSnapshot(instance)).toMatchSnapshot({ date: expect.any(Number) })
+  expect(getSnapshot(instance)).toMatchSnapshot()
 })
