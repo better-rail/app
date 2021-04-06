@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { Alert, ImageBackground, View, ViewStyle } from "react-native"
+import { ImageBackground, View, ViewStyle } from "react-native"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
 import { Screen, Button, Text, StationCard, DummyInput } from "../../components"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -8,7 +8,7 @@ import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
 import { PlannerScreenProps } from "../../navigators/main-navigator"
 import stations from "../../data/stations"
-import { formatRelative } from "date-fns"
+import { formatRelative, differenceInMinutes } from "date-fns"
 import { he } from "date-fns/locale"
 
 const background = require("../../../assets/planner-background.png")
@@ -46,7 +46,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
 
   const formattedDate = React.useMemo(() => {
     if (routePlan.date) {
-      if (routePlan.date === now) return "עכשיו"
+      if (differenceInMinutes(routePlan.date, now) === 0) return "עכשיו"
       return formatRelative(routePlan.date, now, { locale: he })
     }
   }, [routePlan.date])
