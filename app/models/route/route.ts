@@ -1,4 +1,4 @@
-import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { Instance, SnapshotOut, ISimpleType, types } from "mobx-state-tree"
 import { withEnvironment } from "../extensions/with-environment"
 import { RouteApi } from "../../services/api/route-api"
 
@@ -22,23 +22,28 @@ const TrainRouteSchema = {
  */
 export const RouteModel = types
   .model("Route")
-  .props({
-    routes: types.array(types.model(TrainRouteSchema)),
-  })
-  .views((self) => ({})) // eslint-disable-line @typescript-eslint/no-unused-vars
+  .props({ routes: types.array(types.model(TrainRouteSchema)) })
   .extend(withEnvironment)
+  .volatile(() => ({
+    state: "loading", // TODO: Change to enumeration type
+  }))
   .actions((self) => ({
     saveRoutes: (routesSnapshot) => {
       console.log(routesSnapshot)
       self.routes.replace(routesSnapshot)
     },
+    updateState(state: "loading" | "loaded" | "error") {
+      self.state = state
+    },
   }))
   .actions((self) => ({
     getRoutes: async (originId: string, destinationId: string, date: string, hour: string) => {
+      self.updateState("loading")
       const routeApi = new RouteApi(self.environment.api)
       const result = await routeApi.getRoutes(originId, destinationId, date, hour)
 
       self.saveRoutes(result)
+      self.updateState("loaded")
       // if (result.kind === "ok") {
       //   console.log(result)
       //   self.saveCharacters(result.characters)
@@ -47,13 +52,6 @@ export const RouteModel = types
       // }
     },
   }))
-/**
- * Un-comment the following to omit model attributes from your snapshots (and from async storage).
- * Useful for sensitive data like passwords, or transitive state like whether a modal is open.
-
- * Note that you'll need to import `omit` from ramda, which is already included in the project!
- *  .postProcessSnapshot(omit(["password", "socialSecurityNumber", "creditCardNumber"]))
- */
 
 type RouteType = Instance<typeof RouteModel>
 export interface Route extends RouteType {}

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react"
 import { observer } from "mobx-react-lite"
-import { View, FlatList, Image, ViewStyle, TextStyle, ImageStyle } from "react-native"
+import { View, FlatList, Image, ViewStyle, TextStyle, ImageStyle, ActivityIndicator } from "react-native"
 import { RouteListScreenProps } from "../../navigators/main-navigator"
 import { Screen, Text, RouteCard } from "../../components"
 import { useStores } from "../../models"
@@ -25,11 +25,16 @@ export const RouteListScreen = observer(function RouteListScreen({ route }: Rout
   return (
     <Screen style={ROOT} preset="fixed" unsafe={true} statusBar="dark-content">
       <RouteDetails style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }} />
-      <FlatList
-        renderItem={({ item }) => <RouteCard {...item} style={{ marginBottom: spacing[3] }} />}
-        data={trainRoute.routes}
-        contentContainerStyle={{ paddingHorizontal: spacing[3] }}
-      />
+      {trainRoute.state === "loading" ? (
+        <ActivityIndicator />
+      ) : (
+        <FlatList
+          renderItem={({ item }) => <RouteCard {...item} style={{ marginBottom: spacing[3] }} />}
+          keyExtractor={(item) => item.departureTime}
+          data={trainRoute.routes}
+          contentContainerStyle={{ paddingHorizontal: spacing[3] }}
+        />
+      )}
     </Screen>
   )
 })

@@ -9,6 +9,8 @@ import { he } from "date-fns/locale"
 
 const fontScale = PixelRatio.getFontScale()
 
+// #region styles
+
 const CONTAINER: ViewStyle = {
   flexDirection: "row",
   justifyContent: "space-between",
@@ -39,6 +41,8 @@ const TIME_TEXT: TextStyle = {
   color: color.text,
 }
 
+// #endregion
+
 export interface RouteCardProps {
   departureTime: string
   arrivalTime: string
@@ -62,14 +66,11 @@ export const RouteCard = observer(function RouteCard(props: RouteCardProps) {
 
   const duration = useMemo(() => {
     const estTimeParts = estTime.split(":") // The estTime value is formatted like '00:42:00'
-    console.log(estTimeParts)
     const [hours, minutes] = estTimeParts.map((value) => parseInt(value)) // Grab the hour & minutes values
-
     const durationInMilliseconds = (hours * 60 + minutes * 60) * 1000 //  Convert to milliseconds
-    console.log(durationInMilliseconds)
     const durationObject = intervalToDuration({ start: 0, end: durationInMilliseconds }) // Create a date-fns duration object
     const formattedDuration = formatDuration(durationObject, { delimiter: " ו-  ", locale: he }) // Format the duration
-    console.log(formattedDuration)
+
     return formattedDuration
   }, [estTime])
 
