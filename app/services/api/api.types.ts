@@ -35,6 +35,20 @@ export type RailApiGetRoutesResult = {
   MessageType: number
   Message: string | null
   Data: {
-    Routes: { IsExchange: boolean; EstTime: string; Train: [RailApiRouteItem] }[]
+    Routes: { IsExchange: boolean; EstTime: string; Train: RailApiRouteItem[] }[]
   }
+}
+
+export type RouteItem = {
+  isExchange: boolean
+  estTime: string
+  departureTime: string
+  arrivalTime: string
+  stopStations: {
+    stationId: string
+    stationName: string
+    arrivalTime: string
+    departureTime: string
+    platform: string
+  }[]
 }

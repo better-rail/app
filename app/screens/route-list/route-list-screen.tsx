@@ -6,6 +6,8 @@ import { Screen, Text, RouteCard, RouteCardHeight } from "../../components"
 import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
 import { format, closestIndexTo } from "date-fns"
+import { RouteItem } from "../../services/api"
+import { otherwise } from "ramda"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
 
@@ -40,6 +42,14 @@ export const RouteListScreen = observer(function RouteListScreen({ route }: Rout
     trainRoute.getRoutes(originId, destinationId, date, hour)
   }, [route.params])
 
+  const renderRouteCard = ({ item }: { item: RouteItem }) => {
+    if (item.isExchange) {
+      return <RouteCard {...item} style={{ marginBottom: spacing[3] }} />
+    }
+
+    return <RouteCard {...item} style={{ marginBottom: spacing[3] }} />
+  }
+
   return (
     <Screen style={ROOT} preset="fixed" unsafe={true} statusBar="dark-content">
       <RouteDetails style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }} />
@@ -47,7 +57,7 @@ export const RouteListScreen = observer(function RouteListScreen({ route }: Rout
         <ActivityIndicator />
       ) : (
         <FlatList
-          renderItem={({ item }) => <RouteCard {...item} style={{ marginBottom: spacing[3] }} />}
+          renderItem={renderRouteCard}
           keyExtractor={(item) => item.departureTime}
           data={trainRoute.routes}
           contentContainerStyle={{ paddingHorizontal: spacing[3] }}

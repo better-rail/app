@@ -21,21 +21,26 @@ export class RouteApi {
 
     const formattedRoutes = response.data.Data.Routes.map((route) => {
       const { Train, IsExchange, EstTime } = route
-      const { DepartureTime, ArrivalTime, StopStations } = Train[0]
 
-      const stopStations = StopStations.map((station) => {
-        const { StationId: stationId, ArrivalTime: arrivalTime, DepartureTime: departureTime, Platform: platform } = station
-        const stationName = stationsObject[stationId].hebrew
-        return { stationId, stationName, arrivalTime, departureTime, platform }
+      const trains = Train.map((train) => {
+        const { DepartureTime, ArrivalTime, StopStations, OrignStation, DestinationStation } = train
+
+        const stopStations = StopStations.map((station) => {
+          const { StationId: stationId, ArrivalTime: arrivalTime, DepartureTime: departureTime, Platform: platform } = station
+          const stationName = stationsObject[stationId].hebrew
+          return { stationId, stationName, arrivalTime, departureTime, platform }
+        })
+
+        return {
+          originStationId: OrignStation,
+          destinationStationId: DestinationStation,
+          departureTime: DepartureTime,
+          arrivalTime: ArrivalTime,
+          stopStations,
+        }
       })
 
-      return {
-        isExchange: IsExchange,
-        estTime: EstTime,
-        departureTime: DepartureTime,
-        arrivalTime: ArrivalTime,
-        stopStations,
-      }
+      return { isExchange: IsExchange, estTime: EstTime, trains }
     })
 
     return formattedRoutes
