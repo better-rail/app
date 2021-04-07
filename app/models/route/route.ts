@@ -44,7 +44,6 @@ export const RouteModel = types
       self.saveRoutes(result)
       self.updateState("loaded")
       // if (result.kind === "ok") {
-      //   console.log(result)
       //   self.saveCharacters(result.characters)
       // } else {
       //   __DEV__ && console.tron.log(result.kind)

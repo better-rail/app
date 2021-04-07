@@ -493,3 +493,20 @@ const normalizeStationNames = stations
   .map((station) => ({ id: station.id, name: station[USER_LANGUAGE], image: station.image }))
   .sort((a, b) => a.name > b.name)
 export default normalizeStationNames
+
+type StationsObjectType = {
+  [key: string]: {
+    id: string
+    hebrew: string
+    english: string
+    russian: string
+    arabic: string
+    image?: undefined
+  }
+}
+
+export const stationsObject: StationsObjectType = {}
+
+stations.forEach((station) => {
+  stationsObject[station.id] = station
+})

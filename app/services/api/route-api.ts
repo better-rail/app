@@ -1,5 +1,6 @@
 import { ApiResponse } from "apisauce"
 import { Api } from "./api"
+import { stationsObject } from "../../data/stations"
 import { RailApiGetRoutesResult } from "./api.types"
 
 export class RouteApi {
@@ -10,7 +11,6 @@ export class RouteApi {
   }
 
   async getRoutes(originId: string, destinationId: string, date: string, hour: string) {
-    console.log(`/GetRoutes?OId=${originId}&TId=${destinationId}&Date=${date}&Hour=${hour}`)
     const response: ApiResponse<RailApiGetRoutesResult> = await this.api.apisauce.get(
       `/GetRoutes?OId=${originId}&TId=${destinationId}&Date=${date}&Hour=${hour}`,
     )
@@ -25,7 +25,8 @@ export class RouteApi {
 
       const stopStations = StopStations.map((station) => {
         const { StationId: stationId, ArrivalTime: arrivalTime, DepartureTime: departureTime, Platform: platform } = station
-        return { stationId, arrivalTime, departureTime, platform }
+        const stationName = stationsObject[stationId].hebrew
+        return { stationId, stationName, arrivalTime, departureTime, platform }
       })
 
       return {
