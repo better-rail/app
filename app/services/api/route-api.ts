@@ -3,6 +3,14 @@ import { Api } from "./api"
 import { GetCharactersResult } from "./api.types"
 import { getGeneralApiProblem } from "./api-problem"
 
+type GetRoutesResult = {
+  MessageType: number
+  Message: string | null
+  Data: {
+    Routes: [any]
+  }
+}
+
 export class RouteApi {
   private api: Api
 
@@ -11,8 +19,11 @@ export class RouteApi {
   }
 
   async getRoutes(originId: string, destId: string, date: string, hour: string) {
-    const response = await this.api.apisauce.get(`/GetRoutes?OId=680&TId=3700&Date=20210407&Hour=1830`)
-    if (response.data.messageType === 1) {
+    const response: ApiResponse<GetRoutesResult> = await this.api.apisauce.get(
+      `/GetRoutes?OId=680&TId=3700&Date=20210407&Hour=1830`,
+    )
+
+    if (response.data.MessageType === 1) {
       // TODO: Handle API errors
     }
 
@@ -35,28 +46,5 @@ export class RouteApi {
     })
 
     return formattedRoutes
-  }
-
-  async getCharacters(): Promise<GetCharactersResult> {
-    try {
-      // make the api call
-      const response: ApiResponse<any> = await this.api.apisauce.get(
-        "https://raw.githubusercontent.com/infinitered/ignite/master/data/rick-and-morty.json",
-        { amount: API_PAGE_SIZE },
-      )
-
-      // the typical ways to die when calling an api
-      if (!response.ok) {
-        const problem = getGeneralApiProblem(response)
-        if (problem) return problem
-      }
-
-      const characters = response.data.results
-
-      return { kind: "ok", characters }
-    } catch (e) {
-      __DEV__ && console.tron.log(e.message)
-      return { kind: "bad-data" }
-    }
   }
 }
