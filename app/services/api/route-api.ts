@@ -1,15 +1,6 @@
 import { ApiResponse } from "apisauce"
 import { Api } from "./api"
-import { GetCharactersResult } from "./api.types"
-import { getGeneralApiProblem } from "./api-problem"
-
-type GetRoutesResult = {
-  MessageType: number
-  Message: string | null
-  Data: {
-    Routes: [any]
-  }
-}
+import { RailApiGetRoutesResult } from "./api.types"
 
 export class RouteApi {
   private api: Api
@@ -18,8 +9,8 @@ export class RouteApi {
     this.api = api
   }
 
-  async getRoutes(originId: string, destId: string, date: string, hour: string) {
-    const response: ApiResponse<GetRoutesResult> = await this.api.apisauce.get(
+  async getRoutes(originId: string, destinationId: string, date: string, hour: string) {
+    const response: ApiResponse<RailApiGetRoutesResult> = await this.api.apisauce.get(
       `/GetRoutes?OId=680&TId=3700&Date=20210407&Hour=1830`,
     )
 

@@ -11,3 +11,30 @@ export type GetUserResult = { kind: "ok"; user: User } | GeneralApiProblem
 
 export type GetCharactersResult = { kind: "ok"; characters: Character[] } | GeneralApiProblem
 export type GetCharacterResult = { kind: "ok"; character: Character } | GeneralApiProblem
+
+type RailApiRouteItem = {
+  Trainno: string
+  OrignStation: string
+  DestinationStation: string
+  ArrivalTime: string
+  DepartureTime: string
+  StopStations: { StationId: string; ArrivalTime: string; DepartureTime: string; Platform: string }[]
+  LineNumber: string
+  Route: string
+  Midnight: boolean
+  Handicap: boolean
+  DirectTrain: boolean
+  TrainParvariBenironi: any
+  ReservedSeat: boolean
+  Platform: string
+  DestPlatform: string
+  IsFullTrain: boolean
+}
+
+export type RailApiGetRoutesResult = {
+  MessageType: number
+  Message: string | null
+  Data: {
+    Routes: { IsExchange: boolean; EstTime: string; Train: [RailApiRouteItem] }[]
+  }
+}
