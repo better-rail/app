@@ -78,12 +78,8 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   const onGetRoutePress = () => {
     const date = format(routePlan.date, "dd/MM/yyyy")
     const hour = format(routePlan.date, "HH:mm")
-    navigation.navigate("routeList", { originId: routePlan.origin.id, destId: routePlan.destination.id, date, hour })
+    navigation.navigate("routeList", { originId: routePlan.origin.id, destinationId: routePlan.destination.id, date, hour })
   }
-
-  useEffect(() => {
-    route.getRoute()
-  }, [])
 
   return (
     <Screen style={ROOT} preset="fixed" unsafe={true}>

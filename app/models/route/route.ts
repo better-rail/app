@@ -11,9 +11,9 @@ export const RouteModel = types
   .views((self) => ({})) // eslint-disable-line @typescript-eslint/no-unused-vars
   .extend(withEnvironment)
   .actions((self) => ({
-    getRoute: async () => {
+    getRoutes: async (originId: string, destinationId: string, date: string, hour: string) => {
       const routeApi = new RouteApi(self.environment.api)
-      const result = await routeApi.getRoute()
+      const result = await routeApi.getRoutes(originId, destinationId)
 
       console.log(result)
       // if (result.kind === "ok") {
