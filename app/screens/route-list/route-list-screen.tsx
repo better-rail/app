@@ -5,6 +5,7 @@ import { RouteListScreenProps } from "../../navigators/main-navigator"
 import { Screen, Text, RouteCard } from "../../components"
 import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
+import { format } from "date-fns"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
 
@@ -18,7 +19,13 @@ export const RouteListScreen = observer(function RouteListScreen({ route }: Rout
   const { trainRoute } = useStores()
 
   useEffect(() => {
-    const { originId, destinationId, date, hour } = route.params
+    const { originId, destinationId, time } = route.params
+
+    // Format times for Israel Rail API
+    console.log(time)
+    const date = format(time, "yyyyMMdd")
+    const hour = format(time, "HHmm")
+
     trainRoute.getRoutes(originId, destinationId, date, hour)
   }, [route.params])
 
@@ -33,6 +40,7 @@ export const RouteListScreen = observer(function RouteListScreen({ route }: Rout
           keyExtractor={(item) => item.departureTime}
           data={trainRoute.routes}
           contentContainerStyle={{ paddingHorizontal: spacing[3] }}
+          initialScrollIndex={4}
         />
       )}
     </Screen>

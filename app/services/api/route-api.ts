@@ -10,8 +10,9 @@ export class RouteApi {
   }
 
   async getRoutes(originId: string, destinationId: string, date: string, hour: string) {
+    console.log(`/GetRoutes?OId=${originId}&TId=${destinationId}&Date=${date}&Hour=${hour}`)
     const response: ApiResponse<RailApiGetRoutesResult> = await this.api.apisauce.get(
-      `/GetRoutes?OId=${originId}&TId=${destinationId}&Date=20210407&Hour=1830`,
+      `/GetRoutes?OId=${originId}&TId=${destinationId}&Date=${date}&Hour=${hour}`,
     )
 
     if (response.data.MessageType === 1) {

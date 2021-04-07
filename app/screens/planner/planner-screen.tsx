@@ -8,7 +8,7 @@ import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
 import { PlannerScreenProps } from "../../navigators/main-navigator"
 import stations from "../../data/stations"
-import { format, formatRelative, differenceInMinutes } from "date-fns"
+import { formatRelative, differenceInMinutes } from "date-fns"
 import { he } from "date-fns/locale"
 
 const background = require("../../../assets/planner-background.png")
@@ -76,9 +76,11 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   }, [routePlan.destination?.name])
 
   const onGetRoutePress = () => {
-    const date = format(routePlan.date, "dd/MM/yyyy")
-    const hour = format(routePlan.date, "HH:mm")
-    navigation.navigate("routeList", { originId: routePlan.origin.id, destinationId: routePlan.destination.id, date, hour })
+    navigation.navigate("routeList", {
+      originId: routePlan.origin.id,
+      destinationId: routePlan.destination.id,
+      time: routePlan.date,
+    })
   }
 
   return (
