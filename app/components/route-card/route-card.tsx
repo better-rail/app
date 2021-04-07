@@ -1,9 +1,11 @@
-import * as React from "react"
+import React, { useMemo } from "react"
 import { TextStyle, View, ViewStyle, PixelRatio } from "react-native"
 import { observer } from "mobx-react-lite"
 import { Svg, Line } from "react-native-svg"
 import { color, spacing, typography } from "../../theme"
 import { Text } from "../"
+import { format, intervalToDuration, formatDuration } from "date-fns"
+import { he } from "date-fns/locale"
 
 const fontScale = PixelRatio.getFontScale()
 
@@ -38,9 +40,9 @@ const TIME_TEXT: TextStyle = {
 }
 
 export interface RouteCardProps {
-  /**
-   * An optional style override useful for padding & margin.
-   */
+  departureTime: string
+  arrivalTime: string
+  estTime: string
   style?: ViewStyle
 }
 
@@ -48,20 +50,41 @@ export interface RouteCardProps {
  * Describe your component here
  */
 export const RouteCard = observer(function RouteCard(props: RouteCardProps) {
-  const { style } = props
+  const { departureTime, arrivalTime, estTime, style } = props
+
+  // Format times
+  const [formattedDepatureTime, formattedArrivalTime] = useMemo(() => {
+    const formattedDepatureTime = format(new Date(departureTime), "HH:mm")
+    const formattedArrivalTime = format(new Date(arrivalTime), "HH:mm")
+
+    return [formattedDepatureTime, formattedArrivalTime]
+  }, [departureTime, arrivalTime])
+
+  const duration = useMemo(() => {
+    const estTimeParts = estTime.split(":") // The estTime value is formatted like '00:42:00'
+    console.log(estTimeParts)
+    const [hours, minutes] = estTimeParts.map((value) => parseInt(value)) // Grab the hour & minutes values
+
+    const durationInMilliseconds = (hours * 60 + minutes * 60) * 1000 //  Convert to milliseconds
+    console.log(durationInMilliseconds)
+    const durationObject = intervalToDuration({ start: 0, end: durationInMilliseconds }) // Create a date-fns duration object
+    const formattedDuration = formatDuration(durationObject, { delimiter: " ו-  ", locale: he }) // Format the duration
+    console.log(formattedDuration)
+    return formattedDuration
+  }, [estTime])
 
   return (
     <View style={[CONTAINER, style]}>
       <View style={{ marginEnd: 6 }}>
         <Text style={TEXT}>יציאה</Text>
-        <Text style={TIME_TEXT}>08:30</Text>
+        <Text style={TIME_TEXT}>{formattedDepatureTime}</Text>
       </View>
 
       <DashedLine />
 
       <View>
         <View style={{ alignItems: "center" }}>
-          <Text style={{ fontSize: 16, marginBottom: -2 }}>42 דק'</Text>
+          <Text style={{ fontSize: 16, marginBottom: -2 }}>{duration}</Text>
           <Text style={{ fontSize: 14 }}>ללא החלפות</Text>
         </View>
       </View>
@@ -70,7 +93,7 @@ export const RouteCard = observer(function RouteCard(props: RouteCardProps) {
 
       <View style={{ alignItems: "flex-end", marginStart: 12 }}>
         <Text style={TEXT}>הגעה</Text>
-        <Text style={TIME_TEXT}>09:13</Text>
+        <Text style={TIME_TEXT}>{formattedArrivalTime}</Text>
       </View>
     </View>
   )

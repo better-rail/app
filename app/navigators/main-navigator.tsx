@@ -29,6 +29,7 @@ export type PrimaryParamList = {
 
 export type PlannerScreenProps = StackScreenProps<PrimaryParamList, "planner">
 export type SelectStationScreenProps = StackScreenProps<PrimaryParamList, "selectStation">
+export type RouteListScreenProps = StackScreenProps<PrimaryParamList, "routeList">
 
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
 const Stack = createStackNavigator<PrimaryParamList>()

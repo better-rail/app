@@ -36,7 +36,7 @@ const CONTENT_WRAPPER: ViewStyle = {
 // #endregion
 
 export const PlannerScreen = observer(function PlannerScreen({ navigation }: PlannerScreenProps) {
-  const { routePlan, route } = useStores()
+  const { routePlan } = useStores()
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
   const insets = useSafeAreaInsets()
 

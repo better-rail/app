@@ -8,7 +8,7 @@ import { RouteModel } from "../route/route"
 // prettier-ignore
 export const RootStoreModel = types.model("RootStore").props({
   routePlan: types.optional(RoutePlanModel, {} as any),
-  route: types.optional(RouteModel, {} as any)
+  trainRoute: types.optional(RouteModel, {} as any)
 })
 
 /**

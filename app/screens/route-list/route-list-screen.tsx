@@ -1,9 +1,9 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { observer } from "mobx-react-lite"
-import { View, Image, ViewStyle, TextStyle, ImageStyle } from "react-native"
+import { View, FlatList, Image, ViewStyle, TextStyle, ImageStyle } from "react-native"
+import { RouteListScreenProps } from "../../navigators/main-navigator"
 import { Screen, Text, RouteCard } from "../../components"
-// import { useNavigation } from "@react-navigation/native"
-// import { useStores } from "../../models"
+import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
@@ -12,19 +12,24 @@ const ROOT: ViewStyle = {
   backgroundColor: color.background,
   flex: 1,
   marginTop: spacing[3],
-  paddingHorizontal: spacing[3],
 }
 
-export const RouteListScreen = observer(function RouteListScreen() {
-  // Pull in one of our MST stores
-  // const { someStore, anotherStore } = useStores()
+export const RouteListScreen = observer(function RouteListScreen({ route }: RouteListScreenProps) {
+  const { trainRoute } = useStores()
 
-  // Pull in navigation via hook
-  // const navigation = useNavigation()
+  useEffect(() => {
+    const { originId, destinationId, date, hour } = route.params
+    trainRoute.getRoutes(originId, destinationId, date, hour)
+  }, [route.params])
+
   return (
     <Screen style={ROOT} preset="fixed" unsafe={true} statusBar="dark-content">
-      <RouteDetails style={{ marginBottom: spacing[3] }} />
-      <RouteCard />
+      <RouteDetails style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }} />
+      <FlatList
+        renderItem={({ item }) => <RouteCard {...item} style={{ marginBottom: spacing[3] }} />}
+        data={trainRoute.routes}
+        contentContainerStyle={{ paddingHorizontal: spacing[3] }}
+      />
     </Screen>
   )
 })
