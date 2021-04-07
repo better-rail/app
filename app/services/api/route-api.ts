@@ -10,9 +10,31 @@ export class RouteApi {
     this.api = api
   }
 
-  async getRoute(originId: string, destId: string, date: string, hour: string) {
-    const response = await this.api.apisauce.get(`/GetRoutes?OId=680&TId=3700&Date=20210405&Hour=1830`)
-    return response.data.routes
+  async getRoutes(originId: string, destId: string, date: string, hour: string) {
+    const response = await this.api.apisauce.get(`/GetRoutes?OId=680&TId=3700&Date=20210407&Hour=1830`)
+    if (response.data.messageType === 1) {
+      // TODO: Handle API errors
+    }
+
+    const formattedRoutes = response.data.Data.Routes.map((route) => {
+      const { Train, IsExchange, EstTime } = route
+      const { DepartureTime, ArrivalTime, StopStations } = Train[0]
+
+      const stopStations = StopStations.map((station) => {
+        const { StationId: stationId, ArrivalTime: arrivalTime, DepartureTime: departureTime, Platform: platform } = station
+        return { stationId, arrivalTime, departureTime, platform }
+      })
+
+      return {
+        isExchange: IsExchange,
+        estTime: EstTime,
+        departureTime: DepartureTime,
+        arrivalTime: ArrivalTime,
+        stopStations,
+      }
+    })
+
+    return formattedRoutes
   }
 
   async getCharacters(): Promise<GetCharactersResult> {
