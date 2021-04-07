@@ -24,7 +24,7 @@ import { color, typography } from "../theme"
 export type PrimaryParamList = {
   planner: undefined
   selectStation: { selectionType: "origin" | "destination" }
-  routeList: { originId: string; destinationId: string; time: Date }
+  routeList: { originId: string; destinationId: string; time: number }
 }
 
 export type PlannerScreenProps = StackScreenProps<PrimaryParamList, "planner">

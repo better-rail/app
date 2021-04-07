@@ -1,11 +1,11 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useMemo } from "react"
 import { observer } from "mobx-react-lite"
 import { View, FlatList, Image, ViewStyle, TextStyle, ImageStyle, ActivityIndicator } from "react-native"
 import { RouteListScreenProps } from "../../navigators/main-navigator"
-import { Screen, Text, RouteCard } from "../../components"
+import { Screen, Text, RouteCard, RouteCardHeight } from "../../components"
 import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
-import { format } from "date-fns"
+import { format, closestIndexTo } from "date-fns"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
 
@@ -18,11 +18,22 @@ const ROOT: ViewStyle = {
 export const RouteListScreen = observer(function RouteListScreen({ route }: RouteListScreenProps) {
   const { trainRoute } = useStores()
 
+  // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
+  // returns a route list for the whole day.
+  const initialScrollIndex = useMemo(() => {
+    if (trainRoute.state === "loaded") {
+      const departureTimes = trainRoute.routes.map((route) => Date.parse(route.arrivalTime))
+      // Doesn't work, always returns 0
+      const index = closestIndexTo(route.params.time, departureTimes)
+      return index
+    }
+    return undefined
+  }, [trainRoute.state])
+
   useEffect(() => {
     const { originId, destinationId, time } = route.params
 
     // Format times for Israel Rail API
-    console.log(time)
     const date = format(time, "yyyyMMdd")
     const hour = format(time, "HHmm")
 
@@ -32,7 +43,7 @@ export const RouteListScreen = observer(function RouteListScreen({ route }: Rout
   return (
     <Screen style={ROOT} preset="fixed" unsafe={true} statusBar="dark-content">
       <RouteDetails style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }} />
-      {trainRoute.state === "loading" ? (
+      {trainRoute.state === "loading" || initialScrollIndex === undefined ? (
         <ActivityIndicator />
       ) : (
         <FlatList
@@ -40,7 +51,7 @@ export const RouteListScreen = observer(function RouteListScreen({ route }: Rout
           keyExtractor={(item) => item.departureTime}
           data={trainRoute.routes}
           contentContainerStyle={{ paddingHorizontal: spacing[3] }}
-          initialScrollIndex={4}
+          getItemLayout={(_, index) => ({ length: RouteCardHeight, offset: RouteCardHeight * index + spacing[3], index })}
         />
       )}
     </Screen>

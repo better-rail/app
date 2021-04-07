@@ -29,7 +29,6 @@ export const RouteModel = types
   }))
   .actions((self) => ({
     saveRoutes: (routesSnapshot) => {
-      console.log(routesSnapshot)
       self.routes.replace(routesSnapshot)
     },
     updateState(state: "loading" | "loaded" | "error") {

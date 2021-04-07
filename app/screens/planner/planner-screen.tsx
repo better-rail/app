@@ -79,7 +79,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     navigation.navigate("routeList", {
       originId: routePlan.origin.id,
       destinationId: routePlan.destination.id,
-      time: routePlan.date,
+      time: routePlan.date.getTime(),
     })
   }
 

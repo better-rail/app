@@ -11,10 +11,15 @@ const fontScale = PixelRatio.getFontScale()
 
 // #region styles
 
+// Setting static height for FlatList getItemLayout
+export let RouteCardHeight = 75
+if (fontScale > 1.1) RouteCardHeight = 85
+
 const CONTAINER: ViewStyle = {
   flexDirection: "row",
   justifyContent: "space-between",
   alignItems: "center",
+  height: RouteCardHeight,
 
   paddingVertical: spacing[2],
   paddingHorizontal: spacing[4],
