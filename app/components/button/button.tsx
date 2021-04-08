@@ -37,7 +37,7 @@ export const Button = function Button(props: CustomButtonProps) {
 
   return (
     <TouchableOpacity
-      style={[CONTAINER, style]}
+      style={[CONTAINER, style, disabled && { backgroundColor: color.dim }]}
       activeOpacity={0.8}
       onPress={() => {
         disabled ? null : onPress()
