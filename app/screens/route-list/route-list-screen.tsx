@@ -43,11 +43,24 @@ export const RouteListScreen = observer(function RouteListScreen({ route }: Rout
   }, [route.params])
 
   const renderRouteCard = ({ item }: { item: RouteItem }) => {
-    if (item.isExchange) {
-      return <RouteCard {...item} style={{ marginBottom: spacing[3] }} />
-    }
+    const departureTime = item.trains[0].departureTime
+    let arrivalTime = item.trains[0].arrivalTime
+    let stops = 0
 
-    return <RouteCard {...item} style={{ marginBottom: spacing[3] }} />
+    if (item.isExchange) {
+      stops = item.trains.length
+      arrivalTime = item.trains[stops - 1].arrivalTime
+    }
+    console.log(item.estTime)
+    return (
+      <RouteCard
+        estTime={item.estTime}
+        stops={stops}
+        departureTime={departureTime}
+        arrivalTime={arrivalTime}
+        style={{ marginBottom: spacing[3] }}
+      />
+    )
   }
 
   return (
@@ -58,7 +71,7 @@ export const RouteListScreen = observer(function RouteListScreen({ route }: Rout
       ) : (
         <FlatList
           renderItem={renderRouteCard}
-          keyExtractor={(item) => item.departureTime}
+          keyExtractor={(item) => item.trains[0].departureTime}
           data={trainRoute.routes}
           contentContainerStyle={{ paddingHorizontal: spacing[3] }}
           getItemLayout={(_, index) => ({ length: RouteCardHeight, offset: RouteCardHeight * index + spacing[3], index })}

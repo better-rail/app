@@ -52,6 +52,7 @@ export interface RouteCardProps {
   departureTime: string
   arrivalTime: string
   estTime: string
+  stops: number
   style?: ViewStyle
 }
 
@@ -59,7 +60,7 @@ export interface RouteCardProps {
  * Describe your component here
  */
 export const RouteCard = observer(function RouteCard(props: RouteCardProps) {
-  const { departureTime, arrivalTime, estTime, style } = props
+  const { departureTime, arrivalTime, estTime, stops, style } = props
 
   // Format times
   const [formattedDepatureTime, formattedArrivalTime] = useMemo(() => {
@@ -72,12 +73,18 @@ export const RouteCard = observer(function RouteCard(props: RouteCardProps) {
   const duration = useMemo(() => {
     const estTimeParts = estTime.split(":") // The estTime value is formatted like '00:42:00'
     const [hours, minutes] = estTimeParts.map((value) => parseInt(value)) // Grab the hour & minutes values
-    const durationInMilliseconds = (hours * 60 + minutes * 60) * 1000 //  Convert to milliseconds
+    const durationInMilliseconds = (hours * 60 * 60 + minutes * 60) * 1000 //  Convert to milliseconds
     const durationObject = intervalToDuration({ start: 0, end: durationInMilliseconds }) // Create a date-fns duration object
-    const formattedDuration = formatDuration(durationObject, { delimiter: " ו-  ", locale: he }) // Format the duration
+    const formattedDuration = formatDuration(durationObject, { delimiter: " ו- ", locale: he }) // Format the duration
 
     return formattedDuration
   }, [estTime])
+
+  const stopsText = useMemo(() => {
+    if (stops === 0) return "ללא החלפות"
+    if (stops === 1) return "החלפה אחת"
+    return `${stops} החלפות`
+  }, [stops])
 
   return (
     <View style={[CONTAINER, style]}>
@@ -91,7 +98,7 @@ export const RouteCard = observer(function RouteCard(props: RouteCardProps) {
       <View>
         <View style={{ alignItems: "center" }}>
           <Text style={{ fontSize: 16, marginBottom: -2 }}>{duration}</Text>
-          <Text style={{ fontSize: 14 }}>ללא החלפות</Text>
+          <Text style={{ fontSize: 14 }}>{stopsText}</Text>
         </View>
       </View>
 
