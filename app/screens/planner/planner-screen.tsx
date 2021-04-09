@@ -36,7 +36,7 @@ const CONTENT_WRAPPER: ViewStyle = {
 // #endregion
 
 export const PlannerScreen = observer(function PlannerScreen({ navigation }: PlannerScreenProps) {
-  const { routePlan } = useStores()
+  const { routePlan, trainRoute } = useStores()
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
   const insets = useSafeAreaInsets()
 
@@ -74,6 +74,10 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
 
     return destination
   }, [routePlan.destination?.name])
+
+  useEffect(() => {
+    trainRoute.updateState("pending")
+  }, [])
 
   const onGetRoutePress = () => {
     navigation.navigate("routeList", {

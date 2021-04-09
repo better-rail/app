@@ -26,7 +26,7 @@ export type PrimaryParamList = {
   planner: undefined
   selectStation: { selectionType: "origin" | "destination" }
   routeList: { originId: string; destinationId: string; time: number }
-  routeDetails: { routeItem: RouteItem }
+  routeDetails: { routeItem: RouteItem; originId: string; destinationId: string }
 }
 
 export type PlannerScreenProps = StackScreenProps<PrimaryParamList, "planner">
@@ -39,21 +39,27 @@ const Stack = createStackNavigator<PrimaryParamList>()
 
 export function MainNavigator() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="planner" component={PlannerScreen} />
-      <Stack.Screen name="selectStation" component={SelectStationScreen} options={{ ...TransitionPresets.ModalTransition }} />
+    <Stack.Navigator
+      screenOptions={{
+        headerBackTitleVisible: false,
+        headerTitleStyle: { fontSize: 18, fontFamily: typography.primary },
+        headerTintColor: color.primary,
+      }}
+    >
+      <Stack.Screen name="planner" component={PlannerScreen} options={{ headerShown: false }} />
+      <Stack.Screen
+        name="selectStation"
+        component={SelectStationScreen}
+        options={{ headerShown: false, ...TransitionPresets.ModalTransition }}
+      />
       <Stack.Screen
         name="routeList"
         component={RouteListScreen}
         options={{
-          headerShown: true,
-          headerBackTitleVisible: false,
           headerTitle: "מסלול נסיעה",
-          headerTitleStyle: { fontSize: 18, fontFamily: typography.primary },
-          headerTintColor: color.primary,
         }}
       />
-      <Stack.Screen name="routeDetails" component={RouteDetailsScreen} options={{ ...TransitionPresets.ModalTransition }} />
+      <Stack.Screen name="routeDetails" component={RouteDetailsScreen} options={{ headerTitle: "פרטי נסיעה" }} />
     </Stack.Navigator>
   )
 }

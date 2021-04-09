@@ -1,6 +1,6 @@
 import React, { useMemo } from "react"
 import { TextStyle, View, ViewStyle, PixelRatio } from "react-native"
-import { observer } from "mobx-react-lite"
+import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import { Svg, Line } from "react-native-svg"
 import { color, spacing, typography } from "../../theme"
 import { Text } from "../"
@@ -48,7 +48,7 @@ const TIME_TEXT: TextStyle = {
 
 // #endregion
 
-export interface RouteCardProps {
+export interface RouteCardProps extends TouchableScaleProps {
   departureTime: string
   arrivalTime: string
   estTime: string
@@ -60,7 +60,7 @@ export interface RouteCardProps {
  * Describe your component here
  */
 export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
-  const { departureTime, arrivalTime, estTime, stops, style } = props
+  const { departureTime, arrivalTime, estTime, stops, onPress, style } = props
 
   // Format times
   const [formattedDepatureTime, formattedArrivalTime] = useMemo(() => {
@@ -87,7 +87,7 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
   }, [stops])
 
   return (
-    <View style={[CONTAINER, style]}>
+    <TouchableScale onPress={onPress} activeScale={0.95} friction={9} style={[CONTAINER, style]}>
       <View style={{ marginEnd: 6 }}>
         <Text style={TEXT}>יציאה</Text>
         <Text style={TIME_TEXT}>{formattedDepatureTime}</Text>
@@ -108,7 +108,7 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
         <Text style={TEXT}>הגעה</Text>
         <Text style={TIME_TEXT}>{formattedArrivalTime}</Text>
       </View>
-    </View>
+    </TouchableScale>
   )
 })
 
