@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { ImageBackground, View, ViewStyle } from "react-native"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
-import { Screen, Button, Text, StationCard, DummyInput } from "../../components"
+import { Screen, Button, Text, StationCard, DummyInput, SwitchStationsButton } from "../../components"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
@@ -75,6 +75,10 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     return destination
   }, [routePlan.destination?.name])
 
+  const onSwitchPress = () => {
+    routePlan.switchDirection()
+  }
+
   const onGetRoutePress = () => {
     navigation.navigate("routeList", {
       originId: routePlan.origin.id,
@@ -96,6 +100,9 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
             style={{ marginBottom: spacing[3] }}
             onPress={() => navigation.navigate("selectStation", { selectionType: "origin" })}
           />
+          <View style={{ zIndex: 10 }}>
+            <SwitchStationsButton onPress={onSwitchPress} style={{ position: "absolute", end: 10, top: -26 }} />
+          </View>
 
           <Text preset="fieldLabel" text="תחנת יעד" style={{ marginBottom: spacing[1] }} />
           <StationCard
