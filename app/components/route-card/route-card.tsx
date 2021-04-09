@@ -59,7 +59,7 @@ export interface RouteCardProps {
 /**
  * Describe your component here
  */
-export const RouteCard = observer(function RouteCard(props: RouteCardProps) {
+export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
   const { departureTime, arrivalTime, estTime, stops, style } = props
 
   // Format times
