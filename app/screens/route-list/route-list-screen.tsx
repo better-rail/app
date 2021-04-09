@@ -7,11 +7,11 @@ import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
 import { format, closestIndexTo } from "date-fns"
 import { RouteItem } from "../../services/api"
+import { SharedElement } from "react-navigation-shared-element"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
   flex: 1,
-  marginTop: spacing[3],
 }
 
 export const RouteListScreen = observer(function RouteListScreen({ navigation, route }: RouteListScreenProps) {
@@ -67,14 +67,16 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
       />
     )
   }
-  console.log(trainRoute.state)
+
   return (
-    <Screen style={ROOT} preset="fixed" unsafe={true} statusBar="dark-content">
-      <RouteDetailsHeader
-        originId={route.params.originId}
-        destinationId={route.params.destinationId}
-        style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
-      />
+    <Screen style={ROOT} preset="fixed" unsafe={true} statusBar="light-content">
+      <SharedElement id="route-header">
+        <RouteDetailsHeader
+          originId={route.params.originId}
+          destinationId={route.params.destinationId}
+          style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
+        />
+      </SharedElement>
       {trainRoute.state === "loading" ? (
         // ||   initialScrollIndex === undefined
         <ActivityIndicator />
@@ -83,7 +85,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           renderItem={renderRouteCard}
           keyExtractor={(item) => item.trains[0].departureTime}
           data={trainRoute.routes}
-          contentContainerStyle={{ paddingHorizontal: spacing[3] }}
+          contentContainerStyle={{ paddingTop: 12.5, paddingHorizontal: spacing[3] }}
           getItemLayout={(_, index) => ({ length: RouteCardHeight, offset: RouteCardHeight * index + spacing[3], index })}
         />
       )}

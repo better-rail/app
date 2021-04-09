@@ -1,27 +1,46 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
 import { View, ViewStyle } from "react-native"
-import { RouteDetailsHeader, Screen, Text } from "../../components"
+import { RouteCard, RouteDetailsHeader, Screen, Text } from "../../components"
 import { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import { color, spacing } from "../../theme"
+import { SharedElement } from "react-navigation-shared-element"
 
 const ROOT: ViewStyle = {
   flex: 1,
-  marginTop: spacing[3],
   backgroundColor: color.background,
 }
 
 export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
   const { routeItem, originId, destinationId } = route.params
-  console.log(routeItem.trains[0])
+
+  const departureTime = routeItem.trains[0].departureTime
+  let arrivalTime = routeItem.trains[0].arrivalTime
+  let stops = 0
+
+  // If the train contains an exchange, change to arrival time to the last stop from the last train
+  if (routeItem.isExchange) {
+    stops = routeItem.trains.length
+    arrivalTime = routeItem.trains[stops - 1].arrivalTime
+  }
+
   return (
     <Screen style={ROOT} preset="scroll" unsafe={true}>
-      <RouteDetailsHeader
-        originId={originId}
-        destinationId={destinationId}
-        style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
-      />
-      <View>
+      <SharedElement id="route-header">
+        <RouteDetailsHeader
+          originId={route.params.originId}
+          destinationId={route.params.destinationId}
+          style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
+        />
+      </SharedElement>
+      <View style={{ paddingHorizontal: spacing[3] }}>
+        <RouteCard
+          departureTime={departureTime}
+          arrivalTime={arrivalTime}
+          estTime={routeItem.estTime}
+          stops={stops}
+          bounceable={false}
+        />
         <Text preset="header" text="הי!" />
       </View>
     </Screen>

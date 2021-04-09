@@ -15,7 +15,6 @@ export class RouteApi {
       const response: ApiResponse<RailApiGetRoutesResult> = await this.api.apisauce.get(
         `/GetRoutes?OId=${originId}&TId=${destinationId}&Date=${date}&Hour=${hour}`,
       )
-      console.log(response)
 
       if (response.data.MessageType === 1) {
         // TODO: Handle API errors

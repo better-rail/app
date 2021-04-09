@@ -7,6 +7,7 @@
 import React from "react"
 import { createStackNavigator, StackScreenProps, TransitionPresets } from "@react-navigation/stack"
 import { PlannerScreen, SelectStationScreen, RouteListScreen, RouteDetailsScreen } from "../screens"
+import { createSharedElementStackNavigator } from "react-navigation-shared-element"
 import { color, typography } from "../theme"
 import { RouteItem } from "../services/api"
 
@@ -35,7 +36,7 @@ export type RouteListScreenProps = StackScreenProps<PrimaryParamList, "routeList
 export type RouteDetailsScreenProps = StackScreenProps<PrimaryParamList, "routeDetails">
 
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
-const Stack = createStackNavigator<PrimaryParamList>()
+const Stack = createSharedElementStackNavigator<PrimaryParamList>()
 
 export function MainNavigator() {
   return (
@@ -43,7 +44,8 @@ export function MainNavigator() {
       screenOptions={{
         headerBackTitleVisible: false,
         headerTitleStyle: { fontSize: 18, fontFamily: typography.primary },
-        headerTintColor: color.primary,
+        headerTintColor: "lightgrey",
+        headerTitle: "",
       }}
     >
       <Stack.Screen name="planner" component={PlannerScreen} options={{ headerShown: false }} />
@@ -52,14 +54,13 @@ export function MainNavigator() {
         component={SelectStationScreen}
         options={{ headerShown: false, ...TransitionPresets.ModalTransition }}
       />
+      <Stack.Screen name="routeList" component={RouteListScreen} options={{ headerTransparent: true }} />
       <Stack.Screen
-        name="routeList"
-        component={RouteListScreen}
-        options={{
-          headerTitle: "מסלול נסיעה",
-        }}
+        name="routeDetails"
+        component={RouteDetailsScreen}
+        options={{ headerTransparent: true, headerBackTitle: "חזרה" }}
+        sharedElementsConfig={() => ["route-header"]}
       />
-      <Stack.Screen name="routeDetails" component={RouteDetailsScreen} options={{ headerTitle: "פרטי נסיעה" }} />
     </Stack.Navigator>
   )
 }

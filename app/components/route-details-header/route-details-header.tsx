@@ -1,5 +1,6 @@
 import * as React from "react"
-import { Image, View, ViewStyle, TextStyle, ImageStyle } from "react-native"
+import { Image, ImageBackground, View, ViewStyle, TextStyle, ImageStyle } from "react-native"
+import LinearGradient from "react-native-linear-gradient"
 import { color, spacing } from "../../theme"
 import { Text } from "../"
 import { stationsObject } from "../../data/stations"
@@ -18,6 +19,10 @@ const ROUTE_DETAILS_STATION: ViewStyle = {
   flex: 1,
   padding: spacing[2],
   backgroundColor: color.secondaryLighter,
+  shadowOffset: { width: 0, height: 1 },
+  shadowColor: color.dim,
+  shadowRadius: 1,
+  shadowOpacity: 0.45,
   borderRadius: 25,
 }
 
@@ -37,12 +42,23 @@ const ROUTE_INFO_CIRCLE: ViewStyle = {
   justifyContent: "center",
   backgroundColor: color.secondary,
   borderRadius: 25,
+  zIndex: 5,
 }
 
 const ARROW_ICON: ImageStyle = {
   width: 15,
   height: 15,
   tintColor: color.background,
+}
+
+const GARDIENT: ViewStyle = {
+  height: "100%",
+  position: "absolute",
+  left: 0,
+  right: 0,
+  top: 0,
+  opacity: 1,
+  borderRadius: 12,
 }
 
 // #endregion
@@ -72,15 +88,23 @@ export const RouteDetailsHeader = React.memo(function RouteDetailsHeader(props: 
   const destinationName = stationsObject[destinationId].hebrew
 
   return (
-    <View style={[ROUTE_DETAILS_WRAPPER, style]}>
-      <View style={[ROUTE_DETAILS_STATION, { marginRight: spacing[5] }]}>
-        <Text style={ROUTE_DETAILS_STATION_TEXT}>{originName}</Text>
-      </View>
-      <View style={ROUTE_INFO_CIRCLE}>
-        <Image source={arrowIcon} style={ARROW_ICON} />
-      </View>
-      <View style={ROUTE_DETAILS_STATION}>
-        <Text style={ROUTE_DETAILS_STATION_TEXT}>{destinationName}</Text>
+    <View>
+      <ImageBackground source={stationsObject[destinationId].image} style={{ width: "100%", height: 200, zIndex: 0 }}>
+        <LinearGradient style={GARDIENT} colors={["rgba(0, 0, 0, 0.75)", "rgba(0, 0, 0, 0.05)"]} />
+      </ImageBackground>
+
+      <View style={{ top: -20, marginBottom: -30, zIndex: 5 }}>
+        <View style={[ROUTE_DETAILS_WRAPPER, style]}>
+          <View style={[ROUTE_DETAILS_STATION, { marginRight: spacing[5] }]}>
+            <Text style={ROUTE_DETAILS_STATION_TEXT}>{originName}</Text>
+          </View>
+          <View style={ROUTE_INFO_CIRCLE}>
+            <Image source={arrowIcon} style={ARROW_ICON} />
+          </View>
+          <View style={ROUTE_DETAILS_STATION}>
+            <Text style={ROUTE_DETAILS_STATION_TEXT}>{destinationName}</Text>
+          </View>
+        </View>
       </View>
     </View>
   )

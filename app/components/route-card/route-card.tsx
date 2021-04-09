@@ -1,5 +1,5 @@
 import React, { useMemo } from "react"
-import { TextStyle, View, ViewStyle, PixelRatio } from "react-native"
+import { TextStyle, View, ViewStyle, PixelRatio, Alert } from "react-native"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import { Svg, Line } from "react-native-svg"
 import { color, spacing, typography } from "../../theme"
@@ -53,6 +53,7 @@ export interface RouteCardProps extends TouchableScaleProps {
   arrivalTime: string
   estTime: string
   stops: number
+  bounceable?: boolean
   style?: ViewStyle
 }
 
@@ -60,10 +61,13 @@ export interface RouteCardProps extends TouchableScaleProps {
  * Describe your component here
  */
 export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
-  const { departureTime, arrivalTime, estTime, stops, onPress, style } = props
+  const { departureTime, arrivalTime, estTime, stops, onPress = null, bounceable = true, style } = props
 
   // Format times
   const [formattedDepatureTime, formattedArrivalTime] = useMemo(() => {
+    console.log(departureTime, arrivalTime)
+    // return [undefined, undefined]
+    // Alert.alert(new Date(departureTime).toString())
     const formattedDepatureTime = format(new Date(departureTime), "HH:mm")
     const formattedArrivalTime = format(new Date(arrivalTime), "HH:mm")
 
@@ -87,7 +91,7 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
   }, [stops])
 
   return (
-    <TouchableScale onPress={onPress} activeScale={0.95} friction={9} style={[CONTAINER, style]}>
+    <TouchableScale onPress={onPress} activeScale={bounceable ? 0.95 : 1} friction={9} style={[CONTAINER, style]}>
       <View style={{ marginEnd: 6 }}>
         <Text style={TEXT}>יציאה</Text>
         <Text style={TIME_TEXT}>{formattedDepatureTime}</Text>
