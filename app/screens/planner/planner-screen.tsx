@@ -92,7 +92,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
 
     setTimeout(() => {
       routePlan.switchDirection()
-    }, 85)
+    }, 70)
   }
 
   const onGetRoutePress = () => {
