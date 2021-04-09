@@ -20,7 +20,7 @@ const ARROW_ICON: ImageStyle = {
   tintColor: color.background,
 }
 
-export interface SwitchStationsButtonProps extends TouchableOpacityProps {
+export interface ChangeDirectionButtonProps extends TouchableOpacityProps {
   /**
    * An optional style override useful for padding & margin.
    */
@@ -30,7 +30,7 @@ export interface SwitchStationsButtonProps extends TouchableOpacityProps {
 /**
  * Describe your component here
  */
-export const SwitchStationsButton = observer(function SwitchStationsButton(props: SwitchStationsButtonProps) {
+export const ChangeDirectionButton = observer(function ChangeDirectionButton(props: ChangeDirectionButtonProps) {
   const { onPress, style } = props
 
   return (
