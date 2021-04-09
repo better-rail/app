@@ -85,7 +85,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           renderItem={renderRouteCard}
           keyExtractor={(item) => item.trains[0].departureTime}
           data={trainRoute.routes}
-          contentContainerStyle={{ paddingTop: 12.5, paddingHorizontal: spacing[3] }}
+          contentContainerStyle={{ paddingTop: spacing[5], paddingHorizontal: spacing[3] }}
           getItemLayout={(_, index) => ({ length: RouteCardHeight, offset: RouteCardHeight * index + spacing[3], index })}
         />
       )}
