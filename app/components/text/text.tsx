@@ -12,7 +12,7 @@ import { mergeAll, flatten } from "ramda"
  */
 export function Text(props: TextProps) {
   // grab the props
-  const { preset = "default", tx, txOptions, text, children, style: styleOverride, ...rest } = props
+  const { preset = "default", tx, txOptions, text, children, style: styleOverride, maxFontSizeMultiplier, ...rest } = props
 
   // figure out which content to use
   const i18nText = tx && translate(tx, txOptions)
@@ -21,7 +21,7 @@ export function Text(props: TextProps) {
   const style = mergeAll(flatten([presets[preset] || presets.default, styleOverride]))
 
   return (
-    <ReactNativeText {...rest} style={style} maxFontSizeMultiplier={1.3}>
+    <ReactNativeText {...rest} style={style} maxFontSizeMultiplier={maxFontSizeMultiplier || 1.3}>
       {content}
     </ReactNativeText>
   )
