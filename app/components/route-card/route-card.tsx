@@ -1,5 +1,5 @@
 import React, { useMemo } from "react"
-import { TextStyle, View, ViewStyle, PixelRatio, Alert } from "react-native"
+import { TextStyle, View, ViewStyle, PixelRatio } from "react-native"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import { Svg, Line } from "react-native-svg"
 import { color, spacing, typography } from "../../theme"
@@ -65,9 +65,7 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
 
   // Format times
   const [formattedDepatureTime, formattedArrivalTime] = useMemo(() => {
-    console.log(departureTime, arrivalTime)
     // return [undefined, undefined]
-    // Alert.alert(new Date(departureTime).toString())
     const formattedDepatureTime = format(new Date(departureTime), "HH:mm")
     const formattedArrivalTime = format(new Date(arrivalTime), "HH:mm")
 
@@ -80,6 +78,8 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
     const durationInMilliseconds = (hours * 60 * 60 + minutes * 60) * 1000 //  Convert to milliseconds
     const durationObject = intervalToDuration({ start: 0, end: durationInMilliseconds }) // Create a date-fns duration object
     const formattedDuration = formatDuration(durationObject, { delimiter: " ו- ", locale: he }) // Format the duration
+
+    if (formattedDuration.length > 7) dashedLineWidth = 0
 
     return formattedDuration
   }, [estTime])
