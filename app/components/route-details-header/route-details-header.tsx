@@ -1,8 +1,8 @@
 import * as React from "react"
-import { TextStyle, View, ViewStyle } from "react-native"
-import { observer } from "mobx-react-lite"
+import { Image, View, ViewStyle, TextStyle, ImageStyle } from "react-native"
 import { color, spacing } from "../../theme"
 import { Text } from "../"
+import { stationsObject } from "../../data/stations"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
 
@@ -49,6 +49,14 @@ const ARROW_ICON: ImageStyle = {
 
 export interface RouteDetailsHeaderProps {
   /**
+   * The route's origin station Id.
+   */
+  originId: string
+  /**
+   * The route's destination station Id.
+   */
+  destinationId: string
+  /**
    * An optional style override useful for padding & margin.
    */
   style?: ViewStyle
@@ -57,19 +65,22 @@ export interface RouteDetailsHeaderProps {
 /**
  * Describe your component here
  */
-export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
-  const { style } = props
+export const RouteDetailsHeader = React.memo(function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
+  const { originId, destinationId, style } = props
+
+  const originName = stationsObject[originId].hebrew
+  const destinationName = stationsObject[destinationId].hebrew
 
   return (
     <View style={[ROUTE_DETAILS_WRAPPER, style]}>
       <View style={[ROUTE_DETAILS_STATION, { marginRight: spacing[5] }]}>
-        <Text style={ROUTE_DETAILS_STATION_TEXT}>ירושלים - יצחק נבון</Text>
+        <Text style={ROUTE_DETAILS_STATION_TEXT}>{originName}</Text>
       </View>
       <View style={ROUTE_INFO_CIRCLE}>
         <Image source={arrowIcon} style={ARROW_ICON} />
       </View>
       <View style={ROUTE_DETAILS_STATION}>
-        <Text style={ROUTE_DETAILS_STATION_TEXT}>תל אביב - ההגנה</Text>
+        <Text style={ROUTE_DETAILS_STATION_TEXT}>{destinationName}</Text>
       </View>
     </View>
   )
