@@ -36,7 +36,7 @@ export const ChangeDirectionButton = observer(function ChangeDirectionButton(pro
   return (
     <TouchableOpacity
       style={[CONTAINER, style]}
-      activeOpacity={0.8}
+      activeOpacity={0.9}
       onPress={onPress}
       accessibilityLabel="החלפת תחנות"
       accessibilityHint="קיצור דרך להחלפת תחנת המוצא עם תחנת היעד"
