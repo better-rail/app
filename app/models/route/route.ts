@@ -1,36 +1,62 @@
-import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { Instance, SnapshotOut, ISimpleType, types } from "mobx-state-tree"
 import { withEnvironment } from "../extensions/with-environment"
 import { RouteApi } from "../../services/api/route-api"
+
+const TrainListSchema = {
+  arrivalTime: types.string,
+  departureTime: types.string,
+  originStationId: types.string,
+  destinationStationId: types.string,
+  stopStations: types.array(
+    types.model({
+      arrivalTime: types.string,
+      departureTime: types.string,
+      stationId: types.string,
+      stationName: types.string,
+      platform: types.string,
+    }),
+  ),
+}
+
+const TrainRouteSchema = {
+  isExchange: types.boolean,
+  estTime: types.string,
+  trains: types.array(types.model(TrainListSchema)),
+}
 
 /**
  * Model description here for TypeScript hints.
  */
 export const RouteModel = types
   .model("Route")
-  .props({})
-  .views((self) => ({})) // eslint-disable-line @typescript-eslint/no-unused-vars
+  .props({
+    routes: types.array(types.model(TrainRouteSchema)),
+    state: "loading",
+  })
   .extend(withEnvironment)
   .actions((self) => ({
-    getRoute: async () => {
+    saveRoutes: (routesSnapshot) => {
+      self.routes.replace(routesSnapshot)
+    },
+    updateState(state: "loading" | "loaded" | "error") {
+      self.state = state
+    },
+  }))
+  .actions((self) => ({
+    getRoutes: async (originId: string, destinationId: string, date: string, hour: string) => {
+      self.updateState("loading")
       const routeApi = new RouteApi(self.environment.api)
-      const result = await routeApi.getRoute()
-
+      const result = await routeApi.getRoutes(originId, destinationId, date, hour)
       console.log(result)
+      self.saveRoutes(result)
+      self.updateState("loaded")
       // if (result.kind === "ok") {
-      //   console.log(result)
       //   self.saveCharacters(result.characters)
       // } else {
       //   __DEV__ && console.tron.log(result.kind)
       // }
     },
   }))
-/**
- * Un-comment the following to omit model attributes from your snapshots (and from async storage).
- * Useful for sensitive data like passwords, or transitive state like whether a modal is open.
-
- * Note that you'll need to import `omit` from ramda, which is already included in the project!
- *  .postProcessSnapshot(omit(["password", "socialSecurityNumber", "creditCardNumber"]))
- */
 
 type RouteType = Instance<typeof RouteModel>
 export interface Route extends RouteType {}

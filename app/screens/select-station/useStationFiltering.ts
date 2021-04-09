@@ -1,5 +1,5 @@
 import { useMemo } from "react"
-import stations from "../../data/stations.js"
+import stations from "../../data/stations"
 import { ImageSourcePropType } from "react-native"
 
 type StationItem = {

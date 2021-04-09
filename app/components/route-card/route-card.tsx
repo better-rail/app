@@ -1,16 +1,25 @@
-import * as React from "react"
+import React, { useMemo } from "react"
 import { TextStyle, View, ViewStyle, PixelRatio } from "react-native"
 import { observer } from "mobx-react-lite"
 import { Svg, Line } from "react-native-svg"
 import { color, spacing, typography } from "../../theme"
 import { Text } from "../"
+import { format, intervalToDuration, formatDuration } from "date-fns"
+import { he } from "date-fns/locale"
 
 const fontScale = PixelRatio.getFontScale()
+
+// #region styles
+
+// Setting static height for FlatList getItemLayout
+export let RouteCardHeight = 75
+if (fontScale > 1.1) RouteCardHeight = 85
 
 const CONTAINER: ViewStyle = {
   flexDirection: "row",
   justifyContent: "space-between",
   alignItems: "center",
+  height: RouteCardHeight,
 
   paddingVertical: spacing[2],
   paddingHorizontal: spacing[4],
@@ -37,32 +46,59 @@ const TIME_TEXT: TextStyle = {
   color: color.text,
 }
 
+// #endregion
+
 export interface RouteCardProps {
-  /**
-   * An optional style override useful for padding & margin.
-   */
+  departureTime: string
+  arrivalTime: string
+  estTime: string
+  stops: number
   style?: ViewStyle
 }
 
 /**
  * Describe your component here
  */
-export const RouteCard = observer(function RouteCard(props: RouteCardProps) {
-  const { style } = props
+export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
+  const { departureTime, arrivalTime, estTime, stops, style } = props
+
+  // Format times
+  const [formattedDepatureTime, formattedArrivalTime] = useMemo(() => {
+    const formattedDepatureTime = format(new Date(departureTime), "HH:mm")
+    const formattedArrivalTime = format(new Date(arrivalTime), "HH:mm")
+
+    return [formattedDepatureTime, formattedArrivalTime]
+  }, [departureTime, arrivalTime])
+
+  const duration = useMemo(() => {
+    const estTimeParts = estTime.split(":") // The estTime value is formatted like '00:42:00'
+    const [hours, minutes] = estTimeParts.map((value) => parseInt(value)) // Grab the hour & minutes values
+    const durationInMilliseconds = (hours * 60 * 60 + minutes * 60) * 1000 //  Convert to milliseconds
+    const durationObject = intervalToDuration({ start: 0, end: durationInMilliseconds }) // Create a date-fns duration object
+    const formattedDuration = formatDuration(durationObject, { delimiter: " ו- ", locale: he }) // Format the duration
+
+    return formattedDuration
+  }, [estTime])
+
+  const stopsText = useMemo(() => {
+    if (stops === 0) return "ללא החלפות"
+    if (stops === 1) return "החלפה אחת"
+    return `${stops} החלפות`
+  }, [stops])
 
   return (
     <View style={[CONTAINER, style]}>
       <View style={{ marginEnd: 6 }}>
         <Text style={TEXT}>יציאה</Text>
-        <Text style={TIME_TEXT}>08:30</Text>
+        <Text style={TIME_TEXT}>{formattedDepatureTime}</Text>
       </View>
 
       <DashedLine />
 
       <View>
         <View style={{ alignItems: "center" }}>
-          <Text style={{ fontSize: 16, marginBottom: -2 }}>42 דק'</Text>
-          <Text style={{ fontSize: 14 }}>ללא החלפות</Text>
+          <Text style={{ fontSize: 16, marginBottom: -2 }}>{duration}</Text>
+          <Text style={{ fontSize: 14 }}>{stopsText}</Text>
         </View>
       </View>
 
@@ -70,7 +106,7 @@ export const RouteCard = observer(function RouteCard(props: RouteCardProps) {
 
       <View style={{ alignItems: "flex-end", marginStart: 12 }}>
         <Text style={TEXT}>הגעה</Text>
-        <Text style={TIME_TEXT}>09:13</Text>
+        <Text style={TIME_TEXT}>{formattedArrivalTime}</Text>
       </View>
     </View>
   )

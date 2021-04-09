@@ -6,8 +6,9 @@
  */
 import React from "react"
 import { createStackNavigator, StackScreenProps, TransitionPresets } from "@react-navigation/stack"
-import { PlannerScreen, SelectStationScreen, RouteListScreen } from "../screens"
-import { typography } from "../theme"
+import { PlannerScreen, SelectStationScreen, RouteListScreen, RouteDetailsScreen } from "../screens"
+import { color, typography } from "../theme"
+import { RouteItem } from "../services/api"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -24,11 +25,14 @@ import { typography } from "../theme"
 export type PrimaryParamList = {
   planner: undefined
   selectStation: { selectionType: "origin" | "destination" }
-  routeList: { originId: string; destId: string; date: string; hour: string }
+  routeList: { originId: string; destinationId: string; time: number }
+  routeDetails: { routeItem: RouteItem }
 }
 
 export type PlannerScreenProps = StackScreenProps<PrimaryParamList, "planner">
 export type SelectStationScreenProps = StackScreenProps<PrimaryParamList, "selectStation">
+export type RouteListScreenProps = StackScreenProps<PrimaryParamList, "routeList">
+export type RouteDetailsScreenProps = StackScreenProps<PrimaryParamList, "routeDetails">
 
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
 const Stack = createStackNavigator<PrimaryParamList>()
@@ -43,11 +47,13 @@ export function MainNavigator() {
         component={RouteListScreen}
         options={{
           headerShown: true,
-          headerTitle: "תכנון מסלול",
-          headerTitleStyle: { fontFamily: typography.primary },
           headerBackTitleVisible: false,
+          headerTitle: "מסלול נסיעה",
+          headerTitleStyle: { fontSize: 18, fontFamily: typography.primary },
+          headerTintColor: color.primary,
         }}
       />
+      <Stack.Screen name="routeDetails" component={RouteDetailsScreen} options={{ ...TransitionPresets.ModalTransition }} />
     </Stack.Navigator>
   )
 }
