@@ -29,11 +29,11 @@ const TrainRouteSchema = {
  */
 export const RouteModel = types
   .model("Route")
-  .props({ routes: types.array(types.model(TrainRouteSchema)) })
+  .props({
+    routes: types.array(types.model(TrainRouteSchema)),
+    state: "loading",
+  })
   .extend(withEnvironment)
-  .volatile(() => ({
-    state: "loading", // TODO: Change to enumeration type
-  }))
   .actions((self) => ({
     saveRoutes: (routesSnapshot) => {
       self.routes.replace(routesSnapshot)
