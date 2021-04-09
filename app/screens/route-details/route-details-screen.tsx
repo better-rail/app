@@ -25,7 +25,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
   }
 
   return (
-    <Screen style={ROOT} preset="scroll" unsafe={true}>
+    <Screen style={ROOT} preset="fixed" unsafe={true}>
       <SharedElement id="route-header">
         <RouteDetailsHeader
           originId={route.params.originId}
