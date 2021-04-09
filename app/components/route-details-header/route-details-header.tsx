@@ -96,13 +96,17 @@ export const RouteDetailsHeader = React.memo(function RouteDetailsHeader(props: 
       <View style={{ top: -20, marginBottom: -30, zIndex: 5 }}>
         <View style={[ROUTE_DETAILS_WRAPPER, style]}>
           <View style={[ROUTE_DETAILS_STATION, { marginRight: spacing[5] }]}>
-            <Text style={ROUTE_DETAILS_STATION_TEXT}>{originName}</Text>
+            <Text style={ROUTE_DETAILS_STATION_TEXT} maxFontSizeMultiplier={1.1}>
+              {originName}
+            </Text>
           </View>
           <View style={ROUTE_INFO_CIRCLE}>
             <Image source={arrowIcon} style={ARROW_ICON} />
           </View>
           <View style={ROUTE_DETAILS_STATION}>
-            <Text style={ROUTE_DETAILS_STATION_TEXT}>{destinationName}</Text>
+            <Text style={ROUTE_DETAILS_STATION_TEXT} maxFontSizeMultiplier={1.1}>
+              {destinationName}
+            </Text>
           </View>
         </View>
       </View>
