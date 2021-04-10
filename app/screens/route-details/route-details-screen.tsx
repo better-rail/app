@@ -1,6 +1,6 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
-import { View, Image, ViewStyle, ImageStyle, TextStyle, Dimensions } from "react-native"
+import { View, Dimensions, ViewStyle, TextStyle } from "react-native"
 import { RouteDetailsHeader, Screen, Text } from "../../components"
 import { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import { color, spacing } from "../../theme"
@@ -8,6 +8,7 @@ import { SharedElement } from "react-navigation-shared-element"
 import { ScrollView } from "react-native-gesture-handler"
 import { format } from "date-fns"
 import { Svg, Line, Circle, G } from "react-native-svg"
+import { RouteStationCard } from "./RouteStationCard"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -43,12 +44,12 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
                   key={stop.stationId}
                 />
               ))}
-              {train.stopStations.length > 0 && <RouteLine />}
+              {/* {train.stopStations.length > 0 && <RouteLine />} */}
               <RouteStationCard
                 stationName={train.destinationStationName}
                 stopTime={format(train.arrivalTime, "HH:mm")}
-                platform={train.originPlatform}
-                style={{ marginTop: 4 }}
+                platform={train.destinationPlatform}
+                style={{ marginTop: spacing[2] }}
               />
             </>
           )
@@ -58,75 +59,49 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
   )
 })
 
-const railwayStationIcon = require("../../../assets/railway-station.png")
-
 const { width: deviceWidth } = Dimensions.get("screen")
 
-// #region styles
-const ROUTE_STATION_WRAPPER: ViewStyle = {
-  flexDirection: "row",
-  alignItems: "center",
-  paddingVertical: spacing[3],
-  paddingHorizontal: spacing[7],
-  backgroundColor: color.secondaryBackground,
+let ROUTE_STOP_WRAPPER_FLEX_END = 71
+let ROUTE_STOP_WRAPPER_MARGIN_BOTTOM = -50
+let ROUTE_STOP_CIRCLE_FLEX_END = 11
+
+if (deviceWidth < 400) {
+  ROUTE_STOP_WRAPPER_FLEX_END = 50
+  ROUTE_STOP_WRAPPER_MARGIN_BOTTOM = -40
+  ROUTE_STOP_CIRCLE_FLEX_END = 18
 }
-
-const ROUTE_STATION_DETAILS: ViewStyle = {
-  marginStart: spacing[4],
-}
-
-const ROUTE_STATION_TIME: TextStyle = {
-  marginEnd: spacing[4],
-  fontSize: 18,
-  fontWeight: "700",
-  fontFamily: "System",
-}
-
-const ROUTE_STATION_NAME: TextStyle = {
-  marginBottom: -2,
-  marginEnd: spacing[3],
-  fontSize: 17,
-  fontWeight: "700",
-}
-
-const RAILWAY_ICON: ImageStyle = {
-  width: 42.5,
-  height: 42.5,
-}
-
-// #endregion
-
-const RouteStationCard = ({ stationName, stopTime, platform, style }: RouteStopCardProps) => (
-  <View style={[ROUTE_STATION_WRAPPER, style]}>
-    <Text style={ROUTE_STATION_TIME}>{stopTime}</Text>
-    <Image style={RAILWAY_ICON} source={railwayStationIcon} />
-    <View style={ROUTE_STATION_DETAILS}>
-      <Text style={ROUTE_STATION_NAME}>{stationName}</Text>
-      <Text>רציף {platform}</Text>
-    </View>
-  </View>
-)
 
 const ROUTE_STOP_WRAPPER: ViewStyle = {
   alignItems: "center",
-  right: 24,
-  marginBottom: deviceWidth > 400 ? -30 : -35,
+  end: ROUTE_STOP_WRAPPER_FLEX_END,
+  marginBottom: ROUTE_STOP_WRAPPER_MARGIN_BOTTOM,
 }
 
 const ROUTE_STOP_DETAILS: ViewStyle = {
-  width: "57%%",
+  width: "57%",
   flexDirection: "row",
-
-  bottom: 30,
-  left: 15.5,
+  alignItems: "center",
+  bottom: 55,
+  left: 52.5,
 }
 
 const ROUTE_STOP_TIME: TextStyle = {
-  ...ROUTE_STATION_TIME,
+  marginEnd: spacing[4],
   fontSize: 16,
+  fontFamily: "System",
   fontWeight: "600",
   end: spacing[4],
   top: 3,
+}
+
+const ROUTE_STOP_CIRCLE: ViewStyle = {
+  width: 30,
+  height: 30,
+  borderRadius: 25,
+  borderWidth: 3,
+  borderColor: color.dim,
+  backgroundColor: color.secondaryBackground,
+  end: ROUTE_STOP_CIRCLE_FLEX_END,
 }
 
 type RouteStopCardProps = {
@@ -143,14 +118,15 @@ const lineXPercent = `${lineX}%`
 
 const RouteStopCard = ({ stationName, stopTime }: RouteStopCardProps) => (
   <View style={ROUTE_STOP_WRAPPER}>
-    <Svg height={68} width={"100%"}>
-      <Line stroke={color.dim} strokeWidth={4} strokeDasharray="5,5" x1={lineXPercent} y1="0" x2={lineXPercent} y2="80" />
-      <Circle cx={lineXPercent} cy="50" r="13" fill={color.background} stroke={color.dim} strokeWidth={3.5} />
-    </Svg>
+    {/* <Svg height={68} width={"100%"}> */}
+    {/* <Line stroke={color.dim} strokeWidth={4} strokeDasharray="5,5" x1={lineXPercent} y1="0" x2={lineXPercent} y2="80" /> */}
+    {/* <Circle cx={lineXPercent} cy="50" r="13" fill={color.background} stroke={color.dim} strokeWidth={3.5} /> */}
+    {/* </Svg> */}
+    <View style={{ width: 4, height: 66, backgroundColor: color.dim }}></View>
     <View style={ROUTE_STOP_DETAILS}>
       <Text style={ROUTE_STOP_TIME}>{stopTime}</Text>
-      <View style={{ width: 30, height: 30, borderRadius: 25 }}></View>
-      <Text style={{ fontWeight: "600", maxWidth: 120, flexWrap: "wrap", fontSize: 15, start: spacing[3] }}>{stationName}</Text>
+      <View style={ROUTE_STOP_CIRCLE} />
+      <Text style={{ fontWeight: "600", fontSize: 15, start: spacing[3] }}>{stationName}</Text>
     </View>
   </View>
 )
