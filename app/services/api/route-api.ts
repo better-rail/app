@@ -25,7 +25,7 @@ export class RouteApi {
         const { Train, IsExchange, EstTime } = route
 
         const trains = Train.map((train) => {
-          const { DepartureTime, ArrivalTime, StopStations, OrignStation, DestinationStation } = train
+          const { DepartureTime, ArrivalTime, StopStations, OrignStation, DestinationStation, Platform, DestPlatform } = train
 
           const stopStations = StopStations.map((station) => {
             const { StationId: stationId, Platform: platform, ArrivalTime, DepartureTime } = station
@@ -41,9 +41,13 @@ export class RouteApi {
 
           return {
             originStationId: OrignStation,
+            originStationName: stationsObject[OrignStation].hebrew,
             destinationStationId: DestinationStation,
+            destinationStationName: stationsObject[DestinationStation].hebrew,
             departureTime: parseApiDate(DepartureTime),
             arrivalTime: parseApiDate(ArrivalTime),
+            originPlatform: Platform,
+            destinationPlatform: DestPlatform,
             stopStations,
           }
         })
