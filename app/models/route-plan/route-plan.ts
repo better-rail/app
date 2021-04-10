@@ -26,6 +26,13 @@ export const RoutePlanModel = types
     setDate(date) {
       self.date = date
     },
+    switchDirection() {
+      const origin = Object.assign({}, self.origin)
+      const destination = Object.assign({}, self.destination)
+
+      this.setOrigin(destination)
+      this.setDestination(origin)
+    },
   }))
   .postProcessSnapshot(omit(["date"]))
 

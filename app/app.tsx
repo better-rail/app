@@ -28,7 +28,6 @@ import { enableScreens } from "react-native-screens"
 enableScreens()
 
 export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
-
 I18nManager.forceRTL(true)
 
 /**
