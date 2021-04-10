@@ -3,14 +3,14 @@ import { withEnvironment } from "../extensions/with-environment"
 import { RouteApi } from "../../services/api/route-api"
 
 const TrainListSchema = {
-  arrivalTime: types.string,
-  departureTime: types.string,
+  arrivalTime: types.number,
+  departureTime: types.number,
   originStationId: types.string,
   destinationStationId: types.string,
   stopStations: types.array(
     types.model({
-      arrivalTime: types.string,
-      departureTime: types.string,
+      arrivalTime: types.number,
+      departureTime: types.number,
       stationId: types.string,
       stationName: types.string,
       platform: types.string,

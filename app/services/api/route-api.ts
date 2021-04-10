@@ -2,6 +2,7 @@ import { ApiResponse } from "apisauce"
 import { Api } from "./api"
 import { stationsObject } from "../../data/stations"
 import { RailApiGetRoutesResult } from "./api.types"
+import { parseApiDate } from "../../utils/helpers/date-helpers"
 
 export class RouteApi {
   private api: Api
@@ -27,16 +28,22 @@ export class RouteApi {
           const { DepartureTime, ArrivalTime, StopStations, OrignStation, DestinationStation } = train
 
           const stopStations = StopStations.map((station) => {
-            const { StationId: stationId, ArrivalTime: arrivalTime, DepartureTime: departureTime, Platform: platform } = station
+            const { StationId: stationId, Platform: platform, ArrivalTime, DepartureTime } = station
             const stationName = stationsObject[stationId].hebrew
-            return { stationId, stationName, arrivalTime, departureTime, platform }
+            return {
+              stationId,
+              stationName,
+              arrivalTime: parseApiDate(ArrivalTime),
+              departureTime: parseApiDate(DepartureTime),
+              platform,
+            }
           })
 
           return {
             originStationId: OrignStation,
             destinationStationId: DestinationStation,
-            departureTime: DepartureTime,
-            arrivalTime: ArrivalTime,
+            departureTime: parseApiDate(DepartureTime),
+            arrivalTime: parseApiDate(ArrivalTime),
             stopStations,
           }
         })

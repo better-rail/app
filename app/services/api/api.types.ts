@@ -45,8 +45,8 @@ export type RouteItem = {
   trains: {
     stationId: string
     stationName: string
-    arrivalTime: string
-    departureTime: string
-    stopStations: { arrivalTime: string; departureTime: string; stationId: string; stationName: string; platform: string }[]
+    arrivalTime: number
+    departureTime: number
+    stopStations: { arrivalTime: number; departureTime: number; stationId: string; stationName: string; platform: string }[]
   }[]
 }
