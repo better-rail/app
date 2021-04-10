@@ -27,14 +27,14 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
 
   return (
     <Screen style={ROOT} preset="fixed" unsafe={true}>
-      <SharedElement id="route-header" style={{ zIndex: 10 }}>
+      <SharedElement id="route-header">
         <RouteDetailsHeader
           originId={route.params.originId}
           destinationId={route.params.destinationId}
-          style={{ paddingHorizontal: spacing[3], zIndex: 10 }}
+          style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
         />
       </SharedElement>
-      <ScrollView contentContainerStyle={{ paddingTop: spacing[5] }}>
+      <ScrollView>
         <RouteStationCard />
       </ScrollView>
     </Screen>
