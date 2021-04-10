@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react"
+import React, { useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { ImageBackground, View, ViewStyle } from "react-native"
+import { ImageBackground, View, ViewStyle, Animated } from "react-native"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
-import { Screen, Button, Text, StationCard, DummyInput } from "../../components"
+import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
@@ -39,6 +39,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   const { routePlan, trainRoute } = useStores()
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
   const insets = useSafeAreaInsets()
+  const stationCardScale = useRef(new Animated.Value(1)).current
 
   const handleConfirm = (date) => {
     routePlan.setDate(date)
@@ -75,9 +76,25 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     return destination
   }, [routePlan.destination?.name])
 
-  useEffect(() => {
-    trainRoute.updateState("pending")
-  }, [])
+  const onSwitchPress = () => {
+    Animated.sequence([
+      Animated.timing(stationCardScale, {
+        toValue: 0.96,
+        duration: 175,
+        useNativeDriver: true,
+      }),
+      Animated.timing(stationCardScale, {
+        toValue: 1,
+        duration: 175,
+        useNativeDriver: true,
+      }),
+    ]).start()
+
+    // Delay the actual switch so it'll be synced with the animation
+    setTimeout(() => {
+      routePlan.switchDirection()
+    }, 50)
+  }
 
   const onGetRoutePress = () => {
     navigation.navigate("routeList", {
@@ -94,20 +111,27 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           <Text preset="header" text="תכנון מסלול" style={{ marginBottom: spacing[3] }} />
 
           <Text preset="fieldLabel" text="תחנת מוצא" style={{ marginBottom: spacing[1] }} />
-          <StationCard
-            name={originData?.name}
-            image={originData?.image}
-            style={{ marginBottom: spacing[3] }}
-            onPress={() => navigation.navigate("selectStation", { selectionType: "origin" })}
-          />
+          <Animated.View style={{ transform: [{ scale: stationCardScale }] }}>
+            <StationCard
+              name={originData?.name}
+              image={originData?.image}
+              style={{ marginBottom: spacing[3] }}
+              onPress={() => navigation.navigate("selectStation", { selectionType: "origin" })}
+            />
+          </Animated.View>
+          <View style={{ zIndex: 10 }}>
+            <ChangeDirectionButton onPress={onSwitchPress} style={{ position: "absolute", end: 10, top: -26 }} />
+          </View>
 
           <Text preset="fieldLabel" text="תחנת יעד" style={{ marginBottom: spacing[1] }} />
-          <StationCard
-            name={destinationData?.name}
-            image={destinationData?.image}
-            style={{ marginBottom: spacing[3] }}
-            onPress={() => navigation.navigate("selectStation", { selectionType: "destination" })}
-          />
+          <Animated.View style={{ transform: [{ scale: stationCardScale }] }}>
+            <StationCard
+              name={destinationData?.name}
+              image={destinationData?.image}
+              style={{ marginBottom: spacing[3] }}
+              onPress={() => navigation.navigate("selectStation", { selectionType: "destination" })}
+            />
+          </Animated.View>
           <Text preset="fieldLabel" text="זמן יציאה" style={{ marginBottom: spacing[1] }} />
           <DummyInput
             placeholder="עכשיו"
