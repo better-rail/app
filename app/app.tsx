@@ -20,6 +20,7 @@ import * as storage from "./utils/storage"
 import { useBackButtonHandler, RootNavigator, canExit, setRootNavigation, useNavigationPersistence } from "./navigators"
 import { RootStore, RootStoreProvider, setupRootStore } from "./models"
 import { ToggleStorybook } from "../storybook/toggle-storybook"
+import RNRestart from "react-native-restart"
 
 // This puts screens in a native ViewController or Activity. If you want fully native
 // stack navigation, use `createNativeStackNavigator` in place of `createStackNavigator`:
@@ -28,7 +29,18 @@ import { enableScreens } from "react-native-screens"
 enableScreens()
 
 export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
+
 I18nManager.forceRTL(true)
+
+// Check if the app is launched initially - if it is, reload to apply RTL
+storage.load("appSetupDone").then((value) => {
+  if (value) return
+  else {
+    storage.saveString("firstLaunch", "false").then(() => {
+      RNRestart()
+    })
+  }
+})
 
 /**
  * This is the root component of our app.

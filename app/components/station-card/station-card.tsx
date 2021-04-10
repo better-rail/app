@@ -1,12 +1,19 @@
 /* eslint-disable react-native/no-inline-styles */
 
 import * as React from "react"
-import { ImageBackground, View, TextStyle, ImageSourcePropType, ViewStyle } from "react-native"
+import { ImageBackground, View, Dimensions, TextStyle, ImageSourcePropType, ViewStyle } from "react-native"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import LinearGradient from "react-native-linear-gradient"
 import { observer } from "mobx-react-lite"
 import { color, spacing, typography } from "../../theme"
 import { Text } from "../"
+
+const { height: deviceHeight } = Dimensions.get("screen")
+
+let cardHeight = 137.5
+if (deviceHeight < 600) {
+  cardHeight = 120
+}
 
 const CONTAINER: ViewStyle = {
   borderRadius: 12,
@@ -17,7 +24,7 @@ const CONTAINER: ViewStyle = {
 
 const EMPTY_CARD_WRAPPER: ViewStyle = {
   width: "100%",
-  height: 137.5,
+  height: cardHeight,
   justifyContent: "center",
   alignItems: "center",
   borderRadius: 12,
@@ -26,7 +33,7 @@ const EMPTY_CARD_WRAPPER: ViewStyle = {
 
 const BACKGROUND: ViewStyle = {
   width: "100%",
-  height: 137.5,
+  height: cardHeight,
   justifyContent: "flex-end",
 }
 
