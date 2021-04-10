@@ -65,8 +65,6 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
 
   // Format times
   const [formattedDepatureTime, formattedArrivalTime] = useMemo(() => {
-    console.log(departureTime, arrivalTime)
-    // return [undefined, undefined]
     const formattedDepatureTime = format(new Date(departureTime), "HH:mm")
     const formattedArrivalTime = format(new Date(arrivalTime), "HH:mm")
 

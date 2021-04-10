@@ -7,12 +7,13 @@
  */
 export function parseApiDate(dateString: string) {
   const date = dateString.substring(0, 10)
+  const time = dateString.substring(11)
   const [day, month, year] = date.split("/")
 
   if (parseInt(month) > 12) {
     throw new Error("The provided date is formatted incorrectly.\nEnsure the date uses the `dd/MM/YYYY` format.")
   }
 
-  const formattedDate = `${month}/${day}/${year}`
+  const formattedDate = `${month}/${day}/${year} ${time}`
   return Date.parse(formattedDate)
 }

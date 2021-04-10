@@ -1,10 +1,11 @@
 import { parseApiDate } from "./date-helpers"
 
 it("parses the date correctly", () => {
-  const date1 = "14/04/2021 07:05:00"
-  const formattedDate = parseApiDate(date1)
+  const apiDate = "14/04/2021 07:05:00"
+  const targetDate = "04/14/2021 07:05:00"
+  const formattedDate = parseApiDate(apiDate)
 
-  expect(formattedDate).toBe(1618347600000)
+  expect(formattedDate).toBe(Date.parse(targetDate))
 })
 
 it("throws when invalid date is provided", () => {
