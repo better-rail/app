@@ -27,11 +27,8 @@ const BACKGROUND: ViewStyle = {
 
 const CONTENT_WRAPPER: ViewStyle = {
   flex: 1,
-  marginTop: 125,
   padding: spacing[4],
   backgroundColor: color.line,
-  borderTopLeftRadius: 20,
-  borderTopRightRadius: 20,
 }
 // #endregion
 
@@ -105,54 +102,52 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   }
 
   return (
-    <Screen style={ROOT} preset="fixed" unsafe={true}>
-      <ImageBackground source={background} style={[BACKGROUND, { paddingTop: insets.top }]}>
-        <View style={[CONTENT_WRAPPER, { marginTop: CONTENT_WRAPPER.marginTop - insets.bottom }]}>
-          <Text preset="header" text="תכנון מסלול" style={{ marginBottom: spacing[3] }} />
+    <Screen style={ROOT} preset="fixed" statusBar="dark-content">
+      <View style={CONTENT_WRAPPER}>
+        <Text preset="header" text="תכנון מסלול" style={{ marginBottom: spacing[3] }} />
 
-          <Text preset="fieldLabel" text="תחנת מוצא" style={{ marginBottom: spacing[1] }} />
-          <Animated.View style={{ transform: [{ scale: stationCardScale }] }}>
-            <StationCard
-              name={originData?.name}
-              image={originData?.image}
-              style={{ marginBottom: spacing[3] }}
-              onPress={() => navigation.navigate("selectStation", { selectionType: "origin" })}
-            />
-          </Animated.View>
-          <View style={{ zIndex: 10 }}>
-            <ChangeDirectionButton onPress={onSwitchPress} style={{ position: "absolute", end: 10, top: -26 }} />
-          </View>
-
-          <Text preset="fieldLabel" text="תחנת יעד" style={{ marginBottom: spacing[1] }} />
-          <Animated.View style={{ transform: [{ scale: stationCardScale }] }}>
-            <StationCard
-              name={destinationData?.name}
-              image={destinationData?.image}
-              style={{ marginBottom: spacing[3] }}
-              onPress={() => navigation.navigate("selectStation", { selectionType: "destination" })}
-            />
-          </Animated.View>
-          <Text preset="fieldLabel" text="זמן יציאה" style={{ marginBottom: spacing[1] }} />
-          <DummyInput
-            placeholder="עכשיו"
-            value={formattedDate}
-            style={{ marginBottom: spacing[5] }}
-            onPress={() => setDatePickerVisibility(true)}
+        <Text preset="fieldLabel" text="תחנת מוצא" style={{ marginBottom: spacing[1] }} />
+        <Animated.View style={{ transform: [{ scale: stationCardScale }] }}>
+          <StationCard
+            name={originData?.name}
+            image={originData?.image}
+            style={{ marginBottom: spacing[3] }}
+            onPress={() => navigation.navigate("selectStation", { selectionType: "origin" })}
           />
-          <Button title="חישוב מסלול" onPress={onGetRoutePress} disabled={!routePlan.origin || !routePlan.destination} />
-          <DateTimePickerModal
-            isVisible={isDatePickerVisible}
-            mode="datetime"
-            onConfirm={handleConfirm}
-            onCancel={() => setDatePickerVisibility(false)}
-            locale={"he_IL"}
-            minimumDate={now}
-            customHeaderIOS={() => null}
-            customCancelButtonIOS={() => null}
-            confirmTextIOS="אישור"
-          />
+        </Animated.View>
+        <View style={{ zIndex: 10 }}>
+          <ChangeDirectionButton onPress={onSwitchPress} style={{ position: "absolute", end: 10, top: -26 }} />
         </View>
-      </ImageBackground>
+
+        <Text preset="fieldLabel" text="תחנת יעד" style={{ marginBottom: spacing[1] }} />
+        <Animated.View style={{ transform: [{ scale: stationCardScale }] }}>
+          <StationCard
+            name={destinationData?.name}
+            image={destinationData?.image}
+            style={{ marginBottom: spacing[3] }}
+            onPress={() => navigation.navigate("selectStation", { selectionType: "destination" })}
+          />
+        </Animated.View>
+        <Text preset="fieldLabel" text="זמן יציאה" style={{ marginBottom: spacing[1] }} />
+        <DummyInput
+          placeholder="עכשיו"
+          value={formattedDate}
+          style={{ marginBottom: spacing[5] }}
+          onPress={() => setDatePickerVisibility(true)}
+        />
+        <Button title="חישוב מסלול" onPress={onGetRoutePress} disabled={!routePlan.origin || !routePlan.destination} />
+        <DateTimePickerModal
+          isVisible={isDatePickerVisible}
+          mode="datetime"
+          onConfirm={handleConfirm}
+          onCancel={() => setDatePickerVisibility(false)}
+          locale={"he_IL"}
+          minimumDate={now}
+          customHeaderIOS={() => null}
+          customCancelButtonIOS={() => null}
+          confirmTextIOS="אישור"
+        />
+      </View>
     </Screen>
   )
 })

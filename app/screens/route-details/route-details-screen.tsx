@@ -1,13 +1,13 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
-import { View, Image, ViewStyle, ImageStyle, TextStyle } from "react-native"
+import { View, Image, ViewStyle, ImageStyle, TextStyle, Dimensions } from "react-native"
 import { RouteDetailsHeader, Screen, Text } from "../../components"
 import { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import { color, spacing } from "../../theme"
 import { SharedElement } from "react-navigation-shared-element"
 import { ScrollView } from "react-native-gesture-handler"
 import { format } from "date-fns"
-import { Svg, Line, Circle } from "react-native-svg"
+import { Svg, Line, Circle, G } from "react-native-svg"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -15,16 +15,7 @@ const ROOT: ViewStyle = {
 }
 
 export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
-  const { routeItem, originId, destinationId } = route.params
-  const departureTime = routeItem.trains[0].departureTime
-  let arrivalTime = routeItem.trains[0].arrivalTime
-  let stops = 0
-
-  // If the train contains an exchange, change to arrival time to the last stop from the last train
-  if (routeItem.isExchange) {
-    stops = routeItem.trains.length
-    arrivalTime = routeItem.trains[stops - 1].arrivalTime
-  }
+  const { routeItem } = route.params
 
   return (
     <Screen style={ROOT} preset="fixed" unsafe={true}>
@@ -35,16 +26,30 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
           style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
         />
       </SharedElement>
+
       <ScrollView contentContainerStyle={{ paddingTop: spacing[4] }} showsVerticalScrollIndicator={false}>
         {routeItem.trains.map((train) => {
           return (
             <>
-              <RouteStationCard stationName={train.originStationName} stopTime={"15:00"} platform={train.originPlatform} />
-              {train.stopStations.map((stop, index) => {
-                const stopTime = format(stop.departureTime, "HH:mm")
-
-                return <RouteStopCard stationName={stop.stationName} stopTime={stopTime} key={stop.stationId} />
-              })}
+              <RouteStationCard
+                stationName={train.originStationName}
+                stopTime={format(train.departureTime, "HH:mm")}
+                platform={train.originPlatform}
+              />
+              {train.stopStations.map((stop) => (
+                <RouteStopCard
+                  stationName={stop.stationName}
+                  stopTime={format(stop.departureTime, "HH:mm")}
+                  key={stop.stationId}
+                />
+              ))}
+              {train.stopStations.length > 0 && <RouteLine />}
+              <RouteStationCard
+                stationName={train.destinationStationName}
+                stopTime={format(train.arrivalTime, "HH:mm")}
+                platform={train.originPlatform}
+                style={{ marginTop: 4 }}
+              />
             </>
           )
         })}
@@ -55,12 +60,14 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
 
 const railwayStationIcon = require("../../../assets/railway-station.png")
 
+const { width: deviceWidth } = Dimensions.get("screen")
+
 // #region styles
 const ROUTE_STATION_WRAPPER: ViewStyle = {
   flexDirection: "row",
-  justifyContent: "center",
   alignItems: "center",
   paddingVertical: spacing[3],
+  paddingHorizontal: spacing[7],
   backgroundColor: color.secondaryBackground,
 }
 
@@ -89,9 +96,8 @@ const RAILWAY_ICON: ImageStyle = {
 
 // #endregion
 
-const RouteStationCard = ({ stationName, stopTime, platform }: RouteStopCardProps) => (
-  // <View>
-  <View style={ROUTE_STATION_WRAPPER}>
+const RouteStationCard = ({ stationName, stopTime, platform, style }: RouteStopCardProps) => (
+  <View style={[ROUTE_STATION_WRAPPER, style]}>
     <Text style={ROUTE_STATION_TIME}>{stopTime}</Text>
     <Image style={RAILWAY_ICON} source={railwayStationIcon} />
     <View style={ROUTE_STATION_DETAILS}>
@@ -99,61 +105,65 @@ const RouteStationCard = ({ stationName, stopTime, platform }: RouteStopCardProp
       <Text>רציף {platform}</Text>
     </View>
   </View>
-
-  //  <RouteStopCard stationName="הרצליה" stopTime="15:11" />
-  // <RouteStopCard stationName="הרצליה" stopTime="15:11" />
-  // <RouteStopCard stationName="הרצליה" stopTime="15:11" />
-  // <RouteLine />
-  // <View style={ROUTE_STATION_WRAPPER}>
-  //   <Text style={ROUTE_STATION_TIME}>15:03</Text>
-  //   <Image style={RAILWAY_ICON} source={railwayStationIcon} />
-  //   <View style={ROUTE_STATION_DETAILS}>
-  //     <Text style={ROUTE_STATION_NAME}>בית יהושוע</Text>
-  //     <Text>רציף 3</Text>
-  //   </View>
-  // </View>
-  // </View>
 )
 
 const ROUTE_STOP_WRAPPER: ViewStyle = {
   alignItems: "center",
   right: 24,
-  marginBottom: -31,
+  marginBottom: deviceWidth > 400 ? -30 : -35,
 }
 
 const ROUTE_STOP_DETAILS: ViewStyle = {
-  width: "90%",
+  width: "57%%",
   flexDirection: "row",
-  justifyContent: "center",
 
-  bottom: 34,
-  left: 27.5,
+  bottom: 30,
+  left: 15.5,
+}
+
+const ROUTE_STOP_TIME: TextStyle = {
+  ...ROUTE_STATION_TIME,
+  fontSize: 16,
+  fontWeight: "600",
+  end: spacing[4],
+  top: 3,
 }
 
 type RouteStopCardProps = {
   stationName: string
   stopTime: string
   platform?: string
+  style?: ViewStyle
 }
+
+//  Calculate the dashed line X position
+let lineX = deviceWidth / 6.6
+if (deviceWidth > 400) lineX = lineX - 2
+const lineXPercent = `${lineX}%`
 
 const RouteStopCard = ({ stationName, stopTime }: RouteStopCardProps) => (
   <View style={ROUTE_STOP_WRAPPER}>
     <Svg height={68} width={"100%"}>
-      <Line stroke={color.dim} strokeWidth={4} strokeDasharray="5,5" x1="50%" y1="0" x2="50%" y2="70" />
-      <Circle cx="50%" cy="50" r="15" fill={color.background} stroke={color.dim} strokeWidth={3.5} />
+      <Line stroke={color.dim} strokeWidth={4} strokeDasharray="5,5" x1={lineXPercent} y1="0" x2={lineXPercent} y2="80" />
+      <Circle cx={lineXPercent} cy="50" r="13" fill={color.background} stroke={color.dim} strokeWidth={3.5} />
     </Svg>
     <View style={ROUTE_STOP_DETAILS}>
-      <Text style={[ROUTE_STATION_TIME, { fontSize: 16, fontWeight: "600", end: spacing[3], top: 3 }]}>{stopTime}</Text>
+      <Text style={ROUTE_STOP_TIME}>{stopTime}</Text>
       <View style={{ width: 30, height: 30, borderRadius: 25 }}></View>
       <Text style={{ fontWeight: "600", maxWidth: 120, flexWrap: "wrap", fontSize: 15, start: spacing[3] }}>{stationName}</Text>
     </View>
   </View>
 )
 
+let ROUTE_LINE_POSITION = { marginBottom: -40, top: -12.5 }
+if (deviceWidth > 400) {
+  ROUTE_LINE_POSITION = { marginBottom: -45, top: -17 }
+}
+
 const RouteLine = () => (
-  <View style={ROUTE_STOP_WRAPPER}>
-    <Svg height={54} width={"100%"}>
-      <Line stroke={color.dim} strokeWidth={4} strokeDasharray="5,5" x1="50%" y1="0" x2="50%" y2="70s" />
+  <View style={[ROUTE_STOP_WRAPPER, ROUTE_LINE_POSITION]}>
+    <Svg height={64} width={"100%"}>
+      <Line stroke={color.dim} strokeWidth={4} strokeDasharray="5,5" x1={lineXPercent} y1="0" x2={lineXPercent} y2="80" />
     </Svg>
   </View>
 )
