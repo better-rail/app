@@ -90,9 +90,10 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
       }),
     ]).start()
 
+    // Delay the actual switch so it'll be synced with the animation
     setTimeout(() => {
       routePlan.switchDirection()
-    }, 70)
+    }, 50)
   }
 
   const onGetRoutePress = () => {
