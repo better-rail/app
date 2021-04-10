@@ -13,6 +13,10 @@ const CONTAINER: ViewStyle = {
   alignItems: "center",
   borderRadius: 50,
   backgroundColor: color.secondary,
+  shadowOffset: { width: 0, height: 0.5 },
+  shadowColor: color.palette.black,
+  shadowRadius: 1,
+  shadowOpacity: 0.5,
 }
 
 const ARROW_ICON: ImageStyle = {
