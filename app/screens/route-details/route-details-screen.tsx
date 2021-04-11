@@ -7,7 +7,7 @@ import { color, spacing } from "../../theme"
 import { SharedElement } from "react-navigation-shared-element"
 import { ScrollView } from "react-native-gesture-handler"
 import { format } from "date-fns"
-import { RouteStationCard, RouteStopCard } from "./components"
+import { RouteStationCard, RouteStopCard, RouteExchangeDetails } from "./components"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -58,9 +58,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
                 platform={train.destinationPlatform}
               />
 
-              {routeItem.isExchange && routeItem.trains.length - 1 !== index && (
-                <View style={{ height: 50, width: "100%", backgroundColor: "red" }} />
-              )}
+              {routeItem.isExchange && routeItem.trains.length - 1 !== index && <RouteExchangeDetails />}
             </>
           )
         })}

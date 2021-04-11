@@ -1,9 +1,19 @@
 import React from "react"
-import { View } from "react-native"
+import { View, ViewStyle } from "react-native"
 import { Text } from "../../../components"
 import { color, spacing } from "../../../theme"
 
-export const RouteExchangeDetails = ({ stationName, stopTime, style }: RouteStopCardProps) => (
+const ROUTE_EXCHANGE_WRAPPER: ViewStyle = {
+  height: 50,
+  width: "100%",
+  backgroundColor: "blue",
+}
+
+type RouteExchangeProps = {
+  style?: ViewStyle
+}
+
+export const RouteExchangeDetails = ({ style }: RouteExchangeProps) => (
   <View style={[style]}>
     <Text>Hi</Text>
   </View>
