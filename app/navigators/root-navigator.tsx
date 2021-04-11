@@ -26,7 +26,6 @@ const Stack = createStackNavigator<RootParamList>()
 const RootStack = () => {
   return (
     <Stack.Navigator
-      mode="modal"
       screenOptions={{
         headerShown: false,
         ...TransitionPresets.ScaleFromCenterAndroid,

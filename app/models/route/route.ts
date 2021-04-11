@@ -1,16 +1,20 @@
-import { Instance, SnapshotOut, ISimpleType, types } from "mobx-state-tree"
+import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { withEnvironment } from "../extensions/with-environment"
 import { RouteApi } from "../../services/api/route-api"
 
 const TrainListSchema = {
-  arrivalTime: types.string,
-  departureTime: types.string,
+  arrivalTime: types.number,
+  departureTime: types.number,
   originStationId: types.string,
+  originStationName: types.string,
   destinationStationId: types.string,
+  destinationStationName: types.string,
+  originPlatform: types.string,
+  destinationPlatform: types.string,
   stopStations: types.array(
     types.model({
-      arrivalTime: types.string,
-      departureTime: types.string,
+      arrivalTime: types.number,
+      departureTime: types.number,
       stationId: types.string,
       stationName: types.string,
       platform: types.string,
@@ -31,14 +35,14 @@ export const RouteModel = types
   .model("Route")
   .props({
     routes: types.array(types.model(TrainRouteSchema)),
-    state: "loading",
+    state: "pending",
   })
   .extend(withEnvironment)
   .actions((self) => ({
     saveRoutes: (routesSnapshot) => {
       self.routes.replace(routesSnapshot)
     },
-    updateState(state: "loading" | "loaded" | "error") {
+    updateState(state: "pending" | "loading" | "loaded" | "error") {
       self.state = state
     },
   }))
@@ -47,7 +51,6 @@ export const RouteModel = types
       self.updateState("loading")
       const routeApi = new RouteApi(self.environment.api)
       const result = await routeApi.getRoutes(originId, destinationId, date, hour)
-      console.log(result)
       self.saveRoutes(result)
       self.updateState("loaded")
       // if (result.kind === "ok") {

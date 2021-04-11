@@ -7,6 +7,7 @@
 import React from "react"
 import { createStackNavigator, StackScreenProps, TransitionPresets } from "@react-navigation/stack"
 import { PlannerScreen, SelectStationScreen, RouteListScreen, RouteDetailsScreen } from "../screens"
+import { createSharedElementStackNavigator } from "react-navigation-shared-element"
 import { color, typography } from "../theme"
 import { RouteItem } from "../services/api"
 
@@ -26,7 +27,7 @@ export type PrimaryParamList = {
   planner: undefined
   selectStation: { selectionType: "origin" | "destination" }
   routeList: { originId: string; destinationId: string; time: number }
-  routeDetails: { routeItem: RouteItem }
+  routeDetails: { routeItem: RouteItem; originId: string; destinationId: string }
 }
 
 export type PlannerScreenProps = StackScreenProps<PrimaryParamList, "planner">
@@ -35,25 +36,31 @@ export type RouteListScreenProps = StackScreenProps<PrimaryParamList, "routeList
 export type RouteDetailsScreenProps = StackScreenProps<PrimaryParamList, "routeDetails">
 
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
-const Stack = createStackNavigator<PrimaryParamList>()
+const Stack = createSharedElementStackNavigator<PrimaryParamList>()
 
 export function MainNavigator() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="planner" component={PlannerScreen} />
-      <Stack.Screen name="selectStation" component={SelectStationScreen} options={{ ...TransitionPresets.ModalTransition }} />
+    <Stack.Navigator
+      screenOptions={{
+        headerBackTitleVisible: false,
+        headerTitleStyle: { fontSize: 18, fontFamily: typography.primary },
+        headerTintColor: "lightgrey",
+        headerTitle: "",
+      }}
+    >
+      <Stack.Screen name="planner" component={PlannerScreen} options={{ headerShown: false }} />
       <Stack.Screen
-        name="routeList"
-        component={RouteListScreen}
-        options={{
-          headerShown: true,
-          headerBackTitleVisible: false,
-          headerTitle: "מסלול נסיעה",
-          headerTitleStyle: { fontSize: 18, fontFamily: typography.primary },
-          headerTintColor: color.primary,
-        }}
+        name="selectStation"
+        component={SelectStationScreen}
+        options={{ headerShown: false, ...TransitionPresets.ModalTransition }}
       />
-      <Stack.Screen name="routeDetails" component={RouteDetailsScreen} options={{ ...TransitionPresets.ModalTransition }} />
+      <Stack.Screen name="routeList" component={RouteListScreen} options={{ headerTransparent: true }} />
+      <Stack.Screen
+        name="routeDetails"
+        component={RouteDetailsScreen}
+        options={{ headerTransparent: true, headerBackTitle: "חזרה" }}
+        sharedElementsConfig={() => ["route-header"]}
+      />
     </Stack.Navigator>
   )
 }

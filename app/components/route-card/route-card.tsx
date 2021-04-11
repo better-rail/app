@@ -1,6 +1,6 @@
 import React, { useMemo } from "react"
 import { TextStyle, View, ViewStyle, PixelRatio } from "react-native"
-import { observer } from "mobx-react-lite"
+import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import { Svg, Line } from "react-native-svg"
 import { color, spacing, typography } from "../../theme"
 import { Text } from "../"
@@ -48,11 +48,12 @@ const TIME_TEXT: TextStyle = {
 
 // #endregion
 
-export interface RouteCardProps {
+export interface RouteCardProps extends TouchableScaleProps {
   departureTime: string
   arrivalTime: string
   estTime: string
   stops: number
+  bounceable?: boolean
   style?: ViewStyle
 }
 
@@ -60,7 +61,7 @@ export interface RouteCardProps {
  * Describe your component here
  */
 export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
-  const { departureTime, arrivalTime, estTime, stops, style } = props
+  const { departureTime, arrivalTime, estTime, stops, onPress = null, bounceable = true, style } = props
 
   // Format times
   const [formattedDepatureTime, formattedArrivalTime] = useMemo(() => {
@@ -77,6 +78,8 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
     const durationObject = intervalToDuration({ start: 0, end: durationInMilliseconds }) // Create a date-fns duration object
     const formattedDuration = formatDuration(durationObject, { delimiter: " ו- ", locale: he }) // Format the duration
 
+    if (formattedDuration.length > 7) dashedLineWidth = 0
+
     return formattedDuration
   }, [estTime])
 
@@ -87,7 +90,7 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
   }, [stops])
 
   return (
-    <View style={[CONTAINER, style]}>
+    <TouchableScale onPress={onPress} activeScale={bounceable ? 0.95 : 1} friction={9} style={[CONTAINER, style]}>
       <View style={{ marginEnd: 6 }}>
         <Text style={TEXT}>יציאה</Text>
         <Text style={TIME_TEXT}>{formattedDepatureTime}</Text>
@@ -108,7 +111,7 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
         <Text style={TEXT}>הגעה</Text>
         <Text style={TIME_TEXT}>{formattedArrivalTime}</Text>
       </View>
-    </View>
+    </TouchableScale>
   )
 })
 

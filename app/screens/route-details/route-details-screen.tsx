@@ -1,25 +1,70 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
-import { ViewStyle } from "react-native"
-import { Screen, Text } from "../../components"
-// import { useNavigation } from "@react-navigation/native"
-// import { useStores } from "../../models"
-import { color } from "../../theme"
+import { View, ViewStyle } from "react-native"
+import { RouteDetailsHeader, Screen } from "../../components"
+import { RouteDetailsScreenProps } from "../../navigators/main-navigator"
+import { color, spacing } from "../../theme"
+import { SharedElement } from "react-navigation-shared-element"
+import { ScrollView } from "react-native-gesture-handler"
+import { format } from "date-fns"
+import { RouteStationCard, RouteStopCard } from "./"
 
 const ROOT: ViewStyle = {
-  backgroundColor: color.palette.black,
   flex: 1,
+  backgroundColor: color.background,
 }
 
-export const RouteDetailsScreen = observer(function RouteDetailsScreen() {
-  // Pull in one of our MST stores
-  // const { someStore, anotherStore } = useStores()
+export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
+  const { routeItem } = route.params
 
-  // Pull in navigation via hook
-  // const navigation = useNavigation()
   return (
-    <Screen style={ROOT} preset="scroll">
-      <Text preset="header" text="" />
+    <Screen style={ROOT} preset="fixed" unsafe={true}>
+      <SharedElement id="route-header">
+        <RouteDetailsHeader
+          originId={route.params.originId}
+          destinationId={route.params.destinationId}
+          style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
+        />
+      </SharedElement>
+
+      <ScrollView contentContainerStyle={{ paddingTop: spacing[4] }} showsVerticalScrollIndicator={false}>
+        {routeItem.trains.map((train) => {
+          return (
+            <>
+              <RouteStationCard
+                stationName={train.originStationName}
+                stopTime={format(train.departureTime, "HH:mm")}
+                platform={train.originPlatform}
+              />
+
+              {train.stopStations.map((stop, index) => (
+                <>
+                  {index === 0 && <RouteLine />}
+                  <RouteStopCard
+                    stationName={stop.stationName}
+                    stopTime={format(stop.departureTime, "HH:mm")}
+                    key={stop.stationId}
+                    style={{ zIndex: 20 - index }}
+                  />
+                  {train.stopStations.length - 1 === index && <RouteLine />}
+                </>
+              ))}
+
+              {train.stopStations.length === 0 && <RouteLine height={30} />}
+
+              <RouteStationCard
+                stationName={train.destinationStationName}
+                stopTime={format(train.arrivalTime, "HH:mm")}
+                platform={train.destinationPlatform}
+              />
+            </>
+          )
+        })}
+      </ScrollView>
     </Screen>
   )
 })
+
+const RouteLine = ({ height = 10 }: { height?: number }) => (
+  <View style={{ start: "35.44%", width: 4, height, backgroundColor: color.dim, zIndex: 0 }} />
+)

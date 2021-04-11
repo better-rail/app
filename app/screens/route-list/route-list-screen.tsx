@@ -1,20 +1,20 @@
 import React, { useEffect, useMemo } from "react"
 import { observer } from "mobx-react-lite"
-import { View, FlatList, Image, ViewStyle, ActivityIndicator } from "react-native"
+import { FlatList, ViewStyle, ActivityIndicator } from "react-native"
 import { RouteListScreenProps } from "../../navigators/main-navigator"
-import { Screen, Text, RouteDetailsHeader, RouteCard, RouteCardHeight } from "../../components"
+import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight } from "../../components"
 import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
 import { format, closestIndexTo } from "date-fns"
 import { RouteItem } from "../../services/api"
+import { SharedElement } from "react-navigation-shared-element"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
   flex: 1,
-  marginTop: spacing[3],
 }
 
-export const RouteListScreen = observer(function RouteListScreen({ route }: RouteListScreenProps) {
+export const RouteListScreen = observer(function RouteListScreen({ navigation, route }: RouteListScreenProps) {
   const { trainRoute } = useStores()
 
   // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
@@ -44,6 +44,7 @@ export const RouteListScreen = observer(function RouteListScreen({ route }: Rout
     let arrivalTime = item.trains[0].arrivalTime
     let stops = 0
 
+    // If the train contains an exchange, change to arrival time to the last stop from the last train
     if (item.isExchange) {
       stops = item.trains.length
       arrivalTime = item.trains[stops - 1].arrivalTime
@@ -55,26 +56,36 @@ export const RouteListScreen = observer(function RouteListScreen({ route }: Rout
         stops={stops}
         departureTime={departureTime}
         arrivalTime={arrivalTime}
+        onPress={() =>
+          navigation.navigate("routeDetails", {
+            routeItem: item,
+            originId: route.params.originId,
+            destinationId: route.params.destinationId,
+          })
+        }
         style={{ marginBottom: spacing[3] }}
       />
     )
   }
 
   return (
-    <Screen style={ROOT} preset="fixed" unsafe={true} statusBar="dark-content">
-      <RouteDetailsHeader
-        originId={route.params.originId}
-        destinationId={route.params.destinationId}
-        style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
-      />
-      {trainRoute.state === "loading" || initialScrollIndex === undefined ? (
+    <Screen style={ROOT} preset="fixed" unsafe={true} statusBar="light-content">
+      <SharedElement id="route-header">
+        <RouteDetailsHeader
+          originId={route.params.originId}
+          destinationId={route.params.destinationId}
+          style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
+        />
+      </SharedElement>
+      {trainRoute.state === "loading" ? (
+        // ||   initialScrollIndex === undefined
         <ActivityIndicator />
       ) : (
         <FlatList
           renderItem={renderRouteCard}
-          keyExtractor={(item) => item.trains[0].departureTime}
+          keyExtractor={(item) => item.trains[0].departureTime.toString()}
           data={trainRoute.routes}
-          contentContainerStyle={{ paddingHorizontal: spacing[3] }}
+          contentContainerStyle={{ paddingTop: spacing[4], paddingHorizontal: spacing[3] }}
           getItemLayout={(_, index) => ({ length: RouteCardHeight, offset: RouteCardHeight * index + spacing[3], index })}
         />
       )}

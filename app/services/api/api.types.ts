@@ -43,10 +43,14 @@ export type RouteItem = {
   isExchange: boolean
   estTime: string
   trains: {
-    stationId: string
-    stationName: string
-    arrivalTime: string
-    departureTime: string
-    stopStations: { arrivalTime: string; departureTime: string; stationId: string; stationName: string; platform: string }[]
+    originStationId: string
+    originStationName: string
+    destinationStationId: string
+    destinationStationName: string
+    arrivalTime: number
+    departureTime: number
+    originPlatform: string
+    destinationPlatform: string
+    stopStations: { arrivalTime: number; departureTime: number; stationId: string; stationName: string; platform: string }[]
   }[]
 }
