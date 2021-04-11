@@ -7,7 +7,7 @@ import { color, spacing } from "../../theme"
 import { SharedElement } from "react-navigation-shared-element"
 import { ScrollView } from "react-native-gesture-handler"
 import { format } from "date-fns"
-import { RouteStationCard, RouteStopCard } from "./"
+import { RouteStationCard, RouteStopCard } from "./components"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -28,7 +28,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
       </SharedElement>
 
       <ScrollView contentContainerStyle={{ paddingTop: spacing[4] }} showsVerticalScrollIndicator={false}>
-        {routeItem.trains.map((train) => {
+        {routeItem.trains.map((train, index) => {
           return (
             <>
               <RouteStationCard
@@ -37,26 +37,30 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
                 platform={train.originPlatform}
               />
 
-              {train.stopStations.map((stop, index) => (
-                <>
-                  {index === 0 && <RouteLine />}
-                  <RouteStopCard
-                    stationName={stop.stationName}
-                    stopTime={format(stop.departureTime, "HH:mm")}
-                    key={stop.stationId}
-                    style={{ zIndex: 20 - index }}
-                  />
-                  {train.stopStations.length - 1 === index && <RouteLine />}
-                </>
-              ))}
-
-              {train.stopStations.length === 0 && <RouteLine height={30} />}
+              {train.stopStations.length > 0
+                ? train.stopStations.map((stop, index) => (
+                    <>
+                      {index === 0 && <RouteLine />}
+                      <RouteStopCard
+                        stationName={stop.stationName}
+                        stopTime={format(stop.departureTime, "HH:mm")}
+                        key={stop.stationId}
+                        style={{ zIndex: 20 - index }}
+                      />
+                      {train.stopStations.length - 1 === index && <RouteLine />}
+                    </>
+                  ))
+                : train.stopStations.length === 0 && <RouteLine height={30} />}
 
               <RouteStationCard
                 stationName={train.destinationStationName}
                 stopTime={format(train.arrivalTime, "HH:mm")}
                 platform={train.destinationPlatform}
               />
+
+              {routeItem.isExchange && routeItem.trains.length - 1 !== index && (
+                <View style={{ height: 50, width: "100%", backgroundColor: "red" }} />
+              )}
             </>
           )
         })}

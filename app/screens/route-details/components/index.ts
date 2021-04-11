@@ -1,2 +1,2 @@
 export * from "./RouteStationCard"
-export * from "./RouteStopCard"
+export * from "./route-stop-card"

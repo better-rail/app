@@ -1,7 +1,7 @@
 import React from "react"
 import { View, ViewStyle, Image, ImageStyle, TextStyle } from "react-native"
-import { Text } from "../../components"
-import { color, spacing } from "../../theme"
+import { Text } from "../../../components"
+import { color, spacing } from "../../../theme"
 
 const railwayStationIcon = require("../../../assets/railway-station.png")
 
