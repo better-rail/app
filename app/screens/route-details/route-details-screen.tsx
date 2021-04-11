@@ -63,7 +63,9 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
                 platform={train.destinationPlatform}
               />
 
-              {routeItem.isExchange && routeItem.trains.length - 1 !== index && <RouteExchangeDetails />}
+              {routeItem.isExchange && routeItem.trains.length - 1 !== index && (
+                <RouteExchangeDetails stationName={train.destinationStationName} />
+              )}
             </>
           )
         })}

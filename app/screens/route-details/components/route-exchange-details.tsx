@@ -54,14 +54,15 @@ const ROUTE_EXCHANGE_INFO_ICON: ImageStyle = {
 }
 
 type RouteExchangeProps = {
+  stationName: string
   style?: ViewStyle
 }
 
-export const RouteExchangeDetails = ({ style }: RouteExchangeProps) => (
+export const RouteExchangeDetails = ({ stationName, style }: RouteExchangeProps) => (
   <View style={[ROUTE_EXCHANGE_WRAPPER, style]}>
     {DISPLAY_EXCHANGE_ICON && <ChangeDirectionButton style={ROUTE_EXCHANGE_ICON} />}
     <View>
-      <Text style={ROUTE_EXCHANGE_STATION_NAME}>החלפה בתל אביב - סבידור מרכז</Text>
+      <Text style={ROUTE_EXCHANGE_STATION_NAME}>החלפה ב{stationName}</Text>
       <View style={ROUTE_EXCHANGE_INFO_WRAPPER}>
         <View style={[ROUTE_EXCHANGE_INFO_DETAIL_WRAPPER, { marginBottom: spacing[1] }]}>
           <Image style={ROUTE_EXCHANGE_INFO_ICON} source={importantIcon} />
