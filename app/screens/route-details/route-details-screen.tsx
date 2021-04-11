@@ -4,6 +4,7 @@ import { View, ViewStyle } from "react-native"
 import { RouteDetailsHeader, Screen } from "../../components"
 import { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import { color, spacing } from "../../theme"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { SharedElement } from "react-navigation-shared-element"
 import { ScrollView } from "react-native-gesture-handler"
 import { format } from "date-fns"
@@ -16,6 +17,7 @@ const ROOT: ViewStyle = {
 
 export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
   const { routeItem } = route.params
+  const insets = useSafeAreaInsets()
 
   return (
     <Screen style={ROOT} preset="fixed" unsafe={true}>
@@ -27,7 +29,10 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
         />
       </SharedElement>
 
-      <ScrollView contentContainerStyle={{ paddingTop: spacing[4] }} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={{ paddingTop: spacing[4], paddingBottom: insets.bottom }}
+        showsVerticalScrollIndicator={false}
+      >
         {routeItem.trains.map((train, index) => {
           return (
             <>
