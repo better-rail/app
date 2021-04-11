@@ -33,11 +33,10 @@ export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
 I18nManager.forceRTL(true)
 
 // Check if the app is launched initially - if it is, reload to apply RTL
-storage.load("appSetupDone").then((value) => {
-  if (value) return
-  else {
+storage.load("firstLaunch").then((value) => {
+  if (value !== false) {
     storage.saveString("firstLaunch", "false").then(() => {
-      RNRestart()
+      RNRestart.Restart()
     })
   }
 })
