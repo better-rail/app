@@ -64,7 +64,13 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
               />
 
               {routeItem.isExchange && routeItem.trains.length - 1 !== index && (
-                <RouteExchangeDetails stationName={train.destinationStationName} />
+                <RouteExchangeDetails
+                  stationName={train.destinationStationName}
+                  arrivalPlatform={train.destinationPlatform}
+                  departurePlatform={routeItem.trains[index + 1].originPlatform}
+                  arrivalTime={train.arrivalTime}
+                  depatureTime={routeItem.trains[index + 1].departureTime}
+                />
               )}
             </>
           )
