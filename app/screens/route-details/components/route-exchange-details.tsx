@@ -8,6 +8,9 @@ const clockIcon = require("../../../../assets/clock.png")
 
 const fontScale = PixelRatio.getFontScale()
 
+// Hide the exchange icon when font scaling is on, since it might make the station name overflow
+const DISPLAY_EXCHANGE_ICON = fontScale < 1.1
+
 const ROUTE_EXCHANGE_WRAPPER: ViewStyle = {
   width: "100%",
   flexDirection: "row",
@@ -24,13 +27,18 @@ const ROUTE_EXCHANGE_ICON: ViewStyle = {
   marginEnd: spacing[4],
 }
 
+const ROUTE_EXCHANGE_INFO_WRAPPER: ViewStyle = {
+  alignItems: DISPLAY_EXCHANGE_ICON ? "flex-start" : "center",
+}
+
 const ROUTE_EXCHANGE_STATION_NAME: TextStyle = {
   marginBottom: spacing[0],
   fontSize: 18,
   fontWeight: "700",
+  textAlign: DISPLAY_EXCHANGE_ICON ? "left" : "center",
 }
 
-const ROUTE_EXCHANGE_INFO_WRAPPER: ViewStyle = {
+const ROUTE_EXCHANGE_INFO_DETAIL_WRAPPER: ViewStyle = {
   flexDirection: "row",
   alignItems: "center",
 }
@@ -49,22 +57,17 @@ type RouteExchangeProps = {
   style?: ViewStyle
 }
 
-// Hide the exchange icon when font scaling is on, since it might make the station name overflow
-const DISPLAY_EXCHANGE_ICON = fontScale < 1.1
-
 export const RouteExchangeDetails = ({ style }: RouteExchangeProps) => (
   <View style={[ROUTE_EXCHANGE_WRAPPER, style]}>
     {DISPLAY_EXCHANGE_ICON && <ChangeDirectionButton style={ROUTE_EXCHANGE_ICON} />}
     <View>
-      <Text style={[ROUTE_EXCHANGE_STATION_NAME, { textAlign: DISPLAY_EXCHANGE_ICON ? "left" : "center" }]}>
-        החלפה בתל אביב - סבידור מרכז
-      </Text>
-      <View style={{ alignItems: DISPLAY_EXCHANGE_ICON ? "flex-start" : "center" }}>
-        <View style={[ROUTE_EXCHANGE_INFO_WRAPPER, { marginBottom: spacing[1] }]}>
+      <Text style={ROUTE_EXCHANGE_STATION_NAME}>החלפה בתל אביב - סבידור מרכז</Text>
+      <View style={ROUTE_EXCHANGE_INFO_WRAPPER}>
+        <View style={[ROUTE_EXCHANGE_INFO_DETAIL_WRAPPER, { marginBottom: spacing[1] }]}>
           <Image style={ROUTE_EXCHANGE_INFO_ICON} source={importantIcon} />
           <Text style={ROUTE_EXCHANGE_INFO_TEXT}>יש לעבור לרציף 4</Text>
         </View>
-        <View style={[ROUTE_EXCHANGE_INFO_WRAPPER, { marginBottom: fontScale > 1 && spacing[3] }]}>
+        <View style={[ROUTE_EXCHANGE_INFO_DETAIL_WRAPPER, { marginBottom: fontScale > 1 && spacing[3] }]}>
           <Image style={ROUTE_EXCHANGE_INFO_ICON} source={clockIcon} />
           <Text style={ROUTE_EXCHANGE_INFO_TEXT}>זמן המתנה כ-7 דק׳</Text>
         </View>
