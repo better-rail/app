@@ -10,8 +10,10 @@ const ROUTE_STATION_WRAPPER: ViewStyle = {
   flexDirection: "row",
   alignItems: "center",
   paddingVertical: spacing[3],
-  paddingHorizontal: spacing[7],
+  paddingHorizontal: spacing[6],
+  paddingEnd: spacing[2],
   backgroundColor: color.secondaryBackground,
+  zIndex: 100,
 }
 
 const ROUTE_STATION_DETAILS: ViewStyle = {
@@ -48,11 +50,17 @@ type RouteStopCardProps = {
 
 export const RouteStationCard = ({ stationName, stopTime, platform, style }: RouteStopCardProps) => (
   <View style={[ROUTE_STATION_WRAPPER, style]}>
-    <Text style={ROUTE_STATION_TIME}>{stopTime}</Text>
+    <View style={{ flex: 0.4, alignItems: "flex-end" }}>
+      <Text style={ROUTE_STATION_TIME}>{stopTime}</Text>
+    </View>
+
     <Image style={RAILWAY_ICON} source={railwayStationIcon} />
-    <View style={ROUTE_STATION_DETAILS}>
-      <Text style={ROUTE_STATION_NAME}>{stationName}</Text>
-      <Text>רציף {platform}</Text>
+
+    <View style={{ flex: 1 }}>
+      <View style={ROUTE_STATION_DETAILS}>
+        <Text style={ROUTE_STATION_NAME}>{stationName}</Text>
+        <Text>רציף {platform}</Text>
+      </View>
     </View>
   </View>
 )

@@ -1,6 +1,6 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
-import { ViewStyle } from "react-native"
+import { View, ViewStyle } from "react-native"
 import { RouteDetailsHeader, Screen } from "../../components"
 import { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import { color, spacing } from "../../theme"
@@ -36,19 +36,26 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
                 stopTime={format(train.departureTime, "HH:mm")}
                 platform={train.originPlatform}
               />
-              {train.stopStations.map((stop) => (
-                <RouteStopCard
-                  stationName={stop.stationName}
-                  stopTime={format(stop.departureTime, "HH:mm")}
-                  key={stop.stationId}
-                />
+
+              {train.stopStations.map((stop, index) => (
+                <>
+                  {index === 0 && <RouteLine />}
+                  <RouteStopCard
+                    stationName={stop.stationName}
+                    stopTime={format(stop.departureTime, "HH:mm")}
+                    key={stop.stationId}
+                    style={{ zIndex: 20 - index }}
+                  />
+                  {train.stopStations.length - 1 === index && <RouteLine />}
+                </>
               ))}
-              {/* {train.stopStations.length > 0 && <RouteLine />} */}
+
+              {train.stopStations.length === 0 && <RouteLine height={30} />}
+
               <RouteStationCard
                 stationName={train.destinationStationName}
                 stopTime={format(train.arrivalTime, "HH:mm")}
                 platform={train.destinationPlatform}
-                style={{ marginTop: spacing[2] }}
               />
             </>
           )
@@ -57,3 +64,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
     </Screen>
   )
 })
+
+const RouteLine = ({ height = 10 }: { height?: number }) => (
+  <View style={{ start: "35.44%", width: 4, height, backgroundColor: color.dim, zIndex: 0 }} />
+)
