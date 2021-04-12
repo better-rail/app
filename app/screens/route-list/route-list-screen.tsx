@@ -83,7 +83,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
       ) : (
         <FlatList
           renderItem={renderRouteCard}
-          keyExtractor={(item) => item.trains[0].departureTime.toString()}
+          keyExtractor={(item) => item.trains[0]?.departureTime.toString()}
           data={trainRoute.routes}
           contentContainerStyle={{ paddingTop: spacing[4], paddingHorizontal: spacing[3] }}
           getItemLayout={(_, index) => ({ length: RouteCardHeight, offset: RouteCardHeight * index + spacing[3], index })}
