@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { ImageBackground, View, ViewStyle, Animated } from "react-native"
+import { View, ViewStyle, Animated } from "react-native"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -11,17 +11,11 @@ import stations from "../../data/stations"
 import { formatRelative, differenceInMinutes } from "date-fns"
 import { he } from "date-fns/locale"
 
-const background = require("../../../assets/planner-background.png")
 const now = new Date()
 
 // #region styles
 const ROOT: ViewStyle = {
   backgroundColor: color.transparent,
-  flex: 1,
-}
-
-const BACKGROUND: ViewStyle = {
-  width: "100%",
   flex: 1,
 }
 
