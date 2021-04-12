@@ -26,13 +26,12 @@ const CONTENT_WRAPPER: ViewStyle = {
   backgroundColor: color.line,
 }
 
-let settingsSize = 27.5
-if (fontScale > 1.15) settingsSize = 32.5
+let settingsSize = 25
+if (fontScale > 1.15) settingsSize = 30
 
 const SETTINGS_ICON: ImageStyle = {
   width: settingsSize,
   height: settingsSize,
-  marginBottom: fontScale > 1 ? spacing[1] : 0,
   alignSelf: "flex-end",
   tintColor: color.primaryDarker,
 }
