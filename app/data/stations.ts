@@ -12,6 +12,7 @@ const stations = [
     english: "Hertsliya",
     russian: "Герцлия",
     arabic: "هرتسليا",
+    image: require("../../assets/station-images/herzeliya.jpeg"),
   },
   {
     id: "3400",
@@ -160,6 +161,7 @@ const stations = [
     english: "Tel Aviv-HaShalom",
     russian: "Тель-Авив - ха-Шалом",
     arabic: "تل أبيب - السلام",
+    image: require("../../assets/station-images/tlv-hashalom.jpeg"),
   },
   {
     id: "2100",
