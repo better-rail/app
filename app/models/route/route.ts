@@ -11,6 +11,7 @@ const TrainListSchema = {
   destinationStationName: types.string,
   originPlatform: types.string,
   destinationPlatform: types.string,
+  trainNumber: types.string,
   stopStations: types.array(
     types.model({
       arrivalTime: types.number,

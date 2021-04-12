@@ -10,13 +10,19 @@ const ROUTE_STATION_WRAPPER: ViewStyle = {
   flexDirection: "row",
   alignItems: "center",
   paddingVertical: spacing[3],
-  paddingHorizontal: spacing[6],
+  paddingHorizontal: spacing[6] + 8,
   paddingEnd: spacing[2],
   backgroundColor: color.secondaryBackground,
   zIndex: 100,
 }
 
+const ROUTE_STATION_TIME_WRAPPER: ViewStyle = {
+  flex: 0.4,
+  alignItems: "flex-end",
+}
+
 const ROUTE_STATION_DETAILS: ViewStyle = {
+  flex: 1,
   marginStart: spacing[4],
 }
 
@@ -34,6 +40,10 @@ const ROUTE_STATION_NAME: TextStyle = {
   fontWeight: "700",
 }
 
+const ROUTE_STATION_DETAILS_TEXT: TextStyle = {
+  fontWeight: "300",
+}
+
 const RAILWAY_ICON: ImageStyle = {
   width: 42.5,
   height: 42.5,
@@ -45,22 +55,23 @@ type RouteStopCardProps = {
   stationName: string
   stopTime: string
   platform?: string
+  trainNumber?: string
   style?: ViewStyle
 }
 
-export const RouteStationCard = ({ stationName, stopTime, platform, style }: RouteStopCardProps) => (
+export const RouteStationCard = ({ stationName, stopTime, platform, trainNumber, style }: RouteStopCardProps) => (
   <View style={[ROUTE_STATION_WRAPPER, style]}>
-    <View style={{ flex: 0.4, alignItems: "flex-end" }}>
+    <View style={ROUTE_STATION_TIME_WRAPPER}>
       <Text style={ROUTE_STATION_TIME}>{stopTime}</Text>
     </View>
 
     <Image style={RAILWAY_ICON} source={railwayStationIcon} />
 
-    <View style={{ flex: 1 }}>
-      <View style={ROUTE_STATION_DETAILS}>
-        <Text style={ROUTE_STATION_NAME}>{stationName}</Text>
-        <Text>רציף {platform}</Text>
-      </View>
+    <View style={ROUTE_STATION_DETAILS}>
+      <Text style={ROUTE_STATION_NAME}>{stationName}</Text>
+      <Text style={ROUTE_STATION_DETAILS_TEXT}>
+        רציף {platform} {trainNumber && `· רכבת מס' ${trainNumber}`}
+      </Text>
     </View>
   </View>
 )

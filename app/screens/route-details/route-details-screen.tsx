@@ -40,6 +40,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
                 stationName={train.originStationName}
                 stopTime={format(train.departureTime, "HH:mm")}
                 platform={train.originPlatform}
+                trainNumber={train.trainNumber}
               />
 
               {train.stopStations.length > 0
