@@ -63,5 +63,7 @@
 		<string>Heebo-Regular.otf</string>
 		<string>Heebo-Thin.otf</string>
 	</array>
+	<key>UIUserInterfaceStyle</key>
+	<string>Light</string>
 </dict>
 </plist>
