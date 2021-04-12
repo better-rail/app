@@ -21,8 +21,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   // returns a route list for the whole day.
   const initialScrollIndex = useMemo(() => {
     if (trainRoute.state === "loaded") {
-      const departureTimes = trainRoute.routes.map((route) => Date.parse(route.arrivalTime))
-      // Doesn't work, always returns 0
+      const departureTimes = trainRoute.routes.map((route) => route.trains[0].departureTime)
       const index = closestIndexTo(route.params.time, departureTimes)
       return index
     }
@@ -86,7 +85,8 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           keyExtractor={(item) => item.trains[0]?.departureTime.toString()}
           data={trainRoute.routes}
           contentContainerStyle={{ paddingTop: spacing[4], paddingHorizontal: spacing[3] }}
-          getItemLayout={(_, index) => ({ length: RouteCardHeight, offset: RouteCardHeight * index + spacing[3], index })}
+          getItemLayout={(_, index) => ({ length: RouteCardHeight, offset: (RouteCardHeight + spacing[3]) * index, index })}
+          initialScrollIndex={initialScrollIndex}
         />
       )}
     </Screen>
