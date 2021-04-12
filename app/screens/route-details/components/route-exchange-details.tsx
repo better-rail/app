@@ -18,8 +18,8 @@ const DISPLAY_EXCHANGE_ICON = fontScale < 1.1 || deviceWidth < 360
 const ROUTE_EXCHANGE_WRAPPER: ViewStyle = {
   width: "100%",
   flexDirection: "row",
-  alignItems: "center",
   justifyContent: "center",
+  alignItems: "center",
   paddingVertical: spacing[4],
   paddingHorizontal: spacing[4],
   backgroundColor: color.secondaryLighter,
@@ -36,7 +36,7 @@ const ROUTE_EXCHANGE_INFO_WRAPPER: ViewStyle = {
 }
 
 const ROUTE_EXCHANGE_STATION_NAME: TextStyle = {
-  marginBottom: spacing[0],
+  marginBottom: spacing[1],
   fontSize: 18,
   fontWeight: "700",
   textAlign: DISPLAY_EXCHANGE_ICON ? "left" : "center",
