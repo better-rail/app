@@ -38,8 +38,14 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   const insets = useSafeAreaInsets()
   const stationCardScale = useRef(new Animated.Value(1)).current
 
-  const handleConfirm = (date) => {
+  // The datetimepicker  docs says the first argument is an event, but we get a date instead
+  // https://github.com/react-native-datetimepicker/datetimepicker#onchange-optional
+  const onDateChange = (date: Date) => {
     routePlan.setDate(date)
+  }
+
+  const handleConfirm = (date: Date) => {
+    onDateChange(date)
     setDatePickerVisibility(false)
   }
 
@@ -139,6 +145,8 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
         <DateTimePickerModal
           isVisible={isDatePickerVisible}
           mode="datetime"
+          date={routePlan.date}
+          onChange={onDateChange}
           onConfirm={handleConfirm}
           onCancel={() => setDatePickerVisibility(false)}
           locale={"he_IL"}
@@ -146,6 +154,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           customHeaderIOS={() => null}
           customCancelButtonIOS={() => null}
           confirmTextIOS="אישור"
+          isDarkModeEnabled={false}
         />
       </View>
     </Screen>
