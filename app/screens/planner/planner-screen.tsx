@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { View, ViewStyle, Animated } from "react-native"
+import { Image, View, ViewStyle, Animated } from "react-native"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -104,6 +104,11 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   return (
     <Screen style={ROOT} preset="fixed" statusBar="dark-content">
       <View style={CONTENT_WRAPPER}>
+        <Image
+          source={require("../../../assets/settings.png")}
+          style={{ width: 27.5, height: 27.5, alignSelf: "flex-end", tintColor: color.primaryDarker }}
+        />
+
         <Text preset="header" text="תכנון מסלול" style={{ marginBottom: spacing[3] }} />
 
         <Text preset="fieldLabel" text="תחנת מוצא" style={{ marginBottom: spacing[1] }} />

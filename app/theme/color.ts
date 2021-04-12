@@ -26,6 +26,7 @@ export const color = {
 
   primary: palette.blurple,
   primaryLighter: palette.lightBurple,
+  primaryDarker: palette.darkBurple,
 
   secondary: palette.pinky,
   secondaryLighter: palette.orangeLighter,
