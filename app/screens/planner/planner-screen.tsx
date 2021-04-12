@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { Image, View, ViewStyle, Animated } from "react-native"
+import { Image, View, Animated, PixelRatio, ViewStyle, ImageStyle } from "react-native"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -12,6 +12,7 @@ import { formatRelative, differenceInMinutes } from "date-fns"
 import { he } from "date-fns/locale"
 
 const now = new Date()
+const fontScale = PixelRatio.getFontScale()
 
 // #region styles
 const ROOT: ViewStyle = {
@@ -23,6 +24,17 @@ const CONTENT_WRAPPER: ViewStyle = {
   flex: 1,
   padding: spacing[4],
   backgroundColor: color.line,
+}
+
+let settingsSize = 27.5
+if (fontScale > 1.15) settingsSize = 32.5
+
+const SETTINGS_ICON: ImageStyle = {
+  width: settingsSize,
+  height: settingsSize,
+  marginBottom: fontScale > 1 ? spacing[1] : 0,
+  alignSelf: "flex-end",
+  tintColor: color.primaryDarker,
 }
 // #endregion
 
@@ -104,10 +116,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   return (
     <Screen style={ROOT} preset="fixed" statusBar="dark-content">
       <View style={CONTENT_WRAPPER}>
-        <Image
-          source={require("../../../assets/settings.png")}
-          style={{ width: 27.5, height: 27.5, alignSelf: "flex-end", tintColor: color.primaryDarker }}
-        />
+        <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />
 
         <Text preset="header" text="תכנון מסלול" style={{ marginBottom: spacing[3] }} />
 
