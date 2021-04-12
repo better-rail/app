@@ -41,10 +41,12 @@ export const ChangeDirectionButton = observer(function ChangeDirectionButton(pro
   return (
     <TouchableOpacity
       style={[CONTAINER, style]}
-      activeOpacity={0.9}
+      activeOpacity={onPress ? 0.9 : 1}
       onPress={(e) => {
-        HapticFeedback.trigger("impactMedium")
-        onPress(e)
+        if (onPress) {
+          HapticFeedback.trigger("impactMedium")
+          onPress(e)
+        }
       }}
       accessibilityLabel="החלפת תחנות"
       accessibilityHint="קיצור דרך להחלפת תחנת המוצא עם תחנת היעד"
