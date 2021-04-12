@@ -117,14 +117,14 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
       <View style={CONTENT_WRAPPER}>
         <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />
 
-        <Text preset="header" text="תכנון מסלול" style={{ marginBottom: spacing[3] }} />
+        <Text preset="header" text="תכנון מסלול" style={{ marginBottom: 6 }} />
 
         <Text preset="fieldLabel" text="תחנת מוצא" style={{ marginBottom: spacing[1] }} />
         <Animated.View style={{ transform: [{ scale: stationCardScale }] }}>
           <StationCard
             name={originData?.name}
             image={originData?.image}
-            style={{ marginBottom: spacing[3] }}
+            style={{ marginBottom: spacing[4] }}
             onPress={() => navigation.navigate("selectStation", { selectionType: "origin" })}
           />
         </Animated.View>
@@ -137,7 +137,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           <StationCard
             name={destinationData?.name}
             image={destinationData?.image}
-            style={{ marginBottom: spacing[3] }}
+            style={{ marginBottom: spacing[4] }}
             onPress={() => navigation.navigate("selectStation", { selectionType: "destination" })}
           />
         </Animated.View>
