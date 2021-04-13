@@ -27,7 +27,7 @@ export type PrimaryParamList = {
   planner: undefined
   selectStation: { selectionType: "origin" | "destination" }
   routeList: { originId: string; destinationId: string; time: number }
-  routeDetails: { routeItem: RouteItem; originId: string; destinationId: string }
+  routeDetails: { routeItem: RouteItem; originId: string; destinationId: string; date: string; time: string }
 }
 
 export type PlannerScreenProps = StackScreenProps<PrimaryParamList, "planner">
