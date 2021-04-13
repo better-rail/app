@@ -27,6 +27,7 @@ const ROUTE_STATION_DETAILS: ViewStyle = {
 }
 
 const ROUTE_STATION_TIME: TextStyle = {
+  minWidth: 52,
   marginEnd: spacing[4],
   fontSize: 18,
   fontWeight: "700",

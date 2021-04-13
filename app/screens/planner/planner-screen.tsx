@@ -17,7 +17,6 @@ const fontScale = PixelRatio.getFontScale()
 // #region styles
 const ROOT: ViewStyle = {
   backgroundColor: color.transparent,
-  flex: 1,
 }
 
 const CONTENT_WRAPPER: ViewStyle = {
@@ -113,7 +112,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   }
 
   return (
-    <Screen style={ROOT} preset="fixed" statusBar="dark-content">
+    <Screen style={ROOT} preset="scroll" statusBar="dark-content">
       <View style={CONTENT_WRAPPER}>
         <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />
 

@@ -1,5 +1,5 @@
 import React, { useMemo } from "react"
-import { TextStyle, View, ViewStyle, PixelRatio } from "react-native"
+import { TextStyle, View, ViewStyle, Dimensions, PixelRatio } from "react-native"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import { Svg, Line } from "react-native-svg"
 import { color, spacing, typography } from "../../theme"
@@ -7,9 +7,9 @@ import { Text } from "../"
 import { format, intervalToDuration, formatDuration } from "date-fns"
 import { he } from "date-fns/locale"
 
-const fontScale = PixelRatio.getFontScale()
-
 // #region styles
+
+const fontScale = PixelRatio.getFontScale()
 
 // Setting static height for FlatList getItemLayout
 export let RouteCardHeight = 75
@@ -115,6 +115,8 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
   )
 })
 
+const { width: deviceWidth } = Dimensions.get("screen")
+
 // Remove dashed line for users with scaled font size
 let dashedLineWidth = 50
 let dashedStrokeWidth = 4
@@ -122,6 +124,10 @@ let dashedStrokeWidth = 4
 if (fontScale > 1.2) {
   dashedLineWidth = 30
   dashedStrokeWidth = 8
+}
+
+if (deviceWidth < 360) {
+  dashedLineWidth = 0
 }
 
 const DashedLine = () => (
