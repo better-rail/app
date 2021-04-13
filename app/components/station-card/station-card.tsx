@@ -10,9 +10,14 @@ import { Text } from "../"
 
 const { height: deviceHeight } = Dimensions.get("screen")
 
-let cardHeight = 137.5
-if (deviceHeight < 600) {
-  cardHeight = 120
+let cardHeight = 120
+
+if (deviceHeight > 600) {
+  cardHeight = 157.5
+}
+
+if (deviceHeight > 850) {
+  cardHeight = 177.5
 }
 
 const CONTAINER: ViewStyle = {

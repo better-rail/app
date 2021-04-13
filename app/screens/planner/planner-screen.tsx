@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { View, ViewStyle, Animated } from "react-native"
+import { Image, View, Animated, PixelRatio, ViewStyle, ImageStyle } from "react-native"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -12,6 +12,7 @@ import { formatRelative, differenceInMinutes } from "date-fns"
 import { he } from "date-fns/locale"
 
 const now = new Date()
+const fontScale = PixelRatio.getFontScale()
 
 // #region styles
 const ROOT: ViewStyle = {
@@ -23,6 +24,16 @@ const CONTENT_WRAPPER: ViewStyle = {
   flex: 1,
   padding: spacing[4],
   backgroundColor: color.line,
+}
+
+let settingsSize = 25
+if (fontScale > 1.15) settingsSize = 30
+
+const SETTINGS_ICON: ImageStyle = {
+  width: settingsSize,
+  height: settingsSize,
+  alignSelf: "flex-end",
+  tintColor: color.primaryDarker,
 }
 // #endregion
 
@@ -104,14 +115,16 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   return (
     <Screen style={ROOT} preset="fixed" statusBar="dark-content">
       <View style={CONTENT_WRAPPER}>
-        <Text preset="header" text="תכנון מסלול" style={{ marginBottom: spacing[3] }} />
+        <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />
+
+        <Text preset="header" text="תכנון מסלול" style={{ marginBottom: 6 }} />
 
         <Text preset="fieldLabel" text="תחנת מוצא" style={{ marginBottom: spacing[1] }} />
         <Animated.View style={{ transform: [{ scale: stationCardScale }] }}>
           <StationCard
             name={originData?.name}
             image={originData?.image}
-            style={{ marginBottom: spacing[3] }}
+            style={{ marginBottom: spacing[4] }}
             onPress={() => navigation.navigate("selectStation", { selectionType: "origin" })}
           />
         </Animated.View>
@@ -124,7 +137,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           <StationCard
             name={destinationData?.name}
             image={destinationData?.image}
-            style={{ marginBottom: spacing[3] }}
+            style={{ marginBottom: spacing[4] }}
             onPress={() => navigation.navigate("selectStation", { selectionType: "destination" })}
           />
         </Animated.View>
