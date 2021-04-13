@@ -1,7 +1,7 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
-import { View, ViewStyle } from "react-native"
-import { RouteDetailsHeader, Screen } from "../../components"
+import { Lining, Linking, View, ViewStyle } from "react-native"
+import { Button, RouteDetailsHeader, Screen } from "../../components"
 import { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import { color, spacing } from "../../theme"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -17,6 +17,7 @@ const ROOT: ViewStyle = {
 
 export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
   const { routeItem } = route.params
+  const firstTrain = routeItem.trains[0]
   const insets = useSafeAreaInsets()
 
   return (
@@ -76,6 +77,14 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
             </>
           )
         })}
+        <Button
+          title="הזמנת שובר כניסה"
+          onPress={() =>
+            Linking.openURL(
+              `https://www.rail.co.il/taarif/pages/ordervaucherallcountry.aspx?TNUM=${firstTrain.trainNumber}&FSID=${firstTrain.originStationId}&TSID=${firstTrain.destinationStationId}&DDATE=20210413&Hour=0931`,
+            )
+          }
+        />
       </ScrollView>
     </Screen>
   )
