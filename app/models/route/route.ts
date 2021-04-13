@@ -1,6 +1,7 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { withEnvironment } from "../extensions/with-environment"
 import { RouteApi } from "../../services/api/route-api"
+import { format, add } from "date-fns"
 
 const TrainListSchema = {
   arrivalTime: types.number,
@@ -48,17 +49,39 @@ export const RouteModel = types
     },
   }))
   .actions((self) => ({
-    getRoutes: async (originId: string, destinationId: string, date: string, hour: string) => {
+    getRoutes: async (originId: string, destinationId: string, time: number) => {
       self.updateState("loading")
       const routeApi = new RouteApi(self.environment.api)
-      const result = await routeApi.getRoutes(originId, destinationId, date, hour)
-      self.saveRoutes(result)
-      self.updateState("loaded")
-      // if (result.kind === "ok") {
-      //   self.saveCharacters(result.characters)
-      // } else {
-      //   __DEV__ && console.tron.log(result.kind)
-      // }
+
+      let foundRoutes = false
+      let apiHitCount = 0
+      let requestDate = time
+
+      // If no routes are found, try to fetch results for the 3 upcoming days.
+      while (!foundRoutes && apiHitCount < 4) {
+        // Format times for Israel Rail API
+        const date = format(requestDate, "yyyyMMdd")
+        const hour = format(time, "HHmm")
+
+        const result = await routeApi.getRoutes(originId, destinationId, date, hour)
+
+        if (result.length > 0) {
+          foundRoutes = true
+          self.saveRoutes(result)
+          self.updateState("loaded")
+
+          if (apiHitCount > 0) {
+            // We found routes for a date different than the requested date.
+          }
+        } else {
+          apiHitCount += 1
+          requestDate = add(requestDate, { days: 1 }).getTime()
+        }
+      }
+
+      if (foundRoutes === false) {
+        // We couldn't found routes for the requested date.
+      }
     },
   }))
 

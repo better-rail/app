@@ -31,11 +31,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   useEffect(() => {
     const { originId, destinationId, time } = route.params
 
-    // Format times for Israel Rail API
-    const date = format(time, "yyyyMMdd")
-    const hour = format(time, "HHmm")
-
-    trainRoute.getRoutes(originId, destinationId, date, hour)
+    trainRoute.getRoutes(originId, destinationId, time)
   }, [route.params])
 
   const renderRouteCard = ({ item }: { item: RouteItem }) => {
