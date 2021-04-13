@@ -3,6 +3,8 @@ import { Image, Linking, View, ViewStyle, ImageStyle, TouchableOpacity, TextStyl
 import { Text } from "../../../components"
 import { color } from "../../../theme"
 
+const ticketsIcon = require("../../../../assets/tickets.png")
+
 const ORDER_TICKETS_WRAPPER: ViewStyle = {
   position: "absolute",
   flexDirection: "row",
@@ -47,15 +49,13 @@ const ORDER_TICKETS_TEXT: TextStyle = { color: color.secondaryBackground, fontWe
 
 type OrderTicketsButtonProps = { orderLink: string; styles?: ViewStyle }
 
-export const OrderTicketsButton = function OrderTicketsButton({ orderLink, styles }: OrderTicketsButtonProps) {
-  return (
-    <TouchableOpacity activeOpacity={0.9} onPress={() => Linking.openURL(orderLink)} style={[ORDER_TICKETS_WRAPPER, styles]}>
-      <View style={ORDER_TICKETS_ICON_WRAPPER}>
-        <Image source={require("../../../../assets/tickets.png")} style={ORDER_TICKETS_ICON_IMAGE} />
-      </View>
-      <View style={ORDER_TICKETS_TEXT_WRAPPER}>
-        <Text style={ORDER_TICKETS_TEXT}>הזמנת שובר כניסה</Text>
-      </View>
-    </TouchableOpacity>
-  )
-}
+export const OrderTicketsButton = ({ orderLink, styles }: OrderTicketsButtonProps) => (
+  <TouchableOpacity activeOpacity={0.9} onPress={() => Linking.openURL(orderLink)} style={[ORDER_TICKETS_WRAPPER, styles]}>
+    <View style={ORDER_TICKETS_ICON_WRAPPER}>
+      <Image source={ticketsIcon} style={ORDER_TICKETS_ICON_IMAGE} />
+    </View>
+    <View style={ORDER_TICKETS_TEXT_WRAPPER}>
+      <Text style={ORDER_TICKETS_TEXT}>הזמנת שובר כניסה</Text>
+    </View>
+  </TouchableOpacity>
+)
