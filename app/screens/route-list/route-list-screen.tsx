@@ -41,8 +41,8 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
 
     // If the train contains an exchange, change to arrival time to the last stop from the last train
     if (item.isExchange) {
-      stops = item.trains.length
-      arrivalTime = item.trains[stops - 1].arrivalTime
+      stops = item.trains.length - 1
+      arrivalTime = item.trains[stops].arrivalTime
     }
 
     return (
@@ -82,7 +82,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           renderItem={renderRouteCard}
           keyExtractor={(item) => item.trains[0]?.departureTime.toString()}
           data={trainRoute.routes}
-          contentContainerStyle={{ paddingTop: spacing[4], paddingHorizontal: spacing[3] }}
+          contentContainerStyle={{ paddingTop: spacing[4], paddingHorizontal: spacing[3], paddingBottom: spacing[3] }}
           getItemLayout={(_, index) => ({ length: RouteCardHeight, offset: (RouteCardHeight + spacing[3]) * index, index })}
           initialScrollIndex={initialScrollIndex}
         />
