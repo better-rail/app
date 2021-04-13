@@ -60,6 +60,8 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
             routeItem: item,
             originId: route.params.originId,
             destinationId: route.params.destinationId,
+            date: format(route.params.time, "yyyyMMdd"),
+            time: format(route.params.time, "HHmm"),
           })
         }
         style={{ marginBottom: spacing[3] }}

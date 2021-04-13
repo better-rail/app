@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { SharedElement } from "react-navigation-shared-element"
 import { ScrollView } from "react-native-gesture-handler"
 import { format } from "date-fns"
-import { RouteStationCard, RouteStopCard, RouteExchangeDetails } from "./components"
+import { RouteStationCard, RouteStopCard, RouteExchangeDetails, OrderTicketsButton } from "./components"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -16,7 +16,8 @@ const ROOT: ViewStyle = {
 }
 
 export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
-  const { routeItem } = route.params
+  const { routeItem, date, time } = route.params
+  const firstTrain = routeItem.trains[0]
   const insets = useSafeAreaInsets()
 
   return (
@@ -77,6 +78,10 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
           )
         })}
       </ScrollView>
+      <OrderTicketsButton
+        orderLink={`https://www.rail.co.il/taarif/pages/ordervaucherallcountry.aspx?TNUM=${firstTrain.trainNumber}&FSID=${firstTrain.originStationId}&TSID=${firstTrain.destinationStationId}&DDATE=${date}&Hour=${time}`}
+        styles={{ bottom: insets.bottom + 10 }}
+      />
     </Screen>
   )
 })
