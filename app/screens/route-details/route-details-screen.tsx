@@ -31,7 +31,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
       </SharedElement>
 
       <ScrollView
-        contentContainerStyle={{ paddingTop: spacing[4], paddingBottom: insets.bottom }}
+        contentContainerStyle={{ paddingTop: spacing[4], paddingBottom: spacing[8] + insets.bottom }}
         showsVerticalScrollIndicator={false}
       >
         {routeItem.trains.map((train, index) => {

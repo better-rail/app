@@ -21,7 +21,9 @@ export class RouteApi {
         // TODO: Handle API errors
       }
 
-      const formattedRoutes = response.data.Data.Routes.map((route) => {
+      const { Data: responseData } = response.data
+
+      const formattedRoutes = responseData.Routes.map((route) => {
         const { Train, IsExchange, EstTime } = route
 
         const trains = Train.map((train) => {
@@ -62,7 +64,7 @@ export class RouteApi {
           }
         })
 
-        return { isExchange: IsExchange, estTime: EstTime, trains }
+        return { departureTime: parseApiDate(responseData.Details.Date), isExchange: IsExchange, estTime: EstTime, trains }
       })
 
       return formattedRoutes

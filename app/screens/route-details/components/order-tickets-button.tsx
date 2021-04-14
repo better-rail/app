@@ -30,19 +30,19 @@ const ORDER_TICKETS_ICON_WRAPPER: ViewStyle = {
 const ORDER_TICKETS_ICON_IMAGE: ImageStyle = { width: 32.5, height: 32.5, tintColor: "#fff" }
 
 const ORDER_TICKETS_TEXT_WRAPPER: ViewStyle = {
-  justifyContent: "center",
+  width: 200,
+  height: 45,
   paddingStart: 50,
   paddingEnd: 20,
-  height: 45,
-  width: 200,
+  start: -45,
+  justifyContent: "center",
   backgroundColor: color.primary,
   borderRadius: 50,
-  start: -45,
-  zIndex: 0,
   shadowOffset: { width: 0, height: 1 },
   shadowColor: color.palette.black,
   shadowRadius: 1,
   shadowOpacity: 0.5,
+  zIndex: 0,
 }
 
 const ORDER_TICKETS_TEXT: TextStyle = { color: color.secondaryBackground, fontWeight: "700" }

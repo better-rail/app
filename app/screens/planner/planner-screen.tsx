@@ -17,7 +17,6 @@ const fontScale = PixelRatio.getFontScale()
 // #region styles
 const ROOT: ViewStyle = {
   backgroundColor: color.transparent,
-  flex: 1,
 }
 
 const CONTENT_WRAPPER: ViewStyle = {
@@ -40,7 +39,6 @@ const SETTINGS_ICON: ImageStyle = {
 export const PlannerScreen = observer(function PlannerScreen({ navigation }: PlannerScreenProps) {
   const { routePlan, trainRoute } = useStores()
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
-  const insets = useSafeAreaInsets()
   const stationCardScale = useRef(new Animated.Value(1)).current
 
   // The datetimepicker  docs says the first argument is an event, but we get a date instead
@@ -105,6 +103,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   }
 
   const onGetRoutePress = () => {
+    trainRoute.updateResultType("normal")
     navigation.navigate("routeList", {
       originId: routePlan.origin.id,
       destinationId: routePlan.destination.id,
@@ -113,7 +112,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   }
 
   return (
-    <Screen style={ROOT} preset="fixed" statusBar="dark-content">
+    <Screen style={ROOT} preset="scroll" statusBar="dark-content">
       <View style={CONTENT_WRAPPER}>
         <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />
 
