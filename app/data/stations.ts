@@ -93,8 +93,8 @@ const stations = [
   },
   {
     id: "2300",
-    hebrew: "חיפה - חוף הכרמל (ש' רזיאל)",
-    english: "Haifa-Hof HaKarmel (Razi`el)",
+    hebrew: "חיפה - חוף הכרמל",
+    english: "Haifa-Hof HaKarmel",
     russian: "Хайфа Хоф ха-Кармель",
     arabic: "حيفا - شاطئ الكرمل",
   },

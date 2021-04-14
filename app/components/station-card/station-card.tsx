@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 
 import * as React from "react"
-import { ImageBackground, View, Dimensions, TextStyle, ImageSourcePropType, ViewStyle } from "react-native"
+import { ImageBackground, View, Dimensions, TextStyle, ImageSourcePropType, ViewStyle, Image } from "react-native"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import LinearGradient from "react-native-linear-gradient"
 import { observer } from "mobx-react-lite"
@@ -94,8 +94,33 @@ export const StationCard = observer(function StationCard(props: StationCardProps
     return (
       <TouchableScale style={[CONTAINER, style]} activeScale={0.95} friction={9} {...rest}>
         <View style={EMPTY_CARD_WRAPPER}>
+          <Image
+            source={require("../../../assets/railway-station.png")}
+            style={{ width: 55, height: 55, marginBottom: spacing[2] }}
+          />
           <Text style={EMPTY_CARD_TEXT}>בחירת תחנה</Text>
         </View>
+      </TouchableScale>
+    )
+  }
+
+  if (!image) {
+    return (
+      <TouchableScale
+        style={[CONTAINER, { height: cardHeight, justifyContent: "flex-end" }, style]}
+        activeScale={0.95}
+        friction={9}
+        {...rest}
+      >
+        <LinearGradient
+          style={GARDIENT}
+          end={{ x: 1, y: 0 }}
+          start={{ x: 0, y: 0 }}
+          colors={[color.secondaryLighter, "#dfc0ae"]}
+        />
+        <LinearGradient style={GARDIENT} colors={["rgba(0, 0, 0, 0.05)", "rgba(0, 0, 0, 0.3)"]} />
+
+        <Text style={TEXT}>{name}</Text>
       </TouchableScale>
     )
   }
