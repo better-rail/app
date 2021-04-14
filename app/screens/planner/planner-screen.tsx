@@ -39,7 +39,6 @@ const SETTINGS_ICON: ImageStyle = {
 export const PlannerScreen = observer(function PlannerScreen({ navigation }: PlannerScreenProps) {
   const { routePlan, trainRoute } = useStores()
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
-  const insets = useSafeAreaInsets()
   const stationCardScale = useRef(new Animated.Value(1)).current
 
   // The datetimepicker  docs says the first argument is an event, but we get a date instead
@@ -104,6 +103,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   }
 
   const onGetRoutePress = () => {
+    trainRoute.updateResultType("normal")
     navigation.navigate("routeList", {
       originId: routePlan.origin.id,
       destinationId: routePlan.destination.id,

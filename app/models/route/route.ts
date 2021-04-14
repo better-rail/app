@@ -25,6 +25,7 @@ const TrainListSchema = {
 }
 
 const TrainRouteSchema = {
+  departureTime: types.number,
   isExchange: types.boolean,
   estTime: types.string,
   trains: types.array(types.model(TrainListSchema)),
@@ -77,8 +78,6 @@ export const RouteModel = types
           if (apiHitCount > 0) {
             // We found routes for a date different than the requested date.
             self.updateResultType("different-date")
-          } else {
-            self.updateResultType("normal")
           }
         } else {
           apiHitCount += 1

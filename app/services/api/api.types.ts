@@ -36,6 +36,7 @@ export type RailApiGetRoutesResult = {
   Message: string | null
   Data: {
     Routes: { IsExchange: boolean; EstTime: string; Train: RailApiRouteItem[] }[]
+    Details: { Origin: string; Destination: string; Date: string; SugKav: string; Hour: string }
   }
 }
 

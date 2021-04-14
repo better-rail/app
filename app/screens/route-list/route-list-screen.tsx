@@ -34,6 +34,12 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     trainRoute.getRoutes(originId, destinationId, time)
   }, [route.params])
 
+  useEffect(() => {
+    if (trainRoute.resultType === "different-date") {
+      alert(format(trainRoute.routes[0].departureTime, "eeee, dd/MM/yyyy"))
+    }
+  }, [trainRoute.resultType])
+
   const renderRouteCard = ({ item }: { item: RouteItem }) => {
     const departureTime = item.trains[0].departureTime
     let arrivalTime = item.trains[0].arrivalTime
