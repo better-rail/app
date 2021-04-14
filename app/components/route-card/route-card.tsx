@@ -49,8 +49,8 @@ const TIME_TEXT: TextStyle = {
 // #endregion
 
 export interface RouteCardProps extends TouchableScaleProps {
-  departureTime: string
-  arrivalTime: string
+  departureTime: number
+  arrivalTime: number
   estTime: string
   stops: number
   bounceable?: boolean
