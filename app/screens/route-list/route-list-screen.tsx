@@ -7,6 +7,7 @@ import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
 import { format, closestIndexTo } from "date-fns"
 import { RouteItem } from "../../services/api"
+import { RouteListModal } from "./components/route-list-modal"
 import { SharedElement } from "react-navigation-shared-element"
 
 const ROOT: ViewStyle = {
@@ -36,7 +37,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
 
   useEffect(() => {
     if (trainRoute.resultType === "different-date") {
-      alert(format(trainRoute.routes[0].departureTime, "eeee, dd/MM/yyyy"))
+      // alert(format(trainRoute.routes[0].departureTime, "eeee, dd/MM/yyyy"))
     }
   }, [trainRoute.resultType])
 
@@ -93,6 +94,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           initialScrollIndex={initialScrollIndex}
         />
       )}
+      <RouteListModal isVisible={true} />
     </Screen>
   )
 })
