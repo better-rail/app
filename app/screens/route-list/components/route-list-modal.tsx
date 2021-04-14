@@ -18,6 +18,10 @@ const MODAL_WRAPPER: ViewStyle = {
   alignItems: "center",
   backgroundColor: color.secondaryBackground,
   borderRadius: 8,
+  shadowOffset: { width: 0, height: 1 },
+  shadowColor: color.palette.black,
+  shadowRadius: 2,
+  shadowOpacity: 0.45,
 }
 
 const MODAL_ICON: TextStyle = {
