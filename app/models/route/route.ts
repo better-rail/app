@@ -38,6 +38,7 @@ export const RouteModel = types
   .props({
     routes: types.array(types.model(TrainRouteSchema)),
     state: "pending",
+    resultType: "normal",
   })
   .extend(withEnvironment)
   .actions((self) => ({
@@ -46,6 +47,9 @@ export const RouteModel = types
     },
     updateState(state: "pending" | "loading" | "loaded" | "error") {
       self.state = state
+    },
+    updateResultType(type: "normal" | "different-date" | "not-found") {
+      self.resultType = type
     },
   }))
   .actions((self) => ({
@@ -72,6 +76,9 @@ export const RouteModel = types
 
           if (apiHitCount > 0) {
             // We found routes for a date different than the requested date.
+            self.updateResultType("different-date")
+          } else {
+            self.updateResultType("normal")
           }
         } else {
           apiHitCount += 1
@@ -81,6 +88,7 @@ export const RouteModel = types
 
       if (foundRoutes === false) {
         // We couldn't found routes for the requested date.
+        self.updateResultType("not-found")
       }
     },
   }))
