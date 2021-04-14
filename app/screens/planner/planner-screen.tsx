@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { Image, View, Animated, PixelRatio, ViewStyle, ImageStyle } from "react-native"
+import { Image, View, TouchableOpacity, Animated, PixelRatio, ViewStyle, ImageStyle } from "react-native"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -114,7 +114,9 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   return (
     <Screen style={ROOT} preset="scroll" statusBar="dark-content">
       <View style={CONTENT_WRAPPER}>
-        <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />
+        <TouchableOpacity onPress={() => navigation.navigate("settings")} activeOpacity={0.8} accessibilityLabel="הגדרות">
+          <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />
+        </TouchableOpacity>
 
         <Text preset="header" text="תכנון מסלול" style={{ marginBottom: 6 }} />
 

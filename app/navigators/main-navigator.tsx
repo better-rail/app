@@ -8,7 +8,7 @@ import React from "react"
 import { createStackNavigator, StackScreenProps, TransitionPresets } from "@react-navigation/stack"
 import { PlannerScreen, SelectStationScreen, RouteListScreen, RouteDetailsScreen, SettingsScreen } from "../screens"
 import { createSharedElementStackNavigator } from "react-navigation-shared-element"
-import { color, typography } from "../theme"
+import { color, spacing, typography } from "../theme"
 import { RouteItem } from "../services/api"
 
 /**
@@ -44,8 +44,9 @@ export function MainNavigator() {
     <Stack.Navigator
       screenOptions={{
         headerBackTitleVisible: false,
-        headerTitleStyle: { fontSize: 18, fontFamily: typography.primary },
-        headerTintColor: "lightgrey",
+        headerTitleStyle: { fontSize: 20, fontFamily: typography.primary, color: color.text },
+        headerBackTitleStyle: { fontFamily: typography.primary },
+        headerTintColor: color.primary,
         headerTitle: "",
       }}
     >
@@ -55,15 +56,27 @@ export function MainNavigator() {
         component={SelectStationScreen}
         options={{ headerShown: false, ...TransitionPresets.ModalTransition }}
       />
-      <Stack.Screen name="routeList" component={RouteListScreen} options={{ headerTransparent: true }} />
+      <Stack.Screen
+        name="routeList"
+        component={RouteListScreen}
+        options={{ headerTransparent: true, headerTintColor: "lightgrey" }}
+      />
       <Stack.Screen
         name="routeDetails"
         component={RouteDetailsScreen}
-        options={{ headerTransparent: true, headerBackTitle: "חזרה" }}
+        options={{ headerTransparent: true, headerTintColor: "lightgrey" }}
         sharedElementsConfig={() => ["route-header"]}
       />
 
-      <Stack.Screen name="settings" component={SettingsScreen} options={{ headerTransparent: true }} />
+      <Stack.Screen
+        name="settings"
+        component={SettingsScreen}
+        options={{
+          headerTitle: "הגדרות",
+          headerTruncatedBackTitle: "חזרה",
+          headerBackTitleVisible: true,
+        }}
+      />
     </Stack.Navigator>
   )
 }
