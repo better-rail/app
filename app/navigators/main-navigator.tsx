@@ -6,7 +6,7 @@
  */
 import React from "react"
 import { createStackNavigator, StackScreenProps, TransitionPresets } from "@react-navigation/stack"
-import { PlannerScreen, SelectStationScreen, RouteListScreen, RouteDetailsScreen } from "../screens"
+import { PlannerScreen, SelectStationScreen, RouteListScreen, RouteDetailsScreen, SettingsScreen } from "../screens"
 import { createSharedElementStackNavigator } from "react-navigation-shared-element"
 import { color, typography } from "../theme"
 import { RouteItem } from "../services/api"
@@ -28,6 +28,7 @@ export type PrimaryParamList = {
   selectStation: { selectionType: "origin" | "destination" }
   routeList: { originId: string; destinationId: string; time: number }
   routeDetails: { routeItem: RouteItem; originId: string; destinationId: string; date: string; time: string }
+  settings: undefined
 }
 
 export type PlannerScreenProps = StackScreenProps<PrimaryParamList, "planner">
@@ -61,6 +62,8 @@ export function MainNavigator() {
         options={{ headerTransparent: true, headerBackTitle: "חזרה" }}
         sharedElementsConfig={() => ["route-header"]}
       />
+
+      <Stack.Screen name="settings" component={SettingsScreen} options={{ headerTransparent: true }} />
     </Stack.Navigator>
   )
 }
