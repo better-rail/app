@@ -83,8 +83,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         />
       </SharedElement>
       {trainRoute.state === "loading" ? (
-        // ||   initialScrollIndex === undefined
-        <ActivityIndicator />
+        <ActivityIndicator size="large" style={{ marginTop: spacing[3] }} />
       ) : (
         <FlatList
           renderItem={renderRouteCard}
