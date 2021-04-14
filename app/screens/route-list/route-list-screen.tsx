@@ -94,11 +94,13 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           initialScrollIndex={initialScrollIndex}
         />
       )}
-      <RouteListModal
-        isVisible={isModalVisible}
-        onOk={() => setIsModalVisible(false)}
-        routesDate={trainRoute.routes[0].departureTime}
-      />
+      {trainRoute.routes?.length > 0 && (
+        <RouteListModal
+          isVisible={isModalVisible}
+          onOk={() => setIsModalVisible(false)}
+          routesDate={trainRoute.routes[0].departureTime}
+        />
+      )}
     </Screen>
   )
 })

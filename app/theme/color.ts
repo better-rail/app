@@ -24,9 +24,9 @@ export const color = {
   background: palette.offWhite,
   secondaryBackground: palette.white,
 
-  primary: palette.blurple,
+  primary: palette.blue,
   primaryLighter: palette.lightBurple,
-  primaryDarker: palette.darkBurple,
+  primaryDarker: palette.blueDarker,
 
   secondary: palette.pinky,
   secondaryLighter: palette.orangeLighter,
