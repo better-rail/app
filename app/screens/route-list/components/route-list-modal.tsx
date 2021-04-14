@@ -1,10 +1,12 @@
 import React from "react"
-import { Image, ViewStyle, TextStyle, ImageStyle } from "react-native"
+import { ViewStyle, TextStyle } from "react-native"
 import Modal, { ModalProps } from "react-native-modal"
 import { Button, Text } from "../../../components"
-import { color, spacing } from "../../../theme"
 
-const warningIcon = require("../../../../assets/warning.png")
+import { format } from "date-fns"
+import { he } from "date-fns/locale"
+
+import { color, spacing } from "../../../theme"
 
 const MODAL_WRAPPER: ViewStyle = {
   position: "absolute",
@@ -18,10 +20,8 @@ const MODAL_WRAPPER: ViewStyle = {
   borderRadius: 8,
 }
 
-const MODAL_ICON: ImageStyle = {
-  width: 75,
-  height: 65,
-  marginBottom: spacing[3],
+const MODAL_ICON: TextStyle = {
+  fontSize: 72.5,
 }
 
 const MODAL_TITLE: TextStyle = {
@@ -42,15 +42,18 @@ const MODAL_BUTTON: ViewStyle = {
 }
 
 export interface RouteListModalProps extends ModalProps {
+  routesDate: number
   onOk: () => void
 }
 
-export const RouteListModal = function RouteListModal({ onOk, ...rest }: RouteListModalProps) {
+export const RouteListModal = function RouteListModal({ routesDate, onOk, ...rest }: RouteListModalProps) {
+  const formattedRoutesDate = format(routesDate, "eeee, dd/MM/yyyy", { locale: he })
+
   return (
     <Modal style={MODAL_WRAPPER} {...rest}>
-      <Image style={MODAL_ICON} source={warningIcon} />
+      <Text style={MODAL_ICON}>⚠️</Text>
       <Text style={MODAL_TITLE}>לא נמצאו רכבות לתאריך המבוקש</Text>
-      <Text style={MODAL_TEXT}>קיימות רכבות עוקבות החל מיום ראשון 18/04/21</Text>
+      <Text style={MODAL_TEXT}>קיימות רכבות עוקבות החל מ{formattedRoutesDate}</Text>
       <Button title="אישור" style={MODAL_BUTTON} onPress={onOk} />
     </Modal>
   )

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { FlatList, ViewStyle, ActivityIndicator } from "react-native"
 import { RouteListScreenProps } from "../../navigators/main-navigator"
@@ -16,6 +16,7 @@ const ROOT: ViewStyle = {
 }
 
 export const RouteListScreen = observer(function RouteListScreen({ navigation, route }: RouteListScreenProps) {
+  const [isModalVisible, setIsModalVisible] = useState(false)
   const { trainRoute } = useStores()
 
   // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
@@ -37,7 +38,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
 
   useEffect(() => {
     if (trainRoute.resultType === "different-date") {
-      // alert(format(trainRoute.routes[0].departureTime, "eeee, dd/MM/yyyy"))
+      setIsModalVisible(true)
     }
   }, [trainRoute.resultType])
 
@@ -94,7 +95,11 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           initialScrollIndex={initialScrollIndex}
         />
       )}
-      <RouteListModal isVisible={true} />
+      <RouteListModal
+        isVisible={isModalVisible}
+        onOk={() => setIsModalVisible(false)}
+        routesDate={trainRoute.routes[0].departureTime}
+      />
     </Screen>
   )
 })
