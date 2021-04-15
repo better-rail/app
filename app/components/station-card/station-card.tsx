@@ -25,7 +25,7 @@ const CONTAINER: ViewStyle = {
   shadowColor: color.palette.black,
   shadowOffset: { height: 1, width: 0 },
   shadowOpacity: 0.2,
-  elevation: 1,
+  elevation: 3,
 }
 
 const EMPTY_CARD_WRAPPER: ViewStyle = {
