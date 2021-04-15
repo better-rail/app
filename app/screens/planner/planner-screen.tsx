@@ -129,8 +129,9 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
             onPress={() => navigation.navigate("selectStation", { selectionType: "origin" })}
           />
         </Animated.View>
-        <View style={{ zIndex: 10 }}>
-          <ChangeDirectionButton onPress={onSwitchPress} style={{ position: "absolute", end: 10, top: -26 }} />
+
+        <View style={{ zIndex: 10, width: 65, height: 65, alignSelf: "flex-end", top: -30, end: 10, marginBottom: -60 }}>
+          <ChangeDirectionButton onPress={onSwitchPress} />
         </View>
 
         <Text preset="fieldLabel" text="תחנת יעד" style={{ marginBottom: spacing[1] }} />

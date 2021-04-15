@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Image, ViewStyle, ImageStyle, TouchableOpacity, TouchableOpacityProps } from "react-native"
+import { Image, ViewStyle, ImageStyle, TouchableOpacity, TouchableOpacityProps, Platform } from "react-native"
 import { observer } from "mobx-react-lite"
 import { color } from "../../theme"
 import HapticFeedback from "react-native-haptic-feedback"
@@ -7,8 +7,8 @@ import HapticFeedback from "react-native-haptic-feedback"
 const upDownArrowIcon = require("../../../assets/up-down-arrow.png")
 
 const CONTAINER: ViewStyle = {
-  width: 65,
-  height: 65,
+  width: 70,
+  height: 70,
   justifyContent: "center",
   alignItems: "center",
   borderRadius: 50,
@@ -17,12 +17,12 @@ const CONTAINER: ViewStyle = {
   shadowColor: color.palette.black,
   shadowRadius: 0.4,
   shadowOpacity: 0.5,
-  elevation: 2,
+  elevation: 1,
 }
 
 const ARROW_ICON: ImageStyle = {
-  width: 35,
-  height: 35,
+  width: Platform.select({ ios: 35, android: 37.5 }),
+  height: Platform.select({ ios: 35, android: 37.5 }),
   tintColor: color.background,
 }
 
