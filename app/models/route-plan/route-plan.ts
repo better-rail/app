@@ -27,8 +27,9 @@ export const RoutePlanModel = types
       self.date = date
     },
     switchDirection() {
-      const origin = Object.assign({}, self.origin)
-      const destination = Object.assign({}, self.destination)
+      // Handle cases where the origin/destination are undefined (for example, on initial app launch)
+      const origin = self.origin ? Object.assign({}, self.origin) : undefined
+      const destination = self.destination ? Object.assign({}, self.destination) : undefined
 
       this.setOrigin(destination)
       this.setDestination(origin)
