@@ -88,7 +88,7 @@ export const RouteDetailsHeader = React.memo(function RouteDetailsHeader(props: 
 
   return (
     <View>
-      <ImageBackground source={stationsObject[destinationId].image} style={{ width: "100%", height: 200, zIndex: 0 }}>
+      <ImageBackground source={stationsObject[originId].image} style={{ width: "100%", height: 200, zIndex: 0 }}>
         <LinearGradient style={GARDIENT} colors={["rgba(0, 0, 0, 0.75)", "rgba(0, 0, 0, 0.05)"]} />
       </ImageBackground>
 
