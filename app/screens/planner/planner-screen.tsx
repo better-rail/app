@@ -48,8 +48,10 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   }
 
   const handleConfirm = (date: Date) => {
-    onDateChange(date)
+    // We have to hide the date picker before changing the date value:
+    // https://github.com/react-native-datetimepicker/datetimepicker/issues/54#issuecomment-552951685
     setDatePickerVisibility(false)
+    onDateChange(date)
   }
 
   const formattedDate = React.useMemo(() => {

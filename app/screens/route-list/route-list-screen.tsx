@@ -74,7 +74,14 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   }
 
   return (
-    <Screen style={ROOT} preset="fixed" unsafe={true} statusBar="light-content">
+    <Screen
+      style={ROOT}
+      preset="fixed"
+      unsafe={true}
+      statusBar="light-content"
+      statusBarBackgroundColor="transparent"
+      translucent
+    >
       <SharedElement id="route-header">
         <RouteDetailsHeader
           originId={route.params.originId}

@@ -33,7 +33,13 @@ const storeLink = Platform.select({ ios: "https://apps.apple.com/app/better-rail
 
 export const SettingsScreen = observer(function SettingsScreen() {
   return (
-    <Screen style={ROOT} preset="scroll" statusBar="dark-content" unsafe={true}>
+    <Screen
+      style={ROOT}
+      preset="scroll"
+      statusBar="dark-content"
+      unsafe={true}
+      statusBarBackgroundColor={color.secondaryBackground}
+    >
       <View style={SETTING_GROUP}>
         <SettingBox
           first
