@@ -127,7 +127,7 @@ if (fontScale > 1.2) {
   dashedStrokeWidth = 8
 }
 
-if (deviceWidth < 360) {
+if (deviceWidth <= 360) {
   dashedLineWidth = 0
 }
 

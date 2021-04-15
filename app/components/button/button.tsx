@@ -1,7 +1,8 @@
 import * as React from "react"
-import { TouchableOpacity, TextStyle, View, ViewStyle, ButtonProps } from "react-native"
+import { Pressable, TextStyle, ViewStyle, ButtonProps, Platform } from "react-native"
 import { color, spacing, typography } from "../../theme"
 import { Text } from "../"
+import { TouchableNativeFeedback, TouchableOpacity } from "react-native-gesture-handler"
 
 const CONTAINER: ViewStyle = {
   padding: spacing[4],

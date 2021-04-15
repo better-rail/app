@@ -21,7 +21,14 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
   const insets = useSafeAreaInsets()
 
   return (
-    <Screen style={ROOT} preset="fixed" unsafe={true}>
+    <Screen
+      style={ROOT}
+      preset="fixed"
+      unsafe={true}
+      statusBar="light-content"
+      statusBarBackgroundColor="transparent"
+      translucent
+    >
       <SharedElement id="route-header">
         <RouteDetailsHeader
           originId={route.params.originId}

@@ -1,5 +1,5 @@
 import React from "react"
-import { Image, Linking, View, ViewStyle, ImageStyle, TouchableOpacity, TextStyle } from "react-native"
+import { Image, Linking, View, ViewStyle, ImageStyle, TouchableOpacity, TextStyle, Platform } from "react-native"
 import { Text } from "../../../components"
 import { color } from "../../../theme"
 
@@ -25,12 +25,15 @@ const ORDER_TICKETS_ICON_WRAPPER: ViewStyle = {
   shadowColor: color.palette.black,
   shadowRadius: 1,
   shadowOpacity: 0.5,
+  borderWidth: Platform.select({ android: 1, ios: 0 }),
+  borderColor: color.primaryDarker,
+  elevation: 5,
 }
 
 const ORDER_TICKETS_ICON_IMAGE: ImageStyle = { width: 32.5, height: 32.5, tintColor: "#fff" }
 
 const ORDER_TICKETS_TEXT_WRAPPER: ViewStyle = {
-  width: 200,
+  minWidth: 200,
   height: 45,
   paddingStart: 50,
   paddingEnd: 20,
@@ -42,6 +45,9 @@ const ORDER_TICKETS_TEXT_WRAPPER: ViewStyle = {
   shadowColor: color.palette.black,
   shadowRadius: 1,
   shadowOpacity: 0.5,
+  elevation: 5,
+  borderWidth: Platform.select({ android: 1, ios: 0 }),
+  borderColor: color.primaryDarker,
   zIndex: 0,
 }
 
