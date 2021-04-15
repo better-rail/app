@@ -1,7 +1,10 @@
 import React from "react"
-import { View, ViewStyle, TextStyle, TouchableHighlight, TouchableHighlightProps } from "react-native"
+import { Image, View, ViewStyle, TextStyle, TouchableHighlight, TouchableHighlightProps, ImageStyle } from "react-native"
 import { Text } from "../../../components"
 import { color, spacing } from "../../../theme"
+
+const chevronIcon = require("../../../../assets/chevron.png")
+const externalLinkIcon = require("../../../../assets/external-link.png")
 
 const SETTINGS_BOX_BASE: ViewStyle = {
   flexDirection: "row",
@@ -21,18 +24,34 @@ const SETTINGS_BOX_DETAILS: ViewStyle = {
   alignItems: "center",
 }
 
-const SETTINGS_BOX_TITLE: TextStyle = { marginStart: spacing[2], fontSize: 18, fontWeight: "400" }
+const SETTINGS_BOX_TITLE: TextStyle = { marginStart: spacing[2], fontSize: 16.5, fontWeight: "400" }
+
+const EXTERNAL_LINK_ICON: ImageStyle = {
+  width: 19.5,
+  height: 19.5,
+  marginEnd: spacing[1],
+  tintColor: color.dim,
+  opacity: 0.65,
+}
+
+const CHEVRON_ICON: ImageStyle = {
+  width: 9,
+  height: 18,
+  marginEnd: spacing[2],
+  tintColor: color.dim,
+  opacity: 0.65,
+}
 
 export interface SettingBoxProps extends TouchableHighlightProps {
   title: string
   icon: string
   first?: boolean
   last?: boolean
-  endIcon?: string | null
+  externalLink?: boolean
 }
 
 export const SettingBox = function SettingBox(props: SettingBoxProps) {
-  const { title, icon, first, last, endIcon, onPress, style } = props
+  const { title, icon, first, last, externalLink, onPress, style } = props
   let boxStyle: ViewStyle = {}
 
   if (!first) boxStyle = { borderTopColor: color.background, borderTopWidth: 1 }
@@ -49,10 +68,14 @@ export const SettingBox = function SettingBox(props: SettingBoxProps) {
     <TouchableHighlight underlayColor={color.dimmer} onPress={onPress} style={[SETTINGS_BOX_BASE, boxStyle, style]}>
       <View style={SETTINGS_BOX_WRAPPER}>
         <View style={SETTINGS_BOX_DETAILS}>
-          {icon && <Text style={SETTINGS_BOX_TITLE}>{icon}</Text>}
+          {icon && <Text style={{ fontSize: 16.5 }}>{icon}</Text>}
           <Text style={SETTINGS_BOX_TITLE}>{title}</Text>
         </View>
-        {endIcon && <Text style={{ fontSize: 24 }}>{endIcon}</Text>}
+        {externalLink ? (
+          <Image style={EXTERNAL_LINK_ICON} source={externalLinkIcon} />
+        ) : (
+          <Image style={CHEVRON_ICON} source={chevronIcon} />
+        )}
       </View>
     </TouchableHighlight>
   )
