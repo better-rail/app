@@ -11,6 +11,7 @@ const CONTAINER: ViewStyle = {
   shadowOffset: { height: 0, width: 0 },
   shadowOpacity: 0.2,
   shadowRadius: 0,
+  elevation: 1,
 }
 
 const TEXT: TextStyle = {

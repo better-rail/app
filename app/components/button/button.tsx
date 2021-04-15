@@ -11,6 +11,7 @@ const CONTAINER: ViewStyle = {
   shadowColor: color.dim,
   shadowRadius: 1,
   shadowOpacity: 0.1,
+  elevation: 1,
 }
 
 const TEXT: TextStyle = {

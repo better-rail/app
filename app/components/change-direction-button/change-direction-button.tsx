@@ -17,6 +17,7 @@ const CONTAINER: ViewStyle = {
   shadowColor: color.palette.black,
   shadowRadius: 0.4,
   shadowOpacity: 0.5,
+  elevation: 2,
 }
 
 const ARROW_ICON: ImageStyle = {
