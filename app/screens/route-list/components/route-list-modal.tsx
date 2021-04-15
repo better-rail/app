@@ -54,7 +54,7 @@ export const RouteListModal = function RouteListModal({ routesDate, onOk, ...res
   const formattedRoutesDate = format(routesDate, "eeee, dd/MM/yyyy", { locale: he })
 
   return (
-    <Modal style={MODAL_WRAPPER} {...rest}>
+    <Modal style={MODAL_WRAPPER} animationIn="zoomIn" animationOut="zoomOut" {...rest}>
       <Text style={MODAL_ICON}>⚠️</Text>
       <Text style={MODAL_TITLE}>לא נמצאו רכבות לתאריך המבוקש</Text>
       <Text style={MODAL_TEXT}>קיימות רכבות עוקבות החל מ{formattedRoutesDate}</Text>
