@@ -42,7 +42,7 @@ const MODAL_TEXT: TextStyle = {
 }
 
 const MODAL_BUTTON: ViewStyle = {
-  width: "80%",
+  minWidth: "80%",
 }
 
 export interface RouteListModalProps extends ModalProps {

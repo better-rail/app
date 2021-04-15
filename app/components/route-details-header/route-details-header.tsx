@@ -26,6 +26,7 @@ const ROUTE_DETAILS_STATION: ViewStyle = {
   shadowRadius: 1,
   shadowOpacity: 0.45,
   elevation: 1,
+  zIndex: 0,
 }
 
 const ROUTE_DETAILS_STATION_TEXT: TextStyle = {
@@ -44,6 +45,7 @@ const ROUTE_INFO_CIRCLE: ViewStyle = {
   justifyContent: "center",
   backgroundColor: color.secondary,
   borderRadius: 25,
+  elevation: 1,
   zIndex: 5,
 }
 

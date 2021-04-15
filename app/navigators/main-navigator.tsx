@@ -10,6 +10,7 @@ import { PlannerScreen, SelectStationScreen, RouteListScreen, RouteDetailsScreen
 import { createSharedElementStackNavigator } from "react-navigation-shared-element"
 import { color, spacing, typography } from "../theme"
 import { RouteItem } from "../services/api"
+import { Platform } from "react-native"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -44,7 +45,12 @@ export function MainNavigator() {
     <Stack.Navigator
       screenOptions={{
         headerBackTitleVisible: false,
-        headerTitleStyle: { fontSize: 20, fontFamily: typography.primary },
+        headerTitleStyle: {
+          fontSize: 20,
+          fontFamily: typography.primary,
+          marginStart: Platform.select({ android: -22, ios: 0 }),
+          marginBottom: Platform.select({ android: 2.5, ios: 0 }),
+        },
         headerBackTitleStyle: { fontFamily: typography.primary },
         headerTintColor: color.primary,
         headerTitle: "",
