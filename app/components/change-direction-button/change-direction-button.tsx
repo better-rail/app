@@ -15,7 +15,7 @@ const CONTAINER: ViewStyle = {
   backgroundColor: color.secondary,
   shadowOffset: { width: 0, height: 0.5 },
   shadowColor: color.palette.black,
-  shadowRadius: 1,
+  shadowRadius: 0.4,
   shadowOpacity: 0.5,
 }
 
