@@ -1,6 +1,6 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
-import { TextStyle, View, ViewStyle } from "react-native"
+import { Linking, Platform, TextStyle, View, ViewStyle } from "react-native"
 import { Screen, Text } from "../../components"
 import { SettingBox } from "./components/settings-box"
 import { getVersion } from "react-native-device-info"
@@ -28,6 +28,8 @@ const VERSION_TEXT: TextStyle = {
   color: color.dim,
 }
 
+const storeLink = Platform.select({ ios: "https://apps.apple.com/app/better-rail/id1562982976" })
+
 export const SettingsScreen = observer(function SettingsScreen() {
   return (
     <Screen style={ROOT} preset="scroll" statusBar="dark-content" unsafe={true}>
@@ -35,10 +37,10 @@ export const SettingsScreen = observer(function SettingsScreen() {
         <SettingBox first last title="מדיניות פרטיות" icon="📜" onPress={() => null} />
       </View>
       <View style={SETTING_GROUP}>
-        <SettingBox first title="דירוג ב- App Store" icon="⭐️" onPress={() => null} />
-        <SettingBox last title="שליחת פידבק" icon="📨" onPress={() => null} />
+        <SettingBox first title="דירוג ב- App Store" icon="⭐️" externalLink onPress={() => Linking.openURL(storeLink)} />
+        <SettingBox last title="שליחת פידבק" icon="📨" externalLink onPress={() => null} />
       </View>
-      <Text style={VERSION_TEXT}>Better Rail {getVersion()}</Text>
+      <Text style={VERSION_TEXT}>Better Rail v{getVersion()}</Text>
     </Screen>
   )
 })
