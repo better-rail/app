@@ -96,7 +96,7 @@ export const StationCard = observer(function StationCard(props: StationCardProps
         <View style={EMPTY_CARD_WRAPPER}>
           <Image
             source={require("../../../assets/railway-station.png")}
-            style={{ width: 55, height: 55, marginBottom: spacing[2] }}
+            style={{ width: 48, height: 48, marginBottom: spacing[2] }}
           />
           <Text style={EMPTY_CARD_TEXT}>בחירת תחנה</Text>
         </View>

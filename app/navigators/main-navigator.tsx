@@ -44,7 +44,7 @@ export function MainNavigator() {
     <Stack.Navigator
       screenOptions={{
         headerBackTitleVisible: false,
-        headerTitleStyle: { fontSize: 20, fontFamily: typography.primary, color: color.text },
+        headerTitleStyle: { fontSize: 20, fontFamily: typography.primary },
         headerBackTitleStyle: { fontFamily: typography.primary },
         headerTintColor: color.primary,
         headerTitle: "",
@@ -74,7 +74,6 @@ export function MainNavigator() {
         options={{
           headerTitle: "הגדרות",
           headerTruncatedBackTitle: "חזרה",
-          headerBackTitleVisible: true,
         }}
       />
     </Stack.Navigator>
