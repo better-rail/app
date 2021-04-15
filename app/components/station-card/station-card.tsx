@@ -116,7 +116,7 @@ export const StationCard = observer(function StationCard(props: StationCardProps
           style={GARDIENT}
           end={{ x: 1, y: 0 }}
           start={{ x: 0, y: 0 }}
-          colors={[color.secondaryLighter, "#dfc0ae"]}
+          colors={[color.secondaryLighter, "#ffd9c2"]}
         />
         <LinearGradient style={GARDIENT} colors={["rgba(0, 0, 0, 0.05)", "rgba(0, 0, 0, 0.3)"]} />
 
