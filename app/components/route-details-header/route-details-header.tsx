@@ -19,11 +19,13 @@ const ROUTE_DETAILS_STATION: ViewStyle = {
   flex: 1,
   padding: spacing[2],
   backgroundColor: color.secondaryLighter,
+  borderRadius: 25,
+
   shadowOffset: { width: 0, height: 1 },
   shadowColor: color.dim,
   shadowRadius: 1,
   shadowOpacity: 0.45,
-  borderRadius: 25,
+  elevation: 1,
 }
 
 const ROUTE_DETAILS_STATION_TEXT: TextStyle = {

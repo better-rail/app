@@ -29,6 +29,7 @@ const CONTAINER: ViewStyle = {
   shadowColor: color.palette.black,
   shadowOffset: { height: 0, width: 0 },
   shadowOpacity: 0.05,
+  elevation: 1,
 }
 
 const TEXT: TextStyle = {
