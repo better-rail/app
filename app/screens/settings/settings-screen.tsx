@@ -10,11 +10,12 @@ import { color, spacing } from "../../theme"
 const ROOT: ViewStyle = {
   flex: 1,
   backgroundColor: color.background,
-  paddingTop: spacing[2],
+  paddingTop: spacing[4],
+  paddingHorizontal: spacing[4],
 }
 
 const SETTING_GROUP: ViewStyle = {
-  margin: spacing[4],
+  marginBottom: spacing[4],
   borderRadius: 10,
   backgroundColor: color.secondaryBackground,
   shadowOffset: { width: 0, height: 0 },
@@ -34,12 +35,31 @@ export const SettingsScreen = observer(function SettingsScreen() {
   return (
     <Screen style={ROOT} preset="scroll" statusBar="dark-content" unsafe={true}>
       <View style={SETTING_GROUP}>
-        <SettingBox first last title="מדיניות פרטיות" icon="📜" onPress={() => null} />
+        <SettingBox first title="קרדיטים" icon="🖼" onPress={() => null} />
+        <SettingBox last title="מדיניות פרטיות" icon="📜" onPress={() => null} />
       </View>
+
       <View style={SETTING_GROUP}>
-        <SettingBox first title="דירוג ב- App Store" icon="⭐️" externalLink onPress={() => Linking.openURL(storeLink)} />
-        <SettingBox last title="שליחת פידבק" icon="📨" externalLink onPress={() => null} />
+        <SettingBox
+          title="טוויטר"
+          icon="🐦"
+          externalLink
+          first
+          onPress={() => Linking.openURL("twitter://user?screen_name=act1coil")}
+        />
+        <SettingBox
+          last
+          title="שליחת פידבק"
+          icon="📨"
+          externalLink
+          onPress={() => Linking.openURL("mailto:hey@guytepper.com?subject=פידבק על Better Rail")}
+        />
       </View>
+
+      <View style={SETTING_GROUP}>
+        <SettingBox first last title="דירוג ב- App Store" icon="⭐️" externalLink onPress={() => Linking.openURL(storeLink)} />
+      </View>
+
       <Text style={VERSION_TEXT}>Better Rail v{getVersion()}</Text>
     </Screen>
   )

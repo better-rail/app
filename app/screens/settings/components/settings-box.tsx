@@ -31,15 +31,15 @@ const EXTERNAL_LINK_ICON: ImageStyle = {
   height: 19.5,
   marginEnd: spacing[1],
   tintColor: color.dim,
-  opacity: 0.65,
+  opacity: 0.6,
 }
 
 const CHEVRON_ICON: ImageStyle = {
-  width: 9,
-  height: 18,
+  width: 8,
+  height: 16,
   marginEnd: spacing[2],
   tintColor: color.dim,
-  opacity: 0.65,
+  opacity: 0.6,
 }
 
 export interface SettingBoxProps extends TouchableHighlightProps {
