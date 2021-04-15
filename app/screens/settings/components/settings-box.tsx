@@ -68,7 +68,7 @@ export const SettingBox = function SettingBox(props: SettingBoxProps) {
     <TouchableHighlight underlayColor={color.dimmer} onPress={onPress} style={[SETTINGS_BOX_BASE, boxStyle, style]}>
       <View style={SETTINGS_BOX_WRAPPER}>
         <View style={SETTINGS_BOX_DETAILS}>
-          {icon && <Text style={{ fontSize: 16.5 }}>{icon}</Text>}
+          {icon && <Text style={{ fontSize: 18 }}>{icon}</Text>}
           <Text style={SETTINGS_BOX_TITLE}>{title}</Text>
         </View>
         {externalLink ? (

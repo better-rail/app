@@ -35,19 +35,8 @@ export const SettingsScreen = observer(function SettingsScreen() {
   return (
     <Screen style={ROOT} preset="scroll" statusBar="dark-content" unsafe={true}>
       <View style={SETTING_GROUP}>
-        <SettingBox first title="קרדיטים" icon="🖼" onPress={() => null} />
-        <SettingBox last title="מדיניות פרטיות" icon="📜" onPress={() => null} />
-      </View>
-
-      <View style={SETTING_GROUP}>
         <SettingBox
-          title="טוויטר"
-          icon="🐦"
-          externalLink
           first
-          onPress={() => Linking.openURL("twitter://user?screen_name=act1coil")}
-        />
-        <SettingBox
           last
           title="שליחת פידבק"
           icon="📨"
@@ -56,9 +45,14 @@ export const SettingsScreen = observer(function SettingsScreen() {
         />
       </View>
 
-      <View style={SETTING_GROUP}>
+      {/* <View style={SETTING_GROUP}>
         <SettingBox first last title="דירוג ב- App Store" icon="⭐️" externalLink onPress={() => Linking.openURL(storeLink)} />
       </View>
+
+      <View style={SETTING_GROUP}>
+        <SettingBox first title="אודות" icon="🕺" onPress={() => null} />
+        <SettingBox last title="מדיניות פרטיות" icon="📜" onPress={() => null} />
+      </View> */}
 
       <Text style={VERSION_TEXT}>Better Rail v{getVersion()}</Text>
     </Screen>
