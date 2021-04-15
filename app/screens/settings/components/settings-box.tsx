@@ -21,7 +21,7 @@ const SETTINGS_BOX_DETAILS: ViewStyle = {
   alignItems: "center",
 }
 
-const SETTINGS_BOX_TITLE: TextStyle = { marginStart: spacing[2], fontSize: 18, fontWeight: "600" }
+const SETTINGS_BOX_TITLE: TextStyle = { marginStart: spacing[2], fontSize: 18, fontWeight: "400" }
 
 export interface SettingBoxProps extends TouchableHighlightProps {
   title: string
@@ -32,10 +32,10 @@ export interface SettingBoxProps extends TouchableHighlightProps {
 }
 
 export const SettingBox = function SettingBox(props: SettingBoxProps) {
-  const { title, icon, first, last, endIcon = "chevron-left", onPress, style } = props
+  const { title, icon, first, last, endIcon, onPress, style } = props
   let boxStyle: ViewStyle = {}
 
-  if (!first) boxStyle = { borderTopColor: "#222222", borderTopWidth: 1 }
+  if (!first) boxStyle = { borderTopColor: color.background, borderTopWidth: 1 }
 
   if (first) {
     boxStyle = { borderTopLeftRadius: 10, borderTopRightRadius: 10, ...boxStyle }
@@ -49,10 +49,10 @@ export const SettingBox = function SettingBox(props: SettingBoxProps) {
     <TouchableHighlight underlayColor={color.dimmer} onPress={onPress} style={[SETTINGS_BOX_BASE, boxStyle, style]}>
       <View style={SETTINGS_BOX_WRAPPER}>
         <View style={SETTINGS_BOX_DETAILS}>
-          {icon && <Text>{icon}</Text>}
+          {icon && <Text style={SETTINGS_BOX_TITLE}>{icon}</Text>}
           <Text style={SETTINGS_BOX_TITLE}>{title}</Text>
         </View>
-        {/* {endIcon && <Icon name={endIcon} color="#444444" size={22} />} */}
+        {endIcon && <Text style={{ fontSize: 24 }}>{endIcon}</Text>}
       </View>
     </TouchableHighlight>
   )

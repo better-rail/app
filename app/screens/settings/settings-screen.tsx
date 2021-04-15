@@ -1,10 +1,10 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
-import { View, ViewStyle } from "react-native"
+import { TextStyle, View, ViewStyle } from "react-native"
 import { Screen, Text } from "../../components"
 import { SettingBox } from "./components/settings-box"
-// import { useNavigation } from "@react-navigation/native"
-// import { useStores } from "../../models"
+import { getVersion } from "react-native-device-info"
+
 import { color, spacing } from "../../theme"
 
 const ROOT: ViewStyle = {
@@ -23,17 +23,22 @@ const SETTING_GROUP: ViewStyle = {
   shadowOpacity: 0.2,
 }
 
-export const SettingsScreen = observer(function SettingsScreen() {
-  // Pull in one of our MST stores
-  // const { someStore, anotherStore } = useStores()
+const VERSION_TEXT: TextStyle = {
+  textAlign: "center",
+  color: color.dim,
+}
 
-  // Pull in navigation via hook
-  // const navigation = useNavigation()
+export const SettingsScreen = observer(function SettingsScreen() {
   return (
     <Screen style={ROOT} preset="scroll" statusBar="dark-content" unsafe={true}>
       <View style={SETTING_GROUP}>
-        <SettingBox first last title="פרטיות" icon="👀" onPress={() => null} />
+        <SettingBox first last title="מדיניות פרטיות" icon="📜" onPress={() => null} />
       </View>
+      <View style={SETTING_GROUP}>
+        <SettingBox first title="דירוג ב- App Store" icon="⭐️" onPress={() => null} />
+        <SettingBox last title="שליחת פידבק" icon="📨" onPress={() => null} />
+      </View>
+      <Text style={VERSION_TEXT}>Better Rail {getVersion()}</Text>
     </Screen>
   )
 })
