@@ -1,8 +1,7 @@
-import * as React from "react"
-import { Pressable, TextStyle, ViewStyle, ButtonProps, Platform } from "react-native"
+import React, { useState, useMemo } from "react"
+import { View, Pressable, TextStyle, ViewStyle, ButtonProps, Platform } from "react-native"
 import { color, spacing, typography } from "../../theme"
 import { Text } from "../"
-import { TouchableNativeFeedback, TouchableOpacity } from "react-native-gesture-handler"
 
 const CONTAINER: ViewStyle = {
   padding: spacing[4],
@@ -13,6 +12,7 @@ const CONTAINER: ViewStyle = {
   shadowRadius: 1,
   shadowOpacity: 0.1,
   elevation: 1,
+  opacity: 1,
 }
 
 const TEXT: TextStyle = {
@@ -35,17 +35,32 @@ export interface CustomButtonProps extends ButtonProps {
  * Describe your component here
  */
 export const Button = function Button(props: CustomButtonProps) {
+  const [isPressed, setIsPressed] = useState(false)
   const { title, onPress, disabled, style } = props
 
+  const PRESSABLE_STYLE = useMemo(() => {
+    let modifiedStyles = Object.assign({}, CONTAINER)
+    if (Platform.OS === "ios") {
+      if (isPressed) {
+        modifiedStyles = Object.assign(modifiedStyles, { opacity: 0.8 })
+      }
+    }
+    return modifiedStyles
+  }, [isPressed, disabled])
+
   return (
-    <TouchableOpacity
-      style={[CONTAINER, style, disabled && { backgroundColor: color.dim }]}
-      activeOpacity={0.8}
-      onPress={() => {
-        disabled ? null : onPress()
-      }}
-    >
-      <Text style={TEXT}>{title}</Text>
-    </TouchableOpacity>
+    <View style={{ borderRadius: 12, overflow: "hidden" }}>
+      <Pressable
+        style={[PRESSABLE_STYLE, style, disabled && { backgroundColor: color.dim }]}
+        onPressIn={() => setIsPressed(true)}
+        onPressOut={() => setIsPressed(false)}
+        android_ripple={{ color: color.primaryLighter }}
+        onPress={() => {
+          disabled ? null : onPress()
+        }}
+      >
+        <Text style={TEXT}>{title}</Text>
+      </Pressable>
+    </View>
   )
 }
