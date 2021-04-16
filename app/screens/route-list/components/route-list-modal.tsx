@@ -58,7 +58,7 @@ export const RouteListModal = function RouteListModal({ routesDate, onOk, ...res
       <Text style={MODAL_ICON}>⚠️</Text>
       <Text style={MODAL_TITLE}>לא נמצאו רכבות לתאריך המבוקש</Text>
       <Text style={MODAL_TEXT}>קיימות רכבות עוקבות החל מ{formattedRoutesDate}</Text>
-      <Button title="אישור" style={MODAL_BUTTON} onPress={onOk} />
+      <Button title="אישור" style={MODAL_BUTTON} onPress={() => onOk()} />
     </Modal>
   )
 }
