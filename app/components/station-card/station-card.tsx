@@ -25,6 +25,7 @@ const CONTAINER: ViewStyle = {
   shadowColor: color.palette.black,
   shadowOffset: { height: 1, width: 0 },
   shadowOpacity: 0.2,
+  elevation: 3,
 }
 
 const EMPTY_CARD_WRAPPER: ViewStyle = {
@@ -96,7 +97,7 @@ export const StationCard = observer(function StationCard(props: StationCardProps
         <View style={EMPTY_CARD_WRAPPER}>
           <Image
             source={require("../../../assets/railway-station.png")}
-            style={{ width: 55, height: 55, marginBottom: spacing[2] }}
+            style={{ width: 48, height: 48, marginBottom: spacing[2] }}
           />
           <Text style={EMPTY_CARD_TEXT}>בחירת תחנה</Text>
         </View>
@@ -116,7 +117,7 @@ export const StationCard = observer(function StationCard(props: StationCardProps
           style={GARDIENT}
           end={{ x: 1, y: 0 }}
           start={{ x: 0, y: 0 }}
-          colors={[color.secondaryLighter, "#dfc0ae"]}
+          colors={[color.secondaryLighter, "#ffd9c2"]}
         />
         <LinearGradient style={GARDIENT} colors={["rgba(0, 0, 0, 0.05)", "rgba(0, 0, 0, 0.3)"]} />
 

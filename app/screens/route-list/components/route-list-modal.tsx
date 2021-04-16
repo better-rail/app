@@ -42,7 +42,7 @@ const MODAL_TEXT: TextStyle = {
 }
 
 const MODAL_BUTTON: ViewStyle = {
-  width: "80%",
+  minWidth: "80%",
 }
 
 export interface RouteListModalProps extends ModalProps {
@@ -54,11 +54,11 @@ export const RouteListModal = function RouteListModal({ routesDate, onOk, ...res
   const formattedRoutesDate = format(routesDate, "eeee, dd/MM/yyyy", { locale: he })
 
   return (
-    <Modal style={MODAL_WRAPPER} {...rest}>
+    <Modal style={MODAL_WRAPPER} animationIn="zoomIn" animationOut="zoomOut" {...rest}>
       <Text style={MODAL_ICON}>⚠️</Text>
       <Text style={MODAL_TITLE}>לא נמצאו רכבות לתאריך המבוקש</Text>
       <Text style={MODAL_TEXT}>קיימות רכבות עוקבות החל מ{formattedRoutesDate}</Text>
-      <Button title="אישור" style={MODAL_BUTTON} onPress={onOk} />
+      <Button title="אישור" style={MODAL_BUTTON} onPress={() => onOk()} />
     </Modal>
   )
 }

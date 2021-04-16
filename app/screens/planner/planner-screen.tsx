@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { Image, View, Animated, PixelRatio, ViewStyle, ImageStyle } from "react-native"
+import { Image, View, TouchableOpacity, Animated, PixelRatio, ViewStyle, ImageStyle } from "react-native"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -48,8 +48,10 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   }
 
   const handleConfirm = (date: Date) => {
-    onDateChange(date)
+    // We have to hide the date picker before changing the date value:
+    // https://github.com/react-native-datetimepicker/datetimepicker/issues/54#issuecomment-552951685
     setDatePickerVisibility(false)
+    onDateChange(date)
   }
 
   const formattedDate = React.useMemo(() => {
@@ -114,7 +116,9 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   return (
     <Screen style={ROOT} preset="scroll" statusBar="dark-content">
       <View style={CONTENT_WRAPPER}>
-        <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />
+        <TouchableOpacity onPress={() => navigation.navigate("settings")} activeOpacity={0.8} accessibilityLabel="הגדרות">
+          <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />
+        </TouchableOpacity>
 
         <Text preset="header" text="תכנון מסלול" style={{ marginBottom: 6 }} />
 
@@ -127,8 +131,9 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
             onPress={() => navigation.navigate("selectStation", { selectionType: "origin" })}
           />
         </Animated.View>
-        <View style={{ zIndex: 10 }}>
-          <ChangeDirectionButton onPress={onSwitchPress} style={{ position: "absolute", end: 10, top: -26 }} />
+
+        <View style={{ zIndex: 10, width: 65, height: 65, alignSelf: "flex-end", top: -30, end: 10, marginBottom: -60 }}>
+          <ChangeDirectionButton onPress={onSwitchPress} />
         </View>
 
         <Text preset="fieldLabel" text="תחנת יעד" style={{ marginBottom: spacing[1] }} />

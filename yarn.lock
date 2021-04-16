@@ -12871,6 +12871,11 @@ react-native-animatable@1.3.3:
   dependencies:
     prop-types "^15.7.2"
 
+react-native-device-info@^8.1.0:
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/react-native-device-info/-/react-native-device-info-8.1.0.tgz#7d0ecf65cb26dbdbcdd555fc7bce2d9750b8b3d9"
+  integrity sha512-szEbRRFQ1NYPOjGWyIMsZGk5W2eU4JTiFLaNVXTbK4u/BS/Z5moVJKcoJgYR6Fxiu6qPAY/ofJySJoSdhSeOnw==
+
 react-native-flipper@^0.34.0:
   version "0.34.0"
   resolved "https://registry.yarnpkg.com/react-native-flipper/-/react-native-flipper-0.34.0.tgz#7df1f38ba5d97a9321125fe0fccbe47d99e6fa1d"

@@ -6,10 +6,11 @@
  */
 import React from "react"
 import { createStackNavigator, StackScreenProps, TransitionPresets } from "@react-navigation/stack"
-import { PlannerScreen, SelectStationScreen, RouteListScreen, RouteDetailsScreen } from "../screens"
+import { PlannerScreen, SelectStationScreen, RouteListScreen, RouteDetailsScreen, SettingsScreen } from "../screens"
 import { createSharedElementStackNavigator } from "react-navigation-shared-element"
-import { color, typography } from "../theme"
+import { color, spacing, typography } from "../theme"
 import { RouteItem } from "../services/api"
+import { Platform } from "react-native"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -28,6 +29,7 @@ export type PrimaryParamList = {
   selectStation: { selectionType: "origin" | "destination" }
   routeList: { originId: string; destinationId: string; time: number }
   routeDetails: { routeItem: RouteItem; originId: string; destinationId: string; date: string; time: string }
+  settings: undefined
 }
 
 export type PlannerScreenProps = StackScreenProps<PrimaryParamList, "planner">
@@ -43,8 +45,14 @@ export function MainNavigator() {
     <Stack.Navigator
       screenOptions={{
         headerBackTitleVisible: false,
-        headerTitleStyle: { fontSize: 18, fontFamily: typography.primary },
-        headerTintColor: "lightgrey",
+        headerTitleStyle: {
+          fontSize: 20,
+          fontFamily: typography.primary,
+          marginStart: Platform.select({ android: -22, ios: 0 }),
+          marginBottom: Platform.select({ android: 2.5, ios: 0 }),
+        },
+        headerBackTitleStyle: { fontFamily: typography.primary },
+        headerTintColor: color.primary,
         headerTitle: "",
       }}
     >
@@ -54,12 +62,25 @@ export function MainNavigator() {
         component={SelectStationScreen}
         options={{ headerShown: false, ...TransitionPresets.ModalTransition }}
       />
-      <Stack.Screen name="routeList" component={RouteListScreen} options={{ headerTransparent: true }} />
+      <Stack.Screen
+        name="routeList"
+        component={RouteListScreen}
+        options={{ headerTransparent: true, headerTintColor: "lightgrey" }}
+      />
       <Stack.Screen
         name="routeDetails"
         component={RouteDetailsScreen}
-        options={{ headerTransparent: true, headerBackTitle: "חזרה" }}
+        options={{ headerTransparent: true, headerTintColor: "lightgrey", ...TransitionPresets.SlideFromRightIOS }}
         sharedElementsConfig={() => ["route-header"]}
+      />
+
+      <Stack.Screen
+        name="settings"
+        component={SettingsScreen}
+        options={{
+          headerTitle: "הגדרות",
+          headerTruncatedBackTitle: "חזרה",
+        }}
       />
     </Stack.Navigator>
   )

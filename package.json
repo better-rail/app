@@ -5,6 +5,7 @@
   "scripts": {
     "start": "react-native start",
     "ios": "react-native run-ios",
+    "android": "react-native run-android",
     "test:e2e": "detox test -c ios.sim.debug",
     "build:e2e": "detox build -c ios.sim.debug",
     "ci:test:e2e": "detox test -c ios.sim.release -l verbose --cleanup",
@@ -41,6 +42,7 @@
     "ramda": "0.27.1",
     "react": "16.14.0",
     "react-native": "^0.63.4",
+    "react-native-device-info": "^8.1.0",
     "react-native-gesture-handler": "1.8.0",
     "react-native-haptic-feedback": "^1.11.0",
     "react-native-keychain": "6.2.0",

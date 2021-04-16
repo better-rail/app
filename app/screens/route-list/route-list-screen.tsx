@@ -74,7 +74,14 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   }
 
   return (
-    <Screen style={ROOT} preset="fixed" unsafe={true} statusBar="light-content">
+    <Screen
+      style={ROOT}
+      preset="fixed"
+      unsafe={true}
+      statusBar="light-content"
+      statusBarBackgroundColor="transparent"
+      translucent
+    >
       <SharedElement id="route-header">
         <RouteDetailsHeader
           originId={route.params.originId}
@@ -83,7 +90,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         />
       </SharedElement>
       {trainRoute.state === "loading" ? (
-        <ActivityIndicator size="large" style={{ marginTop: spacing[3] }} />
+        <ActivityIndicator size="large" style={{ marginTop: spacing[3] }} color="grey" />
       ) : (
         <FlatList
           renderItem={renderRouteCard}
