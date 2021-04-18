@@ -5,6 +5,7 @@ const stations = [
     english: "Tel Aviv-Savidor Center",
     russian: "Тель-Авив - Мерказ - Центральная",
     arabic: "تل ابيب – ساڤيدور المركز",
+    image: require("../../assets/station-images/tlv-center.jpeg"),
   },
   {
     id: "3500",
@@ -20,6 +21,7 @@ const stations = [
     english: "Bet Yehoshu'a",
     russian: "Бейт-Иегошуа ",
     arabic: "بيت يهوشوع",
+    image: require("../../assets/station-images/bet-yehoshua.jpeg"),
   },
   {
     id: "3300",
@@ -265,6 +267,7 @@ const stations = [
     english: "Tel Aviv-HaHagana",
     russian: "Тель-Авив - ха-Хагана ",
     arabic: "تل أبيب - ههچناه",
+    image: require("../../assets/station-images/tlv-hagana.jpeg"),
   },
   {
     id: "8600",
@@ -408,6 +411,7 @@ const stations = [
     english: "Netanya-Sapir",
     russian: "Нетания – Сапир",
     arabic: "نتانيا - سبير",
+    image: require("../../assets/station-images/netanya-sapir.jpeg"),
   },
   {
     id: "1240",
@@ -457,6 +461,7 @@ const stations = [
     english: "Ra'anana West",
     russian: "Раанана-Вест",
     arabic: "رعنانا – غرب",
+    image: require("../../assets/station-images/raanana-west.jpeg"),
   },
   {
     id: "2960",

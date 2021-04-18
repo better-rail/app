@@ -133,6 +133,6 @@ if (deviceWidth <= 360) {
 
 const DashedLine = () => (
   <Svg height={5} width={dashedLineWidth}>
-    <Line stroke={color.primaryLighter} strokeWidth={dashedStrokeWidth} strokeDasharray="5,5" x1="0" y1="0" x2="100%" y2={0} />
+    <Line stroke={color.dim} strokeWidth={dashedStrokeWidth} strokeDasharray="5,5" x1="0" y1="0" x2="100%" y2={0} />
   </Svg>
 )
