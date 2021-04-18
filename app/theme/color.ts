@@ -1,3 +1,4 @@
+import { PlatformColor, DynamicColorIOS, Platform } from "react-native"
 import { palette } from "./palette"
 
 /**
@@ -21,15 +22,30 @@ export const color = {
    */
   transparent: "rgba(0, 0, 0, 0)",
 
-  background: palette.offWhite,
+  background: Platform.select({
+    ios: PlatformColor("secondarySystemBackground"),
+    android: PlatformColor("@color/background"),
+  }),
+
   secondaryBackground: palette.white,
 
-  primary: palette.blue,
+  primary: Platform.select({
+    ios: PlatformColor("systemBlue"),
+    android: PlatformColor("@color/background"),
+  }),
+
   primaryLighter: palette.blueLighter,
   primaryDarker: palette.blueDarker,
 
-  secondary: palette.pinky,
+  secondary: Platform.select({
+    ios: DynamicColorIOS({ light: palette.pinky, dark: PlatformColor("systemGray3") }),
+    android: PlatformColor("@color/background"),
+  }),
   secondaryLighter: palette.orangeLighter,
+
+  inputBackground: Platform.select({
+    ios: DynamicColorIOS({ light: PlatformColor("systemBackground"), dark: PlatformColor("systemGray5") }),
+  }),
 
   /**
    * A subtle color used for borders and lines.
@@ -38,7 +54,18 @@ export const color = {
   /**
    * The default color of text in many components.
    */
-  text: palette.black,
+  text: Platform.select({
+    ios: PlatformColor("label"),
+    android: PlatformColor("@color/background"),
+  }),
+
+  whiteText: Platform.select({
+    ios: DynamicColorIOS({ light: palette.white, dark: palette.offWhite }),
+    android: PlatformColor("@color/background"),
+  }),
+
+  label: Platform.select({ ios: PlatformColor("secondaryLabel") }),
+
   /**
    * Secondary information.
    */

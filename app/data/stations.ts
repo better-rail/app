@@ -5,7 +5,6 @@ const stations = [
     english: "Tel Aviv-Savidor Center",
     russian: "Тель-Авив - Мерказ - Центральная",
     arabic: "تل ابيب – ساڤيدور المركز",
-    image: require("../../assets/station-images/tlv-center.jpeg"),
   },
   {
     id: "3500",
