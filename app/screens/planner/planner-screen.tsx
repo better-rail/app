@@ -156,6 +156,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
         <DateTimePickerModal
           isVisible={isDatePickerVisible}
           mode="datetime"
+          display="inline"
           date={routePlan.date}
           onChange={onDateChange}
           onConfirm={handleConfirm}
