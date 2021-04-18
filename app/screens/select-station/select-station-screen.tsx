@@ -9,7 +9,7 @@ import useStationFiltering from "./useStationFiltering"
 
 // #region styles
 const ROOT: ViewStyle = {
-  backgroundColor: color.background,
+  backgroundColor: color.secondaryBackground,
   flex: 1,
 }
 
@@ -27,7 +27,7 @@ const SEARCH_BAR: TextStyle = {
   textAlign: "right",
   fontFamily: typography.primary,
   borderRadius: 8,
-  backgroundColor: color.dimmer,
+  backgroundColor: color.background,
 }
 
 const CANCEL_LINK: TextStyle = {
@@ -65,7 +65,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
   )
 
   return (
-    <Screen style={ROOT} preset="fixed" unsafe={false} statusBar="dark-content">
+    <Screen style={ROOT} preset="fixed" unsafe={false} statusBar="default">
       <View style={SEARCH_BAR_WRAPPER}>
         <TextInput
           style={SEARCH_BAR}

@@ -1,5 +1,5 @@
 import React, { useMemo } from "react"
-import { View, Image, ViewStyle, ImageStyle, TextStyle, PixelRatio, Dimensions } from "react-native"
+import { View, Image, ViewStyle, ImageStyle, TextStyle, PixelRatio, Appearance, Dimensions } from "react-native"
 import { Text, ChangeDirectionButton } from "../../../components"
 import { color, spacing } from "../../../theme"
 import { intervalToDuration, formatDuration } from "date-fns"
@@ -7,6 +7,8 @@ import { he } from "date-fns/locale"
 
 const importantIcon = require("../../../../assets/important.png")
 const clockIcon = require("../../../../assets/clock.png")
+
+const colorScheme = Appearance.getColorScheme()
 
 const fontScale = PixelRatio.getFontScale()
 const { width: deviceWidth } = Dimensions.get("screen")
@@ -22,7 +24,7 @@ const ROUTE_EXCHANGE_WRAPPER: ViewStyle = {
   alignItems: "center",
   paddingVertical: spacing[4],
   paddingHorizontal: spacing[4],
-  backgroundColor: color.secondaryLighter,
+  backgroundColor: color.background,
 }
 
 const ROUTE_EXCHANGE_ICON: ViewStyle = {
@@ -55,6 +57,7 @@ const ROUTE_EXCHANGE_INFO_ICON: ImageStyle = {
   width: 25,
   height: 25,
   marginEnd: 5,
+  opacity: colorScheme === "dark" ? 0.6 : 1,
 }
 
 type RouteExchangeProps = {

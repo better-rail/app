@@ -27,7 +27,15 @@ export const color = {
     android: PlatformColor("@color/background"),
   }),
 
-  secondaryBackground: palette.white,
+  secondaryBackground: Platform.select({
+    ios: PlatformColor("systemBackground"),
+    android: PlatformColor("@color/background"),
+  }),
+
+  tertiaryBackground: Platform.select({
+    ios: PlatformColor("tertiarySystemBackground"),
+    android: PlatformColor("@color/background"),
+  }),
 
   primary: Platform.select({
     ios: PlatformColor("systemBlue"),
@@ -41,7 +49,11 @@ export const color = {
     ios: DynamicColorIOS({ light: palette.pinky, dark: PlatformColor("systemGray3") }),
     android: PlatformColor("@color/background"),
   }),
-  secondaryLighter: palette.orangeLighter,
+
+  secondaryLighter: Platform.select({
+    ios: DynamicColorIOS({ light: palette.orangeLighter, dark: PlatformColor("systemGray4") }),
+    android: PlatformColor("@color/background"),
+  }),
 
   inputBackground: Platform.select({
     ios: DynamicColorIOS({ light: PlatformColor("systemBackground"), dark: PlatformColor("systemGray5") }),
@@ -64,12 +76,26 @@ export const color = {
     android: PlatformColor("@color/background"),
   }),
 
-  label: Platform.select({ ios: PlatformColor("secondaryLabel") }),
+  label: Platform.select({
+    ios: PlatformColor("secondaryLabel"),
+    android: PlatformColor("@color/background"),
+  }),
 
-  /**
-   * Secondary information.
-   */
-  link: palette.blue,
+  placeholder: Platform.select({
+    ios: PlatformColor("placeholderText"),
+    android: PlatformColor("@color/background"),
+  }),
+
+  link: Platform.select({
+    ios: PlatformColor("link"),
+    android: PlatformColor("@color/background"),
+  }),
+
+  seperator: Platform.select({
+    ios: PlatformColor("separator"),
+    android: PlatformColor("@color/background"),
+  }),
+
   /**
    * Secondary information.
    */

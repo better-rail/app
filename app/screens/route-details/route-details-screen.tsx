@@ -43,7 +43,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
       >
         {routeItem.trains.map((train, index) => {
           return (
-            <>
+            <View key={train.trainNumber} style={{ backgroundColor: color.background }}>
               <RouteStationCard
                 stationName={train.originStationName}
                 stopTime={format(train.departureTime, "HH:mm")}
@@ -81,7 +81,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
                   depatureTime={routeItem.trains[index + 1].departureTime}
                 />
               )}
-            </>
+            </View>
           )
         })}
       </ScrollView>
@@ -94,5 +94,5 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
 })
 
 const RouteLine = ({ height = 10 }: { height?: number }) => (
-  <View style={{ start: "35.44%", width: 4, height, backgroundColor: color.dim, zIndex: 0 }} />
+  <View style={{ start: "35.44%", width: 4, height, backgroundColor: color.seperator, zIndex: 0 }} />
 )

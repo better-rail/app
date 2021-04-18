@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Image, ImageBackground, View, ViewStyle, TextStyle, ImageStyle } from "react-native"
+import { Image, ImageBackground, View, ViewStyle, TextStyle, ImageStyle, Appearance } from "react-native"
 import LinearGradient from "react-native-linear-gradient"
 import { color, spacing } from "../../theme"
 import { Text } from "../"
@@ -7,6 +7,7 @@ import { stationsObject } from "../../data/stations"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
 
+const colorScheme = Appearance.getColorScheme()
 // #region styles
 
 const ROUTE_DETAILS_WRAPPER: ViewStyle = {
@@ -52,7 +53,7 @@ const ROUTE_INFO_CIRCLE: ViewStyle = {
 const ARROW_ICON: ImageStyle = {
   width: 15,
   height: 15,
-  tintColor: color.background,
+  tintColor: color.whiteText,
 }
 
 const GARDIENT: ViewStyle = {

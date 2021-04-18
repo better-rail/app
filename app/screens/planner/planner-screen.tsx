@@ -164,7 +164,6 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           customHeaderIOS={() => null}
           customCancelButtonIOS={() => null}
           confirmTextIOS="אישור"
-          isDarkModeEnabled={false}
         />
       </View>
     </Screen>

@@ -1,11 +1,6 @@
-/**
- * The root navigator is used to switch between major navigation flows of your app.
- * Generally speaking, it will contain an auth flow (registration, login, forgot password)
- * and a "main" flow (which is contained in your MainNavigator) which the user
- * will use once logged in.
- */
 import React from "react"
-import { NavigationContainer, NavigationContainerRef } from "@react-navigation/native"
+import { useColorScheme } from "react-native"
+import { NavigationContainer, NavigationContainerRef, DefaultTheme, DarkTheme } from "@react-navigation/native"
 import { createStackNavigator, TransitionPresets } from "@react-navigation/stack"
 import { MainNavigator } from "./main-navigator"
 
@@ -38,8 +33,10 @@ const RootStack = () => {
 
 export const RootNavigator = React.forwardRef<NavigationContainerRef, Partial<React.ComponentProps<typeof NavigationContainer>>>(
   (props, ref) => {
+    const colorScheme = useColorcolorScheme()
+
     return (
-      <NavigationContainer {...props} ref={ref}>
+      <NavigationContainer {...props} ref={ref} theme={scheme === "dark" ? DarkTheme : DefaultTheme}>
         <RootStack />
       </NavigationContainer>
     )
