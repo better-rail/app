@@ -33,10 +33,10 @@ const RootStack = () => {
 
 export const RootNavigator = React.forwardRef<NavigationContainerRef, Partial<React.ComponentProps<typeof NavigationContainer>>>(
   (props, ref) => {
-    const colorScheme = useColorcolorScheme()
+    const colorScheme = useColorScheme()
 
     return (
-      <NavigationContainer {...props} ref={ref} theme={scheme === "dark" ? DarkTheme : DefaultTheme}>
+      <NavigationContainer {...props} ref={ref} theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <RootStack />
       </NavigationContainer>
     )

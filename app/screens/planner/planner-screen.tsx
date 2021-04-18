@@ -31,7 +31,8 @@ const SETTINGS_ICON: ImageStyle = {
   width: settingsSize,
   height: settingsSize,
   alignSelf: "flex-end",
-  tintColor: color.primaryDarker,
+  tintColor: color.primary,
+  opacity: 0.7,
 }
 // #endregion
 

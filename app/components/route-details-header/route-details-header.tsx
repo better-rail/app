@@ -25,7 +25,7 @@ const ROUTE_DETAILS_STATION: ViewStyle = {
   shadowOffset: { width: 0, height: 1 },
   shadowColor: color.dim,
   shadowRadius: 1,
-  shadowOpacity: 0.45,
+  shadowOpacity: colorScheme === "dark" ? 0 : 0.45,
   elevation: 1,
   zIndex: 0,
 }
