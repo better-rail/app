@@ -1,5 +1,5 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { withEnvironment } from "../extensions/with-environment"
+import { withEnvironment, withStatus } from ".."
 import { RouteApi } from "../../services/api/route-api"
 import { format, add } from "date-fns"
 
@@ -24,7 +24,7 @@ const TrainListSchema = {
   ),
 }
 
-const TrainRouteSchema = {
+const trainRouteSchema = {
   departureTime: types.number,
   isExchange: types.boolean,
   estTime: types.string,
@@ -34,20 +34,17 @@ const TrainRouteSchema = {
 /**
  * Model description here for TypeScript hints.
  */
-export const RouteModel = types
-  .model("Route")
+export const trainRoutesModel = types
+  .model("trainRoutes")
   .props({
-    routes: types.array(types.model(TrainRouteSchema)),
-    state: "pending",
+    routes: types.array(types.model(trainRouteSchema)),
     resultType: "normal",
   })
   .extend(withEnvironment)
+  .extend(withStatus)
   .actions((self) => ({
     saveRoutes: (routesSnapshot) => {
       self.routes.replace(routesSnapshot)
-    },
-    updateState(state: "pending" | "loading" | "loaded" | "error") {
-      self.state = state
     },
     updateResultType(type: "normal" | "different-date" | "not-found") {
       self.resultType = type
@@ -55,14 +52,14 @@ export const RouteModel = types
   }))
   .actions((self) => ({
     getRoutes: async (originId: string, destinationId: string, time: number) => {
-      self.updateState("loading")
+      self.setStatus("pending")
       const routeApi = new RouteApi(self.environment.api)
 
       let foundRoutes = false
       let apiHitCount = 0
       let requestDate = time
 
-      // If no routes are found, try to fetch results for the 3 upcoming days.
+      // If no routes are found, try to fetch results for the upcoming 3 days.
       while (!foundRoutes && apiHitCount < 4) {
         // Format times for Israel Rail API
         const date = format(requestDate, "yyyyMMdd")
@@ -73,7 +70,7 @@ export const RouteModel = types
         if (result.length > 0) {
           foundRoutes = true
           self.saveRoutes(result)
-          self.updateState("loaded")
+          self.setStatus("done")
 
           if (apiHitCount > 0) {
             // We found routes for a date different than the requested date.
@@ -88,12 +85,13 @@ export const RouteModel = types
       if (foundRoutes === false) {
         // We couldn't found routes for the requested date.
         self.updateResultType("not-found")
+        self.setStatus("done")
       }
     },
   }))
 
-type RouteType = Instance<typeof RouteModel>
+type RouteType = Instance<typeof trainRoutesModel>
 export interface Route extends RouteType {}
-type RouteSnapshotType = SnapshotOut<typeof RouteModel>
+type RouteSnapshotType = SnapshotOut<typeof trainRoutesModel>
 export interface RouteSnapshot extends RouteSnapshotType {}
-export const createRouteDefaultModel = () => types.optional(RouteModel, {})
+export const createRouteDefaultModel = () => types.optional(trainRoutesModel, {})

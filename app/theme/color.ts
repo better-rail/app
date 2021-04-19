@@ -86,6 +86,11 @@ export const color = {
     android: PlatformColor("@color/background"),
   }),
 
+  inputPlaceholderBackground: Platform.select({
+    ios: DynamicColorIOS({ light: palette.lighterGrey, dark: PlatformColor("systemGray5") }),
+    android: PlatformColor("@color/background"),
+  }),
+
   link: Platform.select({
     ios: PlatformColor("link"),
     android: PlatformColor("@color/background"),
@@ -104,6 +109,7 @@ export const color = {
    * Secondary information.
    */
   dimmer: palette.lighterGrey,
+
   /**
    * Error messages and icons.
    */
