@@ -1,7 +1,7 @@
-import { RouteModel } from "./route"
+import { trainRoutessModel } from "./route"
 
 test("can be created", () => {
-  const instance = RouteModel.create({})
+  const instance = trainRoutessModel.create({})
 
   expect(instance).toBeTruthy()
 })

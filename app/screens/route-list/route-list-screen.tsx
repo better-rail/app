@@ -17,30 +17,30 @@ const ROOT: ViewStyle = {
 
 export const RouteListScreen = observer(function RouteListScreen({ navigation, route }: RouteListScreenProps) {
   const [isModalVisible, setIsModalVisible] = useState(false)
-  const { trainRoute } = useStores()
+  const { trainRoutes } = useStores()
 
   // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
   // returns a route list for the whole day.
   const initialScrollIndex = useMemo(() => {
-    if (trainRoute.state === "loaded") {
-      const departureTimes = trainRoute.routes.map((route) => route.trains[0].departureTime)
+    if (trainRoutes.state === "loaded") {
+      const departureTimes = trainRoutes.routes.map((route) => route.trains[0].departureTime)
       const index = closestIndexTo(route.params.time, departureTimes)
       return index
     }
     return undefined
-  }, [trainRoute.state])
+  }, [trainRoutes.state])
 
   useEffect(() => {
     const { originId, destinationId, time } = route.params
 
-    trainRoute.getRoutes(originId, destinationId, time)
+    trainRoutes.getRoutes(originId, destinationId, time)
   }, [route.params])
 
   useEffect(() => {
-    if (trainRoute.resultType === "different-date") {
+    if (trainRoutes.resultType === "different-date") {
       setIsModalVisible(true)
     }
-  }, [trainRoute.resultType])
+  }, [trainRoutes.resultType])
 
   const renderRouteCard = ({ item }: { item: RouteItem }) => {
     const departureTime = item.trains[0].departureTime
@@ -89,23 +89,23 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
         />
       </SharedElement>
-      {trainRoute.state === "loading" ? (
+      {trainRoutes.state === "loading" ? (
         <ActivityIndicator size="large" style={{ marginTop: spacing[3] }} color="grey" />
       ) : (
         <FlatList
           renderItem={renderRouteCard}
           keyExtractor={(item) => item.trains[0]?.departureTime.toString()}
-          data={trainRoute.routes}
+          data={trainRoutes.routes}
           contentContainerStyle={{ paddingTop: spacing[4], paddingHorizontal: spacing[3], paddingBottom: spacing[3] }}
           getItemLayout={(_, index) => ({ length: RouteCardHeight, offset: (RouteCardHeight + spacing[3]) * index, index })}
           initialScrollIndex={initialScrollIndex}
         />
       )}
-      {trainRoute.routes?.length > 0 && (
+      {trainRoutes.routes?.length > 0 && (
         <RouteListModal
           isVisible={isModalVisible}
           onOk={() => setIsModalVisible(false)}
-          routesDate={trainRoute.routes[0].departureTime}
+          routesDate={trainRoutes.routes[0].departureTime}
         />
       )}
     </Screen>

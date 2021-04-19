@@ -34,7 +34,7 @@ const EMPTY_CARD_WRAPPER: ViewStyle = {
   justifyContent: "center",
   alignItems: "center",
   borderRadius: 12,
-  backgroundColor: color.dimmer,
+  backgroundColor: color.inputPlaceholderBackground,
 }
 
 const BACKGROUND: ViewStyle = {
@@ -57,7 +57,7 @@ const TEXT: TextStyle = {
 }
 
 const EMPTY_CARD_TEXT: TextStyle = {
-  color: "#555555",
+  color: color.text,
 }
 
 const GARDIENT: ViewStyle = {
@@ -97,7 +97,7 @@ export const StationCard = observer(function StationCard(props: StationCardProps
         <View style={EMPTY_CARD_WRAPPER}>
           <Image
             source={require("../../../assets/railway-station.png")}
-            style={{ width: 48, height: 48, marginBottom: spacing[2] }}
+            style={{ width: 48, height: 48, marginBottom: spacing[2], tintColor: color.dim }}
           />
           <Text style={EMPTY_CARD_TEXT}>בחירת תחנה</Text>
         </View>

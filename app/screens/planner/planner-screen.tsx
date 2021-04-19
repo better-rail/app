@@ -37,7 +37,7 @@ const SETTINGS_ICON: ImageStyle = {
 // #endregion
 
 export const PlannerScreen = observer(function PlannerScreen({ navigation }: PlannerScreenProps) {
-  const { routePlan, trainRoute } = useStores()
+  const { routePlan, trainRoutes } = useStores()
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
   const stationCardScale = useRef(new Animated.Value(1)).current
 
@@ -105,7 +105,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   }
 
   const onGetRoutePress = () => {
-    trainRoute.updateResultType("normal")
+    trainRoutes.updateResultType("normal")
     navigation.navigate("routeList", {
       originId: routePlan.origin.id,
       destinationId: routePlan.destination.id,

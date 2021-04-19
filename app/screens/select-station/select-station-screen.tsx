@@ -27,6 +27,7 @@ const SEARCH_BAR: TextStyle = {
   textAlign: "right",
   fontFamily: typography.primary,
   borderRadius: 8,
+  color: color.text,
   backgroundColor: color.background,
 }
 

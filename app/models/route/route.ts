@@ -24,7 +24,7 @@ const TrainListSchema = {
   ),
 }
 
-const TrainRouteSchema = {
+const trainRoutesSchema = {
   departureTime: types.number,
   isExchange: types.boolean,
   estTime: types.string,
@@ -34,10 +34,10 @@ const TrainRouteSchema = {
 /**
  * Model description here for TypeScript hints.
  */
-export const RouteModel = types
-  .model("Route")
+export const trainRoutessModel = types
+  .model("trainRoutess")
   .props({
-    routes: types.array(types.model(TrainRouteSchema)),
+    routes: types.array(types.model(trainRoutesSchema)),
     state: "pending",
     resultType: "normal",
   })
@@ -92,8 +92,8 @@ export const RouteModel = types
     },
   }))
 
-type RouteType = Instance<typeof RouteModel>
+type RouteType = Instance<typeof trainRoutessModel>
 export interface Route extends RouteType {}
-type RouteSnapshotType = SnapshotOut<typeof RouteModel>
+type RouteSnapshotType = SnapshotOut<typeof trainRoutessModel>
 export interface RouteSnapshot extends RouteSnapshotType {}
-export const createRouteDefaultModel = () => types.optional(RouteModel, {})
+export const createRouteDefaultModel = () => types.optional(trainRoutessModel, {})
