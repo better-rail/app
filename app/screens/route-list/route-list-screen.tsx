@@ -22,13 +22,13 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
   // returns a route list for the whole day.
   const initialScrollIndex = useMemo(() => {
-    if (trainRoutes.state === "loaded") {
+    if (trainRoutes.status === "loaded") {
       const departureTimes = trainRoutes.routes.map((route) => route.trains[0].departureTime)
       const index = closestIndexTo(route.params.time, departureTimes)
       return index
     }
     return undefined
-  }, [trainRoutes.state])
+  }, [trainRoutes.status])
 
   useEffect(() => {
     const { originId, destinationId, time } = route.params
@@ -89,7 +89,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
         />
       </SharedElement>
-      {trainRoutes.state === "loading" ? (
+      {trainRoutes.status === "loading" ? (
         <ActivityIndicator size="large" style={{ marginTop: spacing[3] }} color="grey" />
       ) : (
         <FlatList

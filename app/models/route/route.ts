@@ -35,10 +35,10 @@ const trainRoutesSchema = {
  * Model description here for TypeScript hints.
  */
 export const trainRoutessModel = types
-  .model("trainRoutess")
+  .model("trainRoutes")
   .props({
     routes: types.array(types.model(trainRoutesSchema)),
-    state: "pending",
+    status: "pending",
     resultType: "normal",
   })
   .extend(withEnvironment)
@@ -46,8 +46,8 @@ export const trainRoutessModel = types
     saveRoutes: (routesSnapshot) => {
       self.routes.replace(routesSnapshot)
     },
-    updateState(state: "pending" | "loading" | "loaded" | "error") {
-      self.state = state
+    updateStatus(status: "pending" | "loading" | "loaded" | "error") {
+      self.status = status
     },
     updateResultType(type: "normal" | "different-date" | "not-found") {
       self.resultType = type
@@ -55,7 +55,7 @@ export const trainRoutessModel = types
   }))
   .actions((self) => ({
     getRoutes: async (originId: string, destinationId: string, time: number) => {
-      self.updateState("loading")
+      self.updateStatus("loading")
       const routeApi = new RouteApi(self.environment.api)
 
       let foundRoutes = false
@@ -73,7 +73,7 @@ export const trainRoutessModel = types
         if (result.length > 0) {
           foundRoutes = true
           self.saveRoutes(result)
-          self.updateState("loaded")
+          self.updateStatus("loaded")
 
           if (apiHitCount > 0) {
             // We found routes for a date different than the requested date.
