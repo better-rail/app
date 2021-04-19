@@ -1,6 +1,6 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { RoutePlanModel } from "../route-plan/route-plan"
-import { trainRoutessModel } from "../train-routes/train-routes"
+import { trainRoutesModel } from "../train-routes/train-routes"
 
 /**
  * A RootStore model.
@@ -8,7 +8,7 @@ import { trainRoutessModel } from "../train-routes/train-routes"
 // prettier-ignore
 export const RootStoreModel = types.model("RootStore").props({
   routePlan: types.optional(RoutePlanModel, {} as any),
-  trainRoutes: types.optional(trainRoutessModel, {} as any)
+  trainRoutes: types.optional(trainRoutesModel, {} as any)
 })
 
 /**

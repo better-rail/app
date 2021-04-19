@@ -34,7 +34,7 @@ const trainRoutesSchema = {
 /**
  * Model description here for TypeScript hints.
  */
-export const trainRoutessModel = types
+export const trainRoutesModel = types
   .model("trainRoutes")
   .props({
     routes: types.array(types.model(trainRoutesSchema)),
