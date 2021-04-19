@@ -22,7 +22,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
   // returns a route list for the whole day.
   const initialScrollIndex = useMemo(() => {
-    if (trainRoutes.status === "loaded") {
+    if (trainRoutes.status === "done") {
       const departureTimes = trainRoutes.routes.map((route) => route.trains[0].departureTime)
       const index = closestIndexTo(route.params.time, departureTimes)
       return index
@@ -89,7 +89,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
         />
       </SharedElement>
-      {trainRoutes.status === "loading" ? (
+      {trainRoutes.status === "pending" ? (
         <ActivityIndicator size="large" style={{ marginTop: spacing[3] }} color="grey" />
       ) : (
         <FlatList

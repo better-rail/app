@@ -1,5 +1,5 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { withEnvironment } from "../extensions/with-environment"
+import { withEnvironment, withStatus } from ".."
 import { RouteApi } from "../../services/api/route-api"
 import { format, add } from "date-fns"
 
@@ -38,16 +38,13 @@ export const trainRoutessModel = types
   .model("trainRoutes")
   .props({
     routes: types.array(types.model(trainRoutesSchema)),
-    status: "pending",
     resultType: "normal",
   })
   .extend(withEnvironment)
+  .extend(withStatus)
   .actions((self) => ({
     saveRoutes: (routesSnapshot) => {
       self.routes.replace(routesSnapshot)
-    },
-    updateStatus(status: "pending" | "loading" | "loaded" | "error") {
-      self.status = status
     },
     updateResultType(type: "normal" | "different-date" | "not-found") {
       self.resultType = type
@@ -55,7 +52,7 @@ export const trainRoutessModel = types
   }))
   .actions((self) => ({
     getRoutes: async (originId: string, destinationId: string, time: number) => {
-      self.updateStatus("loading")
+      self.setStatus("pending")
       const routeApi = new RouteApi(self.environment.api)
 
       let foundRoutes = false
@@ -73,7 +70,7 @@ export const trainRoutessModel = types
         if (result.length > 0) {
           foundRoutes = true
           self.saveRoutes(result)
-          self.updateStatus("loaded")
+          self.setStatus("done")
 
           if (apiHitCount > 0) {
             // We found routes for a date different than the requested date.

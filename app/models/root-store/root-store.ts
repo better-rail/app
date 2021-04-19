@@ -1,6 +1,6 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { RoutePlanModel } from "../route-plan/route-plan"
-import { trainRoutessModel } from "../route/route"
+import { trainRoutessModel } from "../train-routes/train-routes"
 
 /**
  * A RootStore model.
