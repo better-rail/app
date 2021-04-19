@@ -24,7 +24,7 @@ const TrainListSchema = {
   ),
 }
 
-const trainRoutesSchema = {
+const trainRouteSchema = {
   departureTime: types.number,
   isExchange: types.boolean,
   estTime: types.string,
@@ -37,7 +37,7 @@ const trainRoutesSchema = {
 export const trainRoutesModel = types
   .model("trainRoutes")
   .props({
-    routes: types.array(types.model(trainRoutesSchema)),
+    routes: types.array(types.model(trainRouteSchema)),
     resultType: "normal",
   })
   .extend(withEnvironment)
