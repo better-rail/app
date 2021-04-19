@@ -90,8 +90,8 @@ export const trainRoutesModel = types
     },
   }))
 
-type RouteType = Instance<typeof trainRoutessModel>
+type RouteType = Instance<typeof trainRoutesModel>
 export interface Route extends RouteType {}
-type RouteSnapshotType = SnapshotOut<typeof trainRoutessModel>
+type RouteSnapshotType = SnapshotOut<typeof trainRoutesModel>
 export interface RouteSnapshot extends RouteSnapshotType {}
-export const createRouteDefaultModel = () => types.optional(trainRoutessModel, {})
+export const createRouteDefaultModel = () => types.optional(trainRoutesModel, {})
