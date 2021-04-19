@@ -1,3 +1,4 @@
+import { PlatformColor, DynamicColorIOS, Platform } from "react-native"
 import { palette } from "./palette"
 
 /**
@@ -21,15 +22,42 @@ export const color = {
    */
   transparent: "rgba(0, 0, 0, 0)",
 
-  background: palette.offWhite,
-  secondaryBackground: palette.white,
+  background: Platform.select({
+    ios: PlatformColor("secondarySystemBackground"),
+    android: PlatformColor("@color/background"),
+  }),
 
-  primary: palette.blue,
+  secondaryBackground: Platform.select({
+    ios: PlatformColor("systemBackground"),
+    android: PlatformColor("@color/background"),
+  }),
+
+  tertiaryBackground: Platform.select({
+    ios: PlatformColor("tertiarySystemBackground"),
+    android: PlatformColor("@color/background"),
+  }),
+
+  primary: Platform.select({
+    ios: PlatformColor("systemBlue"),
+    android: PlatformColor("@color/background"),
+  }),
+
   primaryLighter: palette.blueLighter,
   primaryDarker: palette.blueDarker,
 
-  secondary: palette.pinky,
-  secondaryLighter: palette.orangeLighter,
+  secondary: Platform.select({
+    ios: DynamicColorIOS({ light: palette.pinky, dark: PlatformColor("systemGray3") }),
+    android: PlatformColor("@color/background"),
+  }),
+
+  secondaryLighter: Platform.select({
+    ios: DynamicColorIOS({ light: palette.orangeLighter, dark: PlatformColor("systemGray4") }),
+    android: PlatformColor("@color/background"),
+  }),
+
+  inputBackground: Platform.select({
+    ios: DynamicColorIOS({ light: PlatformColor("systemBackground"), dark: PlatformColor("systemGray5") }),
+  }),
 
   /**
    * A subtle color used for borders and lines.
@@ -38,11 +66,36 @@ export const color = {
   /**
    * The default color of text in many components.
    */
-  text: palette.black,
-  /**
-   * Secondary information.
-   */
-  link: palette.blue,
+  text: Platform.select({
+    ios: PlatformColor("label"),
+    android: PlatformColor("@color/background"),
+  }),
+
+  whiteText: Platform.select({
+    ios: DynamicColorIOS({ light: palette.white, dark: palette.offWhite }),
+    android: PlatformColor("@color/background"),
+  }),
+
+  label: Platform.select({
+    ios: PlatformColor("secondaryLabel"),
+    android: PlatformColor("@color/background"),
+  }),
+
+  placeholder: Platform.select({
+    ios: PlatformColor("placeholderText"),
+    android: PlatformColor("@color/background"),
+  }),
+
+  link: Platform.select({
+    ios: PlatformColor("link"),
+    android: PlatformColor("@color/background"),
+  }),
+
+  seperator: Platform.select({
+    ios: PlatformColor("separator"),
+    android: PlatformColor("@color/background"),
+  }),
+
   /**
    * Secondary information.
    */

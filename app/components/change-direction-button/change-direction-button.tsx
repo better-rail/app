@@ -23,7 +23,7 @@ const CONTAINER: ViewStyle = {
 const ARROW_ICON: ImageStyle = {
   width: Platform.select({ ios: 35, android: 37.5 }),
   height: Platform.select({ ios: 35, android: 37.5 }),
-  tintColor: color.background,
+  tintColor: "#fff",
 }
 
 export interface ChangeDirectionButtonProps extends TouchableOpacityProps {

@@ -5,7 +5,7 @@ import { Text } from "../"
 
 const CONTAINER: ViewStyle = {
   padding: spacing[4],
-  backgroundColor: "#fff",
+  backgroundColor: color.inputBackground,
   borderRadius: 12,
   shadowColor: color.palette.black,
   shadowOffset: { height: 0, width: 0 },

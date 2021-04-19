@@ -20,7 +20,7 @@ const TEXT: TextStyle = {
   fontWeight: "700",
   fontSize: 16,
   textAlign: "center",
-  color: color.background,
+  color: color.whiteText,
 }
 export interface CustomButtonProps extends ButtonProps {
   /**

@@ -30,7 +30,11 @@ const ORDER_TICKETS_ICON_WRAPPER: ViewStyle = {
   elevation: 5,
 }
 
-const ORDER_TICKETS_ICON_IMAGE: ImageStyle = { width: 32.5, height: 32.5, tintColor: "#fff" }
+const ORDER_TICKETS_ICON_IMAGE: ImageStyle = {
+  width: 32.5,
+  height: 32.5,
+  tintColor: color.whiteText,
+}
 
 const ORDER_TICKETS_TEXT_WRAPPER: ViewStyle = {
   minWidth: 200,
@@ -51,7 +55,10 @@ const ORDER_TICKETS_TEXT_WRAPPER: ViewStyle = {
   zIndex: 0,
 }
 
-const ORDER_TICKETS_TEXT: TextStyle = { color: color.secondaryBackground, fontWeight: "700" }
+const ORDER_TICKETS_TEXT: TextStyle = {
+  color: color.whiteText,
+  fontWeight: "700",
+}
 
 type OrderTicketsButtonProps = { orderLink: string; styles?: ViewStyle }
 

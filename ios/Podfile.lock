@@ -327,8 +327,6 @@ PODS:
     - React-Core
   - RNGestureHandler (1.8.0):
     - React
-  - RNKeychain (6.2.0):
-    - React
   - RNReactNativeHapticFeedback (1.11.0):
     - React-Core
   - RNScreens (2.13.0):
@@ -418,7 +416,6 @@ DEPENDENCIES:
   - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
-  - RNKeychain (from `../node_modules/react-native-keychain`)
   - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSharedElement (from `../node_modules/react-native-shared-element`)
@@ -530,8 +527,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-device-info"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
-  RNKeychain:
-    :path: "../node_modules/react-native-keychain"
   RNReactNativeHapticFeedback:
     :path: "../node_modules/react-native-haptic-feedback"
   RNScreens:
@@ -619,7 +614,6 @@ SPEC CHECKSUMS:
   RNDateTimePicker: d943800c936fb01c352fcfb70439550d2cb57092
   RNDeviceInfo: 677a08eaafcfac4e85d2d2aab68a3708ff261c04
   RNGestureHandler: 7a5833d0f788dbd107fbb913e09aa0c1ff333c39
-  RNKeychain: b8e0711b959a19c5b057d1e970d3c83d159b6da5
   RNReactNativeHapticFeedback: 653a8c126a0f5e88ce15ffe280b3ff37e1fbb285
   RNScreens: 13f23e5498fb4aa749d19a5eda7f8792fbb9d01f
   RNSharedElement: 00b1a1420d213a34459bb9a5aacabb38107d7948

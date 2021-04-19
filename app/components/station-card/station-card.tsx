@@ -67,7 +67,7 @@ const GARDIENT: ViewStyle = {
   right: 0,
   top: 0,
   opacity: 1,
-  borderRadius: 12,
+  borderRadius: 6,
 }
 
 export interface StationCardProps extends TouchableScaleProps {

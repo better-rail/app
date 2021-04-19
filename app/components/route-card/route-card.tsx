@@ -23,7 +23,7 @@ const CONTAINER: ViewStyle = {
 
   paddingVertical: spacing[2],
   paddingHorizontal: spacing[4],
-  backgroundColor: color.secondaryBackground,
+  backgroundColor: color.inputBackground,
   borderRadius: 12,
 
   shadowColor: color.palette.black,

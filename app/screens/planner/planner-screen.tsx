@@ -3,7 +3,6 @@ import { observer } from "mobx-react-lite"
 import { Image, View, TouchableOpacity, Animated, PixelRatio, ViewStyle, ImageStyle } from "react-native"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
 import { PlannerScreenProps } from "../../navigators/main-navigator"
@@ -16,13 +15,13 @@ const fontScale = PixelRatio.getFontScale()
 
 // #region styles
 const ROOT: ViewStyle = {
-  backgroundColor: color.transparent,
+  backgroundColor: color.background,
 }
 
 const CONTENT_WRAPPER: ViewStyle = {
   flex: 1,
   padding: spacing[4],
-  backgroundColor: color.line,
+  backgroundColor: color.background,
 }
 
 let settingsSize = 25
@@ -32,7 +31,8 @@ const SETTINGS_ICON: ImageStyle = {
   width: settingsSize,
   height: settingsSize,
   alignSelf: "flex-end",
-  tintColor: color.primaryDarker,
+  tintColor: color.primary,
+  opacity: 0.7,
 }
 // #endregion
 
@@ -114,7 +114,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   }
 
   return (
-    <Screen style={ROOT} preset="scroll" statusBar="dark-content">
+    <Screen style={ROOT} preset="scroll" statusBar="default">
       <View style={CONTENT_WRAPPER}>
         <TouchableOpacity onPress={() => navigation.navigate("settings")} activeOpacity={0.8} accessibilityLabel="הגדרות">
           <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />
@@ -165,7 +165,6 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           customHeaderIOS={() => null}
           customCancelButtonIOS={() => null}
           confirmTextIOS="אישור"
-          isDarkModeEnabled={false}
         />
       </View>
     </Screen>

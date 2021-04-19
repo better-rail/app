@@ -6,13 +6,7 @@ import { color, spacing } from "../../../theme"
 // #region styles
 const ROUTE_STOP_WRAPPER: ViewStyle = {
   alignItems: "center",
-}
-
-const ROUTE_STOP_LINE: ViewStyle = {
-  width: 4,
-  height: 10,
-  backgroundColor: color.dim,
-  zIndex: 0,
+  backgroundColor: color.background,
 }
 
 const ROUTE_STOP_DETAILS: ViewStyle = {
@@ -27,13 +21,20 @@ const ROUTE_STOP_TIME: TextStyle = {
   fontWeight: "600",
 }
 
+const ROUTE_STOP_LINE: ViewStyle = {
+  width: 4,
+  height: 10,
+  backgroundColor: color.seperator,
+  zIndex: 0,
+}
+
 const ROUTE_STOP_CIRCLE: ViewStyle = {
   width: 30,
   height: 30,
   borderRadius: 25,
-  borderWidth: 3,
-  borderColor: color.dim,
-  backgroundColor: color.secondaryBackground,
+  borderWidth: 3.5,
+  borderColor: color.seperator,
+  backgroundColor: color.background,
   zIndex: 10,
 }
 
