@@ -59,7 +59,7 @@ export const trainRoutessModel = types
       let apiHitCount = 0
       let requestDate = time
 
-      // If no routes are found, try to fetch results for the 3 upcoming days.
+      // If no routes are found, try to fetch results for the upcoming 3 days.
       while (!foundRoutes && apiHitCount < 4) {
         // Format times for Israel Rail API
         const date = format(requestDate, "yyyyMMdd")
@@ -85,6 +85,7 @@ export const trainRoutessModel = types
       if (foundRoutes === false) {
         // We couldn't found routes for the requested date.
         self.updateResultType("not-found")
+        self.setStatus("done")
       }
     },
   }))
