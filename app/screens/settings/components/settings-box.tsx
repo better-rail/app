@@ -65,7 +65,11 @@ export const SettingBox = function SettingBox(props: SettingBoxProps) {
   }
 
   return (
-    <TouchableHighlight underlayColor={color.dimmer} onPress={onPress} style={[SETTINGS_BOX_BASE, boxStyle, style]}>
+    <TouchableHighlight
+      underlayColor={color.inputPlaceholderBackground}
+      onPress={onPress}
+      style={[SETTINGS_BOX_BASE, boxStyle, style]}
+    >
       <View style={SETTINGS_BOX_WRAPPER}>
         <View style={SETTINGS_BOX_DETAILS}>
           {icon && <Text style={{ fontSize: 18 }}>{icon}</Text>}
