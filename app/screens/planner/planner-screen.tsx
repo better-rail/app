@@ -162,6 +162,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           onCancel={() => setDatePickerVisibility(false)}
           locale={"he_IL"}
           minimumDate={now}
+          minuteInterval={15}
           customHeaderIOS={() => null}
           customCancelButtonIOS={() => null}
           confirmTextIOS="אישור"
