@@ -45,7 +45,7 @@ function ScreenWithScrolling(props: ScreenProps) {
       keyboardVerticalOffset={offsets[props.keyboardOffset || "none"]}
     >
       <StatusBar
-        barStyle={props.statusBar || "light-content"}
+        barStyle={props.statusBar || "default"}
         translucent={props.translucent || false}
         backgroundColor={props.statusBarBackgroundColor || color.background}
       />

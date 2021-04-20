@@ -15,7 +15,7 @@ const ROOT: ViewStyle = {
   backgroundColor: color.background,
 }
 
-export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
+export const RouteDetailsScreen = observer(function RouteDetailsScreen({ navigation, route }: RouteDetailsScreenProps) {
   const { routeItem, date, time } = route.params
   const firstTrain = routeItem.trains[0]
   const insets = useSafeAreaInsets()
@@ -86,6 +86,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
         })}
       </ScrollView>
       <OrderTicketsButton
+        onPress={() => navigation.navigate("secondaryStack")}
         orderLink={`https://www.rail.co.il/taarif/pages/ordervaucherallcountry.aspx?TNUM=${firstTrain.trainNumber}&FSID=${firstTrain.originStationId}&TSID=${firstTrain.destinationStationId}&DDATE=${date}&Hour=${time}`}
         styles={{ bottom: insets.bottom + 10 }}
       />
