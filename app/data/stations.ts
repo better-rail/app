@@ -5,6 +5,7 @@ const stations = [
     english: "Tel Aviv-Savidor Center",
     russian: "Тель-Авив - Мерказ - Центральная",
     arabic: "تل ابيب – ساڤيدور المركز",
+    image: require("../../assets/station-images/tlv-center.jpeg"),
   },
   {
     id: "3500",
@@ -105,6 +106,7 @@ const stations = [
     english: "Kfar Sava-Nordau (A.Kostyuk)",
     russian: "Кфар-Саба – Нордау (А. Костюк)",
     arabic: "كفار سابا - نورداو",
+    image: require("../../assets/station-images/kfar-saba.jpeg"),
   },
   {
     id: "1600",
@@ -468,6 +470,7 @@ const stations = [
     english: "Ra'anana South",
     russian: "Раанана Южный",
     arabic: "رعنانا الجنوبية",
+    image: require("../../assets/station-images/raanana-south.jpeg"),
   },
   {
     id: "6150",
