@@ -2,6 +2,7 @@ import React from "react"
 import { observer } from "mobx-react-lite"
 import { View, ViewStyle, TextStyle, DynamicColorIOS, Platform } from "react-native"
 import { Screen, Text, TextInput, Button } from "../../components"
+import { PassingCardFormScreenProps } from "../../navigators/passing-card-navigator"
 import { color, spacing } from "../../theme"
 
 const ROOT: ViewStyle = {
@@ -21,7 +22,7 @@ const FORM_NOTICE: TextStyle = {
   opacity: 0.7,
 }
 
-export const PassingCardFormScreen = observer(function PassingCardFormScreen() {
+export const PassingCardFormScreen = observer(function PassingCardFormScreen({ navigation }: PassingCardFormScreenProps) {
   return (
     <Screen style={ROOT} preset="scroll" unsafe={true}>
       <View style={{ marginBottom: spacing[4] }}>
@@ -34,7 +35,7 @@ export const PassingCardFormScreen = observer(function PassingCardFormScreen() {
         <TextInput placeholder="מספר טלפון" keyboardType="number-pad" textContentType="telephoneNumber" />
       </View>
 
-      <Button title="הזמנת שובר" />
+      <Button title="הזמנת שובר" onPress={() => navigation.navigate("passingCardToken")} />
       <Text preset="small" style={FORM_NOTICE}>
         פרטי הבקשה עוברים ישירות אל מערכות רכבת ישראל, ולא נאספים על ידי אפליקציית Better Rail.
       </Text>
