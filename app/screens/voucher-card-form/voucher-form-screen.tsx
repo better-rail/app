@@ -1,10 +1,11 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { View, ViewStyle, TextStyle, DynamicColorIOS, Platform } from "react-native"
 import { Screen, Text, TextInput, Button } from "../../components"
 import { observer } from "mobx-react-lite"
 import { useStores } from "../../models"
 import { VoucherFormScreenProps } from "../../navigators/create-voucher-navigator"
 import { color, spacing } from "../../theme"
+import isIsraeliIdValid from "israeli-id-validator"
 
 const ROOT: ViewStyle = {
   backgroundColor: Platform.select({
@@ -25,9 +26,14 @@ const FORM_NOTICE: TextStyle = {
 
 export const VoucherFormScreen = observer(function VoucherFormScreen({ navigation }: VoucherFormScreenProps) {
   const { voucherDetails } = useStores()
-  const [userId, setUserId] = useState("")
-  const [phoneNumber, setPhoneNumber] = useState("")
-  // TODO: Validate input
+  const [userId, setUserId] = useState(voucherDetails.userId)
+  const [phoneNumber, setPhoneNumber] = useState(voucherDetails.phoneNumber)
+
+  const isInvalidForm = () => {
+    if (phoneNumber.length !== 10 || !isIsraeliIdValid(userId)) return true
+    // falsy value means the form is valid
+    return false
+  }
 
   const submitForm = () => {
     if (userId !== voucherDetails.userId) {
@@ -45,20 +51,22 @@ export const VoucherFormScreen = observer(function VoucherFormScreen({ navigatio
     <Screen style={ROOT} preset="scroll" unsafe={true}>
       <View style={{ marginBottom: spacing[4] }}>
         <Text preset="fieldLabel" text="תעודת זהות" style={{ marginBottom: spacing[1] }} />
-        <TextInput placeholder="מספר תעודת זהות" onChangeText={setUserId} keyboardType="number-pad" />
+        <TextInput placeholder="מספר תעודת זהות" defaultValue={userId} onChangeText={setUserId} keyboardType="number-pad" />
       </View>
 
       <View style={{ marginBottom: spacing[4] }}>
-        <Text preset="fieldLabel" text="מס' טלפון" style={{ marginBottom: spacing[1] }} />
+        <Text preset="fieldLabel" text="מס׳ טלפון נייד" style={{ marginBottom: spacing[1] }} />
         <TextInput
-          placeholder="מספר טלפון"
+          placeholder="מספר טלפון "
+          defaultValue={phoneNumber}
           onChangeText={setPhoneNumber}
           keyboardType="number-pad"
           textContentType="telephoneNumber"
         />
       </View>
 
-      <Button title="הזמנת שובר" onPress={submitForm} />
+      <Button title="הזמנת שובר" onPress={submitForm} disabled={isInvalidForm()} />
+
       <Text preset="small" style={FORM_NOTICE}>
         פרטי הבקשה עוברים ישירות אל מערכות רכבת ישראל ולא נאספים על ידי אפליקציית Better Rail
       </Text>

@@ -36,6 +36,7 @@
     "date-fns": "^2.19.0",
     "expo-localization": "9.1.0",
     "i18n-js": "3.8.0",
+    "israeli-id-validator": "^1.0.1",
     "mobx": "6.0.4",
     "mobx-react-lite": "3.1.6",
     "mobx-state-tree": "4.0.2",
