@@ -1,4 +1,5 @@
 import React from "react"
+import { StackScreenProps } from "@react-navigation/stack"
 import { createNativeStackNavigator, NativeStackNavigationProp } from "react-native-screens/native-stack"
 import { PassingCardFormScreen, PassingCardTokenScreen, PassingCardBarcodeScreen } from "../screens"
 import { color, typography } from "../theme"
@@ -6,8 +7,9 @@ import { color, typography } from "../theme"
 export type PassingCardParamList = { passingCardForm: undefined; passingCardToken: undefined; passingCardBarcode: undefined }
 const PCardStack = createNativeStackNavigator<PassingCardParamList>()
 
-export type PassingCardFormScreenProps = NativeStackNavigationProp<PassingCardParamList, "passingCardForm">
-export type PassingCardTokenScreenProps = NativeStackNavigationProp<PassingCardParamList, "passingCardToken">
+export type PassingCardFormScreenProps = StackScreenProps<PassingCardParamList, "passingCardForm">
+export type PassingCardTokenScreenProps = StackScreenProps<PassingCardParamList, "passingCardToken">
+export type PassingCardBarcodeScreenProps = StackScreenProps<PassingCardParamList, "passingCardBarcode">
 
 export const PassingCardNavigator = () => (
   <PCardStack.Navigator
@@ -24,12 +26,12 @@ export const PassingCardNavigator = () => (
     <PCardStack.Screen
       name="passingCardToken"
       component={PassingCardTokenScreen}
-      options={{ stackPresentation: "push", headerBackTitle: "חזרה", title: "אישור קוד מזהה" }}
+      options={{ stackPresentation: "push", headerBackTitle: "חזרה" }}
     />
     <PCardStack.Screen
       name="passingCardBarcode"
       component={PassingCardBarcodeScreen}
-      options={{ stackPresentation: "push", headerBackTitle: "", title: "שובר כניסה" }}
+      options={{ stackPresentation: "push", headerBackTitleVisible: false }}
     />
   </PCardStack.Navigator>
 )
