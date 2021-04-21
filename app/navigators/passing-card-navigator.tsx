@@ -13,6 +13,7 @@ export const PassingCardNavigator = () => (
     screenOptions={{
       direction: "rtl",
       stackPresentation: "modal",
+      title: "הזמנת שובר כניסה",
       headerTintColor: color.primary,
       headerTitleStyle: {
         fontSize: 20,
@@ -20,11 +21,11 @@ export const PassingCardNavigator = () => (
       },
     }}
   >
-    <PCardStack.Screen name="passingCardForm" component={PassingCardFormScreen} options={{ title: "הזמנת שובר כניסה" }} />
+    <PCardStack.Screen name="passingCardForm" component={PassingCardFormScreen} />
     <PCardStack.Screen
       name="passingCardToken"
       component={PassingCardTokenScreen}
-      options={{ title: "הזמנת שובר כניסה", stackPresentation: "push" }}
+      options={{ stackPresentation: "push", headerBackTitle: "חזרה", title: "אישור קוד מזהה" }}
     />
   </PCardStack.Navigator>
 )
