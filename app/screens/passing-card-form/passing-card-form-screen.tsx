@@ -37,7 +37,7 @@ export const PassingCardFormScreen = observer(function PassingCardFormScreen({ n
 
       <Button title="הזמנת שובר" onPress={() => navigation.navigate("passingCardToken")} />
       <Text preset="small" style={FORM_NOTICE}>
-        פרטי הבקשה עוברים ישירות אל מערכות רכבת ישראל, ולא נאספים על ידי אפליקציית Better Rail.
+        פרטי הבקשה עוברים ישירות אל מערכות רכבת ישראל ולא נאספים על ידי אפליקציית Better Rail.
       </Text>
       <Text preset="small" style={FORM_NOTICE}>
         האחריות על שמירת הפרטים והנפקת השוברים היא על רכבת ישראל בלבד.
