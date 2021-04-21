@@ -1,8 +1,8 @@
 import React, { useState } from "react"
 import { observer } from "mobx-react-lite"
 import { View, ViewStyle, TextStyle, Platform, DynamicColorIOS, I18nManager } from "react-native"
-import { Screen, Text } from "../../components"
-import { CodeField, Cell, Cursor, useBlurOnFulfill, useClearByFocusCell } from "react-native-confirmation-code-field"
+import { Screen, Text, Button } from "../../components"
+import { CodeField, Cursor, useBlurOnFulfill, useClearByFocusCell } from "react-native-confirmation-code-field"
 import { color, spacing } from "../../theme"
 
 const ROOT: ViewStyle = {
@@ -25,15 +25,12 @@ const CODE_FIELD_WRAPPER: ViewStyle = {
   // therefore we have to reset the flex direction.
   flexDirection: I18nManager.isRTL ? "row-reverse" : "row",
   paddingHorizontal: spacing[4],
+  marginBottom: spacing[7],
 }
 
 const CODE_CELL: TextStyle = {
   width: 50,
   height: 50,
-  lineHeight: 38,
-  fontSize: 24,
-  textAlign: "center",
-
   justifyContent: "center",
   alignItems: "center",
   borderBottomColor: color.dim,
@@ -45,7 +42,7 @@ const CODE_CELL_FOCUSED: ViewStyle = {
 }
 
 const CODE_CELL_TEXT: TextStyle = {
-  fontSize: 26,
+  fontSize: 28,
   fontWeight: "bold",
 }
 
@@ -58,7 +55,7 @@ export const PassingCardTokenScreen = observer(function PassingCardTokenScreen()
 
   return (
     <Screen style={ROOT} preset="scroll" unsafe={true}>
-      <View style={{ marginBottom: spacing[6] }}>
+      <View style={{ marginBottom: spacing[7] }}>
         <Text style={INSTRUCTION_TEXT}>סמס עם קוד מזהה נשלח אל 052-8656710. </Text>
         <Text style={INSTRUCTION_TEXT}>הזינו את הקוד כאן:</Text>
       </View>
@@ -79,6 +76,8 @@ export const PassingCardTokenScreen = observer(function PassingCardTokenScreen()
           </View>
         )}
       />
+
+      <Button title="המשך" disabled={token.length !== 6} />
     </Screen>
   )
 })

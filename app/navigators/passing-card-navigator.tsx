@@ -15,10 +15,8 @@ export const PassingCardNavigator = () => (
       stackPresentation: "modal",
       title: "הזמנת שובר כניסה",
       headerTintColor: color.primary,
-      headerTitleStyle: {
-        fontSize: 20,
-        fontFamily: typography.primary,
-      },
+      headerTitleStyle: { fontSize: 20, fontFamily: typography.primary },
+      headerBackTitleStyle: { fontFamily: typography.primary },
     }}
   >
     <PCardStack.Screen name="passingCardForm" component={PassingCardFormScreen} />
