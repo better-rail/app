@@ -1,25 +1,31 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
-import { ViewStyle } from "react-native"
-import { Screen, Text } from "../../components"
-// import { useNavigation } from "@react-navigation/native"
-// import { useStores } from "../../models"
-import { color } from "../../theme"
+import { View, ViewStyle } from "react-native"
+import { Screen, Text, TextInput, Button } from "../../components"
+import { color, spacing } from "../../theme"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
+  paddingTop: spacing[4],
+  paddingHorizontal: spacing[3],
   flex: 1,
 }
 
 export const PassingCardFormScreen = observer(function PassingCardFormScreen() {
-  // Pull in one of our MST stores
-  // const { someStore, anotherStore } = useStores()
-
-  // Pull in navigation via hook
-  // const navigation = useNavigation()
   return (
-    <Screen style={ROOT} preset="scroll">
-      <Text preset="header" text="" />
+    <Screen style={ROOT} preset="scroll" unsafe={true}>
+      <View style={{ marginBottom: spacing[4] }}>
+        <Text preset="fieldLabel" text="תעודת זהות" style={{ marginBottom: spacing[1] }} />
+        <TextInput placeholder="מספר תעודת זהות" keyboardType="number-pad" />
+      </View>
+
+      <View style={{ marginBottom: spacing[4] }}>
+        <Text preset="fieldLabel" text="מס' טלפון" style={{ marginBottom: spacing[1] }} />
+        <TextInput placeholder="מספר טלפון" keyboardType="number-pad" textContentType="telephoneNumber" />
+      </View>
+
+      <Button title="הזמנת שובר" />
+      <Text preset="" text="פרטי הבקשה עוברים ישירות אל המערכת של רכבת ישראל,  ולא נשמרים או נאספים על ידי Better Rail." />
     </Screen>
   )
 })

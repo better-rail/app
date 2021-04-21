@@ -114,7 +114,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   }
 
   return (
-    <Screen style={ROOT} preset="scroll" statusBar="default">
+    <Screen style={ROOT} preset="scroll">
       <View style={CONTENT_WRAPPER}>
         <TouchableOpacity onPress={() => navigation.navigate("settings")} activeOpacity={0.8} accessibilityLabel="הגדרות">
           <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />

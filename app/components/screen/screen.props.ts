@@ -30,7 +30,7 @@ export interface ScreenProps {
   /**
    * Whether the status bar should be translucent
    */
-  translucent: boolean
+  translucent?: boolean
 
   /**
    * An optional status bar setting. Defaults to light-content.
