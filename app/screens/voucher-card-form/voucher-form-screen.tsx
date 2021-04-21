@@ -1,7 +1,8 @@
-import React from "react"
-import { observer } from "mobx-react-lite"
+import React, { useState } from "react"
 import { View, ViewStyle, TextStyle, DynamicColorIOS, Platform } from "react-native"
 import { Screen, Text, TextInput, Button } from "../../components"
+import { observer } from "mobx-react-lite"
+import { useStores } from "../../models"
 import { VoucherFormScreenProps } from "../../navigators/create-voucher-navigator"
 import { color, spacing } from "../../theme"
 
@@ -23,19 +24,41 @@ const FORM_NOTICE: TextStyle = {
 }
 
 export const VoucherFormScreen = observer(function VoucherFormScreen({ navigation }: VoucherFormScreenProps) {
+  const { voucherDetails } = useStores()
+  const [userId, setUserId] = useState("")
+  const [phoneNumber, setPhoneNumber] = useState("")
+  // TODO: Validate input
+
+  const submitForm = () => {
+    if (userId !== voucherDetails.userId) {
+      voucherDetails.setUserId(userId)
+    }
+
+    if (phoneNumber !== voucherDetails.phoneNumber) {
+      voucherDetails.setPhoneNumber(phoneNumber)
+    }
+
+    navigation.navigate("VoucherToken")
+  }
+
   return (
     <Screen style={ROOT} preset="scroll" unsafe={true}>
       <View style={{ marginBottom: spacing[4] }}>
         <Text preset="fieldLabel" text="תעודת זהות" style={{ marginBottom: spacing[1] }} />
-        <TextInput placeholder="מספר תעודת זהות" keyboardType="number-pad" />
+        <TextInput placeholder="מספר תעודת זהות" onChangeText={setUserId} keyboardType="number-pad" />
       </View>
 
       <View style={{ marginBottom: spacing[4] }}>
         <Text preset="fieldLabel" text="מס' טלפון" style={{ marginBottom: spacing[1] }} />
-        <TextInput placeholder="מספר טלפון" keyboardType="number-pad" textContentType="telephoneNumber" />
+        <TextInput
+          placeholder="מספר טלפון"
+          onChangeText={setPhoneNumber}
+          keyboardType="number-pad"
+          textContentType="telephoneNumber"
+        />
       </View>
 
-      <Button title="הזמנת שובר" onPress={() => navigation.navigate("VoucherToken")} />
+      <Button title="הזמנת שובר" onPress={submitForm} />
       <Text preset="small" style={FORM_NOTICE}>
         פרטי הבקשה עוברים ישירות אל מערכות רכבת ישראל ולא נאספים על ידי אפליקציית Better Rail
       </Text>
