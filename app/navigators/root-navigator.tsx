@@ -4,7 +4,7 @@ import { NavigationContainer, NavigationContainerRef, DefaultTheme, DarkTheme } 
 // import { createStackNavigator, TransitionPresets } from "@react-navigation/stack"
 import { createNativeStackNavigator } from "react-native-screens/native-stack"
 import { MainNavigator } from "./main-navigator"
-import { PassingCardNavigator } from "./passing-card-navigator"
+import { CreateVoucherNavigator } from "./create-voucher-navigator"
 
 export type RootParamList = { mainStack: undefined; secondaryStack }
 
@@ -19,7 +19,7 @@ const RootStack = () => {
       }}
     >
       <Stack.Screen name="mainStack" component={MainNavigator} />
-      <Stack.Screen name="secondaryStack" component={PassingCardNavigator} />
+      <Stack.Screen name="secondaryStack" component={CreateVoucherNavigator} />
     </Stack.Navigator>
   )
 }

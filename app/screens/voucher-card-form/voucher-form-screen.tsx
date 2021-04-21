@@ -2,7 +2,7 @@ import React from "react"
 import { observer } from "mobx-react-lite"
 import { View, ViewStyle, TextStyle, DynamicColorIOS, Platform } from "react-native"
 import { Screen, Text, TextInput, Button } from "../../components"
-import { PassingCardFormScreenProps } from "../../navigators/passing-card-navigator"
+import { VoucherFormScreenProps } from "../../navigators/create-voucher-navigator"
 import { color, spacing } from "../../theme"
 
 const ROOT: ViewStyle = {
@@ -22,7 +22,7 @@ const FORM_NOTICE: TextStyle = {
   opacity: 0.7,
 }
 
-export const PassingCardFormScreen = observer(function PassingCardFormScreen({ navigation }: PassingCardFormScreenProps) {
+export const VoucherFormScreen = observer(function VoucherFormScreen({ navigation }: VoucherFormScreenProps) {
   return (
     <Screen style={ROOT} preset="scroll" unsafe={true}>
       <View style={{ marginBottom: spacing[4] }}>
@@ -35,12 +35,12 @@ export const PassingCardFormScreen = observer(function PassingCardFormScreen({ n
         <TextInput placeholder="מספר טלפון" keyboardType="number-pad" textContentType="telephoneNumber" />
       </View>
 
-      <Button title="הזמנת שובר" onPress={() => navigation.navigate("passingCardToken")} />
+      <Button title="הזמנת שובר" onPress={() => navigation.navigate("VoucherToken")} />
       <Text preset="small" style={FORM_NOTICE}>
-        פרטי הבקשה עוברים ישירות אל מערכות רכבת ישראל ולא נאספים על ידי אפליקציית Better Rail.
+        פרטי הבקשה עוברים ישירות אל מערכות רכבת ישראל ולא נאספים על ידי אפליקציית Better Rail
       </Text>
       <Text preset="small" style={FORM_NOTICE}>
-        האחריות על שמירת הפרטים והנפקת השוברים היא על רכבת ישראל בלבד.
+        האחריות על שמירת הפרטים והנפקת השוברים היא על רכבת ישראל בלבד
       </Text>
     </Screen>
   )

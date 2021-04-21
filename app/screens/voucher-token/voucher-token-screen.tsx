@@ -4,7 +4,7 @@ import { View, ViewStyle, TextStyle, Platform, DynamicColorIOS, I18nManager } fr
 import { Screen, Text, Button } from "../../components"
 import { CodeField, Cursor, useBlurOnFulfill, useClearByFocusCell } from "react-native-confirmation-code-field"
 import { color, spacing } from "../../theme"
-import { PassingCardTokenScreenProps } from "../../navigators"
+import { VoucherTokenScreenProps } from "../../navigators"
 
 const ROOT: ViewStyle = {
   backgroundColor: Platform.select({
@@ -49,7 +49,7 @@ const CODE_CELL_TEXT: TextStyle = {
 
 const CELL_COUNT = 6
 
-export const PassingCardTokenScreen = observer(function PassingCardTokenScreen({ navigation }: PassingCardTokenScreenProps) {
+export const VoucherTokenScreen = observer(function VoucherTokenScreen({ navigation }: VoucherTokenScreenProps) {
   const [token, setToken] = useState("")
   const ref = useBlurOnFulfill({ value: token, cellCount: CELL_COUNT })
   const [props, getCellOnLayoutHandler] = useClearByFocusCell({ value: token, setValue: setToken })
@@ -78,7 +78,7 @@ export const PassingCardTokenScreen = observer(function PassingCardTokenScreen({
         )}
       />
 
-      <Button title="המשך" onPress={() => navigation.navigate("passingCardBarcode")} disabled={token.length !== 6} />
+      <Button title="המשך" onPress={() => navigation.navigate("VoucherBarcode")} disabled={token.length !== 6} />
     </Screen>
   )
 })
