@@ -201,6 +201,7 @@
       "quotes": 0,
       "react-native/no-raw-text": 0,
       "react/no-unescaped-entities": 0,
+      "react-native/split-platform-components": 0,
       "react/prop-types": "off",
       "space-before-function-paren": 0
     }
