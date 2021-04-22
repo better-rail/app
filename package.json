@@ -36,12 +36,14 @@
     "date-fns": "^2.19.0",
     "expo-localization": "9.1.0",
     "i18n-js": "3.8.0",
+    "israeli-id-validator": "^1.0.1",
     "mobx": "6.0.4",
     "mobx-react-lite": "3.1.6",
     "mobx-state-tree": "4.0.2",
     "ramda": "0.27.1",
     "react": "16.14.0",
     "react-native": "^0.63.4",
+    "react-native-confirmation-code-field": "6",
     "react-native-device-info": "^8.1.0",
     "react-native-gesture-handler": "1.8.0",
     "react-native-haptic-feedback": "^1.11.0",
@@ -201,6 +203,7 @@
       "quotes": 0,
       "react-native/no-raw-text": 0,
       "react/no-unescaped-entities": 0,
+      "react-native/split-platform-components": 0,
       "react/prop-types": "off",
       "space-before-function-paren": 0
     }

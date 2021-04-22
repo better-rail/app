@@ -91,6 +91,11 @@ export const color = {
     android: PlatformColor("@color/background"),
   }),
 
+  disabled: Platform.select({
+    ios: DynamicColorIOS({ light: PlatformColor("systemGray2"), dark: PlatformColor("systemGray3") }),
+    android: PlatformColor("@color/background"),
+  }),
+
   link: Platform.select({
     ios: PlatformColor("link"),
     android: PlatformColor("@color/background"),

@@ -8839,6 +8839,11 @@ isomorphic-fetch@^2.1.1:
     node-fetch "^1.0.1"
     whatwg-fetch ">=0.10.0"
 
+israeli-id-validator@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/israeli-id-validator/-/israeli-id-validator-1.0.1.tgz#e4b20c626633e8b7b27dcf69110d3ecebd3f0f92"
+  integrity sha512-t+71JwMXp3VTQl+zpJKnkQHUkhysrNzf+jeMbZ1mBVw9zomMJbZ40Brdl1MbruHj8OHwWe6AixIUa3vA7EjF0g==
+
 isstream@~0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/isstream/-/isstream-0.1.2.tgz#47e63f7af55afa6f92e1500e690eb8b8529c099a"
@@ -12870,6 +12875,11 @@ react-native-animatable@1.3.3:
   integrity sha512-2ckIxZQAsvWn25Ho+DK3d1mXIgj7tITkrS4pYDvx96WyOttSvzzFeQnM2od0+FUMzILbdHDsDEqZvnz1DYNQ1w==
   dependencies:
     prop-types "^15.7.2"
+
+react-native-confirmation-code-field@6:
+  version "6.5.1"
+  resolved "https://registry.yarnpkg.com/react-native-confirmation-code-field/-/react-native-confirmation-code-field-6.5.1.tgz#0097c9748c2abbe28d8b34ee343ef60cf93434c2"
+  integrity sha512-CjNx0G6CnwNKasQBVQCNdHsZU+RCPMQENgns65inR7AoOS6wcTdA3cuiPtx7mZJ+Z44c+mj3568xrEZVpd9EUg==
 
 react-native-device-info@^8.1.0:
   version "8.1.0"

@@ -60,10 +60,10 @@ const ORDER_TICKETS_TEXT: TextStyle = {
   fontWeight: "700",
 }
 
-type OrderTicketsButtonProps = { orderLink: string; styles?: ViewStyle }
+type OrderTicketsButtonProps = { styles?: ViewStyle }
 
-export const OrderTicketsButton = ({ orderLink, styles }: OrderTicketsButtonProps) => (
-  <TouchableOpacity activeOpacity={0.9} onPress={() => Linking.openURL(orderLink)} style={[ORDER_TICKETS_WRAPPER, styles]}>
+export const OrderTicketsButton = ({ styles, ...rest }: OrderTicketsButtonProps) => (
+  <TouchableOpacity activeOpacity={0.9} style={[ORDER_TICKETS_WRAPPER, styles]} {...rest}>
     <View style={ORDER_TICKETS_ICON_WRAPPER}>
       <Image source={ticketsIcon} style={ORDER_TICKETS_ICON_IMAGE} />
     </View>

@@ -1,32 +1,25 @@
 import React from "react"
 import { useColorScheme } from "react-native"
 import { NavigationContainer, NavigationContainerRef, DefaultTheme, DarkTheme } from "@react-navigation/native"
-import { createStackNavigator, TransitionPresets } from "@react-navigation/stack"
+// import { createStackNavigator, TransitionPresets } from "@react-navigation/stack"
+import { createNativeStackNavigator } from "react-native-screens/native-stack"
 import { MainNavigator } from "./main-navigator"
+import { CreateVoucherNavigator } from "./create-voucher-navigator"
 
-/**
- * This type allows TypeScript to know what routes are defined in this navigator
- * as well as what properties (if any) they might take when navigating to them.
- *
- * We recommend using MobX-State-Tree store(s) to handle state rather than navigation params.
- *
- * For more information, see this documentation:
- *   https://reactnavigation.org/docs/params/
- *   https://reactnavigation.org/docs/typescript#type-checking-the-navigator
- */
-export type RootParamList = { mainStack: undefined }
+export type RootParamList = { mainStack: undefined; secondaryStack }
 
-const Stack = createStackNavigator<RootParamList>()
+const Stack = createNativeStackNavigator<RootParamList>()
 
 const RootStack = () => {
   return (
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        ...TransitionPresets.ScaleFromCenterAndroid,
+        stackPresentation: "modal",
       }}
     >
       <Stack.Screen name="mainStack" component={MainNavigator} />
+      <Stack.Screen name="secondaryStack" component={CreateVoucherNavigator} />
     </Stack.Navigator>
   )
 }
