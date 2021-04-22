@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { View, ViewStyle, TextStyle, DynamicColorIOS, Platform } from "react-native"
+import { View, ViewStyle, TextStyle, DynamicColorIOS, Platform, Alert } from "react-native"
 import { Screen, Text, TextInput, Button } from "../../components"
 import { observer } from "mobx-react-lite"
 import { useStores } from "../../models"
@@ -27,6 +27,7 @@ const FORM_NOTICE: TextStyle = {
 
 export const VoucherFormScreen = observer(function VoucherFormScreen({ navigation }: VoucherFormScreenProps) {
   const { voucherDetails } = useStores()
+  const [submitting, setSubmitting] = useState(false)
   const [userId, setUserId] = useState(voucherDetails.userId || "")
   const [phoneNumber, setPhoneNumber] = useState(voucherDetails.phoneNumber || "")
 
@@ -37,6 +38,8 @@ export const VoucherFormScreen = observer(function VoucherFormScreen({ navigatio
   }
 
   const submitForm = () => {
+    setSubmitting(true)
+
     if (userId !== voucherDetails.userId) {
       voucherDetails.setUserId(userId)
     }
@@ -44,13 +47,21 @@ export const VoucherFormScreen = observer(function VoucherFormScreen({ navigatio
     if (phoneNumber !== voucherDetails.phoneNumber) {
       voucherDetails.setPhoneNumber(phoneNumber)
     }
-
-    voucherDetails.requestToken(userId, phoneNumber).then((result) => {
-      if (result.success) {
-      }
-    })
-
-    // navigation.navigate("VoucherToken")
+    voucherDetails
+      .requestToken(userId, phoneNumber)
+      .then((result) => {
+        if (result.success) {
+          navigation.navigate("VoucherToken")
+        } else {
+          Alert.alert("התרחשה שגיאה", "אנא וודאו שהפרטים נכונים.\n אם השגיאה ממשיכה להתרחש, אנא דווחו לנו.")
+        }
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+      .finally(() => {
+        setSubmitting(false)
+      })
   }
 
   return (
@@ -65,7 +76,7 @@ export const VoucherFormScreen = observer(function VoucherFormScreen({ navigatio
         <TextInput placeholder="מספר טלפון " defaultValue={phoneNumber} onChangeText={setPhoneNumber} keyboardType="number-pad" />
       </View>
 
-      <Button title="הזמנת שובר" onPress={submitForm} disabled={isInvalidForm()} />
+      <Button title="הזמנת שובר" onPress={submitForm} loading={submitting} disabled={isInvalidForm()} />
 
       <Text preset="small" style={FORM_NOTICE}>
         פרטי הבקשה עוברים ישירות אל מערכות רכבת ישראל ולא נאספים על ידי אפליקציית Better Rail
