@@ -31,7 +31,7 @@ export class VoucherApi {
       const train = route.trains[0]
 
       // Format data for the voucher api
-      const TrainDate = format(route.departureTime, "dd/MM/yyyy 00:00:00")
+      const TrainDate = format(train.departureTime, "dd/MM/yyyy 00:00:00")
       const departureTime = format(train.departureTime, "dd/MM/yyyy HH:mm:ss")
       const arrivalTime = format(train.arrivalTime, "dd/MM/yyyy HH:mm:ss")
 
@@ -61,6 +61,7 @@ export class VoucherApi {
 
       const response: ApiResponse<RequestVoutcherResult> = await this.api.apisauce.post(
         `/taarif//_layouts/15/SolBox.Rail.FastSale/ReservedPlaceHandler.ashx?numSeats=1&method=MakeVoucherSeatsReservation&IsSendEmail=true&source=1&typeId=1&token=${token}`,
+        body,
       )
 
       if (response.data.BarcodeImage) {

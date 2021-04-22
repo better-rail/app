@@ -54,7 +54,7 @@ const CODE_CELL_TEXT: TextStyle = {
 const CELL_COUNT = 6
 
 export const VoucherTokenScreen = observer(function VoucherTokenScreen({ navigation }: VoucherTokenScreenProps) {
-  const { voucherDetails } = useStores()
+  const { voucherDetails, trainRoutes } = useStores()
   const [submitting, setSubmitting] = useState(false)
 
   const [token, setToken] = useState("")
@@ -64,7 +64,9 @@ export const VoucherTokenScreen = observer(function VoucherTokenScreen({ navigat
   const onSubmit = async () => {
     setSubmitting(true)
     try {
-      const response = await voucherDetails.requestBarcode(token)
+      const routeItem = trainRoutes.routes[voucherDetails.routeIndex]
+
+      const response = await voucherDetails.requestBarcode(token, routeItem)
       if (response.success) {
         HapticFeedback.trigger("notificationSuccess")
         navigation.navigate("voucherBarcode")
@@ -101,7 +103,7 @@ export const VoucherTokenScreen = observer(function VoucherTokenScreen({ navigat
         )}
       />
 
-      <Button title="המשך" onPress={onSubmit} loading={submitting} disabled={token.length !== 6} />
+      <Button title="המשך" onPress={onSubmit} loading={submitting} disabled={token.length < 5} />
     </Screen>
   )
 })

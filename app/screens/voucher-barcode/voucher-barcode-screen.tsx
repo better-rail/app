@@ -1,10 +1,11 @@
-import React, { useEffect } from "react"
+import React from "react"
 import { observer } from "mobx-react-lite"
 import { Image, DynamicColorIOS, Dimensions, ImageStyle, ViewStyle, TextStyle } from "react-native"
 import { Screen, Text, Button } from "../../components"
 import { VoucherBarcodeScreenProps } from "../../navigators/create-voucher-navigator"
 import { color, spacing } from "../../theme"
 import { useStores } from "../../models"
+import { format } from "date-fns"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -16,6 +17,7 @@ const ROOT: ViewStyle = {
   paddingTop: spacing[4],
   paddingHorizontal: spacing[3],
   flex: 1,
+  alignItems: "center",
 }
 
 const SUCCESS_TEXT: TextStyle = {
@@ -47,14 +49,17 @@ const CLOSE_BUTTON: ViewStyle = {
 }
 
 export const VoucherBarcodeScreen = observer(function VoucherBarcodeScreen({ navigation }: VoucherBarcodeScreenProps) {
-  // Pull in one of our MST stores
-  const { voucherDetails } = useStores()
+  const { voucherDetails, trainRoutes } = useStores()
+
+  const route = trainRoutes.routes[voucherDetails.routeIndex]
 
   return (
     <Screen style={ROOT} preset="scroll" unsafe={true} statusBar="light-content">
       <Text preset="header" style={SUCCESS_TEXT}>
         השובר מוכן!
       </Text>
+      <Text>שובר כניסה לתחנת {route.trains[0].originStationName}</Text>
+      <Text>{format(route.trains[0].departureTime, "dd/MM/yyyy")}</Text>
 
       <Image style={BARCODE_IMAGE} source={{ uri: `data:image/png;base64,${voucherDetails.barcodeImage}` }} />
       <Text style={INFO_TEXT}>ניתן לגשת לשובר גם דרך המסך הראשי </Text>

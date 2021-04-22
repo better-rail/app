@@ -23,9 +23,12 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ navigat
   const insets = useSafeAreaInsets()
 
   const onOrderVoucherPress = () => {
-    const MSTRouteItem = trainRoutes.routes.find((route) => route.trains[0].departureTime === routeItem.trains[0].departureTime)
-    console.log(routeItem)
-    voucherDetails.setRoute(MSTRouteItem)
+    // We keep the index becuase of https://github.com/guytepper/better-rail/issues/26
+    const routeIndex = trainRoutes.routes.findIndex(
+      (route) => route.trains[0].departureTime === routeItem.trains[0].departureTime,
+    )
+
+    voucherDetails.setRouteIndex(routeIndex)
 
     navigation.navigate("secondaryStack")
   }
