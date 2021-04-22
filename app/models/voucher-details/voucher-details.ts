@@ -1,4 +1,6 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { VoucherApi } from "../../services/api/voucher-api"
+import { withEnvironment, withStatus } from ".."
 
 /**
  * Model description here for TypeScript hints.
@@ -10,6 +12,8 @@ export const voucherDetailsModel = types
     phoneNumber: types.maybe(types.string),
   })
   .views((self) => ({})) // eslint-disable-line @typescript-eslint/no-unused-vars
+  .extend(withEnvironment)
+  .extend(withStatus)
   .actions((self) => ({
     setUserId(userId: string) {
       self.userId = userId
@@ -17,7 +21,13 @@ export const voucherDetailsModel = types
     setPhoneNumber(phoneNumber: string) {
       self.phoneNumber = phoneNumber
     },
-  })) // eslint-disable-line @typescript-eslint/no-unused-vars
+  }))
+  .actions((self) => ({
+    requestToken: async (userId: string, phoneNumber: string) => {
+      const voucherApi = new VoucherApi(self.environment.api)
+      return voucherApi.requestToken(userId, phoneNumber)
+    },
+  }))
 
 /**
  * Un-comment the following to omit model attributes from your snapshots (and from async storage).
@@ -27,8 +37,8 @@ export const voucherDetailsModel = types
  *  .postProcessSnapshot(omit(["password", "socialSecurityNumber", "creditCardNumber"]))
  */
 
-type VoucherDetailsType = Instance<typeof VoucherDetailsModel>
+type VoucherDetailsType = Instance<typeof voucherDetailsModel>
 export interface VoucherDetails extends VoucherDetailsType {}
-type VoucherDetailsSnapshotType = SnapshotOut<typeof VoucherDetailsModel>
+type VoucherDetailsSnapshotType = SnapshotOut<typeof voucherDetailsModel>
 export interface VoucherDetailsSnapshot extends VoucherDetailsSnapshotType {}
-export const createVoucherDetailsDefaultModel = () => types.optional(VoucherDetailsModel, {})
+export const createVoucherDetailsDefaultModel = () => types.optional(voucherDetailsModel, {})
