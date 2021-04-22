@@ -59,7 +59,9 @@ export const VoucherBarcodeScreen = observer(function VoucherBarcodeScreen({ nav
         השובר מוכן!
       </Text>
       <Text>שובר כניסה לתחנת {route.trains[0].originStationName}</Text>
-      <Text>{format(route.trains[0].departureTime, "dd/MM/yyyy")}</Text>
+      <Text style={{ marginBottom: spacing[4] }}>
+        בתאריך {format(route.trains[0].departureTime, "dd/MM/yyyy")} בשעה {format(route.trains[0].departureTime, "HH:mm")}
+      </Text>
 
       <Image style={BARCODE_IMAGE} source={{ uri: `data:image/png;base64,${voucherDetails.barcodeImage}` }} />
       <Text style={INFO_TEXT}>ניתן לגשת לשובר גם דרך המסך הראשי </Text>
