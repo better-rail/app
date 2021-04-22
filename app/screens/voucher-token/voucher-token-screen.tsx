@@ -68,8 +68,8 @@ export const VoucherTokenScreen = observer(function VoucherTokenScreen({ navigat
 
       const response = await voucherDetails.requestBarcode(token, routeItem)
       if (response.success) {
-        HapticFeedback.trigger("notificationSuccess")
         navigation.navigate("voucherBarcode")
+        HapticFeedback.trigger("notificationSuccess")
       }
     } catch (err) {
       Alert.alert("התרחשה שגיאה", "אנא וודאו שהפרטים נכונים.\n אם השגיאה ממשיכה להתרחש, אנא דווחו לנו.")
