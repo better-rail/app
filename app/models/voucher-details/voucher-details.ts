@@ -2,6 +2,7 @@ import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { VoucherApi } from "../../services/api/voucher-api"
 import { trainRouteSchema } from "../train-routes/train-routes"
 import { withEnvironment, withStatus } from ".."
+import { omit } from "ramda"
 
 /**
  * Model description here for TypeScript hints.
@@ -9,11 +10,11 @@ import { withEnvironment, withStatus } from ".."
 export const voucherDetailsModel = types
   .model("VoucherDetails")
   .props({
-    route: types.model(trainRouteSchema),
+    route: types.maybe(types.model(trainRouteSchema)),
     userId: types.maybe(types.string),
     phoneNumber: types.maybe(types.string),
+    barcodeImage: types.maybe(types.string),
   })
-  .views((self) => ({})) // eslint-disable-line @typescript-eslint/no-unused-vars
   .extend(withEnvironment)
   .extend(withStatus)
   .actions((self) => ({
@@ -26,6 +27,9 @@ export const voucherDetailsModel = types
     setPhoneNumber(phoneNumber: string) {
       self.phoneNumber = phoneNumber
     },
+    setBarcodeImage(barcodeImage: string) {
+      self.barcodeImage = barcodeImage
+    },
   }))
   .actions((self) => ({
     requestToken: async (userId: string, phoneNumber: string) => {
@@ -36,8 +40,14 @@ export const voucherDetailsModel = types
     requestBarcode: async (token: string) => {
       const { userId, phoneNumber, route } = self
 
-      // const voucherApi = new VoucherApi(self.environment.api)
-      // return voucherApi.requestBarcode({ userId, phoneNumber, token, route })
+      const voucherApi = new VoucherApi(self.environment.api)
+      const result = await voucherApi.requestBarcode({ userId, phoneNumber, token, route })
+
+      if (result.success) {
+        self.setBarcodeImage(result.barcodeImage)
+        return result
+      }
+      throw new Error(result.message)
     },
   }))
 

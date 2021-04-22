@@ -3,7 +3,15 @@ import { withEnvironment, withStatus } from ".."
 import { RouteApi } from "../../services/api/route-api"
 import { format, add } from "date-fns"
 
-const TrainListSchema = {
+export const trainStop = {
+  arrivalTime: types.number,
+  departureTime: types.number,
+  stationId: types.string,
+  stationName: types.string,
+  platform: types.string,
+}
+
+export const trainListSchema = {
   arrivalTime: types.number,
   departureTime: types.number,
   originStationId: types.string,
@@ -13,22 +21,14 @@ const TrainListSchema = {
   originPlatform: types.string,
   destinationPlatform: types.string,
   trainNumber: types.string,
-  stopStations: types.array(
-    types.model({
-      arrivalTime: types.number,
-      departureTime: types.number,
-      stationId: types.string,
-      stationName: types.string,
-      platform: types.string,
-    }),
-  ),
+  stopStations: types.array(types.model(trainStop)),
 }
 
 export const trainRouteSchema = {
   departureTime: types.number,
   isExchange: types.boolean,
   estTime: types.string,
-  trains: types.array(types.model(TrainListSchema)),
+  trains: types.array(types.model(trainListSchema)),
 }
 
 /**

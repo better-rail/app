@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { observer } from "mobx-react-lite"
-import { View, ViewStyle, TextStyle, Platform, DynamicColorIOS, I18nManager } from "react-native"
+import { View, ViewStyle, TextStyle, Platform, DynamicColorIOS, I18nManager, Alert } from "react-native"
 import { Screen, Text, Button } from "../../components"
 import { CodeField, Cursor, useBlurOnFulfill, useClearByFocusCell } from "react-native-confirmation-code-field"
 import { color, spacing } from "../../theme"
@@ -8,6 +8,7 @@ import { VoucherTokenScreenProps } from "../../navigators"
 import { useStores } from "../../models"
 import HapticFeedback from "react-native-haptic-feedback"
 
+// #region styles
 const ROOT: ViewStyle = {
   backgroundColor: Platform.select({
     ios: DynamicColorIOS({ light: color.background, dark: color.secondaryBackground }),
@@ -48,6 +49,7 @@ const CODE_CELL_TEXT: TextStyle = {
   fontSize: 28,
   fontWeight: "bold",
 }
+// #endregion
 
 const CELL_COUNT = 6
 
@@ -59,9 +61,19 @@ export const VoucherTokenScreen = observer(function VoucherTokenScreen({ navigat
   const ref = useBlurOnFulfill({ value: token, cellCount: CELL_COUNT })
   const [props, getCellOnLayoutHandler] = useClearByFocusCell({ value: token, setValue: setToken })
 
-  const onSubmit = () => {
-    HapticFeedback.trigger("notificationSuccess")
-    navigation.navigate("VoucherBarcode")
+  const onSubmit = async () => {
+    setSubmitting(true)
+    try {
+      const response = await voucherDetails.requestBarcode(token)
+      if (response.success) {
+        HapticFeedback.trigger("notificationSuccess")
+        navigation.navigate("voucherBarcode")
+      }
+    } catch (err) {
+      Alert.alert("התרחשה שגיאה", "אנא וודאו שהפרטים נכונים.\n אם השגיאה ממשיכה להתרחש, אנא דווחו לנו.")
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -89,7 +101,7 @@ export const VoucherTokenScreen = observer(function VoucherTokenScreen({ navigat
         )}
       />
 
-      <Button title="המשך" onPress={onSubmit} disabled={token.length !== 6} />
+      <Button title="המשך" onPress={onSubmit} loading={submitting} disabled={token.length !== 6} />
     </Screen>
   )
 })
