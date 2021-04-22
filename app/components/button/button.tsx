@@ -51,7 +51,7 @@ export const Button = function Button(props: CustomButtonProps) {
   return (
     <View style={{ borderRadius: 12, overflow: "hidden" }}>
       <Pressable
-        style={[PRESSABLE_STYLE, style, disabled && { backgroundColor: color.dim }]}
+        style={[PRESSABLE_STYLE, style, disabled && { backgroundColor: color.disabled }]}
         onPressIn={() => setIsPressed(true)}
         onPressOut={() => setIsPressed(false)}
         android_ripple={{ color: color.primaryLighter }}

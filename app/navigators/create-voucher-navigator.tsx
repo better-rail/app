@@ -31,7 +31,7 @@ export const CreateVoucherNavigator = () => (
     <PCardStack.Screen
       name="VoucherBarcode"
       component={VoucherBarcodeScreen}
-      options={{ stackPresentation: "push", headerBackTitleVisible: false }}
+      options={{ stackPresentation: "push", headerHideBackButton: true }}
     />
   </PCardStack.Navigator>
 )

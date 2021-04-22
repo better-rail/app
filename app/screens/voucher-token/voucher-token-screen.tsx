@@ -5,6 +5,8 @@ import { Screen, Text, Button } from "../../components"
 import { CodeField, Cursor, useBlurOnFulfill, useClearByFocusCell } from "react-native-confirmation-code-field"
 import { color, spacing } from "../../theme"
 import { VoucherTokenScreenProps } from "../../navigators"
+import { useStores } from "../../models"
+import HapticFeedback from "react-native-haptic-feedback"
 
 const ROOT: ViewStyle = {
   backgroundColor: Platform.select({
@@ -50,14 +52,21 @@ const CODE_CELL_TEXT: TextStyle = {
 const CELL_COUNT = 6
 
 export const VoucherTokenScreen = observer(function VoucherTokenScreen({ navigation }: VoucherTokenScreenProps) {
+  const { voucherDetails } = useStores()
+
   const [token, setToken] = useState("")
   const ref = useBlurOnFulfill({ value: token, cellCount: CELL_COUNT })
   const [props, getCellOnLayoutHandler] = useClearByFocusCell({ value: token, setValue: setToken })
 
+  const onSubmit = () => {
+    HapticFeedback.trigger("notificationSuccess")
+    navigation.navigate("VoucherBarcode")
+  }
+
   return (
-    <Screen style={ROOT} preset="scroll" unsafe={true}>
+    <Screen style={ROOT} preset="scroll" unsafe={true} statusBar="light-content">
       <View style={{ marginBottom: spacing[7] }}>
-        <Text style={INSTRUCTION_TEXT}>סמס עם קוד מזהה נשלח אל 052-8656710. </Text>
+        <Text style={INSTRUCTION_TEXT}>סמס עם קוד מזהה נשלח אל {voucherDetails.phoneNumber}. </Text>
         <Text style={INSTRUCTION_TEXT}>הזינו את הקוד כאן:</Text>
       </View>
 
@@ -66,6 +75,7 @@ export const VoucherTokenScreen = observer(function VoucherTokenScreen({ navigat
         {...props}
         // Use `caretHidden={false}` when users can't paste a text value, because context menu doesn't appear
         value={token}
+        autoFocus={true}
         onChangeText={setToken}
         cellCount={CELL_COUNT}
         rootStyle={CODE_FIELD_WRAPPER}
@@ -78,7 +88,7 @@ export const VoucherTokenScreen = observer(function VoucherTokenScreen({ navigat
         )}
       />
 
-      <Button title="המשך" onPress={() => navigation.navigate("VoucherBarcode")} disabled={token.length !== 6} />
+      <Button title="המשך" onPress={onSubmit} disabled={token.length !== 6} />
     </Screen>
   )
 })

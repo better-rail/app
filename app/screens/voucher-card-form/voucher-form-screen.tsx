@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import { View, ViewStyle, TextStyle, DynamicColorIOS, Platform } from "react-native"
 import { Screen, Text, TextInput, Button } from "../../components"
 import { observer } from "mobx-react-lite"
@@ -6,6 +6,7 @@ import { useStores } from "../../models"
 import { VoucherFormScreenProps } from "../../navigators/create-voucher-navigator"
 import { color, spacing } from "../../theme"
 import isIsraeliIdValid from "israeli-id-validator"
+import voucherApi from "../../services/api/voucher-api"
 
 const ROOT: ViewStyle = {
   backgroundColor: Platform.select({
@@ -26,8 +27,8 @@ const FORM_NOTICE: TextStyle = {
 
 export const VoucherFormScreen = observer(function VoucherFormScreen({ navigation }: VoucherFormScreenProps) {
   const { voucherDetails } = useStores()
-  const [userId, setUserId] = useState(voucherDetails.userId)
-  const [phoneNumber, setPhoneNumber] = useState(voucherDetails.phoneNumber)
+  const [userId, setUserId] = useState(voucherDetails.userId || "")
+  const [phoneNumber, setPhoneNumber] = useState(voucherDetails.phoneNumber || "")
 
   const isInvalidForm = () => {
     if (phoneNumber.length !== 10 || !isIsraeliIdValid(userId)) return true
@@ -44,11 +45,16 @@ export const VoucherFormScreen = observer(function VoucherFormScreen({ navigatio
       voucherDetails.setPhoneNumber(phoneNumber)
     }
 
-    navigation.navigate("VoucherToken")
+    voucherDetails.requestToken(userId, phoneNumber).then((result) => {
+      if (result.success) {
+      }
+    })
+
+    // navigation.navigate("VoucherToken")
   }
 
   return (
-    <Screen style={ROOT} preset="scroll" unsafe={true}>
+    <Screen style={ROOT} preset="scroll" unsafe={true} statusBar="light-content">
       <View style={{ marginBottom: spacing[4] }}>
         <Text preset="fieldLabel" text="תעודת זהות" style={{ marginBottom: spacing[1] }} />
         <TextInput placeholder="מספר תעודת זהות" defaultValue={userId} onChangeText={setUserId} keyboardType="number-pad" />
@@ -56,13 +62,7 @@ export const VoucherFormScreen = observer(function VoucherFormScreen({ navigatio
 
       <View style={{ marginBottom: spacing[4] }}>
         <Text preset="fieldLabel" text="מס׳ טלפון נייד" style={{ marginBottom: spacing[1] }} />
-        <TextInput
-          placeholder="מספר טלפון "
-          defaultValue={phoneNumber}
-          onChangeText={setPhoneNumber}
-          keyboardType="number-pad"
-          textContentType="telephoneNumber"
-        />
+        <TextInput placeholder="מספר טלפון " defaultValue={phoneNumber} onChangeText={setPhoneNumber} keyboardType="number-pad" />
       </View>
 
       <Button title="הזמנת שובר" onPress={submitForm} disabled={isInvalidForm()} />
