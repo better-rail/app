@@ -6,7 +6,7 @@ import { createNativeStackNavigator } from "react-native-screens/native-stack"
 import { MainNavigator } from "./main-navigator"
 import { CreateVoucherNavigator } from "./create-voucher-navigator"
 
-export type RootParamList = { mainStack: undefined; secondaryStack }
+export type RootParamList = { mainStack: undefined; secondaryStack: undefined }
 
 const Stack = createNativeStackNavigator<RootParamList>()
 
