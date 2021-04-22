@@ -47,21 +47,21 @@ export const VoucherFormScreen = observer(function VoucherFormScreen({ navigatio
     if (phoneNumber !== voucherDetails.phoneNumber) {
       voucherDetails.setPhoneNumber(phoneNumber)
     }
-    voucherDetails
-      .requestToken(userId, phoneNumber)
-      .then((result) => {
-        if (result.success) {
-          navigation.navigate("VoucherToken")
-        } else {
-          Alert.alert("התרחשה שגיאה", "אנא וודאו שהפרטים נכונים.\n אם השגיאה ממשיכה להתרחש, אנא דווחו לנו.")
-        }
-      })
-      .catch((err) => {
-        console.error(err)
-      })
-      .finally(() => {
-        setSubmitting(false)
-      })
+    navigation.navigate("VoucherToken")
+    // voucherDetails
+    //   .requestToken(userId, phoneNumber)
+    //   .then((result) => {
+    //     if (result.success) {
+    //     } else {
+    //       Alert.alert("התרחשה שגיאה", "אנא וודאו שהפרטים נכונים.\n אם השגיאה ממשיכה להתרחש, אנא דווחו לנו.")
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     console.error(err)
+    //   })
+    //   .finally(() => {
+    //     setSubmitting(false)
+    //   })
   }
 
   return (

@@ -53,6 +53,7 @@ const CELL_COUNT = 6
 
 export const VoucherTokenScreen = observer(function VoucherTokenScreen({ navigation }: VoucherTokenScreenProps) {
   const { voucherDetails } = useStores()
+  const [submitting, setSubmitting] = useState(false)
 
   const [token, setToken] = useState("")
   const ref = useBlurOnFulfill({ value: token, cellCount: CELL_COUNT })

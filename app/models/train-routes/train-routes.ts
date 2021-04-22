@@ -24,7 +24,7 @@ const TrainListSchema = {
   ),
 }
 
-const trainRouteSchema = {
+export const trainRouteSchema = {
   departureTime: types.number,
   isExchange: types.boolean,
   estTime: types.string,

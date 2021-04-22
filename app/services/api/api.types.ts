@@ -43,6 +43,7 @@ export type RailApiGetRoutesResult = {
 export type RouteItem = {
   isExchange: boolean
   estTime: string
+  departureTime: number
   trains: {
     originStationId: string
     originStationName: string
@@ -55,4 +56,11 @@ export type RouteItem = {
     trainNumber: string
     stopStations: { arrivalTime: number; departureTime: number; stationId: string; stationName: string; platform: string }[]
   }[]
+}
+
+export type RequestBarodeParams = {
+  userId: string
+  phoneNumber: string
+  token: string
+  route: RouteItem
 }
