@@ -5,14 +5,14 @@ import { VoucherFormScreen, VoucherTokenScreen, VoucherBarcodeScreen } from "../
 import { color, typography } from "../theme"
 
 export type VoucherParamList = { voucherForm: undefined; voucherToken: undefined; voucherBarcode: undefined }
-const PCardStack = createNativeStackNavigator<VoucherParamList>()
+const VoucherStack = createNativeStackNavigator<VoucherParamList>()
 
 export type VoucherFormScreenProps = StackScreenProps<VoucherParamList, "voucherForm">
 export type VoucherTokenScreenProps = StackScreenProps<VoucherParamList, "voucherToken">
 export type VoucherBarcodeScreenProps = StackScreenProps<VoucherParamList, "voucherBarcode">
 
 export const CreateVoucherNavigator = () => (
-  <PCardStack.Navigator
+  <VoucherStack.Navigator
     screenOptions={{
       direction: "rtl",
       stackPresentation: "modal",
@@ -22,16 +22,16 @@ export const CreateVoucherNavigator = () => (
       headerBackTitleStyle: { fontFamily: typography.primary },
     }}
   >
-    <PCardStack.Screen name="voucherForm" component={VoucherFormScreen} />
-    <PCardStack.Screen
+    <VoucherStack.Screen name="voucherForm" component={VoucherFormScreen} />
+    <VoucherStack.Screen
       name="voucherToken"
       component={VoucherTokenScreen}
       options={{ stackPresentation: "push", headerBackTitle: "חזרה" }}
     />
-    <PCardStack.Screen
+    <VoucherStack.Screen
       name="voucherBarcode"
       component={VoucherBarcodeScreen}
       options={{ stackPresentation: "push", headerHideBackButton: true }}
     />
-  </PCardStack.Navigator>
+  </VoucherStack.Navigator>
 )
