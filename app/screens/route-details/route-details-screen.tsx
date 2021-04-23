@@ -30,7 +30,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ navigat
 
     voucherDetails.setRouteIndex(routeIndex)
 
-    navigation.navigate("secondaryStack")
+    navigation.navigate("secondaryStack", { screen: "voucherForm" })
   }
 
   return (
