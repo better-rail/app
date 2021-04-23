@@ -24,7 +24,7 @@ const ROUTE_EXCHANGE_WRAPPER: ViewStyle = {
   alignItems: "center",
   paddingVertical: spacing[4],
   paddingHorizontal: spacing[4],
-  backgroundColor: color.background,
+  backgroundColor: color.secondaryLighter,
 }
 
 const ROUTE_EXCHANGE_ICON: ViewStyle = {
@@ -57,7 +57,7 @@ const ROUTE_EXCHANGE_INFO_ICON: ImageStyle = {
   width: 25,
   height: 25,
   marginEnd: 5,
-  opacity: colorScheme === "dark" ? 0.6 : 1,
+  opacity: colorScheme === "dark" ? 1 : 1,
 }
 
 type RouteExchangeProps = {

@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from "react-native-screens/native-stack"
 import { VoucherFormScreen, VoucherTokenScreen, VoucherBarcodeScreen, VoucherOrganizerScreen } from "../screens"
 import { color, typography } from "../theme"
 import { Voucher } from "../models/vouchers"
+import { Text } from "../components"
 
 export type VoucherParamList = {
   voucherForm: undefined
@@ -41,6 +42,10 @@ export const VoucherNavigator = () => (
       options={{ stackPresentation: "push", headerHideBackButton: true, headerBackTitleVisible: false }}
     />
 
-    <VoucherStack.Screen name="voucherOrganizer" component={VoucherOrganizerScreen} options={{ title: "שוברי כניסה" }} />
+    <VoucherStack.Screen
+      name="voucherOrganizer"
+      component={VoucherOrganizerScreen}
+      options={{ title: "שוברי כניסה", headerRight: () => <Text style={{ color: color.link, opacity: 0.8 }}>סגירה</Text> }}
+    />
   </VoucherStack.Navigator>
 )
