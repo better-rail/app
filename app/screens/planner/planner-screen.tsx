@@ -8,6 +8,7 @@ import { color, spacing } from "../../theme"
 import { PlannerScreenProps } from "../../navigators/main-navigator"
 import stations from "../../data/stations"
 import { formatRelative, differenceInMinutes } from "date-fns"
+import HapticFeedback from "react-native-haptic-feedback"
 import { he } from "date-fns/locale"
 
 const now = new Date()
@@ -56,7 +57,7 @@ const CHANGE_ICON: ImageStyle = {
   marginStart: 1 + spacing[1] * fontScale,
   tintColor: color.label,
   opacity: 0.5,
-  transform: [{ rotate: "-90deg" }],
+  transform: [{ rotate: "90deg" }],
 }
 
 // #endregion
@@ -182,9 +183,12 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
         </Animated.View>
 
         <TouchableOpacity
-          onPress={() => routePlan.switchDateType()}
+          onPress={() => {
+            HapticFeedback.trigger("impactLight")
+            routePlan.switchDateType()
+          }}
           style={{ flexDirection: "row", alignItems: "center", marginBottom: spacing[1] }}
-          activeOpacity={0.6}
+          activeOpacity={0.9}
         >
           <Text preset="fieldLabel" text={routePlan.dateTypeDisplayName} />
           <Image style={CHANGE_ICON} source={changeIcon} />
