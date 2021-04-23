@@ -15,7 +15,7 @@ export default function useStationItems(searchTerm: string, originStation?: any)
     return stations.filter((station) => station.id !== originStation.id)
   }, [originStation])
 
-  if (searchTerm === "") return filteredStations
+  if (searchTerm === "") return []
   return filteredStations.filter((item) => {
     return item.name.indexOf(searchTerm) > -1
   })
