@@ -8,7 +8,7 @@ import { RouteItem } from "../../services/api"
 /**
  * Model description here for TypeScript hints.
  */
-export const voucherDetailsModel = types
+export const VoucherDetailsModel = types
   .model("VoucherDetails")
   .props({
     routeIndex: types.maybe(types.number), // Naughty workaround to handle this issue: https://github.com/guytepper/better-rail/issues/26
@@ -42,7 +42,13 @@ export const voucherDetailsModel = types
       const { userId, phoneNumber } = self
 
       const voucherApi = new VoucherApi(self.environment.api)
-      const result = await voucherApi.requestBarcode({ userId, phoneNumber, token, route })
+
+      let result
+      if (__DEV__) {
+        result = { success: true, barcodeImage: require("./dev-barcode-image.json") }
+      } else {
+        result = await voucherApi.requestBarcode({ userId, phoneNumber, token, route })
+      }
 
       if (result.success) {
         self.setBarcodeImage(result.barcodeImage)
@@ -60,8 +66,8 @@ export const voucherDetailsModel = types
  *  .postProcessSnapshot(omit(["password", "socialSecurityNumber", "creditCardNumber"]))
  */
 
-type VoucherDetailsType = Instance<typeof voucherDetailsModel>
+type VoucherDetailsType = Instance<typeof VoucherDetailsModel>
 export interface VoucherDetails extends VoucherDetailsType {}
-type VoucherDetailsSnapshotType = SnapshotOut<typeof voucherDetailsModel>
+type VoucherDetailsSnapshotType = SnapshotOut<typeof VoucherDetailsModel>
 export interface VoucherDetailsSnapshot extends VoucherDetailsSnapshotType {}
-export const createVoucherDetailsDefaultModel = () => types.optional(voucherDetailsModel, {})
+export const createVoucherDetailsDefaultModel = () => types.optional(VoucherDetailsModel, {})

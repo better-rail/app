@@ -6,6 +6,7 @@ import { CodeField, Cursor, useBlurOnFulfill, useClearByFocusCell } from "react-
 import { color, spacing } from "../../theme"
 import { VoucherTokenScreenProps } from "../../navigators"
 import { useStores } from "../../models"
+import { Voucher } from "../../models/vouchers/vouchers"
 import HapticFeedback from "react-native-haptic-feedback"
 
 // #region styles
@@ -54,7 +55,7 @@ const CODE_CELL_TEXT: TextStyle = {
 const CELL_COUNT = 6
 
 export const VoucherTokenScreen = observer(function VoucherTokenScreen({ navigation }: VoucherTokenScreenProps) {
-  const { voucherDetails, trainRoutes } = useStores()
+  const { voucherDetails, vouchers, trainRoutes } = useStores()
   const [submitting, setSubmitting] = useState(false)
 
   const [token, setToken] = useState("")
@@ -65,9 +66,19 @@ export const VoucherTokenScreen = observer(function VoucherTokenScreen({ navigat
     setSubmitting(true)
     try {
       const routeItem = trainRoutes.routes[voucherDetails.routeIndex]
+      const train = routeItem.trains[0]
 
       const response = await voucherDetails.requestBarcode(token, routeItem)
       if (response.success) {
+        const voucher: Voucher = {
+          id: `${train.trainNumber}${train.departureTime}`,
+          stationName: train.originStationName,
+          date: train.departureTime,
+          barcodeImage: response.barcodeImage,
+        }
+
+        vouchers.addVoucher(voucher)
+
         navigation.navigate("voucherBarcode")
         HapticFeedback.trigger("notificationSuccess")
       }

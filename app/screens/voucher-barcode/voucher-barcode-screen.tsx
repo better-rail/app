@@ -54,8 +54,8 @@ export const VoucherBarcodeScreen = observer(function VoucherBarcodeScreen({ nav
   const trainRoute = trainRoutes.routes[voucherDetails.routeIndex]
 
   React.useLayoutEffect(() => {
-    // If the barcode details comes from the route params, it means that it already exists,
-    // meaning we have to change the UI for this screen a bit.
+    // If the barcode details comes from the route params, it means that it already exists and wasn't just created,
+    // so we have to change the UI for this screen a bit.
     if (route.params.barcodeImage) {
       navigation.setOptions({
         title: "שובר כניסה",
@@ -74,8 +74,8 @@ export const VoucherBarcodeScreen = observer(function VoucherBarcodeScreen({ nav
 
       <Text>שובר כניסה לתחנת {route.params?.stationName || trainRoute.trains[0].originStationName}</Text>
       <Text style={{ marginBottom: spacing[4] }}>
-        בתאריך {format(route.params?.departureTime || trainRoute.trains[0].departureTime, "dd/MM/yyyy")} בשעה{" "}
-        {format(route.params?.departureTime || trainRoute.trains[0].departureTime, "HH:mm")}
+        בתאריך {format(route.params?.date || trainRoute.trains[0].departureTime, "dd/MM/yyyy")} בשעה{" "}
+        {format(route.params?.date || trainRoute.trains[0].departureTime, "HH:mm")}
       </Text>
 
       <Image

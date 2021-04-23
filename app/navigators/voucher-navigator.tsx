@@ -7,7 +7,7 @@ import { color, typography } from "../theme"
 export type VoucherParamList = {
   voucherForm: undefined
   voucherToken: undefined
-  voucherBarcode: { barcodeImage?: string; stationName: string; depatureTime: number }
+  voucherBarcode: { barcodeImage?: string; stationName: string; date: number }
   voucherOrganizer: undefined
 }
 const VoucherStack = createNativeStackNavigator<VoucherParamList>()
