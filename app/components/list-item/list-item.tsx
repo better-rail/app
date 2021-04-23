@@ -71,16 +71,16 @@ const CHEVRON_ICON: ImageStyle = {
 // #endregion
 
 export interface ListItemProps extends TouchableHighlightProps {
-  image: ImageSourcePropType
+  title: string
+  subtitle?: string | number
+  image?: ImageSourcePropType
 }
 
 /**
  * Describe your component here
  */
 export const ListItem = function ListItem(props: ListItemProps) {
-  const { image, onPress, style } = props
-  const title = "ירושלים - יצחק נבון"
-  const subtitle = "היום בשעה 08:33"
+  const { title, subtitle, image, onPress, style } = props
 
   return (
     <TouchableHighlight onPress={onPress} style={style} underlayColor={color.inputPlaceholderBackground}>

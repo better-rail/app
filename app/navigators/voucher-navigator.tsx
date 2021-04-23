@@ -3,11 +3,12 @@ import { StackScreenProps } from "@react-navigation/stack"
 import { createNativeStackNavigator } from "react-native-screens/native-stack"
 import { VoucherFormScreen, VoucherTokenScreen, VoucherBarcodeScreen, VoucherOrganizerScreen } from "../screens"
 import { color, typography } from "../theme"
+import { Voucher } from "../models/vouchers"
 
 export type VoucherParamList = {
   voucherForm: undefined
   voucherToken: undefined
-  voucherBarcode: { barcodeImage?: string; stationName: string; date: number }
+  voucherBarcode: Voucher
   voucherOrganizer: undefined
 }
 const VoucherStack = createNativeStackNavigator<VoucherParamList>()

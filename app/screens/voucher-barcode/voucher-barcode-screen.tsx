@@ -1,6 +1,6 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
-import { Image, DynamicColorIOS, Dimensions, ImageStyle, ViewStyle, TextStyle } from "react-native"
+import { Image, DynamicColorIOS, Dimensions, ImageStyle, ViewStyle, TextStyle, Alert, AlertButton, View } from "react-native"
 import { Screen, Text, Button } from "../../components"
 import { VoucherBarcodeScreenProps } from "../../navigators/create-Voucher"
 import { color, spacing } from "../../theme"
@@ -43,26 +43,49 @@ const INFO_TEXT: TextStyle = {
   opacity: 0.9,
 }
 
+const DELETE_BUTTON: ViewStyle = {
+  width: deviceWidth - 75,
+  alignSelf: "center",
+  marginBottom: spacing[2],
+  backgroundColor: color.destroy,
+}
+
 const CLOSE_BUTTON: ViewStyle = {
   width: deviceWidth - 75,
   alignSelf: "center",
 }
 
 export const VoucherBarcodeScreen = observer(function VoucherBarcodeScreen({ navigation, route }: VoucherBarcodeScreenProps) {
-  const { voucherDetails, trainRoutes } = useStores()
+  const { voucherDetails, vouchers, trainRoutes } = useStores()
 
   const trainRoute = trainRoutes.routes[voucherDetails.routeIndex]
 
   React.useLayoutEffect(() => {
     // If the barcode details comes from the route params, it means that it already exists and wasn't just created,
     // so we have to change the UI for this screen a bit.
-    if (route.params.barcodeImage) {
+    if (route.params?.barcodeImage) {
       navigation.setOptions({
         title: "שובר כניסה",
         headerHideBackButton: false,
       })
     }
   }, [navigation])
+
+  const deleteVoucher = () => {
+    const options: AlertButton[] = [
+      { text: "ביטול", style: "cancel" },
+      {
+        text: "מחיקה",
+        style: "destructive",
+        onPress: () => {
+          vouchers.removeVoucher(route.params?.id)
+          navigation.goBack()
+        },
+      },
+    ]
+
+    Alert.alert("למחוק את השובר?", "", options)
+  }
 
   return (
     <Screen style={ROOT} preset="scroll" unsafe={true} statusBar="light-content">
@@ -82,8 +105,18 @@ export const VoucherBarcodeScreen = observer(function VoucherBarcodeScreen({ nav
         style={BARCODE_IMAGE}
         source={{ uri: `data:image/png;base64,${voucherDetails.barcodeImage || route.params?.barcodeImage}` }}
       />
-      <Text style={INFO_TEXT}>{!route.params?.barcodeImage && "ניתן לגשת לשובר גם דרך המסך הראשי"}</Text>
-      <Button title="סגירה" style={CLOSE_BUTTON} onPress={() => navigation.dangerouslyGetParent().goBack()} />
+      {!route.params?.barcodeImage && (
+        <Text style={INFO_TEXT}>{!route.params?.barcodeImage && "ניתן לגשת לשובר גם דרך המסך הראשי"}</Text>
+      )}
+
+      {route.params?.barcodeImage ? (
+        <View style={{ marginTop: spacing[5] }}>
+          <Button title="מחיקה" style={DELETE_BUTTON} onPress={() => deleteVoucher()} />
+          <Button title="חזרה" style={CLOSE_BUTTON} onPress={() => navigation.goBack()} />
+        </View>
+      ) : (
+        <Button title="סגירה" style={CLOSE_BUTTON} onPress={() => navigation.dangerouslyGetParent().goBack()} />
+      )}
     </Screen>
   )
 })

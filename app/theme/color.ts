@@ -106,13 +106,13 @@ export const color = {
     android: PlatformColor("@color/background"),
   }),
 
-  /**
-   * Secondary information.
-   */
+  destroy: Platform.select({
+    ios: PlatformColor("systemRed"),
+    android: PlatformColor("@color/background"),
+  }),
+
   dim: palette.lightGrey,
-  /**
-   * Secondary information.
-   */
+
   dimmer: palette.lighterGrey,
 
   /**
