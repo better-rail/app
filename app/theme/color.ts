@@ -113,7 +113,10 @@ export const color = {
 
   dim: palette.lightGrey,
 
-  dimmer: palette.lighterGrey,
+  dimmer: Platform.select({
+    ios: DynamicColorIOS({ light: palette.lighterGrey, dark: PlatformColor("systemGray4") }),
+    android: PlatformColor("@color/background"),
+  }),
 
   /**
    * Error messages and icons.
