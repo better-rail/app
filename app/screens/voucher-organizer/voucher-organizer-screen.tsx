@@ -1,22 +1,22 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
 import { ViewStyle } from "react-native"
-import { Screen, Text } from "../../components"
-import { VoucherVoucherScreenProps } from "../../navigators/create-Voucher"
+import { Screen, ListItem } from "../../components"
+import { VoucherVoucherScreenProps } from "../../navigators/voucher-navigator"
 // import { useStores } from "../../models"
 import { color } from "../../theme"
 
 const ROOT: ViewStyle = {
-  backgroundColor: color.palette.black,
+  backgroundColor: color.background,
   flex: 1,
 }
 
-export const VoucherOrganizerScreen = observer(function VoucherOrganizerScreen() {
+export const VoucherOrganizerScreen = observer(function VoucherOrganizerScreen({ navigator }: VoucherVoucherScreenProps) {
   // const { someStore, anotherStore } = useStores()
 
   return (
     <Screen style={ROOT} preset="scroll">
-      <Text preset="header" text="" />
+      <ListItem onPress={() => null} />
     </Screen>
   )
 })

@@ -132,7 +132,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
       <View style={CONTENT_WRAPPER}>
         <View style={HEADER_WRAPPER}>
           <TouchableOpacity
-            onPress={() => navigation.navigate("secondaryStack", { screen: "voucherBarcode" })}
+            onPress={() => navigation.navigate("secondaryStack", { screen: "voucherOrganizer" })}
             activeOpacity={0.8}
             accessibilityLabel="רשימת שוברי כניסה"
           >
