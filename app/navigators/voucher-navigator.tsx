@@ -1,10 +1,10 @@
 import React from "react"
+import { Image, TouchableOpacity } from "react-native"
 import { StackScreenProps } from "@react-navigation/stack"
 import { createNativeStackNavigator } from "react-native-screens/native-stack"
 import { VoucherFormScreen, VoucherTokenScreen, VoucherBarcodeScreen, VoucherOrganizerScreen } from "../screens"
 import { color, typography } from "../theme"
 import { Voucher } from "../models/vouchers"
-import { Text } from "../components"
 
 export type VoucherParamList = {
   voucherForm: undefined
@@ -30,7 +30,13 @@ export const VoucherNavigator = () => (
       headerBackTitleStyle: { fontFamily: typography.primary },
     }}
   >
-    <VoucherStack.Screen name="voucherForm" component={VoucherFormScreen} />
+    <VoucherStack.Screen
+      name="voucherForm"
+      component={VoucherFormScreen}
+      options={({ navigation }) => ({
+        headerLeft: () => <CloseIcon onPress={() => navigation.goBack()} />,
+      })}
+    />
     <VoucherStack.Screen
       name="voucherToken"
       component={VoucherTokenScreen}
@@ -45,7 +51,19 @@ export const VoucherNavigator = () => (
     <VoucherStack.Screen
       name="voucherOrganizer"
       component={VoucherOrganizerScreen}
-      options={{ title: "שוברי כניסה", headerRight: () => <Text style={{ color: color.link, opacity: 0.8 }}>סגירה</Text> }}
+      options={({ navigation }) => ({
+        title: "שוברי כניסה",
+        headerLeft: () => <CloseIcon onPress={() => navigation.goBack()} />,
+      })}
     />
   </VoucherStack.Navigator>
+)
+
+const CloseIcon = ({ onPress }) => (
+  <TouchableOpacity onPress={onPress} activeOpacity={0.8} accessibilityLabel="חזרה">
+    <Image
+      source={require("../../assets/close.png")}
+      style={{ width: 37.5, height: 37.5, marginLeft: -10, tintColor: color.dim, opacity: 0.45 }}
+    />
+  </TouchableOpacity>
 )
