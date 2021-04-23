@@ -48,23 +48,41 @@ const CLOSE_BUTTON: ViewStyle = {
   alignSelf: "center",
 }
 
-export const VoucherBarcodeScreen = observer(function VoucherBarcodeScreen({ navigation }: VoucherBarcodeScreenProps) {
+export const VoucherBarcodeScreen = observer(function VoucherBarcodeScreen({ navigation, route }: VoucherBarcodeScreenProps) {
   const { voucherDetails, trainRoutes } = useStores()
 
-  const route = trainRoutes.routes[voucherDetails.routeIndex]
+  const trainRoute = trainRoutes.routes[voucherDetails.routeIndex]
+
+  React.useLayoutEffect(() => {
+    // If the barcode details comes from the route params, it means that it already exists,
+    // meaning we have to change the UI for this screen a bit.
+    if (route.params.barcodeImage) {
+      navigation.setOptions({
+        title: "שובר כניסה",
+        headerHideBackButton: false,
+      })
+    }
+  }, [navigation])
 
   return (
     <Screen style={ROOT} preset="scroll" unsafe={true} statusBar="light-content">
-      <Text preset="header" style={SUCCESS_TEXT}>
-        השובר מוכן!
-      </Text>
-      <Text>שובר כניסה לתחנת {route.trains[0].originStationName}</Text>
+      {!route.params?.barcodeImage && (
+        <Text preset="header" style={SUCCESS_TEXT}>
+          השובר מוכן!
+        </Text>
+      )}
+
+      <Text>שובר כניסה לתחנת {route.params?.stationName || trainRoute.trains[0].originStationName}</Text>
       <Text style={{ marginBottom: spacing[4] }}>
-        בתאריך {format(route.trains[0].departureTime, "dd/MM/yyyy")} בשעה {format(route.trains[0].departureTime, "HH:mm")}
+        בתאריך {format(route.params?.departureTime || trainRoute.trains[0].departureTime, "dd/MM/yyyy")} בשעה{" "}
+        {format(route.params?.departureTime || trainRoute.trains[0].departureTime, "HH:mm")}
       </Text>
 
-      <Image style={BARCODE_IMAGE} source={{ uri: `data:image/png;base64,${voucherDetails.barcodeImage}` }} />
-      <Text style={INFO_TEXT}>ניתן לגשת לשובר גם דרך המסך הראשי </Text>
+      <Image
+        style={BARCODE_IMAGE}
+        source={{ uri: `data:image/png;base64,${voucherDetails.barcodeImage || route.params?.barcodeImage}` }}
+      />
+      <Text style={INFO_TEXT}>{!route.params?.barcodeImage && "ניתן לגשת לשובר גם דרך המסך הראשי"}</Text>
       <Button title="סגירה" style={CLOSE_BUTTON} onPress={() => navigation.dangerouslyGetParent().goBack()} />
     </Screen>
   )

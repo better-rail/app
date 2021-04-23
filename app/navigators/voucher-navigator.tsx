@@ -7,7 +7,7 @@ import { color, typography } from "../theme"
 export type VoucherParamList = {
   voucherForm: undefined
   voucherToken: undefined
-  voucherBarcode: undefined
+  voucherBarcode: { barcodeImage?: string; stationName: string; depatureTime: number }
   voucherOrganizer: undefined
 }
 const VoucherStack = createNativeStackNavigator<VoucherParamList>()
@@ -37,13 +37,9 @@ export const VoucherNavigator = () => (
     <VoucherStack.Screen
       name="voucherBarcode"
       component={VoucherBarcodeScreen}
-      options={{ stackPresentation: "push", headerHideBackButton: true }}
+      options={{ stackPresentation: "push", headerHideBackButton: true, headerBackTitleVisible: false }}
     />
 
-    <VoucherStack.Screen
-      name="voucherOrganizer"
-      component={VoucherOrganizerScreen}
-      options={{ stackPresentation: "push", headerHideBackButton: true }}
-    />
+    <VoucherStack.Screen name="voucherOrganizer" component={VoucherOrganizerScreen} options={{ title: "שוברי כניסה" }} />
   </VoucherStack.Navigator>
 )
