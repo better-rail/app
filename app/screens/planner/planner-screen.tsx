@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { Image, View, TouchableOpacity, Animated, PixelRatio, ViewStyle, ImageStyle, Platform, Touchable } from "react-native"
+import { Image, View, TouchableOpacity, Animated, PixelRatio, ViewStyle, ImageStyle } from "react-native"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
 import { useStores } from "../../models"
@@ -12,7 +12,7 @@ import { he } from "date-fns/locale"
 
 const now = new Date()
 const fontScale = PixelRatio.getFontScale()
-const chevronIcon = require("../../../assets/chevron.png")
+const changeIcon = require("../../../assets/up-down-arrow.png")
 
 // #region styles
 const ROOT: ViewStyle = {
@@ -50,12 +50,12 @@ const TICKETS_ICON: ImageStyle = {
   opacity: 0.7,
 }
 
-const CHEVRON_ICON: ImageStyle = {
-  width: 5.5 * fontScale,
-  height: 11 * fontScale,
-  marginStart: spacing[2] * fontScale,
+const CHANGE_ICON: ImageStyle = {
+  width: 16 * fontScale,
+  height: 16 * fontScale,
+  marginStart: 1 + spacing[1] * fontScale,
   tintColor: color.label,
-  opacity: 0.6,
+  opacity: 0.5,
   transform: [{ rotate: "-90deg" }],
 }
 
@@ -181,9 +181,13 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           />
         </Animated.View>
 
-        <TouchableOpacity style={{ flexDirection: "row", alignItems: "center", marginBottom: spacing[1] }} activeOpacity={0.6}>
-          <Text preset="fieldLabel" text="זמן יציאה" />
-          <Image style={CHEVRON_ICON} source={chevronIcon} />
+        <TouchableOpacity
+          onPress={() => routePlan.switchDateType()}
+          style={{ flexDirection: "row", alignItems: "center", marginBottom: spacing[1] }}
+          activeOpacity={0.6}
+        >
+          <Text preset="fieldLabel" text={routePlan.dateTypeDisplayName} />
+          <Image style={CHANGE_ICON} source={changeIcon} />
         </TouchableOpacity>
 
         <DummyInput
