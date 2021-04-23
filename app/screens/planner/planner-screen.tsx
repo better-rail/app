@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { Image, View, TouchableOpacity, Animated, PixelRatio, ViewStyle, ImageStyle } from "react-native"
+import { Image, View, TouchableOpacity, Animated, PixelRatio, ViewStyle, ImageStyle, Platform, Touchable } from "react-native"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
 import { useStores } from "../../models"
@@ -12,6 +12,7 @@ import { he } from "date-fns/locale"
 
 const now = new Date()
 const fontScale = PixelRatio.getFontScale()
+const chevronIcon = require("../../../assets/chevron.png")
 
 // #region styles
 const ROOT: ViewStyle = {
@@ -48,6 +49,16 @@ const TICKETS_ICON: ImageStyle = {
   tintColor: color.primary,
   opacity: 0.7,
 }
+
+const CHEVRON_ICON: ImageStyle = {
+  width: 5.5 * fontScale,
+  height: 11 * fontScale,
+  marginStart: spacing[2] * fontScale,
+  tintColor: color.label,
+  opacity: 0.6,
+  transform: [{ rotate: "-90deg" }],
+}
+
 // #endregion
 
 export const PlannerScreen = observer(function PlannerScreen({ navigation }: PlannerScreenProps) {
@@ -169,7 +180,12 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
             onPress={() => navigation.navigate("selectStation", { selectionType: "destination" })}
           />
         </Animated.View>
-        <Text preset="fieldLabel" text="זמן יציאה" style={{ marginBottom: spacing[1] }} />
+
+        <TouchableOpacity style={{ flexDirection: "row", alignItems: "center", marginBottom: spacing[1] }} activeOpacity={0.6}>
+          <Text preset="fieldLabel" text="זמן יציאה" />
+          <Image style={CHEVRON_ICON} source={chevronIcon} />
+        </TouchableOpacity>
+
         <DummyInput
           placeholder="עכשיו"
           value={formattedDate}
