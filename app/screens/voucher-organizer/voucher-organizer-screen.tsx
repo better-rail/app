@@ -2,7 +2,7 @@ import React from "react"
 import { observer } from "mobx-react-lite"
 import { ViewStyle } from "react-native"
 import { Screen, Text } from "../../components"
-// import { useNavigation } from "@react-navigation/native"
+import { VoucherVoucherScreenProps } from "../../navigators/create-Voucher"
 // import { useStores } from "../../models"
 import { color } from "../../theme"
 
@@ -12,11 +12,8 @@ const ROOT: ViewStyle = {
 }
 
 export const VoucherOrganizerScreen = observer(function VoucherOrganizerScreen() {
-  // Pull in one of our MST stores
   // const { someStore, anotherStore } = useStores()
 
-  // Pull in navigation via hook
-  // const navigation = useNavigation()
   return (
     <Screen style={ROOT} preset="scroll">
       <Text preset="header" text="" />

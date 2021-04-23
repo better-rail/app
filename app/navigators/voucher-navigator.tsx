@@ -1,17 +1,23 @@
 import React from "react"
 import { StackScreenProps } from "@react-navigation/stack"
-import { createNativeStackNavigator, NativeStackNavigationProp } from "react-native-screens/native-stack"
-import { VoucherFormScreen, VoucherTokenScreen, VoucherBarcodeScreen } from "../screens"
+import { createNativeStackNavigator } from "react-native-screens/native-stack"
+import { VoucherFormScreen, VoucherTokenScreen, VoucherBarcodeScreen, VoucherOrganizerScreen } from "../screens"
 import { color, typography } from "../theme"
 
-export type VoucherParamList = { voucherForm: undefined; voucherToken: undefined; voucherBarcode: undefined }
+export type VoucherParamList = {
+  voucherForm: undefined
+  voucherToken: undefined
+  voucherBarcode: undefined
+  voucherOrganizer: undefined
+}
 const VoucherStack = createNativeStackNavigator<VoucherParamList>()
 
 export type VoucherFormScreenProps = StackScreenProps<VoucherParamList, "voucherForm">
 export type VoucherTokenScreenProps = StackScreenProps<VoucherParamList, "voucherToken">
 export type VoucherBarcodeScreenProps = StackScreenProps<VoucherParamList, "voucherBarcode">
+export type VoucherVoucherScreenProps = StackScreenProps<VoucherParamList, "voucherOrganizer">
 
-export const CreateVoucherNavigator = () => (
+export const VoucherNavigator = () => (
   <VoucherStack.Navigator
     screenOptions={{
       direction: "rtl",
@@ -31,6 +37,12 @@ export const CreateVoucherNavigator = () => (
     <VoucherStack.Screen
       name="voucherBarcode"
       component={VoucherBarcodeScreen}
+      options={{ stackPresentation: "push", headerHideBackButton: true }}
+    />
+
+    <VoucherStack.Screen
+      name="voucherOrganizer"
+      component={VoucherOrganizerScreen}
       options={{ stackPresentation: "push", headerHideBackButton: true }}
     />
   </VoucherStack.Navigator>
