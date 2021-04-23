@@ -47,6 +47,7 @@ function ScreenWithScrolling(props: ScreenProps) {
       <StatusBar
         barStyle={props.statusBar || "default"}
         translucent={props.translucent || false}
+        animated={true}
         backgroundColor={props.statusBarBackgroundColor || color.background}
       />
       <View style={[preset.outer, backgroundStyle, insetStyle]}>

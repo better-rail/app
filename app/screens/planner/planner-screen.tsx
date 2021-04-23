@@ -24,13 +24,27 @@ const CONTENT_WRAPPER: ViewStyle = {
   backgroundColor: color.background,
 }
 
-let settingsSize = 25
-if (fontScale > 1.15) settingsSize = 30
+const HEADER_WRAPPER: ViewStyle = {
+  flexDirection: "row",
+  justifyContent: "flex-end",
+  alignItems: "center",
+}
+
+let headerIconSize = 25
+if (fontScale > 1.15) headerIconSize = 30
 
 const SETTINGS_ICON: ImageStyle = {
-  width: settingsSize,
-  height: settingsSize,
-  alignSelf: "flex-end",
+  width: headerIconSize,
+  height: headerIconSize,
+  marginStart: spacing[3],
+  tintColor: color.primary,
+  opacity: 0.7,
+}
+
+const TICKETS_ICON: ImageStyle = {
+  width: headerIconSize * 1.3,
+  height: headerIconSize * 1.26,
+  resizeMode: "contain",
   tintColor: color.primary,
   opacity: 0.7,
 }
@@ -116,9 +130,19 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   return (
     <Screen style={ROOT} preset="scroll">
       <View style={CONTENT_WRAPPER}>
-        <TouchableOpacity onPress={() => navigation.navigate("settings")} activeOpacity={0.8} accessibilityLabel="הגדרות">
-          <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />
-        </TouchableOpacity>
+        <View style={HEADER_WRAPPER}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("secondaryStack", { screen: "voucherOrganizer" })}
+            activeOpacity={0.8}
+            accessibilityLabel="רשימת שוברי כניסה"
+          >
+            <Image source={require("../../../assets/station-ticket.png")} style={TICKETS_ICON} />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => navigation.navigate("settings")} activeOpacity={0.8} accessibilityLabel="הגדרות">
+            <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />
+          </TouchableOpacity>
+        </View>
 
         <Text preset="header" text="תכנון מסלול" style={{ marginBottom: 6 }} />
 

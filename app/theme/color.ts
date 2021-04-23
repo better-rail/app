@@ -46,7 +46,7 @@ export const color = {
   primaryDarker: palette.blueDarker,
 
   secondary: Platform.select({
-    ios: DynamicColorIOS({ light: palette.pinky, dark: PlatformColor("systemGray3") }),
+    ios: DynamicColorIOS({ light: palette.pinky, dark: "#6B63E4" }),
     android: PlatformColor("@color/background"),
   }),
 
@@ -106,14 +106,17 @@ export const color = {
     android: PlatformColor("@color/background"),
   }),
 
-  /**
-   * Secondary information.
-   */
+  destroy: Platform.select({
+    ios: PlatformColor("systemRed"),
+    android: PlatformColor("@color/background"),
+  }),
+
   dim: palette.lightGrey,
-  /**
-   * Secondary information.
-   */
-  dimmer: palette.lighterGrey,
+
+  dimmer: Platform.select({
+    ios: DynamicColorIOS({ light: palette.lighterGrey, dark: PlatformColor("systemGray4") }),
+    android: PlatformColor("@color/background"),
+  }),
 
   /**
    * Error messages and icons.

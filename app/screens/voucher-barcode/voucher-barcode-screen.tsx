@@ -1,8 +1,8 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
-import { Image, DynamicColorIOS, Dimensions, ImageStyle, ViewStyle, TextStyle } from "react-native"
+import { Image, DynamicColorIOS, Dimensions, ImageStyle, ViewStyle, TextStyle, Alert, AlertButton, View } from "react-native"
 import { Screen, Text, Button } from "../../components"
-import { VoucherBarcodeScreenProps } from "../../navigators/create-voucher-navigator"
+import { VoucherBarcodeScreenProps } from "../../navigators/create-Voucher"
 import { color, spacing } from "../../theme"
 import { useStores } from "../../models"
 import { format } from "date-fns"
@@ -43,29 +43,80 @@ const INFO_TEXT: TextStyle = {
   opacity: 0.9,
 }
 
+const DELETE_BUTTON: ViewStyle = {
+  width: deviceWidth - 75,
+  alignSelf: "center",
+  marginBottom: spacing[2],
+  backgroundColor: color.destroy,
+}
+
 const CLOSE_BUTTON: ViewStyle = {
   width: deviceWidth - 75,
   alignSelf: "center",
 }
 
-export const VoucherBarcodeScreen = observer(function VoucherBarcodeScreen({ navigation }: VoucherBarcodeScreenProps) {
-  const { voucherDetails, trainRoutes } = useStores()
+export const VoucherBarcodeScreen = observer(function VoucherBarcodeScreen({ navigation, route }: VoucherBarcodeScreenProps) {
+  const { voucherDetails, vouchers, trainRoutes } = useStores()
 
-  const route = trainRoutes.routes[voucherDetails.routeIndex]
+  const trainRoute = trainRoutes.routes[voucherDetails.routeIndex]
+
+  React.useLayoutEffect(() => {
+    // If the barcode details comes from the route params, it means that it already exists and wasn't just created,
+    // so we have to change the UI for this screen a bit.
+    if (route.params?.barcodeImage) {
+      navigation.setOptions({
+        title: "שובר כניסה",
+        headerHideBackButton: false,
+      })
+    }
+  }, [navigation])
+
+  const deleteVoucher = () => {
+    const options: AlertButton[] = [
+      { text: "ביטול", style: "cancel" },
+      {
+        text: "מחיקה",
+        style: "destructive",
+        onPress: () => {
+          vouchers.removeVoucher(route.params?.id)
+          navigation.goBack()
+        },
+      },
+    ]
+
+    Alert.alert("למחוק את השובר?", "", options)
+  }
 
   return (
     <Screen style={ROOT} preset="scroll" unsafe={true} statusBar="light-content">
-      <Text preset="header" style={SUCCESS_TEXT}>
-        השובר מוכן!
-      </Text>
-      <Text>שובר כניסה לתחנת {route.trains[0].originStationName}</Text>
+      {!route.params?.barcodeImage && (
+        <Text preset="header" style={SUCCESS_TEXT}>
+          השובר מוכן!
+        </Text>
+      )}
+
+      <Text>שובר כניסה לתחנת {route.params?.stationName || trainRoute.trains[0].originStationName}</Text>
       <Text style={{ marginBottom: spacing[4] }}>
-        בתאריך {format(route.trains[0].departureTime, "dd/MM/yyyy")} בשעה {format(route.trains[0].departureTime, "HH:mm")}
+        בתאריך {format(route.params?.date || trainRoute.trains[0].departureTime, "dd/MM/yyyy")} בשעה{" "}
+        {format(route.params?.date || trainRoute.trains[0].departureTime, "HH:mm")}
       </Text>
 
-      <Image style={BARCODE_IMAGE} source={{ uri: `data:image/png;base64,${voucherDetails.barcodeImage}` }} />
-      <Text style={INFO_TEXT}>ניתן לגשת לשובר גם דרך המסך הראשי </Text>
-      <Button title="סגירה" style={CLOSE_BUTTON} onPress={() => navigation.dangerouslyGetParent().goBack()} />
+      <Image
+        style={BARCODE_IMAGE}
+        source={{ uri: `data:image/png;base64,${voucherDetails.barcodeImage || route.params?.barcodeImage}` }}
+      />
+      {!route.params?.barcodeImage && (
+        <Text style={INFO_TEXT}>{!route.params?.barcodeImage && "ניתן לגשת לשובר גם דרך המסך הראשי"}</Text>
+      )}
+
+      {route.params?.barcodeImage ? (
+        <View style={{ marginTop: spacing[5] }}>
+          <Button title="מחיקה" style={DELETE_BUTTON} onPress={() => deleteVoucher()} />
+          <Button title="חזרה" style={CLOSE_BUTTON} onPress={() => navigation.goBack()} />
+        </View>
+      ) : (
+        <Button title="סגירה" style={CLOSE_BUTTON} onPress={() => navigation.dangerouslyGetParent().goBack()} />
+      )}
     </Screen>
   )
 })

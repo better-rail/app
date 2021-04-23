@@ -3,7 +3,7 @@ import { View, ViewStyle, TextStyle, DynamicColorIOS, Platform, Alert } from "re
 import { Screen, Text, TextInput, Button } from "../../components"
 import { observer } from "mobx-react-lite"
 import { useStores } from "../../models"
-import { VoucherFormScreenProps } from "../../navigators/create-voucher-navigator"
+import { VoucherFormScreenProps } from "../../navigators/create-Voucher"
 import { color, spacing } from "../../theme"
 import isIsraeliIdValid from "israeli-id-validator"
 import voucherApi from "../../services/api/voucher-api"
