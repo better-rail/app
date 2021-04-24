@@ -1,12 +1,14 @@
 import React, { useState } from "react"
-import { View, ViewStyle, TextStyle, DynamicColorIOS, Platform, Alert } from "react-native"
+import { View, Pressable, Image, ViewStyle, TextStyle, DynamicColorIOS, Platform, Alert, ImageStyle } from "react-native"
 import { Screen, Text, TextInput, Button } from "../../components"
 import { observer } from "mobx-react-lite"
 import { useStores } from "../../models"
 import { VoucherFormScreenProps } from "../../navigators/create-Voucher"
 import { color, spacing } from "../../theme"
+import { openLink } from "../../utils/helpers/open-link"
 import isIsraeliIdValid from "israeli-id-validator"
-import voucherApi from "../../services/api/voucher-api"
+
+const externalLinkIcon = require("../../../assets/external-link.png")
 
 const ROOT: ViewStyle = {
   backgroundColor: Platform.select({
@@ -22,6 +24,20 @@ const FORM_NOTICE: TextStyle = {
   marginTop: spacing[2],
   paddingHorizontal: spacing[4],
   textAlign: "center",
+  opacity: 0.7,
+}
+
+const FORM_LINK: TextStyle = {
+  marginEnd: spacing[2] - 1,
+  fontWeight: "500",
+  color: color.link,
+  opacity: 0.7,
+}
+
+const EXTERNAL_LINK_ICON: ImageStyle = {
+  width: 13.5,
+  height: 13.5,
+  tintColor: color.link,
   opacity: 0.7,
 }
 
@@ -76,7 +92,13 @@ export const VoucherFormScreen = observer(function VoucherFormScreen({ navigatio
         <TextInput placeholder="מספר טלפון " defaultValue={phoneNumber} onChangeText={setPhoneNumber} keyboardType="number-pad" />
       </View>
 
-      <Button title="הזמנת שובר" onPress={submitForm} loading={submitting} disabled={isInvalidForm()} />
+      <Button
+        title="הזמנת שובר"
+        onPress={submitForm}
+        loading={submitting}
+        disabled={isInvalidForm()}
+        style={{ marginBottom: spacing[2] }}
+      />
 
       <Text preset="small" style={FORM_NOTICE}>
         פרטי הבקשה עוברים ישירות אל מערכות רכבת ישראל ולא נאספים על ידי אפליקציית Better Rail
@@ -84,6 +106,15 @@ export const VoucherFormScreen = observer(function VoucherFormScreen({ navigatio
       <Text preset="small" style={FORM_NOTICE}>
         האחריות על שמירת הפרטים והנפקת השוברים היא על רכבת ישראל בלבד
       </Text>
+      <Pressable
+        onPress={() => openLink("https://www.rail.co.il/pages/train-ride-updats.aspx")}
+        style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", marginTop: spacing[2] }}
+      >
+        <Text preset="small" style={FORM_LINK}>
+          מדיניות הזמנת שובר רכבת
+        </Text>
+        <Image style={EXTERNAL_LINK_ICON} source={externalLinkIcon} />
+      </Pressable>
     </Screen>
   )
 })
