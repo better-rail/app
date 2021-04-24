@@ -165,7 +165,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
             {vouchers.list.length > 0 && (
               <View style={TICKETS_BADGE}>
                 <Text preset="small" style={{ color: color.whiteText, textAlign: "center", fontSize: 12.5 }}>
-                  3
+                  {vouchers.list.length}
                 </Text>
               </View>
             )}
