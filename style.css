@@ -12,6 +12,17 @@
   src: url("/assets/fonts/Heebo.woff2") format("woff2");
 }
 
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+a {
+  color: DodgerBlue;
+  text-decoration: none;
+}
+
 .site-wrapper {
   margin: 0;
   background: white;
@@ -23,25 +34,25 @@
 }
 
 .page-header {
-  height: 385px;
+  height: 445px;
   padding-top: 65px;
   background-color: #f1f1f6;
   text-align: center;
 }
 
 .app-icon {
-  width: 60px;
-  height: 60px;
+  width: 95px;
+  height: 95px;
   margin: 0 auto 10px;
   box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.15);
   background-color: #fff;
   border-radius: 20px;
-  padding: 20px 20px 20px;
+  padding: 19px;
   text-align: center;
 }
 
 .app-icon-image {
-  height: 62.5px;
+  height: 60px;
 }
 
 .app-name {
@@ -194,8 +205,6 @@ footer {
 }
 
 .footer-links-item {
-  color: DodgerBlue;
-  text-decoration: none;
   font-size: 17px;
   opacity: 0.8;
   transition: opacity 0.25s;
@@ -234,3 +243,101 @@ footer {
   opacity: 1;
 }
 /* #endregion */
+
+/** PAGE STYLES **/
+.site-page .page-header {
+  height: 80px;
+  padding-top: 35px;
+  margin-bottom: 30px;
+}
+/* 
+.site-page .app-icon {
+  width: 40px;
+  height: 40px;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+.site-page .app-icon-image {
+  height: 39px;
+} */
+
+.site-page .site-content {
+  position: static;
+  margin: unset;
+}
+
+.site-page .site-content {
+  text-align: unset;
+  padding: 24px 12px;
+  margin-bottom: 12px;
+}
+
+.site-page-content-title {
+  margin: 0;
+  margin-bottom: 4px;
+}
+
+.site-page-content-subtitle {
+  margin: 0;
+}
+
+.site-page-content-text {
+  margin: 0;
+  margin-bottom: 8px;
+  line-height: 1.6;
+  letter-spacing: -0.3px;
+}
+
+hr {
+  border-style: dashed;
+  opacity: 0.25;
+}
+
+.site-page-content-last-updated {
+  margin-top: 22px;
+  margin-bottom: 0;
+  font-size: 15px;
+  letter-spacing: -0.1px;
+  opacity: 0.75;
+}
+
+@media (min-width: 620px) {
+  .site-page .site-content {
+    max-width: 620px;
+    margin: 0 auto;
+  }
+
+  .site-page-content-title {
+    margin: 6px 0 8px;
+    font-size: 27px;
+    text-align: center;
+  }
+
+  .site-page-content-subtitle {
+    font-size: 23.5px;
+  }
+
+  .site-page-content-text {
+    font-size: 18px;
+  }
+
+  hr {
+    max-width: 700px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .site-page-content-title {
+    font-size: 32px;
+  }
+
+  .site-page-content-subtitle {
+    font-size: 26px;
+    letter-spacing: 0;
+  }
+
+  .site-page-content-text {
+    font-size: 20px;
+  }
+}
