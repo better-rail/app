@@ -51,6 +51,17 @@ const TICKETS_ICON: ImageStyle = {
   opacity: 0.7,
 }
 
+const TICKETS_BADGE: ViewStyle = {
+  position: "absolute",
+  start: -40 * fontScale,
+  top: -10 * fontScale,
+  paddingHorizontal: spacing[1] * fontScale + 3,
+  alignItems: "center",
+
+  backgroundColor: color.destroy,
+  borderRadius: 30,
+}
+
 const CHANGE_ICON: ImageStyle = {
   width: 16 * fontScale,
   height: 16 * fontScale,
@@ -63,7 +74,7 @@ const CHANGE_ICON: ImageStyle = {
 // #endregion
 
 export const PlannerScreen = observer(function PlannerScreen({ navigation }: PlannerScreenProps) {
-  const { routePlan, trainRoutes } = useStores()
+  const { routePlan, trainRoutes, vouchers } = useStores()
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
   const stationCardScale = useRef(new Animated.Value(1)).current
 
@@ -152,6 +163,13 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => navigation.navigate("settings")} activeOpacity={0.8} accessibilityLabel="הגדרות">
+            {vouchers.list.length > 0 && (
+              <View style={TICKETS_BADGE}>
+                <Text preset="small" style={{ color: color.whiteText, textAlign: "center" }}>
+                  {vouchers.list.length}
+                </Text>
+              </View>
+            )}
             <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />
           </TouchableOpacity>
         </View>

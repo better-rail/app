@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useMemo } from "react"
 import { observer } from "mobx-react-lite"
 import { View, ViewStyle } from "react-native"
 import { RouteDetailsHeader, Screen } from "../../components"
@@ -17,10 +17,18 @@ const ROOT: ViewStyle = {
 }
 
 export const RouteDetailsScreen = observer(function RouteDetailsScreen({ navigation, route }: RouteDetailsScreenProps) {
-  const { voucherDetails, trainRoutes } = useStores()
+  const { voucherDetails, vouchers, trainRoutes } = useStores()
   const { routeItem, date, time } = route.params
   const firstTrain = routeItem.trains[0]
   const insets = useSafeAreaInsets()
+
+  const exisitingVoucher = useMemo(() => {
+    // Check if there's an existing voucher for the route.
+    const voucher = vouchers.list.find((voucher) => voucher.id === `${firstTrain.trainNumber}${firstTrain.departureTime}`)
+
+    if (voucher) return voucher
+    return undefined
+  }, [vouchers.list.length, firstTrain])
 
   const onOrderVoucherPress = () => {
     // We keep the index becuase of https://github.com/guytepper/better-rail/issues/26
@@ -31,6 +39,14 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ navigat
     voucherDetails.setRouteIndex(routeIndex)
 
     navigation.navigate("secondaryStack", { screen: "voucherForm" })
+  }
+
+  const onExistingVoucherPress = () => {
+    console.log("hi..")
+    navigation.navigate("secondaryStack", {
+      screen: "voucherBarcode",
+      props: { ...exisitingVoucher },
+    })
   }
 
   return (
@@ -67,7 +83,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ navigat
               {train.stopStations.length > 0
                 ? train.stopStations.map((stop, index) => (
                     <>
-                      {index === 0 && <RouteLine />}
+                      {index === 0 && <RouteLine key={index} />}
                       <RouteStopCard
                         stationName={stop.stationName}
                         stopTime={format(stop.departureTime, "HH:mm")}
@@ -98,9 +114,10 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ navigat
           )
         })}
       </ScrollView>
+
       <OrderTicketsButton
-        onPress={onOrderVoucherPress}
-        orderLink={`https://www.rail.co.il/taarif/pages/ordervaucherallcountry.aspx?TNUM=${firstTrain.trainNumber}&FSID=${firstTrain.originStationId}&TSID=${firstTrain.destinationStationId}&DDATE=${date}&Hour=${time}`}
+        existingTicket={exisitingVoucher !== undefined}
+        onPress={exisitingVoucher ? onExistingVoucherPress : onOrderVoucherPress}
         styles={{ bottom: insets.bottom + 10 }}
       />
     </Screen>

@@ -106,6 +106,11 @@ export const color = {
     android: PlatformColor("@color/background"),
   }),
 
+  success: Platform.select({
+    ios: PlatformColor("systemGreen"),
+    android: PlatformColor("@color/background"),
+  }),
+
   destroy: Platform.select({
     ios: PlatformColor("systemRed"),
     android: PlatformColor("@color/background"),
