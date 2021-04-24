@@ -112,7 +112,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
       )}
       {trainRoutes.routes?.length > 0 && (
         <RouteListModal
-          isVisible={false}
+          isVisible={isModalVisible}
           onOk={() => setIsModalVisible(false)}
           routesDate={trainRoutes.routes[0].departureTime}
         />
