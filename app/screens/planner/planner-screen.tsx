@@ -54,13 +54,15 @@ const TICKETS_ICON: ImageStyle = {
 
 const TICKETS_BADGE: ViewStyle = {
   position: "absolute",
-  start: -42.5 * fontScale,
-  top: -10 * fontScale,
-  paddingVertical: 0.8,
-  paddingHorizontal: spacing[1] * fontScale + 3,
+  start: -8 * fontScale,
+  top: -5 * fontScale,
+  paddingVertical: 0,
+  paddingHorizontal: spacing[1] * fontScale + 2,
   alignItems: "center",
+  justifyContent: "center",
   backgroundColor: color.destroy,
-  borderRadius: 30,
+  borderRadius: 50,
+  zIndex: 1,
 }
 
 const CHANGE_ICON: ImageStyle = {
@@ -160,17 +162,18 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
             activeOpacity={0.8}
             accessibilityLabel="רשימת שוברי כניסה"
           >
+            {vouchers.list.length > 0 && (
+              <View style={TICKETS_BADGE}>
+                <Text preset="small" style={{ color: color.whiteText, textAlign: "center", fontSize: 12.5 }}>
+                  3
+                </Text>
+              </View>
+            )}
+
             <Image source={require("../../../assets/station-ticket.png")} style={TICKETS_ICON} />
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => navigation.navigate("settingsStack")} activeOpacity={0.8} accessibilityLabel="הגדרות">
-            {vouchers.list.length > 0 && (
-              <View style={TICKETS_BADGE}>
-                <Text preset="small" style={{ color: color.whiteText, textAlign: "center" }}>
-                  {vouchers.list.length}
-                </Text>
-              </View>
-            )}
             <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />
           </TouchableOpacity>
         </View>
