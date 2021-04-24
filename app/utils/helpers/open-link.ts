@@ -12,7 +12,6 @@ export const openLink = async function openLink(url: string) {
         readerMode: false,
         animated: true,
         modalPresentationStyle: "automatic",
-        modalTransitionStyle: "coverVertical",
         modalEnabled: true,
         enableBarCollapsing: false,
         // Android Properties
@@ -34,6 +33,7 @@ export const openLink = async function openLink(url: string) {
       StatusBar.popStackEntry(oldStyle)
     } else Linking.openURL(url)
   } catch (error) {
+    console.error(error)
     Alert.alert("שגיאה", "לא ניתן לפתוח את הלינק")
   }
 }

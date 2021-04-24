@@ -63,7 +63,7 @@ const CloseIcon = ({ onPress }) => (
   <TouchableOpacity onPress={onPress} activeOpacity={0.8} accessibilityLabel="חזרה">
     <Image
       source={require("../../assets/close.png")}
-      style={{ width: 37.5, height: 37.5, marginLeft: -10, tintColor: color.primary, opacity: 0.8 }}
+      style={{ width: 37.5, height: 37.5, marginLeft: -10, tintColor: color.dim, opacity: 0.5 }}
     />
   </TouchableOpacity>
 )
