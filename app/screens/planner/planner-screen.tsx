@@ -8,10 +8,12 @@ import { color, spacing } from "../../theme"
 import { PlannerScreenProps } from "../../navigators/main-navigator"
 import stations from "../../data/stations"
 import { formatRelative, differenceInMinutes } from "date-fns"
+import HapticFeedback from "react-native-haptic-feedback"
 import { he } from "date-fns/locale"
 
 const now = new Date()
 const fontScale = PixelRatio.getFontScale()
+const changeIcon = require("../../../assets/up-down-arrow.png")
 
 // #region styles
 const ROOT: ViewStyle = {
@@ -48,6 +50,16 @@ const TICKETS_ICON: ImageStyle = {
   tintColor: color.primary,
   opacity: 0.7,
 }
+
+const CHANGE_ICON: ImageStyle = {
+  width: 16 * fontScale,
+  height: 16 * fontScale,
+  marginStart: 1 + spacing[1] * fontScale,
+  tintColor: color.label,
+  opacity: 0.5,
+  transform: [{ rotate: "90deg" }],
+}
+
 // #endregion
 
 export const PlannerScreen = observer(function PlannerScreen({ navigation }: PlannerScreenProps) {
@@ -169,7 +181,19 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
             onPress={() => navigation.navigate("selectStation", { selectionType: "destination" })}
           />
         </Animated.View>
-        <Text preset="fieldLabel" text="זמן יציאה" style={{ marginBottom: spacing[1] }} />
+
+        <TouchableOpacity
+          onPress={() => {
+            HapticFeedback.trigger("impactLight")
+            routePlan.switchDateType()
+          }}
+          style={{ flexDirection: "row", alignItems: "center", marginBottom: spacing[1] }}
+          activeOpacity={0.9}
+        >
+          <Text preset="fieldLabel" text={routePlan.dateTypeDisplayName} />
+          <Image style={CHANGE_ICON} source={changeIcon} />
+        </TouchableOpacity>
+
         <DummyInput
           placeholder="עכשיו"
           value={formattedDate}

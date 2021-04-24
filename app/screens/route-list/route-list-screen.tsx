@@ -17,16 +17,25 @@ const ROOT: ViewStyle = {
 
 export const RouteListScreen = observer(function RouteListScreen({ navigation, route }: RouteListScreenProps) {
   const [isModalVisible, setIsModalVisible] = useState(false)
-  const { trainRoutes } = useStores()
+  const { trainRoutes, routePlan } = useStores()
 
   // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
   // returns a route list for the whole day.
   const initialScrollIndex = useMemo(() => {
     if (trainRoutes.status === "done") {
-      const departureTimes = trainRoutes.routes.map((route) => route.trains[0].departureTime)
-      const index = closestIndexTo(route.params.time, departureTimes)
+      let index
+
+      if (routePlan.dateType === "departure") {
+        const departureTimes = trainRoutes.routes.map((route) => route.trains[0].departureTime)
+        index = closestIndexTo(route.params.time, departureTimes)
+      } else if (routePlan.dateType === "arrival") {
+        const arrivalTimes = trainRoutes.routes.map((route) => route.trains[0].arrivalTime)
+        index = closestIndexTo(route.params.time, arrivalTimes)
+      }
+
       return index
     }
+
     return undefined
   }, [trainRoutes.status])
 

@@ -46,12 +46,12 @@ export const color = {
   primaryDarker: palette.blueDarker,
 
   secondary: Platform.select({
-    ios: DynamicColorIOS({ light: palette.pinky, dark: "#6B63E4" }),
+    ios: DynamicColorIOS({ light: palette.pinky, dark: "#6F68DF" }),
     android: PlatformColor("@color/background"),
   }),
 
   secondaryLighter: Platform.select({
-    ios: DynamicColorIOS({ light: palette.orangeLighter, dark: PlatformColor("systemGray4") }),
+    ios: DynamicColorIOS({ light: palette.orangeLighter, dark: "#464552" }),
     android: PlatformColor("@color/background"),
   }),
 
