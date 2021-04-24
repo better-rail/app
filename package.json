@@ -53,7 +53,7 @@
     "react-native-modal-datetime-picker": "9.2.1",
     "react-native-restart": "^0.0.22",
     "react-native-safe-area-context": "3.1.8",
-    "react-native-screens": "2.13.0",
+    "react-native-screens": "3.1.1",
     "react-native-shared-element": "^0.7.0",
     "react-native-svg": "^12.1.0",
     "react-native-touchable-scale": "^2.1.2",

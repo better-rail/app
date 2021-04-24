@@ -51,7 +51,7 @@ export const color = {
   }),
 
   secondaryLighter: Platform.select({
-    ios: DynamicColorIOS({ light: palette.orangeLighter, dark: PlatformColor("systemGray4") }),
+    ios: DynamicColorIOS({ light: palette.orangeLighter, dark: "#464552" }),
     android: PlatformColor("@color/background"),
   }),
 
