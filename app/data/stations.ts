@@ -29,6 +29,7 @@ const stations = [
     english: "Netanya",
     russian: "Нетания",
     arabic: "نتانيا",
+    image: require("../../assets/station-images/netanya.jpg"),
   },
   {
     id: "3100",
@@ -143,6 +144,7 @@ const stations = [
     english: "Lod",
     russian: "Лод",
     arabic: "اللد",
+    image: require("../../assets/station-images/lod.jpg"),
   },
   {
     id: "7300",
@@ -186,6 +188,7 @@ const stations = [
     english: "Rosh Ha'Ayin-North",
     russian: "Рош ха-Айн Цафон",
     arabic: "روش هعاين - شمال",
+    image: require("../../assets/station-images/rosh-haayin.jpeg"),
   },
   {
     id: "5300",
@@ -427,6 +430,7 @@ const stations = [
     english: "Migdal Ha'emek-Kfar Barukh",
     russian: "Мигдаль-Ха-Эмек – Кфар Барух",
     arabic: "مجدال هعيمك – كفار باروخ",
+    image: require("../../assets/station-images/migdal-haeemek.jpg"),
   },
   {
     id: "1260",
@@ -455,6 +459,7 @@ const stations = [
     english: "Karmiel",
     russian: "Кармиэль",
     arabic: "كرميئيل",
+    image: require("../../assets/station-images/karmiel.jpg"),
   },
   {
     id: "2940",
@@ -478,6 +483,7 @@ const stations = [
     english: "Kiryat Malakhi – Yoav",
     russian: "Кирьят Малахи-Йоав",
     arabic: "كريات ملاخي – يوآڤ",
+    image: require("../../assets/station-images/kiryat-malachi.jpg"),
   },
   {
     id: "680",
@@ -485,7 +491,7 @@ const stations = [
     english: "Jerussianalem - Yitzhak Navon",
     russian: "Иерусалим - Ицхак Навон",
     arabic: "أورشليم – يتسحاق ناڤون",
-    image: require("../../assets/jlm.jpg"),
+    image: require("../../assets/station-images/jerusalem-itzhak-navon.jpg"),
   },
   {
     id: "6900",
@@ -493,6 +499,7 @@ const stations = [
     english: "Mazkeret Batya",
     russian: "Мазкерет Батья",
     arabic: "مزكيرت باتيا",
+    image: require("../../assets/station-images/mazkeret-batya.jpg"),
   },
 ]
 
