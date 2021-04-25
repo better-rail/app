@@ -47,11 +47,12 @@ export interface SettingBoxProps extends TouchableHighlightProps {
   icon: string
   first?: boolean
   last?: boolean
+  chevron?: boolean
   externalLink?: boolean
 }
 
 export const SettingBox = function SettingBox(props: SettingBoxProps) {
-  const { title, icon, first, last, externalLink, onPress, style } = props
+  const { title, icon, first, last, externalLink, chevron, onPress, style } = props
   let boxStyle: ViewStyle = {}
 
   if (!first) boxStyle = { borderTopColor: color.background, borderTopWidth: 1 }
@@ -75,11 +76,9 @@ export const SettingBox = function SettingBox(props: SettingBoxProps) {
           {icon && <Text style={{ fontSize: 18 }}>{icon}</Text>}
           <Text style={SETTINGS_BOX_TITLE}>{title}</Text>
         </View>
-        {externalLink ? (
-          <Image style={EXTERNAL_LINK_ICON} source={externalLinkIcon} />
-        ) : (
-          <Image style={CHEVRON_ICON} source={chevronIcon} />
-        )}
+
+        {externalLink && <Image style={EXTERNAL_LINK_ICON} source={externalLinkIcon} />}
+        {chevron && <Image style={CHEVRON_ICON} source={chevronIcon} />}
       </View>
     </TouchableHighlight>
   )
