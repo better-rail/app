@@ -269,13 +269,12 @@ footer {
 
 .site-page .site-content {
   text-align: unset;
-  padding: 24px 12px;
+  padding: 24px 18px 12px 32px;
   margin-bottom: 12px;
 }
 
 .site-page-content-title {
-  margin: 0;
-  margin-bottom: 4px;
+  margin: 8px 0 4px;
 }
 
 .site-page-content-subtitle {
@@ -290,6 +289,7 @@ footer {
 }
 
 hr {
+  margin-bottom: 12px;
   border-style: dashed;
   opacity: 0.25;
 }
@@ -302,6 +302,10 @@ hr {
   opacity: 0.75;
 }
 
+footer {
+  margin-bottom: max(16px, env(safe-area-inset-bottom));
+}
+
 @media (min-width: 620px) {
   .site-page .site-content {
     max-width: 620px;
@@ -309,7 +313,7 @@ hr {
   }
 
   .site-page-content-title {
-    margin: 6px 0 8px;
+    margin-bottom: 8px;
     font-size: 27px;
     text-align: center;
   }
@@ -318,26 +322,12 @@ hr {
     font-size: 23.5px;
   }
 
-  .site-page-content-text {
+  .site-page-content-text,
+  li {
     font-size: 18px;
   }
 
   hr {
     max-width: 700px;
-  }
-}
-
-@media (min-width: 1280px) {
-  .site-page-content-title {
-    font-size: 32px;
-  }
-
-  .site-page-content-subtitle {
-    font-size: 26px;
-    letter-spacing: 0;
-  }
-
-  .site-page-content-text {
-    font-size: 20px;
   }
 }
