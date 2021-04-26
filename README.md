@@ -23,6 +23,8 @@ If you haven't used Ignite before, it's recommended to take a look over their RE
 
 ### Installation
 
+The following steps asssumes your enviorment is already set up for running React Native apps. If this is your first time, please follow the [official set up guide](https://reactnative.dev/docs/0.63/environment-setup).
+
 - Fork the repo and clone to your machine.
 - Run `yarn install`
 - Run `cd ios && pod install`
