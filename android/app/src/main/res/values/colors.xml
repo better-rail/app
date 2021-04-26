@@ -2,7 +2,7 @@
 <resources>
   <color name="background">#f2f2f7</color>
   <color name="secondaryBackground">#ffffff</color>
-  <color name="label">#fff</color>
+  <color name="label">#111111</color>
   <color name="secondaryLabel">#757575</color>
   <color name="placeholderText">#afb4bd</color>
   <color name="inputPlaceholderBackground">#e0e1e6</color>
