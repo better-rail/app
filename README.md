@@ -11,20 +11,21 @@
  <a href="https://twitter.com/better_rail"><img src="https://img.shields.io/twitter/follow/better_rail" alt="" /></a>
 </p>
 
-<p align="center">A better mobile client for Israel Railways.<br/> 
-</p>
+# Welcome aborad!
 
-<hr/>
+Please take your seats and tinker your mechanical keyboards - we're up for a ride.
+
+Better Rail is an open source mobile client for Israel Railways, with an emphasis on great design, performance and accessbility.
 
 ## Overview
 
-The project is written using React Native, and uses the [Ignite boilerplate](https://github.com/infinitered/ignite/).  
+Better Rail is written with React Native and uses the [Ignite boilerplate](https://github.com/infinitered/ignite/).  
 If you haven't used Ignite before, it's recommended to take a look over their README and see their approach for writing React Native apps.
 
 ### Installation
 
 The following steps asssumes your enviorment is already set up for running React Native apps.  
-If this is your first time, check out the [official set up guide](https://reactnative.dev/docs/0.63/environment-setup).
+If this is your first time, check out the [official set up guide](https://reactnative.dev/docs/0.63/environment-setup) beforehand.
 
 - Fork the repo and clone to your machine.
 - Run `yarn install`
