@@ -7,7 +7,11 @@
   <br />
 </h1>
 
-<p align="center"><img src="https://better-rail.co.il/assets/images/app-store-badge.svg" width="120"></p>
+<p align="center">
+<a href="https://github.com/guytepper/better-rail/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-brightgreen" alt="" /></a>
+ <a href="https://twitter.com/better_rail"><img src="https://img.shields.io/twitter/follow/better_rail" alt="" /></a><br/><img src="https://better-rail.co.il/assets/images/app-store-badge.svg" width="120">
+
+</p>
 <hr />
 
 ## Welcome to Better Rail!
