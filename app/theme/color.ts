@@ -1,5 +1,11 @@
-import { PlatformColor, DynamicColorIOS, Platform } from "react-native"
+import { PlatformColor, DynamicColorIOS as BaseDynamicColorIOS, Platform } from "react-native"
 import { palette } from "./palette"
+
+// Avoids crashing when called on other platforms
+const DynamicColorIOS = Platform.select({
+  ios: BaseDynamicColorIOS,
+  default: () => null,
+})
 
 /**
  * Roles for colors.  Prefer using these over the palette.  It makes it easier
