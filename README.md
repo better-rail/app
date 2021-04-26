@@ -1,3 +1,22 @@
+&nbsp;
+
+# Better Rail <img src="./assets/app-icon.png" width="110" align="left">
+
+[![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-brightgreen)](https://github.com/guytepper/better-rail/blob/main/LICENSE)
+![Twitter Follow](https://img.shields.io/twitter/follow/better_rail)
+
+&nbsp;
+
+Better Rail is an open-source mobile client alternative for Israel Railways, with a focus on great design, performance and accessbility.
+
+&nbsp;
+
+<p align="center" margin-bottom="0">
+  <a href="https://breathly.app">
+    <img alt="Breathly" width="820" height="auto" src="https://github.com/mmazzarolo/breathly-website/raw/master/.github/screenshot.png">
+  </a>
+</p>
+
 ## Welcome to Better Rail
 
 The project is written using React Native, and uses the [Ignite boilerplate](https://github.com/infinitered/ignite/).  
