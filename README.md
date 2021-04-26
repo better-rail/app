@@ -1,21 +1,16 @@
-<h1 align="center">
+<p align="center">
   <a href="#">
     <img src="./assets/app-icon.png" width="120">
   </a>
-  <br />
-  Better Rail
-  <br />
-</h1>
-
-<p align="center">
-<a href="https://github.com/guytepper/better-rail/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-brightgreen" alt="" /></a>
-<br/><b><a href="https://apps.apple.com/app/better-rail/id1562982976">Available on iOS</a></b><br/> (Android coming soon)
 </p>
-<hr />
 
-## Welcome abroad! 🚂
+# Better Rail
+
+<a href="https://github.com/guytepper/better-rail/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-brightgreen" alt="" /></a> &nbsp; <a href="https://twitter.com/better_rail"><img src="https://img.shields.io/twitter/follow/better_rail" alt="" /></a>
 
 Better Rail is an open source mobile client for Israel Railways, with an emphasis on great design, performance and accessbility.
+
+[**Available on iOS**](https://apps.apple.com/app/better-rail/id1562982976)</a> (Android coming soon)
 
 ## Overview
 
