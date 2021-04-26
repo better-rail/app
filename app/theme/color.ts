@@ -45,7 +45,7 @@ export const color = {
 
   modalBackground: Platform.select({
     ios: DynamicColorIOS({ light: PlatformColor("secondarySystemBackground"), dark: PlatformColor("systemBackground") }),
-    android: PlatformColor("background"),
+    android: PlatformColor("@color/background"),
   }),
 
   primary: Platform.select({
