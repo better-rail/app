@@ -5,8 +5,10 @@
   <br />
   Better Rail
   <br />
-<img src="https://better-rail.co.il/assets/images/app-store-badge.svg" width="120">
 </h1>
+
+<p align="center"><img src="https://better-rail.co.il/assets/images/app-store-badge.svg" width="120"></p>
+<hr />
 
 ## Welcome to Better Rail!
 
