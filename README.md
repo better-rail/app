@@ -14,9 +14,7 @@
 </p>
 <hr />
 
-## Welcome to Better Rail!
-
-Please take your seats and tinker your mechanical keyboards - we're up for a ride. 🚂
+## Welcome abroad!
 
 Better Rail is an open source mobile client for Israel Railways, with an emphasis on great design, performance and accessbility.
 
