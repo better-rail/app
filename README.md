@@ -1,4 +1,4 @@
-<img src="./assets/app-icon.png" width="75">
+<img src="./assets/app-icon.png" width="100">
 
 # Better Rail
 
