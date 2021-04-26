@@ -11,10 +11,7 @@ import isIsraeliIdValid from "israeli-id-validator"
 const externalLinkIcon = require("../../../assets/external-link.png")
 
 const ROOT: ViewStyle = {
-  backgroundColor: Platform.select({
-    ios: DynamicColorIOS({ light: color.background, dark: color.secondaryBackground }),
-    android: color.dim,
-  }),
+  backgroundColor: color.modalBackground,
   paddingTop: spacing[4],
   paddingHorizontal: spacing[3],
   flex: 1,

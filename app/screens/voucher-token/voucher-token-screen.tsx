@@ -11,10 +11,7 @@ import HapticFeedback from "react-native-haptic-feedback"
 
 // #region styles
 const ROOT: ViewStyle = {
-  backgroundColor: Platform.select({
-    ios: DynamicColorIOS({ light: color.background, dark: color.secondaryBackground }),
-    android: color.dim,
-  }),
+  backgroundColor: color.modalBackground,
   paddingTop: spacing[4],
   paddingHorizontal: spacing[4],
   flex: 1,

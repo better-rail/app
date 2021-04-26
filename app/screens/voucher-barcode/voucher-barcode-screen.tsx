@@ -1,8 +1,8 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
-import { Image, DynamicColorIOS, Dimensions, ImageStyle, ViewStyle, TextStyle, Alert, AlertButton, View } from "react-native"
+import { Image, Dimensions, ImageStyle, ViewStyle, TextStyle, Alert, AlertButton, View } from "react-native"
 import { Screen, Text, Button } from "../../components"
-import { VoucherBarcodeScreenProps } from "../../navigators/create-Voucher"
+import { VoucherBarcodeScreenProps } from "../../navigators/voucher-navigator"
 import { color, spacing } from "../../theme"
 import { useStores } from "../../models"
 import { format } from "date-fns"
@@ -10,10 +10,7 @@ import { format } from "date-fns"
 const { width: deviceWidth } = Dimensions.get("screen")
 
 const ROOT: ViewStyle = {
-  backgroundColor: Platform.select({
-    ios: DynamicColorIOS({ light: color.background, dark: color.secondaryBackground }),
-    android: color.dim,
-  }),
+  backgroundColor: color.modalBackground,
   paddingTop: spacing[4],
   paddingHorizontal: spacing[3],
   flex: 1,
