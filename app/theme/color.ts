@@ -29,7 +29,7 @@ export const color = {
 
   secondaryBackground: Platform.select({
     ios: PlatformColor("systemBackground"),
-    android: PlatformColor("@color/background"),
+    android: PlatformColor("@color/secondaryBackground"),
   }),
 
   tertiaryBackground: Platform.select({
@@ -39,7 +39,7 @@ export const color = {
 
   primary: Platform.select({
     ios: PlatformColor("systemBlue"),
-    android: PlatformColor("@color/background"),
+    android: PlatformColor("@color/blue"),
   }),
 
   primaryLighter: palette.blueLighter,
@@ -47,58 +47,54 @@ export const color = {
 
   secondary: Platform.select({
     ios: DynamicColorIOS({ light: palette.pinky, dark: "#6F68DF" }),
-    android: PlatformColor("@color/background"),
+    android: PlatformColor("@color/pinky"),
   }),
 
   secondaryLighter: Platform.select({
     ios: DynamicColorIOS({ light: palette.orangeLighter, dark: "#464552" }),
-    android: PlatformColor("@color/background"),
+    android: PlatformColor("@color/lightPinky"),
   }),
 
   inputBackground: Platform.select({
     ios: DynamicColorIOS({ light: PlatformColor("systemBackground"), dark: PlatformColor("systemGray5") }),
+    android: PlatformColor("@color/secondaryBackground"),
   }),
 
-  /**
-   * A subtle color used for borders and lines.
-   */
   line: palette.offWhite,
-  /**
-   * The default color of text in many components.
-   */
+
   text: Platform.select({
     ios: PlatformColor("label"),
-    android: PlatformColor("@color/background"),
+    android: PlatformColor("@color/label"),
   }),
 
   whiteText: Platform.select({
     ios: DynamicColorIOS({ light: palette.white, dark: palette.offWhite }),
-    android: PlatformColor("@color/background"),
+    android: PlatformColor("@color/whiteText"),
   }),
 
   label: Platform.select({
     ios: PlatformColor("secondaryLabel"),
-    android: PlatformColor("@color/background"),
+    android: PlatformColor("@color/secondaryLabel"),
   }),
 
   placeholder: Platform.select({
     ios: PlatformColor("placeholderText"),
-    android: PlatformColor("@color/background"),
+    android: PlatformColor("@color/placeholderText"),
   }),
 
   inputPlaceholderBackground: Platform.select({
     ios: DynamicColorIOS({ light: palette.lighterGrey, dark: PlatformColor("systemGray4") }),
-    android: PlatformColor("@color/background"),
+    android: PlatformColor("@color/inputPlaceholderBackground"),
   }),
 
   disabled: Platform.select({
     ios: DynamicColorIOS({ light: PlatformColor("systemGray2"), dark: PlatformColor("systemGray3") }),
-    android: PlatformColor("@color/background"),
+    android: PlatformColor("@color/disabled"),
   }),
 
   link: Platform.select({
     ios: PlatformColor("link"),
-    android: PlatformColor("@color/background"),
+    android: PlatformColor("@color/link"),
   }),
 
   seperator: Platform.select({
