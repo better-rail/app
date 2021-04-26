@@ -12,7 +12,6 @@
 </p>
 
 <p align="center">A better mobile client for Israel Railways.<br/> 
-Focused on great design, performance and accessbility.
 </p>
 
 <hr/>
