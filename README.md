@@ -1,6 +1,6 @@
 <h1 align="center">
   <a href="#">
-    <img src="./assets/app-icon.png" width="110" align="left">
+    <img src="./assets/app-icon.png" width="110">
   </a>
   <br />
   Better Rail
