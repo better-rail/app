@@ -1,20 +1,20 @@
-<h2 align="center">
+<h3 align="center">
   <a href="#">
     <img src="./assets/app-icon.png" width="110">
   </a>
   <br />
   Better Rail
 
-</h2>
+</h3>
+
+<p align="center">A better mobile client for Israel Railways.<br/> 
+Focused on great design, performance and accessbility.
+</p>
 
 <p align="center">
  <a href="https://github.com/guytepper/better-rail/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-brightgreen" alt="" /></a>
  <a href="https://twitter.com/better_rail"><img src="https://img.shields.io/twitter/follow/better_rail" alt="" /></a>
 
-</p>
-
-<p align="center">A better mobile client for Israel Railways.<br/> 
-Focused on great design, performance and accessbility.
 </p>
 
 <hr/>
