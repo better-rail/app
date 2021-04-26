@@ -1,8 +1,4 @@
-<p align="center">
-  <a href="#">
-    <img src="./assets/app-icon.png" width="120">
-  </a>
-</p>
+<img src="./assets/app-icon.png" width="75">
 
 # Better Rail
 
