@@ -1,7 +1,10 @@
-# Better Rail <img src="./assets/app-icon.png" width="110" align="left">
-
-[![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-brightgreen)](https://github.com/guytepper/better-rail/blob/main/LICENSE)
-![Twitter Follow](https://img.shields.io/twitter/follow/better_rail)
+<h1 align="center">
+  <a href="#">
+    <img src="./assets/app-icon.png" width="110" align="left">
+  </a>
+  <br />
+  Better Rail
+</h1>
 
 &nbsp;
 
