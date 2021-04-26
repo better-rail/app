@@ -1,5 +1,14 @@
 import React from "react"
-import { Image, View, ViewStyle, TextStyle, TouchableHighlight, TouchableHighlightProps, ImageStyle } from "react-native"
+import {
+  Image,
+  View,
+  ViewStyle,
+  TextStyle,
+  TouchableHighlight,
+  TouchableHighlightProps,
+  ImageStyle,
+  Platform,
+} from "react-native"
 import { Text } from "../../../components"
 import { color, spacing } from "../../../theme"
 
@@ -55,7 +64,7 @@ export const SettingBox = function SettingBox(props: SettingBoxProps) {
   const { title, icon, first, last, externalLink, chevron, onPress, style } = props
   let boxStyle: ViewStyle = {}
 
-  if (!first) boxStyle = { borderTopColor: color.background, borderTopWidth: 1 }
+  if (!first) boxStyle = { borderTopColor: Platform.select({ android: "#f2f2f7", ios: color.background }), borderTopWidth: 1 }
 
   if (first) {
     boxStyle = { borderTopLeftRadius: 10, borderTopRightRadius: 10, ...boxStyle }
