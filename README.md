@@ -13,12 +13,11 @@
 
 </p>
 
-<p align="center">Better Rail is an open-source mobile client for Israel Railways, with a focus on great design, performance and accessbility.
+<p align="center">A better mobile client for Israel Railways.<br/> 
+Focused on great design, performance and accessbility.
 </p>
 
 <hr/>
-
-&nbsp;
 
 ## Overview
 
