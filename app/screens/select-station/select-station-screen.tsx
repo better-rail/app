@@ -24,6 +24,7 @@ const SEARCH_BAR_WRAPPER: ViewStyle = {
 const SEARCH_BAR: TextStyle = {
   flex: 1,
   padding: spacing[3],
+
   textAlign: "right",
   fontFamily: typography.primary,
   borderRadius: 8,
@@ -32,7 +33,9 @@ const SEARCH_BAR: TextStyle = {
 }
 
 const CANCEL_LINK: TextStyle = {
-  paddingStart: spacing[3],
+  // RTL not works correctly on Android
+  paddingStart: Platform.select({ ios: spacing[3], android: 0 }),
+  paddingEnd: Platform.select({ ios: 0, android: spacing[3] }),
   color: color.link,
 }
 

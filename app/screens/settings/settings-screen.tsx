@@ -44,7 +44,7 @@ export const SettingsScreen = observer(function SettingsScreen() {
             Share.share({ message: "Better Rail - האלטרנטיבה לאפליקציית רכבת ישראל", url: "https://better-rail.co.il" })
           }
         />
-        <SettingBox title="דרגו ב- App Store" icon="⭐️" onPress={() => Linking.openURL(storeLink)} />
+        {Platform.OS === "ios" && <SettingBox title="דרגו ב- App Store" icon="⭐️" onPress={() => Linking.openURL(storeLink)} />}
         <SettingBox
           last
           title="שליחת פידבק"

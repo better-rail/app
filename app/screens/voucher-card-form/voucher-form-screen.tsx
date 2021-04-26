@@ -17,6 +17,11 @@ const ROOT: ViewStyle = {
   flex: 1,
 }
 
+const TEXT_INPUT: ViewStyle = {
+  paddingHorizontal: Platform.select({ ios: spacing[4], android: spacing[3] }),
+  paddingVertical: Platform.select({ ios: spacing[4], android: spacing[2] }),
+}
+
 const FORM_NOTICE: TextStyle = {
   marginTop: spacing[2],
   paddingHorizontal: spacing[4],
@@ -81,12 +86,24 @@ export const VoucherFormScreen = observer(function VoucherFormScreen({ navigatio
     <Screen style={ROOT} preset="scroll" unsafe={true} statusBar="light-content">
       <View style={{ marginBottom: spacing[4] }}>
         <Text preset="fieldLabel" text="תעודת זהות" style={{ marginBottom: spacing[1] }} />
-        <TextInput placeholder="מספר תעודת זהות" defaultValue={userId} onChangeText={setUserId} keyboardType="number-pad" />
+        <TextInput
+          placeholder="מספר תעודת זהות"
+          defaultValue={userId}
+          onChangeText={setUserId}
+          keyboardType="number-pad"
+          style={TEXT_INPUT}
+        />
       </View>
 
       <View style={{ marginBottom: spacing[4] }}>
         <Text preset="fieldLabel" text="מס׳ טלפון נייד" style={{ marginBottom: spacing[1] }} />
-        <TextInput placeholder="מספר טלפון " defaultValue={phoneNumber} onChangeText={setPhoneNumber} keyboardType="number-pad" />
+        <TextInput
+          placeholder="מספר טלפון "
+          defaultValue={phoneNumber}
+          onChangeText={setPhoneNumber}
+          keyboardType="number-pad"
+          style={TEXT_INPUT}
+        />
       </View>
 
       <Button

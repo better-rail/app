@@ -1,6 +1,6 @@
 import React from "react"
 import { Image, TouchableOpacity } from "react-native"
-import { StackScreenProps } from "@react-navigation/stack"
+import { createStackNavigator, StackScreenProps } from "@react-navigation/stack"
 import { createNativeStackNavigator } from "react-native-screens/native-stack"
 import { VoucherFormScreen, VoucherTokenScreen, VoucherBarcodeScreen, VoucherOrganizerScreen } from "../screens"
 import { color, typography } from "../theme"
@@ -12,7 +12,7 @@ export type VoucherParamList = {
   voucherBarcode: Voucher
   voucherOrganizer: undefined
 }
-const VoucherStack = createNativeStackNavigator<VoucherParamList>()
+const VoucherStack = createStackNavigator<VoucherParamList>()
 
 export type VoucherFormScreenProps = StackScreenProps<VoucherParamList, "voucherForm">
 export type VoucherTokenScreenProps = StackScreenProps<VoucherParamList, "voucherToken">
@@ -26,7 +26,8 @@ export const VoucherNavigator = () => (
       stackPresentation: "modal",
       title: "הזמנת שובר כניסה",
       headerTintColor: color.primary,
-      headerTitleStyle: { fontSize: 20, fontFamily: typography.primary },
+      headerStatusBarHeight: Platform.select({ ios: 10, android: 5 }),
+      headerTitleStyle: { fontSize: 20, fontFamily: typography.primary, fontWeight: "400", marginRight: 10, marginBottom: 10 },
       headerBackTitleStyle: { fontFamily: typography.primary },
     }}
   >
@@ -34,7 +35,7 @@ export const VoucherNavigator = () => (
       name="voucherForm"
       component={VoucherFormScreen}
       options={({ navigation }) => ({
-        headerLeft: () => <CloseIcon onPress={() => navigation.goBack()} />,
+        headerLeft: Platform.select({ ios: () => <CloseIcon onPress={() => navigation.goBack()} />, android: undefined }),
       })}
     />
     <VoucherStack.Screen
@@ -63,7 +64,7 @@ const CloseIcon = ({ onPress }) => (
   <TouchableOpacity onPress={onPress} activeOpacity={0.8} accessibilityLabel="חזרה">
     <Image
       source={require("../../assets/close.png")}
-      style={{ width: 37.5, height: 37.5, marginLeft: -10, tintColor: color.dim, opacity: 0.5 }}
+      style={{ width: 37.5, height: 37.5, marginLeft: 7.5, marginBottom: 7.5, tintColor: color.dim, opacity: 0.5 }}
     />
   </TouchableOpacity>
 )
