@@ -14,7 +14,7 @@
 </p>
 <hr />
 
-## Welcome abroad!
+## Welcome abroad! 🚂
 
 Better Rail is an open source mobile client for Israel Railways, with an emphasis on great design, performance and accessbility.
 
