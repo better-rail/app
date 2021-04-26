@@ -1,6 +1,6 @@
 <h3 align="center">
   <a href="#">
-    <img src="./assets/app-icon.png" width="110">
+    <img src="./assets/app-icon.png" width="130">
   </a>
   <br />
   Better Rail
@@ -11,7 +11,7 @@
  <a href="https://twitter.com/better_rail"><img src="https://img.shields.io/twitter/follow/better_rail" alt="" /></a>
 </p>
 
-<p align="center">A better mobile client for Israel Railways.<br/> 
+<p align="center"><i>A better mobile client for Israel Railways.</i><br/> 
 </p>
 
 <hr/>
