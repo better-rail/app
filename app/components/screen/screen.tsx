@@ -44,12 +44,7 @@ function ScreenWithScrolling(props: ScreenProps) {
       behavior={isIos ? "padding" : null}
       keyboardVerticalOffset={offsets[props.keyboardOffset || "none"]}
     >
-      <StatusBar
-        barStyle={props.statusBar || "default"}
-        translucent={props.translucent || false}
-        animated={true}
-        backgroundColor={props.statusBarBackgroundColor || color.background}
-      />
+      <StatusBar barStyle={props.statusBar || "default"} translucent={props.translucent || false} animated={true} />
       <View style={[preset.outer, backgroundStyle, insetStyle]}>
         <ScrollView style={[preset.outer, backgroundStyle]} contentContainerStyle={[preset.inner, style]}>
           {props.children}
