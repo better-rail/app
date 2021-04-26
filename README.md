@@ -4,7 +4,8 @@
   </a>
   <br />
   Better Rail
-
+  <br />
+<img src="https://better-rail.co.il/assets/images/app-store-badge.svg" width="120">
 </h1>
 
 ## Welcome to Better Rail!
