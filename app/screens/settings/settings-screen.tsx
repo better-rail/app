@@ -38,29 +38,6 @@ export const SettingsScreen = observer(function SettingsScreen() {
       <View style={SETTING_GROUP}>
         <SettingBox
           first
-          title="עדכונים בטוויטר"
-          icon="🐦"
-          onPress={() =>
-            Linking.canOpenURL("twitter://user?screen_name=better_rail").then((supported) => {
-              if (supported) {
-                Linking.openURL("twitter://user?screen_name=better_rail")
-              } else {
-                Linking.openURL("https://www.twitter.com/better_rail`")
-              }
-            })
-          }
-        />
-        <SettingBox
-          last
-          title="עדכונים בפייסבוק"
-          icon="🥸"
-          onPress={() => Linking.openURL("https://www.facebook.com/BetterRail")}
-        />
-      </View>
-
-      <View style={SETTING_GROUP}>
-        <SettingBox
-          first
           title="שתפו את Better Rail"
           icon="🕺"
           onPress={() =>
