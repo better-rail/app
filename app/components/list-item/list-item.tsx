@@ -24,8 +24,6 @@ const CONTAINER: ViewStyle = {
   justifyContent: "space-between",
   alignItems: "center",
   backgroundColor: color.secondaryBackground,
-  // borderColor: color.seperator,
-  // borderWidth: 1,
   paddingVertical: spacing[3] * fontScale,
   paddingHorizontal: spacing[4],
 }
@@ -40,7 +38,7 @@ const THUMB_IMAGE: ImageStyle = {
   height: 55 * fontScale,
   marginEnd: spacing[3] * fontScale,
   borderWidth: 1,
-  borderColor: color.seperator,
+  borderColor: color.separator,
   borderRadius: 2,
 }
 

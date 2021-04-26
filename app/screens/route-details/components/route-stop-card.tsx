@@ -24,7 +24,7 @@ const ROUTE_STOP_TIME: TextStyle = {
 const ROUTE_STOP_LINE: ViewStyle = {
   width: 4,
   height: 10,
-  backgroundColor: color.seperator,
+  backgroundColor: color.separator,
   zIndex: 0,
 }
 
@@ -33,7 +33,7 @@ const ROUTE_STOP_CIRCLE: ViewStyle = {
   height: 30,
   borderRadius: 25,
   borderWidth: 3.5,
-  borderColor: color.seperator,
+  borderColor: color.separator,
   backgroundColor: color.background,
   zIndex: 10,
 }

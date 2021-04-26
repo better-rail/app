@@ -8,10 +8,14 @@
   <color name="inputPlaceholderBackground">#e0e1e6</color>
   <color name="disabled">#aeaeb2</color>
   <color name="link">#2196F3</color>
+  <color name="separator">#bdbdc2</color>
   
   <color name="whiteText">#fff</color>
 
+  <color name="red">#FF5252</color>
   <color name="blue">#2196f3</color>
+  <color name="green">#4daf50</color>
   <color name="pinky">#fa827e</color>
   <color name="lightPinky">#f6eae3</color>
+  <color name="lightGrey">#e0e1e6</color>
 </resources>

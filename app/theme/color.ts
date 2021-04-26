@@ -97,26 +97,26 @@ export const color = {
     android: PlatformColor("@color/link"),
   }),
 
-  seperator: Platform.select({
+  separator: Platform.select({
     ios: PlatformColor("separator"),
-    android: PlatformColor("@color/background"),
+    android: PlatformColor("@color/separator"),
   }),
 
   success: Platform.select({
     ios: PlatformColor("systemGreen"),
-    android: PlatformColor("@color/background"),
+    android: PlatformColor("@color/green"),
   }),
 
   destroy: Platform.select({
     ios: PlatformColor("systemRed"),
-    android: PlatformColor("@color/background"),
+    android: PlatformColor("@color/red"),
   }),
 
   dim: palette.lightGrey,
 
   dimmer: Platform.select({
     ios: DynamicColorIOS({ light: palette.lighterGrey, dark: PlatformColor("systemGray4") }),
-    android: PlatformColor("@color/background"),
+    android: PlatformColor("@color/lightGrey"),
   }),
 
   /**
