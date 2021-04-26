@@ -1,11 +1,11 @@
-import React, { useState } from "react"
+import React, { useMemo, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { FlatList, LayoutAnimation, View, TextInput, TextStyle, ViewStyle, Pressable } from "react-native"
 import { Screen, Text, StationCard } from "../../components"
 import { useStores } from "../../models"
 import { SelectStationScreenProps } from "../../navigators/main-navigator"
 import { color, spacing, typography } from "../../theme"
-import useStationFiltering from "./useStationFiltering"
+import stations from "../../data/stations"
 
 // #region styles
 const ROOT: ViewStyle = {
@@ -44,7 +44,11 @@ const LIST_CONTENT_WRAPPER: ViewStyle = {
 export const SelectStationScreen = observer(function SelectStationScreen({ navigation, route }: SelectStationScreenProps) {
   const { routePlan } = useStores()
   const [searchTerm, setSearchTerm] = useState("")
-  const stations = useStationFiltering(searchTerm, routePlan.origin)
+
+  const filteredStations = useMemo(() => {
+    if (searchTerm === "") return []
+    return stations.filter((item) => item.name.indexOf(searchTerm) > -1)
+  }, [searchTerm])
 
   const renderItem = (station) => (
     <StationCard
@@ -54,19 +58,18 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
       onPress={() => {
         if (route.params.selectionType === "origin") {
           routePlan.setOrigin(station)
-          navigation.navigate("planner")
         } else if (route.params.selectionType === "destination") {
           routePlan.setDestination(station)
-          navigation.navigate("planner")
         } else {
           throw new Error("Selection type was not provided.")
         }
+        navigation.navigate("planner")
       }}
     />
   )
 
   return (
-    <Screen style={ROOT} preset="fixed" unsafe={false} statusBar="default">
+    <Screen style={ROOT} preset="fixed" unsafe={false}>
       <View style={SEARCH_BAR_WRAPPER}>
         <TextInput
           style={SEARCH_BAR}
@@ -97,7 +100,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
 
       <FlatList
         contentContainerStyle={LIST_CONTENT_WRAPPER}
-        data={stations}
+        data={filteredStations}
         renderItem={({ item }) => renderItem(item)}
         keyExtractor={(item) => item.id}
         keyboardShouldPersistTaps="handled"

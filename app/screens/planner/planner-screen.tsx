@@ -222,7 +222,11 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           style={{ marginBottom: spacing[5] }}
           onPress={() => setDatePickerVisibility(true)}
         />
-        <Button title="חישוב מסלול" onPress={onGetRoutePress} disabled={!routePlan.origin || !routePlan.destination} />
+        <Button
+          title="חישוב מסלול"
+          onPress={onGetRoutePress}
+          disabled={!routePlan.origin || !routePlan.destination || routePlan.origin.id === routePlan.destination.id}
+        />
         <DateTimePickerModal
           isVisible={isDatePickerVisible}
           mode="datetime"
