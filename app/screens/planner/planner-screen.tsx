@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { Image, View, TouchableOpacity, Animated, PixelRatio, ViewStyle, ImageStyle } from "react-native"
+import { Image, View, TouchableOpacity, Animated, PixelRatio, ViewStyle, ImageStyle, Easing } from "react-native"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
 import { useStores } from "../../models"
@@ -43,26 +43,20 @@ const SETTINGS_ICON: ImageStyle = {
   opacity: 0.7,
 }
 
-const TICKETS_ICON: ImageStyle = {
-  width: headerIconSize * 1.3,
-  height: headerIconSize * 1.26,
-  marginEnd: spacing[0],
-  resizeMode: "contain",
-  tintColor: color.primary,
-  opacity: 0.7,
+const CHANGE_DIRECTION_WRAPPER: ViewStyle = {
+  width: 65,
+  height: 65,
+  top: -30,
+  end: 10,
+  alignSelf: "flex-end",
+  marginBottom: -60,
+  zIndex: 10,
 }
 
-const TICKETS_BADGE: ViewStyle = {
-  position: "absolute",
-  start: -8 * fontScale,
-  top: -5 * fontScale,
-  paddingVertical: 0,
-  paddingHorizontal: spacing[1] * fontScale + 2,
+const SWITCH_DATE_TYPE_TOUCHABLE: ViewStyle = {
+  flexDirection: "row",
   alignItems: "center",
-  justifyContent: "center",
-  backgroundColor: color.destroy,
-  borderRadius: 50,
-  zIndex: 1,
+  marginBottom: spacing[1],
 }
 
 const CHANGE_ICON: ImageStyle = {
@@ -157,22 +151,6 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     <Screen style={ROOT} preset="scroll" statusBarBackgroundColor={color.dim}>
       <View style={CONTENT_WRAPPER}>
         <View style={HEADER_WRAPPER}>
-          {/* <TouchableOpacity
-            onPress={() => navigation.navigate("secondaryStack", { screen: "voucherOrganizer" })}
-            activeOpacity={0.8}
-            accessibilityLabel="רשימת שוברי כניסה"
-          >
-            {vouchers.list.length > 0 && (
-              <View style={TICKETS_BADGE}>
-                <Text preset="small" style={{ color: color.whiteText, textAlign: "center", fontSize: 12.5 }}>
-                  {vouchers.list.length}
-                </Text>
-              </View>
-            )}
-
-            <Image source={require("../../../assets/station-ticket.png")} style={TICKETS_ICON} />
-          </TouchableOpacity> */}
-
           <TouchableOpacity onPress={() => navigation.navigate("settingsStack")} activeOpacity={0.8} accessibilityLabel="הגדרות">
             <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />
           </TouchableOpacity>
@@ -190,7 +168,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           />
         </Animated.View>
 
-        <View style={{ zIndex: 10, width: 65, height: 65, alignSelf: "flex-end", top: -30, end: 10, marginBottom: -60 }}>
+        <View style={CHANGE_DIRECTION_WRAPPER}>
           <ChangeDirectionButton onPress={onSwitchPress} />
         </View>
 
@@ -205,12 +183,12 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
         </Animated.View>
 
         <TouchableOpacity
+          style={SWITCH_DATE_TYPE_TOUCHABLE}
+          activeOpacity={0.9}
           onPress={() => {
             HapticFeedback.trigger("impactLight")
             routePlan.switchDateType()
           }}
-          style={{ flexDirection: "row", alignItems: "center", marginBottom: spacing[1] }}
-          activeOpacity={0.9}
         >
           <Text preset="fieldLabel" text={routePlan.dateTypeDisplayName} />
           <Image style={CHANGE_ICON} source={changeIcon} />
