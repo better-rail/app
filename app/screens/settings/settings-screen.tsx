@@ -34,10 +34,11 @@ const storeLink = Platform.select({ ios: "https://apps.apple.com/app/better-rail
 
 export const SettingsScreen = observer(function SettingsScreen() {
   return (
-    <Screen style={ROOT} preset="scroll" unsafe={true} statusBarBackgroundColor={color.secondaryBackground}>
+    <Screen style={ROOT} preset="scroll" unsafe={true}>
       <View style={SETTING_GROUP}>
         <SettingBox
           first
+          last
           title="שתפו את Better Rail"
           icon="🕺"
           onPress={() =>
@@ -45,12 +46,6 @@ export const SettingsScreen = observer(function SettingsScreen() {
           }
         />
         {Platform.OS === "ios" && <SettingBox title="דרגו ב- App Store" icon="⭐️" onPress={() => Linking.openURL(storeLink)} />}
-        <SettingBox
-          last
-          title="שליחת פידבק"
-          icon="📨"
-          onPress={() => Linking.openURL("mailto:feedback@better-rail.co.il?subject=פידבק על Better Rail")}
-        />
       </View>
 
       <View style={SETTING_GROUP}>
@@ -61,6 +56,12 @@ export const SettingsScreen = observer(function SettingsScreen() {
           onPress={() => openLink("https://better-rail.co.il/image-attributions/")}
         />
         <SettingBox last title="מדיניות פרטיות" icon="📜" onPress={() => openLink("https://better-rail.co.il/privacy-policy/")} />
+        <SettingBox
+          last
+          title="שליחת פידבק"
+          icon="📨"
+          onPress={() => Linking.openURL("mailto:feedback@better-rail.co.il?subject=פידבק על Better Rail")}
+        />
       </View>
 
       <Text style={VERSION_TEXT}>Better Rail v{getVersion()}</Text>
