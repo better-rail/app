@@ -67,7 +67,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ navigat
       </SharedElement>
 
       <ScrollView
-        contentContainerStyle={{ paddingTop: spacing[4], paddingBottom: spacing[8] + insets.bottom }}
+        contentContainerStyle={{ paddingTop: spacing[4], paddingBottom: spacing[6] + insets.bottom }}
         showsVerticalScrollIndicator={false}
       >
         {routeItem.trains.map((train, index) => {
