@@ -23,7 +23,7 @@ function ScreenWithoutScrolling(props: ScreenProps) {
       <StatusBar
         barStyle={props.statusBar || "default"}
         translucent={props.translucent || false}
-        backgroundColor={props.statusBarBackgroundColor || color.background}
+        backgroundColor={props.statusBarBackgroundColor || undefined}
         animated={true}
       />
       <View style={[preset.inner, style, insetStyle]}>{props.children}</View>
@@ -47,8 +47,8 @@ function ScreenWithScrolling(props: ScreenProps) {
       <StatusBar
         barStyle={props.statusBar || "default"}
         translucent={props.translucent || false}
+        backgroundColor={props.statusBarBackgroundColor || undefined}
         animated={true}
-        backgroundColor={props.statusBarBackgroundColor || color.background}
       />
       <View style={[preset.outer, backgroundStyle, insetStyle]}>
         <ScrollView style={[preset.outer, backgroundStyle]} contentContainerStyle={[preset.inner, style]}>

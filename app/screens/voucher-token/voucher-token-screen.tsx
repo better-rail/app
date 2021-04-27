@@ -11,10 +11,7 @@ import HapticFeedback from "react-native-haptic-feedback"
 
 // #region styles
 const ROOT: ViewStyle = {
-  backgroundColor: Platform.select({
-    ios: DynamicColorIOS({ light: color.background, dark: color.secondaryBackground }),
-    android: color.dim,
-  }),
+  backgroundColor: color.modalBackground,
   paddingTop: spacing[4],
   paddingHorizontal: spacing[4],
   flex: 1,
@@ -36,6 +33,7 @@ const CODE_FIELD_WRAPPER: ViewStyle = {
 const CODE_CELL: TextStyle = {
   width: 50,
   height: 50,
+
   justifyContent: "center",
   alignItems: "center",
   borderBottomColor: color.dim,
@@ -43,7 +41,7 @@ const CODE_CELL: TextStyle = {
 }
 
 const CODE_CELL_FOCUSED: ViewStyle = {
-  borderBottomColor: color.text,
+  borderBottomColor: Platform.select({ ios: color.text, android: "#000" }),
 }
 
 const CODE_CELL_TEXT: TextStyle = {

@@ -36,8 +36,8 @@ export const VoucherOrganizerScreen = observer(function VoucherOrganizerScreen({
         data={vouchers.sortedList}
         extraData={vouchers.list?.length}
         renderItem={renderItem}
-        ItemSeparatorComponent={() => <ListSeperator />}
-        ListFooterComponent={() => <ListSeperator />}
+        ItemSeparatorComponent={() => <ListSeparator />}
+        ListFooterComponent={() => <ListSeparator />}
         ListEmptyComponent={() => <ListEmptyComponent />}
         keyExtractor={(item) => item.id}
       />
@@ -45,7 +45,7 @@ export const VoucherOrganizerScreen = observer(function VoucherOrganizerScreen({
   )
 })
 
-const ListSeperator = () => <View style={{ height: 1, backgroundColor: color.dimmer }} />
+const ListSeparator = () => <View style={{ height: 1, backgroundColor: color.dimmer }} />
 const ListEmptyComponent = () => (
   <View style={{ alignItems: "center", padding: spacing[6] }}>
     <Text>אין שוברי כניסה שמורים</Text>

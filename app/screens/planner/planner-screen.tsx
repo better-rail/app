@@ -154,7 +154,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   }
 
   return (
-    <Screen style={ROOT} preset="scroll">
+    <Screen style={ROOT} preset="scroll" statusBarBackgroundColor={color.dim}>
       <View style={CONTENT_WRAPPER}>
         <View style={HEADER_WRAPPER}>
           {/* <TouchableOpacity

@@ -11,13 +11,15 @@ import isIsraeliIdValid from "israeli-id-validator"
 const externalLinkIcon = require("../../../assets/external-link.png")
 
 const ROOT: ViewStyle = {
-  backgroundColor: Platform.select({
-    ios: DynamicColorIOS({ light: color.background, dark: color.secondaryBackground }),
-    android: color.dim,
-  }),
+  backgroundColor: color.modalBackground,
   paddingTop: spacing[4],
   paddingHorizontal: spacing[3],
   flex: 1,
+}
+
+const TEXT_INPUT: ViewStyle = {
+  paddingHorizontal: Platform.select({ ios: spacing[4], android: spacing[3] }),
+  paddingVertical: Platform.select({ ios: spacing[4], android: spacing[2] }),
 }
 
 const FORM_NOTICE: TextStyle = {
@@ -84,12 +86,24 @@ export const VoucherFormScreen = observer(function VoucherFormScreen({ navigatio
     <Screen style={ROOT} preset="scroll" unsafe={true} statusBar="light-content">
       <View style={{ marginBottom: spacing[4] }}>
         <Text preset="fieldLabel" text="תעודת זהות" style={{ marginBottom: spacing[1] }} />
-        <TextInput placeholder="מספר תעודת זהות" defaultValue={userId} onChangeText={setUserId} keyboardType="number-pad" />
+        <TextInput
+          placeholder="מספר תעודת זהות"
+          defaultValue={userId}
+          onChangeText={setUserId}
+          keyboardType="number-pad"
+          style={TEXT_INPUT}
+        />
       </View>
 
       <View style={{ marginBottom: spacing[4] }}>
         <Text preset="fieldLabel" text="מס׳ טלפון נייד" style={{ marginBottom: spacing[1] }} />
-        <TextInput placeholder="מספר טלפון " defaultValue={phoneNumber} onChangeText={setPhoneNumber} keyboardType="number-pad" />
+        <TextInput
+          placeholder="מספר טלפון "
+          defaultValue={phoneNumber}
+          onChangeText={setPhoneNumber}
+          keyboardType="number-pad"
+          style={TEXT_INPUT}
+        />
       </View>
 
       <Button
