@@ -30,14 +30,12 @@ a {
   font-family: "Heebo", -apple-system, "Inter", sans-serif;
   letter-spacing: -0.85px;
   line-height: 1.75;
-  color: #000000;
+  color: #000;
 }
 
 .page-header {
   height: 445px;
   padding-top: 65px;
-  background-color: #f1f1f6;
-  text-align: center;
 }
 
 .app-icon {
