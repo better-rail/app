@@ -38,7 +38,7 @@ export const SettingsScreen = observer(function SettingsScreen() {
       <View style={SETTING_GROUP}>
         <SettingBox
           first
-          last
+          last={Platform.select({ ios: false, android: true })}
           title="שתפו את Better Rail"
           icon="🕺"
           onPress={() =>
