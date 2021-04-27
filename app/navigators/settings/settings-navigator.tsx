@@ -26,7 +26,7 @@ export const SettingsNavigator = () => (
       component={SettingsScreen}
       options={({ navigation }) => ({
         title: "הגדרות",
-        headerLeft: Platform.select({ ios: () => <CloseIcon onPress={() => navigation.goBack()} />, android: undefined }),
+        headerLeft: () => <CloseIcon onPress={() => navigation.goBack()} />,
       })}
     />
   </SettingsStack.Navigator>
