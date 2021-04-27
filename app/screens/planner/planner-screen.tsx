@@ -157,7 +157,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     <Screen style={ROOT} preset="scroll">
       <View style={CONTENT_WRAPPER}>
         <View style={HEADER_WRAPPER}>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() => navigation.navigate("secondaryStack", { screen: "voucherOrganizer" })}
             activeOpacity={0.8}
             accessibilityLabel="רשימת שוברי כניסה"
@@ -171,7 +171,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
             )}
 
             <Image source={require("../../../assets/station-ticket.png")} style={TICKETS_ICON} />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           <TouchableOpacity onPress={() => navigation.navigate("settingsStack")} activeOpacity={0.8} accessibilityLabel="הגדרות">
             <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />
