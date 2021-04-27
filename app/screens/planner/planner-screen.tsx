@@ -71,7 +71,7 @@ const CHANGE_ICON: ImageStyle = {
 // #endregion
 
 export const PlannerScreen = observer(function PlannerScreen({ navigation }: PlannerScreenProps) {
-  const { routePlan, trainRoutes, vouchers } = useStores()
+  const { routePlan, trainRoutes } = useStores()
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
   const stationCardScale = useRef(new Animated.Value(1)).current
 
