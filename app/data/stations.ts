@@ -51,6 +51,7 @@ const stations = [
     english: "Caesarea-Pardes Hana",
     russian: "Кейсария - Пардес-Хана",
     arabic: "قيساريا - بارديس حنا",
+    image: require("../../assets/station-images/caesarea.jpeg"),
   },
   {
     id: "2500",
@@ -58,6 +59,7 @@ const stations = [
     english: "Atlit",
     russian: "Атлит",
     arabic: "عتليت",
+    image: require("../../assets/station-images/atlit.jpeg"),
   },
   {
     id: "2200",
@@ -72,6 +74,7 @@ const stations = [
     english: "Hutsot HaMifrats",
     russian: "Хоцот ха-Мифрац ",
     arabic: "حوتسوت همفراتس",
+    image: require("../../assets/station-images/hotzot-hamifratz.jpeg"),
   },
   {
     id: "700",
@@ -86,6 +89,7 @@ const stations = [
     english: "Kiryat Motzkin",
     russian: "Кирьят-Моцкин",
     arabic: "كريات موتسكين",
+    image: require("../../assets/station-images/kiryat-motzkin.jpeg"),
   },
   {
     id: "1500",
@@ -93,6 +97,7 @@ const stations = [
     english: "Ako",
     russian: "Акко ",
     arabic: "عكا",
+    image: require("../../assets/station-images/ako.jpeg"),
   },
   {
     id: "2300",
