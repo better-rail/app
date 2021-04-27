@@ -57,7 +57,7 @@ a {
 
 .app-name {
   margin-top: 0;
-  margin-bottom: -8px;
+  margin-bottom: -6px;
   font-family: -apple-system, Inter, Heebo, sans-serif;
   font-size: 36px;
   font-weight: 600;
@@ -69,7 +69,7 @@ a {
   font-family: Heebo, sans-serif;
   margin: 0;
   padding: 0 24px;
-  margin-bottom: 24px;
+  margin-bottom: 14px;
   font-size: 22px;
   font-weight: 100;
   line-height: 1.4;

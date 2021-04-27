@@ -14,78 +14,95 @@
       <div class="app-icon" width="95">
         <img src="/assets/images/icon.svg" alt="" width="50" height="60" class="app-icon-image" />
       </div>
-  
+
       <h1 class="app-name">Better Rail</h1>
-      <h2 class="app-subtitle">האלטרנטיבה לאפליקציית רכבת ישראל</h1>
+      <h2 class="app-subtitle">האלטרנטיבה לאפליקציית רכבת ישראל</h2>
 
-        <div class="download-app-section">
-          <img class="download-app-badge" src="/assets/images/app-store-badge.svg" alt="הורדה לאייפון" />
-          <img class="download-app-badge" width="150" src="/assets/images/google-play-badge.svg"  alt="הורדה לאנדרואיד" />
-        </div>
-    
-      </header>
-
+      <div class="download-app-section">
+        <img class="download-app-badge" src="/assets/images/app-store-badge.svg" alt="הורדה לאייפון" />
+        <img class="download-app-badge" width="150" src="/assets/images/google-play-badge.svg" alt="הורדה לאנדרואיד" />
+      </div>
+    </header>
 
     <main class="site-content">
       <div class="app-description">
-      <picture>
-        <source type="image/webp" srcset="/assets/images/app-screenshots.webp, /assets/images/app-screenshots@2x.webp 2x, /assets/images/app-screenshots@3x.webp"  media="(max-width: 767px)" />
-        <source srcset="/assets/images/app-screenshots.png 1x, /assets/images/app-screenshots@2x.png 2x, /assets/images/app-screenshots@3x.png 3x"  media="(max-width: 767px)" />
-        <source type="image/webp" srcset=" /assets/images/app-screenshots@3x.webp"  media="(max-width: 1023px)" />
-        <source srcset="/assets/images/app-screenshots@3x.png"  media="(max-width: 1023px)" />
-        <source type="image/webp" srcset="assets/images/iphone-screenshot.webp 1x, /assets/images/iphone-screenshot@2x.webp 2x" media="(min-width: 1024px)"  />
-        <source srcset="assets/images/iphone-screenshot.png 1x, /assets/images/iphone-screenshot@2x.png 2x" media="(min-width: 1024px)"  />
-        <img src="/assets/images/app-screenshots-large.png"  alt="" class="app-screenshot" />
-      </picture>
+        <picture>
+          <source
+            type="image/webp"
+            srcset="
+              /assets/images/app-screenshots.webp,
+              /assets/images/app-screenshots@2x.webp 2x,
+              /assets/images/app-screenshots@3x.webp
+            "
+            media="(max-width: 767px)"
+          />
+          <source
+            srcset="
+              /assets/images/app-screenshots.png    1x,
+              /assets/images/app-screenshots@2x.png 2x,
+              /assets/images/app-screenshots@3x.png 3x
+            "
+            media="(max-width: 767px)"
+          />
+          <source type="image/webp" srcset="/assets/images/app-screenshots@3x.webp" media="(max-width: 1023px)" />
+          <source srcset="/assets/images/app-screenshots@3x.png" media="(max-width: 1023px)" />
+          <source
+            type="image/webp"
+            srcset="assets/images/iphone-screenshot.webp 1x, /assets/images/iphone-screenshot@2x.webp 2x"
+            media="(min-width: 1024px)"
+          />
+          <source
+            srcset="assets/images/iphone-screenshot.png 1x, /assets/images/iphone-screenshot@2x.png 2x"
+            media="(min-width: 1024px)"
+          />
+          <img src="/assets/images/app-screenshots-large.png" alt="" class="app-screenshot" />
+        </picture>
 
+        <div class="features">
+          <div class="feature-box">
+            <img src="/assets/images/route-icon.svg" class="feature-box-icon" alt="" />
+            <h3 class="feature-box-title">נסיעה טובה</h3>
+            <h4 class="feature-box-details">עיצוב נקי ונגיש, לכל הגילאים</h4>
+          </div>
 
-  
-      <div class="features">
-        <div class="feature-box">
-          <img src="/assets/images/route-icon.svg" class="feature-box-icon" alt="">
-          <h3 class="feature-box-title">נסיעה טובה</h3>
-          <h4 class="feature-box-details">עיצוב נקי ונגיש, לכל הגילאים</h4>
-        </div>
+          <div class="feature-box">
+            <img src="/assets/images/running-icon.svg" class="feature-box-icon" alt="" />
+            <h3 class="feature-box-title">נסיעה מהירה</h3>
+            <h4 class="feature-box-details">חשבו מסלולי נסיעה מהר פי 2 מהאפליקצייה הרשמית</h4>
+          </div>
 
-        <div class="feature-box">
-          <img src="/assets/images/running-icon.svg" class="feature-box-icon" alt="">
-          <h3 class="feature-box-title">נסיעה מהירה</h3>
-          <h4 class="feature-box-details">חשבו מסלולי נסיעה מהר פי 2 מהאפליקצייה הרשמית</h4>
-        </div>
+          <div class="feature-box">
+            <img src="/assets/images/night-icon.svg" class="feature-box-icon" alt="" />
+            <h3 class="feature-box-title">נסיעה נעימה</h3>
+            <h4 class="feature-box-details">תמיכה ב- Dark Mode להרגעת העיניים בנסיעות הבוקר והלילה</h4>
+          </div>
 
-        <div class="feature-box">
-          <img src="/assets/images/night-icon.svg" class="feature-box-icon" alt="">
-          <h3 class="feature-box-title">נסיעה נעימה</h3>
-          <h4 class="feature-box-details">תמיכה ב- Dark Mode להרגעת העיניים 
-            בנסיעות הבוקר והלילה</h4>
-        </div>
-
-        <div class="feature-box">
-          <img src="/assets/images/open-source-icon.svg" class="feature-box-icon" alt="">
-          <h3 class="feature-box-title">נסיעה פתוחה</h3>
-          <h4 class="feature-box-details">כתוב בקוד פתוח וחשוף לציבור  </h4>
+          <div class="feature-box">
+            <img src="/assets/images/open-source-icon.svg" class="feature-box-icon" alt="" />
+            <h3 class="feature-box-title">נסיעה פתוחה</h3>
+            <h4 class="feature-box-details">כתוב בקוד פתוח וחשוף לציבור</h4>
+          </div>
         </div>
       </div>
-    </div>
+    </main>
 
-
-    
-    
-  </main>
-
-  <footer>
-    <div class="footer-social-links">
-      <a href="https://www.twitter.com/better_rail" target="_blank"><img src="/assets/icons/twitter.svg" width="35" alt="Twitter" /></a>
-      <a href="https://www.facebook.com/BetterRail" target="_blank"><img src="/assets/icons/facebook.svg" width="35" alt="Facebook" style="margin-right: 7.5px" /></a>
-  </div>
-    <div class="footer-links">
-      <a class="footer-links-item underline-hovered-link" href="/image-attributions">קרדיט צילומים</a>
-      <a class="footer-links-item underline-hovered-link" href="/privacy-policy">מדיניות פרטיות</a>
-      <a class="footer-links-item underline-hovered-link" href="mailto:feedback@better-rail.co.il">יצירת קשר</a>
-    </div>
-  </footer>
+    <footer>
+      <div class="footer-social-links">
+        <a href="https://www.twitter.com/better_rail" target="_blank"
+          ><img src="/assets/icons/twitter.svg" width="35" alt="Twitter"
+        /></a>
+        <a href="https://www.facebook.com/BetterRail" target="_blank"
+          ><img src="/assets/icons/facebook.svg" width="35" alt="Facebook" style="margin-right: 7.5px"
+        /></a>
+      </div>
+      <div class="footer-links">
+        <a class="footer-links-item underline-hovered-link" href="/image-attributions">קרדיט צילומים</a>
+        <a class="footer-links-item underline-hovered-link" href="/privacy-policy">מדיניות פרטיות</a>
+        <a class="footer-links-item underline-hovered-link" href="mailto:feedback@better-rail.co.il">יצירת קשר</a>
+      </div>
+    </footer>
 
     <script async defer src="https://sa.better-rail.co.il/latest.js"></script>
-    <noscript><img src="https://sa.better-rail.co.il/noscript.gif" alt=""/></noscript>
+    <noscript><img src="https://sa.better-rail.co.il/noscript.gif" alt="" /></noscript>
   </body>
 </html>
