@@ -1,5 +1,5 @@
 import React, { useMemo } from "react"
-import { View, Image, ViewStyle, ImageStyle, TextStyle, PixelRatio, Appearance, Dimensions } from "react-native"
+import { View, Image, ViewStyle, ImageStyle, TextStyle, PixelRatio, Dimensions } from "react-native"
 import { Text, ChangeDirectionButton } from "../../../components"
 import { color, spacing } from "../../../theme"
 import { intervalToDuration, formatDuration } from "date-fns"
@@ -8,14 +8,12 @@ import { he } from "date-fns/locale"
 const importantIcon = require("../../../../assets/important.png")
 const clockIcon = require("../../../../assets/clock.png")
 
-const colorScheme = Appearance.getColorScheme()
-
 const fontScale = PixelRatio.getFontScale()
 const { width: deviceWidth } = Dimensions.get("screen")
 
 // Hide the exchange icon when font scaling is on or if the viewport is too narrow,
 // since it might make the station name overflow
-const DISPLAY_EXCHANGE_ICON = fontScale < 1.1 || deviceWidth < 360
+const DISPLAY_EXCHANGE_ICON = fontScale < 1.1 && deviceWidth >= 360
 
 const ROUTE_EXCHANGE_WRAPPER: ViewStyle = {
   width: "100%",
@@ -28,9 +26,10 @@ const ROUTE_EXCHANGE_WRAPPER: ViewStyle = {
 }
 
 const ROUTE_EXCHANGE_ICON: ViewStyle = {
+  marginEnd: spacing[4],
   transform: [{ rotate: "90deg" }, { scale: 0.95 }],
   shadowOpacity: 0,
-  marginEnd: spacing[4],
+  elevation: 0,
 }
 
 const ROUTE_EXCHANGE_INFO_WRAPPER: ViewStyle = {
@@ -57,7 +56,7 @@ const ROUTE_EXCHANGE_INFO_ICON: ImageStyle = {
   width: 25,
   height: 25,
   marginEnd: 5,
-  opacity: colorScheme === "dark" ? 1 : 1,
+  opacity: 1,
 }
 
 type RouteExchangeProps = {
@@ -97,7 +96,7 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
             <Image style={ROUTE_EXCHANGE_INFO_ICON} source={importantIcon} />
             <Text style={ROUTE_EXCHANGE_INFO_TEXT}>{platformDetailText}</Text>
           </View>
-          <View style={[ROUTE_EXCHANGE_INFO_DETAIL_WRAPPER, { marginBottom: fontScale > 1 && spacing[3] }]}>
+          <View style={[ROUTE_EXCHANGE_INFO_DETAIL_WRAPPER, { marginBottom: fontScale > 1 ? spacing[3] : 0 }]}>
             <Image style={ROUTE_EXCHANGE_INFO_ICON} source={clockIcon} />
             <Text style={ROUTE_EXCHANGE_INFO_TEXT}>זמן המתנה כ- {exchangeDuration}</Text>
           </View>
