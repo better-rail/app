@@ -17,7 +17,6 @@ export const SettingsNavigator = () => (
       stackPresentation: "modal",
       headerTintColor: color.primary,
       headerStatusBarHeight: Platform.select({ ios: 10, android: 5 }),
-      headerTitleStyle: { fontSize: 20, fontFamily: typography.primary, fontWeight: "400", marginRight: 10, marginBottom: 10 },
       headerBackTitleStyle: { fontFamily: typography.primary },
     }}
   >
@@ -26,6 +25,10 @@ export const SettingsNavigator = () => (
       component={SettingsScreen}
       options={({ navigation }) => ({
         title: "הגדרות",
+        headerTitleStyle: Platform.select({
+          ios: { fontSize: 20, fontFamily: typography.primary, fontWeight: "400", marginRight: 10, marginBottom: 10 },
+          android: { marginLeft: -18.5, marginBottom: 10 },
+        }),
         headerLeft: () => <CloseIcon onPress={() => navigation.goBack()} />,
       })}
     />

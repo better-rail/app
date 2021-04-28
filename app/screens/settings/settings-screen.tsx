@@ -35,18 +35,20 @@ const storeLink = Platform.select({ ios: "https://apps.apple.com/app/better-rail
 export const SettingsScreen = observer(function SettingsScreen() {
   return (
     <Screen style={ROOT} preset="scroll" unsafe={true}>
-      <View style={SETTING_GROUP}>
-        <SettingBox
-          first
-          last={Platform.select({ ios: false, android: true })}
-          title="שתפו את Better Rail"
-          icon="🕺"
-          onPress={() =>
-            Share.share({ message: "Better Rail - האלטרנטיבה לאפליקציית רכבת ישראל", url: "https://better-rail.co.il" })
-          }
-        />
-        {Platform.OS === "ios" && <SettingBox title="דרגו ב- App Store" icon="⭐️" onPress={() => Linking.openURL(storeLink)} />}
-      </View>
+      {Platform.OS === "ios" && (
+        <View style={SETTING_GROUP}>
+          <SettingBox
+            first
+            last={Platform.select({ ios: false, android: true })}
+            title="שתפו את Better Rail"
+            icon="🕺"
+            onPress={() =>
+              Share.share({ message: "Better Rail - האלטרנטיבה לאפליקציית רכבת ישראל", url: "https://better-rail.co.il" })
+            }
+          />
+          <SettingBox title="דרגו ב- App Store" icon="⭐️" onPress={() => Linking.openURL(storeLink)} />
+        </View>
+      )}
 
       <View style={SETTING_GROUP}>
         <SettingBox
