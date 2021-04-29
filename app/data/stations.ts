@@ -510,13 +510,13 @@ const stations = [
   },
 ]
 
-let USER_LANGUAGE = "english"
+export let STATION_LOCALE = "english"
 
-if (userLocale.startsWith("he")) USER_LANGUAGE = "hebrew"
-else if (userLocale.startsWith("ar")) USER_LANGUAGE = "arabic"
+if (userLocale.startsWith("he")) STATION_LOCALE = "hebrew"
+else if (userLocale.startsWith("ar")) STATION_LOCALE = "arabic"
 
 const normalizeStationNames = stations
-  .map((station) => ({ id: station.id, name: station[USER_LANGUAGE], image: station.image }))
+  .map((station) => ({ id: station.id, name: station[STATION_LOCALE], image: station.image }))
   .sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase())
 export default normalizeStationNames
 

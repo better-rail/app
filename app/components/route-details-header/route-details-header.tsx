@@ -3,7 +3,7 @@ import { Image, ImageBackground, View, ViewStyle, TextStyle, ImageStyle, Appeara
 import LinearGradient from "react-native-linear-gradient"
 import { color, spacing } from "../../theme"
 import { Text } from "../"
-import { stationsObject } from "../../data/stations"
+import { stationsObject, STATION_LOCALE } from "../../data/stations"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
 
@@ -88,8 +88,8 @@ export interface RouteDetailsHeaderProps {
 export const RouteDetailsHeader = React.memo(function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const { originId, destinationId, style } = props
 
-  const originName = stationsObject[originId].hebrew
-  const destinationName = stationsObject[destinationId].hebrew
+  const originName = stationsObject[originId][STATION_LOCALE]
+  const destinationName = stationsObject[destinationId][STATION_LOCALE]
 
   return (
     <View>
