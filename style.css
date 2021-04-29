@@ -130,6 +130,41 @@ a {
   margin-left: 10px;
 }
 
+footer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 90px;
+}
+
+.footer-social-links {
+  display: flex;
+  margin-bottom: 14px;
+}
+
+.footer-links {
+  text-align: center;
+}
+
+.footer-links-item {
+  font-size: 17px;
+  opacity: 0.8;
+  transition: opacity 0.25s;
+}
+
+.footer-links-item:not(:last-of-type) {
+  margin-inline-end: 12px;
+}
+
+.footer-links-item:hover {
+  opacity: 1;
+}
+
+.footer-links-item:hover:after {
+  background-color: DodgerBlue;
+}
+
 @media (min-width: 410px) {
   .download-app-badge {
     width: 175px;
@@ -159,6 +194,10 @@ a {
   .download-app-section {
     flex-direction: row-reverse;
     gap: 16px;
+  }
+
+  footer {
+    margin-top: unset;
   }
 }
 
@@ -191,39 +230,6 @@ a {
     padding: unset;
     padding-inline-start: 16px;
   }
-}
-
-footer {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.footer-social-links {
-  display: flex;
-}
-
-.footer-links {
-  text-align: center;
-}
-
-.footer-links-item {
-  font-size: 17px;
-  opacity: 0.8;
-  transition: opacity 0.25s;
-}
-
-.footer-links-item:not(:last-of-type) {
-  margin-inline-end: 12px;
-}
-
-.footer-links-item:hover {
-  opacity: 1;
-}
-
-.footer-links-item:hover:after {
-  background-color: DodgerBlue;
 }
 
 /* #region link hover styles */
