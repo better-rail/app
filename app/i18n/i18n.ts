@@ -10,6 +10,7 @@ i18n.translations = { he, en }
 i18n.locale = "en"
 // i18n.locale = Localization.locale || "en"
 
+export const userLocale = "en"
 /**
  * Builds up valid keypaths for translations.
  * Update to your default locale of choice if not English.
