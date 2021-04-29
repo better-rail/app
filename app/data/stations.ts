@@ -126,7 +126,7 @@ const stations = [
   {
     id: "6500",
     hebrew: "ירושלים - גן החיות התנכי",
-    english: "Jerussianalem-Biblical Zoo",
+    english: "Jerusalem - Biblical Zoo",
     russian: "Иерусалим – зоопарк",
     arabic: "القدس - حديقة الحيوان التوراتية",
   },
@@ -290,7 +290,7 @@ const stations = [
   {
     id: "6700",
     hebrew: "ירושלים - מלחה",
-    english: "Jerussianalem-Malha",
+    english: "Jerusalem - Malha",
     russian: "Иерусалим - Малха",
     arabic: "القدس - المالحه",
     image: require("../../assets/malha.jpg"),
@@ -495,7 +495,7 @@ const stations = [
   {
     id: "680",
     hebrew: "ירושלים - יצחק נבון",
-    english: "Jerussianalem - Yitzhak Navon",
+    english: "Jerusalem - Yitzhak Navon",
     russian: "Иерусалим - Ицхак Навон",
     arabic: "أورشليم – يتسحاق ناڤون",
     image: require("../../assets/station-images/jerusalem-itzhak-navon.jpg"),
@@ -517,7 +517,7 @@ else if (userLocale.startsWith("ar")) USER_LANGUAGE = "arabic"
 
 const normalizeStationNames = stations
   .map((station) => ({ id: station.id, name: station[USER_LANGUAGE], image: station.image }))
-  .sort((a, b) => a.name > b.name)
+  .sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase())
 export default normalizeStationNames
 
 type StationsObjectType = {
