@@ -156,9 +156,9 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           </TouchableOpacity>
         </View>
 
-        <Text preset="header" text="תכנון מסלול" style={{ marginBottom: 6 }} />
+        <Text preset="header" tx="plan.title" style={{ marginBottom: 6 }} />
 
-        <Text preset="fieldLabel" text="תחנת מוצא" style={{ marginBottom: spacing[1] }} />
+        <Text preset="fieldLabel" tx="plan.origin" text="תחנת מוצא" style={{ marginBottom: spacing[1] }} />
         <Animated.View style={{ transform: [{ scale: stationCardScale }] }}>
           <StationCard
             name={originData?.name}
@@ -172,7 +172,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           <ChangeDirectionButton onPress={onSwitchPress} />
         </View>
 
-        <Text preset="fieldLabel" text="תחנת יעד" style={{ marginBottom: spacing[1] }} />
+        <Text preset="fieldLabel" tx="plan.destination" style={{ marginBottom: spacing[1] }} />
         <Animated.View style={{ transform: [{ scale: stationCardScale }] }}>
           <StationCard
             name={destinationData?.name}
