@@ -1,6 +1,6 @@
 import * as Localization from "expo-localization"
 import i18n from "i18n-js"
-import { I18nManager } from "react-native"
+import { he as heIL, enUS } from "date-fns/locale"
 import en from "./en.json"
 import he from "./he.json"
 
@@ -11,6 +11,15 @@ i18n.locale = "en"
 // i18n.locale = Localization.locale || "en"
 
 export const userLocale = "en"
+
+export let dateFnsLocalization = enUS
+export let dateDelimiter = " "
+
+if (userLocale === "he") {
+  dateFnsLocalization = heIL
+  dateDelimiter = " ו- "
+}
+
 /**
  * Builds up valid keypaths for translations.
  * Update to your default locale of choice if not English.

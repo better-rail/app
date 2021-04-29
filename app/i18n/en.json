@@ -1,4 +1,7 @@
 {
+  "common": {
+    "cancel": "Cancel"
+  },
   "plan": {
     "title": "Route Plan",
     "origin": "Origin",
@@ -7,6 +10,16 @@
     "arrivalTime": "Arrival Time",
     "now": "Now",
     "find": "Find Routes"
+  },
+  "selectStation": {
+    "placeholder": "Search Stations"
+  },
+  "routes": {
+    "departure": "Departure",
+    "arrival": "Arrival",
+    "noExchange": "No Exchanges",
+    "oneExchange": "1 Exchange",
+    "exchanges": "Exchanges"
   },
 
   "storybook": {

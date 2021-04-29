@@ -5,7 +5,7 @@ import { Svg, Line } from "react-native-svg"
 import { color, spacing, typography } from "../../theme"
 import { Text } from "../"
 import { format, intervalToDuration, formatDuration } from "date-fns"
-import { he } from "date-fns/locale"
+import { dateDelimiter, dateLocalization, translate } from "../../i18n"
 
 // #region styles
 
@@ -77,7 +77,7 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
     const [hours, minutes] = estTimeParts.map((value) => parseInt(value)) // Grab the hour & minutes values
     const durationInMilliseconds = (hours * 60 * 60 + minutes * 60) * 1000 //  Convert to milliseconds
     const durationObject = intervalToDuration({ start: 0, end: durationInMilliseconds }) // Create a date-fns duration object
-    const formattedDuration = formatDuration(durationObject, { delimiter: " ו- ", locale: he }) // Format the duration
+    const formattedDuration = formatDuration(durationObject, { delimiter: dateDelimiter, locale: dateLocalization }) // Format the duration
 
     if (formattedDuration.length > 7) dashedLineWidth = 0
 
@@ -85,9 +85,9 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
   }, [estTime])
 
   const stopsText = useMemo(() => {
-    if (stops === 0) return "ללא החלפות"
-    if (stops === 1) return "החלפה אחת"
-    return `${stops} החלפות`
+    if (stops === 0) return translate("routes.noExchange")
+    if (stops === 1) return translate("routes.oneExchange")
+    return `${stops} ${translate("routes.exchanges")}`
   }, [stops])
 
   return (

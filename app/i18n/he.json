@@ -1,4 +1,7 @@
 {
+  "common": {
+    "cancel": "ביטול"
+  },
   "plan": {
     "title": "תכנון מסלול",
     "origin": "תחנת מוצא",
@@ -10,8 +13,14 @@
     "switchStations": "החלפת תחנות",
     "switchStationsHint": "קיצור דרך להחלפת תחנת המוצא עם תחנת היעד"
   },
+  "selectStation": {
+    "placeholder": "חיפוש  תחנה"
+  },
   "routes": {
     "departure": "יציאה",
-    "arrival": "הגעה"
+    "arrival": "הגעה",
+    "noExchange": "ללא החלפות",
+    "oneExchange": "החלפה אחת",
+    "exchanges": "החלפות"
   }
 }
