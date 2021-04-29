@@ -22,5 +22,10 @@
     "noExchange": "ללא החלפות",
     "oneExchange": "החלפה אחת",
     "exchanges": "החלפות"
+  },
+  "routeDetails": {
+    "platform": "רציף",
+    "trainNo": "רכבת מס'",
+    "exchange": "החלפה  ב"
   }
 }

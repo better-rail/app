@@ -21,9 +21,9 @@
     "oneExchange": "1 Exchange",
     "exchanges": "Exchanges"
   },
-
-  "storybook": {
-    "placeholder": "Placeholder",
-    "field": "Field"
+  "routeDetails": {
+    "platform": "Platform",
+    "trainNo": "Train No.",
+    "exchangeAt": "Exchange at"
   }
 }

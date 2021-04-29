@@ -1,3 +1,4 @@
+import { I18nManager } from "react-native"
 import * as Localization from "expo-localization"
 import i18n from "i18n-js"
 import { he as heIL, enUS } from "date-fns/locale"
@@ -19,6 +20,8 @@ if (userLocale === "he") {
   dateFnsLocalization = heIL
   dateDelimiter = " ו- "
 }
+
+export const isRTL = I18nManager.isRTL
 
 /**
  * Builds up valid keypaths for translations.

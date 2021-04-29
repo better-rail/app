@@ -4,6 +4,7 @@ import LinearGradient from "react-native-linear-gradient"
 import { color, spacing } from "../../theme"
 import { Text } from "../"
 import { stationsObject, STATION_LOCALE } from "../../data/stations"
+import { isRTL } from "../../i18n"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
 
@@ -11,7 +12,7 @@ const colorScheme = Appearance.getColorScheme()
 // #region styles
 
 const ROUTE_DETAILS_WRAPPER: ViewStyle = {
-  flexDirection: "row",
+  flexDirection: isRTL ? "row" : "row-reverse",
   justifyContent: "center",
   alignItems: "center",
 }
@@ -54,6 +55,7 @@ const ARROW_ICON: ImageStyle = {
   width: 15,
   height: 15,
   tintColor: color.whiteText,
+  transform: isRTL ? undefined : [{ rotate: "180deg" }],
 }
 
 const GARDIENT: ViewStyle = {
@@ -99,7 +101,7 @@ export const RouteDetailsHeader = React.memo(function RouteDetailsHeader(props: 
 
       <View style={{ top: -20, marginBottom: -30, zIndex: 5 }}>
         <View style={[ROUTE_DETAILS_WRAPPER, style]}>
-          <View style={[ROUTE_DETAILS_STATION, { marginRight: spacing[5] }]}>
+          <View style={[ROUTE_DETAILS_STATION, { marginStart: spacing[5] }]}>
             <Text style={ROUTE_DETAILS_STATION_TEXT} maxFontSizeMultiplier={1.1}>
               {originName}
             </Text>
