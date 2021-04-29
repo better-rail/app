@@ -19,8 +19,10 @@
       <h2 class="app-subtitle">האלטרנטיבה לאפליקציית רכבת ישראל</h2>
 
       <div class="download-app-section">
-        <img class="download-app-badge" src="/assets/images/app-store-badge.svg" alt="הורדה לאייפון" />
-        <img class="download-app-badge" width="150" src="/assets/images/google-play-badge.svg" alt="הורדה לאנדרואיד" />
+        <a href="https://apps.apple.com/app/better-rail/id1562982976" target="_blank" id="ios-badge"
+          ><img class="download-app-badge" src="/assets/images/app-store-badge.svg" alt="הורדה לאייפון"
+        /></a>
+        <!-- <img class="download-app-badge" width="150" src="/assets/images/google-play-badge.svg" alt="הורדה לאנדרואיד" /> -->
       </div>
     </header>
 
@@ -62,25 +64,25 @@
           <div class="feature-box">
             <img src="/assets/images/route-icon.svg" class="feature-box-icon" alt="" />
             <h3 class="feature-box-title">נסיעה טובה</h3>
-            <h4 class="feature-box-details">עיצוב נקי ונגיש, לכל הגילאים</h4>
+            <h4 class="feature-box-details">עיצוב נקי, פשוט ונגיש</h4>
           </div>
 
           <div class="feature-box">
             <img src="/assets/images/running-icon.svg" class="feature-box-icon" alt="" />
             <h3 class="feature-box-title">נסיעה מהירה</h3>
-            <h4 class="feature-box-details">חשבו מסלולי נסיעה מהר פי 2 מהאפליקצייה הרשמית</h4>
+            <h4 class="feature-box-details">חישוב זמני רכבת מהר עד פי 2 מהאפליקצייה הרשמית</h4>
           </div>
 
           <div class="feature-box">
             <img src="/assets/images/night-icon.svg" class="feature-box-icon" alt="" />
             <h3 class="feature-box-title">נסיעה נעימה</h3>
-            <h4 class="feature-box-details">תמיכה ב- Dark Mode להרגעת העיניים בנסיעות הבוקר והלילה</h4>
+            <h4 class="feature-box-details">תמיכה ב- Dark Mode לנסיעות המאוחרות</h4>
           </div>
 
           <div class="feature-box">
-            <img src="/assets/images/open-source-icon.svg" class="feature-box-icon" alt="" />
-            <h3 class="feature-box-title">נסיעה פתוחה</h3>
-            <h4 class="feature-box-details">כתוב בקוד פתוח וחשוף לציבור</h4>
+            <img src="/assets/images/eye-icon.svg" class="feature-box-icon" alt="" />
+            <h3 class="feature-box-title">נסיעה בטוחה</h3>
+            <h4 class="feature-box-details">נכתב בקוד פתוח, ללא תוכנות מעקב - ולגמרי בחינם</h4>
           </div>
         </div>
       </div>
@@ -92,7 +94,7 @@
           ><img src="/assets/icons/twitter.svg" width="35" alt="Twitter"
         /></a>
         <a href="https://www.facebook.com/BetterRail" target="_blank"
-          ><img src="/assets/icons/facebook.svg" width="35" alt="Facebook" style="margin-right: 7.5px"
+          ><img src="/assets/icons/facebook.svg" width="35" alt="Facebook" style="margin-right: 10px"
         /></a>
       </div>
       <div class="footer-links">
@@ -104,5 +106,10 @@
 
     <script async defer src="https://sa.better-rail.co.il/latest.js"></script>
     <noscript><img src="https://sa.better-rail.co.il/noscript.gif" alt="" /></noscript>
+    <script>
+      document.getElementById("ios-badge").addEventListener("click", () => {
+        sa_event("app_store_click");
+      });
+    </script>
   </body>
 </html>
