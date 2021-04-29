@@ -3,6 +3,7 @@ import { TextStyle, View, ViewStyle, Dimensions, PixelRatio } from "react-native
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import { Svg, Line } from "react-native-svg"
 import { color, spacing, typography } from "../../theme"
+import { primaryFontIOS } from "../../theme/typography"
 import { Text } from "../"
 import { format, intervalToDuration, formatDuration } from "date-fns"
 import { dateDelimiter, dateLocalization, translate } from "../../i18n"
@@ -32,8 +33,8 @@ const CONTAINER: ViewStyle = {
   elevation: 1,
 }
 
-const TEXT: TextStyle = {
-  marginBottom: -2,
+const TIME_TYPE_TEXT: TextStyle = {
+  marginBottom: primaryFontIOS === "System" ? 1 : -2,
   fontFamily: typography.primary,
   fontSize: 14,
   fontWeight: "500",
@@ -93,7 +94,7 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
   return (
     <TouchableScale onPress={onPress} activeScale={bounceable ? 0.95 : 1} friction={9} style={[CONTAINER, style]}>
       <View style={{ marginEnd: 6 }}>
-        <Text style={TEXT} tx="routes.departure" />
+        <Text style={TIME_TYPE_TEXT} tx="routes.departure" />
         <Text style={TIME_TEXT}>{formattedDepatureTime}</Text>
       </View>
 
@@ -109,7 +110,7 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
       <DashedLine />
 
       <View style={{ alignItems: "flex-end", marginStart: 12 }}>
-        <Text style={TEXT} tx="routes.arrival" />
+        <Text style={TIME_TYPE_TEXT} tx="routes.arrival" />
         <Text style={TIME_TEXT}>{formattedArrivalTime}</Text>
       </View>
     </TouchableScale>

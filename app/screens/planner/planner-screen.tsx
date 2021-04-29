@@ -4,7 +4,7 @@ import { Image, View, TouchableOpacity, Animated, PixelRatio, ViewStyle, ImageSt
 import DateTimePickerModal from "react-native-modal-datetime-picker"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
 import { useStores } from "../../models"
-import { color, primaryFontFamilyIOS, spacing } from "../../theme"
+import { color, primaryFontIOS, spacing } from "../../theme"
 import { PlannerScreenProps } from "../../navigators/main-navigator"
 import stations from "../../data/stations"
 import { formatRelative, differenceInMinutes } from "date-fns"
@@ -45,7 +45,7 @@ const SETTINGS_ICON: ImageStyle = {
 }
 
 const HEADER_TITLE: TextStyle = {
-  marginBottom: primaryFontFamilyIOS === "System" ? 12 : 6,
+  marginBottom: primaryFontIOS === "System" ? 12 : 6,
 }
 
 const CHANGE_DIRECTION_WRAPPER: ViewStyle = {
