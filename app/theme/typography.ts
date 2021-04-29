@@ -1,9 +1,9 @@
 import { Platform } from "react-native"
 import { userLocale } from "../i18n"
 
-let primaryFontFamilyIOS = "Heebo"
+export let primaryFontFamilyIOS = "Heebo"
 
-if (userLocale === "en") primaryFontFamilyIOS = "System"
+if (userLocale === "en" && Platform.OS === "ios") primaryFontFamilyIOS = "System"
 
 /**
  * You can find a list of available fonts on both iOS and Android here:

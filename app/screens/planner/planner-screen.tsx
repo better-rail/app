@@ -4,7 +4,7 @@ import { Image, View, TouchableOpacity, Animated, PixelRatio, ViewStyle, ImageSt
 import DateTimePickerModal from "react-native-modal-datetime-picker"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
 import { useStores } from "../../models"
-import { color, spacing } from "../../theme"
+import { color, primaryFontFamilyIOS, spacing } from "../../theme"
 import { PlannerScreenProps } from "../../navigators/main-navigator"
 import stations from "../../data/stations"
 import { formatRelative, differenceInMinutes } from "date-fns"
@@ -42,6 +42,10 @@ const SETTINGS_ICON: ImageStyle = {
   marginStart: spacing[3],
   tintColor: color.primary,
   opacity: 0.7,
+}
+
+const HEADER_TITLE: TextStyle = {
+  marginBottom: primaryFontFamilyIOS === "System" ? 12 : 6,
 }
 
 const CHANGE_DIRECTION_WRAPPER: ViewStyle = {
@@ -157,7 +161,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           </TouchableOpacity>
         </View>
 
-        <Text preset="header" tx="plan.title" style={{ marginBottom: 6 }} />
+        <Text preset="header" tx="plan.title" style={HEADER_TITLE} />
 
         <Text preset="fieldLabel" tx="plan.origin" text="תחנת מוצא" style={{ marginBottom: spacing[1] }} />
         <Animated.View style={{ transform: [{ scale: stationCardScale }] }}>
