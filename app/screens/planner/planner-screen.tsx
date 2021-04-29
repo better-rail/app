@@ -10,6 +10,7 @@ import stations from "../../data/stations"
 import { formatRelative, differenceInMinutes } from "date-fns"
 import HapticFeedback from "react-native-haptic-feedback"
 import { he } from "date-fns/locale"
+import { translate } from "../../i18n"
 
 const now = new Date()
 const fontScale = PixelRatio.getFontScale()
@@ -90,7 +91,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
 
   const formattedDate = React.useMemo(() => {
     if (routePlan.date) {
-      if (differenceInMinutes(routePlan.date, now) === 0) return "עכשיו"
+      if (differenceInMinutes(routePlan.date, now) === 0) return translate("plan.now")
       return formatRelative(routePlan.date, now, { locale: he })
     }
   }, [routePlan.date])
@@ -195,13 +196,13 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
         </TouchableOpacity>
 
         <DummyInput
-          placeholder="עכשיו"
+          placeholder={translate("plan.now")}
           value={formattedDate}
           style={{ marginBottom: spacing[5] }}
           onPress={() => setDatePickerVisibility(true)}
         />
         <Button
-          title="חישוב מסלול"
+          title={translate("plan.find")}
           onPress={onGetRoutePress}
           disabled={!routePlan.origin || !routePlan.destination || routePlan.origin.id === routePlan.destination.id}
         />

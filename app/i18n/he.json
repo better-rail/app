@@ -3,9 +3,15 @@
     "title": "תכנון מסלול",
     "origin": "תחנת מוצא",
     "destination": "תחנת יעד",
-    "date": "זמן יציאה",
+    "departureTime": "זמן יציאה",
+    "arrivalTime": "זמן יציאה",
+    "now": "עכשיו",
     "find": "חישוב מסלול",
     "switchStations": "החלפת תחנות",
     "switchStationsHint": "קיצור דרך להחלפת תחנת המוצא עם תחנת היעד"
+  },
+  "routes": {
+    "departure": "יציאה",
+    "arrival": "הגעה"
   }
 }

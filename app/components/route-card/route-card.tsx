@@ -93,7 +93,7 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
   return (
     <TouchableScale onPress={onPress} activeScale={bounceable ? 0.95 : 1} friction={9} style={[CONTAINER, style]}>
       <View style={{ marginEnd: 6 }}>
-        <Text style={TEXT}>יציאה</Text>
+        <Text style={TEXT} tx="routes.departure" />
         <Text style={TIME_TEXT}>{formattedDepatureTime}</Text>
       </View>
 
@@ -109,7 +109,7 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
       <DashedLine />
 
       <View style={{ alignItems: "flex-end", marginStart: 12 }}>
-        <Text style={TEXT}>הגעה</Text>
+        <Text style={TEXT} tx="routes.arrival" />
         <Text style={TIME_TEXT}>{formattedArrivalTime}</Text>
       </View>
     </TouchableScale>
