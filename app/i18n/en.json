@@ -24,6 +24,9 @@
   "routeDetails": {
     "platform": "Platform",
     "trainNo": "Train No.",
-    "exchangeAt": "Exchange at"
+    "exchangeAt": "Exchange at",
+    "platformStay": "Stay at",
+    "platformExchange": "Change to Platform",
+    "waitingTime": "Wait around"
   }
 }

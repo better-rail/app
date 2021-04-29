@@ -1,6 +1,7 @@
 import React from "react"
 import { View, ViewStyle, Image, ImageStyle, TextStyle } from "react-native"
 import { Text } from "../../../components"
+import { translate } from "../../../i18n"
 import { color, spacing } from "../../../theme"
 
 const railwayStationIcon = require("../../../../assets/railway-station.png")
@@ -71,7 +72,7 @@ export const RouteStationCard = ({ stationName, stopTime, platform, trainNumber,
     <View style={ROUTE_STATION_DETAILS}>
       <Text style={ROUTE_STATION_NAME}>{stationName}</Text>
       <Text style={ROUTE_STATION_DETAILS_TEXT}>
-        רציף {platform} {trainNumber && `· רכבת מס' ${trainNumber}`}
+        {translate("routeDetails.platform")} {platform} {trainNumber && `· ${translate("routeDetails.trainNo")} ${trainNumber}`}
       </Text>
     </View>
   </View>

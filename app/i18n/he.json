@@ -26,6 +26,9 @@
   "routeDetails": {
     "platform": "רציף",
     "trainNo": "רכבת מס'",
-    "exchange": "החלפה  ב"
+    "exchangeAt": "החלפה  ב",
+    "platformStay": "יש להשאר ברציף",
+    "platformExchange": "יש לעבור לרציף",
+    "waitingTime": "זמן המתנה כ-"
   }
 }
