@@ -28,5 +28,13 @@
     "platformStay": "Stay at",
     "platformExchange": "Change to Platform",
     "waitingTime": "Wait around"
+  },
+  "settings": {
+    "title": "Settings",
+    "share": "Share Better Rail",
+    "rate": "דרגו ב- App Store",
+    "imageAttribution": "קרדיט תמונות",
+    "privacyPolicy": "מדיניות פרטיות",
+    "feedback": "שליחת פידבק"
   }
 }

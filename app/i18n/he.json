@@ -30,5 +30,13 @@
     "platformStay": "יש להשאר ברציף",
     "platformExchange": "יש לעבור לרציף",
     "waitingTime": "זמן המתנה כ-"
+  },
+  "settings": {
+    "title": "הגדרות",
+    "share": "שתפו את Better Rail",
+    "rate": "דרגו ב- App Store",
+    "imageAttribution": "קרדיט תמונות",
+    "privacyPolicy": "מדיניות פרטיות",
+    "feedback": "שליחת פידבק"
   }
 }

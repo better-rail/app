@@ -3,6 +3,7 @@ import { TouchableOpacity, Image, Platform } from "react-native"
 import { createStackNavigator } from "@react-navigation/stack"
 import { SettingsScreen } from "../../screens"
 import { color, typography } from "../../theme"
+import { translate } from "../../i18n"
 
 export type SettingsParamList = {
   main: undefined
@@ -17,14 +18,13 @@ export const SettingsNavigator = () => (
       stackPresentation: "modal",
       headerTintColor: color.primary,
       headerStatusBarHeight: Platform.select({ ios: 10, android: 5 }),
-      headerBackTitleStyle: { fontFamily: typography.primary },
     }}
   >
     <SettingsStack.Screen
       name="main"
       component={SettingsScreen}
       options={({ navigation }) => ({
-        title: "הגדרות",
+        title: translate("settings.title"),
         headerTitleStyle: Platform.select({
           ios: { fontSize: 20, fontFamily: typography.primary, fontWeight: "400", marginRight: 10, marginBottom: 10 },
           android: { marginLeft: -18.5, marginBottom: 10 },
