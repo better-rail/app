@@ -22,7 +22,7 @@ if (userLocale === "he") {
 }
 
 export const isRTL = I18nManager.isRTL
-
+export const dateLocale = Localization.locale
 /**
  * Builds up valid keypaths for translations.
  * Update to your default locale of choice if not English.

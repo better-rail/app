@@ -9,8 +9,7 @@ import { PlannerScreenProps } from "../../navigators/main-navigator"
 import stations from "../../data/stations"
 import { formatRelative, differenceInMinutes } from "date-fns"
 import HapticFeedback from "react-native-haptic-feedback"
-import { he } from "date-fns/locale"
-import { translate } from "../../i18n"
+import { dateFnsLocalization, dateLocale, translate } from "../../i18n"
 
 const now = new Date()
 const fontScale = PixelRatio.getFontScale()
@@ -96,7 +95,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   const formattedDate = React.useMemo(() => {
     if (routePlan.date) {
       if (differenceInMinutes(routePlan.date, now) === 0) return translate("plan.now")
-      return formatRelative(routePlan.date, now, { locale: he })
+      return formatRelative(routePlan.date, now, { locale: dateFnsLocalization })
     }
   }, [routePlan.date])
 
@@ -217,7 +216,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           onChange={onDateChange}
           onConfirm={handleConfirm}
           onCancel={() => setDatePickerVisibility(false)}
-          locale={"he_IL"}
+          locale={dateLocale}
           minimumDate={now}
           minuteInterval={15}
           customHeaderIOS={() => null}
