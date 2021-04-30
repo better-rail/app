@@ -1,0 +1,49 @@
+{
+  "common": {
+    "cancel": "ביטול",
+    "ok": "אישור"
+  },
+  "plan": {
+    "title": "תכנון מסלול",
+    "origin": "תחנת מוצא",
+    "destination": "תחנת יעד",
+    "selectStation": "בחירת תחנה",
+    "departureTime": "זמן יציאה",
+    "arrivalTime": "זמן יציאה",
+    "now": "עכשיו",
+    "find": "חישוב מסלול",
+    "switchStations": "החלפת תחנות",
+    "switchStationsHint": "קיצור דרך להחלפת תחנת המוצא עם תחנת היעד"
+  },
+  "selectStation": {
+    "placeholder": "חיפוש  תחנה"
+  },
+  "routes": {
+    "departure": "יציאה",
+    "arrival": "הגעה",
+    "noExchange": "ללא החלפות",
+    "oneExchange": "החלפה אחת",
+    "exchanges": "החלפות"
+  },
+  "routeDetails": {
+    "platform": "רציף",
+    "trainNo": "רכבת מס'",
+    "exchangeAt": "החלפה  ב",
+    "platformStay": "יש להשאר ברציף",
+    "platformExchange": "יש לעבור לרציף",
+    "waitingTime": "זמן המתנה כ-"
+  },
+  "settings": {
+    "title": "הגדרות",
+    "language": "שפה",
+    "share": "שתפו את Better Rail",
+    "rate": "דרגו ב- App Store",
+    "imageAttribution": "קרדיט תמונות",
+    "privacyPolicy": "מדיניות פרטיות",
+    "feedback": "שליחת פידבק"
+  },
+  "modals": {
+    "noTrainsFound": "לא נמצאו רכבות לתאריך המבוקש",
+    "foundTrainsAt": "קיימות רכבות החל מ"
+  }
+}

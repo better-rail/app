@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { FlatList, LayoutAnimation, View, TextInput, TextStyle, ViewStyle, Pressable } from "react-native"
+import { FlatList, LayoutAnimation, View, TextInput, TextStyle, ViewStyle, Pressable, I18nManager } from "react-native"
 import { Screen, Text, StationCard } from "../../components"
 import { useStores } from "../../models"
 import { SelectStationScreenProps } from "../../navigators/main-navigator"
 import { color, spacing, typography } from "../../theme"
 import stations from "../../data/stations"
+import { translate } from "../../i18n"
 
 // #region styles
 const ROOT: ViewStyle = {
@@ -25,7 +26,7 @@ const SEARCH_BAR: TextStyle = {
   flex: 1,
   padding: spacing[3],
 
-  textAlign: "right",
+  textAlign: I18nManager.isRTL ? "right" : "left",
   fontFamily: typography.primary,
   borderRadius: 8,
   color: color.text,
@@ -50,7 +51,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
 
   const filteredStations = useMemo(() => {
     if (searchTerm === "") return []
-    return stations.filter((item) => item.name.indexOf(searchTerm) > -1)
+    return stations.filter((item) => item.name.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1)
   }, [searchTerm])
 
   const renderItem = (station) => (
@@ -76,7 +77,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
       <View style={SEARCH_BAR_WRAPPER}>
         <TextInput
           style={SEARCH_BAR}
-          placeholder="חיפוש תחנה"
+          placeholder={translate("selectStation.placeholder")}
           placeholderTextColor={color.dim}
           onChangeText={(text) => {
             LayoutAnimation.configureNext({
@@ -97,7 +98,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
           autoFocus={true}
         />
         <Pressable onPress={() => navigation.navigate("planner")}>
-          <Text style={CANCEL_LINK}>ביטול</Text>
+          <Text style={CANCEL_LINK} tx="common.cancel" />
         </Pressable>
       </View>
 

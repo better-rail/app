@@ -1,14 +1,18 @@
 import React from "react"
 import { TouchableOpacity, Image, Platform } from "react-native"
-import { createStackNavigator } from "@react-navigation/stack"
-import { SettingsScreen } from "../../screens"
+import { createStackNavigator, StackScreenProps } from "@react-navigation/stack"
+import { SettingsLanguageScreen, SettingsScreen } from "../../screens"
 import { color, typography } from "../../theme"
+import { translate } from "../../i18n"
 
 export type SettingsParamList = {
   main: undefined
+  language: undefined
 }
 
 const SettingsStack = createStackNavigator<SettingsParamList>()
+
+export type SettingsScreenProps = StackScreenProps<SettingsParamList, "main">
 
 export const SettingsNavigator = () => (
   <SettingsStack.Navigator
@@ -17,20 +21,28 @@ export const SettingsNavigator = () => (
       stackPresentation: "modal",
       headerTintColor: color.primary,
       headerStatusBarHeight: Platform.select({ ios: 10, android: 5 }),
-      headerBackTitleStyle: { fontFamily: typography.primary },
+      headerTitleStyle: Platform.select({
+        ios: { fontSize: 19, fontFamily: typography.primary, fontWeight: "400", marginRight: 10, marginBottom: 10 },
+        android: { marginLeft: -18.5, marginBottom: 10 },
+      }),
     }}
   >
     <SettingsStack.Screen
       name="main"
       component={SettingsScreen}
       options={({ navigation }) => ({
-        title: "הגדרות",
-        headerTitleStyle: Platform.select({
-          ios: { fontSize: 20, fontFamily: typography.primary, fontWeight: "400", marginRight: 10, marginBottom: 10 },
-          android: { marginLeft: -18.5, marginBottom: 10 },
-        }),
+        title: translate("settings.title"),
         headerLeft: () => <CloseIcon onPress={() => navigation.goBack()} />,
       })}
+    />
+    <SettingsStack.Screen
+      name="language"
+      component={SettingsLanguageScreen}
+      options={{
+        title: translate("settings.language"),
+        headerBackTitleVisible: false,
+        headerLeftContainerStyle: { marginBottom: 6 },
+      }}
     />
   </SettingsStack.Navigator>
 )

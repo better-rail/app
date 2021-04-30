@@ -1,34 +1,47 @@
 {
   "common": {
-    "ok": "OK!",
     "cancel": "Cancel",
-    "back": "Back"
+    "ok": "OK"
   },
-  "errors": {
-    "invalidEmail": "Invalid email address."
+  "plan": {
+    "title": "Route Plan",
+    "origin": "Origin",
+    "selectStation": "Select Station",
+    "destination": "Destination",
+    "departureTime": "Departure Time",
+    "arrivalTime": "Arrival Time",
+    "now": "Now",
+    "find": "Find Routes"
   },
-  "welcomeScreen": {
-    "poweredBy": "POWERED BY IGNITE",
-    "readyForLaunch": "Ready for launch.",
-    "continue": "CONTINUE"
+  "selectStation": {
+    "placeholder": "Search Stations"
   },
-  "demoScreen": {
-    "howTo": "HOW TO",
-    "title": "What’s In This Stack?",
-    "tagLine": "Congratulations, you’ve got a very advanced React Native app template here.  Take advantage of this boilerplate!",
-    "reactotron": "Demo Reactotron",
-    "demoList": "Demo List",
-    "androidReactotronHint": "If this doesn't work, ensure the Reactotron desktop app is running, run adb reverse tcp:9090 tcp:9090 from your terminal, and reload the app.",
-    "iosReactotronHint": "If this doesn't work, ensure the Reactotron desktop app is running and reload app.",
-    "macosReactotronHint": "If this doesn't work, ensure the Reactotron desktop app is running and reload app.",
-    "webReactotronHint": "If this doesn't work, ensure the Reactotron desktop app is running and reload app.",
-    "windowsReactotronHint": "If this doesn't work, ensure the Reactotron desktop app is running and reload app."
+  "routes": {
+    "departure": "Departure",
+    "arrival": "Arrival",
+    "noExchange": "No Exchanges",
+    "oneExchange": "1 Exchange",
+    "exchanges": "Exchanges"
   },
-  "demoListScreen": {
-    "title": "Demo List"
+  "routeDetails": {
+    "platform": "Platform",
+    "trainNo": "Train No.",
+    "exchangeAt": "Exchange at",
+    "platformStay": "Stay at Platform",
+    "platformExchange": "Change to Platform",
+    "waitingTime": "Wait around"
   },
-  "storybook": {
-    "placeholder": "Placeholder",
-    "field": "Field"
+  "settings": {
+    "title": "Settings",
+    "language": "App Language",
+    "share": "Share App",
+    "rate": "Rate Better Rail",
+    "imageAttribution": "Image Attributions",
+    "privacyPolicy": "Privacy Policy",
+    "feedback": "Send Feedback"
+  },
+  "modals": {
+    "noTrainsFound": "No trains found for the requested date",
+    "foundTrainsAt": "Showing trains found at "
   }
 }

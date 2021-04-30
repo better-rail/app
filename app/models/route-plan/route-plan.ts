@@ -1,5 +1,6 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { omit } from "ramda"
+import { translate } from "../../i18n"
 
 const StationSchema = {
   id: types.string,
@@ -20,8 +21,8 @@ export const RoutePlanModel = types
   .views((self) => {
     return {
       get dateTypeDisplayName() {
-        if (self.dateType === "departure") return "זמן יציאה"
-        return "זמן הגעה"
+        if (self.dateType === "departure") return translate("plan.departureTime")
+        return translate("plan.arrivalTime")
       },
     }
   })

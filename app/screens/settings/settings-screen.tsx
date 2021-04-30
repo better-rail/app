@@ -7,6 +7,8 @@ import { getVersion } from "react-native-device-info"
 
 import { color, spacing } from "../../theme"
 import { openLink } from "../../utils/helpers/open-link"
+import { translate } from "../../i18n"
+import { SettingsScreenProps } from "../../navigators"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -30,37 +32,52 @@ const VERSION_TEXT: TextStyle = {
   color: color.dim,
 }
 
-const storeLink = Platform.select({ ios: "https://apps.apple.com/app/better-rail/id1562982976" })
+const storeLink = Platform.select({ ios: "https://apps.apple.com/app/better-rail/id1562982976?action=write-review" })
 
-export const SettingsScreen = observer(function SettingsScreen() {
+export const SettingsScreen = observer(function SettingsScreen({ navigation }: SettingsScreenProps) {
   return (
     <Screen style={ROOT} preset="scroll" unsafe={true}>
+      <View style={SETTING_GROUP}>
+        <SettingBox
+          first
+          last
+          title={translate("settings.language")}
+          icon="💬"
+          chevron
+          onPress={() => navigation.navigate("language")}
+        />
+      </View>
+
       {Platform.OS === "ios" && (
         <View style={SETTING_GROUP}>
           <SettingBox
             first
             last={Platform.select({ ios: false, android: true })}
-            title="שתפו את Better Rail"
+            title={translate("settings.share")}
             icon="🕺"
             onPress={() =>
               Share.share({ message: "Better Rail - האלטרנטיבה לאפליקציית רכבת ישראל", url: "https://better-rail.co.il" })
             }
           />
-          <SettingBox title="דרגו ב- App Store" icon="⭐️" onPress={() => Linking.openURL(storeLink)} />
+          <SettingBox title={translate("settings.rate")} icon="⭐️" last onPress={() => Linking.openURL(storeLink)} />
         </View>
       )}
 
       <View style={SETTING_GROUP}>
         <SettingBox
           first
-          title="קרדיט תמונות"
+          title={translate("settings.imageAttribution")}
           icon="🖼"
           onPress={() => openLink("https://better-rail.co.il/image-attributions/")}
         />
-        <SettingBox last title="מדיניות פרטיות" icon="📜" onPress={() => openLink("https://better-rail.co.il/privacy-policy/")} />
+        <SettingBox
+          title={translate("settings.privacyPolicy")}
+          icon="📜"
+          onPress={() => openLink("https://better-rail.co.il/privacy-policy/")}
+        />
         <SettingBox
           last
-          title="שליחת פידבק"
+          title={translate("settings.feedback")}
           icon="📨"
           onPress={() => Linking.openURL("mailto:feedback@better-rail.co.il?subject=פידבק על Better Rail")}
         />
