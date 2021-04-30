@@ -48,6 +48,12 @@ const TIME_TEXT: TextStyle = {
   color: color.text,
 }
 
+const DURATION_TEXT: TextStyle = {
+  marginBottom: primaryFontIOS === "System" ? 2 : -2,
+  fontWeight: "100",
+  fontSize: 16,
+}
+
 // #endregion
 
 export interface RouteCardProps extends TouchableScaleProps {
@@ -102,7 +108,7 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
 
       <View>
         <View style={{ alignItems: "center" }}>
-          <Text style={{ fontSize: 16, marginBottom: -2 }}>{duration}</Text>
+          <Text style={DURATION_TEXT}>{duration}</Text>
           <Text style={{ fontSize: 14 }}>{stopsText}</Text>
         </View>
       </View>
