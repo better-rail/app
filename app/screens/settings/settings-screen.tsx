@@ -31,7 +31,7 @@ const VERSION_TEXT: TextStyle = {
   color: color.dim,
 }
 
-const storeLink = Platform.select({ ios: "https://apps.apple.com/app/better-rail/id1562982976" })
+const storeLink = Platform.select({ ios: "https://apps.apple.com/app/better-rail/id1562982976?action=write-review" })
 
 export const SettingsScreen = observer(function SettingsScreen() {
   return (
