@@ -50,7 +50,6 @@ const TIME_TEXT: TextStyle = {
 
 const DURATION_TEXT: TextStyle = {
   marginBottom: primaryFontIOS === "System" ? 2 : -2,
-  fontWeight: "100",
   fontSize: 16,
 }
 
