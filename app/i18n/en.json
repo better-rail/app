@@ -40,6 +40,6 @@
   },
   "modals": {
     "noTrainsFound": "No trains found for the requested date",
-    "foundTrainsAt": "Found trains starting at "
+    "foundTrainsAt": "Showing trains found at "
   }
 }
