@@ -2,7 +2,7 @@ import React from "react"
 import { View, ViewStyle, Image, ImageStyle, TextStyle } from "react-native"
 import { Text } from "../../../components"
 import { translate } from "../../../i18n"
-import { color, spacing } from "../../../theme"
+import { color, primaryFontIOS, spacing } from "../../../theme"
 
 const railwayStationIcon = require("../../../../assets/railway-station.png")
 
@@ -36,7 +36,7 @@ const ROUTE_STATION_TIME: TextStyle = {
 }
 
 const ROUTE_STATION_NAME: TextStyle = {
-  marginBottom: -2,
+  marginBottom: primaryFontIOS === "System" ? 2 : -2,
   marginEnd: spacing[3],
   fontSize: 17,
   fontWeight: "700",
