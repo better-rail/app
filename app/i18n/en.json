@@ -32,11 +32,11 @@
   },
   "settings": {
     "title": "Settings",
-    "share": "Share Better Rail",
-    "rate": "דרגו ב- App Store",
-    "imageAttribution": "קרדיט תמונות",
-    "privacyPolicy": "מדיניות פרטיות",
-    "feedback": "שליחת פידבק"
+    "share": "Share App",
+    "rate": "Rate Better Rail",
+    "imageAttribution": "Image Attributions",
+    "privacyPolicy": "Privacy Policy",
+    "feedback": "Send Feedback"
   },
   "modals": {
     "noTrainsFound": "No trains found for the requested date",
