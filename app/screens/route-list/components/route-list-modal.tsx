@@ -59,7 +59,7 @@ export const RouteListModal = function RouteListModal({ routesDate, onOk, ...res
         {translate("modals.foundTrainsAt")}
         {formattedRoutesDate}
       </Text>
-      <Button title="אישור" style={MODAL_BUTTON} onPress={() => onOk()} />
+      <Button title={translate("common.ok")} style={MODAL_BUTTON} onPress={() => onOk()} />
     </Modal>
   )
 }

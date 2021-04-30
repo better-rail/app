@@ -222,7 +222,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           minuteInterval={15}
           customHeaderIOS={() => null}
           customCancelButtonIOS={() => null}
-          confirmTextIOS="אישור"
+          confirmTextIOS={translate("common.ok")}
         />
       </View>
     </Screen>

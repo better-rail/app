@@ -1,6 +1,7 @@
 {
   "common": {
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "ok": "OK"
   },
   "plan": {
     "title": "Route Plan",
