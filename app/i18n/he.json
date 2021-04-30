@@ -7,6 +7,7 @@
     "title": "תכנון מסלול",
     "origin": "תחנת מוצא",
     "destination": "תחנת יעד",
+    "selectStation": "בחירת תחנה",
     "departureTime": "זמן יציאה",
     "arrivalTime": "זמן יציאה",
     "now": "עכשיו",
@@ -34,6 +35,7 @@
   },
   "settings": {
     "title": "הגדרות",
+    "language": "שפה",
     "share": "שתפו את Better Rail",
     "rate": "דרגו ב- App Store",
     "imageAttribution": "קרדיט תמונות",

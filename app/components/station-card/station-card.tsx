@@ -99,7 +99,7 @@ export const StationCard = observer(function StationCard(props: StationCardProps
             source={require("../../../assets/railway-station.png")}
             style={{ width: 48, height: 48, marginBottom: spacing[2], tintColor: color.dim }}
           />
-          <Text style={EMPTY_CARD_TEXT}>בחירת תחנה</Text>
+          <Text style={EMPTY_CARD_TEXT} tx="plan.selectStation" />
         </View>
       </TouchableScale>
     )

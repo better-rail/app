@@ -6,6 +6,7 @@
   "plan": {
     "title": "Route Plan",
     "origin": "Origin",
+    "selectStation": "Select Station",
     "destination": "Destination",
     "departureTime": "Departure Time",
     "arrivalTime": "Arrival Time",
@@ -32,6 +33,7 @@
   },
   "settings": {
     "title": "Settings",
+    "language": "App Language",
     "share": "Share App",
     "rate": "Rate Better Rail",
     "imageAttribution": "Image Attributions",
