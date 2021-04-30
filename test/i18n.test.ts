@@ -1,4 +1,4 @@
-const en = require("../app/i18n/en.json")
+const he = require("../app/i18n/he.json")
 const { exec } = require("child_process")
 
 // Use this array for keys that for whatever reason aren't greppable so they
@@ -46,7 +46,7 @@ describe("i18n", () => {
     // grep "Tx=\"\S*\"\|tx=\"\S*\"\|translate(\"\S*\"" -ohr './app' | grep -o "\".*\""
     const command = `grep "Tx=\\"\\S*\\"\\|tx=\\"\\S*\\"\\|translate(\\"\\S*\\"" -ohr './app' | grep -o "\\".*\\""`
     exec(command, (_, stdout) => {
-      const allTranslationsDefined = iterate(en, "", [])
+      const allTranslationsDefined = iterate(he, "", [])
       const allTranslationsUsed = stdout.replace(/"/g, "").split("\n")
       allTranslationsUsed.splice(-1, 1)
 
