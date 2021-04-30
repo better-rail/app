@@ -49,18 +49,12 @@ function App() {
   }, [])
 
   useEffect(() => {
-    storage.load("firstLaunch").then((value) => {
-      if (value !== false) {
-        storage.saveString("firstLaunch", "false").then(() => {
-          setInitialLanguage()
-        })
+    storage.load("appLanguage").then((languageCode) => {
+      if (languageCode) {
+        setUserLanguage(languageCode)
+        setLocaleReady(true)
       } else {
-        storage.load("appLanguage").then((languageCode) => {
-          if (languageCode) {
-            setUserLanguage(languageCode)
-            setLocaleReady(true)
-          }
-        })
+        setInitialLanguage()
       }
     })
   }, [])

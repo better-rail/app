@@ -260,8 +260,8 @@ const stations = [
   {
     id: "7320",
     hebrew: "באר שבע - מרכז",
-    english: "Be'er Sheva-Center",
-    russian: "Беер-Шева Мерказ",
+    english: "Be'er Sheva - Center",
+    russian: "Беер - Шева Мерказ",
     arabic: "بئر السبع - المركز",
     image: require("../../assets/station-images/beer-sheva-center.jpg"),
   },

@@ -27,7 +27,7 @@
     "platform": "Platform",
     "trainNo": "Train No.",
     "exchangeAt": "Exchange at",
-    "platformStay": "Stay at",
+    "platformStay": "Stay at Platform",
     "platformExchange": "Change to Platform",
     "waitingTime": "Wait around"
   },
