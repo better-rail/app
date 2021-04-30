@@ -30,6 +30,7 @@ enableScreens()
 
 export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
 
+I18nManager.allowRTL(false)
 I18nManager.forceRTL(false)
 
 // Check if the app is launched initially - if it is, reload to apply RTL

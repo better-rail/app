@@ -36,5 +36,9 @@
     "imageAttribution": "קרדיט תמונות",
     "privacyPolicy": "מדיניות פרטיות",
     "feedback": "שליחת פידבק"
+  },
+  "modals": {
+    "noTrainsFound": "No trains found for the requested date",
+    "foundTrainsAt": "Found trains starting at "
   }
 }

@@ -2,10 +2,8 @@ import React from "react"
 import { ViewStyle, TextStyle } from "react-native"
 import Modal, { ModalProps } from "react-native-modal"
 import { Button, Text } from "../../../components"
-
 import { format } from "date-fns"
-import { he } from "date-fns/locale"
-
+import { dateFnsLocalization, translate } from "../../../i18n"
 import { color, spacing } from "../../../theme"
 
 const MODAL_WRAPPER: ViewStyle = {
@@ -51,13 +49,16 @@ export interface RouteListModalProps extends ModalProps {
 }
 
 export const RouteListModal = function RouteListModal({ routesDate, onOk, ...rest }: RouteListModalProps) {
-  const formattedRoutesDate = format(routesDate, "eeee, dd/MM/yyyy", { locale: he })
+  const formattedRoutesDate = format(routesDate, "eeee, dd/MM/yyyy", { locale: dateFnsLocalization })
 
   return (
     <Modal style={MODAL_WRAPPER} animationIn="zoomIn" animationOut="zoomOut" {...rest}>
       <Text style={MODAL_ICON}>⚠️</Text>
-      <Text style={MODAL_TITLE}>לא נמצאו רכבות לתאריך המבוקש</Text>
-      <Text style={MODAL_TEXT}>קיימות רכבות עוקבות החל מ{formattedRoutesDate}</Text>
+      <Text style={MODAL_TITLE} tx="modals.noTrainsFound" />
+      <Text style={MODAL_TEXT}>
+        {translate("modals.foundTrainsAt")}
+        {formattedRoutesDate}
+      </Text>
       <Button title="אישור" style={MODAL_BUTTON} onPress={() => onOk()} />
     </Modal>
   )

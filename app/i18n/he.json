@@ -38,5 +38,9 @@
     "imageAttribution": "קרדיט תמונות",
     "privacyPolicy": "מדיניות פרטיות",
     "feedback": "שליחת פידבק"
+  },
+  "modals": {
+    "noTrainsFound": "לא נמצאו רכבות לתאריך המבוקש",
+    "foundTrainsAt": "קיימות רכבות החל מ"
   }
 }
