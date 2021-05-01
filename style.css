@@ -120,14 +120,11 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 7.5px;
 }
 
 .download-app-badge {
   width: 145px;
-}
-
-.download-app-badge:first-of-type {
-  margin-left: 10px;
 }
 
 footer {

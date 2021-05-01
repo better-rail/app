@@ -26,7 +26,9 @@
         <a href="https://apps.apple.com/app/better-rail/id1562982976" target="_blank" id="ios-badge"
           ><img class="download-app-badge" src="/assets/images/app-store-badge.svg" alt="הורדה לאייפון"
         /></a>
-        <!-- <img class="download-app-badge" width="150" src="/assets/images/google-play-badge.svg" alt="הורדה לאנדרואיד" /> -->
+        <a href="https://play.google.com/store/apps/details?id=com.betterrail" target="_blank" id="play-store-badge">
+          <img class="download-app-badge" width="150" src="/assets/images/google-play-badge.svg" alt="הורדה לאנדרואיד"
+        /></a>
       </div>
     </header>
 
@@ -116,6 +118,9 @@
     <script>
       document.getElementById("ios-badge").addEventListener("click", () => {
         sa_event("app_store_click");
+      });
+      document.getElementById("play-store-badge").addEventListener("click", () => {
+        sa_event("play_store_click");
       });
     </script>
   </body>
