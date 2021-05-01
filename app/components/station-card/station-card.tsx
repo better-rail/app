@@ -57,7 +57,7 @@ const TEXT: TextStyle = {
 }
 
 const EMPTY_CARD_TEXT: TextStyle = {
-  color: color.text,
+  color: color.dim,
 }
 
 const GARDIENT: ViewStyle = {
