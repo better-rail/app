@@ -3,7 +3,12 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>he</string>
+	<array>
+		<string>he</string>
+		<string>en</string>
+	</array>
+	<key>CFBundleAllowMixedLocalizations</key>
+	<string>true</string>
 	<key>CFBundleDisplayName</key>
 	<string>Better Rail</string>
 	<key>CFBundleExecutable</key>
