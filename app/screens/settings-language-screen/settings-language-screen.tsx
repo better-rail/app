@@ -4,7 +4,8 @@ import { View, ViewStyle } from "react-native"
 import { Screen, Text } from "../../components"
 import { SettingBox } from "../settings/components/settings-box"
 import { color, spacing } from "../../theme"
-import { changeUserLanguage, userLocale } from "../../i18n"
+import { changeUserLanguage, translate, userLocale } from "../../i18n"
+import HapticFeedback from "react-native-haptic-feedback"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -24,18 +25,26 @@ const SETTING_GROUP: ViewStyle = {
 }
 
 export const SettingsLanguageScreen = observer(function SettingsLanguageScreen() {
-  const [appLanguage, setappLanguage] = useState(userLocale)
+  const [clickCounter, setClickCounter] = useState(0)
 
   const changeLanguage = (langaugeCode) => {
-    changeUserLanguage(langaugeCode)
+    if (langaugeCode === userLocale) {
+      setClickCounter(clickCounter + 1)
+      return
+    }
+
+    Alert.alert(translate("settings.languageChangeAlertTitle"), translate("settings.languageChangeAlertMessage"), [
+      { text: translate("common.cancel"), style: "cancel" },
+      { text: translate("common.ok"), onPress: () => changeUserLanguage(langaugeCode) },
+    ])
   }
 
   return (
     <Screen style={ROOT} preset="scroll" unsafe={true}>
       <View style={SETTING_GROUP}>
-        <SettingBox first title="עברית" onPress={() => changeLanguage("he")} checkmark={appLanguage === "he"} />
+        <SettingBox first title="עברית" onPress={() => changeLanguage("he")} checkmark={userLocale === "he"} />
         {/* <SettingBox title="العربية" /> */}
-        <SettingBox last title="English" onPress={() => changeLanguage("en")} checkmark={appLanguage === "en"} />
+        <SettingBox last title="English" onPress={() => changeLanguage("en")} checkmark={userLocale === "en"} />
         {/* <SettingBox last title="русский" /> */}
       </View>
     </Screen>

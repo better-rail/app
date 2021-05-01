@@ -2,6 +2,8 @@
   "common": {
     "cancel": "ביטול",
     "ok": "אישור"
+    "ok": "אישור",
+    "relax": "להרגע בבקשה"
   },
   "plan": {
     "title": "תכנון מסלול",
@@ -40,7 +42,10 @@
     "rate": "דרגו ב- App Store",
     "imageAttribution": "קרדיט תמונות",
     "privacyPolicy": "מדיניות פרטיות",
-    "feedback": "שליחת פידבק"
+    "feedback": "שליחת פידבק",
+
+    "languageChangeAlertTitle": "שינוי שפה",
+    "languageChangeAlertMessage": "האפליקצייה תאותחל מחדש"
   },
   "modals": {
     "noTrainsFound": "לא נמצאו רכבות לתאריך המבוקש",
