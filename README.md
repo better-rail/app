@@ -6,7 +6,7 @@
 
 Better Rail is an open source mobile client for Israel Railways, with an emphasis on great design, performance and accessbility.
 
-[**Available on iOS**](https://apps.apple.com/app/better-rail/id1562982976)</a> (Android coming soon)
+**Available on the [App Store](https://apps.apple.com/app/better-rail/id1562982976)</a> & [Play Store](https://play.google.com/store/apps/details?id=com.betterrail)**
 
 ## Overview
 
