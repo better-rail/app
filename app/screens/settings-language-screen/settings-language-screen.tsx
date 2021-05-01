@@ -1,7 +1,7 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { observer } from "mobx-react-lite"
-import { View, ViewStyle } from "react-native"
-import { Screen, Text } from "../../components"
+import { Alert, View, ViewStyle } from "react-native"
+import { Screen } from "../../components"
 import { SettingBox } from "../settings/components/settings-box"
 import { color, spacing } from "../../theme"
 import { changeUserLanguage, translate, userLocale } from "../../i18n"
@@ -38,6 +38,13 @@ export const SettingsLanguageScreen = observer(function SettingsLanguageScreen()
       { text: translate("common.ok"), onPress: () => changeUserLanguage(langaugeCode) },
     ])
   }
+
+  useEffect(() => {
+    if (clickCounter === 5) {
+      HapticFeedback.trigger("notificationError")
+      Alert.alert(translate("common.relax"))
+    }
+  }, [clickCounter])
 
   return (
     <Screen style={ROOT} preset="scroll" unsafe={true}>
