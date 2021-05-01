@@ -11,7 +11,7 @@ import he from "./he.json"
 i18n.fallbacks = true
 i18n.translations = { he, en }
 
-export let isRTL = I18nManager.isRTL
+export const isRTL = I18nManager.isRTL
 export let userLocale = "en"
 export let dateFnsLocalization = enUS
 export let dateDelimiter = " "
@@ -24,13 +24,7 @@ export function setInitialLanguage() {
   if (Localization.locale.startsWith("he")) {
     changeUserLanguage("he")
   } else {
-    Alert.alert("What is your preferred language?", "", [
-      { text: "English", onPress: () => changeUserLanguage("en") },
-      { text: "Hebrew", onPress: () => changeUserLanguage("he") },
-    ])
-
-    // show a prompt
-    // if the language is RTL - restart
+    changeUserLanguage("en")
   }
 }
 
@@ -56,7 +50,11 @@ export function setUserLanguage(languageCode?: "he" | "en") {
 
   userLocale = languageCode
   i18n.locale = languageCode
-  isRTL = languageCode === "he"
+
+  // If the app language doesn't match the layout direction, we have to restart the app once more.
+  if ((languageCode === "he" && !isRTL) || (languageCode === "en" && isRTL)) {
+    RNRestart.Restart()
+  }
 }
 
 /**
