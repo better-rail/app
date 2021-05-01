@@ -6,7 +6,7 @@ import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } 
 import { useStores } from "../../models"
 import { color, primaryFontIOS, spacing } from "../../theme"
 import { PlannerScreenProps } from "../../navigators/main-navigator"
-import stations from "../../data/stations"
+import { useStations } from "../../data/stations"
 import { formatRelative, differenceInMinutes } from "date-fns"
 import HapticFeedback from "react-native-haptic-feedback"
 import { dateFnsLocalization, dateLocale, translate } from "../../i18n"
@@ -79,6 +79,8 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
   const stationCardScale = useRef(new Animated.Value(1)).current
 
+  const stations = useStations()
+
   // The datetimepicker  docs says the first argument is an event, but we get a date instead
   // https://github.com/react-native-datetimepicker/datetimepicker#onchange-optional
   const onDateChange = (date: Date) => {
@@ -104,23 +106,43 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     let origin = routePlan.origin
 
     if (origin) {
-      const originImage = stations.find((s) => s.id === origin.id).image
+      const originStation = stations.find((s) => s.id === origin.id)
+      const originImage = originStation.image
+
+      // It's important to check if the station title doesn't match the MST snapshot title, because when the user
+      // changes their language the station snapshot's title remains with the previous locale.
+      const originName = originStation.name
+
+      if (originName !== origin.name) {
+        // The user probably changed the app language - update the saved station snapshot.
+        routePlan.setOrigin({ id: originStation.id, name: originName })
+      }
+
       origin = Object.assign(origin, { image: originImage })
     }
 
     return origin
-  }, [routePlan.origin?.name])
+  }, [routePlan.origin?.name, stations])
 
   const destinationData = React.useMemo(() => {
     let destination = routePlan.destination
 
     if (destination) {
-      const destinationImage = stations.find((s) => s.id === destination.id).image
+      const destinationStation = stations.find((s) => s.id === destination.id)
+
+      const destinationImage = destinationStation.image
+      const destinationName = destinationStation.name
+
+      if (destinationName !== destination.name) {
+        // The user probably changed the app language - update the saved station snapshot.
+        routePlan.setDestination({ id: destinationStation.id, name: destinationName })
+      }
+
       destination = Object.assign(destination, { image: destinationImage })
     }
 
     return destination
-  }, [routePlan.destination?.name])
+  }, [routePlan.destination?.name, stations])
 
   const onSwitchPress = () => {
     Animated.sequence([

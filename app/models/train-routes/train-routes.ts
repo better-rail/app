@@ -2,6 +2,7 @@ import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { withEnvironment, withStatus } from ".."
 import { RouteApi } from "../../services/api/route-api"
 import { format, add } from "date-fns"
+import { omit } from "ramda"
 
 export const trainStop = {
   arrivalTime: types.number,
@@ -89,6 +90,7 @@ export const trainRoutesModel = types
       }
     },
   }))
+  .postProcessSnapshot(omit(["routes", "resultType"]))
 
 type RouteType = Instance<typeof trainRoutesModel>
 export interface Route extends RouteType {}

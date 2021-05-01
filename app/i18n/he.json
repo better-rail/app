@@ -1,7 +1,8 @@
 {
   "common": {
     "cancel": "ביטול",
-    "ok": "אישור"
+    "ok": "אישור",
+    "relax": "להרגע בבקשה"
   },
   "plan": {
     "title": "תכנון מסלול",
@@ -9,7 +10,7 @@
     "destination": "תחנת יעד",
     "selectStation": "בחירת תחנה",
     "departureTime": "זמן יציאה",
-    "arrivalTime": "זמן יציאה",
+    "arrivalTime": "זמן הגעה",
     "now": "עכשיו",
     "find": "חישוב מסלול",
     "switchStations": "החלפת תחנות",
@@ -40,7 +41,10 @@
     "rate": "דרגו ב- App Store",
     "imageAttribution": "קרדיט תמונות",
     "privacyPolicy": "מדיניות פרטיות",
-    "feedback": "שליחת פידבק"
+    "feedback": "שליחת פידבק",
+
+    "languageChangeAlertTitle": "שינוי שפה",
+    "languageChangeAlertMessage": "האפליקצייה תאותחל מחדש"
   },
   "modals": {
     "noTrainsFound": "לא נמצאו רכבות לתאריך המבוקש",

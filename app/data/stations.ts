@@ -1,4 +1,5 @@
-import { userLocale } from "../i18n"
+import { useState, useEffect, useMemo } from "react"
+import * as storage from "../utils/storage"
 
 const stations = [
   {
@@ -510,14 +511,8 @@ const stations = [
   },
 ]
 
-export let STATION_LOCALE = "english"
+let normalizeStationNames = []
 
-if (userLocale.startsWith("he")) STATION_LOCALE = "hebrew"
-else if (userLocale.startsWith("ar")) STATION_LOCALE = "arabic"
-
-const normalizeStationNames = stations
-  .map((station) => ({ id: station.id, name: station[STATION_LOCALE], image: station.image }))
-  .sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase())
 export default normalizeStationNames
 
 type StationsObjectType = {
@@ -531,8 +526,31 @@ type StationsObjectType = {
   }
 }
 
+export let stationLocale = "hebrew"
+
 export const stationsObject: StationsObjectType = {}
 
 stations.forEach((station) => {
   stationsObject[station.id] = station
 })
+
+export const useStations = () => {
+  const [locale, setLocale] = useState("hebrew")
+
+  useEffect(() => {
+    storage.load("appLanguage").then((languageCode) => {
+      if (languageCode === "en") {
+        stationLocale = "english"
+        setLocale("english")
+      }
+    })
+  }, [])
+
+  const normalizeStationNames = useMemo(() => {
+    return stations
+      .map((station) => ({ id: station.id, name: station[locale], image: station.image }))
+      .sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase())
+  }, [locale])
+
+  return normalizeStationNames
+}
