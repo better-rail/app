@@ -1,4 +1,4 @@
-import { Alert, I18nManager } from "react-native"
+import { I18nManager } from "react-native"
 import RNRestart from "react-native-restart"
 import * as storage from "../utils/storage"
 
@@ -51,7 +51,7 @@ export function setUserLanguage(languageCode?: "he" | "en") {
   userLocale = languageCode
   i18n.locale = languageCode
 
-  // It seems like isRTL is incorrect if called immediately.
+  // It seems that isRTL is incorrect if called immediately.
   setTimeout(() => {
     // If the app language doesn't match the layout direction, we have to restart the app once more.
     if ((languageCode === "he" && !isRTL) || (languageCode === "en" && isRTL)) {

@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { Image, View, TouchableOpacity, Animated, PixelRatio, ViewStyle, ImageStyle, Easing } from "react-native"
+import { Image, View, TouchableOpacity, Animated, PixelRatio, ViewStyle, ImageStyle, Dimensions } from "react-native"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
 import { useStores } from "../../models"
@@ -14,6 +14,8 @@ import { dateFnsLocalization, dateLocale, translate } from "../../i18n"
 const now = new Date()
 const fontScale = PixelRatio.getFontScale()
 const changeIcon = require("../../../assets/up-down-arrow.png")
+
+const { height: deviceHeight } = Dimensions.get("screen")
 
 // #region styles
 const ROOT: ViewStyle = {
@@ -44,14 +46,14 @@ const SETTINGS_ICON: ImageStyle = {
 }
 
 const HEADER_TITLE: TextStyle = {
-  marginBottom: primaryFontIOS === "System" ? 12 : 6,
+  marginBottom: primaryFontIOS === "System" ? 6 : 3,
 }
 
 const CHANGE_DIRECTION_WRAPPER: ViewStyle = {
   width: 65,
   height: 65,
-  top: -30,
-  end: 10,
+  top: deviceHeight > 730 ? -30 : -25,
+  end: deviceHeight > 730 ? 10 : 5,
   alignSelf: "flex-end",
   marginBottom: -60,
   zIndex: 10,

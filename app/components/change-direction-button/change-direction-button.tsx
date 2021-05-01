@@ -1,14 +1,24 @@
 import * as React from "react"
-import { Image, ViewStyle, ImageStyle, TouchableOpacity, TouchableOpacityProps, Platform } from "react-native"
+import { Image, ViewStyle, ImageStyle, TouchableOpacity, TouchableOpacityProps, Platform, Dimensions } from "react-native"
 import { observer } from "mobx-react-lite"
 import { color } from "../../theme"
 import HapticFeedback from "react-native-haptic-feedback"
 
 const upDownArrowIcon = require("../../../assets/up-down-arrow.png")
 
+const { height: deviceHeight } = Dimensions.get("screen")
+
+let buttonSize = 62.5
+let iconSize = 32.5
+
+if (deviceHeight > 730) {
+  buttonSize = 70
+  iconSize = 35
+}
+
 const CONTAINER: ViewStyle = {
-  width: 70,
-  height: 70,
+  width: buttonSize,
+  height: buttonSize,
   justifyContent: "center",
   alignItems: "center",
   borderRadius: 50,
@@ -21,8 +31,8 @@ const CONTAINER: ViewStyle = {
 }
 
 const ARROW_ICON: ImageStyle = {
-  width: Platform.select({ ios: 35, android: 37.5 }),
-  height: Platform.select({ ios: 35, android: 37.5 }),
+  width: Platform.select({ ios: iconSize, android: iconSize + 2.5 }),
+  height: Platform.select({ ios: iconSize, android: iconSize + 2.5 }),
   tintColor: "#fff",
 }
 

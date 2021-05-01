@@ -13,10 +13,14 @@ const { height: deviceHeight } = Dimensions.get("screen")
 let cardHeight = 120
 
 if (deviceHeight > 600) {
+  cardHeight = 135
+}
+
+if (deviceHeight > 730) {
   cardHeight = 157.5
 }
 
-if (deviceHeight > 850) {
+if (deviceHeight > 780) {
   cardHeight = 177.5
 }
 

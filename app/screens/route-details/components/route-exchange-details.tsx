@@ -91,7 +91,8 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
       {DISPLAY_EXCHANGE_ICON && <ChangeDirectionButton style={ROUTE_EXCHANGE_ICON} />}
       <View>
         <Text style={ROUTE_EXCHANGE_STATION_NAME}>
-          {translate("routeDetails.exchangeAt")} {stationName}
+          {translate("routeDetails.exchangeAt")}
+          {stationName}
         </Text>
         <View style={ROUTE_EXCHANGE_INFO_WRAPPER}>
           <View style={[ROUTE_EXCHANGE_INFO_DETAIL_WRAPPER, { marginBottom: spacing[1] }]}>
