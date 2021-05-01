@@ -63,7 +63,7 @@ const CHEVRON_ICON: ImageStyle = {
 
 export interface SettingBoxProps extends TouchableHighlightProps {
   title: string
-  icon: string
+  icon?: string
   first?: boolean
   last?: boolean
   checkmark?: boolean
