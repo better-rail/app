@@ -1,7 +1,8 @@
 {
   "common": {
     "cancel": "Cancel",
-    "ok": "OK"
+    "ok": "OK",
+    "relax": "Relax, please."
   },
   "plan": {
     "title": "Route Plan",
@@ -38,7 +39,10 @@
     "rate": "Rate Better Rail",
     "imageAttribution": "Image Attributions",
     "privacyPolicy": "Privacy Policy",
-    "feedback": "Send Feedback"
+    "feedback": "Send Feedback",
+
+    "languageChangeAlertTitle": "Language Change",
+    "languageChangeAlertMessage": "The app will restart to apply the changes"
   },
   "modals": {
     "noTrainsFound": "No trains found for the requested date",
