@@ -73,14 +73,6 @@ export function MainNavigator() {
         options={{ headerTransparent: true, headerTintColor: "lightgrey", ...TransitionPresets.SlideFromRightIOS }}
         sharedElementsConfig={() => ["route-header"]}
       />
-
-      <Stack.Screen
-        name="settings"
-        component={SettingsScreen}
-        options={{
-          headerTitle: "הגדרות",
-          headerTruncatedBackTitle: "חזרה",
-        }}
       />
     </Stack.Navigator>
   )

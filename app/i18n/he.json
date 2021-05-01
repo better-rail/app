@@ -17,7 +17,7 @@
     "switchStationsHint": "קיצור דרך להחלפת תחנת המוצא עם תחנת היעד"
   },
   "selectStation": {
-    "placeholder": "חיפוש  תחנה"
+    "placeholder": "חיפוש תחנה"
   },
   "routes": {
     "departure": "יציאה",

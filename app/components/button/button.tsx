@@ -6,6 +6,7 @@ import { Text } from "../"
 const BUTTON_WRAPPER: ViewStyle = {
   borderRadius: 12,
   overflow: "hidden",
+  elevation: 1,
 }
 
 const PRESSABLE_BASE: ViewStyle = {
@@ -17,7 +18,6 @@ const PRESSABLE_BASE: ViewStyle = {
   shadowColor: color.dim,
   shadowRadius: 1,
   shadowOpacity: 0.1,
-  elevation: 1,
   opacity: 1,
 }
 
