@@ -5,7 +5,7 @@ import { Screen, Text, StationCard } from "../../components"
 import { useStores } from "../../models"
 import { SelectStationScreenProps } from "../../navigators/main-navigator"
 import { color, spacing, typography } from "../../theme"
-import stations from "../../data/stations"
+import { useStations } from "../../data/stations"
 import { translate } from "../../i18n"
 
 // #region styles
@@ -47,6 +47,7 @@ const LIST_CONTENT_WRAPPER: ViewStyle = {
 
 export const SelectStationScreen = observer(function SelectStationScreen({ navigation, route }: SelectStationScreenProps) {
   const { routePlan } = useStores()
+  const stations = useStations()
   const [searchTerm, setSearchTerm] = useState("")
 
   const filteredStations = useMemo(() => {

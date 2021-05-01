@@ -3,7 +3,7 @@ import { Api } from "./api"
 import { stationsObject } from "../../data/stations"
 import { RailApiGetRoutesResult } from "./api.types"
 import { parseApiDate } from "../../utils/helpers/date-helpers"
-import { STATION_LOCALE } from "../../data/stations"
+import { stationLocale } from "../../data/stations"
 
 export class RouteApi {
   private api: Api
@@ -41,7 +41,7 @@ export class RouteApi {
 
           const stopStations = StopStations.map((station) => {
             const { StationId: stationId, Platform: platform, ArrivalTime, DepartureTime } = station
-            const stationName = stationsObject[stationId][STATION_LOCALE]
+            const stationName = stationsObject[stationId][stationLocale]
 
             return {
               stationId,
@@ -54,9 +54,9 @@ export class RouteApi {
 
           return {
             originStationId: OrignStation,
-            originStationName: stationsObject[OrignStation][STATION_LOCALE],
+            originStationName: stationsObject[OrignStation][stationLocale],
             destinationStationId: DestinationStation,
-            destinationStationName: stationsObject[DestinationStation][STATION_LOCALE],
+            destinationStationName: stationsObject[DestinationStation][stationLocale],
             departureTime: parseApiDate(DepartureTime),
             arrivalTime: parseApiDate(ArrivalTime),
             originPlatform: Platform,

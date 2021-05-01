@@ -6,7 +6,7 @@ import { color, spacing, typography } from "../../theme"
 import { primaryFontIOS } from "../../theme/typography"
 import { Text } from "../"
 import { format, intervalToDuration, formatDuration } from "date-fns"
-import { dateDelimiter, dateLocalization, translate } from "../../i18n"
+import { dateDelimiter, dateFnsLocalization, dateLocalization, translate } from "../../i18n"
 
 // #region styles
 
@@ -83,7 +83,7 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
     const [hours, minutes] = estTimeParts.map((value) => parseInt(value)) // Grab the hour & minutes values
     const durationInMilliseconds = (hours * 60 * 60 + minutes * 60) * 1000 //  Convert to milliseconds
     const durationObject = intervalToDuration({ start: 0, end: durationInMilliseconds }) // Create a date-fns duration object
-    const formattedDuration = formatDuration(durationObject, { delimiter: dateDelimiter, locale: dateLocalization }) // Format the duration
+    const formattedDuration = formatDuration(durationObject, { delimiter: dateDelimiter, locale: dateFnsLocalization }) // Format the duration
 
     if (formattedDuration.length > 7) dashedLineWidth = 0
 

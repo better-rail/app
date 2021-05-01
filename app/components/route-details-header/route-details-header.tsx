@@ -3,7 +3,7 @@ import { Image, ImageBackground, View, ViewStyle, TextStyle, ImageStyle, Appeara
 import LinearGradient from "react-native-linear-gradient"
 import { color, spacing } from "../../theme"
 import { Text } from "../"
-import { stationsObject, STATION_LOCALE } from "../../data/stations"
+import { stationsObject, stationLocale } from "../../data/stations"
 import { isRTL } from "../../i18n"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
@@ -20,6 +20,7 @@ const ROUTE_DETAILS_WRAPPER: ViewStyle = {
 const ROUTE_DETAILS_STATION: ViewStyle = {
   flex: 1,
   padding: spacing[2],
+
   backgroundColor: color.secondaryLighter,
   borderRadius: 25,
 
@@ -90,8 +91,8 @@ export interface RouteDetailsHeaderProps {
 export const RouteDetailsHeader = React.memo(function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const { originId, destinationId, style } = props
 
-  const originName = stationsObject[originId][STATION_LOCALE]
-  const destinationName = stationsObject[destinationId][STATION_LOCALE]
+  const originName = stationsObject[originId][stationLocale]
+  const destinationName = stationsObject[destinationId][stationLocale]
 
   return (
     <View>
@@ -101,7 +102,7 @@ export const RouteDetailsHeader = React.memo(function RouteDetailsHeader(props: 
 
       <View style={{ top: -20, marginBottom: -30, zIndex: 5 }}>
         <View style={[ROUTE_DETAILS_WRAPPER, style]}>
-          <View style={[ROUTE_DETAILS_STATION, { marginStart: spacing[5] }]}>
+          <View style={[ROUTE_DETAILS_STATION, { marginStart: !isRTL && spacing[5], marginEnd: isRTL && spacing[5] }]}>
             <Text style={ROUTE_DETAILS_STATION_TEXT} maxFontSizeMultiplier={1.1}>
               {originName}
             </Text>
