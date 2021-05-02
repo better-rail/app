@@ -34,9 +34,7 @@ const SEARCH_BAR: TextStyle = {
 }
 
 const CANCEL_LINK: TextStyle = {
-  // RTL not works correctly on Android
-  paddingStart: Platform.select({ ios: spacing[3], android: 0 }),
-  paddingEnd: Platform.select({ ios: 0, android: spacing[3] }),
+  paddingStart: spacing[3],
   color: color.link,
 }
 
@@ -97,6 +95,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
             setSearchTerm(text)
           }}
           autoFocus={true}
+          autoCorrect={false}
         />
         <Pressable onPress={() => navigation.navigate("planner")}>
           <Text style={CANCEL_LINK} tx="common.cancel" />

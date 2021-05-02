@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <color name="background">#1c1c1e</color>
+  <color name="secondaryBackground">#000000</color>
+  <color name="label">#ffffff</color>
+  <color name="secondaryLabel">#98989f</color>
+  <color name="placeholderText">#afb4bd</color>
+  <color name="inputPlaceholderBackground">#3a3a3c</color>
+  <color name="disabled">#48484a</color>
+  <color name="link">#0c83ff</color>
+  <color name="separator">#3e3e41</color>
+  
+  <color name="whiteText">#fff</color>
+
+  <color name="red">#FF5252</color>
+  <color name="blue">#0c83ff</color>
+  <color name="green">#4daf50</color>
+  <color name="pinky">#6F68DF</color>
+  <color name="lightPinky">#464552</color>
+  <color name="lightGrey">#3a3a3c</color>
+</resources>

@@ -25,6 +25,7 @@ const SETTING_GROUP: ViewStyle = {
   shadowColor: color.dim,
   shadowRadius: 0.25,
   shadowOpacity: 0.2,
+  elevation: 1,
 }
 
 const VERSION_TEXT: TextStyle = {

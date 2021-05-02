@@ -75,7 +75,7 @@ export const SettingBox = function SettingBox(props: SettingBoxProps) {
   const { title, icon, first, last, externalLink, chevron, checkmark, onPress, style } = props
   let boxStyle: ViewStyle = {}
 
-  if (!first) boxStyle = { borderTopColor: Platform.select({ android: "#f2f2f7", ios: color.background }), borderTopWidth: 1 }
+  if (!first) boxStyle = { borderTopColor: Platform.select({ android: "transparent", ios: color.background }), borderTopWidth: 1 }
 
   if (first) {
     boxStyle = { borderTopLeftRadius: 10, borderTopRightRadius: 10, ...boxStyle }

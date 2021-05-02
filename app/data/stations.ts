@@ -13,7 +13,7 @@ const stations = [
   {
     id: "3500",
     hebrew: "הרצליה",
-    english: "Hertsliya",
+    english: "Herzliya",
     russian: "Герцлия",
     arabic: "هرتسليا",
     image: require("../../assets/station-images/herzeliya.jpeg"),
