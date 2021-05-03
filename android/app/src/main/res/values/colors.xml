@@ -5,6 +5,7 @@
   <color name="label">#111111</color>
   <color name="secondaryLabel">#757575</color>
   <color name="placeholderText">#afb4bd</color>
+  <color name="inputBackground">#ffffff</color>
   <color name="inputPlaceholderBackground">#e0e1e6</color>
   <color name="disabled">#aeaeb2</color>
   <color name="link">#2196F3</color>

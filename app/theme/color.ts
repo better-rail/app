@@ -68,7 +68,7 @@ export const color = {
 
   inputBackground: Platform.select({
     ios: DynamicColorIOS({ light: PlatformColor("systemBackground"), dark: PlatformColor("systemGray5") }),
-    android: PlatformColor("@color/secondaryBackground"),
+    android: PlatformColor("@color/inputBackground"),
   }),
 
   line: palette.offWhite,
