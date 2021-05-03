@@ -135,8 +135,13 @@ footer {
   margin-top: 90px;
 }
 
+.site-page footer {
+  margin-top: 30px;
+}
+
 .footer-social-links {
   display: flex;
+  gap: 7.5px;
   margin-bottom: 14px;
 }
 
@@ -150,8 +155,8 @@ footer {
   transition: opacity 0.25s;
 }
 
-.footer-links-item:not(:last-of-type) {
-  margin-inline-end: 12px;
+.footer-links-item:nth-of-type(2) {
+  margin-inline: 12px;
 }
 
 .footer-links-item:hover {
