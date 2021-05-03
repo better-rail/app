@@ -1,6 +1,7 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
-import { Linking, Share, Platform, TextStyle, View, ViewStyle } from "react-native"
+import { Linking, Platform, TextStyle, View, ViewStyle } from "react-native"
+import Share from "react-native-share"
 import { Screen, Text } from "../../components"
 import { SettingBox } from "./components/settings-box"
 import { getVersion } from "react-native-device-info"
@@ -33,7 +34,40 @@ const VERSION_TEXT: TextStyle = {
   color: color.dim,
 }
 
-const storeLink = Platform.select({ ios: "https://apps.apple.com/app/better-rail/id1562982976?action=write-review" })
+function shareApp() {
+  const url = "https://better-rail.co.il/"
+  const title = "Better Rail"
+  const message = translate("settings.shareMessage")
+
+  const shareOptions = Platform.select({
+    ios: {
+      activityItemSources: [
+        {
+          placeholderItem: { type: "url", content: url },
+          item: {
+            default: { type: "text", content: `${message} ${url}` },
+          },
+          subject: {
+            default: title,
+          },
+          linkMetadata: { title: message },
+        },
+      ],
+    },
+    default: {
+      title,
+      subject: title,
+      message: `${message} ${url}`,
+    },
+  })
+
+  Share.open(shareOptions)
+}
+
+const storeLink = Platform.select({
+  ios: "https://apps.apple.com/app/better-rail/id1562982976?action=write-review",
+  android: "market://details?id=com.betterrail",
+})
 
 export const SettingsScreen = observer(function SettingsScreen({ navigation }: SettingsScreenProps) {
   return (
@@ -49,20 +83,15 @@ export const SettingsScreen = observer(function SettingsScreen({ navigation }: S
         />
       </View>
 
-      {Platform.OS === "ios" && (
-        <View style={SETTING_GROUP}>
-          <SettingBox
-            first
-            last={Platform.select({ ios: false, android: true })}
-            title={translate("settings.share")}
-            icon="🕺"
-            onPress={() =>
-              Share.share({ message: "Better Rail - האלטרנטיבה לאפליקציית רכבת ישראל", url: "https://better-rail.co.il" })
-            }
-          />
-          <SettingBox title={translate("settings.rate")} icon="⭐️" last onPress={() => Linking.openURL(storeLink)} />
-        </View>
-      )}
+      <View style={SETTING_GROUP}>
+        <SettingBox first title={translate("settings.share")} icon="🕺" onPress={shareApp} />
+        <SettingBox
+          last
+          title={Platform.select({ ios: translate("settings.rateIOS"), android: translate("settings.rateAndroid") })}
+          icon="⭐️"
+          onPress={() => Linking.openURL(storeLink)}
+        />
+      </View>
 
       <View style={SETTING_GROUP}>
         <SettingBox
