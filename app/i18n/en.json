@@ -2,13 +2,13 @@
   "common": {
     "cancel": "Cancel",
     "ok": "OK",
-    "relax": "Relax, please."
+    "relax": "Don't forget to take a breath, please."
   },
   "plan": {
-    "title": "Route Plan",
-    "origin": "Origin",
+    "title": "Trip Plan",
     "selectStation": "Select Station",
-    "destination": "Destination",
+    "origin": "From",
+    "destination": "To",
     "departureTime": "Departure Time",
     "arrivalTime": "Arrival Time",
     "now": "Now",
@@ -29,7 +29,7 @@
     "trainNo": "Train No.",
     "exchangeAt": "Exchange at ",
     "platformStay": "Stay at Platform",
-    "platformExchange": "Change to Platform",
+    "platformExchange": "Switch to Platform",
     "waitingTime": "Wait around"
   },
   "settings": {
@@ -48,6 +48,6 @@
   },
   "modals": {
     "noTrainsFound": "No trains found for the requested date",
-    "foundTrainsAt": "Showing trains found at "
+    "foundTrainsAt": "Showing trains departing at "
   }
 }
