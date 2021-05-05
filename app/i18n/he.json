@@ -47,7 +47,7 @@
     "languageChangeAlertMessage": "האפליקצייה תאותחל מחדש",
 
     "hey": "היי! 👋",
-    "whoami": "קוראים לי גיא טפר. פיתחתי את Better Rail בשביל להנגיש את שירותי הרכבת לציבור",
+    "whoami": "קוראים לי גיא טפר. יצרתי את Better Rail בשביל להנגיש את שירותי הרכבת לציבור",
     "independenceDeclaration": "האפליקצייה פותחה באופן עצמאי ונכתבת בקוד פתוח",
 
     "follow": "עקבו אחרי Better Rail",
@@ -56,6 +56,7 @@
     "feedback": "שליחת פידבק",
     "imageAttribution": "קרדיט תמונות",
     "privacyPolicy": "מדיניות פרטיות",
+    "privacyPolicyLink": "https://better-rail.co.il/privacy-policy/",
     "sourceCode": "קוד מקור"
   },
   "modals": {
