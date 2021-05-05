@@ -35,6 +35,7 @@
   "settings": {
     "title": "Settings",
     "language": "App Language",
+    "about": "About",
     "share": "Share App",
     "shareMessage": "The Israel Railways alternative app",
     "rateIOS": "Rate Better Rail",
@@ -44,7 +45,16 @@
     "feedback": "Send Feedback",
 
     "languageChangeAlertTitle": "Language Change",
-    "languageChangeAlertMessage": "The app will restart to apply the changes"
+    "languageChangeAlertMessage": "The app will restart to apply the changes",
+
+    "hey": "Hey! 👋",
+    "whoami": "My name's Guy. I've created Better Rail to make Israel Railways services more accessible to the public.",
+    "independenceDeclaration": "",
+
+    "follow": "Follow Better Rail",
+    "facebook": "Facebook",
+    "twitter": "Twitter",
+    "sourceCode": "Source Code"
   },
   "modals": {
     "noTrainsFound": "No trains found for the requested date",

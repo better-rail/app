@@ -10,10 +10,8 @@ import { translate } from "../../i18n"
 import { SettingsScreenProps } from "../../navigators"
 
 const ROOT: ViewStyle = {
-  flex: 1,
   backgroundColor: color.background,
-  paddingTop: spacing[4],
-  paddingHorizontal: spacing[4],
+  padding: spacing[4],
 }
 
 const SETTING_GROUP: ViewStyle = {
@@ -46,26 +44,24 @@ export const AboutScreen = observer(function AboutScreen({ navigation }: Setting
           source={require("../../../assets/guymoji.png")}
           style={{ width: 100, height: 120, resizeMode: "contain", marginBottom: 20 }}
         />
-        <Text style={ABOUT_TEXT_TITLE}>היי! 👋</Text>
-        <Text style={ABOUT_TEXT}>קוראים לי גיא טפר. פיתחתי את Better Rail בשביל להנגיש את שירותי הרכבת לציבור</Text>
-        <Text>האפליקצייה פותחה באופן עצמאי ונכתבת בקוד פתוח</Text>
+        <Text style={ABOUT_TEXT_TITLE} tx="settings.hey" />
+        <Text style={ABOUT_TEXT} tx="settings.whoami" />
+        <Text style={{ textAlign: "center" }} tx="settings.independenceDeclaration" />
       </View>
 
-      <Text preset="fieldLabel" style={{ marginBottom: spacing[1] }}>
-        עקבו אחרי Better Rail
-      </Text>
+      <Text style={{ marginBottom: spacing[1] }} tx="settings.follow" preset="fieldLabel" />
 
       <View style={SETTING_GROUP}>
         <SettingBox
           first
-          title={"פייסבוק"}
+          title={translate("settings.facebook")}
           icon="👍"
           externalLink
           onPress={() => openLink("https://better-rail.co.il/image-attributions/")}
         />
         <SettingBox
           last
-          title={"טוויטר"}
+          title={translate("settings.twitter")}
           icon="🐦"
           externalLink
           onPress={() => Linking.openURL("mailto:feedback@better-rail.co.il?subject=פידבק על Better Rail")}
@@ -100,7 +96,7 @@ export const AboutScreen = observer(function AboutScreen({ navigation }: Setting
         <SettingBox
           first
           last
-          title={"קוד פתוח"}
+          title={translate("settings.sourceCode")}
           icon="🔧"
           externalLink
           onPress={() => Linking.openURL("https://github.com/guytepper/better-rail")}

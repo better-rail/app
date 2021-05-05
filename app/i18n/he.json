@@ -42,12 +42,21 @@
     "shareMessage": "האלטרנטיבה לאפליקציית רכבת ישראל",
     "rateIOS": "דרגו ב- App Store",
     "rateAndroid": "דרגו ב- Play Store",
-    "imageAttribution": "קרדיט תמונות",
-    "privacyPolicy": "מדיניות פרטיות",
-    "feedback": "שליחת פידבק",
 
     "languageChangeAlertTitle": "שינוי שפה",
-    "languageChangeAlertMessage": "האפליקצייה תאותחל מחדש"
+    "languageChangeAlertMessage": "האפליקצייה תאותחל מחדש",
+
+    "hey": "היי! 👋",
+    "whoami": "קוראים לי גיא טפר. פיתחתי את Better Rail בשביל להנגיש את שירותי הרכבת לציבור",
+    "independenceDeclaration": "האפליקצייה פותחה באופן עצמאי ונכתבת בקוד פתוח",
+
+    "follow": "עקבו אחרי Better Rail",
+    "facebook": "פייסבוק",
+    "twitter": "טוויטר",
+    "feedback": "שליחת פידבק",
+    "imageAttribution": "קרדיט תמונות",
+    "privacyPolicy": "מדיניות פרטיות",
+    "sourceCode": "קוד מקור"
   },
   "modals": {
     "noTrainsFound": "לא נמצאו רכבות לתאריך המבוקש",
