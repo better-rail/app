@@ -92,7 +92,7 @@ export const AboutScreen = observer(function AboutScreen({ navigation }: Setting
           last
           title={translate("settings.privacyPolicy")}
           icon="📜"
-          onPress={() => openLink("https://better-rail.co.il/privacy-policy/")}
+          onPress={() => openLink(translate("settings.privacyPolicyLink"))}
         />
       </View>
 
