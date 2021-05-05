@@ -57,14 +57,18 @@ export const AboutScreen = observer(function AboutScreen({ navigation }: Setting
           title={translate("settings.facebook")}
           icon="👍"
           externalLink
-          onPress={() => openLink("https://better-rail.co.il/image-attributions/")}
+          onPress={() => Linking.openURL("https://www.facebook.com/BetterRail")}
         />
         <SettingBox
           last
           title={translate("settings.twitter")}
           icon="🐦"
           externalLink
-          onPress={() => Linking.openURL("mailto:feedback@better-rail.co.il?subject=פידבק על Better Rail")}
+          onPress={() =>
+            Linking.openURL("twitter://user?screen_name=better_rail").catch(() => {
+              Linking.openURL("https://www.twitter.com/better_rail")
+            })
+          }
         />
       </View>
 
