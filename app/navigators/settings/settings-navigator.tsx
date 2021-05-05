@@ -1,13 +1,14 @@
 import React from "react"
 import { TouchableOpacity, Image, Platform } from "react-native"
 import { createStackNavigator, StackScreenProps } from "@react-navigation/stack"
-import { SettingsLanguageScreen, SettingsScreen } from "../../screens"
+import { SettingsScreen, LanguageScreen, AboutScreen } from "../../screens"
 import { color, typography } from "../../theme"
 import { translate } from "../../i18n"
 
 export type SettingsParamList = {
   main: undefined
   language: undefined
+  about: undefined
 }
 
 const SettingsStack = createStackNavigator<SettingsParamList>()
@@ -20,6 +21,7 @@ export const SettingsNavigator = () => (
       direction: "rtl",
       stackPresentation: "modal",
       headerTintColor: color.primary,
+      headerBackTitleVisible: false,
       headerStatusBarHeight: Platform.select({ ios: 10, android: 5 }),
       headerTitleStyle: Platform.select({
         ios: { fontSize: 19, fontFamily: typography.primary, fontWeight: "400", marginRight: 10, marginBottom: 10 },
@@ -37,10 +39,17 @@ export const SettingsNavigator = () => (
     />
     <SettingsStack.Screen
       name="language"
-      component={SettingsLanguageScreen}
+      component={LanguageScreen}
       options={{
         title: translate("settings.language"),
-        headerBackTitleVisible: false,
+        headerLeftContainerStyle: { marginBottom: 6 },
+      }}
+    />
+    <SettingsStack.Screen
+      name="about"
+      component={AboutScreen}
+      options={{
+        title: translate("settings.about"),
         headerLeftContainerStyle: { marginBottom: 6 },
       }}
     />

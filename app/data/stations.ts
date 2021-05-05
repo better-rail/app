@@ -294,7 +294,7 @@ const stations = [
     english: "Jerusalem - Malha",
     russian: "Иерусалим - Малха",
     arabic: "القدس - المالحه",
-    image: require("../../assets/malha.jpg"),
+    image: require("../../assets/station-images/malha.jpg"),
   },
   {
     id: "5900",
