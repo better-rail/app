@@ -89,6 +89,7 @@ export const AboutScreen = observer(function AboutScreen({ navigation }: Setting
           onPress={() => openLink("https://better-rail.co.il/image-attributions/")}
         />
         <SettingBox
+          last
           title={translate("settings.privacyPolicy")}
           icon="📜"
           onPress={() => openLink("https://better-rail.co.il/privacy-policy/")}
@@ -101,6 +102,7 @@ export const AboutScreen = observer(function AboutScreen({ navigation }: Setting
           last
           title={"קוד פתוח"}
           icon="🔧"
+          externalLink
           onPress={() => Linking.openURL("https://github.com/guytepper/better-rail")}
         />
       </View>
