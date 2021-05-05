@@ -49,7 +49,8 @@ const EXTERNAL_LINK_ICON: ImageStyle = {
   height: 19.5,
   marginEnd: spacing[1],
   tintColor: color.dim,
-  opacity: 0.6,
+  opacity: 0.45,
+  transform: isRTL ? undefined : [{ rotate: "90deg" }],
 }
 
 const CHEVRON_ICON: ImageStyle = {

@@ -86,31 +86,11 @@ export const SettingsScreen = observer(function SettingsScreen({ navigation }: S
       <View style={SETTING_GROUP}>
         <SettingBox first title={translate("settings.share")} icon="🕺" onPress={shareApp} />
         <SettingBox
-          last
           title={Platform.select({ ios: translate("settings.rateIOS"), android: translate("settings.rateAndroid") })}
           icon="⭐️"
           onPress={() => Linking.openURL(storeLink)}
         />
-      </View>
-
-      <View style={SETTING_GROUP}>
-        <SettingBox
-          first
-          title={translate("settings.imageAttribution")}
-          icon="🖼"
-          onPress={() => openLink("https://better-rail.co.il/image-attributions/")}
-        />
-        <SettingBox
-          title={translate("settings.privacyPolicy")}
-          icon="📜"
-          onPress={() => openLink("https://better-rail.co.il/privacy-policy/")}
-        />
-        <SettingBox
-          last
-          title={translate("settings.feedback")}
-          icon="📨"
-          onPress={() => Linking.openURL("mailto:feedback@better-rail.co.il?subject=פידבק על Better Rail")}
-        />
+        <SettingBox last title={translate("settings.about")} icon="ℹ️" chevron onPress={() => navigation.navigate("about")} />
       </View>
 
       <Text style={VERSION_TEXT}>Better Rail v{getVersion()}</Text>

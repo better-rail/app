@@ -74,7 +74,7 @@ const stations = [
   {
     id: "1300",
     hebrew: "חוצות המפרץ",
-    english: "Hutsot HaMifrats",
+    english: "Hutzot HaMifratz",
     russian: "Хоцот ха-Мифрац ",
     arabic: "حوتسوت همفراتس",
     image: require("../../assets/station-images/hotzot-hamifratz.jpeg"),
@@ -294,7 +294,7 @@ const stations = [
     english: "Jerusalem - Malha",
     russian: "Иерусалим - Малха",
     arabic: "القدس - المالحه",
-    image: require("../../assets/malha.jpg"),
+    image: require("../../assets/station-images/malha.jpg"),
   },
   {
     id: "5900",

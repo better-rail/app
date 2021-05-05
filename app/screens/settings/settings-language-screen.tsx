@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react"
 import { observer } from "mobx-react-lite"
 import { Alert, View, ViewStyle } from "react-native"
 import { Screen } from "../../components"
-import { SettingBox } from "../settings/components/settings-box"
+import { SettingBox } from "./components/settings-box"
 import { color, spacing } from "../../theme"
 import { changeUserLanguage, translate, userLocale } from "../../i18n"
 import HapticFeedback from "react-native-haptic-feedback"
@@ -24,7 +24,7 @@ const SETTING_GROUP: ViewStyle = {
   shadowOpacity: 0.2,
 }
 
-export const SettingsLanguageScreen = observer(function SettingsLanguageScreen() {
+export const LanguageScreen = observer(function SettingsLanguageScreen() {
   const [clickCounter, setClickCounter] = useState(0)
 
   const changeLanguage = (langaugeCode) => {
