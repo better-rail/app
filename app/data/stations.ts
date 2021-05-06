@@ -394,6 +394,7 @@ const stations = [
     english: "Yavne - West",
     russian: "Явне-Запад",
     arabic: "ياڤني - غرب",
+    image: require("../../assets/station-images/yavne-west.jpeg"),
   },
   {
     id: "9600",
