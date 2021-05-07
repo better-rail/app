@@ -125,13 +125,6 @@ const stations = [
     arabic: "نهاريا",
   },
   {
-    id: "6500",
-    hebrew: "ירושלים - גן החיות התנכי",
-    english: "Jerusalem - Biblical Zoo",
-    russian: "Иерусалим – зоопарк",
-    arabic: "القدس - حديقة الحيوان التوراتية",
-  },
-  {
     id: "6300",
     hebrew: "בית שמש",
     english: "Bet Shemesh",
