@@ -12,7 +12,7 @@ const colorScheme = Appearance.getColorScheme()
 // #region styles
 
 const ROUTE_DETAILS_WRAPPER: ViewStyle = {
-  flexDirection: isRTL ? "row" : "row-reverse",
+  flexDirection: "row",
   justifyContent: "center",
   alignItems: "center",
 }
@@ -102,7 +102,7 @@ export const RouteDetailsHeader = React.memo(function RouteDetailsHeader(props: 
 
       <View style={{ top: -20, marginBottom: -30, zIndex: 5 }}>
         <View style={[ROUTE_DETAILS_WRAPPER, style]}>
-          <View style={[ROUTE_DETAILS_STATION, { marginStart: !isRTL ? spacing[5] : 0, marginEnd: isRTL ? spacing[5] : 0 }]}>
+          <View style={[ROUTE_DETAILS_STATION, { marginEnd: spacing[5] }]}>
             <Text style={ROUTE_DETAILS_STATION_TEXT} maxFontSizeMultiplier={1.1}>
               {originName}
             </Text>
