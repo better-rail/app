@@ -12,7 +12,7 @@ const colorScheme = Appearance.getColorScheme()
 // #region styles
 
 const ROUTE_DETAILS_WRAPPER: ViewStyle = {
-  flexDirection: isRTL ? "row" : "row-reverse",
+  flexDirection: "row",
   justifyContent: "center",
   alignItems: "center",
 }
