@@ -153,6 +153,7 @@ const stations = [
     english: "Be'er Sheva-North/University",
     russian: "Беер-Шева Цафон",
     arabic: "بئر السبع - شمال/الجامعة",
+    image: require("../../assets/station-images/beer-sheva-university.jpg"),
   },
   {
     id: "4800",
