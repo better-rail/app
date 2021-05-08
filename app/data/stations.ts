@@ -534,6 +534,11 @@ export const useStations = () => {
 
   useEffect(() => {
     storage.load("appLanguage").then((languageCode) => {
+      if (languageCode === "ar") {
+        stationLocale = "arabic"
+        setLocale("arabic")
+      }
+
       if (languageCode === "en") {
         stationLocale = "english"
         setLocale("english")

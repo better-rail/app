@@ -4,15 +4,18 @@ import * as storage from "../utils/storage"
 
 import * as Localization from "expo-localization"
 import i18n from "i18n-js"
-import { he as heIL, enUS } from "date-fns/locale"
+import { arSA as arIL, he as heIL, enUS } from "date-fns/locale"
 import en from "./en.json"
+import ar from "./ar.json"
 import he from "./he.json"
 
 i18n.fallbacks = true
-i18n.translations = { he, en }
+i18n.translations = { he, en, ar }
+
+export type LanguageCode = "he" | "ar" | "en"
 
 export const isRTL = I18nManager.isRTL
-export let userLocale = "en"
+export let userLocale: LanguageCode = "en"
 export let dateFnsLocalization = enUS
 export let dateDelimiter = " "
 export let dateLocale = "en-US"
@@ -23,29 +26,37 @@ export function setInitialLanguage() {
 
   if (Localization.locale.startsWith("he")) {
     changeUserLanguage("he")
+  } else if (Localization.locale.startsWith("ar")) {
+    changeUserLanguage("ar")
   } else {
     changeUserLanguage("en")
   }
 }
 
-export function changeUserLanguage(languageCode?: "he" | "en") {
+export function changeUserLanguage(languageCode: LanguageCode) {
   storage.save("appLanguage", languageCode).then(() => {
     setUserLanguage(languageCode)
     RNRestart.Restart()
   })
 }
 
-export function setUserLanguage(languageCode?: "he" | "en") {
-  if (languageCode === "he") {
+export function setUserLanguage(languageCode: LanguageCode) {
+  if (languageCode === "he" || languageCode === "ar") {
     I18nManager.allowRTL(true)
     I18nManager.forceRTL(true)
-
-    dateFnsLocalization = heIL
-    dateDelimiter = " ו- "
-    dateLocale = "he-IL"
   } else {
     I18nManager.allowRTL(false)
     I18nManager.forceRTL(false)
+  }
+
+  if (languageCode === "ar") {
+    dateFnsLocalization = arIL
+    dateDelimiter = " و- "
+    dateLocale = "ar-IL"
+  } else if (languageCode === "he") {
+    dateFnsLocalization = heIL
+    dateDelimiter = " ו- "
+    dateLocale = "he-IL"
   }
 
   userLocale = languageCode

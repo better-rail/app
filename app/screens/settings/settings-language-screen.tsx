@@ -50,7 +50,7 @@ export const LanguageScreen = observer(function SettingsLanguageScreen() {
     <Screen style={ROOT} preset="scroll" unsafe={true}>
       <View style={SETTING_GROUP}>
         <SettingBox first title="עברית" onPress={() => changeLanguage("he")} checkmark={userLocale === "he"} />
-        {/* <SettingBox title="العربية" /> */}
+        <SettingBox title="العربية" onPress={() => changeLanguage("ar")} checkmark={userLocale === "ar"} />
         <SettingBox last title="English" onPress={() => changeLanguage("en")} checkmark={userLocale === "en"} />
         {/* <SettingBox last title="русский" /> */}
       </View>
