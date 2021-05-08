@@ -534,6 +534,11 @@ export const useStations = () => {
 
   useEffect(() => {
     storage.load("appLanguage").then((languageCode) => {
+      if (languageCode === "ar") {
+        stationLocale = "arabic"
+        setLocale("arabic")
+      }
+
       if (languageCode === "en") {
         stationLocale = "english"
         setLocale("english")
@@ -543,7 +548,7 @@ export const useStations = () => {
 
   const normalizeStationNames = useMemo(() => {
     return stations
-      .map((station) => ({ id: station.id, name: station[locale], image: station.image }))
+      .map((station) => ({ id: station.id, name: station[locale], image: station.image, hebrew: station.hebrew }))
       .sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase())
   }, [locale])
 

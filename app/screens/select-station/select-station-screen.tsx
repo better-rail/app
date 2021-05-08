@@ -50,7 +50,11 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
 
   const filteredStations = useMemo(() => {
     if (searchTerm === "") return []
-    return stations.filter((item) => item.name.toLowerCase().replace(/[\. ,:-]+/g, "").indexOf(searchTerm.toLowerCase().replace(/[\. ,:-]+/g, "")) > -1)
+    return stations.filter(
+      (item) =>
+        item.name.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1 ||
+        item.hebrew.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1, // Enable hebrew search
+    )
   }, [searchTerm])
 
   const renderItem = (station) => (

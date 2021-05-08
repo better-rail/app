@@ -1,5 +1,5 @@
 import React from "react"
-import { TouchableOpacity, Image, Platform } from "react-native"
+import { TouchableOpacity, Image, Platform, TextStyle } from "react-native"
 import { createStackNavigator, StackScreenProps } from "@react-navigation/stack"
 import { SettingsScreen, LanguageScreen, AboutScreen } from "../../screens"
 import { color, typography } from "../../theme"
@@ -23,10 +23,6 @@ export const SettingsNavigator = () => (
       headerTintColor: color.primary,
       headerBackTitleVisible: false,
       headerStatusBarHeight: Platform.select({ ios: 10, android: 5 }),
-      headerTitleStyle: Platform.select({
-        ios: { fontSize: 19, fontFamily: typography.primary, fontWeight: "400", marginRight: 10, marginBottom: 10 },
-        android: { marginLeft: -18.5, marginBottom: 10 },
-      }),
     }}
   >
     <SettingsStack.Screen
@@ -34,7 +30,8 @@ export const SettingsNavigator = () => (
       component={SettingsScreen}
       options={({ navigation }) => ({
         title: translate("settings.title"),
-        headerLeft: () => <CloseIcon onPress={() => navigation.goBack()} />,
+        headerLeft: Platform.select({ ios: () => <CloseIcon onPress={() => navigation.goBack()} />, android: undefined }),
+        headerTitleStyle: Platform.select({ ios: iOSTitleStyle, android: undefined }),
       })}
     />
     <SettingsStack.Screen
@@ -43,6 +40,7 @@ export const SettingsNavigator = () => (
       options={{
         title: translate("settings.language"),
         headerLeftContainerStyle: { marginBottom: 6 },
+        headerTitleStyle: Platform.select({ ios: iOSTitleStyle, android: androidTitleStyle }),
       }}
     />
     <SettingsStack.Screen
@@ -51,6 +49,7 @@ export const SettingsNavigator = () => (
       options={{
         title: translate("settings.about"),
         headerLeftContainerStyle: { marginBottom: 6 },
+        headerTitleStyle: Platform.select({ ios: iOSTitleStyle, android: androidTitleStyle }),
       }}
     />
   </SettingsStack.Navigator>
@@ -64,3 +63,13 @@ const CloseIcon = ({ onPress }) => (
     />
   </TouchableOpacity>
 )
+
+const iOSTitleStyle: TextStyle = {
+  fontSize: 19,
+  fontFamily: typography.primary,
+  fontWeight: "400",
+  marginRight: 10,
+  marginBottom: 10,
+}
+
+const androidTitleStyle: TextStyle = { marginLeft: -18.5, marginBottom: 7.5 }
