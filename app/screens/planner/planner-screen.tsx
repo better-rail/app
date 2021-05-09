@@ -105,46 +105,19 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   }, [routePlan.date])
 
   const originData = React.useMemo(() => {
-    // Since we can't keep the image serialized via mobx, we have to import the station images here
-    let origin = routePlan.origin
-
-    if (origin) {
-      const originStation = stations.find((s) => s.id === origin.id)
-      const originImage = originStation.image
-
-      // It's important to check if the station title doesn't match the MST snapshot title, because when the user
-      // changes their language the station snapshot's title remains with the previous locale.
-      const originName = originStation.name
-
-      if (originName !== origin.name) {
-        // The user probably changed the app language - update the saved station snapshot.
-        routePlan.setOrigin({ id: originStation.id, name: originName })
-      }
-
-      origin = Object.assign(origin, { image: originImage })
+    if (routePlan.origin) {
+      return stations.find((s) => s.id === routePlan.origin.id)
     }
 
-    return origin
+    return undefined
   }, [routePlan.origin?.name, stations])
 
   const destinationData = React.useMemo(() => {
-    let destination = routePlan.destination
-
-    if (destination) {
-      const destinationStation = stations.find((s) => s.id === destination.id)
-
-      const destinationImage = destinationStation.image
-      const destinationName = destinationStation.name
-
-      if (destinationName !== destination.name) {
-        // The user probably changed the app language - update the saved station snapshot.
-        routePlan.setDestination({ id: destinationStation.id, name: destinationName })
-      }
-
-      destination = Object.assign(destination, { image: destinationImage })
+    if (routePlan.destination) {
+      return stations.find((s) => s.id === routePlan.destination.id)
     }
 
-    return destination
+    return undefined
   }, [routePlan.destination?.name, stations])
 
   const onSwitchPress = () => {
