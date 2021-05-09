@@ -326,3 +326,18 @@ footer {
     max-width: 700px;
   }
 }
+
+.alert {
+  margin: 0;
+  margin-bottom: 12px;
+  padding: 8px 15px;
+  border-radius: 2px;
+  font-size: 16px;
+  line-height: 1.5715;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.alert-info {
+  background-color: #e6f7ff;
+  border: 1px solid #91d5ff;
+}
