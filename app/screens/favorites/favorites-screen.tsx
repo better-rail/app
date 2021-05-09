@@ -1,9 +1,10 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
-import { ViewStyle } from "react-native"
-import { Screen, Text, RouteDetailsHeader } from "../../components"
+import { Pressable, ViewStyle } from "react-native"
+import { Screen, Text, RouteDetails } from "../../components"
 import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
+import TouchableScale from "react-native-touchable-scale"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -17,7 +18,18 @@ export const FavoritesScreen = observer(function FavoritesScreen() {
 
   return (
     <Screen style={ROOT} unsafe={true} preset="scroll">
-      <RouteDetailsHeader originId={routePlan.origin.id} destinationId={routePlan.destination.id} />
+      <PressableRouteDetails originId={routePlan.origin.id} destinationId={routePlan.destination.id} />
+      <PressableRouteDetails originId={routePlan.destination.id} destinationId={routePlan.origin.id} />
     </Screen>
   )
 })
+
+const PressableRouteDetails = (props) => (
+  <TouchableScale activeScale={0.97} friction={9} style={{ marginBottom: 30 }}>
+    <RouteDetails
+      originId={props.originId}
+      destinationId={props.destinationId}
+      imageStyle={{ borderRadius: 6, overflow: "hidden" }}
+    />
+  </TouchableScale>
+)
