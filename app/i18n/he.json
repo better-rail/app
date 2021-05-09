@@ -59,6 +59,9 @@
     "privacyPolicyLink": "https://better-rail.co.il/privacy-policy/",
     "sourceCode": "קוד מקור"
   },
+  "favorites": {
+    "title": "מסלולים מועדפים"
+  },
   "modals": {
     "noTrainsFound": "לא נמצאו רכבות לתאריך המבוקש",
     "foundTrainsAt": "קיימות רכבות החל מ"
