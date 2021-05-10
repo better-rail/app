@@ -1,12 +1,14 @@
 import React, { useMemo, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { FlatList, View, TextStyle, ViewStyle, Pressable, Platform, I18nManager } from "react-native"
+import { FlatList, View, TextStyle, ViewStyle, Pressable, Platform, I18nManager, Appearance } from "react-native"
 import { Screen, Text, StationCard } from "../../components"
 import { useStores } from "../../models"
 import { SelectStationScreenProps } from "../../navigators/main-navigator"
 import { color, spacing } from "../../theme"
 import { useStations } from "../../data/stations"
 import { SearchInput } from "./search-input"
+
+const isDarkMode = Appearance.getColorScheme() === "dark"
 
 // #region styles
 const ROOT: ViewStyle = {
@@ -69,7 +71,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
   )
 
   return (
-    <Screen style={ROOT} preset="fixed" unsafe={false}>
+    <Screen style={ROOT} preset="fixed" unsafe={false} statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}>
       <View style={SEARCH_BAR_WRAPPER}>
         <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         <Pressable onPress={() => navigation.navigate("planner")}>

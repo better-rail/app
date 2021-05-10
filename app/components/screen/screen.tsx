@@ -1,11 +1,11 @@
 import * as React from "react"
-import { KeyboardAvoidingView, Platform, ScrollView, StatusBar, View } from "react-native"
+import { Appearance, KeyboardAvoidingView, Platform, ScrollView, StatusBar, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { ScreenProps } from "./screen.props"
 import { isNonScrolling, offsets, presets } from "./screen.presets"
-import { color } from "../../theme"
 
 const isIos = Platform.OS === "ios"
+const isDarkMode = Appearance.getColorScheme() === "dark"
 
 function ScreenWithoutScrolling(props: ScreenProps) {
   const insets = useSafeAreaInsets()
@@ -21,9 +21,9 @@ function ScreenWithoutScrolling(props: ScreenProps) {
       keyboardVerticalOffset={offsets[props.keyboardOffset || "none"]}
     >
       <StatusBar
-        barStyle={props.statusBar || "default"}
+        barStyle={props.statusBar || isDarkMode ? "light-content" : "dark-content"}
         translucent={props.translucent || false}
-        backgroundColor={props.statusBarBackgroundColor || undefined}
+        backgroundColor={props.statusBarBackgroundColor || (isDarkMode ? "#1c1c1e" : "#f2f2f7")}
         animated={true}
       />
       <View style={[preset.inner, style, insetStyle]}>{props.children}</View>
@@ -45,9 +45,9 @@ function ScreenWithScrolling(props: ScreenProps) {
       keyboardVerticalOffset={offsets[props.keyboardOffset || "none"]}
     >
       <StatusBar
-        barStyle={props.statusBar || "default"}
+        barStyle={props.statusBar || isDarkMode ? "light-content" : "dark-content"}
         translucent={props.translucent || false}
-        backgroundColor={props.statusBarBackgroundColor || undefined}
+        backgroundColor={props.statusBarBackgroundColor || (isDarkMode ? "#1c1c1e" : "#f2f2f7")}
         animated={true}
       />
       <View style={[preset.outer, backgroundStyle, insetStyle]}>
