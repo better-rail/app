@@ -14,7 +14,7 @@ PODS:
     - React-Core
     - UMCore
     - UMImageLoaderInterface
-  - EXLocalization (9.1.0):
+  - EXLocalization (10.1.0):
     - UMCore
   - EXPermissions (9.3.0):
     - UMCore
@@ -591,7 +591,7 @@ SPEC CHECKSUMS:
   EXConstants: f486f6b4a36b86e47ab258d4d2b7b2699786fdce
   EXFileSystem: afe9b1fd937d30270bf5108ba44e2f4a1d1ad694
   EXImageLoader: 7153fb1307ac643299a9072b71da0d276f4c7789
-  EXLocalization: 8b9463c81843da214476b541a27811dd885c9a76
+  EXLocalization: f139efe4a06be1041815879959346e3d437a6e93
   EXPermissions: 30cbe5b72bd209b65c00884180ad058a60bb413d
   FBLazyVector: 3bb422f41b18121b71783a905c10e58606f7dc3e
   FBReactNativeSpec: f2c97f2529dd79c083355182cc158c9f98f4bd6e

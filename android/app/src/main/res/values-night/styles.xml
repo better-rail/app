@@ -1,5 +1,6 @@
 <resources>
     <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:navigationBarColor">#0f1316</item>
+        <item name="android:colorControlActivated">#0c83ff</item>
     </style>
 </resources>

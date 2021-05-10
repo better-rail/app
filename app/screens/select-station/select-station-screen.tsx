@@ -1,12 +1,12 @@
 import React, { useMemo, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { FlatList, LayoutAnimation, View, TextInput, TextStyle, ViewStyle, Pressable, I18nManager } from "react-native"
+import { FlatList, View, TextStyle, ViewStyle, Pressable, Platform, I18nManager } from "react-native"
 import { Screen, Text, StationCard } from "../../components"
 import { useStores } from "../../models"
 import { SelectStationScreenProps } from "../../navigators/main-navigator"
-import { color, spacing, typography } from "../../theme"
+import { color, spacing } from "../../theme"
 import { useStations } from "../../data/stations"
-import { translate } from "../../i18n"
+import { SearchInput } from "./search-input"
 
 // #region styles
 const ROOT: ViewStyle = {
@@ -22,19 +22,12 @@ const SEARCH_BAR_WRAPPER: ViewStyle = {
   marginTop: spacing[2],
 }
 
-const SEARCH_BAR: TextStyle = {
-  flex: 1,
-  padding: spacing[3],
-
-  textAlign: I18nManager.isRTL ? "right" : "left",
-  fontFamily: typography.primary,
-  borderRadius: 8,
-  color: color.text,
-  backgroundColor: color.background,
-}
-
 const CANCEL_LINK: TextStyle = {
-  paddingStart: spacing[3],
+  paddingStart: Platform.select({ ios: spacing[3], android: undefined }),
+  // Android is quirky when switching RTL/LTR modes, so this is a workaround
+  paddingRight: Platform.select({ ios: undefined, android: I18nManager.isRTL ? spacing[3] : undefined }),
+  paddingLeft: Platform.select({ ios: undefined, android: I18nManager.isRTL ? undefined : spacing[3] }),
+
   color: color.link,
 }
 
@@ -78,29 +71,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
   return (
     <Screen style={ROOT} preset="fixed" unsafe={false}>
       <View style={SEARCH_BAR_WRAPPER}>
-        <TextInput
-          style={SEARCH_BAR}
-          placeholder={translate("selectStation.placeholder")}
-          placeholderTextColor={color.dim}
-          onChangeText={(text) => {
-            LayoutAnimation.configureNext({
-              duration: 400,
-              create: {
-                type: LayoutAnimation.Types.spring,
-                property: LayoutAnimation.Properties.opacity,
-                springDamping: 1,
-              },
-              delete: {
-                type: LayoutAnimation.Types.spring,
-                property: LayoutAnimation.Properties.opacity,
-                springDamping: 1,
-              },
-            })
-            setSearchTerm(text)
-          }}
-          autoFocus={true}
-          autoCorrect={false}
-        />
+        <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         <Pressable onPress={() => navigation.navigate("planner")}>
           <Text style={CANCEL_LINK} tx="common.cancel" />
         </Pressable>
