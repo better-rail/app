@@ -1,5 +1,16 @@
 import React from "react"
-import { TextInput, LayoutAnimation, I18nManager, View, Image, ImageStyle, ViewStyle, TextStyle, Pressable } from "react-native"
+import {
+  TextInput,
+  LayoutAnimation,
+  I18nManager,
+  View,
+  Image,
+  ImageStyle,
+  ViewStyle,
+  TextStyle,
+  Pressable,
+  Platform,
+} from "react-native"
 import { translate } from "../../i18n"
 import { color, spacing, typography } from "../../theme"
 
@@ -7,7 +18,8 @@ const SEARCH_BAR: ViewStyle = {
   flex: 1,
   flexDirection: "row",
   alignItems: "center",
-  padding: spacing[3],
+  paddingStart: spacing[3],
+  paddingVertical: Platform.select({ ios: spacing[3], android: undefined }),
   paddingEnd: spacing[2],
   borderRadius: 8,
   backgroundColor: color.background,
@@ -23,8 +35,7 @@ const SEARCH_ICON: ImageStyle = {
   width: 18,
   height: 18,
   marginEnd: spacing[1] + 2,
-  tintColor: color.text,
-  opacity: 0.8,
+  tintColor: color.dim,
 }
 
 const TEXT_INPUT: TextStyle = {
