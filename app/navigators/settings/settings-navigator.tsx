@@ -30,8 +30,8 @@ export const SettingsNavigator = () => (
       component={SettingsScreen}
       options={({ navigation }) => ({
         title: translate("settings.title"),
-        headerLeft: Platform.select({ ios: () => <CloseIcon onPress={() => navigation.goBack()} />, android: undefined }),
-        headerTitleStyle: Platform.select({ ios: iOSTitleStyle, android: undefined }),
+        headerLeft: () => <CloseIcon onPress={() => navigation.goBack()} />,
+        headerTitleStyle: Platform.select({ ios: iOSTitleStyle, android: { ...androidTitleStyle, marginBottom: 10 } }),
       })}
     />
     <SettingsStack.Screen
