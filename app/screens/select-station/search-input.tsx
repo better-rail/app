@@ -37,7 +37,7 @@ const SEARCH_INPUT_WRAPPER: ViewStyle = {
 const SEARCH_ICON: ImageStyle = {
   width: 18 * fontScale,
   height: 18 * fontScale,
-  marginEnd: spacing[1] + 2,
+  marginEnd: Platform.select({ ios: spacing[1] + 2, android: spacing[1] }),
   tintColor: color.dim,
 }
 
