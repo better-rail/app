@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { FlatList, View, TextStyle, ViewStyle, Pressable } from "react-native"
+import { FlatList, View, TextStyle, ViewStyle, Pressable, Platform, I18nManager } from "react-native"
 import { Screen, Text, StationCard } from "../../components"
 import { useStores } from "../../models"
 import { SelectStationScreenProps } from "../../navigators/main-navigator"
@@ -23,7 +23,11 @@ const SEARCH_BAR_WRAPPER: ViewStyle = {
 }
 
 const CANCEL_LINK: TextStyle = {
-  paddingStart: spacing[3],
+  paddingStart: Platform.select({ ios: spacing[3], android: undefined }),
+  // Android is quirky when switching RTL/LTR modes, so this is a workaround
+  paddingRight: Platform.select({ ios: undefined, android: I18nManager.isRTL ? spacing[3] : undefined }),
+  paddingLeft: Platform.select({ ios: undefined, android: I18nManager.isRTL ? undefined : spacing[3] }),
+
   color: color.link,
 }
 
