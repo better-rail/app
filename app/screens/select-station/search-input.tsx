@@ -10,9 +10,12 @@ import {
   TextStyle,
   Pressable,
   Platform,
+  PixelRatio,
 } from "react-native"
 import { translate } from "../../i18n"
 import { color, spacing, typography } from "../../theme"
+
+const fontScale = PixelRatio.getFontScale()
 
 const SEARCH_BAR: ViewStyle = {
   flex: 1,
@@ -32,8 +35,8 @@ const SEARCH_INPUT_WRAPPER: ViewStyle = {
 }
 
 const SEARCH_ICON: ImageStyle = {
-  width: 18,
-  height: 18,
+  width: 18 * fontScale,
+  height: 18 * fontScale,
   marginEnd: spacing[1] + 2,
   tintColor: color.dim,
 }
@@ -45,8 +48,8 @@ const TEXT_INPUT: TextStyle = {
 }
 
 const DISMISS_ICON: ImageStyle = {
-  width: 20,
-  height: 20,
+  width: 20 * fontScale,
+  height: 20 * fontScale,
   tintColor: color.dim,
   opacity: 0.7,
 }
