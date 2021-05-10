@@ -63,7 +63,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
   return (
     <Screen style={ROOT} preset="fixed" unsafe={false}>
       <View style={SEARCH_BAR_WRAPPER}>
-        <SearchInput setSearchTerm={setSearchTerm} />
+        <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         <Pressable onPress={() => navigation.navigate("planner")}>
           <Text style={CANCEL_LINK} tx="common.cancel" />
         </Pressable>
