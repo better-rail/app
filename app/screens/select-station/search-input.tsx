@@ -48,7 +48,7 @@ const DISMISS_ICON: ImageStyle = {
   width: 20,
   height: 20,
   tintColor: color.dim,
-  opacity: 0.65,
+  opacity: 0.7,
 }
 
 export const SearchInput = ({ searchTerm, setSearchTerm }) => (
