@@ -7,9 +7,6 @@ const StationSchema = {
   name: types.string,
 }
 
-/**
- * Model description here for TypeScript hints.
- */
 export const RoutePlanModel = types
   .model("RoutePlan")
   .props({
