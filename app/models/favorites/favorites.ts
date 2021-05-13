@@ -14,11 +14,24 @@ export const FavoritesModel = types
   .props({
     routes: types.array(types.model(favoriteRouteSchema)),
   })
-  .views((self) => ({})) // eslint-disable-line @typescript-eslint/no-unused-vars
-  .actions((self) => ({})) // eslint-disable-line @typescript-eslint/no-unused-vars
+  .actions((self) => ({
+    add(route: FavoriteRoute) {
+      self.routes.push(route)
+    },
+    remove(route: FavoriteRoute) {
+      const filteredFavorites = self.routes.filter((favorite) => favorite.id !== route.id)
+      self.routes.replace(filteredFavorites)
+    },
+  }))
 
 type FavoritesType = Instance<typeof FavoritesModel>
 export interface Favorites extends FavoritesType {}
 type FavoritesSnapshotType = SnapshotOut<typeof FavoritesModel>
 export interface FavoritesSnapshot extends FavoritesSnapshotType {}
 export const createFavoritesDefaultModel = () => types.optional(FavoritesModel, {})
+
+export type FavoriteRoute = {
+  id: string
+  originId: string
+  destinationId: string
+}

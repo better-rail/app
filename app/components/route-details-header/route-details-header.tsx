@@ -1,10 +1,14 @@
-import * as React from "react"
+/* eslint-disable react/display-name */
+import React, { useMemo, useLayoutEffect } from "react"
 import { Image, ImageBackground, View, ViewStyle, TextStyle, ImageStyle, Appearance } from "react-native"
+import { useNavigation } from "@react-navigation/native"
+import { observer } from "mobx-react-lite"
 import LinearGradient from "react-native-linear-gradient"
 import { color, spacing } from "../../theme"
-import { Text } from "../"
+import { Text, StarIcon } from "../"
 import { stationsObject, stationLocale } from "../../data/stations"
 import { isRTL } from "../../i18n"
+import { FavoriteRoute, useStores } from "../../models"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
 
@@ -75,11 +79,38 @@ export interface RouteDetailsHeaderProps {
   style?: ViewStyle
 }
 
-export const RouteDetailsHeader = React.memo(function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
+export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const { originId, destinationId, style } = props
+  const { favoriteRoutes } = useStores()
+  const navigation = useNavigation()
 
   const originName = stationsObject[originId][stationLocale]
   const destinationName = stationsObject[destinationId][stationLocale]
+
+  const routeId = `${originId}${destinationId}`
+  console.log(favoriteRoutes.routes)
+
+  const isFavorite: boolean = useMemo(() => {
+    return favoriteRoutes.routes.find((favorite) => favorite.id === routeId)
+  }, [favoriteRoutes.routes.length])
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <StarIcon
+          filled={isFavorite}
+          onPress={() => {
+            const favorite: FavoriteRoute = { id: routeId, originId, destinationId }
+            if (!isFavorite) {
+              favoriteRoutes.add(favorite)
+            } else {
+              favoriteRoutes.remove(favorite)
+            }
+          }}
+        />
+      ),
+    })
+  }, [favoriteRoutes.routes.length])
 
   return (
     <View>
