@@ -89,7 +89,10 @@ export const RouteDetails = function RouteDetails(props: RouteDetailsProps) {
   return (
     <View>
       <ImageBackground source={stationsObject[originId].image} style={[{ width: "100%", height: 200, zIndex: 0 }, imageStyle]}>
-        <LinearGradient style={GARDIENT} colors={["rgba(0, 0, 0, 0.75)", "rgba(0, 0, 0, 0.05)"]} />
+        <LinearGradient
+          style={GARDIENT}
+          colors={[colorScheme === "dark" ? "rgba(0, 0, 0, .5)" : "rgba(0, 0, 0, .25)", "rgba(0, 0, 0, 0)"]}
+        />
       </ImageBackground>
 
       <View style={{ top: -20, marginBottom: -30, zIndex: 5 }}>
