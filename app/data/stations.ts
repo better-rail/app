@@ -325,6 +325,7 @@ const stations = [
     english: "Lod - Gane Aviv",
     russian: "Лод - Ганей Авив",
     arabic: "اللد - چاني أڤيڤ",
+    image: require("../../assets/station-images/lod-gane-aviv.jpg"),
   },
   {
     id: "8550",
