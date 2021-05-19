@@ -8,6 +8,7 @@ import { color, spacing } from "../../theme"
 import { useStations } from "../../data/stations"
 import { SearchInput } from "./search-input"
 import RecentSearchesBox from "./recent-searches-box"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const isDarkMode = Appearance.getColorScheme() === "dark"
 
@@ -21,8 +22,11 @@ const SEARCH_BAR_WRAPPER: ViewStyle = {
   flexDirection: "row",
   alignItems: "center",
   paddingHorizontal: spacing[3],
+  paddingBottom: spacing[3],
   marginBottom: spacing[3],
-  marginTop: spacing[2],
+  backgroundColor: color.background,
+  borderBottomWidth: 1,
+  borderBottomColor: color.dimmer,
 }
 
 const CANCEL_LINK: TextStyle = {
@@ -34,14 +38,12 @@ const CANCEL_LINK: TextStyle = {
   color: color.link,
 }
 
-const LIST_CONTENT_WRAPPER: ViewStyle = {
-  paddingHorizontal: spacing[3],
-}
 // #endregion
 
 export const SelectStationScreen = observer(function SelectStationScreen({ navigation, route }: SelectStationScreenProps) {
   const { routePlan } = useStores()
   const stations = useStations()
+  const insets = useSafeAreaInsets()
   const [searchTerm, setSearchTerm] = useState("")
 
   const filteredStations = useMemo(() => {
@@ -57,7 +59,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
     <StationCard
       name={station.name}
       image={station.image}
-      style={{ marginBottom: spacing[3] }}
+      style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
       onPress={() => {
         if (route.params.selectionType === "origin") {
           routePlan.setOrigin(station)
@@ -72,8 +74,8 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
   )
 
   return (
-    <Screen style={ROOT} preset="fixed" unsafe={false} statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}>
-      <View style={SEARCH_BAR_WRAPPER}>
+    <Screen style={ROOT} preset="fixed" unsafe={true} statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}>
+      <View style={[SEARCH_BAR_WRAPPER, { paddingTop: insets.top }]}>
         <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         <Pressable onPress={() => navigation.navigate("planner")}>
           <Text style={CANCEL_LINK} tx="common.cancel" />
@@ -81,7 +83,6 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
       </View>
 
       <FlatList
-        contentContainerStyle={LIST_CONTENT_WRAPPER}
         data={filteredStations}
         renderItem={({ item }) => renderItem(item)}
         keyExtractor={(item) => item.id}
