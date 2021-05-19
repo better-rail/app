@@ -89,7 +89,6 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   const destinationName = stationsObject[destinationId][stationLocale]
 
   const routeId = `${originId}${destinationId}`
-  console.log(favoriteRoutes.routes)
 
   const isFavorite: boolean = useMemo(() => {
     return favoriteRoutes.routes.find((favorite) => favorite.id === routeId)
