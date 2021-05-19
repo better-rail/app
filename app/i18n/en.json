@@ -58,7 +58,9 @@
     "sourceCode": "Source Code"
   },
   "favorites": {
-    "title": "Favorite Routes"
+    "title": "Favorite Routes",
+    "empty": "No Favorites",
+    "emptyDescription": "You can add a favourite from the routes screen."
   },
   "modals": {
     "noTrainsFound": "No trains found for the requested date",

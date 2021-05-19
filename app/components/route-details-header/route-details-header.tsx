@@ -6,6 +6,7 @@ import { observer } from "mobx-react-lite"
 import LinearGradient from "react-native-linear-gradient"
 import { color, spacing } from "../../theme"
 import { Text, StarIcon } from "../"
+import HapticFeedback from "react-native-haptic-feedback"
 import { stationsObject, stationLocale } from "../../data/stations"
 import { isRTL } from "../../i18n"
 import { FavoriteRoute, useStores } from "../../models"
@@ -102,8 +103,10 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
           onPress={() => {
             const favorite: FavoriteRoute = { id: routeId, originId, destinationId }
             if (!isFavorite) {
+              HapticFeedback.trigger("impactMedium")
               favoriteRoutes.add(favorite)
             } else {
+              HapticFeedback.trigger("impactLight")
               favoriteRoutes.remove(favorite)
             }
           }}

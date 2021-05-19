@@ -16,6 +16,7 @@ const STAR_ICON: ImageStyle = {
   marginEnd: spacing[2],
   marginBottom: spacing[2] - 1,
   tintColor: "lightgrey",
+  opacity: 0.9,
 }
 
 const STAR_ICON_FILLED
