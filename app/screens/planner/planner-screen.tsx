@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { Image, View, TouchableOpacity, Animated, PixelRatio, ViewStyle, ImageStyle, Appearance, Dimensions } from "react-native"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
@@ -48,8 +48,7 @@ const SETTINGS_ICON: ImageStyle = {
 
 const STAR_ICON: ImageStyle = {
   width: headerIconSize,
-  height: headerIconSize,
-  marginStart: spacing[5],
+  height: headerIconSize - 1,
   tintColor: color.primary,
   opacity: 0.7,
 }
@@ -128,7 +127,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     return undefined
   }, [routePlan.destination?.name, stations])
 
-  const onSwitchPress = () => {
+  const scaleStationCards = () => {
     Animated.sequence([
       Animated.timing(stationCardScale, {
         toValue: 0.96,
@@ -141,6 +140,10 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
         useNativeDriver: true,
       }),
     ]).start()
+  }
+
+  const onSwitchPress = () => {
+    scaleStationCards()
 
     // Delay the actual switch so it'll be synced with the animation
     setTimeout(() => {
