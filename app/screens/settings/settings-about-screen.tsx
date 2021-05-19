@@ -54,12 +54,6 @@ export const AboutScreen = observer(function AboutScreen({ navigation }: Setting
       <View style={SETTING_GROUP}>
         <SettingBox
           first
-          title={translate("settings.facebook")}
-          icon="👍"
-          externalLink
-          onPress={() => Linking.openURL("https://www.facebook.com/BetterRail")}
-        />
-        <SettingBox
           last
           title={translate("settings.twitter")}
           icon="🐦"

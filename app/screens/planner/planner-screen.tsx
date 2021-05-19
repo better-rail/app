@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { Image, View, TouchableOpacity, Animated, PixelRatio, ViewStyle, ImageStyle, Appearance, Dimensions } from "react-native"
+import { Image, View, TouchableOpacity, Animated, PixelRatio, ViewStyle, ImageStyle, Dimensions } from "react-native"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
 import { useStores } from "../../models"
@@ -14,7 +14,6 @@ import { dateFnsLocalization, dateLocale, translate } from "../../i18n"
 const now = new Date()
 const fontScale = PixelRatio.getFontScale()
 const changeIcon = require("../../../assets/up-down-arrow.png")
-const isDarkMode = Appearance.getColorScheme() === "dark"
 
 const { height: deviceHeight } = Dimensions.get("screen")
 
@@ -161,7 +160,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   }
 
   return (
-    <Screen style={ROOT} preset="scroll" statusBarBackgroundColor={isDarkMode ? "#1c1c1e" : color.dim}>
+    <Screen style={ROOT} preset="scroll">
       <View style={CONTENT_WRAPPER}>
         <View style={HEADER_WRAPPER}>
           <TouchableOpacity onPress={() => navigation.navigate("favoritesStack")} activeOpacity={0.8} accessibilityLabel="הגדרות">
