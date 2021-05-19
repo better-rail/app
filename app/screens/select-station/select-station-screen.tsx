@@ -7,6 +7,7 @@ import { SelectStationScreenProps } from "../../navigators/main-navigator"
 import { color, spacing } from "../../theme"
 import { useStations } from "../../data/stations"
 import { SearchInput } from "./search-input"
+import RecentSearchesBox from "./recent-searches-box"
 
 const isDarkMode = Appearance.getColorScheme() === "dark"
 
@@ -85,6 +86,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
         renderItem={({ item }) => renderItem(item)}
         keyExtractor={(item) => item.id}
         keyboardShouldPersistTaps="handled"
+        ListEmptyComponent={() => <RecentSearchesBox />}
       />
     </Screen>
   )
