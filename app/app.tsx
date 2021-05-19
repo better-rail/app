@@ -72,8 +72,7 @@ function App() {
         <SafeAreaProvider initialMetrics={initialWindowMetrics}>
           {__DEV__ ? (
             // Use navigation persistence for development
-            // <RootNavigator ref={navigationRef} initialState={initialNavigationState} onStateChange={onNavigationStateChange} />
-            <RootNavigator ref={navigationRef} />
+            <RootNavigator ref={navigationRef} initialState={initialNavigationState} onStateChange={onNavigationStateChange} />
           ) : (
             <RootNavigator ref={navigationRef} />
           )}
