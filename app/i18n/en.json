@@ -57,6 +57,9 @@
     "twitter": "Twitter",
     "sourceCode": "Source Code"
   },
+  "favorites": {
+    "title": "Favorite Routes"
+  },
   "modals": {
     "noTrainsFound": "No trains found for the requested date",
     "foundTrainsAt": "Showing trains departing at "
