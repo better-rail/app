@@ -1,5 +1,10 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 
+type Station = {
+  id: string
+  name: string
+}
+
 const RecentSearchEntry = {
   id: types.string,
   name: types.string,
@@ -12,7 +17,7 @@ export const RecentSearchesModel = types
     entries: types.array(types.model(RecentSearchEntry)),
   })
   .actions((self) => ({
-    saveRecentSearch(station) {
+    save(station: Station) {
       const existingEntry = self.entries.find((entry) => entry.id === station.id)
 
       // If the station already exists in the entries array, update it's `updatedAt` property.
@@ -22,7 +27,7 @@ export const RecentSearchesModel = types
         const updatedEntries = [...self.entries.splice(0, entryIndex), updatedEntry, ...self.entries.splice(entryIndex + 1)]
         self.entries.replace(updatedEntries)
       } else {
-        self.entries.push({ ...station, updatedAt: new Date() })
+        self.entries.push({ id: station.id, name: station.name, updatedAt: new Date() })
       }
     },
   }))

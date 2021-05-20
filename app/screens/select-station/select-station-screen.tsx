@@ -7,7 +7,7 @@ import { SelectStationScreenProps } from "../../navigators/main-navigator"
 import { color, spacing } from "../../theme"
 import { useStations } from "../../data/stations"
 import { SearchInput } from "./search-input"
-import RecentSearchesBox from "./recent-searches-box"
+import { RecentSearchesBox } from "./recent-searches-box"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const isDarkMode = Appearance.getColorScheme() === "dark"
@@ -41,7 +41,7 @@ const CANCEL_LINK: TextStyle = {
 // #endregion
 
 export const SelectStationScreen = observer(function SelectStationScreen({ navigation, route }: SelectStationScreenProps) {
-  const { routePlan } = useStores()
+  const { routePlan, recentSearches } = useStores()
   const stations = useStations()
   const insets = useSafeAreaInsets()
   const [searchTerm, setSearchTerm] = useState("")
@@ -68,6 +68,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
         } else {
           throw new Error("Selection type was not provided.")
         }
+        recentSearches.save({ id: station.id, name: station.name })
         navigation.navigate("planner")
       }}
     />
