@@ -7,7 +7,7 @@ import { SelectStationScreenProps } from "../../navigators/main-navigator"
 import { color, spacing } from "../../theme"
 import { useStations } from "../../data/stations"
 import { SearchInput } from "./search-input"
-import { RecentSearchesBox } from "./recent-searches-box"
+import { RecentSearchesBox } from "./recent-searches-box/recent-searches-box"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const isDarkMode = Appearance.getColorScheme() === "dark"
@@ -88,7 +88,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
         renderItem={({ item }) => renderItem(item)}
         keyExtractor={(item) => item.id}
         keyboardShouldPersistTaps="handled"
-        ListEmptyComponent={() => <RecentSearchesBox />}
+        ListEmptyComponent={() => <RecentSearchesBox selectionType={route.params.selectionType} />}
       />
     </Screen>
   )
