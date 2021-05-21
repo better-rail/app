@@ -44,6 +44,7 @@ export const RecentSearchesBox = observer(function RecentSearchesBox(props: Rece
       routePlan.setDestination(station)
     }
 
+    recentSearches.save(station)
     navigation.goBack()
   }
 
