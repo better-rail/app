@@ -46,6 +46,8 @@ export const RecentSearchesBox = observer(function RecentSearchesBox(props: Rece
     navigation.goBack()
   }
 
+  if (recentSearches.entries.length === 0) return null
+
   return (
     <View>
       <View style={RECENT_SEARCHERS_HEADER}>
