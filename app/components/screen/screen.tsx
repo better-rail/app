@@ -5,10 +5,10 @@ import { ScreenProps } from "./screen.props"
 import { isNonScrolling, offsets, presets } from "./screen.presets"
 
 const isIos = Platform.OS === "ios"
-const isDarkMode = Appearance.getColorScheme() === "dark"
 
 function ScreenWithoutScrolling(props: ScreenProps) {
   const insets = useSafeAreaInsets()
+  const isDarkMode = Appearance.getColorScheme() === "dark"
   const preset = presets.fixed
   const style = props.style || {}
   const backgroundStyle = props.backgroundColor ? { backgroundColor: props.backgroundColor } : {}
@@ -33,6 +33,7 @@ function ScreenWithoutScrolling(props: ScreenProps) {
 
 function ScreenWithScrolling(props: ScreenProps) {
   const insets = useSafeAreaInsets()
+  const isDarkMode = Appearance.getColorScheme() === "dark"
   const preset = presets.scroll
   const style = props.style || {}
   const backgroundStyle = props.backgroundColor ? { backgroundColor: props.backgroundColor } : {}
