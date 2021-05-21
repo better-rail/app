@@ -25,8 +25,8 @@ const SEARCH_BAR_WRAPPER: ViewStyle = {
   paddingBottom: spacing[3],
   marginBottom: spacing[3],
   backgroundColor: color.background,
-  borderBottomWidth: 1,
-  borderBottomColor: color.dimmer,
+  borderBottomWidth: 0.75,
+  borderBottomColor: color.inputPlaceholderBackground,
 }
 
 const CANCEL_LINK: TextStyle = {
