@@ -5,7 +5,7 @@ import { View, TextStyle, ViewStyle } from "react-native"
 import { ScrollView } from "react-native-gesture-handler"
 import { Text } from "../../../components"
 import { color, spacing } from "../../../theme"
-import { stationsObject } from "../../../data/stations"
+import { stationLocale, stationsObject } from "../../../data/stations"
 import { StationSearchEntry } from "./station-search-entry"
 import { useNavigation } from "@react-navigation/core"
 
@@ -20,7 +20,13 @@ const RECENT_SEARCHERS_HEADER: ViewStyle = {
   marginHorizontal: spacing[3],
   paddingBottom: spacing[1],
   borderBottomWidth: 1,
-  borderColor: color.inputPlaceholderBackground,
+  borderColor: Platform.select({ ios: color.inputPlaceholderBackground, android: "lightgrey" }),
+}
+
+const SCROLL_VIEW: ViewStyle = {
+  minWidth: "100%",
+  marginTop: spacing[3],
+  paddingStart: spacing[3],
 }
 
 type RecentSearchesBoxProps = {
@@ -54,18 +60,17 @@ export const RecentSearchesBox = observer(function RecentSearchesBox(props: Rece
     <View>
       <View style={RECENT_SEARCHERS_HEADER}>
         <Text tx="selectStation.recentSearches" style={RECENT_SEARCHES_TITLE} />
-        {/* <Text tx="common.clear" style={[RECENT_SEARCHES_TITLE, { color: color.primary }]} /> */}
       </View>
 
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ marginTop: spacing[3], paddingStart: spacing[3] }}
+        contentContainerStyle={SCROLL_VIEW}
       >
         {sortedSearches.map((entry) => (
           <StationSearchEntry
-            name={entry.name}
+            name={stationsObject[entry.id][stationLocale]}
             image={stationsObject[entry.id].image}
             onPress={() => onStationPress(entry)}
             key={entry.id}
