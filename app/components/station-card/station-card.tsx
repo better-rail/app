@@ -1,13 +1,24 @@
 /* eslint-disable react-native/no-inline-styles */
 
 import * as React from "react"
-import { ImageBackground, View, Dimensions, TextStyle, ImageSourcePropType, ViewStyle, Image } from "react-native"
+import {
+  ImageBackground,
+  View,
+  Platform,
+  Dimensions,
+  TextStyle,
+  ImageSourcePropType,
+  ViewStyle,
+  Image,
+  Appearance,
+} from "react-native"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import LinearGradient from "react-native-linear-gradient"
 import { observer } from "mobx-react-lite"
 import { color, spacing, typography } from "../../theme"
 import { Text } from "../"
 
+const isDarkMode = Appearance.getColorScheme() === "dark"
 const { height: deviceHeight } = Dimensions.get("screen")
 
 let cardHeight = 120
@@ -75,23 +86,10 @@ const GARDIENT: ViewStyle = {
 }
 
 export interface StationCardProps extends TouchableScaleProps {
-  /**
-   * The station name to display on the card.
-   */
   name: string
-  /**
-   * The image to use as the card's background.
-   */
   image: ImageSourcePropType
-  /**
-   * An optional style override useful for padding & margin.
-   */
   style?: ViewStyle
 }
-
-/**
- * Describe your component here
- */
 export const StationCard = observer(function StationCard(props: StationCardProps) {
   const { name, image, style, ...rest } = props
 
@@ -133,7 +131,10 @@ export const StationCard = observer(function StationCard(props: StationCardProps
   return (
     <TouchableScale style={[CONTAINER, style]} activeScale={0.95} friction={9} {...rest}>
       <ImageBackground imageStyle={{ borderRadius: 6 }} source={image} style={BACKGROUND}>
-        <LinearGradient style={GARDIENT} colors={["rgba(0, 0, 0, 0.05)", "rgba(0, 0, 0, 0.75)"]} />
+        <LinearGradient
+          style={GARDIENT}
+          colors={["rgba(0, 0, 0, 0.05)", isDarkMode ? "rgba(0, 0, 0, 0.75)" : "rgba(0, 0, 0, 0.65)"]}
+        />
 
         <Text style={TEXT}>{name}</Text>
       </ImageBackground>

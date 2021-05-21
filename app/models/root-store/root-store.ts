@@ -1,6 +1,7 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { RoutePlanModel } from "../route-plan/route-plan"
 import { trainRoutesModel } from "../train-routes/train-routes"
+import { RecentSearchesModel } from "../recent-searches/recent-searches"
 import { VoucherDetailsModel } from "../voucher-details/voucher-details"
 import { VouchersModel } from "../vouchers/vouchers"
 
@@ -11,6 +12,7 @@ import { VouchersModel } from "../vouchers/vouchers"
 export const RootStoreModel = types.model("RootStore").props({
   routePlan: types.optional(RoutePlanModel, {} as any),
   trainRoutes: types.optional(trainRoutesModel, {} as any),
+  recentSearches: types.optional(RecentSearchesModel, {} as any),
   voucherDetails: types.optional(VoucherDetailsModel, {} as any),
   vouchers: types.optional(VouchersModel, {} as any)
 })
