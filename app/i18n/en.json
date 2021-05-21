@@ -15,7 +15,8 @@
     "find": "Find Routes"
   },
   "selectStation": {
-    "placeholder": "Search Stations"
+    "placeholder": "Search Stations",
+    "recentSearches": "Recently Searched"
   },
   "routes": {
     "departure": "Departure",
