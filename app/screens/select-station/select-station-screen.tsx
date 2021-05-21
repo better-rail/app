@@ -59,7 +59,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
     <StationCard
       name={station.name}
       image={station.image}
-      style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
+      style={{ marginHorizontal: spacing[3], marginBottom: spacing[3] }}
       onPress={() => {
         if (route.params.selectionType === "origin") {
           routePlan.setOrigin(station)
