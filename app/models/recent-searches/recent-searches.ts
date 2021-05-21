@@ -8,7 +8,7 @@ type Station = {
 const RecentSearchEntry = {
   id: types.string,
   name: types.string,
-  updatedAt: types.Date,
+  updatedAt: types.number,
 }
 
 export const RecentSearchesModel = types
