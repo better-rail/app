@@ -403,6 +403,7 @@ const stations = [
     english: "Netivot",
     russian: "Нетивот",
     arabic: "نتيفوت",
+    image: require("../../assets/station-images/netivot.jpg"),
   },
   {
     id: "9700",
