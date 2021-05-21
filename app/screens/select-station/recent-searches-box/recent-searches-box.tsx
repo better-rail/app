@@ -1,7 +1,7 @@
 import React, { useMemo } from "react"
 import { observer } from "mobx-react-lite"
 import { useStores } from "../../../models"
-import { View, TextStyle, ViewStyle } from "react-native"
+import { View, Image, TextStyle, ViewStyle, ImageStyle } from "react-native"
 import { ScrollView } from "react-native-gesture-handler"
 import { Text } from "../../../components"
 import { color, spacing } from "../../../theme"
@@ -54,7 +54,7 @@ export const RecentSearchesBox = observer(function RecentSearchesBox(props: Rece
     navigation.goBack()
   }
 
-  if (recentSearches.entries.length === 0) return null
+  if (recentSearches.entries.length === 0) return <RecentSearchesPlacerholder />
 
   return (
     <View>
@@ -80,3 +80,28 @@ export const RecentSearchesBox = observer(function RecentSearchesBox(props: Rece
     </View>
   )
 })
+
+const PLACEHOLDER_WRAPPER: ViewStyle = {
+  alignItems: "center",
+}
+
+const SEARCH_ICON: ImageStyle = {
+  width: 57.5,
+  height: 57.5,
+  marginBottom: spacing[2],
+  tintColor: color.dim,
+  opacity: 0.8,
+}
+
+const PLACEHOLDER_INSTRUCTIONS: TextStyle = {
+  color: color.dim,
+  textAlign: "center",
+  maxWidth: 220,
+}
+
+const RecentSearchesPlacerholder = () => (
+  <View style={PLACEHOLDER_WRAPPER}>
+    <Image style={SEARCH_ICON} source={require("../../../../assets/search.png")} />
+    <Text style={PLACEHOLDER_INSTRUCTIONS} tx="selectStation.instructions" />
+  </View>
+)

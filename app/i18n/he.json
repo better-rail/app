@@ -19,6 +19,7 @@
   },
   "selectStation": {
     "placeholder": "חיפוש תחנה",
+    "instructions": "חפשו תחנות רכבת באמצעות שורת החיפוש",
     "recentSearches": "חיפושים אחרונים"
   },
   "routes": {
