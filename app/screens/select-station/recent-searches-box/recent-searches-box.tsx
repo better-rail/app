@@ -19,7 +19,7 @@ const RECENT_SEARCHERS_HEADER: ViewStyle = {
   justifyContent: "space-between",
   marginHorizontal: spacing[3],
   paddingBottom: spacing[1],
-  borderBottomWidth: 1,
+  borderBottomWidth: 0.5,
   borderColor: Platform.select({ ios: color.inputPlaceholderBackground, android: "lightgrey" }),
 }
 
