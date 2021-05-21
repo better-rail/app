@@ -26,7 +26,7 @@ const SEARCH_BAR_WRAPPER: ViewStyle = {
   marginBottom: spacing[3],
   backgroundColor: color.background,
   borderBottomWidth: 0.75,
-  borderBottomColor: color.inputPlaceholderBackground,
+  borderBottomColor: Platform.select({ ios: color.dimmer, android: "lightgrey" }),
 }
 
 const CANCEL_LINK: TextStyle = {
@@ -75,8 +75,8 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
   )
 
   return (
-    <Screen style={ROOT} preset="fixed" unsafe={true} statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}>
-      <View style={[SEARCH_BAR_WRAPPER, { paddingTop: insets.top }]}>
+    <Screen style={ROOT} preset="fixed" unsafe={true} statusBarBackgroundColor={isDarkMode ? "#000" : "#f2f2f7"}>
+      <View style={[SEARCH_BAR_WRAPPER, { paddingTop: insets.top > 0 ? insets.top : 5 }]}>
         <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         <Pressable onPress={() => navigation.navigate("planner")}>
           <Text style={CANCEL_LINK} tx="common.cancel" />
