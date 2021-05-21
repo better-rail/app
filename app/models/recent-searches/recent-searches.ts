@@ -23,11 +23,12 @@ export const RecentSearchesModel = types
       // If the station already exists in the entries array, update it's `updatedAt` property.
       if (existingEntry) {
         const entryIndex = self.entries.indexOf(existingEntry)
-        const updatedEntry = Object.assign(existingEntry, { updatedAt: new Date() })
-        const updatedEntries = [...self.entries.splice(0, entryIndex), updatedEntry, ...self.entries.splice(entryIndex + 1)]
+        const updatedEntry = Object.assign({}, existingEntry, { updatedAt: new Date().getTime() })
+        const updatedEntries = [...self.entries.slice(0, entryIndex), updatedEntry, ...self.entries.slice(entryIndex + 1)]
+
         self.entries.replace(updatedEntries)
       } else {
-        self.entries.push({ id: station.id, name: station.name, updatedAt: new Date() })
+        self.entries.push({ id: station.id, name: station.name, updatedAt: new Date().getTime() })
       }
     },
   }))
