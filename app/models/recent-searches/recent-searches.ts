@@ -1,15 +1,8 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 
-type Station = {
-  id: string
-  name: string
-}
+type Station = { id: string }
 
-const RecentSearchEntry = {
-  id: types.string,
-  name: types.string,
-  updatedAt: types.number,
-}
+const RecentSearchEntry = { id: types.string, updatedAt: types.number }
 
 export const RecentSearchesModel = types
   .model("RecentSearches")
@@ -28,7 +21,7 @@ export const RecentSearchesModel = types
 
         self.entries.replace(updatedEntries)
       } else {
-        self.entries.push({ id: station.id, name: station.name, updatedAt: new Date().getTime() })
+        self.entries.push({ id: station.id, updatedAt: new Date().getTime() })
       }
     },
   }))

@@ -42,7 +42,7 @@ export const RecentSearchesBox = observer(function RecentSearchesBox(props: Rece
   }, [])
 
   const onStationPress = (entry) => {
-    const station = { id: entry.id, name: entry.name }
+    const station = { id: entry.id, name: entry.id }
 
     if (props.selectionType === "origin") {
       routePlan.setOrigin(station)
@@ -50,7 +50,7 @@ export const RecentSearchesBox = observer(function RecentSearchesBox(props: Rece
       routePlan.setDestination(station)
     }
 
-    recentSearches.save(station)
+    recentSearches.save({ id: station.id })
     navigation.goBack()
   }
 

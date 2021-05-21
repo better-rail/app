@@ -16,7 +16,6 @@ const SEARCH_ENTRY_IMAGE_WRAPPER: ViewStyle = {
   shadowColor: "rgba(0,0,0,.3)",
   shadowRadius: 1.5,
   shadowOpacity: colorScheme === "light" ? 0.5 : 0,
-  elevation: colorScheme === "light" ? 1 : 0,
 }
 
 const SEARCH_ENTRY_IMAGE: ImageStyle = {

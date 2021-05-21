@@ -2,6 +2,7 @@
   "common": {
     "cancel": "Cancel",
     "ok": "OK",
+    "delete": "Delete",
     "relax": "Don't forget to take a breath, please."
   },
   "plan": {
