@@ -56,6 +56,7 @@ export const RecentSearchesBox = observer(function RecentSearchesBox(props: Rece
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ marginTop: spacing[3], paddingStart: spacing[3] }}
       >
         {sortedSearches.map((entry) => (
