@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 
 import * as React from "react"
-import { ImageBackground, View, Dimensions, TextStyle, ImageSourcePropType, ViewStyle, Image } from "react-native"
+import { ImageBackground, View, Platform, Dimensions, TextStyle, ImageSourcePropType, ViewStyle, Image } from "react-native"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import LinearGradient from "react-native-linear-gradient"
 import { observer } from "mobx-react-lite"
@@ -75,23 +75,10 @@ const GARDIENT: ViewStyle = {
 }
 
 export interface StationCardProps extends TouchableScaleProps {
-  /**
-   * The station name to display on the card.
-   */
   name: string
-  /**
-   * The image to use as the card's background.
-   */
   image: ImageSourcePropType
-  /**
-   * An optional style override useful for padding & margin.
-   */
   style?: ViewStyle
 }
-
-/**
- * Describe your component here
- */
 export const StationCard = observer(function StationCard(props: StationCardProps) {
   const { name, image, style, ...rest } = props
 
