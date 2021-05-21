@@ -11,6 +11,7 @@ import { useNavigation } from "@react-navigation/core"
 
 const RECENT_SEARCHES_TITLE: TextStyle = {
   fontWeight: "500",
+  opacity: 0.8,
 }
 
 const RECENT_SEARCHERS_HEADER: ViewStyle = {

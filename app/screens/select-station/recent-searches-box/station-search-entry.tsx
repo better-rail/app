@@ -12,7 +12,7 @@ const SEARCH_ENTRY_WRAPPER: ViewStyle = {
 const SEARCH_ENTRY_IMAGE_WRAPPER: ViewStyle = {
   shadowOffset: { width: 0, height: 0 },
   shadowColor: color.dim,
-  shadowRadius: 1,
+  shadowRadius: 3,
   shadowOpacity: 0.5,
 }
 
