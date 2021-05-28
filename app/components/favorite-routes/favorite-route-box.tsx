@@ -1,5 +1,5 @@
 import React, { useMemo } from "react"
-import { View, ViewStyle, Dimensions, Platform, TextStyle } from "react-native"
+import { View, ViewStyle, Dimensions, Platform, TextStyle, Appearance } from "react-native"
 import { Blurhash } from "react-native-blurhash"
 import TouchableScale from "react-native-touchable-scale"
 import { Text } from "../"
@@ -7,6 +7,7 @@ import { stationLocale, stationsObject } from "../../data/stations"
 import { color, spacing } from "../../theme"
 
 const deviceWidth = Dimensions.get("screen").width
+const isDarkMode = Appearance.getColorScheme() === "dark"
 
 const CONTAINER: ViewStyle = {
   height: 100,
@@ -16,7 +17,7 @@ const CONTAINER: ViewStyle = {
   borderRadius: 8,
   backgroundColor: "#fff",
   shadowOffset: { width: 1, height: 0 },
-  shadowColor: color.dim,
+  shadowColor: isDarkMode ? undefined : color.dim,
   shadowRadius: 4,
   shadowOpacity: 1,
 }
@@ -30,15 +31,17 @@ const STATION_NAME: TextStyle = {
   color: color.whiteText,
   fontWeight: "500",
   fontSize: 16.5,
+  textShadowRadius: 6,
+  textShadowColor: "rgba(0,0,0,0.5)",
 }
 
 const STATION_CIRCLE: ViewStyle = {
   width: 14,
   height: 14,
   marginEnd: spacing[2],
-  backgroundColor: color.background,
+  backgroundColor: "#fff",
   borderWidth: 2,
-  borderColor: Platform.select({ ios: color.separator, android: "#bdbdc2" }),
+  borderColor: color.dimmer,
   borderRadius: 10,
   zIndex: 10,
 }
@@ -70,9 +73,7 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
         />
       </View>
       <View style={[STATION_WRAPPER, { marginBottom: spacing[3] }]}>
-        <View
-          style={[STATION_CIRCLE, { backgroundColor: color.secondaryBackground, borderWidth: 4, borderColor: color.secondary }]}
-        />
+        <View style={[STATION_CIRCLE, { backgroundColor: "#fff", borderWidth: 3.5, borderColor: color.secondary }]} />
         <Text style={STATION_NAME}>{originName}</Text>
       </View>
       <RouteLine />
