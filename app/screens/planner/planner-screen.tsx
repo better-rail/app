@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react"
+import React, { useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { Image, View, TouchableOpacity, Animated, PixelRatio, ViewStyle, ImageStyle, Dimensions } from "react-native"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
@@ -163,9 +163,6 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     <Screen style={ROOT} preset="scroll">
       <View style={CONTENT_WRAPPER}>
         <View style={HEADER_WRAPPER}>
-          <TouchableOpacity onPress={() => navigation.navigate("favoritesStack")} activeOpacity={0.8} accessibilityLabel="הגדרות">
-            <Image source={require("../../../assets/star.png")} style={STAR_ICON} />
-          </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate("settingsStack")} activeOpacity={0.8} accessibilityLabel="הגדרות">
             <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />
           </TouchableOpacity>
