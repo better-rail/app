@@ -1,5 +1,5 @@
 import React, { useMemo } from "react"
-import { View, ViewStyle, Dimensions, TextStyle } from "react-native"
+import { View, ViewStyle, Dimensions, Platform, TextStyle } from "react-native"
 import { Blurhash } from "react-native-blurhash"
 import TouchableScale from "react-native-touchable-scale"
 import { Text } from "../"
@@ -36,9 +36,9 @@ const STATION_CIRCLE: ViewStyle = {
   width: 14,
   height: 14,
   marginEnd: spacing[2],
-  backgroundColor: color.whiteText,
+  backgroundColor: color.background,
   borderWidth: 2,
-  borderColor: color.dimmer,
+  borderColor: Platform.select({ ios: color.separator, android: "#bdbdc2" }),
   borderRadius: 10,
   zIndex: 10,
 }
