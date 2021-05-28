@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import React from "react"
 import { observer } from "mobx-react-lite"
 import { View, ViewStyle } from "react-native"
 import { RouteDetailsHeader, Screen } from "../../components"
@@ -8,7 +8,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { SharedElement } from "react-navigation-shared-element"
 import { ScrollView } from "react-native-gesture-handler"
 import { format } from "date-fns"
-import { useStores } from "../../models"
 import { RouteStationCard, RouteStopCard, RouteExchangeDetails } from "./components"
 
 const ROOT: ViewStyle = {
