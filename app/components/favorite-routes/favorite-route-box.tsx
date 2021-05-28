@@ -13,16 +13,31 @@ const CONTAINER: ViewStyle = {
   shadowOffset: { width: 0, height: 0 },
   shadowColor: color.dim,
   shadowRadius: 1,
-  shadowOpacity: 5,
+  shadowOpacity: 0,
+}
+
+const STATION_WRAPPER: ViewStyle = {
+  flexDirection: "row",
+  alignItems: "center",
+}
+
+const STATION_CIRCLE: ViewStyle = {
+  width: 14,
+  height: 14,
+  marginEnd: spacing[2],
+  backgroundColor: color.separator,
+  borderRadius: 10,
+  zIndex: 10,
 }
 
 type FavoriteRouteBoxProps = {
   originId: string
   destinationId: string
+  onPress: () => void
 }
 
 export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
-  const { originId, destinationId } = props
+  const { originId, destinationId, onPress } = props
 
   const [originName, destinationName] = useMemo(() => {
     const origin = stationsObject[originId][stationLocale]
@@ -32,12 +47,20 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
   }, [])
 
   return (
-    <TouchableScale style={CONTAINER} activeScale={0.96} friction={8}>
-      <View>
-        <View />
+    <TouchableScale style={CONTAINER} activeScale={0.96} friction={8} onPress={onPress}>
+      <View style={[STATION_WRAPPER, { marginBottom: spacing[2] }]}>
+        <View style={[STATION_CIRCLE, { backgroundColor: color.secondary }]} />
         <Text>{originName}</Text>
       </View>
-      <Text>{destinationName}</Text>
+      <RouteLine />
+      <View style={STATION_WRAPPER}>
+        <View style={STATION_CIRCLE} />
+        <Text>{destinationName}</Text>
+      </View>
     </TouchableScale>
   )
 }
+
+const RouteLine = () => (
+  <View style={{ position: "absolute", start: "4.5%", width: 4, height: 40, backgroundColor: color.separator, zIndex: 0 }} />
+)

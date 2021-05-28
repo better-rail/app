@@ -44,7 +44,7 @@ export const FavoriteRoutes = observer(function FavoriteRoutes(props: FavoriteRo
   const stations = useStations()
   const { routePlan, favoriteRoutes } = useStores()
 
-  const onFavoritePress = (originId, destinationId) => {
+  const onFavoritePress = (originId: string, destinationId: string) => {
     const origin = stations.find((s) => s.id === originId)
     const destination = stations.find((s) => s.id === destinationId)
 
@@ -61,7 +61,7 @@ export const FavoriteRoutes = observer(function FavoriteRoutes(props: FavoriteRo
       </View>
       <View style={ROUTES_CONTAINER}>
         {favoriteRoutes.routes.map((route) => (
-          <FavoriteRouteBox {...route} />
+          <FavoriteRouteBox {...route} onPress={() => onFavoritePress(route.originId, route.destinationId)} key={route.id} />
         ))}
       </View>
     </View>
