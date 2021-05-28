@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { FlatList, View, TextStyle, ViewStyle, Pressable, Platform, I18nManager, Appearance } from "react-native"
-import { Screen, Text, StationCard } from "../../components"
+import { Screen, Text, StationCard, FavoriteRoutes } from "../../components"
 import { useStores } from "../../models"
 import { SelectStationScreenProps } from "../../navigators/main-navigator"
 import { color, spacing } from "../../theme"
@@ -90,7 +90,12 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
         renderItem={({ item }) => renderItem(item)}
         keyExtractor={(item) => item.id}
         keyboardShouldPersistTaps="handled"
-        ListEmptyComponent={() => <RecentSearchesBox selectionType={route.params.selectionType} />}
+        ListEmptyComponent={() => (
+          <View>
+            <RecentSearchesBox selectionType={route.params.selectionType} />
+            <FavoriteRoutes />
+          </View>
+        )}
       />
     </Screen>
   )
