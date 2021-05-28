@@ -2,6 +2,7 @@
   "common": {
     "cancel": "الغاء",
     "ok": "موافقة",
+    "delete": "حذف",
     "relax": "الرجاء, لا تنسى ان تتنفس"
   },
   "plan": {
@@ -17,7 +18,9 @@
     "switchStationsHint": "اختصار لتبديل محطة البداية بمحطة الوصول"
   },
   "selectStation": {
-    "placeholder": "البحث عن محطة"
+    "placeholder": "البحث عن محطة",
+    "instructions": "ابحث عن محطات القطار باستخدام شريط البحث",
+    "recentSearches": "عمليات البحث الأخيرة"
   },
   "routes": {
     "departure": "انطلاق",

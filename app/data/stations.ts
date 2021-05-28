@@ -149,9 +149,9 @@ const stations = [
   },
   {
     id: "7300",
-    hebrew: "באר שבע- צפון/אוניברסיטה",
-    english: "Be'er Sheva-North/University",
-    russian: "Беер-Шева Цафон",
+    hebrew: "באר שבע - צפון/אוניברסיטה",
+    english: "Be'er Sheva - North/University",
+    russian: "Беер - Шева Цафон",
     arabic: "بئر السبع - شمال/الجامعة",
     image: require("../../assets/station-images/beer-sheva-university.jpg"),
   },
@@ -404,6 +404,7 @@ const stations = [
     english: "Netivot",
     russian: "Нетивот",
     arabic: "نتيفوت",
+    image: require("../../assets/station-images/netivot.jpg"),
   },
   {
     id: "9700",

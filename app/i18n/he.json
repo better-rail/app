@@ -2,6 +2,7 @@
   "common": {
     "cancel": "ביטול",
     "ok": "אישור",
+    "delete": "מחיקה",
     "relax": "אנא, אל תשכחו לנשום"
   },
   "plan": {
@@ -17,7 +18,9 @@
     "switchStationsHint": "קיצור דרך להחלפת תחנת המוצא עם תחנת היעד"
   },
   "selectStation": {
-    "placeholder": "חיפוש תחנה"
+    "placeholder": "חיפוש תחנה",
+    "instructions": "חפשו תחנות רכבת באמצעות שורת החיפוש",
+    "recentSearches": "חיפושים אחרונים"
   },
   "routes": {
     "departure": "יציאה",

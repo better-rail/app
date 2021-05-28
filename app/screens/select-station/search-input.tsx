@@ -25,7 +25,7 @@ const SEARCH_BAR: ViewStyle = {
   paddingVertical: Platform.select({ ios: spacing[3], android: undefined }),
   paddingEnd: spacing[2],
   borderRadius: 8,
-  backgroundColor: color.background,
+  backgroundColor: color.dimmer,
 }
 
 const SEARCH_INPUT_WRAPPER: ViewStyle = {
