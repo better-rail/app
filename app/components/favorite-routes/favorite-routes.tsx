@@ -29,6 +29,7 @@ const FAVORITE_ROUTES_HEADER: ViewStyle = {
 }
 
 const ROUTES_CONTAINER: ViewStyle = {
+  marginTop: spacing[3],
   marginHorizontal: spacing[3],
 }
 
@@ -61,7 +62,12 @@ export const FavoriteRoutes = observer(function FavoriteRoutes(props: FavoriteRo
       </View>
       <View style={ROUTES_CONTAINER}>
         {favoriteRoutes.routes.map((route) => (
-          <FavoriteRouteBox {...route} onPress={() => onFavoritePress(route.originId, route.destinationId)} key={route.id} />
+          <FavoriteRouteBox
+            {...route}
+            onPress={() => onFavoritePress(route.originId, route.destinationId)}
+            style={{ marginBottom: spacing[3] }}
+            key={route.id}
+          />
         ))}
       </View>
     </View>
