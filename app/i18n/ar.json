@@ -63,9 +63,9 @@
     "sourceCode": "كود التطبيق"
   },
   "favorites": {
-    "title": "Favoruite Rotes",
-    "empty": "No Favorites",
-    "emptyDescription": "You can add a favourite from the routes screen.",
+    "title": "الطرق المفضلة",
+    "empty": "لا مفضلات",
+    "emptyDescription": "",
     "added": "أضيفت إلى المفضلة"
   },
   "modals": {
