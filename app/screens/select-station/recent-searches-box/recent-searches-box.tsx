@@ -4,7 +4,7 @@ import { useStores } from "../../../models"
 import { View, Image, TextStyle, ViewStyle, ImageStyle } from "react-native"
 import { ScrollView } from "react-native-gesture-handler"
 import { Text } from "../../../components"
-import { color, spacing } from "../../../theme"
+import { color, isDarkMode, spacing } from "../../../theme"
 import { stationLocale, stationsObject } from "../../../data/stations"
 import { StationSearchEntry } from "./station-search-entry"
 import { useNavigation } from "@react-navigation/core"
@@ -20,7 +20,7 @@ const RECENT_SEARCHERS_HEADER: ViewStyle = {
   marginHorizontal: spacing[3],
   paddingBottom: spacing[1],
   borderBottomWidth: 0.5,
-  borderColor: Platform.select({ ios: color.inputPlaceholderBackground, android: "lightgrey" }),
+  borderColor: Platform.select({ ios: color.inputPlaceholderBackground, android: isDarkMode ? "#3a3a3c" : "lightgrey" }),
 }
 
 const SCROLL_VIEW: ViewStyle = {

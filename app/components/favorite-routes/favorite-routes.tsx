@@ -3,7 +3,7 @@ import { View, TextStyle, ViewStyle, Platform, Image } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
 import { useStores } from "../../models"
-import { color, spacing, typography } from "../../theme"
+import { color, isDarkMode, spacing } from "../../theme"
 import { Text } from "../"
 import { useStations } from "../../data/stations"
 import { FavoriteRouteBox } from "./favorite-route-box"
@@ -25,7 +25,7 @@ const FAVORITE_ROUTES_HEADER: ViewStyle = {
   marginHorizontal: spacing[3],
   paddingBottom: spacing[1],
   borderBottomWidth: 0.5,
-  borderColor: Platform.select({ ios: color.inputPlaceholderBackground, android: "lightgrey" }),
+  borderColor: Platform.select({ ios: color.inputPlaceholderBackground, android: isDarkMode ? "#3a3a3c" : "lightgrey" }),
 }
 
 const ROUTES_CONTAINER: ViewStyle = {

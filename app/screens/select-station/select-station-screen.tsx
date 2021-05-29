@@ -1,16 +1,14 @@
 import React, { useMemo, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { FlatList, View, TextStyle, ViewStyle, Pressable, Platform, I18nManager, Appearance } from "react-native"
+import { FlatList, View, TextStyle, ViewStyle, Pressable, Platform, I18nManager } from "react-native"
 import { Screen, Text, StationCard, FavoriteRoutes } from "../../components"
 import { useStores } from "../../models"
 import { SelectStationScreenProps } from "../../navigators/main-navigator"
-import { color, spacing } from "../../theme"
+import { color, spacing, isDarkMode } from "../../theme"
 import { useStations } from "../../data/stations"
 import { SearchInput } from "./search-input"
 import { RecentSearchesBox } from "./recent-searches-box/recent-searches-box"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-
-const isDarkMode = Appearance.getColorScheme() === "dark"
 
 // #region styles
 const ROOT: ViewStyle = {
@@ -26,7 +24,7 @@ const SEARCH_BAR_WRAPPER: ViewStyle = {
   marginBottom: spacing[3],
   backgroundColor: color.background,
   borderBottomWidth: 0.75,
-  borderBottomColor: Platform.select({ ios: color.dimmer, android: "lightgrey" }),
+  borderBottomColor: Platform.select({ ios: color.dimmer, android: isDarkMode ? "#3a3a3c" : "lightgrey" }),
 }
 
 const CANCEL_LINK: TextStyle = {
@@ -75,7 +73,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
   )
 
   return (
-    <Screen style={ROOT} preset="fixed" unsafe={true} statusBarBackgroundColor={isDarkMode ? "#000" : "#f2f2f7"}>
+    <Screen style={ROOT} preset="fixed" unsafe={true} statusBarBackgroundColor={isDarkMode ? "#1c1c1e" : "#f2f2f7"}>
       <View
         style={[SEARCH_BAR_WRAPPER, { paddingTop: insets.top > 20 ? insets.top : Platform.select({ ios: 27.5, android: 5 }) }]}
       >
