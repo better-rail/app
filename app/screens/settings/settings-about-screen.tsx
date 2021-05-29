@@ -38,7 +38,7 @@ const ABOUT_TEXT: TextStyle = {
 
 export const AboutScreen = observer(function AboutScreen({ navigation }: SettingsScreenProps) {
   return (
-    <Screen style={ROOT} preset="scroll" unsafe={true}>
+    <Screen style={ROOT} preset="scroll" unsafe={true} statusBar="light-content">
       <View style={[SETTING_GROUP, { alignItems: "center", padding: spacing[4] }]}>
         <Image
           source={require("../../../assets/guymoji.png")}

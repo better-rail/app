@@ -71,7 +71,13 @@ const storeLink = Platform.select({
 
 export const SettingsScreen = observer(function SettingsScreen({ navigation }: SettingsScreenProps) {
   return (
-    <Screen style={ROOT} preset="scroll" unsafe={true} statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}>
+    <Screen
+      style={ROOT}
+      preset="scroll"
+      unsafe={true}
+      statusBar="light-content"
+      statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
+    >
       <View style={SETTING_GROUP}>
         <SettingBox
           first

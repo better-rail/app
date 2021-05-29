@@ -1,4 +1,4 @@
-import * as React from "react"
+import React, { useState, useEffect } from "react"
 import { Appearance, KeyboardAvoidingView, Platform, ScrollView, StatusBar, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { ScreenProps } from "./screen.props"
@@ -8,11 +8,17 @@ const isIos = Platform.OS === "ios"
 
 function ScreenWithoutScrolling(props: ScreenProps) {
   const insets = useSafeAreaInsets()
-  const isDarkMode = Appearance.getColorScheme() === "dark"
   const preset = presets.fixed
+  const [isDarkMode, setIsDarkMode] = useState(() => Appearance.getColorScheme() === "dark")
   const style = props.style || {}
   const backgroundStyle = props.backgroundColor ? { backgroundColor: props.backgroundColor } : {}
   const insetStyle = { paddingTop: props.unsafe ? 0 : insets.top }
+
+  useEffect(() => {
+    Appearance.addChangeListener(({ colorScheme }) => {
+      setIsDarkMode(colorScheme === "dark")
+    })
+  }, [])
 
   return (
     <KeyboardAvoidingView
@@ -33,11 +39,17 @@ function ScreenWithoutScrolling(props: ScreenProps) {
 
 function ScreenWithScrolling(props: ScreenProps) {
   const insets = useSafeAreaInsets()
-  const isDarkMode = Appearance.getColorScheme() === "dark"
   const preset = presets.scroll
   const style = props.style || {}
+  const [isDarkMode, setIsDarkMode] = useState(() => Appearance.getColorScheme() === "dark")
   const backgroundStyle = props.backgroundColor ? { backgroundColor: props.backgroundColor } : {}
   const insetStyle = { paddingTop: props.unsafe ? 0 : insets.top }
+
+  useEffect(() => {
+    Appearance.addChangeListener(({ colorScheme }) => {
+      setIsDarkMode(colorScheme === "dark")
+    })
+  }, [])
 
   return (
     <KeyboardAvoidingView
