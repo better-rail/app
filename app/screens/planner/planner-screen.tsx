@@ -45,6 +45,13 @@ const SETTINGS_ICON: ImageStyle = {
   opacity: 0.7,
 }
 
+const STAR_ICON: ImageStyle = {
+  width: headerIconSize,
+  height: headerIconSize - 1,
+  tintColor: color.primary,
+  opacity: 0.7,
+}
+
 const HEADER_TITLE: TextStyle = {
   marginBottom: primaryFontIOS === "System" ? 6 : 3,
 }
@@ -119,7 +126,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     return undefined
   }, [routePlan.destination?.name, stations])
 
-  const onSwitchPress = () => {
+  const scaleStationCards = () => {
     Animated.sequence([
       Animated.timing(stationCardScale, {
         toValue: 0.96,
@@ -132,6 +139,10 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
         useNativeDriver: true,
       }),
     ]).start()
+  }
+
+  const onSwitchPress = () => {
+    scaleStationCards()
 
     // Delay the actual switch so it'll be synced with the animation
     setTimeout(() => {

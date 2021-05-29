@@ -325,6 +325,7 @@ const stations = [
     english: "Lod - Gane Aviv",
     russian: "Лод - Ганей Авив",
     arabic: "اللد - چاني أڤيڤ",
+    image: require("../../assets/station-images/lod-gane-aviv.jpg"),
   },
   {
     id: "8550",
@@ -496,6 +497,7 @@ const stations = [
     russian: "Иерусалим - Ицхак Навон",
     arabic: "أورشليم – يتسحاق ناڤون",
     image: require("../../assets/station-images/jerusalem-itzhak-navon.jpg"),
+    blurhash: "9KGSDi?w",
   },
   {
     id: "6900",
@@ -507,10 +509,6 @@ const stations = [
   },
 ]
 
-let normalizeStationNames = []
-
-export default normalizeStationNames
-
 type StationsObjectType = {
   [key: string]: {
     id: string
@@ -519,6 +517,7 @@ type StationsObjectType = {
     russian: string
     arabic: string
     image?: undefined
+    blurhash?: string
   }
 }
 

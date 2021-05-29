@@ -60,6 +60,12 @@
     "twitter": "Twitter",
     "sourceCode": "Source Code"
   },
+  "favorites": {
+    "title": "Favorite Routes",
+    "empty": "No Favorites",
+    "emptyDescription": "You can add a favorite from the routes screen",
+    "added": "Added to Favorites"
+  },
   "modals": {
     "noTrainsFound": "No trains found for the requested date",
     "foundTrainsAt": "Showing trains departing at "

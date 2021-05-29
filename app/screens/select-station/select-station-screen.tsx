@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { FlatList, View, TextStyle, ViewStyle, Pressable, Platform, I18nManager, Appearance } from "react-native"
-import { Screen, Text, StationCard } from "../../components"
+import { Screen, Text, StationCard, FavoriteRoutes } from "../../components"
 import { useStores } from "../../models"
 import { SelectStationScreenProps } from "../../navigators/main-navigator"
 import { color, spacing } from "../../theme"
@@ -41,7 +41,7 @@ const CANCEL_LINK: TextStyle = {
 // #endregion
 
 export const SelectStationScreen = observer(function SelectStationScreen({ navigation, route }: SelectStationScreenProps) {
-  const { routePlan, recentSearches } = useStores()
+  const { routePlan, recentSearches, favoriteRoutes } = useStores()
   const stations = useStations()
   const insets = useSafeAreaInsets()
   const [searchTerm, setSearchTerm] = useState("")
@@ -79,7 +79,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
       <View
         style={[SEARCH_BAR_WRAPPER, { paddingTop: insets.top > 20 ? insets.top : Platform.select({ ios: 27.5, android: 5 }) }]}
       >
-        <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+        <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} autoFocus={favoriteRoutes.routes.length < 2} />
         <Pressable onPress={() => navigation.navigate("planner")}>
           <Text style={CANCEL_LINK} tx="common.cancel" />
         </Pressable>
@@ -90,7 +90,12 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
         renderItem={({ item }) => renderItem(item)}
         keyExtractor={(item) => item.id}
         keyboardShouldPersistTaps="handled"
-        ListEmptyComponent={() => <RecentSearchesBox selectionType={route.params.selectionType} />}
+        ListEmptyComponent={() => (
+          <View>
+            <RecentSearchesBox selectionType={route.params.selectionType} />
+            {recentSearches.entries.length > 1 && <FavoriteRoutes />}
+          </View>
+        )}
       />
     </Screen>
   )

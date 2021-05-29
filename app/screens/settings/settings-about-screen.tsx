@@ -1,10 +1,10 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
-import { Image, Linking, TextStyle, View, ViewStyle } from "react-native"
+import { Image, Linking, Platform, TextStyle, View, ViewStyle } from "react-native"
 import { Screen, Text } from "../../components"
 import { SettingBox } from "./components/settings-box"
 
-import { color, spacing } from "../../theme"
+import { color, spacing, isDarkMode } from "../../theme"
 import { openLink } from "../../utils/helpers/open-link"
 import { translate } from "../../i18n"
 import { SettingsScreenProps } from "../../navigators"
@@ -38,7 +38,13 @@ const ABOUT_TEXT: TextStyle = {
 
 export const AboutScreen = observer(function AboutScreen({ navigation }: SettingsScreenProps) {
   return (
-    <Screen style={ROOT} preset="scroll" unsafe={true} statusBar="light-content">
+    <Screen
+      style={ROOT}
+      preset="scroll"
+      unsafe={true}
+      statusBar={Platform.select({ ios: "light-content" })}
+      statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
+    >
       <View style={[SETTING_GROUP, { alignItems: "center", padding: spacing[4] }]}>
         <Image
           source={require("../../../assets/guymoji.png")}

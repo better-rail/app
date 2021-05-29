@@ -130,10 +130,12 @@ export const color = {
     android: PlatformColor("@color/lightGrey"),
   }),
 
-  /**
-   * Error messages and icons.
-   */
   error: palette.angry,
+
+  yellow: Platform.select({
+    ios: PlatformColor("systemYellow"),
+    android: "yellow",
+  }),
 
   /**
    * Storybook background for Text stories, or any stories where

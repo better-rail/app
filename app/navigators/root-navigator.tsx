@@ -5,7 +5,11 @@ import { createNativeStackNavigator } from "react-native-screens/native-stack"
 import { MainNavigator } from "./main-navigator"
 import { SettingsNavigator } from "./settings/settings-navigator"
 
-export type RootParamList = { mainStack: undefined; secondaryStack: undefined; settingsStack: undefined }
+export type RootParamList = {
+  mainStack: undefined
+  secondaryStack: undefined
+  settingsStack: undefined
+}
 
 const Stack = createNativeStackNavigator<RootParamList>()
 
