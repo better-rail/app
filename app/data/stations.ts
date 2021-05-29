@@ -509,10 +509,6 @@ const stations = [
   },
 ]
 
-let normalizeStationNames = []
-
-export default normalizeStationNames
-
 type StationsObjectType = {
   [key: string]: {
     id: string
