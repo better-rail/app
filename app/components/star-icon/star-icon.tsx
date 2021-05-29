@@ -10,10 +10,10 @@ const CONTAINER: ViewStyle = {
 }
 
 const STAR_ICON: ImageStyle = {
-  width: 28,
-  height: 27,
+  width: 27,
+  height: 25,
   marginEnd: spacing[2],
-  marginBottom: spacing[2] - 1,
+
   tintColor: "lightgrey",
   opacity: 0.9,
 }
