@@ -35,7 +35,7 @@ export const StarIcon = observer(function StarIcon(props: StarIconProps) {
     let STAR_STATE_STYLE: ImageStyle = { tintColor: "lightgrey" }
 
     if (filled) {
-      STAR_STATE_STYLE = { tintColor: color.yellow }
+      STAR_STATE_STYLE = { tintColor: color.yellow, opacity: 0.75 }
     }
 
     return [STAR_ICON_SOURCE, STAR_STATE_STYLE]
