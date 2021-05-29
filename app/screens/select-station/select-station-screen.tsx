@@ -41,7 +41,7 @@ const CANCEL_LINK: TextStyle = {
 // #endregion
 
 export const SelectStationScreen = observer(function SelectStationScreen({ navigation, route }: SelectStationScreenProps) {
-  const { routePlan, recentSearches } = useStores()
+  const { routePlan, recentSearches, favoriteRoutes } = useStores()
   const stations = useStations()
   const insets = useSafeAreaInsets()
   const [searchTerm, setSearchTerm] = useState("")
@@ -79,7 +79,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
       <View
         style={[SEARCH_BAR_WRAPPER, { paddingTop: insets.top > 20 ? insets.top : Platform.select({ ios: 27.5, android: 5 }) }]}
       >
-        <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+        <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} autoFocus={favoriteRoutes.routes.length < 2} />
         <Pressable onPress={() => navigation.navigate("planner")}>
           <Text style={CANCEL_LINK} tx="common.cancel" />
         </Pressable>

@@ -54,7 +54,7 @@ const DISMISS_ICON: ImageStyle = {
   opacity: 0.7,
 }
 
-export const SearchInput = ({ searchTerm, setSearchTerm }) => (
+export const SearchInput = ({ searchTerm, setSearchTerm, autoFocus }) => (
   <View style={SEARCH_BAR}>
     <View style={SEARCH_INPUT_WRAPPER}>
       <Image style={SEARCH_ICON} source={require("../../../assets/search.png")} />
@@ -79,7 +79,7 @@ export const SearchInput = ({ searchTerm, setSearchTerm }) => (
           })
           setSearchTerm(text)
         }}
-        autoFocus={true}
+        autoFocus={autoFocus}
         autoCorrect={false}
       />
     </View>
