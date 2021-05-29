@@ -63,7 +63,8 @@
   "favorites": {
     "title": "Favorite Routes",
     "empty": "No Favorites",
-    "emptyDescription": "You can add a favourite from the routes screen."
+    "emptyDescription": "You can add a favourite from the routes screen.",
+    "added": "Added to Favorites"
   },
   "modals": {
     "noTrainsFound": "No trains found for the requested date",

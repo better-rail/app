@@ -54,14 +54,10 @@ export const RecentSearchesBox = observer(function RecentSearchesBox(props: Rece
     navigation.goBack()
   }
 
-  if (recentSearches.entries.length === 0) return <RecentSearchesPlacerholder />
+  const content = useMemo(() => {
+    if (recentSearches.entries.length === 0) return <RecentSearchesPlacerholder />
 
-  return (
-    <View>
-      <View style={RECENT_SEARCHERS_HEADER}>
-        <Text tx="selectStation.recentSearches" style={RECENT_SEARCHES_TITLE} />
-      </View>
-
+    return (
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -77,11 +73,22 @@ export const RecentSearchesBox = observer(function RecentSearchesBox(props: Rece
           />
         ))}
       </ScrollView>
+    )
+  }, [])
+
+  return (
+    <View>
+      <View style={RECENT_SEARCHERS_HEADER}>
+        <Text tx="selectStation.recentSearches" style={RECENT_SEARCHES_TITLE} />
+      </View>
+
+      {content}
     </View>
   )
 })
 
 const PLACEHOLDER_WRAPPER: ViewStyle = {
+  marginTop: spacing[3],
   alignItems: "center",
 }
 

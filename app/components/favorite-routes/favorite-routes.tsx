@@ -1,5 +1,5 @@
-import React from "react"
-import { View, TextStyle, ViewStyle, Platform } from "react-native"
+import React, { useMemo } from "react"
+import { View, TextStyle, ViewStyle, Platform, Image } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
 import { useStores } from "../../models"
@@ -55,21 +55,47 @@ export const FavoriteRoutes = observer(function FavoriteRoutes(props: FavoriteRo
     navigation.goBack()
   }
 
+  const favorites = useMemo(() => {
+    if (favoriteRoutes.routes.length === 0) {
+      return <EmptyState />
+    } else {
+      return favoriteRoutes.routes.map((route) => (
+        <FavoriteRouteBox
+          {...route}
+          onPress={() => onFavoritePress(route.originId, route.destinationId)}
+          style={{ marginBottom: spacing[3] }}
+          key={route.id}
+        />
+      ))
+    }
+  }, [])
+
   return (
     <View style={[CONTAINER, style]}>
       <View style={FAVORITE_ROUTES_HEADER}>
         <Text tx="favorites.title" style={FAVORITE_ROUTES_TITLE} />
       </View>
-      <View style={ROUTES_CONTAINER}>
-        {favoriteRoutes.routes.map((route) => (
-          <FavoriteRouteBox
-            {...route}
-            onPress={() => onFavoritePress(route.originId, route.destinationId)}
-            style={{ marginBottom: spacing[3] }}
-            key={route.id}
-          />
-        ))}
-      </View>
+      <View style={ROUTES_CONTAINER}>{favorites}</View>
     </View>
   )
 })
+
+const EMPTY_STATE_WRAPPER: ViewStyle = {
+  alignItems: "center",
+  marginTop: spacing[2],
+}
+
+const EMPTY_STATE_TEXT: TextStyle = {
+  color: color.dim,
+}
+
+const EmptyState = () => (
+  <View style={EMPTY_STATE_WRAPPER}>
+    <Image
+      source={require("../../../assets/star.png")}
+      style={{ width: 58, height: 55, marginBottom: spacing[2], tintColor: color.dim, opacity: 0.75 }}
+    />
+    <Text tx="favorites.empty" style={EMPTY_STATE_TEXT} />
+    <Text tx="favorites.emptyDescription" preset="small" style={EMPTY_STATE_TEXT} />
+  </View>
+)

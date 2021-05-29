@@ -62,6 +62,12 @@
     "privacyPolicyLink": "https://better-rail.co.il/privacy-policy/",
     "sourceCode": "كود التطبيق"
   },
+  "favorites": {
+    "title": "Favoruite Rotes",
+    "empty": "No Favorites",
+    "emptyDescription": "You can add a favourite from the routes screen.",
+    "added": "أضيفت إلى المفضلة"
+  },
   "modals": {
     "noTrainsFound": "لم يتم العثور على القطارات للتاريخ المطلوب",
     "foundTrainsAt": "هنالك قطارات ابتداءً مِن"

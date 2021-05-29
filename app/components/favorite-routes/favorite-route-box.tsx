@@ -1,11 +1,10 @@
 import React, { useMemo } from "react"
-import { View, ViewStyle, Dimensions, TextStyle, Appearance, ImageBackground, ImageStyle } from "react-native"
+import { View, ViewStyle, Dimensions, TextStyle, ImageBackground, ImageStyle } from "react-native"
 import TouchableScale from "react-native-touchable-scale"
 import { Text } from "../"
 import { stationLocale, stationsObject } from "../../data/stations"
 import { color, spacing } from "../../theme"
 
-const isDarkMode = Appearance.getColorScheme() === "dark"
 const deviceWidth = Dimensions.get("screen").width
 const cardWidth = deviceWidth - spacing[3] * 2
 
