@@ -4,7 +4,6 @@ export const favoriteRouteSchema = {
   id: types.string,
   originId: types.string,
   destinationId: types.string,
-  order: types.number,
 }
 
 /**
@@ -17,7 +16,7 @@ export const FavoritesModel = types
   })
   .actions((self) => ({
     add(route: FavoriteRoute) {
-      self.routes.push({ ...route, order: self.routes.length || 0 })
+      self.routes.push({ ...route })
     },
     remove(route: FavoriteRoute) {
       const filteredFavorites = self.routes.filter((favorite) => favorite.id !== route.id)
