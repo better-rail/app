@@ -1,26 +1,35 @@
 import React, { useMemo } from "react"
-import { View, ViewStyle, Dimensions, Platform, TextStyle, Appearance } from "react-native"
-import { Blurhash } from "react-native-blurhash"
+import { View, ViewStyle, Dimensions, TextStyle, Appearance, ImageBackground, ImageStyle } from "react-native"
 import TouchableScale from "react-native-touchable-scale"
 import { Text } from "../"
 import { stationLocale, stationsObject } from "../../data/stations"
 import { color, spacing } from "../../theme"
 
-const deviceWidth = Dimensions.get("screen").width
 const isDarkMode = Appearance.getColorScheme() === "dark"
-const defaultBlurHash = "LdFF{pMbx]t7pfs7j]t8x^ogRio#"
+const deviceWidth = Dimensions.get("screen").width
+const cardWidth = deviceWidth - spacing[3] * 2
 
 const CONTAINER: ViewStyle = {
   height: 100,
+  backgroundColor: "#fff",
+  borderRadius: 10,
+}
+
+const IMAGE_BACKGROUND: ImageStyle = {
+  width: cardWidth,
+  height: 100,
   padding: spacing[3],
   justifyContent: "center",
-
   borderRadius: 8,
-  backgroundColor: "#fff",
-  shadowOffset: { width: 1, height: 0 },
-  shadowColor: isDarkMode ? undefined : color.dim,
-  shadowRadius: 4,
-  shadowOpacity: 1,
+  overflow: "hidden",
+}
+
+const BACKGROUND_DIMMER: ViewStyle = {
+  position: "absolute",
+  width: cardWidth,
+  height: 100,
+  backgroundColor: "#111",
+  opacity: 0.6,
 }
 
 const STATION_WRAPPER: ViewStyle = {
@@ -57,32 +66,28 @@ type FavoriteRouteBoxProps = {
 export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
   const { originId, destinationId, onPress, style } = props
 
-  const [originName, destinationName, imgBlurhash] = useMemo(() => {
+  const [originName, destinationName, stationImage] = useMemo(() => {
     const origin = stationsObject[originId][stationLocale]
     const destination = stationsObject[destinationId][stationLocale]
-    const blurhash = stationsObject[originId].blurhash || defaultBlurHash
+    const image = stationsObject[originId].image
 
-    return [origin, destination, blurhash]
+    return [origin, destination, image]
   }, [])
 
   return (
     <TouchableScale style={[CONTAINER, style]} activeScale={0.96} friction={8} onPress={onPress}>
-      <View style={{ width: "100%", position: "absolute" }}>
-        <Blurhash
-          blurhash={imgBlurhash}
-          decodePunch={1.2}
-          style={{ height: 100, width: deviceWidth - spacing[3] * 2, borderRadius: 8 }}
-        />
-      </View>
-      <View style={[STATION_WRAPPER, { marginBottom: spacing[3] }]}>
-        <View style={[STATION_CIRCLE, { backgroundColor: "#fff", borderWidth: 3.5, borderColor: color.secondary }]} />
-        <Text style={STATION_NAME}>{originName}</Text>
-      </View>
-      <RouteLine />
-      <View style={STATION_WRAPPER}>
-        <View style={STATION_CIRCLE} />
-        <Text style={STATION_NAME}>{destinationName}</Text>
-      </View>
+      <ImageBackground borderRadius={10} blurRadius={6} source={stationImage} style={IMAGE_BACKGROUND}>
+        <View style={BACKGROUND_DIMMER} />
+        <View style={[STATION_WRAPPER, { marginBottom: spacing[3] }]}>
+          <View style={[STATION_CIRCLE, { backgroundColor: "#fff", borderWidth: 3.5, borderColor: color.secondary }]} />
+          <Text style={STATION_NAME}>{originName}</Text>
+        </View>
+        <RouteLine />
+        <View style={STATION_WRAPPER}>
+          <View style={STATION_CIRCLE} />
+          <Text style={STATION_NAME}>{destinationName}</Text>
+        </View>
+      </ImageBackground>
     </TouchableScale>
   )
 }
