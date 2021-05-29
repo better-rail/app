@@ -497,6 +497,7 @@ const stations = [
     russian: "Иерусалим - Ицхак Навон",
     arabic: "أورشليم – يتسحاق ناڤون",
     image: require("../../assets/station-images/jerusalem-itzhak-navon.jpg"),
+    blurhash: "9KGSDi?w",
   },
   {
     id: "6900",
@@ -520,6 +521,7 @@ type StationsObjectType = {
     russian: string
     arabic: string
     image?: undefined
+    blurhash?: string
   }
 }
 

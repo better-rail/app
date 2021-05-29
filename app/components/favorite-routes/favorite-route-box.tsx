@@ -8,6 +8,7 @@ import { color, spacing } from "../../theme"
 
 const deviceWidth = Dimensions.get("screen").width
 const isDarkMode = Appearance.getColorScheme() === "dark"
+const defaultBlurHash = "LdFF{pMbx]t7pfs7j]t8x^ogRio#"
 
 const CONTAINER: ViewStyle = {
   height: 100,
@@ -56,18 +57,19 @@ type FavoriteRouteBoxProps = {
 export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
   const { originId, destinationId, onPress, style } = props
 
-  const [originName, destinationName] = useMemo(() => {
+  const [originName, destinationName, imgBlurhash] = useMemo(() => {
     const origin = stationsObject[originId][stationLocale]
     const destination = stationsObject[destinationId][stationLocale]
+    const blurhash = stationsObject[originId].blurhash || defaultBlurHash
 
-    return [origin, destination]
+    return [origin, destination, blurhash]
   }, [])
 
   return (
     <TouchableScale style={[CONTAINER, style]} activeScale={0.96} friction={8} onPress={onPress}>
       <View style={{ width: "100%", position: "absolute" }}>
         <Blurhash
-          blurhash="LdFF{pMbx]t7pfs7j]t8x^ogRio#"
+          blurhash={imgBlurhash}
           decodePunch={1.2}
           style={{ height: 100, width: deviceWidth - spacing[3] * 2, borderRadius: 8 }}
         />
