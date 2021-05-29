@@ -1,5 +1,5 @@
 import React, { useMemo } from "react"
-import { View, ViewStyle, Dimensions, TextStyle, ImageBackground, ImageStyle } from "react-native"
+import { View, ViewStyle, Dimensions, TextStyle, ImageBackground, Appearance, ImageStyle } from "react-native"
 import TouchableScale from "react-native-touchable-scale"
 import { Text } from "../"
 import { stationLocale, stationsObject } from "../../data/stations"
@@ -7,7 +7,9 @@ import { color, spacing } from "../../theme"
 
 const deviceWidth = Dimensions.get("screen").width
 const cardWidth = deviceWidth - spacing[3] * 2
+const isDarkMode = Appearance.getColorScheme() === "dark"
 
+// #region styles
 const CONTAINER: ViewStyle = {
   height: 100,
   backgroundColor: "#fff",
@@ -50,10 +52,33 @@ const STATION_CIRCLE: ViewStyle = {
   marginEnd: spacing[2],
   backgroundColor: "#fff",
   borderWidth: 2,
-  borderColor: color.dimmer,
+  borderColor: "lightgrey",
   borderRadius: 10,
   zIndex: 10,
+  shadowOffset: { height: 0, width: 0 },
+  shadowOpacity: 0.5,
+  shadowRadius: 4,
+  elevation: 2,
 }
+
+const STATION_ORIGIN_CIRCLE: ViewStyle = {
+  backgroundColor: color.secondary,
+  borderColor: "#fff",
+}
+
+const LINE: ViewStyle = {
+  position: "absolute",
+  start: 17.3,
+  width: 2.5,
+  height: 23,
+  backgroundColor: "lightgrey",
+  shadowOffset: { height: 0, width: 0 },
+  shadowOpacity: 0.5,
+  shadowRadius: 4,
+  elevation: 2,
+  zIndex: 0,
+}
+// #endregion
 
 type FavoriteRouteBoxProps = {
   originId: string
@@ -75,13 +100,13 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
 
   return (
     <TouchableScale style={[CONTAINER, style]} activeScale={0.96} friction={8} onPress={onPress}>
-      <ImageBackground borderRadius={10} blurRadius={6} source={stationImage} style={IMAGE_BACKGROUND}>
+      <ImageBackground source={stationImage} style={IMAGE_BACKGROUND} borderRadius={10} blurRadius={6}>
         <View style={BACKGROUND_DIMMER} />
         <View style={[STATION_WRAPPER, { marginBottom: spacing[3] }]}>
-          <View style={[STATION_CIRCLE, { backgroundColor: "#fff", borderWidth: 3.5, borderColor: color.secondary }]} />
+          <View style={[STATION_CIRCLE, STATION_ORIGIN_CIRCLE]} />
           <Text style={STATION_NAME}>{originName}</Text>
         </View>
-        <RouteLine />
+        <View style={LINE} />
         <View style={STATION_WRAPPER}>
           <View style={STATION_CIRCLE} />
           <Text style={STATION_NAME}>{destinationName}</Text>
@@ -90,7 +115,3 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
     </TouchableScale>
   )
 }
-
-const RouteLine = () => (
-  <View style={{ position: "absolute", start: 17, width: 2.5, height: 23, backgroundColor: color.dimmer, zIndex: 0 }} />
-)
