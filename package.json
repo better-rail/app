@@ -42,7 +42,6 @@
     "ramda": "0.27.1",
     "react": "16.14.0",
     "react-native": "^0.63.4",
-    "react-native-blurhash": "^1.1.4",
     "react-native-device-info": "^8.1.0",
     "react-native-gesture-handler": "1.8.0",
     "react-native-haptic-feedback": "^1.11.0",
