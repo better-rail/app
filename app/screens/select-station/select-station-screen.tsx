@@ -93,7 +93,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
         ListEmptyComponent={() => (
           <View>
             <RecentSearchesBox selectionType={route.params.selectionType} />
-            {recentSearches.entries.length > 0 && <FavoriteRoutes />}
+            {recentSearches.entries.length > 1 && <FavoriteRoutes />}
           </View>
         )}
       />
