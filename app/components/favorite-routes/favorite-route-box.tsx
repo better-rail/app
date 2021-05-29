@@ -1,24 +1,23 @@
 import React, { useMemo } from "react"
-import { View, ViewStyle, Dimensions, TextStyle, ImageBackground, Appearance, ImageStyle } from "react-native"
+import { View, ViewStyle, Dimensions, TextStyle, ImageBackground, ImageStyle } from "react-native"
 import TouchableScale from "react-native-touchable-scale"
 import { Text } from "../"
 import { stationLocale, stationsObject } from "../../data/stations"
-import { color, spacing } from "../../theme"
+import { color, spacing, isDarkMode, fontScale } from "../../theme"
 
 const deviceWidth = Dimensions.get("screen").width
 const cardWidth = deviceWidth - spacing[3] * 2
-const isDarkMode = Appearance.getColorScheme() === "dark"
 
 // #region styles
 const CONTAINER: ViewStyle = {
-  height: 100,
+  height: 100 * fontScale,
   backgroundColor: "#fff",
   borderRadius: 10,
 }
 
 const IMAGE_BACKGROUND: ImageStyle = {
   width: cardWidth,
-  height: 100,
+  height: 100 * fontScale,
   padding: spacing[3],
   justifyContent: "center",
   borderRadius: 8,
@@ -28,7 +27,7 @@ const IMAGE_BACKGROUND: ImageStyle = {
 const BACKGROUND_DIMMER: ViewStyle = {
   position: "absolute",
   width: cardWidth,
-  height: 100,
+  height: 100 * fontScale,
   backgroundColor: "#111",
   opacity: 0.6,
 }
@@ -47,8 +46,8 @@ const STATION_NAME: TextStyle = {
 }
 
 const STATION_CIRCLE: ViewStyle = {
-  width: 14,
-  height: 14,
+  width: 14 * fontScale,
+  height: 14 * fontScale,
   marginEnd: spacing[2],
   backgroundColor: "#fff",
   borderWidth: 2,
@@ -69,7 +68,7 @@ const STATION_ORIGIN_CIRCLE: ViewStyle = {
 const LINE: ViewStyle = {
   position: "absolute",
   start: 17.3,
-  width: 2.5,
+  width: 2.5 * fontScale,
   height: 23,
   backgroundColor: "lightgrey",
   shadowOffset: { height: 0, width: 0 },

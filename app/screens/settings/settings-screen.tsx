@@ -1,15 +1,13 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
-import { Appearance, Linking, Platform, TextStyle, View, ViewStyle } from "react-native"
+import { Linking, Platform, TextStyle, View, ViewStyle } from "react-native"
 import Share from "react-native-share"
 import { Screen, Text } from "../../components"
 import { SettingBox } from "./components/settings-box"
 import { getVersion } from "react-native-device-info"
-import { color, spacing } from "../../theme"
+import { color, spacing, isDarkMode } from "../../theme"
 import { translate } from "../../i18n"
 import { SettingsScreenProps } from "../../navigators"
-
-const isDarkMode = Appearance.getColorScheme() === "dark"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -75,7 +73,7 @@ export const SettingsScreen = observer(function SettingsScreen({ navigation }: S
       style={ROOT}
       preset="scroll"
       unsafe={true}
-      statusBar="light-content"
+      statusBar={Platform.select({ ios: "light-content" })}
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
     >
       <View style={SETTING_GROUP}>
