@@ -382,6 +382,7 @@ const stations = [
     english: "Rishon LeTsiyon - Moshe Dayan",
     russian: "Ришон-Ле-Цион станция им. Моше Даяна",
     arabic: "ريشون لتسيون -موشي ديان",
+    image: require("../../assets/station-images/rishon-moshe-dayan.jpg"),
   },
   {
     id: "9000",
@@ -397,6 +398,7 @@ const stations = [
     english: "Sderot",
     russian: "Сдерот",
     arabic: "سديروت",
+    image: require("../../assets/station-images/sderot.jpg"),
   },
   {
     id: "9650",
