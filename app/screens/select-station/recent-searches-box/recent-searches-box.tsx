@@ -38,7 +38,7 @@ export const RecentSearchesBox = observer(function RecentSearchesBox(props: Rece
   const { routePlan, recentSearches } = useStores()
 
   const sortedSearches = useMemo(() => {
-    return [...recentSearches.entries].sort((a, b) => b.updatedAt - a.updatedAt)
+    return [...recentSearches.entries].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 6)
   }, [])
 
   const onStationPress = (entry) => {
