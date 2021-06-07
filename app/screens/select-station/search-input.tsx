@@ -17,6 +17,9 @@ import { color, spacing, typography } from "../../theme"
 
 const fontScale = PixelRatio.getFontScale()
 
+const searchIcon = require("../../../assets/search.png")
+const dismissIcon = require("../../../assets/dismiss.png")
+
 const SEARCH_BAR: ViewStyle = {
   flex: 1,
   flexDirection: "row",
@@ -75,7 +78,7 @@ export const SearchInput = ({ searchTerm, setSearchTerm, autoFocus }) => {
   return (
     <View style={SEARCH_BAR}>
       <View style={SEARCH_INPUT_WRAPPER}>
-        <Image style={SEARCH_ICON} source={require("../../../assets/search.png")} />
+        <Image style={SEARCH_ICON} source={searchIcon} />
         <TextInput
           style={TEXT_INPUT}
           placeholder={translate("selectStation.placeholder")}
@@ -89,7 +92,7 @@ export const SearchInput = ({ searchTerm, setSearchTerm, autoFocus }) => {
 
       {searchTerm.length > 0 && (
         <Pressable onPress={() => setSearchTerm("")}>
-          <Image style={DISMISS_ICON} source={require("../../../assets/dismiss.png")} />
+          <Image style={DISMISS_ICON} source={dismissIcon} />
         </Pressable>
       )}
     </View>
