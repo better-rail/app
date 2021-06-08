@@ -10,6 +10,7 @@ import { useStations } from "../../data/stations"
 import { formatRelative, differenceInMinutes } from "date-fns"
 import HapticFeedback from "react-native-haptic-feedback"
 import { dateFnsLocalization, dateLocale, translate } from "../../i18n"
+import SegmentedControl from "@react-native-segmented-control/segmented-control"
 
 const now = new Date()
 const fontScale = PixelRatio.getFontScale()
@@ -212,11 +213,13 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           style={{ marginBottom: spacing[5] }}
           onPress={() => setDatePickerVisibility(true)}
         />
+
         <Button
           title={translate("plan.find")}
           onPress={onGetRoutePress}
           disabled={!routePlan.origin || !routePlan.destination || routePlan.origin.id === routePlan.destination.id}
         />
+
         <DateTimePickerModal
           isVisible={isDatePickerVisible}
           mode="datetime"
@@ -227,7 +230,14 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           locale={dateLocale}
           minimumDate={now}
           minuteInterval={15}
-          customHeaderIOS={() => null}
+          customHeaderIOS={() => (
+            <SegmentedControl
+              values={["Leave at", "Arrive by"]}
+              selectedIndex={1}
+              onChange={(event) => {}}
+              style={{ marginHorizontal: spacing[3], marginTop: spacing[3], marginBottom: -6 }}
+            />
+          )}
           customCancelButtonIOS={() => null}
           confirmTextIOS={translate("common.ok")}
         />
