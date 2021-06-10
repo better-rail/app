@@ -12,6 +12,8 @@
     "selectStation": "בחירת תחנה",
     "departureTime": "זמן יציאה",
     "arrivalTime": "זמן הגעה",
+    "leaveAt": "שעת יציאה",
+    "arriveAt": "שעת הגעה",
     "now": "עכשיו",
     "find": "חישוב מסלול",
     "switchStations": "החלפת תחנות",

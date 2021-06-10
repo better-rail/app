@@ -12,6 +12,8 @@
     "destination": "To",
     "departureTime": "Departure Time",
     "arrivalTime": "Arrival Time",
+    "leaveAt": "Leave At",
+    "arriveAt": "Arrive At",
     "now": "Now",
     "find": "Find Routes"
   },
