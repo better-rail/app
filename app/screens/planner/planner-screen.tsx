@@ -233,8 +233,8 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           customHeaderIOS={() => (
             <SegmentedControl
               values={[translate("plan.leaveAt"), translate("plan.arriveAt")]}
-              selectedIndex={1}
-              onChange={(event) => {}}
+              selectedIndex={0}
+              onValueChange={() => routePlan.switchDateType()}
               style={{ marginHorizontal: spacing[3], marginTop: spacing[3], marginBottom: -6 }}
             />
           )}
