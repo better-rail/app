@@ -1,16 +1,14 @@
 import React, { useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { Image, View, TouchableOpacity, Animated, PixelRatio, ViewStyle, ImageStyle, Dimensions } from "react-native"
-import DateTimePickerModal from "react-native-modal-datetime-picker"
-import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
-import { useStores } from "../../models"
+import { Screen, Button, Text, StationCard, DatePickerModal, DummyInput, ChangeDirectionButton } from "../../components"
+import { DateType, useStores } from "../../models"
 import { color, primaryFontIOS, spacing } from "../../theme"
 import { PlannerScreenProps } from "../../navigators/main-navigator"
 import { useStations } from "../../data/stations"
 import { formatRelative, differenceInMinutes } from "date-fns"
 import HapticFeedback from "react-native-haptic-feedback"
-import { dateFnsLocalization, dateLocale, translate } from "../../i18n"
-import SegmentedControl from "@react-native-segmented-control/segmented-control"
+import { dateFnsLocalization, translate } from "../../i18n"
 
 const now = new Date()
 const fontScale = PixelRatio.getFontScale()
@@ -97,11 +95,12 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     routePlan.setDate(date)
   }
 
-  const handleConfirm = (date: Date) => {
+  const handleConfirm = (date: Date, dateType?: DateType) => {
     // We have to hide the date picker before changing the date value:
     // https://github.com/react-native-datetimepicker/datetimepicker/issues/54#issuecomment-552951685
     setDatePickerVisibility(false)
     onDateChange(date)
+    // routePlan.setDateType(dateType)
   }
 
   const formattedDate = React.useMemo(() => {
@@ -214,32 +213,20 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           onPress={() => setDatePickerVisibility(true)}
         />
 
-        <Button
-          title={translate("plan.find")}
-          onPress={onGetRoutePress}
-          disabled={!routePlan.origin || !routePlan.destination || routePlan.origin.id === routePlan.destination.id}
-        />
-
-        <DateTimePickerModal
+        <DatePickerModal
           isVisible={isDatePickerVisible}
           mode="datetime"
           date={routePlan.date}
           onChange={onDateChange}
           onConfirm={handleConfirm}
           onCancel={() => setDatePickerVisibility(false)}
-          locale={dateLocale}
           minimumDate={now}
-          minuteInterval={15}
-          customHeaderIOS={() => (
-            <SegmentedControl
-              values={[translate("plan.leaveAt"), translate("plan.arriveAt")]}
-              selectedIndex={0}
-              onValueChange={() => routePlan.switchDateType()}
-              style={{ marginHorizontal: spacing[3], marginTop: spacing[3], marginBottom: -6 }}
-            />
-          )}
-          customCancelButtonIOS={() => null}
-          confirmTextIOS={translate("common.ok")}
+        />
+
+        <Button
+          title={translate("plan.find")}
+          onPress={onGetRoutePress}
+          disabled={!routePlan.origin || !routePlan.destination || routePlan.origin.id === routePlan.destination.id}
         />
       </View>
     </Screen>

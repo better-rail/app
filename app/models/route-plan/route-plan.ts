@@ -2,6 +2,8 @@ import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { omit } from "ramda"
 import { translate } from "../../i18n"
 
+export type DateType = "departure" | "arrival"
+
 const StationSchema = {
   id: types.string,
   name: types.string,
@@ -18,8 +20,8 @@ export const RoutePlanModel = types
   .views((self) => {
     return {
       get dateTypeDisplayName() {
-        if (self.dateType === "departure") return translate("plan.departureTime")
-        return translate("plan.arrivalTime")
+        if (self.dateType === "departure") return translate("plan.leaveAt")
+        return translate("plan.arriveAt")
       },
     }
   })
@@ -34,7 +36,7 @@ export const RoutePlanModel = types
     setDate(date) {
       self.date = date
     },
-    setDateType(type) {
+    setDateType(type: DateType) {
       self.dateType = type
     },
     switchDirection() {
@@ -45,15 +47,8 @@ export const RoutePlanModel = types
       this.setOrigin(destination)
       this.setDestination(origin)
     },
-    switchDateType() {
-      if (self.dateType === "departure") {
-        this.setDateType("arrival")
-      } else {
-        this.setDateType("departure")
-      }
-    },
   }))
-  .postProcessSnapshot(omit(["date"]))
+  .postProcessSnapshot(omit(["date", "dateType"]))
 
 type RoutePlanType = Instance<typeof RoutePlanModel>
 export interface RoutePlan extends RoutePlanType {}
