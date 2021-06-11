@@ -1,20 +1,30 @@
 import React, { useMemo } from "react"
-import { ViewStyle } from "react-native"
+import { View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
-import DateTimePickerModal from "react-native-modal-datetime-picker"
-import SegmentedControl from "@react-native-segmented-control/segmented-control"
+import Modal from "react-native-modal"
 import { DateType, useStores } from "../../models"
 import { dateLocale, translate } from "../../i18n"
-import { spacing } from "../../theme"
+import { color, spacing } from "../../theme"
 import HapticFeedback from "react-native-haptic-feedback"
+import DatePicker from "react-native-date-picker"
 
 // A dictionary to set the date type according to the segmented control selected index
 const DATE_TYPE: { [key: number]: DateType } = { 0: "departure", 1: "arrival" }
 
-const SEGMENTED_CONTROL: ViewStyle = {
-  marginHorizontal: spacing[3],
-  marginTop: spacing[3],
-  marginBottom: -6,
+const MODAL_WRAPPER: ViewStyle = {
+  position: "absolute",
+  top: "25%",
+  maxHeight: 400,
+  padding: spacing[5],
+  alignSelf: "center",
+  justifyContent: "center",
+  alignItems: "center",
+  backgroundColor: color.secondaryBackground,
+  borderRadius: 8,
+  shadowOffset: { width: 0, height: 1 },
+  shadowColor: color.palette.black,
+  shadowRadius: 2,
+  shadowOpacity: 0.45,
 }
 
 export interface DatePickerModalProps {
@@ -30,35 +40,19 @@ export const DatePickerModal = observer(function DatePickerModal(props: DatePick
   const { routePlan } = useStores()
   const { isVisible, onChange, onConfirm, onCancel, minimumDate } = props
 
-  const dateTypeControl = useMemo(
-    () => (
-      <SegmentedControl
-        values={[translate("plan.leaveAt"), translate("plan.arriveAt")]}
-        selectedIndex={routePlan.dateType === "departure" ? 0 : 1}
-        onChange={(event) => {
-          routePlan.setDateType(DATE_TYPE[event.nativeEvent.selectedSegmentIndex])
-          HapticFeedback.trigger("impactLight")
-        }}
-        style={SEGMENTED_CONTROL}
-      />
-    ),
-    [routePlan.dateType],
-  )
-
   return (
-    <DateTimePickerModal
-      isVisible={isVisible}
-      mode="datetime"
-      date={routePlan.date}
-      onChange={(_, date) => onChange(date)}
-      onConfirm={onConfirm}
-      onCancel={onCancel}
-      locale={dateLocale}
-      minimumDate={minimumDate}
-      minuteInterval={15}
-      customHeaderIOS={() => dateTypeControl}
-      customCancelButtonIOS={() => null}
-      confirmTextIOS={translate("common.ok")}
-    />
+    <Modal style={MODAL_WRAPPER} isVisible={isVisible}>
+      <View>
+        <DatePicker
+          date={routePlan.date}
+          onDateChange={onChange}
+          androidVariant="nativeAndroid"
+          minuteInterval={15}
+          locale={"en_US"}
+          mode="time"
+          style={{ transform: [{ rotate: "-3600deg" }] }}
+        />
+      </View>
+    </Modal>
   )
 })
