@@ -12,6 +12,8 @@
     "selectStation": "اختيار المحطة",
     "departureTime": "وقت المغادرة",
     "arrivalTime": "قت الوصول",
+    "leaveAt": "وقت المغادرة",
+    "arriveAt": "قت الوصول",
     "now": "الان",
     "find": "حساب المسار",
     "switchStations": "تبديل المحطات",

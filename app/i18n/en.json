@@ -12,6 +12,8 @@
     "destination": "To",
     "departureTime": "Departure Time",
     "arrivalTime": "Arrival Time",
+    "leaveAt": "Leave At",
+    "arriveAt": "Arrive At",
     "now": "Now",
     "find": "Find Routes"
   },
@@ -53,7 +55,7 @@
 
     "hey": "Hey! 👋",
     "whoami": "My name's Guy. I created Better Rail to make Israel Railways services more accessible to the public.",
-    "independenceDeclaration": "",
+    "independenceDeclaration": "The app is open sourced and is being developed independently.",
 
     "follow": "Follow Better Rail",
     "facebook": "Facebook",

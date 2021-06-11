@@ -1,19 +1,16 @@
 import React, { useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { Image, View, TouchableOpacity, Animated, PixelRatio, ViewStyle, ImageStyle, Dimensions } from "react-native"
-import DateTimePickerModal from "react-native-modal-datetime-picker"
-import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
+import { Screen, Button, Text, StationCard, DatePickerModal, DummyInput, ChangeDirectionButton } from "../../components"
 import { useStores } from "../../models"
 import { color, primaryFontIOS, spacing } from "../../theme"
 import { PlannerScreenProps } from "../../navigators/main-navigator"
 import { useStations } from "../../data/stations"
 import { formatRelative, differenceInMinutes } from "date-fns"
-import HapticFeedback from "react-native-haptic-feedback"
-import { dateFnsLocalization, dateLocale, translate } from "../../i18n"
+import { dateFnsLocalization, translate } from "../../i18n"
 
 const now = new Date()
 const fontScale = PixelRatio.getFontScale()
-const changeIcon = require("../../../assets/up-down-arrow.png")
 
 const { height: deviceHeight } = Dimensions.get("screen")
 
@@ -64,21 +61,6 @@ const CHANGE_DIRECTION_WRAPPER: ViewStyle = {
   alignSelf: "flex-end",
   marginBottom: -60,
   zIndex: 10,
-}
-
-const SWITCH_DATE_TYPE_TOUCHABLE: ViewStyle = {
-  flexDirection: "row",
-  alignItems: "center",
-  marginBottom: spacing[1],
-}
-
-const CHANGE_ICON: ImageStyle = {
-  width: 16 * fontScale,
-  height: 16 * fontScale,
-  marginStart: 1 + spacing[1] * fontScale,
-  tintColor: color.label,
-  opacity: 0.5,
-  transform: [{ rotate: "90deg" }],
 }
 
 // #endregion
@@ -194,17 +176,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           />
         </Animated.View>
 
-        <TouchableOpacity
-          style={SWITCH_DATE_TYPE_TOUCHABLE}
-          activeOpacity={0.9}
-          onPress={() => {
-            HapticFeedback.trigger("impactLight")
-            routePlan.switchDateType()
-          }}
-        >
-          <Text preset="fieldLabel" text={routePlan.dateTypeDisplayName} />
-          <Image style={CHANGE_ICON} source={changeIcon} />
-        </TouchableOpacity>
+        <Text preset="fieldLabel" text={routePlan.dateTypeDisplayName} style={{ marginBottom: spacing[1] }} />
 
         <DummyInput
           placeholder={translate("plan.now")}
@@ -212,24 +184,21 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           style={{ marginBottom: spacing[5] }}
           onPress={() => setDatePickerVisibility(true)}
         />
-        <Button
-          title={translate("plan.find")}
-          onPress={onGetRoutePress}
-          disabled={!routePlan.origin || !routePlan.destination || routePlan.origin.id === routePlan.destination.id}
-        />
-        <DateTimePickerModal
+
+        <DatePickerModal
           isVisible={isDatePickerVisible}
           mode="datetime"
           date={routePlan.date}
           onChange={onDateChange}
           onConfirm={handleConfirm}
           onCancel={() => setDatePickerVisibility(false)}
-          locale={dateLocale}
           minimumDate={now}
-          minuteInterval={15}
-          customHeaderIOS={() => null}
-          customCancelButtonIOS={() => null}
-          confirmTextIOS={translate("common.ok")}
+        />
+
+        <Button
+          title={translate("plan.find")}
+          onPress={onGetRoutePress}
+          disabled={!routePlan.origin || !routePlan.destination || routePlan.origin.id === routePlan.destination.id}
         />
       </View>
     </Screen>
