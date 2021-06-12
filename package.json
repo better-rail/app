@@ -49,6 +49,7 @@
     "react-native-haptic-feedback": "^1.11.0",
     "react-native-inappbrowser-reborn": "^3.5.1",
     "react-native-linear-gradient": "^2.5.6",
+    "react-native-material-tabs": "^4.2.0",
     "react-native-modal": "^11.10.0",
     "react-native-modal-datetime-picker": "9.2.1",
     "react-native-restart": "^0.0.22",

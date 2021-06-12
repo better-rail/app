@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import React, { useMemo, useState } from "react"
 import { View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import Modal from "react-native-modal"
@@ -7,6 +7,7 @@ import { dateLocale, translate } from "../../i18n"
 import { color, spacing } from "../../theme"
 import HapticFeedback from "react-native-haptic-feedback"
 import DatePicker from "react-native-date-picker"
+import MaterialTabs from "react-native-material-tabs"
 
 // A dictionary to set the date type according to the segmented control selected index
 const DATE_TYPE: { [key: number]: DateType } = { 0: "departure", 1: "arrival" }
@@ -39,11 +40,20 @@ export interface DatePickerModalProps {
 export const DatePickerModal = observer(function DatePickerModal(props: DatePickerModalProps) {
   const { routePlan } = useStores()
   const { isVisible, onChange, onConfirm, onCancel, minimumDate } = props
-
+  const [selectedTab, setSelectedTab] = useState(0)
   return (
     <Modal style={MODAL_WRAPPER} isVisible={isVisible}>
-      <View>
-        <DatePicker
+      <View style={{ flex: 1, width: 280 }}>
+        <MaterialTabs
+          items={[translate("plan.leaveAt"), translate("plan.arriveAt")]}
+          selectedIndex={selectedTab}
+          onChange={setSelectedTab}
+          barColor="white"
+          textStyle={{ color: color.text }}
+          indicatorColor="#2196f3"
+          activeTextColor="red"
+        />
+        {/* <DatePicker
           date={routePlan.date}
           onDateChange={onChange}
           androidVariant="nativeAndroid"
@@ -51,7 +61,7 @@ export const DatePickerModal = observer(function DatePickerModal(props: DatePick
           locale={"en_US"}
           mode="time"
           style={{ transform: [{ rotate: "-3600deg" }] }}
-        />
+        /> */}
       </View>
     </Modal>
   )
