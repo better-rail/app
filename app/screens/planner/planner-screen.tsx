@@ -1,12 +1,13 @@
 import React, { useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { Image, View, TouchableOpacity, Animated, PixelRatio, ViewStyle, ImageStyle, Dimensions } from "react-native"
+import { Image, View, TouchableOpacity, Animated, PixelRatio, ViewStyle, ImageStyle, Dimensions, Platform } from "react-native"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
 import { useStores } from "../../models"
 import { color, primaryFontIOS, spacing } from "../../theme"
 import { PlannerScreenProps } from "../../navigators/main-navigator"
 import { useStations } from "../../data/stations"
 import { translate, useFormattedDate } from "../../i18n"
+import DatePickerModal from "../../components/date-picker-modal"
 
 const now = new Date()
 const fontScale = PixelRatio.getFontScale()

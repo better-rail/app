@@ -4,16 +4,18 @@ import { color, spacing, typography } from "../../theme"
 import { Text } from "../"
 
 const BUTTON_WRAPPER: ViewStyle = {
-  borderRadius: 12,
+  borderRadius: Platform.select({ ios: 12, android: 6 }),
   overflow: "hidden",
   elevation: 1,
+  flex: 1,
 }
 
 const PRESSABLE_BASE: ViewStyle = {
+  flex: 1,
   minHeight: 55,
   padding: spacing[4],
   backgroundColor: color.primary,
-  borderRadius: 12,
+  borderRadius: Platform.select({ ios: 12, android: 6 }),
   shadowOffset: { width: 0, height: 0 },
   shadowColor: color.dim,
   shadowRadius: 1,
@@ -30,6 +32,8 @@ const TEXT: TextStyle = {
 }
 export interface CustomButtonProps extends ButtonProps {
   style?: ViewStyle
+  containerStyle?: ViewStyle
+  textStyle?: TextStyle
   loading?: boolean
   disabled?: boolean
 }
@@ -39,10 +43,10 @@ export interface CustomButtonProps extends ButtonProps {
  */
 export const Button = function Button(props: CustomButtonProps) {
   const [isPressed, setIsPressed] = useState(false)
-  const { title, onPress, loading = false, disabled, style } = props
+  const { title, onPress, loading = false, disabled, textStyle, containerStyle, style } = props
 
   const PRESSABLE_STYLE = useMemo(() => {
-    let modifiedStyles = Object.assign({}, PRESSABLE_BASE)
+    let modifiedStyles = Object.assign({}, PRESSABLE_BASE, style)
     if (Platform.OS === "ios") {
       if (isPressed) {
         modifiedStyles = Object.assign(modifiedStyles, { opacity: 0.8 })
@@ -52,9 +56,9 @@ export const Button = function Button(props: CustomButtonProps) {
   }, [isPressed, disabled])
 
   return (
-    <View style={BUTTON_WRAPPER}>
+    <View style={[BUTTON_WRAPPER, containerStyle]}>
       <Pressable
-        style={[PRESSABLE_STYLE, style, disabled && { backgroundColor: color.disabled }]}
+        style={[PRESSABLE_STYLE, disabled && { backgroundColor: color.disabled }]}
         onPressIn={() => setIsPressed(true)}
         onPressOut={() => setIsPressed(false)}
         android_ripple={{ color: color.primaryLighter }}
@@ -62,7 +66,7 @@ export const Button = function Button(props: CustomButtonProps) {
           disabled ? null : onPress()
         }}
       >
-        {loading ? <ActivityIndicator color={color.whiteText} /> : <Text style={TEXT}>{title}</Text>}
+        {loading ? <ActivityIndicator color={color.whiteText} /> : <Text style={[TEXT, textStyle]}>{title}</Text>}
       </Pressable>
     </View>
   )
