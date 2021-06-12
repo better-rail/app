@@ -1,13 +1,12 @@
 import React, { useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { Image, View, TouchableOpacity, Animated, PixelRatio, ViewStyle, ImageStyle, Dimensions } from "react-native"
-import { Screen, Button, Text, StationCard, DatePickerModal, DummyInput, ChangeDirectionButton } from "../../components"
+import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
 import { useStores } from "../../models"
 import { color, primaryFontIOS, spacing } from "../../theme"
 import { PlannerScreenProps } from "../../navigators/main-navigator"
 import { useStations } from "../../data/stations"
-import { formatRelative, differenceInMinutes } from "date-fns"
-import { dateFnsLocalization, translate } from "../../i18n"
+import { translate, useFormattedDate } from "../../i18n"
 
 const now = new Date()
 const fontScale = PixelRatio.getFontScale()
@@ -68,6 +67,7 @@ const CHANGE_DIRECTION_WRAPPER: ViewStyle = {
 export const PlannerScreen = observer(function PlannerScreen({ navigation }: PlannerScreenProps) {
   const { routePlan, trainRoutes } = useStores()
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
+  const formattedDate = useFormattedDate(routePlan.date)
   const stationCardScale = useRef(new Animated.Value(1)).current
 
   const stations = useStations()
@@ -84,13 +84,6 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     setDatePickerVisibility(false)
     onDateChange(date)
   }
-
-  const formattedDate = React.useMemo(() => {
-    if (routePlan.date) {
-      if (differenceInMinutes(routePlan.date, now) === 0) return translate("plan.now")
-      return formatRelative(routePlan.date, now, { locale: dateFnsLocalization })
-    }
-  }, [routePlan.date])
 
   const originData = React.useMemo(() => {
     if (routePlan.origin) {
