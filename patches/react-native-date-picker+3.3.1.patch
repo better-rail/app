@@ -1,0 +1,13 @@
+@@ -63,6 +67,15 @@ public class DerivedData {
+         String dateTimePattern = dateTimePatternOld.replaceAll("\\('(.+?)'\\)","\\${$1}")
+                 .replaceAll("'.+?'","")
+                 .replaceAll("\\$\\{(.+?)\\}","('$1')");
+
++        boolean isRTL = TextUtils.getLayoutDirectionFromLocale(Locale.getDefault()) == View.LAYOUT_DIRECTION_RTL;
++
++        if (isRTL) {
++            String rtlDateTimePattern = dateTimePattern.replaceAll("(.+)\\s(h|hh|H|HH):(mm):(.+)","$1$3:$2$4");
++            dateTimePattern = rtlDateTimePattern;
++            Log.e("RNDatePicker", dateTimePattern);
++        }
++

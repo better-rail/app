@@ -6,7 +6,7 @@ import { Text } from "../"
 const CONTAINER: ViewStyle = {
   padding: spacing[4],
   backgroundColor: color.inputBackground,
-  borderRadius: 12,
+  borderRadius: Platform.select({ ios: 12, android: 6 }),
   shadowColor: color.palette.black,
   shadowOffset: { height: 0, width: 0 },
   shadowOpacity: 0.2,
