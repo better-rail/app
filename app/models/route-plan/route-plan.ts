@@ -20,8 +20,8 @@ export const RoutePlanModel = types
   .views((self) => {
     return {
       get dateTypeDisplayName() {
-        if (self.dateType === "departure") return translate("plan.departureTime")
-        return translate("plan.arrivalTime")
+        if (self.dateType === "departure") return translate("plan.leaveAt")
+        return translate("plan.arriveAt")
       },
     }
   })
