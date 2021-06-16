@@ -1,15 +1,12 @@
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useState } from "react"
 import { View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import Modal from "react-native-modal"
 import { DateType, useStores } from "../../models"
-import { dateLocale, translate, useFormattedDate } from "../../i18n"
-import { color, spacing } from "../../theme"
+import { dateLocale, translate } from "../../i18n"
+import { color, spacing, isDarkMode } from "../../theme"
 import DatePicker from "react-native-date-picker"
-import DateTimePicker from "@react-native-community/datetimepicker"
 import MaterialTabs from "react-native-material-tabs"
-import { Text } from "../text/text"
-import { format } from "date-fns"
 import { Button } from "../button/button"
 
 // A dictionary to set the date type according to the segmented control selected index
@@ -29,6 +26,12 @@ const MODAL_WRAPPER: ViewStyle = {
   shadowColor: color.palette.black,
   shadowRadius: 2,
   shadowOpacity: 0.45,
+}
+
+const CANCEL_BUTTON: ViewStyle = {
+  backgroundColor: color.background,
+  borderWidth: 1,
+  borderColor: isDarkMode ? "#111111" : "#e9e9e9",
 }
 
 export interface DatePickerModalProps {
@@ -65,9 +68,9 @@ export const DatePickerModal = observer(function DatePickerModal(props: DatePick
           items={[translate("plan.leaveAt"), translate("plan.arriveAt")]}
           selectedIndex={selectedTab}
           onChange={onDateTypeChange}
-          barColor="white"
+          barColor={isDarkMode ? "#000" : "#fff"}
           textStyle={{ color: color.text }}
-          indicatorColor="#2196f3"
+          indicatorColor={isDarkMode ? "#0c83ff" : "#2196f3"}
         />
         <DatePicker
           date={modalDate}
@@ -84,9 +87,9 @@ export const DatePickerModal = observer(function DatePickerModal(props: DatePick
           <Button
             title={translate("common.cancel")}
             onPress={onCancel}
-            style={{ backgroundColor: "white", borderWidth: 1, borderColor: "#e9e9e9" }}
+            style={CANCEL_BUTTON}
             containerStyle={{ marginEnd: spacing[1] }}
-            textStyle={{ color: color.primary }}
+            textStyle={{ color: isDarkMode ? color.dim : color.primary }}
           />
           <Button title={translate("common.set")} onPress={() => onConfirm(modalDate)} />
         </View>
