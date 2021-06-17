@@ -23,6 +23,11 @@ const PRESSABLE_BASE: ViewStyle = {
   opacity: 1,
 }
 
+const SMALL_BUTTON: ViewStyle = {
+  height: 40,
+  padding: spacing[2] + 1.5,
+}
+
 const TEXT: TextStyle = {
   fontFamily: typography.primary,
   fontWeight: "700",
@@ -30,23 +35,28 @@ const TEXT: TextStyle = {
   textAlign: "center",
   color: color.whiteText,
 }
+
+const SMALL_TEXT: TextStyle = {
+  fontSize: 14,
+  fontWeight: "normal",
+}
+
 export interface CustomButtonProps extends ButtonProps {
   style?: ViewStyle
   containerStyle?: ViewStyle
   textStyle?: TextStyle
   loading?: boolean
   disabled?: boolean
+  size?: "small"
 }
 
-/**
- * Describe your component here
- */
 export const Button = function Button(props: CustomButtonProps) {
   const [isPressed, setIsPressed] = useState(false)
-  const { title, onPress, loading = false, disabled, textStyle, containerStyle, style } = props
+  const { title, onPress, loading = false, disabled, textStyle, containerStyle, size, style } = props
 
   const PRESSABLE_STYLE = useMemo(() => {
     let modifiedStyles = Object.assign({}, PRESSABLE_BASE, style)
+    if (size === "small") modifiedStyles = Object.assign({}, modifiedStyles, SMALL_BUTTON)
     if (Platform.OS === "ios") {
       if (isPressed) {
         modifiedStyles = Object.assign(modifiedStyles, { opacity: 0.8 })
@@ -66,7 +76,11 @@ export const Button = function Button(props: CustomButtonProps) {
           disabled ? null : onPress()
         }}
       >
-        {loading ? <ActivityIndicator color={color.whiteText} /> : <Text style={[TEXT, textStyle]}>{title}</Text>}
+        {loading ? (
+          <ActivityIndicator color={color.whiteText} />
+        ) : (
+          <Text style={[TEXT, textStyle, size === "small" && SMALL_TEXT]}>{title}</Text>
+        )}
       </Pressable>
     </View>
   )

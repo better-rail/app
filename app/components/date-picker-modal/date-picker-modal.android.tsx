@@ -16,7 +16,6 @@ const MODAL_WRAPPER: ViewStyle = {
   position: "absolute",
   top: "20%",
   maxHeight: 400,
-  padding: spacing[1],
   alignSelf: "center",
   justifyContent: "center",
   alignItems: "center",
@@ -26,12 +25,13 @@ const MODAL_WRAPPER: ViewStyle = {
   shadowColor: color.palette.black,
   shadowRadius: 2,
   shadowOpacity: 0.45,
+  elevation: 6,
 }
 
 const CANCEL_BUTTON: ViewStyle = {
-  backgroundColor: color.background,
+  backgroundColor: isDarkMode ? "#1c1c1e" : "#fff",
   borderWidth: 1,
-  borderColor: isDarkMode ? "#111111" : "#e9e9e9",
+  borderColor: isDarkMode ? "#111111" : "#e5e5e9",
 }
 
 export interface DatePickerModalProps {
@@ -63,12 +63,12 @@ export const DatePickerModal = observer(function DatePickerModal(props: DatePick
 
   return (
     <Modal style={MODAL_WRAPPER} isVisible={isVisible} onBackButtonPress={onCancel} statusBarTranslucent>
-      <View style={{ flex: 1, width: 280 }}>
+      <View style={{ flex: 1, width: "100%", padding: spacing[2] }}>
         <MaterialTabs
           items={[translate("plan.leaveAt"), translate("plan.arriveAt")]}
           selectedIndex={selectedTab}
           onChange={onDateTypeChange}
-          barColor={isDarkMode ? "#000" : "#fff"}
+          barColor={isDarkMode ? "#010101" : "#fff"}
           textStyle={{ color: color.text }}
           indicatorColor={isDarkMode ? "#0c83ff" : "#2196f3"}
         />
@@ -80,18 +80,20 @@ export const DatePickerModal = observer(function DatePickerModal(props: DatePick
           locale={dateLocale}
           mode="datetime"
           minimumDate={minimumDate}
-          style={{ alignSelf: "center", marginVertical: spacing[2] }}
+          fadeToColor="red"
+          style={{ alignSelf: "center", marginVertical: spacing[5] }}
         />
 
-        <View style={{ flexDirection: "row" }}>
+        <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
           <Button
             title={translate("common.cancel")}
             onPress={onCancel}
             style={CANCEL_BUTTON}
             containerStyle={{ marginEnd: spacing[1] }}
             textStyle={{ color: isDarkMode ? color.dim : color.primary }}
+            size="small"
           />
-          <Button title={translate("common.set")} onPress={() => onConfirm(modalDate)} />
+          <Button title={translate("common.set")} onPress={() => onConfirm(modalDate)} size="small" />
         </View>
       </View>
     </Modal>
