@@ -36,6 +36,7 @@
     "apisauce": "2.0.0",
     "date-fns": "^2.19.0",
     "expo-localization": "10.1.0",
+    "fuse.js": "^6.4.6",
     "i18n-js": "3.8.0",
     "mobx": "6.0.4",
     "mobx-react-lite": "3.1.6",

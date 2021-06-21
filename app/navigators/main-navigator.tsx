@@ -73,7 +73,6 @@ export function MainNavigator() {
         options={{ headerTransparent: true, headerTintColor: "lightgrey", ...TransitionPresets.SlideFromRightIOS }}
         sharedElementsConfig={() => ["route-header"]}
       />
-      />
     </Stack.Navigator>
   )
 }

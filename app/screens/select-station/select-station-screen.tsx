@@ -9,6 +9,7 @@ import { useStations } from "../../data/stations"
 import { SearchInput } from "./search-input"
 import { RecentSearchesBox } from "./recent-searches-box/recent-searches-box"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import Fuse from "fuse.js"
 
 // #region styles
 const ROOT: ViewStyle = {
@@ -44,14 +45,12 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
   const insets = useSafeAreaInsets()
   const [searchTerm, setSearchTerm] = useState("")
 
+  const fuse = useMemo(() => new Fuse(stations, { keys: ["name", "hebrew"], threshold: 0.3 }), [stations])
+
   const filteredStations = useMemo(() => {
     if (searchTerm === "") return []
-    return stations.filter(
-      (item) =>
-        item.name.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1 ||
-        item.hebrew.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1, // Enable hebrew search
-    )
-  }, [searchTerm])
+    return fuse.search(searchTerm).map((result) => result.item)
+  }, [searchTerm, fuse])
 
   const renderItem = (station) => (
     <StationCard
