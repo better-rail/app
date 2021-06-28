@@ -8,7 +8,7 @@ const stations = [
     english: "Tel Aviv - Savidor Center",
     russian: "Тель-Авив - Мерказ - Центральная",
     arabic: "تل ابيب – ساڤيدور المركز",
-    image: require("../../assets/station-images/tlv-center.jpeg"),
+    image: require("../../assets/station-images/tlv-center.jpg"),
   },
   {
     id: "3500",
@@ -54,7 +54,7 @@ const stations = [
     english: "Caesarea-Pardes Hana",
     russian: "Кейсария - Пардес-Хана",
     arabic: "قيساريا - بارديس حنا",
-    image: require("../../assets/station-images/caesarea.jpeg"),
+    image: require("../../assets/station-images/caesarea.jpg"),
   },
   {
     id: "2500",
@@ -115,7 +115,7 @@ const stations = [
     english: "Kfar Sava - Nordau",
     russian: "Кфар-Саба – Нордау",
     arabic: "كفار سابا - نورداو",
-    image: require("../../assets/station-images/kfar-saba.jpeg"),
+    image: require("../../assets/station-images/kfar-saba.jpg"),
   },
   {
     id: "1600",
@@ -168,7 +168,7 @@ const stations = [
     english: "Tel Aviv - HaShalom",
     russian: "Тель-Авив - ха-Шалом",
     arabic: "تل أبيب - السلام",
-    image: require("../../assets/station-images/tlv-hashalom.jpeg"),
+    image: require("../../assets/station-images/tlv-hashalom.jpg"),
   },
   {
     id: "2100",
@@ -190,7 +190,7 @@ const stations = [
     english: "Rosh Ha'Ayin - North",
     russian: "Рош ха - Айн Цафон",
     arabic: "روش هعاين - شمال",
-    image: require("../../assets/station-images/rosh-haayin.jpeg"),
+    image: require("../../assets/station-images/rosh-haayin.jpg"),
   },
   {
     id: "5300",
@@ -273,7 +273,7 @@ const stations = [
     english: "Tel Aviv - HaHagana",
     russian: "Тель-Авив - ха-Хагана ",
     arabic: "تل أبيب - ههچناه",
-    image: require("../../assets/station-images/tlv-hagana.jpeg"),
+    image: require("../../assets/station-images/tlv-hagana.jpg"),
   },
   {
     id: "8600",
@@ -310,7 +310,7 @@ const stations = [
     english: "Hod HaSharon - Sokolov",
     russian: "Ход Хашарон - Соколов",
     arabic: "هود هشارون - سوكولوڤ",
-    image: require("../../assets/station-images/hod_hasharon_sokolov.jpg"),
+    image: require("../../assets/station-images/hod-hasharon-sokolov.jpg"),
   },
   {
     id: "4170",
@@ -390,7 +390,7 @@ const stations = [
     english: "Yavne - West",
     russian: "Явне-Запад",
     arabic: "ياڤني - غرب",
-    image: require("../../assets/station-images/yavne-west.jpeg"),
+    image: require("../../assets/station-images/yavne-west.jpg"),
   },
   {
     id: "9600",
