@@ -40,6 +40,7 @@ const stations = [
     english: "Hadera-West",
     russian: "Хадера - Маарав",
     arabic: "الخضيرة - غرب  ",
+    image: require("../../assets/station-images/hadera-west.jpg"),
   },
   {
     id: "2800",
@@ -47,6 +48,7 @@ const stations = [
     english: "Binyamina",
     russian: "Биньямина",
     arabic: "بنيامينا",
+    image: require("../../assets/station-images/binyamina.jpg"),
   },
   {
     id: "2820",
@@ -67,9 +69,10 @@ const stations = [
   {
     id: "2200",
     hebrew: "חיפה - בת גלים",
-    english: "Haifa-Bat Galim",
+    english: "Haifa - Bat Galim",
     russian: "Хайфа - Бат-Галим",
     arabic: "حيفا - بات چاليم",
+    image: require("../../assets/station-images/haifa-bat-galim.jpg"),
   },
   {
     id: "1300",
@@ -85,6 +88,7 @@ const stations = [
     english: "Kiryat Hayim",
     russian: "Кирьят-Хаим",
     arabic: "كريات حاييم",
+    image: require("../../assets/station-images/kiryat-haim.jpg"),
   },
   {
     id: "1400",
@@ -108,6 +112,7 @@ const stations = [
     english: "Haifa - Hof HaKarmel",
     russian: "Хайфа Хоф ха - Кармель",
     arabic: "حيفا - شاطئ الكرمل",
+    image: require("../../assets/station-images/haifa-hof-hakarmel.jpg"),
   },
   {
     id: "8700",
@@ -176,6 +181,7 @@ const stations = [
     english: "Haifa Center - HaShmona",
     russian: "Хайфа - Мерказ - Центральная",
     arabic: "حيفا المركز - هشمونا",
+    image: require("../../assets/station-images/haifa-hashmona.jpg"),
   },
   {
     id: "5010",
@@ -183,6 +189,7 @@ const stations = [
     english: "Ramla",
     russian: "Рамле",
     arabic: "الرملة",
+    image: require("../../assets/station-images/ramla.jpg"),
   },
   {
     id: "8800",
@@ -206,6 +213,7 @@ const stations = [
     english: "Rehovot",
     russian: "Реховот",
     arabic: "رحوڤوت",
+    image: require("../../assets/station-images/rehovot.jpg"),
   },
   {
     id: "5410",
@@ -340,6 +348,7 @@ const stations = [
     english: "Pa'ate Modi'in",
     russian: "Патей Модиин",
     arabic: "بأتي موديعين",
+    image: require("../../assets/station-images/paate-modiin.jpg"),
   },
   {
     id: "400",
@@ -347,6 +356,7 @@ const stations = [
     english: "Modi'in - Center",
     russian: "Модиин центр ",
     arabic: "موديعين - المركز",
+    image: require("../../assets/station-images/modiin-center.jpg"),
   },
   {
     id: "4640",
@@ -445,6 +455,7 @@ const stations = [
     english: "Afula R.Eitan",
     russian: "Афула Р. Эйтан",
     arabic: "العفولة  ر. ايتان",
+    image: require("../../assets/station-images/afula.jpg"),
   },
   {
     id: "1280",
