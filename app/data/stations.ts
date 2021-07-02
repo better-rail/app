@@ -128,6 +128,7 @@ const stations = [
     english: "Nahariya",
     russian: "Нагария",
     arabic: "نهاريا",
+    image: require("../../assets/station-images/nahariya.jpg"),
   },
   {
     id: "6300",
@@ -143,6 +144,7 @@ const stations = [
     english: "Kiryat Gat",
     russian: "Кирьят-Гат ",
     arabic: "كريات چات",
+    image: require("../../assets/station-images/kiryat-gat.jpg"),
   },
   {
     id: "5000",
@@ -221,6 +223,7 @@ const stations = [
     english: "Yavne-East",
     russian: "Явне-Восток",
     arabic: "ياڤنه - شرق",
+    image: require("../../assets/station-images/yavne-east.jpg"),
   },
   {
     id: "9100",
@@ -228,6 +231,7 @@ const stations = [
     english: "Rishon LeTsiyon - HaRishonim",
     russian: "Ришон ле-Цион - Ха-Ришоним ",
     arabic: "ريشون لتسيون - هريشونيم",
+    image: require("../../assets/station-images/rishon-letsiyon-harishonim.jpg"),
   },
   {
     id: "5800",
