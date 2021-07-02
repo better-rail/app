@@ -97,7 +97,7 @@ const LINE: ViewStyle = {
 }
 
 const ROUTE_NAME: TextStyle = {
-  fontSize: 30,
+  fontWeight: "bold",
   marginBottom: spacing[3]
 }
 // #endregion
