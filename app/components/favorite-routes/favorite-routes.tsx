@@ -63,7 +63,6 @@ export const FavoriteRoutes = observer(function FavoriteRoutes(props: FavoriteRo
         <FavoriteRouteBox
           {...route}
           onPress={() => onFavoritePress(route.originId, route.destinationId)}
-          style={{ marginBottom: spacing[3] }}
           key={route.id}
         />
       ))

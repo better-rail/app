@@ -4,7 +4,8 @@
     "ok": "OK",
     "set": "Set",
     "delete": "Delete",
-    "relax": "Don't forget to take a breath, please."
+    "relax": "Don't forget to take a breath, please.",
+    "save": "Save"
   },
   "plan": {
     "title": "Trip Plan",
@@ -65,7 +66,11 @@
     "title": "Favorite Routes",
     "empty": "No Favorites",
     "emptyDescription": "You can add a favorite from the routes screen",
-    "added": "Added to Favorites"
+    "added": "Added to Favorites",
+    "favoriteMenuTitle": "Favorite route options",
+    "rename": "Rename",
+    "renamePromptTitle": "Rename favorite route",
+    "renamePromptDescription": "How should we call this route?"
   },
   "modals": {
     "noTrainsFound": "No trains found for the requested date",
