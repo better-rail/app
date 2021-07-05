@@ -1,13 +1,5 @@
 import React, { useMemo } from "react"
-import {
-  View,
-  ViewStyle,
-  Dimensions,
-  TextStyle,
-  ImageBackground,
-  ImageStyle,
-  StyleSheet,
-} from "react-native"
+import { View, ViewStyle, Dimensions, TextStyle, ImageBackground, ImageStyle, StyleSheet } from "react-native"
 import TouchableScale from "react-native-touchable-scale"
 import { Text } from "../"
 import { stationLocale, stationsObject } from "../../data/stations"
@@ -98,7 +90,7 @@ const LINE: ViewStyle = {
 
 const ROUTE_NAME: TextStyle = {
   fontWeight: "bold",
-  marginBottom: spacing[3]
+  marginBottom: spacing[3],
 }
 // #endregion
 
@@ -152,26 +144,34 @@ function useOnLongPress(routeId: string, currentName: string) {
   const { favoriteRoutes } = useStores()
 
   const onLongPress = () => {
-    actionSheet.showActionSheetWithOptions({
-      options: [translate("favorites.rename"), translate("common.cancel")],
-      title: translate("favorites.favoriteMenuTitle"),
-      cancelButtonIndex: 1,
-    }, buttonIndex => {
-      if (buttonIndex === 0) {
-        prompt(translate("favorites.renamePromptTitle"), translate("favorites.renamePromptDescription"), [
-          { text: translate("common.cancel"), style: "cancel" },
-          {
-            text: translate("common.save"),
-            onPress: (newName) => {
-              favoriteRoutes.rename(routeId, newName)
+    actionSheet.showActionSheetWithOptions(
+      {
+        options: [translate("favorites.rename"), translate("common.cancel")],
+        title: translate("favorites.favoriteMenuTitle"),
+        cancelButtonIndex: 1,
+      },
+      (buttonIndex) => {
+        if (buttonIndex === 0) {
+          prompt(
+            translate("favorites.renamePromptTitle"),
+            translate("favorites.renamePromptDescription"),
+            [
+              { text: translate("common.cancel"), style: "cancel" },
+              {
+                text: translate("common.save"),
+                onPress: (newName) => {
+                  favoriteRoutes.rename(routeId, newName)
+                },
+              },
+            ],
+            {
+              defaultValue: currentName,
             },
-          },
-        ], {
-          defaultValue: currentName,
-        })
-      }
-    })
+          )
+        }
+      },
+    )
   }
 
-  return {onLongPress}
+  return { onLongPress }
 }

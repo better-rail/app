@@ -60,11 +60,7 @@ export const FavoriteRoutes = observer(function FavoriteRoutes(props: FavoriteRo
       return <EmptyState />
     } else {
       return favoriteRoutes.routes.map((route) => (
-        <FavoriteRouteBox
-          {...route}
-          onPress={() => onFavoritePress(route.originId, route.destinationId)}
-          key={route.id}
-        />
+        <FavoriteRouteBox {...route} onPress={() => onFavoritePress(route.originId, route.destinationId)} key={route.id} />
       ))
     }
   }, [])
