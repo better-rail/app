@@ -77,7 +77,7 @@ const LINE_WIDTH = 2.5 * fontScale
 const LINE: ViewStyle = {
   position: "absolute",
   start: (STATION_CIRCLE_SIZE - LINE_WIDTH) / 2,
-  top: STATION_CIRCLE_SIZE,
+  top: STATION_CIRCLE_SIZE + 4.75,
   width: LINE_WIDTH,
   height: 32,
   backgroundColor: "lightgrey",
