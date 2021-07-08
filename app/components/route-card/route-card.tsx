@@ -1,16 +1,14 @@
 import React, { useMemo } from "react"
-import { TextStyle, View, ViewStyle, Dimensions, PixelRatio } from "react-native"
+import { TextStyle, View, ViewStyle, Dimensions } from "react-native"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import { Svg, Line } from "react-native-svg"
-import { color, spacing, typography } from "../../theme"
+import { color, spacing, typography, fontScale } from "../../theme"
 import { primaryFontIOS } from "../../theme/typography"
 import { Text } from "../"
 import { format, intervalToDuration, formatDuration } from "date-fns"
-import { dateDelimiter, dateFnsLocalization, dateLocalization, translate } from "../../i18n"
+import { dateDelimiter, dateFnsLocalization, translate } from "../../i18n"
 
 // #region styles
-
-const fontScale = PixelRatio.getFontScale()
 
 // Setting static height for FlatList getItemLayout
 export let RouteCardHeight = 75

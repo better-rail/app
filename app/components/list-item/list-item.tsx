@@ -1,21 +1,10 @@
 import * as React from "react"
-import {
-  View,
-  Image,
-  ViewStyle,
-  TextStyle,
-  ImageStyle,
-  TouchableHighlightProps,
-  PixelRatio,
-  ImageSourcePropType,
-} from "react-native"
-import { color, spacing, typography } from "../../theme"
+import { View, Image, ViewStyle, TextStyle, ImageStyle, TouchableHighlightProps, ImageSourcePropType } from "react-native"
+import { color, spacing, typography, fontScale } from "../../theme"
 import { Text } from "../"
 import { TouchableHighlight } from "react-native-gesture-handler"
 
 // #region styles
-
-const fontScale = PixelRatio.getFontScale()
 
 const chevronIcon = require("../../../assets/chevron.png")
 

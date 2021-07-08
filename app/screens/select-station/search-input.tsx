@@ -10,12 +10,9 @@ import {
   TextStyle,
   Pressable,
   Platform,
-  PixelRatio,
 } from "react-native"
 import { translate } from "../../i18n"
-import { color, spacing, typography } from "../../theme"
-
-const fontScale = PixelRatio.getFontScale()
+import { color, spacing, typography, fontScale } from "../../theme"
 
 const searchIcon = require("../../../assets/search.png")
 const dismissIcon = require("../../../assets/dismiss.png")

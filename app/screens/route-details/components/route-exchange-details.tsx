@@ -1,14 +1,13 @@
 import React, { useMemo } from "react"
-import { View, Image, ViewStyle, ImageStyle, TextStyle, PixelRatio, Dimensions } from "react-native"
+import { View, Image, ViewStyle, ImageStyle, TextStyle, Dimensions } from "react-native"
 import { Text, ChangeDirectionButton } from "../../../components"
-import { color, spacing } from "../../../theme"
+import { color, spacing, fontScale } from "../../../theme"
 import { intervalToDuration, formatDuration } from "date-fns"
 import { dateFnsLocalization, translate } from "../../../i18n"
 
 const importantIcon = require("../../../../assets/important.png")
 const clockIcon = require("../../../../assets/clock.png")
 
-const fontScale = PixelRatio.getFontScale()
 const { width: deviceWidth } = Dimensions.get("screen")
 
 // Hide the exchange icon when font scaling is on or if the viewport is too narrow,
