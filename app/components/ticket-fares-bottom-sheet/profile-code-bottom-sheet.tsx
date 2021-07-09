@@ -45,7 +45,7 @@ export const ProfileCodeBottomSheet = observer(
         enableContentPanningGesture={false}
       >
         <View style={CONTNET}>
-          <Text style={TITLE}>פרופיל נוסע/ת</Text>
+          <Text style={TITLE} tx="profileCodes.passengerProfile" />
 
           <View style={SETTING_GROUP}>
             {PROFILE_CODES.map((profile, index) => (

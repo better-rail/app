@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { ProfileCodeBottomSheet } from "./profile-code-bottom-sheet"
 import { observer } from "mobx-react-lite"
 import { useStores } from "../../models"
+import { translate } from "../../i18n"
 
 const CONTNET: ViewStyle = {
   flex: 1,
@@ -39,17 +40,21 @@ export const TicketFaresBottomSheet = observer(
         <BottomSheet ref={ref} index={0} snapPoints={snapPoints} backdropComponent={BottomSheetBackdrop} handleComponent={null}>
           <View style={CONTNET}>
             <DummyInput
-              label="פרופיל נוסע/ת"
+              label={translate("profileCodes.passengerProfile")}
               value={settings.profileCodeLabel}
               onPress={() => profilePickerSheet.current.expand()}
             />
 
             <View style={PRICE_DESCRIPTION}>
-              <Text>מחיר הנסיעה לכיוון אחד</Text>
+              <Text tx="profileCodes.farePerRide" />
               <Text preset="header">32 ₪</Text>
             </View>
 
-            <Button title="סגירה" containerStyle={{ flex: 0, height: 55, opacity: 0.85 }} onPress={props.closeBottomSheet} />
+            <Button
+              title={translate("common.close")}
+              containerStyle={{ flex: 0, height: 55, opacity: 0.85 }}
+              onPress={props.closeBottomSheet}
+            />
           </View>
         </BottomSheet>
 
