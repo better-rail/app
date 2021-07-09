@@ -9,6 +9,7 @@ import { format, closestIndexTo } from "date-fns"
 import { RouteItem } from "../../services/api"
 import { RouteListModal } from "./components/route-list-modal"
 import { SharedElement } from "react-navigation-shared-element"
+import HapticFeedback from "react-native-haptic-feedback"
 import BottomSheet from "@gorhom/bottom-sheet"
 
 const ROOT: ViewStyle = {
@@ -97,7 +98,10 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         <RouteDetailsHeader
           originId={route.params.originId}
           destinationId={route.params.destinationId}
-          openFaresBottomSheet={() => bottomSheetRef.current.expand()}
+          openFaresBottomSheet={() => {
+            HapticFeedback.trigger("impactLight")
+            bottomSheetRef.current.expand()
+          }}
           style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
         />
       </SharedElement>
