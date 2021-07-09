@@ -1,14 +1,15 @@
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useEffect, useMemo, useState, useRef } from "react"
 import { observer } from "mobx-react-lite"
-import { FlatList, ViewStyle, ActivityIndicator } from "react-native"
+import { FlatList, ViewStyle, ActivityIndicator, View } from "react-native"
 import { RouteListScreenProps } from "../../navigators/main-navigator"
-import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight } from "../../components"
+import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight, TicketFaresBottomSheet } from "../../components"
 import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
 import { format, closestIndexTo } from "date-fns"
 import { RouteItem } from "../../services/api"
 import { RouteListModal } from "./components/route-list-modal"
 import { SharedElement } from "react-navigation-shared-element"
+import BottomSheet from "@gorhom/bottom-sheet"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -18,6 +19,7 @@ const ROOT: ViewStyle = {
 export const RouteListScreen = observer(function RouteListScreen({ navigation, route }: RouteListScreenProps) {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const { trainRoutes, routePlan } = useStores()
+  const bottomSheetRef = useRef<BottomSheet>(null)
 
   // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
   // returns a route list for the whole day.
@@ -95,6 +97,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         <RouteDetailsHeader
           originId={route.params.originId}
           destinationId={route.params.destinationId}
+          openFaresBottomSheet={() => bottomSheetRef.current.expand()}
           style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
         />
       </SharedElement>
@@ -110,6 +113,9 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           initialScrollIndex={initialScrollIndex}
         />
       )}
+
+      <TicketFaresBottomSheet ref={bottomSheetRef} closeBottomSheet={() => bottomSheetRef.current.close()} />
+
       {trainRoutes.routes?.length > 0 && (
         <RouteListModal
           isVisible={isModalVisible}

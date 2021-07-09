@@ -12,6 +12,7 @@ const CONTAINER: ViewStyle = {
 const STAR_ICON: ImageStyle = {
   width: 27,
   height: 25,
+  resizeMode: "contain",
   tintColor: "lightgrey",
   opacity: 0.9,
 }

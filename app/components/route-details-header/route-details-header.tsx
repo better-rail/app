@@ -80,8 +80,8 @@ const HEADER_RIGHT_WRAPPER: ViewStyle = {
 }
 
 const SHEKEL_ICON: ImageStyle = {
-  width: 27.5,
-  height: 27.5,
+  width: 26.5,
+  height: 26.5,
   resizeMode: "contain",
   tintColor: "lightgrey",
   marginEnd: spacing[2] + 2,
@@ -91,6 +91,7 @@ const SHEKEL_ICON: ImageStyle = {
 export interface RouteDetailsHeaderProps {
   originId: string
   destinationId: string
+  openFaresBottomSheet: () => void
   style?: ViewStyle
 }
 
@@ -113,7 +114,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
     navigation.setOptions({
       headerRight: () => (
         <View style={HEADER_RIGHT_WRAPPER}>
-          <TouchableOpacity onPress={() => alert(1)}>
+          <TouchableOpacity onPress={() => props.openFaresBottomSheet()}>
             <Image source={shekelIcon} style={SHEKEL_ICON} />
           </TouchableOpacity>
           <StarIcon
