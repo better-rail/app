@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, forwardRef } from "react"
 import { TextStyle, View, ViewStyle } from "react-native"
-import { color, spacing, typography } from "../../theme"
+import { color, fontScale, spacing, typography } from "../../theme"
 import { Text, DummyInput, Button } from "../"
 import BottomSheet, { BottomSheetBackdrop, useBottomSheet } from "@gorhom/bottom-sheet"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -19,7 +19,7 @@ export interface TicketFaresBottomSheetProps {
 
 export const TicketFaresBottomSheet = forwardRef<BottomSheet, TicketFaresBottomSheetProps>((props, ref) => {
   const insets = useSafeAreaInsets()
-  const snapPoints = useMemo(() => [0, 235 + insets.bottom * 0.5], [])
+  const snapPoints = useMemo(() => [0, (235 + insets.bottom * 0.5) * fontScale], [])
 
   const handleSheetChanges = useCallback((index: number) => {
     console.log("handleSheetChanges", index)
