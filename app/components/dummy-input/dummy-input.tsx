@@ -31,7 +31,7 @@ export interface DummyInputProps extends PressableProps {
   /**
    * Text to display when no value is provided
    */
-  placeholder: string
+  placeholder?: string
 
   /**
    * An optional inline label to display

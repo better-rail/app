@@ -4,8 +4,9 @@ import { color, fontScale, spacing, typography } from "../../theme"
 import { Text, DummyInput, Button } from "../"
 import BottomSheet, { BottomSheetBackdrop, BottomSheetModalProvider, BottomSheetScrollView } from "@gorhom/bottom-sheet"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { SettingBox } from "../../screens/settings/components/settings-box"
-import { SETTING_GROUP } from "../../screens/settings"
+import { ProfileCodeBottomSheet } from "./profile-code-bottom-sheet"
+import { observer } from "mobx-react-lite"
+import { useStores } from "../../models"
 
 const CONTNET: ViewStyle = {
   flex: 1,
@@ -14,70 +15,49 @@ const CONTNET: ViewStyle = {
   borderRadius: 14,
 }
 
+const PRICE_DESCRIPTION: TextStyle = {
+  alignItems: "center",
+  marginTop: spacing[4],
+  marginBottom: spacing[4],
+}
+
 export interface TicketFaresBottomSheetProps {
   closeBottomSheet: () => void
   style?: ViewStyle
 }
 
-export const TicketFaresBottomSheet = forwardRef<BottomSheet, TicketFaresBottomSheetProps>((props, ref) => {
-  const insets = useSafeAreaInsets()
-  const profilePickerModal = useRef<BottomSheet>(null)
-  const profileTypeSelect = useRef<RNPickerSelect>(null)
+export const TicketFaresBottomSheet = observer(
+  (props: TicketFaresBottomSheetProps, ref: React.ForwardedRef<BottomSheet>) => {
+    const { settings } = useStores()
+    const insets = useSafeAreaInsets()
+    const profilePickerSheet = useRef<BottomSheet>(null)
 
-  const snapPoints = useMemo(() => [0, (235 + insets.bottom * 0.5) * fontScale], [])
-  const profilePickerSnapPoints = useMemo(() => [0, (480 + insets.bottom * 0.5) * fontScale], [])
+    const snapPoints = useMemo(() => [0, (235 + insets.bottom * 0.5) * fontScale], [])
 
-  const handleSheetChanges = useCallback((index: number) => {
-    console.log("handleSheetChanges", index)
-  }, [])
+    return (
+      <BottomSheetModalProvider>
+        <BottomSheet ref={ref} index={0} snapPoints={snapPoints} backdropComponent={BottomSheetBackdrop} handleComponent={null}>
+          <View style={CONTNET}>
+            <DummyInput
+              label="פרופיל נוסע/ת"
+              value={settings.profileCodeLabel}
+              onPress={() => profilePickerSheet.current.expand()}
+            />
 
-  return (
-    <BottomSheetModalProvider>
-      <BottomSheet
-        ref={ref}
-        index={0}
-        snapPoints={snapPoints}
-        onChange={handleSheetChanges}
-        backdropComponent={BottomSheetBackdrop}
-        handleComponent={null}
-      >
-        <View style={CONTNET}>
-          <DummyInput label="פרופיל נוסע/ת" value="כללי" onPress={() => profilePickerModal.current.expand()} />
+            <View style={PRICE_DESCRIPTION}>
+              <Text>מחיר הנסיעה לכיוון אחד</Text>
+              <Text preset="header">32 ₪</Text>
+            </View>
 
-          <View style={{ marginTop: spacing[4], marginBottom: spacing[4], alignItems: "center" }}>
-            <Text>מחיר הנסיעה לכיוון אחד</Text>
-            <Text preset="header">32 ₪</Text>
+            <Button title="סגירה" containerStyle={{ flex: 0, height: 55, opacity: 0.85 }} onPress={props.closeBottomSheet} />
           </View>
+        </BottomSheet>
 
-          <Button title="סגירה" containerStyle={{ flex: 0, height: 55, opacity: 0.85 }} onPress={props.closeBottomSheet} />
-        </View>
-      </BottomSheet>
-
-      <BottomSheet
-        ref={profilePickerModal}
-        index={0}
-        snapPoints={profilePickerSnapPoints}
-        onChange={handleSheetChanges}
-        backdropComponent={BottomSheetBackdrop}
-        handleComponent={null}
-        enableContentPanningGesture={false}
-      >
-        <View style={CONTNET}>
-          <Text style={{ fontSize: 20, fontWeight: "500", marginStart: 2.5, marginBottom: spacing[3] }}>פרופיל נוסע/ת</Text>
-
-          <View style={SETTING_GROUP}>
-            <SettingBox first title="כללי" checkmark />
-            <SettingBox title="אזרח ותיק" />
-            <SettingBox title="נכה" />
-            <SettingBox title="סטודנט רגיל" />
-            <SettingBox title="אזרח ותיק" />
-            <SettingBox title="נוער עד גיל 18" />
-            <SettingBox title="זכאי ביטוח לאומי" last />
-          </View>
-        </View>
-      </BottomSheet>
-    </BottomSheetModalProvider>
-  )
-})
+        <ProfileCodeBottomSheet ref={profilePickerSheet} closeSheet={() => profilePickerSheet.current.close()} />
+      </BottomSheetModalProvider>
+    )
+  },
+  { forwardRef: true },
+)
 
 TicketFaresBottomSheet.displayName = "TicketFaresBottomSheet"

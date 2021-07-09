@@ -69,6 +69,15 @@
     "emptyDescription": "ניתן להוסיף מסלול מועדף ממסך לוח הזמנים",
     "added": "נוסף לרשימת המועדפים"
   },
+  "profileCodes": {
+    "general": "כללי",
+    "studentRegular": "סטודנט רגיל",
+    "studentExtended": "סטודנט מורחב",
+    "seniorCitizen": "אזרח ותיק",
+    "disabled": "נכה",
+    "youth": "נוער",
+    "socialSecurity": "זכאי ביטוח לאומי"
+  },
   "modals": {
     "noTrainsFound": "לא נמצאו רכבות לתאריך המבוקש",
     "foundTrainsAt": "קיימות רכבות החל מ"

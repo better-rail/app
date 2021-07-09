@@ -67,6 +67,15 @@
     "emptyDescription": "You can add a favorite from the routes screen",
     "added": "Added to Favorites"
   },
+  "profileCodes": {
+    "general": "General",
+    "studentRegular": "Student",
+    "studentExtended": "Student Extended",
+    "seniorCitizen": "Senior Citizen",
+    "disabled": "Disabled",
+    "youth": "Youth",
+    "socialSecurity": "Social Security"
+  },
   "modals": {
     "noTrainsFound": "No trains found for the requested date",
     "foundTrainsAt": "Showing trains departing at "
