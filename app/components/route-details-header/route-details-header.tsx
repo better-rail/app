@@ -85,6 +85,7 @@ const SHEKEL_ICON: ImageStyle = {
   resizeMode: "contain",
   tintColor: "lightgrey",
   marginEnd: spacing[2] + 2,
+  opacity: 0.9,
 }
 // #endregion
 
