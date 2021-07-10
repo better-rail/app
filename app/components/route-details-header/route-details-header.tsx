@@ -115,23 +115,28 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
     navigation.setOptions({
       headerRight: () => (
         <View style={HEADER_RIGHT_WRAPPER}>
-          <TouchableOpacity onPress={() => props.openFaresBottomSheet()}>
-            <Image source={shekelIcon} style={SHEKEL_ICON} />
-          </TouchableOpacity>
-          <StarIcon
-            filled={isFavorite}
-            onPress={() => {
-              const favorite = { id: routeId, originId, destinationId }
-              if (!isFavorite) {
-                toast.done(translate("favorites.added"))
-                HapticFeedback.trigger("impactMedium")
-                favoriteRoutes.add(favorite)
-              } else {
-                HapticFeedback.trigger("impactLight")
-                favoriteRoutes.remove(favorite)
-              }
-            }}
-          />
+          {props.openFaresBottomSheet && (
+            <>
+              <TouchableOpacity onPress={() => props.openFaresBottomSheet()}>
+                <Image source={shekelIcon} style={SHEKEL_ICON} />
+              </TouchableOpacity>
+
+              <StarIcon
+                filled={isFavorite}
+                onPress={() => {
+                  const favorite = { id: routeId, originId, destinationId }
+                  if (!isFavorite) {
+                    toast.done(translate("favorites.added"))
+                    HapticFeedback.trigger("impactMedium")
+                    favoriteRoutes.add(favorite)
+                  } else {
+                    HapticFeedback.trigger("impactLight")
+                    favoriteRoutes.remove(favorite)
+                  }
+                }}
+              />
+            </>
+          )}
         </View>
       ),
     })
