@@ -8,6 +8,7 @@ import { SettingBox } from "../../screens/settings/components/settings-box"
 import { SETTING_GROUP } from "../../screens/settings"
 import { observer } from "mobx-react-lite"
 import { useStores, PROFILE_CODES } from "../../models"
+import { translate } from "../../i18n"
 
 const CONTNET: ViewStyle = {
   flex: 1,
@@ -52,7 +53,7 @@ export const ProfileCodeBottomSheet = observer(
               <SettingBox
                 first={index === 0}
                 last={index === PROFILE_CODES.length - 1}
-                title={profile.label}
+                title={translate(profile.label)}
                 checkmark={settings.profileCode === profile.value}
                 key={profile.value}
                 onPress={() => onSelection(profile.value)}

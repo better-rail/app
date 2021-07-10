@@ -71,6 +71,7 @@
   "profileCodes": {
     "passengerProfile": "Profile",
     "farePerRide": "Fare for a single ride",
+    "dataSource": "Data retrieved from Israel Railways",
     "general": "General",
     "studentRegular": "Student",
     "studentExtended": "Student Extended",

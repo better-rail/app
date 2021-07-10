@@ -1,5 +1,5 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { translate } from "../../i18n"
+import { translate, TxKeyPath } from "../../i18n"
 
 export const SettingsModel = types
   .model("Settings")
@@ -7,7 +7,7 @@ export const SettingsModel = types
   .views((self) => ({
     get profileCodeLabel() {
       const profile = PROFILE_CODES.find((profileCode) => profileCode.value === self.profileCode)
-      return profile.label
+      return translate(profile.label)
     },
   }))
 
@@ -23,12 +23,12 @@ type SettingsSnapshotType = SnapshotOut<typeof SettingsModel>
 export interface SettingsSnapshot extends SettingsSnapshotType {}
 export const createSettingsDefaultModel = () => types.optional(SettingsModel, {})
 
-export const PROFILE_CODES = [
-  { label: translate("profileCodes.general"), value: 1 },
-  { label: translate("profileCodes.studentRegular"), value: 19 },
-  { label: translate("profileCodes.studentExtended"), value: 3 },
-  { label: translate("profileCodes.seniorCitizen"), value: 4 },
-  { label: translate("profileCodes.disabled"), value: 5 },
-  { label: translate("profileCodes.youth"), value: 33 },
-  { label: translate("profileCodes.socialSecurity"), value: 40 },
+export const PROFILE_CODES: { label: TxKeyPath; value: number }[] = [
+  { label: "profileCodes.general", value: 1 },
+  { label: "profileCodes.studentRegular", value: 19 },
+  { label: "profileCodes.studentExtended", value: 3 },
+  { label: "profileCodes.seniorCitizen", value: 4 },
+  { label: "profileCodes.disabled", value: 5 },
+  { label: "profileCodes.youth", value: 33 },
+  { label: "profileCodes.socialSecurity", value: 40 },
 ]

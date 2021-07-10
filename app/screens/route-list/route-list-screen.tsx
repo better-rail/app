@@ -118,7 +118,12 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         />
       )}
 
-      <TicketFaresBottomSheet ref={bottomSheetRef} closeBottomSheet={() => bottomSheetRef.current.close()} />
+      <TicketFaresBottomSheet
+        ref={bottomSheetRef}
+        closeBottomSheet={() => bottomSheetRef.current.close()}
+        originId={route.params.originId}
+        destinationId={route.params.destinationId}
+      />
 
       {trainRoutes.routes?.length > 0 && (
         <RouteListModal
