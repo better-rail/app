@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from "react"
+import React, { useCallback, useState, useEffect, useMemo, useRef } from "react"
 import { ActivityIndicator, TextStyle, View, Platform, BackHandler, ViewStyle } from "react-native"
 import { color, fontScale, spacing } from "../../theme"
 import { Text, DummyInput, Button } from "../"
@@ -50,23 +50,32 @@ export const TicketFaresBottomSheet = observer(
       })
     }, [settings.profileCode])
 
-    useEffect(() => {
+    const handleSheetChanges = useCallback((index: number) => {
       // Handles back button presses on Android
+
       const backAction = () => {
         props.closeBottomSheet()
+        BackHandler.removeEventListener("hardwareBackPress", backAction)
         return true
       }
 
-      BackHandler.addEventListener("hardwareBackPress", backAction)
-
-      return () => {
+      if (index === 1) {
+        BackHandler.addEventListener("hardwareBackPress", backAction)
+      } else if (index === 0) {
         BackHandler.removeEventListener("hardwareBackPress", backAction)
       }
     }, [])
 
     return (
       <BottomSheetModalProvider>
-        <BottomSheet ref={ref} index={0} snapPoints={snapPoints} backdropComponent={BottomSheetBackdrop} handleComponent={null}>
+        <BottomSheet
+          ref={ref}
+          index={0}
+          onChange={handleSheetChanges}
+          snapPoints={snapPoints}
+          backdropComponent={BottomSheetBackdrop}
+          handleComponent={null}
+        >
           <View style={CONTNET}>
             <DummyInput
               label={translate("profileCodes.passengerProfile")}
