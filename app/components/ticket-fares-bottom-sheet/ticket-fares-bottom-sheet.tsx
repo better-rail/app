@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from "react"
-import { ActivityIndicator, TextStyle, View, ViewStyle } from "react-native"
-import { color, fontScale, spacing, typography } from "../../theme"
+import { ActivityIndicator, TextStyle, View, Platform, BackHandler, ViewStyle } from "react-native"
+import { color, fontScale, spacing } from "../../theme"
 import { Text, DummyInput, Button } from "../"
-import BottomSheet, { BottomSheetBackdrop, BottomSheetModalProvider, BottomSheetScrollView } from "@gorhom/bottom-sheet"
+import BottomSheet, { BottomSheetBackdrop, BottomSheetModalProvider } from "@gorhom/bottom-sheet"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { ProfileCodeBottomSheet } from "./profile-code-bottom-sheet"
 import { observer } from "mobx-react-lite"
@@ -14,7 +14,7 @@ const CONTNET: ViewStyle = {
   flex: 1,
   padding: spacing[3],
   backgroundColor: color.background,
-  borderRadius: 14,
+  borderRadius: Platform.select({ ios: 14, android: 6 }),
 }
 
 const PRICE_DESCRIPTION: TextStyle = {
@@ -50,6 +50,20 @@ export const TicketFaresBottomSheet = observer(
       })
     }, [settings.profileCode])
 
+    useEffect(() => {
+      // Handles back button presses on Android
+      const backAction = () => {
+        props.closeBottomSheet()
+        return true
+      }
+
+      BackHandler.addEventListener("hardwareBackPress", backAction)
+
+      return () => {
+        BackHandler.removeEventListener("hardwareBackPress", backAction)
+      }
+    }, [])
+
     return (
       <BottomSheetModalProvider>
         <BottomSheet ref={ref} index={0} snapPoints={snapPoints} backdropComponent={BottomSheetBackdrop} handleComponent={null}>
@@ -66,7 +80,7 @@ export const TicketFaresBottomSheet = observer(
                 {!isLoading && routeFare ? (
                   <Text preset="header">{routeFare} ₪</Text>
                 ) : (
-                  <ActivityIndicator size="large" style={{ paddingTop: spacing[2] }} />
+                  <ActivityIndicator size="large" style={{ paddingTop: spacing[2] }} color={color.dim} />
                 )}
               </View>
             </View>

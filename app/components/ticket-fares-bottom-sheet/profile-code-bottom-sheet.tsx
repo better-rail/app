@@ -1,5 +1,5 @@
 import React, { useMemo } from "react"
-import { TextStyle, View, ViewStyle } from "react-native"
+import { TextStyle, View, Platform, ViewStyle } from "react-native"
 import { color, fontScale, spacing } from "../../theme"
 import { Text } from "../"
 import BottomSheet, { BottomSheetBackdrop } from "@gorhom/bottom-sheet"
@@ -14,7 +14,7 @@ const CONTNET: ViewStyle = {
   flex: 1,
   padding: spacing[3],
   backgroundColor: color.background,
-  borderRadius: 14,
+  borderRadius: Platform.select({ ios: 14, android: 6 }),
 }
 
 const TITLE: TextStyle = { fontSize: 20, fontWeight: "500", marginStart: 2.5, marginBottom: spacing[3] }

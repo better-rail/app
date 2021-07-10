@@ -15,7 +15,7 @@ export async function getRouteFare(originId: string, destinationId: string, prof
 
     const { Results: responseData } = response.data
     const contract = responseData[0].ContractsResults[0]
-    console.log(contract)
+
     if (contract.ETT_Code === 10) {
       return contract.Price
     }
