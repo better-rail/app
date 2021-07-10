@@ -1,5 +1,5 @@
 import React, { useMemo } from "react"
-import { TextStyle, View, ViewStyle, Dimensions } from "react-native"
+import { TextStyle, View, ViewStyle, Dimensions, Platform } from "react-native"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import { Svg, Line } from "react-native-svg"
 import { color, spacing, typography, fontScale } from "../../theme"
@@ -23,7 +23,7 @@ const CONTAINER: ViewStyle = {
   paddingVertical: spacing[2],
   paddingHorizontal: spacing[4],
   backgroundColor: color.inputBackground,
-  borderRadius: 12,
+  borderRadius: Platform.select({ ios: 12, android: 8 }),
 
   shadowColor: color.palette.black,
   shadowOffset: { height: 0, width: 0 },

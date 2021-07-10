@@ -1,9 +1,9 @@
 import React, { useMemo } from "react"
-import { View, ViewStyle, Dimensions, TextStyle, ImageBackground, ImageStyle } from "react-native"
+import { View, ViewStyle, Dimensions, TextStyle, ImageBackground, ImageStyle, Platform } from "react-native"
 import TouchableScale from "react-native-touchable-scale"
 import { Text } from "../"
 import { stationLocale, stationsObject } from "../../data/stations"
-import { color, spacing, isDarkMode, fontScale } from "../../theme"
+import { color, spacing, fontScale } from "../../theme"
 
 const deviceWidth = Dimensions.get("screen").width
 const cardWidth = deviceWidth - spacing[3] * 2
@@ -20,7 +20,7 @@ const IMAGE_BACKGROUND: ImageStyle = {
   height: 100 * fontScale,
   padding: spacing[3],
   justifyContent: "center",
-  borderRadius: 8,
+  borderRadius: Platform.select({ ios: 8, android: 6 }),
   overflow: "hidden",
 }
 
@@ -99,7 +99,7 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
 
   return (
     <TouchableScale style={[CONTAINER, style]} activeScale={0.96} friction={8} onPress={onPress}>
-      <ImageBackground source={stationImage} style={IMAGE_BACKGROUND} borderRadius={10} blurRadius={6}>
+      <ImageBackground source={stationImage} style={IMAGE_BACKGROUND} blurRadius={6}>
         <View style={BACKGROUND_DIMMER} />
         <View style={[STATION_WRAPPER, { marginBottom: spacing[3] }]}>
           <View style={[STATION_CIRCLE, STATION_ORIGIN_CIRCLE]} />

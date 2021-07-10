@@ -134,7 +134,7 @@ export const color = {
 
   yellow: Platform.select({
     ios: PlatformColor("systemYellow"),
-    android: "yellow",
+    android: "#f1c40f",
   }),
 
   /**
