@@ -1,10 +1,10 @@
 /* eslint-disable react/display-name */
 import React, { useMemo, useLayoutEffect } from "react"
-import { Image, ImageBackground, View, ViewStyle, TextStyle, ImageStyle, Appearance } from "react-native"
+import { Image, TouchableOpacity, ImageBackground, View, ViewStyle, TextStyle, ImageStyle } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
 import LinearGradient from "react-native-linear-gradient"
-import { color, spacing } from "../../theme"
+import { color, isDarkMode, spacing } from "../../theme"
 import { Text, StarIcon } from "../"
 import HapticFeedback from "react-native-haptic-feedback"
 import { stationsObject, stationLocale } from "../../data/stations"
@@ -13,7 +13,7 @@ import { useStores } from "../../models"
 import { useToast } from "react-native-toast-hybrid"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
-const colorScheme = Appearance.getColorScheme()
+const shekelIcon = require("../../../assets/shekel.png")
 
 // #region styles
 const ROUTE_DETAILS_WRAPPER: ViewStyle = {
@@ -32,7 +32,7 @@ const ROUTE_DETAILS_STATION: ViewStyle = {
   shadowOffset: { width: 0, height: 1 },
   shadowColor: color.dim,
   shadowRadius: 1,
-  shadowOpacity: colorScheme === "dark" ? 0 : 0.45,
+  shadowOpacity: isDarkMode ? 0 : 0.45,
   elevation: 1,
   zIndex: 0,
 }
@@ -72,11 +72,27 @@ const GARDIENT: ViewStyle = {
   top: 0,
   opacity: 1,
 }
+
+const HEADER_RIGHT_WRAPPER: ViewStyle = {
+  flexDirection: "row",
+  alignItems: "center",
+  marginEnd: spacing[2],
+}
+
+const SHEKEL_ICON: ImageStyle = {
+  width: 26.5,
+  height: 26.5,
+  resizeMode: "contain",
+  tintColor: "lightgrey",
+  marginEnd: spacing[2] + 2,
+  opacity: 0.9,
+}
 // #endregion
 
 export interface RouteDetailsHeaderProps {
   originId: string
   destinationId: string
+  openFaresBottomSheet: () => void
   style?: ViewStyle
 }
 
@@ -98,20 +114,30 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <StarIcon
-          filled={isFavorite}
-          onPress={() => {
-            const favorite = { id: routeId, originId, destinationId }
-            if (!isFavorite) {
-              toast.done(translate("favorites.added"))
-              HapticFeedback.trigger("impactMedium")
-              favoriteRoutes.add(favorite)
-            } else {
-              HapticFeedback.trigger("impactLight")
-              favoriteRoutes.remove(favorite)
-            }
-          }}
-        />
+        <View style={HEADER_RIGHT_WRAPPER}>
+          {props.openFaresBottomSheet && (
+            <>
+              <TouchableOpacity onPress={() => props.openFaresBottomSheet()}>
+                <Image source={shekelIcon} style={SHEKEL_ICON} />
+              </TouchableOpacity>
+
+              <StarIcon
+                filled={isFavorite}
+                onPress={() => {
+                  const favorite = { id: routeId, originId, destinationId }
+                  if (!isFavorite) {
+                    toast.done(translate("favorites.added"))
+                    HapticFeedback.trigger("impactMedium")
+                    favoriteRoutes.add(favorite)
+                  } else {
+                    HapticFeedback.trigger("impactLight")
+                    favoriteRoutes.remove(favorite)
+                  }
+                }}
+              />
+            </>
+          )}
+        </View>
       ),
     })
   }, [favoriteRoutes.routes.length])

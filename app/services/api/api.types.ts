@@ -65,3 +65,67 @@ export type RequestBarodeParams = {
   token: string
   route: RouteItem
 }
+
+export interface Title {
+  HE: string
+  EN: string
+  RU: string
+  AR: string
+}
+
+export interface ContractTitleCount {
+  HE: string
+  EN: string
+  RU: string
+  AR: string
+}
+
+export interface Title2 {
+  HE: string
+  EN: string
+  RU: string
+  AR: string
+}
+
+export interface SubTitle {
+  HE: string
+  EN: string
+  RU: string
+  AR: string
+}
+
+export interface ContractsResult {
+  Trip_Type: string
+  ETT_Code: number
+  PREDEFINE: number
+  Metro_Code: number
+  Station_Code_Origin: number
+  Station_Code_Dest: number
+  SmartCard_Profile_Code: number
+  ContractCodeMagnetic: number
+  Magnetic_Profile_Code: number
+  Contract_Code: number
+  Contract_Name_He: string
+  Contract_Name_En: string
+  Contract_Name_Ar: string
+  Contract_Name_Ru: string
+  Price: string
+  IsAvailableForSale: boolean
+  RestrictionTitle_HE: string
+  RestrictionTitle_EN: string
+  RestrictionTitle_RU: string
+  RestrictionTitle_AR: string
+}
+
+export interface FareResults {
+  Title: Title2
+  SubTitle: SubTitle
+  ContractsResults: ContractsResult[]
+}
+
+export interface FareApiResult {
+  Title: Title
+  ContractTitleCount: ContractTitleCount
+  VersionId: number
+  Results: FareResults[]
+}
