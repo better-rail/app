@@ -1,17 +1,6 @@
 import React from "react"
-import {
-  TextInput,
-  LayoutAnimation,
-  I18nManager,
-  View,
-  Image,
-  ImageStyle,
-  ViewStyle,
-  TextStyle,
-  Pressable,
-  Platform,
-} from "react-native"
-import { translate } from "../../i18n"
+import { TextInput, LayoutAnimation, View, Image, ImageStyle, ViewStyle, TextStyle, Pressable, Platform } from "react-native"
+import { isRTL, translate } from "../../i18n"
 import { color, spacing, typography, fontScale } from "../../theme"
 
 const searchIcon = require("../../../assets/search.png")
@@ -42,7 +31,7 @@ const SEARCH_ICON: ImageStyle = {
 }
 
 const TEXT_INPUT: TextStyle = {
-  textAlign: I18nManager.isRTL ? "right" : "left",
+  textAlign: isRTL ? "right" : "left",
   fontFamily: typography.primary,
   color: color.text,
 }
