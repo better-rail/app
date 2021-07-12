@@ -31,6 +31,7 @@ const SEARCH_ICON: ImageStyle = {
 }
 
 const TEXT_INPUT: TextStyle = {
+  width: "90%",
   textAlign: isRTL ? "right" : "left",
   fontFamily: typography.primary,
   color: color.text,
