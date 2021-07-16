@@ -8,23 +8,13 @@ import { getVersion } from "react-native-device-info"
 import { color, spacing, isDarkMode } from "../../theme"
 import { translate } from "../../i18n"
 import { SettingsScreenProps } from "../../navigators"
+import { SETTING_GROUP } from "./settings-styles"
 
 const ROOT: ViewStyle = {
   flex: 1,
   backgroundColor: color.background,
   paddingTop: spacing[4],
   paddingHorizontal: spacing[4],
-}
-
-const SETTING_GROUP: ViewStyle = {
-  marginBottom: spacing[4],
-  borderRadius: 10,
-  backgroundColor: color.secondaryBackground,
-  shadowOffset: { width: 0, height: 0 },
-  shadowColor: color.dim,
-  shadowRadius: 0.25,
-  shadowOpacity: 0.2,
-  elevation: 1,
 }
 
 const VERSION_TEXT: TextStyle = {

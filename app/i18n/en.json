@@ -4,6 +4,7 @@
     "ok": "OK",
     "set": "Set",
     "delete": "Delete",
+    "close": "Close",
     "relax": "Don't forget to take a breath, please.",
     "save": "Save"
   },
@@ -71,6 +72,18 @@
     "rename": "Rename",
     "renamePromptTitle": "Rename favorite route",
     "renamePromptPlaceholder": "Enter a name for the route..."
+  },
+  "profileCodes": {
+    "passengerProfile": "Profile",
+    "farePerRide": "Fare for a single ride",
+    "dataSource": "Data retrieved from Israel Railways",
+    "general": "General",
+    "studentRegular": "Student",
+    "studentExtended": "Student Extended",
+    "seniorCitizen": "Senior Citizen",
+    "disabled": "Disabled",
+    "youth": "Youth",
+    "socialSecurity": "Social Security"
   },
   "modals": {
     "noTrainsFound": "No trains found for the requested date",

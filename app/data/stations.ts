@@ -361,6 +361,7 @@ const stations = [
     english: "Holon - Wolfson",
     russian: "Холон - Вольфсон",
     arabic: "حولون - ڤولفسون",
+    image: require("../../assets/station-images/holon-wolfson.jpg"),
   },
   {
     id: "4680",

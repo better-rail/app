@@ -4,6 +4,7 @@
     "ok": "אישור",
     "set": "שמירה",
     "delete": "מחיקה",
+    "close": "סגירה",
     "relax": "אנא, אל תשכחו לנשום",
     "save": "שמירה"
   },
@@ -73,6 +74,18 @@
     "rename": "שינוי שם",
     "renamePromptTitle": "שינוי שם המסלול",
     "renamePromptPlaceholder": "הזינו שם למסלול..."
+  },
+  "profileCodes": {
+    "passengerProfile": "פרופיל נוסע/ת",
+    "dataSource": "המידע המוצג מגיע מרכבת ישראל",
+    "farePerRide": "מחיר הנסיעה לכיוון אחד",
+    "general": "כללי",
+    "studentRegular": "סטודנט רגיל",
+    "studentExtended": "סטודנט מורחב",
+    "seniorCitizen": "אזרח ותיק",
+    "disabled": "נכה",
+    "youth": "נוער",
+    "socialSecurity": "זכאי ביטוח לאומי"
   },
   "modals": {
     "noTrainsFound": "לא נמצאו רכבות לתאריך המבוקש",

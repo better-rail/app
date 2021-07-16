@@ -1,5 +1,5 @@
 import React from "react"
-import { ViewStyle, TextStyle } from "react-native"
+import { ViewStyle, TextStyle, Platform } from "react-native"
 import Modal, { ModalProps } from "react-native-modal"
 import { Button, Text } from "../../../components"
 import { format } from "date-fns"
@@ -15,7 +15,7 @@ const MODAL_WRAPPER: ViewStyle = {
   justifyContent: "center",
   alignItems: "center",
   backgroundColor: color.secondaryBackground,
-  borderRadius: 8,
+  borderRadius: Platform.select({ ios: 8, android: 4 }),
   shadowOffset: { width: 0, height: 1 },
   shadowColor: color.palette.black,
   shadowRadius: 2,

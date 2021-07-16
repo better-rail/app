@@ -1,5 +1,5 @@
 import React, { useMemo } from "react"
-import { View, ViewStyle, Dimensions, TextStyle, ImageBackground, ImageStyle, StyleSheet } from "react-native"
+import { View, ViewStyle, TextStyle, ImageBackground, ImageStyle, Platform, StyleSheet } from "react-native"
 import TouchableScale from "react-native-touchable-scale"
 import { Text } from "../"
 import { stationLocale, stationsObject } from "../../data/stations"
@@ -10,7 +10,7 @@ import prompt from "react-native-prompt-android"
 import { useStores } from "../../models"
 
 const marginBetweenItems = spacing[4]
-const borderRadius = 8
+const borderRadius = Platform.select({ ios: 8, android: 6 })
 
 // #region styles
 const CONTAINER: ViewStyle = {
@@ -119,7 +119,7 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
   return (
     <TouchableScale style={style} activeScale={0.96} friction={8} onPress={onPress} onLongPress={onLongPress}>
       <View style={CONTAINER}>
-        <ImageBackground source={stationImage} style={IMAGE_BACKGROUND} borderRadius={10} blurRadius={6} />
+        <ImageBackground source={stationImage} style={IMAGE_BACKGROUND} blurRadius={6} />
         <View style={BACKGROUND_DIMMER} />
 
         {label ? <Text style={ROUTE_LABEL}>{label}</Text> : null}

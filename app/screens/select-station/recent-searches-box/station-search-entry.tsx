@@ -1,5 +1,5 @@
 import React from "react"
-import { View, Image, ViewStyle, ImageStyle, ImageSourcePropType, Appearance } from "react-native"
+import { View, Image, ViewStyle, ImageStyle, ImageSourcePropType, Appearance, Platform } from "react-native"
 import TouchableScale from "react-native-touchable-scale"
 import { Text } from "../../../components"
 import { spacing, color } from "../../../theme"
@@ -22,7 +22,7 @@ const SEARCH_ENTRY_IMAGE: ImageStyle = {
   width: 175,
   height: 125,
   marginBottom: spacing[1],
-  borderRadius: 6,
+  borderRadius: Platform.select({ ios: 6, android: 4 }),
 }
 
 const EMPTY_CARD_WRAPPER: ViewStyle = {
@@ -31,7 +31,7 @@ const EMPTY_CARD_WRAPPER: ViewStyle = {
   justifyContent: "center",
   alignItems: "center",
   marginBottom: spacing[1],
-  borderRadius: 6,
+  borderRadius: Platform.select({ ios: 6, android: 4 }),
   backgroundColor: color.inputPlaceholderBackground,
 }
 
