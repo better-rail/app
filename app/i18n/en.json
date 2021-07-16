@@ -70,7 +70,7 @@
     "favoriteMenuTitle": "Favorite route options",
     "rename": "Rename",
     "renamePromptTitle": "Rename favorite route",
-    "renamePromptDescription": "How should we call this route?"
+    "renamePromptPlaceholder": "Enter a name for the route..."
   },
   "modals": {
     "noTrainsFound": "No trains found for the requested date",

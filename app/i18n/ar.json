@@ -72,7 +72,7 @@
     "favoriteMenuTitle": "خيارات الطريق المفضلة",
     "rename": "إعادة تسمية",
     "renamePromptTitle": "إعادة تسمية الطريق",
-    "renamePromptDescription": "كيف يجب أن نسمي هذا الطريق؟"
+    "renamePromptPlaceholder": "أدخل اسمًا للطريق ..."
   },
   "modals": {
     "noTrainsFound": "لم يتم العثور على القطارات للتاريخ المطلوب",

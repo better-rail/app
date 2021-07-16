@@ -72,7 +72,7 @@
     "favoriteMenuTitle": "אפשרויות מסלול",
     "rename": "שינוי שם",
     "renamePromptTitle": "שינוי שם המסלול",
-    "renamePromptDescription": "איך נקרא למסלול?"
+    "renamePromptPlaceholder": "הזינו שם למסלול..."
   },
   "modals": {
     "noTrainsFound": "לא נמצאו רכבות לתאריך המבוקש",

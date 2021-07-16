@@ -4,7 +4,7 @@ export const favoriteRouteSchema = {
   id: types.string,
   originId: types.string,
   destinationId: types.string,
-  name: types.optional(types.string, ""),
+  label: types.maybe(types.string),
 }
 
 /**
@@ -23,12 +23,12 @@ export const FavoritesModel = types
       const filteredFavorites = self.routes.filter((favorite) => favorite.id !== route.id)
       self.routes.replace(filteredFavorites)
     },
-    rename(routeId: FavoriteRoute["id"], newName: string) {
+    rename(routeId: FavoriteRoute["id"], newLabel: string) {
       const filteredFavorites = self.routes.map((favorite) => {
         if (routeId === favorite.id) {
           return {
             ...favorite,
-            name: newName,
+            label: newLabel,
           }
         }
         return favorite
@@ -47,5 +47,5 @@ export type FavoriteRoute = {
   id: string
   originId: string
   destinationId: string
-  name?: string
+  label?: string
 }

@@ -10,11 +10,10 @@ import prompt from "react-native-prompt-android"
 import { useStores } from "../../models"
 
 const marginBetweenItems = spacing[4]
+const borderRadius = 8
 
 // #region styles
 const CONTAINER: ViewStyle = {
-  backgroundColor: "#fff",
-  borderRadius: 10,
   marginBottom: marginBetweenItems,
   padding: spacing[3],
 }
@@ -22,12 +21,13 @@ const CONTAINER: ViewStyle = {
 const IMAGE_BACKGROUND: ImageStyle = {
   ...StyleSheet.absoluteFillObject,
   justifyContent: "center",
-  borderRadius: 8,
+  borderRadius: borderRadius,
   overflow: "hidden",
 }
 
 const BACKGROUND_DIMMER: ViewStyle = {
   ...StyleSheet.absoluteFillObject,
+  borderRadius: borderRadius,
   backgroundColor: "#111",
   opacity: 0.6,
 }
@@ -87,15 +87,17 @@ const LINE: ViewStyle = {
   zIndex: 0,
 }
 
-const ROUTE_NAME: TextStyle = {
+const ROUTE_LABEL: TextStyle = {
+  color: color.whiteText,
+  fontSize: 20,
   fontWeight: "bold",
-  marginBottom: spacing[3],
+  marginBottom: spacing[2],
 }
 // #endregion
 
 type FavoriteRouteBoxProps = {
   id: string
-  name: string
+  label: string
   originId: string
   destinationId: string
   onPress: () => void
@@ -103,8 +105,8 @@ type FavoriteRouteBoxProps = {
 }
 
 export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
-  const { originId, destinationId, onPress, style, id, name } = props
-  const { onLongPress } = useOnLongPress(id, name)
+  const { originId, destinationId, onPress, style, id, label } = props
+  const { onLongPress } = useOnLongPress(id, label)
 
   const [originName, destinationName, stationImage] = useMemo(() => {
     const origin = stationsObject[originId][stationLocale]
@@ -120,7 +122,7 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
         <ImageBackground source={stationImage} style={IMAGE_BACKGROUND} borderRadius={10} blurRadius={6} />
         <View style={BACKGROUND_DIMMER} />
 
-        {name ? <Text style={ROUTE_NAME}>{name}</Text> : null}
+        {label ? <Text style={ROUTE_LABEL}>{label}</Text> : null}
 
         <View style={CONTENT}>
           <View style={[STATION_WRAPPER, { marginBottom: spacing[3] }]}>
@@ -138,7 +140,7 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
   )
 }
 
-function useOnLongPress(routeId: string, currentName: string) {
+function useOnLongPress(routeId: string, currentLabel: string) {
   const actionSheet = useActionSheet()
   const { favoriteRoutes } = useStores()
 
@@ -153,18 +155,19 @@ function useOnLongPress(routeId: string, currentName: string) {
         if (buttonIndex === 0) {
           prompt(
             translate("favorites.renamePromptTitle"),
-            translate("favorites.renamePromptDescription"),
+            undefined,
             [
               { text: translate("common.cancel"), style: "cancel" },
               {
                 text: translate("common.save"),
-                onPress: (newName) => {
-                  favoriteRoutes.rename(routeId, newName)
+                onPress: (newLabel) => {
+                  favoriteRoutes.rename(routeId, newLabel)
                 },
               },
             ],
             {
-              defaultValue: currentName,
+              defaultValue: currentLabel,
+              placeholder: translate("favorites.renamePromptPlaceholder"),
             },
           )
         }
