@@ -9,7 +9,6 @@ import { useActionSheet } from "@expo/react-native-action-sheet"
 import prompt from "react-native-prompt-android"
 import { useStores } from "../../models"
 
-const deviceWidth = Dimensions.get("screen").width
 const marginBetweenItems = spacing[4]
 
 // #region styles
