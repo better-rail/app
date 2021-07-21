@@ -347,6 +347,7 @@ const stations = [
     english: "Modi'in - Center",
     russian: "Модиин центр ",
     arabic: "موديعين - المركز",
+    image: require("../../assets/station-images/modiin-center.jpg"),
   },
   {
     id: "4640",
