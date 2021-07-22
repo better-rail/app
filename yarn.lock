@@ -13218,10 +13218,10 @@ react-native-swipe-gestures@^1.0.4:
   resolved "https://registry.yarnpkg.com/react-native-swipe-gestures/-/react-native-swipe-gestures-1.0.5.tgz#a172cb0f3e7478ccd681fd36b8bfbcdd098bde7c"
   integrity sha512-Ns7Bn9H/Tyw278+5SQx9oAblDZ7JixyzeOczcBK8dipQk2pD7Djkcfnf1nB/8RErAmMLL9iXgW0QHqiII8AhKw==
 
-react-native-toast-hybrid@^2.3.5:
-  version "2.3.5"
-  resolved "https://registry.yarnpkg.com/react-native-toast-hybrid/-/react-native-toast-hybrid-2.3.5.tgz#b9c8a9a3dfcc6cdc47ff09e63701835b9d4982b2"
-  integrity sha512-H65D88vsBn8P5fCzgVT7JIDeaZrHkfNNqa1UJ28VRbia6kPAfjMFQ2mnDDXtL3cGOtJvWdR/vtSRNZ87HsqgSA==
+react-native-toast-hybrid@2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/react-native-toast-hybrid/-/react-native-toast-hybrid-2.4.0.tgz#475d69b5ffc682f21ed4c2fc3ef603e8dfe9e4e8"
+  integrity sha512-hSRIR/t8T6X97RC6d52C4IaH/N6U4eswkmPo84THG/eCW4ucMgeFtazQl8D+rnWGiHtGVNQBx4Asv/MrYZY9TQ==
 
 react-native-touchable-scale@^2.1.2:
   version "2.1.2"
