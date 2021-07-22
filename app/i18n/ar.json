@@ -70,8 +70,9 @@
     "emptyDescription": "",
     "added": "أضيفت إلى المفضلة",
     "favoriteMenuTitle": "خيارات الطريق المفضلة",
-    "rename": "إعادة تسمية",
-    "renamePromptTitle": "إعادة تسمية الطريق",
+    "addLabel": "أضف اسم الطريق",
+    "changeLabel": "تغيير اسم المسار",
+    "renamePromptTitle": "اسم الطريق",
     "renamePromptPlaceholder": "أدخل اسمًا للطريق ..."
   },
   "profileCodes": {

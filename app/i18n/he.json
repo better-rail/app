@@ -71,9 +71,10 @@
     "emptyDescription": "ניתן להוסיף מסלול מועדף ממסך לוח הזמנים",
     "added": "נוסף לרשימת המועדפים",
     "favoriteMenuTitle": "אפשרויות מסלול",
-    "rename": "שינוי שם",
-    "renamePromptTitle": "שינוי שם המסלול",
-    "renamePromptPlaceholder": "הזינו שם למסלול..."
+    "addLabel": "הוספת כינוי למסלול",
+    "changeLabel": "שינוי כינוי מסלול",
+    "renamePromptTitle": "כינוי מסלול",
+    "renamePromptPlaceholder": "הזינו כינוי למסלול"
   },
   "profileCodes": {
     "passengerProfile": "פרופיל נוסע/ת",

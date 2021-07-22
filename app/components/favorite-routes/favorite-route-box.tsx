@@ -147,8 +147,10 @@ function useOnLongPress(routeId: string, currentLabel: string) {
   const onLongPress = () => {
     actionSheet.showActionSheetWithOptions(
       {
-        options: [translate("favorites.rename"), translate("common.cancel")],
-        title: translate("favorites.favoriteMenuTitle"),
+        options: [
+          currentLabel ? translate("favorites.changeLabel") : translate("favorites.addLabel"),
+          translate("common.cancel"),
+        ],
         cancelButtonIndex: 1,
       },
       (buttonIndex) => {

@@ -69,8 +69,9 @@
     "emptyDescription": "You can add a favorite from the routes screen",
     "added": "Added to Favorites",
     "favoriteMenuTitle": "Favorite route options",
-    "rename": "Rename",
-    "renamePromptTitle": "Rename favorite route",
+    "addLabel": "Add Label",
+    "rename": "Change Label",
+    "renamePromptTitle": "Route Label",
     "renamePromptPlaceholder": "Enter a name for the route..."
   },
   "profileCodes": {
