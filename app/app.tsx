@@ -14,6 +14,7 @@ import "./utils/ignore-warnings"
 import React, { useState, useEffect, useRef } from "react"
 import { NavigationContainerRef } from "@react-navigation/native"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
+import { ActionSheetProvider } from "@expo/react-native-action-sheet"
 import { initFonts } from "./theme/fonts" // expo
 import * as storage from "./utils/storage"
 import { useBackButtonHandler, RootNavigator, canExit, setRootNavigation, useNavigationPersistence } from "./navigators"
@@ -69,14 +70,16 @@ function App() {
   return (
     <ToggleStorybook>
       <RootStoreProvider value={rootStore}>
-        <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-          {__DEV__ ? (
-            // Use navigation persistence for development
-            <RootNavigator ref={navigationRef} initialState={initialNavigationState} onStateChange={onNavigationStateChange} />
-          ) : (
-            <RootNavigator ref={navigationRef} />
-          )}
-        </SafeAreaProvider>
+        <ActionSheetProvider>
+          <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+            {__DEV__ ? (
+              // Use navigation persistence for development
+              <RootNavigator ref={navigationRef} initialState={initialNavigationState} onStateChange={onNavigationStateChange} />
+            ) : (
+              <RootNavigator ref={navigationRef} />
+            )}
+          </SafeAreaProvider>
+        </ActionSheetProvider>
       </RootStoreProvider>
     </ToggleStorybook>
   )

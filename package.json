@@ -26,6 +26,7 @@
     "build-android": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res"
   },
   "dependencies": {
+    "@expo/react-native-action-sheet": "^3.9.0",
     "@gorhom/bottom-sheet": "^2",
     "@react-native-async-storage/async-storage": "1.15.5",
     "@react-native-community/datetimepicker": "^3.4.3",
@@ -54,6 +55,7 @@
     "react-native-material-tabs": "^4.2.0",
     "react-native-modal": "^11.10.0",
     "react-native-modal-datetime-picker": "9.2.1",
+    "react-native-prompt-android": "^1.1.0",
     "react-native-reanimated": "1.13.1",
     "react-native-restart": "^0.0.22",
     "react-native-safe-area-context": "3.2.0",

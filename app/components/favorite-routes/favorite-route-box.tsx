@@ -1,33 +1,33 @@
 import React, { useMemo } from "react"
-import { View, ViewStyle, Dimensions, TextStyle, ImageBackground, ImageStyle, Platform } from "react-native"
+import { View, ViewStyle, TextStyle, ImageBackground, ImageStyle, Platform, StyleSheet } from "react-native"
 import TouchableScale from "react-native-touchable-scale"
 import { Text } from "../"
 import { stationLocale, stationsObject } from "../../data/stations"
 import { color, spacing, fontScale } from "../../theme"
+import { translate } from "../../i18n"
+import { useActionSheet } from "@expo/react-native-action-sheet"
+import prompt from "react-native-prompt-android"
+import { useStores } from "../../models"
 
-const deviceWidth = Dimensions.get("screen").width
-const cardWidth = deviceWidth - spacing[3] * 2
+const marginBetweenItems = spacing[4]
+const borderRadius = Platform.select({ ios: 8, android: 6 })
 
 // #region styles
 const CONTAINER: ViewStyle = {
-  height: 100 * fontScale,
-  backgroundColor: "#fff",
-  borderRadius: 10,
+  marginBottom: marginBetweenItems,
+  padding: spacing[3],
 }
 
 const IMAGE_BACKGROUND: ImageStyle = {
-  width: cardWidth,
-  height: 100 * fontScale,
-  padding: spacing[3],
+  ...StyleSheet.absoluteFillObject,
   justifyContent: "center",
-  borderRadius: Platform.select({ ios: 8, android: 6 }),
+  borderRadius: borderRadius,
   overflow: "hidden",
 }
 
 const BACKGROUND_DIMMER: ViewStyle = {
-  position: "absolute",
-  width: cardWidth,
-  height: 100 * fontScale,
+  ...StyleSheet.absoluteFillObject,
+  borderRadius: borderRadius,
   backgroundColor: "#111",
   opacity: 0.6,
 }
@@ -45,9 +45,11 @@ const STATION_NAME: TextStyle = {
   textShadowColor: "rgba(0,0,0,0.5)",
 }
 
+const STATION_CIRCLE_SIZE = 14 * fontScale
+
 const STATION_CIRCLE: ViewStyle = {
-  width: 14 * fontScale,
-  height: 14 * fontScale,
+  width: STATION_CIRCLE_SIZE,
+  height: STATION_CIRCLE_SIZE,
   marginEnd: spacing[2],
   backgroundColor: "#fff",
   borderWidth: 2,
@@ -65,11 +67,18 @@ const STATION_ORIGIN_CIRCLE: ViewStyle = {
   borderColor: "#fff",
 }
 
+const CONTENT: ViewStyle = {
+  position: "relative",
+}
+
+const LINE_WIDTH = 2.5 * fontScale
+
 const LINE: ViewStyle = {
   position: "absolute",
-  start: 17.3,
-  width: 2.5 * fontScale,
-  height: 23,
+  start: (STATION_CIRCLE_SIZE - LINE_WIDTH) / 2,
+  top: STATION_CIRCLE_SIZE + 4.75,
+  width: LINE_WIDTH,
+  height: 32,
   backgroundColor: "lightgrey",
   shadowOffset: { height: 0, width: 0 },
   shadowOpacity: 0.5,
@@ -77,9 +86,18 @@ const LINE: ViewStyle = {
   elevation: 2,
   zIndex: 0,
 }
+
+const ROUTE_LABEL: TextStyle = {
+  color: color.whiteText,
+  fontSize: 20,
+  fontWeight: "bold",
+  marginBottom: spacing[2],
+}
 // #endregion
 
 type FavoriteRouteBoxProps = {
+  id: string
+  label: string
   originId: string
   destinationId: string
   onPress: () => void
@@ -87,7 +105,8 @@ type FavoriteRouteBoxProps = {
 }
 
 export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
-  const { originId, destinationId, onPress, style } = props
+  const { originId, destinationId, onPress, style, id, label } = props
+  const { onLongPress } = useOnLongPress(id, label)
 
   const [originName, destinationName, stationImage] = useMemo(() => {
     const origin = stationsObject[originId][stationLocale]
@@ -98,19 +117,63 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
   }, [])
 
   return (
-    <TouchableScale style={[CONTAINER, style]} activeScale={0.96} friction={8} onPress={onPress}>
-      <ImageBackground source={stationImage} style={IMAGE_BACKGROUND} blurRadius={6}>
+    <TouchableScale style={style} activeScale={0.96} friction={8} onPress={onPress} onLongPress={onLongPress}>
+      <View style={CONTAINER}>
+        <ImageBackground source={stationImage} style={IMAGE_BACKGROUND} blurRadius={6} />
         <View style={BACKGROUND_DIMMER} />
-        <View style={[STATION_WRAPPER, { marginBottom: spacing[3] }]}>
-          <View style={[STATION_CIRCLE, STATION_ORIGIN_CIRCLE]} />
-          <Text style={STATION_NAME}>{originName}</Text>
+
+        {label ? <Text style={ROUTE_LABEL}>{label}</Text> : null}
+
+        <View style={CONTENT}>
+          <View style={[STATION_WRAPPER, { marginBottom: spacing[3] }]}>
+            <View style={[STATION_CIRCLE, STATION_ORIGIN_CIRCLE]} />
+            <Text style={STATION_NAME}>{originName}</Text>
+          </View>
+          <View style={LINE} />
+          <View style={STATION_WRAPPER}>
+            <View style={STATION_CIRCLE} />
+            <Text style={STATION_NAME}>{destinationName}</Text>
+          </View>
         </View>
-        <View style={LINE} />
-        <View style={STATION_WRAPPER}>
-          <View style={STATION_CIRCLE} />
-          <Text style={STATION_NAME}>{destinationName}</Text>
-        </View>
-      </ImageBackground>
+      </View>
     </TouchableScale>
   )
+}
+
+function useOnLongPress(routeId: string, currentLabel: string) {
+  const actionSheet = useActionSheet()
+  const { favoriteRoutes } = useStores()
+
+  const onLongPress = () => {
+    actionSheet.showActionSheetWithOptions(
+      {
+        options: [translate("favorites.rename"), translate("common.cancel")],
+        title: translate("favorites.favoriteMenuTitle"),
+        cancelButtonIndex: 1,
+      },
+      (buttonIndex) => {
+        if (buttonIndex === 0) {
+          prompt(
+            translate("favorites.renamePromptTitle"),
+            undefined,
+            [
+              { text: translate("common.cancel"), style: "cancel" },
+              {
+                text: translate("common.save"),
+                onPress: (newLabel) => {
+                  favoriteRoutes.rename(routeId, newLabel)
+                },
+              },
+            ],
+            {
+              defaultValue: currentLabel,
+              placeholder: translate("favorites.renamePromptPlaceholder"),
+            },
+          )
+        }
+      },
+    )
+  }
+
+  return { onLongPress }
 }

@@ -5,7 +5,8 @@
     "set": "שמירה",
     "delete": "מחיקה",
     "close": "סגירה",
-    "relax": "אנא, אל תשכחו לנשום"
+    "relax": "אנא, אל תשכחו לנשום",
+    "save": "שמירה"
   },
   "plan": {
     "title": "תכנון מסלול",
@@ -68,7 +69,11 @@
     "title": "מסלולים מועדפים",
     "empty": "אין מועדפים",
     "emptyDescription": "ניתן להוסיף מסלול מועדף ממסך לוח הזמנים",
-    "added": "נוסף לרשימת המועדפים"
+    "added": "נוסף לרשימת המועדפים",
+    "favoriteMenuTitle": "אפשרויות מסלול",
+    "rename": "שינוי שם",
+    "renamePromptTitle": "שינוי שם המסלול",
+    "renamePromptPlaceholder": "הזינו שם למסלול..."
   },
   "profileCodes": {
     "passengerProfile": "פרופיל נוסע/ת",
