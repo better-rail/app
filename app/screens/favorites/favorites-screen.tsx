@@ -9,6 +9,8 @@ import { FavoritesScreenProps } from "../../navigators"
 import { FlatList } from "react-native-gesture-handler"
 import { useStations } from "../../data/stations"
 
+const STAR_ICON = require("../../../assets/star-fill.png")
+
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
   padding: spacing[4],
@@ -72,10 +74,7 @@ const EMPTY_STATE_TEXT: TextStyle = {
 
 const EmptyState = () => (
   <View style={EMPTY_STATE_WRAPPER}>
-    <Image
-      source={require("../../../assets/star.png")}
-      style={{ width: 58, height: 55, marginBottom: spacing[2], tintColor: color.dim, opacity: 0.75 }}
-    />
+    <Image source={STAR_ICON} style={{ width: 58, height: 55, marginBottom: spacing[2], tintColor: color.dim, opacity: 0.75 }} />
     <Text tx="favorites.empty" style={EMPTY_STATE_TEXT} />
     <Text tx="favorites.emptyDescription" preset="small" style={EMPTY_STATE_TEXT} />
   </View>
