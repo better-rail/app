@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, useRef } from "react"
 import { observer } from "mobx-react-lite"
-import { FlatList, ViewStyle, ActivityIndicator, View } from "react-native"
+import { FlatList, ActivityIndicator, ViewStyle } from "react-native"
 import { RouteListScreenProps } from "../../navigators/main-navigator"
 import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight, TicketFaresBottomSheet } from "../../components"
 import { useStores } from "../../models"
@@ -11,6 +11,7 @@ import { RouteListModal } from "./components/route-list-modal"
 import { SharedElement } from "react-navigation-shared-element"
 import HapticFeedback from "react-native-haptic-feedback"
 import BottomSheet from "@gorhom/bottom-sheet"
+import { isOldAndroid } from "../../utils/helpers/supported-versions"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -118,12 +119,14 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         />
       )}
 
-      <TicketFaresBottomSheet
-        ref={bottomSheetRef}
-        closeBottomSheet={() => bottomSheetRef.current.close()}
-        originId={route.params.originId}
-        destinationId={route.params.destinationId}
-      />
+      {!isOldAndroid && (
+        <TicketFaresBottomSheet
+          ref={bottomSheetRef}
+          closeBottomSheet={() => bottomSheetRef.current.close()}
+          originId={route.params.originId}
+          destinationId={route.params.destinationId}
+        />
+      )}
 
       {trainRoutes.routes?.length > 0 && (
         <RouteListModal

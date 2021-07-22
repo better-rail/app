@@ -11,6 +11,7 @@ import { stationsObject, stationLocale } from "../../data/stations"
 import { isRTL, translate } from "../../i18n"
 import { useStores } from "../../models"
 import { useToast } from "react-native-toast-hybrid"
+import { isOldAndroid } from "../../utils/helpers/supported-versions"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
 const shekelIcon = require("../../../assets/shekel.png")
@@ -117,9 +118,11 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
         <View style={HEADER_RIGHT_WRAPPER}>
           {props.openFaresBottomSheet && (
             <>
-              <TouchableOpacity onPress={() => props.openFaresBottomSheet()}>
-                <Image source={shekelIcon} style={SHEKEL_ICON} />
-              </TouchableOpacity>
+              {!isOldAndroid && (
+                <TouchableOpacity onPress={() => props.openFaresBottomSheet()}>
+                  <Image source={shekelIcon} style={SHEKEL_ICON} />
+                </TouchableOpacity>
+              )}
 
               <StarIcon
                 filled={isFavorite}
