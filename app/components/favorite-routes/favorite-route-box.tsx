@@ -1,5 +1,5 @@
 import React, { useMemo } from "react"
-import { View, ViewStyle, TextStyle, ImageBackground, ImageStyle, Platform, StyleSheet } from "react-native"
+import { View, ViewStyle, TextStyle, ImageBackground, ImageStyle, Platform, StyleSheet, Alert } from "react-native"
 import TouchableScale from "react-native-touchable-scale"
 import { Text } from "../"
 import { stationLocale, stationsObject } from "../../data/stations"
@@ -124,6 +124,13 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
     )
   }
 
+  const deleteRoute = () => {
+    Alert.alert(translate("favorites.delete"), translate("common.areYouSure"), [
+      { text: translate("common.delete"), onPress: () => favoriteRoutes.remove(id), style: "destructive" },
+      { text: translate("common.cancel"), style: "cancel" },
+    ])
+  }
+
   const { onLongPress } = useOnLongPress(label, renamePrompt)
 
   const [originName, destinationName, stationImage] = useMemo(() => {
@@ -137,8 +144,12 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
   return (
     <ContextMenuView
       onPressMenuItem={({ nativeEvent }) => {
-        if (nativeEvent.actionKey === "route-label") {
+        const { actionKey } = nativeEvent
+
+        if (actionKey === "route-label") {
           renamePrompt()
+        } else if (actionKey === "delete-favorite") {
+          deleteRoute()
         }
       }}
       menuConfig={{
@@ -150,6 +161,15 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
             icon: {
               iconType: "SYSTEM",
               iconValue: "pencil",
+            },
+          },
+          {
+            actionKey: "delete-favorite",
+            actionTitle: translate("favorites.delete"),
+            menuAttributes: ["destructive"],
+            icon: {
+              iconType: "SYSTEM",
+              iconValue: "trash",
             },
           },
         ],

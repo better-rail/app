@@ -3,10 +3,11 @@
     "cancel": "ביטול",
     "ok": "אישור",
     "set": "שמירה",
-    "delete": "מחיקה",
+    "delete": "הסרה",
     "close": "סגירה",
     "relax": "אנא, אל תשכחו לנשום",
-    "save": "שמירה"
+    "save": "שמירה",
+    "areYouSure": "האם את/ה בטוח/ה?"
   },
   "plan": {
     "title": "תכנון מסלול",
@@ -74,7 +75,8 @@
     "addLabel": "הוספת כינוי למסלול",
     "changeLabel": "שינוי כינוי מסלול",
     "renamePromptTitle": "כינוי מסלול",
-    "renamePromptPlaceholder": "הזינו כינוי למסלול"
+    "renamePromptPlaceholder": "הזינו כינוי למסלול",
+    "delete": "הסרה ממועדפים"
   },
   "profileCodes": {
     "passengerProfile": "פרופיל נוסע/ת",

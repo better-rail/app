@@ -6,7 +6,8 @@
     "delete": "Delete",
     "close": "Close",
     "relax": "Don't forget to take a breath, please.",
-    "save": "Save"
+    "save": "Save",
+    "areYouSure": "Are you sure?"
   },
   "plan": {
     "title": "Trip Plan",
@@ -72,7 +73,8 @@
     "addLabel": "Add Label",
     "changeLabel": "Change Label",
     "renamePromptTitle": "Route Label",
-    "renamePromptPlaceholder": "Enter a name for the route..."
+    "renamePromptPlaceholder": "Enter a name for the route...",
+    "delete": "Delete Favorite"
   },
   "profileCodes": {
     "passengerProfile": "Profile",
