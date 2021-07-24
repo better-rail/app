@@ -105,7 +105,26 @@ type FavoriteRouteBoxProps = {
 
 export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
   const { originId, destinationId, onPress, style, id, label } = props
-  const { onLongPress } = useOnLongPress(id, label)
+  const { favoriteRoutes } = useStores()
+
+  const renamePrompt = () => {
+    prompt(
+      translate("favorites.renamePromptTitle"),
+      undefined,
+      [
+        { text: translate("common.cancel"), style: "cancel" },
+        {
+          text: translate("common.save"),
+          onPress: (newLabel) => {
+            favoriteRoutes.rename(id, newLabel)
+          },
+        },
+      ],
+      { defaultValue: label, placeholder: translate("favorites.renamePromptPlaceholder") },
+    )
+  }
+
+  const { onLongPress } = useOnLongPress(label, renamePrompt)
 
   const [originName, destinationName, stationImage] = useMemo(() => {
     const origin = stationsObject[originId][stationLocale]
@@ -118,20 +137,33 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
   return (
     <ContextMenuView
       onPressMenuItem={({ nativeEvent }) => {
-        alert(`${nativeEvent.actionKey} was pressed`)
+        if (nativeEvent.actionKey === "route-label") {
+          renamePrompt()
+        }
       }}
       menuConfig={{
-        menuTitle: "Context Menu Example",
+        menuTitle: "",
         menuItems: [
           {
-            actionKey: "action-key",
-            actionTitle: "Action #1",
+            actionKey: "route-label",
+            actionTitle: label ? translate("favorites.changeLabel") : translate("favorites.addLabel"),
+            icon: {
+              iconType: "SYSTEM",
+              iconValue: "pencil",
+            },
           },
         ],
       }}
       style={{ marginBottom: spacing[4] }}
     >
-      <TouchableScale style={style} activeScale={0.96} friction={8} tension={10} onPress={onPress} onLongPress={onLongPress}>
+      <TouchableScale
+        style={style}
+        activeScale={0.96}
+        friction={8}
+        tension={Platform.select({ ios: 8, android: undefined })}
+        onPress={onPress}
+        onLongPress={onLongPress}
+      >
         <View style={CONTAINER}>
           <ImageBackground source={stationImage} style={IMAGE_BACKGROUND} blurRadius={6} />
           <View style={BACKGROUND_DIMMER} />
@@ -155,9 +187,8 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
   )
 }
 
-function useOnLongPress(routeId: string, currentLabel: string) {
+function useOnLongPress(currentLabel: string, renamePrompt: () => void) {
   const actionSheet = useActionSheet()
-  const { favoriteRoutes } = useStores()
 
   const onLongPress = () => {
     actionSheet.showActionSheetWithOptions(
@@ -170,23 +201,7 @@ function useOnLongPress(routeId: string, currentLabel: string) {
       },
       (buttonIndex) => {
         if (buttonIndex === 0) {
-          prompt(
-            translate("favorites.renamePromptTitle"),
-            undefined,
-            [
-              { text: translate("common.cancel"), style: "cancel" },
-              {
-                text: translate("common.save"),
-                onPress: (newLabel) => {
-                  favoriteRoutes.rename(routeId, newLabel)
-                },
-              },
-            ],
-            {
-              defaultValue: currentLabel,
-              placeholder: translate("favorites.renamePromptPlaceholder"),
-            },
-          )
+          renamePrompt()
         }
       },
     )
