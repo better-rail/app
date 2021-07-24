@@ -169,7 +169,7 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
             menuAttributes: ["destructive"],
             icon: {
               iconType: "SYSTEM",
-              iconValue: "trash",
+              iconValue: "star.slash",
             },
           },
         ],
