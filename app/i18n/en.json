@@ -70,7 +70,7 @@
     "added": "Added to Favorites",
     "favoriteMenuTitle": "Favorite route options",
     "addLabel": "Add Label",
-    "rename": "Change Label",
+    "changeLabel": "Change Label",
     "renamePromptTitle": "Route Label",
     "renamePromptPlaceholder": "Enter a name for the route..."
   },

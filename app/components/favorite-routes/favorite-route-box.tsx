@@ -8,13 +8,12 @@ import { translate } from "../../i18n"
 import { useActionSheet } from "@expo/react-native-action-sheet"
 import prompt from "react-native-prompt-android"
 import { useStores } from "../../models"
+import { ContextMenuView } from "react-native-ios-context-menu"
 
-const marginBetweenItems = spacing[4]
 const borderRadius = Platform.select({ ios: 8, android: 6 })
 
 // #region styles
 const CONTAINER: ViewStyle = {
-  marginBottom: marginBetweenItems,
   padding: spacing[3],
 }
 
@@ -117,26 +116,42 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
   }, [])
 
   return (
-    <TouchableScale style={style} activeScale={0.96} friction={8} onPress={onPress} onLongPress={onLongPress}>
-      <View style={CONTAINER}>
-        <ImageBackground source={stationImage} style={IMAGE_BACKGROUND} blurRadius={6} />
-        <View style={BACKGROUND_DIMMER} />
+    <ContextMenuView
+      onPressMenuItem={({ nativeEvent }) => {
+        alert(`${nativeEvent.actionKey} was pressed`)
+      }}
+      menuConfig={{
+        menuTitle: "Context Menu Example",
+        menuItems: [
+          {
+            actionKey: "action-key",
+            actionTitle: "Action #1",
+          },
+        ],
+      }}
+      style={{ marginBottom: spacing[4] }}
+    >
+      <TouchableScale style={style} activeScale={0.96} friction={8} tension={10} onPress={onPress} onLongPress={onLongPress}>
+        <View style={CONTAINER}>
+          <ImageBackground source={stationImage} style={IMAGE_BACKGROUND} blurRadius={6} />
+          <View style={BACKGROUND_DIMMER} />
 
-        {label ? <Text style={ROUTE_LABEL}>{label}</Text> : null}
+          {label ? <Text style={ROUTE_LABEL}>{label}</Text> : null}
 
-        <View style={CONTENT}>
-          <View style={[STATION_WRAPPER, { marginBottom: spacing[3] }]}>
-            <View style={[STATION_CIRCLE, STATION_ORIGIN_CIRCLE]} />
-            <Text style={STATION_NAME}>{originName}</Text>
-          </View>
-          <View style={LINE} />
-          <View style={STATION_WRAPPER}>
-            <View style={STATION_CIRCLE} />
-            <Text style={STATION_NAME}>{destinationName}</Text>
+          <View style={CONTENT}>
+            <View style={[STATION_WRAPPER, { marginBottom: spacing[3] }]}>
+              <View style={[STATION_CIRCLE, STATION_ORIGIN_CIRCLE]} />
+              <Text style={STATION_NAME}>{originName}</Text>
+            </View>
+            <View style={LINE} />
+            <View style={STATION_WRAPPER}>
+              <View style={STATION_CIRCLE} />
+              <Text style={STATION_NAME}>{destinationName}</Text>
+            </View>
           </View>
         </View>
-      </View>
-    </TouchableScale>
+      </TouchableScale>
+    </ContextMenuView>
   )
 }
 
