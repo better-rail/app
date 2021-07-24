@@ -1,7 +1,9 @@
 import React from "react"
 import { View, Image, ViewStyle, ImageStyle, ImageSourcePropType, Appearance, Platform } from "react-native"
+import { ContextMenuView } from "react-native-ios-context-menu"
 import TouchableScale from "react-native-touchable-scale"
 import { Text } from "../../../components"
+import { translate } from "../../../i18n"
 import { spacing, color } from "../../../theme"
 
 const colorScheme = Appearance.getColorScheme()
@@ -38,23 +40,54 @@ const EMPTY_CARD_WRAPPER: ViewStyle = {
 type StationSearchEntryProps = {
   image: ImageSourcePropType
   name: string
+  onHide: () => void
   onPress: () => void
 }
 
 export const StationSearchEntry = (props: StationSearchEntryProps) => (
-  <TouchableScale onPress={props.onPress} activeScale={0.96} friction={8} style={SEARCH_ENTRY_WRAPPER}>
-    <View style={SEARCH_ENTRY_IMAGE_WRAPPER}>
-      {props.image ? (
-        <Image source={props.image} style={SEARCH_ENTRY_IMAGE} />
-      ) : (
-        <View style={EMPTY_CARD_WRAPPER}>
-          <Image
-            source={require("../../../../assets/railway-station.png")}
-            style={{ width: 48, height: 48, marginBottom: spacing[2], tintColor: color.dim }}
-          />
-        </View>
-      )}
-    </View>
+  <TouchableScale
+    onPress={props.onPress}
+    activeScale={0.96}
+    friction={8}
+    tension={Platform.select({ ios: 8, android: undefined })}
+    style={SEARCH_ENTRY_WRAPPER}
+  >
+    <ContextMenuView
+      onPressMenuItem={({ nativeEvent }) => {
+        const { actionKey } = nativeEvent
+
+        if (actionKey === "hide") {
+          props.onHide()
+        }
+      }}
+      menuConfig={{
+        menuTitle: props.name,
+        menuItems: [
+          {
+            actionKey: "hide",
+            actionTitle: translate("selectStation.hide"),
+            menuAttributes: ["destructive"],
+            icon: {
+              iconType: "SYSTEM",
+              iconValue: "trash",
+            },
+          },
+        ],
+      }}
+    >
+      <View style={SEARCH_ENTRY_IMAGE_WRAPPER}>
+        {props.image ? (
+          <Image source={props.image} style={SEARCH_ENTRY_IMAGE} />
+        ) : (
+          <View style={EMPTY_CARD_WRAPPER}>
+            <Image
+              source={require("../../../../assets/railway-station.png")}
+              style={{ width: 48, height: 48, marginBottom: spacing[2], tintColor: color.dim }}
+            />
+          </View>
+        )}
+      </View>
+    </ContextMenuView>
     <Text>{props.name}</Text>
   </TouchableScale>
 )

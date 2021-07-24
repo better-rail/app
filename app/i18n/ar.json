@@ -23,7 +23,8 @@
   "selectStation": {
     "placeholder": "البحث عن محطة",
     "instructions": "ابحث عن محطات القطار باستخدام شريط البحث",
-    "recentSearches": "عمليات البحث الأخيرة"
+    "recentSearches": "عمليات البحث الأخيرة",
+    "hide": "إخفاء"
   },
   "routes": {
     "departure": "انطلاق",

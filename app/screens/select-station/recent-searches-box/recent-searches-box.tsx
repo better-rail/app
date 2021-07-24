@@ -8,6 +8,7 @@ import { color, isDarkMode, spacing } from "../../../theme"
 import { stationLocale, stationsObject } from "../../../data/stations"
 import { StationSearchEntry } from "./station-search-entry"
 import { useNavigation } from "@react-navigation/core"
+import { toJS } from "mobx"
 
 const RECENT_SEARCHES_TITLE: TextStyle = {
   fontWeight: "500",
@@ -36,10 +37,12 @@ type RecentSearchesBoxProps = {
 export const RecentSearchesBox = observer(function RecentSearchesBox(props: RecentSearchesBoxProps) {
   const navigation = useNavigation()
   const { routePlan, recentSearches } = useStores()
+  console.log("All: ", recentSearches.entries)
 
   const sortedSearches = useMemo(() => {
+    console.log(recentSearches.entries.length)
     return [...recentSearches.entries].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 6)
-  }, [])
+  }, [toJS(recentSearches.entries)])
 
   const onStationPress = (entry) => {
     const station = { id: entry.id, name: entry.id }
@@ -55,6 +58,7 @@ export const RecentSearchesBox = observer(function RecentSearchesBox(props: Rece
   }
 
   const content = useMemo(() => {
+    console.log("Sorted: ", sortedSearches)
     if (recentSearches.entries.length === 0) return <RecentSearchesPlacerholder />
 
     return (
@@ -69,12 +73,13 @@ export const RecentSearchesBox = observer(function RecentSearchesBox(props: Rece
             name={stationsObject[entry.id][stationLocale]}
             image={stationsObject[entry.id].image}
             onPress={() => onStationPress(entry)}
+            onHide={() => recentSearches.remove(entry.id)}
             key={entry.id}
           />
         ))}
       </ScrollView>
     )
-  }, [])
+  }, [sortedSearches])
 
   return (
     <View>

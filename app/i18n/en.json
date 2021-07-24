@@ -22,7 +22,8 @@
   "selectStation": {
     "placeholder": "Search Stations",
     "instructions": "Search for train stations using the search bar above.",
-    "recentSearches": "Recently Searched"
+    "recentSearches": "Recently Searched",
+    "hide": "Hide"
   },
   "routes": {
     "departure": "Departure",
@@ -74,7 +75,7 @@
     "changeLabel": "Change Label",
     "renamePromptTitle": "Route Label",
     "renamePromptPlaceholder": "Enter a name for the route...",
-    "delete": "Delete Favorite"
+    "delete": "Remove"
   },
   "profileCodes": {
     "passengerProfile": "Profile",

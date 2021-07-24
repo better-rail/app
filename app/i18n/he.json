@@ -24,7 +24,8 @@
   "selectStation": {
     "placeholder": "חיפוש תחנה",
     "instructions": "חפשו תחנות רכבת באמצעות שורת החיפוש",
-    "recentSearches": "חיפושים אחרונים"
+    "recentSearches": "חיפושים אחרונים",
+    "hide": "מחיקה"
   },
   "routes": {
     "departure": "יציאה",
@@ -72,7 +73,7 @@
     "emptyDescription": "ניתן להוסיף מסלול מועדף ממסך לוח הזמנים",
     "added": "נוסף לרשימת המועדפים",
     "favoriteMenuTitle": "אפשרויות מסלול",
-    "addLabel": "הוספת כינוי למסלול",
+    "addLabel": "הוספת כינוי",
     "changeLabel": "שינוי כינוי מסלול",
     "renamePromptTitle": "כינוי מסלול",
     "renamePromptPlaceholder": "הזינו כינוי למסלול",

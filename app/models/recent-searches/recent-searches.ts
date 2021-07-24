@@ -24,6 +24,10 @@ export const RecentSearchesModel = types
         self.entries.push({ id: station.id, updatedAt: new Date().getTime() })
       }
     },
+    remove(stationId: string) {
+      const filteredSearches = self.entries.filter((station) => station.id !== stationId)
+      self.entries.replace(filteredSearches)
+    },
   }))
 
 type RecentSearchesType = Instance<typeof RecentSearchesModel>
