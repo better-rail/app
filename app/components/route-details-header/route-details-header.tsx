@@ -134,7 +134,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
                     favoriteRoutes.add(favorite)
                   } else {
                     HapticFeedback.trigger("impactLight")
-                    favoriteRoutes.remove(favorite)
+                    favoriteRoutes.remove(favorite.id)
                   }
                 }}
               />

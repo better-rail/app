@@ -5,7 +5,8 @@
     "set": "موافقة",
     "delete": "حذف",
     "relax": "الرجاء, لا تنسى ان تتنفس",
-    "save": "حفظ"
+    "save": "حفظ",
+    "areYouSure": "هل أنت متأكد؟"
   },
   "plan": {
     "title": "تخطيط المسار",
@@ -73,7 +74,8 @@
     "addLabel": "أضف اسم الطريق",
     "changeLabel": "تغيير اسم المسار",
     "renamePromptTitle": "اسم الطريق",
-    "renamePromptPlaceholder": "أدخل اسمًا للطريق ..."
+    "renamePromptPlaceholder": "أدخل اسمًا للطريق ...",
+    "delete": "إزالة من المفضلة"
   },
   "profileCodes": {
     "passengerProfile": "الملف الشخصي للركاب",

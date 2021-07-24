@@ -1,5 +1,5 @@
 import React, { useMemo } from "react"
-import { View, ViewStyle, TextStyle, ImageBackground, ImageStyle, Platform, StyleSheet } from "react-native"
+import { View, ViewStyle, TextStyle, ImageBackground, ImageStyle, Platform, StyleSheet, Alert } from "react-native"
 import TouchableScale from "react-native-touchable-scale"
 import { Text } from "../"
 import { stationLocale, stationsObject } from "../../data/stations"
@@ -8,13 +8,12 @@ import { translate } from "../../i18n"
 import { useActionSheet } from "@expo/react-native-action-sheet"
 import prompt from "react-native-prompt-android"
 import { useStores } from "../../models"
+import { ContextMenuView } from "react-native-ios-context-menu"
 
-const marginBetweenItems = spacing[4]
 const borderRadius = Platform.select({ ios: 8, android: 6 })
 
 // #region styles
 const CONTAINER: ViewStyle = {
-  marginBottom: marginBetweenItems,
   padding: spacing[3],
 }
 
@@ -106,7 +105,33 @@ type FavoriteRouteBoxProps = {
 
 export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
   const { originId, destinationId, onPress, style, id, label } = props
-  const { onLongPress } = useOnLongPress(id, label)
+  const { favoriteRoutes } = useStores()
+
+  const renamePrompt = () => {
+    prompt(
+      translate("favorites.renamePromptTitle"),
+      undefined,
+      [
+        { text: translate("common.cancel"), style: "cancel" },
+        {
+          text: translate("common.save"),
+          onPress: (newLabel) => {
+            favoriteRoutes.rename(id, newLabel)
+          },
+        },
+      ],
+      { defaultValue: label, placeholder: translate("favorites.renamePromptPlaceholder") },
+    )
+  }
+
+  const deleteRoute = () => {
+    Alert.alert(translate("favorites.delete"), translate("common.areYouSure"), [
+      { text: translate("common.delete"), onPress: () => favoriteRoutes.remove(id), style: "destructive" },
+      { text: translate("common.cancel"), style: "cancel" },
+    ])
+  }
+
+  const { onLongPress } = useOnLongPress(label, renamePrompt)
 
   const [originName, destinationName, stationImage] = useMemo(() => {
     const origin = stationsObject[originId][stationLocale]
@@ -117,32 +142,73 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
   }, [])
 
   return (
-    <TouchableScale style={style} activeScale={0.96} friction={8} onPress={onPress} onLongPress={onLongPress}>
-      <View style={CONTAINER}>
-        <ImageBackground source={stationImage} style={IMAGE_BACKGROUND} blurRadius={6} />
-        <View style={BACKGROUND_DIMMER} />
+    <ContextMenuView
+      onPressMenuItem={({ nativeEvent }) => {
+        const { actionKey } = nativeEvent
 
-        {label ? <Text style={ROUTE_LABEL}>{label}</Text> : null}
+        if (actionKey === "route-label") {
+          renamePrompt()
+        } else if (actionKey === "delete-favorite") {
+          deleteRoute()
+        }
+      }}
+      menuConfig={{
+        menuTitle: "",
+        menuItems: [
+          {
+            actionKey: "route-label",
+            actionTitle: label ? translate("favorites.changeLabel") : translate("favorites.addLabel"),
+            icon: {
+              iconType: "SYSTEM",
+              iconValue: "pencil",
+            },
+          },
+          {
+            actionKey: "delete-favorite",
+            actionTitle: translate("favorites.delete"),
+            menuAttributes: ["destructive"],
+            icon: {
+              iconType: "SYSTEM",
+              iconValue: "trash",
+            },
+          },
+        ],
+      }}
+      style={{ marginBottom: spacing[4] }}
+    >
+      <TouchableScale
+        style={style}
+        activeScale={0.96}
+        friction={8}
+        tension={Platform.select({ ios: 8, android: undefined })}
+        onPress={onPress}
+        onLongPress={onLongPress}
+      >
+        <View style={CONTAINER}>
+          <ImageBackground source={stationImage} style={IMAGE_BACKGROUND} blurRadius={6} />
+          <View style={BACKGROUND_DIMMER} />
 
-        <View style={CONTENT}>
-          <View style={[STATION_WRAPPER, { marginBottom: spacing[3] }]}>
-            <View style={[STATION_CIRCLE, STATION_ORIGIN_CIRCLE]} />
-            <Text style={STATION_NAME}>{originName}</Text>
-          </View>
-          <View style={LINE} />
-          <View style={STATION_WRAPPER}>
-            <View style={STATION_CIRCLE} />
-            <Text style={STATION_NAME}>{destinationName}</Text>
+          {label ? <Text style={ROUTE_LABEL}>{label}</Text> : null}
+
+          <View style={CONTENT}>
+            <View style={[STATION_WRAPPER, { marginBottom: spacing[3] }]}>
+              <View style={[STATION_CIRCLE, STATION_ORIGIN_CIRCLE]} />
+              <Text style={STATION_NAME}>{originName}</Text>
+            </View>
+            <View style={LINE} />
+            <View style={STATION_WRAPPER}>
+              <View style={STATION_CIRCLE} />
+              <Text style={STATION_NAME}>{destinationName}</Text>
+            </View>
           </View>
         </View>
-      </View>
-    </TouchableScale>
+      </TouchableScale>
+    </ContextMenuView>
   )
 }
 
-function useOnLongPress(routeId: string, currentLabel: string) {
+function useOnLongPress(currentLabel: string, renamePrompt: () => void) {
   const actionSheet = useActionSheet()
-  const { favoriteRoutes } = useStores()
 
   const onLongPress = () => {
     actionSheet.showActionSheetWithOptions(
@@ -155,23 +221,7 @@ function useOnLongPress(routeId: string, currentLabel: string) {
       },
       (buttonIndex) => {
         if (buttonIndex === 0) {
-          prompt(
-            translate("favorites.renamePromptTitle"),
-            undefined,
-            [
-              { text: translate("common.cancel"), style: "cancel" },
-              {
-                text: translate("common.save"),
-                onPress: (newLabel) => {
-                  favoriteRoutes.rename(routeId, newLabel)
-                },
-              },
-            ],
-            {
-              defaultValue: currentLabel,
-              placeholder: translate("favorites.renamePromptPlaceholder"),
-            },
-          )
+          renamePrompt()
         }
       },
     )

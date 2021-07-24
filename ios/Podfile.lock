@@ -258,6 +258,8 @@ PODS:
   - React-jsinspector (0.64.2)
   - react-native-date-picker (3.3.1):
     - React-Core
+  - react-native-ios-context-menu (1.3.0):
+    - React-Core
   - react-native-restart (0.0.22):
     - React-Core
   - react-native-safe-area-context (3.2.0):
@@ -404,6 +406,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - react-native-date-picker (from `../node_modules/react-native-date-picker`)
+  - react-native-ios-context-menu (from `../node_modules/react-native-ios-context-menu`)
   - react-native-restart (from `../node_modules/react-native-restart`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-segmented-control (from `../node_modules/@react-native-segmented-control/segmented-control`)"
@@ -489,6 +492,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   react-native-date-picker:
     :path: "../node_modules/react-native-date-picker"
+  react-native-ios-context-menu:
+    :path: "../node_modules/react-native-ios-context-menu"
   react-native-restart:
     :path: "../node_modules/react-native-restart"
   react-native-safe-area-context:
@@ -584,6 +589,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 80c46bd381fd06e418e0d4f53672dc1d1945c4c3
   React-jsinspector: cc614ec18a9ca96fd275100c16d74d62ee11f0ae
   react-native-date-picker: 2dfef0fcb6c36d078bc62f5de3ca79eff7f42486
+  react-native-ios-context-menu: 1ccf4d6aa1c0e7dc596613eb9a36f8c0c23ca56f
   react-native-restart: 733a51ad137f15b0f8dc34c4082e55af7da00979
   react-native-safe-area-context: f0906bf8bc9835ac9a9d3f97e8bde2a997d8da79
   react-native-segmented-control: 83a05d42acd1234ad5e061d603c145973a61b5ee
