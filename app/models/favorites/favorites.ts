@@ -19,8 +19,8 @@ export const FavoritesModel = types
     add(route: FavoriteRoute) {
       self.routes.push({ ...route })
     },
-    remove(route: FavoriteRoute) {
-      const filteredFavorites = self.routes.filter((favorite) => favorite.id !== route.id)
+    remove(routeId: string) {
+      const filteredFavorites = self.routes.filter((favorite) => favorite.id !== routeId)
       self.routes.replace(filteredFavorites)
     },
     rename(routeId: FavoriteRoute["id"], newLabel: string) {
