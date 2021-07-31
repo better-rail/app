@@ -9,6 +9,7 @@ import { observer } from "mobx-react-lite"
 import { useStores } from "../../models"
 import { translate } from "../../i18n"
 import { getRouteFare } from "../../services/api/fares-api"
+import HapticFeedback from "react-native-haptic-feedback"
 
 const CONTNET: ViewStyle = {
   flex: 1,
@@ -80,7 +81,10 @@ export const TicketFaresBottomSheet = observer(
             <DummyInput
               label={translate("profileCodes.passengerProfile")}
               value={settings.profileCodeLabel}
-              onPress={() => profilePickerSheet.current.expand()}
+              onPress={() => {
+                HapticFeedback.trigger("impactLight")
+                profilePickerSheet.current.expand()
+              }}
             />
 
             <View style={PRICE_DESCRIPTION}>
