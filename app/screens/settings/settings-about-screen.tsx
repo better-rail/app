@@ -1,6 +1,6 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
-import { Image, Linking, Platform, TextStyle, View, ViewStyle } from "react-native"
+import { Image, Linking, Platform, TextStyle, View, ViewStyle, ImageStyle } from "react-native"
 import { Screen, Text } from "../../components"
 import { SettingBox } from "./components/settings-box"
 
@@ -25,6 +25,22 @@ const SETTING_GROUP: ViewStyle = {
   elevation: 1,
 }
 
+const APP_ICON_WRAPPER: ViewStyle = {
+  marginBottom: spacing[4],
+  borderRadius: 50,
+  shadowOffset: { width: 0, height: 0 },
+  shadowColor: "#222222",
+  shadowRadius: 4,
+  shadowOpacity: 0.25,
+}
+
+const APP_ICON_IMAGE: ImageStyle = {
+  width: 120,
+  height: 120,
+  borderRadius: 20,
+  resizeMode: "contain",
+}
+
 const ABOUT_TEXT_TITLE: TextStyle = {
   marginBottom: spacing[1],
   fontSize: 24,
@@ -46,12 +62,11 @@ export const AboutScreen = observer(function AboutScreen({ navigation }: Setting
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
     >
       <View style={[SETTING_GROUP, { alignItems: "center", padding: spacing[4] }]}>
-        <Image
-          source={require("../../../assets/guymoji.png")}
-          style={{ width: 100, height: 120, resizeMode: "contain", marginBottom: 20 }}
-        />
-        <Text style={ABOUT_TEXT_TITLE} tx="settings.hey" />
-        <Text style={ABOUT_TEXT} tx="settings.whoami" />
+        <View style={APP_ICON_WRAPPER}>
+          <Image source={require("../../../assets/app-icon.png")} style={APP_ICON_IMAGE} />
+        </View>
+
+        <Text style={ABOUT_TEXT} tx="settings.aboutText" />
         <Text style={{ textAlign: "center" }} tx="settings.independenceDeclaration" />
       </View>
 

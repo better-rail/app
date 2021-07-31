@@ -56,9 +56,8 @@
     "languageChangeAlertTitle": "Language Change",
     "languageChangeAlertMessage": "The app will restart to apply the changes",
 
-    "hey": "Hey! 👋",
-    "whoami": "My name's Guy. I created Better Rail to make Israel Railways services more accessible to the public.",
-    "independenceDeclaration": "The app is open sourced and is developed independently.",
+    "aboutText": "Better Rail was created to make Israel Railways services more accessible to the public.",
+    "independenceDeclaration": "The app is open sourced and developed independently.",
 
     "follow": "Follow Better Rail",
     "facebook": "Facebook",
