@@ -24,7 +24,7 @@ const ROUTE_EXCHANGE_WRAPPER: ViewStyle = {
 }
 
 const ROUTE_EXCHANGE_ICON: ViewStyle = {
-  marginEnd: spacing[4],
+  marginHorizontal: spacing[4],
   transform: [{ rotate: "90deg" }, { scale: 0.95 }],
   shadowOpacity: 0,
   elevation: 0,
