@@ -87,7 +87,7 @@ const EMPTY_STATE_TEXT: TextStyle = {
 const EmptyState = () => (
   <View style={EMPTY_STATE_WRAPPER}>
     <Image
-      source={require("../../../assets/star.png")}
+      source={require("../../../assets/star-fill.png")}
       style={{ width: 58, height: 55, marginBottom: spacing[2], tintColor: color.dim, opacity: 0.75 }}
     />
     <Text tx="favorites.empty" style={EMPTY_STATE_TEXT} />
