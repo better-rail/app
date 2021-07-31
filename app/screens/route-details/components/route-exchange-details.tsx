@@ -19,8 +19,7 @@ const ROUTE_EXCHANGE_WRAPPER: ViewStyle = {
   flexDirection: "row",
   justifyContent: "center",
   alignItems: "center",
-  paddingVertical: spacing[4],
-  paddingHorizontal: spacing[4],
+  padding: spacing[4],
   backgroundColor: color.secondaryLighter,
 }
 
@@ -36,6 +35,7 @@ const ROUTE_EXCHANGE_INFO_WRAPPER: ViewStyle = {
 }
 
 const ROUTE_EXCHANGE_STATION_NAME: TextStyle = {
+  maxWidth: DISPLAY_EXCHANGE_ICON ? "85%" : "100%",
   marginBottom: spacing[1],
   fontSize: 18,
   fontWeight: "700",
