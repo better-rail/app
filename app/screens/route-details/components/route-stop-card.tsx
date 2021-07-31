@@ -1,7 +1,7 @@
 import React from "react"
 import { View, ViewStyle, TextStyle, Platform } from "react-native"
 import { Text } from "../../../components"
-import { color, spacing } from "../../../theme"
+import { color, fontScale, spacing } from "../../../theme"
 
 // #region styles
 const ROUTE_STOP_WRAPPER: ViewStyle = {
@@ -23,7 +23,7 @@ const ROUTE_STOP_TIME: TextStyle = {
 
 const ROUTE_STOP_LINE: ViewStyle = {
   width: 4,
-  height: 10,
+  height: 10 * fontScale,
   backgroundColor: color.separator,
   zIndex: 0,
 }
