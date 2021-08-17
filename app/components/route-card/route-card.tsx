@@ -7,6 +7,7 @@ import { primaryFontIOS } from "../../theme/typography"
 import { Text } from "../"
 import { format, intervalToDuration, formatDuration } from "date-fns"
 import { dateDelimiter, dateFnsLocalization, translate } from "../../i18n"
+import { DelayBadge } from "./delay-badge"
 
 // #region styles
 
@@ -108,22 +109,7 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
         <View style={{ alignItems: "center" }}>
           <Text style={DURATION_TEXT}>{duration}</Text>
 
-          {delay > 0 ? (
-            <View
-              style={{
-                backgroundColor: color.destroy,
-                paddingVertical: spacing[0],
-                paddingHorizontal: spacing[3],
-                borderRadius: 12,
-              }}
-            >
-              <Text style={{ color: color.whiteText, fontSize: 14, fontWeight: "bold" }}>
-                {delay} {translate("routes.delayTime")}
-              </Text>
-            </View>
-          ) : (
-            <Text style={{ fontSize: 14 }}>{stopsText}</Text>
-          )}
+          {delay > 0 ? <DelayBadge delay={delay} /> : <Text style={{ fontSize: 14 }}>{stopsText}</Text>}
         </View>
       </View>
 
