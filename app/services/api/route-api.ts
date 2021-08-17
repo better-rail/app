@@ -25,17 +25,9 @@ export class RouteApi {
 
       const { Data: responseData } = response.data
 
-      // Get delays
-      interface DelayInfo {
-        [key: string]: number
-      }
-
-      const delays = responseData.Delays.reduce(
-        (delaysObject, delayItem) => {
-          return Object.assign({}, delaysObject, { [delayItem.Train]: parseInt(delayItem.Min) })
-        },
-        { "273": 5 },
-      )
+      const delays = responseData.Delays.reduce((delaysObject, delayItem) => {
+        return Object.assign({}, delaysObject, { [delayItem.Train]: parseInt(delayItem.Min) })
+      }, {})
 
       console.log("DELAYS:", delays)
 
