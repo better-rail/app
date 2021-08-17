@@ -30,6 +30,7 @@ export const trainRouteSchema = {
   isExchange: types.boolean,
   estTime: types.string,
   trains: types.array(types.model(trainListSchema)),
+  delay: types.number,
 }
 
 export const trainRoutesModel = types

@@ -32,7 +32,8 @@
     "arrival": "הגעה",
     "noExchange": "ללא החלפות",
     "oneExchange": "החלפה אחת",
-    "exchanges": "החלפות"
+    "exchanges": "החלפות",
+    "delayTime": "דק' עיכוב"
   },
   "routeDetails": {
     "platform": "רציף",

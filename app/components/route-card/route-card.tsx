@@ -58,6 +58,7 @@ export interface RouteCardProps extends TouchableScaleProps {
   arrivalTime: number
   estTime: string
   stops: number
+  delay: number
   bounceable?: boolean
   style?: ViewStyle
 }
@@ -66,7 +67,7 @@ export interface RouteCardProps extends TouchableScaleProps {
  * Describe your component here
  */
 export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
-  const { departureTime, arrivalTime, estTime, stops, onPress = null, bounceable = true, style } = props
+  const { departureTime, arrivalTime, estTime, stops, delay, onPress = null, bounceable = true, style } = props
 
   // Format times
   const [formattedDepatureTime, formattedArrivalTime] = useMemo(() => {
@@ -106,7 +107,23 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
       <View>
         <View style={{ alignItems: "center" }}>
           <Text style={DURATION_TEXT}>{duration}</Text>
-          <Text style={{ fontSize: 14 }}>{stopsText}</Text>
+
+          {delay > 0 ? (
+            <View
+              style={{
+                backgroundColor: color.destroy,
+                paddingVertical: spacing[0],
+                paddingHorizontal: spacing[3],
+                borderRadius: 12,
+              }}
+            >
+              <Text style={{ color: color.whiteText, fontSize: 14, fontWeight: "bold" }}>
+                {delay} {translate("routes.delayTime")}
+              </Text>
+            </View>
+          ) : (
+            <Text style={{ fontSize: 14 }}>{stopsText}</Text>
+          )}
         </View>
       </View>
 
