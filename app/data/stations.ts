@@ -67,9 +67,10 @@ const stations = [
   {
     id: "2200",
     hebrew: "חיפה - בת גלים",
-    english: "Haifa-Bat Galim",
+    english: "Haifa - Bat Galim",
     russian: "Хайфа - Бат-Галим",
     arabic: "حيفا - بات چاليم",
+    image: require("../../assets/station-images/bat-galim.jpg"),
   },
   {
     id: "1300",
@@ -108,6 +109,7 @@ const stations = [
     english: "Haifa - Hof HaKarmel",
     russian: "Хайфа Хоф ха - Кармель",
     arabic: "حيفا - شاطئ الكرمل",
+    image: require("../../assets/station-images/hof-hakarmel.jpg"),
   },
   {
     id: "8700",
