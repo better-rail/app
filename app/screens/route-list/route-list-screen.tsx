@@ -65,13 +65,13 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
       stops = item.trains.length - 1
       arrivalTime = item.trains[stops].arrivalTime
     }
-
     return (
       <RouteCard
         estTime={item.estTime}
         stops={stops}
         departureTime={departureTime}
         arrivalTime={arrivalTime}
+        delay={item.delay}
         onPress={() =>
           navigation.navigate("routeDetails", {
             routeItem: item,

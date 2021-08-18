@@ -7,6 +7,7 @@ import { primaryFontIOS } from "../../theme/typography"
 import { Text } from "../"
 import { format, intervalToDuration, formatDuration } from "date-fns"
 import { dateDelimiter, dateFnsLocalization, translate } from "../../i18n"
+import { DelayBadge } from "./delay-badge"
 
 // #region styles
 
@@ -58,6 +59,7 @@ export interface RouteCardProps extends TouchableScaleProps {
   arrivalTime: number
   estTime: string
   stops: number
+  delay: number
   bounceable?: boolean
   style?: ViewStyle
 }
@@ -66,7 +68,7 @@ export interface RouteCardProps extends TouchableScaleProps {
  * Describe your component here
  */
 export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
-  const { departureTime, arrivalTime, estTime, stops, onPress = null, bounceable = true, style } = props
+  const { departureTime, arrivalTime, estTime, stops, delay, onPress = null, bounceable = true, style } = props
 
   // Format times
   const [formattedDepatureTime, formattedArrivalTime] = useMemo(() => {
@@ -106,7 +108,8 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
       <View>
         <View style={{ alignItems: "center" }}>
           <Text style={DURATION_TEXT}>{duration}</Text>
-          <Text style={{ fontSize: 14 }}>{stopsText}</Text>
+
+          {delay > 0 ? <DelayBadge delay={delay} /> : <Text style={{ fontSize: 14 }}>{stopsText}</Text>}
         </View>
       </View>
 

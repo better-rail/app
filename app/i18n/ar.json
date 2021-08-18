@@ -31,7 +31,8 @@
     "arrival": "وصول",
     "noExchange": "دون تبديل",
     "oneExchange": "تبديل واحد",
-    "exchanges": "تبديلات"
+    "exchanges": "تبديلات",
+    "delayTime": "دقائق تأخير"
   },
   "routeDetails": {
     "platform": "رصيف",

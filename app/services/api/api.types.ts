@@ -38,11 +38,12 @@ export type RailApiGetRoutesResult = {
   Data: {
     Routes: { IsExchange: boolean; EstTime: string; Train: RailApiRouteItem[] }[]
     Details: { Origin: string; Destination: string; Date: string; SugKav: string; Hour: string }
-    Delays: { Station: string; Date: string; Time: string; Train: string; Min: string }
+    Delays: { Station: string; Date: string; Time: string; Train: string; Min: string }[]
   }
 }
 
 export type RouteItem = {
+  delay: number
   isExchange: boolean
   estTime: string
   departureTime: number

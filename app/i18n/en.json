@@ -30,7 +30,8 @@
     "arrival": "Arrival",
     "noExchange": "No Exchanges",
     "oneExchange": "1 Exchange",
-    "exchanges": "Exchanges"
+    "exchanges": "Exchanges",
+    "delayTime": "minutes delay"
   },
   "routeDetails": {
     "platform": "Platform",
