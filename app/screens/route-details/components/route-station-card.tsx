@@ -1,7 +1,7 @@
 import React from "react"
 import { View, ViewStyle, Image, ImageStyle, TextStyle } from "react-native"
 import { Text } from "../../../components"
-import { translate } from "../../../i18n"
+import { isRTL, translate } from "../../../i18n"
 import { color, fontScale, primaryFontIOS, spacing } from "../../../theme"
 
 const railwayStationIcon = require("../../../../assets/railway-station.png")
@@ -43,7 +43,8 @@ const ROUTE_STATION_TIME_DELAYED: TextStyle = {
 }
 
 const ROUTE_DELAY_TIME: TextStyle = {
-  marginEnd: 20,
+  width: 70,
+  marginEnd: isRTL ? 0 : spacing[3],
   color: color.destroy,
   fontWeight: "bold",
 }
@@ -96,8 +97,8 @@ export const RouteStationCard = (props: RouteStopCardProps) => {
             <Text style={[ROUTE_STATION_TIME, ROUTE_STATION_TIME_DELAYED]} maxFontSizeMultiplier={1.1}>
               {stopTime}
             </Text>
-            <Text style={ROUTE_STATION_TIME} maxFontSizeMultiplier={1.1}>
-              {stopTime}
+            <Text style={[ROUTE_STATION_TIME, { minWidth: undefined }]} maxFontSizeMultiplier={1.1}>
+              {delayedTime}
             </Text>
           </>
         ) : (
@@ -106,7 +107,7 @@ export const RouteStationCard = (props: RouteStopCardProps) => {
               {stopTime}
             </Text>
             {delay > 0 && (
-              <Text style={ROUTE_DELAY_TIME} maxFontSizeMultiplier={1.1}>
+              <Text style={ROUTE_DELAY_TIME} maxFontSizeMultiplier={1}>
                 + {delay} {translate("routeDetails.minutes")}
               </Text>
             )}
