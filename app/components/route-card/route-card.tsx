@@ -127,11 +127,9 @@ const { width: deviceWidth } = Dimensions.get("screen")
 
 // Remove dashed line for users with scaled font size
 let dashedLineWidth = 50
-let dashedStrokeWidth = 4
 
 if (fontScale > 1.2) {
-  dashedLineWidth = 30
-  dashedStrokeWidth = 8
+  dashedLineWidth = 0
 }
 
 if (deviceWidth <= 360) {
@@ -140,6 +138,6 @@ if (deviceWidth <= 360) {
 
 const DashedLine = () => (
   <Svg height={5} width={dashedLineWidth}>
-    <Line stroke={color.dim} strokeWidth={dashedStrokeWidth} strokeDasharray="5,5" x1="0" y1="0" x2="100%" y2={0} />
+    <Line stroke={color.dim} strokeWidth={4} strokeDasharray="5,5" x1="0" y1="0" x2="100%" y2={0} />
   </Svg>
 )
