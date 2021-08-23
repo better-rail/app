@@ -50,6 +50,7 @@ export const RouteStopCard = ({ stationName, stopTime, style }: RouteStopCardPro
   <View style={[ROUTE_STOP_WRAPPER, style]}>
     <View style={ROUTE_STOP_DETAILS}>
       <View style={{ flex: 0.265, alignItems: "flex-end" }}>
+        <Text style={[ROUTE_STOP_TIME, { textDecorationLine: "line-through", fontSize: 12, marginTop: -16 }]}>{stopTime}</Text>
         <Text style={ROUTE_STOP_TIME}>{stopTime}</Text>
       </View>
 

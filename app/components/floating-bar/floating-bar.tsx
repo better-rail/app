@@ -10,9 +10,12 @@ import { Button } from "../button/button"
 const CONTAINER: ViewStyle = {
   flexDirection: "row",
   justifyContent: "space-between",
-  padding: spacing[4] * fontScale,
+  alignItems: "center",
+  paddingHorizontal: spacing[4] * fontScale,
+  paddingVertical: spacing[3] * fontScale,
   marginHorizontal: spacing[3],
   backgroundColor: color.tertiaryBackground,
+
   borderRadius: 12,
   shadowOffset: { width: 0, height: 0 },
   shadowColor: color.palette.black,
@@ -48,8 +51,8 @@ export const FloatingBar = observer(function FloatingBar(props: FloatingBarProps
       <Button
         title="עדכון זמנים"
         onPress={() => null}
-        containerStyle={{ maxWidth: 140 }}
-        textStyle={{ marginTop: -12 * fontScale }}
+        containerStyle={{ maxWidth: 140, maxHeight: 35 }}
+        textStyle={{ marginTop: -11 * fontScale }}
       />
     </View>
   )

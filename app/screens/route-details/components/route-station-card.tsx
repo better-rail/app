@@ -35,6 +35,12 @@ const ROUTE_STATION_TIME: TextStyle = {
   fontFamily: "System",
 }
 
+const ROUTE_DELAY_TIME: TextStyle = {
+  marginEnd: 20,
+  color: color.destroy,
+  fontWeight: "bold",
+}
+
 const ROUTE_STATION_NAME: TextStyle = {
   marginBottom: primaryFontIOS === "System" ? 2 : -2,
   marginEnd: spacing[3],
@@ -58,13 +64,23 @@ type RouteStopCardProps = {
   stopTime: string
   platform?: string
   trainNumber?: string
+
+  /**
+   * The delay time in full minutes, e.g. 5, 8, 10
+   */
+  delay: number
   style?: ViewStyle
 }
 
-export const RouteStationCard = ({ stationName, stopTime, platform, trainNumber, style }: RouteStopCardProps) => (
+export const RouteStationCard = ({ stationName, stopTime, platform, trainNumber, delay, style }: RouteStopCardProps) => (
   <View style={[ROUTE_STATION_WRAPPER, style]}>
     <View style={ROUTE_STATION_TIME_WRAPPER}>
       <Text style={ROUTE_STATION_TIME}>{stopTime}</Text>
+      {delay > 0 && (
+        <Text style={ROUTE_DELAY_TIME}>
+          + {delay} {translate("routeDetails.minutes")}
+        </Text>
+      )}
     </View>
 
     <Image style={RAILWAY_ICON} source={railwayStationIcon} />

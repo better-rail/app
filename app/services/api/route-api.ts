@@ -29,8 +29,6 @@ export class RouteApi {
         return Object.assign({}, delaysObject, { [delayItem.Train]: parseInt(delayItem.Min) })
       }, {})
 
-      console.log("DELAYS:", delays)
-
       const formattedRoutes = responseData.Routes.map((route) => {
         const { Train, IsExchange, EstTime } = route
 

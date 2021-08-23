@@ -17,6 +17,7 @@ const ROOT: ViewStyle = {
 
 export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
   const { routeItem } = route.params
+
   const insets = useSafeAreaInsets()
 
   return (
@@ -48,6 +49,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
                 stopTime={format(train.departureTime, "HH:mm")}
                 platform={train.originPlatform}
                 trainNumber={train.trainNumber}
+                delay={5}
               />
 
               {train.stopStations.length > 0
@@ -84,7 +86,6 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
           )
         })}
       </ScrollView>
-      <FloatingBar />
     </Screen>
   )
 })
