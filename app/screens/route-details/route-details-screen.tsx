@@ -49,7 +49,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
                 stopTime={format(train.departureTime, "HH:mm")}
                 platform={train.originPlatform}
                 trainNumber={train.trainNumber}
-                delay={5}
+                delay={train.delay}
               />
 
               {train.stopStations.length > 0
@@ -59,8 +59,9 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
                       <RouteStopCard
                         stationName={stop.stationName}
                         stopTime={format(stop.departureTime, "HH:mm")}
-                        key={stop.stationId}
+                        delayedTime={train.delay ? format(stop.departureTime + 5 * 60000, "HH:mm") : undefined}
                         style={{ zIndex: 20 - index }}
+                        key={stop.stationId}
                       />
                       {train.stopStations.length - 1 === index && <RouteLine />}
                     </>
@@ -70,6 +71,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
               <RouteStationCard
                 stationName={train.destinationStationName}
                 stopTime={format(train.arrivalTime, "HH:mm")}
+                delayedTime={train.delay > 0 ? format(train.arrivalTime + 5 * 60000, "HH:mm") : undefined}
                 platform={train.destinationPlatform}
               />
 

@@ -35,6 +35,13 @@ const ROUTE_STATION_TIME: TextStyle = {
   fontFamily: "System",
 }
 
+const ROUTE_STATION_TIME_DELAYED: TextStyle = {
+  textDecorationLine: "line-through",
+  fontSize: 12,
+  marginTop: -14,
+  textAlign: "right",
+}
+
 const ROUTE_DELAY_TIME: TextStyle = {
   marginEnd: 20,
   color: color.destroy,
@@ -68,28 +75,47 @@ type RouteStopCardProps = {
   /**
    * The delay time in full minutes, e.g. 5, 8, 10
    */
-  delay: number
+  delay?: number
+
+  /**
+   * The stop time, updated with the delay minutes
+   */
+  delayedTime?: string
+
   style?: ViewStyle
 }
 
-export const RouteStationCard = ({ stationName, stopTime, platform, trainNumber, delay, style }: RouteStopCardProps) => (
-  <View style={[ROUTE_STATION_WRAPPER, style]}>
-    <View style={ROUTE_STATION_TIME_WRAPPER}>
-      <Text style={ROUTE_STATION_TIME}>{stopTime}</Text>
-      {delay > 0 && (
-        <Text style={ROUTE_DELAY_TIME}>
-          + {delay} {translate("routeDetails.minutes")}
+export const RouteStationCard = (props: RouteStopCardProps) => {
+  const { stationName, stopTime, platform, trainNumber, delay, delayedTime, style } = props
+
+  return (
+    <View style={[ROUTE_STATION_WRAPPER, style]}>
+      <View style={ROUTE_STATION_TIME_WRAPPER}>
+        {delayedTime ? (
+          <>
+            <Text style={[ROUTE_STATION_TIME, ROUTE_STATION_TIME_DELAYED]}>{stopTime}</Text>
+            <Text style={ROUTE_STATION_TIME}>{stopTime}</Text>
+          </>
+        ) : (
+          <>
+            <Text style={ROUTE_STATION_TIME}>{stopTime}</Text>
+            {delay > 0 && (
+              <Text style={ROUTE_DELAY_TIME}>
+                + {delay} {translate("routeDetails.minutes")}
+              </Text>
+            )}
+          </>
+        )}
+      </View>
+
+      <Image style={RAILWAY_ICON} source={railwayStationIcon} />
+
+      <View style={ROUTE_STATION_DETAILS}>
+        <Text style={ROUTE_STATION_NAME}>{stationName}</Text>
+        <Text style={ROUTE_STATION_DETAILS_TEXT}>
+          {translate("routeDetails.platform")} {platform} {trainNumber && `· ${translate("routeDetails.trainNo")} ${trainNumber}`}
         </Text>
-      )}
+      </View>
     </View>
-
-    <Image style={RAILWAY_ICON} source={railwayStationIcon} />
-
-    <View style={ROUTE_STATION_DETAILS}>
-      <Text style={ROUTE_STATION_NAME}>{stationName}</Text>
-      <Text style={ROUTE_STATION_DETAILS_TEXT}>
-        {translate("routeDetails.platform")} {platform} {trainNumber && `· ${translate("routeDetails.trainNo")} ${trainNumber}`}
-      </Text>
-    </View>
-  </View>
-)
+  )
+}
