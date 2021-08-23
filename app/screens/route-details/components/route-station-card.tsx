@@ -93,14 +93,20 @@ export const RouteStationCard = (props: RouteStopCardProps) => {
       <View style={ROUTE_STATION_TIME_WRAPPER}>
         {delayedTime ? (
           <>
-            <Text style={[ROUTE_STATION_TIME, ROUTE_STATION_TIME_DELAYED]}>{stopTime}</Text>
-            <Text style={ROUTE_STATION_TIME}>{stopTime}</Text>
+            <Text style={[ROUTE_STATION_TIME, ROUTE_STATION_TIME_DELAYED]} maxFontSizeMultiplier={1.1}>
+              {stopTime}
+            </Text>
+            <Text style={ROUTE_STATION_TIME} maxFontSizeMultiplier={1.1}>
+              {stopTime}
+            </Text>
           </>
         ) : (
           <>
-            <Text style={ROUTE_STATION_TIME}>{stopTime}</Text>
+            <Text style={ROUTE_STATION_TIME} maxFontSizeMultiplier={1.1}>
+              {stopTime}
+            </Text>
             {delay > 0 && (
-              <Text style={ROUTE_DELAY_TIME}>
+              <Text style={ROUTE_DELAY_TIME} maxFontSizeMultiplier={1.1}>
                 + {delay} {translate("routeDetails.minutes")}
               </Text>
             )}
@@ -111,8 +117,10 @@ export const RouteStationCard = (props: RouteStopCardProps) => {
       <Image style={RAILWAY_ICON} source={railwayStationIcon} />
 
       <View style={ROUTE_STATION_DETAILS}>
-        <Text style={ROUTE_STATION_NAME}>{stationName}</Text>
-        <Text style={ROUTE_STATION_DETAILS_TEXT}>
+        <Text style={ROUTE_STATION_NAME} maxFontSizeMultiplier={1.25}>
+          {stationName}
+        </Text>
+        <Text style={ROUTE_STATION_DETAILS_TEXT} maxFontSizeMultiplier={1.2}>
           {translate("routeDetails.platform")} {platform} {trainNumber && `· ${translate("routeDetails.trainNo")} ${trainNumber}`}
         </Text>
       </View>

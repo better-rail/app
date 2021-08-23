@@ -61,8 +61,14 @@ export const RouteStopCard = ({ stationName, stopTime, delayedTime, style }: Rou
   <View style={[ROUTE_STOP_WRAPPER, style]}>
     <View style={ROUTE_STOP_DETAILS}>
       <View style={{ flex: 0.265, alignItems: "flex-end" }}>
-        <Text style={[ROUTE_STOP_TIME, delayedTime && ROUTE_STOP_TIME_DELAYED]}>{stopTime}</Text>
-        {delayedTime && <Text style={ROUTE_STOP_TIME}>{delayedTime}</Text>}
+        <Text style={[ROUTE_STOP_TIME, delayedTime && ROUTE_STOP_TIME_DELAYED]} maxFontSizeMultiplier={1.2}>
+          {stopTime}
+        </Text>
+        {delayedTime && (
+          <Text style={ROUTE_STOP_TIME} maxFontSizeMultiplier={1.2}>
+            {delayedTime}
+          </Text>
+        )}
       </View>
 
       <View style={{ flex: 0.2, alignItems: "center" }}>
@@ -72,7 +78,9 @@ export const RouteStopCard = ({ stationName, stopTime, delayedTime, style }: Rou
       </View>
 
       <View style={{ flex: 0.55, right: 15 }}>
-        <Text style={{ fontWeight: "600", fontSize: 15, marginStart: spacing[3] }}>{stationName}</Text>
+        <Text style={{ fontWeight: "600", fontSize: 15, marginStart: spacing[3] }} maxFontSizeMultiplier={1.2}>
+          {stationName}
+        </Text>
       </View>
     </View>
   </View>
