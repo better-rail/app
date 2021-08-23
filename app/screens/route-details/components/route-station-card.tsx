@@ -43,8 +43,8 @@ const ROUTE_STATION_TIME_DELAYED: TextStyle = {
 }
 
 const ROUTE_DELAY_TIME: TextStyle = {
-  width: 70,
-  marginEnd: isRTL ? 0 : spacing[3],
+  width: 70 * fontScale,
+  marginEnd: isRTL ? 0 : spacing[3] * fontScale,
   color: color.destroy,
   fontWeight: "bold",
 }
@@ -107,7 +107,7 @@ export const RouteStationCard = (props: RouteStopCardProps) => {
               {stopTime}
             </Text>
             {delay > 0 && (
-              <Text style={ROUTE_DELAY_TIME} maxFontSizeMultiplier={1}>
+              <Text style={ROUTE_DELAY_TIME} maxFontSizeMultiplier={1.1}>
                 + {delay} {translate("routeDetails.minutes")}
               </Text>
             )}
