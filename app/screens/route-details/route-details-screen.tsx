@@ -1,7 +1,7 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
 import { View, ViewStyle } from "react-native"
-import { RouteDetailsHeader, Screen } from "../../components"
+import { FloatingBar, RouteDetailsHeader, Screen } from "../../components"
 import { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import { color, spacing } from "../../theme"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -84,6 +84,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
           )
         })}
       </ScrollView>
+      <FloatingBar />
     </Screen>
   )
 })
