@@ -283,6 +283,7 @@ const stations = [
     english: "Ben Gurion Airport",
     russian: "Бен-Гурион Аэропорт",
     arabic: "مطار بن چوريون",
+    image: require("../../assets/station-images/ben-gurion.jpg"),
   },
   {
     id: "6700",
