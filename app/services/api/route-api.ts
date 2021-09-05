@@ -4,7 +4,6 @@ import { stationsObject } from "../../data/stations"
 import { RailApiGetRoutesResult } from "./api.types"
 import { parseApiDate } from "../../utils/helpers/date-helpers"
 import { stationLocale } from "../../data/stations"
-import { delay } from "../../utils/delay"
 
 export class RouteApi {
   private api: Api
