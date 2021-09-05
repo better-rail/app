@@ -1,9 +1,8 @@
 import { ApiResponse } from "apisauce"
 import { Api } from "./api"
-import { stationsObject } from "../../data/stations"
+import { stationsObject, stationLocale } from "../../data/stations"
 import { RailApiGetRoutesResult } from "./api.types"
 import { parseApiDate } from "../../utils/helpers/date-helpers"
-import { stationLocale } from "../../data/stations"
 
 export class RouteApi {
   private api: Api
