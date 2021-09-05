@@ -24,7 +24,9 @@ const ROUTE_STOP_TIME: TextStyle = {
 const ROUTE_STOP_TIME_DELAYED: TextStyle = {
   textDecorationLine: "line-through",
   fontSize: 12,
-  marginTop: -14,
+  marginTop: -18,
+  marginBottom: spacing[0],
+  opacity: 0.5,
 }
 
 const ROUTE_STOP_LINE: ViewStyle = {
