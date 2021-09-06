@@ -1,10 +1,8 @@
 import { ApiResponse } from "apisauce"
 import { Api } from "./api"
-import { stationsObject } from "../../data/stations"
+import { stationsObject, stationLocale } from "../../data/stations"
 import { RailApiGetRoutesResult } from "./api.types"
 import { parseApiDate } from "../../utils/helpers/date-helpers"
-import { stationLocale } from "../../data/stations"
-import { delay } from "../../utils/delay"
 
 export class RouteApi {
   private api: Api
@@ -28,8 +26,6 @@ export class RouteApi {
       const delays = responseData.Delays.reduce((delaysObject, delayItem) => {
         return Object.assign({}, delaysObject, { [delayItem.Train]: parseInt(delayItem.Min) })
       }, {})
-
-      console.log("DELAYS:", delays)
 
       const formattedRoutes = responseData.Routes.map((route) => {
         const { Train, IsExchange, EstTime } = route

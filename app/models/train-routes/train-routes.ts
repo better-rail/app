@@ -13,6 +13,7 @@ export const trainStop = {
 }
 
 export const trainListSchema = {
+  delay: types.number,
   arrivalTime: types.number,
   departureTime: types.number,
   originStationId: types.string,

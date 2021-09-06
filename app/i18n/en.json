@@ -39,7 +39,8 @@
     "exchangeAt": "Exchange at ",
     "platformStay": "Stay at Platform",
     "platformExchange": "Switch to Platform",
-    "waitingTime": "Wait around"
+    "waitingTime": "Wait around",
+    "minutes": "min"
   },
   "settings": {
     "title": "Settings",

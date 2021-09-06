@@ -21,6 +21,14 @@ const ROUTE_STOP_TIME: TextStyle = {
   fontWeight: "600",
 }
 
+const ROUTE_STOP_TIME_DELAYED: TextStyle = {
+  textDecorationLine: "line-through",
+  fontSize: 12,
+  marginTop: -18,
+  marginBottom: spacing[0],
+  opacity: 0.5,
+}
+
 const ROUTE_STOP_LINE: ViewStyle = {
   width: 4,
   height: 10 * fontScale,
@@ -43,14 +51,26 @@ const ROUTE_STOP_CIRCLE: ViewStyle = {
 type RouteStopCardProps = {
   stationName: string
   stopTime: string
+  /**
+   * The stop time, updated with the delay minutes
+   */
+  delayedTime?: string
+
   style?: ViewStyle
 }
 
-export const RouteStopCard = ({ stationName, stopTime, style }: RouteStopCardProps) => (
+export const RouteStopCard = ({ stationName, stopTime, delayedTime, style }: RouteStopCardProps) => (
   <View style={[ROUTE_STOP_WRAPPER, style]}>
     <View style={ROUTE_STOP_DETAILS}>
       <View style={{ flex: 0.265, alignItems: "flex-end" }}>
-        <Text style={ROUTE_STOP_TIME}>{stopTime}</Text>
+        <Text style={[ROUTE_STOP_TIME, delayedTime && ROUTE_STOP_TIME_DELAYED]} maxFontSizeMultiplier={1.2}>
+          {stopTime}
+        </Text>
+        {delayedTime && (
+          <Text style={ROUTE_STOP_TIME} maxFontSizeMultiplier={1.2}>
+            {delayedTime}
+          </Text>
+        )}
       </View>
 
       <View style={{ flex: 0.2, alignItems: "center" }}>
@@ -60,7 +80,9 @@ export const RouteStopCard = ({ stationName, stopTime, style }: RouteStopCardPro
       </View>
 
       <View style={{ flex: 0.55, right: 15 }}>
-        <Text style={{ fontWeight: "600", fontSize: 15, marginStart: spacing[3] }}>{stationName}</Text>
+        <Text style={{ fontWeight: "600", fontSize: 15, marginStart: spacing[3] }} maxFontSizeMultiplier={1.2}>
+          {stationName}
+        </Text>
       </View>
     </View>
   </View>

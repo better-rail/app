@@ -34,7 +34,7 @@ const ROUTE_DETAILS_STATION: ViewStyle = {
   shadowColor: color.dim,
   shadowRadius: 1,
   shadowOpacity: isDarkMode ? 0 : 0.45,
-  elevation: 1,
+  elevation: 3,
   zIndex: 0,
 }
 
@@ -54,7 +54,7 @@ const ROUTE_INFO_CIRCLE: ViewStyle = {
   justifyContent: "center",
   backgroundColor: color.secondary,
   borderRadius: 25,
-  elevation: 1,
+  elevation: 3,
   zIndex: 5,
 }
 

@@ -41,7 +41,8 @@
     "exchangeAt": "החלפה ב",
     "platformStay": "יש להשאר ברציף",
     "platformExchange": "יש לעבור לרציף",
-    "waitingTime": "זמן המתנה כ-"
+    "waitingTime": "זמן המתנה כ-",
+    "minutes": "דק'"
   },
   "settings": {
     "title": "הגדרות",
