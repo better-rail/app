@@ -38,7 +38,6 @@ const ROUTE_STATION_TIME: TextStyle = {
 const ROUTE_STATION_TIME_DELAYED: TextStyle = {
   textDecorationLine: "line-through",
   fontSize: 12,
-
   textAlign: "right",
   opacity: 0.6,
 }
