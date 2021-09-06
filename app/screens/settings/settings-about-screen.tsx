@@ -53,15 +53,17 @@ const ABOUT_TEXT: TextStyle = {
   textAlign: "center",
 }
 
-const emailBody = `
-<br><br><br><br><br>
-<br><br><br><br><br>
-<br>----<br>
-App: Better Rail ${getVersion()} (${getBuildNumber()})<br>
-Device: ${getDeviceId()} (${getSystemVersion()})<br>
-App Locale: ${userLocale}<br>
+// TODO: Add mail body to iOS - need to understand how to add newlines correctly
+const emailBody = Platform.select({
+  android: `%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A
+---
+App: Better Rail ${getVersion()} (${getBuildNumber()})
+Device: ${getDeviceId()} (${getSystemVersion()})
+App Locale: ${userLocale}
 Device Locale: ${deviceLocale} 
-`
+`,
+  ios: "",
+})
 
 export const AboutScreen = observer(function AboutScreen({ navigation }: SettingsScreenProps) {
   return (
