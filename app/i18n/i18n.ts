@@ -19,6 +19,7 @@ export let userLocale: LanguageCode = "en"
 export let dateFnsLocalization = enUS
 export let dateDelimiter = " "
 export let dateLocale = "en-US"
+export const deviceLocale = Localization.locale
 
 export function setInitialLanguage() {
   // If the user main locale is Hebrew / Arabic, we set it immidately to them.

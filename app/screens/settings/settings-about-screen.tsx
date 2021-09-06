@@ -6,8 +6,9 @@ import { SettingBox } from "./components/settings-box"
 
 import { color, spacing, isDarkMode } from "../../theme"
 import { openLink } from "../../utils/helpers/open-link"
-import { translate } from "../../i18n"
+import { deviceLocale, translate, userLocale } from "../../i18n"
 import { SettingsScreenProps } from "../../navigators"
+import { getBuildNumber, getDeviceId, getReadableVersion, getSystemVersion, getVersion } from "react-native-device-info"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -52,6 +53,18 @@ const ABOUT_TEXT: TextStyle = {
   textAlign: "center",
 }
 
+// TODO: Add mail body to iOS - need to understand how to add newlines correctly
+const emailBody = Platform.select({
+  android: `%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A
+---
+App: Better Rail ${getVersion()} (${getBuildNumber()})
+Device: ${getDeviceId()} (${getSystemVersion()})
+App Locale: ${userLocale}
+Device Locale: ${deviceLocale} 
+`,
+  ios: "",
+})
+
 export const AboutScreen = observer(function AboutScreen({ navigation }: SettingsScreenProps) {
   return (
     <Screen
@@ -93,7 +106,7 @@ export const AboutScreen = observer(function AboutScreen({ navigation }: Setting
           last
           title={translate("settings.feedback")}
           icon="📨"
-          onPress={() => Linking.openURL("mailto:feedback@better-rail.co.il?subject=פידבק על Better Rail")}
+          onPress={() => Linking.openURL(`mailto:feedback@better-rail.co.il?subject=פידבק על Better Rail&body=${emailBody}`)}
         />
       </View>
       <View style={SETTING_GROUP}>
