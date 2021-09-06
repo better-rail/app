@@ -54,17 +54,12 @@ const ABOUT_TEXT: TextStyle = {
 }
 
 const emailBody = `
-
-
-
-
-
-
-
-----
-App: Better Rail ${getVersion()} (${getBuildNumber()})
-Device: ${getDeviceId()} (${getSystemVersion()})
-App Locale: ${userLocale}
+<br><br><br><br><br>
+<br><br><br><br><br>
+<br>----<br>
+App: Better Rail ${getVersion()} (${getBuildNumber()})<br>
+Device: ${getDeviceId()} (${getSystemVersion()})<br>
+App Locale: ${userLocale}<br>
 Device Locale: ${deviceLocale} 
 `
 
