@@ -74,6 +74,7 @@ export const SearchInput = ({ searchTerm, setSearchTerm, autoFocus }) => {
           onChangeText={onChangeText}
           autoFocus={autoFocus}
           autoCorrect={false}
+          spellCheck={false}
         />
       </View>
 
