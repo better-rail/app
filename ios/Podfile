@@ -41,12 +41,3 @@ target 'BetterRail' do
     flipper_post_install(installer)
   end
 end
-
-target 'BetterRail-tvOS' do
-  # Pods for BetterRail-tvOS
-
-  target 'BetterRail-tvOSTests' do
-    inherit! :search_paths
-    # Pods for testing
-  end
-end
