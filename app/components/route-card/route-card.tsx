@@ -98,14 +98,14 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
 
   return (
     <TouchableScale onPress={onPress} activeScale={bounceable ? 0.95 : 1} friction={9} style={[CONTAINER, style]}>
-      <View style={{ marginEnd: 6 }}>
+      <View style={{ marginEnd: spacing[3] }}>
         <Text style={TIME_TYPE_TEXT} tx="routes.departure" />
         <Text style={TIME_TEXT}>{formattedDepatureTime}</Text>
       </View>
 
       <DashedLine />
 
-      <View>
+      <View style={{ marginHorizontal: spacing[1] }}>
         <View style={{ alignItems: "center" }}>
           <Text style={DURATION_TEXT}>{duration}</Text>
 
@@ -115,7 +115,7 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
 
       <DashedLine />
 
-      <View style={{ alignItems: "flex-end", marginStart: 12 }}>
+      <View style={{ alignItems: "flex-end", marginStart: spacing[3] }}>
         <Text style={TIME_TYPE_TEXT} tx="routes.arrival" />
         <Text style={TIME_TEXT}>{formattedArrivalTime}</Text>
       </View>
@@ -125,16 +125,8 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
-// Remove dashed line for users with scaled font size
-let dashedLineWidth = 50
-
-if (fontScale > 1.2) {
-  dashedLineWidth = 0
-}
-
-if (deviceWidth <= 360) {
-  dashedLineWidth = 0
-}
+// Remove dashed line for users with scaled font size / small device screen
+let dashedLineWidth = fontScale > 1.2 || deviceWidth <= 360 ? 0 : 35
 
 const DashedLine = () => (
   <Svg height={5} width={dashedLineWidth}>
