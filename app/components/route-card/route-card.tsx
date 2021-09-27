@@ -85,7 +85,7 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
     const durationObject = intervalToDuration({ start: 0, end: durationInMilliseconds }) // Create a date-fns duration object
     const formattedDuration = formatDuration(durationObject, { delimiter: dateDelimiter, locale: dateFnsLocalization }) // Format the duration
 
-    if (formattedDuration.length > 7) dashedLineWidth = 0
+    if (formattedDuration.length > 7 && deviceWidth < 410) dashedLineWidth = 0
 
     return formattedDuration
   }, [estTime])
