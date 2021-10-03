@@ -19,6 +19,14 @@
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		A4B148D367B119F99EC2C2E5 /* libPods-BetterRail.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EADEA568884090C1B008E181 /* libPods-BetterRail.a */; };
 		C14F313426331361002A01D7 /* Swifty.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14F313326331361002A01D7 /* Swifty.swift */; };
+		C17FA4BA2709EFBB003797D9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C17FA4B92709EFBB003797D9 /* Assets.xcassets */; };
+		C17FA4C12709EFBB003797D9 /* WatchBetterRail Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = C17FA4C02709EFBB003797D9 /* WatchBetterRail Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		C17FA4C62709EFBB003797D9 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C17FA4C52709EFBB003797D9 /* ContentView.swift */; };
+		C17FA4C82709EFBB003797D9 /* BetterRailApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C17FA4C72709EFBB003797D9 /* BetterRailApp.swift */; };
+		C17FA4CA2709EFBB003797D9 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C17FA4C92709EFBB003797D9 /* ComplicationController.swift */; };
+		C17FA4CC2709EFBC003797D9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C17FA4CB2709EFBC003797D9 /* Assets.xcassets */; };
+		C17FA4CF2709EFBC003797D9 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C17FA4CE2709EFBC003797D9 /* Preview Assets.xcassets */; };
+		C17FA4D32709EFBC003797D9 /* WatchBetterRail.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = C17FA4B72709EFBB003797D9 /* WatchBetterRail.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		DA04D16B7E3649A49F843A15 /* Heebo-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = A047FB8FBCA54556AEDB349D /* Heebo-Light.otf */; };
 		E0E402AF856107EC82190244 /* libPods-BetterRail-BetterRailTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 301BE758935A381A571F5B21 /* libPods-BetterRail-BetterRailTests.a */; };
 		EB148A208318438E9A4B4B99 /* Heebo-Thin.otf in Resources */ = {isa = PBXBuildFile; fileRef = A70BF4419AFA46D2B69352A3 /* Heebo-Thin.otf */; };
@@ -32,7 +40,46 @@
 			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
 			remoteInfo = BetterRail;
 		};
+		C17FA4C22709EFBB003797D9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C17FA4BF2709EFBB003797D9;
+			remoteInfo = "WatchBetterRail Extension";
+		};
+		C17FA4D12709EFBC003797D9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C17FA4B62709EFBB003797D9;
+			remoteInfo = WatchBetterRail;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		C17FA4D42709EFBC003797D9 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				C17FA4D32709EFBC003797D9 /* WatchBetterRail.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C17FA4D72709EFBC003797D9 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				C17FA4C12709EFBB003797D9 /* WatchBetterRail Extension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		008F07F21AC5B25A0029DE68 /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
@@ -63,6 +110,16 @@
 		AF4431C692CA4F7D8DC013BE /* Heebo-ExtraBold.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Heebo-ExtraBold.otf"; path = "../assets/fonts/Heebo-ExtraBold.otf"; sourceTree = "<group>"; };
 		C14F313226331361002A01D7 /* BetterRail-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BetterRail-Bridging-Header.h"; sourceTree = "<group>"; };
 		C14F313326331361002A01D7 /* Swifty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Swifty.swift; sourceTree = "<group>"; };
+		C17FA4B72709EFBB003797D9 /* WatchBetterRail.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WatchBetterRail.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C17FA4B92709EFBB003797D9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C17FA4BB2709EFBB003797D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C17FA4C02709EFBB003797D9 /* WatchBetterRail Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "WatchBetterRail Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C17FA4C52709EFBB003797D9 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		C17FA4C72709EFBB003797D9 /* BetterRailApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BetterRailApp.swift; sourceTree = "<group>"; };
+		C17FA4C92709EFBB003797D9 /* ComplicationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComplicationController.swift; sourceTree = "<group>"; };
+		C17FA4CB2709EFBC003797D9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C17FA4CE2709EFBC003797D9 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		C17FA4D02709EFBC003797D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D7E787E39BC1C66D83758CC7 /* Pods-BetterRail-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BetterRail-tvOSTests.debug.xcconfig"; path = "Target Support Files/Pods-BetterRail-tvOSTests/Pods-BetterRail-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
 		E3C07A94FCDB4698B4A058EB /* Heebo-Bold.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Heebo-Bold.otf"; path = "../assets/fonts/Heebo-Bold.otf"; sourceTree = "<group>"; };
 		EADEA568884090C1B008E181 /* libPods-BetterRail.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BetterRail.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -85,6 +142,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				A4B148D367B119F99EC2C2E5 /* libPods-BetterRail.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C17FA4BD2709EFBB003797D9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -164,6 +228,8 @@
 				13B07FAE1A68108700A75B9A /* BetterRail */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* BetterRailTests */,
+				C17FA4B82709EFBB003797D9 /* WatchBetterRail */,
+				C17FA4C42709EFBB003797D9 /* WatchBetterRail Extension */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				71ED362ACEA45F9F60DCD285 /* Pods */,
@@ -180,8 +246,40 @@
 			children = (
 				13B07F961A680F5B00A75B9A /* BetterRail.app */,
 				00E356EE1AD99517003FC87E /* BetterRailTests.xctest */,
+				C17FA4B72709EFBB003797D9 /* WatchBetterRail.app */,
+				C17FA4C02709EFBB003797D9 /* WatchBetterRail Extension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		C17FA4B82709EFBB003797D9 /* WatchBetterRail */ = {
+			isa = PBXGroup;
+			children = (
+				C17FA4B92709EFBB003797D9 /* Assets.xcassets */,
+				C17FA4BB2709EFBB003797D9 /* Info.plist */,
+			);
+			path = WatchBetterRail;
+			sourceTree = "<group>";
+		};
+		C17FA4C42709EFBB003797D9 /* WatchBetterRail Extension */ = {
+			isa = PBXGroup;
+			children = (
+				C17FA4C52709EFBB003797D9 /* ContentView.swift */,
+				C17FA4C72709EFBB003797D9 /* BetterRailApp.swift */,
+				C17FA4C92709EFBB003797D9 /* ComplicationController.swift */,
+				C17FA4CB2709EFBC003797D9 /* Assets.xcassets */,
+				C17FA4D02709EFBC003797D9 /* Info.plist */,
+				C17FA4CD2709EFBC003797D9 /* Preview Content */,
+			);
+			path = "WatchBetterRail Extension";
+			sourceTree = "<group>";
+		};
+		C17FA4CD2709EFBC003797D9 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				C17FA4CE2709EFBC003797D9 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
 			sourceTree = "<group>";
 		};
 		D6A8C2445E5D42FA8F96D59C /* Resources */ = {
@@ -234,15 +332,51 @@
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				105C9A386D6F7A14EE348052 /* [CP] Copy Pods Resources */,
 				8D72C93FFD500D16B43B6D15 /* [CP] Embed Pods Frameworks */,
+				C17FA4D42709EFBC003797D9 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				C17FA4D22709EFBC003797D9 /* PBXTargetDependency */,
 			);
 			name = BetterRail;
 			productName = BetterRail;
 			productReference = 13B07F961A680F5B00A75B9A /* BetterRail.app */;
 			productType = "com.apple.product-type.application";
+		};
+		C17FA4B62709EFBB003797D9 /* WatchBetterRail */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C17FA4DB2709EFBC003797D9 /* Build configuration list for PBXNativeTarget "WatchBetterRail" */;
+			buildPhases = (
+				C17FA4B52709EFBB003797D9 /* Resources */,
+				C17FA4D72709EFBC003797D9 /* Embed App Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C17FA4C32709EFBB003797D9 /* PBXTargetDependency */,
+			);
+			name = WatchBetterRail;
+			productName = WatchBetterRail;
+			productReference = C17FA4B72709EFBB003797D9 /* WatchBetterRail.app */;
+			productType = "com.apple.product-type.application.watchapp2";
+		};
+		C17FA4BF2709EFBB003797D9 /* WatchBetterRail Extension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C17FA4DA2709EFBC003797D9 /* Build configuration list for PBXNativeTarget "WatchBetterRail Extension" */;
+			buildPhases = (
+				C17FA4BC2709EFBB003797D9 /* Sources */,
+				C17FA4BD2709EFBB003797D9 /* Frameworks */,
+				C17FA4BE2709EFBB003797D9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "WatchBetterRail Extension";
+			productName = "WatchBetterRail Extension";
+			productReference = C17FA4C02709EFBB003797D9 /* WatchBetterRail Extension.appex */;
+			productType = "com.apple.product-type.watchkit2-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -250,6 +384,7 @@
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 1250;
 				LastUpgradeCheck = 1130;
 				TargetAttributes = {
 					00E356ED1AD99517003FC87E = {
@@ -259,6 +394,16 @@
 					13B07F861A680F5B00A75B9A = {
 						DevelopmentTeam = UE6BVYPPFX;
 						LastSwiftMigration = 1240;
+					};
+					C17FA4B62709EFBB003797D9 = {
+						CreatedOnToolsVersion = 12.5;
+						DevelopmentTeam = UE6BVYPPFX;
+						ProvisioningStyle = Automatic;
+					};
+					C17FA4BF2709EFBB003797D9 = {
+						CreatedOnToolsVersion = 12.5;
+						DevelopmentTeam = UE6BVYPPFX;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -278,6 +423,8 @@
 			targets = (
 				13B07F861A680F5B00A75B9A /* BetterRail */,
 				00E356ED1AD99517003FC87E /* BetterRailTests */,
+				C17FA4B62709EFBB003797D9 /* WatchBetterRail */,
+				C17FA4BF2709EFBB003797D9 /* WatchBetterRail Extension */,
 			);
 		};
 /* End PBXProject section */
@@ -303,6 +450,23 @@
 				3948B514A79C47EFBFC7D1B2 /* Heebo-Medium.otf in Resources */,
 				2CC766CDFD19431C8786B99E /* Heebo-Regular.otf in Resources */,
 				EB148A208318438E9A4B4B99 /* Heebo-Thin.otf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C17FA4B52709EFBB003797D9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C17FA4BA2709EFBB003797D9 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C17FA4BE2709EFBB003797D9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C17FA4CF2709EFBC003797D9 /* Preview Assets.xcassets in Resources */,
+				C17FA4CC2709EFBC003797D9 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -483,6 +647,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C17FA4BC2709EFBB003797D9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C17FA4C62709EFBB003797D9 /* ContentView.swift in Sources */,
+				C17FA4C82709EFBB003797D9 /* BetterRailApp.swift in Sources */,
+				C17FA4CA2709EFBB003797D9 /* ComplicationController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -490,6 +664,16 @@
 			isa = PBXTargetDependency;
 			target = 13B07F861A680F5B00A75B9A /* BetterRail */;
 			targetProxy = 00E356F41AD99517003FC87E /* PBXContainerItemProxy */;
+		};
+		C17FA4C32709EFBB003797D9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C17FA4BF2709EFBB003797D9 /* WatchBetterRail Extension */;
+			targetProxy = C17FA4C22709EFBB003797D9 /* PBXContainerItemProxy */;
+		};
+		C17FA4D22709EFBC003797D9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C17FA4B62709EFBB003797D9 /* WatchBetterRail */;
+			targetProxy = C17FA4D12709EFBC003797D9 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -707,6 +891,137 @@
 			};
 			name = Release;
 		};
+		C17FA4D52709EFBC003797D9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = UE6BVYPPFX;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				IBSC_MODULE = WatchBetterRail_Extension;
+				INFOPLIST_FILE = WatchBetterRail/Info.plist;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "il.co.better-rail.watchkitapp";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 7.4;
+			};
+			name = Debug;
+		};
+		C17FA4D62709EFBC003797D9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = UE6BVYPPFX;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				IBSC_MODULE = WatchBetterRail_Extension;
+				INFOPLIST_FILE = WatchBetterRail/Info.plist;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "il.co.better-rail.watchkitapp";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 7.4;
+			};
+			name = Release;
+		};
+		C17FA4D82709EFBC003797D9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_ASSET_PATHS = "\"WatchBetterRail Extension/Preview Content\"";
+				DEVELOPMENT_TEAM = UE6BVYPPFX;
+				ENABLE_PREVIEWS = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "WatchBetterRail Extension/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "il.co.better-rail.watchkitapp.watchkitextension";
+				PRODUCT_NAME = "${TARGET_NAME}";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 7.4;
+			};
+			name = Debug;
+		};
+		C17FA4D92709EFBC003797D9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_ASSET_PATHS = "\"WatchBetterRail Extension/Preview Content\"";
+				DEVELOPMENT_TEAM = UE6BVYPPFX;
+				ENABLE_PREVIEWS = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "WatchBetterRail Extension/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "il.co.better-rail.watchkitapp.watchkitextension";
+				PRODUCT_NAME = "${TARGET_NAME}";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 7.4;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -733,6 +1048,24 @@
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,
 				83CBBA211A601CBA00E9B192 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C17FA4DA2709EFBC003797D9 /* Build configuration list for PBXNativeTarget "WatchBetterRail Extension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C17FA4D82709EFBC003797D9 /* Debug */,
+				C17FA4D92709EFBC003797D9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C17FA4DB2709EFBC003797D9 /* Build configuration list for PBXNativeTarget "WatchBetterRail" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C17FA4D52709EFBC003797D9 /* Debug */,
+				C17FA4D62709EFBC003797D9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
