@@ -20,6 +20,7 @@ struct FavoritesModel {
     
     for (key, value) in routes {
       
+      // TODO: Extract information using Decodable?
       let route = String(describing: value).split(separator: ",")
       let originId = String(route[0].split(separator: ":")[1])
       let destinationId = String(route[1].split(separator: ":")[1])
