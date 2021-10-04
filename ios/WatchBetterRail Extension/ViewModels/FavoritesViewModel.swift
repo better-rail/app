@@ -32,8 +32,9 @@ class FavoritesViewModel: NSObject, ObservableObject, WCSessionDelegate {
   }
   
   func updateFavoriteRoutes(routes: [String: Any]) {
-    model.updateRoutes(routes)
-
+    DispatchQueue.main.async {
+      self.model.updateRoutes(routes)
+    }
   }
 }
 
