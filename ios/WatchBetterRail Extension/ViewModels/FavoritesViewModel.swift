@@ -1,19 +1,17 @@
 import Foundation
 import WatchConnectivity
 
-struct FavoriteRoute: Identifiable {
-  let id: Int
-  let origin: Station
-  let destination: Station
-}
-
 // TO DELETE: Dummy favorites
 // let fav = FavoriteRoute(id: 123, origin: stations[0], destination: stations[1])
 // let fav2 = FavoriteRoute(id: 321, origin: stations[1], destination: stations[2])
 
 class FavoritesViewModel: NSObject, ObservableObject, WCSessionDelegate {
+  @Published private var model = FavoritesModel()
   var session: WCSession
-  @Published var routes: [FavoriteRoute] = []
+  
+  var routes: [FavoriteRoute] {
+    return model.routes
+  }
   
   init(session: WCSession = .default) {
       self.session = session
@@ -22,34 +20,15 @@ class FavoritesViewModel: NSObject, ObservableObject, WCSessionDelegate {
       session.activate()
   }
   
-  func updateApplicationContext() {
-    print("Current app context: \(session.receivedApplicationContext)")
-    let favoriteRoutes = session.receivedApplicationContext
-          
-    for (key, value) in favoriteRoutes {
-      let originId = key
-      if let destinationId = value as? String, let originStation = getStationById(originId), let destinationStation = getStationById(destinationId) {
-        DispatchQueue.main.async {
-          self.routes.append(
-            FavoriteRoute(id: Int("\(originId)\(destinationId)")!, origin: originStation, destination: destinationStation)
-          )
-        }
-      } else {
-          print("🚨 Couldn't extract application context")
-      }
-    }
-    
-    print(self.routes)
-  }
-  
   func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
     print("Received app context \(applicationContext)")
-    updateApplicationContext()
+    model.updateRoutesFromApplicationContext(session.receivedApplicationContext)
   }
 
   
   func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-    updateApplicationContext()
+    print("Current context: \(session.receivedApplicationContext)")
+    model.updateRoutesFromApplicationContext(session.receivedApplicationContext)
   }
 }
 
