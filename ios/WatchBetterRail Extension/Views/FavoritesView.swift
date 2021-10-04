@@ -19,10 +19,10 @@ struct FavoritesView: View {
             .listRowBackground(ZStack {
               if let stationImage = route.origin.image {
                 Image(stationImage).resizable()
+                Rectangle().foregroundColor(Color(.sRGB, red: 0, green: 0, blue: 0, opacity: 0.45))
               } else {
                 Rectangle().fill(Color("midnightBlue"))
               }
-              Rectangle().foregroundColor(Color(.sRGB, red: 0, green: 0, blue: 0, opacity: 0.45))
             }.cornerRadius(5))
           }
         }
