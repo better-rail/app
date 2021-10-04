@@ -7,12 +7,13 @@ struct FavoriteRoute: Identifiable {
   let destination: Station
 }
 
-let fav = FavoriteRoute(id: 123, origin: stations[0], destination: stations[1])
-let fav2 = FavoriteRoute(id: 321, origin: stations[1], destination: stations[2])
+// TO DELETE: Dummy favorites
+// let fav = FavoriteRoute(id: 123, origin: stations[0], destination: stations[1])
+// let fav2 = FavoriteRoute(id: 321, origin: stations[1], destination: stations[2])
 
 class FavoritesViewModel: NSObject, ObservableObject, WCSessionDelegate {
   var session: WCSession
-  @Published var routes: [FavoriteRoute] = [fav, fav2]
+  @Published var routes: [FavoriteRoute] = []
   
   init(session: WCSession = .default) {
       self.session = session

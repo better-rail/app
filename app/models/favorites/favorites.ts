@@ -1,4 +1,7 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { updateApplicationContext } from "react-native-watch-connectivity"
+
+updateApplicationContext({ 3700: "3300" })
 
 export const favoriteRouteSchema = {
   id: types.string,
