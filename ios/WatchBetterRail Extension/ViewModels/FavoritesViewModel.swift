@@ -19,16 +19,21 @@ class FavoritesViewModel: NSObject, ObservableObject, WCSessionDelegate {
       session.delegate = self
       session.activate()
   }
-  
+    
   func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
     print("Received app context \(applicationContext)")
-    model.updateRoutesFromApplicationContext(session.receivedApplicationContext)
+    updateFavoriteRoutes(routes: session.receivedApplicationContext)
   }
 
   
   func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
     print("Current context: \(session.receivedApplicationContext)")
-    model.updateRoutesFromApplicationContext(session.receivedApplicationContext)
+    updateFavoriteRoutes(routes: session.receivedApplicationContext)
+  }
+  
+  func updateFavoriteRoutes(routes: [String: Any]) {
+    model.updateRoutes(routes)
+
   }
 }
 

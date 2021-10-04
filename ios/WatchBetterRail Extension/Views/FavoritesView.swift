@@ -33,9 +33,9 @@ struct FavoritesView: View {
 
 struct FavoritesView_Previews: PreviewProvider {
     static var previews: some View {
-      
-      NavigationView {
-        FavoritesView(favorites: FavoritesViewModel())
-      }
+      let favoritesViewModel = FavoritesViewModel()
+      favoritesViewModel.updateFavoriteRoutes(routes: ["3600": "3500", "3500": "3600"])
+      return NavigationView {
+        FavoritesView(favorites: favoritesViewModel)
     }
 }
