@@ -38,4 +38,5 @@ struct FavoritesView_Previews: PreviewProvider {
       return NavigationView {
         FavoritesView(favorites: favoritesViewModel)
     }
+  }
 }
