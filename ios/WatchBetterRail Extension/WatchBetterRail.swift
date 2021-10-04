@@ -1,0 +1,12 @@
+import SwiftUI
+
+@main
+struct WatchBetterRail: App {
+    @SceneBuilder var body: some Scene {
+        WindowGroup {
+            NavigationView {
+                FavoritesView(favorites: FavoritesViewModel())
+            }
+        }
+    }
+}
