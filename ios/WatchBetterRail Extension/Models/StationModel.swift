@@ -46,3 +46,13 @@ func getStationNameById(_ id: String) -> String {
   
   return "ERR"
 }
+
+func getStationById(_ id: String) -> Station? {
+  for station in stations {
+    if (station.id == id) {
+      return station
+    }
+  }
+  
+  return nil
+}
