@@ -291,7 +291,6 @@
 		C17FA4C42709EFBB003797D9 /* WatchBetterRail Extension */ = {
 			isa = PBXGroup;
 			children = (
-				C1F61C272709F3A700CD3D44 /* Preview Content */,
 				C1F61C242709F09B00CD3D44 /* Assets.xcassets */,
 				C1F61BFF2709F08200CD3D44 /* Views */,
 				C1F61BFC2709F08200CD3D44 /* ViewModels */,
@@ -331,13 +330,6 @@
 				C1ED5217270B248C00EBB0B1 /* FavoritesModel.swift */,
 			);
 			path = Models;
-			sourceTree = "<group>";
-		};
-		C1F61C272709F3A700CD3D44 /* Preview Content */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = "Preview Content";
 			sourceTree = "<group>";
 		};
 		D6A8C2445E5D42FA8F96D59C /* Resources */ = {
@@ -1046,7 +1038,6 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_ASSET_PATHS = "\"WatchBetterRail Extension/Preview Content\"";
 				DEVELOPMENT_TEAM = UE6BVYPPFX;
 				ENABLE_PREVIEWS = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1080,7 +1071,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_ASSET_PATHS = "\"WatchBetterRail Extension/Preview Content\"";
 				DEVELOPMENT_TEAM = UE6BVYPPFX;
 				ENABLE_PREVIEWS = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;

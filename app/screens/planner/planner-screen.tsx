@@ -11,7 +11,7 @@ import DatePickerModal from "../../components/date-picker-modal"
 import { updateApplicationContext } from "react-native-watch-connectivity"
 
 function updateAppContext() {
-  updateApplicationContext({ 3600: "3500", 3500: "3600" })
+  updateApplicationContext({ 3800: "3500", 3500: "3600" })
 }
 
 const now = new Date()
