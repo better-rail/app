@@ -1,10 +1,3 @@
-//
-//  RouteModel.swift
-//  BetterRail
-//
-//  Created by Guy Tepper on 19/06/2021.
-//
-
 import Foundation
 
 // MARK: - RouteResult
@@ -54,8 +47,15 @@ struct StopStation: Decodable {
 }
 
 struct RouteModel {
+  /// Today's date, formatted properly for Israel Railways API endpoint
+  static private var todayDate: String {
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "YYYYMMdd"
+    return dateFormatter.string(from: Date())
+  }
+  
   func fetchRoute(originId: String, destinationId: String, completion: @escaping (_ result: RouteResult) -> Void) {
-    let url = URL(string: "https://www.rail.co.il/apiinfo/api/Plan/GetRoutes?OId=\(originId)&TId=\(destinationId)&Date=20211004&Hour=0000&isGoing=true&c=1620365397155")!
+    let url = URL(string: "https://www.rail.co.il/apiinfo/api/Plan/GetRoutes?OId=\(originId)&TId=\(destinationId)&Date=\(RouteModel.todayDate)&Hour=0000")!
 
     let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
         guard let data = data else { return }
@@ -70,6 +70,5 @@ struct RouteModel {
     }
 
     task.resume()
-
   }
 }
