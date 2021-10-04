@@ -14,13 +14,20 @@ struct FavoritesModel {
     
     var favoriteRoutes: [FavoriteRoute] = []
     
+    // Data comes formatted as:
+    // "index" : "originId:0000,destinationId:1111"
+    // Example: "1" : "originId:3600,destinationId:3500"
+    
     for (key, value) in routes {
-      let originId = key
-      if let destinationId = value as? String,
-         let originStation = getStationById(originId),
+      
+      let route = String(describing: value).split(separator: ",")
+      let originId = String(route[0].split(separator: ":")[1])
+      let destinationId = String(route[1].split(separator: ":")[1])
+      
+      if let originStation = getStationById(originId),
          let destinationStation = getStationById(destinationId) {
           favoriteRoutes.append(
-            FavoriteRoute(id: Int("\(originId)\(destinationId)")!, origin: originStation, destination: destinationStation)
+            FavoriteRoute(id: Int(key)!, origin: originStation, destination: destinationStation)
           )
       } else {
           print("🚨 Couldn't extract application context")

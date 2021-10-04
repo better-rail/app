@@ -10,7 +10,7 @@ struct FavoritesView: View {
     var body: some View {
       VStack {
         List {
-          ForEach (favorites.routes) { route in
+          ForEach (favorites.routes.sorted { $0.id < $1.id }) { route in
             let routesView = RoutesView(route: RouteViewModel(origin: route.origin, destination: route.destination))
             
             NavigationLink(destination: routesView) {
@@ -34,7 +34,7 @@ struct FavoritesView: View {
 struct FavoritesView_Previews: PreviewProvider {
     static var previews: some View {
       let favoritesViewModel = FavoritesViewModel()
-      favoritesViewModel.updateFavoriteRoutes(routes: ["8800": "3500", "3500": "3600"])
+      favoritesViewModel.updateFavoriteRoutes(routes: ["0": "originId:3500,destinationId:8800", "1": "originId:3600,destinationId:3500"])
       return NavigationView {
         FavoritesView(favorites: favoritesViewModel)
     }
