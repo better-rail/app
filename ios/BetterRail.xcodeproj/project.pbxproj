@@ -23,6 +23,12 @@
 		C17FA4C12709EFBB003797D9 /* WatchBetterRail Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = C17FA4C02709EFBB003797D9 /* WatchBetterRail Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C17FA4D32709EFBC003797D9 /* WatchBetterRail.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = C17FA4B72709EFBB003797D9 /* WatchBetterRail.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C1ED5218270B248C00EBB0B1 /* FavoritesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1ED5217270B248C00EBB0B1 /* FavoritesModel.swift */; };
+		C1F29D28270B2D31009B953E /* Heebo-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = E3C07A94FCDB4698B4A058EB /* Heebo-Bold.otf */; };
+		C1F29D29270B2D31009B953E /* Heebo-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 5B118A8459B542A2BA8C9824 /* Heebo-Regular.otf */; };
+		C1F29D2C270B2D31009B953E /* Heebo-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = A2759849ACE84A51AA1EC58E /* Heebo-Medium.otf */; };
+		C1F29D34270B31D5009B953E /* Heebo-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = A2759849ACE84A51AA1EC58E /* Heebo-Medium.otf */; };
+		C1F29D37270B31D5009B953E /* Heebo-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 5B118A8459B542A2BA8C9824 /* Heebo-Regular.otf */; };
+		C1F29D39270B31D5009B953E /* Heebo-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = E3C07A94FCDB4698B4A058EB /* Heebo-Bold.otf */; };
 		C1F61C122709F08200CD3D44 /* FavoritesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61BFD2709F08200CD3D44 /* FavoritesViewModel.swift */; };
 		C1F61C132709F08200CD3D44 /* RouteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61BFE2709F08200CD3D44 /* RouteViewModel.swift */; };
 		C1F61C142709F08200CD3D44 /* FavoritesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C002709F08200CD3D44 /* FavoritesView.swift */; };
@@ -510,6 +516,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C1F29D39270B31D5009B953E /* Heebo-Bold.otf in Resources */,
+				C1F29D37270B31D5009B953E /* Heebo-Regular.otf in Resources */,
+				C1F29D34270B31D5009B953E /* Heebo-Medium.otf in Resources */,
 				C17FA4BA2709EFBB003797D9 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -519,7 +528,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				C1F61C1F2709F08200CD3D44 /* stationsData.json in Resources */,
+				C1F29D28270B2D31009B953E /* Heebo-Bold.otf in Resources */,
 				C1F61C252709F09B00CD3D44 /* Assets.xcassets in Resources */,
+				C1F29D2C270B2D31009B953E /* Heebo-Medium.otf in Resources */,
+				C1F29D29270B2D31009B953E /* Heebo-Regular.otf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
