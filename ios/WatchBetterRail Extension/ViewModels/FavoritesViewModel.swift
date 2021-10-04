@@ -20,7 +20,6 @@ class FavoritesViewModel: NSObject, ObservableObject, WCSessionDelegate {
       super.init()
       session.delegate = self
       session.activate()
-      updateApplicationContext()
   }
   
   func updateApplicationContext() {
@@ -30,13 +29,17 @@ class FavoritesViewModel: NSObject, ObservableObject, WCSessionDelegate {
     for (key, value) in favoriteRoutes {
       let originId = key
       if let destinationId = value as? String, let originStation = getStationById(originId), let destinationStation = getStationById(destinationId) {
-        self.routes.append(
-          FavoriteRoute(id: Int("\(originId)\(destinationId)")!, origin: originStation, destination: destinationStation)
-        )
+        DispatchQueue.main.async {
+          self.routes.append(
+            FavoriteRoute(id: Int("\(originId)\(destinationId)")!, origin: originStation, destination: destinationStation)
+          )
+        }
       } else {
           print("🚨 Couldn't extract application context")
       }
     }
+    
+    print(self.routes)
   }
   
   func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
@@ -46,7 +49,7 @@ class FavoritesViewModel: NSObject, ObservableObject, WCSessionDelegate {
 
   
   func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-
-    }
+    updateApplicationContext()
+  }
 }
 

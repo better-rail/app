@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "beer-sheva-university.jpg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

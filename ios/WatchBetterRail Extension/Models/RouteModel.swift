@@ -55,7 +55,7 @@ struct StopStation: Decodable {
 
 struct RouteModel {
   func fetchRoute(originId: String, destinationId: String, completion: @escaping (_ result: RouteResult) -> Void) {
-    let url = URL(string: "https://www.rail.co.il/apiinfo/api/Plan/GetRoutes?OId=3400&TId=680&Date=20211003&Hour=0000&isGoing=true&c=1620365397155")!
+    let url = URL(string: "https://www.rail.co.il/apiinfo/api/Plan/GetRoutes?OId=\(originId)&TId=\(destinationId)&Date=20211004&Hour=0000&isGoing=true&c=1620365397155")!
 
     let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
         guard let data = data else { return }
