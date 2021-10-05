@@ -22,11 +22,11 @@ struct RoutesView: View {
         } else {
           List (0 ..< route.trains.count) { index in
               HStack {
-                Text(formatRouteHour(route.trains[index].Train[0].DepartureTime))
+                Text(formatRouteHour(route.trains[index].train[0].departureTime))
                 Spacer()
                 Image(systemName: "arrow.left")
                 Spacer()
-                Text(formatRouteHour(route.trains[index].Train[route.trains[index].Train.count - 1].ArrivalTime))
+                Text(formatRouteHour(route.trains[index].train[route.trains[index].train.count - 1].arrivalTime))
               }
           }.listStyle(CarouselListStyle()).environment(\.defaultMinListRowHeight, 50)
         }

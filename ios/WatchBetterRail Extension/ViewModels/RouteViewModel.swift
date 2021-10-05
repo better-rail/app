@@ -13,7 +13,7 @@ class RouteViewModel: ObservableObject {
     self.loading = true
 
     routeModel.fetchRoute(originId: origin.id, destinationId: destination.id, completion: {
-      result in self.trains = result.Data.Routes
+      result in self.trains = result.data.routes
       self.loading = false
     })
   }
