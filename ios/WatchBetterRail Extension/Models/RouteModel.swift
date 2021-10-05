@@ -1,16 +1,32 @@
 import Foundation
 
+/// Used for decoding Israel Railways API properties from PascalCase to camelCase.
+struct PascalCaseKey: CodingKey {
+  let stringValue: String
+  let intValue: Int?
+
+  init(stringValue: String) {
+    self.stringValue = stringValue.prefix(1).lowercased() + stringValue.dropFirst()
+    intValue = nil
+  }
+
+  init(intValue: Int) {
+    stringValue = String(intValue)
+    self.intValue = intValue
+  }
+}
+
 // MARK: - RouteResult
 struct RouteResult: Decodable {
-    let MessageType: Int
-    let Message: String?
-    let Data: DataClass
+    let messageType: Int
+    let message: String?
+    let data: DataClass
 }
 
 // MARK: - DataClass
 struct DataClass: Decodable {
-  let Error: String?
-  let Routes: [Route]
+  let error: String?
+  let routes: [Route]
 }
 
 // MARK: - Station
@@ -24,26 +40,26 @@ struct DataClass: Decodable {
 
 // MARK: - Route
 struct Route: Decodable {
-    let Train: [Train]
-    let IsExchange: Bool
-    let EstTime: String
+    let train: [Train]
+    let isExchange: Bool
+    let estTime: String
 }
 
 // MARK: - Train
 struct Train: Decodable {
-  let Trainno, OrignStation, DestinationStation, ArrivalTime: String
-  let DepartureTime: String
-  let StopStations: [StopStation]
-  let LineNumber, Route: String
-  let Midnight, Handicap, DirectTrain: Bool
-  let ReservedSeat: Bool
+  let trainno, orignStation, destinationStation, arrivalTime: String
+  let departureTime: String
+  let stopStations: [StopStation]
+  let lineNumber, route: String
+  let midnight, Handicap, DirectTrain: Bool
+  let reservedSeat: Bool
   //  let Platform, DestPlatform: String // causes a decode problem
-  let IsFullTrain: Bool
+  let isFullTrain: Bool
 }
 
 // MARK: - StopStation
 struct StopStation: Decodable {
-    let StationId, ArrivalTime, DepartureTime, Platform: String
+    let stationId, arrivalTime, departureTime, platform: String
 }
 
 struct RouteModel {
@@ -61,7 +77,9 @@ struct RouteModel {
         guard let data = data else { return }
         
         do {
-          let route = try JSONDecoder().decode(RouteResult.self, from: data)
+          let decoder = JSONDecoder()
+          decoder.keyDecodingStrategy = .custom { keys in PascalCaseKey(stringValue: keys.last!.stringValue) }
+          let route = try decoder.decode(RouteResult.self, from: data)
           
           completion(route)
         } catch let error {
