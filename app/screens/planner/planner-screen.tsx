@@ -8,11 +8,6 @@ import { PlannerScreenProps } from "../../navigators/main-navigator"
 import { useStations } from "../../data/stations"
 import { translate, useFormattedDate } from "../../i18n"
 import DatePickerModal from "../../components/date-picker-modal"
-import { updateApplicationContext } from "react-native-watch-connectivity"
-
-function updateAppContext() {
-  updateApplicationContext({ 3800: "3500", 3500: "3600" })
-}
 
 const now = new Date()
 
@@ -198,8 +193,6 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           onPress={onGetRoutePress}
           disabled={!routePlan.origin || !routePlan.destination || routePlan.origin.id === routePlan.destination.id}
         />
-
-        <Button title="CONTEXT" onPress={updateAppContext} />
       </View>
     </Screen>
   )
