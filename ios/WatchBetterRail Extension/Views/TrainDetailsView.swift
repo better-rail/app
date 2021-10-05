@@ -19,19 +19,17 @@ struct TrainDetailsView: View {
             Text("בית יהושוע").font(Font.custom("Heebo", size: 16)).fontWeight(.medium)
 
             Text("רציף 2・רכבת מס׳ 185")
-          }.font(Font.custom("Heebo", size: 14))
+          }.font(Font.custom("Heebo", size: 14)).background(Image("tlv-hashalom").resizable())
           
           HStack(alignment: .center) {
+            Text("09:46 ・ הרצליה").font(Font.custom("Heebo", size: 14)).fontWeight(.bold)
             Spacer()
-            Text("09:46 ・ הרצליה").font(Font.custom("Heebo", size: 16)).fontWeight(.bold)
-            Spacer()
-          }.opacity(0.6)
+          }.opacity(0.6).padding(.leading, 4)
           
           HStack(alignment: .center) {
+            Text("09:46 ・ ת''א - השלום").font(Font.custom("Heebo", size: 14)).fontWeight(.bold)
             Spacer()
-            Text("09:46 ・ הרצליה").font(Font.custom("Heebo", size: 16)).fontWeight(.bold)
-            Spacer()
-          }.opacity(0.6)
+          }.opacity(0.6).padding(.leading, 4)
           
           VStack(alignment: .leading) {
             Text("\(Image(systemName: "arrow.left.arrow.right.circle.fill")) החלפה")
