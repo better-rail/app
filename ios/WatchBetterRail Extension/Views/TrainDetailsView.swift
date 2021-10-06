@@ -16,7 +16,7 @@ struct TrainDetailsView: View {
           ForEach(trainDetails.indices) { index in
             let train = trainDetails[index]
             
-            StationListItem(time: formatRouteHour(train.departureTime), stationName: train.originStationName, platform: train.platform, trainNumber: train.trainno)
+            StationListItem(time: formatRouteHour(train.departureTime), stationName: train.originStationName, platform: train.platform, trainNumber: train.trainno, imageName: train.stationImage)
             
             ForEach(train.stopStations) { stopStation in
               TrainStopListItem(time: stopStation.formattedTime, stationName: stopStation.stationName)
@@ -25,7 +25,7 @@ struct TrainDetailsView: View {
             trainRoute.isExchange && trainDetails.count - 1 != index ?
               // Using AnyView to avoid different view types error
               AnyView(TrainExchangeListItem(stationName: train.destinationStationName, time: train.formattedArrivalTime, platform: train.destPlatform)) :
-              AnyView(StationListItem(time: formatRouteHour(train.arrivalTime), stationName: train.destinationStationName, platform: train.destPlatform))
+              AnyView(StationListItem(time: formatRouteHour(train.arrivalTime), stationName: train.destinationStationName, platform: train.destPlatform, imageName: train.stationImage ))
           }
       }
     }
@@ -34,22 +34,25 @@ struct TrainDetailsView: View {
 struct StationListItem: View {
   let time: String
   let stationName: String
-  let platform: String?
+  let platform: String
   let trainNumber: String?
+  let imageName: String?
   
-  init(time: String, stationName: String, platform: String) {
+  init(time: String, stationName: String, platform: String, imageName: String?) {
     self.time = time
     self.stationName = stationName
     self.platform = platform
     self.trainNumber = nil
+    self.imageName = imageName
   }
   
   
-  init(time: String, stationName: String, platform: String, trainNumber: String) {
+  init(time: String, stationName: String, platform: String, trainNumber: String, imageName: String?) {
     self.time = time
     self.stationName = stationName
     self.platform = platform
     self.trainNumber = trainNumber
+    self.imageName = imageName
   }
   
   var body: some View {
@@ -58,14 +61,11 @@ struct StationListItem: View {
       Text(stationName).font(Font.custom("Heebo", size: 18)).fontWeight(.medium)
       
       if trainNumber != nil {
-        Text("רציף \(platform!)・רכבת מס׳ \(trainNumber!)").font(Font.custom("Heebo", size: 14))
+        Text("רציף \(platform)・רכבת מס׳ \(trainNumber!)").font(Font.custom("Heebo", size: 14))
       } else {
-        Text("רציף \(platform!)").font(Font.custom("Heebo", size: 14))
+        Text("רציף \(platform)").font(Font.custom("Heebo", size: 14))
       }
-    }.listRowBackground(ZStack {
-      Image("tlv-hashalom").resizable()
-      Rectangle().foregroundColor(Color(.sRGB, red: 0, green: 0, blue: 0, opacity: 0.45))
-    })
+    }.listRowBackground(StationImageBackground(imageName))
   }
 }
 

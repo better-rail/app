@@ -53,6 +53,7 @@ struct Train: Decodable, Identifiable {
   var originStationName: String { getStationNameById(orignStation) }
   var destinationStationName: String { getStationNameById(destinationStation) }
   var formattedArrivalTime: String { formatRouteHour(arrivalTime) }
+  var stationImage: String? { getStationById(orignStation)?.image }
 
   let trainno, orignStation, destinationStation, arrivalTime, departureTime: String
   let stopStations: [StopStation]

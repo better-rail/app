@@ -33,18 +33,6 @@ func load<T: Decodable>(_ filename: String) -> T {
     } catch {
         fatalError("Couldn't parse \(filename) as \(T.self):\n\(error)")
     }
-  
-
-}
-
-func getStationNameById(_ id: String) -> String {
-  for station in stations {
-    if (station.id == id) {
-      return station.name
-    }
-  }
-  
-  return "ERR"
 }
 
 func getStationById(_ id: String) -> Station? {
@@ -56,3 +44,12 @@ func getStationById(_ id: String) -> Station? {
   
   return nil
 }
+  
+func getStationNameById(_ id: String) -> String {
+  if let station = getStationById(id) {
+    return station.name
+  }
+      
+  return "ERR"
+}
+

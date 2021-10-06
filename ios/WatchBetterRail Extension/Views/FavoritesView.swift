@@ -17,14 +17,7 @@ struct FavoritesView: View {
                   NavigationLink(destination: routesView) {
                     FavoriteItemView(origin: route.origin, destination: route.destination)
                   }
-                  .listRowBackground(ZStack {
-                    if let stationImage = route.origin.image {
-                      Image(stationImage).resizable()
-                      Rectangle().foregroundColor(Color(.sRGB, red: 0, green: 0, blue: 0, opacity: 0.45))
-                    } else {
-                      Rectangle().fill(Color("midnightBlue"))
-                    }
-                  }.cornerRadius(5))
+                  .listRowBackground(StationImageBackground(route.origin.image))
                 }
               }.listStyle(CarouselListStyle())
             }.navigationTitle("מועדפים")
