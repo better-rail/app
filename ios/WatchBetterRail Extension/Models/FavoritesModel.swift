@@ -7,10 +7,12 @@ struct FavoriteRoute: Identifiable {
   let destination: Station
 }
 
-let fav = FavoriteRoute(id: 0, origin: stations[0], destination: stations[1])
+#if DEBUG
+let debugFav = FavoriteRoute(id: 0, origin: stations[3], destination: stations[66])
+#endif
 
 struct FavoritesModel {
-  var routes: [FavoriteRoute] = [fav]
+  var routes: [FavoriteRoute] = []
   
   mutating func updateRoutes(_ routes: [String: Any]) {
     
@@ -36,7 +38,9 @@ struct FavoritesModel {
       }
     }
     
-//    self.routes = favoriteRoutes
-    self.routes = [fav]
+    self.routes = favoriteRoutes
+    #if DEBUG
+    self.routes = [debugFav]
+    #endif
   }
 }
