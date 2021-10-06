@@ -51,7 +51,7 @@ struct Train: Decodable {
   let departureTime: String
   let stopStations: [StopStation]
   let lineNumber, route: String
-  let midnight, Handicap, DirectTrain: Bool
+  let midnight, handicap, directTrain: Bool
   let reservedSeat: Bool
   //  let Platform, DestPlatform: String // causes a decode problem
   let isFullTrain: Bool
