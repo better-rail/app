@@ -23,14 +23,3 @@ struct FavoriteItemView: View {
       
       }
 }
-
-struct FavoriteItemView_Previews: PreviewProvider {
-    static var previews: some View {
-      VStack {
-//        FavoriteItemView(origin: stations[0], destination: stations[3])
-//        FavoriteItemView(origin: stations[1], destination: stations[3])
-        
-      }
-      
-    }
-}

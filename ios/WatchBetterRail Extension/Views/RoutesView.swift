@@ -21,13 +21,18 @@ struct RoutesView: View {
           Spacer()
         } else {
           List (0 ..< route.trains.count) { index in
+            let trainDetails = route.trains[index].train[0]
+            let trainDetailsView = TrainDetailsView(trainDetails: trainDetails)
+            
+            NavigationLink(destination: trainDetailsView) {
               HStack {
-                Text(formatRouteHour(route.trains[index].train[0].departureTime))
+                Text(formatRouteHour(trainDetails.departureTime))
                 Spacer()
                 Image(systemName: "arrow.left")
                 Spacer()
                 Text(formatRouteHour(route.trains[index].train[route.trains[index].train.count - 1].arrivalTime))
               }
+            }
           }.listStyle(CarouselListStyle()).environment(\.defaultMinListRowHeight, 50)
         }
       }

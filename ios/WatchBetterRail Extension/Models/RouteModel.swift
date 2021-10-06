@@ -48,18 +48,22 @@ struct Route: Decodable {
 // MARK: - Train
 struct Train: Decodable {
   let trainno, orignStation, destinationStation, arrivalTime: String
+  var originStationName: String { getStationNameById(orignStation) }
   let departureTime: String
   let stopStations: [StopStation]
   let lineNumber, route: String
   let midnight, handicap, directTrain: Bool
   let reservedSeat: Bool
-  let platform, destPlatform: String // causes a decode problem
+  let platform, destPlatform: String
   let isFullTrain: Bool
 }
 
 // MARK: - StopStation
-struct StopStation: Decodable {
-    let stationId, arrivalTime, departureTime, platform: String
+struct StopStation: Decodable, Identifiable {
+  var id: String { stationId }
+  var stationName: String { getStationNameById(stationId)}
+  var formattedTime: String { formatRouteHour(arrivalTime) }
+  let stationId, arrivalTime, departureTime, platform: String
 }
 
 struct RouteModel {
