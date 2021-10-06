@@ -46,10 +46,15 @@ struct Route: Decodable {
 }
 
 // MARK: - Train
-struct Train: Decodable {
-  let trainno, orignStation, destinationStation, arrivalTime: String
+struct Train: Decodable, Identifiable {
+  var id: String { trainno }
+
+
   var originStationName: String { getStationNameById(orignStation) }
-  let departureTime: String
+  var destinationStationName: String { getStationNameById(destinationStation) }
+  var formattedArrivalTime: String { formatRouteHour(arrivalTime) }
+
+  let trainno, orignStation, destinationStation, arrivalTime, departureTime: String
   let stopStations: [StopStation]
   let lineNumber, route: String
   let midnight, handicap, directTrain: Bool
@@ -84,7 +89,7 @@ struct RouteModel {
           let decoder = JSONDecoder()
           decoder.keyDecodingStrategy = .custom { keys in PascalCaseKey(stringValue: keys.last!.stringValue) }
           let route = try decoder.decode(RouteResult.self, from: data)
-          
+          print(route)
           completion(route)
         } catch let error {
           print(error)

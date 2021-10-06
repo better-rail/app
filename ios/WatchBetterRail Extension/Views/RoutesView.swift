@@ -7,11 +7,9 @@ struct RoutesView: View {
     var body: some View {
       VStack {
         HStack {
-          Text("יציאה")
-            .foregroundColor(Color.gray)
+          Text("יציאה").foregroundColor(Color.gray)
           Spacer()
-          Text("הגעה")
-            .foregroundColor(Color.gray)
+          Text("הגעה").foregroundColor(Color.gray)
         }.font(Font.custom("Heebo", size: 16))
         
         if (route.loading) { ProgressView().progressViewStyle(CircularProgressViewStyle())
@@ -21,16 +19,18 @@ struct RoutesView: View {
           Spacer()
         } else {
           List (0 ..< route.trains.count) { index in
-            let trainDetails = route.trains[index].train[0]
-            let trainDetailsView = TrainDetailsView(trainDetails: trainDetails)
+            // TODO: Refactor train property names - too confusing!
+            let trainRoute = route.trains[index]
+            let trainDetails = route.trains[index].train
+            let trainDetailsView = TrainDetailsView(trainRoute: trainRoute)
             
             NavigationLink(destination: trainDetailsView) {
               HStack {
-                Text(formatRouteHour(trainDetails.departureTime))
+                Text(formatRouteHour(trainDetails[0].departureTime))
                 Spacer()
                 Image(systemName: "arrow.left")
                 Spacer()
-                Text(formatRouteHour(route.trains[index].train[route.trains[index].train.count - 1].arrivalTime))
+                Text(formatRouteHour(trainDetails[route.trains[index].train.count - 1].arrivalTime))
               }
             }
           }.listStyle(CarouselListStyle()).environment(\.defaultMinListRowHeight, 50)
