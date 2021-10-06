@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TrainDetailsView: View {
-//    var trainDetails: Train
+    var trainDetails: Train
     
       var body: some View {
         List {
@@ -45,6 +45,7 @@ struct TrainDetailsView: View {
 
 struct BetterRail_Bridging_Header_Previews: PreviewProvider {
     static var previews: some View {
-        TrainDetailsView()
+      let trainDetails = Train(trainno: "742", orignStation: "3700", destinationStation: "3500", arrivalTime: "06/10/2021 13:58:00", departureTime: "06/10/2021 13:47:00", stopStations: [StopStation(stationId: "3600", arrivalTime: "06/10/2021 13:50:00", departureTime: "06/10/2021 13:50:00", platform: "1")], lineNumber: "6803500", route: "21", midnight: false, handicap: true, directTrain: true, reservedSeat: false, platform: "1", destPlatform: "5", isFullTrain: false)
+      return  TrainDetailsView(trainDetails: trainDetails).environment(\.layoutDirection, .rightToLeft)
     }
 }
