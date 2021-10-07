@@ -24,6 +24,9 @@
 		C17FA4C12709EFBB003797D9 /* WatchBetterRail Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = C17FA4C02709EFBB003797D9 /* WatchBetterRail Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C17FA4D32709EFBC003797D9 /* WatchBetterRail.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = C17FA4B72709EFBB003797D9 /* WatchBetterRail.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C183229A270DF49100A44771 /* StationImageBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1832299270DF49100A44771 /* StationImageBackground.swift */; };
+		C1E62DD8270EE24C0067F262 /* StationListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E62DD7270EE24C0067F262 /* StationListItem.swift */; };
+		C1E62DDA270EE2690067F262 /* TrainStopListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E62DD9270EE2690067F262 /* TrainStopListItem.swift */; };
+		C1E62DDC270EE28B0067F262 /* TrainExchangeListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E62DDB270EE28B0067F262 /* TrainExchangeListItem.swift */; };
 		C1ED5218270B248C00EBB0B1 /* FavoritesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1ED5217270B248C00EBB0B1 /* FavoritesModel.swift */; };
 		C1F29D28270B2D31009B953E /* Heebo-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = E3C07A94FCDB4698B4A058EB /* Heebo-Bold.otf */; };
 		C1F29D29270B2D31009B953E /* Heebo-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 5B118A8459B542A2BA8C9824 /* Heebo-Regular.otf */; };
@@ -132,6 +135,9 @@
 		C17FA4C02709EFBB003797D9 /* WatchBetterRail Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "WatchBetterRail Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C17FA4D02709EFBC003797D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C1832299270DF49100A44771 /* StationImageBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationImageBackground.swift; sourceTree = "<group>"; };
+		C1E62DD7270EE24C0067F262 /* StationListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationListItem.swift; sourceTree = "<group>"; };
+		C1E62DD9270EE2690067F262 /* TrainStopListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainStopListItem.swift; sourceTree = "<group>"; };
+		C1E62DDB270EE28B0067F262 /* TrainExchangeListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainExchangeListItem.swift; sourceTree = "<group>"; };
 		C1ED5217270B248C00EBB0B1 /* FavoritesModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesModel.swift; sourceTree = "<group>"; };
 		C1F61BFD2709F08200CD3D44 /* FavoritesViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FavoritesViewModel.swift; sourceTree = "<group>"; };
 		C1F61BFE2709F08200CD3D44 /* RouteViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RouteViewModel.swift; sourceTree = "<group>"; };
@@ -315,6 +321,17 @@
 			path = Shared;
 			sourceTree = "<group>";
 		};
+		C1E62DD6270EE2330067F262 /* TrainDetailsViews */ = {
+			isa = PBXGroup;
+			children = (
+				C1326197270C887900A248BA /* TrainDetailsView.swift */,
+				C1E62DD7270EE24C0067F262 /* StationListItem.swift */,
+				C1E62DD9270EE2690067F262 /* TrainStopListItem.swift */,
+				C1E62DDB270EE28B0067F262 /* TrainExchangeListItem.swift */,
+			);
+			path = TrainDetailsViews;
+			sourceTree = "<group>";
+		};
 		C1F61BFC2709F08200CD3D44 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
@@ -327,8 +344,8 @@
 		C1F61BFF2709F08200CD3D44 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				C1E62DD6270EE2330067F262 /* TrainDetailsViews */,
 				C1832298270DF47700A44771 /* Shared */,
-				C1326197270C887900A248BA /* TrainDetailsView.swift */,
 				C1F61C002709F08200CD3D44 /* FavoritesView.swift */,
 				C1F61C012709F08200CD3D44 /* RoutesView.swift */,
 				C1F61C022709F08200CD3D44 /* FavoriteItemView.swift */,
@@ -726,12 +743,15 @@
 				C1F61C162709F08200CD3D44 /* FavoriteItemView.swift in Sources */,
 				C1F61C142709F08200CD3D44 /* FavoritesView.swift in Sources */,
 				C1ED5218270B248C00EBB0B1 /* FavoritesModel.swift in Sources */,
+				C1E62DD8270EE24C0067F262 /* StationListItem.swift in Sources */,
 				C1F61C1C2709F08200CD3D44 /* RouteModel.swift in Sources */,
 				C1F61C222709F08200CD3D44 /* Utilities.swift in Sources */,
 				C1F61C132709F08200CD3D44 /* RouteViewModel.swift in Sources */,
+				C1E62DDC270EE28B0067F262 /* TrainExchangeListItem.swift in Sources */,
 				C1F61C1A2709F08200CD3D44 /* WatchBetterRail.swift in Sources */,
 				C183229A270DF49100A44771 /* StationImageBackground.swift in Sources */,
 				C1F61C122709F08200CD3D44 /* FavoritesViewModel.swift in Sources */,
+				C1E62DDA270EE2690067F262 /* TrainStopListItem.swift in Sources */,
 				C1F61C1B2709F08200CD3D44 /* StationModel.swift in Sources */,
 				C1326198270C887900A248BA /* TrainDetailsView.swift in Sources */,
 			);
