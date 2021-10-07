@@ -17,8 +17,8 @@ struct TrainDetailsView: View {
             
             trainRoute.isExchange && trainDetails.count - 1 != index ?
               // Using AnyView to avoid different view types error
-              AnyView(TrainExchangeListItem(stationName: train.destinationStationName, time: train.formattedArrivalTime, platform: train.destPlatform)) :
-              AnyView(StationListItem(time: formatRouteHour(train.arrivalTime), stationName: train.destinationStationName, platform: train.destPlatform, imageName: train.stationImage ))
+            AnyView(TrainExchangeListItem(stationName: train.destinationStationName, time: train.formattedArrivalTime, platform: train.destPlatform)) :
+            AnyView(StationListItem(time: formatRouteHour(train.arrivalTime), stationName: train.destinationStationName, platform: train.destPlatform, imageName: train.destinationStationImage ))
           }
       }
     }
