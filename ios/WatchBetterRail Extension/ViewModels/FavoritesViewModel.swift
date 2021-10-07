@@ -1,10 +1,6 @@
 import Foundation
 import WatchConnectivity
 
-// TO DELETE: Dummy favorites
-// let fav = FavoriteRoute(id: 123, origin: stations[0], destination: stations[1])
-// let fav2 = FavoriteRoute(id: 321, origin: stations[1], destination: stations[2])
-
 class FavoritesViewModel: NSObject, ObservableObject, WCSessionDelegate {
   @Published private var model = FavoritesModel()
   var session: WCSession
