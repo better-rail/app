@@ -8,7 +8,7 @@ struct FavoriteRoute: Identifiable {
 }
 
 #if DEBUG
-let debugFav = FavoriteRoute(id: 0, origin: stations[2], destination: stations[65])
+let fav = FavoriteRoute(id: 0, origin: stations[2], destination: stations[65])
 #endif
 
 struct FavoritesModel {
@@ -40,7 +40,7 @@ struct FavoritesModel {
     
     self.routes = favoriteRoutes
     #if DEBUG
-    self.routes = [debugFav]
+    self.routes = [fav]
     #endif
   }
 }

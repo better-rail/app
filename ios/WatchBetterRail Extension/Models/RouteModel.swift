@@ -90,7 +90,6 @@ struct RouteModel {
           let decoder = JSONDecoder()
           decoder.keyDecodingStrategy = .custom { keys in PascalCaseKey(stringValue: keys.last!.stringValue) }
           let route = try decoder.decode(RouteResult.self, from: data)
-          print(route)
           completion(route)
         } catch let error {
           print(error)

@@ -344,8 +344,8 @@
 		C1F61BFF2709F08200CD3D44 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				C1E62DD6270EE2330067F262 /* TrainDetailsViews */,
 				C1832298270DF47700A44771 /* Shared */,
+				C1E62DD6270EE2330067F262 /* TrainDetailsViews */,
 				C1F61C002709F08200CD3D44 /* FavoritesView.swift */,
 				C1F61C012709F08200CD3D44 /* RoutesView.swift */,
 				C1F61C022709F08200CD3D44 /* FavoriteItemView.swift */,
