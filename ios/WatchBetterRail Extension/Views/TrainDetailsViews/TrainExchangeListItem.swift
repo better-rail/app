@@ -1,36 +1,47 @@
 import SwiftUI
 
-// TODO: Add platform change & waiting time notices
 struct TrainExchangeListItem: View {
   let stationName: String
   let time: String
-  let platform: String
+  let arrivalPlatform: String
+  let departurePlatform: String
   
   var body: some View {
     VStack(alignment: .leading) {
       ZStack(alignment: .leading) {
-//        Rectangle().fill(.blue)
         Text("\(Image(systemName: "arrow.left.arrow.right.circle.fill")) החלפה")
           .fontWeight(.semibold).foregroundColor(.accentColor)
-//          .padding(.leading, 16)
       }
       
       VStack(alignment: .leading) {
         Text(time).font(Font.custom("Heebo", size: 16)).fontWeight(.bold)
         Text(stationName).font(Font.custom("Heebo", size: 18)).fontWeight(.medium)
-//        Text("רציף \(platform)")
+        
+        HStack {
+          Image(systemName: "exclamationmark.circle.fill").foregroundColor(.orange)
+          if (arrivalPlatform == departurePlatform) {
+            Text("יש להשאר ברציף \(departurePlatform)")
+          } else {
+            Text("יש לעבור אל רציף \(departurePlatform)")
+          }
+        }
+        
       }
-//      .padding(.leading, 16)
       
     }.font(Font.custom("Heebo", size: 14))
      .foregroundColor(.black)
      .listRowBackground(Color.white.cornerRadius(5))
-//     .listRowInsets(EdgeInsets(top: -4, leading: -8, bottom: 0, trailing: -8))
   }
 }
 
 struct TrainExchangeListItem_Previews: PreviewProvider {
   static var previews: some View {
-    TrainStopListItem(time: "09:41", stationName: "ת׳׳א - סבידור מרכז")
+    List {
+      // Change platform notice
+      TrainExchangeListItem(stationName: "ת׳׳א - סבידור מרכז", time: "09:41", arrivalPlatform: "1", departurePlatform: "2")
+      
+      // Stay in platform notice
+      TrainExchangeListItem(stationName: "ת׳׳א - סבידור מרכז", time: "09:41", arrivalPlatform: "1", departurePlatform: "1")
+    }
   }
 }

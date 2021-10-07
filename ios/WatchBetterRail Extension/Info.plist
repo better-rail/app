@@ -39,6 +39,6 @@
 		<string>Heebo-Medium.otf</string>
 	</array>
 	<key>WKRunsIndependentlyOfCompanionApp</key>
-	<true/>
+	<false/>
 </dict>
 </plist>
