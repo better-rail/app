@@ -1,6 +1,6 @@
-require_relative '../node_modules/react-native/scripts/react_native_pods'
-require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
-require_relative '../node_modules/react-native-unimodules/cocoapods.rb'
+require File.join(File.dirname(`node --print "require.resolve('react-native/package.json')"`), "scripts/react_native_pods")
+require File.join(File.dirname(`node --print "require.resolve('@react-native-community/cli-platform-ios/package.json')"`), "native_modules")
+require File.join(File.dirname(`node --print "require.resolve('react-native-unimodules/package.json')"`), "cocoapods")
 
 platform :ios, '11.0'
 
@@ -38,6 +38,7 @@ target 'BetterRail' do
   # you should disable these next few lines.
   use_flipper!()
     post_install do |installer|
-    flipper_post_install(installer)
+      react_native_post_install(installer)
   end
 end
+

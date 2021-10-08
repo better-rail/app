@@ -78,6 +78,7 @@ const HEADER_RIGHT_WRAPPER: ViewStyle = {
   flexDirection: "row",
   alignItems: "center",
   marginEnd: spacing[2],
+  zIndex: 100,
 }
 
 const SHEKEL_ICON: ImageStyle = {

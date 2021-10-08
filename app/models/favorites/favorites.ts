@@ -1,4 +1,5 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { Platform } from "react-native"
 import { getIsWatchAppInstalled, updateApplicationContext, WatchPayload } from "react-native-watch-connectivity"
 
 let isWatchAppInstalled = false
@@ -20,12 +21,14 @@ export const FavoritesModel = types
   })
   .actions((self) => ({
     afterCreate() {
-      getIsWatchAppInstalled().then((isInstalled) => {
-        if (isInstalled) {
-          this.updateAppleWatchFavorites()
-          isWatchAppInstalled = true
-        }
-      })
+      if (Platform.OS === "ios") {
+        getIsWatchAppInstalled().then((isInstalled) => {
+          if (isInstalled) {
+            this.updateAppleWatchFavorites()
+            isWatchAppInstalled = true
+          }
+        })
+      }
     },
     updateAppleWatchFavorites() {
       const appContext: WatchPayload = {}
