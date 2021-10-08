@@ -35,6 +35,8 @@ struct RoutesView: View {
             }
           }.listStyle(CarouselListStyle()).environment(\.defaultMinListRowHeight, 50)
         }
+      }.onAppear {
+        route.shouldRefetchRoutes()
       }
     }
   }
