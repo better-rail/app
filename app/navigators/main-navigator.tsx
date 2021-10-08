@@ -71,7 +71,7 @@ export function MainNavigator() {
         name="routeDetails"
         component={RouteDetailsScreen}
         options={{ headerTransparent: true, headerTintColor: "lightgrey", ...TransitionPresets.SlideFromRightIOS }}
-        sharedElementsConfig={() => ["route-header"]}
+        sharedElements={() => ["route-header"]}
       />
     </Stack.Navigator>
   )
