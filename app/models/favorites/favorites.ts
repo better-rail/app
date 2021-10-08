@@ -1,4 +1,7 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { getIsWatchAppInstalled, updateApplicationContext, WatchPayload } from "react-native-watch-connectivity"
+
+let isWatchAppInstalled = false
 
 export const favoriteRouteSchema = {
   id: types.string,
@@ -16,12 +19,29 @@ export const FavoritesModel = types
     routes: types.array(types.model(favoriteRouteSchema)),
   })
   .actions((self) => ({
+    afterCreate() {
+      getIsWatchAppInstalled().then((isInstalled) => {
+        if (isInstalled) {
+          this.updateAppleWatchFavorites()
+          isWatchAppInstalled = true
+        }
+      })
+    },
+    updateAppleWatchFavorites() {
+      const appContext: WatchPayload = {}
+      self.routes.forEach((route, index) => {
+        appContext[index] = `originId:${route.originId},destinationId:${route.destinationId}`
+      })
+      updateApplicationContext(appContext)
+    },
     add(route: FavoriteRoute) {
       self.routes.push({ ...route })
+      if (isWatchAppInstalled) this.updateAppleWatchFavorites()
     },
     remove(routeId: string) {
       const filteredFavorites = self.routes.filter((favorite) => favorite.id !== routeId)
       self.routes.replace(filteredFavorites)
+      if (isWatchAppInstalled) this.updateAppleWatchFavorites()
     },
     rename(routeId: FavoriteRoute["id"], newLabel: string) {
       const filteredFavorites = self.routes.map((favorite) => {
