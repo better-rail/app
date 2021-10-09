@@ -376,8 +376,9 @@ PODS:
     - React-Core
   - RNReanimated (1.13.1):
     - React
-  - RNScreens (2.13.0):
+  - RNScreens (3.8.0):
     - React-Core
+    - React-RCTImage
   - RNShare (6.2.1):
     - React-Core
   - RNSharedElement (0.8.2):
@@ -662,7 +663,7 @@ SPEC CHECKSUMS:
   RNInAppBrowser: 48b95ba7a4eaff5cc223bca338d3e319561dbd1b
   RNReactNativeHapticFeedback: 653a8c126a0f5e88ce15ffe280b3ff37e1fbb285
   RNReanimated: dd8c286ab5dd4ba36d3a7fef8bff7e08711b5476
-  RNScreens: 13f23e5498fb4aa749d19a5eda7f8792fbb9d01f
+  RNScreens: 6e1ea5787989f92b0671049b808aef64fa1ef98c
   RNShare: 5ac8f6532ca4cd80fc71caef1cfbba1854a6a045
   RNSharedElement: 87baf6d04da5b068f000dd8c953d28a1196999c0
   RNSVG: ce9d996113475209013317e48b05c21ee988d42e
