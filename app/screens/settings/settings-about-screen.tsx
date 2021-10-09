@@ -80,7 +80,6 @@ export const AboutScreen = observer(function AboutScreen({ navigation }: Setting
         </View>
 
         <Text style={ABOUT_TEXT} tx="settings.aboutText" />
-        <Text style={{ textAlign: "center" }} tx="settings.independenceDeclaration" />
       </View>
 
       <Text style={{ marginBottom: spacing[1] }} tx="settings.follow" preset="fieldLabel" />
