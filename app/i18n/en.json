@@ -5,7 +5,7 @@
     "set": "Set",
     "delete": "Delete",
     "close": "Close",
-    "relax": "Don't forget to take a breath, please.",
+    "relax": "Don't forget to breath, please.",
     "save": "Save",
     "areYouSure": "Are you sure?"
   },
@@ -58,8 +58,7 @@
     "languageChangeAlertTitle": "Language Change",
     "languageChangeAlertMessage": "The app will restart to apply the changes",
 
-    "aboutText": "Better Rail was created to make Israel Railways services more accessible to the public.",
-    "independenceDeclaration": "The app is open sourced and developed independently.",
+    "aboutText": "Better Rail is an open source app that aims to make Israel Railways services more accessible to the public.",
 
     "follow": "Follow Better Rail",
     "facebook": "Facebook",
