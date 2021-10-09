@@ -69,7 +69,7 @@ export function setUserLanguage(languageCode: LanguageCode) {
     if ((languageCode === "he" && !isRTL) || (languageCode === "en" && isRTL)) {
       RNRestart.Restart()
     }
-  }, 50)
+  }, 25)
 }
 
 /**
