@@ -63,13 +63,9 @@ export function setUserLanguage(languageCode: LanguageCode) {
   userLocale = languageCode
   i18n.locale = languageCode
 
-  // It seems that isRTL is incorrect if called immediately.
-  setTimeout(() => {
-    // If the app language doesn't match the layout direction, we have to restart the app once more.
-    if ((languageCode === "he" && !isRTL) || (languageCode === "en" && isRTL)) {
-      RNRestart.Restart()
-    }
-  }, 50)
+  if ((languageCode === "he" && !isRTL) || (languageCode === "ar" && !isRTL) || (languageCode === "en" && isRTL)) {
+    RNRestart.Restart()
+  }
 }
 
 /**
