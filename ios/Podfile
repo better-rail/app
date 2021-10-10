@@ -25,7 +25,9 @@ target 'BetterRail' do
 
   config = use_native_modules!
 
-  use_react_native!(:path => config["reactNativePath"])
+  use_react_native!(
+    :path => config["reactNativePath"]
+  )
 
   target 'BetterRailTests' do
     inherit! :complete
