@@ -26,7 +26,8 @@ target 'BetterRail' do
   config = use_native_modules!
 
   use_react_native!(
-    :path => config["reactNativePath"]
+    :path => config["reactNativePath"], 
+    :hermes_enabled => true
   )
 
   target 'BetterRailTests' do
