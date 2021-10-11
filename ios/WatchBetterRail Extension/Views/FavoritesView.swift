@@ -20,7 +20,7 @@ struct FavoritesView: View {
                   .listRowBackground(StationImageBackground(route.origin.image))
                 }
               }.listStyle(CarouselListStyle())
-            }.navigationTitle("מועדפים")
+            }.navigationTitle("Better Rail")
         }
         else {
           emptyPlaceholder
