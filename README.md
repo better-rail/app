@@ -5,4 +5,4 @@ The source code for the app itself can be found [here](https://github.com/guytep
 
 There's no build tools needed to build the website, it's just plain ol' HTML & CSS files.
 
-If you're using VSCode, it's recommnded to use the [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) extension while developing, as it can provide you a local Server with live reload feature for static.
+If you're using VSCode, it's recommnded to use the [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) extension while developing, as it can provide you a local server with a live reload feature.
