@@ -50,11 +50,20 @@
       <div class="app-description">
         <picture>
           <source
+            type="image/avif"
+            srcset="
+              /assets/images/app-screenshots.avif,
+              /assets/images/app-screenshots@2x.avif 2x,
+              /assets/images/app-screenshots@3x.avif 3x
+            "
+            media="(max-width: 767px)"
+          />
+          <source
             type="image/webp"
             srcset="
               /assets/images/app-screenshots.webp,
               /assets/images/app-screenshots@2x.webp 2x,
-              /assets/images/app-screenshots@3x.webp
+              /assets/images/app-screenshots@3x.webp 3x
             "
             media="(max-width: 767px)"
           />
@@ -66,8 +75,12 @@
             "
             media="(max-width: 767px)"
           />
-          <source type="image/webp" srcset="/assets/images/app-screenshots@3x.webp" media="(max-width: 1023px)" />
-          <source srcset="/assets/images/app-screenshots@3x.png" media="(max-width: 1023px)" />
+          <source
+            type="image/webp"
+            srcset="/assets/images/app-screenshots@3x.webp"
+            media="(min-width: 768px) and (max-width: 1023px)"
+          />
+          <source srcset="/assets/images/app-screenshots@3x.png" media="(min-width: 768px) and (max-width: 1023px)" />
           <source
             type="image/webp"
             srcset="assets/images/iphone-screenshot.webp 1x, /assets/images/iphone-screenshot@2x.webp 2x"
