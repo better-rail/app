@@ -5,4 +5,9 @@
 "departure" = "Depart";
 "arrival" = "Arrive";
 
-"train %@ platform %@" = "Train No. %@ ・ Platform %@";
+"train %@" = "Train %@";
+"platform %@" = "Platform %@";
+
+"exchange" = "Exchange";
+"stay-at %@" = "Stay at Platform %@";
+"move-to %@" = "Move to Platform %@";

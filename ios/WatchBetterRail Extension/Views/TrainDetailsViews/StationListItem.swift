@@ -30,9 +30,13 @@ struct StationListItem: View {
       Text(stationName).font(Font.custom("Heebo", size: 18)).fontWeight(.medium)
       
       if trainNumber != nil {
-        Text(LocalizedStringKey("train \(platform) platform \(platform)")).font(Font.custom("Heebo", size: 14))
+        HStack {
+          Text("train \(trainNumber!)")
+          Text("・")
+          Text("platform \(platform)")
+        }.font(Font.custom("Heebo", size: 14))
       } else {
-        Text("רציף \(platform)").font(Font.custom("Heebo", size: 14))
+        Text("platform \(platform)").font(Font.custom("Heebo", size: 14))
       }
     }.listRowBackground(StationImageBackground(imageName))
   }
