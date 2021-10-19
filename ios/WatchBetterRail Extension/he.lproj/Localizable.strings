@@ -5,3 +5,4 @@
 "departure" = "יציאה";
 "arrival" = "הגעה";
 
+"train %@ platform %@" = "רציף %@・רכבת מס׳ %@";

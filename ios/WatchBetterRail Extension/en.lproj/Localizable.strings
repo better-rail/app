@@ -4,3 +4,5 @@
 
 "departure" = "Depart";
 "arrival" = "Arrive";
+
+"train %@ platform %@" = "Train No. %@ ・ Platform %@";

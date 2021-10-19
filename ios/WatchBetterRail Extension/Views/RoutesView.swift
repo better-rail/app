@@ -28,7 +28,7 @@ struct RoutesView: View {
               HStack {
                 Text(formatRouteHour(trainDetails[0].departureTime))
                 Spacer()
-                Image(systemName: "arrow.left")
+                Image(systemName: "arrow.forward")
                 Spacer()
                 Text(formatRouteHour(trainDetails[route.trains[index].train.count - 1].arrivalTime))
               }

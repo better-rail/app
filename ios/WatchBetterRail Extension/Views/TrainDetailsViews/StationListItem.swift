@@ -30,7 +30,7 @@ struct StationListItem: View {
       Text(stationName).font(Font.custom("Heebo", size: 18)).fontWeight(.medium)
       
       if trainNumber != nil {
-        Text("רציף \(platform)・רכבת מס׳ \(trainNumber!)").font(Font.custom("Heebo", size: 14))
+        Text(LocalizedStringKey("train \(platform) platform \(platform)")).font(Font.custom("Heebo", size: 14))
       } else {
         Text("רציף \(platform)").font(Font.custom("Heebo", size: 14))
       }
