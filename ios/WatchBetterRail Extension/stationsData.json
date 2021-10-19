@@ -34,7 +34,7 @@
    {
       "id": "3100",
       "hebrew": "חדרה - מערב",
-      "english": "Hadera-West",
+      "english": "Hadera - West",
       "russian": "Хадера - Маарав",
       "arabic": "الخضيرة - غرب"
    },
@@ -48,7 +48,7 @@
    {
       "id": "2820",
       "hebrew": "קיסריה - פרדס חנה",
-      "english": "Caesarea-Pardes Hana",
+      "english": "Caesarea - Pardes Hana",
       "russian": "Кейсария - Пардес-Хана",
       "arabic": "قيساريا - بارديس حنا"
    },
@@ -62,7 +62,7 @@
    {
       "id": "2200",
       "hebrew": "חיפה - בת גלים",
-      "english": "Haifa-Bat Galim",
+      "english": "Haifa - Bat Galim",
       "russian": "Хайфа - Бат-Галим",
       "arabic": "حيفا - بات چاليم",
       "image": "bat-galim"
@@ -143,7 +143,7 @@
    {
       "id": "7300",
       "hebrew": "באר שבע- צפון/אוניברסיטה",
-      "english": "Be'er Sheva-North/University",
+      "english": "Be'er Sheva - University",
       "russian": "Беер-Шева Цафон",
       "arabic": "بئر السبع - شمال/الجامعة",
       "image": "beer-sheva-university"
