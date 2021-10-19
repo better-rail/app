@@ -1,10 +1,3 @@
-//
-//  Utilities.swift
-//  BetterRail
-//
-//  Created by Guy Tepper on 31/07/2021.
-//
-
 import Foundation
 
 func formatRouteHour(_ dateString: String) -> String {
@@ -25,3 +18,17 @@ func formatRouteHour(_ dateString: String) -> String {
   }
 }
 
+/// Returns the user perferred locale, lowercased.
+/// 
+/// Defaults to `hebrew`.
+func getUserLocale() -> String {
+  let langCode = Bundle.main.preferredLocalizations[0]
+  let usLocale = Locale(identifier: "en-US")
+  var langName = "hebrew"
+ 
+  if let languageName = usLocale.localizedString(forLanguageCode: langCode) {
+    langName = languageName.lowercased()
+  }
+  
+  return langName
+}
