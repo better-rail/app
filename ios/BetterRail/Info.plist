@@ -5,10 +5,7 @@
 	<key>CFBundleAllowMixedLocalizations</key>
 	<string>true</string>
 	<key>CFBundleDevelopmentRegion</key>
-	<array>
-		<string>he</string>
-		<string>en</string>
-	</array>
+	<string>en</string>
 	<key>CFBundleDisplayName</key>
 	<string>Better Rail</string>
 	<key>CFBundleExecutable</key>
