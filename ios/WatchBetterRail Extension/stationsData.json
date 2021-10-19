@@ -102,6 +102,7 @@
       "hebrew": "חיפה - חוף הכרמל",
       "english": "Haifa - Hof HaKarmel",
       "russian": "Хайфа Хоф ха - Кармель",
+      "arabic": "حيفا - شاطئ الكرمل",
       "image": "hof-hakarmel"
    },
    {
@@ -167,7 +168,8 @@
       "id": "2100",
       "hebrew": "מרכז השמונה",
       "english": "Haifa Center - HaShmona",
-      "russian": "Хайфа - Мерказ - Центральная"
+      "russian": "Хайфа - Мерказ - Центральная",
+      "arabic": "حيفا المركز - هشمونا"
    },
    {
       "id": "5010",

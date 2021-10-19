@@ -26,7 +26,6 @@ struct TrainExchangeListItem: View {
             Text("move-to \(departurePlatform)")
           }
         }
-        
       }
       
     }.font(Font.custom("Heebo", size: 14))

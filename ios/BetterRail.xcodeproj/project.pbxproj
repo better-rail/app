@@ -138,6 +138,7 @@
 		C1832299270DF49100A44771 /* StationImageBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationImageBackground.swift; sourceTree = "<group>"; };
 		C1B3FCF4271EEFFA000F33AE /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C1B3FCF6271EEFFD000F33AE /* he */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = he; path = he.lproj/Localizable.strings; sourceTree = "<group>"; };
+		C1B3FCF7271F25AA000F33AE /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C1E62DD7270EE24C0067F262 /* StationListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationListItem.swift; sourceTree = "<group>"; };
 		C1E62DD9270EE2690067F262 /* TrainStopListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainStopListItem.swift; sourceTree = "<group>"; };
 		C1E62DDB270EE28B0067F262 /* TrainExchangeListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainExchangeListItem.swift; sourceTree = "<group>"; };
@@ -796,6 +797,7 @@
 			children = (
 				C1B3FCF4271EEFFA000F33AE /* en */,
 				C1B3FCF6271EEFFD000F33AE /* he */,
+				C1B3FCF7271F25AA000F33AE /* ar */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
