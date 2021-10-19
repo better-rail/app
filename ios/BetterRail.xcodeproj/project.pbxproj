@@ -24,6 +24,7 @@
 		C17FA4C12709EFBB003797D9 /* WatchBetterRail Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = C17FA4C02709EFBB003797D9 /* WatchBetterRail Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C17FA4D32709EFBC003797D9 /* WatchBetterRail.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = C17FA4B72709EFBB003797D9 /* WatchBetterRail.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C183229A270DF49100A44771 /* StationImageBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1832299270DF49100A44771 /* StationImageBackground.swift */; };
+		C1B3FCF3271EEFFA000F33AE /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = C1B3FCF5271EEFFA000F33AE /* Localizable.strings */; };
 		C1E62DD8270EE24C0067F262 /* StationListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E62DD7270EE24C0067F262 /* StationListItem.swift */; };
 		C1E62DDA270EE2690067F262 /* TrainStopListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E62DD9270EE2690067F262 /* TrainStopListItem.swift */; };
 		C1E62DDC270EE28B0067F262 /* TrainExchangeListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E62DDB270EE28B0067F262 /* TrainExchangeListItem.swift */; };
@@ -135,6 +136,8 @@
 		C17FA4C02709EFBB003797D9 /* WatchBetterRail Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "WatchBetterRail Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C17FA4D02709EFBC003797D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C1832299270DF49100A44771 /* StationImageBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationImageBackground.swift; sourceTree = "<group>"; };
+		C1B3FCF4271EEFFA000F33AE /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		C1B3FCF6271EEFFD000F33AE /* he */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = he; path = he.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C1E62DD7270EE24C0067F262 /* StationListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationListItem.swift; sourceTree = "<group>"; };
 		C1E62DD9270EE2690067F262 /* TrainStopListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainStopListItem.swift; sourceTree = "<group>"; };
 		C1E62DDB270EE28B0067F262 /* TrainExchangeListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainExchangeListItem.swift; sourceTree = "<group>"; };
@@ -306,6 +309,7 @@
 				C1F61BFC2709F08200CD3D44 /* ViewModels */,
 				C1F61C072709F08200CD3D44 /* Models */,
 				C1F61C0C2709F08200CD3D44 /* stationsData.json */,
+				C1B3FCF5271EEFFA000F33AE /* Localizable.strings */,
 				C1F61C062709F08200CD3D44 /* WatchBetterRail.swift */,
 				C1F61C102709F08200CD3D44 /* Utilities.swift */,
 				C17FA4D02709EFBC003797D9 /* Info.plist */,
@@ -551,6 +555,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C1F61C1F2709F08200CD3D44 /* stationsData.json in Resources */,
+				C1B3FCF3271EEFFA000F33AE /* Localizable.strings in Resources */,
 				C1F29D28270B2D31009B953E /* Heebo-Bold.otf in Resources */,
 				C1F61C252709F09B00CD3D44 /* Assets.xcassets in Resources */,
 				C1F29D2C270B2D31009B953E /* Heebo-Medium.otf in Resources */,
@@ -784,6 +789,18 @@
 			targetProxy = C17FA4D12709EFBC003797D9 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		C1B3FCF5271EEFFA000F33AE /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C1B3FCF4271EEFFA000F33AE /* en */,
+				C1B3FCF6271EEFFD000F33AE /* he */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
