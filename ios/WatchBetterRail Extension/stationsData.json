@@ -47,10 +47,10 @@
    },
    {
       "id": "2820",
-      "hebrew": "קיסריה - פרדס חנה",
-      "english": "Caesarea - Pardes Hana",
-      "russian": "Кейсария - Пардес-Хана",
-      "arabic": "قيساريا - بارديس حنا"
+      "hebrew": "קיסריה",
+      "english": "Caesarea",
+      "russian": "Кейсария",
+      "arabic": "بارديس حنا"
    },
    {
       "id": "2500",
@@ -143,7 +143,7 @@
    },
    {
       "id": "7300",
-      "hebrew": "באר שבע- צפון/אוניברסיטה",
+      "hebrew": "באר שבע- אוניברסיטה",
       "english": "Be'er Sheva - University",
       "russian": "Беер-Шева Цафон",
       "arabic": "بئر السبع - شمال/الجامعة",
@@ -167,7 +167,7 @@
    {
       "id": "2100",
       "hebrew": "מרכז השמונה",
-      "english": "Haifa Center - HaShmona",
+      "english": "Haifa - HaShmona",
       "russian": "Хайфа - Мерказ - Центральная",
       "arabic": "حيفا المركز - هشمونا"
    },
@@ -203,14 +203,14 @@
    {
       "id": "5410",
       "hebrew": "יבנה מזרח",
-      "english": "Yavne-East",
+      "english": "Yavne - East",
       "russian": "Явне-Восток",
       "arabic": "ياڤنه - شرق"
    },
    {
       "id": "9100",
       "hebrew": "ראשל״צ - הראשונים",
-      "english": "Rishon LeTsiyon - HaRishonim",
+      "english": "Rishon - HaRishonim",
       "russian": "Ришон ле-Цион - Ха-Ришоним ",
       "arabic": "ريشون لتسيون - هريشونيم"
    },
@@ -223,7 +223,7 @@
    },
    {
       "id": "4250",
-      "hebrew": "פתח תקווה - סגולה",
+      "hebrew": "פ''ת - סגולה",
       "english": "Petah Tikva - Segula",
       "russian": "Петах-Тиква - Сгула",
       "arabic": "بيتح تكڤا - سچوله"
@@ -374,7 +374,7 @@
    {
       "id": "9800",
       "hebrew": "ראשל״צ - משה דיין",
-      "english": "Rishon LeTsiyon - Moshe Dayan",
+      "english": "Rishon - Moshe Dayan",
       "russian": "Ришон-Ле-Цион станция им. Моше Даяна",
       "arabic": "ريشون لتسيون -موشي ديان",
       "image": "rishon-moshe-dayan"
@@ -480,14 +480,14 @@
    {
       "id": "6150",
       "hebrew": "קריית מלאכי - יואב",
-      "english": "Kiryat Malakhi – Yoav",
+      "english": "Kiryat Malakhi",
       "russian": "Кирьят Малахи-Йоав",
       "arabic": "كريات ملاخي – يوآڤ"
    },
    {
       "id": "680",
       "hebrew": "ירושלים - יצחק נבון",
-      "english": "Jerusalem - Yitzhak Navon",
+      "english": "Yitzhak Navon",
       "russian": "Иерусалим - Ицхак Навон",
       "arabic": "أورشليم – يتسحاق ناڤون",
       "image": "jerusalem-itzhak-navon"
