@@ -26,17 +26,17 @@ struct StationListItem: View {
   
   var body: some View {
     VStack(alignment: .leading) {
-      Text(time).font(Font.custom("Heebo", size: 16)).fontWeight(.bold)
-      Text(stationName).font(Font.custom("Heebo", size: 18)).fontWeight(.medium)
+      Text(time)
+        .font(Font.custom("Heebo", size: 16)).fontWeight(.bold)
+      Text(stationName)
+        .font(Font.custom("Heebo", size: 18)).fontWeight(.medium)
       
       if trainNumber != nil {
-        HStack {
-          Text("train \(trainNumber!)")
-          Text("・")
-          Text("platform \(platform)")
-        }.font(Font.custom("Heebo", size: 14))
+        Text("train \(trainNumber!) platform \(platform)")
+          .font(Font.custom("Heebo", size: 14))
       } else {
-        Text("platform \(platform)").font(Font.custom("Heebo", size: 14))
+        Text("platform \(platform)")
+          .font(Font.custom("Heebo", size: 14))
       }
     }.listRowBackground(StationImageBackground(imageName))
   }
