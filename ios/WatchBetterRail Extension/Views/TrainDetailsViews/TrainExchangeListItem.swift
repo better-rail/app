@@ -8,10 +8,11 @@ struct TrainExchangeListItem: View {
   
   var body: some View {
     VStack(alignment: .leading) {
-      ZStack(alignment: .leading) {
-        Text("\(Image(systemName: "arrow.left.arrow.right.circle.fill")) החלפה")
-          .fontWeight(.semibold).foregroundColor(.accentColor)
-      }
+      HStack(alignment: .center) {
+        Image(systemName: "arrow.forward.circle.fill")
+        Text("exchange").fontWeight(.semibold)
+      }.foregroundColor(.accentColor)
+
       
       VStack(alignment: .leading) {
         Text(time).font(Font.custom("Heebo", size: 16)).fontWeight(.bold)
@@ -20,12 +21,11 @@ struct TrainExchangeListItem: View {
         HStack {
           Image(systemName: "exclamationmark.circle.fill").foregroundColor(.orange)
           if (arrivalPlatform == departurePlatform) {
-            Text("יש להשאר ברציף \(departurePlatform)")
+            Text("stay-at \(departurePlatform)")
           } else {
-            Text("יש לעבור אל רציף \(departurePlatform)")
+            Text("move-to \(departurePlatform)")
           }
         }
-        
       }
       
     }.font(Font.custom("Heebo", size: 14))

@@ -30,8 +30,8 @@ struct FavoritesView: View {
   
   var emptyPlaceholder: some View = VStack(alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/) {
     Image(systemName: "star.fill").padding(.vertical, 2.0).font(.system(size: 32))
-    Text("אין מועדפים").font(.headline)
-    Text("ניתן להוסיף מסלולים מועדפים דרך האייפון")
+    Text("no-favorites").font(.headline)
+    Text("no-favorites-message")
       .font(.footnote)
       .foregroundColor(.gray)
       .multilineTextAlignment(.center)

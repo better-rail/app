@@ -405,7 +405,7 @@ PODS:
     - React
   - RNWatch (1.0.4):
     - React
-  - ToastHybrid (2.4.0):
+  - ToastHybrid (2.4.5):
     - React
   - UMCore (7.1.2)
   - UMReactNativeAdapter (6.3.9):
@@ -694,7 +694,7 @@ SPEC CHECKSUMS:
   RNSharedElement: 87baf6d04da5b068f000dd8c953d28a1196999c0
   RNSVG: ce9d996113475209013317e48b05c21ee988d42e
   RNWatch: 99637948ec9b5c9ec5a41920642594ad5ba07e80
-  ToastHybrid: c5ad7ee8ac15b41da0b714a1b250b3f3fc7d5fa6
+  ToastHybrid: 432381039a804a60e142ebaa7af8290e236c288e
   UMCore: ce3a4faa010239063b8343895b29a6d97b01069d
   UMReactNativeAdapter: d03cefd0e4e4179ab8c490408589f1c8a6c8b785
   Yoga: c11abbf5809216c91fcd62f5571078b83d9b6720

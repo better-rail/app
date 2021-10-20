@@ -10,8 +10,9 @@ struct FavoriteItemView: View {
               Spacer()
               Text(origin.name).font(Font.custom("Heebo", size: 16)).fontWeight(.medium).padding(.bottom, -6)
               
+              
               HStack(alignment: .center) {
-                Image(systemName: "arrow.left.circle.fill").font(.system(size: 12))
+                Image(systemName: "arrow.forward.circle.fill").font(.system(size: 12))
                 Text(destination.name).font(Font.custom("Heebo", size: 12))
               }
             }

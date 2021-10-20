@@ -77,6 +77,7 @@ struct RouteModel {
   /// Today's date, formatted properly for Israel Railways API endpoint
   static private var todayDate: String {
     let dateFormatter = DateFormatter()
+    dateFormatter.locale = Locale(identifier: "en_us")
     dateFormatter.dateFormat = "YYYYMMdd"
     return dateFormatter.string(from: Date())
   }
