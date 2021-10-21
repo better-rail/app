@@ -32,7 +32,11 @@ if (deviceHeight > 730) {
 }
 
 if (deviceHeight > 780) {
-  cardHeight = 177.5
+  cardHeight = 178.5
+}
+
+if (deviceHeight > 900) {
+  cardHeight = 190
 }
 
 const CONTAINER: ViewStyle = {

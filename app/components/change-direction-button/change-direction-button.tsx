@@ -16,6 +16,11 @@ if (deviceHeight > 730) {
   iconSize = 35
 }
 
+if (deviceHeight > 900) {
+  buttonSize = 75
+  iconSize = 37
+}
+
 const CONTAINER: ViewStyle = {
   width: buttonSize,
   height: buttonSize,
