@@ -464,6 +464,7 @@ const stations = [
     english: "Ahihud",
     russian: "Ахихуд",
     arabic: "احيهود",
+    image: require("../../assets/station-images/ahihud.jpeg"),
   },
   {
     id: "1840",
