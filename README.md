@@ -16,7 +16,7 @@ If you haven't used Ignite before, it's recommended to take a look over their RE
 ### Installation
 
 The following steps asssumes your enviorment is already set up for running React Native apps.  
-If this is your first time, check out the [official set up guide](https://reactnative.dev/docs/0.63/environment-setup) beforehand.
+If this is your first time, check out the [official set up guide](https://reactnative.dev/docs/environment-setup) beforehand.
 
 - Fork the repo and clone to your machine.
 - Run `yarn install`
@@ -25,5 +25,5 @@ If this is your first time, check out the [official set up guide](https://reactn
 
 ### License
 
-The source code is released under the [AGPL-3.0 license](https://github.com/act-1/native/blob/main/LICENSE).  
+The source code is released under the [AGPL-3.0 license](https://github.com/guytepper/better-rail/blob/main/LICENSE).  
 The project assets - the user interface, app branding, images, illustations, icons and fonts are outside the scope of the license.
