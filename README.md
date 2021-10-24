@@ -20,8 +20,15 @@ If this is your first time, check out the [official set up guide](https://reactn
 
 - Fork the repo and clone to your machine.
 - Run `yarn install`
+#### Running ios
+- Install [cocopods](https://cocoapods.org/)
 - Run `cd ios && pod install`
 - Run the app with `npm run ios`
+#### Running Android
+- Download the [Android developer sdk](https://developer.android.com/studio#command-tools).
+- Make sure you have the `ANDROID_SDK_ROOT` enviroment variable set to the sdk folder.
+- Either set up an emulator or connect a usb debuggable device.
+- Run `npm run android`
 
 ### License
 
