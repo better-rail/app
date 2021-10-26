@@ -79,7 +79,7 @@ export const SearchInput = ({ searchTerm, setSearchTerm, autoFocus }) => {
       </View>
 
       {searchTerm.length > 0 && (
-        <Pressable onPress={() => setSearchTerm("")}>
+        <Pressable onPress={() => setSearchTerm("")} accessibilityLabel={translate("common.dismiss")}>
           <Image style={DISMISS_ICON} source={dismissIcon} />
         </Pressable>
       )}
