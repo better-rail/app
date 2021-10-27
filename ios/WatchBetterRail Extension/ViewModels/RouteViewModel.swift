@@ -30,7 +30,6 @@ class RouteViewModel: ObservableObject {
             self.lastRequest = Date()
          
           case .failure(let error):
-            print(error)
             self.error = error
             self.loading = false
         }
