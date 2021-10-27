@@ -81,18 +81,22 @@ struct RouteModel {
     dateFormatter.dateFormat = "YYYYMMdd"
     return dateFormatter.string(from: Date())
   }
-  
-  func fetchRoute(originId: String, destinationId: String, completion: @escaping (_ result: RouteResult) -> Void) {
+    
+  mutating func fetchRoute(originId: String, destinationId: String, completion: @escaping (_ result: Result<RouteResult, Error>) -> Void) {
     let url = URL(string: "https://www.rail.co.il/apiinfo/api/Plan/GetRoutes?OId=\(originId)&TId=\(destinationId)&Date=\(RouteModel.todayDate)&Hour=0000")!
 
     let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
-        guard let data = data else { return }
+      if (error != nil) {
+        completion(.failure(error!))
+      }
+      
+      guard let data = data else { return }
         
         do {
           let decoder = JSONDecoder()
           decoder.keyDecodingStrategy = .custom { keys in PascalCaseKey(stringValue: keys.last!.stringValue) }
           let route = try decoder.decode(RouteResult.self, from: data)
-          completion(route)
+          completion(.success(route))
         } catch let error {
           print(error)
         }

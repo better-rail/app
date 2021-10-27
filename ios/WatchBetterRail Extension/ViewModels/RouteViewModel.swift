@@ -1,13 +1,14 @@
 import Foundation
 
 class RouteViewModel: ObservableObject {
-  let routeModel = RouteModel()
+  var routeModel = RouteModel()
   let origin: Station
   let destination: Station
   private var lastRequest: Date?
   
   @Published var trains: Array<Route> = []
   @Published var loading = false
+  @Published var error: Error? = nil
   
   init(origin: Station, destination: Station) {
     self.origin = origin
@@ -18,14 +19,22 @@ class RouteViewModel: ObservableObject {
   
   private func fetchRoute() {
     self.loading = true
-    
+    self.error = nil
+
     routeModel.fetchRoute(originId: origin.id, destinationId: destination.id, completion: { result in
       DispatchQueue.main.async {
-        self.trains = result.data.routes
-        self.loading = false
+        switch result {
+        case .success(let response):
+          self.trains = response.data.routes
+            self.loading = false
+            self.lastRequest = Date()
+         
+          case .failure(let error):
+            print(error)
+            self.error = error
+            self.loading = false
+        }
       }
-      
-      self.lastRequest = Date()
     })
   }
   
