@@ -10,6 +10,7 @@ import { translate, useFormattedDate } from "../../i18n"
 import DatePickerModal from "../../components/date-picker-modal"
 import { useQuery } from "react-query"
 import { queryClient } from "../../app"
+import { isWeekend } from "../../utils/helpers/date-helpers"
 
 const now = new Date()
 
@@ -142,9 +143,12 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   useQuery(
     ["origin", originId, "destination", destinationId, "time", routePlan.date.getDate()],
     () => trainRoutes.getRoutes(originId, destinationId, routePlan.date.getTime()),
-    {
-      staleTime: 7200000, // 2 hours to invalidate
-    },
+    /**
+     *  TODO: Temporary fix for displaying "no train found" modal.
+     *  Keeping the cache for those requests will store the result found, while not displaying the modal that
+     *  alerts those result belongs to another day.
+     */
+    { cacheTime: isWeekend(routePlan.date) ? 0 : 7200000 },
   )
 
   return (
