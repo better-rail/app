@@ -54,6 +54,8 @@ export const trainRoutesModel = types
   .actions((self) => ({
     getRoutes: async (originId: string, destinationId: string, time: number): Promise<RouteItem[]> => {
       self.setStatus("pending")
+      self.updateResultType("normal")
+
       console.log("API Request sent")
       const routeApi = new RouteApi(self.environment.api)
       let foundRoutes = false

@@ -132,7 +132,6 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   }
 
   const onGetRoutePress = () => {
-    trainRoutes.updateResultType("normal")
     navigation.navigate("routeList", {
       originId: routePlan.origin.id,
       destinationId: routePlan.destination.id,
