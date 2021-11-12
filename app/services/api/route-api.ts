@@ -3,6 +3,7 @@ import { Api } from "./api"
 import { stationsObject, stationLocale } from "../../data/stations"
 import { RailApiGetRoutesResult } from "./api.types"
 import { parseApiDate } from "../../utils/helpers/date-helpers"
+import { RouteItem } from "."
 
 export class RouteApi {
   private api: Api
@@ -11,7 +12,7 @@ export class RouteApi {
     this.api = api
   }
 
-  async getRoutes(originId: string, destinationId: string, date: string, hour: string) {
+  async getRoutes(originId: string, destinationId: string, date: string, hour: string): Promise<RouteItem[]> {
     try {
       const response: ApiResponse<RailApiGetRoutesResult> = await this.api.apisauce.get(
         `/apiinfo/api/Plan/GetRoutes?OId=${originId}&TId=${destinationId}&Date=${date}&Hour=${hour}`,

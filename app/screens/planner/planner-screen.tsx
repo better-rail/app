@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react"
+import React, { useRef, useState, useMemo } from "react"
 import { observer } from "mobx-react-lite"
 import { Image, View, TouchableOpacity, Animated, ViewStyle, ImageStyle, Dimensions } from "react-native"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
@@ -8,6 +8,8 @@ import { PlannerScreenProps } from "../../navigators/main-navigator"
 import { useStations } from "../../data/stations"
 import { translate, useFormattedDate } from "../../i18n"
 import DatePickerModal from "../../components/date-picker-modal"
+import { useQuery } from "react-query"
+import { queryClient } from "../../app"
 
 const now = new Date()
 
@@ -69,6 +71,10 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
   const formattedDate = useFormattedDate(routePlan.date)
   const stationCardScale = useRef(new Animated.Value(1)).current
+
+  const { origin, destination } = routePlan
+  const { id: originId } = origin
+  const { id: destinationId } = destination
 
   const stations = useStations()
 
@@ -133,6 +139,14 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
       time: routePlan.date.getTime(),
     })
   }
+
+  useQuery(
+    ["origin", originId, "destination", destinationId, "time", routePlan.date.getDate()],
+    () => trainRoutes.getRoutes(originId, destinationId, routePlan.date.getTime()),
+    {
+      staleTime: 7200000, // 2 hours to invalidate
+    },
+  )
 
   return (
     <Screen style={ROOT} preset="scroll">

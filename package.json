@@ -68,6 +68,7 @@
     "react-native-unimodules": "^0.14.8",
     "react-native-watch-connectivity": "^1.0.4",
     "react-navigation-shared-element": "3.1.3",
+    "react-query": "^3.32.1",
     "reactotron-mst": "3.1.3",
     "reactotron-react-native": "5.0.0"
   },
@@ -109,6 +110,7 @@
     "prettier": "2.2.1",
     "react-devtools-core": "4.10.1",
     "react-dom": "16.14.0",
+    "react-native-console-time-polyfill": "^1.2.3",
     "react-native-web": "0.13.18",
     "react-powerplug": "1.0.0",
     "react-test-renderer": "17.0.1",
