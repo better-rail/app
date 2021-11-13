@@ -13889,10 +13889,10 @@ react-native-date-picker@3.4.1:
   resolved "https://registry.yarnpkg.com/react-native-date-picker/-/react-native-date-picker-3.4.1.tgz#33a024d32e31f46f0914b913887b944ff8f96a44"
   integrity sha512-P5sAcM9MdBPIXPyWWiV8G1SY0zmhvLmrfMPdmNfiMDNcWalYHwXEbzwhpY4mFwgSdmh29UzKbYftslpQs/OAEg==
 
-react-native-device-info@^8.1.0:
-  version "8.1.0"
-  resolved "https://registry.yarnpkg.com/react-native-device-info/-/react-native-device-info-8.1.0.tgz#7d0ecf65cb26dbdbcdd555fc7bce2d9750b8b3d9"
-  integrity sha512-szEbRRFQ1NYPOjGWyIMsZGk5W2eU4JTiFLaNVXTbK4u/BS/Z5moVJKcoJgYR6Fxiu6qPAY/ofJySJoSdhSeOnw==
+react-native-device-info@8.4.6:
+  version "8.4.6"
+  resolved "https://registry.yarnpkg.com/react-native-device-info/-/react-native-device-info-8.4.6.tgz#6b050041c2d5d867a883e160c5dd7c335ad36a0c"
+  integrity sha512-T2x3B2zij+nnTGQU+WIjCk5cb3C+jAW7YqruxRTevM+NMaFwvBVMQ+IU8VPpXM9GyFahvVoCSdAb/wuCUUVlTw==
 
 react-native-flipper@^0.34.0:
   version "0.34.0"
