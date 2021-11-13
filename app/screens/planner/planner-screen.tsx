@@ -74,8 +74,6 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   const stationCardScale = useRef(new Animated.Value(1)).current
 
   const { origin, destination } = routePlan
-  const { id: originId } = origin
-  const { id: destinationId } = destination
 
   const stations = useStations()
 
@@ -141,8 +139,8 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   }
 
   useQuery(
-    ["origin", originId, "destination", destinationId, "time", routePlan.date.getDate()],
-    () => trainRoutes.getRoutes(originId, destinationId, routePlan.date.getTime()),
+    ["origin", origin?.id, "destination", destination?.id, "time", routePlan.date.getDate()],
+    () => trainRoutes.getRoutes(origin?.id, destination?.id, routePlan.date.getTime()),
     /**
      *  TODO: Temporary fix for displaying "no train found" modal.
      *  Keeping the cache for those requests will store the result found, while not displaying the modal that
