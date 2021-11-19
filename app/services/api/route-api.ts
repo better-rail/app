@@ -13,6 +13,8 @@ export class RouteApi {
   }
 
   async getRoutes(originId: string, destinationId: string, date: string, hour: string): Promise<RouteItem[]> {
+    if (!originId || !destinationId) throw new Error("Missing origin / destination data")
+
     try {
       const response: ApiResponse<RailApiGetRoutesResult> = await this.api.apisauce.get(
         `/apiinfo/api/Plan/GetRoutes?OId=${originId}&TId=${destinationId}&Date=${date}&Hour=${hour}`,
@@ -85,6 +87,7 @@ export class RouteApi {
       return formattedRoutes
     } catch (err) {
       console.error(err)
+      throw err
     }
   }
 }
