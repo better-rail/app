@@ -24,7 +24,26 @@
 		C17FA4C12709EFBB003797D9 /* WatchBetterRail Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = C17FA4C02709EFBB003797D9 /* WatchBetterRail Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C17FA4D32709EFBC003797D9 /* WatchBetterRail.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = C17FA4B72709EFBB003797D9 /* WatchBetterRail.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C183229A270DF49100A44771 /* StationImageBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1832299270DF49100A44771 /* StationImageBackground.swift */; };
+		C1A802622747AB4D00A3073D /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1A802612747AB4D00A3073D /* WidgetKit.framework */; };
+		C1A802642747AB4D00A3073D /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1A802632747AB4D00A3073D /* SwiftUI.framework */; };
+		C1A802672747AB4D00A3073D /* BetterRailWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A802662747AB4D00A3073D /* BetterRailWidget.swift */; };
+		C1A802692747AB4D00A3073D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1A802682747AB4D00A3073D /* Assets.xcassets */; };
+		C1A8026D2747AB4D00A3073D /* BetterRailWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = C1A802602747AB4D00A3073D /* BetterRailWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C1B3FCF3271EEFFA000F33AE /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = C1B3FCF5271EEFFA000F33AE /* Localizable.strings */; };
+		C1C6DC4B274939C1000E9EED /* WidgetEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C6DC4A274939C1000E9EED /* WidgetEntryView.swift */; };
+		C1C6DC4C274939C1000E9EED /* WidgetEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C6DC4A274939C1000E9EED /* WidgetEntryView.swift */; };
+		C1C6DC4E274939D9000E9EED /* WidgetRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C6DC4D274939D9000E9EED /* WidgetRouteView.swift */; };
+		C1C6DC5027493A56000E9EED /* TrainDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C6DC4F27493A56000E9EED /* TrainDetail.swift */; };
+		C1C6DC5127493A91000E9EED /* RouteModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C092709F08200CD3D44 /* RouteModel.swift */; };
+		C1C6DC5227493A98000E9EED /* RouteModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C092709F08200CD3D44 /* RouteModel.swift */; };
+		C1C6DC5327493A9C000E9EED /* StationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C082709F08200CD3D44 /* StationModel.swift */; };
+		C1C6DC5427493A9D000E9EED /* StationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C082709F08200CD3D44 /* StationModel.swift */; };
+		C1C6DC5527493AA1000E9EED /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C102709F08200CD3D44 /* Utilities.swift */; };
+		C1C6DC5627493AA1000E9EED /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C102709F08200CD3D44 /* Utilities.swift */; };
+		C1C6DC5727493BBC000E9EED /* WidgetRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C6DC4D274939D9000E9EED /* WidgetRouteView.swift */; };
+		C1C6DC5827493BC5000E9EED /* TrainDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C6DC4F27493A56000E9EED /* TrainDetail.swift */; };
+		C1C6DC5927493C51000E9EED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1F61C242709F09B00CD3D44 /* Assets.xcassets */; };
+		C1C6DC5B27493C56000E9EED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1F61C242709F09B00CD3D44 /* Assets.xcassets */; };
 		C1E62DD8270EE24C0067F262 /* StationListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E62DD7270EE24C0067F262 /* StationListItem.swift */; };
 		C1E62DDA270EE2690067F262 /* TrainStopListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E62DD9270EE2690067F262 /* TrainStopListItem.swift */; };
 		C1E62DDC270EE28B0067F262 /* TrainExchangeListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E62DDB270EE28B0067F262 /* TrainExchangeListItem.swift */; };
@@ -73,6 +92,13 @@
 			remoteGlobalIDString = C17FA4B62709EFBB003797D9;
 			remoteInfo = WatchBetterRail;
 		};
+		C1A8026B2747AB4D00A3073D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C1A8025F2747AB4D00A3073D;
+			remoteInfo = BetterRailWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -94,6 +120,17 @@
 			dstSubfolderSpec = 13;
 			files = (
 				C17FA4C12709EFBB003797D9 /* WatchBetterRail Extension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C1A8026E2747AB4D00A3073D /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				C1A8026D2747AB4D00A3073D /* BetterRailWidgetExtension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -136,9 +173,18 @@
 		C17FA4C02709EFBB003797D9 /* WatchBetterRail Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "WatchBetterRail Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C17FA4D02709EFBC003797D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C1832299270DF49100A44771 /* StationImageBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationImageBackground.swift; sourceTree = "<group>"; };
+		C1A802602747AB4D00A3073D /* BetterRailWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BetterRailWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		C1A802612747AB4D00A3073D /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		C1A802632747AB4D00A3073D /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		C1A802662747AB4D00A3073D /* BetterRailWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BetterRailWidget.swift; sourceTree = "<group>"; };
+		C1A802682747AB4D00A3073D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C1A8026A2747AB4D00A3073D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C1B3FCF4271EEFFA000F33AE /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C1B3FCF6271EEFFD000F33AE /* he */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = he; path = he.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C1B3FCF7271F25AA000F33AE /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localizable.strings; sourceTree = "<group>"; };
+		C1C6DC4A274939C1000E9EED /* WidgetEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetEntryView.swift; sourceTree = "<group>"; };
+		C1C6DC4D274939D9000E9EED /* WidgetRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetRouteView.swift; sourceTree = "<group>"; };
+		C1C6DC4F27493A56000E9EED /* TrainDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainDetail.swift; sourceTree = "<group>"; };
 		C1E62DD7270EE24C0067F262 /* StationListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationListItem.swift; sourceTree = "<group>"; };
 		C1E62DD9270EE2690067F262 /* TrainStopListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainStopListItem.swift; sourceTree = "<group>"; };
 		C1E62DDB270EE28B0067F262 /* TrainExchangeListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainExchangeListItem.swift; sourceTree = "<group>"; };
@@ -193,6 +239,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C1A8025D2747AB4D00A3073D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C1A802642747AB4D00A3073D /* SwiftUI.framework in Frameworks */,
+				C1A802622747AB4D00A3073D /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -236,6 +291,8 @@
 				301BE758935A381A571F5B21 /* libPods-BetterRail-BetterRailTests.a */,
 				3982FFE6B0255867763A9EDF /* libPods-BetterRail-tvOS.a */,
 				60796641CDFE67F015A69D88 /* libPods-BetterRail-tvOSTests.a */,
+				C1A802612747AB4D00A3073D /* WidgetKit.framework */,
+				C1A802632747AB4D00A3073D /* SwiftUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -271,6 +328,7 @@
 				00E356EF1AD99517003FC87E /* BetterRailTests */,
 				C17FA4B82709EFBB003797D9 /* WatchBetterRail */,
 				C17FA4C42709EFBB003797D9 /* WatchBetterRail Extension */,
+				C1A802652747AB4D00A3073D /* BetterRailWidget */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				71ED362ACEA45F9F60DCD285 /* Pods */,
@@ -289,6 +347,7 @@
 				00E356EE1AD99517003FC87E /* BetterRailTests.xctest */,
 				C17FA4B72709EFBB003797D9 /* WatchBetterRail.app */,
 				C17FA4C02709EFBB003797D9 /* WatchBetterRail Extension.appex */,
+				C1A802602747AB4D00A3073D /* BetterRailWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -324,6 +383,19 @@
 				C1832299270DF49100A44771 /* StationImageBackground.swift */,
 			);
 			path = Shared;
+			sourceTree = "<group>";
+		};
+		C1A802652747AB4D00A3073D /* BetterRailWidget */ = {
+			isa = PBXGroup;
+			children = (
+				C1A802662747AB4D00A3073D /* BetterRailWidget.swift */,
+				C1C6DC4A274939C1000E9EED /* WidgetEntryView.swift */,
+				C1C6DC4D274939D9000E9EED /* WidgetRouteView.swift */,
+				C1A802682747AB4D00A3073D /* Assets.xcassets */,
+				C1A8026A2747AB4D00A3073D /* Info.plist */,
+				C1C6DC4F27493A56000E9EED /* TrainDetail.swift */,
+			);
+			path = BetterRailWidget;
 			sourceTree = "<group>";
 		};
 		C1E62DD6270EE2330067F262 /* TrainDetailsViews */ = {
@@ -419,11 +491,13 @@
 				105C9A386D6F7A14EE348052 /* [CP] Copy Pods Resources */,
 				8D72C93FFD500D16B43B6D15 /* [CP] Embed Pods Frameworks */,
 				C17FA4D42709EFBC003797D9 /* Embed Watch Content */,
+				C1A8026E2747AB4D00A3073D /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				C17FA4D22709EFBC003797D9 /* PBXTargetDependency */,
+				C1A8026C2747AB4D00A3073D /* PBXTargetDependency */,
 			);
 			name = BetterRail;
 			productName = BetterRail;
@@ -465,6 +539,23 @@
 			productReference = C17FA4C02709EFBB003797D9 /* WatchBetterRail Extension.appex */;
 			productType = "com.apple.product-type.watchkit2-extension";
 		};
+		C1A8025F2747AB4D00A3073D /* BetterRailWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C1A802712747AB4D00A3073D /* Build configuration list for PBXNativeTarget "BetterRailWidgetExtension" */;
+			buildPhases = (
+				C1A8025C2747AB4D00A3073D /* Sources */,
+				C1A8025D2747AB4D00A3073D /* Frameworks */,
+				C1A8025E2747AB4D00A3073D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BetterRailWidgetExtension;
+			productName = BetterRailWidgetExtension;
+			productReference = C1A802602747AB4D00A3073D /* BetterRailWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -492,6 +583,11 @@
 						DevelopmentTeam = UE6BVYPPFX;
 						ProvisioningStyle = Automatic;
 					};
+					C1A8025F2747AB4D00A3073D = {
+						CreatedOnToolsVersion = 12.5;
+						DevelopmentTeam = UE6BVYPPFX;
+						ProvisioningStyle = Automatic;
+					};
 				};
 			};
 			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "BetterRail" */;
@@ -512,6 +608,7 @@
 				00E356ED1AD99517003FC87E /* BetterRailTests */,
 				C17FA4B62709EFBB003797D9 /* WatchBetterRail */,
 				C17FA4BF2709EFBB003797D9 /* WatchBetterRail Extension */,
+				C1A8025F2747AB4D00A3073D /* BetterRailWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -532,6 +629,7 @@
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				73244C6A71D14F56B7316FA2 /* Heebo-Black.otf in Resources */,
 				02ED03C656594967A0656417 /* Heebo-Bold.otf in Resources */,
+				C1C6DC5B27493C56000E9EED /* Assets.xcassets in Resources */,
 				5EFC395D238C4D2ABEF902D0 /* Heebo-ExtraBold.otf in Resources */,
 				DA04D16B7E3649A49F843A15 /* Heebo-Light.otf in Resources */,
 				3948B514A79C47EFBFC7D1B2 /* Heebo-Medium.otf in Resources */,
@@ -561,6 +659,15 @@
 				C1F61C252709F09B00CD3D44 /* Assets.xcassets in Resources */,
 				C1F29D2C270B2D31009B953E /* Heebo-Medium.otf in Resources */,
 				C1F29D29270B2D31009B953E /* Heebo-Regular.otf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C1A8025E2747AB4D00A3073D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C1C6DC5927493C51000E9EED /* Assets.xcassets in Resources */,
+				C1A802692747AB4D00A3073D /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -744,7 +851,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				C14F313426331361002A01D7 /* Swifty.swift in Sources */,
+				C1C6DC4B274939C1000E9EED /* WidgetEntryView.swift in Sources */,
+				C1C6DC5527493AA1000E9EED /* Utilities.swift in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
+				C1C6DC5227493A98000E9EED /* RouteModel.swift in Sources */,
+				C1C6DC5827493BC5000E9EED /* TrainDetail.swift in Sources */,
+				C1C6DC5327493A9C000E9EED /* StationModel.swift in Sources */,
+				C1C6DC5727493BBC000E9EED /* WidgetRouteView.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -771,6 +884,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C1A8025C2747AB4D00A3073D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C1C6DC4E274939D9000E9EED /* WidgetRouteView.swift in Sources */,
+				C1C6DC5027493A56000E9EED /* TrainDetail.swift in Sources */,
+				C1C6DC5627493AA1000E9EED /* Utilities.swift in Sources */,
+				C1A802672747AB4D00A3073D /* BetterRailWidget.swift in Sources */,
+				C1C6DC5127493A91000E9EED /* RouteModel.swift in Sources */,
+				C1C6DC5427493A9D000E9EED /* StationModel.swift in Sources */,
+				C1C6DC4C274939C1000E9EED /* WidgetEntryView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -788,6 +915,11 @@
 			isa = PBXTargetDependency;
 			target = C17FA4B62709EFBB003797D9 /* WatchBetterRail */;
 			targetProxy = C17FA4D12709EFBC003797D9 /* PBXContainerItemProxy */;
+		};
+		C1A8026C2747AB4D00A3073D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C1A8025F2747AB4D00A3073D /* BetterRailWidgetExtension */;
+			targetProxy = C1A8026B2747AB4D00A3073D /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -854,6 +986,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 3ECD546F3378FD459F4E82B0 /* Pods-BetterRail.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 2;
@@ -881,6 +1014,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4D40708BE521DBE7DC6E68C8 /* Pods-BetterRail.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -1157,6 +1291,68 @@
 			};
 			name = Release;
 		};
+		C1A8026F2747AB4D00A3073D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = UE6BVYPPFX;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = BetterRailWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "il.co.better-rail.BetterRailWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C1A802702747AB4D00A3073D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = UE6BVYPPFX;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = BetterRailWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "il.co.better-rail.BetterRailWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1201,6 +1397,15 @@
 			buildConfigurations = (
 				C17FA4D52709EFBC003797D9 /* Debug */,
 				C17FA4D62709EFBC003797D9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C1A802712747AB4D00A3073D /* Build configuration list for PBXNativeTarget "BetterRailWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C1A8026F2747AB4D00A3073D /* Debug */,
+				C1A802702747AB4D00A3073D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

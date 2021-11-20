@@ -52,6 +52,7 @@ struct Train: Decodable, Identifiable {
 
   var originStationName: String { getStationNameById(orignStation) }
   var destinationStationName: String { getStationNameById(destinationStation) }
+  var formattedDepartureTime: String { formatRouteHour(departureTime) }
   var formattedArrivalTime: String { formatRouteHour(arrivalTime) }
   var stationImage: String? { getStationById(orignStation)?.image }
   var destinationStationImage: String? { getStationById(destinationStation)?.image }
@@ -82,7 +83,7 @@ struct RouteModel {
     return dateFormatter.string(from: Date())
   }
     
-  mutating func fetchRoute(originId: String, destinationId: String, completion: @escaping (_ result: Result<RouteResult, Error>) -> Void) {
+  func fetchRoute(originId: String, destinationId: String, completion: @escaping (_ result: Result<RouteResult, Error>) -> Void) {
     let url = URL(string: "https://www.rail.co.il/apiinfo/api/Plan/GetRoutes?OId=\(originId)&TId=\(destinationId)&Date=\(RouteModel.todayDate)&Hour=0000")!
 
     let task = URLSession.shared.dataTask(with: url) { (data, response, error) in

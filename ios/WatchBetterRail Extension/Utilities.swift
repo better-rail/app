@@ -1,15 +1,19 @@
 import Foundation
 
-func formatRouteHour(_ dateString: String) -> String {
+func stringToDate(_ dateString: String) -> Date? {
   let formatter = DateFormatter()
   formatter.dateFormat = "dd/MM/yyyy HH:mm:ss"
   formatter.timeZone = TimeZone(abbreviation: "UTC")
 
+  return formatter.date(from: dateString)
+}
+
+func formatRouteHour(_ dateString: String) -> String {
   let hourFormatter = DateFormatter()
   hourFormatter.dateFormat = "HH:mm"
   hourFormatter.timeZone = TimeZone(abbreviation: "UTC")
   
-  let formattedDate = formatter.date(from: dateString)
+  let formattedDate = stringToDate(dateString)
   if let date = formattedDate {
     return hourFormatter.string(from: date)
   } else {
