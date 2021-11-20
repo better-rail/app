@@ -23,7 +23,7 @@ struct WidgetEntryView: View {
             Text(entry.departureTime)
               .font(.system(size: 36)).fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/).foregroundColor(.white)
             
-            Text("Platform \(entry.platform)・Train 131")
+            Text("Platform \(entry.platform)・Train \(entry.trainNumber)")
               .font(.system(size: 11.5)).fontWeight(.medium).foregroundColor(.white).opacity(/*@START_MENU_TOKEN@*/0.8/*@END_MENU_TOKEN@*/)
 
           }

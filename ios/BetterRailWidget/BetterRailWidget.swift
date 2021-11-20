@@ -107,8 +107,9 @@ struct BetterRailWidget: Widget {
           { entry in
           WidgetEntryView(entry: entry)
         }
-        .configurationDisplayName("Train Scheduale")
+        .configurationDisplayName("Scheduale")
         .description("Display the upcoming train times.")
+        .supportedFamilies([.systemSmall])
     }
 }
 
