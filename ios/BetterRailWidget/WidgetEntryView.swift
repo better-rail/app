@@ -13,7 +13,7 @@ struct WidgetEntryView: View {
           Spacer()
           
           if (entry.departureTime == "404") {
-            Text("No more trains found for today.")
+            Text("No more trains for today.")
               .foregroundColor(Color("pinky")).font(.system(size: 11.5)).fontWeight(.medium).padding(.trailing, 36)
 
           } else {
@@ -46,12 +46,17 @@ struct WidgetEntryView_Previews: PreviewProvider {
     static var previews: some View {
       let entry = TrainDetail(date: Date(), departureTime: "15:56", arrivalTime: "", platform: "3", trainNumber: "131")
       
+      let emptyEntry = TrainDetail(date: Date(), departureTime: "404", arrivalTime: "404", platform: "404", trainNumber: "404")
+      
       if #available(iOS 14.0, *) {
         WidgetEntryView(entry: entry)
           .previewContext(WidgetPreviewContext(family: .systemSmall))
         
         WidgetEntryView(entry: entry)
           .previewContext(WidgetPreviewContext(family: .systemSmall)).colorScheme(.dark)
+        
+        WidgetEntryView(entry: emptyEntry)
+          .previewContext(WidgetPreviewContext(family: .systemSmall))
       }
     }
 }

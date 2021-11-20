@@ -9,6 +9,14 @@ let snapshotEntry = TrainDetail(
   trainNumber: "141"
 )
 
+let emptyEntry = TrainDetail(
+  date: Date(),
+  departureTime: "404",
+  arrivalTime: "404",
+  platform: "404",
+  trainNumber: "404"
+)
+
 //let currentDate = Date()
 
 //let sampleEntry1 = TrainDetail(
@@ -44,12 +52,12 @@ struct Provider: TimelineProvider {
   func getTrains(completion: @escaping (_ entries: [Entry]) -> Void) {
     var entries: [Entry] = []
     
-    RouteModel().fetchRoute(originId: "680", destinationId: "3700", completion: { result in
+    RouteModel().fetchRoute(originId: "4600", destinationId: "480", completion: { result in
       
       if let response = try? result.get() {
         if (response.data.routes.count == 0) {
           // No trains found
-          entries.append(TrainDetail(date: Date(), departureTime: "404", arrivalTime: "404", platform: "404", trainNumber: "404"))
+          entries.append(emptyEntry)
         }
         
         else {
@@ -90,7 +98,11 @@ struct Provider: TimelineProvider {
                               
   func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
     getTrains(completion: { entries in
-      let timeline = Timeline(entries: entries, policy: .atEnd)
+      // Refresh timeline after tomorrow at midnight
+      let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
+      let midnight = Calendar.current.startOfDay(for: tomorrow)
+      
+      let timeline = Timeline(entries: entries, policy: .after(midnight))
       completion(timeline)
     })
   }
