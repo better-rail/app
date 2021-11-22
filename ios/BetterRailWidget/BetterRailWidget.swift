@@ -52,7 +52,7 @@ struct Provider: TimelineProvider {
   func getTrains(completion: @escaping (_ entries: [Entry]) -> Void) {
     var entries: [Entry] = []
     
-    RouteModel().fetchRoute(originId: "4600", destinationId: "480", completion: { result in
+    RouteModel().fetchRoute(originId: "4600", destinationId: "680", completion: { result in
       
       if let response = try? result.get() {
         if (response.data.routes.count == 0) {
@@ -61,7 +61,12 @@ struct Provider: TimelineProvider {
         }
         
         else {
-          for index in 0 ..< response.data.routes.count {
+            for
+              index in 0 ..< response.data.routes.count
+            where
+              // API possibly return past trains
+              Date() < stringToDate(response.data.routes[index].train[0].departureTime)!
+            {
             let trains = response.data.routes[index].train
             let firstTrain = trains[0]
             let lastTrain = trains[trains.count - 1]

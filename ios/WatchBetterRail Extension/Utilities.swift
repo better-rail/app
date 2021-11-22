@@ -3,7 +3,6 @@ import Foundation
 func stringToDate(_ dateString: String) -> Date? {
   let formatter = DateFormatter()
   formatter.dateFormat = "dd/MM/yyyy HH:mm:ss"
-  formatter.timeZone = TimeZone(abbreviation: "UTC")
 
   return formatter.date(from: dateString)
 }
@@ -11,7 +10,6 @@ func stringToDate(_ dateString: String) -> Date? {
 func formatRouteHour(_ dateString: String) -> String {
   let hourFormatter = DateFormatter()
   hourFormatter.dateFormat = "HH:mm"
-  hourFormatter.timeZone = TimeZone(abbreviation: "UTC")
   
   let formattedDate = stringToDate(dateString)
   if let date = formattedDate {
