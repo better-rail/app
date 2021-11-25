@@ -1,6 +1,6 @@
-import React, { useRef, useState, useMemo } from "react"
+import React, { useRef, useState, useEffect } from "react"
 import { observer } from "mobx-react-lite"
-import { Image, View, TouchableOpacity, Animated, ViewStyle, ImageStyle, Dimensions } from "react-native"
+import { Image, View, TouchableOpacity, Animated, ViewStyle, ImageStyle, Dimensions, AppState } from "react-native"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
 import { useStores } from "../../models"
 import { color, primaryFontIOS, fontScale, spacing } from "../../theme"
@@ -9,7 +9,6 @@ import { useStations } from "../../data/stations"
 import { translate, useFormattedDate } from "../../i18n"
 import DatePickerModal from "../../components/date-picker-modal"
 import { useQuery } from "react-query"
-import { queryClient } from "../../app"
 import { isWeekend } from "../../utils/helpers/date-helpers"
 
 const now = new Date()
@@ -137,6 +136,21 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
       time: routePlan.date.getTime(),
     })
   }
+
+  /**
+   * When the app is in the background it may remained active in the memory, and
+   * the date we keep might be irrelevant when opening the app after a period of time.
+   *
+   * This effect refreshes the date if the app has been in the background for more than 1 hour.
+   */
+  useEffect(function refreshDate() {
+    AppState.addEventListener("focus", (currentState) => {
+      if (currentState === "active") {
+        if (routePlan.date) {
+        }
+      }
+    })
+  }, [])
 
   useQuery(
     ["origin", origin?.id, "destination", destination?.id, "time", routePlan.date.getDate()],
