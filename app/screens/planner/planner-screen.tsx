@@ -20,7 +20,8 @@ import { translate, useFormattedDate } from "../../i18n"
 import DatePickerModal from "../../components/date-picker-modal"
 import { useQuery } from "react-query"
 import { isWeekend } from "../../utils/helpers/date-helpers"
-import { differenceInHours } from "date-fns"
+import { differenceInHours, parseISO } from "date-fns"
+import { save, load } from "../../utils/storage"
 
 const now = new Date()
 
@@ -152,30 +153,38 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
    * When the app is in the background it may remain active in memory.
    * Therefor, `routePlan.date` might be irrelevant when opening the app after a period of time.
    *
-   * This effect refreshes the date if the app has been in the background for more than 2 hours.
+   * This effect refreshes the date if the app has been in the background for more than 1 hour.
    */
   useEffect(() => {
     function refreshDate(currentState: AppStateStatus) {
       if (currentState === "active") {
-        const hoursDiff = differenceInHours(new Date(), routePlan.date)
-        if (hoursDiff > 2) {
-          routePlan.setDate(new Date())
-        }
+        load("lastAppLaunch").then((launchDate: string) => {
+          if (launchDate) {
+            const hoursDiff = differenceInHours(new Date(), parseISO(launchDate))
+
+            if (hoursDiff >= 1) {
+              routePlan.setDate(new Date())
+            }
+          }
+          save("lastAppLaunch", new Date())
+        })
       }
     }
 
-    AppState.addEventListener("focus", refreshDate)
+    save("lastAppLaunch", new Date())
+    const subscription = AppState.addEventListener("change", refreshDate)
 
-    return () => AppState.removeEventListener("focus", refreshDate)
+    return () => subscription.remove()
   }, [])
 
   useQuery(
     ["origin", origin?.id, "destination", destination?.id, "time", routePlan.date.getDate()],
     () => trainRoutes.getRoutes(origin?.id, destination?.id, routePlan.date.getTime()),
     /**
-     *  TODO: Temporary fix for displaying "no train found" modal.
-     *  Keeping the cache for those requests will store the result found, while not displaying the modal that
-     *  alerts those result belongs to another day.
+     *  TODO: Temporary fix for displaying "no trains found" modal, omitting cache during the weekend.
+     *  Usually on weekends there are no trains, and the results are displayed for a different day.
+     *  Those results will be cached and the "no trains modal" modal won't be displayed for them. Therefor we omit caching during
+     *  for weekend requests.
      */
     { cacheTime: isWeekend(routePlan.date) ? 0 : 7200000 },
   )

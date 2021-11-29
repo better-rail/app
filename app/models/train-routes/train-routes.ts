@@ -56,7 +56,6 @@ export const trainRoutesModel = types
       self.setStatus("pending")
       self.updateResultType("normal")
 
-      console.log("API Request sent")
       const routeApi = new RouteApi(self.environment.api)
       let foundRoutes = false
       let apiHitCount = 0
