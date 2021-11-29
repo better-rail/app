@@ -1,6 +1,16 @@
 import React, { useRef, useState, useEffect } from "react"
 import { observer } from "mobx-react-lite"
-import { Image, View, TouchableOpacity, Animated, ViewStyle, ImageStyle, Dimensions, AppState } from "react-native"
+import {
+  Image,
+  View,
+  TouchableOpacity,
+  Animated,
+  ViewStyle,
+  ImageStyle,
+  Dimensions,
+  AppState,
+  AppStateStatus,
+} from "react-native"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
 import { useStores } from "../../models"
 import { color, primaryFontIOS, fontScale, spacing } from "../../theme"
@@ -10,6 +20,7 @@ import { translate, useFormattedDate } from "../../i18n"
 import DatePickerModal from "../../components/date-picker-modal"
 import { useQuery } from "react-query"
 import { isWeekend } from "../../utils/helpers/date-helpers"
+import { differenceInHours } from "date-fns"
 
 const now = new Date()
 
@@ -138,18 +149,24 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   }
 
   /**
-   * When the app is in the background it may remained active in the memory, and
-   * the date we keep might be irrelevant when opening the app after a period of time.
+   * When the app is in the background it may remain active in memory.
+   * Therefor, `routePlan.date` might be irrelevant when opening the app after a period of time.
    *
-   * This effect refreshes the date if the app has been in the background for more than 1 hour.
+   * This effect refreshes the date if the app has been in the background for more than 2 hours.
    */
-  useEffect(function refreshDate() {
-    AppState.addEventListener("focus", (currentState) => {
+  useEffect(() => {
+    function refreshDate(currentState: AppStateStatus) {
       if (currentState === "active") {
-        if (routePlan.date) {
+        const hoursDiff = differenceInHours(new Date(), routePlan.date)
+        if (hoursDiff > 2) {
+          routePlan.setDate(new Date())
         }
       }
-    })
+    }
+
+    AppState.addEventListener("focus", refreshDate)
+
+    return () => AppState.removeEventListener("focus", refreshDate)
   }, [])
 
   useQuery(
