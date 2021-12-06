@@ -18,6 +18,8 @@
 		73244C6A71D14F56B7316FA2 /* Heebo-Black.otf in Resources */ = {isa = PBXBuildFile; fileRef = 62AD955938654791888FAB90 /* Heebo-Black.otf */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		A4B148D367B119F99EC2C2E5 /* libPods-BetterRail.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EADEA568884090C1B008E181 /* libPods-BetterRail.a */; };
+		C1286B51275E6C8300E1E05D /* RNBetterRail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1286B50275E6C8300E1E05D /* RNBetterRail.swift */; };
+		C1286B55275E6D9D00E1E05D /* RNBetterRail.m in Sources */ = {isa = PBXBuildFile; fileRef = C1286B54275E6D9D00E1E05D /* RNBetterRail.m */; };
 		C1326198270C887900A248BA /* TrainDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1326197270C887900A248BA /* TrainDetailsView.swift */; };
 		C14F313426331361002A01D7 /* Swifty.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14F313326331361002A01D7 /* Swifty.swift */; };
 		C17FA4BA2709EFBB003797D9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C17FA4B92709EFBB003797D9 /* Assets.xcassets */; };
@@ -164,6 +166,8 @@
 		A2759849ACE84A51AA1EC58E /* Heebo-Medium.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Heebo-Medium.otf"; path = "../assets/fonts/Heebo-Medium.otf"; sourceTree = "<group>"; };
 		A70BF4419AFA46D2B69352A3 /* Heebo-Thin.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Heebo-Thin.otf"; path = "../assets/fonts/Heebo-Thin.otf"; sourceTree = "<group>"; };
 		AF4431C692CA4F7D8DC013BE /* Heebo-ExtraBold.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Heebo-ExtraBold.otf"; path = "../assets/fonts/Heebo-ExtraBold.otf"; sourceTree = "<group>"; };
+		C1286B50275E6C8300E1E05D /* RNBetterRail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RNBetterRail.swift; path = BetterRail/RNBetterRail.swift; sourceTree = "<group>"; };
+		C1286B54275E6D9D00E1E05D /* RNBetterRail.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNBetterRail.m; sourceTree = "<group>"; };
 		C1326197270C887900A248BA /* TrainDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainDetailsView.swift; sourceTree = "<group>"; };
 		C14F313226331361002A01D7 /* BetterRail-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BetterRail-Bridging-Header.h"; sourceTree = "<group>"; };
 		C14F313326331361002A01D7 /* Swifty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Swifty.swift; sourceTree = "<group>"; };
@@ -275,6 +279,8 @@
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
+				C1286B50275E6C8300E1E05D /* RNBetterRail.swift */,
+				C1286B54275E6D9D00E1E05D /* RNBetterRail.m */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
@@ -323,6 +329,7 @@
 			isa = PBXGroup;
 			children = (
 				C14F313326331361002A01D7 /* Swifty.swift */,
+				C14F313226331361002A01D7 /* BetterRail-Bridging-Header.h */,
 				13B07FAE1A68108700A75B9A /* BetterRail */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* BetterRailTests */,
@@ -333,7 +340,6 @@
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				71ED362ACEA45F9F60DCD285 /* Pods */,
 				D6A8C2445E5D42FA8F96D59C /* Resources */,
-				C14F313226331361002A01D7 /* BetterRail-Bridging-Header.h */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -859,6 +865,8 @@
 				C1C6DC5327493A9C000E9EED /* StationModel.swift in Sources */,
 				C1C6DC5727493BBC000E9EED /* WidgetRouteView.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
+				C1286B55275E6D9D00E1E05D /* RNBetterRail.m in Sources */,
+				C1286B51275E6C8300E1E05D /* RNBetterRail.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

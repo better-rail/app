@@ -8,6 +8,9 @@ import { PlannerScreenProps } from "../../navigators/main-navigator"
 import { useStations } from "../../data/stations"
 import { translate, useFormattedDate } from "../../i18n"
 import DatePickerModal from "../../components/date-picker-modal"
+import { NativeModules } from "react-native"
+const { RNBetterRail } = NativeModules
+RNBetterRail.printMessage("HELLO FROM RN!")
 
 const now = new Date()
 
