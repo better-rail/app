@@ -10,7 +10,7 @@ struct Station: Decodable, Hashable, Identifiable {
   init(from decoder: Decoder) throws {
       let values = try decoder.container(keyedBy: CodingKeys.self)
       id = try values.decode(String.self, forKey: .id)
-      name = try values.decode(String.self, forKey: CodingKeys(rawValue: userLocale)!)
+      name = try values.decode(String.self, forKey: CodingKeys(rawValue: userLocale.rawValue)!)
     
     if (values.contains(.image)) {
       image = try values.decode(String.self, forKey: .image)

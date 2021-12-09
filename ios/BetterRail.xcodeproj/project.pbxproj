@@ -33,8 +33,20 @@
 		C1A8026D2747AB4D00A3073D /* BetterRailWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = C1A802602747AB4D00A3073D /* BetterRailWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C1B121262761FD250085C269 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C102709F08200CD3D44 /* Utilities.swift */; };
 		C1B121272761FD260085C269 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C102709F08200CD3D44 /* Utilities.swift */; };
+		C1B121292761FD7E0085C269 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1B121282761FD7E0085C269 /* Extensions.swift */; };
+		C1B1212B2761FDA60085C269 /* EntriesGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1B1212A2761FDA60085C269 /* EntriesGenerator.swift */; };
+		C1B121322761FF100085C269 /* SnapshotData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1B121312761FF100085C269 /* SnapshotData.swift */; };
+		C1B121352761FF900085C269 /* WidgetBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1B121342761FF900085C269 /* WidgetBackground.swift */; };
+		C1B12137276201910085C269 /* Route.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = C1B12136276201910085C269 /* Route.intentdefinition */; };
+		C1B1213E276202130085C269 /* Intents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1B1213D276202130085C269 /* Intents.framework */; };
+		C1B12141276202130085C269 /* IntentHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1B12140276202130085C269 /* IntentHandler.swift */; };
+		C1B12145276202130085C269 /* StationIntent.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = C1B1213C276202130085C269 /* StationIntent.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		C1B12149276203310085C269 /* Route.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = C1B12136276201910085C269 /* Route.intentdefinition */; };
+		C1B1214A2762034C0085C269 /* StationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C082709F08200CD3D44 /* StationModel.swift */; };
+		C1B1214B2762035B0085C269 /* stationsData.json in Resources */ = {isa = PBXBuildFile; fileRef = C1F61C0C2709F08200CD3D44 /* stationsData.json */; };
+		C1B1214C2762035B0085C269 /* stationsData.json in Resources */ = {isa = PBXBuildFile; fileRef = C1F61C0C2709F08200CD3D44 /* stationsData.json */; };
+		C1B1214D2762036A0085C269 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C102709F08200CD3D44 /* Utilities.swift */; };
 		C1B3FCF3271EEFFA000F33AE /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = C1B3FCF5271EEFFA000F33AE /* Localizable.strings */; };
-		C1C6DC4B274939C1000E9EED /* WidgetEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C6DC4A274939C1000E9EED /* WidgetEntryView.swift */; };
 		C1C6DC4C274939C1000E9EED /* WidgetEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C6DC4A274939C1000E9EED /* WidgetEntryView.swift */; };
 		C1C6DC4E274939D9000E9EED /* WidgetRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C6DC4D274939D9000E9EED /* WidgetRouteView.swift */; };
 		C1C6DC5027493A56000E9EED /* TrainDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C6DC4F27493A56000E9EED /* TrainDetail.swift */; };
@@ -43,7 +55,6 @@
 		C1C6DC5327493A9C000E9EED /* StationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C082709F08200CD3D44 /* StationModel.swift */; };
 		C1C6DC5427493A9D000E9EED /* StationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C082709F08200CD3D44 /* StationModel.swift */; };
 		C1C6DC5527493AA1000E9EED /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C102709F08200CD3D44 /* Utilities.swift */; };
-		C1C6DC5727493BBC000E9EED /* WidgetRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C6DC4D274939D9000E9EED /* WidgetRouteView.swift */; };
 		C1C6DC5827493BC5000E9EED /* TrainDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C6DC4F27493A56000E9EED /* TrainDetail.swift */; };
 		C1C6DC5927493C51000E9EED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1F61C242709F09B00CD3D44 /* Assets.xcassets */; };
 		C1C6DC5B27493C56000E9EED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1F61C242709F09B00CD3D44 /* Assets.xcassets */; };
@@ -101,6 +112,13 @@
 			remoteGlobalIDString = C1A8025F2747AB4D00A3073D;
 			remoteInfo = BetterRailWidgetExtension;
 		};
+		C1B12143276202130085C269 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C1B1213B276202130085C269;
+			remoteInfo = StationIntent;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -133,6 +151,7 @@
 			dstSubfolderSpec = 13;
 			files = (
 				C1A8026D2747AB4D00A3073D /* BetterRailWidgetExtension.appex in Embed App Extensions */,
+				C1B12145276202130085C269 /* StationIntent.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -183,6 +202,15 @@
 		C1A802662747AB4D00A3073D /* BetterRailWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BetterRailWidget.swift; sourceTree = "<group>"; };
 		C1A802682747AB4D00A3073D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C1A8026A2747AB4D00A3073D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C1B121282761FD7E0085C269 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		C1B1212A2761FDA60085C269 /* EntriesGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntriesGenerator.swift; sourceTree = "<group>"; };
+		C1B121312761FF100085C269 /* SnapshotData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapshotData.swift; sourceTree = "<group>"; };
+		C1B121342761FF900085C269 /* WidgetBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetBackground.swift; sourceTree = "<group>"; };
+		C1B12136276201910085C269 /* Route.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = Route.intentdefinition; sourceTree = "<group>"; };
+		C1B1213C276202130085C269 /* StationIntent.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = StationIntent.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		C1B1213D276202130085C269 /* Intents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Intents.framework; path = System/Library/Frameworks/Intents.framework; sourceTree = SDKROOT; };
+		C1B12140276202130085C269 /* IntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentHandler.swift; sourceTree = "<group>"; };
+		C1B12142276202130085C269 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C1B3FCF4271EEFFA000F33AE /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C1B3FCF6271EEFFD000F33AE /* he */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = he; path = he.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C1B3FCF7271F25AA000F33AE /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -252,6 +280,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C1B12139276202130085C269 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C1B1213E276202130085C269 /* Intents.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -300,6 +336,7 @@
 				60796641CDFE67F015A69D88 /* libPods-BetterRail-tvOSTests.a */,
 				C1A802612747AB4D00A3073D /* WidgetKit.framework */,
 				C1A802632747AB4D00A3073D /* SwiftUI.framework */,
+				C1B1213D276202130085C269 /* Intents.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -337,6 +374,7 @@
 				C17FA4B82709EFBB003797D9 /* WatchBetterRail */,
 				C17FA4C42709EFBB003797D9 /* WatchBetterRail Extension */,
 				C1A802652747AB4D00A3073D /* BetterRailWidget */,
+				C1B1213F276202130085C269 /* StationIntent */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				71ED362ACEA45F9F60DCD285 /* Pods */,
@@ -355,6 +393,7 @@
 				C17FA4B72709EFBB003797D9 /* WatchBetterRail.app */,
 				C17FA4C02709EFBB003797D9 /* WatchBetterRail Extension.appex */,
 				C1A802602747AB4D00A3073D /* BetterRailWidgetExtension.appex */,
+				C1B1213C276202130085C269 /* StationIntent.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -394,14 +433,44 @@
 		C1A802652747AB4D00A3073D /* BetterRailWidget */ = {
 			isa = PBXGroup;
 			children = (
+				C1B121332761FF7F0085C269 /* Views */,
+				C1B121312761FF100085C269 /* SnapshotData.swift */,
+				C1B1212E2761FEBC0085C269 /* Models */,
 				C1A802662747AB4D00A3073D /* BetterRailWidget.swift */,
-				C1C6DC4A274939C1000E9EED /* WidgetEntryView.swift */,
-				C1C6DC4D274939D9000E9EED /* WidgetRouteView.swift */,
 				C1A802682747AB4D00A3073D /* Assets.xcassets */,
 				C1A8026A2747AB4D00A3073D /* Info.plist */,
-				C1C6DC4F27493A56000E9EED /* TrainDetail.swift */,
+				C1B121282761FD7E0085C269 /* Extensions.swift */,
+				C1B1212A2761FDA60085C269 /* EntriesGenerator.swift */,
+				C1B12136276201910085C269 /* Route.intentdefinition */,
 			);
 			path = BetterRailWidget;
+			sourceTree = "<group>";
+		};
+		C1B1212E2761FEBC0085C269 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				C1C6DC4F27493A56000E9EED /* TrainDetail.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		C1B121332761FF7F0085C269 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				C1C6DC4A274939C1000E9EED /* WidgetEntryView.swift */,
+				C1B121342761FF900085C269 /* WidgetBackground.swift */,
+				C1C6DC4D274939D9000E9EED /* WidgetRouteView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		C1B1213F276202130085C269 /* StationIntent */ = {
+			isa = PBXGroup;
+			children = (
+				C1B12140276202130085C269 /* IntentHandler.swift */,
+				C1B12142276202130085C269 /* Info.plist */,
+			);
+			path = StationIntent;
 			sourceTree = "<group>";
 		};
 		C1E62DD6270EE2330067F262 /* TrainDetailsViews */ = {
@@ -504,6 +573,7 @@
 			dependencies = (
 				C17FA4D22709EFBC003797D9 /* PBXTargetDependency */,
 				C1A8026C2747AB4D00A3073D /* PBXTargetDependency */,
+				C1B12144276202130085C269 /* PBXTargetDependency */,
 			);
 			name = BetterRail;
 			productName = BetterRail;
@@ -562,6 +632,23 @@
 			productReference = C1A802602747AB4D00A3073D /* BetterRailWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		C1B1213B276202130085C269 /* StationIntent */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C1B12146276202130085C269 /* Build configuration list for PBXNativeTarget "StationIntent" */;
+			buildPhases = (
+				C1B12138276202130085C269 /* Sources */,
+				C1B12139276202130085C269 /* Frameworks */,
+				C1B1213A276202130085C269 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = StationIntent;
+			productName = StationIntent;
+			productReference = C1B1213C276202130085C269 /* StationIntent.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -594,6 +681,11 @@
 						DevelopmentTeam = UE6BVYPPFX;
 						ProvisioningStyle = Automatic;
 					};
+					C1B1213B276202130085C269 = {
+						CreatedOnToolsVersion = 12.5;
+						DevelopmentTeam = UE6BVYPPFX;
+						ProvisioningStyle = Automatic;
+					};
 				};
 			};
 			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "BetterRail" */;
@@ -615,6 +707,7 @@
 				C17FA4B62709EFBB003797D9 /* WatchBetterRail */,
 				C17FA4BF2709EFBB003797D9 /* WatchBetterRail Extension */,
 				C1A8025F2747AB4D00A3073D /* BetterRailWidgetExtension */,
+				C1B1213B276202130085C269 /* StationIntent */,
 			);
 		};
 /* End PBXProject section */
@@ -672,8 +765,17 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C1B1214B2762035B0085C269 /* stationsData.json in Resources */,
 				C1C6DC5927493C51000E9EED /* Assets.xcassets in Resources */,
 				C1A802692747AB4D00A3073D /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C1B1213A276202130085C269 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C1B1214C2762035B0085C269 /* stationsData.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -857,13 +959,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				C14F313426331361002A01D7 /* Swifty.swift in Sources */,
-				C1C6DC4B274939C1000E9EED /* WidgetEntryView.swift in Sources */,
 				C1C6DC5527493AA1000E9EED /* Utilities.swift in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				C1C6DC5227493A98000E9EED /* RouteModel.swift in Sources */,
 				C1C6DC5827493BC5000E9EED /* TrainDetail.swift in Sources */,
 				C1C6DC5327493A9C000E9EED /* StationModel.swift in Sources */,
-				C1C6DC5727493BBC000E9EED /* WidgetRouteView.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				C1286B55275E6D9D00E1E05D /* RNBetterRail.m in Sources */,
 				C1286B51275E6C8300E1E05D /* RNBetterRail.swift in Sources */,
@@ -898,11 +998,27 @@
 			files = (
 				C1C6DC4E274939D9000E9EED /* WidgetRouteView.swift in Sources */,
 				C1C6DC5027493A56000E9EED /* TrainDetail.swift in Sources */,
+				C1B12137276201910085C269 /* Route.intentdefinition in Sources */,
 				C1B121272761FD260085C269 /* Utilities.swift in Sources */,
+				C1B121292761FD7E0085C269 /* Extensions.swift in Sources */,
+				C1B1212B2761FDA60085C269 /* EntriesGenerator.swift in Sources */,
 				C1A802672747AB4D00A3073D /* BetterRailWidget.swift in Sources */,
 				C1C6DC5127493A91000E9EED /* RouteModel.swift in Sources */,
+				C1B121322761FF100085C269 /* SnapshotData.swift in Sources */,
 				C1C6DC5427493A9D000E9EED /* StationModel.swift in Sources */,
+				C1B121352761FF900085C269 /* WidgetBackground.swift in Sources */,
 				C1C6DC4C274939C1000E9EED /* WidgetEntryView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C1B12138276202130085C269 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C1B12149276203310085C269 /* Route.intentdefinition in Sources */,
+				C1B1214A2762034C0085C269 /* StationModel.swift in Sources */,
+				C1B1214D2762036A0085C269 /* Utilities.swift in Sources */,
+				C1B12141276202130085C269 /* IntentHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -928,6 +1044,11 @@
 			isa = PBXTargetDependency;
 			target = C1A8025F2747AB4D00A3073D /* BetterRailWidgetExtension */;
 			targetProxy = C1A8026B2747AB4D00A3073D /* PBXContainerItemProxy */;
+		};
+		C1B12144276202130085C269 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C1B1213B276202130085C269 /* StationIntent */;
+			targetProxy = C1B12143276202130085C269 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1365,6 +1486,64 @@
 			};
 			name = Release;
 		};
+		C1B12147276202130085C269 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = UE6BVYPPFX;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = StationIntent/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "il.co.better-rail.StationIntent";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C1B12148276202130085C269 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = UE6BVYPPFX;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = StationIntent/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "il.co.better-rail.StationIntent";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1418,6 +1597,15 @@
 			buildConfigurations = (
 				C1A8026F2747AB4D00A3073D /* Debug */,
 				C1A802702747AB4D00A3073D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C1B12146276202130085C269 /* Build configuration list for PBXNativeTarget "StationIntent" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C1B12147276202130085C269 /* Debug */,
+				C1B12148276202130085C269 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
