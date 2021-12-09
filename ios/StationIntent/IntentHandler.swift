@@ -19,7 +19,7 @@ class IntentHandler: INExtension, RouteIntentHandling {
     }
     
     func defaultOrigin(for intent: RouteIntent) -> INStation? {
-      let defaultRoute = UserDefaults(suiteName: "group.guytepper.WidgetApp")!.array(forKey: "defaultRoute") as? [String]
+      let defaultRoute = UserDefaults(suiteName: "group.il.co.better-rail")!.array(forKey: "defaultRoute") as? [String]
 
      if let route = defaultRoute {
         let stationId = route[0]
@@ -30,9 +30,16 @@ class IntentHandler: INExtension, RouteIntentHandling {
         return INStation(identifier: "4600", display: "Tel Aviv - HaShalom")
     }
     
-    // - TODO: Set currently selected user route from the app
     func defaultDestination(for intent: RouteIntent) -> INStation? {
-        return INStation(identifier: "680", display: "Jerusalem - Yitzhak Navon")
+      let defaultRoute = UserDefaults(suiteName: "group.il.co.better-rail")!.array(forKey: "defaultRoute") as? [String]
+
+       if let route = defaultRoute {
+          let stationId = route[1]
+          let stationName = getStationNameById(stationId)
+          return INStation(identifier: stationId, display: stationName)
+      }
+
+      return INStation(identifier: "680", display: "Jerusalem - Yitzhak Navon")
     }
     
     func resolveRouteIntent(parameter: INStation?) -> INStationResolutionResult {

@@ -215,6 +215,8 @@
 		C1B12142276202130085C269 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C1B12150276235B10085C269 /* BetterRailRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = BetterRailRelease.entitlements; path = BetterRail/BetterRailRelease.entitlements; sourceTree = "<group>"; };
 		C1B12151276236010085C269 /* StationIntentRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = StationIntentRelease.entitlements; sourceTree = "<group>"; };
+		C1B121522762419B0085C269 /* BetterRailDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = BetterRailDebug.entitlements; path = BetterRail/BetterRailDebug.entitlements; sourceTree = "<group>"; };
+		C1B12153276241A30085C269 /* StationIntentDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = StationIntentDebug.entitlements; sourceTree = "<group>"; };
 		C1B3FCF4271EEFFA000F33AE /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C1B3FCF6271EEFFD000F33AE /* he */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = he; path = he.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C1B3FCF7271F25AA000F33AE /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -315,6 +317,7 @@
 		13B07FAE1A68108700A75B9A /* BetterRail */ = {
 			isa = PBXGroup;
 			children = (
+				C1B121522762419B0085C269 /* BetterRailDebug.entitlements */,
 				C1B12150276235B10085C269 /* BetterRailRelease.entitlements */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
@@ -472,6 +475,7 @@
 		C1B1213F276202130085C269 /* StationIntent */ = {
 			isa = PBXGroup;
 			children = (
+				C1B12153276241A30085C269 /* StationIntentDebug.entitlements */,
 				C1B12151276236010085C269 /* StationIntentRelease.entitlements */,
 				C1B12140276202130085C269 /* IntentHandler.swift */,
 				C1B12142276202130085C269 /* Info.plist */,
@@ -1126,7 +1130,8 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 5;
+				CODE_SIGN_ENTITLEMENTS = BetterRail/BetterRailDebug.entitlements;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = UE6BVYPPFX;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = BetterRail/Info.plist;
@@ -1157,7 +1162,7 @@
 				CODE_SIGN_ENTITLEMENTS = BetterRail/BetterRailRelease.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = UE6BVYPPFX;
 				INFOPLIST_FILE = BetterRail/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -1306,7 +1311,7 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = UE6BVYPPFX;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1343,7 +1348,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = UE6BVYPPFX;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1374,7 +1379,7 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = UE6BVYPPFX;
 				ENABLE_PREVIEWS = YES;
@@ -1409,7 +1414,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = UE6BVYPPFX;
 				ENABLE_PREVIEWS = YES;
@@ -1442,7 +1447,7 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = UE6BVYPPFX;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1477,7 +1482,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = UE6BVYPPFX;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1505,8 +1510,9 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = StationIntent/StationIntentDebug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = UE6BVYPPFX;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1540,7 +1546,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = UE6BVYPPFX;
 				GCC_C_LANGUAGE_STANDARD = gnu11;

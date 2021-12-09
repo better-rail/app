@@ -14,7 +14,9 @@ class RNBetterRail: NSObject {
   @objc func saveCurrentRoute(_ originId: String, destinationId: String) {
     let currentRoute = [originId, destinationId]
     UserDefaults(suiteName: "group.il.co.better-rail")!.set(currentRoute, forKey: "defaultRoute")
-    
+    let defaultRoute = UserDefaults(suiteName: "group.il.co.better-rail")!.array(forKey: "defaultRoute") as? [String]
+    print(defaultRoute)
+
     print("CURRENT ROUTE: ", currentRoute)
   }
   
