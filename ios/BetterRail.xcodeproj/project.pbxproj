@@ -31,6 +31,8 @@
 		C1A802672747AB4D00A3073D /* BetterRailWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A802662747AB4D00A3073D /* BetterRailWidget.swift */; };
 		C1A802692747AB4D00A3073D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1A802682747AB4D00A3073D /* Assets.xcassets */; };
 		C1A8026D2747AB4D00A3073D /* BetterRailWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = C1A802602747AB4D00A3073D /* BetterRailWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		C1B121262761FD250085C269 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C102709F08200CD3D44 /* Utilities.swift */; };
+		C1B121272761FD260085C269 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C102709F08200CD3D44 /* Utilities.swift */; };
 		C1B3FCF3271EEFFA000F33AE /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = C1B3FCF5271EEFFA000F33AE /* Localizable.strings */; };
 		C1C6DC4B274939C1000E9EED /* WidgetEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C6DC4A274939C1000E9EED /* WidgetEntryView.swift */; };
 		C1C6DC4C274939C1000E9EED /* WidgetEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C6DC4A274939C1000E9EED /* WidgetEntryView.swift */; };
@@ -41,7 +43,6 @@
 		C1C6DC5327493A9C000E9EED /* StationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C082709F08200CD3D44 /* StationModel.swift */; };
 		C1C6DC5427493A9D000E9EED /* StationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C082709F08200CD3D44 /* StationModel.swift */; };
 		C1C6DC5527493AA1000E9EED /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C102709F08200CD3D44 /* Utilities.swift */; };
-		C1C6DC5627493AA1000E9EED /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C102709F08200CD3D44 /* Utilities.swift */; };
 		C1C6DC5727493BBC000E9EED /* WidgetRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C6DC4D274939D9000E9EED /* WidgetRouteView.swift */; };
 		C1C6DC5827493BC5000E9EED /* TrainDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C6DC4F27493A56000E9EED /* TrainDetail.swift */; };
 		C1C6DC5927493C51000E9EED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1F61C242709F09B00CD3D44 /* Assets.xcassets */; };
@@ -65,7 +66,6 @@
 		C1F61C1B2709F08200CD3D44 /* StationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C082709F08200CD3D44 /* StationModel.swift */; };
 		C1F61C1C2709F08200CD3D44 /* RouteModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C092709F08200CD3D44 /* RouteModel.swift */; };
 		C1F61C1F2709F08200CD3D44 /* stationsData.json in Resources */ = {isa = PBXBuildFile; fileRef = C1F61C0C2709F08200CD3D44 /* stationsData.json */; };
-		C1F61C222709F08200CD3D44 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C102709F08200CD3D44 /* Utilities.swift */; };
 		C1F61C252709F09B00CD3D44 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1F61C242709F09B00CD3D44 /* Assets.xcassets */; };
 		DA04D16B7E3649A49F843A15 /* Heebo-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = A047FB8FBCA54556AEDB349D /* Heebo-Light.otf */; };
 		E0E402AF856107EC82190244 /* libPods-BetterRail-BetterRailTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 301BE758935A381A571F5B21 /* libPods-BetterRail-BetterRailTests.a */; };
@@ -284,6 +284,7 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
+				C1F61C102709F08200CD3D44 /* Utilities.swift */,
 			);
 			name = BetterRail;
 			sourceTree = "<group>";
@@ -377,7 +378,6 @@
 				C1F61C0C2709F08200CD3D44 /* stationsData.json */,
 				C1B3FCF5271EEFFA000F33AE /* Localizable.strings */,
 				C1F61C062709F08200CD3D44 /* WatchBetterRail.swift */,
-				C1F61C102709F08200CD3D44 /* Utilities.swift */,
 				C17FA4D02709EFBC003797D9 /* Info.plist */,
 			);
 			path = "WatchBetterRail Extension";
@@ -877,10 +877,10 @@
 				C1F61C152709F08200CD3D44 /* RoutesView.swift in Sources */,
 				C1F61C162709F08200CD3D44 /* FavoriteItemView.swift in Sources */,
 				C1F61C142709F08200CD3D44 /* FavoritesView.swift in Sources */,
+				C1B121262761FD250085C269 /* Utilities.swift in Sources */,
 				C1ED5218270B248C00EBB0B1 /* FavoritesModel.swift in Sources */,
 				C1E62DD8270EE24C0067F262 /* StationListItem.swift in Sources */,
 				C1F61C1C2709F08200CD3D44 /* RouteModel.swift in Sources */,
-				C1F61C222709F08200CD3D44 /* Utilities.swift in Sources */,
 				C1F61C132709F08200CD3D44 /* RouteViewModel.swift in Sources */,
 				C1E62DDC270EE28B0067F262 /* TrainExchangeListItem.swift in Sources */,
 				C1F61C1A2709F08200CD3D44 /* WatchBetterRail.swift in Sources */,
@@ -898,7 +898,7 @@
 			files = (
 				C1C6DC4E274939D9000E9EED /* WidgetRouteView.swift in Sources */,
 				C1C6DC5027493A56000E9EED /* TrainDetail.swift in Sources */,
-				C1C6DC5627493AA1000E9EED /* Utilities.swift in Sources */,
+				C1B121272761FD260085C269 /* Utilities.swift in Sources */,
 				C1A802672747AB4D00A3073D /* BetterRailWidget.swift in Sources */,
 				C1C6DC5127493A91000E9EED /* RouteModel.swift in Sources */,
 				C1C6DC5427493A9D000E9EED /* StationModel.swift in Sources */,
