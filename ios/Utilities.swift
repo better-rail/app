@@ -46,12 +46,13 @@ enum SupportedLanguages: String {
 /// Available options are `english`, `hebrew` and `arabic`
 /// Defaults to `english`.
 func getUserLocale() -> SupportedLanguages {
-  let langCode = Bundle.main.preferredLocalizations[0]
+  let langCode = Locale.preferredLanguages[0]
   let usLocale = Locale(identifier: "en-US")
   var langName = SupportedLanguages.english
  
   if let languageName = usLocale.localizedString(forLanguageCode: langCode)?.lowercased() {
     if let languageValue = SupportedLanguages(rawValue: languageName) {
+      
       langName = languageValue
     }
   }

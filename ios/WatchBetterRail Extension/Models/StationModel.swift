@@ -2,6 +2,7 @@ import Foundation
 
 /// Used for decoding the station name according to the device locale.
 let userLocale = getUserLocale()
+
 struct Station: Decodable, Hashable, Identifiable {
   let id: String
   let name: String

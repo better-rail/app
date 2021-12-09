@@ -10,7 +10,6 @@ class IntentHandler: INExtension, RouteIntentHandling {
     
     func provideOriginOptionsCollection(for intent: RouteIntent, with completion: @escaping (INObjectCollection<INStation>?, Error?) -> Void) {
         let stations = getStationItems()
-      print("stations", stations)
         completion(INObjectCollection(items: stations), nil)
     }
     

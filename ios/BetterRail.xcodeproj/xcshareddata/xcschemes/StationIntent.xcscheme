@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1300"
+   LastUpgradeVersion = "1250"
+   wasCreatedForAppExtension = "YES"
    version = "2.0">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,9 +15,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "C17FA4B62709EFBB003797D9"
-               BuildableName = "WatchBetterRail.app"
-               BlueprintName = "WatchBetterRail"
+               BlueprintIdentifier = "C1B1213B276202130085C269"
+               BuildableName = "StationIntent.appex"
+               BlueprintName = "StationIntent"
                ReferencedContainer = "container:BetterRail.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -46,27 +47,30 @@
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
-      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
-      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      selectedDebuggerIdentifier = ""
+      selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
       launchStyle = "0"
+      askForAppToLaunch = "Yes"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES"
-      launchAutomaticallySubstyle = "32">
+      launchAutomaticallySubstyle = "2">
       <RemoteRunnable
-         runnableDebuggingMode = "2"
-         BundleIdentifier = "com.apple.Carousel"
-         RemotePath = "/Better Rail">
+         runnableDebuggingMode = "1"
+         BundleIdentifier = "il.co.better-rail"
+         RemotePath = "/Users/guytepper/Library/Developer/CoreSimulator/Devices/1F40D9DD-4D33-4E1E-80F8-E64E2502D190/data/Containers/Bundle/Application/25925EE7-96AD-4726-93C6-A43FB89052EE/BetterRail.app">
+      </RemoteRunnable>
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "C17FA4B62709EFBB003797D9"
-            BuildableName = "WatchBetterRail.app"
-            BlueprintName = "WatchBetterRail"
+            BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
+            BuildableName = "BetterRail.app"
+            BlueprintName = "BetterRail"
             ReferencedContainer = "container:BetterRail.xcodeproj">
          </BuildableReference>
-      </RemoteRunnable>
+      </MacroExpansion>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -74,28 +78,17 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES"
-      launchAutomaticallySubstyle = "32">
-      <RemoteRunnable
-         runnableDebuggingMode = "2"
-         BundleIdentifier = "com.apple.Carousel"
-         RemotePath = "/Better Rail">
+      launchAutomaticallySubstyle = "2">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "C17FA4B62709EFBB003797D9"
-            BuildableName = "WatchBetterRail.app"
-            BlueprintName = "WatchBetterRail"
+            BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
+            BuildableName = "BetterRail.app"
+            BlueprintName = "BetterRail"
             ReferencedContainer = "container:BetterRail.xcodeproj">
          </BuildableReference>
-      </RemoteRunnable>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "C17FA4B62709EFBB003797D9"
-            BuildableName = "WatchBetterRail.app"
-            BlueprintName = "WatchBetterRail"
-            ReferencedContainer = "container:BetterRail.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
