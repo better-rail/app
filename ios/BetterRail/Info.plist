@@ -2,10 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSUserActivityTypes</key>
-	<array>
-		<string>RouteIntent</string>
-	</array>
 	<key>CFBundleAllowMixedLocalizations</key>
 	<string>true</string>
 	<key>CFBundleDevelopmentRegion</key>
@@ -45,6 +41,10 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSUserActivityTypes</key>
+	<array>
+		<string>RouteIntent</string>
+	</array>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Heebo-Black.otf</string>

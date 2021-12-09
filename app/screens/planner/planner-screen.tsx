@@ -10,6 +10,7 @@ import {
   Dimensions,
   AppState,
   AppStateStatus,
+  NativeModules,
 } from "react-native"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
 import { useStores } from "../../models"
@@ -22,6 +23,8 @@ import { useQuery } from "react-query"
 import { isWeekend } from "../../utils/helpers/date-helpers"
 import { differenceInHours, parseISO } from "date-fns"
 import { save, load } from "../../utils/storage"
+
+const { RNBetterRail } = NativeModules
 
 const now = new Date()
 
@@ -85,6 +88,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   const stationCardScale = useRef(new Animated.Value(1)).current
 
   const { origin, destination } = routePlan
+  RNBetterRail.saveCurrentRoute("680", "4800")
 
   const stations = useStations()
 

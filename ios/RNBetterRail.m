@@ -9,6 +9,6 @@
 
 @interface RCT_EXTERN_MODULE(RNBetterRail, NSObject)
 
-RCT_EXTERN_METHOD(printMessage:(NSString *)message)
+RCT_EXTERN_METHOD(saveCurrentRoute:(NSString *)originId destinationId:(NSString)destinationId)
 
 @end

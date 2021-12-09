@@ -10,8 +10,12 @@ class RNBetterRail: NSObject {
       return true
   }
   
-  @objc func printMessage(_ message: String) {
-      print("Message from RN: ", message)
+  /// This saves the current origin & destination station IDs for use as StationIntent initial values.
+  @objc func saveCurrentRoute(_ originId: String, destinationId: String) {
+    let currentRoute = [originId, destinationId]
+    UserDefaults(suiteName: "group.il.co.better-rail")!.set(currentRoute, forKey: "defaultRoute")
+    
+    print("CURRENT ROUTE: ", currentRoute)
   }
   
 }
