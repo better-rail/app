@@ -1,5 +1,5 @@
 import * as React from "react"
-import { TextStyle, TouchableOpacity, ViewStyle, PressableProps } from "react-native"
+import { Platform, TextStyle, TouchableOpacity, ViewStyle, PressableProps } from "react-native"
 import { color, spacing, typography } from "../../theme"
 import { Text } from "../"
 
@@ -59,7 +59,7 @@ export const DummyInput = function DummyInput(props: DummyInputProps) {
         {...rest}
       >
         <Text style={[TEXT, value && { color: color.text }]}>{label}</Text>
-        <Text style={[value && { color: color.text }]}>{value || placeholder}</Text>
+        <Text style={value && { color: color.text }}>{value || placeholder}</Text>
       </TouchableOpacity>
     )
   }

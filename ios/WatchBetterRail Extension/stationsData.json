@@ -182,9 +182,10 @@
    {
       "id": "8800",
       "hebrew": "ראש העין",
-      "english": "Rosh Ha'Ayin - North",
-      "russian": "Рош ха - Айн Цафон",
-      "arabic": "روش هعاين - شمال"
+      "english": "Rosh Ha'Ayin",
+      "russian": "Рош ха",
+      "arabic": "روش هعاين",
+      "image": "rosh-haayin"
    },
    {
       "id": "5300",

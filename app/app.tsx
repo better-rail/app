@@ -12,6 +12,7 @@
 import "./i18n"
 import "./utils/ignore-warnings"
 import React, { useState, useEffect, useRef } from "react"
+import { QueryClient, QueryClientProvider } from "react-query"
 import { NavigationContainerRef } from "@react-navigation/native"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet"
@@ -21,12 +22,15 @@ import { useBackButtonHandler, RootNavigator, canExit, setRootNavigation, useNav
 import { RootStore, RootStoreProvider, setupRootStore } from "./models"
 import { ToggleStorybook } from "../storybook/toggle-storybook"
 import { setInitialLanguage, setUserLanguage } from "./i18n/i18n"
+import "react-native-console-time-polyfill"
 
 // This puts screens in a native ViewController or Activity. If you want fully native
 // stack navigation, use `createNativeStackNavigator` in place of `createStackNavigator`:
 // https://github.com/kmagiera/react-native-screens#using-native-stack-navigator
 import { enableScreens } from "react-native-screens"
 enableScreens()
+
+export const queryClient = new QueryClient()
 
 export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
 /**
@@ -69,18 +73,24 @@ function App() {
   // otherwise, we're ready to render the app
   return (
     <ToggleStorybook>
-      <RootStoreProvider value={rootStore}>
-        <ActionSheetProvider>
-          <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-            {__DEV__ ? (
-              // Use navigation persistence for development
-              <RootNavigator ref={navigationRef} initialState={initialNavigationState} onStateChange={onNavigationStateChange} />
-            ) : (
-              <RootNavigator ref={navigationRef} />
-            )}
-          </SafeAreaProvider>
-        </ActionSheetProvider>
-      </RootStoreProvider>
+      <QueryClientProvider client={queryClient}>
+        <RootStoreProvider value={rootStore}>
+          <ActionSheetProvider>
+            <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+              {__DEV__ ? (
+                // Use navigation persistence for development
+                <RootNavigator
+                  ref={navigationRef}
+                  initialState={initialNavigationState}
+                  onStateChange={onNavigationStateChange}
+                />
+              ) : (
+                <RootNavigator ref={navigationRef} />
+              )}
+            </SafeAreaProvider>
+          </ActionSheetProvider>
+        </RootStoreProvider>
+      </QueryClientProvider>
     </ToggleStorybook>
   )
 }

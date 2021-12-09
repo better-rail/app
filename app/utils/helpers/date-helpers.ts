@@ -19,3 +19,8 @@ export function parseApiDate(dateString: string) {
   const parsedDate = parse(formattedDate, "dd/MM/yyyy HH:mm:ss", new Date())
   return parsedDate.getTime()
 }
+
+export function isWeekend(date: Date) {
+  const dayOfWeek = date.getDay()
+  return dayOfWeek === 5 || dayOfWeek === 6 // 5 = Friday, 6 = Saturday
+}

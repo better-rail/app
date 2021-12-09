@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState, useRef } from "react"
 import { observer } from "mobx-react-lite"
 import { FlatList, ActivityIndicator, ViewStyle } from "react-native"
 import { RouteListScreenProps } from "../../navigators/main-navigator"
-import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight, TicketFaresBottomSheet } from "../../components"
+import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight, TicketFaresBottomSheet, Text } from "../../components"
 import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
 import { format, closestIndexTo } from "date-fns"
@@ -12,6 +12,7 @@ import { SharedElement } from "react-navigation-shared-element"
 import HapticFeedback from "react-native-haptic-feedback"
 import BottomSheet from "@gorhom/bottom-sheet"
 import { isOldAndroid } from "../../utils/helpers/supported-versions"
+import { useQuery } from "react-query"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -22,18 +23,25 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   const [isModalVisible, setIsModalVisible] = useState(false)
   const { trainRoutes, routePlan } = useStores()
   const bottomSheetRef = useRef<BottomSheet>(null)
+  const { originId, destinationId, time } = route.params
+
+  const trains = useQuery(
+    ["origin", originId, "destination", destinationId, "time", routePlan.date.getDate()],
+    () => trainRoutes.getRoutes(originId, destinationId, time),
+    { enabled: false },
+  )
 
   // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
   // returns a route list for the whole day.
   const initialScrollIndex = useMemo(() => {
-    if (trainRoutes.status === "done") {
+    if (trains.isSuccess) {
       let index
 
       if (routePlan.dateType === "departure") {
-        const departureTimes = trainRoutes.routes.map((route) => route.trains[0].departureTime)
+        const departureTimes = trains.data.map((route) => route.trains[0].departureTime)
         index = closestIndexTo(route.params.time, departureTimes)
       } else if (routePlan.dateType === "arrival") {
-        const arrivalTimes = trainRoutes.routes.map((route) => route.trains[0].arrivalTime)
+        const arrivalTimes = trains.data.map((route) => route.trains[0].arrivalTime)
         index = closestIndexTo(route.params.time, arrivalTimes)
       }
 
@@ -41,13 +49,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     }
 
     return undefined
-  }, [trainRoutes.status])
-
-  useEffect(() => {
-    const { originId, destinationId, time } = route.params
-
-    trainRoutes.getRoutes(originId, destinationId, time)
-  }, [route.params])
+  }, [trains.isSuccess])
 
   useEffect(() => {
     if (trainRoutes.resultType === "different-date") {
@@ -65,6 +67,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
       stops = item.trains.length - 1
       arrivalTime = item.trains[stops].arrivalTime
     }
+
     return (
       <RouteCard
         estTime={item.estTime}
@@ -106,13 +109,13 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
         />
       </SharedElement>
-      {trainRoutes.status === "pending" ? (
+      {trains.status === "loading" ? (
         <ActivityIndicator size="large" style={{ marginTop: spacing[3] }} color="grey" />
       ) : (
         <FlatList
           renderItem={renderRouteCard}
           keyExtractor={(item) => item.trains[0]?.departureTime.toString()}
-          data={trainRoutes.routes}
+          data={trains.data}
           contentContainerStyle={{ paddingTop: spacing[4], paddingHorizontal: spacing[3], paddingBottom: spacing[3] }}
           getItemLayout={(_, index) => ({ length: RouteCardHeight, offset: (RouteCardHeight + spacing[3]) * index, index })}
           initialScrollIndex={initialScrollIndex}
@@ -128,7 +131,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         />
       )}
 
-      {trainRoutes.routes?.length > 0 && (
+      {trains.data?.length > 0 && (
         <RouteListModal
           isVisible={isModalVisible}
           onOk={() => setIsModalVisible(false)}
