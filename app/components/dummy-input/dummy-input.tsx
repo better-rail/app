@@ -59,7 +59,7 @@ export const DummyInput = function DummyInput(props: DummyInputProps) {
         {...rest}
       >
         <Text style={[TEXT, value && { color: color.text }]}>{label}</Text>
-        <Text style={[value && { color: color.text }]}>{value || placeholder}</Text>
+        <Text style={value && { color: color.text }}>{value || placeholder}</Text>
       </TouchableOpacity>
     )
   }
