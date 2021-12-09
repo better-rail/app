@@ -3,6 +3,7 @@ import { withEnvironment, withStatus } from ".."
 import { RouteApi } from "../../services/api/route-api"
 import { format, add } from "date-fns"
 import { omit } from "ramda"
+import { RouteItem } from "../../services/api"
 
 export const trainStop = {
   arrivalTime: types.number,
@@ -51,10 +52,11 @@ export const trainRoutesModel = types
     },
   }))
   .actions((self) => ({
-    getRoutes: async (originId: string, destinationId: string, time: number) => {
+    getRoutes: async (originId: string, destinationId: string, time: number): Promise<RouteItem[]> => {
       self.setStatus("pending")
-      const routeApi = new RouteApi(self.environment.api)
+      self.updateResultType("normal")
 
+      const routeApi = new RouteApi(self.environment.api)
       let foundRoutes = false
       let apiHitCount = 0
       let requestDate = time
@@ -76,6 +78,8 @@ export const trainRoutesModel = types
             // We found routes for a date different than the requested date.
             self.updateResultType("different-date")
           }
+
+          return result
         } else {
           apiHitCount += 1
           requestDate = add(requestDate, { days: 1 }).getTime()
@@ -83,10 +87,13 @@ export const trainRoutesModel = types
       }
 
       if (foundRoutes === false) {
-        // We couldn't found routes for the requested date.
+        // We couldn't find routes for the requested date.
         self.updateResultType("not-found")
         self.setStatus("done")
+        throw new Error("Not found")
       }
+
+      throw new Error("Not found")
     },
   }))
   .postProcessSnapshot(omit(["routes", "resultType"]))

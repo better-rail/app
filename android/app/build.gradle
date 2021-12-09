@@ -141,8 +141,8 @@ android {
         applicationId "com.betterrail"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 26
-        versionName "1.7.0"
+        versionCode 27
+        versionName "1.7.1"
         multiDexEnabled true
     }
     splits {
