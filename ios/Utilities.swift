@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 func stringToDate(_ dateString: String) -> Date? {
   let formatter = DateFormatter()
@@ -60,10 +61,10 @@ func getUserLocale() -> SupportedLanguages {
   return langName
 }
 
-func getNoTrainsMessage(date: Date) -> String {
+func getNoTrainsMessage(date: Date) -> LocalizedStringKey {
   if (NSCalendar(identifier: .hebrew)!.isDateInWeekend(date)) {
-    return "No trains for today."
+    return LocalizedStringKey("No trains for today")
   }
   
-  return "No more trains for today."
+  return LocalizedStringKey("No more trains for today.")
 }

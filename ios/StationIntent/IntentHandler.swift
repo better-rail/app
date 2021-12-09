@@ -25,8 +25,10 @@ class IntentHandler: INExtension, RouteIntentHandling {
         let stationName = getStationNameById(stationId)
         return INStation(identifier: stationId, display: stationName)
       }
-      
-        return INStation(identifier: "4600", display: "Tel Aviv - HaShalom")
+       
+      let defaultStationId = "4600"
+      let defaultStationName = getStationNameById(defaultStationId)
+      return INStation(identifier: defaultStationId, display: defaultStationName)
     }
     
     func defaultDestination(for intent: RouteIntent) -> INStation? {
@@ -38,7 +40,9 @@ class IntentHandler: INExtension, RouteIntentHandling {
           return INStation(identifier: stationId, display: stationName)
       }
 
-      return INStation(identifier: "680", display: "Jerusalem - Yitzhak Navon")
+      let defaultStationId = "680"
+      let defaultStationName = getStationNameById(defaultStationId)
+      return INStation(identifier: defaultStationId, display: defaultStationName)
     }
     
     func resolveRouteIntent(parameter: INStation?) -> INStationResolutionResult {

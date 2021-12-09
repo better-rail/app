@@ -17,3 +17,8 @@
 "UPCOMING" = "הרכבות הבאות";
 "ARRIVAL" = "הגעה";
 "Platform %@・Train %@" = "רציף %@・רכבת מס׳ %@";
+"Scheduale" = "לוח זמנים";
+"Display the upcoming train times." = "תצוגת זמני הרכבות הקרובות.";
+
+"No more trains for today." = "אין יותר רכבות להיום.";
+"No trains for today." = "לא נמצאו רכבות להיום.";

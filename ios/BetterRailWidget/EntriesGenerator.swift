@@ -61,7 +61,12 @@ struct EntriesGenerator {
             entries.append(entry)
           }
         }
-
+        
+        // Something is wrong; append empty entry
+        if (entries.count == 0) {
+          entries.append(getEmptyEntry(origin: originStation, destination: destinationStation))
+        }
+        
         completion(entries)
       }
     })
