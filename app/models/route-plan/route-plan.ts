@@ -1,6 +1,18 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { omit } from "ramda"
 import { translate } from "../../i18n"
+import { NativeModules, Platform } from "react-native"
+
+const { RNBetterRail } = NativeModules
+
+// Saves the current route to iOS App Group
+// Later it'll be used by the widget as the initial route
+// TODO: Move to another file
+function sendCurrentRouteToiOS(originId: string, destinationId: string) {
+  if (Platform.OS === "ios") {
+    RNBetterRail.saveCurrentRoute(originId, destinationId)
+  }
+}
 
 export type DateType = "departure" | "arrival"
 
@@ -29,9 +41,11 @@ export const RoutePlanModel = types
   .actions((self) => ({
     setOrigin(station) {
       self.origin = station
+      sendCurrentRouteToiOS(self.origin.id, self.destination?.id)
     },
     setDestination(station) {
       self.destination = station
+      sendCurrentRouteToiOS(self.origin.id, self.destination?.id)
     },
     setDate(date) {
       self.date = date
