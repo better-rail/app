@@ -23,12 +23,12 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   const [isModalVisible, setIsModalVisible] = useState(false)
   const { trainRoutes, routePlan } = useStores()
   const bottomSheetRef = useRef<BottomSheet>(null)
-  const { originId, destinationId, time } = route.params
+  const { originId, destinationId, time, enableQuery } = route.params
 
   const trains = useQuery(
     ["origin", originId, "destination", destinationId, "time", routePlan.date.getDate()],
     () => trainRoutes.getRoutes(originId, destinationId, time),
-    { enabled: false },
+    { enabled: enableQuery },
   )
 
   // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
@@ -131,11 +131,11 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         />
       )}
 
-      {trains.data?.length > 0 && (
+      {trains.isSuccess && trains.data?.length > 0 && (
         <RouteListModal
           isVisible={isModalVisible}
           onOk={() => setIsModalVisible(false)}
-          routesDate={trainRoutes.routes[0].departureTime}
+          routesDate={trainRoutes.routes[0]?.departureTime}
         />
       )}
     </Screen>

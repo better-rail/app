@@ -22,6 +22,7 @@ import { useQuery } from "react-query"
 import { isWeekend } from "../../utils/helpers/date-helpers"
 import { differenceInHours, parseISO } from "date-fns"
 import { save, load } from "../../utils/storage"
+import { donateRouteIntent } from "../../utils/ios-helpers"
 
 const now = new Date()
 
@@ -142,9 +143,14 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   }
 
   const onGetRoutePress = () => {
+    const { id: originId } = routePlan.origin
+    const { id: destinationId } = routePlan.destination
+
+    donateRouteIntent(originId, destinationId)
+
     navigation.navigate("routeList", {
-      originId: routePlan.origin.id,
-      destinationId: routePlan.destination.id,
+      originId,
+      destinationId,
       time: routePlan.date.getTime(),
     })
   }

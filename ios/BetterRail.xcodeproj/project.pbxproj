@@ -22,6 +22,8 @@
 		C1286B55275E6D9D00E1E05D /* RNBetterRail.m in Sources */ = {isa = PBXBuildFile; fileRef = C1286B54275E6D9D00E1E05D /* RNBetterRail.m */; };
 		C1326198270C887900A248BA /* TrainDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1326197270C887900A248BA /* TrainDetailsView.swift */; };
 		C14F313426331361002A01D7 /* Swifty.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14F313326331361002A01D7 /* Swifty.swift */; };
+		C15DA0672763A8EB00A24EF3 /* Route.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = C1F7C89327627A60002A417F /* Route.intentdefinition */; };
+		C15DA0682763ABF100A24EF3 /* stationsData.json in Resources */ = {isa = PBXBuildFile; fileRef = C1F61C0C2709F08200CD3D44 /* stationsData.json */; };
 		C17FA4BA2709EFBB003797D9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C17FA4B92709EFBB003797D9 /* Assets.xcassets */; };
 		C17FA4C12709EFBB003797D9 /* WatchBetterRail Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = C17FA4C02709EFBB003797D9 /* WatchBetterRail Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C17FA4D32709EFBC003797D9 /* WatchBetterRail.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = C17FA4B72709EFBB003797D9 /* WatchBetterRail.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -192,6 +194,7 @@
 		C1326197270C887900A248BA /* TrainDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainDetailsView.swift; sourceTree = "<group>"; };
 		C14F313226331361002A01D7 /* BetterRail-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BetterRail-Bridging-Header.h"; sourceTree = "<group>"; };
 		C14F313326331361002A01D7 /* Swifty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Swifty.swift; sourceTree = "<group>"; };
+		C15DA06A2763AD2800A24EF3 /* he */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = he; path = he.lproj/Route.strings; sourceTree = "<group>"; };
 		C17FA4B72709EFBB003797D9 /* WatchBetterRail.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WatchBetterRail.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C17FA4B92709EFBB003797D9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C17FA4BB2709EFBB003797D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -238,7 +241,6 @@
 		C1F61C102709F08200CD3D44 /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		C1F61C242709F09B00CD3D44 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C1F7C89527627B5E002A417F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; name = Base; path = Base.lproj/Route.intentdefinition; sourceTree = "<group>"; };
-		C1F7C89727627B68002A417F /* he */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = he; path = he.lproj/Route.strings; sourceTree = "<group>"; };
 		C1F7C89927627BCC002A417F /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Route.strings; sourceTree = "<group>"; };
 		D7E787E39BC1C66D83758CC7 /* Pods-BetterRail-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BetterRail-tvOSTests.debug.xcconfig"; path = "Target Support Files/Pods-BetterRail-tvOSTests/Pods-BetterRail-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
 		E3C07A94FCDB4698B4A058EB /* Heebo-Bold.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Heebo-Bold.otf"; path = "../assets/fonts/Heebo-Bold.otf"; sourceTree = "<group>"; };
@@ -737,6 +739,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C15DA0682763ABF100A24EF3 /* stationsData.json in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				C1B1214E276225C50085C269 /* Localizable.strings in Resources */,
@@ -977,6 +980,7 @@
 				C1C6DC5527493AA1000E9EED /* Utilities.swift in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				C1C6DC5227493A98000E9EED /* RouteModel.swift in Sources */,
+				C15DA0672763A8EB00A24EF3 /* Route.intentdefinition in Sources */,
 				C1C6DC5827493BC5000E9EED /* TrainDetail.swift in Sources */,
 				C1C6DC5327493A9C000E9EED /* StationModel.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
@@ -1082,8 +1086,8 @@
 			isa = PBXVariantGroup;
 			children = (
 				C1F7C89527627B5E002A417F /* Base */,
-				C1F7C89727627B68002A417F /* he */,
 				C1F7C89927627BCC002A417F /* ar */,
+				C15DA06A2763AD2800A24EF3 /* he */,
 			);
 			name = Route.intentdefinition;
 			sourceTree = "<group>";
@@ -1144,7 +1148,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = BetterRail/BetterRailDebug.entitlements;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = UE6BVYPPFX;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = BetterRail/Info.plist;
@@ -1175,7 +1179,7 @@
 				CODE_SIGN_ENTITLEMENTS = BetterRail/BetterRailRelease.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = UE6BVYPPFX;
 				INFOPLIST_FILE = BetterRail/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -1324,7 +1328,7 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 9;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = UE6BVYPPFX;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1361,7 +1365,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 9;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = UE6BVYPPFX;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1392,7 +1396,7 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 9;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = UE6BVYPPFX;
 				ENABLE_PREVIEWS = YES;
@@ -1427,7 +1431,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 9;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = UE6BVYPPFX;
 				ENABLE_PREVIEWS = YES;
@@ -1460,7 +1464,7 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 9;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = UE6BVYPPFX;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1495,7 +1499,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 9;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = UE6BVYPPFX;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1525,7 +1529,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = StationIntent/StationIntentDebug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 9;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = UE6BVYPPFX;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1559,7 +1563,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 9;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = UE6BVYPPFX;
 				GCC_C_LANGUAGE_STANDARD = gnu11;

@@ -112,7 +112,7 @@ struct WidgetEntryView: View {
     }
     .background(
       WidgetBackground(image: entry.origin.image)
-    ).widgetURL(URL(string: "widget://route?origin=\(entry.origin.id);destination=\(entry.destination.id)")!)
+    ).widgetURL(URL(string: "widget://route?originId=\(entry.origin.id)&destinationId=\(entry.destination.id)")!)
   }
 }
 

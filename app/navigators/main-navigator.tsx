@@ -27,7 +27,7 @@ import { Platform } from "react-native"
 export type PrimaryParamList = {
   planner: undefined
   selectStation: { selectionType: "origin" | "destination" }
-  routeList: { originId: string; destinationId: string; time: number }
+  routeList: { originId: string; destinationId: string; time: number; enableQuery?: boolean }
   routeDetails: { routeItem: RouteItem; originId: string; destinationId: string; date: string; time: string }
   settings: undefined
 }
