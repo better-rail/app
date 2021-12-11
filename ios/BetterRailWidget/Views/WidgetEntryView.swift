@@ -64,7 +64,7 @@ struct WidgetEntryView: View {
         }
       }.padding([.top, .leading, .bottom])
       
-      if widgetFamily == .systemMedium, let upcomingTrains = entry.upcomingTrains {
+      if widgetFamily == .systemMedium, let upcomingTrains = entry.upcomingTrains, upcomingTrains.count > 0 {
         Spacer()
         
         if (isLargeScreen) {

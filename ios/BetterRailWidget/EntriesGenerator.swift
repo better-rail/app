@@ -81,7 +81,7 @@ struct EntriesGenerator {
       trainNumber: "404",
       origin: origin,
       destination: destination,
-      upcomingTrains: upcomingTrainsSnapshot
+      upcomingTrains: []
     )
   }
   
