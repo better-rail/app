@@ -10,10 +10,12 @@ struct WidgetBackground: View {
         Image(stationImage)
           .resizable()
           .aspectRatio(contentMode: .fill)
+          .frame(maxHeight: 170)
+          .clipped()
       }
       
       Rectangle()
-        .foregroundColor(Color(.sRGB, red: 0, green: 0, blue: 0, opacity: 0.82))
+        .foregroundColor(Color(.sRGB, red: 0, green: 0, blue: 0, opacity: 0.81))
     }
   }
 }

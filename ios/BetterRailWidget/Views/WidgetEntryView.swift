@@ -14,105 +14,115 @@ struct WidgetEntryView: View {
   }
   
   var body: some View {
-    HStack {
-      VStack(alignment: .leading) {
-        WidgetRouteView(
-          originName: entry.origin.name,
-          destinationName: entry.destination.name
-        )
-        
-        Spacer()
-        
-        HStack(alignment: .top) {
-          VStack(alignment: .leading) {
-            if (entry.departureTime == "404") {
-              Text(getNoTrainsMessage(date: entry.date))
-                .foregroundColor(Color("pinky")).font(.system(size: 11.5)).fontWeight(.medium).padding(.trailing, 8)
+    VStack {
+      HStack {
+        VStack(alignment: .leading) {
+          WidgetRouteView(
+            originName: entry.origin.name,
+            destinationName: entry.destination.name
+          )
+          
+          Spacer()
+          
+          HStack(alignment: .top) {
+            VStack(alignment: .leading) {
+              if (entry.departureTime == "404") {
+                Text(getNoTrainsMessage(date: entry.date))
+                  .foregroundColor(Color("pinky")).font(.system(size: 11.5)).fontWeight(.medium).padding(.trailing, 8)
 
-            } else {
-              HStack(alignment: .lastTextBaseline) {
-                VStack(alignment: .leading) {
-                  Text("NEXT TRAIN")
-                    .fontWeight(.medium)
-                    .preferredFont(size: 11.5)
-                    .foregroundColor(Color("pinky"))
-                  
-                  Text(entry.departureTime)
-                    .foregroundColor(.white)
-                }.padding(.trailing, 4)
-
-                  
-                if (widgetFamily == .systemMedium) {
+              } else {
+                HStack(alignment: .lastTextBaseline) {
                   VStack(alignment: .leading) {
-                    Text("ARRIVAL")
-                      .preferredFont(size: 11).fontWeight(.medium)
+                    Text("NEXT TRAIN")
+                      .fontWeight(.medium)
+                      .preferredFont(size: 11.5)
+                      .foregroundColor(Color("pinky"))
                     
-                    Text(entry.arrivalTime).font(.system(size: 22, weight: .bold))
-                  }.foregroundColor(.gray)
-                  
+                    Text(entry.departureTime)
+                      .foregroundColor(.white)
+                  }.padding(.trailing, 4)
+
+                    
+                  if (widgetFamily == .systemMedium) {
+                    VStack(alignment: .leading) {
+                      Text("ARRIVAL")
+                        .preferredFont(size: 11).fontWeight(.medium)
+                      
+                      Text(entry.arrivalTime).font(.system(size: 22, weight: .bold))
+                    }.foregroundColor(.gray)
+                    
+                  }
                 }
+                  .font(.system(size: nextTrainFontSize, weight: .bold))
+                  
+                  
+                Text("Platform \(entry.platform)・Train \(entry.trainNumber)")
+                  .font(.system(size: 11.5)).fontWeight(.medium).foregroundColor(.white).opacity(/*@START_MENU_TOKEN@*/0.8/*@END_MENU_TOKEN@*/)
               }
-                .font(.system(size: nextTrainFontSize, weight: .bold))
-                
-                
-              Text("Platform \(entry.platform)・Train \(entry.trainNumber)")
-                .font(.system(size: 11.5)).fontWeight(.medium).foregroundColor(.white).opacity(/*@START_MENU_TOKEN@*/0.8/*@END_MENU_TOKEN@*/)
             }
+              
+            
+          }
+        }.padding([.top, .leading, .bottom])
+        
+        if widgetFamily == .systemMedium, let upcomingTrains = entry.upcomingTrains, upcomingTrains.count > 0 {
+          Spacer()
+          
+          if (isLargeScreen) {
+            Spacer()
           }
             
+          Divider()
+            .frame(width: 1.0, height: 135)
+            .background(Color.gray)
+            .opacity(0.3)
+
+          Spacer()
+          VStack(alignment: .leading) {
+            Spacer()
+            
+            Text("UPCOMING")
+              .preferredFont(size: 12)
+              .fontWeight(.semibold)
+              .foregroundColor(.gray)
+              .padding(.bottom, -2)
+            
+            
+            ForEach(upcomingTrains) { train in
+              HStack(alignment: .firstTextBaseline) {
+                Text(train.departureTime)
+                  .foregroundColor(.white)
+                  .font(.system(size: 13, weight: .semibold))
+                  .frame(minWidth: 42.5, alignment: .leading)
+                  .padding(.trailing, -2)
+                
+                Text(train.arrivalTime)
+                  .foregroundColor(.gray)
+                  .font(.system(size: 13, weight: .semibold))
+                  .frame(minWidth: 40, alignment: .leading)
+              }.opacity(0.7).padding(.bottom, -2)
+            }
+            
+            Spacer().padding(.bottom, 8)
+          }.padding([.top, .bottom])
           
         }
-      }.padding([.top, .leading, .bottom])
-      
-      if widgetFamily == .systemMedium, let upcomingTrains = entry.upcomingTrains, upcomingTrains.count > 0 {
+        
         Spacer()
         
-        if (isLargeScreen) {
-          Spacer()
-        }
+      }.frame(maxHeight: 170)
+      .background(
+        WidgetBackground(image: entry.origin.image).frame(height: 170)
           
-        Divider()
-          .frame(width: 1.0, height: 135)
-          .background(Color.gray)
-          .opacity(0.3)
-
+      )
+      
+      if (widgetFamily == .systemLarge) {
         Spacer()
-        VStack(alignment: .leading) {
-          Spacer()
-          
-          Text("UPCOMING")
-            .preferredFont(size: 12)
-            .fontWeight(.semibold)
-            .foregroundColor(.gray)
-            .padding(.bottom, -2)
-          
-          
-          ForEach(upcomingTrains) { train in
-            HStack(alignment: .firstTextBaseline) {
-              Text(train.departureTime)
-                .foregroundColor(.white)
-                .font(.system(size: 13, weight: .semibold))
-                .frame(minWidth: 42.5, alignment: .leading)
-                .padding(.trailing, -2)
-              
-              Text(train.arrivalTime)
-                .foregroundColor(.gray)
-                .font(.system(size: 13, weight: .semibold))
-                .frame(minWidth: 40, alignment: .leading)
-            }.opacity(0.7).padding(.bottom, -2)
-          }
-          
-          Spacer().padding(.bottom, 8)
-        }.padding([.top, .bottom])
+        Spacer()
         
       }
-      
-      Spacer()
-      
     }
-    .background(
-      WidgetBackground(image: entry.origin.image)
-    ).widgetURL(URL(string: "widget://route?originId=\(entry.origin.id)&destinationId=\(entry.destination.id)")!)
+.widgetURL(URL(string: "widget://route?originId=\(entry.origin.id)&destinationId=\(entry.destination.id)")!)
   }
 }
 
@@ -128,11 +138,14 @@ struct WidgetEntryView_Previews: PreviewProvider {
       if #available(iOS 14.0, *) {
         WidgetEntryView(entry: entry)
           .previewContext(WidgetPreviewContext(family: .systemMedium))
-        
+
         WidgetEntryView(entry: entry)
-          .previewContext(WidgetPreviewContext(family: .systemMedium))
-          .environment(\.locale, .init(identifier: "he"))
-          .environment(\.layoutDirection, .rightToLeft)
+          .previewContext(WidgetPreviewContext(family: .systemLarge))
+
+//        WidgetEntryView(entry: entry)
+//          .previewContext(WidgetPreviewContext(family: .systemMedium))
+//          .environment(\.locale, .init(identifier: "he"))
+//          .environment(\.layoutDirection, .rightToLeft)
         
 //        WidgetEntryView(entry: entry)
 //          .previewContext(WidgetPreviewContext(family: .systemSmall))
