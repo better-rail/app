@@ -13,6 +13,11 @@ struct WidgetEntryView: View {
     UIScreen.main.bounds.width > 400
   }
   
+  var isMediumScreen: Bool {
+    UIScreen.main.bounds.width > 375
+  }
+
+  
   var body: some View {
     VStack {
       HStack {
@@ -40,30 +45,59 @@ struct WidgetEntryView: View {
                     
                     Text(entry.departureTime)
                       .foregroundColor(.white)
-                  }.padding(.trailing, 4)
+                  }
 
-                    
-                  if (widgetFamily == .systemMedium) {
+                  if (widgetFamily == .systemMedium ||
+                      widgetFamily == .systemLarge) {
                     VStack(alignment: .leading) {
                       Text("ARRIVAL")
                         .preferredFont(size: 11).fontWeight(.medium)
                       
                       Text(entry.arrivalTime).font(.system(size: 22, weight: .bold))
                     }.foregroundColor(.gray)
+                    .padding(.leading,
+                      widgetFamily == .systemLarge && isMediumScreen
+                       ? 8 : 2)
                     
+                    if (widgetFamily == .systemLarge) {
+                      VStack(alignment: .leading) {
+                        Text("PLATFORM")
+                          .preferredFont(size: 11).fontWeight(.medium)
+                        
+                        Text(entry.platform).font(.system(size: 22, weight: .bold))
+                      }
+                      .foregroundColor(.gray)
+                      .padding(.leading, isMediumScreen ? CGFloat(8.0) : 4.0)
+
+                      if (UIScreen.main.bounds.width >= 360) {
+                        VStack(alignment: .leading) {
+                          Text(isMediumScreen ? "TRAIN NO." : "TRAIN")
+                            .preferredFont(size: 11).fontWeight(.medium)
+                          
+                          Text(entry.trainNumber).font(.system(size: 22, weight: .bold))
+                        }
+                        .foregroundColor(.gray)
+                        .padding(.leading, 8)
+                      }
+
+                    }
                   }
                 }
                   .font(.system(size: nextTrainFontSize, weight: .bold))
                   
-                  
-                Text("Platform \(entry.platform)・Train \(entry.trainNumber)")
-                  .font(.system(size: 11.5)).fontWeight(.medium).foregroundColor(.white).opacity(/*@START_MENU_TOKEN@*/0.8/*@END_MENU_TOKEN@*/)
+                if (widgetFamily == .systemMedium) {
+                  Text("Platform \(entry.platform)・Train \(entry.trainNumber)")
+                    .font(.system(size: 11.5)).fontWeight(.medium).foregroundColor(.white).opacity(/*@START_MENU_TOKEN@*/0.8/*@END_MENU_TOKEN@*/)
+                }
+                
               }
             }
               
             
           }
-        }.padding([.top, .leading, .bottom])
+        }
+        .padding(.bottom, widgetFamily == .systemLarge ? 8 : 16)
+        .padding([.top, .leading])
         
         if widgetFamily == .systemMedium, let upcomingTrains = entry.upcomingTrains, upcomingTrains.count > 0 {
           Spacer()
@@ -117,9 +151,8 @@ struct WidgetEntryView: View {
       )
       
       if (widgetFamily == .systemLarge) {
+        WidgetLargeSchedualeView(upcomingTrains: entry.upcomingTrains ?? [])
         Spacer()
-        Spacer()
-        
       }
     }
 .widgetURL(URL(string: "widget://route?originId=\(entry.origin.id)&destinationId=\(entry.destination.id)")!)
@@ -137,15 +170,13 @@ struct WidgetEntryView_Previews: PreviewProvider {
       
       if #available(iOS 14.0, *) {
         WidgetEntryView(entry: entry)
-          .previewContext(WidgetPreviewContext(family: .systemMedium))
+          .previewContext(WidgetPreviewContext(family: .systemLarge))
+          .environment(\.locale, .init(identifier: "en"))
 
         WidgetEntryView(entry: entry)
-          .previewContext(WidgetPreviewContext(family: .systemLarge))
-
-//        WidgetEntryView(entry: entry)
-//          .previewContext(WidgetPreviewContext(family: .systemMedium))
-//          .environment(\.locale, .init(identifier: "he"))
-//          .environment(\.layoutDirection, .rightToLeft)
+          .previewContext(WidgetPreviewContext(family: .systemMedium))
+          .environment(\.locale, .init(identifier: "he"))
+          .environment(\.layoutDirection, .rightToLeft)
         
 //        WidgetEntryView(entry: entry)
 //          .previewContext(WidgetPreviewContext(family: .systemSmall))

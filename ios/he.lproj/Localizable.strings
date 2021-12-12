@@ -16,6 +16,10 @@
 "NEXT TRAIN" = "הרכבת הבאה";
 "UPCOMING" = "הרכבות הבאות";
 "ARRIVAL" = "הגעה";
+"PLATFORM" = "רציף";
+"TRAIN NO." = "רכבת מס׳";
+"TRAIN" = "רכבת";
+
 "Platform %@・Train %@" = "רציף %@・רכבת מס׳ %@";
 "Scheduale" = "לוח זמנים";
 "Display the upcoming train times." = "תצוגת זמני הרכבות הקרובות.";

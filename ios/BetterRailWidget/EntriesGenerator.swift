@@ -11,17 +11,15 @@ struct EntriesGenerator {
       let destinationStation = getStationById(destinationId)!
       
       if let response = try? result.get() {
-        if (response.data.routes.count == 0) {
+        // API possibly return past trains
+        let routes = cleanPastTrain(response.data.routes)
+        
+        if (routes.count == 0) {
           entries.append(getEmptyEntry(origin: originStation, destination: destinationStation))
         }
 
         else {
-          for
-            index in 0 ..< response.data.routes.count
-          where
-            Date() < stringToDate(response.data.routes[index].train[0].departureTime)! // API possibly returns past trains
-          {
-            let routes = response.data.routes
+          for index in 0 ..< routes.count {
             let trains = routes[index].train
             let firstRouteTrain = trains[0]
             let lastRouteTrain = trains[trains.count - 1]
@@ -32,7 +30,7 @@ struct EntriesGenerator {
               date = Date()
             } else {
               // Later entries will show up 1 minute after the last entry
-              let previousTrain = response.data.routes[index - 1].train[0]
+              let previousTrain = routes[index - 1].train[0]
               let lastDepartureDate = stringToDate(previousTrain.departureTime)!
 
               date = Calendar.current.date(byAdding: .minute, value: 1, to: lastDepartureDate)!
@@ -63,9 +61,9 @@ struct EntriesGenerator {
         }
         
         // Something is wrong; append empty entry
-        if (entries.count == 0) {
-          entries.append(getEmptyEntry(origin: originStation, destination: destinationStation))
-        }
+//        if (entries.count == 0) {
+//          entries.append(getEmptyEntry(origin: originStation, destination: destinationStation))
+//        }
         
         completion(entries)
       }
@@ -105,6 +103,11 @@ struct EntriesGenerator {
     }
     
     return upcomingTrains
+  }
+  
+  func cleanPastTrain(_ routes: [Route]) -> [Route] {
+    let now = Date()
+    return routes.filter { now < stringToDate($0.train[0].departureTime)! }
   }
 
 }
