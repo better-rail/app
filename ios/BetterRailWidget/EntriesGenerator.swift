@@ -108,6 +108,10 @@ struct EntriesGenerator {
     
     return upcomingTrains
   }
+
+  func getTomorrowTrains(originId: String, destinationId: String) {
+      // TODO: ADD CONTENT HERE!
+  }
   
   func cleanPastTrains(_ routes: [Route]) -> [Route] {
     let now = Date()
