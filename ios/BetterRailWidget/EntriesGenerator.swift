@@ -12,7 +12,7 @@ struct EntriesGenerator {
       
       if let response = try? result.get() {
         // API possibly return past trains
-        let routes = cleanPastTrain(response.data.routes)
+        let routes = cleanPastTrains(response.data.routes)
         
         if (routes.count == 0) {
           entries.append(getEmptyEntry(origin: originStation, destination: destinationStation))
@@ -61,11 +61,13 @@ struct EntriesGenerator {
             entries.append(entry)
           }
         }
+
+        // Include tomorrow train after this
         
         // Something is wrong; append empty entry
-//        if (entries.count == 0) {
-//          entries.append(getEmptyEntry(origin: originStation, destination: destinationStation))
-//        }
+        //        if (entries.count == 0) {
+        //          entries.append(getEmptyEntry(origin: originStation, destination: destinationStation))
+        //        }
         
         completion(entries)
       }
@@ -107,7 +109,7 @@ struct EntriesGenerator {
     return upcomingTrains
   }
   
-  func cleanPastTrain(_ routes: [Route]) -> [Route] {
+  func cleanPastTrains(_ routes: [Route]) -> [Route] {
     let now = Date()
     return routes.filter { now < stringToDate($0.train[0].departureTime)! }
   }
