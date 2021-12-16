@@ -49,9 +49,11 @@ struct EntriesGenerator {
             )
             
             if routes.count > 1 {
-              /// Maximum 4 routes in the upcoming trains array
-              let lastUpcomingRouteIndex = routes.count > 5 ? 5 : routes.count - 1
-              let upcomingRoutes = Array(routes[1 ... lastUpcomingRouteIndex])
+              let allUpcomingRoutes = Array(routes[index ... routes.count])
+              
+              /// Include a maximum of 4 routes in the upcoming routes
+              let routesCount = allUpcomingRoutes.count > 5 ? 5 : allUpcomingRoutes.count - 1
+              let upcomingRoutes = Array(allUpcomingRoutes[0 ... routesCount])
               
               entry.upcomingTrains = getEntryUpcomingTrains(routes: upcomingRoutes)
             }
