@@ -25,6 +25,7 @@ struct EntriesGenerator {
             let lastRouteTrain = trains[trains.count - 1]
 
             var date: Date
+
             if (index == 0) {
               // First entry shows up right away
               date = Date()
@@ -55,7 +56,7 @@ struct EntriesGenerator {
               let routesCount = allUpcomingRoutes.count > 5 ? 5 : allUpcomingRoutes.count - 1
               let upcomingRoutes = Array(allUpcomingRoutes[0 ... routesCount])
               
-              entry.upcomingTrains = getEntryUpcomingTrains(routes: upcomingRoutes)
+              entry.upcomingTrains = getUpcomingTrains(routes: upcomingRoutes)
             }
 
             entries.append(entry)
@@ -88,7 +89,7 @@ struct EntriesGenerator {
   }
   
   /// Generate an upcoming scheduale for an entry
-  func getEntryUpcomingTrains(routes: [Route]) -> [UpcomingTrain] {
+  func getUpcomingTrains(routes: [Route]) -> [UpcomingTrain] {
     var upcomingTrains: [UpcomingTrain] = []
     
     for route in routes {
@@ -109,8 +110,13 @@ struct EntriesGenerator {
     return upcomingTrains
   }
 
-  func getTomorrowTrains(originId: String, destinationId: String) {
-      // TODO: ADD CONTENT HERE!
+  func getTomorrowTrainsEntry(originId: String, destinationId: String, lastTrainEntryDate: Date) {
+      // TODO: 
+      // 1. Fetch trains for tomorrow
+      // 2. If no trains exist - display a "no more trains for today" message
+      // 3. If trains has been found - return a new entry with the first traain
+      //    and the first upcoming trains. The date should be right after the last `lastTrainEntryDate`
+      //    There should also be some indication to display in the UI that those trains are tomorrow's.
   }
   
   func cleanPastTrains(_ routes: [Route]) -> [Route] {
