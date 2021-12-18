@@ -1,4 +1,4 @@
-export function extractURLParams(url: string): { [key: string]: [value: string] } {
+export function extractURLParams(url: string): { [key: string]: string } {
   const searchCharIndex = url.indexOf("?")
   const paramsString = url.substr(searchCharIndex + 1, url.length)
   const paramsArr = paramsString.split("&")

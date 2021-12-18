@@ -30,6 +30,7 @@ import "react-native-console-time-polyfill"
 // https://github.com/kmagiera/react-native-screens#using-native-stack-navigator
 import { enableScreens } from "react-native-screens"
 import { extractURLParams } from "./utils/helpers/url"
+import { donateRouteIntent } from "./utils/ios-helpers"
 enableScreens()
 
 export const queryClient = new QueryClient()
@@ -47,11 +48,12 @@ function App() {
     let linkingListener: EmitterSubscription
 
     function deepLinkWidgetURL(url: string) {
-      const params = extractURLParams(url)
+      const { originId, destinationId } = extractURLParams(url)
+      donateRouteIntent(originId, destinationId)
 
       navigationRef.current?.navigate("routeList", {
-        originId: params.originId,
-        destinationId: params.destinationId,
+        originId,
+        destinationId,
         time: new Date().getTime(),
         enableQuery: true,
       })
