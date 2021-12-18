@@ -14,6 +14,7 @@ let upcomingTrainsSnapshot = [upcoming1, upcoming2, upcoming3, upcoming4, upcomi
 
 let snapshotEntry = TrainDetail(
   date: Date(),
+  departureDate: "09/01/2007 09:43:00",
   departureTime: "09:43",
   arrivalTime: "10:09",
   platform: "1",
@@ -22,5 +23,3 @@ let snapshotEntry = TrainDetail(
   destination: jlmStation,
   upcomingTrains: upcomingTrainsSnapshot
 )
-
-

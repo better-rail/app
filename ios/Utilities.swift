@@ -1,5 +1,4 @@
 import Foundation
-import SwiftUI
 
 func stringToDate(_ dateString: String) -> Date? {
   let formatter = DateFormatter()
@@ -26,6 +25,14 @@ func getDateFromTimeString(_ timeString: String) -> Date? {
     return nil
 }
 
+/// Converts a date to formatted string for Israel Railways API
+func formatRouteDate(_ date: Date) -> String {
+  let dateFormatter = DateFormatter()
+  dateFormatter.locale = Locale(identifier: "en_us")
+  dateFormatter.dateFormat = "YYYYMMdd"
+  return dateFormatter.string(from: date)
+}
+
 func formatRouteHour(_ dateString: String) -> String {
   let hourFormatter = DateFormatter()
   hourFormatter.dateFormat = "HH:mm"
@@ -47,24 +54,15 @@ enum SupportedLanguages: String {
 /// Available options are `english`, `hebrew` and `arabic`
 /// Defaults to `english`.
 func getUserLocale() -> SupportedLanguages {
-  let langCode = Locale.preferredLanguages[0]
+  let langCode = Bundle.main.preferredLocalizations[0]
   let usLocale = Locale(identifier: "en-US")
   var langName = SupportedLanguages.english
  
   if let languageName = usLocale.localizedString(forLanguageCode: langCode)?.lowercased() {
     if let languageValue = SupportedLanguages(rawValue: languageName) {
-      
       langName = languageValue
     }
   }
   
   return langName
-}
-
-func getNoTrainsMessage(date: Date) -> LocalizedStringKey {
-  if (NSCalendar(identifier: .hebrew)!.isDateInWeekend(date)) {
-    return LocalizedStringKey("No trains for today")
-  }
-  
-  return LocalizedStringKey("No more trains for today.")
 }

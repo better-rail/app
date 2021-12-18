@@ -5,32 +5,28 @@ import SwiftUI
 struct Provider: IntentTimelineProvider {
   typealias Entry = TrainDetail
 
-  func placeholder(in context: Context) -> Entry {
-      snapshotEntry
-  }
+  func placeholder(in context: Context) -> Entry { snapshotEntry }
 
   func getSnapshot(for configuration: RouteIntent, in context: Context, completion: @escaping (TrainDetail) -> ()) {
-      completion(snapshotEntry)
+    completion(snapshotEntry)
   }
 
 
   func getTimeline(for configuration: RouteIntent, in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-    
-      if let originId = configuration.origin?.identifier,
-         let destinationId = configuration.destination?.identifier {
+    if let originId = configuration.origin?.identifier,
+       let destinationId = configuration.destination?.identifier {
 
-        EntriesGenerator().getTrains(originId: originId, destinationId: destinationId, completion: { entries in
+      Task {
+        let entries = await EntriesGenerator().getTrains(originId: originId, destinationId: destinationId)
+        
         // Refresh widget after tomorrow at midnight
         let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
         let midnight = Calendar.current.startOfDay(for: tomorrow)
 
         let timeline = Timeline(entries: entries, policy: .after(midnight))
         completion(timeline)
-      })
-
+      }
     }
-    
-    
   }
 }
 

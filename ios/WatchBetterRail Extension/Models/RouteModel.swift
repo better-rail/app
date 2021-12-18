@@ -49,7 +49,6 @@ struct Route: Decodable {
 struct Train: Decodable, Identifiable {
   var id: String { trainno }
 
-
   var originStationName: String { getStationNameById(orignStation) }
   var destinationStationName: String { getStationNameById(destinationStation) }
   var formattedDepartureTime: String { formatRouteHour(departureTime) }
@@ -75,34 +74,17 @@ struct StopStation: Decodable, Identifiable {
 }
 
 struct RouteModel {
-  /// Today's date, formatted properly for Israel Railways API endpoint
-  static private var todayDate: String {
-    let dateFormatter = DateFormatter()
-    dateFormatter.locale = Locale(identifier: "en_us")
-    dateFormatter.dateFormat = "YYYYMMdd"
-    return dateFormatter.string(from: Date())
-  }
-    
-  func fetchRoute(originId: String, destinationId: String, completion: @escaping (_ result: Result<RouteResult, Error>) -> Void) {
-    let url = URL(string: "https://www.rail.co.il/apiinfo/api/Plan/GetRoutes?OId=\(originId)&TId=\(destinationId)&Date=\(RouteModel.todayDate)&Hour=0000")!
-
-    let task = URLSession.shared.dataTask(with: url) { (data, response, error) in
-      if (error != nil) {
-        completion(.failure(error!))
-      }
-      
-      guard let data = data else { return }
+//  , completion: @escaping (_ result: Result<RouteResult, Error>)
+  func fetchRoute(originId: String, destinationId: String, date: String? = nil) async -> [Route] {
+    let routeDate = date ?? formatRouteDate(Date())
         
-        do {
-          let decoder = JSONDecoder()
-          decoder.keyDecodingStrategy = .custom { keys in PascalCaseKey(stringValue: keys.last!.stringValue) }
-          let route = try decoder.decode(RouteResult.self, from: data)
-          completion(.success(route))
-        } catch let error {
-          print(error)
-        }
-    }
-
-    task.resume()
+    let url = URL(string: "https://www.rail.co.il/apiinfo/api/Plan/GetRoutes?OId=\(originId)&TId=\(destinationId)&Date=\(routeDate)&Hour=0000")!
+    guard let (data, _) = try? await URLSession.shared.data(from: url) else { return [] }
+    
+    let decoder = JSONDecoder()
+    decoder.keyDecodingStrategy = .custom { keys in PascalCaseKey(stringValue: keys.last!.stringValue) }
+    guard let route = try? decoder.decode(RouteResult.self, from: data) else { return [] }
+    
+    return route.data.routes
   }
 }

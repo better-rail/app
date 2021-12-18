@@ -2,82 +2,107 @@ import Foundation
 
 struct EntriesGenerator {
   typealias Entry = TrainDetail
-  
-  func getTrains(originId: String, destinationId: String, completion: @escaping (_ entries: [Entry]) -> Void) {
+    
+  func getTrains(originId: String, destinationId: String) async -> [Entry] {
+    let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
+    let formattedTomorrowDate = formatRouteDate(tomorrow)
+    
+    async let todayRoutes = RouteModel().fetchRoute(originId: originId, destinationId: destinationId)
+    async let tomorrowRoutes = RouteModel().fetchRoute(originId: originId, destinationId: destinationId, date: formattedTomorrowDate)
+
+    let routes = (today: await todayRoutes, tomorrow: await tomorrowRoutes)
+    
     var entries: [Entry] = []
+    var lastTrainEntryDate = Date()
 
-    RouteModel().fetchRoute(originId: originId, destinationId: destinationId, completion: { result in
-      let originStation = getStationById(originId)!
-      let destinationStation = getStationById(destinationId)!
+    
+    if (routes.today.count == 0 && routes.tomorrow.count == 0) {
+      entries.append(getEmptyEntry(originId: originId, destinationId: destinationId))
+    }
+    
+    if (routes.today.count > 0) {
+      entries = generateEntriesForRoutes(routes.today, originId: originId, destinationId: destinationId)
+      lastTrainEntryDate = entries[entries.count - 1].date
+    }
+    
+    if (routes.tomorrow.count > 0) {
+      var tomorrowEntries = generateEntriesForRoutes(routes.tomorrow, originId: originId, destinationId: destinationId)
+      tomorrowEntries[0].date = lastTrainEntryDate
       
-      if let response = try? result.get() {
-        // API possibly return past trains
-        let routes = cleanPastTrains(response.data.routes)
+      // Add first tomorrow's entry as the last entry for today
+      entries.append(tomorrowEntries[0])
+    }
         
-        if (routes.count == 0) {
-          entries.append(getEmptyEntry(origin: originStation, destination: destinationStation))
-        }
-
-        else {
-          for index in 0 ..< routes.count {
-            let trains = routes[index].train
-            let firstRouteTrain = trains[0]
-            let lastRouteTrain = trains[trains.count - 1]
-
-            var date: Date
-
-            if (index == 0) {
-              // First entry shows up right away
-              date = Date()
-            } else {
-              // Later entries will show up 1 minute after the last entry
-              let previousTrain = routes[index - 1].train[0]
-              let lastDepartureDate = stringToDate(previousTrain.departureTime)!
-
-              date = Calendar.current.date(byAdding: .minute, value: 1, to: lastDepartureDate)!
-            }
-            
-            
-            var entry = Entry(
-              date: date,
-              departureTime: firstRouteTrain.formattedDepartureTime,
-              arrivalTime: lastRouteTrain.formattedArrivalTime,
-              platform: firstRouteTrain.platform,
-              trainNumber: firstRouteTrain.trainno,
-              origin: originStation,
-              destination: destinationStation,
-              upcomingTrains: nil
-            )
-            
-            if routes.count > 1 {
-              let allUpcomingRoutes = Array(routes[index ... routes.count])
-              
-              /// Include a maximum of 4 routes in the upcoming routes
-              let routesCount = allUpcomingRoutes.count > 5 ? 5 : allUpcomingRoutes.count - 1
-              let upcomingRoutes = Array(allUpcomingRoutes[0 ... routesCount])
-              
-              entry.upcomingTrains = getUpcomingTrains(routes: upcomingRoutes)
-            }
-
-            entries.append(entry)
-          }
-        }
-
-        // Include tomorrow train after this
-        
-        // Something is wrong; append empty entry
-        //        if (entries.count == 0) {
-        //          entries.append(getEmptyEntry(origin: originStation, destination: destinationStation))
-        //        }
-        
-        completion(entries)
-      }
-    })
+    return entries
   }
   
-  func getEmptyEntry(origin: Station, destination: Station) -> TrainDetail {
-    TrainDetail(
+  func generateEntriesForRoutes(_ allRoutes: [Route], originId: String, destinationId: String) -> [Entry] {
+    // API possibly return past trains
+    let routes = cleanPastTrains(allRoutes)
+    
+    var entries: [Entry] = []
+    
+    // Get stations for entries
+    let originStation = getStationById(originId)!
+    let destinationStation = getStationById(destinationId)!
+      
+        
+    if (routes.count > 0) {
+      for index in 0 ..< routes.count {
+        let trains = routes[index].train
+        let firstRouteTrain = trains[0]
+        let lastRouteTrain = trains[trains.count - 1]
+
+        var date: Date
+
+        if (index == 0) {
+          // First entry shows up right away
+          date = Date()
+        } else {
+          // Later entries will show up 1 minute after the last entry
+          let previousTrain = routes[index - 1].train[0]
+          let lastDepartureDate = stringToDate(previousTrain.departureTime)!
+
+          date = Calendar.current.date(byAdding: .minute, value: 1, to: lastDepartureDate)!
+        }
+        
+        var entry = Entry(
+          date: date,
+          departureDate: firstRouteTrain.departureTime,
+          departureTime: firstRouteTrain.formattedDepartureTime,
+          arrivalTime: lastRouteTrain.formattedArrivalTime,
+          platform: firstRouteTrain.platform,
+          trainNumber: firstRouteTrain.trainno,
+          origin: originStation,
+          destination: destinationStation,
+          upcomingTrains: nil
+        )
+        
+        if routes.count > 1 {
+          let allUpcomingRoutes = Array(routes[index + 1 ..< routes.count ])
+          
+          // Include a maximum of 4 routes in the upcoming routes
+          let routesCount = allUpcomingRoutes.count > 5 ? 5 : allUpcomingRoutes.count
+          let upcomingRoutes = Array(allUpcomingRoutes[0 ..< routesCount])
+          
+          entry.upcomingTrains = getUpcomingTrains(routes: upcomingRoutes)
+        }
+
+        entries.append(entry)
+      }
+    }
+    
+    return entries
+  }
+
+  
+  func getEmptyEntry(originId: String, destinationId: String) -> TrainDetail {
+    let origin = getStationById(originId)!
+    let destination = getStationById(destinationId)!
+
+    return TrainDetail(
       date: Date(),
+      departureDate: "404",
       departureTime: "404",
       arrivalTime: "404",
       platform: "404",
@@ -110,17 +135,6 @@ struct EntriesGenerator {
     return upcomingTrains
   }
 
-  func getTomorrowTrainsEntry(originId: String, destinationId: String, lastTrainEntryDate?: Date) {
-      // TODO: 
-      // 1. Fetch trains for tomorrow
-      // 2. If no trains exist - display a "no more trains for today" message
-      // 3. If trains has been found - return a new entry with the first traain
-      //    and the first upcoming trains. The date should be right after the last `lastTrainEntryDate`
-      //    There should also be some indication to display in the UI that those trains are tomorrow's.
-
-      // 4. If no `lastTrainEntryDate` has been provided, entry's date should be "now"
-  }
-  
   func cleanPastTrains(_ routes: [Route]) -> [Route] {
     let now = Date()
     return routes.filter { now < stringToDate($0.train[0].departureTime)! }

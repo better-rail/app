@@ -38,11 +38,11 @@ struct WidgetEntryView: View {
               } else {
                 HStack(alignment: .lastTextBaseline) {
                   VStack(alignment: .leading) {
-                    Text("NEXT TRAIN")
+                    Text(entry.isTomorrow ? "TOMORROW" : "NEXT TRAIN")
                       .fontWeight(.medium)
                       .preferredFont(size: 11.5)
-                      .foregroundColor(Color("pinky"))
-                    
+                      .foregroundColor(entry.isTomorrow ? Color("purply") : Color("pinky"))
+
                     Text(entry.departureTime)
                       .foregroundColor(.white)
                   }
@@ -115,7 +115,7 @@ struct WidgetEntryView: View {
           VStack(alignment: .leading) {
             Spacer()
             
-            Text("UPCOMING")
+            Text(entry.isTomorrow ? "TOMORROW" : "NEXT TRAIN")
               .preferredFont(size: 12)
               .fontWeight(.semibold)
               .foregroundColor(.gray)
@@ -137,9 +137,9 @@ struct WidgetEntryView: View {
               }.opacity(0.7).padding(.bottom, -2)
             }
             
-            Spacer().padding(.bottom, 8)
-          }.padding([.top, .bottom])
-          
+            Spacer().padding(.bottom, upcomingTrains.count > 3 ? 0 : 16)
+
+          }.padding([.top, .bottom], 8)
         }
         
         Spacer()
@@ -157,6 +157,14 @@ struct WidgetEntryView: View {
     }
 .widgetURL(URL(string: "widget://route?originId=\(entry.origin.id)&destinationId=\(entry.destination.id)")!)
   }
+  
+  func getNoTrainsMessage(date: Date) -> String {
+    if (NSCalendar(identifier: .hebrew)!.isDateInWeekend(date)) {
+      return "No trains for today."
+    }
+    
+    return "No more trains for today."
+  }
 }
 
 struct WidgetEntryView_Previews: PreviewProvider {
@@ -164,8 +172,8 @@ struct WidgetEntryView_Previews: PreviewProvider {
       let origin = getStationById("4600")!
       let destination = getStationById("680")!
       
-      let entry = TrainDetail(date: Date(), departureTime: "15:56", arrivalTime: "16:06", platform: "3", trainNumber: "131", origin: origin, destination: destination, upcomingTrains: upcomingTrainsSnapshot)
-      
+      let entry = TrainDetail(date: Date(), departureDate: "09/01/2007 09:43:00", departureTime: "15:56", arrivalTime: "16:06", platform: "3", trainNumber: "131", origin: origin, destination: destination, upcomingTrains: upcomingTrainsSnapshot)
+
 //      let emptyEntry = TrainDetail(date: Date(), departureTime: "404", arrivalTime: "404", platform: "404", trainNumber: "404", origin: origin, destination: destination)
       
       if #available(iOS 14.0, *) {
