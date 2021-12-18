@@ -131,7 +131,7 @@
       "id": "7000",
       "hebrew": "קריית גת",
       "english": "Kiryat Gat",
-      "russian": "Кирьят-Гат ",
+      "russian": "Кирьят Гат ",
       "arabic": "كريات چات"
    },
    {
@@ -144,7 +144,7 @@
    },
    {
       "id": "7300",
-      "hebrew": "באר שבע- אוניברסיטה",
+      "hebrew": "באר שבע - אוניברסיטה",
       "english": "Be'er Sheva - University",
       "russian": "Беер-Шева Цафон",
       "arabic": "بئر السبع - شمال/الجامعة",
@@ -490,7 +490,7 @@
    {
       "id": "680",
       "hebrew": "ירושלים - יצחק נבון",
-      "english": "Yitzhak Navon",
+      "english": "Jerusalem - Yitzhak Navon",
       "russian": "Иерусалим - Ицхак Навон",
       "arabic": "أورشليم – يتسحاق ناڤون",
       "image": "jerusalem-itzhak-navon"

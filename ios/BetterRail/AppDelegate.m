@@ -3,6 +3,7 @@
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
 #import <React/RCTI18nUtil.h>
+#import <React/RCTLinkingManager.h>
 
 // UniModules per https://docs.expo.io/bare/installing-unimodules/
 #import <UMCore/UMModuleRegistry.h>
@@ -28,6 +29,7 @@ static void InitializeFlipper(UIApplication *application) {
 }
 #endif
 
+
 @interface AppDelegate () <RCTBridgeDelegate>
 
 @property (nonatomic, strong) UMModuleRegistryAdapter *moduleRegistryAdapter;
@@ -35,6 +37,15 @@ static void InitializeFlipper(UIApplication *application) {
 @end
 
 @implementation AppDelegate
+
+
+- (BOOL)application:(UIApplication *)application
+   openURL:(NSURL *)url
+   options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
+{
+  return [RCTLinkingManager application:application openURL:url options:options];
+}
+
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {

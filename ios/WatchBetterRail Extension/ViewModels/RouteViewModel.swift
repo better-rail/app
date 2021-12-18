@@ -21,20 +21,15 @@ class RouteViewModel: ObservableObject {
     self.loading = true
     self.error = nil
 
-    routeModel.fetchRoute(originId: origin.id, destinationId: destination.id, completion: { result in
+    Task {
+      let routes = await routeModel.fetchRoute(originId: origin.id, destinationId: destination.id)
+      
       DispatchQueue.main.async {
-        switch result {
-        case .success(let response):
-          self.trains = response.data.routes
-            self.loading = false
-            self.lastRequest = Date()
-         
-          case .failure(let error):
-            self.error = error
-            self.loading = false
-        }
+        self.trains = routes
+        self.loading = false
+        self.lastRequest = Date()
       }
-    })
+    }
   }
   
   /// Check how if enough time has passed since the last API call, and issue a new request if it did.

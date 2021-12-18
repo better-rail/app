@@ -41,6 +41,10 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSUserActivityTypes</key>
+	<array>
+		<string>RouteIntent</string>
+	</array>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Heebo-Black.otf</string>

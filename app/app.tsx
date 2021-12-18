@@ -12,6 +12,7 @@
 import "./i18n"
 import "./utils/ignore-warnings"
 import React, { useState, useEffect, useRef } from "react"
+import { EmitterSubscription, Linking, Platform } from "react-native"
 import { QueryClient, QueryClientProvider } from "react-query"
 import { NavigationContainerRef } from "@react-navigation/native"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
@@ -28,6 +29,8 @@ import "react-native-console-time-polyfill"
 // stack navigation, use `createNativeStackNavigator` in place of `createStackNavigator`:
 // https://github.com/kmagiera/react-native-screens#using-native-stack-navigator
 import { enableScreens } from "react-native-screens"
+import { extractURLParams } from "./utils/helpers/url"
+import { donateRouteIntent } from "./utils/ios-helpers"
 enableScreens()
 
 export const queryClient = new QueryClient()
@@ -40,6 +43,36 @@ function App() {
   const navigationRef = useRef<NavigationContainerRef>()
   const [rootStore, setRootStore] = useState<RootStore | undefined>(undefined)
   const [localeReady, setLocaleReady] = useState(false)
+
+  useEffect(function handleWidgetDeepLinking() {
+    let linkingListener: EmitterSubscription
+
+    function deepLinkWidgetURL(url: string) {
+      const { originId, destinationId } = extractURLParams(url)
+      donateRouteIntent(originId, destinationId)
+
+      navigationRef.current?.navigate("routeList", {
+        originId,
+        destinationId,
+        time: new Date().getTime(),
+        enableQuery: true,
+      })
+    }
+
+    if (Platform.OS === "ios") {
+      Linking.getInitialURL().then(deepLinkWidgetURL)
+
+      linkingListener = Linking.addEventListener("url", ({ url }) => {
+        deepLinkWidgetURL(url)
+      })
+    }
+
+    if (linkingListener !== undefined) {
+      return () => linkingListener.remove()
+    }
+
+    return null
+  }, [])
 
   setRootNavigation(navigationRef)
   useBackButtonHandler(navigationRef, canExit)

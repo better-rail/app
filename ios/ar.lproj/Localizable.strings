@@ -12,3 +12,13 @@
 "exchange" = "تبديل";
 "stay-at %@" = "الرجاء الانتظار في الرصيف %@";
 "move-to %@" = "الرجاء الانتقال الى رصيف %@";
+
+"NEXT TRAIN" = "القطار القادم";
+"UPCOMING" = "القطارات القادمة";
+"ARRIVAL" = "وصول";
+"Platform %@・Train %@" = "رصيف %@・قطار رقم %@";
+"Scheduale" = "جدول";
+"Display the upcoming train times." = "عرض مواعيد القطار القادمة";
+
+"No more trains for today." = "لا مزيد من القطارات لهذا اليوم.";
+"No trains for today." = "لا توجد قطارات لهذا اليوم.";
