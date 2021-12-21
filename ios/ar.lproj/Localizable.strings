@@ -15,7 +15,12 @@
 
 "NEXT TRAIN" = "القطار القادم";
 "UPCOMING" = "القطارات القادمة";
+"TOMORROW" = "غدا";
 "ARRIVAL" = "وصول";
+"PLATFORM" = "رصيف";
+"TRAIN NO." = "يدرب";
+"TRAIN" = "يدرب";
+
 "Platform %@・Train %@" = "رصيف %@・قطار رقم %@";
 "Scheduale" = "جدول";
 "Display the upcoming train times." = "عرض مواعيد القطار القادمة";

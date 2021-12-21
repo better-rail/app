@@ -115,7 +115,7 @@ struct WidgetEntryView: View {
           VStack(alignment: .leading) {
             Spacer()
             
-            Text(entry.isTomorrow ? "TOMORROW" : "NEXT TRAIN")
+            Text(entry.isTomorrow ? "TOMORROW" : "UPCOMING")
               .preferredFont(size: 12)
               .fontWeight(.semibold)
               .foregroundColor(.gray)

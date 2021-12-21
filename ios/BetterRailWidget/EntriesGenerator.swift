@@ -16,15 +16,15 @@ struct EntriesGenerator {
     var lastTrainEntryDate = Date()
 
     
-    if (routes.today.count == 0 && routes.tomorrow.count == 0) {
+    if routes.today.count == 0 && routes.tomorrow.count == 0) {
       entries.append(getEmptyEntry(originId: originId, destinationId: destinationId))
     } else {
-      if (routes.today.count > 0) {
+      if routes.today.count > 0 {
         entries = generateEntriesForRoutes(routes.today, originId: originId, destinationId: destinationId)
         lastTrainEntryDate = Calendar.current.date(byAdding: .minute, value: 2, to: entries[entries.count - 1].date)!
       }
       
-      if (routes.tomorrow.count > 0) {
+      if routes.tomorrow.count > 0 {
         var tomorrowEntries = generateEntriesForRoutes(routes.tomorrow, originId: originId, destinationId: destinationId)
         tomorrowEntries[0].date = lastTrainEntryDate
         
