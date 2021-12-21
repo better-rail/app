@@ -10,13 +10,14 @@ struct EntriesGenerator {
     async let todayRoutes = RouteModel().fetchRoute(originId: originId, destinationId: destinationId)
     async let tomorrowRoutes = RouteModel().fetchRoute(originId: originId, destinationId: destinationId, date: formattedTomorrowDate)
 
-    let routes = (today: await todayRoutes, tomorrow: await tomorrowRoutes)
-    
+    var routes = (today: await todayRoutes, tomorrow: await tomorrowRoutes)
+    routes.today = cleanPastTrains(routes.today)
+
     var entries: [Entry] = []
     var lastTrainEntryDate = Date()
 
     
-    if routes.today.count == 0 && routes.tomorrow.count == 0) {
+    if routes.today.count == 0 && routes.tomorrow.count == 0 {
       entries.append(getEmptyEntry(originId: originId, destinationId: destinationId))
     } else {
       if routes.today.count > 0 {
