@@ -11,6 +11,8 @@ struct EntriesGenerator {
     async let tomorrowRoutes = RouteModel().fetchRoute(originId: originId, destinationId: destinationId, date: formattedTomorrowDate)
 
     var routes = (today: await todayRoutes, tomorrow: await tomorrowRoutes)
+    
+    // API possibly returns past trains
     routes.today = cleanPastTrains(routes.today)
 
     var entries: [Entry] = []
@@ -40,10 +42,7 @@ struct EntriesGenerator {
     return entries
   }
   
-  func generateEntriesForRoutes(_ allRoutes: [Route], originId: String, destinationId: String) -> [Entry] {
-    // API possibly return past trains
-    let routes = cleanPastTrains(allRoutes)
-    
+  func generateEntriesForRoutes(_ routes: [Route], originId: String, destinationId: String) -> [Entry] {
     var entries: [Entry] = []
     
     // Get stations for entries
