@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Animated,
   ViewStyle,
+  TextStyle,
   ImageStyle,
   Dimensions,
   AppState,
@@ -56,11 +57,13 @@ const SETTINGS_ICON: ImageStyle = {
   opacity: 0.7,
 }
 
-const STAR_ICON: ImageStyle = {
-  width: headerIconSize,
-  height: headerIconSize - 1,
-  tintColor: color.primary,
-  opacity: 0.7,
+const NEW_FEATURES_BUTTON: ViewStyle = {
+  paddingHorizontal: spacing[3] * fontScale,
+  paddingVertical: spacing[0] + 1 * fontScale,
+  flexDirection: "row",
+  alignItems: "center",
+  backgroundColor: color.secondary,
+  borderRadius: 30,
 }
 
 const HEADER_TITLE: TextStyle = {
@@ -199,6 +202,13 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     <Screen style={ROOT} preset="scroll">
       <View style={CONTENT_WRAPPER}>
         <View style={HEADER_WRAPPER}>
+          <View style={NEW_FEATURES_BUTTON}>
+            <Image
+              source={require("../../../assets/sparkles.png")}
+              style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }}
+            />
+            <Text style={{ color: "white", fontWeight: "500" }}>חדש</Text>
+          </View>
           <TouchableOpacity onPress={() => navigation.navigate("settingsStack")} activeOpacity={0.8} accessibilityLabel="הגדרות">
             <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />
           </TouchableOpacity>

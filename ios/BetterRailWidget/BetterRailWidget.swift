@@ -22,8 +22,11 @@ struct Provider: IntentTimelineProvider {
         // Refresh widget after tomorrow at midnight
         let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
         let midnight = Calendar.current.startOfDay(for: tomorrow)
+        
+        // Delay the reload a little to ensure the request will be sent after midnight
+        let midnightDelayed = Calendar.current.date(byAdding: .minute, value: 5, to: midnight)!
 
-        let timeline = Timeline(entries: entries, policy: .after(midnight))
+        let timeline = Timeline(entries: entries, policy: .after(midnightDelayed))
         completion(timeline)
       }
     }
