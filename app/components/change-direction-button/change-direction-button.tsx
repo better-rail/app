@@ -66,6 +66,7 @@ export const ChangeDirectionButton = observer(function ChangeDirectionButton(pro
       }}
       accessibilityLabel="החלפת תחנות"
       accessibilityHint="קיצור דרך להחלפת תחנת המוצא עם תחנת היעד"
+      {...props}
     >
       <Image source={upDownArrowIcon} style={ARROW_ICON} />
     </TouchableOpacity>

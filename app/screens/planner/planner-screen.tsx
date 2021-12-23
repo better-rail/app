@@ -217,7 +217,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
         </Animated.View>
 
         <View style={CHANGE_DIRECTION_WRAPPER}>
-          <ChangeDirectionButton onPress={onSwitchPress} />
+          <ChangeDirectionButton onPress={onSwitchPress} disabled={!origin || !destination} />
         </View>
 
         <Text preset="fieldLabel" tx="plan.destination" style={{ marginBottom: spacing[1] }} />
