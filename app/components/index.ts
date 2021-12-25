@@ -1,4 +1,5 @@
 export * from "./button/button"
+export * from "./close-button/close-button"
 export * from "./icon/icon"
 export * from "./screen/screen"
 export * from "./text/text"
