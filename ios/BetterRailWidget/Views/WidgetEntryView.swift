@@ -85,7 +85,7 @@ struct WidgetEntryView: View {
                 }
                   .font(.system(size: nextTrainFontSize, weight: .bold))
                   
-                if (widgetFamily == .systemMedium) {
+                if (widgetFamily != .systemLarge) {
                   Text("Platform \(entry.platform)・Train \(entry.trainNumber)")
                     .font(.system(size: 11.5)).fontWeight(.medium).foregroundColor(.white).opacity(/*@START_MENU_TOKEN@*/0.8/*@END_MENU_TOKEN@*/)
                 }

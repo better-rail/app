@@ -1,20 +1,19 @@
 import React from "react"
-import { View, TextStyle, ViewStyle, Image, Dimensions } from "react-native"
-import LinearGradient from "react-native-linear-gradient"
+import { View, TextStyle, Image, Dimensions } from "react-native"
 import { Screen, Text, Button } from "../../components"
-import { translate } from "../../i18n"
+import { translate, userLocale } from "../../i18n"
 import { NewFeatureStackProps } from "../../navigators/new-features/new-features-navigator"
 import { color, spacing } from "../../theme"
+import { NewFeatureBackground } from "./new-features-background"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
-const GARDIENT: ViewStyle = {
-  height: "200%",
-  position: "absolute",
-  left: 0,
-  right: 0,
-  top: 0,
-  opacity: 1,
+let widgetImage
+
+if (userLocale === "he") {
+  widgetImage = require("../../../assets/widget-hebrew.png")
+} else {
+  widgetImage = require("../../../assets/widget-english.png")
 }
 
 const SUB_TITLE: TextStyle = {
@@ -28,32 +27,31 @@ const TITLE: TextStyle = {
   color: color.whiteText,
   marginBottom: spacing[3],
   fontSize: 32,
+  textAlign: "center",
 }
 
 const TEXT: TextStyle = {
   color: color.whiteText,
   textAlign: "center",
+  paddingHorizontal: spacing[4],
 }
 
-function WidgetAnnouncement({ navigation }: NewFeatureStackProps) {
+export const WidgetAnnouncement = function WidgetAnnouncement({ navigation }: NewFeatureStackProps) {
   return (
     <Screen unsafe={true} statusBar="light-content" preset="scroll">
-      <LinearGradient style={GARDIENT} colors={["#0575E6", "#021B79"]} />
-      <View style={{ alignItems: "center", paddingHorizontal: spacing[7], marginTop: spacing[6] + 4 }}>
-        <Text style={SUB_TITLE}>חדש ב- Better Rail</Text>
-        <Text preset="header" style={TITLE}>
-          ווידג׳טים לדף הבית
-        </Text>
-        <Text style={TEXT}>3 ווידג׳טים לצפייה בזמני הרכבות הקרובות היישר מדף הבית</Text>
-        <Image
-          source={require("../../../assets/widget-hebrew.png")}
-          style={{ width: deviceWidth - 40, height: 240, resizeMode: "contain" }}
+      <NewFeatureBackground />
+      <View style={{ alignItems: "center", paddingHorizontal: spacing[5], marginTop: spacing[6] + 4 }}>
+        <Text style={SUB_TITLE} tx="newFeature.newBetterRail" />
+        <Text preset="header" style={TITLE} tx="newFeature.homeWidgets" />
+        <Text style={TEXT} tx="newFeature.widgetDescription" />
+        <Image source={widgetImage} style={{ width: deviceWidth - 40, height: 240, resizeMode: "contain" }} />
+        <Text style={[TEXT, { marginBottom: spacing[6] }]} tx="newFeature.widgetGuide" />
+        <Button
+          title={translate("common.next")}
+          onPress={() => navigation.navigate("step1")}
+          containerStyle={{ width: deviceWidth - 40 }}
         />
-        <Text style={[TEXT, { marginBottom: spacing[6] }]}>הכנו מדריך קצר עם טיפים לשימוש בווידג׳טים החדשים </Text>
-        <Button title={"המשך"} onPress={() => navigation.navigate("step1")} containerStyle={{ width: deviceWidth - 40 }} />
       </View>
     </Screen>
   )
 }
-
-export default WidgetAnnouncement

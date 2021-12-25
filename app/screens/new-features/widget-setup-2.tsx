@@ -1,5 +1,5 @@
 import React from "react"
-import { View, TextStyle, ViewStyle, ImageStyle, Image, Dimensions, useColorScheme } from "react-native"
+import { View, TextStyle, ViewStyle, ImageStyle, Image, Dimensions } from "react-native"
 import { Screen, Text, Button } from "../../components"
 import { translate, userLocale } from "../../i18n"
 import { NewFeatureStackProps } from "../../navigators/new-features/new-features-navigator"
@@ -8,12 +8,12 @@ import { NewFeatureBackground } from "./new-features-background"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
-let addWidgetImage
+let configImage
 
 if (userLocale === "he") {
-  addWidgetImage = require("../../../assets/add-widget-hebrew.png")
+  configImage = require("../../../assets/widget-config-hebrew.png")
 } else {
-  addWidgetImage = require("../../../assets/add-widget-english.png")
+  configImage = require("../../../assets/widget-config-english.png")
 }
 
 const TITLE: TextStyle = {
@@ -40,8 +40,8 @@ const IMAGE_CONTAINER: ViewStyle = {
 const IMAGE_STYLE: ImageStyle = {
   width: 280,
   borderWidth: 1,
-  borderColor: "rgba(0, 0, 0, 0.3)",
-  height: 200,
+  borderColor: "rgba(0, 0, 0, 0.1)",
+  height: 295,
   resizeMode: "contain",
   marginHorizontal: -24,
   borderRadius: 12,
@@ -49,25 +49,25 @@ const IMAGE_STYLE: ImageStyle = {
   marginBottom: spacing[4],
 }
 
-export const WidgetStep1 = function WidgetStep1({ navigation }: NewFeatureStackProps) {
+export const WidgetStep2 = function WidgetStep2({ navigation }: NewFeatureStackProps) {
   return (
     <Screen unsafe={true} statusBar="light-content" preset="scroll">
       <NewFeatureBackground />
       <View style={{ paddingHorizontal: spacing[6], marginTop: spacing[6] + 4 }}>
-        <Text preset="header" style={TITLE} tx="newFeature.howToAdd" />
-        <Text style={TEXT} tx="newFeature.addStep1" />
-        <Text style={TEXT} tx="newFeature.addStep2" />
+        <Text preset="header" style={TITLE} tx="newFeature.configuring" />
+        <Text style={TEXT} tx="newFeature.configStep1" />
+        <Text style={TEXT} tx="newFeature.configStep2" />
       </View>
       <View style={IMAGE_CONTAINER}>
-        <Image source={addWidgetImage} style={IMAGE_STYLE} />
+        <Image source={configImage} style={IMAGE_STYLE} />
       </View>
-      <View style={{ paddingHorizontal: spacing[7], marginBottom: spacing[3] }}>
-        <Text style={TEXT} tx="newFeature.addStep3" />
+      <View style={{ paddingHorizontal: spacing[6], marginBottom: spacing[3] }}>
+        <Text style={TEXT} tx="newFeature.configStep3" />
       </View>
       <View style={{ alignItems: "center" }}>
         <Button
           title={translate("common.next")}
-          onPress={() => navigation.navigate("step2")}
+          onPress={() => navigation.navigate("step3")}
           containerStyle={{ width: deviceWidth - 40 }}
         />
       </View>
