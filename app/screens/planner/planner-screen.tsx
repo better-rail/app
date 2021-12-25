@@ -202,13 +202,13 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     <Screen style={ROOT} preset="scroll">
       <View style={CONTENT_WRAPPER}>
         <View style={HEADER_WRAPPER}>
-          <View style={NEW_FEATURES_BUTTON}>
+          <TouchableOpacity style={NEW_FEATURES_BUTTON} onPress={() => navigation.navigate("newFeatureStack")}>
             <Image
               source={require("../../../assets/sparkles.png")}
               style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }}
             />
             <Text style={{ color: "white", fontWeight: "500" }}>חדש</Text>
-          </View>
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate("settingsStack")} activeOpacity={0.8} accessibilityLabel="הגדרות">
             <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />
           </TouchableOpacity>

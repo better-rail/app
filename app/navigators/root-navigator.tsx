@@ -4,11 +4,13 @@ import { NavigationContainer, NavigationContainerRef, DefaultTheme, DarkTheme } 
 import { createNativeStackNavigator } from "react-native-screens/native-stack"
 import { MainNavigator } from "./main-navigator"
 import { SettingsNavigator } from "./settings/settings-navigator"
+import { NewFeatureNavigator } from "./new-features/new-features-navigator"
 
 export type RootParamList = {
   mainStack: undefined
   secondaryStack: undefined
   settingsStack: undefined
+  newFeatureStack: undefined
 }
 
 const Stack = createNativeStackNavigator<RootParamList>()
@@ -23,6 +25,7 @@ const RootStack = () => {
     >
       <Stack.Screen name="mainStack" component={MainNavigator} />
       <Stack.Screen name="settingsStack" component={SettingsNavigator} />
+      <Stack.Screen name="newFeatureStack" component={NewFeatureNavigator} />
     </Stack.Navigator>
   )
 }
