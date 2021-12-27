@@ -29,7 +29,7 @@ func getDateFromTimeString(_ timeString: String) -> Date? {
 func formatRouteDate(_ date: Date) -> String {
   let dateFormatter = DateFormatter()
   dateFormatter.locale = Locale(identifier: "en_us")
-  dateFormatter.dateFormat = "YYYYMMdd"
+  dateFormatter.dateFormat = "yyyyMMdd"
   return dateFormatter.string(from: date)
 }
 

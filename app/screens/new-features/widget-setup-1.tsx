@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useMemo } from "react"
 import { View, TextStyle, ViewStyle, ImageStyle, Image, Dimensions, useColorScheme } from "react-native"
 import { Screen, Text, Button } from "../../components"
 import { translate, userLocale } from "../../i18n"
@@ -7,14 +7,6 @@ import { color, spacing } from "../../theme"
 import { NewFeatureBackground } from "./new-features-background"
 
 const { width: deviceWidth } = Dimensions.get("screen")
-
-let addWidgetImage
-
-if (userLocale === "he") {
-  addWidgetImage = require("../../../assets/add-widget-hebrew.png")
-} else {
-  addWidgetImage = require("../../../assets/add-widget-english.png")
-}
 
 const TITLE: TextStyle = {
   color: color.whiteText,
@@ -25,7 +17,7 @@ const TITLE: TextStyle = {
 
 const TEXT: TextStyle = {
   color: color.whiteText,
-  marginBottom: spacing[2],
+  marginBottom: spacing[3],
 }
 
 const IMAGE_CONTAINER: ViewStyle = {
@@ -50,6 +42,14 @@ const IMAGE_STYLE: ImageStyle = {
 }
 
 export const WidgetStep1 = function WidgetStep1({ navigation }: NewFeatureStackProps) {
+  const addWidgetImage = useMemo(() => {
+    if (userLocale === "he") {
+      return require("../../../assets/add-widget-hebrew.png")
+    } else {
+      return require("../../../assets/add-widget-english.png")
+    }
+  }, [])
+
   return (
     <Screen unsafe={true} statusBar="light-content" preset="scroll">
       <NewFeatureBackground />
@@ -61,7 +61,7 @@ export const WidgetStep1 = function WidgetStep1({ navigation }: NewFeatureStackP
       <View style={IMAGE_CONTAINER}>
         <Image source={addWidgetImage} style={IMAGE_STYLE} />
       </View>
-      <View style={{ paddingHorizontal: spacing[7], marginBottom: spacing[3] }}>
+      <View style={{ paddingHorizontal: spacing[6], marginBottom: spacing[3] }}>
         <Text style={TEXT} tx="newFeature.addStep3" />
       </View>
       <View style={{ alignItems: "center" }}>

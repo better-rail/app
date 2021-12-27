@@ -3,7 +3,8 @@ import SwiftUI
 
 struct WidgetBackground: View {
   var image: String?
-  
+  @Environment(\.colorScheme) var colorScheme
+
   var body: some View {
     ZStack {
       if let stationImage = image {

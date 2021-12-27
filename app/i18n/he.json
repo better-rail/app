@@ -2,6 +2,7 @@
   "common": {
     "cancel": "ביטול",
     "ok": "אישור",
+    "done": "סיום",
     "set": "שמירה",
     "delete": "הסרה",
     "close": "סגירה",
@@ -103,22 +104,29 @@
     "newBetterRail": "חדש ב- Better Rail",
     "homeWidgets": "ווידג׳טים למסך הבית",
     "widgetDescription": "3 ווידג׳טים לצפייה בזמני הרכבות הקרובות היישר מדף הבית",
-    "widgetGuide": "הכנו מדריך קצר עם טיפים לשימוש בווידג׳טים החדשים.",
+    "widgetGuide": "הכנו מדריך קצר עם טיפים לשימוש בווידג׳טים החדשים",
 
     "howToAdd": "איך להוסיף ווידג׳ט",
-    "addStep1": "1. ממסך הבית, לחצו לחיצה ארוכה באזור ריק עד שהאפליקציות יתחילו להתנועע.",
-    "addStep2": "2. הקישו על לחצן ההוספה (+) בפינה הימנית העליונה.",
-    "addStep3": "3. בחרו את Better Rail מרשימת האפליקציות, בחרו את גודל הווידג׳ט הרצוי ולחצו ״הוסף ווידג׳ט״.",
+    "addStep1": "1. ממסך הבית, לחצו לחיצה ארוכה באזור ריק עד שהאפליקציות יתחילו להתנועע",
+    "addStep2": "2. הקישו על לחצן ההוספה (+) בפינה הימנית העליונה",
+    "addStep3": "3. בחרו את Better Rail מרשימת האפליקציות, בחרו את גודל הווידג׳ט הרצוי ולחצו ״הוסף ווידג׳ט״",
 
     "configuring": "הגדרת ווידג׳ט",
-    "configStep1": "1. לחצו לחיצה ארוכה על הווידג'ט כדי לפתוח את תפריט הפעולות.",
+    "configStep1": "1. לחצו לחיצה ארוכה על הווידג'ט כדי לפתוח את תפריט הפעולות",
     "configStep2": "2. הקישו על ״עריכת וידג׳ט״",
-    "configStep3": "3. בחרו את תחנת המוצא והיעד עבור הוידג׳ט ולחצו מחוצה לו על מנת לחזור למסך הבית.",
+    "configStep3": "3. בחרו את תחנת המוצא והיעד עבור הוידג׳ט ולחצו מחוצה לו על מנת לחזור למסך הבית",
 
     "stacking": "יצירת ערמה",
-    "stackingIntro": "על מנת להציג 2 מסלולי נסיעה בווידג׳ט אחד (לדוגמה נסיעה לעבודה וחזרה) ניתן ליצור ערמת ווידג׳טים.",
-    "stackingStep1": "1. לחצו לחיצה ארוכה על אזור ריק במסך הבית.",
-    "stackingStep2": "2. גררו ווידג'ט אחד מעל ווידג'ט אחר ולחצו על סיום.",
-    "stackingStep2": "3. בתוך הערמה תוכלו לגלול בין 2 הווידג׳טים."
+    "stackingIntro": "על מנת להציג 2 מסלולי נסיעה בווידג׳ט אחד (לדוגמה נסיעה לעבודה וחזרה) ניתן ליצור ערמת ווידג׳טים",
+    "stackingStep1": "1. לחצו לחיצה ארוכה על אזור ריק במסך הבית",
+    "stackingStep2": "2. גררו ווידג'ט אחד מעל ווידג'ט אחר ולחצו על סיום",
+    "stackingStep3": "3. בתוך הערמה תוכלו לגלול בין שני הווידג׳טים",
+    "stackingStep4": "טיפ: תוכלו לגשת ללוח הזמנים המלא על ידי לחיצה על הווידג׳ט",
+
+    "enjoyTheWidgets": "זה הכל!",
+    "myCreator": "עכשיו היוצר שלי רוצה להגיד כמה מילים.",
+    "heyThere": "היי!\nיצרתי את Better Rail בשביל להפוך את התחבורה הציבורית בישראל למעט יותר נגישה.\nהאפליקצייה מוצעת להורדה בחינם, ללא פרסומות או תוכנות מעקב.",
+    "pleaseConsider": "אם נהנתם מ- Better Rail, אשמח אם תעזרו לה להגיע לקהל רחב יותר בעזרת דירוג בחנות האפליקציות ושיתוף עם הסובבים אתכם. 😊",
+    "goodbyes": "שתהיה נסיעה טובה!\nגיא"
   }
 }

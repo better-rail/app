@@ -1,10 +1,13 @@
 import React from "react"
 import { View, TextStyle, ViewStyle, ImageStyle, Image, Dimensions } from "react-native"
-import LinearGradient from "react-native-linear-gradient"
+import * as storage from "../../utils/storage"
 import { Screen, Text, Button } from "../../components"
 import { translate } from "../../i18n"
 import { NewFeatureStackProps } from "../../navigators/new-features/new-features-navigator"
 import { color, spacing } from "../../theme"
+import { NewFeatureBackground } from "./new-features-background"
+import InAppReview from "react-native-in-app-review"
+import { useStores } from "../../models"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -19,7 +22,7 @@ const GARDIENT: ViewStyle = {
 
 const TITLE: TextStyle = {
   color: color.whiteText,
-  marginBottom: spacing[3],
+  marginBottom: spacing[2],
   fontSize: 32,
   textAlign: "center",
 }
@@ -27,6 +30,7 @@ const TITLE: TextStyle = {
 const TEXT: TextStyle = {
   color: color.whiteText,
   marginBottom: spacing[2],
+  lineHeight: 24.5,
 }
 
 const IMAGE_CONTAINER: ViewStyle = {
@@ -39,36 +43,51 @@ const IMAGE_CONTAINER: ViewStyle = {
 }
 
 const IMAGE_STYLE: ImageStyle = {
-  width: 280,
-  borderWidth: 1,
-  borderColor: "rgba(0, 0, 0, 0.1)",
-  height: 295,
-  resizeMode: "contain",
-  marginHorizontal: -24,
-  borderRadius: 12,
+  width: 200,
+  height: 200,
   marginTop: spacing[2],
   marginBottom: spacing[4],
+  alignSelf: "center",
 }
 
 export const WidgetStep4 = function WidgetStep4({ navigation }: NewFeatureStackProps) {
+  const { recentSearches } = useStores()
+
   return (
     <Screen unsafe={true} statusBar="light-content" preset="scroll">
-      <LinearGradient style={GARDIENT} colors={["#0575E6", "#021B79"]} />
-      <View style={{ paddingHorizontal: spacing[7], marginTop: spacing[6] + 4 }}>
-        <Text preset="header" style={TITLE}>
-          הגדרת ווידג׳ט
-        </Text>
-        <Text style={TEXT}>1. לחצו לחיצה ארוכה על הווידג'ט כדי לפתוח את תפריט הפעולות.</Text>
-        <Text style={TEXT}>2. הקישו על ״עריכת וידג׳ט".</Text>
-      </View>
-      <View style={IMAGE_CONTAINER}>
-        <Image source={require("../../../assets/widget-config-hebrew.png")} style={IMAGE_STYLE} />
-      </View>
-      <View style={{ paddingHorizontal: spacing[7], marginBottom: spacing[3] }}>
-        <Text style={TEXT}>3. בחרו את תחנת המוצא והיעד עבור הוידג׳ט.</Text>
+      <NewFeatureBackground />
+      <View style={{ paddingHorizontal: spacing[6], marginTop: spacing[6] + 4 }}>
+        <Text preset="header" style={TITLE} tx="newFeature.enjoyTheWidgets" />
+
+        <Text style={[TEXT, { textAlign: "center", fontWeight: "500", marginBottom: spacing[4] }]} tx="newFeature.myCreator" />
+        <Image source={require("../../../assets/guymoji.png")} style={IMAGE_STYLE} />
+
+        <Text style={TEXT} tx="newFeature.heyThere" />
+        <Text style={TEXT} tx="newFeature.pleaseConsider" />
+
+        <Text style={[TEXT, { marginBottom: spacing[6] }]} tx="newFeature.goodbyes" />
       </View>
       <View style={{ alignItems: "center" }}>
-        <Button title={"המשך"} onPress={() => navigation.navigate("step3")} containerStyle={{ width: deviceWidth - 40 }} />
+        <Button
+          title={translate("common.done")}
+          onPress={() => {
+            storage.save("seenWidgetAnnouncement", "true")
+
+            navigation.navigate("planner")
+
+            if (recentSearches.entries.length > 3) {
+              storage.load("lastInAppReview").then((value) => {
+                if (!value) {
+                  InAppReview.RequestInAppReview().then((value) => {
+                    console.log(value)
+                    storage.save("lastInAppReview", new Date().toISOString())
+                  })
+                }
+              })
+            }
+          }}
+          containerStyle={{ width: deviceWidth - 40 }}
+        />
       </View>
     </Screen>
   )

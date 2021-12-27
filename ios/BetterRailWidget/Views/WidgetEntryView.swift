@@ -177,14 +177,16 @@ struct WidgetEntryView_Previews: PreviewProvider {
 //      let emptyEntry = TrainDetail(date: Date(), departureTime: "404", arrivalTime: "404", platform: "404", trainNumber: "404", origin: origin, destination: destination)
       
       if #available(iOS 14.0, *) {
-        WidgetEntryView(entry: entry)
-          .previewContext(WidgetPreviewContext(family: .systemLarge))
-          .environment(\.locale, .init(identifier: "en"))
 
         WidgetEntryView(entry: entry)
           .previewContext(WidgetPreviewContext(family: .systemMedium))
           .environment(\.locale, .init(identifier: "he"))
           .environment(\.layoutDirection, .rightToLeft)
+        
+        WidgetEntryView(entry: entry)
+          .previewContext(WidgetPreviewContext(family: .systemLarge))
+          .environment(\.locale, .init(identifier: "en"))
+
         
 //        WidgetEntryView(entry: entry)
 //          .previewContext(WidgetPreviewContext(family: .systemSmall))

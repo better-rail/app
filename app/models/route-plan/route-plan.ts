@@ -9,7 +9,7 @@ const { RNBetterRail } = NativeModules
 // Later it'll be used by the widget as the initial route
 // TODO: Move to another file
 function sendCurrentRouteToiOS(originId: string, destinationId: string) {
-  if (Platform.OS === "ios") {
+  if (Platform.OS === "ios" && originId && destinationId) {
     RNBetterRail.saveCurrentRoute(originId, destinationId)
   }
 }

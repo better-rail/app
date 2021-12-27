@@ -8,14 +8,6 @@ import { NewFeatureBackground } from "./new-features-background"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
-let configImage
-
-if (userLocale === "he") {
-  configImage = require("../../../assets/widget-config-hebrew.png")
-} else {
-  configImage = require("../../../assets/widget-config-english.png")
-}
-
 const TITLE: TextStyle = {
   color: color.whiteText,
   marginBottom: spacing[3],
@@ -50,6 +42,14 @@ const IMAGE_STYLE: ImageStyle = {
 }
 
 export const WidgetStep2 = function WidgetStep2({ navigation }: NewFeatureStackProps) {
+  let configImage
+
+  if (userLocale === "he") {
+    configImage = require("../../../assets/widget-config-hebrew.png")
+  } else {
+    configImage = require("../../../assets/widget-config-english.png")
+  }
+
   return (
     <Screen unsafe={true} statusBar="light-content" preset="scroll">
       <NewFeatureBackground />

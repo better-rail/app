@@ -11,6 +11,7 @@ import {
   Dimensions,
   AppState,
   AppStateStatus,
+  Platform,
 } from "react-native"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
 import { useStores } from "../../models"
@@ -24,6 +25,7 @@ import { isWeekend } from "../../utils/helpers/date-helpers"
 import { differenceInHours, parseISO } from "date-fns"
 import { save, load } from "../../utils/storage"
 import { donateRouteIntent } from "../../utils/ios-helpers"
+import * as storage from "../../utils/storage"
 
 const now = new Date()
 
@@ -85,6 +87,8 @@ const CHANGE_DIRECTION_WRAPPER: ViewStyle = {
 export const PlannerScreen = observer(function PlannerScreen({ navigation }: PlannerScreenProps) {
   const { routePlan, trainRoutes } = useStores()
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
+  const [displayNewBadge, setDisplayNewBadge] = useState(false)
+
   const formattedDate = useFormattedDate(routePlan.date)
   const stationCardScale = useRef(new Animated.Value(1)).current
 
@@ -198,11 +202,21 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     { cacheTime: isWeekend(routePlan.date) ? 0 : 7200000 },
   )
 
+  useEffect(() => {
+    // Widget feature available only for iOS. Arabic translation not available yet.
+    if (Platform.OS === "android" || userLocale === "ar") return
+    storage.load("seenWidgetAnnouncement").then((value) => {
+      if (value) return
+      if (!origin || !destination) return
+      setDisplayNewBadge(true)
+    })
+  }, [])
+
   return (
     <Screen style={ROOT} preset="scroll">
       <View style={CONTENT_WRAPPER}>
         <View style={HEADER_WRAPPER}>
-          {userLocale !== "ar" && (
+          {displayNewBadge && (
             <TouchableOpacity style={NEW_FEATURES_BUTTON} onPress={() => navigation.navigate("newFeatureStack")}>
               <Image
                 source={require("../../../assets/sparkles.png")}

@@ -8,14 +8,6 @@ import { NewFeatureBackground } from "./new-features-background"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
-let widgetImage
-
-if (userLocale === "he") {
-  widgetImage = require("../../../assets/widget-hebrew.png")
-} else {
-  widgetImage = require("../../../assets/widget-english.png")
-}
-
 const SUB_TITLE: TextStyle = {
   color: color.whiteText,
   marginBottom: -4,
@@ -25,7 +17,7 @@ const SUB_TITLE: TextStyle = {
 
 const TITLE: TextStyle = {
   color: color.whiteText,
-  marginBottom: spacing[3],
+  marginBottom: spacing[4],
   fontSize: 32,
   textAlign: "center",
 }
@@ -37,14 +29,21 @@ const TEXT: TextStyle = {
 }
 
 export const WidgetAnnouncement = function WidgetAnnouncement({ navigation }: NewFeatureStackProps) {
+  let widgetImage
+
+  if (userLocale === "he") {
+    widgetImage = require("../../../assets/widget-hebrew.png")
+  } else {
+    widgetImage = require("../../../assets/widget-english.png")
+  }
   return (
     <Screen unsafe={true} statusBar="light-content" preset="scroll">
       <NewFeatureBackground />
-      <View style={{ alignItems: "center", paddingHorizontal: spacing[5], marginTop: spacing[6] + 4 }}>
+      <View style={{ alignItems: "center", paddingHorizontal: spacing[5], marginTop: spacing[7] + 4 }}>
         <Text style={SUB_TITLE} tx="newFeature.newBetterRail" />
         <Text preset="header" style={TITLE} tx="newFeature.homeWidgets" />
         <Text style={TEXT} tx="newFeature.widgetDescription" />
-        <Image source={widgetImage} style={{ width: deviceWidth - 40, height: 240, resizeMode: "contain" }} />
+        <Image source={widgetImage} style={{ width: deviceWidth - 40, height: 210, resizeMode: "contain" }} />
         <Text style={[TEXT, { marginBottom: spacing[6] }]} tx="newFeature.widgetGuide" />
         <Button
           title={translate("common.next")}

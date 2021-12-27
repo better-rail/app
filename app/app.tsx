@@ -60,7 +60,9 @@ function App() {
     }
 
     if (Platform.OS === "ios") {
-      Linking.getInitialURL().then(deepLinkWidgetURL)
+      Linking.getInitialURL().then((url) => {
+        if (url) deepLinkWidgetURL(url)
+      })
 
       linkingListener = Linking.addEventListener("url", ({ url }) => {
         deepLinkWidgetURL(url)

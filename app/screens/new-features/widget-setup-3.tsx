@@ -27,7 +27,7 @@ const TITLE: TextStyle = {
 
 const TEXT: TextStyle = {
   color: color.whiteText,
-  marginBottom: spacing[2],
+  marginBottom: spacing[3],
 }
 
 const IMAGE_CONTAINER: ViewStyle = {
@@ -37,6 +37,7 @@ const IMAGE_CONTAINER: ViewStyle = {
   shadowColor: color.palette.black,
   shadowRadius: 5,
   shadowOpacity: 0.5,
+  marginBottom: spacing[1],
 }
 
 const IMAGE_STYLE: ImageStyle = {
@@ -55,20 +56,22 @@ export const WidgetStep3 = function WidgetStep3({ navigation }: NewFeatureStackP
   return (
     <Screen unsafe={true} statusBar="light-content" preset="scroll">
       <NewFeatureBackground />
-      <View style={{ paddingHorizontal: spacing[7], marginTop: spacing[6] + 4 }}>
+      <View style={{ paddingHorizontal: spacing[6], marginTop: spacing[6] + 4 }}>
         <Text preset="header" style={TITLE} tx="newFeature.stacking" />
 
-        <Text style={[TEXT, { textAlign: "center" }]} tx="newFeature.stackingIntro"></Text>
+        <Text style={[TEXT, { textAlign: "center", marginBottom: spacing[5] }]} tx="newFeature.stackingIntro"></Text>
         <Text style={TEXT} tx="newFeature.stackingStep1" />
         <Text style={TEXT} tx="newFeature.stackingStep2" />
       </View>
       <View style={IMAGE_CONTAINER}>
         <Image source={require("../../../assets/widget-stack-hebrew.gif")} style={IMAGE_STYLE} />
       </View>
-      <View style={{ paddingHorizontal: spacing[7], marginBottom: spacing[3] }}>
+      <View style={{ paddingHorizontal: spacing[6], marginBottom: spacing[3] }}>
         <Text style={TEXT} tx="newFeature.stackingStep3" />
+        <Text style={TEXT} tx="newFeature.stackingStep4" />
       </View>
-      <View style={{ alignItems: "center" }}>
+
+      <View style={{ alignItems: "center", marginTop: spacing[4] }}>
         <Button
           title={translate("common.next")}
           onPress={() => navigation.navigate("step4")}
