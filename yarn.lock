@@ -14574,6 +14574,11 @@ react-native-haptic-feedback@^1.11.0:
   resolved "https://registry.npmjs.org/react-native-haptic-feedback/-/react-native-haptic-feedback-1.11.0.tgz"
   integrity sha512-KTIy7lExwMtB6pOpCARyUzFj5EzYTh+A1GN/FB5Eb0LrW5C6hbb1kdj9K2/RHyZC+wyAJD1M823ZaDCU6n6cLA==
 
+react-native-in-app-review@^3.2.3:
+  version "3.2.3"
+  resolved "https://registry.yarnpkg.com/react-native-in-app-review/-/react-native-in-app-review-3.2.3.tgz#d61bfa14d33fc2a7f1ff85cea64e2a042ebdf299"
+  integrity sha512-BTYTSp7Cf9rkcb210F76sxrEZSq5V+qx3auJ60XJ0FWrJiDLVH9QxRbDaS/c4OcAyjA45oKR6Rh1n2kmylWU7A==
+
 react-native-inappbrowser-reborn@^3.5.1:
   version "3.5.1"
   resolved "https://registry.npmjs.org/react-native-inappbrowser-reborn/-/react-native-inappbrowser-reborn-3.5.1.tgz"

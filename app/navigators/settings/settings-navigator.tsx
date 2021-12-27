@@ -1,9 +1,10 @@
 import React from "react"
-import { TouchableOpacity, Image, Platform, TextStyle } from "react-native"
+import { Platform, TextStyle } from "react-native"
 import { createStackNavigator, StackScreenProps } from "@react-navigation/stack"
 import { SettingsScreen, LanguageScreen, AboutScreen } from "../../screens"
 import { color, typography } from "../../theme"
 import { translate } from "../../i18n"
+import CloseButton from "../../components/close-button/close-button"
 
 export type SettingsParamList = {
   main: undefined
@@ -30,7 +31,7 @@ export const SettingsNavigator = () => (
       component={SettingsScreen}
       options={({ navigation }) => ({
         title: translate("settings.title"),
-        headerLeft: () => <CloseIcon onPress={() => navigation.goBack()} />,
+        headerLeft: () => <CloseButton onPress={() => navigation.goBack()} />,
         headerTitleStyle: Platform.select({ ios: iOSTitleStyle, android: { ...androidTitleStyle, marginBottom: 10 } }),
       })}
     />
@@ -53,15 +54,6 @@ export const SettingsNavigator = () => (
       }}
     />
   </SettingsStack.Navigator>
-)
-
-const CloseIcon = ({ onPress }) => (
-  <TouchableOpacity onPress={onPress} activeOpacity={0.8} accessibilityLabel="חזרה">
-    <Image
-      source={require("../../../assets/close.png")}
-      style={{ width: 37.5, height: 37.5, marginLeft: 7.5, marginBottom: 7.5, tintColor: color.dim, opacity: 0.5 }}
-    />
-  </TouchableOpacity>
 )
 
 const iOSTitleStyle: TextStyle = {

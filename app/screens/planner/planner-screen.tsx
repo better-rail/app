@@ -6,23 +6,26 @@ import {
   TouchableOpacity,
   Animated,
   ViewStyle,
+  TextStyle,
   ImageStyle,
   Dimensions,
   AppState,
   AppStateStatus,
+  Platform,
 } from "react-native"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
 import { useStores } from "../../models"
 import { color, primaryFontIOS, fontScale, spacing } from "../../theme"
 import { PlannerScreenProps } from "../../navigators/main-navigator"
 import { useStations } from "../../data/stations"
-import { translate, useFormattedDate } from "../../i18n"
+import { translate, useFormattedDate, userLocale } from "../../i18n"
 import DatePickerModal from "../../components/date-picker-modal"
 import { useQuery } from "react-query"
 import { isWeekend } from "../../utils/helpers/date-helpers"
 import { differenceInHours, parseISO } from "date-fns"
 import { save, load } from "../../utils/storage"
 import { donateRouteIntent } from "../../utils/ios-helpers"
+import * as storage from "../../utils/storage"
 
 const now = new Date()
 
@@ -56,11 +59,13 @@ const SETTINGS_ICON: ImageStyle = {
   opacity: 0.7,
 }
 
-const STAR_ICON: ImageStyle = {
-  width: headerIconSize,
-  height: headerIconSize - 1,
-  tintColor: color.primary,
-  opacity: 0.7,
+const NEW_FEATURES_BUTTON: ViewStyle = {
+  paddingHorizontal: spacing[3] * fontScale,
+  paddingVertical: spacing[0] + 1 * fontScale,
+  flexDirection: "row",
+  alignItems: "center",
+  backgroundColor: color.secondary,
+  borderRadius: 30,
 }
 
 const HEADER_TITLE: TextStyle = {
@@ -82,6 +87,8 @@ const CHANGE_DIRECTION_WRAPPER: ViewStyle = {
 export const PlannerScreen = observer(function PlannerScreen({ navigation }: PlannerScreenProps) {
   const { routePlan, trainRoutes } = useStores()
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
+  const [displayNewBadge, setDisplayNewBadge] = useState(false)
+
   const formattedDate = useFormattedDate(routePlan.date)
   const stationCardScale = useRef(new Animated.Value(1)).current
 
@@ -195,10 +202,29 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     { cacheTime: isWeekend(routePlan.date) ? 0 : 7200000 },
   )
 
+  useEffect(() => {
+    // Widget feature available only for iOS. Arabic translation not available yet.
+    if (Platform.OS === "android" || userLocale === "ar") return
+    storage.load("seenWidgetAnnouncement").then((value) => {
+      if (value) return
+      if (!origin || !destination) return
+      setDisplayNewBadge(true)
+    })
+  }, [])
+
   return (
     <Screen style={ROOT} preset="scroll">
       <View style={CONTENT_WRAPPER}>
         <View style={HEADER_WRAPPER}>
+          {displayNewBadge && (
+            <TouchableOpacity style={NEW_FEATURES_BUTTON} onPress={() => navigation.navigate("newFeatureStack")}>
+              <Image
+                source={require("../../../assets/sparkles.png")}
+                style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }}
+              />
+              <Text style={{ color: "white", fontWeight: "500" }} tx="common.new" />
+            </TouchableOpacity>
+          )}
           <TouchableOpacity onPress={() => navigation.navigate("settingsStack")} activeOpacity={0.8} accessibilityLabel="הגדרות">
             <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />
           </TouchableOpacity>

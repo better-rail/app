@@ -85,7 +85,7 @@ struct WidgetEntryView: View {
                 }
                   .font(.system(size: nextTrainFontSize, weight: .bold))
                   
-                if (widgetFamily == .systemMedium) {
+                if (widgetFamily != .systemLarge) {
                   Text("Platform \(entry.platform)・Train \(entry.trainNumber)")
                     .font(.system(size: 11.5)).fontWeight(.medium).foregroundColor(.white).opacity(/*@START_MENU_TOKEN@*/0.8/*@END_MENU_TOKEN@*/)
                 }
@@ -177,14 +177,16 @@ struct WidgetEntryView_Previews: PreviewProvider {
 //      let emptyEntry = TrainDetail(date: Date(), departureTime: "404", arrivalTime: "404", platform: "404", trainNumber: "404", origin: origin, destination: destination)
       
       if #available(iOS 14.0, *) {
-        WidgetEntryView(entry: entry)
-          .previewContext(WidgetPreviewContext(family: .systemLarge))
-          .environment(\.locale, .init(identifier: "en"))
 
         WidgetEntryView(entry: entry)
           .previewContext(WidgetPreviewContext(family: .systemMedium))
           .environment(\.locale, .init(identifier: "he"))
           .environment(\.layoutDirection, .rightToLeft)
+        
+        WidgetEntryView(entry: entry)
+          .previewContext(WidgetPreviewContext(family: .systemLarge))
+          .environment(\.locale, .init(identifier: "en"))
+
         
 //        WidgetEntryView(entry: entry)
 //          .previewContext(WidgetPreviewContext(family: .systemSmall))

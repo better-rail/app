@@ -6,7 +6,13 @@ struct WidgetLargeSchedualeView: View {
     var body: some View {
       VStack(spacing: 8) {
         if (upcomingTrains.count == 0) {
-          Text("No more trains for today.")
+          VStack {
+            Spacer()
+            Image(systemName: "tram").padding(.vertical, 1).font(.system(size: 24))
+            Text("No more trains for today.")
+            Spacer()
+          }.padding(.bottom, 16)
+          
         }
         else {
           ForEach(upcomingTrains) { train in
@@ -25,9 +31,10 @@ struct WidgetLargeSchedualeView: View {
             }
             .font(.system(size: 16)).foregroundColor(.gray)
             .frame(idealHeight: 30)
+          
           }
-
         }
-    }
+      }
+        
   }
 }
