@@ -8,6 +8,8 @@ import { color, spacing } from "../../theme"
 import { NewFeatureBackground } from "./new-features-background"
 import InAppReview from "react-native-in-app-review"
 import { useStores } from "../../models"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { inlineStyles } from "react-native-svg"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -51,6 +53,7 @@ const IMAGE_STYLE: ImageStyle = {
 }
 
 export const WidgetStep4 = function WidgetStep4({ navigation }: NewFeatureStackProps) {
+  const insets = useSafeAreaInsets()
   const { recentSearches } = useStores()
 
   return (
@@ -67,7 +70,7 @@ export const WidgetStep4 = function WidgetStep4({ navigation }: NewFeatureStackP
 
         <Text style={[TEXT, { marginBottom: spacing[6] }]} tx="newFeature.goodbyes" />
       </View>
-      <View style={{ alignItems: "center" }}>
+      <View style={{ alignItems: "center", marginBottom: insets.bottom + 4, marginTop: spacing[2] }}>
         <Button
           title={translate("common.done")}
           onPress={() => {

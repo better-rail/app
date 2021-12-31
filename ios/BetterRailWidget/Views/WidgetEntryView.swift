@@ -119,7 +119,7 @@ struct WidgetEntryView: View {
               .preferredFont(size: 12)
               .fontWeight(.semibold)
               .foregroundColor(.gray)
-              .padding(.bottom, -2)
+              .padding(.bottom, -1)
             
             
             ForEach(upcomingTrains) { train in
@@ -155,7 +155,8 @@ struct WidgetEntryView: View {
         Spacer()
       }
     }
-.widgetURL(URL(string: "widget://route?originId=\(entry.origin.id)&destinationId=\(entry.destination.id)")!)
+    .background(Color(UIColor.secondarySystemBackground))
+    .widgetURL(URL(string: "widget://route?originId=\(entry.origin.id)&destinationId=\(entry.destination.id)")!)
   }
   
   func getNoTrainsMessage(date: Date) -> String {

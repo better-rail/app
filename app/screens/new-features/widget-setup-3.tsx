@@ -1,10 +1,11 @@
 import React from "react"
 import { View, TextStyle, ViewStyle, ImageStyle, Image, Dimensions } from "react-native"
 import LinearGradient from "react-native-linear-gradient"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Screen, Text, Button } from "../../components"
 import { translate } from "../../i18n"
 import { NewFeatureStackProps } from "../../navigators/new-features/new-features-navigator"
-import { color, spacing } from "../../theme"
+import { color, fontScale, spacing } from "../../theme"
 import { NewFeatureBackground } from "./new-features-background"
 
 const { width: deviceWidth } = Dimensions.get("screen")
@@ -41,10 +42,10 @@ const IMAGE_CONTAINER: ViewStyle = {
 }
 
 const IMAGE_STYLE: ImageStyle = {
-  width: 280,
+  width: 300,
   borderWidth: 1,
   borderColor: "rgba(0, 0, 0, 1)",
-  height: 140,
+  height: 150,
   resizeMode: "contain",
   marginHorizontal: -24,
   borderRadius: 12,
@@ -53,6 +54,8 @@ const IMAGE_STYLE: ImageStyle = {
 }
 
 export const WidgetStep3 = function WidgetStep3({ navigation }: NewFeatureStackProps) {
+  const insets = useSafeAreaInsets()
+
   return (
     <Screen unsafe={true} statusBar="light-content" preset="scroll">
       <NewFeatureBackground />
@@ -71,7 +74,7 @@ export const WidgetStep3 = function WidgetStep3({ navigation }: NewFeatureStackP
         <Text style={TEXT} tx="newFeature.stackingStep4" />
       </View>
 
-      <View style={{ alignItems: "center", marginTop: spacing[4] }}>
+      <View style={{ alignItems: "center", marginTop: fontScale < 1.2 ? spacing[8] + 12 : 0, marginBottom: insets.bottom + 4 }}>
         <Button
           title={translate("common.next")}
           onPress={() => navigation.navigate("step4")}
