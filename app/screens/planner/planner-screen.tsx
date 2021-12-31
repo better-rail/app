@@ -217,7 +217,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     <Screen style={ROOT} preset="scroll">
       <View style={CONTENT_WRAPPER}>
         <View style={HEADER_WRAPPER}>
-          {displayNewBadge && (
+          {!displayNewBadge && (
             <TouchableOpacity style={NEW_FEATURES_BUTTON} onPress={() => navigation.navigate("newFeatureStack")}>
               <Image
                 source={require("../../../assets/sparkles.png")}
