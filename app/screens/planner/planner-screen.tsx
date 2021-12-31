@@ -153,7 +153,9 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     const { id: originId } = routePlan.origin
     const { id: destinationId } = routePlan.destination
 
-    donateRouteIntent(originId, destinationId)
+    if (Platform.OS === "ios") {
+      donateRouteIntent(originId, destinationId)
+    }
 
     navigation.navigate("routeList", {
       originId,
