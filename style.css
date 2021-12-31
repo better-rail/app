@@ -157,8 +157,10 @@ footer {
   margin-inline: 8px;
 }
 
-.footer-links-item:hover:after {
-  background-color: DodgerBlue;
+@media (hover: hover) and (pointer: fine) {
+  .footer-links-item:hover:after {
+    background-color: DodgerBlue;
+  }
 }
 
 @media (min-width: 410px) {
