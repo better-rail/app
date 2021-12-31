@@ -107,9 +107,17 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
 
       <View style={{ marginHorizontal: spacing[1] }}>
         <View style={{ alignItems: "center" }}>
-          <Text style={DURATION_TEXT}>{duration}</Text>
+          <Text style={DURATION_TEXT} maxFontSizeMultiplier={1}>
+            {duration}
+          </Text>
 
-          {delay > 0 ? <DelayBadge delay={delay} /> : <Text style={{ fontSize: 14 }}>{stopsText}</Text>}
+          {delay > 0 ? (
+            <DelayBadge delay={delay} />
+          ) : (
+            <Text style={{ fontSize: 14 }} maxFontSizeMultiplier={1}>
+              {stopsText}
+            </Text>
+          )}
         </View>
       </View>
 

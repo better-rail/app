@@ -205,20 +205,21 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   )
 
   useEffect(() => {
-    // Widget feature available only for iOS. Arabic translation not available yet.
-    if (Platform.OS === "android" || userLocale === "ar") return
-    storage.load("seenWidgetAnnouncement").then((value) => {
-      if (value) return
-      if (!origin || !destination) return
-      setDisplayNewBadge(true)
-    })
+    // Widget feature available only for iOS. Arabic translation for announcement is not available yet.
+    if (Platform.OS === "ios" && userLocale !== "ar") {
+      storage.load("seenWidgetAnnouncement").then((seenWidget) => {
+        if (!seenWidget && origin && destination) {
+          setDisplayNewBadge(true)
+        }
+      })
+    }
   }, [])
 
   return (
     <Screen style={ROOT} preset="scroll">
       <View style={CONTENT_WRAPPER}>
         <View style={HEADER_WRAPPER}>
-          {displayNewBadge && (
+          {!displayNewBadge && (
             <TouchableOpacity style={NEW_FEATURES_BUTTON} onPress={() => navigation.navigate("newFeatureStack")}>
               <Image
                 source={require("../../../assets/sparkles.png")}

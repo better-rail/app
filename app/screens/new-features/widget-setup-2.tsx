@@ -1,9 +1,10 @@
 import React from "react"
 import { View, TextStyle, ViewStyle, ImageStyle, Image, Dimensions } from "react-native"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Screen, Text, Button } from "../../components"
 import { translate, userLocale } from "../../i18n"
 import { NewFeatureStackProps } from "../../navigators/new-features/new-features-navigator"
-import { color, spacing } from "../../theme"
+import { color, fontScale, spacing } from "../../theme"
 import { NewFeatureBackground } from "./new-features-background"
 
 const { width: deviceWidth } = Dimensions.get("screen")
@@ -23,6 +24,7 @@ const TEXT: TextStyle = {
 const IMAGE_CONTAINER: ViewStyle = {
   alignItems: "center",
   overflow: "hidden",
+  marginVertical: spacing[3],
   shadowOffset: { width: 0, height: 0 },
   shadowColor: color.palette.black,
   shadowRadius: 5,
@@ -42,6 +44,8 @@ const IMAGE_STYLE: ImageStyle = {
 }
 
 export const WidgetStep2 = function WidgetStep2({ navigation }: NewFeatureStackProps) {
+  const insets = useSafeAreaInsets()
+
   let configImage
 
   if (userLocale === "he") {
@@ -54,7 +58,7 @@ export const WidgetStep2 = function WidgetStep2({ navigation }: NewFeatureStackP
     <Screen unsafe={true} statusBar="light-content" preset="scroll">
       <NewFeatureBackground />
       <View style={{ paddingHorizontal: spacing[6], marginTop: spacing[6] + 4 }}>
-        <Text preset="header" style={TITLE} tx="newFeature.configuring" />
+        <Text preset="header" style={TITLE} tx="newFeature.configuring" maxFontSizeMultiplier={1.2} />
         <Text style={TEXT} tx="newFeature.configStep1" />
         <Text style={TEXT} tx="newFeature.configStep2" />
       </View>
@@ -64,7 +68,7 @@ export const WidgetStep2 = function WidgetStep2({ navigation }: NewFeatureStackP
       <View style={{ paddingHorizontal: spacing[6], marginBottom: spacing[3] }}>
         <Text style={TEXT} tx="newFeature.configStep3" />
       </View>
-      <View style={{ alignItems: "center" }}>
+      <View style={{ alignItems: "center", marginTop: fontScale < 1.2 ? spacing[8] : 0, marginBottom: insets.bottom + 4 }}>
         <Button
           title={translate("common.next")}
           onPress={() => navigation.navigate("step3")}

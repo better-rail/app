@@ -26,6 +26,8 @@ export class RouteApi {
 
       const { Data: responseData } = response.data
 
+      if (responseData.Error !== null) throw new Error(responseData.Error.Description)
+
       const delays = responseData.Delays.reduce((delaysObject, delayItem) => {
         return Object.assign({}, delaysObject, { [delayItem.Train]: parseInt(delayItem.Min) })
       }, {})
@@ -87,7 +89,6 @@ export class RouteApi {
       return formattedRoutes
     } catch (err) {
       console.error(err)
-      throw err
     }
   }
 }
