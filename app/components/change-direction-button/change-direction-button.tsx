@@ -45,18 +45,18 @@ export interface ChangeDirectionButtonProps extends TouchableOpacityProps {
   /**
    * An optional style override useful for padding & margin.
    */
-  style?: ViewStyle
+  buttonStyle?: ViewStyle
 }
 
 /**
  * Describe your component here
  */
 export const ChangeDirectionButton = observer(function ChangeDirectionButton(props: ChangeDirectionButtonProps) {
-  const { onPress, style } = props
+  const { onPress, buttonStyle } = props
 
   return (
     <TouchableOpacity
-      style={[CONTAINER, style]}
+      style={[CONTAINER, buttonStyle]}
       activeOpacity={onPress ? 0.9 : 1}
       onPress={(e) => {
         if (onPress) {
