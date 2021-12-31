@@ -373,6 +373,7 @@ const stations = [
     english: "Bat Yam - Yoseftal",
     russian: "Бат Ям - Йосеф Таль",
     arabic: "بات يام - يوسفطال",
+    image: require("../../assets/station-images/bat-yam-yoseftal.jpg"),
   },
   {
     id: "4690",
