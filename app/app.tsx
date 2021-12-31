@@ -30,7 +30,7 @@ import "react-native-console-time-polyfill"
 // https://github.com/kmagiera/react-native-screens#using-native-stack-navigator
 import { enableScreens } from "react-native-screens"
 import { extractURLParams } from "./utils/helpers/url"
-import { donateRouteIntent } from "./utils/ios-helpers"
+import { donateRouteIntent, reloadAllTimelines } from "./utils/ios-helpers"
 enableScreens()
 
 export const queryClient = new QueryClient()
@@ -57,6 +57,8 @@ function App() {
         time: new Date().getTime(),
         enableQuery: true,
       })
+
+      reloadAllTimelines()
     }
 
     if (Platform.OS === "ios") {
@@ -73,7 +75,7 @@ function App() {
       return () => linkingListener.remove()
     }
 
-    return null
+    return undefined
   }, [])
 
   setRootNavigation(navigationRef)

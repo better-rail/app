@@ -11,5 +11,6 @@
 
 RCT_EXTERN_METHOD(saveCurrentRoute:(NSString *)originId destinationId:(NSString)destinationId)
 RCT_EXTERN_METHOD(donateRouteIntent:(NSString *)originId destinationId:(NSString)destinationId)
+RCT_EXTERN_METHOD(reloadAllTimelines)
 
 @end

@@ -203,13 +203,14 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   )
 
   useEffect(() => {
-    // Widget feature available only for iOS. Arabic translation not available yet.
-    if (Platform.OS === "android" || userLocale === "ar") return
-    storage.load("seenWidgetAnnouncement").then((value) => {
-      if (value) return
-      if (!origin || !destination) return
-      setDisplayNewBadge(true)
-    })
+    // Widget feature available only for iOS. Arabic translation for announcement is not available yet.
+    if (Platform.OS === "ios" && userLocale !== "ar") {
+      storage.load("seenWidgetAnnouncement").then((seenWidget) => {
+        if (!seenWidget && origin && destination) {
+          setDisplayNewBadge(true)
+        }
+      })
+    }
   }, [])
 
   return (

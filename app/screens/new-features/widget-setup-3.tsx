@@ -41,10 +41,10 @@ const IMAGE_CONTAINER: ViewStyle = {
 }
 
 const IMAGE_STYLE: ImageStyle = {
-  width: 280,
+  width: 300,
   borderWidth: 1,
   borderColor: "rgba(0, 0, 0, 1)",
-  height: 140,
+  height: 150,
   resizeMode: "contain",
   marginHorizontal: -24,
   borderRadius: 12,

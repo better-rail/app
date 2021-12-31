@@ -30,10 +30,10 @@ const IMAGE_CONTAINER: ViewStyle = {
 }
 
 const IMAGE_STYLE: ImageStyle = {
-  width: 280,
+  width: 290,
   borderWidth: 1,
   borderColor: "rgba(0, 0, 0, 0.3)",
-  height: 200,
+  height: 210,
   resizeMode: "contain",
   marginHorizontal: -24,
   borderRadius: 12,
@@ -53,7 +53,7 @@ export const WidgetStep1 = function WidgetStep1({ navigation }: NewFeatureStackP
   return (
     <Screen unsafe={true} statusBar="light-content" preset="scroll">
       <NewFeatureBackground />
-      <View style={{ paddingHorizontal: spacing[6], marginTop: spacing[6] + 4 }}>
+      <View style={{ paddingHorizontal: spacing[6], marginTop: spacing[7] + 4 }}>
         <Text preset="header" style={TITLE} tx="newFeature.howToAdd" />
         <Text style={TEXT} tx="newFeature.addStep1" />
         <Text style={TEXT} tx="newFeature.addStep2" />
@@ -61,7 +61,7 @@ export const WidgetStep1 = function WidgetStep1({ navigation }: NewFeatureStackP
       <View style={IMAGE_CONTAINER}>
         <Image source={addWidgetImage} style={IMAGE_STYLE} />
       </View>
-      <View style={{ paddingHorizontal: spacing[6], marginBottom: spacing[3] }}>
+      <View style={{ paddingHorizontal: spacing[6], marginBottom: spacing[4] }}>
         <Text style={TEXT} tx="newFeature.addStep3" />
       </View>
       <View style={{ alignItems: "center" }}>

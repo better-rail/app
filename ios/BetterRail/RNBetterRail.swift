@@ -1,5 +1,6 @@
 import Foundation
 import Intents
+import WidgetKit
 
 /// A set of common functions to be called from the RN app
 @objc(RNBetterRail)
@@ -31,6 +32,12 @@ class RNBetterRail: NSObject {
       if let error = error {
         print("Unable to donate INInteraction: \(error)")
       }
+    }
+  }
+  
+  @objc func reloadAllTimelines() -> Void {
+    if #available(iOS 14.0, *) {
+      WidgetCenter.shared.reloadAllTimelines()
     }
   }
   
