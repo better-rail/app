@@ -1,5 +1,5 @@
 import React from "react"
-import { View, TextStyle, ViewStyle, ImageStyle, Image, Dimensions } from "react-native"
+import { View, TextStyle, ImageStyle, Image, Dimensions } from "react-native"
 import * as storage from "../../utils/storage"
 import { Screen, Text, Button } from "../../components"
 import { translate } from "../../i18n"
@@ -9,18 +9,8 @@ import { NewFeatureBackground } from "./new-features-background"
 import InAppReview from "react-native-in-app-review"
 import { useStores } from "../../models"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { inlineStyles } from "react-native-svg"
 
 const { width: deviceWidth } = Dimensions.get("screen")
-
-const GARDIENT: ViewStyle = {
-  height: "200%",
-  position: "absolute",
-  left: 0,
-  right: 0,
-  top: 0,
-  opacity: 1,
-}
 
 const TITLE: TextStyle = {
   color: color.whiteText,
@@ -35,18 +25,10 @@ const TEXT: TextStyle = {
   lineHeight: 24.5,
 }
 
-const IMAGE_CONTAINER: ViewStyle = {
-  alignItems: "center",
-  overflow: "hidden",
-  shadowOffset: { width: 0, height: 0 },
-  shadowColor: color.palette.black,
-  shadowRadius: 5,
-  shadowOpacity: 0.5,
-}
-
 const IMAGE_STYLE: ImageStyle = {
   width: 200,
-  height: 200,
+  height: 180,
+  resizeMode: "contain",
   marginTop: spacing[2],
   marginBottom: spacing[4],
   alignSelf: "center",
@@ -78,7 +60,7 @@ export const WidgetStep4 = function WidgetStep4({ navigation }: NewFeatureStackP
 
             navigation.navigate("planner")
 
-            if (recentSearches.entries.length > 3) {
+            if (recentSearches.entries.length > 2) {
               storage.load("lastInAppReview").then((value) => {
                 if (!value) {
                   InAppReview.RequestInAppReview().then((value) => {

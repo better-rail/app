@@ -68,7 +68,7 @@ export const WidgetStep2 = function WidgetStep2({ navigation }: NewFeatureStackP
       <View style={{ paddingHorizontal: spacing[6], marginBottom: spacing[3] }}>
         <Text style={TEXT} tx="newFeature.configStep3" />
       </View>
-      <View style={{ alignItems: "center", marginTop: fontScale < 1.2 ? spacing[8] : 0, marginBottom: insets.bottom + 4 }}>
+      <View style={{ alignItems: "center", marginTop: fontScale < 1.2 ? spacing[4] : 0, marginBottom: insets.bottom + 4 }}>
         <Button
           title={translate("common.next")}
           onPress={() => navigation.navigate("step3")}

@@ -1,5 +1,5 @@
 import React, { useMemo } from "react"
-import { View, TextStyle, ViewStyle, ImageStyle, Image, Dimensions, useColorScheme } from "react-native"
+import { View, TextStyle, ViewStyle, ImageStyle, Image, Dimensions } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Screen, Text, Button } from "../../components"
 import { translate, userLocale } from "../../i18n"
@@ -7,7 +7,7 @@ import { NewFeatureStackProps } from "../../navigators/new-features/new-features
 import { color, fontScale, spacing } from "../../theme"
 import { NewFeatureBackground } from "./new-features-background"
 
-const { width: deviceWidth } = Dimensions.get("screen")
+const { width: deviceWidth, height: deviceHeight } = Dimensions.get("screen")
 
 const TITLE: TextStyle = {
   color: color.whiteText,
@@ -56,6 +56,7 @@ export const WidgetStep1 = function WidgetStep1({ navigation }: NewFeatureStackP
   return (
     <Screen unsafe={true} statusBar="light-content" preset="scroll">
       <NewFeatureBackground />
+
       <View style={{ paddingHorizontal: spacing[6], marginTop: spacing[7] }}>
         <Text preset="header" style={TITLE} tx="newFeature.howToAdd" maxFontSizeMultiplier={1.2} />
         <Text style={TEXT} tx="newFeature.addStep1" />
@@ -70,7 +71,7 @@ export const WidgetStep1 = function WidgetStep1({ navigation }: NewFeatureStackP
       <View
         style={{
           alignItems: "center",
-          marginTop: fontScale < 1.2 ? spacing[7] : 0,
+          marginTop: fontScale < 1.2 ? spacing[6] : 0,
           marginBottom: insets.bottom + 4,
         }}
       >

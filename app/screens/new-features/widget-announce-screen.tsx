@@ -48,7 +48,7 @@ export const WidgetAnnouncement = function WidgetAnnouncement({ navigation }: Ne
         <Text style={TEXT} tx="newFeature.widgetDescription" />
         <Image
           source={widgetImage}
-          style={{ width: deviceWidth - 40, height: 380, resizeMode: "contain", marginVertical: spacing[4] }}
+          style={{ width: deviceWidth - 40, height: 360, resizeMode: "contain", marginVertical: spacing[4] }}
         />
         {fontScale < 1.2 && <Text style={[TEXT, { marginBottom: spacing[4] + 2 }]} tx="newFeature.widgetGuide" />}
 

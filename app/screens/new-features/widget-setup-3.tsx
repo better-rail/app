@@ -74,7 +74,7 @@ export const WidgetStep3 = function WidgetStep3({ navigation }: NewFeatureStackP
         <Text style={TEXT} tx="newFeature.stackingStep4" />
       </View>
 
-      <View style={{ alignItems: "center", marginTop: fontScale < 1.2 ? spacing[8] + 12 : 0, marginBottom: insets.bottom + 4 }}>
+      <View style={{ alignItems: "center", marginTop: fontScale < 1.2 ? spacing[4] + 12 : 0, marginBottom: insets.bottom + 4 }}>
         <Button
           title={translate("common.next")}
           onPress={() => navigation.navigate("step4")}
