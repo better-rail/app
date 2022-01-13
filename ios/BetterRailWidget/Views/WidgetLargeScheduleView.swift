@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct WidgetLargeSchedualeView: View {
+struct WidgetLargeScheduleView: View {
     let upcomingTrains: [UpcomingTrain]
   
     var body: some View {

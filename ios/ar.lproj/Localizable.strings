@@ -22,7 +22,7 @@
 "TRAIN" = "يدرب";
 
 "Platform %@・Train %@" = "رصيف %@・قطار رقم %@";
-"Scheduale" = "جدول";
+"Schedule" = "جدول";
 "Display the upcoming train times." = "عرض مواعيد القطار القادمة";
 
 "No more trains for today." = "لا مزيد من القطارات لهذا اليوم.";

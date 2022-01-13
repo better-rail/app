@@ -22,7 +22,7 @@
 "TRAIN" = "רכבת";
 
 "Platform %@・Train %@" = "רציף %@・רכבת מס׳ %@";
-"Scheduale" = "לוח זמנים";
+"Schedule" = "לוח זמנים";
 "Display the upcoming train times." = "תצוגת זמני הרכבות הקרובות.";
 
 "No more trains for today." = "אין יותר רכבות להיום.";

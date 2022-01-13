@@ -38,7 +38,7 @@
 					<key>INIntentParameterCombinationSupportsBackgroundExecution</key>
 					<false/>
 					<key>INIntentParameterCombinationTitle</key>
-					<string>Check train scheduale</string>
+					<string>Check train schedule</string>
 					<key>INIntentParameterCombinationTitleID</key>
 					<string>3Tfkm5</string>
 				</dict>

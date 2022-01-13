@@ -151,7 +151,7 @@ struct WidgetEntryView: View {
       )
       
       if (widgetFamily == .systemLarge) {
-        WidgetLargeSchedualeView(upcomingTrains: entry.upcomingTrains ?? [])
+        WidgetLargeScheduleView(upcomingTrains: entry.upcomingTrains ?? [])
         Spacer()
       }
     }

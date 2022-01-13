@@ -116,7 +116,7 @@ struct EntriesGenerator {
     )
   }
   
-  /// Generate an upcoming scheduale for an entry
+  /// Generate an upcoming schedule for an entry
   func getUpcomingTrains(routes: [Route]) -> [UpcomingTrain] {
     var upcomingTrains: [UpcomingTrain] = []
     
