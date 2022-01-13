@@ -2,7 +2,6 @@ import * as React from "react"
 import { Image, ViewStyle, ImageStyle, TouchableOpacity, TouchableOpacityProps, Platform, Dimensions } from "react-native"
 import { observer } from "mobx-react-lite"
 import { color } from "../../theme"
-import HapticFeedback from "react-native-haptic-feedback"
 
 const upDownArrowIcon = require("../../../assets/up-down-arrow.png")
 
@@ -58,12 +57,6 @@ export const ChangeDirectionButton = observer(function ChangeDirectionButton(pro
     <TouchableOpacity
       style={[CONTAINER, buttonStyle]}
       activeOpacity={onPress ? 0.9 : 1}
-      onPress={(e) => {
-        if (onPress) {
-          HapticFeedback.trigger("impactMedium")
-          onPress(e)
-        }
-      }}
       accessibilityLabel="החלפת תחנות"
       accessibilityHint="קיצור דרך להחלפת תחנת המוצא עם תחנת היעד"
       {...props}

@@ -15,6 +15,7 @@ import {
 } from "react-native"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
 import { useStores } from "../../models"
+import HapticFeedback from "react-native-haptic-feedback"
 import { color, primaryFontIOS, fontScale, spacing } from "../../theme"
 import { PlannerScreenProps } from "../../navigators/main-navigator"
 import { useStations } from "../../data/stations"
@@ -142,6 +143,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
 
   const onSwitchPress = () => {
     scaleStationCards()
+    HapticFeedback.trigger("impactMedium")
 
     // Delay the actual switch so it'll be synced with the animation
     setTimeout(() => {
