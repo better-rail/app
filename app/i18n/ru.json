@@ -1,0 +1,129 @@
+{
+  "common": {
+    "cancel": "Отменить",
+    "ok": "Ок",
+    "done": "Готово",
+    "set": "Задать",
+    "delete": "Удалить",
+    "close": "Закрыть",
+    "new": "Новый",
+    "relax": "Спокойствие, только спокойствие!",
+    "save": "Сохранить",
+    "next": "Продолжить",
+    "dismiss": "Отклонить",
+    "areYouSure": "Вы уверены?"
+  },
+  "plan": {
+    "title": "Планирование маршрута",
+    "selectStation": "Выбрать станцию",
+    "origin": "Откуда",
+    "destination": "Куда",
+    "leaveAt": "Отправление",
+    "arriveAt": "Прибытие",
+    "now": "Сейчас",
+    "find": "Найти маршруты"
+  },
+  "selectStation": {
+    "placeholder": "Поиск остановки",
+    "instructions": "Поиск железнодорожных станций с помощью строки поиска выше.",
+    "recentSearches": "Недавние запросы",
+    "hide": "Скрыть"
+  },
+  "routes": {
+    "departure": "Отправление",
+    "arrival": "Прибытие",
+    "noExchange": "Без пересадок",
+    "oneExchange": "1 пересадка",
+    "exchanges": "Пересадки",
+    "delayTime": "минут отставание"
+  },
+  "routeDetails": {
+    "platform": "Платформа",
+    "trainNo": "Поезд номер",
+    "exchangeAt": "Пересадка на",
+    "platformStay": "Остаться на платформе",
+    "platformExchange": "Перейти на платформу",
+    "waitingTime": "Время ожидания",
+    "minutes": "минут"
+  },
+  "settings": {
+    "title": "Настройки",
+    "language": "Язык приложения",
+    "about": "О приложении",
+    "share": "Поделиться",
+    "shareMessage": "Альтернативное приложение для Израильских Железных Дорог",
+    "rateIOS": "Оценить Better Rail",
+    "rateAndroid": "Оценить Better Rail",
+    "imageAttribution": "Правообладатели фотографий",
+    "privacyPolicy": "Политика конфиденциальности",
+    "privacyPolicyLink": "https://better-rail.co.il/en/privacy-policy",
+    "feedback": "Обратная связь",
+
+    "languageChangeAlertTitle": "Поменять язык",
+    "languageChangeAlertMessage": "Приложение перезагрузится чтобы применить новые настройки",
+
+    "aboutText": "Better Rail это приложение с открытым исходным кодом, целью которого является сделать расписания Израильских Железных Дорог более доступными для общественности.",
+
+    "follow": "Следить за Better Rail",
+    "facebook": "Facebook",
+    "twitter": "Twitter",
+    "sourceCode": "Исходный код"
+  },
+  "favorites": {
+    "title": "Избранные маршруты",
+    "empty": "Нет избранных маршрутов",
+    "emptyDescription": "Добавить маршрут в избранное можно из экрана маршрутов",
+    "added": "Добавлен в избранное",
+    "favoriteMenuTitle": "Настройки избранного маршрута",
+    "addLabel": "Добавить ярлык",
+    "changeLabel": "Изменить ярлык",
+    "renamePromptTitle": "Ярлык маршрута",
+    "renamePromptPlaceholder": "Введите имя маршрута...",
+    "delete": "Удалить"
+  },
+  "profileCodes": {
+    "passengerProfile": "Профиль",
+    "farePerRide": "Стоимость одной поездки",
+    "dataSource": "Данные получены от Израильских Железных Дорог.",
+    "general": "Стандартный",
+    "studentRegular": "Студент",
+    "studentExtended": "Студент - расширенный",
+    "seniorCitizen": "Пенсионер",
+    "disabled": "Инвалид",
+    "youth": "Подросток",
+    "socialSecurity": "Льготник Битуах Леуми"
+  },
+  "modals": {
+    "noTrainsFound": "Нет поездов на указанную дату",
+    "foundTrainsAt": "Отображены поезда на"
+  },
+  "newFeature": {
+    "newBetterRail": "they're finally here",
+    "homeWidgets": "Home Screen Widgets",
+    "widgetDescription": "Beautiful widgets to check the upcoming train schedule.",
+    "widgetGuide": "Here's a quick set up guide with a few tips on how to get the full benefit from them.",
+
+    "howToAdd": "Adding Widgets",
+    "addStep1": "1. From the Home Screen, touch and hold a widget or an empty area until the apps jiggle..",
+    "addStep2": "2. Tap the Add button (+) in the upper-left corner..",
+    "addStep3": "3. Select Better Rail from the list, select the desired widget size and press \"Add Widget \".",
+
+    "configuring": "Configuring Widgets",
+    "configStep1": "1. Touch and hold a widget to open the quick actions menu.",
+    "configStep2": "2. Tap Edit Widget.",
+    "configStep3": "3. Select the stations for the widget, then tap outside the widget to exit.",
+
+    "stacking": "Creating Stacks",
+    "stackingIntro": "In order to display 2 routes inside one widget (i.e. riding to work and back), you can create a widget stack.",
+    "stackingStep1": "1. Touch and hold an area on your Home Screen until the apps jiggle.",
+    "stackingStep2": "2. Drag a widget on top of another widget.",
+    "stackingStep3": "3. Inside the stack you can scroll between the two widgets.",
+    "stackingStep4": "Tip: You can view the full train scheduale quickly by tapping on the widget.",
+
+    "enjoyTheWidgets": "Enjoy the widgets!",
+    "myCreator": "My creator would like to say a few words.",
+    "heyThere": "Hey there! \nI made Better Rail in hopes it'll make public transportation a little more accessible to the public. It's offered for free, without ads or trackers.",
+    "pleaseConsider": "Please consider helping it to reach a wider audience by giving a review in the App Store 😊",
+    "goodbyes": "Have a nice ride!\n- Guy"
+  }
+}
