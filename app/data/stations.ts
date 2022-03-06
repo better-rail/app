@@ -546,11 +546,12 @@ export const useStations = () => {
       if (languageCode === "ar") {
         stationLocale = "arabic"
         setLocale("arabic")
-      }
-
-      if (languageCode === "en") {
+      } else if (languageCode === "en") {
         stationLocale = "english"
         setLocale("english")
+      } else if (languageCode === "ru") {
+        stationLocale = "russian"
+        setLocale("russian")
       }
     })
   }, [])

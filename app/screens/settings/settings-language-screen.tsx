@@ -49,6 +49,7 @@ export const LanguageScreen = observer(function SettingsLanguageScreen() {
         <SettingBox first title="עברית" onPress={() => changeLanguage("he")} checkmark={userLocale === "he"} />
         <SettingBox title="العربية" onPress={() => changeLanguage("ar")} checkmark={userLocale === "ar"} />
         <SettingBox last title="English" onPress={() => changeLanguage("en")} checkmark={userLocale === "en"} />
+        <SettingBox last title="русский" onPress={() => changeLanguage("ru")} checkmark={userLocale === "ru"} />
       </View>
     </Screen>
   )

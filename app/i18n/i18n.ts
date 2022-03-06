@@ -4,15 +4,16 @@ import * as storage from "../utils/storage"
 
 import * as Localization from "expo-localization"
 import i18n from "i18n-js"
-import { arSA as arIL, he as heIL, enUS } from "date-fns/locale"
+import { arSA as arIL, he as heIL, enUS, ru as ruIL } from "date-fns/locale"
 import en from "./en.json"
 import ar from "./ar.json"
 import he from "./he.json"
+import ru from "./ru.json"
 
 i18n.fallbacks = true
-i18n.translations = { he, en, ar }
+i18n.translations = { he, en, ar, ru }
 
-export type LanguageCode = "he" | "ar" | "en"
+export type LanguageCode = "he" | "ar" | "en" | "ru"
 
 export const isRTL = I18nManager.isRTL
 export let userLocale: LanguageCode = "en"
@@ -29,7 +30,7 @@ export function setInitialLanguage() {
     changeUserLanguage("he")
   } else if (Localization.locale.startsWith("ar")) {
     changeUserLanguage("ar")
-  } else {
+  } else if (Localization.locale.startsWith("ru")) {
     changeUserLanguage("en")
   }
 }
@@ -58,6 +59,9 @@ export function setUserLanguage(languageCode: LanguageCode) {
     dateFnsLocalization = heIL
     dateDelimiter = " ו- "
     dateLocale = "he-IL"
+  } else if (languageCode === "ru") {
+    dateFnsLocalization = ruIL
+    dateLocale = "ru-IL"
   }
 
   userLocale = languageCode
