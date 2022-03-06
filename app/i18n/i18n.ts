@@ -30,8 +30,10 @@ export function setInitialLanguage() {
     changeUserLanguage("he")
   } else if (Localization.locale.startsWith("ar")) {
     changeUserLanguage("ar")
-  } else if (Localization.locale.startsWith("ru")) {
+  } else if (Localization.locale.startsWith("en")) {
     changeUserLanguage("en")
+  } else if (Localization.locale.startsWith("ru")) {
+    changeUserLanguage("ru")
   }
 }
 
@@ -67,7 +69,7 @@ export function setUserLanguage(languageCode: LanguageCode) {
   userLocale = languageCode
   i18n.locale = languageCode
 
-  if ((languageCode === "he" && !isRTL) || (languageCode === "ar" && !isRTL) || (languageCode === "en" && isRTL)) {
+  if ((languageCode === "he" && !isRTL) || (languageCode === "ar" && !isRTL) || (languageCode === "en" && isRTL) || (languageCode === "ru" && isRTL)) {
     RNRestart.Restart()
   }
 }
