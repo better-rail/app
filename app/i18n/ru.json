@@ -1,9 +1,9 @@
 {
   "common": {
     "cancel": "Отменить",
-    "ok": "Ок",
+    "ok": "ОК",
     "done": "Готово",
-    "set": "Задать",
+    "set": "Выбрать",
     "delete": "Удалить",
     "close": "Закрыть",
     "new": "Новый",
@@ -14,7 +14,7 @@
     "areYouSure": "Вы уверены?"
   },
   "plan": {
-    "title": "Планирование маршрута",
+    "title": "Поездка",
     "selectStation": "Выбрать станцию",
     "origin": "Откуда",
     "destination": "Куда",
@@ -40,7 +40,7 @@
   "routeDetails": {
     "platform": "Платформа",
     "trainNo": "Поезд номер",
-    "exchangeAt": "Пересадка на",
+    "exchangeAt": "Пересадка на ",
     "platformStay": "Остаться на платформе",
     "platformExchange": "Перейти на платформу",
     "waitingTime": "Время ожидания",
@@ -59,7 +59,7 @@
     "privacyPolicyLink": "https://better-rail.co.il/en/privacy-policy",
     "feedback": "Обратная связь",
 
-    "languageChangeAlertTitle": "Поменять язык",
+    "languageChangeAlertTitle": "Смена языка",
     "languageChangeAlertMessage": "Приложение перезагрузится чтобы применить новые настройки",
 
     "aboutText": "Better Rail это приложение с открытым исходным кодом, целью которого является сделать расписания Израильских Железных Дорог более доступными для общественности.",
@@ -70,7 +70,7 @@
     "sourceCode": "Исходный код"
   },
   "favorites": {
-    "title": "Избранные маршруты",
+    "title": "Избранное",
     "empty": "Нет избранных маршрутов",
     "emptyDescription": "Добавить маршрут в избранное можно из экрана маршрутов",
     "added": "Добавлен в избранное",
@@ -84,7 +84,7 @@
   "profileCodes": {
     "passengerProfile": "Профиль",
     "farePerRide": "Стоимость одной поездки",
-    "dataSource": "Данные получены от Израильских Железных Дорог.",
+    "dataSource": "Данные получены от Израильских Железных Дорог",
     "general": "Стандартный",
     "studentRegular": "Студент",
     "studentExtended": "Студент - расширенный",
@@ -95,7 +95,7 @@
   },
   "modals": {
     "noTrainsFound": "Нет поездов на указанную дату",
-    "foundTrainsAt": "Отображены поезда на"
+    "foundTrainsAt": "Отображены поезда на "
   },
   "newFeature": {
     "newBetterRail": "they're finally here",
