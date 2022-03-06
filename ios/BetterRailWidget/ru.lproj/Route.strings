@@ -1,0 +1,20 @@
+"3Tfkm5" = "Check train schedule";
+
+"RdlXVF" = "Station";
+
+"WdYtkA" = "Destination";
+
+"YTTH5N" = "Origin";
+
+"jPSLxu" = "Route Selection";
+
+"pRpSub" = "There are ${count} options matching ‘${destination}’.";
+
+"qHDCp4" = "Route";
+
+// No need to translate the following:
+"FdK8O5" = "Just to confirm, you wanted ‘${origin}’?";
+
+"MYJKgF" = "There are ${count} options matching ‘${origin}’.";
+
+"RPaAqI" = "Just to confirm, you wanted ‘${destination}’?";

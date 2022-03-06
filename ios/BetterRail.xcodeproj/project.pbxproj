@@ -199,6 +199,8 @@
 		C14F313226331361002A01D7 /* BetterRail-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BetterRail-Bridging-Header.h"; sourceTree = "<group>"; };
 		C14F313326331361002A01D7 /* Swifty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Swifty.swift; sourceTree = "<group>"; };
 		C15DA06A2763AD2800A24EF3 /* he */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = he; path = he.lproj/Route.strings; sourceTree = "<group>"; };
+		C1640A0627D510DD00DEDB01 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ../../../../.Trash/Route.strings; sourceTree = "<group>"; };
+		C1640A0827D510E400DEDB01 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Route.strings; sourceTree = "<group>"; };
 		C17FA4B72709EFBB003797D9 /* WatchBetterRail.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WatchBetterRail.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C17FA4B92709EFBB003797D9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C17FA4BB2709EFBB003797D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -229,6 +231,7 @@
 		C1C6DC4A274939C1000E9EED /* WidgetEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetEntryView.swift; sourceTree = "<group>"; };
 		C1C6DC4D274939D9000E9EED /* WidgetRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetRouteView.swift; sourceTree = "<group>"; };
 		C1C6DC4F27493A56000E9EED /* TrainDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainDetail.swift; sourceTree = "<group>"; };
+		C1E436A627D5109200E72280 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C1E62DD7270EE24C0067F262 /* StationListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationListItem.swift; sourceTree = "<group>"; };
 		C1E62DD9270EE2690067F262 /* TrainStopListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainStopListItem.swift; sourceTree = "<group>"; };
 		C1E62DDB270EE28B0067F262 /* TrainExchangeListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainExchangeListItem.swift; sourceTree = "<group>"; };
@@ -716,6 +719,7 @@
 				en,
 				ar,
 				Base,
+				ru,
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
@@ -1086,6 +1090,7 @@
 				C1B3FCF4271EEFFA000F33AE /* en */,
 				C1B3FCF6271EEFFD000F33AE /* he */,
 				C1B3FCF7271F25AA000F33AE /* ar */,
+				C1E436A627D5109200E72280 /* ru */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -1096,6 +1101,8 @@
 				C1F7C89527627B5E002A417F /* Base */,
 				C1F7C89927627BCC002A417F /* ar */,
 				C15DA06A2763AD2800A24EF3 /* he */,
+				C1640A0627D510DD00DEDB01 /* ru */,
+				C1640A0827D510E400DEDB01 /* ru */,
 			);
 			name = Route.intentdefinition;
 			sourceTree = "<group>";

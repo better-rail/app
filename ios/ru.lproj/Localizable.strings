@@ -1,0 +1,29 @@
+"no-favorites" = "No Favorites";
+"no-favorites-message" = "You can add favorites from your iPhone";
+"no-trains-found" = "No trains found for today";
+
+"departure" = "Depart";
+"arrival" = "Arrive";
+
+"train %@" = "Train %@";
+"platform %@" = "Platform %@";
+"train %@ platform %@" = "Train %@ ・ Platform %@";
+
+"exchange" = "Exchange";
+"stay-at %@" = "Stay at Platform %@";
+"move-to %@" = "Move to Platform %@";
+
+"NEXT TRAIN" = "הרכבת הבאה";
+"UPCOMING" = "הרכבות הבאות";
+"TOMORROW" = "מחר";
+"ARRIVAL" = "הגעה";
+"PLATFORM" = "רציף";
+"TRAIN NO." = "רכבת מס׳";
+"TRAIN" = "רכבת";
+
+"Platform %@・Train %@" = "רציף %@・רכבת מס׳ %@";
+"Schedule" = "לוח זמנים";
+"Display the upcoming train times." = "תצוגת זמני הרכבות הקרובות.";
+
+"No trains for today." = "No trains for today.";
+"No more trains for today." = "No more trains for today.";
