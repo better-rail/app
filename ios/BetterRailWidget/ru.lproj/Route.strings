@@ -1,16 +1,16 @@
-"3Tfkm5" = "Check train schedule";
+"3Tfkm5" = "Проверить расписание поездов";
 
-"RdlXVF" = "Station";
+"RdlXVF" = "Станция";
 
-"WdYtkA" = "Destination";
+"WdYtkA" = "Назначение";
 
-"YTTH5N" = "Origin";
+"YTTH5N" = "Начало";
 
-"jPSLxu" = "Route Selection";
+"jPSLxu" = "Выбор маршрута";
 
-"pRpSub" = "There are ${count} options matching ‘${destination}’.";
+"pRpSub" = "Найдено ${count} вариантов для ‘${destination}’.";
 
-"qHDCp4" = "Route";
+"qHDCp4" = "Маршрут";
 
 // No need to translate the following:
 "FdK8O5" = "Just to confirm, you wanted ‘${origin}’?";
