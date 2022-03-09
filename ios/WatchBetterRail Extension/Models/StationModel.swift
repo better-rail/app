@@ -22,7 +22,7 @@ struct Station: Decodable, Hashable, Identifiable {
   
   enum CodingKeys : String, CodingKey {
     case id, image
-    case hebrew, arabic, english
+    case hebrew, arabic, english, russian
   }
 }
 
