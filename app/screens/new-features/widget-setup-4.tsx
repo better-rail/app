@@ -60,16 +60,14 @@ export const WidgetStep4 = function WidgetStep4({ navigation }: NewFeatureStackP
 
             navigation.navigate("planner")
 
-            if (recentSearches.entries.length > 2) {
-              storage.load("lastInAppReview").then((value) => {
-                if (!value) {
-                  InAppReview.RequestInAppReview().then((value) => {
-                    console.log(value)
-                    storage.save("lastInAppReview", new Date().toISOString())
-                  })
-                }
-              })
-            }
+            storage.load("lastInAppReview").then((value) => {
+              if (!value) {
+                InAppReview.RequestInAppReview().then((value) => {
+                  console.log(value)
+                  storage.save("lastInAppReview", new Date().toISOString())
+                })
+              }
+            })
           }}
           containerStyle={{ width: deviceWidth - 40 }}
         />
