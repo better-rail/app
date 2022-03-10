@@ -68,8 +68,10 @@ export function setUserLanguage(languageCode: LanguageCode) {
 
   userLocale = languageCode
   i18n.locale = languageCode
-
-  if ((languageCode === "he" && !isRTL) || (languageCode === "ar" && !isRTL) || (languageCode === "en" && isRTL) || (languageCode === "ru" && isRTL)) {
+  if (
+    ((languageCode === "he" || languageCode === "ar") && !isRTL) ||
+    ((languageCode === "en" || languageCode === "ru") && isRTL)
+  ) {
     RNRestart.Restart()
   }
 }
