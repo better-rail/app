@@ -46,12 +46,12 @@ func formatRouteHour(_ dateString: String) -> String {
 }
 
 enum SupportedLanguages: String {
-  case english, hebrew, arabic
+  case english, hebrew, arabic, russian
 }
 
 /// Returns the user perferred locale, lowercased.
 ///
-/// Available options are `english`, `hebrew` and `arabic`
+/// Available options are `english`, `hebrew`, `arabic` and `russian`
 /// Defaults to `english`.
 func getUserLocale() -> SupportedLanguages {
   let langCode = Bundle.main.preferredLocalizations[0]
