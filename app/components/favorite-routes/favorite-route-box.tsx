@@ -131,7 +131,7 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
     ])
   }
 
-  const { onLongPress } = useOnLongPress(label, renamePrompt)
+  const { onLongPress } = useOnLongPress(label, renamePrompt, deleteRoute)
 
   const [originName, destinationName, stationImage] = useMemo(() => {
     const origin = stationsObject[originId][stationLocale]
@@ -207,7 +207,7 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
   )
 }
 
-function useOnLongPress(currentLabel: string, renamePrompt: () => void) {
+function useOnLongPress(currentLabel: string, renamePrompt: () => void, deleteRoute: () => void) {
   const actionSheet = useActionSheet()
 
   const onLongPress = () => {
@@ -215,13 +215,15 @@ function useOnLongPress(currentLabel: string, renamePrompt: () => void) {
       {
         options: [
           currentLabel ? translate("favorites.changeLabel") : translate("favorites.addLabel"),
-          translate("common.cancel"),
+          translate("common.delete"),
         ],
-        cancelButtonIndex: 1,
+        destructiveButtonIndex: 1,
       },
       (buttonIndex) => {
         if (buttonIndex === 0) {
           renamePrompt()
+        } else if (buttonIndex === 1) {
+          deleteRoute()
         }
       },
     )
