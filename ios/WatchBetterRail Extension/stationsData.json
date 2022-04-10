@@ -228,7 +228,8 @@
       "hebrew": "פ''ת - סגולה",
       "english": "Petah Tikva - Segula",
       "russian": "Петах-Тиква - Сгула",
-      "arabic": "بيتح تكڤا - سچوله"
+      "arabic": "بيتح تكڤا - سچوله",
+      "image": "petah-tikva-segula"
    },
    {
       "id": "4100",
@@ -349,7 +350,9 @@
       "hebrew": "צומת חולון",
       "english": "Holon Junction",
       "russian": "Холон - Развязка Холон",
-      "arabic": "مفترق حولون"
+      "arabic": "مفترق حولون",
+      "image": "holon-junction"
+
    },
    {
       "id": "4660",

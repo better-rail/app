@@ -237,6 +237,7 @@ const stations = [
     english: "Petah Tikva - Segula",
     russian: "Петах-Тиква - Сгула",
     arabic: "بيتح تكڤا - سچوله",
+    image: require("../../assets/station-images/petah-tikva-segula.jpeg"),
   },
   {
     id: "4100",
@@ -358,6 +359,7 @@ const stations = [
     english: "Holon Junction",
     russian: "Холон - Развязка Холон",
     arabic: "مفترق حولون",
+    image: require("../../assets/station-images/holon-junction.jpeg"),
   },
   {
     id: "4660",
