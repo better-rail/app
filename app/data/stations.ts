@@ -383,6 +383,7 @@ const stations = [
     english: "Bat Yam - Komemiyut",
     russian: "Бат Ям - Комемуют",
     arabic: "بات يام - كوميميوت",
+    image: require("../../assets/station-images/bat-yam-komemiyut.jpg"),
   },
   {
     id: "9800",
