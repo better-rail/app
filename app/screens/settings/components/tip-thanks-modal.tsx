@@ -49,9 +49,8 @@ export interface TipThanksModalProps extends ModalProps {
 
 export const TipThanksModal = function TipThanksModal(props: TipThanksModalProps) {
   return (
-    <Modal style={MODAL_WRAPPER} animationIn="zoomIn" animationOut="zoomOut" {...props}>
+    <Modal style={MODAL_WRAPPER} animationIn="lightSpeedIn" animationOut="lightSpeedOut" {...props}>
       <Text style={MODAL_ICON}>🙏</Text>
-      {/* <Text style={MODAL_TITLE} tx="modals.noTrainsFound" /> */}
       <Text style={MODAL_TITLE}>תודה רבה</Text>
       <Text style={MODAL_TEXT}>אני מעריך ומתרגש עם כל שקל שנכנס לצנצנת</Text>
       <Text style={MODAL_TEXT}>שתהיה נסיעה טובה!</Text>
