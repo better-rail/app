@@ -49,7 +49,14 @@ export interface TipThanksModalProps extends ModalProps {
 
 export const TipThanksModal = function TipThanksModal(props: TipThanksModalProps) {
   return (
-    <Modal style={MODAL_WRAPPER} animationIn="lightSpeedIn" animationOut="lightSpeedOut" {...props}>
+    <Modal
+      style={MODAL_WRAPPER}
+      animationIn="lightSpeedIn"
+      animationOut="lightSpeedOut"
+      animationInTiming={800}
+      animationOutTiming={500}
+      {...props}
+    >
       <Text style={MODAL_ICON}>🙏</Text>
       <Text style={MODAL_TITLE}>תודה רבה</Text>
       <Text style={MODAL_TEXT}>אני מעריך ומתרגש עם כל שקל שנכנס לצנצנת</Text>
