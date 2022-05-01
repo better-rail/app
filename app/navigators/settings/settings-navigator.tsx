@@ -1,7 +1,7 @@
 import React from "react"
 import { Platform, TextStyle } from "react-native"
 import { createStackNavigator, StackScreenProps } from "@react-navigation/stack"
-import { SettingsScreen, LanguageScreen, AboutScreen } from "../../screens"
+import { SettingsScreen, LanguageScreen, TipJarScreen, AboutScreen } from "../../screens"
 import { color, typography } from "../../theme"
 import { translate } from "../../i18n"
 import CloseButton from "../../components/close-button/close-button"
@@ -9,6 +9,7 @@ import CloseButton from "../../components/close-button/close-button"
 export type SettingsParamList = {
   main: undefined
   language: undefined
+  tipJar: undefined
   about: undefined
 }
 
@@ -40,6 +41,15 @@ export const SettingsNavigator = () => (
       component={LanguageScreen}
       options={{
         title: translate("settings.language"),
+        headerLeftContainerStyle: { marginBottom: 6 },
+        headerTitleStyle: Platform.select({ ios: iOSTitleStyle, android: androidTitleStyle }),
+      }}
+    />
+    <SettingsStack.Screen
+      name="tipJar"
+      component={TipJarScreen}
+      options={{
+        title: translate("settings.tipJar"),
         headerLeftContainerStyle: { marginBottom: 6 },
         headerTitleStyle: Platform.select({ ios: iOSTitleStyle, android: androidTitleStyle }),
       }}

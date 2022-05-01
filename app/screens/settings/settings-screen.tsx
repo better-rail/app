@@ -78,6 +78,10 @@ export const SettingsScreen = observer(function SettingsScreen({ navigation }: S
       </View>
 
       <View style={SETTING_GROUP}>
+        <SettingBox first last title={"Tip Jar"} icon="💖" chevron onPress={() => navigation.navigate("tipJar")} />
+      </View>
+
+      <View style={SETTING_GROUP}>
         <SettingBox first title={translate("settings.share")} icon="🕺" onPress={shareApp} />
         <SettingBox
           title={Platform.select({ ios: translate("settings.rateIOS"), android: translate("settings.rateAndroid") })}
