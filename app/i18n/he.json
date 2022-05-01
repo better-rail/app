@@ -60,6 +60,13 @@
     "languageChangeAlertTitle": "שינוי שפה",
     "languageChangeAlertMessage": "האפליקצייה תאותחל מחדש",
 
+    "tipJar": "צנצנת טיפים",
+    "tipJarTitle": " פיתוח האפליקצייה ממומן על ידיכם, המשתמשים!",
+    "tipJarSubtitle": "אם אתם אוהבים להשתמש ב- Better Rail, אנא שיקלו לשים כמה שקלים בצנצנת הטיפים :)",
+    "generousTip": "🙂  טיפ נדיב",
+    "amazingTip": "😃  טיפ מדהים",
+    "massiveTip": "😍  טיפ טיפה הגזמתם",
+
     "aboutText": "בטר רייל היא אפליקציית קוד פתוח שנוצרה במטרה להנגיש את זמני רכבת ישראל לציבור",
     "independenceDeclaration": "האפליקצייה מפותחת באופן עצמאי ונכתבת בקוד פתוח",
 

@@ -1,6 +1,6 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
-import { Linking, Platform, TextStyle, View, ViewStyle } from "react-native"
+import { Linking, Platform, Settings, TextStyle, View, ViewStyle } from "react-native"
 import Share from "react-native-share"
 import { Screen, Text } from "../../components"
 import { SettingBox } from "./components/settings-box"
@@ -78,7 +78,14 @@ export const SettingsScreen = observer(function SettingsScreen({ navigation }: S
       </View>
 
       <View style={SETTING_GROUP}>
-        <SettingBox first last title={"Tip Jar"} icon="💖" chevron onPress={() => navigation.navigate("tipJar")} />
+        <SettingBox
+          first
+          last
+          title={translate("settings.tipJar")}
+          icon="💖"
+          chevron
+          onPress={() => navigation.navigate("tipJar")}
+        />
       </View>
 
       <View style={SETTING_GROUP}>
