@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { View, ViewStyle, TextStyle } from "react-native"
 import { useIAP } from "react-native-iap"
@@ -61,6 +61,8 @@ const TIP_BUTTON: ViewStyle = {
 
 const TOTAL_TIPS: TextStyle = { textAlign: "center", marginTop: spacing[4] }
 
+const PRODUCT_IDS = ["better_rail_tip_1", "better_rail_tip_2", "better_rail_tip_3"]
+
 export const TipJarScreen = observer(function TipJarScreen() {
   const [thanksModalVisible, setModalVisible] = useState(false)
 
@@ -79,6 +81,12 @@ export const TipJarScreen = observer(function TipJarScreen() {
     getAvailablePurchases,
     getPurchaseHistories,
   } = useIAP()
+
+  useEffect(() => {
+    if (connected) {
+      getProducts(PRODUCT_IDS)
+    }
+  }, [connected, getProducts])
 
   console.log(connected, products)
 

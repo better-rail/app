@@ -390,6 +390,8 @@ PODS:
     - React-Core
   - RNGestureHandler (1.8.0):
     - React
+  - RNIap (8.0.8):
+    - React-Core
   - RNInAppBrowser (3.5.1):
     - React-Core
   - RNReactNativeHapticFeedback (1.11.0):
@@ -488,6 +490,7 @@ DEPENDENCIES:
   - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
+  - RNIap (from `../node_modules/react-native-iap`)
   - RNInAppBrowser (from `../node_modules/react-native-inappbrowser-reborn`)
   - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
@@ -608,6 +611,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-device-info"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
+  RNIap:
+    :path: "../node_modules/react-native-iap"
   RNInAppBrowser:
     :path: "../node_modules/react-native-inappbrowser-reborn"
   RNReactNativeHapticFeedback:
@@ -692,6 +697,7 @@ SPEC CHECKSUMS:
   RNDateTimePicker: d943800c936fb01c352fcfb70439550d2cb57092
   RNDeviceInfo: d2df20ff25747778277a6aa8c749e8b53cf16a2a
   RNGestureHandler: 7a5833d0f788dbd107fbb913e09aa0c1ff333c39
+  RNIap: bb56165cc68bfa269e2effd407d6ec0af63e796f
   RNInAppBrowser: 48b95ba7a4eaff5cc223bca338d3e319561dbd1b
   RNReactNativeHapticFeedback: 653a8c126a0f5e88ce15ffe280b3ff37e1fbb285
   RNReanimated: dd8c286ab5dd4ba36d3a7fef8bff7e08711b5476
@@ -708,4 +714,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 3b9b6a9f7a7a64346f3e6afbb561b39e48a5f2db
 
-COCOAPODS: 1.10.1
+COCOAPODS: 1.11.3
