@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { observer } from "mobx-react-lite"
 import { View, ViewStyle, TextStyle } from "react-native"
+import { useIAP } from "react-native-iap"
 import { Screen, Text } from "../../components"
 import { color, spacing } from "../../theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
@@ -62,6 +63,25 @@ const TOTAL_TIPS: TextStyle = { textAlign: "center", marginTop: spacing[4] }
 
 export const TipJarScreen = observer(function TipJarScreen() {
   const [thanksModalVisible, setModalVisible] = useState(false)
+
+  const {
+    connected,
+    products,
+    promotedProductsIOS,
+    subscriptions,
+    purchaseHistories,
+    availablePurchases,
+    currentPurchase,
+    currentPurchaseError,
+    finishTransaction,
+    getProducts,
+    getSubscriptions,
+    getAvailablePurchases,
+    getPurchaseHistories,
+  } = useIAP()
+
+  console.log(connected, products)
+
   return (
     <Screen style={ROOT} preset="scroll" unsafe={true}>
       <Text style={HEART_ICON}>💖</Text>
