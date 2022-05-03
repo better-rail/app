@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { View, ViewStyle, TextStyle } from "react-native"
+import { View, ViewStyle, TextStyle, Platform } from "react-native"
 import { useIAP } from "react-native-iap"
 import { Screen, Text } from "../../components"
-import { color, spacing } from "../../theme"
+import { color, isDarkMode, spacing } from "../../theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { translate } from "../../i18n"
 import { TipThanksModal } from "./components/tip-thanks-modal"
@@ -39,12 +39,12 @@ const LIST_ROW: ViewStyle = {
   flexDirection: "row",
   justifyContent: "space-between",
   alignItems: "center",
-  paddingHorizontal: spacing[6],
-  paddingVertical: spacing[3],
-  marginHorizontal: spacing[4] * -1,
+  paddingHorizontal: spacing[4],
+  paddingVertical: spacing[2] + 2,
+  marginHorizontal: spacing[2],
   marginBottom: spacing[2],
   backgroundColor: color.secondaryBackground,
-
+  borderRadius: 10,
   shadowOffset: { width: 0, height: 0 },
   shadowColor: color.dim,
   shadowRadius: 0.5,
@@ -57,6 +57,8 @@ const TIP_BUTTON: ViewStyle = {
   paddingVertical: spacing[1],
   borderRadius: 6,
   borderWidth: 1,
+  borderColor: color.transparent,
+  backgroundColor: color.success,
 }
 
 const TOTAL_TIPS: TextStyle = { textAlign: "center", marginTop: spacing[4] }
@@ -77,28 +79,35 @@ export const TipJarScreen = observer(function TipJarScreen() {
     currentPurchaseError,
     finishTransaction,
     getProducts,
-    getSubscriptions,
     getAvailablePurchases,
     getPurchaseHistories,
   } = useIAP()
 
   useEffect(() => {
     if (connected) {
-      getProducts(PRODUCT_IDS)
+      getProducts(PRODUCT_IDS).then((result) => console.log(result))
     }
   }, [connected, getProducts])
 
-  console.log(connected, products)
+  const onTipButtonPress = () => {
+    setModalVisible(true)
+  }
 
   return (
-    <Screen style={ROOT} preset="scroll" unsafe={true}>
+    <Screen
+      style={ROOT}
+      preset="scroll"
+      unsafe={true}
+      statusBar={Platform.select({ ios: "light-content" })}
+      statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
+    >
       <Text style={HEART_ICON}>💖</Text>
       <Text tx="settings.tipJarTitle" style={TIP_INTRO_TITLE} />
       <Text tx="settings.tipJarSubtitle" style={TIP_INTRO_SUBTITLE} />
 
-      <TipRow title={translate("settings.generousTip")} amount={2.99} onPress={() => setModalVisible(true)} />
-      <TipRow title={translate("settings.amazingTip")} amount={4.99} />
-      <TipRow title={translate("settings.massiveTip")} amount={9.99} />
+      <TipRow title={translate("settings.generousTip")} amount={2.99} onPress={onTipButtonPress} />
+      <TipRow title={translate("settings.amazingTip")} amount={4.99} onPress={onTipButtonPress} />
+      <TipRow title={translate("settings.massiveTip")} amount={9.99} onPress={onTipButtonPress} />
 
       <Text style={TOTAL_TIPS}>Total Tip: 2.99 $</Text>
 
@@ -109,9 +118,9 @@ export const TipJarScreen = observer(function TipJarScreen() {
 
 const TipRow = ({ title, amount, onPress }) => (
   <View style={LIST_ROW}>
-    <Text style={{ fontSize: 18 }}>{title}</Text>
-    <TouchableOpacity style={TIP_BUTTON} onPress={onPress} activeOpacity={0.75}>
-      <Text>{amount} $</Text>
+    <Text>{title}</Text>
+    <TouchableOpacity style={TIP_BUTTON} onPress={onPress} activeOpacity={0.6}>
+      <Text style={{ fontSize: 14, fontWeight: "500", color: color.whiteText }}>{amount} $</Text>
     </TouchableOpacity>
   </View>
 )

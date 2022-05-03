@@ -65,7 +65,11 @@
     "tipJarSubtitle": "אם אתם אוהבים להשתמש ב- Better Rail, אנא שיקלו לשים כמה שקלים בצנצנת הטיפים :)",
     "generousTip": "🙂  טיפ נדיב",
     "amazingTip": "😃  טיפ מדהים",
-    "massiveTip": "😍  טיפ טיפה הגזמתם",
+    "massiveTip": "😍  טיפ לחיים",
+    "thankYou": "תודה רבה",
+
+    // "thankYouText": "Your donation funds the continued development of the app. \n\nEvery donation makes me really happy that someone cares about this work :)\n\n Enjoy the ride! \nGuy.",
+    "thankYouText": "חוץ מזה שהתרומה עוזרת להמשך פיתוח הפרוייקט, זה כיף לדעת שאנשים אוהבים ומעריכים את האפליקצייה :)\n\n שתהיה נסיעה טובה!\nגיא",
 
     "aboutText": "בטר רייל היא אפליקציית קוד פתוח שנוצרה במטרה להנגיש את זמני רכבת ישראל לציבור",
     "independenceDeclaration": "האפליקצייה מפותחת באופן עצמאי ונכתבת בקוד פתוח",

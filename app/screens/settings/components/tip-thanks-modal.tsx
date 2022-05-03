@@ -7,9 +7,8 @@ import { color, spacing } from "../../../theme"
 
 const MODAL_WRAPPER: ViewStyle = {
   position: "absolute",
-  top: "25%",
+  top: "12.5%",
 
-  maxHeight: 400,
   padding: spacing[6],
   alignSelf: "center",
   justifyContent: "center",
@@ -51,17 +50,15 @@ export const TipThanksModal = function TipThanksModal(props: TipThanksModalProps
   return (
     <Modal
       style={MODAL_WRAPPER}
-      animationIn="lightSpeedIn"
-      animationOut="lightSpeedOut"
-      animationInTiming={800}
-      animationOutTiming={500}
+      animationIn="slideInUp"
+      animationOut="slideOutDown"
+      animationInTiming={825}
+      animationOutTiming={800}
       {...props}
     >
       <Text style={MODAL_ICON}>🙏</Text>
-      <Text style={MODAL_TITLE}>תודה רבה</Text>
-      <Text style={MODAL_TEXT}>אני מעריך ומתרגש עם כל שקל שנכנס לצנצנת</Text>
-      <Text style={MODAL_TEXT}>שתהיה נסיעה טובה!</Text>
-      <Text style={MODAL_TEXT}>גיא</Text>
+      <Text style={MODAL_TITLE} tx="settings.thankYou" />
+      <Text style={MODAL_TEXT} tx="settings.thankYouText" />
 
       <Button title={translate("common.next")} style={MODAL_BUTTON} onPress={props.onOk} />
     </Modal>
