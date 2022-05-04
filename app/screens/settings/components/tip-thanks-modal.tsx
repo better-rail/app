@@ -60,7 +60,7 @@ export const TipThanksModal = function TipThanksModal(props: TipThanksModalProps
       <Text style={MODAL_TITLE} tx="settings.thankYou" />
       <Text style={MODAL_TEXT} tx="settings.thankYouText" />
 
-      <Button title={translate("common.next")} style={MODAL_BUTTON} onPress={props.onOk} />
+      <Button title={translate("common.close")} style={MODAL_BUTTON} onPress={props.onOk} />
     </Modal>
   )
 }
