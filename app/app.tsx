@@ -24,6 +24,7 @@ import { RootStore, RootStoreProvider, setupRootStore } from "./models"
 import { ToggleStorybook } from "../storybook/toggle-storybook"
 import { setInitialLanguage, setUserLanguage } from "./i18n/i18n"
 import "react-native-console-time-polyfill"
+import { withIAPContext } from "react-native-iap"
 
 // This puts screens in a native ViewController or Activity. If you want fully native
 // stack navigation, use `createNativeStackNavigator` in place of `createStackNavigator`:
@@ -132,4 +133,4 @@ function App() {
   )
 }
 
-export default App
+export default withIAPContext(App)

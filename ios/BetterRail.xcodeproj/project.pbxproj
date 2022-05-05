@@ -73,6 +73,7 @@
 		C1F29D34270B31D5009B953E /* Heebo-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = A2759849ACE84A51AA1EC58E /* Heebo-Medium.otf */; };
 		C1F29D37270B31D5009B953E /* Heebo-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 5B118A8459B542A2BA8C9824 /* Heebo-Regular.otf */; };
 		C1F29D39270B31D5009B953E /* Heebo-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = E3C07A94FCDB4698B4A058EB /* Heebo-Bold.otf */; };
+		C1F452EA281FC21F00EF53CB /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1F452E9281FC21F00EF53CB /* StoreKit.framework */; };
 		C1F61C122709F08200CD3D44 /* FavoritesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61BFD2709F08200CD3D44 /* FavoritesViewModel.swift */; };
 		C1F61C132709F08200CD3D44 /* RouteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61BFE2709F08200CD3D44 /* RouteViewModel.swift */; };
 		C1F61C142709F08200CD3D44 /* FavoritesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C002709F08200CD3D44 /* FavoritesView.swift */; };
@@ -235,6 +236,7 @@
 		C1E62DD9270EE2690067F262 /* TrainStopListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainStopListItem.swift; sourceTree = "<group>"; };
 		C1E62DDB270EE28B0067F262 /* TrainExchangeListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainExchangeListItem.swift; sourceTree = "<group>"; };
 		C1ED5217270B248C00EBB0B1 /* FavoritesModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesModel.swift; sourceTree = "<group>"; };
+		C1F452E9281FC21F00EF53CB /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		C1F61BFD2709F08200CD3D44 /* FavoritesViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FavoritesViewModel.swift; sourceTree = "<group>"; };
 		C1F61BFE2709F08200CD3D44 /* RouteViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RouteViewModel.swift; sourceTree = "<group>"; };
 		C1F61C002709F08200CD3D44 /* FavoritesView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FavoritesView.swift; sourceTree = "<group>"; };
@@ -270,6 +272,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A4B148D367B119F99EC2C2E5 /* libPods-BetterRail.a in Frameworks */,
+				C1F452EA281FC21F00EF53CB /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -346,6 +349,7 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C1F452E9281FC21F00EF53CB /* StoreKit.framework */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				ED2971642150620600B7C4FE /* JavaScriptCore.framework */,
 				EADEA568884090C1B008E181 /* libPods-BetterRail.a */,
@@ -913,9 +917,9 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BetterRail/Pods-BetterRail-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/double-conversion/double-conversion.framework/double-conversion",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL/OpenSSL.framework/OpenSSL",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes/hermes.framework/hermes",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/Flipper-DoubleConversion/double-conversion.framework/double-conversion",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL-Universal/OpenSSL.framework/OpenSSL",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/hermes.framework/hermes",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -935,9 +939,9 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BetterRail-BetterRailTests/Pods-BetterRail-BetterRailTests-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/double-conversion/double-conversion.framework/double-conversion",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL/OpenSSL.framework/OpenSSL",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes/hermes.framework/hermes",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/Flipper-DoubleConversion/double-conversion.framework/double-conversion",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL-Universal/OpenSSL.framework/OpenSSL",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/hermes.framework/hermes",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -1244,7 +1248,7 @@
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "arm64 i386";
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = i386;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -1305,7 +1309,7 @@
 				COPY_PHASE_STRIP = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "arm64 i386";
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = i386;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;

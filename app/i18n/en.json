@@ -62,6 +62,15 @@
     "languageChangeAlertTitle": "Language Change",
     "languageChangeAlertMessage": "The app will restart to apply the changes",
 
+    "tipJar": "Tip Jar",
+    "tipJarTitle": "Better Rail relies on your support to fund it's development.",
+    "tipJarSubtitle": "If you love using Better Rail, please consider supporting the app by leaving a tip in the Tip Jar.",
+    "generousTip": "🙂  Generous Tip",
+    "amazingTip": "😃  Amazing Tip",
+    "massiveTip": "😍  Massive Tip",
+    "thankYou": "Thank You",
+    "thankYouText": "I apprciate this donation from the bottom of my heart. \n\nDonating money for mobile apps isn't something that can be taken for granted.\n\n Enjoy the ride! \nGuy",
+
     "aboutText": "Better Rail is an open source app that aims to make Israel Railways schedules more accessible to the public.",
 
     "follow": "Follow Better Rail",

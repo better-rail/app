@@ -144,6 +144,8 @@ android {
         versionCode 31
         versionName "1.8.2"
         multiDexEnabled true
+        // react-native-iap: we only use the Google Play flavor
+        missingDimensionStrategy 'store', 'play'
     }
     splits {
         abi {
