@@ -46,7 +46,8 @@
     "platformStay": "יש להשאר ברציף",
     "platformExchange": "יש לעבור לרציף",
     "waitingTime": "זמן המתנה כ-",
-    "minutes": "דק'"
+    "minutes": "דק'",
+    "lastStop": "יעד סופי"
   },
   "settings": {
     "title": "הגדרות",

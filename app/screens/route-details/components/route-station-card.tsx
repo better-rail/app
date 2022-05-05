@@ -57,7 +57,14 @@ const ROUTE_STATION_NAME: TextStyle = {
 }
 
 const ROUTE_STATION_DETAILS_TEXT: TextStyle = {
+  fontSize: 14,
   fontWeight: "300",
+}
+
+const LAST_DESTINATION_TEXT: TextStyle = {
+  fontSize: 12,
+  fontWeight: "300",
+  opacity: 0.8,
 }
 
 const RAILWAY_ICON: ImageStyle = {
@@ -72,6 +79,7 @@ type RouteStopCardProps = {
   stopTime: string
   platform?: string
   trainNumber?: string
+  lastStop?: string
 
   /**
    * The delay time in full minutes, e.g. 5, 8, 10
@@ -87,7 +95,7 @@ type RouteStopCardProps = {
 }
 
 export const RouteStationCard = (props: RouteStopCardProps) => {
-  const { stationName, stopTime, platform, trainNumber, delay, delayedTime, style } = props
+  const { stationName, stopTime, platform, trainNumber, delay, delayedTime, lastStop, style } = props
 
   return (
     <View style={[ROUTE_STATION_WRAPPER, style]}>
@@ -124,6 +132,11 @@ export const RouteStationCard = (props: RouteStopCardProps) => {
         <Text style={ROUTE_STATION_DETAILS_TEXT} maxFontSizeMultiplier={1.2}>
           {translate("routeDetails.platform")} {platform} {trainNumber && `· ${translate("routeDetails.trainNo")} ${trainNumber}`}
         </Text>
+        {trainNumber && (
+          <Text style={LAST_DESTINATION_TEXT} maxFontSizeMultiplier={1.2}>
+            {translate("routeDetails.lastStop")}: {lastStop}
+          </Text>
+        )}
       </View>
     </View>
   )

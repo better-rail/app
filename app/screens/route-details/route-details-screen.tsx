@@ -49,6 +49,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
                 stopTime={format(train.departureTime, "HH:mm")}
                 platform={train.originPlatform}
                 trainNumber={train.trainNumber}
+                lastStop={train.lastStop}
                 delay={train.delay}
               />
 

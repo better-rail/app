@@ -41,7 +41,8 @@
     "exchangeAt": "تبديل في ",
     "platformStay": "الرجاء الانتظار في الرصيف",
     "platformExchange": "الرجاء الانتقال الى رصيف",
-    "waitingTime": "مدة الانتظار"
+    "waitingTime": "مدة الانتظار",
+    "lastStop": "المحطة الأخيرة"
   },
   "settings": {
     "title": "اعدادت",
