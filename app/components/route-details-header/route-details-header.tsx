@@ -94,7 +94,7 @@ const SHEKEL_ICON: ImageStyle = {
 export interface RouteDetailsHeaderProps {
   originId: string
   destinationId: string
-  openFaresBottomSheet: () => void
+  openFaresBottomSheet?: () => void
   style?: ViewStyle
 }
 
