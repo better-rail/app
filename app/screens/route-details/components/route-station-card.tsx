@@ -57,7 +57,14 @@ const ROUTE_STATION_NAME: TextStyle = {
 }
 
 const ROUTE_STATION_DETAILS_TEXT: TextStyle = {
+  fontSize: 14,
   fontWeight: "300",
+}
+
+const LAST_DESTINATION_TEXT: TextStyle = {
+  fontSize: 12,
+  fontWeight: "300",
+  opacity: 0.8,
 }
 
 const RAILWAY_ICON: ImageStyle = {
@@ -124,6 +131,11 @@ export const RouteStationCard = (props: RouteStopCardProps) => {
         <Text style={ROUTE_STATION_DETAILS_TEXT} maxFontSizeMultiplier={1.2}>
           {translate("routeDetails.platform")} {platform} {trainNumber && `· ${translate("routeDetails.trainNo")} ${trainNumber}`}
         </Text>
+        {trainNumber && (
+          <Text style={LAST_DESTINATION_TEXT} maxFontSizeMultiplier={1.2}>
+            יעד סופי: באר שבע - אוניברסיטה
+          </Text>
+        )}
       </View>
     </View>
   )
