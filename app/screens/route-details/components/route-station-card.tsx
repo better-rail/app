@@ -134,7 +134,7 @@ export const RouteStationCard = (props: RouteStopCardProps) => {
         </Text>
         {trainNumber && (
           <Text style={LAST_DESTINATION_TEXT} maxFontSizeMultiplier={1.2}>
-            {translate("routeDetails.lastStop")}:{lastStop}
+            {translate("routeDetails.lastStop")}: {lastStop}
           </Text>
         )}
       </View>

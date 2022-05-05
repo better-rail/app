@@ -44,7 +44,8 @@
     "platformStay": "Остаться на платформе",
     "platformExchange": "Перейти на платформу",
     "waitingTime": "Время ожидания",
-    "minutes": "минут"
+    "minutes": "минут",
+    "lastStop": "Последняя остановка"
   },
   "settings": {
     "title": "Настройки",
