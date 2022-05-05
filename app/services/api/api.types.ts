@@ -40,6 +40,7 @@ export type RailApiGetRoutesResult = {
     Details: { Origin: string; Destination: string; Date: string; SugKav: string; Hour: string }
     Delays: { Station: string; Date: string; Time: string; Train: string; Min: string }[]
     Error: { Description: string; ErrorId: string; Exception: string }
+    Omasim: { TrainNumber: number; Stations: OmesDetail[] }[]
   }
 }
 
@@ -59,6 +60,7 @@ export type RouteItem = {
     destinationPlatform: string
     trainNumber: string
     stopStations: { arrivalTime: number; departureTime: number; stationId: string; stationName: string; platform: string }[]
+    lastStop: string
     delay: number
   }[]
 }
@@ -132,4 +134,12 @@ export interface FareApiResult {
   ContractTitleCount: ContractTitleCount
   VersionId: number
   Results: FareResults[]
+}
+
+export interface OmesDetail {
+  StationNumber: number
+  OmesPercent: number
+  Shmurim: string
+  Time: string
+  Platform: number
 }

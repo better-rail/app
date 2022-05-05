@@ -79,6 +79,7 @@ type RouteStopCardProps = {
   stopTime: string
   platform?: string
   trainNumber?: string
+  lastStop?: string
 
   /**
    * The delay time in full minutes, e.g. 5, 8, 10
@@ -94,7 +95,7 @@ type RouteStopCardProps = {
 }
 
 export const RouteStationCard = (props: RouteStopCardProps) => {
-  const { stationName, stopTime, platform, trainNumber, delay, delayedTime, style } = props
+  const { stationName, stopTime, platform, trainNumber, delay, delayedTime, lastStop, style } = props
 
   return (
     <View style={[ROUTE_STATION_WRAPPER, style]}>
@@ -133,7 +134,7 @@ export const RouteStationCard = (props: RouteStopCardProps) => {
         </Text>
         {trainNumber && (
           <Text style={LAST_DESTINATION_TEXT} maxFontSizeMultiplier={1.2}>
-            יעד סופי: באר שבע - אוניברסיטה
+            {translate("routeDetails.lastStop")}:{lastStop}
           </Text>
         )}
       </View>

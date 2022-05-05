@@ -44,7 +44,8 @@
     "platformStay": "Stay at Platform",
     "platformExchange": "Switch to Platform",
     "waitingTime": "Wait around",
-    "minutes": "min"
+    "minutes": "min",
+    "lastStop": "Last Stop"
   },
   "settings": {
     "title": "Settings",

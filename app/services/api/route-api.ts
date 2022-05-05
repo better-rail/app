@@ -32,6 +32,8 @@ export class RouteApi {
         return Object.assign({}, delaysObject, { [delayItem.Train]: parseInt(delayItem.Min) })
       }, {})
 
+      const crowdDetails = responseData.Omasim
+
       const formattedRoutes = responseData.Routes.map((route) => {
         const { Train, IsExchange, EstTime } = route
 
@@ -60,6 +62,11 @@ export class RouteApi {
             }
           })
 
+          // The last stop is fetched from the "crowded" details
+          const trainCrowdDetail = crowdDetails.find((detail) => detail.TrainNumber === Number(Trainno))
+          const lastStationId = trainCrowdDetail.Stations[trainCrowdDetail.Stations.length - 1].StationNumber
+          // console.log(lastStationId)
+
           const route = {
             delay: delays[Trainno] || 0,
             originStationId: OrignStation,
@@ -70,6 +77,7 @@ export class RouteApi {
             arrivalTime: parseApiDate(ArrivalTime),
             originPlatform: Platform,
             destinationPlatform: DestPlatform,
+            lastStop: stationsObject[lastStationId][stationLocale],
             trainNumber: Trainno,
             stopStations,
           }
