@@ -3,7 +3,7 @@ import { translate, TxKeyPath } from "../../i18n"
 
 export const SettingsModel = types
   .model("Settings")
-  .props({ profileCode: types.optional(types.number, 1) })
+  .props({ profileCode: types.optional(types.number, 1), totalTip: types.optional(types.number, 0) })
   .views((self) => ({
     get profileCodeLabel() {
       const profile = PROFILE_CODES.find((profileCode) => profileCode.value === self.profileCode)
@@ -14,6 +14,10 @@ export const SettingsModel = types
   .actions((self) => ({
     setProfileCode(code: number) {
       self.profileCode = code
+    },
+
+    addTip(amount: number) {
+      self.totalTip = self.totalTip + amount
     },
   }))
 

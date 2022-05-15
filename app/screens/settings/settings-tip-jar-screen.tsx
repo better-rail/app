@@ -7,6 +7,7 @@ import { color, isDarkMode, spacing } from "../../theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { translate } from "../../i18n"
 import { TipThanksModal } from "./components/tip-thanks-modal"
+import { useStores } from "../../models"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -72,10 +73,12 @@ const TIP_AMOUNT: TextStyle = {
 
 const TOTAL_TIPS: TextStyle = { textAlign: "center", marginTop: spacing[4] }
 
-const PRODUCT_IDS = ["better_rail_tip_1", "better_rail_tip_2", "better_rail_tip_3"]
+const PRODUCT_IDS = ["better_rail_tip_1", "better_rail_tip_2", "better_rail_tip_3", "better_rail_tip_4"]
 
 export const TipJarScreen = observer(function TipJarScreen() {
+  const [isLoading, setIsLoading] = useState(false)
   const [thanksModalVisible, setModalVisible] = useState(false)
+  const { settings } = useStores()
 
   const { connected, products, finishTransaction, requestPurchase, getProducts } = useIAP()
 
@@ -85,13 +88,17 @@ export const TipJarScreen = observer(function TipJarScreen() {
     }
   }, [connected, getProducts])
 
-  const onTipButtonPress = async (sku: string) => {
+  const onTipButtonPress = async (sku: string, amount: string) => {
     try {
+      setIsLoading(true)
+
       const purchase = await requestPurchase(sku)
-      setModalVisible(true)
       await finishTransaction(purchase)
-    } catch (err) {
-      console.error(err)
+
+      setModalVisible(true)
+      settings.addTip(Number(amount))
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -107,34 +114,38 @@ export const TipJarScreen = observer(function TipJarScreen() {
       <Text tx="settings.tipJarTitle" style={TIP_INTRO_TITLE} />
       <Text tx="settings.tipJarSubtitle" style={TIP_INTRO_SUBTITLE} />
 
-      {products.length > 0 ? (
+      {products.length > 0 && !isLoading ? (
         <>
           <TipRow
             title={translate("settings.generousTip")}
             amount={products[0].localizedPrice}
-            onPress={() => onTipButtonPress(products[0].productId)}
+            onPress={() => onTipButtonPress(products[0].productId, products[0].price)}
           />
           <TipRow
             title={translate("settings.amazingTip")}
             amount={products[1].localizedPrice}
-            onPress={() => onTipButtonPress(products[1].productId)}
+            onPress={() => onTipButtonPress(products[1].productId, products[1].price)}
           />
           <TipRow
             title={translate("settings.massiveTip")}
             amount={products[2].localizedPrice}
-            onPress={() => onTipButtonPress(products[2].productId)}
+            onPress={() => onTipButtonPress(products[2].productId, products[2].price)}
           />
-          {/* <TipRow
+          <TipRow
             title={translate("settings.hugeTip")}
             amount={products[3].localizedPrice}
-            onPress={() => onTipButtonPress(products[3].productId)}
-          /> */}
+            onPress={() => onTipButtonPress(products[3].productId, products[3].price)}
+          />
+
+          {["ILS", "USD"].indexOf(products[0].currency) > -1 && (
+            <Text style={TOTAL_TIPS}>
+              {translate("settings.totalTips")}: {settings.totalTip} {products[0].currency === "ILS" ? "₪" : "$"}
+            </Text>
+          )}
         </>
       ) : (
         <ActivityIndicator size="large" style={{ marginVertical: spacing[5] }} />
       )}
-
-      {/* <Text style={TOTAL_TIPS}>Total Tip: 2.99 $</Text> */}
 
       <TipThanksModal isVisible={thanksModalVisible} onOk={() => setModalVisible(false)} />
     </Screen>

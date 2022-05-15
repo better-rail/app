@@ -2,7 +2,8 @@
   package="com.betterrail">
 
     <uses-permission android:name="android.permission.INTERNET" />
-
+    <uses-permission android:name="com.android.vending.BILLING" />
+    
     <application
       android:name=".MainApplication"
       android:label="@string/app_name"
