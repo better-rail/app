@@ -50,7 +50,7 @@ const ROUTE_DELAY_TIME: TextStyle = {
 }
 
 const ROUTE_STATION_NAME: TextStyle = {
-  marginBottom: primaryFontIOS === "System" ? 2 : -2,
+  marginBottom: primaryFontIOS === "System" ? 2 : -1,
   marginEnd: spacing[3],
   fontSize: 17,
   fontWeight: "700",
