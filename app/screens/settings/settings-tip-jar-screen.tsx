@@ -8,6 +8,7 @@ import { TouchableOpacity } from "react-native-gesture-handler"
 import { translate } from "../../i18n"
 import { TipThanksModal } from "./components/tip-thanks-modal"
 import { useStores } from "../../models"
+import { getInstallerPackageNameSync } from "react-native-device-info"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -35,6 +36,13 @@ const TIP_INTRO_SUBTITLE: TextStyle = {
   marginBottom: spacing[4],
   fontSize: 16.5,
   textAlign: "center",
+}
+
+const TESTFLIGHT_MSG: TextStyle = {
+  marginBottom: spacing[4],
+  fontWeight: "500",
+  textAlign: "center",
+  color: color.error,
 }
 
 const LIST_ROW: ViewStyle = {
@@ -75,6 +83,8 @@ const TOTAL_TIPS: TextStyle = { textAlign: "center", marginTop: spacing[4] }
 
 const PRODUCT_IDS = ["better_rail_tip_1", "better_rail_tip_2", "better_rail_tip_3", "better_rail_tip_4"]
 
+const installSource = getInstallerPackageNameSync()
+
 export const TipJarScreen = observer(function TipJarScreen() {
   const [isLoading, setIsLoading] = useState(false)
   const [thanksModalVisible, setModalVisible] = useState(false)
@@ -113,6 +123,7 @@ export const TipJarScreen = observer(function TipJarScreen() {
       <Text style={HEART_ICON}>💖</Text>
       <Text tx="settings.tipJarTitle" style={TIP_INTRO_TITLE} />
       <Text tx="settings.tipJarSubtitle" style={TIP_INTRO_SUBTITLE} />
+      {installSource && <Text tx="settings.testflightMessage" style={TESTFLIGHT_MSG} />}
 
       {products.length > 0 && !isLoading ? (
         <>
