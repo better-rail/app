@@ -123,7 +123,7 @@ export const TipJarScreen = observer(function TipJarScreen() {
       <Text style={HEART_ICON}>💖</Text>
       <Text tx="settings.tipJarTitle" style={TIP_INTRO_TITLE} />
       <Text tx="settings.tipJarSubtitle" style={TIP_INTRO_SUBTITLE} />
-      {installSource && <Text tx="settings.testflightMessage" style={TESTFLIGHT_MSG} />}
+      {installSource === "TestFlight" && <Text tx="settings.testflightMessage" style={TESTFLIGHT_MSG} />}
 
       {products.length > 0 && !isLoading ? (
         <>

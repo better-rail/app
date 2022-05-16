@@ -7,7 +7,6 @@ import { NewFeatureStackProps } from "../../navigators/new-features/new-features
 import { color, spacing } from "../../theme"
 import { NewFeatureBackground } from "./new-features-background"
 import InAppReview from "react-native-in-app-review"
-import { useStores } from "../../models"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const { width: deviceWidth } = Dimensions.get("screen")
@@ -36,7 +35,6 @@ const IMAGE_STYLE: ImageStyle = {
 
 export const WidgetStep4 = function WidgetStep4({ navigation }: NewFeatureStackProps) {
   const insets = useSafeAreaInsets()
-  const { recentSearches } = useStores()
 
   return (
     <Screen unsafe={true} statusBar="light-content" preset="scroll">
@@ -62,8 +60,7 @@ export const WidgetStep4 = function WidgetStep4({ navigation }: NewFeatureStackP
 
             storage.load("lastInAppReview").then((value) => {
               if (!value) {
-                InAppReview.RequestInAppReview().then((value) => {
-                  console.log(value)
+                InAppReview.RequestInAppReview().then(() => {
                   storage.save("lastInAppReview", new Date().toISOString())
                 })
               }

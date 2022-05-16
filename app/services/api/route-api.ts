@@ -65,7 +65,6 @@ export class RouteApi {
           // The last stop is fetched from the "crowded" details
           const trainCrowdDetail = crowdDetails.find((detail) => detail.TrainNumber === Number(Trainno))
           const lastStationId = trainCrowdDetail.Stations[trainCrowdDetail.Stations.length - 1].StationNumber
-          // console.log(lastStationId)
 
           const route = {
             delay: delays[Trainno] || 0,
