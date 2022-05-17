@@ -103,7 +103,7 @@ export const TipJarScreen = observer(function TipJarScreen() {
       setIsLoading(true)
 
       const purchase = await requestPurchase(sku)
-      await finishTransaction(purchase)
+      await finishTransaction(purchase, true)
 
       setModalVisible(true)
       settings.addTip(Number(amount))
