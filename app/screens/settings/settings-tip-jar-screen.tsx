@@ -88,6 +88,7 @@ const installSource = getInstallerPackageNameSync()
 export const TipJarScreen = observer(function TipJarScreen() {
   const [isLoading, setIsLoading] = useState(false)
   const [thanksModalVisible, setModalVisible] = useState(false)
+  const [sortedProducts, setSortedProducts] = useState([])
   const { settings } = useStores()
 
   const { connected, products, finishTransaction, requestPurchase, getProducts } = useIAP()
@@ -97,6 +98,13 @@ export const TipJarScreen = observer(function TipJarScreen() {
       getProducts(PRODUCT_IDS)
     }
   }, [connected, getProducts])
+
+  useEffect(() => {
+    if (products.length > 0) {
+      const sortedProductsByPrice = products.sort((a, b) => Number(a.price) - Number(b.price))
+      setSortedProducts(sortedProductsByPrice)
+    }
+  }, [products])
 
   const onTipButtonPress = async (sku: string, amount: string) => {
     try {
@@ -125,27 +133,27 @@ export const TipJarScreen = observer(function TipJarScreen() {
       <Text tx="settings.tipJarSubtitle" style={TIP_INTRO_SUBTITLE} />
       {installSource === "TestFlight" && <Text tx="settings.testflightMessage" style={TESTFLIGHT_MSG} />}
 
-      {products.length > 0 && !isLoading ? (
+      {sortedProducts.length > 0 && !isLoading ? (
         <>
           <TipRow
             title={translate("settings.generousTip")}
-            amount={products[0].localizedPrice}
-            onPress={() => onTipButtonPress(products[0].productId, products[0].price)}
+            amount={sortedProducts[0].localizedPrice}
+            onPress={() => onTipButtonPress(sortedProducts[0].productId, sortedProducts[0].price)}
           />
           <TipRow
             title={translate("settings.amazingTip")}
-            amount={products[1].localizedPrice}
-            onPress={() => onTipButtonPress(products[1].productId, products[1].price)}
+            amount={sortedProducts[1].localizedPrice}
+            onPress={() => onTipButtonPress(sortedProducts[1].productId, sortedProducts[1].price)}
           />
           <TipRow
             title={translate("settings.massiveTip")}
-            amount={products[2].localizedPrice}
-            onPress={() => onTipButtonPress(products[2].productId, products[2].price)}
+            amount={sortedProducts[2].localizedPrice}
+            onPress={() => onTipButtonPress(sortedProducts[2].productId, sortedProducts[2].price)}
           />
           <TipRow
             title={translate("settings.hugeTip")}
-            amount={products[3].localizedPrice}
-            onPress={() => onTipButtonPress(products[3].productId, products[3].price)}
+            amount={sortedProducts[3].localizedPrice}
+            onPress={() => onTipButtonPress(sortedProducts[3].productId, sortedProducts[3].price)}
           />
 
           {["ILS", "USD"].indexOf(products[0].currency) > -1 && (
