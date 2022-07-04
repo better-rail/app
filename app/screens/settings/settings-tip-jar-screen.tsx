@@ -156,7 +156,7 @@ export const TipJarScreen = observer(function TipJarScreen() {
             onPress={() => onTipButtonPress(sortedProducts[3].productId, sortedProducts[3].price)}
           />
 
-          {["ILS", "USD"].indexOf(products[0].currency) > -1 && (
+          {settings.totalTip > 0 && (
             <Text style={TOTAL_TIPS}>
               {translate("settings.totalTips")}: {settings.totalTip} {products[0].currency === "ILS" ? "₪" : "$"}
             </Text>
