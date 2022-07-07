@@ -113,12 +113,12 @@
   "newFeature": {
     "newBetterRail": "they're finally here",
     "homeWidgets": "Home Screen Widgets",
-    "widgetDescription": "Beautiful widgets to check the upcoming train schedule.",
+    "widgetDescription": "Beautiful widgets for checking the upcoming train schedule.",
     "widgetGuide": "Here's a quick set up guide with a few tips on how to get the full benefit from them.",
 
     "howToAdd": "Adding Widgets",
-    "addStep1": "1. From the Home Screen, touch and hold a widget or an empty area until the apps jiggle..",
-    "addStep2": "2. Tap the Add button (+) in the upper-left corner..",
+    "addStep1": "1. From the Home Screen, touch and hold a widget or an empty area until the apps jiggle.",
+    "addStep2": "2. Tap the Add button (+) in the upper-left corner.",
     "addStep3": "3. Select Better Rail from the list, select the desired widget size and press \"Add Widget \".",
 
     "configuring": "Configuring Widgets",
