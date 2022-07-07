@@ -8,7 +8,7 @@ import { color, spacing, isDarkMode } from "../../theme"
 import { openLink } from "../../utils/helpers/open-link"
 import { deviceLocale, translate, userLocale } from "../../i18n"
 import { SettingsScreenProps } from "../../navigators"
-import { getBuildNumber, getDeviceId, getReadableVersion, getSystemVersion, getVersion } from "react-native-device-info"
+import { getBuildNumber, getDeviceId, getSystemVersion, getVersion } from "react-native-device-info"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -40,11 +40,6 @@ const APP_ICON_IMAGE: ImageStyle = {
   height: 120,
   borderRadius: 20,
   resizeMode: "contain",
-}
-
-const ABOUT_TEXT_TITLE: TextStyle = {
-  marginBottom: spacing[1],
-  fontSize: 24,
 }
 
 const ABOUT_TEXT: TextStyle = {
