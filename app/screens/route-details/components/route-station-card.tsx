@@ -62,7 +62,7 @@ const ROUTE_STATION_DETAILS_TEXT: TextStyle = {
 }
 
 const LAST_DESTINATION_TEXT: TextStyle = {
-  fontSize: 13,
+  fontSize: 14,
   fontWeight: "300",
   opacity: 0.8,
 }
