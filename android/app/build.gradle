@@ -141,8 +141,8 @@ android {
         applicationId "com.betterrail"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 34
-        versionName "1.9.1"
+        versionCode 35
+        versionName "1.9.2"
         multiDexEnabled true
         // react-native-iap: we only use the Google Play flavor
         missingDimensionStrategy 'store', 'play'
