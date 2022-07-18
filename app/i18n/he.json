@@ -29,7 +29,7 @@
     "placeholder": "חיפוש תחנה",
     "instructions": "חפשו תחנות רכבת באמצעות שורת החיפוש",
     "recentSearches": "חיפושים אחרונים",
-    "hide": "מחיקה"
+    "hide": "הסרה"
   },
   "routes": {
     "departure": "יציאה",
@@ -63,7 +63,7 @@
 
     "tipJar": "צנצנת טיפים",
     "tipJarTitle": " פיתוח האפליקצייה ממומן על ידיכם, המשתמשים!",
-    "tipJarSubtitle": "אם אתם אוהבים להשתמש ב- Better Rail, אנא שיקלו להוסיף כמה שקלים לצנצנת הטיפים :)",
+    "tipJarSubtitle": "אם אתם אוהבים להשתמש ב- Better Rail, אנא שיקלו לשלוח טיפ לתמיכה בהמשך פיתוח האפליקצייה :-)",
     "generousTip": "🙂  טיפ נדיב",
     "amazingTip": "😃  טיפ מדהים",
     "massiveTip": "😍  טיפ לחיים",
