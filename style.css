@@ -33,26 +33,6 @@ a {
   color: #000;
 }
 
-.page-header {
-  height: 445px;
-  padding-top: 65px;
-}
-
-.app-icon {
-  width: 95px;
-  height: 95px;
-  margin: 0 auto 10px;
-  box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.15);
-  background-color: #fff;
-  border-radius: 20px;
-  padding: 19px;
-  text-align: center;
-}
-
-.app-icon-image {
-  height: 60px;
-}
-
 .app-name {
   margin-top: 0;
   margin-bottom: -6px;
@@ -200,12 +180,6 @@ footer {
 }
 
 @media (min-width: 1024px) {
-  .page-header {
-    height: unset;
-    padding-bottom: 32px;
-    margin-bottom: 32px;
-  }
-
   .site-content {
     top: unset;
     margin-bottom: 32px;

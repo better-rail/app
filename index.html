@@ -22,11 +22,39 @@
     <link rel="icon" type="image/png" href="/assets/favicon/favicon-16x16.png" sizes="16x16" />
 
     <meta name="theme-color" content="#0a81dd" />
+
+    <style>
+      .app-icon {
+        width: 95px;
+        height: 95px;
+        margin: 0 auto 10px;
+        box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.15);
+        background-color: #fff;
+        border-radius: 20px;
+        padding: 19px;
+        text-align: center;
+      }
+
+      .page-header {
+        height: 445px;
+        padding-top: 65px;
+        background-color: #f1f1f6;
+        text-align: center;
+      }
+
+      @media (min-width: 1024px) {
+        .page-header {
+          height: unset;
+          padding-bottom: 32px;
+          margin-bottom: 32px;
+        }
+      }
+    </style>
   </head>
   <body class="site-wrapper">
-    <header class="page-header" style="background-color: #f1f1f6; text-align: center">
-      <div class="app-icon" width="95">
-        <img src="/assets/images/icon.svg" alt="" width="50" height="60" class="app-icon-image" />
+    <header class="page-header">
+      <div class="app-icon">
+        <img src="/assets/images/icon.svg" width="50" height="60" alt="" />
       </div>
 
       <h1 class="app-name">Better Rail</h1>
@@ -34,7 +62,12 @@
 
       <div class="download-app-section">
         <a href="https://apps.apple.com/il/app/better-rail/id1562982976" target="_blank" id="ios-badge" rel="noopener noreferrer"
-          ><img class="download-app-badge" src="/assets/images/app-store-badge.svg" alt="הורדה לאייפון"
+          ><img
+            class="download-app-badge"
+            width="175"
+            height="58.45"
+            src="/assets/images/app-store-badge.svg"
+            alt="הורדה לאייפון"
         /></a>
         <a
           href="https://play.google.com/store/apps/details?id=com.betterrail"
@@ -42,7 +75,12 @@
           id="play-store-badge"
           rel="noopener noreferrer"
         >
-          <img class="download-app-badge" width="150" src="/assets/images/google-play-badge.svg" alt="הורדה לאנדרואיד"
+          <img
+            class="download-app-badge"
+            width="175"
+            height="58.45"
+            src="/assets/images/google-play-badge.svg"
+            alt="הורדה לאנדרואיד"
         /></a>
       </div>
     </header>
