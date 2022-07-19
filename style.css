@@ -103,10 +103,6 @@ a {
   gap: 7.5px;
 }
 
-.download-app-badge {
-  width: 145px;
-}
-
 footer {
   display: flex;
   flex-direction: column;
@@ -144,10 +140,6 @@ footer {
 }
 
 @media (min-width: 410px) {
-  .download-app-badge {
-    width: 175px;
-  }
-
   .site-content {
     top: -105px;
     margin-bottom: -148px;
