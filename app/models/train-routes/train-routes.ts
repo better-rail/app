@@ -85,14 +85,9 @@ export const trainRoutesModel = types
           requestDate = add(requestDate, { days: 1 }).getTime()
         }
       }
-
-      if (foundRoutes === false) {
-        // We couldn't find routes for the requested date.
-        self.updateResultType("not-found")
-        self.setStatus("done")
-        throw new Error("Not found")
-      }
-
+      // We couldn't find routes for the requested date.
+      self.updateResultType("not-found")
+      self.setStatus("done")
       throw new Error("Not found")
     },
   }))

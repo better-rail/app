@@ -28,7 +28,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   const trains = useQuery(
     ["origin", originId, "destination", destinationId, "time", routePlan.date.getDate()],
     () => trainRoutes.getRoutes(originId, destinationId, time),
-    { enabled: enableQuery },
+    { enabled: enableQuery, retry: false },
   )
 
   // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
