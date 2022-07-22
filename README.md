@@ -4,7 +4,7 @@
 
 <a href="https://github.com/guytepper/better-rail/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-brightgreen" alt="" /></a>&nbsp;<a href="https://twitter.com/better_rail"><img src="https://img.shields.io/twitter/follow/better_rail" alt="" /></a>
 
-Better Rail is an open source mobile client for Israel Railways, with an emphasis on great design, performance and accessbility.
+Better Rail is an open source mobile client for Israel Railways, with an emphasis on great design, performance and accessibility.
 
 **Available on the [App Store](https://apps.apple.com/il/app/better-rail/id1562982976)</a> & [Play Store](https://play.google.com/store/apps/details?id=com.betterrail)**
 
