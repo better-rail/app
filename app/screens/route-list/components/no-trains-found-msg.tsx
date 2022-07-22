@@ -24,6 +24,18 @@ const SEARCH_ICON: ImageStyle = {
   tintColor: color.text,
 }
 
+const NO_TRAINS_FOUND_TEXT: TextStyle = {
+  marginBottom: spacing[2],
+  textAlign: "center",
+}
+
+const SEPARATOR_STYLE: ViewStyle = {
+  backgroundColor: color.separator,
+  height: 1,
+  width: "100%",
+  marginVertical: spacing[4],
+}
+
 export const NoTrainsFoundMessage = observer(function NoTrainsFoundMessage() {
   const [relatedAnnouncements, setRelatedAnnouncements] = useState<Announcement[]>([])
 
@@ -51,17 +63,15 @@ export const NoTrainsFoundMessage = observer(function NoTrainsFoundMessage() {
   return (
     <ScrollView contentContainerStyle={CONTAINER}>
       <Image style={SEARCH_ICON} source={require("../../../../assets/search.png")} />
-      <Text tx="routes.noTrainsFound" style={{ marginBottom: spacing[2], textAlign: "center" }} />
-      <View style={{ backgroundColor: color.separator, height: 1, width: "100%", marginVertical: spacing[4] }} />
+      <Text tx="routes.noTrainsFound" style={NO_TRAINS_FOUND_TEXT} />
 
-      <View style={{ justifyContent: "flex-start", width: "100%" }}>
-        <View style={{ width: "100%", marginBottom: spacing[2], flexDirection: "row", alignItems: "center" }}>
-          <Image
-            style={{ width: 20, height: 20, marginEnd: spacing[1], tintColor: color.text }}
-            source={require("../../../../assets/info.png")}
-          />
-          <Text tx="routes.updates" style={{ fontWeight: "500" }} />
-        </View>
+      <View style={SEPARATOR_STYLE} />
+      <View style={{ width: "100%", marginBottom: spacing[4], flexDirection: "row", alignItems: "center" }}>
+        <Image
+          style={{ width: 20, height: 20, marginEnd: spacing[2], tintColor: color.text }}
+          source={require("../../../../assets/info.png")}
+        />
+        <Text tx="routes.updates" style={{ fontWeight: "500" }} />
       </View>
 
       {relatedAnnouncements.length > 0 ? (
