@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState, useRef } from "react"
 import { observer } from "mobx-react-lite"
-import { FlatList, ActivityIndicator, ViewStyle } from "react-native"
+import { FlatList, View, ActivityIndicator, ViewStyle } from "react-native"
 import { RouteListScreenProps } from "../../navigators/main-navigator"
-import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight, TicketFaresBottomSheet, Text } from "../../components"
+import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight, TicketFaresBottomSheet } from "../../components"
 import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
 import { format, closestIndexTo } from "date-fns"
@@ -13,6 +13,7 @@ import HapticFeedback from "react-native-haptic-feedback"
 import BottomSheet from "@gorhom/bottom-sheet"
 import { isOldAndroid } from "../../utils/helpers/supported-versions"
 import { useQuery } from "react-query"
+import NoTrainsFoundMessage from "./components/no-trains-found-msg"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -28,7 +29,8 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   const trains = useQuery(
     ["origin", originId, "destination", destinationId, "time", routePlan.date.getDate()],
     () => trainRoutes.getRoutes(originId, destinationId, time),
-    { enabled: enableQuery, retry: false },
+    // { enabled: enableQuery, retry: false },
+    { enabled: false, retry: false },
   )
 
   // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
@@ -109,9 +111,10 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
         />
       </SharedElement>
-      {trains.status === "loading" ? (
-        <ActivityIndicator size="large" style={{ marginTop: spacing[3] }} color="grey" />
-      ) : (
+
+      {trains.status === "loading" && <ActivityIndicator size="large" style={{ marginTop: spacing[6] }} color="grey" />}
+
+      {trains.status === "success" && trains.data.length > 0 && (
         <FlatList
           renderItem={renderRouteCard}
           keyExtractor={(item) => item.trains[0]?.departureTime.toString()}
@@ -120,6 +123,12 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           getItemLayout={(_, index) => ({ length: RouteCardHeight, offset: (RouteCardHeight + spacing[3]) * index, index })}
           initialScrollIndex={initialScrollIndex}
         />
+      )}
+
+      {trainRoutes.resultType === "not-found" && (
+        <View style={{ marginTop: spacing[4] }}>
+          <NoTrainsFoundMessage />
+        </View>
       )}
 
       {!isOldAndroid && (
