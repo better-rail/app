@@ -23,5 +23,6 @@ export async function getRouteFare(originId: string, destinationId: string, prof
     throw new Error("The EET Code (profile type) is invalid")
   } catch (err) {
     console.error(err)
+    throw err
   }
 }

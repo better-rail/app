@@ -1,17 +1,4 @@
 /* eslint-disable camelcase */
-import { GeneralApiProblem } from "./api-problem"
-import { Character } from "../../models/character/character"
-
-export interface User {
-  id: number
-  name: string
-}
-
-export type GetUsersResult = { kind: "ok"; users: User[] } | GeneralApiProblem
-export type GetUserResult = { kind: "ok"; user: User } | GeneralApiProblem
-
-export type GetCharactersResult = { kind: "ok"; characters: Character[] } | GeneralApiProblem
-export type GetCharacterResult = { kind: "ok"; character: Character } | GeneralApiProblem
 
 type RailApiRouteItem = {
   Trainno: string
@@ -142,4 +129,32 @@ export interface OmesDetail {
   Shmurim: string
   Time: string
   Platform: number
+}
+
+export interface AnnouncementApiResult {
+  messageType: number
+  message: string
+  data: Announcement[]
+}
+
+export interface Announcement {
+  updateContentArb: string
+  updateContentEng: string
+  updateContentHeb: string
+  updateContentRus: string
+  updateLinkArb: string
+  updateLinkEng: string
+  updateLinkHeb: string
+  updateLinkRus: string
+  station: string[]
+  reportType: string
+  reportImage: string
+  startValidationOfReport: string
+  endValidationOfReport: string
+  nameArb: string
+  nameEng: string
+  nameHeb: string
+  nameRus: string
+  float: boolean
+  order: number
 }

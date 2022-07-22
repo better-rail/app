@@ -37,7 +37,9 @@
     "noExchange": "ללא החלפות",
     "oneExchange": "החלפה אחת",
     "exchanges": "החלפות",
-    "delayTime": "דק' עיכוב"
+    "delayTime": "דק' עיכוב",
+    "noTrainsFound": "לא נמצאו רכבות למסלול זה בימים הקרובים",
+    "updates": "עדכונים מרכבת ישראל"
   },
   "routeDetails": {
     "platform": "רציף",

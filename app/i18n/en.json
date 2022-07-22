@@ -35,7 +35,9 @@
     "noExchange": "No Exchanges",
     "oneExchange": "1 Exchange",
     "exchanges": "Exchanges",
-    "delayTime": "minutes delay"
+    "delayTime": "minutes delay",
+    "noTrainsFound": "No trains were found for this route in the upcoming days",
+    "updates": "Updates from Israel Railways"
   },
   "routeDetails": {
     "platform": "Platform",

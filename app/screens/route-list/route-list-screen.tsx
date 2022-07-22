@@ -13,7 +13,7 @@ import HapticFeedback from "react-native-haptic-feedback"
 import BottomSheet from "@gorhom/bottom-sheet"
 import { isOldAndroid } from "../../utils/helpers/supported-versions"
 import { useQuery } from "react-query"
-import NoTrainsFoundMessage from "./components/no-trains-found-msg"
+import { NoTrainsFoundMessage } from "./components/no-trains-found-msg"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
