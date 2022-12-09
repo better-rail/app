@@ -110,19 +110,6 @@ export interface ContractsResult {
   RestrictionTitle_AR: string
 }
 
-export interface FareResults {
-  Title: Title2
-  SubTitle: SubTitle
-  ContractsResults: ContractsResult[]
-}
-
-export interface FareApiResult {
-  Title: Title
-  ContractTitleCount: ContractTitleCount
-  VersionId: number
-  Results: FareResults[]
-}
-
 export interface OmesDetail {
   StationNumber: number
   OmesPercent: number

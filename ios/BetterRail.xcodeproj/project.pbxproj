@@ -17,7 +17,6 @@
 		5EFC395D238C4D2ABEF902D0 /* Heebo-ExtraBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = AF4431C692CA4F7D8DC013BE /* Heebo-ExtraBold.otf */; };
 		73244C6A71D14F56B7316FA2 /* Heebo-Black.otf in Resources */ = {isa = PBXBuildFile; fileRef = 62AD955938654791888FAB90 /* Heebo-Black.otf */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		A4B148D367B119F99EC2C2E5 /* libPods-BetterRail.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EADEA568884090C1B008E181 /* libPods-BetterRail.a */; };
 		C102DF9E2764FD6600A756B6 /* WidgetLargeScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C102DF9D2764FD6600A756B6 /* WidgetLargeScheduleView.swift */; };
 		C1286B51275E6C8300E1E05D /* RNBetterRail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1286B50275E6C8300E1E05D /* RNBetterRail.swift */; };
 		C1286B55275E6D9D00E1E05D /* RNBetterRail.m in Sources */ = {isa = PBXBuildFile; fileRef = C1286B54275E6D9D00E1E05D /* RNBetterRail.m */; };
@@ -87,8 +86,9 @@
 		C1F7C89027627A60002A417F /* Route.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = C1F7C89327627A60002A417F /* Route.intentdefinition */; };
 		C1F7C89127627A60002A417F /* Route.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = C1F7C89327627A60002A417F /* Route.intentdefinition */; };
 		DA04D16B7E3649A49F843A15 /* Heebo-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = A047FB8FBCA54556AEDB349D /* Heebo-Light.otf */; };
-		E0E402AF856107EC82190244 /* libPods-BetterRail-BetterRailTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 301BE758935A381A571F5B21 /* libPods-BetterRail-BetterRailTests.a */; };
+		DC6B055E41D9A2766AC583C5 /* libPods-BetterRail-BetterRailTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48B0F8E2C1E46351B0DCA018 /* libPods-BetterRail-BetterRailTests.a */; };
 		EB148A208318438E9A4B4B99 /* Heebo-Thin.otf in Resources */ = {isa = PBXBuildFile; fileRef = A70BF4419AFA46D2B69352A3 /* Heebo-Thin.otf */; };
+		F1D8FCDD0B8EA18B8EE52EC2 /* libPods-BetterRail.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E72986263FBDED995A5F7AE /* libPods-BetterRail.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -177,19 +177,15 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = BetterRail/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = BetterRail/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = BetterRail/main.m; sourceTree = "<group>"; };
-		301BE758935A381A571F5B21 /* libPods-BetterRail-BetterRailTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BetterRail-BetterRailTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		32B04630CC446F19212E357A /* Pods-BetterRail-BetterRailTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BetterRail-BetterRailTests.release.xcconfig"; path = "Target Support Files/Pods-BetterRail-BetterRailTests/Pods-BetterRail-BetterRailTests.release.xcconfig"; sourceTree = "<group>"; };
-		3982FFE6B0255867763A9EDF /* libPods-BetterRail-tvOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BetterRail-tvOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		3ECD546F3378FD459F4E82B0 /* Pods-BetterRail.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BetterRail.debug.xcconfig"; path = "Target Support Files/Pods-BetterRail/Pods-BetterRail.debug.xcconfig"; sourceTree = "<group>"; };
-		4D40708BE521DBE7DC6E68C8 /* Pods-BetterRail.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BetterRail.release.xcconfig"; path = "Target Support Files/Pods-BetterRail/Pods-BetterRail.release.xcconfig"; sourceTree = "<group>"; };
+		143D58B48146F74CD7165AA9 /* Pods-BetterRail.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BetterRail.release.xcconfig"; path = "Target Support Files/Pods-BetterRail/Pods-BetterRail.release.xcconfig"; sourceTree = "<group>"; };
+		48B0F8E2C1E46351B0DCA018 /* libPods-BetterRail-BetterRailTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BetterRail-BetterRailTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B118A8459B542A2BA8C9824 /* Heebo-Regular.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Heebo-Regular.otf"; path = "../assets/fonts/Heebo-Regular.otf"; sourceTree = "<group>"; };
-		60796641CDFE67F015A69D88 /* libPods-BetterRail-tvOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BetterRail-tvOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		62AD955938654791888FAB90 /* Heebo-Black.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Heebo-Black.otf"; path = "../assets/fonts/Heebo-Black.otf"; sourceTree = "<group>"; };
-		733F2AB28EB81C13C7E74C7E /* Pods-BetterRail-tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BetterRail-tvOS.release.xcconfig"; path = "Target Support Files/Pods-BetterRail-tvOS/Pods-BetterRail-tvOS.release.xcconfig"; sourceTree = "<group>"; };
+		6843AC57DE947CFFF5B149E8 /* Pods-BetterRail.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BetterRail.debug.xcconfig"; path = "Target Support Files/Pods-BetterRail/Pods-BetterRail.debug.xcconfig"; sourceTree = "<group>"; };
+		6E72986263FBDED995A5F7AE /* libPods-BetterRail.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BetterRail.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = BetterRail/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		8D3D2E99D3814D73E5353ACB /* Pods-BetterRail-BetterRailTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BetterRail-BetterRailTests.debug.xcconfig"; path = "Target Support Files/Pods-BetterRail-BetterRailTests/Pods-BetterRail-BetterRailTests.debug.xcconfig"; sourceTree = "<group>"; };
+		9AD76AB3D8A9CCF536567F1E /* Pods-BetterRail-BetterRailTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BetterRail-BetterRailTests.release.xcconfig"; path = "Target Support Files/Pods-BetterRail-BetterRailTests/Pods-BetterRail-BetterRailTests.release.xcconfig"; sourceTree = "<group>"; };
 		A047FB8FBCA54556AEDB349D /* Heebo-Light.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Heebo-Light.otf"; path = "../assets/fonts/Heebo-Light.otf"; sourceTree = "<group>"; };
-		A12CCB16C7D8CECEE169FA2F /* Pods-BetterRail-tvOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BetterRail-tvOSTests.release.xcconfig"; path = "Target Support Files/Pods-BetterRail-tvOSTests/Pods-BetterRail-tvOSTests.release.xcconfig"; sourceTree = "<group>"; };
 		A2759849ACE84A51AA1EC58E /* Heebo-Medium.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Heebo-Medium.otf"; path = "../assets/fonts/Heebo-Medium.otf"; sourceTree = "<group>"; };
 		A70BF4419AFA46D2B69352A3 /* Heebo-Thin.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Heebo-Thin.otf"; path = "../assets/fonts/Heebo-Thin.otf"; sourceTree = "<group>"; };
 		AF4431C692CA4F7D8DC013BE /* Heebo-ExtraBold.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Heebo-ExtraBold.otf"; path = "../assets/fonts/Heebo-ExtraBold.otf"; sourceTree = "<group>"; };
@@ -250,12 +246,10 @@
 		C1F61C242709F09B00CD3D44 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C1F7C89527627B5E002A417F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; name = Base; path = Base.lproj/Route.intentdefinition; sourceTree = "<group>"; };
 		C1F7C89927627BCC002A417F /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Route.strings; sourceTree = "<group>"; };
-		D7E787E39BC1C66D83758CC7 /* Pods-BetterRail-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BetterRail-tvOSTests.debug.xcconfig"; path = "Target Support Files/Pods-BetterRail-tvOSTests/Pods-BetterRail-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
+		D4783C31AABD7321A40B9182 /* Pods-BetterRail-BetterRailTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BetterRail-BetterRailTests.debug.xcconfig"; path = "Target Support Files/Pods-BetterRail-BetterRailTests/Pods-BetterRail-BetterRailTests.debug.xcconfig"; sourceTree = "<group>"; };
 		E3C07A94FCDB4698B4A058EB /* Heebo-Bold.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Heebo-Bold.otf"; path = "../assets/fonts/Heebo-Bold.otf"; sourceTree = "<group>"; };
-		EADEA568884090C1B008E181 /* libPods-BetterRail.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BetterRail.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
-		F802D5001BCA818988E3DC60 /* Pods-BetterRail-tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BetterRail-tvOS.debug.xcconfig"; path = "Target Support Files/Pods-BetterRail-tvOS/Pods-BetterRail-tvOS.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -263,7 +257,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E0E402AF856107EC82190244 /* libPods-BetterRail-BetterRailTests.a in Frameworks */,
+				DC6B055E41D9A2766AC583C5 /* libPods-BetterRail-BetterRailTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -271,8 +265,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A4B148D367B119F99EC2C2E5 /* libPods-BetterRail.a in Frameworks */,
 				C1F452EA281FC21F00EF53CB /* StoreKit.framework in Frameworks */,
+				F1D8FCDD0B8EA18B8EE52EC2 /* libPods-BetterRail.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -352,13 +346,11 @@
 				C1F452E9281FC21F00EF53CB /* StoreKit.framework */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				ED2971642150620600B7C4FE /* JavaScriptCore.framework */,
-				EADEA568884090C1B008E181 /* libPods-BetterRail.a */,
-				301BE758935A381A571F5B21 /* libPods-BetterRail-BetterRailTests.a */,
-				3982FFE6B0255867763A9EDF /* libPods-BetterRail-tvOS.a */,
-				60796641CDFE67F015A69D88 /* libPods-BetterRail-tvOSTests.a */,
 				C1A802612747AB4D00A3073D /* WidgetKit.framework */,
 				C1A802632747AB4D00A3073D /* SwiftUI.framework */,
 				C1B1213D276202130085C269 /* Intents.framework */,
+				6E72986263FBDED995A5F7AE /* libPods-BetterRail.a */,
+				48B0F8E2C1E46351B0DCA018 /* libPods-BetterRail-BetterRailTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -366,14 +358,10 @@
 		71ED362ACEA45F9F60DCD285 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				3ECD546F3378FD459F4E82B0 /* Pods-BetterRail.debug.xcconfig */,
-				4D40708BE521DBE7DC6E68C8 /* Pods-BetterRail.release.xcconfig */,
-				8D3D2E99D3814D73E5353ACB /* Pods-BetterRail-BetterRailTests.debug.xcconfig */,
-				32B04630CC446F19212E357A /* Pods-BetterRail-BetterRailTests.release.xcconfig */,
-				F802D5001BCA818988E3DC60 /* Pods-BetterRail-tvOS.debug.xcconfig */,
-				733F2AB28EB81C13C7E74C7E /* Pods-BetterRail-tvOS.release.xcconfig */,
-				D7E787E39BC1C66D83758CC7 /* Pods-BetterRail-tvOSTests.debug.xcconfig */,
-				A12CCB16C7D8CECEE169FA2F /* Pods-BetterRail-tvOSTests.release.xcconfig */,
+				6843AC57DE947CFFF5B149E8 /* Pods-BetterRail.debug.xcconfig */,
+				143D58B48146F74CD7165AA9 /* Pods-BetterRail.release.xcconfig */,
+				D4783C31AABD7321A40B9182 /* Pods-BetterRail-BetterRailTests.debug.xcconfig */,
+				9AD76AB3D8A9CCF536567F1E /* Pods-BetterRail-BetterRailTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -561,12 +549,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "BetterRailTests" */;
 			buildPhases = (
-				77DA01E931F34FC3A825D18E /* [CP] Check Pods Manifest.lock */,
+				75D44895A78C50A8A06C0C98 /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				821B8C042C64835F8AA180E7 /* [CP] Copy Pods Resources */,
-				D3CB9184E82E18A724828DAB /* [CP] Embed Pods Frameworks */,
+				3263BDC2CA9A32AB0D64FA72 /* [CP] Embed Pods Frameworks */,
+				7523253DD5C4AFAFBF07EC99 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -582,16 +570,16 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "BetterRail" */;
 			buildPhases = (
-				3D9C6EB91031CB0FB90EA6D7 /* [CP] Check Pods Manifest.lock */,
+				30DE6AF30AEA8256AD378B27 /* [CP] Check Pods Manifest.lock */,
 				FD10A7F022414F080027D42C /* Start Packager */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				105C9A386D6F7A14EE348052 /* [CP] Copy Pods Resources */,
-				8D72C93FFD500D16B43B6D15 /* [CP] Embed Pods Frameworks */,
 				C17FA4D42709EFBC003797D9 /* Embed Watch Content */,
 				C1A8026E2747AB4D00A3073D /* Embed App Extensions */,
+				774A412A999A4F63ED98703F /* [CP] Embed Pods Frameworks */,
+				15C04EB5D3B55BDD1DE4ACC0 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -826,7 +814,7 @@
 			shellPath = /bin/sh;
 			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh";
 		};
-		105C9A386D6F7A14EE348052 /* [CP] Copy Pods Resources */ = {
+		15C04EB5D3B55BDD1DE4ACC0 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -846,7 +834,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-BetterRail/Pods-BetterRail-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		3D9C6EB91031CB0FB90EA6D7 /* [CP] Check Pods Manifest.lock */ = {
+		30DE6AF30AEA8256AD378B27 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -868,7 +856,49 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		77DA01E931F34FC3A825D18E /* [CP] Check Pods Manifest.lock */ = {
+		3263BDC2CA9A32AB0D64FA72 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-BetterRail-BetterRailTests/Pods-BetterRail-BetterRailTests-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/Flipper-DoubleConversion/double-conversion.framework/double-conversion",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL-Universal/OpenSSL.framework/OpenSSL",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/double-conversion.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OpenSSL.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-BetterRail-BetterRailTests/Pods-BetterRail-BetterRailTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		7523253DD5C4AFAFBF07EC99 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-BetterRail-BetterRailTests/Pods-BetterRail-BetterRailTests-resources.sh",
+				"${PODS_CONFIGURATION_BUILD_DIR}/React-Core/AccessibilityResources.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/ToastHybrid/ToastHybrid.bundle",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/AccessibilityResources.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ToastHybrid.bundle",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-BetterRail-BetterRailTests/Pods-BetterRail-BetterRailTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		75D44895A78C50A8A06C0C98 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -890,27 +920,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		821B8C042C64835F8AA180E7 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-BetterRail-BetterRailTests/Pods-BetterRail-BetterRailTests-resources.sh",
-				"${PODS_CONFIGURATION_BUILD_DIR}/React-Core/AccessibilityResources.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/ToastHybrid/ToastHybrid.bundle",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/AccessibilityResources.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ToastHybrid.bundle",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-BetterRail-BetterRailTests/Pods-BetterRail-BetterRailTests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		8D72C93FFD500D16B43B6D15 /* [CP] Embed Pods Frameworks */ = {
+		774A412A999A4F63ED98703F /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -930,28 +940,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-BetterRail/Pods-BetterRail-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		D3CB9184E82E18A724828DAB /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-BetterRail-BetterRailTests/Pods-BetterRail-BetterRailTests-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/Flipper-DoubleConversion/double-conversion.framework/double-conversion",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL-Universal/OpenSSL.framework/OpenSSL",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/double-conversion.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OpenSSL.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-BetterRail-BetterRailTests/Pods-BetterRail-BetterRailTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		FD10A7F022414F080027D42C /* Start Packager */ = {
@@ -1114,7 +1102,7 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8D3D2E99D3814D73E5353ACB /* Pods-BetterRail-BetterRailTests.debug.xcconfig */;
+			baseConfigurationReference = D4783C31AABD7321A40B9182 /* Pods-BetterRail-BetterRailTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -1138,7 +1126,7 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 32B04630CC446F19212E357A /* Pods-BetterRail-BetterRailTests.release.xcconfig */;
+			baseConfigurationReference = 9AD76AB3D8A9CCF536567F1E /* Pods-BetterRail-BetterRailTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -1159,7 +1147,7 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3ECD546F3378FD459F4E82B0 /* Pods-BetterRail.debug.xcconfig */;
+			baseConfigurationReference = 6843AC57DE947CFFF5B149E8 /* Pods-BetterRail.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -1188,7 +1176,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4D40708BE521DBE7DC6E68C8 /* Pods-BetterRail.release.xcconfig */;
+			baseConfigurationReference = 143D58B48146F74CD7165AA9 /* Pods-BetterRail.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
