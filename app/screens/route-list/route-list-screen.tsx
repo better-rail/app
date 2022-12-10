@@ -108,7 +108,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
       {trains.status === "success" && trains.data.length > 0 && (
         <FlatList
           onRefresh={() => trains.refetch()}
-          refreshing={trains.isFetching}
+          refreshing={trains.isRefetching}
           renderItem={renderRouteCard}
           keyExtractor={(item) => item.trains[0]?.departureTime.toString()}
           data={trains.data}
