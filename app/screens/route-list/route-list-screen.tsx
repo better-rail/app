@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useRef } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { FlatList, View, ActivityIndicator, ViewStyle } from "react-native"
 import { RouteListScreenProps } from "../../navigators/main-navigator"

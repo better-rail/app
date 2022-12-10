@@ -43,6 +43,7 @@
   },
   "routeDetails": {
     "platform": "רציף",
+    "unknown": "לא ידוע",
     "trainNo": "רכבת מס'",
     "exchangeAt": "החלפה ב",
     "platformStay": "יש להשאר ברציף",

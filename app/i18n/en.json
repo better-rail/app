@@ -41,6 +41,7 @@
   },
   "routeDetails": {
     "platform": "Platform",
+    "unknown": "Unknown",
     "trainNo": "Train No.",
     "exchangeAt": "Exchange at ",
     "platformStay": "Stay at Platform",

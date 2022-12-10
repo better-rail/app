@@ -37,6 +37,7 @@
   },
   "routeDetails": {
     "platform": "رصيف",
+    "unknown": "مجهول",
     "trainNo": "قطار رقم",
     "exchangeAt": "تبديل في ",
     "platformStay": "الرجاء الانتظار في الرصيف",

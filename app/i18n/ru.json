@@ -39,6 +39,7 @@
   },
   "routeDetails": {
     "platform": "Платформа",
+    "unknown": "Неизвестный",
     "trainNo": "Поезд номер",
     "exchangeAt": "Пересадка на ",
     "platformStay": "Остаться на платформе",
