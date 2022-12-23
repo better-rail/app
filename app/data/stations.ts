@@ -125,6 +125,7 @@ const stations = [
     english: "Nahariya",
     russian: "Нагария",
     arabic: "نهاريا",
+    image: require("../../assets/station-images/nahariya.jpg"),
   },
   {
     id: "6300",
