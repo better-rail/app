@@ -107,7 +107,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         />
       </SharedElement>
 
-      {!isInternetReachable && (!trains.data || !trains.isLoading) && <NoInternetConnection />}
+      {!isInternetReachable && !trains.data && <NoInternetConnection />}
 
       {trains.status === "loading" && <ActivityIndicator size="large" style={{ marginTop: spacing[6] }} color="grey" />}
 
