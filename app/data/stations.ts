@@ -345,6 +345,7 @@ const stations = [
     english: "Pa'ate Modi'in",
     russian: "Патей Модиин",
     arabic: "بأتي موديعين",
+    image: require("../../assets/station-images/paate-modiin.jpg"),
   },
   {
     id: "400",
