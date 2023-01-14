@@ -30,6 +30,7 @@
     "@react-native-async-storage/async-storage": "1.15.5",
     "@react-native-community/datetimepicker": "^3.4.3",
     "@react-native-community/masked-view": "^0.1.10",
+    "@react-native-community/netinfo": "^9.3.7",
     "@react-native-segmented-control/segmented-control": "^2.3.0",
     "@react-navigation/native": "5.9.8",
     "@react-navigation/stack": "5.14.9",

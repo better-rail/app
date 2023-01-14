@@ -11,6 +11,8 @@ import { RouteListModal } from "./components/route-list-modal"
 import { SharedElement } from "react-navigation-shared-element"
 import { useQuery } from "react-query"
 import { NoTrainsFoundMessage } from "./components/no-trains-found-msg"
+import { useNetInfo } from "@react-native-community/netinfo"
+import { NoInternetConnection } from "./components/no-internet-connection"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -21,6 +23,8 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   const [isModalVisible, setIsModalVisible] = useState(false)
   const { trainRoutes, routePlan } = useStores()
   const { originId, destinationId, time, enableQuery } = route.params
+
+  const { isInternetReachable } = useNetInfo()
 
   const trains = useQuery(
     ["origin", originId, "destination", destinationId, "time", routePlan.date.getDate()],
@@ -102,6 +106,8 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
         />
       </SharedElement>
+
+      {!isInternetReachable && !trains.data && <NoInternetConnection />}
 
       {trains.status === "loading" && <ActivityIndicator size="large" style={{ marginTop: spacing[6] }} color="grey" />}
 
