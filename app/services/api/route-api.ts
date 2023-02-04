@@ -2,7 +2,7 @@ import { ApiResponse } from "apisauce"
 import { Api } from "./api"
 import { stationsObject, stationLocale } from "../../data/stations"
 import { RailApiGetRoutesResult } from "./api.types"
-import { parseApiDate } from "../../utils/helpers/date-helpers"
+import { isOneHourDifference, parseApiDate, parseRouteDuration } from "../../utils/helpers/date-helpers"
 import { RouteItem } from "."
 
 export class RouteApi {
@@ -34,7 +34,7 @@ export class RouteApi {
 
       const crowdDetails = responseData.Omasim
 
-      const formattedRoutes = responseData.Routes.map((route) => {
+      const formattedRoutes = responseData.Routes.map((route, index) => {
         const { Train, IsExchange, EstTime } = route
 
         const trains = Train.map((train) => {
@@ -93,9 +93,36 @@ export class RouteApi {
         }
       })
 
-      return formattedRoutes
+      const routesWithWarning = formattedRoutes.map((route) => {
+        const isMuchLonger = isRouteIsMuchLongerThanOtherRoutes(route, formattedRoutes)
+        return Object.assign({}, route, { isMuchLonger })
+      })
+
+      return routesWithWarning
     } catch (err) {
       console.error(err)
     }
   }
+}
+
+function isRouteIsMuchLongerThanOtherRoutes(route: RouteItem, otherRoutes: RouteItem[]): boolean {
+  const routeDuration = parseRouteDuration(route.estTime)
+
+  // TODO: Iterate only on the routes that are 1 hour around the route
+  // currently we iterating on all the routes which is unecessary
+
+  // iterate on routes that are before and after 1 hour the current route,
+  // and check if they're shorther by 30 minutes or more than the current route.
+  const longRoutesAround = otherRoutes.filter((otherRoute) => {
+    const otherRouteDuration = parseRouteDuration(otherRoute.estTime)
+    const isBefore = otherRoute.trains[0].departureTime < route.trains[0].departureTime
+    const isAfter = otherRoute.trains[0].departureTime > route.trains[0].departureTime
+    const isAround = isBefore || isAfter
+    const isMuchLonger = routeDuration - otherRouteDuration >= 30 * 60 * 1000
+
+    return isAround && isMuchLonger
+  })
+
+  if (longRoutesAround.length > 0) return true
+  return false
 }

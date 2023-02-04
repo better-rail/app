@@ -24,3 +24,20 @@ export function isWeekend(date: Date) {
   const dayOfWeek = date.getDay()
   return dayOfWeek === 5 || dayOfWeek === 6 // 5 = Friday, 6 = Saturday
 }
+
+export function isOneHourDifference(date1: Date, date2: Date) {
+  const difference = Math.abs(date1.getTime() - date2.getTime())
+  return difference <= 3600000
+}
+
+/**
+ * Parses a route duration string formatted like '00:42:00' to milliseconds
+ * @param duration A string formatted like '00:42:00'
+ * @returns The duration in milliseconds
+ */
+export function parseRouteDuration(estTime: string) {
+  const estTimeParts = estTime.split(":") // The estTime value is formatted like '00:42:00'
+  const [hours, minutes] = estTimeParts.map((value) => parseInt(value)) // Grab the hour & minutes values
+  const durationInMilliseconds = (hours * 60 * 60 + minutes * 60) * 1000 //  Convert to milliseconds
+  return durationInMilliseconds
+}

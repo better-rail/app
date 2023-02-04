@@ -36,6 +36,7 @@ export type RouteItem = {
   isExchange: boolean
   estTime: string
   departureTime: number
+  isMuchLonger: boolean
   trains: {
     originStationId: string
     originStationName: string
