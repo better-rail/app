@@ -1,7 +1,7 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
-import { View, ViewStyle } from "react-native"
-import { RouteDetailsHeader, Screen } from "../../components"
+import { TextStyle, View, ViewStyle } from "react-native"
+import { RouteDetailsHeader, Screen, Text } from "../../components"
 import { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import { color, spacing } from "../../theme"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -41,6 +41,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
         contentContainerStyle={{ paddingTop: spacing[4], paddingBottom: spacing[6] + insets.bottom }}
         showsVerticalScrollIndicator={false}
       >
+        {routeItem.isMuchLonger && <LongRouteWarning />}
         {routeItem.trains.map((train, index) => {
           return (
             <View key={train.trainNumber} style={{ backgroundColor: color.background }}>
@@ -95,4 +96,30 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
 
 const RouteLine = ({ height = 10 }: { height?: number }) => (
   <View style={{ start: "35.44%", width: 4, height, backgroundColor: color.separator, zIndex: 0 }} />
+)
+
+const LONG_ROUTE_WARNING_WRAPPER: ViewStyle = {
+  justifyContent: "center",
+  alignItems: "center",
+  marginBottom: spacing[4],
+  backgroundColor: color.secondary,
+  width: "100%",
+}
+
+const LONG_ROUTE_WARNING_TITLE: TextStyle = {
+  fontSize: 18,
+  fontWeight: "bold",
+}
+const LONG_ROUTE_WARNING_TEXT: TextStyle = {
+  paddingHorizontal: spacing[5],
+  marginBottom: spacing[3],
+  textAlign: "center",
+}
+
+const LongRouteWarning = () => (
+  <View style={LONG_ROUTE_WARNING_WRAPPER}>
+    <Text style={{ fontSize: 48 }}>🕰</Text>
+    <Text style={LONG_ROUTE_WARNING_TITLE}>מסלול ארוך מהרגיל</Text>
+    <Text style={LONG_ROUTE_WARNING_TEXT}>קיימים מסלולי נסיעה קצרים יותר סביב שעת היציאה הנבחרת</Text>
+  </View>
 )

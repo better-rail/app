@@ -1,3 +1,5 @@
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
 import React, { useMemo } from "react"
 import { TextStyle, View, ViewStyle, Dimensions, Platform } from "react-native"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
@@ -52,12 +54,18 @@ const DURATION_TEXT: TextStyle = {
   fontSize: 16,
 }
 
+const DURATION_WARNING_TEXT: TextStyle = {
+  fontWeight: "bold",
+  color: "#d35400",
+}
+
 // #endregion
 
 export interface RouteCardProps extends TouchableScaleProps {
   departureTime: number
   arrivalTime: number
   estTime: string
+  isMuchLonger: boolean
   stops: number
   delay: number
   bounceable?: boolean
@@ -68,7 +76,7 @@ export interface RouteCardProps extends TouchableScaleProps {
  * Describe your component here
  */
 export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
-  const { departureTime, arrivalTime, estTime, stops, delay, onPress = null, bounceable = true, style } = props
+  const { departureTime, arrivalTime, estTime, stops, delay, isMuchLonger, onPress = null, bounceable = true, style } = props
 
   // Format times
   const [formattedDepatureTime, formattedArrivalTime] = useMemo(() => {
@@ -107,7 +115,7 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
 
       <View style={{ marginHorizontal: spacing[1] }}>
         <View style={{ alignItems: "center" }}>
-          <Text style={DURATION_TEXT} maxFontSizeMultiplier={1}>
+          <Text style={[DURATION_TEXT, isMuchLonger && DURATION_WARNING_TEXT]} maxFontSizeMultiplier={1}>
             {duration}
           </Text>
 
