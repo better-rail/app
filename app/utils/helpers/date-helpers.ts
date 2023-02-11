@@ -1,4 +1,4 @@
-import { parse } from "date-fns"
+import { isWithinInterval, parse } from "date-fns"
 
 /**
  * Parses a string date as formatted in the Israel Rail API.
@@ -25,9 +25,13 @@ export function isWeekend(date: Date) {
   return dayOfWeek === 5 || dayOfWeek === 6 // 5 = Friday, 6 = Saturday
 }
 
-export function isOneHourDifference(date1: Date, date2: Date) {
-  const difference = Math.abs(date1.getTime() - date2.getTime())
-  return difference <= 3600000
+export function isOneHourDifference(date1: number, date2: number) {
+  const withinRange = isWithinInterval(date2, {
+    start: date1 - 59 * 60 * 1000,
+    end: date1 + 59 * 60 * 1000,
+  })
+
+  return withinRange
 }
 
 /**
