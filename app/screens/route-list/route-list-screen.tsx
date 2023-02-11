@@ -72,6 +72,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     return (
       <RouteCard
         estTime={item.estTime}
+        isMuchShorter={item.isMuchShorter}
         isMuchLonger={item.isMuchLonger}
         stops={stops}
         departureTime={departureTime}

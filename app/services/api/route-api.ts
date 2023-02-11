@@ -2,7 +2,7 @@ import { ApiResponse } from "apisauce"
 import { Api } from "./api"
 import { stationsObject, stationLocale } from "../../data/stations"
 import { RailApiGetRoutesResult } from "./api.types"
-import { isOneHourDifference, parseApiDate, parseRouteDuration } from "../../utils/helpers/date-helpers"
+import { parseApiDate, parseRouteDuration } from "../../utils/helpers/date-helpers"
 import { RouteItem } from "."
 
 export class RouteApi {
@@ -34,7 +34,7 @@ export class RouteApi {
 
       const crowdDetails = responseData.Omasim
 
-      const formattedRoutes = responseData.Routes.map((route, index) => {
+      const formattedRoutes = responseData.Routes.map((route) => {
         const { Train, IsExchange, EstTime } = route
 
         const trains = Train.map((train) => {
@@ -94,8 +94,9 @@ export class RouteApi {
       })
 
       const routesWithWarning = formattedRoutes.map((route) => {
-        const isMuchLonger = isRouteIsMuchLongerThanOtherRoutes(route, formattedRoutes)
-        return Object.assign({}, route, { isMuchLonger })
+        const isMuchLonger = isRouteIsMuchLongerThanOtherRoutes(route as RouteItem, formattedRoutes as RouteItem[])
+        const isMuchShorter = isRouteMuchShorterThanOtherRoutes(route as RouteItem, formattedRoutes as RouteItem[])
+        return Object.assign({}, route, { isMuchShorter, isMuchLonger })
       })
 
       return routesWithWarning
@@ -124,5 +125,22 @@ function isRouteIsMuchLongerThanOtherRoutes(route: RouteItem, otherRoutes: Route
   })
 
   if (longRoutesAround.length > 0) return true
+  return false
+}
+
+function isRouteMuchShorterThanOtherRoutes(route: RouteItem, otherRoutes: RouteItem[]): boolean {
+  const routeDuration = parseRouteDuration(route.estTime)
+
+  const shortRoutesAround = otherRoutes.filter((otherRoute) => {
+    const otherRouteDuration = parseRouteDuration(otherRoute.estTime)
+    const isBefore = otherRoute.trains[0].departureTime < route.trains[0].departureTime
+    const isAfter = otherRoute.trains[0].departureTime > route.trains[0].departureTime
+    const isAround = isBefore || isAfter
+    const isMuchShorter = otherRouteDuration - routeDuration >= 30 * 60 * 1000
+
+    return isAround && isMuchShorter
+  })
+
+  if (shortRoutesAround.length > 0) return true
   return false
 }

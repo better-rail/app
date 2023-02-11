@@ -65,10 +65,10 @@ export interface RouteCardProps extends TouchableScaleProps {
   departureTime: number
   arrivalTime: number
   estTime: string
+  isMuchShorter: boolean
   isMuchLonger: boolean
   stops: number
   delay: number
-  bounceable?: boolean
   style?: ViewStyle
 }
 
@@ -76,7 +76,7 @@ export interface RouteCardProps extends TouchableScaleProps {
  * Describe your component here
  */
 export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
-  const { departureTime, arrivalTime, estTime, stops, delay, isMuchLonger, onPress = null, bounceable = true, style } = props
+  const { departureTime, arrivalTime, estTime, stops, delay, isMuchShorter, isMuchLonger, onPress = null, style } = props
 
   // Format times
   const [formattedDepatureTime, formattedArrivalTime] = useMemo(() => {
@@ -105,7 +105,7 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
   }, [stops])
 
   return (
-    <TouchableScale onPress={onPress} activeScale={bounceable ? 0.95 : 1} friction={9} style={[CONTAINER, style]}>
+    <TouchableScale onPress={onPress} activeScale={0.95} friction={9} style={[CONTAINER, style]}>
       <View style={{ marginEnd: spacing[3] }}>
         <Text style={TIME_TYPE_TEXT} tx="routes.departure" />
         <Text style={TIME_TEXT}>{formattedDepatureTime}</Text>
@@ -115,11 +115,15 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
 
       <View style={{ marginHorizontal: spacing[1] }}>
         <View style={{ alignItems: "center" }}>
-          <Text style={[DURATION_TEXT, isMuchLonger && DURATION_WARNING_TEXT]} maxFontSizeMultiplier={1}>
+          <Text style={DURATION_TEXT} maxFontSizeMultiplier={1}>
             {duration}
           </Text>
 
-          {delay > 0 ? (
+          {isMuchShorter && !isMuchLonger ? (
+            <View style={{ marginTop: 4, paddingVertical: 1, paddingHorizontal: 4, backgroundColor: "#e4ffdd", borderRadius: 4 }}>
+              <Text style={{ fontSize: 14, color: "#38aa23" }}>מסלול קצר</Text>
+            </View>
+          ) : delay > 0 ? (
             <DelayBadge delay={delay} />
           ) : (
             <Text style={{ fontSize: 14 }} maxFontSizeMultiplier={1}>

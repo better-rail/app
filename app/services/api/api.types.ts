@@ -37,6 +37,7 @@ export type RouteItem = {
   estTime: string
   departureTime: number
   isMuchLonger: boolean
+  isMuchShorter: boolean
   trains: {
     originStationId: string
     originStationName: string

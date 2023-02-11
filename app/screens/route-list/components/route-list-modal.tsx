@@ -1,6 +1,6 @@
 import React from "react"
 import { ViewStyle, TextStyle, Platform } from "react-native"
-import Modal, { ModalProps } from "react-native-modal"
+import Modal from "react-native-modal"
 import { Button, Text } from "../../../components"
 import { format } from "date-fns"
 import { dateFnsLocalization, translate } from "../../../i18n"
@@ -43,7 +43,8 @@ const MODAL_BUTTON: ViewStyle = {
   minWidth: "80%",
 }
 
-export interface RouteListModalProps extends ModalProps {
+export interface RouteListModalProps {
+  isVisible: boolean
   routesDate: number
   onOk: () => void
 }
