@@ -15,4 +15,8 @@ export const palette = {
   lightGrey: "#939AA4",
   lighterGrey: "#e0e1e6",
   angry: "#dd3333",
+  greenLightBg: "#e4ffdd",
+  greenLightText: "#219f07",
+  greenDarkBg: "#475a42",
+  greenDarkText: "#8fdc7b",
 }

@@ -59,6 +59,19 @@ const DURATION_WARNING_TEXT: TextStyle = {
   color: "#d35400",
 }
 
+const SHORT_ROUTE_BADGE: ViewStyle = {
+  marginTop: 4,
+  paddingVertical: 2,
+  paddingHorizontal: 6,
+  backgroundColor: color.greenBackground,
+  borderRadius: 6,
+}
+
+const SHORT_ROUTE_BADGE_TEXT: TextStyle = {
+  fontSize: 14,
+  color: color.greenText,
+}
+
 // #endregion
 
 export interface RouteCardProps extends TouchableScaleProps {
@@ -120,8 +133,8 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
           </Text>
 
           {isMuchShorter && !isMuchLonger ? (
-            <View style={{ marginTop: 4, paddingVertical: 1, paddingHorizontal: 4, backgroundColor: "#e4ffdd", borderRadius: 4 }}>
-              <Text style={{ fontSize: 14, color: "#38aa23" }}>מסלול קצר</Text>
+            <View style={SHORT_ROUTE_BADGE}>
+              <Text style={SHORT_ROUTE_BADGE_TEXT} tx="routes.shortRoute" />
             </View>
           ) : delay > 0 ? (
             <DelayBadge delay={delay} />
