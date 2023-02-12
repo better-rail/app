@@ -8,7 +8,7 @@ import { color, spacing, typography, fontScale } from "../../theme"
 import { primaryFontIOS } from "../../theme/typography"
 import { Text } from "../"
 import { format, intervalToDuration, formatDuration } from "date-fns"
-import { dateDelimiter, dateFnsLocalization, translate } from "../../i18n"
+import { dateDelimiter, dateFnsLocalization, translate, userLocale } from "../../i18n"
 import { DelayBadge } from "./delay-badge"
 
 // #region styles
@@ -53,16 +53,10 @@ const DURATION_TEXT: TextStyle = {
   marginBottom: primaryFontIOS === "System" ? 2 : -2,
   fontSize: 16,
 }
-
-const DURATION_WARNING_TEXT: TextStyle = {
-  fontWeight: "bold",
-  color: "#d35400",
-}
-
 const SHORT_ROUTE_BADGE: ViewStyle = {
-  marginTop: 4,
-  paddingVertical: 2,
-  paddingHorizontal: 6,
+  marginTop: userLocale === "he" ? 4 : 2,
+  paddingVertical: 1,
+  paddingHorizontal: 8,
   backgroundColor: color.greenBackground,
   borderRadius: 6,
 }
