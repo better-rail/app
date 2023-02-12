@@ -1,3 +1,5 @@
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
 import React, { useMemo } from "react"
 import { TextStyle, View, ViewStyle, Dimensions, Platform } from "react-native"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
@@ -6,7 +8,7 @@ import { color, spacing, typography, fontScale } from "../../theme"
 import { primaryFontIOS } from "../../theme/typography"
 import { Text } from "../"
 import { format, intervalToDuration, formatDuration } from "date-fns"
-import { dateDelimiter, dateFnsLocalization, translate } from "../../i18n"
+import { dateDelimiter, dateFnsLocalization, translate, userLocale } from "../../i18n"
 import { DelayBadge } from "./delay-badge"
 
 // #region styles
@@ -51,6 +53,18 @@ const DURATION_TEXT: TextStyle = {
   marginBottom: primaryFontIOS === "System" ? 2 : -2,
   fontSize: 16,
 }
+const SHORT_ROUTE_BADGE: ViewStyle = {
+  marginTop: userLocale === "he" ? 4 : 2,
+  paddingVertical: 1,
+  paddingHorizontal: 8,
+  backgroundColor: color.greenBackground,
+  borderRadius: 6,
+}
+
+const SHORT_ROUTE_BADGE_TEXT: TextStyle = {
+  fontSize: 14,
+  color: color.greenText,
+}
 
 // #endregion
 
@@ -58,9 +72,10 @@ export interface RouteCardProps extends TouchableScaleProps {
   departureTime: number
   arrivalTime: number
   estTime: string
+  isMuchShorter: boolean
+  isMuchLonger: boolean
   stops: number
   delay: number
-  bounceable?: boolean
   style?: ViewStyle
 }
 
@@ -68,7 +83,7 @@ export interface RouteCardProps extends TouchableScaleProps {
  * Describe your component here
  */
 export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
-  const { departureTime, arrivalTime, estTime, stops, delay, onPress = null, bounceable = true, style } = props
+  const { departureTime, arrivalTime, estTime, stops, delay, isMuchShorter, isMuchLonger, onPress = null, style } = props
 
   // Format times
   const [formattedDepatureTime, formattedArrivalTime] = useMemo(() => {
@@ -97,7 +112,7 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
   }, [stops])
 
   return (
-    <TouchableScale onPress={onPress} activeScale={bounceable ? 0.95 : 1} friction={9} style={[CONTAINER, style]}>
+    <TouchableScale onPress={onPress} activeScale={0.95} friction={9} style={[CONTAINER, style]}>
       <View style={{ marginEnd: spacing[3] }}>
         <Text style={TIME_TYPE_TEXT} tx="routes.departure" />
         <Text style={TIME_TEXT}>{formattedDepatureTime}</Text>
@@ -111,7 +126,11 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
             {duration}
           </Text>
 
-          {delay > 0 ? (
+          {isMuchShorter && !isMuchLonger ? (
+            <View style={SHORT_ROUTE_BADGE}>
+              <Text style={SHORT_ROUTE_BADGE_TEXT} tx="routes.shortRoute" />
+            </View>
+          ) : delay > 0 ? (
             <DelayBadge delay={delay} />
           ) : (
             <Text style={{ fontSize: 14 }} maxFontSizeMultiplier={1}>

@@ -79,7 +79,9 @@
     "changeLabel": "تغيير اسم المسار",
     "renamePromptTitle": "اسم الطريق",
     "renamePromptPlaceholder": "أدخل اسمًا للطريق ...",
-    "delete": "إزالة من المفضلة"
+    "delete": "إزالة من المفضلة",
+    "updates": "تحديثات من قطار اسرائيل",
+    "shortRoute": "طريق قصير"
   },
   "profileCodes": {
     "passengerProfile": "الملف الشخصي للركاب",

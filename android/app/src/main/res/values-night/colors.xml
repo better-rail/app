@@ -16,6 +16,9 @@
   <color name="red">#FF5252</color>
   <color name="blue">#0c83ff</color>
   <color name="green">#4daf50</color>
+  <color name="greenText">#8fdc7b</color>
+  <color name="greenBg">#475a42</color>
+  <color name="yellow">#f1c40f</color>
   <color name="pinky">#6F68DF</color>
   <color name="lightPinky">#464552</color>
   <color name="lightGrey">#3a3a3c</color>

@@ -2,7 +2,7 @@ import { ApiResponse } from "apisauce"
 import { Api } from "./api"
 import { stationsObject, stationLocale } from "../../data/stations"
 import { RailApiGetRoutesResult } from "./api.types"
-import { parseApiDate } from "../../utils/helpers/date-helpers"
+import { isOneHourDifference, parseApiDate, parseRouteDuration } from "../../utils/helpers/date-helpers"
 import { RouteItem } from "."
 
 export class RouteApi {
@@ -93,9 +93,52 @@ export class RouteApi {
         }
       })
 
-      return formattedRoutes
+      const routesWithWarning = formattedRoutes.map((route) => {
+        const isMuchLonger = isRouteIsMuchLongerThanOtherRoutes(route as RouteItem, formattedRoutes as RouteItem[])
+        const isMuchShorter = isRouteMuchShorterThanOtherRoutes(route as RouteItem, formattedRoutes as RouteItem[])
+        return Object.assign({}, route, { isMuchShorter, isMuchLonger })
+      })
+
+      return routesWithWarning
     } catch (err) {
       console.error(err)
     }
   }
+}
+
+function isRouteIsMuchLongerThanOtherRoutes(route: RouteItem, otherRoutes: RouteItem[]): boolean {
+  const routeDuration = parseRouteDuration(route.estTime)
+
+  // TODO: Iterate only on the routes that are 1 hour around the route
+  // currently we iterating on all the routes which is unecessary
+
+  // iterate on routes that are before and after 1 hour the current route,
+  // and check if they're shorther by 30 minutes or more than the current route.
+  const longRoutesAround = otherRoutes.filter((otherRoute) => {
+    const withinRange = isOneHourDifference(route.trains[0].departureTime, otherRoute.trains[0].departureTime)
+    if (!withinRange) return false
+
+    // check if the other route is much longer than the current route
+    const otherRouteDuration = parseRouteDuration(otherRoute.estTime)
+    return routeDuration - otherRouteDuration >= 30 * 60 * 1000
+  })
+
+  if (longRoutesAround.length > 0) return true
+  return false
+}
+
+function isRouteMuchShorterThanOtherRoutes(route: RouteItem, otherRoutes: RouteItem[]): boolean {
+  const routeDuration = parseRouteDuration(route.estTime)
+
+  const shortRoutesAround = otherRoutes.filter((otherRoute) => {
+    const withinRange = isOneHourDifference(route.trains[0].departureTime, otherRoute.trains[0].departureTime)
+    if (!withinRange) return false
+
+    // check if the other route is much shorter than the current route
+    const otherRouteDuration = parseRouteDuration(otherRoute.estTime)
+    return otherRouteDuration - routeDuration >= 30 * 60 * 1000
+  })
+
+  if (shortRoutesAround.length > 0) return true
+  return false
 }
