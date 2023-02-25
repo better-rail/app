@@ -139,12 +139,12 @@ export const color = {
 
   greenText: Platform.select({
     ios: DynamicColorIOS({ light: palette.greenLightText, dark: palette.greenDarkText }),
-    android: PlatformColor("@color/green"),
+    android: PlatformColor("@color/greenText"),
   }),
 
   greenBackground: Platform.select({
     ios: DynamicColorIOS({ light: palette.greenLightBg, dark: palette.greenDarkBg }),
-    android: PlatformColor("@color/green"),
+    android: PlatformColor("@color/greenBg"),
   }),
 
   /**

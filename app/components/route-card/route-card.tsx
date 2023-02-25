@@ -54,7 +54,7 @@ const DURATION_TEXT: TextStyle = {
   fontSize: 16,
 }
 const SHORT_ROUTE_BADGE: ViewStyle = {
-  marginTop: userLocale === "he" ? 4 : 2,
+  marginTop: Platform.OS === "ios" ? (userLocale === "he" ? 4 : 2) : 6,
   paddingVertical: 1,
   paddingHorizontal: 8,
   backgroundColor: color.greenBackground,
