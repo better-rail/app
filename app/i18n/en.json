@@ -50,7 +50,9 @@
     "platformExchange": "Switch to Platform",
     "waitingTime": "Wait around",
     "minutes": "min",
-    "lastStop": "Last Stop"
+    "lastStop": "Last Stop",
+    "routeWarning": "Route Length Warning",
+    "routeWarningText": "There are shorter train routes around the departure time."
   },
   "settings": {
     "title": "Settings",

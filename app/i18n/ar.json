@@ -44,7 +44,9 @@
     "platformStay": "الرجاء الانتظار في الرصيف",
     "platformExchange": "الرجاء الانتقال الى رصيف",
     "waitingTime": "مدة الانتظار",
-    "lastStop": "المحطة الأخيرة"
+    "lastStop": "المحطة الأخيرة",
+    "routeWarning": "تحذير طول الطريق",
+    "routeWarningText": "هناك طرق قطار أقصر حول وقت المغادرة."
   },
   "settings": {
     "title": "اعدادت",
