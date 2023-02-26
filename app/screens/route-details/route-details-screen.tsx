@@ -120,7 +120,7 @@ const LONG_ROUTE_WARNING_TEXT: TextStyle = {
 const LongRouteWarning = () => (
   <View style={LONG_ROUTE_WARNING_WRAPPER}>
     <Text style={{ fontSize: 48 }}>🕰</Text>
-    <Text style={LONG_ROUTE_WARNING_TITLE}>רכבת מאספת</Text>
-    <Text style={LONG_ROUTE_WARNING_TEXT}>קיימים מסלולי נסיעה קצרים יותר סביב שעת היציאה הנבחרת</Text>
+    <Text style={LONG_ROUTE_WARNING_TITLE} tx="routeDetails.routeWarning" />
+    <Text style={LONG_ROUTE_WARNING_TEXT} tx="routeDetails.routeWarningText" />
   </View>
 )

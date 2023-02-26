@@ -51,7 +51,7 @@
     "waitingTime": "Wait around",
     "minutes": "min",
     "lastStop": "Last Stop",
-    "routeWarning": "Route Length Warning",
+    "routeWarning": "Long Route Warning",
     "routeWarningText": "There are shorter train routes around the departure time."
   },
   "settings": {
