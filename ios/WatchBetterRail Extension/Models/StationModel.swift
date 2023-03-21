@@ -60,8 +60,8 @@ func getStationById(_ id: String) -> Station? {
   return nil
 }
   
-func getStationNameById(_ id: String) -> String {
-  if let station = getStationById(id) {
+func getStationNameById(_ id: Int) -> String {
+  if let station = getStationById(String(id)) {
     return station.name
   }
       

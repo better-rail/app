@@ -18,36 +18,27 @@ struct PascalCaseKey: CodingKey {
 
 // MARK: - RouteResult
 struct RouteResult: Decodable {
-    let messageType: Int
-    let message: String?
-    let data: DataClass
+    let result: DataClass
 }
 
 // MARK: - DataClass
 struct DataClass: Decodable {
-  let error: String?
-  let routes: [Route]
+  let travels: [Route]
 }
-
-// MARK: - Station
-//struct Station: Decodable {
-//    let StationNumber: Int
-//    let OmesPercent: Double
-//    let Time: String
-//    let Platform: Int
-//}
-
 
 // MARK: - Route
 struct Route: Decodable {
-    let train: [Train]
     let isExchange: Bool
-    let estTime: String
+    let duration: String
+    let departureTime: Int
+    let arrivalTime: Int
+    let trains: [Train]
+
 }
 
 // MARK: - Train
 struct Train: Decodable, Identifiable {
-  var id: String { trainno }
+  var id: String { trainNumber }
 
   var originStationName: String { getStationNameById(orignStation) }
   var destinationStationName: String { getStationNameById(destinationStation) }
@@ -56,7 +47,7 @@ struct Train: Decodable, Identifiable {
   var stationImage: String? { getStationById(orignStation)?.image }
   var destinationStationImage: String? { getStationById(destinationStation)?.image }
 
-  let trainno, orignStation, destinationStation, arrivalTime, departureTime: String
+  let trainNumber, orignStation, destinationStation, arrivalTime, departureTime: Int
   let stopStations: [StopStation]
   let lineNumber, route: String
   let midnight, handicap, directTrain: Bool
@@ -70,7 +61,7 @@ struct StopStation: Decodable, Identifiable {
   var id: String { stationId }
   var stationName: String { getStationNameById(stationId)}
   var formattedTime: String { formatRouteHour(arrivalTime) }
-  let stationId, arrivalTime, departureTime, platform: String
+  let stationId, arrivalTime, departureTime, platform: Int
 }
 
 struct RouteModel {
@@ -82,7 +73,7 @@ struct RouteModel {
     guard let (data, _) = try? await URLSession.shared.data(from: url) else { return [] }
     
     let decoder = JSONDecoder()
-    decoder.keyDecodingStrategy = .custom { keys in PascalCaseKey(stringValue: keys.last!.stringValue) }
+//    decoder.keyDecodingStrategy = .custom { keys in PascalCaseKey(stringValue: keys.last!.stringValue) }
     guard let route = try? decoder.decode(RouteResult.self, from: data) else { return [] }
     
     return route.data.routes
