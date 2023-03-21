@@ -8,31 +8,31 @@ import { RouteItem } from "../../services/api"
 export const trainStop = {
   arrivalTime: types.number,
   departureTime: types.number,
-  stationId: types.string,
+  stationId: types.number,
   stationName: types.string,
-  platform: types.string,
+  platform: types.number,
 }
 
 export const trainListSchema = {
-  delay: types.number,
+  // delay: types.number,
   arrivalTime: types.number,
   departureTime: types.number,
-  originStationId: types.string,
+  originStationId: types.number,
   originStationName: types.string,
-  destinationStationId: types.string,
+  destinationStationId: types.number,
   destinationStationName: types.string,
-  originPlatform: types.string,
-  destinationPlatform: types.string,
-  trainNumber: types.string,
+  originPlatform: types.number,
+  destinationPlatform: types.number,
+  trainNumber: types.number,
   stopStations: types.array(types.model(trainStop)),
 }
 
 export const trainRouteSchema = {
   departureTime: types.number,
   isExchange: types.boolean,
-  estTime: types.string,
+  duration: types.string,
   trains: types.array(types.model(trainListSchema)),
-  delay: types.number,
+  // delay: types.number,
 }
 
 export const trainRoutesModel = types

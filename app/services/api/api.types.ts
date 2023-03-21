@@ -46,33 +46,27 @@ export type RailApiGetRoutesResult = {
 }
 
 export type RouteItem = {
-  delay: number
+  // delay: number
   isExchange: boolean
-  estTime: string
+  duration: string
   departureTime: number
+  arrivalTime: number
   isMuchLonger: boolean
   isMuchShorter: boolean
   trains: {
-    originStationId: string
+    originStationId: number
     originStationName: string
-    destinationStationId: string
+    destinationStationId: number
     destinationStationName: string
     arrivalTime: number
     departureTime: number
-    originPlatform: string
-    destinationPlatform: string
-    trainNumber: string
-    stopStations: { arrivalTime: number; departureTime: number; stationId: string; stationName: string; platform: string }[]
+    originPlatform: number
+    destinationPlatform: number
+    trainNumber: number
+    stopStations: { arrivalTime: number; departureTime: number; stationId: number; stationName: string; platform: number }[]
     lastStop: string
-    delay: number
+    // delay: number
   }[]
-}
-
-export type RequestBarodeParams = {
-  userId: string
-  phoneNumber: string
-  token: string
-  route: RouteItem
 }
 
 export interface Title {

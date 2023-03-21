@@ -2,7 +2,7 @@ import { ApiResponse } from "apisauce"
 import { Api } from "./api"
 import { stationsObject, stationLocale } from "../../data/stations"
 import { RailApiGetRoutesResult } from "./api.types"
-import { isOneHourDifference, parseApiDate, parseRouteDuration } from "../../utils/helpers/date-helpers"
+import { formatRouteDuration, isOneHourDifference, routeDurationInMs } from "../../utils/helpers/date-helpers"
 import { RouteItem } from "."
 
 export class RouteApi {
@@ -19,7 +19,6 @@ export class RouteApi {
       const response: ApiResponse<RailApiGetRoutesResult> = await this.api.apisauce.get(
         `searchTrainLuzForDateTime?fromStation=${originId}&toStation=${destinationId}&date=${date}&hour=${hour}&scheduleType=1&systemType=2&languageId=Hebrew`,
       )
-      console.log(response)
       const { travels } = response.data.result
 
       // if (responseData.Error !== null) throw new Error(responseData.Error.Description)
@@ -78,61 +77,67 @@ export class RouteApi {
           return route
         })
 
+        const departureTime = new Date(route.departureTime).getTime()
+        const arrivalTime = new Date(route.arrivalTime).getTime()
+
         return {
-          departureTime: route.departureTime,
-          // isExchange: IsExchange,
-          // estTime: EstTime,
-          // delay: trains[0].delay,
+          ...route,
+          departureTime,
+          arrivalTime,
           trains,
+          duration: formatRouteDuration(routeDurationInMs(departureTime, arrivalTime)),
+          isExchange: trains.length > 1,
         }
       })
 
-      const routesWithWarning = formattedRoutes.map((route) => {
-        const isMuchLonger = isRouteIsMuchLongerThanOtherRoutes(route as RouteItem, formattedRoutes as RouteItem[])
-        const isMuchShorter = isRouteMuchShorterThanOtherRoutes(route as RouteItem, formattedRoutes as RouteItem[])
-        return Object.assign({}, route, { isMuchShorter, isMuchLonger })
-      })
+      return formattedRoutes
 
-      return routesWithWarning
+      // const routesWithWarning = formattedRoutes.map((route) => {
+      //   const isMuchLonger = isRouteIsMuchLongerThanOtherRoutes(route as RouteItem, formattedRoutes as RouteItem[])
+      //   const isMuchShorter = isRouteMuchShorterThanOtherRoutes(route as RouteItem, formattedRoutes as RouteItem[])
+      //   return Object.assign({}, route, { isMuchShorter, isMuchLonger })
+      // })
+
+      // return routesWithWarning
     } catch (err) {
       console.error(err)
     }
   }
 }
 
-function isRouteIsMuchLongerThanOtherRoutes(route: RouteItem, otherRoutes: RouteItem[]): boolean {
-  const routeDuration = parseRouteDuration(route.estTime)
+// function isRouteIsMuchLongerThanOtherRoutes(route: RouteItem, otherRoutes: RouteItem[]): boolean {
+//   const routeDuration = routeDurationInMs(route.departureTime, route.arrivalTime)
 
-  // TODO: Iterate only on the routes that are 1 hour around the route
-  // currently we iterating on all the routes which is unecessary
+//   // TODO: Iterate only on the routes that are 1 hour around the route
+//   // currently we iterating on all the routes which is unecessary
 
-  // iterate on routes that are before and after 1 hour the current route,
-  // and check if they're shorther by 30 minutes or more than the current route.
-  const longRoutesAround = otherRoutes.filter((otherRoute) => {
-    const withinRange = isOneHourDifference(route.trains[0].departureTime, otherRoute.trains[0].departureTime)
-    if (!withinRange) return false
+//   // iterate on routes that are before and after 1 hour the current route,
+//   // and check if they're shorther by 30 minutes or more than the current route.
+//   const longRoutesAround = otherRoutes.filter((otherRoute) => {
+//     const withinRange = isOneHourDifference(route.trains[0].departureTime, otherRoute.trains[0].departureTime)
+//     if (!withinRange) return false
 
-    // check if the other route is much longer than the current route
-    const otherRouteDuration = parseRouteDuration(otherRoute.estTime)
-    return routeDuration - otherRouteDuration >= 30 * 60 * 1000
-  })
+//     // check if the other route is much longer than the current route
+//     const otherRouteDuration = routeDurationInMs(otherRoute.departureTime, route.arrivalTime)
+//     return routeDuration - otherRouteDuration >= 30 * 60 * 1000
+//   })
 
-  if (longRoutesAround.length > 0) return true
-  return false
-}
+//   if (longRoutesAround.length > 0) return true
+//   return false
+// }
 
-function isRouteMuchShorterThanOtherRoutes(route: RouteItem, otherRoutes: RouteItem[]): boolean {
-  const routeDuration = parseRouteDuration(route.estTime)
+// function isRouteMuchShorterThanOtherRoutes(route: RouteItem, otherRoutes: RouteItem[]): boolean {
+//   const routeDuration = routeDurationInMs(route.departureTime, route.arrivalTime)
 
-  const shortRoutesAround = otherRoutes.filter((otherRoute) => {
-    const withinRange = isOneHourDifference(route.trains[0].departureTime, otherRoute.trains[0].departureTime)
-    if (!withinRange) return false
+//   const shortRoutesAround = otherRoutes.filter((otherRoute) => {
+//     const withinRange = isOneHourDifference(route.trains[0].departureTime, otherRoute.trains[0].departureTime)
+//     if (!withinRange) return false
 
-    // check if the other route is much shorter than the current route
-    const otherRouteDuration = parseRouteDuration(otherRoute.estTime)
-    return otherRouteDuration - routeDuration >= 30 * 60 * 1000
-  })
+//     // check if the other route is much shorter than the current route
+//     const otherRouteDuration = routeDurationInMs(otherRoute.departureTime, route.arrivalTime)
+//     return otherRouteDuration - routeDuration >= 30 * 60 * 1000
+//   })
 
-  if (shortRoutesAround.length > 0) return true
-  return false
-}
+//   if (shortRoutesAround.length > 0) return true
+//   return false
+// }

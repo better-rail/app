@@ -1,14 +1,14 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { useMemo } from "react"
+import React, { useEffect, useMemo } from "react"
 import { TextStyle, View, ViewStyle, Dimensions, Platform } from "react-native"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import { Svg, Line } from "react-native-svg"
 import { color, spacing, typography, fontScale } from "../../theme"
 import { primaryFontIOS } from "../../theme/typography"
 import { Text } from "../"
-import { format, intervalToDuration, formatDuration } from "date-fns"
-import { dateDelimiter, dateFnsLocalization, translate, userLocale } from "../../i18n"
+import { format } from "date-fns"
+import { translate, userLocale } from "../../i18n"
 import { DelayBadge } from "./delay-badge"
 
 // #region styles
@@ -71,7 +71,7 @@ const SHORT_ROUTE_BADGE_TEXT: TextStyle = {
 export interface RouteCardProps extends TouchableScaleProps {
   departureTime: number
   arrivalTime: number
-  estTime: string
+  duration: string
   isMuchShorter: boolean
   isMuchLonger: boolean
   stops: number
@@ -83,7 +83,7 @@ export interface RouteCardProps extends TouchableScaleProps {
  * Describe your component here
  */
 export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
-  const { departureTime, arrivalTime, estTime, stops, delay, isMuchShorter, isMuchLonger, onPress = null, style } = props
+  const { departureTime, arrivalTime, duration, stops, delay, isMuchShorter, isMuchLonger, onPress = null, style } = props
 
   // Format times
   const [formattedDepatureTime, formattedArrivalTime] = useMemo(() => {
@@ -93,17 +93,9 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
     return [formattedDepatureTime, formattedArrivalTime]
   }, [departureTime, arrivalTime])
 
-  const duration = useMemo(() => {
-    const estTimeParts = estTime.split(":") // The estTime value is formatted like '00:42:00'
-    const [hours, minutes] = estTimeParts.map((value) => parseInt(value)) // Grab the hour & minutes values
-    const durationInMilliseconds = (hours * 60 * 60 + minutes * 60) * 1000 //  Convert to milliseconds
-    const durationObject = intervalToDuration({ start: 0, end: durationInMilliseconds }) // Create a date-fns duration object
-    const formattedDuration = formatDuration(durationObject, { delimiter: dateDelimiter, locale: dateFnsLocalization }) // Format the duration
-
-    if (formattedDuration.length > 7 && deviceWidth < 410) dashedLineWidth = 0
-
-    return formattedDuration
-  }, [estTime])
+  useEffect(() => {
+    if (duration.length > 7 && deviceWidth < 410) dashedLineWidth = 0
+  }, [duration])
 
   const stopsText = useMemo(() => {
     if (stops === 0) return translate("routes.noExchange")

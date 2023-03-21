@@ -1,4 +1,5 @@
-import { isWithinInterval, parse } from "date-fns"
+import { differenceInMilliseconds, formatDuration, intervalToDuration, isWithinInterval, parse } from "date-fns"
+import { dateDelimiter, dateFnsLocalization } from "../../i18n"
 
 /**
  * Parses a string date as formatted in the Israel Rail API.
@@ -34,14 +35,11 @@ export function isOneHourDifference(date1: number, date2: number) {
   return withinRange
 }
 
-/**
- * Parses a route duration string formatted like '00:42:00' to milliseconds
- * @param duration A string formatted like '00:42:00'
- * @returns The duration in milliseconds
- */
-export function parseRouteDuration(estTime: string) {
-  const estTimeParts = estTime.split(":") // The estTime value is formatted like '00:42:00'
-  const [hours, minutes] = estTimeParts.map((value) => parseInt(value)) // Grab the hour & minutes values
-  const durationInMilliseconds = (hours * 60 * 60 + minutes * 60) * 1000 //  Convert to milliseconds
-  return durationInMilliseconds
+export function routeDurationInMs(departureTime: number, arrivalTime: number) {
+  return differenceInMilliseconds(arrivalTime, departureTime)
+}
+
+export function formatRouteDuration(durationInMilliseconds: number) {
+  const durationObject = intervalToDuration({ start: 0, end: durationInMilliseconds }) // Create a date-fns duration object
+  return formatDuration(durationObject, { delimiter: dateDelimiter, locale: dateFnsLocalization }) // Format the duration
 }
