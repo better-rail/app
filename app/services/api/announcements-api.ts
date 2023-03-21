@@ -2,8 +2,7 @@ import { create, ApiResponse } from "apisauce"
 import { AnnouncementApiResult } from "./api.types"
 
 const api = create({
-  baseURL: "https://www.rail.co.il/",
-  headers: { Accept: "application/json;odata=verbose" },
+  baseURL: "https://israelrail.azurefd.net/rjpa-prod/api/v1/timetable/",
 })
 
 export async function getAnnouncements() {

@@ -8,31 +8,31 @@ import { RouteItem } from "../../services/api"
 export const trainStop = {
   arrivalTime: types.number,
   departureTime: types.number,
-  stationId: types.string,
+  stationId: types.number,
   stationName: types.string,
-  platform: types.string,
+  platform: types.number,
 }
 
 export const trainListSchema = {
-  delay: types.number,
+  // delay: types.number,
   arrivalTime: types.number,
   departureTime: types.number,
-  originStationId: types.string,
+  originStationId: types.number,
   originStationName: types.string,
-  destinationStationId: types.string,
+  destinationStationId: types.number,
   destinationStationName: types.string,
-  originPlatform: types.string,
-  destinationPlatform: types.string,
-  trainNumber: types.string,
+  originPlatform: types.number,
+  destinationPlatform: types.number,
+  trainNumber: types.number,
   stopStations: types.array(types.model(trainStop)),
 }
 
 export const trainRouteSchema = {
   departureTime: types.number,
   isExchange: types.boolean,
-  estTime: types.string,
+  duration: types.string,
   trains: types.array(types.model(trainListSchema)),
-  delay: types.number,
+  // delay: types.number,
 }
 
 export const trainRoutesModel = types
@@ -64,8 +64,8 @@ export const trainRoutesModel = types
       // If no routes are found, try to fetch results for the upcoming 3 days.
       while (!foundRoutes && apiHitCount < 4) {
         // Format times for Israel Rail API
-        const date = format(requestDate, "yyyyMMdd")
-        const hour = format(time, "HHmm")
+        const date = format(requestDate, "yyyy-MM-dd")
+        const hour = format(time, "HH:mm")
 
         const result = await routeApi.getRoutes(originId, destinationId, date, hour)
 

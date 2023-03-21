@@ -28,7 +28,10 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
 
   const trains = useQuery(
     ["origin", originId, "destination", destinationId, "time", routePlan.date.getDate()],
-    () => trainRoutes.getRoutes(originId, destinationId, time),
+    async () => {
+      const result = await trainRoutes.getRoutes(originId, destinationId, time)
+      return result
+    },
     { enabled: enableQuery, retry: false },
   )
 
@@ -62,7 +65,6 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     const departureTime = item.trains[0].departureTime
     let arrivalTime = item.trains[0].arrivalTime
     let stops = 0
-
     // If the train contains an exchange, change to arrival time to the last stop from the last train
     if (item.isExchange) {
       stops = item.trains.length - 1
@@ -71,13 +73,13 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
 
     return (
       <RouteCard
-        estTime={item.estTime}
+        duration={item.duration}
         isMuchShorter={item.isMuchShorter}
         isMuchLonger={item.isMuchLonger}
         stops={stops}
         departureTime={departureTime}
         arrivalTime={arrivalTime}
-        delay={item.delay}
+        // delay={item.delay}
         onPress={() =>
           navigation.navigate("routeDetails", {
             routeItem: item,

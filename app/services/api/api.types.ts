@@ -1,64 +1,72 @@
 /* eslint-disable camelcase */
 
 type RailApiRouteItem = {
-  Trainno: string
-  OrignStation: string
-  DestinationStation: string
-  ArrivalTime: string
-  DepartureTime: string
-  StopStations: { StationId: string; ArrivalTime: string; DepartureTime: string; Platform: string }[]
-  LineNumber: string
-  Route: string
-  Midnight: boolean
-  Handicap: boolean
-  DirectTrain: boolean
-  TrainParvariBenironi: any
-  ReservedSeat: boolean
-  Platform: string
-  DestPlatform: string
-  IsFullTrain: boolean
+  departureTime: string
+  arrivalTime: string
+  freeSeats: number
+  travelMessages: any[]
+  trains: Train[]
+}
+
+export interface Train {
+  trainNumber: number
+  orignStation: number
+  destinationStation: number
+  originPlatform: number
+  destPlatform: number
+  freeSeats: number
+  arrivalTime: string
+  departureTime: string
+  stopStations: StopStation[]
+  handicap: number
+  crowded: number
+  trainPosition: any
+  routeStations: RouteStation[]
+}
+
+export interface StopStation {
+  stationId: number
+  arrivalTime: string
+  departureTime: string
+  platform: number
+  crowded: number
+}
+
+export interface RouteStation {
+  stationId: number
+  arrivalTime: string
+  crowded: number
+  platform: number
 }
 
 export type RailApiGetRoutesResult = {
-  MessageType: number
-  Message: string | null
-  Data: {
-    Routes: { IsExchange: boolean; EstTime: string; Train: RailApiRouteItem[] }[]
-    Details: { Origin: string; Destination: string; Date: string; SugKav: string; Hour: string }
-    Delays: { Station: string; Date: string; Time: string; Train: string; Min: string }[]
-    Error: { Description: string; ErrorId: string; Exception: string }
-    Omasim: { TrainNumber: number; Stations: OmesDetail[] }[]
+  result: {
+    travels: RailApiRouteItem[]
   }
 }
 
 export type RouteItem = {
-  delay: number
+  // delay: number
   isExchange: boolean
-  estTime: string
+  duration: string
   departureTime: number
+  arrivalTime: number
   isMuchLonger: boolean
   isMuchShorter: boolean
   trains: {
-    originStationId: string
+    originStationId: number
     originStationName: string
-    destinationStationId: string
+    destinationStationId: number
     destinationStationName: string
     arrivalTime: number
     departureTime: number
-    originPlatform: string
-    destinationPlatform: string
-    trainNumber: string
-    stopStations: { arrivalTime: number; departureTime: number; stationId: string; stationName: string; platform: string }[]
+    originPlatform: number
+    destinationPlatform: number
+    trainNumber: number
+    stopStations: { arrivalTime: number; departureTime: number; stationId: number; stationName: string; platform: number }[]
     lastStop: string
-    delay: number
+    // delay: number
   }[]
-}
-
-export type RequestBarodeParams = {
-  userId: string
-  phoneNumber: string
-  token: string
-  route: RouteItem
 }
 
 export interface Title {
