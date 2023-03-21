@@ -33,16 +33,15 @@ func formatRouteDate(_ date: Date) -> String {
   return dateFormatter.string(from: date)
 }
 
-func formatRouteHour(_ dateString: String) -> String {
-  let hourFormatter = DateFormatter()
-  hourFormatter.dateFormat = "HH:mm"
+func formatRouteHour(_ isoDate: String) -> String {
+  let dateFormatter = DateFormatter()
+  dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
   
-  let formattedDate = stringToDate(dateString)
-  if let date = formattedDate {
-    return hourFormatter.string(from: date)
-  } else {
-    return "--:--"
-  }
+  let date = dateFormatter.date(from: isoDate)!
+  
+  dateFormatter.dateFormat = "HH:mm"
+  
+  return dateFormatter.string(from: date)
 }
 
 enum SupportedLanguages: String {
