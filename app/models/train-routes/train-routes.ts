@@ -64,8 +64,8 @@ export const trainRoutesModel = types
       // If no routes are found, try to fetch results for the upcoming 3 days.
       while (!foundRoutes && apiHitCount < 4) {
         // Format times for Israel Rail API
-        const date = format(requestDate, "yyyyMMdd")
-        const hour = format(time, "HHmm")
+        const date = format(requestDate, "yyyy-MM-dd")
+        const hour = format(time, "HH:mm")
 
         const result = await routeApi.getRoutes(originId, destinationId, date, hour)
 

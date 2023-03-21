@@ -1,33 +1,47 @@
 /* eslint-disable camelcase */
 
 type RailApiRouteItem = {
-  Trainno: string
-  OrignStation: string
-  DestinationStation: string
-  ArrivalTime: string
-  DepartureTime: string
-  StopStations: { StationId: string; ArrivalTime: string; DepartureTime: string; Platform: string }[]
-  LineNumber: string
-  Route: string
-  Midnight: boolean
-  Handicap: boolean
-  DirectTrain: boolean
-  TrainParvariBenironi: any
-  ReservedSeat: boolean
-  Platform: string
-  DestPlatform: string
-  IsFullTrain: boolean
+  departureTime: string
+  arrivalTime: string
+  freeSeats: number
+  travelMessages: any[]
+  trains: Train[]
+}
+
+export interface Train {
+  trainNumber: number
+  orignStation: number
+  destinationStation: number
+  originPlatform: number
+  destPlatform: number
+  freeSeats: number
+  arrivalTime: string
+  departureTime: string
+  stopStations: StopStation[]
+  handicap: number
+  crowded: number
+  trainPosition: any
+  routeStations: RouteStation[]
+}
+
+export interface StopStation {
+  stationId: number
+  arrivalTime: string
+  departureTime: string
+  platform: number
+  crowded: number
+}
+
+export interface RouteStation {
+  stationId: number
+  arrivalTime: string
+  crowded: number
+  platform: number
 }
 
 export type RailApiGetRoutesResult = {
-  MessageType: number
-  Message: string | null
-  Data: {
-    Routes: { IsExchange: boolean; EstTime: string; Train: RailApiRouteItem[] }[]
-    Details: { Origin: string; Destination: string; Date: string; SugKav: string; Hour: string }
-    Delays: { Station: string; Date: string; Time: string; Train: string; Min: string }[]
-    Error: { Description: string; ErrorId: string; Exception: string }
-    Omasim: { TrainNumber: number; Stations: OmesDetail[] }[]
+  result: {
+    travels: RailApiRouteItem[]
   }
 }
 

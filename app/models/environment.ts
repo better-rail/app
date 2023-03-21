@@ -17,7 +17,10 @@ export class Environment {
       // dev-only services
       this.reactotron = new ReactotronDev()
     }
-    this.api = new Api({ url: "https://www.rail.co.il/", timeout: 12500 })
+    this.api = new Api({
+      url: "https://israelrail.azurefd.net/rjpa-prod/api/v1/timetable/",
+      timeout: 12500,
+    })
   }
 
   async setup() {
