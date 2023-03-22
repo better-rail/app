@@ -38,7 +38,7 @@ struct Route: Decodable {
 
 // MARK: - Train
 struct Train: Decodable, Identifiable {
-  var id: String { trainNumber }
+  var id: Int { trainNumber }
 
   var originStationName: String { getStationNameById(orignStation) }
   var destinationStationName: String { getStationNameById(destinationStation) }
@@ -47,7 +47,8 @@ struct Train: Decodable, Identifiable {
   var stationImage: String? { getStationById(orignStation)?.image }
   var destinationStationImage: String? { getStationById(destinationStation)?.image }
 
-  let trainNumber, orignStation, destinationStation, arrivalTime, departureTime: Int
+  let trainNumber, orignStation, destinationStation: Int
+  let arrivalTime, departureTime: String
   let stopStations: [StopStation]
   let lineNumber, route: String
   let midnight, handicap, directTrain: Bool
@@ -58,24 +59,31 @@ struct Train: Decodable, Identifiable {
 
 // MARK: - StopStation
 struct StopStation: Decodable, Identifiable {
-  var id: String { stationId }
+  var id: Int { stationId }
   var stationName: String { getStationNameById(stationId)}
   var formattedTime: String { formatRouteHour(arrivalTime) }
-  let stationId, arrivalTime, departureTime, platform: Int
+  
+  let stationId, platform: Int
+  let arrivalTime, departureTime: String
 }
 
 struct RouteModel {
 //  , completion: @escaping (_ result: Result<RouteResult, Error>)
   func fetchRoute(originId: String, destinationId: String, date: String? = nil) async -> [Route] {
-    let routeDate = date ?? formatRouteDate(Date())
-        
-    let url = URL(string: "https://www.rail.co.il/apiinfo/api/Plan/GetRoutes?OId=\(originId)&TId=\(destinationId)&Date=\(routeDate)&Hour=0000")!
-    guard let (data, _) = try? await URLSession.shared.data(from: url) else { return [] }
+    let (routeDate, routeTime) = formatRouteDate(Date())
+    
+    let url = URL(string: "https://israelrail.azurefd.net/rjpa-prod/api/v1/timetable/searchTrainLuzForDateTime?fromStation=\(originId)&toStation=\(destinationId)&date=\(routeDate)&hour=\(routeTime)&scheduleType=1&systemType=2&languageId=Hebrew")!
+
+    
+    var request = URLRequest(url: url)
+    request.addValue("4b0d355121fe4e0bb3d86e902efe9f20", forHTTPHeaderField: "Ocp-Apim-Subscription-Key")
+    
+    guard let (data, _) = try? await URLSession.shared.data(for: request) else { return [] }
     
     let decoder = JSONDecoder()
 //    decoder.keyDecodingStrategy = .custom { keys in PascalCaseKey(stringValue: keys.last!.stringValue) }
     guard let route = try? decoder.decode(RouteResult.self, from: data) else { return [] }
     
-    return route.data.routes
+    return route.result.travels
   }
 }

@@ -26,11 +26,17 @@ func getDateFromTimeString(_ timeString: String) -> Date? {
 }
 
 /// Converts a date to formatted string for Israel Railways API
-func formatRouteDate(_ date: Date) -> String {
+func formatRouteDate(_ date: Date) -> (String, String) {
   let dateFormatter = DateFormatter()
   dateFormatter.locale = Locale(identifier: "en_us")
-  dateFormatter.dateFormat = "yyyyMMdd"
-  return dateFormatter.string(from: date)
+  
+  dateFormatter.dateFormat = "yyyy-MM-dd"
+  let routeDate = dateFormatter.string(from: date)
+  
+  dateFormatter.dateFormat = "HH:mm"
+  let routeTime = dateFormatter.string(from: date)
+  
+  return (routeDate, routeTime)
 }
 
 func formatRouteHour(_ isoDate: String) -> String {
