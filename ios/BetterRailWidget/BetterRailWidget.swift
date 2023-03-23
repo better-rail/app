@@ -17,7 +17,7 @@ struct Provider: IntentTimelineProvider {
        let destinationId = configuration.destination?.identifier {
 
       Task {
-        let entries = await EntriesGenerator().getTrains(originId: originId, destinationId: destinationId)
+        let entries = await EntriesGenerator().getTrains(originId: Int(originId)!, destinationId: Int(destinationId)!)
         
         // Refresh widget after tomorrow at midnight
         let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date())!

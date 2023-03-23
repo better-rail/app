@@ -30,8 +30,8 @@ struct DataClass: Decodable {
 struct Route: Decodable {
     let isExchange: Bool
     let duration: String
-    let departureTime: Int
-    let arrivalTime: Int
+    let departureTime: String
+    let arrivalTime: String
     let trains: [Train]
 
 }
@@ -53,7 +53,7 @@ struct Train: Decodable, Identifiable {
   let lineNumber, route: String
   let midnight, handicap, directTrain: Bool
   let reservedSeat: Bool
-  let platform, destPlatform: String
+  let platform, destPlatform: Int
   let isFullTrain: Bool
 }
 
@@ -69,8 +69,8 @@ struct StopStation: Decodable, Identifiable {
 
 struct RouteModel {
 //  , completion: @escaping (_ result: Result<RouteResult, Error>)
-  func fetchRoute(originId: String, destinationId: String, date: String? = nil) async -> [Route] {
-    let (routeDate, routeTime) = formatRouteDate(Date())
+  func fetchRoute(originId: Int, destinationId: Int, date: Date? = nil) async -> [Route] {
+    let (routeDate, routeTime) = formatRouteDate(date ?? Date())
     
     let url = URL(string: "https://israelrail.azurefd.net/rjpa-prod/api/v1/timetable/searchTrainLuzForDateTime?fromStation=\(originId)&toStation=\(destinationId)&date=\(routeDate)&hour=\(routeTime)&scheduleType=1&systemType=2&languageId=Hebrew")!
 

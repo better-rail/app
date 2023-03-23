@@ -5,8 +5,8 @@ struct TrainDetail: TimelineEntry {
   let departureDate: String
   let departureTime: String
   let arrivalTime: String
-  let platform: String
-  let trainNumber: String
+  let platform: Int
+  let trainNumber: Int
   let origin: Station
   let destination: Station
   var upcomingTrains: [UpcomingTrain]?
@@ -17,9 +17,9 @@ struct TrainDetail: TimelineEntry {
 }
 
 struct UpcomingTrain: Identifiable {
-  var id: String { trainNumber }
+  var id: Int { trainNumber }
   let departureTime: String
   let arrivalTime: String
-  let platform: String
-  let trainNumber: String
+  let platform: Int
+  let trainNumber: Int
 }

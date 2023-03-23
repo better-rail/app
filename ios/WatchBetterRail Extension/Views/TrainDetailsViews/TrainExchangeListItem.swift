@@ -3,8 +3,8 @@ import SwiftUI
 struct TrainExchangeListItem: View {
   let stationName: String
   let time: String
-  let arrivalPlatform: String
-  let departurePlatform: String
+  let arrivalPlatform: Int
+  let departurePlatform: Int
   
   var body: some View {
     VStack(alignment: .leading) {
@@ -38,10 +38,10 @@ struct TrainExchangeListItem_Previews: PreviewProvider {
   static var previews: some View {
     List {
       // Change platform notice
-      TrainExchangeListItem(stationName: "ת׳׳א - סבידור מרכז", time: "09:41", arrivalPlatform: "1", departurePlatform: "2")
+      TrainExchangeListItem(stationName: "ת׳׳א - סבידור מרכז", time: "09:41", arrivalPlatform: 1, departurePlatform: 2)
       
       // Stay in platform notice
-      TrainExchangeListItem(stationName: "ת׳׳א - סבידור מרכז", time: "09:41", arrivalPlatform: "1", departurePlatform: "1")
+      TrainExchangeListItem(stationName: "ת׳׳א - סבידור מרכז", time: "09:41", arrivalPlatform: 1, departurePlatform: 1)
     }
   }
 }
