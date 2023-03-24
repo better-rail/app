@@ -24,9 +24,9 @@ struct WidgetLargeScheduleView: View {
               Spacer()
               Text(train.arrivalTime).frame(minWidth: 40)
               Spacer()
-              Text("platform \(train.platform)")
+              Text("platform \(String(train.platform))")
               Spacer()
-              Text(LocalizedStringKey("train \(train.trainNumber)"))
+              Text(LocalizedStringKey("train \(String(train.trainNumber))"))
               Spacer()
             }
             .font(.system(size: 16)).foregroundColor(.gray)
