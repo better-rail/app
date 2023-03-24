@@ -11,7 +11,7 @@ struct TrainDetail: TimelineEntry {
   let destination: Station
   var upcomingTrains: [UpcomingTrain]?
   var isTomorrow: Bool {
-    let convertedDate = stringToDate(departureDate)!
+    let convertedDate = isoDateStringToDate(departureDate)
     return Calendar(identifier: .hebrew).isDateInTomorrow(convertedDate)
   }
 }

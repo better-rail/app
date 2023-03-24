@@ -63,7 +63,7 @@ struct EntriesGenerator {
         } else {
           // Later entries will show up 1 minute after the last entry
           let previousTrain = routes[index - 1].trains[0]
-          let lastDepartureDate = stringToDate(previousTrain.departureTime)!
+          let lastDepartureDate = isoDateStringToDate(previousTrain.departureTime)
 
           date = Calendar.current.date(byAdding: .minute, value: 1, to: lastDepartureDate)!
         }
@@ -139,7 +139,7 @@ struct EntriesGenerator {
 
   func cleanPastTrains(_ routes: [Route]) -> [Route] {
     let now = Date()
-    return routes.filter { now < stringToDate($0.trains[0].departureTime)! }
+    return routes.filter { now < isoDateStringToDate($0.trains[0].departureTime) }
   }
 
 }

@@ -21,8 +21,8 @@ class RNBetterRail: NSObject {
   @objc func donateRouteIntent(_ originId: String, destinationId: String) {
     let intent = RouteIntent()
     
-    let originStation = getStationById(originId)!
-    let destinationStation = getStationById(destinationId)!
+    let originStation = getStationById(Int(originId)!)!
+    let destinationStation = getStationById(Int(destinationId)!)!
     
     intent.origin = INStation(identifier: originId, display: originStation.name)
     intent.destination = INStation(identifier: destinationId, display: destinationStation.name)
