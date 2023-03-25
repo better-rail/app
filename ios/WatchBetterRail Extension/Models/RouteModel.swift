@@ -63,42 +63,38 @@ struct StopStation: Decodable, Identifiable {
 
 
 struct RouteModel {
-//  , completion: @escaping (_ result: Result<RouteResult, Error>)
-  func fetchRoute(originId: Int, destinationId: Int, date: Date? = nil) async -> [Route] {
-    let (routeDate, routeTime) = formatRouteDate(date ?? Date())
-    
-    let url = URL(string: "https://israelrail.azurefd.net/rjpa-prod/api/v1/timetable/searchTrainLuzForDateTime?fromStation=\(originId)&toStation=\(destinationId)&date=\(routeDate)&hour=\(routeTime)&scheduleType=1&systemType=2&languageId=Hebrew")!
-    
-    var request = URLRequest(url: url)
-    request.addValue("4b0d355121fe4e0bb3d86e902efe9f20", forHTTPHeaderField: "Ocp-Apim-Subscription-Key")
-    
-    
-    guard let (data, _) = try? await URLSession.shared.data(for: request) else { return [] }
-    
-    let decoder = JSONDecoder()
-    guard let route = try? decoder.decode(RouteResult.self, from: data) else { return [] }
-    
-    return route.result.travels
-  }
-  
   func fetchRoute(originId: Int, destinationId: Int, date: Date? = nil, completion: @escaping ([Route]) -> Void) {
       let (routeDate, routeTime) = formatRouteDate(date ?? Date())
       
       let url = URL(string: "https://israelrail.azurefd.net/rjpa-prod/api/v1/timetable/searchTrainLuzForDateTime?fromStation=\(originId)&toStation=\(destinationId)&date=\(routeDate)&hour=\(routeTime)&scheduleType=1&systemType=2&languageId=Hebrew")!
       
       var request = URLRequest(url: url)
-      request.addValue("4b0d355121fe4e0bb3d86e902efe9f20", forHTTPHeaderField: "Ocp-Apim-Subscription-Key")
+      request.addValue("API_KEY_HERE", forHTTPHeaderField: "Ocp-Apim-Subscription-Key")
       
-      let task = URLSession.shared.dataTask(with: request) { (data, _, _) in
-          guard let data = data else { completion([]); return }
-          
-          let decoder = JSONDecoder()
-          guard let route = try? decoder.decode(RouteResult.self, from: data) else { completion([]); return }
-          
-          completion(route.result.travels)
+      DispatchQueue.global(qos: .userInitiated).async {
+          URLSession.shared.dataTask(with: request) { data, _, _ in
+              guard let data = data else {
+                  completion([])
+                  return
+              }
+              
+              let decoder = JSONDecoder()
+              guard let route = try? decoder.decode(RouteResult.self, from: data) else {
+                  completion([])
+                  return
+              }
+              
+              completion(route.result.travels)
+          }.resume()
       }
-    
-      task.resume()
+  }
+
+  func fetchRoute(originId: Int, destinationId: Int, date: Date? = nil) async -> [Route] {
+      return await withUnsafeContinuation { continuation in
+          fetchRoute(originId: originId, destinationId: destinationId, date: date) { routes in
+              continuation.resume(returning: routes)
+          }
+      }
   }
 
 }
