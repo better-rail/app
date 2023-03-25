@@ -20,19 +20,18 @@ struct RoutesView: View {
         } else if (route.trains.count == 0) {
           InfoMessage(imageName: "tram", message: "no-trains-found")
         } else {
-          List (0 ..< route.trains.count) { index in
+          List (0 ..< route.trains.count, id: \.self) { index in
             // TODO: Refactor train property names - too confusing!
-            let trainRoute = route.trains[index]
-            let trainDetails = route.trains[index].train
-            let trainDetailsView = TrainDetailsView(trainRoute: trainRoute)
+            let trainDetails = route.trains[index]
+            let trainDetailsView = TrainDetailsView(trainRoute: trainDetails)
             
             NavigationLink(destination: trainDetailsView) {
               HStack {
-                Text(formatRouteHour(trainDetails[0].departureTime))
+                Text(formatRouteHour(trainDetails.departureTime))
                 Spacer()
                 Image(systemName: "arrow.forward")
                 Spacer()
-                Text(formatRouteHour(trainDetails[route.trains[index].train.count - 1].arrivalTime))
+                Text(formatRouteHour(trainDetails.arrivalTime))
               }
             }
           }.listStyle(CarouselListStyle()).environment(\.defaultMinListRowHeight, 50)
@@ -56,9 +55,9 @@ struct InfoMessage: View {
     }
   }
 }
-
-struct RoutesView_Previews: PreviewProvider {
-    static var previews: some View {
-      RoutesView(route: RouteViewModel(origin: stations[0], destination: stations[1]))
-    }
-}
+//
+//struct RoutesView_Previews: PreviewProvider {
+//    static var previews: some View {
+//      RoutesView(route: RouteViewModel(origin: stations[0], destination: stations[1]))
+//    }
+//}

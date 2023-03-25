@@ -22,12 +22,12 @@ class IntentHandler: INExtension, RouteIntentHandling {
 
      if let route = defaultRoute {
         let stationId = route[0]
-        let stationName = getStationNameById(stationId)
+        let stationName = getStationNameById(Int(stationId)!)
         return INStation(identifier: stationId, display: stationName)
       }
        
       let defaultStationId = "4600"
-      let defaultStationName = getStationNameById(defaultStationId)
+      let defaultStationName = getStationNameById(Int(defaultStationId)!)
       return INStation(identifier: defaultStationId, display: defaultStationName)
     }
     
@@ -36,12 +36,12 @@ class IntentHandler: INExtension, RouteIntentHandling {
 
        if let route = defaultRoute {
           let stationId = route[1]
-          let stationName = getStationNameById(stationId)
+          let stationName = getStationNameById(Int(stationId)!)
           return INStation(identifier: stationId, display: stationName)
       }
 
       let defaultStationId = "680"
-      let defaultStationName = getStationNameById(defaultStationId)
+      let defaultStationName = getStationNameById(Int(defaultStationId)!)
       return INStation(identifier: defaultStationId, display: defaultStationName)
     }
     

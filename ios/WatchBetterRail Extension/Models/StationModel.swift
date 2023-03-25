@@ -50,9 +50,9 @@ func load<T: Decodable>(_ filename: String) -> T {
   }
 }
 
-func getStationById(_ id: String) -> Station? {
+func getStationById(_ id: Int) -> Station? {
   for station in stations {
-    if (station.id == id) {
+    if (station.id == String(id)) {
       return station
     }
   }
@@ -60,7 +60,7 @@ func getStationById(_ id: String) -> Station? {
   return nil
 }
   
-func getStationNameById(_ id: String) -> String {
+func getStationNameById(_ id: Int) -> String {
   if let station = getStationById(id) {
     return station.name
   }

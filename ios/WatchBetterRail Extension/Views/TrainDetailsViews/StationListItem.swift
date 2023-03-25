@@ -3,11 +3,11 @@ import SwiftUI
 struct StationListItem: View {
   let time: String
   let stationName: String
-  let platform: String
-  let trainNumber: String?
+  let platform: Int
+  let trainNumber: Int?
   let imageName: String?
   
-  init(time: String, stationName: String, platform: String, imageName: String?) {
+  init(time: String, stationName: String, platform: Int, imageName: String?) {
     self.time = time
     self.stationName = stationName
     self.platform = platform
@@ -16,7 +16,7 @@ struct StationListItem: View {
   }
   
   
-  init(time: String, stationName: String, platform: String, trainNumber: String, imageName: String?) {
+  init(time: String, stationName: String, platform: Int, trainNumber: Int, imageName: String?) {
     self.time = time
     self.stationName = stationName
     self.platform = platform

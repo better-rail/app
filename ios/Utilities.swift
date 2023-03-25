@@ -1,12 +1,5 @@
 import Foundation
 
-func stringToDate(_ dateString: String) -> Date? {
-  let formatter = DateFormatter()
-  formatter.dateFormat = "dd/MM/yyyy HH:mm:ss"
-
-  return formatter.date(from: dateString)
-}
-
 ///  Convert  a time string to a Date value
 /// - parameter timeString  - The time string formatted as  HH:mm  (e.g. 09:43)
 func getDateFromTimeString(_ timeString: String) -> Date? {
@@ -26,23 +19,32 @@ func getDateFromTimeString(_ timeString: String) -> Date? {
 }
 
 /// Converts a date to formatted string for Israel Railways API
-func formatRouteDate(_ date: Date) -> String {
+func formatRouteDate(_ date: Date) -> (String, String) {
   let dateFormatter = DateFormatter()
   dateFormatter.locale = Locale(identifier: "en_us")
-  dateFormatter.dateFormat = "yyyyMMdd"
-  return dateFormatter.string(from: date)
+  
+  dateFormatter.dateFormat = "yyyy-MM-dd"
+  let routeDate = dateFormatter.string(from: date)
+  
+  dateFormatter.dateFormat = "HH:mm"
+  let routeTime = dateFormatter.string(from: date)
+  
+  return (routeDate, routeTime)
 }
 
-func formatRouteHour(_ dateString: String) -> String {
+func isoDateStringToDate(_ isoDate: String) -> Date {
+  let dateFormatter = DateFormatter()
+  dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+  return dateFormatter.date(from: isoDate)!
+}
+
+func formatRouteHour(_ isoDate: String) -> String {
+  let date = isoDateStringToDate(isoDate);
+  
   let hourFormatter = DateFormatter()
   hourFormatter.dateFormat = "HH:mm"
   
-  let formattedDate = stringToDate(dateString)
-  if let date = formattedDate {
-    return hourFormatter.string(from: date)
-  } else {
-    return "--:--"
-  }
+  return hourFormatter.string(from: date)
 }
 
 enum SupportedLanguages: String {

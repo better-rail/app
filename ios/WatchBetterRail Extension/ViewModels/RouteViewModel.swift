@@ -22,13 +22,14 @@ class RouteViewModel: ObservableObject {
     self.error = nil
 
     Task {
-      let routes = await routeModel.fetchRoute(originId: origin.id, destinationId: destination.id)
-      
-      DispatchQueue.main.async {
-        self.trains = routes
-        self.loading = false
-        self.lastRequest = Date()
-      }
+      routeModel.fetchRoute(originId: Int(origin.id)!, destinationId: Int(destination.id)!, completion: { routes in
+        DispatchQueue.main.async {
+          self.trains = routes
+          self.loading = false
+          self.lastRequest = Date()
+        }
+
+      })
     }
   }
   

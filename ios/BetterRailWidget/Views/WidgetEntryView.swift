@@ -64,7 +64,7 @@ struct WidgetEntryView: View {
                         Text("PLATFORM")
                           .preferredFont(size: 11).fontWeight(.medium)
                         
-                        Text(entry.platform).font(.system(size: 22, weight: .bold))
+                        Text(String(entry.platform)).font(.system(size: 22, weight: .bold))
                       }
                       .foregroundColor(.gray)
                       .padding(.leading, isMediumScreen ? CGFloat(8.0) : 4.0)
@@ -74,7 +74,7 @@ struct WidgetEntryView: View {
                           Text(isMediumScreen ? "TRAIN NO." : "TRAIN")
                             .preferredFont(size: 11).fontWeight(.medium)
                           
-                          Text(entry.trainNumber).font(.system(size: 22, weight: .bold))
+                          Text(String(entry.trainNumber)).font(.system(size: 22, weight: .bold))
                         }
                         .foregroundColor(.gray)
                         .padding(.leading, 8)
@@ -86,7 +86,7 @@ struct WidgetEntryView: View {
                   .font(.system(size: nextTrainFontSize, weight: .bold))
                   
                 if (widgetFamily != .systemLarge) {
-                  Text("Platform \(entry.platform)・Train \(entry.trainNumber)")
+                  Text("Platform \(String(entry.platform))・Train \(String(entry.trainNumber))")
                     .font(.system(size: 11.5)).fontWeight(.medium).foregroundColor(.white).opacity(/*@START_MENU_TOKEN@*/0.8/*@END_MENU_TOKEN@*/)
                 }
                 
@@ -170,10 +170,10 @@ struct WidgetEntryView: View {
 
 struct WidgetEntryView_Previews: PreviewProvider {
     static var previews: some View {
-      let origin = getStationById("4600")!
-      let destination = getStationById("680")!
+      let origin = getStationById(4600)!
+      let destination = getStationById(680)!
       
-      let entry = TrainDetail(date: Date(), departureDate: "09/01/2007 09:43:00", departureTime: "15:56", arrivalTime: "16:06", platform: "3", trainNumber: "131", origin: origin, destination: destination, upcomingTrains: upcomingTrainsSnapshot)
+      let entry = TrainDetail(date: Date(), departureDate: "09/01/2007 09:43:00", departureTime: "15:56", arrivalTime: "16:06", platform: 3, trainNumber: 131, origin: origin, destination: destination, upcomingTrains: upcomingTrainsSnapshot)
 
 //      let emptyEntry = TrainDetail(date: Date(), departureTime: "404", arrivalTime: "404", platform: "404", trainNumber: "404", origin: origin, destination: destination)
       

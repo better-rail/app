@@ -29,8 +29,8 @@ struct FavoritesModel {
       let originId = String(route[0].split(separator: ":")[1])
       let destinationId = String(route[1].split(separator: ":")[1])
       
-      if let originStation = getStationById(originId),
-         let destinationStation = getStationById(destinationId) {
+      if let originStation = getStationById(Int(originId)!),
+         let destinationStation = getStationById(Int(destinationId)!) {
           favoriteRoutes.append(
             FavoriteRoute(id: Int(key)!, origin: originStation, destination: destinationStation)
           )

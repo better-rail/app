@@ -3,12 +3,11 @@ import Foundation
 struct EntriesGenerator {
   typealias Entry = TrainDetail
     
-  func getTrains(originId: String, destinationId: String) async -> [Entry] {
+  func getTrains(originId: Int, destinationId: Int) async -> [Entry] {
     let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
-    let formattedTomorrowDate = formatRouteDate(tomorrow)
     
     async let todayRoutes = RouteModel().fetchRoute(originId: originId, destinationId: destinationId)
-    async let tomorrowRoutes = RouteModel().fetchRoute(originId: originId, destinationId: destinationId, date: formattedTomorrowDate)
+    async let tomorrowRoutes = RouteModel().fetchRoute(originId: originId, destinationId: destinationId, date: tomorrow)
 
     var routes = (today: await todayRoutes, tomorrow: await tomorrowRoutes)
     
@@ -42,7 +41,7 @@ struct EntriesGenerator {
     return entries
   }
   
-  func generateEntriesForRoutes(_ routes: [Route], originId: String, destinationId: String) -> [Entry] {
+  func generateEntriesForRoutes(_ routes: [Route], originId: Int, destinationId: Int) -> [Entry] {
     var entries: [Entry] = []
     
     // Get stations for entries
@@ -52,7 +51,7 @@ struct EntriesGenerator {
         
     if (routes.count > 0) {
       for index in 0 ..< routes.count {
-        let trains = routes[index].train
+        let trains = routes[index].trains
         let firstRouteTrain = trains[0]
         let lastRouteTrain = trains[trains.count - 1]
 
@@ -63,8 +62,8 @@ struct EntriesGenerator {
           date = Date()
         } else {
           // Later entries will show up 1 minute after the last entry
-          let previousTrain = routes[index - 1].train[0]
-          let lastDepartureDate = stringToDate(previousTrain.departureTime)!
+          let previousTrain = routes[index - 1].trains[0]
+          let lastDepartureDate = isoDateStringToDate(previousTrain.departureTime)
 
           date = Calendar.current.date(byAdding: .minute, value: 1, to: lastDepartureDate)!
         }
@@ -75,7 +74,7 @@ struct EntriesGenerator {
           departureTime: firstRouteTrain.formattedDepartureTime,
           arrivalTime: lastRouteTrain.formattedArrivalTime,
           platform: firstRouteTrain.platform,
-          trainNumber: firstRouteTrain.trainno,
+          trainNumber: firstRouteTrain.trainNumber,
           origin: originStation,
           destination: destinationStation,
           upcomingTrains: nil
@@ -99,7 +98,7 @@ struct EntriesGenerator {
   }
 
   
-  func getEmptyEntry(originId: String, destinationId: String, date: Date = Date()) -> TrainDetail {
+  func getEmptyEntry(originId: Int, destinationId: Int, date: Date = Date()) -> TrainDetail {
     let origin = getStationById(originId)!
     let destination = getStationById(destinationId)!
 
@@ -108,8 +107,8 @@ struct EntriesGenerator {
       departureDate: "404",
       departureTime: "404",
       arrivalTime: "404",
-      platform: "404",
-      trainNumber: "404",
+      platform: 404,
+      trainNumber: 404,
       origin: origin,
       destination: destination,
       upcomingTrains: []
@@ -121,7 +120,7 @@ struct EntriesGenerator {
     var upcomingTrains: [UpcomingTrain] = []
     
     for route in routes {
-      let trains = route.train
+      let trains = route.trains
       let firstRouteTrain = trains[0]
       let lastRouteTrain = trains[trains.count - 1]
       
@@ -129,7 +128,7 @@ struct EntriesGenerator {
         departureTime: formatRouteHour(firstRouteTrain.departureTime),
         arrivalTime: formatRouteHour(lastRouteTrain.arrivalTime),
         platform: firstRouteTrain.platform,
-        trainNumber: firstRouteTrain.trainno
+        trainNumber: firstRouteTrain.trainNumber
       )
       
       upcomingTrains.append(upcomingTrain)
@@ -140,7 +139,7 @@ struct EntriesGenerator {
 
   func cleanPastTrains(_ routes: [Route]) -> [Route] {
     let now = Date()
-    return routes.filter { now < stringToDate($0.train[0].departureTime)! }
+    return routes.filter { now < isoDateStringToDate($0.trains[0].departureTime) }
   }
 
 }
