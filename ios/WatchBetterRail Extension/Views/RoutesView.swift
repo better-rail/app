@@ -31,7 +31,7 @@ struct RoutesView: View {
                 Spacer()
                 Image(systemName: "arrow.forward")
                 Spacer()
-                Text(formatRouteHour(route.trains[route.trains.count - 1].arrivalTime))
+                Text(formatRouteHour(trainDetails.arrivalTime))
               }
             }
           }.listStyle(CarouselListStyle()).environment(\.defaultMinListRowHeight, 50)
