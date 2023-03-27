@@ -46,7 +46,7 @@ export type RailApiGetRoutesResult = {
 }
 
 export type RouteItem = {
-  // delay: number
+  delay: number
   isExchange: boolean
   duration: string
   departureTime: number
@@ -65,7 +65,7 @@ export type RouteItem = {
     trainNumber: number
     stopStations: { arrivalTime: number; departureTime: number; stationId: number; stationName: string; platform: number }[]
     lastStop: string
-    // delay: number
+    delay: number
   }[]
 }
 

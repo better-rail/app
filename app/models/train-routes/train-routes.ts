@@ -14,7 +14,7 @@ export const trainStop = {
 }
 
 export const trainListSchema = {
-  // delay: types.number,
+  delay: types.number,
   arrivalTime: types.number,
   departureTime: types.number,
   originStationId: types.number,
@@ -32,7 +32,7 @@ export const trainRouteSchema = {
   isExchange: types.boolean,
   duration: types.string,
   trains: types.array(types.model(trainListSchema)),
-  // delay: types.number,
+  delay: types.number,
 }
 
 export const trainRoutesModel = types
