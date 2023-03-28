@@ -23,10 +23,6 @@ export class RouteApi {
 
       // if (responseData.Error !== null) throw new Error(responseData.Error.Description)
 
-      // const delays = responseData.Delays.reduce((delaysObject, delayItem) => {
-      //   return Object.assign({}, delaysObject, { [delayItem.Train]: parseInt(delayItem.Min) })
-      // }, {})
-
       // const crowdDetails = responseData.Omasim
 
       const formattedRoutes = travels.map((route) => {
@@ -40,6 +36,7 @@ export class RouteApi {
             destPlatform,
             trainNumber,
             routeStations,
+            trainPosition,
           } = train
 
           const stopStations = train.stopStations.map((station) => {
@@ -60,7 +57,7 @@ export class RouteApi {
           const lastStationId = routeStations[routeStations.length - 1].stationId
 
           const route = {
-            // delay: delays[Trainno] || 0,
+            delay: trainPosition?.calcDiffMinutes ?? 0,
             originStationId: orignStation,
             originStationName: stationsObject[orignStation][stationLocale],
             destinationStationId: destinationStation,
@@ -85,6 +82,7 @@ export class RouteApi {
           departureTime,
           arrivalTime,
           trains,
+          delay: trains?.[0].delay ?? 0,
           duration: formatRouteDuration(routeDurationInMs(departureTime, arrivalTime)),
           isExchange: trains.length > 1,
         }

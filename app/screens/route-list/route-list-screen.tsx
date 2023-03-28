@@ -79,7 +79,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         stops={stops}
         departureTime={departureTime}
         arrivalTime={arrivalTime}
-        // delay={item.delay}
+        delay={item.delay}
         onPress={() =>
           navigation.navigate("routeDetails", {
             routeItem: item,
