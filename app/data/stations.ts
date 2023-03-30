@@ -270,6 +270,7 @@ const stations = [
     english: "HaMifrats Central Station",
     russian: "Центральная станция Ха-Мифрац",
     arabic: "همفراتس المركزية",
+    image: require("../../assets/station-images/hamifrats.jpg"),
   },
   {
     id: "4900",

@@ -40,7 +40,7 @@ export class Api {
       timeout: this.config.timeout,
       headers: {
         Accept: "application/json",
-        "Ocp-Apim-Subscription-Key": "RAIL_API_KEY",
+        "Ocp-Apim-Subscription-Key": "4b0d355121fe4e0bb3d86e902efe9f20",
       },
     })
   }

@@ -69,7 +69,7 @@ struct RouteModel {
       let url = URL(string: "https://israelrail.azurefd.net/rjpa-prod/api/v1/timetable/searchTrainLuzForDateTime?fromStation=\(originId)&toStation=\(destinationId)&date=\(routeDate)&hour=\(routeTime)&scheduleType=1&systemType=2&languageId=Hebrew")!
       
       var request = URLRequest(url: url)
-      request.addValue("API_KEY_HERE", forHTTPHeaderField: "Ocp-Apim-Subscription-Key")
+      request.addValue("4b0d355121fe4e0bb3d86e902efe9f20", forHTTPHeaderField: "Ocp-Apim-Subscription-Key")
       
       DispatchQueue.global(qos: .userInitiated).async {
           URLSession.shared.dataTask(with: request) { data, _, _ in
