@@ -288,14 +288,14 @@ const stations = [
     arabic: "مطار بن چوريون",
     image: require("../../assets/station-images/ben-gurion.jpg"),
   },
-  {
-    id: "6700",
-    hebrew: "ירושלים - מלחה",
-    english: "Jerusalem - Malha",
-    russian: "Иерусалим - Малха",
-    arabic: "القدس - المالحه",
-    image: require("../../assets/station-images/malha.jpg"),
-  },
+  // {
+  //   id: "6700",
+  //   hebrew: "ירושלים - מלחה",
+  //   english: "Jerusalem - Malha",
+  //   russian: "Иерусалим - Малха",
+  //   arabic: "القدس - المالحه",
+  //   image: require("../../assets/station-images/malha.jpg"),
+  // },
   {
     id: "5900",
     hebrew: "אשקלון",
