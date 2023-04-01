@@ -4,6 +4,7 @@ import { stationsObject, stationLocale } from "../../data/stations"
 import { RailApiGetRoutesResult } from "./api.types"
 import { formatRouteDuration, isOneHourDifference, routeDurationInMs } from "../../utils/helpers/date-helpers"
 import { RouteItem } from "."
+import { isToday, isTomorrow, getHours, parse, isSameDay, addDays } from "date-fns"
 
 export class RouteApi {
   private api: Api
@@ -19,13 +20,16 @@ export class RouteApi {
       const response: ApiResponse<RailApiGetRoutesResult> = await this.api.apisauce.get(
         `searchTrainLuzForDateTime?fromStation=${originId}&toStation=${destinationId}&date=${date}&hour=${hour}&scheduleType=1&systemType=2&languageId=Hebrew`,
       )
+      if (!response.data?.result) throw new Error("Error fetching results")
+
       const { travels } = response.data.result
 
-      // if (responseData.Error !== null) throw new Error(responseData.Error.Description)
+      // on certain scenerios the API return dates for the next day - we need to filter those
+      const filterFn = filterRoutes(parse(date, "yyyy-MM-dd", new Date()))
+      const filteredTravels = travels.filter((travel) => filterFn(travel.departureTime))
 
-      // const crowdDetails = responseData.Omasim
-
-      const formattedRoutes = travels.map((route) => {
+      // format for usage in the UI
+      const formattedRoutes = filteredTravels.map((route) => {
         const trains = route.trains.map((train) => {
           const {
             orignStation,
@@ -139,3 +143,16 @@ export class RouteApi {
 //   if (shortRoutesAround.length > 0) return true
 //   return false
 // }
+
+// Filter routes to show today's routes only — except those who are on the next day within 12am - 2am.
+const filterRoutes = (requestDate: Date) => {
+  return (departureDateISO: string) => {
+    const departureDate = new Date(departureDateISO)
+    const isToday = isSameDay(departureDate, requestDate)
+    const isTomorrow = isSameDay(departureDate, addDays(requestDate, 1))
+
+    if (isToday) return true
+    else if (isTomorrow && getHours(departureDate) >= 0 && getHours(departureDate) < 2) return true
+    return false
+  }
+}
