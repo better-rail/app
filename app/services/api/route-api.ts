@@ -23,12 +23,11 @@ export class RouteApi {
       if (!response.data?.result) throw new Error("Error fetching results")
 
       const { travels } = response.data.result
-      // console.log("request date: ", date)
+
       // on certain scenerios the API return dates for the next day - we need to filter those
-      // BUT ! if the route is between 12am - 2am, we won't filter it :)
       const filterFn = filterRoutes(parse(date, "yyyy-MM-dd", new Date()))
       const filteredTravels = travels.filter((travel) => filterFn(travel.departureTime))
-      // console.log("filteredTravels: ", filteredTravels)
+
       // format for usage in the UI
       const formattedRoutes = filteredTravels.map((route) => {
         const trains = route.trains.map((train) => {
@@ -145,7 +144,7 @@ export class RouteApi {
 //   return false
 // }
 
-// Filter routes to today's routes only, except those who are on the next day within 12am - 2am.
+// Filter routes to show today's routes only — except those who are on the next day within 12am - 2am.
 const filterRoutes = (requestDate: Date) => {
   return (departureDateISO: string) => {
     const departureDate = new Date(departureDateISO)
