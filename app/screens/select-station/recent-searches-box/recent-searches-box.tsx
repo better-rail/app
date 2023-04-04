@@ -65,15 +65,20 @@ export const RecentSearchesBox = observer(function RecentSearchesBox(props: Rece
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={SCROLL_VIEW}
       >
-        {sortedSearches.map((entry) => (
-          <StationSearchEntry
-            name={stationsObject[entry.id][stationLocale]}
-            image={stationsObject[entry.id].image}
-            onPress={() => onStationPress(entry)}
-            onHide={() => recentSearches.remove(entry.id)}
-            key={entry.id}
-          />
-        ))}
+        {sortedSearches.map((entry) => {
+          // if a station is removed from stations list, it might still be in recent searches
+          if (!stationsObject[entry.id]) return null
+
+          return (
+            <StationSearchEntry
+              name={stationsObject[entry.id][stationLocale]}
+              image={stationsObject[entry.id].image}
+              onPress={() => onStationPress(entry)}
+              onHide={() => recentSearches.remove(entry.id)}
+              key={entry.id}
+            />
+          )
+        })}
       </ScrollView>
     )
   }, [sortedSearches])
