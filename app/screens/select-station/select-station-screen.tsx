@@ -46,7 +46,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
   const [searchTerm, setSearchTerm] = useState("")
 
   // our sweet fuzzy search engine
-  const fuse = useMemo(() => new Fuse(stations, { keys: ["name", "hebrew"], threshold: 0.3 }), [stations])
+  const fuse = useMemo(() => new Fuse(stations, { keys: ["name", "hebrew", "alias"], threshold: 0.3 }), [stations])
 
   const filteredStations = useMemo(() => {
     if (searchTerm === "") return []
