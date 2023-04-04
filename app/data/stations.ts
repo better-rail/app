@@ -1,7 +1,18 @@
 import { useState, useEffect, useMemo } from "react"
 import * as storage from "../utils/storage"
 
-const stations = [
+type Station = {
+  id: string
+  hebrew: string
+  english: string
+  russian: string
+  arabic: string
+  image?: any
+  blurhash?: string
+  alias?: string[]
+}
+
+const stations: Station[] = [
   {
     id: "3700",
     hebrew: "תל אביב - סבידור מרכז",
@@ -287,6 +298,7 @@ const stations = [
     russian: "Бен-Гурион Аэропорт",
     arabic: "مطار بن چوريون",
     image: require("../../assets/station-images/ben-gurion.jpg"),
+    alias: ["נתבג"],
   },
   // {
   //   id: "6700",
@@ -564,7 +576,13 @@ export const useStations = () => {
 
   const normalizeStationNames = useMemo(() => {
     return stations
-      .map((station) => ({ id: station.id, name: station[locale], image: station.image, hebrew: station.hebrew }))
+      .map((station) => ({
+        id: station.id,
+        name: station[locale],
+        image: station.image,
+        hebrew: station.hebrew,
+        alias: station.alias,
+      }))
       .sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase())
   }, [locale])
 
