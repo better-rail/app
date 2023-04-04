@@ -120,7 +120,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           onRefresh={() => trains.refetch()}
           refreshing={trains.isRefetching}
           renderItem={renderRouteCard}
-          keyExtractor={(item) => item.trains[0]?.trainNumber.toString()}
+          keyExtractor={(item) => item.trains.map((train) => train.trainNumber).join()}
           data={trains.data}
           contentContainerStyle={{ paddingTop: spacing[4], paddingHorizontal: spacing[3], paddingBottom: spacing[3] }}
           getItemLayout={(_, index) => ({ length: RouteCardHeight, offset: (RouteCardHeight + spacing[3]) * index, index })}
