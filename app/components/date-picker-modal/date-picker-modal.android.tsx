@@ -36,6 +36,7 @@ const CANCEL_BUTTON: ViewStyle = {
 
 export interface DatePickerModalProps {
   isVisible: boolean
+  onNow: () => void
   onChange: (date: Date) => void
   onConfirm: (date: Date) => void
   onCancel: () => void
@@ -45,7 +46,7 @@ export interface DatePickerModalProps {
 
 export const DatePickerModal = observer(function DatePickerModal(props: DatePickerModalProps) {
   const { routePlan } = useStores()
-  const { isVisible, onConfirm, onCancel, minimumDate } = props
+  const { isVisible, onConfirm, onCancel, onNow, minimumDate } = props
   const [selectedTab, setSelectedTab] = useState(0)
 
   const onDateTypeChange = (selectedTabIndex: number) => {
@@ -53,8 +54,10 @@ export const DatePickerModal = observer(function DatePickerModal(props: DatePick
 
     if (selectedTabIndex === 0) {
       routePlan.setDateType("departure")
-    } else {
+    } else if (selectedTabIndex === 1) {
       routePlan.setDateType("arrival")
+    } else {
+      onNow()
     }
   }
 
@@ -65,7 +68,7 @@ export const DatePickerModal = observer(function DatePickerModal(props: DatePick
     <Modal style={MODAL_WRAPPER} isVisible={isVisible} onBackButtonPress={onCancel} statusBarTranslucent>
       <View style={{ flex: 1, width: "100%", padding: spacing[2] }}>
         <MaterialTabs
-          items={[translate("plan.leaveAt"), translate("plan.arriveAt")]}
+          items={[translate("plan.leaveAt"), translate("plan.arriveAt"), translate("plan.now")]}
           selectedIndex={selectedTab}
           onChange={onDateTypeChange}
           barColor={isDarkMode ? "#010101" : "#fff"}
