@@ -47,7 +47,7 @@ export const DatePickerModal = observer(function DatePickerModal(props: DatePick
     () => (
       <View style={DATEPICKER_HEADER} onLayout={(e) => setHeaderWidth(e.nativeEvent.layout.width)}>
         <SegmentedControl
-          style={{ width: headerWidth - nowButtonWidth - spacing[3] }}
+          style={{ width: headerWidth - nowButtonWidth - spacing[2] }}
           values={[translate("plan.leaveAt"), translate("plan.arriveAt")]}
           selectedIndex={routePlan.dateType === "departure" ? 0 : 1}
           onChange={(event) => {
