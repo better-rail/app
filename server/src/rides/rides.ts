@@ -2,11 +2,12 @@ import dayjs from "dayjs"
 import { flatMap, flatten, keys } from "lodash"
 import { cancelJob, scheduleJob, scheduledJobs } from "node-schedule"
 
-import { IndexedNotificationPayload, NotificationPayload, Ride } from "../types/types"
-import { getRouteForRide } from "../requests/requests"
-import { exchangeTrainPrompt, generateJobId, isLastTrain } from "../utils/ride-utils"
+import { Ride } from "../types/rides"
 import { sendNotification } from "./notify"
 import { translate } from "../locales/i18n"
+import { getRouteForRide } from "../requests"
+import { NotificationPayload } from "../types/notifications"
+import { exchangeTrainPrompt, generateJobId, isLastTrain } from "../utils/ride-utils"
 
 export const startRideNotifications = async (ride: Ride) => {
   try {
@@ -93,21 +94,20 @@ export const startRideNotifications = async (ride: Ride) => {
     )
 
     const notifications = [...getOnTrain, ...passThroughStations, ...getOffTrain]
-
-    const sorted: IndexedNotificationPayload[] = notifications
       .sort((a, b) => (a.time.isAfter(b.time) ? 1 : -1))
       .map((notification, index) => ({
         ...notification,
+        time: notification.time.add(10, "hours"),
         id: index + 1,
       }))
 
-    sorted.forEach((notification) => {
+    notifications.forEach((notification) => {
       scheduleJob(generateJobId(ride), notification.time.toDate(), () => {
         sendNotification(notification)
       })
     })
 
-    return sorted
+    return notifications
   } catch {
     return false
   }

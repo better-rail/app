@@ -1,7 +1,7 @@
 import express from "express"
 
-import { router } from "./routes/api"
 import { port } from "./data/config"
+import { router } from "./routes/api"
 import { connectToRedis } from "./data/redis"
 
 const app = express()

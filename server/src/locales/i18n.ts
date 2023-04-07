@@ -2,9 +2,9 @@ import { I18n, TranslateOptions } from "@lagregance/i18n-js-require"
 import { arSA as arIL, he as heIL, enUS, ru as ruIL } from "date-fns/locale"
 
 import en from "./en.json"
-import ar from "./ar.json"
 import he from "./he.json"
 import ru from "./ru.json"
+import ar from "./ar.json"
 
 const i18n = new I18n({
   en,

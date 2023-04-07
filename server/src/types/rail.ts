@@ -1,34 +1,3 @@
-import { Dayjs } from "dayjs"
-
-import { LanguageCode } from "../locales/i18n"
-
-export type Ride = {
-  token: string
-  departureDate: Date
-  originId: number
-  destinationId: number
-  trains: number[]
-  locale: LanguageCode
-}
-
-export type NotificationPayload = {
-  time: Dayjs
-  state: {
-    nextStationId: number
-    delay: number
-    inExchange: boolean
-    arrived: boolean
-  }
-  alert?: {
-    title: string
-    text: string
-  }
-}
-
-export type IndexedNotificationPayload = NotificationPayload & {
-  id: number
-}
-
 export type Station = {
   id: string
   hebrew: string

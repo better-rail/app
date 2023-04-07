@@ -1,7 +1,7 @@
-import { Ride } from "../types/types"
-import { getSelectedRide } from "../utils/ride-utils"
 import { railApi } from "./rail-api"
+import { Ride } from "../types/rides"
 import { RouteApi } from "./route-api"
+import { getSelectedRide } from "../utils/ride-utils"
 
 export const getRouteForRide = async (ride: Ride) => {
   const routeApi = new RouteApi(railApi)

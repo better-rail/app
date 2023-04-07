@@ -1,9 +1,10 @@
 import { v4 as uuid } from "uuid"
 import { isEqual, last } from "lodash"
-import formatDistance from "date-fns/formatDistance"
 
-import { Ride, RouteItem, RouteTrain } from "../types/types"
-import { LanguageCode, dateFnLocales, translate } from "../locales/i18n"
+import { Ride } from "../types/rides"
+import { localizedDifference } from "./date-utils"
+import { RouteItem, RouteTrain } from "../types/rail"
+import { LanguageCode, translate } from "../locales/i18n"
 
 export const getSelectedRide = (routes: RouteItem[], ride: Ride) => {
   return routes.find((route) =>
@@ -26,7 +27,7 @@ export const exchangeTrainPrompt = (trains: RouteTrain[], gotOffTrain: number, l
   const previous = trains[gotOffTrain]
   const next = trains[gotOffTrain + 1]
 
-  const waitTime = formatDistance(next.departureTime, previous.arrivalTime, { locale: dateFnLocales[locale] })
+  const waitTime = localizedDifference(next.departureTime, previous.arrivalTime, locale)
   const waitTimeText = translate("notifications.exchange.waitTime", locale, { waitTime })
 
   const platformKey = previous.destinationPlatform === next.originPlatform ? "stayInPlatform" : "changePlatform"

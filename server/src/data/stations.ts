@@ -1,6 +1,6 @@
 import { keyBy } from "lodash"
 
-import { Station } from "../types/types"
+import { Station } from "../types/rail"
 
 export const stations: Station[] = [
   {

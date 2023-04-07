@@ -3,7 +3,7 @@ import { RedisClientType } from "@redis/client"
 import { forEach, mapValues, omit } from "lodash"
 
 import { redisUrl } from "./config"
-import { Ride } from "../types/types"
+import { Ride } from "../types/rides"
 
 let client: RedisClientType
 
