@@ -35,7 +35,7 @@ export const startRideNotifications = async (ride: Ride) => {
 
     const passThroughStations: NotificationPayload[] = flatMap(route.trains, (train) => {
       return train.stopStations.map((station, index) => ({
-        time: index === 0 ? dayjs(train.departureTime).add(1, "minute") : dayjs(train.stopStations[index - 1].departureTime),
+        time: dayjs(index === 0 ? train.departureTime : train.stopStations[index - 1].departureTime).add(1, "minute"),
         state: {
           nextStationId: station.stationId,
           delay: 0,
@@ -97,7 +97,6 @@ export const startRideNotifications = async (ride: Ride) => {
       .sort((a, b) => (a.time.isAfter(b.time) ? 1 : -1))
       .map((notification, index) => ({
         ...notification,
-        time: notification.time.add(10, "hours"),
         id: index + 1,
       }))
 
