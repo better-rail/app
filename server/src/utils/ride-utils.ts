@@ -2,8 +2,10 @@ import { v4 as uuid } from "uuid"
 import { isEqual, last } from "lodash"
 
 import { Ride } from "../types/rides"
+import { getAllRides } from "../data/redis"
 import { localizedDifference } from "./date-utils"
 import { RouteItem, RouteTrain } from "../types/rail"
+import { startRideNotifications } from "../rides/rides"
 import { LanguageCode, translate } from "../locales/i18n"
 
 export const getSelectedRide = (routes: RouteItem[], ride: Ride) => {
@@ -37,4 +39,14 @@ export const exchangeTrainPrompt = (trains: RouteTrain[], gotOffTrain: number, l
   })
 
   return platformText + " | " + waitTimeText
+}
+
+export const scheduleExistingRides = async () => {
+  const rides = await getAllRides()
+  const promises = rides.map((ride) => {
+    return startRideNotifications(ride)
+  })
+  const schedules = await Promise.all(promises)
+  const successful = schedules.filter(Boolean)
+  console.log("continue updating", successful.length, "existing rides")
 }

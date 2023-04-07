@@ -2,7 +2,7 @@ import { Router } from "express"
 import { body, validationResult } from "express-validator"
 
 import { addRide, deleteRide } from "../data/redis"
-import { startRideNotifications } from "../rides/rides"
+import { endRideNotifications, startRideNotifications } from "../rides/rides"
 
 const router = Router()
 
@@ -33,7 +33,8 @@ router.post("/endRide", body("token").isString(), async (req, res) => {
     return res.status(400).send("body missing data")
   }
 
-  const success = await deleteRide(req.body.token)
+  const token = req.body.token
+  const success = (await deleteRide(token)) && endRideNotifications(token)
   res.status(success ? 200 : 500).send({ success })
 })
 

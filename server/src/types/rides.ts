@@ -7,4 +7,5 @@ export type Ride = {
   destinationId: number
   trains: number[]
   locale: LanguageCode
+  lastNotificationId: number
 }

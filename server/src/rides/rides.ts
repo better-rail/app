@@ -3,11 +3,11 @@ import { flatMap, flatten, keys, last } from "lodash"
 import { cancelJob, scheduleJob, scheduledJobs } from "node-schedule"
 
 import { Ride } from "../types/rides"
-import { deleteRide } from "../data/redis"
 import { sendNotification } from "./notify"
 import { translate } from "../locales/i18n"
 import { getRouteForRide } from "../requests"
 import { NotificationPayload } from "../types/notifications"
+import { deleteRide, updateLastRideNotification } from "../data/redis"
 import { exchangeTrainPrompt, generateJobId, isLastTrain } from "../utils/ride-utils"
 
 export const startRideNotifications = async (ride: Ride) => {
@@ -15,6 +15,11 @@ export const startRideNotifications = async (ride: Ride) => {
     const route = await getRouteForRide(ride)
     if (!route) {
       throw new Error("couldn't get route for this ride")
+    }
+
+    if (Date.now() >= route.arrivalTime) {
+      deleteRide(ride.token)
+      return false
     }
 
     const getOnTrain: NotificationPayload[] = route.trains.map((train) => ({
@@ -49,6 +54,15 @@ export const startRideNotifications = async (ride: Ride) => {
     const getOffTrain: NotificationPayload[] = flatten(
       route.trains.map((train, index) => {
         return [
+          {
+            time: dayjs(last(train.stopStations)?.departureTime || train.departureTime).add(1, "minutes"),
+            state: {
+              nextStationId: train.destinationStationId,
+              delay: train.delay,
+              inExchange: false,
+              arrived: false,
+            },
+          },
           {
             time: dayjs(train.arrivalTime).subtract(3, "minutes"),
             state: {
@@ -100,26 +114,29 @@ export const startRideNotifications = async (ride: Ride) => {
         ...notification,
         id: index + 1,
       }))
+      .filter((notification) => notification.id > ride.lastNotificationId)
 
     notifications.forEach((notification) => {
       scheduleJob(generateJobId(ride), notification.time.toDate(), () => {
         sendNotification(notification)
 
-        if (last(notifications) === notification) {
+        if (last(notifications)?.id === notification.id) {
           deleteRide(ride.token)
+        } else {
+          updateLastRideNotification(ride.token, notification.id)
         }
       })
     })
 
-    return notifications
+    return true
   } catch {
     return false
   }
 }
 
-export const endRideNotifications = (ride: Ride) => {
+export const endRideNotifications = (token: string) => {
   return keys(scheduledJobs)
-    .filter((job) => job.startsWith(ride.token))
+    .filter((job) => job.startsWith(token))
     .map((job) => cancelJob(job))
     .every((value) => value)
 }
