@@ -19,7 +19,7 @@ export const startRideNotifications = async (ride: Ride) => {
     const getOnTrain: NotificationPayload[] = route.trains.map((train) => ({
       time: dayjs(train.departureTime).subtract(1, "minute"),
       state: {
-        delay: 0,
+        delay: train.delay,
         arrived: false,
         inExchange: false,
         nextStationId: train.originStationId,
@@ -38,7 +38,7 @@ export const startRideNotifications = async (ride: Ride) => {
         time: dayjs(index === 0 ? train.departureTime : train.stopStations[index - 1].departureTime).add(1, "minute"),
         state: {
           nextStationId: station.stationId,
-          delay: 0,
+          delay: train.delay,
           inExchange: false,
           arrived: false,
         },
@@ -52,7 +52,7 @@ export const startRideNotifications = async (ride: Ride) => {
             time: dayjs(train.arrivalTime).subtract(3, "minutes"),
             state: {
               nextStationId: train.destinationStationId,
-              delay: 0,
+              delay: train.delay,
               inExchange: false,
               arrived: false,
             },
@@ -67,7 +67,7 @@ export const startRideNotifications = async (ride: Ride) => {
             time: dayjs(train.arrivalTime).subtract(1, "minutes"),
             state: {
               nextStationId: train.destinationStationId,
-              delay: 0,
+              delay: train.delay,
               inExchange: false,
               arrived: false,
             },
@@ -84,7 +84,7 @@ export const startRideNotifications = async (ride: Ride) => {
             time: dayjs(train.arrivalTime),
             state: {
               nextStationId: train.destinationStationId,
-              delay: 0,
+              delay: isLastTrain(route.trains, train) ? train.delay : route.trains[index + 1].delay,
               inExchange: !isLastTrain(route.trains, train),
               arrived: isLastTrain(route.trains, train),
             },
