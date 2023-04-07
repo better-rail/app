@@ -1,8 +1,9 @@
 import dayjs from "dayjs"
-import { flatMap, flatten, keys } from "lodash"
+import { flatMap, flatten, keys, last } from "lodash"
 import { cancelJob, scheduleJob, scheduledJobs } from "node-schedule"
 
 import { Ride } from "../types/rides"
+import { deleteRide } from "../data/redis"
 import { sendNotification } from "./notify"
 import { translate } from "../locales/i18n"
 import { getRouteForRide } from "../requests"
@@ -103,6 +104,10 @@ export const startRideNotifications = async (ride: Ride) => {
     notifications.forEach((notification) => {
       scheduleJob(generateJobId(ride), notification.time.toDate(), () => {
         sendNotification(notification)
+
+        if (last(notifications) === notification) {
+          deleteRide(ride.token)
+        }
       })
     })
 
