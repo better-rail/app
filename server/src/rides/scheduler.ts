@@ -127,11 +127,8 @@ export class Scheduler {
       this.route = newRoute
 
       const notifications = this.buildRideNotifications()
-      if (isEmpty(notifications)) {
-        return this.stopUpdateDelayJob()
-      }
-
       logger.info(logNames.scheduler.updateDelay.updated, { token: this.ride.token, delay: notifications[0].state.delay })
+
       notifications.forEach((notification) => {
         const notificationTime = notification.time.add(notification.state.delay, "minutes")
 
