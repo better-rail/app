@@ -1,13 +1,20 @@
 import { Dayjs } from "dayjs"
 
+export enum Status {
+  getOn = "getOn",
+  getOff = "getOff",
+  arrived = "arrived",
+  inTransit = "inTransit",
+  waitForTrain = "waitForTrain",
+}
+
 export type BuildNotificationPayload = {
   time: Dayjs
   token: string
   state: {
     nextStationId: number
     delay: number
-    inExchange: boolean
-    arrived: boolean
+    status: Status
   }
   alert?: {
     title: string

@@ -5,7 +5,7 @@ import { Ride } from "../types/rides"
 import { RouteItem } from "../types/rail"
 import { translate } from "../locales/i18n"
 import { isLastTrain, exchangeTrainPrompt } from "./ride-utils"
-import { BuildNotificationPayload } from "../types/notifications"
+import { BuildNotificationPayload, Status } from "../types/notifications"
 
 export const rideUpdateSecond = (token: string) => {
   let hashValue = 0
@@ -23,8 +23,7 @@ export const buildGetOnTrainNotifications = (route: RouteItem, ride: Ride): Buil
     time: dayjs(train.departureTime).subtract(1, "minute"),
     state: {
       delay: train.delay,
-      arrived: false,
-      inExchange: false,
+      status: Status.getOn,
       nextStationId: train.originStationId,
     },
     alert: {
@@ -43,10 +42,9 @@ export const buildNextStationNotifications = (route: RouteItem, ride: Ride): Bui
       token: ride.token,
       time: dayjs(last(train.stopStations)?.departureTime || train.departureTime).add(1, "minutes"),
       state: {
-        nextStationId: train.destinationStationId,
         delay: train.delay,
-        inExchange: false,
-        arrived: false,
+        status: Status.inTransit,
+        nextStationId: train.destinationStationId,
       },
     }
 
@@ -54,10 +52,9 @@ export const buildNextStationNotifications = (route: RouteItem, ride: Ride): Bui
       token: ride.token,
       time: dayjs(index === 0 ? train.departureTime : train.stopStations[index - 1].departureTime).add(1, "minute"),
       state: {
-        nextStationId: station.stationId,
         delay: train.delay,
-        inExchange: false,
-        arrived: false,
+        status: Status.inTransit,
+        nextStationId: station.stationId,
       },
     }))
 
@@ -73,10 +70,9 @@ export const buildGetOffTrainNotifications = (route: RouteItem, ride: Ride) => {
           token: ride.token,
           time: dayjs(train.arrivalTime).subtract(3, "minutes"),
           state: {
-            nextStationId: train.destinationStationId,
             delay: train.delay,
-            inExchange: false,
-            arrived: false,
+            status: Status.inTransit,
+            nextStationId: train.destinationStationId,
           },
           alert: {
             title: translate("notifications.prepareToGetOff.title", ride.locale),
@@ -89,10 +85,9 @@ export const buildGetOffTrainNotifications = (route: RouteItem, ride: Ride) => {
           token: ride.token,
           time: dayjs(train.arrivalTime).subtract(1, "minutes"),
           state: {
-            nextStationId: train.destinationStationId,
             delay: train.delay,
-            inExchange: false,
-            arrived: false,
+            status: Status.getOff,
+            nextStationId: train.destinationStationId,
           },
           alert: {
             title: translate("notifications.getOff.title", ride.locale),
@@ -108,9 +103,8 @@ export const buildGetOffTrainNotifications = (route: RouteItem, ride: Ride) => {
           time: dayjs(train.arrivalTime),
           state: {
             nextStationId: train.destinationStationId,
+            status: isLastTrain(route.trains, train) ? Status.arrived : Status.waitForTrain,
             delay: isLastTrain(route.trains, train) ? train.delay : route.trains[index + 1].delay,
-            inExchange: !isLastTrain(route.trains, train),
-            arrived: isLastTrain(route.trains, train),
           },
         },
       ]

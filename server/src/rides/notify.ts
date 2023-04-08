@@ -2,7 +2,7 @@ import axios from "axios"
 import dayjs from "dayjs"
 
 import { logNames, logger } from "../logs"
-import { NotificationPayload } from "../types/notifications"
+import { NotificationPayload, Status } from "../types/notifications"
 import { getApnToken, sendApnNotification } from "../utils/apn-utils"
 import { appleBundleId, telegramKey, telegramUrl } from "../data/config"
 
@@ -35,7 +35,7 @@ const sendAppleNotification = async (payload: NotificationPayload) => {
   const body = {
     aps: {
       timestamp: dayjs().unix(),
-      event: payload.state.arrived ? "end" : "update",
+      event: payload.state.status === Status.arrived ? "end" : "update",
       "content-state": payload.state,
       alert: payload.alert && {
         title: payload.alert.title,
