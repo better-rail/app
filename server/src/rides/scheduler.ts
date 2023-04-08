@@ -1,3 +1,4 @@
+import dayjs from "dayjs"
 import { keys, last, isEmpty } from "lodash"
 import { scheduleJob, Job, RecurrenceRule } from "node-schedule"
 
@@ -49,7 +50,7 @@ export class Scheduler {
   }
 
   start() {
-    const notifications = this.buildRideNotifications()
+    const notifications = this.buildRideNotifications(true)
     this.startUpdateDelayJob()
 
     notifications.forEach((notification) => {
@@ -70,7 +71,7 @@ export class Scheduler {
 
   stop() {
     for (const jobId in keys(this.jobs)) {
-      this.jobs[jobId].cancel()
+      this.jobs[jobId]?.cancel()
       delete this.jobs[jobId]
     }
 
@@ -78,20 +79,34 @@ export class Scheduler {
     return deleteRide(this.ride.token)
   }
 
-  private buildRideNotifications(): NotificationPayload[] {
+  private buildRideNotifications(isInitialRun: boolean = false): NotificationPayload[] {
     const builtNotifications = [
       ...buildGetOnTrainNotifications(this.route, this.ride),
       ...buildNextStationNotifications(this.route, this.ride),
       ...buildGetOffTrainNotifications(this.route, this.ride),
     ]
 
-    return builtNotifications
+    const notifications = builtNotifications
       .sort((a, b) => (a.time.isAfter(b.time) ? 1 : -1))
       .map((notification, index) => ({
         ...notification,
         id: index + 1,
       }))
-      .filter((notification) => notification.id > this.ride.lastNotificationId)
+      .filter((notification) => {
+        if (isInitialRun) {
+          const notificationTime = notification.time.add(notification.state.delay, "minutes")
+          return notificationTime.isAfter(dayjs())
+        } else {
+          return notification.id > this.ride.lastNotificationId
+        }
+      })
+
+    if (isInitialRun && notifications[0]) {
+      this.ride.lastNotificationId = notifications[0].id - 1
+      updateLastRideNotification(this.ride.token, this.ride.lastNotificationId)
+    }
+
+    return notifications
   }
 
   private startUpdateDelayJob() {
@@ -117,8 +132,13 @@ export class Scheduler {
 
       logger.info(logNames.scheduler.updateDelay.updated, { token: this.ride.token, delay: notifications[0].state.delay })
       notifications.forEach((notification) => {
-        const notificationTime = notification.time.add(notification.state.delay, "minutes").toDate()
-        this.jobs[notification.id]?.reschedule(notificationTime.getTime())
+        const notificationTime = notification.time.add(notification.state.delay, "minutes")
+
+        if (notificationTime.isBefore(dayjs())) {
+          this.jobs[notification.id]?.invoke()
+        } else {
+          this.jobs[notification.id]?.reschedule(notificationTime.valueOf())
+        }
       })
     })
   }

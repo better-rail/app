@@ -37,16 +37,13 @@ export const addRide = async (ride: Ride) => {
 
 export const updateLastRideNotification = async (token: string, id: number) => {
   try {
-    const result = await client.hSet(getKey(token), "lastNotificationId", id)
-    if (!result) {
-      throw new Error("Redis didn't update notification")
-    }
+    await client.hSet(getKey(token), "lastNotificationId", id)
 
     if (id !== 0) {
       logger.success(logNames.redis.rides.updateNotificationId.success, { token, id })
     }
 
-    return Boolean(result)
+    return true
   } catch (error) {
     logger.failed(logNames.redis.rides.updateNotificationId.success, { error, token, id })
     return false
@@ -70,12 +67,14 @@ export const getRide = async (token: string) => {
 export const deleteRide = async (token: string) => {
   try {
     const result = await client.del(getKey(token))
-    if (!result) {
+    const success = !Boolean(result)
+
+    if (!success) {
       throw new Error("Redis didn't delete ride")
     }
 
     logger.success(logNames.redis.rides.delete.success, { token })
-    return Boolean(result)
+    return success
   } catch (error) {
     logger.failed(logNames.redis.rides.delete.success, { error, token })
     return false
