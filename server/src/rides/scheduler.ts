@@ -7,6 +7,7 @@ import { RouteItem } from "../types/rail"
 import { logger, logNames } from "../logs"
 import { sendNotification } from "./notify"
 import { getRouteForRide } from "../requests"
+import { endRideNotifications } from "./index"
 import { NotificationPayload } from "../types/notifications"
 import { deleteRide, updateLastRideNotification } from "../data/redis"
 import {
@@ -60,7 +61,7 @@ export class Scheduler {
 
         delete this.jobs[notification.id]
         if (last(notifications)?.id === notification.id) {
-          deleteRide(this.ride.token)
+          endRideNotifications(this.ride.token)
         } else {
           this.ride.lastNotificationId = notification.id
           updateLastRideNotification(this.ride.token, notification.id)
