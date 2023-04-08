@@ -2,6 +2,7 @@ import { Dayjs } from "dayjs"
 
 export type NotificationPayload = {
   time: Dayjs
+  token: string
   state: {
     nextStationId: number
     delay: number

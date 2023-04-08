@@ -23,6 +23,7 @@ export const startRideNotifications = async (ride: Ride) => {
     }
 
     const getOnTrain: NotificationPayload[] = route.trains.map((train) => ({
+      token: ride.token,
       time: dayjs(train.departureTime).subtract(1, "minute"),
       state: {
         delay: train.delay,
@@ -41,6 +42,7 @@ export const startRideNotifications = async (ride: Ride) => {
 
     const passThroughStations: NotificationPayload[] = flatMap(route.trains, (train) => {
       return train.stopStations.map((station, index) => ({
+        token: ride.token,
         time: dayjs(index === 0 ? train.departureTime : train.stopStations[index - 1].departureTime).add(1, "minute"),
         state: {
           nextStationId: station.stationId,
@@ -55,6 +57,7 @@ export const startRideNotifications = async (ride: Ride) => {
       route.trains.map((train, index) => {
         return [
           {
+            token: ride.token,
             time: dayjs(last(train.stopStations)?.departureTime || train.departureTime).add(1, "minutes"),
             state: {
               nextStationId: train.destinationStationId,
@@ -64,6 +67,7 @@ export const startRideNotifications = async (ride: Ride) => {
             },
           },
           {
+            token: ride.token,
             time: dayjs(train.arrivalTime).subtract(3, "minutes"),
             state: {
               nextStationId: train.destinationStationId,
@@ -79,6 +83,7 @@ export const startRideNotifications = async (ride: Ride) => {
             },
           },
           {
+            token: ride.token,
             time: dayjs(train.arrivalTime).subtract(1, "minutes"),
             state: {
               nextStationId: train.destinationStationId,
@@ -96,6 +101,7 @@ export const startRideNotifications = async (ride: Ride) => {
             },
           },
           {
+            token: ride.token,
             time: dayjs(train.arrivalTime),
             state: {
               nextStationId: train.destinationStationId,
