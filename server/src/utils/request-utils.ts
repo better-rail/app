@@ -25,7 +25,7 @@ export const http2Request = (
     })
 
     request.on("response", (headers) => {
-      let status = headers[constants.HTTP2_HEADER_STATUS]!.toString()
+      const status = Number(headers[constants.HTTP2_HEADER_STATUS]!)
 
       let data = ""
 
@@ -34,12 +34,16 @@ export const http2Request = (
       })
 
       request.on("end", () => {
-        resolve({ status: Number(status), error: status !== "200" && JSON.parse(data) })
+        if (status === 200) {
+          resolve({ status, success: true })
+        } else {
+          reject(new Error(`status: ${status}, reason: ${JSON.parse(data).reason}`))
+        }
       })
     })
 
     request.on("error", (error) => {
-      reject({ error })
+      reject(error)
     })
 
     request.end()

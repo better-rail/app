@@ -3,26 +3,33 @@ import { flatMap, flatten, keys, last } from "lodash"
 import { cancelJob, scheduleJob, scheduledJobs } from "node-schedule"
 
 import { Ride } from "../types/rides"
+import { logNames, logger } from "../logs"
 import { sendNotification } from "./notify"
 import { translate } from "../locales/i18n"
 import { getRouteForRide } from "../requests"
-import { NotificationPayload } from "../types/notifications"
 import { deleteRide, updateLastRideNotification } from "../data/redis"
 import { exchangeTrainPrompt, generateJobId, isLastTrain } from "../utils/ride-utils"
+import { BuildNotificationPayload, NotificationPayload } from "../types/notifications"
 
 export const startRideNotifications = async (ride: Ride) => {
   try {
     const route = await getRouteForRide(ride)
     if (!route) {
-      throw new Error("couldn't get route for this ride")
+      return false
     }
 
     if (Date.now() >= route.arrivalTime) {
+      logger.failed(logNames.scheduler.rideInPast, {
+        date: ride.departureDate,
+        origin: ride.originId,
+        destination: ride.destinationId,
+        trains: ride.trains,
+      })
       deleteRide(ride.token)
       return false
     }
 
-    const getOnTrain: NotificationPayload[] = route.trains.map((train) => ({
+    const getOnTrain: BuildNotificationPayload[] = route.trains.map((train) => ({
       token: ride.token,
       time: dayjs(train.departureTime).subtract(1, "minute"),
       state: {
@@ -40,7 +47,7 @@ export const startRideNotifications = async (ride: Ride) => {
       },
     }))
 
-    const passThroughStations: NotificationPayload[] = flatMap(route.trains, (train) => {
+    const passThroughStations: BuildNotificationPayload[] = flatMap(route.trains, (train) => {
       return train.stopStations.map((station, index) => ({
         token: ride.token,
         time: dayjs(index === 0 ? train.departureTime : train.stopStations[index - 1].departureTime).add(1, "minute"),
@@ -53,7 +60,7 @@ export const startRideNotifications = async (ride: Ride) => {
       }))
     })
 
-    const getOffTrain: NotificationPayload[] = flatten(
+    const getOffTrain: BuildNotificationPayload[] = flatten(
       route.trains.map((train, index) => {
         return [
           {
@@ -114,7 +121,7 @@ export const startRideNotifications = async (ride: Ride) => {
       }),
     )
 
-    const notifications = [...getOnTrain, ...passThroughStations, ...getOffTrain]
+    const notifications: NotificationPayload[] = [...getOnTrain, ...passThroughStations, ...getOffTrain]
       .sort((a, b) => (a.time.isAfter(b.time) ? 1 : -1))
       .map((notification, index) => ({
         ...notification,
@@ -134,15 +141,29 @@ export const startRideNotifications = async (ride: Ride) => {
       })
     })
 
+    logger.success(logNames.scheduler.registerRide.success, { token: ride.token })
     return true
-  } catch {
+  } catch (error) {
+    logger.failed(logNames.scheduler.registerRide.failed, { error, token: ride.token })
     return false
   }
 }
 
 export const endRideNotifications = (token: string) => {
-  return keys(scheduledJobs)
-    .filter((job) => job.startsWith(token))
-    .map((job) => cancelJob(job))
-    .every((value) => value)
+  try {
+    const result = keys(scheduledJobs)
+      .filter((job) => job.startsWith(token))
+      .map((job) => cancelJob(job))
+      .every((value) => value)
+
+    if (!result) {
+      throw new Error("Couldn't cancel all jobs")
+    }
+
+    logger.success(logNames.scheduler.cancelRide.success, { token })
+    return result
+  } catch (error) {
+    logger.failed(logNames.scheduler.cancelRide.failed, { error, token })
+    return false
+  }
 }

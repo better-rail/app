@@ -2,6 +2,7 @@ import axios from "axios"
 import http2 from "http2"
 import dayjs from "dayjs"
 
+import { logNames, logger } from "../logs"
 import { getApnToken } from "../utils/notify-utils"
 import { http2Request } from "../utils/request-utils"
 import { NotificationPayload } from "../types/notifications"
@@ -14,7 +15,7 @@ export const sendNotification = (payload: NotificationPayload) => {
 }
 
 const sendLogNotification = (payload: NotificationPayload) => {
-  console.log(JSON.stringify(payload))
+  logger.info(logNames.notifications.log, { payload })
 }
 
 const sendTelegramNotification = (payload: NotificationPayload) => {
@@ -48,7 +49,7 @@ const sendAppleNotification = async (payload: NotificationPayload) => {
   }
 
   try {
-    const res = await http2Request(
+    await http2Request(
       apn,
       {
         path,
@@ -59,8 +60,8 @@ const sendAppleNotification = async (payload: NotificationPayload) => {
       body,
     )
 
-    console.log(res)
+    logger.success(logNames.notifications.apple.success, { token: payload.token, id: payload.id })
   } catch (error) {
-    console.log(error)
+    logger.failed(logNames.notifications.apple.failed, { error, token: payload.token, id: payload.id })
   }
 }

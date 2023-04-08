@@ -1,6 +1,6 @@
 import { Dayjs } from "dayjs"
 
-export type NotificationPayload = {
+export type BuildNotificationPayload = {
   time: Dayjs
   token: string
   state: {
@@ -15,6 +15,6 @@ export type NotificationPayload = {
   }
 }
 
-export type IndexedNotificationPayload = NotificationPayload & {
+export type NotificationPayload = BuildNotificationPayload & {
   id: number
 }

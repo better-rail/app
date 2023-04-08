@@ -9,6 +9,7 @@ const router = Router()
 router.post(
   "/startRide",
   body("token").isString(),
+  body("locale").isString(),
   body("departureDate").isISO8601(),
   body("originId").isNumeric(),
   body("destinationId").isNumeric(),

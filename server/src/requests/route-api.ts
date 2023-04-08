@@ -26,83 +26,78 @@ export class RouteApi {
     const hour = dayjs(departureDate).format("HH:mm")
     const date = dayjs(departureDate).format("YYYY-MM-DD")
 
-    try {
-      const response: ApiResponse<RailApiGetRoutesResult> = await this.api.apisauce.get(
-        `searchTrainLuzForDateTime?fromStation=${originId}&toStation=${destinationId}&date=${date}&hour=${hour}&scheduleType=1&systemType=2&languageId=${railApiLocales[locale]}`,
-      )
-      if (!response.data?.result) {
-        throw new Error("Error fetching results")
-      }
+    const response: ApiResponse<RailApiGetRoutesResult> = await this.api.apisauce.get(
+      `searchTrainLuzForDateTime?fromStation=${originId}&toStation=${destinationId}&date=${date}&hour=${hour}&scheduleType=1&systemType=2&languageId=${railApiLocales[locale]}`,
+    )
+    if (!response.data?.result) {
+      throw new Error("Error fetching results")
+    }
 
-      const { travels } = response.data.result
+    const { travels } = response.data.result
 
-      // format for usage in the UI
-      const formattedRoutes = travels.map((route) => {
-        const trains = route.trains.map((train) => {
-          const {
-            orignStation,
-            destinationStation,
-            departureTime,
-            arrivalTime,
-            originPlatform,
-            destPlatform,
-            trainNumber,
-            routeStations,
-            trainPosition,
-          } = train
-
-          const stationLocale = railApiLocales[locale].toLowerCase() as keyof Station
-
-          const stopStations = train.stopStations.map((station) => {
-            const { stationId } = station
-            const stationName = stationsObject[stationId][stationLocale] as string
-
-            return {
-              ...station,
-              departureTime: new Date(station.departureTime).getTime(),
-              arrivalTime: new Date(station.arrivalTime).getTime(),
-              stationName,
-            }
-          })
-
-          const lastStationId = routeStations[routeStations.length - 1].stationId
-
-          const route = {
-            delay: trainPosition?.calcDiffMinutes ?? 0,
-            originStationId: orignStation,
-            originStationName: stationsObject[orignStation][stationLocale] as string,
-            destinationStationId: destinationStation,
-            destinationStationName: stationsObject[destinationStation][stationLocale] as string,
-            departureTime: new Date(departureTime).getTime(),
-            arrivalTime: new Date(arrivalTime).getTime(),
-            originPlatform: originPlatform,
-            destinationPlatform: destPlatform,
-            lastStop: stationsObject[lastStationId][stationLocale] as string,
-            trainNumber,
-            stopStations,
-          }
-
-          return route
-        })
-
-        const departureTime = new Date(route.departureTime).getTime()
-        const arrivalTime = new Date(route.arrivalTime).getTime()
-
-        return {
-          ...route,
+    // format for usage in the UI
+    const formattedRoutes = travels.map((route) => {
+      const trains = route.trains.map((train) => {
+        const {
+          orignStation,
+          destinationStation,
           departureTime,
           arrivalTime,
-          trains,
-          delay: trains?.[0].delay ?? 0,
-          duration: routeDurationInMs(departureTime, arrivalTime),
-          isExchange: trains.length > 1,
+          originPlatform,
+          destPlatform,
+          trainNumber,
+          routeStations,
+          trainPosition,
+        } = train
+
+        const stationLocale = railApiLocales[locale].toLowerCase() as keyof Station
+
+        const stopStations = train.stopStations.map((station) => {
+          const { stationId } = station
+          const stationName = stationsObject[stationId][stationLocale] as string
+
+          return {
+            ...station,
+            departureTime: new Date(station.departureTime).getTime(),
+            arrivalTime: new Date(station.arrivalTime).getTime(),
+            stationName,
+          }
+        })
+
+        const lastStationId = routeStations[routeStations.length - 1].stationId
+
+        const route = {
+          delay: trainPosition?.calcDiffMinutes ?? 0,
+          originStationId: orignStation,
+          originStationName: stationsObject[orignStation][stationLocale] as string,
+          destinationStationId: destinationStation,
+          destinationStationName: stationsObject[destinationStation][stationLocale] as string,
+          departureTime: new Date(departureTime).getTime(),
+          arrivalTime: new Date(arrivalTime).getTime(),
+          originPlatform: originPlatform,
+          destinationPlatform: destPlatform,
+          lastStop: stationsObject[lastStationId][stationLocale] as string,
+          trainNumber,
+          stopStations,
         }
+
+        return route
       })
 
-      return formattedRoutes
-    } catch (err) {
-      console.error(err)
-      return []
-    }
+      const departureTime = new Date(route.departureTime).getTime()
+      const arrivalTime = new Date(route.arrivalTime).getTime()
+
+      return {
+        ...route,
+        departureTime,
+        arrivalTime,
+        trains,
+        delay: trains?.[0].delay ?? 0,
+        duration: routeDurationInMs(departureTime, arrivalTime),
+        isExchange: trains.length > 1,
+      }
+    })
+
+    return formattedRoutes
   }
 }

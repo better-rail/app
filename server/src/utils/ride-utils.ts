@@ -2,6 +2,7 @@ import { v4 as uuid } from "uuid"
 import { isEqual, last } from "lodash"
 
 import { Ride } from "../types/rides"
+import { logNames, logger } from "../logs"
 import { getAllRides } from "../data/redis"
 import { localizedDifference } from "./date-utils"
 import { RouteItem, RouteTrain } from "../types/rail"
@@ -47,6 +48,11 @@ export const scheduleExistingRides = async () => {
     return startRideNotifications(ride)
   })
   const schedules = await Promise.all(promises)
-  const successful = schedules.filter(Boolean)
-  console.log("continue updating", successful.length, "existing rides")
+  const successful = schedules.filter((val) => val)
+  const failed = schedules.filter((val) => !val)
+  logger.info(logNames.scheduler.scheduleExisting, {
+    count: promises.length,
+    successful: successful.length,
+    failed: failed.length,
+  })
 }
