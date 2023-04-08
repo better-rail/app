@@ -1,12 +1,34 @@
+import dayjs from "dayjs"
+import jwt from "jsonwebtoken"
 import { mapKeys } from "lodash"
-import { ClientHttp2Session, constants } from "http2"
+import http2, { constants } from "http2"
 
-export const http2Request = (
-  client: ClientHttp2Session,
-  config: Record<string, string>,
-  headers: Record<string, string>,
-  body?: any,
-) => {
+import { appleApnUrl, appleKeyId, appleKeyContent, appleTeamId } from "../data/config"
+
+export const getApnToken = () => {
+  return jwt.sign(
+    {
+      iss: appleTeamId,
+      iat: dayjs().unix(),
+    },
+    appleKeyContent,
+    {
+      header: {
+        alg: "ES256",
+        kid: appleKeyId,
+      },
+    },
+  )
+}
+
+const client = http2.connect(appleApnUrl)
+export const sendApnNotification = (deviceToken: string, headers: Record<string, string>, body?: any) => {
+  const config = {
+    path: "/3/device/" + deviceToken,
+    method: "POST",
+    scheme: "https",
+  }
+
   return new Promise((resolve, reject) => {
     const request = client.request({
       ...mapKeys(config, (_, key) => ":" + key),

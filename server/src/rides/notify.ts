@@ -1,12 +1,10 @@
 import axios from "axios"
-import http2 from "http2"
 import dayjs from "dayjs"
 
 import { logNames, logger } from "../logs"
-import { getApnToken } from "../utils/notify-utils"
-import { http2Request } from "../utils/request-utils"
 import { NotificationPayload } from "../types/notifications"
-import { appleApnUrl, appleBundleId, telegramKey, telegramUrl } from "../data/config"
+import { getApnToken, sendApnNotification } from "../utils/apn-utils"
+import { appleBundleId, telegramKey, telegramUrl } from "../data/config"
 
 export const sendNotification = (payload: NotificationPayload) => {
   sendLogNotification(payload)
@@ -25,10 +23,8 @@ const sendTelegramNotification = (payload: NotificationPayload) => {
   })
 }
 
-const apn = http2.connect(appleApnUrl)
 const sendAppleNotification = async (payload: NotificationPayload) => {
   const token = getApnToken()
-  const path = "/3/device/" + payload.token
 
   const headers = {
     authorization: `bearer ${token}`,
@@ -49,17 +45,7 @@ const sendAppleNotification = async (payload: NotificationPayload) => {
   }
 
   try {
-    await http2Request(
-      apn,
-      {
-        path,
-        method: "POST",
-        scheme: "https",
-      },
-      headers,
-      body,
-    )
-
+    await sendApnNotification(payload.token, headers, body)
     logger.success(logNames.notifications.apple.success, { token: payload.token, id: payload.id })
   } catch (error) {
     logger.failed(logNames.notifications.apple.failed, { error, token: payload.token, id: payload.id })
