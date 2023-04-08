@@ -42,7 +42,10 @@ export const updateLastRideNotification = async (token: string, id: number) => {
       throw new Error("Redis didn't update notification")
     }
 
-    logger.success(logNames.redis.rides.updateNotificationId.success, { token, id })
+    if (id !== 0) {
+      logger.success(logNames.redis.rides.updateNotificationId.success, { token, id })
+    }
+
     return Boolean(result)
   } catch (error) {
     logger.failed(logNames.redis.rides.updateNotificationId.success, { error, token, id })
