@@ -25,3 +25,8 @@ export type BuildNotificationPayload = {
 export type NotificationPayload = BuildNotificationPayload & {
   id: number
 }
+
+export type ApnToken = {
+  creationDate: Dayjs
+  value: string
+}

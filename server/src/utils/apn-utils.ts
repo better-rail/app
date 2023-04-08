@@ -3,10 +3,17 @@ import jwt from "jsonwebtoken"
 import { mapKeys } from "lodash"
 import http2, { constants } from "http2"
 
+import { ApnToken } from "../types/notifications"
 import { appleApnUrl, appleKeyId, appleKeyContent, appleTeamId } from "../data/config"
 
+let apnToken: ApnToken
+
 export const getApnToken = () => {
-  return jwt.sign(
+  if (apnToken && dayjs().diff(apnToken.creationDate, "minutes") <= 50) {
+    return apnToken.value
+  }
+
+  const token = jwt.sign(
     {
       iss: appleTeamId,
       iat: dayjs().unix(),
@@ -19,6 +26,13 @@ export const getApnToken = () => {
       },
     },
   )
+
+  apnToken = {
+    creationDate: dayjs(),
+    value: token,
+  }
+
+  return token
 }
 
 const client = http2.connect(appleApnUrl)
