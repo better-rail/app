@@ -6,7 +6,7 @@ type LogLevel = "INFO" | "SUCCESS" | "FAILED"
 class Logger {
   private log(level: LogLevel, message: string, params?: Record<string, unknown>) {
     const logFn = level === "FAILED" ? console.error : console.log
-    const date = dayjs().format("YYYY-MM-DD HH:mm.sss")
+    const date = dayjs().format("YYYY-MM-DD HH:mm:ss.SSS")
 
     if (params?.error instanceof Error) {
       params.error = params.error.message

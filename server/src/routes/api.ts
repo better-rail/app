@@ -2,7 +2,7 @@ import { Router } from "express"
 import { body, validationResult } from "express-validator"
 
 import { addRide, deleteRide } from "../data/redis"
-import { endRideNotifications, startRideNotifications } from "../rides/rides"
+import { endRideNotifications, startRideNotifications } from "../rides"
 
 const router = Router()
 

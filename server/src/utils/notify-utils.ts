@@ -1,11 +1,21 @@
 import dayjs from "dayjs"
+import { flatMap, flatten, last } from "lodash"
 
 import { Ride } from "../types/rides"
 import { RouteItem } from "../types/rail"
 import { translate } from "../locales/i18n"
-import { BuildNotificationPayload } from "../types/notifications"
-import { flatMap, flatten, last } from "lodash"
 import { isLastTrain, exchangeTrainPrompt } from "./ride-utils"
+import { BuildNotificationPayload } from "../types/notifications"
+
+export const rideUpdateSecond = (token: string) => {
+  let hashValue = 0
+
+  for (let i = 0; i < token.length; i++) {
+    hashValue += token.charCodeAt(i)
+  }
+
+  return hashValue % 60
+}
 
 export const buildGetOnTrainNotifications = (route: RouteItem, ride: Ride): BuildNotificationPayload[] => {
   return route.trains.map((train) => ({

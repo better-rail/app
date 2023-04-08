@@ -6,7 +6,7 @@ import { logNames, logger } from "../logs"
 import { getAllRides } from "../data/redis"
 import { localizedDifference } from "./date-utils"
 import { RouteItem, RouteTrain } from "../types/rail"
-import { startRideNotifications } from "../rides/rides"
+import { startRideNotifications } from "../rides"
 import { LanguageCode, translate } from "../locales/i18n"
 
 export const getSelectedRide = (routes: RouteItem[], ride: Ride) => {
