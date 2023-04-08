@@ -25,7 +25,7 @@ const sendTelegramNotification = (payload: NotificationPayload) => {
 }
 
 const apn = http2.connect(appleApnUrl)
-const sendAppleNotification = (payload: NotificationPayload) => {
+const sendAppleNotification = async (payload: NotificationPayload) => {
   const token = getApnToken()
   const path = "/3/device/" + payload.token
 
@@ -47,14 +47,20 @@ const sendAppleNotification = (payload: NotificationPayload) => {
     },
   }
 
-  http2Request(
-    apn,
-    {
-      path,
-      method: "POST",
-      scheme: "https",
-    },
-    headers,
-    body,
-  )
+  try {
+    const res = await http2Request(
+      apn,
+      {
+        path,
+        method: "POST",
+        scheme: "https",
+      },
+      headers,
+      body,
+    )
+
+    console.log(res)
+  } catch (error) {
+    console.log(error)
+  }
 }

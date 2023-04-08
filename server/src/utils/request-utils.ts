@@ -1,5 +1,5 @@
-import { ClientHttp2Session } from "http2"
 import { mapKeys } from "lodash"
+import { ClientHttp2Session, constants } from "http2"
 
 export const http2Request = (
   client: ClientHttp2Session,
@@ -8,9 +8,8 @@ export const http2Request = (
   body?: any,
 ) => {
   return new Promise((resolve, reject) => {
-    mapKeys(config, (key) => ":" + key)
     const request = client.request({
-      ...mapKeys(config, (key) => ":" + key),
+      ...mapKeys(config, (_, key) => ":" + key),
       ...headers,
     })
 
@@ -21,21 +20,26 @@ export const http2Request = (
 
     const response: any = []
 
-    request.on("data", (chunk) => {
+    request.on("response", (chunk) => {
       response.push(chunk)
     })
 
-    request.on("end", () => {
-      try {
-        const formatted = JSON.parse(Buffer.concat(response).toString())
-        resolve(formatted)
-      } catch (e) {
-        reject(e)
-      }
+    request.on("response", (headers) => {
+      let status = headers[constants.HTTP2_HEADER_STATUS]!.toString()
+
+      let data = ""
+
+      request.on("data", (chunk) => {
+        data += chunk
+      })
+
+      request.on("end", () => {
+        resolve({ status: Number(status), error: status !== "200" && JSON.parse(data) })
+      })
     })
 
     request.on("error", (error) => {
-      reject(error)
+      reject({ error })
     })
 
     request.end()
