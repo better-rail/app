@@ -75,6 +75,7 @@ export class Scheduler {
     }
 
     this.stopUpdateDelayJob()
+    return deleteRide(this.ride.token)
   }
 
   private buildRideNotifications(): NotificationPayload[] {

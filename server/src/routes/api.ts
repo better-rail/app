@@ -1,7 +1,7 @@
 import { Router } from "express"
 import { body, validationResult } from "express-validator"
 
-import { addRide, deleteRide } from "../data/redis"
+import { addRide } from "../data/redis"
 import { endRideNotifications, startRideNotifications } from "../rides"
 
 const router = Router()
@@ -35,7 +35,7 @@ router.post("/endRide", body("token").isString(), async (req, res) => {
   }
 
   const token = req.body.token
-  const success = (await deleteRide(token)) && endRideNotifications(token)
+  const success = await endRideNotifications(token)
   res.status(success ? 200 : 500).send({ success })
 })
 

@@ -1,6 +1,7 @@
 import { Ride } from "../types/rides"
 import { Scheduler } from "./scheduler"
 import { logNames, logger } from "../logs"
+import { deleteRide } from "../data/redis"
 
 const schedulers: Record<string, Scheduler> = {}
 
@@ -26,16 +27,21 @@ export const startRideNotifications = async (ride: Ride) => {
   }
 }
 
-export const endRideNotifications = (token: string) => {
+export const endRideNotifications = async (token: string) => {
   try {
     const scheduler = schedulers[token]
 
     if (!scheduler) {
+      await deleteRide(token)
       throw new Error("Scheduler not found")
     }
 
-    scheduler.stop()
+    const success = await scheduler.stop()
     delete schedulers[token]
+
+    if (!success) {
+      throw new Error("Scheduler didn't stop")
+    }
 
     logger.success(logNames.scheduler.cancelRide.success, { token })
     return true
