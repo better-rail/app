@@ -27,7 +27,7 @@ export class RouteApi {
     const date = dayjs(departureDate).format("YYYY-MM-DD")
 
     const response: ApiResponse<RailApiGetRoutesResult> = await this.api.apisauce.get(
-      `searchTrainLuzForDateTime?fromStation=${originId}&toStation=${destinationId}&date=${date}&hour=${hour}&scheduleType=1&systemType=2&languageId=${railApiLocales[locale]}`,
+      `searchTrainLuzForDateTime?fromStation=${originId}&toStation=${destinationId}&date=${date}&hour=${hour}&scheduleType=1&systemType=1&languageId=${railApiLocales[locale]}`,
     )
     if (!response.data?.result) {
       throw new Error("Error fetching results")
