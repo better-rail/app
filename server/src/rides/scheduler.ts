@@ -1,5 +1,5 @@
 import dayjs from "dayjs"
-import { keys, last, isEmpty } from "lodash"
+import { keys, last, isEmpty, omit } from "lodash"
 import { scheduleJob, Job, RecurrenceRule } from "node-schedule"
 
 import { Ride } from "../types/rides"
@@ -22,6 +22,7 @@ export class Scheduler {
   private route: RouteItem
   private updateDelayJob?: Job
   private jobs: Record<string, Job>
+  private lastSentNotification?: NotificationPayload
 
   private constructor(ride: Ride, route: RouteItem) {
     this.jobs = {}
@@ -58,6 +59,7 @@ export class Scheduler {
       const notificationTime = notification.time.add(notification.state.delay, "minutes").toDate()
       this.jobs[notification.id] = scheduleJob(notificationTime, () => {
         sendNotification(notification)
+        this.lastSentNotification = notification
 
         delete this.jobs[notification.id]
         if (last(notifications)?.id === notification.id) {
@@ -80,7 +82,7 @@ export class Scheduler {
     return deleteRide(this.ride.token)
   }
 
-  private buildRideNotifications(isInitialRun: boolean = false): NotificationPayload[] {
+  private buildRideNotifications(isInitialRun: boolean = false, filterPastNotifications: boolean = true): NotificationPayload[] {
     const builtNotifications = [
       ...buildGetOnTrainNotifications(this.route, this.ride),
       ...buildNextStationNotifications(this.route, this.ride),
@@ -94,7 +96,9 @@ export class Scheduler {
         id: index + 1,
       }))
       .filter((notification) => {
-        if (isInitialRun) {
+        if (!filterPastNotifications) {
+          return true
+        } else if (isInitialRun) {
           const notificationTime = notification.time.add(notification.state.delay, "minutes")
           return notificationTime.isAfter(dayjs())
         } else {
@@ -124,7 +128,16 @@ export class Scheduler {
 
       const newRoute = await getRouteForRide(this.ride)
       if (!newRoute) return
+      const previousDelay = this.route.delay
       this.route = newRoute
+
+      if (previousDelay !== newRoute.delay && this.lastSentNotification) {
+        const notifications = this.buildRideNotifications(false, false)
+        const notification = notifications.find((notification) => notification.id === this.lastSentNotification!.id)
+        if (notification) {
+          sendNotification(omit(notification, "alert"))
+        }
+      }
 
       const notifications = this.buildRideNotifications()
       logger.info(logNames.scheduler.updateDelay.updated, { token: this.ride.token, delay: notifications[0].state.delay })
