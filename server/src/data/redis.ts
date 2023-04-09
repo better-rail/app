@@ -67,7 +67,7 @@ export const getRide = async (token: string) => {
 export const deleteRide = async (token: string) => {
   try {
     const result = await client.del(getKey(token))
-    const success = !Boolean(result)
+    const success = Boolean(result)
 
     if (!success) {
       throw new Error("Redis didn't delete ride")
