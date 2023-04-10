@@ -129,7 +129,8 @@
     ],
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "/e2e"
+      "/e2e",
+      "/server"
     ],
     "transformIgnorePatterns": [
       "node_modules/(?!(jest-)?react-native|@react-native|@react-navigation|@storybook|@react-native-community|expo-localization|@unimodules)"
