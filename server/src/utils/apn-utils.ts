@@ -1,12 +1,13 @@
 import dayjs from "dayjs"
 import jwt from "jsonwebtoken"
 import { mapKeys } from "lodash"
-import http2, { constants } from "http2"
+import http2, { constants, ClientHttp2Session } from "http2"
 
 import { ApnToken } from "../types/notifications"
 import { appleApnUrl, appleKeyId, appleKeyContent, appleTeamId } from "../data/config"
 
 let apnToken: ApnToken
+let client: ClientHttp2Session
 
 export const getApnToken = () => {
   if (apnToken && dayjs().diff(apnToken.creationDate, "minutes") <= 50) {
@@ -35,7 +36,10 @@ export const getApnToken = () => {
   return token
 }
 
-const client = http2.connect(appleApnUrl)
+export const connectToApn = () => {
+  http2.connect(appleApnUrl)
+}
+
 export const sendApnNotification = (deviceToken: string, headers: Record<string, string>, body?: any) => {
   const config = {
     path: "/3/device/" + deviceToken,
