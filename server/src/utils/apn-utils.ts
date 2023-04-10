@@ -37,7 +37,7 @@ export const getApnToken = () => {
 }
 
 export const connectToApn = () => {
-  http2.connect(appleApnUrl)
+  client = http2.connect(appleApnUrl)
 }
 
 export const sendApnNotification = (deviceToken: string, headers: Record<string, string>, body?: any) => {
