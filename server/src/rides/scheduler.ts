@@ -78,7 +78,7 @@ export class Scheduler {
     return deleteRide(this.ride.token)
   }
 
-  private buildRideNotifications(isInitialRun: boolean = false): NotificationPayload[] {
+  private buildRideNotifications(isInitialRun: boolean = false) {
     const notifications = buildNotifications(this.route, this.ride, true, this.lastSentNotification?.id)
 
     if (isInitialRun && notifications[0]) {
