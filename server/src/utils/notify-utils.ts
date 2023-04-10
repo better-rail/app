@@ -1,5 +1,5 @@
 import dayjs from "dayjs"
-import { flatMap, flatten, last } from "lodash"
+import { flatMap, flatten, last, compact } from "lodash"
 
 import { Ride } from "../types/rides"
 import { RouteItem } from "../types/rail"
@@ -38,9 +38,14 @@ export const buildGetOnTrainNotifications = (route: RouteItem, ride: Ride): Buil
 
 export const buildNextStationNotifications = (route: RouteItem, ride: Ride): BuildNotificationPayload[] => {
   return flatMap(route.trains, (train) => {
-    const lastStation = {
+    const lastStationNotificationTime = dayjs(last(train.stopStations)?.departureTime || train.departureTime).add(1, "minutes")
+    const shouldSendLastStationNotification = lastStationNotificationTime.isBefore(
+      dayjs(train.arrivalTime).subtract(2, "minutes"),
+    )
+
+    const lastStation = shouldSendLastStationNotification && {
       token: ride.token,
-      time: dayjs(last(train.stopStations)?.departureTime || train.departureTime).add(1, "minutes"),
+      time: lastStationNotificationTime,
       state: {
         delay: train.delay,
         status: Status.inTransit,
@@ -58,7 +63,7 @@ export const buildNextStationNotifications = (route: RouteItem, ride: Ride): Bui
       },
     }))
 
-    return [...passthroughStations, lastStation]
+    return compact([...passthroughStations, lastStation])
   })
 }
 
@@ -68,7 +73,7 @@ export const buildGetOffTrainNotifications = (route: RouteItem, ride: Ride) => {
       return [
         {
           token: ride.token,
-          time: dayjs(train.arrivalTime).subtract(3, "minutes"),
+          time: dayjs(train.arrivalTime).subtract(2, "minutes"),
           state: {
             delay: train.delay,
             status: Status.inTransit,
