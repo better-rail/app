@@ -2,6 +2,7 @@ import dayjs from "dayjs"
 import { keys, last, isEmpty, omit } from "lodash"
 import { scheduleJob, Job, RecurrenceRule } from "node-schedule"
 
+import { env } from "../data/config"
 import { Ride } from "../types/rides"
 import { RouteItem } from "../types/rail"
 import { logger, logNames } from "../logs"
@@ -49,7 +50,10 @@ export class Scheduler {
 
   start() {
     const notifications = this.buildRideNotifications(true)
-    this.startUpdateDelayJob()
+
+    if (env === "production") {
+      this.startUpdateDelayJob()
+    }
 
     notifications.forEach((notification) => {
       const notificationTime = notification.time.add(notification.state.delay, "minutes").toDate()
@@ -81,12 +85,29 @@ export class Scheduler {
   private buildRideNotifications(isInitialRun: boolean = false) {
     const notifications = buildNotifications(this.route, this.ride, true, this.lastSentNotification?.id)
 
-    if (isInitialRun && notifications[0]) {
-      this.ride.lastNotificationId = notifications[0].id - 1
-      updateLastRideNotification(this.ride.token, this.ride.lastNotificationId)
-    }
+    if (env === "production") {
+      if (isInitialRun && notifications[0]) {
+        this.ride.lastNotificationId = notifications[0].id - 1
+        updateLastRideNotification(this.ride.token, this.ride.lastNotificationId)
+      }
 
-    return notifications
+      return notifications
+    } else {
+      // Test ride, send notifications every 15 seconds
+      let lastDate = dayjs()
+      return notifications.map((notification) => {
+        lastDate = lastDate.add(15, "seconds")
+
+        return {
+          ...notification,
+          time: lastDate,
+          state: {
+            ...notification.state,
+            delay: 0,
+          },
+        }
+      })
+    }
   }
 
   private startUpdateDelayJob() {

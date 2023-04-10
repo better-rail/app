@@ -1,7 +1,7 @@
 import express from "express"
 
-import { port } from "./data/config"
 import { router } from "./routes/api"
+import { env, port } from "./data/config"
 import { logNames, logger } from "./logs"
 import { connectToRedis } from "./data/redis"
 import { scheduleExistingRides } from "./utils/ride-utils"
@@ -14,5 +14,5 @@ app.use("/api/v1", router)
 app.listen(port, async () => {
   await connectToRedis()
   scheduleExistingRides()
-  logger.info(logNames.server.listening, { port })
+  logger.info(logNames.server.listening, { port, env })
 })

@@ -1,3 +1,4 @@
+import dayjs from "dayjs"
 import { v4 as uuid } from "uuid"
 import { isEqual, last, isNumber } from "lodash"
 
@@ -87,7 +88,4 @@ export const buildNotifications = (
         return notificationTime.isAfter(dayjs())
       }
     })
-}
-function dayjs(): string | number | Date | import("dayjs").Dayjs | null | undefined {
-  throw new Error("Function not implemented.")
 }
