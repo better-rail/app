@@ -129,6 +129,7 @@ export class Scheduler {
         const notifications = buildNotifications(newRoute, this.ride, false)
         const notification = notifications.find((notification) => notification.id === this.lastSentNotification?.id)
         if (notification && this.lastSentNotification?.state.delay !== notification.state.delay) {
+          this.lastSentNotification = notification
           sendNotification(omit(notification, "alert"))
         }
       }
