@@ -33,7 +33,7 @@ export class Scheduler {
       return null
     }
 
-    if (Date.now() >= route.arrivalTime) {
+    if (env === "production" && Date.now() >= route.arrivalTime) {
       logger.failed(logNames.scheduler.rideInPast, {
         date: ride.departureDate,
         origin: ride.originId,
