@@ -8,14 +8,10 @@ import { logger, logNames } from "../logs"
 import { sendNotification } from "./notify"
 import { getRouteForRide } from "../requests"
 import { endRideNotifications } from "./index"
+import { rideUpdateSecond } from "../utils/notify-utils"
+import { buildNotifications } from "../utils/ride-utils"
 import { NotificationPayload } from "../types/notifications"
 import { deleteRide, updateLastRideNotification } from "../data/redis"
-import {
-  rideUpdateSecond,
-  buildGetOnTrainNotifications,
-  buildNextStationNotifications,
-  buildGetOffTrainNotifications,
-} from "../utils/notify-utils"
 
 export class Scheduler {
   private ride: Ride
@@ -82,29 +78,8 @@ export class Scheduler {
     return deleteRide(this.ride.token)
   }
 
-  private buildRideNotifications(isInitialRun: boolean = false, filterPastNotifications: boolean = true): NotificationPayload[] {
-    const builtNotifications = [
-      ...buildGetOnTrainNotifications(this.route, this.ride),
-      ...buildNextStationNotifications(this.route, this.ride),
-      ...buildGetOffTrainNotifications(this.route, this.ride),
-    ]
-
-    const notifications = builtNotifications
-      .sort((a, b) => (a.time.isAfter(b.time) ? 1 : -1))
-      .map((notification, index) => ({
-        ...notification,
-        id: index + 1,
-      }))
-      .filter((notification) => {
-        if (!filterPastNotifications) {
-          return true
-        } else if (isInitialRun) {
-          const notificationTime = notification.time.add(notification.state.delay, "minutes")
-          return notificationTime.isAfter(dayjs())
-        } else {
-          return notification.id > this.ride.lastNotificationId
-        }
-      })
+  private buildRideNotifications(isInitialRun: boolean = false): NotificationPayload[] {
+    const notifications = buildNotifications(this.route, this.ride, true, this.lastSentNotification?.id)
 
     if (isInitialRun && notifications[0]) {
       this.ride.lastNotificationId = notifications[0].id - 1
@@ -128,17 +103,16 @@ export class Scheduler {
 
       const newRoute = await getRouteForRide(this.ride)
       if (!newRoute) return
-      const previousDelay = this.route.delay
-      this.route = newRoute
 
-      if (previousDelay !== newRoute.delay && this.lastSentNotification) {
-        const notifications = this.buildRideNotifications(false, false)
-        const notification = notifications.find((notification) => notification.id === this.lastSentNotification!.id)
-        if (notification) {
+      if (this.lastSentNotification) {
+        const notifications = buildNotifications(newRoute, this.ride, false)
+        const notification = notifications.find((notification) => notification.id === this.lastSentNotification?.id)
+        if (notification && this.lastSentNotification?.state.delay !== notification.state.delay) {
           sendNotification(omit(notification, "alert"))
         }
       }
 
+      this.route = newRoute
       const notifications = this.buildRideNotifications()
       logger.info(logNames.scheduler.updateDelay.updated, { token: this.ride.token, delay: notifications[0].state.delay })
 
