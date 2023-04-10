@@ -18,7 +18,7 @@ export class RouteApi {
 
     try {
       const response: ApiResponse<RailApiGetRoutesResult> = await this.api.apisauce.get(
-        `searchTrainLuzForDateTime?fromStation=${originId}&toStation=${destinationId}&date=${date}&hour=${hour}&scheduleType=1&systemType=2&languageId=Hebrew`,
+        `searchTrainLuzForDateTime?fromStation=${originId}&toStation=${destinationId}&date=${date}&hour=${hour}&scheduleType=1&systemType=1&languageId=Hebrew`,
       )
       if (!response.data?.result) throw new Error("Error fetching results")
 
