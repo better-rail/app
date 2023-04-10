@@ -6,7 +6,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: bahmutov/npm-install@v1
-        name: test client
       - run: npm t
   test-server:
     runs-on: ubuntu-latest
