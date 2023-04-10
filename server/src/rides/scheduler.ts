@@ -50,17 +50,16 @@ export class Scheduler {
 
   start() {
     const notifications = this.buildRideNotifications(true)
-
-    if (env === "production") {
-      this.startUpdateDelayJob()
-    }
-
     notifications.forEach((notification) => {
       const notificationTime = notification.time.add(notification.state.delay, "minutes").toDate()
       this.jobs[notification.id] = scheduleJob(notificationTime, () => {
         return this.sendNotification(notification)
       })
     })
+
+    if (env === "production") {
+      this.startUpdateDelayJob()
+    }
   }
 
   stop() {
