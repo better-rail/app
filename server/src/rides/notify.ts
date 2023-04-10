@@ -8,8 +8,12 @@ import { appleBundleId, telegramKey, telegramUrl } from "../data/config"
 
 export const sendNotification = (payload: NotificationPayload) => {
   sendLogNotification(payload)
-  sendTelegramNotification(payload)
   sendAppleNotification(payload)
+
+  // TODO: Remove Telegram notifications before merge
+  if (payload.token.startsWith("matan")) {
+    sendTelegramNotification(payload)
+  }
 }
 
 const sendLogNotification = (payload: NotificationPayload) => {

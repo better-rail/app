@@ -83,7 +83,7 @@ export class Scheduler {
   }
 
   private buildRideNotifications(isInitialRun: boolean = false) {
-    const notifications = buildNotifications(this.route, this.ride, true, this.lastSentNotification?.id)
+    const notifications = buildNotifications(this.route, this.ride, env === "production", this.lastSentNotification?.id)
 
     if (env === "production") {
       if (isInitialRun && notifications[0]) {
