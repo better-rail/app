@@ -58,16 +58,7 @@ export class Scheduler {
     notifications.forEach((notification) => {
       const notificationTime = notification.time.add(notification.state.delay, "minutes").toDate()
       this.jobs[notification.id] = scheduleJob(notificationTime, () => {
-        sendNotification(notification)
-        this.lastSentNotification = notification
-
-        delete this.jobs[notification.id]
-        if (last(notifications)?.id === notification.id) {
-          endRideNotifications(this.ride.token)
-        } else {
-          this.ride.lastNotificationId = notification.id
-          updateLastRideNotification(this.ride.token, notification.id)
-        }
+        return this.sendNotification(notification)
       })
     })
   }
@@ -144,7 +135,10 @@ export class Scheduler {
         if (notificationTime.isBefore(dayjs())) {
           this.jobs[notification.id]?.invoke()
         } else {
-          this.jobs[notification.id]?.reschedule(notificationTime.valueOf())
+          this.jobs[notification.id]?.cancel()
+          this.jobs[notification.id] = scheduleJob(notificationTime.toDate(), () => {
+            return this.sendNotification(notification)
+          })
         }
       })
     })
@@ -154,5 +148,20 @@ export class Scheduler {
     this.updateDelayJob?.cancel()
     this.updateDelayJob = undefined
     logger.info(logNames.scheduler.updateDelay.cancel, { token: this.ride.token })
+  }
+
+  private sendNotification(notification: NotificationPayload) {
+    if (!this.lastSentNotification || notification.id >= this.lastSentNotification?.id) {
+      sendNotification(notification)
+      this.lastSentNotification = notification
+
+      delete this.jobs[notification.id]
+      if (isEmpty(this.jobs)) {
+        endRideNotifications(this.ride.token)
+      } else {
+        this.ride.lastNotificationId = notification.id
+        updateLastRideNotification(this.ride.token, notification.id)
+      }
+    }
   }
 }
