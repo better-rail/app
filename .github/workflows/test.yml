@@ -6,16 +6,19 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: bahmutov/npm-install@v1
+        name: test client
       - run: npm t
   test-server:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: borales/actions-yarn@v4
+        name: install dependencies
         with:
           cmd: install
           dir: server
       - uses: borales/actions-yarn@v4
+        name: test server
         with:
           cmd: test
           dir: server
