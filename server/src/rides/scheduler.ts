@@ -79,6 +79,13 @@ export class Scheduler {
       if (isInitialRun && notifications[0]) {
         this.ride.lastNotificationId = notifications[0].id - 1
         updateLastRideNotification(this.ride.token, this.ride.lastNotificationId)
+        if (this.ride.lastNotificationId > 0) {
+          const allNotifications = buildNotifications(this.route, this.ride, false)
+          const notification = allNotifications.find((notification) => notification.id === this.ride.lastNotificationId)
+          if (notification) {
+            this.lastSentNotification = notification
+          }
+        }
       }
 
       return notifications
@@ -158,12 +165,12 @@ export class Scheduler {
   private sendNotification(notification: NotificationPayload) {
     if (!this.lastSentNotification || notification.id >= this.lastSentNotification?.id) {
       sendNotification(notification)
-      this.lastSentNotification = notification
 
       delete this.jobs[notification.id]
       if (isEmpty(this.jobs)) {
         endRideNotifications(this.ride.token)
       } else {
+        this.lastSentNotification = notification
         this.ride.lastNotificationId = notification.id
         updateLastRideNotification(this.ride.token, notification.id)
       }
