@@ -115,24 +115,16 @@ export class Scheduler {
       const newRoute = await getRouteForRide(this.ride)
       if (!newRoute) return
 
-      if (this.lastSentNotification) {
-        const notifications = buildNotifications(newRoute, this.ride, false)
-        const notification = notifications.find((notification) => notification.id === this.lastSentNotification?.id)
-        if (notification && this.lastSentNotification?.state.delay !== notification.state.delay) {
-          this.lastSentNotification = notification
-          sendNotification(omit(notification, "alert"))
-        }
-      }
-
       this.route = newRoute
       const notifications = this.buildRideNotifications()
       logger.info(logNames.scheduler.updateDelay.updated, { token: this.ride.token, delay: notifications[0].state.delay })
 
+      const notificationsToSendNow: NotificationPayload[] = []
       notifications.forEach((notification) => {
         const notificationTime = notification.time.add(notification.state.delay, "minutes")
 
         if (notificationTime.isBefore(dayjs())) {
-          this.jobs[notification.id]?.invoke()
+          notificationsToSendNow.push(notification)
         } else {
           this.jobs[notification.id]?.cancel()
           this.jobs[notification.id] = scheduleJob(notificationTime.toDate(), () => {
@@ -140,6 +132,20 @@ export class Scheduler {
           })
         }
       })
+
+      const notificationToSendNow = last(notificationsToSendNow)
+      if (notificationToSendNow) {
+        this.sendNotification(notificationToSendNow)
+      } else if (this.lastSentNotification) {
+        const notifications = buildNotifications(this.route, this.ride, false)
+        const notificationWithUpdatedDelay = notifications.find(
+          (notification) => notification.id === this.lastSentNotification?.id,
+        )
+        if (notificationWithUpdatedDelay && this.lastSentNotification?.state.delay !== notificationWithUpdatedDelay.state.delay) {
+          this.lastSentNotification = notificationWithUpdatedDelay
+          sendNotification(omit(notificationWithUpdatedDelay, "alert"))
+        }
+      }
     })
   }
 
