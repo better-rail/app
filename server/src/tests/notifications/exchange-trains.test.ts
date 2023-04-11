@@ -128,7 +128,7 @@ test("build get off notifications for direct train", () => {
       state: {
         delay: 4,
         nextStationId: 30,
-        status: Status.waitForTrain,
+        status: Status.inExchange,
       },
       time: dayjs(now + getOffInExchangeTime),
     },
