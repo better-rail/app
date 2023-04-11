@@ -5,6 +5,7 @@ export enum Status {
   getOff = "getOff",
   arrived = "arrived",
   inTransit = "inTransit",
+  inExchange = "inExchange",
   waitForTrain = "waitForTrain",
 }
 

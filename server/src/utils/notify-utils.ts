@@ -108,7 +108,7 @@ export const buildGetOffTrainNotifications = (route: RouteItem, ride: Ride) => {
           time: dayjs(train.arrivalTime),
           state: {
             nextStationId: train.destinationStationId,
-            status: isLastTrain(route.trains, train) ? Status.arrived : Status.waitForTrain,
+            status: isLastTrain(route.trains, train) ? Status.arrived : Status.inExchange,
             delay: isLastTrain(route.trains, train) ? train.delay : route.trains[index + 1].delay,
           },
         },
