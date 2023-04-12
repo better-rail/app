@@ -3,11 +3,8 @@
   "tasks": [
     {
       "type": "shell",
-      "command": "yarn run ios",
+      "command": "yarn run ios --simulator=\"iPhone 14\"",
       "problemMatcher": [],
-      "options": {
-        "cwd": "${workspaceFolder}/server"
-      },
       "label": "Run iOS",
       "detail": "Serves the app with iOS"
     },
@@ -15,9 +12,6 @@
       "type": "shell",
       "command": "yarn run android",
       "problemMatcher": [],
-      "options": {
-        "cwd": "${workspaceFolder}/server"
-      },
       "label": "Run Android",
       "detail": "Serves the app with Android"
     },
