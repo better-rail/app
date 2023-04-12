@@ -18,7 +18,7 @@ podfile_properties = JSON.parse(File.read('./Podfile.properties.json')) rescue {
 #   dependencies: {
 #     ...(process.env.NO_FLIPPER ? { 'react-native-flipper': { platforms: { ios: null } } } : {}),
 # ```
-flipper_config = ENV['NO_FLIPPER'] == "1" ? FlipperConfiguration.disabled : FlipperConfiguration.enabled
+flipper_config = ENV['NO_FLIPPER'] == "1" ? FlipperConfiguration.disabled : FlipperConfiguration.enabled(["Debug"], { 'Flipper' => '0.78.0' })
 
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
@@ -67,6 +67,8 @@ target 'BetterRail' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
+  use_flipper!({ 'Flipper' => '0.78.0' })
+
   target 'BetterRailTests' do
     inherit! :complete
     # Pods for testing
@@ -79,7 +81,7 @@ target 'BetterRail' do
       # necessary for Mac Catalyst builds
       :mac_catalyst_enabled => false
     )
-    
+
     # Workaround `Cycle inside FBReactNativeSpec` error for react-native 0.64
     # Reference: https://github.com/software-mansion/react-native-screens/issues/842#issuecomment-812543933
     installer.pods_project.targets.each do |target|

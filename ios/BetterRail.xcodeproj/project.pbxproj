@@ -15,8 +15,10 @@
 		2CC766CDFD19431C8786B99E /* Heebo-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 5B118A8459B542A2BA8C9824 /* Heebo-Regular.otf */; };
 		3948B514A79C47EFBFC7D1B2 /* Heebo-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = A2759849ACE84A51AA1EC58E /* Heebo-Medium.otf */; };
 		5EFC395D238C4D2ABEF902D0 /* Heebo-ExtraBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = AF4431C692CA4F7D8DC013BE /* Heebo-ExtraBold.otf */; };
+		6077F20A0125323C132F8DFD /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEC14BF96DD67D553AE4EB4B /* ExpoModulesProvider.swift */; };
 		73244C6A71D14F56B7316FA2 /* Heebo-Black.otf in Resources */ = {isa = PBXBuildFile; fileRef = 62AD955938654791888FAB90 /* Heebo-Black.otf */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		C0F707F834D839B5724738A3 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC587A60DAEFAB1B12DF76C7 /* ExpoModulesProvider.swift */; };
 		C102DF9E2764FD6600A756B6 /* WidgetLargeScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C102DF9D2764FD6600A756B6 /* WidgetLargeScheduleView.swift */; };
 		C1286B51275E6C8300E1E05D /* RNBetterRail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1286B50275E6C8300E1E05D /* RNBetterRail.swift */; };
 		C1286B55275E6D9D00E1E05D /* RNBetterRail.m in Sources */ = {isa = PBXBuildFile; fileRef = C1286B54275E6D9D00E1E05D /* RNBetterRail.m */; };
@@ -188,7 +190,9 @@
 		A047FB8FBCA54556AEDB349D /* Heebo-Light.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Heebo-Light.otf"; path = "../assets/fonts/Heebo-Light.otf"; sourceTree = "<group>"; };
 		A2759849ACE84A51AA1EC58E /* Heebo-Medium.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Heebo-Medium.otf"; path = "../assets/fonts/Heebo-Medium.otf"; sourceTree = "<group>"; };
 		A70BF4419AFA46D2B69352A3 /* Heebo-Thin.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Heebo-Thin.otf"; path = "../assets/fonts/Heebo-Thin.otf"; sourceTree = "<group>"; };
+		AEC14BF96DD67D553AE4EB4B /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-BetterRail-BetterRailTests/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		AF4431C692CA4F7D8DC013BE /* Heebo-ExtraBold.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Heebo-ExtraBold.otf"; path = "../assets/fonts/Heebo-ExtraBold.otf"; sourceTree = "<group>"; };
+		BC587A60DAEFAB1B12DF76C7 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-BetterRail/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		C102DF9D2764FD6600A756B6 /* WidgetLargeScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetLargeScheduleView.swift; sourceTree = "<group>"; };
 		C1286B50275E6C8300E1E05D /* RNBetterRail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RNBetterRail.swift; path = BetterRail/RNBetterRail.swift; sourceTree = "<group>"; };
 		C1286B54275E6D9D00E1E05D /* RNBetterRail.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNBetterRail.m; sourceTree = "<group>"; };
@@ -390,6 +394,7 @@
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				71ED362ACEA45F9F60DCD285 /* Pods */,
 				D6A8C2445E5D42FA8F96D59C /* Resources */,
+				C83A6A2999858166D72B62E7 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -528,6 +533,23 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		C83A6A2999858166D72B62E7 /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				E67C4D29CEF5AB831D39AD9C /* BetterRail */,
+				D08DC0C205D8A3DC653E8BBA /* BetterRailTests */,
+			);
+			name = ExpoModulesProviders;
+			sourceTree = "<group>";
+		};
+		D08DC0C205D8A3DC653E8BBA /* BetterRailTests */ = {
+			isa = PBXGroup;
+			children = (
+				AEC14BF96DD67D553AE4EB4B /* ExpoModulesProvider.swift */,
+			);
+			name = BetterRailTests;
+			sourceTree = "<group>";
+		};
 		D6A8C2445E5D42FA8F96D59C /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -540,6 +562,14 @@
 				A70BF4419AFA46D2B69352A3 /* Heebo-Thin.otf */,
 			);
 			name = Resources;
+			sourceTree = "<group>";
+		};
+		E67C4D29CEF5AB831D39AD9C /* BetterRail */ = {
+			isa = PBXGroup;
+			children = (
+				BC587A60DAEFAB1B12DF76C7 /* ExpoModulesProvider.swift */,
+			);
+			name = BetterRail;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -600,6 +630,7 @@
 				C17FA4B52709EFBB003797D9 /* Resources */,
 				C17FA4D72709EFBC003797D9 /* Embed App Extensions */,
 				5ADD2F5D367465AA26E9276A /* Frameworks */,
+				26CD5A7CDEDE41EE35A976AF /* Sources */,
 			);
 			buildRules = (
 			);
@@ -866,14 +897,12 @@
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/Flipper-DoubleConversion/double-conversion.framework/double-conversion",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/Flipper-Glog/glog.framework/glog",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL-Universal/OpenSSL.framework/OpenSSL",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/double-conversion.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/glog.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OpenSSL.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -932,14 +961,12 @@
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/Flipper-DoubleConversion/double-conversion.framework/double-conversion",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/Flipper-Glog/glog.framework/glog",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL-Universal/OpenSSL.framework/OpenSSL",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/double-conversion.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/glog.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OpenSSL.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -973,6 +1000,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				00E356F31AD99517003FC87E /* BetterRailTests.m in Sources */,
+				6077F20A0125323C132F8DFD /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -991,6 +1019,14 @@
 				C1286B55275E6D9D00E1E05D /* RNBetterRail.m in Sources */,
 				C1B93927276E1EF700482B62 /* Extensions.swift in Sources */,
 				C1286B51275E6C8300E1E05D /* RNBetterRail.swift in Sources */,
+				C0F707F834D839B5724738A3 /* ExpoModulesProvider.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		26CD5A7CDEDE41EE35A976AF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1122,6 +1158,7 @@
 					"-lc++",
 					"$(inherited)",
 				);
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BetterRail.app/BetterRail";
@@ -1143,6 +1180,7 @@
 					"-lc++",
 					"$(inherited)",
 				);
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BetterRail.app/BetterRail";
@@ -1169,6 +1207,7 @@
 					"-ObjC",
 					"-lc++",
 				);
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = "il.co.better-rail";
 				PRODUCT_NAME = BetterRail;
 				SWIFT_OBJC_BRIDGING_HEADER = "BetterRail-Bridging-Header.h";
@@ -1199,6 +1238,7 @@
 					"-ObjC",
 					"-lc++",
 				);
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = "il.co.better-rail";
 				PRODUCT_NAME = BetterRail;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1240,7 +1280,7 @@
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = i386;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -1303,7 +1343,7 @@
 				COPY_PHASE_STRIP = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = i386;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -1350,6 +1390,7 @@
 				MARKETING_VERSION = 1.10.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = "il.co.better-rail.watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1386,6 +1427,7 @@
 				INFOPLIST_FILE = WatchBetterRail/Info.plist;
 				MARKETING_VERSION = 1.10.1;
 				MTL_FAST_MATH = YES;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = "il.co.better-rail.watchkitapp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -1419,6 +1461,7 @@
 				MARKETING_VERSION = 1.10.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = "il.co.better-rail.watchkitapp.watchkitextension";
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SDKROOT = watchos;
@@ -1453,6 +1496,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MARKETING_VERSION = 1.10.1;
 				MTL_FAST_MATH = YES;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = "il.co.better-rail.watchkitapp.watchkitextension";
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SDKROOT = watchos;
@@ -1487,6 +1531,7 @@
 				MARKETING_VERSION = 1.10.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = "il.co.better-rail.BetterRailWidget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1521,6 +1566,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MARKETING_VERSION = 1.10.1;
 				MTL_FAST_MATH = YES;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = "il.co.better-rail.BetterRailWidget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1552,6 +1598,7 @@
 				MARKETING_VERSION = 1.10.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = "il.co.better-rail.StationIntent";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1585,6 +1632,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MARKETING_VERSION = 1.10.1;
 				MTL_FAST_MATH = YES;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = "il.co.better-rail.StationIntent";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
