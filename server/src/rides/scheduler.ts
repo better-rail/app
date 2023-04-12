@@ -19,6 +19,7 @@ export class Scheduler {
   private route: RouteItem
   private updateDelayJob?: Job
   private jobs: Record<string, Job>
+  private sendLastNotificationJob?: Job
   private lastSentNotification?: NotificationPayload
 
   private constructor(ride: Ride, route: RouteItem) {
@@ -59,6 +60,16 @@ export class Scheduler {
 
     if (env === "production") {
       this.startUpdateDelayJob()
+
+      this.sendLastNotificationJob = scheduleJob("* * * * *", (fireDate) => {
+        const notification = this.lastSentNotification
+        if (!notification) return
+
+        const notificationTime = notification.time.add(notification.state.delay, "minutes")
+        if (!notificationTime.isSame(fireDate)) {
+          this.sendNotification(omit(notification, "alert"))
+        }
+      })
     }
   }
 
@@ -69,6 +80,8 @@ export class Scheduler {
     }
 
     this.stopUpdateDelayJob()
+    this.sendLastNotificationJob?.cancel()
+    this.sendLastNotificationJob = undefined
     return deleteRide(this.ride.token)
   }
 
@@ -150,7 +163,7 @@ export class Scheduler {
         )
         if (notificationWithUpdatedDelay && this.lastSentNotification?.state.delay !== notificationWithUpdatedDelay.state.delay) {
           this.lastSentNotification = notificationWithUpdatedDelay
-          sendNotification(omit(notificationWithUpdatedDelay, "alert"))
+          this.sendNotification(omit(notificationWithUpdatedDelay, "alert"))
         }
       }
     })
