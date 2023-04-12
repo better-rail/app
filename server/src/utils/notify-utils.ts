@@ -5,7 +5,7 @@ import { Ride } from "../types/rides"
 import { RouteItem } from "../types/rail"
 import { translate } from "../locales/i18n"
 import { isLastTrain, exchangeTrainPrompt } from "./ride-utils"
-import { BuildNotificationPayload, Status } from "../types/notifications"
+import { BuildNotificationPayload, NotificationPayload, Status } from "../types/notifications"
 
 export const rideUpdateSecond = (token: string) => {
   let hashValue = 0
@@ -15,6 +15,19 @@ export const rideUpdateSecond = (token: string) => {
   }
 
   return hashValue % 60
+}
+
+export const getNotificationToSend = (notifications: NotificationPayload[], date: Date) => {
+  const notificationsToSendNow: NotificationPayload[] = []
+  notifications.forEach((notification) => {
+    const notificationTime = notification.time.add(notification.state.delay, "minutes")
+
+    if (notificationTime.isSameOrBefore(date)) {
+      notificationsToSendNow.push(notification)
+    }
+  })
+
+  return last(notificationsToSendNow)
 }
 
 export const buildGetOnTrainNotifications = (route: RouteItem, ride: Ride): BuildNotificationPayload[] => {

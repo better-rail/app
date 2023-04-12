@@ -1,6 +1,9 @@
 import dayjs from "dayjs"
-import { keys, last, isEmpty, omit } from "lodash"
+import { isEmpty, omit } from "lodash"
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore"
 import { scheduleJob, Job, RecurrenceRule } from "node-schedule"
+
+dayjs.extend(isSameOrBefore)
 
 import { env } from "../data/config"
 import { Ride } from "../types/rides"
@@ -9,7 +12,7 @@ import { logger, logNames } from "../logs"
 import { sendNotification } from "./notify"
 import { getRouteForRide } from "../requests"
 import { endRideNotifications } from "./index"
-import { rideUpdateSecond } from "../utils/notify-utils"
+import { getNotificationToSend, rideUpdateSecond } from "../utils/notify-utils"
 import { buildNotifications } from "../utils/ride-utils"
 import { NotificationPayload } from "../types/notifications"
 import { deleteRide, updateLastRideNotification } from "../data/redis"
@@ -18,14 +21,14 @@ export class Scheduler {
   private ride: Ride
   private route: RouteItem
   private updateDelayJob?: Job
-  private jobs: Record<string, Job>
-  private sendLastNotificationJob?: Job
+  private sendNotificationsJob?: Job
   private lastSentNotification?: NotificationPayload
+  private notificationsToSend: NotificationPayload[]
 
   private constructor(ride: Ride, route: RouteItem) {
-    this.jobs = {}
     this.ride = ride
     this.route = route
+    this.notificationsToSend = this.buildRideNotifications(true)
   }
 
   static async create(ride: Ride) {
@@ -50,38 +53,30 @@ export class Scheduler {
   }
 
   start() {
-    const notifications = this.buildRideNotifications(true)
-    notifications.forEach((notification) => {
-      const notificationTime = notification.time.add(notification.state.delay, "minutes").toDate()
-      this.jobs[notification.id] = scheduleJob(notificationTime, () => {
-        return this.sendNotification(notification)
-      })
-    })
-
     if (env === "production") {
       this.startUpdateDelayJob()
-
-      this.sendLastNotificationJob = scheduleJob("* * * * *", (fireDate) => {
-        const notification = this.lastSentNotification
-        if (!notification) return
-
-        const notificationTime = notification.time.add(notification.state.delay, "minutes")
-        if (!notificationTime.isSame(fireDate)) {
-          this.sendNotification(omit(notification, "alert"))
-        }
-      })
     }
+
+    this.sendNotificationsJob = scheduleJob("* * * * *", (fireDate) => {
+      const notificationToSendNow = getNotificationToSend(this.notificationsToSend, fireDate)
+      if (notificationToSendNow) {
+        return this.sendNotification(notificationToSendNow)
+      }
+
+      if (this.lastSentNotification && env === "production") {
+        const allNotifications = buildNotifications(this.route, this.ride, false)
+        const notificationWithUpdatedDelay = allNotifications.find(
+          (notification) => notification.id === this.lastSentNotification?.id,
+        )
+        this.sendNotification(omit(notificationWithUpdatedDelay || this.lastSentNotification, "alert"))
+      }
+    })
   }
 
   stop() {
-    for (const jobId in keys(this.jobs)) {
-      this.jobs[jobId]?.cancel()
-      delete this.jobs[jobId]
-    }
-
     this.stopUpdateDelayJob()
-    this.sendLastNotificationJob?.cancel()
-    this.sendLastNotificationJob = undefined
+    this.sendNotificationsJob?.cancel()
+    this.sendNotificationsJob = undefined
     return deleteRide(this.ride.token)
   }
 
@@ -128,7 +123,7 @@ export class Scheduler {
 
     logger.info(logNames.scheduler.updateDelay.register, { token: this.ride.token, second })
     this.updateDelayJob = scheduleJob(rule, async () => {
-      if (isEmpty(this.jobs)) {
+      if (isEmpty(this.notificationsToSend)) {
         return this.stopUpdateDelayJob()
       }
 
@@ -136,36 +131,11 @@ export class Scheduler {
       if (!newRoute) return
 
       this.route = newRoute
-      const notifications = this.buildRideNotifications()
-      logger.info(logNames.scheduler.updateDelay.updated, { token: this.ride.token, delay: notifications[0].state.delay })
-
-      const notificationsToSendNow: NotificationPayload[] = []
-      notifications.forEach((notification) => {
-        const notificationTime = notification.time.add(notification.state.delay, "minutes")
-
-        if (notificationTime.isBefore(dayjs())) {
-          notificationsToSendNow.push(notification)
-        } else {
-          this.jobs[notification.id]?.cancel()
-          this.jobs[notification.id] = scheduleJob(notificationTime.toDate(), () => {
-            return this.sendNotification(notification)
-          })
-        }
+      this.notificationsToSend = this.buildRideNotifications()
+      logger.info(logNames.scheduler.updateDelay.updated, {
+        token: this.ride.token,
+        delay: this.notificationsToSend[0].state.delay,
       })
-
-      const notificationToSendNow = last(notificationsToSendNow)
-      if (notificationToSendNow) {
-        this.sendNotification(notificationToSendNow)
-      } else if (this.lastSentNotification) {
-        const notifications = buildNotifications(this.route, this.ride, false)
-        const notificationWithUpdatedDelay = notifications.find(
-          (notification) => notification.id === this.lastSentNotification?.id,
-        )
-        if (notificationWithUpdatedDelay && this.lastSentNotification?.state.delay !== notificationWithUpdatedDelay.state.delay) {
-          this.lastSentNotification = notificationWithUpdatedDelay
-          this.sendNotification(omit(notificationWithUpdatedDelay, "alert"))
-        }
-      }
     })
   }
 
@@ -179,8 +149,9 @@ export class Scheduler {
     if (!this.lastSentNotification || notification.id >= this.lastSentNotification?.id) {
       sendNotification(notification)
 
-      delete this.jobs[notification.id]
-      if (isEmpty(this.jobs)) {
+      const indexToRemove = this.notificationsToSend.indexOf(notification)
+      this.notificationsToSend.splice(indexToRemove, 1)
+      if (isEmpty(this.notificationsToSend)) {
         endRideNotifications(this.ride.token)
       } else {
         this.lastSentNotification = notification
