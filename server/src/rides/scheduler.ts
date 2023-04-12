@@ -12,10 +12,10 @@ import { logger, logNames } from "../logs"
 import { sendNotification } from "./notify"
 import { getRouteForRide } from "../requests"
 import { endRideNotifications } from "./index"
-import { getNotificationToSend, rideUpdateSecond } from "../utils/notify-utils"
 import { buildNotifications } from "../utils/ride-utils"
 import { NotificationPayload } from "../types/notifications"
 import { deleteRide, updateLastRideNotification } from "../data/redis"
+import { getNotificationToSend, rideUpdateSecond } from "../utils/notify-utils"
 
 export class Scheduler {
   private ride: Ride
