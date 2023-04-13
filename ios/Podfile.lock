@@ -396,6 +396,8 @@ PODS:
     - React-RCTImage
   - RNShare (6.2.1):
     - React-Core
+  - RNSharedElement (0.8.8):
+    - React-Core
   - RNSVG (13.4.0):
     - React-Core
   - RNWatch (1.1.0):
@@ -463,6 +465,7 @@ DEPENDENCIES:
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNShare (from `../node_modules/react-native-share`)
+  - RNSharedElement (from `../node_modules/react-native-shared-element`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNWatch (from `../node_modules/react-native-watch-connectivity`)
   - ToastHybrid (from `../node_modules/react-native-toast-hybrid`)
@@ -587,6 +590,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-screens"
   RNShare:
     :path: "../node_modules/react-native-share"
+  RNSharedElement:
+    :path: "../node_modules/react-native-shared-element"
   RNSVG:
     :path: "../node_modules/react-native-svg"
   RNWatch:
@@ -655,11 +660,12 @@ SPEC CHECKSUMS:
   RNReanimated: cc5e3aa479cb9170bcccf8204291a6950a3be128
   RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
   RNShare: 5ac8f6532ca4cd80fc71caef1cfbba1854a6a045
+  RNSharedElement: 504fa28a235b12505b6daedbb452a9ec96809bd0
   RNSVG: 07dbd870b0dcdecc99b3a202fa37c8ca163caec2
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
   ToastHybrid: 432381039a804a60e142ebaa7af8290e236c288e
   Yoga: ba09b6b11e6139e3df8229238aa794205ca6a02a
 
-PODFILE CHECKSUM: 5910521fc7fbece1a73a187c24fafae419623e33
+PODFILE CHECKSUM: 160e1a1588d6b61cf36d27b2927aefcadff9ab4e
 
 COCOAPODS: 1.12.0
