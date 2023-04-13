@@ -45,7 +45,7 @@
     "mobx-state-tree": "5.1.8",
     "ramda": "0.27.1",
     "react": "18.2.0",
-    "react-native": "0.71.3",
+    "react-native": "0.71.6",
     "react-native-date-picker": "4.2.10",
     "react-native-device-info": "8.4.6",
     "react-native-gesture-handler": "~2.9.0",
