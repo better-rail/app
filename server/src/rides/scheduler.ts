@@ -73,7 +73,7 @@ export class Scheduler {
         const waitForTrainNotification = buildWaitForTrainNotiifcation(this.route, this.ride)
         const notificationTime = waitForTrainNotification.time.add(waitForTrainNotification.state.delay, "minutes")
         if (dayjs(fireDate).isSameOrBefore(notificationTime)) {
-          this.sendNotification(waitForTrainNotification)
+          return this.sendNotification(waitForTrainNotification)
         }
       })
     } else {
