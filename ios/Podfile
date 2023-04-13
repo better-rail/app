@@ -69,11 +69,6 @@ target 'BetterRail' do
 
   use_flipper!({ 'Flipper' => '0.78.0' })
 
-  target 'BetterRailTests' do
-    inherit! :complete
-    # Pods for testing
-  end
-
   post_install do |installer|
     react_native_post_install(
       installer,

@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		00E356F31AD99517003FC87E /* BetterRailTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* BetterRailTests.m */; };
 		02ED03C656594967A0656417 /* Heebo-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = E3C07A94FCDB4698B4A058EB /* Heebo-Bold.otf */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
@@ -15,7 +14,6 @@
 		2CC766CDFD19431C8786B99E /* Heebo-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 5B118A8459B542A2BA8C9824 /* Heebo-Regular.otf */; };
 		3948B514A79C47EFBFC7D1B2 /* Heebo-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = A2759849ACE84A51AA1EC58E /* Heebo-Medium.otf */; };
 		5EFC395D238C4D2ABEF902D0 /* Heebo-ExtraBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = AF4431C692CA4F7D8DC013BE /* Heebo-ExtraBold.otf */; };
-		6077F20A0125323C132F8DFD /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEC14BF96DD67D553AE4EB4B /* ExpoModulesProvider.swift */; };
 		73244C6A71D14F56B7316FA2 /* Heebo-Black.otf in Resources */ = {isa = PBXBuildFile; fileRef = 62AD955938654791888FAB90 /* Heebo-Black.otf */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		C0F707F834D839B5724738A3 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC587A60DAEFAB1B12DF76C7 /* ExpoModulesProvider.swift */; };
@@ -88,19 +86,11 @@
 		C1F7C89027627A60002A417F /* Route.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = C1F7C89327627A60002A417F /* Route.intentdefinition */; };
 		C1F7C89127627A60002A417F /* Route.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = C1F7C89327627A60002A417F /* Route.intentdefinition */; };
 		DA04D16B7E3649A49F843A15 /* Heebo-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = A047FB8FBCA54556AEDB349D /* Heebo-Light.otf */; };
-		DC6B055E41D9A2766AC583C5 /* libPods-BetterRail-BetterRailTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48B0F8E2C1E46351B0DCA018 /* libPods-BetterRail-BetterRailTests.a */; };
 		EB148A208318438E9A4B4B99 /* Heebo-Thin.otf in Resources */ = {isa = PBXBuildFile; fileRef = A70BF4419AFA46D2B69352A3 /* Heebo-Thin.otf */; };
 		F1D8FCDD0B8EA18B8EE52EC2 /* libPods-BetterRail.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E72986263FBDED995A5F7AE /* libPods-BetterRail.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		00E356F41AD99517003FC87E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
-			remoteInfo = BetterRail;
-		};
 		C17FA4C22709EFBB003797D9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
@@ -170,7 +160,6 @@
 
 /* Begin PBXFileReference section */
 		008F07F21AC5B25A0029DE68 /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
-		00E356EE1AD99517003FC87E /* BetterRailTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BetterRailTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* BetterRailTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BetterRailTests.m; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* BetterRail.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BetterRail.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -257,14 +246,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		00E356EB1AD99517003FC87E /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				DC6B055E41D9A2766AC583C5 /* libPods-BetterRail-BetterRailTests.a in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		13B07F8C1A680F5B00A75B9A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -405,7 +386,6 @@
 			isa = PBXGroup;
 			children = (
 				13B07F961A680F5B00A75B9A /* BetterRail.app */,
-				00E356EE1AD99517003FC87E /* BetterRailTests.xctest */,
 				C17FA4B72709EFBB003797D9 /* WatchBetterRail.app */,
 				C17FA4C02709EFBB003797D9 /* WatchBetterRail Extension.appex */,
 				C1A802602747AB4D00A3073D /* BetterRailWidgetExtension.appex */,
@@ -575,27 +555,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		00E356ED1AD99517003FC87E /* BetterRailTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "BetterRailTests" */;
-			buildPhases = (
-				75D44895A78C50A8A06C0C98 /* [CP] Check Pods Manifest.lock */,
-				00E356EA1AD99517003FC87E /* Sources */,
-				00E356EB1AD99517003FC87E /* Frameworks */,
-				00E356EC1AD99517003FC87E /* Resources */,
-				3263BDC2CA9A32AB0D64FA72 /* [CP] Embed Pods Frameworks */,
-				7523253DD5C4AFAFBF07EC99 /* [CP] Copy Pods Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				00E356F51AD99517003FC87E /* PBXTargetDependency */,
-			);
-			name = BetterRailTests;
-			productName = BetterRailTests;
-			productReference = 00E356EE1AD99517003FC87E /* BetterRailTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 		13B07F861A680F5B00A75B9A /* BetterRail */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "BetterRail" */;
@@ -702,10 +661,6 @@
 				LastSwiftUpdateCheck = 1250;
 				LastUpgradeCheck = 1130;
 				TargetAttributes = {
-					00E356ED1AD99517003FC87E = {
-						CreatedOnToolsVersion = 6.2;
-						TestTargetID = 13B07F861A680F5B00A75B9A;
-					};
 					13B07F861A680F5B00A75B9A = {
 						DevelopmentTeam = UE6BVYPPFX;
 						LastSwiftMigration = 1240;
@@ -749,7 +704,6 @@
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* BetterRail */,
-				00E356ED1AD99517003FC87E /* BetterRailTests */,
 				C17FA4B62709EFBB003797D9 /* WatchBetterRail */,
 				C17FA4BF2709EFBB003797D9 /* WatchBetterRail Extension */,
 				C1A8025F2747AB4D00A3073D /* BetterRailWidgetExtension */,
@@ -759,13 +713,6 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		00E356EC1AD99517003FC87E /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		13B07F8E1A680F5B00A75B9A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -887,70 +834,6 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		3263BDC2CA9A32AB0D64FA72 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-BetterRail-BetterRailTests/Pods-BetterRail-BetterRailTests-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/Flipper-DoubleConversion/double-conversion.framework/double-conversion",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/Flipper-Glog/glog.framework/glog",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL-Universal/OpenSSL.framework/OpenSSL",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/double-conversion.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/glog.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OpenSSL.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-BetterRail-BetterRailTests/Pods-BetterRail-BetterRailTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		7523253DD5C4AFAFBF07EC99 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-BetterRail-BetterRailTests/Pods-BetterRail-BetterRailTests-resources.sh",
-				"${PODS_CONFIGURATION_BUILD_DIR}/React-Core/AccessibilityResources.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/ToastHybrid/ToastHybrid.bundle",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/AccessibilityResources.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ToastHybrid.bundle",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-BetterRail-BetterRailTests/Pods-BetterRail-BetterRailTests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		75D44895A78C50A8A06C0C98 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-BetterRail-BetterRailTests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
 		774A412A999A4F63ED98703F /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -995,15 +878,6 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		00E356EA1AD99517003FC87E /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				00E356F31AD99517003FC87E /* BetterRailTests.m in Sources */,
-				6077F20A0125323C132F8DFD /* ExpoModulesProvider.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		13B07F871A680F5B00A75B9A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1087,11 +961,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		00E356F51AD99517003FC87E /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 13B07F861A680F5B00A75B9A /* BetterRail */;
-			targetProxy = 00E356F41AD99517003FC87E /* PBXContainerItemProxy */;
-		};
 		C17FA4C32709EFBB003797D9 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = C17FA4BF2709EFBB003797D9 /* WatchBetterRail Extension */;
@@ -1140,53 +1009,6 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		00E356F61AD99517003FC87E /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = D4783C31AABD7321A40B9182 /* Pods-BetterRail-BetterRailTests.debug.xcconfig */;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = BetterRailTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"-lc++",
-					"$(inherited)",
-				);
-				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BetterRail.app/BetterRail";
-			};
-			name = Debug;
-		};
-		00E356F71AD99517003FC87E /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9AD76AB3D8A9CCF536567F1E /* Pods-BetterRail-BetterRailTests.release.xcconfig */;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				COPY_PHASE_STRIP = NO;
-				INFOPLIST_FILE = BetterRailTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"-lc++",
-					"$(inherited)",
-				);
-				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BetterRail.app/BetterRail";
-			};
-			name = Release;
-		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6843AC57DE947CFFF5B149E8 /* Pods-BetterRail.debug.xcconfig */;
@@ -1645,15 +1467,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "BetterRailTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				00E356F61AD99517003FC87E /* Debug */,
-				00E356F71AD99517003FC87E /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "BetterRail" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
