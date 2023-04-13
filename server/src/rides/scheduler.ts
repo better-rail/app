@@ -15,7 +15,7 @@ import { endRideNotifications } from "./index"
 import { buildNotifications } from "../utils/ride-utils"
 import { NotificationPayload } from "../types/notifications"
 import { deleteRide, updateLastRideNotification } from "../data/redis"
-import { getNotificationToSend, rideUpdateSecond } from "../utils/notify-utils"
+import { buildWaitForTrainNotiifcation, getNotificationToSend, rideUpdateSecond } from "../utils/notify-utils"
 
 export class Scheduler {
   private ride: Ride
@@ -67,7 +67,13 @@ export class Scheduler {
           const notificationWithUpdatedDelay = allNotifications.find(
             (notification) => notification.id === this.lastSentNotification?.id,
           )
-          this.sendNotification(omit(notificationWithUpdatedDelay || this.lastSentNotification, "alert"))
+          return this.sendNotification(omit(notificationWithUpdatedDelay || this.lastSentNotification, "alert"))
+        }
+
+        const waitForTrainNotification = buildWaitForTrainNotiifcation(this.route, this.ride)
+        const notificationTime = waitForTrainNotification.time.add(waitForTrainNotification.state.delay, "minutes")
+        if (dayjs(fireDate).isSameOrBefore(notificationTime)) {
+          this.sendNotification(waitForTrainNotification)
         }
       })
     } else {

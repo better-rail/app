@@ -30,6 +30,21 @@ export const getNotificationToSend = (notifications: NotificationPayload[], date
   return last(notificationsToSendNow)
 }
 
+export const buildWaitForTrainNotiifcation = (route: RouteItem, ride: Ride): NotificationPayload => {
+  const train = route.trains[0]
+
+  return {
+    id: 0,
+    token: ride.token,
+    time: dayjs(train.departureTime).subtract(2, "minute"),
+    state: {
+      delay: train.delay,
+      status: Status.waitForTrain,
+      nextStationId: train.originStationId,
+    },
+  }
+}
+
 export const buildGetOnTrainNotifications = (route: RouteItem, ride: Ride): BuildNotificationPayload[] => {
   return route.trains.map((train) => ({
     token: ride.token,
