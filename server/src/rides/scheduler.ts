@@ -62,7 +62,7 @@ export class Scheduler {
           return this.sendNotification(notificationToSendNow)
         }
 
-        if (this.lastSentNotification) {
+        if (this.lastSentNotification && this.lastSentNotification.id > 0) {
           const allNotifications = buildNotifications(this.route, this.ride, false)
           const notificationWithUpdatedDelay = allNotifications.find(
             (notification) => notification.id === this.lastSentNotification?.id,
