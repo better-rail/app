@@ -1,5 +1,5 @@
 import dayjs from "dayjs"
-import { isEmpty, omit } from "lodash"
+import { head, isEmpty, omit } from "lodash"
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore"
 import { scheduleJob, Job, RecurrenceRule } from "node-schedule"
 
@@ -55,22 +55,31 @@ export class Scheduler {
   start() {
     if (env === "production") {
       this.startUpdateDelayJob()
+
+      this.sendNotificationsJob = scheduleJob("* * * * *", (fireDate) => {
+        const notificationToSendNow = getNotificationToSend(this.notificationsToSend, fireDate)
+        if (notificationToSendNow) {
+          return this.sendNotification(notificationToSendNow)
+        }
+
+        if (this.lastSentNotification) {
+          const allNotifications = buildNotifications(this.route, this.ride, false)
+          const notificationWithUpdatedDelay = allNotifications.find(
+            (notification) => notification.id === this.lastSentNotification?.id,
+          )
+          this.sendNotification(omit(notificationWithUpdatedDelay || this.lastSentNotification, "alert"))
+        }
+      })
+    } else {
+      const rule = new RecurrenceRule()
+      rule.second = [0, 15, 30, 45]
+      this.sendNotificationsJob = scheduleJob(rule, () => {
+        const notificationToSendNow = head(this.notificationsToSend)
+        if (notificationToSendNow) {
+          this.sendNotification(notificationToSendNow)
+        }
+      })
     }
-
-    this.sendNotificationsJob = scheduleJob("* * * * *", (fireDate) => {
-      const notificationToSendNow = getNotificationToSend(this.notificationsToSend, fireDate)
-      if (notificationToSendNow) {
-        return this.sendNotification(notificationToSendNow)
-      }
-
-      if (this.lastSentNotification && env === "production") {
-        const allNotifications = buildNotifications(this.route, this.ride, false)
-        const notificationWithUpdatedDelay = allNotifications.find(
-          (notification) => notification.id === this.lastSentNotification?.id,
-        )
-        this.sendNotification(omit(notificationWithUpdatedDelay || this.lastSentNotification, "alert"))
-      }
-    })
   }
 
   stop() {

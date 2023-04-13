@@ -887,6 +887,14 @@ apisauce@^3.0.0:
   dependencies:
     axios "^0.27.2"
 
+apns2@^11.2.0:
+  version "11.2.0"
+  resolved "https://registry.yarnpkg.com/apns2/-/apns2-11.2.0.tgz#59effd1c2d9662a471d1091f6ff543079acfd4e7"
+  integrity sha512-D0NX8MldC6rTsdRHC2f9qBQi/dnki3u5xmGadPwnGcqbiID5wfTa3itHZyM7YcEgtM7ZkEb9oXenHgn4VKSs1g==
+  dependencies:
+    fetch-http2 "^1.0.5"
+    jsonwebtoken "^9.0.0"
+
 arg@^4.1.0:
   version "4.1.3"
   resolved "https://registry.yarnpkg.com/arg/-/arg-4.1.3.tgz#269fc7ad5b8e42cb63c896d5666017261c144089"
@@ -1501,6 +1509,11 @@ fb-watchman@^2.0.0:
   integrity sha512-p5161BqbuCaSnB8jIbzQHOlpgsPmK5rJVDfDKO91Axs5NC1uu3HRQm6wt9cd9/+GtQQIO53JdGXXoyDpTAsgYA==
   dependencies:
     bser "2.1.1"
+
+fetch-http2@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/fetch-http2/-/fetch-http2-1.0.5.tgz#58e8be80b85cb1102cc77c3602e4a151047b6e5e"
+  integrity sha512-3EdspqroXQ9AWOnzI9tXB5col6A8X5oBp6RJSQoJqsGi0FsApyqfaO3V5/LLBdc0wgUku4zs5Vs1pd/gfVT8Kg==
 
 fill-range@^7.0.1:
   version "7.0.1"

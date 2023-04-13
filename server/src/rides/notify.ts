@@ -2,9 +2,9 @@ import axios from "axios"
 import dayjs from "dayjs"
 
 import { logNames, logger } from "../logs"
+import { sendApnNotification } from "../utils/apn-utils"
+import { telegramKey, telegramUrl } from "../data/config"
 import { NotificationPayload, Status } from "../types/notifications"
-import { getApnToken, sendApnNotification } from "../utils/apn-utils"
-import { appleBundleId, telegramKey, telegramUrl } from "../data/config"
 
 export const sendNotification = (payload: NotificationPayload) => {
   sendLogNotification(payload)
@@ -28,28 +28,18 @@ const sendTelegramNotification = (payload: NotificationPayload) => {
 }
 
 const sendAppleNotification = async (payload: NotificationPayload) => {
-  const token = getApnToken()
-
-  const headers = {
-    authorization: `bearer ${token}`,
-    "apns-push-type": "liveactivity",
-    "apns-topic": appleBundleId + ".push-type.liveactivity",
-  }
-
-  const body = {
-    aps: {
-      timestamp: dayjs().unix(),
-      event: payload.state.status === Status.arrived ? "end" : "update",
-      "content-state": payload.state,
-      alert: payload.alert && {
-        title: payload.alert.title,
-        body: payload.alert.text,
-      },
+  const aps = {
+    timestamp: dayjs().unix(),
+    event: payload.state.status === Status.arrived ? "end" : "update",
+    "content-state": payload.state,
+    alert: payload.alert && {
+      title: payload.alert.title,
+      body: payload.alert.text,
     },
   }
 
   try {
-    await sendApnNotification(payload.token, headers, body)
+    await sendApnNotification(payload.token, aps)
     logger.success(logNames.notifications.apple.success, { token: payload.token, id: payload.id })
   } catch (error) {
     logger.failed(logNames.notifications.apple.failed, { error, token: payload.token, id: payload.id })
