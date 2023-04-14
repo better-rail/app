@@ -31,8 +31,8 @@ local.properties
 *.iml
 *.hprof
 .cxx/
-34	*.keystore
-35	!debug.keystore
+*.keystore
+!debug.keystore
 
 # node.js
 #
@@ -58,7 +58,6 @@ yarn-error.log
 # Ruby / CocoaPods
 /ios/Pods/
 /vendor/bundle/
-/ios/assets
 
 # Ignite-specific items below
 # You can safely replace everything above this comment with whatever is
@@ -87,4 +86,4 @@ app/config/env.*.js
 *.aab
 
 # Temporary files created by Metro to check the health of the file watcher
-63	.metro-health-check*
+.metro-health-check*
