@@ -1,5 +1,5 @@
 import dayjs from "dayjs"
-import formatDistance from "date-fns/formatDistance"
+import { formatDistance } from "date-fns"
 
 import { LanguageCode, dateFnLocales } from "../locales/i18n"
 
