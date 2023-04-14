@@ -1,7 +1,6 @@
 import { Dayjs } from "dayjs"
 
 export enum Status {
-  getOn = "getOn",
   getOff = "getOff",
   arrived = "arrived",
   inTransit = "inTransit",

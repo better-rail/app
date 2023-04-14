@@ -26,7 +26,7 @@ test("build get on notification for exchange train", () => {
       state: {
         delay: 2,
         nextStationId: 10,
-        status: Status.getOn,
+        status: Status.waitForTrain,
       },
       time: dayjs(now - minutesInMs(1)),
       alert: {
@@ -39,7 +39,7 @@ test("build get on notification for exchange train", () => {
       state: {
         delay: 4,
         nextStationId: 30,
-        status: Status.getOn,
+        status: Status.waitForTrain,
       },
       time: dayjs(now + minutesInMs(14)),
       alert: {

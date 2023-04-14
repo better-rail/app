@@ -51,7 +51,7 @@ export const buildGetOnTrainNotifications = (route: RouteItem, ride: Ride): Buil
     time: dayjs(train.departureTime).subtract(1, "minute"),
     state: {
       delay: train.delay,
-      status: Status.getOn,
+      status: Status.waitForTrain,
       nextStationId: train.originStationId,
     },
     alert: {

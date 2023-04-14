@@ -26,7 +26,7 @@ test("build get on notification for direct train", () => {
       state: {
         delay: 2,
         nextStationId: 10,
-        status: Status.getOn,
+        status: Status.waitForTrain,
       },
       time: dayjs(now - minutesInMs(1)),
       alert: {
