@@ -147,10 +147,13 @@ export class Scheduler {
 
       this.route = newRoute
       this.notificationsToSend = this.buildRideNotifications()
-      logger.info(logNames.scheduler.updateDelay.updated, {
-        token: this.ride.token,
-        delay: this.notificationsToSend[0].state.delay,
-      })
+
+      if (!isEmpty(this.notificationsToSend)) {
+        logger.info(logNames.scheduler.updateDelay.updated, {
+          token: this.ride.token,
+          delay: this.notificationsToSend[0].state.delay,
+        })
+      }
     })
   }
 

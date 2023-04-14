@@ -1,6 +1,6 @@
 import { ApnsClient, Notification, PushType } from "apns2"
 
-import { appleKeyId, appleKeyContent, appleTeamId, appleBundleId, appleApnUrl } from "../data/config"
+import { appleKeyId, appleKeyContent, appleTeamId, appleBundleId, appleApnHost } from "../data/config"
 
 let client: ApnsClient
 
@@ -8,7 +8,7 @@ export const connectToApn = () => {
   client = new ApnsClient({
     keyId: appleKeyId,
     team: appleTeamId,
-    host: appleApnUrl,
+    host: appleApnHost,
     signingKey: appleKeyContent,
   })
 }

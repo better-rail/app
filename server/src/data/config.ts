@@ -1,3 +1,4 @@
+import { Host } from "apns2"
 import { config } from "dotenv"
 config()
 
@@ -13,4 +14,4 @@ export const appleBundleId = process.env.APPLE_BUNDLE_ID as string
 export const appleTeamId = process.env.APPLE_TEAM_ID as string
 export const appleKeyId = process.env.APPLE_KEY_ID as string
 export const appleKeyContent = (process.env.APPLE_KEY_CONTENT as string)?.replace(/\\n/g, "\n")
-export const appleApnUrl = env === "production" ? "api.push.apple.com" : "api.sandbox.push.apple.com"
+export const appleApnHost = env === "production" ? Host.production : Host.development
