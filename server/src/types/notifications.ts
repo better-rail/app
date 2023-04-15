@@ -11,6 +11,7 @@ export enum Status {
 export type BuildNotificationPayload = {
   time: Dayjs
   token: string
+  shouldSendImmediately?: boolean
   state: {
     nextStationId: number
     delay: number

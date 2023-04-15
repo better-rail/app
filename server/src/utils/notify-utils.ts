@@ -36,6 +36,7 @@ export const buildWaitForTrainNotiifcation = (route: RouteItem, ride: Ride): Not
   return {
     id: 0,
     token: ride.token,
+    shouldSendImmediately: false,
     time: dayjs(train.departureTime).subtract(2, "minute"),
     state: {
       delay: train.delay,
@@ -48,6 +49,7 @@ export const buildWaitForTrainNotiifcation = (route: RouteItem, ride: Ride): Not
 export const buildGetOnTrainNotifications = (route: RouteItem, ride: Ride): BuildNotificationPayload[] => {
   return route.trains.map((train) => ({
     token: ride.token,
+    shouldSendImmediately: true,
     time: dayjs(train.departureTime).subtract(1, "minute"),
     state: {
       delay: train.delay,
@@ -73,6 +75,7 @@ export const buildNextStationNotifications = (route: RouteItem, ride: Ride): Bui
 
     const lastStation = shouldSendLastStationNotification && {
       token: ride.token,
+      shouldSendImmediately: true,
       time: lastStationNotificationTime,
       state: {
         delay: train.delay,
@@ -83,6 +86,7 @@ export const buildNextStationNotifications = (route: RouteItem, ride: Ride): Bui
 
     const passthroughStations = train.stopStations.map((station, index) => ({
       token: ride.token,
+      shouldSendImmediately: true,
       time: dayjs(index === 0 ? train.departureTime : train.stopStations[index - 1].departureTime).add(1, "minute"),
       state: {
         delay: train.delay,
@@ -101,6 +105,7 @@ export const buildGetOffTrainNotifications = (route: RouteItem, ride: Ride) => {
       return [
         {
           token: ride.token,
+          shouldSendImmediately: false,
           time: dayjs(train.arrivalTime).subtract(2, "minutes"),
           state: {
             delay: train.delay,
@@ -116,6 +121,7 @@ export const buildGetOffTrainNotifications = (route: RouteItem, ride: Ride) => {
         },
         {
           token: ride.token,
+          shouldSendImmediately: true,
           time: dayjs(train.arrivalTime).subtract(1, "minutes"),
           state: {
             delay: train.delay,
@@ -133,6 +139,7 @@ export const buildGetOffTrainNotifications = (route: RouteItem, ride: Ride) => {
         },
         {
           token: ride.token,
+          shouldSendImmediately: true,
           time: dayjs(train.arrivalTime),
           state: {
             nextStationId: train.destinationStationId,

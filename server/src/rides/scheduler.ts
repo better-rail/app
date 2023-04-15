@@ -67,7 +67,9 @@ export class Scheduler {
           const notificationWithUpdatedDelay = allNotifications.find(
             (notification) => notification.id === this.lastSentNotification?.id,
           )
-          return this.sendNotification(omit(notificationWithUpdatedDelay || this.lastSentNotification, "alert"))
+          return this.sendNotification(
+            omit(notificationWithUpdatedDelay || this.lastSentNotification, ["alert", "shouldSendImmediately"]),
+          )
         }
 
         const waitForTrainNotification = buildWaitForTrainNotiifcation(this.route, this.ride)
