@@ -7,7 +7,7 @@ import { endRideNotifications, startRideNotifications, updateRideToken } from ".
 const router = Router()
 
 router.post(
-  "/startRide",
+  "/ride",
   body("token").isString(),
   body("locale").isString(),
   body("departureDate").isISO8601(),
@@ -29,7 +29,7 @@ router.post(
   },
 )
 
-router.post("/updateRideToken", body("rideId").isString(), body("token").isString(), async (req, res) => {
+router.patch("/ride/updateToken", body("rideId").isString(), body("token").isString(), async (req, res) => {
   if (!validationResult(req).isEmpty()) {
     return res.status(400).send("body missing data")
   }
@@ -39,7 +39,7 @@ router.post("/updateRideToken", body("rideId").isString(), body("token").isStrin
   res.status(success ? 200 : 500).send({ success })
 })
 
-router.post("/endRide", body("rideId").isString(), async (req, res) => {
+router.delete("/ride", body("rideId").isString(), async (req, res) => {
   if (!validationResult(req).isEmpty()) {
     return res.status(400).send("body missing data")
   }
