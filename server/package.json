@@ -3,6 +3,7 @@
   "version": "1.0.1",
   "description": "Server for Better Rail app",
   "main": "index.ts",
+  "license": "GPLv3",
   "dependencies": {
     "@lagregance/i18n-js-require": "^4.2.2",
     "apisauce": "^3.0.0",
@@ -13,6 +14,7 @@
     "dayjs": "^1.11.7",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "express-rate-limit": "^6.7.0",
     "express-validator": "^6.15.0",
     "lodash": "^4.17.21",
     "node-schedule": "^2.1.1",
