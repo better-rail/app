@@ -14,7 +14,7 @@ import { getRouteForRide } from "../requests"
 import { endRideNotifications } from "./index"
 import { buildNotifications } from "../utils/ride-utils"
 import { NotificationPayload } from "../types/notifications"
-import { deleteRide, updateLastRideNotification } from "../data/redis"
+import { deleteRide, updateLastRideNotification, updateRideToken } from "../data/redis"
 import { buildWaitForTrainNotiifcation, getNotificationToSend, rideUpdateSecond } from "../utils/notify-utils"
 
 export class Scheduler {
@@ -44,7 +44,7 @@ export class Scheduler {
         destination: ride.destinationId,
         trains: ride.trains,
       })
-      deleteRide(ride.token)
+      deleteRide(ride.rideId)
       return null
     }
 
@@ -94,7 +94,18 @@ export class Scheduler {
     this.stopUpdateDelayJob()
     this.sendNotificationsJob?.cancel()
     this.sendNotificationsJob = undefined
-    return deleteRide(this.ride.token)
+    return deleteRide(this.ride.rideId)
+  }
+
+  async updateRideToken(token: string) {
+    const success = await updateRideToken(this.ride.rideId, token)
+
+    if (success) {
+      this.ride.token = token
+      this.notificationsToSend = this.buildRideNotifications()
+    }
+
+    return success
   }
 
   private buildRideNotifications(isInitialRun: boolean = false) {
@@ -103,7 +114,7 @@ export class Scheduler {
     if (env === "production") {
       if (isInitialRun && notifications[0]) {
         this.ride.lastNotificationId = notifications[0].id - 1
-        updateLastRideNotification(this.ride.token, this.ride.lastNotificationId)
+        updateLastRideNotification(this.ride.rideId, this.ride.lastNotificationId)
         if (this.ride.lastNotificationId > 0) {
           const allNotifications = buildNotifications(this.route, this.ride, false)
           const notification = allNotifications.find((notification) => notification.id === this.ride.lastNotificationId)
@@ -133,12 +144,12 @@ export class Scheduler {
   }
 
   private startUpdateDelayJob() {
-    const second = rideUpdateSecond(this.ride.token)
+    const second = rideUpdateSecond(this.ride.rideId)
 
     const rule = new RecurrenceRule()
     rule.second = second
 
-    logger.info(logNames.scheduler.updateDelay.register, { token: this.ride.token, second })
+    logger.info(logNames.scheduler.updateDelay.register, { rideId: this.ride.rideId, second })
     this.updateDelayJob = scheduleJob(rule, async () => {
       if (isEmpty(this.notificationsToSend)) {
         return this.stopUpdateDelayJob()
@@ -152,7 +163,7 @@ export class Scheduler {
 
       if (!isEmpty(this.notificationsToSend)) {
         logger.info(logNames.scheduler.updateDelay.updated, {
-          token: this.ride.token,
+          rideId: this.ride.rideId,
           delay: this.notificationsToSend[0].state.delay,
         })
       }
@@ -162,7 +173,7 @@ export class Scheduler {
   private stopUpdateDelayJob() {
     this.updateDelayJob?.cancel()
     this.updateDelayJob = undefined
-    logger.info(logNames.scheduler.updateDelay.cancel, { token: this.ride.token })
+    logger.info(logNames.scheduler.updateDelay.cancel, { rideId: this.ride.rideId })
   }
 
   private sendNotification(notification: NotificationPayload) {
@@ -172,11 +183,11 @@ export class Scheduler {
       const indexToRemove = this.notificationsToSend.indexOf(notification)
       this.notificationsToSend.splice(indexToRemove, 1)
       if (isEmpty(this.notificationsToSend)) {
-        endRideNotifications(this.ride.token)
+        endRideNotifications(this.ride.rideId)
       } else {
         this.lastSentNotification = notification
         this.ride.lastNotificationId = notification.id
-        updateLastRideNotification(this.ride.token, notification.id)
+        updateLastRideNotification(this.ride.rideId, notification.id)
       }
     }
   }

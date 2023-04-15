@@ -2,7 +2,7 @@ import { Router } from "express"
 import { body, validationResult } from "express-validator"
 
 import { addRide } from "../data/redis"
-import { endRideNotifications, startRideNotifications } from "../rides"
+import { endRideNotifications, startRideNotifications, updateRideToken } from "../rides"
 
 const router = Router()
 
@@ -24,18 +24,28 @@ router.post(
       return res.status(500).send("couldn't start ride")
     }
 
-    const success = await startRideNotifications(ride)
-    res.status(success ? 200 : 500).send({ success })
+    const result = await startRideNotifications(ride)
+    res.status(result.success ? 200 : 500).json(result)
   },
 )
 
-router.post("/endRide", body("token").isString(), async (req, res) => {
+router.post("/updateRideToken", body("rideId").isString(), body("token").isString(), async (req, res) => {
   if (!validationResult(req).isEmpty()) {
     return res.status(400).send("body missing data")
   }
 
-  const token = req.body.token
-  const success = await endRideNotifications(token)
+  const { rideId, token } = req.body
+  const success = await updateRideToken(rideId, token)
+  res.status(success ? 200 : 500).send({ success })
+})
+
+router.post("/endRide", body("rideId").isString(), async (req, res) => {
+  if (!validationResult(req).isEmpty()) {
+    return res.status(400).send("body missing data")
+  }
+
+  const { rideId } = req.body
+  const success = await endRideNotifications(rideId)
   res.status(success ? 200 : 500).send({ success })
 })
 

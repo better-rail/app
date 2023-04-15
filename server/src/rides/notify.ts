@@ -44,8 +44,8 @@ const sendAppleNotification = async (payload: NotificationPayload) => {
 
   try {
     await sendApnNotification(payload.token, aps, priority)
-    logger.success(logNames.notifications.apple.success, { token: payload.token, id: payload.id })
+    logger.success(logNames.notifications.apple.success, { token: payload.token, notificationId: payload.id })
   } catch (error) {
-    logger.failed(logNames.notifications.apple.failed, { error, id: payload.id })
+    logger.failed(logNames.notifications.apple.failed, { error, notificationId: payload.id })
   }
 }

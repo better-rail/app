@@ -1,10 +1,11 @@
+import { v4 as uuid } from "uuid"
 import { createClient } from "redis"
 import { RedisClientType } from "@redis/client"
 import { compact, forEach, mapValues, omit } from "lodash"
 
 import { redisUrl } from "./config"
-import { Ride } from "../types/rides"
 import { logNames, logger } from "../logs"
+import { Ride, RideRequest } from "../types/rides"
 
 let client: RedisClientType
 
@@ -18,76 +19,90 @@ export const connectToRedis = async () => {
   }
 }
 
-export const addRide = async (ride: Ride) => {
+export const addRide = async (ride: RideRequest) => {
+  const rideId = uuid()
+
   try {
     const promises: any = []
-    promises.push(updateLastRideNotification(ride.token, 0))
-    forEach(omit(ride, "token"), (value, key) => {
-      client.hSet(getKey(ride.token), key, JSON.stringify(value))
+    promises.push(updateLastRideNotification(rideId, 0))
+    forEach(ride, (value, key) => {
+      client.hSet(getKey(rideId), key, JSON.stringify(value))
     })
 
     await Promise.all(promises)
-    logger.success(logNames.redis.rides.add.success, { token: ride.token })
-    return { ...ride, lastNotificationId: 0 }
+    logger.success(logNames.redis.rides.add.success, { rideId, token: ride.token })
+    return { ...ride, rideId, lastNotificationId: 0 } as Ride
   } catch (error) {
-    logger.failed(logNames.redis.rides.add.failed, { error, token: ride.token })
+    logger.failed(logNames.redis.rides.add.failed, { error, rideId, token: ride.token })
     return false
   }
 }
 
-export const updateLastRideNotification = async (token: string, id: number) => {
+export const updateLastRideNotification = async (rideId: string, notificationId: number) => {
   try {
-    await client.hSet(getKey(token), "lastNotificationId", id)
+    await client.hSet(getKey(rideId), "lastNotificationId", notificationId)
 
-    if (id !== 0) {
-      logger.success(logNames.redis.rides.updateNotificationId.success, { token, id })
+    if (notificationId !== 0) {
+      logger.success(logNames.redis.rides.updateNotificationId.success, { rideId, id: notificationId })
     }
 
     return true
   } catch (error) {
-    logger.failed(logNames.redis.rides.updateNotificationId.success, { error, token, id })
+    logger.failed(logNames.redis.rides.updateNotificationId.success, { error, rideId, id: notificationId })
     return false
   }
 }
 
-export const getRide = async (token: string) => {
+export const updateRideToken = async (rideId: string, token: string) => {
   try {
-    const result = await client.hGetAll(getKey(token))
-    const parsed = mapValues(result, (value) => JSON.parse(value))
-    const ride = { ...parsed, token } as Ride
+    await client.hSet(getKey(rideId), "token", token)
 
-    logger.success(logNames.redis.rides.get.success, { token })
+    logger.success(logNames.redis.rides.updateNotificationId.success, { rideId, token })
+    return true
+  } catch (error) {
+    logger.failed(logNames.redis.rides.updateNotificationId.success, { error, rideId, token })
+    return false
+  }
+}
+
+export const getRide = async (rideId: string) => {
+  try {
+    const result = await client.hGetAll(getKey(rideId))
+    const parsed = mapValues(result, (value) => JSON.parse(value))
+    const ride = { ...parsed, rideId } as Ride
+
+    logger.success(logNames.redis.rides.get.success, { rideId })
     return ride
   } catch (error) {
-    logger.failed(logNames.redis.rides.get.success, { error, token })
+    logger.failed(logNames.redis.rides.get.success, { error, rideId })
     return null
   }
 }
 
-export const deleteRide = async (token: string) => {
+export const deleteRide = async (rideId: string) => {
   try {
-    const result = await client.del(getKey(token))
+    const result = await client.del(getKey(rideId))
     const success = Boolean(result)
 
     if (!success) {
       throw new Error("Redis didn't delete ride")
     }
 
-    logger.success(logNames.redis.rides.delete.success, { token })
+    logger.success(logNames.redis.rides.delete.success, { rideId })
     return success
   } catch (error) {
-    logger.failed(logNames.redis.rides.delete.success, { error, token })
+    logger.failed(logNames.redis.rides.delete.success, { error, rideId })
     return false
   }
 }
 
 export const getAllRides = async () => {
   const results = await client.keys("rides:*")
-  const tokens = results.map((result) => result.split(":")[1])
-  const promises = tokens.map((token) => getRide(token))
+  const rideIds = results.map((result) => result.split(":")[1])
+  const promises = rideIds.map((rideId) => getRide(rideId))
   return compact(await Promise.all(promises))
 }
 
-const getKey = (token: string) => {
-  return "rides:" + token
+const getKey = (rideId: string) => {
+  return "rides:" + rideId
 }

@@ -4,14 +4,14 @@ import { flatMap, flatten, last, compact } from "lodash"
 import { Ride } from "../types/rides"
 import { RouteItem } from "../types/rail"
 import { translate } from "../locales/i18n"
-import { isLastTrain, exchangeTrainPrompt } from "./ride-utils"
+import { isLastTrain, exchangeTrainPrompt, isFirstTrain } from "./ride-utils"
 import { BuildNotificationPayload, NotificationPayload, Status } from "../types/notifications"
 
-export const rideUpdateSecond = (token: string) => {
+export const rideUpdateSecond = (rideId: string) => {
   let hashValue = 0
 
-  for (let i = 0; i < token.length; i++) {
-    hashValue += token.charCodeAt(i)
+  for (let i = 0; i < rideId.length; i++) {
+    hashValue += rideId.charCodeAt(i)
   }
 
   return hashValue % 60
@@ -53,7 +53,7 @@ export const buildGetOnTrainNotifications = (route: RouteItem, ride: Ride): Buil
     time: dayjs(train.departureTime).subtract(1, "minute"),
     state: {
       delay: train.delay,
-      status: Status.waitForTrain,
+      status: isFirstTrain(route.trains, train) ? Status.waitForTrain : Status.inExchange,
       nextStationId: train.originStationId,
     },
     alert: {

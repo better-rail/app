@@ -40,7 +40,7 @@ test("build get on notification for exchange train", () => {
       state: {
         delay: 4,
         nextStationId: 30,
-        status: Status.waitForTrain,
+        status: Status.inExchange,
       },
       shouldSendImmediately: true,
       time: dayjs(now + minutesInMs(14)),

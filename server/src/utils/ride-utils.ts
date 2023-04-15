@@ -1,6 +1,5 @@
 import dayjs from "dayjs"
-import { v4 as uuid } from "uuid"
-import { isEqual, last, isNumber } from "lodash"
+import { isEqual, last, isNumber, head } from "lodash"
 
 import { Ride } from "../types/rides"
 import { logNames, logger } from "../logs"
@@ -21,8 +20,8 @@ export const getSelectedRide = (routes: RouteItem[], ride: Ride) => {
   )
 }
 
-export const generateJobId = (ride: Ride) => {
-  return ride.token + "-" + uuid()
+export const isFirstTrain = (trains: RouteTrain[], train: RouteTrain) => {
+  return head(trains)?.trainNumber === train.trainNumber
 }
 
 export const isLastTrain = (trains: RouteTrain[], train: RouteTrain) => {
