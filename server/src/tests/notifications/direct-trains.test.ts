@@ -28,6 +28,7 @@ test("build get on notification for direct train", () => {
         nextStationId: 10,
         status: Status.waitForTrain,
       },
+      shouldSendImmediately: true,
       time: dayjs(now - minutesInMs(1)),
       alert: {
         title: "Get on the train",
@@ -49,6 +50,7 @@ test("build next station notifications for direct train", () => {
         status: Status.inTransit,
       },
       time: dayjs(now + minutesInMs(1)),
+      shouldSendImmediately: true,
     },
     {
       token: ride.token,
@@ -58,6 +60,7 @@ test("build next station notifications for direct train", () => {
         status: Status.inTransit,
       },
       time: dayjs(now + minutesInMs(6)),
+      shouldSendImmediately: true,
     },
   ])
 })
@@ -73,6 +76,7 @@ test("build get off notifications for direct train", () => {
         nextStationId: 30,
         status: Status.inTransit,
       },
+      shouldSendImmediately: false,
       time: dayjs(now + directDuration - minutesInMs(2)),
       alert: {
         title: "Prepare to get off",
@@ -86,6 +90,7 @@ test("build get off notifications for direct train", () => {
         nextStationId: 30,
         status: Status.getOff,
       },
+      shouldSendImmediately: true,
       time: dayjs(now + directDuration - minutesInMs(1)),
       alert: {
         title: "Get off now",
@@ -99,6 +104,7 @@ test("build get off notifications for direct train", () => {
         nextStationId: 30,
         status: Status.arrived,
       },
+      shouldSendImmediately: true,
       time: dayjs(now + directDuration),
     },
   ])
