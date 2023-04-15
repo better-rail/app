@@ -33,7 +33,7 @@ const sendAppleNotification = async (payload: NotificationPayload) => {
     timestamp: dayjs().unix(),
     event: payload.state.status === Status.arrived ? "end" : "update",
     "content-state": payload.state,
-    "dismissal-date": payload.state.status === Status.arrived && dayjs().add(1, "minutes").unix(),
+    "dismissal-date": payload.state.status === Status.arrived && dayjs().add(3, "minutes").unix(),
     alert: payload.alert && {
       title: payload.alert.title,
       body: payload.alert.text,
