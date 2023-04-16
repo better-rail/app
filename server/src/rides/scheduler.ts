@@ -55,6 +55,9 @@ export class Scheduler {
   start() {
     if (env === "production") {
       this.startUpdateDelayJob()
+      if (this.lastSentNotification && this.lastSentNotification.id > 0) {
+        this.sendNotification(this.lastSentNotification)
+      }
 
       this.sendNotificationsJob = scheduleJob("* * * * *", (fireDate) => {
         const notificationToSendNow = getNotificationToSend(this.notificationsToSend, fireDate)
