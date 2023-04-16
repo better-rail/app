@@ -56,7 +56,7 @@ export class Scheduler {
     if (env === "production") {
       this.startUpdateDelayJob()
       if (this.lastSentNotification && this.lastSentNotification.id > 0) {
-        this.sendNotification(this.lastSentNotification)
+        this.sendNotification({ ...this.lastSentNotification, shouldSendImmediately: true })
       }
 
       this.sendNotificationsJob = scheduleJob("* * * * *", (fireDate) => {
