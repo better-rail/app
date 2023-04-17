@@ -110,6 +110,12 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     onDateChange(date)
   }
 
+  const handleNow = () => {
+    onDateChange(new Date())
+    setDatePickerVisibility(false)
+    routePlan.setDateType("departure")
+  }
+
   const originData = React.useMemo(() => {
     if (routePlan.origin) {
       return stations.find((s) => s.id === routePlan.origin.id)
@@ -276,6 +282,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           date={routePlan.date}
           onChange={onDateChange}
           onConfirm={handleConfirm}
+          onNow={handleNow}
           onCancel={() => setDatePickerVisibility(false)}
           minimumDate={now}
         />
