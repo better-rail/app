@@ -41,6 +41,9 @@
     "start": "node ./dist/index.js",
     "test": "jest"
   },
+  "engines": {
+    "node": ">= 16"
+  },
   "prettier": {
     "printWidth": 130,
     "semi": false,
