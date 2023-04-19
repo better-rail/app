@@ -1,31 +1,17 @@
-import axios from "axios"
 import dayjs from "dayjs"
 import { Priority } from "apns2"
 
 import { logNames, logger } from "../logs"
 import { sendApnNotification } from "../utils/apn-utils"
-import { telegramKey, telegramUrl } from "../data/config"
 import { NotificationPayload, Status } from "../types/notifications"
 
 export const sendNotification = (payload: NotificationPayload) => {
   sendLogNotification(payload)
   sendAppleNotification(payload)
-
-  // TODO: Remove Telegram notifications before merge
-  if (payload.token.startsWith("matan")) {
-    sendTelegramNotification(payload)
-  }
 }
 
 const sendLogNotification = (payload: NotificationPayload) => {
   logger.info(logNames.notifications.log, { payload })
-}
-
-const sendTelegramNotification = (payload: NotificationPayload) => {
-  axios.post(telegramUrl, {
-    apiKey: telegramKey,
-    message: JSON.stringify(payload),
-  })
 }
 
 const sendAppleNotification = async (payload: NotificationPayload) => {
