@@ -38,6 +38,7 @@ export const stations = partiallyMock<Station[]>([
 export const ride = partiallyMock<Ride>({
   token: "test",
   locale: "en",
+  provider: "ios",
 })
 
 export const directRoute = partiallyMock<RouteItem>({

@@ -7,7 +7,10 @@ import { NotificationPayload, Status } from "../types/notification"
 
 export const sendNotification = (payload: NotificationPayload) => {
   sendLogNotification(payload)
-  sendAppleNotification(payload)
+
+  if (payload.provider === "ios") {
+    sendAppleNotification(payload)
+  }
 }
 
 const sendLogNotification = (payload: NotificationPayload) => {

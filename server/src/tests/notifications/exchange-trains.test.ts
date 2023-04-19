@@ -29,6 +29,7 @@ test("build get on notification for exchange train", () => {
         status: Status.waitForTrain,
       },
       shouldSendImmediately: true,
+      provider: ride.provider,
       time: dayjs(now - minutesInMs(1)),
       alert: {
         title: "Get on the train",
@@ -43,6 +44,7 @@ test("build get on notification for exchange train", () => {
         status: Status.inExchange,
       },
       shouldSendImmediately: true,
+      provider: ride.provider,
       time: dayjs(now + minutesInMs(14)),
       alert: {
         title: "Get on the train",
@@ -64,6 +66,7 @@ test("build next station notifications for direct train", () => {
         status: Status.inTransit,
       },
       shouldSendImmediately: true,
+      provider: ride.provider,
       time: dayjs(now + minutesInMs(1)),
     },
     {
@@ -74,6 +77,7 @@ test("build next station notifications for direct train", () => {
         status: Status.inTransit,
       },
       shouldSendImmediately: true,
+      provider: ride.provider,
       time: dayjs(now + minutesInMs(6)),
     },
     {
@@ -84,6 +88,7 @@ test("build next station notifications for direct train", () => {
         status: Status.inTransit,
       },
       shouldSendImmediately: true,
+      provider: ride.provider,
       time: dayjs(now + minutesInMs(16)),
     },
     {
@@ -94,6 +99,7 @@ test("build next station notifications for direct train", () => {
         status: Status.inTransit,
       },
       shouldSendImmediately: true,
+      provider: ride.provider,
       time: dayjs(now + minutesInMs(21)),
     },
   ])
@@ -110,6 +116,7 @@ test("build get off notifications for direct train", () => {
         nextStationId: 30,
         status: Status.inTransit,
       },
+      provider: ride.provider,
       shouldSendImmediately: false,
       time: dayjs(now + getOffInExchangeTime - minutesInMs(2)),
       alert: {
@@ -124,6 +131,7 @@ test("build get off notifications for direct train", () => {
         nextStationId: 30,
         status: Status.getOff,
       },
+      provider: ride.provider,
       shouldSendImmediately: true,
       time: dayjs(now + getOffInExchangeTime - minutesInMs(1)),
       alert: {
@@ -138,6 +146,7 @@ test("build get off notifications for direct train", () => {
         nextStationId: 30,
         status: Status.inExchange,
       },
+      provider: ride.provider,
       shouldSendImmediately: true,
       time: dayjs(now + getOffInExchangeTime),
     },
@@ -148,6 +157,7 @@ test("build get off notifications for direct train", () => {
         nextStationId: 60,
         status: Status.inTransit,
       },
+      provider: ride.provider,
       shouldSendImmediately: false,
       time: dayjs(now + exchangeDuration - minutesInMs(2)),
       alert: {
@@ -162,6 +172,7 @@ test("build get off notifications for direct train", () => {
         nextStationId: 60,
         status: Status.getOff,
       },
+      provider: ride.provider,
       shouldSendImmediately: true,
       time: dayjs(now + exchangeDuration - minutesInMs(1)),
       alert: {
@@ -176,6 +187,7 @@ test("build get off notifications for direct train", () => {
         nextStationId: 60,
         status: Status.arrived,
       },
+      provider: ride.provider,
       shouldSendImmediately: true,
       time: dayjs(now + exchangeDuration),
     },

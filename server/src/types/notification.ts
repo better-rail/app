@@ -8,9 +8,12 @@ export enum Status {
   waitForTrain = "waitForTrain",
 }
 
+export type Provider = "ios"
+
 export type BuildNotificationPayload = {
   time: Dayjs
   token: string
+  provider: Provider
   shouldSendImmediately?: boolean
   state: {
     nextStationId: number

@@ -36,6 +36,7 @@ export const buildWaitForTrainNotiifcation = (route: RouteItem, ride: Ride): Not
   return {
     id: 0,
     token: ride.token,
+    provider: ride.provider,
     shouldSendImmediately: false,
     time: dayjs(train.departureTime).subtract(2, "minute"),
     state: {
@@ -49,6 +50,7 @@ export const buildWaitForTrainNotiifcation = (route: RouteItem, ride: Ride): Not
 export const buildGetOnTrainNotifications = (route: RouteItem, ride: Ride): BuildNotificationPayload[] => {
   return route.trains.map((train) => ({
     token: ride.token,
+    provider: ride.provider,
     shouldSendImmediately: true,
     time: dayjs(train.departureTime).subtract(1, "minute"),
     state: {
@@ -75,6 +77,7 @@ export const buildNextStationNotifications = (route: RouteItem, ride: Ride): Bui
 
     const lastStation = shouldSendLastStationNotification && {
       token: ride.token,
+      provider: ride.provider,
       shouldSendImmediately: true,
       time: lastStationNotificationTime,
       state: {
@@ -86,6 +89,7 @@ export const buildNextStationNotifications = (route: RouteItem, ride: Ride): Bui
 
     const passthroughStations = train.stopStations.map((station, index) => ({
       token: ride.token,
+      provider: ride.provider,
       shouldSendImmediately: true,
       time: dayjs(index === 0 ? train.departureTime : train.stopStations[index - 1].departureTime).add(1, "minute"),
       state: {
@@ -99,12 +103,13 @@ export const buildNextStationNotifications = (route: RouteItem, ride: Ride): Bui
   })
 }
 
-export const buildGetOffTrainNotifications = (route: RouteItem, ride: Ride) => {
+export const buildGetOffTrainNotifications = (route: RouteItem, ride: Ride): BuildNotificationPayload[] => {
   return flatten(
     route.trains.map((train, index) => {
       return [
         {
           token: ride.token,
+          provider: ride.provider,
           shouldSendImmediately: false,
           time: dayjs(train.arrivalTime).subtract(2, "minutes"),
           state: {
@@ -121,6 +126,7 @@ export const buildGetOffTrainNotifications = (route: RouteItem, ride: Ride) => {
         },
         {
           token: ride.token,
+          provider: ride.provider,
           shouldSendImmediately: true,
           time: dayjs(train.arrivalTime).subtract(1, "minutes"),
           state: {
@@ -139,6 +145,7 @@ export const buildGetOffTrainNotifications = (route: RouteItem, ride: Ride) => {
         },
         {
           token: ride.token,
+          provider: ride.provider,
           shouldSendImmediately: true,
           time: dayjs(train.arrivalTime),
           state: {
