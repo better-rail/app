@@ -1,4 +1,4 @@
-import { Ride } from "../types/rides"
+import { Ride } from "../types/ride"
 import { Scheduler } from "./scheduler"
 import { logNames, logger } from "../logs"
 import { deleteRide } from "../data/redis"

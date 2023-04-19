@@ -3,7 +3,7 @@ import { Priority } from "apns2"
 
 import { logNames, logger } from "../logs"
 import { sendApnNotification } from "../utils/apn-utils"
-import { NotificationPayload, Status } from "../types/notifications"
+import { NotificationPayload, Status } from "../types/notification"
 
 export const sendNotification = (payload: NotificationPayload) => {
   sendLogNotification(payload)

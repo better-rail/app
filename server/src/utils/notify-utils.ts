@@ -1,11 +1,11 @@
 import dayjs from "dayjs"
 import { flatMap, flatten, last, compact } from "lodash"
 
-import { Ride } from "../types/rides"
+import { Ride } from "../types/ride"
 import { RouteItem } from "../types/rail"
 import { translate } from "../locales/i18n"
 import { isLastTrain, exchangeTrainPrompt, isFirstTrain } from "./ride-utils"
-import { BuildNotificationPayload, NotificationPayload, Status } from "../types/notifications"
+import { BuildNotificationPayload, NotificationPayload, Status } from "../types/notification"
 
 export const rideUpdateSecond = (rideId: string) => {
   let hashValue = 0

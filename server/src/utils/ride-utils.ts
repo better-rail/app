@@ -1,14 +1,14 @@
 import dayjs from "dayjs"
 import { isEqual, last, isNumber, head } from "lodash"
 
-import { Ride } from "../types/rides"
+import { Ride } from "../types/ride"
 import { logNames, logger } from "../logs"
 import { getAllRides } from "../data/redis"
 import { startRideNotifications } from "../rides"
 import { localizedDifference } from "./date-utils"
 import { RouteItem, RouteTrain } from "../types/rail"
 import { LanguageCode, translate } from "../locales/i18n"
-import { NotificationPayload } from "../types/notifications"
+import { NotificationPayload } from "../types/notification"
 import { buildGetOnTrainNotifications, buildNextStationNotifications, buildGetOffTrainNotifications } from "./notify-utils"
 
 export const getSelectedRide = (routes: RouteItem[], ride: Ride) => {
@@ -59,6 +59,11 @@ export const scheduleExistingRides = async () => {
   })
 }
 
+/**
+  @param filterPastNotifications If false, all notifications will be returned
+  @param lastNotificationId If true, notifications with a greater id will be returned. Otherwise past notifications will be calculated by time + current delay
+  @returns Filtered notification to send for ride
+  */
 export const buildNotifications = (
   route: RouteItem,
   ride: Ride,
@@ -87,4 +92,10 @@ export const buildNotifications = (
         return notificationTime.isAfter(dayjs())
       }
     })
+}
+
+export const getUpdatedLastNotification = (route: RouteItem, ride: Ride, lastNotificationId?: number) => {
+  const notificationId = lastNotificationId ?? ride.lastNotificationId
+  const notifications = buildNotifications(route, ride, false)
+  return notifications.find((current) => current.id === notificationId)
 }

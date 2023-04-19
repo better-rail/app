@@ -2,7 +2,7 @@ import dayjs from "dayjs"
 import { keyBy } from "lodash"
 
 import { minutesInMs } from "../helpers/utils"
-import { Status } from "../../types/notifications"
+import { Status } from "../../types/notification"
 import { directRoute, stations, now, directDuration, ride } from "./mocks"
 import {
   buildGetOnTrainNotifications,

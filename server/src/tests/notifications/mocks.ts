@@ -1,4 +1,4 @@
-import { Ride } from "../../types/rides"
+import { Ride } from "../../types/ride"
 import { minutesInMs } from "../helpers/utils"
 import { partiallyMock } from "../helpers/types"
 import { RouteItem, Station } from "../../types/rail"

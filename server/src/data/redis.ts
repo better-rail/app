@@ -1,11 +1,11 @@
 import { v4 as uuid } from "uuid"
 import { createClient } from "redis"
 import { RedisClientType } from "@redis/client"
-import { compact, forEach, mapValues, omit } from "lodash"
+import { compact, forEach, mapValues } from "lodash"
 
 import { redisUrl } from "./config"
 import { logNames, logger } from "../logs"
-import { Ride, RideRequest } from "../types/rides"
+import { Ride, RideRequest } from "../types/ride"
 
 let client: RedisClientType
 

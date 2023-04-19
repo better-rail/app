@@ -1,5 +1,5 @@
 import { railApi } from "./rail-api"
-import { Ride } from "../types/rides"
+import { Ride } from "../types/ride"
 import { RouteApi } from "./route-api"
 import { logNames, logger } from "../logs"
 import { getSelectedRide } from "../utils/ride-utils"
