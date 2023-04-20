@@ -40,7 +40,8 @@ func isoDateStringToDate(_ isoDate: String) -> Date {
     return date
   } else {
     return Date()
-  }}
+  }
+}
 
 func formatRouteHour(_ isoDate: String) -> String {
   let date = isoDateStringToDate(isoDate);
@@ -49,6 +50,24 @@ func formatRouteHour(_ isoDate: String) -> String {
   hourFormatter.dateFormat = "HH:mm"
   
   return hourFormatter.string(from: date)
+}
+
+func formatDateHour(_ date: Date) -> String {
+  let formatter = DateFormatter()
+  formatter.locale = Locale(identifier: "he_IL")
+  formatter.setLocalizedDateFormatFromTemplate("HH:mm")
+  formatter.dateFormat = "HH:mm"
+  
+  return formatter.string(from: date)
+}
+
+// determine the initial next station for a given route
+func getInitialNextStation(_ route: Route) -> Int {
+  if (route.trains[0].stopStations.count > 0) {
+    return route.trains[0].stopStations[0].stationId
+  } else {
+    return route.trains[0].destinationStation
+  }
 }
 
 enum SupportedLanguages: String {
