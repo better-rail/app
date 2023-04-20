@@ -46,12 +46,11 @@ function App() {
   const [localeReady, setLocaleReady] = useState(false)
 
   useEffect(() => {
-    if (Platform.OS == "ios") {
-      // start
+    if (Platform.OS == "ios" && Number(Platform.Version) >= 16.2) {
       monitorLiveActivities()
     }
   }, [])
-  console.log(Platform.Version)
+  console.log(Number(Platform.Version))
   useEffect(function handleWidgetDeepLinking() {
     let linkingListener: EmitterSubscription
 

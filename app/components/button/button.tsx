@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react"
+import React, { useState, useMemo, ReactNode } from "react"
 import { View, Pressable, TextStyle, ViewStyle, ButtonProps, Platform, ActivityIndicator } from "react-native"
 import { color, spacing, typography } from "../../theme"
 import { Text } from "../"
@@ -28,6 +28,13 @@ const SMALL_BUTTON: ViewStyle = {
   padding: spacing[2] + 1.5,
 }
 
+const TEXT_WRAPPER: ViewStyle = {
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "center",
+  gap: 8,
+}
+
 const TEXT: TextStyle = {
   fontFamily: typography.primary,
   fontWeight: "700",
@@ -47,12 +54,13 @@ export interface CustomButtonProps extends ButtonProps {
   textStyle?: TextStyle
   loading?: boolean
   disabled?: boolean
+  icon?: ReactNode
   size?: "small"
 }
 
 export const Button = function Button(props: CustomButtonProps) {
   const [isPressed, setIsPressed] = useState(false)
-  const { title, onPress, loading = false, disabled, textStyle, containerStyle, size, style } = props
+  const { title, onPress, loading = false, disabled, textStyle, containerStyle, size, icon, style } = props
 
   const PRESSABLE_STYLE = useMemo(() => {
     let modifiedStyles = Object.assign({}, PRESSABLE_BASE, style)
@@ -79,7 +87,10 @@ export const Button = function Button(props: CustomButtonProps) {
         {loading ? (
           <ActivityIndicator color={color.whiteText} />
         ) : (
-          <Text style={[TEXT, textStyle, size === "small" && SMALL_TEXT]}>{title}</Text>
+          <View style={TEXT_WRAPPER}>
+            {icon}
+            <Text style={[TEXT, textStyle, size === "small" && SMALL_TEXT]}>{title}</Text>
+          </View>
         )}
       </Pressable>
     </View>

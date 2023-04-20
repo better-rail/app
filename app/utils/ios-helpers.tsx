@@ -1,6 +1,5 @@
 import { NativeModules } from "react-native"
 import { RouteItem } from "../services/api"
-import { Route } from "../models"
 
 const { RNBetterRail } = NativeModules
 

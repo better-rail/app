@@ -1,8 +1,8 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from "react"
 import { observer } from "mobx-react-lite"
-import { TextStyle, View, ViewStyle } from "react-native"
-import { RouteDetailsHeader, Screen, Text } from "../../components"
+import { Image, ImageStyle, Platform, TextStyle, View, ViewStyle } from "react-native"
+import { Button, RouteDetailsHeader, Screen, Text } from "../../components"
 import { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import { color, spacing } from "../../theme"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -10,10 +10,28 @@ import { SharedElement } from "react-navigation-shared-element"
 import { ScrollView } from "react-native-gesture-handler"
 import { format } from "date-fns"
 import { RouteStationCard, RouteStopCard, RouteExchangeDetails } from "./components"
+import { startLiveActivity } from "../../utils/ios-helpers"
+import { isRTL, translate } from "../../i18n"
 
 const ROOT: ViewStyle = {
   flex: 1,
   backgroundColor: color.background,
+}
+
+const START_RIDE_WRAPPER: ViewStyle = {
+  position: "absolute",
+  bottom: 30,
+  left: 30,
+  shadowOffset: { width: 0, height: 0 },
+  shadowOpacity: 0.1,
+  shadowRadius: 1,
+}
+
+const TRAIN_ICON: ImageStyle = {
+  width: 22.5,
+  height: 22.5,
+  tintColor: "white",
+  transform: [{ rotateY: isRTL ? "180deg" : "0deg" }],
 }
 
 export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
@@ -91,6 +109,20 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
           )
         })}
       </ScrollView>
+
+      <View style={START_RIDE_WRAPPER}>
+        <Button
+          style={{ backgroundColor: color.secondary, width: 148 }}
+          icon={
+            Platform.OS == "android" ? undefined : <Image source={require("../../../assets/train.ios.png")} style={TRAIN_ICON} />
+          }
+          title={translate("ride.startRide")}
+          onPress={() => {
+            startLiveActivity(routeItem)
+            alert("מתן המלך 👑")
+          }}
+        />
+      </View>
     </Screen>
   )
 })
