@@ -37,8 +37,19 @@ export class Scheduler {
       return null
     }
 
-    if (env === "production" && Date.now() >= route.arrivalTime) {
+    if (env === "production" && dayjs().isAfter(route.arrivalTime)) {
       logger.failed(logNames.scheduler.rideInPast, {
+        date: ride.departureDate,
+        origin: ride.originId,
+        destination: ride.destinationId,
+        trains: ride.trains,
+      })
+      deleteRide(ride.rideId)
+      return null
+    }
+
+    if (env === "production" && dayjs(route.departureTime).diff(dayjs(), "minutes") > 60) {
+      logger.failed(logNames.scheduler.rideInFuture, {
         date: ride.departureDate,
         origin: ride.originId,
         destination: ride.destinationId,

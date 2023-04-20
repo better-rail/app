@@ -33,6 +33,7 @@ export const logNames = {
   scheduler: {
     scheduleExisting: "Scheduled existing rides from redis",
     rideInPast: "The requested ride is in the past, it'll be deleted",
+    rideInFuture: "The requested ride is in the future, it'll be deleted",
     registerRide: {
       success: "Scheduled notifications for ride",
       failed: "Failed to register notifications for ride",
