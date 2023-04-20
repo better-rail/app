@@ -31,7 +31,7 @@ import { withIAPContext } from "react-native-iap"
 // https://github.com/kmagiera/react-native-screens#using-native-stack-navigator
 import { enableScreens } from "react-native-screens"
 import { extractURLParams } from "./utils/helpers/url"
-import { donateRouteIntent, reloadAllTimelines } from "./utils/ios-helpers"
+import { donateRouteIntent, monitorLiveActivities, reloadAllTimelines } from "./utils/ios-helpers"
 enableScreens()
 
 export const queryClient = new QueryClient()
@@ -45,6 +45,13 @@ function App() {
   const [rootStore, setRootStore] = useState<RootStore | undefined>(undefined)
   const [localeReady, setLocaleReady] = useState(false)
 
+  useEffect(() => {
+    if (Platform.OS == "ios") {
+      // start
+      monitorLiveActivities()
+    }
+  }, [])
+  console.log(Platform.Version)
   useEffect(function handleWidgetDeepLinking() {
     let linkingListener: EmitterSubscription
 

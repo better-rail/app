@@ -27,3 +27,20 @@
 
 "No more trains for today." = "אין יותר רכבות להיום.";
 "No trains for today." = "לא נמצאו רכבות להיום.";
+
+// live activity localizations
+"min" = "דק'";
+"depart" = "יציאה";
+"departs from %@" = "נסיעה מ%@";
+"exchange in %@" = "החלפה ב%@";
+"train to %@" = "רכבת ל%@";
+"headed to" = "תחנת יעד";
+"wait in" = "המתן בתחנת";
+"arrive" = "יעד";
+"next station" = "התחנה הבאה";
+"arrived at" = "הגעת ליעד";
+"platform %@ train %@ dest %@" = "רציף %@ • רכבת %@ ל%@";
+"PLATFORM %@" = "רציף %@";
+"%@ min" = "%@ דק'";
+"get off in the next stop" = "הגעה ליעד בתחנה הבאה";
+"get off in %@ stops" = "הגעה ליעד בעוד %@ תחנות";

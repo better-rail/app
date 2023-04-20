@@ -8,9 +8,10 @@ class RNBetterRail: NSObject {
   
   
   @objc static func requiresMainQueueSetup() -> Bool {
-      return true
+    return true
   }
   
+  // MARK - Widget methods
   /// This saves the current origin & destination station IDs for use as StationIntent initial values.
   @objc func saveCurrentRoute(_ originId: String, destinationId: String) {
     let currentRoute = [originId, destinationId]
@@ -41,4 +42,26 @@ class RNBetterRail: NSObject {
     }
   }
   
+  // MARK - Live Activities methods
+  
+  @available(iOSApplicationExtension 16.2, *)
+  @objc func monitorActivities() {
+    LiveActivitiesController.shared.monitorLiveActivities()
+  }
+  
+  /// data - A JSON representation of a Route
+  @available(iOSApplicationExtension 16.2, *)
+  @objc func startActivity(_ routeJSON: String) {
+    let decoder = JSONDecoder()
+    
+    Task {
+      do {
+        let route = try decoder.decode(Route.self, from: routeJSON.data(using: .utf8)!)
+        await LiveActivitiesController.shared.startLiveActivity(route: route)
+      } catch {
+        print("Error decoding JSON: \(String(describing: error))")
+        return
+      }
+    }
+  }
 }

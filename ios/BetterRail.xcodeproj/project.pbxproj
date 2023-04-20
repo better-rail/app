@@ -82,6 +82,10 @@
 		C1F140C729F1416100968904 /* BottomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140B729F1416100968904 /* BottomView.swift */; };
 		C1F140C829F1416100968904 /* ActivityNotificationsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140B829F1416100968904 /* ActivityNotificationsAPI.swift */; };
 		C1F140CA29F141A800968904 /* BetterRailWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140C929F141A800968904 /* BetterRailWidgetBundle.swift */; };
+		C1F140CE29F14D1C00968904 /* Activity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140A929F1416100968904 /* Activity.swift */; };
+		C1F140D029F151C300968904 /* ActivityUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140A729F1416100968904 /* ActivityUtils.swift */; };
+		C1F140D129F151D200968904 /* TokenRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140AA29F1416100968904 /* TokenRegistry.swift */; };
+		C1F140D229F1520200968904 /* ActivityNotificationsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140B829F1416100968904 /* ActivityNotificationsAPI.swift */; };
 		C1F29D28270B2D31009B953E /* Heebo-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = E3C07A94FCDB4698B4A058EB /* Heebo-Bold.otf */; };
 		C1F29D29270B2D31009B953E /* Heebo-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 5B118A8459B542A2BA8C9824 /* Heebo-Regular.otf */; };
 		C1F29D2C270B2D31009B953E /* Heebo-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = A2759849ACE84A51AA1EC58E /* Heebo-Medium.otf */; };
@@ -959,16 +963,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				C14F313426331361002A01D7 /* Swifty.swift in Sources */,
+				C1F140D129F151D200968904 /* TokenRegistry.swift in Sources */,
 				C1C6DC5527493AA1000E9EED /* Utilities.swift in Sources */,
+				C1F140D029F151C300968904 /* ActivityUtils.swift in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				C1C6DC5227493A98000E9EED /* RouteModel.swift in Sources */,
 				C15DA0672763A8EB00A24EF3 /* Route.intentdefinition in Sources */,
 				C1C6DC5827493BC5000E9EED /* TrainDetail.swift in Sources */,
 				C1C6DC5327493A9C000E9EED /* StationModel.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
+				C1F140D229F1520200968904 /* ActivityNotificationsAPI.swift in Sources */,
 				C1286B55275E6D9D00E1E05D /* RNBetterRail.m in Sources */,
 				C1B93927276E1EF700482B62 /* Extensions.swift in Sources */,
 				C1286B51275E6C8300E1E05D /* RNBetterRail.swift in Sources */,
+				C1F140CE29F14D1C00968904 /* Activity.swift in Sources */,
 				C0F707F834D839B5724738A3 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1113,7 +1121,7 @@
 				DEVELOPMENT_TEAM = UE6BVYPPFX;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = BetterRail/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 1.10.1;
 				OTHER_LDFLAGS = (
@@ -1144,7 +1152,7 @@
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = UE6BVYPPFX;
 				INFOPLIST_FILE = BetterRail/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 1.10.1;
 				OTHER_LDFLAGS = (

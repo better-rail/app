@@ -73,6 +73,7 @@ export class RouteApi {
             lastStop: stationsObject[lastStationId][stationLocale],
             trainNumber,
             stopStations,
+            routeStations,
           }
 
           return route

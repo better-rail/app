@@ -63,11 +63,12 @@ class LiveActivitiesController {
         
         let activityAttributes = BetterRailActivityAttributes(activityStartDate: Date(), route: route)
         
-        let activityContent = ActivityContent(state: initialContentState, staleDate: Calendar.current.date(byAdding: .minute, value: 30, to: Date())!)
+        let activityContent = ActivityContent(state: initialContentState, staleDate: Calendar.current.date(byAdding: .minute, value: 120, to: Date())!)
 
         let activity = try Activity.request(attributes: activityAttributes, content: activityContent, pushType: .token)
         print("Requested live activity, details: \(activity.attributes)")
       } catch (let error) {
+        print(error)
           print("Error occured during live activity initial request \(error.localizedDescription).")
       }
     }
