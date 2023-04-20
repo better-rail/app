@@ -51,17 +51,18 @@ class RNBetterRail: NSObject {
   
   /// data - A JSON representation of a Route
   @available(iOSApplicationExtension 16.2, *)
-  @objc func startActivity(_ routeJSON: String) {
-    let decoder = JSONDecoder()
-    
-    Task {
+  @objc func startActivity(_ routeJSON: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
+      let decoder = JSONDecoder()
+
       do {
         let route = try decoder.decode(Route.self, from: routeJSON.data(using: .utf8)!)
-        await LiveActivitiesController.shared.startLiveActivity(route: route)
+        Task {
+          await LiveActivitiesController.shared.startLiveActivity(route: route)
+          resolve(true)
+        }
       } catch {
         print("Error decoding JSON: \(String(describing: error))")
-        return
+        reject("error", "An error occured while starting activity from RN", error)
       }
-    }
   }
 }

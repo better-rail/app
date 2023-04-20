@@ -54,9 +54,17 @@ function prepareDataForLiveActivities(route: RouteItem) {
   return modifiedRoute
 }
 
-export function startLiveActivity(route: RouteItem) {
-  const modifiedRoute = prepareDataForLiveActivities(route)
-  const routeJSON = JSON.stringify(modifiedRoute)
+export async function startLiveActivity(route: RouteItem) {
+  try {
+    const modifiedRoute = prepareDataForLiveActivities(route)
+    const routeJSON = JSON.stringify(modifiedRoute)
 
-  RNBetterRail.startActivity(routeJSON)
+    const result: Boolean = await RNBetterRail.startActivity(routeJSON)
+    console.log("success?", result)
+
+    return result
+  } catch (err) {
+    console.log(err)
+    throw err
+  }
 }

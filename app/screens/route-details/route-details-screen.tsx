@@ -118,8 +118,10 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
           }
           title={translate("ride.startRide")}
           onPress={() => {
-            startLiveActivity(routeItem)
-            alert("מתן המלך 👑")
+            startLiveActivity(routeItem).then((r) => {
+              console.log(r)
+              alert("Live activity started")
+            })
           }}
         />
       </View>

@@ -50,7 +50,7 @@ struct BetterRailActivityAttributes: ActivityAttributes {
 class LiveActivitiesController {
   typealias LiveActivityRoute = Activity<BetterRailActivityAttributes>
   static let shared = LiveActivitiesController()
-  static var env: String = "test"
+  static var env: String = "production"
   static var rideId: String = ""
   
   func startLiveActivity(route: Route) async {
