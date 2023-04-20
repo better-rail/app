@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "description": "Server for Better Rail app",
   "main": "index.ts",
-  "license": "GPLv3",
+  "license": "AGPL-3.0",
   "dependencies": {
     "@lagregance/i18n-js-require": "^4.2.2",
     "apisauce": "^3.0.0",

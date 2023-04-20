@@ -1,7 +1,7 @@
 import React from "react"
 import { useColorScheme } from "react-native"
 import { NavigationContainer, NavigationContainerRef, DefaultTheme, DarkTheme } from "@react-navigation/native"
-import { createNativeStackNavigator } from "react-native-screens/native-stack"
+import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { MainNavigator } from "./main-navigator"
 import { SettingsNavigator } from "./settings/settings-navigator"
 import { NewFeatureNavigator } from "./new-features/new-features-navigator"
@@ -20,7 +20,7 @@ const RootStack = () => {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        stackPresentation: "modal",
+        presentation: "modal",
       }}
     >
       <Stack.Screen name="mainStack" component={MainNavigator} />

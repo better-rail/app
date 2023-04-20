@@ -1,12 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`can be created 1`] = `
-Object {
-  "destination": Object {
+{
+  "destination": {
     "id": "3500",
     "name": "הרצליה",
   },
-  "origin": Object {
+  "origin": {
     "id": "680",
     "name": "ירושלים - יצחק נבון",
   },

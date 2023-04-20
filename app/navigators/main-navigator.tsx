@@ -60,7 +60,7 @@ export function MainNavigator() {
       <Stack.Screen
         name="selectStation"
         component={SelectStationScreen}
-        options={{ headerShown: false, ...TransitionPresets.ModalTransition }}
+        options={{ headerShown: false, ...TransitionPresets.ModalSlideFromBottomIOS }}
       />
       <Stack.Screen
         name="routeList"

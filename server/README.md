@@ -13,7 +13,7 @@ The following steps asssumes your enviorment is already set up for running Node.
 - Rename `.env.example` to `.env`, and fill it as required on [Enviroment Variables](#enviroment-variables)
 - Run the app with `yarn dev`
 
-### File Strucure
+### File Structure
 
 - `/data`: stations, redis and env configurations
 - `/locales`: language files for notifications
