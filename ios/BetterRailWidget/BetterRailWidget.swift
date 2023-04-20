@@ -33,7 +33,6 @@ struct Provider: IntentTimelineProvider {
   }
 }
 
-@main
 struct BetterRailWidget: Widget {
     let kind: String = "BetterRailWidget"
 

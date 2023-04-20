@@ -61,15 +61,6 @@ func formatDateHour(_ date: Date) -> String {
   return formatter.string(from: date)
 }
 
-// determine the initial next station for a given route
-func getInitialNextStation(_ route: Route) -> Int {
-  if (route.trains[0].stopStations.count > 0) {
-    return route.trains[0].stopStations[0].stationId
-  } else {
-    return route.trains[0].destinationStation
-  }
-}
-
 enum SupportedLanguages: String {
   case english, hebrew, arabic, russian
 }

@@ -19,15 +19,23 @@ extension String {
 }
 
 extension Text {
-    func preferredFont(size: CGFloat) -> Text {
-      let userLocale = getUserLocale()
-      
-      switch userLocale {
-      // Hebrew font appears to render smaller than engilsh system font
-      case .hebrew: return self.font(.system(size: size + 1))
-        default: return self.font(.system(size: size))
-      }
+  func preferredFont(size: CGFloat) -> Text {
+    let userLocale = getUserLocale()
+    
+    switch userLocale {
+    // Hebrew font appears to render smaller than engilsh system font
+    case .hebrew: return self.font(.system(size: size + 1))
+      default: return self.font(.system(size: size))
     }
+  }
+  
+  func heavyWide() -> Text {
+    if #available(iOS 16.0, *) {
+      return self.fontWeight(.heavy).fontWidth(Font.Width(0.1))
+    } else {
+      return self.fontWeight(.heavy)
+    }
+  }
 }
 
 @available(iOS, deprecated: 15.0, message: "Use the built-in API instead")

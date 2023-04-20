@@ -3,7 +3,7 @@ import Foundation
 /// Used for decoding the station name according to the device locale.
 let userLocale = getUserLocale()
 
-struct Station: Decodable, Hashable, Identifiable {
+struct Station: Decodable, Hashable, Encodable, Identifiable {
   let id: String
   let name: String
   let image: String?
@@ -18,6 +18,19 @@ struct Station: Decodable, Hashable, Identifiable {
     } else {
       image = nil
     }
+  }
+  
+  init(id: String, name: String) {
+    self.id = id
+    self.name = name
+    self.image = nil
+  }
+  
+  func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(id, forKey: .id)
+    try container.encode(name, forKey: CodingKeys(rawValue: userLocale.rawValue)!)
+    // Don't encode the image property
   }
   
   enum CodingKeys : String, CodingKey {
@@ -68,3 +81,4 @@ func getStationNameById(_ id: Int) -> String {
   return "ERR"
 }
 
+let ERR_STATION = Station(id: "ERR", name: "ERR")
