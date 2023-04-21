@@ -13,7 +13,7 @@ struct LockScreenInTransitView: View {
       HStack(alignment: .bottom) {
         VStack(alignment: .leading) {
           if (vm.status == .arrived) {
-            Text("arrived at").font(.caption).padding(.vertical, 8.0)
+            Text("arrived at").font(.caption).padding(.bottom, 2.0)
           } else {
             Text("next station").font(.caption)
           }
