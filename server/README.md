@@ -6,7 +6,7 @@ Express server for the Better Rail app, sends live ride notifications.
 
 The following steps asssumes your enviorment is already set up for running Node.JS apps.
 
-> Note: Requires NodeJS 16 or above, and a redis server to store active rides
+> Note: Requires NodeJS 16 or above, a redis server to store active rides and mongodb to store logs
 
 - Fork the repo and clone to your machine.
 - Run `cd server && yarn install`
@@ -31,6 +31,7 @@ The following steps asssumes your enviorment is already set up for running Node.
 - `NODE_ENV`: `production` or `test`, used to determine notifications scheduler logic
 - `PORT`: port express listens to
 - `REDIS_URL`: connection string for redis
+- `MONGO_URL`: connection string for mongodb
 - `RAIL_URL`: url of the rail api
 - `APPLE_BUNDLE_ID`: bundle id of the iOS app to send notifications to
 - `APPLE_TEAM_ID`: team id for the developer account associated with the iOS app
