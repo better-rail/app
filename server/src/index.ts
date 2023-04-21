@@ -3,9 +3,9 @@ import rateLimit from "express-rate-limit"
 
 import { router } from "./routes/api"
 import { env, port } from "./data/config"
-import { logNames, logger } from "./logs"
 import { connectToRedis } from "./data/redis"
 import { connectToApn } from "./utils/apn-utils"
+import { logNames, logger, startLogger } from "./logs"
 import { scheduleExistingRides } from "./utils/ride-utils"
 
 const limiter = rateLimit({
@@ -23,6 +23,7 @@ app.use(express.json())
 app.use("/api/v1", router)
 
 app.listen(port, async () => {
+  startLogger()
   await connectToRedis()
   connectToApn()
   scheduleExistingRides()
