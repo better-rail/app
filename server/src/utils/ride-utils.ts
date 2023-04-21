@@ -46,6 +46,8 @@ export const exchangeTrainPrompt = (trains: RouteTrain[], gotOffTrain: number, l
 
 export const scheduleExistingRides = async () => {
   const rides = await getAllRides()
+  if (!rides) return
+
   const promises = rides.map((ride) => {
     return startRideNotifications(ride)
   })

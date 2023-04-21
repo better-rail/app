@@ -12,6 +12,10 @@ export const logNames = {
         success: "Got ride from redis",
         failed: "Failed to get ride from redis",
       },
+      getAll: {
+        success: "Got all rides from redis",
+        failed: "Failed to get all rides from redis",
+      },
       add: {
         success: "Added ride to redis",
         failed: "Failed to add ride to redis",

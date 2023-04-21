@@ -48,7 +48,7 @@ export const updateLastRideNotification = async (rideId: string, notificationId:
 
     return true
   } catch (error) {
-    logger.error(logNames.redis.rides.updateNotificationId.success, { error, rideId, id: notificationId })
+    logger.error(logNames.redis.rides.updateNotificationId.failed, { error, rideId, id: notificationId })
     return false
   }
 }
@@ -60,21 +60,27 @@ export const updateRideToken = async (rideId: string, token: string) => {
     logger.info(logNames.redis.rides.updateNotificationId.success, { rideId, token })
     return true
   } catch (error) {
-    logger.error(logNames.redis.rides.updateNotificationId.success, { error, rideId, token })
+    logger.error(logNames.redis.rides.updateNotificationId.failed, { error, rideId, token })
     return false
   }
 }
 
-export const getRide = async (rideId: string) => {
+export const getRide = async (rideId: string, shouldLog: boolean = true) => {
   try {
     const result = await client.hGetAll(getKey(rideId))
     const parsed = mapValues(result, (value) => JSON.parse(value))
     const ride = { ...parsed, rideId } as Ride
 
-    logger.info(logNames.redis.rides.get.success, { rideId })
+    if (shouldLog) {
+      logger.info(logNames.redis.rides.get.success, { rideId })
+    }
+
     return ride
   } catch (error) {
-    logger.error(logNames.redis.rides.get.success, { error, rideId })
+    if (shouldLog) {
+      logger.error(logNames.redis.rides.get.failed, { error, rideId })
+    }
+
     return null
   }
 }
@@ -91,16 +97,24 @@ export const deleteRide = async (rideId: string) => {
     logger.info(logNames.redis.rides.delete.success, { rideId })
     return success
   } catch (error) {
-    logger.error(logNames.redis.rides.delete.success, { error, rideId })
+    logger.error(logNames.redis.rides.delete.failed, { error, rideId })
     return false
   }
 }
 
-export const getAllRides = async () => {
-  const results = await client.keys("rides:*")
-  const rideIds = results.map((result) => result.split(":")[1])
-  const promises = rideIds.map((rideId) => getRide(rideId))
-  return compact(await Promise.all(promises))
+export const getAllRides = async (): Promise<Ride[] | null> => {
+  try {
+    const results = await client.keys("rides:*")
+    const rideIds = results.map((result) => result.split(":")[1])
+    const promises = rideIds.map((rideId) => getRide(rideId, false))
+    const rides = compact(await Promise.all(promises))
+
+    logger.info(logNames.redis.rides.getAll.success)
+    return rides
+  } catch (error) {
+    logger.error(logNames.redis.rides.getAll.failed, { error })
+    return null
+  }
 }
 
 const getKey = (rideId: string) => {
