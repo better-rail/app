@@ -1,33 +1,25 @@
-import dayjs from "dayjs"
-import { compact } from "lodash"
+import { isEmpty } from "lodash"
+import winston from "winston"
+import "winston-mongodb"
 
-type LogLevel = "INFO" | "SUCCESS" | "FAILED"
+import { mongoUrl } from "../data/config"
 
-class Logger {
-  private log(level: LogLevel, message: string, params?: Record<string, unknown>) {
-    const logFn = level === "FAILED" ? console.error : console.log
-    const date = dayjs().format("YYYY-MM-DD HH:mm:ss.SSS")
-
-    if (params?.error instanceof Error) {
-      params.error = params.error.message
-    }
-
-    const log = compact([level, date, message, JSON.stringify(params)])
-
-    logFn(log.join(" | "))
-  }
-
-  info(message: string, params?: Record<string, unknown>) {
-    this.log("INFO", message, params)
-  }
-
-  success(message: string, params?: Record<string, unknown>) {
-    this.log("SUCCESS", message, params)
-  }
-
-  failed(message: string, params?: Record<string, unknown>) {
-    this.log("FAILED", message, params)
-  }
-}
-
-export const logger = new Logger()
+export const logger = winston.createLogger({
+  format: winston.format.combine(
+    winston.format.errors({ stack: true }),
+    winston.format.timestamp(),
+    winston.format.metadata({ fillExcept: ["message", "level", "timestamp"] }),
+    winston.format.printf(({ level, message, timestamp, metadata, stack }) => {
+      return `${timestamp} ${level}: ${message} ${isEmpty(metadata) ? "" : "- " + JSON.stringify(metadata)} ${
+        isEmpty(stack) ? "" : "- " + stack
+      }`
+    }),
+  ),
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.MongoDB({
+      db: mongoUrl,
+      dbName: "logs",
+    }),
+  ],
+})

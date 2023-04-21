@@ -1,6 +1,8 @@
 import { Ride } from "../../types/ride"
 import { minutesInMs } from "../helpers/utils"
 import { partiallyMock } from "../helpers/types"
+import { LanguageCode } from "../../locales/i18n"
+import { Provider } from "../../types/notification"
 import { RouteItem, Station } from "../../types/rail"
 
 export const now = Date.now()
@@ -37,8 +39,8 @@ export const stations = partiallyMock<Station[]>([
 
 export const ride = partiallyMock<Ride>({
   token: "test",
-  locale: "en",
-  provider: "ios",
+  locale: LanguageCode.en,
+  provider: Provider.ios,
 })
 
 export const directRoute = partiallyMock<RouteItem>({

@@ -1,23 +1,25 @@
 import dayjs from "dayjs"
+import { Logger } from "winston"
 import { head, isEmpty, omit } from "lodash"
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore"
 import { scheduleJob, Job, RecurrenceRule } from "node-schedule"
 
 dayjs.extend(isSameOrBefore)
 
+import { logNames } from "../logs"
 import { env } from "../data/config"
 import { Ride } from "../types/ride"
 import { RouteItem } from "../types/rail"
-import { logger, logNames } from "../logs"
 import { sendNotification } from "./notify"
 import { getRouteForRide } from "../requests"
 import { endRideNotifications } from "./index"
-import { buildNotifications, getUpdatedLastNotification } from "../utils/ride-utils"
 import { NotificationPayload } from "../types/notification"
+import { buildNotifications, getUpdatedLastNotification } from "../utils/ride-utils"
 import { deleteRide, updateLastRideNotification, updateRideToken } from "../data/redis"
 import { buildWaitForTrainNotiifcation, getNotificationToSend, rideUpdateSecond } from "../utils/notify-utils"
 
 export class Scheduler {
+  logger: Logger
   private ride: Ride
   private route: RouteItem
   private updateDelayJob?: Job
@@ -25,20 +27,21 @@ export class Scheduler {
   private lastSentNotification?: NotificationPayload
   private notificationsToSend: NotificationPayload[]
 
-  private constructor(ride: Ride, route: RouteItem) {
+  private constructor(ride: Ride, route: RouteItem, logger: Logger) {
     this.ride = ride
     this.route = route
+    this.logger = logger
     this.notificationsToSend = this.buildRideNotifications(true)
   }
 
-  static async create(ride: Ride) {
+  static async create(ride: Ride, logger: Logger) {
     const route = await getRouteForRide(ride)
     if (!route) {
       return null
     }
 
     if (env === "production" && dayjs().isAfter(route.arrivalTime)) {
-      logger.failed(logNames.scheduler.rideInPast, {
+      logger.error(logNames.scheduler.rideInPast, {
         date: ride.departureDate,
         origin: ride.originId,
         destination: ride.destinationId,
@@ -49,7 +52,7 @@ export class Scheduler {
     }
 
     if (env === "production" && dayjs(route.departureTime).diff(dayjs(), "minutes") > 60) {
-      logger.failed(logNames.scheduler.rideInFuture, {
+      logger.error(logNames.scheduler.rideInFuture, {
         date: ride.departureDate,
         origin: ride.originId,
         destination: ride.destinationId,
@@ -59,7 +62,7 @@ export class Scheduler {
       return null
     }
 
-    const instance = new Scheduler(ride, route)
+    const instance = new Scheduler(ride, route, logger)
     return instance
   }
 
@@ -169,7 +172,7 @@ export class Scheduler {
     const second = rideUpdateSecond(this.ride.rideId)
     const rule = new RecurrenceRule()
     rule.second = second
-    logger.info(logNames.scheduler.updateDelay.register, { rideId: this.ride.rideId, second })
+    this.logger.info(logNames.scheduler.updateDelay.register, { second })
     this.updateDelayJob = scheduleJob(rule, async () => {
       if (isEmpty(this.notificationsToSend)) {
         return this.stopUpdateDelayJob()
@@ -182,8 +185,7 @@ export class Scheduler {
       this.notificationsToSend = this.buildRideNotifications()
 
       if (!isEmpty(this.notificationsToSend)) {
-        logger.info(logNames.scheduler.updateDelay.updated, {
-          rideId: this.ride.rideId,
+        this.logger.info(logNames.scheduler.updateDelay.updated, {
           delay: this.notificationsToSend[0].state.delay,
         })
       }
@@ -193,7 +195,7 @@ export class Scheduler {
   private stopUpdateDelayJob() {
     this.updateDelayJob?.cancel()
     this.updateDelayJob = undefined
-    logger.info(logNames.scheduler.updateDelay.cancel, { rideId: this.ride.rideId })
+    this.logger.info(logNames.scheduler.updateDelay.cancel)
   }
 
   /**
@@ -205,7 +207,7 @@ export class Scheduler {
    */
   private sendNotification(notification: NotificationPayload) {
     if (!this.lastSentNotification || notification.id >= this.lastSentNotification?.id) {
-      sendNotification(notification)
+      sendNotification(notification, this.logger)
 
       const indexToRemove = this.notificationsToSend.indexOf(notification)
       this.notificationsToSend.splice(indexToRemove, 1)

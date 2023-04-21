@@ -30,7 +30,12 @@ export const railApiLocales = {
   ar: "Arabic",
 }
 
-export type LanguageCode = "he" | "ar" | "en" | "ru"
+export enum LanguageCode {
+  en = "en",
+  he = "he",
+  ru = "ru",
+  ar = "ar",
+}
 
 export const translate = (key: string, locale: LanguageCode, options?: TranslateOptions) => {
   i18n.locale = locale

@@ -15,11 +15,11 @@ export const connectToRedis = async () => {
     await client.connect()
     logger.info(logNames.redis.connect.success)
   } catch (error) {
-    logger.failed(logNames.redis.connect.failed, { error })
+    logger.error(logNames.redis.connect.failed, { error })
   }
 }
 
-export const addRide = async (ride: RideRequest) => {
+export const addRide = async (ride: RideRequest): Promise<Ride | false> => {
   const rideId = uuid()
 
   try {
@@ -30,10 +30,10 @@ export const addRide = async (ride: RideRequest) => {
     })
 
     await Promise.all(promises)
-    logger.success(logNames.redis.rides.add.success, { rideId, token: ride.token })
-    return { ...ride, rideId, lastNotificationId: 0 } as Ride
+    logger.info(logNames.redis.rides.add.success, { rideId, token: ride.token })
+    return { ...ride, rideId, lastNotificationId: 0 }
   } catch (error) {
-    logger.failed(logNames.redis.rides.add.failed, { error, rideId, token: ride.token })
+    logger.error(logNames.redis.rides.add.failed, { error, rideId, token: ride.token })
     return false
   }
 }
@@ -43,12 +43,12 @@ export const updateLastRideNotification = async (rideId: string, notificationId:
     await client.hSet(getKey(rideId), "lastNotificationId", notificationId)
 
     if (notificationId !== 0) {
-      logger.success(logNames.redis.rides.updateNotificationId.success, { rideId, id: notificationId })
+      logger.info(logNames.redis.rides.updateNotificationId.success, { rideId, id: notificationId })
     }
 
     return true
   } catch (error) {
-    logger.failed(logNames.redis.rides.updateNotificationId.success, { error, rideId, id: notificationId })
+    logger.error(logNames.redis.rides.updateNotificationId.success, { error, rideId, id: notificationId })
     return false
   }
 }
@@ -57,10 +57,10 @@ export const updateRideToken = async (rideId: string, token: string) => {
   try {
     await client.hSet(getKey(rideId), "token", token)
 
-    logger.success(logNames.redis.rides.updateNotificationId.success, { rideId, token })
+    logger.info(logNames.redis.rides.updateNotificationId.success, { rideId, token })
     return true
   } catch (error) {
-    logger.failed(logNames.redis.rides.updateNotificationId.success, { error, rideId, token })
+    logger.error(logNames.redis.rides.updateNotificationId.success, { error, rideId, token })
     return false
   }
 }
@@ -71,10 +71,10 @@ export const getRide = async (rideId: string) => {
     const parsed = mapValues(result, (value) => JSON.parse(value))
     const ride = { ...parsed, rideId } as Ride
 
-    logger.success(logNames.redis.rides.get.success, { rideId })
+    logger.info(logNames.redis.rides.get.success, { rideId })
     return ride
   } catch (error) {
-    logger.failed(logNames.redis.rides.get.success, { error, rideId })
+    logger.error(logNames.redis.rides.get.success, { error, rideId })
     return null
   }
 }
@@ -88,10 +88,10 @@ export const deleteRide = async (rideId: string) => {
       throw new Error("Redis didn't delete ride")
     }
 
-    logger.success(logNames.redis.rides.delete.success, { rideId })
+    logger.info(logNames.redis.rides.delete.success, { rideId })
     return success
   } catch (error) {
-    logger.failed(logNames.redis.rides.delete.success, { error, rideId })
+    logger.error(logNames.redis.rides.delete.success, { error, rideId })
     return false
   }
 }

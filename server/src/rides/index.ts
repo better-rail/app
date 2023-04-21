@@ -1,13 +1,15 @@
 import { Ride } from "../types/ride"
 import { Scheduler } from "./scheduler"
-import { logNames, logger } from "../logs"
 import { deleteRide } from "../data/redis"
+import { logNames, logger } from "../logs"
 
 const schedulers: Record<string, Scheduler> = {}
 
 export const startRideNotifications = async (ride: Ride) => {
+  const rideLogger = logger.child({ rideId: ride.rideId, token: ride.token })
+
   try {
-    const scheduler = await Scheduler.create(ride)
+    const scheduler = await Scheduler.create(ride, rideLogger)
     if (!scheduler) {
       throw new Error("Failed to init scheduler")
     }
@@ -19,10 +21,10 @@ export const startRideNotifications = async (ride: Ride) => {
     scheduler.start()
     schedulers[ride.rideId] = scheduler
 
-    logger.success(logNames.scheduler.registerRide.success, { token: ride.token, rideId: ride.rideId })
+    rideLogger.info(logNames.scheduler.registerRide.success, { ...ride })
     return { success: true, rideId: ride.rideId }
   } catch (error) {
-    logger.failed(logNames.scheduler.registerRide.failed, { error, token: ride.token, rideId: ride.rideId })
+    rideLogger.error(logNames.scheduler.registerRide.failed, { error, ...ride })
     return { success: false }
   }
 }
@@ -42,10 +44,10 @@ export const updateRideToken = async (rideId: string, token: string) => {
       throw new Error("Scheduler didn't stop")
     }
 
-    logger.success(logNames.scheduler.updateRideToken.success, { rideId })
+    scheduler.logger.info(logNames.scheduler.updateRideToken.success)
     return true
   } catch (error) {
-    logger.failed(logNames.scheduler.updateRideToken.failed, { error, rideId, token })
+    logger.error(logNames.scheduler.updateRideToken.failed, { error, rideId, token })
     return false
   }
 }
@@ -66,10 +68,10 @@ export const endRideNotifications = async (rideId: string) => {
       throw new Error("Scheduler didn't stop")
     }
 
-    logger.success(logNames.scheduler.cancelRide.success, { rideId })
+    scheduler.logger.info(logNames.scheduler.cancelRide.success)
     return true
   } catch (error) {
-    logger.failed(logNames.scheduler.cancelRide.failed, { error, rideId })
+    logger.error(logNames.scheduler.cancelRide.failed, { error, rideId })
     return false
   }
 }

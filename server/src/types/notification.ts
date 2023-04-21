@@ -8,7 +8,9 @@ export enum Status {
   waitForTrain = "waitForTrain",
 }
 
-export type Provider = "ios"
+export enum Provider {
+  ios = "ios",
+}
 
 export type BuildNotificationPayload = {
   time: Dayjs

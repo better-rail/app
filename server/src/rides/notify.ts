@@ -1,23 +1,26 @@
 import dayjs from "dayjs"
 import { Priority } from "apns2"
+import { Logger } from "winston"
 
-import { logNames, logger } from "../logs"
+import { logNames } from "../logs"
 import { sendApnNotification } from "../utils/apn-utils"
 import { NotificationPayload, Status } from "../types/notification"
 
-export const sendNotification = (payload: NotificationPayload) => {
-  sendLogNotification(payload)
-
-  if (payload.provider === "ios") {
-    sendAppleNotification(payload)
+export const sendNotification = (payload: NotificationPayload, logger: Logger) => {
+  const notifiers = {
+    ios: sendAppleNotification,
+    default: sendLogNotification,
   }
+
+  const notifier = notifiers[payload.provider]
+  notifier(payload, logger)
 }
 
-const sendLogNotification = (payload: NotificationPayload) => {
+const sendLogNotification = (payload: NotificationPayload, logger: Logger) => {
   logger.info(logNames.notifications.log, { payload })
 }
 
-const sendAppleNotification = async (payload: NotificationPayload) => {
+const sendAppleNotification = async (payload: NotificationPayload, logger: Logger) => {
   const aps = {
     timestamp: dayjs().unix(),
     event: payload.state.status === Status.arrived ? "end" : "update",
@@ -33,8 +36,8 @@ const sendAppleNotification = async (payload: NotificationPayload) => {
 
   try {
     await sendApnNotification(payload.token, aps, priority)
-    logger.success(logNames.notifications.apple.success, { token: payload.token, notificationId: payload.id })
+    logger.info(logNames.notifications.apple.success, { payload })
   } catch (error) {
-    logger.failed(logNames.notifications.apple.failed, { error, notificationId: payload.id })
+    logger.error(logNames.notifications.apple.failed, { error, payload })
   }
 }

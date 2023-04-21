@@ -13,18 +13,20 @@ export const getRouteForRide = async (ride: Ride) => {
       throw new Error("Didn't find the requested route in response")
     }
 
-    logger.success(logNames.routeApi.getRoutes.success, {
+    logger.info(logNames.routeApi.getRoutes.success, {
       date: ride.departureDate,
       trains: ride.trains,
+      rideId: ride.rideId,
     })
     return selected
   } catch (error) {
-    logger.failed(logNames.routeApi.getRoutes.failed, {
+    logger.error(logNames.routeApi.getRoutes.failed, {
       error,
       date: ride.departureDate,
       origin: ride.originId,
       destination: ride.destinationId,
       trains: ride.trains,
+      rideId: ride.rideId,
     })
 
     return null
