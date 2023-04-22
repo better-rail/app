@@ -16,10 +16,6 @@ const PRESSABLE_BASE: ViewStyle = {
   padding: spacing[4],
   backgroundColor: color.primary,
   borderRadius: Platform.select({ ios: 12, android: 6 }),
-  shadowOffset: { width: 0, height: 0 },
-  shadowColor: color.dim,
-  shadowRadius: 1,
-  shadowOpacity: 0.1,
   opacity: 1,
 }
 
