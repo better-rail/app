@@ -29,7 +29,7 @@ actor TokenRegistry {
     if registeredTokens.contains(rideToken) {
       return .alreadyExists
     } else {
-      let existingRide = registeredTokens.first(where: { $0.rideId == rideId } )
+      let existingRide = registeredTokens.first(where: { $0.token == token } )
       
       // check if the Ride Id exists but the token is different
       if (existingRide != nil && existingRide!.token != token) {
@@ -44,6 +44,7 @@ actor TokenRegistry {
   }
   
   func updateRideId(rideId: String, token: String) -> TokenRegistryResponse {
+
     if let existingRide = registeredTokens.first(where: { $0.token == token } ) {
       registeredTokens.remove(existingRide)
       let updatedToken = RideToken(rideId: rideId, token: token)
@@ -61,6 +62,10 @@ actor TokenRegistry {
     }
     
     return .failed
+  }
+  
+  func getTokens() -> Set<RideToken> {
+    return registeredTokens
   }
   
   func awaitNewTokenRegistration() async -> RideToken {

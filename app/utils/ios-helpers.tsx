@@ -16,6 +16,7 @@ export function monitorLiveActivities() {
 }
 
 function prepareDataForLiveActivities(route: RouteItem) {
+  // We need to modify the route the fit the original data structure, which we use in the native code
   const modifiedRoute = { ...route }
   // @ts-expect-error
   modifiedRoute.arrivalTime = route.arrivalTimeString
@@ -60,7 +61,6 @@ export async function startLiveActivity(route: RouteItem) {
     const routeJSON = JSON.stringify(modifiedRoute)
 
     const rideId = await RNBetterRail.startActivity(routeJSON)
-
     return rideId
   } catch (err) {
     console.log(err)
@@ -78,6 +78,7 @@ export async function endLiveActivity(routeId: string) {
 }
 
 export async function isRideActive(routeId: string) {
-  const result: Boolean = await RNBetterRail.isRideActive(routeId)
-  return result
+  const result: string = await RNBetterRail.isRideActive(routeId)
+  if (result) return JSON.parse(result) as { rideId: string; token: string }[]
+  return []
 }

@@ -18,8 +18,14 @@ export const RideModel = types
   })
   .actions((self) => ({
     afterCreate() {
-      if (Platform.OS === "ios" && self.id) {
-        self.id = undefined
+      if (Platform.OS === "ios") {
+        isRideActive(self.id).then((tokens) => {
+          // TODO: Check if ride Id exists in the array. Currently .rideId arrives always empty
+          console.log("tokens", tokens.length)
+          if (tokens && tokens.length === 0) {
+            this.stopRide()
+          }
+        })
       }
     },
     setRideLoading(state: boolean) {

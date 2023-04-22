@@ -96,7 +96,7 @@ class LiveActivitiesController {
 
               case .dismissed, .ended:
                   print("activity has ended")
-                  await endLiveActivity(activity)
+                  await endLiveActivity(rideId: LiveActivitiesController.rideId)
 
             case .stale:
               print("Activity became staled")
@@ -109,15 +109,13 @@ class LiveActivitiesController {
   }
 
   private func monitorLiveActivityTokenChanges(_ activity: LiveActivityRoute) {
-    let tokenRegistry = TokenRegistry()
-
     Task {
         // Listen to push token updates of each active activity.
         for await token in activity.pushTokenUpdates {
           let decodedToken = token.map { String(format: "%02x", $0) }.joined()
           let rideId = LiveActivitiesController.rideId
           
-          let registerResponse = await tokenRegistry.registerTokenIfNew(rideId: rideId, token: decodedToken)
+          let registerResponse = await LiveActivitiesController.tokenRegistry.registerTokenIfNew(rideId: rideId, token: decodedToken)
           
           if (registerResponse == .registeredNew) {
             await registerLiveActivity(activity, token: decodedToken)
@@ -135,9 +133,9 @@ class LiveActivitiesController {
     let ride = Ride(token: token, departureDate: details.departureTime, originId: details.originStationId, destinationId: details.destinationStationId, trains: details.trainNumbers, locale: "en")
 
     Task.init {
-      let rideId = await ActivityNotificationsAPI.startRide(ride: ride)
-      if rideId != nil {
-        LiveActivitiesController.rideId = rideId!
+      if let rideId = await ActivityNotificationsAPI.startRide(ride: ride) {
+        LiveActivitiesController.rideId = rideId
+        await LiveActivitiesController.tokenRegistry.updateRideId(rideId: rideId, token: token)
       }
     }
     print("Live activity (\(activity.id)) registered.")
@@ -148,9 +146,9 @@ class LiveActivitiesController {
   }
 
 
-  private func endLiveActivity(_ activity: LiveActivityRoute) async {
-    let rideId = LiveActivitiesController.rideId
+  func endLiveActivity(rideId: String) async {
     await ActivityNotificationsAPI.endRide(rideId: rideId)
-    print("Live activity (\(activity.id)) ended.")
+    await LiveActivitiesController.tokenRegistry.deleteRideToken(rideId: rideId)
+    print("Ride (\(rideId)) ended.")
   }
 }

@@ -78,4 +78,24 @@ class RNBetterRail: NSObject {
       resolve(true)
     }
   }
+  
+  @available(iOSApplicationExtension 16.2, *)
+  @objc func isRideActive(_ rideId: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
+    Task {
+      let tokens = await LiveActivitiesController.tokenRegistry.getTokens()
+      let jsonArray = tokens.map { (rideToken) -> [String: String] in
+        return ["rideId": rideToken.rideId, "token": rideToken.token]
+      }
+      
+      do {
+          let jsonData = try JSONSerialization.data(withJSONObject: jsonArray, options: .prettyPrinted)
+          if let jsonString = String(data: jsonData, encoding: .utf8) {
+              resolve(jsonString)
+          }
+      } catch {
+        print(error.localizedDescription)
+          reject("error", "error", error)
+      }
+    }
+  }
 }

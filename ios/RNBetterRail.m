@@ -13,6 +13,7 @@ RCT_EXTERN_METHOD(saveCurrentRoute:(NSString *)originId destinationId:(NSString)
 RCT_EXTERN_METHOD(donateRouteIntent:(NSString *)originId destinationId:(NSString)destinationId)
 RCT_EXTERN_METHOD(startActivity:(NSString *)routeJSON resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(endActivity:(NSString *)routeId resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(isRideActive:(NSString *)rideId resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(monitorActivities)
 RCT_EXTERN_METHOD(reloadAllTimelines)
 
