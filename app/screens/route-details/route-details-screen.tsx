@@ -20,11 +20,13 @@ const ROOT: ViewStyle = {
 
 const START_RIDE_WRAPPER: ViewStyle = {
   position: "absolute",
-  bottom: 30,
-  left: 30,
-  shadowOffset: { width: 0, height: 0 },
-  shadowOpacity: 0.1,
+  bottom: 15,
+  right: 15,
+  shadowOffset: { width: 0, height: 1.5 },
+  shadowOpacity: 0.15,
   shadowRadius: 1,
+  elevation: 3,
+  backgroundColor: "transparent",
 }
 
 const TRAIN_ICON: ImageStyle = {
@@ -116,6 +118,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
           icon={
             Platform.OS == "android" ? undefined : <Image source={require("../../../assets/train.ios.png")} style={TRAIN_ICON} />
           }
+          pressedOpacity={0.85}
           title={translate("ride.startRide")}
           onPress={() => {
             startLiveActivity(routeItem).then((r) => {

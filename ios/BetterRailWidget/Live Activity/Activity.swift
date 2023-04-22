@@ -50,12 +50,11 @@ struct BetterRailActivityAttributes: ActivityAttributes {
 class LiveActivitiesController {
   typealias LiveActivityRoute = Activity<BetterRailActivityAttributes>
   static let shared = LiveActivitiesController()
-  static var env: String = "production"
+  static var env: String = "test"
   static var rideId: String = ""
   
   func startLiveActivity(route: Route) async {
     if ActivityAuthorizationInfo().areActivitiesEnabled {
-      // preapre activity initial content
         
       // request the activity from the system
       do {

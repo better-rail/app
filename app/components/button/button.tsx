@@ -51,6 +51,7 @@ export interface CustomButtonProps extends ButtonProps {
   loading?: boolean
   disabled?: boolean
   icon?: ReactNode
+  pressedOpacity?: number
   size?: "small"
 }
 
@@ -63,7 +64,7 @@ export const Button = function Button(props: CustomButtonProps) {
     if (size === "small") modifiedStyles = Object.assign({}, modifiedStyles, SMALL_BUTTON)
     if (Platform.OS === "ios") {
       if (isPressed) {
-        modifiedStyles = Object.assign(modifiedStyles, { opacity: 0.8 })
+        modifiedStyles = Object.assign(modifiedStyles, { opacity: props.pressedOpacity || 0.8 })
       }
     }
     return modifiedStyles

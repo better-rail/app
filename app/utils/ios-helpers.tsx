@@ -18,17 +18,17 @@ export function monitorLiveActivities() {
 function prepareDataForLiveActivities(route: RouteItem) {
   const modifiedRoute = { ...route }
   // @ts-expect-error
-  modifiedRoute.arrivalTime = new Date(route.arrivalTime).toISOString()
+  modifiedRoute.arrivalTime = route.arrivalTimeString
   // @ts-expect-error
-  modifiedRoute.departureTime = new Date(route.departureTime).toISOString()
-
+  modifiedRoute.departureTime = route.departureTimeString
+  console.log("test1", route.departureTimeString)
   modifiedRoute.trains = modifiedRoute.trains.map((train) => {
     const modifiedTrain = { ...train }
     // @ts-expect-error
-    modifiedTrain.arrivalTime = new Date(train.arrivalTime).toISOString()
+    modifiedTrain.arrivalTime = train.arrivalTimeString
 
     // @ts-expect-error
-    modifiedTrain.departureTime = new Date(train.arrivalTime).toISOString()
+    modifiedTrain.departureTime = train.arrivalTimeString
 
     // @ts-expect-error
     modifiedTrain.destPlatform = train.destinationPlatform
@@ -42,9 +42,9 @@ function prepareDataForLiveActivities(route: RouteItem) {
     modifiedTrain.stopStations = train.stopStations.map((stopStation) => {
       const modifiedStopStation = { ...stopStation }
       // @ts-expect-error
-      modifiedStopStation.arrivalTime = new Date(stopStation.arrivalTime).toISOString()
+      modifiedStopStation.arrivalTime = stopStation.arrivalTimeString
       // @ts-expect-error
-      modifiedStopStation.departureTime = new Date(stopStation.departureTime).toISOString()
+      modifiedStopStation.departureTime = stopStation.departureTimeString
       return modifiedStopStation
     })
 
