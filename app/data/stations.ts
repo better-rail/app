@@ -51,6 +51,7 @@ const stations: Station[] = [
     english: "Hadera-West",
     russian: "Хадера - Маарав",
     arabic: "الخضيرة - غرب  ",
+    image: require("../../assets/station-images/hadera-west.jpg"),
   },
   {
     id: "2800",
