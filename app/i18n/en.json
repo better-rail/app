@@ -146,6 +146,7 @@
     "goodbyes": "Have a nice ride!\n- Guy"
   },
   "ride": {
-    "startRide": "Start Ride"
+    "startRide": "Start Ride",
+    "stopRide": "Stop Ride"
   }
 }

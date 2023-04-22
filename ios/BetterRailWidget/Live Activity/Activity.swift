@@ -52,6 +52,7 @@ class LiveActivitiesController {
   static let shared = LiveActivitiesController()
   static var env: String = "test"
   static var rideId: String = ""
+  static var tokenRegistry = TokenRegistry()
   
   func startLiveActivity(route: Route) async {
     if ActivityAuthorizationInfo().areActivitiesEnabled {

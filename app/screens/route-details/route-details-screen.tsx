@@ -10,8 +10,9 @@ import { SharedElement } from "react-navigation-shared-element"
 import { ScrollView } from "react-native-gesture-handler"
 import { format } from "date-fns"
 import { RouteStationCard, RouteStopCard, RouteExchangeDetails } from "./components"
-import { startLiveActivity } from "../../utils/ios-helpers"
+import { endLiveActivity, startLiveActivity } from "../../utils/ios-helpers"
 import { isRTL, translate } from "../../i18n"
+import { useStores } from "../../models"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -20,12 +21,11 @@ const ROOT: ViewStyle = {
 
 const START_RIDE_WRAPPER: ViewStyle = {
   position: "absolute",
-  bottom: 15,
-  right: 15,
-  shadowOffset: { width: 0, height: 1.5 },
+  shadowOffset: { width: 0, height: 2 },
   shadowOpacity: 0.15,
-  shadowRadius: 1,
-  elevation: 3,
+  shadowRadius: 3,
+  shadowColor: "#000",
+  elevation: 4,
   backgroundColor: "transparent",
 }
 
@@ -38,9 +38,10 @@ const TRAIN_ICON: ImageStyle = {
 
 export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
   const { routeItem } = route.params
+  const { ride } = useStores()
 
   const insets = useSafeAreaInsets()
-
+  console.log("ride id", ride.id)
   return (
     <Screen
       style={ROOT}
@@ -112,21 +113,40 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
         })}
       </ScrollView>
 
-      <View style={START_RIDE_WRAPPER}>
-        <Button
-          style={{ backgroundColor: color.secondary, width: 148 }}
-          icon={
-            Platform.OS == "android" ? undefined : <Image source={require("../../../assets/train.ios.png")} style={TRAIN_ICON} />
-          }
-          pressedOpacity={0.85}
-          title={translate("ride.startRide")}
-          onPress={() => {
-            startLiveActivity(routeItem).then((r) => {
-              console.log(r)
-              alert("Live activity started")
-            })
-          }}
-        />
+      <View style={[START_RIDE_WRAPPER, { bottom: insets.bottom > 0 ? insets.bottom + 5 : 15, right: 15 + insets.right }]}>
+        {ride.id ? (
+          <Button
+            style={{ backgroundColor: color.primaryDarker, width: 148 }}
+            title={translate("ride.stopRide")}
+            icon={
+              Platform.OS == "android" ? undefined : <Image source={require("../../../assets/stop.ios.png")} style={TRAIN_ICON} />
+            }
+            pressedOpacity={0.85}
+            onPress={() => {
+              endLiveActivity(ride.id)
+              ride.stopRide()
+            }}
+          />
+        ) : (
+          <Button
+            style={{ backgroundColor: color.secondary, width: 148 }}
+            icon={
+              Platform.OS == "android" ? undefined : (
+                <Image source={require("../../../assets/train.ios.png")} style={TRAIN_ICON} />
+              )
+            }
+            pressedOpacity={0.85}
+            title={translate("ride.startRide")}
+            loading={ride.loading}
+            onPress={() => {
+              ride.setRideLoading(true)
+              startLiveActivity(routeItem).then((rideId) => {
+                ride.setRideId(rideId)
+                ride.setRideLoading(false)
+              })
+            }}
+          />
+        )}
       </View>
     </Screen>
   )

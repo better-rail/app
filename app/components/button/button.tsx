@@ -68,7 +68,7 @@ export const Button = function Button(props: CustomButtonProps) {
       }
     }
     return modifiedStyles
-  }, [isPressed, disabled])
+  }, [isPressed, disabled, style])
 
   return (
     <View style={[BUTTON_WRAPPER, containerStyle]}>

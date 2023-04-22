@@ -50,7 +50,7 @@ function App() {
       monitorLiveActivities()
     }
   }, [])
-  console.log(Number(Platform.Version))
+
   useEffect(function handleWidgetDeepLinking() {
     let linkingListener: EmitterSubscription
 

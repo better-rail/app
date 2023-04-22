@@ -22,6 +22,7 @@
 		C1286B55275E6D9D00E1E05D /* RNBetterRail.m in Sources */ = {isa = PBXBuildFile; fileRef = C1286B54275E6D9D00E1E05D /* RNBetterRail.m */; };
 		C1326198270C887900A248BA /* TrainDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1326197270C887900A248BA /* TrainDetailsView.swift */; };
 		C14F313426331361002A01D7 /* Swifty.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14F313326331361002A01D7 /* Swifty.swift */; };
+		C15A0E9A29F3DA3C00558103 /* TokenRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140AA29F1416100968904 /* TokenRegistry.swift */; };
 		C15DA0672763A8EB00A24EF3 /* Route.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = C1F7C89327627A60002A417F /* Route.intentdefinition */; };
 		C15DA0682763ABF100A24EF3 /* stationsData.json in Resources */ = {isa = PBXBuildFile; fileRef = C1F61C0C2709F08200CD3D44 /* stationsData.json */; };
 		C17FA4BA2709EFBB003797D9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C17FA4B92709EFBB003797D9 /* Assets.xcassets */; };
@@ -69,7 +70,6 @@
 		C1F140BA29F1416100968904 /* ActivityUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140A729F1416100968904 /* ActivityUtils.swift */; };
 		C1F140BB29F1416100968904 /* BetterRailLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140A829F1416100968904 /* BetterRailLiveActivity.swift */; };
 		C1F140BC29F1416100968904 /* Activity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140A929F1416100968904 /* Activity.swift */; };
-		C1F140BD29F1416100968904 /* TokenRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140AA29F1416100968904 /* TokenRegistry.swift */; };
 		C1F140BE29F1416100968904 /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140AC29F1416100968904 /* CircularProgressView.swift */; };
 		C1F140BF29F1416100968904 /* ActivityHeaderStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140AD29F1416100968904 /* ActivityHeaderStatus.swift */; };
 		C1F140C029F1416100968904 /* CountdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140AE29F1416100968904 /* CountdownView.swift */; };
@@ -1030,8 +1030,8 @@
 				C1F140CA29F141A800968904 /* BetterRailWidgetBundle.swift in Sources */,
 				C102DF9E2764FD6600A756B6 /* WidgetLargeScheduleView.swift in Sources */,
 				C1F140C429F1416100968904 /* LockScreenLiveActivityView.swift in Sources */,
+				C15A0E9A29F3DA3C00558103 /* TokenRegistry.swift in Sources */,
 				C1B1212B2761FDA60085C269 /* EntriesGenerator.swift in Sources */,
-				C1F140BD29F1416100968904 /* TokenRegistry.swift in Sources */,
 				C1F140C129F1416100968904 /* TimeInformation.swift in Sources */,
 				C1A802672747AB4D00A3073D /* BetterRailWidget.swift in Sources */,
 				C1C6DC5127493A91000E9EED /* RouteModel.swift in Sources */,

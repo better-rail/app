@@ -52,17 +52,30 @@ class RNBetterRail: NSObject {
   /// data - A JSON representation of a Route
   @available(iOSApplicationExtension 16.2, *)
   @objc func startActivity(_ routeJSON: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
-      let decoder = JSONDecoder()
-
-      do {
-        let route = try decoder.decode(Route.self, from: routeJSON.data(using: .utf8)!)
-        Task {
-          await LiveActivitiesController.shared.startLiveActivity(route: route)
-          resolve(true)
-        }
-      } catch {
-        print("Error decoding JSON: \(String(describing: error))")
-        reject("error", "An error occured while starting activity from RN", error)
+    let decoder = JSONDecoder()
+    
+    do {
+      let route = try decoder.decode(Route.self, from: routeJSON.data(using: .utf8)!)
+      Task {
+        await LiveActivitiesController.shared.startLiveActivity(route: route)
+        
+        // wait for the token to have it's ride Id assigned
+        let newToken = await LiveActivitiesController.tokenRegistry.awaitNewTokenRegistration()
+        // report to React Native
+        resolve(newToken.rideId)
       }
+    } catch {
+      print("Error decoding JSON: \(String(describing: error))")
+      reject("error", "An error occured while starting activity from RN", error)
+    }
+  }
+  
+  
+  @available(iOSApplicationExtension 16.2, *)
+  @objc func endActivity(_ rideId: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
+    Task {
+      await LiveActivitiesController.shared.endLiveActivity(rideId: rideId)
+      resolve(true)
+    }
   }
 }
