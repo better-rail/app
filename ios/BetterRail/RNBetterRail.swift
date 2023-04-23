@@ -44,13 +44,13 @@ class RNBetterRail: NSObject {
   
   // MARK - Live Activities methods
   
-  @available(iOSApplicationExtension 16.2, *)
+  @available(iOS 16.2, *)
   @objc func monitorActivities() {
     LiveActivitiesController.shared.monitorLiveActivities()
   }
   
   /// data - A JSON representation of a Route
-  @available(iOSApplicationExtension 16.2, *)
+  @available(iOS 16.2, *)
   @objc func startActivity(_ routeJSON: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
     let decoder = JSONDecoder()
     
@@ -71,7 +71,7 @@ class RNBetterRail: NSObject {
   }
   
   
-  @available(iOSApplicationExtension 16.2, *)
+  @available(iOS 16.2, *)
   @objc func endActivity(_ rideId: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
     Task {
       await LiveActivitiesController.shared.endLiveActivity(rideId: rideId)
@@ -79,7 +79,7 @@ class RNBetterRail: NSObject {
     }
   }
   
-  @available(iOSApplicationExtension 16.2, *)
+  @available(iOS 16.2, *)
   @objc func isRideActive(_ rideId: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
     Task {
       let tokens = await LiveActivitiesController.tokenRegistry.getTokens()

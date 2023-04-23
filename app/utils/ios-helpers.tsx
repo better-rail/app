@@ -29,7 +29,7 @@ function prepareDataForLiveActivities(route: RouteItem) {
     modifiedTrain.arrivalTime = train.arrivalTimeString
 
     // @ts-expect-error
-    modifiedTrain.departureTime = train.arrivalTimeString
+    modifiedTrain.departureTime = train.departureTimeString
 
     // @ts-expect-error
     modifiedTrain.destPlatform = train.destinationPlatform
@@ -59,7 +59,7 @@ export async function startLiveActivity(route: RouteItem) {
   try {
     const modifiedRoute = prepareDataForLiveActivities(route)
     const routeJSON = JSON.stringify(modifiedRoute)
-
+    console.log(routeJSON)
     const rideId = await RNBetterRail.startActivity(routeJSON)
     return rideId
   } catch (err) {

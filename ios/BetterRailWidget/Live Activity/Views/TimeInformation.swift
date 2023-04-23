@@ -35,14 +35,14 @@ struct TimeInformation: View {
                 .font(vm.isEnglish ? .caption2 : .caption)
               
               // hide the original time during delay, if the screen space is limited
-              if (delay == 0 || placement == .lockScreen && !vm.isWideScreen && delay > 0) {
+              if (delay == 0 || delay > 0 && placement == .lockScreen && vm.isWideScreen) {
                 Text(formatDateHour(departureDate))
                   .bold()
                   .strikethrough(vm.delay > 0 ? true : false)
                   .font(.caption)
               }
               
-              if (delay != 0) {
+              else if (delay != 0) {
                 Text(formatDateHour(departureDate.addDelay(delay)))
                   .foregroundColor(Color(uiColor: .systemRed))
                   .fontWeight(.heavy)

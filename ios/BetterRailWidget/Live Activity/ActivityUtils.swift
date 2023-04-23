@@ -108,6 +108,7 @@ func rideProgress(route: Route, nextStationId: Int) -> (Int, Int) {
 
 /// Get the start date for the current status
 /// e.g. for `waitForTrain` we'll use the activity start date, and for `inTransit` we'd want to use the train departure time
+@available(iOS 16.1, *)
 func getStatusStartDate(context: ActivityViewContext<BetterRailActivityAttributes>) -> Date {
   let status = context.state.status;
   let route = context.attributes.route
@@ -127,6 +128,7 @@ func getStatusStartDate(context: ActivityViewContext<BetterRailActivityAttribute
   }
 }
 
+@available(iOS 16.1, *)
 func getStatusEndDate(context: ActivityViewContext<BetterRailActivityAttributes>) -> Date {
   let status = context.state.status
   let route = context.attributes.route
@@ -185,6 +187,7 @@ func findClosestStationInRoute(route: Route) throws -> Int {
   throw ActivityError.stationNotFound
 }
 
+@available(iOS 16.1, *)
 func getActivityInitialState(route: Route) throws -> BetterRailActivityAttributes.ContentState {
    // get the current train by finding the departure time which is closest to the current time
    var status = ActivityStatus.waitForTrain

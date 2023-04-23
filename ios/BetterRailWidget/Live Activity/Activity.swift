@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 import ActivityKit
 
+@available(iOS 16.1, *)
 enum ActivityStatus: String, Codable {
     case waitForTrain
     case getOn
@@ -19,6 +20,7 @@ enum ActivityStatus: String, Codable {
   }
 }
 
+@available(iOS 16.1, *)
 struct BetterRailActivityAttributes: ActivityAttributes {
   // Dynamic stateful properties
   public struct ContentState: Codable, Hashable {
@@ -47,10 +49,11 @@ struct BetterRailActivityAttributes: ActivityAttributes {
   var frequentPushesEnabled: Bool = true
 }
 
+@available(iOS 16.2, *)
 class LiveActivitiesController {
   typealias LiveActivityRoute = Activity<BetterRailActivityAttributes>
   static let shared = LiveActivitiesController()
-  static var env: String = "test"
+  static var env: String = "production"
   static var rideId: String = ""
   static var tokenRegistry = TokenRegistry()
   
