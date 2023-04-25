@@ -38,3 +38,4 @@ The following steps asssumes your enviorment is already set up for running Node.
 - `APPLE_KEY_ID`: apple notifications key id
 - `APPLE_KEY_CONTENT`: apple notifications key content, replace new lines with `\n`
 - `APN_ENV`: apple notifications server enviroment, can be `production` or `test`
+- `FIREBASE_ADMIN_AUTH`: service account json for firebase project
