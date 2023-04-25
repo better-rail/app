@@ -10,6 +10,7 @@ export enum Status {
 
 export enum Provider {
   ios = "ios",
+  android = "android",
 }
 
 export type BuildNotificationPayload = {

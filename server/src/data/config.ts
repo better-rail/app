@@ -14,3 +14,4 @@ export const appleTeamId = process.env.APPLE_TEAM_ID as string
 export const appleKeyId = process.env.APPLE_KEY_ID as string
 export const appleKeyContent = (process.env.APPLE_KEY_CONTENT as string)?.replace(/\\n/g, "\n")
 export const appleApnHost = process.env.APN_ENV === "production" ? Host.production : Host.development
+export const firebaseAdminAuth = JSON.parse(process.env.FIREBASE_ADMIN_AUTH as string)

@@ -62,6 +62,10 @@ export const logNames = {
       success: "Sent notification to APN successully!",
       failed: "Failed to send notificaiton to APN",
     },
+    android: {
+      success: "Sent notification to FCM successully!",
+      failed: "Failed to send notificaiton to FCM",
+    },
   },
   routeApi: {
     getRoutes: {

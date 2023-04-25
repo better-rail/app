@@ -4,20 +4,20 @@ import { Logger } from "winston"
 
 import { logNames } from "../logs"
 import { sendApnNotification } from "../utils/apn-utils"
-import { NotificationPayload, Status } from "../types/notification"
+import { sendFcmNotification } from "../utils/fcm-utils"
+import { Message } from "firebase-admin/lib/messaging/messaging-api"
+import { NotificationPayload, Provider, Status } from "../types/notification"
+
+type NotifyFunction = (payload: NotificationPayload, logger: Logger) => void
 
 export const sendNotification = (payload: NotificationPayload, logger: Logger) => {
-  const notifiers = {
+  const notifiers: Record<Provider, NotifyFunction> = {
     ios: sendAppleNotification,
-    default: sendLogNotification,
+    android: sendAndroidNotification,
   }
 
   const notifier = notifiers[payload.provider]
   notifier(payload, logger)
-}
-
-const sendLogNotification = (payload: NotificationPayload, logger: Logger) => {
-  logger.info(logNames.notifications.log, { payload })
 }
 
 const sendAppleNotification = async (payload: NotificationPayload, logger: Logger) => {
@@ -39,5 +39,26 @@ const sendAppleNotification = async (payload: NotificationPayload, logger: Logge
     logger.info(logNames.notifications.apple.success, { payload })
   } catch (error) {
     logger.error(logNames.notifications.apple.failed, { error, payload })
+  }
+}
+
+const sendAndroidNotification = async (payload: NotificationPayload, logger: Logger) => {
+  if (!payload.alert) {
+    return
+  }
+
+  const message: Message = {
+    token: payload.token,
+    notification: {
+      title: payload.alert.title,
+      body: payload.alert.text,
+    },
+  }
+
+  try {
+    const messageId = await sendFcmNotification(message)
+    logger.info(logNames.notifications.android.success, { payload, messageId })
+  } catch (error) {
+    logger.error(logNames.notifications.android.failed, { error, payload })
   }
 }

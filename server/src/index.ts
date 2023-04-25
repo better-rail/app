@@ -5,6 +5,7 @@ import { router } from "./routes/api"
 import { env, port } from "./data/config"
 import { connectToRedis } from "./data/redis"
 import { connectToApn } from "./utils/apn-utils"
+import { connectToFcm } from "./utils/fcm-utils"
 import { logNames, logger, startLogger } from "./logs"
 import { scheduleExistingRides } from "./utils/ride-utils"
 
@@ -26,6 +27,7 @@ app.listen(port, async () => {
   startLogger()
   await connectToRedis()
   connectToApn()
+  connectToFcm()
   scheduleExistingRides()
   logger.info(logNames.server.listening, { port, env })
 })
