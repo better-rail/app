@@ -53,6 +53,9 @@ const sendAndroidNotification = async (payload: NotificationPayload, logger: Log
       title: payload.alert.title,
       body: payload.alert.text,
     },
+    android: {
+      priority: payload.shouldSendImmediately ? "high" : "normal",
+    },
   }
 
   try {
