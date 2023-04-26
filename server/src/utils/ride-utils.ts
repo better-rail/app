@@ -1,5 +1,5 @@
 import dayjs from "dayjs"
-import { isEqual, last, isNumber, head } from "lodash"
+import { isEqual, last, isNumber, head, chunk } from "lodash"
 
 import { Ride } from "../types/ride"
 import { logNames, logger } from "../logs"
@@ -48,14 +48,21 @@ export const scheduleExistingRides = async () => {
   const rides = await getAllRides()
   if (!rides) return
 
-  const promises = rides.map((ride) => {
-    return startRideNotifications(ride)
-  })
-  const schedules = await Promise.all(promises)
-  const successful = schedules.filter((val) => val)
-  const failed = schedules.filter((val) => !val)
+  let results: boolean[] = []
+  const chunkedRides = chunk(rides, 30)
+  for (const chunk of chunkedRides) {
+    const promises = chunk.map((ride) => {
+      return startRideNotifications(ride).then((result) => result.success)
+    })
+
+    const responses = await Promise.all(promises)
+    results.push(...responses)
+  }
+
+  const successful = results.filter((val) => val)
+  const failed = results.filter((val) => !val)
   logger.info(logNames.scheduler.scheduleExisting, {
-    count: promises.length,
+    count: rides.length,
     successful: successful.length,
     failed: failed.length,
   })
