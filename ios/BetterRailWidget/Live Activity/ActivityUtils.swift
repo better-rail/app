@@ -162,7 +162,7 @@ func getMinutesLeft(targetDate: Date) -> Int {
 /// Used to test what's the inital station Id for the activity, especially for cases where
 /// the train has departured already.
 /// - Returns: The station Id
-func findClosestStationInRoute(route: Route) throws -> Int {
+func findClosestStationInRoute(route: Route) -> Int {
   let now = Date()
   
   // find the first station where the departure time is after the current time
@@ -184,7 +184,7 @@ func findClosestStationInRoute(route: Route) throws -> Int {
     }
   }
   
-  throw ActivityError.stationNotFound
+  return route.trains[0].orignStation
 }
 
 @available(iOS 16.1, *)
@@ -192,8 +192,7 @@ func getActivityInitialState(route: Route) throws -> BetterRailActivityAttribute
    // get the current train by finding the departure time which is closest to the current time
    var status = ActivityStatus.waitForTrain
    
-   do {
-     let nextStationId = try findClosestStationInRoute(route: route)
+     let nextStationId = findClosestStationInRoute(route: route)
      let train = getTrainFromStationId(route: route, stationId: nextStationId)!
      
      if route.trains[0].orignStation != train.orignStation {
@@ -211,10 +210,6 @@ func getActivityInitialState(route: Route) throws -> BetterRailActivityAttribute
       nextStationId: nextStationId,
       status: status
      )
-   } catch {
-     print("Unexpected error: \(error)")
-     throw error
-   }
  }
 
 extension Date {
