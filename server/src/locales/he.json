@@ -1,21 +1,21 @@
 {
   "notifications": {
     "getOn": {
-      "title": "עלה על הרכבת",
-      "description": "קח את הרכבת ל%{lastStop} מרציף %{platform}"
+      "title": "הרכבת מגיעה לתחנה",
+      "description": "הרכבת ל%{lastStop} תצא מרציף %{platform}"
     },
     "prepareToGetOff": {
-      "title": "התכונן לרדת מהרכבת",
+      "title": "הרכבת מתקרבת ליעד",
       "description": "הרכבת תגיע בקרוב לתחנת %{station}"
     },
     "getOff": {
-      "title": "רד עכשיו",
-      "description": "הרכבת הגיעה לתחנת %{station}"
+      "title": "רדו מהרכבת",
+      "description": "הרכבת מגיעה לתחנת %{station}"
     },
     "exchange": {
-      "waitTime": "זמן המתנה כ-%{waitTime}",
-      "stayInPlatform": "הישאר ברציף %{platform}",
-      "changePlatform": "עבור לרציף %{platform}"
+      "waitTime": "כ-%{waitTime} המתנה לנסיעה הבאה",
+      "stayInPlatform": "השארו ברציף %{platform}",
+      "changePlatform": "עברו לרציף %{platform}"
     }
   }
 }

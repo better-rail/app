@@ -1,16 +1,16 @@
 {
   "notifications": {
     "getOn": {
-      "title": "Get on the train",
-      "description": "Take the train to %{lastStop} from platform %{platform}"
+      "title": "Hop on board!",
+      "description": "Take the train from platform %{platform} to %{lastStop}."
     },
     "prepareToGetOff": {
-      "title": "Prepare to get off",
-      "description": "The train will arrive shortly at %{station}"
+      "title": "Train arriving soon at %{station}",
+      "description": "Please prepare to exit the train."
     },
     "getOff": {
-      "title": "Get off now",
-      "description": "The train arrived at %{station}"
+      "title": "Time to get off!",
+      "description": "The train arrives at %{station}. Get ready to exit!"
     },
     "exchange": {
       "waitTime": "Wait for %{waitTime}",
