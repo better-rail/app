@@ -1,5 +1,5 @@
 import dayjs from "dayjs"
-import { ApiResponse } from "apisauce"
+import { AxiosResponse } from "axios"
 
 import { RailApi } from "./rail-api"
 import { stationsObject } from "../data/stations"
@@ -26,7 +26,7 @@ export class RouteApi {
     const hour = dayjs(departureDate).format("HH:mm")
     const date = dayjs(departureDate).format("YYYY-MM-DD")
 
-    const response: ApiResponse<RailApiGetRoutesResult> = await this.api.apisauce.get(
+    const response: AxiosResponse<RailApiGetRoutesResult> = await this.api.axiosInstance.get(
       `searchTrainLuzForDateTime?fromStation=${originId}&toStation=${destinationId}&date=${date}&hour=${hour}&scheduleType=1&systemType=1&languageId=${railApiLocales[locale]}`,
     )
     if (!response.data?.result) {

@@ -1,17 +1,16 @@
 import http from "http"
 import axiosRetry from "axios-retry"
-import { AxiosInstance } from "axios"
-import { ApisauceInstance, create } from "apisauce"
+import axios, { AxiosInstance } from "axios"
 
 import { railUrl } from "../data/config"
 
 http.globalAgent.maxSockets = 100
 
 export class RailApi {
-  apisauce: ApisauceInstance
+  axiosInstance: AxiosInstance
 
   constructor() {
-    this.apisauce = create({
+    this.axiosInstance = axios.create({
       baseURL: railUrl,
       timeout: 30000,
       headers: {
@@ -20,7 +19,7 @@ export class RailApi {
       },
     })
 
-    axiosRetry(this.apisauce.axiosInstance as AxiosInstance)
+    axiosRetry(this.axiosInstance)
   }
 }
 
