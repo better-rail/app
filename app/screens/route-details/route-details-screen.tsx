@@ -60,7 +60,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
       </SharedElement>
 
       <ScrollView
-        contentContainerStyle={{ paddingTop: spacing[4], paddingBottom: spacing[6] + insets.bottom }}
+        contentContainerStyle={{ paddingTop: spacing[4], paddingBottom: 80 + insets.bottom }}
         showsVerticalScrollIndicator={false}
       >
         {routeItem.isMuchLonger && <LongRouteWarning />}
