@@ -41,7 +41,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
   const { ride } = useStores()
 
   const insets = useSafeAreaInsets()
-  console.log("ride id", ride.id)
+
   return (
     <Screen
       style={ROOT}
