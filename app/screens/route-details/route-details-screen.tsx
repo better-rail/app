@@ -41,6 +41,8 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
   const { ride } = useStores()
 
   const insets = useSafeAreaInsets()
+  // check if the ride is 60 minutes away or less from now, and not after the arrival time
+  const isStartRideButtonEnabled = routeItem.departureTime - Date.now() < 3600000 && routeItem.arrivalTime > Date.now()
 
   return (
     <Screen
@@ -138,6 +140,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
             pressedOpacity={0.85}
             title={translate("ride.startRide")}
             loading={ride.loading}
+            disabled={!isStartRideButtonEnabled}
             onPress={() => {
               ride.setRideLoading(true)
               startLiveActivity(routeItem).then((rideId) => {

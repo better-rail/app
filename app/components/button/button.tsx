@@ -63,7 +63,7 @@ export const Button = function Button(props: CustomButtonProps) {
     let modifiedStyles = Object.assign({}, PRESSABLE_BASE, style)
     if (size === "small") modifiedStyles = Object.assign({}, modifiedStyles, SMALL_BUTTON)
     if (Platform.OS === "ios") {
-      if (isPressed) {
+      if (isPressed && !disabled) {
         modifiedStyles = Object.assign(modifiedStyles, { opacity: props.pressedOpacity || 0.8 })
       }
     }
