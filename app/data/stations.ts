@@ -470,6 +470,7 @@ const stations: Station[] = [
     english: "Afula R.Eitan",
     russian: "Афула Р. Эйтан",
     arabic: "العفولة  ر. ايتان",
+    image: require("../../assets/station-images/afula.jpg"),
   },
   {
     id: "1280",
