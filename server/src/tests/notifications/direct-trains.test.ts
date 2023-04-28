@@ -32,8 +32,8 @@ test("build get on notification for direct train", () => {
       shouldSendImmediately: true,
       time: dayjs(now - minutesInMs(1)),
       alert: {
-        title: "Get on the train",
-        text: "Take the train to Ashkelon from platform 6",
+        title: "Hop on board!",
+        text: "Take the train from platform 6 to Ashkelon.",
       },
     },
   ])
@@ -83,8 +83,8 @@ test("build get off notifications for direct train", () => {
       provider: ride.provider,
       time: dayjs(now + directDuration - minutesInMs(2)),
       alert: {
-        title: "Prepare to get off",
-        text: "The train will arrive shortly at Tel Aviv - Savidor Center",
+        title: "Prepare to exit the train",
+        text: "The train arriving soon at Tel Aviv - Savidor Center.",
       },
     },
     {
@@ -98,8 +98,8 @@ test("build get off notifications for direct train", () => {
       provider: ride.provider,
       time: dayjs(now + directDuration - minutesInMs(1)),
       alert: {
-        title: "Get off now",
-        text: "The train arrived at Tel Aviv - Savidor Center",
+        title: "Time to get off!",
+        text: "The train arrives at Tel Aviv - Savidor Center. Get ready to exit!",
       },
     },
     {

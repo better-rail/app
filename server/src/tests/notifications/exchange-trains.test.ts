@@ -32,8 +32,8 @@ test("build get on notification for exchange train", () => {
       provider: ride.provider,
       time: dayjs(now - minutesInMs(1)),
       alert: {
-        title: "Get on the train",
-        text: "Take the train to Ashkelon from platform 6",
+        title: "Hop on board!",
+        text: "Take the train from platform 6 to Ashkelon.",
       },
     },
     {
@@ -47,8 +47,8 @@ test("build get on notification for exchange train", () => {
       provider: ride.provider,
       time: dayjs(now + minutesInMs(14)),
       alert: {
-        title: "Get on the train",
-        text: "Take the train to Jerusalem - Yitzhak Navon from platform 4",
+        title: "Hop on board!",
+        text: "Take the train from platform 4 to Jerusalem - Yitzhak Navon.",
       },
     },
   ])
@@ -120,8 +120,8 @@ test("build get off notifications for direct train", () => {
       shouldSendImmediately: false,
       time: dayjs(now + getOffInExchangeTime - minutesInMs(2)),
       alert: {
-        title: "Prepare to get off",
-        text: "The train will arrive shortly at Tel Aviv - Savidor Center",
+        title: "Prepare to exit the train",
+        text: "The train arriving soon at Tel Aviv - Savidor Center.",
       },
     },
     {
@@ -135,8 +135,8 @@ test("build get off notifications for direct train", () => {
       shouldSendImmediately: true,
       time: dayjs(now + getOffInExchangeTime - minutesInMs(1)),
       alert: {
-        title: "Get off now",
-        text: "Move to platform 4 | Wait for 5 minutes",
+        title: "Time to get off!",
+        text: "Change to platform 4. Wait 5 minutes for your next train.",
       },
     },
     {
@@ -161,8 +161,8 @@ test("build get off notifications for direct train", () => {
       shouldSendImmediately: false,
       time: dayjs(now + exchangeDuration - minutesInMs(2)),
       alert: {
-        title: "Prepare to get off",
-        text: "The train will arrive shortly at Jerusalem - Yitzhak Navon",
+        title: "Prepare to exit the train",
+        text: "The train arriving soon at Jerusalem - Yitzhak Navon.",
       },
     },
     {
@@ -176,8 +176,8 @@ test("build get off notifications for direct train", () => {
       shouldSendImmediately: true,
       time: dayjs(now + exchangeDuration - minutesInMs(1)),
       alert: {
-        title: "Get off now",
-        text: "The train arrived at Jerusalem - Yitzhak Navon",
+        title: "Time to get off!",
+        text: "The train arrives at Jerusalem - Yitzhak Navon. Get ready to exit!",
       },
     },
     {
