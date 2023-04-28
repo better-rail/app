@@ -13,9 +13,9 @@
       "description": "وصل القطار في الساعة %{station}"
     },
     "exchange": {
-      "waitTime": "انتظر لمدة %{waitTime}",
-      "stayInPlatform": "ابق في المنصة %{platform}",
-      "changePlatform": "انتقل إلى المنصة %{platform}"
+      "waitTime": "انتظر لمدة %{waitTime}.",
+      "stayInPlatform": "ابق في المنصة %{platform}.",
+      "changePlatform": "انتقل إلى المنصة %{platform}."
     }
   }
 }

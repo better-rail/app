@@ -41,7 +41,7 @@ export const exchangeTrainPrompt = (trains: RouteTrain[], gotOffTrain: number, l
     platform: next.originPlatform,
   })
 
-  return platformText + " | " + waitTimeText
+  return platformText + " " + waitTimeText
 }
 
 export const scheduleExistingRides = async () => {

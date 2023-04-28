@@ -5,17 +5,17 @@
       "description": "Take the train from platform %{platform} to %{lastStop}."
     },
     "prepareToGetOff": {
-      "title": "Train arriving soon at %{station}",
-      "description": "Please prepare to exit the train."
+      "title": "Prepare to exit the train",
+      "description": "The train arriving soon at %{station}."
     },
     "getOff": {
       "title": "Time to get off!",
       "description": "The train arrives at %{station}. Get ready to exit!"
     },
     "exchange": {
-      "waitTime": "Wait for %{waitTime}",
-      "stayInPlatform": "Stay in platform %{platform}",
-      "changePlatform": "Move to platform %{platform}"
+      "waitTime": "Wait %{waitTime} for your next train.",
+      "stayInPlatform": "Stay in platform %{platform}.",
+      "changePlatform": "Change to platform %{platform}."
     }
   }
 }

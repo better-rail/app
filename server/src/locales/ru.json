@@ -13,9 +13,9 @@
       "description": "Поезд прибыл в %{station}"
     },
     "exchange": {
-      "waitTime": "Подождите %{waitTime}",
-      "stayInPlatform": "Оставайтесь на платформе %{platform}",
-      "changePlatform": "Перейдите на платформу %{platform}"
+      "waitTime": "Подождите %{waitTime}.",
+      "stayInPlatform": "Оставайтесь на платформе %{platform}.",
+      "changePlatform": "Перейдите на платформу %{platform}."
     }
   }
 }

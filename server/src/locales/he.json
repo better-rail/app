@@ -13,9 +13,9 @@
       "description": "הרכבת מגיעה לתחנת %{station}"
     },
     "exchange": {
-      "waitTime": "כ-%{waitTime} המתנה לנסיעה הבאה",
-      "stayInPlatform": "השארו ברציף %{platform}",
-      "changePlatform": "עברו לרציף %{platform}"
+      "waitTime": "כ-%{waitTime} המתנה לנסיעה הבאה.",
+      "stayInPlatform": "השארו ברציף %{platform}.",
+      "changePlatform": "עברו לרציף %{platform}."
     }
   }
 }
