@@ -1,0 +1,21 @@
+{
+  "notifications": {
+    "getOn": {
+      "title": "Hop on board!",
+      "description": "Take the train from platform %{platform} to %{lastStop}."
+    },
+    "prepareToGetOff": {
+      "title": "Prepare to exit the train",
+      "description": "The train arriving soon at %{station}."
+    },
+    "getOff": {
+      "title": "Time to get off!",
+      "description": "The train arrives at %{station}. Get ready to exit!"
+    },
+    "exchange": {
+      "waitTime": "Wait %{waitTime} for your next train.",
+      "stayInPlatform": "Stay in platform %{platform}.",
+      "changePlatform": "Change to platform %{platform}."
+    }
+  }
+}

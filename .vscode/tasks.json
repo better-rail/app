@@ -1,0 +1,63 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "command": "yarn run ios --simulator=\"iPhone 14\"",
+      "problemMatcher": [],
+      "label": "Run iOS",
+      "detail": "Serves the app with iOS"
+    },
+    {
+      "type": "shell",
+      "command": "yarn run android",
+      "problemMatcher": [],
+      "label": "Run Android",
+      "detail": "Serves the app with Android"
+    },
+    {
+      "type": "shell",
+      "command": "railway environment ${input:chooseEnv} && railway run yarn dev",
+      "problemMatcher": [],
+      "options": {
+        "cwd": "${workspaceFolder}/server"
+      },
+      "label": "Run Dev Server",
+      "detail": "Serves a local server with Railway variables"
+    },
+    {
+      "type": "shell",
+      "command": "yarn build",
+      "problemMatcher": [],
+      "options": {
+        "cwd": "${workspaceFolder}/server",
+        "statusbar": {
+          "hide" : true
+        }
+      },
+      "label": "Build Server",
+      "detail": "Builds the server"
+    },
+    {
+      "type": "shell",
+      "command": "yarn start",
+      "problemMatcher": [],
+      "options": {
+        "cwd": "${workspaceFolder}/server",
+        "statusbar": {
+          "hide" : true
+        }
+      },
+      "label": "Start Server",
+      "detail": "Serves a built server"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "chooseEnv",
+      "description": "Choose Enviroment",
+      "type": "pickString",
+      "options": ["production", "test"]
+    }
+  ]
+}
