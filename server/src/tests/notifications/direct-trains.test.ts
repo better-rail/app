@@ -81,7 +81,7 @@ test("build get off notifications for direct train", () => {
       },
       shouldSendImmediately: false,
       provider: ride.provider,
-      time: dayjs(now + directDuration - minutesInMs(2)),
+      time: dayjs(now + directDuration - minutesInMs(3)),
       alert: {
         title: "Prepare to exit the train",
         text: "The train arriving soon at Tel Aviv - Savidor Center.",

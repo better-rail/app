@@ -118,7 +118,7 @@ test("build get off notifications for direct train", () => {
       },
       provider: ride.provider,
       shouldSendImmediately: false,
-      time: dayjs(now + getOffInExchangeTime - minutesInMs(2)),
+      time: dayjs(now + getOffInExchangeTime - minutesInMs(3)),
       alert: {
         title: "Prepare to exit the train",
         text: "The train arriving soon at Tel Aviv - Savidor Center.",
@@ -159,7 +159,7 @@ test("build get off notifications for direct train", () => {
       },
       provider: ride.provider,
       shouldSendImmediately: false,
-      time: dayjs(now + exchangeDuration - minutesInMs(2)),
+      time: dayjs(now + exchangeDuration - minutesInMs(3)),
       alert: {
         title: "Prepare to exit the train",
         text: "The train arriving soon at Jerusalem - Yitzhak Navon.",

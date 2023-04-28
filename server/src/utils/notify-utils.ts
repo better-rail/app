@@ -72,7 +72,7 @@ export const buildNextStationNotifications = (route: RouteItem, ride: Ride): Bui
   return flatMap(route.trains, (train) => {
     const lastStationNotificationTime = dayjs(last(train.stopStations)?.departureTime || train.departureTime).add(1, "minutes")
     const shouldSendLastStationNotification = lastStationNotificationTime.isBefore(
-      dayjs(train.arrivalTime).subtract(2, "minutes"),
+      dayjs(train.arrivalTime).subtract(3, "minutes"),
     )
 
     const lastStation = shouldSendLastStationNotification && {
@@ -111,7 +111,7 @@ export const buildGetOffTrainNotifications = (route: RouteItem, ride: Ride): Bui
           token: ride.token,
           provider: ride.provider,
           shouldSendImmediately: false,
-          time: dayjs(train.arrivalTime).subtract(2, "minutes"),
+          time: dayjs(train.arrivalTime).subtract(3, "minutes"),
           state: {
             delay: train.delay,
             status: Status.inTransit,
