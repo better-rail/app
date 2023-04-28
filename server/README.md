@@ -1,10 +1,10 @@
-# Better Rail Server
+# Better Rail Notification Server
 
-Express server for the Better Rail app, sends live ride notifications.
+Better Rail's notification server provides real-time updates on ride progress, keeping passengers informed every step of the way.
 
 ### Installation
 
-The following steps asssumes your enviorment is already set up for running Node.JS apps.
+To follow these steps, ensure that your environment is configured to run Node.js applications
 
 > Note: Requires NodeJS 16 or above, a redis server to store active rides and mongodb to store logs
 
