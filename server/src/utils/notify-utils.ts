@@ -118,10 +118,10 @@ export const buildGetOffTrainNotifications = (route: RouteItem, ride: Ride): Bui
             nextStationId: train.destinationStationId,
           },
           alert: {
-            title: translate("notifications.prepareToGetOff.title", ride.locale),
-            text: translate("notifications.prepareToGetOff.description", ride.locale, {
+            title: translate("notifications.prepareToGetOff.title", ride.locale, {
               station: train.destinationStationName,
             }),
+            text: translate("notifications.prepareToGetOff.description", ride.locale),
           },
         },
         {
