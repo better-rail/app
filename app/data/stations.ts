@@ -478,6 +478,7 @@ const stations: Station[] = [
     english: "Beit She'an",
     russian: "Бейт Шеан",
     arabic: "بيت شآن",
+    image: require("../../assets/station-images/beit-shean.jpg"),
   },
   {
     id: "1820",
