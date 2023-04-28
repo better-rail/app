@@ -454,6 +454,7 @@ const stations: Station[] = [
     english: "Yokne'am - Kfar Yehoshu'a",
     russian: "Йокнеам – Кфар-Иегошуа",
     arabic: "يوكنعام – كفار يهوشوع",
+    image: require("../../assets/station-images/yokneam.jpg"),
   },
   {
     id: "1250",
