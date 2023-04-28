@@ -46,7 +46,8 @@ function App() {
   const [localeReady, setLocaleReady] = useState(false)
 
   useEffect(() => {
-    if (Platform.OS == "ios" && Number(Platform.Version) >= 16.2) {
+    // Activate live activities listener on iOS 16.2+
+    if (Platform.OS == "ios" && parseFloat(Platform.Version) >= 16.2) {
       monitorLiveActivities()
     }
   }, [])
