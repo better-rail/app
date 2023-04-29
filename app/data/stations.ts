@@ -194,6 +194,7 @@ const stations: Station[] = [
     english: "Haifa Center - HaShmona",
     russian: "Хайфа - Мерказ - Центральная",
     arabic: "حيفا المركز - هشمونا",
+    image: require("../../assets/station-images/hashmona.jpg"),
   },
   {
     id: "5010",
