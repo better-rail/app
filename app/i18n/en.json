@@ -148,6 +148,7 @@
   "ride": {
     "startRide": "Start Ride",
     "stopRide": "Stop Ride",
-    "disabledButtonAlert": "You can start a new ride only from an hour before the train's departure time."
+    "rideInFutureAlert": "You can start a new ride only from an hour before the train's departure time.",
+    "rideInPastAlert": "This ride has ended."
   }
 }

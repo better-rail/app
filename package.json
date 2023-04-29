@@ -37,6 +37,7 @@
     "@react-navigation/stack": "6.3.16",
     "apisauce": "2.0.0",
     "date-fns": "^2.19.0",
+    "dayjs": "^1.11.7",
     "expo": "48.0.10",
     "expo-localization": "~14.1.1",
     "fuse.js": "^6.4.6",

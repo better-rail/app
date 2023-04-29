@@ -1,7 +1,8 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from "react"
+import dayjs from "dayjs"
 import { observer } from "mobx-react-lite"
-import { Image, ImageStyle, Platform, TextStyle, View, ViewStyle } from "react-native"
+import { Alert, Image, ImageStyle, Platform, TextStyle, View, ViewStyle } from "react-native"
 import { Button, RouteDetailsHeader, Screen, Text } from "../../components"
 import { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import { color, spacing } from "../../theme"
@@ -42,7 +43,10 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
 
   const insets = useSafeAreaInsets()
   // check if the ride is 60 minutes away or less from now, and not after the arrival time
-  const isStartRideButtonEnabled = routeItem.departureTime - Date.now() < 3600000 && routeItem.arrivalTime > Date.now()
+
+  const isRouteInPast = dayjs().isAfter(routeItem.arrivalTime)
+  const isRouteInFuture = dayjs(routeItem.departureTime).diff(dayjs(), "minutes") > 60
+  const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast
 
   return (
     <Screen
@@ -140,9 +144,9 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
             pressedOpacity={0.85}
             title={translate("ride.startRide")}
             loading={ride.loading}
-            disabled={!isStartRideButtonEnabled}
+            disabled={isStartRideButtonDisabled}
             onDisabledPress={() => {
-              alert(translate("ride.disabledButtonAlert"))
+              Alert.alert(translate(isRouteInFuture ? "ride.rideInFutureAlert" : "ride.rideInPastAlert"))
             }}
             onPress={() => {
               ride.setRideLoading(true)
