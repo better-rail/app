@@ -341,6 +341,7 @@ const stations: Station[] = [
     english: "Petah Tikva - Kiryat Arye",
     russian: "Петах Тиква – Кирьят Арье",
     arabic: "بيتح تكڤا - كريات أريه",
+    image: require("../../assets/station-images/kiryat-arye.jpg"),
   },
   {
     id: "5150",
