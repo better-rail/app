@@ -59,6 +59,7 @@ const stations: Station[] = [
     english: "Binyamina",
     russian: "Биньямина",
     arabic: "بنيامينا",
+    image: require("../../assets/station-images/binyamina.jpg"),
   },
   {
     id: "2820",
