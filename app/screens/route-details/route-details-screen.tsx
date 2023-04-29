@@ -141,11 +141,13 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
             title={translate("ride.startRide")}
             loading={ride.loading}
             disabled={!isStartRideButtonEnabled}
+            onDisabledPress={() => {
+              alert("hi")
+            }}
             onPress={() => {
               ride.setRideLoading(true)
               startLiveActivity(routeItem).then((rideId) => {
-                ride.setRideId(rideId)
-                ride.setRideLoading(false)
+                ride.startRide(rideId, route)
               })
             }}
           />

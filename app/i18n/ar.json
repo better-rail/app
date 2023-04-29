@@ -129,5 +129,10 @@
     "heyThere": "Hey there! \nI made Better Rail in hopes it'll make public transportation a little more accessible to the public. It's offered for free, without ads or trackers.",
     "pleaseConsider": "Please consider helping it to reach a wider audience by giving a review in the App Store or sharing it with your friends 😊",
     "goodbyes": "Have a nice ride!\n- Guy"
+  },
+  "ride": {
+    "startRide": "ابدأ الركوب",
+    "stopRide": "توقف عن الركوب",
+    "disabledButtonAlert": "يمكنك بدء رحلة جديدة فقط قبل ساعة من وقت مغادرة القطار."
   }
 }
