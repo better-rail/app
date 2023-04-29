@@ -226,6 +226,7 @@ const stations: Station[] = [
     english: "Rehovot",
     russian: "Реховот",
     arabic: "رحوڤوت",
+    image: require("../../assets/station-images/rehovot.jpg"),
   },
   {
     id: "5410",
