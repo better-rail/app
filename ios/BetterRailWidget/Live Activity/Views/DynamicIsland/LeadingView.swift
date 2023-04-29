@@ -12,6 +12,11 @@ struct LeadingView: View {
       return vm.train.originStationName
     }
     
+    else if (vm.route.trains.count > 1) {
+      let lastTrainIndex = vm.route.trains.count - 1
+      return vm.route.trains[lastTrainIndex].destinationStationName
+    }
+    
     return vm.train.destinationStationName
   }
   
