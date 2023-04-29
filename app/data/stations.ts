@@ -48,9 +48,10 @@ const stations: Station[] = [
   {
     id: "3100",
     hebrew: "חדרה - מערב",
-    english: "Hadera-West",
+    english: "Hadera - West",
     russian: "Хадера - Маарав",
     arabic: "الخضيرة - غرب  ",
+    image: require("../../assets/station-images/hadera-west.jpg"),
   },
   {
     id: "2800",
@@ -58,6 +59,7 @@ const stations: Station[] = [
     english: "Binyamina",
     russian: "Биньямина",
     arabic: "بنيامينا",
+    image: require("../../assets/station-images/binyamina.jpg"),
   },
   {
     id: "2820",
@@ -152,6 +154,7 @@ const stations: Station[] = [
     english: "Kiryat Gat",
     russian: "Кирьят-Гат ",
     arabic: "كريات چات",
+    image: require("../../assets/station-images/kiryat-gat.jpg"),
   },
   {
     id: "5000",
@@ -175,6 +178,7 @@ const stations: Station[] = [
     english: "Kfar Habad",
     russian: "Кфар ХАБАД",
     arabic: "كفار حباد",
+    image: require("../../assets/station-images/kfar-habad.jpg"),
   },
   {
     id: "4600",
@@ -190,6 +194,7 @@ const stations: Station[] = [
     english: "Haifa Center - HaShmona",
     russian: "Хайфа - Мерказ - Центральная",
     arabic: "حيفا المركز - هشمونا",
+    image: require("../../assets/station-images/hashmona.jpg"),
   },
   {
     id: "5010",
@@ -197,6 +202,7 @@ const stations: Station[] = [
     english: "Ramla",
     russian: "Рамле",
     arabic: "الرملة",
+    image: require("../../assets/station-images/ramla.jpg"),
   },
   {
     id: "8800",
@@ -220,6 +226,7 @@ const stations: Station[] = [
     english: "Rehovot",
     russian: "Реховот",
     arabic: "رحوڤوت",
+    image: require("../../assets/station-images/rehovot.jpg"),
   },
   {
     id: "5410",
@@ -336,6 +343,7 @@ const stations: Station[] = [
     english: "Petah Tikva - Kiryat Arye",
     russian: "Петах Тиква – Кирьят Арье",
     arabic: "بيتح تكڤا - كريات أريه",
+    image: require("../../assets/station-images/kiryat-arye.jpg"),
   },
   {
     id: "5150",
@@ -454,6 +462,7 @@ const stations: Station[] = [
     english: "Yokne'am - Kfar Yehoshu'a",
     russian: "Йокнеам – Кфар-Иегошуа",
     arabic: "يوكنعام – كفار يهوشوع",
+    image: require("../../assets/station-images/yokneam.jpg"),
   },
   {
     id: "1250",
@@ -469,6 +478,7 @@ const stations: Station[] = [
     english: "Afula R.Eitan",
     russian: "Афула Р. Эйтан",
     arabic: "العفولة  ر. ايتان",
+    image: require("../../assets/station-images/afula.jpg"),
   },
   {
     id: "1280",
@@ -476,6 +486,7 @@ const stations: Station[] = [
     english: "Beit She'an",
     russian: "Бейт Шеан",
     arabic: "بيت شآن",
+    image: require("../../assets/station-images/beit-shean.jpg"),
   },
   {
     id: "1820",

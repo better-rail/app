@@ -36,14 +36,16 @@
       "hebrew": "חדרה - מערב",
       "english": "Hadera - West",
       "russian": "Хадера - Маарав",
-      "arabic": "الخضيرة - غرب"
+      "arabic": "الخضيرة - غرب",
+      "image": "hadera-west"
    },
    {
       "id": "2800",
       "hebrew": "בנימינה",
       "english": "Binyamina",
       "russian": "Биньямина",
-      "arabic": "بنيامينا"
+      "arabic": "بنيامينا",
+      "image": "binyamina"
    },
    {
       "id": "2820",
@@ -156,7 +158,8 @@
       "hebrew": "כפר חב\"ד",
       "english": "Kfar Habad",
       "russian": "Кфар ХАБАД",
-      "arabic": "كفار حباد"
+      "arabic": "كفار حباد",
+      "image": "kfar-habad"
    },
    {
       "id": "4600",
@@ -171,14 +174,16 @@
       "hebrew": "מרכז השמונה",
       "english": "Haifa - HaShmona",
       "russian": "Хайфа - Мерказ - Центральная",
-      "arabic": "حيفا المركز - هشمونا"
+      "arabic": "حيفا المركز - هشمونا",
+      "image": "hashmona"
    },
    {
       "id": "5010",
       "hebrew": "רמלה",
       "english": "Ramla",
       "russian": "Рамле",
-      "arabic": "الرملة"
+      "arabic": "الرملة",
+      "image": "ramla"
    },
    {
       "id": "8800",
@@ -201,7 +206,8 @@
       "hebrew": "רחובות",
       "english": "Rehovot",
       "russian": "Реховот",
-      "arabic": "رحوڤوت"
+      "arabic": "رحوڤوت",
+      "image": "rehovot"
    },
    {
       "id": "5410",
@@ -307,7 +313,8 @@
       "hebrew": "פ״ת - קריית אריה",
       "english": "Petah Tikva - Kiryat Arye",
       "russian": "Петах Тиква – Кирьят Арье",
-      "arabic": "بيتح تكڤا - كريات أريه"
+      "arabic": "بيتح تكڤا - كريات أريه",
+      "image": "kiryat-arye"
    },
    {
       "id": "5150",
@@ -426,6 +433,7 @@
       "english": "Yokne'am - Kfar Yehoshu'a",
       "russian": "Йокнеам – Кфар-Иегошуа",
       "arabic": "يوكنعام – كفار يهوشوع",
+      "image": "yokneam"
    },
    {
       "id": "1250",
@@ -439,14 +447,16 @@
       "hebrew": "עפולה ר. איתן",
       "english": "Afula R.Eitan",
       "russian": "Афула Р. Эйтан",
-      "arabic": "العفولة  ر. ايتان"
+      "arabic": "العفولة  ر. ايتان",
+      "image": "afula"
    },
    {
       "id": "1280",
       "hebrew": "בית שאן",
       "english": "Beit She'an",
       "russian": "Бейт Шеан",
-      "arabic": "بيت شآن"
+      "arabic": "بيت شآن",
+      "image": "beit-shean"
    },
    {
       "id": "1820",
