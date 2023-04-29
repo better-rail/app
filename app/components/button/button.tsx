@@ -53,6 +53,10 @@ export interface CustomButtonProps extends ButtonProps {
   icon?: ReactNode
   pressedOpacity?: number
   size?: "small"
+  /**
+   * An optional onPress handler that is only called when the button is disabled.
+   */
+  onDisabledPress?: () => void
 }
 
 export const Button = function Button(props: CustomButtonProps) {
@@ -77,8 +81,12 @@ export const Button = function Button(props: CustomButtonProps) {
         onPressIn={() => setIsPressed(true)}
         onPressOut={() => setIsPressed(false)}
         android_ripple={{ color: color.primaryLighter }}
-        onPress={() => {
-          disabled ? null : onPress()
+        onPress={(e) => {
+          if (disabled) {
+            if (props.onDisabledPress) props.onDisabledPress()
+          } else {
+            onPress(e)
+          }
         }}
       >
         {loading ? (

@@ -142,7 +142,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
             loading={ride.loading}
             disabled={!isStartRideButtonEnabled}
             onDisabledPress={() => {
-              alert("hi")
+              alert(translate("ride.disabledButtonAlert"))
             }}
             onPress={() => {
               ride.setRideLoading(true)
