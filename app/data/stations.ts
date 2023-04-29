@@ -202,6 +202,7 @@ const stations: Station[] = [
     english: "Ramla",
     russian: "Рамле",
     arabic: "الرملة",
+    image: require("../../assets/station-images/ramla.jpg"),
   },
   {
     id: "8800",
