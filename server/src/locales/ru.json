@@ -1,0 +1,21 @@
+{
+  "notifications": {
+    "getOn": {
+      "title": "Садитесь в поезд",
+      "description": "Сесть на поезд до %{lastStop} с платформы %{platform}"
+    },
+    "prepareToGetOff": {
+      "title": "Приготовьтесь сойти",
+      "description": "поезд прибывает скоро в %{station}"
+    },
+    "getOff": {
+      "title": "Сойти сейчас",
+      "description": "Поезд прибыл в %{station}"
+    },
+    "exchange": {
+      "waitTime": "Подождите %{waitTime}.",
+      "stayInPlatform": "Оставайтесь на платформе %{platform}.",
+      "changePlatform": "Перейдите на платформу %{platform}."
+    }
+  }
+}

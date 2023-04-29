@@ -1,0 +1,21 @@
+{
+  "notifications": {
+    "getOn": {
+      "title": "اركب القطار",
+      "description": "استقل القطار إلى %{lastStop} من المنصة %{platform}"
+    },
+    "prepareToGetOff": {
+      "title": "استعد للنزول من",
+      "description": "سيصل القطار قريبًا في الساعة %{station}"
+    },
+    "getOff": {
+      "title": "انزل الآن",
+      "description": "وصل القطار في الساعة %{station}"
+    },
+    "exchange": {
+      "waitTime": "انتظر لمدة %{waitTime}.",
+      "stayInPlatform": "ابق في المنصة %{platform}.",
+      "changePlatform": "انتقل إلى المنصة %{platform}."
+    }
+  }
+}
