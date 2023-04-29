@@ -177,6 +177,7 @@ const stations: Station[] = [
     english: "Kfar Habad",
     russian: "Кфар ХАБАД",
     arabic: "كفار حباد",
+    image: require("../../assets/station-images/kfar-habad.jpg"),
   },
   {
     id: "4600",
