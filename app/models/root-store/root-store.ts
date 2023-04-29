@@ -4,7 +4,7 @@ import { trainRoutesModel } from "../train-routes/train-routes"
 import { RecentSearchesModel } from "../recent-searches/recent-searches"
 import { FavoritesModel } from "../favorites/favorites"
 import { SettingsModel } from "../settings/settings"
-import { RideModel } from "../ride/ride.ts"
+import { RideModel } from "../ride/ride"
 
 /**
  * A RootStore model.

@@ -2,6 +2,7 @@ import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { omit } from "ramda"
 import { Platform } from "react-native"
 import { isRideActive } from "../../utils/ios-helpers"
+import { trainRouteSchema } from "../train-routes/train-routes"
 
 /**
  * Favorite routes store.
@@ -15,6 +16,7 @@ export const RideModel = types
      */
     loading: types.optional(types.boolean, false),
     id: types.maybe(types.string),
+    route: types.maybe(types.model(trainRouteSchema)),
   })
   .actions((self) => ({
     afterCreate() {
@@ -27,6 +29,11 @@ export const RideModel = types
           }
         })
       }
+    },
+    startRide(rideId: string, route: any) {
+      this.setRideId(rideId)
+      self.route = route
+      this.setRideLoading(false)
     },
     setRideLoading(state: boolean) {
       self.loading = state
