@@ -79,7 +79,6 @@
 		C1F140C429F1416100968904 /* LockScreenLiveActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140B329F1416100968904 /* LockScreenLiveActivityView.swift */; };
 		C1F140C529F1416100968904 /* RideInformationBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140B429F1416100968904 /* RideInformationBar.swift */; };
 		C1F140C629F1416100968904 /* LeadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140B629F1416100968904 /* LeadingView.swift */; };
-		C1F140C729F1416100968904 /* BottomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140B729F1416100968904 /* BottomView.swift */; };
 		C1F140C829F1416100968904 /* ActivityNotificationsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140B829F1416100968904 /* ActivityNotificationsAPI.swift */; };
 		C1F140CA29F141A800968904 /* BetterRailWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140C929F141A800968904 /* BetterRailWidgetBundle.swift */; };
 		C1F140CE29F14D1C00968904 /* Activity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140A929F1416100968904 /* Activity.swift */; };
@@ -258,7 +257,6 @@
 		C1F140B329F1416100968904 /* LockScreenLiveActivityView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LockScreenLiveActivityView.swift; sourceTree = "<group>"; };
 		C1F140B429F1416100968904 /* RideInformationBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RideInformationBar.swift; sourceTree = "<group>"; };
 		C1F140B629F1416100968904 /* LeadingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LeadingView.swift; sourceTree = "<group>"; };
-		C1F140B729F1416100968904 /* BottomView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BottomView.swift; sourceTree = "<group>"; };
 		C1F140B829F1416100968904 /* ActivityNotificationsAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivityNotificationsAPI.swift; sourceTree = "<group>"; };
 		C1F140C929F141A800968904 /* BetterRailWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BetterRailWidgetBundle.swift; sourceTree = "<group>"; };
 		C1F452E9281FC21F00EF53CB /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
@@ -570,7 +568,6 @@
 			isa = PBXGroup;
 			children = (
 				C1F140B629F1416100968904 /* LeadingView.swift */,
-				C1F140B729F1416100968904 /* BottomView.swift */,
 			);
 			path = DynamicIsland;
 			sourceTree = "<group>";
@@ -1026,7 +1023,6 @@
 				C1F140C829F1416100968904 /* ActivityNotificationsAPI.swift in Sources */,
 				C1B121272761FD260085C269 /* Utilities.swift in Sources */,
 				C1B121292761FD7E0085C269 /* Extensions.swift in Sources */,
-				C1F140C729F1416100968904 /* BottomView.swift in Sources */,
 				C1F140CA29F141A800968904 /* BetterRailWidgetBundle.swift in Sources */,
 				C102DF9E2764FD6600A756B6 /* WidgetLargeScheduleView.swift in Sources */,
 				C1F140C429F1416100968904 /* LockScreenLiveActivityView.swift in Sources */,
