@@ -1,11 +1,22 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { omit } from "ramda"
 import { Platform } from "react-native"
-import { isRideActive } from "../../utils/ios-helpers"
+import iOSHelpers from "../../utils/ios-helpers"
 import { trainRouteSchema } from "../train-routes/train-routes"
+import { RouteItem } from "../../services/api"
+
+const startRideHandler: (route: RouteItem) => Promise<string> = Platform.select({
+  ios: iOSHelpers.startLiveActivity,
+  android: () => Promise.resolve(""),
+})
+
+const endRideHandler: () => Promise<boolean> = Platform.select({
+  ios: iOSHelpers.endLiveActivity,
+  android: () => Promise.resolve(true),
+})
 
 /**
- * Favorite routes store.
+ * Live Ride store.
  */
 export const RideModel = types
   .model("Ride")
@@ -21,7 +32,7 @@ export const RideModel = types
   .actions((self) => ({
     afterCreate() {
       if (Platform.OS === "ios") {
-        isRideActive(self.id).then((tokens) => {
+        iOSHelpers.isRideActive(self.id).then((tokens) => {
           // TODO: Check if ride Id exists in the array. Currently .rideId arrives always empty
           console.log("tokens", tokens.length)
           if (tokens && tokens.length === 0) {
@@ -30,10 +41,17 @@ export const RideModel = types
         })
       }
     },
-    startRide(rideId: string, route: any) {
-      this.setRideId(rideId)
-      self.route = route
-      this.setRideLoading(false)
+    startRide(route: RouteItem) {
+      this.setRideLoading(true)
+
+      startRideHandler(route)
+        .then((rideId) => {
+          self.route = route as any
+          this.setRideId(rideId)
+        })
+        .finally(() => {
+          this.setRideLoading(false)
+        })
     },
     setRideLoading(state: boolean) {
       self.loading = state
@@ -42,7 +60,15 @@ export const RideModel = types
       self.id = rideId
     },
     stopRide() {
-      self.id = undefined
+      this.setRideLoading(true)
+
+      endRideHandler()
+        .then(() => {
+          self.id = undefined
+        })
+        .finally(() => {
+          this.setRideLoading(false)
+        })
     },
   }))
   .postProcessSnapshot(omit(["loading"]))

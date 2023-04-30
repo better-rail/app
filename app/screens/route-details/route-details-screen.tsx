@@ -10,7 +10,7 @@ import { SharedElement } from "react-navigation-shared-element"
 import { ScrollView } from "react-native-gesture-handler"
 import { differenceInMinutes, format, isAfter } from "date-fns"
 import { RouteStationCard, RouteStopCard, RouteExchangeDetails } from "./components"
-import { endLiveActivity, startLiveActivity } from "../../utils/ios-helpers"
+
 import { isRTL, translate } from "../../i18n"
 import { useStores } from "../../models"
 
@@ -128,7 +128,6 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
             }
             pressedOpacity={0.85}
             onPress={() => {
-              endLiveActivity(ride.id)
               ride.stopRide()
             }}
           />
@@ -148,10 +147,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
               Alert.alert(translate(isRouteInFuture ? "ride.rideInFutureAlert" : "ride.rideInPastAlert"))
             }}
             onPress={() => {
-              ride.setRideLoading(true)
-              startLiveActivity(routeItem).then((rideId) => {
-                ride.startRide(rideId, route)
-              })
+              ride.startRide(routeItem)
             }}
           />
         )}

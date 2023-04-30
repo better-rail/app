@@ -60,7 +60,7 @@ export async function startLiveActivity(route: RouteItem) {
     const modifiedRoute = prepareDataForLiveActivities(route)
     const routeJSON = JSON.stringify(modifiedRoute)
     console.log(routeJSON)
-    const rideId = await RNBetterRail.startActivity(routeJSON)
+    const rideId: string = await RNBetterRail.startActivity(routeJSON)
     return rideId
   } catch (err) {
     console.log(err)
@@ -70,7 +70,7 @@ export async function startLiveActivity(route: RouteItem) {
 
 export async function endLiveActivity(routeId: string) {
   try {
-    return await RNBetterRail.endActivity(routeId)
+    return (await RNBetterRail.endActivity(routeId)) as boolean
   } catch (err) {
     console.log(err)
     throw err
@@ -81,4 +81,13 @@ export async function isRideActive(routeId: string) {
   const result: string = await RNBetterRail.isRideActive(routeId)
   if (result) return JSON.parse(result) as { rideId: string; token: string }[]
   return []
+}
+
+export default {
+  donateRouteIntent,
+  reloadAllTimelines,
+  monitorLiveActivities,
+  startLiveActivity,
+  endLiveActivity,
+  isRideActive,
 }
