@@ -133,7 +133,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
             }
             pressedOpacity={0.85}
             onPress={() => {
-              ride.stopRide()
+              ride.stopRide(ride.id)
             }}
           />
         ) : (

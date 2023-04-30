@@ -59,11 +59,11 @@ export async function startLiveActivity(route: RouteItem) {
   try {
     const modifiedRoute = prepareDataForLiveActivities(route)
     const routeJSON = JSON.stringify(modifiedRoute)
-    console.log(routeJSON)
+
     const rideId: string = await RNBetterRail.startActivity(routeJSON)
     return rideId
   } catch (err) {
-    console.log(err)
+    console.error("Error starting live activity", err)
     throw err
   }
 }

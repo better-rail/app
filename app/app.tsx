@@ -59,7 +59,7 @@ function App() {
       if (appState.current.match(/inactive|background/) && nextAppState === "active") {
         // App has come to the foreground!
         // Check if the current ride id is still active
-        if (rootStore.ride.id) {
+        if (rootStore && rootStore.ride.id) {
           rootStore.ride.isRideActive(rootStore.ride.id)
         }
       }
@@ -70,7 +70,7 @@ function App() {
     return () => {
       subscription.remove()
     }
-  }, [])
+  }, [rootStore])
 
   useEffect(function handleWidgetDeepLinking() {
     let linkingListener: EmitterSubscription
