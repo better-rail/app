@@ -10,7 +10,7 @@ const startRideHandler: (route: RouteItem) => Promise<string> = Platform.select(
   android: () => Promise.resolve(""),
 })
 
-const endRideHandler: () => Promise<boolean> = Platform.select({
+const endRideHandler: (routeId: string) => Promise<boolean> = Platform.select({
   ios: iOSHelpers.endLiveActivity,
   android: () => Promise.resolve(true),
 })
@@ -26,32 +26,49 @@ export const RideModel = types
      * it's being registered at the moment.
      */
     loading: types.optional(types.boolean, false),
+    /**
+     * The ride id
+     */
     id: types.maybe(types.string),
+    /**
+     * The ride route
+     */
     route: types.maybe(types.model(trainRouteSchema)),
   })
   .actions((self) => ({
     afterCreate() {
-      if (Platform.OS === "ios") {
-        iOSHelpers.isRideActive(self.id).then((tokens) => {
-          // TODO: Check if ride Id exists in the array. Currently .rideId arrives always empty
-          console.log("tokens", tokens.length)
-          if (tokens && tokens.length === 0) {
-            this.stopRide()
-          }
-        })
+      if (self.id) {
+        // We check if the ride is still active.
+        this.isRideActive(self.id)
       }
     },
+
     startRide(route: RouteItem) {
       this.setRideLoading(true)
 
       startRideHandler(route)
         .then((rideId) => {
-          self.route = route as any
+          this.setRoute(route)
           this.setRideId(rideId)
-        })
-        .finally(() => {
           this.setRideLoading(false)
         })
+        .catch(() => {
+          this.setRideLoading(false)
+          alert(
+            "An error occured while starting the ride.\nIf the issue persists, please let us know!\n\n Our email: feedback@better-rail.co.il.",
+          )
+        })
+    },
+    stopRide(routeId: string) {
+      this.setRideLoading(true)
+
+      endRideHandler(routeId).then(() => {
+        this.setRideId(undefined)
+        this.setRideLoading(false)
+      })
+    },
+    setRoute(route: RouteItem) {
+      self.route = route as any
     },
     setRideLoading(state: boolean) {
       self.loading = state
@@ -59,16 +76,17 @@ export const RideModel = types
     setRideId(rideId: string) {
       self.id = rideId
     },
-    stopRide() {
-      this.setRideLoading(true)
 
-      endRideHandler()
-        .then(() => {
-          self.id = undefined
+    isRideActive(rideId: string) {
+      if (Platform.OS === "ios") {
+        iOSHelpers.isRideActive(rideId).then((tokens) => {
+          // TODO: Check if ride Id exists in the array.
+          // Currently .rideId arrives always empty, so we only check if the array is empty.
+          if (tokens && tokens.length === 0) {
+            this.stopRide(rideId)
+          }
         })
-        .finally(() => {
-          this.setRideLoading(false)
-        })
+      }
     },
   }))
   .postProcessSnapshot(omit(["loading"]))

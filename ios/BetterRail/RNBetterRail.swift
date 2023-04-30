@@ -74,8 +74,13 @@ class RNBetterRail: NSObject {
   @available(iOS 16.2, *)
   @objc func endActivity(_ rideId: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
     Task {
-      await LiveActivitiesController.shared.endLiveActivity(rideId: rideId)
-      resolve(true)
+      let rideEndResult = await LiveActivitiesController.shared.endLiveActivity(rideId: rideId)
+      
+      if (rideEndResult == .deleted) {
+        resolve(true)
+      } else {
+        resolve(false)
+      }
     }
   }
   

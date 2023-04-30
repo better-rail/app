@@ -149,9 +149,11 @@ class LiveActivitiesController {
   }
 
 
-  func endLiveActivity(rideId: String) async {
+  func endLiveActivity(rideId: String) async -> TokenRegistryResponse {
     await ActivityNotificationsAPI.endRide(rideId: rideId)
-    await LiveActivitiesController.tokenRegistry.deleteRideToken(rideId: rideId)
+    let deleteResult = await LiveActivitiesController.tokenRegistry.deleteRideToken(rideId: rideId)
     print("Ride (\(rideId)) ended.")
+    
+    return deleteResult
   }
 }
