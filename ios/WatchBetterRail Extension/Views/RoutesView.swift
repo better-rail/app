@@ -38,11 +38,11 @@ struct RoutesView: View {
               .id(index)
             }
             .listStyle(CarouselListStyle()).environment(\.defaultMinListRowHeight, 50)
-            .onAppear {
-              if let index = route.closestIndexToDate {
+            .onReceive(route.$closestIndexToDate, perform: { index in
+              if let index = index {
                 proxy.scrollTo(index, anchor: .top)
               }
-            }
+            })
           }
         }
         .onAppear {

@@ -5,11 +5,11 @@ class RouteViewModel: ObservableObject {
   let origin: Station
   let destination: Station
   private var lastRequest: Date?
-  var closestIndexToDate: Int?
   
   @Published var trains: Array<Route> = []
   @Published var loading = false
   @Published var error: Error? = nil
+  @Published var closestIndexToDate: Int?
   
   init(origin: Station, destination: Station) {
     self.origin = origin
