@@ -1,4 +1,5 @@
 import { differenceInMilliseconds, formatDuration, intervalToDuration, isWithinInterval, parse } from "date-fns"
+import { formatInTimeZone } from "date-fns-tz"
 import { dateDelimiter, dateFnsLocalization } from "../../i18n"
 
 /**
@@ -42,4 +43,11 @@ export function routeDurationInMs(departureTime: number, arrivalTime: number) {
 export function formatRouteDuration(durationInMilliseconds: number) {
   const durationObject = intervalToDuration({ start: 0, end: durationInMilliseconds }) // Create a date-fns duration object
   return formatDuration(durationObject, { delimiter: dateDelimiter, locale: dateFnsLocalization }) // Format the duration
+}
+
+// Sometimes we need to ensure that the date is in the correct timezone.
+// This function will convert the date to the time in Asia/Jersualem.
+export function timezoneCorrection(date: Date) {
+  const tzString = formatInTimeZone(date, "Asia/Jerusalem", "yyyy-MM-dd HH:mm:ss")
+  return new Date(tzString)
 }

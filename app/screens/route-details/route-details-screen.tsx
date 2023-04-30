@@ -13,6 +13,7 @@ import { RouteStationCard, RouteStopCard, RouteExchangeDetails } from "./compone
 
 import { isRTL, translate } from "../../i18n"
 import { useStores } from "../../models"
+import { timezoneCorrection } from "../../utils/helpers/date-helpers"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -41,10 +42,14 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
   const { ride } = useStores()
 
   const insets = useSafeAreaInsets()
-  // check if the ride is 60 minutes away or less from now, and not after the arrival time
 
-  const isRouteInPast = isAfter(Date.now(), routeItem.arrivalTime)
-  const isRouteInFuture = differenceInMinutes(routeItem.departureTime, Date.now()) > 60
+  /**
+   * Check if the ride is 60 minutes away or less from now, and not after the arrival time.
+   * We are also correcting the user's timezone to Asia/Jerusalem, so if foreign users are playing with the
+   * feature, it'll allow them to start a ride as if they were at Israel at the moment.
+   */
+  const isRouteInPast = isAfter(timezoneCorrection(new Date()).getTime(), routeItem.arrivalTime)
+  const isRouteInFuture = differenceInMinutes(routeItem.departureTime, timezoneCorrection(new Date()).getTime()) > 60
   const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast
 
   return (
