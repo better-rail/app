@@ -1,6 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from "react"
-import dayjs from "dayjs"
 import { observer } from "mobx-react-lite"
 import { Alert, Image, ImageStyle, Platform, TextStyle, View, ViewStyle } from "react-native"
 import { Button, RouteDetailsHeader, Screen, Text } from "../../components"
@@ -9,7 +8,7 @@ import { color, spacing } from "../../theme"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { SharedElement } from "react-navigation-shared-element"
 import { ScrollView } from "react-native-gesture-handler"
-import { format } from "date-fns"
+import { differenceInMinutes, format, isAfter } from "date-fns"
 import { RouteStationCard, RouteStopCard, RouteExchangeDetails } from "./components"
 import { endLiveActivity, startLiveActivity } from "../../utils/ios-helpers"
 import { isRTL, translate } from "../../i18n"
@@ -44,8 +43,8 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
   const insets = useSafeAreaInsets()
   // check if the ride is 60 minutes away or less from now, and not after the arrival time
 
-  const isRouteInPast = dayjs().isAfter(routeItem.arrivalTime)
-  const isRouteInFuture = dayjs(routeItem.departureTime).diff(dayjs(), "minutes") > 60
+  const isRouteInPast = isAfter(Date.now(), routeItem.arrivalTime)
+  const isRouteInFuture = differenceInMinutes(routeItem.departureTime, Date.now()) > 60
   const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast
 
   return (
