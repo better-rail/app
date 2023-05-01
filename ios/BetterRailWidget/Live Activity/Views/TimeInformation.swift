@@ -35,7 +35,7 @@ struct TimeInformation: View {
                 .font(vm.isEnglish ? .caption2 : .caption)
               
               // hide the original time during delay, if the screen space is limited
-              if (delay == 0 || delay > 0 && placement == .lockScreen && vm.isWideScreen) {
+              if (delay == 0 || delay > 0 && (placement == .lockScreen || vm.isWideScreen) {
                 Text(formatDateHour(departureDate))
                   .bold()
                   .strikethrough(vm.delay > 0 ? true : false)
