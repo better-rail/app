@@ -56,12 +56,12 @@ class RouteViewModel: ObservableObject {
     }
     
     var closestIndex = -1
-    var minDelta = Double.infinity
+    var minimumDateDelta = Double.infinity
 
     for (index, date) in dates.enumerated() {
-        let currentDelta = abs(targetDate.timeIntervalSince(date))
-        if currentDelta < minDelta {
-            minDelta = currentDelta
+        let currentDateDelta = abs(targetDate.timeIntervalSince(date))
+        if currentDateDelta < minimumDateDelta {
+            minimumDateDelta = currentDateDelta
             closestIndex = index
         }
     }
