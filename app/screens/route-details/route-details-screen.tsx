@@ -96,17 +96,16 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
 
               {train.stopStations.length > 0
                 ? train.stopStations.map((stop, index) => (
-                    <>
-                      {index === 0 && <RouteLine key={index} />}
+                    <View key={stop.stationId}>
+                      {index === 0 && <RouteLine />}
                       <RouteStopCard
                         stationName={stop.stationName}
                         stopTime={format(stop.departureTime, "HH:mm")}
                         delayedTime={train.delay ? format(stop.departureTime + train.delay * 60000, "HH:mm") : undefined}
                         style={{ zIndex: 20 - index }}
-                        key={stop.stationId}
                       />
                       {train.stopStations.length - 1 === index && <RouteLine />}
-                    </>
+                    </View>
                   ))
                 : train.stopStations.length === 0 && <RouteLine height={30} />}
 
