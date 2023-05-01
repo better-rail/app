@@ -35,7 +35,7 @@ struct StationListItem: View {
         Text("train \(trainNumber!) platform \(platform)")
           .font(Font.custom("Heebo", size: 14))
       } else {
-        Text("platform \(platform)")
+        Text("Platform \(platform)")
           .font(Font.custom("Heebo", size: 14))
       }
     }.listRowBackground(StationImageBackground(imageName))

@@ -6,7 +6,7 @@
 "arrival" = "Arrive";
 
 "train %@" = "Train %@";
-"platform %@" = "Platform %@";
+"Platform %@" = "Platform %@";
 "train %@ platform %@" = "Train %@ ・ Platform %@";
 
 "exchange" = "Exchange";
