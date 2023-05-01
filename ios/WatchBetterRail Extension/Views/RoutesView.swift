@@ -5,39 +5,49 @@ struct RoutesView: View {
   @ObservedObject var route: RouteViewModel
   
     var body: some View {
-      VStack {
-        HStack {
-          Text("departure").foregroundColor(Color.gray)
-          Spacer()
-          Text("arrival").foregroundColor(Color.gray)
-        }.font(Font.custom("Heebo", size: 16))
-        
-        if (route.loading) {
-          ProgressView().progressViewStyle(CircularProgressViewStyle())
-        }
-        else if let requestError = route.error {
-          InfoMessage(imageName: "wifi.exclamationmark", message: requestError.localizedDescription)
-        } else if (route.trains.count == 0) {
-          InfoMessage(imageName: "tram", message: "no-trains-found")
-        } else {
-          List (0 ..< route.trains.count, id: \.self) { index in
-            // TODO: Refactor train property names - too confusing!
-            let trainDetails = route.trains[index]
-            let trainDetailsView = TrainDetailsView(trainRoute: trainDetails)
-            
-            NavigationLink(destination: trainDetailsView) {
-              HStack {
-                Text(formatRouteHour(trainDetails.departureTime))
-                Spacer()
-                Image(systemName: "arrow.forward")
-                Spacer()
-                Text(formatRouteHour(trainDetails.arrivalTime))
+      ScrollViewReader { proxy in
+        VStack {
+          HStack {
+            Text("departure").foregroundColor(Color.gray)
+            Spacer()
+            Text("arrival").foregroundColor(Color.gray)
+          }.font(Font.custom("Heebo", size: 16))
+          
+          if (route.loading) {
+            ProgressView().progressViewStyle(CircularProgressViewStyle())
+          }
+          else if let requestError = route.error {
+            InfoMessage(imageName: "wifi.exclamationmark", message: requestError.localizedDescription)
+          } else if (route.trains.count == 0) {
+            InfoMessage(imageName: "tram", message: "no-trains-found")
+          } else {
+            List (0 ..< route.trains.count, id: \.self) { index in
+              // TODO: Refactor train property names - too confusing!
+              let trainDetails = route.trains[index]
+              let trainDetailsView = TrainDetailsView(trainRoute: trainDetails)
+              
+              NavigationLink(destination: trainDetailsView) {
+                HStack {
+                  Text(formatRouteHour(trainDetails.departureTime))
+                  Spacer()
+                  Image(systemName: "arrow.forward")
+                  Spacer()
+                  Text(formatRouteHour(trainDetails.arrivalTime))
+                }
               }
+              .id(index)
             }
-          }.listStyle(CarouselListStyle()).environment(\.defaultMinListRowHeight, 50)
+            .listStyle(CarouselListStyle()).environment(\.defaultMinListRowHeight, 50)
+            .onReceive(route.$closestIndexToDate, perform: { index in
+              if let index = index {
+                proxy.scrollTo(index, anchor: .top)
+              }
+            })
+          }
         }
-      }.onAppear {
-        route.shouldRefetchRoutes()
+        .onAppear {
+          route.shouldRefetchRoutes()
+        }
       }
     }
 }

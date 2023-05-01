@@ -9,6 +9,7 @@ class RouteViewModel: ObservableObject {
   @Published var trains: Array<Route> = []
   @Published var loading = false
   @Published var error: Error? = nil
+  @Published var closestIndexToDate: Int?
   
   init(origin: Station, destination: Station) {
     self.origin = origin
@@ -27,6 +28,7 @@ class RouteViewModel: ObservableObject {
           self.trains = routes
           self.loading = false
           self.lastRequest = Date()
+          self.closestIndexToDate = self.getClosestIndexToDate()
         }
 
       })
@@ -46,5 +48,24 @@ class RouteViewModel: ObservableObject {
       fetchRoute()
     }
   }
+  
+  private func getClosestIndexToDate() -> Int {
+    let targetDate = Date()
+    let dates = self.trains.map { route in
+      return isoDateStringToDate(route.departureTime)
+    }
+    
+    var closestIndex = -1
+    var minimumDateDelta = Double.infinity
 
+    for (index, date) in dates.enumerated() {
+        let currentDateDelta = abs(targetDate.timeIntervalSince(date))
+        if currentDateDelta < minimumDateDelta {
+            minimumDateDelta = currentDateDelta
+            closestIndex = index
+        }
+    }
+    
+    return closestIndex
+  }
 }
