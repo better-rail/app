@@ -8,12 +8,12 @@ struct LockScreenInTransitView: View {
   
   var body: some View {
     VStack(alignment: .leading) {
-      ActivityHeaderStatus(vm: vm, stationName: vm.destination.name)
+      ActivityHeaderStatus(vm: vm, stationName: vm.destination.name).padding(.bottom, vm.status == .arrived ? 12.0 : 0.0)
       
       HStack(alignment: .bottom) {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 2.0) {
           if (vm.status == .arrived) {
-            Text("arrived at").font(.caption).padding(.bottom, 2.0)
+            Text("arrived at").font(.caption)
           } else {
             Text("next station").font(.caption)
           }
