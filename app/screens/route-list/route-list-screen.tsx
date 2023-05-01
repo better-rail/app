@@ -21,7 +21,7 @@ const ROOT: ViewStyle = {
 
 export const RouteListScreen = observer(function RouteListScreen({ navigation, route }: RouteListScreenProps) {
   const [isModalVisible, setIsModalVisible] = useState(false)
-  const { trainRoutes, routePlan } = useStores()
+  const { trainRoutes, routePlan, ride } = useStores()
   const { originId, destinationId, time, enableQuery } = route.params
 
   const { isInternetReachable } = useNetInfo()
@@ -61,10 +61,30 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     }
   }, [trainRoutes.resultType])
 
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      /**
+       * manually trigger a re-render when the screen is in focus
+       *
+       * this is for the route card to re-render when the user navigates back from the route details screen
+       * and the user has started the ride, so the route card will be highlighted
+       */
+      //
+
+      console.log("focus!", ride.route)
+      ride.id
+    })
+
+    return unsubscribe
+  }, [navigation, ride.id])
+
   const renderRouteCard = ({ item }: { item: RouteItem }) => {
     const departureTime = item.trains[0].departureTime
     let arrivalTime = item.trains[0].arrivalTime
     let stops = 0
+    const isActiveRide =
+      ride.route?.departureTime === item.departureTime && ride.route?.trains[0].trainNumber === item.trains[0].trainNumber
+
     // If the train contains an exchange, change to arrival time to the last stop from the last train
     if (item.isExchange) {
       stops = item.trains.length - 1
@@ -80,6 +100,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         departureTime={departureTime}
         arrivalTime={arrivalTime}
         delay={item.delay}
+        isActiveRide={isActiveRide}
         onPress={() =>
           navigation.navigate("routeDetails", {
             routeItem: item,

@@ -62,6 +62,7 @@ export const RideModel = types
     stopRide(routeId: string) {
       this.setRideLoading(true)
       this.setRideId(undefined)
+      this.setRoute(undefined)
 
       endRideHandler(routeId).then(() => {
         this.setRideLoading(false)
