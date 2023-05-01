@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from "react"
 import { observer } from "mobx-react-lite"
-import { Alert, Image, ImageStyle, Platform, TextStyle, View, ViewStyle } from "react-native"
+import { Alert, Dimensions, Image, ImageStyle, Platform, TextStyle, View, ViewStyle } from "react-native"
 import { Button, RouteDetailsHeader, Screen, Text } from "../../components"
 import { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import { color, spacing } from "../../theme"
@@ -14,6 +14,8 @@ import { RouteStationCard, RouteStopCard, RouteExchangeDetails } from "./compone
 import { isRTL, translate } from "../../i18n"
 import { useStores } from "../../models"
 import { timezoneCorrection } from "../../utils/helpers/date-helpers"
+
+const { width: deviceWidth } = Dimensions.get("screen")
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -123,40 +125,45 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
         })}
       </ScrollView>
 
-      <View style={[START_RIDE_WRAPPER, { bottom: insets.bottom > 0 ? insets.bottom + 5 : 15, right: 15 + insets.right }]}>
-        {ride.id ? (
-          <Button
-            style={{ backgroundColor: color.primaryDarker, width: 148 }}
-            title={translate("ride.stopRide")}
-            icon={
-              Platform.OS == "android" ? undefined : <Image source={require("../../../assets/stop.ios.png")} style={TRAIN_ICON} />
-            }
-            pressedOpacity={0.85}
-            onPress={() => {
-              ride.stopRide(ride.id)
-            }}
-          />
-        ) : (
-          <Button
-            style={{ backgroundColor: color.secondary, width: 148 }}
-            icon={
-              Platform.OS == "android" ? undefined : (
-                <Image source={require("../../../assets/train.ios.png")} style={TRAIN_ICON} />
-              )
-            }
-            pressedOpacity={0.85}
-            title={translate("ride.startRide")}
-            loading={ride.loading}
-            disabled={isStartRideButtonDisabled}
-            onDisabledPress={() => {
-              Alert.alert(translate(isRouteInFuture ? "ride.rideInFutureAlert" : "ride.rideInPastAlert"))
-            }}
-            onPress={() => {
-              ride.startRide(routeItem)
-            }}
-          />
-        )}
-      </View>
+      {/* Hide "Start Ride" option on tablets */}
+      {deviceWidth < 768 && (
+        <View style={[START_RIDE_WRAPPER, { bottom: insets.bottom > 0 ? insets.bottom + 5 : 15, right: 15 + insets.right }]}>
+          {ride.id ? (
+            <Button
+              style={{ backgroundColor: color.primaryDarker, width: 148 }}
+              title={translate("ride.stopRide")}
+              icon={
+                Platform.OS == "android" ? undefined : (
+                  <Image source={require("../../../assets/stop.ios.png")} style={TRAIN_ICON} />
+                )
+              }
+              pressedOpacity={0.85}
+              onPress={() => {
+                ride.stopRide(ride.id)
+              }}
+            />
+          ) : (
+            <Button
+              style={{ backgroundColor: color.secondary, width: 148 }}
+              icon={
+                Platform.OS == "android" ? undefined : (
+                  <Image source={require("../../../assets/train.ios.png")} style={TRAIN_ICON} />
+                )
+              }
+              pressedOpacity={0.85}
+              title={translate("ride.startRide")}
+              loading={ride.loading}
+              disabled={isStartRideButtonDisabled}
+              onDisabledPress={() => {
+                Alert.alert(translate(isRouteInFuture ? "ride.rideInFutureAlert" : "ride.rideInPastAlert"))
+              }}
+              onPress={() => {
+                ride.startRide(routeItem)
+              }}
+            />
+          )}
+        </View>
+      )}
     </Screen>
   )
 })

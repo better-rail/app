@@ -16141,10 +16141,10 @@ react-native-date-picker@4.2.10:
   dependencies:
     prop-types "^15.8.1"
 
-react-native-device-info@8.4.6:
-  version "8.4.6"
-  resolved "https://registry.npmjs.org/react-native-device-info/-/react-native-device-info-8.4.6.tgz"
-  integrity sha512-T2x3B2zij+nnTGQU+WIjCk5cb3C+jAW7YqruxRTevM+NMaFwvBVMQ+IU8VPpXM9GyFahvVoCSdAb/wuCUUVlTw==
+react-native-device-info@10.6.0:
+  version "10.6.0"
+  resolved "https://registry.yarnpkg.com/react-native-device-info/-/react-native-device-info-10.6.0.tgz#51f1b2ec98abc32747149b0a5b7fb662b44d50e4"
+  integrity sha512-/MmINdojWdw2/9rwYpH/dX+1gFP0o78p8yYPjwxiPhoySSL2rZaNi+Mq9VwC+zFi/yQmJUvHntkKSw2KUc7rFw==
 
 react-native-flipper@^0.34.0:
   version "0.34.0"
