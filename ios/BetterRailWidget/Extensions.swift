@@ -30,7 +30,7 @@ extension Text {
   }
   
   func heavyWide() -> Text {
-    if #available(iOS 16.0, *) {
+    if #available(iOS 16.0, watchOS 9.0, *) {
       return self.fontWeight(.heavy).fontWidth(Font.Width(0.1))
     } else {
       return self.fontWeight(.heavy)
