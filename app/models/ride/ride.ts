@@ -61,9 +61,9 @@ export const RideModel = types
     },
     stopRide(routeId: string) {
       this.setRideLoading(true)
+      this.setRideId(undefined)
 
       endRideHandler(routeId).then(() => {
-        this.setRideId(undefined)
         this.setRideLoading(false)
       })
     },
@@ -82,6 +82,7 @@ export const RideModel = types
         iOSHelpers.isRideActive(rideId).then((tokens) => {
           // TODO: Check if ride Id exists in the array.
           // Currently .rideId arrives always empty, so we only check if the array is empty.
+          // stop ride if it's not active
           if (tokens && tokens.length === 0) {
             this.stopRide(rideId)
           }
