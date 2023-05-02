@@ -18,6 +18,15 @@ default_platform(:ios)
 platform :ios do
   desc "Push a new beta build to TestFlight"
   lane :beta do
+    # export_options: { 
+    #   provisioningProfiles: { 
+    #     "BetterRail.app": "match AppStore il.co.better-rail",
+    #     "WatchBetterRail.app": "match AppStore il.co.better-rail.watchkitapp", 
+    #     "WatchBetterRail Extension.appex": "match AppStore il.co.better-rail.watchkitextension", 
+    #     "BetterRailWidgetExtension.appex": "match AppStore il.co.better-rail.BetterRailWidget", 
+    #     "StationIntent.appex": "match AppStore il.co.better-rail.StationIntent", 
+    #   }
+    # } 
     increment_build_number(xcodeproj: "BetterRail.xcodeproj")
     build_app(workspace: "BetterRail.xcworkspace", scheme: "BetterRail")
     upload_to_testflight
