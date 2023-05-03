@@ -42,7 +42,7 @@ struct TimeInformation: View {
                   .font(.caption)
               }
               
-              else if (delay != 0) {
+              if (delay != 0) {
                 Text(formatDateHour(departureDate.addDelay(delay)))
                   .foregroundColor(Color(uiColor: .systemRed))
                   .fontWeight(.heavy)
