@@ -23,7 +23,7 @@ struct RideInformationBar: View {
 
   var body: some View {
     ZStack {
-      Rectangle().frame(width: .infinity, height: 40).foregroundColor(Color(uiColor: .secondarySystemBackground)).padding(.horizontal, -16).padding(.bottom, -16)
+      Rectangle().frame(width: .infinity, height: 44).foregroundColor(Color(uiColor: .secondarySystemBackground)).padding(.horizontal, -16).padding(.bottom, -16)
       if (vm.status == .inExchange) {
         HStack(spacing: 2.0) {
           Text("platform \(String(vm.train.originPlatform))").foregroundColor(.orange)
