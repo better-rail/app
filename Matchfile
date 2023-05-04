@@ -1,5 +1,5 @@
 storage_mode("git")
-git_url("https://github.com/planecore/better-rail-ios-signing.git")
+git_url("https://github.com/better-rail/better-rail-ios-signing.git")
 
 type("development")
 app_identifier([
