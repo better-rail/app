@@ -6,7 +6,6 @@ import { PrimaryParamList } from "../navigators"
 export function useRideRerender(ride: Ride, navigation: StackNavigationProp<PrimaryParamList>) {
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
-      console.log("focus!")
       /**
        * manually trigger a re-render when the screen is in focus
        *
