@@ -22,14 +22,14 @@ const ROOT: ViewStyle = {
   backgroundColor: color.background,
 }
 
-const START_RIDE_WRAPPER: ViewStyle = {
-  position: "absolute",
+const START_RIDE_BUTTON: ViewStyle = {
+  backgroundColor: color.primaryDarker,
+  width: 148,
   shadowOffset: { width: 0, height: 2 },
   shadowOpacity: 0.15,
   shadowRadius: 3,
   shadowColor: "#000",
   elevation: 4,
-  backgroundColor: "transparent",
 }
 
 const TRAIN_ICON: ImageStyle = {
@@ -132,11 +132,11 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
 
       {/* Hide "Start Ride" option on tablets */}
       {deviceWidth < 768 && (
-        <View style={[START_RIDE_WRAPPER, { bottom: insets.bottom > 0 ? insets.bottom + 5 : 15, right: 15 + insets.right }]}>
+        <View style={{ position: "absolute", bottom: insets.bottom > 0 ? insets.bottom + 5 : 15, right: 15 + insets.right }}>
           {/* Check if the ride is already started and belongs to the current route */}
           {activeRide && isRideOnThisRoute ? (
             <Button
-              style={{ backgroundColor: color.primaryDarker, width: 148 }}
+              style={START_RIDE_BUTTON}
               title={translate("ride.stopRide")}
               icon={
                 Platform.OS == "android" ? undefined : (
