@@ -13,6 +13,7 @@ import { useQuery } from "react-query"
 import { NoTrainsFoundMessage } from "./components/no-trains-found-msg"
 import { useNetInfo } from "@react-native-community/netinfo"
 import { NoInternetConnection } from "./components/no-internet-connection"
+import { useRideRerender } from "../../hooks/use-ride-rerender"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -25,6 +26,10 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   const { originId, destinationId, time, enableQuery } = route.params
 
   const { isInternetReachable } = useNetInfo()
+
+  // this is for the screen to re-render when the user navigates back from the route details screen
+  // and the user has started a ride - so the route card will be highlighted
+  useRideRerender(ride, navigation)
 
   const trains = useQuery(
     ["origin", originId, "destination", destinationId, "time", routePlan.date.getDate()],
@@ -60,23 +65,6 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
       setIsModalVisible(true)
     }
   }, [trainRoutes.resultType])
-
-  useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", () => {
-      /**
-       * manually trigger a re-render when the screen is in focus
-       *
-       * this is for the route card to re-render when the user navigates back from the route details screen
-       * and the user has started the ride, so the route card will be highlighted
-       */
-      //
-
-      console.log("focus!", ride.route)
-      ride.id
-    })
-
-    return unsubscribe
-  }, [navigation, ride.id])
 
   const renderRouteCard = ({ item }: { item: RouteItem }) => {
     const departureTime = item.trains[0].departureTime
