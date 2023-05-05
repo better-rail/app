@@ -56,6 +56,7 @@ class LiveActivitiesController {
   static var env: String = "production"
   static var rideId: String = ""
   static var tokenRegistry = TokenRegistry()
+  static var currentActivity: Activity<BetterRailActivityAttributes>? = nil
   
   func startLiveActivity(route: Route) async {
     if ActivityAuthorizationInfo().areActivitiesEnabled {
@@ -69,6 +70,8 @@ class LiveActivitiesController {
         let activityContent = ActivityContent(state: initialContentState, staleDate: nil)
 
         let activity = try Activity.request(attributes: activityAttributes, content: activityContent, pushType: .token)
+        LiveActivitiesController.currentActivity = activity
+        
         print("Requested live activity, details: \(activity.attributes)")
       } catch (let error) {
         print(error)
@@ -89,6 +92,7 @@ class LiveActivitiesController {
   }
 //
   private func monitorLiveActivity(_ activity: LiveActivityRoute) {
+    
       Task {
           // Listen to state changes of each activity.
           for await state in activity.activityStateUpdates {
@@ -148,9 +152,10 @@ class LiveActivitiesController {
     await ActivityNotificationsAPI.updateRideToken(rideId: rideId, token: token)
   }
 
-
   func endLiveActivity(rideId: String) async -> TokenRegistryResponse {
-    await ActivityNotificationsAPI.endRide(rideId: rideId)
+    await LiveActivitiesController.currentActivity?.end(dismissalPolicy: .immediate)
+    LiveActivitiesController.currentActivity = nil
+    
     let deleteResult = await LiveActivitiesController.tokenRegistry.deleteRideToken(rideId: rideId)
     print("Ride (\(rideId)) ended.")
     

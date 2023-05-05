@@ -33,6 +33,10 @@ struct StartActivityResult: Decodable {
   let rideId: String
 }
 
+struct EndActivityResult: Decodable {
+  let success: Bool
+}
+
 @available(iOS 16.2, *)
 class ActivityNotificationsAPI {
   static let envPath = LiveActivitiesController.env == "production" ? "" : "-test"
@@ -66,7 +70,7 @@ class ActivityNotificationsAPI {
     }
   }
   
-  static func endRide(rideId: String) async {
+  static func endRide(rideId: String) async throws -> EndActivityResult {
     let url = URL(string: "\(ActivityNotificationsAPI.basePath)/ride")!
     
     // Convert the request body to Data
@@ -81,8 +85,14 @@ class ActivityNotificationsAPI {
     do {
       let (data, _) = try await URLSession.shared.data(for: request)
       print("End ride data: \(String(data: data, encoding: .utf8) ?? "")")
+      
+      let decoder = JSONDecoder()
+      let endResult = try decoder.decode(EndActivityResult.self, from: data)
+      
+      return endResult
     } catch {
       print("Error decoding JSON: \(String(describing: error))")
+      throw error
     }
   }
   
