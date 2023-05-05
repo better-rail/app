@@ -1,0 +1,14 @@
+storage_mode("git")
+git_url("https://github.com/better-rail/better-rail-ios-signing.git")
+
+type("development")
+app_identifier([
+  "il.co.better-rail",
+  "il.co.better-rail.watchkitapp",
+  "il.co.better-rail.StationIntent",
+  "il.co.better-rail.BetterRailWidget",
+  "il.co.better-rail.watchkitapp.watchkitextension"
+])
+
+team_id("UE6BVYPPFX")
+username("guytepper@gmail.com")

@@ -77,7 +77,6 @@ export const RideModel = types
     setRideId(rideId: string) {
       self.id = rideId
     },
-
     isRideActive(rideId: string) {
       if (Platform.OS === "ios") {
         iOSHelpers.isRideActive(rideId).then((tokens) => {
@@ -89,6 +88,20 @@ export const RideModel = types
           }
         })
       }
+    },
+    /**
+     * Checks if the given route is the current active route.
+     */
+    isRouteActive(routeItem: RouteItem) {
+      const currentRoute = self.route
+      if (!currentRoute) return false
+
+      return (
+        currentRoute.departureTime === routeItem.departureTime &&
+        currentRoute.trains[0].trainNumber === routeItem.trains[0].trainNumber &&
+        currentRoute.trains[currentRoute.trains.length - 1].destinationStationId ===
+          routeItem.trains[routeItem.trains.length - 1].destinationStationId
+      )
     },
   }))
   .postProcessSnapshot(omit(["loading"]))
