@@ -149,6 +149,7 @@
     "startRide": "Start Ride",
     "stopRide": "Stop Ride",
     "rideInFutureAlert": "You can start a new ride only from an hour before the train's departure time.",
-    "rideInPastAlert": "This ride has ended."
+    "rideInPastAlert": "This ride has ended.",
+    "activeRideAlert": "An active ride exists.\n\nCancel the current ride in order to start a new one."
   }
 }

@@ -158,11 +158,18 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
               loading={ride.loading}
               disabled={isStartRideButtonDisabled}
               onDisabledPress={() => {
-                Alert.alert(translate(isRouteInFuture ? "ride.rideInFutureAlert" : "ride.rideInPastAlert"))
+                let message = ""
+                if (activeRide) {
+                  message = translate("ride.activeRideAlert")
+                } else if (isRouteInPast) {
+                  message = translate("ride.rideInPastAlert")
+                } else if (isRouteInFuture) {
+                  message = translate("ride.rideInFutureAlert")
+                }
+
+                Alert.alert(message)
               }}
-              onPress={() => {
-                ride.startRide(routeItem)
-              }}
+              onPress={() => ride.startRide(routeItem)}
             />
           )}
         </View>
