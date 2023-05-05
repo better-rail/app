@@ -34,6 +34,12 @@ const CONTAINER: ViewStyle = {
   elevation: 1,
 }
 
+const ACTIVE_RIDE_CONTAINER: ViewStyle = {
+  backgroundColor: color.greenBackground,
+  shadowOpacity: 0.15,
+  elevation: 2,
+}
+
 const TIME_TYPE_TEXT: TextStyle = {
   marginBottom: primaryFontIOS === "System" ? 1 : -2,
   fontFamily: typography.primary,
@@ -77,12 +83,13 @@ export interface RouteCardProps extends TouchableScaleProps {
   stops: number
   delay: number
   style?: ViewStyle
+  isActiveRide: boolean
 }
 
 /**
  * Describe your component here
  */
-export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
+export const RouteCard = function RouteCard(props: RouteCardProps) {
   const { departureTime, arrivalTime, duration, stops, delay, isMuchShorter, isMuchLonger, onPress = null, style } = props
 
   // Format times
@@ -104,7 +111,12 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
   }, [stops])
 
   return (
-    <TouchableScale onPress={onPress} activeScale={0.95} friction={9} style={[CONTAINER, style]}>
+    <TouchableScale
+      onPress={onPress}
+      activeScale={0.95}
+      friction={9}
+      style={[CONTAINER, props.isActiveRide && ACTIVE_RIDE_CONTAINER, style]}
+    >
       <View style={{ marginEnd: spacing[3] }}>
         <Text style={TIME_TYPE_TEXT} tx="routes.departure" />
         <Text style={TIME_TEXT}>{formattedDepatureTime}</Text>
@@ -140,7 +152,7 @@ export const RouteCard = React.memo(function RouteCard(props: RouteCardProps) {
       </View>
     </TouchableScale>
   )
-})
+}
 
 const { width: deviceWidth } = Dimensions.get("screen")
 

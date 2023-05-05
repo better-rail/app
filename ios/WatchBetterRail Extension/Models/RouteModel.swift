@@ -27,7 +27,7 @@ struct DataClass: Decodable {
 }
 
 // MARK: - Route
-struct Route: Decodable {
+struct Route: Decodable, Encodable {
     let departureTime: String
     let arrivalTime: String
     let trains: [Train]
@@ -35,7 +35,7 @@ struct Route: Decodable {
 }
 
 // MARK: - Train
-struct Train: Decodable, Identifiable {
+struct Train: Decodable, Identifiable, Encodable {
   var id: Int { trainNumber }
   var platform: Int { originPlatform }
   var originStationName: String { getStationNameById(orignStation) }
@@ -48,11 +48,12 @@ struct Train: Decodable, Identifiable {
   let trainNumber, orignStation, destinationStation: Int
   let arrivalTime, departureTime: String
   let stopStations: [StopStation]
+  let routeStations: [RouteStation]
   let originPlatform, destPlatform: Int
 }
 
 // MARK: - StopStation
-struct StopStation: Decodable, Identifiable {
+struct StopStation: Decodable, Identifiable, Encodable {
   var id: Int { stationId }
   var stationName: String { getStationNameById(stationId)}
   var formattedTime: String { formatRouteHour(arrivalTime) }
@@ -61,12 +62,21 @@ struct StopStation: Decodable, Identifiable {
   let arrivalTime, departureTime: String
 }
 
+struct RouteStation: Decodable, Encodable, Identifiable {
+  var id: Int { stationId }
+  var name: String { getStationNameById(stationId) }
+
+  let stationId: Int
+  let arrivalTime: String // e.g. "20:51"
+  let platform: Int
+}
+
 
 struct RouteModel {
   func fetchRoute(originId: Int, destinationId: Int, date: Date? = nil, completion: @escaping ([Route]) -> Void) {
       let (routeDate, routeTime) = formatRouteDate(date ?? Date())
       
-      let url = URL(string: "https://israelrail.azurefd.net/rjpa-prod/api/v1/timetable/searchTrainLuzForDateTime?fromStation=\(originId)&toStation=\(destinationId)&date=\(routeDate)&hour=\(routeTime)&scheduleType=1&systemType=2&languageId=Hebrew")!
+      let url = URL(string: "https://israelrail.azurefd.net/rjpa-prod/api/v1/timetable/searchTrainLuzForDateTime?fromStation=\(originId)&toStation=\(destinationId)&date=\(routeDate)&hour=\(routeTime)&scheduleType=1&systemType=1&languageId=Hebrew")!
       
       var request = URLRequest(url: url)
       request.addValue("4b0d355121fe4e0bb3d86e902efe9f20", forHTTPHeaderField: "Ocp-Apim-Subscription-Key")
@@ -79,12 +89,14 @@ struct RouteModel {
               }
               
               let decoder = JSONDecoder()
-              guard let route = try? decoder.decode(RouteResult.self, from: data) else {
-                  completion([])
-                  return
-              }
-              
-              completion(route.result.travels)
+            do {
+                let route = try decoder.decode(RouteResult.self, from: data)
+                completion(route.result.travels)
+            } catch {
+                print("Error decoding JSON: \(String(describing: error))")
+                completion([])
+                return
+            }
           }.resume()
       }
   }

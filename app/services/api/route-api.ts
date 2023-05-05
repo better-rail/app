@@ -50,7 +50,9 @@ export class RouteApi {
             return {
               ...station,
               departureTime: new Date(station.departureTime).getTime(),
+              departureTimeString: station.departureTime,
               arrivalTime: new Date(station.arrivalTime).getTime(),
+              arrivalTimeString: station.arrivalTime,
               stationName,
             }
           })
@@ -60,22 +62,25 @@ export class RouteApi {
           // const lastStationId = trainCrowdDetail.Stations[trainCrowdDetail.Stations.length - 1].StationNumber
           const lastStationId = routeStations[routeStations.length - 1].stationId
 
-          const route = {
+          const modifiedTrain = {
             delay: trainPosition?.calcDiffMinutes ?? 0,
             originStationId: orignStation,
             originStationName: stationsObject[orignStation][stationLocale],
             destinationStationId: destinationStation,
             destinationStationName: stationsObject[destinationStation][stationLocale],
             departureTime: new Date(departureTime).getTime(),
+            departureTimeString: departureTime,
             arrivalTime: new Date(arrivalTime).getTime(),
+            arrivalTimeString: arrivalTime,
             originPlatform: originPlatform,
             destinationPlatform: destPlatform,
             lastStop: stationsObject[lastStationId][stationLocale],
             trainNumber,
             stopStations,
+            routeStations,
           }
 
-          return route
+          return modifiedTrain
         })
 
         const departureTime = new Date(route.departureTime).getTime()
@@ -83,9 +88,11 @@ export class RouteApi {
 
         return {
           ...route,
+          trains,
           departureTime,
           arrivalTime,
-          trains,
+          departureTimeString: route.departureTime,
+          arrivalTimeString: route.arrivalTime,
           delay: trains?.[0].delay ?? 0,
           duration: formatRouteDuration(routeDurationInMs(departureTime, arrivalTime)),
           isExchange: trains.length > 1,

@@ -6,7 +6,7 @@
 "arrival" = "Arrive";
 
 "train %@" = "Train %@";
-"platform %@" = "Platform %@";
+"Platform %@" = "Platform %@";
 "train %@ platform %@" = "Train %@ ・ Platform %@";
 
 "exchange" = "Exchange";
@@ -15,3 +15,21 @@
 
 "No trains for today." = "No trains for today.";
 "No more trains for today." = "No more trains for today.";
+
+// live activity localizations
+"min" = "min";
+"depart" = "DEPART";
+"departs from %@" = "DEPARTS FROM %@";
+"exchange in %@" = "EXCHANGE IN %@";
+"train to %@" = "TRAIN TO %@";
+"headed to" = "HEADED TO";
+"wait in" = "WAIT IN";
+"arrive" = "ARRIVE";
+"next station" = "NEXT STATION";
+"arrived at" = "ARRIVED AT";
+"platform %@ train %@ dest %@" = "PLATFORM %@ • TRAIN %@ TO %@";
+"platform %@" = "PLATFORM %@";
+"train %@ dest %@" = "TRAIN %@ TO %@";
+"%@ min" = "%@ min";
+"get off in the next stop" = "GET OFF IN THE NEXT STOP";
+"get off in %@ stops" = "GET OFF IN %@ STOPS";

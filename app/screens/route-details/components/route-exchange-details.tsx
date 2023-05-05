@@ -60,8 +60,8 @@ const ROUTE_EXCHANGE_INFO_ICON: ImageStyle = {
 
 type RouteExchangeProps = {
   stationName: string
-  arrivalPlatform: string
-  departurePlatform: string
+  arrivalPlatform: number
+  departurePlatform: number
   arrivalTime: number
   depatureTime: number
   style?: ViewStyle

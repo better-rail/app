@@ -144,5 +144,12 @@
     "heyThere": "Hey there! \nI made Better Rail in hopes it'll make public transportation a little more accessible to the public. It's offered for free, without ads or trackers.",
     "pleaseConsider": "Please consider helping it to reach a wider audience by giving a review in the App Store 😊",
     "goodbyes": "Have a nice ride!\n- Guy"
+  },
+  "ride": {
+    "startRide": "Start Ride",
+    "stopRide": "Stop Ride",
+    "rideInFutureAlert": "You can start a new ride only from an hour before the train's departure time.",
+    "rideInPastAlert": "This ride has ended.",
+    "activeRideAlert": "An active ride exists.\n\nCancel the current ride in order to start a new one."
   }
 }

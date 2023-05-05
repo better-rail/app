@@ -8,9 +8,10 @@ class RNBetterRail: NSObject {
   
   
   @objc static func requiresMainQueueSetup() -> Bool {
-      return true
+    return true
   }
   
+  // MARK - Widget methods
   /// This saves the current origin & destination station IDs for use as StationIntent initial values.
   @objc func saveCurrentRoute(_ originId: String, destinationId: String) {
     let currentRoute = [originId, destinationId]
@@ -41,4 +42,71 @@ class RNBetterRail: NSObject {
     }
   }
   
+  // MARK - Live Activities methods
+  
+  @available(iOS 16.2, *)
+  @objc func monitorActivities() {
+    LiveActivitiesController.shared.monitorLiveActivities()
+  }
+  
+  /// data - A JSON representation of a Route
+  @available(iOS 16.2, *)
+  @objc func startActivity(_ routeJSON: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
+    let decoder = JSONDecoder()
+    
+    do {
+      let route = try decoder.decode(Route.self, from: routeJSON.data(using: .utf8)!)
+      Task {
+        await LiveActivitiesController.shared.startLiveActivity(route: route)
+        
+        // wait for the token to have it's ride Id assigned
+        let newToken = await LiveActivitiesController.tokenRegistry.awaitNewTokenRegistration()
+        // report to React Native
+        resolve(newToken.rideId)
+      }
+    } catch {
+      print("Error decoding JSON: \(String(describing: error))")
+      reject("error", "An error occured while starting activity from RN", error)
+    }
+  }
+  
+  
+  @available(iOS 16.2, *)
+  @objc func endActivity(_ rideId: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
+    Task {
+      // delete the activity on the device
+      let rideEndResult = await LiveActivitiesController.shared.endLiveActivity(rideId: rideId)
+      // delete the activity on the server
+      
+      if (rideEndResult == .deleted) {
+        resolve(true)
+        
+        Task {
+          try await ActivityNotificationsAPI.endRide(rideId: rideId)
+        }
+      } else {
+        resolve(false)
+      }
+    }
+  }
+  
+  @available(iOS 16.2, *)
+  @objc func isRideActive(_ rideId: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
+    Task {
+      let tokens = await LiveActivitiesController.tokenRegistry.getTokens()
+      let jsonArray = tokens.map { (rideToken) -> [String: String] in
+        return ["rideId": rideToken.rideId, "token": rideToken.token]
+      }
+      
+      do {
+          let jsonData = try JSONSerialization.data(withJSONObject: jsonArray, options: .prettyPrinted)
+          if let jsonString = String(data: jsonData, encoding: .utf8) {
+              resolve(jsonString)
+          }
+      } catch {
+        print(error.localizedDescription)
+          reject("error", "error", error)
+      }
+    }
+  }
 }

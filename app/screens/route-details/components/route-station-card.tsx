@@ -77,8 +77,8 @@ const RAILWAY_ICON: ImageStyle = {
 type RouteStopCardProps = {
   stationName: string
   stopTime: string
-  platform?: string
-  trainNumber?: string
+  platform?: number
+  trainNumber?: number
   lastStop?: string
 
   /**

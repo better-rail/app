@@ -12,7 +12,7 @@
 import "./i18n"
 import "./utils/ignore-warnings"
 import React, { useState, useEffect, useRef } from "react"
-import { EmitterSubscription, Linking, Platform } from "react-native"
+import { EmitterSubscription, Linking, Platform, AppState } from "react-native"
 import { QueryClient, QueryClientProvider } from "react-query"
 import { NavigationContainerRef } from "@react-navigation/native"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
@@ -31,7 +31,7 @@ import { withIAPContext } from "react-native-iap"
 // https://github.com/kmagiera/react-native-screens#using-native-stack-navigator
 import { enableScreens } from "react-native-screens"
 import { extractURLParams } from "./utils/helpers/url"
-import { donateRouteIntent, reloadAllTimelines } from "./utils/ios-helpers"
+import { donateRouteIntent, monitorLiveActivities, reloadAllTimelines } from "./utils/ios-helpers"
 enableScreens()
 
 export const queryClient = new QueryClient()
@@ -44,6 +44,33 @@ function App() {
   const navigationRef = useRef<NavigationContainerRef>()
   const [rootStore, setRootStore] = useState<RootStore | undefined>(undefined)
   const [localeReady, setLocaleReady] = useState(false)
+  const appState = useRef(AppState.currentState)
+
+  useEffect(() => {
+    // Activate live activities listener on iOS 16.2+
+    if (Platform.OS == "ios" && parseFloat(Platform.Version) >= 16.2) {
+      monitorLiveActivities()
+    }
+  }, [])
+
+  useEffect(() => {
+    // Refresh app state when app is opened from background
+    const subscription = AppState.addEventListener("change", (nextAppState) => {
+      if (appState.current.match(/inactive|background/) && nextAppState === "active") {
+        // App has come to the foreground!
+        // Check if the current ride id is still active
+        if (rootStore && rootStore.ride.id) {
+          rootStore.ride.isRideActive(rootStore.ride.id)
+        }
+      }
+
+      appState.current = nextAppState
+    })
+
+    return () => {
+      subscription.remove()
+    }
+  }, [rootStore])
 
   useEffect(function handleWidgetDeepLinking() {
     let linkingListener: EmitterSubscription

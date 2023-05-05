@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react"
+import React, { useState, useMemo, ReactNode } from "react"
 import { View, Pressable, TextStyle, ViewStyle, ButtonProps, Platform, ActivityIndicator } from "react-native"
 import { color, spacing, typography } from "../../theme"
 import { Text } from "../"
@@ -16,16 +16,19 @@ const PRESSABLE_BASE: ViewStyle = {
   padding: spacing[4],
   backgroundColor: color.primary,
   borderRadius: Platform.select({ ios: 12, android: 6 }),
-  shadowOffset: { width: 0, height: 0 },
-  shadowColor: color.dim,
-  shadowRadius: 1,
-  shadowOpacity: 0.1,
   opacity: 1,
 }
 
 const SMALL_BUTTON: ViewStyle = {
   height: 40,
   padding: spacing[2] + 1.5,
+}
+
+const TEXT_WRAPPER: ViewStyle = {
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "center",
+  gap: 8,
 }
 
 const TEXT: TextStyle = {
@@ -47,23 +50,29 @@ export interface CustomButtonProps extends ButtonProps {
   textStyle?: TextStyle
   loading?: boolean
   disabled?: boolean
+  icon?: ReactNode
+  pressedOpacity?: number
   size?: "small"
+  /**
+   * An optional onPress handler that is only called when the button is disabled.
+   */
+  onDisabledPress?: () => void
 }
 
 export const Button = function Button(props: CustomButtonProps) {
   const [isPressed, setIsPressed] = useState(false)
-  const { title, onPress, loading = false, disabled, textStyle, containerStyle, size, style } = props
+  const { title, onPress, loading = false, disabled, textStyle, containerStyle, size, icon, style } = props
 
   const PRESSABLE_STYLE = useMemo(() => {
     let modifiedStyles = Object.assign({}, PRESSABLE_BASE, style)
     if (size === "small") modifiedStyles = Object.assign({}, modifiedStyles, SMALL_BUTTON)
     if (Platform.OS === "ios") {
-      if (isPressed) {
-        modifiedStyles = Object.assign(modifiedStyles, { opacity: 0.8 })
+      if (isPressed && !disabled) {
+        modifiedStyles = Object.assign(modifiedStyles, { opacity: props.pressedOpacity || 0.8 })
       }
     }
     return modifiedStyles
-  }, [isPressed, disabled])
+  }, [isPressed, disabled, style])
 
   return (
     <View style={[BUTTON_WRAPPER, containerStyle]}>
@@ -72,14 +81,21 @@ export const Button = function Button(props: CustomButtonProps) {
         onPressIn={() => setIsPressed(true)}
         onPressOut={() => setIsPressed(false)}
         android_ripple={{ color: color.primaryLighter }}
-        onPress={() => {
-          disabled ? null : onPress()
+        onPress={(e) => {
+          if (disabled) {
+            if (props.onDisabledPress) props.onDisabledPress()
+          } else {
+            onPress(e)
+          }
         }}
       >
         {loading ? (
           <ActivityIndicator color={color.whiteText} />
         ) : (
-          <Text style={[TEXT, textStyle, size === "small" && SMALL_TEXT]}>{title}</Text>
+          <View style={TEXT_WRAPPER}>
+            {icon}
+            <Text style={[TEXT, textStyle, size === "small" && SMALL_TEXT]}>{title}</Text>
+          </View>
         )}
       </Pressable>
     </View>

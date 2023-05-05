@@ -50,7 +50,9 @@ export type RouteItem = {
   isExchange: boolean
   duration: string
   departureTime: number
+  departureTimeString: String
   arrivalTime: number
+  arrivalTimeString: string
   isMuchLonger: boolean
   isMuchShorter: boolean
   trains: {
@@ -59,11 +61,21 @@ export type RouteItem = {
     destinationStationId: number
     destinationStationName: string
     arrivalTime: number
+    arrivalTimeString: string
     departureTime: number
+    departureTimeString: string
     originPlatform: number
     destinationPlatform: number
     trainNumber: number
-    stopStations: { arrivalTime: number; departureTime: number; stationId: number; stationName: string; platform: number }[]
+    stopStations: {
+      arrivalTime: number
+      arrivalTimeString: string
+      departureTime: number
+      departureTimeString: string
+      stationId: number
+      stationName: string
+      platform: number
+    }[]
     lastStop: string
     delay: number
   }[]

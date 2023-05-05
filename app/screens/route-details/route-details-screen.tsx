@@ -1,25 +1,61 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from "react"
 import { observer } from "mobx-react-lite"
-import { TextStyle, View, ViewStyle } from "react-native"
-import { RouteDetailsHeader, Screen, Text } from "../../components"
+import { Alert, Dimensions, Image, ImageStyle, Platform, TextStyle, View, ViewStyle } from "react-native"
+import { Button, RouteDetailsHeader, Screen, Text } from "../../components"
 import { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import { color, spacing } from "../../theme"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { SharedElement } from "react-navigation-shared-element"
 import { ScrollView } from "react-native-gesture-handler"
-import { format } from "date-fns"
+import { differenceInMinutes, format, isAfter } from "date-fns"
 import { RouteStationCard, RouteStopCard, RouteExchangeDetails } from "./components"
+
+import { isRTL, translate } from "../../i18n"
+import { useStores } from "../../models"
+import { timezoneCorrection } from "../../utils/helpers/date-helpers"
+
+const { width: deviceWidth } = Dimensions.get("screen")
 
 const ROOT: ViewStyle = {
   flex: 1,
   backgroundColor: color.background,
 }
 
+const START_RIDE_BUTTON: ViewStyle = {
+  backgroundColor: color.primaryDarker,
+  width: 148,
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.15,
+  shadowRadius: 3,
+  shadowColor: "#000",
+  elevation: 4,
+}
+
+const TRAIN_ICON: ImageStyle = {
+  width: 22.5,
+  height: 22.5,
+  tintColor: "white",
+  transform: [{ rotateY: isRTL ? "180deg" : "0deg" }],
+}
+
 export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
   const { routeItem } = route.params
+  const { ride } = useStores()
 
   const insets = useSafeAreaInsets()
+
+  /**
+   * Check if the ride is 60 minutes away or less from now, and not after the arrival time.
+   * We are also correcting the user's timezone to Asia/Jerusalem, so if foreign users are playing with the
+   * feature, it'll allow them to start a ride as if they were at Israel at the moment.
+   */
+  const isRouteInPast = isAfter(timezoneCorrection(new Date()).getTime(), routeItem.arrivalTime)
+  const isRouteInFuture = differenceInMinutes(routeItem.departureTime, timezoneCorrection(new Date()).getTime()) > 60
+
+  const activeRide = !!ride.id
+  const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || activeRide
+  const isRideOnThisRoute = ride.isRouteActive(routeItem)
 
   return (
     <Screen
@@ -39,7 +75,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
       </SharedElement>
 
       <ScrollView
-        contentContainerStyle={{ paddingTop: spacing[4], paddingBottom: spacing[6] + insets.bottom }}
+        contentContainerStyle={{ paddingTop: spacing[4], paddingBottom: 80 + insets.bottom }}
         showsVerticalScrollIndicator={false}
       >
         {routeItem.isMuchLonger && <LongRouteWarning />}
@@ -57,17 +93,16 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
 
               {train.stopStations.length > 0
                 ? train.stopStations.map((stop, index) => (
-                    <>
-                      {index === 0 && <RouteLine key={index} />}
+                    <View key={stop.stationId}>
+                      {index === 0 && <RouteLine />}
                       <RouteStopCard
                         stationName={stop.stationName}
                         stopTime={format(stop.departureTime, "HH:mm")}
                         delayedTime={train.delay ? format(stop.departureTime + train.delay * 60000, "HH:mm") : undefined}
                         style={{ zIndex: 20 - index }}
-                        key={stop.stationId}
                       />
                       {train.stopStations.length - 1 === index && <RouteLine />}
-                    </>
+                    </View>
                   ))
                 : train.stopStations.length === 0 && <RouteLine height={30} />}
 
@@ -91,6 +126,54 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
           )
         })}
       </ScrollView>
+
+      {/* Hide "Start Ride" option on tablets */}
+      {deviceWidth < 768 && (
+        <View style={{ position: "absolute", bottom: insets.bottom > 0 ? insets.bottom + 5 : 15, right: 15 + insets.right }}>
+          {/* Check if the ride is already started and belongs to the current route */}
+          {isRideOnThisRoute ? (
+            <Button
+              style={START_RIDE_BUTTON}
+              title={translate("ride.stopRide")}
+              icon={
+                Platform.OS == "android" ? undefined : (
+                  <Image source={require("../../../assets/stop.ios.png")} style={TRAIN_ICON} />
+                )
+              }
+              pressedOpacity={0.85}
+              onPress={() => {
+                ride.stopRide(ride.id)
+              }}
+            />
+          ) : (
+            <Button
+              style={{ backgroundColor: color.secondary, width: 148 }}
+              icon={
+                Platform.OS == "android" ? undefined : (
+                  <Image source={require("../../../assets/train.ios.png")} style={TRAIN_ICON} />
+                )
+              }
+              pressedOpacity={0.85}
+              title={translate("ride.startRide")}
+              loading={ride.loading}
+              disabled={isStartRideButtonDisabled}
+              onDisabledPress={() => {
+                let message = ""
+                if (activeRide) {
+                  message = translate("ride.activeRideAlert")
+                } else if (isRouteInPast) {
+                  message = translate("ride.rideInPastAlert")
+                } else if (isRouteInFuture) {
+                  message = translate("ride.rideInFutureAlert")
+                }
+
+                Alert.alert(message)
+              }}
+              onPress={() => ride.startRide(routeItem)}
+            />
+          )}
+        </View>
+      )}
     </Screen>
   )
 })
