@@ -70,11 +70,6 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     const departureTime = item.trains[0].departureTime
     let arrivalTime = item.trains[0].arrivalTime
     let stops = 0
-    const isActiveRide =
-      ride.route?.departureTime === item.departureTime &&
-      ride.route?.trains[0].trainNumber === item.trains[0].trainNumber &&
-      ride.route?.trains[ride.route?.trains.length - 1].destinationStationId ===
-        item.trains[item.trains.length - 1].destinationStationId
 
     // If the train contains an exchange, change to arrival time to the last stop from the last train
     if (item.isExchange) {
@@ -91,7 +86,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         departureTime={departureTime}
         arrivalTime={arrivalTime}
         delay={item.delay}
-        isActiveRide={isActiveRide}
+        isActiveRide={ride.isRouteActive(item)}
         onPress={() =>
           navigation.navigate("routeDetails", {
             routeItem: item,

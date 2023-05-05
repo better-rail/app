@@ -52,13 +52,10 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
    */
   const isRouteInPast = isAfter(timezoneCorrection(new Date()).getTime(), routeItem.arrivalTime)
   const isRouteInFuture = differenceInMinutes(routeItem.departureTime, timezoneCorrection(new Date()).getTime()) > 60
-  const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast
 
   const activeRide = !!ride.id
-  const isRideOnThisRoute =
-    activeRide &&
-    ride.route?.departureTime === routeItem.departureTime &&
-    ride.route?.trains[0].trainNumber === routeItem.trains[0].trainNumber
+  const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || activeRide
+  const isRideOnThisRoute = ride.isRouteActive(routeItem)
 
   return (
     <Screen
@@ -134,7 +131,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
       {deviceWidth < 768 && (
         <View style={{ position: "absolute", bottom: insets.bottom > 0 ? insets.bottom + 5 : 15, right: 15 + insets.right }}>
           {/* Check if the ride is already started and belongs to the current route */}
-          {activeRide && isRideOnThisRoute ? (
+          {isRideOnThisRoute ? (
             <Button
               style={START_RIDE_BUTTON}
               title={translate("ride.stopRide")}
@@ -159,7 +156,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
               pressedOpacity={0.85}
               title={translate("ride.startRide")}
               loading={ride.loading}
-              disabled={isStartRideButtonDisabled || activeRide}
+              disabled={isStartRideButtonDisabled}
               onDisabledPress={() => {
                 Alert.alert(translate(isRouteInFuture ? "ride.rideInFutureAlert" : "ride.rideInPastAlert"))
               }}
