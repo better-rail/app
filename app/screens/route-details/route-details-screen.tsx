@@ -1,8 +1,8 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from "react"
 import { observer } from "mobx-react-lite"
-import { Alert, Dimensions, Image, ImageStyle, Platform, TextStyle, View, ViewStyle } from "react-native"
-import { Button, RouteDetailsHeader, Screen, Text } from "../../components"
+import { Alert, Dimensions, Image, ImageStyle, Platform, View, ViewStyle } from "react-native"
+import { Button, RouteDetailsHeader, Screen } from "../../components"
 import { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import { color, spacing } from "../../theme"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
