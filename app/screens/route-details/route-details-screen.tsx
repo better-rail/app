@@ -14,6 +14,7 @@ import { RouteStationCard, RouteStopCard, RouteExchangeDetails } from "./compone
 import { isRTL, translate } from "../../i18n"
 import { useStores } from "../../models"
 import { timezoneCorrection } from "../../utils/helpers/date-helpers"
+import { LiveRideSheet } from "./components/live-ride-sheet"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -69,7 +70,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
         <RouteDetailsHeader
           originId={route.params.originId}
           destinationId={route.params.destinationId}
-          originScreenName={route.name}
+          screenName={route.name}
           style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
         />
       </SharedElement>
@@ -126,6 +127,8 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
           )
         })}
       </ScrollView>
+
+      <LiveRideSheet />
 
       {/* Hide "Start Ride" option on tablets */}
       {deviceWidth < 768 && route.name === "routeDetails" && (

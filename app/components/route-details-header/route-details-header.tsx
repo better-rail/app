@@ -106,7 +106,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   }, [favoriteRoutes.routes.length])
 
   useLayoutEffect(() => {
-    screenName === "routeDetails" &&
+    screenName !== "activeRide" &&
       navigation.setOptions({
         headerRight: () => (
           <View style={HEADER_RIGHT_WRAPPER}>
@@ -133,7 +133,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
     <View>
       <ImageBackground
         source={stationsObject[originId].image}
-        style={{ width: "100%", height: screenName === "routeDetails" ? 200 : 155, zIndex: 0 }}
+        style={{ width: "100%", height: screenName !== "activeRide" ? 200 : 155, zIndex: 0 }}
       >
         <LinearGradient style={GARDIENT} colors={["rgba(0, 0, 0, 0.75)", "rgba(0, 0, 0, 0.05)"]} />
       </ImageBackground>
