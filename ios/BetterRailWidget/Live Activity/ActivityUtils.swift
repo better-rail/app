@@ -206,6 +206,7 @@ func getActivityInitialState(route: Route) throws -> BetterRailActivityAttribute
      }
      
      return BetterRailActivityAttributes.ContentState(
+      id: 0,
       delay: 0,
       nextStationId: nextStationId,
       status: status
