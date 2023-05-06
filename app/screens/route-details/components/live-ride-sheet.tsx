@@ -1,59 +1,43 @@
-import { Dimensions, Pressable, PressableProps, View, ViewStyle, Image } from "react-native"
+import { Pressable, PressableProps, View, ViewStyle, Image, useColorScheme } from "react-native"
+import { BlurView } from "@react-native-community/blur"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { color } from "../../../theme"
 import { Text } from "../../../components"
 
-const { width: deviceWidth } = Dimensions.get("screen")
-
-// option 1 - floating
-// const SHEET_CONTAINER: ViewStyle = {
-//   height: 75,
-//   paddingHorizontal: 20,
-//   flexDirection: "row",
-//   alignItems: "center",
-//   justifyContent: "space-between",
-//   backgroundColor: color.secondaryBackground,
-//   position: "absolute",
-//   width: deviceWidth - 40,
-//   marginStart: 20,
-//   borderRadius: 28,
-//   shadowColor: "#000",
-//   shadowOffset: { width: 0, height: 2.5 },
-//   shadowOpacity: 0.15,
-//   shadowRadius: 2,
-// }
-
-// option 2 - stack to the bottom
 const SHEET_CONTAINER: ViewStyle = {
   height: 75,
   paddingHorizontal: 20,
   flexDirection: "row",
   alignItems: "center",
   justifyContent: "space-between",
-  backgroundColor: color.tertiaryBackground,
   position: "absolute",
   width: "100%",
   borderTopColor: color.separator,
   borderTopWidth: 1,
-  shadowColor: "#333",
-  shadowOffset: { width: 0, height: -1 },
-  shadowOpacity: 0.1,
-  shadowRadius: 1,
 }
 
 export function LiveRideSheet() {
   const insets = useSafeAreaInsets()
+  const colorScheme = useColorScheme()
+  const isDarkMode = colorScheme === "dark"
 
   return (
     <View
       style={{
         ...SHEET_CONTAINER,
-        // bottom: insets.bottom > 0 ? insets.bottom + 5 : 15,
+        height: insets.bottom > 0 ? insets.bottom + 60 : 75,
+        paddingBottom: insets.bottom > 0 ? 25 : 0,
         bottom: 0,
       }}
     >
       <Text style={{ fontSize: 20, fontWeight: "bold", color: color.success }}>Arriving in 14 min</Text>
       <StopButton />
+      <BlurView
+        style={{ position: "absolute", top: 0, left: 0, bottom: 0, right: 0, zIndex: -1 }}
+        blurType={isDarkMode ? "ultraThinMaterialDark" : "xlight"}
+        blurAmount={30}
+        reducedTransparencyFallbackColor={color.tertiaryBackground as unknown as string}
+      />
     </View>
   )
 }

@@ -183,5 +183,5 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
 })
 
 const RouteLine = ({ height = 10, inProgress = true }: { height?: number; inProgress: boolean }) => (
-  <View style={{ start: "35.44%", width: 4, height, backgroundColor: color.success, zIndex: 0 }} />
+  <View style={{ start: "35.44%", width: 4, height, backgroundColor: color.separator, zIndex: 0 }} />
 )
