@@ -217,19 +217,58 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     }
   }, [])
 
+  const routeItem = {
+    arrivalTime: 1683393120000,
+    arrivalTimeString: "2023-05-06T22:42:00",
+    delay: 0,
+    departureTime: 1683389820000,
+    departureTimeString: "2023-05-06T21:47:00",
+    duration: "55 minutes",
+    freeSeats: 0,
+    isExchange: false,
+    isMuchLonger: true,
+    isMuchShorter: false,
+    trains: [
+      {
+        arrivalTime: 1683393120000,
+        arrivalTimeString: "2023-05-06T22:42:00",
+        delay: 0,
+        departureTime: 1683389820000,
+        departureTimeString: "2023-05-06T21:47:00",
+        destinationPlatform: 2,
+        destinationStationId: 3500,
+        destinationStationName: "Herzliya",
+        lastStop: "Herzliya",
+        originPlatform: 3,
+        originStationId: 4600,
+        originStationName: "Tel Aviv - HaShalom",
+        routeStations: [],
+        stopStations: [],
+        trainNumber: 7612,
+      },
+    ],
+    travelMessages: [],
+  }
+
   return (
     <Screen style={ROOT} preset="scroll">
       <View style={CONTENT_WRAPPER}>
         <View style={HEADER_WRAPPER}>
-          {displayNewBadge && (
-            <TouchableOpacity style={NEW_FEATURES_BUTTON} onPress={() => navigation.navigate("newFeatureStack")}>
-              <Image
-                source={require("../../../assets/sparkles.png")}
-                style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }}
-              />
-              <Text style={{ color: "white", fontWeight: "500" }} tx="common.new" />
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity
+            style={NEW_FEATURES_BUTTON}
+            onPress={() =>
+              navigation.navigate("activeRideStack", {
+                screen: "activeRide",
+                params: { routeItem, originId: 4600, destinationId: 3500 },
+              })
+            }
+          >
+            <Image
+              source={require("../../../assets/sparkles.png")}
+              style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }}
+            />
+            <Text style={{ color: "white", fontWeight: "500" }} tx="common.new" />
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate("settingsStack")} activeOpacity={0.8} accessibilityLabel="הגדרות">
             <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />
           </TouchableOpacity>

@@ -83,11 +83,15 @@ const HEADER_RIGHT_WRAPPER: ViewStyle = {
 export interface RouteDetailsHeaderProps {
   originId: string
   destinationId: string
+  /**
+   * The screen name we're displaying the header inside
+   */
+  screenName: "routeDetails" | "activeRide"
   style?: ViewStyle
 }
 
 export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
-  const { originId, destinationId, style } = props
+  const { originId, destinationId, screenName, style } = props
   const { favoriteRoutes } = useStores()
   const navigation = useNavigation()
   const toast = useToast()
@@ -102,31 +106,35 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   }, [favoriteRoutes.routes.length])
 
   useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <View style={HEADER_RIGHT_WRAPPER}>
-          <StarIcon
-            filled={isFavorite}
-            onPress={() => {
-              const favorite = { id: routeId, originId, destinationId }
-              if (!isFavorite) {
-                toast.done(translate("favorites.added"))
-                HapticFeedback.trigger("impactMedium")
-                favoriteRoutes.add(favorite)
-              } else {
-                HapticFeedback.trigger("impactLight")
-                favoriteRoutes.remove(favorite.id)
-              }
-            }}
-          />
-        </View>
-      ),
-    })
+    screenName === "routeDetails" &&
+      navigation.setOptions({
+        headerRight: () => (
+          <View style={HEADER_RIGHT_WRAPPER}>
+            <StarIcon
+              filled={isFavorite}
+              onPress={() => {
+                const favorite = { id: routeId, originId, destinationId }
+                if (!isFavorite) {
+                  toast.done(translate("favorites.added"))
+                  HapticFeedback.trigger("impactMedium")
+                  favoriteRoutes.add(favorite)
+                } else {
+                  HapticFeedback.trigger("impactLight")
+                  favoriteRoutes.remove(favorite.id)
+                }
+              }}
+            />
+          </View>
+        ),
+      })
   }, [favoriteRoutes.routes.length])
 
   return (
     <View>
-      <ImageBackground source={stationsObject[originId].image} style={{ width: "100%", height: 200, zIndex: 0 }}>
+      <ImageBackground
+        source={stationsObject[originId].image}
+        style={{ width: "100%", height: screenName === "routeDetails" ? 200 : 155, zIndex: 0 }}
+      >
         <LinearGradient style={GARDIENT} colors={["rgba(0, 0, 0, 0.75)", "rgba(0, 0, 0, 0.05)"]} />
       </ImageBackground>
 

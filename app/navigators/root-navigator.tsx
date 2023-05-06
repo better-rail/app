@@ -5,12 +5,14 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { MainNavigator } from "./main-navigator"
 import { SettingsNavigator } from "./settings/settings-navigator"
 import { NewFeatureNavigator } from "./new-features/new-features-navigator"
+import { ActiveRideNavigator } from "./active-ride/active-ride-navigator"
 
 export type RootParamList = {
   mainStack: undefined
   secondaryStack: undefined
   settingsStack: undefined
   newFeatureStack: undefined
+  activeRideStack: undefined
 }
 
 const Stack = createNativeStackNavigator<RootParamList>()
@@ -26,6 +28,7 @@ const RootStack = () => {
       <Stack.Screen name="mainStack" component={MainNavigator} />
       <Stack.Screen name="settingsStack" component={SettingsNavigator} />
       <Stack.Screen name="newFeatureStack" component={NewFeatureNavigator} />
+      <Stack.Screen name="activeRideStack" component={ActiveRideNavigator} />
     </Stack.Navigator>
   )
 }

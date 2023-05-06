@@ -42,7 +42,6 @@ const TRAIN_ICON: ImageStyle = {
 export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
   const { routeItem } = route.params
   const { ride } = useStores()
-
   const insets = useSafeAreaInsets()
 
   /**
@@ -70,6 +69,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
         <RouteDetailsHeader
           originId={route.params.originId}
           destinationId={route.params.destinationId}
+          originScreenName={route.name}
           style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
         />
       </SharedElement>
@@ -78,7 +78,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
         contentContainerStyle={{ paddingTop: spacing[4], paddingBottom: 80 + insets.bottom }}
         showsVerticalScrollIndicator={false}
       >
-        {routeItem.isMuchLonger && <LongRouteWarning />}
+        {routeItem.isMuchLonger && route.name == "routeDetails" && <LongRouteWarning />}
         {routeItem.trains.map((train, index) => {
           return (
             <View key={train.trainNumber} style={{ backgroundColor: color.background }}>
@@ -128,7 +128,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
       </ScrollView>
 
       {/* Hide "Start Ride" option on tablets */}
-      {deviceWidth < 768 && (
+      {deviceWidth < 768 && route.name === "routeDetails" && (
         <View style={{ position: "absolute", bottom: insets.bottom > 0 ? insets.bottom + 5 : 15, right: 15 + insets.right }}>
           {/* Check if the ride is already started and belongs to the current route */}
           {isRideOnThisRoute ? (
