@@ -115,6 +115,24 @@ class ActivityNotificationsAPI {
       print("Error decoding JSON: \(String(describing: error))")
     }
   }
+  
+  static func confirmNotificationReceipt(rideId: String, notificationId: Int) async {
+    let url = URL(string: "\(ActivityNotificationsAPI.basePath)/ride/confirmReceipt")!
+
+    // Convert the request body to Data
+    let requestBody = ["rideId": rideId, "notificationId": notificationId] as [String : Any]
+    let jsonData = try! JSONSerialization.data(withJSONObject: requestBody)
+    
+    var request = URLRequest(url: url)
+    request.httpMethod = "PATCH"
+    request.httpBody = jsonData
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+    do {
+      let (data, _) = try await URLSession.shared.data(for: request)
+      print("Confirm notification receipt data: \(String(data: data, encoding: .utf8) ?? "")")
+    } catch {
+      print("Error decoding JSON: \(String(describing: error))")
+    }
+  }
 }
-
-

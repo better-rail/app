@@ -24,6 +24,7 @@ enum ActivityStatus: String, Codable {
 struct BetterRailActivityAttributes: ActivityAttributes {
   // Dynamic stateful properties
   public struct ContentState: Codable, Hashable {
+    var id: Int
     var delay: Int
     var nextStationId: Int
     var status: ActivityStatus
@@ -87,6 +88,7 @@ class LiveActivitiesController {
           for await activity in Activity<BetterRailActivityAttributes>.activityUpdates {
             print("Activity received an update: \(activity.content.state)")
             monitorLiveActivity(activity)
+            await ActivityNotificationsAPI.confirmNotificationReceipt(rideId: LiveActivitiesController.rideId, notificationId: activity.content.state.id)
           }
       }
   }
