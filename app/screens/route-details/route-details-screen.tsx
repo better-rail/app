@@ -15,6 +15,7 @@ import { isRTL, translate } from "../../i18n"
 import { useStores } from "../../models"
 import { timezoneCorrection } from "../../utils/helpers/date-helpers"
 import { LiveRideSheet } from "./components/live-ride-sheet"
+import { LongRouteWarning } from "./components/long-route-warning"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -181,32 +182,6 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
   )
 })
 
-const RouteLine = ({ height = 10 }: { height?: number }) => (
-  <View style={{ start: "35.44%", width: 4, height, backgroundColor: color.separator, zIndex: 0 }} />
-)
-
-const LONG_ROUTE_WARNING_WRAPPER: ViewStyle = {
-  justifyContent: "center",
-  alignItems: "center",
-  marginBottom: spacing[4],
-  backgroundColor: color.secondary,
-  width: "100%",
-}
-
-const LONG_ROUTE_WARNING_TITLE: TextStyle = {
-  fontSize: 18,
-  fontWeight: "bold",
-}
-const LONG_ROUTE_WARNING_TEXT: TextStyle = {
-  paddingHorizontal: spacing[5],
-  marginBottom: spacing[3],
-  textAlign: "center",
-}
-
-const LongRouteWarning = () => (
-  <View style={LONG_ROUTE_WARNING_WRAPPER}>
-    <Text style={{ fontSize: 48 }}>🕰</Text>
-    <Text style={LONG_ROUTE_WARNING_TITLE} tx="routeDetails.routeWarning" />
-    <Text style={LONG_ROUTE_WARNING_TEXT} tx="routeDetails.routeWarningText" />
-  </View>
+const RouteLine = ({ height = 10, inProgress = true }: { height?: number; inProgress: boolean }) => (
+  <View style={{ start: "35.44%", width: 4, height, backgroundColor: color.success, zIndex: 0 }} />
 )
