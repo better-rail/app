@@ -59,6 +59,7 @@
     "language": "App Language",
     "about": "About",
     "share": "Share App",
+    "widget": "Add Widget to Home Screen",
     "shareMessage": "The Israel Railways alternative app",
     "rateIOS": "Rate Better Rail",
     "rateAndroid": "Rate Better Rail",
@@ -116,7 +117,7 @@
     "noTrainsFound": "No trains found for the requested date",
     "foundTrainsAt": "Showing trains departing at "
   },
-  "newFeature": {
+  "widgetOnboarding": {
     "newBetterRail": "they're finally here",
     "homeWidgets": "Home Screen Widgets",
     "widgetDescription": "Beautiful widgets for checking the upcoming train schedule.",

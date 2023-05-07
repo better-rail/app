@@ -53,6 +53,7 @@
     "language": "لغة",
     "about": "عن",
     "share": "مشاركة Better Rail",
+    "widget": "إضافة القطعة إلى الشاشة الرئيسية",
     "shareMessage": "البديل لتطبيق قطار إسرائيل",
     "rateIOS": "للتقييم في App Store",
     "rateAndroid": "للتقييم في Play Store",
@@ -101,7 +102,7 @@
     "noTrainsFound": "لم يتم العثور على القطارات للتاريخ المطلوب",
     "foundTrainsAt": "هنالك قطارات ابتداءً مِن"
   },
-  "newFeature": {
+  "widgetOnboarding": {
     "newBetterRail": "they're finally here",
     "homeWidgets": "Home Screen Widgets",
     "widgetDescription": "Beautiful widgets for checking the upcoming train schedule.",

@@ -58,6 +58,7 @@
     "language": "Язык приложения",
     "about": "О приложении",
     "share": "Поделиться",
+    "widget": "Добавить виджет на главный экран",
     "shareMessage": "Альтернативное приложение для Израильских Железных Дорог",
     "rateIOS": "Оценить Better Rail",
     "rateAndroid": "Оценить Better Rail",
@@ -103,7 +104,7 @@
     "noTrainsFound": "Нет поездов на указанную дату",
     "foundTrainsAt": "Отображены поезда на "
   },
-  "newFeature": {
+  "widgetOnboarding": {
     "newBetterRail": "they're finally here",
     "homeWidgets": "Home Screen Widgets",
     "widgetDescription": "Beautiful widgets for checking the upcoming train schedule.",

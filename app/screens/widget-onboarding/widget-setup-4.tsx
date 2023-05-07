@@ -3,9 +3,9 @@ import { View, TextStyle, ImageStyle, Image, Dimensions } from "react-native"
 import * as storage from "../../utils/storage"
 import { Screen, Text, Button } from "../../components"
 import { translate } from "../../i18n"
-import { NewFeatureStackProps } from "../../navigators/new-features/new-features-navigator"
+import { WidgetOnboardingStackProps } from "../../navigators/widget-onboarding/widget-onboarding-navigator"
 import { color, spacing } from "../../theme"
-import { NewFeatureBackground } from "./new-features-background"
+import { WidgetOnboardingBackground } from "./widget-onboarding-background"
 import InAppReview from "react-native-in-app-review"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 
@@ -33,30 +33,31 @@ const IMAGE_STYLE: ImageStyle = {
   alignSelf: "center",
 }
 
-export const WidgetStep4 = function WidgetStep4({ navigation }: NewFeatureStackProps) {
+export const WidgetStep4 = function WidgetStep4({ navigation }: WidgetOnboardingStackProps) {
   const insets = useSafeAreaInsets()
 
   return (
     <Screen unsafe={true} statusBar="light-content" preset="scroll">
-      <NewFeatureBackground />
+      <WidgetOnboardingBackground />
       <View style={{ paddingHorizontal: spacing[6], marginTop: spacing[6] + 4 }}>
-        <Text preset="header" style={TITLE} tx="newFeature.enjoyTheWidgets" />
+        <Text preset="header" style={TITLE} tx="widgetOnboarding.enjoyTheWidgets" />
 
-        <Text style={[TEXT, { textAlign: "center", fontWeight: "500", marginBottom: spacing[4] }]} tx="newFeature.myCreator" />
+        <Text
+          style={[TEXT, { textAlign: "center", fontWeight: "500", marginBottom: spacing[4] }]}
+          tx="widgetOnboarding.myCreator"
+        />
         <Image source={require("../../../assets/guymoji.png")} style={IMAGE_STYLE} />
 
-        <Text style={TEXT} tx="newFeature.heyThere" />
-        <Text style={TEXT} tx="newFeature.pleaseConsider" />
+        <Text style={TEXT} tx="widgetOnboarding.heyThere" />
+        <Text style={TEXT} tx="widgetOnboarding.pleaseConsider" />
 
-        <Text style={[TEXT, { marginBottom: spacing[6] }]} tx="newFeature.goodbyes" />
+        <Text style={[TEXT, { marginBottom: spacing[6] }]} tx="widgetOnboarding.goodbyes" />
       </View>
       <View style={{ alignItems: "center", marginBottom: insets.bottom + 4, marginTop: spacing[2] }}>
         <Button
           title={translate("common.done")}
           onPress={() => {
-            storage.save("seenWidgetAnnouncement", "true")
-
-            navigation.navigate("planner")
+            navigation.navigate("settingsStack")
 
             storage.load("lastInAppReview").then((value) => {
               if (!value) {

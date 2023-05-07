@@ -1,23 +1,13 @@
 import React from "react"
 import { View, TextStyle, ViewStyle, ImageStyle, Image, Dimensions } from "react-native"
-import LinearGradient from "react-native-linear-gradient"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Screen, Text, Button } from "../../components"
-import { translate } from "../../i18n"
-import { NewFeatureStackProps } from "../../navigators/new-features/new-features-navigator"
+import { translate, userLocale } from "../../i18n"
+import { WidgetOnboardingStackProps } from "../../navigators/widget-onboarding/widget-onboarding-navigator"
 import { color, fontScale, spacing } from "../../theme"
-import { NewFeatureBackground } from "./new-features-background"
+import { WidgetOnboardingBackground } from "./widget-onboarding-background"
 
 const { width: deviceWidth } = Dimensions.get("screen")
-
-const GARDIENT: ViewStyle = {
-  height: "200%",
-  position: "absolute",
-  left: 0,
-  right: 0,
-  top: 0,
-  opacity: 1,
-}
 
 const TITLE: TextStyle = {
   color: color.whiteText,
@@ -28,24 +18,24 @@ const TITLE: TextStyle = {
 
 const TEXT: TextStyle = {
   color: color.whiteText,
-  marginBottom: spacing[3],
+  marginBottom: spacing[2],
 }
 
 const IMAGE_CONTAINER: ViewStyle = {
   alignItems: "center",
   overflow: "hidden",
+  marginVertical: spacing[3],
   shadowOffset: { width: 0, height: 0 },
   shadowColor: color.palette.black,
   shadowRadius: 5,
   shadowOpacity: 0.5,
-  marginBottom: spacing[1],
 }
 
 const IMAGE_STYLE: ImageStyle = {
-  width: 300,
+  width: 280,
   borderWidth: 1,
-  borderColor: "rgba(0, 0, 0, 1)",
-  height: 150,
+  borderColor: "rgba(0, 0, 0, 0.1)",
+  height: 295,
   resizeMode: "contain",
   marginHorizontal: -24,
   borderRadius: 12,
@@ -53,31 +43,35 @@ const IMAGE_STYLE: ImageStyle = {
   marginBottom: spacing[4],
 }
 
-export const WidgetStep3 = function WidgetStep3({ navigation }: NewFeatureStackProps) {
+export const WidgetStep2 = function WidgetStep2({ navigation }: WidgetOnboardingStackProps) {
   const insets = useSafeAreaInsets()
+
+  let configImage
+
+  if (userLocale === "he") {
+    configImage = require("../../../assets/widget-config-hebrew.png")
+  } else {
+    configImage = require("../../../assets/widget-config-english.png")
+  }
 
   return (
     <Screen unsafe={true} statusBar="light-content" preset="scroll">
-      <NewFeatureBackground />
+      <WidgetOnboardingBackground />
       <View style={{ paddingHorizontal: spacing[6], marginTop: spacing[6] + 4 }}>
-        <Text preset="header" style={TITLE} tx="newFeature.stacking" />
-
-        <Text style={[TEXT, { textAlign: "center", marginBottom: spacing[5] }]} tx="newFeature.stackingIntro"></Text>
-        <Text style={TEXT} tx="newFeature.stackingStep1" />
-        <Text style={TEXT} tx="newFeature.stackingStep2" />
+        <Text preset="header" style={TITLE} tx="widgetOnboarding.configuring" maxFontSizeMultiplier={1.2} />
+        <Text style={TEXT} tx="widgetOnboarding.configStep1" />
+        <Text style={TEXT} tx="widgetOnboarding.configStep2" />
       </View>
       <View style={IMAGE_CONTAINER}>
-        <Image source={require("../../../assets/widget-stack-hebrew.gif")} style={IMAGE_STYLE} />
+        <Image source={configImage} style={IMAGE_STYLE} />
       </View>
       <View style={{ paddingHorizontal: spacing[6], marginBottom: spacing[3] }}>
-        <Text style={TEXT} tx="newFeature.stackingStep3" />
-        <Text style={TEXT} tx="newFeature.stackingStep4" />
+        <Text style={TEXT} tx="widgetOnboarding.configStep3" />
       </View>
-
-      <View style={{ alignItems: "center", marginTop: fontScale < 1.2 ? spacing[4] + 12 : 0, marginBottom: insets.bottom + 4 }}>
+      <View style={{ alignItems: "center", marginTop: fontScale < 1.2 ? spacing[4] : 0, marginBottom: insets.bottom + 4 }}>
         <Button
           title={translate("common.next")}
-          onPress={() => navigation.navigate("step4")}
+          onPress={() => navigation.navigate("step3")}
           containerStyle={{ width: deviceWidth - 40 }}
         />
       </View>

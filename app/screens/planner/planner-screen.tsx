@@ -206,23 +206,12 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     { cacheTime: isWeekend(routePlan.date) ? 0 : 7200000, retry: false },
   )
 
-  useEffect(() => {
-    // Widget feature available only for iOS. Arabic translation for announcement is not available yet.
-    if (Platform.OS === "ios" && userLocale !== "ar") {
-      storage.load("seenWidgetAnnouncement").then((seenWidget) => {
-        if (!seenWidget && origin && destination) {
-          setDisplayNewBadge(true)
-        }
-      })
-    }
-  }, [])
-
   return (
     <Screen style={ROOT} preset="scroll">
       <View style={CONTENT_WRAPPER}>
         <View style={HEADER_WRAPPER}>
           {displayNewBadge && (
-            <TouchableOpacity style={NEW_FEATURES_BUTTON} onPress={() => navigation.navigate("newFeatureStack")}>
+            <TouchableOpacity style={NEW_FEATURES_BUTTON} onPress={() => navigation.navigate("widgetOnboardingStack")}>
               <Image
                 source={require("../../../assets/sparkles.png")}
                 style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }}

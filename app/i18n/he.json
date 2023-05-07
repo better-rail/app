@@ -61,6 +61,7 @@
     "language": "שפה",
     "about": "אודות",
     "share": "שתפו את Better Rail",
+    "widget": "הוספת ווידג׳ט למסך הבית",
     "shareMessage": "האלטרנטיבה לאפליקציית רכבת ישראל",
     "rateIOS": "דרגו ב- App Store",
     "rateAndroid": "דרגו ב- Play Store",
@@ -121,7 +122,7 @@
     "noTrainsFound": "לא נמצאו רכבות לתאריך המבוקש",
     "foundTrainsAt": "קיימות רכבות החל מ"
   },
-  "newFeature": {
+  "widgetOnboarding": {
     "newBetterRail": "חדש ב- Better Rail",
     "homeWidgets": "ווידג׳טים למסך הבית",
     "widgetDescription": "3 ווידג׳טים לצפייה בזמני הרכבות הקרובות היישר מדף הבית",

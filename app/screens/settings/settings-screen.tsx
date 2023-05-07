@@ -6,7 +6,7 @@ import { Screen, Text } from "../../components"
 import { SettingBox } from "./components/settings-box"
 import { getVersion } from "react-native-device-info"
 import { color, spacing, isDarkMode } from "../../theme"
-import { translate } from "../../i18n"
+import { translate, userLocale } from "../../i18n"
 import { SettingsScreenProps } from "../../navigators"
 import { SETTING_GROUP } from "./settings-styles"
 
@@ -87,6 +87,19 @@ export const SettingsScreen = observer(function SettingsScreen({ navigation }: S
           onPress={() => navigation.navigate("tipJar")}
         />
       </View>
+
+      {Platform.OS === "ios" && userLocale !== "ar" && (
+        <View style={SETTING_GROUP}>
+          <SettingBox
+            first
+            last
+            title={translate("settings.widget")}
+            icon="📱"
+            chevron
+            onPress={() => navigation.navigate("widgetOnboardingStack")}
+          />
+        </View>
+      )}
 
       <View style={SETTING_GROUP}>
         <SettingBox first title={translate("settings.share")} icon="🕺" onPress={shareApp} />
