@@ -1,5 +1,5 @@
-import { ApiResponse } from "apisauce"
 import { railApi } from "./api"
+import { AxiosResponse } from "axios"
 import { stationsObject, stationLocale } from "../../data/stations"
 import { RailApiGetRoutesResult } from "./api.types"
 import { formatRouteDuration, isOneHourDifference, routeDurationInMs } from "../../utils/helpers/date-helpers"
@@ -13,7 +13,7 @@ export class RouteApi {
     if (!originId || !destinationId) throw new Error("Missing origin / destination data")
 
     try {
-      const response: ApiResponse<RailApiGetRoutesResult> = await this.api.axiosInstance.get(
+      const response: AxiosResponse<RailApiGetRoutesResult> = await this.api.axiosInstance.get(
         `searchTrainLuzForDateTime?fromStation=${originId}&toStation=${destinationId}&date=${date}&hour=${hour}&scheduleType=1&systemType=1&languageId=Hebrew`,
       )
       if (!response.data?.result) throw new Error("Error fetching results")

@@ -56,7 +56,7 @@ export const trainRoutesModel = types
       self.setStatus("pending")
       self.updateResultType("normal")
 
-      const routeApi = new RouteApi(self.environment.api)
+      const routeApi = new RouteApi()
       let foundRoutes = false
       let apiHitCount = 0
       let requestDate = time
