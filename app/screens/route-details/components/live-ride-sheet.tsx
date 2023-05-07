@@ -32,12 +32,12 @@ export function LiveRideSheet() {
     >
       <Text style={{ fontSize: 20, fontWeight: "bold", color: color.success }}>Arriving in 14 min</Text>
       <StopButton />
-      <BlurView
+      {/* <BlurView
         style={{ position: "absolute", top: 0, left: 0, bottom: 0, right: 0, zIndex: -1 }}
         blurType={isDarkMode ? "ultraThinMaterialDark" : "xlight"}
         blurAmount={30}
         reducedTransparencyFallbackColor={color.tertiaryBackground as unknown as string}
-      />
+      /> */}
     </View>
   )
 }

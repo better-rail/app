@@ -16,6 +16,7 @@ import { useStores } from "../../models"
 import { timezoneCorrection } from "../../utils/helpers/date-helpers"
 import { LiveRideSheet } from "./components/live-ride-sheet"
 import { LongRouteWarning } from "./components/long-route-warning"
+import { useRideProgress } from "../../hooks/use-ride-progress"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -45,6 +46,8 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
   const { routeItem } = route.params
   const { ride } = useStores()
   const insets = useSafeAreaInsets()
+
+  useRideProgress(routeItem)
 
   /**
    * Check if the ride is 60 minutes away or less from now, and not after the arrival time.
