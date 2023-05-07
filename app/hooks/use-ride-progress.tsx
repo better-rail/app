@@ -8,18 +8,22 @@ export function useRideProgress(route: RouteItem) {
   // initial state
   const [status, setStatus] = useState<RideStatus>("waitForTrain")
   const [nextStationId, setNextStationId] = useState<number>(route.trains[0].originStationId)
+  const [delay, setDelay] = useState<number>(0)
 
   useEffect(() => {
     // create a timer that runs every 1 minute
     const timer = setInterval(() => {
-      // get the current time
       const stationId = findClosestStationInRoute(route)
       setNextStationId(stationId)
-      // get the next station by the time
+
+      // fetch route
+
+      // update the delay
     }, 60000)
 
     const stationId = findClosestStationInRoute(route)
     setNextStationId(stationId)
+    setDelay(route.delay)
 
     // clear the timer when the component unmounts
     return () => clearInterval(timer)
