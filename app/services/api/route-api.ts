@@ -1,5 +1,5 @@
 import { ApiResponse } from "apisauce"
-import { Api } from "./api"
+import { railApi } from "./api"
 import { stationsObject, stationLocale } from "../../data/stations"
 import { RailApiGetRoutesResult } from "./api.types"
 import { formatRouteDuration, isOneHourDifference, routeDurationInMs } from "../../utils/helpers/date-helpers"
@@ -7,17 +7,13 @@ import { RouteItem } from "."
 import { getHours, parse, isSameDay, addDays } from "date-fns"
 
 export class RouteApi {
-  private api: Api
-
-  constructor(api: Api) {
-    this.api = api
-  }
+  private api = railApi
 
   async getRoutes(originId: string, destinationId: string, date: string, hour: string): Promise<RouteItem[]> {
     if (!originId || !destinationId) throw new Error("Missing origin / destination data")
 
     try {
-      const response: ApiResponse<RailApiGetRoutesResult> = await this.api.apisauce.get(
+      const response: ApiResponse<RailApiGetRoutesResult> = await this.api.axiosInstance.get(
         `searchTrainLuzForDateTime?fromStation=${originId}&toStation=${destinationId}&date=${date}&hour=${hour}&scheduleType=1&systemType=1&languageId=Hebrew`,
       )
       if (!response.data?.result) throw new Error("Error fetching results")
