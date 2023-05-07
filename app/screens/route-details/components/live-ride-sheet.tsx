@@ -3,6 +3,8 @@ import { BlurView } from "@react-native-community/blur"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { color } from "../../../theme"
 import { Text } from "../../../components"
+import { useRideProgress } from "../../../hooks/use-ride-progress"
+import { RouteItem } from "../../../services/api"
 
 const SHEET_CONTAINER: ViewStyle = {
   height: 75,
@@ -16,10 +18,11 @@ const SHEET_CONTAINER: ViewStyle = {
   borderTopWidth: 1,
 }
 
-export function LiveRideSheet() {
+export function LiveRideSheet({ route }: { route: RouteItem }) {
   const insets = useSafeAreaInsets()
   const colorScheme = useColorScheme()
   const isDarkMode = colorScheme === "dark"
+  const progress = useRideProgress(route)
 
   return (
     <View
@@ -50,7 +53,6 @@ const StopButton = (props: PressableProps) => (
         height: 42.5,
         alignItems: "center",
         justifyContent: "center",
-        // backgroundColor: pressed ? "#d56761" : "#FA827E",
         backgroundColor: pressed ? "#d56761" : "#FA827E",
         borderRadius: 30,
       },

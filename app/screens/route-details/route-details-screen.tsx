@@ -132,7 +132,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
         })}
       </ScrollView>
 
-      <LiveRideSheet />
+      <LiveRideSheet route={routeItem} />
 
       {/* Hide "Start Ride" option on tablets */}
       {deviceWidth < 768 && route.name === "routeDetails" && (
