@@ -14,8 +14,7 @@ import { DelayBadge } from "./delay-badge"
 // #region styles
 
 // Setting static height for FlatList getItemLayout
-export let RouteCardHeight = 75
-if (fontScale > 1.1) RouteCardHeight = 85
+export let RouteCardHeight = 75 * fontScale
 
 const CONTAINER: ViewStyle = {
   flexDirection: "row",

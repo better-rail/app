@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { FlatList, View, ActivityIndicator, ViewStyle } from "react-native"
+import { View, ActivityIndicator, ViewStyle } from "react-native"
 import { RouteListScreenProps } from "../../navigators/main-navigator"
 import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight } from "../../components"
 import { useStores } from "../../models"
@@ -14,6 +14,7 @@ import { NoTrainsFoundMessage } from "./components/no-trains-found-msg"
 import { useNetInfo } from "@react-native-community/netinfo"
 import { NoInternetConnection } from "./components/no-internet-connection"
 import { useRideRerender } from "../../hooks/use-ride-rerender"
+import { FlashList } from "@shopify/flash-list"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -123,14 +124,14 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
       {trains.status === "loading" && <ActivityIndicator size="large" style={{ marginTop: spacing[6] }} color="grey" />}
 
       {trains.status === "success" && trains.data.length > 0 && (
-        <FlatList
+        <FlashList
           onRefresh={() => trains.refetch()}
           refreshing={trains.isRefetching}
           renderItem={renderRouteCard}
           keyExtractor={(item) => item.trains.map((train) => train.trainNumber).join()}
           data={trains.data}
           contentContainerStyle={{ paddingTop: spacing[4], paddingHorizontal: spacing[3], paddingBottom: spacing[3] }}
-          getItemLayout={(_, index) => ({ length: RouteCardHeight, offset: (RouteCardHeight + spacing[3]) * index, index })}
+          estimatedItemSize={RouteCardHeight + spacing[2] * 2}
           initialScrollIndex={initialScrollIndex}
         />
       )}
