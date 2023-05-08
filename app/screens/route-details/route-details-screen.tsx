@@ -14,7 +14,6 @@ import { RouteStationCard, RouteStopCard, RouteExchangeDetails } from "./compone
 import { useStores } from "../../models"
 import { LiveRideSheet } from "./components/live-ride-sheet"
 import { LongRouteWarning } from "./components/long-route-warning"
-import { useRideProgress } from "../../hooks/use-ride-progress"
 import { StartRideButton } from "./components/start-ride-button"
 
 const ROOT: ViewStyle = {
@@ -26,8 +25,6 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
   const { routeItem } = route.params
   const { ride } = useStores()
   const insets = useSafeAreaInsets()
-
-  useRideProgress(routeItem)
 
   return (
     <Screen
