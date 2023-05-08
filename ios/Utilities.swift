@@ -46,10 +46,7 @@ func isoDateStringToDate(_ isoDate: String) -> Date {
 func formatRouteHour(_ isoDate: String) -> String {
   let date = isoDateStringToDate(isoDate);
   
-  let hourFormatter = DateFormatter()
-  hourFormatter.dateFormat = "HH:mm"
-  
-  return hourFormatter.string(from: date)
+  return formatDateHour(date)
 }
 
 func formatDateHour(_ date: Date) -> String {
