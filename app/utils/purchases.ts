@@ -11,7 +11,7 @@ export const configurePurchases = async () => {
   }
 }
 
-export const getProducts = async () => {
+export const getPackages = async () => {
   try {
     const offerings = await Purchases.getOfferings()
     return offerings.current?.availablePackages ?? []

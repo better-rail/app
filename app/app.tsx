@@ -32,7 +32,7 @@ import { withIAPContext } from "react-native-iap"
 import { enableScreens } from "react-native-screens"
 import { extractURLParams } from "./utils/helpers/url"
 import { donateRouteIntent, monitorLiveActivities, reloadAllTimelines } from "./utils/ios-helpers"
-import { configurePurchases, getProducts } from "./utils/purchases"
+import { configurePurchases, getPackages } from "./utils/purchases"
 enableScreens()
 
 export const queryClient = new QueryClient()
@@ -54,8 +54,8 @@ function App() {
     }
 
     configurePurchases()
-      .then(() => getProducts())
-      .then((products) => console.log(JSON.stringify(products)))
+      .then(() => getPackages())
+      .then((packages) => console.log(JSON.stringify(packages)))
   }, [])
 
   useEffect(() => {
