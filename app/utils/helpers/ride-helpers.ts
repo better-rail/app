@@ -36,6 +36,8 @@ export function getTrainFromStationId(route: RouteItem, stationId: number): Trai
     return !!train.stopStations.find((s) => s.stationId === stationId)
   })
 
+  if (train) return train
+
   // not in the stop stations? it's probably the origin / destination station!
   return (
     route.trains.find((t) => t.originStationId === stationId) || route.trains.find((t) => t.destinationStationId === stationId)
