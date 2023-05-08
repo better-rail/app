@@ -23,18 +23,24 @@ export function LiveRideSheet({ route }: { route: RouteItem }) {
   const insets = useSafeAreaInsets()
   const colorScheme = useColorScheme()
   const isDarkMode = colorScheme === "dark"
-  const progress = useRideProgress(route)
+  const [status, minutesLeft] = useRideProgress(route)
 
   const progressText = useMemo(() => {
-    if (progress.status === "inTransit") {
-      return `Arriving in ${progress.minutesLeft} min`
-    } else if (progress.status === "arrived") {
+    console.log("ssss", status)
+    if (status === "inTransit" && minutesLeft < 1) {
+      return `Train arrives now`
+    } else if (status === "inTransit") {
+      return `Arriving in ${minutesLeft} min`
+    } else if (status === "arrived") {
       return "You have arrived"
+    } else if ((status === "waitForTrain" || status === "inExchange") && minutesLeft < 1) {
+      return `Train departs now`
     }
 
-    return `Train departs in ${progress.minutesLeft} min`
-  }, [progress])
+    return `Train departs in ${minutesLeft} min`
+  }, [minutesLeft, status])
 
+  console.log("progress", status, minutesLeft)
   return (
     <View
       style={{

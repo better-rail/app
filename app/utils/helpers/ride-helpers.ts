@@ -4,7 +4,7 @@ import { RouteItem, Train } from "../../services/api"
  * Find the closest station to the current time.
  */
 export function findClosestStationInRoute(route: RouteItem) {
-  const now = Date.now() - 9000000
+  const now = Date.now()
 
   for (let i = 0; i < route.trains.length; i++) {
     const train = route.trains[i]
@@ -21,6 +21,7 @@ export function findClosestStationInRoute(route: RouteItem) {
         }
       }
     }
+
     if (arrivalTime > now) {
       return train.destinationStationId
     }
