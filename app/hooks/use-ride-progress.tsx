@@ -5,11 +5,11 @@ import { RouteItem } from "../services/api"
 import { RouteApi } from "../services/api/route-api"
 import { formatDateForAPI } from "../utils/helpers/date-helpers"
 import { useQueryClient } from "react-query"
+import { useNavigation } from "@react-navigation/native"
 
 type RideStatus = "waitForTrain" | "inTransit" | "inExchange" | "arrived"
 
 export function useRideProgress(route: RouteItem) {
-  // initial state
   const [minutesLeft, setMinutesLeft] = useState<number>(0)
   const [delay, nextStationId] = useRideRoute(route)
   const status = useRideStatus({ route, delay, nextStationId })
@@ -53,6 +53,8 @@ function useRideStatus({ route, delay, nextStationId }) {
 }
 
 function useRideRoute(route: RouteItem) {
+  const navigation = useNavigation()
+
   const queryClient = useQueryClient()
 
   const [nextStationId, setNextStationId] = useState<number>(route.trains[0].originStationId)
@@ -75,6 +77,10 @@ function useRideRoute(route: RouteItem) {
       routes,
       route.trains.map((t) => t.trainNumber),
     )
+
+    // update the screen routeItem
+    // @ts-expect-error
+    navigation.setParams({ routeItem: updatedRoute })
 
     // update the query cached routes
     queryClient.setQueryData(
