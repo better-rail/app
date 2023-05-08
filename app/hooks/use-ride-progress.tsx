@@ -15,7 +15,7 @@ export function useRideProgress(route: RouteItem) {
   const status = useRideStatus({ route, delay, nextStationId })
 
   // update minutes left
-  useEffect(() => {
+  const calculateMinutesLeft = () => {
     let minutes = 0
     const train = getTrainFromStationId(route, nextStationId)
 
@@ -26,6 +26,14 @@ export function useRideProgress(route: RouteItem) {
     }
 
     setMinutesLeft(minutes)
+  }
+
+  useEffect(() => {
+    setInterval(() => {
+      calculateMinutesLeft()
+    }, 1000 * 60)
+
+    calculateMinutesLeft()
   }, [status, delay, nextStationId])
 
   return [status, minutesLeft] as const
