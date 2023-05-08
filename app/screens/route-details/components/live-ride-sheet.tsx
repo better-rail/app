@@ -46,12 +46,12 @@ export function LiveRideSheet({ route }: { route: RouteItem }) {
     >
       <Text style={{ fontSize: 20, fontWeight: "bold", color: color.success }}>{progressText}</Text>
       <StopButton />
-      {/* <BlurView
+      <BlurView
         style={{ position: "absolute", top: 0, left: 0, bottom: 0, right: 0, zIndex: -1 }}
         blurType={isDarkMode ? "ultraThinMaterialDark" : "xlight"}
         blurAmount={30}
         reducedTransparencyFallbackColor={color.tertiaryBackground as unknown as string}
-      /> */}
+      />
     </View>
   )
 }
