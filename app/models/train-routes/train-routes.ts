@@ -1,5 +1,5 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { withEnvironment, withStatus } from ".."
+import { withStatus } from ".."
 import { RouteApi } from "../../services/api/route-api"
 import { format, add } from "date-fns"
 import { omit } from "ramda"
@@ -41,7 +41,6 @@ export const trainRoutesModel = types
     routes: types.array(types.model(trainRouteSchema)),
     resultType: "normal",
   })
-  .extend(withEnvironment)
   .extend(withStatus)
   .actions((self) => ({
     saveRoutes: (routesSnapshot) => {
@@ -56,7 +55,7 @@ export const trainRoutesModel = types
       self.setStatus("pending")
       self.updateResultType("normal")
 
-      const routeApi = new RouteApi(self.environment.api)
+      const routeApi = new RouteApi()
       let foundRoutes = false
       let apiHitCount = 0
       let requestDate = time
