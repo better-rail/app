@@ -92,7 +92,6 @@ function useRideRoute(route: RouteItem) {
   }
 
   const updateRide = () => {
-    console.log("updating ride")
     refetchRoute()
 
     const stationId = findClosestStationInRoute(route)
