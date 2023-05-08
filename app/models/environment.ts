@@ -1,6 +1,5 @@
-import { Api } from "../services/api"
-
 let ReactotronDev
+
 if (__DEV__) {
   const { Reactotron } = require("../services/reactotron")
   ReactotronDev = Reactotron
@@ -17,10 +16,6 @@ export class Environment {
       // dev-only services
       this.reactotron = new ReactotronDev()
     }
-    this.api = new Api({
-      url: "https://israelrail.azurefd.net/rjpa-prod/api/v1/timetable/",
-      timeout: 12500,
-    })
   }
 
   async setup() {
@@ -28,16 +23,10 @@ export class Environment {
     if (__DEV__) {
       await this.reactotron.setup()
     }
-    await this.api.setup()
   }
 
   /**
    * Reactotron is only available in dev.
    */
   reactotron: typeof ReactotronDev
-
-  /**
-   * Our api.
-   */
-  api: Api
 }
