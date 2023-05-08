@@ -125,8 +125,6 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
 
       {trains.status === "success" && trains.data.length > 0 && (
         <FlashList
-          onRefresh={() => trains.refetch()}
-          refreshing={trains.isRefetching}
           renderItem={renderRouteCard}
           keyExtractor={(item) => item.trains.map((train) => train.trainNumber).join()}
           data={trains.data}
