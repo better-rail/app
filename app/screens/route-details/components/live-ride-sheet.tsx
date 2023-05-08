@@ -5,6 +5,7 @@ import { color } from "../../../theme"
 import { Text } from "../../../components"
 import { useRideProgress } from "../../../hooks/use-ride-progress"
 import { RouteItem } from "../../../services/api"
+import { useMemo } from "react"
 
 const SHEET_CONTAINER: ViewStyle = {
   height: 75,
@@ -24,6 +25,16 @@ export function LiveRideSheet({ route }: { route: RouteItem }) {
   const isDarkMode = colorScheme === "dark"
   const progress = useRideProgress(route)
 
+  const progressText = useMemo(() => {
+    if (progress.status === "inTransit") {
+      return `Arriving in ${progress.minutesLeft} min`
+    } else if (progress.status === "arrived") {
+      return "You have arrived"
+    }
+
+    return `Train departs in ${progress.minutesLeft} min`
+  }, [progress])
+
   return (
     <View
       style={{
@@ -33,7 +44,7 @@ export function LiveRideSheet({ route }: { route: RouteItem }) {
         bottom: 0,
       }}
     >
-      <Text style={{ fontSize: 20, fontWeight: "bold", color: color.success }}>Arriving in 14 min</Text>
+      <Text style={{ fontSize: 20, fontWeight: "bold", color: color.success }}>{progressText}</Text>
       <StopButton />
       {/* <BlurView
         style={{ position: "absolute", top: 0, left: 0, bottom: 0, right: 0, zIndex: -1 }}
