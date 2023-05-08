@@ -129,7 +129,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           keyExtractor={(item) => item.trains.map((train) => train.trainNumber).join()}
           data={trains.data}
           contentContainerStyle={{ paddingTop: spacing[4], paddingHorizontal: spacing[3], paddingBottom: spacing[3] }}
-          estimatedItemSize={RouteCardHeight + spacing[2] * 2}
+          estimatedItemSize={RouteCardHeight + spacing[3]}
           initialScrollIndex={initialScrollIndex}
         />
       )}
