@@ -25,6 +25,8 @@ PODS:
     - hermes-engine/Pre-built (= 0.71.6)
   - hermes-engine/Pre-built (0.71.6)
   - libevent (2.1.12)
+  - PurchasesHybridCommon (4.15.0):
+    - RevenueCat (= 4.18.0)
   - RCT-Folly (2021.07.22.00):
     - boost
     - DoubleConversion
@@ -378,6 +380,7 @@ PODS:
     - React-jsi (= 0.71.7)
     - React-logger (= 0.71.7)
     - React-perflogger (= 0.71.7)
+  - RevenueCat (4.18.0)
   - RNCAsyncStorage (1.18.1):
     - React-Core
   - RNCMaskedView (0.2.8):
@@ -391,6 +394,9 @@ PODS:
   - RNIap (8.0.8):
     - React-Core
   - RNInAppBrowser (3.5.1):
+    - React-Core
+  - RNPurchases (5.14.0):
+    - PurchasesHybridCommon (= 4.15.0)
     - React-Core
   - RNReactNativeHapticFeedback (2.0.3):
     - React-Core
@@ -490,6 +496,7 @@ DEPENDENCIES:
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNIap (from `../node_modules/react-native-iap`)
   - RNInAppBrowser (from `../node_modules/react-native-inappbrowser-reborn`)
+  - RNPurchases (from `../node_modules/react-native-purchases`)
   - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -504,6 +511,8 @@ SPEC REPOS:
   trunk:
     - fmt
     - libevent
+    - PurchasesHybridCommon
+    - RevenueCat
 
 EXTERNAL SOURCES:
   boost:
@@ -608,6 +617,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-iap"
   RNInAppBrowser:
     :path: "../node_modules/react-native-inappbrowser-reborn"
+  RNPurchases:
+    :path: "../node_modules/react-native-purchases"
   RNReactNativeHapticFeedback:
     :path: "../node_modules/react-native-haptic-feedback"
   RNReanimated:
@@ -640,6 +651,7 @@ SPEC CHECKSUMS:
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
   hermes-engine: b434cea529ad0152c56c7cb6486b0c4c0b23b5de
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
+  PurchasesHybridCommon: da45a710d9f4f7819fd769b8efc3abbb5e4e8cab
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
   RCTRequired: 5a4a30ac20c86eeadd6844a9328f78d4168cf9b2
   RCTTypeSafety: 279fc5861a89f0f37db3a585f27f971485b4b734
@@ -674,6 +686,7 @@ SPEC CHECKSUMS:
   React-RCTVibration: 08f132cad9896458776f37c112e71d60aef1c6ae
   React-runtimeexecutor: c5c89f8f543842dd864b63ded1b0bbb9c9445328
   ReactCommon: dbfbe2f7f3c5ce4ce44f43f2fd0d5950d1eb67c5
+  RevenueCat: d8f5b1477c4eb78b658e86a97fd64ed4d6b3fbfd
   RNCAsyncStorage: b90b71f45b8b97be43bc4284e71a6af48ac9f547
   RNCMaskedView: bc0170f389056201c82a55e242e5d90070e18e5a
   RNDateTimePicker: 00247f26c34683c80be94207f488f6f13448586e
@@ -681,6 +694,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: 071d7a9ad81e8b83fe7663b303d132406a7d8f39
   RNIap: bb56165cc68bfa269e2effd407d6ec0af63e796f
   RNInAppBrowser: 48b95ba7a4eaff5cc223bca338d3e319561dbd1b
+  RNPurchases: fd161618736051325818c6a232338938f3b2cf2f
   RNReactNativeHapticFeedback: afa5bf2794aecbb2dba2525329253da0d66656df
   RNReanimated: cc5e3aa479cb9170bcccf8204291a6950a3be128
   RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
