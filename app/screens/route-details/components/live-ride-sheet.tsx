@@ -3,7 +3,7 @@ import { BlurView } from "@react-native-community/blur"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { color } from "../../../theme"
 import { Text } from "../../../components"
-import { useRideProgress } from "../../../hooks/use-ride-progress"
+import { useRideProgress } from "../../../hooks/use-ride-progress/use-ride-progress"
 import { RouteItem } from "../../../services/api"
 import { useMemo } from "react"
 
