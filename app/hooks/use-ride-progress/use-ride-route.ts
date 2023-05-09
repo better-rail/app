@@ -54,7 +54,7 @@ export function useRideRoute(route: RouteItem) {
     // set up timer to run every minute
     const timer = setInterval(() => {
       updateRide()
-    }, 60 * 10000)
+    }, 60 * 1000)
 
     // initial refetch
     updateRide()
