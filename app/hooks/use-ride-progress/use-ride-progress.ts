@@ -18,9 +18,9 @@ export function useRideProgress(route: RouteItem) {
     const train = getTrainFromStationId(route, nextStationId)
 
     if (status == "inTransit") {
-      minutes = differenceInMinutes(train.arrivalTime, Date.now()) + delay
+      minutes = differenceInMinutes(train.arrivalTime, Date.now(), { roundingMethod: "ceil" }) + delay
     } else if (status == "waitForTrain" || status == "inExchange") {
-      minutes = differenceInMinutes(train.departureTime, Date.now()) + delay
+      minutes = differenceInMinutes(train.departureTime, Date.now(), { roundingMethod: "ceil" }) + delay
     }
 
     setMinutesLeft(minutes)
