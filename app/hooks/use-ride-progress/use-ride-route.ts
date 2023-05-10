@@ -61,9 +61,6 @@ export function useRideRoute(route: RouteItem) {
     // initial refetch
     updateRide()
 
-    const stationId = findClosestStationInRoute(route)
-    setNextStationId(stationId)
-
     // clear the timer when the component unmounts
     return () => clearInterval(timer)
   }, [])
