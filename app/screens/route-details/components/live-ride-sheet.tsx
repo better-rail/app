@@ -6,6 +6,7 @@ import { Text } from "../../../components"
 import { useRideProgress } from "../../../hooks/use-ride-progress/use-ride-progress"
 import { RouteItem } from "../../../services/api"
 import { useMemo } from "react"
+import { Ride } from "../../../models/ride/ride"
 
 const SHEET_CONTAINER: ViewStyle = {
   height: 75,
@@ -18,17 +19,16 @@ const SHEET_CONTAINER: ViewStyle = {
   borderTopColor: color.separator,
   borderTopWidth: 1,
 }
-
-export function LiveRideSheet({ route }: { route: RouteItem }) {
+// TODO: add typings to progress
+export function LiveRideSheet({ progress, ride }: { progress; ride: Ride }) {
   const insets = useSafeAreaInsets()
   const colorScheme = useColorScheme()
   const isDarkMode = colorScheme === "dark"
-  const [status, minutesLeft] = useRideProgress(route)
+  const { status, minutesLeft } = progress
 
   const progressText = useMemo(() => {
-    console.log("ssss", status)
-    if (status === "inTransit" && minutesLeft < 1) {
-      return `Train arrives now`
+    if (status === "inTransit" && minutesLeft < 2) {
+      return `Train arrives to destination`
     } else if (status === "inTransit") {
       return `Arriving in ${minutesLeft} min`
     } else if (status === "arrived") {
@@ -40,7 +40,6 @@ export function LiveRideSheet({ route }: { route: RouteItem }) {
     return `Train departs in ${minutesLeft} min`
   }, [minutesLeft, status])
 
-  console.log("progress", status, minutesLeft)
   return (
     <View
       style={{
@@ -51,7 +50,7 @@ export function LiveRideSheet({ route }: { route: RouteItem }) {
       }}
     >
       <Text style={{ fontSize: 20, fontWeight: "bold", color: color.success }}>{progressText}</Text>
-      <StopButton />
+      <StopButton onPress={() => ride.stopRide(ride.id)} />
       <BlurView
         style={{ position: "absolute", top: 0, left: 0, bottom: 0, right: 0, zIndex: -1 }}
         blurType={isDarkMode ? "ultraThinMaterialDark" : "xlight"}

@@ -8,12 +8,11 @@ import { RouteLineStateType } from "../../screens"
 
 export type RideStatus = "waitForTrain" | "inTransit" | "inExchange" | "arrived"
 
-export function useRideProgress(route: RouteItem) {
+export function useRideProgress({ route, enabled }: { route: RouteItem; enabled: boolean }) {
   const [minutesLeft, setMinutesLeft] = useState<number>(0)
   const [delay, nextStationId] = useRideRoute(route)
-  console.log("next station id: ", nextStationId)
   const status = useRideStatus({ route, delay, nextStationId })
-  const stations = getStopStationStatus({ route, nextStationId, status })
+  const stations = getStopStationStatus({ route, nextStationId, status, enabled })
 
   // update minutes left
   const calculateMinutesLeft = () => {
@@ -37,27 +36,32 @@ export function useRideProgress(route: RouteItem) {
     calculateMinutesLeft()
   }, [status, delay, nextStationId])
 
-  return [status, minutesLeft, stations, nextStationId] as const
+  return { status, minutesLeft, stations, nextStationId }
 }
 
 interface GetStopStationStatusParams {
   route: RouteItem
   nextStationId: number
   status: RideStatus
+  enabled: boolean
 }
 
-interface StopStationStatus {
+interface StopStationStatusItem {
   top: RouteLineStateType
   bottom: RouteLineStateType
   stationId?: number
 }
 
-function getStopStationStatus({ route, nextStationId, status }: GetStopStationStatusParams) {
+export type StopStationStatusObject = Record<number, { top: RouteLineStateType; bottom: RouteLineStateType }>
+
+function getStopStationStatus({ route, nextStationId, status, enabled }: GetStopStationStatusParams) {
+  if (!enabled) return {}
+
   // flatten the stop stations from all trains
   const array = route.trains.map((train) => train.stopStations).flat()
 
   // build the stop stations status array
-  const stopStationsStatusArray: StopStationStatus[] = array.map((stopStation) => ({
+  const stopStationsStatusArray: StopStationStatusItem[] = array.map((stopStation) => ({
     top: "idle",
     bottom: "idle",
     stationId: stopStation.stationId,
@@ -119,7 +123,7 @@ function getStopStationStatus({ route, nextStationId, status }: GetStopStationSt
     const lastStationId = train.stopStations[train.stopStations.length - 1].stationId
     stopStationsObject[lastStationId] = { top: "passed", bottom: "inProgress" }
   }
-  console.log(status)
+
   if (destinationStationId === nextStationId && status === "arrived") {
     stopStationsObject[nextStationId] = { top: "passed", bottom: "passed" }
   } else if (destinationStationId === nextStationId && status !== "arrived") {

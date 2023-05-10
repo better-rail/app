@@ -53,27 +53,9 @@ export function StartRideButton(props: StartRideButtonProps) {
 
   const activeRide = !!ride.id
   const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || activeRide
-  const isRideOnThisRoute = ride.isRouteActive(route)
 
-  /* Check if the ride is already started and belongs to the current route */
-  let button = null
-
-  if (isRideOnThisRoute) {
-    button = (
-      <Button
-        style={START_RIDE_BUTTON}
-        title={translate("ride.stopRide")}
-        icon={
-          Platform.OS == "android" ? undefined : <Image source={require("../../../../assets/stop.ios.png")} style={TRAIN_ICON} />
-        }
-        pressedOpacity={0.85}
-        onPress={() => {
-          ride.stopRide(ride.id)
-        }}
-      />
-    )
-  } else {
-    button = (
+  return (
+    <View style={{ position: "absolute", bottom: insets.bottom > 0 ? insets.bottom + 5 : 15, right: 15 + insets.right }}>
       <Button
         style={{ backgroundColor: color.secondary, width: 148 }}
         icon={
@@ -97,12 +79,6 @@ export function StartRideButton(props: StartRideButtonProps) {
         }}
         onPress={() => ride.startRide(route)}
       />
-    )
-  }
-
-  return (
-    <View style={{ position: "absolute", bottom: insets.bottom > 0 ? insets.bottom + 5 : 15, right: 15 + insets.right }}>
-      {button}
     </View>
   )
 }

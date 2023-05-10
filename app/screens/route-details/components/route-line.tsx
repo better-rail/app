@@ -14,7 +14,7 @@ export const ROUTE_LINE_STATE_COLORS = {
   // idle: color.separator.toString(),
   // inProgress: "#9BE379",
   // passed: "#6EAB5C",
-  idle: "grey",
+  idle: color.separator,
   inProgress: "orange",
   passed: color.greenText,
 }

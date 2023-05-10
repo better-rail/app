@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from "react"
 import { observer } from "mobx-react-lite"
-import { View, ViewStyle } from "react-native"
+import { OpaqueColorValue, View, ViewStyle } from "react-native"
 import { RouteDetailsHeader, Screen } from "../../components"
 import { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import { color, spacing } from "../../theme"
@@ -15,6 +15,9 @@ import { useStores } from "../../models"
 import { LiveRideSheet } from "./components/live-ride-sheet"
 import { LongRouteWarning } from "./components/long-route-warning"
 import { StartRideButton } from "./components/start-ride-button"
+import { useRideProgress } from "../../hooks/use-ride-progress"
+import { RouteDetailsLiveRoute } from "./route-details-live-stations"
+import { RouteDetailsStaticRoute } from "./route-details-static-route"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -24,6 +27,11 @@ const ROOT: ViewStyle = {
 export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
   const { routeItem } = route.params
   const { ride } = useStores()
+  console.log(ride.id)
+  const isRideOnThisRoute = ride.isRouteActive(routeItem)
+
+  const progress = useRideProgress({ route: routeItem, enabled: isRideOnThisRoute })
+
   const insets = useSafeAreaInsets()
 
   return (
@@ -61,21 +69,11 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
                 delay={train.delay}
               />
 
-              {train.stopStations.length > 0
-                ? train.stopStations.map((stop, index) => (
-                    <View key={stop.stationId}>
-                      {index === 0 && <RouteLine />}
-                      <RouteStopCard
-                        stationName={stop.stationName}
-                        stopTime={format(stop.departureTime, "HH:mm")}
-                        delayedTime={train.delay ? format(stop.departureTime + train.delay * 60000, "HH:mm") : undefined}
-                        style={{ zIndex: 20 - index }}
-                      />
-                      {train.stopStations.length - 1 === index && <RouteLine />}
-                    </View>
-                  ))
-                : train.stopStations.length === 0 && <RouteLine height={30} />}
-
+              {isRideOnThisRoute ? (
+                <RouteDetailsStaticRoute train={train} />
+              ) : (
+                <RouteDetailsLiveRoute train={train} stations={progress.stations} />
+              )}
               <RouteStationCard
                 stationName={train.destinationStationName}
                 stopTime={format(train.arrivalTime, "HH:mm")}
@@ -97,13 +95,22 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
         })}
       </ScrollView>
 
-      <LiveRideSheet route={routeItem} />
-
-      {/* <StartRideButton route={routeItem} ride={ride} screenName={route.name} /> */}
+      {isRideOnThisRoute ? (
+        <LiveRideSheet progress={progress} ride={ride} />
+      ) : (
+        <StartRideButton route={routeItem} ride={ride} screenName={route.name} />
+      )}
     </Screen>
   )
 })
 
-const RouteLine = ({ height = 10, inProgress = true }: { height?: number; inProgress: boolean }) => (
-  <View style={{ start: "35.44%", width: 4, height, backgroundColor: color.separator, zIndex: 0 }} />
+export type RouteLineStateType = "idle" | "inProgress" | "passed"
+
+const ROUTE_LINE_STATE_COLORS = {
+  idle: color.separator,
+  passed: color.greenText,
+}
+
+export const RouteLine = ({ height = 10, state = "idle" }: { height?: number; state: "idle" | "inProgress" | "passed" }) => (
+  <View style={{ start: "35.44%", width: 4, height, backgroundColor: ROUTE_LINE_STATE_COLORS[state], zIndex: 0 }} />
 )

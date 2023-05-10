@@ -4,6 +4,7 @@ import { Platform } from "react-native"
 import iOSHelpers from "../../utils/ios-helpers"
 import { trainRouteSchema } from "../train-routes/train-routes"
 import { RouteItem } from "../../services/api"
+import { toJS } from "mobx"
 
 const startRideHandler: (route: RouteItem) => Promise<string> = Platform.select({
   ios: iOSHelpers.startLiveActivity,
@@ -46,8 +47,11 @@ export const RideModel = types
     startRide(route: RouteItem) {
       this.setRideLoading(true)
 
+      this.setRoute(route)
+
       startRideHandler(route)
         .then((rideId) => {
+          console.log("done!", rideId)
           this.setRoute(route)
           this.setRideId(rideId)
           this.setRideLoading(false)
@@ -59,17 +63,17 @@ export const RideModel = types
           )
         })
     },
-    stopRide(routeId: string) {
+    stopRide(rideId: string) {
       this.setRideLoading(true)
       this.setRideId(undefined)
       this.setRoute(undefined)
 
-      endRideHandler(routeId).then(() => {
+      endRideHandler(rideId).then(() => {
         this.setRideLoading(false)
       })
     },
     setRoute(route: RouteItem) {
-      self.route = route as any
+      self.route = toJS(route) as any
     },
     setRideLoading(state: boolean) {
       self.loading = state

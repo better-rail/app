@@ -15,7 +15,11 @@ const ROUTE_STOP_CIRCLE: ViewStyle = {
 
 export const RouteStationCircle = ({ state }: { state: string }) => {
   if (state === "inProgress") return <InProgressRouteStationCircle />
-  return <View style={[ROUTE_STOP_CIRCLE, { backgroundColor: ROUTE_LINE_STATE_COLORS[state] }]} />
+  return (
+    <View
+      style={[ROUTE_STOP_CIRCLE, { backgroundColor: state === "idle" ? color.background : ROUTE_LINE_STATE_COLORS[state] }]}
+    />
+  )
 }
 
 const InProgressRouteStationCircle = () => {
