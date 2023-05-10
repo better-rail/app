@@ -4,14 +4,16 @@ import { getTrainFromStationId } from "../../utils/helpers/ride-helpers"
 import { RouteItem } from "../../services/api"
 import { useRideStatus } from "./use-ride-status"
 import { useRideRoute } from "./use-ride-route"
+import { RouteLineStateType } from "../../screens"
 
 export type RideStatus = "waitForTrain" | "inTransit" | "inExchange" | "arrived"
 
 export function useRideProgress(route: RouteItem) {
   const [minutesLeft, setMinutesLeft] = useState<number>(0)
   const [delay, nextStationId] = useRideRoute(route)
+  console.log("next station id: ", nextStationId)
   const status = useRideStatus({ route, delay, nextStationId })
-  const stations = getStationProgress(route, nextStationId)
+  const stations = getStopStationStatus({ route, nextStationId, status })
 
   // update minutes left
   const calculateMinutesLeft = () => {
@@ -35,50 +37,101 @@ export function useRideProgress(route: RouteItem) {
     calculateMinutesLeft()
   }, [status, delay, nextStationId])
 
-  return [status, minutesLeft, stations] as const
+  return [status, minutesLeft, stations, nextStationId] as const
 }
 
-/**
- *
- * @param nextStationId
- */
-function getStationProgress(route: RouteItem, nextStationId: number) {
-  const stations = []
-  // We use the `nextStationId` to create an array the stations that we have passed already.
-  // Note: There are number of trains. we need to find the train that has the `nextStationId`
+interface GetStopStationStatusParams {
+  route: RouteItem
+  nextStationId: number
+  status: RideStatus
+}
+
+interface StopStationStatus {
+  top: RouteLineStateType
+  bottom: RouteLineStateType
+  stationId?: number
+}
+
+function getStopStationStatus({ route, nextStationId, status }: GetStopStationStatusParams) {
+  // flatten the stop stations from all trains
+  const array = route.trains.map((train) => train.stopStations).flat()
+
+  // build the stop stations status array
+  const stopStationsStatusArray: StopStationStatus[] = array.map((stopStation) => ({
+    top: "idle",
+    bottom: "idle",
+    stationId: stopStation.stationId,
+  }))
+
+  // convert the array to an object, so we could use the station id as a key
+  const stopStationsObject = convertStopStationsStatusArrayToObject(stopStationsStatusArray)
+
+  // get the train that the next station is in
   const train = getTrainFromStationId(route, nextStationId)
 
-  // Good! Before we proceed, we need to check if the train is the first train in the route. if it is not, then we need to
-  // add the stations of the previous trains to the array
+  // get the index of the train in the route
   const trainIndex = route.trains.indexOf(train)
-  if (trainIndex !== 1) {
+
+  // if the train is not the first train in the route, we need to add the stations of the previous trains to the array
+  if (trainIndex > 0) {
     // we need to add the stations of the previous trains to the array
     for (let i = 0; i < trainIndex; i++) {
-      stations.push(route.trains[i].originStationId)
-      stations.push([...route.trains[i].stopStations.map((s) => s.stationId)])
-      stations.push(route.trains[i].destinationStationId)
+      route.trains[i].stopStations.forEach((s) => {
+        stopStationsObject[s.stationId] = { top: "passed", bottom: "passed" }
+      })
     }
   }
-
-  // Hurray! Now we need to add the stations of the current train to the array
-  // We need to look through the train originStation, stopStations and check if one of them equals
-  // to the `nextStationId`.
-  // If it's not, we add the station id to the array, until we find the `nextStationId`.
-  // Note: We won't check for the destinationStationId, because the UI will mark it as 'visited' if the ride
-  // status is set to `arrived`.
-
+  // moving on to add statuses for the stations in the current train
+  // if origin station is not the next station, it means the train has departed already, so we need to inspect the stop stations
   if (train.originStationId !== nextStationId) {
-    stations.push(train.originStationId)
+    const nextStationIndex = train.stopStations.findIndex((stopStation) => stopStation.stationId === nextStationId)
 
-    for (let i = 0; i < train.stopStations.length; i++) {
-      if (train.stopStations[i].stationId !== nextStationId) {
-        stations.push(train.stopStations[i].stationId)
-      } else {
-        // we found the nextStationId, so we break the loop
-        break
-      }
+    // the next station is not the first one, so we need to set the stop lines as follows:
+    if (nextStationIndex >= 0) {
+      stopStationsObject[nextStationId] = { top: "inProgress", bottom: "idle" }
+    }
+
+    let lastVisitedStationIndex = nextStationIndex - 1
+
+    // make sure the last visited station is not the origin station
+    if (lastVisitedStationIndex >= 0) {
+      const lastVisitedStationId = train.stopStations[lastVisitedStationIndex].stationId
+      stopStationsObject[lastVisitedStationId] = { top: "passed", bottom: "inProgress" }
+    }
+
+    // if the next station index is -1, it means the next station is the destination station -since it's not included in the stop stations array.
+    // so we need to set the last visited station to the last station in the stop stations array
+    if (nextStationIndex < 0) {
+      lastVisitedStationIndex = train.stopStations.length
+    }
+
+    // set the rest of the stations as passed
+    for (let i = 0; i < lastVisitedStationIndex; i++) {
+      const stationId = train.stopStations[i].stationId
+      stopStationsObject[stationId] = { top: "passed", bottom: "passed" }
     }
   }
+  // handle the destination station status
+  const destinationStationId = train.destinationStationId
 
-  return stations
+  // update the last stop station status if we're en route to the destination station
+  if (destinationStationId === nextStationId && status !== "arrived") {
+    const lastStationId = train.stopStations[train.stopStations.length - 1].stationId
+    stopStationsObject[lastStationId] = { top: "passed", bottom: "inProgress" }
+  }
+
+  if (destinationStationId === nextStationId && status === "arrived") {
+    stopStationsObject[nextStationId] = { top: "passed", bottom: "passed" }
+  } else if (destinationStationId === nextStationId && status !== "arrived") {
+    stopStationsObject[nextStationId] = { top: "passed", bottom: "inProgress" }
+  }
+
+  return stopStationsObject
+}
+
+function convertStopStationsStatusArrayToObject(stopStationsStatusArray: StopStationStatus[]) {
+  return stopStationsStatusArray.reduce((acc, stopStation) => {
+    acc[stopStation.stationId] = stopStation
+    return acc
+  }, {} as Record<number, StopStationStatus>)
 }

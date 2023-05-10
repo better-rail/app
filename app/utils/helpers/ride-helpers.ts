@@ -8,26 +8,32 @@ export function findClosestStationInRoute(route: RouteItem) {
 
   for (let i = 0; i < route.trains.length; i++) {
     const train = route.trains[i]
-    const departureTime = train.departureTime
-    const arrivalTime = train.arrivalTime
+    const departureTime = train.departureTime + route.delay
+    const arrivalTime = train.arrivalTime + route.delay
 
     if (departureTime > now) {
       return train.originStationId
     } else {
       for (let j = 0; j < train.stopStations.length; j++) {
         const station = train.stopStations[j]
-        if (station.arrivalTime > now) {
+        const arrivalTime = station.arrivalTime + route.delay
+        if (arrivalTime > now) {
           return station.stationId
         }
       }
     }
-
-    if (arrivalTime > now) {
+    if (arrivalTime + route.delay > now) {
       return train.destinationStationId
     }
   }
 
-  return route.trains[0].originStationId
+  // if we're here, we're probably at the end of the route
+  if (now > route.trains[route.trains.length - 1].arrivalTime + route.delay) {
+    return route.trains[route.trains.length - 1].destinationStationId
+  }
+
+  // default to the first station
+  return route.trains[0].destinationStationId
 }
 
 /// Get the train which includes the provided stop station
