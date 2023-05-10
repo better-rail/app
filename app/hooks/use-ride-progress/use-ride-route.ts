@@ -41,12 +41,14 @@ export function useRideRoute(route: RouteItem) {
     )
 
     setDelay(updatedRoute.delay)
+
+    return updatedRoute
   }
 
-  const updateRide = () => {
-    refetchRoute()
+  const updateRide = async () => {
+    const updatedRoute = await refetchRoute()
 
-    const stationId = findClosestStationInRoute(route)
+    const stationId = findClosestStationInRoute(updatedRoute)
     setNextStationId(stationId)
   }
 
