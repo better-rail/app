@@ -142,7 +142,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         <RouteListModal
           isVisible={isModalVisible}
           onOk={() => setIsModalVisible(false)}
-          routesDate={trainRoutes.routes[0]?.departureTime}
+          routesDate={trains.data[0].trains[0].departureTime}
         />
       )}
     </Screen>
