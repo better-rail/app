@@ -119,7 +119,7 @@ function getStopStationStatus({ route, nextStationId, status }: GetStopStationSt
     const lastStationId = train.stopStations[train.stopStations.length - 1].stationId
     stopStationsObject[lastStationId] = { top: "passed", bottom: "inProgress" }
   }
-
+  console.log(status)
   if (destinationStationId === nextStationId && status === "arrived") {
     stopStationsObject[nextStationId] = { top: "passed", bottom: "passed" }
   } else if (destinationStationId === nextStationId && status !== "arrived") {

@@ -8,15 +8,15 @@ export function useRideStatus({ route, delay, nextStationId }) {
   useEffect(() => {
     const train = getTrainFromStationId(route, nextStationId)
 
-    if (route.trains[0].originStationId != train.originStationId) {
+    if (Date.now() >= route.trains[route.trains.length - 1].arrivalTime + delay * 60000) {
+      setStatus("arrived")
+    } else if (route.trains[0].originStationId != train.originStationId) {
       // not the first train, possibly an exchange
       if (train.originStationId == nextStationId) {
         setStatus("inExchange")
       }
     } else if (train.originStationId != nextStationId) {
       setStatus("inTransit")
-    } else if (Date.now() >= route.trains[route.trains.length - 1].arrivalTime + delay * 60000) {
-      setStatus("arrived")
     }
   }, [route, nextStationId, delay])
 
