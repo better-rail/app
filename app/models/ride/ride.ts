@@ -36,6 +36,18 @@ export const RideModel = types
      */
     route: types.maybe(types.model(trainRouteSchema)),
   })
+  .views((self) => ({
+    /**
+     *
+     */
+    get originId() {
+      return self.route.trains[0].originStationId
+    },
+    get destinationId() {
+      const lastTrainIndex = self.route.trains.length - 1
+      return self.route.trains[lastTrainIndex].destinationStationId
+    },
+  }))
   .actions((self) => ({
     afterCreate() {
       if (self.id) {
