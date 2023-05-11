@@ -58,7 +58,11 @@ export function useRideRoute(route: RouteItem) {
       updateRide()
     }, 60 * 1000)
 
-    // initial refetch
+    // calculate the next station immidiately on mount
+    const stationId = findClosestStationInRoute(route)
+    setNextStationId(stationId)
+
+    // then check if there's a delay
     updateRide()
 
     // clear the timer when the component unmounts
