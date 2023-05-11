@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
-import React from "react"
+import React, { useMemo } from "react"
 import { observer } from "mobx-react-lite"
-import { OpaqueColorValue, View, ViewStyle } from "react-native"
+import { View, ViewStyle } from "react-native"
 import { RouteDetailsHeader, Screen } from "../../components"
 import { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import { color, spacing } from "../../theme"
@@ -16,8 +16,7 @@ import { LiveRideSheet } from "./components/live-ride-sheet"
 import { LongRouteWarning } from "./components/long-route-warning"
 import { StartRideButton } from "./components/start-ride-button"
 import { useRideProgress } from "../../hooks/use-ride-progress"
-import { RouteDetailsLiveRoute } from "./route-details-live-stations"
-import { RouteDetailsStaticRoute } from "./route-details-static-route"
+import { RouteLine } from "./components/route-line"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -27,10 +26,12 @@ const ROOT: ViewStyle = {
 export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
   const { routeItem } = route.params
   const { ride } = useStores()
-  console.log(ride.id)
-  const isRideOnThisRoute = ride.isRouteActive(routeItem)
+
+  // we re-run this check every time the ride changes
+  const isRideOnThisRoute = useMemo(() => ride.isRouteActive(routeItem), [ride.id])
 
   const progress = useRideProgress({ route: routeItem, enabled: isRideOnThisRoute })
+  const { stations } = progress
 
   const insets = useSafeAreaInsets()
 
@@ -69,11 +70,27 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
                 delay={train.delay}
               />
 
-              {isRideOnThisRoute ? (
-                <RouteDetailsStaticRoute train={train} />
-              ) : (
-                <RouteDetailsLiveRoute train={train} stations={progress.stations} />
-              )}
+              {train.stopStations.length > 0
+                ? train.stopStations.map((stop, index) => (
+                    <View key={stop.stationId}>
+                      <RouteStopCard
+                        stationName={stop.stationName}
+                        stopTime={format(stop.departureTime, "HH:mm")}
+                        delayedTime={train.delay ? format(stop.departureTime + train.delay * 60000, "HH:mm") : undefined}
+                        style={{ zIndex: 20 - index }}
+                        topLineState={isRideOnThisRoute ? stations[stop.stationId].top : "idle"}
+                        bottomLineState={isRideOnThisRoute ? stations[stop.stationId].bottom : "idle"}
+                      />
+                    </View>
+                  ))
+                : // if there are no stops, display a separating line between the route station cards
+                  train.stopStations.length === 0 && (
+                    <RouteLine
+                      style={{ start: "35.44%", height: 30 }}
+                      state={isRideOnThisRoute ? stations[train.destinationStationId].bottom : "idle"}
+                    />
+                  )}
+
               <RouteStationCard
                 stationName={train.destinationStationName}
                 stopTime={format(train.arrivalTime, "HH:mm")}
@@ -98,19 +115,8 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
       {isRideOnThisRoute ? (
         <LiveRideSheet progress={progress} ride={ride} />
       ) : (
-        <StartRideButton route={routeItem} ride={ride} screenName={route.name} />
+        <StartRideButton route={routeItem} screenName={route.name} />
       )}
     </Screen>
   )
 })
-
-export type RouteLineStateType = "idle" | "inProgress" | "passed"
-
-const ROUTE_LINE_STATE_COLORS = {
-  idle: color.separator,
-  passed: color.greenText,
-}
-
-export const RouteLine = ({ height = 10, state = "idle" }: { height?: number; state: "idle" | "inProgress" | "passed" }) => (
-  <View style={{ start: "35.44%", width: 4, height, backgroundColor: ROUTE_LINE_STATE_COLORS[state], zIndex: 0 }} />
-)
