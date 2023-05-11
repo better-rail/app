@@ -5,7 +5,7 @@ import CloseButton from "../../components/close-button/close-button"
 import { RouteItem } from "../../services/api"
 
 export type ActiveRideList = {
-  activeRide: { routeItem: RouteItem; originId: string; destinationId: string }
+  activeRide: { routeItem: RouteItem; originId: number; destinationId: number }
 }
 
 const ActiveRideStack = createStackNavigator<ActiveRideList>()
