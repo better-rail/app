@@ -7,7 +7,7 @@ export type RouteLineStateType = "idle" | "inProgress" | "passed"
 
 const ROUTE_STOP_LINE: ViewStyle = {
   width: 4,
-  height: 10 * fontScale,
+  height: 18 * fontScale,
   backgroundColor: color.separator,
   zIndex: 0,
 }
