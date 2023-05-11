@@ -17,6 +17,7 @@ import { LongRouteWarning } from "./components/long-route-warning"
 import { StartRideButton } from "./components/start-ride-button"
 import { useRideProgress } from "../../hooks/use-ride-progress"
 import { RouteLine } from "./components/route-line"
+import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -28,7 +29,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
   const { ride } = useStores()
 
   // we re-run this check every time the ride changes
-  const isRideOnThisRoute = useMemo(() => ride.isRouteActive(routeItem), [ride.id])
+  const isRideOnThisRoute = useMemo(() => ride.isRouteActive(routeItem), [ride.route])
 
   const progress = useRideProgress({ route: routeItem, enabled: isRideOnThisRoute })
   const { stations } = progress
@@ -112,10 +113,16 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
         })}
       </ScrollView>
 
-      {isRideOnThisRoute ? (
-        <LiveRideSheet progress={progress} ride={ride} />
-      ) : (
-        <StartRideButton route={routeItem} screenName={route.name} />
+      {isRideOnThisRoute && (
+        <Animated.View entering={FadeInDown} exiting={FadeOutDown} style={{ flex: 1 }}>
+          <LiveRideSheet progress={progress} ride={ride} />
+        </Animated.View>
+      )}
+
+      {!isRideOnThisRoute && (
+        <Animated.View entering={FadeInDown.delay(100)} exiting={FadeOutDown} style={{ flex: 1 }}>
+          <StartRideButton route={routeItem} screenName={route.name} />
+        </Animated.View>
       )}
     </Screen>
   )
