@@ -29,11 +29,13 @@ export function useRideProgress({ route, enabled }: { route: RouteItem; enabled:
   }
 
   useEffect(() => {
-    setInterval(() => {
+    const timer = setInterval(() => {
       calculateMinutesLeft()
     }, 1000 * 60)
 
     calculateMinutesLeft()
+
+    return () => clearInterval(timer)
   }, [status, delay, nextStationId])
 
   return { status, minutesLeft, stations, nextStationId }
