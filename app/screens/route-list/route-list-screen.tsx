@@ -127,6 +127,8 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           contentContainerStyle={{ paddingTop: spacing[4], paddingHorizontal: spacing[3], paddingBottom: spacing[3] }}
           estimatedItemSize={RouteCardHeight + spacing[3]}
           initialScrollIndex={initialScrollIndex}
+          // so the list will re-render when the ride route changes, and so the item will be marked
+          extraData={ride.route}
         />
       )}
 
