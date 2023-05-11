@@ -13,7 +13,6 @@ import { useQuery } from "react-query"
 import { NoTrainsFoundMessage } from "./components/no-trains-found-msg"
 import { useNetInfo } from "@react-native-community/netinfo"
 import { NoInternetConnection } from "./components/no-internet-connection"
-import { useRideRerender } from "../../hooks/use-ride-rerender"
 import { FlashList } from "@shopify/flash-list"
 
 const ROOT: ViewStyle = {
@@ -30,7 +29,6 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
 
   // this is for the screen to re-render when the user navigates back from the route details screen
   // and the user has started a ride - so the route card will be highlighted
-  useRideRerender(ride, navigation)
 
   const trains = useQuery(
     ["origin", originId, "destination", destinationId, "time", routePlan.date.getDate()],
