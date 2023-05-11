@@ -147,6 +147,19 @@ export const color = {
     android: PlatformColor("@color/greenBg"),
   }),
 
+  circleGreenFill: Platform.select({
+    ios: DynamicColorIOS({ light: "#B0E1A5", dark: "#698661" }),
+  }),
+
+  circleGreenBorder: Platform.select({
+    ios: DynamicColorIOS({ light: "#5CAB61", dark: "#475A42" }),
+  }),
+
+  circleOrangeBorder: Platform.select({
+    ios: DynamicColorIOS({ light: PlatformColor("systemOrange"), dark: "#E08A00" }),
+    android: PlatformColor("@color/yellow"),
+  }),
+
   /**
    * Storybook background for Text stories, or any stories where
    * the text color is color.text, which is white by default, and does not show

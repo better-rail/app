@@ -9,20 +9,28 @@ const ROUTE_STOP_CIRCLE: ViewStyle = {
   height: 30,
   borderRadius: 25,
   borderWidth: 3.5,
-  borderColor: Platform.select({ ios: color.separator, android: "#bdbdc2" }),
   zIndex: 10,
+}
+
+const ROUTE_STOP_CIRCLE_COLORS = {
+  passed: color.circleGreenFill,
+  idle: color.background,
+  inProgress: "#F5AF00",
 }
 
 export const RouteStationCircle = ({ state }: { state: string }) => {
   if (state === "inProgress") return <InProgressRouteStationCircle />
   return (
     <View
-      style={[ROUTE_STOP_CIRCLE, { backgroundColor: state === "idle" ? color.background : ROUTE_LINE_STATE_COLORS[state] }]}
+      style={[
+        ROUTE_STOP_CIRCLE,
+        { backgroundColor: ROUTE_STOP_CIRCLE_COLORS[state], borderColor: ROUTE_LINE_STATE_COLORS[state] },
+      ]}
     />
   )
 }
 
 const InProgressRouteStationCircle = () => {
   const animatedStyle = useRideProgressAnimation()
-  return <Animated.View style={[ROUTE_STOP_CIRCLE, animatedStyle]} />
+  return <Animated.View style={[ROUTE_STOP_CIRCLE, animatedStyle, { borderColor: ROUTE_LINE_STATE_COLORS["inProgress"] }]} />
 }
