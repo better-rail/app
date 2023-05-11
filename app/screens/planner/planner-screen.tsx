@@ -86,7 +86,7 @@ const CHANGE_DIRECTION_WRAPPER: ViewStyle = {
 // #endregion
 
 export const PlannerScreen = observer(function PlannerScreen({ navigation }: PlannerScreenProps) {
-  const { routePlan, trainRoutes } = useStores()
+  const { routePlan, trainRoutes, ride } = useStores()
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
 
@@ -217,130 +217,6 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     }
   }, [])
 
-  const routeItem = {
-    arrivalTime: 1683393120000,
-    arrivalTimeString: "2023-05-06T22:42:00",
-    delay: 0,
-    departureTime: 1683389820000,
-    departureTimeString: "2023-05-06T21:47:00",
-    duration: "55 minutes",
-    freeSeats: 0,
-    isExchange: false,
-    isMuchLonger: true,
-    isMuchShorter: false,
-    trains: [
-      {
-        arrivalTime: 1683393120000,
-        arrivalTimeString: "2023-05-06T22:42:00",
-        delay: 0,
-        departureTime: 1683389820000,
-        departureTimeString: "2023-05-06T21:47:00",
-        destinationPlatform: 2,
-        destinationStationId: 3500,
-        destinationStationName: "Herzliya",
-        lastStop: "Herzliya",
-        originPlatform: 3,
-        originStationId: 4600,
-        originStationName: "Tel Aviv - HaShalom",
-        routeStations: [],
-        stopStations: [
-          {
-            arrivalTime: 1683390000000,
-            arrivalTimeString: "2023-05-06T21:50:00",
-            crowded: 0.195,
-            departureTime: 1683390120000,
-            departureTimeString: "2023-05-06T21:52:00",
-            platform: 5,
-            stationId: 3700,
-            stationName: "Tel Aviv - Savidor Center",
-          },
-          {
-            arrivalTime: 1683390300000,
-            arrivalTimeString: "2023-05-06T21:55:00",
-            crowded: 0.16,
-            departureTime: 1683390300000,
-            departureTimeString: "2023-05-06T21:55:00",
-            platform: 3,
-            stationId: 3600,
-            stationName: "Tel Aviv - University",
-          },
-          {
-            arrivalTime: 1683390660000,
-            arrivalTimeString: "2023-05-06T22:01:00",
-            crowded: 0.1575,
-            departureTime: 1683390660000,
-            departureTimeString: "2023-05-06T22:01:00",
-            platform: 1,
-            stationId: 4100,
-            stationName: "Bnei Brak",
-          },
-          {
-            arrivalTime: 1683390960000,
-            arrivalTimeString: "2023-05-06T22:06:00",
-            crowded: 0.1175,
-            departureTime: 1683390960000,
-            departureTimeString: "2023-05-06T22:06:00",
-            platform: 2,
-            stationId: 4170,
-            stationName: "Petah Tikva - Kiryat Arye",
-          },
-          {
-            arrivalTime: 1683391260000,
-            arrivalTimeString: "2023-05-06T22:11:00",
-            crowded: 0.1,
-            departureTime: 1683391260000,
-            departureTimeString: "2023-05-06T22:11:00",
-            platform: 1,
-            stationId: 4250,
-            stationName: "Petah Tikva - Segula",
-          },
-          {
-            arrivalTime: 1683391620000,
-            arrivalTimeString: "2023-05-06T22:17:00",
-            crowded: 0.08,
-            departureTime: 1683391620000,
-            departureTimeString: "2023-05-06T22:17:00",
-            platform: 2,
-            stationId: 8800,
-            stationName: "Rosh Ha'Ayin - North",
-          },
-          {
-            arrivalTime: 1683391980000,
-            arrivalTimeString: "2023-05-06T22:23:00",
-            crowded: 0.055,
-            departureTime: 1683391980000,
-            departureTimeString: "2023-05-06T22:23:00",
-            platform: 2,
-            stationId: 8700,
-            stationName: "Kfar Sava - Nordau",
-          },
-          {
-            arrivalTime: 1683392220000,
-            arrivalTimeString: "2023-05-06T22:27:00",
-            crowded: 0.025,
-            departureTime: 1683392220000,
-            departureTimeString: "2023-05-06T22:27:00",
-            platform: 2,
-            stationId: 9200,
-            stationName: "Hod HaSharon - Sokolov",
-          },
-          {
-            arrivalTime: 1683392700000,
-            arrivalTimeString: "2023-05-06T22:35:00",
-            crowded: 0.015,
-            departureTime: 1683392700000,
-            departureTimeString: "2023-05-06T22:35:00",
-            platform: 1,
-            stationId: 2940,
-            stationName: "Ra'anana West",
-          },
-        ],
-        trainNumber: 7612,
-      },
-    ],
-    travelMessages: [],
-  }
-
   return (
     <Screen style={ROOT} preset="scroll">
       <View style={CONTENT_WRAPPER}>
@@ -350,7 +226,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
             onPress={() =>
               navigation.navigate("activeRideStack", {
                 screen: "activeRide",
-                params: { routeItem, originId: 4600, destinationId: 3500 },
+                params: { routeItem: ride.route, originId: ride.originId, destinationId: ride.destinationId },
               })
             }
           >
