@@ -86,7 +86,7 @@ export interface RouteDetailsHeaderProps {
   /**
    * The screen name we're displaying the header inside
    */
-  screenName: "routeDetails" | "activeRide"
+  screenName?: "routeDetails" | "activeRide"
   style?: ViewStyle
 }
 
