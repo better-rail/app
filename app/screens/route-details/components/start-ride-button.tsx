@@ -1,4 +1,5 @@
 import { Alert, Dimensions, Image, ImageStyle, Platform, View, ViewStyle } from "react-native"
+import { observer } from "mobx-react-lite"
 import { Button } from "../../../components"
 import { isRTL, translate } from "../../../i18n"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -7,6 +8,7 @@ import { Ride } from "../../../models/ride/ride"
 import { differenceInMinutes, isAfter } from "date-fns"
 import { timezoneCorrection } from "../../../utils/helpers/date-helpers"
 import { color } from "../../../theme"
+import { useStores } from "../../../models"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -29,12 +31,12 @@ const TRAIN_ICON: ImageStyle = {
 
 interface StartRideButtonProps {
   route: RouteItem
-  ride: Ride
   screenName: "routeDetails" | "activeRide"
 }
 
-export function StartRideButton(props: StartRideButtonProps) {
-  const { route, ride, screenName } = props
+export const StartRideButton = observer(function StartRideButton(props: StartRideButtonProps) {
+  const { ride } = useStores()
+  const { route, screenName } = props
   const insets = useSafeAreaInsets()
 
   /*
@@ -81,4 +83,4 @@ export function StartRideButton(props: StartRideButtonProps) {
       />
     </View>
   )
-}
+})
