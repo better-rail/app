@@ -63,8 +63,6 @@ export const RideModel = types
 
       startRideHandler(route)
         .then((rideId) => {
-          console.log("done!", rideId)
-          this.setRoute(route)
           this.setRideId(rideId)
           this.setRideLoading(false)
         })
