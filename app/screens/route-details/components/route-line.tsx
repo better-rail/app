@@ -7,7 +7,6 @@ import { useAnimatedBackground } from "../../../hooks/animations/use-animated-co
 const ROUTE_STOP_LINE: ViewStyle = {
   width: 4,
   height: 18 * fontScale,
-  backgroundColor: color.separator,
   zIndex: 0,
 }
 

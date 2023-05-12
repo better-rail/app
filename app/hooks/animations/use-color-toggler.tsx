@@ -5,8 +5,8 @@ import { useSharedValue, withTiming } from "react-native-reanimated"
  * Helper hook to toggle between two colors, used for color interpolation.
  */
 export function useColorToggler(color: string) {
-  const [firstColor, setFirstColor] = useState("#000")
-  const [secondColor, setSecondColor] = useState("#000")
+  const [firstColor, setFirstColor] = useState(color)
+  const [secondColor, setSecondColor] = useState(color)
   const progress = useSharedValue(0)
 
   useEffect(() => {
