@@ -73,6 +73,7 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
         loading={ride.loading}
         disabled={isStartRideButtonDisabled}
         onDisabledPress={() => {
+          HapticFeedback.trigger("notificationError")
           let message = ""
           if (activeRide) {
             message = translate("ride.activeRideAlert")
@@ -84,7 +85,10 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
 
           Alert.alert(message)
         }}
-        onPress={() => ride.startRide(route)}
+        onPress={() => {
+          HapticFeedback.trigger("notificationSuccess")
+          ride.startRide(route)
+        }}
       />
     </View>
   )
