@@ -1,12 +1,14 @@
 import React from "react"
 import { View, TextStyle, ViewStyle, ImageStyle, Image, Dimensions } from "react-native"
 import LinearGradient from "react-native-linear-gradient"
+import InAppReview from "react-native-in-app-review"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Screen, Text, Button } from "../../components"
 import { translate } from "../../i18n"
-import { NewFeatureStackProps } from "../../navigators/new-features/new-features-navigator"
+import * as storage from "../../utils/storage"
+import { WidgetOnboardingStackProps } from "../../navigators/widget-onboarding/widget-onboarding-navigator"
 import { color, fontScale, spacing } from "../../theme"
-import { NewFeatureBackground } from "./new-features-background"
+import { WidgetOnboardingBackground } from "./widget-onboarding-background"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -53,31 +55,41 @@ const IMAGE_STYLE: ImageStyle = {
   marginBottom: spacing[4],
 }
 
-export const WidgetStep3 = function WidgetStep3({ navigation }: NewFeatureStackProps) {
+export const WidgetStep3 = function WidgetStep3({ navigation }: WidgetOnboardingStackProps) {
   const insets = useSafeAreaInsets()
 
   return (
     <Screen unsafe={true} statusBar="light-content" preset="scroll">
-      <NewFeatureBackground />
+      <WidgetOnboardingBackground />
       <View style={{ paddingHorizontal: spacing[6], marginTop: spacing[6] + 4 }}>
-        <Text preset="header" style={TITLE} tx="newFeature.stacking" />
+        <Text preset="header" style={TITLE} tx="widgetOnboarding.stacking" />
 
-        <Text style={[TEXT, { textAlign: "center", marginBottom: spacing[5] }]} tx="newFeature.stackingIntro"></Text>
-        <Text style={TEXT} tx="newFeature.stackingStep1" />
-        <Text style={TEXT} tx="newFeature.stackingStep2" />
+        <Text style={[TEXT, { textAlign: "center", marginBottom: spacing[5] }]} tx="widgetOnboarding.stackingIntro"></Text>
+        <Text style={TEXT} tx="widgetOnboarding.stackingStep1" />
+        <Text style={TEXT} tx="widgetOnboarding.stackingStep2" />
       </View>
       <View style={IMAGE_CONTAINER}>
         <Image source={require("../../../assets/widget-stack-hebrew.gif")} style={IMAGE_STYLE} />
       </View>
       <View style={{ paddingHorizontal: spacing[6], marginBottom: spacing[3] }}>
-        <Text style={TEXT} tx="newFeature.stackingStep3" />
-        <Text style={TEXT} tx="newFeature.stackingStep4" />
+        <Text style={TEXT} tx="widgetOnboarding.stackingStep3" />
+        <Text style={TEXT} tx="widgetOnboarding.stackingStep4" />
       </View>
 
       <View style={{ alignItems: "center", marginTop: fontScale < 1.2 ? spacing[4] + 12 : 0, marginBottom: insets.bottom + 4 }}>
         <Button
-          title={translate("common.next")}
-          onPress={() => navigation.navigate("step4")}
+          title={translate("common.done")}
+          onPress={() => {
+            navigation.navigate("settingsStack")
+
+            storage.load("lastInAppReview").then((value) => {
+              if (!value) {
+                InAppReview.RequestInAppReview().then(() => {
+                  storage.save("lastInAppReview", new Date().toISOString())
+                })
+              }
+            })
+          }}
           containerStyle={{ width: deviceWidth - 40 }}
         />
       </View>
