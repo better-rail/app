@@ -3,9 +3,9 @@ import { View, TextStyle, ViewStyle, ImageStyle, Image, Dimensions } from "react
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Screen, Text, Button } from "../../components"
 import { translate, userLocale } from "../../i18n"
-import { NewFeatureStackProps } from "../../navigators/new-features/new-features-navigator"
+import { WidgetOnboardingStackProps } from "../../navigators/widget-onboarding/widget-onboarding-navigator"
 import { color, fontScale, spacing } from "../../theme"
-import { NewFeatureBackground } from "./new-features-background"
+import { WidgetOnboardingBackground } from "./widget-onboarding-background"
 
 const { width: deviceWidth, height: deviceHeight } = Dimensions.get("screen")
 
@@ -42,7 +42,7 @@ const IMAGE_STYLE: ImageStyle = {
   marginBottom: spacing[4],
 }
 
-export const WidgetStep1 = function WidgetStep1({ navigation }: NewFeatureStackProps) {
+export const WidgetStep1 = function WidgetStep1({ navigation }: WidgetOnboardingStackProps) {
   const insets = useSafeAreaInsets()
 
   const addWidgetImage = useMemo(() => {
@@ -55,18 +55,18 @@ export const WidgetStep1 = function WidgetStep1({ navigation }: NewFeatureStackP
 
   return (
     <Screen unsafe={true} statusBar="light-content" preset="scroll">
-      <NewFeatureBackground />
+      <WidgetOnboardingBackground />
 
       <View style={{ paddingHorizontal: spacing[6], marginTop: spacing[7] }}>
-        <Text preset="header" style={TITLE} tx="newFeature.howToAdd" maxFontSizeMultiplier={1.2} />
-        <Text style={TEXT} tx="newFeature.addStep1" />
-        <Text style={TEXT} tx="newFeature.addStep2" />
+        <Text preset="header" style={TITLE} tx="widgetOnboarding.howToAdd" maxFontSizeMultiplier={1.2} />
+        <Text style={TEXT} tx="widgetOnboarding.addStep1" />
+        <Text style={TEXT} tx="widgetOnboarding.addStep2" />
       </View>
       <View style={IMAGE_CONTAINER}>
         <Image source={addWidgetImage} style={IMAGE_STYLE} />
       </View>
       <View style={{ paddingHorizontal: spacing[6], marginBottom: spacing[4] }}>
-        <Text style={TEXT} tx="newFeature.addStep3" />
+        <Text style={TEXT} tx="widgetOnboarding.addStep3" />
       </View>
       <View
         style={{
