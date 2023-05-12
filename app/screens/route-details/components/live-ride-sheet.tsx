@@ -1,11 +1,9 @@
+import { useMemo } from "react"
 import { Pressable, PressableProps, View, ViewStyle, Image, useColorScheme } from "react-native"
 import { BlurView } from "@react-native-community/blur"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { color } from "../../../theme"
 import { Text } from "../../../components"
-import { useRideProgress } from "../../../hooks/use-ride-progress/use-ride-progress"
-import { RouteItem } from "../../../services/api"
-import { useMemo } from "react"
 import { Ride } from "../../../models/ride/ride"
 
 const SHEET_CONTAINER: ViewStyle = {

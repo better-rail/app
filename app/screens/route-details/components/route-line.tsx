@@ -1,6 +1,6 @@
 import { ViewStyle } from "react-native"
 import Animated from "react-native-reanimated"
-import { color, fontScale } from "../../../theme"
+import { fontScale } from "../../../theme"
 import { RouteElementStateType, useRouteColors } from "./use-route-colors"
 import { useAnimatedBackground } from "../../../hooks/animations/use-animated-color-props"
 
