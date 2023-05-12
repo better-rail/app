@@ -115,7 +115,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
 
       {isRideOnThisRoute && (
         <Animated.View entering={FadeInDown} exiting={FadeOutDown} style={{ flex: 1 }}>
-          <LiveRideSheet progress={progress} ride={ride} />
+          <LiveRideSheet progress={progress} ride={ride} screenName={route.name} />
         </Animated.View>
       )}
 

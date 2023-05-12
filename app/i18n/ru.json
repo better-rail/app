@@ -133,6 +133,7 @@
     "goodbyes": "Have a nice ride!\n- Guy"
   },
   "ride": {
+    "live": "Live",
     "startRide": "начать поездку",
     "stopRide": "Остановить поездку",
     "rideInFutureAlert": "Начать новую поездку можно только за час до отправления поезда.",

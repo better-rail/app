@@ -146,6 +146,7 @@
     "goodbyes": "Have a nice ride!\n- Guy"
   },
   "ride": {
+    "live": "Live",
     "startRide": "Start Ride",
     "stopRide": "Stop Ride",
     "rideInFutureAlert": "You can start a new ride only from an hour before the train's departure time.",

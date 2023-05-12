@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { color } from "../../../theme"
 import { Text } from "../../../components"
 import { Ride } from "../../../models/ride/ride"
+import { useNavigation } from "@react-navigation/native"
 
 const SHEET_CONTAINER: ViewStyle = {
   height: 75,
@@ -18,12 +19,17 @@ const SHEET_CONTAINER: ViewStyle = {
   borderTopWidth: 1,
 }
 // TODO: add typings to progress
-export function LiveRideSheet({ progress, ride }: { progress; ride: Ride }) {
+export function LiveRideSheet(props: { progress; ride: Ride; screenName: "routeDetails" | "activeRide" }) {
+  const { progress, ride, screenName } = props
+
+  const navigation = useNavigation()
   const insets = useSafeAreaInsets()
+
   const colorScheme = useColorScheme()
   const isDarkMode = colorScheme === "dark"
-  const { status, minutesLeft } = progress
 
+  const { status, minutesLeft } = progress
+  console.log(screenName)
   const progressText = useMemo(() => {
     if (status === "inTransit" && minutesLeft < 2) {
       return `Train arrives to destination`
@@ -48,7 +54,15 @@ export function LiveRideSheet({ progress, ride }: { progress; ride: Ride }) {
       }}
     >
       <Text style={{ fontSize: 20, fontWeight: "bold", color: color.success }}>{progressText}</Text>
-      <StopButton onPress={() => ride.stopRide(ride.id)} />
+      <StopButton
+        onPress={() => {
+          ride.stopRide(ride.id)
+
+          if (screenName === "activeRide") {
+            navigation.goBack()
+          }
+        }}
+      />
       <BlurView
         style={{ position: "absolute", top: 0, left: 0, bottom: 0, right: 0, zIndex: -1 }}
         blurType={isDarkMode ? "ultraThinMaterialDark" : "xlight"}

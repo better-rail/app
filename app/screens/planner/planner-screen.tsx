@@ -19,7 +19,7 @@ import HapticFeedback from "react-native-haptic-feedback"
 import { color, primaryFontIOS, fontScale, spacing } from "../../theme"
 import { PlannerScreenProps } from "../../navigators/main-navigator"
 import { useStations } from "../../data/stations"
-import { translate, useFormattedDate, userLocale } from "../../i18n"
+import { isRTL, translate, useFormattedDate, userLocale } from "../../i18n"
 import DatePickerModal from "../../components/date-picker-modal"
 import { useQuery } from "react-query"
 import { isWeekend } from "../../utils/helpers/date-helpers"
@@ -65,8 +65,16 @@ const NEW_FEATURES_BUTTON: ViewStyle = {
   paddingVertical: spacing[0] + 1 * fontScale,
   flexDirection: "row",
   alignItems: "center",
-  backgroundColor: color.secondary,
+  backgroundColor: color.success,
   borderRadius: 30,
+}
+
+const LIVE_BUTTON_IMAGE: ImageStyle = {
+  height: isRTL ? 20 : 18,
+  width: isRTL ? 20 : 18,
+  marginEnd: isRTL ? spacing[1] : spacing[2],
+  tintColor: "white",
+  transform: isRTL ? [{ rotateY: "220deg" }] : undefined,
 }
 
 const HEADER_TITLE: TextStyle = {
@@ -221,21 +229,21 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     <Screen style={ROOT} preset="scroll">
       <View style={CONTENT_WRAPPER}>
         <View style={HEADER_WRAPPER}>
-          <TouchableOpacity
-            style={NEW_FEATURES_BUTTON}
-            onPress={() =>
-              navigation.navigate("activeRideStack", {
-                screen: "activeRide",
-                params: { routeItem: ride.route, originId: ride.originId, destinationId: ride.destinationId },
-              })
-            }
-          >
-            <Image
-              source={require("../../../assets/sparkles.png")}
-              style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }}
-            />
-            <Text style={{ color: "white", fontWeight: "500" }} tx="common.new" />
-          </TouchableOpacity>
+          {ride.route && (
+            <TouchableOpacity
+              style={NEW_FEATURES_BUTTON}
+              onPress={() =>
+                // @ts-expect-error
+                navigation.navigate("activeRideStack", {
+                  screen: "activeRide",
+                  params: { routeItem: ride.route, originId: ride.originId, destinationId: ride.destinationId },
+                })
+              }
+            >
+              <Image source={require("../../../assets/train.ios.png")} style={LIVE_BUTTON_IMAGE} />
+              <Text style={{ color: "white", fontWeight: "500" }} tx="ride.live" />
+            </TouchableOpacity>
+          )}
           <TouchableOpacity onPress={() => navigation.navigate("settingsStack")} activeOpacity={0.8} accessibilityLabel="הגדרות">
             <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />
           </TouchableOpacity>
