@@ -53,7 +53,7 @@
     "language": "لغة",
     "about": "عن",
     "share": "مشاركة Better Rail",
-    "widget": "إضافة القطعة إلى الشاشة الرئيسية",
+    "widget": "دليل القطعة",
     "shareMessage": "البديل لتطبيق قطار إسرائيل",
     "rateIOS": "للتقييم في App Store",
     "rateAndroid": "للتقييم في Play Store",
@@ -103,7 +103,6 @@
     "foundTrainsAt": "هنالك قطارات ابتداءً مِن"
   },
   "widgetOnboarding": {
-    "newBetterRail": "they're finally here",
     "homeWidgets": "Home Screen Widgets",
     "widgetDescription": "Beautiful widgets for checking the upcoming train schedule.",
     "widgetGuide": "We made a quick set up guide with a few tips on how to get the full benefit from them.",
@@ -123,13 +122,7 @@
     "stackingStep1": "1. Touch and hold an area on your Home Screen until the apps jiggle.",
     "stackingStep2": "2. Drag a widget on top of another widget.",
     "stackingStep3": "3. Inside the stack you can scroll between the two widgets.",
-    "stackingStep4": "Tip: You can view the full train scheduale quickly by tapping on the widget.",
-
-    "enjoyTheWidgets": "Enjoy the widgets!",
-    "myCreator": "My creator would like to say a few words.",
-    "heyThere": "Hey there! \nI made Better Rail in hopes it'll make public transportation a little more accessible to the public. It's offered for free, without ads or trackers.",
-    "pleaseConsider": "Please consider helping it to reach a wider audience by giving a review in the App Store or sharing it with your friends 😊",
-    "goodbyes": "Have a nice ride!\n- Guy"
+    "stackingStep4": "Tip: You can view the full train scheduale quickly by tapping on the widget."
   },
   "ride": {
     "startRide": "ابدأ الركوب",

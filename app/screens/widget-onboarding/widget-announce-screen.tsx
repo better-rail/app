@@ -43,7 +43,6 @@ export const WidgetAnnouncement = function WidgetAnnouncement({ navigation }: Wi
     <Screen unsafe={true} statusBar="light-content" preset="scroll">
       <WidgetOnboardingBackground />
       <View style={{ alignItems: "center", paddingHorizontal: spacing[5], marginTop: spacing[6] + 4 }}>
-        <Text style={SUB_TITLE} tx="widgetOnboarding.newBetterRail" maxFontSizeMultiplier={1.1} />
         <Text preset="header" style={TITLE} tx="widgetOnboarding.homeWidgets" maxFontSizeMultiplier={1.11} />
         <Text style={TEXT} tx="widgetOnboarding.widgetDescription" />
         <Image

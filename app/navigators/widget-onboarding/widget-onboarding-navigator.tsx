@@ -1,6 +1,6 @@
 import React from "react"
 import { createStackNavigator, StackScreenProps } from "@react-navigation/stack"
-import { WidgetAnnouncement, WidgetStep1, WidgetStep2, WidgetStep3, WidgetStep4 } from "../../screens"
+import { WidgetAnnouncement, WidgetStep1, WidgetStep2, WidgetStep3 } from "../../screens"
 import { color } from "../../theme"
 
 export type WidgetOnboardingsParamList = {
@@ -26,6 +26,5 @@ export const WidgetOnboardingNavigator = () => (
     <WidgetOnboardingStack.Screen name="step1" component={WidgetStep1} />
     <WidgetOnboardingStack.Screen name="step2" component={WidgetStep2} />
     <WidgetOnboardingStack.Screen name="step3" component={WidgetStep3} />
-    <WidgetOnboardingStack.Screen name="step4" component={WidgetStep4} />
   </WidgetOnboardingStack.Navigator>
 )

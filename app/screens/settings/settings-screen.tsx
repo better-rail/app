@@ -95,7 +95,6 @@ export const SettingsScreen = observer(function SettingsScreen({ navigation }: S
             last
             title={translate("settings.widget")}
             icon="📱"
-            chevron
             onPress={() => navigation.navigate("widgetOnboardingStack")}
           />
         </View>

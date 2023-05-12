@@ -1,9 +1,11 @@
 import React from "react"
 import { View, TextStyle, ViewStyle, ImageStyle, Image, Dimensions } from "react-native"
 import LinearGradient from "react-native-linear-gradient"
+import InAppReview from "react-native-in-app-review"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Screen, Text, Button } from "../../components"
 import { translate } from "../../i18n"
+import * as storage from "../../utils/storage"
 import { WidgetOnboardingStackProps } from "../../navigators/widget-onboarding/widget-onboarding-navigator"
 import { color, fontScale, spacing } from "../../theme"
 import { WidgetOnboardingBackground } from "./widget-onboarding-background"
@@ -76,8 +78,18 @@ export const WidgetStep3 = function WidgetStep3({ navigation }: WidgetOnboarding
 
       <View style={{ alignItems: "center", marginTop: fontScale < 1.2 ? spacing[4] + 12 : 0, marginBottom: insets.bottom + 4 }}>
         <Button
-          title={translate("common.next")}
-          onPress={() => navigation.navigate("step4")}
+          title={translate("common.done")}
+          onPress={() => {
+            navigation.navigate("settingsStack")
+
+            storage.load("lastInAppReview").then((value) => {
+              if (!value) {
+                InAppReview.RequestInAppReview().then(() => {
+                  storage.save("lastInAppReview", new Date().toISOString())
+                })
+              }
+            })
+          }}
           containerStyle={{ width: deviceWidth - 40 }}
         />
       </View>
