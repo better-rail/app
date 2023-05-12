@@ -3,9 +3,9 @@ import { View, TextStyle, ViewStyle, ImageStyle, Image, Dimensions } from "react
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Screen, Text, Button } from "../../components"
 import { translate, userLocale } from "../../i18n"
-import { NewFeatureStackProps } from "../../navigators/new-features/new-features-navigator"
+import { WidgetOnboardingStackProps } from "../../navigators/widget-onboarding/widget-onboarding-navigator"
 import { color, fontScale, spacing } from "../../theme"
-import { NewFeatureBackground } from "./new-features-background"
+import { WidgetOnboardingBackground } from "./widget-onboarding-background"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -43,7 +43,7 @@ const IMAGE_STYLE: ImageStyle = {
   marginBottom: spacing[4],
 }
 
-export const WidgetStep2 = function WidgetStep2({ navigation }: NewFeatureStackProps) {
+export const WidgetStep2 = function WidgetStep2({ navigation }: WidgetOnboardingStackProps) {
   const insets = useSafeAreaInsets()
 
   let configImage
@@ -56,17 +56,17 @@ export const WidgetStep2 = function WidgetStep2({ navigation }: NewFeatureStackP
 
   return (
     <Screen unsafe={true} statusBar="light-content" preset="scroll">
-      <NewFeatureBackground />
+      <WidgetOnboardingBackground />
       <View style={{ paddingHorizontal: spacing[6], marginTop: spacing[6] + 4 }}>
-        <Text preset="header" style={TITLE} tx="newFeature.configuring" maxFontSizeMultiplier={1.2} />
-        <Text style={TEXT} tx="newFeature.configStep1" />
-        <Text style={TEXT} tx="newFeature.configStep2" />
+        <Text preset="header" style={TITLE} tx="widgetOnboarding.configuring" maxFontSizeMultiplier={1.2} />
+        <Text style={TEXT} tx="widgetOnboarding.configStep1" />
+        <Text style={TEXT} tx="widgetOnboarding.configStep2" />
       </View>
       <View style={IMAGE_CONTAINER}>
         <Image source={configImage} style={IMAGE_STYLE} />
       </View>
       <View style={{ paddingHorizontal: spacing[6], marginBottom: spacing[3] }}>
-        <Text style={TEXT} tx="newFeature.configStep3" />
+        <Text style={TEXT} tx="widgetOnboarding.configStep3" />
       </View>
       <View style={{ alignItems: "center", marginTop: fontScale < 1.2 ? spacing[4] : 0, marginBottom: insets.bottom + 4 }}>
         <Button
