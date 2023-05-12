@@ -1,9 +1,8 @@
-import { View, ViewStyle } from "react-native"
-import { color, fontScale } from "../../../theme"
+import { ViewStyle } from "react-native"
 import Animated from "react-native-reanimated"
-import { useRideProgressAnimation } from "../../../hooks/use-ride-progress"
-
-export type RouteLineStateType = "idle" | "inProgress" | "passed"
+import { color, fontScale } from "../../../theme"
+import { RouteElementStateType, useRouteColors } from "./use-route-colors"
+import { useAnimatedBackground } from "../../../hooks/animations/use-animated-color-props"
 
 const ROUTE_STOP_LINE: ViewStyle = {
   width: 4,
@@ -12,26 +11,14 @@ const ROUTE_STOP_LINE: ViewStyle = {
   zIndex: 0,
 }
 
-export const ROUTE_LINE_STATE_COLORS = {
-  idle: color.separator,
-  inProgress: color.circleOrangeBorder,
-  passed: color.circleGreenBorder,
-}
-
 interface RouteLineProps {
-  state?: RouteLineStateType
+  state?: RouteElementStateType
   style?: ViewStyle
 }
 
 export const RouteLine = ({ state = "idle", style }: RouteLineProps) => {
-  if (state === "inProgress") {
-    return <InProgressLine />
-  }
+  const bgColor = useRouteColors(state, "line")
+  const backgroundStyle = useAnimatedBackground(bgColor)
 
-  return <View style={[ROUTE_STOP_LINE, { backgroundColor: ROUTE_LINE_STATE_COLORS[state] }, style]} />
-}
-
-const InProgressLine = ({ style }: { style?: any }) => {
-  const animatedStyle = useRideProgressAnimation()
-  return <Animated.View style={[ROUTE_STOP_LINE, animatedStyle, style]} />
+  return <Animated.View style={[ROUTE_STOP_LINE, backgroundStyle, style]} />
 }

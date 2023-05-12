@@ -1,8 +1,9 @@
-import { Platform, View, ViewStyle } from "react-native"
+import { ViewStyle } from "react-native"
 import Animated from "react-native-reanimated"
-import { color } from "../../../theme"
 import { ROUTE_LINE_STATE_COLORS } from "./route-line"
 import { useRideProgressAnimation } from "../../../hooks/use-ride-progress"
+import { useAnimatedBackground, useAnimatedBorder } from "../../../hooks/animations/use-animated-color-props"
+import { RouteElementStateType, useRouteColors } from "./use-route-colors"
 
 const ROUTE_STOP_CIRCLE: ViewStyle = {
   width: 30,
@@ -12,25 +13,12 @@ const ROUTE_STOP_CIRCLE: ViewStyle = {
   zIndex: 10,
 }
 
-const ROUTE_STOP_CIRCLE_COLORS = {
-  passed: color.circleGreenFill,
-  idle: color.background,
-  inProgress: "#F5AF00",
-}
+export const RouteStationCircle = ({ state }: { state: RouteElementStateType }) => {
+  const bgColor = useRouteColors(state, "circle")
+  const borderColor = useRouteColors(state, "line")
 
-export const RouteStationCircle = ({ state }: { state: string }) => {
-  if (state === "inProgress") return <InProgressRouteStationCircle />
-  return (
-    <View
-      style={[
-        ROUTE_STOP_CIRCLE,
-        { backgroundColor: ROUTE_STOP_CIRCLE_COLORS[state], borderColor: ROUTE_LINE_STATE_COLORS[state] },
-      ]}
-    />
-  )
-}
+  const backgroundStyle = useAnimatedBackground(bgColor)
+  const borderStyle = useAnimatedBorder(borderColor)
 
-const InProgressRouteStationCircle = () => {
-  const animatedStyle = useRideProgressAnimation()
-  return <Animated.View style={[ROUTE_STOP_CIRCLE, animatedStyle, { borderColor: ROUTE_LINE_STATE_COLORS["inProgress"] }]} />
+  return <Animated.View style={[ROUTE_STOP_CIRCLE, backgroundStyle, borderStyle]} />
 }
