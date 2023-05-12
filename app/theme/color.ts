@@ -147,6 +147,11 @@ export const color = {
     android: PlatformColor("@color/greenBg"),
   }),
 
+  stop: Platform.select({
+    ios: DynamicColorIOS({ light: palette.pinky, dark: "rgba(241, 0, 27, 0.7)" }),
+    android: PlatformColor("@color/red"),
+  }),
+
   /**
    * Storybook background for Text stories, or any stories where
    * the text color is color.text, which is white by default, and does not show
