@@ -1,10 +1,10 @@
 import { Alert, Dimensions, Image, ImageStyle, Platform, View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
+import HapticFeedback from "react-native-haptic-feedback"
 import { Button } from "../../../components"
 import { isRTL, translate } from "../../../i18n"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { RouteItem } from "../../../services/api"
-import { Ride } from "../../../models/ride/ride"
 import { differenceInMinutes, isAfter } from "date-fns"
 import { timezoneCorrection } from "../../../utils/helpers/date-helpers"
 import { color } from "../../../theme"
@@ -13,12 +13,10 @@ import { useStores } from "../../../models"
 const { width: deviceWidth } = Dimensions.get("screen")
 
 const START_RIDE_BUTTON: ViewStyle = {
-  backgroundColor: color.primaryDarker,
-  width: 148,
   shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.15,
-  shadowRadius: 3,
-  shadowColor: "#000",
+  shadowOpacity: 0.2,
+  shadowRadius: 2,
+  shadowColor: "#333",
   elevation: 4,
 }
 
@@ -57,7 +55,14 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
   const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || activeRide
 
   return (
-    <View style={{ position: "absolute", bottom: insets.bottom > 0 ? insets.bottom + 5 : 15, right: 15 + insets.right }}>
+    <View
+      style={{
+        position: "absolute",
+        ...START_RIDE_BUTTON,
+        bottom: insets.bottom > 0 ? insets.bottom + 5 : 15,
+        right: 15 + insets.right,
+      }}
+    >
       <Button
         style={{ backgroundColor: color.secondary, width: 148 }}
         icon={
