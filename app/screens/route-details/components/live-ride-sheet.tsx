@@ -29,7 +29,7 @@ export function LiveRideSheet(props: { progress; ride: Ride; screenName: "routeD
   const isDarkMode = colorScheme === "dark"
 
   const { status, minutesLeft } = progress
-  console.log(screenName)
+
   const progressText = useMemo(() => {
     if (status === "inTransit" && minutesLeft < 2) {
       return `Train arrives to destination`
