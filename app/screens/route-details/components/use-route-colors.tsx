@@ -34,5 +34,5 @@ export function useRouteColors(state: RouteElementStateType, element: "line" | "
     }
 
     return ROUTE_STOP_CIRCLE_COLORS[state][colorScheme]
-  }, [state])
+  }, [state, colorScheme])
 }
