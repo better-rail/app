@@ -12,7 +12,6 @@ export function useRideProgress({ route, enabled }: { route: RouteItem; enabled:
   const status = useRideStatus({ route, delay, nextStationId })
   const stations = getStopStationStatus({ route, nextStationId, status, enabled })
 
-  // update minutes left
   const calculateMinutesLeft = () => {
     let minutes = 0
     const train = getTrainFromStationId(route, nextStationId)
