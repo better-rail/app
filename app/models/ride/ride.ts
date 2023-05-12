@@ -83,7 +83,7 @@ export const RideModel = types
       })
     },
     setRoute(route: RouteItem) {
-      self.route = toJS(route) as any
+      self.route = route as any
     },
     setRideLoading(state: boolean) {
       self.loading = state
