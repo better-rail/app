@@ -1,3 +1,4 @@
+import { keyBy } from "lodash"
 import { RouteElementStateType } from "../../screens/route-details/components/use-route-colors"
 import { RouteItem } from "../../services/api"
 import { getTrainFromStationId } from "../../utils/helpers/ride-helpers"
@@ -32,7 +33,7 @@ export function getStopStationStatus({ route, nextStationId, status, enabled }: 
   }))
 
   // convert the array to an object, so we could use the station id as a key
-  const stopStationsObject = convertStopStationsStatusArrayToObject(stopStationsStatusArray)
+  const stopStationsObject = keyBy(stopStationsStatusArray, "stationId")
 
   // get the train that the next station is in
   const train = getTrainFromStationId(route, nextStationId)
@@ -95,11 +96,4 @@ export function getStopStationStatus({ route, nextStationId, status, enabled }: 
   }
 
   return stopStationsObject
-}
-
-function convertStopStationsStatusArrayToObject(stopStationsStatusArray: StopStationStatusItem[]) {
-  return stopStationsStatusArray.reduce((acc, stopStation) => {
-    acc[stopStation.stationId] = stopStation
-    return acc
-  }, {} as Record<number, StopStationStatusItem>)
 }
