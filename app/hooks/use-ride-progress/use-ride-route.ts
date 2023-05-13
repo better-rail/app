@@ -19,7 +19,7 @@ export function useRideRoute(route: RouteItem) {
   const [nextStationId, setNextStationId] = useState<number>(route.trains[0].originStationId)
   const [delay, setDelay] = useState<number>(0)
 
-  const [originId, destinationId, date, time] = useMemo(() => getRouteDetails(route), [route])
+  const { originId, destinationId, date, time } = useMemo(() => getRouteDetails(route), [route])
 
   const refetchRoute = async () => {
     // fetch route - needed for getting delay information
@@ -80,5 +80,5 @@ function getRouteDetails(route: RouteItem) {
   const destinationId = route.trains[route.trains.length - 1].destinationStationId.toString()
   const [date, time] = formatDateForAPI(route.departureTime)
 
-  return [originId, destinationId, date, time]
+  return { originId, destinationId, date, time }
 }
