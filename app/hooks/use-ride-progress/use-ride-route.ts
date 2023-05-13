@@ -6,6 +6,8 @@ import { formatDateForAPI } from "../../utils/helpers/date-helpers"
 import { RouteApi } from "../../services/api/route-api"
 import { findClosestStationInRoute, getSelectedRide } from "../../utils/helpers/ride-helpers"
 
+const api = new RouteApi()
+
 /**
  * This function is used to find the next station in the route
  */
@@ -23,7 +25,7 @@ export function useRideRoute(route: RouteItem) {
 
   const refetchRoute = async () => {
     // fetch route - needed for getting delay information
-    const routes = await new RouteApi().getRoutes(originId, destinationId, date, time)
+    const routes = await api.getRoutes(originId, destinationId, date, time)
 
     const updatedRoute = getSelectedRide(
       routes,
