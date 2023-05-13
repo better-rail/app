@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useMemo } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { View, ViewStyle } from "react-native"
 import { RouteDetailsHeader, Screen } from "../../components"
@@ -35,6 +35,13 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
   const { stations } = progress
 
   const insets = useSafeAreaInsets()
+
+  const [shouldFadeRideButton, setShouldFadeRideButton] = useState(false)
+
+  useEffect(() => {
+    // allow button fade only after the view mounts; disable the animation when the view appears initally.
+    setShouldFadeRideButton(true)
+  }, [])
 
   return (
     <Screen
@@ -120,7 +127,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
       )}
 
       {!isRideOnThisRoute && (
-        <Animated.View entering={FadeInDown.delay(100)} exiting={FadeOutDown} style={{ flex: 1 }}>
+        <Animated.View entering={shouldFadeRideButton && FadeInDown.delay(100)} exiting={FadeOutDown} style={{ flex: 1 }}>
           <StartRideButton route={routeItem} screenName={route.name} />
         </Animated.View>
       )}
