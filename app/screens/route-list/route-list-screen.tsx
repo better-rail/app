@@ -25,9 +25,6 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
 
   const { isInternetReachable } = useNetInfo()
 
-  // this is for the screen to re-render when the user navigates back from the route details screen
-  // and the user has started a ride - so the route card will be highlighted
-
   const trains = useQuery(
     ["origin", originId, "destination", destinationId, "time", routePlan.date.getDate()],
     async () => {
