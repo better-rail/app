@@ -7,7 +7,7 @@ export class RailApi {
 
   constructor() {
     this.axiosInstance = axios.create({
-      baseURL: "https://israelrail.azurefd.net/rjpa-prod/api/v1/",
+      baseURL: "https://israelrail.azurefd.net/rjpa-prod/api/v1/timetable/",
       timeout: 30000,
       headers: {
         Accept: "application/json",
