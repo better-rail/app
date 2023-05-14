@@ -39,19 +39,21 @@ export const NoTrainsFoundMessage = observer(function NoTrainsFoundMessage() {
   const [relatedAnnouncements, setRelatedAnnouncements] = useState<Announcement[]>([])
 
   const { routePlan } = useStores()
+  const originId = routePlan.origin.id
+  const destinationId = routePlan.destination.id
+
+  const filterRelatedAnnouncements = (a: Announcement) => {
+    // Filter related updates to the route
+    // if the announcement stations length equals 0, it means that the update is relevant to all stations
+
+    return a.stations.includes(originId) || a.stations.includes(destinationId) || a.stations.length === 0
+  }
 
   useEffect(() => {
-    const originId = routePlan.origin.id
-    const destinationId = routePlan.destination.id
-
     async function findRelatedAnnouncements() {
       const announcements = await railApi.getAnnouncements(userLocale)
-      console.log("halo", announcements)
-      // Filter related updates to the route
-      // if the announcement stations length equals 0, it means that the update is relevant to all stations
-      const related = announcements.filter(
-        (a) => a.stations.includes(originId) || a.stations.includes(destinationId) || a.stations.length === 0,
-      )
+
+      const related = announcements.filter(filterRelatedAnnouncements)
 
       setRelatedAnnouncements(related)
     }
