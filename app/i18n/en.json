@@ -143,12 +143,14 @@
     "live": "Live",
     "startRide": "Start Ride",
     "stopRide": "Stop Ride",
+    "activatingRide": "Activating ride...",
     "rideInFutureAlert": "You can start a new ride only from an hour before the train's departure time.",
     "rideInPastAlert": "This ride has ended.",
     "activeRideAlert": "An active ride exists.\n\nCancel the current ride in order to start a new one.",
 
-    "trainArrives": "Train arrives to destination",
-    "arrivingIn": "Arriving in",
-    "arrived": "You have arrived"
+    "trainArriving": "Train arrives to destination",
+    "arrivingIn": "Arriving in %{minutes} min",
+    "arrived": "You have arrived",
+    "departsNow": "Train departs now"
   }
 }
