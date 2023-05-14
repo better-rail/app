@@ -127,6 +127,7 @@
     "stackingStep4": "Tip: You can view the full train scheduale quickly by tapping on the widget."
   },
   "ride": {
+    "live": "Live",
     "startRide": "начать поездку",
     "stopRide": "Остановить поездку",
     "rideInFutureAlert": "Начать новую поездку можно только за час до отправления поезда.",

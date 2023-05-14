@@ -2,16 +2,18 @@ import ActivityKit
 import WidgetKit
 import SwiftUI
 
+
 struct BetterRailLiveActivity: Widget {
-    
+    let widgetURL = URL(string: "liveActivity")
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: BetterRailActivityAttributes.self) { context in
           // Lock screen/banner UI goes here
           LockScreenLiveActivityView(vm: ActivityViewModel(context: context))
             .padding()
             .background(Color(UIColor.systemBackground))
+            .widgetURL(widgetURL)
 
-      } dynamicIsland: { context in
+        } dynamicIsland: { context in
         let vm = ActivityViewModel(context: context)
         return DynamicIsland {
               // Expanded UI goes here.  Compose the expanded UI through
@@ -37,7 +39,7 @@ struct BetterRailLiveActivity: Widget {
           } minimal: {
             CircularProgressView(vm: vm)
           }
-          
+          .widgetURL(widgetURL)
           .keylineTint(context.state.status.color)
       }
   }

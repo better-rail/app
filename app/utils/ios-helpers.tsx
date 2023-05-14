@@ -72,7 +72,7 @@ export async function endLiveActivity(routeId: string) {
   try {
     return (await RNBetterRail.endActivity(routeId)) as boolean
   } catch (err) {
-    console.log(err)
+    console.error(err)
     throw err
   }
 }

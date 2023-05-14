@@ -1,7 +1,10 @@
 import React from "react"
-import { View, ViewStyle, TextStyle, Platform } from "react-native"
+import { View, ViewStyle, TextStyle } from "react-native"
 import { Text } from "../../../components"
-import { color, fontScale, spacing } from "../../../theme"
+import { color, spacing } from "../../../theme"
+import { ROUTE_LINE_STATE_COLORS, RouteLine } from "./route-line"
+import { RouteStationCircle } from "./route-station-circle"
+import { RouteLineStateType } from "../route-details-screen"
 
 // #region styles
 const ROUTE_STOP_WRAPPER: ViewStyle = {
@@ -29,23 +32,6 @@ const ROUTE_STOP_TIME_DELAYED: TextStyle = {
   opacity: 0.5,
 }
 
-const ROUTE_STOP_LINE: ViewStyle = {
-  width: 4,
-  height: 10 * fontScale,
-  backgroundColor: color.separator,
-  zIndex: 0,
-}
-
-const ROUTE_STOP_CIRCLE: ViewStyle = {
-  width: 30,
-  height: 30,
-  borderRadius: 25,
-  borderWidth: 3.5,
-  borderColor: Platform.select({ ios: color.separator, android: "#bdbdc2" }),
-  backgroundColor: color.background,
-  zIndex: 10,
-}
-
 // #endregion
 
 type RouteStopCardProps = {
@@ -57,33 +43,39 @@ type RouteStopCardProps = {
   delayedTime?: string
 
   style?: ViewStyle
+  topLineState: RouteLineStateType
+  bottomLineState: RouteLineStateType
 }
 
-export const RouteStopCard = ({ stationName, stopTime, delayedTime, style }: RouteStopCardProps) => (
-  <View style={[ROUTE_STOP_WRAPPER, style]}>
-    <View style={ROUTE_STOP_DETAILS}>
-      <View style={{ flex: 0.265, alignItems: "flex-end" }}>
-        <Text style={[ROUTE_STOP_TIME, delayedTime && ROUTE_STOP_TIME_DELAYED]} maxFontSizeMultiplier={1.2}>
-          {stopTime}
-        </Text>
-        {delayedTime && (
-          <Text style={ROUTE_STOP_TIME} maxFontSizeMultiplier={1.2}>
-            {delayedTime}
+export const RouteStopCard = (props: RouteStopCardProps) => {
+  const { stationName, stopTime, delayedTime, topLineState, bottomLineState, style } = props
+
+  return (
+    <View style={[ROUTE_STOP_WRAPPER, style]}>
+      <View style={ROUTE_STOP_DETAILS}>
+        <View style={{ flex: 0.265, alignItems: "flex-end" }}>
+          <Text style={[ROUTE_STOP_TIME, delayedTime && ROUTE_STOP_TIME_DELAYED]} maxFontSizeMultiplier={1.2}>
+            {stopTime}
           </Text>
-        )}
-      </View>
+          {delayedTime && (
+            <Text style={ROUTE_STOP_TIME} maxFontSizeMultiplier={1.2}>
+              {delayedTime}
+            </Text>
+          )}
+        </View>
 
-      <View style={{ flex: 0.2, alignItems: "center" }}>
-        <View style={ROUTE_STOP_LINE} />
-        <View style={ROUTE_STOP_CIRCLE} />
-        <View style={ROUTE_STOP_LINE} />
-      </View>
+        <View style={{ flex: 0.2, alignItems: "center" }}>
+          <RouteLine state={topLineState} />
+          <RouteStationCircle state={topLineState} />
+          <RouteLine state={bottomLineState} />
+        </View>
 
-      <View style={{ flex: 0.55, right: 15 }}>
-        <Text style={{ fontWeight: "600", fontSize: 15, marginStart: spacing[3] }} maxFontSizeMultiplier={1.2}>
-          {stationName}
-        </Text>
+        <View style={{ flex: 0.55, right: 15 }}>
+          <Text style={{ fontWeight: "600", fontSize: 15, marginStart: spacing[3] }} maxFontSizeMultiplier={1.2}>
+            {stationName}
+          </Text>
+        </View>
       </View>
     </View>
-  </View>
-)
+  )
+}
