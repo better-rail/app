@@ -148,12 +148,7 @@ export const color = {
   }),
 
   stop: Platform.select({
-    ios: DynamicColorIOS({ light: palette.pinky, dark: "#BB645B" }),
-    android: PlatformColor("@color/red"),
-  }),
-
-  stopPressed: Platform.select({
-    ios: DynamicColorIOS({ light: "#FBA09D", dark: "#AD5248" }),
+    ios: DynamicColorIOS({ light: palette.pinky, dark: "#bb645b" }),
     android: PlatformColor("@color/red"),
   }),
 

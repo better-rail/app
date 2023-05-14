@@ -89,7 +89,7 @@ const StopButton = (props: PressableProps) => (
         height: 42.5,
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: pressed ? color.stopPressed : color.stop,
+        backgroundColor: color.stop,
         borderRadius: 30,
       },
     ]}
