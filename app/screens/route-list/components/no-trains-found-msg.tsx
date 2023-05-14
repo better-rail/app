@@ -52,7 +52,6 @@ export const NoTrainsFoundMessage = observer(function NoTrainsFoundMessage() {
   useEffect(() => {
     async function findRelatedAnnouncements() {
       const announcements = await railApi.getAnnouncements(userLocale)
-
       const related = announcements.filter(filterRelatedAnnouncements)
 
       setRelatedAnnouncements(related)
