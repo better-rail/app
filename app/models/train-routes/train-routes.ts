@@ -1,9 +1,10 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { withEnvironment, withStatus } from ".."
+import { withStatus } from ".."
 import { RouteApi } from "../../services/api/route-api"
 import { format, add } from "date-fns"
 import { omit } from "ramda"
 import { RouteItem } from "../../services/api"
+import { formatDateForAPI } from "../../utils/helpers/date-helpers"
 
 export const trainStop = {
   arrivalTime: types.number,
@@ -41,7 +42,6 @@ export const trainRoutesModel = types
     routes: types.array(types.model(trainRouteSchema)),
     resultType: "normal",
   })
-  .extend(withEnvironment)
   .extend(withStatus)
   .actions((self) => ({
     saveRoutes: (routesSnapshot) => {
@@ -56,7 +56,7 @@ export const trainRoutesModel = types
       self.setStatus("pending")
       self.updateResultType("normal")
 
-      const routeApi = new RouteApi(self.environment.api)
+      const routeApi = new RouteApi()
       let foundRoutes = false
       let apiHitCount = 0
       let requestDate = time
@@ -64,8 +64,7 @@ export const trainRoutesModel = types
       // If no routes are found, try to fetch results for the upcoming 3 days.
       while (!foundRoutes && apiHitCount < 4) {
         // Format times for Israel Rail API
-        const date = format(requestDate, "yyyy-MM-dd")
-        const hour = format(time, "HH:mm")
+        const [date, hour] = formatDateForAPI(requestDate)
 
         const result = await routeApi.getRoutes(originId, destinationId, date, hour)
 

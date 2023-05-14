@@ -19,7 +19,7 @@ const ROUTE_STATION_WRAPPER: ViewStyle = {
 
 const ROUTE_STATION_TIME_WRAPPER: ViewStyle = {
   flex: 0.4,
-  alignItems: "flex-end",
+  alignItems: fontScale > 1.2 ? "flex-start" : "flex-end",
 }
 
 const ROUTE_STATION_DETAILS: ViewStyle = {

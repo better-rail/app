@@ -12,14 +12,21 @@
 import "./i18n"
 import "./utils/ignore-warnings"
 import React, { useState, useEffect, useRef } from "react"
-import { EmitterSubscription, Linking, Platform, AppState } from "react-native"
+import { Platform, AppState } from "react-native"
 import { QueryClient, QueryClientProvider } from "react-query"
 import { NavigationContainerRef } from "@react-navigation/native"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet"
 import { initFonts } from "./theme/fonts" // expo
 import * as storage from "./utils/storage"
-import { useBackButtonHandler, RootNavigator, canExit, setRootNavigation, useNavigationPersistence } from "./navigators"
+import {
+  useBackButtonHandler,
+  RootNavigator,
+  canExit,
+  setRootNavigation,
+  useNavigationPersistence,
+  RootParamList,
+} from "./navigators"
 import { RootStore, RootStoreProvider, setupRootStore } from "./models"
 import { ToggleStorybook } from "../storybook/toggle-storybook"
 import { setInitialLanguage, setUserLanguage } from "./i18n/i18n"
@@ -30,8 +37,8 @@ import { withIAPContext } from "react-native-iap"
 // stack navigation, use `createNativeStackNavigator` in place of `createStackNavigator`:
 // https://github.com/kmagiera/react-native-screens#using-native-stack-navigator
 import { enableScreens } from "react-native-screens"
-import { extractURLParams } from "./utils/helpers/url"
-import { donateRouteIntent, monitorLiveActivities, reloadAllTimelines } from "./utils/ios-helpers"
+import { monitorLiveActivities } from "./utils/ios-helpers"
+import { useDeepLinking } from "./hooks/use-deep-linking"
 enableScreens()
 
 export const queryClient = new QueryClient()
@@ -41,10 +48,12 @@ export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
  * This is the root component of our app.
  */
 function App() {
-  const navigationRef = useRef<NavigationContainerRef>()
+  const navigationRef = useRef<NavigationContainerRef<RootParamList>>()
   const [rootStore, setRootStore] = useState<RootStore | undefined>(undefined)
   const [localeReady, setLocaleReady] = useState(false)
   const appState = useRef(AppState.currentState)
+
+  useDeepLinking(rootStore, navigationRef)
 
   useEffect(() => {
     // Activate live activities listener on iOS 16.2+
@@ -71,40 +80,6 @@ function App() {
       subscription.remove()
     }
   }, [rootStore])
-
-  useEffect(function handleWidgetDeepLinking() {
-    let linkingListener: EmitterSubscription
-
-    function deepLinkWidgetURL(url: string) {
-      const { originId, destinationId } = extractURLParams(url)
-      donateRouteIntent(originId, destinationId)
-
-      navigationRef.current?.navigate("routeList", {
-        originId,
-        destinationId,
-        time: new Date().getTime(),
-        enableQuery: true,
-      })
-
-      reloadAllTimelines()
-    }
-
-    if (Platform.OS === "ios") {
-      Linking.getInitialURL().then((url) => {
-        if (url) deepLinkWidgetURL(url)
-      })
-
-      linkingListener = Linking.addEventListener("url", ({ url }) => {
-        deepLinkWidgetURL(url)
-      })
-    }
-
-    if (linkingListener !== undefined) {
-      return () => linkingListener.remove()
-    }
-
-    return undefined
-  }, [])
 
   setRootNavigation(navigationRef)
   useBackButtonHandler(navigationRef, canExit)
