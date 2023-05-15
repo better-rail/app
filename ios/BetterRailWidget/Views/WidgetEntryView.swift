@@ -161,10 +161,10 @@ struct WidgetEntryView: View {
   
   func getNoTrainsMessage(date: Date) -> String {
     if (NSCalendar(identifier: .hebrew)!.isDateInWeekend(date)) {
-      return "No trains for today."
+      return NSLocalizedString("No trains for today.", comment: "")
     }
     
-    return "No more trains for today."
+    return NSLocalizedString("No more trains for today.", comment: "")
   }
 }
 
