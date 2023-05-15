@@ -143,29 +143,19 @@ export interface OmesDetail {
 }
 
 export interface AnnouncementApiResult {
-  messageType: number
-  message: string
-  data: Announcement[]
+  creationDate: string
+  version: string
+  successStatus: number
+  statusCode: number
+  errorMessages: any
+  result: Announcement[]
 }
 
 export interface Announcement {
-  updateContentArb: string
-  updateContentEng: string
-  updateContentHeb: string
-  updateContentRus: string
-  updateLinkArb: string
-  updateLinkEng: string
-  updateLinkHeb: string
-  updateLinkRus: string
-  station: string[]
-  reportType: string
-  reportImage: string
-  startValidationOfReport: string
-  endValidationOfReport: string
-  nameArb: string
-  nameEng: string
-  nameHeb: string
-  nameRus: string
-  float: boolean
-  order: number
+  updateHeader: string
+  updateContent: string
+  updateLink: string
+  stations: string[]
+  linkText: string
+  updateType: string
 }

@@ -22,7 +22,7 @@ const START_RIDE_BUTTON: ViewStyle = {
 
 const TRAIN_ICON: ImageStyle = {
   width: 22.5,
-  height: 22.5,
+  height: 14,
   tintColor: "white",
   transform: [{ rotateY: isRTL ? "180deg" : "0deg" }],
 }
