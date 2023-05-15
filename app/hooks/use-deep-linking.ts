@@ -3,8 +3,9 @@ import { EmitterSubscription, Linking, Platform } from "react-native"
 import { extractURLParams } from "../utils/helpers/url"
 import { donateRouteIntent, reloadAllTimelines } from "../utils/ios-helpers"
 import { RootStore } from "../models"
-import { RootParamList } from "../navigators"
+import { PrimaryParamList, RootParamList, RouteDetailsScreenProps } from "../navigators"
 import { NavigationContainerRef } from "@react-navigation/native"
+import { isEqual } from "lodash"
 
 /**
  * Handles navigation of deep links provided to the app.
@@ -25,23 +26,41 @@ export function useDeepLinking(rootStore: RootStore, navigationRef: MutableRefOb
     // reload widget timeline
     reloadAllTimelines()
   }
-  function openActiveRide() {
+
+  function openActiveRideScreen() {
     const { route, originId, destinationId } = rootStore.ride
 
-    const screenName = navigationRef.current?.getCurrentRoute().name
+    // @ts-expect-error navigator type
+    navigationRef.current?.navigate("activeRideStack", {
+      screen: "activeRide",
+      params: { routeItem: route, originId: originId, destinationId: destinationId },
+    })
+  }
+
+  function deepLinkLiveActivity(url: string) {
+    const { name: screenName, params: screenParams } = navigationRef.current?.getCurrentRoute()
+
     if (screenName != "routeDetails") {
-      // @ts-expect-error navigator type
-      navigationRef.current?.navigate("activeRideStack", {
-        screen: "activeRide",
-        params: { routeItem: route, originId: originId, destinationId: destinationId },
-      })
+      openActiveRideScreen()
+    } else {
+      // if we're on the route details screen, we need to check if it's the same route
+      // as the live activity route, by using the provided train numbers in the activity deep link url
+      const { trains } = extractURLParams(url)
+      const activityTrainNumbers = trains.split(",").map((t) => parseInt(t))
+
+      const { routeItem } = screenParams as PrimaryParamList["routeDetails"]
+      const routeTrainNumbers = routeItem.trains.map((t) => t.trainNumber)
+
+      if (!isEqual(activityTrainNumbers, routeTrainNumbers)) {
+        openActiveRideScreen()
+      }
     }
   }
 
   function handleDeepLinkURL(url: string) {
     if (!url) return
     if (url.includes("widget")) deepLinkWidgetURL(url)
-    if (url.includes("liveActivity")) openActiveRide()
+    if (url.includes("liveActivity")) deepLinkLiveActivity(url)
   }
 
   useEffect(() => {
