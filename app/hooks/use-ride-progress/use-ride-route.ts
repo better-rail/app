@@ -60,9 +60,10 @@ export function useRideRoute(route: RouteItem) {
       updateRide()
     }, 60 * 1000)
 
-    // calculate the next station immidiately on mount
+    // set the route details immidiately on mount
     const stationId = findClosestStationInRoute(route)
     setNextStationId(stationId)
+    setDelay(route.delay)
 
     // then check if there's a delay
     updateRide()
