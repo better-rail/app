@@ -151,6 +151,9 @@
     "trainArriving": "Train arrives to destination",
     "arrivingIn": "Arriving in %{minutes} min",
     "arrived": "You have arrived",
-    "departsNow": "Train departs now"
+    "departsNow": "Train departs now",
+    "rideExistsTitle": "An active ride exists",
+    "rideExistsMessage": "Cancel the current ride in order to start a new one",
+    "trainArrives": "Train arrives to destination"
   }
 }

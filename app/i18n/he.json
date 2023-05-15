@@ -151,11 +151,12 @@
     "activatingRide": "יוצאים לדרך...",
     "rideInFutureAlert": "ניתן להתחיל נסיעה החל משעה לפני זמן יציאת הרכבת.",
     "rideInPastAlert": "נסיעה זו כבר הסתיימה.",
-    "activeRideAlert": "קיימת נסיעה פעילה.\n\nעצור את הנסיעה הנוכחית על מנת להתחיל חדשה.",
 
     "trainArriving": "הרכבת מתקרבת ליעד",
     "arrivingIn": "הגעה ליעד בעוד %{minutes} דק'",
     "arrived": "הגעת ליעד",
-    "departsNow": "הרכבת יוצאת עכשיו"
+    "departsNow": "הרכבת יוצאת עכשיו",
+    "rideExistsTitle": "קיימת נסיעה פעילה",
+    "rideExistsMessage": "עצרו את הנסיעה הנוכחית על מנת להתחיל חדשה"
   }
 }
