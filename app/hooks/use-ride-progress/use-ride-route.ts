@@ -27,28 +27,28 @@ export function useRideRoute(route: RouteItem) {
     // fetch route - needed for getting delay information
     const routes = await api.getRoutes(originId, destinationId, date, time)
 
-    const updatedRoute = getSelectedRide(
-      routes,
-      route.trains.map((t) => t.trainNumber),
-    )
-
-    // update the screen routeItem
-    // @ts-expect-error
-    navigation.setParams({ routeItem: updatedRoute })
-
     // update the query cached routes
     queryClient.setQueryData(
       ["origin", originId, "destination", destinationId, "time", new Date(updatedRoute.departureTime).getDate()],
       routes,
     )
 
-    setDelay(updatedRoute.delay)
+    const updatedRoute = getSelectedRide(
+      routes,
+      route.trains.map((t) => t.trainNumber),
+    )
 
     return updatedRoute
   }
 
   const updateRide = async () => {
     const updatedRoute = await refetchRoute()
+
+    // update the screen routeItem
+    // @ts-expect-error
+    navigation.setParams({ routeItem: updatedRoute })
+
+    setDelay(updatedRoute.delay)
 
     const stationId = findClosestStationInRoute(updatedRoute)
     setNextStationId(stationId)
