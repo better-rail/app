@@ -89,6 +89,7 @@
     "@storybook/react-native-server": "5.3.23",
     "@types/i18n-js": "3.0.3",
     "@types/jest": "^29.2.1",
+    "@types/lodash": "^4.14.194",
     "@types/ramda": "0.27.32",
     "@types/react": "~18.0.27",
     "@types/react-test-renderer": "^18.0.0",

@@ -95,7 +95,8 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
                   train.stopStations.length === 0 && (
                     <RouteLine
                       style={{ start: "35.44%", height: 30 }}
-                      state={isRideOnThisRoute ? stations[train.destinationStationId].bottom : "idle"}
+                      // TODO: The line state doesn't work properly
+                      state={isRideOnThisRoute ? stations[train.destinationStationId]?.bottom : "idle"}
                     />
                   )}
 

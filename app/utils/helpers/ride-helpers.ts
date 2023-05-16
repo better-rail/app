@@ -1,4 +1,5 @@
 import { RouteItem, Train } from "../../services/api"
+import { isEqual } from "lodash"
 
 /**
  * Find the closest station to the current time.
@@ -49,20 +50,6 @@ export function getTrainFromStationId(route: RouteItem, stationId: number): Trai
   return (
     route.trains.find((t) => t.originStationId === stationId) || route.trains.find((t) => t.destinationStationId === stationId)
   )
-}
-
-function isEqual(arr1: any[], arr2: any[]) {
-  if (arr1.length !== arr2.length) {
-    return false
-  }
-
-  for (let i = 0; i < arr1.length; i++) {
-    if (arr1[i] !== arr2[i]) {
-      return false
-    }
-  }
-
-  return true
 }
 
 export function getSelectedRide(routes: RouteItem[], rideTrainNumbers: number[]) {
