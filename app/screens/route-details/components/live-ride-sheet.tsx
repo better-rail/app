@@ -42,10 +42,10 @@ export const LiveRideSheet = observer(function LiveRideSheet(props: { progress; 
     } else if (status === "arrived") {
       return translate("ride.arrived")
     } else if ((status === "waitForTrain" || status === "inExchange") && minutesLeft < 1) {
-      return `Train departs now`
+      return translate("ride.departsNow")
     }
 
-    return `Train departs in ${minutesLeft} min`
+    return translate("ride.departsIn", { minutes: minutesLeft })
   }, [minutesLeft, status, ride.id])
 
   return (

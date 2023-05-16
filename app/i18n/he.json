@@ -155,6 +155,7 @@
     "trainArriving": "הרכבת מתקרבת ליעד",
     "arrivingIn": "הגעה ליעד בעוד %{minutes} דק'",
     "arrived": "הגעת ליעד",
+    "departsIn": "הרכבת יוצאת בעוד %{minutes} דק'",
     "departsNow": "הרכבת יוצאת עכשיו",
     "rideExistsTitle": "קיימת נסיעה פעילה",
     "rideExistsMessage": "עצרו את הנסיעה הנוכחית על מנת להתחיל חדשה"
