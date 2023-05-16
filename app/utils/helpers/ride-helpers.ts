@@ -6,30 +6,31 @@ import { isEqual } from "lodash"
  */
 export function findClosestStationInRoute(route: RouteItem) {
   const now = Date.now()
+  const delay = route.delay
 
   for (let i = 0; i < route.trains.length; i++) {
     const train = route.trains[i]
-    const departureTime = train.departureTime + route.delay
-    const arrivalTime = train.arrivalTime + route.delay
+    const departureTime = train.departureTime + delay
+    const arrivalTime = train.arrivalTime + delay
 
     if (departureTime > now) {
       return train.originStationId
     } else {
       for (let j = 0; j < train.stopStations.length; j++) {
         const station = train.stopStations[j]
-        const arrivalTime = station.arrivalTime + route.delay
+        const arrivalTime = station.arrivalTime + delay
         if (arrivalTime > now) {
           return station.stationId
         }
       }
     }
-    if (arrivalTime + route.delay > now) {
+    if (arrivalTime + delay > now) {
       return train.destinationStationId
     }
   }
 
   // if we're here, we're probably at the end of the route
-  if (now > route.trains[route.trains.length - 1].arrivalTime + route.delay) {
+  if (now > route.trains[route.trains.length - 1].arrivalTime + delay) {
     return route.trains[route.trains.length - 1].destinationStationId
   }
 
