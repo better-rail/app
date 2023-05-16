@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react"
 import { formatDateForAPI } from "../../utils/helpers/date-helpers"
 import { RouteApi } from "../../services/api/route-api"
 import { findClosestStationInRoute, getSelectedRide } from "../../utils/helpers/ride-helpers"
+import { useStores } from "../../models"
 
 const api = new RouteApi()
 
@@ -12,6 +13,7 @@ const api = new RouteApi()
  * This function is used to find the next station in the route
  */
 export function useRideRoute(route: RouteItem) {
+  const { ride } = useStores()
   // we'll need this to update the routeItem in the navigation params
   const navigation = useNavigation()
 
@@ -47,6 +49,9 @@ export function useRideRoute(route: RouteItem) {
     // update the screen routeItem
     // @ts-expect-error
     navigation.setParams({ routeItem: updatedRoute })
+
+    // update the ride store route
+    ride.setRoute(updatedRoute)
 
     setDelay(updatedRoute.delay)
 
