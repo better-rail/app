@@ -29,18 +29,15 @@
 "No trains for today." = "לא נמצאו רכבות להיום.";
 
 // live activity localizations
-"min" = "דק'";
-"depart" = "יציאה";
-"departs from %@" = "נסיעה מ%@";
-"exchange in %@" = "החלפה ב%@";
-"train to %@" = "רכבת ל%@";
 "headed to" = "תחנת יעד";
 "wait in" = "המתן בתחנת";
 "arrive" = "יעד";
 "next station" = "התחנה הבאה";
 "arrived at" = "הגעת ליעד";
-"platform %@ train %@ dest %@" = "רציף %@ • רכבת %@ ל%@";
-"PLATFORM %@" = "רציף %@";
+"depart from platform %@" = "הרכבת תצא מרציף %@";
+"train %@ to %@" = "רכבת %@ ל%@";
 "%@ min" = "%@ דק'";
 "get off in the next stop" = "הגעה ליעד בתחנה הבאה";
 "get off in %@ stops" = "הגעה ליעד בעוד %@ תחנות";
+"get off" = "הרכבת מגיעה ליעד";
+"thanks for riding with better rail" = "תודה שנסעתם עם בטר רייל!";

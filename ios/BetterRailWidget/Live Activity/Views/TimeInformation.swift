@@ -22,11 +22,18 @@ struct TimeInformation: View {
   var placement: ViewPlacement = .lockScreen
   
     var body: some View {
-      if (vm.status != .arrived) {
+      if (vm.status == .arrived) {
+        VStack(alignment: .trailing) {
+          Text("ARRIVAL TIME").font(.caption)
+          Text("10:01").font(.system(size: 18, weight: .bold, design: .rounded))
+        }
+        
+      }
+      else {
         if (vm.status == .waitForTrain || vm.status == .inExchange) {
           VStack(alignment: .trailing) {
             if (vm.context.attributes.frequentPushesEnabled) {
-              CountdownView(targetDate: departureDate.addDelay(delay))
+              CountdownView(targetDate: departureDate, delay: delay)
             }
 
             HStack (spacing: 2) {
@@ -55,7 +62,7 @@ struct TimeInformation: View {
         else {
           VStack(alignment: .trailing) {
             if (vm.context.attributes.frequentPushesEnabled) {
-              CountdownView(targetDate: vm.arrivalDate.addDelay(delay))
+              CountdownView(targetDate: vm.arrivalDate, delay: delay)
             }
             
             HStack (spacing: 2) {
