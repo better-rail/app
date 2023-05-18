@@ -8,24 +8,18 @@ struct FavoritesView: View {
   @ObservedObject var favorites: FavoritesViewModel
   
     var body: some View {
-        if (favorites.routes.count > 0) {
-          VStack {
-            List {
-                ForEach (favorites.routes.sorted { $0.id < $1.id }) { route in
-                  let routesView = RoutesView(route: RouteViewModel(origin: route.origin, destination: route.destination))
-                  
-                  NavigationLink(destination: routesView) {
-                    FavoriteItemView(origin: route.origin, destination: route.destination)
-                  }
-                  .listRowBackground(StationImageBackground(route.origin.image))
-                }
-              }.listStyle(CarouselListStyle())
-            }.navigationTitle("Better Rail")
+      if (favorites.routes.count > 0) {
+        ForEach (favorites.routes.sorted { $0.id < $1.id }) { route in
+          let routesView = RoutesView(route: RouteViewModel(origin: route.origin, destination: route.destination))
+          
+          NavigationLink(destination: routesView) {
+            FavoriteItemView(origin: route.origin, destination: route.destination)
+          }
+          .listRowBackground(StationImageBackground(route.origin.image))
         }
-        else {
-          emptyPlaceholder
-        }
-        
+      } else {
+        emptyPlaceholder
+      }
     }
   
   var emptyPlaceholder: some View = VStack(alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/) {
