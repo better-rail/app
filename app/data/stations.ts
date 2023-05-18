@@ -329,6 +329,7 @@ const stations: Station[] = [
     english: "Dimona",
     russian: "Димона",
     arabic: "ديمونا",
+    image: require("../../assets/station-images/dimona.jpg"),
   },
   {
     id: "9200",
