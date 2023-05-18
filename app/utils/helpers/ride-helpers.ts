@@ -6,7 +6,7 @@ import { isEqual } from "lodash"
  */
 export function findClosestStationInRoute(route: RouteItem) {
   const now = Date.now()
-  const delay = route.delay
+  const delay = route.delay * 60 * 1000
 
   for (let i = 0; i < route.trains.length; i++) {
     const train = route.trains[i]
