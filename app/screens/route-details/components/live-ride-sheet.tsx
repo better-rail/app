@@ -58,19 +58,17 @@ export const LiveRideSheet = observer(function LiveRideSheet(props: { progress; 
       }}
     >
       <Text style={{ fontSize: 20, fontWeight: "bold", color: color.success }}>{progressText}</Text>
-      {ride.id ? (
-        <StopButton
-          onPress={() => {
-            ride.stopRide(ride.id)
 
-            if (screenName === "activeRide") {
-              navigation.goBack()
-            }
-          }}
-        />
-      ) : (
-        <ActivityIndicator />
-      )}
+      <StopButton
+        loading={!ride.id}
+        onPress={() => {
+          ride.stopRide(ride.id)
+
+          if (screenName === "activeRide") {
+            navigation.goBack()
+          }
+        }}
+      />
       <BlurView
         style={{ position: "absolute", top: 0, left: 0, bottom: 0, right: 0, zIndex: -1 }}
         blurType={isDarkMode ? "ultraThinMaterialDark" : "xlight"}
@@ -81,7 +79,7 @@ export const LiveRideSheet = observer(function LiveRideSheet(props: { progress; 
   )
 })
 
-const StopButton = (props: PressableProps) => (
+const StopButton = (props: { loading: boolean } & PressableProps) => (
   <Pressable
     style={({ pressed }) => [
       {
@@ -95,6 +93,10 @@ const StopButton = (props: PressableProps) => (
     ]}
     {...props}
   >
-    <Image source={require("../../../../assets/stop-rect.ios.png")} style={{ width: 17.5, height: 17.5 }} />
+    {props.loading ? (
+      <ActivityIndicator color="white" />
+    ) : (
+      <Image source={require("../../../../assets/stop-rect.ios.png")} style={{ width: 17.5, height: 17.5 }} />
+    )}
   </Pressable>
 )
