@@ -47,6 +47,7 @@ export function useRideRoute(route: RouteItem) {
     const updatedRoute = await refetchRoute()
 
     // update the screen routeItem
+    // TOFIX: This sometimes fails.
     // @ts-expect-error
     navigation.setParams({ routeItem: updatedRoute })
 

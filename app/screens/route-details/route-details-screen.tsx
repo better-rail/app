@@ -23,11 +23,17 @@ const ROOT: ViewStyle = {
 }
 
 export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
-  const { routeItem } = route.params
   const { ride } = useStores()
 
   // we re-run this check every time the ride changes
-  const isRideOnThisRoute = useMemo(() => ride.isRouteActive(routeItem), [ride.route])
+  const isRideOnThisRoute = useMemo(() => ride.isRouteActive(route.params.routeItem), [ride.route])
+
+  // if the ride is on this route, we use the ride's route, since it has the latest data
+  // otherwise we use the route from the route params
+  const routeItem = useMemo(() => {
+    if (isRideOnThisRoute) return ride.route as unknown as RouteItem
+    return route.params.routeItem
+  }, [isRideOnThisRoute, ride.route, route.params.routeItem])
 
   const progress = useRideProgress({ route: routeItem, enabled: isRideOnThisRoute })
   const { stations } = progress
