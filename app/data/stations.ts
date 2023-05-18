@@ -99,6 +99,7 @@ const stations: Station[] = [
     english: "Kiryat Hayim",
     russian: "Кирьят-Хаим",
     arabic: "كريات حاييم",
+    image: require("../../assets/station-images/kiryat-haim.jpg"),
   },
   {
     id: "1400",
