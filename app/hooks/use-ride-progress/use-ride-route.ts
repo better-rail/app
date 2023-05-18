@@ -1,4 +1,3 @@
-import { useNavigation } from "@react-navigation/native"
 import { RouteItem } from "../../services/api"
 import { useQueryClient } from "react-query"
 import { useEffect, useMemo, useState } from "react"
@@ -13,9 +12,7 @@ const api = new RouteApi()
  * This function is used to find the next station in the route
  */
 export function useRideRoute(route: RouteItem) {
-  const { ride } = useStores()
-  // we'll need this to update the routeItem in the navigation params
-  const navigation = useNavigation()
+  const { routePlan, ride } = useStores()
 
   // we'll need this to update the query cached routes when we refetch routes
   const queryClient = useQueryClient()
@@ -46,13 +43,10 @@ export function useRideRoute(route: RouteItem) {
   const updateRide = async () => {
     const updatedRoute = await refetchRoute()
 
-    // update the screen routeItem
-    // TOFIX: This sometimes fails.
-    // @ts-expect-error
-    navigation.setParams({ routeItem: updatedRoute })
-
-    // update the ride store route
-    ride.setRoute(updatedRoute)
+    if (ride.id) {
+      // update the ride store route if a ride is active
+      ride.setRoute(updatedRoute)
+    }
 
     setDelay(updatedRoute.delay)
 
