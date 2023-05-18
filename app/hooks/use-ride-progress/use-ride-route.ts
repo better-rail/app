@@ -31,7 +31,7 @@ export function useRideRoute(route: RouteItem) {
 
     // update the query cached routes
     queryClient.setQueryData(
-      ["origin", originId, "destination", destinationId, "time", new Date(route.departureTime).getDate()],
+      ["origin", originId, "destination", destinationId, "time", new Date(routePlan.date.getDate())],
       routes,
     )
 
