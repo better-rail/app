@@ -46,14 +46,14 @@ struct RideInformationBar: View {
       Rectangle().frame(width: .infinity, height: 60).foregroundColor(.yellow).padding(.horizontal, -16).padding(.bottom, -14)
       
       HStack(alignment: .center) {
-        Image(systemName: symbolName).font(.title)
+        Image(systemName: symbolName).font(.system(size: 31))
         
         if (vm.status == .arrived) {
           Text("thanks for riding with better rail").font(.footnote).bold()
         } else {
           VStack(alignment: .leading, spacing: 1.32) {
             Text("train \(String(vm.train.trainNumber)) to \(vm.lastTrainStop.name)").font(.footnote).bold()
-            Text(informationText).font(.caption2)
+            Text(informationText).font(.caption)
           }
         }
         
