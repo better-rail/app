@@ -16,6 +16,8 @@
 		5EFC395D238C4D2ABEF902D0 /* Heebo-ExtraBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = AF4431C692CA4F7D8DC013BE /* Heebo-ExtraBold.otf */; };
 		73244C6A71D14F56B7316FA2 /* Heebo-Black.otf in Resources */ = {isa = PBXBuildFile; fileRef = 62AD955938654791888FAB90 /* Heebo-Black.otf */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		901C358D2A1530CC004CA1F5 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 901C358C2A1530CC004CA1F5 /* SearchView.swift */; };
+		90DDA2C42A16916F003C8FE5 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DDA2C32A16916F003C8FE5 /* MainView.swift */; };
 		C0F707F834D839B5724738A3 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC587A60DAEFAB1B12DF76C7 /* ExpoModulesProvider.swift */; };
 		C102DF9E2764FD6600A756B6 /* WidgetLargeScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C102DF9D2764FD6600A756B6 /* WidgetLargeScheduleView.swift */; };
 		C1286B51275E6C8300E1E05D /* RNBetterRail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1286B50275E6C8300E1E05D /* RNBetterRail.swift */; };
@@ -194,6 +196,8 @@
 		6843AC57DE947CFFF5B149E8 /* Pods-BetterRail.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BetterRail.debug.xcconfig"; path = "Target Support Files/Pods-BetterRail/Pods-BetterRail.debug.xcconfig"; sourceTree = "<group>"; };
 		6E72986263FBDED995A5F7AE /* libPods-BetterRail.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BetterRail.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = BetterRail/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		901C358C2A1530CC004CA1F5 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
+		90DDA2C32A16916F003C8FE5 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		9AD76AB3D8A9CCF536567F1E /* Pods-BetterRail-BetterRailTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BetterRail-BetterRailTests.release.xcconfig"; path = "Target Support Files/Pods-BetterRail-BetterRailTests/Pods-BetterRail-BetterRailTests.release.xcconfig"; sourceTree = "<group>"; };
 		A047FB8FBCA54556AEDB349D /* Heebo-Light.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Heebo-Light.otf"; path = "../assets/fonts/Heebo-Light.otf"; sourceTree = "<group>"; };
 		A2759849ACE84A51AA1EC58E /* Heebo-Medium.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Heebo-Medium.otf"; path = "../assets/fonts/Heebo-Medium.otf"; sourceTree = "<group>"; };
@@ -589,6 +593,8 @@
 				C1F61C002709F08200CD3D44 /* FavoritesView.swift */,
 				C1F61C012709F08200CD3D44 /* RoutesView.swift */,
 				C1F61C022709F08200CD3D44 /* FavoriteItemView.swift */,
+				901C358C2A1530CC004CA1F5 /* SearchView.swift */,
+				90DDA2C32A16916F003C8FE5 /* MainView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1001,7 +1007,9 @@
 				C1E62DDC270EE28B0067F262 /* TrainExchangeListItem.swift in Sources */,
 				C1F61C1A2709F08200CD3D44 /* WatchBetterRail.swift in Sources */,
 				C183229A270DF49100A44771 /* StationImageBackground.swift in Sources */,
+				90DDA2C42A16916F003C8FE5 /* MainView.swift in Sources */,
 				C1F61C122709F08200CD3D44 /* FavoritesViewModel.swift in Sources */,
+				901C358D2A1530CC004CA1F5 /* SearchView.swift in Sources */,
 				C1E62DDA270EE2690067F262 /* TrainStopListItem.swift in Sources */,
 				C1F61C1B2709F08200CD3D44 /* StationModel.swift in Sources */,
 				C1326198270C887900A248BA /* TrainDetailsView.swift in Sources */,
@@ -1339,7 +1347,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 7.1;
+				WATCHOS_DEPLOYMENT_TARGET = 8.0;
 			};
 			name = Debug;
 		};
@@ -1378,7 +1386,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 7.1;
+				WATCHOS_DEPLOYMENT_TARGET = 8.0;
 			};
 			name = Release;
 		};
@@ -1417,7 +1425,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 7.1;
+				WATCHOS_DEPLOYMENT_TARGET = 8.0;
 			};
 			name = Debug;
 		};
@@ -1454,7 +1462,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 7.1;
+				WATCHOS_DEPLOYMENT_TARGET = 8.0;
 			};
 			name = Release;
 		};
