@@ -34,6 +34,7 @@ struct TimeInformation: View {
           VStack(alignment: .trailing) {
             if (vm.context.attributes.frequentPushesEnabled) {
               CountdownView(targetDate: departureDate, delay: delay)
+                .accessibilityLabel("time left depart")
             }
 
             HStack (spacing: 2) {
@@ -63,6 +64,7 @@ struct TimeInformation: View {
           VStack(alignment: .trailing) {
             if (vm.context.attributes.frequentPushesEnabled) {
               CountdownView(targetDate: vm.arrivalDate, delay: delay)
+                .accessibilityLabel("time left arrival")
             }
             
             HStack (spacing: 2) {

@@ -40,6 +40,7 @@ struct BetterRailLiveActivity: Widget {
         } compactTrailing: {
           Text("\(String(getMinutesLeft(targetDate: getStatusEndDate(context: context)))) min")
             .foregroundColor(vm.status.color)
+            .accessibilityLabel(vm.status == .waitForTrain ? "time left depart" : "time left arrival")
         } minimal: {
           CircularProgressView(vm: vm)
         }

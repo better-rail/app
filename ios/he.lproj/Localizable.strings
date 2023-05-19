@@ -48,3 +48,5 @@
 "get off in %@ stops" = "הגעה ליעד בעוד %@ תחנות";
 "get off" = "הרכבת מגיעה ליעד";
 "thanks for riding with better rail" = "תודה שנסעתם עם בטר רייל!";
+"time left depart" = "זמן שנותר ליציאת הרכבת";
+"time left arrival" = "זמן שנותר להגעה ליעד";
