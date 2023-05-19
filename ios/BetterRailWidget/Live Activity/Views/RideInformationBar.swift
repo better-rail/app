@@ -43,7 +43,7 @@ struct RideInformationBar: View {
   
   var body: some View {
     ZStack {
-      Rectangle().frame(width: .infinity, height: 60).foregroundColor(.yellow).padding(.horizontal, -16).padding(.bottom, -14)
+      BarBackground
       
       HStack(alignment: .center) {
         Image(systemName: symbolName).font(.system(size: 31))
@@ -51,14 +51,25 @@ struct RideInformationBar: View {
         if (vm.status == .arrived) {
           Text("thanks for riding with better rail").font(.footnote).bold()
         } else {
-          VStack(alignment: .leading, spacing: 1.32) {
-            Text("train \(String(vm.train.trainNumber)) to \(vm.lastTrainStop.name)").font(.footnote).bold()
-            Text(informationText).font(.caption)
+            VStack(alignment: .leading, spacing: 1.32) {
+              // info on top, instructions on top
+              if (vm.status == .waitForTrain || vm.status == .inExchange) {
+                Text("train \(String(vm.train.trainNumber)) to \(vm.lastTrainStop.name)").font(.footnote).bold()
+                Text(informationText).font(.caption)
+              } else {
+                // info on bottom, instructions on top
+                Text(informationText).font(.footnote).bold()
+                Text("train \(String(vm.train.trainNumber)) to \(vm.lastTrainStop.name)").font(.caption)
+              }
+            }
           }
-        }
-        
         Spacer()
       }.padding(.top, 10).foregroundColor(Color(uiColor: .darkText))
     }
+  }
+  
+  var BarBackground: some View {
+    Rectangle()
+      .frame(width: .infinity, height: 60).foregroundColor(.yellow).padding(.horizontal, -16).padding(.bottom, -14)
   }
 }
