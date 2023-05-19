@@ -23,19 +23,18 @@ struct BetterRailLiveActivity: Widget {
       return DynamicIsland {
             // Expanded UI goes here.  Compose the expanded UI through
             // various regions, like leading/trailing/center/bottom
-          DynamicIslandExpandedRegion(.leading, priority: 90.0) {
+          DynamicIslandExpandedRegion(.leading) {
             LeadingView(vm: vm)
               .dynamicIsland(verticalPlacement: .belowIfTooWide)
+              .padding(.leading, 8)
           }
           DynamicIslandExpandedRegion(.trailing) {
-              VStack {
-                Spacer()
-                TimeInformation(vm: vm, placement: .dynamicIsland)
-              }
-            }
-            DynamicIslandExpandedRegion(.bottom) {
-              RideInformationBar(vm: vm, placement: .dynamicIsland)
-            }
+            VStack {
+              Spacer()
+              TimeInformation(vm: vm, placement: .dynamicIsland)
+            }.padding(.trailing, 8)
+          }
+          DynamicIslandExpandedRegion(.bottom) {}
         } compactLeading: {
           CircularProgressView(vm: vm)
         } compactTrailing: {
