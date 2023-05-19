@@ -22,20 +22,31 @@ struct FavoritesView: View {
       }
     }
   
-  var emptyPlaceholder: some View = VStack(alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/) {
-    Image(systemName: "star.fill").padding(.vertical, 2.0).font(.system(size: 32))
-    Text("no-favorites").font(.headline)
-    Text("no-favorites-message")
-      .font(.footnote)
-      .foregroundColor(.gray)
-      .multilineTextAlignment(.center)
+  var emptyPlaceholder: some View =
+  HStack {
+    Spacer()
+    VStack(alignment: .center) {
+      Image(systemName: "star.fill").padding(.vertical, 2.0).font(.system(size: 32))
+      Text("no-favorites").font(.headline)
+      Text("no-favorites-message")
+        .font(.footnote)
+        .foregroundColor(.gray)
+        .multilineTextAlignment(.center)
+    }
+    .padding(.vertical, 8.0)
+    Spacer()
   }
+  .listRowBackground(
+    Color(.darkGray)
+      .clipped()
+      .cornerRadius(10)
+  )
 }
 
 struct FavoritesView_Previews: PreviewProvider {
     static var previews: some View {
       let favoritesViewModel = FavoritesViewModel()
-      favoritesViewModel.updateFavoriteRoutes(routes: ["0": "originId:680,destinationId:8800", "1": "originId:3600,destinationId:680"])
+//      favoritesViewModel.updateFavoriteRoutes(routes: ["0": "originId:680,destinationId:8800", "1": "originId:3600,destinationId:680"])
       return NavigationView {
         FavoritesView(favorites: favoritesViewModel)
     }

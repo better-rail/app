@@ -56,7 +56,7 @@ struct SearchView: View {
   
   @ViewBuilder
   func getRoutesView() -> some View {
-    if let origin = origin, let destination = destination {
+    if let origin, let destination {
       RoutesView(route: RouteViewModel(origin: origin, destination: destination))
     } else {
       EmptyView()
