@@ -26,13 +26,13 @@ struct BetterRailLiveActivity: Widget {
           DynamicIslandExpandedRegion(.leading) {
             LeadingView(vm: vm)
               .dynamicIsland(verticalPlacement: .belowIfTooWide)
-              .padding(.leading, 8)
+              .padding(.leading, 4)
           }
           DynamicIslandExpandedRegion(.trailing) {
             VStack {
               Spacer()
               TimeInformation(vm: vm, placement: .dynamicIsland)
-            }.padding(.trailing, 8)
+            }.padding(.trailing, 4)
           }
           DynamicIslandExpandedRegion(.bottom) {}
         } compactLeading: {
