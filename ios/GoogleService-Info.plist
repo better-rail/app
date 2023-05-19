@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>633249807426-0eg3h1sbem2morr7pqe765otenkbn682.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.633249807426-0eg3h1sbem2morr7pqe765otenkbn682</string>
+	<key>API_KEY</key>
+	<string>AIzaSyD4qmsEFJA7hrd2hyYWA0FXbAVEUSqFPwo</string>
+	<key>GCM_SENDER_ID</key>
+	<string>633249807426</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>il.co.better-rail</string>
+	<key>PROJECT_ID</key>
+	<string>better-rail</string>
+	<key>STORAGE_BUCKET</key>
+	<string>better-rail.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:633249807426:ios:31ce9474b7bcc3c42bc1db</string>
+</dict>
+</plist>
