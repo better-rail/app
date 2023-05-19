@@ -61,6 +61,7 @@
     "language": "שפה",
     "about": "אודות",
     "share": "שתפו את Better Rail",
+    "widget": "מדריך הוספת ווידג׳ט",
     "shareMessage": "האלטרנטיבה לאפליקציית רכבת ישראל",
     "rateIOS": "דרגו ב- App Store",
     "rateAndroid": "דרגו ב- Play Store",
@@ -121,8 +122,7 @@
     "noTrainsFound": "לא נמצאו רכבות לתאריך המבוקש",
     "foundTrainsAt": "קיימות רכבות החל מ"
   },
-  "newFeature": {
-    "newBetterRail": "חדש ב- Better Rail",
+  "widgetOnboarding": {
     "homeWidgets": "ווידג׳טים למסך הבית",
     "widgetDescription": "3 ווידג׳טים לצפייה בזמני הרכבות הקרובות היישר מדף הבית",
     "widgetGuide": "הכנו מדריך קצר עם טיפים לשימוש בווידג׳טים החדשים",
@@ -142,19 +142,22 @@
     "stackingStep1": "1. לחצו לחיצה ארוכה על אזור ריק במסך הבית",
     "stackingStep2": "2. גררו ווידג'ט אחד מעל ווידג'ט אחר ולחצו על סיום",
     "stackingStep3": "3. בתוך הערמה תוכלו לגלול בין שני הווידג׳טים",
-    "stackingStep4": "טיפ: תוכלו לגשת ללוח הזמנים המלא על ידי לחיצה על הווידג׳ט",
-
-    "enjoyTheWidgets": "זה הכל!",
-    "myCreator": "עכשיו היוצר שלי רוצה להגיד כמה מילים.",
-    "heyThere": "היי!\nיצרתי את Better Rail בשביל להפוך את התחבורה הציבורית בישראל למעט יותר נגישה.\nהאפליקצייה מוצעת להורדה בחינם, ללא פרסומות או תוכנות מעקב.",
-    "pleaseConsider": "אם נהנתם מ- Better Rail, אשמח אם תעזרו לה להגיע לקהל רחב יותר בעזרת דירוג בחנות האפליקציות 😊",
-    "goodbyes": "שתהיה נסיעה טובה!\nגיא"
+    "stackingStep4": "טיפ: תוכלו לגשת ללוח הזמנים המלא על ידי לחיצה על הווידג׳ט"
   },
   "ride": {
+    "live": "נסיעה",
     "startRide": "התחל נסיעה",
     "stopRide": "הפסק נסיעה",
+    "activatingRide": "יוצאים לדרך...",
     "rideInFutureAlert": "ניתן להתחיל נסיעה החל משעה לפני זמן יציאת הרכבת.",
     "rideInPastAlert": "נסיעה זו כבר הסתיימה.",
-    "activeRideAlert": "קיימת נסיעה פעילה.\n\nעצור את הנסיעה הנוכחית על מנת להתחיל חדשה."
+
+    "trainArriving": "הרכבת מתקרבת ליעד",
+    "arrivingIn": "הגעה ליעד בעוד %{minutes} דק'",
+    "arrived": "הגעת ליעד",
+    "departsIn": "הרכבת יוצאת בעוד %{minutes} דק'",
+    "departsNow": "הרכבת יוצאת עכשיו",
+    "rideExistsTitle": "קיימת נסיעה פעילה",
+    "rideExistsMessage": "עצרו את הנסיעה הנוכחית על מנת להתחיל חדשה"
   }
 }

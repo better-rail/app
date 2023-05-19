@@ -35,6 +35,18 @@ export const RideModel = types
      */
     route: types.maybe(types.model(trainRouteSchema)),
   })
+  .views((self) => ({
+    /**
+     *
+     */
+    get originId() {
+      return self.route.trains[0].originStationId
+    },
+    get destinationId() {
+      const lastTrainIndex = self.route.trains.length - 1
+      return self.route.trains[lastTrainIndex].destinationStationId
+    },
+  }))
   .actions((self) => ({
     afterCreate() {
       if (self.id) {
@@ -46,9 +58,10 @@ export const RideModel = types
     startRide(route: RouteItem) {
       this.setRideLoading(true)
 
+      this.setRoute(route)
+
       startRideHandler(route)
         .then((rideId) => {
-          this.setRoute(route)
           this.setRideId(rideId)
           this.setRideLoading(false)
         })
@@ -59,12 +72,12 @@ export const RideModel = types
           )
         })
     },
-    stopRide(routeId: string) {
+    stopRide(rideId: string) {
       this.setRideLoading(true)
       this.setRideId(undefined)
       this.setRoute(undefined)
 
-      endRideHandler(routeId).then(() => {
+      endRideHandler(rideId).then(() => {
         this.setRideLoading(false)
       })
     },

@@ -59,6 +59,7 @@
     "language": "App Language",
     "about": "About",
     "share": "Share App",
+    "widget": "Widget Guide",
     "shareMessage": "The Israel Railways alternative app",
     "rateIOS": "Rate Better Rail",
     "rateAndroid": "Rate Better Rail",
@@ -116,8 +117,7 @@
     "noTrainsFound": "No trains found for the requested date",
     "foundTrainsAt": "Showing trains departing at "
   },
-  "newFeature": {
-    "newBetterRail": "they're finally here",
+  "widgetOnboarding": {
     "homeWidgets": "Home Screen Widgets",
     "widgetDescription": "Beautiful widgets for checking the upcoming train schedule.",
     "widgetGuide": "Here's a quick set up guide with a few tips on how to get the full benefit from them.",
@@ -137,19 +137,24 @@
     "stackingStep1": "1. Touch and hold an area on your Home Screen until the apps jiggle.",
     "stackingStep2": "2. Drag a widget on top of another widget.",
     "stackingStep3": "3. Inside the stack you can scroll between the two widgets.",
-    "stackingStep4": "Tip: You can view the full train scheduale quickly by tapping on the widget.",
-
-    "enjoyTheWidgets": "Enjoy the widgets!",
-    "myCreator": "My creator would like to say a few words.",
-    "heyThere": "Hey there! \nI made Better Rail in hopes it'll make public transportation a little more accessible to the public. It's offered for free, without ads or trackers.",
-    "pleaseConsider": "Please consider helping it to reach a wider audience by giving a review in the App Store 😊",
-    "goodbyes": "Have a nice ride!\n- Guy"
+    "stackingStep4": "Tip: You can view the full train scheduale quickly by tapping on the widget."
   },
   "ride": {
+    "live": "Live",
     "startRide": "Start Ride",
     "stopRide": "Stop Ride",
+    "activatingRide": "Starting ride...",
     "rideInFutureAlert": "You can start a new ride only from an hour before the train's departure time.",
     "rideInPastAlert": "This ride has ended.",
-    "activeRideAlert": "An active ride exists.\n\nCancel the current ride in order to start a new one."
+    "activeRideAlert": "An active ride exists.\n\nCancel the current ride in order to start a new one.",
+
+    "trainArriving": "Train arrives to destination",
+    "arrivingIn": "Arriving in %{minutes} min",
+    "arrived": "You have arrived",
+    "departsIn": "Train departs in %{minutes} min",
+    "departsNow": "Train departs now",
+    "rideExistsTitle": "An active ride exists",
+    "rideExistsMessage": "Cancel the current ride in order to start a new one",
+    "trainArrives": "Train arrives to destination"
   }
 }

@@ -2,44 +2,51 @@ import ActivityKit
 import WidgetKit
 import SwiftUI
 
+
 struct BetterRailLiveActivity: Widget {
-    
-    var body: some WidgetConfiguration {
-        ActivityConfiguration(for: BetterRailActivityAttributes.self) { context in
-          // Lock screen/banner UI goes here
-          LockScreenLiveActivityView(vm: ActivityViewModel(context: context))
-            .padding()
-            .background(Color(UIColor.systemBackground))
+  func deepLinkURL(_ trainNumbers: [Int]) -> URL {
+    // convert train numbers to be used as a URL parameter
+    let urlParam = trainNumbers.map(String.init).joined(separator: ",")
+    return URL(string: "liveActivity://?trains=\(urlParam)")!
+  }
+  
+  var body: some WidgetConfiguration {
+      ActivityConfiguration(for: BetterRailActivityAttributes.self) { context in
+        // Lock screen/banner UI goes here
+        LockScreenLiveActivityView(vm: ActivityViewModel(context: context))
+          .padding()
+          .background(Color(UIColor.systemBackground))
+          .widgetURL(deepLinkURL(context.attributes.trainNumbers))
 
       } dynamicIsland: { context in
-        let vm = ActivityViewModel(context: context)
-        return DynamicIsland {
-              // Expanded UI goes here.  Compose the expanded UI through
-              // various regions, like leading/trailing/center/bottom
-            DynamicIslandExpandedRegion(.leading, priority: 90.0) {
-              LeadingView(vm: vm)
-                .dynamicIsland(verticalPlacement: .belowIfTooWide)
-            }
-            DynamicIslandExpandedRegion(.trailing) {
-                VStack {
-                  Spacer()
-                  TimeInformation(vm: vm, placement: .dynamicIsland)
-                }
-              }
-              DynamicIslandExpandedRegion(.bottom) {
-                RideInformationBar(vm: vm, placement: .dynamicIsland)
-              }
-          } compactLeading: {
-            CircularProgressView(vm: vm)
-          } compactTrailing: {
-            Text("\(String(getMinutesLeft(targetDate: getStatusEndDate(context: context)))) min")
-              .foregroundColor(vm.status.color)
-          } minimal: {
-            CircularProgressView(vm: vm)
+      let vm = ActivityViewModel(context: context)
+      return DynamicIsland {
+            // Expanded UI goes here.  Compose the expanded UI through
+            // various regions, like leading/trailing/center/bottom
+          DynamicIslandExpandedRegion(.leading, priority: 90.0) {
+            LeadingView(vm: vm)
+              .dynamicIsland(verticalPlacement: .belowIfTooWide)
           }
-          
-          .keylineTint(context.state.status.color)
-      }
+          DynamicIslandExpandedRegion(.trailing) {
+              VStack {
+                Spacer()
+                TimeInformation(vm: vm, placement: .dynamicIsland)
+              }
+            }
+            DynamicIslandExpandedRegion(.bottom) {
+              RideInformationBar(vm: vm, placement: .dynamicIsland)
+            }
+        } compactLeading: {
+          CircularProgressView(vm: vm)
+        } compactTrailing: {
+          Text("\(String(getMinutesLeft(targetDate: getStatusEndDate(context: context)))) min")
+            .foregroundColor(vm.status.color)
+        } minimal: {
+          CircularProgressView(vm: vm)
+        }
+        .widgetURL(deepLinkURL(context.attributes.trainNumbers))
+        .keylineTint(context.state.status.color)
+    }
   }
 }
 

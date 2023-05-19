@@ -11,7 +11,7 @@ const GARDIENT: ViewStyle = {
   opacity: 1,
 }
 
-export const NewFeatureBackground = () => {
+export const WidgetOnboardingBackground = () => {
   const colorScheme = useColorScheme()
 
   return <LinearGradient style={GARDIENT} colors={colorScheme === "dark" ? ["#2E25AD", "#5D54DB"] : ["#0575E6", "#021B79"]} />

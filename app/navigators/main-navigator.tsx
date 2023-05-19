@@ -28,7 +28,7 @@ export type PrimaryParamList = {
   planner: undefined
   selectStation: { selectionType: "origin" | "destination" }
   routeList: { originId: string; destinationId: string; time: number; enableQuery?: boolean }
-  routeDetails: { routeItem: RouteItem; originId: string; destinationId: string; date: string; time: string }
+  routeDetails: { routeItem: RouteItem; originId: string; destinationId: string }
   settings: undefined
 }
 
