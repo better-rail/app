@@ -26,7 +26,6 @@ import { isWeekend } from "../../utils/helpers/date-helpers"
 import { differenceInHours, parseISO } from "date-fns"
 import { save, load } from "../../utils/storage"
 import { donateRouteIntent } from "../../utils/ios-helpers"
-import * as storage from "../../utils/storage"
 
 const now = new Date()
 
@@ -70,8 +69,8 @@ const NEW_FEATURES_BUTTON: ViewStyle = {
 }
 
 const LIVE_BUTTON_IMAGE: ImageStyle = {
-  height: isRTL ? 20 : 18,
-  width: isRTL ? 20 : 18,
+  width: 22.5,
+  height: 14,
   marginEnd: isRTL ? spacing[1] : spacing[2],
   tintColor: "white",
   transform: isRTL ? [{ rotateY: "220deg" }] : undefined,
