@@ -8,13 +8,7 @@ struct LockScreenInTransitView: View {
   
   var body: some View {
     VStack(alignment: .leading) {
-      HStack {
-        Image(systemName: "train.side.front.car")
-        Text("BETTER RAIL")
-      }
-      
-      .font(.caption2).foregroundColor(Color(uiColor: .systemGray))
-      .padding(.bottom, 2.0)
+      ActivityHeader()
       
       HStack(alignment: .bottom) {
         VStack(alignment: .leading) {

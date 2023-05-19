@@ -24,13 +24,7 @@ struct LockScreenWaitingForTrainView: View {
   
   var body: some View {
     VStack(alignment: .leading) {
-        HStack {
-          Image(systemName: "train.side.front.car")
-          Text("BETTER RAIL")
-        }
-        .font(.caption2)
-        .foregroundColor(Color(uiColor: .systemGray))
-        .padding(.bottom, 0.1)
+      ActivityHeader()
 
       HStack(alignment: .lastTextBaseline) {
         VStack(alignment: .leading, spacing: 2.0) {
