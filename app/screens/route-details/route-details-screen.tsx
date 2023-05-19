@@ -1,23 +1,21 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useMemo, useState } from "react"
-import { observer } from "mobx-react-lite"
 import { View, ViewStyle } from "react-native"
-import { RouteDetailsHeader, Screen } from "../../components"
-import { RouteDetailsScreenProps } from "../../navigators/main-navigator"
-import { color, spacing } from "../../theme"
+import { observer } from "mobx-react-lite"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { SharedElement } from "react-navigation-shared-element"
 import { ScrollView } from "react-native-gesture-handler"
+import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated"
 import { format } from "date-fns"
-import { RouteStationCard, RouteStopCard, RouteExchangeDetails } from "./components"
 
 import { useStores } from "../../models"
-import { LiveRideSheet } from "./components/live-ride-sheet"
-import { LongRouteWarning } from "./components/long-route-warning"
-import { StartRideButton } from "./components/start-ride-button"
+import { RouteItem } from "../../services/api"
 import { useRideProgress } from "../../hooks/use-ride-progress"
-import { RouteLine } from "./components/route-line"
-import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated"
+import { RouteDetailsScreenProps } from "../../navigators/main-navigator"
+import { color, spacing } from "../../theme"
+import { RouteDetailsHeader, Screen } from "../../components"
+import { RouteStationCard, RouteStopCard, RouteLine, RouteExchangeDetails } from "./components"
+import { LiveRideSheet, LongRouteWarning, StartRideButton } from "./components"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -25,11 +23,17 @@ const ROOT: ViewStyle = {
 }
 
 export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
-  const { routeItem } = route.params
   const { ride } = useStores()
 
   // we re-run this check every time the ride changes
-  const isRideOnThisRoute = useMemo(() => ride.isRouteActive(routeItem), [ride.route])
+  const isRideOnThisRoute = useMemo(() => ride.isRouteActive(route.params.routeItem), [ride.route])
+
+  // if the ride is on this route, we use the ride's route, since it has the latest data
+  // otherwise we use the route from the route params
+  const routeItem = useMemo(() => {
+    if (isRideOnThisRoute) return ride.route as unknown as RouteItem
+    return route.params.routeItem
+  }, [isRideOnThisRoute, ride.route, route.params.routeItem])
 
   const progress = useRideProgress({ route: routeItem, enabled: isRideOnThisRoute })
   const { stations } = progress

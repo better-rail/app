@@ -4,7 +4,6 @@ import { Platform } from "react-native"
 import iOSHelpers from "../../utils/ios-helpers"
 import { trainRouteSchema } from "../train-routes/train-routes"
 import { RouteItem } from "../../services/api"
-import { toJS } from "mobx"
 
 const startRideHandler: (route: RouteItem) => Promise<string> = Platform.select({
   ios: iOSHelpers.startLiveActivity,
