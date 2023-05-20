@@ -57,6 +57,7 @@ yarn-error.log
 
 # Ruby / CocoaPods
 /ios/Pods/
+/ios/GoogleService-Info.plist
 /vendor/bundle/
 
 # Ignite-specific items below

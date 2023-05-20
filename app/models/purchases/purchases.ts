@@ -1,5 +1,5 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { Platform } from "react-native"
+import { AppState, Platform } from "react-native"
 import RevenueCat, { LOG_LEVEL, PurchasesOffering, PurchasesPackage, CustomerInfo } from "react-native-purchases"
 import auth from "@react-native-firebase/auth"
 
@@ -13,13 +13,11 @@ export const PurchasesModel = types
     isPro: types.maybe(types.boolean),
   })
   .views(() => ({
-    get customerInfo(): Promise<CustomerInfo> {
+    get customerInfo() {
       return RevenueCat.getCustomerInfo()
     },
-    get offerings(): Promise<PurchasesPackage[]> {
-      return RevenueCat.getOfferings()
-        .then((offerings) => offerings.current.availablePackages)
-        .catch(() => [])
+    get offerings() {
+      return RevenueCat.getOfferings().then((offerings) => offerings.current.availablePackages)
     },
   }))
   .actions((self) => ({
@@ -37,6 +35,13 @@ export const PurchasesModel = types
 
       const customerInfo = await self.customerInfo
       this.setIsPro(checkIsPro(customerInfo))
+
+      AppState.addEventListener("change", async (currentState) => {
+        if (currentState === "active") {
+          const customerInfo = await self.customerInfo
+          this.setIsPro(checkIsPro(customerInfo))
+        }
+      })
     },
     purchaseOffering(offering: keyof PurchasesOffering) {
       return RevenueCat.getOfferings()
