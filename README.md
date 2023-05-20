@@ -1,7 +1,7 @@
 # Better Rail Website
 
 In this repository you'll be able to find the source code of the Better Rail website.  
-The source code for the app itself can be found [here](https://github.com/guytepper/better-rail).
+The source code for the app itself can be found [here](https://github.com/better-rail/app).
 
 There's no build tools needed to build the website, it's just plain ol' HTML & CSS files.
 
