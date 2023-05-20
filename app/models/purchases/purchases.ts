@@ -4,7 +4,7 @@ import RevenueCat, { LOG_LEVEL, PurchasesOffering, PurchasesPackage, CustomerInf
 import auth from "@react-native-firebase/auth"
 
 const checkIsPro = (customerInfo: CustomerInfo) => {
-  return customerInfo.entitlements.active["better-rail-pro"]?.isActive
+  return !!customerInfo.entitlements.active["better-rail-pro"]
 }
 
 export const PurchasesModel = types
