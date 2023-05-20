@@ -34,7 +34,9 @@ struct BetterRailLiveActivity: Widget {
               TimeInformation(vm: vm, placement: .dynamicIsland)
             }.padding(.trailing, 4)
           }
-          DynamicIslandExpandedRegion(.bottom) {}
+          DynamicIslandExpandedRegion(.bottom) {
+            RideInformationBar(vm: vm, placement: .dynamicIsland)
+          }
         } compactLeading: {
           CircularProgressView(vm: vm)
         } compactTrailing: {
