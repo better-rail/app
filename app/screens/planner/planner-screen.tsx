@@ -26,6 +26,7 @@ import { isWeekend } from "../../utils/helpers/date-helpers"
 import { differenceInHours, parseISO } from "date-fns"
 import { save, load } from "../../utils/storage"
 import { donateRouteIntent } from "../../utils/ios-helpers"
+import { TestPurchases } from "./test-purchases"
 
 const now = new Date()
 
@@ -296,6 +297,8 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           onPress={onGetRoutePress}
           disabled={!routePlan.origin || !routePlan.destination || routePlan.origin.id === routePlan.destination.id}
         />
+
+        <TestPurchases />
       </View>
     </Screen>
   )
