@@ -13,6 +13,9 @@ export const PurchasesModel = types
     isPro: types.maybe(types.boolean),
   })
   .views(() => ({
+    get customerInfo(): Promise<CustomerInfo> {
+      return RevenueCat.getCustomerInfo()
+    },
     get offerings(): Promise<PurchasesPackage[]> {
       return RevenueCat.getOfferings()
         .then((offerings) => offerings.current.availablePackages)
@@ -20,6 +23,9 @@ export const PurchasesModel = types
     },
   }))
   .actions((self) => ({
+    setIsPro(isPro: boolean) {
+      self.isPro = isPro
+    },
     async afterCreate() {
       RevenueCat.setLogLevel(LOG_LEVEL.DEBUG)
 
@@ -29,15 +35,15 @@ export const PurchasesModel = types
         // await Purchases.configure({ apiKey: <public_google_api_key> });
       }
 
-      const customerInfo = await RevenueCat.getCustomerInfo()
-      self.isPro = checkIsPro(customerInfo)
+      const customerInfo = await self.customerInfo
+      this.setIsPro(checkIsPro(customerInfo))
     },
     purchaseOffering(offering: keyof PurchasesOffering) {
       return RevenueCat.getOfferings()
         .then((offerings) => offerings.current[offering] as PurchasesPackage)
         .then((selectedPackage) => RevenueCat.purchasePackage(selectedPackage))
         .then((result) => {
-          self.isPro = checkIsPro(result.customerInfo)
+          this.setIsPro(checkIsPro(result.customerInfo))
           return result
         })
     },
@@ -49,7 +55,7 @@ export const PurchasesModel = types
     },
     restorePurchases() {
       return RevenueCat.restorePurchases().then((customerInfo) => {
-        self.isPro = checkIsPro(customerInfo)
+        this.setIsPro(checkIsPro(customerInfo))
         return customerInfo
       })
     },
