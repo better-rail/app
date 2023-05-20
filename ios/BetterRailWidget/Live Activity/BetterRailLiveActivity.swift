@@ -32,7 +32,7 @@ struct BetterRailLiveActivity: Widget {
             VStack {
               Spacer()
               TimeInformation(vm: vm, placement: .dynamicIsland)
-            }.padding(.trailing, 4)
+            }.padding(.trailing, 4).padding(.bottom, 4)
           }
           DynamicIslandExpandedRegion(.bottom) {
             RideInformationBar(vm: vm, placement: .dynamicIsland)
