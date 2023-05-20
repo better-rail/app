@@ -9,7 +9,7 @@ struct CountdownView: View {
   }
   
   var color: Color {
-    if (delay === 0) {
+    if (delay == 0) {
       return .green
     } else {
       return Color(uiColor: .label)
