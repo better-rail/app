@@ -56,3 +56,5 @@
 "get off in %@ stops" = "Get off in %@ stops";
 "get off" = "Get off the train";
 "thanks for riding with better rail" = "Thanks for riding with Better Rail!";
+"time left depart" = "Time left to departure";
+"time left arrival" = "Time left to arrival";
