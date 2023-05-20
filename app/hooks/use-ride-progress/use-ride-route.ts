@@ -43,8 +43,8 @@ export function useRideRoute(route: RouteItem) {
   const updateRide = async () => {
     const updatedRoute = await refetchRoute()
 
-    if (ride.id) {
-      // update the ride store route if a ride is active
+    if (ride.isRouteActive(route)) {
+      // update the ride store route if the route item has an active ride
       ride.setRoute(updatedRoute)
     }
 

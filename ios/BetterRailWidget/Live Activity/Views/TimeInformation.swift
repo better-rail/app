@@ -25,7 +25,7 @@ struct TimeInformation: View {
       if (vm.status == .arrived) {
         VStack(alignment: .trailing) {
           Text("ARRIVAL TIME").font(.caption)
-          Text("10:01").font(.system(size: 18, weight: .bold, design: .rounded))
+          Text(formatDateHour(arrivalDate.addDelay(delay))).font(.system(size: 18, weight: .bold, design: .rounded))
         }
         
       }

@@ -26,6 +26,7 @@ export const trainListSchema = {
   destinationPlatform: types.number,
   trainNumber: types.number,
   stopStations: types.array(types.model(trainStop)),
+  lastStop: types.string,
 }
 
 export const trainRouteSchema = {
