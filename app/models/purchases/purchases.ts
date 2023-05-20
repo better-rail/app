@@ -10,7 +10,7 @@ const checkIsPro = (customerInfo: CustomerInfo) => {
 export const PurchasesModel = types
   .model("Purchases")
   .props({
-    isPro: types.boolean,
+    isPro: types.maybe(types.boolean),
   })
   .views(() => ({
     get offerings(): Promise<PurchasesPackage[]> {
