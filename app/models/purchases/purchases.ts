@@ -1,6 +1,7 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { Platform } from "react-native"
 import RevenueCat, { LOG_LEVEL, PurchasesOffering, PurchasesPackage, CustomerInfo } from "react-native-purchases"
+import auth from "@react-native-firebase/auth"
 
 const checkIsPro = (customerInfo: CustomerInfo) => {
   return customerInfo.entitlements.active["better-rail-pro"]?.isActive
@@ -23,7 +24,7 @@ export const PurchasesModel = types
       RevenueCat.setLogLevel(LOG_LEVEL.DEBUG)
 
       if (Platform.OS === "ios") {
-        await RevenueCat.configure({ apiKey: "appl_pOArhScpRECBNsNeIwfRCkYlsfZ" })
+        await RevenueCat.configure({ apiKey: "appl_pOArhScpRECBNsNeIwfRCkYlsfZ", appUserID: auth().currentUser?.uid })
       } else if (Platform.OS === "android") {
         // await Purchases.configure({ apiKey: <public_google_api_key> });
       }
