@@ -11,6 +11,7 @@ struct LockScreenWaitingForTrainView: View {
     if (vm.status == .waitForTrain) {
       return vm.activityStartDate
     } else {
+      // handle exchange scenerio
       let previousTrain = getPreviousTrainFromStationId(route: vm.route, stationId: vm.nextStationId )
       
       if (previousTrain != nil) {
@@ -38,7 +39,7 @@ struct LockScreenWaitingForTrainView: View {
         
         TimeInformation(vm: vm)
       }
-      
+
       RideInformationBar(vm: vm)
     }
   }

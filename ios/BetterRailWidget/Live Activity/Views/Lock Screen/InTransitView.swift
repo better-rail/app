@@ -24,11 +24,9 @@ struct LockScreenInTransitView: View {
         Spacer()
         
         TimeInformation(vm: vm)
-      }.padding(.vertical, vm.status == .arrived ? 10.0 : 4.5)
+      }.padding(.vertical, vm.status == .arrived ? 10.0 : 0)
 
       RideInformationBar(vm: vm)
     }
   }
 }
-
-

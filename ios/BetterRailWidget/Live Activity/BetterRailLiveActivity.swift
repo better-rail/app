@@ -53,7 +53,7 @@ struct BetterRailLiveActivity: Widget {
 
 struct LiveActivity_Previews: PreviewProvider {
   static let attributes = BetterRailActivityAttributes(activityStartDate: Date(), route: Route(departureTime: "2023-04-09T00:19:00", arrivalTime: "2023-04-09T01:29:00", trains: [Train(trainNumber: 123, orignStation: 3700, destinationStation: 3400, arrivalTime: "", departureTime: "", stopStations: [], routeStations: [RouteStation(stationId: 4600, arrivalTime: "20:50", platform: 4)], originPlatform: 4, destPlatform: 2)]), frequentPushesEnabled: true)
-  static let contentState = BetterRailActivityAttributes.ContentState(delay: 2, nextStationId: 3700, status: .waitForTrain)
+  static let contentState = BetterRailActivityAttributes.ContentState(delay: 2, nextStationId: 3700, status: .inTransit)
 
     static var previews: some View {
         attributes
@@ -70,7 +70,7 @@ struct LiveActivity_Previews: PreviewProvider {
         attributes
           .previewContext(contentState, viewKind: .content)
           .previewDisplayName("Lock Screen")
-          .previewDevice("iPhone SE (3rd generation)")
+          .previewDevice("iPhone 14 Pro")
           .environment(\.layoutDirection, .rightToLeft)
           .environment(\.locale, .init(identifier: "he"))
     }
