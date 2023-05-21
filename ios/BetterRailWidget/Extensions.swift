@@ -1,4 +1,4 @@
-aimport Foundation
+import Foundation
 import SwiftUI
 
 extension String {
