@@ -23,7 +23,8 @@ target 'BetterRail' do
 
   use_frameworks! :linkage => :static
   $RNFirebaseAsStaticFramework = true
-
+  $RNFirebaseAnalyticsWithoutAdIdSupport = true
+  
   # Flags change depending on the env values.
   flags = get_default_flags()
 
