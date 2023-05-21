@@ -47,7 +47,7 @@ struct BetterRailLiveActivity: Widget {
           CircularProgressView(vm: vm)
         }
         .widgetURL(deepLinkURL(context.attributes.trainNumbers))
-        .keylineTint(context.state.status.color)
+        .keylineTint(context.state.delay > 5 ? .red : context.state.status.color)
     }
   }
 }

@@ -36,12 +36,10 @@ struct LeadingView: View {
     return vm.nextStop.name
   }
   
-  
-  
   var body: some View {
-    VStack(alignment: .leading, spacing: 2.0) {
+    VStack(alignment: .leading) {
       Spacer()
-      Text(nextStationLabel).font(.caption)
+      Text(nextStationLabel).font(.caption2)
       Text(nextStation).heavyWide()
     }
   }
