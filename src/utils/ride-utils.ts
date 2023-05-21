@@ -103,8 +103,7 @@ export const buildNotifications = (
     })
 }
 
-export const getUpdatedLastNotification = (route: RouteItem, ride: Ride, lastNotificationId?: number) => {
-  const notificationId = lastNotificationId ?? ride.lastNotificationId
+export const getUpdatedLastNotification = (route: RouteItem, ride: Ride, lastNotificationId: number) => {
   const notifications = buildNotifications(route, ride, false)
-  return notifications.find((current) => current.id === notificationId)
+  return notifications.find((current) => current.id === lastNotificationId)
 }

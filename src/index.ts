@@ -23,6 +23,10 @@ app.use(express.json())
 
 app.use("/api/v1", router)
 
+app.get("/isAlive", (req, res) => {
+  res.status(200).send("App is ready! 🚂")
+})
+
 app.listen(port, async () => {
   startLogger()
   await connectToRedis()

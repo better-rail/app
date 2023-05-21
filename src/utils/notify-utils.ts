@@ -1,5 +1,5 @@
 import dayjs from "dayjs"
-import { flatMap, flatten, last, compact } from "lodash"
+import { flatMap, flatten, last, compact, chain } from "lodash"
 
 import { Ride } from "../types/ride"
 import { RouteItem } from "../types/rail"
@@ -18,16 +18,14 @@ export const rideUpdateSecond = (rideId: string) => {
 }
 
 export const getNotificationToSend = (notifications: NotificationPayload[], date: Date) => {
-  const notificationsToSendNow: NotificationPayload[] = []
-  notifications.forEach((notification) => {
-    const notificationTime = notification.time.add(notification.state.delay, "minutes")
-
-    if (notificationTime.isSameOrBefore(date)) {
-      notificationsToSendNow.push(notification)
-    }
-  })
-
-  return last(notificationsToSendNow)
+  return chain(notifications)
+    .filter((notification) => {
+      const notificationTime = notification.time.add(notification.state.delay, "minutes")
+      return notificationTime.isSameOrBefore(date)
+    })
+    .sort((a, b) => (a.time.isAfter(b.time) ? 1 : -1))
+    .last()
+    .value()
 }
 
 export const buildWaitForTrainNotiifcation = (route: RouteItem, ride: Ride): NotificationPayload => {
