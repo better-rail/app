@@ -8,7 +8,7 @@ struct LockScreenInTransitView: View {
   
   var body: some View {
     VStack(alignment: .leading) {
-      ActivityHeader()
+      ActivityHeader(vm: vm)
       
       HStack(alignment: .bottom) {
         VStack(alignment: .leading) {
@@ -17,15 +17,16 @@ struct LockScreenInTransitView: View {
           } else {
             Text("next station").font(.caption)
           }
-          
+
           Text(vm.nextStop.name).fontWeight(.heavy).fontWidth(Font.Width(0.1))
         }
-        
-        Spacer()
-        
-        TimeInformation(vm: vm)
-      }.padding(.vertical, vm.status == .arrived ? 10.0 : 4.5)
 
+        Spacer()
+
+        TimeInformation(vm: vm)
+      }
+      .padding(.top, vm.status == .arrived ? 10.0 : 0)
+      
       RideInformationBar(vm: vm)
     }
   }

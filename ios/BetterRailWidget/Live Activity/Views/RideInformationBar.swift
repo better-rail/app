@@ -4,13 +4,6 @@ import WidgetKit
 struct RideInformationBar: View {
   var vm: ActivityViewModel
   var placement: ViewPlacement = .lockScreen
-  var paddingAmount: Double {
-    if (placement == .lockScreen) {
-      return 14
-    } else {
-      return 7
-    }
-  }
     
   var symbolName: String {
     if (vm.status == .inTransit) {
