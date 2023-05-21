@@ -3,6 +3,7 @@ import { View, TextStyle, ViewStyle, Platform, Image } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
 import { useStores } from "../../models"
+import analytics from "@react-native-firebase/analytics"
 import { color, isDarkMode, spacing } from "../../theme"
 import { Text } from "../"
 import { useStations } from "../../data/stations"
@@ -46,6 +47,8 @@ export const FavoriteRoutes = observer(function FavoriteRoutes(props: FavoriteRo
   const { routePlan, favoriteRoutes } = useStores()
 
   const onFavoritePress = (originId: string, destinationId: string) => {
+    analytics().logEvent("favorite_route_selected")
+
     const origin = stations.find((s) => s.id === originId)
     const destination = stations.find((s) => s.id === destinationId)
 

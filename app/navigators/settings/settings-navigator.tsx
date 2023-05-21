@@ -7,7 +7,7 @@ import { translate } from "../../i18n"
 import CloseButton from "../../components/close-button/close-button"
 
 export type SettingsParamList = {
-  main: undefined
+  settings: undefined
   language: undefined
   tipJar: undefined
   about: undefined
@@ -15,7 +15,7 @@ export type SettingsParamList = {
 
 const SettingsStack = createStackNavigator<SettingsParamList>()
 
-export type SettingsScreenProps = StackScreenProps<SettingsParamList, "main">
+export type SettingsScreenProps = StackScreenProps<SettingsParamList, "settings">
 
 export const SettingsNavigator = () => (
   <SettingsStack.Navigator
@@ -28,7 +28,7 @@ export const SettingsNavigator = () => (
     }}
   >
     <SettingsStack.Screen
-      name="main"
+      name="settings"
       component={SettingsScreen}
       options={({ navigation }) => ({
         title: translate("settings.title"),
