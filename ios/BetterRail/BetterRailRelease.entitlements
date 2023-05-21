@@ -8,5 +8,9 @@
 	<array>
 		<string>group.il.co.better-rail</string>
 	</array>
+	<key>keychain-access-groups</key>
+	<array>
+		<string>$(AppIdentifierPrefix)group.il.co.better-rail</string>
+	</array>
 </dict>
 </plist>
