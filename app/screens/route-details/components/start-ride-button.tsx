@@ -2,6 +2,7 @@ import { Alert, Dimensions, Image, ImageStyle, Platform, View, ViewStyle } from 
 import { observer } from "mobx-react-lite"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HapticFeedback from "react-native-haptic-feedback"
+import analytics from '@react-native-firebase/analytics"
 import { Button } from "../../../components"
 import { isRTL, translate } from "../../../i18n"
 import { RouteItem } from "../../../services/api"
@@ -90,6 +91,10 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
         onPress={() => {
           HapticFeedback.trigger("notificationSuccess")
           ride.startRide(route)
+          analytics().logEvent('start_ride', {
+           origin_id: route.trains[0].originStationId,
+           destination_id: route.trains[route.trains.length - 1].destinationStationId
+          })        
         }}
       />
     </View>
