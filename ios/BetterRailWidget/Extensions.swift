@@ -1,4 +1,4 @@
-import Foundation
+aimport Foundation
 import SwiftUI
 
 extension String {
@@ -30,12 +30,18 @@ extension Text {
   }
   
   func heavyWide() -> Text {
-    if #available(iOS 16.0, watchOS 9.0, *) {
+    if #available(iOS 16.0, *) {
       return self.fontWeight(.heavy).fontWidth(Font.Width(0.1))
     } else {
       return self.fontWeight(.heavy)
     }
   }
+}
+
+extension Font {
+    static var subheadline2: Font {
+        return Font.system(size: 14.0)
+    }
 }
 
 @available(iOS, deprecated: 15.0, message: "Use the built-in API instead")
@@ -55,6 +61,7 @@ extension URLSession {
         }
     }
 }
+
 
 
 

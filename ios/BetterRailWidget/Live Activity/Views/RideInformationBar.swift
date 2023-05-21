@@ -46,20 +46,20 @@ struct RideInformationBar: View {
       BarBackground
       
       HStack(alignment: .center) {
-        Image(systemName: symbolName).font(.system(size: 31))
+        Image(systemName: symbolName).font(.system(size: 36))
         
         if (vm.status == .arrived) {
-          Text("thanks for riding with better rail").font(.footnote).bold()
+          Text("thanks for riding with better rail").font(.subheadline).bold()
         } else {
-            VStack(alignment: .leading, spacing: 1.32) {
+          VStack(alignment: .leading, spacing: 2.0) {
               // info on top, instructions on top
               if (vm.status == .waitForTrain || vm.status == .inExchange) {
-                Text("train \(String(vm.train.trainNumber)) to \(vm.lastTrainStop.name)").font(.footnote).bold()
-                Text(informationText).font(.caption)
+                Text("train \(String(vm.train.trainNumber)) to \(vm.lastTrainStop.name)").font(.subheadline).bold()
+                Text(informationText).font(.subheadline2)
               } else {
                 // info on bottom, instructions on top
-                Text(informationText).font(.footnote).bold()
-                Text("train \(String(vm.train.trainNumber)) to \(vm.lastTrainStop.name)").font(.caption)
+                Text(informationText).font(.subheadline).bold()
+                Text("train \(String(vm.train.trainNumber)) to \(vm.lastTrainStop.name)").font(.subheadline2)
               }
             }
           }
