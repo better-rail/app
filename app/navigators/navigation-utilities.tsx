@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react"
 import { BackHandler } from "react-native"
 import { PartialState, NavigationState, NavigationContainerRef } from "@react-navigation/native"
+import analytics from "@react-native-firebase/analytics"
 
 export const RootNavigation = {
   navigate(name: string) {
@@ -40,10 +41,7 @@ export function getActiveRouteName(state: NavigationState | PartialState<Navigat
  * Hook that handles Android back button presses and forwards those on to
  * the navigation or allows exiting the app.
  */
-export function useBackButtonHandler(
-  ref: React.RefObject<NavigationContainerRef>,
-  canExit: (routeName: string) => boolean,
-) {
+export function useBackButtonHandler(ref: React.RefObject<NavigationContainerRef>, canExit: (routeName: string) => boolean) {
   const canExitRef = useRef(canExit)
 
   useEffect(() => {
@@ -101,6 +99,10 @@ export function useNavigationPersistence(storage: any, persistenceKey: string) {
     if (previousRouteName !== currentRouteName) {
       // track screens.
       __DEV__ && console.tron.log(currentRouteName)
+      analytics().logScreenView({
+        screen_name: currentRouteName,
+        screen_class: currentRouteName,
+      })
     }
 
     // Save the current route name for later comparision
