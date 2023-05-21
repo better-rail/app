@@ -25,7 +25,7 @@ struct LockScreenWaitingForTrainView: View {
   
   var body: some View {
     VStack(alignment: .leading) {
-      ActivityHeader()
+      ActivityHeader(vm: vm)
 
       HStack(alignment: .lastTextBaseline) {
         VStack(alignment: .leading, spacing: 2.0) {
