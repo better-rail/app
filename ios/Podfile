@@ -11,6 +11,10 @@ install! 'cocoapods', :deterministic_uuids => false
 production = ENV["PRODUCTION"] == "1"
 
 target 'BetterRail' do
+  use_frameworks! :linkage => :static
+  $RNFirebaseAsStaticFramework = true
+  $RNFirebaseAnalyticsWithoutAdIdSupport = true
+
   use_expo_modules!
   post_integrate do |installer|
     begin
@@ -20,10 +24,6 @@ target 'BetterRail' do
     end
   end
   config = use_native_modules!
-
-  use_frameworks! :linkage => :static
-  $RNFirebaseAsStaticFramework = true
-  $RNFirebaseAnalyticsWithoutAdIdSupport = true
   
   # Flags change depending on the env values.
   flags = get_default_flags()
