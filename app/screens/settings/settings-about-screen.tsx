@@ -110,12 +110,7 @@ export const AboutScreen = observer(function AboutScreen({ navigation }: Setting
           icon="🖼"
           onPress={() => openLink("https://better-rail.co.il/image-attributions/")}
         />
-        <SettingBox
-          last
-          title={translate("settings.privacyPolicy")}
-          icon="📜"
-          onPress={() => openLink(translate("settings.privacyPolicyLink"))}
-        />
+        <SettingBox last title={translate("settings.privacy")} chevron icon="✋" onPress={() => navigation.navigate("privacy")} />
       </View>
 
       <View style={SETTING_GROUP}>

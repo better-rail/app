@@ -230,7 +230,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
                   params: { routeItem: ride.route, originId: ride.originId, destinationId: ride.destinationId },
                 })
 
-                analytics().logEvent("home_live_button_pressed")
+                analytics().logEvent("open_live_ride_modal_pressed")
               }}
             >
               <Image source={require("../../../assets/train.ios.png")} style={LIVE_BUTTON_IMAGE} />
