@@ -64,8 +64,10 @@
     "rateIOS": "Rate Better Rail",
     "rateAndroid": "Rate Better Rail",
     "imageAttribution": "Image Attributions",
+    "privacy": "Privacy",
     "privacyPolicy": "Privacy Policy",
     "privacyPolicyLink": "https://better-rail.co.il/en/privacy-policy",
+    "disableTelemetry": "Disable Telemetry",
     "feedback": "Send Feedback",
 
     "languageChangeAlertTitle": "Language Change",

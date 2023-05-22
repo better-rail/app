@@ -8,6 +8,7 @@ import {
   TouchableHighlightProps,
   ImageStyle,
   Platform,
+  Switch,
 } from "react-native"
 import { Text } from "../../../components"
 import { isRTL } from "../../../i18n"
@@ -70,10 +71,17 @@ export interface SettingBoxProps extends TouchableHighlightProps {
   checkmark?: boolean
   chevron?: boolean
   externalLink?: boolean
+
+  /**
+   * Switch component props
+   */
+  toggle?: boolean
+  onToggle?: (value: boolean) => void
+  toggleValue?: boolean
 }
 
 export const SettingBox = function SettingBox(props: SettingBoxProps) {
-  const { title, icon, first, last, externalLink, chevron, checkmark, onPress, style } = props
+  const { title, icon, first, last, externalLink, chevron, checkmark, onPress, toggle, style } = props
   let boxStyle: ViewStyle = {}
 
   if (!first) boxStyle = { borderTopColor: Platform.select({ android: "transparent", ios: color.background }), borderTopWidth: 1 }
@@ -101,6 +109,7 @@ export const SettingBox = function SettingBox(props: SettingBoxProps) {
         {externalLink && <Image style={EXTERNAL_LINK_ICON} source={externalLinkIcon} />}
         {chevron && <Image style={CHEVRON_ICON} source={chevronIcon} />}
         {checkmark && <Image style={CHECKMARK_ICON} source={checkmarkIcon} />}
+        {toggle && <Switch value={props.toggleValue} onValueChange={props.onToggle} />}
       </View>
     </TouchableHighlight>
   )

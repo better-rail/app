@@ -1,7 +1,7 @@
 import React from "react"
 import { Platform, TextStyle } from "react-native"
 import { createStackNavigator, StackScreenProps } from "@react-navigation/stack"
-import { SettingsScreen, LanguageScreen, TipJarScreen, AboutScreen } from "../../screens"
+import { SettingsScreen, LanguageScreen, TipJarScreen, AboutScreen, PrivacyScreen } from "../../screens"
 import { color, typography } from "../../theme"
 import { translate } from "../../i18n"
 import CloseButton from "../../components/close-button/close-button"
@@ -11,6 +11,7 @@ export type SettingsParamList = {
   language: undefined
   tipJar: undefined
   about: undefined
+  privacy: undefined
 }
 
 const SettingsStack = createStackNavigator<SettingsParamList>()
@@ -42,7 +43,7 @@ export const SettingsNavigator = () => (
       options={{
         title: translate("settings.language"),
         headerLeftContainerStyle: { marginBottom: 6 },
-        headerTitleStyle: Platform.select({ ios: iOSTitleStyle, android: androidTitleStyle }),
+        headerTitleStyle,
       }}
     />
     <SettingsStack.Screen
@@ -51,7 +52,7 @@ export const SettingsNavigator = () => (
       options={{
         title: translate("settings.tipJar"),
         headerLeftContainerStyle: { marginBottom: 6 },
-        headerTitleStyle: Platform.select({ ios: iOSTitleStyle, android: androidTitleStyle }),
+        headerTitleStyle,
       }}
     />
     <SettingsStack.Screen
@@ -60,7 +61,16 @@ export const SettingsNavigator = () => (
       options={{
         title: translate("settings.about"),
         headerLeftContainerStyle: { marginBottom: 6 },
-        headerTitleStyle: Platform.select({ ios: iOSTitleStyle, android: androidTitleStyle }),
+        headerTitleStyle,
+      }}
+    />
+    <SettingsStack.Screen
+      name="privacy"
+      component={PrivacyScreen}
+      options={{
+        title: translate("settings.privacy"),
+        headerLeftContainerStyle: { marginBottom: 6 },
+        headerTitleStyle,
       }}
     />
   </SettingsStack.Navigator>
@@ -75,3 +85,5 @@ const iOSTitleStyle: TextStyle = {
 }
 
 const androidTitleStyle: TextStyle = { marginLeft: -18.5, marginBottom: 7.5 }
+
+const headerTitleStyle = Platform.select({ ios: iOSTitleStyle, android: androidTitleStyle })

@@ -68,8 +68,10 @@
     "twitter": "تويتر",
     "feedback": "ارسال الملاحظات",
     "imageAttribution": "كرديت الصور",
+    "privacy": "خصوصية",
     "privacyPolicy": "سياسة الخصوصية",
     "privacyPolicyLink": "https://better-rail.co.il/privacy-policy/",
+    "disableTelemetry": "تعطيل التتبع عن بعد",
     "sourceCode": "كود التطبيق"
   },
   "favorites": {
