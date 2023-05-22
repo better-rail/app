@@ -21,8 +21,9 @@ target 'BetterRail' do
   end
   config = use_native_modules!
 
-  use_frameworks! :linkage => :static
-  
+  pod 'FirebaseCore', :modular_headers => true
+  pod 'GoogleUtilities', :modular_headers => true
+
   $RNFirebaseAsStaticFramework = true
   $RNFirebaseAnalyticsWithoutAdIdSupport = true
 

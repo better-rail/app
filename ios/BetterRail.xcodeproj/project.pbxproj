@@ -13,12 +13,12 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		2CC766CDFD19431C8786B99E /* Heebo-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 5B118A8459B542A2BA8C9824 /* Heebo-Regular.otf */; };
 		3948B514A79C47EFBFC7D1B2 /* Heebo-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = A2759849ACE84A51AA1EC58E /* Heebo-Medium.otf */; };
+		5457972F0A21D1637A94CF3C /* libPods-BetterRail.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2FC8DAA11CC57632B801ECB2 /* libPods-BetterRail.a */; };
 		5EFC395D238C4D2ABEF902D0 /* Heebo-ExtraBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = AF4431C692CA4F7D8DC013BE /* Heebo-ExtraBold.otf */; };
 		73244C6A71D14F56B7316FA2 /* Heebo-Black.otf in Resources */ = {isa = PBXBuildFile; fileRef = 62AD955938654791888FAB90 /* Heebo-Black.otf */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		901C358D2A1530CC004CA1F5 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 901C358C2A1530CC004CA1F5 /* SearchView.swift */; };
 		90DDA2C42A16916F003C8FE5 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DDA2C32A16916F003C8FE5 /* MainView.swift */; };
-		96F37068A74EBE2BC18D14D9 /* Pods_BetterRail.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D7412246847D807079E7CD5D /* Pods_BetterRail.framework */; };
 		C0F707F834D839B5724738A3 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC587A60DAEFAB1B12DF76C7 /* ExpoModulesProvider.swift */; };
 		C102DF9E2764FD6600A756B6 /* WidgetLargeScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C102DF9D2764FD6600A756B6 /* WidgetLargeScheduleView.swift */; };
 		C1286B51275E6C8300E1E05D /* RNBetterRail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1286B50275E6C8300E1E05D /* RNBetterRail.swift */; };
@@ -190,6 +190,7 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = BetterRail/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = BetterRail/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = BetterRail/main.m; sourceTree = "<group>"; };
+		2FC8DAA11CC57632B801ECB2 /* libPods-BetterRail.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BetterRail.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B118A8459B542A2BA8C9824 /* Heebo-Regular.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Heebo-Regular.otf"; path = "../assets/fonts/Heebo-Regular.otf"; sourceTree = "<group>"; };
 		62AD955938654791888FAB90 /* Heebo-Black.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Heebo-Black.otf"; path = "../assets/fonts/Heebo-Black.otf"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = BetterRail/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -275,7 +276,6 @@
 		C1F61C242709F09B00CD3D44 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C1F7C89527627B5E002A417F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; name = Base; path = Base.lproj/Route.intentdefinition; sourceTree = "<group>"; };
 		C1F7C89927627BCC002A417F /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Route.strings; sourceTree = "<group>"; };
-		D7412246847D807079E7CD5D /* Pods_BetterRail.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BetterRail.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E3C07A94FCDB4698B4A058EB /* Heebo-Bold.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Heebo-Bold.otf"; path = "../assets/fonts/Heebo-Bold.otf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
@@ -288,7 +288,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C1F452EA281FC21F00EF53CB /* StoreKit.framework in Frameworks */,
-				96F37068A74EBE2BC18D14D9 /* Pods_BetterRail.framework in Frameworks */,
+				5457972F0A21D1637A94CF3C /* libPods-BetterRail.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -371,7 +371,7 @@
 				C1A802612747AB4D00A3073D /* WidgetKit.framework */,
 				C1A802632747AB4D00A3073D /* SwiftUI.framework */,
 				C1B1213D276202130085C269 /* Intents.framework */,
-				D7412246847D807079E7CD5D /* Pods_BetterRail.framework */,
+				2FC8DAA11CC57632B801ECB2 /* libPods-BetterRail.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
