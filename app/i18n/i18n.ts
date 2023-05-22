@@ -1,5 +1,6 @@
 import { I18nManager } from "react-native"
 import RNRestart from "react-native-restart"
+import analytics from "@react-native-firebase/analytics"
 import * as storage from "../utils/storage"
 
 import * as Localization from "expo-localization"
@@ -21,6 +22,8 @@ export let dateFnsLocalization = enUS
 export let dateDelimiter = " "
 export let dateLocale = "en-US"
 export const deviceLocale = Localization.locale
+
+analytics().setUserProperties({ deviceLocale, userLocale })
 
 export function setInitialLanguage() {
   // If the user main locale is Hebrew / Arabic, we set it immidately to them.

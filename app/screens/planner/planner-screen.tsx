@@ -19,13 +19,14 @@ import HapticFeedback from "react-native-haptic-feedback"
 import { color, primaryFontIOS, fontScale, spacing } from "../../theme"
 import { PlannerScreenProps } from "../../navigators/main-navigator"
 import { useStations } from "../../data/stations"
-import { isRTL, translate, useFormattedDate, userLocale } from "../../i18n"
+import { isRTL, translate, useFormattedDate } from "../../i18n"
 import DatePickerModal from "../../components/date-picker-modal"
 import { useQuery } from "react-query"
 import { isWeekend } from "../../utils/helpers/date-helpers"
 import { differenceInHours, parseISO } from "date-fns"
 import { save, load } from "../../utils/storage"
 import { donateRouteIntent } from "../../utils/ios-helpers"
+import analytics from "@react-native-firebase/analytics"
 
 const now = new Date()
 
@@ -156,6 +157,8 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     setTimeout(() => {
       routePlan.switchDirection()
     }, 50)
+
+    analytics().logEvent("switch_stations_btn_press")
   }
 
   const onGetRoutePress = () => {
@@ -220,13 +223,15 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           {ride.route && (
             <TouchableOpacity
               style={NEW_FEATURES_BUTTON}
-              onPress={() =>
+              onPress={() => {
                 // @ts-expect-error
                 navigation.navigate("activeRideStack", {
                   screen: "activeRide",
                   params: { routeItem: ride.route, originId: ride.originId, destinationId: ride.destinationId },
                 })
-              }
+
+                analytics().logEvent("open_live_ride_modal_pressed")
+              }}
             >
               <Image source={require("../../../assets/train.ios.png")} style={LIVE_BUTTON_IMAGE} />
               <Text style={{ color: "white", fontWeight: "500" }} tx="ride.live" />

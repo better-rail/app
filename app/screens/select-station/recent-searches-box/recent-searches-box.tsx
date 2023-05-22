@@ -1,7 +1,8 @@
 import React, { useMemo } from "react"
+import { View, Image, TextStyle, ViewStyle, ImageStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import { useStores } from "../../../models"
-import { View, Image, TextStyle, ViewStyle, ImageStyle } from "react-native"
+import analytics from "@react-native-firebase/analytics"
 import { ScrollView } from "react-native-gesture-handler"
 import { Text } from "../../../components"
 import { color, isDarkMode, spacing } from "../../../theme"
@@ -43,6 +44,7 @@ export const RecentSearchesBox = observer(function RecentSearchesBox(props: Rece
   }, [toJS(recentSearches.entries)])
 
   const onStationPress = (entry) => {
+    analytics().logEvent("recent_station_selected")
     const station = { id: entry.id, name: entry.id }
 
     if (props.selectionType === "origin") {

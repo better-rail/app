@@ -6,6 +6,7 @@ export const UserModel = types
   .model("User")
   .props({
     currentUserId: types.maybe(types.string),
+    disableTelemetry: types.maybe(types.boolean),
   })
   .views((self) => ({
     get currentUser() {
@@ -29,6 +30,10 @@ export const UserModel = types
           RevenueCat.logOut()
         }
       })
+    },
+
+    setDisableTelemetry(value: boolean) {
+      self.disableTelemetry = value
     },
   }))
 

@@ -3,9 +3,10 @@ import { EmitterSubscription, Linking, Platform } from "react-native"
 import { extractURLParams } from "../utils/helpers/url"
 import { donateRouteIntent, reloadAllTimelines } from "../utils/ios-helpers"
 import { RootStore } from "../models"
-import { PrimaryParamList, RootParamList, RouteDetailsScreenProps } from "../navigators"
+import { PrimaryParamList, RootParamList } from "../navigators"
 import { NavigationContainerRef } from "@react-navigation/native"
 import { isEqual } from "lodash"
+import analytics from "@react-native-firebase/analytics"
 
 /**
  * Handles navigation of deep links provided to the app.
@@ -59,8 +60,14 @@ export function useDeepLinking(rootStore: RootStore, navigationRef: MutableRefOb
 
   function handleDeepLinkURL(url: string) {
     if (!url) return
-    if (url.includes("widget")) deepLinkWidgetURL(url)
-    if (url.includes("liveActivity")) deepLinkLiveActivity(url)
+    if (url.includes("widget")) {
+      deepLinkWidgetURL(url)
+      analytics().logEvent("deep_link_widget")
+    }
+    if (url.includes("liveActivity")) {
+      deepLinkLiveActivity(url)
+      analytics().logEvent("deep_link_live_activity")
+    }
   }
 
   useEffect(() => {

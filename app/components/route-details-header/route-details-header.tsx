@@ -1,6 +1,7 @@
 /* eslint-disable react/display-name */
 import React, { useMemo, useLayoutEffect } from "react"
 import { Image, ImageBackground, View, ViewStyle, TextStyle, ImageStyle } from "react-native"
+import analytics from "@react-native-firebase/analytics"
 import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
 import LinearGradient from "react-native-linear-gradient"
@@ -118,9 +119,11 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
                   toast.done(translate("favorites.added"))
                   HapticFeedback.trigger("impactMedium")
                   favoriteRoutes.add(favorite)
+                  analytics().logEvent("favorite_route_added")
                 } else {
                   HapticFeedback.trigger("impactLight")
                   favoriteRoutes.remove(favorite.id)
+                  analytics().logEvent("favorite_route_removed")
                 }
               }}
             />

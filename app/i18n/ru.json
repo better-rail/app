@@ -63,8 +63,10 @@
     "rateIOS": "Оценить Better Rail",
     "rateAndroid": "Оценить Better Rail",
     "imageAttribution": "Правообладатели фотографий",
+    "privacy": "конфиденциальность",
     "privacyPolicy": "Политика конфиденциальности",
     "privacyPolicyLink": "https://better-rail.co.il/en/privacy-policy",
+    "disableTelemetry": "Отключить телеметрию",
     "feedback": "Обратная связь",
 
     "languageChangeAlertTitle": "Смена языка",
