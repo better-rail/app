@@ -538,8 +538,6 @@ PODS:
     - React
   - SPAlert (4.2.0)
   - SPIndicator (1.6.4)
-  - ToastHybrid (2.4.5):
-    - React
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -612,7 +610,6 @@ DEPENDENCIES:
   - RNSharedElement (from `../node_modules/react-native-shared-element`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNWatch (from `../node_modules/react-native-watch-connectivity`)
-  - ToastHybrid (from `../node_modules/react-native-toast-hybrid`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -766,8 +763,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-svg"
   RNWatch:
     :path: "../node_modules/react-native-watch-connectivity"
-  ToastHybrid:
-    :path: "../node_modules/react-native-toast-hybrid"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -854,7 +849,6 @@ SPEC CHECKSUMS:
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
   SPAlert: 735da1f16a887e294719217572ce1f936d8c8782
   SPIndicator: 93e0a4fb23de51294ac48e874c0f081a5e293e4f
-  ToastHybrid: 432381039a804a60e142ebaa7af8290e236c288e
   Yoga: d56980c8914db0b51692f55533409e844b66133c
 
 PODFILE CHECKSUM: d000b1c4e8a101cf145d9cd059e1895517e79eb4
