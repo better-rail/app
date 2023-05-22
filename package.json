@@ -67,7 +67,7 @@
     "react-native-modal-datetime-picker": "9.2.1",
     "react-native-prompt-android": "^1.1.0",
     "react-native-purchases": "^5.14.0",
-    "react-native-reanimated": "~2.14.4",
+    "react-native-reanimated": "^3.2.0-nightly-20230521-e7c8bcc0d",
     "react-native-restart": "0.0.27",
     "react-native-safe-area-context": "4.5.0",
     "react-native-screens": "~3.20.0",

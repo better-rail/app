@@ -20,8 +20,9 @@ target 'BetterRail' do
     end
   end
   config = use_native_modules!
-  
+
   use_frameworks! :linkage => :static
+  
   $RNFirebaseAsStaticFramework = true
   $RNFirebaseAnalyticsWithoutAdIdSupport = true
 
