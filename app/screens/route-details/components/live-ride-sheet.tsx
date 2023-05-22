@@ -8,6 +8,7 @@ import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
 import { useStores } from "../../../models"
 import { translate } from "../../../i18n"
+import analytics from "@react-native-firebase/analytics"
 
 const SHEET_CONTAINER: ViewStyle = {
   height: 75,
@@ -63,6 +64,7 @@ export const LiveRideSheet = observer(function LiveRideSheet(props: { progress; 
         loading={!ride.id}
         onPress={() => {
           ride.stopRide(ride.id)
+          analytics().logEvent("stop_live_ride")
 
           if (screenName === "activeRide") {
             navigation.goBack()
