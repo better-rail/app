@@ -11,7 +11,7 @@ import HapticFeedback from "react-native-haptic-feedback"
 import { stationsObject, stationLocale } from "../../data/stations"
 import { isRTL, translate } from "../../i18n"
 import { useStores } from "../../models"
-import { useToast } from "react-native-toast-hybrid"
+import * as Burnt from "burnt"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
 
@@ -95,7 +95,6 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   const { originId, destinationId, screenName, style } = props
   const { favoriteRoutes } = useStores()
   const navigation = useNavigation()
-  const toast = useToast()
 
   const originName = stationsObject[originId][stationLocale]
   const destinationName = stationsObject[destinationId][stationLocale]
@@ -116,7 +115,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
               onPress={() => {
                 const favorite = { id: routeId, originId, destinationId }
                 if (!isFavorite) {
-                  toast.done(translate("favorites.added"))
+                  Burnt.alert({ title: translate("favorites.added"), duration: 1.5 })
                   HapticFeedback.trigger("impactMedium")
                   favoriteRoutes.add(favorite)
                   analytics().logEvent("favorite_route_added")
