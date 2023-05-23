@@ -4,6 +4,7 @@ import { color, spacing } from "../../theme"
 import { BlurView } from "@react-native-community/blur"
 import { ScrollView } from "react-native-gesture-handler"
 import BouncyCheckbox from "react-native-bouncy-checkbox"
+import { useState } from "react"
 
 const HEAD_WRAPPER: ViewStyle = {
   alignItems: "center",
@@ -34,7 +35,11 @@ const BOTTOM_FLOATING_VIEW: ViewStyle = {
   height: 80,
 }
 
+type SubscriptionTypes = "annual" | "monthly"
+
 export function PaywallScreen() {
+  const [subscriptionType, setSubscriptionType] = useState<SubscriptionTypes>("annual")
+
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={{ height: "100%" }} contentContainerStyle={{ paddingTop: 48 }}>
@@ -55,14 +60,16 @@ export function PaywallScreen() {
                 <Text style={{ color: color.dim }}>₪59.90/year</Text>
               </View>
             }
+            onPress={() => setSubscriptionType("annual")}
             startBoxItem={
-              <BouncyCheckbox onPress={(isChecked: boolean) => {}} fillColor={color.secondary} bounceEffectIn={0.9} />
+              <BouncyCheckbox disableBuiltInState isChecked={subscriptionType === "annual"} fillColor={color.secondary} />
             }
           />
           <ListItem
             title="Monthly"
+            onPress={() => setSubscriptionType("monthly")}
             startBoxItem={
-              <BouncyCheckbox onPress={(isChecked: boolean) => {}} fillColor={color.secondary} bounceEffectIn={0.9} />
+              <BouncyCheckbox disableBuiltInState isChecked={subscriptionType === "monthly"} fillColor={color.secondary} />
             }
           />
         </List>
