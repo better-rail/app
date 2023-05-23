@@ -13,11 +13,7 @@ const ActiveRideStack = createStackNavigator<ActiveRideList>()
 export type ActiveRideScreenProps = StackScreenProps<ActiveRideList, "activeRide">
 
 export const ActiveRideNavigator = () => (
-  <ActiveRideStack.Navigator
-    screenOptions={{
-      stackPresentation: "modal",
-    }}
-  >
+  <ActiveRideStack.Navigator>
     <ActiveRideStack.Screen
       name="activeRide"
       component={RouteDetailsScreen}
