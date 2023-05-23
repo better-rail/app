@@ -19,16 +19,17 @@ const LIST_ITEM_SEPARATOR: ViewStyle = {
 }
 
 export interface ListItemProps {
-  title: string
+  title: string | ReactNode
   subtitle?: string | ReactNode
   isFirstItem?: boolean
   isLastItem?: boolean
   startBoxItem?: ReactNode
+  endBoxItem?: ReactNode
   onPress?: () => void
 }
 
 export const ListItem = (props: ListItemProps) => {
-  const { title, subtitle, isLastItem, isFirstItem, onPress, startBoxItem } = props
+  const { title, subtitle, isLastItem, isFirstItem, onPress, startBoxItem, endBoxItem } = props
 
   const touchableStyle = useMemo(() => {
     const baseStyle = [LIST_ITEM_WRAPPER]
@@ -42,13 +43,25 @@ export const ListItem = (props: ListItemProps) => {
   return (
     <TouchableHighlight underlayColor={color.inputPlaceholderBackground} onPress={onPress} style={touchableStyle}>
       <View>
-        <View style={{ flexDirection: "row", alignItems: "center", paddingBottom: subtitle ? 6 : 12 }}>
-          {startBoxItem && <View style={{ marginEnd: 6 }}>{startBoxItem}</View>}
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            paddingBottom: subtitle ? 6 : 12,
+          }}
+        >
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            {startBoxItem && <View style={{ marginEnd: 6 }}>{startBoxItem}</View>}
 
-          <View>
-            <Text style={{ fontSize: 18 }}>{title}</Text>
-            {subtitle && <Text>{subtitle}</Text>}
+            <View>
+              {typeof title === "string" ? <Text style={{ fontSize: 18 }}>{title}</Text> : <>{title}</>}
+
+              {subtitle && <Text>{subtitle}</Text>}
+            </View>
           </View>
+
+          {endBoxItem}
         </View>
 
         {!isLastItem && (
