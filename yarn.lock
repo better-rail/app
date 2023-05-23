@@ -7052,6 +7052,14 @@ bunyan@^1.8.12:
     mv "~2"
     safe-json-stringify "~1"
 
+burnt@^0.11.4:
+  version "0.11.4"
+  resolved "https://registry.yarnpkg.com/burnt/-/burnt-0.11.4.tgz#204b7bf326fc28537d3d293a415b9372b99a4bb4"
+  integrity sha512-rUujz4pd10o7O9u3lR477wc2GF+DtBss/lE0naiADjLbcGL9+zneTalfXToFy9ytDpUt+gJaa/q+WLL55lAxyQ==
+  dependencies:
+    sf-symbols-typescript "^1.0.0"
+    sonner "^0.3.5"
+
 bytes@3.0.0:
   version "3.0.0"
   resolved "https://registry.npmjs.org/bytes/-/bytes-3.0.0.tgz"
@@ -16346,11 +16354,6 @@ react-native-swipe-gestures@^1.0.4:
   resolved "https://registry.npmjs.org/react-native-swipe-gestures/-/react-native-swipe-gestures-1.0.5.tgz"
   integrity sha512-Ns7Bn9H/Tyw278+5SQx9oAblDZ7JixyzeOczcBK8dipQk2pD7Djkcfnf1nB/8RErAmMLL9iXgW0QHqiII8AhKw==
 
-react-native-toast-hybrid@2.4.5:
-  version "2.4.5"
-  resolved "https://registry.npmjs.org/react-native-toast-hybrid/-/react-native-toast-hybrid-2.4.5.tgz"
-  integrity sha512-SQc+gOv3ikzSog2Jkoj2N1/rUvhUJO2nL/nhZqp5hc44FApmdZKuZuTQI+Z//IGp8Q4fq4u+23QY83YA+g5e7g==
-
 react-native-touchable-scale@2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/react-native-touchable-scale/-/react-native-touchable-scale-2.2.0.tgz#b12723014a66ba14af3e55c1925e4d7c77ef7209"
@@ -17473,6 +17476,11 @@ setprototypeof@1.2.0:
   resolved "https://registry.yarnpkg.com/setprototypeof/-/setprototypeof-1.2.0.tgz#66c9a24a73f9fc28cbe66b09fed3d33dcaf1b424"
   integrity sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==
 
+sf-symbols-typescript@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/sf-symbols-typescript/-/sf-symbols-typescript-1.0.0.tgz#94e9210bf27e7583f9749a0d07bd4f4937ea488f"
+  integrity sha512-DkS7q3nN68dEMb4E18HFPDAvyrjDZK9YAQQF2QxeFu9gp2xRDXFMF8qLJ1EmQ/qeEGQmop4lmMM1WtYJTIcCMw==
+
 sha.js@^2.4.0, sha.js@^2.4.8:
   version "2.4.11"
   resolved "https://registry.npmjs.org/sha.js/-/sha.js-2.4.11.tgz"
@@ -17715,6 +17723,11 @@ solidarity@2.3.1:
     json5 "2.1.0"
     minimist "^1.2.0"
     ramda "0.25.0"
+
+sonner@^0.3.5:
+  version "0.3.5"
+  resolved "https://registry.yarnpkg.com/sonner/-/sonner-0.3.5.tgz#5ef175732cb7b637c6460620ab01a0fba0e6a36b"
+  integrity sha512-yIwaQ4dftMvFApuruto2t7wGyyaPRpj5qYBWYJIz4Z7uGcVn0IfqI/hWN0JyJN4izNbZFuCYZISf3fOGnvSlNQ==
 
 source-list-map@^2.0.0:
   version "2.0.1"

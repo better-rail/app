@@ -75,6 +75,7 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
         disabled={isStartRideButtonDisabled}
         onDisabledPress={() => {
           HapticFeedback.trigger("notificationError")
+          analytics().logEvent("start_live_ride_disable_click")
           if (activeRide) {
             Alert.alert(translate("ride.rideExistsTitle"), translate("ride.rideExistsMessage"))
           } else {

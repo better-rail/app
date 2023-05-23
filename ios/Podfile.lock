@@ -1,5 +1,9 @@
 PODS:
   - boost (1.76.0)
+  - Burnt (0.11.4):
+    - ExpoModulesCore
+    - SPAlert
+    - SPIndicator
   - BVLinearGradient (2.5.6):
     - React
   - DoubleConversion (1.1.6)
@@ -532,12 +536,13 @@ PODS:
     - React-Core
   - RNWatch (1.1.0):
     - React
-  - ToastHybrid (2.4.5):
-    - React
+  - SPAlert (4.2.0)
+  - SPIndicator (1.6.4)
   - Yoga (1.14.0)
 
 DEPENDENCIES:
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
+  - Burnt (from `../node_modules/burnt/ios`)
   - BVLinearGradient (from `../node_modules/react-native-linear-gradient`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - Expo (from `../node_modules/expo`)
@@ -605,7 +610,6 @@ DEPENDENCIES:
   - RNSharedElement (from `../node_modules/react-native-shared-element`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNWatch (from `../node_modules/react-native-watch-connectivity`)
-  - ToastHybrid (from `../node_modules/react-native-toast-hybrid`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -625,10 +629,14 @@ SPEC REPOS:
     - PromisesObjC
     - PurchasesHybridCommon
     - RevenueCat
+    - SPAlert
+    - SPIndicator
 
 EXTERNAL SOURCES:
   boost:
     :podspec: "../node_modules/react-native/third-party-podspecs/boost.podspec"
+  Burnt:
+    :path: "../node_modules/burnt/ios"
   BVLinearGradient:
     :path: "../node_modules/react-native-linear-gradient"
   DoubleConversion:
@@ -755,13 +763,12 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-svg"
   RNWatch:
     :path: "../node_modules/react-native-watch-connectivity"
-  ToastHybrid:
-    :path: "../node_modules/react-native-toast-hybrid"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
   boost: 57d2868c099736d80fcd648bf211b4431e51a558
+  Burnt: 708556f6283e1b81767e6642e088819d85d1ea08
   BVLinearGradient: e3aad03778a456d77928f594a649e96995f1c872
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   Expo: b04d142a2b477a391b47c62d179c1a9e1140e6ad
@@ -840,7 +847,8 @@ SPEC CHECKSUMS:
   RNSharedElement: 504fa28a235b12505b6daedbb452a9ec96809bd0
   RNSVG: 07dbd870b0dcdecc99b3a202fa37c8ca163caec2
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
-  ToastHybrid: 432381039a804a60e142ebaa7af8290e236c288e
+  SPAlert: 735da1f16a887e294719217572ce1f936d8c8782
+  SPIndicator: 93e0a4fb23de51294ac48e874c0f081a5e293e4f
   Yoga: d56980c8914db0b51692f55533409e844b66133c
 
 PODFILE CHECKSUM: d000b1c4e8a101cf145d9cd059e1895517e79eb4
