@@ -1,14 +1,15 @@
 import React from "react"
+import { Linking, Platform, TextStyle, View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
-import { Linking, Platform, Settings, TextStyle, View, ViewStyle } from "react-native"
 import Share from "react-native-share"
 import { Screen, Text } from "../../components"
 import { SettingBox } from "./components/settings-box"
 import { getVersion } from "react-native-device-info"
-import { color, spacing, isDarkMode } from "../../theme"
+import { color, spacing } from "../../theme"
 import { translate, userLocale } from "../../i18n"
 import { SettingsScreenProps } from "../../navigators"
 import { SETTING_GROUP } from "./settings-styles"
+import { useIsDarkMode } from "../../hooks/use-is-dark-mode"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -58,6 +59,8 @@ const storeLink = Platform.select({
 })
 
 export const SettingsScreen = observer(function SettingsScreen({ navigation }: SettingsScreenProps) {
+  const isDarkMode = useIsDarkMode()
+
   return (
     <Screen
       style={ROOT}
