@@ -98,6 +98,13 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
 
+  useEffect(() => {
+    // navigation.navigate("paywallStack", {
+    //   screen: "main",
+    // })
+    navigation.navigate("paywallStack")
+  }, [])
+
   const formattedDate = useFormattedDate(routePlan.date)
   const stationCardScale = useRef(new Animated.Value(1)).current
 

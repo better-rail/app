@@ -1,5 +1,5 @@
 import React from "react"
-import { Image, TouchableOpacity, ImageStyle, ButtonProps } from "react-native"
+import { Image, TouchableOpacity, ImageStyle } from "react-native"
 import { color } from "../../theme"
 
 const CLOSE_ICON_STYLE: ImageStyle = {
@@ -11,7 +11,8 @@ const CLOSE_ICON_STYLE: ImageStyle = {
   opacity: 0.5,
 }
 
-interface CloseButtonProps extends ButtonProps {
+interface CloseButtonProps {
+  onPress: () => void
   iconStyle?: ImageStyle
 }
 
