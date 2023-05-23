@@ -1,10 +1,9 @@
 import { TextStyle, View, ViewStyle } from "react-native"
-import { Text } from "../../components"
+import { Text, List, ListItem } from "../../components"
 import { color, spacing } from "../../theme"
 import { BlurView } from "@react-native-community/blur"
 import { ScrollView } from "react-native-gesture-handler"
 import BouncyCheckbox from "react-native-bouncy-checkbox"
-import { ReactNode } from "react"
 
 const HEAD_WRAPPER: ViewStyle = {
   alignItems: "center",
@@ -71,54 +70,6 @@ export function PaywallScreen() {
       <View style={BOTTOM_FLOATING_VIEW}>
         <Text>hi</Text>
         <BlurView blurType="regular" style={{ position: "absolute", top: 0, left: 0, bottom: 0, right: 0, zIndex: -1 }} />
-      </View>
-    </View>
-  )
-}
-
-const LIST_WRAPPER: ViewStyle = {
-  marginHorizontal: 16,
-  borderRadius: 14,
-  backgroundColor: color.tertiaryBackground,
-}
-
-const LIST_ITEM_WRAPPER: ViewStyle = {
-  paddingHorizontal: 24,
-  paddingTop: 12,
-  borderRadius: 14,
-  backgroundColor: color.tertiaryBackground,
-}
-
-const LIST_ITEM_SEPARATOR: ViewStyle = {
-  borderBottomWidth: 1,
-  borderBottomColor: color.separator,
-}
-
-const List = ({ children }) => {
-  return <View style={LIST_WRAPPER}>{children}</View>
-}
-interface ListItemProps {
-  title: string
-  subtitle?: string | ReactNode
-
-  startBoxItem?: ReactNode
-}
-
-const ListItem = (props: ListItemProps) => {
-  const { title, subtitle, startBoxItem } = props
-  return (
-    <View style={LIST_ITEM_WRAPPER}>
-      <View style={{ flexDirection: "row", alignItems: "center" }}>
-        {startBoxItem && <View style={{ marginEnd: 6 }}>{startBoxItem}</View>}
-
-        <View style={{ marginBottom: 10 }}>
-          <Text style={{ fontSize: 18 }}>{title}</Text>
-          {subtitle && <Text>{subtitle}</Text>}
-        </View>
-      </View>
-
-      <View style={{ paddingStart: startBoxItem ? 48 : 0 }}>
-        <View style={LIST_ITEM_SEPARATOR} />
       </View>
     </View>
   )
