@@ -21,7 +21,6 @@ export type SettingsScreenProps = StackScreenProps<SettingsParamList, "settings"
 export const SettingsNavigator = () => (
   <SettingsStack.Navigator
     screenOptions={{
-      presentation: "modal",
       headerTintColor: color.primary,
       headerBackTitleVisible: false,
       headerStatusBarHeight: Platform.select({ ios: 10, android: 5 }),

@@ -63,7 +63,7 @@ export function PaywallScreen() {
       <View style={BOTTOM_FLOATING_VIEW}>
         <GradientButton
           title="Start 14 days free trial"
-          subtitle={`Then ${subscriptionType === "annual" ? "₪59.90" : "₪6.90"} / ${
+          subtitle={`then ${subscriptionType === "annual" ? "₪59.90" : "₪6.90"} / ${
             subscriptionType === "annual" ? "year" : "month. Cancel anytime."
           }`}
           onPress={() => {}}
