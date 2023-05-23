@@ -1,4 +1,4 @@
-import { OpaqueColorValue, TextStyle, View, ViewStyle, useColorScheme } from "react-native"
+import { OpaqueColorValue, TextStyle, View, ViewStyle } from "react-native"
 import { Text, List, ListItem } from "../../components"
 import { color } from "../../theme"
 import BouncyCheckbox from "react-native-bouncy-checkbox"
@@ -30,6 +30,7 @@ interface SubscriptionTypeBoxProps {
 
 export function SubscriptionTypeBox({ value, onChange }: SubscriptionTypeBoxProps) {
   const isDarkMode = useIsDarkMode()
+
   // the secondary light mode variant (aka pinky) looks bad here, so we override here with primary
   // and leave the purple dark mode color in place
   const fillColor = isDarkMode ? color.secondary : color.primary

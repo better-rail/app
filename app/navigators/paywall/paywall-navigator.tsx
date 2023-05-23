@@ -1,26 +1,29 @@
 import React from "react"
-import { createStackNavigator, StackScreenProps, TransitionPresets } from "@react-navigation/stack"
+import { CardStyleInterpolators, createStackNavigator, StackScreenProps, TransitionPresets } from "@react-navigation/stack"
 import CloseButton from "../../components/close-button/close-button"
 import { PaywallScreen } from "../../screens/paywall"
+import { TransitionIOSSpec } from "@react-navigation/stack/lib/typescript/src/TransitionConfigs/TransitionSpecs"
 
 export type PaywallParamList = {
-  main: undefined
+  paywall: undefined
 }
 
 const PaywallStack = createStackNavigator<PaywallParamList>()
 
-export type PaywallScreenProps = StackScreenProps<PaywallParamList, "main">
+export type PaywallScreenProps = StackScreenProps<PaywallParamList, "paywall">
 
 export const PaywallNavigator = () => (
   <PaywallStack.Navigator>
     <PaywallStack.Screen
-      name="main"
+      name="paywall"
       component={PaywallScreen}
       options={({ navigation }) => ({
         headerTransparent: true,
-        headerStatusBarHeight: 16,
+        headerStatusBarHeight: 55,
         title: "",
-        headerLeft: () => <CloseButton onPress={() => navigation.goBack()} iconStyle={{ tintColor: "grey" }} />,
+        headerLeft: () => (
+          <CloseButton onPress={() => navigation.goBack()} style={{ marginStart: 12 }} iconStyle={{ tintColor: "grey" }} />
+        ),
       })}
     />
   </PaywallStack.Navigator>

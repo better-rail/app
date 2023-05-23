@@ -98,13 +98,6 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
 
-  useEffect(() => {
-    // navigation.navigate("paywallStack", {
-    //   screen: "main",
-    // })
-    navigation.navigate("paywallStack")
-  }, [])
-
   const formattedDate = useFormattedDate(routePlan.date)
   const stationCardScale = useRef(new Animated.Value(1)).current
 
@@ -257,7 +250,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
             <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />
           </TouchableOpacity>
         </View>
-
+        <Button title="paywall" onPress={() => navigation.navigate("paywallStack")} />
         <Text preset="header" tx="plan.title" style={HEADER_TITLE} />
 
         <Text preset="fieldLabel" tx="plan.origin" text="תחנת מוצא" style={{ marginBottom: spacing[1] }} />

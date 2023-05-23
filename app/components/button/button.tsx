@@ -10,7 +10,7 @@ const BUTTON_WRAPPER: ViewStyle = {
   flex: 1,
 }
 
-const PRESSABLE_BASE: ViewStyle = {
+export const PRESSABLE_BASE: ViewStyle = {
   flex: 1,
   minHeight: 55,
   padding: spacing[4],
