@@ -1,11 +1,13 @@
 import { TextStyle, TouchableOpacity, View, ViewStyle } from "react-native"
-import { Button, PRESSABLE_BASE, Text } from "../../components"
+import { PRESSABLE_BASE, Text } from "../../components"
 import { color, spacing } from "../../theme"
 import { BlurView } from "@react-native-community/blur"
 import { ScrollView } from "react-native-gesture-handler"
 import { useState } from "react"
 import { SubscriptionTypeBox, SubscriptionTypes } from "./subscription-type-box"
 import LinearGradient from "react-native-linear-gradient"
+import { useIsDarkMode } from "../../hooks/use-is-dark-mode"
+import Animated, { FadeIn, FadeInDown, FadeOut, FadeOutDown } from "react-native-reanimated"
 
 // #region styles
 const HEAD_WRAPPER: ViewStyle = {
@@ -32,7 +34,6 @@ const BETTER_RAIL_PRO_SUBTITLE: TextStyle = {
 const BOTTOM_FLOATING_VIEW: ViewStyle = {
   position: "absolute",
   bottom: 0,
-  backgroundColor: color.secondaryBackground,
   width: "100%",
   height: 115,
   paddingTop: 12,
@@ -44,9 +45,10 @@ const BOTTOM_FLOATING_VIEW: ViewStyle = {
 
 export function PaywallScreen() {
   const [subscriptionType, setSubscriptionType] = useState<SubscriptionTypes>("annual")
+  const isDarkMode = useIsDarkMode()
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: color.background }}>
       <ScrollView style={{ height: "100%" }} contentContainerStyle={{ paddingTop: 100 }}>
         <View style={HEAD_WRAPPER}>
           <View style={{ width: 200, height: 200, backgroundColor: "grey", borderRadius: 8, marginBottom: 24 }} />
@@ -63,16 +65,49 @@ export function PaywallScreen() {
       <View style={BOTTOM_FLOATING_VIEW}>
         <GradientButton
           title="Start 14 days free trial"
-          subtitle={`then ${subscriptionType === "annual" ? "₪59.90" : "₪6.90"} / ${
-            subscriptionType === "annual" ? "year" : "month. Cancel anytime."
-          }`}
+          subtitle={
+            <>
+              {subscriptionType === "annual" && (
+                <Animated.View entering={FadeIn}>
+                  <Text
+                    style={{
+                      color: color.whiteText,
+                      textAlign: "center",
+                      fontSize: 14,
+                      letterSpacing: -0.2,
+                      fontFamily: "System",
+                    }}
+                  >
+                    then ₪59.90 / year
+                  </Text>
+                </Animated.View>
+              )}
+              {subscriptionType === "monthly" && (
+                <Animated.View entering={FadeIn}>
+                  <Text
+                    style={{
+                      color: color.whiteText,
+                      textAlign: "center",
+                      fontSize: 14,
+                      letterSpacing: -0.2,
+                      fontFamily: "System",
+                    }}
+                  >
+                    then ₪6.90 / month. Cancel anytime
+                  </Text>
+                </Animated.View>
+              )}
+            </>
+          }
           onPress={() => {}}
           style={{ width: "100%" }}
           titleStyle={{ color: color.whiteText }}
           colors={["#7B1AEC", "#5755F2"]}
         />
-        {/* <Button title="Start 14 days free trial" style={{ width: "100%", maxHeight: "20%" }} /> */}
-        <BlurView blurType="regular" style={{ position: "absolute", top: 0, left: 0, bottom: 0, right: 0, zIndex: -1 }} />
+        <BlurView
+          blurType={isDarkMode ? "ultraThinMaterialDark" : "xlight"}
+          style={{ position: "absolute", top: 0, left: 0, bottom: 0, right: 0, zIndex: -1 }}
+        />
       </View>
     </View>
   )
@@ -82,7 +117,7 @@ const GradientButton = ({ onPress, style, titleStyle, colors, title, subtitle })
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.9}>
       <LinearGradient colors={colors} style={[PRESSABLE_BASE, { minHeight: 70 }]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-        <View style={{ marginTop: -3, gap: 4 }}>
+        <View style={{ alignItems: "center", marginTop: -3, gap: 6 }}>
           <Text style={[{ textAlign: "center", fontWeight: "600", fontSize: 18, fontFamily: "System" }, titleStyle]}>
             {title}
           </Text>
