@@ -6,11 +6,15 @@ import { useIsDarkMode } from "../../hooks/use-is-dark-mode"
 
 export type SubscriptionTypes = "annual" | "monthly"
 
-const ANNUAL_ITEM_TITLE: ViewStyle = {
+const ANNUAL_ITEM_TITLE_WRAPPER: ViewStyle = {
   flexDirection: "row",
   alignItems: "center",
-  gap: 8,
+  gap: 6,
   marginBottom: 2,
+}
+
+const ANNUAL_ITEM_TITLE: TextStyle = {
+  fontSize: 18,
 }
 
 const ITEM_SUBTITLE: TextStyle = {
@@ -39,8 +43,8 @@ export function SubscriptionTypeBox({ value, onChange }: SubscriptionTypeBoxProp
     <List>
       <ListItem
         title={
-          <View style={ANNUAL_ITEM_TITLE}>
-            <Text style={{ fontSize: 18 }}>Annual</Text>
+          <View style={ANNUAL_ITEM_TITLE_WRAPPER}>
+            <Text style={ANNUAL_ITEM_TITLE}>Annual</Text>
             <DiscountBadge value={30} backgroundColor={fillColor} />
           </View>
         }
@@ -73,9 +77,9 @@ const DISCOUNT_BADGE_WRAPPER: ViewStyle = {
 
 const DISCOUNT_BADGE_TEXT: TextStyle = {
   fontSize: 14,
+  fontFamily: "System",
   fontWeight: "bold",
   letterSpacing: -0.5,
-  fontFamily: "System",
   color: color.whiteText,
 }
 

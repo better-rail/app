@@ -23,12 +23,9 @@ export let dateDelimiter = " "
 export let dateLocale = "en-US"
 export const deviceLocale = Localization.locale
 
-analytics().setUserProperties({ deviceLocale, userLocale })
+analytics().setUserProperties({ deviceLocale })
 
 export function setInitialLanguage() {
-  // If the user main locale is Hebrew / Arabic, we set it immidately to them.
-  // Otherwise, we show a prompt asking which language the user would like to use.
-
   if (Localization.locale.startsWith("he")) {
     changeUserLanguage("he")
   } else if (Localization.locale.startsWith("ar")) {

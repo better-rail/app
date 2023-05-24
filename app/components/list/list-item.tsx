@@ -1,8 +1,7 @@
 import { ReactNode, useMemo, useState } from "react"
-import { Pressable, PressableProps, View, ViewStyle } from "react-native"
+import { TouchableHighlight, PressableProps, View, ViewStyle } from "react-native"
 import { color } from "../../theme"
 import { Text } from "../text/text"
-import { TouchableHighlight } from "react-native-gesture-handler"
 
 const LIST_ITEM_WRAPPER: ViewStyle = {
   paddingHorizontal: 24,
@@ -26,6 +25,7 @@ export interface ListItemProps {
   startBoxItem?: ReactNode
   endBoxItem?: ReactNode
   onPress?: () => void
+  contentStyle?: ViewStyle
 }
 
 export const ListItem = (props: ListItemProps) => {
@@ -54,10 +54,10 @@ export const ListItem = (props: ListItemProps) => {
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             {startBoxItem && <View style={{ marginEnd: 6 }}>{startBoxItem}</View>}
 
-            <View>
+            <View style={props.contentStyle}>
               {typeof title === "string" ? <Text style={{ fontSize: 18 }}>{title}</Text> : <>{title}</>}
 
-              {subtitle && <Text>{subtitle}</Text>}
+              {subtitle && <Text style={{ color: color.grey }}>{subtitle}</Text>}
             </View>
           </View>
 

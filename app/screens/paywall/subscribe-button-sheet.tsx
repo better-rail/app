@@ -1,6 +1,6 @@
 import { BlurView } from "@react-native-community/blur"
 import React from "react"
-import { TextStyle, View, ViewStyle } from "react-native"
+import { Platform, TextStyle, View, ViewStyle } from "react-native"
 import Animated, { FadeIn } from "react-native-reanimated"
 import { color } from "../../theme"
 import { useIsDarkMode } from "../../hooks/use-is-dark-mode"
@@ -8,7 +8,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import LinearGradient from "react-native-linear-gradient"
 import { PRESSABLE_BASE, Text } from "../../components"
-import { SubscriptionTypes } from "./subscription-type-box"
+import { SubscriptionTypes } from "./"
+import { userLocale } from "../../i18n"
+
+const isHeebo = userLocale !== "en" && Platform.OS === "ios"
+const fontFamily = isHeebo ? "Heebo" : "System"
 
 const BOTTOM_FLOATING_VIEW: ViewStyle = {
   position: "absolute",
@@ -25,7 +29,7 @@ const SUBSCRIPTION_BUTTON_SUBTITLE: TextStyle = {
   textAlign: "center",
   fontSize: 14,
   letterSpacing: -0.2,
-  // fontFamily: "System",
+  fontFamily,
 }
 
 interface SubscribeButtonSheetProps {
@@ -56,7 +60,7 @@ export function SubscribeButtonSheet({ subscriptionType }: SubscribeButtonSheetP
         }
         onPress={() => {}}
         style={{ width: "100%" }}
-        titleStyle={{ color: color.whiteText }}
+        titleStyle={{ fontFamily, color: color.whiteText }}
         colors={["#7B1AEC", "#5755F2"]}
       />
       <BlurView
@@ -71,14 +75,13 @@ const SUBSCRIPTION_BUTTON_TITLE: TextStyle = {
   textAlign: "center",
   fontWeight: "600",
   fontSize: 18,
-  // fontFamily: "System",
 }
 
 const GradientButton = ({ onPress, style, titleStyle, colors, title, subtitle }) => {
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.9}>
       <LinearGradient colors={colors} style={[PRESSABLE_BASE, { minHeight: 70 }]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-        <View style={{ alignItems: "center", marginTop: -3, gap: 4 }}>
+        <View style={{ alignItems: "center", marginTop: -3, gap: isHeebo ? 0 : 6 }}>
           <Text style={[SUBSCRIPTION_BUTTON_TITLE, titleStyle]}>{title}</Text>
           <Text style={[SUBSCRIPTION_BUTTON_SUBTITLE, titleStyle]}>{subtitle}</Text>
         </View>

@@ -1,13 +1,13 @@
-import { TextStyle, TouchableOpacity, View, ViewStyle } from "react-native"
-import { PRESSABLE_BASE, Text } from "../../components"
+import { Platform, TextStyle, View, ViewStyle } from "react-native"
+import { Text } from "../../components"
 import { color, spacing } from "../../theme"
 import { ScrollView } from "react-native-gesture-handler"
 import { useLayoutEffect, useState } from "react"
 import { SubscriptionTypeBox, SubscriptionTypes } from "./subscription-type-box"
-import LinearGradient from "react-native-linear-gradient"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { PaywallScreenProps } from "../../navigators/paywall/paywall-navigator"
 import { SubscribeButtonSheet } from "./subscribe-button-sheet"
+import { FeaturesBox } from "./paywall-features-box"
 
 // #region styles
 const HEAD_WRAPPER: ViewStyle = {
@@ -19,7 +19,6 @@ const BETTER_RAIL_PRO_TITLE: TextStyle = {
   marginBottom: spacing[0],
   textAlign: "center",
   fontSize: 28,
-  fontFamily: "System",
   fontWeight: "600",
   letterSpacing: -0.9,
 }
@@ -45,7 +44,10 @@ export function PaywallScreen({ navigation }: PaywallScreenProps) {
 
   return (
     <View style={{ flex: 1, backgroundColor: color.background }}>
-      <ScrollView style={{ height: "100%" }} contentContainerStyle={{ paddingTop: 45 + insets.top }}>
+      <ScrollView
+        style={{ height: "100%" }}
+        contentContainerStyle={{ paddingTop: 45 + insets.top, paddingBottom: 120 + insets.bottom }}
+      >
         <View style={HEAD_WRAPPER}>
           <View style={{ width: 200, height: 200, backgroundColor: "grey", borderRadius: 8, marginBottom: 24 }} />
           <Text style={BETTER_RAIL_PRO_TITLE}>Better Rail Pro</Text>
@@ -56,7 +58,10 @@ export function PaywallScreen({ navigation }: PaywallScreenProps) {
           <Text style={BETTER_RAIL_PRO_SUBTITLE}>Afterwards, it’s less than a cup of coffee ☕️</Text>
         </View>
 
-        <SubscriptionTypeBox value={subscriptionType} onChange={setSubscriptionType} />
+        <View style={{ gap: 16 }}>
+          <SubscriptionTypeBox value={subscriptionType} onChange={setSubscriptionType} />
+          <FeaturesBox />
+        </View>
       </ScrollView>
 
       <SubscribeButtonSheet subscriptionType={subscriptionType} />
