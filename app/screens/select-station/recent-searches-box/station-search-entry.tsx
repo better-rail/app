@@ -13,16 +13,18 @@ const SEARCH_ENTRY_WRAPPER: ViewStyle = {
 }
 
 const SEARCH_ENTRY_IMAGE_WRAPPER: ViewStyle = {
+  marginBottom: spacing[1],
   shadowOffset: { width: 0, height: 0 },
   shadowColor: "rgba(0,0,0,.3)",
   shadowRadius: 1.5,
   shadowOpacity: colorScheme === "light" ? 0.5 : 0,
+  backgroundColor: color.inputPlaceholderBackground,
+  borderRadius: Platform.select({ ios: 6, android: 4 }),
 }
 
 const SEARCH_ENTRY_IMAGE: ImageStyle = {
   width: 175,
   height: 125,
-  marginBottom: spacing[1],
   borderRadius: Platform.select({ ios: 6, android: 4 }),
 }
 
@@ -31,9 +33,7 @@ const EMPTY_CARD_WRAPPER: ViewStyle = {
   height: 125,
   justifyContent: "center",
   alignItems: "center",
-  marginBottom: spacing[1],
   borderRadius: Platform.select({ ios: 6, android: 4 }),
-  backgroundColor: color.inputPlaceholderBackground,
 }
 
 type StationSearchEntryProps = {
