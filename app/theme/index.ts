@@ -1,4 +1,5 @@
 import { PixelRatio, Appearance } from "react-native"
+import analytics from "@react-native-firebase/analytics"
 
 export * from "./color"
 export * from "./spacing"
@@ -6,4 +7,7 @@ export * from "./typography"
 export * from "./timing"
 
 export const fontScale = PixelRatio.getFontScale()
-export const isDarkMode = Appearance.getColorScheme() === "dark"
+const colorScheme = Appearance.getColorScheme()
+export const isDarkMode = colorScheme === "dark"
+
+analytics().setUserProperty("colorScheme", colorScheme)

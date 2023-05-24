@@ -18,11 +18,12 @@ export const PaywallNavigator = () => (
       name="paywall"
       component={PaywallScreen}
       options={({ navigation }) => ({
-        headerTransparent: true,
-        title: "",
-        headerLeft: () => (
-          <CloseButton onPress={() => navigation.goBack()} style={{ marginStart: 6 }} iconStyle={{ tintColor: "grey" }} />
-        ),
+        // headerTransparent: true,
+        // title: "",
+        headerShown: false,
+        // headerLeft: () => (
+        //   <CloseButton onPress={() => navigation.goBack()} style={{ marginStart: 6 }} iconStyle={{ tintColor: "grey" }} />
+        // ),
       })}
     />
   </PaywallStack.Navigator>

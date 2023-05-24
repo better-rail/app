@@ -8,6 +8,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { PaywallScreenProps } from "../../navigators/paywall/paywall-navigator"
 import { SubscribeButtonSheet } from "./subscribe-button-sheet"
 import { FeaturesBox } from "./paywall-features-box"
+import CloseButton from "../../components/close-button/close-button"
+import { translate } from "../../i18n"
 
 // #region styles
 const HEAD_WRAPPER: ViewStyle = {
@@ -25,7 +27,6 @@ const BETTER_RAIL_PRO_TITLE: TextStyle = {
 
 const BETTER_RAIL_PRO_SUBTITLE: TextStyle = {
   textAlign: "center",
-
   letterSpacing: -0.5,
   paddingHorizontal: 24,
 }
@@ -36,18 +37,21 @@ export function PaywallScreen({ navigation }: PaywallScreenProps) {
   const [subscriptionType, setSubscriptionType] = useState<SubscriptionTypes>("annual")
   const insets = useSafeAreaInsets()
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerStatusBarHeight: insets.top + 10,
-    })
-  }, [])
+  // useLayoutEffect(() => {
+  //   navigation.setOptions({
+  //     headerStatusBarHeight: insets.top + 10,
+  //   })
+  // }, [])
 
   return (
     <View style={{ flex: 1, backgroundColor: color.background }}>
-      <ScrollView
-        style={{ height: "100%" }}
-        contentContainerStyle={{ paddingTop: 45 + insets.top, paddingBottom: 120 + insets.bottom }}
-      >
+      <ScrollView style={{ height: "100%" }} contentContainerStyle={{ paddingBottom: 120 + insets.bottom }}>
+        <CloseButton
+          onPress={() => navigation.goBack()}
+          style={{ marginTop: insets.top + 10, marginStart: 6 }}
+          iconStyle={{ tintColor: "grey" }}
+          accessibilityLabel={translate("common.close")}
+        />
         <View style={HEAD_WRAPPER}>
           <View style={{ width: 200, height: 200, backgroundColor: "grey", borderRadius: 8, marginBottom: 24 }} />
           <Text style={BETTER_RAIL_PRO_TITLE}>Better Rail Pro</Text>

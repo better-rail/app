@@ -10,11 +10,17 @@ const LIST_ITEM_WRAPPER: ViewStyle = {
 }
 
 const FIRST_ITEM: ViewStyle = { borderRadius: 14, borderBottomStartRadius: 0, borderBottomEndRadius: 0 }
-const LAST_ITEM: ViewStyle = { borderRadius: 14, borderTopStartRadius: 0, borderTopEndRadius: 0 }
+const LAST_ITEM: ViewStyle = {
+  paddingBottom: 2,
+  borderRadius: 14,
+  borderTopStartRadius: 0,
+  borderTopEndRadius: 0,
+}
 
 const LIST_ITEM_SEPARATOR: ViewStyle = {
   borderBottomWidth: 1,
   borderBottomColor: color.separator,
+  opacity: 0.9,
 }
 
 export interface ListItemProps {
@@ -57,13 +63,12 @@ export const ListItem = (props: ListItemProps) => {
             <View style={props.contentStyle}>
               {typeof title === "string" ? <Text style={{ fontSize: 18 }}>{title}</Text> : <>{title}</>}
 
-              {subtitle && <Text style={{ color: color.grey }}>{subtitle}</Text>}
+              {subtitle && <Text style={{ fontFamily: "System", color: color.grey }}>{subtitle}</Text>}
             </View>
           </View>
 
           {endBoxItem}
         </View>
-
         {!isLastItem && (
           <View style={{ paddingStart: startBoxItem ? 48 : 0 }}>
             <View style={LIST_ITEM_SEPARATOR} />
