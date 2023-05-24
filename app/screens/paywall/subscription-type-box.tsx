@@ -52,18 +52,18 @@ export function SubscriptionTypeBox({ value, onChange }: SubscriptionTypeBoxProp
         subtitle={
           <View style={{ flexDirection: "row", gap: 3 }}>
             <Text style={[ITEM_SUBTITLE, { textDecorationLine: "line-through" }]}>₪82.90</Text>
-            <Text style={ITEM_SUBTITLE}>₪59.90/year</Text>
+            <Text style={ITEM_SUBTITLE}>{translate("paywall.yearlyPrice", { price: "59.90₪" })}</Text>
           </View>
         }
         onPress={() => onChange("annual")}
         startBoxItem={<BouncyCheckbox disableBuiltInState isChecked={value === "annual"} fillColor={fillColor} />}
-        endBoxItem={<Text style={SUBSCRIPTION_PRICE}>₪4.90/month</Text>}
+        endBoxItem={<Text style={SUBSCRIPTION_PRICE}>{translate("paywall.monthlyPrice", { price: "4.90₪" })}</Text>}
       />
       <ListItem
         title={translate("paywall.monthly")}
         onPress={() => onChange("monthly")}
         startBoxItem={<BouncyCheckbox disableBuiltInState isChecked={value === "monthly"} fillColor={fillColor} />}
-        endBoxItem={<Text style={SUBSCRIPTION_PRICE}>₪6.90/month</Text>}
+        endBoxItem={<Text style={SUBSCRIPTION_PRICE}>{translate("paywall.monthlyPrice", { price: "6.90₪" })}</Text>}
       />
     </List>
   )

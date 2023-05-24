@@ -164,6 +164,8 @@
     "tryFree": "Try free for 14 days.",
     "afterTrial": "Afterwards, it’s less than a cup of coffee ☕️",
     "annual": "Annual",
-    "monthly": "Monthly"
+    "monthly": "Monthly",
+    "monthlyPrice": "%{price}/month",
+    "yearlyPrice": "%{price}/year"
   }
 }
