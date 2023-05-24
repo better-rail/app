@@ -3,6 +3,7 @@ import { Text, List, ListItem } from "../../components"
 import { color } from "../../theme"
 import BouncyCheckbox from "react-native-bouncy-checkbox"
 import { useIsDarkMode } from "../../hooks/use-is-dark-mode"
+import { translate } from "../../i18n"
 
 export type SubscriptionTypes = "annual" | "monthly"
 
@@ -44,7 +45,7 @@ export function SubscriptionTypeBox({ value, onChange }: SubscriptionTypeBoxProp
       <ListItem
         title={
           <View style={ANNUAL_ITEM_TITLE_WRAPPER}>
-            <Text style={ANNUAL_ITEM_TITLE}>Annual</Text>
+            <Text tx="paywall.annual" style={ANNUAL_ITEM_TITLE} />
             <DiscountBadge value={30} backgroundColor={fillColor} />
           </View>
         }
@@ -59,7 +60,7 @@ export function SubscriptionTypeBox({ value, onChange }: SubscriptionTypeBoxProp
         endBoxItem={<Text style={SUBSCRIPTION_PRICE}>₪4.90/month</Text>}
       />
       <ListItem
-        title="Monthly"
+        title={translate("paywall.monthly")}
         onPress={() => onChange("monthly")}
         startBoxItem={<BouncyCheckbox disableBuiltInState isChecked={value === "monthly"} fillColor={fillColor} />}
         endBoxItem={<Text style={SUBSCRIPTION_PRICE}>₪6.90/month</Text>}

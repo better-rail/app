@@ -22,8 +22,9 @@ const BETTER_RAIL_PRO_TITLE: TextStyle = {
   marginBottom: spacing[0],
   textAlign: "center",
   fontSize: 28,
-  fontWeight: "600",
-  letterSpacing: -0.9,
+  fontWeight: "700",
+  fontFamily: "System",
+  letterSpacing: -0.85,
 }
 
 const BETTER_RAIL_PRO_SUBTITLE: TextStyle = {
@@ -62,11 +63,12 @@ export function PaywallScreen({ navigation }: PaywallScreenProps) {
         <View style={HEAD_WRAPPER}>
           <View style={{ width: 200, height: 200, backgroundColor: "grey", borderRadius: 8, marginBottom: 24 }} />
           <Text style={BETTER_RAIL_PRO_TITLE}>Better Rail Pro</Text>
-          <Text style={[BETTER_RAIL_PRO_SUBTITLE, { paddingHorizontal: spacing[6], marginBottom: spacing[4] }]}>
-            Supercharge your train travels and support the app development.
-          </Text>
-          <Text style={[BETTER_RAIL_PRO_SUBTITLE, { fontWeight: "500", marginBottom: -4 }]}>Try free for 14 days.</Text>
-          <Text style={BETTER_RAIL_PRO_SUBTITLE}>Afterwards, it’s less than a cup of coffee ☕️</Text>
+          <Text
+            tx="paywall.intro"
+            style={[BETTER_RAIL_PRO_SUBTITLE, { paddingHorizontal: spacing[6], marginBottom: spacing[4] }]}
+          />
+          <Text tx="paywall.tryFree" style={[BETTER_RAIL_PRO_SUBTITLE, { fontWeight: "500", marginBottom: -4 }]} />
+          <Text tx="paywall.afterTrial" style={BETTER_RAIL_PRO_SUBTITLE} />
         </View>
 
         <View style={{ gap: 24 }}>

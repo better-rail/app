@@ -158,5 +158,12 @@
     "rideExistsTitle": "An active ride exists",
     "rideExistsMessage": "Cancel the current ride in order to start a new one",
     "trainArrives": "Train arrives to destination"
+  },
+  "paywall": {
+    "intro": "Supercharge your train travels and support the app development.",
+    "tryFree": "Try free for 14 days.",
+    "afterTrial": "Afterwards, it’s less than a cup of coffee ☕️",
+    "annual": "Annual",
+    "monthly": "Monthly"
   }
 }
