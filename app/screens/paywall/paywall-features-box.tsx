@@ -3,6 +3,7 @@ import { List, ListItem } from "../../components"
 import { CHEVRON_ICON } from "../settings"
 
 const deviceWidth = Dimensions.get("screen").width
+const isLargeScreen = deviceWidth > 375
 
 const LiveActivityIcon = require("../../../assets/live-activity.png")
 const WidgetsIcon = require("../../../assets/widgets.png")
@@ -80,7 +81,7 @@ const FeatureBox = ({ title, subtitle, icon, bgColor, iconColor, ...rest }) => (
   <ListItem
     title={title}
     subtitle={subtitle}
-    contentStyle={{ width: deviceWidth > 375 ? 230 : 220 }}
+    contentStyle={{ width: isLargeScreen ? 230 : 220 }}
     startBoxItem={<FeatureBoxIcon icon={icon} backgroundColor={bgColor} tintColor={iconColor} />}
     endBoxItem={<Image source={ChevronIcon} style={[CHEVRON_ICON, { marginStart: 0, marginEnd: 0 }]} />}
     onPress={() => {}}
@@ -91,7 +92,7 @@ const FeatureBox = ({ title, subtitle, icon, bgColor, iconColor, ...rest }) => (
 const ICON_BOX_WRAPPER: ViewStyle = {
   width: 40,
   height: 40,
-  marginTop: -14,
+  marginTop: -12,
   marginStart: -8,
   marginEnd: 12,
   padding: 18,

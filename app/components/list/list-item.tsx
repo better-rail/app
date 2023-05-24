@@ -1,5 +1,5 @@
-import { ReactNode, useMemo, useState } from "react"
-import { TouchableHighlight, PressableProps, View, ViewStyle } from "react-native"
+import { ReactNode, useMemo } from "react"
+import { TouchableHighlight, View, ViewStyle } from "react-native"
 import { color } from "../../theme"
 import { Text } from "../text/text"
 
@@ -63,7 +63,7 @@ export const ListItem = (props: ListItemProps) => {
             <View style={props.contentStyle}>
               {typeof title === "string" ? <Text style={{ fontSize: 18 }}>{title}</Text> : <>{title}</>}
 
-              {subtitle && <Text style={{ fontFamily: "System", color: color.grey }}>{subtitle}</Text>}
+              {subtitle && <Text style={{ color: color.grey }}>{subtitle}</Text>}
             </View>
           </View>
 
