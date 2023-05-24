@@ -1,6 +1,6 @@
 import { BlurView } from "@react-native-community/blur"
 import React from "react"
-import { View, ViewStyle } from "react-native"
+import { TextStyle, View, ViewStyle } from "react-native"
 import Animated, { FadeIn } from "react-native-reanimated"
 import { color } from "../../theme"
 import { useIsDarkMode } from "../../hooks/use-is-dark-mode"
@@ -20,6 +20,14 @@ const BOTTOM_FLOATING_VIEW: ViewStyle = {
   borderTopColor: color.separator,
 }
 
+const SUBSCRIPTION_BUTTON_SUBTITLE: TextStyle = {
+  color: color.whiteText,
+  textAlign: "center",
+  fontSize: 14,
+  letterSpacing: -0.2,
+  // fontFamily: "System",
+}
+
 interface SubscribeButtonSheetProps {
   subscriptionType: SubscriptionTypes
 }
@@ -36,32 +44,12 @@ export function SubscribeButtonSheet({ subscriptionType }: SubscribeButtonSheetP
           <>
             {subscriptionType === "annual" && (
               <Animated.View entering={FadeIn}>
-                <Text
-                  style={{
-                    color: color.whiteText,
-                    textAlign: "center",
-                    fontSize: 14,
-                    letterSpacing: -0.2,
-                    fontFamily: "System",
-                  }}
-                >
-                  then ₪59.90 / year
-                </Text>
+                <Text style={SUBSCRIPTION_BUTTON_SUBTITLE}>then ₪59.90 / year</Text>
               </Animated.View>
             )}
             {subscriptionType === "monthly" && (
               <Animated.View entering={FadeIn}>
-                <Text
-                  style={{
-                    color: color.whiteText,
-                    textAlign: "center",
-                    fontSize: 14,
-                    letterSpacing: -0.2,
-                    fontFamily: "System",
-                  }}
-                >
-                  then ₪6.90 / month. Cancel anytime
-                </Text>
+                <Text style={SUBSCRIPTION_BUTTON_SUBTITLE}>then ₪6.90 / month. Cancel anytime</Text>
               </Animated.View>
             )}
           </>
@@ -79,17 +67,20 @@ export function SubscribeButtonSheet({ subscriptionType }: SubscribeButtonSheetP
   )
 }
 
+const SUBSCRIPTION_BUTTON_TITLE: TextStyle = {
+  textAlign: "center",
+  fontWeight: "600",
+  fontSize: 18,
+  // fontFamily: "System",
+}
+
 const GradientButton = ({ onPress, style, titleStyle, colors, title, subtitle }) => {
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.9}>
       <LinearGradient colors={colors} style={[PRESSABLE_BASE, { minHeight: 70 }]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-        <View style={{ alignItems: "center", marginTop: -3, gap: 6 }}>
-          <Text style={[{ textAlign: "center", fontWeight: "600", fontSize: 18, fontFamily: "System" }, titleStyle]}>
-            {title}
-          </Text>
-          <Text style={[{ textAlign: "center", fontSize: 14, letterSpacing: -0.2, fontFamily: "System" }, titleStyle]}>
-            {subtitle}
-          </Text>
+        <View style={{ alignItems: "center", marginTop: -3, gap: 4 }}>
+          <Text style={[SUBSCRIPTION_BUTTON_TITLE, titleStyle]}>{title}</Text>
+          <Text style={[SUBSCRIPTION_BUTTON_SUBTITLE, titleStyle]}>{subtitle}</Text>
         </View>
       </LinearGradient>
     </TouchableOpacity>
