@@ -3,11 +3,14 @@ import { PRESSABLE_BASE, Text } from "../../components"
 import { color, spacing } from "../../theme"
 import { BlurView } from "@react-native-community/blur"
 import { ScrollView } from "react-native-gesture-handler"
-import { useState } from "react"
+import { useLayoutEffect, useState } from "react"
 import { SubscriptionTypeBox, SubscriptionTypes } from "./subscription-type-box"
 import LinearGradient from "react-native-linear-gradient"
 import { useIsDarkMode } from "../../hooks/use-is-dark-mode"
 import Animated, { FadeIn, FadeInDown, FadeOut, FadeOutDown } from "react-native-reanimated"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
+import CloseButton from "../../components/close-button/close-button"
+import { PaywallScreenProps } from "../../navigators/paywall/paywall-navigator"
 
 // #region styles
 const HEAD_WRAPPER: ViewStyle = {
@@ -35,7 +38,7 @@ const BOTTOM_FLOATING_VIEW: ViewStyle = {
   position: "absolute",
   bottom: 0,
   width: "100%",
-  height: 115,
+  height: 97.5,
   paddingTop: 12,
   paddingHorizontal: 16,
   borderTopWidth: 1,
@@ -43,13 +46,20 @@ const BOTTOM_FLOATING_VIEW: ViewStyle = {
 }
 // #endregion
 
-export function PaywallScreen() {
+export function PaywallScreen({ navigation }: PaywallScreenProps) {
   const [subscriptionType, setSubscriptionType] = useState<SubscriptionTypes>("annual")
   const isDarkMode = useIsDarkMode()
+  const insets = useSafeAreaInsets()
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerStatusBarHeight: insets.top + 10,
+    })
+  }, [])
 
   return (
     <View style={{ flex: 1, backgroundColor: color.background }}>
-      <ScrollView style={{ height: "100%" }} contentContainerStyle={{ paddingTop: 100 }}>
+      <ScrollView style={{ height: "100%" }} contentContainerStyle={{ paddingTop: 45 + insets.top }}>
         <View style={HEAD_WRAPPER}>
           <View style={{ width: 200, height: 200, backgroundColor: "grey", borderRadius: 8, marginBottom: 24 }} />
           <Text style={BETTER_RAIL_PRO_TITLE}>Better Rail Pro</Text>
@@ -62,7 +72,7 @@ export function PaywallScreen() {
 
         <SubscriptionTypeBox value={subscriptionType} onChange={setSubscriptionType} />
       </ScrollView>
-      <View style={BOTTOM_FLOATING_VIEW}>
+      <View style={[BOTTOM_FLOATING_VIEW, { height: 97.5 + insets.bottom }]}>
         <GradientButton
           title="Start 14 days free trial"
           subtitle={
