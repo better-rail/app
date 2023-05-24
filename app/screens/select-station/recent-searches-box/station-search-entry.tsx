@@ -10,7 +10,6 @@ const colorScheme = Appearance.getColorScheme()
 
 const SEARCH_ENTRY_WRAPPER: ViewStyle = {
   alignItems: "center",
-  marginEnd: spacing[3],
 }
 
 const SEARCH_ENTRY_IMAGE_WRAPPER: ViewStyle = {
