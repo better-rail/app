@@ -15,7 +15,7 @@ import { BlurView } from "@react-native-community/blur"
 // #region styles
 const HEAD_WRAPPER: ViewStyle = {
   alignItems: "center",
-  marginBottom: spacing[4],
+  marginBottom: spacing[5],
 }
 
 const BETTER_RAIL_PRO_TITLE: TextStyle = {
@@ -69,7 +69,7 @@ export function PaywallScreen({ navigation }: PaywallScreenProps) {
           <Text style={BETTER_RAIL_PRO_SUBTITLE}>Afterwards, it’s less than a cup of coffee ☕️</Text>
         </View>
 
-        <View style={{ gap: 16 }}>
+        <View style={{ gap: 24 }}>
           <SubscriptionTypeBox value={subscriptionType} onChange={setSubscriptionType} />
           <FeaturesBox />
         </View>
