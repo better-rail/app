@@ -16,10 +16,9 @@ import Animated, {
   interpolate,
   useAnimatedScrollHandler,
   useAnimatedStyle,
-  useDerivedValue,
   useSharedValue,
 } from "react-native-reanimated"
-import { Header, HeaderBackButton, HeaderTitle } from "@react-navigation/elements"
+import { Header, HeaderBackButton, useHeaderHeight } from "@react-navigation/elements"
 
 // #region styles
 const HEAD_WRAPPER: ViewStyle = {
@@ -48,12 +47,13 @@ export function PaywallScreen({ navigation }: PaywallScreenProps) {
   const [subscriptionType, setSubscriptionType] = useState<SubscriptionTypes>("annual")
   const insets = useSafeAreaInsets()
   const scrollPosition = useSharedValue(0)
+  const headerHeight = useHeaderHeight()
 
   const scrollHandler = useAnimatedScrollHandler((event) => {
     scrollPosition.value = event.contentOffset.y
   })
 
-  const inputRange = [0, 210 + insets.top, 220 + insets.top]
+  const inputRange = [0, 195 + insets.top, 205 + insets.top]
 
   const headerOpacity = useAnimatedStyle(() => {
     const opacity = interpolate(scrollPosition.value, inputRange, [0, 0, 1], Extrapolate.CLAMP)
@@ -70,10 +70,12 @@ export function PaywallScreen({ navigation }: PaywallScreenProps) {
             headerLeft={(props) => <HeaderBackButton {...props} label="Hello" onPress={() => navigation.goBack()} />}
             // headerTransparent={true}
             headerTitle={(props) => (
-              <Animated.Text style={[{ fontSize: 17, fontWeight: 600 }, headerOpacity]}>Better Rail Pro</Animated.Text>
+              <Animated.Text style={[{ fontSize: 17, fontWeight: 600, color: color.text }, headerOpacity]}>
+                Better Rail Pro
+              </Animated.Text>
             )}
             headerBackground={() => (
-              <View style={{ width: "100%", height: 70 }}>
+              <View style={{ width: "100%", height: headerHeight }}>
                 <BlurView style={{ height: insets.top }} blurType="regular" blurAmount={30} />
                 <Animated.View style={[StyleSheet.absoluteFillObject, headerOpacity]}>
                   <BlurView style={StyleSheet.absoluteFillObject} blurType="regular" blurAmount={30} />
