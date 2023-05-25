@@ -8,7 +8,13 @@ import {
 import { PaywallScreen } from "../../screens/paywall"
 
 export type PaywallParamList = {
-  paywall: { presentation: "modal" | "push" }
+  paywall: {
+    /**
+     * The presentation style of the screen.
+     * This will impact the type of close button that will appear on the header - either a back button or a circular close button.
+     */
+    presentation: "modal" | "push"
+  }
 }
 
 const PaywallStack = createStackNavigator<PaywallParamList>()
