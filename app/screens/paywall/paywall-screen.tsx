@@ -43,7 +43,7 @@ const BETTER_RAIL_PRO_SUBTITLE: TextStyle = {
 
 // #endregion
 
-export function PaywallScreen({ navigation }: PaywallScreenProps) {
+export function PaywallScreen({ navigation, route }: PaywallScreenProps) {
   const [subscriptionType, setSubscriptionType] = useState<SubscriptionTypes>("annual")
   const insets = useSafeAreaInsets()
   const scrollPosition = useSharedValue(0)
@@ -57,7 +57,6 @@ export function PaywallScreen({ navigation }: PaywallScreenProps) {
 
   const headerOpacity = useAnimatedStyle(() => {
     const opacity = interpolate(scrollPosition.value, inputRange, [0, 0, 1], Extrapolate.CLAMP)
-
     return { opacity }
   })
 
@@ -67,7 +66,18 @@ export function PaywallScreen({ navigation }: PaywallScreenProps) {
         return (
           <Header
             title="Better Rail Pro"
-            headerLeft={(props) => <HeaderBackButton {...props} label="Hello" onPress={() => navigation.goBack()} />}
+            headerLeft={(props) => {
+              return route.params?.presentation === "modal" ? (
+                <CloseButton
+                  onPress={() => navigation.goBack()}
+                  // style={{ marginTop: insets.top - 10, marginStart: 6 }}
+                  iconStyle={{ tintColor: color.grey }}
+                  accessibilityLabel={translate("common.close")}
+                />
+              ) : (
+                <HeaderBackButton {...props} label="Hello" onPress={() => navigation.goBack()} />
+              )
+            }}
             // headerTransparent={true}
             headerTitle={(props) => (
               <Animated.Text style={[{ fontSize: 17, fontWeight: 600, color: color.text }, headerOpacity]}>
@@ -115,9 +125,9 @@ export function PaywallScreen({ navigation }: PaywallScreenProps) {
           <Text tx="paywall.afterTrial" style={BETTER_RAIL_PRO_SUBTITLE} />
         </View>
 
-        <View style={{ gap: 24 }}>
-          <SubscriptionTypeBox value={subscriptionType} onChange={setSubscriptionType} />
+        <View style={{ gap: 18 }}>
           <FeaturesBox />
+          <SubscriptionTypeBox value={subscriptionType} onChange={setSubscriptionType} />
         </View>
       </Animated.ScrollView>
 

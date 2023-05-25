@@ -8,7 +8,7 @@ import {
 import { PaywallScreen } from "../../screens/paywall"
 
 export type PaywallParamList = {
-  paywall: undefined
+  paywall: { presentation: "modal" | "push" }
 }
 
 const PaywallStack = createStackNavigator<PaywallParamList>()

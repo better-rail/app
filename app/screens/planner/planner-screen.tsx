@@ -250,7 +250,10 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
             <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />
           </TouchableOpacity>
         </View>
-        <Button title="paywall" onPress={() => navigation.navigate("paywallStack")} />
+        <Button
+          title="paywall"
+          onPress={() => navigation.navigate("paywallStack", { screen: "paywall", params: { presentation: "modal" } })}
+        />
         <Text preset="header" tx="plan.title" style={HEADER_TITLE} />
 
         <Text preset="fieldLabel" tx="plan.origin" text="תחנת מוצא" style={{ marginBottom: spacing[1] }} />
