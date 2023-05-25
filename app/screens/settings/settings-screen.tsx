@@ -1,5 +1,5 @@
 import React from "react"
-import { Linking, Platform, TextStyle, View, ViewStyle } from "react-native"
+import { Linking, Platform, TextStyle, TouchableOpacity, View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import Share from "react-native-share"
 import { Screen, Text } from "../../components"
@@ -11,6 +11,7 @@ import { SettingsScreenProps } from "../../navigators"
 import { SETTING_GROUP } from "./settings-styles"
 import { useIsDarkMode } from "../../hooks/use-is-dark-mode"
 import { TouchableHighlight } from "react-native-gesture-handler"
+import LinearGradient from "react-native-linear-gradient"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -58,12 +59,7 @@ const storeLink = Platform.select({
   ios: "https://apps.apple.com/app/better-rail/id1562982976?action=write-review",
   android: "market://details?id=com.betterrail",
 })
-{
-  /* <Button
-title="paywall"
-onPress={() => navigation.navigate("paywallStack", { screen: "paywall", params: { presentation: "modal" } })}
-/> */
-}
+
 export const SettingsScreen = observer(function SettingsScreen({ navigation }: SettingsScreenProps) {
   const isDarkMode = useIsDarkMode()
 
@@ -75,17 +71,46 @@ export const SettingsScreen = observer(function SettingsScreen({ navigation }: S
       statusBar={Platform.select({ ios: "light-content" })}
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
     >
-      <View style={SETTING_GROUP}>
-        <TouchableHighlight
-          style={{ padding: spacing[6] }}
-          underlayColor={color.inputPlaceholderBackground}
+      {Platform.OS === "ios" && (
+        <TouchableOpacity
+          activeOpacity={0.95}
+          style={{ marginBottom: spacing[4], shadowOffset: { height: 0, width: 0 }, shadowOpacity: 0.25, shadowRadius: 3 }}
           onPress={() => navigation.navigate("paywallStack", { screen: "paywall", params: { presentation: "modal" } })}
         >
-          <Text style={{ fontFamily: "System", fontSize: 24, fontWeight: "700", letterSpacing: -0.4, textAlign: "center" }}>
-            Better Rail Pro
-          </Text>
-        </TouchableHighlight>
-      </View>
+          <LinearGradient
+            colors={["#0017E4", "#3793FF"]}
+            style={{ height: 120, borderRadius: 16, justifyContent: "flex-end", padding: 16 }}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1.5, y: 0 }}
+          >
+            <Text
+              style={{
+                fontFamily: "System",
+                color: "white",
+                fontSize: 24,
+                fontWeight: "700",
+                letterSpacing: -0.4,
+                textAlign: "left",
+              }}
+            >
+              Better Rail Pro
+            </Text>
+            <Text
+              style={{
+                fontFamily: "System",
+                color: "white",
+                fontSize: 16,
+                fontWeight: "700",
+                letterSpacing: -0.4,
+                textAlign: "left",
+              }}
+            >
+              Make your commute better.
+            </Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      )}
+
       <View style={SETTING_GROUP}>
         <SettingBox
           first
