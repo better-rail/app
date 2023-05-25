@@ -1,14 +1,13 @@
-import { Dimensions, Platform, StyleSheet, TextStyle, View, ViewStyle } from "react-native"
-import { Text } from "../../components"
+import { StyleSheet, TextStyle, View, ViewStyle } from "react-native"
+import { Screen, Text, CloseButton } from "../../components"
 import { color, spacing } from "../../theme"
 import { useLayoutEffect, useState } from "react"
-import { SubscriptionTypeBox, SubscriptionTypes } from "./subscription-type-box"
+import { SubscriptionTypeBox, SubscriptionTypes } from "./"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { PaywallScreenProps } from "../../navigators/paywall/paywall-navigator"
 import { SubscribeButtonSheet } from "./subscribe-button-sheet"
 import { FeaturesBox } from "./paywall-features-box"
-import CloseButton from "../../components/close-button/close-button"
-import { translate } from "../../i18n"
+import { isRTL, translate } from "../../i18n"
 import { BlurView } from "@react-native-community/blur"
 import Animated, {
   Extrapolate,
@@ -36,8 +35,9 @@ const BETTER_RAIL_PRO_TITLE: TextStyle = {
 
 const BETTER_RAIL_PRO_SUBTITLE: TextStyle = {
   textAlign: "center",
-  letterSpacing: -0.5,
+  letterSpacing: -0.4,
   paddingHorizontal: 24,
+  fontSize: isRTL ? 18 : 16,
 }
 
 // #endregion
@@ -98,15 +98,7 @@ export function PaywallScreen({ navigation, route }: PaywallScreenProps) {
   }, [])
 
   return (
-    <View style={{ flex: 1, backgroundColor: color.background }}>
-      {/* <View style={{ position: "absolute", top: 0, zIndex: 100, width: "100%", opacity: 1 }}>
-        <CloseButton
-          onPress={() => navigation.goBack()}
-          style={{ marginTop: insets.top - 10, marginStart: 6 }}
-          iconStyle={{ tintColor: "grey" }}
-          accessibilityLabel={translate("common.close")}
-        />
-      </View> */}
+    <Screen style={{ flex: 1, backgroundColor: color.background }}>
       <Animated.ScrollView
         onScroll={scrollHandler}
         style={{ height: "100%" }}
@@ -116,21 +108,25 @@ export function PaywallScreen({ navigation, route }: PaywallScreenProps) {
         <View style={HEAD_WRAPPER}>
           <View style={{ width: 200, height: 200, backgroundColor: "grey", borderRadius: 8, marginBottom: 24 }} />
           <Text style={BETTER_RAIL_PRO_TITLE}>Better Rail Pro</Text>
-          <Text
-            tx="paywall.intro"
-            style={[BETTER_RAIL_PRO_SUBTITLE, { paddingHorizontal: spacing[6], marginBottom: spacing[4] }]}
-          />
-          <Text tx="paywall.tryFree" style={[BETTER_RAIL_PRO_SUBTITLE, { fontWeight: "500", marginBottom: -4 }]} />
-          <Text tx="paywall.afterTrial" style={BETTER_RAIL_PRO_SUBTITLE} />
+          <Text tx="paywall.intro" style={[BETTER_RAIL_PRO_SUBTITLE, { paddingHorizontal: spacing[6] }]} />
         </View>
 
         <View style={{ gap: 18 }}>
           <FeaturesBox />
+
+          <View>
+            <Text
+              tx="paywall.tryFree"
+              style={[BETTER_RAIL_PRO_SUBTITLE, { fontSize: 20, fontWeight: "500", marginBottom: -2 }]}
+            />
+            <Text tx="paywall.afterTrial" style={BETTER_RAIL_PRO_SUBTITLE} />
+          </View>
+
           <SubscriptionTypeBox value={subscriptionType} onChange={setSubscriptionType} />
         </View>
       </Animated.ScrollView>
 
       <SubscribeButtonSheet subscriptionType={subscriptionType} />
-    </View>
+    </Screen>
   )
 }

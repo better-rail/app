@@ -15,12 +15,10 @@ interface CloseButtonProps extends TouchableOpacityProps {
   iconStyle?: ImageStyle
 }
 
-function CloseButton({ onPress, iconStyle, ...props }: CloseButtonProps) {
+export function CloseButton({ onPress, iconStyle, ...props }: CloseButtonProps) {
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.8} accessibilityLabel="חזרה" {...props}>
       <Image source={require("../../../assets/close.png")} style={[CLOSE_ICON_STYLE, iconStyle]} />
     </TouchableOpacity>
   )
 }
-
-export default CloseButton

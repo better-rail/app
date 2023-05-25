@@ -4,7 +4,7 @@ import { createStackNavigator, StackScreenProps } from "@react-navigation/stack"
 import { SettingsScreen, LanguageScreen, TipJarScreen, AboutScreen, PrivacyScreen } from "../../screens"
 import { color, typography } from "../../theme"
 import { translate } from "../../i18n"
-import CloseButton from "../../components/close-button/close-button"
+import { CloseButton } from "../../components"
 
 export type SettingsParamList = {
   settings: undefined

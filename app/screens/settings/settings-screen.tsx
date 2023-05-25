@@ -10,6 +10,7 @@ import { translate, userLocale } from "../../i18n"
 import { SettingsScreenProps } from "../../navigators"
 import { SETTING_GROUP } from "./settings-styles"
 import { useIsDarkMode } from "../../hooks/use-is-dark-mode"
+import { TouchableHighlight } from "react-native-gesture-handler"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -57,7 +58,12 @@ const storeLink = Platform.select({
   ios: "https://apps.apple.com/app/better-rail/id1562982976?action=write-review",
   android: "market://details?id=com.betterrail",
 })
-
+{
+  /* <Button
+title="paywall"
+onPress={() => navigation.navigate("paywallStack", { screen: "paywall", params: { presentation: "modal" } })}
+/> */
+}
 export const SettingsScreen = observer(function SettingsScreen({ navigation }: SettingsScreenProps) {
   const isDarkMode = useIsDarkMode()
 
@@ -69,6 +75,17 @@ export const SettingsScreen = observer(function SettingsScreen({ navigation }: S
       statusBar={Platform.select({ ios: "light-content" })}
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
     >
+      <View style={SETTING_GROUP}>
+        <TouchableHighlight
+          style={{ padding: spacing[6] }}
+          underlayColor={color.inputPlaceholderBackground}
+          onPress={() => navigation.navigate("paywallStack", { screen: "paywall", params: { presentation: "modal" } })}
+        >
+          <Text style={{ fontFamily: "System", fontSize: 24, fontWeight: "700", letterSpacing: -0.4, textAlign: "center" }}>
+            Better Rail Pro
+          </Text>
+        </TouchableHighlight>
+      </View>
       <View style={SETTING_GROUP}>
         <SettingBox
           first

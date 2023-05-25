@@ -1,8 +1,8 @@
 import React from "react"
 import { createStackNavigator, StackScreenProps, TransitionPresets } from "@react-navigation/stack"
 import { RouteDetailsScreen } from "../../screens"
-import CloseButton from "../../components/close-button/close-button"
 import { RouteItem } from "../../services/api"
+import { CloseButton } from "../../components"
 
 export type ActiveRideList = {
   activeRide: { routeItem: RouteItem; originId: number; destinationId: number }
