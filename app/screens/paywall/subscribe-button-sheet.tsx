@@ -1,5 +1,5 @@
 import { BlurView } from "@react-native-community/blur"
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { Platform, TextStyle, View, ViewStyle } from "react-native"
 import Animated, { FadeIn } from "react-native-reanimated"
 import { color } from "../../theme"
@@ -9,10 +9,7 @@ import { TouchableOpacity } from "react-native-gesture-handler"
 import LinearGradient from "react-native-linear-gradient"
 import { PRESSABLE_BASE, Text } from "../../components"
 import { SubscriptionTypes } from "./"
-import { userLocale } from "../../i18n"
-
-const isHeebo = userLocale !== "en" && Platform.OS === "ios"
-const fontFamily = isHeebo ? "Heebo" : "System"
+import { translate, userLocale } from "../../i18n"
 
 const BOTTOM_FLOATING_VIEW: ViewStyle = {
   position: "absolute",
@@ -24,14 +21,6 @@ const BOTTOM_FLOATING_VIEW: ViewStyle = {
   borderTopColor: color.separator,
 }
 
-const SUBSCRIPTION_BUTTON_SUBTITLE: TextStyle = {
-  color: color.whiteText,
-  textAlign: "center",
-  fontSize: 14,
-  letterSpacing: -0.2,
-  fontFamily,
-}
-
 interface SubscribeButtonSheetProps {
   subscriptionType: SubscriptionTypes
 }
@@ -39,28 +28,41 @@ interface SubscribeButtonSheetProps {
 export function SubscribeButtonSheet({ subscriptionType }: SubscribeButtonSheetProps) {
   const insets = useSafeAreaInsets()
   const isDarkMode = useIsDarkMode()
+  const [fontFamily, setFontFamily] = useState("Heebo")
+  const [isHeebo, setIsHeebo] = useState(true)
+
+  useEffect(() => {
+    const isHeebo = userLocale !== "en" && Platform.OS === "ios"
+    setFontFamily(isHeebo ? "Heebo" : "System")
+    setIsHeebo(isHeebo)
+  }, [userLocale])
 
   return (
     <View style={[BOTTOM_FLOATING_VIEW, { height: 97.5 + insets.bottom }]}>
       <GradientButton
-        title="Start 14 days free trial"
+        title={translate("paywall.startFreeTrial")}
         subtitle={
           <>
             {subscriptionType === "annual" && (
               <Animated.View entering={FadeIn}>
-                <Text style={SUBSCRIPTION_BUTTON_SUBTITLE}>then ₪59.90 / year</Text>
+                <Text style={[SUBSCRIPTION_BUTTON_SUBTITLE, { fontFamily, fontSize: isHeebo ? 16 : 14 }]}>
+                  {translate("paywall.afterTrialPrice", { price: "59.90₪", period: translate("paywall.year") })}
+                </Text>
               </Animated.View>
             )}
             {subscriptionType === "monthly" && (
               <Animated.View entering={FadeIn}>
-                <Text style={SUBSCRIPTION_BUTTON_SUBTITLE}>then ₪6.90 / month. Cancel anytime</Text>
+                <Text style={[SUBSCRIPTION_BUTTON_SUBTITLE, { fontFamily }]}>
+                  {translate("paywall.afterTrialPrice", { price: "6.90₪", period: translate("paywall.month") })}.{" "}
+                  {translate("paywall.cancelAnytime")}
+                </Text>
               </Animated.View>
             )}
           </>
         }
         onPress={() => {}}
-        style={{ width: "100%" }}
         titleStyle={{ fontFamily, color: color.whiteText }}
+        contentStyle={{ gap: isHeebo ? 1 : 6 }}
         colors={["#7B1AEC", "#5755F2"]}
       />
       <BlurView
@@ -77,11 +79,17 @@ const SUBSCRIPTION_BUTTON_TITLE: TextStyle = {
   fontSize: 18,
 }
 
-const GradientButton = ({ onPress, style, titleStyle, colors, title, subtitle }) => {
+const SUBSCRIPTION_BUTTON_SUBTITLE: TextStyle = {
+  color: color.whiteText,
+  textAlign: "center",
+  letterSpacing: -0.2,
+}
+
+const GradientButton = ({ onPress, contentStyle, titleStyle, colors, title, subtitle }) => {
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.9}>
       <LinearGradient colors={colors} style={[PRESSABLE_BASE, { minHeight: 70 }]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-        <View style={{ alignItems: "center", marginTop: -3, gap: isHeebo ? 0 : 6 }}>
+        <View style={[{ alignItems: "center", marginTop: -4 }, contentStyle]}>
           <Text style={[SUBSCRIPTION_BUTTON_TITLE, titleStyle]}>{title}</Text>
           <Text style={[SUBSCRIPTION_BUTTON_SUBTITLE, titleStyle]}>{subtitle}</Text>
         </View>

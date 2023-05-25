@@ -164,8 +164,23 @@
     "tryFree": "Try free for 14 days.",
     "afterTrial": "Afterwards, it’s less than a cup of coffee ☕️",
     "annual": "Annual",
+    "year": "year",
     "monthly": "Monthly",
+    "month": "month",
     "monthlyPrice": "%{price}/month",
-    "yearlyPrice": "%{price}/year"
+    "yearlyPrice": "%{price}/year",
+    "liveActivity": "Live Activities",
+    "liveActivityDetail": "Real-Time updates for your train ride.",
+    "widgets": "Widgets",
+    "widgetsDetail": "View the train schedule on your homescreen.",
+    "appleWatchApp": "Apple Watch App",
+    "appleWatchAppDetail": "Train scheduale right from your wrist.",
+    "appIcons": "App Icons",
+    "appIconsDetails": "Spruce up your homescreen with 3 alternate app icons.",
+    "supportProject": "Support the project",
+    "supportProjectDetail": "Directly support our ability to keep adding fun new features.",
+    "startFreeTrial": "Start 14 days free trial",
+    "afterTrialPrice": "then %{price} / %{period}",
+    "cancelAnytime": "Cancel anytime"
   }
 }

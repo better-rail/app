@@ -1,6 +1,7 @@
 import { Dimensions, DynamicColorIOS, Image, ImageStyle, PlatformColor, View, ViewStyle } from "react-native"
 import { List, ListItem } from "../../components"
 import { CHEVRON_ICON } from "../settings"
+import { translate } from "../../i18n"
 
 const deviceWidth = Dimensions.get("screen").width
 const isLargeScreen = deviceWidth > 375
@@ -39,36 +40,36 @@ export function FeaturesBox() {
   return (
     <List>
       <FeatureBox
-        title="Live Activities"
-        subtitle="Real-Time updates for your train ride."
+        title={translate("paywall.liveActivity")}
+        subtitle={translate("paywall.liveActivityDetail")}
         icon={LiveActivityIcon}
         bgColor={colors.orange.background}
         iconColor={colors.orange.foreground}
       />
       <FeatureBox
-        title="Widgets"
-        subtitle="View the train schedule on your homescreen."
+        title={translate("paywall.widgets")}
+        subtitle={translate("paywall.widgetsDetail")}
         icon={WidgetsIcon}
         bgColor={colors.blue.background}
         iconColor={colors.blue.foreground}
       />
       <FeatureBox
-        title="Apple Watch App"
-        subtitle="Train scheduale right from your wrist."
+        title={translate("paywall.appleWatchApp")}
+        subtitle={translate("paywall.appleWatchAppDetail")}
         icon={AppleWatchIcon}
         bgColor={colors.green.background}
         iconColor={colors.green.foreground}
       />
       <FeatureBox
-        title="App Icons"
-        subtitle="Spruce up your homescreen with 3 alternate app icons."
+        title={translate("paywall.appIcons")}
+        subtitle={translate("paywall.appIconsDetail")}
         icon={GiftIcon}
         bgColor={colors.red.background}
         iconColor={colors.red.foreground}
       />
       <FeatureBox
-        title="Support the project"
-        subtitle="Directly support our ability to keep adding fun new features."
+        title={translate("paywall.supportProject")}
+        subtitle={translate("paywall.supportProjectDetail")}
         icon={HumansIcon}
         bgColor={colors.purple.background}
         iconColor={colors.purple.foreground}

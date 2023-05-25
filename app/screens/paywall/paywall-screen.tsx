@@ -1,7 +1,6 @@
 import { Dimensions, Platform, StyleSheet, TextStyle, View, ViewStyle } from "react-native"
 import { Text } from "../../components"
 import { color, spacing } from "../../theme"
-import { ScrollView } from "react-native-gesture-handler"
 import { useLayoutEffect, useState } from "react"
 import { SubscriptionTypeBox, SubscriptionTypes } from "./subscription-type-box"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
