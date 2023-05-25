@@ -4,8 +4,8 @@ import { spacing } from "../../../theme"
 import { Text } from "../../../components"
 
 const colors = {
-  start: DynamicColorIOS({ light: "#0017E4", dark: "#181818" }),
-  end: DynamicColorIOS({ light: "#3793FF", dark: "#000" }),
+  start: DynamicColorIOS({ light: "#0017E4", dark: "#5E17EB" }),
+  end: DynamicColorIOS({ light: "#3793FF", dark: "#9432C2" }),
 }
 
 export function BetterRailProButton({ onPress }) {

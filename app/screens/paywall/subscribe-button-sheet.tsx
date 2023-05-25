@@ -63,7 +63,7 @@ export function SubscribeButtonSheet({ subscriptionType }: SubscribeButtonSheetP
         onPress={() => {}}
         titleStyle={{ fontFamily, color: color.whiteText }}
         contentStyle={{ gap: isHeebo ? 1 : 6 }}
-        colors={["#7B1AEC", "#5755F2"]}
+        colors={isDarkMode ? ["#5E17EB", "#9432C2"] : ["#7B1AEC", "#5755F2"]}
       />
       <BlurView
         blurType={isDarkMode ? "ultraThinMaterialDark" : "xlight"}
