@@ -12,6 +12,7 @@ import { SETTING_GROUP } from "./settings-styles"
 import { useIsDarkMode } from "../../hooks/use-is-dark-mode"
 import { TouchableHighlight } from "react-native-gesture-handler"
 import LinearGradient from "react-native-linear-gradient"
+import { BetterRailProButton } from "./components/better-rail-pro-button"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -72,43 +73,10 @@ export const SettingsScreen = observer(function SettingsScreen({ navigation }: S
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
     >
       {Platform.OS === "ios" && (
-        <TouchableOpacity
-          activeOpacity={0.95}
-          style={{ marginBottom: spacing[4], shadowOffset: { height: 0, width: 0 }, shadowOpacity: 0.25, shadowRadius: 3 }}
+        <BetterRailProButton
+          //@ts-expect-error
           onPress={() => navigation.navigate("paywallStack", { screen: "paywall", params: { presentation: "modal" } })}
-        >
-          <LinearGradient
-            colors={["#0017E4", "#3793FF"]}
-            style={{ height: 120, borderRadius: 16, justifyContent: "flex-end", padding: 16 }}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1.5, y: 0 }}
-          >
-            <Text
-              style={{
-                fontFamily: "System",
-                color: "white",
-                fontSize: 24,
-                fontWeight: "700",
-                letterSpacing: -0.4,
-                textAlign: "left",
-              }}
-            >
-              Better Rail Pro
-            </Text>
-            <Text
-              style={{
-                fontFamily: "System",
-                color: "white",
-                fontSize: 16,
-                fontWeight: "700",
-                letterSpacing: -0.4,
-                textAlign: "left",
-              }}
-            >
-              Make your commute better.
-            </Text>
-          </LinearGradient>
-        </TouchableOpacity>
+        />
       )}
 
       <View style={SETTING_GROUP}>
