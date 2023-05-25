@@ -1,4 +1,4 @@
-import { Platform, StyleSheet, TextStyle, View, ViewStyle } from "react-native"
+import { Dimensions, Platform, StyleSheet, TextStyle, View, ViewStyle } from "react-native"
 import { Text } from "../../components"
 import { color, spacing } from "../../theme"
 import { ScrollView } from "react-native-gesture-handler"
@@ -53,7 +53,7 @@ export function PaywallScreen({ navigation }: PaywallScreenProps) {
     scrollPosition.value = event.contentOffset.y
   })
 
-  const inputRange = [0, 250 + insets.top, 260 + insets.top]
+  const inputRange = [0, 210 + insets.top, 220 + insets.top]
 
   const headerOpacity = useAnimatedStyle(() => {
     const opacity = interpolate(scrollPosition.value, inputRange, [0, 0, 1], Extrapolate.CLAMP)
@@ -67,15 +67,18 @@ export function PaywallScreen({ navigation }: PaywallScreenProps) {
         return (
           <Header
             title="Better Rail Pro"
-            headerLeft={() => <HeaderBackButton label="Hello" onPress={() => navigation.goBack()} />}
-            headerTransparent={true}
+            headerLeft={(props) => <HeaderBackButton {...props} label="Hello" onPress={() => navigation.goBack()} />}
+            // headerTransparent={true}
             headerTitle={(props) => (
               <Animated.Text style={[{ fontSize: 17, fontWeight: 600 }, headerOpacity]}>Better Rail Pro</Animated.Text>
             )}
             headerBackground={() => (
-              <Animated.View style={[{ position: "absolute", height: 70, width: "100%" }, headerOpacity]}>
-                <BlurView style={{ ...StyleSheet.absoluteFillObject, zIndex: -1 }} blurType="xlight" />
-              </Animated.View>
+              <View style={{ width: "100%", height: 70 }}>
+                <BlurView style={{ height: insets.top }} blurType="regular" blurAmount={30} />
+                <Animated.View style={[StyleSheet.absoluteFillObject, headerOpacity]}>
+                  <BlurView style={StyleSheet.absoluteFillObject} blurType="regular" blurAmount={30} />
+                </Animated.View>
+              </View>
             )}
           />
         )
