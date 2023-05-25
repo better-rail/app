@@ -11,6 +11,15 @@ import { FeaturesBox } from "./paywall-features-box"
 import CloseButton from "../../components/close-button/close-button"
 import { translate } from "../../i18n"
 import { BlurView } from "@react-native-community/blur"
+import Animated, {
+  Extrapolate,
+  interpolate,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useDerivedValue,
+  useSharedValue,
+} from "react-native-reanimated"
+import { Header, HeaderBackButton, HeaderTitle } from "@react-navigation/elements"
 
 // #region styles
 const HEAD_WRAPPER: ViewStyle = {
@@ -38,27 +47,57 @@ const BETTER_RAIL_PRO_SUBTITLE: TextStyle = {
 export function PaywallScreen({ navigation }: PaywallScreenProps) {
   const [subscriptionType, setSubscriptionType] = useState<SubscriptionTypes>("annual")
   const insets = useSafeAreaInsets()
+  const scrollPosition = useSharedValue(0)
 
-  // useLayoutEffect(() => {
-  //   navigation.setOptions({
-  //     headerStatusBarHeight: insets.top + 10,
-  //   })
-  // }, [])
+  const scrollHandler = useAnimatedScrollHandler((event) => {
+    scrollPosition.value = event.contentOffset.y
+  })
+
+  const inputRange = [0, 250 + insets.top, 260 + insets.top]
+
+  const headerOpacity = useAnimatedStyle(() => {
+    const opacity = interpolate(scrollPosition.value, inputRange, [0, 0, 1], Extrapolate.CLAMP)
+
+    return { opacity }
+  })
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      header: () => {
+        return (
+          <Header
+            title="Better Rail Pro"
+            headerLeft={() => <HeaderBackButton label="Hello" onPress={() => navigation.goBack()} />}
+            headerTransparent={true}
+            headerTitle={(props) => (
+              <Animated.Text style={[{ fontSize: 17, fontWeight: 600 }, headerOpacity]}>Better Rail Pro</Animated.Text>
+            )}
+            headerBackground={() => (
+              <Animated.View style={[{ position: "absolute", height: 70, width: "100%" }, headerOpacity]}>
+                <BlurView style={{ ...StyleSheet.absoluteFillObject, zIndex: -1 }} blurType="xlight" />
+              </Animated.View>
+            )}
+          />
+        )
+      },
+    })
+  }, [])
 
   return (
     <View style={{ flex: 1, backgroundColor: color.background }}>
-      {/* <View style={{ position: "absolute", top: 0, zIndex: 100, width: "100%", opacity: 1 }}> */}
-      {/* <CloseButton
-        onPress={() => navigation.goBack()}
-        style={{ marginTop: insets.top - 10, marginStart: 6 }}
-        iconStyle={{ tintColor: "grey" }}
-        accessibilityLabel={translate("common.close")}
-      /> */}
-      {/* <BlurView style={{ ...StyleSheet.absoluteFillObject, zIndex: -1 }} blurType="dark" />
+      {/* <View style={{ position: "absolute", top: 0, zIndex: 100, width: "100%", opacity: 1 }}>
+        <CloseButton
+          onPress={() => navigation.goBack()}
+          style={{ marginTop: insets.top - 10, marginStart: 6 }}
+          iconStyle={{ tintColor: "grey" }}
+          accessibilityLabel={translate("common.close")}
+        />
       </View> */}
-      <ScrollView
+      <Animated.ScrollView
+        onScroll={scrollHandler}
         style={{ height: "100%" }}
-        contentContainerStyle={{ paddingTop: 45 + insets.top, paddingBottom: 120 + insets.bottom }}
+        scrollEventThrottle={1}
+        contentContainerStyle={{ paddingTop: 10 + insets.top, paddingBottom: 120 + insets.bottom }}
       >
         <View style={HEAD_WRAPPER}>
           <View style={{ width: 200, height: 200, backgroundColor: "grey", borderRadius: 8, marginBottom: 24 }} />
@@ -75,7 +114,7 @@ export function PaywallScreen({ navigation }: PaywallScreenProps) {
           <SubscriptionTypeBox value={subscriptionType} onChange={setSubscriptionType} />
           <FeaturesBox />
         </View>
-      </ScrollView>
+      </Animated.ScrollView>
 
       <SubscribeButtonSheet subscriptionType={subscriptionType} />
     </View>
