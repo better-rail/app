@@ -1,6 +1,7 @@
 import Foundation
 import BackgroundTasks
 
+@objc(UpdateLiveActivityTaskScheduler)
 class UpdateLiveActivityTaskScheduler: NSObject {
   @objc static let shared = UpdateLiveActivityTaskScheduler()
   let UPDATE_LIVE_ACTIVITY_IDENTIFIER = "il.co.better-rail.updateLiveActivity"

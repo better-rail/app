@@ -3,7 +3,6 @@
 #import <React/RCTLinkingManager.h>
 #import <Firebase.h>
 #import <FirebaseAuth.h>
-#import "BetterRail-Swift.h"
 
 @implementation AppDelegate
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
