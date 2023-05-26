@@ -1,11 +1,11 @@
 import Foundation
 import BackgroundTasks
 
-class UpdateLiveActivityTask {
-  static let shared = UpdateLiveActivityTask()
+class UpdateLiveActivityTaskScheduler: NSObject {
+  @objc static let shared = UpdateLiveActivityTaskScheduler()
   let UPDATE_LIVE_ACTIVITY_IDENTIFIER = "il.co.better-rail.updateLiveActivity"
   
-  func registerTasks() {
+  @objc func registerTasks() {
     BGTaskScheduler.shared.register(forTaskWithIdentifier: UPDATE_LIVE_ACTIVITY_IDENTIFIER, using: nil) { task in
       Task {
         await self.handleTask(task: task)

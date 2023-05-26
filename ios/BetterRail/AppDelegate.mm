@@ -3,6 +3,7 @@
 #import <React/RCTLinkingManager.h>
 #import <Firebase.h>
 #import <FirebaseAuth.h>
+#import "BetterRail-Swift.h"
 
 @implementation AppDelegate
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -16,6 +17,9 @@
   [FIRApp configure];
   [FIRAuth.auth useUserAccessGroup:@"UE6BVYPPFX.group.il.co.better-rail"
                                      error:nil];
+  
+  UpdateLiveActivityTaskScheduler * liveActivityTaskScheduler = [UpdateLiveActivityTaskScheduler shared];
+  [liveActivityTaskScheduler registerTasks];
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
