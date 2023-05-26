@@ -41,14 +41,22 @@ class UpdateLiveActivityTaskScheduler: NSObject {
       self.scheduleTask(interval: 60)
     }
     
-    let shouldUpdatedActivity =
+    let shouldUpdateActivity =
       activity.content.state.updatedByBGTask ||
       abs(lastUpdateTime.timeIntervalSinceNow) > 60
     
-    if shouldUpdatedActivity {
+    var didEndActivity = false
+    
+    if shouldUpdateActivity {
       do {
         let newContent = try getActivityCurrentState(route: route, updatedDelay: activity.content.state.delay)
-        await activity.update(using: newContent)
+        
+        if newContent.status != .arrived {
+          await activity.update(using: newContent)
+        } else {
+          await activity.end(using: newContent, dismissalPolicy: .after(.now.addMinutes(3)))
+          didEndActivity = true
+        }
       } catch {
         print("Couldn't update activity content")
       }
@@ -56,7 +64,10 @@ class UpdateLiveActivityTaskScheduler: NSObject {
       print("Activity is already updated, no need to update content")
     }
     
-    self.scheduleTask(interval: 60)
+    if !didEndActivity {
+      self.scheduleTask(interval: 60)
+    }
+    
     task.setTaskCompleted(success: true)
   }
 }
