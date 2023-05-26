@@ -44,7 +44,7 @@ class UpdateLiveActivityTaskScheduler: NSObject {
     
     let shouldUpdateActivity =
       activity.content.state.updatedByBGTask ||
-      abs(lastUpdateTime.timeIntervalSinceNow) > 60
+      abs(lastUpdateTime.timeIntervalSinceNow) >= 60
     
     var didEndActivity = false
     

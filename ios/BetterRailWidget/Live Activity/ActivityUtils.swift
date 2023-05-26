@@ -131,7 +131,7 @@ func findClosestStationInRoute(route: Route, updatedDelay: Int? = nil, now: Date
       return train.orignStation
     } else {
       for station in train.stopStations {
-        if isoDateStringToDate(station.departureTime).addMinutes(1) > now {
+        if isoDateStringToDate(station.departureTime).addMinutes(delay + 1) > now {
           return station.id
         }
       }
@@ -157,9 +157,9 @@ func getActivityStatus(route: Route, train: Train, nextStationId: Int, updatedDe
       let arrivalTimeToExchangeStation = isoDateStringToDate(previousTrain.arrivalTime).addMinutes(delay)
       let timeToExchange = arrivalTimeToExchangeStation.timeIntervalSince(now)
             
-      if timeToExchange < 0 {
+      if timeToExchange <= 0 {
         return getActivityStatus(route: route, train: previousTrain, nextStationId: nextStationId)
-      } else if timeToExchange < 60 {
+      } else if timeToExchange <= 60 {
         return .getOff
       }
     }
@@ -170,11 +170,11 @@ func getActivityStatus(route: Route, train: Train, nextStationId: Int, updatedDe
     let arrivalTime = isoDateStringToDate(train.arrivalTime).addMinutes(delay)
     let timeToArrival = arrivalTime.timeIntervalSince(now)
     
-    if departureTime.addMinutes(delay) > now {
+    if departureTime.addMinutes(delay) >= now {
       return .inExchange
-    } else if timeToArrival > 60 {
+    } else if timeToArrival >= 60 {
       return .inTransit
-    } else if timeToArrival > 0 {
+    } else if timeToArrival >= 0 {
       return .getOff
     } else {
       return .arrived
