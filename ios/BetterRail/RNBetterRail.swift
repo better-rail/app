@@ -47,6 +47,7 @@ class RNBetterRail: NSObject {
   @available(iOS 16.2, *)
   @objc func monitorActivities() {
     LiveActivitiesController.shared.monitorLiveActivities()
+    UpdateLiveActivityTask.shared.registerTasks()
   }
   
   /// data - A JSON representation of a Route
@@ -58,6 +59,8 @@ class RNBetterRail: NSObject {
       let route = try decoder.decode(Route.self, from: routeJSON.data(using: .utf8)!)
       Task {
         await LiveActivitiesController.shared.startLiveActivity(route: route)
+        
+        UpdateLiveActivityTask.shared.scheduleTask(interval: 60)
         
         // wait for the token to have it's ride Id assigned
         let newToken = await LiveActivitiesController.tokenRegistry.awaitNewTokenRegistration()
