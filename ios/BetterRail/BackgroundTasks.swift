@@ -29,7 +29,8 @@ class UpdateLiveActivityTask {
   private func handleTask(task: BGTask) async {
     guard #available(iOS 16.2, *),
           let activity = LiveActivitiesController.currentActivity,
-          let route = LiveActivitiesController.route else {
+          let route = LiveActivitiesController.route
+    else {
       task.setTaskCompleted(success: true)
       return
     }
