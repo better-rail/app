@@ -115,14 +115,14 @@ func getStatusStartDate(context: ActivityViewContext<BetterRailActivityAttribute
   let nextStationId = context.state.nextStationId
   let train = getTrainFromStationId(route: route, stationId: nextStationId)!
   let delay = context.state.delay
-  let departureDate = isoDateStringToDate(train.departureTime).addDelay(delay)
+  let departureDate = isoDateStringToDate(train.departureTime).addMinutes(delay)
   
   if (status == .waitForTrain) {
     return context.attributes.activityStartDate
   } else if (status == .inExchange) {
     let previousTrain = getPreviousTrainFromStationId(route: route, stationId: nextStationId)
     // since we're in exchange, use the arrival time of the previous train as the progress start time
-    return isoDateStringToDate(previousTrain?.arrivalTime ?? "").addDelay(delay)
+    return isoDateStringToDate(previousTrain?.arrivalTime ?? "").addMinutes(delay)
   } else {
     return departureDate
   }
@@ -136,8 +136,8 @@ func getStatusEndDate(context: ActivityViewContext<BetterRailActivityAttributes>
   let delay = context.state.delay
   let train = getTrainFromStationId(route: route, stationId: nextStationId)!
   
-  let departureDate = isoDateStringToDate(train.departureTime).addDelay(delay)
-  let arrivalDate = isoDateStringToDate(train.arrivalTime).addDelay(delay)
+  let departureDate = isoDateStringToDate(train.departureTime).addMinutes(delay)
+  let arrivalDate = isoDateStringToDate(train.arrivalTime).addMinutes(delay)
 
   if (status == .waitForTrain || status == .inExchange) {
     return departureDate
@@ -168,14 +168,14 @@ func findClosestStationInRoute(route: Route, updatedDelay: Int? = nil) -> Int {
   // find the first station where the departure time is after the current time
   for train in route.trains {
     let delay = updatedDelay ?? train.delay
-    let departureTime = isoDateStringToDate(train.departureTime).addDelay(delay)
-    let arrivalTime = isoDateStringToDate(train.arrivalTime).addDelay(delay)
+    let departureTime = isoDateStringToDate(train.departureTime).addMinutes(delay)
+    let arrivalTime = isoDateStringToDate(train.arrivalTime).addMinutes(delay)
     
     if departureTime > now {
       return train.orignStation
     } else {
       for station in train.stopStations {
-        if isoDateStringToDate(station.arrivalTime) > now {
+        if isoDateStringToDate(station.departureTime).addMinutes(1) > now {
           return station.id
         }
       }
@@ -215,7 +215,7 @@ func getActivityCurrentState(route: Route, updatedDelay: Int? = nil) throws -> B
 }
 
 extension Date {
-  func addDelay(_ delay: Int) -> Date {
+  func addMinutes(_ delay: Int) -> Date {
     let calendar = Calendar.current
     return calendar.date(byAdding: .minute, value: delay, to: self)!
   }
