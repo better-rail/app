@@ -12,7 +12,7 @@ class UpdateLiveActivityTask {
       }
     }
   }
-
+  
   func scheduleTask(interval: TimeInterval) {
     let taskRequest = BGProcessingTaskRequest(identifier: UPDATE_LIVE_ACTIVITY_IDENTIFIER)
     taskRequest.requiresNetworkConnectivity = false
@@ -25,7 +25,7 @@ class UpdateLiveActivityTask {
       print("Could not schedule background task: \(error)")
     }
   }
-
+  
   private func handleTask(task: BGTask) async {
     guard #available(iOS 16.2, *),
           let activity = LiveActivitiesController.currentActivity,
