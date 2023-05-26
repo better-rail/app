@@ -162,13 +162,14 @@ func getMinutesLeft(targetDate: Date) -> Int {
 /// Used to test what's the inital station Id for the activity, especially for cases where
 /// the train has departured already.
 /// - Returns: The station Id
-func findClosestStationInRoute(route: Route) -> Int {
+func findClosestStationInRoute(route: Route, updatedDelay: Int? = nil) -> Int {
   let now = Date()
   
   // find the first station where the departure time is after the current time
   for train in route.trains {
-    let departureTime = isoDateStringToDate(train.departureTime)
-    let arrivalTime = isoDateStringToDate(train.arrivalTime)
+    let delay = updatedDelay ?? train.delay
+    let departureTime = isoDateStringToDate(train.departureTime).addDelay(delay)
+    let arrivalTime = isoDateStringToDate(train.arrivalTime).addDelay(delay)
     
     if departureTime > now {
       return train.orignStation
@@ -192,7 +193,7 @@ func getActivityCurrentState(route: Route, updatedDelay: Int? = nil) throws -> B
   // get the current train by finding the departure time which is closest to the current time
   var status = ActivityStatus.waitForTrain
 
-  let nextStationId = findClosestStationInRoute(route: route)
+  let nextStationId = findClosestStationInRoute(route: route, updatedDelay: updatedDelay)
   let train = getTrainFromStationId(route: route, stationId: nextStationId)!
 
   if route.trains[0].orignStation != train.orignStation {
@@ -216,9 +217,6 @@ func getActivityCurrentState(route: Route, updatedDelay: Int? = nil) throws -> B
 extension Date {
   func addDelay(_ delay: Int) -> Date {
     let calendar = Calendar.current
-
-    // Add 30 seconds to the date
     return calendar.date(byAdding: .minute, value: delay, to: self)!
-
   }
 }
