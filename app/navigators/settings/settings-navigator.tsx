@@ -4,7 +4,7 @@ import { createStackNavigator, StackScreenProps } from "@react-navigation/stack"
 import { SettingsScreen, LanguageScreen, TipJarScreen, AboutScreen, PrivacyScreen } from "../../screens"
 import { color, typography } from "../../theme"
 import { translate } from "../../i18n"
-import CloseButton from "../../components/close-button/close-button"
+import { CloseButton } from "../../components"
 
 export type SettingsParamList = {
   settings: undefined
@@ -21,8 +21,6 @@ export type SettingsScreenProps = StackScreenProps<SettingsParamList, "settings"
 export const SettingsNavigator = () => (
   <SettingsStack.Navigator
     screenOptions={{
-      direction: "rtl",
-      stackPresentation: "modal",
       headerTintColor: color.primary,
       headerBackTitleVisible: false,
       headerStatusBarHeight: Platform.select({ ios: 10, android: 5 }),

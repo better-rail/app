@@ -54,7 +54,7 @@ const EXTERNAL_LINK_ICON: ImageStyle = {
   transform: isRTL ? undefined : [{ rotate: "90deg" }],
 }
 
-const CHEVRON_ICON: ImageStyle = {
+export const CHEVRON_ICON: ImageStyle = {
   width: 8,
   height: 16,
   marginEnd: spacing[2],

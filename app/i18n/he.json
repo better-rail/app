@@ -161,5 +161,29 @@
     "departsNow": "הרכבת יוצאת עכשיו",
     "rideExistsTitle": "קיימת נסיעה פעילה",
     "rideExistsMessage": "עצרו את הנסיעה הנוכחית על מנת להתחיל חדשה"
+  },
+  "paywall": {
+    "intro": "פיצ׳רים אקסלוסיביים לאייפון שישדרגו לכם את חווית הנסיעה ברכבת ישראל.",
+    "tryFree": "נסו בחינם ל- 14 יום",
+    "afterTrial": "אחר כך זה יותר זול מנסיעה באוטובוס!",
+    "annual": "שנתי",
+    "year": "שנה",
+    "monthly": "חודשי",
+    "month": "חודש",
+    "monthlyPrice": "%{price}/חודש",
+    "yearlyPrice": "%{price}/שנה",
+    "liveActivity": "עדכונים בזמן אמת",
+    "liveActivityDetail": "עדכוני נסיעה בזמן אמת על גבי מסך הנעילה.",
+    "widgets": "ווידג׳טים",
+    "widgetsDetail": "צפו בזמני הרכבות היישר ממסך הבית.",
+    "appleWatchApp": "אפליקציית אפל ווטצ׳",
+    "appleWatchAppDetail": "גישה ללוח הזמנים ישירות מהשעון שלכם.",
+    "appIcons": "אייקונים",
+    "appIconsDetail": "בחרו אייקון חלופי לאפליקצייה מבין מגוון האייקונים.",
+    "supportProject": "תמכו בפרוייקט",
+    "supportProjectDetail": "התמיכה שלכם עוזרת לנו להוסיף פיצ׳רים לאפליקצייה.",
+    "startFreeTrial": "הצטרפו ל-14 ימים בחינם",
+    "afterTrialPrice": "ואז %{price} ל%{period}",
+    "cancelAnytime": "ניתן לבטל בכל עת"
   }
 }

@@ -6,12 +6,14 @@ import { MainNavigator } from "./main-navigator"
 import { SettingsNavigator } from "./settings/settings-navigator"
 import { ActiveRideNavigator } from "./active-ride/active-ride-navigator"
 import { WidgetOnboardingNavigator } from "./widget-onboarding/widget-onboarding-navigator"
+import { PaywallNavigator } from "./paywall/paywall-navigator"
 
 export type RootParamList = {
   mainStack: undefined
   secondaryStack: undefined
   settingsStack: undefined
   activeRideStack: undefined
+  paywallStack: undefined
   widgetOnboardingStack: undefined
 }
 
@@ -22,13 +24,17 @@ const RootStack = () => {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        presentation: "modal",
       }}
     >
       <Stack.Screen name="mainStack" component={MainNavigator} />
-      <Stack.Screen name="settingsStack" component={SettingsNavigator} />
-      <Stack.Screen name="activeRideStack" component={ActiveRideNavigator} />
-      <Stack.Screen name="widgetOnboardingStack" component={WidgetOnboardingNavigator} />
+      <Stack.Group screenOptions={{ presentation: "modal" }}>
+        <Stack.Screen name="settingsStack" component={SettingsNavigator} />
+        <Stack.Screen name="activeRideStack" component={ActiveRideNavigator} />
+        <Stack.Screen name="widgetOnboardingStack" component={WidgetOnboardingNavigator} />
+      </Stack.Group>
+      <Stack.Group screenOptions={{ presentation: "fullScreenModal" }}>
+        <Stack.Screen name="paywallStack" component={PaywallNavigator} />
+      </Stack.Group>
     </Stack.Navigator>
   )
 }

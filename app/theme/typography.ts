@@ -1,11 +1,6 @@
 import { Platform } from "react-native"
-import * as storage from "../utils/storage"
 
 export let primaryFontIOS = "Heebo"
-
-storage.load("appLanguage").then((languageCode) => {
-  if (languageCode === "en" && Platform.OS === "ios") primaryFontIOS = "System"
-})
 
 /**
  * You can find a list of available fonts on both iOS and Android here:

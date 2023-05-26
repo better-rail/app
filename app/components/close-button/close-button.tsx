@@ -1,5 +1,5 @@
 import React from "react"
-import { Image, TouchableOpacity, ImageStyle, ButtonProps } from "react-native"
+import { Image, TouchableOpacity, ImageStyle, TouchableOpacityProps } from "react-native"
 import { color } from "../../theme"
 
 const CLOSE_ICON_STYLE: ImageStyle = {
@@ -11,16 +11,14 @@ const CLOSE_ICON_STYLE: ImageStyle = {
   opacity: 0.5,
 }
 
-interface CloseButtonProps extends ButtonProps {
+interface CloseButtonProps extends TouchableOpacityProps {
   iconStyle?: ImageStyle
 }
 
-function CloseButton({ onPress, iconStyle, ...props }: CloseButtonProps) {
+export function CloseButton({ onPress, iconStyle, ...props }: CloseButtonProps) {
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.8} accessibilityLabel="חזרה" {...props}>
       <Image source={require("../../../assets/close.png")} style={[CLOSE_ICON_STYLE, iconStyle]} />
     </TouchableOpacity>
   )
 }
-
-export default CloseButton
