@@ -27,6 +27,7 @@ struct BetterRailActivityAttributes: ActivityAttributes {
     var delay: Int
     var nextStationId: Int
     var status: ActivityStatus
+    var updatedByBGTask: Bool = false
     var nextStation: Station { getStationById(nextStationId) ?? ERR_STATION }
   }
 

@@ -29,7 +29,8 @@ class UpdateLiveActivityTask {
   private func handleTask(task: BGTask) async {
     guard #available(iOS 16.2, *),
           let activity = LiveActivitiesController.currentActivity,
-          let route = LiveActivitiesController.route
+          let route = LiveActivitiesController.route,
+          let lastUpdateTime = LiveActivitiesController.lastUpdateTime
     else {
       print("No active ride is present")
       task.setTaskCompleted(success: true)
@@ -40,11 +41,19 @@ class UpdateLiveActivityTask {
       self.scheduleTask(interval: 60)
     }
     
-    do {
-      let newContent = try getActivityCurrentState(route: route, updatedDelay: activity.content.state.delay)
-      await activity.update(using: newContent)
-    } catch {
-      print("Couldn't update activity content")
+    let shouldUpdatedActivity =
+      activity.content.state.updatedByBGTask ||
+      abs(lastUpdateTime.timeIntervalSinceNow) > 60
+    
+    if shouldUpdatedActivity {
+      do {
+        let newContent = try getActivityCurrentState(route: route, updatedDelay: activity.content.state.delay)
+        await activity.update(using: newContent)
+      } catch {
+        print("Couldn't update activity content")
+      }
+    } else {
+      print("Activity is already updated, no need to update content")
     }
     
     self.scheduleTask(interval: 60)
