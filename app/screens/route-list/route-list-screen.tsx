@@ -5,13 +5,15 @@ import { observer } from "mobx-react-lite"
 import { useNetInfo } from "@react-native-community/netinfo"
 import { SharedElement } from "react-navigation-shared-element"
 import { useQuery } from "react-query"
-import { closestIndexTo } from "date-fns"
+import { closestIndexTo, format } from "date-fns"
 import { RouteListScreenProps } from "../../navigators/main-navigator"
 import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
 import { RouteItem } from "../../services/api"
-import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight } from "../../components"
+import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight, Text } from "../../components"
 import { RouteListModal, NoTrainsFoundMessage, NoInternetConnection } from "./components"
+import { BottomScreenSheet } from "../../components/sheets"
+import { dateFnsLocalization, translate } from "../../i18n"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -133,13 +135,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         </View>
       )}
 
-      {trains.isSuccess && trains.data?.length > 0 && (
-        <RouteListModal
-          isVisible={isModalVisible}
-          onOk={() => setIsModalVisible(false)}
-          routesDate={trains.data[0].trains[0].departureTime}
-        />
-      )}
+      {trains.isSuccess && trains.data?.length > 0 && <RouteListModal routesDate={trains.data[0].trains[0].departureTime} />}
     </Screen>
   )
 })
