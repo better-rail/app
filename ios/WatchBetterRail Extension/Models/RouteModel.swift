@@ -71,9 +71,18 @@ struct RouteStation: Decodable, Encodable, Identifiable {
   let platform: Int
 }
 
+enum FetchRouteResultStatus {
+  case success
+  case failed
+}
+
+struct FetchRouteResult {
+  let status: FetchRouteResultStatus
+  let routes: [Route]?
+}
 
 struct RouteModel {
-  func fetchRoute(originId: Int, destinationId: Int, date: Date? = nil, completion: @escaping ([Route]) -> Void) {
+  func fetchRoute(originId: String, destinationId: String, date: Date? = nil, completion: @escaping (FetchRouteResult) -> Void) {
       let (routeDate, routeTime) = formatRouteDate(date ?? Date())
       
       let url = URL(string: "https://israelrail.azurefd.net/rjpa-prod/api/v1/timetable/searchTrainLuzForDateTime?fromStation=\(originId)&toStation=\(destinationId)&date=\(routeDate)&hour=\(routeTime)&scheduleType=1&systemType=1&languageId=Hebrew")!
@@ -83,28 +92,28 @@ struct RouteModel {
       
       DispatchQueue.global(qos: .userInitiated).async {
           URLSession.shared.dataTask(with: request) { data, _, _ in
-              guard let data = data else {
-                  completion([])
+              guard let data else {
+                completion(FetchRouteResult(status: .failed, routes: nil))
                   return
               }
               
               let decoder = JSONDecoder()
             do {
                 let route = try decoder.decode(RouteResult.self, from: data)
-                completion(route.result.travels)
+              completion(FetchRouteResult(status: .success, routes: route.result.travels))
             } catch {
                 print("Error decoding JSON: \(String(describing: error))")
-                completion([])
+                completion(FetchRouteResult(status: .failed, routes: nil))
                 return
-            }
+            }            
           }.resume()
       }
   }
 
-  func fetchRoute(originId: Int, destinationId: Int, date: Date? = nil) async -> [Route] {
+  func fetchRoute(originId: String, destinationId: String, date: Date? = nil) async -> FetchRouteResult {
       return await withUnsafeContinuation { continuation in
-          fetchRoute(originId: originId, destinationId: destinationId, date: date) { routes in
-              continuation.resume(returning: routes)
+          fetchRoute(originId: originId, destinationId: destinationId, date: date) { result in
+            continuation.resume(returning: result)
           }
       }
   }

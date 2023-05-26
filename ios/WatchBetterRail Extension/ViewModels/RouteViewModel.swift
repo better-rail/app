@@ -23,9 +23,10 @@ class RouteViewModel: ObservableObject {
     self.error = nil
 
     Task {
-      routeModel.fetchRoute(originId: Int(origin.id)!, destinationId: Int(destination.id)!, completion: { routes in
+      routeModel.fetchRoute(originId: origin.id, destinationId: destination.id, completion: { result in
         DispatchQueue.main.async {
-          self.trains = routes.filter { self.filterRoute(route: $0) }
+          self.trains = result.routes ?? []
+          self.trains = result.status == .success ? result.routes!.filter { self.filterRoute(route: $0) } : []
           self.loading = false
           self.lastRequest = Date()
           self.closestIndexToDate = self.getClosestIndexToDate()
@@ -88,13 +89,13 @@ class RouteViewModel: ObservableObject {
 }
 
 extension Date {
-    func distance(from date: Date, only component: Calendar.Component, calendar: Calendar = .current) -> Int {
-        let days1 = calendar.component(component, from: self)
-        let days2 = calendar.component(component, from: date)
-        return days1 - days2
-    }
-
-    func hasSame(_ component: Calendar.Component, as date: Date) -> Bool {
-        distance(from: date, only: component) == 0
-    }
+  func distance(from date: Date, only component: Calendar.Component, calendar: Calendar = .current) -> Int {
+    let days1 = calendar.component(component, from: self)
+    let days2 = calendar.component(component, from: date)
+    return days1 - days2
+  }
+  
+  func hasSame(_ component: Calendar.Component, as date: Date) -> Bool {
+    distance(from: date, only: component) == 0
+  }
 }
