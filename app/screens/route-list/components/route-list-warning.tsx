@@ -57,7 +57,7 @@ export interface RouteListModalProps {
  *
  * For iOS we'll display a native alert, for Android we'll show modal
  */
-export const RouteListModal = function RouteListModal({ routesDate }: RouteListModalProps) {
+export const RouteListWarning = function RouteListWarning({ routesDate }: RouteListModalProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [displayWarningSheet, setDisplayWarningSheet] = useState(false)
   const formattedRoutesDate = format(routesDate, "eeee, dd/MM/yyyy", { locale: dateFnsLocalization })

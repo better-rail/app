@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useMemo } from "react"
 import { View, ActivityIndicator, ViewStyle } from "react-native"
 import { FlashList } from "@shopify/flash-list"
 import { observer } from "mobx-react-lite"
@@ -11,7 +11,8 @@ import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
 import { RouteItem } from "../../services/api"
 import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight } from "../../components"
-import { RouteListModal, NoTrainsFoundMessage, NoInternetConnection } from "./components"
+import { NoTrainsFoundMessage, NoInternetConnection, RouteListWarning } from "./components"
+
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
   flex: 1,
@@ -85,7 +86,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   }
 
   const trainsFoundForDifferentDate = trains.isSuccess && trains.data?.length > 0 && trainRoutes.resultType === "different-date"
-  console.log(trainsFoundForDifferentDate, trainRoutes.resultType)
+
   return (
     <Screen
       style={ROOT}
@@ -126,9 +127,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         </View>
       )}
 
-      {trains.isSuccess && trains.data?.length > 0 && trainRoutes.resultType === "different-date" && (
-        <RouteListModal routesDate={trains.data[0].trains[0].departureTime} />
-      )}
+      {trainsFoundForDifferentDate && <RouteListWarning routesDate={trains.data[0].trains[0].departureTime} />}
     </Screen>
   )
 })
