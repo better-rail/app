@@ -37,17 +37,17 @@ struct TimeInformation: View {
                 .accessibilityLabel("time left depart")
             }
 
-            HStack (spacing: 2) {
+            HStack (alignment: .lastTextBaseline, spacing: vm.isRTL ? 4 : 2) {
               Text("depart")
-                .fontWeight(vm.isEnglish ? .light : .regular)
-                .font(vm.isEnglish ? .caption2 : .caption)
+                .fontWeight(vm.isRTL ? .regular : .light)
+                .font(vm.isRTL ? .subheadline2 : .caption2)
               
               // hide the original time during delay, if the screen space is limited
               if (delay == 0 || delay > 0 && (placement == .lockScreen || vm.isWideScreen)) {
                 Text(formatDateHour(departureDate))
                   .bold()
                   .strikethrough(vm.delay > 0 ? true : false)
-                  .font(.caption)
+                  .font(vm.isRTL ? .caption : .caption2)
               }
               
               if (delay != 0) {
