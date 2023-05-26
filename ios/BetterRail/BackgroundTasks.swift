@@ -31,6 +31,7 @@ class UpdateLiveActivityTask {
           let activity = LiveActivitiesController.currentActivity,
           let route = LiveActivitiesController.route
     else {
+      print("No active ride is present")
       task.setTaskCompleted(success: true)
       return
     }
@@ -40,10 +41,10 @@ class UpdateLiveActivityTask {
     }
     
     do {
-      let newContent = try getActivityCurrentState(route: route, delay: activity.content.state.delay)
+      let newContent = try getActivityCurrentState(route: route, updatedDelay: activity.content.state.delay)
       await activity.update(using: newContent)
     } catch {
-      print("Couldn't update content")
+      print("Couldn't update activity content")
     }
     
     self.scheduleTask(interval: 60)

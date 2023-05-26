@@ -188,7 +188,7 @@ func findClosestStationInRoute(route: Route) -> Int {
 }
 
 @available(iOS 16.1, *)
-func getActivityCurrentState(route: Route, delay: Int? = nil) throws -> BetterRailActivityAttributes.ContentState {
+func getActivityCurrentState(route: Route, updatedDelay: Int? = nil) throws -> BetterRailActivityAttributes.ContentState {
   // get the current train by finding the departure time which is closest to the current time
   var status = ActivityStatus.waitForTrain
 
@@ -206,7 +206,7 @@ func getActivityCurrentState(route: Route, delay: Int? = nil) throws -> BetterRa
   }
   
   return BetterRailActivityAttributes.ContentState(
-    delay: delay ?? train.delay,
+    delay: updatedDelay ?? train.delay,
     nextStationId: nextStationId,
     status: status
   )
