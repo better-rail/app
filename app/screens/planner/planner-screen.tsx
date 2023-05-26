@@ -206,8 +206,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   }, [])
 
   useFocusEffect(() => {
-    console.log("hi")
-    // if the result type is not "norma", it'll be the initial type upon navigating to the
+    // if the result type is not "normal", it'll be the initial type upon navigating to the
     // route list - so we need to ensure we reset it back to it's normal state once back to the
     // planner screen.
     trainRoutes.updateResultType("normal")
