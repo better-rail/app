@@ -31,11 +31,11 @@ struct StationListItem: View {
       Text(stationName)
         .font(Font.custom("Heebo", size: 18)).fontWeight(.medium)
       
-      if trainNumber != nil {
-        Text("train \(trainNumber!) platform \(platform)")
+      if let trainNumber {
+        Text("train \(String(trainNumber)) platform \(String(platform))")
           .font(Font.custom("Heebo", size: 14))
       } else {
-        Text("Platform \(platform)")
+        Text("platform \(String(platform))")
           .font(Font.custom("Heebo", size: 14))
       }
     }.listRowBackground(StationImageBackground(imageName))

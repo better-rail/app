@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useMemo } from "react"
 import { View, ActivityIndicator, ViewStyle } from "react-native"
 import { FlashList } from "@shopify/flash-list"
 import { observer } from "mobx-react-lite"
@@ -11,7 +11,7 @@ import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
 import { RouteItem } from "../../services/api"
 import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight } from "../../components"
-import { RouteListModal, NoTrainsFoundMessage, NoInternetConnection } from "./components"
+import { NoTrainsFoundMessage, NoInternetConnection, RouteListWarning } from "./components"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -19,12 +19,10 @@ const ROOT: ViewStyle = {
 }
 
 export const RouteListScreen = observer(function RouteListScreen({ navigation, route }: RouteListScreenProps) {
-  const [isModalVisible, setIsModalVisible] = useState(false)
   const { trainRoutes, routePlan, ride } = useStores()
   const { originId, destinationId, time, enableQuery } = route.params
 
   const { isInternetReachable } = useNetInfo()
-
   const trains = useQuery(
     ["origin", originId, "destination", destinationId, "time", routePlan.date.getDate()],
     async () => {
@@ -53,12 +51,6 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
 
     return undefined
   }, [trains.isSuccess])
-
-  useEffect(() => {
-    if (trainRoutes.resultType === "different-date") {
-      setIsModalVisible(true)
-    }
-  }, [trainRoutes.resultType])
 
   const renderRouteCard = ({ item }: { item: RouteItem }) => {
     const departureTime = item.trains[0].departureTime
@@ -92,6 +84,8 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
       />
     )
   }
+
+  const trainsFoundForDifferentDate = trains.isSuccess && trains.data?.length > 0 && trainRoutes.resultType === "different-date"
 
   return (
     <Screen
@@ -133,13 +127,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         </View>
       )}
 
-      {trains.isSuccess && trains.data?.length > 0 && (
-        <RouteListModal
-          isVisible={isModalVisible}
-          onOk={() => setIsModalVisible(false)}
-          routesDate={trains.data[0].trains[0].departureTime}
-        />
-      )}
+      {trainsFoundForDifferentDate && <RouteListWarning routesDate={trains.data[0].trains[0].departureTime} />}
     </Screen>
   )
 })

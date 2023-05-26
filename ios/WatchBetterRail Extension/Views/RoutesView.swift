@@ -19,7 +19,7 @@ struct RoutesView: View {
           else if let requestError = route.error {
             InfoMessage(imageName: "wifi.exclamationmark", message: requestError.localizedDescription)
           } else if (route.trains.count == 0) {
-            InfoMessage(imageName: "tram", message: "no-trains-found")
+            InfoMessage(imageName: "tram", message: String(localized: "no-trains-found"))
           } else {
             List (0 ..< route.trains.count, id: \.self) { index in
               // TODO: Refactor train property names - too confusing!

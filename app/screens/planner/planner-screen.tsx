@@ -27,6 +27,7 @@ import { differenceInHours, parseISO } from "date-fns"
 import { save, load } from "../../utils/storage"
 import { donateRouteIntent } from "../../utils/ios-helpers"
 import analytics from "@react-native-firebase/analytics"
+import { useFocusEffect } from "@react-navigation/native"
 
 const now = new Date()
 
@@ -203,6 +204,13 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
 
     return () => subscription.remove()
   }, [])
+
+  useFocusEffect(() => {
+    // if the result type is not "normal", it'll be the initial type upon navigating to the
+    // route list - so we need to ensure we reset it back to it's normal state once back to the
+    // planner screen.
+    trainRoutes.updateResultType("normal")
+  })
 
   useQuery(
     ["origin", origin?.id, "destination", destination?.id, "time", routePlan.date.getDate()],

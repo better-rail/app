@@ -22,17 +22,14 @@ struct WidgetEntryView: View {
     VStack {
       HStack {
         VStack(alignment: .leading) {
-          WidgetRouteView(
-            originName: entry.origin.name,
-            destinationName: entry.destination.name
-          )
+          WidgetRouteView(originName: entry.origin.name, destinationName: entry.destination.name)
           
           Spacer()
           
           HStack(alignment: .top) {
             VStack(alignment: .leading) {
-              if (entry.departureTime == "404") {
-                Text(getNoTrainsMessage(date: entry.date))
+              if (entry.departureTime == "300" || entry.departureTime == "404") {
+                Text(getNoTrainsMessage(statusCode: entry.departureTime, date: entry.date))
                   .foregroundColor(Color("pinky")).font(.system(size: 11.5)).fontWeight(.medium).padding(.trailing, 8)
 
               } else {
@@ -144,14 +141,13 @@ struct WidgetEntryView: View {
         
         Spacer()
         
-      }.frame(maxHeight: 170)
-      .background(
-        WidgetBackground(image: entry.origin.image).frame(height: 170)
-          
-      )
+      }
+      .frame(maxHeight: 170)
+      .background(WidgetBackground(image: entry.origin.image)
+        .frame(height: 170))
       
       if (widgetFamily == .systemLarge) {
-        WidgetLargeScheduleView(upcomingTrains: entry.upcomingTrains ?? [])
+        WidgetLargeScheduleView(upcomingTrains: entry.upcomingTrains ?? [], statusCode: entry.departureTime)
         Spacer()
       }
     }
@@ -159,18 +155,22 @@ struct WidgetEntryView: View {
     .widgetURL(URL(string: "widget://route?originId=\(entry.origin.id)&destinationId=\(entry.destination.id)")!)
   }
   
-  func getNoTrainsMessage(date: Date) -> String {
-    if (NSCalendar(identifier: .hebrew)!.isDateInWeekend(date)) {
-      return NSLocalizedString("No trains for today.", comment: "")
+  func getNoTrainsMessage(statusCode: String, date: Date) -> String {
+    if statusCode == "300" {
+      if (NSCalendar(identifier: .hebrew)!.isDateInWeekend(date)) {
+        return String(localized: "No trains for today.")
+      }
+      
+      return String(localized: "No more trains for today.")
+    } else {
+      return String(localized: "Something went wrong.")
     }
-    
-    return NSLocalizedString("No more trains for today.", comment: "")
   }
 }
 
 struct WidgetEntryView_Previews: PreviewProvider {
     static var previews: some View {
-      let origin = getStationById(4600)!
+      let origin = getStationById(3400)!
       let destination = getStationById(680)!
       
       let entry = TrainDetail(date: Date(), departureDate: "09/01/2007 09:43:00", departureTime: "15:56", arrivalTime: "16:06", platform: 3, trainNumber: 131, origin: origin, destination: destination, upcomingTrains: upcomingTrainsSnapshot)

@@ -3,31 +3,24 @@ import Foundation
 struct EntriesGenerator {
   typealias Entry = TrainDetail
     
-  func getTrains(originId: Int, destinationId: Int) async -> [Entry] {
-    let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
-    
-    async let todayRoutes = RouteModel().fetchRoute(originId: originId, destinationId: destinationId)
-    async let tomorrowRoutes = RouteModel().fetchRoute(originId: originId, destinationId: destinationId, date: tomorrow)
-
-    var routes = (today: await todayRoutes, tomorrow: await tomorrowRoutes)
-    
-    // API possibly returns past trains
-    routes.today = cleanPastTrains(routes.today)
-
+  func getTrains(todayRoutes: [Route], tomorrowRoutes: [Route]) async -> [Entry] {
     var entries: [Entry] = []
     var lastTrainEntryDate = Date()
-
     
-    if routes.today.count == 0 && routes.tomorrow.count == 0 {
+    let todayRoutes = cleanPastTrains(todayRoutes)
+    let originId = todayRoutes[0].trains[0].orignStation
+    let destinationId = todayRoutes[0].trains[todayRoutes[0].trains.count - 1].destinationStation
+    
+    if todayRoutes.count == 0 && tomorrowRoutes.count == 0 {
       entries.append(getEmptyEntry(originId: originId, destinationId: destinationId))
     } else {
-      if routes.today.count > 0 {
-        entries = generateEntriesForRoutes(routes.today, originId: originId, destinationId: destinationId)
+      if todayRoutes.count > 0 {
+        entries = generateEntriesForRoutes(todayRoutes, originId: originId, destinationId: destinationId)
         lastTrainEntryDate = Calendar.current.date(byAdding: .minute, value: 2, to: entries[entries.count - 1].date)!
       }
       
-      if routes.tomorrow.count > 0 {
-        var tomorrowEntries = generateEntriesForRoutes(routes.tomorrow, originId: originId, destinationId: destinationId)
+      if tomorrowRoutes.count > 0 {
+        var tomorrowEntries = generateEntriesForRoutes(tomorrowRoutes, originId: originId, destinationId: destinationId)
         tomorrowEntries[0].date = lastTrainEntryDate
         
         // Add tomorrow's first entry as the last entry for today
@@ -96,19 +89,18 @@ struct EntriesGenerator {
     
     return entries
   }
-
   
-  func getEmptyEntry(originId: Int, destinationId: Int, date: Date = Date()) -> TrainDetail {
+  func getEmptyEntry(originId: Int, destinationId: Int, errorCode: Int = 300, date: Date = Date()) -> TrainDetail {
     let origin = getStationById(originId)!
     let destination = getStationById(destinationId)!
 
     return TrainDetail(
       date: date,
-      departureDate: "404",
-      departureTime: "404",
-      arrivalTime: "404",
-      platform: 404,
-      trainNumber: 404,
+      departureDate: "\(errorCode)",
+      departureTime: "\(errorCode)",
+      arrivalTime: "\(errorCode)",
+      platform: errorCode,
+      trainNumber: errorCode,
       origin: origin,
       destination: destination,
       upcomingTrains: []
@@ -141,5 +133,4 @@ struct EntriesGenerator {
     let now = Date()
     return routes.filter { now < isoDateStringToDate($0.trains[0].departureTime) }
   }
-
 }
