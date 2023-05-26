@@ -22,6 +22,7 @@
 
 "No trains for today." = "No trains for today.";
 "No more trains for today." = "No more trains for today.";
+"Something went wrong." = "Something went wrong.";
 
 // live activity localizations
 "min" = "min";

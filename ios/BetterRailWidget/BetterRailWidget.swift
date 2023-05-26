@@ -1,6 +1,6 @@
+import Foundation
 import WidgetKit
 import SwiftUI
-
 
 struct Provider: IntentTimelineProvider {
   typealias Entry = TrainDetail
@@ -13,21 +13,38 @@ struct Provider: IntentTimelineProvider {
 
 
   func getTimeline(for configuration: RouteIntent, in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
+    let entriesGenerator = EntriesGenerator()
+    
     if let originId = configuration.origin?.identifier,
        let destinationId = configuration.destination?.identifier {
 
       Task {
-        let entries = await EntriesGenerator().getTrains(originId: Int(originId)!, destinationId: Int(destinationId)!)
+        async let todayRoutes = RouteModel().fetchRoute(originId: originId, destinationId: destinationId)
         
-        // Refresh widget after tomorrow at midnight
         let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
-        let midnight = Calendar.current.startOfDay(for: tomorrow)
-        
-        // Delay the reload a little to ensure the request will be sent after midnight
-        let midnightDelayed = Calendar.current.date(byAdding: .minute, value: 5, to: midnight)!
+        async let tomorrowRoutes = RouteModel().fetchRoute(originId: originId, destinationId: destinationId, date: tomorrow)
 
-        let timeline = Timeline(entries: entries, policy: .after(midnightDelayed))
-        completion(timeline)
+        let routes = (today: await todayRoutes, tomorrow: await tomorrowRoutes)
+        
+        if routes.today.status == .failed {
+          // something went wrong, try to refetch in 30 minutes
+          let emptyEntry = entriesGenerator.getEmptyEntry(originId: Int(originId)!, destinationId: Int(destinationId)!, errorCode: 404)
+          let retryTime = Calendar.current.date(byAdding: .minute, value: 30, to: Date())!
+          let timeline = Timeline(entries: [emptyEntry], policy: .after(retryTime))
+          completion(timeline)
+        } else {
+          let entries = await entriesGenerator.getTrains(todayRoutes: routes.today.routes!, tomorrowRoutes: routes.tomorrow.routes!)
+          
+          // Refresh widget after tomorrow at midnight
+          let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
+          let midnight = Calendar.current.startOfDay(for: tomorrow)
+          
+          // Delay the reload a little to ensure the request will be sent after midnight
+          let midnightDelayed = Calendar.current.date(byAdding: .minute, value: 5, to: midnight)!
+
+          let timeline = Timeline(entries: entries, policy: .after(midnightDelayed))
+          completion(timeline)
+        }
       }
     }
   }

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct WidgetLargeScheduleView: View {
     let upcomingTrains: [UpcomingTrain]
+    let statusCode: String
   
     var body: some View {
       VStack(spacing: 8) {
@@ -9,7 +10,7 @@ struct WidgetLargeScheduleView: View {
           VStack {
             Spacer()
             Image(systemName: "tram").padding(.vertical, 1).font(.system(size: 24))
-            Text("No more trains for today.")
+            Text(statusCode == "300" ? "No more trains for today." : "Something went wrong.")
             Spacer()
           }.padding(.bottom, 16)
           
