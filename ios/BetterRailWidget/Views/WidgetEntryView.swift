@@ -22,10 +22,7 @@ struct WidgetEntryView: View {
     VStack {
       HStack {
         VStack(alignment: .leading) {
-          WidgetRouteView(
-            originName: entry.origin.name,
-            destinationName: entry.destination.name
-          )
+          WidgetRouteView(originName: entry.origin.name, destinationName: entry.destination.name)
           
           Spacer()
           
@@ -144,14 +141,13 @@ struct WidgetEntryView: View {
         
         Spacer()
         
-      }.frame(maxHeight: 170)
-      .background(
-        WidgetBackground(image: entry.origin.image).frame(height: 170)
-          
-      )
+      }
+      .frame(maxHeight: 170)
+      .background(WidgetBackground(image: entry.origin.image)
+        .frame(height: 170))
       
       if (widgetFamily == .systemLarge) {
-        WidgetLargeScheduleView(upcomingTrains: entry.upcomingTrains ?? [])
+        WidgetLargeScheduleView(upcomingTrains: entry.upcomingTrains ?? [], statusCode: entry.departureTime)
         Spacer()
       }
     }
@@ -162,12 +158,12 @@ struct WidgetEntryView: View {
   func getNoTrainsMessage(statusCode: String, date: Date) -> String {
     if statusCode == "300" {
       if (NSCalendar(identifier: .hebrew)!.isDateInWeekend(date)) {
-        return "No trains for today."
+        return String(localized: "No trains for today.")
       }
       
-      return "No more trains for today."
+      return String(localized: "No more trains for today.")
     } else {
-      return "Something went wrong."
+      return String(localized: "Something went wrong.")
     }
   }
 }
