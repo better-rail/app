@@ -62,7 +62,6 @@ class LiveActivitiesController {
   
   func startLiveActivity(route: Route) async {
     if ActivityAuthorizationInfo().areActivitiesEnabled {
-        
       // request the activity from the system
       do {
         let initialContentState = try getActivityCurrentState(route: route)
