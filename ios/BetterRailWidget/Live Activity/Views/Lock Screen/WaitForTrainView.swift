@@ -28,11 +28,12 @@ struct LockScreenWaitingForTrainView: View {
       ActivityHeader(vm: vm)
 
       HStack(alignment: .lastTextBaseline) {
-        VStack(alignment: .leading, spacing: 2.0) {
+        VStack(alignment: .leading, spacing: vm.isRTL ? 1.0 : 2.0) {
           Text(vm.status == .inExchange ? "wait in" : "headed to")
-            .font(vm.isEnglish ? .caption2 : .caption)
+            .fontWeight(vm.isRTL ? .regular : .light)
+            .font(vm.isRTL ? .subheadline2 : .caption2)
           Text("\(vm.destination.name)")
-            .font(vm.isEnglish ? .callout : .body).heavyWide()
+            .font(vm.isRTL ? .body : .callout).heavyWide()
         }
         
         Spacer()
