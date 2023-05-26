@@ -145,23 +145,36 @@ func findClosestStationInRoute(route: Route, updatedDelay: Int? = nil) -> Int {
   return route.trains[0].orignStation
 }
 
+func getActivityStatus(route: Route, train: Train, nextStationId: Int, updatedDelay: Int? = nil) -> ActivityStatus {
+  let delay = updatedDelay ?? train.delay
+  
+  if train.orignStation == nextStationId {
+    if route.trains[0].orignStation == train.orignStation {
+      return .waitForTrain
+    } else {
+      return .inExchange
+    }
+  }
+  
+  if train.destinationStation == nextStationId {
+    let arrivalTime = isoDateStringToDate(train.arrivalTime).addMinutes(delay)
+    let timeToArrival = arrivalTime.timeIntervalSinceNow
+    
+    if timeToArrival > 0 {
+      return .arrived
+    } else if timeToArrival > -60 {
+      return .getOff
+    }
+  }
+  
+  return .inTransit
+}
+
 @available(iOS 16.1, *)
 func getActivityCurrentState(route: Route, updatedDelay: Int? = nil) throws -> BetterRailActivityAttributes.ContentState {
-  // get the current train by finding the departure time which is closest to the current time
-  var status = ActivityStatus.waitForTrain
-
   let nextStationId = findClosestStationInRoute(route: route, updatedDelay: updatedDelay)
   let train = getTrainFromStationId(route: route, stationId: nextStationId)!
-
-  if route.trains[0].orignStation != train.orignStation {
-   // not the first train, possibly an exchange!
-   if train.orignStation == nextStationId {
-     status = .inExchange
-   }
-  }
-  if train.orignStation != nextStationId {
-   status = .inTransit
-  }
+  let status = getActivityStatus(route: route, train: train, nextStationId: nextStationId, updatedDelay: updatedDelay)
   
   return BetterRailActivityAttributes.ContentState(
     delay: updatedDelay ?? train.delay,

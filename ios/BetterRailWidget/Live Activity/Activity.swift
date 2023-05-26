@@ -5,7 +5,6 @@ import ActivityKit
 @available(iOS 16.1, *)
 enum ActivityStatus: String, Codable {
     case waitForTrain
-    case getOn
     case inTransit
     case inExchange
     case getOff
