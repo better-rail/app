@@ -38,49 +38,6 @@ func getPreviousTrainFromStationId(route: Route, stationId: Int) -> Train? {
   
 }
 
-/// Calculates how much stations left in the current train route
-/// If there is an exchange, the number of stops references the stops until the exchange / last station after the exchange
-func stopsLeftInRoute(route: Route, currentStationId: Int) -> Int {
-  /// Find the train which the user is on right now (we need to do that to handle exchange scenerios)
-  if let train = getTrainFromStationId(route: route, stationId: currentStationId) {
-    let totalStations = train.stopStations.count
-    
-    guard let stationIndex = train.stopStations.firstIndex(where: { $0.stationId == currentStationId }) else {
-      print("Failed to find station Id index in the stop stations array")
-      return 0;
-    }
-    
-    return totalStations - stationIndex
-  } else {
-    print("Failed to find the station Id")
-    return 0
-  }
-}
-
-/// Get the first stop for the current train in the user's route
-func firstStopStationTime(route: Route, currentStationId: Int) -> Date? {
-  if let train = getTrainFromStationId(route: route, stationId: currentStationId) {
-    let departureTime = train.stopStations.first!.departureTime
-    return isoDateStringToDate(departureTime)
-  } else {
-    print("Failed to find the first stop station in route")
-    return nil;
-  }
-}
-
-
-/// Get the last stop for the current train in the user's route
-/// This method also handles exchanges - so in case of an exchange, the retrieved result would be the exchange station stop time
-func lastStopStationTime(route: Route, currentStationId: Int) -> Date? {
-  if let train = getTrainFromStationId(route: route, stationId: currentStationId) {
-    let arrivalTime = train.stopStations.last!.arrivalTime
-    return isoDateStringToDate(arrivalTime)
-  } else {
-    print("Failed to find the last stop station in route")
-    return nil;
-  }
-}
-
 /// Get information about the current ride progress
 /// - Returns: A tuple made out of the (current stop station index, total stop station count)
 func rideProgress(route: Route, nextStationId: Int) -> (Int, Int) {
