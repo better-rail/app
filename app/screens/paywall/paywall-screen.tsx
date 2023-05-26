@@ -69,7 +69,6 @@ export function PaywallScreen({ navigation, route }: PaywallScreenProps) {
               return route.params?.presentation === "modal" ? (
                 <CloseButton
                   onPress={() => navigation.goBack()}
-                  // style={{ marginTop: insets.top - 10, marginStart: 6 }}
                   iconStyle={{ tintColor: color.grey }}
                   accessibilityLabel={translate("common.close")}
                 />
@@ -77,7 +76,6 @@ export function PaywallScreen({ navigation, route }: PaywallScreenProps) {
                 <HeaderBackButton {...props} label="Hello" onPress={() => navigation.goBack()} />
               )
             }}
-            // headerTransparent={true}
             headerTitle={(props) => (
               <Animated.Text style={[{ fontSize: 17, fontWeight: 600, color: color.text }, headerOpacity]}>
                 Better Rail Pro

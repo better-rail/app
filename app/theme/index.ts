@@ -10,4 +10,4 @@ export const fontScale = PixelRatio.getFontScale()
 const colorScheme = Appearance.getColorScheme()
 export const isDarkMode = colorScheme === "dark"
 
-analytics().setUserProperty("colorScheme", colorScheme)
+analytics().setUserProperties({ colorScheme, fontScale: `${fontScale}` })
