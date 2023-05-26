@@ -41,6 +41,7 @@ if (deviceHeight > 900) {
 
 const CONTAINER: ViewStyle = {
   borderRadius: 12,
+  backgroundColor: color.inputPlaceholderBackground,
   shadowColor: color.palette.black,
   shadowOffset: { height: 1, width: 0 },
   shadowOpacity: 0.2,
@@ -53,7 +54,6 @@ const EMPTY_CARD_WRAPPER: ViewStyle = {
   justifyContent: "center",
   alignItems: "center",
   borderRadius: 12,
-  backgroundColor: color.inputPlaceholderBackground,
 }
 
 const BACKGROUND: ViewStyle = {
