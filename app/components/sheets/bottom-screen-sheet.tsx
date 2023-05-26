@@ -16,7 +16,12 @@ const SHEET_CONTAINER: ViewStyle = {
   borderTopWidth: 1,
 }
 
-export function BottomScreenSheet({ children, style }: { children: ReactNode; style?: ViewStyle }) {
+interface BottomScreenSheetProps {
+  children: ReactNode
+  style?: ViewStyle
+}
+
+export function BottomScreenSheet({ children, style }: BottomScreenSheetProps) {
   const insets = useSafeAreaInsets()
 
   const colorScheme = useColorScheme()
