@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React from "react"
 import analytics from "@react-native-firebase/analytics"
 import { observer } from "mobx-react-lite"
 import { Platform, View, ViewStyle } from "react-native"
@@ -7,9 +7,9 @@ import { SettingBox } from "./components/settings-box"
 import { SETTING_GROUP } from "./settings-styles"
 import { color, isDarkMode, spacing } from "../../theme"
 import { useStores } from "../../models"
-import DeviceInfo from "react-native-device-info"
 import { translate } from "../../i18n"
 import { openLink } from "../../utils/helpers/open-link"
+import { useIsBetaTester } from "../../hooks/use-is-beta-tester"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -18,7 +18,7 @@ const ROOT: ViewStyle = {
 
 export const PrivacyScreen = observer(function SettingsLanguageScreen() {
   const { user } = useStores()
-  const [isBetaTester, setIsBetaTester] = useState(false)
+  const isBetaTester = useIsBetaTester()
 
   const onTelemetryToggle = async (disableTelemetry: boolean) => {
     if (disableTelemetry) {
@@ -31,14 +31,6 @@ export const PrivacyScreen = observer(function SettingsLanguageScreen() {
       await analytics().setAnalyticsCollectionEnabled(true)
     }
   }
-
-  useEffect(() => {
-    DeviceInfo.getInstallerPackageName().then((value) => {
-      if (value == "TestFlight") {
-        setIsBetaTester(true)
-      }
-    })
-  }, [])
 
   return (
     <Screen
