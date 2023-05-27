@@ -1,4 +1,4 @@
-import { Alert, Dimensions, Image, ImageStyle, Platform, View, ViewStyle } from "react-native"
+import { Alert, Dimensions, Image, ImageStyle, Platform, PlatformColor, View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HapticFeedback from "react-native-haptic-feedback"
@@ -10,6 +10,7 @@ import { differenceInMinutes, isAfter } from "date-fns"
 import { timezoneCorrection } from "../../../utils/helpers/date-helpers"
 import { color } from "../../../theme"
 import { useStores } from "../../../models"
+import { useNavigation } from "@react-navigation/native"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -34,7 +35,9 @@ interface StartRideButtonProps {
 }
 
 export const StartRideButton = observer(function StartRideButton(props: StartRideButtonProps) {
-  const { ride } = useStores()
+  const navigation = useNavigation()
+  const { ride, purchases } = useStores()
+
   const { route, screenName } = props
   const insets = useSafeAreaInsets()
 
@@ -64,37 +67,54 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
         right: 15 + insets.right,
       }}
     >
-      <Button
-        style={{ backgroundColor: color.secondary, width: 148 }}
-        icon={
-          Platform.OS == "android" ? undefined : <Image source={require("../../../../assets/train.ios.png")} style={TRAIN_ICON} />
-        }
-        pressedOpacity={0.85}
-        title={translate("ride.startRide")}
-        loading={ride.loading}
-        disabled={isStartRideButtonDisabled}
-        onDisabledPress={() => {
-          HapticFeedback.trigger("notificationError")
-          analytics().logEvent("start_live_ride_disable_click")
-          if (activeRide) {
-            Alert.alert(translate("ride.rideExistsTitle"), translate("ride.rideExistsMessage"))
-          } else {
-            let message = ""
-            if (isRouteInPast) {
-              message = translate("ride.rideInPastAlert")
-            } else if (isRouteInFuture) {
-              message = translate("ride.rideInFutureAlert")
-            }
-
-            Alert.alert(message)
+      {!purchases.isPro ? (
+        <Button
+          style={{ backgroundColor: PlatformColor("systemGreen"), width: 148 }}
+          title="Live Ride"
+          icon={
+            <Image source={require("../../../../assets/lock.ios.png")} style={{ width: 13, height: 18, tintColor: "white" }} />
           }
-        }}
-        onPress={() => {
-          HapticFeedback.trigger("notificationSuccess")
-          ride.startRide(route)
-          analytics().logEvent("start_live_ride")
-        }}
-      />
+          onPress={() => {
+            HapticFeedback.trigger("impactMedium")
+            analytics().logEvent("start_live_ride_paywall_press")
+            navigation.navigate("paywallStack", { screen: "paywall", params: { presentation: "modal" } })
+          }}
+        />
+      ) : (
+        <Button
+          style={{ backgroundColor: color.secondary, width: 148 }}
+          icon={
+            Platform.OS == "android" ? undefined : (
+              <Image source={require("../../../../assets/train.ios.png")} style={TRAIN_ICON} />
+            )
+          }
+          pressedOpacity={0.85}
+          title={translate("ride.startRide")}
+          loading={ride.loading}
+          disabled={isStartRideButtonDisabled}
+          onDisabledPress={() => {
+            HapticFeedback.trigger("notificationError")
+            analytics().logEvent("start_live_ride_disable_press")
+            if (activeRide) {
+              Alert.alert(translate("ride.rideExistsTitle"), translate("ride.rideExistsMessage"))
+            } else {
+              let message = ""
+              if (isRouteInPast) {
+                message = translate("ride.rideInPastAlert")
+              } else if (isRouteInFuture) {
+                message = translate("ride.rideInFutureAlert")
+              }
+
+              Alert.alert(message)
+            }
+          }}
+          onPress={() => {
+            HapticFeedback.trigger("notificationSuccess")
+            ride.startRide(route)
+            analytics().logEvent("start_live_ride")
+          }}
+        />
+      )}
     </View>
   )
 })
