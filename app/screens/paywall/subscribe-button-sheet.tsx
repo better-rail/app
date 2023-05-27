@@ -45,7 +45,7 @@ export function SubscribeButtonSheet({ subscriptionType }: SubscribeButtonSheetP
           <>
             {subscriptionType === "annual" && (
               <Animated.View entering={FadeIn}>
-                <Text style={[SUBSCRIPTION_BUTTON_SUBTITLE, { fontFamily, fontSize: isHeebo ? 16 : 14 }]}>
+                <Text style={[SUBSCRIPTION_BUTTON_SUBTITLE, { fontFamily }]}>
                   {translate("paywall.afterTrialPrice", { price: "59.90₪", period: translate("paywall.year") })}
                 </Text>
               </Animated.View>

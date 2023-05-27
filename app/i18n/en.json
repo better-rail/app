@@ -160,6 +160,7 @@
     "trainArrives": "Train arrives to destination"
   },
   "paywall": {
+    "betterCommute": "Make your commute better.",
     "intro": "Supercharge your train travels and support the app development.",
     "tryFree": "Try free for 14 days.",
     "afterTrial": "Afterwards, it’s less than a cup of coffee ☕️",
@@ -169,7 +170,7 @@
     "month": "month",
     "monthlyPrice": "%{price}/month",
     "yearlyPrice": "%{price}/year",
-    "liveActivity": "Live Activities",
+    "liveActivity": "Better Rail Live",
     "liveActivityDetail": "Real-Time updates for your train ride.",
     "widgets": "Widgets",
     "widgetsDetail": "View the train schedule on your homescreen.",
