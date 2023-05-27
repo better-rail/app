@@ -10,6 +10,7 @@ import LinearGradient from "react-native-linear-gradient"
 import { PRESSABLE_BASE, Text } from "../../components"
 import { SubscriptionTypes } from "./"
 import { translate, userLocale } from "../../i18n"
+import { useFontFamily } from "../../hooks/use-font-family"
 
 const BOTTOM_FLOATING_VIEW: ViewStyle = {
   position: "absolute",
@@ -28,14 +29,8 @@ interface SubscribeButtonSheetProps {
 export function SubscribeButtonSheet({ subscriptionType }: SubscribeButtonSheetProps) {
   const insets = useSafeAreaInsets()
   const isDarkMode = useIsDarkMode()
-  const [fontFamily, setFontFamily] = useState("Heebo")
-  const [isHeebo, setIsHeebo] = useState(true)
 
-  useEffect(() => {
-    const isHeebo = userLocale !== "en" && Platform.OS === "ios"
-    setFontFamily(isHeebo ? "Heebo" : "System")
-    setIsHeebo(isHeebo)
-  }, [userLocale])
+  const { fontFamily, isHeebo } = useFontFamily()
 
   return (
     <View style={[BOTTOM_FLOATING_VIEW, { height: 97.5 + insets.bottom }]}>
