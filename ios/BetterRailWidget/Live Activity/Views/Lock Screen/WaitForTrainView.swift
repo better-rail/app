@@ -15,7 +15,7 @@ struct LockScreenWaitingForTrainView: View {
       let previousTrain = getPreviousTrainFromStationId(route: vm.route, stationId: vm.nextStationId )
       
       if (previousTrain != nil) {
-        return isoDateStringToDate(previousTrain!.arrivalTime).addDelay(vm.delay)
+        return isoDateStringToDate(previousTrain!.arrivalTime).addMinutes(vm.delay)
       }
       
       print("Previous train wasn't found")

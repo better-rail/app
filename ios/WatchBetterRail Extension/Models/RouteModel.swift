@@ -45,6 +45,7 @@ struct Train: Decodable, Identifiable, Encodable {
   var stationImage: String? { getStationById(orignStation)?.image }
   var destinationStationImage: String? { getStationById(destinationStation)?.image }
 
+  let delay: Int
   let trainNumber, orignStation, destinationStation: Int
   let arrivalTime, departureTime: String
   let stopStations: [StopStation]

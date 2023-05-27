@@ -25,7 +25,7 @@ struct TimeInformation: View {
       if (vm.status == .arrived) {
         VStack(alignment: .trailing) {
           Text("ARRIVAL TIME").font(.caption)
-          Text(formatDateHour(arrivalDate.addDelay(delay))).font(.system(size: 18, weight: .bold, design: .rounded))
+          Text(formatDateHour(arrivalDate.addMinutes(delay))).font(.system(size: 18, weight: .bold, design: .rounded))
         }
         
       }
@@ -51,7 +51,7 @@ struct TimeInformation: View {
               }
               
               if (delay != 0) {
-                Text(formatDateHour(departureDate.addDelay(delay)))
+                Text(formatDateHour(departureDate.addMinutes(delay)))
                   .foregroundColor(Color(uiColor: .systemRed))
                   .fontWeight(.heavy)
                   .font(.caption)
@@ -75,7 +75,7 @@ struct TimeInformation: View {
               }
               
               if (vm.delay != 0) {
-                Text(formatDateHour(vm.arrivalDate.addDelay(delay))) .foregroundColor(Color(uiColor: .systemRed)).fontWeight(.heavy)
+                Text(formatDateHour(vm.arrivalDate.addMinutes(delay))) .foregroundColor(Color(uiColor: .systemRed)).fontWeight(.heavy)
               }
             }.font(vm.isEnglish ? .caption2 : .caption)
           }
