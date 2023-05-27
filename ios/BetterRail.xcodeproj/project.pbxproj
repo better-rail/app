@@ -24,6 +24,7 @@
 		908927FF2A223E31005AB299 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 908927FE2A223E31005AB299 /* User.swift */; };
 		908928002A2243B7005AB299 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C13D49702A1A065100011397 /* GoogleService-Info.plist */; };
 		90DDA2C42A16916F003C8FE5 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DDA2C32A16916F003C8FE5 /* MainView.swift */; };
+		90F114982A2273A3003422A1 /* Activity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140A929F1416100968904 /* Activity.swift */; };
 		C0F707F834D839B5724738A3 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC587A60DAEFAB1B12DF76C7 /* ExpoModulesProvider.swift */; };
 		C102DF9E2764FD6600A756B6 /* WidgetLargeScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C102DF9D2764FD6600A756B6 /* WidgetLargeScheduleView.swift */; };
 		C1286B51275E6C8300E1E05D /* RNBetterRail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1286B50275E6C8300E1E05D /* RNBetterRail.swift */; };
@@ -204,7 +205,6 @@
 		908927EF2A2236C5005AB299 /* libFirebaseCoreInternal.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libFirebaseCoreInternal.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		908927F02A2236C5005AB299 /* libFirebaseInstallations.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libFirebaseInstallations.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		908927FB2A223B5F005AB299 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS9.4.sdk/System/Library/Frameworks/StoreKit.framework; sourceTree = DEVELOPER_DIR; };
-		908927FD2A223B65005AB299 /* WatchBetterRail Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "WatchBetterRail Extension.entitlements"; sourceTree = "<group>"; };
 		908927FE2A223E31005AB299 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		90DDA2C32A16916F003C8FE5 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		A047FB8FBCA54556AEDB349D /* Heebo-Light.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Heebo-Light.otf"; path = "../assets/fonts/Heebo-Light.otf"; sourceTree = "<group>"; };
@@ -259,6 +259,7 @@
 		C1E62DD9270EE2690067F262 /* TrainStopListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainStopListItem.swift; sourceTree = "<group>"; };
 		C1E62DDB270EE28B0067F262 /* TrainExchangeListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainExchangeListItem.swift; sourceTree = "<group>"; };
 		C1ED5217270B248C00EBB0B1 /* FavoritesModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesModel.swift; sourceTree = "<group>"; };
+		C1EE54A92A22694400931AFD /* WatchBetterRail Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "WatchBetterRail Extension.entitlements"; sourceTree = "<group>"; };
 		C1F140A629F1416100968904 /* ActivityViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivityViewModel.swift; sourceTree = "<group>"; };
 		C1F140A729F1416100968904 /* ActivityUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivityUtils.swift; sourceTree = "<group>"; };
 		C1F140A829F1416100968904 /* BetterRailLiveActivity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BetterRailLiveActivity.swift; sourceTree = "<group>"; };
@@ -463,7 +464,8 @@
 		C17FA4C42709EFBB003797D9 /* WatchBetterRail Extension */ = {
 			isa = PBXGroup;
 			children = (
-				908927FD2A223B65005AB299 /* WatchBetterRail Extension.entitlements */,
+				C1EE54A92A22694400931AFD /* WatchBetterRail Extension.entitlements */,
+				C13E858A2A2261AF00B026CD /* WatchBetterRail ExtensionRelease.entitlements */,
 				C1F61C242709F09B00CD3D44 /* Assets.xcassets */,
 				C1F61BFF2709F08200CD3D44 /* Views */,
 				C1F61BFC2709F08200CD3D44 /* ViewModels */,
@@ -814,8 +816,8 @@
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			packageReferences = (
-				908927F52A2238A9005AB299 /* XCRemoteSwiftPackageReference "firebase-ios-sdk.git" */,
-				908927F82A223A77005AB299 /* XCRemoteSwiftPackageReference "purchases-ios.git" */,
+				908927F52A2238A9005AB299 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				908927F82A223A77005AB299 /* XCRemoteSwiftPackageReference "purchases-ios" */,
 			);
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
@@ -1064,7 +1066,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				90C7F8922A2096880011E3F9 /* Activity.swift in Sources */,
 				C1C6DC4E274939D9000E9EED /* WidgetRouteView.swift in Sources */,
 				C1F140BE29F1416100968904 /* CircularProgressView.swift in Sources */,
 				C1F140C029F1416100968904 /* CountdownView.swift in Sources */,
@@ -1090,6 +1091,7 @@
 				C1C6DC5427493A9D000E9EED /* StationModel.swift in Sources */,
 				C1B121352761FF900085C269 /* WidgetBackground.swift in Sources */,
 				C1F140C329F1416100968904 /* InTransitView.swift in Sources */,
+				90F114982A2273A3003422A1 /* Activity.swift in Sources */,
 				C1C6DC4C274939C1000E9EED /* WidgetEntryView.swift in Sources */,
 				C1F140C629F1416100968904 /* LeadingView.swift in Sources */,
 				C1F140C229F1416100968904 /* WaitForTrainView.swift in Sources */,
@@ -1502,7 +1504,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = "WatchBetterRail Extension/WatchBetterRail Extension.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "WatchBetterRail Extension/WatchBetterRail ExtensionRelease.entitlements";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
@@ -1760,7 +1762,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		908927F52A2238A9005AB299 /* XCRemoteSwiftPackageReference "firebase-ios-sdk.git" */ = {
+		908927F52A2238A9005AB299 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
 			requirement = {
@@ -1768,7 +1770,7 @@
 				minimumVersion = 10.0.0;
 			};
 		};
-		908927F82A223A77005AB299 /* XCRemoteSwiftPackageReference "purchases-ios.git" */ = {
+		908927F82A223A77005AB299 /* XCRemoteSwiftPackageReference "purchases-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/RevenueCat/purchases-ios.git";
 			requirement = {
@@ -1781,12 +1783,12 @@
 /* Begin XCSwiftPackageProductDependency section */
 		908927F62A2238A9005AB299 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 908927F52A2238A9005AB299 /* XCRemoteSwiftPackageReference "firebase-ios-sdk.git" */;
+			package = 908927F52A2238A9005AB299 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAuth;
 		};
 		908927F92A223A77005AB299 /* RevenueCat */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 908927F82A223A77005AB299 /* XCRemoteSwiftPackageReference "purchases-ios.git" */;
+			package = 908927F82A223A77005AB299 /* XCRemoteSwiftPackageReference "purchases-ios" */;
 			productName = RevenueCat;
 		};
 /* End XCSwiftPackageProductDependency section */
