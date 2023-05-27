@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react"
-import DeviceInfo from "react-native-device-info"
+import { useStores } from "../models"
 
 export function useIsBetaTester() {
+  const { purchases } = useStores()
   const [isBetaTester, setIsBetaTester] = useState(false)
 
   useEffect(() => {
-    DeviceInfo.getInstallerPackageName().then((value) => {
-      if (value == "TestFlight") {
-        setIsBetaTester(true)
-      }
+    purchases.isBetaTester().then((result) => {
+      setIsBetaTester(result)
     })
   }, [])
 

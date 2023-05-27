@@ -1,7 +1,8 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { AppState, Platform } from "react-native"
+import { Platform } from "react-native"
 import RevenueCat, { LOG_LEVEL, PurchasesOffering, PurchasesPackage, CustomerInfo } from "react-native-purchases"
 import auth from "@react-native-firebase/auth"
+import DeviceInfo from "react-native-device-info"
 
 const checkIsPro = (customerInfo: CustomerInfo) => {
   return !!customerInfo.entitlements.active["better-rail-pro"]
@@ -28,20 +29,17 @@ export const PurchasesModel = types
       RevenueCat.setLogLevel(LOG_LEVEL.DEBUG)
 
       if (Platform.OS === "ios") {
-        await RevenueCat.configure({ apiKey: "appl_pOArhScpRECBNsNeIwfRCkYlsfZ", appUserID: auth().currentUser?.uid })
-      } else if (Platform.OS === "android") {
-        // await Purchases.configure({ apiKey: <public_google_api_key> });
-      }
+        RevenueCat.configure({ apiKey: "appl_pOArhScpRECBNsNeIwfRCkYlsfZ", appUserID: auth().currentUser?.uid })
 
-      const customerInfo = await self.customerInfo
-      this.setIsPro(checkIsPro(customerInfo))
+        const isBetaTester = await this.isBetaTester()
 
-      AppState.addEventListener("change", async (currentState) => {
-        if (currentState === "active") {
+        if (isBetaTester) {
+          this.setIsPro(true)
+        } else {
           const customerInfo = await self.customerInfo
           this.setIsPro(checkIsPro(customerInfo))
         }
-      })
+      }
     },
     purchaseOffering(offering: keyof PurchasesOffering) {
       return RevenueCat.getOfferings()
@@ -62,6 +60,15 @@ export const PurchasesModel = types
       return RevenueCat.restorePurchases().then((customerInfo) => {
         this.setIsPro(checkIsPro(customerInfo))
         return customerInfo
+      })
+    },
+    async isBetaTester() {
+      return DeviceInfo.getInstallerPackageName().then((value) => {
+        if (value == "TestFlight") {
+          return true
+        }
+
+        return false
       })
     },
   }))
