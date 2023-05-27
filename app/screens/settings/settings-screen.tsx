@@ -30,8 +30,8 @@ const storeLink = Platform.select({
 })
 
 export const SettingsScreen = observer(function SettingsScreen({ navigation }: SettingsScreenProps) {
-  const isDarkMode = useIsDarkMode()
   const { purchases } = useStores()
+  const isDarkMode = useIsDarkMode()
   const isBetaTester = useIsBetaTester()
 
   return (
