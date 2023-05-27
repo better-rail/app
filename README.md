@@ -18,7 +18,7 @@ If you haven't used Ignite before, it's recommended to take a look over their RE
 The following steps asssumes your enviorment is already set up for running React Native apps.  
 If this is your first time, check out the [official set up guide](https://reactnative.dev/docs/environment-setup) beforehand.
 
-> Note: Building for iOS requires Xcode 13.2 or above
+> Note: Building for iOS requires Xcode 14.2 or above
 
 - Fork the repo and clone to your machine.
 - Run `yarn install`
