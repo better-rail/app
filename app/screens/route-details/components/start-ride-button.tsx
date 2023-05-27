@@ -70,7 +70,7 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
       {!purchases.isPro ? (
         <Button
           style={{ backgroundColor: PlatformColor("systemGreen"), width: 148 }}
-          title={translate("ride.liveRide")}
+          title={translate("ride.startRide")}
           icon={
             <Image source={require("../../../../assets/lock.ios.png")} style={{ width: 13, height: 18, tintColor: "white" }} />
           }

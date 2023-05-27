@@ -148,7 +148,6 @@
   },
   "ride": {
     "live": "נסיעה",
-    "liveRide": "זמן אמת",
     "startRide": "התחל נסיעה",
     "stopRide": "הפסק נסיעה",
     "activatingRide": "יוצאים לדרך...",
