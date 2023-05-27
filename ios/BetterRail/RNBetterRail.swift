@@ -59,8 +59,6 @@ class RNBetterRail: NSObject {
       Task {
         await LiveActivitiesController.shared.startLiveActivity(route: route)
         
-        UpdateLiveActivityTaskScheduler.shared.scheduleTask(interval: 60)
-        
         // wait for the token to have it's ride Id assigned
         let newToken = await LiveActivitiesController.tokenRegistry.awaitNewTokenRegistration()
         // report to React Native

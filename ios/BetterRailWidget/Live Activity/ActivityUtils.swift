@@ -194,7 +194,6 @@ func getActivityCurrentState(route: Route, updatedDelay: Int? = nil, now: Date =
     delay: updatedDelay ?? train.delay,
     nextStationId: nextStationId,
     status: status,
-    updatedByBGTask: updatedDelay != nil
   )
 }
 

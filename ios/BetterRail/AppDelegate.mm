@@ -16,9 +16,6 @@
   [FIRApp configure];
   [FIRAuth.auth useUserAccessGroup:@"UE6BVYPPFX.group.il.co.better-rail"
                                      error:nil];
-  
-  UpdateLiveActivityTaskScheduler * liveActivityTaskScheduler = [UpdateLiveActivityTaskScheduler shared];
-  [liveActivityTaskScheduler registerTasks];
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
