@@ -1,10 +1,10 @@
 import React from "react"
-import { Linking, Platform, TextStyle, TouchableOpacity, View, ViewStyle } from "react-native"
+import { Linking, Platform, PlatformColor, TextStyle, TouchableOpacity, View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import Share from "react-native-share"
 import { Screen, Text } from "../../components"
 import { SettingBox } from "./components/settings-box"
-import { getVersion } from "react-native-device-info"
+import { getVersion, getBuildNumber } from "react-native-device-info"
 import { color, spacing } from "../../theme"
 import { translate, userLocale } from "../../i18n"
 import { SettingsScreenProps } from "../../navigators"
@@ -13,6 +13,7 @@ import { useIsDarkMode } from "../../hooks/use-is-dark-mode"
 import { TouchableHighlight } from "react-native-gesture-handler"
 import LinearGradient from "react-native-linear-gradient"
 import { BetterRailProButton } from "./components/better-rail-pro-button"
+import { useIsBetaTester } from "../../hooks/use-is-beta-tester"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -63,6 +64,7 @@ const storeLink = Platform.select({
 
 export const SettingsScreen = observer(function SettingsScreen({ navigation }: SettingsScreenProps) {
   const isDarkMode = useIsDarkMode()
+  const isBetaTester = useIsBetaTester()
 
   return (
     <Screen
@@ -123,7 +125,12 @@ export const SettingsScreen = observer(function SettingsScreen({ navigation }: S
         <SettingBox last title={translate("settings.about")} icon="ℹ️" chevron onPress={() => navigation.navigate("about")} />
       </View>
 
-      <Text style={VERSION_TEXT}>Better Rail v{getVersion()}</Text>
+      <Text
+        style={[VERSION_TEXT, isBetaTester && { fontFamily: "System", fontWeight: "500", color: PlatformColor("systemOrange") }]}
+      >
+        Better Rail {isBetaTester && "Beta "}v{getVersion()}
+      </Text>
+      {isBetaTester && <Text style={VERSION_TEXT}>Build {getBuildNumber()}</Text>}
     </Screen>
   )
 })
