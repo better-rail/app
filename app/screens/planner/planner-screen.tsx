@@ -95,7 +95,7 @@ const CHANGE_DIRECTION_WRAPPER: ViewStyle = {
 // #endregion
 
 export const PlannerScreen = observer(function PlannerScreen({ navigation }: PlannerScreenProps) {
-  const { routePlan, trainRoutes, ride } = useStores()
+  const { routePlan, trainRoutes, ride, user } = useStores()
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
 

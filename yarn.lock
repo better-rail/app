@@ -7,6 +7,11 @@
   resolved "https://registry.yarnpkg.com/@0no-co/graphql.web/-/graphql.web-1.0.0.tgz#af3f5e3b9359d2f011bc37a93654348b92d4d893"
   integrity sha512-JBq2pWyDchE1vVjj/+c4dzZ8stbpew4RrzpZ3vYdn1WJFGHfYg6YIX1fDdMKtSXJJM9FUlsoDOxemr9WMM2p+A==
 
+"@alevy97/react-native-userdefaults@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@alevy97/react-native-userdefaults/-/react-native-userdefaults-0.2.1.tgz#7e005e26ddcce6cb8ed36836c400f633403daca8"
+  integrity sha512-gvgJ0iDnJW70NurbgOCZP9fROPRJ5vDNghlQeXpkbR3NNPFXOhu83pUYIBhWTA6i7NhOvVtSeTEVDSxCCtbftg==
+
 "@ampproject/remapping@^2.2.0":
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.2.1.tgz#99e8e11851128b8702cd57c33684f1d0f260b630"

@@ -25,6 +25,7 @@
     "build-android": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res"
   },
   "dependencies": {
+    "@alevy97/react-native-userdefaults": "^0.2.1",
     "@expo/react-native-action-sheet": "4.0.1",
     "@react-native-async-storage/async-storage": "1.18.1",
     "@react-native-community/blur": "^4.3.2",

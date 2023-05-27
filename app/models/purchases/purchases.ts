@@ -28,7 +28,11 @@ export const PurchasesModel = types
       RevenueCat.setLogLevel(LOG_LEVEL.DEBUG)
 
       if (Platform.OS === "ios") {
-        await RevenueCat.configure({ apiKey: "appl_pOArhScpRECBNsNeIwfRCkYlsfZ", appUserID: auth().currentUser?.uid })
+        await RevenueCat.configure({
+          apiKey: "appl_pOArhScpRECBNsNeIwfRCkYlsfZ",
+          appUserID: auth().currentUser?.uid,
+          userDefaultsSuiteName: "group.il.co.better-rail",
+        })
       } else if (Platform.OS === "android") {
         // await Purchases.configure({ apiKey: <public_google_api_key> });
       }
