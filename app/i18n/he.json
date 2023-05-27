@@ -148,6 +148,7 @@
   },
   "ride": {
     "live": "נסיעה",
+    "liveRide": "זמן אמת",
     "startRide": "התחל נסיעה",
     "stopRide": "הפסק נסיעה",
     "activatingRide": "יוצאים לדרך...",
@@ -180,7 +181,7 @@
     "appleWatchApp": "אפליקציית אפל ווטצ׳",
     "appleWatchAppDetail": "גישה ללוח הזמנים מהשעון החכם שלכם.",
     "appIcons": "אייקונים",
-    "appIconsDetail": "בחרו מבין אייקונים שעוצבו במיוחד לאפליקצייה.",
+    "appIconsDetail": "אייקונים ייחודיים שעוצבו במיוחד לאפליקצייה.",
     "supportProject": "תמכו בפרוייקט",
     "supportProjectDetail": "התמיכה שלכם עוזרת לנו להוסיף פיצ׳רים לאפליקצייה.",
     "startFreeTrial": "הצטרפו ל-14 ימים בחינם",

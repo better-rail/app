@@ -143,6 +143,7 @@
   },
   "ride": {
     "live": "Live",
+    "liveRide": "Live Ride",
     "startRide": "Start Ride",
     "stopRide": "Stop Ride",
     "activatingRide": "Starting ride...",
