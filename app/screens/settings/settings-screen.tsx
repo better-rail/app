@@ -1,5 +1,5 @@
 import React from "react"
-import { Linking, Platform, PlatformColor, TextStyle, TouchableOpacity, View, ViewStyle } from "react-native"
+import { Linking, Platform, PlatformColor, TextStyle, View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import Share from "react-native-share"
 import { Screen, Text } from "../../components"
@@ -9,11 +9,8 @@ import { color, spacing } from "../../theme"
 import { translate, userLocale } from "../../i18n"
 import { SettingsScreenProps } from "../../navigators"
 import { SETTING_GROUP } from "./settings-styles"
-import { useIsDarkMode } from "../../hooks/use-is-dark-mode"
-import { TouchableHighlight } from "react-native-gesture-handler"
-import LinearGradient from "react-native-linear-gradient"
+import { useIsDarkMode, useIsBetaTester } from "../../hooks"
 import { BetterRailProButton } from "./components/better-rail-pro-button"
-import { useIsBetaTester } from "../../hooks/use-is-beta-tester"
 
 const ROOT: ViewStyle = {
   flex: 1,
