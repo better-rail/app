@@ -248,6 +248,7 @@
 		C1E62DD9270EE2690067F262 /* TrainStopListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainStopListItem.swift; sourceTree = "<group>"; };
 		C1E62DDB270EE28B0067F262 /* TrainExchangeListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainExchangeListItem.swift; sourceTree = "<group>"; };
 		C1ED5217270B248C00EBB0B1 /* FavoritesModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesModel.swift; sourceTree = "<group>"; };
+		C1EE54A92A22694400931AFD /* WatchBetterRail Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "WatchBetterRail Extension.entitlements"; sourceTree = "<group>"; };
 		C1F140A629F1416100968904 /* ActivityViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivityViewModel.swift; sourceTree = "<group>"; };
 		C1F140A729F1416100968904 /* ActivityUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivityUtils.swift; sourceTree = "<group>"; };
 		C1F140A829F1416100968904 /* BetterRailLiveActivity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BetterRailLiveActivity.swift; sourceTree = "<group>"; };
@@ -444,6 +445,7 @@
 		C17FA4C42709EFBB003797D9 /* WatchBetterRail Extension */ = {
 			isa = PBXGroup;
 			children = (
+				C1EE54A92A22694400931AFD /* WatchBetterRail Extension.entitlements */,
 				C13E858A2A2261AF00B026CD /* WatchBetterRail ExtensionRelease.entitlements */,
 				C1F61C242709F09B00CD3D44 /* Assets.xcassets */,
 				C1F61BFF2709F08200CD3D44 /* Views */,
@@ -1415,6 +1417,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = "WatchBetterRail Extension/WatchBetterRail Extension.entitlements";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 32;
