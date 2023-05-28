@@ -243,6 +243,7 @@
 		C1C6DC4A274939C1000E9EED /* WidgetEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetEntryView.swift; sourceTree = "<group>"; };
 		C1C6DC4D274939D9000E9EED /* WidgetRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetRouteView.swift; sourceTree = "<group>"; };
 		C1C6DC4F27493A56000E9EED /* TrainDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainDetail.swift; sourceTree = "<group>"; };
+		C1E10B682A2357B800E5D8AC /* BetterRailWidgetExtensionDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BetterRailWidgetExtensionDebug.entitlements; sourceTree = "<group>"; };
 		C1E436A627D5109200E72280 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C1E62DD7270EE24C0067F262 /* StationListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationListItem.swift; sourceTree = "<group>"; };
 		C1E62DD9270EE2690067F262 /* TrainStopListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainStopListItem.swift; sourceTree = "<group>"; };
@@ -398,6 +399,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				C1E10B682A2357B800E5D8AC /* BetterRailWidgetExtensionDebug.entitlements */,
 				C13E85892A22618200B026CD /* BetterRailWidgetExtensionRelease.entitlements */,
 				C13D49702A1A065100011397 /* GoogleService-Info.plist */,
 				C14F313326331361002A01D7 /* Swifty.swift */,
@@ -1497,6 +1499,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = BetterRailWidgetExtensionDebug.entitlements;
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 32;
 				DEBUG_INFORMATION_FORMAT = dwarf;
