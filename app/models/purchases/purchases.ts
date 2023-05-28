@@ -68,11 +68,7 @@ export const PurchasesModel = types
     },
     async isBetaTester() {
       return DeviceInfo.getInstallerPackageName().then((value) => {
-        if (value == "TestFlight") {
-          return true
-        }
-
-        return false
+        return value == "TestFlight"
       })
     },
   }))
