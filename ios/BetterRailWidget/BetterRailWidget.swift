@@ -18,10 +18,7 @@ struct Provider: IntentTimelineProvider {
        let destinationId = configuration.destination?.identifier {
 
       Task {
-        let customerInfo = try? await Purchases.shared.customerInfo()
-        let isPro = customerInfo?.entitlements.active["better-rail-pro"]?.isActive ?? false
-        
-        let entriesGenerator = EntriesGenerator(isPro: isPro)
+        async let customerInfo = try? Purchases.shared.customerInfo()
         
         async let todayRoutes = RouteModel().fetchRoute(originId: originId, destinationId: destinationId)
         
@@ -29,6 +26,9 @@ struct Provider: IntentTimelineProvider {
         async let tomorrowRoutes = RouteModel().fetchRoute(originId: originId, destinationId: destinationId, date: tomorrow)
 
         let routes = (today: await todayRoutes, tomorrow: await tomorrowRoutes)
+        
+        let isPro = await customerInfo?.entitlements.active["better-rail-pro"]?.isActive ?? false
+        let entriesGenerator = EntriesGenerator(isPro: isPro)
         
         if routes.today.status == .failed {
           // something went wrong, try to refetch in 30 minutes
