@@ -1,6 +1,7 @@
 import WidgetKit
 
 struct TrainDetail: TimelineEntry {
+  var isPro: Bool
   var date: Date
   let departureDate: String
   let departureTime: String

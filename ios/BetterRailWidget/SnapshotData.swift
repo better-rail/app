@@ -13,6 +13,7 @@ let upcoming5 = UpcomingTrain(departureTime: "12:03", arrivalTime: "12:29", plat
 let upcomingTrainsSnapshot = [upcoming1, upcoming2, upcoming3, upcoming4, upcoming5]
 
 let snapshotEntry = TrainDetail(
+  isPro: true,
   date: Date(),
   departureDate: "09/01/2007 09:43:00",
   departureTime: "09:43",

@@ -2,6 +2,8 @@ import Foundation
 
 struct EntriesGenerator {
   typealias Entry = TrainDetail
+  
+  let isPro: Bool
     
   func getTrains(todayRoutes: [Route], tomorrowRoutes: [Route]) async -> [Entry] {
     var entries: [Entry] = []
@@ -62,6 +64,7 @@ struct EntriesGenerator {
         }
         
         var entry = Entry(
+          isPro: self.isPro,
           date: date,
           departureDate: firstRouteTrain.departureTime,
           departureTime: firstRouteTrain.formattedDepartureTime,
@@ -95,6 +98,7 @@ struct EntriesGenerator {
     let destination = getStationById(destinationId)!
 
     return TrainDetail(
+      isPro: self.isPro,
       date: date,
       departureDate: "\(errorCode)",
       departureTime: "\(errorCode)",

@@ -25,14 +25,13 @@ class UserInfo: NSObject, ObservableObject, PurchasesDelegate {
   }
   
   func checkIsPro() async -> Bool {
-    return await withUnsafeContinuation({ continuation in
-      Purchases.shared.getCustomerInfo { customerInfo, error in
-        if let customerInfo, error == nil {
-          let isPro = customerInfo.entitlements.active["better-rail-pro"]?.isActive ?? false
-          continuation.resume(with: .success(isPro))
-        }
-      }
-    })
+    do {
+      let customerInfo = try await Purchases.shared.customerInfo()
+      let isPro = customerInfo.entitlements.active["better-rail-pro"]?.isActive ?? false
+      return true
+    } catch {
+      return false
+    }
   }
   
   func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
