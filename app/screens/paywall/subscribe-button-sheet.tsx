@@ -1,6 +1,6 @@
 import { BlurView } from "@react-native-community/blur"
 import React, { useEffect, useState } from "react"
-import { Platform, TextStyle, View, ViewStyle } from "react-native"
+import { ActivityIndicator, Platform, TextStyle, View, ViewStyle } from "react-native"
 import Animated, { FadeIn } from "react-native-reanimated"
 import { color } from "../../theme"
 import { useIsDarkMode } from "../../hooks/use-is-dark-mode"
@@ -24,9 +24,11 @@ const BOTTOM_FLOATING_VIEW: ViewStyle = {
 
 interface SubscribeButtonSheetProps {
   subscriptionType: SubscriptionTypes
+  onPress: () => void
+  isLoading: boolean
 }
 
-export function SubscribeButtonSheet({ subscriptionType }: SubscribeButtonSheetProps) {
+export function SubscribeButtonSheet({ subscriptionType, onPress, isLoading }: SubscribeButtonSheetProps) {
   const insets = useSafeAreaInsets()
   const isDarkMode = useIsDarkMode()
 
@@ -55,7 +57,8 @@ export function SubscribeButtonSheet({ subscriptionType }: SubscribeButtonSheetP
             )}
           </>
         }
-        onPress={() => {}}
+        onPress={onPress}
+        isLoading={isLoading}
         titleStyle={{ fontFamily, color: color.whiteText }}
         contentStyle={{ gap: isHeebo ? 1 : 6 }}
         colors={isDarkMode ? ["#5E17EB", "#9432C2"] : ["#7B1AEC", "#5755F2"]}
@@ -80,14 +83,20 @@ const SUBSCRIPTION_BUTTON_SUBTITLE: TextStyle = {
   letterSpacing: -0.2,
 }
 
-const GradientButton = ({ onPress, contentStyle, titleStyle, colors, title, subtitle }) => {
+const GradientButton = ({ onPress, contentStyle, titleStyle, colors, title, subtitle, isLoading }) => {
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.9}>
       <LinearGradient colors={colors} style={[PRESSABLE_BASE, { minHeight: 70 }]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-        <View style={[{ alignItems: "center", marginTop: -4 }, contentStyle]}>
-          <Text style={[SUBSCRIPTION_BUTTON_TITLE, titleStyle]}>{title}</Text>
-          <Text style={[SUBSCRIPTION_BUTTON_SUBTITLE, titleStyle]}>{subtitle}</Text>
-        </View>
+        {isLoading ? (
+          <View style={{ marginTop: 8 }}>
+            <ActivityIndicator color={color.whiteText} />
+          </View>
+        ) : (
+          <View style={[{ alignItems: "center", marginTop: -4 }, contentStyle]}>
+            <Text style={[SUBSCRIPTION_BUTTON_TITLE, titleStyle]}>{title}</Text>
+            <Text style={[SUBSCRIPTION_BUTTON_SUBTITLE, titleStyle]}>{subtitle}</Text>
+          </View>
+        )}
       </LinearGradient>
     </TouchableOpacity>
   )

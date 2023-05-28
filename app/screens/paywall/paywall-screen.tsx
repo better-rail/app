@@ -17,6 +17,8 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated"
 import { Header, HeaderBackButton, useHeaderHeight } from "@react-navigation/elements"
+import { useStores } from "../../models"
+import * as Burnt from "burnt"
 
 // #region styles
 const HEAD_WRAPPER: ViewStyle = {
@@ -43,7 +45,10 @@ const BETTER_RAIL_PRO_SUBTITLE: TextStyle = {
 // #endregion
 
 export function PaywallScreen({ navigation, route }: PaywallScreenProps) {
+  const { purchases } = useStores()
   const [subscriptionType, setSubscriptionType] = useState<SubscriptionTypes>("annual")
+  const [purchaseInProgres, setPurchaseInProgress] = useState(false)
+
   const insets = useSafeAreaInsets()
   const scrollPosition = useSharedValue(0)
   const headerHeight = useHeaderHeight()
@@ -95,6 +100,18 @@ export function PaywallScreen({ navigation, route }: PaywallScreenProps) {
     })
   }, [])
 
+  const onPurchase = async () => {
+    try {
+      setPurchaseInProgress(true)
+      await purchases.purchaseOffering(subscriptionType)
+    } catch (error) {
+      // TODO: Add crashlytics report here
+      Burnt.alert({ title: "Something went wrong", preset: "error" })
+    } finally {
+      setPurchaseInProgress(false)
+    }
+  }
+
   return (
     <Screen style={{ flex: 1, backgroundColor: color.background }}>
       <Animated.ScrollView
@@ -124,7 +141,7 @@ export function PaywallScreen({ navigation, route }: PaywallScreenProps) {
         </View>
       </Animated.ScrollView>
 
-      <SubscribeButtonSheet subscriptionType={subscriptionType} />
+      <SubscribeButtonSheet subscriptionType={subscriptionType} onPress={onPurchase} isLoading={purchaseInProgres} />
     </Screen>
   )
 }
