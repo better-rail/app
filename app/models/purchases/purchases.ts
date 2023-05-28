@@ -1,5 +1,5 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { Platform } from "react-native"
+import { AppState, Platform } from "react-native"
 import RevenueCat, { LOG_LEVEL, PurchasesOffering, PurchasesPackage, CustomerInfo } from "react-native-purchases"
 import auth from "@react-native-firebase/auth"
 import DeviceInfo from "react-native-device-info"
@@ -36,8 +36,12 @@ export const PurchasesModel = types
         if (isBetaTester) {
           this.setIsPro(true)
         } else {
-          const customerInfo = await self.customerInfo
-          this.setIsPro(checkIsPro(customerInfo))
+          AppState.addEventListener("change", async (currentState) => {
+            if (currentState === "active") {
+              const customerInfo = await self.customerInfo
+              this.setIsPro(checkIsPro(customerInfo))
+            }
+          })
         }
       }
     },

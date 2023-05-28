@@ -11,7 +11,7 @@ const colors = {
 
 export function BetterRailProButton({ onPress }) {
   const { fontFamily, isHeebo } = useFontFamily()
-  console.log(fontFamily)
+
   return (
     <TouchableOpacity
       activeOpacity={0.9}
