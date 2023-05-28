@@ -5,7 +5,7 @@ struct CountdownView: View {
   let delay: Int
   
   var minutesLeft: Int {
-    getMinutesLeft(targetDate: targetDate.addDelay(delay))
+    getMinutesLeft(targetDate: targetDate.addMinutes(delay))
   }
   
   var color: Color {

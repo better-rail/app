@@ -9,9 +9,9 @@ struct CircularProgressView: View {
   
   var end: Date {
     if (vm.status == .waitForTrain || vm.status == .inExchange) {
-      return vm.departureDate.addDelay(vm.delay)
+      return vm.departureDate.addMinutes(vm.delay)
     } else {
-      return vm.arrivalDate.addDelay(vm.delay)
+      return vm.arrivalDate.addMinutes(vm.delay)
     }
   }
   

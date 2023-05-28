@@ -38,49 +38,6 @@ func getPreviousTrainFromStationId(route: Route, stationId: Int) -> Train? {
   
 }
 
-/// Calculates how much stations left in the current train route
-/// If there is an exchange, the number of stops references the stops until the exchange / last station after the exchange
-func stopsLeftInRoute(route: Route, currentStationId: Int) -> Int {
-  /// Find the train which the user is on right now (we need to do that to handle exchange scenerios)
-  if let train = getTrainFromStationId(route: route, stationId: currentStationId) {
-    let totalStations = train.stopStations.count
-    
-    guard let stationIndex = train.stopStations.firstIndex(where: { $0.stationId == currentStationId }) else {
-      print("Failed to find station Id index in the stop stations array")
-      return 0;
-    }
-    
-    return totalStations - stationIndex
-  } else {
-    print("Failed to find the station Id")
-    return 0
-  }
-}
-
-/// Get the first stop for the current train in the user's route
-func firstStopStationTime(route: Route, currentStationId: Int) -> Date? {
-  if let train = getTrainFromStationId(route: route, stationId: currentStationId) {
-    let departureTime = train.stopStations.first!.departureTime
-    return isoDateStringToDate(departureTime)
-  } else {
-    print("Failed to find the first stop station in route")
-    return nil;
-  }
-}
-
-
-/// Get the last stop for the current train in the user's route
-/// This method also handles exchanges - so in case of an exchange, the retrieved result would be the exchange station stop time
-func lastStopStationTime(route: Route, currentStationId: Int) -> Date? {
-  if let train = getTrainFromStationId(route: route, stationId: currentStationId) {
-    let arrivalTime = train.stopStations.last!.arrivalTime
-    return isoDateStringToDate(arrivalTime)
-  } else {
-    print("Failed to find the last stop station in route")
-    return nil;
-  }
-}
-
 /// Get information about the current ride progress
 /// - Returns: A tuple made out of the (current stop station index, total stop station count)
 func rideProgress(route: Route, nextStationId: Int) -> (Int, Int) {
@@ -115,14 +72,14 @@ func getStatusStartDate(context: ActivityViewContext<BetterRailActivityAttribute
   let nextStationId = context.state.nextStationId
   let train = getTrainFromStationId(route: route, stationId: nextStationId)!
   let delay = context.state.delay
-  let departureDate = isoDateStringToDate(train.departureTime).addDelay(delay)
+  let departureDate = isoDateStringToDate(train.departureTime).addMinutes(delay)
   
   if (status == .waitForTrain) {
     return context.attributes.activityStartDate
   } else if (status == .inExchange) {
     let previousTrain = getPreviousTrainFromStationId(route: route, stationId: nextStationId)
     // since we're in exchange, use the arrival time of the previous train as the progress start time
-    return isoDateStringToDate(previousTrain?.arrivalTime ?? "").addDelay(delay)
+    return isoDateStringToDate(previousTrain?.arrivalTime ?? "").addMinutes(delay)
   } else {
     return departureDate
   }
@@ -136,8 +93,8 @@ func getStatusEndDate(context: ActivityViewContext<BetterRailActivityAttributes>
   let delay = context.state.delay
   let train = getTrainFromStationId(route: route, stationId: nextStationId)!
   
-  let departureDate = isoDateStringToDate(train.departureTime).addDelay(delay)
-  let arrivalDate = isoDateStringToDate(train.arrivalTime).addDelay(delay)
+  let departureDate = isoDateStringToDate(train.departureTime).addMinutes(delay)
+  let arrivalDate = isoDateStringToDate(train.arrivalTime).addMinutes(delay)
 
   if (status == .waitForTrain || status == .inExchange) {
     return departureDate
@@ -162,19 +119,19 @@ func getMinutesLeft(targetDate: Date) -> Int {
 /// Used to test what's the inital station Id for the activity, especially for cases where
 /// the train has departured already.
 /// - Returns: The station Id
-func findClosestStationInRoute(route: Route) -> Int {
-  let now = Date()
-  
+@available(iOS 15, *)
+func findClosestStationInRoute(route: Route, updatedDelay: Int? = nil, now: Date = .now) -> Int {
   // find the first station where the departure time is after the current time
   for train in route.trains {
-    let departureTime = isoDateStringToDate(train.departureTime)
-    let arrivalTime = isoDateStringToDate(train.arrivalTime)
+    let delay = updatedDelay ?? train.delay
+    let departureTime = isoDateStringToDate(train.departureTime).addMinutes(delay)
+    let arrivalTime = isoDateStringToDate(train.arrivalTime).addMinutes(delay)
     
-    if departureTime > now {
+    if departureTime.addMinutes(1) > now {
       return train.orignStation
     } else {
       for station in train.stopStations {
-        if isoDateStringToDate(station.arrivalTime) > now {
+        if isoDateStringToDate(station.departureTime).addMinutes(delay + 1) > now {
           return station.id
         }
       }
@@ -184,42 +141,65 @@ func findClosestStationInRoute(route: Route) -> Int {
     }
   }
   
-  return route.trains[0].orignStation
+  return route.trains.last!.destinationStation
 }
 
 @available(iOS 16.1, *)
-func getActivityInitialState(route: Route) throws -> BetterRailActivityAttributes.ContentState {
-   // get the current train by finding the departure time which is closest to the current time
-   var status = ActivityStatus.waitForTrain
-   
-     let nextStationId = findClosestStationInRoute(route: route)
-     let train = getTrainFromStationId(route: route, stationId: nextStationId)!
-     
-     if route.trains[0].orignStation != train.orignStation {
-       // not the first train, possibly an exchange!
-       if train.orignStation == nextStationId {
-         status = .inExchange
-       }
-     }
-      if train.orignStation != nextStationId {
-       status = .inTransit
-     }
-     
-     return BetterRailActivityAttributes.ContentState(
-      delay: 0,
-      nextStationId: nextStationId,
-      status: status
-     )
- }
-
-extension Date {
-  func addDelay(_ delay: Int) -> Date {
-    let calendar = Calendar.current
-
-    // Add 30 seconds to the date
-    return calendar.date(byAdding: .minute, value: delay, to: self)!
-
+func getActivityStatus(route: Route, train: Train, nextStationId: Int, updatedDelay: Int? = nil, now: Date = .now) -> ActivityStatus {
+  let delay = updatedDelay ?? train.delay
+  
+  if train.orignStation == nextStationId {
+    if route.trains[0].orignStation == train.orignStation {
+      return .waitForTrain
+    }
+    
+    if let previousTrain = getPreviousTrainFromStationId(route: route, stationId: nextStationId) {
+      let arrivalTimeToExchangeStation = isoDateStringToDate(previousTrain.arrivalTime).addMinutes(delay)
+      let timeToExchange = arrivalTimeToExchangeStation.timeIntervalSince(now)
+            
+      if timeToExchange <= 0 {
+        return getActivityStatus(route: route, train: previousTrain, nextStationId: nextStationId)
+      } else if timeToExchange <= 60 {
+        return .getOff
+      }
+    }
   }
+  
+  if train.destinationStation == nextStationId {
+    let departureTime = isoDateStringToDate(train.departureTime).addMinutes(delay)
+    let arrivalTime = isoDateStringToDate(train.arrivalTime).addMinutes(delay)
+    let timeToArrival = arrivalTime.timeIntervalSince(now)
+    
+    if departureTime.addMinutes(delay) >= now {
+      return .inExchange
+    } else if timeToArrival >= 60 {
+      return .inTransit
+    } else if timeToArrival >= 0 {
+      return .getOff
+    } else {
+      return .arrived
+    }
+  }
+  
+  return .inTransit
 }
 
+@available(iOS 16.1, *)
+func getActivityCurrentState(route: Route, updatedDelay: Int? = nil, now: Date = .now) throws -> BetterRailActivityAttributes.ContentState {
+  let nextStationId = findClosestStationInRoute(route: route, updatedDelay: updatedDelay, now: now)
+  let train = getTrainFromStationId(route: route, stationId: nextStationId)!
+  let status = getActivityStatus(route: route, train: train, nextStationId: nextStationId, updatedDelay: updatedDelay, now: now)
+  
+  return BetterRailActivityAttributes.ContentState(
+    delay: updatedDelay ?? train.delay,
+    nextStationId: nextStationId,
+    status: status,
+  )
+}
 
+extension Date {
+  func addMinutes(_ delay: Int) -> Date {
+    let calendar = Calendar.current
+    return calendar.date(byAdding: .minute, value: delay, to: self)!
+  }
+}

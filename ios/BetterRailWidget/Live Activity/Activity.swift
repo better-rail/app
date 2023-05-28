@@ -5,7 +5,6 @@ import ActivityKit
 @available(iOS 16.1, *)
 enum ActivityStatus: String, Codable {
     case waitForTrain
-    case getOn
     case inTransit
     case inExchange
     case getOff
@@ -55,22 +54,25 @@ class LiveActivitiesController {
   static let shared = LiveActivitiesController()
   static var env: String = "production"
   static var rideId: String = ""
+  static var route: Route? = nil
   static var tokenRegistry = TokenRegistry()
   static var currentActivity: Activity<BetterRailActivityAttributes>? = nil
+  static var lastUpdateTime: Date? = nil
   
   func startLiveActivity(route: Route) async {
     if ActivityAuthorizationInfo().areActivitiesEnabled {
-        
       // request the activity from the system
       do {
-        let initialContentState = try getActivityInitialState(route: route)
+        let initialContentState = try getActivityCurrentState(route: route)
         
         let activityAttributes = BetterRailActivityAttributes(activityStartDate: Date(), route: route)
         
         let activityContent = ActivityContent(state: initialContentState, staleDate: nil)
 
         let activity = try Activity.request(attributes: activityAttributes, content: activityContent, pushType: .token)
+        LiveActivitiesController.route = route
         LiveActivitiesController.currentActivity = activity
+        LiveActivitiesController.lastUpdateTime = Date()
         
         print("Requested live activity, details: \(activity.attributes)")
       } catch (let error) {
@@ -86,6 +88,7 @@ class LiveActivitiesController {
       Task {
           for await activity in Activity<BetterRailActivityAttributes>.activityUpdates {
             print("Activity received an update: \(activity.content.state)")
+            LiveActivitiesController.lastUpdateTime = Date()
             monitorLiveActivity(activity)
           }
       }
@@ -155,6 +158,8 @@ class LiveActivitiesController {
   func endLiveActivity(rideId: String) async -> TokenRegistryResponse {
     await LiveActivitiesController.currentActivity?.end(dismissalPolicy: .immediate)
     LiveActivitiesController.currentActivity = nil
+    LiveActivitiesController.route = nil
+    LiveActivitiesController.lastUpdateTime = nil
     
     let deleteResult = await LiveActivitiesController.tokenRegistry.deleteRideToken(rideId: rideId)
     print("Ride (\(rideId)) ended.")
