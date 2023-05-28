@@ -5,11 +5,11 @@
 import SwiftUI
 
 struct FavoritesView: View {
-  @ObservedObject var favorites: FavoritesViewModel
+   let favorites: [FavoriteRoute]
   
     var body: some View {
-      if (favorites.routes.count > 0) {
-        ForEach (favorites.routes.sorted { $0.id < $1.id }) { route in
+      if (favorites.count > 0) {
+        ForEach (favorites.sorted { $0.id < $1.id }) { route in
           let routesView = RoutesView(route: RouteViewModel(origin: route.origin, destination: route.destination))
           
           NavigationLink(destination: routesView) {
@@ -45,10 +45,10 @@ struct FavoritesView: View {
 
 struct FavoritesView_Previews: PreviewProvider {
     static var previews: some View {
-      let favoritesViewModel = FavoritesViewModel()
+      let userInfo = UserInfo()
 //      favoritesViewModel.updateFavoriteRoutes(routes: ["0": "originId:680,destinationId:8800", "1": "originId:3600,destinationId:680"])
       return NavigationView {
-        FavoritesView(favorites: favoritesViewModel)
+        FavoritesView(favorites: userInfo.routes)
     }
   }
 }

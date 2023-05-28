@@ -1,42 +1,41 @@
-//
-//  User.swift
-//  WatchBetterRail Extension
-//
-//  Created by Matan Mashraki on 27/05/2023.
-//
-
 import Foundation
-import RevenueCat
+import WatchConnectivity
 
-class UserInfo: NSObject, ObservableObject, PurchasesDelegate {
-  @Published var isLoading: Bool
+class UserInfo: NSObject, ObservableObject, WCSessionDelegate {
   @Published var isPro: Bool
+  @Published private var favoritesModel = FavoritesModel()
+  var session: WCSession
   
-  override init() {
-    self.isLoading = true
+  var routes: [FavoriteRoute] {
+    return favoritesModel.routes
+  }
+  
+  init(session: WCSession = .default) {
     self.isPro = false
+    self.session = session
     super.init()
-    
-    Purchases.shared.delegate = self
-    Task {
-      self.isPro = await checkIsPro()
-      self.isLoading = false
-    }
+    session.delegate = self
+    session.activate()
   }
   
-  func checkIsPro() async -> Bool {
-    do {
-      let customerInfo = try await Purchases.shared.customerInfo()
-      let isPro = customerInfo.entitlements.active["better-rail-pro"]?.isActive ?? false
-      return true
-    } catch {
-      return false
-    }
+  func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
+    updateContext(context: session.receivedApplicationContext)
+  }
+
+  
+  func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
+    updateContext(context: session.receivedApplicationContext)
   }
   
-  func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
-    Task {
-      self.isPro = await checkIsPro()
+  func updateContext(context: [String: Any]) {
+    DispatchQueue.main.async {
+      if let favorites = context["favorites"] as? [String] {
+        self.favoritesModel.updateRoutes(favorites)
+      }
+      
+      if let isPro = context["isPro"] as? Bool {
+        self.isPro = isPro
+      }
     }
   }
 }

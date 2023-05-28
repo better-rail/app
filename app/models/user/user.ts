@@ -1,15 +1,6 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import auth from "@react-native-firebase/auth"
 import RevenueCat from "react-native-purchases"
-import { Platform } from "react-native"
-import UserDefaults from "@alevy97/react-native-userdefaults"
-
-let userDefaults: UserDefaults
-if (Platform.OS === "ios") {
-  userDefaults = new UserDefaults("group.il.co.better-rail")
-}
-
-userDefaults.get("userId").then(console.log)
 
 export const UserModel = types
   .model("User")
@@ -25,12 +16,6 @@ export const UserModel = types
   .actions((self) => ({
     setCurrentUserId(uid?: string) {
       self.currentUserId = uid
-
-      if (uid) {
-        userDefaults?.set("userId", uid)
-      } else {
-        userDefaults?.remove("userId")
-      }
     },
     async afterCreate() {
       if (!self.currentUser) {

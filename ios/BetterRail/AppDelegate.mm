@@ -14,6 +14,7 @@
   
   // Configure Firebase
   [FIRApp configure];
+  [FIRAuth.auth setShareAuthStateAcrossDevices:true];
   [FIRAuth.auth useUserAccessGroup:@"UE6BVYPPFX.group.il.co.better-rail"
                                      error:nil];
 

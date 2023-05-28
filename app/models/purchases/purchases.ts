@@ -2,10 +2,20 @@ import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { AppState, Platform } from "react-native"
 import RevenueCat, { LOG_LEVEL, PurchasesOffering, PurchasesPackage, CustomerInfo } from "react-native-purchases"
 import auth from "@react-native-firebase/auth"
+import {
+  getIsWatchAppInstalled,
+  updateApplicationContext,
+  WatchPayload,
+  getApplicationContext,
+} from "react-native-watch-connectivity"
+import UserDefaults from "@alevy97/react-native-userdefaults"
 
 const checkIsPro = (customerInfo: CustomerInfo) => {
   return !!customerInfo.entitlements.active["better-rail-pro"]
 }
+
+let isWatchAppInstalled = false
+let userDefaults = Platform.OS === "ios" && new UserDefaults("group.il.co.better-rail")
 
 export const PurchasesModel = types
   .model("Purchases")
@@ -23,6 +33,8 @@ export const PurchasesModel = types
   .actions((self) => ({
     setIsPro(isPro: boolean) {
       self.isPro = isPro
+      userDefaults?.set("isPro", isPro)
+      if (isWatchAppInstalled) this.updateAppleWatchProStatus()
     },
     async afterCreate() {
       RevenueCat.setLogLevel(LOG_LEVEL.DEBUG)
@@ -40,12 +52,26 @@ export const PurchasesModel = types
       const customerInfo = await self.customerInfo
       this.setIsPro(checkIsPro(customerInfo))
 
+      if (Platform.OS === "ios") {
+        getIsWatchAppInstalled().then((isInstalled) => {
+          if (isInstalled) {
+            this.updateAppleWatchProStatus()
+            isWatchAppInstalled = true
+          }
+        })
+      }
+
       AppState.addEventListener("change", async (currentState) => {
         if (currentState === "active") {
           const customerInfo = await self.customerInfo
           this.setIsPro(checkIsPro(customerInfo))
         }
       })
+    },
+    async updateAppleWatchProStatus() {
+      const appContext: WatchPayload = (await getApplicationContext()) ?? {}
+      appContext["isPro"] = self.isPro
+      updateApplicationContext(appContext)
     },
     purchaseOffering(offering: keyof PurchasesOffering) {
       return RevenueCat.getOfferings()

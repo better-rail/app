@@ -1,10 +1,11 @@
 import WidgetKit
 import SwiftUI
-import FirebaseAuth
 
 struct WidgetEntryView: View {
   var entry: TrainDetail
   @Environment(\.widgetFamily) var widgetFamily
+  
+  let userDefaults = UserDefaults(suiteName: "group.il.co.better-rail")
   
   var nextTrainFontSize: CGFloat {
     widgetFamily == .systemSmall ? 36 : 32
@@ -19,7 +20,7 @@ struct WidgetEntryView: View {
   }
   
   var body: some View {
-    if entry.isPro {
+    if userDefaults?.bool(forKey: "isPro") ?? false {
       VStack {
         HStack {
           VStack(alignment: .leading) {
@@ -157,7 +158,6 @@ struct WidgetEntryView: View {
     } else {
       VStack {
         Text("Not a pro user :(")
-        Text(Auth.auth().currentUser?.uid ?? "No user id")
       }
     }
   }
@@ -180,7 +180,7 @@ struct WidgetEntryView_Previews: PreviewProvider {
       let origin = getStationById(3400)!
       let destination = getStationById(680)!
       
-      let entry = TrainDetail(isPro: true, date: Date(), departureDate: "09/01/2007 09:43:00", departureTime: "15:56", arrivalTime: "16:06", platform: 3, trainNumber: 131, origin: origin, destination: destination, upcomingTrains: upcomingTrainsSnapshot)
+      let entry = TrainDetail(date: Date(), departureDate: "09/01/2007 09:43:00", departureTime: "15:56", arrivalTime: "16:06", platform: 3, trainNumber: 131, origin: origin, destination: destination, upcomingTrains: upcomingTrainsSnapshot)
 
 //      let emptyEntry = TrainDetail(date: Date(), departureTime: "404", arrivalTime: "404", platform: "404", trainNumber: "404", origin: origin, destination: destination)
       

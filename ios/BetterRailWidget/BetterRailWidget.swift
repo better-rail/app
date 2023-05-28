@@ -1,8 +1,6 @@
 import Foundation
 import WidgetKit
 import SwiftUI
-import Firebase
-import RevenueCat
 
 struct Provider: IntentTimelineProvider {
   typealias Entry = TrainDetail
@@ -18,8 +16,6 @@ struct Provider: IntentTimelineProvider {
        let destinationId = configuration.destination?.identifier {
 
       Task {
-        async let customerInfo = try? Purchases.shared.customerInfo()
-        
         async let todayRoutes = RouteModel().fetchRoute(originId: originId, destinationId: destinationId)
         
         let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
@@ -27,8 +23,7 @@ struct Provider: IntentTimelineProvider {
 
         let routes = (today: await todayRoutes, tomorrow: await tomorrowRoutes)
         
-        let isPro = await customerInfo?.entitlements.active["better-rail-pro"]?.isActive ?? false
-        let entriesGenerator = EntriesGenerator(isPro: isPro)
+        let entriesGenerator = EntriesGenerator()
         
         if routes.today.status == .failed {
           // something went wrong, try to refetch in 30 minutes
@@ -56,21 +51,6 @@ struct Provider: IntentTimelineProvider {
 
 struct BetterRailWidget: Widget {
     let kind: String = "BetterRailWidget"
-  
-    init() {
-      FirebaseApp.configure()
-      do {
-        try Auth.auth().useUserAccessGroup("UE6BVYPPFX.group.il.co.better-rail")
-        Purchases.configure(
-          with: Configuration.Builder(withAPIKey: "appl_pOArhScpRECBNsNeIwfRCkYlsfZ")
-            .with(appUserID: Auth.auth().currentUser?.uid)
-            .with(userDefaults: .init(suiteName: "group.il.co.better-rail") ?? .standard)
-            .build()
-        )
-      } catch {
-        print("Error changing user access group: %@", error)
-      }
-    }
 
     var body: some WidgetConfiguration {
         IntentConfiguration(

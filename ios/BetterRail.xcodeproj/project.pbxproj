@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 46;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -18,11 +18,7 @@
 		73244C6A71D14F56B7316FA2 /* Heebo-Black.otf in Resources */ = {isa = PBXBuildFile; fileRef = 62AD955938654791888FAB90 /* Heebo-Black.otf */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		901C358D2A1530CC004CA1F5 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 901C358C2A1530CC004CA1F5 /* SearchView.swift */; };
-		9062A7FF2A235D9F0007F154 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 9062A7FE2A235D9F0007F154 /* FirebaseAuth */; };
-		9062A8012A235DAA0007F154 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 9062A8002A235DAA0007F154 /* RevenueCat */; };
 		9062A8022A2362DF0007F154 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C13D49702A1A065100011397 /* GoogleService-Info.plist */; };
-		908927F72A2238A9005AB299 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 908927F62A2238A9005AB299 /* FirebaseAuth */; };
-		908927FA2A223A77005AB299 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 908927F92A223A77005AB299 /* RevenueCat */; };
 		908927FC2A223B5F005AB299 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 908927FB2A223B5F005AB299 /* StoreKit.framework */; };
 		908927FF2A223E31005AB299 /* UserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 908927FE2A223E31005AB299 /* UserInfo.swift */; };
 		908928002A2243B7005AB299 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C13D49702A1A065100011397 /* GoogleService-Info.plist */; };
@@ -104,7 +100,6 @@
 		C1F29D37270B31D5009B953E /* Heebo-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 5B118A8459B542A2BA8C9824 /* Heebo-Regular.otf */; };
 		C1F29D39270B31D5009B953E /* Heebo-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = E3C07A94FCDB4698B4A058EB /* Heebo-Bold.otf */; };
 		C1F452EA281FC21F00EF53CB /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1F452E9281FC21F00EF53CB /* StoreKit.framework */; };
-		C1F61C122709F08200CD3D44 /* FavoritesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61BFD2709F08200CD3D44 /* FavoritesViewModel.swift */; };
 		C1F61C132709F08200CD3D44 /* RouteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61BFE2709F08200CD3D44 /* RouteViewModel.swift */; };
 		C1F61C142709F08200CD3D44 /* FavoritesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C002709F08200CD3D44 /* FavoritesView.swift */; };
 		C1F61C152709F08200CD3D44 /* RoutesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C012709F08200CD3D44 /* RoutesView.swift */; };
@@ -282,7 +277,6 @@
 		C1F140B829F1416100968904 /* ActivityNotificationsAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivityNotificationsAPI.swift; sourceTree = "<group>"; };
 		C1F140C929F141A800968904 /* BetterRailWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BetterRailWidgetBundle.swift; sourceTree = "<group>"; };
 		C1F452E9281FC21F00EF53CB /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
-		C1F61BFD2709F08200CD3D44 /* FavoritesViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FavoritesViewModel.swift; sourceTree = "<group>"; };
 		C1F61BFE2709F08200CD3D44 /* RouteViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RouteViewModel.swift; sourceTree = "<group>"; };
 		C1F61C002709F08200CD3D44 /* FavoritesView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FavoritesView.swift; sourceTree = "<group>"; };
 		C1F61C012709F08200CD3D44 /* RoutesView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoutesView.swift; sourceTree = "<group>"; };
@@ -323,8 +317,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				908927FC2A223B5F005AB299 /* StoreKit.framework in Frameworks */,
-				908927FA2A223A77005AB299 /* RevenueCat in Frameworks */,
-				908927F72A2238A9005AB299 /* FirebaseAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -332,9 +324,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9062A8012A235DAA0007F154 /* RevenueCat in Frameworks */,
 				C1A802642747AB4D00A3073D /* SwiftUI.framework in Frameworks */,
-				9062A7FF2A235D9F0007F154 /* FirebaseAuth in Frameworks */,
 				C1A802622747AB4D00A3073D /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -611,7 +601,6 @@
 		C1F61BFC2709F08200CD3D44 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
-				C1F61BFD2709F08200CD3D44 /* FavoritesViewModel.swift */,
 				C1F61BFE2709F08200CD3D44 /* RouteViewModel.swift */,
 			);
 			path = ViewModels;
@@ -734,10 +723,6 @@
 			dependencies = (
 			);
 			name = "WatchBetterRail Extension";
-			packageProductDependencies = (
-				908927F62A2238A9005AB299 /* FirebaseAuth */,
-				908927F92A223A77005AB299 /* RevenueCat */,
-			);
 			productName = "WatchBetterRail Extension";
 			productReference = C17FA4C02709EFBB003797D9 /* WatchBetterRail Extension.appex */;
 			productType = "com.apple.product-type.watchkit2-extension";
@@ -756,8 +741,6 @@
 			);
 			name = BetterRailWidgetExtension;
 			packageProductDependencies = (
-				9062A7FE2A235D9F0007F154 /* FirebaseAuth */,
-				9062A8002A235DAA0007F154 /* RevenueCat */,
 			);
 			productName = BetterRailWidgetExtension;
 			productReference = C1A802602747AB4D00A3073D /* BetterRailWidgetExtension.appex */;
@@ -829,8 +812,6 @@
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			packageReferences = (
-				908927F52A2238A9005AB299 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-				908927F82A223A77005AB299 /* XCRemoteSwiftPackageReference "purchases-ios" */,
 			);
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
@@ -1067,7 +1048,6 @@
 				C1F61C1A2709F08200CD3D44 /* WatchBetterRail.swift in Sources */,
 				C183229A270DF49100A44771 /* StationImageBackground.swift in Sources */,
 				90DDA2C42A16916F003C8FE5 /* MainView.swift in Sources */,
-				C1F61C122709F08200CD3D44 /* FavoritesViewModel.swift in Sources */,
 				901C358D2A1530CC004CA1F5 /* SearchView.swift in Sources */,
 				908927FF2A223E31005AB299 /* UserInfo.swift in Sources */,
 				C1E62DDA270EE2690067F262 /* TrainStopListItem.swift in Sources */,
@@ -1189,10 +1169,7 @@
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = BetterRail/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 2.0.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1231,10 +1208,7 @@
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = UE6BVYPPFX;
 				INFOPLIST_FILE = BetterRail/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 2.0.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1306,10 +1280,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					/usr/lib/swift,
-					"$(inherited)",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "/usr/lib/swift $(inherited)";
 				LIBRARY_SEARCH_PATHS = (
 					"$(SDKROOT)/usr/lib/swift",
 					"\"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)\"",
@@ -1366,10 +1337,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					/usr/lib/swift,
-					"$(inherited)",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "/usr/lib/swift $(inherited)";
 				LIBRARY_SEARCH_PATHS = (
 					"$(SDKROOT)/usr/lib/swift",
 					"\"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)\"",
@@ -1455,8 +1423,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore il.co.better-rail.watchkitapp";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				WATCHOS_DEPLOYMENT_TARGET = 8.0;
@@ -1484,11 +1451,7 @@
 				ENABLE_PREVIEWS = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "WatchBetterRail Extension/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MARKETING_VERSION = 2.0.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -1529,11 +1492,7 @@
 				ENABLE_PREVIEWS = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "WatchBetterRail Extension/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MARKETING_VERSION = 2.0.0;
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
@@ -1543,8 +1502,7 @@
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "match AppStore il.co.better-rail.watchkitapp.watchkitextension";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				WATCHOS_DEPLOYMENT_TARGET = 8.0;
@@ -1572,11 +1530,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BetterRailWidget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MARKETING_VERSION = 2.0.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -1617,11 +1571,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = BetterRailWidget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MARKETING_VERSION = 2.0.0;
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
@@ -1629,8 +1579,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore il.co.better-rail.BetterRailWidget";
 				SKIP_INSTALL = YES;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1655,11 +1604,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = StationIntent/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MARKETING_VERSION = 2.0.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -1698,11 +1643,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = StationIntent/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MARKETING_VERSION = 2.0.0;
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
@@ -1710,8 +1651,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore il.co.better-rail.StationIntent";
 				SKIP_INSTALL = YES;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1775,48 +1715,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		908927F52A2238A9005AB299 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 10.0.0;
-			};
-		};
-		908927F82A223A77005AB299 /* XCRemoteSwiftPackageReference "purchases-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/RevenueCat/purchases-ios.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.0.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		9062A7FE2A235D9F0007F154 /* FirebaseAuth */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 908927F52A2238A9005AB299 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAuth;
-		};
-		9062A8002A235DAA0007F154 /* RevenueCat */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 908927F82A223A77005AB299 /* XCRemoteSwiftPackageReference "purchases-ios" */;
-			productName = RevenueCat;
-		};
-		908927F62A2238A9005AB299 /* FirebaseAuth */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 908927F52A2238A9005AB299 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAuth;
-		};
-		908927F92A223A77005AB299 /* RevenueCat */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 908927F82A223A77005AB299 /* XCRemoteSwiftPackageReference "purchases-ios" */;
-			productName = RevenueCat;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 83CBB9F71A601CBA00E9B192 /* Project object */;
 }

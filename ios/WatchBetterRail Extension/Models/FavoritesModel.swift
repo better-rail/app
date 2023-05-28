@@ -15,14 +15,14 @@ let fav2 = FavoriteRoute(id: 1, origin: stations[65], destination: stations[8])
 struct FavoritesModel {
   var routes: [FavoriteRoute] = []
   
-  mutating func updateRoutes(_ routes: [String: Any]) {
+  mutating func updateRoutes(_ routes: [String]) {
     
     var favoriteRoutes: [FavoriteRoute] = []
     
     // Data comes formatted as:
     // "1" (index) : "originId:3600,destinationId:3500"
-    
-    for (key, value) in routes {
+        
+    for (key, value) in routes.enumerated() {
       
       // TODO: Extract information using Decodable?
       let route = String(describing: value).split(separator: ",")
@@ -32,7 +32,7 @@ struct FavoritesModel {
       if let originStation = getStationById(Int(originId)!),
          let destinationStation = getStationById(Int(destinationId)!) {
           favoriteRoutes.append(
-            FavoriteRoute(id: Int(key)!, origin: originStation, destination: destinationStation)
+            FavoriteRoute(id: key, origin: originStation, destination: destinationStation)
           )
       } else {
           print("🚨 Couldn't extract application context")
