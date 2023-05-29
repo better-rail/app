@@ -156,9 +156,13 @@ struct WidgetEntryView: View {
       .background(Color(UIColor.secondarySystemBackground))
       .widgetURL(URL(string: "widget://route?originId=\(entry.origin.id)&destinationId=\(entry.destination.id)")!)
     } else {
-      VStack {
-        Text("Not a pro user :(")
-      }
+      Text("Upgrade to Better Rail Pro to use this widget")
+        .foregroundColor(.white)
+        .fontDesign(.rounded).bold().font(.title3)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
+        .multilineTextAlignment(.center)
+        .background(.black)
     }
   }
   
