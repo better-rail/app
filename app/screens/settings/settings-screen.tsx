@@ -1,7 +1,5 @@
-import React from "react"
 import { Linking, Platform, PlatformColor, TextStyle, View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
-import Share from "react-native-share"
 import { Screen, Text } from "../../components"
 import { SettingBox } from "./components/settings-box"
 import { getVersion, getBuildNumber } from "react-native-device-info"
@@ -11,6 +9,8 @@ import { SettingsScreenProps } from "../../navigators"
 import { SETTING_GROUP } from "./settings-styles"
 import { useIsDarkMode, useIsBetaTester } from "../../hooks"
 import { BetterRailProButton } from "./components/better-rail-pro-button"
+import { useStores } from "../../models"
+import { shareApp } from "./helpers/app-share-sheet"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -24,42 +24,13 @@ const VERSION_TEXT: TextStyle = {
   color: color.dim,
 }
 
-function shareApp() {
-  const url = "https://better-rail.co.il/"
-  const title = "Better Rail"
-  const message = translate("settings.shareMessage")
-
-  const shareOptions = Platform.select({
-    ios: {
-      activityItemSources: [
-        {
-          placeholderItem: { type: "url", content: url },
-          item: {
-            default: { type: "text", content: `${message} ${url}` },
-          },
-          subject: {
-            default: title,
-          },
-          linkMetadata: { title: message },
-        },
-      ],
-    },
-    default: {
-      title,
-      subject: title,
-      message: `${message} ${url}`,
-    },
-  })
-
-  Share.open(shareOptions)
-}
-
 const storeLink = Platform.select({
   ios: "https://apps.apple.com/app/better-rail/id1562982976?action=write-review",
   android: "market://details?id=com.betterrail",
 })
 
 export const SettingsScreen = observer(function SettingsScreen({ navigation }: SettingsScreenProps) {
+  const { purchases } = useStores()
   const isDarkMode = useIsDarkMode()
   const isBetaTester = useIsBetaTester()
 
@@ -71,7 +42,7 @@ export const SettingsScreen = observer(function SettingsScreen({ navigation }: S
       statusBar={Platform.select({ ios: "light-content" })}
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
     >
-      {Platform.OS === "ios" && (
+      {Platform.OS === "ios" && !purchases.isPro && (
         <BetterRailProButton
           //@ts-expect-error
           onPress={() => navigation.navigate("paywallStack", { screen: "paywall", params: { presentation: "modal" } })}
