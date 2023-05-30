@@ -232,9 +232,10 @@ const stations: Station[] = [
   {
     id: "5410",
     hebrew: "יבנה מזרח",
-    english: "Yavne-East",
-    russian: "Явне-Восток",
+    english: "Yavne - East",
+    russian: "Явне - Восток",
     arabic: "ياڤنه - شرق",
+    image: require("../../assets/station-images/yavne-east.jpg"),
   },
   {
     id: "9100",
