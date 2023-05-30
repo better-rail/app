@@ -15,7 +15,7 @@ If you haven't used Ignite before, it's recommended to take a look over their RE
 
 ### Installation
 
-The following steps asssumes your enviorment is already set up for running React Native apps.  
+The following steps assumes your environment is already set up for running React Native apps.  
 If this is your first time, check out the [official set up guide](https://reactnative.dev/docs/environment-setup) beforehand.
 
 > Note: Building for iOS requires Xcode 14.2 or above
