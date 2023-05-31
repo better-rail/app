@@ -30,10 +30,10 @@ export function setInitialLanguage() {
     changeUserLanguage("he")
   } else if (Localization.locale.startsWith("ar")) {
     changeUserLanguage("ar")
-  } else if (Localization.locale.startsWith("en")) {
-    changeUserLanguage("en")
   } else if (Localization.locale.startsWith("ru")) {
     changeUserLanguage("ru")
+  } else {
+    changeUserLanguage("en")
   }
 }
 
