@@ -61,8 +61,10 @@ export const RideModel = types
       self.activityAuthorizationInfo = newInfo
     },
     async checkActivityAuthorizationInfo() {
-      const info = await iOSHelpers.activityAuthorizationInfo()
-      this.setActivityAuthorizationInfo(info)
+      if (Platform.OS === "ios") {
+        const info = await iOSHelpers.activityAuthorizationInfo()
+        this.setActivityAuthorizationInfo(info)
+      }
     },
     afterCreate() {
       if (self.id) {
