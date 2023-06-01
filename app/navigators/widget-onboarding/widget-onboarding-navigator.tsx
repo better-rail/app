@@ -1,7 +1,6 @@
 import React from "react"
 import { createStackNavigator, StackScreenProps } from "@react-navigation/stack"
 import { WidgetAnnouncement, WidgetStep1, WidgetStep2, WidgetStep3 } from "../../screens"
-import { CloseButton } from "../../components"
 
 export type WidgetOnboardingsParamList = {
   main: undefined
@@ -19,12 +18,6 @@ export const WidgetOnboardingNavigator = () => (
     screenOptions={({ navigation }) => ({
       headerTransparent: true,
       title: "",
-      headerLeft: () => (
-        <CloseButton
-          iconStyle={{ width: 32.5, height: 32.5, tintColor: "white", opacity: 0.45 }}
-          onPress={() => navigation.navigate("settingsStack")}
-        />
-      ),
     })}
   >
     <WidgetOnboardingStack.Screen name="main" component={WidgetAnnouncement} />
