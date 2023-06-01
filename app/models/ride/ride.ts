@@ -1,7 +1,7 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { omit } from "ramda"
 import { Platform } from "react-native"
-import iOSHelpers from "../../utils/ios-helpers"
+import iOSHelpers, { ActivityAuthorizationInfo } from "../../utils/ios-helpers"
 import { trainRouteSchema } from "../train-routes/train-routes"
 import { RouteItem } from "../../services/api"
 
@@ -34,6 +34,15 @@ export const RideModel = types
      * The ride route
      */
     route: types.maybe(types.model(trainRouteSchema)),
+    /**
+     * Activity authorization info
+     */
+    activityAuthorizationInfo: types.maybe(
+      types.model({
+        areActivitiesEnabled: types.boolean,
+        frequentPushesEnabled: types.boolean,
+      }),
+    ),
   })
   .views((self) => ({
     /**
@@ -48,13 +57,21 @@ export const RideModel = types
     },
   }))
   .actions((self) => ({
+    setActivityAuthorizationInfo(newInfo: ActivityAuthorizationInfo) {
+      self.activityAuthorizationInfo = newInfo
+    },
+    async checkActivityAuthorizationInfo() {
+      const info = await iOSHelpers.activityAuthorizationInfo()
+      this.setActivityAuthorizationInfo(info)
+    },
     afterCreate() {
       if (self.id) {
         // We check if the ride is still active.
         this.isRideActive(self.id)
       }
-    },
 
+      this.checkActivityAuthorizationInfo()
+    },
     startRide(route: RouteItem) {
       this.setRideLoading(true)
 

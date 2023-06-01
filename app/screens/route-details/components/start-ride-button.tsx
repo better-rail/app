@@ -10,8 +10,6 @@ import { differenceInMinutes, isAfter } from "date-fns"
 import { timezoneCorrection } from "../../../utils/helpers/date-helpers"
 import { color } from "../../../theme"
 import { useStores } from "../../../models"
-import { useMemo } from "react"
-import { areActivitiesEnabled } from "../../../utils/ios-helpers"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -56,7 +54,7 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
   const isRouteInFuture = differenceInMinutes(route.departureTime, timezoneCorrection(new Date()).getTime()) > 60
 
   const activeRide = !!ride.id
-  const areActivitiesDisabled = useMemo(() => !areActivitiesEnabled(), [])
+  const areActivitiesDisabled = !(ride?.activityAuthorizationInfo?.areActivitiesEnabled ?? true)
   const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || areActivitiesDisabled || activeRide
 
   return (

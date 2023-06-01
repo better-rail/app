@@ -111,8 +111,12 @@ class RNBetterRail: NSObject {
     }
   }
 
-  @available(iOS 16.1, *)
-  @objc func areActivitiesEnabled() -> Bool {
-    return ActivityAuthorizationInfo().areActivitiesEnabled
+  @available(iOS 16.2, *)
+  @objc func activityAuthorizationInfo(_ blackString: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
+    let info = ActivityAuthorizationInfo()
+    resolve([
+      "areActivitiesEnabled": info.areActivitiesEnabled,
+      "frequentPushesEnabled": info.frequentPushesEnabled
+    ])
   }
 }

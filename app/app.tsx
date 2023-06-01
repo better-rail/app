@@ -73,9 +73,14 @@ function App() {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
       if (appState.current.match(/inactive|background/) && nextAppState === "active") {
         // App has come to the foreground!
-        // Check if the current ride id is still active
-        if (rootStore && rootStore.ride.id) {
-          rootStore.ride.isRideActive(rootStore.ride.id)
+        if (rootStore) {
+          // Check Live Activities authorization
+          rootStore.ride.checkActivityAuthorizationInfo()
+
+          if (rootStore.ride.id) {
+            // Check if the current ride id is still active
+            rootStore.ride.isRideActive(rootStore.ride.id)
+          }
         }
       }
 
