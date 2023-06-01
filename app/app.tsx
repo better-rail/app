@@ -18,6 +18,7 @@ import { NavigationContainerRef } from "@react-navigation/native"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet"
 import analytics from "@react-native-firebase/analytics"
+import crashlytics from "@react-native-firebase/crashlytics"
 import { initFonts } from "./theme/fonts" // expo
 import * as storage from "./utils/storage"
 import {
@@ -37,6 +38,7 @@ import { withIAPContext } from "react-native-iap"
 // Disable tracking in development environment
 if (__DEV__) {
   analytics().setAnalyticsCollectionEnabled(false)
+  crashlytics().setCrashlyticsCollectionEnabled(false)
 }
 
 // This puts screens in a native ViewController or Activity. If you want fully native

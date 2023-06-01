@@ -10,6 +10,7 @@ import { useStores } from "../../models"
 import { translate } from "../../i18n"
 import { openLink } from "../../utils/helpers/open-link"
 import { useIsBetaTester } from "../../hooks/use-is-beta-tester"
+import crashlytics from "@react-native-firebase/crashlytics"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -24,11 +25,11 @@ export const PrivacyScreen = observer(function SettingsLanguageScreen() {
     if (disableTelemetry) {
       analytics().logEvent("telemetry_disabled")
       user.setDisableTelemetry(disableTelemetry)
-      await analytics().setAnalyticsCollectionEnabled(false)
+      await Promise.all([analytics().setAnalyticsCollectionEnabled(false), crashlytics().setCrashlyticsCollectionEnabled(false)])
     } else {
       analytics().logEvent("telemetry_enabled")
       user.setDisableTelemetry(disableTelemetry)
-      await analytics().setAnalyticsCollectionEnabled(true)
+      await Promise.all([analytics().setAnalyticsCollectionEnabled(true), crashlytics().setCrashlyticsCollectionEnabled(true)])
     }
   }
 
