@@ -1,37 +1,30 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import auth from "@react-native-firebase/auth"
-import RevenueCat from "react-native-purchases"
 
 export const UserModel = types
   .model("User")
   .props({
-    currentUserId: types.maybe(types.string),
+    // currentUserId: types.maybe(types.string),
     disableTelemetry: types.maybe(types.boolean),
   })
-  .views((self) => ({
-    get currentUser() {
-      return auth().currentUser
-    },
-  }))
+  // .views((self) => ({
+  //   get currentUser() {
+  //     return auth().currentUser
+  //   },
+  // }))
   .actions((self) => ({
-    setCurrentUserId(uid?: string) {
-      self.currentUserId = uid
-    },
-    async afterCreate() {
-      if (!self.currentUser) {
-        auth().signInAnonymously()
-      }
+    // setCurrentUserId(uid?: string) {
+    //   self.currentUserId = uid
+    // },
+    // async afterCreate() {
+    //   if (!self.currentUser) {
+    //     auth().signInAnonymously()
+    //   }
 
-      auth().onAuthStateChanged((user) => {
-        this.setCurrentUserId(user?.uid)
-        if (user) {
-          RevenueCat.logIn(user?.uid)
-        } else {
-          RevenueCat.logOut()
-        }
-      })
-    },
-
+    //   auth().onAuthStateChanged((user) => {
+    //     this.setCurrentUserId(user?.uid)
+    //   })
+    // },
     setDisableTelemetry(value: boolean) {
       self.disableTelemetry = value
     },

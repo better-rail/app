@@ -8,8 +8,6 @@ import { translate, userLocale } from "../../i18n"
 import { SettingsScreenProps } from "../../navigators"
 import { SETTING_GROUP } from "./settings-styles"
 import { useIsDarkMode, useIsBetaTester } from "../../hooks"
-import { BetterRailProButton } from "./components/better-rail-pro-button"
-import { useStores } from "../../models"
 import { shareApp } from "./helpers/app-share-sheet"
 
 const ROOT: ViewStyle = {
@@ -30,7 +28,6 @@ const storeLink = Platform.select({
 })
 
 export const SettingsScreen = observer(function SettingsScreen({ navigation }: SettingsScreenProps) {
-  const { purchases } = useStores()
   const isDarkMode = useIsDarkMode()
   const isBetaTester = useIsBetaTester()
 
@@ -42,13 +39,6 @@ export const SettingsScreen = observer(function SettingsScreen({ navigation }: S
       statusBar={Platform.select({ ios: "light-content" })}
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
     >
-      {Platform.OS === "ios" && !purchases.isPro && (
-        <BetterRailProButton
-          //@ts-expect-error
-          onPress={() => navigation.navigate("paywallStack", { screen: "paywall", params: { presentation: "modal" } })}
-        />
-      )}
-
       <View style={SETTING_GROUP}>
         <SettingBox
           first

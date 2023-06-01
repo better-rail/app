@@ -45,7 +45,6 @@ const BETTER_RAIL_PRO_SUBTITLE: TextStyle = {
 // #endregion
 
 export function PaywallScreen({ navigation, route }: PaywallScreenProps) {
-  const { purchases } = useStores()
   const [subscriptionType, setSubscriptionType] = useState<SubscriptionTypes>("annual")
   const [purchaseInProgres, setPurchaseInProgress] = useState(false)
 
@@ -103,7 +102,6 @@ export function PaywallScreen({ navigation, route }: PaywallScreenProps) {
   const onPurchase = async () => {
     try {
       setPurchaseInProgress(true)
-      await purchases.purchaseOffering(subscriptionType)
     } catch (error) {
       // TODO: Add crashlytics report here
       Burnt.alert({ title: "Something went wrong", preset: "error" })
