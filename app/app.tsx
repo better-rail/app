@@ -34,6 +34,11 @@ import { setInitialLanguage, setUserLanguage } from "./i18n/i18n"
 import "react-native-console-time-polyfill"
 import { withIAPContext } from "react-native-iap"
 
+// Disable tracking in development environment
+if (__DEV__) {
+  analytics().setAnalyticsCollectionEnabled(false)
+}
+
 // This puts screens in a native ViewController or Activity. If you want fully native
 // stack navigation, use `createNativeStackNavigator` in place of `createStackNavigator`:
 // https://github.com/kmagiera/react-native-screens#using-native-stack-navigator
