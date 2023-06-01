@@ -1,7 +1,6 @@
 import React from "react"
 import { createStackNavigator, StackScreenProps } from "@react-navigation/stack"
 import { WidgetAnnouncement, WidgetStep1, WidgetStep2, WidgetStep3 } from "../../screens"
-import { color } from "../../theme"
 
 export type WidgetOnboardingsParamList = {
   main: undefined
@@ -10,16 +9,15 @@ export type WidgetOnboardingsParamList = {
   step3: undefined
 }
 
-const WidgetOnboardingStack = createStackNavigator<WidgetOnboardingStackProps>()
+const WidgetOnboardingStack = createStackNavigator<WidgetOnboardingsParamList>()
 
 export type WidgetOnboardingStackProps = StackScreenProps<WidgetOnboardingsParamList, "main">
 
 export const WidgetOnboardingNavigator = () => (
   <WidgetOnboardingStack.Navigator
     screenOptions={({ navigation }) => ({
-      stackPresentation: "modal",
-      headerTintColor: color.primary,
-      header: () => undefined,
+      headerTransparent: true,
+      title: "",
     })}
   >
     <WidgetOnboardingStack.Screen name="main" component={WidgetAnnouncement} />

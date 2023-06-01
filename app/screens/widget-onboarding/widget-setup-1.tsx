@@ -6,6 +6,7 @@ import { translate, userLocale } from "../../i18n"
 import { WidgetOnboardingStackProps } from "../../navigators/widget-onboarding/widget-onboarding-navigator"
 import { color, fontScale, spacing } from "../../theme"
 import { WidgetOnboardingBackground } from "./widget-onboarding-background"
+import { useWidgetWrapperStyle } from "./widget-styles"
 
 const { width: deviceWidth, height: deviceHeight } = Dimensions.get("screen")
 
@@ -44,6 +45,7 @@ const IMAGE_STYLE: ImageStyle = {
 
 export const WidgetStep1 = function WidgetStep1({ navigation }: WidgetOnboardingStackProps) {
   const insets = useSafeAreaInsets()
+  const wrapperStyle = useWidgetWrapperStyle()
 
   const addWidgetImage = useMemo(() => {
     if (userLocale === "he") {
@@ -57,7 +59,7 @@ export const WidgetStep1 = function WidgetStep1({ navigation }: WidgetOnboarding
     <Screen unsafe={true} statusBar="light-content" preset="scroll">
       <WidgetOnboardingBackground />
 
-      <View style={{ paddingHorizontal: spacing[6], marginTop: spacing[7] }}>
+      <View style={wrapperStyle}>
         <Text preset="header" style={TITLE} tx="widgetOnboarding.howToAdd" maxFontSizeMultiplier={1.2} />
         <Text style={TEXT} tx="widgetOnboarding.addStep1" />
         <Text style={TEXT} tx="widgetOnboarding.addStep2" />
@@ -71,7 +73,7 @@ export const WidgetStep1 = function WidgetStep1({ navigation }: WidgetOnboarding
       <View
         style={{
           alignItems: "center",
-          marginTop: fontScale < 1.2 ? spacing[6] : 0,
+          marginTop: fontScale < 1.2 ? spacing[5] : 0,
           marginBottom: insets.bottom + 4,
         }}
       >

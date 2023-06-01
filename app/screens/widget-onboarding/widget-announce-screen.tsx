@@ -6,15 +6,9 @@ import { translate, userLocale } from "../../i18n"
 import { WidgetOnboardingStackProps } from "../../navigators/widget-onboarding/widget-onboarding-navigator"
 import { color, fontScale, spacing } from "../../theme"
 import { WidgetOnboardingBackground } from "./widget-onboarding-background"
+import { useWidgetWrapperStyle } from "./widget-styles"
 
 const { width: deviceWidth } = Dimensions.get("screen")
-
-const SUB_TITLE: TextStyle = {
-  color: color.whiteText,
-  marginBottom: -4,
-  fontWeight: "300",
-  opacity: 0.8,
-}
 
 const TITLE: TextStyle = {
   color: color.whiteText,
@@ -31,6 +25,7 @@ const TEXT: TextStyle = {
 
 export const WidgetAnnouncement = function WidgetAnnouncement({ navigation }: WidgetOnboardingStackProps) {
   const insets = useSafeAreaInsets()
+  const wrapperStyle = useWidgetWrapperStyle()
 
   let widgetImage
 
@@ -39,10 +34,11 @@ export const WidgetAnnouncement = function WidgetAnnouncement({ navigation }: Wi
   } else {
     widgetImage = require("../../../assets/widget-english-2.png")
   }
+
   return (
     <Screen unsafe={true} statusBar="light-content" preset="scroll">
       <WidgetOnboardingBackground />
-      <View style={{ alignItems: "center", paddingHorizontal: spacing[5], marginTop: spacing[6] + 4 }}>
+      <View style={wrapperStyle}>
         <Text preset="header" style={TITLE} tx="widgetOnboarding.homeWidgets" maxFontSizeMultiplier={1.11} />
         <Text style={TEXT} tx="widgetOnboarding.widgetDescription" />
         <Image
