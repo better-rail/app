@@ -5,7 +5,6 @@ import { RecentSearchesModel } from "../recent-searches/recent-searches"
 import { FavoritesModel } from "../favorites/favorites"
 import { SettingsModel } from "../settings/settings"
 import { RideModel } from "../ride/ride"
-import { PurchasesModel } from "../purchases/purchases"
 import { UserModel } from "../user/user"
 
 /**
@@ -19,7 +18,6 @@ export const RootStoreModel = types.model("RootStore").props({
   favoriteRoutes: types.optional(FavoritesModel, {} as any),
   settings: types.optional(SettingsModel, {} as any),
   ride: types.optional(RideModel, {} as any),
-  purchases: types.optional(PurchasesModel, {} as any),
   user: types.optional(UserModel, {} as any)
 })
 

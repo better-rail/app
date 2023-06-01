@@ -10,7 +10,6 @@ import { differenceInMinutes, isAfter } from "date-fns"
 import { timezoneCorrection } from "../../../utils/helpers/date-helpers"
 import { color } from "../../../theme"
 import { useStores } from "../../../models"
-import { useNavigation } from "@react-navigation/native"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -35,8 +34,7 @@ interface StartRideButtonProps {
 }
 
 export const StartRideButton = observer(function StartRideButton(props: StartRideButtonProps) {
-  const navigation = useNavigation()
-  const { ride, purchases } = useStores()
+  const { ride } = useStores()
 
   const { route, screenName } = props
   const insets = useSafeAreaInsets()
@@ -67,54 +65,37 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
         right: 15 + insets.right,
       }}
     >
-      {!purchases.isPro ? (
-        <Button
-          style={{ backgroundColor: PlatformColor("systemGreen"), width: 148 }}
-          title={translate("ride.startRide")}
-          icon={
-            <Image source={require("../../../../assets/lock.ios.png")} style={{ width: 13, height: 18, tintColor: "white" }} />
-          }
-          onPress={() => {
-            HapticFeedback.trigger("impactMedium")
-            analytics().logEvent("start_live_ride_paywall_press")
-            navigation.navigate("paywallStack", { screen: "paywall", params: { presentation: "modal" } })
-          }}
-        />
-      ) : (
-        <Button
-          style={{ backgroundColor: color.secondary, width: 148 }}
-          icon={
-            Platform.OS == "android" ? undefined : (
-              <Image source={require("../../../../assets/train.ios.png")} style={TRAIN_ICON} />
-            )
-          }
-          pressedOpacity={0.85}
-          title={translate("ride.startRide")}
-          loading={ride.loading}
-          disabled={isStartRideButtonDisabled}
-          onDisabledPress={() => {
-            HapticFeedback.trigger("notificationError")
-            analytics().logEvent("start_live_ride_disable_press")
-            if (activeRide) {
-              Alert.alert(translate("ride.rideExistsTitle"), translate("ride.rideExistsMessage"))
-            } else {
-              let message = ""
-              if (isRouteInPast) {
-                message = translate("ride.rideInPastAlert")
-              } else if (isRouteInFuture) {
-                message = translate("ride.rideInFutureAlert")
-              }
-
-              Alert.alert(message)
+      <Button
+        style={{ backgroundColor: color.secondary, width: 148 }}
+        icon={
+          Platform.OS == "android" ? undefined : <Image source={require("../../../../assets/train.ios.png")} style={TRAIN_ICON} />
+        }
+        pressedOpacity={0.85}
+        title={translate("ride.startRide")}
+        loading={ride.loading}
+        disabled={isStartRideButtonDisabled}
+        onDisabledPress={() => {
+          HapticFeedback.trigger("notificationError")
+          analytics().logEvent("start_live_ride_disable_press")
+          if (activeRide) {
+            Alert.alert(translate("ride.rideExistsTitle"), translate("ride.rideExistsMessage"))
+          } else {
+            let message = ""
+            if (isRouteInPast) {
+              message = translate("ride.rideInPastAlert")
+            } else if (isRouteInFuture) {
+              message = translate("ride.rideInFutureAlert")
             }
-          }}
-          onPress={() => {
-            HapticFeedback.trigger("notificationSuccess")
-            ride.startRide(route)
-            analytics().logEvent("start_live_ride")
-          }}
-        />
-      )}
+
+            Alert.alert(message)
+          }
+        }}
+        onPress={() => {
+          HapticFeedback.trigger("notificationSuccess")
+          ride.startRide(route)
+          analytics().logEvent("start_live_ride")
+        }}
+      />
     </View>
   )
 })
