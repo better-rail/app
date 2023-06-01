@@ -133,6 +133,8 @@
     "rideInFutureAlert": "يمكنك بدء رحلة جديدة فقط قبل ساعة من وقت مغادرة القطار.",
     "rideInPastAlert": "انتهت هذه الرحلة.",
     "rideExistsTitle": "يوجد رحلة نشطة",
-    "rideExistsMessage": "يرجى إلغاء الرحلة الحالية لبدء رحلة جديدة"
+    "rideExistsMessage": "يرجى إلغاء الرحلة الحالية لبدء رحلة جديدة",
+    "disabledTitle": "Live Activities باطل",
+    "disabledMessage": "افتح الإعدادات وقم بتمكين Live Activities لتكون قادرًا على بدء مشوار"
   }
 }

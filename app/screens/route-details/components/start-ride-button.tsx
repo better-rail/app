@@ -1,4 +1,4 @@
-import { Alert, Dimensions, Image, ImageStyle, Platform, PlatformColor, View, ViewStyle } from "react-native"
+import { Alert, Dimensions, Image, ImageStyle, Linking, Platform, View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HapticFeedback from "react-native-haptic-feedback"
@@ -10,6 +10,8 @@ import { differenceInMinutes, isAfter } from "date-fns"
 import { timezoneCorrection } from "../../../utils/helpers/date-helpers"
 import { color } from "../../../theme"
 import { useStores } from "../../../models"
+import { useMemo } from "react"
+import { areActivitiesEnabled } from "../../../utils/ios-helpers"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -54,7 +56,8 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
   const isRouteInFuture = differenceInMinutes(route.departureTime, timezoneCorrection(new Date()).getTime()) > 60
 
   const activeRide = !!ride.id
-  const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || activeRide
+  const areActivitiesDisabled = useMemo(() => !areActivitiesEnabled(), [])
+  const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || areActivitiesDisabled || activeRide
 
   return (
     <View
@@ -79,6 +82,17 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
           analytics().logEvent("start_live_ride_disable_press")
           if (activeRide) {
             Alert.alert(translate("ride.rideExistsTitle"), translate("ride.rideExistsMessage"))
+          } else if (areActivitiesDisabled) {
+            Alert.alert(translate("ride.disabledTitle"), translate("ride.disabledMessage"), [
+              {
+                style: "cancel",
+                text: translate("common.cancel"),
+              },
+              {
+                text: translate("settings.title"),
+                onPress: () => Linking.openSettings(),
+              },
+            ])
           } else {
             let message = ""
             if (isRouteInPast) {

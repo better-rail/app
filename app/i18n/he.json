@@ -160,7 +160,9 @@
     "departsIn": "הרכבת יוצאת בעוד %{minutes} דק'",
     "departsNow": "הרכבת יוצאת עכשיו",
     "rideExistsTitle": "קיימת נסיעה פעילה",
-    "rideExistsMessage": "עצרו את הנסיעה הנוכחית על מנת להתחיל חדשה"
+    "rideExistsMessage": "עצרו את הנסיעה הנוכחית על מנת להתחיל חדשה",
+    "disabledTitle": "Live Activities כבוי",
+    "disabledMessage": "אפשרו Live Activities בהגדרות על מנת להתחיל נסיעה"
   },
   "paywall": {
     "betterCommute": "לא תאמינו איך נסיעה ברכבת יכולה להראות 😎",

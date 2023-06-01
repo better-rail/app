@@ -135,6 +135,8 @@
     "rideInFutureAlert": "Начать новую поездку можно только за час до отправления поезда.",
     "rideInPastAlert": "Эта поездка закончилась.",
     "rideExistsTitle": "Активная поездка существует",
-    "rideExistsMessage": "Отмените текущую поездку, чтобы начать новую"
+    "rideExistsMessage": "Отмените текущую поездку, чтобы начать новую",
+    "disabledTitle": "Live Activities отменен",
+    "disabledMessage": "Откройте настройки и включите Live Activities чтобы иметь возможность начать поездку"
   }
 }

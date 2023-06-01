@@ -15,6 +15,10 @@ export function monitorLiveActivities() {
   RNBetterRail.monitorActivities()
 }
 
+export function areActivitiesEnabled(): boolean {
+  return RNBetterRail.areActivitiesEnabled()
+}
+
 function prepareDataForLiveActivities(route: RouteItem) {
   // We need to modify the route the fit the original data structure, which we use in the native code
   const modifiedRoute = { ...route }
