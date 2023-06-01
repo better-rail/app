@@ -1,0 +1,10 @@
+{
+  "$schema": "./node_modules/@react-native-firebase/app/firebase-schema.json",
+  "react-native": {
+    "crashlytics_debug_enabled": true,
+    "crashlytics_disable_auto_disabler": true,
+    "crashlytics_auto_collection_enabled": true,
+    "crashlytics_is_error_generation_on_js_crash_enabled": true,
+    "crashlytics_javascript_exception_handler_chaining_enabled": true
+  }
+}
