@@ -17,9 +17,8 @@ export function monitorLiveActivities() {
 
 export type ActivityAuthorizationInfo = { areActivitiesEnabled: boolean; frequentPushesEnabled: boolean }
 
-export async function activityAuthorizationInfo() {
-  const response = await RNBetterRail.activityAuthorizationInfo("")
-  return JSON.parse(JSON.stringify(response)) as ActivityAuthorizationInfo
+export async function activityAuthorizationInfo(): Promise<ActivityAuthorizationInfo> {
+  return RNBetterRail.activityAuthorizationInfo("")
 }
 
 function prepareDataForLiveActivities(route: RouteItem) {
