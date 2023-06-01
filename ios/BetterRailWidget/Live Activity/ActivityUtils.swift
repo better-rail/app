@@ -193,7 +193,7 @@ func getActivityCurrentState(route: Route, updatedDelay: Int? = nil, now: Date =
   return BetterRailActivityAttributes.ContentState(
     delay: updatedDelay ?? train.delay,
     nextStationId: nextStationId,
-    status: status,
+    status: status
   )
 }
 

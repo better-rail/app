@@ -6,6 +6,7 @@ import { translate, userLocale } from "../../i18n"
 import { WidgetOnboardingStackProps } from "../../navigators/widget-onboarding/widget-onboarding-navigator"
 import { color, fontScale, spacing } from "../../theme"
 import { WidgetOnboardingBackground } from "./widget-onboarding-background"
+import { useWidgetWrapperStyle } from "./widget-styles"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -45,6 +46,7 @@ const IMAGE_STYLE: ImageStyle = {
 
 export const WidgetStep2 = function WidgetStep2({ navigation }: WidgetOnboardingStackProps) {
   const insets = useSafeAreaInsets()
+  const wrapperStyle = useWidgetWrapperStyle()
 
   let configImage
 
@@ -57,7 +59,7 @@ export const WidgetStep2 = function WidgetStep2({ navigation }: WidgetOnboarding
   return (
     <Screen unsafe={true} statusBar="light-content" preset="scroll">
       <WidgetOnboardingBackground />
-      <View style={{ paddingHorizontal: spacing[6], marginTop: spacing[6] + 4 }}>
+      <View style={wrapperStyle}>
         <Text preset="header" style={TITLE} tx="widgetOnboarding.configuring" maxFontSizeMultiplier={1.2} />
         <Text style={TEXT} tx="widgetOnboarding.configStep1" />
         <Text style={TEXT} tx="widgetOnboarding.configStep2" />
@@ -65,7 +67,7 @@ export const WidgetStep2 = function WidgetStep2({ navigation }: WidgetOnboarding
       <View style={IMAGE_CONTAINER}>
         <Image source={configImage} style={IMAGE_STYLE} />
       </View>
-      <View style={{ paddingHorizontal: spacing[6], marginBottom: spacing[3] }}>
+      <View style={{ paddingHorizontal: spacing[6], marginBottom: spacing[2] }}>
         <Text style={TEXT} tx="widgetOnboarding.configStep3" />
       </View>
       <View style={{ alignItems: "center", marginTop: fontScale < 1.2 ? spacing[4] : 0, marginBottom: insets.bottom + 4 }}>

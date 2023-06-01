@@ -9,17 +9,9 @@ import * as storage from "../../utils/storage"
 import { WidgetOnboardingStackProps } from "../../navigators/widget-onboarding/widget-onboarding-navigator"
 import { color, fontScale, spacing } from "../../theme"
 import { WidgetOnboardingBackground } from "./widget-onboarding-background"
+import { useWidgetWrapperStyle } from "./widget-styles"
 
 const { width: deviceWidth } = Dimensions.get("screen")
-
-const GARDIENT: ViewStyle = {
-  height: "200%",
-  position: "absolute",
-  left: 0,
-  right: 0,
-  top: 0,
-  opacity: 1,
-}
 
 const TITLE: TextStyle = {
   color: color.whiteText,
@@ -57,11 +49,12 @@ const IMAGE_STYLE: ImageStyle = {
 
 export const WidgetStep3 = function WidgetStep3({ navigation }: WidgetOnboardingStackProps) {
   const insets = useSafeAreaInsets()
+  const wrapperStyle = useWidgetWrapperStyle()
 
   return (
     <Screen unsafe={true} statusBar="light-content" preset="scroll">
       <WidgetOnboardingBackground />
-      <View style={{ paddingHorizontal: spacing[6], marginTop: spacing[6] + 4 }}>
+      <View style={wrapperStyle}>
         <Text preset="header" style={TITLE} tx="widgetOnboarding.stacking" />
 
         <Text style={[TEXT, { textAlign: "center", marginBottom: spacing[5] }]} tx="widgetOnboarding.stackingIntro"></Text>
