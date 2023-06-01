@@ -1,4 +1,5 @@
 apply plugin: "com.android.application"
+apply plugin: 'com.google.firebase.crashlytics'
 // Unimodules: https://docs.expo.io/bare/installing-unimodules/#configuration-for-android
 apply from: '../../node_modules/react-native-unimodules/gradle.groovy'
 
