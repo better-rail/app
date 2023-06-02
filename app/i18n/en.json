@@ -159,7 +159,7 @@
     "rideExistsTitle": "An active ride exists",
     "rideExistsMessage": "Cancel the current ride in order to start a new one",
     "disabledTitle": "Live Activities disabled",
-    "disabledMessage": "Open settings and enable Live Activities to be able to start a ride"
+    "disabledMessage": "To start a ride, please open your device settings and enable Live Activities."
   },
   "paywall": {
     "betterCommute": "Make your commute better.",
