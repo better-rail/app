@@ -1,5 +1,5 @@
 import React, { useMemo } from "react"
-import { View, ActivityIndicator, ViewStyle } from "react-native"
+import { View, ActivityIndicator, ViewStyle, Dimensions } from "react-native"
 import { FlashList } from "@shopify/flash-list"
 import { observer } from "mobx-react-lite"
 import { useNetInfo } from "@react-native-community/netinfo"
@@ -8,10 +8,12 @@ import { useQuery } from "react-query"
 import { closestIndexTo } from "date-fns"
 import { RouteListScreenProps } from "../../navigators/main-navigator"
 import { useStores } from "../../models"
-import { color, spacing } from "../../theme"
+import { color, fontScale, spacing } from "../../theme"
 import { RouteItem } from "../../services/api"
 import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight } from "../../components"
 import { NoTrainsFoundMessage, NoInternetConnection, RouteListWarning } from "./components"
+import { flatMap, max, round } from "lodash"
+import { translate } from "../../i18n"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -52,6 +54,18 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     return undefined
   }, [trains.isSuccess])
 
+  const shouldShowDashedLine = useMemo(() => {
+    const { width: deviceWidth } = Dimensions.get("screen")
+    const allTexts = flatMap(trains.data ?? [], ({ delay, duration }) => [
+      delay > 0 ? (delay + " " + translate("routes.delayTime")).length : 0,
+      duration.length,
+    ])
+    const maxTextLength = max(allTexts)
+    const shouldShowDashedLineByTextLength = round(deviceWidth / fontScale / 30) >= maxTextLength
+
+    return fontScale <= 1.2 && deviceWidth >= 360 && shouldShowDashedLineByTextLength
+  }, [trains.data])
+
   const renderRouteCard = ({ item }: { item: RouteItem }) => {
     const departureTime = item.trains[0].departureTime
     let arrivalTime = item.trains[0].arrivalTime
@@ -80,6 +94,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
             destinationId: route.params.destinationId,
           })
         }
+        shouldShowDashedLine={shouldShowDashedLine}
         style={{ marginBottom: spacing[3] }}
       />
     )
