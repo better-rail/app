@@ -56,13 +56,23 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
 
   const shouldShowDashedLine = useMemo(() => {
     const { width: deviceWidth } = Dimensions.get("screen")
+
+    // Get the longest text for duration and delay that will be in the list
     const allTexts = flatMap(trains.data ?? [], ({ delay, duration }) => [
       delay > 0 ? (delay + " " + translate("routes.delayTime")).length : 0,
       duration.length,
     ])
     const maxTextLength = max(allTexts)
+
+    // Check if there's enough space for the dashed line with that text
     const shouldShowDashedLineByTextLength = round(deviceWidth / fontScale / 30) >= maxTextLength
 
+    /**
+     * Show the dashed line only when all these conditions are matched:
+     * - Device width is 360 or more
+     * - Font Scale is 1.2 or less
+     * - There's enough space for the dashed line with the longest duration/delay text
+     */
     return fontScale <= 1.2 && deviceWidth >= 360 && shouldShowDashedLineByTextLength
   }, [trains.data])
 
