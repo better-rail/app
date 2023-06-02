@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { useEffect, useMemo } from "react"
-import { TextStyle, View, ViewStyle, Dimensions, Platform } from "react-native"
+import React, { useMemo } from "react"
+import { TextStyle, View, ViewStyle, Platform } from "react-native"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import { Svg, Line } from "react-native-svg"
 import { color, spacing, typography, fontScale } from "../../theme"
@@ -84,13 +84,25 @@ export interface RouteCardProps extends TouchableScaleProps {
   delay: number
   style?: ViewStyle
   isActiveRide: boolean
+  shouldShowDashedLine?: boolean
 }
 
 /**
  * Describe your component here
  */
 export const RouteCard = function RouteCard(props: RouteCardProps) {
-  const { departureTime, arrivalTime, duration, stops, delay, isMuchShorter, isMuchLonger, onPress = null, style } = props
+  const {
+    departureTime,
+    arrivalTime,
+    duration,
+    stops,
+    delay,
+    isMuchShorter,
+    isMuchLonger,
+    onPress = null,
+    style,
+    shouldShowDashedLine = true,
+  } = props
 
   // Format times
   const [formattedDepatureTime, formattedArrivalTime] = useMemo(() => {
@@ -99,10 +111,6 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
 
     return [formattedDepatureTime, formattedArrivalTime]
   }, [departureTime, arrivalTime])
-
-  useEffect(() => {
-    if (duration.length > 7 && deviceWidth < 410) dashedLineWidth = 0
-  }, [duration])
 
   const stopsText = useMemo(() => {
     if (stops === 0) return translate("routes.noExchange")
@@ -122,7 +130,7 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
         <Text style={TIME_TEXT}>{formattedDepatureTime}</Text>
       </View>
 
-      <DashedLine />
+      {shouldShowDashedLine && <DashedLine />}
 
       <View style={{ marginHorizontal: spacing[1] }}>
         <View style={{ alignItems: "center" }}>
@@ -144,7 +152,7 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
         </View>
       </View>
 
-      <DashedLine />
+      {shouldShowDashedLine && <DashedLine />}
 
       <View style={{ alignItems: "flex-end", marginStart: spacing[3] }}>
         <Text style={TIME_TYPE_TEXT} tx="routes.arrival" />
@@ -154,13 +162,8 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
   )
 }
 
-const { width: deviceWidth } = Dimensions.get("screen")
-
-// Remove dashed line for users with scaled font size / small device screen
-let dashedLineWidth = fontScale > 1.2 || deviceWidth <= 360 ? 0 : 35
-
 const DashedLine = () => (
-  <Svg height={5} width={dashedLineWidth}>
+  <Svg height={5} width={35}>
     <Line stroke={color.dim} strokeWidth={4} strokeDasharray="5,5" x1="0" y1="0" x2="100%" y2={0} />
   </Svg>
 )
