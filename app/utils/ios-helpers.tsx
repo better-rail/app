@@ -15,6 +15,12 @@ export function monitorLiveActivities() {
   RNBetterRail.monitorActivities()
 }
 
+export type ActivityAuthorizationInfo = { areActivitiesEnabled: boolean; frequentPushesEnabled: boolean }
+
+export async function activityAuthorizationInfo(): Promise<ActivityAuthorizationInfo> {
+  return RNBetterRail.activityAuthorizationInfo("")
+}
+
 function prepareDataForLiveActivities(route: RouteItem) {
   // We need to modify the route the fit the original data structure, which we use in the native code
   const modifiedRoute = { ...route }
@@ -90,4 +96,5 @@ export default {
   startLiveActivity,
   endLiveActivity,
   isRideActive,
+  activityAuthorizationInfo,
 }

@@ -1,4 +1,4 @@
-import { Alert, Dimensions, Image, ImageStyle, Platform, PlatformColor, View, ViewStyle } from "react-native"
+import { Alert, Dimensions, Image, ImageStyle, Linking, Platform, View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HapticFeedback from "react-native-haptic-feedback"
@@ -54,7 +54,8 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
   const isRouteInFuture = differenceInMinutes(route.departureTime, timezoneCorrection(new Date()).getTime()) > 60
 
   const activeRide = !!ride.id
-  const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || activeRide
+  const areActivitiesDisabled = !(ride?.activityAuthorizationInfo?.areActivitiesEnabled ?? true)
+  const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || areActivitiesDisabled || activeRide
 
   return (
     <View
@@ -76,19 +77,38 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
         disabled={isStartRideButtonDisabled}
         onDisabledPress={() => {
           HapticFeedback.trigger("notificationError")
-          analytics().logEvent("start_live_ride_disable_press")
+          let disabledReason = ""
           if (activeRide) {
+            disabledReason = "Active ride already exists"
             Alert.alert(translate("ride.rideExistsTitle"), translate("ride.rideExistsMessage"))
+          } else if (areActivitiesDisabled) {
+            disabledReason = "Live Activities disabled"
+            Alert.alert(translate("ride.disabledTitle"), translate("ride.disabledMessage"), [
+              {
+                style: "cancel",
+                text: translate("common.cancel"),
+              },
+              {
+                text: translate("settings.title"),
+                onPress: () => Linking.openSettings(),
+              },
+            ])
           } else {
             let message = ""
             if (isRouteInPast) {
+              disabledReason = "Route in past"
               message = translate("ride.rideInPastAlert")
             } else if (isRouteInFuture) {
+              disabledReason = "Route in future"
               message = translate("ride.rideInFutureAlert")
             }
 
             Alert.alert(message)
           }
+
+          analytics().logEvent("start_live_ride_disabled_press", {
+            reason: disabledReason,
+          })
         }}
         onPress={() => {
           HapticFeedback.trigger("notificationSuccess")

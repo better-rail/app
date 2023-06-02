@@ -16,5 +16,7 @@ RCT_EXTERN_METHOD(endActivity:(NSString *)routeId resolver:(RCTPromiseResolveBlo
 RCT_EXTERN_METHOD(isRideActive:(NSString *)rideId resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(monitorActivities)
 RCT_EXTERN_METHOD(reloadAllTimelines)
+RCT_EXTERN_METHOD(activityAuthorizationInfo:(NSString *)emptyString resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+
 
 @end

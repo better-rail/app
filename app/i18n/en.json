@@ -155,9 +155,11 @@
     "arrived": "You have arrived",
     "departsIn": "Train departs in %{minutes} min",
     "departsNow": "Train departs now",
+    "trainArrives": "Train arrives to destination",
     "rideExistsTitle": "An active ride exists",
     "rideExistsMessage": "Cancel the current ride in order to start a new one",
-    "trainArrives": "Train arrives to destination"
+    "disabledTitle": "Live Activities disabled",
+    "disabledMessage": "To start a ride, please open your device settings and enable Live Activities."
   },
   "paywall": {
     "betterCommute": "Make your commute better.",
