@@ -45,7 +45,7 @@ struct Train: Decodable, Identifiable, Encodable {
   var stationImage: String? { getStationById(orignStation)?.image }
   var destinationStationImage: String? { getStationById(destinationStation)?.image }
 
-  let delay: Int
+  @IntWithDefaultValue var delay: Int
   let trainNumber, orignStation, destinationStation: Int
   let arrivalTime, departureTime: String
   let stopStations: [StopStation]
@@ -119,4 +119,28 @@ struct RouteModel {
       }
   }
 
+}
+
+@propertyWrapper
+struct IntWithDefaultValue {
+  var wrappedValue = 0
+}
+
+extension IntWithDefaultValue: Decodable, Encodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.singleValueContainer()
+    wrappedValue = try container.decode(Int.self)
+  }
+  
+  func encode(to encoder: Encoder) throws {
+    var container = encoder.singleValueContainer()
+    try container.encode(wrappedValue)
+  }
+}
+
+extension KeyedDecodingContainer {
+  func decode(_ type: IntWithDefaultValue.Type,
+                forKey key: Key) throws -> IntWithDefaultValue {
+    try decodeIfPresent(type, forKey: key) ?? .init()
+  }
 }
