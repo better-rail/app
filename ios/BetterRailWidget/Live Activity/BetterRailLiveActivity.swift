@@ -4,6 +4,10 @@ import SwiftUI
 
 
 struct BetterRailLiveActivity: Widget {
+  func tintColor(context: ActivityViewContext<BetterRailActivityAttributes>) -> Color {
+    return context.state.delay > 5 ? .red : context.state.status.color
+  }
+  
   func deepLinkURL(_ trainNumbers: [Int]) -> URL {
     // convert train numbers to be used as a URL parameter
     let urlParam = trainNumbers.map(String.init).joined(separator: ",")
@@ -23,7 +27,7 @@ struct BetterRailLiveActivity: Widget {
       return DynamicIsland {
             // Expanded UI goes here.  Compose the expanded UI through
             // various regions, like leading/trailing/center/bottom
-          DynamicIslandExpandedRegion(.leading) {
+          DynamicIslandExpandedRegion(.leading, priority: 10) {
             LeadingView(vm: vm)
               .dynamicIsland(verticalPlacement: .belowIfTooWide)
               .padding(.leading, 4)
@@ -38,16 +42,16 @@ struct BetterRailLiveActivity: Widget {
             RideInformationBar(vm: vm, placement: .dynamicIsland)
           }
         } compactLeading: {
-          CircularProgressView(vm: vm)
+          CircularProgressView(vm: vm, tintColor: tintColor(context: context))
         } compactTrailing: {
           Text("\(String(getMinutesLeft(targetDate: getStatusEndDate(context: context)))) min")
-            .foregroundColor(vm.status.color)
+            .foregroundColor(tintColor(context: context))
             .accessibilityLabel(vm.status == .waitForTrain ? "time left depart" : "time left arrival")
         } minimal: {
-          CircularProgressView(vm: vm)
+          CircularProgressView(vm: vm, tintColor: tintColor(context: context))
         }
         .widgetURL(deepLinkURL(context.attributes.trainNumbers))
-        .keylineTint(context.state.delay > 5 ? .red : context.state.status.color)
+        .keylineTint(tintColor(context: context))
     }
   }
 }

@@ -23,9 +23,11 @@ struct CircularProgressView: View {
     }
   }
   
+  var tintColor: Color
+  
   var body: some View {
     ZStack {
-      ProgressView(timerInterval: start...end, countsDown: false, label: {}, currentValueLabel: { EmptyView() }).progressViewStyle(.circular).tint(vm.status.color)
+      ProgressView(timerInterval: start...end, countsDown: false, label: {}, currentValueLabel: { EmptyView() }).progressViewStyle(.circular).tint(tintColor)
       Image(systemName: iconName).font(.system(size: 8.0))
         .scaleEffect(x: vm.isRTL ? -1 : 1, y: 1, anchor: .center)
     }
