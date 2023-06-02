@@ -42,13 +42,13 @@ struct BetterRailLiveActivity: Widget {
             RideInformationBar(vm: vm, placement: .dynamicIsland)
           }
         } compactLeading: {
-          CircularProgressView(vm: vm, tintColor: tintColor(context: context))
+          CircularProgressView(vm: vm, content: .icon, tintColor: tintColor(context: context))
         } compactTrailing: {
           Text("\(String(getMinutesLeft(targetDate: getStatusEndDate(context: context)))) min")
             .foregroundColor(tintColor(context: context))
             .accessibilityLabel(vm.status == .waitForTrain ? "time left depart" : "time left arrival")
         } minimal: {
-          CircularProgressView(vm: vm, tintColor: tintColor(context: context))
+          CircularProgressView(vm: vm, content: .time, tintColor: tintColor(context: context))
         }
         .widgetURL(deepLinkURL(context.attributes.trainNumbers))
         .keylineTint(tintColor(context: context))

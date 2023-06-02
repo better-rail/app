@@ -2,8 +2,14 @@ import SwiftUI
 import WidgetKit
 import ActivityKit
 
+enum Content {
+  case icon
+  case time
+}
+
 struct CircularProgressView: View {
   var vm: ActivityViewModel
+  var content: Content
   
   var start: Date { getStatusStartDate(context: vm.context) }
   
@@ -23,13 +29,24 @@ struct CircularProgressView: View {
     }
   }
   
+  var minutesLeft: Int {
+    getMinutesLeft(targetDate: end)
+  }
+  
   var tintColor: Color
   
   var body: some View {
     ZStack {
       ProgressView(timerInterval: start...end, countsDown: false, label: {}, currentValueLabel: { EmptyView() }).progressViewStyle(.circular).tint(tintColor)
-      Image(systemName: iconName).font(.system(size: 8.0))
-        .scaleEffect(x: vm.isRTL ? -1 : 1, y: 1, anchor: .center)
+      
+      if content == .time && vm.context.attributes.frequentPushesEnabled && minutesLeft < 100 {
+        Text(String(minutesLeft))
+          .bold()
+          .preferredFont(size: 11)
+      } else {
+        Image(systemName: iconName).font(.system(size: 8.0))
+          .scaleEffect(x: vm.isRTL ? -1 : 1, y: 1, anchor: .center)
+      }
     }
   }
 }
