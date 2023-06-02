@@ -77,10 +77,12 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
         disabled={isStartRideButtonDisabled}
         onDisabledPress={() => {
           HapticFeedback.trigger("notificationError")
-          analytics().logEvent("start_live_ride_disable_press")
+          let disabledReason = ""
           if (activeRide) {
+            disabledReason = "Active ride already exists"
             Alert.alert(translate("ride.rideExistsTitle"), translate("ride.rideExistsMessage"))
           } else if (areActivitiesDisabled) {
+            disabledReason = "Live Activities disabled"
             Alert.alert(translate("ride.disabledTitle"), translate("ride.disabledMessage"), [
               {
                 style: "cancel",
@@ -94,13 +96,19 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
           } else {
             let message = ""
             if (isRouteInPast) {
+              disabledReason = "Route in past"
               message = translate("ride.rideInPastAlert")
             } else if (isRouteInFuture) {
+              disabledReason = "Route in future"
               message = translate("ride.rideInFutureAlert")
             }
 
             Alert.alert(message)
           }
+
+          analytics().logEvent("start_live_ride_disabled_press", {
+            reason: disabledReason,
+          })
         }}
         onPress={() => {
           HapticFeedback.trigger("notificationSuccess")
