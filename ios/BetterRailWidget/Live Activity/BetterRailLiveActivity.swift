@@ -23,7 +23,7 @@ struct BetterRailLiveActivity: Widget {
       return DynamicIsland {
             // Expanded UI goes here.  Compose the expanded UI through
             // various regions, like leading/trailing/center/bottom
-          DynamicIslandExpandedRegion(.leading) {
+          DynamicIslandExpandedRegion(.leading, priority: 10) {
             LeadingView(vm: vm)
               .dynamicIsland(verticalPlacement: .belowIfTooWide)
               .padding(.leading, 4)
