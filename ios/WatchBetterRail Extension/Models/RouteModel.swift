@@ -100,7 +100,7 @@ struct RouteModel {
               
               let decoder = JSONDecoder()
             do {
-                let route = try decoder.decode(RouteResult.self, from: data)
+              let route = try decoder.decode(RouteResult.self, from: data)
               completion(FetchRouteResult(status: .success, routes: route.result.travels))
             } catch {
                 print("Error decoding JSON: \(String(describing: error))")

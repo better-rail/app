@@ -20,17 +20,26 @@ struct EntriesGenerator {
       }
       
       if tomorrowRoutes.count > 0 {
-        var tomorrowEntries = generateEntriesForRoutes(tomorrowRoutes, originId: originId, destinationId: destinationId)
-        tomorrowEntries[0].date = lastTrainEntryDate
+        let currentDateAtMidnight = Calendar.current.date(bySettingHour: 0, minute: 0, second: 0, of: Date())!
+        let firstRouteDate = isoDateStringToDate(tomorrowRoutes[0].departureTime)
+        let daysDiff = Calendar.current.dateComponents([.day], from: currentDateAtMidnight, to: firstRouteDate).day ?? 0
         
-        // Add tomorrow's first entry as the last entry for today
-        entries.append(tomorrowEntries[0])
+        if daysDiff < 2 {
+          var tomorrowEntries = generateEntriesForRoutes(tomorrowRoutes, originId: originId, destinationId: destinationId)
+          tomorrowEntries[0].date = lastTrainEntryDate
+          
+          // Add tomorrow's first entry as the last entry for today
+          entries.append(tomorrowEntries[0])
+        } else {
+          // If the first entry is two days in the future, display no trains are available
+          entries = [getEmptyEntry(originId: originId, destinationId: destinationId, date: lastTrainEntryDate)]
+        }
       } else {
         // If there are no trains coming up tomorrow, display an empty entry at the end of today's entries
         entries.append(getEmptyEntry(originId: originId, destinationId: destinationId, date: lastTrainEntryDate))
       }
     }
-        
+    
     return entries
   }
   
