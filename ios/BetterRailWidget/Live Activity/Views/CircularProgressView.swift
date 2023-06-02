@@ -41,8 +41,7 @@ struct CircularProgressView: View {
       
       if content == .time && vm.context.attributes.frequentPushesEnabled && minutesLeft < 100 {
         Text(String(minutesLeft))
-          .bold()
-          .preferredFont(size: 11)
+          .font(.system(size: 11, weight: .semibold))
       } else {
         Image(systemName: iconName).font(.system(size: 8.0))
           .scaleEffect(x: vm.isRTL ? -1 : 1, y: 1, anchor: .center)
