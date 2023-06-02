@@ -26,24 +26,7 @@
 
 // live activity localizations
 "min" = "min";
-"depart" = "DEPART";
-"departs from %@" = "DEPARTS FROM %@";
-"exchange in %@" = "EXCHANGE IN %@";
-"train to %@" = "TRAIN TO %@";
-"headed to" = "HEADED TO";
-"wait in" = "WAIT IN";
-"arrive" = "ARRIVE";
-"next station" = "NEXT STATION";
-"arrived at" = "ARRIVED AT";
-"platform %@ train %@ dest %@" = "PLATFORM %@ • TRAIN %@ TO %@";
-"platform %@" = "PLATFORM %@";
-"train %@ dest %@" = "TRAIN %@ TO %@";
 "%@ min" = "%@ min";
-"get off in the next stop" = "GET OFF IN THE NEXT STOP";
-"get off in %@ stops" = "GET OFF IN %@ STOPS";
-
-// live activity localizations
-"min" = "min";
 "headed to" = "HEADED TO";
 "wait in" = "WAIT IN";
 "arrive" = "ARRIVE";
@@ -52,7 +35,6 @@
 "train %@ to %@" = "Train %@ to %@";
 "depart from platform %@" = "Depart from Platform %@";
 "train %@ dest %@" = "TRAIN %@ TO %@";
-"%@ min" = "%@ min";
 "get off in the next stop" = "Get off in the next stop";
 "get off in %@ stops" = "Get off in %@ stops";
 "get off" = "Get off the train";

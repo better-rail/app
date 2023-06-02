@@ -69,7 +69,10 @@ struct TimeInformation: View {
             
             HStack (spacing: 2) {
               Text("arrive").fontWeight(vm.isEnglish ? .light : .medium)
+              // we don't have space for both original & updated times in the dynamic island
+              if (delay == 0 || placement == .lockScreen && delay > 0) {
                 Text(formatDateHour(arrivalDate)).bold().strikethrough(delay > 0 ? true : false)
+              }
               
               if (vm.delay != 0) {
                 Text(formatDateHour(vm.arrivalDate.addMinutes(delay))) .foregroundColor(Color(uiColor: .systemRed)).fontWeight(.heavy)
