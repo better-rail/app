@@ -2,10 +2,9 @@ import { forwardRef, useCallback, useMemo } from "react"
 import { ViewStyle } from "react-native"
 import BottomSheet, { BottomSheetBackdrop, BottomSheetProps } from "@gorhom/bottom-sheet"
 
-interface BottomSheetModalProps {
+interface BottomSheetModalProps extends BottomSheetProps {
   children: React.ReactNode
-  style: ViewStyle
-  snapPoints?: BottomSheetProps["snapPoints"]
+  style?: ViewStyle
 }
 
 export const BottomSheetModal = forwardRef<BottomSheet, BottomSheetModalProps>(({ children, snapPoints, ...rest }, ref) => {
