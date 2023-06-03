@@ -123,17 +123,18 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
           })
         }}
         onPress={() => {
-          shouldDisplayFirstRideAlert().then((isFirstRide) => {
-            if (isFirstRide) {
-              HapticFeedback.trigger("notificationWarning")
-              props.openFirstRideAlertSheet()
-              analytics().logEvent("first_live_ride_alert")
-            } else {
-              HapticFeedback.trigger("notificationSuccess")
-            }
-            ride.startRide(route)
-            analytics().logEvent("start_live_ride")
-          })
+          if (Platform.OS === "ios") {
+            shouldDisplayFirstRideAlert().then((isFirstRide) => {
+              if (isFirstRide && Platform.OS === "ios") {
+                props.openFirstRideAlertSheet()
+                analytics().logEvent("first_live_ride_alert")
+              }
+            })
+          }
+
+          HapticFeedback.trigger("notificationSuccess")
+          ride.startRide(route)
+          analytics().logEvent("start_live_ride")
         }}
       />
     </View>
