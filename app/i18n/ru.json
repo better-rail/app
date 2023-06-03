@@ -137,6 +137,10 @@
     "rideExistsTitle": "Активная поездка существует",
     "rideExistsMessage": "Отмените текущую поездку, чтобы начать новую",
     "disabledTitle": "Live Activities отменен",
-    "disabledMessage": "Откройте настройки и включите Live Activities чтобы иметь возможность начать поездку"
+    "disabledMessage": "Откройте настройки и включите Live Activities чтобы иметь возможность начать поездку",
+
+    "firstRideAlertP1": "During the first three days of usage, there is a possibility that the live activity feature may display an incorrect estimated time of arrival (ETA).",
+    "firstRideAlertP2": "This is due to the system taking time to allocate sufficient \"notification budget\" for the application. ",
+    "firstRideAlertP3": "This issue typically resolves itself after approximately three days of usage, after which the live activity will function accurately."
   }
 }
