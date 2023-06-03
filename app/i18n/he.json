@@ -162,7 +162,11 @@
     "rideExistsTitle": "קיימת נסיעה פעילה",
     "rideExistsMessage": "עצרו את הנסיעה הנוכחית על מנת להתחיל חדשה",
     "disabledTitle": "פעילויות בזמן אמת כבויות",
-    "disabledMessage": "יש לאפשר פעילויות בזמן אמת בהגדרות המכשיר על מנת להתחיל נסיעה"
+    "disabledMessage": "יש לאפשר פעילויות בזמן אמת בהגדרות המכשיר על מנת להתחיל נסיעה",
+
+    "firstRideAlertP1": "במהלך שלושת ימי השימוש הראשונים, קיימת אפשרות שזמן ההגעה שיוצג בלייב אקטיביטי (על מסך הנעילה) יהיה לא מדויק.",
+    "firstRideAlertP2": "זאת בשל העובדה שלוקח למערכת זמן להקצות \"תקציב נוטיפיקציות\" מספק עבור האפליקציה.",
+    "firstRideAlertP3": "בעיה זו בדרך כלל נפתרת מעצמה לאחר כשלושה ימים של שימוש, לאחריהם הלייב אקטיביטי יפעל בצורה מדויקת."
   },
   "paywall": {
     "betterCommute": "לא תאמינו איך נסיעה ברכבת יכולה להראות 😎",

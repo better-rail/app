@@ -1,5 +1,6 @@
 import { Alert, Dimensions, Image, ImageStyle, Linking, Platform, View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
+import * as storage from "../../../utils/storage"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HapticFeedback from "react-native-haptic-feedback"
 import analytics from "@react-native-firebase/analytics"
@@ -31,6 +32,7 @@ const TRAIN_ICON: ImageStyle = {
 interface StartRideButtonProps {
   route: RouteItem
   screenName: "routeDetails" | "activeRide"
+  openFirstRideAlertSheet?: () => void
 }
 
 export const StartRideButton = observer(function StartRideButton(props: StartRideButtonProps) {
@@ -57,6 +59,16 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
   const areActivitiesDisabled = !(ride?.activityAuthorizationInfo?.areActivitiesEnabled ?? true)
   const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || areActivitiesDisabled || activeRide
 
+  const shouldDisplayFirstRideAlert = async () => {
+    const firstRideDate = await storage.load("firstRideDate")
+    if (!firstRideDate) {
+      await storage.save("firstRideDate", new Date().toISOString())
+      return true
+    }
+
+    return false
+  }
+
   return (
     <View
       style={{
@@ -74,7 +86,7 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
         pressedOpacity={0.85}
         title={translate("ride.startRide")}
         loading={ride.loading}
-        disabled={isStartRideButtonDisabled}
+        // disabled={isStartRideButtonDisabled}
         onDisabledPress={() => {
           HapticFeedback.trigger("notificationError")
           let disabledReason = ""
@@ -111,9 +123,16 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
           })
         }}
         onPress={() => {
-          HapticFeedback.trigger("notificationSuccess")
-          ride.startRide(route)
-          analytics().logEvent("start_live_ride")
+          shouldDisplayFirstRideAlert().then((isFirstRide) => {
+            if (isFirstRide) {
+              HapticFeedback.trigger("notificationWarning")
+              props.openFirstRideAlertSheet()
+            } else {
+              HapticFeedback.trigger("notificationSuccess")
+              ride.startRide(route)
+              analytics().logEvent("start_live_ride")
+            }
+          })
         }}
       />
     </View>
