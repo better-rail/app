@@ -1,25 +1,13 @@
 import React, { useRef, useState, useEffect } from "react"
 import { observer } from "mobx-react-lite"
-import {
-  Image,
-  View,
-  TouchableOpacity,
-  Animated,
-  ViewStyle,
-  TextStyle,
-  ImageStyle,
-  Dimensions,
-  AppState,
-  AppStateStatus,
-  Platform,
-} from "react-native"
+import { View, Animated, ViewStyle, TextStyle, Dimensions, AppState, AppStateStatus, Platform } from "react-native"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
 import { useStores } from "../../models"
 import HapticFeedback from "react-native-haptic-feedback"
-import { color, primaryFontIOS, fontScale, spacing } from "../../theme"
+import { color, primaryFontIOS, spacing } from "../../theme"
 import { PlannerScreenProps } from "../../navigators/main-navigator"
 import { useStations } from "../../data/stations"
-import { isRTL, translate, useFormattedDate } from "../../i18n"
+import { translate, useFormattedDate } from "../../i18n"
 import DatePickerModal from "../../components/date-picker-modal"
 import { useQuery } from "react-query"
 import { isWeekend } from "../../utils/helpers/date-helpers"
@@ -28,6 +16,7 @@ import { save, load } from "../../utils/storage"
 import { donateRouteIntent } from "../../utils/ios-helpers"
 import analytics from "@react-native-firebase/analytics"
 import { useFocusEffect } from "@react-navigation/native"
+import { PlannerScreenHeader } from "./planner-screen-header"
 
 const now = new Date()
 
@@ -44,41 +33,7 @@ const CONTENT_WRAPPER: ViewStyle = {
   backgroundColor: color.background,
 }
 
-const HEADER_WRAPPER: ViewStyle = {
-  flexDirection: "row",
-  justifyContent: "flex-end",
-  alignItems: "center",
-}
-
-let headerIconSize = 25
-if (fontScale > 1.15) headerIconSize = 30
-
-const SETTINGS_ICON: ImageStyle = {
-  width: headerIconSize,
-  height: headerIconSize,
-  marginStart: spacing[3],
-  tintColor: color.primary,
-  opacity: 0.7,
-}
-
-const NEW_FEATURES_BUTTON: ViewStyle = {
-  paddingHorizontal: spacing[3] * fontScale,
-  paddingVertical: spacing[0] + 1 * fontScale,
-  flexDirection: "row",
-  alignItems: "center",
-  backgroundColor: color.success,
-  borderRadius: 30,
-}
-
-const LIVE_BUTTON_IMAGE: ImageStyle = {
-  width: 22.5,
-  height: 14,
-  marginEnd: isRTL ? spacing[1] : spacing[2],
-  tintColor: "white",
-  transform: isRTL ? [{ rotateY: "220deg" }] : undefined,
-}
-
-const HEADER_TITLE: TextStyle = {
+const SCREEN_TITLE: TextStyle = {
   marginBottom: primaryFontIOS === "System" ? 6 : 3,
 }
 
@@ -95,9 +50,8 @@ const CHANGE_DIRECTION_WRAPPER: ViewStyle = {
 // #endregion
 
 export const PlannerScreen = observer(function PlannerScreen({ navigation }: PlannerScreenProps) {
-  const { routePlan, trainRoutes, ride } = useStores()
+  const { routePlan, trainRoutes } = useStores()
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
-  const [displayNewBadge, setDisplayNewBadge] = useState(false)
 
   const formattedDate = useFormattedDate(routePlan.date)
   const stationCardScale = useRef(new Animated.Value(1)).current
@@ -227,39 +181,9 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   return (
     <Screen style={ROOT} preset="scroll">
       <View style={CONTENT_WRAPPER}>
-        <View style={HEADER_WRAPPER}>
-          {ride.route && (
-            <TouchableOpacity
-              style={NEW_FEATURES_BUTTON}
-              onPress={() => {
-                // @ts-expect-error
-                navigation.navigate("activeRideStack", {
-                  screen: "activeRide",
-                  params: { routeItem: ride.route, originId: ride.originId, destinationId: ride.destinationId },
-                })
+        <PlannerScreenHeader />
 
-                analytics().logEvent("open_live_ride_modal_pressed")
-              }}
-            >
-              <Image source={require("../../../assets/train.ios.png")} style={LIVE_BUTTON_IMAGE} />
-              <Text style={{ color: "white", fontWeight: "500" }} tx="ride.live" />
-            </TouchableOpacity>
-          )}
-          {displayNewBadge && (
-            <TouchableOpacity style={NEW_FEATURES_BUTTON} onPress={() => navigation.navigate("widgetOnboardingStack")}>
-              <Image
-                source={require("../../../assets/sparkles.png")}
-                style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }}
-              />
-              <Text style={{ color: "white", fontWeight: "500" }} tx="common.new" />
-            </TouchableOpacity>
-          )}
-          <TouchableOpacity onPress={() => navigation.navigate("settingsStack")} activeOpacity={0.8} accessibilityLabel="הגדרות">
-            <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />
-          </TouchableOpacity>
-        </View>
-
-        <Text preset="header" tx="plan.title" style={HEADER_TITLE} />
+        <Text preset="header" tx="plan.title" style={SCREEN_TITLE} />
 
         <Text preset="fieldLabel" tx="plan.origin" text="תחנת מוצא" style={{ marginBottom: spacing[1] }} />
         <Animated.View style={{ transform: [{ scale: stationCardScale }] }}>
