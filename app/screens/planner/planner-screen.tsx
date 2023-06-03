@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react"
 import { observer } from "mobx-react-lite"
 import { View, Animated, ViewStyle, TextStyle, Dimensions, AppState, AppStateStatus, Platform } from "react-native"
-import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
+import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton, ResetTimeButton } from "../../components"
 import { useStores } from "../../models"
 import HapticFeedback from "react-native-haptic-feedback"
 import { color, primaryFontIOS, spacing } from "../../theme"
@@ -17,8 +17,6 @@ import { donateRouteIntent } from "../../utils/ios-helpers"
 import analytics from "@react-native-firebase/analytics"
 import { useFocusEffect } from "@react-navigation/native"
 import { PlannerScreenHeader } from "./planner-screen-header"
-
-const now = new Date()
 
 const { height: deviceHeight } = Dimensions.get("screen")
 
@@ -56,6 +54,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   const formattedDate = useFormattedDate(routePlan.date)
   const stationCardScale = useRef(new Animated.Value(1)).current
 
+  const now = new Date()
   const { origin, destination } = routePlan
 
   const stations = useStations()
@@ -71,6 +70,11 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
     // https://github.com/react-native-datetimepicker/datetimepicker/issues/54#issuecomment-552951685
     setDatePickerVisibility(false)
     onDateChange(date)
+  }
+
+  const onDateReset = () => {
+    HapticFeedback.trigger("impactLight")
+    onDateChange(new Date())
   }
 
   const originData = React.useMemo(() => {
@@ -216,6 +220,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           value={formattedDate}
           style={{ marginBottom: spacing[5] }}
           onPress={() => setDatePickerVisibility(true)}
+          endSection={formattedDate !== translate("plan.now") && <ResetTimeButton onPress={onDateReset} />}
         />
 
         <DatePickerModal

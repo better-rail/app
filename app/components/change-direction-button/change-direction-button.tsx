@@ -2,6 +2,7 @@ import * as React from "react"
 import { Image, ViewStyle, ImageStyle, TouchableOpacity, TouchableOpacityProps, Platform, Dimensions } from "react-native"
 import { observer } from "mobx-react-lite"
 import { color } from "../../theme"
+import { translate } from "../../i18n"
 
 const upDownArrowIcon = require("../../../assets/up-down-arrow.png")
 
@@ -57,8 +58,8 @@ export const ChangeDirectionButton = observer(function ChangeDirectionButton(pro
     <TouchableOpacity
       style={[CONTAINER, buttonStyle]}
       activeOpacity={onPress ? 0.9 : 1}
-      accessibilityLabel="החלפת תחנות"
-      accessibilityHint="קיצור דרך להחלפת תחנת המוצא עם תחנת היעד"
+      accessibilityLabel={translate("plan.switchStations")}
+      accessibilityHint={translate("plan.switchStationsHint")}
       {...props}
     >
       <Image source={upDownArrowIcon} style={ARROW_ICON} />
