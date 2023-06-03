@@ -22,6 +22,7 @@
     "arriveAt": "שעת הגעה",
     "now": "עכשיו",
     "find": "חישוב מסלול",
+    "resetTime": "איפוס זמן",
     "switchStations": "החלפת תחנות",
     "switchStationsHint": "קיצור דרך להחלפת תחנת המוצא עם תחנת היעד"
   },

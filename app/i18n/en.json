@@ -21,7 +21,10 @@
     "leaveAt": "Leave At",
     "arriveAt": "Arrive At",
     "now": "Now",
-    "find": "Find Routes"
+    "find": "Find Routes",
+    "resetTime": "Reset Time",
+    "switchStations": "Flip stations",
+    "switchStationsHint": "A shortcut to flip the origin station with the destination station"
   },
   "selectStation": {
     "placeholder": "Search Stations",
