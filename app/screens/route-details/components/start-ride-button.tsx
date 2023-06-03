@@ -60,13 +60,13 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
   const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || areActivitiesDisabled || activeRide
 
   const shouldDisplayFirstRideAlert = async () => {
-    // const firstRideDate = await storage.load("firstRideDate")
-    // if (!firstRideDate) {
-    //   await storage.save("firstRideDate", new Date().toISOString())
-    return true
-    // }
+    const firstRideDate = await storage.load("firstRideDate")
+    if (!firstRideDate) {
+      await storage.save("firstRideDate", new Date().toISOString())
+      return true
+    }
 
-    // return false
+    return false
   }
 
   return (
@@ -86,7 +86,7 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
         pressedOpacity={0.85}
         title={translate("ride.startRide")}
         loading={ride.loading}
-        // disabled={isStartRideButtonDisabled}
+        disabled={isStartRideButtonDisabled}
         onDisabledPress={() => {
           HapticFeedback.trigger("notificationError")
           let disabledReason = ""
