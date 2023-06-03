@@ -16,7 +16,7 @@ const HEADER_WRAPPER: ViewStyle = {
 let headerIconSize = 25
 if (fontScale > 1.15) headerIconSize = 30
 
-const SETTINGS_ICON: ImageStyle = {
+const SETTINGS_ICON_IMAGE: ImageStyle = {
   width: headerIconSize,
   height: headerIconSize,
   marginStart: spacing[3],
@@ -34,6 +34,7 @@ const LIVE_BUTTON_IMAGE: ImageStyle = {
 
 const TRAIN_ICON = require("../../../assets/train.ios.png")
 const SPARKLES_ICON = require("../../../assets/sparkles.png")
+const SETTINGS_ICON = require("../../../assets/settings.png")
 
 export function PlannerScreenHeader() {
   const { ride } = useStores()
@@ -68,7 +69,7 @@ export function PlannerScreenHeader() {
       )}
 
       <TouchableOpacity onPress={() => navigation.navigate("settingsStack")} activeOpacity={0.8} accessibilityLabel="הגדרות">
-        <Image source={require("../../../assets/settings.png")} style={SETTINGS_ICON} />
+        <Image source={SETTINGS_ICON} style={SETTINGS_ICON_IMAGE} />
       </TouchableOpacity>
     </View>
   )
