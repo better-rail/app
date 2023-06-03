@@ -13,7 +13,7 @@ import {
   AppStateStatus,
   Platform,
 } from "react-native"
-import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton } from "../../components"
+import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton, ResetTimeButton } from "../../components"
 import { useStores } from "../../models"
 import HapticFeedback from "react-native-haptic-feedback"
 import { color, primaryFontIOS, fontScale, spacing } from "../../theme"
@@ -28,7 +28,6 @@ import { save, load } from "../../utils/storage"
 import { donateRouteIntent } from "../../utils/ios-helpers"
 import analytics from "@react-native-firebase/analytics"
 import { useFocusEffect } from "@react-navigation/native"
-import { ResetTimeButton } from "../../components/reset-time-button/reset-time-button"
 
 const { height: deviceHeight } = Dimensions.get("screen")
 
