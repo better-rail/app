@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import { View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -16,6 +16,8 @@ import { color, spacing } from "../../theme"
 import { RouteDetailsHeader, Screen } from "../../components"
 import { RouteStationCard, RouteStopCard, RouteLine, RouteExchangeDetails } from "./components"
 import { LiveRideSheet, LongRouteWarning, StartRideButton } from "./components"
+import BottomSheet from "@gorhom/bottom-sheet"
+import { FirstRideAlert } from "./components/first-ride-alert"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -24,6 +26,7 @@ const ROOT: ViewStyle = {
 
 export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
   const { ride } = useStores()
+  const bottomSheetRef = useRef<BottomSheet>(null)
 
   // we re-run this check every time the ride changes
   const isRideOnThisRoute = useMemo(() => ride.isRouteActive(route.params.routeItem), [ride.route])
@@ -41,6 +44,10 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
   const insets = useSafeAreaInsets()
 
   const [shouldFadeRideButton, setShouldFadeRideButton] = useState(false)
+
+  const openFirstRideAlertSheet = () => {
+    bottomSheetRef.current?.expand()
+  }
 
   useEffect(() => {
     // allow button fade only after the view mounts; disable the animation when the view appears initally.
@@ -133,9 +140,11 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
 
       {!isRideOnThisRoute && (
         <Animated.View entering={shouldFadeRideButton && FadeInDown.delay(100)} exiting={FadeOutDown} style={{ flex: 1 }}>
-          <StartRideButton route={routeItem} screenName={route.name} />
+          <StartRideButton route={routeItem} screenName={route.name} openFirstRideAlertSheet={openFirstRideAlertSheet} />
         </Animated.View>
       )}
+
+      <FirstRideAlert ref={bottomSheetRef} />
     </Screen>
   )
 })

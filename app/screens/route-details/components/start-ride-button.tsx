@@ -1,8 +1,10 @@
 import { Alert, Dimensions, Image, ImageStyle, Linking, Platform, View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
+import * as storage from "../../../utils/storage"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HapticFeedback from "react-native-haptic-feedback"
 import analytics from "@react-native-firebase/analytics"
+import remoteConfig from "@react-native-firebase/remote-config"
 import { Button } from "../../../components"
 import { isRTL, translate } from "../../../i18n"
 import { RouteItem } from "../../../services/api"
@@ -31,6 +33,7 @@ const TRAIN_ICON: ImageStyle = {
 interface StartRideButtonProps {
   route: RouteItem
   screenName: "routeDetails" | "activeRide"
+  openFirstRideAlertSheet?: () => void
 }
 
 export const StartRideButton = observer(function StartRideButton(props: StartRideButtonProps) {
@@ -56,6 +59,19 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
   const activeRide = !!ride.id
   const areActivitiesDisabled = !(ride?.activityAuthorizationInfo?.areActivitiesEnabled ?? true)
   const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || areActivitiesDisabled || activeRide
+
+  const shouldDisplayFirstRideAlert = async () => {
+    const isFirstRideAlertEnabled = remoteConfig().getValue("display_first_ride_alert")
+    if (!isFirstRideAlertEnabled.asBoolean()) return false
+
+    const firstRideDate = await storage.load("firstRideDate")
+    if (!firstRideDate) {
+      await storage.save("firstRideDate", new Date().toISOString())
+      return true
+    }
+
+    return false
+  }
 
   return (
     <View
@@ -111,6 +127,15 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
           })
         }}
         onPress={() => {
+          if (Platform.OS === "ios") {
+            shouldDisplayFirstRideAlert().then((isFirstRide) => {
+              if (isFirstRide) {
+                props.openFirstRideAlertSheet()
+                analytics().logEvent("first_live_ride_alert")
+              }
+            })
+          }
+
           HapticFeedback.trigger("notificationSuccess")
           ride.startRide(route)
           analytics().logEvent("start_live_ride")
