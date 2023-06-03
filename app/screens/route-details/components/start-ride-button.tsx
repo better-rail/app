@@ -86,7 +86,7 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
         pressedOpacity={0.85}
         title={translate("ride.startRide")}
         loading={ride.loading}
-        disabled={isStartRideButtonDisabled}
+        // disabled={isStartRideButtonDisabled}
         onDisabledPress={() => {
           HapticFeedback.trigger("notificationError")
           let disabledReason = ""
@@ -127,11 +127,12 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
             if (isFirstRide) {
               HapticFeedback.trigger("notificationWarning")
               props.openFirstRideAlertSheet()
+              analytics().logEvent("first_live_ride_alert")
             } else {
               HapticFeedback.trigger("notificationSuccess")
-              ride.startRide(route)
-              analytics().logEvent("start_live_ride")
             }
+            ride.startRide(route)
+            analytics().logEvent("start_live_ride")
           })
         }}
       />
