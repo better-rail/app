@@ -43,13 +43,18 @@ export interface DummyInputProps extends PressableProps {
    * The value to display
    */
   value?: string
+
+  /**
+   * Pass a component to present at the other side of the dummy input
+   */
+  sideSection?: React.ReactNode
 }
 
 /**
  * Looks like an input, yet simply a pressable that display the provided text.
  */
 export const DummyInput = function DummyInput(props: DummyInputProps) {
-  const { placeholder, label, value, style, ...rest } = props
+  const { placeholder, label, value, style, sideSection, ...rest } = props
 
   if (label) {
     return (
@@ -65,8 +70,13 @@ export const DummyInput = function DummyInput(props: DummyInputProps) {
   }
 
   return (
-    <TouchableOpacity style={[CONTAINER, style]} activeOpacity={0.75} {...rest}>
+    <TouchableOpacity
+      style={[CONTAINER, style, { flexDirection: "row", justifyContent: "space-between" }]}
+      activeOpacity={0.75}
+      {...rest}
+    >
       <Text style={[TEXT, value && { color: color.text }]}>{value || placeholder}</Text>
+      {sideSection}
     </TouchableOpacity>
   )
 }

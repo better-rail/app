@@ -29,7 +29,10 @@ import { donateRouteIntent } from "../../utils/ios-helpers"
 import analytics from "@react-native-firebase/analytics"
 import { useFocusEffect } from "@react-navigation/native"
 
-const now = new Date()
+const ResetTimeIcon = Platform.select({
+  ios: require("../../../assets/reset-time.ios.png"),
+  android: require("../../../assets/reset-time.android.png"),
+})
 
 const { height: deviceHeight } = Dimensions.get("screen")
 
@@ -92,6 +95,13 @@ const CHANGE_DIRECTION_WRAPPER: ViewStyle = {
   zIndex: 10,
 }
 
+const RESET_TIME_ICON_STYLE: ImageStyle = {
+  height: 24,
+  width: 24,
+  resizeMode: "contain",
+  tintColor: "black",
+}
+
 // #endregion
 
 export const PlannerScreen = observer(function PlannerScreen({ navigation }: PlannerScreenProps) {
@@ -102,6 +112,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   const formattedDate = useFormattedDate(routePlan.date)
   const stationCardScale = useRef(new Animated.Value(1)).current
 
+  const now = new Date()
   const { origin, destination } = routePlan
 
   const stations = useStations()
@@ -292,6 +303,13 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           value={formattedDate}
           style={{ marginBottom: spacing[5] }}
           onPress={() => setDatePickerVisibility(true)}
+          sideSection={
+            formattedDate !== translate("plan.now") && (
+              <TouchableOpacity hitSlop={spacing[4]} onPress={() => onDateChange(new Date())}>
+                <Image source={ResetTimeIcon} style={[RESET_TIME_ICON_STYLE]} />
+              </TouchableOpacity>
+            )
+          }
         />
 
         <DatePickerModal
