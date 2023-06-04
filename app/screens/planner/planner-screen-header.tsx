@@ -1,11 +1,12 @@
+import { useState } from "react"
 import { Image, ImageStyle, TouchableOpacity, View, ViewStyle } from "react-native"
+import { useNavigation } from "@react-navigation/core"
+import { observer } from "mobx-react-lite"
+import analytics from "@react-native-firebase/analytics"
 import { color, fontScale, spacing } from "../../theme"
 import { Chip, Text } from "../../components"
 import { useStores } from "../../models"
 import { isRTL } from "../../i18n"
-import { useNavigation } from "@react-navigation/core"
-import { useState } from "react"
-import analytics from "@react-native-firebase/analytics"
 
 const HEADER_WRAPPER: ViewStyle = {
   flexDirection: "row",
@@ -36,7 +37,7 @@ const TRAIN_ICON = require("../../../assets/train.ios.png")
 const SPARKLES_ICON = require("../../../assets/sparkles.png")
 const SETTINGS_ICON = require("../../../assets/settings.png")
 
-export function PlannerScreenHeader() {
+export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
   const { ride } = useStores()
   const navigation = useNavigation()
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
@@ -73,4 +74,4 @@ export function PlannerScreenHeader() {
       </TouchableOpacity>
     </View>
   )
-}
+})
