@@ -62,12 +62,12 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
         </Chip>
       )}
 
-      {displayNewBadge && (
-        <Chip color="primary" onPress={() => navigation.navigate("widgetOnboardingStack")}>
-          <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
-          <Text style={{ color: "white", fontWeight: "500" }} tx="common.new" />
-        </Chip>
-      )}
+      {/* {displayNewBadge && ( */}
+      <Chip color="primary" onPress={() => navigation.navigate("liveAnnouncementStack")}>
+        <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
+        <Text style={{ color: "white", fontWeight: "500" }} tx="common.new" />
+      </Chip>
+      {/* )} */}
 
       <TouchableOpacity onPress={() => navigation.navigate("settingsStack")} activeOpacity={0.8} accessibilityLabel="הגדרות">
         <Image source={SETTINGS_ICON} style={SETTINGS_ICON_IMAGE} />
