@@ -1,14 +1,16 @@
 import React from "react"
 import { createStackNavigator, StackScreenProps } from "@react-navigation/stack"
-import { LiveAnnouncementScreen } from "../../screens"
+import { LiveAnnouncementScreen, StartRideAnnouncement, ActivityAnnouncementScreen } from "../../screens"
 
 export type LiveAnnouncementParamList = {
   main: undefined
+  startRide: undefined
+  liveActivity: undefined
 }
 
 const LiveAnnouncementStack = createStackNavigator<LiveAnnouncementParamList>()
 
-export type WidgetOnboardingStackProps = StackScreenProps<LiveAnnouncementParamList, "main">
+export type LiveAnnouncementStackProps = StackScreenProps<LiveAnnouncementParamList, "main">
 
 export const LiveAnnouncementNavigator = () => (
   <LiveAnnouncementStack.Navigator
@@ -19,5 +21,7 @@ export const LiveAnnouncementNavigator = () => (
     })}
   >
     <LiveAnnouncementStack.Screen name="main" component={LiveAnnouncementScreen} />
+    <LiveAnnouncementStack.Screen name="startRide" component={StartRideAnnouncement} />
+    <LiveAnnouncementStack.Screen name="liveActivity" component={ActivityAnnouncementScreen} />
   </LiveAnnouncementStack.Navigator>
 )
