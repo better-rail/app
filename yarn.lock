@@ -3000,6 +3000,27 @@
     xcode "^3.0.1"
     xml2js "0.4.23"
 
+"@expo/config-plugins@^6.0.1":
+  version "6.0.2"
+  resolved "https://registry.yarnpkg.com/@expo/config-plugins/-/config-plugins-6.0.2.tgz#cf07319515022ba94d9aa9fa30e0cff43a14256f"
+  integrity sha512-Cn01fXMHwjU042EgO9oO3Mna0o/UCrW91MQLMbJa4pXM41CYGjNgVy1EVXiuRRx/upegHhvltBw5D+JaUm8aZQ==
+  dependencies:
+    "@expo/config-types" "^48.0.0"
+    "@expo/json-file" "~8.2.37"
+    "@expo/plist" "^0.0.20"
+    "@expo/sdk-runtime-versions" "^1.0.0"
+    "@react-native/normalize-color" "^2.0.0"
+    chalk "^4.1.2"
+    debug "^4.3.1"
+    find-up "~5.0.0"
+    getenv "^1.0.0"
+    glob "7.1.6"
+    resolve-from "^5.0.0"
+    semver "^7.3.5"
+    slash "^3.0.0"
+    xcode "^3.0.1"
+    xml2js "0.4.23"
+
 "@expo/config-types@^48.0.0":
   version "48.0.0"
   resolved "https://registry.yarnpkg.com/@expo/config-types/-/config-types-48.0.0.tgz#15a46921565ffeda3c3ba010701398f05193d5b3"
@@ -8762,11 +8783,6 @@ domutils@^3.0.1:
     dom-serializer "^2.0.0"
     domelementtype "^2.3.0"
     domhandler "^5.0.1"
-
-dooboolab-welcome@1.3.2:
-  version "1.3.2"
-  resolved "https://registry.yarnpkg.com/dooboolab-welcome/-/dooboolab-welcome-1.3.2.tgz#4928595312f0429b4ea1b485ba8767bae6acdab7"
-  integrity sha512-2NbMaIIURElxEf/UAoVUFlXrO+7n/FRhLCiQlk4fkbGRh9cJ3/f8VEMPveR9m4Ug2l2Zey+UCXjd6EcBqHJ5bw==
 
 dot-case@^3.0.4:
   version "3.0.4"
@@ -16268,12 +16284,12 @@ react-native-haptic-feedback@2.0.3:
   resolved "https://registry.yarnpkg.com/react-native-haptic-feedback/-/react-native-haptic-feedback-2.0.3.tgz#09133b2175503831c04798cb0dc63ae91e3959c1"
   integrity sha512-7+qvcxXZts/hA+HOOIFyM1x9m9fn/TJVSTgXaoQ8uT4gLc97IMvqHQ559tDmnlth+hHMzd3HRMpmRLWoKPL0DA==
 
-react-native-iap@^8.0.8:
-  version "8.0.8"
-  resolved "https://registry.yarnpkg.com/react-native-iap/-/react-native-iap-8.0.8.tgz#586831269a7fb9c1e005d0ccd5ff17f0c6ca692d"
-  integrity sha512-b9PrJr/eXjS8zwmQp7IUX9Ek/cdjYAV7eCS5epQhlRLyTf03GOHTW6OlKYqC09ncquNvq4Xdx9dFYbAWosatSg==
+react-native-iap@^12.10.5:
+  version "12.10.5"
+  resolved "https://registry.yarnpkg.com/react-native-iap/-/react-native-iap-12.10.5.tgz#d9def0191bcc8d414a017a9b11f48730fca87155"
+  integrity sha512-KVIgIiz3EE0esPVSZiavKSN2NeUarURA5JJUh6XUGXSsM9YTS3pZaJZpHo8Z62vbsXceg17N5soCnlyvaNmIIQ==
   dependencies:
-    dooboolab-welcome "1.3.2"
+    "@expo/config-plugins" "^6.0.1"
 
 react-native-in-app-review@4.3.3:
   version "4.3.3"

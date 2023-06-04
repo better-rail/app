@@ -5,11 +5,26 @@ apply plugin: "com.google.firebase.crashlytics"
 
 import com.android.build.OutputFile
 
+def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
+def expoDebuggableVariants = ['debug']
+// Override `debuggableVariants` for expo-updates debugging
+if (System.getenv('EX_UPDATES_NATIVE_DEBUG') == "1") {
+  react {
+    expoDebuggableVariants = []
+  }
+}
+
+
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
  */
 react {
+    entryFile = file(["node", "-e", "require('expo/scripts/resolveAppEntry')", projectRoot, "android", "absolute"].execute(null, rootDir).text.trim())
+    reactNativeDir = new File(["node", "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim()).getParentFile().getAbsoluteFile()
+    hermesCommand = new File(["node", "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim()).getParentFile().getAbsolutePath() + "/sdks/hermesc/%OS-BIN%/hermesc"
+    debuggableVariants = expoDebuggableVariants
+
     /* Folders */
     //   The root of your project, i.e. where "package.json" lives. Default is '..'
     // root = file("../")
@@ -54,6 +69,11 @@ react {
     // hermesFlags = ["-O", "-output-source-map"]
 }
 
+// Override `hermesEnabled` by `expo.jsEngine`
+ext {
+  hermesEnabled = (findProperty('expo.jsEngine') ?: "hermes") == "hermes"
+}
+
 /**
  * Set this to true to create four separate APKs instead of one,
  * one for each native architecture. This is useful if you don't
@@ -65,7 +85,7 @@ def enableSeparateBuildPerCPUArchitecture = false
 /**
  * Set this to true to Run Proguard on Release builds to minify the Java bytecode.
  */
-def enableProguardInReleaseBuilds = false
+def enableProguardInReleaseBuilds = (findProperty('android.enableProguardInReleaseBuilds') ?: false).toBoolean()
 
 /**
  * The preferred build flavor of JavaScriptCore (JSC)
@@ -155,6 +175,9 @@ dependencies {
     implementation("com.facebook.react:react-android")
 
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.0.0")
+    
+    // RN BootSplash
+    implementation("androidx.core:core-splashscreen:1.0.0")
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}")
     debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {

@@ -533,7 +533,7 @@ PODS:
     - React-Core
   - RNGestureHandler (2.9.0):
     - React-Core
-  - RNIap (8.0.8):
+  - RNIap (12.10.5):
     - React-Core
   - RNInAppBrowser (3.5.1):
     - React-Core
@@ -898,7 +898,7 @@ SPEC CHECKSUMS:
   RNFBRemoteConfig: 85ba519c47cf163d824ed5735e3d9ab59e967f86
   RNFlashList: ade81b4e928ebd585dd492014d40fb8d0e848aab
   RNGestureHandler: 071d7a9ad81e8b83fe7663b303d132406a7d8f39
-  RNIap: bb56165cc68bfa269e2effd407d6ec0af63e796f
+  RNIap: c397f49db45af3b10dca64b2325f21bb8078ad21
   RNInAppBrowser: 48b95ba7a4eaff5cc223bca338d3e319561dbd1b
   RNReactNativeHapticFeedback: afa5bf2794aecbb2dba2525329253da0d66656df
   RNReanimated: cc5e3aa479cb9170bcccf8204291a6950a3be128
