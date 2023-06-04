@@ -36,16 +36,16 @@ const LIVE_ACTIVITY_IMAGE: ImageStyle = {
 
 const LIVE_ACTIVITY = require("../../../assets/live-activity/live-activity-hebrew.png")
 
-export function ActivityAnnouncementScreen({ navigation }: LiveAnnouncementStackProps) {
+export function LiveAnnouncementScreen({ navigation }: LiveAnnouncementStackProps) {
   return (
     <Screen unsafe={true} statusBar="light-content">
       <ScrollView contentContainerStyle={{ flex: 1, paddingHorizontal: spacing[5] }}>
         <LiveAnnouncementBackground />
 
         <View style={{ marginTop: spacing[7] }}>
+          <Text tx="liveAnnounce.announcement.subtitle" style={SUB_TITLE} />
           <Text tx="liveAnnounce.announcement.title" preset="header" style={TITLE} />
           <Text tx="liveAnnounce.announcement.description" style={TEXT} />
-          <Text tx="liveAnnounce.announcement.weMadeAGuide" style={TEXT} />
           <View
             style={{
               shadowColor: "#333",
@@ -56,6 +56,7 @@ export function ActivityAnnouncementScreen({ navigation }: LiveAnnouncementStack
           >
             <Image source={LIVE_ACTIVITY} style={LIVE_ACTIVITY_IMAGE} />
           </View>
+          <Text tx="liveAnnounce.announcement.weMadeAGuide" style={TEXT} />
         </View>
 
         <View style={{ flex: 1 }} />
@@ -64,7 +65,7 @@ export function ActivityAnnouncementScreen({ navigation }: LiveAnnouncementStack
           title={translate("common.next")}
           style={{ maxHeight: 60 }}
           onPress={() => {
-            navigation.navigate("liveActivity")
+            navigation.navigate("startRide")
           }}
         />
       </ScrollView>

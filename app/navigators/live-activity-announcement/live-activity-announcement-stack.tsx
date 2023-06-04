@@ -1,11 +1,12 @@
 import React from "react"
 import { createStackNavigator, StackScreenProps } from "@react-navigation/stack"
-import { LiveAnnouncementScreen, StartRideAnnouncement, ActivityAnnouncementScreen } from "../../screens"
+import { LiveAnnouncementScreen, StartRideAnnouncement, ActivityAnnouncementScreen, DynamicIslandScreen } from "../../screens"
 
 export type LiveAnnouncementParamList = {
   main: undefined
   startRide: undefined
   liveActivity: undefined
+  dynamicIsland: undefined
 }
 
 const LiveAnnouncementStack = createStackNavigator<LiveAnnouncementParamList>()
@@ -23,5 +24,6 @@ export const LiveAnnouncementNavigator = () => (
     <LiveAnnouncementStack.Screen name="main" component={LiveAnnouncementScreen} />
     <LiveAnnouncementStack.Screen name="startRide" component={StartRideAnnouncement} />
     <LiveAnnouncementStack.Screen name="liveActivity" component={ActivityAnnouncementScreen} />
+    <LiveAnnouncementStack.Screen name="dynamicIsland" component={DynamicIslandScreen} />
   </LiveAnnouncementStack.Navigator>
 )
