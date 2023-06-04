@@ -20,7 +20,6 @@ import { ActionSheetProvider } from "@expo/react-native-action-sheet"
 
 import analytics from "@react-native-firebase/analytics"
 import crashlytics from "@react-native-firebase/crashlytics"
-import remoteConfig from "@react-native-firebase/remote-config"
 
 import { initFonts } from "./theme/fonts" // expo
 import * as storage from "./utils/storage"
@@ -106,7 +105,6 @@ function App() {
     ;(async () => {
       await initFonts() // expo
       setupRootStore().then(setRootStore)
-      remoteConfig().fetchAndActivate()
     })()
   }, [])
 
