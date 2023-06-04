@@ -4,16 +4,20 @@ import * as storage from "../../../utils/storage"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HapticFeedback from "react-native-haptic-feedback"
 import analytics from "@react-native-firebase/analytics"
-import remoteConfig from "@react-native-firebase/remote-config"
 import { Button } from "../../../components"
 import { isRTL, translate } from "../../../i18n"
 import { RouteItem } from "../../../services/api"
-import { differenceInMinutes, isAfter } from "date-fns"
+import { differenceInMinutes, isAfter, set } from "date-fns"
 import { timezoneCorrection } from "../../../utils/helpers/date-helpers"
 import { color } from "../../../theme"
 import { useStores } from "../../../models"
 
 const { width: deviceWidth } = Dimensions.get("screen")
+
+// Those who know know.
+const currentDate = new Date() // Get the current date and time in the local time zone
+const targetDate = new Date(2023, 5, 11, 17) // Set the date to June 11th at 17:00
+const isAfterTargetDate = isAfter(currentDate, targetDate)
 
 const START_RIDE_BUTTON: ViewStyle = {
   shadowOffset: { width: 0, height: 2 },
@@ -61,10 +65,11 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
   const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || areActivitiesDisabled || activeRide
 
   const shouldDisplayFirstRideAlert = async () => {
-    const isFirstRideAlertEnabled = remoteConfig().getValue("display_first_ride_alert")
-    if (!isFirstRideAlertEnabled.asBoolean()) return false
+    const isFirstRideAlertEnabled = isAfterTargetDate
+    if (isFirstRideAlertEnabled) return false
 
     const firstRideDate = await storage.load("firstRideDate")
+
     if (!firstRideDate) {
       await storage.save("firstRideDate", new Date().toISOString())
       return true
@@ -129,6 +134,7 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
         onPress={() => {
           if (Platform.OS === "ios") {
             shouldDisplayFirstRideAlert().then((isFirstRide) => {
+              console.log("ifr", isFirstRide)
               if (isFirstRide) {
                 props.openFirstRideAlertSheet()
                 analytics().logEvent("first_live_ride_alert")
