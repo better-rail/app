@@ -1,4 +1,4 @@
-import { Alert, Dimensions, Image, ImageStyle, Linking, Platform, View, ViewStyle } from "react-native"
+import { Alert, Dimensions, Image, ImageStyle, Linking, PermissionsAndroid, Platform, View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import * as storage from "../../../utils/storage"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -57,7 +57,7 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
   const isRouteInFuture = differenceInMinutes(route.departureTime, timezoneCorrection(new Date()).getTime()) > 60
 
   const activeRide = !!ride.id
-  const areActivitiesDisabled = !(ride?.activityAuthorizationInfo?.areActivitiesEnabled ?? true)
+  const areActivitiesDisabled = Platform.OS === "ios" ? !(ride?.activityAuthorizationInfo?.areActivitiesEnabled ?? true) : true
   const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || areActivitiesDisabled || activeRide
 
   const shouldDisplayFirstRideAlert = async () => {
@@ -134,6 +134,8 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
                 analytics().logEvent("first_live_ride_alert")
               }
             })
+          } else {
+            PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS)
           }
 
           HapticFeedback.trigger("notificationSuccess")
