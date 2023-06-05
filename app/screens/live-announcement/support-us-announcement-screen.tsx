@@ -15,7 +15,7 @@ const SUB_TITLE: TextStyle = {
 
 const TITLE: TextStyle = {
   color: color.whiteText,
-  fontSize: 42,
+  fontSize: 30,
   textAlign: "center",
   marginBottom: spacing[2],
   fontWeight: "800",
@@ -46,21 +46,19 @@ export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
       <ScrollView contentContainerStyle={{ flex: 1, paddingHorizontal: spacing[5] }}>
         <LiveAnnouncementBackground />
 
-        <View style={{ marginTop: spacing[7] }}>
-          <Text tx="liveAnnounce.announcement.subtitle" style={SUB_TITLE} />
-          <Text tx="liveAnnounce.announcement.title" preset="header" style={TITLE} />
-          <Text tx="liveAnnounce.announcement.description" style={TEXT} />
-          <View
-            style={{
-              shadowColor: "#333",
-              shadowOffset: { height: 0, width: 0 },
-              shadowOpacity: 0.2,
-              shadowRadius: 3,
-            }}
-          >
-            <Image source={LIVE_ACTIVITY} style={LIVE_ACTIVITY_IMAGE} />
+        <View style={{ marginTop: spacing[6] }}>
+          <Text tx="liveAnnounce.supportUs.title" preset="header" style={TITLE} />
+
+          <View style={{ gap: spacing[4] }}>
+            <Text tx="liveAnnounce.supportUs.description1" style={TEXT} />
+            <Text tx="liveAnnounce.supportUs.description2" style={TEXT} />
+            <View>
+              <Text tx="liveAnnounce.supportUs.description3" style={TEXT} />
+              <Text tx="liveAnnounce.supportUs.description4" style={TEXT} />
+            </View>
+            <Text tx="liveAnnounce.supportUs.description5" style={TEXT} />
+            <Text tx="liveAnnounce.supportUs.description6" style={TEXT} />
           </View>
-          <Text tx="liveAnnounce.announcement.weMadeAGuide" style={TEXT} />
         </View>
 
         <View style={{ flex: 1 }} />
