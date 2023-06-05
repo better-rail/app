@@ -36,7 +36,7 @@
 "train %@ to %@" = "Train %@ to %@";
 "depart from platform %@" = "Depart from Platform %@";
 "train %@ dest %@" = "TRAIN %@ TO %@";
-"get off in the next stop" = "Get off in the next stop";
+"get off at the next stop" = "Get off at the next stop";
 "get off in %@ stops" = "Get off in %@ stops";
 "get off" = "Get off the train";
 "thanks for riding with better rail" = "Thanks for riding with Better Rail!";

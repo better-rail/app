@@ -28,7 +28,7 @@ struct RideInformationBar: View {
      return LocalizedStringKey("get off")
     }
     else if (vm.stopsLeft == 1) {
-      return LocalizedStringKey("get off in the next stop")
+      return LocalizedStringKey("get off at the next stop")
     } else {
       return LocalizedStringKey("get off in \(String(vm.stopsLeft)) stops")
     }
