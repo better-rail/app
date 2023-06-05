@@ -35,12 +35,12 @@ const LIVE_ACTIVITY_IMAGE: ImageStyle = {
   marginVertical: spacing[6],
 }
 
-const LIVE_ACTIVITY =
-  userLocale === "he"
-    ? require("../../../assets/live-activity/live-activity-hebrew.png")
-    : require("../../../assets/live-activity/live-activity-english.png")
-
 export function LiveAnnouncementScreen({ navigation }: LiveAnnouncementStackProps) {
+  const LIVE_ACTIVITY =
+    userLocale === "he"
+      ? require("../../../assets/live-activity/live-activity-hebrew.png")
+      : require("../../../assets/live-activity/live-activity-english.png")
+
   return (
     <Screen unsafe={true} statusBar="light-content">
       <ScrollView contentContainerStyle={{ flex: 1, paddingHorizontal: spacing[5] }}>

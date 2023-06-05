@@ -10,7 +10,7 @@ const SUB_TITLE: TextStyle = {
   fontSize: 20,
   textAlign: "center",
   marginBottom: -4,
-  fontWeight: "500",
+  fontWeight: "400",
 }
 
 const TITLE: TextStyle = {
@@ -19,6 +19,7 @@ const TITLE: TextStyle = {
   textAlign: "center",
   marginBottom: spacing[2],
   fontWeight: "800",
+  letterSpacing: -0.8,
 }
 
 const TEXT: TextStyle = {
@@ -34,20 +35,21 @@ const LIVE_ACTIVITY_IMAGE: ImageStyle = {
   marginVertical: spacing[6],
 }
 
-export function ActivityAnnouncementScreen({ navigation }: LiveAnnouncementStackProps) {
+export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
   const LIVE_ACTIVITY =
     userLocale === "he"
       ? require("../../../assets/live-activity/live-activity-hebrew.png")
-      : require("../../../assets/live-activity/live-activity-delay-english.png")
+      : require("../../../assets/live-activity/live-activity-english.png")
+
   return (
     <Screen unsafe={true} statusBar="light-content">
       <ScrollView contentContainerStyle={{ flex: 1, paddingHorizontal: spacing[5] }}>
         <LiveAnnouncementBackground />
 
         <View style={{ marginTop: spacing[7] }}>
-          <Text tx="liveAnnounce.liveActivity.title" preset="header" style={TITLE} />
-          <Text tx="liveAnnounce.liveActivity.description" style={[TEXT, { marginBottom: spacing[4] }]} />
-          <Text tx="liveAnnounce.liveActivity.tip" style={TEXT} />
+          <Text tx="liveAnnounce.announcement.subtitle" style={SUB_TITLE} />
+          <Text tx="liveAnnounce.announcement.title" preset="header" style={TITLE} />
+          <Text tx="liveAnnounce.announcement.description" style={TEXT} />
           <View
             style={{
               shadowColor: "#333",
@@ -58,6 +60,7 @@ export function ActivityAnnouncementScreen({ navigation }: LiveAnnouncementStack
           >
             <Image source={LIVE_ACTIVITY} style={LIVE_ACTIVITY_IMAGE} />
           </View>
+          <Text tx="liveAnnounce.announcement.weMadeAGuide" style={TEXT} />
         </View>
 
         <View style={{ flex: 1 }} />
@@ -66,7 +69,7 @@ export function ActivityAnnouncementScreen({ navigation }: LiveAnnouncementStack
           title={translate("common.next")}
           style={{ maxHeight: 60 }}
           onPress={() => {
-            navigation.navigate("dynamicIsland")
+            navigation.navigate("startRide")
           }}
         />
       </ScrollView>

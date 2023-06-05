@@ -30,12 +30,11 @@ const VIDEO_STYLE: ImageStyle = {
   borderRadius: 12,
 }
 
-const START_RIDE_VIDEO =
-  userLocale === "he"
-    ? require("../../../assets/live-activity/start-ride-hebrew.mp4")
-    : require("../../../assets/live-activity/start-ride-english.mp4")
-
 export function StartRideAnnouncement({ navigation }: LiveAnnouncementStackProps) {
+  const START_RIDE_VIDEO =
+    userLocale === "he"
+      ? require("../../../assets/live-activity/start-ride-hebrew.mp4")
+      : require("../../../assets/live-activity/start-ride-english.mp4")
   return (
     <Screen unsafe={true} statusBar="light-content">
       <ScrollView contentContainerStyle={{ flex: 1, paddingHorizontal: spacing[5] }}>

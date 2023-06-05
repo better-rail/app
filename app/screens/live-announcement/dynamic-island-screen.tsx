@@ -30,12 +30,12 @@ const VIDEO_STYLE: ImageStyle = {
   borderRadius: 12,
 }
 
-const DYNAMIC_ISLAND_VIDEO =
-  userLocale === "he"
-    ? require("../../../assets/live-activity/dynamic-island-hebrew.mp4")
-    : require("../../../assets/live-activity/dynamic-island-english.mp4")
-
 export function DynamicIslandScreen({ navigation }: LiveAnnouncementStackProps) {
+  const DYNAMIC_ISLAND_VIDEO =
+    userLocale === "he"
+      ? require("../../../assets/live-activity/dynamic-island-hebrew.mp4")
+      : require("../../../assets/live-activity/dynamic-island-english.mp4")
+
   return (
     <Screen unsafe={true} statusBar="light-content">
       <ScrollView contentContainerStyle={{ flex: 1, paddingHorizontal: spacing[5] }}>
@@ -52,7 +52,7 @@ export function DynamicIslandScreen({ navigation }: LiveAnnouncementStackProps) 
           title={translate("common.next")}
           style={{ maxHeight: 60 }}
           onPress={() => {
-            navigation.navigate("liveActivity")
+            navigation.navigate("supportUs")
           }}
         />
       </ScrollView>
