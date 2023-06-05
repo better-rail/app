@@ -1,7 +1,7 @@
 import { Dimensions, TextStyle, View, ViewStyle } from "react-native"
 import BottomSheet, { BottomSheetView, useBottomSheetDynamicSnapPoints } from "@gorhom/bottom-sheet"
 import { BottomSheetModal } from "../../../components/sheets/bottom-sheet-modal"
-import { spacing } from "../../../theme"
+import { color, spacing } from "../../../theme"
 import { Button, Text } from "../../../components"
 import { forwardRef, useMemo } from "react"
 import { translate } from "../../../i18n"
@@ -17,6 +17,7 @@ const ALERT_CONTENT_WRAPPER: ViewStyle = {
 const ALERT_TEXT: TextStyle = {
   fontSize: 18,
   textAlign: "center",
+  color: color.text,
 }
 
 export const FirstRideAlert = forwardRef<BottomSheet>((props, ref) => {

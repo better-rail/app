@@ -3927,11 +3927,6 @@
   dependencies:
     stacktrace-js "^2.0.0"
 
-"@react-native-firebase/remote-config@^17.5.0":
-  version "17.5.0"
-  resolved "https://registry.yarnpkg.com/@react-native-firebase/remote-config/-/remote-config-17.5.0.tgz#142a2d9f6eebfadd1f4a942d4c8dd601846393e9"
-  integrity sha512-qfNGhj1kcPZaaeTMZup+Dy146Fw99cKeRZEYIUvcMNtN2NLWz0FE0rw8RZ9kb0vkxhjcXwHXrG4M8DU7SmRAjw==
-
 "@react-native-masked-view/masked-view@0.2.8":
   version "0.2.8"
   resolved "https://registry.yarnpkg.com/@react-native-masked-view/masked-view/-/masked-view-0.2.8.tgz#34405a4361882dae7c81b1b771fe9f5fbd545a97"
