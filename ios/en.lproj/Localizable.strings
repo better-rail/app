@@ -26,6 +26,7 @@
 
 // live activity localizations
 "min" = "min";
+"depart" = "DEPART";
 "%@ min" = "%@ min";
 "headed to" = "HEADED TO";
 "wait in" = "WAIT IN";
