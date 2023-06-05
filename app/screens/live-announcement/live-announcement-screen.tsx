@@ -2,7 +2,7 @@ import { Image, ImageStyle, ScrollView, TextStyle, View } from "react-native"
 import { Button, Screen, Text } from "../../components"
 import { LiveAnnouncementBackground } from "./live-announcement-bg"
 import { color, spacing } from "../../theme"
-import { translate } from "../../i18n"
+import { translate, userLocale } from "../../i18n"
 import { LiveAnnouncementStackProps } from "../../navigators/live-activity-announcement/live-activity-announcement-stack"
 
 const SUB_TITLE: TextStyle = {
@@ -10,7 +10,7 @@ const SUB_TITLE: TextStyle = {
   fontSize: 20,
   textAlign: "center",
   marginBottom: -4,
-  fontWeight: "500",
+  fontWeight: "400",
 }
 
 const TITLE: TextStyle = {
@@ -19,6 +19,7 @@ const TITLE: TextStyle = {
   textAlign: "center",
   marginBottom: spacing[2],
   fontWeight: "800",
+  letterSpacing: -0.8,
 }
 
 const TEXT: TextStyle = {
@@ -34,7 +35,10 @@ const LIVE_ACTIVITY_IMAGE: ImageStyle = {
   marginVertical: spacing[6],
 }
 
-const LIVE_ACTIVITY = require("../../../assets/live-activity/live-activity-hebrew.png")
+const LIVE_ACTIVITY =
+  userLocale === "he"
+    ? require("../../../assets/live-activity/live-activity-hebrew.png")
+    : require("../../../assets/live-activity/live-activity-english.png")
 
 export function LiveAnnouncementScreen({ navigation }: LiveAnnouncementStackProps) {
   return (

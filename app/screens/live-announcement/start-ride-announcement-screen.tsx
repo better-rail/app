@@ -3,7 +3,7 @@ import Video from "react-native-video"
 import { Button, Screen, Text } from "../../components"
 import { LiveAnnouncementBackground } from "./live-announcement-bg"
 import { color, spacing } from "../../theme"
-import { translate } from "../../i18n"
+import { translate, userLocale } from "../../i18n"
 import { LiveAnnouncementStackProps } from "../../navigators/live-activity-announcement/live-activity-announcement-stack"
 
 const deviceHeight = Dimensions.get("screen").height
@@ -13,7 +13,6 @@ const TITLE: TextStyle = {
   color: color.whiteText,
   fontSize: 42,
   textAlign: "center",
-
   fontWeight: "800",
 }
 
@@ -31,7 +30,10 @@ const VIDEO_STYLE: ImageStyle = {
   borderRadius: 12,
 }
 
-const START_RIDE_VIDEO = require("../../../assets/live-activity/start-ride-hebrew.mp4")
+const START_RIDE_VIDEO =
+  userLocale === "he"
+    ? require("../../../assets/live-activity/start-ride-hebrew.mp4")
+    : require("../../../assets/live-activity/start-ride-english.mp4")
 
 export function StartRideAnnouncement({ navigation }: LiveAnnouncementStackProps) {
   return (

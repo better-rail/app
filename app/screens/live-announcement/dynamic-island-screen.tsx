@@ -3,7 +3,7 @@ import Video from "react-native-video"
 import { Button, Screen, Text } from "../../components"
 import { LiveAnnouncementBackground } from "./live-announcement-bg"
 import { color, spacing } from "../../theme"
-import { translate } from "../../i18n"
+import { translate, userLocale } from "../../i18n"
 import { LiveAnnouncementStackProps } from "../../navigators/live-activity-announcement/live-activity-announcement-stack"
 
 const TITLE: TextStyle = {
@@ -30,7 +30,10 @@ const VIDEO_STYLE: ImageStyle = {
   borderRadius: 12,
 }
 
-const DYNAMIC_ISLAND_VIDEO = require("../../../assets/live-activity/dynamic-island-hebrew.mp4")
+const DYNAMIC_ISLAND_VIDEO =
+  userLocale === "he"
+    ? require("../../../assets/live-activity/dynamic-island-hebrew.mp4")
+    : require("../../../assets/live-activity/dynamic-island-english.mp4")
 
 export function DynamicIslandScreen({ navigation }: LiveAnnouncementStackProps) {
   return (

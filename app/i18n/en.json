@@ -144,6 +144,29 @@
     "stackingStep3": "3. Inside the stack you can scroll between the two widgets.",
     "stackingStep4": "Tip: You can view the full train scheduale quickly by tapping on the widget."
   },
+  "liveAnnounce": {
+    "announcement": {
+      "title": "Better Rail Live",
+      "subtitle": "Supercharge your train travels",
+      "description": "Notifications about train delays, arrival time, travel instructions and more - all on the device's lock screen.",
+      "weMadeAGuide": "We prepared a short guide on using this feature, which will change the way you travel with Israel Railways."
+    },
+    "startRide": {
+      "title": "Start Ride",
+      "description": "To use Better Rail Live, select a train from the list, then click \"Start Ride\" at the bottom of the screen.",
+      "description2": "The trip details screen will now display the train progress, remaining time, and delay updates."
+    },
+    "liveActivity": {
+      "title": "Live Activity",
+      "description": "After you have started a trip, it will be added to the lock screen and will be automatically updated with the train progress and delays.",
+      "tip": "Tip: You can start your trip up to an hour before the train's departure time. This allows you to determine if you need to hurry to catch the train or not."
+    },
+    "dynamicIsland": {
+      "title": "Dynamic Island",
+      "description": "Do you have an iPhone 14 Pro? Congratulations, you have just received new superpowers.",
+      "description2": "The trip data will appear on the Dynamic Island, which you can access from anywhere on the device."
+    }
+  },
   "ride": {
     "live": "Live",
     "startRide": "Start Ride",
