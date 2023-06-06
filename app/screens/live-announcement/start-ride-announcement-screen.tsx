@@ -8,7 +8,7 @@ import { LiveAnnouncementStackProps } from "../../navigators/live-activity-annou
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const deviceHeight = Dimensions.get("screen").height
-const isHighDevice = deviceHeight > 820
+const isHighDevice = deviceHeight > 800
 
 const TITLE: TextStyle = {
   color: color.whiteText,
@@ -25,7 +25,7 @@ const TEXT: TextStyle = {
 
 const VIDEO_STYLE: ImageStyle = {
   width: isHighDevice ? 300 : 275,
-  height: isHighDevice ? 399 : 305,
+  height: isHighDevice ? 380 : 305,
   alignSelf: "center",
   marginVertical: spacing[4],
   borderRadius: 12,

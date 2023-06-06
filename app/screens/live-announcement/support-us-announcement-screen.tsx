@@ -95,7 +95,7 @@ export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
 
         <View style={{ gap: spacing[3] }}>
           <Button
-            title={"לתרומה לאפליקצייה"}
+            title={translate("liveAnnounce.supportUs.tipJarButton")}
             style={{ minHeight: 55, backgroundColor: color.greenText }}
             containerStyle={{ minHeight: 55 }}
             onPress={() => {
@@ -105,7 +105,7 @@ export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
               }, 150)
             }}
           />
-          <Text style={[TEXT, { fontSize: 14, marginHorizontal: -14 }]}>ניתן לגשת למסך התרומה בכל עת דרך הגדרות האפליקצייה.</Text>
+          <Text style={[TEXT, { fontSize: 14, marginHorizontal: -14 }]} tx="liveAnnounce.supportUs.tipJarNote" />
           <Button
             title={translate("common.done")}
             style={{ minHeight: 55 }}
