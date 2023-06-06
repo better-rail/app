@@ -7,6 +7,10 @@ import {
   DynamicIslandScreen,
   SupportUsScreen,
 } from "../../screens"
+import { BlurView } from "@react-native-community/blur"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { CloseButton } from "../../components"
+import { useIsDarkMode } from "../../hooks"
 
 export type LiveAnnouncementParamList = {
   main: undefined
@@ -24,7 +28,13 @@ export const LiveAnnouncementNavigator = () => (
   <LiveAnnouncementStack.Navigator
     screenOptions={({ navigation }) => ({
       headerTransparent: true,
-      header: () => null,
+      headerLeft: () => (
+        <CloseButton
+          onPress={() => navigation.goBack()}
+          iconStyle={{ width: 32.5, height: 32.5, tintColor: "white", opacity: 0.5, marginTop: 8 }}
+        />
+      ),
+      headerBackground: () => <LiveAnnouncementHeaderBackground />,
       title: "",
     })}
   >
@@ -35,3 +45,11 @@ export const LiveAnnouncementNavigator = () => (
     <LiveAnnouncementStack.Screen name="supportUs" component={SupportUsScreen} />
   </LiveAnnouncementStack.Navigator>
 )
+
+const LiveAnnouncementHeaderBackground = () => {
+  const insets = useSafeAreaInsets()
+  const isDarkMode = useIsDarkMode()
+  const blurType = isDarkMode ? "materialDark" : "thinMaterialDark"
+
+  return <BlurView style={{ height: insets.top }} blurType={blurType} blurAmount={10} />
+}

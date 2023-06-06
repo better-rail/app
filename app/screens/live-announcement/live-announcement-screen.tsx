@@ -4,6 +4,7 @@ import { LiveAnnouncementBackground } from "./live-announcement-bg"
 import { color, spacing } from "../../theme"
 import { translate, userLocale } from "../../i18n"
 import { LiveAnnouncementStackProps } from "../../navigators/live-activity-announcement/live-activity-announcement-stack"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const SUB_TITLE: TextStyle = {
   color: color.whiteText,
@@ -36,6 +37,8 @@ const LIVE_ACTIVITY_IMAGE: ImageStyle = {
 }
 
 export function LiveAnnouncementScreen({ navigation }: LiveAnnouncementStackProps) {
+  const insets = useSafeAreaInsets()
+
   const LIVE_ACTIVITY =
     userLocale === "he"
       ? require("../../../assets/live-activity/live-activity-hebrew.png")
@@ -43,10 +46,9 @@ export function LiveAnnouncementScreen({ navigation }: LiveAnnouncementStackProp
 
   return (
     <Screen unsafe={true} statusBar="light-content">
-      <ScrollView contentContainerStyle={{ flex: 1, paddingHorizontal: spacing[5] }}>
-        <LiveAnnouncementBackground />
-
-        <View style={{ marginTop: spacing[7] }}>
+      <LiveAnnouncementBackground />
+      <ScrollView contentContainerStyle={{ flex: 1, paddingTop: insets.top, paddingHorizontal: spacing[5] }}>
+        <View style={{ marginTop: spacing[5] }}>
           <Text tx="liveAnnounce.announcement.subtitle" style={SUB_TITLE} />
           <Text tx="liveAnnounce.announcement.title" preset="header" style={TITLE} />
           <Text tx="liveAnnounce.announcement.description" style={TEXT} />

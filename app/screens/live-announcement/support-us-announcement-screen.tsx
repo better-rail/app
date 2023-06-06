@@ -1,17 +1,11 @@
 import { Image, ImageStyle, ScrollView, TextStyle, View, ViewStyle } from "react-native"
 import { Button, Screen, Text } from "../../components"
 import { LiveAnnouncementBackground } from "./live-announcement-bg"
-import { color, spacing } from "../../theme"
-import { translate, userLocale } from "../../i18n"
+import { color, fontScale, spacing } from "../../theme"
+import { translate } from "../../i18n"
 import { LiveAnnouncementStackProps } from "../../navigators/live-activity-announcement/live-activity-announcement-stack"
-
-const SUB_TITLE: TextStyle = {
-  color: color.whiteText,
-  fontSize: 20,
-  textAlign: "center",
-  marginBottom: -4,
-  fontWeight: "400",
-}
+import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { useLayoutEffect } from "react"
 
 const TITLE: TextStyle = {
   color: color.whiteText,
@@ -29,7 +23,7 @@ const TEXT: TextStyle = {
 }
 
 const AVATARS: ViewStyle = {
-  marginTop: spacing[3],
+  marginTop: spacing[2],
   marginBottom: spacing[5],
   flexDirection: "row",
   gap: -24,
@@ -55,12 +49,25 @@ const GUY_IMAGE = require("../../../assets/live-activity/guy.jpeg")
 const MATAN_IMAGE = require("../../../assets/live-activity/matan.jpeg")
 
 export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
+  const insets = useSafeAreaInsets()
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: null,
+    })
+  }, [])
+
   return (
     <Screen unsafe={true} statusBar="light-content">
-      <ScrollView contentContainerStyle={{ flex: 1, paddingHorizontal: spacing[5] }}>
-        <LiveAnnouncementBackground />
-
-        <View style={{ marginTop: spacing[6] }}>
+      <LiveAnnouncementBackground />
+      <ScrollView
+        contentContainerStyle={{
+          paddingTop: insets.top + 4,
+          paddingHorizontal: spacing[5],
+          paddingBottom: spacing[5] * fontScale,
+        }}
+      >
+        <View style={{ marginTop: spacing[2], marginBottom: spacing[4] }}>
           <Text tx="liveAnnounce.supportUs.title" preset="header" style={TITLE} />
 
           <View style={AVATARS}>
@@ -73,25 +80,36 @@ export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
           </View>
           <View style={{ gap: spacing[4] }}>
             <Text tx="liveAnnounce.supportUs.description1" style={TEXT} />
-            <Text tx="liveAnnounce.supportUs.description2" style={TEXT} />
             <View>
+              <Text tx="liveAnnounce.supportUs.description2" style={TEXT} />
               <Text tx="liveAnnounce.supportUs.description3" style={TEXT} />
-              <Text tx="liveAnnounce.supportUs.description4" style={TEXT} />
             </View>
-            <Text tx="liveAnnounce.supportUs.description5" style={TEXT} />
-            <Text tx="liveAnnounce.supportUs.description6" style={TEXT} />
+            <Text tx="liveAnnounce.supportUs.description4" style={TEXT} />
+            <Text tx="liveAnnounce.supportUs.description5" style={[TEXT]} />
           </View>
         </View>
 
         <View style={{ flex: 1 }} />
 
-        <Button
-          title={translate("common.next")}
-          style={{ maxHeight: 60 }}
-          onPress={() => {
-            navigation.navigate("startRide")
-          }}
-        />
+        <View style={{ gap: spacing[3] }}>
+          <Button
+            title={"למסך תרומה לאפליקצייה"}
+            style={{ minHeight: 55, backgroundColor: color.success }}
+            containerStyle={{ minHeight: 55 }}
+            onPress={() => {
+              navigation.replace("settingsStack", { screen: "tipJar" })
+            }}
+          />
+          <Text style={[TEXT, { fontSize: 14, marginHorizontal: -14 }]}>ניתן לגשת למסך התרומה בכל עת דרך הגדרות האפליקצייה.</Text>
+          <Button
+            title={translate("common.done")}
+            style={{ minHeight: 55 }}
+            containerStyle={{ minHeight: 55 }}
+            onPress={() => {
+              navigation.navigate("planner")
+            }}
+          />
+        </View>
       </ScrollView>
     </Screen>
   )

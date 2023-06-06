@@ -1,10 +1,14 @@
-import { ImageStyle, ScrollView, TextStyle, View } from "react-native"
+import { Dimensions, ImageStyle, ScrollView, TextStyle, View } from "react-native"
 import Video from "react-native-video"
 import { Button, Screen, Text } from "../../components"
 import { LiveAnnouncementBackground } from "./live-announcement-bg"
 import { color, spacing } from "../../theme"
 import { translate, userLocale } from "../../i18n"
 import { LiveAnnouncementStackProps } from "../../navigators/live-activity-announcement/live-activity-announcement-stack"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
+
+const deviceHeight = Dimensions.get("screen").height
+const isHighDevice = deviceHeight > 820
 
 const TITLE: TextStyle = {
   color: color.whiteText,
@@ -21,8 +25,8 @@ const TEXT: TextStyle = {
 }
 
 const VIDEO_STYLE: ImageStyle = {
-  width: 358,
-  height: 358,
+  width: isHighDevice ? 358 : 330,
+  height: isHighDevice ? 358 : 330,
   alignSelf: "center",
   marginVertical: spacing[4],
   paddingHorizontal: -24,
@@ -31,6 +35,7 @@ const VIDEO_STYLE: ImageStyle = {
 }
 
 export function DynamicIslandScreen({ navigation }: LiveAnnouncementStackProps) {
+  const insets = useSafeAreaInsets()
   const DYNAMIC_ISLAND_VIDEO =
     userLocale === "he"
       ? require("../../../assets/live-activity/dynamic-island-hebrew.mp4")
@@ -38,10 +43,9 @@ export function DynamicIslandScreen({ navigation }: LiveAnnouncementStackProps) 
 
   return (
     <Screen unsafe={true} statusBar="light-content">
-      <ScrollView contentContainerStyle={{ flex: 1, paddingHorizontal: spacing[5] }}>
-        <LiveAnnouncementBackground />
-
-        <View style={{ marginTop: spacing[6] }}>
+      <LiveAnnouncementBackground />
+      <ScrollView contentContainerStyle={{ flex: 1, paddingTop: insets.top, paddingHorizontal: spacing[5] }}>
+        <View style={{ marginTop: spacing[3] }}>
           <Text tx="liveAnnounce.dynamicIsland.title" preset="header" style={TITLE} />
           <Text tx="liveAnnounce.dynamicIsland.description" style={TEXT} />
           <Video source={DYNAMIC_ISLAND_VIDEO} style={VIDEO_STYLE} repeat={true} />
