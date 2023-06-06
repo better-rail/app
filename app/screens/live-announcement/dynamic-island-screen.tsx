@@ -52,6 +52,8 @@ export function DynamicIslandScreen({ navigation }: LiveAnnouncementStackProps) 
           <Text tx="liveAnnounce.dynamicIsland.description2" style={[TEXT, { marginBottom: spacing[4] }]} />
         </View>
 
+        <View style={{ flex: 1 }} />
+
         <Button
           title={translate("common.next")}
           style={{ maxHeight: 60 }}
