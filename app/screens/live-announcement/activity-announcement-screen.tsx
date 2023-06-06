@@ -30,7 +30,7 @@ export function ActivityAnnouncementScreen({ navigation }: LiveAnnouncementStack
   const insets = useSafeAreaInsets()
   const LIVE_ACTIVITY =
     userLocale === "he"
-      ? require("../../../assets/live-activity/live-activity-hebrew.png")
+      ? require("../../../assets/live-activity/live-activity-delay-hebrew.png")
       : require("../../../assets/live-activity/live-activity-delay-english.png")
 
   return (

@@ -25,7 +25,7 @@ const TEXT: TextStyle = {
 
 const VIDEO_STYLE: ImageStyle = {
   width: isHighDevice ? 300 : 275,
-  height: isHighDevice ? 399 : 365,
+  height: isHighDevice ? 399 : 305,
   alignSelf: "center",
   marginVertical: spacing[4],
   borderRadius: 12,

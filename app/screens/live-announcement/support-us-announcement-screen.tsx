@@ -1,4 +1,4 @@
-import { Image, ImageStyle, ScrollView, TextStyle, View, ViewStyle } from "react-native"
+import { Dimensions, Image, ImageStyle, ScrollView, TextStyle, View, ViewStyle } from "react-native"
 import { Button, Screen, Text } from "../../components"
 import { LiveAnnouncementBackground } from "./live-announcement-bg"
 import { color, fontScale, spacing } from "../../theme"
@@ -6,6 +6,9 @@ import { translate } from "../../i18n"
 import { LiveAnnouncementStackProps } from "../../navigators/live-activity-announcement/live-activity-announcement-stack"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useLayoutEffect } from "react"
+
+const deviceHeight = Dimensions.get("screen").height
+const isHighDevice = deviceHeight > 800
 
 const TITLE: TextStyle = {
   color: color.whiteText,
@@ -78,10 +81,9 @@ export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
               <Image source={MATAN_IMAGE} style={AVATAR} />
             </View>
           </View>
-          <View style={{ gap: spacing[4] }}>
+          <View style={{ gap: isHighDevice ? spacing[3] + 1 : spacing[2] + 1 }}>
             <Text tx="liveAnnounce.supportUs.description1" style={TEXT} />
             <View>
-              <Text tx="liveAnnounce.supportUs.description2" style={TEXT} />
               <Text tx="liveAnnounce.supportUs.description3" style={TEXT} />
             </View>
             <Text tx="liveAnnounce.supportUs.description4" style={TEXT} />
@@ -94,7 +96,7 @@ export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
         <View style={{ gap: spacing[3] }}>
           <Button
             title={"לתרומה לאפליקצייה"}
-            style={{ minHeight: 55, backgroundColor: color.success }}
+            style={{ minHeight: 55, backgroundColor: color.greenText }}
             containerStyle={{ minHeight: 55 }}
             onPress={() => {
               navigation.navigate("planner")
