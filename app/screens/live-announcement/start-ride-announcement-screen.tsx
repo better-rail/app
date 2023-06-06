@@ -1,6 +1,6 @@
-import { Dimensions, ImageStyle, ScrollView, TextStyle, View } from "react-native"
+import { Dimensions, ImageStyle, ScrollView, TextStyle, View, ViewStyle } from "react-native"
 import Video from "react-native-video"
-import { BottomScreenSheet, Button, Screen, Text } from "../../components"
+import { Button, Screen, Text } from "../../components"
 import { LiveAnnouncementBackground } from "./live-announcement-bg"
 import { color, spacing } from "../../theme"
 import { translate, userLocale } from "../../i18n"
@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const deviceHeight = Dimensions.get("screen").height
 const isHighDevice = deviceHeight > 800
+const isVeryHighDevice = deviceHeight > 840
 
 const TITLE: TextStyle = {
   color: color.whiteText,
@@ -23,9 +24,16 @@ const TEXT: TextStyle = {
   color: color.whiteText,
 }
 
+const VIDEO_WRAPPER: ViewStyle = {
+  shadowColor: "#333",
+  shadowOffset: { width: 0, height: 0 },
+  shadowOpacity: 0.3,
+  shadowRadius: 4,
+}
+
 const VIDEO_STYLE: ImageStyle = {
-  width: isHighDevice ? 300 : 275,
-  height: isHighDevice ? 380 : 305,
+  width: isVeryHighDevice ? 317 : isHighDevice ? 287 : 230,
+  height: isVeryHighDevice ? 420 : isHighDevice ? 380 : 305,
   alignSelf: "center",
   marginVertical: spacing[4],
   borderRadius: 12,
@@ -45,7 +53,9 @@ export function StartRideAnnouncement({ navigation }: LiveAnnouncementStackProps
         <View style={{ marginTop: spacing[4] }}>
           <Text tx="liveAnnounce.startRide.title" preset="header" style={TITLE} />
           <Text tx="liveAnnounce.startRide.description" style={TEXT} />
-          <Video source={START_RIDE_VIDEO} style={VIDEO_STYLE} repeat={true} />
+          <View style={VIDEO_WRAPPER}>
+            <Video source={START_RIDE_VIDEO} style={VIDEO_STYLE} repeat={true} />
+          </View>
           <Text tx="liveAnnounce.startRide.description2" style={[TEXT, { marginBottom: spacing[4] }]} />
         </View>
 
