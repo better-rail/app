@@ -1,4 +1,4 @@
-import { Image, ImageStyle, ScrollView, TextStyle, View } from "react-native"
+import { Image, ImageStyle, ScrollView, TextStyle, View, ViewStyle } from "react-native"
 import { Button, Screen, Text } from "../../components"
 import { LiveAnnouncementBackground } from "./live-announcement-bg"
 import { color, spacing } from "../../theme"
@@ -28,19 +28,33 @@ const TEXT: TextStyle = {
   color: color.whiteText,
 }
 
-const LIVE_ACTIVITY_IMAGE: ImageStyle = {
-  width: "100%",
-  height: 155,
-  resizeMode: "contain",
-  marginVertical: spacing[6],
+const AVATARS: ViewStyle = {
+  marginTop: spacing[3],
+  marginBottom: spacing[5],
+  flexDirection: "row",
+  gap: -24,
+  alignItems: "center",
+  justifyContent: "center",
 }
 
-export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
-  const LIVE_ACTIVITY =
-    userLocale === "he"
-      ? require("../../../assets/live-activity/live-activity-hebrew.png")
-      : require("../../../assets/live-activity/live-activity-english.png")
+const AVATAR_WRAPPER = {
+  shadowColor: "#333",
+  shadowOffset: { width: 0, height: 0 },
+  shadowOpacity: 0.7,
+  shadowRadius: 5,
+}
 
+const AVATAR: ImageStyle = {
+  width: 120,
+  height: 120,
+  borderRadius: 60,
+  resizeMode: "cover",
+}
+
+const GUY_IMAGE = require("../../../assets/live-activity/guy.jpeg")
+const MATAN_IMAGE = require("../../../assets/live-activity/matan.jpeg")
+
+export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
   return (
     <Screen unsafe={true} statusBar="light-content">
       <ScrollView contentContainerStyle={{ flex: 1, paddingHorizontal: spacing[5] }}>
@@ -49,6 +63,14 @@ export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
         <View style={{ marginTop: spacing[6] }}>
           <Text tx="liveAnnounce.supportUs.title" preset="header" style={TITLE} />
 
+          <View style={AVATARS}>
+            <View style={AVATAR_WRAPPER}>
+              <Image source={GUY_IMAGE} style={AVATAR} />
+            </View>
+            <View style={AVATAR_WRAPPER}>
+              <Image source={MATAN_IMAGE} style={AVATAR} />
+            </View>
+          </View>
           <View style={{ gap: spacing[4] }}>
             <Text tx="liveAnnounce.supportUs.description1" style={TEXT} />
             <Text tx="liveAnnounce.supportUs.description2" style={TEXT} />
