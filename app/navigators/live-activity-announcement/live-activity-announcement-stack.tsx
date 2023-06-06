@@ -30,7 +30,7 @@ export const LiveAnnouncementNavigator = () => (
       headerTransparent: true,
       headerLeft: () => (
         <CloseButton
-          onPress={() => navigation.goBack()}
+          onPress={() => navigation.navigate("planner")}
           iconStyle={{ width: 32.5, height: 32.5, tintColor: "white", opacity: 0.5, marginTop: 8 }}
         />
       ),

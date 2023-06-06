@@ -93,11 +93,14 @@ export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
 
         <View style={{ gap: spacing[3] }}>
           <Button
-            title={"למסך תרומה לאפליקצייה"}
+            title={"לתרומה לאפליקצייה"}
             style={{ minHeight: 55, backgroundColor: color.success }}
             containerStyle={{ minHeight: 55 }}
             onPress={() => {
-              navigation.replace("settingsStack", { screen: "tipJar" })
+              navigation.navigate("planner")
+              setTimeout(() => {
+                navigation.navigate("settingsStack", { screen: "tipJar" })
+              }, 150)
             }}
           />
           <Text style={[TEXT, { fontSize: 14, marginHorizontal: -14 }]}>ניתן לגשת למסך התרומה בכל עת דרך הגדרות האפליקצייה.</Text>
