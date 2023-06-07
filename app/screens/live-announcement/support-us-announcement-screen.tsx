@@ -1,3 +1,4 @@
+import { useLayoutEffect } from "react"
 import { Dimensions, Image, ImageStyle, ScrollView, TextStyle, View, ViewStyle } from "react-native"
 import { Button, Screen, Text } from "../../components"
 import { LiveAnnouncementBackground } from "./live-announcement-bg"
@@ -5,7 +6,7 @@ import { color, fontScale, spacing } from "../../theme"
 import { translate } from "../../i18n"
 import { LiveAnnouncementStackProps } from "../../navigators/live-activity-announcement/live-activity-announcement-stack"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { useLayoutEffect } from "react"
+import * as storage from "../../utils/storage"
 
 const deviceHeight = Dimensions.get("screen").height
 const isHighDevice = deviceHeight > 800
@@ -60,6 +61,11 @@ export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
     })
   }, [])
 
+  const finish = () => {
+    navigation.navigate("planner")
+    storage.save("seenLiveAnnouncement", new Date().toISOString())
+  }
+
   return (
     <Screen unsafe={true} statusBar="light-content">
       <LiveAnnouncementBackground />
@@ -99,7 +105,8 @@ export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
             style={{ minHeight: 55, backgroundColor: color.greenText }}
             containerStyle={{ minHeight: 55 }}
             onPress={() => {
-              navigation.navigate("planner")
+              finish()
+
               setTimeout(() => {
                 navigation.navigate("settingsStack", { screen: "tipJar" })
               }, 150)
@@ -110,9 +117,7 @@ export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
             title={translate("common.done")}
             style={{ minHeight: 55 }}
             containerStyle={{ minHeight: 55 }}
-            onPress={() => {
-              navigation.navigate("planner")
-            }}
+            onPress={finish}
           />
         </View>
       </ScrollView>
