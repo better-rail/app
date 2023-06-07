@@ -55,31 +55,32 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
 
   return (
     <View style={HEADER_WRAPPER}>
-      {ride.route && (
-        <Chip
-          color="success"
-          onPress={() => {
-            // @ts-expect-error
-            navigation.navigate("activeRideStack", {
-              screen: "activeRide",
-              params: { routeItem: ride.route, originId: ride.originId, destinationId: ride.destinationId },
-            })
+      <View style={{ flexDirection: "row", gap: spacing[2] }}>
+        {ride.route && (
+          <Chip
+            color="success"
+            onPress={() => {
+              // @ts-expect-error
+              navigation.navigate("activeRideStack", {
+                screen: "activeRide",
+                params: { routeItem: ride.route, originId: ride.originId, destinationId: ride.destinationId },
+              })
 
-            analytics().logEvent("open_live_ride_modal_pressed")
-          }}
-        >
-          <Image source={TRAIN_ICON} style={LIVE_BUTTON_IMAGE} />
-          <Text style={{ color: "white", fontWeight: "500" }} tx="ride.live" />
-        </Chip>
-      )}
+              analytics().logEvent("open_live_ride_modal_pressed")
+            }}
+          >
+            <Image source={TRAIN_ICON} style={LIVE_BUTTON_IMAGE} />
+            <Text style={{ color: "white", fontWeight: "500" }} tx="ride.live" />
+          </Chip>
+        )}
 
-      {displayNewBadge && (
-        <Chip color="primary" onPress={() => navigation.navigate("liveAnnouncementStack")}>
-          <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
-          <Text style={{ color: "white", fontWeight: "500" }} tx="common.new" />
-        </Chip>
-      )}
-
+        {displayNewBadge && (
+          <Chip color="primary" onPress={() => navigation.navigate("liveAnnouncementStack")}>
+            <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
+            <Text style={{ color: "white", fontWeight: "500" }} tx="common.new" />
+          </Chip>
+        )}
+      </View>
       <TouchableOpacity onPress={() => navigation.navigate("settingsStack")} activeOpacity={0.8} accessibilityLabel="הגדרות">
         <Image source={SETTINGS_ICON} style={SETTINGS_ICON_IMAGE} />
       </TouchableOpacity>

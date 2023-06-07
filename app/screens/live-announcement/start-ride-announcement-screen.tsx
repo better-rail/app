@@ -51,12 +51,16 @@ export function StartRideAnnouncement({ navigation }: LiveAnnouncementStackProps
       <LiveAnnouncementBackground />
       <ScrollView contentContainerStyle={{ paddingTop: insets.top, paddingHorizontal: spacing[5], paddingBottom: 20 }}>
         <View style={{ marginTop: spacing[4] }}>
-          <Text tx="liveAnnounce.startRide.title" preset="header" style={TITLE} />
-          <Text tx="liveAnnounce.startRide.description" style={TEXT} />
+          <Text tx="liveAnnounce.startRide.title" preset="header" style={TITLE} maxFontSizeMultiplier={1.1} />
+          <Text tx="liveAnnounce.startRide.description" style={TEXT} maxFontSizeMultiplier={1.1} />
           <View style={VIDEO_WRAPPER}>
             <Video source={START_RIDE_VIDEO} style={VIDEO_STYLE} repeat={true} />
           </View>
-          <Text tx="liveAnnounce.startRide.description2" style={[TEXT, { marginBottom: spacing[4] }]} />
+          <Text
+            tx="liveAnnounce.startRide.description2"
+            style={[TEXT, { marginBottom: spacing[4] }]}
+            maxFontSizeMultiplier={1.1}
+          />
         </View>
 
         <Button

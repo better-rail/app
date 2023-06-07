@@ -45,8 +45,8 @@ export function ActivityAnnouncementScreen({ navigation }: LiveAnnouncementStack
         }}
       >
         <View style={{ marginTop: spacing[4] }}>
-          <Text tx="liveAnnounce.liveActivity.title" preset="header" style={TITLE} />
-          <Text tx="liveAnnounce.liveActivity.description" style={TEXT} />
+          <Text tx="liveAnnounce.liveActivity.title" preset="header" style={TITLE} maxFontSizeMultiplier={1.1} />
+          <Text tx="liveAnnounce.liveActivity.description" style={TEXT} maxFontSizeMultiplier={1.1} />
           <View
             style={{
               shadowColor: "#333",
@@ -58,7 +58,7 @@ export function ActivityAnnouncementScreen({ navigation }: LiveAnnouncementStack
           >
             <Image source={LIVE_ACTIVITY} style={LIVE_ACTIVITY_IMAGE} />
           </View>
-          <Text tx="liveAnnounce.liveActivity.tip" style={TEXT} />
+          <Text tx="liveAnnounce.liveActivity.tip" style={TEXT} maxFontSizeMultiplier={1.1} />
         </View>
 
         <View style={{ flex: 1 }} />

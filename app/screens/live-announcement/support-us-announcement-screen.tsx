@@ -7,6 +7,7 @@ import { translate } from "../../i18n"
 import { LiveAnnouncementStackProps } from "../../navigators/live-activity-announcement/live-activity-announcement-stack"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import * as storage from "../../utils/storage"
+import { useIsDarkMode } from "../../hooks"
 
 const deviceHeight = Dimensions.get("screen").height
 const isHighDevice = deviceHeight > 800
@@ -53,6 +54,7 @@ const GUY_IMAGE = require("../../../assets/live-activity/guy.jpeg")
 const MATAN_IMAGE = require("../../../assets/live-activity/matan.jpeg")
 
 export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
+  const isDarkMode = useIsDarkMode()
   const insets = useSafeAreaInsets()
 
   useLayoutEffect(() => {
@@ -88,12 +90,12 @@ export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
             </View>
           </View>
           <View style={{ gap: isHighDevice ? spacing[3] + 1 : spacing[2] + 1 }}>
-            <Text tx="liveAnnounce.supportUs.description1" style={TEXT} />
+            <Text tx="liveAnnounce.supportUs.description1" style={TEXT} maxFontSizeMultiplier={1.1} />
             <View>
-              <Text tx="liveAnnounce.supportUs.description3" style={TEXT} />
+              <Text tx="liveAnnounce.supportUs.description3" style={TEXT} maxFontSizeMultiplier={1.1} />
             </View>
-            <Text tx="liveAnnounce.supportUs.description4" style={TEXT} />
-            <Text tx="liveAnnounce.supportUs.description5" style={[TEXT]} />
+            <Text tx="liveAnnounce.supportUs.description4" style={TEXT} maxFontSizeMultiplier={1.1} />
+            <Text tx="liveAnnounce.supportUs.description5" style={[TEXT]} maxFontSizeMultiplier={1.1} />
           </View>
         </View>
 
@@ -102,7 +104,7 @@ export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
         <View style={{ gap: spacing[3] }}>
           <Button
             title={translate("liveAnnounce.supportUs.tipJarButton")}
-            style={{ minHeight: 55, backgroundColor: color.greenText }}
+            style={{ minHeight: 55, backgroundColor: isDarkMode ? color.success : color.greenText }}
             containerStyle={{ minHeight: 55 }}
             onPress={() => {
               finish()

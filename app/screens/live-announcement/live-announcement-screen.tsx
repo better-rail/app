@@ -1,7 +1,7 @@
 import { Image, ImageStyle, ScrollView, TextStyle, View } from "react-native"
 import { Button, Screen, Text } from "../../components"
 import { LiveAnnouncementBackground } from "./live-announcement-bg"
-import { color, spacing } from "../../theme"
+import { color, fontScale, spacing } from "../../theme"
 import { translate, userLocale } from "../../i18n"
 import { LiveAnnouncementStackProps } from "../../navigators/live-activity-announcement/live-activity-announcement-stack"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -33,7 +33,7 @@ const LIVE_ACTIVITY_IMAGE: ImageStyle = {
   width: "100%",
   height: 155,
   resizeMode: "contain",
-  marginVertical: spacing[6],
+  marginVertical: fontScale > 1.1 ? spacing[4] : spacing[6],
 }
 
 export function LiveAnnouncementScreen({ navigation }: LiveAnnouncementStackProps) {
@@ -47,11 +47,19 @@ export function LiveAnnouncementScreen({ navigation }: LiveAnnouncementStackProp
   return (
     <Screen unsafe={true} statusBar="light-content">
       <LiveAnnouncementBackground />
-      <ScrollView contentContainerStyle={{ flex: 1, paddingTop: insets.top, paddingHorizontal: spacing[5] }}>
+      <ScrollView
+        contentContainerStyle={{
+          flex: 1,
+          height: "100%",
+          paddingTop: insets.top,
+          paddingHorizontal: spacing[5],
+          paddingBottom: spacing[5],
+        }}
+      >
         <View style={{ marginTop: spacing[5] }}>
-          <Text tx="liveAnnounce.announcement.subtitle" style={SUB_TITLE} />
-          <Text tx="liveAnnounce.announcement.title" preset="header" style={TITLE} />
-          <Text tx="liveAnnounce.announcement.description" style={TEXT} />
+          <Text tx="liveAnnounce.announcement.subtitle" style={SUB_TITLE} maxFontSizeMultiplier={1.1} />
+          <Text tx="liveAnnounce.announcement.title" preset="header" style={TITLE} maxFontSizeMultiplier={1.1} />
+          <Text tx="liveAnnounce.announcement.description" style={TEXT} maxFontSizeMultiplier={1.15} />
           <View
             style={{
               shadowColor: "#333",
@@ -62,13 +70,14 @@ export function LiveAnnouncementScreen({ navigation }: LiveAnnouncementStackProp
           >
             <Image source={LIVE_ACTIVITY} style={LIVE_ACTIVITY_IMAGE} />
           </View>
-          <Text tx="liveAnnounce.announcement.weMadeAGuide" style={TEXT} />
+          <Text tx="liveAnnounce.announcement.weMadeAGuide" style={TEXT} maxFontSizeMultiplier={1.1} />
         </View>
 
         <View style={{ flex: 1 }} />
 
         <Button
           title={translate("common.next")}
+          containerStyle={{ minHeight: 60 }}
           style={{ maxHeight: 60 }}
           onPress={() => {
             navigation.navigate("startRide")

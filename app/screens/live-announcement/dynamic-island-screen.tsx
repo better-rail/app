@@ -46,10 +46,14 @@ export function DynamicIslandScreen({ navigation }: LiveAnnouncementStackProps) 
       <LiveAnnouncementBackground />
       <ScrollView contentContainerStyle={{ flex: 1, paddingTop: insets.top, paddingHorizontal: spacing[5] }}>
         <View style={{ marginTop: spacing[3] }}>
-          <Text tx="liveAnnounce.dynamicIsland.title" preset="header" style={TITLE} />
-          <Text tx="liveAnnounce.dynamicIsland.description" style={TEXT} />
+          <Text tx="liveAnnounce.dynamicIsland.title" preset="header" style={TITLE} maxFontSizeMultiplier={1.1} />
+          <Text tx="liveAnnounce.dynamicIsland.description" style={TEXT} maxFontSizeMultiplier={1.1} />
           <Video source={DYNAMIC_ISLAND_VIDEO} style={VIDEO_STYLE} repeat={true} />
-          <Text tx="liveAnnounce.dynamicIsland.description2" style={[TEXT, { marginBottom: spacing[4] }]} />
+          <Text
+            tx="liveAnnounce.dynamicIsland.description2"
+            style={[TEXT, { marginBottom: spacing[4] }]}
+            maxFontSizeMultiplier={1.1}
+          />
         </View>
 
         {isHighDevice && <View style={{ flex: 1 }} />}
