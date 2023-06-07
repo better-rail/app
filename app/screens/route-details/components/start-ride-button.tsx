@@ -4,6 +4,7 @@ import * as storage from "../../../utils/storage"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HapticFeedback from "react-native-haptic-feedback"
 import analytics from "@react-native-firebase/analytics"
+import crashlytics from "@react-native-firebase/crashlytics"
 import { Button } from "../../../components"
 import { isRTL, translate } from "../../../i18n"
 import { RouteItem } from "../../../services/api"
@@ -132,6 +133,12 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
           })
         }}
         onPress={() => {
+          crashlytics().log("Start ride button pressed")
+          crashlytics().setAttributes({
+            route: JSON.stringify(route),
+            rideId: ride.id ?? "null",
+          })
+
           if (Platform.OS === "ios") {
             shouldDisplayFirstRideAlert().then((isFirstRide) => {
               console.log("ifr", isFirstRide)
