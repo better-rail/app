@@ -21,7 +21,7 @@ import { Text } from "../"
 const isDarkMode = Appearance.getColorScheme() === "dark"
 const { height: deviceHeight } = Dimensions.get("screen")
 
-let cardHeight = 120
+export let cardHeight = 120
 
 if (deviceHeight > 600) {
   cardHeight = 135

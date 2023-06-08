@@ -1,15 +1,16 @@
-import React, { useMemo, useState } from "react"
+import React, { useCallback, useMemo, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { FlatList, View, TextStyle, ViewStyle, Pressable, Platform, I18nManager } from "react-native"
-import { Screen, Text, StationCard, FavoriteRoutes } from "../../components"
+import { View, TextStyle, ViewStyle, Pressable, Platform, I18nManager, UIManager, ScrollView } from "react-native"
+import { Screen, Text, StationCard, FavoriteRoutes, cardHeight } from "../../components"
 import { useStores } from "../../models"
 import { SelectStationScreenProps } from "../../navigators/main-navigator"
 import { color, spacing, isDarkMode } from "../../theme"
-import { useStations } from "../../data/stations"
+import { NormalizedStation, useStations } from "../../data/stations"
 import { SearchInput } from "./search-input"
 import { RecentSearchesBox } from "./recent-searches-box/recent-searches-box"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import Fuse from "fuse.js"
+import { FlashList } from "@shopify/flash-list"
 
 // #region styles
 const ROOT: ViewStyle = {
@@ -53,23 +54,26 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
     return fuse.search(searchTerm).map((result) => result.item)
   }, [searchTerm, fuse])
 
-  const renderItem = (station) => (
-    <StationCard
-      name={station.name}
-      image={station.image}
-      style={{ marginHorizontal: spacing[3], marginBottom: spacing[3] }}
-      onPress={() => {
-        if (route.params.selectionType === "origin") {
-          routePlan.setOrigin(station)
-        } else if (route.params.selectionType === "destination") {
-          routePlan.setDestination(station)
-        } else {
-          throw new Error("Selection type was not provided.")
-        }
-        recentSearches.save({ id: station.id })
-        navigation.navigate("planner")
-      }}
-    />
+  const renderItem = useCallback(
+    (station: NormalizedStation) => (
+      <StationCard
+        name={station.name}
+        image={station.image}
+        style={{ marginHorizontal: spacing[3], marginBottom: spacing[3] }}
+        onPress={() => {
+          if (route.params.selectionType === "origin") {
+            routePlan.setOrigin(station)
+          } else if (route.params.selectionType === "destination") {
+            routePlan.setDestination(station)
+          } else {
+            throw new Error("Selection type was not provided.")
+          }
+          recentSearches.save({ id: station.id })
+          navigation.navigate("planner")
+        }}
+      />
+    ),
+    [route, navigation, routePlan, recentSearches],
   )
 
   return (
@@ -83,11 +87,12 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
         </Pressable>
       </View>
 
-      <FlatList
+      <FlashList
         data={filteredStations}
         renderItem={({ item }) => renderItem(item)}
         keyExtractor={(item) => item.id}
         keyboardShouldPersistTaps="handled"
+        estimatedItemSize={cardHeight + spacing[3]}
         ListEmptyComponent={() => (
           <View>
             <RecentSearchesBox selectionType={route.params.selectionType} />
