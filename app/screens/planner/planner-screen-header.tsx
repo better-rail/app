@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Image, ImageStyle, TouchableOpacity, View, ViewStyle } from "react-native"
+import { Image, ImageStyle, Platform, TouchableOpacity, View, ViewStyle } from "react-native"
 import { useNavigation } from "@react-navigation/core"
 import { observer } from "mobx-react-lite"
 import * as storage from "../../utils/storage"
@@ -44,9 +44,9 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
 
   useEffect(() => {
-    // display the "new" badge if the user has stations selected (it's not the initial launch)
-    // and they haven't seen the live announcement screen yet
-    if (routePlan.origin && routePlan.destination) {
+    // display the "new" badge on ios devices if the user has stations selected (it's not the
+    // initial launch) and they haven't seen the live announcement screen yet
+    if (routePlan.origin && routePlan.destination && Platform.OS === "ios") {
       storage.load("seenLiveAnnouncement").then((hasSeenLiveAnnouncementScreen) => {
         if (!hasSeenLiveAnnouncementScreen) setDisplayNewBadge(true)
       })
