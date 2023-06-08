@@ -7,6 +7,8 @@ import { SettingsNavigator } from "./settings/settings-navigator"
 import { ActiveRideNavigator } from "./active-ride/active-ride-navigator"
 import { WidgetOnboardingNavigator } from "./widget-onboarding/widget-onboarding-navigator"
 import { PaywallNavigator } from "./paywall/paywall-navigator"
+import { LiveAnnouncement } from "../screens/live-announcement"
+import { LiveAnnouncementNavigator } from "./live-activity-announcement/live-activity-announcement-stack"
 
 export type RootParamList = {
   mainStack: undefined
@@ -15,6 +17,7 @@ export type RootParamList = {
   activeRideStack: undefined
   paywallStack: undefined
   widgetOnboardingStack: undefined
+  liveAnnouncementStack: undefined
 }
 
 const Stack = createNativeStackNavigator<RootParamList>()
@@ -32,6 +35,7 @@ const RootStack = () => {
         <Stack.Screen name="activeRideStack" component={ActiveRideNavigator} />
       </Stack.Group>
       <Stack.Group screenOptions={{ presentation: "fullScreenModal" }}>
+        <Stack.Screen name="liveAnnouncementStack" component={LiveAnnouncementNavigator} />
         <Stack.Screen name="widgetOnboardingStack" component={WidgetOnboardingNavigator} />
         <Stack.Screen name="paywallStack" component={PaywallNavigator} />
       </Stack.Group>
