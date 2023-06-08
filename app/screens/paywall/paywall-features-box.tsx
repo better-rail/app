@@ -1,4 +1,4 @@
-import { Dimensions, DynamicColorIOS, Image, ImageStyle, PlatformColor, View, ViewStyle } from "react-native"
+import { Dimensions, DynamicColorIOS, Image, ImageStyle, Platform, PlatformColor, View, ViewStyle } from "react-native"
 import { List, ListItem } from "../../components"
 import { CHEVRON_ICON } from "../settings"
 import { translate } from "../../i18n"
@@ -13,7 +13,7 @@ const GiftIcon = require("../../../assets/gift.ios.png")
 const HumansIcon = require("../../../assets/humans.ios.png")
 const ChevronIcon = require("../../../assets/chevron.png")
 
-const colors = {
+const colors = Platform.OS === "ios" && {
   orange: {
     background: DynamicColorIOS({ light: "#FFE8C5", dark: "#4E2F00" }),
     foreground: DynamicColorIOS({ light: "#f3a31c", dark: "#E7AC52" }),

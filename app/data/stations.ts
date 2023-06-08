@@ -12,6 +12,14 @@ type Station = {
   alias?: string[]
 }
 
+export type NormalizedStation = {
+  id: string
+  name: string
+  image?: any
+  hebrew: string
+  alias: string[]
+}
+
 const stations: Station[] = [
   {
     id: "3700",
@@ -589,7 +597,7 @@ export const useStations = () => {
     })
   }, [])
 
-  const normalizeStationNames = useMemo(() => {
+  const normalizeStationNames: NormalizedStation[] = useMemo(() => {
     return stations
       .map((station) => ({
         id: station.id,

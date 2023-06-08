@@ -1,5 +1,5 @@
 import { Platform } from "react-native"
-import Share from "react-native-share"
+import Share, { ShareOptions } from "react-native-share"
 import { translate } from "../../../i18n"
 
 export function shareApp() {
@@ -7,7 +7,7 @@ export function shareApp() {
   const title = "Better Rail"
   const message = translate("settings.shareMessage")
 
-  const shareOptions = Platform.select({
+  const shareOptions = Platform.select<ShareOptions>({
     ios: {
       activityItemSources: [
         {
@@ -22,7 +22,7 @@ export function shareApp() {
         },
       ],
     },
-    default: {
+    android: {
       title,
       subject: title,
       message: `${message} ${url}`,

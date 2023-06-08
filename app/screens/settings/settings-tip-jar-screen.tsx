@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { View, ViewStyle, TextStyle, Platform, ActivityIndicator } from "react-native"
-import { useIAP } from "react-native-iap"
+import { ProductPurchase, useIAP } from "react-native-iap"
 import { Screen, Text } from "../../components"
 import { color, isDarkMode, spacing } from "../../theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
@@ -95,7 +95,7 @@ export const TipJarScreen = observer(function TipJarScreen() {
 
   useEffect(() => {
     if (connected) {
-      getProducts(PRODUCT_IDS)
+      getProducts({ skus: PRODUCT_IDS })
     }
   }, [connected, getProducts])
 
@@ -110,8 +110,8 @@ export const TipJarScreen = observer(function TipJarScreen() {
     try {
       setIsLoading(true)
 
-      const purchase = await requestPurchase(sku)
-      await finishTransaction(purchase, true)
+      const purchase = (await requestPurchase({ sku })) as ProductPurchase
+      await finishTransaction({ purchase, isConsumable: true })
 
       setModalVisible(true)
       settings.addTip(Number(amount))
