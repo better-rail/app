@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { View, TextStyle, ViewStyle, Pressable, Platform, I18nManager, UIManager, ScrollView } from "react-native"
+import { View, TextStyle, ViewStyle, Pressable, Platform, I18nManager, UIManager } from "react-native"
 import { Screen, Text, StationCard, FavoriteRoutes, cardHeight } from "../../components"
 import { useStores } from "../../models"
 import { SelectStationScreenProps } from "../../navigators/main-navigator"
@@ -11,6 +11,12 @@ import { RecentSearchesBox } from "./recent-searches-box/recent-searches-box"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import Fuse from "fuse.js"
 import { FlashList } from "@shopify/flash-list"
+
+if (Platform.OS === "android") {
+  if (UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(false)
+  }
+}
 
 // #region styles
 const ROOT: ViewStyle = {
