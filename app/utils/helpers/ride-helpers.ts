@@ -84,11 +84,12 @@ export function getRideStatus(route: RouteItem, train: Train, nextStationId: num
   }
 
   if (train.destinationStationId === nextStationId) {
-    const departureTime = addMinutes(train.departureTime, delay)
+    const nextTrain = getTrainFromStationId(route, nextStationId)
+    const nextTrainDepartureTime = addMinutes(nextTrain.departureTime, delay)
     const arrivalTime = addMinutes(train.arrivalTime, delay)
     const timeToArrival = differenceInSeconds(arrivalTime, new Date())
 
-    if (departureTime.getTime() >= Date.now()) {
+    if (nextTrainDepartureTime.getTime() >= Date.now()) {
       return "inExchange"
     } else if (timeToArrival >= 0) {
       return "inTransit"
