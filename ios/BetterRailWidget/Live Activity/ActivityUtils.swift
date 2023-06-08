@@ -98,6 +98,9 @@ func getStatusEndDate(context: ActivityViewContext<BetterRailActivityAttributes>
 
   if (status == .waitForTrain || status == .inExchange) {
     return departureDate
+  } else if (status == .inTransit && train.orignStation == nextStationId && departureDate > Date.now) {
+    let previousTrain = getPreviousTrainFromStationId(route: route, stationId: nextStationId) ?? train
+    return isoDateStringToDate(previousTrain.arrivalTime).addMinutes(delay)
   } else {
     return arrivalDate
   }
@@ -170,7 +173,7 @@ func getActivityStatus(route: Route, train: Train, nextStationId: Int, updatedDe
     let arrivalTime = isoDateStringToDate(train.arrivalTime).addMinutes(delay)
     let timeToArrival = arrivalTime.timeIntervalSince(now)
     
-    if departureTime.addMinutes(delay) >= now {
+    if departureTime >= now {
       return .inExchange
     } else if timeToArrival >= 60 {
       return .inTransit

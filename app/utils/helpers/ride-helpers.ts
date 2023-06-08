@@ -1,3 +1,5 @@
+import { addMinutes, differenceInSeconds } from "date-fns"
+import { RideStatus } from "../../hooks/use-ride-progress"
 import { RouteItem, Train } from "../../services/api"
 import { isEqual } from "lodash"
 
@@ -53,6 +55,15 @@ export function getTrainFromStationId(route: RouteItem, stationId: number): Trai
   )
 }
 
+export function getPreviousTrainFromStationId(route: RouteItem, stationId: number): Train | null {
+  // the current station train
+  const train = getTrainFromStationId(route, stationId)
+  const trainIndex = route.trains.findIndex((current) => current.trainNumber === train.trainNumber)
+
+  if (trainIndex < 1) return null
+  else return route.trains[trainIndex - 1]
+}
+
 export function getSelectedRide(routes: RouteItem[], rideTrainNumbers: number[]) {
   return routes.find((route) =>
     isEqual(
@@ -60,4 +71,38 @@ export function getSelectedRide(routes: RouteItem[], rideTrainNumbers: number[])
       rideTrainNumbers,
     ),
   )
+}
+
+export function getRideStatus(route: RouteItem, train: Train, nextStationId: number, delay: number = train.delay): RideStatus {
+  if (train.originStationId === nextStationId) {
+    if (route.trains[0].originStationId == train.originStationId) {
+      return "waitForTrain"
+    }
+
+    const previousTrain = getPreviousTrainFromStationId(route, nextStationId)
+    if (previousTrain) {
+      const arrivalTimeToExchangeStation = addMinutes(previousTrain.arrivalTime, delay)
+      const timeToExchange = differenceInSeconds(arrivalTimeToExchangeStation, new Date())
+
+      if (timeToExchange <= 0) {
+        return getRideStatus(route, previousTrain, nextStationId)
+      }
+    }
+  }
+
+  if (train.destinationStationId == nextStationId) {
+    const departureTime = addMinutes(train.departureTime, delay)
+    const arrivalTime = addMinutes(train.arrivalTime, delay)
+    const timeToArrival = differenceInSeconds(arrivalTime, new Date())
+
+    if (departureTime.getTime() >= Date.now()) {
+      return "inExchange"
+    } else if (timeToArrival >= 0) {
+      return "inTransit"
+    } else {
+      return "arrived"
+    }
+  }
+
+  return "inTransit"
 }

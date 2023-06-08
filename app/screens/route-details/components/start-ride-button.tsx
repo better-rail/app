@@ -141,7 +141,6 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
 
           if (Platform.OS === "ios") {
             shouldDisplayFirstRideAlert().then((isFirstRide) => {
-              console.log("ifr", isFirstRide)
               if (isFirstRide) {
                 props.openFirstRideAlertSheet()
                 analytics().logEvent("first_live_ride_alert")
