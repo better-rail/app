@@ -169,7 +169,7 @@ func getActivityStatus(route: Route, train: Train, nextStationId: Int, updatedDe
   }
   
   if train.destinationStation == nextStationId {
-    let nextTrain = getTrainFromStationId(route: route, stationId: nextStationId)
+    let nextTrain = getTrainFromStationId(route: route, stationId: nextStationId)!
     let nextTrainDepartureTime = isoDateStringToDate(nextTrain.departureTime).addMinutes(delay)
     let arrivalTime = isoDateStringToDate(train.arrivalTime).addMinutes(delay)
     let timeToArrival = arrivalTime.timeIntervalSince(now)
