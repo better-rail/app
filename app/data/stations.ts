@@ -331,6 +331,7 @@ const stations: Station[] = [
     english: "Ashkelon",
     russian: "Ашкелон ",
     arabic: "أشكلون",
+    image: require("../../assets/station-images/ashkelon.jpg"),
   },
   {
     id: "7500",
