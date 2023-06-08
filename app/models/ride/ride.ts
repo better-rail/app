@@ -49,9 +49,11 @@ export const RideModel = types
      *
      */
     get originId() {
+      if (!self.route) return undefined
       return self.route.trains[0].originStationId
     },
     get destinationId() {
+      if (!self.route) return undefined
       const lastTrainIndex = self.route.trains.length - 1
       return self.route.trains[lastTrainIndex].destinationStationId
     },
