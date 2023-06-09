@@ -48,7 +48,13 @@ export const PrivacyScreen = observer(function SettingsLanguageScreen() {
           first
         />
         {!isBetaTester && (
-          <SettingBox title="Disable Telemetry" toggle toggleValue={user.disableTelemetry} onToggle={onTelemetryToggle} last />
+          <SettingBox
+            title={translate("settings.disableTelemetry")}
+            toggle
+            toggleValue={user.disableTelemetry}
+            onToggle={onTelemetryToggle}
+            last
+          />
         )}
       </View>
     </Screen>
