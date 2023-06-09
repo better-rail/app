@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { AppState, AppStateStatus } from "react-native"
 import { addMinutes, differenceInMinutes } from "date-fns"
 import { RouteItem } from "../../services/api"
 import { getPreviousTrainFromStationId, getTrainFromStationId } from "../../utils/helpers/ride-helpers"
@@ -40,6 +41,16 @@ export function useRideProgress({ route, enabled }: { route: RouteItem; enabled:
 
     return () => clearInterval(timer)
   }, [status, delay, nextStationId])
+
+  useEffect(() => {
+    // recalculate time left route when the user comes back to the app
+    const listener = (nextAppState: AppStateStatus) => {
+      if (nextAppState === "active") calculateMinutesLeft()
+    }
+
+    const subscription = AppState.addEventListener("change", listener)
+    return () => subscription.remove()
+  }, [])
 
   return { status, minutesLeft, stations, nextStationId }
 }
