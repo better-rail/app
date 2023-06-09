@@ -104,7 +104,7 @@ export const buildNextStationNotifications = (route: RouteItem, ride: Ride): Bui
 export const buildGetOffTrainNotifications = (route: RouteItem, ride: Ride): BuildNotificationPayload[] => {
   return flatten(
     route.trains.map((train, index) => {
-      return [
+      return compact([
         {
           token: ride.token,
           provider: ride.provider,
@@ -149,10 +149,21 @@ export const buildGetOffTrainNotifications = (route: RouteItem, ride: Ride): Bui
           state: {
             nextStationId: train.destinationStationId,
             status: isLastTrain(route.trains, train) ? Status.arrived : Status.inExchange,
-            delay: isLastTrain(route.trains, train) ? train.delay : route.trains[index + 1].delay,
+            delay: train.delay,
           },
         },
-      ]
+        !isLastTrain(route.trains, train) && {
+          token: ride.token,
+          provider: ride.provider,
+          shouldSendImmediately: true,
+          time: dayjs(train.arrivalTime).add(1, "minutes"),
+          state: {
+            nextStationId: train.destinationStationId,
+            status: Status.inExchange,
+            delay: route.trains[index + 1].delay,
+          },
+        },
+      ])
     }),
   )
 }

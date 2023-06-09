@@ -54,7 +54,7 @@ test("build get on notification for exchange train", () => {
   ])
 })
 
-test("build next station notifications for direct train", () => {
+test("build next station notifications for exchange train", () => {
   const nextStationNotifications = buildNextStationNotifications(exchangeRoute, ride)
 
   expect(nextStationNotifications).toMatchObject([
@@ -105,7 +105,7 @@ test("build next station notifications for direct train", () => {
   ])
 })
 
-test("build get off notifications for direct train", () => {
+test("build get off notifications for exchange train", () => {
   const getOffNotifications = buildGetOffTrainNotifications(exchangeRoute, ride)
 
   expect(getOffNotifications).toMatchObject([
@@ -142,13 +142,24 @@ test("build get off notifications for direct train", () => {
     {
       token: ride.token,
       state: {
-        delay: 4,
+        delay: 2,
         nextStationId: 30,
         status: Status.inExchange,
       },
       provider: ride.provider,
       shouldSendImmediately: true,
       time: dayjs(now + getOffInExchangeTime),
+    },
+    {
+      token: ride.token,
+      state: {
+        delay: 4,
+        nextStationId: 30,
+        status: Status.inExchange,
+      },
+      provider: ride.provider,
+      shouldSendImmediately: true,
+      time: dayjs(now + getOffInExchangeTime + minutesInMs(1)),
     },
     {
       token: ride.token,
