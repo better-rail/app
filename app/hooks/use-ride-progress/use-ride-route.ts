@@ -5,7 +5,6 @@ import { formatDateForAPI } from "../../utils/helpers/date-helpers"
 import { RouteApi } from "../../services/api/route-api"
 import { findClosestStationInRoute, getSelectedRide } from "../../utils/helpers/ride-helpers"
 import { useStores } from "../../models"
-import { AppState, AppStateStatus } from "react-native"
 
 const api = new RouteApi()
 
@@ -71,16 +70,6 @@ export function useRideRoute(route: RouteItem) {
 
     // clear the timer when the component unmounts
     return () => clearInterval(timer)
-  }, [])
-
-  useEffect(() => {
-    // refetch route when the user comes back to the app
-    const listener = (nextAppState: AppStateStatus) => {
-      if (nextAppState === "active") updateRide()
-    }
-
-    const subscription = AppState.addEventListener("change", listener)
-    return () => subscription.remove()
   }, [])
 
   return [delay, nextStationId]
