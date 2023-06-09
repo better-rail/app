@@ -16,8 +16,9 @@ enum ViewPlacement: String {
 struct TimeInformation: View {
   var vm: ActivityViewModel
   var delay: Int { vm.delay }
-  var departureDate: Date { vm.departureDate }
-  var arrivalDate: Date { vm.arrivalDate }
+  var targetDate: Date {
+    getStatusEndDate(context: vm.context)
+  }
   
   var placement: ViewPlacement = .lockScreen
   
@@ -25,7 +26,7 @@ struct TimeInformation: View {
       if (vm.status == .arrived) {
         VStack(alignment: .trailing) {
           Text("ARRIVAL TIME").font(.caption)
-          Text(formatDateHour(arrivalDate.addMinutes(delay))).font(.system(size: 18, weight: .bold, design: .rounded))
+          Text(formatDateHour(targetDate)).font(.system(size: 18, weight: .bold, design: .rounded))
         }
         
       }
@@ -33,7 +34,7 @@ struct TimeInformation: View {
         if (vm.status == .waitForTrain || vm.status == .inExchange) {
           VStack(alignment: .trailing) {
             if (vm.context.attributes.frequentPushesEnabled) {
-              CountdownView(targetDate: departureDate, delay: delay)
+              CountdownView(targetDate: targetDate, delay: delay)
                 .accessibilityLabel("time left depart")
             }
 
@@ -44,14 +45,14 @@ struct TimeInformation: View {
               
               // hide the original time during delay, if the screen space is limited
               if (delay == 0 || delay > 0 && (placement == .lockScreen || vm.isWideScreen)) {
-                Text(formatDateHour(departureDate))
+                Text(formatDateHour(targetDate.addMinutes(-delay)))
                   .bold()
                   .strikethrough(vm.delay > 0 ? true : false)
                   .font(vm.isRTL ? .caption : .caption2)
               }
               
               if (delay != 0) {
-                Text(formatDateHour(departureDate.addMinutes(delay)))
+                Text(formatDateHour(targetDate))
                   .foregroundColor(Color(uiColor: .systemRed))
                   .fontWeight(.heavy)
                   .font(.caption)
@@ -63,7 +64,7 @@ struct TimeInformation: View {
         else {
           VStack(alignment: .trailing) {
             if (vm.context.attributes.frequentPushesEnabled) {
-              CountdownView(targetDate: vm.arrivalDate, delay: delay)
+              CountdownView(targetDate: targetDate, delay: delay)
                 .accessibilityLabel("time left arrival")
             }
             
@@ -71,11 +72,11 @@ struct TimeInformation: View {
               Text("arrive").fontWeight(vm.isEnglish ? .light : .medium)
               // we don't have space for both original & updated times in the dynamic island
               if (delay == 0 || placement == .lockScreen && delay > 0) {
-                Text(formatDateHour(arrivalDate)).bold().strikethrough(delay > 0 ? true : false)
+                Text(formatDateHour(targetDate.addMinutes(-delay))).bold().strikethrough(delay > 0 ? true : false)
               }
               
               if (vm.delay != 0) {
-                Text(formatDateHour(vm.arrivalDate.addMinutes(delay))) .foregroundColor(Color(uiColor: .systemRed)).fontWeight(.heavy)
+                Text(formatDateHour(targetDate)) .foregroundColor(Color(uiColor: .systemRed)).fontWeight(.heavy)
               }
             }.font(vm.isEnglish ? .caption2 : .caption)
           }
