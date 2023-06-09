@@ -39,18 +39,17 @@ export function useRideProgress({ route, enabled }: { route: RouteItem; enabled:
 
     calculateMinutesLeft()
 
-    return () => clearInterval(timer)
-  }, [status, delay, nextStationId])
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state === "active") {
+        calculateMinutesLeft()
+      }
+    })
 
-  useEffect(() => {
-    // recalculate time left route when the user comes back to the app
-    const listener = (nextAppState: AppStateStatus) => {
-      if (nextAppState === "active") calculateMinutesLeft()
+    return () => {
+      clearInterval(timer)
+      subscription.remove()
     }
-
-    const subscription = AppState.addEventListener("change", listener)
-    return () => subscription.remove()
-  }, [])
+  }, [status, delay, nextStationId])
 
   return { status, minutesLeft, stations, nextStationId }
 }

@@ -67,7 +67,7 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
 
   const shouldDisplayFirstRideAlert = async () => {
     const isFirstRideAlertEnabled = isAfterTargetDate
-    if (isFirstRideAlertEnabled) return false
+    if (!isFirstRideAlertEnabled) return false
 
     const firstRideDate = await storage.load("firstRideDate")
 
