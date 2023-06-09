@@ -5,6 +5,7 @@ import { color, fontScale, spacing } from "../../theme"
 import { translate, userLocale } from "../../i18n"
 import { LiveAnnouncementStackProps } from "../../navigators/live-activity-announcement/live-activity-announcement-stack"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { NextButton } from "./announcement-next-button"
 
 const SUB_TITLE: TextStyle = {
   color: color.whiteText,
@@ -75,14 +76,7 @@ export function LiveAnnouncementScreen({ navigation }: LiveAnnouncementStackProp
 
         <View style={{ flex: 1 }} />
 
-        <Button
-          title={translate("common.next")}
-          containerStyle={{ minHeight: 60 }}
-          style={{ maxHeight: 60 }}
-          onPress={() => {
-            navigation.navigate("startRide")
-          }}
-        />
+        <NextButton onPress={() => navigation.navigate("startRide")} />
       </ScrollView>
     </Screen>
   )

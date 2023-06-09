@@ -5,6 +5,7 @@ import { color, spacing } from "../../theme"
 import { translate, userLocale } from "../../i18n"
 import { LiveAnnouncementStackProps } from "../../navigators/live-activity-announcement/live-activity-announcement-stack"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { NextButton } from "./announcement-next-button"
 
 const TITLE: TextStyle = {
   color: color.whiteText,
@@ -63,10 +64,7 @@ export function ActivityAnnouncementScreen({ navigation }: LiveAnnouncementStack
 
         <View style={{ flex: 1 }} />
 
-        <Button
-          title={translate("common.next")}
-          containerStyle={{ maxHeight: 60 }}
-          style={{ minHeight: 60 }}
+        <NextButton
           onPress={() => {
             navigation.navigate("dynamicIsland")
           }}

@@ -6,6 +6,7 @@ import { color, spacing } from "../../theme"
 import { translate, userLocale } from "../../i18n"
 import { LiveAnnouncementStackProps } from "../../navigators/live-activity-announcement/live-activity-announcement-stack"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { NextButton } from "./announcement-next-button"
 
 const deviceHeight = Dimensions.get("screen").height
 const isHighDevice = deviceHeight > 800
@@ -63,10 +64,8 @@ export function StartRideAnnouncement({ navigation }: LiveAnnouncementStackProps
           />
         </View>
 
-        <Button
+        <NextButton
           title={translate("common.next")}
-          containerStyle={{ minHeight: 60 }}
-          style={{ minHeight: 60 }}
           onPress={() => {
             navigation.navigate("liveActivity")
           }}

@@ -8,6 +8,7 @@ import { LiveAnnouncementStackProps } from "../../navigators/live-activity-annou
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import * as storage from "../../utils/storage"
 import { useIsDarkMode } from "../../hooks"
+import { NextButton } from "./announcement-next-button"
 
 const deviceHeight = Dimensions.get("screen").height
 const isHighDevice = deviceHeight > 800
@@ -104,8 +105,8 @@ export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
         <View style={{ gap: spacing[3] }}>
           <Button
             title={translate("liveAnnounce.supportUs.tipJarButton")}
-            style={{ minHeight: 55, backgroundColor: isDarkMode ? color.success : color.greenText }}
-            containerStyle={{ minHeight: 55 }}
+            style={{ minHeight: 55 * fontScale, backgroundColor: isDarkMode ? color.success : color.greenText }}
+            containerStyle={{ minHeight: 55 * fontScale }}
             onPress={() => {
               finish()
 
@@ -115,12 +116,7 @@ export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
             }}
           />
           <Text style={[TEXT, { fontSize: 14, marginHorizontal: -14 }]} tx="liveAnnounce.supportUs.tipJarNote" />
-          <Button
-            title={translate("common.done")}
-            style={{ minHeight: 55 }}
-            containerStyle={{ minHeight: 55 }}
-            onPress={finish}
-          />
+          <NextButton title={translate("common.done")} onPress={finish} />
         </View>
       </ScrollView>
     </Screen>

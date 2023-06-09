@@ -1,6 +1,6 @@
 import React, { useState, useMemo, ReactNode } from "react"
 import { View, Pressable, TextStyle, ViewStyle, ButtonProps, Platform, ActivityIndicator } from "react-native"
-import { color, spacing, typography } from "../../theme"
+import { color, fontScale, spacing, typography } from "../../theme"
 import { Text } from "../"
 
 const BUTTON_WRAPPER: ViewStyle = {
@@ -13,7 +13,7 @@ const BUTTON_WRAPPER: ViewStyle = {
 export const PRESSABLE_BASE: ViewStyle = {
   flex: 1,
   minHeight: 55,
-  padding: spacing[4],
+  padding: spacing[4] * fontScale,
   backgroundColor: color.primary,
   borderRadius: Platform.select({ ios: 12, android: 6 }),
   opacity: 1,
@@ -35,7 +35,7 @@ const TEXT_WRAPPER: ViewStyle = {
 const TEXT: TextStyle = {
   fontFamily: typography.primary,
   fontWeight: "700",
-  fontSize: 16,
+  fontSize: 18,
   textAlign: "center",
   color: color.whiteText,
 }
