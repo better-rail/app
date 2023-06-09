@@ -9,6 +9,7 @@ import { translate } from "../../i18n"
 import { TipThanksModal } from "./components/tip-thanks-modal"
 import { useStores } from "../../models"
 import { getInstallerPackageNameSync } from "react-native-device-info"
+import analytics from "@react-native-firebase/analytics"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -112,6 +113,21 @@ export const TipJarScreen = observer(function TipJarScreen() {
 
       const purchase = (await requestPurchase({ sku })) as ProductPurchase
       await finishTransaction({ purchase, isConsumable: true })
+
+      const item = products.find((product) => product.productId === sku)
+      await analytics().logPurchase({
+        value: Number(amount),
+        currency: products[0].currency,
+        tax: 15,
+        items: [
+          {
+            item_name: item.title,
+            item_id: item.productId,
+            price: Number(amount),
+            quantity: 1,
+          },
+        ],
+      })
 
       setModalVisible(true)
       settings.addTip(Number(amount))

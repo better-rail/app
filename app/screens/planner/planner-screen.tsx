@@ -73,6 +73,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   }
 
   const onDateReset = () => {
+    analytics().logEvent("reset_date_press")
     HapticFeedback.trigger("impactLight")
     onDateChange(new Date())
   }
