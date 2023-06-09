@@ -8,8 +8,8 @@ const ResetTimeIcon = Platform.select({
 })
 
 const RESET_TIME_ICON_STYLE: ImageStyle = {
-  height: fontScale > 1.2 ? 28 : 24,
-  width: fontScale > 1.2 ? 28 : 24,
+  height: fontScale * 22,
+  width: fontScale * 22,
   resizeMode: "contain",
   tintColor: color.text,
 }
