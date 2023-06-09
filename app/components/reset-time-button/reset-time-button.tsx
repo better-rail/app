@@ -1,5 +1,5 @@
 import { TouchableOpacity, TouchableOpacityProps, Image, ImageStyle, Platform } from "react-native"
-import { color, spacing } from "../../theme"
+import { color, fontScale, spacing } from "../../theme"
 import { translate } from "../../i18n"
 
 const ResetTimeIcon = Platform.select({
@@ -8,8 +8,8 @@ const ResetTimeIcon = Platform.select({
 })
 
 const RESET_TIME_ICON_STYLE: ImageStyle = {
-  height: 24,
-  width: 24,
+  height: fontScale > 1.2 ? 28 : 24,
+  width: fontScale > 1.2 ? 28 : 24,
   resizeMode: "contain",
   tintColor: color.text,
 }
