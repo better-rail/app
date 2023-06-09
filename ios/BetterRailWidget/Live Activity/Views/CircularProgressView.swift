@@ -17,7 +17,7 @@ struct CircularProgressView: View {
     if (vm.status == .waitForTrain || vm.status == .inExchange) {
       return vm.departureDate.addMinutes(vm.delay)
     } else {
-      return vm.arrivalDate.addMinutes(vm.delay)
+      return getStatusEndDate(context: vm.context)
     }
   }
   
