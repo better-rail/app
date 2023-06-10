@@ -47,6 +47,7 @@ struct BetterRailLiveActivity: Widget {
           Text("\(String(getMinutesLeft(targetDate: getStatusEndDate(context: context)))) min")
             .foregroundColor(tintColor(context: context))
             .accessibilityLabel(vm.status == .waitForTrain ? "time left depart" : "time left arrival")
+            .contentTransition(.numericText())
         } minimal: {
           CircularProgressView(vm: vm, content: .time, tintColor: tintColor(context: context))
         }
