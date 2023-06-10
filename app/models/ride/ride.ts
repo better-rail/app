@@ -21,7 +21,6 @@ const startRideHandler: (route: RouteItem) => Promise<string> = Platform.select(
       throw new Error("User didn't activate notifications")
     }
 
-    // TODO: Add token refresh logic
     const token = await messaging().getToken()
     const rideId = await rideApi.startRide(route, token)
 
@@ -40,7 +39,7 @@ const startRideHandler: (route: RouteItem) => Promise<string> = Platform.select(
 const endRideHandler: (routeId: string) => Promise<boolean> = Platform.select({
   ios: iOSHelpers.endLiveActivity,
   android: (rideId: string) => {
-    unsubscribeTokenUpdates()
+    if (unsubscribeTokenUpdates) unsubscribeTokenUpdates()
     return rideApi.endRide(rideId)
   },
 })

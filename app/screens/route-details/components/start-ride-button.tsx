@@ -8,7 +8,7 @@ import crashlytics from "@react-native-firebase/crashlytics"
 import { Button } from "../../../components"
 import { isRTL, translate } from "../../../i18n"
 import { RouteItem } from "../../../services/api"
-import { differenceInMinutes, isAfter, set } from "date-fns"
+import { differenceInMinutes, isAfter } from "date-fns"
 import { timezoneCorrection } from "../../../utils/helpers/date-helpers"
 import { color } from "../../../theme"
 import { useStores } from "../../../models"
@@ -64,7 +64,10 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
   const activeRide = !!ride.id
   const areActivitiesDisabled = Platform.select({
     ios: () => !(ride?.activityAuthorizationInfo?.areActivitiesEnabled ?? true),
-    android: () => PermissionsAndroid.RESULTS[PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS] !== "granted",
+    android: () => {
+      const result = PermissionsAndroid.RESULTS[PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS]
+      return result && result !== "granted"
+    },
   })
   const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || areActivitiesDisabled() || activeRide
 
@@ -141,7 +144,7 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
             reason: disabledReason,
           })
         }}
-        onPress={() => {
+        onPress={async () => {
           crashlytics().log("Start ride button pressed")
           crashlytics().setAttributes({
             route: JSON.stringify(route),
@@ -156,7 +159,8 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
               }
             })
           } else {
-            PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS)
+            const result = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS)
+            if (result !== "granted") return
           }
 
           HapticFeedback.trigger("notificationSuccess")
