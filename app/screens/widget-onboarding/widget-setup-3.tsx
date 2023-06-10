@@ -1,6 +1,5 @@
 import React from "react"
 import { View, TextStyle, ViewStyle, ImageStyle, Image, Dimensions } from "react-native"
-import LinearGradient from "react-native-linear-gradient"
 import InAppReview from "react-native-in-app-review"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Screen, Text, Button } from "../../components"

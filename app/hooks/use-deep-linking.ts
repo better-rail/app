@@ -30,6 +30,7 @@ export function useDeepLinking(rootStore: RootStore, navigationRef: MutableRefOb
 
   function openActiveRideScreen() {
     const { route, originId, destinationId } = rootStore.ride
+    if (!route) return
 
     // @ts-expect-error navigator type
     navigationRef.current?.navigate("activeRideStack", {

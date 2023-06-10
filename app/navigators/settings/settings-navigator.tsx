@@ -2,7 +2,7 @@ import React from "react"
 import { Platform, TextStyle } from "react-native"
 import { createStackNavigator, StackScreenProps } from "@react-navigation/stack"
 import { SettingsScreen, LanguageScreen, TipJarScreen, AboutScreen, PrivacyScreen } from "../../screens"
-import { color, typography } from "../../theme"
+import { color, spacing, typography } from "../../theme"
 import { translate } from "../../i18n"
 import { CloseButton } from "../../components"
 
@@ -31,7 +31,7 @@ export const SettingsNavigator = () => (
       component={SettingsScreen}
       options={({ navigation }) => ({
         title: translate("settings.title"),
-        headerLeft: () => <CloseButton onPress={() => navigation.goBack()} />,
+        headerLeft: () => <CloseButton onPress={() => navigation.goBack()} style={{ marginRight: spacing[2] }} />,
         headerTitleStyle: Platform.select({ ios: iOSTitleStyle, android: { ...androidTitleStyle, marginBottom: 10 } }),
       })}
     />

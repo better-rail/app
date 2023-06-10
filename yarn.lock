@@ -3953,11 +3953,6 @@
   resolved "https://registry.yarnpkg.com/@react-native-firebase/messaging/-/messaging-17.5.0.tgz#9c6db50423c67760dd61e553189187b9e5a2b75e"
   integrity sha512-9jB7jEt4ySdALio2qwquAkXI106GTdPEuGY+vUFuNT6Wwwc5VQhyiJ5yforaF0BEsppFgK151PLYQQdIhahgzA==
 
-"@react-native-firebase/remote-config@^17.5.0":
-  version "17.5.0"
-  resolved "https://registry.yarnpkg.com/@react-native-firebase/remote-config/-/remote-config-17.5.0.tgz#142a2d9f6eebfadd1f4a942d4c8dd601846393e9"
-  integrity sha512-qfNGhj1kcPZaaeTMZup+Dy146Fw99cKeRZEYIUvcMNtN2NLWz0FE0rw8RZ9kb0vkxhjcXwHXrG4M8DU7SmRAjw==
-
 "@react-native-masked-view/masked-view@0.2.8":
   version "0.2.8"
   resolved "https://registry.yarnpkg.com/@react-native-masked-view/masked-view/-/masked-view-0.2.8.tgz#34405a4361882dae7c81b1b771fe9f5fbd545a97"
@@ -8509,7 +8504,7 @@ depd@~1.1.2:
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
   integrity sha1-m81S4UwJd2PnSbJ0xDRu0uVgtak=
 
-deprecated-react-native-prop-types@^2.3.0:
+deprecated-react-native-prop-types@^2.2.0, deprecated-react-native-prop-types@^2.3.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/deprecated-react-native-prop-types/-/deprecated-react-native-prop-types-2.3.0.tgz#c10c6ee75ff2b6de94bb127f142b814e6e08d9ab"
   integrity sha512-pWD0voFtNYxrVqvBMYf5gq3NA2GCpfodS1yNynTPc93AYA/KEMGeWDqqeUB6R2Z9ZofVhks2aeJXiuQqKNpesA==
@@ -12958,6 +12953,11 @@ jsprim@^1.2.2:
     array-includes "^3.1.1"
     object.assign "^4.1.1"
 
+keymirror@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/keymirror/-/keymirror-0.1.1.tgz#918889ea13f8d0a42e7c557250eee713adc95c35"
+  integrity sha512-vIkZAFWoDijgQT/Nvl2AHCMmnegN2ehgTPYuyy2hWQkQSntI0S7ESYqdLkoSe1HyEBFHHkCgSIvVdSEiWwKvCg==
+
 kind-of@^2.0.1:
   version "2.0.1"
   resolved "https://registry.npmjs.org/kind-of/-/kind-of-2.0.1.tgz"
@@ -16379,10 +16379,10 @@ react-native-screens@~3.20.0:
     react-freeze "^1.0.0"
     warn-once "^0.1.0"
 
-react-native-share@6.2.1:
-  version "6.2.1"
-  resolved "https://registry.npmjs.org/react-native-share/-/react-native-share-6.2.1.tgz"
-  integrity sha512-LtT29le01c3k/1sWoumZDyAxigq/JrW4skv8Ri7eySgfIeXrjgnkk1SSR3bt4NrRO74knVngPwtb5xv/UCPP3w==
+react-native-share@8.2.2:
+  version "8.2.2"
+  resolved "https://registry.yarnpkg.com/react-native-share/-/react-native-share-8.2.2.tgz#987d6f164afe57b089950dca42e0555f19045d27"
+  integrity sha512-kVCI/cT0GnuYUTXe6mAimrjrnt4VWoRfrWqJZjFeoYFqAyOEfos84RC4eZlZnOT5eVtmTXRIkor5vgSkKOlZhw==
 
 react-native-shared-element@^0.8.8:
   version "0.8.8"
@@ -16409,6 +16409,15 @@ react-native-touchable-scale@2.2.0:
   dependencies:
     deprecated-react-native-prop-types "^2.3.0"
     prop-types "^15.6.0"
+
+react-native-video@^6.0.0-alpha.6:
+  version "6.0.0-alpha.6"
+  resolved "https://registry.yarnpkg.com/react-native-video/-/react-native-video-6.0.0-alpha.6.tgz#8acdd70dbb4a213bc92dd9f25852488c46baa4d2"
+  integrity sha512-MCqHfPGuqVokvJOkvidhD5/eGYkWZrDEcSDtlkwVo36V2157L6lZyt3mqb5tPR+e5jSz+c/ht2JpEhP1bCm/Dw==
+  dependencies:
+    deprecated-react-native-prop-types "^2.2.0"
+    keymirror "^0.1.1"
+    prop-types "^15.7.2"
 
 react-native-watch-connectivity@1.1.0:
   version "1.1.0"

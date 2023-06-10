@@ -144,6 +144,38 @@
     "stackingStep3": "3. Inside the stack you can scroll between the two widgets.",
     "stackingStep4": "Tip: You can view the full train scheduale quickly by tapping on the widget."
   },
+  "liveAnnounce": {
+    "announcement": {
+      "title": "Better Rail Live",
+      "subtitle": "Real-time updates with",
+      "description": "Notifications about train delays, arrival time, travel instructions and more - all on your device lock screen.",
+      "weMadeAGuide": "We prepared a short guide on using this feature, which will change the way you travel with Israel Railways."
+    },
+    "startRide": {
+      "title": "Start Ride",
+      "description": "To use Better Rail Live, select a train from the list, then click \"Start Ride\" at the bottom of the screen.",
+      "description2": "The trip details screen will now display the train progress, remaining time, and delay updates."
+    },
+    "liveActivity": {
+      "title": "Live Activity",
+      "description": "After you've started a trip, it'll be added to the lock screen and will be automatically updated with the train progress and delays.",
+      "tip": "Tip: You can start your trip up to an hour before the train's departure time. This allows you to determine if you need to hurry to catch the train or not."
+    },
+    "dynamicIsland": {
+      "title": "Dynamic Island",
+      "description": "Do you have an iPhone 14 Pro? Congratulations, you have just received new superpowers.",
+      "description2": "The trip data will appear on the Dynamic Island, which you can access from anywhere on the device."
+    },
+    "supportUs": {
+      "title": "Hey! We're Guy & Matan",
+      "description1": "We're passionate train travelers who set out to develop an exceptional app for Israel Railways.",
+      "description3": "Creating Better Rail involves hundreds of hours of work, and we're covering the app's maintenance costs ourselves.",
+      "description4": "If our app improved your train travel experience, please consider supporting us.",
+      "description5": "Financial support helps us cover expenses, dedicate more time to improve the app, and create cool new features.",
+      "tipJarButton": "Open Tip Jar",
+      "tipJarNote": "Access the tip jar anytime through the app settings."
+    }
+  },
   "ride": {
     "live": "Live",
     "startRide": "Start Ride",

@@ -84,7 +84,7 @@ export function getStopStationStatus({ route, nextStationId, status, enabled }: 
   const destinationStationId = train.destinationStationId
 
   // update the last stop station status if we're en route to the destination station
-  if (destinationStationId === nextStationId && status !== "arrived") {
+  if (destinationStationId === nextStationId && status !== "arrived" && train.stopStations.length) {
     const lastStationId = train.stopStations[train.stopStations.length - 1].stationId
     stopStationsObject[lastStationId] = { top: "passed", bottom: "inProgress" }
   }

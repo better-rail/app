@@ -37,11 +37,6 @@ PODS:
   - Firebase/Messaging (10.7.0):
     - Firebase/CoreOnly
     - FirebaseMessaging (~> 10.7.0)
-  - Firebase/RemoteConfig (10.7.0):
-    - Firebase/CoreOnly
-    - FirebaseRemoteConfig (~> 10.7.0)
-  - FirebaseABTesting (10.10.0):
-    - FirebaseCore (~> 10.0)
   - FirebaseAnalytics/WithoutAdIdSupport (10.7.0):
     - FirebaseCore (~> 10.0)
     - FirebaseInstallations (~> 10.0)
@@ -86,12 +81,6 @@ PODS:
     - GoogleUtilities/Reachability (~> 7.8)
     - GoogleUtilities/UserDefaults (~> 7.8)
     - nanopb (< 2.30910.0, >= 2.30908.0)
-  - FirebaseRemoteConfig (10.7.0):
-    - FirebaseABTesting (~> 10.0)
-    - FirebaseCore (~> 10.0)
-    - FirebaseInstallations (~> 10.0)
-    - GoogleUtilities/Environment (~> 7.8)
-    - "GoogleUtilities/NSData+zlib (~> 7.8)"
   - FirebaseSessions (10.10.0):
     - FirebaseCore (~> 10.5)
     - FirebaseCoreExtension (~> 10.0)
@@ -429,6 +418,12 @@ PODS:
     - ReactCommon/turbomodule/core
   - react-native-segmented-control (2.4.0):
     - React-Core
+  - react-native-video (6.0.0-alpha.6):
+    - React-Core
+    - react-native-video/Video (= 6.0.0-alpha.6)
+  - react-native-video/Video (6.0.0-alpha.6):
+    - PromisesSwift
+    - React-Core
   - React-perflogger (0.71.7)
   - React-RCTActionSheet (0.71.7):
     - React-Core/RCTActionSheetHeaders (= 0.71.7)
@@ -542,10 +537,6 @@ PODS:
     - FirebaseCoreExtension (= 10.7.0)
     - React-Core
     - RNFBApp
-  - RNFBRemoteConfig (17.5.0):
-    - Firebase/RemoteConfig (= 10.7.0)
-    - React-Core
-    - RNFBApp
   - RNFlashList (1.4.3):
     - React-Core
   - RNGestureHandler (2.9.0):
@@ -586,7 +577,7 @@ PODS:
   - RNScreens (3.20.0):
     - React-Core
     - React-RCTImage
-  - RNShare (6.2.1):
+  - RNShare (8.2.2):
     - React-Core
   - RNSharedElement (0.8.8):
     - React-Core
@@ -641,6 +632,7 @@ DEPENDENCIES:
   - react-native-restart (from `../node_modules/react-native-restart`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-segmented-control (from `../node_modules/@react-native-segmented-control/segmented-control`)"
+  - react-native-video (from `../node_modules/react-native-video`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
   - React-RCTAnimation (from `../node_modules/react-native/Libraries/NativeAnimation`)
@@ -663,7 +655,6 @@ DEPENDENCIES:
   - "RNFBAuth (from `../node_modules/@react-native-firebase/auth`)"
   - "RNFBCrashlytics (from `../node_modules/@react-native-firebase/crashlytics`)"
   - "RNFBMessaging (from `../node_modules/@react-native-firebase/messaging`)"
-  - "RNFBRemoteConfig (from `../node_modules/@react-native-firebase/remote-config`)"
   - "RNFlashList (from `../node_modules/@shopify/flash-list`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNIap (from `../node_modules/react-native-iap`)
@@ -680,7 +671,6 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - Firebase
-    - FirebaseABTesting
     - FirebaseAnalytics
     - FirebaseAuth
     - FirebaseCore
@@ -689,7 +679,6 @@ SPEC REPOS:
     - FirebaseCrashlytics
     - FirebaseInstallations
     - FirebaseMessaging
-    - FirebaseRemoteConfig
     - FirebaseSessions
     - fmt
     - GoogleAppMeasurement
@@ -770,6 +759,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-segmented-control:
     :path: "../node_modules/@react-native-segmented-control/segmented-control"
+  react-native-video:
+    :path: "../node_modules/react-native-video"
   React-perflogger:
     :path: "../node_modules/react-native/ReactCommon/reactperflogger"
   React-RCTActionSheet:
@@ -814,8 +805,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-firebase/crashlytics"
   RNFBMessaging:
     :path: "../node_modules/@react-native-firebase/messaging"
-  RNFBRemoteConfig:
-    :path: "../node_modules/@react-native-firebase/remote-config"
   RNFlashList:
     :path: "../node_modules/@shopify/flash-list"
   RNGestureHandler:
@@ -852,7 +841,6 @@ SPEC CHECKSUMS:
   FBLazyVector: a89a0525bc7ca174675045c2b492b5280d5a2470
   FBReactNativeSpec: 7714e6bc1e9ea23df6c4cb42f0b2fd9c6a3a559c
   Firebase: 0219acf760880eeec8ce479895bd7767466d9f81
-  FirebaseABTesting: b2a87808d90f02766fcffb3957d3e397e7accc15
   FirebaseAnalytics: f8133442ee6f8512e28ff19e62ce15398bfaeace
   FirebaseAuth: dd64c01631df724b09f33e584625775c52f7d71f
   FirebaseCore: e317665b9d744727a97e623edbbed009320afdd7
@@ -861,7 +849,6 @@ SPEC CHECKSUMS:
   FirebaseCrashlytics: 35fdd1a433b31e28adcf5c8933f4c526691a1e0b
   FirebaseInstallations: c58489c9caacdbf27d1da60891a87318e20218e0
   FirebaseMessaging: ac9062bcc35ed56e15a0241d8fd317022499baf8
-  FirebaseRemoteConfig: d5de62211e2eaa2152d8ee85a23c301b70887a74
   FirebaseSessions: 5f9e62cd4096e24d2011cbd845b0efceffaee1ec
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
@@ -896,6 +883,7 @@ SPEC CHECKSUMS:
   react-native-restart: 7595693413fe3ca15893702f2c8306c62a708162
   react-native-safe-area-context: 39c2d8be3328df5d437ac1700f4f3a4f75716acc
   react-native-segmented-control: 06607462630512ff8eef652ec560e6235a30cc3e
+  react-native-video: fee89269ad07556d960721f3b62e39be6ace3c90
   React-perflogger: 2d505bbe298e3b7bacdd9e542b15535be07220f6
   React-RCTActionSheet: 0e96e4560bd733c9b37efbf68f5b1a47615892fb
   React-RCTAnimation: fd138e26f120371c87e406745a27535e2c8a04ef
@@ -918,7 +906,6 @@ SPEC CHECKSUMS:
   RNFBAuth: 54e598bb1358a0cf6c0a187f43161cd1bde90455
   RNFBCrashlytics: f2dd2ad20eff4d5ceaa5c19936efff3b1607eb33
   RNFBMessaging: 216693dd5ba4f18ba65fb39fc73a44a23c26190f
-  RNFBRemoteConfig: 85ba519c47cf163d824ed5735e3d9ab59e967f86
   RNFlashList: ade81b4e928ebd585dd492014d40fb8d0e848aab
   RNGestureHandler: 071d7a9ad81e8b83fe7663b303d132406a7d8f39
   RNIap: c397f49db45af3b10dca64b2325f21bb8078ad21
@@ -926,7 +913,7 @@ SPEC CHECKSUMS:
   RNReactNativeHapticFeedback: afa5bf2794aecbb2dba2525329253da0d66656df
   RNReanimated: cc5e3aa479cb9170bcccf8204291a6950a3be128
   RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
-  RNShare: 5ac8f6532ca4cd80fc71caef1cfbba1854a6a045
+  RNShare: d82e10f6b7677f4b0048c23709bd04098d5aee6c
   RNSharedElement: 504fa28a235b12505b6daedbb452a9ec96809bd0
   RNSVG: 07dbd870b0dcdecc99b3a202fa37c8ca163caec2
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236

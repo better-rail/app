@@ -80,6 +80,9 @@ func getStatusStartDate(context: ActivityViewContext<BetterRailActivityAttribute
     let previousTrain = getPreviousTrainFromStationId(route: route, stationId: nextStationId)
     // since we're in exchange, use the arrival time of the previous train as the progress start time
     return isoDateStringToDate(previousTrain?.arrivalTime ?? "").addMinutes(delay)
+  } else if (status == .inTransit && train.orignStation == nextStationId && departureDate > Date.now) {
+    let previousTrain = getPreviousTrainFromStationId(route: route, stationId: nextStationId) ?? train
+    return isoDateStringToDate(previousTrain.departureTime).addMinutes(delay)
   } else {
     return departureDate
   }
@@ -98,6 +101,9 @@ func getStatusEndDate(context: ActivityViewContext<BetterRailActivityAttributes>
 
   if (status == .waitForTrain || status == .inExchange) {
     return departureDate
+  } else if (status == .inTransit && train.orignStation == nextStationId && departureDate > Date.now) {
+    let previousTrain = getPreviousTrainFromStationId(route: route, stationId: nextStationId) ?? train
+    return isoDateStringToDate(previousTrain.arrivalTime).addMinutes(delay)
   } else {
     return arrivalDate
   }
@@ -166,11 +172,12 @@ func getActivityStatus(route: Route, train: Train, nextStationId: Int, updatedDe
   }
   
   if train.destinationStation == nextStationId {
-    let departureTime = isoDateStringToDate(train.departureTime).addMinutes(delay)
+    let nextTrain = getTrainFromStationId(route: route, stationId: nextStationId)!
+    let nextTrainDepartureTime = isoDateStringToDate(nextTrain.departureTime).addMinutes(delay)
     let arrivalTime = isoDateStringToDate(train.arrivalTime).addMinutes(delay)
     let timeToArrival = arrivalTime.timeIntervalSince(now)
     
-    if departureTime.addMinutes(delay) >= now {
+    if nextTrainDepartureTime >= now {
       return .inExchange
     } else if timeToArrival >= 60 {
       return .inTransit

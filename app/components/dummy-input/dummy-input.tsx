@@ -59,7 +59,7 @@ export const DummyInput = function DummyInput(props: DummyInputProps) {
   if (label) {
     return (
       <TouchableOpacity
-        style={[CONTAINER, style, { flexDirection: "row", justifyContent: "space-between" }]}
+        style={[CONTAINER, style, { flexDirection: "row", justifyContent: "space-between", alignItems: "center" }]}
         activeOpacity={0.75}
         {...rest}
       >
@@ -71,7 +71,7 @@ export const DummyInput = function DummyInput(props: DummyInputProps) {
 
   return (
     <TouchableOpacity
-      style={[CONTAINER, style, { flexDirection: "row", justifyContent: "space-between" }]}
+      style={[CONTAINER, style, { flexDirection: "row", justifyContent: "space-between", alignItems: "center" }]}
       activeOpacity={0.75}
       {...rest}
     >

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react"
-import { differenceInMinutes } from "date-fns"
+import { AppState, AppStateStatus } from "react-native"
+import { addMinutes, differenceInMinutes } from "date-fns"
 import { RouteItem } from "../../services/api"
-import { getTrainFromStationId } from "../../utils/helpers/ride-helpers"
+import { getPreviousTrainFromStationId, getTrainFromStationId } from "../../utils/helpers/ride-helpers"
 import { useRideRoute, getStopStationStatus, useRideStatus } from "./"
 
 export type RideStatus = "waitForTrain" | "inTransit" | "inExchange" | "arrived"
@@ -13,16 +14,22 @@ export function useRideProgress({ route, enabled }: { route: RouteItem; enabled:
   const stations = getStopStationStatus({ route, nextStationId, status, enabled })
 
   const calculateMinutesLeft = () => {
-    let minutes = 0
+    let date: Date
     const train = getTrainFromStationId(route, nextStationId)
 
-    if (status == "inTransit") {
-      minutes = differenceInMinutes(train.arrivalTime, Date.now(), { roundingMethod: "ceil" }) + delay
-    } else if (status == "waitForTrain" || status == "inExchange") {
-      minutes = differenceInMinutes(train.departureTime, Date.now(), { roundingMethod: "ceil" }) + delay
+    const departureDate = addMinutes(train.departureTime, delay)
+    const arrivalDate = addMinutes(train.arrivalTime, delay)
+
+    if (status === "waitForTrain" || status === "inExchange") {
+      date = departureDate
+    } else if (status === "inTransit" && train.originStationId === nextStationId && departureDate.getTime() > Date.now()) {
+      const previousTrain = getPreviousTrainFromStationId(route, nextStationId) ?? train
+      date = addMinutes(previousTrain.arrivalTime, delay)
+    } else {
+      date = arrivalDate
     }
 
-    setMinutesLeft(minutes)
+    setMinutesLeft(differenceInMinutes(date, Date.now(), { roundingMethod: "ceil" }))
   }
 
   useEffect(() => {
@@ -32,7 +39,16 @@ export function useRideProgress({ route, enabled }: { route: RouteItem; enabled:
 
     calculateMinutesLeft()
 
-    return () => clearInterval(timer)
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state === "active") {
+        calculateMinutesLeft()
+      }
+    })
+
+    return () => {
+      clearInterval(timer)
+      subscription.remove()
+    }
   }, [status, delay, nextStationId])
 
   return { status, minutesLeft, stations, nextStationId }
