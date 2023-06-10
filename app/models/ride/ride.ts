@@ -155,7 +155,7 @@ export const RideModel = types
         if (!self.route || !self.id) return
 
         const originId = head(self.route.trains).originStationId
-        const destinationId = head(self.route.trains).destinationStationId
+        const destinationId = last(self.route.trains).destinationStationId
         const [date, time] = formatDateForAPI(self.route.departureTime)
 
         routeApi.getRoutes(originId.toString(), destinationId.toString(), date, time).then((routes) => {
