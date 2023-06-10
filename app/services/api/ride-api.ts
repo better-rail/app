@@ -29,6 +29,7 @@ export class RideApi {
         departureDate: route.departureTimeString,
         originId: head(route.trains).originStationId,
         destinationId: last(route.trains).destinationStationId,
+        trains: route.trains.map((train) => train.trainNumber),
       })
 
       return response.data?.success ? response.data?.rideId : null

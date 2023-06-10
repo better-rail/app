@@ -1,6 +1,6 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { omit } from "ramda"
-import { PermissionsAndroid, Platform } from "react-native"
+import { Platform } from "react-native"
 import messaging from "@react-native-firebase/messaging"
 import iOSHelpers, { ActivityAuthorizationInfo } from "../../utils/ios-helpers"
 import { trainRouteSchema } from "../train-routes/train-routes"
@@ -17,10 +17,6 @@ let unsubscribeTokenUpdates: () => void
 const startRideHandler: (route: RouteItem) => Promise<string> = Platform.select({
   ios: iOSHelpers.startLiveActivity,
   android: async (route: RouteItem) => {
-    if (PermissionsAndroid.RESULTS[PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS] !== "granted") {
-      throw new Error("User didn't activate notifications")
-    }
-
     const token = await messaging().getToken()
     const rideId = await rideApi.startRide(route, token)
 
