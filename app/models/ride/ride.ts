@@ -5,7 +5,12 @@ import messaging from "@react-native-firebase/messaging"
 import iOSHelpers, { ActivityAuthorizationInfo } from "../../utils/ios-helpers"
 import { trainRouteSchema } from "../train-routes/train-routes"
 import { RideApi, RouteItem } from "../../services/api"
+import { RouteApi } from "../../services/api/route-api"
+import { head, last } from "lodash"
+import { formatDateForAPI } from "../../utils/helpers/date-helpers"
+import { addMinutes } from "date-fns"
 
+const routeApi = new RouteApi()
 const rideApi = new RideApi()
 let unsubscribeTokenUpdates: () => void
 
@@ -146,7 +151,23 @@ export const RideModel = types
             this.stopRide(rideId)
           }
         })
-        // TODO: Add isRideActive logic for android
+      } else {
+        if (!self.route || !self.id) return
+
+        const originId = head(self.route.trains).originStationId
+        const destinationId = head(self.route.trains).destinationStationId
+        const [date, time] = formatDateForAPI(self.route.departureTime)
+
+        routeApi.getRoutes(originId.toString(), destinationId.toString(), date, time).then((routes) => {
+          const currentRouteTrains = self.route.trains.map((train) => train.trainNumber).join()
+          const currentRoute = routes.find(
+            (route) => currentRouteTrains === route.trains.map((train) => train.trainNumber).join(),
+          )
+
+          if (currentRoute && Date.now() >= addMinutes(currentRoute.arrivalTime, last(currentRoute.trains).delay).getTime()) {
+            this.stopRide(rideId)
+          }
+        })
       }
     },
     /**
