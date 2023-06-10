@@ -193,8 +193,10 @@
     "trainArrives": "Train arrives to destination",
     "rideExistsTitle": "An active ride exists",
     "rideExistsMessage": "Cancel the current ride in order to start a new one",
-    "disabledTitle": "Live Activities disabled",
-    "disabledMessage": "To start a ride, please open your device settings and enable Live Activities.",
+    "liveActivitiesDisabledTitle": "Live Activities disabled",
+    "liveActivitiesDisabledMessage": "To start a ride, please open your device settings and enable Live Activities.",
+    "notificationsDisabledTitle": "Notifications disabled",
+    "notificationsDisabledMessage": "To start a ride, please open your device settings and enable notifications.",
 
     "firstRideAlertP1": "During the first three days of usage, there is a possibility that the live activity feature may display an incorrect estimated time of arrival (ETA).",
     "firstRideAlertP2": "This is due to the system taking time to allocate sufficient \"notification budget\" for the application. ",

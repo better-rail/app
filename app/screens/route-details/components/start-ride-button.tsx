@@ -62,8 +62,11 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
   const isRouteInFuture = differenceInMinutes(route.departureTime, timezoneCorrection(new Date()).getTime()) > 60
 
   const activeRide = !!ride.id
-  const areActivitiesDisabled = Platform.OS === "ios" ? !(ride?.activityAuthorizationInfo?.areActivitiesEnabled ?? true) : true
-  const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || areActivitiesDisabled || activeRide
+  const areActivitiesDisabled = Platform.select({
+    ios: () => !(ride?.activityAuthorizationInfo?.areActivitiesEnabled ?? true),
+    android: () => PermissionsAndroid.RESULTS[PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS] !== "granted",
+  })
+  const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || areActivitiesDisabled() || activeRide
 
   const shouldDisplayFirstRideAlert = async () => {
     const isFirstRideAlertEnabled = isAfterTargetDate
@@ -103,9 +106,15 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
           if (activeRide) {
             disabledReason = "Active ride already exists"
             Alert.alert(translate("ride.rideExistsTitle"), translate("ride.rideExistsMessage"))
-          } else if (areActivitiesDisabled) {
-            disabledReason = "Live Activities disabled"
-            Alert.alert(translate("ride.disabledTitle"), translate("ride.disabledMessage"), [
+          } else if (areActivitiesDisabled()) {
+            disabledReason = Platform.OS === "ios" ? "Live Activities disabled" : "Notifications disbled"
+            const alertTitle =
+              Platform.OS === "ios" ? translate("ride.liveActivitiesDisabledTitle") : translate("ride.notificationsDisabledTitle")
+            const alertMessage =
+              Platform.OS === "ios"
+                ? translate("ride.liveActivitiesDisabledMessage")
+                : translate("ride.notificationsDisabledMessage")
+            Alert.alert(alertTitle, alertMessage, [
               {
                 style: "cancel",
                 text: translate("common.cancel"),
