@@ -7,6 +7,7 @@ import { trainRouteSchema } from "../train-routes/train-routes"
 import { RideApi, RouteItem } from "../../services/api"
 
 const rideApi = new RideApi()
+let unsubscribeTokenUpdates: () => void
 
 const startRideHandler: (route: RouteItem) => Promise<string> = Platform.select({
   ios: iOSHelpers.startLiveActivity,
@@ -23,13 +24,20 @@ const startRideHandler: (route: RouteItem) => Promise<string> = Platform.select(
       throw new Error("Couldn't start ride")
     }
 
+    unsubscribeTokenUpdates = messaging().onTokenRefresh((newToken) => {
+      rideApi.updateRideToken(rideId, newToken)
+    })
+
     return rideId
   },
 })
 
 const endRideHandler: (routeId: string) => Promise<boolean> = Platform.select({
   ios: iOSHelpers.endLiveActivity,
-  android: rideApi.endRide,
+  android: (rideId: string) => {
+    unsubscribeTokenUpdates()
+    return rideApi.endRide(rideId)
+  },
 })
 
 /**
