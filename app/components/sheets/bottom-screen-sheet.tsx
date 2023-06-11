@@ -1,4 +1,4 @@
-import { View, ViewStyle, useColorScheme } from "react-native"
+import { Platform, View, ViewStyle, useColorScheme } from "react-native"
 import { BlurView } from "@react-native-community/blur"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { color } from "../../theme"
@@ -38,12 +38,14 @@ export function BottomScreenSheet({ children, style }: BottomScreenSheetProps) {
       }}
     >
       {children}
-      <BlurView
-        style={{ position: "absolute", top: 0, left: 0, bottom: 0, right: 0, zIndex: -1 }}
-        blurType={isDarkMode ? "ultraThinMaterialDark" : "xlight"}
-        blurAmount={30}
-        reducedTransparencyFallbackColor={color.tertiaryBackground as unknown as string}
-      />
+      {Platform.OS === "ios" && (
+        <BlurView
+          style={{ position: "absolute", top: 0, left: 0, bottom: 0, right: 0, zIndex: -1 }}
+          blurType={isDarkMode ? "ultraThinMaterialDark" : "xlight"}
+          blurAmount={30}
+          reducedTransparencyFallbackColor={color.tertiaryBackground as unknown as string}
+        />
+      )}
     </View>
   )
 }
