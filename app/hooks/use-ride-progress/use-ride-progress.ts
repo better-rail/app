@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { AppState, AppStateStatus } from "react-native"
+import { AppState } from "react-native"
 import { addMinutes, differenceInMinutes } from "date-fns"
 import { RouteItem } from "../../services/api"
 import { getPreviousTrainFromStationId, getTrainFromStationId } from "../../utils/helpers/ride-helpers"

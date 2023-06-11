@@ -54,6 +54,12 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
     setShouldFadeRideButton(true)
   }, [])
 
+  useEffect(() => {
+    if (ride.id && progress.status === "arrived") {
+      ride.stopRide(ride.id)
+    }
+  }, [progress.status, ride.id])
+
   return (
     <Screen
       style={ROOT}
