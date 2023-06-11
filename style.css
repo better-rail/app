@@ -160,7 +160,7 @@ footer {
 @media (min-width: 1024px) {
   .site-content {
     top: unset;
-    margin-bottom: 32px;
+    margin-bottom: 0;
   }
 
   .app-description {
