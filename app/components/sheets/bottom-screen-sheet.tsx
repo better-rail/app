@@ -1,7 +1,7 @@
 import { Platform, View, ViewStyle, useColorScheme } from "react-native"
 import { BlurView } from "@react-native-community/blur"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { color } from "../../theme"
+import { color, isDarkMode } from "../../theme"
 import { ReactNode } from "react"
 
 const SHEET_CONTAINER: ViewStyle = {
@@ -12,7 +12,7 @@ const SHEET_CONTAINER: ViewStyle = {
   justifyContent: "space-between",
   position: "absolute",
   width: "100%",
-  borderTopColor: color.separator,
+  borderTopColor: Platform.OS === "ios" ? color.separator : isDarkMode ? "#454545" : "#c6c6c6",
   borderTopWidth: 1,
 }
 
