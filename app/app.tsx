@@ -87,16 +87,18 @@ function App() {
       monitorLiveActivities()
     }
 
-    const unsubscribe = messaging().onMessage((message) => {
-      if (!message.notification) return
+    if (Platform.OS === "android") {
+      const unsubscribe = messaging().onMessage((message) => {
+        if (!message.notification) return
 
-      Burnt.toast({
-        title: message.notification.title,
-        message: message.notification.body,
+        Burnt.toast({
+          title: message.notification.title,
+          message: message.notification.body,
+        })
       })
-    })
 
-    return () => unsubscribe()
+      return () => unsubscribe()
+    }
   }, [])
 
   useEffect(() => {
