@@ -18,7 +18,9 @@ struct CountdownView: View {
     
   var body: some View {
     HStack (alignment: .firstTextBaseline, spacing: 4.0) {
-      Text(String(minutesLeft)).font(.system(size: 28, weight: .heavy, design: .rounded))
+      Text(String(minutesLeft))
+        .font(.system(size: 28, weight: .heavy, design: .rounded))
+        .contentTransition(.numericText())
       Text("min").font(.system(size: 20, weight: .bold, design: .rounded))
     }.foregroundColor(color)
   }

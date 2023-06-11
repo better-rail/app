@@ -371,6 +371,7 @@ const stations: Station[] = [
     english: "Lehavim - Rahat",
     russian: "Леавим - Рахат",
     arabic: "لهاڤيم - رهط",
+    image: require("../../assets/station-images/lehavim.jpg"),
   },
   {
     id: "300",
