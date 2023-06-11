@@ -17,6 +17,7 @@ import { QueryClient, QueryClientProvider } from "react-query"
 import { NavigationContainerRef } from "@react-navigation/native"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet"
+import messaging from "@react-native-firebase/messaging"
 
 import analytics from "@react-native-firebase/analytics"
 import crashlytics from "@react-native-firebase/crashlytics"
@@ -36,6 +37,20 @@ import { ToggleStorybook } from "../storybook/toggle-storybook"
 import { setInitialLanguage, setUserLanguage } from "./i18n/i18n"
 import "react-native-console-time-polyfill"
 import { withIAPContext } from "react-native-iap"
+import PushNotification, { Importance } from "react-native-push-notification"
+import * as Burnt from "burnt"
+
+if (Platform.OS === "android") {
+  PushNotification.createChannel(
+    {
+      channelId: "better-rail",
+      channelName: "Better Rail",
+      channelDescription: "Get live ride notifications",
+      importance: Importance.HIGH,
+    },
+    () => {},
+  )
+}
 
 // Disable tracking in development environment
 if (__DEV__) {
@@ -49,6 +64,7 @@ if (__DEV__) {
 import { enableScreens } from "react-native-screens"
 import { monitorLiveActivities } from "./utils/ios-helpers"
 import { useDeepLinking } from "./hooks/use-deep-linking"
+import { openActiveRide } from "./utils/helpers/ride-helpers"
 enableScreens()
 
 export const queryClient = new QueryClient()
@@ -70,7 +86,30 @@ function App() {
     if (Platform.OS == "ios" && parseFloat(Platform.Version) >= 16.2) {
       monitorLiveActivities()
     }
+
+    const unsubscribe = messaging().onMessage((message) => {
+      if (!message.notification) return
+
+      Burnt.toast({
+        title: message.notification.title,
+        message: message.notification.body,
+      })
+    })
+
+    return () => unsubscribe()
   }, [])
+
+  useEffect(() => {
+    if (Platform.OS === "android") {
+      PushNotification.configure({
+        onNotification(notification) {
+          if (notification.userInteraction) {
+            openActiveRide(rootStore, navigationRef)
+          }
+        },
+      })
+    }
+  }, [rootStore, navigationRef])
 
   useEffect(() => {
     // Refresh app state when app is opened from background
