@@ -45,15 +45,16 @@ const sendAppleNotification = async (payload: NotificationPayload, logger: Logge
 }
 
 const sendAndroidNotification = async (payload: NotificationPayload, logger: Logger) => {
-  if (!payload.alert) {
-    return false
-  }
-
   const message: Message = {
     token: payload.token,
-    notification: {
+    notification: payload.alert && {
       title: payload.alert.title,
       body: payload.alert.text,
+    },
+    data: {
+      status: payload.state.status,
+      delay: payload.state.delay.toString(),
+      nextStationId: payload.state.nextStationId.toString(),
     },
     android: {
       priority: payload.shouldSendImmediately ? "high" : "normal",
