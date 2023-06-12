@@ -32,6 +32,8 @@ mv android/app/google-services.development.json android/app/google-services.json
 - Run `npm run start` to open the metro bundler
 - Run the app with `npm run ios` (for opening the iPhone simulator) or `npm run android` (for the Android simulator).
 
+If you want to contribute and face issues during instllation, please reach out to us at feedback@better-rail.co.il and we'll try to help!
+
 ### License
 
 The source code is released under the [AGPL-3.0 license](https://github.com/guytepper/better-rail/blob/main/LICENSE).  
