@@ -22,8 +22,15 @@ If this is your first time, check out the [official set up guide](https://reactn
 
 - Fork the repo and clone to your machine.
 - Run `yarn install`
-- Run `cd ios && pod install`
-- Run the app with `npm run ios`
+- Rename the firebase development configs:
+
+```bash
+mv ios/GoogleService-Info.development.plist ios/GoogleService-Info.plist
+
+mv android/app/google-services.development.json android/app/google-services.json
+```
+
+- Run the app with `npm run ios` (for opening the iPhone simulator) or `npm run android` (for the Android simulator).
 
 ### License
 
