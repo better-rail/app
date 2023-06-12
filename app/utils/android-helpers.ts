@@ -90,8 +90,8 @@ export const endRideNotifications = async (rideId: string) => {
 const updateNotification = (route: RouteItem, state: RideState) => {
   return notifee.displayNotification({
     id: rideNotification.id,
-    title: getTitleText(rideRoute, state),
-    subtitle: getSubtitleText(rideRoute, state),
+    title: getTitleText(route, state),
+    subtitle: getSubtitleText(route, state),
     android: {
       channelId: "better-rail",
       actions: [
