@@ -187,6 +187,7 @@
           border-radius: 24px;
           font-size: 20px;
         "
+        id="patreon-badge"
       >
         תמכו בנו בפטראון
       </a>
@@ -214,6 +215,9 @@
       });
       document.getElementById("play-store-badge").addEventListener("click", () => {
         sa_event("play_store_click");
+      });
+      document.getElementById("patreon-badge").addEventListener("click", () => {
+        sa_event("patreon_click");
       });
     </script>
   </body>
