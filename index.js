@@ -8,7 +8,7 @@
 //
 // It's easier just to leave it here.
 import App from "./app/app.tsx"
-import { configureAndroidNotifications } from "./app/utils/android-helpers.js"
+import { configureAndroidNotifications } from "./app/utils/android-helpers.ts"
 import { AppRegistry, Platform } from "react-native"
 
 if (Platform.OS === "android") {
