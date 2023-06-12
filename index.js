@@ -8,7 +8,12 @@
 //
 // It's easier just to leave it here.
 import App from "./app/app.tsx"
-import { AppRegistry } from "react-native"
+import { configureAndroidNotifications } from "./app/utils/android-helpers.js"
+import { AppRegistry, Platform } from "react-native"
+
+if (Platform.OS === "android") {
+  configureAndroidNotifications()
+}
 
 AppRegistry.registerComponent("BetterRail", () => App)
 export default App

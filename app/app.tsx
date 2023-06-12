@@ -17,7 +17,7 @@ import { QueryClient, QueryClientProvider } from "react-query"
 import { NavigationContainerRef } from "@react-navigation/native"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet"
-import messaging from "@react-native-firebase/messaging"
+import notifee, { EventType } from "@notifee/react-native"
 
 import analytics from "@react-native-firebase/analytics"
 import crashlytics from "@react-native-firebase/crashlytics"
@@ -37,20 +37,7 @@ import { ToggleStorybook } from "../storybook/toggle-storybook"
 import { setInitialLanguage, setUserLanguage } from "./i18n/i18n"
 import "react-native-console-time-polyfill"
 import { withIAPContext } from "react-native-iap"
-import PushNotification, { Importance } from "react-native-push-notification"
-import * as Burnt from "burnt"
-
-if (Platform.OS === "android") {
-  PushNotification.createChannel(
-    {
-      channelId: "better-rail",
-      channelName: "Better Rail",
-      channelDescription: "Get live ride notifications",
-      importance: Importance.HIGH,
-    },
-    () => {},
-  )
-}
+import PushNotification from "react-native-push-notification"
 
 // Disable tracking in development environment
 if (__DEV__) {
@@ -86,19 +73,6 @@ function App() {
     if (Platform.OS == "ios" && parseFloat(Platform.Version) >= 16.2) {
       monitorLiveActivities()
     }
-
-    if (Platform.OS === "android") {
-      const unsubscribe = messaging().onMessage((message) => {
-        if (!message.notification) return
-
-        Burnt.toast({
-          title: message.notification.title,
-          message: message.notification.body,
-        })
-      })
-
-      return () => unsubscribe()
-    }
   }, [])
 
   useEffect(() => {
@@ -110,6 +84,14 @@ function App() {
           }
         },
       })
+
+      const unsubcribe = notifee.onForegroundEvent(({ type, detail }) => {
+        if (rootStore?.ride?.id && type === EventType.ACTION_PRESS && detail.pressAction.id === "stop") {
+          rootStore.ride.stopRide(rootStore.ride.id)
+        }
+      })
+
+      return () => unsubcribe()
     }
   }, [rootStore, navigationRef])
 

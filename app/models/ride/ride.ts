@@ -1,43 +1,25 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { omit } from "ramda"
 import { Platform } from "react-native"
-import messaging from "@react-native-firebase/messaging"
 import iOSHelpers, { ActivityAuthorizationInfo } from "../../utils/ios-helpers"
+import AndroidHelpers from "../../utils/android-helpers"
 import { trainRouteSchema } from "../train-routes/train-routes"
-import { RideApi, RouteItem } from "../../services/api"
+import { RouteItem } from "../../services/api"
 import { RouteApi } from "../../services/api/route-api"
 import { head, last } from "lodash"
 import { formatDateForAPI } from "../../utils/helpers/date-helpers"
 import { addMinutes } from "date-fns"
 
 const routeApi = new RouteApi()
-const rideApi = new RideApi()
-let unsubscribeTokenUpdates: () => void
 
 const startRideHandler: (route: RouteItem) => Promise<string> = Platform.select({
   ios: iOSHelpers.startLiveActivity,
-  android: async (route: RouteItem) => {
-    const token = await messaging().getToken()
-    const rideId = await rideApi.startRide(route, token)
-
-    if (!rideId) {
-      throw new Error("Couldn't start ride")
-    }
-
-    unsubscribeTokenUpdates = messaging().onTokenRefresh((newToken) => {
-      rideApi.updateRideToken(rideId, newToken)
-    })
-
-    return rideId
-  },
+  android: AndroidHelpers.startRideNotifications,
 })
 
 const endRideHandler: (routeId: string) => Promise<boolean> = Platform.select({
   ios: iOSHelpers.endLiveActivity,
-  android: (rideId: string) => {
-    if (unsubscribeTokenUpdates) unsubscribeTokenUpdates()
-    return rideApi.endRide(rideId)
-  },
+  android: AndroidHelpers.endRideNotifications,
 })
 
 /**
