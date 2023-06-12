@@ -12,7 +12,7 @@
 import "./i18n"
 import "./utils/ignore-warnings"
 import React, { useState, useEffect, useRef } from "react"
-import { Platform, AppState } from "react-native"
+import { AppState } from "react-native"
 import { QueryClient, QueryClientProvider } from "react-query"
 import { NavigationContainerRef } from "@react-navigation/native"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
@@ -47,7 +47,7 @@ if (__DEV__) {
 // stack navigation, use `createNativeStackNavigator` in place of `createStackNavigator`:
 // https://github.com/kmagiera/react-native-screens#using-native-stack-navigator
 import { enableScreens } from "react-native-screens"
-import { monitorLiveActivities } from "./utils/ios-helpers"
+import { canRunLiveActivities, monitorLiveActivities } from "./utils/ios-helpers"
 import { useDeepLinking } from "./hooks/use-deep-linking"
 enableScreens()
 
@@ -67,7 +67,7 @@ function App() {
 
   useEffect(() => {
     // Activate live activities listener on iOS 16.2+
-    if (Platform.OS == "ios" && parseFloat(Platform.Version) >= 16.2) {
+    if (canRunLiveActivities) {
       monitorLiveActivities()
     }
   }, [])

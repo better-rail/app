@@ -141,6 +141,8 @@
     "rideExistsMessage": "Отмените текущую поездку, чтобы начать новую",
     "disabledTitle": "Live Activities отменен",
     "disabledMessage": "Откройте настройки и включите Live Activities чтобы иметь возможность начать поездку",
+    "notSupportedTitle": "Live Activities Не поддерживается",
+    "notSupportedMessage": "Чтобы начать поездку, обновите iOS до 16.2 или более поздней версии.",
 
     "firstRideAlertP1": "During the first three days of usage, there is a possibility that the live activity feature may display an incorrect estimated time of arrival (ETA).",
     "firstRideAlertP2": "This is due to the system taking time to allocate sufficient \"notification budget\" for the application. ",

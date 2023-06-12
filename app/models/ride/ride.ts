@@ -1,7 +1,7 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { omit } from "ramda"
 import { Platform } from "react-native"
-import iOSHelpers, { ActivityAuthorizationInfo } from "../../utils/ios-helpers"
+import iOSHelpers, { ActivityAuthorizationInfo, canRunLiveActivities } from "../../utils/ios-helpers"
 import { trainRouteSchema } from "../train-routes/train-routes"
 import { RouteItem } from "../../services/api"
 
@@ -63,7 +63,7 @@ export const RideModel = types
       self.activityAuthorizationInfo = newInfo
     },
     async checkActivityAuthorizationInfo() {
-      if (Platform.OS === "ios") {
+      if (canRunLiveActivities) {
         const info = await iOSHelpers.activityAuthorizationInfo()
         this.setActivityAuthorizationInfo(info)
       }
@@ -77,8 +77,9 @@ export const RideModel = types
       this.checkActivityAuthorizationInfo()
     },
     startRide(route: RouteItem) {
-      this.setRideLoading(true)
+      if (!canRunLiveActivities) return
 
+      this.setRideLoading(true)
       this.setRoute(route)
 
       startRideHandler(route)
@@ -94,6 +95,8 @@ export const RideModel = types
         })
     },
     stopRide(rideId: string) {
+      if (!canRunLiveActivities) return
+
       this.setRideLoading(true)
       this.setRideId(undefined)
       this.setRoute(undefined)
@@ -112,7 +115,7 @@ export const RideModel = types
       self.id = rideId
     },
     isRideActive(rideId: string) {
-      if (Platform.OS === "ios") {
+      if (canRunLiveActivities) {
         iOSHelpers.isRideActive(rideId).then((tokens) => {
           // TODO: Check if ride Id exists in the array.
           // Currently .rideId arrives always empty, so we only check if the array is empty.
