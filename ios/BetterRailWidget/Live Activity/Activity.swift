@@ -67,7 +67,7 @@ class LiveActivitiesController {
         
         let activityAttributes = BetterRailActivityAttributes(activityStartDate: Date(), route: route)
         
-        let activityContent = ActivityContent(state: initialContentState, staleDate: nil)
+        let activityContent = ActivityContent(state: initialContentState, staleDate: Date().addMinutes(2))
 
         let activity = try Activity.request(attributes: activityAttributes, content: activityContent, pushType: .token)
         LiveActivitiesController.route = route
