@@ -111,7 +111,7 @@ const getTitleText = (route: RouteItem, state: RideState) => {
   const targetDate = getStatusEndDate(route, state)
   const minutes = differenceInMinutes(targetDate, Date.now(), { roundingMethod: "ceil" })
   const time = format(targetDate, "HH:mm")
-  const timeText = " in " + minutes + "min (" + time + ")"
+  const timeText = " in " + minutes + " min (" + time + ")"
 
   if (state.status === "waitForTrain" || state.status === "inExchange") {
     return "Train departs" + timeText
