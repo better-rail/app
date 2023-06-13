@@ -12,6 +12,7 @@ import { differenceInMinutes, isAfter } from "date-fns"
 import { timezoneCorrection } from "../../../utils/helpers/date-helpers"
 import { color } from "../../../theme"
 import { useStores } from "../../../models"
+import { canRunLiveActivities } from "../../../utils/ios-helpers"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -63,7 +64,7 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
 
   const activeRide = !!ride.id
   const areActivitiesDisabled = Platform.select({
-    ios: () => !(ride?.activityAuthorizationInfo?.areActivitiesEnabled ?? true),
+    ios: () => !canRunLiveActivities || !(ride?.activityAuthorizationInfo?.areActivitiesEnabled ?? true),
     android: () => {
       const result = PermissionsAndroid.RESULTS[PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS]
       return result && result !== "granted"

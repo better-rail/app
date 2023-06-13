@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useMemo, useRef, useState } from "react"
-import { View, ViewStyle } from "react-native"
+import { Platform, View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { SharedElement } from "react-navigation-shared-element"
@@ -18,6 +18,7 @@ import { RouteStationCard, RouteStopCard, RouteLine, RouteExchangeDetails } from
 import { LiveRideSheet, LongRouteWarning, StartRideButton } from "./components"
 import BottomSheet from "@gorhom/bottom-sheet"
 import { FirstRideAlert } from "./components/first-ride-alert"
+import { canRunLiveActivities } from "../../utils/ios-helpers"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -142,7 +143,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
         </Animated.View>
       )}
 
-      {!isRideOnThisRoute && (
+      {(Platform.OS === "android" || canRunLiveActivities) && !isRideOnThisRoute && (
         <Animated.View entering={shouldFadeRideButton && FadeInDown.delay(100)} exiting={FadeOutDown} style={{ flex: 1 }}>
           <StartRideButton route={routeItem} screenName={route.name} openFirstRideAlertSheet={openFirstRideAlertSheet} />
         </Animated.View>

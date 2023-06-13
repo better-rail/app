@@ -1,7 +1,9 @@
-import { NativeModules } from "react-native"
+import { NativeModules, Platform } from "react-native"
 import { RouteItem } from "../services/api"
 
 const { RNBetterRail } = NativeModules
+
+export const canRunLiveActivities = Platform.OS == "ios" && parseFloat(Platform.Version) >= 16.2
 
 export function donateRouteIntent(originId: string, destinationId: string) {
   RNBetterRail.donateRouteIntent(originId, destinationId)
@@ -96,5 +98,6 @@ export default {
   startLiveActivity,
   endLiveActivity,
   isRideActive,
+  canRunLiveActivities,
   activityAuthorizationInfo,
 }
