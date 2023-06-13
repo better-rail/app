@@ -116,9 +116,6 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
                 onPress: () => Linking.openSettings(),
               },
             ])
-          } else if (Platform.OS === "ios" && !canRunLiveActivities) {
-            disabledReason = "Live Activities not supported"
-            Alert.alert(translate("ride.notSupportedTitle"), translate("ride.notSupportedMessage"))
           } else {
             let message = ""
             if (isRouteInPast) {

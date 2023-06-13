@@ -195,8 +195,6 @@
     "rideExistsMessage": "Cancel the current ride in order to start a new one",
     "disabledTitle": "Live Activities disabled",
     "disabledMessage": "To start a ride, please open your device settings and enable Live Activities.",
-    "notSupportedTitle": "Live Activities Not Supported",
-    "notSupportedMessage": "To start a ride, please update to iOS 16.2 or later.",
 
     "firstRideAlertP1": "During the first three days of usage, there is a possibility that the live activity feature may display an incorrect estimated time of arrival (ETA).",
     "firstRideAlertP2": "This is due to the system taking time to allocate sufficient \"notification budget\" for the application. ",
