@@ -15,6 +15,7 @@ class ActivityViewModel {
   // context properties
   var route: Route { context.attributes.route }
   var status: ActivityStatus { context.state.status }
+  var isStale: Bool { context.isStale }
   var delay: Int { context.state.delay }
   var nextStationId: Int { context.state.nextStationId }
   var activityStartDate: Date { context.attributes.activityStartDate }
