@@ -8,6 +8,7 @@ import { color, fontScale, spacing } from "../../theme"
 import { Chip, Text } from "../../components"
 import { useStores } from "../../models"
 import { isRTL } from "../../i18n"
+import { canRunLiveActivities } from "../../utils/ios-helpers"
 
 const HEADER_WRAPPER: ViewStyle = {
   flexDirection: "row",
@@ -46,7 +47,7 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
   useEffect(() => {
     // display the "new" badge on ios devices if the user has stations selected (it's not the
     // initial launch) and they haven't seen the live announcement screen yet
-    if (routePlan.origin && routePlan.destination && Platform.OS === "ios") {
+    if (routePlan.origin && routePlan.destination && canRunLiveActivities) {
       storage.load("seenLiveAnnouncement").then((hasSeenLiveAnnouncementScreen) => {
         if (!hasSeenLiveAnnouncementScreen) setDisplayNewBadge(true)
       })
