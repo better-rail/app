@@ -14,6 +14,7 @@ const SHEET_CONTAINER: ViewStyle = {
   width: "100%",
   borderTopColor: Platform.OS === "ios" ? color.separator : isDarkMode ? "#454545" : "#c6c6c6",
   borderTopWidth: 1,
+  backgroundColor: Platform.OS === "android" && color.tertiaryBackground,
 }
 
 interface BottomScreenSheetProps {
