@@ -41,11 +41,11 @@ export const RoutePlanModel = types
   .actions((self) => ({
     setOrigin(station) {
       self.origin = station
-      sendCurrentRouteToiOS(self.origin.id, self.destination?.id)
+      sendCurrentRouteToiOS(self.origin?.id, self.destination?.id)
     },
     setDestination(station) {
       self.destination = station
-      sendCurrentRouteToiOS(self.origin.id, self.destination?.id)
+      sendCurrentRouteToiOS(self.origin?.id, self.destination?.id)
     },
     setDate(date) {
       self.date = date
