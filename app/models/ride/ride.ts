@@ -84,7 +84,7 @@ export const RideModel = types
       this.checkActivityAuthorizationInfo()
     },
     startRide(route: RouteItem) {
-      if (!canRunLiveActivities) return
+      if (Platform.OS === "ios" && !canRunLiveActivities) return
 
       this.setRideLoading(true)
       this.setRoute(route)
@@ -102,7 +102,7 @@ export const RideModel = types
         })
     },
     stopRide(rideId: string) {
-      if (!canRunLiveActivities) return
+      if (Platform.OS === "ios" && !canRunLiveActivities) return
 
       this.setRideLoading(true)
       this.setRideId(undefined)
