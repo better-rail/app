@@ -91,9 +91,10 @@ const updateNotification = (route: RouteItem, state: RideState) => {
   return notifee.displayNotification({
     id: rideNotification.id,
     title: getTitleText(route, state),
-    subtitle: getSubtitleText(route, state),
+    body: getBodyText(route, state),
     android: {
       channelId: "better-rail",
+      smallIcon: "notification_icon",
       actions: [
         {
           title: "Stop",
@@ -121,7 +122,7 @@ const getTitleText = (route: RouteItem, state: RideState) => {
   }
 }
 
-const getSubtitleText = (route: RouteItem, state: RideState) => {
+const getBodyText = (route: RouteItem, state: RideState) => {
   if (state.status === "waitForTrain" || state.status === "inExchange") {
     const train = getTrainFromStationId(route, state.nextStationId)
     return "Train " + train.trainNumber + " to " + train.lastStop + ", departs from platform " + train.originPlatform
