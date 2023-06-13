@@ -12,12 +12,11 @@
 import "./i18n"
 import "./utils/ignore-warnings"
 import React, { useState, useEffect, useRef } from "react"
-import { AppState } from "react-native"
+import { AppState, Platform } from "react-native"
 import { QueryClient, QueryClientProvider } from "react-query"
 import { NavigationContainerRef } from "@react-navigation/native"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet"
-import notifee, { EventType } from "@notifee/react-native"
 
 import analytics from "@react-native-firebase/analytics"
 import crashlytics from "@react-native-firebase/crashlytics"
@@ -84,14 +83,6 @@ function App() {
           }
         },
       })
-
-      const unsubcribe = notifee.onForegroundEvent(({ type, detail }) => {
-        if (rootStore?.ride?.id && type === EventType.ACTION_PRESS && detail.pressAction.id === "stop") {
-          rootStore.ride.stopRide(rootStore.ride.id)
-        }
-      })
-
-      return () => unsubcribe()
     }
   }, [rootStore, navigationRef])
 

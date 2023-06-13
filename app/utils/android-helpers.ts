@@ -1,24 +1,37 @@
 import messaging, { FirebaseMessagingTypes } from "@react-native-firebase/messaging"
 import * as Burnt from "burnt"
-import notifee, { AndroidImportance, Notification } from "@notifee/react-native"
+import notifee, { AndroidImportance, AndroidLaunchActivityFlag } from "@notifee/react-native"
 import { RideState, RideStatus, getStatusEndDate, rideProgress } from "../hooks/use-ride-progress"
 import { RideApi, RouteItem } from "../services/api"
 import { findClosestStationInRoute, getRideStatus, getTrainFromStationId } from "./helpers/ride-helpers"
-import { differenceInMinutes, format } from "date-fns"
+import { addMinutes, differenceInMinutes, format } from "date-fns"
 import { last } from "lodash"
+import Preferences from "react-native-default-preference"
 
 const rideApi = new RideApi()
-let rideRoute: RouteItem
-let rideNotification: Notification
 let unsubscribeTokenUpdates: () => void
 
-export const configureAndroidNotifications = () => {
+const getRideNotificationId = () => Preferences.get("rideNotificationId")
+const setRideRoute = (route: RouteItem) => Preferences.set("rideRoute", JSON.stringify(route))
+const setRideNotificationId = (notificationId: string) => Preferences.set("rideNotificationId", notificationId)
+const getRideRoute = async () => {
+  const savedRoute = await Preferences.get("rideRoute")
+  return savedRoute && (JSON.parse(savedRoute) as RouteItem)
+}
+
+export const configureAndroidNotifications = async () => {
   notifee.createChannel({
     id: "better-rail",
     name: "Better Rail",
     description: "Get live ride notifications",
     importance: AndroidImportance.HIGH,
     sound: "default",
+  })
+
+  notifee.createChannel({
+    id: "better-rail-live",
+    name: "Better Rail Live",
+    description: "Get live ride persistent notification",
   })
 
   const onRecievedMessage = async (message: FirebaseMessagingTypes.RemoteMessage) => {
@@ -35,7 +48,9 @@ export const configureAndroidNotifications = () => {
       nextStationId: Number(message.data.nextStationId),
     }
 
-    if (rideNotification && state) {
+    const rideNotificationId = await getRideNotificationId()
+    if (rideNotificationId && state) {
+      const rideRoute = await getRideRoute()
       updateNotification(rideRoute, state)
     }
   }
@@ -56,53 +71,52 @@ export const startRideNotifications = async (route: RouteItem) => {
     rideApi.updateRideToken(rideId, newToken)
   })
 
-  notifee.registerForegroundService(async (notification) => {
-    rideRoute = route
-    rideNotification = notification
+  await setRideRoute(route)
+  const nextStationId = findClosestStationInRoute(route)
+  const train = getTrainFromStationId(route, nextStationId)
+  const status = getRideStatus(route, train, nextStationId)
 
-    const nextStationId = findClosestStationInRoute(route)
-    const train = getTrainFromStationId(route, nextStationId)
-    const status = getRideStatus(route, train, nextStationId)
+  const state: RideState = {
+    status,
+    nextStationId,
+    delay: train.delay,
+  }
 
-    const state: RideState = {
-      status,
-      nextStationId,
-      delay: train.delay,
-    }
-
-    await updateNotification(route, state)
-  })
-
+  const rideNotificationId = await updateNotification(route, state)
+  await setRideNotificationId(rideNotificationId)
   return rideId
 }
 
 export const endRideNotifications = async (rideId: string) => {
+  messaging().deleteToken()
   if (unsubscribeTokenUpdates) unsubscribeTokenUpdates()
-  if (rideNotification) {
-    rideRoute = null
-    rideNotification = null
-    await notifee.stopForegroundService()
+
+  const rideNotificationId = await getRideNotificationId()
+  if (rideNotificationId) {
+    notifee.cancelNotification(rideNotificationId)
+    Preferences.clearMultiple(["rideRoute", "rideNotificationId"])
   }
 
   return rideApi.endRide(rideId)
 }
 
-const updateNotification = (route: RouteItem, state: RideState) => {
+const updateNotification = async (route: RouteItem, state: RideState) => {
+  const rideNotificationId = await getRideNotificationId()
   return notifee.displayNotification({
-    id: rideNotification.id,
+    [rideNotificationId && "id"]: rideNotificationId,
     title: getTitleText(route, state),
     body: getBodyText(route, state),
     android: {
-      channelId: "better-rail",
+      ongoing: true,
+      autoCancel: false,
+      channelId: "better-rail-live",
       smallIcon: "notification_icon",
-      actions: [
-        {
-          title: "Stop",
-          pressAction: {
-            id: "stop",
-          },
-        },
-      ],
+      timeoutAfter: state.status === "arrived" ? addMinutes(new Date(), 3).getTime() : undefined,
+      pressAction: {
+        id: "default",
+        launchActivity: "com.betterrail.MainActivity",
+        launchActivityFlags: [AndroidLaunchActivityFlag.SINGLE_TOP],
+      },
     },
   })
 }

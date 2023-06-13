@@ -7,8 +7,8 @@ export class RideApi {
   axiosInstance: AxiosInstance
 
   constructor() {
-    const env = "production"
-    const envPath = env == "production" ? "" : "-test"
+    const env: string = "production"
+    const envPath = env === "production" ? "" : "-" + env
     const baseURL = `https://better-rail${envPath}.up.railway.app/api/v1`
 
     this.axiosInstance = axios.create({
