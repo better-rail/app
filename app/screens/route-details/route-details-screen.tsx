@@ -18,6 +18,7 @@ import { RouteStationCard, RouteStopCard, RouteLine, RouteExchangeDetails } from
 import { LiveRideSheet, LongRouteWarning, StartRideButton } from "./components"
 import BottomSheet from "@gorhom/bottom-sheet"
 import { FirstRideAlert } from "./components/first-ride-alert"
+import { canRunLiveActivities } from "../../utils/ios-helpers"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -137,7 +138,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
       )}
 
       {/** TODO: Remove iOS Check */}
-      {Platform.OS === "ios" && !isRideOnThisRoute && (
+      {canRunLiveActivities && !isRideOnThisRoute && (
         <Animated.View entering={shouldFadeRideButton && FadeInDown.delay(100)} exiting={FadeOutDown} style={{ flex: 1 }}>
           <StartRideButton route={routeItem} screenName={route.name} openFirstRideAlertSheet={openFirstRideAlertSheet} />
         </Animated.View>

@@ -8,10 +8,11 @@ import crashlytics from "@react-native-firebase/crashlytics"
 import { Button } from "../../../components"
 import { isRTL, translate } from "../../../i18n"
 import { RouteItem } from "../../../services/api"
-import { differenceInMinutes, isAfter, set } from "date-fns"
+import { differenceInMinutes, isAfter } from "date-fns"
 import { timezoneCorrection } from "../../../utils/helpers/date-helpers"
 import { color } from "../../../theme"
 import { useStores } from "../../../models"
+import { canRunLiveActivities } from "../../../utils/ios-helpers"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -62,7 +63,7 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
   const isRouteInFuture = differenceInMinutes(route.departureTime, timezoneCorrection(new Date()).getTime()) > 60
 
   const activeRide = !!ride.id
-  const areActivitiesDisabled = !(ride?.activityAuthorizationInfo?.areActivitiesEnabled ?? true)
+  const areActivitiesDisabled = !canRunLiveActivities || !(ride?.activityAuthorizationInfo?.areActivitiesEnabled ?? true)
   const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || areActivitiesDisabled || activeRide
 
   const shouldDisplayFirstRideAlert = async () => {
