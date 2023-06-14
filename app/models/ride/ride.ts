@@ -95,7 +95,14 @@ export const RideModel = types
           this.setRideLoading(false)
         })
         .catch(() => {
+          this.setRoute(undefined)
+          this.setRideId(undefined)
           this.setRideLoading(false)
+
+          if (Platform.OS === "android") {
+            AndroidHelpers.cancelNotifications()
+          }
+
           alert(
             "An error occured while starting the ride.\nIf the issue persists, please let us know!\n\n Our email: feedback@better-rail.co.il.",
           )

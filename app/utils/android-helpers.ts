@@ -6,7 +6,8 @@ import { RideApi, RouteItem } from "../services/api"
 import { findClosestStationInRoute, getRideStatus, getTrainFromStationId } from "./helpers/ride-helpers"
 import { addMinutes, differenceInMinutes, format } from "date-fns"
 import Preferences from "react-native-default-preference"
-import { translate } from "../i18n"
+import { getInitialLanguage, translate } from "../i18n"
+import i18n from "i18n-js"
 
 const rideApi = new RideApi()
 let unsubscribeTokenUpdates: () => void
@@ -58,6 +59,11 @@ export const configureAndroidNotifications = async () => {
 
   messaging().onMessage(onRecievedMessage)
   messaging().setBackgroundMessageHandler(onRecievedMessage)
+  notifee.onBackgroundEvent(() => {
+    return new Promise((resolve) => {
+      resolve()
+    })
+  })
 }
 
 export const startRideNotifications = async (route: RouteItem) => {
@@ -88,7 +94,7 @@ export const startRideNotifications = async (route: RouteItem) => {
   return rideId
 }
 
-export const endRideNotifications = async (rideId: string) => {
+export const cancelNotifications = async () => {
   messaging().deleteToken()
   if (unsubscribeTokenUpdates) unsubscribeTokenUpdates()
 
@@ -97,21 +103,27 @@ export const endRideNotifications = async (rideId: string) => {
     notifee.cancelNotification(rideNotificationId)
     Preferences.clearMultiple(["rideRoute", "rideNotificationId"])
   }
+}
 
+export const endRideNotifications = async (rideId: string) => {
+  await cancelNotifications()
   return rideApi.endRide(rideId)
 }
 
 const updateNotification = async (route: RouteItem, state: RideState) => {
   const rideNotificationId = await getRideNotificationId()
+  const userLanguage = (await Preferences.get("userLocale")) || getInitialLanguage()
+  i18n.locale = userLanguage
+
   return notifee.displayNotification({
     [rideNotificationId && "id"]: rideNotificationId,
     title: getTitleText(route, state),
     body: getBodyText(route, state),
     android: {
-      ongoing: true,
-      autoCancel: false,
       channelId: "better-rail-live",
       smallIcon: "notification_icon",
+      ongoing: state.status !== "arrived",
+      autoCancel: state.status === "arrived",
       timeoutAfter: state.status === "arrived" ? addMinutes(new Date(), 3).getTime() : undefined,
       pressAction: {
         id: "default",
@@ -159,4 +171,5 @@ const getBodyText = (route: RouteItem, state: RideState) => {
 export default {
   startRideNotifications,
   endRideNotifications,
+  cancelNotifications,
 }

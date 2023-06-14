@@ -1,4 +1,4 @@
-import { I18nManager } from "react-native"
+import { I18nManager, Platform } from "react-native"
 import RNRestart from "react-native-restart"
 import analytics from "@react-native-firebase/analytics"
 import * as storage from "../utils/storage"
@@ -10,6 +10,7 @@ import en from "./en.json"
 import ar from "./ar.json"
 import he from "./he.json"
 import ru from "./ru.json"
+import Preferences from "react-native-default-preference"
 
 i18n.fallbacks = true
 i18n.translations = { he, en, ar, ru }
@@ -25,16 +26,21 @@ export const deviceLocale = Localization.locale
 
 analytics().setUserProperties({ deviceLocale })
 
-export function setInitialLanguage() {
+export function getInitialLanguage(): LanguageCode {
   if (Localization.locale.startsWith("he")) {
-    changeUserLanguage("he")
+    return "he"
   } else if (Localization.locale.startsWith("ar")) {
-    changeUserLanguage("ar")
+    return "ar"
   } else if (Localization.locale.startsWith("ru")) {
-    changeUserLanguage("ru")
+    return "ru"
   } else {
-    changeUserLanguage("en")
+    return "en"
   }
+}
+
+export function setInitialLanguage() {
+  const languageCode = getInitialLanguage()
+  changeUserLanguage(languageCode)
 }
 
 export function changeUserLanguage(languageCode: LanguageCode) {
@@ -68,6 +74,11 @@ export function setUserLanguage(languageCode: LanguageCode) {
 
   userLocale = languageCode
   i18n.locale = languageCode
+
+  if (Platform.OS === "android") {
+    Preferences.set("userLocale", languageCode)
+  }
+
   if (
     ((languageCode === "he" || languageCode === "ar") && !isRTL) ||
     ((languageCode === "en" || languageCode === "ru") && isRTL)
