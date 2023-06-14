@@ -22,9 +22,9 @@ If this is your first time, check out the [official set up guide](https://reactn
 
 - Fork the repo and clone to your machine.
 - Run `yarn install`
-- Run `npm run rename-dev-configs` to rename the firebase development configs
-- Run `npm run start` to open the metro bundler
-- Run the app with `npm run ios` (for opening the iPhone simulator) or `npm run android` (for the Android simulator).
+- Run `yarn rename-dev-configs` to rename the firebase development configs
+- Run `yarn start` to start the metro development server
+- Run the app with `yarn ios` (to open the iPhone simulator) or `yarn android` (for the Android simulator).
 
 If you want to contribute and face issues during instllation, please reach out to us at feedback@better-rail.co.il and we'll try to help!
 
