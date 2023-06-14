@@ -32,6 +32,7 @@ export const configureAndroidNotifications = async () => {
     id: "better-rail-live",
     name: "Better Rail Live",
     description: "Get live ride persistent notification",
+    vibration: false,
   })
 
   const onRecievedMessage = async (message: FirebaseMessagingTypes.RemoteMessage) => {
