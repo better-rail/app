@@ -109,7 +109,7 @@ export const openActiveRide = (rootStore: RootStore, navigationRef: MutableRefOb
   const { route, originId, destinationId } = rootStore.ride
   if (!route) return
 
-  const { name: screenName, params: screenParams } = navigationRef.current?.getCurrentRoute()
+  const { name: screenName, params: screenParams } = navigationRef.current?.getCurrentRoute() ?? {}
 
   if (screenName !== "routeDetails") {
     // @ts-expect-error navigator type
