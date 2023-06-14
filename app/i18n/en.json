@@ -185,12 +185,11 @@
     "rideInPastAlert": "This ride has ended.",
     "activeRideAlert": "An active ride exists.\n\nCancel the current ride in order to start a new one.",
 
-    "trainArriving": "Train arrives to destination",
+    "trainArriving": "Train arrives at the destination",
     "arrivingIn": "Arriving in %{minutes} min",
     "arrived": "You have arrived",
     "departsIn": "Train departs in %{minutes} min",
     "departsNow": "Train departs now",
-    "trainArrives": "Train arrives to destination",
     "rideExistsTitle": "An active ride exists",
     "rideExistsMessage": "Cancel the current ride in order to start a new one",
     "disabledTitle": "Live Activities disabled",
