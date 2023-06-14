@@ -189,10 +189,15 @@
     "rideInPastAlert": "נסיעה זו כבר הסתיימה.",
 
     "trainArriving": "הרכבת מתקרבת ליעד",
-    "arrivingIn": "הגעה ליעד בעוד %{minutes} דק'",
+    "arrivingIn": "הגעה בעוד %{minutes} דק'",
     "arrived": "הגעת ליעד",
     "departsIn": "הרכבת יוצאת בעוד %{minutes} דק'",
     "departsNow": "הרכבת יוצאת עכשיו",
+    "trainInfo": "רכבת %{trainNumber} ל%{lastStop}, תצא מרציף %{platform}",
+    "getOffNextStop": "הגעה ליעד בתחנה הבאה",
+    "getOffInStops": "הגעה ליעד בעוד %{stopsLeft} תחנות",
+    "greeting": "תודה שנסעתם עם בטר רייל!",
+
     "rideExistsTitle": "קיימת נסיעה פעילה",
     "rideExistsMessage": "עצרו את הנסיעה הנוכחית על מנת להתחיל חדשה",
     "liveActivitiesDisabledTitle": "פעילויות בזמן אמת כבויות",

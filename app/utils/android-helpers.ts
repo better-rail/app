@@ -5,8 +5,8 @@ import { RideState, RideStatus, getStatusEndDate, rideProgress } from "../hooks/
 import { RideApi, RouteItem } from "../services/api"
 import { findClosestStationInRoute, getRideStatus, getTrainFromStationId } from "./helpers/ride-helpers"
 import { addMinutes, differenceInMinutes, format } from "date-fns"
-import { last } from "lodash"
 import Preferences from "react-native-default-preference"
+import { translate } from "../i18n"
 
 const rideApi = new RideApi()
 let unsubscribeTokenUpdates: () => void
@@ -125,28 +125,33 @@ const getTitleText = (route: RouteItem, state: RideState) => {
   const targetDate = getStatusEndDate(route, state)
   const minutes = differenceInMinutes(targetDate, Date.now(), { roundingMethod: "ceil" })
   const time = format(targetDate, "HH:mm")
-  const timeText = " in " + minutes + " min (" + time + ")"
+  const timeText = "(" + time + ")"
 
   if (state.status === "waitForTrain" || state.status === "inExchange") {
-    return "Train departs" + timeText
+    if (minutes < 2) return translate("ride.departsNow") + " " + timeText
+    else return translate("ride.departsIn", { minutes }) + " " + timeText
   } else if (state.status === "inTransit") {
-    return "Arriving" + timeText
+    return translate("ride.arrivingIn", { minutes }) + " " + timeText
   } else {
-    return "Arrived at " + last(route.trains).destinationStationName
+    return translate("ride.arrived")
   }
 }
 
 const getBodyText = (route: RouteItem, state: RideState) => {
   if (state.status === "waitForTrain" || state.status === "inExchange") {
     const train = getTrainFromStationId(route, state.nextStationId)
-    return "Train " + train.trainNumber + " to " + train.lastStop + ", departs from platform " + train.originPlatform
+    return translate("ride.trainInfo", {
+      trainNumber: train.trainNumber,
+      lastStop: train.lastStop,
+      platform: train.originPlatform,
+    })
   } else if (state.status === "inTransit") {
     const progress = rideProgress(route, state.nextStationId)
     const stopsLeft = progress[1] - progress[0]
-    if (stopsLeft === 1) return "Get off at the next stop"
-    else return "Get off in " + stopsLeft + " stops"
+    if (stopsLeft === 1) return translate("ride.getOffNextStop")
+    else return translate("ride.getOffInStops", { stopsLeft })
   } else {
-    return "Thanks for riding with Better Rail"
+    return translate("ride.greeting")
   }
 }
 

@@ -190,7 +190,11 @@
     "arrived": "You have arrived",
     "departsIn": "Train departs in %{minutes} min",
     "departsNow": "Train departs now",
-    "trainArrives": "Train arrives to destination",
+    "trainInfo": "Train %{trainNumber} to %{lastStop}, departs from platform %{platform}",
+    "getOffNextStop": "Get off at the next stop",
+    "getOffInStops": "Get off in %{stopsLeft} stops",
+    "greeting": "Thanks for riding with Better Rail",
+
     "rideExistsTitle": "An active ride exists",
     "rideExistsMessage": "Cancel the current ride in order to start a new one",
     "liveActivitiesDisabledTitle": "Live Activities disabled",
