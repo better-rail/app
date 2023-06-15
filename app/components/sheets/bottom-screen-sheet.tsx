@@ -4,6 +4,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { color, isDarkMode } from "../../theme"
 import { ReactNode } from "react"
 
+const androidSeparatorColor = isDarkMode ? "#454545" : "#c6c6c6"
+
 const SHEET_CONTAINER: ViewStyle = {
   height: 75,
   paddingHorizontal: 20,
@@ -12,7 +14,7 @@ const SHEET_CONTAINER: ViewStyle = {
   justifyContent: "space-between",
   position: "absolute",
   width: "100%",
-  borderTopColor: Platform.OS === "ios" ? color.separator : isDarkMode ? "#454545" : "#c6c6c6",
+  borderTopColor: Platform.OS === "ios" ? color.separator : androidSeparatorColor,
   borderTopWidth: 1,
   backgroundColor: Platform.OS === "android" && color.tertiaryBackground,
 }
