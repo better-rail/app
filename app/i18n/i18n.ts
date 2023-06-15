@@ -1,6 +1,7 @@
 import { I18nManager, Platform } from "react-native"
 import RNRestart from "react-native-restart"
 import analytics from "@react-native-firebase/analytics"
+import Preferences from "react-native-default-preference"
 import * as storage from "../utils/storage"
 
 import * as Localization from "expo-localization"
@@ -10,7 +11,6 @@ import en from "./en.json"
 import ar from "./ar.json"
 import he from "./he.json"
 import ru from "./ru.json"
-import Preferences from "react-native-default-preference"
 
 i18n.fallbacks = true
 i18n.translations = { he, en, ar, ru }
