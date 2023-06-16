@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "201573714000",
+    "project_id": "better-rail-development",
+    "storage_bucket": "better-rail-development.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:201573714000:android:6a6b2b239a85076242a955",
+        "android_client_info": {
+          "package_name": "com.betterrail"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "201573714000-7c6n0p2l9gtihrg2c9jgsg91v4pno7sa.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWlEd8H5qFSWuCGkemi3ib015S0Jznh4U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "201573714000-7c6n0p2l9gtihrg2c9jgsg91v4pno7sa.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
