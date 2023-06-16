@@ -63,24 +63,46 @@ struct TimeInformation: View {
         
         else {
           VStack(alignment: .trailing) {
-            if (vm.context.attributes.frequentPushesEnabled) {
-              CountdownView(targetDate: targetDate, delay: delay)
-                .accessibilityLabel("time left arrival")
-            }
-            
-            HStack (spacing: 2) {
-              Text("arrive").fontWeight(vm.isEnglish ? .light : .medium)
-              // we don't have space for both original & updated times in the dynamic island
-              if (delay == 0 || placement == .lockScreen && delay > 0) {
-                Text(formatDateHour(targetDate.addMinutes(-delay))).bold().strikethrough(delay > 0 ? true : false)
+            if (vm.isStale) {
+              if (vm.context.attributes.frequentPushesEnabled) {
+                CountdownView(targetDate: targetDate, delay: delay)
+                  .accessibilityLabel("time left arrival")
               }
               
-              if (vm.delay != 0) {
-                Text(formatDateHour(targetDate)) .foregroundColor(Color(uiColor: .systemRed)).fontWeight(.heavy)
-              }
-            }.font(vm.isEnglish ? .caption2 : .caption)
+              HStack (spacing: 2) {
+                Text("arrive").fontWeight(vm.isEnglish ? .light : .medium)
+                // we don't have space for both original & updated times in the dynamic island
+                if (delay == 0 || placement == .lockScreen && delay > 0) {
+                  Text(formatDateHour(targetDate.addMinutes(-delay))).bold().strikethrough(delay > 0 ? true : false)
+                }
+                
+                if (vm.delay != 0) {
+                  Text(formatDateHour(targetDate)) .foregroundColor(Color(uiColor: .systemRed)).fontWeight(.heavy)
+                }
+              }.font(vm.isEnglish ? .caption2 : .caption)
+            }
+            
+          else {
+            
+            HStack(alignment: .firstTextBaseline, spacing: 2.0) {
+              Text("arrive")
+                .font(vm.isEnglish ? .caption : .caption)
+                .fontWeight(.light)
+              
+              Text(formatDateHour(targetDate))
+                .font(.system(size: 24, weight: .heavy, design: .rounded))
+            }.padding(.top, 12)
+            
+//            
+//            if (vm.delay != 0) {
+//              Text("\(String(vm.delay)) min delay")
+//                .bold()
+//                .foregroundColor(.red)
+//                .font(vm.isEnglish ? .caption2 : .caption)
+//            }
           }
         }
       }
     }
+  }
 }

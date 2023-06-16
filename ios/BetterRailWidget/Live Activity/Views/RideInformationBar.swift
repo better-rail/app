@@ -57,6 +57,13 @@ struct RideInformationBar: View {
                 Text("train \(String(vm.train.trainNumber)) to \(vm.lastTrainStop.name)")
                   .font(.subheadline2)
                   .fontWeight(true ? .bold : .regular)
+                
+                if (true) {
+                  Text("\(String(vm.delay)) min delay")
+                    .bold()
+                    .font(.subheadline2)
+                    
+                }
               }
             }
           }
@@ -70,6 +77,6 @@ struct RideInformationBar: View {
   
   var BarBackground: some View {
     Rectangle()
-      .frame(width: .infinity, height: 70).foregroundColor(.yellow).padding(.horizontal, -16).padding(.bottom, -14)
+      .frame(width: .infinity, height: 70).foregroundColor(.red).padding(.horizontal, -16).padding(.bottom, -14)
   }
 }
