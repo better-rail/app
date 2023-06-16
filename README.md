@@ -22,11 +22,10 @@ If this is your first time, check out the [official set up guide](https://reactn
 
 - Fork the repo and clone to your machine.
 - Run `yarn install`
-- Run `yarn rename-dev-configs` to rename the firebase development configs (Windows users see note at the bottom. ` )
+- **MacOS / Linux users**: Run `yarn rename-dev-configs` to rename the firebase development configs.
+- **Windows users**: Duplicate the firebase configs in `/ios` and `/android/app`, and remove the `.development` suffix from the duplicated files.
 - Run `yarn start` to start the metro development server
 - Run the app with `yarn ios` (to open the iPhone simulator) or `yarn android` (for the Android simulator).
-
-> Windows users will need to duplicate the firebase config in `/ios` and `/android/app`, and remove the `.development` suffix from the duplicated files.
 
 If you want to contribute and face issues during instllation, please reach out to us at feedback@better-rail.co.il and we'll try to help!
 
