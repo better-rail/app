@@ -63,7 +63,7 @@ struct TimeInformation: View {
         
         else {
           VStack(alignment: .trailing) {
-            if (vm.isStale) {
+            if (!vm.isStale) {
               if (vm.context.attributes.frequentPushesEnabled) {
                 CountdownView(targetDate: targetDate, delay: delay)
                   .accessibilityLabel("time left arrival")
@@ -83,7 +83,6 @@ struct TimeInformation: View {
             }
             
           else {
-            
             HStack(alignment: .firstTextBaseline, spacing: 2.0) {
               Text("arrive")
                 .font(vm.isEnglish ? .caption : .caption)

@@ -50,20 +50,19 @@ struct RideInformationBar: View {
                 Text(informationText).font(.subheadline2)
               } else {
                 // info on bottom, instructions on top
-                if (false) {
+                if (!vm.isStale) {
                   Text(informationText).font(.subheadline).bold()
+                } else {
+                  if (vm.delay > 0) {
+                    Text("\(String(vm.delay)) min delay")
+                      .bold()
+                      .font(.subheadline)
+                  }
                 }
                 
                 Text("train \(String(vm.train.trainNumber)) to \(vm.lastTrainStop.name)")
                   .font(.subheadline2)
-                  .fontWeight(true ? .bold : .regular)
                 
-                if (true) {
-                  Text("\(String(vm.delay)) min delay")
-                    .bold()
-                    .font(.subheadline2)
-                    
-                }
               }
             }
           }
@@ -77,6 +76,6 @@ struct RideInformationBar: View {
   
   var BarBackground: some View {
     Rectangle()
-      .frame(width: .infinity, height: 70).foregroundColor(.red).padding(.horizontal, -16).padding(.bottom, -14)
+      .frame(width: .infinity, height: 70).foregroundColor(.yellow).padding(.horizontal, -16).padding(.bottom, -14)
   }
 }
