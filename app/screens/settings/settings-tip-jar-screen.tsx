@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { View, ViewStyle, TextStyle, Platform, ActivityIndicator } from "react-native"
-import { ProductPurchase, useIAP } from "react-native-iap"
+import { ProductPurchase, RequestPurchase, useIAP } from "react-native-iap"
 import { Screen, Text } from "../../components"
 import { color, isDarkMode, spacing } from "../../theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
@@ -10,6 +10,7 @@ import { TipThanksModal } from "./components/tip-thanks-modal"
 import { useStores } from "../../models"
 import { getInstallerPackageNameSync } from "react-native-device-info"
 import analytics from "@react-native-firebase/analytics"
+import crashlytics from "@react-native-firebase/crashlytics"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -111,7 +112,13 @@ export const TipJarScreen = observer(function TipJarScreen() {
     try {
       setIsLoading(true)
 
-      const purchase = (await requestPurchase({ sku })) as ProductPurchase
+      const requestPurchaseParams: RequestPurchase = Platform.select({
+        ios: { sku },
+        android: { skus: [sku] },
+      })
+
+      const purchase = (await requestPurchase(requestPurchaseParams)) as ProductPurchase
+
       await finishTransaction({ purchase, isConsumable: true })
 
       const item = products.find((product) => product.productId === sku)
@@ -131,6 +138,8 @@ export const TipJarScreen = observer(function TipJarScreen() {
 
       setModalVisible(true)
       settings.addTip(Number(amount))
+    } catch (err) {
+      crashlytics().recordError(err)
     } finally {
       setIsLoading(false)
     }
