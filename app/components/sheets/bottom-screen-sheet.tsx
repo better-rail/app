@@ -1,8 +1,10 @@
 import { Platform, View, ViewStyle, useColorScheme } from "react-native"
 import { BlurView } from "@react-native-community/blur"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { color } from "../../theme"
+import { color, isDarkMode } from "../../theme"
 import { ReactNode } from "react"
+
+const androidSeparatorColor = isDarkMode ? "#454545" : "#c6c6c6"
 
 const SHEET_CONTAINER: ViewStyle = {
   height: 75,
@@ -12,8 +14,9 @@ const SHEET_CONTAINER: ViewStyle = {
   justifyContent: "space-between",
   position: "absolute",
   width: "100%",
-  borderTopColor: color.separator,
+  borderTopColor: Platform.OS === "ios" ? color.separator : androidSeparatorColor,
   borderTopWidth: 1,
+  backgroundColor: Platform.OS === "android" && color.tertiaryBackground,
 }
 
 interface BottomScreenSheetProps {
