@@ -22,13 +22,38 @@ struct TimeInformation: View {
   
   var placement: ViewPlacement = .lockScreen
   
+  var staleInformation: some View {
+    VStack(alignment: .trailing) {
+      HStack(alignment: .firstTextBaseline, spacing: 4) {
+        if (placement == .lockScreen) {
+          Text("arrive")
+            .font(vm.isEnglish ? .caption2 : .caption)
+            .fontWeight(.light)
+          
+        }
+        
+        Text(formatDateHour(targetDate))
+          .font(.system(size: 24, weight: .heavy, design: .rounded))
+      }.padding(.top, vm.delay != 0 ? 6 : 16)
+      
+      if (vm.delay != 0) {
+        Text("\(String(vm.delay)) min delay")
+          .font(.caption)
+          .fontWeight(.semibold)
+          .foregroundColor(.red)
+      }
+    }
+  }
+  
     var body: some View {
       if (vm.status == .arrived) {
         VStack(alignment: .trailing) {
           Text("ARRIVAL TIME").font(.caption)
           Text(formatDateHour(targetDate)).font(.system(size: 18, weight: .bold, design: .rounded))
         }
-        
+      }
+      else if (vm.isStale) {
+        staleInformation
       }
       else {
         if (vm.status == .waitForTrain || vm.status == .inExchange) {
@@ -63,45 +88,24 @@ struct TimeInformation: View {
         
         else {
           VStack(alignment: .trailing) {
-            if (!vm.isStale) {
-              if (vm.context.attributes.frequentPushesEnabled) {
-                CountdownView(targetDate: targetDate, delay: delay)
-                  .accessibilityLabel("time left arrival")
-              }
-              
-              HStack (spacing: 2) {
-                Text("arrive").fontWeight(vm.isEnglish ? .light : .medium)
-                // we don't have space for both original & updated times in the dynamic island
-                if (delay == 0 || placement == .lockScreen && delay > 0) {
-                  Text(formatDateHour(targetDate.addMinutes(-delay))).bold().strikethrough(delay > 0 ? true : false)
-                }
-                
-                if (vm.delay != 0) {
-                  Text(formatDateHour(targetDate)) .foregroundColor(Color(uiColor: .systemRed)).fontWeight(.heavy)
-                }
-              }.font(vm.isEnglish ? .caption2 : .caption)
+            if (vm.context.attributes.frequentPushesEnabled) {
+              CountdownView(targetDate: targetDate, delay: delay)
+                .accessibilityLabel("time left arrival")
             }
             
-          else {
-            HStack(alignment: .firstTextBaseline, spacing: 2.0) {
-              Text("arrive")
-                .font(vm.isEnglish ? .caption : .caption)
-                .fontWeight(.light)
+            HStack (spacing: 2) {
+              Text("arrive").fontWeight(vm.isEnglish ? .light : .medium)
+              // we don't have space for both original & updated times in the dynamic island
+              if (delay == 0 || placement == .lockScreen && delay > 0) {
+                Text(formatDateHour(targetDate.addMinutes(-delay))).bold().strikethrough(delay > 0 ? true : false)
+              }
               
-              Text(formatDateHour(targetDate))
-                .font(.system(size: 24, weight: .heavy, design: .rounded))
-            }.padding(.top, 12)
-            
-//            
-//            if (vm.delay != 0) {
-//              Text("\(String(vm.delay)) min delay")
-//                .bold()
-//                .foregroundColor(.red)
-//                .font(vm.isEnglish ? .caption2 : .caption)
-//            }
+              if (vm.delay != 0) {
+                Text(formatDateHour(targetDate)) .foregroundColor(Color(uiColor: .systemRed)).fontWeight(.heavy)
+              }
+            }.font(vm.isEnglish ? .caption2 : .caption)
           }
         }
       }
-    }
   }
 }

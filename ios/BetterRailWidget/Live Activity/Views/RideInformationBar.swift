@@ -52,16 +52,11 @@ struct RideInformationBar: View {
                 // info on bottom, instructions on top
                 if (!vm.isStale) {
                   Text(informationText).font(.subheadline).bold()
-                } else {
-                  if (vm.delay > 0) {
-                    Text("\(String(vm.delay)) min delay")
-                      .bold()
-                      .font(.subheadline)
-                  }
                 }
                 
                 Text("train \(String(vm.train.trainNumber)) to \(vm.lastTrainStop.name)")
                   .font(.subheadline2)
+                  .fontWeight(vm.isStale ? .medium : .regular)
                 
               }
             }

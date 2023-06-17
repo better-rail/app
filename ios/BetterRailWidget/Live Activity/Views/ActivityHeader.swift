@@ -24,7 +24,8 @@ struct ActivityHeader: View {
           
           Text("connection issues")
             .font(.caption2)
-        }.foregroundColor(.red).fontWeight(.heavy)
+        }
+        .foregroundColor(.orange).fontWeight(.heavy)
       }
     }
   }
