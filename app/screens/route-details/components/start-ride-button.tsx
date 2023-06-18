@@ -159,7 +159,7 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
                 analytics().logEvent("first_live_ride_alert")
               }
             })
-          } else {
+          } else if (Number(Platform.Version) >= 33) {
             const result = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS)
             if (result !== "granted") return
           }
