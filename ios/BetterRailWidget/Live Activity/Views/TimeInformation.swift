@@ -26,7 +26,7 @@ struct TimeInformation: View {
     VStack(alignment: .trailing) {
       HStack(alignment: .firstTextBaseline, spacing: 4) {
         if (placement == .lockScreen) {
-          Text("arrive")
+          Text(vm.status == .inTransit ? "arrive" : "depart")
             .font(vm.isEnglish ? .caption2 : .caption)
             .fontWeight(.light)
           
