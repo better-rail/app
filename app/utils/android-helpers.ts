@@ -1,5 +1,4 @@
 import messaging, { FirebaseMessagingTypes } from "@react-native-firebase/messaging"
-import * as Burnt from "burnt"
 import notifee, { AndroidImportance, AndroidLaunchActivityFlag } from "@notifee/react-native"
 import { RideState, RideStatus, getStatusEndDate, rideProgress } from "../hooks/use-ride-progress"
 import { RideApi, RouteItem } from "../services/api"
@@ -38,9 +37,18 @@ export const configureAndroidNotifications = async () => {
 
   const onRecievedMessage = async (message: FirebaseMessagingTypes.RemoteMessage) => {
     if (message.notification) {
-      Burnt.toast({
+      notifee.displayNotification({
         title: message.notification.title,
-        message: message.notification.body,
+        body: message.notification.body,
+        android: {
+          channelId: "better-rail",
+          smallIcon: "notification_icon",
+          pressAction: {
+            id: "default",
+            launchActivity: "com.betterrail.MainActivity",
+            launchActivityFlags: [AndroidLaunchActivityFlag.SINGLE_TOP],
+          },
+        },
       })
     }
 
