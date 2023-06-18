@@ -54,8 +54,7 @@ struct TimeInformation: View {
       }
       else if (vm.isStale) {
         staleInformation
-      }
-      else {
+      } else {
         if (vm.status == .waitForTrain || vm.status == .inExchange) {
           VStack(alignment: .trailing) {
             if (vm.context.attributes.frequentPushesEnabled) {
