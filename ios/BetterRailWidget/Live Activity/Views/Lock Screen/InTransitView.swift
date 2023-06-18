@@ -14,12 +14,8 @@ struct LockScreenInTransitView: View {
         VStack(alignment: .leading) {
           if (vm.status == .arrived) {
             Text("arrived at").font(.subheadline2)
-          } else if (vm.isStale) {
-            Text("headed to")
-              .fontWeight(vm.isRTL ? .regular : .light)
-              .font(vm.isRTL ? .subheadline2 : .caption)
           } else {
-            Text("next station")
+            Text(vm.isStale ? "headed to" : "next station")
               .fontWeight(vm.isRTL ? .regular : .light)
               .font(vm.isRTL ? .subheadline2 : .caption)
           }
