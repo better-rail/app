@@ -70,7 +70,7 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
               analytics().logEvent("open_live_ride_modal_pressed")
             }}
           >
-            <Image source={TRAIN_ICON} style={LIVE_BUTTON_IMAGE} />
+            {Platform.OS === "ios" && <Image source={TRAIN_ICON} style={LIVE_BUTTON_IMAGE} />}
             <Text style={{ color: "white", fontWeight: "500" }} tx="ride.live" />
           </Chip>
         )}
