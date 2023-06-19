@@ -54,7 +54,7 @@ struct BetterRailLiveActivity: Widget {
               .contentTransition(.numericText())
           }
         } minimal: {
-          CircularProgressView(vm: vm, content: vm.isStale ? .icon : .time, tintColor: tintColor(context: context))
+          CircularProgressView(vm: vm, content: .time, tintColor: tintColor(context: context))
         }
         .widgetURL(deepLinkURL(context.attributes.trainNumbers))
         .keylineTint(tintColor(context: context))

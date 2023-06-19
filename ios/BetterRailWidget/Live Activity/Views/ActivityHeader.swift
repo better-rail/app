@@ -17,7 +17,7 @@ struct ActivityHeader: View {
       
       Spacer()
         
-      if (vm.isStale) {
+      if (vm.isStale && vm.status != .arrived) {
         HStack(spacing: 4.0) {
           Image(systemName: "exclamationmark.circle.fill")
             .font(.caption2)
