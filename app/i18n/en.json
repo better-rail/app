@@ -190,7 +190,7 @@
     "arrived": "You have arrived",
     "departsIn": "Train departs in %{minutes} min",
     "departsNow": "Train departs now",
-    "trainInfo": "Train %{trainNumber} to %{lastStop}, departs from platform %{platform}",
+    "trainInfo": "Train %{trainNumber} to %{lastStop}, departs from Platform %{platform}",
     "getOffNextStop": "Get off at the next stop",
     "getOffInStops": "Get off in %{stopsLeft} stops",
     "greeting": "Thanks for riding with Better Rail",
