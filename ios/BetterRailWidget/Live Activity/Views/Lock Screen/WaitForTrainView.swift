@@ -7,22 +7,6 @@ import ActivityKit
 struct LockScreenWaitingForTrainView: View {
   var vm: ActivityViewModel
   
-  var activityStartDate: Date {
-    if (vm.status == .waitForTrain) {
-      return vm.activityStartDate
-    } else {
-      // handle exchange scenerio
-      let previousTrain = getPreviousTrainFromStationId(route: vm.route, stationId: vm.nextStationId )
-      
-      if (previousTrain != nil) {
-        return isoDateStringToDate(previousTrain!.arrivalTime).addMinutes(vm.delay)
-      }
-      
-      print("Previous train wasn't found")
-      return Date()
-    }
-  }
-  
   var body: some View {
     VStack(alignment: .leading) {
       ActivityHeader(vm: vm)

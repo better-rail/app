@@ -27,9 +27,12 @@ class ActivityViewModel {
   var destination: Station {
     if (status == .inExchange) {
       return getStationById(train.orignStation)!
+    } else if (status == .inTransit && train.orignStation == nextStationId && departureDate.addMinutes(delay) > Date.now) {
+      let previousTrain = getPreviousTrainFromStationId(route: route, stationId: nextStationId) ?? train
+      return getStationById(train.destinationStation)!
+    } else {
+      return getStationById(train.destinationStation)!
     }
-      
-    return getStationById(train.destinationStation)!
   }
   var progress: (Int, Int) {
     let progress = rideProgress(route: route, nextStationId: nextStationId)
