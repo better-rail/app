@@ -1,7 +1,6 @@
-import { v4 as uuid } from "uuid"
 import { createClient } from "redis"
 import { RedisClientType } from "@redis/client"
-import { compact, forEach, mapValues } from "lodash"
+import { compact, forEach, mapValues, omit } from "lodash"
 
 import { redisUrl } from "./config"
 import { logNames, logger } from "../logs"
@@ -19,21 +18,17 @@ export const connectToRedis = async () => {
   }
 }
 
-export const addRide = async (ride: RideRequest): Promise<Ride | false> => {
-  const rideId = uuid()
-
+export const addRide = async (ride: Ride): Promise<boolean> => {
   try {
-    const promises: any = []
-    promises.push(updateLastRideNotification(rideId, 0))
-    forEach(ride, (value, key) => {
-      client.hSet(getKey(rideId), key, JSON.stringify(value))
-    })
-
+    const promises = Object.entries(omit(ride, "rideId")).map(([key, value]) =>
+      client.hSet(getKey(ride.rideId), key, JSON.stringify(value)),
+    )
     await Promise.all(promises)
-    logger.info(logNames.redis.rides.add.success, { rideId, token: ride.token })
-    return { ...ride, rideId, lastNotificationId: 0 }
+
+    logger.info(logNames.redis.rides.add.success, { rideId: ride.rideId, token: ride.token })
+    return true
   } catch (error) {
-    logger.error(logNames.redis.rides.add.failed, { error, rideId, token: ride.token })
+    logger.error(logNames.redis.rides.add.failed, { error, rideId: ride.rideId, token: ride.token })
     return false
   }
 }
@@ -97,8 +92,15 @@ export const deleteRide = async (rideId: string) => {
     logger.info(logNames.redis.rides.delete.success, { rideId })
     return success
   } catch (error) {
-    logger.error(logNames.redis.rides.delete.failed, { error, rideId })
-    return false
+    try {
+      const isRideExists = await client.exists(getKey(rideId))
+      if (!isRideExists) {
+        return true
+      }
+    } finally {
+      logger.error(logNames.redis.rides.delete.failed, { error, rideId })
+      return false
+    }
   }
 }
 

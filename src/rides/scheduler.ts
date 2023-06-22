@@ -15,7 +15,7 @@ import { getRouteForRide } from "../requests"
 import { endRideNotifications } from "./index"
 import { NotificationPayload } from "../types/notification"
 import { buildNotifications, getUpdatedLastNotification } from "../utils/ride-utils"
-import { deleteRide, updateLastRideNotification, updateRideToken } from "../data/redis"
+import { addRide, deleteRide, updateLastRideNotification, updateRideToken } from "../data/redis"
 import { buildWaitForTrainNotiifcation, getNotificationToSend, rideUpdateSecond } from "../utils/notify-utils"
 
 export class Scheduler {
@@ -34,32 +34,44 @@ export class Scheduler {
     this.notificationsToSend = this.buildRideNotifications(true)
   }
 
-  static async create(ride: Ride, logger: Logger) {
+  static async create(ride: Ride, isExisting: boolean, logger: Logger) {
     const route = await getRouteForRide(ride)
     if (!route) {
+      if (isExisting) {
+        await deleteRide(ride.rideId)
+      }
+
       return null
     }
 
     if (env === "production" && dayjs().isAfter(route.arrivalTime)) {
-      logger.error(logNames.scheduler.rideInPast, {
+      logger.info(logNames.scheduler.rideInPast, {
         date: ride.departureDate,
         origin: ride.originId,
         destination: ride.destinationId,
         trains: ride.trains,
       })
-      deleteRide(ride.rideId)
+      if (isExisting) {
+        await deleteRide(ride.rideId)
+      }
       return null
     }
 
     if (env === "production" && dayjs(route.departureTime).diff(dayjs(), "minutes") > 60) {
-      logger.error(logNames.scheduler.rideInFuture, {
+      logger.info(logNames.scheduler.rideInFuture, {
         date: ride.departureDate,
         origin: ride.originId,
         destination: ride.destinationId,
         trains: ride.trains,
       })
-      deleteRide(ride.rideId)
+      if (isExisting) {
+        await deleteRide(ride.rideId)
+      }
       return null
+    }
+
+    if (!isExisting) {
+      await addRide(ride)
     }
 
     const instance = new Scheduler(ride, route, logger)

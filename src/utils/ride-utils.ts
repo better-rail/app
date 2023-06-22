@@ -1,15 +1,26 @@
 import dayjs from "dayjs"
+import { v4 as uuid } from "uuid"
 import { isEqual, last, isNumber, head, chunk } from "lodash"
 
-import { Ride } from "../types/ride"
 import { logNames, logger } from "../logs"
 import { getAllRides } from "../data/redis"
+import { Ride, RideRequest } from "../types/ride"
 import { startRideNotifications } from "../rides"
 import { localizedDifference } from "./date-utils"
 import { RouteItem, RouteTrain } from "../types/rail"
 import { LanguageCode, translate } from "../locales/i18n"
 import { NotificationPayload } from "../types/notification"
 import { buildGetOnTrainNotifications, buildNextStationNotifications, buildGetOffTrainNotifications } from "./notify-utils"
+
+export const buildRide = (ride: RideRequest): Ride => {
+  const rideId = uuid()
+
+  return {
+    ...ride,
+    rideId,
+    lastNotificationId: 0,
+  }
+}
 
 export const getSelectedRide = (routes: RouteItem[], ride: Ride) => {
   return routes.find((route) =>
@@ -49,10 +60,10 @@ export const scheduleExistingRides = async () => {
   if (!rides) return
 
   let results: boolean[] = []
-  const chunkedRides = chunk(rides, 30)
+  const chunkedRides = chunk(rides, 20)
   for (const chunk of chunkedRides) {
     const promises = chunk.map((ride) => {
-      return startRideNotifications(ride).then((result) => result.success)
+      return startRideNotifications(ride, true).then((result) => result.success)
     })
 
     const responses = await Promise.all(promises)
