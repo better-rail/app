@@ -14,6 +14,7 @@ import { sendNotification } from "./notify"
 import { getRouteForRide } from "../requests"
 import { endRideNotifications } from "./index"
 import { NotificationPayload } from "../types/notification"
+import { NotFoundRouteForRide, RideNotInTimeError } from "../utils/errors"
 import { buildNotifications, getUpdatedLastNotification } from "../utils/ride-utils"
 import { addRide, deleteRide, updateLastRideNotification, updateRideToken } from "../data/redis"
 import { buildWaitForTrainNotiifcation, getNotificationToSend, rideUpdateSecond } from "../utils/notify-utils"
@@ -41,7 +42,7 @@ export class Scheduler {
         await deleteRide(ride.rideId)
       }
 
-      return null
+      throw new NotFoundRouteForRide(logNames.routeApi.getRoutes.failed)
     }
 
     if (env === "production" && dayjs().isAfter(route.arrivalTime)) {
@@ -54,7 +55,8 @@ export class Scheduler {
       if (isExisting) {
         await deleteRide(ride.rideId)
       }
-      return null
+
+      throw new RideNotInTimeError(logNames.scheduler.rideInPast)
     }
 
     if (env === "production" && dayjs(route.departureTime).diff(dayjs(), "minutes") > 60) {
@@ -67,7 +69,8 @@ export class Scheduler {
       if (isExisting) {
         await deleteRide(ride.rideId)
       }
-      return null
+
+      throw new RideNotInTimeError(logNames.scheduler.rideInFuture)
     }
 
     if (!isExisting) {

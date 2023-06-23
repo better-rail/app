@@ -2,6 +2,7 @@ import { Ride } from "../types/ride"
 import { Scheduler } from "./scheduler"
 import { deleteRide } from "../data/redis"
 import { logNames, logger } from "../logs"
+import { RideNotInTimeError } from "../utils/errors"
 
 const schedulers: Record<string, Scheduler> = {}
 
@@ -12,7 +13,7 @@ export const startRideNotifications = async (ride: Ride, isExisting: boolean = f
   try {
     const scheduler = await Scheduler.create(ride, isExisting, rideLogger)
     if (!scheduler) {
-      throw new Error("Failed to init scheduler")
+      throw new Error("Failed to init scheduler with unknown error")
     }
 
     if (schedulers[ride.rideId]) {
@@ -25,7 +26,10 @@ export const startRideNotifications = async (ride: Ride, isExisting: boolean = f
     rideLogger.info(registerRideLog.success, { ...ride })
     return { success: true, rideId: ride.rideId }
   } catch (error) {
-    rideLogger.error(registerRideLog.failed, { error, ...ride })
+    if (!(error instanceof RideNotInTimeError)) {
+      rideLogger.error(registerRideLog.failed, { error, ...ride })
+    }
+
     return { success: false }
   }
 }
