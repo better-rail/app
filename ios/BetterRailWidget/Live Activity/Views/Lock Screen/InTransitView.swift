@@ -15,21 +15,19 @@ struct LockScreenInTransitView: View {
           if (vm.status == .arrived) {
             Text("arrived at").font(.subheadline2)
           } else {
-            Text("next station")
+            Text(vm.isStale ? "headed to" : "next station")
               .fontWeight(vm.isRTL ? .regular : .light)
               .font(vm.isRTL ? .subheadline2 : .caption)
           }
 
-          Text(vm.nextStop.name)
-            .font(vm.isRTL ? .body : .callout).heavyWide()
-
+          Text(vm.isStale ? vm.destination.name : vm.nextStop.name)
+              .font(vm.isRTL ? .body : .callout).heavyWide()
         }
 
         Spacer()
 
         TimeInformation(vm: vm)
-      }
-      .padding(.top, vm.status == .arrived ? 10.0 : 0)
+      }.padding(.top, vm.status == .arrived ? 10.0 : 0)
       
       RideInformationBar(vm: vm)
     }

@@ -40,7 +40,6 @@ struct RideInformationBar: View {
       
       HStack(alignment: .center) {
         Image(systemName: symbolName).font(.system(size: 36))
-        
         if (vm.status == .arrived) {
           Text("thanks for riding with better rail").font(.subheadline).bold()
         } else {
@@ -51,8 +50,14 @@ struct RideInformationBar: View {
                 Text(informationText).font(.subheadline2)
               } else {
                 // info on bottom, instructions on top
-                Text(informationText).font(.subheadline).bold()
-                Text("train \(String(vm.train.trainNumber)) to \(vm.lastTrainStop.name)").font(.subheadline2)
+                if (!vm.isStale) {
+                  Text(informationText).font(.subheadline).bold()
+                }
+                
+                Text("train \(String(vm.train.trainNumber)) to \(vm.lastTrainStop.name)")
+                  .font(.subheadline2)
+                  .fontWeight(vm.isStale ? .medium : .regular)
+                
               }
             }
           }

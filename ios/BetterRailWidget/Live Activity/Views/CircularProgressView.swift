@@ -39,7 +39,7 @@ struct CircularProgressView: View {
     ZStack {
       ProgressView(timerInterval: start...end, countsDown: false, label: {}, currentValueLabel: { EmptyView() }).progressViewStyle(.circular).tint(tintColor)
       
-      if content == .time && vm.context.attributes.frequentPushesEnabled && minutesLeft < 100 {
+      if content == .time && !vm.isStale && vm.context.attributes.frequentPushesEnabled && minutesLeft < 100 {
         Text(String(minutesLeft))
           .font(.system(size: 11, weight: .semibold))
           .contentTransition(.numericText())

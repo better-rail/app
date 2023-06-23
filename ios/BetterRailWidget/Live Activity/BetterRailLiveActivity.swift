@@ -25,8 +25,6 @@ struct BetterRailLiveActivity: Widget {
       } dynamicIsland: { context in
       let vm = ActivityViewModel(context: context)
       return DynamicIsland {
-            // Expanded UI goes here.  Compose the expanded UI through
-            // various regions, like leading/trailing/center/bottom
           DynamicIslandExpandedRegion(.leading, priority: 10) {
             LeadingView(vm: vm)
               .dynamicIsland(verticalPlacement: .belowIfTooWide)
@@ -44,10 +42,17 @@ struct BetterRailLiveActivity: Widget {
         } compactLeading: {
           CircularProgressView(vm: vm, content: .icon, tintColor: tintColor(context: context))
         } compactTrailing: {
-          Text("\(String(getMinutesLeft(targetDate: getStatusEndDate(context: context)))) min")
-            .foregroundColor(tintColor(context: context))
-            .accessibilityLabel(vm.status == .waitForTrain ? "time left depart" : "time left arrival")
-            .contentTransition(.numericText())
+          let endDate = getStatusEndDate(context: context)
+          
+          if (vm.isStale) {
+            Text(formatDateHour(endDate))
+              .foregroundColor(tintColor(context: context))
+          } else {
+            Text("\(String(getMinutesLeft(targetDate: endDate))) min")
+              .foregroundColor(tintColor(context: context))
+              .accessibilityLabel(vm.status == .waitForTrain ? "time left depart" : "time left arrival")
+              .contentTransition(.numericText())
+          }
         } minimal: {
           CircularProgressView(vm: vm, content: .time, tintColor: tintColor(context: context))
         }

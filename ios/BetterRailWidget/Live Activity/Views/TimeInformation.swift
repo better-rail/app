@@ -22,15 +22,39 @@ struct TimeInformation: View {
   
   var placement: ViewPlacement = .lockScreen
   
+  var staleInformation: some View {
+    VStack(alignment: .trailing) {
+      HStack(alignment: .firstTextBaseline, spacing: 4) {
+        if (placement == .lockScreen) {
+          Text(vm.status == .inTransit ? "arrive" : "depart")
+            .font(vm.isEnglish ? .caption2 : .caption)
+            .fontWeight(.light)
+          
+        }
+        
+        Text(formatDateHour(targetDate))
+          .font(.system(size: 24, weight: .heavy, design: .rounded))
+      }.padding(.top, vm.delay != 0 ? 6 : 16)
+      
+      if (vm.delay != 0) {
+        Text("\(String(vm.delay)) min delay")
+          .font(.caption)
+          .fontWeight(.semibold)
+          .foregroundColor(.red)
+      }
+    }
+  }
+  
     var body: some View {
       if (vm.status == .arrived) {
         VStack(alignment: .trailing) {
           Text("ARRIVAL TIME").font(.caption)
           Text(formatDateHour(targetDate)).font(.system(size: 18, weight: .bold, design: .rounded))
         }
-        
       }
-      else {
+      else if (vm.isStale) {
+        staleInformation
+      } else {
         if (vm.status == .waitForTrain || vm.status == .inExchange) {
           VStack(alignment: .trailing) {
             if (vm.context.attributes.frequentPushesEnabled) {
@@ -82,5 +106,5 @@ struct TimeInformation: View {
           }
         }
       }
-    }
+  }
 }
