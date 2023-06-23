@@ -53,7 +53,7 @@ struct RideInformationBar: View {
         Divider()
           .frame(height: 5)
           .overlay(.yellow)
-          .cornerRadius(2)
+          .cornerRadius(3)
       } else {
         BarBackground
       }
