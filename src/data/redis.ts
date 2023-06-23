@@ -96,8 +96,11 @@ export const deleteRide = async (rideId: string) => {
       const isRideExists = await client.exists(getKey(rideId))
       if (!isRideExists) {
         return true
+      } else {
+        logger.error(logNames.redis.rides.delete.failed, { error, rideId })
+        return false
       }
-    } finally {
+    } catch {
       logger.error(logNames.redis.rides.delete.failed, { error, rideId })
       return false
     }

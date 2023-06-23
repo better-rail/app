@@ -70,9 +70,10 @@ export const endRideNotifications = async (rideId: string) => {
       if (!success) {
         throw new Error("Scheduler didn't stop")
       }
+
+      scheduler.logger.info(logNames.scheduler.cancelRide.success)
     }
 
-    scheduler.logger.info(logNames.scheduler.cancelRide.success)
     return true
   } catch (error) {
     logger.error(logNames.scheduler.cancelRide.failed, { error, rideId })
