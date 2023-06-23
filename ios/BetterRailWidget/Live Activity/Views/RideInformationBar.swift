@@ -35,7 +35,20 @@ struct RideInformationBar: View {
   }
   
   var body: some View {
-    VStack {
+    if (placement == .dynamicIsland) {
+      VStack {
+        information
+      }
+    } else {
+      ZStack {
+        information
+      }
+    }
+    
+  }
+  
+  var information: some View {
+    Group {
       if (placement == .dynamicIsland) {
         Divider()
           .frame(height: 5)
@@ -77,6 +90,7 @@ struct RideInformationBar: View {
       .padding(.leading, placement == .lockScreen ? 0 : 4)
       .foregroundColor(placement == .dynamicIsland ? .white : Color(uiColor: .darkText))
     }
+
   }
   
   var BarBackground: some View {
