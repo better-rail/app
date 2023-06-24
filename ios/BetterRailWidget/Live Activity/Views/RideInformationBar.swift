@@ -86,7 +86,7 @@ struct RideInformationBar: View {
           }
         Spacer()
       }
-      .padding(.top, placement == .lockScreen ? 10 : -2.0)
+      .padding(.top, placement == .lockScreen ? 10 : 0)
       .padding(.leading, placement == .lockScreen ? 0 : 4)
       .foregroundColor(placement == .dynamicIsland ? .white : Color(uiColor: .darkText))
     }
