@@ -33,7 +33,7 @@ test("build get on notification for direct train", () => {
       time: dayjs(now - minutesInMs(1)),
       alert: {
         title: "Hop on board!",
-        text: "Take the train from platform 6 to Ashkelon.",
+        text: "Take the train from Platform 6 to Ashkelon.",
       },
     },
   ])

@@ -14,7 +14,7 @@
     },
     "exchange": {
       "waitTime": "Подождите %{waitTime}.",
-      "stayInPlatform": "Оставайтесь на платформе %{platform}.",
+      "stayOnPlatform": "Оставайтесь на платформе %{platform}.",
       "changePlatform": "Перейдите на платформу %{platform}."
     }
   }

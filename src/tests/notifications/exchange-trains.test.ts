@@ -33,7 +33,7 @@ test("build get on notification for exchange train", () => {
       time: dayjs(now - minutesInMs(1)),
       alert: {
         title: "Hop on board!",
-        text: "Take the train from platform 6 to Ashkelon.",
+        text: "Take the train from Platform 6 to Ashkelon.",
       },
     },
     {
@@ -48,7 +48,7 @@ test("build get on notification for exchange train", () => {
       time: dayjs(now + minutesInMs(14)),
       alert: {
         title: "Hop on board!",
-        text: "Take the train from platform 4 to Jerusalem - Yitzhak Navon.",
+        text: "Take the train from Platform 4 to Jerusalem - Yitzhak Navon.",
       },
     },
   ])
@@ -136,7 +136,7 @@ test("build get off notifications for exchange train", () => {
       time: dayjs(now + getOffInExchangeTime - minutesInMs(1)),
       alert: {
         title: "Time to get off!",
-        text: "Change to platform 4. Wait 5 minutes for your next train.",
+        text: "Change to Platform 4. Wait 5 minutes for your next train.",
       },
     },
     {

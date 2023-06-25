@@ -1,10 +1,10 @@
 import { createClient } from "redis"
 import { RedisClientType } from "@redis/client"
-import { compact, forEach, mapValues, omit } from "lodash"
+import { compact, mapValues, omit } from "lodash"
 
 import { redisUrl } from "./config"
+import { Ride } from "../types/ride"
 import { logNames, logger } from "../logs"
-import { Ride, RideRequest } from "../types/ride"
 
 let client: RedisClientType
 

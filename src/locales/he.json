@@ -14,7 +14,7 @@
     },
     "exchange": {
       "waitTime": "כ-%{waitTime} המתנה לנסיעה הבאה.",
-      "stayInPlatform": "השארו ברציף %{platform}.",
+      "stayOnPlatform": "השארו ברציף %{platform}.",
       "changePlatform": "עברו לרציף %{platform}."
     }
   }
