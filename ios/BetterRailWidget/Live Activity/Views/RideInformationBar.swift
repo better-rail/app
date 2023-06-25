@@ -35,11 +35,34 @@ struct RideInformationBar: View {
   }
   
   var body: some View {
-    ZStack {
-      BarBackground
+    if (placement == .dynamicIsland) {
+      VStack {
+        information
+      }
+    } else {
+      ZStack {
+        information
+      }
+    }
+    
+  }
+  
+  var information: some View {
+    Group {
+      if (placement == .dynamicIsland) {
+        Divider()
+          .frame(height: 5)
+          .overlay(.yellow)
+          .cornerRadius(3)
+      } else {
+        BarBackground
+      }
       
       HStack(alignment: .center) {
-        Image(systemName: symbolName).font(.system(size: 36))
+        if (placement == .lockScreen) {
+          Image(systemName: symbolName).font(.system(size: 36))
+        }
+        
         if (vm.status == .arrived) {
           Text("thanks for riding with better rail").font(.subheadline).bold()
         } else {
@@ -63,14 +86,17 @@ struct RideInformationBar: View {
           }
         Spacer()
       }
-      .padding(.top, placement == .lockScreen ? 10 : -2.0)
+      .padding(.top, placement == .lockScreen ? 10 : 0)
       .padding(.leading, placement == .lockScreen ? 0 : 4)
-      .foregroundColor(Color(uiColor: .darkText))
+      .foregroundColor(placement == .dynamicIsland ? .white : Color(uiColor: .darkText))
     }
+
   }
   
   var BarBackground: some View {
     Rectangle()
-      .frame(width: .infinity, height: 70).foregroundColor(.yellow).padding(.horizontal, -16).padding(.bottom, -14)
+      .frame(width: .infinity, height: 70)
+      .foregroundColor(.yellow)
+      .padding(.horizontal, -16).padding(.bottom, -14)
   }
 }
