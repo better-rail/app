@@ -41,7 +41,7 @@
 "depart" = "יציאה";
 "headed to" = "תחנת יעד";
 "wait in" = "המתן בתחנת";
-"arrive" = "יעד";
+"arrive" = "הגעה";
 "next station" = "התחנה הבאה";
 "arrived at" = "הגעת ליעד";
 "depart from platform %@" = "הרכבת תצא מרציף %@";
@@ -54,3 +54,5 @@
 "time left depart" = "זמן שנותר ליציאת הרכבת";
 "time left arrival" = "זמן שנותר להגעה ליעד";
 "BETTER RAIL" = "בטר רייל";
+"connection issues" = "בעיות תקשורת";
+"%@ min delay" = "%@ דק׳ איחור";

@@ -15,6 +15,7 @@ class ActivityViewModel {
   // context properties
   var route: Route { context.attributes.route }
   var status: ActivityStatus { context.state.status }
+  var isStale: Bool { context.isStale }
   var delay: Int { context.state.delay }
   var nextStationId: Int { context.state.nextStationId }
   var activityStartDate: Date { context.attributes.activityStartDate }
@@ -26,9 +27,12 @@ class ActivityViewModel {
   var destination: Station {
     if (status == .inExchange) {
       return getStationById(train.orignStation)!
+    } else if (status == .inTransit && train.orignStation == nextStationId && departureDate.addMinutes(delay) > Date.now) {
+      let previousTrain = getPreviousTrainFromStationId(route: route, stationId: nextStationId) ?? train
+      return getStationById(train.destinationStation)!
+    } else {
+      return getStationById(train.destinationStation)!
     }
-      
-    return getStationById(train.destinationStation)!
   }
   var progress: (Int, Int) {
     let progress = rideProgress(route: route, nextStationId: nextStationId)
