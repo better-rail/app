@@ -35,7 +35,7 @@
   "routes": {
     "departure": "Departure",
     "arrival": "Arrival",
-    "noChange": "No Change",
+    "noChange": "Direct",
     "oneChange": "1 Change",
     "changes": "Changes",
     "delayTime": "minutes delay",
