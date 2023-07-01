@@ -11,6 +11,7 @@ import { BlurView } from "@react-native-community/blur"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { CloseButton } from "../../components"
 import { useIsDarkMode } from "../../hooks"
+import { Platform } from "react-native"
 
 export type LiveAnnouncementParamList = {
   main: undefined
@@ -31,10 +32,16 @@ export const LiveAnnouncementNavigator = () => (
       headerLeft: () => (
         <CloseButton
           onPress={() => navigation.navigate("planner")}
-          iconStyle={{ width: 32.5, height: 32.5, tintColor: "white", opacity: 0.5, marginTop: 8 }}
+          iconStyle={{
+            width: 32.5,
+            height: 32.5,
+            tintColor: Platform.select({ ios: "white", android: "grey" }),
+            opacity: 0.5,
+            marginTop: 8,
+          }}
         />
       ),
-      headerBackground: () => <LiveAnnouncementHeaderBackground />,
+      headerBackground: () => (Platform.OS === "ios" ? <LiveAnnouncementHeaderBackground /> : null),
       title: "",
     })}
   >

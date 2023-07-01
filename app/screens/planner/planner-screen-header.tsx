@@ -45,9 +45,9 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
 
   useEffect(() => {
-    // display the "new" badge on ios devices if the user has stations selected (it's not the
-    // initial launch) and they haven't seen the live announcement screen yet
-    if (routePlan.origin && routePlan.destination && canRunLiveActivities) {
+    // display the "new" badge if the user has stations selected (not the initial launch)
+    // and they haven't seen the live announcement screen yet
+    if (routePlan.origin && routePlan.destination) {
       storage.load("seenLiveAnnouncement").then((hasSeenLiveAnnouncementScreen) => {
         if (!hasSeenLiveAnnouncementScreen) setDisplayNewBadge(true)
       })
