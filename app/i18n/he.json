@@ -35,9 +35,9 @@
   "routes": {
     "departure": "יציאה",
     "arrival": "הגעה",
-    "noExchange": "ללא החלפות",
-    "oneExchange": "החלפה אחת",
-    "exchanges": "החלפות",
+    "noChange": "ללא החלפות",
+    "oneChange": "החלפה אחת",
+    "changes": "החלפות",
     "delayTime": "דק' עיכוב",
     "noTrainsFound": "לא נמצאו רכבות למסלול זה בימים הקרובים",
     "noInternetConnection": "נראה שהמכשיר אינו מחובר לאינטרנט.\n אנא בדקו את חיבור הרשת ונסו שוב.",
