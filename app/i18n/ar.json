@@ -103,7 +103,7 @@
 
   "modals": {
     "noTrainsFound": "لم يتم العثور على القطارات للتاريخ المطلوب",
-    "foundTrainsAt": "هنالك قطارات ابتداءً مِن"
+    "foundTrainsAt": " هنالك قطارات ابتداءً مِن"
   },
   "widgetOnboarding": {
     "homeWidgets": "Home Screen Widgets",

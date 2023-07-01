@@ -74,7 +74,7 @@ export const RouteListWarning = function RouteListWarning({ routesDate }: RouteL
       const duration = 3.5 // seconds
       Burnt.alert({
         title: translate("modals.noTrainsFound"),
-        message: `${translate("modals.foundTrainsAt")} ${formattedRoutesDate}`,
+        message: `${translate("modals.foundTrainsAt")}${formattedRoutesDate}`,
         duration,
         preset: "custom",
         icon: {
