@@ -6,25 +6,39 @@ import { LiveAnnouncementStackProps } from "../../navigators/live-activity-annou
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { NextButton } from "./announcement-next-button"
 
-const SUB_TITLE: TextStyle = { fontSize: 24, textAlign: "center" }
-const TITLE: TextStyle = { fontSize: 30, fontWeight: "bold", textAlign: "center" }
+const SUB_TITLE: TextStyle = {
+  fontSize: 24,
+  textAlign: "center",
+}
+const TITLE: TextStyle = {
+  fontSize: 30,
+  fontWeight: "bold",
+  textAlign: "center",
+}
 const TEXT: TextStyle = { fontSize: 22, textAlign: "center" }
+const IMAGE: ImageStyle = {
+  width: "100%",
+  height: 400,
+  resizeMode: "contain",
+  marginVertical: fontScale > 1.1 ? spacing[4] : spacing[5],
+}
 
 export function LiveAnnouncementScreen({ navigation }: LiveAnnouncementStackProps) {
   const insets = useSafeAreaInsets()
 
   const LIVE_IMAGE =
     userLocale === "he"
-      ? require("../../../assets/live-activity/live-activity-hebrew.png")
-      : require("../../../assets/live-activity/live-activity-english.png")
+      ? require("../../../assets/live-ride/live-ride-intro.png")
+      : require("../../../assets/live-ride/live-ride-intro.png")
 
   return (
     <ScrollView contentContainerStyle={{ height: "100%", paddingTop: spacing[8], backgroundColor: color.tertiaryBackground }}>
       <View style={{ height: "100%", flex: 1, alignItems: "center", paddingHorizontal: spacing[2] }}>
         <Text tx="liveAnnounce.announcement.subtitle" style={SUB_TITLE} />
         <Text tx="liveAnnounce.announcement.title" style={TITLE} />
-        {/* image goes here */}
-        <Text tx="liveAnnounce.announcement.description" style={TEXT} />
+        <Image source={LIVE_IMAGE} style={IMAGE} />
+        <Text tx="liveAnnounce.announcement.androidDescription" style={[TEXT, { marginBottom: spacing[5] }]} />
+        <Button containerStyle={{ maxHeight: 60, width: "90%" }} title={translate("common.next")} />
       </View>
     </ScrollView>
   )
