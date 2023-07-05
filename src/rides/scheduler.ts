@@ -222,7 +222,7 @@ export class Scheduler {
    */
   private async sendNotification(notification: NotificationPayload) {
     if (!this.lastSentNotification || notification.id >= this.lastSentNotification?.id) {
-      await sendNotification(notification, this.logger)
+      await sendNotification(notification, this.route, this.logger)
 
       this.notificationsToSend = this.notificationsToSend.filter((notificationToSend) => notificationToSend.id > notification.id)
       if (isEmpty(this.notificationsToSend)) {

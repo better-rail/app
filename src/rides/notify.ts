@@ -3,30 +3,33 @@ import { Priority } from "apns2"
 import { Logger } from "winston"
 
 import { logNames } from "../logs"
+import { RouteItem } from "../types/rail"
 import { sendApnNotification } from "../utils/apn-utils"
 import { sendFcmNotification } from "../utils/fcm-utils"
 import { Message } from "firebase-admin/lib/messaging/messaging-api"
 import { NotificationPayload, Provider, Status } from "../types/notification"
 
-type NotifyFunction = (payload: NotificationPayload, logger: Logger) => Promise<boolean>
+type NotifyFunction = (payload: NotificationPayload, route: RouteItem, logger: Logger) => Promise<boolean>
 
-export const sendNotification = (payload: NotificationPayload, logger: Logger) => {
+export const sendNotification = (payload: NotificationPayload, route: RouteItem, logger: Logger) => {
   const notifiers: Record<Provider, NotifyFunction> = {
     ios: sendAppleNotification,
     android: sendAndroidNotification,
   }
 
   const notifier = notifiers[payload.provider]
-  return notifier(payload, logger)
+  return notifier(payload, route, logger)
 }
 
-const sendAppleNotification = async (payload: NotificationPayload, logger: Logger) => {
+const sendAppleNotification = async (payload: NotificationPayload, route: RouteItem, logger: Logger) => {
   const aps = {
     timestamp: dayjs().unix(),
     event: payload.state.status === Status.arrived ? "end" : "update",
     "content-state": payload.state,
     "stale-date": payload.state.status !== Status.arrived && dayjs().add(135, "seconds").unix(),
-    "dismissal-date": payload.state.status === Status.arrived && dayjs().add(3, "minutes").unix(),
+    "dismissal-date": dayjs(route.arrivalTime)
+      .add(payload.state.delay + 3, "minutes")
+      .unix(),
     alert: payload.alert && {
       title: payload.alert.title,
       body: payload.alert.text,
@@ -45,7 +48,7 @@ const sendAppleNotification = async (payload: NotificationPayload, logger: Logge
   }
 }
 
-const sendAndroidNotification = async (payload: NotificationPayload, logger: Logger) => {
+const sendAndroidNotification = async (payload: NotificationPayload, route: RouteItem, logger: Logger) => {
   const message: Message = {
     token: payload.token,
     notification: payload.alert && {
