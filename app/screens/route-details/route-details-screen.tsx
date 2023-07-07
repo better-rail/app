@@ -129,7 +129,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
               )}
               <Text> Hello!</Text>
               <Button title={"Add To Calendar"} onPress={() => {
-                ToastAndroid.show("This is a toast!", ToastAndroid.SHORT);
+                ToastAndroid.show("Add To Calendar", ToastAndroid.SHORT);
               }} />
             </View>
           )
