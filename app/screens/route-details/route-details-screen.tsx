@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useMemo, useRef, useState } from "react"
-import { Platform, View, ViewStyle } from "react-native"
+import { Button, ToastAndroid, View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { SharedElement } from "react-navigation-shared-element"
@@ -13,7 +13,7 @@ import { RouteItem } from "../../services/api"
 import { useRideProgress } from "../../hooks/use-ride-progress"
 import { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import { color, spacing } from "../../theme"
-import { RouteDetailsHeader, Screen } from "../../components"
+import { RouteDetailsHeader, Screen, Text } from "../../components"
 import { RouteStationCard, RouteStopCard, RouteLine, RouteExchangeDetails } from "./components"
 import { LiveRideSheet, LongRouteWarning, StartRideButton } from "./components"
 import BottomSheet from "@gorhom/bottom-sheet"
@@ -127,6 +127,10 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
                   depatureTime={routeItem.trains[index + 1].departureTime}
                 />
               )}
+              <Text> Hello!</Text>
+              <Button title={"Add To Calendar"} onPress={() => {
+                ToastAndroid.show("This is a toast!", ToastAndroid.SHORT);
+              }} />
             </View>
           )
         })}
