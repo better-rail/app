@@ -8,7 +8,7 @@ import LinearGradient from "react-native-linear-gradient"
 import { color, isDarkMode, spacing } from "../../theme"
 import { Text, StarIcon } from "../"
 import HapticFeedback from "react-native-haptic-feedback"
-import { stationsObject, stationLocale, useStations } from "../../data/stations"
+import { stationsObject, stationLocale } from "../../data/stations"
 import { isRTL, translate } from "../../i18n"
 import { useStores } from "../../models"
 import * as Burnt from "burnt"
@@ -94,7 +94,6 @@ export interface RouteDetailsHeaderProps {
 export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const { originId, destinationId, screenName, style } = props
   const { favoriteRoutes, routePlan } = useStores()
-  const stations = useStations()
   const navigation = useNavigation()
   const routeEditDisabled = props.screenName !== "routeList"
 
@@ -104,8 +103,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   const routeId = `${originId}${destinationId}`
 
   const swapDirection = () => {
-    routePlan.setOrigin(stations.find((station) => station.id === destinationId))
-    routePlan.setDestination(stations.find((station) => station.id === originId))
+    routePlan.switchDirection()
   }
 
   const changeOriginStation = () => {
