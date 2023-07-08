@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useMemo, useRef, useState } from "react"
-import { Button, ToastAndroid, View, ViewStyle } from "react-native"
+import { View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { SharedElement } from "react-navigation-shared-element"
@@ -13,18 +13,27 @@ import { RouteItem } from "../../services/api"
 import { useRideProgress } from "../../hooks/use-ride-progress"
 import { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import { color, spacing } from "../../theme"
-import { RouteDetailsHeader, Screen, Text } from "../../components"
-import { RouteStationCard, RouteStopCard, RouteLine, RouteExchangeDetails } from "./components"
-import { LiveRideSheet, LongRouteWarning, StartRideButton } from "./components"
+import { Button, RouteDetailsHeader, Screen } from "../../components"
+import {
+  LiveRideSheet,
+  LongRouteWarning,
+  RouteExchangeDetails,
+  RouteLine,
+  RouteStationCard,
+  RouteStopCard,
+  StartRideButton,
+} from "./components"
 import BottomSheet from "@gorhom/bottom-sheet"
 import { FirstRideAlert } from "./components/first-ride-alert"
 import { canRunLiveActivities } from "../../utils/ios-helpers"
+import * as AddCalendarEvent from "react-native-add-calendar-event"
+import { CreateOptions } from "react-native-add-calendar-event"
+import { translate } from "../../i18n"
 
 const ROOT: ViewStyle = {
   flex: 1,
   backgroundColor: color.background,
 }
-
 export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
   const { ride } = useStores()
   const bottomSheetRef = useRef<BottomSheet>(null)
@@ -48,6 +57,24 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
 
   const openFirstRideAlertSheet = () => {
     bottomSheetRef.current?.expand()
+  }
+  const eventConfig: CreateOptions = {
+    title: translate("plan.trainFromStation") + ' '
+      + route.params.routeItem.trains[0].originStationName+ ' '
+      + translate("plan.toStation")+ ' '
+      + route.params.routeItem.trains[0].destinationStationName
+    ,
+    startDate: new Date(route.params.routeItem.departureTime).toISOString(),
+    endDate: new Date(route.params.routeItem.arrivalTime).toISOString(),
+    notes: translate("routeDetails.trainNo") + ' '
+      + route.params.routeItem.trains[0].trainNumber + ' '
+      + translate("plan.origin") + ' '
+      + route.params.routeItem.trains[0].originStationName + ' '
+      + translate("plan.destination") + ' '
+      + route.params.routeItem.trains[0].destinationStationName
+  };
+  const addToCalendarAction = () => {
+    AddCalendarEvent.presentEventCreatingDialog(eventConfig)
   }
 
   useEffect(() => {
@@ -127,13 +154,13 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
                   depatureTime={routeItem.trains[index + 1].departureTime}
                 />
               )}
-              <Text> Hello!</Text>
-              <Button title={"Add To Calendar"} onPress={() => {
-                ToastAndroid.show("Add To Calendar", ToastAndroid.SHORT);
-              }} />
             </View>
           )
         })}
+        <Button
+          style={ { width: "80%", alignSelf: "center" } }
+          title={ translate("routeDetails.addToCalendar") }
+          onPress={ addToCalendarAction } />
       </ScrollView>
       {isRideOnThisRoute && (
         <Animated.View entering={shouldFadeRideButton && FadeInDown} exiting={FadeOutDown} style={{ flex: 1 }}>

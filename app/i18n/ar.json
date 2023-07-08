@@ -20,7 +20,9 @@
     "find": "حساب المسار",
     "resetTime": "إعادة تعيين الوقت",
     "switchStations": "تبديل المحطات",
-    "switchStationsHint": "اختصار لتبديل محطة البداية بمحطة الوصول"
+    "switchStationsHint": "اختصار لتبديل محطة البداية بمحطة الوصول",
+    "trainFromStation": "ركوب القطار من",
+    "toStation": "إلى",
   },
   "selectStation": {
     "placeholder": "البحث عن محطة",
@@ -47,7 +49,8 @@
     "waitingTime": "مدة الانتظار",
     "lastStop": "المحطة الأخيرة",
     "routeWarning": "تحذير الطريق الطويل",
-    "routeWarningText": "هناك طرق قطار أقصر حول وقت المغادرة."
+    "routeWarningText": "هناك طرق قطار أقصر حول وقت المغادرة.",
+    "addToCalendar": "إضافة إلى التقويم"
   },
   "settings": {
     "title": "اعدادت",
