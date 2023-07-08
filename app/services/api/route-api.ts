@@ -122,7 +122,9 @@ function isRouteIsMuchLongerThanOtherRoutes(route: RouteItem, otherRoutes: Route
 
     // check if the other route is much longer than the current route
     const otherRouteDuration = routeDurationInMs(otherRoute.departureTime, otherRoute.arrivalTime)
-    return routeDuration - otherRouteDuration >= 30 * 60 * 1000
+
+    const minutesForMuchLonger = route.isExchange ? 15 : 30
+    return routeDuration - otherRouteDuration >= minutesForMuchLonger * 60 * 1000
   })
 
   if (longRoutesAround.length > 0) return true
@@ -138,7 +140,9 @@ function isRouteMuchShorterThanOtherRoutes(route: RouteItem, otherRoutes: RouteI
 
     // check if the other route is much shorter than the current route
     const otherRouteDuration = routeDurationInMs(otherRoute.departureTime, otherRoute.arrivalTime)
-    return otherRouteDuration - routeDuration >= 30 * 60 * 1000
+
+    const minutesForMuchShorter = otherRoute.isExchange ? 15 : 30
+    return otherRouteDuration - routeDuration >= minutesForMuchShorter * 60 * 1000
   })
 
   if (shortRoutesAround.length > 0) return true
