@@ -100,10 +100,11 @@
     "youth": "شباب",
     "socialSecurity": "الضمان الاجتماعي"
   },
-
   "modals": {
-    "noTrainsFound": "لم يتم العثور على القطارات للتاريخ المطلوب",
-    "foundTrainsAt": " هنالك قطارات ابتداءً مِن"
+    "noTrainsFoundForDate": "لم يتم العثور على القطارات للتاريخ المطلوب",
+    "foundTrainsAtDate": " هنالك قطارات ابتداءً مِن",
+    "noTrainsFoundForHour": "لم يتم العثور على قطارات حول الوقت المطلوب",
+    "foundTrainsAtHour": "توجد قطارات في أوقات مختلفة في التاريخ المحدد"
   },
   "widgetOnboarding": {
     "homeWidgets": "Home Screen Widgets",

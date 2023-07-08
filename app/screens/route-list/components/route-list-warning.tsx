@@ -47,8 +47,11 @@ const MODAL_BUTTON: ViewStyle = {
   minWidth: "80%",
 }
 
+export type WarningType = "different-hour" | "different-date"
+
 export interface RouteListModalProps {
   routesDate: number
+  warningType: WarningType
 }
 
 /**
@@ -57,7 +60,7 @@ export interface RouteListModalProps {
  *
  * For iOS we'll display a native alert, for Android we'll show modal
  */
-export const RouteListWarning = function RouteListWarning({ routesDate }: RouteListModalProps) {
+export const RouteListWarning = function RouteListWarning({ routesDate, warningType }: RouteListModalProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [displayWarningSheet, setDisplayWarningSheet] = useState(false)
   const formattedRoutesDate = format(routesDate, "eeee, dd/MM/yyyy", { locale: dateFnsLocalization })
@@ -73,8 +76,12 @@ export const RouteListWarning = function RouteListWarning({ routesDate }: RouteL
     if (!shouldDisplayModal) {
       const duration = 3.5 // seconds
       Burnt.alert({
-        title: translate("modals.noTrainsFound"),
-        message: `${translate("modals.foundTrainsAt")}${formattedRoutesDate}`,
+        title:
+          warningType === "different-hour" ? translate("modals.noTrainsFoundForHour") : translate("modals.noTrainsFoundForDate"),
+        message:
+          warningType === "different-hour"
+            ? translate("modals.foundTrainsAtHour")
+            : `${translate("modals.foundTrainsAtDate")}${formattedRoutesDate}`,
         duration,
         preset: "custom",
         icon: {
@@ -95,10 +102,19 @@ export const RouteListWarning = function RouteListWarning({ routesDate }: RouteL
   const androidModal = shouldDisplayModal && (
     <Modal style={MODAL_WRAPPER} isVisible={isModalOpen} animationIn="zoomIn" animationOut="zoomOut">
       <Text style={MODAL_ICON}>⚠️</Text>
-      <Text style={MODAL_TITLE} tx="modals.noTrainsFound" />
+      <Text
+        style={MODAL_TITLE}
+        tx={warningType === "different-hour" ? "modals.noTrainsFoundForHour" : "modals.noTrainsFoundForDate"}
+      />
       <Text style={MODAL_TEXT}>
-        {translate("modals.foundTrainsAt")}
-        {formattedRoutesDate}
+        {warningType === "different-hour" ? (
+          translate("modals.foundTrainsAtHour")
+        ) : (
+          <>
+            {translate("modals.foundTrainsAtDate")}
+            {formattedRoutesDate}
+          </>
+        )}
       </Text>
       <Button
         title={translate("common.ok")}
@@ -118,10 +134,19 @@ export const RouteListWarning = function RouteListWarning({ routesDate }: RouteL
         <Animated.View entering={FadeInDown}>
           <BottomScreenSheet style={{ backgroundColor: "orange" }}>
             <View>
-              <Text tx="modals.noTrainsFound" preset="bold" />
+              <Text
+                preset="bold"
+                tx={warningType === "different-hour" ? "modals.noTrainsFoundForHour" : "modals.noTrainsFoundForDate"}
+              />
               <Text style={{ fontSize: 14 }}>
-                {translate("modals.foundTrainsAt")}
-                {formattedRoutesDate}
+                {warningType === "different-hour" ? (
+                  translate("modals.foundTrainsAtHour")
+                ) : (
+                  <>
+                    {translate("modals.foundTrainsAtDate")}
+                    {formattedRoutesDate}
+                  </>
+                )}
               </Text>
             </View>
           </BottomScreenSheet>
