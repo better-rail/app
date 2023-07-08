@@ -201,7 +201,13 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
               {originName}
             </Text>
           </AnimatedTouchable>
-          <TouchableOpacity disabled={routeEditDisabled} onPress={swapDirection} activeOpacity={0.8} style={ROUTE_INFO_CIRCLE}>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            hitSlop={spacing[2]}
+            onPress={swapDirection}
+            style={ROUTE_INFO_CIRCLE}
+            disabled={routeEditDisabled}
+          >
             <Image source={arrowIcon} style={ARROW_ICON} />
           </TouchableOpacity>
           <AnimatedTouchable
