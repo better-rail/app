@@ -1,6 +1,6 @@
 /* eslint-disable react/display-name */
-import React, { useMemo, useLayoutEffect } from "react"
-import { Image, ImageBackground, View, ViewStyle, TextStyle, ImageStyle } from "react-native"
+import React, { useMemo, useLayoutEffect, useEffect } from "react"
+import { Image, ImageBackground, View, ViewStyle, TextStyle, ImageStyle, TouchableOpacity } from "react-native"
 import analytics from "@react-native-firebase/analytics"
 import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
@@ -8,7 +8,7 @@ import LinearGradient from "react-native-linear-gradient"
 import { color, isDarkMode, spacing } from "../../theme"
 import { Text, StarIcon } from "../"
 import HapticFeedback from "react-native-haptic-feedback"
-import { stationsObject, stationLocale } from "../../data/stations"
+import { stationsObject, stationLocale, useStations } from "../../data/stations"
 import { isRTL, translate } from "../../i18n"
 import { useStores } from "../../models"
 import * as Burnt from "burnt"
@@ -87,19 +87,43 @@ export interface RouteDetailsHeaderProps {
   /**
    * The screen name we're displaying the header inside
    */
-  screenName?: "routeDetails" | "activeRide"
+  screenName?: "routeList" | "routeDetails" | "activeRide"
   style?: ViewStyle
 }
 
 export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const { originId, destinationId, screenName, style } = props
-  const { favoriteRoutes } = useStores()
+  const { favoriteRoutes, routePlan } = useStores()
+  const stations = useStations()
   const navigation = useNavigation()
+  const routeEditDisabled = props.screenName !== "routeList"
 
   const originName = stationsObject[originId][stationLocale]
   const destinationName = stationsObject[destinationId][stationLocale]
 
   const routeId = `${originId}${destinationId}`
+
+  const swapDirection = () => {
+    routePlan.setOrigin(stations.find((station) => station.id === destinationId))
+    routePlan.setDestination(stations.find((station) => station.id === originId))
+  }
+
+  const changeOriginStation = () => {
+    navigation.navigate("selectStation", { selectionType: "origin" })
+  }
+
+  const changeDestinationStation = () => {
+    navigation.navigate("selectStation", { selectionType: "destination" })
+  }
+
+  useEffect(() => {
+    if (routePlan.origin.id !== routePlan.destination.id) {
+      navigation.setParams({
+        originId: routePlan.origin.id,
+        destinationId: routePlan.destination.id,
+      } as any)
+    }
+  }, [routePlan.origin.id, routePlan.destination.id])
 
   const isFavorite: boolean = useMemo(() => {
     return favoriteRoutes.routes.find((favorite) => favorite.id === routeId)
@@ -142,19 +166,29 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 
       <View style={{ top: -20, marginBottom: -30, zIndex: 5 }}>
         <View style={[ROUTE_DETAILS_WRAPPER, style]}>
-          <View style={[ROUTE_DETAILS_STATION, { marginEnd: spacing[5] }]}>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            disabled={routeEditDisabled}
+            onPress={changeOriginStation}
+            style={[ROUTE_DETAILS_STATION, { marginEnd: spacing[5] }]}
+          >
             <Text style={ROUTE_DETAILS_STATION_TEXT} maxFontSizeMultiplier={1.1}>
               {originName}
             </Text>
-          </View>
-          <View style={ROUTE_INFO_CIRCLE}>
+          </TouchableOpacity>
+          <TouchableOpacity disabled={routeEditDisabled} onPress={swapDirection} activeOpacity={0.8} style={ROUTE_INFO_CIRCLE}>
             <Image source={arrowIcon} style={ARROW_ICON} />
-          </View>
-          <View style={ROUTE_DETAILS_STATION}>
+          </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            disabled={routeEditDisabled}
+            style={ROUTE_DETAILS_STATION}
+            onPress={changeDestinationStation}
+          >
             <Text style={ROUTE_DETAILS_STATION_TEXT} maxFontSizeMultiplier={1.1}>
               {destinationName}
             </Text>
-          </View>
+          </TouchableOpacity>
         </View>
       </View>
     </View>
