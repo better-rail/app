@@ -1,6 +1,7 @@
 /* eslint-disable react/display-name */
-import React, { useMemo, useLayoutEffect, useEffect } from "react"
-import { Image, ImageBackground, View, ViewStyle, TextStyle, ImageStyle, TouchableOpacity } from "react-native"
+import React, { useMemo, useLayoutEffect, useEffect, useRef } from "react"
+import { Image, ImageBackground, View, ViewStyle, TextStyle, ImageStyle, TouchableOpacity, Animated } from "react-native"
+import TouchableScale from "react-native-touchable-scale"
 import analytics from "@react-native-firebase/analytics"
 import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
@@ -12,6 +13,8 @@ import { stationsObject, stationLocale } from "../../data/stations"
 import { isRTL, translate } from "../../i18n"
 import { useStores } from "../../models"
 import * as Burnt from "burnt"
+
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableScale)
 
 const arrowIcon = require("../../../assets/arrow-left.png")
 
@@ -95,7 +98,9 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   const { originId, destinationId, screenName, style } = props
   const { favoriteRoutes, routePlan } = useStores()
   const navigation = useNavigation()
+
   const routeEditDisabled = props.screenName !== "routeList"
+  const stationCardScale = useRef(new Animated.Value(1)).current
 
   const originName = stationsObject[originId][stationLocale]
   const destinationName = stationsObject[destinationId][stationLocale]
@@ -103,7 +108,13 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   const routeId = `${originId}${destinationId}`
 
   const swapDirection = () => {
-    routePlan.switchDirection()
+    scaleStationCards()
+    HapticFeedback.trigger("impactMedium")
+
+    // Delay the actual switch so it'll be synced with the animation
+    setTimeout(() => {
+      routePlan.switchDirection()
+    }, 50)
   }
 
   const changeOriginStation = () => {
@@ -122,6 +133,21 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
       } as any)
     }
   }, [routePlan.origin.id, routePlan.destination.id])
+
+  const scaleStationCards = () => {
+    Animated.sequence([
+      Animated.timing(stationCardScale, {
+        toValue: 0.96,
+        duration: 175,
+        useNativeDriver: true,
+      }),
+      Animated.timing(stationCardScale, {
+        toValue: 1,
+        duration: 175,
+        useNativeDriver: true,
+      }),
+    ]).start()
+  }
 
   const isFavorite: boolean = useMemo(() => {
     return favoriteRoutes.routes.find((favorite) => favorite.id === routeId)
@@ -164,29 +190,31 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 
       <View style={{ top: -20, marginBottom: -30, zIndex: 5 }}>
         <View style={[ROUTE_DETAILS_WRAPPER, style]}>
-          <TouchableOpacity
-            activeOpacity={0.8}
+          <AnimatedTouchable
+            friction={9}
+            activeScale={0.95}
             disabled={routeEditDisabled}
             onPress={changeOriginStation}
-            style={[ROUTE_DETAILS_STATION, { marginEnd: spacing[5] }]}
+            style={[ROUTE_DETAILS_STATION, { marginEnd: spacing[5] }, { transform: [{ scale: stationCardScale }] }]}
           >
             <Text style={ROUTE_DETAILS_STATION_TEXT} maxFontSizeMultiplier={1.1}>
               {originName}
             </Text>
-          </TouchableOpacity>
+          </AnimatedTouchable>
           <TouchableOpacity disabled={routeEditDisabled} onPress={swapDirection} activeOpacity={0.8} style={ROUTE_INFO_CIRCLE}>
             <Image source={arrowIcon} style={ARROW_ICON} />
           </TouchableOpacity>
-          <TouchableOpacity
-            activeOpacity={0.8}
+          <AnimatedTouchable
+            friction={9}
+            activeScale={0.95}
             disabled={routeEditDisabled}
-            style={ROUTE_DETAILS_STATION}
+            style={[ROUTE_DETAILS_STATION, { transform: [{ scale: stationCardScale }] }]}
             onPress={changeDestinationStation}
           >
             <Text style={ROUTE_DETAILS_STATION_TEXT} maxFontSizeMultiplier={1.1}>
               {destinationName}
             </Text>
-          </TouchableOpacity>
+          </AnimatedTouchable>
         </View>
       </View>
     </View>
