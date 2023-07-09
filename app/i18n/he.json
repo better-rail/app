@@ -124,8 +124,8 @@
   "modals": {
     "noTrainsFoundForDate": "לא נמצאו רכבות לתאריך המבוקש",
     "foundTrainsAtDate": "קיימות רכבות החל מ",
-    "noTrainsFoundForHour": "לא נמצאו רכבות סביב השעה המבוקשת",
-    "foundTrainsAtHour": "קיימת רכבות בשעות אחרות בתאריך המבוקש"
+    "noTrainsFoundForHour": "לא נמצאו רכבות עבור השעה המבוקשת",
+    "foundTrainsAtHour": "קיימות רכבות בשעות אחרות"
   },
   "widgetOnboarding": {
     "homeWidgets": "ווידג׳טים למסך הבית",

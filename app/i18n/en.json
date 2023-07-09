@@ -121,8 +121,8 @@
   "modals": {
     "noTrainsFoundForDate": "No trains found for the requested date",
     "foundTrainsAtDate": "Showing trains departing at ",
-    "noTrainsFoundForHour": "No trains found around the requested time",
-    "foundTrainsAtHour": "There are trains at different times on the selected date"
+    "noTrainsFoundForHour": "No trains found at the requested time",
+    "foundTrainsAtHour": "Trains available at different times on the selected date"
   },
   "widgetOnboarding": {
     "homeWidgets": "Home Screen Widgets",
