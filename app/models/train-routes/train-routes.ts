@@ -1,7 +1,7 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { withStatus } from ".."
 import { RouteApi } from "../../services/api/route-api"
-import { format, add } from "date-fns"
+import { add, closestTo, differenceInMinutes } from "date-fns"
 import { omit } from "ramda"
 import { RouteItem } from "../../services/api"
 import { formatDateForAPI } from "../../utils/helpers/date-helpers"
@@ -48,7 +48,7 @@ export const trainRoutesModel = types
     saveRoutes: (routesSnapshot) => {
       self.routes.replace(routesSnapshot)
     },
-    updateResultType(type: "normal" | "different-date" | "not-found") {
+    updateResultType(type: "normal" | "different-date" | "different-hour" | "not-found") {
       self.resultType = type
     },
   }))
@@ -77,6 +77,16 @@ export const trainRoutesModel = types
           if (apiHitCount > 0) {
             // We found routes for a date different than the requested date.
             self.updateResultType("different-date")
+          } else {
+            const closestDateToNow = closestTo(
+              time,
+              result.map((result) => result.departureTime),
+            )
+            const difference = differenceInMinutes(closestDateToNow, time)
+            if (Math.abs(difference) >= 90) {
+              // We found routes for the selected day but not at the requested hour.
+              self.updateResultType("different-hour")
+            }
           }
 
           return result

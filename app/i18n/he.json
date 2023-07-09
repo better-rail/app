@@ -122,8 +122,10 @@
     "socialSecurity": "זכאי ביטוח לאומי"
   },
   "modals": {
-    "noTrainsFound": "לא נמצאו רכבות לתאריך המבוקש",
-    "foundTrainsAt": "קיימות רכבות החל מ"
+    "noTrainsFoundForDate": "לא נמצאו רכבות לתאריך המבוקש",
+    "foundTrainsAtDate": "קיימות רכבות החל מ",
+    "noTrainsFoundForHour": "לא נמצאו רכבות עבור השעה המבוקשת",
+    "foundTrainsAtHour": "קיימות רכבות בשעות אחרות"
   },
   "widgetOnboarding": {
     "homeWidgets": "ווידג׳טים למסך הבית",

@@ -106,8 +106,10 @@
     "socialSecurity": "Льготник Битуах Леуми"
   },
   "modals": {
-    "noTrainsFound": "Нет поездов на указанную дату",
-    "foundTrainsAt": "Отображены поезда на "
+    "noTrainsFoundForDate": "Нет поездов на указанную дату",
+    "foundTrainsAtDate": "Отображены поезда на ",
+    "noTrainsFoundForHour": "Поезда не найдены в указанное время",
+    "foundTrainsAtHour": "Есть поезда в разное время на выбранную дату"
   },
   "widgetOnboarding": {
     "homeWidgets": "Home Screen Widgets",
