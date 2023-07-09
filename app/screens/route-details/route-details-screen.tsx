@@ -13,7 +13,7 @@ import { RouteItem } from "../../services/api"
 import { useRideProgress } from "../../hooks/use-ride-progress"
 import { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import { color, spacing } from "../../theme"
-import { Button, RouteDetailsHeader, Screen } from "../../components"
+import { RouteDetailsHeader, Screen } from "../../components"
 import {
   LiveRideSheet,
   LongRouteWarning,
@@ -26,7 +26,6 @@ import {
 import BottomSheet from "@gorhom/bottom-sheet"
 import { FirstRideAlert } from "./components/first-ride-alert"
 import { canRunLiveActivities } from "../../utils/ios-helpers"
-import * as AddCalendarEvent from "react-native-add-calendar-event"
 import { CreateOptions } from "react-native-add-calendar-event"
 import { translate } from "../../i18n"
 
@@ -73,9 +72,6 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
       + translate("plan.destination") + ' '
       + route.params.routeItem.trains[0].destinationStationName
   };
-  const addToCalendarAction = () => {
-    AddCalendarEvent.presentEventCreatingDialog(eventConfig)
-  }
 
   useEffect(() => {
     // allow button fade only after the view mounts; disable the animation when the view appears initally.
@@ -97,6 +93,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
           destinationId={route.params.destinationId}
           screenName={route.name}
           style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
+          eventConfig={eventConfig}
         />
       </SharedElement>
       <ScrollView
@@ -157,10 +154,6 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
             </View>
           )
         })}
-        <Button
-          style={ { width: "80%", alignSelf: "center" } }
-          title={ translate("routeDetails.addToCalendar") }
-          onPress={ addToCalendarAction } />
       </ScrollView>
       {isRideOnThisRoute && (
         <Animated.View entering={shouldFadeRideButton && FadeInDown} exiting={FadeOutDown} style={{ flex: 1 }}>

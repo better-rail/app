@@ -12,6 +12,8 @@ import { stationsObject, stationLocale } from "../../data/stations"
 import { isRTL, translate } from "../../i18n"
 import { useStores } from "../../models"
 import * as Burnt from "burnt"
+import * as AddCalendarEvent from "react-native-add-calendar-event"
+import { CalendarIcon } from "../star-icon/calendar-icon"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
 
@@ -89,20 +91,24 @@ export interface RouteDetailsHeaderProps {
    */
   screenName?: "routeDetails" | "activeRide"
   style?: ViewStyle
+  eventConfig?: AddCalendarEvent.CreateOptions
 }
 
 export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
-  const { originId, destinationId, screenName, style } = props
+  const { originId, destinationId, screenName, style, eventConfig } = props
   const { favoriteRoutes } = useStores()
   const navigation = useNavigation()
 
+  const addToCalendar = (eventConfig) => {
+    AddCalendarEvent.presentEventCreatingDialog(eventConfig);
+  }
   const originName = stationsObject[originId][stationLocale]
   const destinationName = stationsObject[destinationId][stationLocale]
 
   const routeId = `${originId}${destinationId}`
 
   const isFavorite: boolean = useMemo(() => {
-    return favoriteRoutes.routes.find((favorite) => favorite.id === routeId)
+    return favoriteRoutes.routes.find((favorite) => favorite.id === routeId) !== undefined
   }, [favoriteRoutes.routes.length])
 
   useLayoutEffect(() => {
@@ -110,6 +116,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
       navigation.setOptions({
         headerRight: () => (
           <View style={HEADER_RIGHT_WRAPPER}>
+            {eventConfig && <CalendarIcon onPress={() => addToCalendar(eventConfig)} style={{ marginEnd: spacing[2] }} /> }
             <StarIcon
               filled={isFavorite}
               onPress={() => {
@@ -128,7 +135,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
             />
           </View>
         ),
-      })
+      });
   }, [favoriteRoutes.routes.length])
 
   return (
