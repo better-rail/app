@@ -1,6 +1,9 @@
 import { observer } from "mobx-react-lite"
-import { Image, ImageStyle, TouchableOpacity, ViewStyle } from "react-native"
-const calenderImage = require("../../../assets/calendar.png")
+import { Image, ImageStyle, Platform, TouchableOpacity, ViewStyle } from "react-native"
+const CalenderImageIcon = Platform.select({
+  ios: require("../../../assets/calendar.ios.png"),
+  android: require("../../../assets/calendar.png")
+})
 import React from "react"
 
 export const CalendarIcon = observer(function CalendarIcon(props: {
@@ -21,7 +24,7 @@ export const CalendarIcon = observer(function CalendarIcon(props: {
 
   return (
     <TouchableOpacity onPress={ onPress } style={ [CONTAINER, style] }>
-      <Image source={ calenderImage } style={ [ICON_STYLE] } />
+      <Image source={ CalenderImageIcon } style={ [ICON_STYLE] } />
     </TouchableOpacity>
   )
 })
