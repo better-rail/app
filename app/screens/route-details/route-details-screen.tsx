@@ -57,21 +57,17 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
   const openFirstRideAlertSheet = () => {
     bottomSheetRef.current?.expand()
   }
+  const eventTitle = translate("plan.trainFromToStation", {
+    trainNumber: route.params.routeItem.trains[0].trainNumber,
+    origin: route.params.routeItem.trains[0].originStationName,
+    destination: route.params.routeItem.trains[0].destinationStationName,
+  })
   const eventConfig: CreateOptions = {
-    title: translate("plan.trainFromStation") + ' '
-      + route.params.routeItem.trains[0].originStationName+ ' '
-      + translate("plan.toStation")+ ' '
-      + route.params.routeItem.trains[0].destinationStationName
-    ,
+    title: eventTitle,
     startDate: new Date(route.params.routeItem.departureTime).toISOString(),
     endDate: new Date(route.params.routeItem.arrivalTime).toISOString(),
-    notes: translate("routeDetails.trainNo") + ' '
-      + route.params.routeItem.trains[0].trainNumber + ' '
-      + translate("plan.origin") + ' '
-      + route.params.routeItem.trains[0].originStationName + ' '
-      + translate("plan.destination") + ' '
-      + route.params.routeItem.trains[0].destinationStationName
-  };
+    notes: eventTitle,
+  }
 
   useEffect(() => {
     // allow button fade only after the view mounts; disable the animation when the view appears initally.

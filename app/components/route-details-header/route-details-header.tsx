@@ -116,7 +116,12 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
       navigation.setOptions({
         headerRight: () => (
           <View style={HEADER_RIGHT_WRAPPER}>
-            {eventConfig && <CalendarIcon onPress={() => addToCalendar(eventConfig)} style={{ marginEnd: spacing[2] }} /> }
+            { eventConfig &&
+              <CalendarIcon
+                onPress={ () => addToCalendar(eventConfig) }
+                style={ { marginEnd: spacing[2] } }
+              />
+            }
             <StarIcon
               filled={isFavorite}
               onPress={() => {

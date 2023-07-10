@@ -27,6 +27,7 @@
     "switchStationsHint": "קיצור דרך להחלפת תחנת המוצא עם תחנת היעד",
     "trainFromStation": "נסיעה ברכבת מתחנת",
     "toStation": "אל תחנת",
+    "trainFromToStation": "רכבת מס' %{trainNumber} מ%{origin} אל %{destination}",
   },
   "selectStation": {
     "placeholder": "חיפוש תחנה",

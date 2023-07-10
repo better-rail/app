@@ -27,6 +27,7 @@
     "switchStationsHint": "A shortcut to flip the origin station with the destination station",
     "trainFromStation": "Train from",
     "toStation": "to",
+    "trainFromToStation": "Train No. %{trainNumber} From %{origin} To %{destination}",// Train No. 422 From Tel Aviv - HaShalom To Karmiel.
   },
   "selectStation": {
     "placeholder": "Search Stations",
@@ -58,7 +59,7 @@
     "lastStop": "Last Stop",
     "routeWarning": "Long Route Warning",
     "routeWarningText": "There are shorter train routes around the departure time.",
-    "addToCalendar": "Add to Calendar"
+    "addToCalendar": "Add to Calendar",
   },
   "settings": {
     "title": "Settings",
