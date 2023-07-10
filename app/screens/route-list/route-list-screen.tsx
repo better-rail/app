@@ -11,7 +11,7 @@ import { useStores } from "../../models"
 import { color, fontScale, spacing } from "../../theme"
 import { RouteItem } from "../../services/api"
 import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight } from "../../components"
-import { NoTrainsFoundMessage, NoInternetConnection, RouteListWarning } from "./components"
+import { NoTrainsFoundMessage, NoInternetConnection, RouteListWarning, WarningType } from "./components"
 import { flatMap, max, round } from "lodash"
 import { translate } from "../../i18n"
 
@@ -110,7 +110,8 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     )
   }
 
-  const trainsFoundForDifferentDate = trains.isSuccess && trains.data?.length > 0 && trainRoutes.resultType === "different-date"
+  const shouldShowWarning =
+    trains.isSuccess && trains.data?.length > 0 && ["different-date", "different-hour"].includes(trainRoutes.resultType)
 
   return (
     <Screen
@@ -152,7 +153,12 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         </View>
       )}
 
-      {trainsFoundForDifferentDate && <RouteListWarning routesDate={trains.data[0].trains[0].departureTime} />}
+      {shouldShowWarning && (
+        <RouteListWarning
+          routesDate={trains.data[0].trains[0].departureTime}
+          warningType={trainRoutes.resultType as WarningType}
+        />
+      )}
     </Screen>
   )
 })

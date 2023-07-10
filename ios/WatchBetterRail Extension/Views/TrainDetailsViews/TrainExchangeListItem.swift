@@ -10,7 +10,7 @@ struct TrainExchangeListItem: View {
     VStack(alignment: .leading) {
       HStack(alignment: .center) {
         Image(systemName: "arrow.forward.circle.fill")
-        Text("exchange").fontWeight(.semibold)
+        Text("change").fontWeight(.semibold)
       }.foregroundColor(.accentColor)
 
       

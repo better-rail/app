@@ -113,9 +113,9 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
   }, [departureTime, arrivalTime])
 
   const stopsText = useMemo(() => {
-    if (stops === 0) return translate("routes.noExchange")
-    if (stops === 1) return translate("routes.oneExchange")
-    return `${stops} ${translate("routes.exchanges")}`
+    if (stops === 0) return translate("routes.noChange")
+    if (stops === 1) return translate("routes.oneChange")
+    return `${stops} ${translate("routes.changes")}`
   }, [stops])
 
   return (

@@ -74,7 +74,7 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
     if (arrivalPlatform === departurePlatform) {
       return `${translate("routeDetails.platformStay")} ${arrivalPlatform}`
     } else {
-      return `${translate("routeDetails.platformExchange")} ${departurePlatform}`
+      return `${translate("routeDetails.platformChange")} ${departurePlatform}`
     }
   }, [])
 
@@ -90,7 +90,7 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
       {DISPLAY_EXCHANGE_ICON && <ChangeDirectionButton buttonStyle={ROUTE_EXCHANGE_ICON} />}
       <View>
         <Text style={ROUTE_EXCHANGE_STATION_NAME}>
-          {translate("routeDetails.exchangeAt")}
+          {translate("routeDetails.changeAt")}
           {stationName}
         </Text>
         <View style={ROUTE_EXCHANGE_INFO_WRAPPER}>

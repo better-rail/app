@@ -31,9 +31,9 @@
   "routes": {
     "departure": "انطلاق",
     "arrival": "وصول",
-    "noExchange": "دون تبديل",
-    "oneExchange": "تبديل واحد",
-    "exchanges": "تبديلات",
+    "noChange": "دون تبديل",
+    "oneChange": "تبديل واحد",
+    "changes": "تبديلات",
     "noInternetConnection": "يبدو أن الجهاز الخاص بك ليس متصلًا بالإنترنت في الوقت الحالي.\nيرجى التحقق من اتصال الشبكة الخاصة بك والمحاولة مرة أخرى.",
     "delayTime": "دقائق تأخير"
   },
@@ -41,9 +41,9 @@
     "platform": "رصيف",
     "unknown": "مجهول",
     "trainNo": "قطار رقم",
-    "exchangeAt": "تبديل في ",
+    "changeAt": "تبديل في ",
     "platformStay": "الرجاء الانتظار في الرصيف",
-    "platformExchange": "الرجاء الانتقال الى رصيف",
+    "platformChange": "الرجاء الانتقال الى رصيف",
     "waitingTime": "مدة الانتظار",
     "lastStop": "المحطة الأخيرة",
     "routeWarning": "تحذير الطريق الطويل",
@@ -100,10 +100,11 @@
     "youth": "شباب",
     "socialSecurity": "الضمان الاجتماعي"
   },
-
   "modals": {
-    "noTrainsFound": "لم يتم العثور على القطارات للتاريخ المطلوب",
-    "foundTrainsAt": "هنالك قطارات ابتداءً مِن"
+    "noTrainsFoundForDate": "لم يتم العثور على القطارات للتاريخ المطلوب",
+    "foundTrainsAtDate": " هنالك قطارات ابتداءً مِن",
+    "noTrainsFoundForHour": "لم يتم العثور على قطارات حول الوقت المطلوب",
+    "foundTrainsAtHour": "توجد قطارات في أوقات مختلفة في التاريخ المحدد"
   },
   "widgetOnboarding": {
     "homeWidgets": "Home Screen Widgets",

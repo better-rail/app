@@ -127,7 +127,12 @@ function isRouteIsMuchLongerThanOtherRoutes(route: RouteItem, otherRoutes: Route
 
     // check if the other route is much longer than the current route
     const otherRouteDuration = routeDurationInMs(otherRoute.departureTime, otherRoute.arrivalTime)
-    return routeDuration - otherRouteDuration >= 30 * 60 * 1000
+
+    // Usually, we only show the user a long route warning if there is a difference of 30 minutes.
+    // When the current route involves a change and the other does not, we want to reduce the difference
+    // to 15 minutes so that people will choose a more comfortable journey.
+    const minutesForMuchLonger = route.isExchange && !otherRoute.isExchange ? 15 : 30
+    return routeDuration - otherRouteDuration >= minutesForMuchLonger * 60 * 1000
   })
 
   if (longRoutesAround.length > 0) return true
@@ -143,7 +148,12 @@ function isRouteMuchShorterThanOtherRoutes(route: RouteItem, otherRoutes: RouteI
 
     // check if the other route is much shorter than the current route
     const otherRouteDuration = routeDurationInMs(otherRoute.departureTime, otherRoute.arrivalTime)
-    return otherRouteDuration - routeDuration >= 30 * 60 * 1000
+
+    // Usually, we only show that a shorter route is available if there is a difference of 30 minutes.
+    // When the other route involves a change and the current does not, we want to reduce the difference
+    // to 15 minutes so that people will choose a more comfortable journey.
+    const minutesForMuchShorter = !route.isExchange && otherRoute.isExchange ? 15 : 30
+    return otherRouteDuration - routeDuration >= minutesForMuchShorter * 60 * 1000
   })
 
   if (shortRoutesAround.length > 0) return true
