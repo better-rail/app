@@ -27,7 +27,9 @@
     "switchStationsHint": "Ярлык для перестановки исходной станции со станцией назначения",
     "trainFromStation": "Поезд от",
     "toStation": "до",
-    "trainFromToStation": "Поезд № %{trainNumber} из %{origin} в %{destination}"
+    "trainFromToStation": "Поезд № %{trainNumber} из %{origin} в %{destination}",
+    "eventTile": "Поездка в %{destination}",
+    "trainStation": "станция "
   },
   "selectStation": {
     "placeholder": "Поиск остановки",

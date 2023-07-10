@@ -28,6 +28,8 @@
     "trainFromStation": "נסיעה ברכבת מתחנת",
     "toStation": "אל תחנת",
     "trainFromToStation": "רכבת מס' %{trainNumber} מ%{origin} אל %{destination}",
+    "eventTile": "נסיעה ל%{destination}",
+    "trainStation" : "תחנת רכבת "
   },
   "selectStation": {
     "placeholder": "חיפוש תחנה",

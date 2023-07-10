@@ -28,6 +28,8 @@
     "trainFromStation": "Train from",
     "toStation": "to",
     "trainFromToStation": "Train No. %{trainNumber} From %{origin} To %{destination}",// Train No. 422 From Tel Aviv - HaShalom To Karmiel.
+    "eventTile": "Trip to %{destination}",
+    "trainStation": "Train Station "
   },
   "selectStation": {
     "placeholder": "Search Stations",

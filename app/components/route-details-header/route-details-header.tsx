@@ -116,28 +116,27 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
       navigation.setOptions({
         headerRight: () => (
           <View style={HEADER_RIGHT_WRAPPER}>
-            { eventConfig &&
-              <CalendarIcon
+            { eventConfig
+              ? <CalendarIcon
                 onPress={ () => addToCalendar(eventConfig) }
                 style={ { marginEnd: spacing[2] } }
               />
-            }
-            <StarIcon
-              filled={isFavorite}
-              onPress={() => {
-                const favorite = { id: routeId, originId, destinationId }
-                if (!isFavorite) {
-                  Burnt.alert({ title: translate("favorites.added"), duration: 1.5 })
-                  HapticFeedback.trigger("impactMedium")
-                  favoriteRoutes.add(favorite)
-                  analytics().logEvent("favorite_route_added")
-                } else {
-                  HapticFeedback.trigger("impactLight")
-                  favoriteRoutes.remove(favorite.id)
-                  analytics().logEvent("favorite_route_removed")
-                }
-              }}
-            />
+              : <StarIcon
+                filled={ isFavorite }
+                onPress={ () => {
+                  const favorite = { id: routeId, originId, destinationId }
+                  if (!isFavorite) {
+                    Burnt.alert({ title: translate("favorites.added"), duration: 1.5 })
+                    HapticFeedback.trigger("impactMedium")
+                    favoriteRoutes.add(favorite)
+                    analytics().logEvent("favorite_route_added")
+                  } else {
+                    HapticFeedback.trigger("impactLight")
+                    favoriteRoutes.remove(favorite.id)
+                    analytics().logEvent("favorite_route_removed")
+                  }
+                } }
+              /> }
           </View>
         ),
       });
