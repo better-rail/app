@@ -137,7 +137,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   const scaleStationCards = () => {
     Animated.sequence([
       Animated.timing(stationCardScale, {
-        toValue: 0.96,
+        toValue: 0.94,
         duration: 175,
         useNativeDriver: true,
       }),
