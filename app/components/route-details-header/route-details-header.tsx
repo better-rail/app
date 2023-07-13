@@ -107,9 +107,10 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 
   const routeId = `${originId}${destinationId}`
 
-  const isFavorite: boolean = useMemo(() => {
-    return favoriteRoutes.routes.find((favorite) => favorite.id === routeId) !== undefined
-  }, [favoriteRoutes.routes.length])
+  const isFavorite: boolean = useMemo(
+    () => !!favoriteRoutes.routes.find((favorite) => favorite.id === routeId),
+    [favoriteRoutes.routes.length],
+  )
 
   useLayoutEffect(() => {
     screenName !== "activeRide" &&
