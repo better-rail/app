@@ -13,7 +13,7 @@ import { isRTL, translate } from "../../i18n"
 import { useStores } from "../../models"
 import * as Burnt from "burnt"
 import * as AddCalendarEvent from "react-native-add-calendar-event"
-import { CalendarIcon } from "../star-icon/calendar-icon"
+import { CalendarIcon } from "../calendar-icon/calendar-icon"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
 
