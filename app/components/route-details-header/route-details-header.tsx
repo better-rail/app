@@ -100,7 +100,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   const navigation = useNavigation()
 
   const addToCalendar = (eventConfig) => {
-    AddCalendarEvent.presentEventCreatingDialog(eventConfig);
+    AddCalendarEvent.presentEventCreatingDialog(eventConfig)
   }
   const originName = stationsObject[originId][stationLocale]
   const destinationName = stationsObject[destinationId][stationLocale]
@@ -117,14 +117,12 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
       navigation.setOptions({
         headerRight: () => (
           <View style={HEADER_RIGHT_WRAPPER}>
-            { eventConfig
-              ? <CalendarIcon
-                onPress={ () => addToCalendar(eventConfig) }
-                style={ { marginEnd: spacing[2] } }
-              />
-              : <StarIcon
-                filled={ isFavorite }
-                onPress={ () => {
+            {eventConfig ? (
+              <CalendarIcon onPress={() => addToCalendar(eventConfig)} style={{ marginEnd: spacing[2] }} />
+            ) : (
+              <StarIcon
+                filled={isFavorite}
+                onPress={() => {
                   const favorite = { id: routeId, originId, destinationId }
                   if (!isFavorite) {
                     Burnt.alert({ title: translate("favorites.added"), duration: 1.5 })
@@ -136,11 +134,12 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
                     favoriteRoutes.remove(favorite.id)
                     analytics().logEvent("favorite_route_removed")
                   }
-                } }
-              /> }
+                }}
+              />
+            )}
           </View>
         ),
-      });
+      })
   }, [favoriteRoutes.routes.length])
 
   return (
