@@ -12,6 +12,9 @@ import { stationsObject, stationLocale } from "../../data/stations"
 import { isRTL, translate } from "../../i18n"
 import { useStores } from "../../models"
 import * as Burnt from "burnt"
+import * as AddCalendarEvent from "react-native-add-calendar-event"
+import { CalendarIcon } from "../calendar-icon/calendar-icon"
+import { RouteItem } from "../../services/api"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
 
@@ -84,48 +87,60 @@ const HEADER_RIGHT_WRAPPER: ViewStyle = {
 export interface RouteDetailsHeaderProps {
   originId: string
   destinationId: string
+  routeItem: RouteItem
   /**
    * The screen name we're displaying the header inside
    */
   screenName?: "routeDetails" | "activeRide"
   style?: ViewStyle
+  eventConfig?: AddCalendarEvent.CreateOptions
 }
 
 export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
-  const { originId, destinationId, screenName, style } = props
+  const { routeItem, originId, destinationId, screenName, style, eventConfig } = props
   const { favoriteRoutes } = useStores()
   const navigation = useNavigation()
+
+  const addToCalendar = () => {
+    const eventConfig = createEventConfig(routeItem)
+    AddCalendarEvent.presentEventCreatingDialog(eventConfig)
+  }
 
   const originName = stationsObject[originId][stationLocale]
   const destinationName = stationsObject[destinationId][stationLocale]
 
   const routeId = `${originId}${destinationId}`
 
-  const isFavorite: boolean = useMemo(() => {
-    return favoriteRoutes.routes.find((favorite) => favorite.id === routeId)
-  }, [favoriteRoutes.routes.length])
+  const isFavorite: boolean = useMemo(
+    () => !!favoriteRoutes.routes.find((favorite) => favorite.id === routeId),
+    [favoriteRoutes.routes.length],
+  )
 
   useLayoutEffect(() => {
     screenName !== "activeRide" &&
       navigation.setOptions({
         headerRight: () => (
           <View style={HEADER_RIGHT_WRAPPER}>
-            <StarIcon
-              filled={isFavorite}
-              onPress={() => {
-                const favorite = { id: routeId, originId, destinationId }
-                if (!isFavorite) {
-                  Burnt.alert({ title: translate("favorites.added"), duration: 1.5 })
-                  HapticFeedback.trigger("impactMedium")
-                  favoriteRoutes.add(favorite)
-                  analytics().logEvent("favorite_route_added")
-                } else {
-                  HapticFeedback.trigger("impactLight")
-                  favoriteRoutes.remove(favorite.id)
-                  analytics().logEvent("favorite_route_removed")
-                }
-              }}
-            />
+            {screenName === "routeDetails" ? (
+              <CalendarIcon onPress={addToCalendar} style={{ marginEnd: spacing[2] }} />
+            ) : (
+              <StarIcon
+                filled={isFavorite}
+                onPress={() => {
+                  const favorite = { id: routeId, originId, destinationId }
+                  if (!isFavorite) {
+                    Burnt.alert({ title: translate("favorites.added"), duration: 1.5 })
+                    HapticFeedback.trigger("impactMedium")
+                    favoriteRoutes.add(favorite)
+                    analytics().logEvent("favorite_route_added")
+                  } else {
+                    HapticFeedback.trigger("impactLight")
+                    favoriteRoutes.remove(favorite.id)
+                    analytics().logEvent("favorite_route_removed")
+                  }
+                }}
+              />
+            )}
           </View>
         ),
       })
@@ -160,3 +175,20 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
     </View>
   )
 })
+
+function createEventConfig(routeItem: RouteItem) {
+  const { destinationStationName: destination, originStationName: origin, trainNumber } = routeItem.trains[0]
+
+  const title = translate("plan.eventTitle", { destination })
+  const notes = translate("plan.trainFromToStation", { trainNumber, origin, destination })
+
+  const eventConfig: AddCalendarEvent.CreateOptions = {
+    title,
+    startDate: new Date(routeItem.departureTime).toISOString(),
+    endDate: new Date(routeItem.arrivalTime).toISOString(),
+    location: translate("plan.trainStation", { stationName: origin }),
+    notes,
+  }
+
+  return eventConfig
+}

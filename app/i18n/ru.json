@@ -24,7 +24,10 @@
     "find": "Найти маршруты",
     "resetTime": "сбросить время",
     "switchStations": "Перевернуть станции",
-    "switchStationsHint": "Ярлык для перестановки исходной станции со станцией назначения"
+    "switchStationsHint": "Ярлык для перестановки исходной станции со станцией назначения",
+    "trainFromToStation": "Поезд № %{trainNumber} из %{origin} в %{destination}",
+    "eventTitle": "Поездка в %{destination}",
+    "trainStation": "%{stationName} станция"
   },
   "selectStation": {
     "placeholder": "Поиск остановки",
@@ -54,7 +57,8 @@
     "minutes": "минут",
     "lastStop": "Последняя остановка",
     "routeWarning": "Предупреждение о длинном маршруте",
-    "routeWarningText": "Во время отправления есть более короткие маршруты поездов."
+    "routeWarningText": "Во время отправления есть более короткие маршруты поездов.",
+    "addToCalendar": "Добавить в календарь"
   },
   "settings": {
     "title": "Настройки",

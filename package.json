@@ -58,6 +58,7 @@
     "ramda": "0.27.1",
     "react": "18.2.0",
     "react-native": "0.71.7",
+    "react-native-add-calendar-event": "^4.2.2",
     "react-native-bouncy-checkbox": "^3.0.7",
     "react-native-date-picker": "4.2.10",
     "react-native-device-info": "10.6.0",
