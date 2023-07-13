@@ -21,11 +21,9 @@
     "resetTime": "إعادة تعيين الوقت",
     "switchStations": "تبديل المحطات",
     "switchStationsHint": "اختصار لتبديل محطة البداية بمحطة الوصول",
-    "trainFromStation": "ركوب القطار من",
-    "toStation": "إلى",
     "trainFromToStation": "القطار رقم %{trainNumber} من %{origin} إلى %{destination}",
-    "eventTile": "رحلة إلى %{destination}",
-    "trainStation": "محطة القطار "
+    "eventTitle": "رحلة إلى %{destination}",
+    "trainStation": "محطة القطار %{stationName}"
   },
   "selectStation": {
     "placeholder": "البحث عن محطة",

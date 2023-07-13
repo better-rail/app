@@ -1,4 +1,5 @@
 import { Image, ImageStyle, TouchableOpacity, ViewStyle } from "react-native"
+import { translate } from "../../i18n"
 
 const CalenderImageIcon = require("../../../assets/calendar.png")
 
@@ -17,7 +18,7 @@ export const CalendarIcon = function CalendarIcon(props: { style?: ViewStyle; on
   const { onPress, style } = props
 
   return (
-    <TouchableOpacity onPress={onPress} style={[CONTAINER, style]}>
+    <TouchableOpacity onPress={onPress} style={[CONTAINER, style]} accessibilityLabel={translate("routeDetails.addToCalendar")}>
       <Image source={CalenderImageIcon} style={[ICON_STYLE]} />
     </TouchableOpacity>
   )

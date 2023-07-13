@@ -57,21 +57,6 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
   const openFirstRideAlertSheet = () => {
     bottomSheetRef.current?.expand()
   }
-  const eventTitle = translate("plan.eventTile", {
-    destination: routeItem.trains[0].destinationStationName,
-  })
-  const eventNotes = translate("plan.trainFromToStation", {
-    trainNumber: routeItem.trains[0].trainNumber,
-    origin: routeItem.trains[0].originStationName,
-    destination: routeItem.trains[0].destinationStationName,
-  })
-  const eventConfig: CreateOptions = {
-    title: eventTitle,
-    startDate: new Date(routeItem.departureTime).toISOString(),
-    endDate: new Date(routeItem.arrivalTime).toISOString(),
-    location: translate('plan.trainStation') + routeItem.trains[0].originStationName,
-    notes: eventNotes,
-  }
 
   useEffect(() => {
     // allow button fade only after the view mounts; disable the animation when the view appears initally.
@@ -89,11 +74,11 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
     >
       <SharedElement id="route-header">
         <RouteDetailsHeader
+          routeItem={routeItem}
           originId={route.params.originId}
           destinationId={route.params.destinationId}
           screenName={route.name}
           style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
-          eventConfig={eventConfig}
         />
       </SharedElement>
       <ScrollView
