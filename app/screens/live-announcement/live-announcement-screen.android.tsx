@@ -38,7 +38,11 @@ export function LiveAnnouncementScreen({ navigation }: LiveAnnouncementStackProp
         <Text tx="liveAnnounce.announcement.title" style={TITLE} />
         <Image source={LIVE_IMAGE} style={IMAGE} />
         <Text tx="liveAnnounce.announcement.androidDescription" style={[TEXT, { marginBottom: spacing[5] }]} />
-        <Button containerStyle={{ maxHeight: 60, width: "90%" }} title={translate("common.next")} />
+        <Button
+          onPress={() => navigation.navigate("startRide")}
+          containerStyle={{ maxHeight: 60, width: "90%" }}
+          title={translate("common.next")}
+        />
       </View>
     </ScrollView>
   )
