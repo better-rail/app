@@ -1,11 +1,9 @@
 import { Image, ImageStyle, ScrollView, TextStyle, View } from "react-native"
-import { Button, Screen, Text } from "../../components"
-import { LiveAnnouncementBackground } from "./live-announcement-bg"
+import { Button, Text } from "../../components"
 import { color, spacing } from "../../theme"
-import { translate, userLocale } from "../../i18n"
+import { translate } from "../../i18n"
 import { LiveAnnouncementStackProps } from "../../navigators/live-activity-announcement/live-activity-announcement-stack"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { NextButton } from "./announcement-next-button"
 
 const TITLE: TextStyle = {
   fontSize: 30,
