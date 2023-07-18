@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse } from "axios"
-import { LanguageCode } from "../../i18n"
-import { AnnouncementApiResult } from "./api.types"
+import { LanguageCode, railApiLocales } from "../../i18n"
+import { AnnouncementApiResult, PopUpMessagesApiResult } from "./api.types"
 
 export class RailApi {
   axiosInstance: AxiosInstance
@@ -17,10 +17,7 @@ export class RailApi {
   }
 
   async getAnnouncements(languageCode: LanguageCode) {
-    let languageId = 1 // hebrew
-    if (languageCode === "en") languageId = 2
-    if (languageCode === "ar") languageId = 3
-    if (languageCode === "ru") languageId = 4
+    const languageId = railApiLocales[languageCode]
 
     const response: AxiosResponse<AnnouncementApiResult> = await this.axiosInstance.get(
       `/railupdates/?LanguageId=${languageId}&SystemType=1`,
@@ -30,6 +27,19 @@ export class RailApi {
     )
 
     return response.data.result
+  }
+
+  async getPopupMessages(languageCode: LanguageCode) {
+    const languageId = railApiLocales[languageCode]
+
+    const response: AxiosResponse<PopUpMessagesApiResult> = await this.axiosInstance.get(
+      `/PopUpMessages/?LanguageId=${languageId}&PageTypeId=MainPage`,
+      {
+        baseURL: "https://israelrail.azurefd.net/common/api/v1/",
+      },
+    )
+
+    return response.data.result.filter((result) => result.title && result.messageBody)
   }
 }
 

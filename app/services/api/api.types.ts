@@ -151,6 +151,15 @@ export interface AnnouncementApiResult {
   result: Announcement[]
 }
 
+export interface PopUpMessagesApiResult {
+  creationDate: string
+  version: string
+  successStatus: number
+  statusCode: number
+  errorMessages: any
+  result: PopUpMessage[]
+}
+
 export interface Announcement {
   updateHeader: string
   updateContent: string
@@ -158,4 +167,14 @@ export interface Announcement {
   stations: string[]
   linkText: string
   updateType: string
+}
+
+export interface PopUpMessage {
+  id: number
+  pageTypeId: number
+  title: string
+  messageBody: string
+  startDate: string
+  endDate: string
+  systemTypeId: number
 }

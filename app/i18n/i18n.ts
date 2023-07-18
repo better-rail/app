@@ -16,6 +16,13 @@ i18n.translations = { he, en, ar, ru }
 
 export type LanguageCode = "he" | "ar" | "en" | "ru"
 
+export const railApiLocales = {
+  en: "English",
+  he: "Hebrew",
+  ru: "Russian",
+  ar: "Arabic",
+}
+
 export const isRTL = I18nManager.isRTL
 export let userLocale: LanguageCode = "en"
 export let dateFnsLocalization = enUS
