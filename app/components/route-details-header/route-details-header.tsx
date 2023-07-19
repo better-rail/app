@@ -1,6 +1,6 @@
 /* eslint-disable react/display-name */
 import React, { useMemo, useLayoutEffect } from "react"
-import { Image, ImageBackground, View, ViewStyle, TextStyle, ImageStyle } from "react-native"
+import { Image, ImageBackground, View, ViewStyle, TextStyle, ImageStyle, Alert, Linking } from "react-native"
 import analytics from "@react-native-firebase/analytics"
 import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
@@ -97,13 +97,27 @@ export interface RouteDetailsHeaderProps {
 }
 
 export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
-  const { routeItem, originId, destinationId, screenName, style, eventConfig } = props
+  const { routeItem, originId, destinationId, screenName, style } = props
   const { favoriteRoutes } = useStores()
   const navigation = useNavigation()
 
   const addToCalendar = () => {
+    analytics().logEvent("add_route_to_calendar")
     const eventConfig = createEventConfig(routeItem)
-    AddCalendarEvent.presentEventCreatingDialog(eventConfig)
+    AddCalendarEvent.presentEventCreatingDialog(eventConfig).catch((error) => {
+      if (error === "permissionNotGranted") {
+        Alert.alert(translate("routeDetails.noCalendarAccessTitle"), translate("routeDetails.noCalendarAccessMessage"), [
+          {
+            style: "cancel",
+            text: translate("common.cancel"),
+          },
+          {
+            text: translate("settings.title"),
+            onPress: () => Linking.openSettings(),
+          },
+        ])
+      }
+    })
   }
 
   const originName = stationsObject[originId][stationLocale]

@@ -59,7 +59,9 @@
     "lastStop": "Last Stop",
     "routeWarning": "Long Route Warning",
     "routeWarningText": "There are shorter train routes around the departure time.",
-    "addToCalendar": "Add to Calendar"
+    "addToCalendar": "Add to Calendar",
+    "noCalendarAccessTitle": "Calendar access disabled",
+    "noCalendarAccessMessage": "To add to route calendar, please open your device settings and enable calendar access."
   },
   "settings": {
     "title": "Settings",
