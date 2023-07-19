@@ -51,7 +51,9 @@
     "lastStop": "المحطة الأخيرة",
     "routeWarning": "تحذير الطريق الطويل",
     "routeWarningText": "هناك طرق قطار أقصر حول وقت المغادرة.",
-    "addToCalendar": "إضافة إلى التقويم"
+    "addToCalendar": "إضافة إلى التقويم",
+    "noCalendarAccessTitle": "تم تعطيل الوصول إلى التقويم",
+    "noCalendarAccessMessage": "للإضافة إلى تقويم المسار ، يرجى فتح إعدادات جهازك وتمكين الوصول إلى التقويم."
   },
   "settings": {
     "title": "اعدادت",

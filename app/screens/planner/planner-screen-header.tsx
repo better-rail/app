@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Image, ImageStyle, Platform, TouchableOpacity, View, ViewStyle } from "react-native"
+import { Image, ImageStyle, TouchableOpacity, View, ViewStyle } from "react-native"
 import { useNavigation } from "@react-navigation/core"
 import { observer } from "mobx-react-lite"
 import * as storage from "../../utils/storage"
