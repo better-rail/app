@@ -39,7 +39,7 @@ type AnnouncementCardProps = {
 
 export const AnnouncementCard: React.FC<AnnouncementCardProps> = ({ title, body, link }) => {
   return (
-    <TouchableScale activeScale={0.95} friction={9} disabled={!link} onPress={() => openLink(link)}>
+    <TouchableScale activeScale={0.98} friction={10} disabled={!link} onPress={() => openLink(link)}>
       <View style={ANNOUNCEMENT_CARD}>
         <Text style={TITLE_STYLE}>{title}</Text>
         <Text style={BODY_STYLE}>{body}</Text>
