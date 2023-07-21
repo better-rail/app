@@ -10,6 +10,11 @@ const ROOT: ViewStyle = {
   backgroundColor: color.background,
 }
 
+const SCROLL_VIEW: ViewStyle = {
+  padding: spacing[3],
+  paddingBottom: spacing[5],
+}
+
 export const AnnouncementsScreen = observer(function AnnouncementsScreen({ navigation }: AnnouncementsScreenProps) {
   const isDarkMode = useIsDarkMode()
 
@@ -21,14 +26,8 @@ export const AnnouncementsScreen = observer(function AnnouncementsScreen({ navig
       statusBar={Platform.select({ ios: "light-content" })}
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
     >
-      <ScrollView>
-        <View
-          style={{
-            margin: spacing[3],
-          }}
-        >
-          <AnnouncementsList updatesType="regular" />
-        </View>
+      <ScrollView contentContainerStyle={SCROLL_VIEW}>
+        <AnnouncementsList updatesType="regular" />
       </ScrollView>
     </Screen>
   )
