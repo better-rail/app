@@ -68,7 +68,7 @@ const StopButton = (props: { loading: boolean } & PressableProps) => (
     {props.loading ? (
       <ActivityIndicator color="white" />
     ) : (
-      <Image source={require("../../../../assets/stop-rect.ios.png")} style={{ width: 17.5, height: 17.5 }} />
+      <Image source={require("../../../../assets/stop-rect.png")} style={{ width: 17.5, height: 17.5 }} />
     )}
   </Pressable>
 )
