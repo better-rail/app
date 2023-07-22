@@ -9,7 +9,7 @@
 "platform %@" = "Platform %@";
 "train %@ platform %@" = "Train %@ ・ Platform %@";
 
-"exchange" = "Exchange";
+"change" = "Change";
 "stay-at %@" = "Stay at Platform %@";
 "move-to %@" = "Move to Platform %@";
 

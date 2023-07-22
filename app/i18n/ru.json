@@ -24,7 +24,10 @@
     "find": "Найти маршруты",
     "resetTime": "сбросить время",
     "switchStations": "Перевернуть станции",
-    "switchStationsHint": "Ярлык для перестановки исходной станции со станцией назначения"
+    "switchStationsHint": "Ярлык для перестановки исходной станции со станцией назначения",
+    "trainFromToStation": "Поезд № %{trainNumber} из %{origin} в %{destination}",
+    "eventTitle": "Поездка в %{destination}",
+    "trainStation": "%{stationName} станция"
   },
   "selectStation": {
     "placeholder": "Поиск остановки",
@@ -35,9 +38,9 @@
   "routes": {
     "departure": "Отправление",
     "arrival": "Прибытие",
-    "noExchange": "Без пересадок",
-    "oneExchange": "1 пересадка",
-    "exchanges": "Пересадки",
+    "noChange": "Без пересадок",
+    "oneChange": "1 пересадка",
+    "changes": "Пересадки",
     "delayTime": "минут отставание",
     "noInternetConnection": "Похоже, что ваше устройство в настоящее время не подключено к Интернету\nПожалуйста, проверьте соединение с сетью и попробуйте еще раз.",
     "updates": "Обновления из поезда",
@@ -47,14 +50,17 @@
     "platform": "Платформа",
     "unknown": "Неизвестный",
     "trainNo": "Поезд номер",
-    "exchangeAt": "Пересадка на ",
+    "changeAt": "Пересадка на ",
     "platformStay": "Остаться на платформе",
-    "platformExchange": "Перейти на платформу",
+    "platformChange": "Перейти на платформу",
     "waitingTime": "Время ожидания",
     "minutes": "минут",
     "lastStop": "Последняя остановка",
     "routeWarning": "Предупреждение о длинном маршруте",
-    "routeWarningText": "Во время отправления есть более короткие маршруты поездов."
+    "routeWarningText": "Во время отправления есть более короткие маршруты поездов.",
+    "addToCalendar": "Добавить в календарь",
+    "noCalendarAccessTitle": "Доступ к календарю отключен",
+    "noCalendarAccessMessage": "Чтобы добавить маршрут в календарь, откройте настройки устройства и включите доступ к календарю."
   },
   "settings": {
     "title": "Настройки",
@@ -106,8 +112,10 @@
     "socialSecurity": "Льготник Битуах Леуми"
   },
   "modals": {
-    "noTrainsFound": "Нет поездов на указанную дату",
-    "foundTrainsAt": "Отображены поезда на "
+    "noTrainsFoundForDate": "Нет поездов на указанную дату",
+    "foundTrainsAtDate": "Отображены поезда на ",
+    "noTrainsFoundForHour": "Поезда не найдены в указанное время",
+    "foundTrainsAtHour": "Есть поезда в разное время на выбранную дату"
   },
   "widgetOnboarding": {
     "homeWidgets": "Home Screen Widgets",

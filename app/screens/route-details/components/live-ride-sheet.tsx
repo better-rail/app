@@ -1,5 +1,5 @@
-import { useMemo } from "react"
-import { Pressable, PressableProps, Image, ActivityIndicator } from "react-native"
+import { useEffect, useMemo, useState } from "react"
+import { Pressable, PressableProps, Image, ActivityIndicator, ViewStyle } from "react-native"
 import { color } from "../../../theme"
 import { Text, BottomScreenSheet } from "../../../components"
 import { useNavigation } from "@react-navigation/native"
@@ -51,24 +51,49 @@ export const LiveRideSheet = observer(function LiveRideSheet(props: { progress; 
   )
 })
 
-const StopButton = (props: { loading: boolean } & PressableProps) => (
-  <Pressable
-    style={({ pressed }) => [
-      {
-        width: 42.5,
-        height: 42.5,
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: color.stop,
-        borderRadius: 30,
-      },
-    ]}
-    {...props}
-  >
-    {props.loading ? (
-      <ActivityIndicator color="white" />
-    ) : (
-      <Image source={require("../../../../assets/stop-rect.ios.png")} style={{ width: 17.5, height: 17.5 }} />
-    )}
-  </Pressable>
-)
+const STOP_BUTTON: ViewStyle = {
+  width: 42.5,
+  height: 42.5,
+  alignItems: "center",
+  justifyContent: "center",
+  backgroundColor: color.stop,
+  borderRadius: 30,
+}
+
+const StopButton = (props: { loading: boolean } & PressableProps) => {
+  const { loading } = props
+  const [isDisabled, setIsDisabled] = useState(loading)
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout
+
+    if (loading) {
+      // disable the button for 5 seconds
+      // this prevents frequent ride start & stop presses,
+      // and gives the request time to fullfill
+      timeout = setTimeout(() => {
+        setIsDisabled(false)
+      }, 5000)
+    } else {
+      // once the ride has been initiated successfuly,
+      // we can enable the stop button
+      setIsDisabled(false)
+    }
+
+    return () => {
+      if (timeout) {
+        clearTimeout(timeout)
+      }
+    }
+  }, [loading])
+
+  return (
+    <Pressable disabled={isDisabled} style={STOP_BUTTON} {...props}>
+      {loading ? (
+        <ActivityIndicator color="white" />
+      ) : (
+        <Image source={require("../../../../assets/stop-rect.png")} style={{ width: 17.5, height: 17.5 }} />
+      )}
+    </Pressable>
+  )
+}

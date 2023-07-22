@@ -23,7 +23,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>6</string>
+	<string>7</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>
@@ -78,5 +78,11 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSCalendarsUsageDescription</key>
+  <string>We need access to your calendar to schedule events and reminders.</string>
+
+  <key>NSContactsUsageDescription</key>
+  <string>We need access to your contacts to import and manage contacts within our app.</string>
+
 </dict>
 </plist>

@@ -24,7 +24,10 @@
     "find": "חישוב מסלול",
     "resetTime": "איפוס זמן",
     "switchStations": "החלפת תחנות",
-    "switchStationsHint": "קיצור דרך להחלפת תחנת המוצא עם תחנת היעד"
+    "switchStationsHint": "קיצור דרך להחלפת תחנת המוצא עם תחנת היעד",
+    "trainFromToStation": "רכבת מס' %{trainNumber} מ%{origin} אל %{destination}",
+    "eventTitle": "נסיעה ל%{destination}",
+    "trainStation": "תחנת רכבת %{stationName}"
   },
   "selectStation": {
     "placeholder": "חיפוש תחנה",
@@ -35,9 +38,9 @@
   "routes": {
     "departure": "יציאה",
     "arrival": "הגעה",
-    "noExchange": "ללא החלפות",
-    "oneExchange": "החלפה אחת",
-    "exchanges": "החלפות",
+    "noChange": "ללא החלפות",
+    "oneChange": "החלפה אחת",
+    "changes": "החלפות",
     "delayTime": "דק' עיכוב",
     "noTrainsFound": "לא נמצאו רכבות למסלול זה בימים הקרובים",
     "noInternetConnection": "נראה שהמכשיר אינו מחובר לאינטרנט.\n אנא בדקו את חיבור הרשת ונסו שוב.",
@@ -48,14 +51,17 @@
     "platform": "רציף",
     "unknown": "לא ידוע",
     "trainNo": "רכבת מס'",
-    "exchangeAt": "החלפה ב",
+    "changeAt": "החלפה ב",
     "platformStay": "יש להשאר ברציף",
-    "platformExchange": "יש לעבור לרציף",
+    "platformChange": "יש לעבור לרציף",
     "waitingTime": "זמן המתנה כ-",
     "minutes": "דק'",
     "lastStop": "יעד סופי",
     "routeWarning": "רכבת מאספת",
-    "routeWarningText": "קיימים מסלולי נסיעה קצרים יותר סביב שעת היציאה הנבחרת"
+    "routeWarningText": "קיימים מסלולי נסיעה קצרים יותר סביב שעת היציאה הנבחרת",
+    "addToCalendar": "הוספה ליומן",
+    "noCalendarAccessTitle": "גישה ללוח שנה כבויה",
+    "noCalendarAccessMessage": "יש לאפשר גישה ללוח שנה בהגדרות המכשיר על מנת להוסיף נסיעה ליומן"
   },
   "settings": {
     "title": "הגדרות",
@@ -122,8 +128,10 @@
     "socialSecurity": "זכאי ביטוח לאומי"
   },
   "modals": {
-    "noTrainsFound": "לא נמצאו רכבות לתאריך המבוקש",
-    "foundTrainsAt": "קיימות רכבות החל מ"
+    "noTrainsFoundForDate": "לא נמצאו רכבות לתאריך המבוקש",
+    "foundTrainsAtDate": "קיימות רכבות החל מ",
+    "noTrainsFoundForHour": "לא נמצאו רכבות עבור השעה המבוקשת",
+    "foundTrainsAtHour": "קיימות רכבות בשעות אחרות"
   },
   "widgetOnboarding": {
     "homeWidgets": "ווידג׳טים למסך הבית",

@@ -5,7 +5,7 @@ import SwiftUI
 
 struct BetterRailLiveActivity: Widget {
   func tintColor(context: ActivityViewContext<BetterRailActivityAttributes>) -> Color {
-    return context.state.delay >= 5 ? .red : context.state.status.color
+    return context.state.delay >= 5 ? .purple : context.state.status.color
   }
   
   func deepLinkURL(_ trainNumbers: [Int]) -> URL {
