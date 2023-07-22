@@ -79,7 +79,13 @@ const StopButton = (props: { loading: boolean } & PressableProps) => {
       // we can enable the stop button
       setIsDisabled(false)
     }
-  })
+
+    return () => {
+      if (timeout) {
+        clearTimeout(timeout)
+      }
+    }
+  }, [loading])
 
   return (
     <Pressable disabled={isDisabled} style={STOP_BUTTON} {...props}>
