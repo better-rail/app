@@ -18,7 +18,7 @@ const LIVE_ACTIVITY_IMAGE: ImageStyle = {
   resizeMode: "contain",
 }
 
-const NOTIFICATION_IMAGE = require("../../../assets/live-ride/-live-ride-notification.png")
+const NOTIFICATION_IMAGE = require("../../../assets/live-ride/live-ride-notification.png")
 
 export function ActivityAnnouncementScreen({ navigation }: LiveAnnouncementStackProps) {
   return (
