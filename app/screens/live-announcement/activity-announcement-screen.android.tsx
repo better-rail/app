@@ -9,6 +9,7 @@ const TITLE: TextStyle = {
   fontSize: 30,
   fontWeight: "bold",
   textAlign: "center",
+  marginBottom: spacing[2],
 }
 const TEXT: TextStyle = { fontSize: 22, textAlign: "center" }
 
@@ -25,9 +26,9 @@ export function ActivityAnnouncementScreen({ navigation }: LiveAnnouncementStack
 
   return (
     <ScrollView contentContainerStyle={{ height: "100%", paddingTop: spacing[4], backgroundColor: color.tertiaryBackground }}>
+      <Text tx="liveAnnounce.liveActivity.androidTitle" preset="header" style={TITLE} maxFontSizeMultiplier={1.1} />
       <View style={{ flex: 1, alignItems: "center", paddingHorizontal: spacing[3], gap: spacing[4] }}>
-        <Text tx="liveAnnounce.liveActivity.title" preset="header" style={TITLE} maxFontSizeMultiplier={1.1} />
-        <Text tx="liveAnnounce.liveActivity.description" style={TEXT} maxFontSizeMultiplier={1.1} />
+        <Text tx="liveAnnounce.liveActivity.androidDescription" style={TEXT} maxFontSizeMultiplier={1.1} />
 
         <Image source={NOTIFICATION_IMAGE} style={LIVE_ACTIVITY_IMAGE} />
         <Text

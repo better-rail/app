@@ -158,7 +158,9 @@
     },
     "liveActivity": {
       "title": "Live Activity",
-      "description": "After you've started a trip, it'll be added to the lock screen and will be automatically updated with the train progress and delays.",
+      "androidTItle": "Active Ride",
+      "description": "Once you've started a ride, it'll be added to the lock screen and will be automatically updated with the train progress and delays.",
+      "androidDescription": "Once you've started a ride, it'll be added to the notifications screen and will automatically be updated with the train progress and delays.",
       "tip": "Tip: You can start your trip up to an hour before the train's departure time. This allows you to determine if you need to hurry to catch the train or not."
     },
     "dynamicIsland": {
