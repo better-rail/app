@@ -35,8 +35,10 @@ export const configureAndroidNotifications = async () => {
     vibration: false,
   })
 
-  const onRecievedMessage = async (message: FirebaseMessagingTypes.RemoteMessage) => {
-    if (message.notification) {
+  const onRecievedMessage = (mode: "background" | "foreground") => async (message: FirebaseMessagingTypes.RemoteMessage) => {
+    // Notifications show up automatically when the app is in the background,
+    // but we need to force it's in foreground
+    if (message.notification && mode === "foreground") {
       notifee.displayNotification({
         title: message.notification.title,
         body: message.notification.body,
@@ -65,8 +67,8 @@ export const configureAndroidNotifications = async () => {
     }
   }
 
-  messaging().onMessage(onRecievedMessage)
-  messaging().setBackgroundMessageHandler(onRecievedMessage)
+  messaging().onMessage(onRecievedMessage("foreground"))
+  messaging().setBackgroundMessageHandler(onRecievedMessage("background"))
   notifee.onBackgroundEvent(() => {
     return new Promise((resolve) => {
       resolve()
