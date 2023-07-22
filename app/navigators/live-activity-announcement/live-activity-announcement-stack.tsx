@@ -24,20 +24,25 @@ export const LiveAnnouncementNavigator = () => (
   <LiveAnnouncementStack.Navigator
     screenOptions={({ navigation }) => ({
       headerTransparent: true,
-      // headerLeft: () => (
-      //   <CloseButton
-      //     onPress={() => navigation.navigate("planner")}
-      //     iconStyle={{
-      //       width: 32.5,
-      //       height: 32.5,
-      //       tintColor: Platform.select({ ios: "white", android: "grey" }),
-      //       opacity: 0.5,
-      //       marginTop: 8,
-      //     }}
-      //   />
-      // ),
       headerBackground: () => (Platform.OS === "ios" ? <LiveAnnouncementHeaderBackground /> : null),
       title: "",
+      ...(Platform.OS === "ios" && {
+        headerLeft: () => {
+          if (Platform.OS === "android") return null
+          return (
+            <CloseButton
+              onPress={() => navigation.navigate("planner")}
+              iconStyle={{
+                width: 32.5,
+                height: 32.5,
+                tintColor: Platform.select({ ios: "white", android: "grey" }),
+                opacity: 0.5,
+                marginTop: 8,
+              }}
+            />
+          )
+        },
+      }),
     })}
   >
     <LiveAnnouncementStack.Screen name="main" component={LiveAnnouncementScreen} />
