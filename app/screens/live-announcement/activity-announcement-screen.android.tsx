@@ -3,7 +3,6 @@ import { Button, Text } from "../../components"
 import { color, spacing } from "../../theme"
 import { translate } from "../../i18n"
 import { LiveAnnouncementStackProps } from "../../navigators/live-activity-announcement/live-activity-announcement-stack"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const TITLE: TextStyle = {
   fontSize: 30,
@@ -11,7 +10,7 @@ const TITLE: TextStyle = {
   textAlign: "center",
   marginBottom: spacing[2],
 }
-const TEXT: TextStyle = { fontSize: 22, textAlign: "center" }
+const TEXT: TextStyle = { fontSize: 22, textAlign: "center", lineHeight: 29 }
 
 const LIVE_ACTIVITY_IMAGE: ImageStyle = {
   width: "100%",
@@ -22,8 +21,6 @@ const LIVE_ACTIVITY_IMAGE: ImageStyle = {
 const NOTIFICATION_IMAGE = require("../../../assets/live-ride/-live-ride-notification.png")
 
 export function ActivityAnnouncementScreen({ navigation }: LiveAnnouncementStackProps) {
-  const insets = useSafeAreaInsets()
-
   return (
     <ScrollView contentContainerStyle={{ height: "100%", paddingTop: spacing[4], backgroundColor: color.tertiaryBackground }}>
       <Text tx="liveAnnounce.liveActivity.androidTitle" preset="header" style={TITLE} maxFontSizeMultiplier={1.1} />
@@ -38,7 +35,7 @@ export function ActivityAnnouncementScreen({ navigation }: LiveAnnouncementStack
         />
 
         <Button
-          onPress={() => navigation.navigate("liveActivity")}
+          onPress={() => navigation.navigate("supportUs")}
           containerStyle={{ maxHeight: 60, width: "90%" }}
           title={translate("common.next")}
         />
