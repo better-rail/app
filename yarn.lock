@@ -16241,6 +16241,11 @@ react-lifecycles-compat@^3.0.4:
   resolved "https://registry.npmjs.org/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz"
   integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
 
+react-native-add-calendar-event@^4.2.2:
+  version "4.2.2"
+  resolved "https://registry.yarnpkg.com/react-native-add-calendar-event/-/react-native-add-calendar-event-4.2.2.tgz#c9b7a658358d39d9e577e22fb43ed74b0b34c201"
+  integrity sha512-y8Us+DDvSZL3ndWJhwKisLG3gml9Ju4FoHQ2rNQyysa9vPRZwfNXsk1tRlSjJ7ZIrxWUwOrVbXe98PN44N+qsQ==
+
 react-native-animatable@1.3.3:
   version "1.3.3"
   resolved "https://registry.npmjs.org/react-native-animatable/-/react-native-animatable-1.3.3.tgz"

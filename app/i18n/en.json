@@ -24,7 +24,10 @@
     "find": "Find Routes",
     "resetTime": "Reset Time",
     "switchStations": "Flip stations",
-    "switchStationsHint": "A shortcut to flip the origin station with the destination station"
+    "switchStationsHint": "A shortcut to flip the origin station with the destination station",
+    "trainFromToStation": "Train No. %{trainNumber} from %{origin} to %{destination}",
+    "eventTitle": "Ride to %{destination}",
+    "trainStation": "%{stationName} Train Station"
   },
   "selectStation": {
     "placeholder": "Search Stations",
@@ -55,7 +58,10 @@
     "minutes": "min",
     "lastStop": "Last Stop",
     "routeWarning": "Long Route Warning",
-    "routeWarningText": "There are shorter train routes around the departure time."
+    "routeWarningText": "There are shorter train routes around the departure time.",
+    "addToCalendar": "Add to Calendar",
+    "noCalendarAccessTitle": "Calendar access disabled",
+    "noCalendarAccessMessage": "To add the ride to your calendar, open your device settings and grant access to your calendar."
   },
   "settings": {
     "title": "Settings",
