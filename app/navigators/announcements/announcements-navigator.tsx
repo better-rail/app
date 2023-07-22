@@ -19,7 +19,7 @@ export const AnnouncementsNavigator = () => (
     }}
   >
     <AnnouncementsStack.Screen
-      name="annoncements"
+      name="announcement"
       component={AnnouncementsScreen}
       options={({ navigation }) => ({
         title: translate("routes.updates"),
