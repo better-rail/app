@@ -37,6 +37,7 @@ const LIVE_BUTTON_IMAGE: ImageStyle = {
 
 const TRAIN_ICON = require("../../../assets/train.ios.png")
 const SPARKLES_ICON = require("../../../assets/sparkles.png")
+const UPDATES_ICON = require("../../../assets/updates.png")
 const SETTINGS_ICON = require("../../../assets/settings.png")
 
 export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
@@ -90,7 +91,7 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
         activeOpacity={0.8}
         accessibilityLabel="עדכונים"
       >
-        <Image source={SPARKLES_ICON} style={SETTINGS_ICON_IMAGE} />
+        <Image source={UPDATES_ICON} style={SETTINGS_ICON_IMAGE} />
       </TouchableOpacity>
     </View>
   )
