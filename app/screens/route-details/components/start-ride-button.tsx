@@ -10,7 +10,7 @@ import { isRTL, translate } from "../../../i18n"
 import { RouteItem } from "../../../services/api"
 import { differenceInMinutes, isAfter } from "date-fns"
 import { timezoneCorrection } from "../../../utils/helpers/date-helpers"
-import { color } from "../../../theme"
+import { color, fontScale } from "../../../theme"
 import { useStores } from "../../../models"
 import { canRunLiveActivities } from "../../../utils/ios-helpers"
 
@@ -96,7 +96,7 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
       }}
     >
       <Button
-        style={{ backgroundColor: color.secondary, width: 148 }}
+        style={{ backgroundColor: color.secondary, width: 148 * fontScale }}
         icon={
           Platform.OS == "android" ? undefined : <Image source={require("../../../../assets/train.ios.png")} style={TRAIN_ICON} />
         }
