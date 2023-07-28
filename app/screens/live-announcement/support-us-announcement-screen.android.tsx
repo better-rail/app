@@ -1,7 +1,5 @@
-import { useLayoutEffect } from "react"
 import { Dimensions, Image, ImageStyle, ScrollView, TextStyle, View, ViewStyle } from "react-native"
 import { Button, Screen, Text } from "../../components"
-import { LiveAnnouncementBackground } from "./live-announcement-bg"
 import { color, fontScale, spacing } from "../../theme"
 import { translate } from "../../i18n"
 import { LiveAnnouncementStackProps } from "../../navigators/live-activity-announcement/live-activity-announcement-stack"
@@ -31,16 +29,12 @@ const AVATARS: ViewStyle = {
   marginTop: spacing[2],
   marginBottom: spacing[5],
   flexDirection: "row",
-  gap: -24,
+  gap: -16,
   alignItems: "center",
   justifyContent: "center",
 }
 
 const AVATAR_WRAPPER: ViewStyle = {
-  shadowColor: "#333",
-  shadowOffset: { width: 0, height: 0 },
-  shadowOpacity: 0.7,
-  shadowRadius: 5,
   elevation: 4,
   borderRadius: 100,
 }
@@ -58,12 +52,6 @@ const MATAN_IMAGE = require("../../../assets/live-activity/matan.jpeg")
 export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
   const isDarkMode = useIsDarkMode()
   const insets = useSafeAreaInsets()
-
-  // useLayoutEffect(() => {
-  //   navigation.setOptions({
-  //     headerLeft: null,
-  //   })
-  // }, [])
 
   const finish = () => {
     navigation.navigate("planner")

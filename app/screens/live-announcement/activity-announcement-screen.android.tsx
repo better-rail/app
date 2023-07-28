@@ -1,7 +1,7 @@
 import { Image, ImageStyle, ScrollView, TextStyle, View } from "react-native"
 import { Button, Text } from "../../components"
 import { color, spacing } from "../../theme"
-import { translate } from "../../i18n"
+import { translate, userLocale } from "../../i18n"
 import { LiveAnnouncementStackProps } from "../../navigators/live-activity-announcement/live-activity-announcement-stack"
 
 const TITLE: TextStyle = {
@@ -18,9 +18,12 @@ const LIVE_ACTIVITY_IMAGE: ImageStyle = {
   resizeMode: "contain",
 }
 
-const NOTIFICATION_IMAGE = require("../../../assets/live-ride/live-ride-notification.png")
+const NOTIFICATION_IMAGE_HEBREW = require("../../../assets/live-ride/live-ride-notification.png")
+const NOTIFICATION_IMAGE_ENGLISH = require("../../../assets/live-ride/live-ride-notification-english.png")
 
 export function ActivityAnnouncementScreen({ navigation }: LiveAnnouncementStackProps) {
+  const NOTIFICATION_IMAGE = userLocale === "he" ? NOTIFICATION_IMAGE_HEBREW : NOTIFICATION_IMAGE_ENGLISH
+
   return (
     <ScrollView contentContainerStyle={{ height: "100%", paddingTop: spacing[4], backgroundColor: color.tertiaryBackground }}>
       <Text tx="liveAnnounce.liveActivity.androidTitle" preset="header" style={TITLE} maxFontSizeMultiplier={1.1} />

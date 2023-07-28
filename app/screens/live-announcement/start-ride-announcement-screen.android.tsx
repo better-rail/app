@@ -2,7 +2,7 @@ import { ImageStyle, ScrollView, TextStyle, View } from "react-native"
 import Video from "react-native-video"
 import { Button, Text } from "../../components"
 import { color, spacing } from "../../theme"
-import { translate } from "../../i18n"
+import { translate, userLocale } from "../../i18n"
 import { LiveAnnouncementStackProps } from "../../navigators/live-activity-announcement/live-activity-announcement-stack"
 
 const TITLE: TextStyle = {
@@ -28,9 +28,12 @@ const VIDEO_STYLE: ImageStyle = {
   borderRadius: 12,
 }
 
-const START_RIDE_VIDEO = require("../../../assets/live-ride/start-live-ride.mp4")
+const START_RIDE_VIDEO_HEBREW = require("../../../assets/live-ride/start-live-ride.mp4")
+const START_RIDE_VIDEO_ENGLISH = require("../../../assets/live-ride/start-live-ride-english.mp4")
 
 export function StartRideAnnouncement({ navigation }: LiveAnnouncementStackProps) {
+  const START_RIDE_VIDEO = userLocale === "he" ? START_RIDE_VIDEO_HEBREW : START_RIDE_VIDEO_ENGLISH
+
   return (
     <ScrollView contentContainerStyle={{ height: "100%", paddingTop: spacing[4], backgroundColor: color.tertiaryBackground }}>
       <View style={{ flex: 1, alignItems: "center", paddingHorizontal: spacing[2] }}>
