@@ -16,7 +16,7 @@ const TITLE: TextStyle = {
 const TEXT: TextStyle = { fontSize: 22, textAlign: "center" }
 const IMAGE: ImageStyle = {
   width: "100%",
-  height: userLocale === "he" ? 400 : 345,
+  height: 420,
   resizeMode: "contain",
   marginVertical: fontScale > 1.1 ? spacing[4] : spacing[5],
 }
