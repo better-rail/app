@@ -88,7 +88,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
         style={[SEARCH_BAR_WRAPPER, { paddingTop: insets.top > 20 ? insets.top : Platform.select({ ios: 27.5, android: 5 }) }]}
       >
         <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} autoFocus={favoriteRoutes.routes.length < 2} />
-        <Pressable onPress={() => navigation.navigate("planner")}>
+        <Pressable onPress={navigation.goBack}>
           <Text style={CANCEL_LINK} tx="common.cancel" />
         </Pressable>
       </View>
