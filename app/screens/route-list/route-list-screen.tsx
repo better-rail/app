@@ -124,6 +124,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     >
       <SharedElement id="route-header">
         <RouteDetailsHeader
+          screenName="routeList"
           originId={route.params.originId}
           destinationId={route.params.destinationId}
           style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
