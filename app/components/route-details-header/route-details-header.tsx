@@ -1,6 +1,7 @@
 /* eslint-disable react/display-name */
-import React, { useMemo, useLayoutEffect } from "react"
-import { Image, ImageBackground, View, ViewStyle, TextStyle, ImageStyle, Alert, Linking } from "react-native"
+import React, { useMemo, useLayoutEffect, useRef, useEffect } from "react"
+import { Image, ImageBackground, View, ViewStyle, TextStyle, ImageStyle, Alert, Linking, Animated } from "react-native"
+import TouchableScale from "react-native-touchable-scale"
 import analytics from "@react-native-firebase/analytics"
 import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
@@ -15,6 +16,9 @@ import * as Burnt from "burnt"
 import * as AddCalendarEvent from "react-native-add-calendar-event"
 import { CalendarIcon } from "../calendar-icon/calendar-icon"
 import { RouteItem } from "../../services/api"
+import { TouchableOpacity } from "react-native-gesture-handler"
+
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableScale)
 
 const arrowIcon = require("../../../assets/arrow-left.png")
 
@@ -91,15 +95,18 @@ export interface RouteDetailsHeaderProps {
   /**
    * The screen name we're displaying the header inside
    */
-  screenName?: "routeDetails" | "activeRide"
+  screenName?: "routeList" | "routeDetails" | "activeRide"
   style?: ViewStyle
   eventConfig?: AddCalendarEvent.CreateOptions
 }
 
 export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const { routeItem, originId, destinationId, screenName, style } = props
-  const { favoriteRoutes } = useStores()
+  const { favoriteRoutes, routePlan } = useStores()
   const navigation = useNavigation()
+
+  const routeEditDisabled = props.screenName !== "routeList"
+  const stationCardScale = useRef(new Animated.Value(1)).current
 
   const addToCalendar = () => {
     analytics().logEvent("add_route_to_calendar")
@@ -124,6 +131,48 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   const destinationName = stationsObject[destinationId][stationLocale]
 
   const routeId = `${originId}${destinationId}`
+
+  const swapDirection = () => {
+    scaleStationCards()
+    HapticFeedback.trigger("impactMedium")
+
+    // Delay the actual switch so it'll be synced with the animation
+    setTimeout(() => {
+      routePlan.switchDirection()
+    }, 50)
+  }
+
+  const changeOriginStation = () => {
+    navigation.navigate("selectStation", { selectionType: "origin" })
+  }
+
+  const changeDestinationStation = () => {
+    navigation.navigate("selectStation", { selectionType: "destination" })
+  }
+
+  useEffect(() => {
+    if (routePlan.origin.id !== routePlan.destination.id) {
+      navigation.setParams({
+        originId: routePlan.origin.id,
+        destinationId: routePlan.destination.id,
+      } as any)
+    }
+  }, [routePlan.origin.id, routePlan.destination.id])
+
+  const scaleStationCards = () => {
+    Animated.sequence([
+      Animated.timing(stationCardScale, {
+        toValue: 0.94,
+        duration: 175,
+        useNativeDriver: true,
+      }),
+      Animated.timing(stationCardScale, {
+        toValue: 1,
+        duration: 175,
+        useNativeDriver: true,
+      }),
+    ]).start()
+  }
 
   const isFavorite: boolean = useMemo(
     () => !!favoriteRoutes.routes.find((favorite) => favorite.id === routeId),
@@ -171,19 +220,37 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 
       <View style={{ top: -20, marginBottom: -30, zIndex: 5 }}>
         <View style={[ROUTE_DETAILS_WRAPPER, style]}>
-          <View style={[ROUTE_DETAILS_STATION, { marginEnd: spacing[5] }]}>
+          <AnimatedTouchable
+            friction={9}
+            activeScale={0.95}
+            disabled={routeEditDisabled}
+            onPress={changeOriginStation}
+            style={[ROUTE_DETAILS_STATION, { marginEnd: spacing[5] }, { transform: [{ scale: stationCardScale }] }]}
+          >
             <Text style={ROUTE_DETAILS_STATION_TEXT} maxFontSizeMultiplier={1.1}>
               {originName}
             </Text>
-          </View>
-          <View style={ROUTE_INFO_CIRCLE}>
+          </AnimatedTouchable>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            hitSlop={spacing[2]}
+            onPress={swapDirection}
+            style={ROUTE_INFO_CIRCLE}
+            disabled={routeEditDisabled}
+          >
             <Image source={arrowIcon} style={ARROW_ICON} />
-          </View>
-          <View style={ROUTE_DETAILS_STATION}>
+          </TouchableOpacity>
+          <AnimatedTouchable
+            friction={9}
+            activeScale={0.95}
+            disabled={routeEditDisabled}
+            style={[ROUTE_DETAILS_STATION, { transform: [{ scale: stationCardScale }] }]}
+            onPress={changeDestinationStation}
+          >
             <Text style={ROUTE_DETAILS_STATION_TEXT} maxFontSizeMultiplier={1.1}>
               {destinationName}
             </Text>
-          </View>
+          </AnimatedTouchable>
         </View>
       </View>
     </View>
