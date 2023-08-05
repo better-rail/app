@@ -20,7 +20,10 @@
     "find": "حساب المسار",
     "resetTime": "إعادة تعيين الوقت",
     "switchStations": "تبديل المحطات",
-    "switchStationsHint": "اختصار لتبديل محطة البداية بمحطة الوصول"
+    "switchStationsHint": "اختصار لتبديل محطة البداية بمحطة الوصول",
+    "trainFromToStation": "القطار رقم %{trainNumber} من %{origin} إلى %{destination}",
+    "eventTitle": "رحلة إلى %{destination}",
+    "trainStation": "محطة القطار %{stationName}"
   },
   "selectStation": {
     "placeholder": "البحث عن محطة",
@@ -47,7 +50,10 @@
     "waitingTime": "مدة الانتظار",
     "lastStop": "المحطة الأخيرة",
     "routeWarning": "تحذير الطريق الطويل",
-    "routeWarningText": "هناك طرق قطار أقصر حول وقت المغادرة."
+    "routeWarningText": "هناك طرق قطار أقصر حول وقت المغادرة.",
+    "addToCalendar": "إضافة إلى التقويم",
+    "noCalendarAccessTitle": "تم تعطيل الوصول إلى التقويم",
+    "noCalendarAccessMessage": "للإضافة إلى تقويم المسار ، يرجى فتح إعدادات جهازك وتمكين الوصول إلى التقويم."
   },
   "settings": {
     "title": "اعدادت",
@@ -100,10 +106,11 @@
     "youth": "شباب",
     "socialSecurity": "الضمان الاجتماعي"
   },
-
   "modals": {
-    "noTrainsFound": "لم يتم العثور على القطارات للتاريخ المطلوب",
-    "foundTrainsAt": " هنالك قطارات ابتداءً مِن"
+    "noTrainsFoundForDate": "لم يتم العثور على القطارات للتاريخ المطلوب",
+    "foundTrainsAtDate": " هنالك قطارات ابتداءً مِن",
+    "noTrainsFoundForHour": "لم يتم العثور على قطارات حول الوقت المطلوب",
+    "foundTrainsAtHour": "توجد قطارات في أوقات مختلفة في التاريخ المحدد"
   },
   "widgetOnboarding": {
     "homeWidgets": "Home Screen Widgets",

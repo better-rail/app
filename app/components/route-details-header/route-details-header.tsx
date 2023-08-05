@@ -1,6 +1,6 @@
 /* eslint-disable react/display-name */
-import React, { useMemo, useLayoutEffect, useEffect, useRef } from "react"
-import { Image, ImageBackground, View, ViewStyle, TextStyle, ImageStyle, TouchableOpacity, Animated } from "react-native"
+import React, { useMemo, useLayoutEffect, useRef, useEffect } from "react"
+import { Image, ImageBackground, View, ViewStyle, TextStyle, ImageStyle, Alert, Linking, Animated } from "react-native"
 import TouchableScale from "react-native-touchable-scale"
 import analytics from "@react-native-firebase/analytics"
 import { useNavigation } from "@react-navigation/native"
@@ -13,6 +13,10 @@ import { stationsObject, stationLocale } from "../../data/stations"
 import { isRTL, translate } from "../../i18n"
 import { useStores } from "../../models"
 import * as Burnt from "burnt"
+import * as AddCalendarEvent from "react-native-add-calendar-event"
+import { CalendarIcon } from "../calendar-icon/calendar-icon"
+import { RouteItem } from "../../services/api"
+import { TouchableOpacity } from "react-native-gesture-handler"
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableScale)
 
@@ -87,20 +91,41 @@ const HEADER_RIGHT_WRAPPER: ViewStyle = {
 export interface RouteDetailsHeaderProps {
   originId: string
   destinationId: string
+  routeItem: RouteItem
   /**
    * The screen name we're displaying the header inside
    */
   screenName?: "routeList" | "routeDetails" | "activeRide"
   style?: ViewStyle
+  eventConfig?: AddCalendarEvent.CreateOptions
 }
 
 export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
-  const { originId, destinationId, screenName, style } = props
+  const { routeItem, originId, destinationId, screenName, style } = props
   const { favoriteRoutes, routePlan } = useStores()
   const navigation = useNavigation()
 
   const routeEditDisabled = props.screenName !== "routeList"
   const stationCardScale = useRef(new Animated.Value(1)).current
+
+  const addToCalendar = () => {
+    analytics().logEvent("add_route_to_calendar")
+    const eventConfig = createEventConfig(routeItem)
+    AddCalendarEvent.presentEventCreatingDialog(eventConfig).catch((error) => {
+      if (error === "permissionNotGranted") {
+        Alert.alert(translate("routeDetails.noCalendarAccessTitle"), translate("routeDetails.noCalendarAccessMessage"), [
+          {
+            style: "cancel",
+            text: translate("common.cancel"),
+          },
+          {
+            text: translate("settings.title"),
+            onPress: () => Linking.openSettings(),
+          },
+        ])
+      }
+    })
+  }
 
   const originName = stationsObject[originId][stationLocale]
   const destinationName = stationsObject[destinationId][stationLocale]
@@ -149,31 +174,36 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
     ]).start()
   }
 
-  const isFavorite: boolean = useMemo(() => {
-    return favoriteRoutes.routes.find((favorite) => favorite.id === routeId)
-  }, [favoriteRoutes.routes.length])
+  const isFavorite: boolean = useMemo(
+    () => !!favoriteRoutes.routes.find((favorite) => favorite.id === routeId),
+    [favoriteRoutes.routes.length],
+  )
 
   useLayoutEffect(() => {
     screenName !== "activeRide" &&
       navigation.setOptions({
         headerRight: () => (
           <View style={HEADER_RIGHT_WRAPPER}>
-            <StarIcon
-              filled={isFavorite}
-              onPress={() => {
-                const favorite = { id: routeId, originId, destinationId }
-                if (!isFavorite) {
-                  Burnt.alert({ title: translate("favorites.added"), duration: 1.5 })
-                  HapticFeedback.trigger("impactMedium")
-                  favoriteRoutes.add(favorite)
-                  analytics().logEvent("favorite_route_added")
-                } else {
-                  HapticFeedback.trigger("impactLight")
-                  favoriteRoutes.remove(favorite.id)
-                  analytics().logEvent("favorite_route_removed")
-                }
-              }}
-            />
+            {screenName === "routeDetails" ? (
+              <CalendarIcon onPress={addToCalendar} style={{ marginEnd: spacing[2] }} />
+            ) : (
+              <StarIcon
+                filled={isFavorite}
+                onPress={() => {
+                  const favorite = { id: routeId, originId, destinationId }
+                  if (!isFavorite) {
+                    Burnt.alert({ title: translate("favorites.added"), duration: 1.5 })
+                    HapticFeedback.trigger("impactMedium")
+                    favoriteRoutes.add(favorite)
+                    analytics().logEvent("favorite_route_added")
+                  } else {
+                    HapticFeedback.trigger("impactLight")
+                    favoriteRoutes.remove(favorite.id)
+                    analytics().logEvent("favorite_route_removed")
+                  }
+                }}
+              />
+            )}
           </View>
         ),
       })
@@ -226,3 +256,20 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
     </View>
   )
 })
+
+function createEventConfig(routeItem: RouteItem) {
+  const { destinationStationName: destination, originStationName: origin, trainNumber } = routeItem.trains[0]
+
+  const title = translate("plan.eventTitle", { destination })
+  const notes = translate("plan.trainFromToStation", { trainNumber, origin, destination })
+
+  const eventConfig: AddCalendarEvent.CreateOptions = {
+    title,
+    startDate: new Date(routeItem.departureTime).toISOString(),
+    endDate: new Date(routeItem.arrivalTime).toISOString(),
+    location: translate("plan.trainStation", { stationName: origin }),
+    notes,
+  }
+
+  return eventConfig
+}

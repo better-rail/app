@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useMemo, useRef, useState } from "react"
-import { Platform, View, ViewStyle } from "react-native"
+import { View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { SharedElement } from "react-navigation-shared-element"
@@ -14,17 +14,25 @@ import { useRideProgress } from "../../hooks/use-ride-progress"
 import { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import { color, spacing } from "../../theme"
 import { RouteDetailsHeader, Screen } from "../../components"
-import { RouteStationCard, RouteStopCard, RouteLine, RouteExchangeDetails } from "./components"
-import { LiveRideSheet, LongRouteWarning, StartRideButton } from "./components"
+import {
+  LiveRideSheet,
+  LongRouteWarning,
+  RouteExchangeDetails,
+  RouteLine,
+  RouteStationCard,
+  RouteStopCard,
+  StartRideButton,
+} from "./components"
 import BottomSheet from "@gorhom/bottom-sheet"
 import { FirstRideAlert } from "./components/first-ride-alert"
 import { canRunLiveActivities } from "../../utils/ios-helpers"
+import { CreateOptions } from "react-native-add-calendar-event"
+import { translate } from "../../i18n"
 
 const ROOT: ViewStyle = {
   flex: 1,
   backgroundColor: color.background,
 }
-
 export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
   const { ride } = useStores()
   const bottomSheetRef = useRef<BottomSheet>(null)
@@ -66,6 +74,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
     >
       <SharedElement id="route-header">
         <RouteDetailsHeader
+          routeItem={routeItem}
           originId={route.params.originId}
           destinationId={route.params.destinationId}
           screenName={route.name}

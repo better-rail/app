@@ -100,7 +100,11 @@ export const AboutScreen = observer(function AboutScreen({ navigation }: Setting
           last
           title={translate("settings.feedback")}
           icon="📨"
-          onPress={() => Linking.openURL(`mailto:feedback@better-rail.co.il?subject=פידבק על Better Rail&body=${emailBody}`)}
+          onPress={() =>
+            Linking.openURL(
+              encodeURIComponent(`mailto:feedback@better-rail.co.il?subject=פידבק על Better Rail&body=${emailBody}`),
+            )
+          }
         />
       </View>
       <View style={SETTING_GROUP}>

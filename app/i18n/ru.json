@@ -24,7 +24,10 @@
     "find": "Найти маршруты",
     "resetTime": "сбросить время",
     "switchStations": "Перевернуть станции",
-    "switchStationsHint": "Ярлык для перестановки исходной станции со станцией назначения"
+    "switchStationsHint": "Ярлык для перестановки исходной станции со станцией назначения",
+    "trainFromToStation": "Поезд № %{trainNumber} из %{origin} в %{destination}",
+    "eventTitle": "Поездка в %{destination}",
+    "trainStation": "%{stationName} станция"
   },
   "selectStation": {
     "placeholder": "Поиск остановки",
@@ -54,7 +57,10 @@
     "minutes": "минут",
     "lastStop": "Последняя остановка",
     "routeWarning": "Предупреждение о длинном маршруте",
-    "routeWarningText": "Во время отправления есть более короткие маршруты поездов."
+    "routeWarningText": "Во время отправления есть более короткие маршруты поездов.",
+    "addToCalendar": "Добавить в календарь",
+    "noCalendarAccessTitle": "Доступ к календарю отключен",
+    "noCalendarAccessMessage": "Чтобы добавить маршрут в календарь, откройте настройки устройства и включите доступ к календарю."
   },
   "settings": {
     "title": "Настройки",
@@ -106,8 +112,10 @@
     "socialSecurity": "Льготник Битуах Леуми"
   },
   "modals": {
-    "noTrainsFound": "Нет поездов на указанную дату",
-    "foundTrainsAt": "Отображены поезда на "
+    "noTrainsFoundForDate": "Нет поездов на указанную дату",
+    "foundTrainsAtDate": "Отображены поезда на ",
+    "noTrainsFoundForHour": "Поезда не найдены в указанное время",
+    "foundTrainsAtHour": "Есть поезда в разное время на выбранную дату"
   },
   "widgetOnboarding": {
     "homeWidgets": "Home Screen Widgets",
