@@ -109,13 +109,13 @@ export const RideModel = types
         })
     },
     stopRide(rideId: string) {
-      if (Platform.OS === "ios" && !canRunLiveActivities) return
+      if (Platform.OS === "ios" && !canRunLiveActivities) return Promise.resolve()
 
       this.setRideLoading(true)
       this.setRideId(undefined)
       this.setRoute(undefined)
 
-      endRideHandler(rideId).then(() => {
+      return endRideHandler(rideId).then(() => {
         this.setRideLoading(false)
       })
     },
