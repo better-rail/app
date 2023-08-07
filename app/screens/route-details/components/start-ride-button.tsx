@@ -6,7 +6,7 @@ import HapticFeedback from "react-native-haptic-feedback"
 import analytics from "@react-native-firebase/analytics"
 import crashlytics from "@react-native-firebase/crashlytics"
 import { Button } from "../../../components"
-import { isRTL, translate } from "../../../i18n"
+import { isRTL, translate, userLocale } from "../../../i18n"
 import { RouteItem } from "../../../services/api"
 import { differenceInMinutes, isAfter } from "date-fns"
 import { timezoneCorrection } from "../../../utils/helpers/date-helpers"
@@ -15,6 +15,9 @@ import { useStores } from "../../../models"
 import { canRunLiveActivities } from "../../../utils/ios-helpers"
 
 const { width: deviceWidth } = Dimensions.get("screen")
+
+let buttonWidth = 148
+if (Platform.OS === "ios" && userLocale === "he") buttonWidth = 160
 
 // Those who know know.
 const currentDate = new Date() // Get the current date and time in the local time zone
@@ -135,7 +138,7 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
       }}
     >
       <Button
-        style={{ backgroundColor: color.secondary, width: 148 * fontScale }}
+        style={{ backgroundColor: color.secondary, width: buttonWidth * fontScale }}
         icon={
           Platform.OS == "android" ? undefined : <Image source={require("../../../../assets/train.ios.png")} style={TRAIN_ICON} />
         }
