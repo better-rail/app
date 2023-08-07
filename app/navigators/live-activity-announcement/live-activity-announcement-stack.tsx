@@ -1,16 +1,12 @@
 import React from "react"
 import { createStackNavigator, StackScreenProps } from "@react-navigation/stack"
-import {
-  LiveAnnouncementScreen,
-  StartRideAnnouncement,
-  ActivityAnnouncementScreen,
-  DynamicIslandScreen,
-  SupportUsScreen,
-} from "../../screens"
+import { StartRideAnnouncement, ActivityAnnouncementScreen, DynamicIslandScreen, SupportUsScreen } from "../../screens"
 import { BlurView } from "@react-native-community/blur"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { CloseButton } from "../../components"
 import { useIsDarkMode } from "../../hooks"
+import { Platform } from "react-native"
+import { LiveAnnouncementScreen } from "../../screens/live-announcement/live-announcement-screen"
 
 export type LiveAnnouncementParamList = {
   main: undefined
@@ -28,14 +24,25 @@ export const LiveAnnouncementNavigator = () => (
   <LiveAnnouncementStack.Navigator
     screenOptions={({ navigation }) => ({
       headerTransparent: true,
-      headerLeft: () => (
-        <CloseButton
-          onPress={() => navigation.navigate("planner")}
-          iconStyle={{ width: 32.5, height: 32.5, tintColor: "white", opacity: 0.5, marginTop: 8 }}
-        />
-      ),
-      headerBackground: () => <LiveAnnouncementHeaderBackground />,
+      headerBackground: () => (Platform.OS === "ios" ? <LiveAnnouncementHeaderBackground /> : null),
       title: "",
+      ...(Platform.OS === "ios" && {
+        headerLeft: () => {
+          if (Platform.OS === "android") return null
+          return (
+            <CloseButton
+              onPress={() => navigation.navigate("planner")}
+              iconStyle={{
+                width: 32.5,
+                height: 32.5,
+                tintColor: Platform.select({ ios: "white", android: "grey" }),
+                opacity: 0.5,
+                marginTop: 8,
+              }}
+            />
+          )
+        },
+      }),
     })}
   >
     <LiveAnnouncementStack.Screen name="main" component={LiveAnnouncementScreen} />

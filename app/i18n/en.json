@@ -157,16 +157,19 @@
       "title": "Better Rail Live",
       "subtitle": "Real-time updates with",
       "description": "Notifications about train delays, arrival time, travel instructions and more - all on your device lock screen.",
+      "androidDescription": "Train delay notifications, arrival time, travel instructions and more.",
       "weMadeAGuide": "We prepared a short guide on using this feature, which will change the way you travel with Israel Railways."
     },
     "startRide": {
       "title": "Start Ride",
-      "description": "To use Better Rail Live, select a train from the list, then click \"Start Ride\" at the bottom of the screen.",
+      "description": "To use Better Rail Live, select a train from the list, then press \"Start Ride\" at the bottom of the screen.",
       "description2": "The trip details screen will now display the train progress, remaining time, and delay updates."
     },
     "liveActivity": {
       "title": "Live Activity",
-      "description": "After you've started a trip, it'll be added to the lock screen and will be automatically updated with the train progress and delays.",
+      "androidTitle": "Active Ride",
+      "description": "Once you've started a ride, it'll be added to the lock screen and will be automatically updated with the train progress and delays.",
+      "androidDescription": "Once you've started a ride, it'll be added to the notifications screen and will automatically be updated with the train progress and delays.",
       "tip": "Tip: You can start your trip up to an hour before the train's departure time. This allows you to determine if you need to hurry to catch the train or not."
     },
     "dynamicIsland": {

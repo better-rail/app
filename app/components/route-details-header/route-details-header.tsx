@@ -1,6 +1,17 @@
 /* eslint-disable react/display-name */
 import React, { useMemo, useLayoutEffect, useRef, useEffect } from "react"
-import { Image, ImageBackground, View, ViewStyle, TextStyle, ImageStyle, Alert, Linking, Animated } from "react-native"
+import {
+  Image,
+  ImageBackground,
+  View,
+  ViewStyle,
+  TextStyle,
+  ImageStyle,
+  Alert,
+  Linking,
+  Animated,
+  TouchableOpacity,
+} from "react-native"
 import TouchableScale from "react-native-touchable-scale"
 import analytics from "@react-native-firebase/analytics"
 import { useNavigation } from "@react-navigation/native"
@@ -16,7 +27,6 @@ import * as Burnt from "burnt"
 import * as AddCalendarEvent from "react-native-add-calendar-event"
 import { CalendarIcon } from "../calendar-icon/calendar-icon"
 import { RouteItem } from "../../services/api"
-import { TouchableOpacity } from "react-native-gesture-handler"
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableScale)
 
