@@ -16,9 +16,6 @@ import { canRunLiveActivities } from "../../../utils/ios-helpers"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
-let buttonWidth = 148
-if (Platform.OS === "ios" && userLocale === "he") buttonWidth = 160
-
 // Those who know know.
 const currentDate = new Date() // Get the current date and time in the local time zone
 const targetDate = new Date(2023, 5, 11, 17) // Set the date to June 11th at 17:00
@@ -138,7 +135,10 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
       }}
     >
       <Button
-        style={{ backgroundColor: color.secondary, width: buttonWidth * fontScale }}
+        style={{
+          backgroundColor: color.secondary,
+          width: Platform.OS === "ios" && userLocale === "he" ? 160 * fontScale : 148 * fontScale,
+        }}
         icon={
           Platform.OS == "android" ? undefined : <Image source={require("../../../../assets/train.ios.png")} style={TRAIN_ICON} />
         }
