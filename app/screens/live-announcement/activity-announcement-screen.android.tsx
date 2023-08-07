@@ -41,7 +41,7 @@ export function ActivityAnnouncementScreen({ navigation }: LiveAnnouncementStack
         <Image source={NOTIFICATION_IMAGE} style={LIVE_ACTIVITY_IMAGE} />
         <Text
           tx="liveAnnounce.liveActivity.tip"
-          style={[TEXT, { fontSize: 20, marginBottom: spacing[2] }]}
+          style={[TEXT, { fontSize: 20, marginBottom: spacing[4] }]}
           maxFontSizeMultiplier={1.1}
         />
 
