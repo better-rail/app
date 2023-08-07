@@ -16,6 +16,7 @@ const LIVE_ACTIVITY_IMAGE: ImageStyle = {
   width: "100%",
   height: 355,
   resizeMode: "contain",
+  marginVertical: spacing[4],
 }
 
 const NOTIFICATION_IMAGE_HEBREW = require("../../../assets/live-ride/live-ride-notification.png")
