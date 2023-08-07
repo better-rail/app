@@ -6,7 +6,7 @@ import HapticFeedback from "react-native-haptic-feedback"
 import analytics from "@react-native-firebase/analytics"
 import crashlytics from "@react-native-firebase/crashlytics"
 import { Button } from "../../../components"
-import { isRTL, translate } from "../../../i18n"
+import { isRTL, translate, userLocale } from "../../../i18n"
 import { RouteItem } from "../../../services/api"
 import { differenceInMinutes, isAfter } from "date-fns"
 import { timezoneCorrection } from "../../../utils/helpers/date-helpers"
@@ -135,7 +135,10 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
       }}
     >
       <Button
-        style={{ backgroundColor: color.secondary, width: 148 * fontScale }}
+        style={{
+          backgroundColor: color.secondary,
+          width: Platform.OS === "ios" && userLocale === "he" ? 160 * fontScale : 148 * fontScale,
+        }}
         icon={
           Platform.OS == "android" ? undefined : <Image source={require("../../../../assets/train.ios.png")} style={TRAIN_ICON} />
         }
