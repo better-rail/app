@@ -28,15 +28,22 @@ export function LiveAnnouncementScreen({ navigation }: LiveAnnouncementStackProp
       : require("../../../assets/live-ride/live-ride-intro-english.png")
 
   return (
-    <ScrollView contentContainerStyle={{ height: "100%", paddingTop: spacing[7] + 4, backgroundColor: color.tertiaryBackground }}>
+    <ScrollView
+      contentContainerStyle={{ minHeight: "100%", paddingTop: spacing[7] + 4, backgroundColor: color.tertiaryBackground }}
+    >
       <View style={{ height: "100%", flex: 1, alignItems: "center", paddingHorizontal: spacing[2] }}>
-        <Text tx="liveAnnounce.announcement.subtitle" style={SUB_TITLE} />
-        <Text tx="liveAnnounce.announcement.title" style={TITLE} />
+        <Text tx="liveAnnounce.announcement.subtitle" style={SUB_TITLE} maxFontSizeMultiplier={1.2} />
+        <Text tx="liveAnnounce.announcement.title" style={TITLE} maxFontSizeMultiplier={1.2} />
         <Image source={LIVE_IMAGE} style={IMAGE} />
-        <Text tx="liveAnnounce.announcement.androidDescription" style={[TEXT, { marginBottom: spacing[5] }]} />
+        <Text
+          tx="liveAnnounce.announcement.androidDescription"
+          style={[TEXT, { marginBottom: spacing[5] }]}
+          maxFontSizeMultiplier={1.2}
+        />
+
         <Button
           onPress={() => navigation.navigate("startRide")}
-          containerStyle={{ maxHeight: 60, width: "90%" }}
+          containerStyle={{ maxHeight: 60 * fontScale, width: "90%" }}
           title={translate("common.next")}
         />
       </View>

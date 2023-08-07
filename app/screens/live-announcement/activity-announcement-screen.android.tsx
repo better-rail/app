@@ -1,6 +1,6 @@
 import { Image, ImageStyle, ScrollView, TextStyle, View } from "react-native"
-import { Button, Text } from "../../components"
-import { color, spacing } from "../../theme"
+import { Button, Screen, Text } from "../../components"
+import { color, fontScale, spacing } from "../../theme"
 import { translate, userLocale } from "../../i18n"
 import { LiveAnnouncementStackProps } from "../../navigators/live-activity-announcement/live-activity-announcement-stack"
 
@@ -25,7 +25,7 @@ export function ActivityAnnouncementScreen({ navigation }: LiveAnnouncementStack
   const NOTIFICATION_IMAGE = userLocale === "he" ? NOTIFICATION_IMAGE_HEBREW : NOTIFICATION_IMAGE_ENGLISH
 
   return (
-    <ScrollView contentContainerStyle={{ height: "100%", paddingTop: spacing[4], backgroundColor: color.tertiaryBackground }}>
+    <ScrollView contentContainerStyle={{ minHeight: "100%", paddingTop: spacing[4], backgroundColor: color.tertiaryBackground }}>
       <Text tx="liveAnnounce.liveActivity.androidTitle" preset="header" style={TITLE} maxFontSizeMultiplier={1.1} />
       <View style={{ flex: 1, alignItems: "center", paddingHorizontal: spacing[3], gap: spacing[4] }}>
         <Text tx="liveAnnounce.liveActivity.androidDescription" style={TEXT} maxFontSizeMultiplier={1.1} />
@@ -39,7 +39,7 @@ export function ActivityAnnouncementScreen({ navigation }: LiveAnnouncementStack
 
         <Button
           onPress={() => navigation.navigate("supportUs")}
-          containerStyle={{ maxHeight: 60, width: "90%" }}
+          containerStyle={{ maxHeight: 60 * fontScale, width: "90%" }}
           title={translate("common.next")}
         />
       </View>

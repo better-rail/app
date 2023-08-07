@@ -1,7 +1,7 @@
 import { ImageStyle, ScrollView, TextStyle, View } from "react-native"
 import Video from "react-native-video"
 import { Button, Text } from "../../components"
-import { color, spacing } from "../../theme"
+import { color, fontScale, spacing } from "../../theme"
 import { translate, userLocale } from "../../i18n"
 import { LiveAnnouncementStackProps } from "../../navigators/live-activity-announcement/live-activity-announcement-stack"
 
@@ -35,7 +35,7 @@ export function StartRideAnnouncement({ navigation }: LiveAnnouncementStackProps
   const START_RIDE_VIDEO = userLocale === "he" ? START_RIDE_VIDEO_HEBREW : START_RIDE_VIDEO_ENGLISH
 
   return (
-    <ScrollView contentContainerStyle={{ height: "100%", paddingTop: spacing[4], backgroundColor: color.tertiaryBackground }}>
+    <ScrollView contentContainerStyle={{ minHeight: "100%", paddingTop: spacing[4], backgroundColor: color.tertiaryBackground }}>
       <View style={{ flex: 1, alignItems: "center", paddingHorizontal: spacing[2] }}>
         <Text tx="liveAnnounce.startRide.title" preset="header" style={TITLE} maxFontSizeMultiplier={1.1} />
         <Text tx="liveAnnounce.startRide.description" style={TEXT} maxFontSizeMultiplier={1.1} />
@@ -45,7 +45,7 @@ export function StartRideAnnouncement({ navigation }: LiveAnnouncementStackProps
         <Text tx="liveAnnounce.startRide.description2" style={[TEXT, { marginBottom: spacing[4] }]} maxFontSizeMultiplier={1.1} />
         <Button
           onPress={() => navigation.navigate("liveActivity")}
-          containerStyle={{ maxHeight: 60, width: "90%" }}
+          containerStyle={{ maxHeight: 60 * fontScale, width: "90%" }}
           title={translate("common.next")}
         />
       </View>
