@@ -1,6 +1,6 @@
 import { Image, ImageStyle, ScrollView, TextStyle, View } from "react-native"
-import { Button, Screen, Text } from "../../components"
-import { color, fontScale, spacing } from "../../theme"
+import { Button, Text } from "../../components"
+import { color, spacing } from "../../theme"
 import { translate, userLocale } from "../../i18n"
 import { LiveAnnouncementStackProps } from "../../navigators/live-activity-announcement/live-activity-announcement-stack"
 
@@ -25,9 +25,16 @@ export function ActivityAnnouncementScreen({ navigation }: LiveAnnouncementStack
   const NOTIFICATION_IMAGE = userLocale === "he" ? NOTIFICATION_IMAGE_HEBREW : NOTIFICATION_IMAGE_ENGLISH
 
   return (
-    <ScrollView contentContainerStyle={{ minHeight: "100%", paddingTop: spacing[4], backgroundColor: color.tertiaryBackground }}>
-      <Text tx="liveAnnounce.liveActivity.androidTitle" preset="header" style={TITLE} maxFontSizeMultiplier={1.1} />
-      <View style={{ flex: 1, alignItems: "center", paddingHorizontal: spacing[3], gap: spacing[4] }}>
+    <View style={{ flex: 1, alignItems: "center", backgroundColor: color.tertiaryBackground }}>
+      <ScrollView
+        contentContainerStyle={{
+          paddingTop: spacing[7] + 4,
+          paddingBottom: spacing[3],
+          paddingHorizontal: spacing[2],
+          backgroundColor: color.tertiaryBackground,
+        }}
+      >
+        <Text tx="liveAnnounce.liveActivity.androidTitle" preset="header" style={TITLE} maxFontSizeMultiplier={1.1} />
         <Text tx="liveAnnounce.liveActivity.androidDescription" style={TEXT} maxFontSizeMultiplier={1.1} />
 
         <Image source={NOTIFICATION_IMAGE} style={LIVE_ACTIVITY_IMAGE} />
@@ -37,12 +44,8 @@ export function ActivityAnnouncementScreen({ navigation }: LiveAnnouncementStack
           maxFontSizeMultiplier={1.1}
         />
 
-        <Button
-          onPress={() => navigation.navigate("supportUs")}
-          containerStyle={{ maxHeight: 60 * fontScale, width: "90%" }}
-          title={translate("common.next")}
-        />
-      </View>
-    </ScrollView>
+        <Button onPress={() => navigation.navigate("supportUs")} title={translate("common.next")} />
+      </ScrollView>
+    </View>
   )
 }

@@ -63,11 +63,11 @@ export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
       <ScrollView
         contentContainerStyle={{
           paddingTop: insets.top + 4,
-          paddingHorizontal: spacing[5],
+          paddingHorizontal: spacing[2],
           paddingBottom: spacing[5] * fontScale,
         }}
       >
-        <View style={{ marginTop: spacing[2], marginBottom: spacing[4] }}>
+        <View style={{ marginTop: spacing[2], marginBottom: spacing[4], paddingHorizontal: spacing[4] }}>
           <Text tx="liveAnnounce.supportUs.title" preset="header" style={TITLE} />
 
           <View style={AVATARS}>
@@ -109,7 +109,7 @@ export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
             tx="liveAnnounce.supportUs.tipJarNote"
             maxFontSizeMultiplier={1.1}
           />
-          <NextButton
+          <Button
             title={translate("common.done")}
             onPress={() => {
               analytics().logEvent("live_announcement_done_press")
