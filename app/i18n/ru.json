@@ -142,11 +142,12 @@
   "ride": {
     "live": "Live",
     "startRide": "начать поездку",
+    "startNewRide": "Начать новую поездку",
     "stopRide": "Остановить поездку",
     "rideInFutureAlert": "Начать новую поездку можно только за час до отправления поезда.",
     "rideInPastAlert": "Эта поездка закончилась.",
     "rideExistsTitle": "Активная поездка существует",
-    "rideExistsMessage": "Отмените текущую поездку, чтобы начать новую",
+    "rideExistsMessage": "Начало новой поездки отменит текущую.",
     "liveActivitiesDisabledTitle": "Live Activities отменен",
     "liveActivitiesDisabledMessage": "Откройте настройки и включите Live Activities чтобы иметь возможность начать поездку",
     "notificationsDisabledTitle": "Уведомления отключены",
