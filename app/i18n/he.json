@@ -194,6 +194,7 @@
   "ride": {
     "live": "נסיעה",
     "startRide": "התחלת נסיעה",
+    "startNewRide": "התחלת נסיעה חדשה",
     "stopRide": "הפסקת נסיעה",
     "activatingRide": "יוצאים לדרך...",
     "rideInFutureAlert": "ניתן להתחיל נסיעה החל משעה לפני זמן יציאת הרכבת.",
@@ -210,7 +211,7 @@
     "greeting": "תודה שנסעתם עם בטר רייל!",
 
     "rideExistsTitle": "קיימת נסיעה פעילה",
-    "rideExistsMessage": "עצרו את הנסיעה הנוכחית על מנת להתחיל חדשה",
+    "rideExistsMessage": "התחלת נסיעה חדשה תבטל את הנוכחית",
     "liveActivitiesDisabledTitle": "פעילויות בזמן אמת כבויות",
     "liveActivitiesDisabledMessage": "יש לאפשר פעילויות בזמן אמת בהגדרות המכשיר על מנת להתחיל נסיעה",
     "notificationsDisabledTitle": "התראות כבויות",
