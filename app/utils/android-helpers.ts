@@ -35,16 +35,16 @@ export const configureAndroidNotifications = async () => {
     vibration: false,
   })
 
-  const onRecievedMessage = (mode: "background" | "foreground") => async (message: FirebaseMessagingTypes.RemoteMessage) => {
-    // Notifications show up automatically when the app is in the background,
-    // but we need to force it's in foreground
-    if (message.notification && mode === "foreground") {
+  const onRecievedMessage = async (message: FirebaseMessagingTypes.RemoteMessage) => {
+    if (message.data?.type !== "live-ride") return
+
+    if (message.data.notifee) {
       notifee.displayNotification({
-        title: message.notification.title,
-        body: message.notification.body,
+        ...JSON.parse(message.data.notifee),
         android: {
           channelId: "better-rail",
           smallIcon: "notification_icon",
+          timeoutAfter: 60 * 1000,
           pressAction: {
             id: "default",
             launchActivity: "com.betterrail.MainActivity",
@@ -54,7 +54,7 @@ export const configureAndroidNotifications = async () => {
       })
     }
 
-    const state: RideState = message.data && {
+    const state: RideState = {
       status: message.data.status as RideStatus,
       delay: Number(message.data.delay),
       nextStationId: Number(message.data.nextStationId),
@@ -67,13 +67,9 @@ export const configureAndroidNotifications = async () => {
     }
   }
 
-  messaging().onMessage(onRecievedMessage("foreground"))
-  messaging().setBackgroundMessageHandler(onRecievedMessage("background"))
-  notifee.onBackgroundEvent(() => {
-    return new Promise((resolve) => {
-      resolve()
-    })
-  })
+  messaging().onMessage(onRecievedMessage)
+  messaging().setBackgroundMessageHandler(onRecievedMessage)
+  notifee.onBackgroundEvent(() => Promise.resolve())
 }
 
 export const startRideNotifications = async (route: RouteItem) => {
@@ -134,7 +130,7 @@ const updateNotification = async (route: RouteItem, state: RideState) => {
       smallIcon: "notification_icon",
       ongoing: state.status !== "arrived",
       autoCancel: state.status === "arrived",
-      timeoutAfter: state.status === "arrived" ? addMinutes(new Date(), 3).getTime() : undefined,
+      timeoutAfter: state.status === "arrived" ? 3 * 60 * 1000 : undefined,
       pressAction: {
         id: "default",
         launchActivity: "com.betterrail.MainActivity",
