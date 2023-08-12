@@ -161,12 +161,10 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   }
 
   useEffect(() => {
-    if (routePlan.origin.id !== routePlan.destination.id) {
-      navigation.setParams({
-        originId: routePlan.origin.id,
-        destinationId: routePlan.destination.id,
-      } as any)
-    }
+    navigation.setParams({
+      originId: routePlan.origin.id,
+      destinationId: routePlan.destination.id,
+    } as any)
   }, [routePlan.origin.id, routePlan.destination.id])
 
   const scaleStationCards = () => {

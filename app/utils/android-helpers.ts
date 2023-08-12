@@ -3,7 +3,7 @@ import notifee, { AndroidImportance, AndroidLaunchActivityFlag } from "@notifee/
 import { RideState, RideStatus, getStatusEndDate, rideProgress } from "../hooks/use-ride-progress"
 import { RideApi, RouteItem } from "../services/api"
 import { findClosestStationInRoute, getRideStatus, getTrainFromStationId } from "./helpers/ride-helpers"
-import { addMinutes, differenceInMinutes, format } from "date-fns"
+import { differenceInMinutes, format } from "date-fns"
 import Preferences from "react-native-default-preference"
 import { getInitialLanguage, translate } from "../i18n"
 import i18n from "i18n-js"
