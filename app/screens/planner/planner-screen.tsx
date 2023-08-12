@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react"
 import { observer } from "mobx-react-lite"
-import { View, Animated, ViewStyle, TextStyle, Dimensions, AppState, AppStateStatus, Platform } from "react-native"
+import { View, Animated, ViewStyle, TextStyle, Dimensions, AppState, AppStateStatus, Platform, Alert } from "react-native"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton, ResetTimeButton } from "../../components"
 import { useStores } from "../../models"
 import HapticFeedback from "react-native-haptic-feedback"
@@ -238,6 +238,11 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           title={translate("plan.find")}
           onPress={onGetRoutePress}
           disabled={!routePlan.origin || !routePlan.destination || routePlan.origin.id === routePlan.destination.id}
+          onDisabledPress={() => {
+            if (routePlan.origin.id === routePlan.destination.id) {
+              Alert.alert(translate("routes.sameStationsMessage"))
+            }
+          }}
         />
       </View>
     </Screen>

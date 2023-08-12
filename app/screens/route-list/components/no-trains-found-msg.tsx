@@ -42,6 +42,8 @@ export const NoTrainsFoundMessage = observer(function NoTrainsFoundMessage() {
   const originId = routePlan.origin.id
   const destinationId = routePlan.destination.id
 
+  const shouldShowAnnouncements = originId !== destinationId
+
   const filterRelatedAnnouncements = (a: Announcement) => {
     // Filter related updates to the route
     // if the announcement stations length equals 0, it means that the update is relevant to all stations
@@ -57,27 +59,33 @@ export const NoTrainsFoundMessage = observer(function NoTrainsFoundMessage() {
       setRelatedAnnouncements(related)
     }
 
-    findRelatedAnnouncements()
-  }, [])
+    if (shouldShowAnnouncements) {
+      findRelatedAnnouncements()
+    }
+  }, [shouldShowAnnouncements])
 
   return (
     <ScrollView contentContainerStyle={CONTAINER}>
       <Image style={SEARCH_ICON} source={require("../../../../assets/search.png")} />
-      <Text tx="routes.noTrainsFound" style={NO_TRAINS_FOUND_TEXT} />
+      <Text tx={shouldShowAnnouncements ? "routes.noTrainsFound" : "routes.sameStationsMessage"} style={NO_TRAINS_FOUND_TEXT} />
 
-      <View style={SEPARATOR_STYLE} />
-      <View style={{ width: "100%", marginBottom: spacing[4], flexDirection: "row", alignItems: "center" }}>
-        <Image
-          style={{ width: 20, height: 20, marginEnd: spacing[2], tintColor: color.text }}
-          source={require("../../../../assets/info.png")}
-        />
-        <Text tx="routes.updates" style={{ fontWeight: "500" }} />
-      </View>
+      {shouldShowAnnouncements && (
+        <>
+          <View style={SEPARATOR_STYLE} />
+          <View style={{ width: "100%", marginBottom: spacing[4], flexDirection: "row", alignItems: "center" }}>
+            <Image
+              style={{ width: 20, height: 20, marginEnd: spacing[2], tintColor: color.text }}
+              source={require("../../../../assets/info.png")}
+            />
+            <Text tx="routes.updates" style={{ fontWeight: "500" }} />
+          </View>
 
-      {relatedAnnouncements.length > 0 ? (
-        relatedAnnouncements.map((a, index) => <AnnouncementCard announcement={a} key={index} />)
-      ) : (
-        <ActivityIndicator style={{ marginTop: spacing[5] }} size="large" />
+          {relatedAnnouncements.length > 0 ? (
+            relatedAnnouncements.map((a, index) => <AnnouncementCard announcement={a} key={index} />)
+          ) : (
+            <ActivityIndicator style={{ marginTop: spacing[5] }} size="large" />
+          )}
+        </>
       )}
     </ScrollView>
   )
