@@ -16,7 +16,7 @@ const serializeObjects = format((info) => {
     return key
   })
 
-  return { info, ...metadata }
+  return { ...info, metadata }
 })
 
 export const startLogger = () => {

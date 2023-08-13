@@ -38,7 +38,7 @@
       "id": "chooseEnv",
       "description": "Choose Enviroment",
       "type": "pickString",
-      "options": ["production", "test"]
+      "options": ["production", "staging", "test"]
     }
   ]
 }
