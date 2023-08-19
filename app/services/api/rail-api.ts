@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse } from "axios"
 import { LanguageCode } from "../../i18n"
-import { AnnouncementApiResult } from "./api.types"
+import { AnnouncementApiResult } from "./rail-api.types"
 
 export class RailApi {
   axiosInstance: AxiosInstance

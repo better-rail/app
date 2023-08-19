@@ -43,6 +43,7 @@
     "changes": "Changes",
     "delayTime": "minutes delay",
     "noTrainsFound": "No trains were found for this route in the upcoming days",
+    "sameStationsMessage": "Choose different origin and destination stations",
     "noInternetConnection": "It looks like your device is not currently connected to the internet.\nPlease check your network connection and try again.",
     "updates": "Updates from Israel Railways",
     "shortRoute": "Short Route"
@@ -157,16 +158,19 @@
       "title": "Better Rail Live",
       "subtitle": "Real-time updates with",
       "description": "Notifications about train delays, arrival time, travel instructions and more - all on your device lock screen.",
+      "androidDescription": "Train delay notifications, arrival time, travel instructions and more.",
       "weMadeAGuide": "We prepared a short guide on using this feature, which will change the way you travel with Israel Railways."
     },
     "startRide": {
       "title": "Start Ride",
-      "description": "To use Better Rail Live, select a train from the list, then click \"Start Ride\" at the bottom of the screen.",
+      "description": "To use Better Rail Live, select a train from the list, then press \"Start Ride\" at the bottom of the screen.",
       "description2": "The trip details screen will now display the train progress, remaining time, and delay updates."
     },
     "liveActivity": {
       "title": "Live Activity",
-      "description": "After you've started a trip, it'll be added to the lock screen and will be automatically updated with the train progress and delays.",
+      "androidTitle": "Active Ride",
+      "description": "Once you've started a ride, it'll be added to the lock screen and will be automatically updated with the train progress and delays.",
+      "androidDescription": "Once you've started a ride, it'll be added to the notifications screen and will automatically be updated with the train progress and delays.",
       "tip": "Tip: You can start your trip up to an hour before the train's departure time. This allows you to determine if you need to hurry to catch the train or not."
     },
     "dynamicIsland": {
@@ -187,21 +191,28 @@
   "ride": {
     "live": "Live",
     "startRide": "Start Ride",
+    "startNewRide": "Start New Ride",
     "stopRide": "Stop Ride",
     "activatingRide": "Starting ride...",
     "rideInFutureAlert": "You can start a new ride only from an hour before the train's departure time.",
     "rideInPastAlert": "This ride has ended.",
-    "activeRideAlert": "An active ride exists.\n\nCancel the current ride in order to start a new one.",
 
     "trainArriving": "Train arrives at the destination",
     "arrivingIn": "Arriving in %{minutes} min",
     "arrived": "You have arrived",
     "departsIn": "Train departs in %{minutes} min",
     "departsNow": "Train departs now",
+    "trainInfo": "Train %{trainNumber} to %{lastStop}, departs from Platform %{platform}",
+    "getOffNextStop": "Get off at the next stop",
+    "getOffInStops": "Get off in %{stopsLeft} stops",
+    "greeting": "Thanks for riding with Better Rail",
+
     "rideExistsTitle": "An active ride exists",
-    "rideExistsMessage": "Cancel the current ride in order to start a new one",
-    "disabledTitle": "Live Activities disabled",
-    "disabledMessage": "To start a ride, please open your device settings and enable Live Activities.",
+    "rideExistsMessage": "Starting a new ride will cancel the current one",
+    "liveActivitiesDisabledTitle": "Live Activities disabled",
+    "liveActivitiesDisabledMessage": "To start a ride, please open your device settings and enable Live Activities.",
+    "notificationsDisabledTitle": "Notifications disabled",
+    "notificationsDisabledMessage": "To start a ride, please open your device settings and enable notifications.",
 
     "firstRideAlertP1": "During the first three days of usage, there is a possibility that the live activity feature may display an incorrect estimated time of arrival (ETA).",
     "firstRideAlertP2": "This is due to the system taking time to allocate sufficient \"notification budget\" for the application. ",

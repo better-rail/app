@@ -1,4 +1,4 @@
-import { Alert, Dimensions, Image, ImageStyle, Linking, Platform, View, ViewStyle } from "react-native"
+import { Alert, Dimensions, Image, ImageStyle, Linking, PermissionsAndroid, Platform, View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import * as storage from "../../../utils/storage"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -6,11 +6,11 @@ import HapticFeedback from "react-native-haptic-feedback"
 import analytics from "@react-native-firebase/analytics"
 import crashlytics from "@react-native-firebase/crashlytics"
 import { Button } from "../../../components"
-import { isRTL, translate } from "../../../i18n"
+import { isRTL, translate, userLocale } from "../../../i18n"
 import { RouteItem } from "../../../services/api"
 import { differenceInMinutes, isAfter } from "date-fns"
 import { timezoneCorrection } from "../../../utils/helpers/date-helpers"
-import { color } from "../../../theme"
+import { color, fontScale } from "../../../theme"
 import { useStores } from "../../../models"
 import { canRunLiveActivities } from "../../../utils/ios-helpers"
 
@@ -62,9 +62,14 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
   const isRouteInPast = isAfter(timezoneCorrection(new Date()).getTime(), route.arrivalTime)
   const isRouteInFuture = differenceInMinutes(route.departureTime, timezoneCorrection(new Date()).getTime()) > 60
 
-  const activeRide = !!ride.id
-  const areActivitiesDisabled = !canRunLiveActivities || !(ride?.activityAuthorizationInfo?.areActivitiesEnabled ?? true)
-  const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || areActivitiesDisabled || activeRide
+  const areActivitiesDisabled = Platform.select({
+    ios: () => !canRunLiveActivities || !(ride?.activityAuthorizationInfo?.areActivitiesEnabled ?? true),
+    android: () => {
+      const result = PermissionsAndroid.RESULTS[PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS]
+      return result && result !== "granted"
+    },
+  })
+  const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || areActivitiesDisabled()
 
   const shouldDisplayFirstRideAlert = async () => {
     const isFirstRideAlertEnabled = isAfterTargetDate
@@ -80,6 +85,46 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
     return false
   }
 
+  const startRide = async () => {
+    if (ride.id) {
+      return Alert.alert(translate("ride.rideExistsTitle"), translate("ride.rideExistsMessage"), [
+        {
+          style: "cancel",
+          text: translate("common.cancel"),
+        },
+        {
+          text: translate("ride.startNewRide"),
+          onPress: async () => {
+            await ride.stopRide(ride.id)
+            return startRide()
+          },
+        },
+      ])
+    }
+
+    crashlytics().log("Start ride button pressed")
+    crashlytics().setAttributes({
+      route: JSON.stringify(route),
+      rideId: ride.id ?? "null",
+    })
+
+    if (Platform.OS === "ios") {
+      shouldDisplayFirstRideAlert().then((isFirstRide) => {
+        if (isFirstRide) {
+          props.openFirstRideAlertSheet()
+          analytics().logEvent("first_live_ride_alert")
+        }
+      })
+    } else if (Number(Platform.Version) >= 33) {
+      const result = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS)
+      if (result !== "granted") return
+    }
+
+    HapticFeedback.trigger("notificationSuccess")
+    ride.startRide(route)
+    analytics().logEvent("start_live_ride")
+  }
+
   return (
     <View
       style={{
@@ -90,7 +135,10 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
       }}
     >
       <Button
-        style={{ backgroundColor: color.secondary, width: 148 }}
+        style={{
+          backgroundColor: color.secondary,
+          width: Platform.OS === "ios" && userLocale === "he" ? 160 * fontScale : 148 * fontScale,
+        }}
         icon={
           Platform.OS == "android" ? undefined : <Image source={require("../../../../assets/train.ios.png")} style={TRAIN_ICON} />
         }
@@ -98,15 +146,19 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
         title={translate("ride.startRide")}
         loading={ride.loading}
         disabled={isStartRideButtonDisabled}
+        onPress={startRide}
         onDisabledPress={() => {
           HapticFeedback.trigger("notificationError")
           let disabledReason = ""
-          if (activeRide) {
-            disabledReason = "Active ride already exists"
-            Alert.alert(translate("ride.rideExistsTitle"), translate("ride.rideExistsMessage"))
-          } else if (areActivitiesDisabled) {
-            disabledReason = "Live Activities disabled"
-            Alert.alert(translate("ride.disabledTitle"), translate("ride.disabledMessage"), [
+          if (areActivitiesDisabled()) {
+            disabledReason = Platform.OS === "ios" ? "Live Activities disabled" : "Notifications disbled"
+            const alertTitle =
+              Platform.OS === "ios" ? translate("ride.liveActivitiesDisabledTitle") : translate("ride.notificationsDisabledTitle")
+            const alertMessage =
+              Platform.OS === "ios"
+                ? translate("ride.liveActivitiesDisabledMessage")
+                : translate("ride.notificationsDisabledMessage")
+            Alert.alert(alertTitle, alertMessage, [
               {
                 style: "cancel",
                 text: translate("common.cancel"),
@@ -132,26 +184,6 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
           analytics().logEvent("start_live_ride_disabled_press", {
             reason: disabledReason,
           })
-        }}
-        onPress={() => {
-          crashlytics().log("Start ride button pressed")
-          crashlytics().setAttributes({
-            route: JSON.stringify(route),
-            rideId: ride.id ?? "null",
-          })
-
-          if (Platform.OS === "ios") {
-            shouldDisplayFirstRideAlert().then((isFirstRide) => {
-              if (isFirstRide) {
-                props.openFirstRideAlertSheet()
-                analytics().logEvent("first_live_ride_alert")
-              }
-            })
-          }
-
-          HapticFeedback.trigger("notificationSuccess")
-          ride.startRide(route)
-          analytics().logEvent("start_live_ride")
         }}
       />
     </View>

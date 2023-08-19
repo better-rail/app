@@ -75,7 +75,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
             throw new Error("Selection type was not provided.")
           }
           recentSearches.save({ id: station.id })
-          navigation.navigate("planner")
+          navigation.goBack()
         }}
       />
     ),

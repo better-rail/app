@@ -3,6 +3,7 @@ import { createStackNavigator, StackScreenProps, TransitionPresets } from "@reac
 import { RouteDetailsScreen } from "../../screens"
 import { RouteItem } from "../../services/api"
 import { CloseButton } from "../../components"
+import { Platform } from "react-native"
 
 export type ActiveRideList = {
   activeRide: { routeItem: RouteItem; originId: number; destinationId: number }
@@ -20,7 +21,7 @@ export const ActiveRideNavigator = () => (
       options={({ navigation }) => ({
         headerTransparent: true,
         title: "",
-        headerStatusBarHeight: 16,
+        headerStatusBarHeight: Platform.OS === "ios" ? 16 : undefined,
         headerLeft: () => <CloseButton onPress={() => navigation.goBack()} iconStyle={{ tintColor: "white" }} />,
         ...TransitionPresets.ModalSlideFromBottomIOS,
       })}

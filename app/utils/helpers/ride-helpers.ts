@@ -2,6 +2,10 @@ import { addMinutes, differenceInSeconds } from "date-fns"
 import { RideStatus } from "../../hooks/use-ride-progress"
 import { RouteItem, Train } from "../../services/api"
 import { isEqual, last } from "lodash"
+import { NavigationContainerRef } from "@react-navigation/native"
+import { MutableRefObject } from "react"
+import { RootStore } from "../../models"
+import { PrimaryParamList, RootParamList } from "../../navigators"
 
 /**
  * Find the closest station to the current time.
@@ -99,4 +103,34 @@ export function getRideStatus(route: RouteItem, train: Train, nextStationId: num
   }
 
   return "inTransit"
+}
+
+export const openActiveRide = (rootStore: RootStore, navigationRef: MutableRefObject<NavigationContainerRef<RootParamList>>) => {
+  const { route, originId, destinationId } = rootStore.ride
+  if (!route) return
+
+  const { name: screenName, params: screenParams } = navigationRef.current?.getCurrentRoute() ?? {}
+
+  if (screenName !== "routeDetails") {
+    // @ts-expect-error navigator type
+    navigationRef.current?.navigate("activeRideStack", {
+      screen: "activeRide",
+      params: { routeItem: route, originId: originId, destinationId: destinationId },
+    })
+  } else {
+    // if we're on the route details screen, we need to check if it's the same route
+    // as the live activity route, by using the provided train numbers in the activity deep link url
+    const activityTrainNumbers = route.trains.map((t) => t.trainNumber).join()
+
+    const { routeItem } = screenParams as PrimaryParamList["routeDetails"]
+    const routeTrainNumbers = routeItem.trains.map((t) => t.trainNumber).join()
+
+    if (!isEqual(activityTrainNumbers, routeTrainNumbers)) {
+      // @ts-expect-error navigator type
+      navigationRef.current?.navigate("activeRideStack", {
+        screen: "activeRide",
+        params: { routeItem: route, originId: originId, destinationId: destinationId },
+      })
+    }
+  }
 }
