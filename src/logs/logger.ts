@@ -1,22 +1,17 @@
 import { isEmpty } from "lodash"
-import winston, { format } from "winston"
+import winston from "winston"
 import "winston-mongodb"
 
 import { mongoUrl } from "../data/config"
-import { mapKeysDeep } from "../utils/lodash-utils"
 
 export let logger: winston.Logger
 
-const serializeObjects = format((info) => {
-  const metadata = mapKeysDeep(info.metadata, (value, key) => {
-    if (key.includes(".")) {
-      return key.replace(/\./g, "_")
-    }
+const serializeErrors = winston.format((info) => {
+  if (info.metadata.error) {
+    info.metadata.error = JSON.parse(JSON.stringify(info.metadata.error))
+  }
 
-    return key
-  })
-
-  return { ...info, metadata }
+  return info
 })
 
 export const startLogger = () => {
@@ -36,7 +31,7 @@ export const startLogger = () => {
       new winston.transports.MongoDB({
         db: mongoUrl,
         dbName: "logs",
-        format: serializeObjects(),
+        format: serializeErrors(),
       }),
     ],
   })
