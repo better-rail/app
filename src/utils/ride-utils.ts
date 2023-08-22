@@ -60,7 +60,7 @@ export const scheduleExistingRides = async () => {
   if (!rides) return
 
   let results: boolean[] = []
-  const chunkedRides = chunk(rides, 20)
+  const chunkedRides = chunk(rides, 8)
   for (const chunk of chunkedRides) {
     const promises = chunk.map((ride) => {
       return startRideNotifications(ride, true).then((result) => result.success)
