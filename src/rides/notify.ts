@@ -1,6 +1,7 @@
 import dayjs from "dayjs"
 import { Priority } from "apns2"
 import { Logger } from "winston"
+import { FirebaseError } from "firebase-admin"
 
 import { logNames } from "../logs"
 import { RouteItem } from "../types/rail"
@@ -75,7 +76,10 @@ const sendAndroidNotification = async (payload: NotificationPayload, route: Rout
     logger.info(logNames.notifications.android.success, { payload, messageId })
     return true
   } catch (error) {
-    logger.error(logNames.notifications.android.failed, { error, payload })
+    const firebaseError = error as FirebaseError
+    if (firebaseError.code !== "messaging/registration-token-not-registered") {
+      logger.error(logNames.notifications.android.failed, { error, payload })
+    }
     return false
   }
 }

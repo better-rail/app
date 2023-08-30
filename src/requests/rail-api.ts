@@ -19,7 +19,11 @@ export class RailApi {
       },
     })
 
-    axiosRetry(this.axiosInstance)
+    axiosRetry(this.axiosInstance, {
+      retries: 2,
+      retryCondition: () => true,
+      retryDelay: axiosRetry.exponentialDelay,
+    })
   }
 }
 
