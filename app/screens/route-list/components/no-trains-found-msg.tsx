@@ -31,10 +31,12 @@ export const NoTrainsFoundMessage = observer(function NoTrainsFoundMessage() {
   const originId = routePlan.origin.id
   const destinationId = routePlan.destination.id
 
+  const shouldShowAnnouncements = originId !== destinationId
+
   return (
     <ScrollView contentContainerStyle={CONTAINER}>
       <Image style={SEARCH_ICON} source={require("../../../../assets/search.png")} />
-      <Text tx="routes.noTrainsFound" style={NO_TRAINS_FOUND_TEXT} />
+      <Text tx={shouldShowAnnouncements ? "routes.noTrainsFound" : "routes.sameStationsMessage"} style={NO_TRAINS_FOUND_TEXT} />
 
       <AnnouncementsHeader separator="top" />
       <AnnouncementsList updatesType="regular" relevantStationIds={[originId, destinationId]} />

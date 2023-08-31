@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useMemo, useRef, useState } from "react"
-import { View, ViewStyle } from "react-native"
+import { Platform, View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { SharedElement } from "react-navigation-shared-element"
@@ -26,8 +26,6 @@ import {
 import BottomSheet from "@gorhom/bottom-sheet"
 import { FirstRideAlert } from "./components/first-ride-alert"
 import { canRunLiveActivities } from "../../utils/ios-helpers"
-import { CreateOptions } from "react-native-add-calendar-event"
-import { translate } from "../../i18n"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -63,6 +61,12 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
     setShouldFadeRideButton(true)
   }, [])
 
+  useEffect(() => {
+    if (ride.id && progress.status === "arrived") {
+      ride.stopRide(ride.id)
+    }
+  }, [progress.status, ride.id])
+
   return (
     <Screen
       style={ROOT}
@@ -81,6 +85,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
           style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
         />
       </SharedElement>
+
       <ScrollView
         contentContainerStyle={{ paddingTop: spacing[4], paddingBottom: 80 + insets.bottom }}
         showsVerticalScrollIndicator={false}
@@ -140,18 +145,23 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
           )
         })}
       </ScrollView>
+
       {isRideOnThisRoute && (
-        <Animated.View entering={shouldFadeRideButton && FadeInDown} exiting={FadeOutDown} style={{ flex: 1 }}>
+        <Animated.View entering={shouldFadeRideButton && FadeInDown} exiting={FadeOutDown} style={{ flex: 1, zIndex: 1 }}>
           <LiveRideSheet progress={progress} screenName={route.name} />
         </Animated.View>
       )}
 
-      {/** TODO: Remove iOS Check */}
-      {canRunLiveActivities && !isRideOnThisRoute && (
-        <Animated.View entering={shouldFadeRideButton && FadeInDown.delay(100)} exiting={FadeOutDown} style={{ flex: 1 }}>
+      {(Platform.OS === "android" || canRunLiveActivities) && !isRideOnThisRoute && (
+        <Animated.View
+          entering={shouldFadeRideButton && FadeInDown.delay(100)}
+          exiting={FadeOutDown}
+          style={{ flex: 1, zIndex: 1 }}
+        >
           <StartRideButton route={routeItem} screenName={route.name} openFirstRideAlertSheet={openFirstRideAlertSheet} />
         </Animated.View>
       )}
+
       <FirstRideAlert ref={bottomSheetRef} />
     </Screen>
   )

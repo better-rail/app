@@ -1,10 +1,11 @@
-import { railApi } from "./api"
+import { railApi } from "./rail-api"
 import { AxiosResponse } from "axios"
 import { stationsObject, stationLocale } from "../../data/stations"
-import { RailApiGetRoutesResult } from "./api.types"
+import { RailApiGetRoutesResult } from "./rail-api.types"
 import { formatRouteDuration, isOneHourDifference, routeDurationInMs } from "../../utils/helpers/date-helpers"
 import { RouteItem } from "."
 import { getHours, parse, isSameDay, addDays } from "date-fns"
+import { findClosestStationInRoute, getTrainFromStationId } from "../../utils/helpers/ride-helpers"
 
 export class RouteApi {
   private api = railApi
@@ -96,9 +97,13 @@ export class RouteApi {
       })
 
       const routesWithWarning = formattedRoutes.map((route) => {
+        const nextStationId = findClosestStationInRoute(route as RouteItem)
+        const train = getTrainFromStationId(route as RouteItem, nextStationId)
+
+        const delay = train.delay
         const isMuchLonger = isRouteIsMuchLongerThanOtherRoutes(route as RouteItem, formattedRoutes as RouteItem[])
         const isMuchShorter = isRouteMuchShorterThanOtherRoutes(route as RouteItem, formattedRoutes as RouteItem[])
-        return Object.assign({}, route, { isMuchShorter, isMuchLonger })
+        return Object.assign({}, route, { isMuchShorter, isMuchLonger, delay })
       })
 
       return routesWithWarning

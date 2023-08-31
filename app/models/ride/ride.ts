@@ -1,18 +1,25 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { omit } from "ramda"
 import { Platform } from "react-native"
+import AndroidHelpers from "../../utils/android-helpers"
 import iOSHelpers, { ActivityAuthorizationInfo, canRunLiveActivities } from "../../utils/ios-helpers"
 import { trainRouteSchema } from "../train-routes/train-routes"
 import { RouteItem } from "../../services/api"
+import { RouteApi } from "../../services/api/route-api"
+import { head, last } from "lodash"
+import { formatDateForAPI } from "../../utils/helpers/date-helpers"
+import { addMinutes } from "date-fns"
+
+const routeApi = new RouteApi()
 
 const startRideHandler: (route: RouteItem) => Promise<string> = Platform.select({
   ios: iOSHelpers.startLiveActivity,
-  android: () => Promise.resolve(""),
+  android: AndroidHelpers.startRideNotifications,
 })
 
 const endRideHandler: (routeId: string) => Promise<boolean> = Platform.select({
   ios: iOSHelpers.endLiveActivity,
-  android: () => Promise.resolve(true),
+  android: AndroidHelpers.endRideNotifications,
 })
 
 /**
@@ -77,7 +84,7 @@ export const RideModel = types
       this.checkActivityAuthorizationInfo()
     },
     startRide(route: RouteItem) {
-      if (!canRunLiveActivities) return
+      if (Platform.OS === "ios" && !canRunLiveActivities) return
 
       this.setRideLoading(true)
       this.setRoute(route)
@@ -88,20 +95,27 @@ export const RideModel = types
           this.setRideLoading(false)
         })
         .catch(() => {
+          this.setRoute(undefined)
+          this.setRideId(undefined)
           this.setRideLoading(false)
+
+          if (Platform.OS === "android") {
+            AndroidHelpers.cancelNotifications()
+          }
+
           alert(
             "An error occured while starting the ride.\nIf the issue persists, please let us know!\n\n Our email: feedback@better-rail.co.il.",
           )
         })
     },
     stopRide(rideId: string) {
-      if (!canRunLiveActivities) return
+      if (Platform.OS === "ios" && !canRunLiveActivities) return Promise.resolve()
 
       this.setRideLoading(true)
       this.setRideId(undefined)
       this.setRoute(undefined)
 
-      endRideHandler(rideId).then(() => {
+      return endRideHandler(rideId).then(() => {
         this.setRideLoading(false)
       })
     },
@@ -121,6 +135,23 @@ export const RideModel = types
           // Currently .rideId arrives always empty, so we only check if the array is empty.
           // stop ride if it's not active
           if (tokens && tokens.length === 0) {
+            this.stopRide(rideId)
+          }
+        })
+      } else if (Platform.OS === "android") {
+        if (!self.route || !self.id) return
+
+        const originId = head(self.route.trains).originStationId
+        const destinationId = last(self.route.trains).destinationStationId
+        const [date, time] = formatDateForAPI(self.route.departureTime)
+
+        routeApi.getRoutes(originId.toString(), destinationId.toString(), date, time).then((routes) => {
+          const currentRouteTrains = self.route.trains.map((train) => train.trainNumber).join()
+          const currentRoute = routes.find(
+            (route) => currentRouteTrains === route.trains.map((train) => train.trainNumber).join(),
+          )
+
+          if (currentRoute && Date.now() >= addMinutes(currentRoute.arrivalTime, last(currentRoute.trains).delay).getTime()) {
             this.stopRide(rideId)
           }
         })

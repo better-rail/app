@@ -12,7 +12,7 @@
 import "./i18n"
 import "./utils/ignore-warnings"
 import React, { useState, useEffect, useRef } from "react"
-import { AppState } from "react-native"
+import { AppState, Platform } from "react-native"
 import { QueryClient, QueryClientProvider } from "react-query"
 import { NavigationContainerRef } from "@react-navigation/native"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
@@ -36,6 +36,7 @@ import { ToggleStorybook } from "../storybook/toggle-storybook"
 import { setInitialLanguage, setUserLanguage } from "./i18n/i18n"
 import "react-native-console-time-polyfill"
 import { withIAPContext } from "react-native-iap"
+import PushNotification from "react-native-push-notification"
 
 // Disable tracking in development environment
 if (__DEV__) {
@@ -49,6 +50,7 @@ if (__DEV__) {
 import { enableScreens } from "react-native-screens"
 import { canRunLiveActivities, monitorLiveActivities } from "./utils/ios-helpers"
 import { useDeepLinking } from "./hooks/use-deep-linking"
+import { openActiveRide } from "./utils/helpers/ride-helpers"
 enableScreens()
 
 export const queryClient = new QueryClient()
@@ -71,6 +73,18 @@ function App() {
       monitorLiveActivities()
     }
   }, [])
+
+  useEffect(() => {
+    if (Platform.OS === "android") {
+      PushNotification.configure({
+        onNotification(notification) {
+          if (notification.userInteraction) {
+            openActiveRide(rootStore, navigationRef)
+          }
+        },
+      })
+    }
+  }, [rootStore, navigationRef])
 
   useEffect(() => {
     // Refresh app state when app is opened from background

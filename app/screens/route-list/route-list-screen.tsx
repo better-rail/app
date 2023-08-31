@@ -124,6 +124,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     >
       <SharedElement id="route-header">
         <RouteDetailsHeader
+          screenName="routeList"
           originId={route.params.originId}
           destinationId={route.params.destinationId}
           style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
@@ -139,7 +140,11 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           renderItem={renderRouteCard}
           keyExtractor={(item) => item.trains.map((train) => train.trainNumber).join()}
           data={trains.data}
-          contentContainerStyle={{ paddingTop: spacing[4], paddingHorizontal: spacing[3], paddingBottom: spacing[3] }}
+          contentContainerStyle={{
+            paddingTop: spacing[4],
+            paddingHorizontal: spacing[3],
+            paddingBottom: shouldShowWarning ? spacing[8] + 12 : spacing[3],
+          }}
           estimatedItemSize={RouteCardHeight + spacing[3]}
           initialScrollIndex={initialScrollIndex}
           // so the list will re-render when the ride route changes, and so the item will be marked

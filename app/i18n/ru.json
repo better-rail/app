@@ -58,7 +58,9 @@
     "lastStop": "Последняя остановка",
     "routeWarning": "Предупреждение о длинном маршруте",
     "routeWarningText": "Во время отправления есть более короткие маршруты поездов.",
-    "addToCalendar": "Добавить в календарь"
+    "addToCalendar": "Добавить в календарь",
+    "noCalendarAccessTitle": "Доступ к календарю отключен",
+    "noCalendarAccessMessage": "Чтобы добавить маршрут в календарь, откройте настройки устройства и включите доступ к календарю."
   },
   "settings": {
     "title": "Настройки",
@@ -140,13 +142,16 @@
   "ride": {
     "live": "Live",
     "startRide": "начать поездку",
+    "startNewRide": "Начать новую поездку",
     "stopRide": "Остановить поездку",
     "rideInFutureAlert": "Начать новую поездку можно только за час до отправления поезда.",
     "rideInPastAlert": "Эта поездка закончилась.",
     "rideExistsTitle": "Активная поездка существует",
-    "rideExistsMessage": "Отмените текущую поездку, чтобы начать новую",
-    "disabledTitle": "Live Activities отменен",
-    "disabledMessage": "Откройте настройки и включите Live Activities чтобы иметь возможность начать поездку",
+    "rideExistsMessage": "Начало новой поездки отменит текущую.",
+    "liveActivitiesDisabledTitle": "Live Activities отменен",
+    "liveActivitiesDisabledMessage": "Откройте настройки и включите Live Activities чтобы иметь возможность начать поездку",
+    "notificationsDisabledTitle": "Уведомления отключены",
+    "notificationsDisabledMessage": "Чтобы начать поездку, откройте настройки своего устройства и включите уведомления.",
 
     "firstRideAlertP1": "During the first three days of usage, there is a possibility that the live activity feature may display an incorrect estimated time of arrival (ETA).",
     "firstRideAlertP2": "This is due to the system taking time to allocate sufficient \"notification budget\" for the application. ",
