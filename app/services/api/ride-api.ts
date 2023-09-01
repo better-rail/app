@@ -31,10 +31,9 @@ export class RideApi {
         destinationId: last(route.trains).destinationStationId,
         trains: route.trains.map((train) => train.trainNumber),
       })
-
       return response.data?.success ? response.data?.rideId : null
-    } catch {
-      return null
+    } catch (err) {
+      throw err
     }
   }
 

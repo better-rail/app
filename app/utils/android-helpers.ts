@@ -73,31 +73,35 @@ export const configureAndroidNotifications = async () => {
 }
 
 export const startRideNotifications = async (route: RouteItem) => {
-  const token = await messaging().getToken()
-  const rideId = await rideApi.startRide(route, token)
+  try {
+    const token = await messaging().getToken()
+    const rideId = await rideApi.startRide(route, token)
 
-  if (!rideId) {
-    throw new Error("Couldn't start ride")
+    if (!rideId) {
+      throw new Error("Couldn't start ride")
+    }
+
+    unsubscribeTokenUpdates = messaging().onTokenRefresh((newToken) => {
+      rideApi.updateRideToken(rideId, newToken)
+    })
+
+    await setRideRoute(route)
+    const nextStationId = findClosestStationInRoute(route)
+    const train = getTrainFromStationId(route, nextStationId)
+    const status = getRideStatus(route, train, nextStationId)
+
+    const state: RideState = {
+      status,
+      nextStationId,
+      delay: train.delay,
+    }
+
+    const rideNotificationId = await updateNotification(route, state)
+    await setRideNotificationId(rideNotificationId)
+    return rideId
+  } catch (err) {
+    throw err
   }
-
-  unsubscribeTokenUpdates = messaging().onTokenRefresh((newToken) => {
-    rideApi.updateRideToken(rideId, newToken)
-  })
-
-  await setRideRoute(route)
-  const nextStationId = findClosestStationInRoute(route)
-  const train = getTrainFromStationId(route, nextStationId)
-  const status = getRideStatus(route, train, nextStationId)
-
-  const state: RideState = {
-    status,
-    nextStationId,
-    delay: train.delay,
-  }
-
-  const rideNotificationId = await updateNotification(route, state)
-  await setRideNotificationId(rideNotificationId)
-  return rideId
 }
 
 export const cancelNotifications = async () => {
