@@ -153,6 +153,8 @@
     "notificationsDisabledTitle": "Уведомления отключены",
     "notificationsDisabledMessage": "Чтобы начать поездку, откройте настройки своего устройства и включите уведомления.",
 
+    "error": "Произошла ошибка при запуске поездки. Повторите попытку.",
+
     "firstRideAlertP1": "During the first three days of usage, there is a possibility that the live activity feature may display an incorrect estimated time of arrival (ETA).",
     "firstRideAlertP2": "This is due to the system taking time to allocate sufficient \"notification budget\" for the application. ",
     "firstRideAlertP3": "This issue typically resolves itself after approximately three days of usage, after which the live activity will function accurately."

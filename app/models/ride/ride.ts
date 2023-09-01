@@ -9,6 +9,8 @@ import { RouteApi } from "../../services/api/route-api"
 import { head, last } from "lodash"
 import { formatDateForAPI } from "../../utils/helpers/date-helpers"
 import { addMinutes } from "date-fns"
+import { translate } from "../../i18n"
+import * as Burnt from "burnt"
 
 const routeApi = new RouteApi()
 
@@ -103,9 +105,7 @@ export const RideModel = types
             AndroidHelpers.cancelNotifications()
           }
 
-          alert(
-            "An error occured while starting the ride.\nIf the issue persists, please let us know!\n\n Our email: feedback@better-rail.co.il.",
-          )
+          Burnt.alert({ title: translate("ride.error"), message: translate("ride.error") })
         })
     },
     stopRide(rideId: string) {
