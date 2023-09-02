@@ -95,9 +95,11 @@ function App() {
     const listener = (item: ShortcutItem) => {
       const origin = stations.find((station) => station.id === item.data.originId)
       const destination = stations.find((station) => station.id === item.data.destinationId)
+
       rootStore.routePlan.setOrigin(origin)
       rootStore.routePlan.setDestination(destination)
       rootStore.routePlan.setDate(new Date())
+
       // @ts-expect-error navigator type
       navigationRef.current?.navigate("mainStack", {
         screen: "routeList",

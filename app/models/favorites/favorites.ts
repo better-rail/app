@@ -30,21 +30,27 @@ export const FavoritesModel = types
             isWatchAppInstalled = true
           }
 
-          this.updateFavorites()
+          this.syncFavorites()
         })
       } else {
-        this.updateFavorites()
+        this.syncFavorites()
       }
     },
-    updateFavorites() {
+    syncFavorites() {
       if (isWatchAppInstalled) {
-        const appContext: WatchPayload = {}
-        self.routes.forEach((route, index) => {
-          appContext[index] = `originId:${route.originId},destinationId:${route.destinationId}`
-        })
-        updateApplicationContext(appContext)
+        this.syncFavoritesToAppleWatch()
       }
 
+      this.syncFavoritesToHomeShortcuts()
+    },
+    syncFavoritesToAppleWatch() {
+      const appContext: WatchPayload = {}
+      self.routes.forEach((route, index) => {
+        appContext[index] = `originId:${route.originId},destinationId:${route.destinationId}`
+      })
+      updateApplicationContext(appContext)
+    },
+    syncFavoritesToHomeShortcuts() {
       const fromText = (route: FavoriteRoute) =>
         translate("favorites.fromStation", { stationName: stationsObject[route.originId][stationLocale] })
       const toText = (route: FavoriteRoute) =>
@@ -65,12 +71,12 @@ export const FavoritesModel = types
     },
     add(route: FavoriteRoute) {
       self.routes.push({ ...route })
-      this.updateFavorites()
+      this.syncFavorites()
     },
     remove(routeId: string) {
       const filteredFavorites = self.routes.filter((favorite) => favorite.id !== routeId)
       self.routes.replace(filteredFavorites)
-      this.updateFavorites()
+      this.syncFavorites()
     },
     rename(routeId: FavoriteRoute["id"], newLabel: string) {
       const filteredFavorites = self.routes.map((favorite) => {
@@ -83,7 +89,7 @@ export const FavoritesModel = types
         return favorite
       })
       self.routes.replace(filteredFavorites)
-      this.updateFavorites()
+      this.syncFavorites()
     },
   }))
 
