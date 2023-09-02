@@ -268,7 +268,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 function createEventConfig(routeItem: RouteItem) {
   const { destinationStationName: destination, originStationName: origin, trainNumber } = routeItem.trains[0]
 
-  const title = translate("plan.eventTitle", { destination })
+  const title = translate("plan.rideTo", { destination })
   const notes = translate("plan.trainFromToStation", { trainNumber, origin, destination })
 
   const eventConfig: AddCalendarEvent.CreateOptions = {

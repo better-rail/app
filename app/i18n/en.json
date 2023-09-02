@@ -26,7 +26,7 @@
     "switchStations": "Flip stations",
     "switchStationsHint": "A shortcut to flip the origin station with the destination station",
     "trainFromToStation": "Train No. %{trainNumber} from %{origin} to %{destination}",
-    "eventTitle": "Ride to %{destination}",
+    "rideTo": "Ride to %{destination}",
     "trainStation": "%{stationName} Train Station"
   },
   "selectStation": {
@@ -201,6 +201,7 @@
 
     "trainArriving": "Train arrives at the destination",
     "arrivingIn": "Arriving in %{minutes} min",
+    "arrivingAt": "Arriving at %{time}",
     "arrived": "You have arrived",
     "departsIn": "Train departs in %{minutes} min",
     "departsNow": "Train departs now",
@@ -215,6 +216,7 @@
     "liveActivitiesDisabledMessage": "To start a ride, please open your device settings and enable Live Activities.",
     "notificationsDisabledTitle": "Notifications disabled",
     "notificationsDisabledMessage": "To start a ride, please open your device settings and enable notifications.",
+    "connectionIssues": "Connection issues",
 
     "firstRideAlertP1": "During the first three days of usage, there is a possibility that the live activity feature may display an incorrect estimated time of arrival (ETA).",
     "firstRideAlertP2": "This is due to the system taking time to allocate sufficient \"notification budget\" for the application. ",

@@ -3,21 +3,25 @@ import notifee, { AndroidImportance, AndroidLaunchActivityFlag } from "@notifee/
 import { RideState, RideStatus, getStatusEndDate, rideProgress } from "../hooks/use-ride-progress"
 import { RideApi, RouteItem } from "../services/api"
 import { findClosestStationInRoute, getRideStatus, getTrainFromStationId } from "./helpers/ride-helpers"
-import { differenceInMinutes, format } from "date-fns"
-import Preferences from "react-native-default-preference"
+import { addMinutes, differenceInMinutes, format } from "date-fns"
 import { getInitialLanguage, translate } from "../i18n"
 import i18n from "i18n-js"
+import {
+  getRideRoute,
+  setRideRoute,
+  setRideDelay,
+  getUserLocale,
+  getRideDelay,
+  setLastUpdateTime,
+  getLastUpdateTime,
+  getRideNotificationId,
+  setRideNotificationId,
+  clearBackgroundStorage,
+} from "./storage/background-storage"
+import BackgroundTimer from "react-native-background-timer"
 
 const rideApi = new RideApi()
 let unsubscribeTokenUpdates: () => void
-
-const getRideNotificationId = () => Preferences.get("rideNotificationId")
-const setRideRoute = (route: RouteItem) => Preferences.set("rideRoute", JSON.stringify(route))
-const setRideNotificationId = (notificationId: string) => Preferences.set("rideNotificationId", notificationId)
-const getRideRoute = async () => {
-  const savedRoute = await Preferences.get("rideRoute")
-  return savedRoute && (JSON.parse(savedRoute) as RouteItem)
-}
 
 export const configureAndroidNotifications = async () => {
   notifee.createChannel({
@@ -60,6 +64,8 @@ export const configureAndroidNotifications = async () => {
       nextStationId: Number(message.data.nextStationId),
     }
 
+    await setRideDelay(state.delay)
+    await setLastUpdateTime(Date.now())
     const rideNotificationId = await getRideNotificationId()
     if (rideNotificationId && state) {
       const rideRoute = await getRideRoute()
@@ -95,8 +101,29 @@ export const startRideNotifications = async (route: RouteItem) => {
     delay: train.delay,
   }
 
+  await setRideDelay(state.delay)
+  await setLastUpdateTime(Date.now())
   const rideNotificationId = await updateNotification(route, state)
   await setRideNotificationId(rideNotificationId)
+
+  BackgroundTimer.runBackgroundTimer(async () => {
+    const lastUpdateTime = await getLastUpdateTime()
+    const timeSinceLastUpdate = Date.now() - lastUpdateTime
+    if (timeSinceLastUpdate > 75 * 1000) {
+      const rideRoute = await getRideRoute()
+      const rideDelay = await getRideDelay()
+      if (addMinutes(rideRoute.arrivalTime, rideDelay).getTime() > Date.now()) {
+        const state: RideState = {
+          status: "stale",
+          delay: rideDelay,
+          nextStationId: rideRoute.trains[rideRoute.trains.length - 1].destinationStationId,
+        }
+
+        updateNotification(rideRoute, state)
+      }
+    }
+  }, 30 * 1000)
+
   return rideId
 }
 
@@ -104,10 +131,11 @@ export const cancelNotifications = async () => {
   messaging().deleteToken()
   if (unsubscribeTokenUpdates) unsubscribeTokenUpdates()
 
+  BackgroundTimer.stopBackgroundTimer()
   const rideNotificationId = await getRideNotificationId()
   if (rideNotificationId) {
     notifee.cancelNotification(rideNotificationId)
-    Preferences.clearMultiple(["rideRoute", "rideNotificationId"])
+    clearBackgroundStorage()
   }
 }
 
@@ -118,7 +146,7 @@ export const endRideNotifications = async (rideId: string) => {
 
 const updateNotification = async (route: RouteItem, state: RideState) => {
   const rideNotificationId = await getRideNotificationId()
-  const userLanguage = (await Preferences.get("userLocale")) || getInitialLanguage()
+  const userLanguage = (await getUserLocale()) || getInitialLanguage()
   i18n.locale = userLanguage
 
   return notifee.displayNotification({
@@ -146,7 +174,10 @@ const getTitleText = (route: RouteItem, state: RideState) => {
   const time = format(targetDate, "HH:mm")
   const timeText = "(" + time + ")"
 
-  if (state.status === "waitForTrain" || state.status === "inExchange") {
+  if (state.status === "stale") {
+    const delayText = state.delay > 0 ? " (" + translate("routes.delayTime", { minutes: state.delay }) + ")" : ""
+    return translate("ride.arrivingAt", { time }) + delayText
+  } else if (state.status === "waitForTrain" || state.status === "inExchange") {
     if (minutes < 2) return translate("ride.departsNow") + " " + timeText
     else return translate("ride.departsIn", { minutes }) + " " + timeText
   } else if (state.status === "inTransit") {
@@ -157,7 +188,10 @@ const getTitleText = (route: RouteItem, state: RideState) => {
 }
 
 const getBodyText = (route: RouteItem, state: RideState) => {
-  if (state.status === "waitForTrain" || state.status === "inExchange") {
+  if (state.status === "stale") {
+    const destination = route.trains[route.trains.length - 1].destinationStationName
+    return translate("plan.rideTo", { stationName: destination }) + " | " + translate("ride.connectionIssues")
+  } else if (state.status === "waitForTrain" || state.status === "inExchange") {
     const train = getTrainFromStationId(route, state.nextStationId)
     return translate("ride.trainInfo", {
       trainNumber: train.trainNumber,

@@ -22,7 +22,7 @@
     "switchStations": "تبديل المحطات",
     "switchStationsHint": "اختصار لتبديل محطة البداية بمحطة الوصول",
     "trainFromToStation": "القطار رقم %{trainNumber} من %{origin} إلى %{destination}",
-    "eventTitle": "رحلة إلى %{destination}",
+    "rideTo": "رحلة إلى %{destination}",
     "trainStation": "محطة القطار %{stationName}"
   },
   "selectStation": {

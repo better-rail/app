@@ -26,7 +26,7 @@
     "switchStations": "החלפת תחנות",
     "switchStationsHint": "קיצור דרך להחלפת תחנת המוצא עם תחנת היעד",
     "trainFromToStation": "רכבת מס' %{trainNumber} מ%{origin} אל %{destination}",
-    "eventTitle": "נסיעה ל%{destination}",
+    "rideTo": "נסיעה ל%{destination}",
     "trainStation": "תחנת רכבת %{stationName}"
   },
   "selectStation": {
@@ -205,6 +205,7 @@
 
     "trainArriving": "הרכבת מתקרבת ליעד",
     "arrivingIn": "הגעה בעוד %{minutes} דק'",
+    "arrivingAt": "הגעה ב-%{time}",
     "arrived": "הגעת ליעד",
     "departsIn": "הרכבת יוצאת בעוד %{minutes} דק'",
     "departsNow": "הרכבת יוצאת עכשיו",
@@ -219,6 +220,7 @@
     "liveActivitiesDisabledMessage": "יש לאפשר פעילויות בזמן אמת בהגדרות המכשיר על מנת להתחיל נסיעה",
     "notificationsDisabledTitle": "התראות כבויות",
     "notificationsDisabledMessage": "יש לאפשר התראות בהגדרות המכשיר על מנת להתחיל נסיעה",
+    "connectionIssues": "בעיות תקשורת",
 
     "firstRideAlertP1": "במהלך שלושת ימי השימוש הראשונים, קיימת אפשרות שזמן ההגעה שיוצג בלייב אקטיביטי (על מסך הנעילה) יהיה לא מדויק.",
     "firstRideAlertP2": "זאת בשל העובדה שלוקח למערכת זמן להקצות \"תקציב נוטיפיקציות\" מספק עבור האפליקציה.",
