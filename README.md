@@ -9,7 +9,7 @@ To follow these steps, ensure that your environment is configured to run Node.js
 > Note: Requires NodeJS 16 or above, a redis server to store active rides and mongodb to store logs
 
 - Fork the repo and clone to your machine.
-- Run `cd server && yarn install`
+- Run `yarn install`
 - Rename `.env.example` to `.env`, and fill it as required on [Enviroment Variables](#enviroment-variables)
 - Run the app with `yarn dev`
 
