@@ -105,7 +105,7 @@ export const RideModel = types
             AndroidHelpers.cancelNotifications()
           }
 
-          Burnt.alert({ title: translate("ride.error"), message: translate("ride.error") })
+          Burnt.alert({ title: translate("ride.error"), preset: "error", duration: 3 })
         })
     },
     stopRide(rideId: string) {
