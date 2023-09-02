@@ -3,6 +3,7 @@
 #import <React/RCTLinkingManager.h>
 #import <Firebase.h>
 #import <FirebaseAuth.h>
+#import "RNShortcuts.h"
 
 @implementation AppDelegate
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -35,6 +36,10 @@
 - (BOOL)concurrentRootEnabled
 {
   return true;
+}
+
+- (void)application:(UIApplication *)application performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completionHandler:(void (^)(BOOL))completionHandler {
+    [RNShortcuts performActionForShortcutItem:shortcutItem completionHandler:completionHandler];
 }
 
 - (BOOL)application:(UIApplication *)application
