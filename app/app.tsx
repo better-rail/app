@@ -12,11 +12,12 @@
 import "./i18n"
 import "./utils/ignore-warnings"
 import React, { useState, useEffect, useRef } from "react"
-import { AppState, Platform } from "react-native"
+import { AppState, Platform, NativeEventEmitter } from "react-native"
 import { QueryClient, QueryClientProvider } from "react-query"
 import { NavigationContainerRef } from "@react-navigation/native"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet"
+import Shortcuts, { ShortcutItem } from "react-native-quick-actions-shortcuts"
 
 import analytics from "@react-native-firebase/analytics"
 import crashlytics from "@react-native-firebase/crashlytics"
@@ -51,7 +52,10 @@ import { enableScreens } from "react-native-screens"
 import { canRunLiveActivities, monitorLiveActivities } from "./utils/ios-helpers"
 import { useDeepLinking } from "./hooks/use-deep-linking"
 import { openActiveRide } from "./utils/helpers/ride-helpers"
+import { useStations } from "./data/stations"
 enableScreens()
+
+const ShortcutsEmitter = new NativeEventEmitter(Shortcuts)
 
 export const queryClient = new QueryClient()
 
@@ -64,6 +68,7 @@ function App() {
   const [rootStore, setRootStore] = useState<RootStore | undefined>(undefined)
   const [localeReady, setLocaleReady] = useState(false)
   const appState = useRef(AppState.currentState)
+  const stations = useStations()
 
   useDeepLinking(rootStore, navigationRef)
 
@@ -84,6 +89,28 @@ function App() {
         },
       })
     }
+  }, [rootStore, navigationRef])
+
+  useEffect(() => {
+    const listener = (item: ShortcutItem) => {
+      const origin = stations.find((station) => station.id === item.data.originId)
+      const destination = stations.find((station) => station.id === item.data.destinationId)
+      rootStore.routePlan.setOrigin(origin)
+      rootStore.routePlan.setDestination(destination)
+      rootStore.routePlan.setDate(new Date())
+      // @ts-expect-error navigator type
+      navigationRef.current?.navigate("mainStack", {
+        screen: "routeList",
+        params: {
+          originId: origin?.id,
+          destinationId: destination?.id,
+          time: rootStore.routePlan.date.getTime(),
+        },
+      })
+    }
+
+    ShortcutsEmitter.addListener("onShortcutItemPressed", listener)
+    return () => ShortcutsEmitter.removeAllListeners("onShortcutItemPressed")
   }, [rootStore, navigationRef])
 
   useEffect(() => {

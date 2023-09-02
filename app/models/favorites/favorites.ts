@@ -1,6 +1,9 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { Platform } from "react-native"
 import { getIsWatchAppInstalled, updateApplicationContext, WatchPayload } from "react-native-watch-connectivity"
+import Shortcuts from "react-native-quick-actions-shortcuts"
+import { stationLocale, stationsObject } from "../../data/stations"
+import { translate } from "../../i18n"
 
 let isWatchAppInstalled = false
 
@@ -24,27 +27,50 @@ export const FavoritesModel = types
       if (Platform.OS === "ios") {
         getIsWatchAppInstalled().then((isInstalled) => {
           if (isInstalled) {
-            this.updateAppleWatchFavorites()
             isWatchAppInstalled = true
           }
+
+          this.updateFavorites()
         })
+      } else {
+        this.updateFavorites()
       }
     },
-    updateAppleWatchFavorites() {
-      const appContext: WatchPayload = {}
-      self.routes.forEach((route, index) => {
-        appContext[index] = `originId:${route.originId},destinationId:${route.destinationId}`
-      })
-      updateApplicationContext(appContext)
+    updateFavorites() {
+      if (isWatchAppInstalled) {
+        const appContext: WatchPayload = {}
+        self.routes.forEach((route, index) => {
+          appContext[index] = `originId:${route.originId},destinationId:${route.destinationId}`
+        })
+        updateApplicationContext(appContext)
+      }
+
+      const fromText = (route: FavoriteRoute) =>
+        translate("favorites.fromStation", { stationName: stationsObject[route.originId][stationLocale] })
+      const toText = (route: FavoriteRoute) =>
+        translate("favorites.toStation", { stationName: stationsObject[route.destinationId][stationLocale] })
+
+      Shortcuts.setShortcuts(
+        self.routes.map((route) => ({
+          type: `favorite-${route.id}`,
+          title: route.label || fromText(route),
+          subtitle: !route.label && toText(route),
+          icon: "favorite",
+          data: {
+            originId: route.originId,
+            destinationId: route.destinationId,
+          },
+        })),
+      )
     },
     add(route: FavoriteRoute) {
       self.routes.push({ ...route })
-      if (isWatchAppInstalled) this.updateAppleWatchFavorites()
+      this.updateFavorites()
     },
     remove(routeId: string) {
       const filteredFavorites = self.routes.filter((favorite) => favorite.id !== routeId)
       self.routes.replace(filteredFavorites)
-      if (isWatchAppInstalled) this.updateAppleWatchFavorites()
+      this.updateFavorites()
     },
     rename(routeId: FavoriteRoute["id"], newLabel: string) {
       const filteredFavorites = self.routes.map((favorite) => {
@@ -57,6 +83,7 @@ export const FavoritesModel = types
         return favorite
       })
       self.routes.replace(filteredFavorites)
+      this.updateFavorites()
     },
   }))
 
