@@ -55,7 +55,7 @@ export const FavoritesModel = types
           type: `favorite-${route.id}`,
           title: route.label || fromText(route),
           subtitle: !route.label && toText(route),
-          icon: "favorite",
+          iconName: "star",
           data: {
             originId: route.originId,
             destinationId: route.destinationId,

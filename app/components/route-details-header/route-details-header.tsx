@@ -184,7 +184,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 
   const isFavorite: boolean = useMemo(
     () => !!favoriteRoutes.routes.find((favorite) => favorite.id === routeId),
-    [favoriteRoutes.routes.length],
+    [favoriteRoutes.routes, routeId],
   )
 
   useLayoutEffect(() => {
@@ -215,7 +215,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
           </View>
         ),
       })
-  }, [favoriteRoutes.routes.length])
+  }, [favoriteRoutes.routes, routeId])
 
   return (
     <View>
