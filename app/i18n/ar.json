@@ -93,7 +93,9 @@
     "renamePromptPlaceholder": "أدخل اسمًا للطريق ...",
     "delete": "إزالة من المفضلة",
     "updates": "تحديثات من قطار اسرائيل",
-    "shortRoute": "طريق قصير"
+    "shortRoute": "طريق قصير",
+    "fromStation": "من %{stationName}",
+    "toStation": "إلى %{stationName}"
   },
   "profileCodes": {
     "passengerProfile": "الملف الشخصي للركاب",

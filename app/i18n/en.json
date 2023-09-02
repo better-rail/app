@@ -112,7 +112,9 @@
     "changeLabel": "Change Label",
     "renamePromptTitle": "Route Label",
     "renamePromptPlaceholder": "Enter a name for the route...",
-    "delete": "Remove"
+    "delete": "Remove",
+    "fromStation": "From %{stationName}",
+    "toStation": "To %{stationName}"
   },
   "profileCodes": {
     "passengerProfile": "Profile",

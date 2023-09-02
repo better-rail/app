@@ -398,6 +398,8 @@ PODS:
   - React-jsinspector (0.71.7)
   - React-logger (0.71.7):
     - glog
+  - react-native-actions-shortcuts (1.0.2):
+    - React
   - react-native-add-calendar-event (4.2.2):
     - React-Core
   - react-native-blur (4.3.2):
@@ -635,6 +637,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
+  - react-native-actions-shortcuts (from `../node_modules/react-native-quick-actions-shortcuts`)
   - react-native-add-calendar-event (from `../node_modules/react-native-add-calendar-event`)
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-date-picker (from `../node_modules/react-native-date-picker`)
@@ -758,6 +761,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   React-logger:
     :path: "../node_modules/react-native/ReactCommon/logger"
+  react-native-actions-shortcuts:
+    :path: "../node_modules/react-native-quick-actions-shortcuts"
   react-native-add-calendar-event:
     :path: "../node_modules/react-native-add-calendar-event"
   react-native-blur:
@@ -898,6 +903,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: eaa5f71eb8f6861cf0e57f1a0f52aeb020d9e18e
   React-jsinspector: 9885f6f94d231b95a739ef7bb50536fb87ce7539
   React-logger: 3f8ebad1be1bf3299d1ab6d7f971802d7395c7ef
+  react-native-actions-shortcuts: 241812296acd3d1b1babbb91d053f01be2810dcd
   react-native-add-calendar-event: 34ad00f629187cbb97c2f04195e17803b2b3bc5e
   react-native-blur: cfdad7b3c01d725ab62a8a729f42ea463998afa2
   react-native-date-picker: 89c419d88fa8e3c5f2d3cbae0bb7f7454ae8ea55

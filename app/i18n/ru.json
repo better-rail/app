@@ -98,7 +98,9 @@
     "changeLabel": "Изменить ярлык",
     "renamePromptTitle": "Ярлык маршрута",
     "renamePromptPlaceholder": "Введите имя маршрута...",
-    "delete": "Удалить"
+    "delete": "Удалить",
+    "fromStation": "Откуда %{stationName}",
+    "toStation": "Куда %{stationName}"
   },
   "profileCodes": {
     "passengerProfile": "Профиль",
