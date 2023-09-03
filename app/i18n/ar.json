@@ -48,6 +48,7 @@
     "platformStay": "الرجاء الانتظار في الرصيف",
     "platformChange": "الرجاء الانتقال الى رصيف",
     "waitingTime": "مدة الانتظار",
+    "unsafeChange": "هذا التغيير غير مضمون",
     "lastStop": "المحطة الأخيرة",
     "routeWarning": "تحذير الطريق الطويل",
     "routeWarningText": "هناك طرق قطار أقصر حول وقت المغادرة.",

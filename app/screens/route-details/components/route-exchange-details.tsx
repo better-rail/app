@@ -2,8 +2,9 @@ import React, { useMemo } from "react"
 import { View, Image, ViewStyle, ImageStyle, TextStyle, Dimensions } from "react-native"
 import { Text, ChangeDirectionButton } from "../../../components"
 import { color, spacing, fontScale } from "../../../theme"
-import { intervalToDuration, formatDuration } from "date-fns"
+import { intervalToDuration, formatDuration, addMinutes, millisecondsToMinutes, milliseconds, Duration } from "date-fns"
 import { dateFnsLocalization, translate } from "../../../i18n"
+import { Train } from "../../../services/api"
 
 const importantIcon = require("../../../../assets/important.png")
 const clockIcon = require("../../../../assets/clock.png")
@@ -13,6 +14,8 @@ const { width: deviceWidth } = Dimensions.get("screen")
 // Hide the exchange icon when font scaling is on or if the viewport is too narrow,
 // since it might make the station name overflow
 const DISPLAY_EXCHANGE_ICON = fontScale < 1.1 && deviceWidth >= 360
+
+const SAFE_DURATION_MINS = 3
 
 const ROUTE_EXCHANGE_WRAPPER: ViewStyle = {
   width: "100%",
@@ -62,13 +65,13 @@ type RouteExchangeProps = {
   stationName: string
   arrivalPlatform: number
   departurePlatform: number
-  arrivalTime: number
-  depatureTime: number
+  firstTrain: Train
+  secondTrain: Train
   style?: ViewStyle
 }
 
 export const RouteExchangeDetails = (props: RouteExchangeProps) => {
-  const { stationName, arrivalPlatform, departurePlatform, arrivalTime, depatureTime, style } = props
+  const { stationName, arrivalPlatform, departurePlatform, firstTrain, secondTrain, style } = props
 
   const platformDetailText = useMemo(() => {
     if (arrivalPlatform === departurePlatform) {
@@ -79,11 +82,24 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
   }, [])
 
   const exchangeDuration = useMemo(() => {
-    const durationObject = intervalToDuration({ start: arrivalTime, end: depatureTime })
-    const formattedDuration = formatDuration(durationObject, { locale: dateFnsLocalization })
+    const arrivalTime = addMinutes(firstTrain.arrivalTime, firstTrain.delay)
+    const departureTime = addMinutes(secondTrain.departureTime, secondTrain.delay)
 
-    return formattedDuration
+    if (arrivalTime >= departureTime) {
+      return intervalToDuration({ start: 0, end: 0 })
+    }
+
+    return intervalToDuration({ start: arrivalTime, end: departureTime })
   }, [])
+
+  const exchangeDurationText = useMemo(() => {
+    return formatDuration(exchangeDuration, { locale: dateFnsLocalization })
+  }, [exchangeDuration])
+
+  const isExchangeSafe = useMemo(() => {
+    const exchangeMs = milliseconds(exchangeDuration)
+    return millisecondsToMinutes(exchangeMs) >= SAFE_DURATION_MINS
+  }, [exchangeDuration])
 
   return (
     <View style={[ROUTE_EXCHANGE_WRAPPER, style]}>
@@ -101,8 +117,9 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
           <View style={[ROUTE_EXCHANGE_INFO_DETAIL_WRAPPER, { marginBottom: fontScale > 1 ? spacing[3] : 0 }]}>
             <Image style={ROUTE_EXCHANGE_INFO_ICON} source={clockIcon} />
             <Text style={ROUTE_EXCHANGE_INFO_TEXT}>
-              {translate("routeDetails.waitingTime")} {exchangeDuration}
+              {translate("routeDetails.waitingTime")} {exchangeDurationText}
             </Text>
+            {!isExchangeSafe && <Text style={ROUTE_EXCHANGE_INFO_TEXT}>{translate("routeDetails.unsafeChange")}</Text>}
           </View>
         </View>
       </View>
