@@ -21,20 +21,16 @@ export class RideApi {
   }
 
   async startRide(route: RouteItem, token: string): Promise<string | null> {
-    try {
-      const response = await this.axiosInstance.post("/ride", {
-        token,
-        provider: "android",
-        locale: userLocale,
-        departureDate: route.departureTimeString,
-        originId: head(route.trains).originStationId,
-        destinationId: last(route.trains).destinationStationId,
-        trains: route.trains.map((train) => train.trainNumber),
-      })
-      return response.data?.success ? response.data?.rideId : null
-    } catch (err) {
-      throw err
-    }
+    const response = await this.axiosInstance.post("/ride", {
+      token,
+      provider: "android",
+      locale: userLocale,
+      departureDate: route.departureTimeString,
+      originId: head(route.trains).originStationId,
+      destinationId: last(route.trains).destinationStationId,
+      trains: route.trains.map((train) => train.trainNumber),
+    })
+    return response.data?.success ? response.data?.rideId : null
   }
 
   async endRide(rideId: string): Promise<boolean> {
