@@ -83,15 +83,15 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
           </Chip>
         )}
       </View>
-      <TouchableOpacity onPress={() => navigation.navigate("settingsStack")} activeOpacity={0.8} accessibilityLabel="הגדרות">
-        <Image source={SETTINGS_ICON} style={SETTINGS_ICON_IMAGE} />
-      </TouchableOpacity>
       <TouchableOpacity
         onPress={() => navigation.navigate("announcementsStack")}
         activeOpacity={0.8}
         accessibilityLabel="עדכונים"
       >
         <Image source={UPDATES_ICON} style={SETTINGS_ICON_IMAGE} />
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate("settingsStack")} activeOpacity={0.8} accessibilityLabel="הגדרות">
+        <Image source={SETTINGS_ICON} style={SETTINGS_ICON_IMAGE} />
       </TouchableOpacity>
     </View>
   )
