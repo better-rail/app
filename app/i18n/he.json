@@ -115,7 +115,9 @@
     "changeLabel": "שינוי כינוי מסלול",
     "renamePromptTitle": "כינוי מסלול",
     "renamePromptPlaceholder": "הזינו כינוי למסלול",
-    "delete": "הסרה ממועדפים"
+    "delete": "הסרה ממועדפים",
+    "fromStation": "מ%{stationName}",
+    "toStation": "ל%{stationName}"
   },
   "profileCodes": {
     "passengerProfile": "פרופיל נוסע/ת",
