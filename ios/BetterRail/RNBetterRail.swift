@@ -54,7 +54,7 @@ class RNBetterRail: NSObject {
   @available(iOS 16.2, *)
   @objc func startActivity(_ routeJSON: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
     let decoder = JSONDecoder()
-//
+
     do {
       let route = try decoder.decode(Route.self, from: routeJSON.data(using: .utf8)!)
       Task {
