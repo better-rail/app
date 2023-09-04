@@ -17,7 +17,6 @@ import { donateRouteIntent } from "../../utils/ios-helpers"
 import analytics from "@react-native-firebase/analytics"
 import { useFocusEffect } from "@react-navigation/native"
 import { PlannerScreenHeader } from "./planner-screen-header"
-import { AnnouncementsList } from "../../components/announcements/announcements-list"
 
 const { height: deviceHeight } = Dimensions.get("screen")
 
@@ -190,8 +189,6 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
         <PlannerScreenHeader />
 
         <Text preset="header" tx="plan.title" style={SCREEN_TITLE} />
-
-        <AnnouncementsList updatesType="urgent" hideLoader />
 
         <Text preset="fieldLabel" tx="plan.origin" text="תחנת מוצא" style={{ marginBottom: spacing[1] }} />
         <Animated.View style={{ transform: [{ scale: stationCardScale }] }}>
