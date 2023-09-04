@@ -7,7 +7,7 @@ import analytics from "@react-native-firebase/analytics"
 import { color, fontScale, spacing } from "../../theme"
 import { Chip, Text } from "../../components"
 import { useStores } from "../../models"
-import { isRTL } from "../../i18n"
+import { isRTL, translate } from "../../i18n"
 import { canRunLiveActivities } from "../../utils/ios-helpers"
 
 const HEADER_WRAPPER: ViewStyle = {
@@ -86,7 +86,7 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
       <TouchableOpacity
         onPress={() => navigation.navigate("announcementsStack")}
         activeOpacity={0.8}
-        accessibilityLabel="עדכונים"
+        accessibilityLabel={translate("routes.updates")}
       >
         <Image source={UPDATES_ICON} style={SETTINGS_ICON_IMAGE} />
       </TouchableOpacity>
