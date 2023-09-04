@@ -35,7 +35,7 @@ const iOSTitleStyle: TextStyle = {
   fontFamily: typography.primary,
   fontWeight: "400",
   marginRight: 10,
-  marginBottom: 10,
+  marginBottom: 8,
 }
 
 const androidTitleStyle: TextStyle = { marginLeft: -18.5, marginBottom: 7.5 }
