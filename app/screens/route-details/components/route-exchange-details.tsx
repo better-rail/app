@@ -86,7 +86,7 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
     const departureTime = addMinutes(secondTrain.departureTime, secondTrain.delay)
 
     if (arrivalTime >= departureTime) {
-      return intervalToDuration({ start: 0, end: 0 })
+      return intervalToDuration({ start: 0, end: 1000 * 60 })
     }
 
     return intervalToDuration({ start: arrivalTime, end: departureTime })
@@ -114,13 +114,23 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
             <Image style={ROUTE_EXCHANGE_INFO_ICON} source={importantIcon} />
             <Text style={ROUTE_EXCHANGE_INFO_TEXT}>{platformDetailText}</Text>
           </View>
-          <View style={[ROUTE_EXCHANGE_INFO_DETAIL_WRAPPER, { marginBottom: fontScale > 1 ? spacing[3] : 0 }]}>
+          <View
+            style={[
+              ROUTE_EXCHANGE_INFO_DETAIL_WRAPPER,
+              { marginBottom: isExchangeSafe ? (fontScale > 1 ? spacing[3] : 0) : spacing[1] },
+            ]}
+          >
             <Image style={ROUTE_EXCHANGE_INFO_ICON} source={clockIcon} />
             <Text style={ROUTE_EXCHANGE_INFO_TEXT}>
               {translate("routeDetails.waitingTime")} {exchangeDurationText}
             </Text>
-            {!isExchangeSafe && <Text style={ROUTE_EXCHANGE_INFO_TEXT}>{translate("routeDetails.unsafeChange")}</Text>}
           </View>
+          {!isExchangeSafe && (
+            <View style={[ROUTE_EXCHANGE_INFO_DETAIL_WRAPPER, { marginBottom: fontScale > 1 ? spacing[3] : 0 }]}>
+              <Image style={ROUTE_EXCHANGE_INFO_ICON} source={importantIcon} />
+              <Text style={ROUTE_EXCHANGE_INFO_TEXT}>{translate("routeDetails.unsafeChange")}</Text>
+            </View>
+          )}
         </View>
       </View>
     </View>
