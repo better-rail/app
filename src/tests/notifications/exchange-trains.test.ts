@@ -3,7 +3,8 @@ import { keyBy } from "lodash"
 
 import { minutesInMs } from "../helpers/utils"
 import { Status } from "../../types/notification"
-import { exchangeRoute, stations, now, exchangeDuration, ride, getOffInExchangeTime } from "./mocks"
+import { exchangeTrainPrompt } from "../../utils/ride-utils"
+import { exchangeRoute, stations, now, exchangeDuration, ride, getOffInExchangeTime, unsafeChangeTrains } from "./mocks"
 import {
   buildGetOnTrainNotifications,
   buildNextStationNotifications,
@@ -136,7 +137,7 @@ test("build get off notifications for exchange train", () => {
       time: dayjs(now + getOffInExchangeTime - minutesInMs(1)),
       alert: {
         title: "Time to get off!",
-        text: "Change to Platform 4. Wait 5 minutes for your next train.",
+        text: "Change to Platform 4. Wait 7 minutes for your next train.",
       },
     },
     {
@@ -203,4 +204,10 @@ test("build get off notifications for exchange train", () => {
       time: dayjs(now + exchangeDuration),
     },
   ])
+})
+
+test("build exchange notification for unsafe change", () => {
+  const exchangeTrainText = exchangeTrainPrompt(unsafeChangeTrains, 0, ride.locale)
+
+  expect(exchangeTrainText).toBe("This change isn't guaranteed. Change to Platform 4. Wait 1 minute for your next train.")
 })

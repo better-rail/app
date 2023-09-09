@@ -14,6 +14,7 @@
     },
     "exchange": {
       "waitTime": "Wait %{waitTime} for your next train.",
+      "unsafeChange": "This change isn't guaranteed.",
       "stayOnPlatform": "Stay on Platform %{platform}.",
       "changePlatform": "Change to Platform %{platform}."
     }

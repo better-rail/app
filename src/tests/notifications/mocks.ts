@@ -3,7 +3,7 @@ import { minutesInMs } from "../helpers/utils"
 import { partiallyMock } from "../helpers/types"
 import { LanguageCode } from "../../locales/i18n"
 import { Provider } from "../../types/notification"
-import { RouteItem, Station } from "../../types/rail"
+import { RouteItem, RouteTrain, Station } from "../../types/rail"
 
 export const now = Date.now()
 export const directDuration = minutesInMs(10)
@@ -113,3 +113,16 @@ export const exchangeRoute = partiallyMock<RouteItem>({
     },
   ],
 })
+
+export const unsafeChangeTrains = partiallyMock<RouteTrain[]>([
+  {
+    arrivalTime: now + minutesInMs(10),
+    delay: 3,
+    destinationPlatform: 3,
+  },
+  {
+    departureTime: now + minutesInMs(12),
+    delay: 2,
+    originPlatform: 4,
+  },
+])

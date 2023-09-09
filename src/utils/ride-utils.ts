@@ -1,5 +1,6 @@
 import dayjs from "dayjs"
 import { v4 as uuid } from "uuid"
+import { addMinutes, millisecondsToMinutes } from "date-fns"
 import { isEqual, last, isNumber, head, chunk } from "lodash"
 
 import { logNames, logger } from "../logs"
@@ -11,6 +12,8 @@ import { RouteItem, RouteTrain } from "../types/rail"
 import { LanguageCode, translate } from "../locales/i18n"
 import { NotificationPayload } from "../types/notification"
 import { buildGetOnTrainNotifications, buildNextStationNotifications, buildGetOffTrainNotifications } from "./notify-utils"
+
+const SAFE_DURATION_MINS = 3
 
 export const buildRide = (ride: RideRequest): Ride => {
   const rideId = uuid()
@@ -40,19 +43,33 @@ export const isLastTrain = (trains: RouteTrain[], train: RouteTrain) => {
 }
 
 export const exchangeTrainPrompt = (trains: RouteTrain[], gotOffTrain: number, locale: LanguageCode) => {
+  const texts: string[] = []
   const previous = trains[gotOffTrain]
   const next = trains[gotOffTrain + 1]
 
-  const waitTime = localizedDifference(next.departureTime, previous.arrivalTime, locale)
-  const waitTimeText = translate("notifications.exchange.waitTime", locale, { waitTime })
+  const arrivalTime = addMinutes(previous.arrivalTime, previous.delay).getTime()
+  const departureTime = addMinutes(next.departureTime, next.delay).getTime()
+
+  const changeDurationInMinutes = arrivalTime >= departureTime ? 0 : millisecondsToMinutes(departureTime - arrivalTime)
+  const isSafeChange = changeDurationInMinutes >= SAFE_DURATION_MINS
+
+  if (!isSafeChange) {
+    const unsafeChangeText = translate("notifications.exchange.unsafeChange", locale)
+    texts.push(unsafeChangeText)
+  }
 
   const platformKey = previous.destinationPlatform === next.originPlatform ? "stayOnPlatform" : "changePlatform"
   const platformText = translate(platformKey, locale, {
     scope: "notifications.exchange",
     platform: next.originPlatform,
   })
+  texts.push(platformText)
 
-  return platformText + " " + waitTimeText
+  const waitTime = localizedDifference(arrivalTime, departureTime, locale)
+  const waitTimeText = translate("notifications.exchange.waitTime", locale, { waitTime })
+  texts.push(waitTimeText)
+
+  return texts.join(" ")
 }
 
 export const scheduleExistingRides = async () => {

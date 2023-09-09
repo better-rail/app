@@ -14,6 +14,7 @@
     },
     "exchange": {
       "waitTime": "כ-%{waitTime} המתנה לנסיעה הבאה.",
+      "unsafeChange": "החלפה זו אינה בטוחה.",
       "stayOnPlatform": "השארו ברציף %{platform}.",
       "changePlatform": "עברו לרציף %{platform}."
     }

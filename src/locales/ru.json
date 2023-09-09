@@ -14,6 +14,7 @@
     },
     "exchange": {
       "waitTime": "Подождите %{waitTime}.",
+      "unsafeChange": "Это изменение не гарантировано.",
       "stayOnPlatform": "Оставайтесь на платформе %{platform}.",
       "changePlatform": "Перейдите на платформу %{platform}."
     }
