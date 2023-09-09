@@ -1,12 +1,11 @@
 import React from "react"
-import { ActivityIndicator, Image, TextStyle, View, ViewStyle } from "react-native"
+import { ActivityIndicator, Button, Image, TextStyle, View, ViewStyle } from "react-native"
 import { useQuery } from "react-query"
 import { userLocale } from "../../i18n"
 import { Announcement, PopUpMessage, railApi } from "../../services/api"
 import { color, spacing } from "../../theme"
 import { AnnouncementCard } from "./announcement-card"
 import { Text } from "../text/text"
-import { Button } from "../button/button"
 
 type AnnouncementsListProps = {
   updatesType: "regular" | "urgent"
@@ -67,13 +66,16 @@ const ERORR_MESSAGE_TEXT: TextStyle = {
 function ErrorMessage({ refetch }) {
   return (
     <View style={ERORR_MESSAGE_WRAPPER}>
-      <Image source={require("../../../assets/info.png")} style={{ marginBottom: spacing[0], tintColor: color.error }} />
-      <Text style={ERORR_MESSAGE_TEXT}>Bad News</Text>
+      <Image
+        source={require("../../../assets/info.png")}
+        style={{ width: 80, height: 80, marginBottom: spacing[0], tintColor: color.error }}
+      />
+      <Text style={ERORR_MESSAGE_TEXT}>Error</Text>
       <Text style={{ textAlign: "center", marginBottom: spacing[3] }}>
         There was an error loading updates from Israel Railways.
       </Text>
 
-      <Button onPress={() => refetch()} title="Retry" containerStyle={{ width: 200 }} />
+      <Button onPress={() => refetch()} title="Retry" style={{ width: 200, backgroundColor: "blue", height: 40 }} />
     </View>
   )
 }
