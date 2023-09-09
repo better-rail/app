@@ -57,6 +57,7 @@
     "platformChange": "יש לעבור לרציף",
     "waitingTime": "זמן המתנה כ-",
     "minutes": "דק'",
+    "unsafeChange": "החלפה זו אינה בטוחה",
     "lastStop": "יעד סופי",
     "routeWarning": "רכבת מאספת",
     "routeWarningText": "קיימים מסלולי נסיעה קצרים יותר סביב שעת היציאה הנבחרת",

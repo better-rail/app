@@ -57,6 +57,7 @@
     "platformChange": "Switch to Platform",
     "waitingTime": "Wait around",
     "minutes": "min",
+    "unsafeChange": "This change isn't guaranteed",
     "lastStop": "Last Stop",
     "routeWarning": "Long Route Warning",
     "routeWarningText": "There are shorter train routes around the departure time.",
