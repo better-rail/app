@@ -118,7 +118,7 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
           <View
             style={[
               ROUTE_EXCHANGE_INFO_DETAIL_WRAPPER,
-              { marginBottom: false ? (fontScale > 1 ? spacing[3] : spacing[0]) : spacing[1] },
+              { marginBottom: isExchangeSafe ? (fontScale > 1 ? spacing[3] : 0) : spacing[1] },
             ]}
           >
             <Image style={ROUTE_EXCHANGE_INFO_ICON} source={clockIcon} />
