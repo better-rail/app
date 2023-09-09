@@ -134,7 +134,7 @@ class LiveActivitiesController {
           }
         }
     }
-}
+  }
 
 
   private func registerLiveActivity(_ activity: LiveActivityRoute, token: String) async {
@@ -143,12 +143,18 @@ class LiveActivitiesController {
     let ride = Ride(token: token, departureDate: details.departureTime, originId: details.originStationId, destinationId: details.destinationStationId, trains: details.trainNumbers, locale: "en")
 
     Task.init {
-      if let rideId = await ActivityNotificationsAPI.startRide(ride: ride) {
-        LiveActivitiesController.rideId = rideId
-        await LiveActivitiesController.tokenRegistry.updateRideId(rideId: rideId, token: token)
+      do {
+        if let rideId = try await ActivityNotificationsAPI.startRide(ride: ride) {
+          LiveActivitiesController.rideId = rideId
+          await LiveActivitiesController.tokenRegistry.updateRideId(rideId: rideId, token: token)
+          
+          print("Live activity (\(activity.id)) registered.")
+        }
+      } catch {
+        await LiveActivitiesController.tokenRegistry.registerTokenIfNew(rideId: "ERROR", token: token)
       }
+
     }
-    print("Live activity (\(activity.id)) registered.")
   }
   
   private func updateLiveActivityToken(rideId: String, token: String) async {

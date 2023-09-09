@@ -59,11 +59,26 @@ class RNBetterRail: NSObject {
       let route = try decoder.decode(Route.self, from: routeJSON.data(using: .utf8)!)
       Task {
         await LiveActivitiesController.shared.startLiveActivity(route: route)
-        
+
         // wait for the token to have it's ride Id assigned
         let newToken = await LiveActivitiesController.tokenRegistry.awaitNewTokenRegistration()
-        // report to React Native
-        resolve(newToken.rideId)
+        
+        // handle an errored ride
+        if (newToken.rideId == "ERROR") {
+          let errorDomain = "live-activity"
+          let errorCode = 1001
+          let errorUserInfo: [String: Any] = [
+              NSLocalizedDescriptionKey: "Live Activity Server failed to start a new live activity.",
+          ]
+    
+          // Create the NSError object
+          let error = NSError(domain: errorDomain, code: errorCode, userInfo: errorUserInfo)
+    
+          await LiveActivitiesController.tokenRegistry.deleteRideToken(rideId: "ERROR")
+          reject("error", "An error occured while starting activity from RN", error)
+        } else {
+          resolve(newToken.rideId)
+        }
       }
     } catch {
       print("Error decoding JSON: \(String(describing: error))")

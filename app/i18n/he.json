@@ -214,6 +214,8 @@
     "getOffInStops": "הגעה ליעד בעוד %{stopsLeft} תחנות",
     "greeting": "תודה שנסעתם עם בטר רייל!",
 
+    "error": "שגיאה התרחשה בעת הפעלת נסיעה, אנא נסו שנית.",
+
     "rideExistsTitle": "קיימת נסיעה פעילה",
     "rideExistsMessage": "התחלת נסיעה חדשה תבטל את הנוכחית",
     "liveActivitiesDisabledTitle": "פעילויות בזמן אמת כבויות",
