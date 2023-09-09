@@ -8,6 +8,7 @@ import { Train } from "../../../services/api"
 
 const importantIcon = require("../../../../assets/important.png")
 const clockIcon = require("../../../../assets/clock.png")
+const infoIcon = require("../../../../assets/info.png")
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -117,7 +118,7 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
           <View
             style={[
               ROUTE_EXCHANGE_INFO_DETAIL_WRAPPER,
-              { marginBottom: isExchangeSafe ? (fontScale > 1 ? spacing[3] : 0) : spacing[1] },
+              { marginBottom: false ? (fontScale > 1 ? spacing[3] : spacing[0]) : spacing[1] },
             ]}
           >
             <Image style={ROUTE_EXCHANGE_INFO_ICON} source={clockIcon} />
@@ -127,8 +128,10 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
           </View>
           {!isExchangeSafe && (
             <View style={[ROUTE_EXCHANGE_INFO_DETAIL_WRAPPER, { marginBottom: fontScale > 1 ? spacing[3] : 0 }]}>
-              <Image style={ROUTE_EXCHANGE_INFO_ICON} source={importantIcon} />
-              <Text style={ROUTE_EXCHANGE_INFO_TEXT}>{translate("routeDetails.unsafeChange")}</Text>
+              <Image style={[ROUTE_EXCHANGE_INFO_ICON, { tintColor: color.error }]} source={infoIcon} />
+              <Text style={[ROUTE_EXCHANGE_INFO_TEXT, { color: color.error }]} preset="bold">
+                {translate("routeDetails.unsafeChange")}
+              </Text>
             </View>
           )}
         </View>
