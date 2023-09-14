@@ -162,7 +162,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
         </Animated.View>
       )}
 
-      <FirstRideAlert ref={bottomSheetRef} />
+      {Platform.OS === "ios" && <FirstRideAlert ref={bottomSheetRef} />}
     </Screen>
   )
 })
