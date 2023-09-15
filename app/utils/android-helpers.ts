@@ -1,9 +1,9 @@
 import messaging, { FirebaseMessagingTypes } from "@react-native-firebase/messaging"
-import notifee, { AndroidImportance, AndroidLaunchActivityFlag } from "@notifee/react-native"
+import notifee, { AndroidImportance, AndroidLaunchActivityFlag, EventType, TriggerType } from "@notifee/react-native"
 import { RideState, RideStatus, getStatusEndDate, rideProgress } from "../hooks/use-ride-progress"
 import { RideApi, RouteItem } from "../services/api"
 import { findClosestStationInRoute, getRideStatus, getTrainFromStationId } from "./helpers/ride-helpers"
-import { addMinutes, differenceInMinutes, format } from "date-fns"
+import { addMinutes, addSeconds, differenceInMinutes, format } from "date-fns"
 import { getInitialLanguage, translate } from "../i18n"
 import i18n from "i18n-js"
 import {
@@ -12,13 +12,12 @@ import {
   setRideDelay,
   getUserLocale,
   getRideDelay,
-  setLastUpdateTime,
-  getLastUpdateTime,
+  setStaleNotificationId,
+  getStaleNotificationId,
   getRideNotificationId,
   setRideNotificationId,
   clearBackgroundStorage,
 } from "./storage/background-storage"
-import BackgroundTimer from "react-native-background-timer"
 
 const rideApi = new RideApi()
 let unsubscribeTokenUpdates: () => void
@@ -65,7 +64,8 @@ export const configureAndroidNotifications = async () => {
     }
 
     await setRideDelay(state.delay)
-    await setLastUpdateTime(Date.now())
+    scheduleStaleNotification()
+
     const rideNotificationId = await getRideNotificationId()
     if (rideNotificationId && state) {
       const rideRoute = await getRideRoute()
@@ -75,7 +75,21 @@ export const configureAndroidNotifications = async () => {
 
   messaging().onMessage(onRecievedMessage)
   messaging().setBackgroundMessageHandler(onRecievedMessage)
-  notifee.onBackgroundEvent(() => Promise.resolve())
+  notifee.onBackgroundEvent(async ({ type, detail }) => {
+    if (type === EventType.DELIVERED && detail.notification?.data?.type === "live-ride-stale") {
+      const rideRoute = await getRideRoute()
+      const rideDelay = (await getRideDelay()) || 0
+      if (addMinutes(rideRoute.arrivalTime, rideDelay).getTime() > Date.now()) {
+        const state: RideState = {
+          status: "stale",
+          delay: rideDelay,
+          nextStationId: rideRoute.trains[rideRoute.trains.length - 1].destinationStationId,
+        }
+
+        updateNotification(rideRoute, state)
+      }
+    }
+  })
 }
 
 export const startRideNotifications = async (route: RouteItem) => {
@@ -102,27 +116,9 @@ export const startRideNotifications = async (route: RouteItem) => {
   }
 
   await setRideDelay(state.delay)
-  await setLastUpdateTime(Date.now())
   const rideNotificationId = await updateNotification(route, state)
   await setRideNotificationId(rideNotificationId)
-
-  BackgroundTimer.runBackgroundTimer(async () => {
-    const lastUpdateTime = await getLastUpdateTime()
-    const timeSinceLastUpdate = Date.now() - lastUpdateTime
-    if (timeSinceLastUpdate > 75 * 1000) {
-      const rideRoute = await getRideRoute()
-      const rideDelay = await getRideDelay()
-      if (addMinutes(rideRoute.arrivalTime, rideDelay).getTime() > Date.now()) {
-        const state: RideState = {
-          status: "stale",
-          delay: rideDelay,
-          nextStationId: rideRoute.trains[rideRoute.trains.length - 1].destinationStationId,
-        }
-
-        updateNotification(rideRoute, state)
-      }
-    }
-  }, 30 * 1000)
+  scheduleStaleNotification()
 
   return rideId
 }
@@ -131,7 +127,6 @@ export const cancelNotifications = async () => {
   messaging().deleteToken()
   if (unsubscribeTokenUpdates) unsubscribeTokenUpdates()
 
-  BackgroundTimer.stopBackgroundTimer()
   const rideNotificationId = await getRideNotificationId()
   if (rideNotificationId) {
     notifee.cancelNotification(rideNotificationId)
@@ -142,6 +137,31 @@ export const cancelNotifications = async () => {
 export const endRideNotifications = async (rideId: string) => {
   await cancelNotifications()
   return rideApi.endRide(rideId)
+}
+
+const scheduleStaleNotification = async () => {
+  const staleNotificationId = await getStaleNotificationId()
+  if (staleNotificationId) {
+    notifee.cancelTriggerNotification(staleNotificationId)
+  }
+
+  const notificationId = await notifee.createTriggerNotification(
+    {
+      android: {
+        channelId: "better-rail-live",
+        timeoutAfter: 1,
+      },
+      data: {
+        type: "live-ride-stale",
+      },
+    },
+    {
+      type: TriggerType.TIMESTAMP,
+      timestamp: addSeconds(Date.now(), 135).getTime(),
+    },
+  )
+
+  return setStaleNotificationId(notificationId)
 }
 
 const updateNotification = async (route: RouteItem, state: RideState) => {
@@ -190,7 +210,7 @@ const getTitleText = (route: RouteItem, state: RideState) => {
 const getBodyText = (route: RouteItem, state: RideState) => {
   if (state.status === "stale") {
     const destination = route.trains[route.trains.length - 1].destinationStationName
-    return translate("plan.rideTo", { stationName: destination }) + " | " + translate("ride.connectionIssues")
+    return translate("plan.rideTo", { destination }) + " | " + translate("ride.connectionIssues")
   } else if (state.status === "waitForTrain" || state.status === "inExchange") {
     const train = getTrainFromStationId(route, state.nextStationId)
     return translate("ride.trainInfo", {

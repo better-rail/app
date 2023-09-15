@@ -15,8 +15,8 @@ const getRideRoute = async () => {
 const getRideDelay = () => Number(Preferences.get("rideDelay"))
 const setRideDelay = (delay: number) => Preferences.set("rideDelay", String(delay))
 
-const getLastUpdateTime = () => Number(Preferences.get("lastUpdateTime"))
-const setLastUpdateTime = (delay: number) => Preferences.set("lastUpdateTime", String(delay))
+const getStaleNotificationId = () => Preferences.get("staleNotificationId")
+const setStaleNotificationId = (notificationId: string) => Preferences.set("staleNotificationId", notificationId)
 
 const clearBackgroundStorage = () => Preferences.clearMultiple(["rideRoute", "rideNotificationId", "rideDelay", "lastUpdateTime"])
 
@@ -29,6 +29,6 @@ export {
   getRideDelay,
   setRideDelay,
   clearBackgroundStorage,
-  getLastUpdateTime,
-  setLastUpdateTime,
+  getStaleNotificationId,
+  setStaleNotificationId,
 }
