@@ -1,11 +1,11 @@
 PODS:
   - boost (1.76.0)
-  - Burnt (0.11.4):
+  - Burnt (0.11.7):
     - ExpoModulesCore
     - SPAlert
     - SPIndicator
-  - BVLinearGradient (2.5.6):
-    - React
+  - BVLinearGradient (2.8.3):
+    - React-Core
   - DoubleConversion (1.1.6)
   - Expo (49.0.10):
     - ExpoModulesCore
@@ -423,10 +423,10 @@ PODS:
     - ReactCommon/turbomodule/core
   - react-native-segmented-control (2.4.0):
     - React-Core
-  - react-native-video (6.0.0-alpha.6):
+  - react-native-video (6.0.0-alpha.8):
     - React-Core
-    - react-native-video/Video (= 6.0.0-alpha.6)
-  - react-native-video/Video (6.0.0-alpha.6):
+    - react-native-video/Video (= 6.0.0-alpha.8)
+  - react-native-video/Video (6.0.0-alpha.8):
     - PromisesSwift
     - React-Core
   - React-perflogger (0.71.7)
@@ -546,18 +546,18 @@ PODS:
     - FirebaseCoreExtension (= 10.7.0)
     - React-Core
     - RNFBApp
-  - RNFlashList (1.4.3):
+  - RNFlashList (1.6.1):
     - React-Core
   - RNGestureHandler (2.9.0):
     - React-Core
-  - RNIap (12.10.5):
+  - RNIap (12.10.7):
     - React-Core
-  - RNInAppBrowser (3.5.1):
+  - RNInAppBrowser (3.7.0):
     - React-Core
-  - RNNotifee (7.7.1):
+  - RNNotifee (7.8.0):
     - React-Core
-    - RNNotifee/NotifeeCore (= 7.7.1)
-  - RNNotifee/NotifeeCore (7.7.1):
+    - RNNotifee/NotifeeCore (= 7.8.0)
+  - RNNotifee/NotifeeCore (7.8.0):
     - React-Core
   - RNReactNativeHapticFeedback (2.0.3):
     - React-Core
@@ -863,8 +863,8 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 57d2868c099736d80fcd648bf211b4431e51a558
-  Burnt: 708556f6283e1b81767e6642e088819d85d1ea08
-  BVLinearGradient: e3aad03778a456d77928f594a649e96995f1c872
+  Burnt: ab447594da52c2485e3520c9e68b70ac30d4eaf0
+  BVLinearGradient: 880f91a7854faff2df62518f0281afb1c60d49a3
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   Expo: 0ff83f0415a0e7a9368ce38bf25cad539b18a08c
   ExpoLocalization: f26cd431ad9ea3533c5b08c4fabd879176a794bb
@@ -916,7 +916,7 @@ SPEC CHECKSUMS:
   react-native-restart: 7595693413fe3ca15893702f2c8306c62a708162
   react-native-safe-area-context: 39c2d8be3328df5d437ac1700f4f3a4f75716acc
   react-native-segmented-control: 06607462630512ff8eef652ec560e6235a30cc3e
-  react-native-video: fee89269ad07556d960721f3b62e39be6ace3c90
+  react-native-video: 86950ad481cec184d7c9420ec3bca0c27904bbcd
   React-perflogger: 2d505bbe298e3b7bacdd9e542b15535be07220f6
   React-RCTActionSheet: 0e96e4560bd733c9b37efbf68f5b1a47615892fb
   React-RCTAnimation: fd138e26f120371c87e406745a27535e2c8a04ef
@@ -941,11 +941,11 @@ SPEC CHECKSUMS:
   RNFBAuth: 54e598bb1358a0cf6c0a187f43161cd1bde90455
   RNFBCrashlytics: f2dd2ad20eff4d5ceaa5c19936efff3b1607eb33
   RNFBMessaging: 216693dd5ba4f18ba65fb39fc73a44a23c26190f
-  RNFlashList: ade81b4e928ebd585dd492014d40fb8d0e848aab
+  RNFlashList: 236646d48f224a034f35baa0242e1b77db063b1e
   RNGestureHandler: 071d7a9ad81e8b83fe7663b303d132406a7d8f39
-  RNIap: c397f49db45af3b10dca64b2325f21bb8078ad21
-  RNInAppBrowser: 48b95ba7a4eaff5cc223bca338d3e319561dbd1b
-  RNNotifee: 05692d7bb42b6c718a3906aeb8431c48ff2e8097
+  RNIap: 1f683cf864a8662851d5d7079beefd441d95f85b
+  RNInAppBrowser: e36d6935517101ccba0e875bac8ad7b0cb655364
+  RNNotifee: f3c01b391dd8e98e67f539f9a35a9cbcd3bae744
   RNReactNativeHapticFeedback: afa5bf2794aecbb2dba2525329253da0d66656df
   RNReanimated: 1769b76defa240b71ace40f549fe9ff8a48b7d73
   RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
