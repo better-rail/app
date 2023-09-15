@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Image, ImageStyle, Platform, TouchableOpacity, View, ViewStyle } from "react-native"
+import { Button, Image, ImageStyle, Platform, TouchableOpacity, View, ViewStyle } from "react-native"
 import { useNavigation } from "@react-navigation/core"
 import { observer } from "mobx-react-lite"
 import * as storage from "../../utils/storage"
@@ -7,10 +7,12 @@ import analytics from "@react-native-firebase/analytics"
 import { color, fontScale, spacing } from "../../theme"
 import { Chip, Text } from "../../components"
 import { useStores } from "../../models"
-import { isRTL, translate } from "../../i18n"
+import { isRTL, translate, userLocale } from "../../i18n"
 import { canRunLiveActivities } from "../../utils/ios-helpers"
 import Animated from "react-native-reanimated"
 import { ImoprtantAnnouncementBar } from "./ImportantAnnouncementBar"
+import { PopUpMessage, railApi } from "../../services/api"
+import { useQuery } from "react-query"
 
 const HEADER_WRAPPER: ViewStyle = {
   flexDirection: "row",
@@ -47,6 +49,12 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
   const navigation = useNavigation()
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
 
+  const [showUrgentBar, setUrgentBar] = useState(true)
+
+  const { data: popupMessages } = useQuery<PopUpMessage[]>(["announcements", "urgent"], () => {
+    return railApi.getPopupMessages(userLocale)
+  })
+
   useEffect(() => {
     // display the "new" badge if the user has stations selected (not the initial launch)
     // and they haven't seen the live announcement screen yet
@@ -57,48 +65,59 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
     }
   }, [])
 
+  useEffect(() => {
+    // TODO: Only show if the ID hasn't been seen already
+    if (popupMessages.length > 0) {
+      setUrgentBar(true)
+    }
+  }, [popupMessages])
+
   return (
-    <View style={HEADER_WRAPPER}>
-      <View style={{ flexDirection: "row", gap: spacing[2] }}>
-        {ride.route && (
-          <Chip
-            color="success"
-            onPress={() => {
-              // @ts-expect-error
-              navigation.navigate("activeRideStack", {
-                screen: "activeRide",
-                params: { routeItem: ride.route, originId: ride.originId, destinationId: ride.destinationId },
-              })
+    <>
+      <View style={HEADER_WRAPPER}>
+        <View style={{ flexDirection: "row", gap: spacing[2] }}>
+          {ride.route && (
+            <Chip
+              color="success"
+              onPress={() => {
+                // @ts-expect-error
+                navigation.navigate("activeRideStack", {
+                  screen: "activeRide",
+                  params: { routeItem: ride.route, originId: ride.originId, destinationId: ride.destinationId },
+                })
 
-              analytics().logEvent("open_live_ride_modal_pressed")
-            }}
-          >
-            {Platform.OS === "ios" && <Image source={TRAIN_ICON} style={LIVE_BUTTON_IMAGE} />}
-            <Text style={{ color: "white", fontWeight: "500" }} tx="ride.live" />
-          </Chip>
-        )}
+                analytics().logEvent("open_live_ride_modal_pressed")
+              }}
+            >
+              {Platform.OS === "ios" && <Image source={TRAIN_ICON} style={LIVE_BUTTON_IMAGE} />}
+              <Text style={{ color: "white", fontWeight: "500" }} tx="ride.live" />
+            </Chip>
+          )}
 
-        {displayNewBadge && (
-          <Chip color="primary" onPress={() => navigation.navigate("liveAnnouncementStack")}>
-            <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
-            <Text style={{ color: "white", fontWeight: "500" }} tx="common.new" />
-          </Chip>
-        )}
+          {displayNewBadge && (
+            <Chip color="primary" onPress={() => navigation.navigate("liveAnnouncementStack")}>
+              <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
+              <Text style={{ color: "white", fontWeight: "500" }} tx="common.new" />
+            </Chip>
+          )}
+        </View>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("announcementsStack")}
+          activeOpacity={0.8}
+          accessibilityLabel={translate("routes.updates")}
+        >
+          <Image source={UPDATES_ICON} style={SETTINGS_ICON_IMAGE} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate("settingsStack")} activeOpacity={0.8} accessibilityLabel="הגדרות">
+          <Image source={SETTINGS_ICON} style={SETTINGS_ICON_IMAGE} />
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity
-        onPress={() => navigation.navigate("announcementsStack")}
-        activeOpacity={0.8}
-        accessibilityLabel={translate("routes.updates")}
-      >
-        <Image source={UPDATES_ICON} style={SETTINGS_ICON_IMAGE} />
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate("settingsStack")} activeOpacity={0.8} accessibilityLabel="הגדרות">
-        <Image source={SETTINGS_ICON} style={SETTINGS_ICON_IMAGE} />
-      </TouchableOpacity>
-
-      <View style={{ position: "absolute" }}>
-        <ImoprtantAnnouncementBar />
-      </View>
-    </View>
+      {showUrgentBar && (
+        <View style={{ position: "absolute", top: 0, left: 16 }}>
+          <ImoprtantAnnouncementBar />
+        </View>
+      )}
+      <Button title="hide" onPress={() => setUrgentBar(!showUrgentBar)} />
+    </>
   )
 })

@@ -1,61 +1,55 @@
-// import { useEffect } from "react"
-// import { TextStyle } from "react-native"
-// import Animated, { useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming } from "react-native-reanimated"
-// import { color } from "../../theme"
+import { useEffect } from "react"
+import { Dimensions, TextStyle } from "react-native"
+import Animated, { useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming } from "react-native-reanimated"
+import { color, fontScale } from "../../theme"
 
-// const TEXT_STYLE: TextStyle = {
-//   color: color.text,
-//   fontWeight: "bold",
-//   textAlign: "left",
-// }
+const TEXT_STYLE: TextStyle = {
+  color: color.whiteText,
+  fontWeight: "bold",
+  textAlign: "left",
+}
 
-// export function ImoprtantAnnouncementBar() {
-//   const width = useSharedValue(0)
-//   const opacity = useSharedValue(0)
+const { width: deviceWidth } = Dimensions.get("screen")
+const barWidth = deviceWidth - 32 // 32 is the padding of the screen
 
-//   const onStart = () => {
-//     width.value = withSpring(1000, {
-//       damping: 2,
-//       stiffness: 1,
-//     })
+export function ImoprtantAnnouncementBar() {
+  const width = useSharedValue(0)
+  const opacity = useSharedValue(0)
 
-//     opacity.value = withDelay(650, withTiming(1, { duration: 400 }))
-//   }
+  const onStart = () => {
+    width.value = withSpring(barWidth, {
+      duration: 1000,
+      dampingRatio: 1.4,
+    })
 
-//   const a = useAnimatedStyle(() => {
-//     return {
-//       opacity: opacity.value,
-//     }
-//   })
+    opacity.value = withDelay(650, withTiming(1, { duration: 400 }))
+  }
 
-//   const b = useAnimatedStyle(() => {
-//     return {
-//       // opacity: width.value,
-//       width,
-//     }
-//   })
+  const onHide = () => {
+    width.value = 0
+    opacity.value = 0
+  }
 
-//   const onHide = () => {
-//     width.value = 0
-//     // opacity.value = 0
-//   }
+  useEffect(() => {
+    onStart()
+    return onHide
+  })
 
-//   useEffect(() => {
-//     onStart()
-//     return onHide
-//   })
+  return (
+    <Animated.View
+      style={{
+        width,
+        height: fontScale > 1 ? 50 : 41,
 
-//   return (
-//     <Animated.View
-//       style={{
-//         height: 30,
-//         justifyContent: "center",
-//         paddingHorizontal: 10,
-//         backgroundColor: "#e74c3c",
-//         borderRadius: 10,
-//       }}
-//     >
-//       <Animated.Text style={[TEXT_STYLE, a]}>הודעה חשובה מרכבת ישראל</Animated.Text>
-//     </Animated.View>
-//   )
-// }
+        justifyContent: "center",
+        paddingHorizontal: 10,
+        backgroundColor: "#e74c3c",
+        borderRadius: 10,
+      }}
+    >
+      <Animated.Text style={[TEXT_STYLE, { opacity }]} maxFontSizeMultiplier={1.1}>
+        Important message from Israel Railways
+      </Animated.Text>
+    </Animated.View>
+  )
+}
