@@ -12,13 +12,14 @@ const getRideRoute = async () => {
   return savedRoute && (JSON.parse(savedRoute) as RouteItem)
 }
 
-const getRideDelay = () => Number(Preferences.get("rideDelay"))
+const getRideDelay = async () => Number(await Preferences.get("rideDelay"))
 const setRideDelay = (delay: number) => Preferences.set("rideDelay", String(delay))
 
 const getStaleNotificationId = () => Preferences.get("staleNotificationId")
 const setStaleNotificationId = (notificationId: string) => Preferences.set("staleNotificationId", notificationId)
 
-const clearBackgroundStorage = () => Preferences.clearMultiple(["rideRoute", "rideNotificationId", "rideDelay", "lastUpdateTime"])
+const clearBackgroundStorage = () =>
+  Preferences.clearMultiple(["rideRoute", "rideNotificationId", "rideDelay", "staleNotificationId"])
 
 export {
   getUserLocale,

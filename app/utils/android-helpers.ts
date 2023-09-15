@@ -78,7 +78,7 @@ export const configureAndroidNotifications = async () => {
   notifee.onBackgroundEvent(async ({ type, detail }) => {
     if (type === EventType.DELIVERED && detail.notification?.data?.type === "live-ride-stale") {
       const rideRoute = await getRideRoute()
-      const rideDelay = (await getRideDelay()) || 0
+      const rideDelay = await getRideDelay()
       if (addMinutes(rideRoute.arrivalTime, rideDelay).getTime() > Date.now()) {
         const state: RideState = {
           status: "stale",
@@ -195,7 +195,7 @@ const getTitleText = (route: RouteItem, state: RideState) => {
   const timeText = "(" + time + ")"
 
   if (state.status === "stale") {
-    const delayText = state.delay > 0 ? " (" + translate("routes.delayTime", { minutes: state.delay }) + ")" : ""
+    const delayText = state.delay > 0 ? ` (${state.delay} ${translate("routes.delayTime")})` : ""
     return translate("ride.arrivingAt", { time }) + delayText
   } else if (state.status === "waitForTrain" || state.status === "inExchange") {
     if (minutes < 2) return translate("ride.departsNow") + " " + timeText
