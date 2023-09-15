@@ -9,6 +9,8 @@ import { Chip, Text } from "../../components"
 import { useStores } from "../../models"
 import { isRTL, translate } from "../../i18n"
 import { canRunLiveActivities } from "../../utils/ios-helpers"
+import Animated from "react-native-reanimated"
+import { ImoprtantAnnouncementBar } from "./ImportantAnnouncementBar"
 
 const HEADER_WRAPPER: ViewStyle = {
   flexDirection: "row",
@@ -93,6 +95,10 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
       <TouchableOpacity onPress={() => navigation.navigate("settingsStack")} activeOpacity={0.8} accessibilityLabel="הגדרות">
         <Image source={SETTINGS_ICON} style={SETTINGS_ICON_IMAGE} />
       </TouchableOpacity>
+
+      <View style={{ position: "absolute" }}>
+        <ImoprtantAnnouncementBar />
+      </View>
     </View>
   )
 })

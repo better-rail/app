@@ -7,11 +7,12 @@ PODS:
   - BVLinearGradient (2.5.6):
     - React
   - DoubleConversion (1.1.6)
-  - Expo (48.0.10):
+  - Expo (49.0.10):
     - ExpoModulesCore
   - ExpoLocalization (14.1.1):
     - ExpoModulesCore
-  - ExpoModulesCore (1.2.6):
+  - ExpoModulesCore (1.5.11):
+    - RCT-Folly (= 2021.07.22.00)
     - React-Core
     - React-RCTAppDelegate
     - ReactCommon/turbomodule/core
@@ -560,11 +561,12 @@ PODS:
     - React-Core
   - RNReactNativeHapticFeedback (2.0.3):
     - React-Core
-  - RNReanimated (2.14.4):
+  - RNReanimated (3.5.2):
     - DoubleConversion
     - FBLazyVector
     - FBReactNativeSpec
     - glog
+    - hermes-engine
     - RCT-Folly
     - RCTRequired
     - RCTTypeSafety
@@ -574,6 +576,7 @@ PODS:
     - React-Core/RCTWebSocket
     - React-CoreModules
     - React-cxxreact
+    - React-hermes
     - React-jsi
     - React-jsiexecutor
     - React-jsinspector
@@ -863,9 +866,9 @@ SPEC CHECKSUMS:
   Burnt: 708556f6283e1b81767e6642e088819d85d1ea08
   BVLinearGradient: e3aad03778a456d77928f594a649e96995f1c872
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
-  Expo: b04d142a2b477a391b47c62d179c1a9e1140e6ad
+  Expo: 0ff83f0415a0e7a9368ce38bf25cad539b18a08c
   ExpoLocalization: f26cd431ad9ea3533c5b08c4fabd879176a794bb
-  ExpoModulesCore: 6e0259511f4c4341b6b8357db393624df2280828
+  ExpoModulesCore: d9d45dcbb86a5dba2ec62253267720cb58516f75
   FBLazyVector: a89a0525bc7ca174675045c2b492b5280d5a2470
   FBReactNativeSpec: 7714e6bc1e9ea23df6c4cb42f0b2fd9c6a3a559c
   Firebase: 0219acf760880eeec8ce479895bd7767466d9f81
@@ -944,7 +947,7 @@ SPEC CHECKSUMS:
   RNInAppBrowser: 48b95ba7a4eaff5cc223bca338d3e319561dbd1b
   RNNotifee: 05692d7bb42b6c718a3906aeb8431c48ff2e8097
   RNReactNativeHapticFeedback: afa5bf2794aecbb2dba2525329253da0d66656df
-  RNReanimated: cc5e3aa479cb9170bcccf8204291a6950a3be128
+  RNReanimated: 1769b76defa240b71ace40f549fe9ff8a48b7d73
   RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
   RNShare: d82e10f6b7677f4b0048c23709bd04098d5aee6c
   RNSharedElement: 504fa28a235b12505b6daedbb452a9ec96809bd0
