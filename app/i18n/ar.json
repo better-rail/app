@@ -48,6 +48,7 @@
     "platformStay": "الرجاء الانتظار في الرصيف",
     "platformChange": "الرجاء الانتقال الى رصيف",
     "waitingTime": "مدة الانتظار",
+    "unsafeChange": "هذا التغيير غير مضمون",
     "lastStop": "المحطة الأخيرة",
     "routeWarning": "تحذير الطريق الطويل",
     "routeWarningText": "هناك طرق قطار أقصر حول وقت المغادرة.",
@@ -149,6 +150,8 @@
     "liveActivitiesDisabledMessage": "افتح الإعدادات وقم بتمكين Live Activities لتكون قادرًا على بدء مشوار",
     "notificationsDisabledTitle": "الإخطارات تعطيل",
     "notificationsDisabledMessage": "لبدء مشوار ، يرجى فتح إعدادات جهازك وتمكين الإخطارات.",
+
+    "error": "حدث خطأ أثناء بدء الرحلة، يرجى المحاولة مرة أخرى",
 
     "firstRideAlertP1": "During the first three days of usage, there is a possibility that the live activity feature may display an incorrect estimated time of arrival (ETA).",
     "firstRideAlertP2": "This is due to the system taking time to allocate sufficient \"notification budget\" for the application. ",

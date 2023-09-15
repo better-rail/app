@@ -137,8 +137,8 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
                   stationName={train.destinationStationName}
                   arrivalPlatform={train.destinationPlatform}
                   departurePlatform={routeItem.trains[index + 1].originPlatform}
-                  arrivalTime={train.arrivalTime}
-                  depatureTime={routeItem.trains[index + 1].departureTime}
+                  firstTrain={train}
+                  secondTrain={routeItem.trains[index + 1]}
                 />
               )}
             </View>
@@ -162,7 +162,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
         </Animated.View>
       )}
 
-      <FirstRideAlert ref={bottomSheetRef} />
+      {Platform.OS === "ios" && <FirstRideAlert ref={bottomSheetRef} />}
     </Screen>
   )
 })

@@ -7,14 +7,23 @@ import { PrimaryParamList, RootParamList } from "../navigators"
 import { NavigationContainerRef } from "@react-navigation/native"
 import { isEqual } from "lodash"
 import analytics from "@react-native-firebase/analytics"
+import { useStations } from "../data/stations"
 
 /**
  * Handles navigation of deep links provided to the app.
  */
 export function useDeepLinking(rootStore: RootStore, navigationRef: MutableRefObject<NavigationContainerRef<RootParamList>>) {
+  const stations = useStations()
+
   function deepLinkWidgetURL(url: string) {
     const { originId, destinationId } = extractURLParams(url)
-    donateRouteIntent(originId, destinationId)
+    const { setOrigin, setDestination } = rootStore.routePlan
+
+    const origin = stations.find((station) => station.id === originId)
+    const destination = stations.find((station) => station.id === destinationId)
+
+    setOrigin(origin)
+    setDestination(destination)
 
     // @ts-expect-error navigator type
     navigationRef.current?.navigate("routeList", {
@@ -26,6 +35,7 @@ export function useDeepLinking(rootStore: RootStore, navigationRef: MutableRefOb
 
     // reload widget timeline
     reloadAllTimelines()
+    donateRouteIntent(originId, destinationId)
   }
 
   function openActiveRideScreen() {
