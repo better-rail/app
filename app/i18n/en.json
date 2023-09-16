@@ -217,6 +217,8 @@
     "liveActivitiesDisabledMessage": "To start a ride, please open your device settings and enable Live Activities.",
     "notificationsDisabledTitle": "Notifications disabled",
     "notificationsDisabledMessage": "To start a ride, please open your device settings and enable notifications.",
+    "alarmDisabledTitle": "Alarm notifications disabled",
+    "alarmDisabledMessage": "To notify you when to get off the train more accurately, please open your device settings and enable alarm notifications.",
     "connectionIssues": "Connection issues",
 
     "error": "An error occured while starting the ride - please try to start a new ride.",

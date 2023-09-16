@@ -150,6 +150,8 @@
     "liveActivitiesDisabledMessage": "افتح الإعدادات وقم بتمكين Live Activities لتكون قادرًا على بدء مشوار",
     "notificationsDisabledTitle": "الإخطارات تعطيل",
     "notificationsDisabledMessage": "لبدء مشوار ، يرجى فتح إعدادات جهازك وتمكين الإخطارات.",
+    "alarmDisabledTitle": "تم تعطيل إشعارات الإنذار",
+    "alarmDisabledMessage": "لإعلامك بموعد النزول من القطار بشكل أكثر دقة، يرجى فتح إعدادات جهازك وتمكين إشعارات التنبيه.",
 
     "error": "حدث خطأ أثناء بدء الرحلة، يرجى المحاولة مرة أخرى",
 

@@ -223,6 +223,8 @@
     "liveActivitiesDisabledMessage": "יש לאפשר פעילויות בזמן אמת בהגדרות המכשיר על מנת להתחיל נסיעה",
     "notificationsDisabledTitle": "התראות כבויות",
     "notificationsDisabledMessage": "יש לאפשר התראות בהגדרות המכשיר על מנת להתחיל נסיעה",
+    "alarmDisabledTitle": "התראות מדוייקות כבויות",
+    "alarmDisabledMessage": "יש לאפשר התראות מדוייקות על מנת שנוכל להודיע לכם בדיוק מירבי מתי לרדת מהרכבת",
     "connectionIssues": "בעיות תקשורת",
 
     "firstRideAlertP1": "במהלך שלושת ימי השימוש הראשונים, קיימת אפשרות שזמן ההגעה שיוצג בלייב אקטיביטי (על מסך הנעילה) יהיה לא מדויק.",
