@@ -140,28 +140,30 @@ export const endRideNotifications = async (rideId: string) => {
 }
 
 const scheduleStaleNotification = async () => {
-  const staleNotificationId = await getStaleNotificationId()
-  if (staleNotificationId) {
-    notifee.cancelTriggerNotification(staleNotificationId)
-  }
+  try {
+    const staleNotificationId = await getStaleNotificationId()
+    if (staleNotificationId) {
+      notifee.cancelTriggerNotification(staleNotificationId)
+    }
 
-  const notificationId = await notifee.createTriggerNotification(
-    {
-      android: {
-        channelId: "better-rail-live",
-        timeoutAfter: 1,
+    const notificationId = await notifee.createTriggerNotification(
+      {
+        android: {
+          channelId: "better-rail-live",
+          timeoutAfter: 1,
+        },
+        data: {
+          type: "live-ride-stale",
+        },
       },
-      data: {
-        type: "live-ride-stale",
+      {
+        type: TriggerType.TIMESTAMP,
+        timestamp: addSeconds(Date.now(), 135).getTime(),
       },
-    },
-    {
-      type: TriggerType.TIMESTAMP,
-      timestamp: addSeconds(Date.now(), 135).getTime(),
-    },
-  )
+    )
 
-  return setStaleNotificationId(notificationId)
+    await setStaleNotificationId(notificationId)
+  } catch {}
 }
 
 const updateNotification = async (route: RouteItem, state: RideState) => {
