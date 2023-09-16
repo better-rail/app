@@ -5,6 +5,7 @@ import { AnnouncementsScreen } from "../../screens/announcements/announcements-s
 import { color, spacing, typography } from "../../theme"
 import { Platform, TextStyle } from "react-native"
 import { translate } from "../../i18n"
+import { UrgentAnnouncements } from "../../components/announcements/urgent-announcements"
 
 const AnnouncementsStack = createStackNavigator()
 
@@ -21,6 +22,15 @@ export const AnnouncementsNavigator = () => (
     <AnnouncementsStack.Screen
       name="announcement"
       component={AnnouncementsScreen}
+      options={({ navigation }) => ({
+        title: translate("routes.updates"),
+        headerLeft: () => <CloseButton onPress={() => navigation.goBack()} style={{ marginRight: spacing[2] }} />,
+        headerTitleStyle: Platform.select({ ios: iOSTitleStyle, android: { ...androidTitleStyle, marginBottom: 10 } }),
+      })}
+    />
+    <AnnouncementsStack.Screen
+      name="urgent"
+      component={UrgentAnnouncements}
       options={({ navigation }) => ({
         title: translate("routes.updates"),
         headerLeft: () => <CloseButton onPress={() => navigation.goBack()} style={{ marginRight: spacing[2] }} />,
