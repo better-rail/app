@@ -28,10 +28,13 @@ struct RoutesView: View {
               
               NavigationLink(destination: trainDetailsView) {
                 HStack {
-                  Text(formatRouteHour(trainDetails.departureTime))
+                  Text(formatRouteHour(trainDetails.departureTime, delay: trainDetails.delay))
+                    .foregroundColor(index == 0 ? .red : .white)
+                  
                   Spacer()
                   Image(systemName: "arrow.forward")
                   Spacer()
+                  
                   Text(formatRouteHour(trainDetails.arrivalTime))
                 }
               }
@@ -65,9 +68,9 @@ struct InfoMessage: View {
     }
   }
 }
-//
-//struct RoutesView_Previews: PreviewProvider {
-//    static var previews: some View {
-//      RoutesView(route: RouteViewModel(origin: stations[0], destination: stations[1]))
-//    }
-//}
+
+struct RoutesView_Previews: PreviewProvider {
+    static var previews: some View {
+      RoutesView(route: RouteViewModel(origin: stations[0], destination: stations[1]))
+    }
+}

@@ -203,10 +203,3 @@ func getActivityCurrentState(route: Route, updatedDelay: Int? = nil, now: Date =
     status: status
   )
 }
-
-extension Date {
-  func addMinutes(_ minutes: Int) -> Date {
-    let calendar = Calendar.current
-    return calendar.date(byAdding: .minute, value: minutes, to: self)!
-  }
-}
