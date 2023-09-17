@@ -29,7 +29,7 @@ struct RoutesView: View {
               NavigationLink(destination: trainDetailsView) {
                 HStack {
                   Text(formatRouteHour(trainDetails.departureTime, delay: trainDetails.delay))
-                    .foregroundColor(index == 0 ? .red : .white)
+                    .foregroundColor(trainDetails.delay > 0 ? .red : .white)
                   
                   Spacer()
                   Image(systemName: "arrow.forward")
