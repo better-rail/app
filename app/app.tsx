@@ -91,14 +91,15 @@ function App() {
     }
   }, [rootStore, navigationRef])
 
+  // @ts-ignore: Not all code paths return a value
   useEffect(() => {
     const listener = (item: ShortcutItem) => {
       const origin = stations.find((station) => station.id === item.data.originId)
       const destination = stations.find((station) => station.id === item.data.destinationId)
 
-      rootStore.routePlan.setOrigin(origin)
-      rootStore.routePlan.setDestination(destination)
-      rootStore.routePlan.setDate(new Date())
+      rootStore?.routePlan.setOrigin(origin)
+      rootStore?.routePlan.setDestination(destination)
+      rootStore?.routePlan.setDate(new Date())
 
       // @ts-expect-error navigator type
       navigationRef.current?.navigate("mainStack", {
@@ -106,13 +107,15 @@ function App() {
         params: {
           originId: origin?.id,
           destinationId: destination?.id,
-          time: rootStore.routePlan.date.getTime(),
+          time: rootStore?.routePlan.date.getTime(),
         },
       })
     }
 
-    ShortcutsEmitter.addListener("onShortcutItemPressed", listener)
-    return () => ShortcutsEmitter.removeAllListeners("onShortcutItemPressed")
+    if (rootStore) {
+      const subscription = ShortcutsEmitter.addListener("onShortcutItemPressed", listener)
+      return () => ShortcutsEmitter.removeSubscription(subscription)
+    }
   }, [rootStore, navigationRef])
 
   useEffect(() => {

@@ -239,7 +239,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           onPress={onGetRoutePress}
           disabled={!routePlan.origin || !routePlan.destination || routePlan.origin.id === routePlan.destination.id}
           onDisabledPress={() => {
-            if (routePlan.origin.id === routePlan.destination.id) {
+            if (routePlan.origin?.id === routePlan.destination?.id) {
               Alert.alert(translate("routes.sameStationsMessage"))
             }
           }}
