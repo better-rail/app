@@ -32,6 +32,7 @@ struct Route: Decodable, Encodable {
     let arrivalTime: String
     let trains: [Train]
     var isExchange: Bool { trains.count > 1 }
+    var delay: Int { trains.first?.delay ?? 0 }
 }
 
 // MARK: - Train
@@ -45,19 +46,19 @@ struct Train: Decodable, Identifiable, Encodable {
   var stationImage: String? { getStationById(orignStation)?.image }
   var destinationStationImage: String? { getStationById(destinationStation)?.image }
 
-  @IntWithDefaultValue var delay: Int
+  var delay: Int { trainPosition?.calcDiffMinutes ?? 0 }
   let trainNumber, orignStation, destinationStation: Int
   let arrivalTime, departureTime: String
   let stopStations: [StopStation]
   let routeStations: [RouteStation]
   let originPlatform, destPlatform: Int
+  let trainPosition: TrainPosition?
 }
 
 // MARK: - StopStation
 struct StopStation: Decodable, Identifiable, Encodable {
   var id: Int { stationId }
   var stationName: String { getStationNameById(stationId)}
-  var formattedTime: String { formatRouteHour(arrivalTime) }
   
   let stationId, platform: Int
   let arrivalTime, departureTime: String
@@ -70,6 +71,10 @@ struct RouteStation: Decodable, Encodable, Identifiable {
   let stationId: Int
   let arrivalTime: String // e.g. "20:51"
   let platform: Int
+}
+
+struct TrainPosition: Decodable, Encodable {
+  let calcDiffMinutes: Int?
 }
 
 enum FetchRouteResultStatus {
@@ -119,28 +124,4 @@ struct RouteModel {
       }
   }
 
-}
-
-@propertyWrapper
-struct IntWithDefaultValue {
-  var wrappedValue = 0
-}
-
-extension IntWithDefaultValue: Decodable, Encodable {
-  init(from decoder: Decoder) throws {
-    let container = try decoder.singleValueContainer()
-    wrappedValue = try container.decode(Int.self)
-  }
-  
-  func encode(to encoder: Encoder) throws {
-    var container = encoder.singleValueContainer()
-    try container.encode(wrappedValue)
-  }
-}
-
-extension KeyedDecodingContainer {
-  func decode(_ type: IntWithDefaultValue.Type,
-                forKey key: Key) throws -> IntWithDefaultValue {
-    try decodeIfPresent(type, forKey: key) ?? .init()
-  }
 }

@@ -47,10 +47,10 @@ func isoDateStringToDate(_ isoDate: String) -> Date {
   }
 }
 
-func formatRouteHour(_ isoDate: String) -> String {
-  let date = isoDateStringToDate(isoDate);
+func formatRouteHour(_ isoDate: String, delay: Int = 0) -> String {
+  let date = isoDateStringToDate(isoDate)
   
-  return formatDateHour(date)
+  return formatDateHour(date.addMinutes(delay))
 }
 
 func formatDateHour(_ date: Date) -> String {
@@ -82,4 +82,11 @@ func getUserLocale() -> SupportedLanguages {
   }
   
   return langName
+}
+
+extension Date {
+  func addMinutes(_ minutes: Int) -> Date {
+    let calendar = Calendar.current
+    return calendar.date(byAdding: .minute, value: minutes, to: self)!
+  }
 }
