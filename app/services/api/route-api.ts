@@ -75,6 +75,7 @@ export class RouteApi {
             trainNumber,
             stopStations,
             routeStations,
+            trainPosition,
           }
 
           return modifiedTrain
