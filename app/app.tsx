@@ -121,6 +121,9 @@ function App() {
       if (appState.current.match(/inactive|background/) && nextAppState === "active") {
         // App has come to the foreground!
         if (rootStore) {
+          // Sync favorites
+          rootStore.favoriteRoutes.syncFavorites()
+
           // Check Live Activities authorization
           rootStore.ride.checkActivityAuthorizationInfo()
 

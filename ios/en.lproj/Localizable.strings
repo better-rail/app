@@ -28,6 +28,7 @@
 "min" = "min";
 "depart" = "DEPART";
 "%@ min" = "%@ min";
+"+%@ min" = "+%@ min";
 "headed to" = "HEADED TO";
 "wait in" = "WAIT IN";
 "arrive" = "ARRIVE";
