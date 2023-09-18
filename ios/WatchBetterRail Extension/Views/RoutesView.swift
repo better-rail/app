@@ -27,15 +27,24 @@ struct RoutesView: View {
               let trainDetailsView = TrainDetailsView(trainRoute: trainDetails)
               
               NavigationLink(destination: trainDetailsView) {
-                HStack {
-                  Text(formatRouteHour(trainDetails.departureTime, delay: trainDetails.delay))
-                    .foregroundColor(trainDetails.delay > 0 ? .red : .white)
-                  
-                  Spacer()
+                ZStack {
                   Image(systemName: "arrow.forward")
-                  Spacer()
-                  
-                  Text(formatRouteHour(trainDetails.arrivalTime))
+                  HStack {
+                    HStack(spacing: trainDetails.delay > 0 ? 2 : nil) {
+                      Text(formatRouteHour(trainDetails.departureTime))
+                      
+                      if trainDetails.delay > 0 {
+                        Text("+\(trainDetails.delay)")
+                          .bold()
+                          .font(.system(size: 12))
+                          .foregroundColor(.red)
+                      }
+                    }
+                    
+                    Spacer()
+                    
+                    Text(formatRouteHour(trainDetails.arrivalTime))
+                  }
                 }
               }
               .id(index)
