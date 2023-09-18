@@ -13,12 +13,11 @@ struct RoutesView: View {
             Text("arrival").foregroundColor(Color.gray)
           }.font(Font.custom("Heebo", size: 16))
           
-          if (route.loading) {
+          if route.loading {
             ProgressView().progressViewStyle(CircularProgressViewStyle())
-          }
-          else if let requestError = route.error {
+          } else if let requestError = route.error {
             InfoMessage(imageName: "wifi.exclamationmark", message: requestError.localizedDescription)
-          } else if (route.trains.count == 0) {
+          } else if route.trains.count == 0 {
             InfoMessage(imageName: "tram", message: String(localized: "no-trains-found"))
           } else {
             List (0 ..< route.trains.count, id: \.self) { index in
