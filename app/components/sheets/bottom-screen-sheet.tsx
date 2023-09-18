@@ -45,7 +45,7 @@ export function BottomScreenSheet({ children, style }: BottomScreenSheetProps) {
         <BlurView
           style={{ position: "absolute", top: 0, left: 0, bottom: 0, right: 0, zIndex: -1 }}
           blurType={isDarkMode ? "ultraThinMaterialDark" : "xlight"}
-          blurAmount={30}
+          blurAmount={20}
           reducedTransparencyFallbackColor={color.tertiaryBackground as unknown as string}
         />
       )}
