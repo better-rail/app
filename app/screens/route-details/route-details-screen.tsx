@@ -147,7 +147,11 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
       </ScrollView>
 
       {isRideOnThisRoute && (
-        <Animated.View entering={shouldFadeRideButton && FadeInDown} exiting={FadeOutDown} style={{ flex: 1 }}>
+        <Animated.View
+          entering={shouldFadeRideButton && FadeInDown}
+          exiting={FadeOutDown}
+          style={{ flex: 1, zIndex: Platform.select({ ios: 0, android: 1 }) }}
+        >
           <LiveRideSheet progress={progress} screenName={route.name} />
         </Animated.View>
       )}
