@@ -10,7 +10,7 @@ Better Rail is an open source mobile client for Israel Railways, with an emphasi
 
 ## Overview
 
-Better Rail is written primarily with React Native. We also use Swift & Swift UI to leverage native iOS functionalities.
+Better Rail is written primarily with React Native. We also use Swift & SwiftUI to leverage native iOS functionalities.
 
 ### Installation
 
