@@ -4,6 +4,8 @@ import SwiftUI
 struct RoutesView: View {
   @ObservedObject var route: RouteViewModel
   
+  let deviceWidth = WKInterfaceDevice.current().screenBounds.width
+  
     var body: some View {
       ScrollViewReader { proxy in
         VStack {
@@ -27,17 +29,20 @@ struct RoutesView: View {
               
               NavigationLink(destination: trainDetailsView) {
                 ZStack {
-                  Image(systemName: "arrow.forward")
+                  if trainDetails.delay > 0 {
+                    Text("+\(String(trainDetails.delay)) min")
+                      .font(Font.custom("Heebo", size: deviceWidth * 0.07))
+                      .fontWeight(.bold)
+                      .padding(.horizontal, 6)
+                      .background(.red)
+                      .cornerRadius(16)
+                  } else {
+                    Image(systemName: "arrow.forward")
+                  }
+                  
                   HStack {
                     HStack(spacing: trainDetails.delay > 0 ? 2 : nil) {
                       Text(formatRouteHour(trainDetails.departureTime))
-                      
-                      if trainDetails.delay > 0 {
-                        Text("+\(trainDetails.delay)")
-                          .bold()
-                          .font(.system(size: 12))
-                          .foregroundColor(.red)
-                      }
                     }
                     
                     Spacer()
