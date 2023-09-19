@@ -150,6 +150,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
         <Animated.View
           entering={shouldFadeRideButton && FadeInDown}
           exiting={FadeOutDown}
+          // zIndex is needed for Android in order to make the button pressable
           style={{ flex: 1, zIndex: Platform.select({ ios: 0, android: 1 }) }}
         >
           <LiveRideSheet progress={progress} screenName={route.name} />
