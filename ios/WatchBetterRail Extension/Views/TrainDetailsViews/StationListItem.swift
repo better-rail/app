@@ -44,7 +44,8 @@ struct StationListItem: View {
           
           if trainNumber != nil {
             Text("+\(String(delay)) min")
-              .font(Font.custom("Heebo", size: 14)).fontWeight(.bold)
+              .font(Font.custom("Heebo", size: 14))
+              .fontWeight(.bold)
               .padding(.horizontal, 6)
               .background(.red)
               .cornerRadius(16)

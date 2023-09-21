@@ -28,6 +28,7 @@ class RouteViewModel: ObservableObject {
           self.trains = result.routes ?? []
           self.trains = result.status == .success ? result.routes!.filter { self.filterRoute(route: $0) } : []
           self.loading = false
+          self.error = result.error
           self.lastRequest = Date()
           self.closestIndexToDate = self.getClosestIndexToDate()
         }

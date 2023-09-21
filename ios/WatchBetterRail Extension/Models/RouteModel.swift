@@ -85,6 +85,7 @@ enum FetchRouteResultStatus {
 struct FetchRouteResult {
   let status: FetchRouteResultStatus
   let routes: [Route]?
+  let error: Error?
 }
 
 struct RouteModel {
@@ -98,21 +99,18 @@ struct RouteModel {
       
       DispatchQueue.global(qos: .userInitiated).async {
           URLSession.shared.dataTask(with: request) { data, _, _ in
-              guard let data else {
-                completion(FetchRouteResult(status: .failed, routes: nil))
-                  return
-              }
-              
-              let decoder = JSONDecoder()
+            let decoder = JSONDecoder()
+            
             do {
-              let route = try decoder.decode(RouteResult.self, from: data)
-              completion(FetchRouteResult(status: .success, routes: route.result.travels))
+              let route = try decoder.decode(RouteResult.self, from: data ?? Data())
+              completion(FetchRouteResult(status: .success, routes: route.result.travels, error: nil))
             } catch {
                 print("Error decoding JSON: \(String(describing: error))")
-                completion(FetchRouteResult(status: .failed, routes: nil))
+                completion(FetchRouteResult(status: .failed, routes: nil, error: error))
                 return
-            }            
-          }.resume()
+            }
+          }
+          .resume()
       }
   }
 

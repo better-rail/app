@@ -7,10 +7,13 @@ struct TrainStopListItem: View {
   var body: some View {
     HStack(alignment: .center) {
       HStack {
-        VStack(spacing: -2) {
-          Text(formatRouteHour(stopStation.departureTime))
-            .strikethrough()
-            .font(Font.custom("Heebo", size: 10).bold())
+        VStack(spacing: delay > 0 ? -2 : nil) {
+          if delay > 0 {
+            Text(formatRouteHour(stopStation.departureTime))
+              .strikethrough()
+              .font(Font.custom("Heebo", size: 10).bold())
+          }
+          
           Text(formatRouteHour(stopStation.departureTime, delay: delay))
         }
         Text("・")
