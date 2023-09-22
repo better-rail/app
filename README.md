@@ -10,8 +10,7 @@ Better Rail is an open source mobile client for Israel Railways, with an emphasi
 
 ## Overview
 
-Better Rail is written with React Native and uses the [Ignite boilerplate](https://github.com/infinitered/ignite/).  
-If you haven't used Ignite before, it's recommended to take a look over their README and see their approach for writing React Native apps.
+Better Rail is written primarily with React Native. We also use Swift & SwiftUI to leverage native iOS functionalities.
 
 ### Installation
 
