@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Button, Image, ImageStyle, Platform, TouchableOpacity, View, ViewStyle } from "react-native"
+import { Image, ImageStyle, Platform, TouchableOpacity, View, ViewStyle } from "react-native"
 import { useNavigation } from "@react-navigation/core"
 import { observer } from "mobx-react-lite"
 import * as storage from "../../utils/storage"
@@ -8,9 +8,7 @@ import { color, fontScale, spacing } from "../../theme"
 import { Chip, Text } from "../../components"
 import { useStores } from "../../models"
 import { isRTL, translate, userLocale } from "../../i18n"
-import { canRunLiveActivities } from "../../utils/ios-helpers"
-import Animated from "react-native-reanimated"
-import { ImoprtantAnnouncementBar } from "./ImportantAnnouncementBar"
+import { ImportantAnnouncementBar } from "./ImportantAnnouncementBar"
 import { PopUpMessage, railApi } from "../../services/api"
 import { useQuery } from "react-query"
 
@@ -49,15 +47,16 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
   const navigation = useNavigation()
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
 
-  const [showUrgentBar, setUrgentBar] = useState(true)
+  const [showUrgentBar, setUrgentBar] = useState(false)
 
   const { data: popupMessages } = useQuery<PopUpMessage[]>(["announcements", "urgent"], () => {
     return railApi.getPopupMessages(userLocale)
   })
 
   useEffect(() => {
-    // display the "new" badge if the user has stations selected (not the initial launch)
-    // and they haven't seen the live announcement screen yet
+    // display the "new" badge if the user has stations selected (not the initial launch),
+    // and they haven't seen the live announcement screen yet,
+    // and the user can run live activities (iOS only)
     if (routePlan.origin && routePlan.destination) {
       storage.load("seenLiveAnnouncement").then((hasSeenLiveAnnouncementScreen) => {
         if (!hasSeenLiveAnnouncementScreen) setDisplayNewBadge(true)
@@ -66,8 +65,7 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
   }, [])
 
   useEffect(() => {
-    // TODO: Only show if the ID hasn't been seen already
-    if (popupMessages.length > 0) {
+    if (popupMessages?.length > 0) {
       setUrgentBar(true)
     }
   }, [popupMessages])
@@ -112,12 +110,12 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
           <Image source={SETTINGS_ICON} style={SETTINGS_ICON_IMAGE} />
         </TouchableOpacity>
       </View>
+
       {showUrgentBar && (
         <View style={{ position: "absolute", top: 0, left: 16 }}>
-          <ImoprtantAnnouncementBar />
+          <ImportantAnnouncementBar title={`${popupMessages[0].messageBody.slice(0, 41)}...`} />
         </View>
       )}
-      <Button title="hide" onPress={() => setUrgentBar(!showUrgentBar)} />
     </>
   )
 })

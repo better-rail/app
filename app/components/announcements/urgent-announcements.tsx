@@ -38,6 +38,8 @@ const MessageBox = ({ message }: { message: PopUpMessage }) => {
     </View>
   )
 }
+
+// for mocking the UI
 // const MessageBox = ({ message }: { message: PopUpMessage }) => {
 //   return (
 //     <View style={{ marginHorizontal: spacing[3] }}>

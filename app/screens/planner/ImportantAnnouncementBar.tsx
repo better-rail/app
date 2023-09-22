@@ -4,9 +4,6 @@ import Animated, { useSharedValue, withDelay, withSpring, withTiming } from "rea
 import { color, fontScale } from "../../theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { useNavigation } from "@react-navigation/native"
-import { RootParamList } from "../../navigators"
-
-const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity)
 
 const TEXT_STYLE: TextStyle = {
   color: color.whiteText,
@@ -17,7 +14,7 @@ const TEXT_STYLE: TextStyle = {
 const { width: deviceWidth } = Dimensions.get("screen")
 const barWidth = deviceWidth - 32 // 32 is the padding of the screen
 
-export function ImoprtantAnnouncementBar() {
+export function ImportantAnnouncementBar({ title }: { title: string }) {
   const navigation = useNavigation()
   const width = useSharedValue(0)
   const opacity = useSharedValue(0)
@@ -55,7 +52,7 @@ export function ImoprtantAnnouncementBar() {
     >
       <TouchableOpacity onPress={() => navigation.navigate("announcementsStack", { screen: "urgent" })}>
         <Animated.Text style={[TEXT_STYLE, { opacity }]} maxFontSizeMultiplier={1.1}>
-          Important message from Israel Railways
+          {title}
         </Animated.Text>
       </TouchableOpacity>
     </Animated.View>
