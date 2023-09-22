@@ -11,6 +11,7 @@ import { isRTL, translate, userLocale } from "../../i18n"
 import { ImportantAnnouncementBar } from "./ImportantAnnouncementBar"
 import { PopUpMessage, railApi } from "../../services/api"
 import { useQuery } from "react-query"
+import { isEmpty } from "lodash"
 
 const HEADER_WRAPPER: ViewStyle = {
   flexDirection: "row",
@@ -47,11 +48,11 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
   const navigation = useNavigation()
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
 
-  const [showUrgentBar, setUrgentBar] = useState(false)
-
   const { data: popupMessages } = useQuery<PopUpMessage[]>(["announcements", "urgent"], () => {
     return railApi.getPopupMessages(userLocale)
   })
+
+  const showUrgentBar = !isEmpty(popupMessages)
 
   useEffect(() => {
     // display the "new" badge if the user has stations selected (not the initial launch),
@@ -63,12 +64,6 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
       })
     }
   }, [])
-
-  useEffect(() => {
-    if (popupMessages?.length > 0) {
-      setUrgentBar(true)
-    }
-  }, [popupMessages])
 
   return (
     <>
