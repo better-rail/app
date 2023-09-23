@@ -3,31 +3,75 @@ import SwiftUI
 struct MainView: View {
   @ObservedObject var favorites: FavoritesViewModel
   
+  @State var selected: FavoriteRoute?
+  
   var body: some View {
-    NavigationView {
-      VStack {
-        List {
-          FavoritesView(favorites: favorites)
-          
-          NavigationLink(destination: SearchView()) {
-            HStack(alignment: .center) {
-              VStack {
-                Text("search route")
-                  .frame(maxWidth: .infinity)
-                  .multilineTextAlignment(.center)
+    if #available(watchOSApplicationExtension 10.0, *) {
+      NavigationSplitView {
+        List(selection: $selected) {
+          ForEach(favorites.routes) { route in
+            FavoriteListItemView(origin: route.origin, destination: route.destination)
+              .tag(route)
+          }
+        }
+        .navigationTitle("Better Rail")
+      } detail: {
+        TabView(selection: $selected) {
+          ForEach(favorites.routes) { route in
+            NavigationStack {
+              NavigationLink(destination: {
+                RoutesView(route: RouteViewModel(origin: route.origin, destination: route.destination))
+              }, label: {
+                FavoriteRouteView(route: route)
+              })
+              .buttonStyle(PlainButtonStyle())
+              .edgesIgnoringSafeArea(.bottom)
+              .background(
+                LinearGradient(colors: [.blue, .clear], startPoint: .bottom, endPoint: .top)
+                  .opacity(0.25)
+              )
+              .containerBackground(for: .tabView) {
+                StationImageBackground(route.origin.image, isFullScreen: true)
               }
             }
-          }.frame(idealHeight: 75)
-            .listRowBackground(
-              Color("midnightBlue")
-                .clipped()
-                .cornerRadius(10)
-            )
-          
+            .tag(Optional(route))
+          }
         }
-        .listStyle(CarouselListStyle())
+        .tabViewStyle(.verticalPage)
+        .toolbar {
+          ToolbarItem(placement: .topBarTrailing) {
+            NavigationLink(destination: SearchView(), label: {
+              Image(systemName: "magnifyingglass")
+            })
+          }
+        }
       }
-      .navigationTitle("Better Rail")
+    } else {
+      NavigationView {
+        VStack {
+          List {
+            FavoritesView(favorites: favorites)
+            
+            NavigationLink(destination: SearchView()) {
+              HStack(alignment: .center) {
+                VStack {
+                  Text("search route")
+                    .frame(maxWidth: .infinity)
+                    .multilineTextAlignment(.center)
+                }
+              }
+            }.frame(idealHeight: 75)
+              .listRowBackground(
+                Color("midnightBlue")
+                  .clipped()
+                  .cornerRadius(10)
+              )
+            
+          }
+          .listStyle(CarouselListStyle())
+        }
+        .navigationTitle("Better Rail")
+      }
     }
   }
 }

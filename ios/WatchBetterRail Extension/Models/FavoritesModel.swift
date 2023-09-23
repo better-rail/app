@@ -1,7 +1,7 @@
 
 import Foundation
 
-struct FavoriteRoute: Identifiable {
+struct FavoriteRoute: Identifiable, Hashable {
   let id: Int
   let origin: Station
   let destination: Station

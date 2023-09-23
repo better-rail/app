@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct FavoriteItemView: View {
+struct FavoriteListItemView: View {
   var origin: Station
   var destination: Station
   
@@ -18,9 +18,8 @@ struct FavoriteItemView: View {
             }
             .padding(.bottom, 6)
             .shadow(radius: 10)
-          }
-        .frame(idealHeight: 130)
-      
-      
+        }
+        .frame(idealHeight: 90)
+        .listRowBackground(StationImageBackground(origin.image))
       }
 }
