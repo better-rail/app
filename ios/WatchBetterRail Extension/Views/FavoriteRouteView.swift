@@ -15,6 +15,10 @@ struct FavoriteRouteView: View {
     route.nextTrain?.trains.first?.platform ?? 0
   }
   
+  var delay: Int {
+    route.nextTrain?.trains.first?.delay ?? 0
+  }
+  
   var departureDate: Date {
     guard let train = route.nextTrain?.trains.first else {
       return Date.now
@@ -113,6 +117,7 @@ struct FavoriteRouteView: View {
             .bold()
         }
       }
+      .foregroundStyle(delay > 2 ? .red : .white)
       .skeletonable()
       .skeletonFrame(width: 100, height: 45)
       .padding(.top, -2)
