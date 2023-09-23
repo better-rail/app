@@ -22,7 +22,7 @@ struct MainView: View {
               NavigationLink(destination: {
                 RoutesView(route: RouteViewModel(origin: route.origin, destination: route.destination))
               }, label: {
-                FavoriteRouteView(route: route)
+                FavoriteRouteView(route: RouteViewModel(origin: route.origin, destination: route.destination))
               })
               .buttonStyle(PlainButtonStyle())
               .edgesIgnoringSafeArea(.bottom)

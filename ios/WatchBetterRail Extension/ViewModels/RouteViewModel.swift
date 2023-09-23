@@ -18,6 +18,12 @@ class RouteViewModel: ObservableObject {
     fetchRoute()
   }
   
+  var nextTrain: Route? {
+    self.trains.first {
+      isoDateStringToDate($0.arrivalTime).addMinutes($0.delay) >= Date.now
+    }
+  }
+  
   private func fetchRoute() {
     self.loading = true
     self.error = nil
