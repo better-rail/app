@@ -45,7 +45,7 @@ class RouteViewModel: ObservableObject {
   /// Check how if enough time has passed since the last API call, and issue a new request if it did.
   ///
   /// Since the app can stay in memory for long periods, we need check if it's needed to update the schedaule data from time to time.
-  func shouldRefetchRoutes(timeSinceLastRequest: Double = 5400) {
+  func shouldRefetchRoutes(timeSinceLastRequest: Double = 30) {
     if let lastRequestDate = lastRequest {
       let now = Date()
       if now.timeIntervalSince(lastRequestDate) > timeSinceLastRequest {
@@ -54,6 +54,15 @@ class RouteViewModel: ObservableObject {
     } else {
       fetchRoute()
     }
+  }
+  
+  func refreshNextTrainState() {
+    if self.loading {
+      return
+    }
+    
+    self.trains = self.trains
+    self.shouldRefetchRoutes()
   }
   
   private func getClosestIndexToDate() -> Int {

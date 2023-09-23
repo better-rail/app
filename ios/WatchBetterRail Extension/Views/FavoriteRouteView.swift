@@ -1,7 +1,9 @@
 import SwiftUI
+import EasySkeleton
 
 struct FavoriteRouteView: View {
-  @ObservedObject var route: RouteViewModel
+  @StateObject var route: RouteViewModel
+  @StateObject var minuteTimer = MinuteTimer()
   
   let deviceWidth = WKInterfaceDevice.current().screenBounds.width
   
@@ -56,10 +58,12 @@ struct FavoriteRouteView: View {
         }
       } else {
         nextTrain
+          .skeletonable()
         HStack {
           Spacer()
           Text(String(localized: "platform \(String(platform)) train no. \(String(trainNumber))"))
             .bold()
+            .skeletonable()
           Spacer()
         }
         .font(Font.custom("Heebo", size: deviceWidth < 170 ? 9 : 10))
@@ -68,6 +72,14 @@ struct FavoriteRouteView: View {
     }
     .padding(8)
     .contentShape(Rectangle())
+    .setSkeleton(.constant(route.trains.isEmpty), animationType: .gradient(Color.gray.makeGradient().map { $0.opacity(0.2) }))
+    .skeletonCornerRadius(6)
+    .onAppear {
+      route.refreshNextTrainState()
+    }
+    .onReceive(minuteTimer.$currentTime, perform: { _ in
+      route.refreshNextTrainState()
+    })
   }
   
   var routeName: some View {
@@ -91,7 +103,7 @@ struct FavoriteRouteView: View {
       Text("NEXT TRAIN")
         .font(Font.custom("Heebo", size: 11))
         .foregroundStyle(Color("pinky"))
-        .padding(.bottom, -8)
+        .padding(.bottom, -6)
       HStack(alignment: .firstTextBaseline) {
         Text(fallbackText ?? String(minutesLeft))
           .font(Font.custom("Heebo", size: 48))

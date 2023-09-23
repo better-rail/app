@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "easyskeleton?ref=iosexample.com",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SpectralDragon/EasySkeleton?ref=iosexample.com",
+      "state" : {
+        "branch" : "main",
+        "revision" : "1cfdd165da0619053a931df3b03d22b6f42a7924"
+      }
+    }
+  ],
+  "version" : 2
+}
