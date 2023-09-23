@@ -108,7 +108,7 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
 
       {showUrgentBar && (
         <View style={{ position: "absolute", top: 0, left: 16 }}>
-          <ImportantAnnouncementBar title={`${popupMessages[0].messageBody.slice(0, 41)}...`} />
+          <ImportantAnnouncementBar title={`${popupMessages[0].messageBody.slice(0, 32)}...`} />
         </View>
       )}
     </>
