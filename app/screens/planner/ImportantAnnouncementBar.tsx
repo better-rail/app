@@ -51,7 +51,7 @@ export function ImportantAnnouncementBar({ title }: { title: string }) {
       }}
     >
       <TouchableOpacity onPress={() => navigation.navigate("announcementsStack", { screen: "urgent" })}>
-        <Animated.Text style={[TEXT_STYLE, { opacity }]} maxFontSizeMultiplier={1.1}>
+        <Animated.Text style={[TEXT_STYLE, { opacity }]} maxFontSizeMultiplier={1.15}>
           {title}
         </Animated.Text>
       </TouchableOpacity>
