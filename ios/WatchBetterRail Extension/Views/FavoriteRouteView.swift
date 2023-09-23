@@ -58,7 +58,6 @@ struct FavoriteRouteView: View {
         }
       } else {
         nextTrain
-          .skeletonable()
         HStack {
           Spacer()
           Text(String(localized: "platform \(String(platform)) train no. \(String(trainNumber))"))
@@ -103,18 +102,20 @@ struct FavoriteRouteView: View {
       Text("NEXT TRAIN")
         .font(Font.custom("Heebo", size: 11))
         .foregroundStyle(Color("pinky"))
-        .padding(.bottom, -6)
+        .padding(.bottom, -12)
       HStack(alignment: .firstTextBaseline) {
         Text(fallbackText ?? String(minutesLeft))
-          .font(Font.custom("Heebo", size: 48))
+          .font(.system(size: 48, design: .rounded))
           .bold()
         if fallbackText == nil {
           Text("min")
-            .font(Font.custom("Heebo", size: 24))
+            .font(.system(size: 24, design: .rounded))
             .bold()
         }
       }
-      .padding(.vertical, -10)
+      .skeletonable()
+      .skeletonFrame(width: 100, height: 45)
+      .padding(.top, -2)
     }
   }
 }
