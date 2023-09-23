@@ -42,8 +42,8 @@ export function ImportantAnnouncementBar({ title }: { title: string }) {
     <Animated.View
       style={{
         width,
-        height: fontScale > 1 ? 50 : 41,
-
+        height: fontScale > 1 ? 40 : 32,
+        marginTop: 12,
         justifyContent: "center",
         paddingHorizontal: 10,
         backgroundColor: "#e74c3c",
