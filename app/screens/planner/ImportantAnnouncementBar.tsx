@@ -12,7 +12,7 @@ const TEXT_STYLE: TextStyle = {
 }
 
 const { width: deviceWidth } = Dimensions.get("screen")
-const barWidth = deviceWidth - 32 // 32 is the padding of the screen
+const barWidth = deviceWidth - 106 // 32 is the padding of the screen
 
 export function ImportantAnnouncementBar({ title }: { title: string }) {
   const navigation = useNavigation()
