@@ -14,8 +14,14 @@ struct BetterRailWidgetView: View {
   var body: some View {
     if accessoryWidgetFamilies.contains(widgetFamily) {
       AccessoryEntryView(entry: entry)
+        .widgetURL(URL(string: "widget://route?originId=\(entry.origin.id)&destinationId=\(entry.destination.id)")!)
     } else {
+      #if os(watchOS)
+        EmptyView()
+      #else
       WidgetEntryView(entry: entry)
+        .widgetURL(URL(string: "widget://route?originId=\(entry.origin.id)&destinationId=\(entry.destination.id)")!)
+      #endif
     }
   }
 }

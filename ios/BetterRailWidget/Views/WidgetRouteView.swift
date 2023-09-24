@@ -20,9 +20,3 @@ struct WidgetRouteView: View {
     .shadow(radius: 8)
   }
 }
-
-func formatStationName(_ stationName: String, _ shouldTurnucate: Bool = true) -> String {
-  shouldTurnucate ?
-    stationName.turnucateTextAfterHyphen() :
-    stationName
-}

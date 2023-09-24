@@ -4,6 +4,10 @@ import SwiftUI
 
 struct Provider: IntentTimelineProvider {
   typealias Entry = TrainDetail
+  
+//  #if os(watchOS)
+//  @ObservedObject var favorites = FavoritesViewModel()
+//  #endif
 
   func placeholder(in context: Context) -> Entry { snapshotEntry }
 
@@ -11,6 +15,14 @@ struct Provider: IntentTimelineProvider {
     completion(snapshotEntry)
   }
 
+  #if os(watchOS)
+  func recommendations() -> [IntentRecommendation<RouteIntent>] {
+    return []
+//    return favorites.routes.map { route in
+//      return IntentRecommendation(intent: RouteIntent(origin: ), description: route.origin.name + " → " + route.destination.name)
+//    }
+  }
+  #endif
 
   func getTimeline(for configuration: RouteIntent, in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
     let entriesGenerator = EntriesGenerator()
@@ -63,14 +75,22 @@ struct BetterRailWidget: Widget {
         }
         .configurationDisplayName("Schedule")
         .description("Display the upcoming train times.")
-        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
         .contentMarginsDisabledIfAvailable()
+      #if os(watchOS)
+        .supportedFamilies([.accessoryCircular, .accessoryInline, .accessoryRectangular, .accessoryCorner])
+      #else
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge, .accessoryCircular, .accessoryInline, .accessoryRectangular])
+      #endif
     }
 }
 
 struct BetterRailWidget_Previews: PreviewProvider {
     static var previews: some View {
       BetterRailWidgetView(entry: snapshotEntry)
-            .previewContext(WidgetPreviewContext(family: .systemSmall))
+      #if os(watchOS)
+        .previewContext(WidgetPreviewContext(family: .accessoryRectangular))
+      #else
+        .previewContext(WidgetPreviewContext(family: .systemSmall))
+      #endif
     }
 }
