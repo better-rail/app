@@ -59,17 +59,18 @@ struct BetterRailWidget: Widget {
           intent: RouteIntent.self,
           provider: Provider())
           { entry in
-          WidgetEntryView(entry: entry)
+          BetterRailWidgetView(entry: entry)
         }
         .configurationDisplayName("Schedule")
         .description("Display the upcoming train times.")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
+        .contentMarginsDisabledIfAvailable()
     }
 }
 
 struct BetterRailWidget_Previews: PreviewProvider {
     static var previews: some View {
-      WidgetEntryView(entry: snapshotEntry)
+      BetterRailWidgetView(entry: snapshotEntry)
             .previewContext(WidgetPreviewContext(family: .systemSmall))
     }
 }
