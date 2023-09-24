@@ -18,8 +18,8 @@
 		73244C6A71D14F56B7316FA2 /* Heebo-Black.otf in Resources */ = {isa = PBXBuildFile; fileRef = 62AD955938654791888FAB90 /* Heebo-Black.otf */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		901C358D2A1530CC004CA1F5 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 901C358C2A1530CC004CA1F5 /* SearchView.swift */; };
+		9043D49D2AC044C0008C31FB /* EasySkeleton in Frameworks */ = {isa = PBXBuildFile; productRef = 9043D49C2AC044C0008C31FB /* EasySkeleton */; };
 		9046FDD42ABB70E5009665B1 /* FavoriteRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9046FDD32ABB70E5009665B1 /* FavoriteRouteView.swift */; };
-		9046FDD72ABF4A0F009665B1 /* EasySkeleton in Frameworks */ = {isa = PBXBuildFile; productRef = 9046FDD62ABF4A0F009665B1 /* EasySkeleton */; };
 		9046FDD92ABF5A39009665B1 /* MinuteTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9046FDD82ABF5A39009665B1 /* MinuteTimer.swift */; };
 		90C7F8922A2096880011E3F9 /* Activity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140A929F1416100968904 /* Activity.swift */; };
 		90DDA2C42A16916F003C8FE5 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DDA2C32A16916F003C8FE5 /* MainView.swift */; };
@@ -312,7 +312,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9046FDD72ABF4A0F009665B1 /* EasySkeleton in Frameworks */,
+				9043D49D2AC044C0008C31FB /* EasySkeleton in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -717,7 +717,7 @@
 			);
 			name = "WatchBetterRail Extension";
 			packageProductDependencies = (
-				9046FDD62ABF4A0F009665B1 /* EasySkeleton */,
+				9043D49C2AC044C0008C31FB /* EasySkeleton */,
 			);
 			productName = "WatchBetterRail Extension";
 			productReference = C17FA4C02709EFBB003797D9 /* WatchBetterRail Extension.appex */;
@@ -806,7 +806,7 @@
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			packageReferences = (
-				9046FDD52ABF4A0F009665B1 /* XCRemoteSwiftPackageReference "EasySkeleton" */,
+				9043D49B2AC044C0008C31FB /* XCRemoteSwiftPackageReference "EasySkeleton" */,
 			);
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
@@ -1766,9 +1766,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		9046FDD52ABF4A0F009665B1 /* XCRemoteSwiftPackageReference "EasySkeleton" */ = {
+		9043D49B2AC044C0008C31FB /* XCRemoteSwiftPackageReference "EasySkeleton" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SpectralDragon/EasySkeleton?ref=iosexample.com";
+			repositoryURL = "https://github.com/SpectralDragon/EasySkeleton";
 			requirement = {
 				branch = main;
 				kind = branch;
@@ -1777,9 +1777,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		9046FDD62ABF4A0F009665B1 /* EasySkeleton */ = {
+		9043D49C2AC044C0008C31FB /* EasySkeleton */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 9046FDD52ABF4A0F009665B1 /* XCRemoteSwiftPackageReference "EasySkeleton" */;
+			package = 9043D49B2AC044C0008C31FB /* XCRemoteSwiftPackageReference "EasySkeleton" */;
 			productName = EasySkeleton;
 		};
 /* End XCSwiftPackageProductDependency section */
