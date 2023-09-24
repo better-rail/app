@@ -5,9 +5,9 @@ import SwiftUI
 struct Provider: IntentTimelineProvider {
   typealias Entry = TrainDetail
   
-//  #if os(watchOS)
-//  @ObservedObject var favorites = FavoritesViewModel()
-//  #endif
+  #if os(watchOS)
+  @ObservedObject var favorites = FavoritesViewModel()
+  #endif
 
   func placeholder(in context: Context) -> Entry { snapshotEntry }
 
@@ -17,10 +17,12 @@ struct Provider: IntentTimelineProvider {
 
   #if os(watchOS)
   func recommendations() -> [IntentRecommendation<RouteIntent>] {
-    return []
-//    return favorites.routes.map { route in
-//      return IntentRecommendation(intent: RouteIntent(origin: ), description: route.origin.name + " → " + route.destination.name)
-//    }
+    return favorites.routes.map { route in
+      let intent = RouteIntent()
+      intent.origin = INStation(identifier: route.origin.id, display: route.origin.name)
+      intent.destination = INStation(identifier: route.destination.id, display: route.destination.name)
+      return IntentRecommendation(intent: intent, description: route.origin.name + " → " + route.destination.name)
+    }
   }
   #endif
 
