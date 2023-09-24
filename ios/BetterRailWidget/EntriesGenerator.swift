@@ -3,13 +3,11 @@ import Foundation
 struct EntriesGenerator {
   typealias Entry = TrainDetail
     
-  func getTrains(todayRoutes: [Route], tomorrowRoutes: [Route]) async -> [Entry] {
+  func getTrains(originId: Int, destinationId: Int, todayRoutes: [Route], tomorrowRoutes: [Route]) -> [Entry] {
     var entries: [Entry] = []
     var lastTrainEntryDate = Date()
     
     let todayRoutes = cleanPastTrains(todayRoutes)
-    let originId = todayRoutes[0].trains[0].orignStation
-    let destinationId = todayRoutes[0].trains[todayRoutes[0].trains.count - 1].destinationStation
     
     if todayRoutes.count == 0 && tomorrowRoutes.count == 0 {
       entries.append(getEmptyEntry(originId: originId, destinationId: destinationId))

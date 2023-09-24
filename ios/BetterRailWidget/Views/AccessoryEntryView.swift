@@ -8,11 +8,15 @@ struct AccessoryEntryView: View {
     var body: some View {
       switch widgetFamily {
       case .accessoryInline:
-        Text("\(String(localized: "NEXT TRAIN")) \(entry.departureTime)")
+        Text("\(String(localized: entry.isTomorrow ? "TOMORROW" : "NEXT TRAIN")) \(entry.departureTime)")
       case .accessoryCircular:
         ZStack {
           AccessoryWidgetBackground()
-          Text(entry.departureTime)
+          if entry.isTomorrow {
+            Image(systemName: "tram")
+          } else {
+            Text(entry.departureTime)
+          }
         }
         .widgetBackground(WidgetBackground(image: entry.origin.image).frame(height: 170))
       case .accessoryRectangular:
@@ -34,8 +38,9 @@ struct AccessoryEntryView: View {
             Text(entry.departureTime)
               .bold()
               .font(.system(size: 20, design: .rounded))
-            Text("platform \(String(entry.platform))")
+            Text(entry.isTomorrow ? "TOMORROW" : "platform \(String(entry.platform))")
               .font(.system(size: 11))
+              .foregroundColor(entry.isTomorrow ? Color("purply") : .gray)
           }
         }
         .widgetBackground(WidgetBackground(image: entry.origin.image).frame(height: 170))
