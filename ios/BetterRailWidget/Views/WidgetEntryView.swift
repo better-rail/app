@@ -16,7 +16,10 @@ struct WidgetEntryView: View {
   var isMediumScreen: Bool {
     UIScreen.main.bounds.width > 375
   }
-
+  
+  var errorMessage: String? {
+    getNoTrainsMessage(statusCode: entry.departureTime, date: entry.date)
+  }
   
   var body: some View {
     VStack {
@@ -28,8 +31,8 @@ struct WidgetEntryView: View {
           
           HStack(alignment: .top) {
             VStack(alignment: .leading) {
-              if (entry.departureTime == "300" || entry.departureTime == "404") {
-                Text(getNoTrainsMessage(statusCode: entry.departureTime, date: entry.date))
+              if let errorMessage {
+                Text(errorMessage)
                   .foregroundColor(Color("pinky")).font(.system(size: 11.5)).fontWeight(.medium).padding(.trailing, 8)
 
               } else {
@@ -157,18 +160,6 @@ struct WidgetEntryView: View {
     }
     .if(widgetFamily == .systemLarge) {
       $0.widgetBackground(Color(UIColor.secondarySystemBackground))
-    }
-  }
-  
-  func getNoTrainsMessage(statusCode: String, date: Date) -> String {
-    if statusCode == "300" {
-      if (NSCalendar(identifier: .hebrew)!.isDateInWeekend(date)) {
-        return String(localized: "No trains for today.")
-      }
-      
-      return String(localized: "No more trains for today.")
-    } else {
-      return String(localized: "Something went wrong.")
     }
   }
 }
