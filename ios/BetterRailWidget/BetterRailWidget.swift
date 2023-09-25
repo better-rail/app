@@ -5,10 +5,18 @@ import SwiftUI
 struct Provider: IntentTimelineProvider {
   typealias Entry = TrainDetail
 
-  func placeholder(in context: Context) -> Entry { snapshotEntry }
+  func placeholder(in context: Context) -> Entry { createSnapshotEntry() }
 
   func getSnapshot(for configuration: RouteIntent, in context: Context, completion: @escaping (TrainDetail) -> ()) {
-    completion(snapshotEntry)
+    if let originId = configuration.origin?.identifier,
+       let destinationId = configuration.destination?.identifier {
+      let origin = getStationById(Int(originId)!)!
+      let destination = getStationById(Int(destinationId)!)!
+      
+      completion(createSnapshotEntry(origin: origin, destination: destination))
+    } else {
+      completion(createSnapshotEntry())
+    }
   }
 
   #if os(watchOS)
@@ -92,7 +100,7 @@ struct BetterRailWidget: Widget {
 
 struct BetterRailWidget_Previews: PreviewProvider {
     static var previews: some View {
-      BetterRailWidgetView(entry: snapshotEntry)
+      BetterRailWidgetView(entry: createSnapshotEntry())
       #if os(watchOS)
         .previewContext(WidgetPreviewContext(family: .accessoryRectangular))
       #else
