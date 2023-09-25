@@ -10,8 +10,8 @@ import { RouteListScreenProps } from "../../navigators/main-navigator"
 import { useStores } from "../../models"
 import { color, fontScale, spacing } from "../../theme"
 import { RouteItem } from "../../services/api"
-import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight } from "../../components"
-import { NoTrainsFoundMessage, NoInternetConnection, RouteListWarning, WarningType } from "./components"
+import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight, Text } from "../../components"
+import { NoTrainsFoundMessage, NoInternetConnection, RouteListWarning, WarningType, DateScroll } from "./components"
 import { flatMap, max, round } from "lodash"
 import { translate } from "../../i18n"
 
@@ -164,6 +164,8 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           warningType={trainRoutes.resultType as WarningType}
         />
       )}
+
+      <DateScroll />
     </Screen>
   )
 })
