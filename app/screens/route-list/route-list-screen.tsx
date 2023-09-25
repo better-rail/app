@@ -148,7 +148,9 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           estimatedItemSize={RouteCardHeight + spacing[3]}
           initialScrollIndex={initialScrollIndex}
           // so the list will re-render when the ride route changes, and so the item will be marked
-          extraData={ride.route}
+          extraData={[ride.route, routePlan.date]}
+          ListFooterComponent={<DateScroll direction="Forward" />}
+          ListFooterComponentStyle={{ height: spacing[7] }}
         />
       )}
 
@@ -164,8 +166,6 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           warningType={trainRoutes.resultType as WarningType}
         />
       )}
-
-      <DateScroll />
     </Screen>
   )
 })
