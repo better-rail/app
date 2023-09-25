@@ -22,13 +22,40 @@ struct AccessoryEntryView: View {
         AccessoryWidgetBackground()
         if entry.departureTime == "404" {
           Image(systemName: "wifi.exclamationmark")
+            .resizable()
+            .scaledToFit()
+            .padding(12)
         } else if entry.isTomorrow || entry.departureTime == "300" {
           Image(systemName: "tram")
+            .resizable()
+            .scaledToFit()
+            .padding(12)
         } else {
           Text(entry.departureTime)
         }
       }
       .widgetBackground(WidgetBackground(image: entry.origin.image).frame(height: 170))
+    #if os(watchOS)
+    case .accessoryCorner:
+      if errorMessage != nil {
+        Image(systemName: entry.departureTime == "404" ? "wifi.exclamationmark" : "tram")
+          .resizable()
+          .scaledToFit()
+          .padding(4)
+          .widgetLabel {
+            Text("BETTER RAIL")
+          }
+          .widgetBackground(WidgetBackground(image: entry.origin.image).frame(height: 170))
+      } else {
+        Text(entry.departureTime)
+          .widgetCurvesContent()
+          .widgetLabel {
+            Text(entry.isTomorrow ? "TOMORROW" : "NEXT TRAIN")
+              .foregroundColor(entry.isTomorrow ? Color("purply") : Color("pinky"))
+          }
+          .widgetBackground(WidgetBackground(image: entry.origin.image).frame(height: 170))
+      }
+    #endif
     case .accessoryRectangular:
       HStack {
         VStack(alignment: .leading) {
@@ -76,15 +103,15 @@ struct AccessoryEntryView_Previews: PreviewProvider {
       
       let entry = TrainDetail(date: Date(), departureDate: "09/01/2007 09:43:00", departureTime: "15:56", arrivalTime: "16:06", platform: 3, trainNumber: 131, origin: origin, destination: destination, upcomingTrains: upcomingTrainsSnapshot)
 
-      let emptyEntry = TrainDetail(date: Date(), departureDate: "09/01/2007 09:43:00", departureTime: "404", arrivalTime: "404", platform: 404, trainNumber: 404, origin: origin, destination: destination)
+//      let entry = TrainDetail(date: Date(), departureDate: "09/01/2007 09:43:00", departureTime: "404", arrivalTime: "404", platform: 404, trainNumber: 404, origin: origin, destination: destination)
       
       if #available(iOS 14.0, *) {
-        AccessoryEntryView(entry: emptyEntry)
+        AccessoryEntryView(entry: entry)
           .previewContext(WidgetPreviewContext(family: .accessoryRectangular))
           .environment(\.locale, .init(identifier: "he"))
           .environment(\.layoutDirection, .rightToLeft)
         
-        AccessoryEntryView(entry: emptyEntry)
+        AccessoryEntryView(entry: entry)
           .previewContext(WidgetPreviewContext(family: .accessoryRectangular))
           .environment(\.locale, .init(identifier: "en"))
       }
