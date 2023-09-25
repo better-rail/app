@@ -10,11 +10,11 @@ class FavoritesViewModel: NSObject, ObservableObject, WCSessionDelegate {
   }
   
   init(session: WCSession = .default) {
-      self.session = session
+    self.session = session
     self.model = FavoritesModel(routes: FavoritesModel.getRoutesFromUserDefaults())
-      super.init()
-      session.delegate = self
-      session.activate()
+    super.init()
+    session.delegate = self
+    session.activate()
   }
   
   func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {

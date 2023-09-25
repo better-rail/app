@@ -6,7 +6,7 @@ struct MainView: View {
   @State var selected: FavoriteRoute?
   
   var body: some View {
-    if #available(watchOSApplicationExtension 10.0, *) {
+    if #available(watchOSApplicationExtension 10.0, *), !favorites.routes.isEmpty {
       NavigationSplitView {
         List(selection: $selected) {
           ForEach(favorites.routes) { route in
