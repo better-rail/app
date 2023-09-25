@@ -46,6 +46,15 @@ struct MainView: View {
           }
         }
       }
+      .onOpenURL { url in
+        if url.host == "route",
+           let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+           let originId = components.queryItems?.first(where: { $0.name == "originId" })?.value,
+           let destinationId = components.queryItems?.first(where: { $0.name == "destinationId" })?.value,
+           let selectedRoute = favorites.routes.first(where: { $0.origin.id == originId && $0.destination.id == destinationId }) {
+          self.selected = selectedRoute
+        }
+      }
     } else {
       NavigationView {
         VStack {
