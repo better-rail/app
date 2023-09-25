@@ -4,10 +4,6 @@ import SwiftUI
 
 struct Provider: IntentTimelineProvider {
   typealias Entry = TrainDetail
-  
-//  #if os(watchOS)
-//  @ObservedObject var favorites = FavoritesViewModel()
-//  #endif
 
   func placeholder(in context: Context) -> Entry { snapshotEntry }
 
@@ -17,7 +13,13 @@ struct Provider: IntentTimelineProvider {
 
   #if os(watchOS)
   func recommendations() -> [IntentRecommendation<RouteIntent>] {
-    return [FavoriteRoute(id: 6, origin: stations[0], destination: stations[2])].map { route in
+    guard let encodedRoutes = userDefaults?.object(forKey: "favorites") as? Data,
+          let routes = try? JSONDecoder().decode([FavoriteRoute].self, from: encodedRoutes)
+    else {
+      return []
+    }
+    
+    return routes.map { route in
       let intent = RouteIntent()
       intent.origin = INStation(identifier: route.origin.id, display: route.origin.name)
       intent.destination = INStation(identifier: route.destination.id, display: route.destination.name)

@@ -1,7 +1,9 @@
 
 import Foundation
 
-struct FavoriteRoute: Identifiable, Hashable {
+let userDefaults = UserDefaults(suiteName: "group.il.co.better-rail")
+
+struct FavoriteRoute: Identifiable, Hashable, Codable {
   let id: Int
   let origin: Station
   let destination: Station
@@ -13,7 +15,13 @@ let fav2 = FavoriteRoute(id: 1, origin: stations[65], destination: stations[8])
 #endif
 
 struct FavoritesModel {
-  var routes: [FavoriteRoute] = []
+  var routes: [FavoriteRoute] = [] {
+    didSet {
+      if let encodedRoutes = try? JSONEncoder().encode(routes) {
+        userDefaults?.set(encodedRoutes, forKey: "favorites")
+      }
+    }
+  }
   
   mutating func updateRoutes(_ routes: [String: Any]) {
     
