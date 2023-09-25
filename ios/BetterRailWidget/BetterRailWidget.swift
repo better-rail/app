@@ -13,11 +13,7 @@ struct Provider: IntentTimelineProvider {
 
   #if os(watchOS)
   func recommendations() -> [IntentRecommendation<RouteIntent>] {
-    guard let encodedRoutes = userDefaults?.object(forKey: "favorites") as? Data,
-          let routes = try? JSONDecoder().decode([FavoriteRoute].self, from: encodedRoutes)
-    else {
-      return []
-    }
+    let routes = FavoritesModel.getRoutesFromUserDefaults()
     
     return routes.map { route in
       let intent = RouteIntent()

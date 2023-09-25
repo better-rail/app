@@ -2,7 +2,7 @@ import Foundation
 import WatchConnectivity
 
 class FavoritesViewModel: NSObject, ObservableObject, WCSessionDelegate {
-  @Published private var model = FavoritesModel()
+  @Published private var model: FavoritesModel
   var session: WCSession
   
   var routes: [FavoriteRoute] {
@@ -11,11 +11,12 @@ class FavoritesViewModel: NSObject, ObservableObject, WCSessionDelegate {
   
   init(session: WCSession = .default) {
       self.session = session
+    self.model = FavoritesModel(routes: FavoritesModel.getRoutesFromUserDefaults())
       super.init()
       session.delegate = self
       session.activate()
   }
-    
+  
   func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
     updateFavoriteRoutes(routes: session.receivedApplicationContext)
   }

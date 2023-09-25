@@ -15,12 +15,16 @@ let fav2 = FavoriteRoute(id: 1, origin: stations[65], destination: stations[8])
 #endif
 
 struct FavoritesModel {
-  var routes: [FavoriteRoute] = [] {
+  var routes: [FavoriteRoute] {
     didSet {
       if let encodedRoutes = try? JSONEncoder().encode(routes) {
         userDefaults?.set(encodedRoutes, forKey: "favorites")
       }
     }
+  }
+  
+  init(routes: [FavoriteRoute]) {
+    self.routes = routes
   }
   
   mutating func updateRoutes(_ routes: [String: Any]) {
@@ -51,5 +55,15 @@ struct FavoritesModel {
     #if DEBUG
     self.routes = [fav, fav2]
     #endif
+  }
+  
+  static func getRoutesFromUserDefaults() -> [FavoriteRoute] {
+    guard let encodedRoutes = userDefaults?.object(forKey: "favorites") as? Data,
+          let userDefaultsRoutes = try? JSONDecoder().decode([FavoriteRoute].self, from: encodedRoutes)
+    else {
+      return []
+    }
+    
+    return userDefaultsRoutes
   }
 }
