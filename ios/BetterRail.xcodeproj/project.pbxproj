@@ -1499,11 +1499,13 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = BetterRailWidgetExtensionDebug.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 8;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = UE6BVYPPFX;
+				"DEVELOPMENT_TEAM[sdk=watchos*]" = UE6BVYPPFX;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "BetterRailWidgetExtensionWatch-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
@@ -1520,6 +1522,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development il.co.better-rail.BetterRailWidget";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "match Development il.co.better-rail.watchkitapp.BetterRailWidget";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -1544,12 +1547,14 @@
 				CODE_SIGN_ENTITLEMENTS = BetterRailWidgetExtensionRelease.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 8;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = UE6BVYPPFX;
+				"DEVELOPMENT_TEAM[sdk=watchos*]" = UE6BVYPPFX;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = "BetterRailWidgetExtensionWatch-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
@@ -1564,6 +1569,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "il.co.better-rail.BetterRailWidget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore il.co.better-rail.BetterRailWidget";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "match Development il.co.better-rail.BetterRailWidget";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
