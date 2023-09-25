@@ -1,5 +1,5 @@
-
 import Foundation
+import WidgetKit
 
 let userDefaults = UserDefaults(suiteName: "group.il.co.better-rail")
 
@@ -9,19 +9,13 @@ struct FavoriteRoute: Identifiable, Hashable, Codable {
   let destination: Station
 }
 
-#if DEBUG
-let fav = FavoriteRoute(id: 0, origin: stations[21], destination: stations[65])
-let fav2 = FavoriteRoute(id: 1, origin: stations[65], destination: stations[8])
-#endif
+//#if DEBUG
+//let fav = FavoriteRoute(id: 0, origin: stations[21], destination: stations[65])
+//let fav2 = FavoriteRoute(id: 1, origin: stations[65], destination: stations[8])
+//#endif
 
 struct FavoritesModel {
-  var routes: [FavoriteRoute] {
-    didSet {
-      if let encodedRoutes = try? JSONEncoder().encode(routes) {
-        userDefaults?.set(encodedRoutes, forKey: "favorites")
-      }
-    }
-  }
+  var routes: [FavoriteRoute]
   
   init(routes: [FavoriteRoute]) {
     self.routes = routes
@@ -52,9 +46,18 @@ struct FavoritesModel {
     }
     
     self.routes = favoriteRoutes
-    #if DEBUG
-    self.routes = [fav, fav2]
-    #endif
+//    #if DEBUG
+//    self.routes = [fav, fav2]
+//    #endif
+    
+    if let encodedRoutes = try? JSONEncoder().encode(self.routes) {
+      userDefaults?.set(encodedRoutes, forKey: "favorites")
+      userDefaults?.synchronize()
+      
+      if #available(watchOSApplicationExtension 10.0, *) {
+        WidgetCenter.shared.invalidateConfigurationRecommendations()
+      }
+    }
   }
   
   static func getRoutesFromUserDefaults() -> [FavoriteRoute] {
