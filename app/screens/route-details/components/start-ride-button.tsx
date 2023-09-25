@@ -13,6 +13,7 @@ import { timezoneCorrection } from "../../../utils/helpers/date-helpers"
 import { color, fontScale } from "../../../theme"
 import { useStores } from "../../../models"
 import { canRunLiveActivities } from "../../../utils/ios-helpers"
+import notifee, { AndroidNotificationSetting } from "@notifee/react-native"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -118,6 +119,20 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
     } else if (Number(Platform.Version) >= 33) {
       const result = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS)
       if (result !== "granted") return
+
+      const settings = await notifee.getNotificationSettings()
+      if (settings.android.alarm === AndroidNotificationSetting.DISABLED) {
+        Alert.alert(translate("ride.alarmDisabledTitle"), translate("ride.alarmDisabledMessage"), [
+          {
+            style: "cancel",
+            text: translate("common.cancel"),
+          },
+          {
+            text: translate("settings.title"),
+            onPress: () => notifee.openAlarmPermissionSettings(),
+          },
+        ])
+      }
     }
 
     HapticFeedback.trigger("notificationSuccess")

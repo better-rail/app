@@ -26,7 +26,7 @@
     "switchStations": "Перевернуть станции",
     "switchStationsHint": "Ярлык для перестановки исходной станции со станцией назначения",
     "trainFromToStation": "Поезд № %{trainNumber} из %{origin} в %{destination}",
-    "eventTitle": "Поездка в %{destination}",
+    "rideTo": "Поездка в %{destination}",
     "trainStation": "%{stationName} станция"
   },
   "selectStation": {
@@ -155,6 +155,8 @@
     "liveActivitiesDisabledMessage": "Откройте настройки и включите Live Activities чтобы иметь возможность начать поездку",
     "notificationsDisabledTitle": "Уведомления отключены",
     "notificationsDisabledMessage": "Чтобы начать поездку, откройте настройки своего устройства и включите уведомления.",
+    "alarmDisabledTitle": "Уведомления о тревогах отключены",
+    "alarmDisabledMessage": "Чтобы точнее уведомить вас о том, когда нужно сойти с поезда, откройте настройки устройства и включите тревожные уведомления.",
 
     "error": "Произошла ошибка при запуске поездки. Повторите попытку.",
 
