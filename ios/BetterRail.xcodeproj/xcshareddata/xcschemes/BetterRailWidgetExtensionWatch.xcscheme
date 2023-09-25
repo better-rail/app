@@ -70,8 +70,9 @@
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES"
       launchAutomaticallySubstyle = "2">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <RemoteRunnable
+         runnableDebuggingMode = "2"
+         BundleIdentifier = "com.apple.Carousel">
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "901A3C7A2AC077CE004D68D6"
@@ -79,7 +80,7 @@
             BlueprintName = "BetterRailWidgetExtensionWatch"
             ReferencedContainer = "container:BetterRail.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </RemoteRunnable>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
