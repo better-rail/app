@@ -47,8 +47,11 @@ export const DateScroll = function DateScroll(props: { direction: DateScrollDire
       {props.direction === "Backward" ? (
         <>
           <Pressable style={PRESSABLE_STYLE} onPress={() => setNewDate(-1)}>
+            <Text
+              text={new Date(routePlan.date.setDate(routePlan.date.getDate() - 1)).toDateString()}
+              style={{ width: "40%", textAlign: "center", color: color.primary }}
+            />
             <Image source={require(ARROW_URL)} style={{ ...ARROW_STYLE, transform: [{ rotate: "90deg" }] }} />
-            <Text text={routePlan.date.toDateString()} style={{ width: "40%", textAlign: "center", color: color.primary }} />
           </Pressable>
         </>
       ) : (
