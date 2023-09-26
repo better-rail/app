@@ -52,7 +52,7 @@ struct FavoriteRouteView: View {
       routeName
         .padding(.top, -8)
       Spacer()
-      if !route.loading && route.nextTrain == nil {
+      if !route.loading && (route.trains.isEmpty || route.nextTrain == nil) {
         HStack {
           Spacer()
           if let requestError = route.error {
