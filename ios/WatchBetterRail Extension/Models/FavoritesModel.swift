@@ -16,14 +16,29 @@ struct FavoriteRoute: Identifiable, Hashable, Codable {
 //#endif
 
 struct FavoritesModel {
-  var routes: [FavoriteRoute]
+  private var _routes: [FavoriteRoute]
+  var routes: [FavoriteRoute] {
+    get {
+      return _routes.sorted { $0.id < $1.id }
+    }
+    set {
+      _routes = newValue
+      
+      if let encodedRoutes = try? JSONEncoder().encode(newValue) {
+        userDefaults?.set(encodedRoutes, forKey: "favorites")
+        
+        if #available(watchOSApplicationExtension 10.0, *) {
+          WidgetCenter.shared.invalidateConfigurationRecommendations()
+        }
+      }
+    }
+  }
   
   init(routes: [FavoriteRoute]) {
-    self.routes = routes
+    self._routes = routes
   }
   
   mutating func updateRoutes(_ routes: [String: Any]) {
-    
     var favoriteRoutes: [FavoriteRoute] = []
     
     // Data comes formatted as:
@@ -46,19 +61,10 @@ struct FavoritesModel {
       }
     }
     
-    self.routes = favoriteRoutes.sorted { $0.id < $1.id }
+    self.routes = favoriteRoutes
 //    #if DEBUG
-//    self.routes = [fav, fav2].sorted { $0.id < $1.id }
+//    self.routes = [fav, fav2]
 //    #endif
-    
-    if let encodedRoutes = try? JSONEncoder().encode(self.routes) {
-      userDefaults?.set(encodedRoutes, forKey: "favorites")
-      userDefaults?.synchronize()
-      
-      if #available(watchOSApplicationExtension 10.0, *) {
-        WidgetCenter.shared.invalidateConfigurationRecommendations()
-      }
-    }
   }
   
   static func getRoutesFromUserDefaults() -> [FavoriteRoute] {
