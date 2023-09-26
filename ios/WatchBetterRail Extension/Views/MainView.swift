@@ -57,7 +57,6 @@ struct MainView: View {
         }
 
         WidgetCenter.shared.reloadAllTimelines()
-        WidgetCenter.shared.invalidateConfigurationRecommendations()
       }
     } else {
       NavigationView {
