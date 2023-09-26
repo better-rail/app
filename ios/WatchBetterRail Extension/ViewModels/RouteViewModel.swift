@@ -20,7 +20,7 @@ class RouteViewModel: ObservableObject {
   
   var nextTrain: Route? {
     self.trains.first {
-      isoDateStringToDate($0.arrivalTime).addMinutes($0.delay) >= Date.now
+      isoDateStringToDate($0.departureTime).addMinutes($0.delay + 1) >= Date.now
     }
   }
   
