@@ -24,19 +24,20 @@ class RouteViewModel: ObservableObject {
     }
   }
   
-  private func fetchRoute() {
+  private func fetchRoute(overrideIfError: Bool = true) {
     self.loading = true
     self.error = nil
 
     Task {
       routeModel.fetchRoute(originId: origin.id, destinationId: destination.id, completion: { result in
         DispatchQueue.main.async {
-          self.trains = result.routes ?? []
-          self.trains = result.status == .success ? result.routes!.filter { self.filterRoute(route: $0) } : []
-          self.loading = false
-          self.error = result.error
-          self.lastRequest = Date()
-          self.closestIndexToDate = self.getClosestIndexToDate()
+          if result.status == .success || overrideIfError {
+            self.loading = false
+            self.error = result.error
+            self.lastRequest = Date()
+            self.closestIndexToDate = self.getClosestIndexToDate()
+            self.trains = result.routes?.filter { self.filterRoute(route: $0) } ?? []
+          }
         }
       })
     }
@@ -49,10 +50,10 @@ class RouteViewModel: ObservableObject {
     if let lastRequestDate = lastRequest {
       let now = Date()
       if now.timeIntervalSince(lastRequestDate) > timeSinceLastRequest {
-        fetchRoute()
+        fetchRoute(overrideIfError: false)
       }
     } else {
-      fetchRoute()
+      fetchRoute(overrideIfError: false)
     }
   }
   

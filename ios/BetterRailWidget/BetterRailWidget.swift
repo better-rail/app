@@ -27,7 +27,7 @@ struct Provider: IntentTimelineProvider {
       let intent = RouteIntent()
       intent.origin = INStation(identifier: route.origin.id, display: route.origin.name)
       intent.destination = INStation(identifier: route.destination.id, display: route.destination.name)
-      return IntentRecommendation(intent: intent, description: route.origin.name + " → " + route.destination.name)
+      return IntentRecommendation(intent: intent, description: route.label ?? (route.origin.name + " → " + route.destination.name))
     }
   }
   #endif
