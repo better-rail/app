@@ -9,12 +9,6 @@ struct RoutesView: View {
     var body: some View {
       ScrollViewReader { proxy in
         VStack {
-          HStack {
-            Text("departure").foregroundColor(Color.gray)
-            Spacer()
-            Text("arrival").foregroundColor(Color.gray)
-          }.font(Font.custom("Heebo", size: 16))
-          
           if route.loading {
             ProgressView().progressViewStyle(CircularProgressViewStyle())
           } else if let requestError = route.error {
@@ -54,11 +48,12 @@ struct RoutesView: View {
               .id(index)
             }
             .listStyle(CarouselListStyle()).environment(\.defaultMinListRowHeight, 50)
-            .onReceive(route.$closestIndexToDate, perform: { index in
-              if let index = index {
+            .onAppear {
+              let index = route.closestIndexToDate
+              if index > 0 {
                 proxy.scrollTo(index, anchor: .top)
               }
-            })
+            }
           }
         }
         .onAppear {
