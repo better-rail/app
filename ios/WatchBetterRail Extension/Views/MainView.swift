@@ -1,4 +1,5 @@
 import SwiftUI
+import WidgetKit
 
 struct MainView: View {
   @ObservedObject var favorites: FavoritesViewModel
@@ -54,6 +55,9 @@ struct MainView: View {
            let selectedRoute = favorites.routes.first(where: { $0.origin.id == originId && $0.destination.id == destinationId }) {
           self.selected = selectedRoute
         }
+
+        WidgetCenter.shared.reloadAllTimelines()
+        WidgetCenter.shared.invalidateConfigurationRecommendations()
       }
     } else {
       NavigationView {
