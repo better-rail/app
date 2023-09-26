@@ -5,6 +5,7 @@ let userDefaults = UserDefaults(suiteName: "group.il.co.better-rail")
 
 struct FavoriteRoute: Identifiable, Hashable, Codable {
   let id: Int
+  let label: String?
   let origin: Station
   let destination: Station
 }
@@ -26,19 +27,19 @@ struct FavoritesModel {
     var favoriteRoutes: [FavoriteRoute] = []
     
     // Data comes formatted as:
-    // "1" (index) : "originId:3600,destinationId:3500"
+    // "1" (index) : "originId:3600,destinationId:3500,label:Home"
     
     for (key, value) in routes {
-      
       // TODO: Extract information using Decodable?
       let route = String(describing: value).split(separator: ",")
       let originId = String(route[0].split(separator: ":")[1])
       let destinationId = String(route[1].split(separator: ":")[1])
+      let label = route.count > 2 ? String(route[2].split(separator: ":")[1]) : nil
       
       if let originStation = getStationById(Int(originId)!),
          let destinationStation = getStationById(Int(destinationId)!) {
           favoriteRoutes.append(
-            FavoriteRoute(id: Int(key)!, origin: originStation, destination: destinationStation)
+            FavoriteRoute(id: Int(key)!, label: label, origin: originStation, destination: destinationStation)
           )
       } else {
           print("🚨 Couldn't extract application context")

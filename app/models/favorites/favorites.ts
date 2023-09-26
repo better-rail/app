@@ -4,6 +4,7 @@ import { getIsWatchAppInstalled, updateApplicationContext, WatchPayload } from "
 import Shortcuts from "react-native-quick-actions-shortcuts"
 import { stationLocale, stationsObject } from "../../data/stations"
 import { translate } from "../../i18n"
+import { isEmpty } from "lodash"
 
 export const favoriteRouteSchema = {
   id: types.string,
@@ -38,7 +39,8 @@ export const FavoritesModel = types
     syncFavoritesToAppleWatch() {
       const appContext: WatchPayload = {}
       self.routes.forEach((route, index) => {
-        appContext[index] = `originId:${route.originId},destinationId:${route.destinationId}`
+        const label = isEmpty(route.label) ? "" : `,label:${route.label}`
+        appContext[index] = `originId:${route.originId},destinationId:${route.destinationId}${label}`
       })
       updateApplicationContext(appContext)
     },
