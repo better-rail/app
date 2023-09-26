@@ -22,7 +22,7 @@ const HEADER_WRAPPER: ViewStyle = {
 let headerIconSize = 25
 if (fontScale > 1.15) headerIconSize = 30
 
-const SETTINGS_ICON_IMAGE: ImageStyle = {
+const HEADER_ICON_IMAGE: ImageStyle = {
   width: headerIconSize,
   height: headerIconSize,
   marginStart: spacing[3],
@@ -99,10 +99,10 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
           activeOpacity={0.8}
           accessibilityLabel={translate("routes.updates")}
         >
-          <Image source={UPDATES_ICON} style={SETTINGS_ICON_IMAGE} />
+          <Image source={UPDATES_ICON} style={HEADER_ICON_IMAGE} />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate("settingsStack")} activeOpacity={0.8} accessibilityLabel="הגדרות">
-          <Image source={SETTINGS_ICON} style={SETTINGS_ICON_IMAGE} />
+          <Image source={SETTINGS_ICON} style={HEADER_ICON_IMAGE} />
         </TouchableOpacity>
       </View>
 
