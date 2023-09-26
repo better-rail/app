@@ -9,7 +9,7 @@ struct FavoritesView: View {
   
     var body: some View {
       if (favorites.routes.count > 0) {
-        ForEach (favorites.routes.sorted { $0.id < $1.id }) { route in
+        ForEach(favorites.routes) { route in
           let routesView = RoutesView(route: RouteViewModel(origin: route.origin, destination: route.destination))
           
           NavigationLink(destination: routesView) {

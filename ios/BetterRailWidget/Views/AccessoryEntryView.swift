@@ -59,15 +59,21 @@ struct AccessoryEntryView: View {
     case .accessoryRectangular:
       HStack {
         VStack(alignment: .leading) {
-          Text(formatStationName(entry.origin.name))
-            .font(.system(size: 13))
-            .fontWeight(.medium)
-            .padding(.bottom, -4)
-          HStack(alignment: .center, spacing: 2) {
-            Image(systemName: "arrow.forward.circle.fill")
-              .font(.system(size: 11))
-            Text(formatStationName(entry.destination.name))
-              .font(.system(size: 11))
+          if let label = entry.label {
+            Text(label)
+              .font(.system(size: 18))
+              .fontWeight(.medium)
+          } else {
+            Text(formatStationName(entry.origin.name))
+              .font(.system(size: 13))
+              .fontWeight(.medium)
+              .padding(.bottom, -4)
+            HStack(alignment: .center, spacing: 2) {
+              Image(systemName: "arrow.forward.circle.fill")
+                .font(.system(size: 11))
+              Text(formatStationName(entry.destination.name))
+                .font(.system(size: 11))
+            }
           }
         }
         Spacer()
@@ -101,9 +107,9 @@ struct AccessoryEntryView_Previews: PreviewProvider {
       let origin = getStationById(3400)!
       let destination = getStationById(680)!
       
-      let entry = TrainDetail(date: Date(), departureDate: "09/01/2007 09:43:00", departureTime: "15:56", arrivalTime: "16:06", platform: 3, trainNumber: 131, origin: origin, destination: destination, upcomingTrains: upcomingTrainsSnapshot)
+      let entry = TrainDetail(date: Date(), departureDate: "09/01/2007 09:43:00", departureTime: "15:56", arrivalTime: "16:06", platform: 3, trainNumber: 131, origin: origin, destination: destination, label: "Home", upcomingTrains: upcomingTrainsSnapshot)
 
-//      let entry = TrainDetail(date: Date(), departureDate: "09/01/2007 09:43:00", departureTime: "404", arrivalTime: "404", platform: 404, trainNumber: 404, origin: origin, destination: destination)
+//      let entry = TrainDetail(date: Date(), departureDate: "09/01/2007 09:43:00", departureTime: "404", arrivalTime: "404", platform: 404, trainNumber: 404, origin: origin, destination: destination, label: nil)
       
       if #available(iOS 14.0, *) {
         AccessoryEntryView(entry: entry)

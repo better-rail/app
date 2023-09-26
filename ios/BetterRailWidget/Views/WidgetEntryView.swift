@@ -169,9 +169,9 @@ struct WidgetEntryView_Previews: PreviewProvider {
       let origin = getStationById(3400)!
       let destination = getStationById(680)!
       
-      let entry = TrainDetail(date: Date(), departureDate: "09/01/2007 09:43:00", departureTime: "15:56", arrivalTime: "16:06", platform: 3, trainNumber: 131, origin: origin, destination: destination, upcomingTrains: upcomingTrainsSnapshot)
+      let entry = TrainDetail(date: Date(), departureDate: "09/01/2007 09:43:00", departureTime: "15:56", arrivalTime: "16:06", platform: 3, trainNumber: 131, origin: origin, destination: destination, label: "Home", upcomingTrains: upcomingTrainsSnapshot)
 
-//      let emptyEntry = TrainDetail(date: Date(), departureTime: "404", arrivalTime: "404", platform: "404", trainNumber: "404", origin: origin, destination: destination)
+//      let entry = TrainDetail(date: Date(), departureDate: "09/01/2007 09:43:00", departureTime: "404", arrivalTime: "404", platform: 404, trainNumber: 404, origin: origin, destination: destination, label: nil)
       
       if #available(iOS 14.0, *) {
 
@@ -188,7 +188,7 @@ struct WidgetEntryView_Previews: PreviewProvider {
 //        WidgetEntryView(entry: entry)
 //          .previewContext(WidgetPreviewContext(family: .systemSmall))
 
-//        WidgetEntryView(entry: emptyEntry)
+//        WidgetEntryView(entry: entry)
 //          .previewContext(WidgetPreviewContext(family: .systemSmall))
       
       }

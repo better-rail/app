@@ -13,7 +13,7 @@ struct Provider: IntentTimelineProvider {
       let origin = getStationById(Int(originId)!)!
       let destination = getStationById(Int(destinationId)!)!
       
-      completion(createSnapshotEntry(origin: origin, destination: destination))
+      completion(createSnapshotEntry(origin: origin, destination: destination, label: configuration.label))
     } else {
       completion(createSnapshotEntry())
     }
@@ -25,6 +25,7 @@ struct Provider: IntentTimelineProvider {
     
     return routes.map { route in
       let intent = RouteIntent()
+      intent.label = route.label
       intent.origin = INStation(identifier: route.origin.id, display: route.origin.name)
       intent.destination = INStation(identifier: route.destination.id, display: route.destination.name)
       return IntentRecommendation(intent: intent, description: route.label ?? (route.origin.name + " → " + route.destination.name))
@@ -54,12 +55,12 @@ struct Provider: IntentTimelineProvider {
         
         if routes.today.status == .failed {
           // something went wrong, try to refetch in 30 minutes
-          let emptyEntry = entriesGenerator.getEmptyEntry(originId: Int(originId)!, destinationId: Int(destinationId)!, errorCode: 404)
+          let emptyEntry = entriesGenerator.getEmptyEntry(originId: Int(originId)!, destinationId: Int(destinationId)!, label: configuration.label, errorCode: 404)
           let retryTime = Calendar.current.date(byAdding: .minute, value: 30, to: Date())!
           let timeline = Timeline(entries: [emptyEntry], policy: .after(retryTime))
           completion(timeline)
         } else {
-          let entries = entriesGenerator.getTrains(originId: Int(originId)!, destinationId: Int(destinationId)!, todayRoutes: routes.today.routes!, tomorrowRoutes: routes.tomorrow.routes!)
+          let entries = entriesGenerator.getTrains(originId: Int(originId)!, destinationId: Int(destinationId)!, label: configuration.label, todayRoutes: routes.today.routes!, tomorrowRoutes: routes.tomorrow.routes!)
           
           // Refresh widget after tomorrow at midnight
           let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date())!

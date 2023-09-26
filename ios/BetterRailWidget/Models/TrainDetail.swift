@@ -9,6 +9,7 @@ struct TrainDetail: TimelineEntry {
   let trainNumber: Int
   let origin: Station
   let destination: Station
+  let label: String?
   var upcomingTrains: [UpcomingTrain]?
   var isTomorrow: Bool {
     let convertedDate = isoDateStringToDate(departureDate)

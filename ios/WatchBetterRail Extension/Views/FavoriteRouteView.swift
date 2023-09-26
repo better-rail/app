@@ -93,7 +93,6 @@ struct FavoriteRouteView: View {
         Text(label)
           .font(.system(size: 24))
           .fontWeight(.medium)
-          .padding(.bottom, -4)
       } else {
         Text(route.origin.name)
           .font(.system(size: 16))

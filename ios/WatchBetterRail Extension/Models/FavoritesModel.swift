@@ -46,9 +46,9 @@ struct FavoritesModel {
       }
     }
     
-    self.routes = favoriteRoutes
+    self.routes = favoriteRoutes.sorted { $0.id < $1.id }
 //    #if DEBUG
-//    self.routes = [fav, fav2]
+//    self.routes = [fav, fav2].sorted { $0.id < $1.id }
 //    #endif
     
     if let encodedRoutes = try? JSONEncoder().encode(self.routes) {

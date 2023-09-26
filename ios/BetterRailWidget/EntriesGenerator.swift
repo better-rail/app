@@ -3,17 +3,17 @@ import Foundation
 struct EntriesGenerator {
   typealias Entry = TrainDetail
     
-  func getTrains(originId: Int, destinationId: Int, todayRoutes: [Route], tomorrowRoutes: [Route]) -> [Entry] {
+  func getTrains(originId: Int, destinationId: Int, label: String?, todayRoutes: [Route], tomorrowRoutes: [Route]) -> [Entry] {
     var entries: [Entry] = []
     var lastTrainEntryDate = Date()
     
     let todayRoutes = cleanPastTrains(todayRoutes)
     
     if todayRoutes.count == 0 && tomorrowRoutes.count == 0 {
-      entries.append(getEmptyEntry(originId: originId, destinationId: destinationId))
+      entries.append(getEmptyEntry(originId: originId, destinationId: destinationId, label: label))
     } else {
       if todayRoutes.count > 0 {
-        entries = generateEntriesForRoutes(todayRoutes, originId: originId, destinationId: destinationId)
+        entries = generateEntriesForRoutes(todayRoutes, originId: originId, destinationId: destinationId, label: label)
         lastTrainEntryDate = Calendar.current.date(byAdding: .minute, value: 2, to: entries[entries.count - 1].date)!
       }
       
@@ -23,25 +23,25 @@ struct EntriesGenerator {
         let daysDiff = Calendar.current.dateComponents([.day], from: currentDateAtMidnight, to: firstRouteDate).day ?? 0
         
         if daysDiff < 2 {
-          var tomorrowEntries = generateEntriesForRoutes(tomorrowRoutes, originId: originId, destinationId: destinationId)
+          var tomorrowEntries = generateEntriesForRoutes(tomorrowRoutes, originId: originId, destinationId: destinationId, label: label)
           tomorrowEntries[0].date = lastTrainEntryDate
           
           // Add tomorrow's first entry as the last entry for today
           entries.append(tomorrowEntries[0])
         } else {
           // If the first entry is two days in the future, display no trains are available
-          entries = [getEmptyEntry(originId: originId, destinationId: destinationId, date: lastTrainEntryDate)]
+          entries = [getEmptyEntry(originId: originId, destinationId: destinationId, label: label, date: lastTrainEntryDate)]
         }
       } else {
         // If there are no trains coming up tomorrow, display an empty entry at the end of today's entries
-        entries.append(getEmptyEntry(originId: originId, destinationId: destinationId, date: lastTrainEntryDate))
+        entries.append(getEmptyEntry(originId: originId, destinationId: destinationId, label: label, date: lastTrainEntryDate))
       }
     }
     
     return entries
   }
   
-  func generateEntriesForRoutes(_ routes: [Route], originId: Int, destinationId: Int) -> [Entry] {
+  func generateEntriesForRoutes(_ routes: [Route], originId: Int, destinationId: Int, label: String?) -> [Entry] {
     var entries: [Entry] = []
     
     // Get stations for entries
@@ -77,6 +77,7 @@ struct EntriesGenerator {
           trainNumber: firstRouteTrain.trainNumber,
           origin: originStation,
           destination: destinationStation,
+          label: label,
           upcomingTrains: nil
         )
         
@@ -97,7 +98,7 @@ struct EntriesGenerator {
     return entries
   }
   
-  func getEmptyEntry(originId: Int, destinationId: Int, errorCode: Int = 300, date: Date = Date()) -> TrainDetail {
+  func getEmptyEntry(originId: Int, destinationId: Int, label: String?, errorCode: Int = 300, date: Date = Date()) -> TrainDetail {
     let origin = getStationById(originId)!
     let destination = getStationById(destinationId)!
 
@@ -110,6 +111,7 @@ struct EntriesGenerator {
       trainNumber: errorCode,
       origin: origin,
       destination: destination,
+      label: label,
       upcomingTrains: []
     )
   }
