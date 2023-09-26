@@ -4,6 +4,7 @@ import Animated, { useSharedValue, withDelay, withSpring, withTiming } from "rea
 import { color, fontScale } from "../../theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { useNavigation } from "@react-navigation/native"
+import analytics from "@react-native-firebase/analytics"
 
 const TEXT_STYLE: TextStyle = {
   color: color.whiteText,
@@ -33,6 +34,11 @@ export function ImportantAnnouncementBar({ title }: { title: string }) {
     opacity.value = 0
   }
 
+  const navigateToAnnouncements = () => {
+    analytics().logEvent("urgent_announcement_bar_press")
+    navigation.navigate("announcementsStack", { screen: "urgent" })
+  }
+
   useEffect(() => {
     onStart()
     return onHide
@@ -50,7 +56,7 @@ export function ImportantAnnouncementBar({ title }: { title: string }) {
         borderRadius: 10,
       }}
     >
-      <TouchableOpacity onPress={() => navigation.navigate("announcementsStack", { screen: "urgent" })}>
+      <TouchableOpacity onPress={navigateToAnnouncements}>
         <Animated.Text style={[TEXT_STYLE, { opacity }]} maxFontSizeMultiplier={1.15}>
           {title}
         </Animated.Text>
