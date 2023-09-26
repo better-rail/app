@@ -11,7 +11,7 @@ import { isRTL, translate, userLocale } from "../../i18n"
 import { ImportantAnnouncementBar } from "./ImportantAnnouncementBar"
 import { PopUpMessage, railApi } from "../../services/api"
 import { useQuery } from "react-query"
-import { isEmpty } from "lodash"
+import { head, isEmpty } from "lodash"
 
 const HEADER_WRAPPER: ViewStyle = {
   flexDirection: "row",
@@ -108,7 +108,7 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
 
       {showUrgentBar && (
         <View style={{ position: "absolute", top: 0, left: 16 }}>
-          <ImportantAnnouncementBar title={`${popupMessages[0].messageBody.slice(0, 32)}...`} />
+          <ImportantAnnouncementBar title={head(popupMessages)?.messageBody} />
         </View>
       )}
     </>
