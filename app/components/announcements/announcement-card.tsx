@@ -12,7 +12,7 @@ const ANNOUNCEMENT_CARD: ViewStyle = {
   paddingHorizontal: spacing[3],
 
   borderRadius: Platform.select({ ios: 12, android: 8 }),
-  backgroundColor: color.inputBackground,
+  backgroundColor: Platform.select({ ios: color.tertiaryBackground, android: color.inputBackground }),
   shadowColor: color.palette.black,
   shadowOffset: { height: 0, width: 0 },
   shadowOpacity: 0.05,
@@ -32,7 +32,7 @@ const BODY_STYLE: TextStyle = {
 }
 
 type AnnouncementCardProps = {
-  title: string
+  title?: string
   body: string
   link?: string
 }
@@ -40,7 +40,7 @@ type AnnouncementCardProps = {
 export const AnnouncementCard = ({ title, body, link }: AnnouncementCardProps) => (
   <TouchableScale activeScale={0.98} friction={10} disabled={!link} onPress={() => openLink(link)}>
     <View style={ANNOUNCEMENT_CARD}>
-      <Text style={TITLE_STYLE}>{title}</Text>
+      {title && <Text style={TITLE_STYLE}>{title}</Text>}
       <Text style={BODY_STYLE}>{body}</Text>
     </View>
   </TouchableScale>
