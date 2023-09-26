@@ -10,7 +10,7 @@ struct MainView: View {
       NavigationSplitView {
         List(selection: $selected) {
           ForEach(favorites.routes) { route in
-            FavoriteListItemView(origin: route.origin, destination: route.destination)
+            FavoriteListItemView(route: route)
               .tag(route)
           }
         }
@@ -22,7 +22,7 @@ struct MainView: View {
               NavigationLink(destination: {
                 RoutesView(route: RouteViewModel(origin: route.origin, destination: route.destination))
               }, label: {
-                FavoriteRouteView(route: RouteViewModel(origin: route.origin, destination: route.destination))
+                FavoriteRouteView(route: RouteViewModel(origin: route.origin, destination: route.destination), label: route.label)
               })
               .buttonStyle(PlainButtonStyle())
               .edgesIgnoringSafeArea(.bottom)
@@ -88,7 +88,7 @@ struct MainView: View {
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {
       let favoritesViewModel = FavoritesViewModel()
-      favoritesViewModel.updateFavoriteRoutes(routes: ["0": "originId:680,destinationId:8800", "1": "originId:3600,destinationId:680", "2": "originId:3500,destinationId:3700"])
+      favoritesViewModel.updateFavoriteRoutes(routes: ["0": "originId:680,destinationId:8800,label:Home", "1": "originId:3600,destinationId:680", "2": "originId:3500,destinationId:3700"])
       
       return MainView(favorites: favoritesViewModel)
     }

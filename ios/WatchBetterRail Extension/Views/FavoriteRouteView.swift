@@ -3,6 +3,8 @@ import EasySkeleton
 
 struct FavoriteRouteView: View {
   @StateObject var route: RouteViewModel
+  var label: String?
+  
   @StateObject var minuteTimer = MinuteTimer()
   
   let deviceWidth = WKInterfaceDevice.current().screenBounds.width
@@ -87,15 +89,22 @@ struct FavoriteRouteView: View {
   
   var routeName: some View {
     VStack(alignment: .leading) {
-      Text(route.origin.name)
-        .font(.system(size: 16))
-        .fontWeight(.medium)
-        .padding(.bottom, -4)
-      HStack(alignment: .center) {
-        Image(systemName: "arrow.forward.circle.fill")
-          .font(.system(size: 12))
-        Text(route.destination.name)
-          .font(.system(size: 12))
+      if let label {
+        Text(label)
+          .font(.system(size: 24))
+          .fontWeight(.medium)
+          .padding(.bottom, -4)
+      } else {
+        Text(route.origin.name)
+          .font(.system(size: 16))
+          .fontWeight(.medium)
+          .padding(.bottom, -4)
+        HStack(alignment: .center) {
+          Image(systemName: "arrow.forward.circle.fill")
+            .font(.system(size: 12))
+          Text(route.destination.name)
+            .font(.system(size: 12))
+        }
       }
     }
     .font(Font.custom("Heebo", size: 14))

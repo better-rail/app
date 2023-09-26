@@ -13,7 +13,7 @@ struct FavoritesView: View {
           let routesView = RoutesView(route: RouteViewModel(origin: route.origin, destination: route.destination))
           
           NavigationLink(destination: routesView) {
-            FavoriteListItemView(origin: route.origin, destination: route.destination)
+            FavoriteListItemView(route: route)
           }
           .listRowBackground(StationImageBackground(route.origin.image))
           .tag(route)
