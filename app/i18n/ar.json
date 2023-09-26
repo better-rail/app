@@ -7,7 +7,9 @@
     "relax": "الرجاء, لا تنسى ان تتنفس",
     "save": "حفظ",
     "dismiss": "إلغاء",
-    "areYouSure": "هل أنت متأكد؟"
+    "areYouSure": "هل أنت متأكد؟",
+    "tryAgain": "حاول ثانية",
+    "error": "خطأ"
   },
   "plan": {
     "title": "تخطيط المسار",
@@ -94,6 +96,7 @@
     "renamePromptPlaceholder": "أدخل اسمًا للطريق ...",
     "delete": "إزالة من المفضلة",
     "updates": "تحديثات من قطار اسرائيل",
+    "updatesError": "حدث خطأ أثناء تحميل التحديثات من قطارات إسرائيل",
     "shortRoute": "طريق قصير",
     "fromStation": "من %{stationName}",
     "toStation": "إلى %{stationName}"

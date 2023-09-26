@@ -11,7 +11,9 @@
     "save": "Save",
     "next": "Next",
     "dismiss": "Dismiss",
-    "areYouSure": "Are you sure?"
+    "areYouSure": "Are you sure?",
+    "tryAgain": "Try Again",
+    "error": "Error"
   },
   "plan": {
     "title": "Trip Plan",
@@ -46,6 +48,7 @@
     "sameStationsMessage": "Choose different origin and destination stations",
     "noInternetConnection": "It looks like your device is not currently connected to the internet.\nPlease check your network connection and try again.",
     "updates": "Updates from Israel Railways",
+    "updatesError": "An error occurred while attempting to load updates from Israel Railways",
     "shortRoute": "Short Route"
   },
   "routeDetails": {

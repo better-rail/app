@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse } from "axios"
-import { LanguageCode } from "../../i18n"
-import { AnnouncementApiResult } from "./rail-api.types"
+import { LanguageCode, railApiLocales } from "../../i18n"
+import { AnnouncementApiResult, PopUpMessagesApiResult } from "./api.types"
+import { isEmpty } from "lodash"
 
 export class RailApi {
   axiosInstance: AxiosInstance
@@ -16,11 +17,8 @@ export class RailApi {
     })
   }
 
-  async getAnnouncements(languageCode: LanguageCode) {
-    let languageId = 1 // hebrew
-    if (languageCode === "en") languageId = 2
-    if (languageCode === "ar") languageId = 3
-    if (languageCode === "ru") languageId = 4
+  async getAnnouncements(languageCode: LanguageCode, relevantStationIds?: string[]) {
+    const languageId = railApiLocales[languageCode]
 
     const response: AxiosResponse<AnnouncementApiResult> = await this.axiosInstance.get(
       `/railupdates/?LanguageId=${languageId}&SystemType=1`,
@@ -29,7 +27,31 @@ export class RailApi {
       },
     )
 
-    return response.data.result
+    const announcements = response.data.result
+
+    if (isEmpty(relevantStationIds)) {
+      return announcements
+    }
+
+    // Filter related updates to the route
+    // if the announcement stations length equals 0, it means that the update is relevant to all stations
+    return announcements.filter(
+      (announcement) =>
+        announcement.stations.length === 0 || relevantStationIds.some((stationId) => announcement.stations.includes(stationId)),
+    )
+  }
+
+  async getPopupMessages(languageCode: LanguageCode) {
+    const languageId = railApiLocales[languageCode]
+
+    const response: AxiosResponse<PopUpMessagesApiResult> = await this.axiosInstance.get(
+      `/PopUpMessages/?LanguageId=${languageId}&PageTypeId=MainPage`,
+      {
+        baseURL: "https://israelrail.azurefd.net/common/api/v1/",
+      },
+    )
+
+    return response.data.result.filter((result) => result.title && result.messageBody)
   }
 }
 
