@@ -19,11 +19,12 @@ interface ChipProps {
   color: keyof typeof COLORS
   onPress: () => void
   icon?: React.ReactNode
+  style?: ViewStyle
 }
 
-export function Chip({ children, color, onPress }: ChipProps) {
+export function Chip({ children, color, onPress, style }: ChipProps) {
   return (
-    <TouchableOpacity style={[CHIP_WRAPPER, { backgroundColor: COLORS[color] }]} onPress={onPress}>
+    <TouchableOpacity style={[CHIP_WRAPPER, { backgroundColor: COLORS[color] }, style]} onPress={onPress}>
       {children}
     </TouchableOpacity>
   )
