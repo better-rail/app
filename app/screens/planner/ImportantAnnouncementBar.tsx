@@ -29,11 +29,6 @@ export function ImportantAnnouncementBar({ title }: { title: string }) {
     opacity.value = withDelay(650, withTiming(1, { duration: 400 }))
   }
 
-  const onHide = () => {
-    width.value = 0
-    opacity.value = 0
-  }
-
   const navigateToAnnouncements = () => {
     analytics().logEvent("urgent_announcement_bar_press")
     navigation.navigate("announcementsStack", { screen: "urgent" })
@@ -41,26 +36,25 @@ export function ImportantAnnouncementBar({ title }: { title: string }) {
 
   useEffect(() => {
     onStart()
-    return onHide
-  })
+  }, [])
 
   return (
-    <Animated.View
-      style={{
-        width,
-        height: fontScale > 1 ? 40 : 32,
-        marginTop: 12,
-        justifyContent: "center",
-        paddingHorizontal: 10,
-        backgroundColor: "#e74c3c",
-        borderRadius: 10,
-      }}
-    >
-      <TouchableOpacity onPress={navigateToAnnouncements}>
+    <TouchableOpacity onPress={navigateToAnnouncements}>
+      <Animated.View
+        style={{
+          width,
+          height: fontScale > 1 ? 40 : 32,
+          marginTop: 12,
+          justifyContent: "center",
+          paddingHorizontal: 10,
+          backgroundColor: "#e74c3c",
+          borderRadius: 10,
+        }}
+      >
         <Animated.Text style={[TEXT_STYLE, { opacity }]} maxFontSizeMultiplier={1.15}>
           {title}
         </Animated.Text>
-      </TouchableOpacity>
-    </Animated.View>
+      </Animated.View>
+    </TouchableOpacity>
   )
 }
