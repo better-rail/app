@@ -141,6 +141,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   const destinationName = stationsObject[destinationId][stationLocale]
 
   const routeId = `${originId}${destinationId}`
+  const isFavorite = favoriteRoutes.routes.some((favorite) => favorite.id === routeId)
 
   const swapDirection = () => {
     scaleStationCards()
@@ -182,11 +183,6 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
     ]).start()
   }
 
-  const isFavorite: boolean = useMemo(
-    () => !!favoriteRoutes.routes.find((favorite) => favorite.id === routeId),
-    [favoriteRoutes.routes, routeId],
-  )
-
   useLayoutEffect(() => {
     screenName !== "activeRide" &&
       navigation.setOptions({
@@ -215,7 +211,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
           </View>
         ),
       })
-  }, [favoriteRoutes.routes, routeId])
+  }, [isFavorite, routeId])
 
   return (
     <View>
@@ -268,7 +264,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 function createEventConfig(routeItem: RouteItem) {
   const { destinationStationName: destination, originStationName: origin, trainNumber } = routeItem.trains[0]
 
-  const title = translate("plan.eventTitle", { destination })
+  const title = translate("plan.rideTo", { destination })
   const notes = translate("plan.trainFromToStation", { trainNumber, origin, destination })
 
   const eventConfig: AddCalendarEvent.CreateOptions = {

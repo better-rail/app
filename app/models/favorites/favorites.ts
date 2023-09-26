@@ -5,8 +5,6 @@ import Shortcuts from "react-native-quick-actions-shortcuts"
 import { stationLocale, stationsObject } from "../../data/stations"
 import { translate } from "../../i18n"
 
-let isWatchAppInstalled = false
-
 export const favoriteRouteSchema = {
   id: types.string,
   originId: types.string,
@@ -24,21 +22,15 @@ export const FavoritesModel = types
   })
   .actions((self) => ({
     afterCreate() {
+      this.syncFavorites()
+    },
+    syncFavorites() {
       if (Platform.OS === "ios") {
         getIsWatchAppInstalled().then((isInstalled) => {
           if (isInstalled) {
-            isWatchAppInstalled = true
+            this.syncFavoritesToAppleWatch()
           }
-
-          this.syncFavorites()
         })
-      } else {
-        this.syncFavorites()
-      }
-    },
-    syncFavorites() {
-      if (isWatchAppInstalled) {
-        this.syncFavoritesToAppleWatch()
       }
 
       this.syncFavoritesToHomeShortcuts()

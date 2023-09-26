@@ -1,16 +1,27 @@
 import SwiftUI
 
 struct TrainStopListItem: View {
-  var time: String
-  var stationName: String
+  var stopStation: StopStation
+  var delay: Int
   
   var body: some View {
     HStack(alignment: .center) {
       HStack {
-        Text(time)
+        VStack(spacing: delay > 0 ? -2 : nil) {
+          if delay > 0 {
+            Text(formatRouteHour(stopStation.departureTime))
+              .strikethrough()
+              .font(Font.custom("Heebo", size: 10).bold())
+          }
+          
+          Text(formatRouteHour(stopStation.departureTime, delay: delay))
+        }
         Text("・")
-        Text(stationName)
-      }.font(Font.custom("Heebo", size: 14).bold()).foregroundColor(.secondary)
-    }.padding(.leading, 4)
+        Text(stopStation.stationName)
+      }
+      .font(Font.custom("Heebo", size: 14).bold())
+      .foregroundColor(.secondary)
+    }
+    .padding(.leading, 4)
   }
 }

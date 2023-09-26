@@ -4,6 +4,8 @@ import SwiftUI
 struct RoutesView: View {
   @ObservedObject var route: RouteViewModel
   
+  let deviceWidth = WKInterfaceDevice.current().screenBounds.width
+  
     var body: some View {
       ScrollViewReader { proxy in
         VStack {
@@ -13,12 +15,11 @@ struct RoutesView: View {
             Text("arrival").foregroundColor(Color.gray)
           }.font(Font.custom("Heebo", size: 16))
           
-          if (route.loading) {
+          if route.loading {
             ProgressView().progressViewStyle(CircularProgressViewStyle())
-          }
-          else if let requestError = route.error {
+          } else if let requestError = route.error {
             InfoMessage(imageName: "wifi.exclamationmark", message: requestError.localizedDescription)
-          } else if (route.trains.count == 0) {
+          } else if route.trains.count == 0 {
             InfoMessage(imageName: "tram", message: String(localized: "no-trains-found"))
           } else {
             List (0 ..< route.trains.count, id: \.self) { index in
@@ -27,12 +28,27 @@ struct RoutesView: View {
               let trainDetailsView = TrainDetailsView(trainRoute: trainDetails)
               
               NavigationLink(destination: trainDetailsView) {
-                HStack {
-                  Text(formatRouteHour(trainDetails.departureTime))
-                  Spacer()
-                  Image(systemName: "arrow.forward")
-                  Spacer()
-                  Text(formatRouteHour(trainDetails.arrivalTime))
+                ZStack {
+                  if trainDetails.delay > 0 {
+                    Text("+\(String(trainDetails.delay)) min")
+                      .font(Font.custom("Heebo", size: deviceWidth * 0.07))
+                      .fontWeight(.bold)
+                      .padding(.horizontal, 6)
+                      .background(.red)
+                      .cornerRadius(16)
+                  } else {
+                    Image(systemName: "arrow.forward")
+                  }
+                  
+                  HStack {
+                    HStack(spacing: trainDetails.delay > 0 ? 2 : nil) {
+                      Text(formatRouteHour(trainDetails.departureTime))
+                    }
+                    
+                    Spacer()
+                    
+                    Text(formatRouteHour(trainDetails.arrivalTime))
+                  }
                 }
               }
               .id(index)
@@ -65,9 +81,9 @@ struct InfoMessage: View {
     }
   }
 }
-//
-//struct RoutesView_Previews: PreviewProvider {
-//    static var previews: some View {
-//      RoutesView(route: RouteViewModel(origin: stations[0], destination: stations[1]))
-//    }
-//}
+
+struct RoutesView_Previews: PreviewProvider {
+    static var previews: some View {
+      RoutesView(route: RouteViewModel(origin: stations[0], destination: stations[1]))
+    }
+}

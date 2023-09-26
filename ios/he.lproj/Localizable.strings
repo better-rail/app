@@ -47,6 +47,7 @@
 "depart from platform %@" = "הרכבת תצא מרציף %@";
 "train %@ to %@" = "רכבת %@ ל%@";
 "%@ min" = "%@ דק'";
+"+%@ min" = "+%@ דק'";
 "get off at the next stop" = "הגעה ליעד בתחנה הבאה";
 "get off in %@ stops" = "הגעה ליעד בעוד %@ תחנות";
 "get off" = "הרכבת מגיעה ליעד";

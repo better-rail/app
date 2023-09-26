@@ -20,8 +20,12 @@ export interface ApiTrain {
   stopStations: StopStation[]
   handicap: number
   crowded: number
-  trainPosition: any
+  trainPosition: TrainPosition
   routeStations: RouteStation[]
+}
+
+export interface TrainPosition {
+  calcDiffMinutes: number
 }
 
 export interface StopStation {
@@ -68,6 +72,7 @@ export type Train = {
   }[]
   lastStop: string
   delay: number
+  trainPosition: TrainPosition
 }
 
 export type RouteItem = {
