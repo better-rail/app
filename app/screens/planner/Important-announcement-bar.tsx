@@ -1,8 +1,7 @@
 import { useEffect } from "react"
-import { Dimensions, TextStyle } from "react-native"
+import { Dimensions, TextStyle, TouchableOpacity } from "react-native"
 import Animated, { useSharedValue, withDelay, withSpring, withTiming } from "react-native-reanimated"
 import { color, fontScale } from "../../theme"
-import { TouchableOpacity } from "react-native-gesture-handler"
 import { useNavigation } from "@react-navigation/native"
 import analytics from "@react-native-firebase/analytics"
 
@@ -13,7 +12,9 @@ const TEXT_STYLE: TextStyle = {
 }
 
 const { width: deviceWidth } = Dimensions.get("screen")
-const barWidth = deviceWidth - 106 // 32 is the padding of the screen
+const barWidth = deviceWidth - 106 // 106 is the padding of the screen + header buttons
+
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity)
 
 export function ImportantAnnouncementBar({ title }: { title: string }) {
   const navigation = useNavigation()
@@ -39,22 +40,22 @@ export function ImportantAnnouncementBar({ title }: { title: string }) {
   }, [])
 
   return (
-    <TouchableOpacity onPress={navigateToAnnouncements}>
-      <Animated.View
-        style={{
-          width,
-          height: fontScale > 1 ? 40 : 32,
-          marginTop: 12,
-          justifyContent: "center",
-          paddingHorizontal: 10,
-          backgroundColor: "#e74c3c",
-          borderRadius: 10,
-        }}
-      >
-        <Animated.Text style={[TEXT_STYLE, { opacity }]} maxFontSizeMultiplier={1.15}>
-          {title}
-        </Animated.Text>
-      </Animated.View>
-    </TouchableOpacity>
+    <AnimatedTouchable
+      activeOpacity={0.75}
+      style={{
+        width,
+        height: fontScale > 1 ? 40 : 32,
+        marginTop: 12,
+        justifyContent: "center",
+        paddingHorizontal: 10,
+        backgroundColor: "#e74c3c",
+        borderRadius: 10,
+      }}
+      onPress={navigateToAnnouncements}
+    >
+      <Animated.Text style={[TEXT_STYLE, { opacity }]} maxFontSizeMultiplier={1.15}>
+        {title}
+      </Animated.Text>
+    </AnimatedTouchable>
   )
 }

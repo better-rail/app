@@ -7,12 +7,11 @@ PODS:
   - BVLinearGradient (2.8.3):
     - React-Core
   - DoubleConversion (1.1.6)
-  - Expo (49.0.10):
+  - Expo (48.0.20):
     - ExpoModulesCore
   - ExpoLocalization (14.1.1):
     - ExpoModulesCore
-  - ExpoModulesCore (1.5.11):
-    - RCT-Folly (= 2021.07.22.00)
+  - ExpoModulesCore (1.2.7):
     - React-Core
     - React-RCTAppDelegate
     - ReactCommon/turbomodule/core
@@ -550,7 +549,7 @@ PODS:
     - React-Core
   - RNGestureHandler (2.9.0):
     - React-Core
-  - RNIap (12.10.7):
+  - RNIap (12.10.8):
     - React-Core
   - RNInAppBrowser (3.7.0):
     - React-Core
@@ -561,11 +560,12 @@ PODS:
     - React-Core
   - RNReactNativeHapticFeedback (2.0.3):
     - React-Core
-  - RNReanimated (2.14.4):
+  - RNReanimated (3.5.4):
     - DoubleConversion
     - FBLazyVector
     - FBReactNativeSpec
     - glog
+    - hermes-engine
     - RCT-Folly
     - RCTRequired
     - RCTTypeSafety
@@ -575,6 +575,7 @@ PODS:
     - React-Core/RCTWebSocket
     - React-CoreModules
     - React-cxxreact
+    - React-hermes
     - React-jsi
     - React-jsiexecutor
     - React-jsinspector
@@ -864,9 +865,9 @@ SPEC CHECKSUMS:
   Burnt: ab447594da52c2485e3520c9e68b70ac30d4eaf0
   BVLinearGradient: 880f91a7854faff2df62518f0281afb1c60d49a3
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
-  Expo: 0ff83f0415a0e7a9368ce38bf25cad539b18a08c
+  Expo: b7d2843b0a0027d0ce76121a63085764355a16ed
   ExpoLocalization: f26cd431ad9ea3533c5b08c4fabd879176a794bb
-  ExpoModulesCore: d9d45dcbb86a5dba2ec62253267720cb58516f75
+  ExpoModulesCore: 653958063a301098b541ae4dfed1ac0b98db607b
   FBLazyVector: 24e08bf294faea0abc0278abb2fcad7f3e446f6f
   FBReactNativeSpec: c949e4b726d8cf9e19b73be60ecfa26355deceb3
   Firebase: 0219acf760880eeec8ce479895bd7767466d9f81
@@ -941,11 +942,11 @@ SPEC CHECKSUMS:
   RNFBMessaging: 216693dd5ba4f18ba65fb39fc73a44a23c26190f
   RNFlashList: 236646d48f224a034f35baa0242e1b77db063b1e
   RNGestureHandler: 071d7a9ad81e8b83fe7663b303d132406a7d8f39
-  RNIap: 1f683cf864a8662851d5d7079beefd441d95f85b
+  RNIap: 99a559a3642155b47aa0622f9693632010a0b4f7
   RNInAppBrowser: e36d6935517101ccba0e875bac8ad7b0cb655364
   RNNotifee: f3c01b391dd8e98e67f539f9a35a9cbcd3bae744
   RNReactNativeHapticFeedback: afa5bf2794aecbb2dba2525329253da0d66656df
-  RNReanimated: cc5e3aa479cb9170bcccf8204291a6950a3be128
+  RNReanimated: be07c7ae209074d0e8a84cf38b7909457ac59a32
   RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
   RNShare: d82e10f6b7677f4b0048c23709bd04098d5aee6c
   RNSharedElement: 504fa28a235b12505b6daedbb452a9ec96809bd0
@@ -957,4 +958,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 7d73650966586cc9c71739f063aa5795c0e18b8c
 
-COCOAPODS: 1.12.0
+COCOAPODS: 1.13.0
