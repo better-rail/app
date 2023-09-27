@@ -9,18 +9,13 @@ class RouteViewModel: ObservableObject {
   @Published var trains: Array<Route> = []
   @Published var loading = false
   @Published var error: Error? = nil
+  @Published var nextTrain: Route? = nil
   
   init(origin: Station, destination: Station) {
     self.origin = origin
     self.destination = destination
     
     fetchRoute()
-  }
-  
-  var nextTrain: Route? {
-    self.trains.first {
-      isoDateStringToDate($0.departureTime).addMinutes($0.delay + 1) >= Date.now
-    }
   }
   
   private func fetchRoute(overrideIfError: Bool = true) {
@@ -35,6 +30,7 @@ class RouteViewModel: ObservableObject {
             self.error = result.error
             self.lastRequest = Date()
             self.trains = result.routes?.filter { self.filterRoute(route: $0) } ?? []
+            self.nextTrain = self.getNextTrain()
           }
         }
       })
@@ -56,6 +52,8 @@ class RouteViewModel: ObservableObject {
   }
   
   func refreshNextTrainState() {
+    self.nextTrain = getNextTrain()
+    
     if self.loading {
       return
     }
@@ -100,6 +98,12 @@ class RouteViewModel: ObservableObject {
     }
     
     return false
+  }
+  
+  private func getNextTrain() -> Route? {
+    return self.trains.first {
+      isoDateStringToDate($0.departureTime).addMinutes($0.delay + 1) >= Date.now
+    }
   }
 }
 
