@@ -62,7 +62,6 @@ struct FavoritesModel {
       }
     }
     
-    self.routes = favoriteRoutes
     #if DEBUG
     self.routes = [fav, fav2, fav3]
     #else
