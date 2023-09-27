@@ -47,6 +47,10 @@ struct FavoriteRouteView: View {
     return nil
   }
   
+  var isTomorrowText: Bool {
+    return minutesLeft > 60 && route.nextTrain?.isTomorrow ?? false
+  }
+  
   var body: some View {
     VStack(alignment: .leading) {
       routeName
@@ -111,9 +115,9 @@ struct FavoriteRouteView: View {
   
   var nextTrain: some View {
     VStack(alignment: .leading) {
-      Text("NEXT TRAIN")
+      Text(isTomorrowText ? "TOMORROW" : "NEXT TRAIN")
         .font(Font.custom("Heebo", size: 11))
-        .foregroundStyle(Color("pinky"))
+        .foregroundStyle(isTomorrowText ? Color("purply") : Color("pinky"))
         .padding(.bottom, -12)
       HStack(alignment: .firstTextBaseline) {
         Text(fallbackText ?? String(minutesLeft))
@@ -135,6 +139,6 @@ struct FavoriteRouteView: View {
 
 struct FavoriteRouteView_Previews: PreviewProvider {
     static var previews: some View {
-      return FavoriteRouteView(route: RouteViewModel(origin: stations[0], destination: stations[2]))
+      return FavoriteRouteView(route: RouteViewModel(origin: stations[0], destination: stations[2], shouldFetchNextDay: true))
     }
 }

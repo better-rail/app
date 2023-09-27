@@ -33,6 +33,10 @@ struct Route: Decodable, Encodable {
     let trains: [Train]
     var isExchange: Bool { trains.count > 1 }
     var delay: Int { trains.first?.delay ?? 0 }
+    var isTomorrow: Bool {
+      let convertedDate = isoDateStringToDate(departureTime)
+      return Calendar(identifier: .hebrew).isDateInTomorrow(convertedDate)
+    }
 }
 
 // MARK: - Train

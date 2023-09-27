@@ -10,10 +10,11 @@ struct FavoriteRoute: Identifiable, Hashable, Codable {
   let destination: Station
 }
 
-//#if DEBUG
-//let fav = FavoriteRoute(id: 0, origin: stations[21], destination: stations[65])
-//let fav2 = FavoriteRoute(id: 1, origin: stations[65], destination: stations[8])
-//#endif
+#if DEBUG
+let fav = FavoriteRoute(id: 0, label: nil, origin: stations[21], destination: stations[65])
+let fav2 = FavoriteRoute(id: 1, label: nil, origin: stations[65], destination: stations[8])
+let fav3 = FavoriteRoute(id: 2, label: nil, origin: stations[33], destination: stations[8])
+#endif
 
 struct FavoritesModel {
   private var _routes: [FavoriteRoute]
@@ -62,9 +63,11 @@ struct FavoritesModel {
     }
     
     self.routes = favoriteRoutes
-//    #if DEBUG
-//    self.routes = [fav, fav2]
-//    #endif
+    #if DEBUG
+    self.routes = [fav, fav2, fav3]
+    #else
+    self.routes = favoriteRoutes
+    #endif
   }
   
   static func getRoutesFromUserDefaults() -> [FavoriteRoute] {

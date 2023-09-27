@@ -5,15 +5,17 @@ class RouteViewModel: ObservableObject {
   let origin: Station
   let destination: Station
   private var lastRequest: Date?
+  private var shouldFetchNextDay: Bool
   
   @Published var trains: Array<Route> = []
   @Published var loading = false
   @Published var error: Error? = nil
   @Published var nextTrain: Route? = nil
   
-  init(origin: Station, destination: Station) {
+  init(origin: Station, destination: Station, shouldFetchNextDay: Bool = false) {
     self.origin = origin
     self.destination = destination
+    self.shouldFetchNextDay = shouldFetchNextDay
     
     fetchRoute()
   }
@@ -23,17 +25,31 @@ class RouteViewModel: ObservableObject {
     self.error = nil
 
     Task {
-      routeModel.fetchRoute(originId: origin.id, destinationId: destination.id, completion: { result in
-        DispatchQueue.main.async {
-          if result.status == .success || overrideIfError {
-            self.loading = false
-            self.error = result.error
-            self.lastRequest = Date()
-            self.trains = result.routes?.filter { self.filterRoute(route: $0) } ?? []
-            self.nextTrain = self.getNextTrain()
-          }
+      async let todayRoutes = routeModel.fetchRoute(originId: origin.id, destinationId: destination.id)
+      
+      let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
+      
+      let results: (today: FetchRouteResult, tomorrow: FetchRouteResult)
+      if shouldFetchNextDay {
+        async let tomorrowRoutes = routeModel.fetchRoute(originId: origin.id, destinationId: destination.id, date: tomorrow)
+        results = (today: await todayRoutes, tomorrow: await tomorrowRoutes)
+      } else {
+        let tomorrowRoutes = FetchRouteResult(status: .success, routes: [], error: nil)
+        results = (today: await todayRoutes, tomorrow: tomorrowRoutes)
+      }
+      
+      DispatchQueue.main.async {
+        if results.today.status == .success || overrideIfError {
+          self.loading = false
+          self.error = results.today.error
+          self.lastRequest = Date()
+          
+          let allTrains = (results.today.routes ?? []) + (results.tomorrow.routes ?? [])
+          self.trains = self.shouldFetchNextDay ? allTrains : allTrains.filter { self.filterRoute(route: $0) }
+          
+          self.nextTrain = self.getNextTrain()
         }
-      })
+      }
     }
   }
   
