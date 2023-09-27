@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Image, ImageStyle, TouchableOpacity, View, ViewStyle } from "react-native"
+import { Image, ImageStyle, Platform, TouchableOpacity, View, ViewStyle } from "react-native"
 import { useNavigation } from "@react-navigation/core"
 import { observer } from "mobx-react-lite"
 import * as storage from "../../utils/storage"
@@ -7,8 +7,11 @@ import analytics from "@react-native-firebase/analytics"
 import { color, fontScale, spacing } from "../../theme"
 import { Chip, Text } from "../../components"
 import { useStores } from "../../models"
-import { isRTL } from "../../i18n"
-import { canRunLiveActivities } from "../../utils/ios-helpers"
+import { isRTL, translate, userLocale } from "../../i18n"
+import { ImportantAnnouncementBar } from "./Important-announcement-bar"
+import { PopUpMessage, railApi } from "../../services/api"
+import { useQuery } from "react-query"
+import { head, isEmpty } from "lodash"
 
 const HEADER_WRAPPER: ViewStyle = {
   flexDirection: "row",
@@ -19,7 +22,7 @@ const HEADER_WRAPPER: ViewStyle = {
 let headerIconSize = 25
 if (fontScale > 1.15) headerIconSize = 30
 
-const SETTINGS_ICON_IMAGE: ImageStyle = {
+const HEADER_ICON_IMAGE: ImageStyle = {
   width: headerIconSize,
   height: headerIconSize,
   marginStart: spacing[3],
@@ -37,6 +40,7 @@ const LIVE_BUTTON_IMAGE: ImageStyle = {
 
 const TRAIN_ICON = require("../../../assets/train.ios.png")
 const SPARKLES_ICON = require("../../../assets/sparkles.png")
+const UPDATES_ICON = require("../../../assets/updates.png")
 const SETTINGS_ICON = require("../../../assets/settings.png")
 
 export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
@@ -44,9 +48,16 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
   const navigation = useNavigation()
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
 
+  const { data: popupMessages } = useQuery<PopUpMessage[]>(["announcements", "urgent"], () => {
+    return railApi.getPopupMessages(userLocale)
+  })
+
+  const showUrgentBar = !isEmpty(popupMessages)
+
   useEffect(() => {
-    // display the "new" badge if the user has stations selected (not the initial launch)
-    // and they haven't seen the live announcement screen yet
+    // display the "new" badge if the user has stations selected (not the initial launch),
+    // and they haven't seen the live announcement screen yet,
+    // and the user can run live activities (iOS only)
     if (routePlan.origin && routePlan.destination) {
       storage.load("seenLiveAnnouncement").then((hasSeenLiveAnnouncementScreen) => {
         if (!hasSeenLiveAnnouncementScreen) setDisplayNewBadge(true)
@@ -55,36 +66,51 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
   }, [])
 
   return (
-    <View style={HEADER_WRAPPER}>
-      <View style={{ flexDirection: "row", gap: spacing[2] }}>
-        {ride.route && (
-          <Chip
-            color="success"
-            onPress={() => {
-              // @ts-expect-error
-              navigation.navigate("activeRideStack", {
-                screen: "activeRide",
-                params: { routeItem: ride.route, originId: ride.originId, destinationId: ride.destinationId },
-              })
+    <>
+      <View style={HEADER_WRAPPER}>
+        <View style={{ flexDirection: "row", gap: spacing[2] }}>
+          {ride.route && (
+            <Chip
+              color="success"
+              onPress={() => {
+                // @ts-expect-error
+                navigation.navigate("activeRideStack", {
+                  screen: "activeRide",
+                  params: { routeItem: ride.route, originId: ride.originId, destinationId: ride.destinationId },
+                })
 
-              analytics().logEvent("open_live_ride_modal_pressed")
-            }}
-          >
-            {Platform.OS === "ios" && <Image source={TRAIN_ICON} style={LIVE_BUTTON_IMAGE} />}
-            <Text style={{ color: "white", fontWeight: "500" }} tx="ride.live" />
-          </Chip>
-        )}
+                analytics().logEvent("open_live_ride_modal_pressed")
+              }}
+            >
+              {Platform.OS === "ios" && <Image source={TRAIN_ICON} style={LIVE_BUTTON_IMAGE} />}
+              <Text style={{ color: "white", fontWeight: "500" }} tx="ride.live" />
+            </Chip>
+          )}
 
-        {displayNewBadge && (
-          <Chip color="primary" onPress={() => navigation.navigate("liveAnnouncementStack")}>
-            <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
-            <Text style={{ color: "white", fontWeight: "500" }} tx="common.new" />
-          </Chip>
-        )}
+          {displayNewBadge && (
+            <Chip color="primary" onPress={() => navigation.navigate("liveAnnouncementStack")}>
+              <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
+              <Text style={{ color: "white", fontWeight: "500" }} tx="common.new" />
+            </Chip>
+          )}
+        </View>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("announcementsStack")}
+          activeOpacity={0.8}
+          accessibilityLabel={translate("routes.updates")}
+        >
+          <Image source={UPDATES_ICON} style={HEADER_ICON_IMAGE} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate("settingsStack")} activeOpacity={0.8} accessibilityLabel="הגדרות">
+          <Image source={SETTINGS_ICON} style={HEADER_ICON_IMAGE} />
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity onPress={() => navigation.navigate("settingsStack")} activeOpacity={0.8} accessibilityLabel="הגדרות">
-        <Image source={SETTINGS_ICON} style={SETTINGS_ICON_IMAGE} />
-      </TouchableOpacity>
-    </View>
+
+      {showUrgentBar && (
+        <View style={{ position: "absolute", top: 0, left: 16 }}>
+          <ImportantAnnouncementBar title={head(popupMessages)?.messageBody} />
+        </View>
+      )}
+    </>
   )
 })

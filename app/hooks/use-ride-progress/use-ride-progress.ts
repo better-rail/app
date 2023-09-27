@@ -4,7 +4,7 @@ import { differenceInMinutes } from "date-fns"
 import { RouteItem } from "../../services/api"
 import { useRideRoute, getStopStationStatus, useRideStatus, getStatusEndDate } from "./"
 
-export type RideStatus = "waitForTrain" | "inTransit" | "inExchange" | "arrived"
+export type RideStatus = "waitForTrain" | "inTransit" | "inExchange" | "arrived" | "stale"
 
 export function useRideProgress({ route, enabled }: { route: RouteItem; enabled: boolean }) {
   const [minutesLeft, setMinutesLeft] = useState<number>(0)

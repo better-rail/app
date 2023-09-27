@@ -7,7 +7,9 @@
     "relax": "الرجاء, لا تنسى ان تتنفس",
     "save": "حفظ",
     "dismiss": "إلغاء",
-    "areYouSure": "هل أنت متأكد؟"
+    "areYouSure": "هل أنت متأكد؟",
+    "tryAgain": "حاول ثانية",
+    "error": "خطأ"
   },
   "plan": {
     "title": "تخطيط المسار",
@@ -22,7 +24,7 @@
     "switchStations": "تبديل المحطات",
     "switchStationsHint": "اختصار لتبديل محطة البداية بمحطة الوصول",
     "trainFromToStation": "القطار رقم %{trainNumber} من %{origin} إلى %{destination}",
-    "eventTitle": "رحلة إلى %{destination}",
+    "rideTo": "رحلة إلى %{destination}",
     "trainStation": "محطة القطار %{stationName}"
   },
   "selectStation": {
@@ -94,6 +96,7 @@
     "renamePromptPlaceholder": "أدخل اسمًا للطريق ...",
     "delete": "إزالة من المفضلة",
     "updates": "تحديثات من قطار اسرائيل",
+    "updatesError": "حدث خطأ أثناء تحميل التحديثات من قطارات إسرائيل",
     "shortRoute": "طريق قصير",
     "fromStation": "من %{stationName}",
     "toStation": "إلى %{stationName}"
@@ -150,6 +153,8 @@
     "liveActivitiesDisabledMessage": "افتح الإعدادات وقم بتمكين Live Activities لتكون قادرًا على بدء مشوار",
     "notificationsDisabledTitle": "الإخطارات تعطيل",
     "notificationsDisabledMessage": "لبدء مشوار ، يرجى فتح إعدادات جهازك وتمكين الإخطارات.",
+    "alarmDisabledTitle": "تم تعطيل إشعارات الإنذار",
+    "alarmDisabledMessage": "لإعلامك بموعد النزول من القطار بشكل أكثر دقة، يرجى فتح إعدادات جهازك وتمكين إشعارات التنبيه.",
 
     "error": "حدث خطأ أثناء بدء الرحلة، يرجى المحاولة مرة أخرى",
 
