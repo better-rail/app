@@ -31,7 +31,7 @@ struct FavoriteRouteView: View {
   
   var minutesLeft: Int {
     let timeInterval = departureDate.timeIntervalSinceNow
-    let minutes = Int(round(timeInterval / 60))
+    let minutes = Int(ceil(timeInterval / 60))
     return minutes < 0 ? 0 : minutes
   }
   
