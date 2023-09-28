@@ -22,7 +22,6 @@ class RouteViewModel: ObservableObject {
   
   private func fetchRoute(overrideIfError: Bool = true) {
     self.loading = true
-    self.error = nil
 
     Task {
       async let todayRoutes = routeModel.fetchRoute(originId: origin.id, destinationId: destination.id)
@@ -39,9 +38,13 @@ class RouteViewModel: ObservableObject {
       }
       
       DispatchQueue.main.async {
-        if results.today.status == .success || overrideIfError {
-          self.loading = false
+        self.loading = false
+        if results.today.status == .failed, overrideIfError {
           self.error = results.today.error
+        }
+        
+        if results.today.status == .success {
+          self.error = nil
           self.lastRequest = Date()
           
           let allTrains = (results.today.routes ?? []) + (results.tomorrow.routes ?? [])
@@ -59,7 +62,7 @@ class RouteViewModel: ObservableObject {
   func shouldRefetchRoutes(timeSinceLastRequest: Double = 30) {
     if let lastRequestDate = lastRequest {
       let now = Date()
-      if now.timeIntervalSince(lastRequestDate) > timeSinceLastRequest {
+      if error != nil || now.timeIntervalSince(lastRequestDate) > timeSinceLastRequest {
         fetchRoute(overrideIfError: false)
       }
     } else {

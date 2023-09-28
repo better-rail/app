@@ -36,6 +36,7 @@
 "No more trains for today." = "אין יותר רכבות להיום.";
 "No trains for today." = "לא נמצאו רכבות להיום.";
 "Something went wrong." = "אופס, משהו השתבש";
+"try again" = "נסה שוב";
 
 // live activity localizations
 "min" = "דק'";

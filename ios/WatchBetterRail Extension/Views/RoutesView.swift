@@ -12,7 +12,9 @@ struct RoutesView: View {
           if route.loading {
             ProgressView().progressViewStyle(CircularProgressViewStyle())
           } else if let requestError = route.error {
-            InfoMessage(imageName: "wifi.exclamationmark", message: requestError.localizedDescription)
+            InfoMessage(imageName: "wifi.exclamationmark", message: requestError.localizedDescription) {
+              route.shouldRefetchRoutes()
+            }
           } else if route.trains.count == 0 {
             InfoMessage(imageName: "tram", message: String(localized: "no-trains-found"))
           } else {
@@ -66,12 +68,18 @@ struct RoutesView: View {
 struct InfoMessage: View {
   var imageName: String
   var message: String
+  var onTryAgain: (() -> Void)?
   
   var body: some View {
     VStack(alignment: .center) {
       Spacer()
       Image(systemName: imageName).padding(.vertical, 2.0).font(.system(size: 24))
       Text(message).font(Font.custom("Heebo", size: 14)).multilineTextAlignment(.center)
+      if let onTryAgain {
+        Button(action: onTryAgain, label: {
+          Text("try again")
+        })
+      }
       Spacer()
     }
   }

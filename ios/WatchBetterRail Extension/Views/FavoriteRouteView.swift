@@ -60,7 +60,9 @@ struct FavoriteRouteView: View {
         HStack {
           Spacer()
           if let requestError = route.error {
-            InfoMessage(imageName: "wifi.exclamationmark", message: requestError.localizedDescription)
+            InfoMessage(imageName: "wifi.exclamationmark", message: requestError.localizedDescription) {
+              route.shouldRefetchRoutes()
+            }
           } else {
             InfoMessage(imageName: "tram", message: String(localized: "no-trains-found"))
           }
