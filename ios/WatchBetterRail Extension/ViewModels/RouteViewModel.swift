@@ -58,7 +58,7 @@ class RouteViewModel: ObservableObject {
   
   /// Check how if enough time has passed since the last API call, and issue a new request if it did.
   ///
-  /// Since the app can stay in memory for long periods, we need check if it's needed to update the schedaule data from time to time.
+  /// Since the app can stay in memory for long periods, we need check if it's needed to update the schedule data from time to time.
   func shouldRefetchRoutes(timeSinceLastRequest: Double = 30) {
     if let lastRequestDate = lastRequest {
       let now = Date()

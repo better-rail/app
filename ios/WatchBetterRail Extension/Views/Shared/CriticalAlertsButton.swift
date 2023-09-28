@@ -27,9 +27,9 @@ struct CriticalAlertsButton: View {
             .fill(.red)
             .cornerRadius(12)
         }
-        .alert(isPresented: $isAlertOpen) {
-          Alert(title: Text(criticalAlertsModel!.title), message: Text(criticalAlertsModel!.body))
-        }
+        .alert(criticalAlertsModel.title, isPresented: $isAlertOpen, actions: {}, message: {
+          Text(criticalAlertsModel.body)
+        })
       }
     }
 }

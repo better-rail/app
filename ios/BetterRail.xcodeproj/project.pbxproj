@@ -44,6 +44,9 @@
 		90466CC62AC5FC8F00F9966E /* CriticalAlertsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90466CC52AC5FC8F00F9966E /* CriticalAlertsViewModel.swift */; };
 		90466CC82AC5FE8600F9966E /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90466CC72AC5FE8600F9966E /* Environment.swift */; };
 		90466CCA2AC6042500F9966E /* CriticalAlertsButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90466CC92AC6042500F9966E /* CriticalAlertsButton.swift */; };
+		90466CCD2AC60A4B00F9966E /* ViewUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90466CCC2AC60A4B00F9966E /* ViewUtils.swift */; };
+		90466CCE2AC60A4B00F9966E /* ViewUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90466CCC2AC60A4B00F9966E /* ViewUtils.swift */; };
+		90466CCF2AC60A4B00F9966E /* ViewUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90466CCC2AC60A4B00F9966E /* ViewUtils.swift */; };
 		9046FDD42ABB70E5009665B1 /* FavoriteRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9046FDD32ABB70E5009665B1 /* FavoriteRouteView.swift */; };
 		9046FDD92ABF5A39009665B1 /* MinuteTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9046FDD82ABF5A39009665B1 /* MinuteTimer.swift */; };
 		9057E3322AC090E000A73486 /* BetterRailWidgetExtensionWatch.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 901A3CA62AC077CE004D68D6 /* BetterRailWidgetExtensionWatch.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -243,6 +246,7 @@
 		90466CC52AC5FC8F00F9966E /* CriticalAlertsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CriticalAlertsViewModel.swift; sourceTree = "<group>"; };
 		90466CC72AC5FE8600F9966E /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
 		90466CC92AC6042500F9966E /* CriticalAlertsButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CriticalAlertsButton.swift; sourceTree = "<group>"; };
+		90466CCC2AC60A4B00F9966E /* ViewUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewUtils.swift; sourceTree = "<group>"; };
 		9046FDD32ABB70E5009665B1 /* FavoriteRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteRouteView.swift; sourceTree = "<group>"; };
 		9046FDD82ABF5A39009665B1 /* MinuteTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinuteTimer.swift; sourceTree = "<group>"; };
 		908634382AC08AF300C44F40 /* WidgetUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetUtils.swift; sourceTree = "<group>"; };
@@ -531,6 +535,7 @@
 				9046FDD82ABF5A39009665B1 /* MinuteTimer.swift */,
 				90466CC72AC5FE8600F9966E /* Environment.swift */,
 				90466CC92AC6042500F9966E /* CriticalAlertsButton.swift */,
+				90466CCC2AC60A4B00F9966E /* ViewUtils.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -1154,6 +1159,7 @@
 				901A3C942AC077CE004D68D6 /* StationModel.swift in Sources */,
 				901A3C952AC077CE004D68D6 /* WidgetBackground.swift in Sources */,
 				901A3C972AC077CE004D68D6 /* BetterRailWidgetView.swift in Sources */,
+				90466CCF2AC60A4B00F9966E /* ViewUtils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1175,6 +1181,7 @@
 				90466CC82AC5FE8600F9966E /* Environment.swift in Sources */,
 				90466CC62AC5FC8F00F9966E /* CriticalAlertsViewModel.swift in Sources */,
 				C1F61C132709F08200CD3D44 /* RouteViewModel.swift in Sources */,
+				90466CCD2AC60A4B00F9966E /* ViewUtils.swift in Sources */,
 				C1E62DDC270EE28B0067F262 /* TrainExchangeListItem.swift in Sources */,
 				C1F61C1A2709F08200CD3D44 /* WatchBetterRail.swift in Sources */,
 				C183229A270DF49100A44771 /* StationImageBackground.swift in Sources */,
@@ -1193,6 +1200,7 @@
 			files = (
 				90C7F8922A2096880011E3F9 /* Activity.swift in Sources */,
 				908634392AC08AF300C44F40 /* WidgetUtils.swift in Sources */,
+				90466CCE2AC60A4B00F9966E /* ViewUtils.swift in Sources */,
 				C1C6DC4E274939D9000E9EED /* WidgetRouteView.swift in Sources */,
 				C1F140BE29F1416100968904 /* CircularProgressView.swift in Sources */,
 				C1F140C029F1416100968904 /* CountdownView.swift in Sources */,
