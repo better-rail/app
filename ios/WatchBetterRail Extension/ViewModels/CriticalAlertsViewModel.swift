@@ -12,7 +12,7 @@ class CriticalAlertsViewModel: ObservableObject {
   }
   
   var title: String {
-    return messages.first?.title ?? "Critical Alerts"
+    return messages.first?.title ?? "critical alert"
   }
   
   var body: String {

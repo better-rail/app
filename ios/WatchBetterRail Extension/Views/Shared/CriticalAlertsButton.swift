@@ -13,7 +13,7 @@ struct CriticalAlertsButton: View {
         } label: {
           HStack {
             Image(systemName: "megaphone")
-            Text("Critical Alert")
+            Text("critical alert")
               .bold()
           }
           .padding(.top, -4)
