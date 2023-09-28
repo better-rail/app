@@ -69,44 +69,48 @@ struct AccessoryEntryView: View {
       }
     #endif
     case .accessoryRectangular:
-      HStack {
-        VStack(alignment: .leading) {
-          if let label = entry.label {
-            Text(label)
-              .font(.system(size: 18))
-              .fontWeight(.medium)
-          } else {
-            Text(formatStationName(entry.origin.name))
-              .font(.system(size: 13))
-              .fontWeight(.medium)
-              .padding(.bottom, -4)
-            HStack(alignment: .center, spacing: 2) {
-              Image(systemName: "arrow.forward.circle.fill")
-                .font(.system(size: 11))
-              Text(formatStationName(entry.destination.name))
-                .font(.system(size: 11))
+        GeometryReader { geometry in
+          VStack {
+            Spacer()
+            HStack {
+              VStack(alignment: .leading) {
+                if let label = entry.label {
+                  Text(label)
+                    .font(.system(size: geometry.size.width * 0.125))
+                    .fontWeight(.medium)
+                } else {
+                  Text(formatStationName(entry.origin.name))
+                    .font(.system(size: geometry.size.width * 0.095))
+                    .fontWeight(.medium)
+                    .padding(.bottom, -4)
+                  HStack(alignment: .center, spacing: 2) {
+                    Image(systemName: "arrow.forward.circle.fill")
+                      .font(.system(size: geometry.size.width * 0.08))
+                    Text(formatStationName(entry.destination.name))
+                      .font(.system(size: geometry.size.width * 0.08))
+                  }
+                }
+              }
+              Spacer()
+              VStack(alignment: .center) {
+                if let errorMessage {
+                  Text(errorMessage)
+                    .multilineTextAlignment(.center)
+                    .font(.system(size: geometry.size.width * 0.08))
+                } else {
+                  Text(entry.departureTime)
+                    .bold()
+                    .font(.system(size: geometry.size.width * 0.15, design: .rounded))
+                  Text(entry.isTomorrow ? "TOMORROW" : "platform \(String(entry.platform))")
+                    .font(.system(size: geometry.size.width * 0.075))
+                    .foregroundColor(entry.isTomorrow ? Color("purply") : .gray)
+                }
+              }
             }
+            Spacer()
           }
         }
-        Spacer()
-        VStack(alignment: .center) {
-          if let errorMessage {
-            Image(systemName: entry.departureTime == "404" ? "wifi.exclamationmark" : "tram")
-              .font(.system(size: 13))
-            Text(errorMessage)
-              .multilineTextAlignment(.center)
-              .font(.system(size: 12))
-          } else {
-            Text(entry.departureTime)
-              .bold()
-              .font(.system(size: 20, design: .rounded))
-            Text(entry.isTomorrow ? "TOMORROW" : "platform \(String(entry.platform))")
-              .font(.system(size: 11))
-              .foregroundColor(entry.isTomorrow ? Color("purply") : .gray)
-          }
-        }
-      }
-      .widgetBackground(WidgetBackground(image: entry.origin.image).frame(height: 170))
+        .widgetBackground(WidgetBackground(image: entry.origin.image).frame(height: 170))
     default:
       Text(entry.departureTime)
         .widgetBackground(WidgetBackground(image: entry.origin.image).frame(height: 170))
