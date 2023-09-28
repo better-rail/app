@@ -55,6 +55,8 @@ struct FavoriteRouteView: View {
     VStack(alignment: .leading) {
       routeName
         .padding(.top, -8)
+      CriticalAlertsButton()
+
       Spacer()
       if !route.loading && route.nextTrain == nil {
         HStack {

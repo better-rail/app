@@ -40,6 +40,10 @@
 		901A3CA22AC077CE004D68D6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1A802682747AB4D00A3073D /* Assets.xcassets */; };
 		901C358D2A1530CC004CA1F5 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 901C358C2A1530CC004CA1F5 /* SearchView.swift */; };
 		9043D49D2AC044C0008C31FB /* EasySkeleton in Frameworks */ = {isa = PBXBuildFile; productRef = 9043D49C2AC044C0008C31FB /* EasySkeleton */; };
+		90466CC42AC5F9F300F9966E /* CriticalAlertsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90466CC32AC5F9F200F9966E /* CriticalAlertsModel.swift */; };
+		90466CC62AC5FC8F00F9966E /* CriticalAlertsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90466CC52AC5FC8F00F9966E /* CriticalAlertsViewModel.swift */; };
+		90466CC82AC5FE8600F9966E /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90466CC72AC5FE8600F9966E /* Environment.swift */; };
+		90466CCA2AC6042500F9966E /* CriticalAlertsButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90466CC92AC6042500F9966E /* CriticalAlertsButton.swift */; };
 		9046FDD42ABB70E5009665B1 /* FavoriteRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9046FDD32ABB70E5009665B1 /* FavoriteRouteView.swift */; };
 		9046FDD92ABF5A39009665B1 /* MinuteTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9046FDD82ABF5A39009665B1 /* MinuteTimer.swift */; };
 		9057E3322AC090E000A73486 /* BetterRailWidgetExtensionWatch.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 901A3CA62AC077CE004D68D6 /* BetterRailWidgetExtensionWatch.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -235,6 +239,10 @@
 		901A3CA62AC077CE004D68D6 /* BetterRailWidgetExtensionWatch.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BetterRailWidgetExtensionWatch.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		901A3CA72AC077CF004D68D6 /* BetterRailWidgetExtensionWatch-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "BetterRailWidgetExtensionWatch-Info.plist"; path = "/Users/matan/Projects/better-rail/app/ios/BetterRailWidgetExtensionWatch-Info.plist"; sourceTree = "<absolute>"; };
 		901C358C2A1530CC004CA1F5 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
+		90466CC32AC5F9F200F9966E /* CriticalAlertsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CriticalAlertsModel.swift; sourceTree = "<group>"; };
+		90466CC52AC5FC8F00F9966E /* CriticalAlertsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CriticalAlertsViewModel.swift; sourceTree = "<group>"; };
+		90466CC72AC5FE8600F9966E /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
+		90466CC92AC6042500F9966E /* CriticalAlertsButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CriticalAlertsButton.swift; sourceTree = "<group>"; };
 		9046FDD32ABB70E5009665B1 /* FavoriteRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteRouteView.swift; sourceTree = "<group>"; };
 		9046FDD82ABF5A39009665B1 /* MinuteTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinuteTimer.swift; sourceTree = "<group>"; };
 		908634382AC08AF300C44F40 /* WidgetUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetUtils.swift; sourceTree = "<group>"; };
@@ -521,6 +529,8 @@
 			children = (
 				C1832299270DF49100A44771 /* StationImageBackground.swift */,
 				9046FDD82ABF5A39009665B1 /* MinuteTimer.swift */,
+				90466CC72AC5FE8600F9966E /* Environment.swift */,
+				90466CC92AC6042500F9966E /* CriticalAlertsButton.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -646,6 +656,7 @@
 			children = (
 				C1F61BFD2709F08200CD3D44 /* FavoritesViewModel.swift */,
 				C1F61BFE2709F08200CD3D44 /* RouteViewModel.swift */,
+				90466CC52AC5FC8F00F9966E /* CriticalAlertsViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -671,6 +682,7 @@
 				C1F61C082709F08200CD3D44 /* StationModel.swift */,
 				C1F61C092709F08200CD3D44 /* RouteModel.swift */,
 				C1ED5217270B248C00EBB0B1 /* FavoritesModel.swift */,
+				90466CC32AC5F9F200F9966E /* CriticalAlertsModel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -1152,12 +1164,16 @@
 				C1F61C152709F08200CD3D44 /* RoutesView.swift in Sources */,
 				C1F61C162709F08200CD3D44 /* FavoriteListItemView.swift in Sources */,
 				C1F61C142709F08200CD3D44 /* FavoritesView.swift in Sources */,
+				90466CC42AC5F9F300F9966E /* CriticalAlertsModel.swift in Sources */,
 				9046FDD92ABF5A39009665B1 /* MinuteTimer.swift in Sources */,
+				90466CCA2AC6042500F9966E /* CriticalAlertsButton.swift in Sources */,
 				C1B121262761FD250085C269 /* Utilities.swift in Sources */,
 				9046FDD42ABB70E5009665B1 /* FavoriteRouteView.swift in Sources */,
 				C1ED5218270B248C00EBB0B1 /* FavoritesModel.swift in Sources */,
 				C1E62DD8270EE24C0067F262 /* StationListItem.swift in Sources */,
 				C1F61C1C2709F08200CD3D44 /* RouteModel.swift in Sources */,
+				90466CC82AC5FE8600F9966E /* Environment.swift in Sources */,
+				90466CC62AC5FC8F00F9966E /* CriticalAlertsViewModel.swift in Sources */,
 				C1F61C132709F08200CD3D44 /* RouteViewModel.swift in Sources */,
 				C1E62DDC270EE28B0067F262 /* TrainExchangeListItem.swift in Sources */,
 				C1F61C1A2709F08200CD3D44 /* WatchBetterRail.swift in Sources */,
