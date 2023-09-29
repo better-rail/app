@@ -77,13 +77,13 @@ struct AccessoryEntryView: View {
                 .lineLimit(1)
                 .fontWeight(.medium)
             } else {
-              Text("ֿ\(formatStationName(entry.origin.name)) \(Image(systemName: "arrow.forward.circle.fill")) \(formatStationName(entry.destination.name))")
+              Text("\(formatStationName(entry.origin.name)) \(Image(systemName: "arrow.forward.circle.fill")) \(formatStationName(entry.destination.name))")
                 .font(.system(size: geometry.size.width * 0.09))
                 .lineLimit(1)
                 .fontWeight(.medium)
             }
             Spacer()
-            HStack(alignment: .lastTextBaseline, spacing: geometry.size.width * 0.015) {
+            HStack(alignment: .lastTextBaseline, spacing: 3.5) {
               if let errorMessage {
                 Spacer()
                 Text(errorMessage)
@@ -92,29 +92,30 @@ struct AccessoryEntryView: View {
                 Spacer()
               } else {
                 VStack(alignment: .leading) {
-                  Spacer()
                   Text(entry.isTomorrow ? "TOMORROW" : "NEXT TRAIN")
-                    .font(.system(size: geometry.size.width * 0.05))
+                    .font(.system(size: geometry.size.width * 0.06))
                     .foregroundColor(entry.isTomorrow ? Color("purply") : Color("pinky"))
-                    .offset(y: 3)
+                    .offset(y: 5)
                   Text(entry.departureTime)
                     .bold()
                     .font(.system(size: geometry.size.width * 0.145, design: .rounded))
+                    .fixedSize()
                 }
                 
                 if let upcomingTrains = entry.upcomingTrains?.prefix(2) {
                   VStack(alignment: .leading) {
                     Text("UPCOMING")
-                      .font(.system(size: geometry.size.width * 0.05))
+                      .font(.system(size: geometry.size.width * 0.055))
                       .foregroundColor(.gray)
                       .offset(y: 2)
                     
-                    HStack(spacing: geometry.size.width * 0.015) {
+                    HStack(spacing: 3.5) {
                       ForEach(Array(upcomingTrains.enumerated()), id: \.offset) { index, upcomingTrain in
                         Text(upcomingTrain.departureTime)
                           .bold()
                           .font(.system(size: geometry.size.width * 0.1, design: .rounded))
                           .foregroundColor(.gray)
+                          .fixedSize()
                       }
                     }
                   }
