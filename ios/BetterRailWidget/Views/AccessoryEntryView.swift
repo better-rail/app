@@ -95,7 +95,7 @@ struct AccessoryEntryView: View {
                   Text(entry.isTomorrow ? "TOMORROW" : "NEXT TRAIN")
                     .font(.system(size: geometry.size.width * 0.06))
                     .foregroundColor(entry.isTomorrow ? Color("purply") : Color("pinky"))
-                    .offset(y: 5)
+                    .offset(y: 4)
                   Text(entry.departureTime)
                     .bold()
                     .font(.system(size: geometry.size.width * 0.145, design: .rounded))
