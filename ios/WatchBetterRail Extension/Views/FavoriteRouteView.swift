@@ -106,12 +106,8 @@ struct FavoriteRouteView: View {
           .font(.system(size: 16))
           .fontWeight(.medium)
           .padding(.bottom, -4)
-        HStack(alignment: .center) {
-          Image(systemName: "arrow.forward.circle.fill")
-            .font(.system(size: 12))
-          Text(route.destination.name)
-            .font(.system(size: 12))
-        }
+        Text("\(Image(systemName: "arrow.forward.circle.fill")) \(route.destination.name)")
+          .font(.system(size: 12))
       }
     }
     .font(Font.custom("Heebo", size: 14))

@@ -79,16 +79,12 @@ struct AccessoryEntryView: View {
                     .font(.system(size: geometry.size.width * 0.125))
                     .fontWeight(.medium)
                 } else {
-                  Text(formatStationName(entry.origin.name))
+                  Text(entry.origin.name)
                     .font(.system(size: geometry.size.width * 0.095))
                     .fontWeight(.medium)
                     .padding(.bottom, -4)
-                  HStack(alignment: .center, spacing: 2) {
-                    Image(systemName: "arrow.forward.circle.fill")
-                      .font(.system(size: geometry.size.width * 0.08))
-                    Text(formatStationName(entry.destination.name))
-                      .font(.system(size: geometry.size.width * 0.08))
-                  }
+                  Text("\(Image(systemName: "arrow.forward.circle.fill")) \(entry.destination.name)")
+                    .font(.system(size: geometry.size.width * 0.08))
                 }
               }
               Spacer()
@@ -120,10 +116,10 @@ struct AccessoryEntryView: View {
 
 struct AccessoryEntryView_Previews: PreviewProvider {
     static var previews: some View {
-      let origin = getStationById(3400)!
-      let destination = getStationById(680)!
+      let origin = getStationById(3700)!
+      let destination = getStationById(8600)!
       
-      let entry = TrainDetail(date: Date(), departureDate: "09/01/2007 09:43:00", departureTime: "15:56", arrivalTime: "16:06", platform: 3, trainNumber: 131, origin: origin, destination: destination, label: "Home", upcomingTrains: upcomingTrainsSnapshot)
+      let entry = TrainDetail(date: Date(), departureDate: "09/01/2007 09:43:00", departureTime: "15:56", arrivalTime: "16:06", platform: 3, trainNumber: 131, origin: origin, destination: destination, label: nil, upcomingTrains: upcomingTrainsSnapshot)
 
 //      let entry = TrainDetail(date: Date(), departureDate: "09/01/2007 09:43:00", departureTime: "404", arrivalTime: "404", platform: 404, trainNumber: 404, origin: origin, destination: destination, label: nil)
       
