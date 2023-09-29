@@ -70,40 +70,57 @@ struct AccessoryEntryView: View {
     #endif
     case .accessoryRectangular:
         GeometryReader { geometry in
-          VStack {
+          VStack(alignment: .leading) {
+            if let label = entry.label {
+              Text(label)
+                .font(.system(size: geometry.size.width * 0.09))
+                .lineLimit(1)
+                .fontWeight(.medium)
+            } else {
+              Text("ֿ\(formatStationName(entry.origin.name)) \(Image(systemName: "arrow.forward.circle.fill")) \(formatStationName(entry.destination.name))")
+                .font(.system(size: geometry.size.width * 0.09))
+                .lineLimit(1)
+                .fontWeight(.medium)
+            }
             Spacer()
-            HStack {
-              VStack(alignment: .leading) {
-                if let label = entry.label {
-                  Text(label)
-                    .font(.system(size: geometry.size.width * 0.125))
-                    .fontWeight(.medium)
-                } else {
-                  Text(entry.origin.name)
-                    .font(.system(size: geometry.size.width * 0.095))
-                    .fontWeight(.medium)
-                    .padding(.bottom, -4)
-                  Text("\(Image(systemName: "arrow.forward.circle.fill")) \(entry.destination.name)")
-                    .font(.system(size: geometry.size.width * 0.08))
-                }
-              }
-              Spacer()
-              VStack(alignment: .center) {
-                if let errorMessage {
-                  Text(errorMessage)
-                    .multilineTextAlignment(.center)
-                    .font(.system(size: geometry.size.width * 0.08))
-                } else {
+            HStack(alignment: .lastTextBaseline, spacing: geometry.size.width * 0.015) {
+              if let errorMessage {
+                Spacer()
+                Text(errorMessage)
+                  .multilineTextAlignment(.center)
+                  .font(.system(size: geometry.size.width * 0.08))
+                Spacer()
+              } else {
+                VStack(alignment: .leading) {
+                  Spacer()
+                  Text(entry.isTomorrow ? "TOMORROW" : "NEXT TRAIN")
+                    .font(.system(size: geometry.size.width * 0.05))
+                    .foregroundColor(entry.isTomorrow ? Color("purply") : Color("pinky"))
+                    .offset(y: 3)
                   Text(entry.departureTime)
                     .bold()
-                    .font(.system(size: geometry.size.width * 0.15, design: .rounded))
-                  Text(entry.isTomorrow ? "TOMORROW" : "platform \(String(entry.platform))")
-                    .font(.system(size: geometry.size.width * 0.075))
-                    .foregroundColor(entry.isTomorrow ? Color("purply") : .gray)
+                    .font(.system(size: geometry.size.width * 0.145, design: .rounded))
+                }
+                
+                if let upcomingTrains = entry.upcomingTrains?.prefix(2) {
+                  VStack(alignment: .leading) {
+                    Text("UPCOMING")
+                      .font(.system(size: geometry.size.width * 0.05))
+                      .foregroundColor(.gray)
+                      .offset(y: 2)
+                    
+                    HStack(spacing: geometry.size.width * 0.015) {
+                      ForEach(Array(upcomingTrains.enumerated()), id: \.offset) { index, upcomingTrain in
+                        Text(upcomingTrain.departureTime)
+                          .bold()
+                          .font(.system(size: geometry.size.width * 0.1, design: .rounded))
+                          .foregroundColor(.gray)
+                      }
+                    }
+                  }
                 }
               }
             }
-            Spacer()
           }
         }
         .widgetBackground(WidgetBackground(image: entry.origin.image).frame(height: 170))
