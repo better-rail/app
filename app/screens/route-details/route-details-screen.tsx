@@ -26,6 +26,7 @@ import {
 import BottomSheet from "@gorhom/bottom-sheet"
 import { FirstRideAlert } from "./components/first-ride-alert"
 import { canRunLiveActivities } from "../../utils/ios-helpers"
+import { LivePermissionsSheet } from "./components/live-permissions-sheet"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -144,6 +145,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
             </View>
           )
         })}
+        {/* <LivePermissionsSheet /> */}
       </ScrollView>
 
       {isRideOnThisRoute && (
