@@ -20,14 +20,23 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>8</string>
-	<key>UISupportedInterfaceOrientations</key>
+	<key>NSExtension</key>
+	<dict>
+		<key>NSExtensionAttributes</key>
+		<dict>
+			<key>WKAppBundleIdentifier</key>
+			<string>il.co.better-rail.watchkitapp</string>
+		</dict>
+		<key>NSExtensionPointIdentifier</key>
+		<string>com.apple.watchkit</string>
+	</dict>
+	<key>UIAppFonts</key>
 	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>Heebo-Regular.otf</string>
+		<string>Heebo-Bold.otf</string>
+		<string>Heebo-Medium.otf</string>
 	</array>
-	<key>WKCompanionAppBundleIdentifier</key>
-	<string>il.co.better-rail</string>
-	<key>WKWatchKitApp</key>
-	<true/>
+	<key>WKRunsIndependentlyOfCompanionApp</key>
+	<false/>
 </dict>
 </plist>

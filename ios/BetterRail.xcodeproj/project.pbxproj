@@ -38,44 +38,61 @@
 		901A3CA02AC077CE004D68D6 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = C1B3FCF5271EEFFA000F33AE /* Localizable.strings */; };
 		901A3CA12AC077CE004D68D6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1F61C242709F09B00CD3D44 /* Assets.xcassets */; };
 		901A3CA22AC077CE004D68D6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1A802682747AB4D00A3073D /* Assets.xcassets */; };
-		901C358D2A1530CC004CA1F5 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 901C358C2A1530CC004CA1F5 /* SearchView.swift */; };
-		9043D49D2AC044C0008C31FB /* EasySkeleton in Frameworks */ = {isa = PBXBuildFile; productRef = 9043D49C2AC044C0008C31FB /* EasySkeleton */; };
-		90466CC42AC5F9F300F9966E /* CriticalAlertsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90466CC32AC5F9F200F9966E /* CriticalAlertsModel.swift */; };
-		90466CC62AC5FC8F00F9966E /* CriticalAlertsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90466CC52AC5FC8F00F9966E /* CriticalAlertsViewModel.swift */; };
-		90466CC82AC5FE8600F9966E /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90466CC72AC5FE8600F9966E /* Environment.swift */; };
-		90466CCA2AC6042500F9966E /* CriticalAlertsButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90466CC92AC6042500F9966E /* CriticalAlertsButton.swift */; };
-		90466CCD2AC60A4B00F9966E /* ViewUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90466CCC2AC60A4B00F9966E /* ViewUtils.swift */; };
 		90466CCE2AC60A4B00F9966E /* ViewUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90466CCC2AC60A4B00F9966E /* ViewUtils.swift */; };
 		90466CCF2AC60A4B00F9966E /* ViewUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90466CCC2AC60A4B00F9966E /* ViewUtils.swift */; };
-		9046FDD42ABB70E5009665B1 /* FavoriteRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9046FDD32ABB70E5009665B1 /* FavoriteRouteView.swift */; };
-		9046FDD92ABF5A39009665B1 /* MinuteTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9046FDD82ABF5A39009665B1 /* MinuteTimer.swift */; };
-		9057E3322AC090E000A73486 /* BetterRailWidgetExtensionWatch.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 901A3CA62AC077CE004D68D6 /* BetterRailWidgetExtensionWatch.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		90749D272AC8555D0065FCB7 /* Better Rail.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 90749D1A2AC8555B0065FCB7 /* Better Rail.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		90749D2D2AC8561B0065FCB7 /* EasySkeleton in Frameworks */ = {isa = PBXBuildFile; productRef = 90749D2C2AC8561B0065FCB7 /* EasySkeleton */; };
+		90749D2E2AC8562F0065FCB7 /* BetterRailWidgetExtensionWatch.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 901A3CA62AC077CE004D68D6 /* BetterRailWidgetExtensionWatch.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		90749D332AC856C40065FCB7 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C102709F08200CD3D44 /* Utilities.swift */; };
+		90749D342AC856C40065FCB7 /* StationImageBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1832299270DF49100A44771 /* StationImageBackground.swift */; };
+		90749D352AC856C40065FCB7 /* MinuteTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9046FDD82ABF5A39009665B1 /* MinuteTimer.swift */; };
+		90749D362AC856C40065FCB7 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90466CC72AC5FE8600F9966E /* Environment.swift */; };
+		90749D372AC856C40065FCB7 /* CriticalAlertsButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90466CC92AC6042500F9966E /* CriticalAlertsButton.swift */; };
+		90749D382AC856C40065FCB7 /* ViewUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90466CCC2AC60A4B00F9966E /* ViewUtils.swift */; };
+		90749D392AC856C40065FCB7 /* TrainDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1326197270C887900A248BA /* TrainDetailsView.swift */; };
+		90749D3A2AC856C40065FCB7 /* StationListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E62DD7270EE24C0067F262 /* StationListItem.swift */; };
+		90749D3B2AC856C40065FCB7 /* TrainStopListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E62DD9270EE2690067F262 /* TrainStopListItem.swift */; };
+		90749D3C2AC856C40065FCB7 /* TrainExchangeListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E62DDB270EE28B0067F262 /* TrainExchangeListItem.swift */; };
+		90749D3D2AC856C40065FCB7 /* FavoritesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C002709F08200CD3D44 /* FavoritesView.swift */; };
+		90749D3E2AC856C40065FCB7 /* RoutesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C012709F08200CD3D44 /* RoutesView.swift */; };
+		90749D3F2AC856C40065FCB7 /* FavoriteListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C022709F08200CD3D44 /* FavoriteListItemView.swift */; };
+		90749D402AC856C40065FCB7 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 901C358C2A1530CC004CA1F5 /* SearchView.swift */; };
+		90749D412AC856C40065FCB7 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DDA2C32A16916F003C8FE5 /* MainView.swift */; };
+		90749D422AC856C40065FCB7 /* FavoriteRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9046FDD32ABB70E5009665B1 /* FavoriteRouteView.swift */; };
+		90749D432AC856C40065FCB7 /* FavoritesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61BFD2709F08200CD3D44 /* FavoritesViewModel.swift */; };
+		90749D442AC856C40065FCB7 /* RouteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61BFE2709F08200CD3D44 /* RouteViewModel.swift */; };
+		90749D452AC856C40065FCB7 /* CriticalAlertsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90466CC52AC5FC8F00F9966E /* CriticalAlertsViewModel.swift */; };
+		90749D462AC856C40065FCB7 /* StationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C082709F08200CD3D44 /* StationModel.swift */; };
+		90749D472AC856C40065FCB7 /* RouteModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C092709F08200CD3D44 /* RouteModel.swift */; };
+		90749D482AC856C40065FCB7 /* FavoritesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1ED5217270B248C00EBB0B1 /* FavoritesModel.swift */; };
+		90749D492AC856C40065FCB7 /* CriticalAlertsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90466CC32AC5F9F200F9966E /* CriticalAlertsModel.swift */; };
+		90749D4A2AC856C40065FCB7 /* WatchBetterRail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C062709F08200CD3D44 /* WatchBetterRail.swift */; };
+		90749D4B2AC856D70065FCB7 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = C1B3FCF5271EEFFA000F33AE /* Localizable.strings */; };
+		90749D4C2AC856D70065FCB7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1F61C242709F09B00CD3D44 /* Assets.xcassets */; };
+		90749D4D2AC856D70065FCB7 /* stationsData.json in Resources */ = {isa = PBXBuildFile; fileRef = C1F61C0C2709F08200CD3D44 /* stationsData.json */; };
+		90749D4E2AC856D70065FCB7 /* Heebo-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = E3C07A94FCDB4698B4A058EB /* Heebo-Bold.otf */; };
+		90749D4F2AC856D70065FCB7 /* Heebo-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = A2759849ACE84A51AA1EC58E /* Heebo-Medium.otf */; };
+		90749D502AC856D70065FCB7 /* Heebo-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 5B118A8459B542A2BA8C9824 /* Heebo-Regular.otf */; };
 		908634362AC089FD00C44F40 /* FavoritesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61BFD2709F08200CD3D44 /* FavoritesViewModel.swift */; };
 		908634372AC08AB200C44F40 /* FavoritesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1ED5217270B248C00EBB0B1 /* FavoritesModel.swift */; };
 		908634392AC08AF300C44F40 /* WidgetUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 908634382AC08AF300C44F40 /* WidgetUtils.swift */; };
 		9086343A2AC08AF300C44F40 /* WidgetUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 908634382AC08AF300C44F40 /* WidgetUtils.swift */; };
 		90C7F8922A2096880011E3F9 /* Activity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140A929F1416100968904 /* Activity.swift */; };
-		90DDA2C42A16916F003C8FE5 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DDA2C32A16916F003C8FE5 /* MainView.swift */; };
+		90DC44BF2AC85AFE001A0BBF /* WatchInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 90DC44BE2AC85AFE001A0BBF /* WatchInfo.plist */; };
 		C0F707F834D839B5724738A3 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC587A60DAEFAB1B12DF76C7 /* ExpoModulesProvider.swift */; };
 		C102DF9E2764FD6600A756B6 /* WidgetLargeScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C102DF9D2764FD6600A756B6 /* WidgetLargeScheduleView.swift */; };
 		C1286B51275E6C8300E1E05D /* RNBetterRail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1286B50275E6C8300E1E05D /* RNBetterRail.swift */; };
 		C1286B55275E6D9D00E1E05D /* RNBetterRail.m in Sources */ = {isa = PBXBuildFile; fileRef = C1286B54275E6D9D00E1E05D /* RNBetterRail.m */; };
-		C1326198270C887900A248BA /* TrainDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1326197270C887900A248BA /* TrainDetailsView.swift */; };
 		C13D49712A1A065100011397 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C13D49702A1A065100011397 /* GoogleService-Info.plist */; };
 		C14F313426331361002A01D7 /* Swifty.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14F313326331361002A01D7 /* Swifty.swift */; };
 		C15A0E9A29F3DA3C00558103 /* TokenRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140AA29F1416100968904 /* TokenRegistry.swift */; };
 		C15DA0672763A8EB00A24EF3 /* Route.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = C1F7C89327627A60002A417F /* Route.intentdefinition */; };
 		C15DA0682763ABF100A24EF3 /* stationsData.json in Resources */ = {isa = PBXBuildFile; fileRef = C1F61C0C2709F08200CD3D44 /* stationsData.json */; };
-		C17FA4BA2709EFBB003797D9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C17FA4B92709EFBB003797D9 /* Assets.xcassets */; };
-		C17FA4C12709EFBB003797D9 /* WatchBetterRail Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = C17FA4C02709EFBB003797D9 /* WatchBetterRail Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		C17FA4D32709EFBC003797D9 /* WatchBetterRail.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = C17FA4B72709EFBB003797D9 /* WatchBetterRail.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		C183229A270DF49100A44771 /* StationImageBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1832299270DF49100A44771 /* StationImageBackground.swift */; };
 		C1A802622747AB4D00A3073D /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1A802612747AB4D00A3073D /* WidgetKit.framework */; };
 		C1A802642747AB4D00A3073D /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1A802632747AB4D00A3073D /* SwiftUI.framework */; };
 		C1A802672747AB4D00A3073D /* BetterRailWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A802662747AB4D00A3073D /* BetterRailWidget.swift */; };
 		C1A802692747AB4D00A3073D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1A802682747AB4D00A3073D /* Assets.xcassets */; };
 		C1A8026D2747AB4D00A3073D /* BetterRailWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = C1A802602747AB4D00A3073D /* BetterRailWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		C1B121262761FD250085C269 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C102709F08200CD3D44 /* Utilities.swift */; };
 		C1B121272761FD260085C269 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C102709F08200CD3D44 /* Utilities.swift */; };
 		C1B121292761FD7E0085C269 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1B121282761FD7E0085C269 /* Extensions.swift */; };
 		C1B1212B2761FDA60085C269 /* EntriesGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1B1212A2761FDA60085C269 /* EntriesGenerator.swift */; };
@@ -90,7 +107,6 @@
 		C1B1214D2762036A0085C269 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C102709F08200CD3D44 /* Utilities.swift */; };
 		C1B1214E276225C50085C269 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = C1B3FCF5271EEFFA000F33AE /* Localizable.strings */; };
 		C1B1214F276225C60085C269 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = C1B3FCF5271EEFFA000F33AE /* Localizable.strings */; };
-		C1B3FCF3271EEFFA000F33AE /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = C1B3FCF5271EEFFA000F33AE /* Localizable.strings */; };
 		C1B93927276E1EF700482B62 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1B121282761FD7E0085C269 /* Extensions.swift */; };
 		C1C6DC4C274939C1000E9EED /* WidgetEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C6DC4A274939C1000E9EED /* WidgetEntryView.swift */; };
 		C1C6DC4E274939D9000E9EED /* WidgetRouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C6DC4D274939D9000E9EED /* WidgetRouteView.swift */; };
@@ -103,10 +119,6 @@
 		C1C6DC5827493BC5000E9EED /* TrainDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1C6DC4F27493A56000E9EED /* TrainDetail.swift */; };
 		C1C6DC5927493C51000E9EED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1F61C242709F09B00CD3D44 /* Assets.xcassets */; };
 		C1C6DC5B27493C56000E9EED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1F61C242709F09B00CD3D44 /* Assets.xcassets */; };
-		C1E62DD8270EE24C0067F262 /* StationListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E62DD7270EE24C0067F262 /* StationListItem.swift */; };
-		C1E62DDA270EE2690067F262 /* TrainStopListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E62DD9270EE2690067F262 /* TrainStopListItem.swift */; };
-		C1E62DDC270EE28B0067F262 /* TrainExchangeListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E62DDB270EE28B0067F262 /* TrainExchangeListItem.swift */; };
-		C1ED5218270B248C00EBB0B1 /* FavoritesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1ED5217270B248C00EBB0B1 /* FavoritesModel.swift */; };
 		C1F140B929F1416100968904 /* ActivityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140A629F1416100968904 /* ActivityViewModel.swift */; };
 		C1F140BA29F1416100968904 /* ActivityUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140A729F1416100968904 /* ActivityUtils.swift */; };
 		C1F140BB29F1416100968904 /* BetterRailLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140A829F1416100968904 /* BetterRailLiveActivity.swift */; };
@@ -125,23 +137,7 @@
 		C1F140D029F151C300968904 /* ActivityUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140A729F1416100968904 /* ActivityUtils.swift */; };
 		C1F140D129F151D200968904 /* TokenRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140AA29F1416100968904 /* TokenRegistry.swift */; };
 		C1F140D229F1520200968904 /* ActivityNotificationsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140B829F1416100968904 /* ActivityNotificationsAPI.swift */; };
-		C1F29D28270B2D31009B953E /* Heebo-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = E3C07A94FCDB4698B4A058EB /* Heebo-Bold.otf */; };
-		C1F29D29270B2D31009B953E /* Heebo-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 5B118A8459B542A2BA8C9824 /* Heebo-Regular.otf */; };
-		C1F29D2C270B2D31009B953E /* Heebo-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = A2759849ACE84A51AA1EC58E /* Heebo-Medium.otf */; };
-		C1F29D34270B31D5009B953E /* Heebo-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = A2759849ACE84A51AA1EC58E /* Heebo-Medium.otf */; };
-		C1F29D37270B31D5009B953E /* Heebo-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 5B118A8459B542A2BA8C9824 /* Heebo-Regular.otf */; };
-		C1F29D39270B31D5009B953E /* Heebo-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = E3C07A94FCDB4698B4A058EB /* Heebo-Bold.otf */; };
 		C1F452EA281FC21F00EF53CB /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1F452E9281FC21F00EF53CB /* StoreKit.framework */; };
-		C1F61C122709F08200CD3D44 /* FavoritesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61BFD2709F08200CD3D44 /* FavoritesViewModel.swift */; };
-		C1F61C132709F08200CD3D44 /* RouteViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61BFE2709F08200CD3D44 /* RouteViewModel.swift */; };
-		C1F61C142709F08200CD3D44 /* FavoritesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C002709F08200CD3D44 /* FavoritesView.swift */; };
-		C1F61C152709F08200CD3D44 /* RoutesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C012709F08200CD3D44 /* RoutesView.swift */; };
-		C1F61C162709F08200CD3D44 /* FavoriteListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C022709F08200CD3D44 /* FavoriteListItemView.swift */; };
-		C1F61C1A2709F08200CD3D44 /* WatchBetterRail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C062709F08200CD3D44 /* WatchBetterRail.swift */; };
-		C1F61C1B2709F08200CD3D44 /* StationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C082709F08200CD3D44 /* StationModel.swift */; };
-		C1F61C1C2709F08200CD3D44 /* RouteModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C092709F08200CD3D44 /* RouteModel.swift */; };
-		C1F61C1F2709F08200CD3D44 /* stationsData.json in Resources */ = {isa = PBXBuildFile; fileRef = C1F61C0C2709F08200CD3D44 /* stationsData.json */; };
-		C1F61C252709F09B00CD3D44 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1F61C242709F09B00CD3D44 /* Assets.xcassets */; };
 		C1F7C89027627A60002A417F /* Route.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = C1F7C89327627A60002A417F /* Route.intentdefinition */; };
 		C1F7C89127627A60002A417F /* Route.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = C1F7C89327627A60002A417F /* Route.intentdefinition */; };
 		DA04D16B7E3649A49F843A15 /* Heebo-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = A047FB8FBCA54556AEDB349D /* Heebo-Light.otf */; };
@@ -149,26 +145,19 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		9057E3332AC090E000A73486 /* PBXContainerItemProxy */ = {
+		90749D252AC8555D0065FCB7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 90749D192AC8555B0065FCB7;
+			remoteInfo = "watchkitapp Watch App";
+		};
+		90749D2F2AC8562F0065FCB7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 901A3C7A2AC077CE004D68D6;
 			remoteInfo = BetterRailWidgetExtensionWatch;
-		};
-		C17FA4C22709EFBB003797D9 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = C17FA4BF2709EFBB003797D9;
-			remoteInfo = "WatchBetterRail Extension";
-		};
-		C17FA4D12709EFBC003797D9 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = C17FA4B62709EFBB003797D9;
-			remoteInfo = WatchBetterRail;
 		};
 		C1A8026B2747AB4D00A3073D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -187,27 +176,26 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		90749D312AC8562F0065FCB7 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				90749D2E2AC8562F0065FCB7 /* BetterRailWidgetExtensionWatch.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C17FA4D42709EFBC003797D9 /* Embed Watch Content */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
 			dstSubfolderSpec = 16;
 			files = (
-				C17FA4D32709EFBC003797D9 /* WatchBetterRail.app in Embed Watch Content */,
+				90749D272AC8555D0065FCB7 /* Better Rail.app in Embed Watch Content */,
 			);
 			name = "Embed Watch Content";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		C17FA4D72709EFBC003797D9 /* Embed App Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				9057E3322AC090E000A73486 /* BetterRailWidgetExtensionWatch.appex in Embed App Extensions */,
-				C17FA4C12709EFBB003797D9 /* WatchBetterRail Extension.appex in Embed App Extensions */,
-			);
-			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		C1A8026E2747AB4D00A3073D /* Embed App Extensions */ = {
@@ -240,7 +228,6 @@
 		9013F94B2AC06B9F00A77F88 /* AccessoryEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessoryEntryView.swift; sourceTree = "<group>"; };
 		9013F94D2AC06E0900A77F88 /* BetterRailWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BetterRailWidgetView.swift; sourceTree = "<group>"; };
 		901A3CA62AC077CE004D68D6 /* BetterRailWidgetExtensionWatch.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BetterRailWidgetExtensionWatch.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		901A3CA72AC077CF004D68D6 /* BetterRailWidgetExtensionWatch-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "BetterRailWidgetExtensionWatch-Info.plist"; path = "/Users/matan/Projects/better-rail/app/ios/BetterRailWidgetExtensionWatch-Info.plist"; sourceTree = "<absolute>"; };
 		901C358C2A1530CC004CA1F5 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
 		90466CC32AC5F9F200F9966E /* CriticalAlertsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CriticalAlertsModel.swift; sourceTree = "<group>"; };
 		90466CC52AC5FC8F00F9966E /* CriticalAlertsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CriticalAlertsViewModel.swift; sourceTree = "<group>"; };
@@ -249,7 +236,10 @@
 		90466CCC2AC60A4B00F9966E /* ViewUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewUtils.swift; sourceTree = "<group>"; };
 		9046FDD32ABB70E5009665B1 /* FavoriteRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteRouteView.swift; sourceTree = "<group>"; };
 		9046FDD82ABF5A39009665B1 /* MinuteTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinuteTimer.swift; sourceTree = "<group>"; };
+		90749D1A2AC8555B0065FCB7 /* Better Rail.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Better Rail.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		90749D2B2AC855F60065FCB7 /* BetterRailWatch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BetterRailWatch.entitlements; sourceTree = "<group>"; };
 		908634382AC08AF300C44F40 /* WidgetUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetUtils.swift; sourceTree = "<group>"; };
+		90DC44BE2AC85AFE001A0BBF /* WatchInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = WatchInfo.plist; sourceTree = "<group>"; };
 		90DDA2C32A16916F003C8FE5 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		9DB83807FED9D97C1F0B0C21 /* Pods-BetterRail.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BetterRail.debug.xcconfig"; path = "Target Support Files/Pods-BetterRail/Pods-BetterRail.debug.xcconfig"; sourceTree = "<group>"; };
 		A047FB8FBCA54556AEDB349D /* Heebo-Light.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Heebo-Light.otf"; path = "../assets/fonts/Heebo-Light.otf"; sourceTree = "<group>"; };
@@ -269,10 +259,6 @@
 		C14F313326331361002A01D7 /* Swifty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Swifty.swift; sourceTree = "<group>"; };
 		C15DA06A2763AD2800A24EF3 /* he */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = he; path = he.lproj/Route.strings; sourceTree = "<group>"; };
 		C1640A0827D510E400DEDB01 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Route.strings; sourceTree = "<group>"; };
-		C17FA4B72709EFBB003797D9 /* WatchBetterRail.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WatchBetterRail.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		C17FA4B92709EFBB003797D9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		C17FA4BB2709EFBB003797D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		C17FA4C02709EFBB003797D9 /* WatchBetterRail Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "WatchBetterRail Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C17FA4D02709EFBC003797D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C1832299270DF49100A44771 /* StationImageBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationImageBackground.swift; sourceTree = "<group>"; };
 		C1A802602747AB4D00A3073D /* BetterRailWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BetterRailWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -352,13 +338,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		5ADD2F5D367465AA26E9276A /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		901A3C9B2AC077CE004D68D6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -368,11 +347,11 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		C17FA4BD2709EFBB003797D9 /* Frameworks */ = {
+		90749D172AC8555B0065FCB7 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9043D49D2AC044C0008C31FB /* EasySkeleton in Frameworks */,
+				90749D2D2AC8561B0065FCB7 /* EasySkeleton in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -465,6 +444,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				90749D2B2AC855F60065FCB7 /* BetterRailWatch.entitlements */,
 				C1E10B682A2357B800E5D8AC /* BetterRailWidgetExtensionDebug.entitlements */,
 				C13E85892A22618200B026CD /* BetterRailWidgetExtensionRelease.entitlements */,
 				C13D49702A1A065100011397 /* GoogleService-Info.plist */,
@@ -474,8 +454,7 @@
 				13B07FAE1A68108700A75B9A /* BetterRail */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* BetterRailTests */,
-				C17FA4B82709EFBB003797D9 /* WatchBetterRail */,
-				C17FA4C42709EFBB003797D9 /* WatchBetterRail Extension */,
+				C17FA4C42709EFBB003797D9 /* BetterRailWatch */,
 				C1A802652747AB4D00A3073D /* BetterRailWidget */,
 				C1B1213F276202130085C269 /* StationIntent */,
 				83CBBA001A601CBA00E9B192 /* Products */,
@@ -483,7 +462,6 @@
 				71ED362ACEA45F9F60DCD285 /* Pods */,
 				D6A8C2445E5D42FA8F96D59C /* Resources */,
 				C83A6A2999858166D72B62E7 /* ExpoModulesProviders */,
-				901A3CA72AC077CF004D68D6 /* BetterRailWidgetExtensionWatch-Info.plist */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -494,25 +472,15 @@
 			isa = PBXGroup;
 			children = (
 				13B07F961A680F5B00A75B9A /* BetterRail.app */,
-				C17FA4B72709EFBB003797D9 /* WatchBetterRail.app */,
-				C17FA4C02709EFBB003797D9 /* WatchBetterRail Extension.appex */,
 				C1A802602747AB4D00A3073D /* BetterRailWidgetExtension.appex */,
 				C1B1213C276202130085C269 /* StationIntent.appex */,
 				901A3CA62AC077CE004D68D6 /* BetterRailWidgetExtensionWatch.appex */,
+				90749D1A2AC8555B0065FCB7 /* Better Rail.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		C17FA4B82709EFBB003797D9 /* WatchBetterRail */ = {
-			isa = PBXGroup;
-			children = (
-				C17FA4B92709EFBB003797D9 /* Assets.xcassets */,
-				C17FA4BB2709EFBB003797D9 /* Info.plist */,
-			);
-			path = WatchBetterRail;
-			sourceTree = "<group>";
-		};
-		C17FA4C42709EFBB003797D9 /* WatchBetterRail Extension */ = {
+		C17FA4C42709EFBB003797D9 /* BetterRailWatch */ = {
 			isa = PBXGroup;
 			children = (
 				C1EE54A92A22694400931AFD /* WatchBetterRail Extension.entitlements */,
@@ -525,7 +493,7 @@
 				C1F61C062709F08200CD3D44 /* WatchBetterRail.swift */,
 				C17FA4D02709EFBC003797D9 /* Info.plist */,
 			);
-			path = "WatchBetterRail Extension";
+			path = BetterRailWatch;
 			sourceTree = "<group>";
 		};
 		C1832298270DF47700A44771 /* Shared */ = {
@@ -550,6 +518,7 @@
 				C1A802662747AB4D00A3073D /* BetterRailWidget.swift */,
 				C1A802682747AB4D00A3073D /* Assets.xcassets */,
 				C1A8026A2747AB4D00A3073D /* Info.plist */,
+				90DC44BE2AC85AFE001A0BBF /* WatchInfo.plist */,
 				C1B121282761FD7E0085C269 /* Extensions.swift */,
 				C1B1212A2761FDA60085C269 /* EntriesGenerator.swift */,
 				C1F7C89327627A60002A417F /* Route.intentdefinition */,
@@ -745,9 +714,9 @@
 			buildRules = (
 			);
 			dependencies = (
-				C17FA4D22709EFBC003797D9 /* PBXTargetDependency */,
 				C1A8026C2747AB4D00A3073D /* PBXTargetDependency */,
 				C1B12144276202130085C269 /* PBXTargetDependency */,
+				90749D262AC8555D0065FCB7 /* PBXTargetDependency */,
 			);
 			name = BetterRail;
 			productName = BetterRail;
@@ -771,45 +740,27 @@
 			productReference = 901A3CA62AC077CE004D68D6 /* BetterRailWidgetExtensionWatch.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		C17FA4B62709EFBB003797D9 /* WatchBetterRail */ = {
+		90749D192AC8555B0065FCB7 /* BetterRailWatch */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C17FA4DB2709EFBC003797D9 /* Build configuration list for PBXNativeTarget "WatchBetterRail" */;
+			buildConfigurationList = 90749D2A2AC8555D0065FCB7 /* Build configuration list for PBXNativeTarget "BetterRailWatch" */;
 			buildPhases = (
-				C17FA4B52709EFBB003797D9 /* Resources */,
-				C17FA4D72709EFBC003797D9 /* Embed App Extensions */,
-				5ADD2F5D367465AA26E9276A /* Frameworks */,
-				26CD5A7CDEDE41EE35A976AF /* Sources */,
+				90749D162AC8555B0065FCB7 /* Sources */,
+				90749D172AC8555B0065FCB7 /* Frameworks */,
+				90749D182AC8555B0065FCB7 /* Resources */,
+				90749D312AC8562F0065FCB7 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				C17FA4C32709EFBB003797D9 /* PBXTargetDependency */,
-				9057E3342AC090E000A73486 /* PBXTargetDependency */,
+				90749D302AC8562F0065FCB7 /* PBXTargetDependency */,
 			);
-			name = WatchBetterRail;
-			productName = WatchBetterRail;
-			productReference = C17FA4B72709EFBB003797D9 /* WatchBetterRail.app */;
-			productType = "com.apple.product-type.application.watchapp2";
-		};
-		C17FA4BF2709EFBB003797D9 /* WatchBetterRail Extension */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = C17FA4DA2709EFBC003797D9 /* Build configuration list for PBXNativeTarget "WatchBetterRail Extension" */;
-			buildPhases = (
-				C17FA4BC2709EFBB003797D9 /* Sources */,
-				C17FA4BD2709EFBB003797D9 /* Frameworks */,
-				C17FA4BE2709EFBB003797D9 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "WatchBetterRail Extension";
+			name = BetterRailWatch;
 			packageProductDependencies = (
-				9043D49C2AC044C0008C31FB /* EasySkeleton */,
+				90749D2C2AC8561B0065FCB7 /* EasySkeleton */,
 			);
-			productName = "WatchBetterRail Extension";
-			productReference = C17FA4C02709EFBB003797D9 /* WatchBetterRail Extension.appex */;
-			productType = "com.apple.product-type.watchkit2-extension";
+			productName = "watchkitapp Watch App";
+			productReference = 90749D1A2AC8555B0065FCB7 /* Better Rail.app */;
+			productType = "com.apple.product-type.application";
 		};
 		C1A8025F2747AB4D00A3073D /* BetterRailWidgetExtension */ = {
 			isa = PBXNativeTarget;
@@ -851,7 +802,7 @@
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1250;
+				LastSwiftUpdateCheck = 1500;
 				LastUpgradeCheck = 1130;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
@@ -859,15 +810,8 @@
 						LastSwiftMigration = 1240;
 						ProvisioningStyle = Manual;
 					};
-					C17FA4B62709EFBB003797D9 = {
-						CreatedOnToolsVersion = 12.5;
-						DevelopmentTeam = UE6BVYPPFX;
-						ProvisioningStyle = Manual;
-					};
-					C17FA4BF2709EFBB003797D9 = {
-						CreatedOnToolsVersion = 12.5;
-						DevelopmentTeam = UE6BVYPPFX;
-						ProvisioningStyle = Manual;
+					90749D192AC8555B0065FCB7 = {
+						CreatedOnToolsVersion = 15.0;
 					};
 					C1A8025F2747AB4D00A3073D = {
 						CreatedOnToolsVersion = 12.5;
@@ -901,11 +845,10 @@
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* BetterRail */,
-				C17FA4B62709EFBB003797D9 /* WatchBetterRail */,
-				C17FA4BF2709EFBB003797D9 /* WatchBetterRail Extension */,
 				C1A8025F2747AB4D00A3073D /* BetterRailWidgetExtension */,
 				C1B1213B276202130085C269 /* StationIntent */,
 				901A3C7A2AC077CE004D68D6 /* BetterRailWidgetExtensionWatch */,
+				90749D192AC8555B0065FCB7 /* BetterRailWatch */,
 			);
 		};
 /* End PBXProject section */
@@ -938,31 +881,21 @@
 				901A3C9F2AC077CE004D68D6 /* stationsData.json in Resources */,
 				901A3CA02AC077CE004D68D6 /* Localizable.strings in Resources */,
 				901A3CA12AC077CE004D68D6 /* Assets.xcassets in Resources */,
+				90DC44BF2AC85AFE001A0BBF /* WatchInfo.plist in Resources */,
 				901A3CA22AC077CE004D68D6 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		C17FA4B52709EFBB003797D9 /* Resources */ = {
+		90749D182AC8555B0065FCB7 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C1F29D39270B31D5009B953E /* Heebo-Bold.otf in Resources */,
-				C1F29D37270B31D5009B953E /* Heebo-Regular.otf in Resources */,
-				C1F29D34270B31D5009B953E /* Heebo-Medium.otf in Resources */,
-				C17FA4BA2709EFBB003797D9 /* Assets.xcassets in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		C17FA4BE2709EFBB003797D9 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				C1F61C1F2709F08200CD3D44 /* stationsData.json in Resources */,
-				C1B3FCF3271EEFFA000F33AE /* Localizable.strings in Resources */,
-				C1F29D28270B2D31009B953E /* Heebo-Bold.otf in Resources */,
-				C1F61C252709F09B00CD3D44 /* Assets.xcassets in Resources */,
-				C1F29D2C270B2D31009B953E /* Heebo-Medium.otf in Resources */,
-				C1F29D29270B2D31009B953E /* Heebo-Regular.otf in Resources */,
+				90749D4B2AC856D70065FCB7 /* Localizable.strings in Resources */,
+				90749D4C2AC856D70065FCB7 /* Assets.xcassets in Resources */,
+				90749D4D2AC856D70065FCB7 /* stationsData.json in Resources */,
+				90749D4E2AC856D70065FCB7 /* Heebo-Bold.otf in Resources */,
+				90749D4F2AC856D70065FCB7 /* Heebo-Medium.otf in Resources */,
+				90749D502AC856D70065FCB7 /* Heebo-Regular.otf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1132,13 +1065,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		26CD5A7CDEDE41EE35A976AF /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		901A3C7B2AC077CE004D68D6 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1163,34 +1089,34 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		C17FA4BC2709EFBB003797D9 /* Sources */ = {
+		90749D162AC8555B0065FCB7 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C1F61C152709F08200CD3D44 /* RoutesView.swift in Sources */,
-				C1F61C162709F08200CD3D44 /* FavoriteListItemView.swift in Sources */,
-				C1F61C142709F08200CD3D44 /* FavoritesView.swift in Sources */,
-				90466CC42AC5F9F300F9966E /* CriticalAlertsModel.swift in Sources */,
-				9046FDD92ABF5A39009665B1 /* MinuteTimer.swift in Sources */,
-				90466CCA2AC6042500F9966E /* CriticalAlertsButton.swift in Sources */,
-				C1B121262761FD250085C269 /* Utilities.swift in Sources */,
-				9046FDD42ABB70E5009665B1 /* FavoriteRouteView.swift in Sources */,
-				C1ED5218270B248C00EBB0B1 /* FavoritesModel.swift in Sources */,
-				C1E62DD8270EE24C0067F262 /* StationListItem.swift in Sources */,
-				C1F61C1C2709F08200CD3D44 /* RouteModel.swift in Sources */,
-				90466CC82AC5FE8600F9966E /* Environment.swift in Sources */,
-				90466CC62AC5FC8F00F9966E /* CriticalAlertsViewModel.swift in Sources */,
-				C1F61C132709F08200CD3D44 /* RouteViewModel.swift in Sources */,
-				90466CCD2AC60A4B00F9966E /* ViewUtils.swift in Sources */,
-				C1E62DDC270EE28B0067F262 /* TrainExchangeListItem.swift in Sources */,
-				C1F61C1A2709F08200CD3D44 /* WatchBetterRail.swift in Sources */,
-				C183229A270DF49100A44771 /* StationImageBackground.swift in Sources */,
-				90DDA2C42A16916F003C8FE5 /* MainView.swift in Sources */,
-				C1F61C122709F08200CD3D44 /* FavoritesViewModel.swift in Sources */,
-				901C358D2A1530CC004CA1F5 /* SearchView.swift in Sources */,
-				C1E62DDA270EE2690067F262 /* TrainStopListItem.swift in Sources */,
-				C1F61C1B2709F08200CD3D44 /* StationModel.swift in Sources */,
-				C1326198270C887900A248BA /* TrainDetailsView.swift in Sources */,
+				90749D332AC856C40065FCB7 /* Utilities.swift in Sources */,
+				90749D342AC856C40065FCB7 /* StationImageBackground.swift in Sources */,
+				90749D352AC856C40065FCB7 /* MinuteTimer.swift in Sources */,
+				90749D362AC856C40065FCB7 /* Environment.swift in Sources */,
+				90749D372AC856C40065FCB7 /* CriticalAlertsButton.swift in Sources */,
+				90749D382AC856C40065FCB7 /* ViewUtils.swift in Sources */,
+				90749D392AC856C40065FCB7 /* TrainDetailsView.swift in Sources */,
+				90749D3A2AC856C40065FCB7 /* StationListItem.swift in Sources */,
+				90749D3B2AC856C40065FCB7 /* TrainStopListItem.swift in Sources */,
+				90749D3C2AC856C40065FCB7 /* TrainExchangeListItem.swift in Sources */,
+				90749D3D2AC856C40065FCB7 /* FavoritesView.swift in Sources */,
+				90749D3E2AC856C40065FCB7 /* RoutesView.swift in Sources */,
+				90749D3F2AC856C40065FCB7 /* FavoriteListItemView.swift in Sources */,
+				90749D402AC856C40065FCB7 /* SearchView.swift in Sources */,
+				90749D412AC856C40065FCB7 /* MainView.swift in Sources */,
+				90749D422AC856C40065FCB7 /* FavoriteRouteView.swift in Sources */,
+				90749D432AC856C40065FCB7 /* FavoritesViewModel.swift in Sources */,
+				90749D442AC856C40065FCB7 /* RouteViewModel.swift in Sources */,
+				90749D452AC856C40065FCB7 /* CriticalAlertsViewModel.swift in Sources */,
+				90749D462AC856C40065FCB7 /* StationModel.swift in Sources */,
+				90749D472AC856C40065FCB7 /* RouteModel.swift in Sources */,
+				90749D482AC856C40065FCB7 /* FavoritesModel.swift in Sources */,
+				90749D492AC856C40065FCB7 /* CriticalAlertsModel.swift in Sources */,
+				90749D4A2AC856C40065FCB7 /* WatchBetterRail.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1248,20 +1174,15 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		9057E3342AC090E000A73486 /* PBXTargetDependency */ = {
+		90749D262AC8555D0065FCB7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 90749D192AC8555B0065FCB7 /* BetterRailWatch */;
+			targetProxy = 90749D252AC8555D0065FCB7 /* PBXContainerItemProxy */;
+		};
+		90749D302AC8562F0065FCB7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 901A3C7A2AC077CE004D68D6 /* BetterRailWidgetExtensionWatch */;
-			targetProxy = 9057E3332AC090E000A73486 /* PBXContainerItemProxy */;
-		};
-		C17FA4C32709EFBB003797D9 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = C17FA4BF2709EFBB003797D9 /* WatchBetterRail Extension */;
-			targetProxy = C17FA4C22709EFBB003797D9 /* PBXContainerItemProxy */;
-		};
-		C17FA4D22709EFBC003797D9 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = C17FA4B62709EFBB003797D9 /* WatchBetterRail */;
-			targetProxy = C17FA4D12709EFBC003797D9 /* PBXContainerItemProxy */;
+			targetProxy = 90749D2F2AC8562F0065FCB7 /* PBXContainerItemProxy */;
 		};
 		C1A8026C2747AB4D00A3073D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1531,7 +1452,7 @@
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = UE6BVYPPFX;
 				"DEVELOPMENT_TEAM[sdk=watchos*]" = UE6BVYPPFX;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = "BetterRailWidgetExtensionWatch-Info.plist";
+				INFOPLIST_FILE = BetterRailWidget/WatchInfo.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1580,7 +1501,7 @@
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = UE6BVYPPFX;
 				"DEVELOPMENT_TEAM[sdk=watchos*]" = UE6BVYPPFX;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = "BetterRailWidgetExtensionWatch-Info.plist";
+				INFOPLIST_FILE = BetterRailWidget/WatchInfo.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1603,39 +1524,50 @@
 			};
 			name = Release;
 		};
-		C17FA4D52709EFBC003797D9 /* Debug */ = {
+		90749D282AC8555D0065FCB7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = BetterRailWatch.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 8;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=watchos*]" = UE6BVYPPFX;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				IBSC_MODULE = WatchBetterRail_Extension;
-				INFOPLIST_FILE = WatchBetterRail/Info.plist;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BetterRailWatch/Info.plist;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "il.co.better-rail";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 2.2.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = "il.co.better-rail.watchkitapp";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Better Rail";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "match Development il.co.better-rail.watchkitapp";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
@@ -1643,128 +1575,52 @@
 			};
 			name = Debug;
 		};
-		C17FA4D62709EFBC003797D9 /* Release */ = {
+		90749D292AC8555D0065FCB7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = BetterRailWatch.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 8;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=watchos*]" = UE6BVYPPFX;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				IBSC_MODULE = WatchBetterRail_Extension;
-				INFOPLIST_FILE = WatchBetterRail/Info.plist;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BetterRailWatch/Info.plist;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "il.co.better-rail";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 2.2.0;
 				MTL_FAST_MATH = YES;
-				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = "il.co.better-rail.watchkitapp";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match AppStore il.co.better-rail.watchkitapp";
-				SDKROOT = watchos;
-				SKIP_INSTALL = YES;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 8.0;
-			};
-			name = Release;
-		};
-		C17FA4D82709EFBC003797D9 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = "WatchBetterRail Extension/WatchBetterRail Extension.entitlements";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 8;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=watchos*]" = UE6BVYPPFX;
-				ENABLE_PREVIEWS = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = "WatchBetterRail Extension/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 2.2.0;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = "il.co.better-rail.watchkitapp.watchkitextension";
-				PRODUCT_NAME = "${TARGET_NAME}";
+				PRODUCT_NAME = "Better Rail";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "match Development il.co.better-rail.watchkitapp.watchkitextension";
-				SDKROOT = watchos;
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 8.0;
-			};
-			name = Debug;
-		};
-		C17FA4D92709EFBC003797D9 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = "WatchBetterRail Extension/WatchBetterRail ExtensionRelease.entitlements";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 8;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=watchos*]" = UE6BVYPPFX;
-				ENABLE_PREVIEWS = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = "WatchBetterRail Extension/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 2.2.0;
-				MTL_FAST_MATH = YES;
-				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = "il.co.better-rail.watchkitapp.watchkitextension";
-				PRODUCT_NAME = "${TARGET_NAME}";
-				PROVISIONING_PROFILE_SPECIFIER = "match AppStore il.co.better-rail.watchkitapp.watchkitextension";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "match AppStore il.co.better-rail.watchkitapp.watchkitextension";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "match AppStore il.co.better-rail.watchkitapp";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				WATCHOS_DEPLOYMENT_TARGET = 8.0;
@@ -1967,20 +1823,11 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C17FA4DA2709EFBC003797D9 /* Build configuration list for PBXNativeTarget "WatchBetterRail Extension" */ = {
+		90749D2A2AC8555D0065FCB7 /* Build configuration list for PBXNativeTarget "BetterRailWatch" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				C17FA4D82709EFBC003797D9 /* Debug */,
-				C17FA4D92709EFBC003797D9 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		C17FA4DB2709EFBC003797D9 /* Build configuration list for PBXNativeTarget "WatchBetterRail" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				C17FA4D52709EFBC003797D9 /* Debug */,
-				C17FA4D62709EFBC003797D9 /* Release */,
+				90749D282AC8555D0065FCB7 /* Debug */,
+				90749D292AC8555D0065FCB7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -2017,7 +1864,7 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		9043D49C2AC044C0008C31FB /* EasySkeleton */ = {
+		90749D2C2AC8561B0065FCB7 /* EasySkeleton */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 9043D49B2AC044C0008C31FB /* XCRemoteSwiftPackageReference "EasySkeleton" */;
 			productName = EasySkeleton;

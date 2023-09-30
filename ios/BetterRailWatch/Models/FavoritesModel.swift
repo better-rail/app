@@ -28,7 +28,7 @@ struct FavoritesModel {
       if let encodedRoutes = try? JSONEncoder().encode(newValue) {
         userDefaults?.set(encodedRoutes, forKey: "favorites")
         
-        if #available(watchOSApplicationExtension 10.0, *) {
+        if #available(watchOS 10.0, *) {
           WidgetCenter.shared.invalidateConfigurationRecommendations()
         }
       }
