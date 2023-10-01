@@ -66,7 +66,6 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
   useEffect(() => {
     // allow button fade only after the view mounts; disable the animation when the view appears initally.
     setShouldFadeRideButton(true)
-    openLivePermissionsSheet()
   }, [])
 
   useEffect(() => {
@@ -176,10 +175,10 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
           </Animated.View>
         )}
 
-        {Platform.OS === "ios" && <FirstRideAlert ref={bottomSheetRef} />}
         <FirstRideAlert ref={bottomSheetRef} />
       </Screen>
 
+      {Platform.OS === "ios" && <FirstRideAlert ref={bottomSheetRef} />}
       {Platform.OS === "android" && <LivePermissionsSheet ref={permissionSheetRef} />}
     </>
   )
