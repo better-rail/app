@@ -34,7 +34,9 @@ const ROOT: ViewStyle = {
 }
 export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
   const { ride } = useStores()
+
   const bottomSheetRef = useRef<BottomSheet>(null)
+  const permissionSheetRef = useRef<BottomSheet>(null)
 
   // we re-run this check every time the ride changes
   const isRideOnThisRoute = useMemo(() => ride.isRouteActive(route.params.routeItem), [ride.route])
@@ -57,9 +59,14 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
     bottomSheetRef.current?.expand()
   }
 
+  const openLivePermissionsSheet = () => {
+    permissionSheetRef.current?.expand()
+  }
+
   useEffect(() => {
     // allow button fade only after the view mounts; disable the animation when the view appears initally.
     setShouldFadeRideButton(true)
+    openLivePermissionsSheet()
   }, [])
 
   useEffect(() => {
@@ -69,107 +76,111 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
   }, [progress.status, ride.id])
 
   return (
-    <Screen
-      style={ROOT}
-      preset="fixed"
-      unsafe={true}
-      statusBar="light-content"
-      statusBarBackgroundColor="transparent"
-      translucent
-    >
-      <SharedElement id="route-header">
-        <RouteDetailsHeader
-          routeItem={routeItem}
-          originId={route.params.originId}
-          destinationId={route.params.destinationId}
-          screenName={route.name}
-          style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
-        />
-      </SharedElement>
-
-      <ScrollView
-        contentContainerStyle={{ paddingTop: spacing[4], paddingBottom: 80 + insets.bottom }}
-        showsVerticalScrollIndicator={false}
+    <>
+      <Screen
+        style={ROOT}
+        preset="fixed"
+        unsafe={true}
+        statusBar="light-content"
+        statusBarBackgroundColor="transparent"
+        translucent
       >
-        {routeItem.isMuchLonger && route.name == "routeDetails" && <LongRouteWarning />}
-        {routeItem.trains.map((train, index) => {
-          return (
-            <View key={train.trainNumber} style={{ backgroundColor: color.background }}>
-              <RouteStationCard
-                stationName={train.originStationName}
-                stopTime={format(train.departureTime, "HH:mm")}
-                platform={train.originPlatform}
-                trainNumber={train.trainNumber}
-                lastStop={train.lastStop}
-                delay={train.delay}
-              />
+        <SharedElement id="route-header">
+          <RouteDetailsHeader
+            routeItem={routeItem}
+            originId={route.params.originId}
+            destinationId={route.params.destinationId}
+            screenName={route.name}
+            style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
+          />
+        </SharedElement>
 
-              {train.stopStations.length > 0
-                ? train.stopStations.map((stop, index) => (
-                    <View key={stop.stationId}>
-                      <RouteStopCard
-                        stationName={stop.stationName}
-                        stopTime={format(stop.departureTime, "HH:mm")}
-                        delayedTime={train.delay ? format(stop.departureTime + train.delay * 60000, "HH:mm") : undefined}
-                        style={{ zIndex: 20 - index }}
-                        topLineState={isRideOnThisRoute ? stations[stop.stationId].top : "idle"}
-                        bottomLineState={isRideOnThisRoute ? stations[stop.stationId].bottom : "idle"}
-                      />
-                    </View>
-                  ))
-                : // if there are no stops, display a separating line between the route station cards
-                  train.stopStations.length === 0 && (
-                    <RouteLine
-                      style={{ start: "35.44%", height: 30 }}
-                      // TODO: The line state doesn't work properly
-                      state={isRideOnThisRoute ? stations[train.destinationStationId]?.bottom : "idle"}
-                    />
-                  )}
-
-              <RouteStationCard
-                stationName={train.destinationStationName}
-                stopTime={format(train.arrivalTime, "HH:mm")}
-                delayedTime={train.delay > 0 ? format(train.arrivalTime + train.delay * 60000, "HH:mm") : undefined}
-                platform={train.destinationPlatform}
-              />
-
-              {routeItem.isExchange && routeItem.trains.length - 1 !== index && (
-                <RouteExchangeDetails
-                  stationName={train.destinationStationName}
-                  arrivalPlatform={train.destinationPlatform}
-                  departurePlatform={routeItem.trains[index + 1].originPlatform}
-                  firstTrain={train}
-                  secondTrain={routeItem.trains[index + 1]}
+        <ScrollView
+          contentContainerStyle={{ paddingTop: spacing[4], paddingBottom: 80 + insets.bottom }}
+          showsVerticalScrollIndicator={false}
+        >
+          {routeItem.isMuchLonger && route.name == "routeDetails" && <LongRouteWarning />}
+          {routeItem.trains.map((train, index) => {
+            return (
+              <View key={train.trainNumber} style={{ backgroundColor: color.background }}>
+                <RouteStationCard
+                  stationName={train.originStationName}
+                  stopTime={format(train.departureTime, "HH:mm")}
+                  platform={train.originPlatform}
+                  trainNumber={train.trainNumber}
+                  lastStop={train.lastStop}
+                  delay={train.delay}
                 />
-              )}
-            </View>
-          )
-        })}
-        {/* <LivePermissionsSheet /> */}
-      </ScrollView>
 
-      {isRideOnThisRoute && (
-        <Animated.View
-          entering={shouldFadeRideButton && FadeInDown}
-          exiting={FadeOutDown}
-          // zIndex is needed for Android in order to make the button pressable
-          style={{ flex: 1, zIndex: Platform.select({ ios: 0, android: 1 }) }}
-        >
-          <LiveRideSheet progress={progress} screenName={route.name} />
-        </Animated.View>
-      )}
+                {train.stopStations.length > 0
+                  ? train.stopStations.map((stop, index) => (
+                      <View key={stop.stationId}>
+                        <RouteStopCard
+                          stationName={stop.stationName}
+                          stopTime={format(stop.departureTime, "HH:mm")}
+                          delayedTime={train.delay ? format(stop.departureTime + train.delay * 60000, "HH:mm") : undefined}
+                          style={{ zIndex: 20 - index }}
+                          topLineState={isRideOnThisRoute ? stations[stop.stationId].top : "idle"}
+                          bottomLineState={isRideOnThisRoute ? stations[stop.stationId].bottom : "idle"}
+                        />
+                      </View>
+                    ))
+                  : // if there are no stops, display a separating line between the route station cards
+                    train.stopStations.length === 0 && (
+                      <RouteLine
+                        style={{ start: "35.44%", height: 30 }}
+                        // TODO: The line state doesn't work properly
+                        state={isRideOnThisRoute ? stations[train.destinationStationId]?.bottom : "idle"}
+                      />
+                    )}
 
-      {(Platform.OS === "android" || canRunLiveActivities) && !isRideOnThisRoute && (
-        <Animated.View
-          entering={shouldFadeRideButton && FadeInDown.delay(100)}
-          exiting={FadeOutDown}
-          style={{ flex: 1, zIndex: 1 }}
-        >
-          <StartRideButton route={routeItem} screenName={route.name} openFirstRideAlertSheet={openFirstRideAlertSheet} />
-        </Animated.View>
-      )}
+                <RouteStationCard
+                  stationName={train.destinationStationName}
+                  stopTime={format(train.arrivalTime, "HH:mm")}
+                  delayedTime={train.delay > 0 ? format(train.arrivalTime + train.delay * 60000, "HH:mm") : undefined}
+                  platform={train.destinationPlatform}
+                />
 
-      {Platform.OS === "ios" && <FirstRideAlert ref={bottomSheetRef} />}
-    </Screen>
+                {routeItem.isExchange && routeItem.trains.length - 1 !== index && (
+                  <RouteExchangeDetails
+                    stationName={train.destinationStationName}
+                    arrivalPlatform={train.destinationPlatform}
+                    departurePlatform={routeItem.trains[index + 1].originPlatform}
+                    firstTrain={train}
+                    secondTrain={routeItem.trains[index + 1]}
+                  />
+                )}
+              </View>
+            )
+          })}
+        </ScrollView>
+
+        {isRideOnThisRoute && (
+          <Animated.View
+            entering={shouldFadeRideButton && FadeInDown}
+            exiting={FadeOutDown}
+            // zIndex is needed for Android in order to make the button pressable
+            style={{ flex: 1, zIndex: Platform.select({ ios: 0, android: 1 }) }}
+          >
+            <LiveRideSheet progress={progress} screenName={route.name} />
+          </Animated.View>
+        )}
+
+        {(Platform.OS === "android" || canRunLiveActivities) && !isRideOnThisRoute && (
+          <Animated.View
+            entering={shouldFadeRideButton && FadeInDown.delay(100)}
+            exiting={FadeOutDown}
+            style={{ flex: 1, zIndex: 1 }}
+          >
+            <StartRideButton route={routeItem} screenName={route.name} openFirstRideAlertSheet={openFirstRideAlertSheet} />
+          </Animated.View>
+        )}
+
+        {Platform.OS === "ios" && <FirstRideAlert ref={bottomSheetRef} />}
+        <FirstRideAlert ref={bottomSheetRef} />
+      </Screen>
+
+      {Platform.OS === "android" && <LivePermissionsSheet ref={permissionSheetRef} />}
+    </>
   )
 })

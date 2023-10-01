@@ -13,7 +13,8 @@
     "dismiss": "ביטול",
     "areYouSure": "האם את/ה בטוח/ה?",
     "tryAgain": "נסו שנית",
-    "error": "שגיאה"
+    "error": "שגיאה",
+    "allow": "Allow"
   },
   "plan": {
     "title": "תכנון מסלול",
@@ -235,7 +236,9 @@
     "firstRideAlertP3": "בעיה זו בדרך כלל נפתרת מעצמה לאחר כשלושה ימים של שימוש, לאחריהם הלייב אקטיביטי יפעל בצורה מדויקת.",
 
     "notificationPermission1": "על מנת שנוכל לעדכן אתכם בזמן אמת על התקדמות הרכבת, יש לאפשר לנו לשלוח נוטיפקציות למכשירכם.",
-    "notificationPermission2": "אנחנו משתמשים במנגנון נוטיפיקציות חסכוני, ולא שולחים נוטיפקציות מיותרות."
+    "notificationPermission2": "אנחנו משתמשים במנגנון נוטיפיקציות חסכוני, ולא שולחים נוטיפקציות מיותרות.",
+    "notificationPermission3": "נוטיפיקציות",
+    "notificationPermission4": "נוטיפיקציות מדוייקות"
   },
   "paywall": {
     "betterCommute": "לא תאמינו איך נסיעה ברכבת יכולה להראות 😎",
