@@ -96,7 +96,7 @@ const PermissionButton = ({ permitted = false, onPress = () => {} }) => {
     <TouchableOpacity
       style={[PERMISSION_BUTTON_WRAPPER, { backgroundColor }]}
       activeOpacity={0.9}
-      onPress={!permitted && onPress}
+      onPress={permitted ? undefined : onPress}
     >
       {!permitted ? (
         <Text preset="bold" style={{ color: color.whiteText }} tx="common.allow" />
