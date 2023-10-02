@@ -149,7 +149,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           initialScrollIndex={initialScrollIndex}
           // so the list will re-render when the ride route changes, and so the item will be marked
           extraData={[ride.route, routePlan.date]}
-          ListFooterComponent={<DateScroll direction="Forward" />}
+          ListFooterComponent={<DateScroll direction="forward" />}
           ListFooterComponentStyle={{ height: spacing[7] }}
         />
       )}

@@ -51,7 +51,7 @@ const TEXT_STYLE: TextStyle = {
   color: color.primary,
 }
 
-type DateScrollDirection = "Forward" | "Backward"
+type DateScrollDirection = "forward" | "backward"
 
 export const DateScroll = function DateScroll(props: { direction: DateScrollDirection }) {
   const { routePlan } = useStores()
@@ -75,7 +75,7 @@ export const DateScroll = function DateScroll(props: { direction: DateScrollDire
 
   return (
     <View style={CONTAINER_STYLE}>
-      {props.direction === "Backward" ? (
+      {props.direction === "backward" ? (
         <>
           <Pressable style={PRESSABLE_STYLE} onPress={() => setNewDate(-1)}>
             <View style={LINE_STYLE}></View>
