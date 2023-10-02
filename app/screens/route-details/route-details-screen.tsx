@@ -174,8 +174,6 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
             <StartRideButton route={routeItem} screenName={route.name} openFirstRideAlertSheet={openFirstRideAlertSheet} />
           </Animated.View>
         )}
-
-        <FirstRideAlert ref={bottomSheetRef} />
       </Screen>
 
       {Platform.OS === "ios" && <FirstRideAlert ref={bottomSheetRef} />}
