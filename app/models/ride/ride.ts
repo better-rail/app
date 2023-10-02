@@ -54,7 +54,7 @@ export const RideModel = types
       }),
     ),
     /**
-     * Activity authorization info
+     * Notifee settings for android
      */
     notifeeSettings: types.maybe(
       types.model({
@@ -64,9 +64,6 @@ export const RideModel = types
     ),
   })
   .views((self) => ({
-    /**
-     *
-     */
     get originId() {
       if (!self.route) return undefined
       return self.route.trains[0].originStationId
