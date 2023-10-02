@@ -128,7 +128,7 @@ function App() {
           rootStore.favoriteRoutes.syncFavorites()
 
           // Check Live Activities authorization
-          rootStore.ride.checkActivityAuthorizationInfo()
+          rootStore.ride.checkLiveRideAuthorization()
 
           if (rootStore.ride.id) {
             // Check if the current ride id is still active

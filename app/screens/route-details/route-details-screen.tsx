@@ -36,6 +36,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
   const { ride } = useStores()
 
   const bottomSheetRef = useRef<BottomSheet>(null)
+  const permissionsPromise = useRef<Function>(null)
   const permissionSheetRef = useRef<BottomSheet>(null)
 
   // we re-run this check every time the ride changes
@@ -60,7 +61,15 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
   }
 
   const openLivePermissionsSheet = () => {
-    permissionSheetRef.current?.expand()
+    return new Promise((resolve) => {
+      permissionSheetRef.current?.expand()
+      permissionsPromise.current = resolve
+    })
+  }
+
+  const onDoneLivePermissionsSheet = () => {
+    permissionSheetRef.current?.close()
+    permissionsPromise.current?.()
   }
 
   useEffect(() => {
@@ -171,15 +180,18 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
             exiting={FadeOutDown}
             style={{ flex: 1, zIndex: 1 }}
           >
-            <StartRideButton route={routeItem} screenName={route.name} openFirstRideAlertSheet={openFirstRideAlertSheet} />
+            <StartRideButton
+              route={routeItem}
+              screenName={route.name}
+              openFirstRideAlertSheet={openFirstRideAlertSheet}
+              openPermissionsSheet={openLivePermissionsSheet}
+            />
           </Animated.View>
         )}
-
-        <FirstRideAlert ref={bottomSheetRef} />
       </Screen>
 
       {Platform.OS === "ios" && <FirstRideAlert ref={bottomSheetRef} />}
-      {Platform.OS === "android" && <LivePermissionsSheet ref={permissionSheetRef} />}
+      {Platform.OS === "android" && <LivePermissionsSheet onDone={onDoneLivePermissionsSheet} ref={permissionSheetRef} />}
     </>
   )
 })

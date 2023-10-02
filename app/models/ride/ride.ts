@@ -11,6 +11,7 @@ import { formatDateForAPI } from "../../utils/helpers/date-helpers"
 import { addMinutes } from "date-fns"
 import { translate } from "../../i18n"
 import * as Burnt from "burnt"
+import notifee, { NotificationSettings } from "@notifee/react-native"
 
 const routeApi = new RouteApi()
 
@@ -52,6 +53,15 @@ export const RideModel = types
         frequentPushesEnabled: types.boolean,
       }),
     ),
+    /**
+     * Activity authorization info
+     */
+    notifeeSettings: types.maybe(
+      types.model({
+        notifications: types.number,
+        alarms: types.number,
+      }),
+    ),
   })
   .views((self) => ({
     /**
@@ -68,13 +78,22 @@ export const RideModel = types
     },
   }))
   .actions((self) => ({
+    setNotifeeSettings(newSettings: NotificationSettings) {
+      self.notifeeSettings = {
+        notifications: newSettings.authorizationStatus,
+        alarms: newSettings.android.alarm,
+      }
+    },
     setActivityAuthorizationInfo(newInfo: ActivityAuthorizationInfo) {
       self.activityAuthorizationInfo = newInfo
     },
-    async checkActivityAuthorizationInfo() {
+    async checkLiveRideAuthorization() {
       if (canRunLiveActivities) {
         const info = await iOSHelpers.activityAuthorizationInfo()
         this.setActivityAuthorizationInfo(info)
+      } else if (Platform.OS === "android") {
+        const settings = await notifee.getNotificationSettings()
+        this.setNotifeeSettings(settings)
       }
     },
     afterCreate() {
@@ -83,7 +102,7 @@ export const RideModel = types
         this.isRideActive(self.id)
       }
 
-      this.checkActivityAuthorizationInfo()
+      this.checkLiveRideAuthorization()
     },
     startRide(route: RouteItem) {
       if (Platform.OS === "ios" && !canRunLiveActivities) return

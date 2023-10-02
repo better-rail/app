@@ -1,11 +1,14 @@
 import { forwardRef } from "react"
-import { Image, TextStyle, View, ViewStyle } from "react-native"
+import { Image, PermissionsAndroid, TextStyle, View, ViewStyle } from "react-native"
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet"
 import { Button, Text } from "../../../components"
 import { BottomSheetModal } from "../../../components/sheets/bottom-sheet-modal"
 import { color, spacing } from "../../../theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { translate } from "../../../i18n"
+import { useStores } from "../../../models"
+import notifee, { AndroidNotificationSetting, AuthorizationStatus } from "@notifee/react-native"
+import { observer } from "mobx-react-lite"
 
 const WRAPPER: ViewStyle = {
   paddingHorizontal: spacing[4],
@@ -22,30 +25,59 @@ const TEXT: TextStyle = {
   color: color.text,
 }
 
-export const LivePermissionsSheet = forwardRef<BottomSheet>((props, ref) => (
-  <BottomSheetModal ref={ref} enableDynamicSizing>
-    <BottomSheetView style={WRAPPER}>
-      <Text tx="ride.notificationPermission1" style={TEXT} />
-      <Text tx="ride.notificationPermission2" style={TEXT} />
+type Props = {
+  onDone: () => void
+}
 
-      <View style={{ width: "100%", gap: 20 }}>
-        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-          <Text style={{ fontSize: 18, fontWeight: "bold" }} tx="ride.notificationPermission3" />
-          <PermissionButton />
-        </View>
-        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-          <Text style={{ fontSize: 18, fontWeight: "bold" }} tx="ride.notificationPermission4" />
-          <PermissionButton />
-        </View>
-      </View>
-      <Button
-        title={translate("liveAnnounce.startRide.title")}
-        containerStyle={{ width: "100%", maxHeight: 60 }}
-        disabled={true}
-      />
-    </BottomSheetView>
-  </BottomSheetModal>
-))
+export const LivePermissionsSheet = observer(
+  forwardRef<BottomSheet, Props>((props, ref) => {
+    const { ride } = useStores()
+
+    const grantNotifications = async () => {
+      await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS)
+      return ride.checkLiveRideAuthorization()
+    }
+
+    const grantAlarms = () => {
+      notifee.openAlarmPermissionSettings()
+    }
+
+    return (
+      <BottomSheetModal ref={ref} enableDynamicSizing>
+        <BottomSheetView style={WRAPPER}>
+          <Text tx="ride.notificationPermission1" style={TEXT} />
+          <Text tx="ride.notificationPermission2" style={TEXT} />
+
+          <View style={{ width: "100%", gap: 20 }}>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+              <Text style={{ fontSize: 18, fontWeight: "bold" }} tx="ride.notificationPermission3" />
+              <PermissionButton
+                onPress={grantNotifications}
+                permitted={ride.notifeeSettings?.notifications === AuthorizationStatus.AUTHORIZED}
+              />
+            </View>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+              <Text style={{ fontSize: 18, fontWeight: "bold" }} tx="ride.notificationPermission4" />
+              <PermissionButton
+                onPress={grantAlarms}
+                permitted={ride.notifeeSettings?.alarms === AndroidNotificationSetting.ENABLED}
+              />
+            </View>
+          </View>
+          <Button
+            onPress={props.onDone}
+            title={translate("liveAnnounce.startRide.title")}
+            containerStyle={{ width: "100%", maxHeight: 60 }}
+            disabled={
+              ride.notifeeSettings?.notifications !== AuthorizationStatus.AUTHORIZED ||
+              ride.notifeeSettings?.alarms !== AndroidNotificationSetting.ENABLED
+            }
+          />
+        </BottomSheetView>
+      </BottomSheetModal>
+    )
+  }),
+)
 
 const PERMISSION_BUTTON_WRAPPER: ViewStyle = {
   width: 120,

@@ -237,8 +237,8 @@
 
     "notificationPermission1": "על מנת שנוכל לעדכן אתכם בזמן אמת על התקדמות הרכבת, יש לאפשר לנו לשלוח נוטיפקציות למכשירכם.",
     "notificationPermission2": "אנחנו משתמשים במנגנון נוטיפיקציות חסכוני, ולא שולחים נוטיפקציות מיותרות.",
-    "notificationPermission3": "נוטיפיקציות",
-    "notificationPermission4": "נוטיפיקציות מדוייקות"
+    "notificationPermission3": "התראות",
+    "notificationPermission4": "התראות מתוזמנות"
   },
   "paywall": {
     "betterCommute": "לא תאמינו איך נסיעה ברכבת יכולה להראות 😎",
