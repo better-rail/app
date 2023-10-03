@@ -1,4 +1,4 @@
-import React, { useCallback } from "react"
+import React, { Dispatch, SetStateAction, useCallback } from "react"
 import { View, Image, Pressable, ViewStyle, ImageStyle, TextStyle } from "react-native"
 
 import { color } from "../../../theme"
@@ -53,24 +53,30 @@ const TEXT_STYLE: TextStyle = {
 
 type DateScrollDirection = "forward" | "backward"
 
-export const DateScroll = function DateScroll(props: { direction: DateScrollDirection }) {
-  const { routePlan } = useStores()
-
+export const DateScroll = function DateScroll(props: {
+  direction: DateScrollDirection
+  setTime: Dispatch<SetStateAction<number>>
+  currenTime: number
+}) {
   const getNewDate = useCallback(
     (value: number) => {
-      const newDate = new Date(routePlan.date)
+      const newDate = new Date(props.currenTime)
       newDate.setDate(newDate.getDate() + value)
 
       return newDate
     },
-    [routePlan.date],
+    [props.currenTime],
   )
 
   const setNewDate = useCallback(
     (value: number) => {
-      routePlan.setDate(routePlan.date.setDate(routePlan.date.getDate() + value))
+      props.setTime((currentTime) => {
+        const currentDate = new Date(currentTime)
+        currentDate.setDate(currentDate.getDate() + value)
+        return currentDate.getTime()
+      })
     },
-    [routePlan.date],
+    [props.currenTime],
   )
 
   return (

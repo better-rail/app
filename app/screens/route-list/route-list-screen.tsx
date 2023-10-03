@@ -28,12 +28,13 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   const { originId, destinationId, time, enableQuery } = route.params
 
   const [routeData, setRouteData] = useState<RouteData[]>([])
+  const [searchTime, setSearchTime] = useState<number>(time)
 
   const { isInternetReachable } = useNetInfo()
   const trains = useQuery(
-    ["origin", originId, "destination", destinationId, "time", routePlan.date.getDate()],
+    ["origin", originId, "destination", destinationId, "time", searchTime],
     async () => {
-      const result = await trainRoutes.getRoutes(originId, destinationId, time)
+      const result = await trainRoutes.getRoutes(originId, destinationId, searchTime)
       return result
     },
     { enabled: enableQuery, retry: false },
@@ -167,7 +168,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           initialScrollIndex={initialScrollIndex}
           // so the list will re-render when the ride route changes, and so the item will be marked
           extraData={[ride.route, routePlan.date]}
-          ListFooterComponent={<DateScroll direction="forward" />}
+          ListFooterComponent={<DateScroll direction="forward" setTime={setSearchTime} currenTime={searchTime} />}
           ListFooterComponentStyle={{ height: spacing[7] }}
         />
       )}
