@@ -10,9 +10,10 @@ import { RouteListScreenProps } from "../../navigators/main-navigator"
 import { useStores } from "../../models"
 import { color, fontScale, spacing } from "../../theme"
 import { RouteItem } from "../../services/api"
-import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight, Text } from "../../components"
+import { flatMap, max, round, uniqBy } from "lodash"
+import { ResultDateCard } from "./components/result-date-card"
+import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight } from "../../components"
 import { NoTrainsFoundMessage, NoInternetConnection, RouteListWarning, WarningType, DateScroll } from "./components"
-import { flatMap, max, round } from "lodash"
 import { translate } from "../../i18n"
 
 const ROOT: ViewStyle = {
@@ -40,7 +41,11 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
 
   useEffect(() => {
     if (trains.isSuccess) {
-      setRouteData((prevData) => [...prevData, routePlan.date.toDateString(), ...trains.data])
+      setRouteData((prevData) =>
+        uniqBy([...prevData, routePlan.date.toDateString(), ...trains.data], (item) => {
+          return typeof item === "string" ? item : item.trains.map((train) => train.departureTimeString).join()
+        }),
+      )
     }
   }, [trains.data?.length])
 
@@ -88,18 +93,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
 
   const renderRouteCard = ({ item }: { item: RouteData }) => {
     if (typeof item === "string") {
-      return (
-        <View
-          style={{
-            display: "flex",
-            alignItems: "center",
-            padding: "2%",
-            justifyContent: "center",
-          }}
-        >
-          <Text text={item} style={{ color: color.primary }} />
-        </View>
-      )
+      return <ResultDateCard date={item} />
     }
     const departureTime = item.trains[0].departureTime
     let arrivalTime = item.trains[0].arrivalTime
