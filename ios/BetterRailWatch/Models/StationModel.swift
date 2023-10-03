@@ -8,10 +8,20 @@ struct Station: Decodable, Hashable, Encodable, Identifiable {
   let name: String
   let image: String?
   
+  let hebrew: String?
+  let english: String?
+  let russian: String?
+  let arabic: String?
+  
   init(from decoder: Decoder) throws {
-      let values = try decoder.container(keyedBy: CodingKeys.self)
-      id = try values.decode(String.self, forKey: .id)
-      name = try values.decode(String.self, forKey: CodingKeys(rawValue: userLocale.rawValue)!)
+    let values = try decoder.container(keyedBy: CodingKeys.self)
+    id = try values.decode(String.self, forKey: .id)
+    name = try values.decode(String.self, forKey: CodingKeys(rawValue: userLocale.rawValue)!)
+    
+    hebrew = try values.decode(String.self, forKey: .hebrew)
+    english = try values.decode(String.self, forKey: .english)
+    russian = try values.decode(String.self, forKey: .russian)
+    arabic = try values.decode(String.self, forKey: .arabic)
     
     if (values.contains(.image)) {
       image = try values.decode(String.self, forKey: .image)
@@ -24,6 +34,11 @@ struct Station: Decodable, Hashable, Encodable, Identifiable {
     self.id = id
     self.name = name
     self.image = nil
+    
+    self.hebrew = nil
+    self.english = nil
+    self.russian = nil
+    self.arabic = nil
   }
   
   func encode(to encoder: Encoder) throws {

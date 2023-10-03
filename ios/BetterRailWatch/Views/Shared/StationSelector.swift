@@ -13,7 +13,17 @@ struct StationSelector: View {
       return sortedStations
     }
     
-    return sortedStations.filter { $0.name.lowercased().trimmingCharacters(in: .whitespaces).contains(searchValue.lowercased().trimmingCharacters(in: .whitespaces)) }
+    return sortedStations.filter { station in
+      let keys = [station.name, station.hebrew, station.english, station.russian, station.arabic]
+      
+      return keys.contains { value in
+        if let value {
+          return value.lowercased().trimmingCharacters(in: .whitespaces).contains(searchValue.lowercased().trimmingCharacters(in: .whitespaces))
+        }
+        
+        return false
+      }
+    }
   }
   
     var body: some View {
