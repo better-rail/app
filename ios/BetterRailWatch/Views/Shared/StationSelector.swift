@@ -13,7 +13,7 @@ struct StationSelector: View {
       return sortedStations
     }
     
-    return sortedStations.filter { $0.name.lowercased().contains(searchValue.lowercased()) }
+    return sortedStations.filter { $0.name.lowercased().trimmingCharacters(in: .whitespaces).contains(searchValue.lowercased().trimmingCharacters(in: .whitespaces)) }
   }
   
     var body: some View {
