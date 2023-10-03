@@ -16,6 +16,8 @@ export function useDeepLinking(rootStore: RootStore, navigationRef: MutableRefOb
   const stations = useStations()
 
   function deepLinkWidgetURL(url: string) {
+    if (!rootStore) return
+
     const { originId, destinationId } = extractURLParams(url)
     const { setOrigin, setDestination } = rootStore.routePlan
 

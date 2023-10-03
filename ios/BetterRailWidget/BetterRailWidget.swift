@@ -60,7 +60,7 @@ struct Provider: IntentTimelineProvider {
           let timeline = Timeline(entries: [emptyEntry], policy: .after(retryTime))
           completion(timeline)
         } else {
-          let entries = entriesGenerator.getTrains(originId: Int(originId)!, destinationId: Int(destinationId)!, label: configuration.label, todayRoutes: routes.today.routes!, tomorrowRoutes: routes.tomorrow.routes!)
+          let entries = entriesGenerator.getTrains(originId: Int(originId)!, destinationId: Int(destinationId)!, label: configuration.label, todayRoutes: routes.today.routes!, tomorrowRoutes: routes.tomorrow.routes ?? [])
           
           // Refresh widget after tomorrow at midnight
           let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date())!

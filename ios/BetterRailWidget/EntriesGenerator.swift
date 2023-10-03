@@ -5,25 +5,24 @@ struct EntriesGenerator {
     
   func getTrains(originId: Int, destinationId: Int, label: String?, todayRoutes: [Route], tomorrowRoutes: [Route]) -> [Entry] {
     var entries: [Entry] = []
-    var lastTrainEntryDate = Date()
     
     let todayRoutes = cleanPastTrains(todayRoutes)
+    let tomorrowRoutesForUpcomingTrains = getDaysDiff(tomorrowRoutes) < 2 ? tomorrowRoutes : []
     
     if todayRoutes.count == 0 && tomorrowRoutes.count == 0 {
       entries.append(getEmptyEntry(originId: originId, destinationId: destinationId, label: label))
     } else {
       if todayRoutes.count > 0 {
-        entries = generateEntriesForRoutes(todayRoutes, originId: originId, destinationId: destinationId, label: label)
-        lastTrainEntryDate = Calendar.current.date(byAdding: .minute, value: 2, to: entries[entries.count - 1].date)!
+        entries = generateEntriesForRoutes(todayRoutes, tomorrowRoutesForUpcomingTrains, originId: originId, destinationId: destinationId, label: label)
       }
       
+      let lastTrainEntryDate = todayRoutes.count > 0 ? isoDateStringToDate(todayRoutes.last!.departureTime).addMinutes(1) : .now
+      
       if tomorrowRoutes.count > 0 {
-        let currentDateAtMidnight = Calendar.current.date(bySettingHour: 0, minute: 0, second: 0, of: Date())!
-        let firstRouteDate = isoDateStringToDate(tomorrowRoutes[0].departureTime)
-        let daysDiff = Calendar.current.dateComponents([.day], from: currentDateAtMidnight, to: firstRouteDate).day ?? 0
+        let daysDiff = getDaysDiff(tomorrowRoutes)
         
         if daysDiff < 2 {
-          var tomorrowEntries = generateEntriesForRoutes(tomorrowRoutes, originId: originId, destinationId: destinationId, label: label)
+          var tomorrowEntries = generateEntriesForRoutes(tomorrowRoutes, [], originId: originId, destinationId: destinationId, label: label)
           tomorrowEntries[0].date = lastTrainEntryDate
           
           // Add tomorrow's first entry as the last entry for today
@@ -41,7 +40,7 @@ struct EntriesGenerator {
     return entries
   }
   
-  func generateEntriesForRoutes(_ routes: [Route], originId: Int, destinationId: Int, label: String?) -> [Entry] {
+  func generateEntriesForRoutes(_ routes: [Route], _ tomorrowRoutes: [Route], originId: Int, destinationId: Int, label: String?) -> [Entry] {
     var entries: [Entry] = []
     
     // Get stations for entries
@@ -49,7 +48,7 @@ struct EntriesGenerator {
     let destinationStation = getStationById(destinationId)!
       
         
-    if (routes.count > 0) {
+    if routes.count > 0 {
       for index in 0 ..< routes.count {
         let trains = routes[index].trains
         let firstRouteTrain = trains[0]
@@ -57,7 +56,7 @@ struct EntriesGenerator {
 
         var date: Date
 
-        if (index == 0) {
+        if index == 0 {
           // First entry shows up right away
           date = Date()
         } else {
@@ -65,7 +64,7 @@ struct EntriesGenerator {
           let previousTrain = routes[index - 1].trains[0]
           let lastDepartureDate = isoDateStringToDate(previousTrain.departureTime)
 
-          date = Calendar.current.date(byAdding: .minute, value: 1, to: lastDepartureDate)!
+          date = lastDepartureDate.addMinutes(1)
         }
         
         var entry = Entry(
@@ -81,8 +80,9 @@ struct EntriesGenerator {
           upcomingTrains: nil
         )
         
-        if routes.count > 1 {
-          let allUpcomingRoutes = Array(routes[index + 1 ..< routes.count ])
+        let upcomingRoutes = routes + tomorrowRoutes
+        if upcomingRoutes.count > 1 {
+          let allUpcomingRoutes = Array(upcomingRoutes[index + 1 ..< upcomingRoutes.count ])
           
           // Include a maximum of 4 routes in the upcoming routes
           let routesCount = allUpcomingRoutes.count > 5 ? 5 : allUpcomingRoutes.count
@@ -141,5 +141,15 @@ struct EntriesGenerator {
   func cleanPastTrains(_ routes: [Route]) -> [Route] {
     let now = Date()
     return routes.filter { now < isoDateStringToDate($0.trains[0].departureTime) }
+  }
+  
+  func getDaysDiff(_ tomorrowRoutes: [Route]) -> Int {
+    if tomorrowRoutes.isEmpty {
+      return 0
+    }
+    
+    let currentDateAtMidnight = Calendar.current.date(bySettingHour: 0, minute: 0, second: 0, of: Date())!
+    let firstRouteDate = isoDateStringToDate(tomorrowRoutes[0].departureTime)
+    return Calendar.current.dateComponents([.day], from: currentDateAtMidnight, to: firstRouteDate).day ?? 0
   }
 }
