@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { View, ActivityIndicator, ViewStyle, Dimensions } from "react-native"
 import { FlashList } from "@shopify/flash-list"
 import { observer } from "mobx-react-lite"
@@ -20,9 +20,13 @@ const ROOT: ViewStyle = {
   flex: 1,
 }
 
+type RouteData = RouteItem | string
+
 export const RouteListScreen = observer(function RouteListScreen({ navigation, route }: RouteListScreenProps) {
   const { trainRoutes, routePlan, ride } = useStores()
   const { originId, destinationId, time, enableQuery } = route.params
+
+  const [routeData, setRouteData] = useState<RouteData[]>([])
 
   const { isInternetReachable } = useNetInfo()
   const trains = useQuery(
@@ -33,6 +37,12 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     },
     { enabled: enableQuery, retry: false },
   )
+
+  useEffect(() => {
+    if (trains.isSuccess) {
+      setRouteData((prevData) => [...prevData, routePlan.date.toDateString(), ...trains.data])
+    }
+  }, [trains.data?.length])
 
   // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
   // returns a route list for the whole day.
@@ -76,7 +86,21 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     return fontScale <= 1.2 && deviceWidth >= 360 && shouldShowDashedLineByTextLength
   }, [trains.data])
 
-  const renderRouteCard = ({ item }: { item: RouteItem }) => {
+  const renderRouteCard = ({ item }: { item: RouteData }) => {
+    if (typeof item === "string") {
+      return (
+        <View
+          style={{
+            display: "flex",
+            alignItems: "center",
+            padding: "2%",
+            justifyContent: "center",
+          }}
+        >
+          <Text text={item} style={{ color: color.primary }} />
+        </View>
+      )
+    }
     const departureTime = item.trains[0].departureTime
     let arrivalTime = item.trains[0].arrivalTime
     let stops = 0
@@ -138,8 +162,8 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
       {trains.status === "success" && trains.data.length > 0 && (
         <FlashList
           renderItem={renderRouteCard}
-          keyExtractor={(item) => item.trains.map((train) => train.trainNumber).join()}
-          data={trains.data}
+          keyExtractor={(item) => (typeof item === "string" ? item : item.trains.map((train) => train.trainNumber).join())}
+          data={routeData}
           contentContainerStyle={{
             paddingTop: spacing[4],
             paddingHorizontal: spacing[3],
