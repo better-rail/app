@@ -8,7 +8,6 @@ struct SearchView: View {
   
   @State var isOriginOpen = false
   @State var isDestinationOpen = false
-  @State var isRoutesOpen = false
   
     var body: some View {
         ScrollView {
