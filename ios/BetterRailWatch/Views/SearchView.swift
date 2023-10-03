@@ -1,44 +1,23 @@
 import SwiftUI
 
-let sortedStations = stations.sorted(by: {$0.name < $1.name})
-
 struct SearchView: View {
   @State var origin: Station?
   @State var destination: Station?
   
-  @State var isOriginOpen = false
-  @State var isDestinationOpen = false
-  
     var body: some View {
         ScrollView {
           header("from")
-          NavigationLink(origin?.name ?? String(localized: "origin"), isActive: $isOriginOpen) {
-            List {
-              ForEach(sortedStations) { station in
-                Text(station.name)
-                  .onTapGesture {
-                    origin = station
-                    isOriginOpen = false
-                  }
-              }
-            }
-            .navigationTitle("origin")
-            .navigationBarTitleDisplayMode(.inline)
+          NavigationLink(origin?.name ?? String(localized: "origin")) {
+            StationSelector(selectedStation: $origin)
+              .navigationTitle("origin")
+              .navigationBarTitleDisplayMode(.inline)
           }
           
           header("to")
-          NavigationLink(destination?.name ?? String(localized: "destination"), isActive: $isDestinationOpen) {
-            List {
-              ForEach(sortedStations) { station in
-                Text(station.name)
-                  .onTapGesture {
-                    destination = station
-                    isDestinationOpen = false
-                  }
-              }
-            }
-            .navigationTitle("destination")
-            .navigationBarTitleDisplayMode(.inline)
+          NavigationLink(destination?.name ?? String(localized: "destination")) {
+            StationSelector(selectedStation: $destination)
+              .navigationTitle("destination")
+              .navigationBarTitleDisplayMode(.inline)
           }
           
           NavigationLink {
