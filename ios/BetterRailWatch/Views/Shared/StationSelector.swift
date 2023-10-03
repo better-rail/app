@@ -2,6 +2,14 @@ import SwiftUI
 
 let sortedStations = stations.sorted(by: {$0.name < $1.name})
 
+func formatSearchString(_ string: String) -> String {
+  string
+    .lowercased()
+    .replacingOccurrences(of: " ", with: "")
+    .replacingOccurrences(of: "-", with: "")
+    .replacingOccurrences(of: "\u{200f}", with: "", options: NSString.CompareOptions.literal)
+}
+
 struct StationSelector: View {
   @Binding var selectedStation: Station?
   @Environment(\.dismiss) private var dismiss
@@ -18,7 +26,7 @@ struct StationSelector: View {
       
       return keys.contains { value in
         if let value {
-          return value.lowercased().trimmingCharacters(in: .whitespaces).contains(searchValue.lowercased().trimmingCharacters(in: .whitespaces))
+          return formatSearchString(value).contains(formatSearchString(searchValue))
         }
         
         return false
