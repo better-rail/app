@@ -8,7 +8,7 @@ interface BottomSheetModalProps extends BottomSheetProps {
 }
 
 export const BottomSheetModal = forwardRef<BottomSheet, BottomSheetModalProps>(({ children, snapPoints, ...rest }, ref) => {
-  const sheetSnapPoints = useMemo(() => snapPoints || ["55%"], [])
+  const sheetSnapPoints = useMemo(() => snapPoints || ["50%"], [])
 
   const renderBackdrop = useCallback((props) => <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={2} />, [])
 
