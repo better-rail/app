@@ -45,7 +45,7 @@ export const RideModel = types
      */
     route: types.maybe(types.model(trainRouteSchema)),
     /**
-     * Activity authorization info
+     * Activity authorization info for iOS
      */
     activityAuthorizationInfo: types.maybe(
       types.model({
