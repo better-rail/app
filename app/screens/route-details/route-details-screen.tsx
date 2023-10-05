@@ -36,8 +36,11 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
   const { ride } = useStores()
 
   const bottomSheetRef = useRef<BottomSheet>(null)
-  const permissionsPromise = useRef<Function>(null)
   const permissionSheetRef = useRef<BottomSheet>(null)
+
+  // When we present the Live Permissions Sheet we initiate a promise that
+  // resolves when all the permissions are given and the user starts a ride
+  const permissionsPromise = useRef<Function>(null)
 
   // we re-run this check every time the ride changes
   const isRideOnThisRoute = useMemo(() => ride.isRouteActive(route.params.routeItem), [ride.route])
