@@ -160,6 +160,11 @@
 
     "firstRideAlertP1": "During the first three days of usage, there is a possibility that the live activity feature may display an incorrect estimated time of arrival (ETA).",
     "firstRideAlertP2": "This is due to the system taking time to allocate sufficient \"notification budget\" for the application. ",
-    "firstRideAlertP3": "This issue typically resolves itself after approximately three days of usage, after which the live activity will function accurately."
+    "firstRideAlertP3": "This issue typically resolves itself after approximately three days of usage, after which the live activity will function accurately.",
+
+    "notificationPermission1": "لكي نبقيكم على علم في الوقت الحقيقي بتقدم القطار، يُرجى السماح لنا بإرسال الإشعارات.",
+    "notificationPermission2": "نستخدم آلية إشعار فعّالة ولا نرسل إشعارات غير ضرورية.",
+    "notificationPermission3": "الإشعارات",
+    "notificationPermission4": "إشعارات دقيقة"
   }
 }

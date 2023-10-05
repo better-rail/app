@@ -13,7 +13,8 @@
     "dismiss": "ביטול",
     "areYouSure": "האם את/ה בטוח/ה?",
     "tryAgain": "נסו שנית",
-    "error": "שגיאה"
+    "error": "שגיאה",
+    "allow": "אפשר"
   },
   "plan": {
     "title": "תכנון מסלול",
@@ -232,7 +233,12 @@
 
     "firstRideAlertP1": "במהלך שלושת ימי השימוש הראשונים, קיימת אפשרות שזמן ההגעה שיוצג בלייב אקטיביטי (על מסך הנעילה) יהיה לא מדויק.",
     "firstRideAlertP2": "זאת בשל העובדה שלוקח למערכת זמן להקצות \"תקציב נוטיפיקציות\" מספק עבור האפליקציה.",
-    "firstRideAlertP3": "בעיה זו בדרך כלל נפתרת מעצמה לאחר כשלושה ימים של שימוש, לאחריהם הלייב אקטיביטי יפעל בצורה מדויקת."
+    "firstRideAlertP3": "בעיה זו בדרך כלל נפתרת מעצמה לאחר כשלושה ימים של שימוש, לאחריהם הלייב אקטיביטי יפעל בצורה מדויקת.",
+
+    "notificationPermission1": "על מנת שנוכל לעדכן אתכם בזמן אמת על התקדמות הרכבת, יש לאפשר לנו לשלוח נוטיפקציות למכשירכם.",
+    "notificationPermission2": "אנחנו משתמשים במנגנון נוטיפיקציות חסכוני, ולא שולחים נוטיפקציות מיותרות.",
+    "notificationPermission3": "התראות",
+    "notificationPermission4": "התראות מתוזמנות"
   },
   "paywall": {
     "betterCommute": "לא תאמינו איך נסיעה ברכבת יכולה להראות 😎",
