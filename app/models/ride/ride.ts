@@ -54,7 +54,7 @@ export const RideModel = types
       }),
     ),
     /**
-     * Notifee settings for android
+     * Notifee settings for Android
      */
     notifeeSettings: types.maybe(
       types.model({
