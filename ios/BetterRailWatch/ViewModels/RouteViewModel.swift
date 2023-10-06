@@ -5,6 +5,7 @@ class RouteViewModel: ObservableObject {
   let origin: Station
   let destination: Station
   private var lastRequest: Date?
+  private var date: Date?
   private var shouldFetchNextDay: Bool
   
   @Published var trains: Array<Route> = []
@@ -12,7 +13,8 @@ class RouteViewModel: ObservableObject {
   @Published var error: Error? = nil
   @Published var nextTrain: Route? = nil
   
-  init(origin: Station, destination: Station, shouldFetchNextDay: Bool = false) {
+  init(origin: Station, destination: Station, date: Date? = nil, shouldFetchNextDay: Bool = false) {
+    self.date = date
     self.origin = origin
     self.destination = destination
     self.shouldFetchNextDay = shouldFetchNextDay
@@ -24,9 +26,9 @@ class RouteViewModel: ObservableObject {
     self.loading = true
 
     Task {
-      async let todayRoutes = routeModel.fetchRoute(originId: origin.id, destinationId: destination.id)
+      async let todayRoutes = routeModel.fetchRoute(originId: origin.id, destinationId: destination.id, date: date ?? .now)
       
-      let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
+      let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: date ?? .now)!
       
       let results: (today: FetchRouteResult, tomorrow: FetchRouteResult)
       if shouldFetchNextDay {
@@ -104,8 +106,8 @@ class RouteViewModel: ObservableObject {
   // Filter routes to show today's routes only — except those who are on the next day within 12am - 2am.
   private func filterRoute(route: Route) -> Bool {
     let departureDate = isoDateStringToDate(route.departureTime)
-    let isToday = departureDate.hasSame(.day, as: Date())
-    let isTomorrow = departureDate.addingTimeInterval(24 * 60 * 60).hasSame(.day, as: Date())
+    let isToday = departureDate.hasSame(.day, as: date ?? .now)
+    let isTomorrow = departureDate.addingTimeInterval(24 * 60 * 60).hasSame(.day, as: date ?? .now)
     
     if isToday {
       return true

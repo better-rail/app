@@ -51,48 +51,61 @@ struct FavoriteRouteView: View {
     return minutesLeft > 60 && route.nextTrain?.isTomorrow ?? false
   }
   
+  var routeListDate: Date? {
+    guard let train = route.nextTrain?.trains.first else {
+      return nil
+    }
+    
+    return isoDateStringToDate(train.departureTime)
+  }
+  
   var body: some View {
-    VStack(alignment: .leading) {
-      routeName
-        .padding(.top, -8)
-      CriticalAlertsButton()
+    NavigationLink {
+      RoutesView(route: RouteViewModel(origin: route.origin, destination: route.destination, date: routeListDate))
+    } label: {
+      VStack(alignment: .leading) {
+        routeName
+          .padding(.top, -8)
+        CriticalAlertsButton()
 
-      Spacer()
-      if !route.loading && route.nextTrain == nil {
-        HStack {
-          Spacer()
-          if let requestError = route.error {
-            InfoMessage(imageName: "wifi.exclamationmark", message: requestError.localizedDescription) {
-              route.shouldRefetchRoutes()
+        Spacer()
+        if !route.loading && route.nextTrain == nil {
+          HStack {
+            Spacer()
+            if let requestError = route.error {
+              InfoMessage(imageName: "wifi.exclamationmark", message: requestError.localizedDescription) {
+                route.shouldRefetchRoutes()
+              }
+            } else {
+              InfoMessage(imageName: "tram", message: String(localized: "no-trains-found"))
             }
-          } else {
-            InfoMessage(imageName: "tram", message: String(localized: "no-trains-found"))
+            Spacer()
           }
-          Spacer()
+        } else {
+          nextTrain
+          HStack {
+            Spacer()
+            Text(String(localized: "platform \(String(platform)) train no. \(String(trainNumber))"))
+              .bold()
+              .skeletonable()
+            Spacer()
+          }
+          .font(Font.custom("Heebo", size: deviceWidth < 170 ? 9 : 10))
+          .padding(.bottom, 4)
         }
-      } else {
-        nextTrain
-        HStack {
-          Spacer()
-          Text(String(localized: "platform \(String(platform)) train no. \(String(trainNumber))"))
-            .bold()
-            .skeletonable()
-          Spacer()
-        }
-        .font(Font.custom("Heebo", size: deviceWidth < 170 ? 9 : 10))
-        .padding(.bottom, 4)
       }
+      .padding(8)
+      .contentShape(Rectangle())
+      .setSkeleton(.constant(route.trains.isEmpty), animationType: .gradient(Color.gray.makeGradient().map { $0.opacity(0.2) }))
+      .skeletonCornerRadius(6)
+      .onAppear {
+        route.refreshNextTrainState()
+      }
+      .onReceive(minuteTimer.$currentTime, perform: { _ in
+        route.refreshNextTrainState()
+      })
     }
-    .padding(8)
-    .contentShape(Rectangle())
-    .setSkeleton(.constant(route.trains.isEmpty), animationType: .gradient(Color.gray.makeGradient().map { $0.opacity(0.2) }))
-    .skeletonCornerRadius(6)
-    .onAppear {
-      route.refreshNextTrainState()
-    }
-    .onReceive(minuteTimer.$currentTime, perform: { _ in
-      route.refreshNextTrainState()
-    })
+    .buttonStyle(PlainButtonStyle())
   }
   
   var routeName: some View {
@@ -139,6 +152,6 @@ struct FavoriteRouteView: View {
 
 struct FavoriteRouteView_Previews: PreviewProvider {
     static var previews: some View {
-      return FavoriteRouteView(route: RouteViewModel(origin: stations[0], destination: stations[2], shouldFetchNextDay: true))
+      return FavoriteRouteView(route: RouteViewModel(origin: stations[0], destination: stations[2], date: nil, shouldFetchNextDay: true))
     }
 }

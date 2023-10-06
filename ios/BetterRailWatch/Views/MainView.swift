@@ -20,12 +20,7 @@ struct MainView: View {
         TabView(selection: $selected) {
           ForEach(favorites.routes) { route in
             NavigationStack {
-              NavigationLink(destination: {
-                RoutesView(route: RouteViewModel(origin: route.origin, destination: route.destination))
-              }, label: {
-                FavoriteRouteView(route: RouteViewModel(origin: route.origin, destination: route.destination, shouldFetchNextDay: true), label: route.label)
-              })
-              .buttonStyle(PlainButtonStyle())
+              FavoriteRouteView(route: RouteViewModel(origin: route.origin, destination: route.destination, date: nil, shouldFetchNextDay: true), label: route.label)
               .edgesIgnoringSafeArea(.bottom)
               .background(
                 LinearGradient(colors: [.blue, .clear], startPoint: .bottom, endPoint: .top)
