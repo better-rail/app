@@ -62,6 +62,10 @@ export const RideModel = types
         alarms: types.number,
       }),
     ),
+    /**
+     * Number of rides the user has taken
+     */
+    ridesCount: types.optional(types.number, 0),
   })
   .views((self) => ({
     get originId() {
@@ -111,6 +115,7 @@ export const RideModel = types
         .then((rideId) => {
           this.setRideId(rideId)
           this.setRideLoading(false)
+          this.setRideCount(self.ridesCount + 1)
         })
         .catch(() => {
           this.setRoute(undefined)
@@ -143,6 +148,9 @@ export const RideModel = types
     },
     setRideId(rideId: string) {
       self.id = rideId
+    },
+    setRideCount(count: number) {
+      self.ridesCount = count
     },
     isRideActive(rideId: string) {
       if (canRunLiveActivities) {
