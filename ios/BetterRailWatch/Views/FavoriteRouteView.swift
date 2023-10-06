@@ -101,9 +101,9 @@ struct FavoriteRouteView: View {
       .onAppear {
         route.refreshNextTrainState()
       }
-      .onReceive(minuteTimer.$currentTime, perform: { _ in
+      .onReceive(minuteTimer.$currentTime) { _ in
         route.refreshNextTrainState()
-      })
+      }
     }
     .buttonStyle(PlainButtonStyle())
   }
