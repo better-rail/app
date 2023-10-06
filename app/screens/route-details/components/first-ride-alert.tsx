@@ -12,6 +12,7 @@ const ALERT_CONTENT_WRAPPER: ViewStyle = {
   alignItems: "center",
   gap: 16,
   flex: 1,
+  backgroundColor: color.tertiaryBackground,
 }
 
 const ALERT_TEXT: TextStyle = {
@@ -21,19 +22,9 @@ const ALERT_TEXT: TextStyle = {
 }
 
 export const FirstRideAlert = forwardRef<BottomSheet>((props, ref) => {
-  const initialSnapPoints = useMemo(() => ["55%", "CONTENT_HEIGHT"], [])
-
-  const { animatedHandleHeight, animatedSnapPoints, animatedContentHeight, handleContentLayout } =
-    useBottomSheetDynamicSnapPoints(initialSnapPoints)
-
   return (
-    <BottomSheetModal
-      ref={ref}
-      snapPoints={animatedSnapPoints}
-      handleHeight={animatedHandleHeight}
-      contentHeight={animatedContentHeight}
-    >
-      <BottomSheetView onLayout={handleContentLayout}>
+    <BottomSheetModal ref={ref} enableDynamicSizing>
+      <BottomSheetView>
         <View style={ALERT_CONTENT_WRAPPER}>
           <Text style={{ fontSize: 52 }}>⚠️</Text>
           <Text style={[ALERT_TEXT, { fontWeight: "bold" }]} tx="ride.firstRideAlertP1" />

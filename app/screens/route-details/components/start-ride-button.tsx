@@ -13,7 +13,7 @@ import { timezoneCorrection } from "../../../utils/helpers/date-helpers"
 import { color, fontScale } from "../../../theme"
 import { useStores } from "../../../models"
 import { canRunLiveActivities } from "../../../utils/ios-helpers"
-import notifee, { AndroidNotificationSetting } from "@notifee/react-native"
+import { AndroidNotificationSetting, AuthorizationStatus } from "@notifee/react-native"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -41,6 +41,7 @@ interface StartRideButtonProps {
   route: RouteItem
   screenName: "routeDetails" | "activeRide"
   openFirstRideAlertSheet?: () => void
+  openPermissionsSheet?: () => Promise<unknown>
 }
 
 export const StartRideButton = observer(function StartRideButton(props: StartRideButtonProps) {
@@ -65,10 +66,9 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
 
   const areActivitiesDisabled = Platform.select({
     ios: () => !canRunLiveActivities || !(ride?.activityAuthorizationInfo?.areActivitiesEnabled ?? true),
-    android: () => {
-      const result = PermissionsAndroid.RESULTS[PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS]
-      return result && result !== "granted"
-    },
+    android: () =>
+      ride.notifeeSettings?.notifications !== AuthorizationStatus.AUTHORIZED ||
+      ride.notifeeSettings?.alarms !== AndroidNotificationSetting.ENABLED,
   })
   const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || areActivitiesDisabled()
 
@@ -116,23 +116,6 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
           analytics().logEvent("first_live_ride_alert")
         }
       })
-    } else if (Number(Platform.Version) >= 33) {
-      const result = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS)
-      if (result !== "granted") return
-
-      const settings = await notifee.getNotificationSettings()
-      if (settings.android.alarm === AndroidNotificationSetting.DISABLED) {
-        Alert.alert(translate("ride.alarmDisabledTitle"), translate("ride.alarmDisabledMessage"), [
-          {
-            style: "cancel",
-            text: translate("common.cancel"),
-          },
-          {
-            text: translate("settings.title"),
-            onPress: () => notifee.openAlarmPermissionSettings(),
-          },
-        ])
-      }
     }
 
     HapticFeedback.trigger("notificationSuccess")
@@ -167,22 +150,23 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
           let disabledReason = ""
           if (areActivitiesDisabled()) {
             disabledReason = Platform.OS === "ios" ? "Live Activities disabled" : "Notifications disbled"
-            const alertTitle =
-              Platform.OS === "ios" ? translate("ride.liveActivitiesDisabledTitle") : translate("ride.notificationsDisabledTitle")
-            const alertMessage =
-              Platform.OS === "ios"
-                ? translate("ride.liveActivitiesDisabledMessage")
-                : translate("ride.notificationsDisabledMessage")
-            Alert.alert(alertTitle, alertMessage, [
-              {
-                style: "cancel",
-                text: translate("common.cancel"),
-              },
-              {
-                text: translate("settings.title"),
-                onPress: () => Linking.openSettings(),
-              },
-            ])
+
+            if (Platform.OS === "ios") {
+              const alertTitle = translate("ride.liveActivitiesDisabledTitle")
+              const alertMessage = translate("ride.liveActivitiesDisabledMessage")
+              Alert.alert(alertTitle, alertMessage, [
+                {
+                  style: "cancel",
+                  text: translate("common.cancel"),
+                },
+                {
+                  text: translate("settings.title"),
+                  onPress: () => Linking.openSettings(),
+                },
+              ])
+            } else {
+              props.openPermissionsSheet().then(startRide)
+            }
           } else {
             let message = ""
             if (isRouteInPast) {
