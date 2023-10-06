@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { View, ActivityIndicator, ViewStyle, Dimensions } from "react-native"
 import { FlashList } from "@shopify/flash-list"
 import { observer } from "mobx-react-lite"
@@ -10,9 +10,10 @@ import { RouteListScreenProps } from "../../navigators/main-navigator"
 import { useStores } from "../../models"
 import { color, fontScale, spacing } from "../../theme"
 import { RouteItem } from "../../services/api"
+import { flatMap, max, round, uniqBy } from "lodash"
+import { ResultDateCard } from "./components/result-date-card"
 import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight } from "../../components"
-import { NoTrainsFoundMessage, NoInternetConnection, RouteListWarning, WarningType } from "./components"
-import { flatMap, max, round } from "lodash"
+import { NoTrainsFoundMessage, NoInternetConnection, RouteListWarning, WarningType, DateScroll } from "./components"
 import { translate } from "../../i18n"
 
 const ROOT: ViewStyle = {
@@ -20,19 +21,34 @@ const ROOT: ViewStyle = {
   flex: 1,
 }
 
+type RouteData = RouteItem | string
+
 export const RouteListScreen = observer(function RouteListScreen({ navigation, route }: RouteListScreenProps) {
   const { trainRoutes, routePlan, ride } = useStores()
   const { originId, destinationId, time, enableQuery } = route.params
 
+  const [routeData, setRouteData] = useState<RouteData[]>([])
+  const [searchTime, setSearchTime] = useState<number>(time)
+
   const { isInternetReachable } = useNetInfo()
   const trains = useQuery(
-    ["origin", originId, "destination", destinationId, "time", routePlan.date.getDate()],
+    ["origin", originId, "destination", destinationId, "time", searchTime],
     async () => {
-      const result = await trainRoutes.getRoutes(originId, destinationId, time)
+      const result = await trainRoutes.getRoutes(originId, destinationId, searchTime)
       return result
     },
     { enabled: enableQuery, retry: false },
   )
+
+  useEffect(() => {
+    if (trains.isSuccess) {
+      setRouteData((prevData) =>
+        uniqBy([...prevData, routePlan.date.toDateString(), ...trains.data], (item) => {
+          return typeof item === "string" ? item : item.trains.map((train) => train.departureTimeString).join()
+        }),
+      )
+    }
+  }, [trains.data?.length])
 
   // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
   // returns a route list for the whole day.
@@ -76,7 +92,10 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     return fontScale <= 1.2 && deviceWidth >= 360 && shouldShowDashedLineByTextLength
   }, [trains.data])
 
-  const renderRouteCard = ({ item }: { item: RouteItem }) => {
+  const renderRouteCard = ({ item }: { item: RouteData }) => {
+    if (typeof item === "string") {
+      return <ResultDateCard date={item} />
+    }
     const departureTime = item.trains[0].departureTime
     let arrivalTime = item.trains[0].arrivalTime
     let stops = 0
@@ -138,8 +157,8 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
       {trains.status === "success" && trains.data.length > 0 && (
         <FlashList
           renderItem={renderRouteCard}
-          keyExtractor={(item) => item.trains.map((train) => train.trainNumber).join()}
-          data={trains.data}
+          keyExtractor={(item) => (typeof item === "string" ? item : item.trains.map((train) => train.trainNumber).join())}
+          data={routeData}
           contentContainerStyle={{
             paddingTop: spacing[4],
             paddingHorizontal: spacing[3],
@@ -148,7 +167,9 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           estimatedItemSize={RouteCardHeight + spacing[3]}
           initialScrollIndex={initialScrollIndex}
           // so the list will re-render when the ride route changes, and so the item will be marked
-          extraData={ride.route}
+          extraData={[ride.route, routePlan.date]}
+          ListFooterComponent={<DateScroll direction="forward" setTime={setSearchTime} currenTime={searchTime} />}
+          ListFooterComponentStyle={{ height: spacing[7] }}
         />
       )}
 
