@@ -65,6 +65,16 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
     }
   }, [])
 
+  const openAnnouncements = () => {
+    navigation.navigate("announcementsStack")
+    analytics().logEvent("announcements_icon_pressed")
+  }
+
+  const openSettings = () => {
+    navigation.navigate("settingsStack")
+    analytics().logEvent("settings_icon_pressed")
+  }
+
   return (
     <>
       <View style={HEADER_WRAPPER}>
@@ -94,14 +104,10 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
             </Chip>
           )}
         </View>
-        <TouchableOpacity
-          onPress={() => navigation.navigate("announcementsStack")}
-          activeOpacity={0.8}
-          accessibilityLabel={translate("routes.updates")}
-        >
+        <TouchableOpacity onPress={openAnnouncements} activeOpacity={0.8} accessibilityLabel={translate("routes.updates")}>
           <Image source={UPDATES_ICON} style={HEADER_ICON_IMAGE} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("settingsStack")} activeOpacity={0.8} accessibilityLabel="הגדרות">
+        <TouchableOpacity onPress={openSettings} activeOpacity={0.8} accessibilityLabel={translate("settings.title")}>
           <Image source={SETTINGS_ICON} style={HEADER_ICON_IMAGE} />
         </TouchableOpacity>
       </View>

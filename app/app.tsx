@@ -12,12 +12,11 @@
 import "./i18n"
 import "./utils/ignore-warnings"
 import React, { useState, useEffect, useRef } from "react"
-import { AppState, Platform, NativeEventEmitter } from "react-native"
+import { AppState, Platform } from "react-native"
 import { QueryClient, QueryClientProvider } from "react-query"
 import { NavigationContainerRef } from "@react-navigation/native"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet"
-import Shortcuts, { ShortcutItem } from "react-native-quick-actions-shortcuts"
 
 import analytics from "@react-native-firebase/analytics"
 import crashlytics from "@react-native-firebase/crashlytics"
@@ -55,8 +54,6 @@ import { openActiveRide } from "./utils/helpers/ride-helpers"
 import { useStations } from "./data/stations"
 enableScreens()
 
-const ShortcutsEmitter = new NativeEventEmitter(Shortcuts)
-
 export const queryClient = new QueryClient()
 
 export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
@@ -91,33 +88,6 @@ function App() {
     }
   }, [rootStore, navigationRef])
 
-  // @ts-ignore: Not all code paths return a value
-  useEffect(() => {
-    const listener = (item: ShortcutItem) => {
-      const origin = stations.find((station) => station.id === item.data.originId)
-      const destination = stations.find((station) => station.id === item.data.destinationId)
-
-      rootStore?.routePlan.setOrigin(origin)
-      rootStore?.routePlan.setDestination(destination)
-      rootStore?.routePlan.setDate(new Date())
-
-      // @ts-expect-error navigator type
-      navigationRef.current?.navigate("mainStack", {
-        screen: "routeList",
-        params: {
-          originId: origin?.id,
-          destinationId: destination?.id,
-          time: rootStore?.routePlan.date.getTime(),
-        },
-      })
-    }
-
-    if (rootStore) {
-      const subscription = ShortcutsEmitter.addListener("onShortcutItemPressed", listener)
-      return () => ShortcutsEmitter.removeSubscription(subscription)
-    }
-  }, [rootStore, navigationRef])
-
   useEffect(() => {
     // Refresh app state when app is opened from background
     const subscription = AppState.addEventListener("change", (nextAppState) => {
@@ -127,7 +97,7 @@ function App() {
           // Sync favorites
           rootStore.favoriteRoutes.syncFavorites()
 
-          // Check Live Activities authorization
+          // Check Live Ride authorization
           rootStore.ride.checkLiveRideAuthorization()
 
           if (rootStore.ride.id) {
