@@ -126,7 +126,9 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
     // in reality the prompt would be shown on the 4th ride and not the 3rd, since the count
     // will be increased only after the ride has been started successfully.
     if (ride.ridesCount === 3) {
-      InAppReview.RequestInAppReview()
+      InAppReview.RequestInAppReview().then(() => {
+        analytics().logEvent("start_live_ride_in_app_review_prompt")
+      })
     }
   }
 
