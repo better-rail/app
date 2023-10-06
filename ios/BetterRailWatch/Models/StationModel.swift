@@ -18,16 +18,16 @@ struct Station: Decodable, Hashable, Encodable, Identifiable {
     id = try values.decode(String.self, forKey: .id)
     name = try values.decode(String.self, forKey: CodingKeys(rawValue: userLocale.rawValue)!)
     
-    hebrew = try values.decode(String.self, forKey: .hebrew)
-    english = try values.decode(String.self, forKey: .english)
-    russian = try values.decode(String.self, forKey: .russian)
-    arabic = try values.decode(String.self, forKey: .arabic)
-    
     if (values.contains(.image)) {
       image = try values.decode(String.self, forKey: .image)
     } else {
       image = nil
     }
+    
+    hebrew = nil
+    english = nil
+    russian = nil
+    arabic = nil
   }
   
   init(id: String, name: String) {
@@ -45,7 +45,7 @@ struct Station: Decodable, Hashable, Encodable, Identifiable {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(id, forKey: .id)
     try container.encode(name, forKey: CodingKeys(rawValue: userLocale.rawValue)!)
-    // Don't encode the image property
+    // Don't encode the optional properties
   }
   
   enum CodingKeys : String, CodingKey {
