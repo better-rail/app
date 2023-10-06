@@ -88,7 +88,7 @@ struct EntriesGenerator {
           let routesCount = allUpcomingRoutes.count > 5 ? 5 : allUpcomingRoutes.count
           let upcomingRoutes = Array(allUpcomingRoutes[0 ..< routesCount])
           
-          entry.upcomingTrains = getUpcomingTrains(routes: upcomingRoutes)
+          entry.upcomingTrains = getUpcomingTrains(entry.isTomorrow, routes: upcomingRoutes)
         }
 
         entries.append(entry)
@@ -117,10 +117,10 @@ struct EntriesGenerator {
   }
   
   /// Generate an upcoming schedule for an entry
-  func getUpcomingTrains(routes: [Route]) -> [UpcomingTrain] {
+  func getUpcomingTrains(_ isTomorrow: Bool, routes: [Route]) -> [UpcomingTrain] {
     var upcomingTrains: [UpcomingTrain] = []
     
-    for route in routes {
+    for route in routes.filter({ isTomorrow || shouldShowUpcomingTrain($0.isTomorrow, $0.departureTime) }) {
       let trains = route.trains
       let firstRouteTrain = trains[0]
       let lastRouteTrain = trains[trains.count - 1]

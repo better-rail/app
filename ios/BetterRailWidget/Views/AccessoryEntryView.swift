@@ -9,18 +9,6 @@ struct AccessoryEntryView: View {
     getNoTrainsMessage(statusCode: entry.departureTime, date: entry.date)
   }
   
-  var shouldShowTimeInCircular: Bool {
-    if entry.isTomorrow {
-      if let futureDate = Calendar.current.date(byAdding: .hour, value: 23, to: Date.now) {
-        return isoDateStringToDate(entry.departureDate) <= futureDate
-      } else {
-        return false
-      }
-    } else {
-      return true
-    }
-  }
-  
   var body: some View {
     switch widgetFamily {
     case .accessoryInline:
@@ -37,7 +25,7 @@ struct AccessoryEntryView: View {
             .resizable()
             .scaledToFit()
             .padding(12)
-        } else if !shouldShowTimeInCircular || entry.departureTime == "300" {
+        } else if !shouldShowUpcomingTrain(entry.isTomorrow, entry.departureDate) || entry.departureTime == "300" {
           Image(systemName: "tram")
             .resizable()
             .scaledToFit()
@@ -102,7 +90,7 @@ struct AccessoryEntryView: View {
                     .fixedSize()
                 }
                 
-                if let upcomingTrains = entry.upcomingTrains?.prefix(2) {
+                if let upcomingTrains = entry.upcomingTrains?.prefix(2), !upcomingTrains.isEmpty {
                   VStack(alignment: .leading) {
                     Text("UPCOMING")
                       .font(.system(size: geometry.size.width * 0.055))

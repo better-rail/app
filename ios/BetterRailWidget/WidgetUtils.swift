@@ -6,6 +6,18 @@ func formatStationName(_ stationName: String, _ shouldTurnucate: Bool = true) ->
     stationName
 }
 
+func shouldShowUpcomingTrain(_ isTomorrow: Bool, _ departureDate: String) -> Bool {
+  if isTomorrow {
+    if let futureDate = Calendar.current.date(byAdding: .hour, value: 23, to: .now) {
+      return isoDateStringToDate(departureDate) <= futureDate
+    } else {
+      return false
+    }
+  } else {
+    return true
+  }
+}
+
 func getNoTrainsMessage(statusCode: String, date: Date) -> String? {
   if statusCode == "300" {
     if (NSCalendar(identifier: .hebrew)!.isDateInWeekend(date)) {
