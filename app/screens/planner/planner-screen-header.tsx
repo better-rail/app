@@ -107,7 +107,7 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
         <TouchableOpacity onPress={openAnnouncements} activeOpacity={0.8} accessibilityLabel={translate("routes.updates")}>
           <Image source={UPDATES_ICON} style={HEADER_ICON_IMAGE} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={openSettings} activeOpacity={0.8} accessibilityLabel="הגדרות">
+        <TouchableOpacity onPress={openSettings} activeOpacity={0.8} accessibilityLabel={translate("settings.title")}>
           <Image source={SETTINGS_ICON} style={HEADER_ICON_IMAGE} />
         </TouchableOpacity>
       </View>
