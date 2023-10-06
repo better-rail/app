@@ -14,6 +14,7 @@ import { color, fontScale } from "../../../theme"
 import { useStores } from "../../../models"
 import { canRunLiveActivities } from "../../../utils/ios-helpers"
 import { AndroidNotificationSetting, AuthorizationStatus } from "@notifee/react-native"
+import InAppReview from "react-native-in-app-review"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -121,6 +122,12 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
     HapticFeedback.trigger("notificationSuccess")
     ride.startRide(route)
     analytics().logEvent("start_live_ride")
+
+    // in reality the prompt would be shown on the 4th ride and not the 3rd, since the count
+    // will be increased only after the ride has been started successfully.
+    if (ride.ridesCount === 3) {
+      InAppReview.RequestInAppReview()
+    }
   }
 
   return (
