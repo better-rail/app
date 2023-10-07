@@ -1,9 +1,21 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { Platform } from "react-native"
-import { getIsWatchAppInstalled, updateApplicationContext, WatchPayload } from "react-native-watch-connectivity"
+import analytics from "@react-native-firebase/analytics"
+import { getIsWatchAppInstalled, updateApplicationContext, getIsPaired, WatchPayload } from "react-native-watch-connectivity"
 import Shortcuts from "react-native-quick-actions-shortcuts"
 import { stationLocale, stationsObject } from "../../data/stations"
 import { translate } from "../../i18n"
+
+if (Platform.OS === "ios") {
+  // set analytics user property for apple watch
+  getIsPaired().then((isPaired) => {
+    analytics().setUserProperty("apple_watch_paired", isPaired ? "true" : "false")
+  })
+
+  getIsWatchAppInstalled().then((isInstalled) => {
+    analytics().setUserProperty("apple_watch_app_installed", isInstalled ? "true" : "false")
+  })
+}
 
 export const favoriteRouteSchema = {
   id: types.string,
