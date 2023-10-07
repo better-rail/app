@@ -11,6 +11,10 @@ if (Platform.OS === "ios") {
   getIsPaired().then((isPaired) => {
     analytics().setUserProperty("appleWatchAppInstalled", isPaired ? "true" : "false")
   })
+
+  getIsWatchAppInstalled().then((isInstalled) => {
+    analytics().setUserProperty("appleWatchAppInstalled", isInstalled ? "true" : "false")
+  })
 }
 
 export const favoriteRouteSchema = {
@@ -38,8 +42,6 @@ export const FavoritesModel = types
           if (isInstalled) {
             this.syncFavoritesToAppleWatch()
           }
-
-          analytics().setUserProperty("appleWatchAppInstalled", isInstalled ? "true" : "false")
         })
       }
 
