@@ -11,7 +11,7 @@ if (Platform.OS === "ios") {
   getIsPaired().then((isPaired) => {
     analytics().setUserProperty("apple_watch_paired", isPaired ? "true" : "false")
   })
-  t
+
   getIsWatchAppInstalled().then((isInstalled) => {
     analytics().setUserProperty("apple_watch_app_installed", isInstalled ? "true" : "false")
   })
