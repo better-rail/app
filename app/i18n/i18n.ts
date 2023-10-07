@@ -31,7 +31,7 @@ export let dateDelimiter = " "
 export let dateLocale = "en-US"
 export const deviceLocale = Localization.locale
 
-analytics().setUserProperties({ deviceLocale })
+analytics().setUserProperty("device_locale", deviceLocale)
 
 export function getInitialLanguage(): LanguageCode {
   if (Localization.locale.startsWith("he")) {

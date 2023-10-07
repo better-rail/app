@@ -132,7 +132,7 @@ function App() {
       if (languageCode) {
         setUserLanguage(languageCode)
         setLocaleReady(true)
-        analytics().setUserProperties({ userLocale: languageCode })
+        analytics().setUserProperty("user_locale", languageCode)
       } else {
         setInitialLanguage()
       }
