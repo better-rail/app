@@ -9,11 +9,11 @@ import { translate } from "../../i18n"
 if (Platform.OS === "ios") {
   // set analytics user property for apple watch
   getIsPaired().then((isPaired) => {
-    analytics().setUserProperty("appleWatchAppInstalled", isPaired ? "true" : "false")
+    analytics().setUserProperty("apple_watch_paired", isPaired ? "true" : "false")
   })
-
+  t
   getIsWatchAppInstalled().then((isInstalled) => {
-    analytics().setUserProperty("appleWatchAppInstalled", isInstalled ? "true" : "false")
+    analytics().setUserProperty("apple_watch_app_installed", isInstalled ? "true" : "false")
   })
 }
 
