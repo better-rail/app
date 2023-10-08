@@ -4,6 +4,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withDelay, withTiming } fro
 import { color, fontScale } from "../../theme"
 import { useNavigation } from "@react-navigation/native"
 import analytics from "@react-native-firebase/analytics"
+import { removeHtmlTagsAndEntities } from "../../components/announcements/announcements-utils"
 
 const TEXT_STYLE: TextStyle = {
   color: color.whiteText,
@@ -63,7 +64,7 @@ export function ImportantAnnouncementBar({ title }: { title: string }) {
       onPress={navigateToAnnouncements}
     >
       <Animated.Text style={[TEXT_STYLE, TextAnimatedStyle]} maxFontSizeMultiplier={1.15}>
-        {title}
+        {removeHtmlTagsAndEntities(title)}
       </Animated.Text>
     </AnimatedTouchable>
   )

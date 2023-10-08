@@ -3,6 +3,8 @@ import TouchableScale from "react-native-touchable-scale"
 import { fontScale, spacing, color } from "../../theme"
 import { Text } from "../text/text"
 import { openLink } from "../../utils/helpers/open-link"
+import WebView from "react-native-webview"
+import { removeHtmlTagsAndEntities } from "./announcements-utils"
 
 const ANNOUNCEMENT_CARD: ViewStyle = {
   minHeight: 80 * fontScale,
@@ -41,7 +43,8 @@ export const AnnouncementCard = ({ title, body, link }: AnnouncementCardProps) =
   <TouchableScale activeScale={0.98} friction={10} disabled={!link} onPress={() => openLink(link)}>
     <View style={ANNOUNCEMENT_CARD}>
       {title && <Text style={TITLE_STYLE}>{title}</Text>}
-      <Text style={BODY_STYLE}>{body}</Text>
+
+      <Text style={BODY_STYLE}>{removeHtmlTagsAndEntities(body)}</Text>
     </View>
   </TouchableScale>
 )
