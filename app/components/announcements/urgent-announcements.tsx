@@ -8,6 +8,7 @@ import { Text } from "../text/text"
 import { Screen } from "../screen/screen"
 import { useIsDarkMode } from "../../hooks"
 import { AnnouncementCard } from "./announcement-card"
+import { removeHtmlTagsAndEntities } from "./announcements-utils"
 
 export const UrgentAnnouncements = () => {
   const isDarkMode = useIsDarkMode()
@@ -17,8 +18,8 @@ export const UrgentAnnouncements = () => {
     <Screen unsafe statusBar={Platform.select({ ios: "light-content" })} statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}>
       <Text style={{ fontSize: 48, textAlign: "center", marginVertical: spacing[4] }}>📣</Text>
       <View style={{ paddingHorizontal: spacing[4] }}>
-        {messages?.map((m) => (
-          <AnnouncementCard body={m.messageBody} />
+        {messages?.map((message, index) => (
+          <AnnouncementCard body={message.messageBody} key={index} />
         ))}
       </View>
     </Screen>
