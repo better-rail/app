@@ -18,8 +18,8 @@ export const UrgentAnnouncements = () => {
     <Screen unsafe statusBar={Platform.select({ ios: "light-content" })} statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}>
       <Text style={{ fontSize: 48, textAlign: "center", marginVertical: spacing[4] }}>📣</Text>
       <View style={{ paddingHorizontal: spacing[4] }}>
-        {messages?.map((m, i) => (
-          <AnnouncementCard body={m.messageBody} key={i} />
+        {messages?.map((message, index) => (
+          <AnnouncementCard body={message.messageBody} key={index} />
         ))}
       </View>
     </Screen>
