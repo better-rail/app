@@ -3,7 +3,6 @@ import TouchableScale from "react-native-touchable-scale"
 import { fontScale, spacing, color } from "../../theme"
 import { Text } from "../text/text"
 import { openLink } from "../../utils/helpers/open-link"
-import WebView from "react-native-webview"
 import { removeHtmlTagsAndEntities } from "./announcements-utils"
 
 const ANNOUNCEMENT_CARD: ViewStyle = {
