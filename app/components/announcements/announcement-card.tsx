@@ -14,7 +14,7 @@ const ANNOUNCEMENT_CARD: ViewStyle = {
   paddingHorizontal: spacing[3],
 
   borderRadius: Platform.select({ ios: 12, android: 8 }),
-  backgroundColor: Platform.select({ ios: color.tertiaryBackground, android: color.inputBackground }),
+  backgroundColor: Platform.select({ ios: color.secondaryBackground, android: color.inputBackground }),
   shadowColor: color.palette.black,
   shadowOffset: { height: 0, width: 0 },
   shadowOpacity: 0.05,
@@ -23,7 +23,7 @@ const ANNOUNCEMENT_CARD: ViewStyle = {
 
 const TITLE_STYLE: TextStyle = {
   fontFamily: "Heebo",
-  color: color.primary,
+  color: color.primaryLighter,
   fontSize: 16,
   marginBottom: spacing[0],
 }
