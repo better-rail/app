@@ -6,10 +6,10 @@ import { color, spacing } from "../../theme"
 
 const CONTAINER: ViewStyle = {
   marginTop: spacing[1],
-  paddingVertical: spacing[0],
-  paddingHorizontal: spacing[3],
+  paddingVertical: 1,
+  paddingHorizontal: spacing[2],
   backgroundColor: color.destroy,
-  borderRadius: 12,
+  borderRadius: 6,
 }
 
 const BADGE_TEXT: TextStyle = {
@@ -20,15 +20,19 @@ const BADGE_TEXT: TextStyle = {
 
 interface DelayBadgeProps {
   delay: number
+  onlyNumber?: boolean
 }
 
 export const DelayBadge = function DelayBadge(props: DelayBadgeProps) {
-  const { delay } = props
+  const { delay, onlyNumber } = props
 
   return (
     <View style={CONTAINER}>
       <Text style={BADGE_TEXT} maxFontSizeMultiplier={1.15}>
-        {delay} {translate("routes.delayTime")}
+        {onlyNumber && "+ "}
+        {delay}
+
+        {!onlyNumber && <> {translate("routes.delayTime")}</>}
       </Text>
     </View>
   )
