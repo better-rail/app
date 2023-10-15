@@ -5,7 +5,6 @@ import { translate } from "../../i18n"
 import { color, spacing } from "../../theme"
 
 const CONTAINER: ViewStyle = {
-  marginTop: spacing[1],
   paddingVertical: 1,
   paddingHorizontal: spacing[2],
   backgroundColor: color.destroy,

@@ -4,8 +4,14 @@ import { DelayBadge } from "./delay-badge"
 import { userLocale } from "../../i18n"
 import { color, spacing } from "../../theme"
 
-const SHORT_ROUTE_BADGE: ViewStyle = {
+const WRAPPER: ViewStyle = {
   marginTop: Platform.OS === "ios" ? (userLocale === "he" ? 4 : 2) : 6,
+  flexDirection: "row",
+  alignItems: "center",
+  gap: spacing[2],
+}
+
+const SHORT_ROUTE_BADGE: ViewStyle = {
   paddingVertical: 1,
   paddingHorizontal: spacing[2],
   backgroundColor: color.greenBackground,
@@ -23,11 +29,11 @@ const SHORT_ROUTE_BADGE_TEXT: TextStyle = {
 export const RouteIndicators = ({ isMuchShorter, isMuchLonger, delay, stopsText }) => {
   if (isMuchShorter && !isMuchLonger) {
     return (
-      <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[1] }}>
+      <View style={WRAPPER}>
         <View style={SHORT_ROUTE_BADGE}>
           <Text style={SHORT_ROUTE_BADGE_TEXT} tx="routes.shortRoute" />
         </View>
-        {delay > 0 && <DelayBadge delay={delay} onlyNumber />}
+        {delay > 0 && <DelayBadge delay={6} onlyNumber />}
       </View>
     )
   } else if (delay > 0) {
