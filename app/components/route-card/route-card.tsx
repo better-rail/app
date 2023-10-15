@@ -8,8 +8,8 @@ import { color, spacing, typography, fontScale } from "../../theme"
 import { primaryFontIOS } from "../../theme/typography"
 import { Text } from "../"
 import { format } from "date-fns"
-import { translate, userLocale } from "../../i18n"
-import { DelayBadge } from "./delay-badge"
+import { translate } from "../../i18n"
+import { RouteIndicators } from "./"
 
 // #region styles
 
@@ -59,18 +59,6 @@ const DURATION_TEXT: TextStyle = {
   marginBottom: primaryFontIOS === "System" ? 2 : -2,
   fontSize: 16,
 }
-const SHORT_ROUTE_BADGE: ViewStyle = {
-  marginTop: Platform.OS === "ios" ? (userLocale === "he" ? 4 : 2) : 6,
-  paddingVertical: 1,
-  paddingHorizontal: spacing[2],
-  backgroundColor: color.greenBackground,
-  borderRadius: 6,
-}
-
-const SHORT_ROUTE_BADGE_TEXT: TextStyle = {
-  fontSize: 14,
-  color: color.greenText,
-}
 
 // #endregion
 
@@ -87,9 +75,6 @@ export interface RouteCardProps extends TouchableScaleProps {
   shouldShowDashedLine?: boolean
 }
 
-/**
- * Describe your component here
- */
 export const RouteCard = function RouteCard(props: RouteCardProps) {
   const {
     departureTime,
@@ -152,27 +137,6 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
       </View>
     </TouchableScale>
   )
-}
-
-const RouteIndicators = ({ isMuchShorter, isMuchLonger, delay, stopsText }) => {
-  if (isMuchShorter && !isMuchLonger) {
-    return (
-      <View style={{ flexDirection: "row", gap: spacing[2] }}>
-        <View style={SHORT_ROUTE_BADGE}>
-          <Text style={SHORT_ROUTE_BADGE_TEXT} tx="routes.shortRoute" />
-        </View>
-        {delay > 0 && <DelayBadge delay={delay} onlyNumber />}
-      </View>
-    )
-  } else if (delay > 0) {
-    return <DelayBadge delay={delay} />
-  } else {
-    return (
-      <Text style={{ fontSize: 14 }} maxFontSizeMultiplier={1}>
-        {stopsText}
-      </Text>
-    )
-  }
 }
 
 const DashedLine = () => (

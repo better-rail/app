@@ -29,7 +29,7 @@ export const DelayBadge = function DelayBadge(props: DelayBadgeProps) {
   return (
     <View style={CONTAINER}>
       <Text style={BADGE_TEXT} maxFontSizeMultiplier={1.15}>
-        {onlyNumber && "+ "}
+        {onlyNumber && "+"}
         {delay}
 
         {!onlyNumber && <> {translate("routes.delayTime")}</>}
