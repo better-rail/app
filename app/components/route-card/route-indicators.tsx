@@ -33,7 +33,7 @@ export const RouteIndicators = ({ isMuchShorter, isMuchLonger, delay, stopsText 
         <View style={SHORT_ROUTE_BADGE}>
           <Text style={SHORT_ROUTE_BADGE_TEXT} tx="routes.shortRoute" />
         </View>
-        {delay > 0 && <DelayBadge delay={6} onlyNumber />}
+        {delay > 0 && <DelayBadge delay={delay} onlyNumber />}
       </View>
     )
   } else if (delay > 0) {
