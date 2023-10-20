@@ -112,7 +112,7 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
         </TouchableOpacity>
       </View>
 
-      {showUrgentBar && (
+      {showUrgentBar && !ride.route && (
         <View style={{ position: "absolute", top: 0, left: 16 }}>
           <ImportantAnnouncementBar title={head(popupMessages)?.messageBody} />
         </View>
