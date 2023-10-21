@@ -35,7 +35,7 @@ import { RootStore, RootStoreProvider, setupRootStore } from "./models"
 import { ToggleStorybook } from "../storybook/toggle-storybook"
 import { setInitialLanguage, setUserLanguage } from "./i18n/i18n"
 import "react-native-console-time-polyfill"
-import RNIap, { withIAPContext } from "react-native-iap"
+import { useIAP, initConnection, finishTransaction, getAvailablePurchases, withIAPContext } from "react-native-iap"
 import PushNotification from "react-native-push-notification"
 
 // Disable tracking in development environment
@@ -65,6 +65,7 @@ function App() {
   const [rootStore, setRootStore] = useState<RootStore | undefined>(undefined)
   const [localeReady, setLocaleReady] = useState(false)
   const appState = useRef(AppState.currentState)
+  const { currentPurchase } = useIAP()
 
   useDeepLinking(rootStore, navigationRef)
 
@@ -144,19 +145,19 @@ function App() {
     // and: https://react-native-iap.dooboolab.com/docs/guides/purchases
     const flushAvailablePurchases = async () => {
       try {
-        await RNIap.initConnection()
-        const availablePurchases = await RNIap.getAvailablePurchases()
+        await initConnection()
+        const availablePurchases = await getAvailablePurchases()
 
         availablePurchases.forEach((purchase) => {
-          RNIap.finishTransaction({ purchase, isConsumable: true })
+          finishTransaction({ purchase, isConsumable: true })
         })
       } catch (error) {
-        console.warn("Failed to connect to IAP and finish all available transactions")
+        console.error("Failed to connect to IAP and finish all available transactions", error)
       }
     }
 
     flushAvailablePurchases()
-  }, [])
+  }, [currentPurchase])
 
   // Before we show the app, we have to wait for our state to be ready.
   // In the meantime, don't render anything. This will be the background
