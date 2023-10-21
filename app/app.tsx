@@ -65,7 +65,6 @@ function App() {
   const [rootStore, setRootStore] = useState<RootStore | undefined>(undefined)
   const [localeReady, setLocaleReady] = useState(false)
   const appState = useRef(AppState.currentState)
-  const stations = useStations()
 
   useDeepLinking(rootStore, navigationRef)
 
