@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { View, ViewStyle, TextStyle, Platform, ActivityIndicator } from "react-native"
-import { ProductPurchase, Purchase, RequestPurchase, useIAP } from "react-native-iap"
+import { ProductPurchase, RequestPurchase, useIAP } from "react-native-iap"
 import { Screen, Text } from "../../components"
 import { color, isDarkMode, spacing } from "../../theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
@@ -83,8 +83,6 @@ const TIP_AMOUNT: TextStyle = {
 
 const TOTAL_TIPS: TextStyle = { textAlign: "center", marginTop: spacing[4] }
 
-const PRODUCT_IDS = ["better_rail_tip_1", "better_rail_tip_2", "better_rail_tip_3", "better_rail_tip_4"]
-
 const installSource = getInstallerPackageNameSync()
 
 export const TipJarScreen = observer(function TipJarScreen() {
@@ -93,24 +91,7 @@ export const TipJarScreen = observer(function TipJarScreen() {
   const [sortedProducts, setSortedProducts] = useState([])
   const { settings } = useStores()
 
-  const { connected, products, finishTransaction, requestPurchase, getProducts, getAvailablePurchases, availablePurchases } =
-    useIAP()
-
-  useEffect(() => {
-    // see: https://github.com/dooboolab-community/react-native-iap/issues/126
-    const flushAvailablePurchases = async () => {
-      await getAvailablePurchases()
-      availablePurchases.forEach(async (purchase) => {
-        await finishTransaction({ purchase, isConsumable: true })
-      })
-    }
-
-    if (connected) {
-      getProducts({ skus: PRODUCT_IDS })
-
-      flushAvailablePurchases()
-    }
-  }, [connected, getProducts])
+  const { products, finishTransaction, requestPurchase } = useIAP()
 
   useEffect(() => {
     if (products.length > 0) {

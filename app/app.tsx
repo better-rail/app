@@ -35,7 +35,7 @@ import { RootStore, RootStoreProvider, setupRootStore } from "./models"
 import { ToggleStorybook } from "../storybook/toggle-storybook"
 import { setInitialLanguage, setUserLanguage } from "./i18n/i18n"
 import "react-native-console-time-polyfill"
-import { withIAPContext } from "react-native-iap"
+import RNIap, { withIAPContext } from "react-native-iap"
 import PushNotification from "react-native-push-notification"
 
 // Disable tracking in development environment
@@ -137,6 +137,26 @@ function App() {
         setInitialLanguage()
       }
     })
+  }, [])
+
+  useEffect(() => {
+    // load products and flush available purchases for the tip jar
+    // see: https://github.com/dooboolab-community/react-native-iap/issues/126
+    // and: https://react-native-iap.dooboolab.com/docs/guides/purchases
+    const flushAvailablePurchases = async () => {
+      try {
+        await RNIap.initConnection()
+        const availablePurchases = await RNIap.getAvailablePurchases()
+
+        availablePurchases.forEach((purchase) => {
+          RNIap.finishTransaction({ purchase, isConsumable: true })
+        })
+      } catch (error) {
+        console.warn("Failed to connect to IAP and finish all available transactions")
+      }
+    }
+
+    flushAvailablePurchases()
   }, [])
 
   // Before we show the app, we have to wait for our state to be ready.
