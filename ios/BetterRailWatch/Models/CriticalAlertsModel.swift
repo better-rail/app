@@ -4,7 +4,7 @@ struct PopUpMessagesResult: Decodable, Encodable {
   let creationDate: String
   let version: String
   let statusCode: Int
-  let result: [PopUpMessage]
+  var result: [PopUpMessage]
 }
 
 struct PopUpMessage: Decodable, Encodable, Identifiable {
@@ -30,8 +30,24 @@ struct CriticalAlertsModel {
             let decoder = JSONDecoder()
             
             do {
-              let route = try decoder.decode(PopUpMessagesResult.self, from: data ?? Data())
-              completion(route)
+              var response = try decoder.decode(PopUpMessagesResult.self, from: data ?? Data())
+              response.result = response.result
+                .map({ message in
+                  PopUpMessage(
+                    id: message.id,
+                    pageTypeId: message.pageTypeId,
+                    title: message.title.htmlConvertedString,
+                    messageBody: message.messageBody.htmlConvertedString,
+                    startDate: message.startDate,
+                    endDate: message.endDate,
+                    systemTypeId: message.systemTypeId
+                  )
+                })
+                .filter({ message in
+                  !message.title.isEmpty && !message.messageBody.isEmpty
+                })
+              
+              completion(response)
             } catch {
                 print("Error decoding JSON: \(String(describing: error))")
                 completion(nil)

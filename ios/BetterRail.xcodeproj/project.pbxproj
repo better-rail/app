@@ -41,6 +41,8 @@
 		901A3CA22AC077CE004D68D6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1A802682747AB4D00A3073D /* Assets.xcassets */; };
 		90466CCE2AC60A4B00F9966E /* ViewUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90466CCC2AC60A4B00F9966E /* ViewUtils.swift */; };
 		90466CCF2AC60A4B00F9966E /* ViewUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90466CCC2AC60A4B00F9966E /* ViewUtils.swift */; };
+		90506C442AE70A9B007E6505 /* HTMLString in Frameworks */ = {isa = PBXBuildFile; productRef = 90506C432AE70A9B007E6505 /* HTMLString */; };
+		90580B7A2AE7C72A00D8B7C3 /* WatchUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90580B792AE7C72A00D8B7C3 /* WatchUtils.swift */; };
 		90749D272AC8555D0065FCB7 /* Better Rail.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 90749D1A2AC8555B0065FCB7 /* Better Rail.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		90749D2D2AC8561B0065FCB7 /* EasySkeleton in Frameworks */ = {isa = PBXBuildFile; productRef = 90749D2C2AC8561B0065FCB7 /* EasySkeleton */; };
 		90749D2E2AC8562F0065FCB7 /* BetterRailWidgetExtensionWatch.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 901A3CA62AC077CE004D68D6 /* BetterRailWidgetExtensionWatch.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -238,6 +240,7 @@
 		90466CCC2AC60A4B00F9966E /* ViewUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewUtils.swift; sourceTree = "<group>"; };
 		9046FDD32ABB70E5009665B1 /* FavoriteRouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteRouteView.swift; sourceTree = "<group>"; };
 		9046FDD82ABF5A39009665B1 /* MinuteTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinuteTimer.swift; sourceTree = "<group>"; };
+		90580B792AE7C72A00D8B7C3 /* WatchUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchUtils.swift; sourceTree = "<group>"; };
 		90749D1A2AC8555B0065FCB7 /* Better Rail.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Better Rail.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		90749D2B2AC855F60065FCB7 /* BetterRailWatch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BetterRailWatch.entitlements; sourceTree = "<group>"; };
 		908634382AC08AF300C44F40 /* WidgetUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetUtils.swift; sourceTree = "<group>"; };
@@ -353,6 +356,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				90506C442AE70A9B007E6505 /* HTMLString in Frameworks */,
 				90749D2D2AC8561B0065FCB7 /* EasySkeleton in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -507,6 +511,7 @@
 				90466CC92AC6042500F9966E /* CriticalAlertsButton.swift */,
 				90466CCC2AC60A4B00F9966E /* ViewUtils.swift */,
 				9004337A2ACC93B400A0A0FE /* StationSelector.swift */,
+				90580B792AE7C72A00D8B7C3 /* WatchUtils.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -760,6 +765,7 @@
 			name = BetterRailWatch;
 			packageProductDependencies = (
 				90749D2C2AC8561B0065FCB7 /* EasySkeleton */,
+				90506C432AE70A9B007E6505 /* HTMLString */,
 			);
 			productName = "watchkitapp Watch App";
 			productReference = 90749D1A2AC8555B0065FCB7 /* Better Rail.app */;
@@ -842,6 +848,7 @@
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			packageReferences = (
 				9043D49B2AC044C0008C31FB /* XCRemoteSwiftPackageReference "EasySkeleton" */,
+				90506C422AE70A9B007E6505 /* XCRemoteSwiftPackageReference "HTMLString" */,
 			);
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
@@ -1113,6 +1120,7 @@
 				90749D402AC856C40065FCB7 /* SearchView.swift in Sources */,
 				90749D412AC856C40065FCB7 /* MainView.swift in Sources */,
 				90749D422AC856C40065FCB7 /* FavoriteRouteView.swift in Sources */,
+				90580B7A2AE7C72A00D8B7C3 /* WatchUtils.swift in Sources */,
 				90749D432AC856C40065FCB7 /* FavoritesViewModel.swift in Sources */,
 				90749D442AC856C40065FCB7 /* RouteViewModel.swift in Sources */,
 				90749D452AC856C40065FCB7 /* CriticalAlertsViewModel.swift in Sources */,
@@ -1867,9 +1875,22 @@
 				kind = branch;
 			};
 		};
+		90506C422AE70A9B007E6505 /* XCRemoteSwiftPackageReference "HTMLString" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/alexaubry/HTMLString";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.0.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		90506C432AE70A9B007E6505 /* HTMLString */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 90506C422AE70A9B007E6505 /* XCRemoteSwiftPackageReference "HTMLString" */;
+			productName = HTMLString;
+		};
 		90749D2C2AC8561B0065FCB7 /* EasySkeleton */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 9043D49B2AC044C0008C31FB /* XCRemoteSwiftPackageReference "EasySkeleton" */;
