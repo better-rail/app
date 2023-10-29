@@ -97,7 +97,7 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
             </Chip>
           )}
 
-          {displayNewBadge && (
+          {displayNewBadge && !showUrgentBar && (
             <Chip color="primary" onPress={() => navigation.navigate("liveAnnouncementStack")}>
               <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
               <Text style={{ color: "white", fontWeight: "500" }} tx="common.new" />
@@ -112,7 +112,7 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
         </TouchableOpacity>
       </View>
 
-      {showUrgentBar && (
+      {showUrgentBar && !ride.route && (
         <View style={{ position: "absolute", top: 0, left: 16 }}>
           <ImportantAnnouncementBar title={head(popupMessages)?.messageBody} />
         </View>
