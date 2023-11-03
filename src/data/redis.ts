@@ -35,6 +35,11 @@ export const addRide = async (ride: Ride): Promise<boolean> => {
 
 export const updateLastRideNotification = async (rideId: string, notificationId: number) => {
   try {
+    const isRideExists = await hasRide(rideId)
+    if (!isRideExists) {
+      return false
+    }
+
     await client.hSet(getKey(rideId), "lastNotificationId", notificationId)
 
     if (notificationId !== 0) {
@@ -52,10 +57,10 @@ export const updateRideToken = async (rideId: string, token: string) => {
   try {
     await client.hSet(getKey(rideId), "token", token)
 
-    logger.info(logNames.redis.rides.updateNotificationId.success, { rideId, token })
+    logger.info(logNames.redis.rides.updateToken.success, { rideId, token })
     return true
   } catch (error) {
-    logger.error(logNames.redis.rides.updateNotificationId.failed, { error, rideId, token })
+    logger.error(logNames.redis.rides.updateToken.failed, { error, rideId, token })
     return false
   }
 }
@@ -93,7 +98,7 @@ export const deleteRide = async (rideId: string) => {
     return success
   } catch (error) {
     try {
-      const isRideExists = await client.exists(getKey(rideId))
+      const isRideExists = await hasRide(rideId)
       if (!isRideExists) {
         return true
       } else {
@@ -104,6 +109,15 @@ export const deleteRide = async (rideId: string) => {
       logger.error(logNames.redis.rides.delete.failed, { error, rideId })
       return false
     }
+  }
+}
+
+export const hasRide = async (rideId: string) => {
+  try {
+    const result = await client.exists(getKey(rideId))
+    return Boolean(result)
+  } catch (error) {
+    return false
   }
 }
 
