@@ -51,7 +51,6 @@ import { enableScreens } from "react-native-screens"
 import { canRunLiveActivities, monitorLiveActivities } from "./utils/ios-helpers"
 import { useDeepLinking } from "./hooks/use-deep-linking"
 import { openActiveRide } from "./utils/helpers/ride-helpers"
-import { useStations } from "./data/stations"
 enableScreens()
 
 export const queryClient = new QueryClient()
@@ -156,7 +155,10 @@ function App() {
       }
     }
 
-    flushAvailablePurchases()
+    // to avoid prompting for login during development, only flush purchases in production
+    if (!__DEV__) {
+      flushAvailablePurchases()
+    }
   }, [currentPurchase])
 
   // Before we show the app, we have to wait for our state to be ready.
