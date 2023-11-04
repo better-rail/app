@@ -85,13 +85,22 @@ const TOTAL_TIPS: TextStyle = { textAlign: "center", marginTop: spacing[4] }
 
 const installSource = getInstallerPackageNameSync()
 
+const PRODUCT_IDS = ["better_rail_tip_1", "better_rail_tip_2", "better_rail_tip_3", "better_rail_tip_4"]
+
 export const TipJarScreen = observer(function TipJarScreen() {
   const [isLoading, setIsLoading] = useState(false)
   const [thanksModalVisible, setModalVisible] = useState(false)
   const [sortedProducts, setSortedProducts] = useState([])
   const { settings } = useStores()
 
-  const { products, finishTransaction, requestPurchase } = useIAP()
+  const { connected, products, finishTransaction, requestPurchase, getProducts, getAvailablePurchases, availablePurchases } =
+    useIAP()
+
+  useEffect(() => {
+    if (connected) {
+      getProducts({ skus: PRODUCT_IDS })
+    }
+  }, [connected, getProducts])
 
   useEffect(() => {
     if (products.length > 0) {
