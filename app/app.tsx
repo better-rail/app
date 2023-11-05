@@ -35,7 +35,7 @@ import { RootStore, RootStoreProvider, setupRootStore } from "./models"
 import { ToggleStorybook } from "../storybook/toggle-storybook"
 import { setInitialLanguage, setUserLanguage } from "./i18n/i18n"
 import "react-native-console-time-polyfill"
-import { withIAPContext } from "react-native-iap"
+import { useIAP, initConnection, finishTransaction, getAvailablePurchases, withIAPContext } from "react-native-iap"
 import PushNotification from "react-native-push-notification"
 
 // Disable tracking in development environment
@@ -51,7 +51,6 @@ import { enableScreens } from "react-native-screens"
 import { canRunLiveActivities, monitorLiveActivities } from "./utils/ios-helpers"
 import { useDeepLinking } from "./hooks/use-deep-linking"
 import { openActiveRide } from "./utils/helpers/ride-helpers"
-import { useStations } from "./data/stations"
 enableScreens()
 
 export const queryClient = new QueryClient()
@@ -65,7 +64,7 @@ function App() {
   const [rootStore, setRootStore] = useState<RootStore | undefined>(undefined)
   const [localeReady, setLocaleReady] = useState(false)
   const appState = useRef(AppState.currentState)
-  const stations = useStations()
+  const { currentPurchase } = useIAP()
 
   useDeepLinking(rootStore, navigationRef)
 
@@ -138,6 +137,29 @@ function App() {
       }
     })
   }, [])
+
+  useEffect(() => {
+    // load products and flush available purchases for the tip jar
+    // see: https://github.com/dooboolab-community/react-native-iap/issues/126
+    // and: https://react-native-iap.dooboolab.com/docs/guides/purchases
+    const flushAvailablePurchases = async () => {
+      try {
+        await initConnection()
+        const availablePurchases = await getAvailablePurchases()
+
+        availablePurchases.forEach((purchase) => {
+          finishTransaction({ purchase, isConsumable: true })
+        })
+      } catch (error) {
+        console.error("Failed to connect to IAP and finish all available transactions", error)
+      }
+    }
+
+    // to avoid prompting for login during development, only flush purchases in production
+    if (!__DEV__) {
+      flushAvailablePurchases()
+    }
+  }, [currentPurchase])
 
   // Before we show the app, we have to wait for our state to be ready.
   // In the meantime, don't render anything. This will be the background
