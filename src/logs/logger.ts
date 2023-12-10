@@ -2,7 +2,7 @@ import { isEmpty } from "lodash"
 import winston from "winston"
 import "winston-mongodb"
 
-import { mongoUrl } from "../data/config"
+import { mongoUrl, railwayEnviroment } from "../data/config"
 
 export let logger: winston.Logger
 
@@ -30,7 +30,7 @@ export const startLogger = () => {
       new winston.transports.Console(),
       new winston.transports.MongoDB({
         db: mongoUrl,
-        dbName: "logs",
+        dbName: "logs" + (railwayEnviroment === "production" ? "" : `-${railwayEnviroment}`),
         format: serializeErrors(),
       }),
     ],
