@@ -1,6 +1,6 @@
 import { createClient } from "redis"
 import { RedisClientType } from "@redis/client"
-import { compact, mapValues, omit } from "lodash"
+import { compact, isEmpty, mapValues, omit } from "lodash"
 
 import { redisUrl } from "./config"
 import { Ride } from "../types/ride"
@@ -9,13 +9,16 @@ import { logNames, logger } from "../logs"
 let client: RedisClientType
 
 export const connectToRedis = async () => {
-  try {
-    client = createClient({ url: redisUrl })
-    await client.connect()
-    logger.info(logNames.redis.connect.success)
-  } catch (error) {
-    logger.error(logNames.redis.connect.failed, { error })
-  }
+  client = createClient({ url: redisUrl })
+
+  client.on("error", (error) => {
+    if (!isEmpty(error)) {
+      logger.error(logNames.redis.connect.failed, { error })
+    }
+  })
+
+  await client.connect()
+  logger.info(logNames.redis.connect.success)
 }
 
 export const addRide = async (ride: Ride): Promise<boolean> => {

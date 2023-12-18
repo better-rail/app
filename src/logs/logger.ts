@@ -32,6 +32,7 @@ export const startLogger = () => {
         db: mongoUrl,
         dbName: "logs" + (railwayEnviroment === "production" ? "" : `-${railwayEnviroment}`),
         format: serializeErrors(),
+        options: { poolSize: 2, useNewUrlParser: true, useUnifiedTopology: true },
       }),
     ],
   })
