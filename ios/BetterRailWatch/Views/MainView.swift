@@ -10,15 +10,15 @@ struct MainView: View {
     if #available(watchOS 10.0, *), !favorites.routes.isEmpty {
       NavigationSplitView {
         List(selection: $selected) {
-          ForEach(favorites.routes) { route in
+          ForEach(favorites.routes, id: \.self) { route in
             FavoriteListItemView(route: route)
-              .tag(route)
           }
         }
+        .listStyle(.carousel)
         .navigationTitle("Better Rail")
       } detail: {
         TabView(selection: $selected) {
-          ForEach(favorites.routes) { route in
+          ForEach(favorites.routes, id: \.self) { route in
             NavigationStack {
               FavoriteRouteView(route: RouteViewModel(origin: route.origin, destination: route.destination, date: nil, shouldFetchNextDay: true), label: route.label)
               .edgesIgnoringSafeArea(.bottom)
