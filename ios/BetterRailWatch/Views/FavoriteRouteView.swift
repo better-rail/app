@@ -1,7 +1,26 @@
 import SwiftUI
 import EasySkeleton
 
+@available(watchOS 10.0, *)
 struct FavoriteRouteView: View {
+  let route: FavoriteRoute
+  
+  var body: some View {
+    NavigationStack {
+      InnerFavoriteRouteView(route: RouteViewModel(origin: route.origin, destination: route.destination, date: nil, shouldFetchNextDay: true), label: route.label)
+      .edgesIgnoringSafeArea(.bottom)
+      .background(
+        LinearGradient(colors: [.blue, .clear], startPoint: .bottom, endPoint: .top)
+          .opacity(0.25)
+      )
+      .containerBackground(for: .tabView) {
+        StationImageBackground(route.origin.image, isFullScreen: true)
+      }
+    }
+  }
+}
+
+struct InnerFavoriteRouteView: View {
   @StateObject var route: RouteViewModel
   var label: String?
   
@@ -150,8 +169,9 @@ struct FavoriteRouteView: View {
   }
 }
 
+@available(watchOS 10.0, *)
 struct FavoriteRouteView_Previews: PreviewProvider {
     static var previews: some View {
-      return FavoriteRouteView(route: RouteViewModel(origin: stations[0], destination: stations[2], date: nil, shouldFetchNextDay: true))
+      return FavoriteRouteView(route: FavoriteRoute(label: nil, origin: stations[0], destination: stations[2]))
     }
 }

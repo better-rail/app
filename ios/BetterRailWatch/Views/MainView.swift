@@ -10,27 +10,18 @@ struct MainView: View {
     if #available(watchOS 10.0, *), !favorites.routes.isEmpty {
       NavigationSplitView {
         List(selection: $selected) {
-          ForEach(favorites.routes, id: \.self) { route in
+          ForEach(favorites.routes) { route in
             FavoriteListItemView(route: route)
+              .tag(route)
           }
         }
         .listStyle(.carousel)
         .navigationTitle("Better Rail")
       } detail: {
         TabView(selection: $selected) {
-          ForEach(favorites.routes, id: \.self) { route in
-            NavigationStack {
-              FavoriteRouteView(route: RouteViewModel(origin: route.origin, destination: route.destination, date: nil, shouldFetchNextDay: true), label: route.label)
-              .edgesIgnoringSafeArea(.bottom)
-              .background(
-                LinearGradient(colors: [.blue, .clear], startPoint: .bottom, endPoint: .top)
-                  .opacity(0.25)
-              )
-              .containerBackground(for: .tabView) {
-                StationImageBackground(route.origin.image, isFullScreen: true)
-              }
-            }
-            .tag(Optional(route))
+          ForEach(favorites.routes) { route in
+            FavoriteRouteView(route: route)
+              .tag(Optional(route))
           }
         }
         .tabViewStyle(.verticalPage)

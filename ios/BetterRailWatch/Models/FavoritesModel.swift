@@ -4,16 +4,19 @@ import WidgetKit
 let userDefaults = UserDefaults(suiteName: "group.il.co.better-rail")
 
 struct FavoriteRoute: Identifiable, Hashable, Codable {
-  let id: Int
   let label: String?
   let origin: Station
   let destination: Station
+  
+  var id: String {
+    origin.id + destination.id
+  }
 }
 
 #if DEBUG
-let fav = FavoriteRoute(id: 0, label: nil, origin: stations[21], destination: stations[65])
-let fav2 = FavoriteRoute(id: 1, label: nil, origin: stations[65], destination: stations[8])
-let fav3 = FavoriteRoute(id: 2, label: nil, origin: stations[33], destination: stations[8])
+let fav = FavoriteRoute(label: nil, origin: stations[21], destination: stations[65])
+let fav2 = FavoriteRoute(label: nil, origin: stations[65], destination: stations[8])
+let fav3 = FavoriteRoute(label: nil, origin: stations[33], destination: stations[8])
 #endif
 
 struct FavoritesModel {
@@ -55,7 +58,7 @@ struct FavoritesModel {
       if let originStation = getStationById(Int(originId)!),
          let destinationStation = getStationById(Int(destinationId)!) {
           favoriteRoutes.append(
-            FavoriteRoute(id: Int(key)!, label: label, origin: originStation, destination: destinationStation)
+            FavoriteRoute(label: label, origin: originStation, destination: destinationStation)
           )
       } else {
           print("🚨 Couldn't extract application context")
