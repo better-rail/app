@@ -4,6 +4,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withDelay, withTiming } fro
 import { color, fontScale } from "../../theme"
 import { useNavigation } from "@react-navigation/native"
 import analytics from "@react-native-firebase/analytics"
+import { removeHtmlTagsAndEntities } from "../../components/announcements/announcements-utils"
 
 const TEXT_STYLE: TextStyle = {
   color: color.whiteText,
@@ -63,8 +64,23 @@ export function ImportantAnnouncementBar({ title }: { title: string }) {
       onPress={navigateToAnnouncements}
     >
       <Animated.Text style={[TEXT_STYLE, TextAnimatedStyle]} maxFontSizeMultiplier={1.15}>
-        {title}
+        {truncateString(removeHtmlTagsAndEntities(title), 5)}
       </Animated.Text>
     </AnimatedTouchable>
   )
+}
+
+function truncateString(inputString, numWords) {
+  // Split the input string into an array of words
+  const words = inputString.split(" ")
+
+  // Take the first 'numWords' words and join them back into a string
+  const truncatedString = words.slice(0, numWords).join(" ")
+
+  // Add "..." to the end if there are more words in the original string
+  if (words.length > numWords) {
+    return truncatedString + " ..."
+  } else {
+    return truncatedString
+  }
 }
