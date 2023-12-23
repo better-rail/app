@@ -422,10 +422,10 @@ PODS:
     - ReactCommon/turbomodule/core
   - react-native-segmented-control (2.4.0):
     - React-Core
-  - react-native-video (6.0.0-alpha.6):
+  - react-native-video (6.0.0-alpha.8):
     - React-Core
-    - react-native-video/Video (= 6.0.0-alpha.6)
-  - react-native-video/Video (6.0.0-alpha.6):
+    - react-native-video/Video (= 6.0.0-alpha.8)
+  - react-native-video/Video (6.0.0-alpha.8):
     - PromisesSwift
     - React-Core
   - React-perflogger (0.71.7)
@@ -913,7 +913,7 @@ SPEC CHECKSUMS:
   react-native-restart: 7595693413fe3ca15893702f2c8306c62a708162
   react-native-safe-area-context: 39c2d8be3328df5d437ac1700f4f3a4f75716acc
   react-native-segmented-control: 06607462630512ff8eef652ec560e6235a30cc3e
-  react-native-video: fee89269ad07556d960721f3b62e39be6ace3c90
+  react-native-video: 86950ad481cec184d7c9420ec3bca0c27904bbcd
   React-perflogger: 2d505bbe298e3b7bacdd9e542b15535be07220f6
   React-RCTActionSheet: 0e96e4560bd733c9b37efbf68f5b1a47615892fb
   React-RCTAnimation: fd138e26f120371c87e406745a27535e2c8a04ef
