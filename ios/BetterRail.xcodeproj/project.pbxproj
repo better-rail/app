@@ -1523,10 +1523,10 @@
 				MARKETING_VERSION = 2.2.0;
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = "il.co.better-rail.BetterRailWidget";
+				PRODUCT_BUNDLE_IDENTIFIER = "il.co.better-rail.watchkitapp.BetterRailWidget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "match AppStore il.co.better-rail.BetterRailWidget";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "match AppStore il.co.better-rail.BetterRailWidget";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "match AppStore il.co.better-rail.watchkitapp.BetterRailWidget";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
