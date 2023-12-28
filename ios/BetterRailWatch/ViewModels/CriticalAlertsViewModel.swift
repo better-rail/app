@@ -32,8 +32,8 @@ class CriticalAlertsViewModel: ObservableObject {
         if let messages = criticalAlerts?.result {
           #if DEBUG
           self.messages = [
-            PopUpMessage(id: 1, pageTypeId: 1, title: "שימו לב!", messageBody: "בעקבות תקלת קטר רכבת תקועה בין חדרה לנתניה. חלים עיכובים משמעותיים בקו החוף. אנו ממליצים להשתמש באמצעי תחבורה חלופיים.", startDate: "", endDate: "", systemTypeId: 1),
-            PopUpMessage(id: 2, pageTypeId: 1, title: "הודעה חשובה", messageBody: "שינויים בתנועת הרכבות ביום ו׳ 29/9 עקב עבודות תחזוקה", startDate: "", endDate: "", systemTypeId: 1)
+            PopUpMessage(id: 1, pageTypeId: 1, title: "שימו לב!", messageBody: "בעקבות תקלת קטר רכבת תקועה בין חדרה לנתניה. חלים עיכובים משמעותיים בקו החוף. אנו ממליצים להשתמש באמצעי תחבורה חלופיים.", startDate: "", endDate: ""),
+            PopUpMessage(id: 2, pageTypeId: 1, title: "הודעה חשובה", messageBody: "שינויים בתנועת הרכבות ביום ו׳ 29/9 עקב עבודות תחזוקה", startDate: "", endDate: "")
           ]
           #else
           self.messages = messages

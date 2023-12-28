@@ -14,7 +14,6 @@ struct PopUpMessage: Decodable, Encodable, Identifiable {
   let messageBody: String
   let startDate: String
   let endDate: String
-  let systemTypeId: Int
 }
 
 struct CriticalAlertsModel {
@@ -39,8 +38,7 @@ struct CriticalAlertsModel {
                     title: message.title.htmlConvertedString,
                     messageBody: message.messageBody.htmlConvertedString,
                     startDate: message.startDate,
-                    endDate: message.endDate,
-                    systemTypeId: message.systemTypeId
+                    endDate: message.endDate
                   )
                 })
                 .filter({ message in

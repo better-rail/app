@@ -24,13 +24,13 @@ struct MainView: View {
               .tag(Optional(route))
           }
         }
-        .tabViewStyle(.verticalPage)
-        .toolbar {
-          ToolbarItem(placement: .topBarTrailing) {
-            NavigationLink(destination: SearchView(), label: {
-              Image(systemName: "magnifyingglass")
-            })
-          }
+      }
+      .tabViewStyle(.verticalPage)
+      .toolbar {
+        ToolbarItem(placement: .topBarTrailing) {
+          NavigationLink(destination: SearchView(), label: {
+            Image(systemName: "magnifyingglass")
+          })
         }
       }
       .onOpenURL { url in
