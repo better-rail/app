@@ -33,6 +33,11 @@ struct MainView: View {
           })
         }
       }
+      .onChange(of: selected, { oldValue, newValue in
+        print("old value: ", oldValue != nil ? oldValue!.origin.name + " to " + oldValue!.destination.name : "nil")
+        print("new value: ", newValue != nil ? newValue!.origin.name + " to " + newValue!.destination.name : "nil")
+        print("============")
+      })
       .onOpenURL { url in
         if url.host == "route",
            let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
