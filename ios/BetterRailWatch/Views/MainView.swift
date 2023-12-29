@@ -26,7 +26,7 @@ struct MainView: View {
         }
       } detail: {
         if let selected {
-          FavoriteRouteView(route: selected)
+          FavoriteRouteView(route: RouteViewModel(origin: selected.origin, destination: selected.destination, date: nil, shouldFetchNextDay: true), label: selected.label)
         } else {
           EmptyView()
         }

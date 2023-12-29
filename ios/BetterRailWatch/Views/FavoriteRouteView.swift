@@ -3,22 +3,6 @@ import EasySkeleton
 
 @available(watchOS 10.0, *)
 struct FavoriteRouteView: View {
-  let route: FavoriteRoute
-  
-  var body: some View {
-    NavigationStack {
-      InnerFavoriteRouteView(route: RouteViewModel(origin: route.origin, destination: route.destination, date: nil, shouldFetchNextDay: true), label: route.label)
-      .edgesIgnoringSafeArea(.bottom)
-      .background(
-        LinearGradient(colors: [.blue, .clear], startPoint: .bottom, endPoint: .top)
-          .opacity(0.25)
-      )
-    }
-  }
-}
-
-@available(watchOS 10.0, *)
-struct InnerFavoriteRouteView: View {
   @StateObject var route: RouteViewModel
   var label: String?
   
@@ -124,11 +108,18 @@ struct InnerFavoriteRouteView: View {
         route.refreshNextTrainState()
       }
       
-      RoutesView(route: route)
-        .containerBackground(for: .tabView) {
-          EmptyView()
-        }
+      NavigationStack {
+        RoutesView(route: route)
+          .navigationTitle("UPCOMING".capitalized)
+          .containerBackground(for: .tabView) {
+            EmptyView()
+          }
+      }
     }
+    .background(
+      LinearGradient(colors: [.blue, .clear], startPoint: .bottom, endPoint: .top)
+        .opacity(0.25)
+    )
   }
   
   var routeName: some View {
@@ -176,6 +167,6 @@ struct InnerFavoriteRouteView: View {
 @available(watchOS 10.0, *)
 struct FavoriteRouteView_Previews: PreviewProvider {
     static var previews: some View {
-      return FavoriteRouteView(route: FavoriteRoute(label: nil, origin: stations[0], destination: stations[2]))
+      return FavoriteRouteView(route: RouteViewModel(origin: stations[0], destination: stations[2]), label: nil)
     }
 }
