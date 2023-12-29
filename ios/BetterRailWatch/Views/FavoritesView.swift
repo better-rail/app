@@ -15,7 +15,7 @@ struct FavoritesView: View {
           NavigationLink(destination: routesView) {
             FavoriteListItemView(route: route)
           }
-          .listRowBackground(StationImageBackground(route.origin.image))
+          .listRowBackground(StationImageBackground(route.origin.image).cornerRadius(18))
           .tag(route)
         }
       } else {

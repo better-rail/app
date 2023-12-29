@@ -22,6 +22,5 @@ struct FavoriteListItemView: View {
           .shadow(radius: 10)
       }
       .frame(idealHeight: 90)
-      .listRowBackground(StationImageBackground(route.origin.image))
     }
 }

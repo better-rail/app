@@ -5,33 +5,41 @@ struct MainView: View {
   @ObservedObject var favorites: FavoritesViewModel
   
   @State var selected: FavoriteRoute?
+  @State var isSearching = false
   
   var body: some View {
     if #available(watchOS 10.0, *), !favorites.routes.isEmpty {
       NavigationSplitView {
-        List(selection: $selected) {
-          ForEach(favorites.routes) { route in
+        List(favorites.routes, selection: $selected) { route in
+          NavigationLink(value: route) {
             FavoriteListItemView(route: route)
-              .tag(route)
           }
+          .listRowBackground(StationImageBackground(route.origin.image).cornerRadius(18))
         }
         .listStyle(.carousel)
         .navigationTitle("Better Rail")
         .toolbar {
           ToolbarItem(placement: .topBarLeading) {
-            NavigationLink(destination: SearchView(), label: {
+            Button {
+              self.isSearching = true
+            } label: {
               Image(systemName: "magnifyingglass")
-            })
+            }
           }
         }
       } detail: {
         if let selected {
-          FavoriteRouteView(route: RouteViewModel(origin: selected.origin, destination: selected.destination, date: nil, shouldFetchNextDay: true), label: selected.label)
+          FavoriteRouteView(route: RouteViewModel(origin: selected.origin, destination: selected.destination), label: selected.label)
         } else {
           EmptyView()
         }
       }
       .tabViewStyle(.verticalPage)
+      .sheet(isPresented: $isSearching, content: {
+        NavigationStack {
+          SearchView()
+        }
+      })
       .onOpenURL { url in
         if url.host == "route",
            let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
@@ -65,7 +73,7 @@ struct MainView: View {
               )
             
           }
-          .listStyle(CarouselListStyle())
+          .listStyle(.carousel)
         }
         .navigationTitle("Better Rail")
       }

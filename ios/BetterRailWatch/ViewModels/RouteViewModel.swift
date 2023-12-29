@@ -6,18 +6,15 @@ class RouteViewModel: ObservableObject {
   let destination: Station
   private var lastRequest: Date?
   private var date: Date?
-  private var shouldFetchNextDay: Bool
   
   @Published var trains: Array<Route> = []
   @Published var loading = false
   @Published var error: Error? = nil
   @Published var nextTrain: Route? = nil
   
-  init(origin: Station, destination: Station, date: Date? = nil, shouldFetchNextDay: Bool = false) {
-    self.date = date
+  init(origin: Station, destination: Station, date: Date? = nil) {
     self.origin = origin
     self.destination = destination
-    self.shouldFetchNextDay = shouldFetchNextDay
     
     fetchRoute()
   }
@@ -30,14 +27,9 @@ class RouteViewModel: ObservableObject {
       
       let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: date ?? .now)!
       
-      let results: (today: FetchRouteResult, tomorrow: FetchRouteResult)
-      if shouldFetchNextDay {
-        async let tomorrowRoutes = routeModel.fetchRoute(originId: origin.id, destinationId: destination.id, date: tomorrow)
-        results = (today: await todayRoutes, tomorrow: await tomorrowRoutes)
-      } else {
-        let tomorrowRoutes = FetchRouteResult(status: .success, routes: [], error: nil)
-        results = (today: await todayRoutes, tomorrow: tomorrowRoutes)
-      }
+      async let tomorrowRoutes = routeModel.fetchRoute(originId: origin.id, destinationId: destination.id, date: tomorrow)
+      
+      let results = (today: await todayRoutes, tomorrow: await tomorrowRoutes)
       
       DispatchQueue.main.async {
         self.loading = false
@@ -49,9 +41,11 @@ class RouteViewModel: ObservableObject {
           self.error = nil
           self.lastRequest = Date()
           
-          let allTrains = (results.today.routes ?? []) + (results.tomorrow.routes ?? [])
-          self.trains = self.shouldFetchNextDay ? allTrains : allTrains.filter { self.filterRoute(route: $0) }
-          
+          self.trains = (
+            (results.today.routes ?? []) +
+            (results.tomorrow.routes ?? [])
+          ).uniq(by: \.id)
+                    
           self.nextTrain = self.getNextTrain()
         }
       }

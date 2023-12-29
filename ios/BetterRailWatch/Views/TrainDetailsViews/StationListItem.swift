@@ -66,6 +66,6 @@ struct StationListItem: View {
           .font(Font.custom("Heebo", size: 14))
       }
     }
-    .listRowBackground(StationImageBackground(imageName))
+    .listRowBackground(StationImageBackground(imageName).cornerRadius(10))
   }
 }

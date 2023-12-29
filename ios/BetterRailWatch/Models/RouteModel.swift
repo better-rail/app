@@ -27,7 +27,7 @@ struct DataClass: Decodable {
 }
 
 // MARK: - Route
-struct Route: Identifiable, Codable {
+struct Route: Identifiable, Codable, Hashable {
     let departureTime: String
     let arrivalTime: String
     let trains: [Train]
@@ -39,6 +39,12 @@ struct Route: Identifiable, Codable {
     }
     var id: String {
       trains.map({ String($0.trainNumber) }).joined() + departureTime
+    }
+    func hash(into hasher: inout Hasher) {
+      hasher.combine(id)
+    }
+    static func == (lhs: Route, rhs: Route) -> Bool {
+      lhs.id == rhs.id
     }
 }
 

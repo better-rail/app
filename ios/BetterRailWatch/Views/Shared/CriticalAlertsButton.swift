@@ -21,7 +21,7 @@ struct CriticalAlertsButton: View {
           .padding(.horizontal, 6)
         }
         .padding(.top, 4)
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(.plain)
         .background {
           Rectangle()
             .fill(.red)
