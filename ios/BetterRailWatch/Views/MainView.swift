@@ -15,6 +15,7 @@ struct MainView: View {
             FavoriteListItemView(route: route)
           }
           .listRowBackground(StationImageBackground(route.origin.image).cornerRadius(18))
+          .tag(route)
         }
         .listStyle(.carousel)
         .navigationTitle("Better Rail")

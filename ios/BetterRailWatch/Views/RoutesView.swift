@@ -25,7 +25,7 @@ struct RoutesView: View {
       
       switch daysDiff {
       case 0:
-        return String(localized: "UPCOMING").capitalized
+        return "today"
       case 1:
         return String(localized: "TOMORROW").capitalized
       default:
@@ -49,9 +49,15 @@ struct RoutesView: View {
           } else {
             List {
               ForEach(Array(grouppedTrains.keys), id: \.self) { key in
-                Section(key) {
+                Section {
                   ForEach(grouppedTrains[key]!) { trainDetails in
                     RouteListItem(trainDetails: trainDetails)
+                  }
+                } header: {
+                  if key == "today" {
+                    EmptyView()
+                  } else {
+                    Text(key)
                   }
                 }
               }
