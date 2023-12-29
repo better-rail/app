@@ -83,26 +83,6 @@ class RouteViewModel: ObservableObject {
     self.shouldRefetchRoutes()
   }
   
-  var closestIndexToDate: Int {
-    let targetDate = Date()
-    let dates = self.trains.map { route in
-      return isoDateStringToDate(route.departureTime)
-    }
-    
-    var closestIndex = -1
-    var minimumDateDelta = Double.infinity
-
-    for (index, date) in dates.enumerated() {
-        let currentDateDelta = abs(targetDate.timeIntervalSince(date))
-        if currentDateDelta < minimumDateDelta {
-            minimumDateDelta = currentDateDelta
-            closestIndex = index
-        }
-    }
-    
-    return closestIndex
-  }
-  
   // Filter routes to show today's routes only — except those who are on the next day within 12am - 2am.
   private func filterRoute(route: Route) -> Bool {
     let departureDate = isoDateStringToDate(route.departureTime)

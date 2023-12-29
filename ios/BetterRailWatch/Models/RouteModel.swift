@@ -27,7 +27,7 @@ struct DataClass: Decodable {
 }
 
 // MARK: - Route
-struct Route: Decodable, Encodable {
+struct Route: Identifiable, Codable {
     let departureTime: String
     let arrivalTime: String
     let trains: [Train]
@@ -36,6 +36,9 @@ struct Route: Decodable, Encodable {
     var isTomorrow: Bool {
       let convertedDate = isoDateStringToDate(departureTime)
       return Calendar(identifier: .hebrew).isDateInTomorrow(convertedDate)
+    }
+    var id: String {
+      trains.map({ String($0.trainNumber) }).joined() + departureTime
     }
 }
 

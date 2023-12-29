@@ -18,9 +18,7 @@ struct RoutesView: View {
           } else if route.trains.count == 0 {
             InfoMessage(imageName: "tram", message: String(localized: "no-trains-found"))
           } else {
-            List (0 ..< route.trains.count, id: \.self) { index in
-              // TODO: Refactor train property names - too confusing!
-              let trainDetails = route.trains[index]
+            List (route.trains) { trainDetails in
               let trainDetailsView = TrainDetailsView(trainRoute: trainDetails)
               
               NavigationLink(destination: trainDetailsView) {
@@ -47,13 +45,12 @@ struct RoutesView: View {
                   }
                 }
               }
-              .id(index)
+              .id(trainDetails.id)
             }
             .listStyle(CarouselListStyle()).environment(\.defaultMinListRowHeight, 50)
             .onAppear {
-              let index = route.closestIndexToDate
-              if index > 0 {
-                proxy.scrollTo(index, anchor: .top)
+              if let nextTrain = route.nextTrain {
+                proxy.scrollTo(nextTrain.id, anchor: .top)
               }
             }
           }
