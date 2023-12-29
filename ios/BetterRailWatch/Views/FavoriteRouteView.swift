@@ -115,7 +115,7 @@ struct FavoriteRouteView: View {
       
       NavigationStack {
         RoutesView(route: route)
-          .navigationTitle("UPCOMING".capitalized)
+          .navigationTitle(String(localized: "UPCOMING").capitalized)
           .background {
             LinearGradient(colors: [.blue, .clear], startPoint: .bottom, endPoint: .top)
               .opacity(0.15)
@@ -136,8 +136,12 @@ struct FavoriteRouteView: View {
           .font(.system(size: 16))
           .fontWeight(.medium)
           .padding(.bottom, -4)
-        Text("\(Image(systemName: "arrow.forward.circle.fill")) \(route.destination.name)")
-          .font(.system(size: 12))
+        HStack(alignment: .lastTextBaseline, spacing: 2) {
+          Image(systemName: "arrow.forward.circle.fill")
+            .font(.system(size: 12))
+          Text(route.destination.name)
+            .font(.system(size: 12))
+        }
       }
     }
     .font(Font.custom("Heebo", size: 14))
@@ -170,6 +174,7 @@ struct FavoriteRouteView: View {
 @available(watchOS 10.0, *)
 struct FavoriteRouteView_Previews: PreviewProvider {
     static var previews: some View {
-      return FavoriteRouteView(route: RouteViewModel(origin: stations[0], destination: stations[2]), label: nil)
+      FavoriteRouteView(route: RouteViewModel(origin: stations[0], destination: stations[2]), label: nil)
+        .environment(\.criticalAlertsModel, CriticalAlertsViewModel())
     }
 }

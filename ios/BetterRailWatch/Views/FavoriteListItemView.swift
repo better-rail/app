@@ -13,9 +13,12 @@ struct FavoriteListItemView: View {
             } else {
               Text(route.origin.name).font(Font.custom("Heebo", size: 16)).fontWeight(.medium).padding(.bottom, -6)
               
-              
-              Text("\(Image(systemName: "arrow.forward.circle.fill")) \(route.destination.name)")
-                .font(Font.custom("Heebo", size: 12))
+              HStack(alignment: .lastTextBaseline, spacing: 2) {
+                Image(systemName: "arrow.forward.circle.fill")
+                  .font(.system(size: 12))
+                Text(route.destination.name)
+                  .font(Font.custom("Heebo", size: 12))
+              }
             }
           }
           .padding(.bottom, 6)
