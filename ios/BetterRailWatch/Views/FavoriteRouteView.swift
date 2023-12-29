@@ -13,13 +13,11 @@ struct FavoriteRouteView: View {
         LinearGradient(colors: [.blue, .clear], startPoint: .bottom, endPoint: .top)
           .opacity(0.25)
       )
-      .containerBackground(for: .tabView) {
-        StationImageBackground(route.origin.image, isFullScreen: true)
-      }
     }
   }
 }
 
+@available(watchOS 10.0, *)
 struct InnerFavoriteRouteView: View {
   @StateObject var route: RouteViewModel
   var label: String?
@@ -79,9 +77,7 @@ struct InnerFavoriteRouteView: View {
   }
   
   var body: some View {
-    NavigationLink {
-      RoutesView(route: RouteViewModel(origin: route.origin, destination: route.destination, date: routeListDate))
-    } label: {
+    TabView {
       VStack(alignment: .leading) {
         routeName
           .padding(.top, -8)
@@ -114,6 +110,10 @@ struct InnerFavoriteRouteView: View {
         }
       }
       .padding(8)
+      .edgesIgnoringSafeArea(.bottom)
+      .containerBackground(for: .tabView) {
+        StationImageBackground(route.origin.image, isFullScreen: true)
+      }
       .contentShape(Rectangle())
       .setSkeleton(.constant(route.trains.isEmpty), animationType: .gradient(Color.gray.makeGradient().map { $0.opacity(0.2) }))
       .skeletonCornerRadius(6)
@@ -123,8 +123,12 @@ struct InnerFavoriteRouteView: View {
       .onReceive(minuteTimer.$currentTime) { _ in
         route.refreshNextTrainState()
       }
+      
+      RoutesView(route: route)
+        .containerBackground(for: .tabView) {
+          EmptyView()
+        }
     }
-    .buttonStyle(PlainButtonStyle())
   }
   
   var routeName: some View {

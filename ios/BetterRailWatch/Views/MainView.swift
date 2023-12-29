@@ -17,27 +17,21 @@ struct MainView: View {
         }
         .listStyle(.carousel)
         .navigationTitle("Better Rail")
-      } detail: {
-        TabView(selection: $selected) {
-          ForEach(favorites.routes) { route in
-            FavoriteRouteView(route: route)
-              .tag(Optional(route))
+        .toolbar {
+          ToolbarItem(placement: .topBarLeading) {
+            NavigationLink(destination: SearchView(), label: {
+              Image(systemName: "magnifyingglass")
+            })
           }
+        }
+      } detail: {
+        if let selected {
+          FavoriteRouteView(route: selected)
+        } else {
+          EmptyView()
         }
       }
       .tabViewStyle(.verticalPage)
-      .toolbar {
-        ToolbarItem(placement: .topBarTrailing) {
-          NavigationLink(destination: SearchView(), label: {
-            Image(systemName: "magnifyingglass")
-          })
-        }
-      }
-      .onChange(of: selected, { oldValue, newValue in
-        print("old value: ", oldValue != nil ? oldValue!.origin.name + " to " + oldValue!.destination.name : "nil")
-        print("new value: ", newValue != nil ? newValue!.origin.name + " to " + newValue!.destination.name : "nil")
-        print("============")
-      })
       .onOpenURL { url in
         if url.host == "route",
            let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
@@ -67,7 +61,7 @@ struct MainView: View {
               .listRowBackground(
                 Color("midnightBlue")
                   .clipped()
-                  .cornerRadius(10)
+                  .cornerRadius(18)
               )
             
           }

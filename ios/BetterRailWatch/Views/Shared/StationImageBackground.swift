@@ -27,7 +27,7 @@ struct StationImageBackground: View {
         } else {
           Rectangle().fill(Color("midnightBlue"))
         }
-      }.cornerRadius(5)
+      }.cornerRadius(18)
     }
 }
 
