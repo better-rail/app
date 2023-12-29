@@ -95,8 +95,13 @@ struct FavoriteRouteView: View {
       }
       .padding(8)
       .edgesIgnoringSafeArea(.bottom)
-      .containerBackground(for: .tabView) {
-        StationImageBackground(route.origin.image, isFullScreen: true)
+      .background {
+        ZStack {
+          StationImageBackground(route.origin.image, isFullScreen: true)
+          LinearGradient(colors: [.blue, .clear], startPoint: .bottom, endPoint: .top)
+            .opacity(0.25)
+        }
+        .edgesIgnoringSafeArea(.all)
       }
       .contentShape(Rectangle())
       .setSkeleton(.constant(route.trains.isEmpty), animationType: .gradient(Color.gray.makeGradient().map { $0.opacity(0.2) }))
@@ -111,15 +116,13 @@ struct FavoriteRouteView: View {
       NavigationStack {
         RoutesView(route: route)
           .navigationTitle("UPCOMING".capitalized)
-          .containerBackground(for: .tabView) {
-            EmptyView()
+          .background {
+            LinearGradient(colors: [.blue, .clear], startPoint: .bottom, endPoint: .top)
+              .opacity(0.15)
+              .edgesIgnoringSafeArea(.all)
           }
       }
     }
-    .background(
-      LinearGradient(colors: [.blue, .clear], startPoint: .bottom, endPoint: .top)
-        .opacity(0.25)
-    )
   }
   
   var routeName: some View {
