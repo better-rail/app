@@ -7,7 +7,11 @@ class RouteViewModel: ObservableObject {
   private var lastRequest: Date?
   private var date: Date?
   
-  @Published var trains: Array<Route> = []
+  @Published var trains: Array<Route> = [] {
+    didSet {
+      self.nextTrain = getNextTrain()
+    }
+  }
   @Published var loading = false
   @Published var error: Error? = nil
   @Published var nextTrain: Route? = nil
@@ -33,11 +37,11 @@ class RouteViewModel: ObservableObject {
       
       DispatchQueue.main.async {
         self.loading = false
-        if results.today.status == .failed, overrideIfError {
+        if (results.today.status == .failed || results.tomorrow.status == .failed) && overrideIfError {
           self.error = results.today.error
         }
         
-        if results.today.status == .success {
+        if results.today.status == .success, results.tomorrow.status == .success {
           self.error = nil
           self.lastRequest = Date()
           
@@ -45,8 +49,6 @@ class RouteViewModel: ObservableObject {
             (results.today.routes ?? []) +
             (results.tomorrow.routes ?? [])
           ).uniq(by: \.id)
-                    
-          self.nextTrain = self.getNextTrain()
         }
       }
     }

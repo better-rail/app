@@ -1,9 +1,24 @@
 import SwiftUI
 
+func formatDaysDiff(day: Int) -> String {
+  let formatter = DateFormatter()
+  formatter.setLocalizedDateFormatFromTemplate("EEE, d/M")
+  
+  switch day {
+  case 0:
+    return String(localized: "UPCOMING").capitalized
+  case 1:
+    return String(localized: "TOMORROW").capitalized
+  default:
+    let departureDate = Calendar.current.date(byAdding: .day, value: day, to: .now.midnight)!
+    return formatter.string(from: departureDate)
+  }
+}
+
 struct RoutesView: View {
   @ObservedObject var route: RouteViewModel
   
-  var grouppedTrains: [String : [Route]] {
+  var grouppedTrains: [Int : [Route]] {
     let futureTrains = route.trains.filter { train in
       guard let nextTrain = route.nextTrain else {
         return true
@@ -16,28 +31,18 @@ struct RoutesView: View {
       return currentTrainDepartureTime >= nextTrainDepartureTime
     }
     
-    let formatter = DateFormatter()
-    formatter.setLocalizedDateFormatFromTemplate("EEE, d/M")
-    
     return Dictionary(grouping: futureTrains, by: { train in
       let departureDate = isoDateStringToDate(train.departureTime)
       let daysDiff = Calendar.current.dateComponents([.day], from: .now.midnight, to: departureDate).day!
       
-      switch daysDiff {
-      case 0:
-        return "today"
-      case 1:
-        return String(localized: "TOMORROW").capitalized
-      default:
-        return formatter.string(from: departureDate)
-      }
+      return daysDiff
     })
   }
 
     var body: some View {
       ScrollViewReader { proxy in
         VStack {
-          if route.loading {
+          if route.loading, route.trains.isEmpty {
             ProgressView()
               .progressViewStyle(.circular)
           } else if let requestError = route.error {
@@ -48,26 +53,23 @@ struct RoutesView: View {
             InfoMessage(imageName: "tram", message: String(localized: "no-trains-found"))
           } else {
             List {
-              ForEach(Array(grouppedTrains.keys), id: \.self) { key in
+              ForEach(Array(grouppedTrains.keys.sorted()), id: \.self) { key in
                 Section {
                   ForEach(grouppedTrains[key]!) { trainDetails in
                     RouteListItem(trainDetails: trainDetails)
                   }
                 } header: {
-                  if key == "today" {
+                  if key == 0 {
                     EmptyView()
                   } else {
-                    Text(key)
+                    Text(formatDaysDiff(day: key))
                   }
                 }
               }
             }
             .listStyle(.carousel)
-            .environment(\.defaultMinListRowHeight, 10)
+            .environment(\.defaultMinListRowHeight, 50)
           }
-        }
-        .onAppear {
-          route.shouldRefetchRoutes()
         }
       }
     }

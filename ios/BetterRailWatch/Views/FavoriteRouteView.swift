@@ -106,12 +106,6 @@ struct FavoriteRouteView: View {
       .contentShape(Rectangle())
       .setSkeleton(.constant(route.trains.isEmpty), animationType: .gradient(Color.gray.makeGradient().map { $0.opacity(0.2) }))
       .skeletonCornerRadius(6)
-      .onAppear {
-        route.refreshNextTrainState()
-      }
-      .onReceive(minuteTimer.$currentTime) { _ in
-        route.refreshNextTrainState()
-      }
       
       NavigationStack {
         RoutesView(route: route)
@@ -122,6 +116,12 @@ struct FavoriteRouteView: View {
               .edgesIgnoringSafeArea(.all)
           }
       }
+    }
+    .onAppear {
+      route.refreshNextTrainState()
+    }
+    .onReceive(minuteTimer.$currentTime) { _ in
+      route.refreshNextTrainState()
     }
   }
   

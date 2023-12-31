@@ -36,6 +36,7 @@ struct SearchView: View {
   func getRoutesView() -> some View {
     if let origin, let destination {
       RoutesView(route: RouteViewModel(origin: origin, destination: destination))
+        .navigationTitle("Schedule")
     } else {
       EmptyView()
     }
