@@ -8,9 +8,9 @@ struct FavoritesView: View {
   @ObservedObject var favorites: FavoritesViewModel
   
     var body: some View {
-      if (favorites.routes.count > 0) {
+      if !favorites.routes.isEmpty {
         ForEach(favorites.routes) { route in
-          let routesView = RoutesView(route: RouteViewModel(origin: route.origin, destination: route.destination))
+          let routesView = RoutesView(route: RouteViewModel(origin: route.origin, destination: route.destination)).navigationTitle("Schedule")
           
           NavigationLink(destination: routesView) {
             FavoriteListItemView(route: route)
