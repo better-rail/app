@@ -10,7 +10,7 @@
 			<string>il.co.better-rail.watchkitapp</string>
 		</dict>
 		<key>NSExtensionPointIdentifier</key>
-		<string>com.apple.watchkit</string>
+		<string>com.apple.widgetkit-extension</string>
 	</dict>
 	<key>UIAppFonts</key>
 	<array>
