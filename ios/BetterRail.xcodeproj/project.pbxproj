@@ -37,8 +37,6 @@
 		901A3C9D2AC077CE004D68D6 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1A802612747AB4D00A3073D /* WidgetKit.framework */; };
 		901A3C9F2AC077CE004D68D6 /* stationsData.json in Resources */ = {isa = PBXBuildFile; fileRef = C1F61C0C2709F08200CD3D44 /* stationsData.json */; };
 		901A3CA02AC077CE004D68D6 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = C1B3FCF5271EEFFA000F33AE /* Localizable.strings */; };
-		901A3CA12AC077CE004D68D6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1F61C242709F09B00CD3D44 /* Assets.xcassets */; };
-		9044B0722B7BDB2A009915C1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1A802682747AB4D00A3073D /* Assets.xcassets */; };
 		90466CCE2AC60A4B00F9966E /* ViewUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90466CCC2AC60A4B00F9966E /* ViewUtils.swift */; };
 		90466CCF2AC60A4B00F9966E /* ViewUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90466CCC2AC60A4B00F9966E /* ViewUtils.swift */; };
 		90506C442AE70A9B007E6505 /* HTMLString in Frameworks */ = {isa = PBXBuildFile; productRef = 90506C432AE70A9B007E6505 /* HTMLString */; };
@@ -80,6 +78,7 @@
 		908634372AC08AB200C44F40 /* FavoritesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1ED5217270B248C00EBB0B1 /* FavoritesModel.swift */; };
 		908634392AC08AF300C44F40 /* WidgetUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 908634382AC08AF300C44F40 /* WidgetUtils.swift */; };
 		9086343A2AC08AF300C44F40 /* WidgetUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 908634382AC08AF300C44F40 /* WidgetUtils.swift */; };
+		90A47D8A2B7F950D00E4426A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1A802682747AB4D00A3073D /* Assets.xcassets */; };
 		90C7F8922A2096880011E3F9 /* Activity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140A929F1416100968904 /* Activity.swift */; };
 		C0F707F834D839B5724738A3 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC587A60DAEFAB1B12DF76C7 /* ExpoModulesProvider.swift */; };
 		C102DF9E2764FD6600A756B6 /* WidgetLargeScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C102DF9D2764FD6600A756B6 /* WidgetLargeScheduleView.swift */; };
@@ -93,7 +92,6 @@
 		C1A802622747AB4D00A3073D /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1A802612747AB4D00A3073D /* WidgetKit.framework */; };
 		C1A802642747AB4D00A3073D /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1A802632747AB4D00A3073D /* SwiftUI.framework */; };
 		C1A802672747AB4D00A3073D /* BetterRailWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A802662747AB4D00A3073D /* BetterRailWidget.swift */; };
-		C1A802692747AB4D00A3073D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1A802682747AB4D00A3073D /* Assets.xcassets */; };
 		C1A8026D2747AB4D00A3073D /* BetterRailWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = C1A802602747AB4D00A3073D /* BetterRailWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C1B121272761FD260085C269 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F61C102709F08200CD3D44 /* Utilities.swift */; };
 		C1B121292761FD7E0085C269 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1B121282761FD7E0085C269 /* Extensions.swift */; };
@@ -887,10 +885,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				90A47D8A2B7F950D00E4426A /* Assets.xcassets in Resources */,
 				901A3C9F2AC077CE004D68D6 /* stationsData.json in Resources */,
 				901A3CA02AC077CE004D68D6 /* Localizable.strings in Resources */,
-				901A3CA12AC077CE004D68D6 /* Assets.xcassets in Resources */,
-				9044B0722B7BDB2A009915C1 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -914,7 +911,6 @@
 				C1B1214B2762035B0085C269 /* stationsData.json in Resources */,
 				C1B1214F276225C60085C269 /* Localizable.strings in Resources */,
 				C1C6DC5927493C51000E9EED /* Assets.xcassets in Resources */,
-				C1A802692747AB4D00A3073D /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
