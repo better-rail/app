@@ -52,14 +52,16 @@
       "hebrew": "קיסריה",
       "english": "Caesarea",
       "russian": "Кейсария",
-      "arabic": "بارديس حنا"
+      "arabic": "بارديس حنا",
+      "image": "caesarea"
    },
    {
       "id": "2500",
       "hebrew": "עתלית",
       "english": "Atlit",
       "russian": "Атлит",
-      "arabic": "عتليت"
+      "arabic": "عتليت",
+      "image": "atlit"
    },
    {
       "id": "2200",
@@ -90,7 +92,8 @@
       "hebrew": "קריית מוצקין",
       "english": "Kiryat Motzkin",
       "russian": "Кирьят-Моцкин",
-      "arabic": "كريات موتسكين"
+      "arabic": "كريات موتسكين",
+      "image": "kiryat-motzkin"
    },
    {
       "id": "1500",
@@ -129,14 +132,16 @@
       "hebrew": "בית שמש",
       "english": "Bet Shemesh",
       "russian": "Бейт Шемеш",
-      "arabic": "بيت شيمش"
+      "arabic": "بيت شيمش",
+      "image": "beit-shemesh"
    },
    {
       "id": "7000",
       "hebrew": "קריית גת",
       "english": "Kiryat Gat",
       "russian": "Кирьят Гат ",
-      "arabic": "كريات چات"
+      "arabic": "كريات چات",
+      "image": "kiryat-gat"
    },
    {
       "id": "5000",
@@ -230,7 +235,8 @@
       "hebrew": "אשדוד עד הלום",
       "english": "Ashdod - Ad Halom",
       "russian": "Ашдод - ад-Халом",
-      "arabic": "أشدود - عاد هلوم"
+      "arabic": "أشدود - عاد هلوم",
+      "image": "ashdod"
    },
    {
       "id": "4250",
@@ -406,7 +412,8 @@
       "hebrew": "שדרות",
       "english": "Sderot",
       "russian": "Сдерот",
-      "arabic": "سديروت"
+      "arabic": "سديروت",
+      "image": "sderot"
    },
    {
       "id": "9650",
@@ -445,7 +452,8 @@
       "hebrew": "מגדל העמק - כפר ברוך",
       "english": "Migdal Ha'emek - Kfar Barukh",
       "russian": "Мигдаль-Ха-Эмек – Кфар Барух",
-      "arabic": "مجدال هعيمك – كفار باروخ"
+      "arabic": "مجدال هعيمك – كفار باروخ",
+      "image": "migdal-haeemek"
    },
    {
       "id": "1260",
