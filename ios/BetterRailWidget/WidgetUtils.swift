@@ -52,6 +52,14 @@ extension View {
           return background(color)
       }
   }
+  
+  func widgetBlur(radius: CGFloat, opaque: Bool = false) -> some View {
+    #if os(watchOS)
+    return blur(radius: radius, opaque: opaque)
+    #else
+    return self
+    #endif
+  }
 }
 
 extension WidgetConfiguration {

@@ -14,8 +14,8 @@ struct FavoriteRoute: Identifiable, Hashable, Codable {
 }
 
 #if DEBUG
-let fav = FavoriteRoute(label: nil, origin: stations[21], destination: stations[65])
-let fav2 = FavoriteRoute(label: nil, origin: stations[65], destination: stations[8])
+let fav = FavoriteRoute(label: nil, origin: getStationById(3100)!, destination: getStationById(3600)!)
+let fav2 = FavoriteRoute(label: nil, origin: getStationById(3600)!, destination: getStationById(3100)!)
 let fav3 = FavoriteRoute(label: nil, origin: stations[33], destination: stations[8])
 #endif
 

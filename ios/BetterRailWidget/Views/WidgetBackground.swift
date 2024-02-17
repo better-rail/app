@@ -10,6 +10,7 @@ struct WidgetBackground: View {
       if let image {
         Image(image)
           .resizable()
+          .widgetBlur(radius: 1.5)
           .aspectRatio(contentMode: .fill)
           .frame(maxHeight: 170)
           .clipped()
