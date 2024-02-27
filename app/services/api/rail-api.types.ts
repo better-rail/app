@@ -73,6 +73,7 @@ export type Train = {
   lastStop: string
   delay: number
   trainPosition: TrainPosition
+  load: number
 }
 
 export type RouteItem = {
@@ -86,6 +87,7 @@ export type RouteItem = {
   isMuchLonger: boolean
   isMuchShorter: boolean
   trains: Train[]
+  load: number
 }
 
 export interface Title {

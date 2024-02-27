@@ -2,6 +2,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useMemo } from "react"
 import { TextStyle, View, ViewStyle, Platform } from "react-native"
+import { interpolateColor } from "react-native-reanimated";
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import { Svg, Line } from "react-native-svg"
 import { color, spacing, typography, fontScale } from "../../theme"
@@ -22,6 +23,7 @@ const CONTAINER: ViewStyle = {
   justifyContent: "space-between",
   alignItems: "center",
   height: RouteCardHeight,
+  overflow: "hidden",
 
   paddingVertical: spacing[2],
   paddingHorizontal: spacing[4],
@@ -70,6 +72,7 @@ export interface RouteCardProps extends TouchableScaleProps {
   isMuchLonger: boolean
   stops: number
   delay: number
+  load: number
   style?: ViewStyle
   isActiveRide: boolean
   shouldShowDashedLine?: boolean
@@ -84,6 +87,7 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
     delay,
     isMuchShorter,
     isMuchLonger,
+    load,
     onPress = null,
     style,
     shouldShowDashedLine = true,
@@ -135,6 +139,8 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
         <Text style={TIME_TYPE_TEXT} tx="routes.arrival" />
         <Text style={TIME_TEXT}>{formattedArrivalTime}</Text>
       </View>
+
+      <LoadBar load={load} />
     </TouchableScale>
   )
 }
@@ -144,3 +150,15 @@ const DashedLine = () => (
     <Line stroke={color.dim} strokeWidth={4} strokeDasharray="5,5" x1="0" y1="0" x2="100%" y2={0} />
   </Svg>
 )
+
+const LoadBar = ({ load }) => {
+  const height = 3;
+  const width = `${load * 100}%`;
+  const color = interpolateColor(load, [0, 1], ["green", "red"]);
+
+  return (
+    <View style={{ height: height, backgroundColor: "rgba(0, 0, 0, 0.1)", position: "absolute", bottom: 0, left: 0, right: 0 }}>
+      <View style={{ height: "100%", width: width, backgroundColor: color }} />
+    </View>
+  );
+};

@@ -96,6 +96,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         departureTime={departureTime}
         arrivalTime={arrivalTime}
         delay={item.delay}
+        load={item.load}
         isActiveRide={ride.isRouteActive(item)}
         onPress={() =>
           navigation.navigate("routeDetails", {

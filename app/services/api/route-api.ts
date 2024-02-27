@@ -38,6 +38,7 @@ export class RouteApi {
             trainNumber,
             routeStations,
             trainPosition,
+            crowded,
           } = train
 
           const stopStations = train.stopStations.map((station) => {
@@ -76,6 +77,7 @@ export class RouteApi {
             stopStations,
             routeStations,
             trainPosition,
+            load: crowded,
           }
 
           return modifiedTrain
@@ -94,6 +96,7 @@ export class RouteApi {
           delay: trains?.[0].delay ?? 0,
           duration: formatRouteDuration(routeDurationInMs(departureTime, arrivalTime)),
           isExchange: trains.length > 1,
+          load: trains?.[0].load ?? 0,
         }
       })
 
