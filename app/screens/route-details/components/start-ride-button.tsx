@@ -62,7 +62,7 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
    * We are also correcting the user's timezone to Asia/Jerusalem, so if foreign users are playing with the
    * feature, it'll allow them to start a ride as if they were at Israel at the moment.
    */
-  const isRouteInPast = isAfter(timezoneCorrection(new Date()).getTime(), route.arrivalTime)
+  const isRouteInPast = isAfter(timezoneCorrection(new Date()).getTime(), route.arrivalTime + route.delay * 60000)
   const isRouteInFuture = differenceInMinutes(route.departureTime, timezoneCorrection(new Date()).getTime()) > 60
 
   const areActivitiesDisabled = Platform.select({
