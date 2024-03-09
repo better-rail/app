@@ -45,7 +45,7 @@ export class Scheduler {
       throw new NotFoundRouteForRide(logNames.routeApi.getRoutes.failed)
     }
 
-    if (env === "production" && dayjs().isAfter(route.arrivalTime)) {
+    if (env === "production" && dayjs(route.arrivalTime).add(route.delay, "minutes").isBefore(dayjs())) {
       logger.info(logNames.scheduler.rideInPast, {
         date: ride.departureDate,
         origin: ride.originId,
@@ -59,7 +59,7 @@ export class Scheduler {
       throw new RideNotInTimeError(logNames.scheduler.rideInPast)
     }
 
-    if (env === "production" && dayjs(route.departureTime).diff(dayjs(), "minutes") > 60) {
+    if (env === "production" && dayjs(route.departureTime).add(route.delay, "minutes").diff(dayjs(), "minutes") > 60) {
       logger.info(logNames.scheduler.rideInFuture, {
         date: ride.departureDate,
         origin: ride.originId,
