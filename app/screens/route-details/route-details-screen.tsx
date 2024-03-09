@@ -24,7 +24,6 @@ import {
   StartRideButton,
 } from "./components"
 import BottomSheet from "@gorhom/bottom-sheet"
-import { FirstRideAlert } from "./components/first-ride-alert"
 import { canRunLiveActivities } from "../../utils/ios-helpers"
 import { LivePermissionsSheet } from "./components/live-permissions-sheet"
 
@@ -35,7 +34,6 @@ const ROOT: ViewStyle = {
 export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
   const { ride } = useStores()
 
-  const bottomSheetRef = useRef<BottomSheet>(null)
   const permissionSheetRef = useRef<BottomSheet>(null)
 
   // When we present the Live Permissions Sheet we initiate a promise that
@@ -58,10 +56,6 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
   const insets = useSafeAreaInsets()
 
   const [shouldFadeRideButton, setShouldFadeRideButton] = useState(false)
-
-  const openFirstRideAlertSheet = () => {
-    bottomSheetRef.current?.expand()
-  }
 
   const openLivePermissionsSheet = () => {
     return new Promise((resolve) => {
@@ -183,17 +177,11 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
             exiting={FadeOutDown}
             style={{ flex: 1, zIndex: 1 }}
           >
-            <StartRideButton
-              route={routeItem}
-              screenName={route.name}
-              openFirstRideAlertSheet={openFirstRideAlertSheet}
-              openPermissionsSheet={openLivePermissionsSheet}
-            />
+            <StartRideButton route={routeItem} screenName={route.name} openPermissionsSheet={openLivePermissionsSheet} />
           </Animated.View>
         )}
       </Screen>
 
-      {Platform.OS === "ios" && <FirstRideAlert ref={bottomSheetRef} />}
       {Platform.OS === "android" && <LivePermissionsSheet onDone={onDoneLivePermissionsSheet} ref={permissionSheetRef} />}
     </>
   )
