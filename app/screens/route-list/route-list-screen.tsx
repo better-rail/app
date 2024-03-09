@@ -11,7 +11,7 @@ import { useStores } from "../../models"
 import { color, fontScale, spacing } from "../../theme"
 import { RouteItem } from "../../services/api"
 import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight } from "../../components"
-import { NoTrainsFoundMessage, NoInternetConnection, RouteListWarning, WarningType } from "./components"
+import { NoTrainsFoundMessage, RouteListError, RouteListWarning, WarningType } from "./components"
 import { flatMap, max, round } from "lodash"
 import { translate } from "../../i18n"
 
@@ -131,11 +131,13 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         />
       </SharedElement>
 
-      {!isInternetReachable && !trains.data && <NoInternetConnection />}
+      {!isInternetReachable && !trains.data && <RouteListError errorType="no-internet" />}
+
+      {isInternetReachable && !trains.data && trains.status === "error" && <RouteListError errorType="request-error" />}
 
       {trains.status === "loading" && <ActivityIndicator size="large" style={{ marginTop: spacing[6] }} color="grey" />}
 
-      {trains.status === "success" && trains.data.length > 0 && (
+      {trains?.data?.length > 0 && (
         <FlashList
           renderItem={renderRouteCard}
           keyExtractor={(item) => item.trains.map((train) => train.trainNumber).join()}

@@ -77,7 +77,7 @@ class LiveActivitiesController {
         print("Requested live activity, details: \(activity.attributes)")
       } catch (let error) {
         print(error)
-          print("Error occured during live activity initial request \(error.localizedDescription).")
+          print("Error occurred during live activity initial request \(error.localizedDescription).")
       }
     }
   }
