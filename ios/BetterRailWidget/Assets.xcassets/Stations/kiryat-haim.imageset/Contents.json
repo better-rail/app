@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "kiryat-haim.jpg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

@@ -5,6 +5,7 @@ import { getIsWatchAppInstalled, updateApplicationContext, getIsPaired, WatchPay
 import Shortcuts from "react-native-quick-actions-shortcuts"
 import { stationLocale, stationsObject } from "../../data/stations"
 import { translate } from "../../i18n"
+import { isEmpty } from "lodash"
 
 if (Platform.OS === "ios") {
   // set analytics user property for apple watch
@@ -50,7 +51,8 @@ export const FavoritesModel = types
     syncFavoritesToAppleWatch() {
       const appContext: WatchPayload = {}
       self.routes.forEach((route, index) => {
-        appContext[index] = `originId:${route.originId},destinationId:${route.destinationId}`
+        const label = isEmpty(route.label) ? "" : `,label:${route.label}`
+        appContext[index] = `originId:${route.originId},destinationId:${route.destinationId}${label}`
       })
       updateApplicationContext(appContext)
     },

@@ -8,6 +8,7 @@
 "train %@" = "قطار رقم %@";
 "platform %@" = "رصيف %@";
 "train %@ platform %@" = "قطار رقم %@ ・ رصيف %@";
+"platform %@ train no. %@" = "المنصة %@・ رقم القطار %@";
 
 "change" = "تبديل";
 "stay-at %@" = "الرجاء الانتظار في الرصيف %@";
@@ -19,6 +20,7 @@
 "destination" = "وجهة";
 "search" = "يبحث";
 "search route" = "البحث عن الطريق";
+"min" = "دقائق";
 
 "NEXT TRAIN" = "القطار القادم";
 "UPCOMING" = "القطارات القادمة";
@@ -35,3 +37,5 @@
 "No more trains for today." = "لا مزيد من القطارات لهذا اليوم.";
 "No trains for today." = "لا توجد قطارات لهذا اليوم.";
 "Something went wrong." = "هناك خطأ ما.";
+"try again" = "حاول ثانية";
+"critical alert" = "تنبيه بالغ الأهمية";

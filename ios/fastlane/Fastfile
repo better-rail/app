@@ -21,9 +21,9 @@ platform :ios do
     # export_options: { 
     #   provisioningProfiles: { 
     #     "BetterRail.app": "match AppStore il.co.better-rail",
-    #     "WatchBetterRail.app": "match AppStore il.co.better-rail.watchkitapp", 
-    #     "WatchBetterRail Extension.appex": "match AppStore il.co.better-rail.watchkitextension", 
-    #     "BetterRailWidgetExtension.appex": "match AppStore il.co.better-rail.BetterRailWidget", 
+    #     "WatchBetterRail.app": "match AppStore il.co.better-rail.watchkitapp",
+    #     "BetterRailWidgetExtension.appex": "match AppStore il.co.better-rail.BetterRailWidget",
+    #     "BetterRailWidgetExtensionWatch.appex": "match AppStore il.co.better-rail.watchkitapp.BetterRailWidget",
     #     "StationIntent.appex": "match AppStore il.co.better-rail.StationIntent", 
     #   }
     # } 

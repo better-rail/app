@@ -89,4 +89,9 @@ extension Date {
     let calendar = Calendar.current
     return calendar.date(byAdding: .minute, value: minutes, to: self)!
   }
+  
+  var midnight: Date {
+    let calendar = Calendar.current
+    return calendar.startOfDay(for: self)
+  }
 }
