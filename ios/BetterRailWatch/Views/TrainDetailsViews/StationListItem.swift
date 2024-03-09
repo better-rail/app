@@ -44,7 +44,7 @@ struct StationListItem: View {
           
           if trainNumber != nil {
             Text("+\(String(delay)) min")
-              .font(Font.custom("Heebo", size: 14))
+              .font(Font.custom("Heebo", size: 13))
               .fontWeight(.bold)
               .padding(.horizontal, 6)
               .background(.red)
@@ -60,10 +60,10 @@ struct StationListItem: View {
       
       if let trainNumber {
         Text("train \(String(trainNumber)) platform \(String(platform))")
-          .font(Font.custom("Heebo", size: 14))
+          .font(Font.custom("Heebo", size: 13))
       } else {
         Text("platform \(String(platform))")
-          .font(Font.custom("Heebo", size: 14))
+          .font(Font.custom("Heebo", size: 13))
       }
     }
     .listRowBackground(StationImageBackground(imageName).cornerRadius(10))
