@@ -63,7 +63,7 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
    * feature, it'll allow them to start a ride as if they were at Israel at the moment.
    */
   const isRouteInPast = isAfter(timezoneCorrection(new Date()).getTime(), route.arrivalTime + route.delay * 60000)
-  const isRouteInFuture = differenceInMinutes(route.departureTime, timezoneCorrection(new Date()).getTime()) > 60
+  const isRouteInFuture = differenceInMinutes(route.departureTime + route.delay, timezoneCorrection(new Date()).getTime()) > 60
 
   const areActivitiesDisabled = Platform.select({
     ios: () => !canRunLiveActivities || !(ride?.activityAuthorizationInfo?.areActivitiesEnabled ?? true),
