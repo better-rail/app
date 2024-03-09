@@ -1,5 +1,5 @@
 import React from "react"
-import { View, ViewStyle, TextStyle, Platform } from "react-native"
+import { View, ViewStyle, TextStyle, Platform, useColorScheme } from "react-native"
 import { Text } from "../text/text"
 import { translate } from "../../i18n"
 import { color, spacing } from "../../theme"
@@ -7,14 +7,13 @@ import { color, spacing } from "../../theme"
 const CONTAINER: ViewStyle = {
   paddingVertical: 1,
   paddingHorizontal: spacing[2],
-  backgroundColor: color.destroy,
   borderRadius: 6,
 }
 
 const BADGE_TEXT: TextStyle = {
-  color: color.whiteText,
   fontSize: 14,
   fontWeight: Platform.select({ ios: "500", android: "bold" }),
+  color: color.whiteText,
 }
 
 interface DelayBadgeProps {
@@ -25,8 +24,11 @@ interface DelayBadgeProps {
 export const DelayBadge = function DelayBadge(props: DelayBadgeProps) {
   const { delay, onlyNumber } = props
 
+  const colorScheme = useColorScheme()
+  const backgroundColor = colorScheme === "light" ? "#EE6958" : "#B22E4Dt"
+
   return (
-    <View style={CONTAINER}>
+    <View style={[CONTAINER, { backgroundColor }]}>
       <Text style={BADGE_TEXT} maxFontSizeMultiplier={1.15}>
         {onlyNumber && "+"}
         {delay}
