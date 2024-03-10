@@ -134,4 +134,13 @@ class RNBetterRail: NSObject {
       "frequentPushesEnabled": info.frequentPushesEnabled
     ])
   }
+  
+  @available(iOS 14.0, *)
+  @objc func isRunningOnMac(_ resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+    if ProcessInfo.processInfo.isiOSAppOnMac {
+      resolve(true)
+    } else {
+      resolve(false)
+    }
+  }
 }
