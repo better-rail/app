@@ -12,6 +12,7 @@ import { ImportantAnnouncementBar } from "./Important-announcement-bar"
 import { PopUpMessage, railApi } from "../../services/api"
 import { useQuery } from "react-query"
 import { head, isEmpty } from "lodash"
+import { canRunLiveActivities } from "../../utils/ios-helpers"
 
 const HEADER_WRAPPER: ViewStyle = {
   flexDirection: "row",
@@ -59,6 +60,8 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
     // and they haven't seen the live announcement screen yet,
     // and the user can run live activities (iOS only)
     if (routePlan.origin && routePlan.destination) {
+      if (Platform.OS === "ios" && !canRunLiveActivities) return
+
       storage.load("seenLiveAnnouncement").then((hasSeenLiveAnnouncementScreen) => {
         if (!hasSeenLiveAnnouncementScreen) setDisplayNewBadge(true)
       })
