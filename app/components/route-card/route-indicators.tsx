@@ -26,11 +26,11 @@ const SHORT_ROUTE_BADGE_TEXT: TextStyle = {
 /**
  * Displays route indicators (stops count, delay, short route badge) in the route card.
  */
-export const RouteIndicators = ({ isMuchShorter, isMuchLonger, delay, stopsText }) => {
+export const RouteIndicators = ({ isMuchShorter, isMuchLonger, delay, stopsText, isRideActive }) => {
   if (isMuchShorter && !isMuchLonger) {
     return (
       <View style={WRAPPER}>
-        <View style={SHORT_ROUTE_BADGE}>
+        <View style={[SHORT_ROUTE_BADGE, isRideActive && { backgroundColor: color.contrastedGreenBackground }]}>
           <Text style={SHORT_ROUTE_BADGE_TEXT} tx="routes.shortRoute" />
         </View>
         {delay > 0 && <DelayBadge delay={delay} onlyNumber />}

@@ -25,7 +25,7 @@ export const DelayBadge = function DelayBadge(props: DelayBadgeProps) {
   const { delay, onlyNumber } = props
 
   const colorScheme = useColorScheme()
-  const backgroundColor = colorScheme === "light" ? "#EE6958" : "#B22E4Dt"
+  const backgroundColor = colorScheme === "light" ? "#EE6958" : "#B22E4D"
 
   return (
     <View style={[CONTAINER, { backgroundColor }]}>

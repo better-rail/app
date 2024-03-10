@@ -10,6 +10,7 @@ import { Text } from "../"
 import { format } from "date-fns"
 import { translate } from "../../i18n"
 import { RouteIndicators } from "./"
+import { isRideActive } from "../../utils/ios-helpers"
 
 // #region styles
 
@@ -125,7 +126,13 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
             {duration}
           </Text>
 
-          <RouteIndicators isMuchShorter={isMuchShorter} isMuchLonger={isMuchLonger} delay={delay} stopsText={stopsText} />
+          <RouteIndicators
+            isMuchShorter={isMuchShorter}
+            isMuchLonger={isMuchLonger}
+            delay={delay}
+            stopsText={stopsText}
+            isRideActive={props.isActiveRide}
+          />
         </View>
       </View>
 

@@ -152,6 +152,12 @@ export const color = {
     android: PlatformColor("@color/greenBg"),
   }),
 
+  // when the background of the element is green and the element itself is green (e.g. a button with green text on green background)
+  contrastedGreenBackground: Platform.select({
+    ios: DynamicColorIOS({ light: "#C7EEBE", dark: "#5D7557" }),
+    android: PlatformColor("@color/contrastedGreenBg"),
+  }),
+
   stop: Platform.select({
     ios: DynamicColorIOS({ light: palette.pinky, dark: "#bb645b" }),
     android: PlatformColor("@color/red"),
