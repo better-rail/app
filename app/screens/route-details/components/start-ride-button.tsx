@@ -11,7 +11,7 @@ import { differenceInMinutes, isAfter } from "date-fns"
 import { timezoneCorrection } from "../../../utils/helpers/date-helpers"
 import { color, fontScale } from "../../../theme"
 import { useStores } from "../../../models"
-import { canRunLiveActivities } from "../../../utils/ios-helpers"
+import { liveActivitiesSupported } from "../../../utils/ios-helpers"
 import { AndroidNotificationSetting, AuthorizationStatus } from "@notifee/react-native"
 import InAppReview from "react-native-in-app-review"
 
@@ -60,11 +60,12 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
     differenceInMinutes(route.departureTime + route.delay * 60000, timezoneCorrection(new Date()).getTime()) > 60
 
   const areActivitiesDisabled = Platform.select({
-    ios: () => !canRunLiveActivities || !(ride?.activityAuthorizationInfo?.areActivitiesEnabled ?? true),
+    ios: () => !liveActivitiesSupported || !(ride?.activityAuthorizationInfo?.areActivitiesEnabled ?? true),
     android: () =>
       ride.notifeeSettings?.notifications !== AuthorizationStatus.AUTHORIZED ||
       ride.notifeeSettings?.alarms !== AndroidNotificationSetting.ENABLED,
   })
+
   const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || areActivitiesDisabled()
 
   const startRide = async () => {

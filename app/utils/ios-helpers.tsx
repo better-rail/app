@@ -3,11 +3,17 @@ import { RouteItem } from "../services/api"
 
 const { RNBetterRail } = NativeModules
 
-function isRunningOnMac() {
-  return RNBetterRail.isRunningOnMac()
-}
+export const liveActivitiesSupported = Platform.OS == "ios" && parseFloat(Platform.Version) >= 16.2
 
-export const canRunLiveActivities = Platform.OS == "ios" && parseFloat(Platform.Version) >= 16.2 && !isRunningOnMac()
+export async function canRunLiveActivities() {
+  const isRunningOnMac = await RNBetterRail.isRunningOnMac()
+
+  if (liveActivitiesSupported && !isRunningOnMac) {
+    return true
+  }
+
+  return false
+}
 
 export function donateRouteIntent(originId: string, destinationId: string) {
   RNBetterRail.donateRouteIntent(originId, destinationId)
@@ -102,6 +108,7 @@ export default {
   startLiveActivity,
   endLiveActivity,
   isRideActive,
+  liveActivitiesSupported,
   canRunLiveActivities,
   activityAuthorizationInfo,
 }
