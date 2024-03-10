@@ -48,6 +48,7 @@
     "noTrainsFound": "No trains were found for this route in the upcoming days",
     "sameStationsMessage": "Choose different origin and destination stations",
     "noInternetConnection": "It looks like your device is not currently connected to the internet.\nPlease check your network connection and try again.",
+    "routesError": "An error occurred while attempting to load routes from Israel Railways",
     "updates": "Updates from Israel Railways",
     "updatesError": "An error occurred while attempting to load updates from Israel Railways",
     "shortRoute": "Short Route"
@@ -225,7 +226,7 @@
     "alarmDisabledMessage": "To notify you when to get off the train more accurately, please open your device settings and enable alarm notifications.",
     "connectionIssues": "Connection issues",
 
-    "error": "An error occured while starting the ride - please try to start a new ride.",
+    "error": "An error occurred while starting the ride - please try to start a new ride.",
 
     "notificationPermission1": "To receive real-time updates on the train's progress, please grant permission for us to send you notifications.",
     "notificationPermission2": "Our notification system is designed for efficiency, and we avoid sending unnecessary alerts.",

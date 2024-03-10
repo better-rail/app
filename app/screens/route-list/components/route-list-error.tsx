@@ -12,7 +12,6 @@ const MESSAGE_WRAPPER: ViewStyle = {
 
 const ICON: ImageStyle = {
   width: 45,
-  height: 36,
   marginBottom: spacing[4],
   tintColor: color.dim,
   opacity: 0.75,
@@ -22,11 +21,20 @@ const TEXT: TextStyle = {
   textAlign: "center",
 }
 
-export const NoInternetConnection = function NoInternetConnection() {
+type Props = {
+  errorType: "no-internet" | "request-error"
+}
+
+export const RouteListError: React.FC<Props> = function NoInternetConnection({ errorType }) {
+  const imageSrc =
+    errorType === "no-internet" ? require("../../../../assets/no-connection.png") : require("../../../../assets/info.png")
+
+  const textKey = errorType === "no-internet" ? "routes.noInternetConnection" : "routes.routesError"
+
   return (
     <View style={MESSAGE_WRAPPER}>
-      <Image source={require("../../../../assets/no-connection.png")} style={ICON} />
-      <Text style={TEXT} tx="routes.noInternetConnection" />
+      <Image source={imageSrc} style={[ICON, { height: errorType === "no-internet" ? 36 : 45 }]} />
+      <Text style={TEXT} tx={textKey} />
     </View>
   )
 }

@@ -39,8 +39,12 @@
     "noChange": "دون تبديل",
     "oneChange": "تبديل واحد",
     "changes": "تبديلات",
+    "delayTime": "دقائق تأخير",
     "noInternetConnection": "يبدو أن الجهاز الخاص بك ليس متصلًا بالإنترنت في الوقت الحالي.\nيرجى التحقق من اتصال الشبكة الخاصة بك والمحاولة مرة أخرى.",
-    "delayTime": "دقائق تأخير"
+    "routesError": "حدث خطأ أثناء محاولة تحميل المسارات من قطارات إسرائيل",
+    "updates": "تحديثات من قطار اسرائيل",
+    "updatesError": "حدث خطأ أثناء تحميل التحديثات من قطارات إسرائيل",
+    "shortRoute": "طريق قصير"
   },
   "routeDetails": {
     "platform": "رصيف",
@@ -95,9 +99,6 @@
     "renamePromptTitle": "اسم الطريق",
     "renamePromptPlaceholder": "أدخل اسمًا للطريق ...",
     "delete": "إزالة من المفضلة",
-    "updates": "تحديثات من قطار اسرائيل",
-    "updatesError": "حدث خطأ أثناء تحميل التحديثات من قطارات إسرائيل",
-    "shortRoute": "طريق قصير",
     "fromStation": "من %{stationName}",
     "toStation": "إلى %{stationName}"
   },
