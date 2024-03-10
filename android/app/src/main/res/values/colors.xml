@@ -18,6 +18,7 @@
   <color name="green">#4daf50</color>
   <color name="greenText">#219f07</color>
   <color name="greenBg">#e4ffdd</color>
+  <color name="contrastedGreenBg">#c7eebe</color>
   <color name="yellow">#f1c40f</color>
   <color name="pinky">#fa827e</color>
   <color name="lightPinky">#f6eae3</color>
