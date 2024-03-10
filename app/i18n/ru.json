@@ -163,10 +163,6 @@
 
     "error": "Произошла ошибка при запуске поездки. Повторите попытку.",
 
-    "firstRideAlertP1": "During the first three days of usage, there is a possibility that the live activity feature may display an incorrect estimated time of arrival (ETA).",
-    "firstRideAlertP2": "This is due to the system taking time to allocate sufficient \"notification budget\" for the application. ",
-    "firstRideAlertP3": "This issue typically resolves itself after approximately three days of usage, after which the live activity will function accurately.",
-
     "notificationPermission1": "Чтобы информировать вас в реальном времени о ходе поезда, пожалуйста, разрешите нам отправлять вам уведомления.",
     "notificationPermission2": "Мы используем эффективный механизм уведомлений и не отправляем ненужные уведомления.",
     "notificationPermission3": "Уведомления",

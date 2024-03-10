@@ -1,6 +1,5 @@
-import { Alert, Dimensions, Image, ImageStyle, Linking, PermissionsAndroid, Platform, View, ViewStyle } from "react-native"
+import { Alert, Dimensions, Image, ImageStyle, Linking, Platform, View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
-import * as storage from "../../../utils/storage"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HapticFeedback from "react-native-haptic-feedback"
 import analytics from "@react-native-firebase/analytics"
@@ -17,11 +16,6 @@ import { AndroidNotificationSetting, AuthorizationStatus } from "@notifee/react-
 import InAppReview from "react-native-in-app-review"
 
 const { width: deviceWidth } = Dimensions.get("screen")
-
-// Those who know know.
-const currentDate = new Date() // Get the current date and time in the local time zone
-const targetDate = new Date(2023, 5, 11, 17) // Set the date to June 11th at 17:00
-const isAfterTargetDate = isAfter(currentDate, targetDate)
 
 const START_RIDE_BUTTON: ViewStyle = {
   shadowOffset: { width: 0, height: 2 },
@@ -41,7 +35,6 @@ const TRAIN_ICON: ImageStyle = {
 interface StartRideButtonProps {
   route: RouteItem
   screenName: "routeDetails" | "activeRide"
-  openFirstRideAlertSheet?: () => void
   openPermissionsSheet?: () => Promise<unknown>
 }
 
@@ -74,20 +67,6 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
   })
   const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || areActivitiesDisabled()
 
-  const shouldDisplayFirstRideAlert = async () => {
-    const isFirstRideAlertEnabled = isAfterTargetDate
-    if (!isFirstRideAlertEnabled) return false
-
-    const firstRideDate = await storage.load("firstRideDate")
-
-    if (!firstRideDate) {
-      await storage.save("firstRideDate", new Date().toISOString())
-      return true
-    }
-
-    return false
-  }
-
   const startRide = async () => {
     if (ride.id) {
       return Alert.alert(translate("ride.rideExistsTitle"), translate("ride.rideExistsMessage"), [
@@ -110,15 +89,6 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
       route: JSON.stringify(route),
       rideId: ride.id ?? "null",
     })
-
-    if (Platform.OS === "ios") {
-      shouldDisplayFirstRideAlert().then((isFirstRide) => {
-        if (isFirstRide) {
-          props.openFirstRideAlertSheet()
-          analytics().logEvent("first_live_ride_alert")
-        }
-      })
-    }
 
     HapticFeedback.trigger("notificationSuccess")
     ride.startRide(route)
