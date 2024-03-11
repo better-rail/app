@@ -3,12 +3,11 @@ import { RouteItem } from "../services/api"
 
 const { RNBetterRail } = NativeModules
 
-export const liveActivitiesSupported = Platform.OS == "ios" && parseFloat(Platform.Version) >= 16.2
-
 export async function canRunLiveActivities() {
   const isRunningOnMac = await RNBetterRail.isRunningOnMac()
+  const deviceSupported = Platform.OS == "ios" && parseFloat(Platform.Version) >= 16.2
 
-  if (liveActivitiesSupported && !isRunningOnMac) {
+  if (deviceSupported && !isRunningOnMac) {
     return true
   }
 
@@ -108,7 +107,6 @@ export default {
   startLiveActivity,
   endLiveActivity,
   isRideActive,
-  liveActivitiesSupported,
   canRunLiveActivities,
   activityAuthorizationInfo,
 }

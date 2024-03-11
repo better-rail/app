@@ -2,7 +2,7 @@ import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { omit } from "ramda"
 import { Platform } from "react-native"
 import AndroidHelpers from "../../utils/android-helpers"
-import iOSHelpers, { ActivityAuthorizationInfo, liveActivitiesSupported } from "../../utils/ios-helpers"
+import iOSHelpers, { ActivityAuthorizationInfo } from "../../utils/ios-helpers"
 import { trainRouteSchema } from "../train-routes/train-routes"
 import { RouteItem } from "../../services/api"
 import { RouteApi } from "../../services/api/route-api"
@@ -102,9 +102,7 @@ export const RideModel = types
       return false
     },
     async checkLiveRideAuthorization() {
-      const canRunLiveActivities = await iOSHelpers.canRunLiveActivities()
-
-      if (canRunLiveActivities) {
+      if (!self.canRunLiveActivities) {
         const info = await iOSHelpers.activityAuthorizationInfo()
         this.setActivityAuthorizationInfo(info)
       } else if (Platform.OS === "android") {
@@ -121,7 +119,7 @@ export const RideModel = types
       this.checkLiveRideAuthorization()
     },
     startRide(route: RouteItem) {
-      if (Platform.OS === "ios" && !liveActivitiesSupported) return
+      if (!self.canRunLiveActivities) return
 
       this.setRideLoading(true)
       this.setRoute(route)
@@ -145,7 +143,7 @@ export const RideModel = types
         })
     },
     stopRide(rideId: string) {
-      if (Platform.OS === "ios" && !liveActivitiesSupported) return Promise.resolve()
+      if (Platform.OS === "ios" && !self.canRunLiveActivities) return Promise.resolve()
 
       this.setRideLoading(true)
       this.setRideId(undefined)
@@ -168,7 +166,7 @@ export const RideModel = types
       self.rideCount = count
     },
     isRideActive(rideId: string) {
-      if (liveActivitiesSupported) {
+      if (self.canRunLiveActivities) {
         iOSHelpers.isRideActive(rideId).then((tokens) => {
           // TODO: Check if ride Id exists in the array.
           // Currently .rideId arrives always empty, so we only check if the array is empty.
