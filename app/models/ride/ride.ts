@@ -102,7 +102,7 @@ export const RideModel = types
       return false
     },
     async checkLiveRideAuthorization() {
-      if (!self.canRunLiveActivities) {
+      if (self.canRunLiveActivities) {
         const info = await iOSHelpers.activityAuthorizationInfo()
         this.setActivityAuthorizationInfo(info)
       } else if (Platform.OS === "android") {
