@@ -70,12 +70,12 @@ function App() {
 
   useEffect(() => {
     // Activate live activities listener on iOS 16.2+
-    rootStore.ride.checkLiveActivitiesSupported().then((canRunLiveActivities) => {
+    rootStore?.ride.checkLiveActivitiesSupported().then((canRunLiveActivities) => {
       if (canRunLiveActivities === true) {
         monitorLiveActivities()
       }
     })
-  }, [])
+  }, [rootStore])
 
   useEffect(() => {
     if (Platform.OS === "android") {
