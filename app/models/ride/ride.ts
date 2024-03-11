@@ -92,10 +92,13 @@ export const RideModel = types
     setActivityAuthorizationInfo(newInfo: ActivityAuthorizationInfo) {
       self.activityAuthorizationInfo = newInfo
     },
+    setCanRunLiveActivities(value: boolean) {
+      self.canRunLiveActivities = value
+    },
     async checkLiveActivitiesSupported() {
       if (Platform.OS === "ios") {
         const supported = await iOSHelpers.canRunLiveActivities()
-        self.canRunLiveActivities = supported
+        this.setCanRunLiveActivities(supported)
         return supported
       }
 
