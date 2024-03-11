@@ -7,11 +7,7 @@ export async function canRunLiveActivities() {
   const isRunningOnMac = await RNBetterRail.isRunningOnMac()
   const deviceSupported = Platform.OS == "ios" && parseFloat(Platform.Version) >= 16.2
 
-  if (deviceSupported && !isRunningOnMac) {
-    return true
-  }
-
-  return false
+  return deviceSupported && !isRunningOnMac
 }
 
 export function donateRouteIntent(originId: string, destinationId: string) {
