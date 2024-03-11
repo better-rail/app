@@ -24,7 +24,6 @@ import {
   StartRideButton,
 } from "./components"
 import BottomSheet from "@gorhom/bottom-sheet"
-import { canRunLiveActivities, liveActivitiesSupported } from "../../utils/ios-helpers"
 import { LivePermissionsSheet } from "./components/live-permissions-sheet"
 
 const ROOT: ViewStyle = {
@@ -33,8 +32,6 @@ const ROOT: ViewStyle = {
 }
 export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
   const { ride } = useStores()
-
-  const [showStartRideButton, setShowStartRideButton] = useState(false)
 
   const permissionSheetRef = useRef<BottomSheet>(null)
 
@@ -81,18 +78,6 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
       ride.stopRide(ride.id)
     }
   }, [progress.status, ride.id])
-
-  useEffect(() => {
-    if (Platform.OS === "android") {
-      setShowStartRideButton(true)
-      return
-    }
-
-    canRunLiveActivities().then((result) => {
-      const showButton = result && !isRideOnThisRoute
-      setShowStartRideButton(showButton)
-    })
-  }, [isRideOnThisRoute])
 
   return (
     <>
@@ -185,7 +170,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
           </Animated.View>
         )}
 
-        {showStartRideButton && (
+        {(Platform.OS === "android" || ride.canRunLiveActivities) && !isRideOnThisRoute && (
           <Animated.View
             entering={shouldFadeRideButton && FadeInDown.delay(100)}
             exiting={FadeOutDown}
