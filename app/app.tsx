@@ -48,7 +48,7 @@ if (__DEV__) {
 // stack navigation, use `createNativeStackNavigator` in place of `createStackNavigator`:
 // https://github.com/kmagiera/react-native-screens#using-native-stack-navigator
 import { enableScreens } from "react-native-screens"
-import { canRunLiveActivities, monitorLiveActivities } from "./utils/ios-helpers"
+import { monitorLiveActivities } from "./utils/ios-helpers"
 import { useDeepLinking } from "./hooks/use-deep-linking"
 import { openActiveRide } from "./utils/helpers/ride-helpers"
 enableScreens()
@@ -70,10 +70,12 @@ function App() {
 
   useEffect(() => {
     // Activate live activities listener on iOS 16.2+
-    if (canRunLiveActivities) {
-      monitorLiveActivities()
-    }
-  }, [])
+    rootStore?.ride.checkLiveActivitiesSupported().then((canRunLiveActivities) => {
+      if (canRunLiveActivities === true) {
+        monitorLiveActivities()
+      }
+    })
+  }, [rootStore])
 
   useEffect(() => {
     if (Platform.OS === "android") {

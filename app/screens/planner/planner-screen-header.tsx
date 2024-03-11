@@ -59,9 +59,11 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
     // and they haven't seen the live announcement screen yet,
     // and the user can run live activities (iOS only)
     if (routePlan.origin && routePlan.destination) {
-      storage.load("seenLiveAnnouncement").then((hasSeenLiveAnnouncementScreen) => {
-        if (!hasSeenLiveAnnouncementScreen) setDisplayNewBadge(true)
-      })
+      if (Platform.OS === "android" || ride.canRunLiveActivities) {
+        storage.load("seenLiveAnnouncement").then((hasSeenLiveAnnouncementScreen) => {
+          if (!hasSeenLiveAnnouncementScreen) setDisplayNewBadge(true)
+        })
+      }
     }
   }, [])
 
