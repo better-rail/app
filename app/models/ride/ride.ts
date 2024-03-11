@@ -66,6 +66,10 @@ export const RideModel = types
      * Number of rides the user has taken
      */
     rideCount: types.optional(types.number, 0),
+    /**
+     * Whether the user device can run live activities
+     */
+    canRunLiveActivities: types.optional(types.boolean, false),
   })
   .views((self) => ({
     get originId() {
@@ -87,6 +91,15 @@ export const RideModel = types
     },
     setActivityAuthorizationInfo(newInfo: ActivityAuthorizationInfo) {
       self.activityAuthorizationInfo = newInfo
+    },
+    async checkLiveActivitiesSupported() {
+      if (Platform.OS === "ios") {
+        const supported = await iOSHelpers.canRunLiveActivities()
+        self.canRunLiveActivities = supported
+        return supported
+      }
+
+      return false
     },
     async checkLiveRideAuthorization() {
       const canRunLiveActivities = await iOSHelpers.canRunLiveActivities()
