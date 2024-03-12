@@ -43,9 +43,8 @@ export const AnnouncementsNavigator = () => (
       name="notificationsPickStations"
       component={NotificationsPickStationsScreen}
       options={({ navigation }) => ({
+        headerShown: false,
         title: translate("routes.updates"),
-        headerLeft: () => <CloseButton onPress={() => navigation.goBack()} style={{ marginRight: spacing[2] }} />,
-        headerTitleStyle: Platform.select({ ios: iOSTitleStyle, android: { ...androidTitleStyle, marginBottom: 10 } }),
       })}
     />
   </AnnouncementsStack.Navigator>
