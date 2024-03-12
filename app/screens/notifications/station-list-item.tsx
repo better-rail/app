@@ -12,6 +12,11 @@ const WRAPPER: ViewStyle = {
   padding: 12,
   backgroundColor: color.secondaryBackground,
   borderRadius: 12,
+  shadowColor: "#333",
+  shadowOffset: { width: 0, height: 0 },
+  shadowOpacity: 0.1,
+  shadowRadius: 1,
+  elevation: 1,
 }
 
 const IMAGE_WRAPPER: ViewStyle = {
@@ -19,12 +24,12 @@ const IMAGE_WRAPPER: ViewStyle = {
   alignItems: "center",
   width: 40,
   height: 40,
-  backgroundColor: color.primary,
   borderRadius: 50,
   shadowColor: "#333",
   shadowOffset: { width: 0, height: 0 },
   shadowOpacity: 0.2,
   shadowRadius: 3,
+  elevation: 3,
 }
 
 const STATION_IMAGE: ImageStyle = {
@@ -49,7 +54,6 @@ const TITLE: TextStyle = {
   fontWeight: "500",
 }
 
-const IMAGE = require("../../../assets/station-images/tlv-hashalom.jpg")
 const CHECKMARK = require("../../../assets/checkmark.png")
 
 interface StationListItemProps {
@@ -63,20 +67,14 @@ export function StationListItem(props: StationListItemProps) {
   const { title, image, selected, onSelect } = props
 
   return (
-    <TouchableScale
-      // style={[WRAPPER, selected && { backgroundColor: color.secondary }]}
-      style={WRAPPER}
-      activeScale={0.97}
-      friction={10}
-      onPress={onSelect}
-    >
+    <TouchableScale style={WRAPPER} activeScale={0.97} friction={10} onPress={onSelect}>
       <View style={IMAGE_WRAPPER}>
         {selected && (
           <Animated.Image
             source={CHECKMARK}
             style={CHECKMARK_IMAGE}
             entering={ZoomIn.duration(150)}
-            exiting={ZoomOut.duration(100)}
+            exiting={ZoomOut.duration(150)}
           />
         )}
         <Image source={image} style={[STATION_IMAGE, selected && { borderWidth: 3 }]} blurRadius={selected ? 10 : 0} />

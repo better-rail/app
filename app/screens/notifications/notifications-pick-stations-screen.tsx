@@ -9,8 +9,9 @@ import { useNavigation } from "@react-navigation/native"
 import { SearchInput } from "../select-station/search-input"
 import { translate } from "../../i18n"
 import { useStores } from "../../models"
-import { useStations } from "../../data/stations"
 import HapticFeedback from "react-native-haptic-feedback"
+import { useFilteredStations } from "../../hooks"
+import { useStations } from "../../data/stations"
 
 export const NotificationsPickStationsScreen = observer(function NotificationsPickStationsScreen() {
   const navigation = useNavigation()
@@ -20,6 +21,9 @@ export const NotificationsPickStationsScreen = observer(function NotificationsPi
   const { stationsNotifications } = settings
 
   const stations = useStations()
+  const { filteredStations } = useFilteredStations(searchTerm)
+
+  const displayedStations = searchTerm === "" ? stations : filteredStations
 
   return (
     <View style={{ paddingHorizontal: spacing[3] }}>
@@ -40,8 +44,8 @@ export const NotificationsPickStationsScreen = observer(function NotificationsPi
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={{ rowGap: 12 }}>
-        {stations.map((station) => (
+      <ScrollView contentContainerStyle={{ rowGap: 12 }} showsVerticalScrollIndicator={false}>
+        {displayedStations.map((station) => (
           <StationListItem
             key={station.id}
             title={station.name}
