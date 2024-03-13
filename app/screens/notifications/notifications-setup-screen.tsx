@@ -67,7 +67,7 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
               return <StationListItem key={stationId} title={station.name} image={station.image} />
             })}
 
-            <Text style={{ textAlign: "center" }} preset="small">
+            <Text style={{ textAlign: "center", opacity: 0.8 }} preset="small">
               Please note: While Better Rail will do its best to provide fast and reliable updates, it is always advisable to
               check with the official sources of Israel Railways as well.
             </Text>
