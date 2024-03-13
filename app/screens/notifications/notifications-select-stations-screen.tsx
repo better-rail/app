@@ -13,7 +13,9 @@ import HapticFeedback from "react-native-haptic-feedback"
 import { useFilteredStations } from "../../hooks"
 import { useStations } from "../../data/stations"
 
-export const NotificationsPickStationsScreen = observer(function NotificationsPickStationsScreen() {
+import messaging from "@react-native-firebase/messaging"
+
+export const NotificationsSelectStationsScreen = observer(function NotificationsSelectStationsScreen() {
   const navigation = useNavigation()
   const [searchTerm, setSearchTerm] = useState("")
 
@@ -24,6 +26,18 @@ export const NotificationsPickStationsScreen = observer(function NotificationsPi
   const { filteredStations } = useFilteredStations(searchTerm)
 
   const displayedStations = searchTerm === "" ? stations : filteredStations
+
+  const onSelected = (stationId: string) => {
+    HapticFeedback.trigger("impactLight")
+
+    if (stationsNotifications.includes(stationId)) {
+      messaging().subscribeToTopic("weather")
+      settings.removeStationNotification(stationId)
+      return
+    }
+
+    settings.addStationNotification(stationId)
+  }
 
   return (
     <View style={{ paddingHorizontal: spacing[3] }}>
@@ -51,16 +65,7 @@ export const NotificationsPickStationsScreen = observer(function NotificationsPi
             title={station.name}
             image={station.image}
             selected={stationsNotifications.includes(station.id)}
-            onSelect={() => {
-              HapticFeedback.trigger("impactLight")
-
-              if (stationsNotifications.includes(station.id)) {
-                settings.removeStationNotification(station.id)
-                return
-              }
-
-              settings.addStationNotification(station.id)
-            }}
+            onSelect={() => onSelected(station.id)}
           />
         ))}
       </ScrollView>

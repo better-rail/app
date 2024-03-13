@@ -6,7 +6,7 @@ import { color, spacing, typography } from "../../theme"
 import { Image, Platform, Pressable, TextStyle } from "react-native"
 import { translate } from "../../i18n"
 import { UrgentAnnouncements } from "../../components/announcements/urgent-announcements"
-import { NotificationsPickStationsScreen } from "../../screens/notifications/notifications-pick-stations-screen"
+import { NotificationsSelectStationsScreen } from "../../screens/notifications/notifications-select-stations-screen"
 import { NotificationsSetupScreen } from "../../screens/notifications/notifications-setup-screen"
 
 export type AnnouncementsParamList = {
@@ -78,7 +78,7 @@ export const AnnouncementsNavigator = () => (
 
     <AnnouncementsStack.Screen
       name="notificationsPickStations"
-      component={NotificationsPickStationsScreen}
+      component={NotificationsSelectStationsScreen}
       options={({ navigation }) => ({
         title: "Select Stations",
         headerShown: false,

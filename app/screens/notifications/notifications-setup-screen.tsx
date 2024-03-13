@@ -50,7 +50,7 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
         <View style={{ marginVertical: spacing[2], gap: spacing[2] }}>
           <Text style={{ textAlign: "center", fontSize: 56 }}>🔔</Text>
           <Text style={{ textAlign: "center", paddingHorizontal: spacing[2], marginBottom: spacing[2] }}>
-            Receive notifications for unusual updates on your favorite stations.
+            Better Rail will send you updates on events related to your selected stations
           </Text>
         </View>
 

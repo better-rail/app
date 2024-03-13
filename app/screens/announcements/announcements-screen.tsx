@@ -1,7 +1,7 @@
 import { Platform, ScrollView, View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import { Screen, Text } from "../../components"
-import { color, spacing } from "../../theme"
+import { color, fontScale, spacing } from "../../theme"
 import { useIsDarkMode } from "../../hooks"
 import { AnnouncementsScreenProps } from "../../navigators/announcements/announcements-navigator"
 import { AnnouncementsList } from "../../components/announcements/announcements-list"
@@ -34,10 +34,10 @@ export const AnnouncementsScreen = observer(function AnnouncementsScreen({ navig
           friction={10}
           style={{
             justifyContent: "center",
-            height: 60,
+            height: 100 * fontScale,
             paddingHorizontal: spacing[3],
             marginBottom: spacing[3],
-            backgroundColor: color.stop,
+            backgroundColor: color.palette.orangeDarker,
             borderRadius: 12,
             shadowColor: color.palette.black,
             shadowOffset: { height: 0, width: 0 },
@@ -45,7 +45,12 @@ export const AnnouncementsScreen = observer(function AnnouncementsScreen({ navig
             elevation: 4,
           }}
         >
-          <Text style={{ textAlign: "center", fontSize: 16, color: color.whiteText }}>Notifications Settings</Text>
+          <Text style={{ textAlign: "center", fontSize: 18, color: color.whiteText, fontWeight: 500 }}>
+            New: Setup Notifications
+          </Text>
+          <Text style={{ textAlign: "center", fontSize: 16, color: color.whiteText }}>
+            Receive updates on events related to your stations
+          </Text>
         </TouchableScale>
 
         <AnnouncementsList updatesType="regular" />
