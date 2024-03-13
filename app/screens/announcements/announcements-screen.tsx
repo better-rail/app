@@ -16,6 +16,19 @@ const SCROLL_VIEW: ViewStyle = {
   paddingBottom: spacing[5],
 }
 
+const NOTIFICATOIN_BUTTON: ViewStyle = {
+  justifyContent: "center",
+  height: 100 * fontScale,
+  paddingHorizontal: spacing[3],
+  marginBottom: spacing[3],
+  backgroundColor: color.primary,
+  borderRadius: 12,
+  shadowColor: color.palette.black,
+  shadowOffset: { height: 0, width: 0 },
+  shadowOpacity: 0.05,
+  elevation: 4,
+}
+
 export const AnnouncementsScreen = observer(function AnnouncementsScreen({ navigation }: AnnouncementsScreenProps) {
   const isDarkMode = useIsDarkMode()
 
@@ -32,25 +45,17 @@ export const AnnouncementsScreen = observer(function AnnouncementsScreen({ navig
           onPress={() => navigation.navigate("notificationsSetup")}
           activeScale={0.97}
           friction={10}
-          style={{
-            justifyContent: "center",
-            height: 100 * fontScale,
-            paddingHorizontal: spacing[3],
-            marginBottom: spacing[3],
-            backgroundColor: color.primary,
-            borderRadius: 12,
-            shadowColor: color.palette.black,
-            shadowOffset: { height: 0, width: 0 },
-            shadowOpacity: 0.05,
-            elevation: 4,
-          }}
+          style={NOTIFICATOIN_BUTTON}
         >
-          <Text style={{ textAlign: "center", fontSize: 18, color: color.whiteText, fontWeight: "500" }}>
-            New: Setup Notifications
-          </Text>
-          <Text style={{ textAlign: "center", fontSize: 16, color: color.whiteText }}>
-            Receive updates on events related to your stations
-          </Text>
+          <Text
+            tx="announcements.notifications.newButtonTitle"
+            style={{ textAlign: "center", fontSize: 18, color: color.whiteText, fontWeight: "500" }}
+          />
+
+          <Text
+            tx="announcements.notifications.newButtonContent"
+            style={{ textAlign: "center", fontSize: 16, color: color.whiteText }}
+          />
         </TouchableScale>
 
         <AnnouncementsList updatesType="regular" />

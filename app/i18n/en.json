@@ -257,5 +257,11 @@
     "startFreeTrial": "Start 14 days free trial",
     "afterTrialPrice": "then %{price} / %{period}",
     "cancelAnytime": "Cancel anytime"
+  },
+  "announcements": {
+    "notifications": {
+      "newButtonTitle": "New: Setup Notifications",
+      "newButtonContent": "Receive updates on events related to your stations"
+    }
   }
 }

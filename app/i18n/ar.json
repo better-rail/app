@@ -163,5 +163,11 @@
     "notificationPermission2": "نستخدم آلية إشعار فعّالة ولا نرسل إشعارات غير ضرورية.",
     "notificationPermission3": "الإشعارات",
     "notificationPermission4": "إشعارات دقيقة"
+  },
+  "announcements": {
+    "notifications": {
+      "newButtonTitle": "جديد: إعداد الإشعارات",
+      "newButtonContent": "استلم تحديثات حول الأحداث المتعلقة بمحطاتك"
+    }
   }
 }

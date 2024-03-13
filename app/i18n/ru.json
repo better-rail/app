@@ -168,5 +168,11 @@
     "notificationPermission2": "Мы используем эффективный механизм уведомлений и не отправляем ненужные уведомления.",
     "notificationPermission3": "Уведомления",
     "notificationPermission4": "Точные уведомления"
+  },
+  "announcements": {
+    "notifications": {
+      "newButtonTitle": "Новое: Настройка уведомлений",
+      "newButtonContent": "Получайте обновления о событиях, связанных с вашими станциями"
+    }
   }
 }

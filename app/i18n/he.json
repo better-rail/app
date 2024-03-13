@@ -261,5 +261,11 @@
     "startFreeTrial": "הצטרפו ל-14 ימים בחינם",
     "afterTrialPrice": "ואז %{price} ל%{period}",
     "cancelAnytime": "ניתן לבטל בכל עת"
+  },
+  "announcements": {
+    "notifications": {
+      "newButtonTitle": "חדש: הגדרת נוטיפיקציות",
+      "newButtonContent": "קבלו עדכונים רלוונטים לתחנות הקבועות שלכם"
+    }
   }
 }

@@ -73,12 +73,12 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
             </Text>
           </View>
         ) : (
-          <>
+          <View style={{ gap: 16 }}>
             <Text style={{ textAlign: "center" }}>
               Allow Better Rail to send you notifications related to your favorite stations.
             </Text>
             <Button title="Enable Notifications" onPress={requestPermission} />
-          </>
+          </View>
         )}
       </ScrollView>
     </Screen>
