@@ -107,7 +107,7 @@
     "@types/jest": "^29.2.1",
     "@types/lodash": "^4.14.194",
     "@types/ramda": "0.27.32",
-    "@types/react": "~18.0.27",
+    "@types/react": "^18.2.65",
     "@types/react-native-push-notification": "^8.1.1",
     "@types/react-test-renderer": "^18.0.0",
     "@typescript-eslint/eslint-plugin": "5.58.0",
