@@ -68,8 +68,9 @@ export const AnnouncementsNavigator = () => (
       options={({ navigation }) => ({
         title: "Notifications Settings",
         // headerLeft: () => <CloseButton onPress={() => navigation.goBack()} style={{ marginRight: spacing[2] }} />,
+        headerLeftContainerStyle: { marginBottom: 10 },
         headerTitleStyle: Platform.select({
-          ios: { ...iOSTitleStyle, marginBottom: 0 },
+          ios: { ...iOSTitleStyle, marginBottom: 10 },
           android: { ...androidTitleStyle, marginBottom: 10 },
         }),
       })}
