@@ -37,7 +37,7 @@ export const AnnouncementsScreen = observer(function AnnouncementsScreen({ navig
             height: 100 * fontScale,
             paddingHorizontal: spacing[3],
             marginBottom: spacing[3],
-            backgroundColor: color.palette.orangeDarker,
+            backgroundColor: color.primary,
             borderRadius: 12,
             shadowColor: color.palette.black,
             shadowOffset: { height: 0, width: 0 },
@@ -45,7 +45,7 @@ export const AnnouncementsScreen = observer(function AnnouncementsScreen({ navig
             elevation: 4,
           }}
         >
-          <Text style={{ textAlign: "center", fontSize: 18, color: color.whiteText, fontWeight: 500 }}>
+          <Text style={{ textAlign: "center", fontSize: 18, color: color.whiteText, fontWeight: "500" }}>
             New: Setup Notifications
           </Text>
           <Text style={{ textAlign: "center", fontSize: 16, color: color.whiteText }}>
