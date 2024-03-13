@@ -66,7 +66,8 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
   }, [])
 
   const openAnnouncements = () => {
-    navigation.navigate("announcementsStack", { screen: "notificationsPickStations" })
+    navigation.navigate("announcementsStack")
+    // navigation.navigate("announcementsStack", { screen: "notificationsPickStations" })
     analytics().logEvent("announcements_icon_pressed")
   }
 

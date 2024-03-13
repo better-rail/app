@@ -1,10 +1,11 @@
 import { Platform, ScrollView, View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
-import { Screen } from "../../components"
+import { Screen, Text } from "../../components"
 import { color, spacing } from "../../theme"
 import { useIsDarkMode } from "../../hooks"
 import { AnnouncementsScreenProps } from "../../navigators/announcements/announcements-navigator"
 import { AnnouncementsList } from "../../components/announcements/announcements-list"
+import TouchableScale from "react-native-touchable-scale"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -27,6 +28,26 @@ export const AnnouncementsScreen = observer(function AnnouncementsScreen({ navig
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
     >
       <ScrollView contentContainerStyle={SCROLL_VIEW}>
+        <TouchableScale
+          onPress={() => navigation.navigate("notificationsSetup")}
+          activeScale={0.97}
+          friction={10}
+          style={{
+            justifyContent: "center",
+            height: 60,
+            paddingHorizontal: spacing[3],
+            marginBottom: spacing[3],
+            backgroundColor: color.stop,
+            borderRadius: 12,
+            shadowColor: color.palette.black,
+            shadowOffset: { height: 0, width: 0 },
+            shadowOpacity: 0.05,
+            elevation: 4,
+          }}
+        >
+          <Text style={{ textAlign: "center", fontSize: 16, color: color.whiteText }}>Notifications Settings</Text>
+        </TouchableScale>
+
         <AnnouncementsList updatesType="regular" />
       </ScrollView>
     </Screen>
