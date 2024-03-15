@@ -31,7 +31,6 @@ export const NotificationsSelectStationsScreen = observer(function Notifications
     HapticFeedback.trigger("impactLight")
 
     if (stationsNotifications.includes(stationId)) {
-      messaging().subscribeToTopic(`station-${stationId}`)
       settings.removeStationNotification(stationId)
       return
     }

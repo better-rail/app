@@ -5,16 +5,19 @@ import { Alert, Linking, ScrollView, View } from "react-native"
 import { color, spacing } from "../../theme"
 import notifee, { AuthorizationStatus } from "@notifee/react-native"
 import { useEffect, useState } from "react"
-import { translate } from "../../i18n"
+import { translate, userLocale } from "../../i18n"
 import { useStores } from "../../models"
 import { StationListItem } from "./station-list-item"
 import { useStations } from "../../data/stations"
+import messaging from "@react-native-firebase/messaging"
+import { useAppState } from "../../hooks"
 
 export const NotificationsSetupScreen = observer(function NotificationsSetupScreen({ navigation }: AnnouncementsScreenProps) {
   const { settings } = useStores()
   const stations = useStations()
-
+  const appState = useAppState()
   const [notificationPermission, setNotificationPermission] = useState(false)
+
   const requestPermission = async () => {
     const settings = await notifee.requestPermission()
 
@@ -39,27 +42,39 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
   }
 
   useEffect(() => {
-    notifee.getNotificationSettings().then((settings) => {
-      setNotificationPermission(settings.authorizationStatus === AuthorizationStatus.AUTHORIZED)
-    })
-  }, [])
+    if (appState === "active") {
+      notifee.getNotificationSettings().then((settings) => {
+        setNotificationPermission(settings.authorizationStatus === AuthorizationStatus.AUTHORIZED)
+      })
+    }
+  }, [appState])
+
+  useEffect(() => {
+    if (notificationPermission === true) {
+      messaging().subscribeToTopic(`service-updates-${userLocale}`)
+    }
+  }, [notificationPermission])
 
   return (
     <Screen style={{ paddingHorizontal: spacing[4], flex: 1, paddingBottom: spacing[5] }} unsafe>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={{ marginVertical: spacing[2], gap: spacing[2] }}>
           <Text style={{ textAlign: "center", fontSize: 56 }}>🔔</Text>
-          <Text style={{ textAlign: "center", paddingHorizontal: spacing[2], marginBottom: spacing[2] }}>
-            Better Rail will send you updates on events related to your selected stations
-          </Text>
+          <Text
+            tx="announcements.notifications.notificationSetupContent"
+            style={{ textAlign: "center", paddingHorizontal: spacing[3], marginBottom: spacing[2] }}
+          />
         </View>
 
         {notificationPermission ? (
           <View style={{ flex: 1, gap: 12 }}>
-            <Button title="Select Stations" onPress={() => navigation.navigate("notificationsPickStations")} />
+            <Button
+              title={translate("announcements.notifications.selectStations")}
+              onPress={() => navigation.navigate("notificationsPickStations")}
+            />
 
             <View style={{ borderBottomWidth: 1, borderColor: color.inputPlaceholderBackground }}>
-              <Text style={{ fontWeight: "500" }}>Selected Stations</Text>
+              <Text tx="announcements.notifications.selectedStations" style={{ fontWeight: "500" }} />
             </View>
 
             {settings.stationsNotifications.map((stationId) => {
@@ -67,17 +82,17 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
               return <StationListItem key={stationId} title={station.name} image={station.image} />
             })}
 
-            <Text style={{ textAlign: "center", opacity: 0.8 }} preset="small">
-              Please note: While Better Rail will do its best to provide fast and reliable updates, it is always advisable to
-              check with the official sources of Israel Railways as well.
-            </Text>
+            <Text
+              tx="announcements.notifications.notificationNote"
+              style={{ textAlign: "center", opacity: 0.8 }}
+              preset="small"
+            />
           </View>
         ) : (
           <View style={{ gap: 16 }}>
-            <Text style={{ textAlign: "center" }}>
-              Allow Better Rail to send you notifications related to your favorite stations.
-            </Text>
-            <Button title="Enable Notifications" onPress={requestPermission} />
+            <Text tx="announcements.notifications.requestPermissionContent" style={{ textAlign: "center" }} />
+
+            <Button title={translate("announcements.notifications.enableNotifications")} onPress={requestPermission} />
           </View>
         )}
       </ScrollView>
