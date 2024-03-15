@@ -99,15 +99,3 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
     </Screen>
   )
 })
-
-async function checkApplicationPermission() {
-  const settings = await notifee.requestPermission()
-
-  if (settings.authorizationStatus) {
-    console.log("User has notification permissions enabled")
-  } else {
-    console.log("User has notification permissions disabled")
-  }
-
-  console.log("iOS settings: ", settings.ios)
-}
