@@ -51,8 +51,9 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
 
   useEffect(() => {
     if (notificationPermission === true) {
+      const topicName = `service-updates-${userLocale}`
       messaging()
-        .subscribeToTopic(`service-updates-${userLocale}`)
+        .subscribeToTopic(topicName)
         .then(() => {
           console.log("Subscribed to service updates")
         })
