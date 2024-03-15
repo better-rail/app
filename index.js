@@ -8,7 +8,7 @@
 //
 // It's easier just to leave it here.
 import { AppRegistry, Platform } from "react-native"
-import messaging, { FirebaseMessagingTypes } from "@react-native-firebase/messaging"
+import messaging from "@react-native-firebase/messaging"
 import notifee, { AndroidLaunchActivityFlag } from "@notifee/react-native"
 
 import App from "./app/app"
@@ -18,8 +18,10 @@ if (Platform.OS === "android") {
   configureAndroidNotifications()
 }
 
-// --> Add here - setup service updates notifications
-const onRecievedMessage = async (message: FirebaseMessagingTypes.RemoteMessage) => {
+/**
+ * Handle incoming notifications
+ */
+const onRecievedMessage = async (message) => {
   console.log(message)
   notifee.displayNotification({
     ...JSON.parse(message.data),
