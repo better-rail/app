@@ -13,6 +13,7 @@ import notifee, { AndroidLaunchActivityFlag } from "@notifee/react-native"
 
 import App from "./app/app"
 import { configureAndroidNotifications } from "./app/utils/android-helpers"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
 if (Platform.OS === "android") {
   configureAndroidNotifications()
@@ -22,20 +23,40 @@ if (Platform.OS === "android") {
  * Handle incoming notifications
  */
 const onRecievedMessage = async (message) => {
-  console.log(message)
-  notifee.displayNotification({
-    ...JSON.parse(message.data),
-    android: {
-      channelId: "better-rail",
-      smallIcon: "notification_icon",
-      timeoutAfter: 60 * 1000,
-      pressAction: {
-        id: "default",
-        launchActivity: "com.betterrail.MainActivity",
-        launchActivityFlags: [AndroidLaunchActivityFlag.SINGLE_TOP],
-      },
-    },
+  const { title, content: body, stations } = message.data
+
+  let displayNotification = false
+
+  AsyncStorage.getItem("root").then((rootStoreString) => {
+    const rootStore = JSON.parse(rootStoreString)
+    const stationsNotifications = rootStore.settings.stationsNotifications
+
+    stations.find((station) => {
+      if (stationsNotifications.includes(station)) {
+        displayNotification = true
+        return true
+      }
+
+      return false
+    })
   })
+
+  if (displayNotification) {
+    notifee.displayNotification({
+      title,
+      body,
+      android: {
+        channelId: "better-rail",
+        smallIcon: "notification_icon",
+        timeoutAfter: 60 * 1000,
+        pressAction: {
+          id: "default",
+          launchActivity: "com.betterrail.MainActivity",
+          launchActivityFlags: [AndroidLaunchActivityFlag.SINGLE_TOP],
+        },
+      },
+    })
+  }
 }
 
 messaging().onMessage(onRecievedMessage)
