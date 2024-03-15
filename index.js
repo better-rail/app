@@ -27,19 +27,23 @@ const onRecievedMessage = async (message) => {
 
   let displayNotification = false
 
-  AsyncStorage.getItem("root").then((rootStoreString) => {
-    const rootStore = JSON.parse(rootStoreString)
-    const stationsNotifications = rootStore.settings.stationsNotifications
+  if (stations.length === 0) {
+    displayNotification = true
+  } else {
+    AsyncStorage.getItem("root").then((rootStoreString) => {
+      const rootStore = JSON.parse(rootStoreString)
+      const stationsNotifications = rootStore.settings.stationsNotifications
 
-    stations.find((station) => {
-      if (stationsNotifications.includes(station)) {
-        displayNotification = true
-        return true
-      }
+      stations.find((station) => {
+        if (stationsNotifications.includes(station)) {
+          displayNotification = true
+          return true
+        }
 
-      return false
+        return false
+      })
     })
-  })
+  }
 
   if (displayNotification) {
     notifee.displayNotification({
