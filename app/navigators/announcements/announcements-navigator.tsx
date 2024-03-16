@@ -34,7 +34,10 @@ export const AnnouncementsNavigator = () => (
       options={({ navigation }) => ({
         title: translate("routes.updates"),
         headerRight: () => (
-          <Pressable onPress={() => navigation.navigate("notificationsSetup")}>
+          <Pressable
+            onPress={() => navigation.navigate("notificationsSetup")}
+            aria-label={translate("announcements.notifications.notificationSettings")}
+          >
             <Image
               source={require("../../../assets/bell.png")}
               style={{
