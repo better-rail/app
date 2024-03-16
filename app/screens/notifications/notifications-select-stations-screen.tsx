@@ -50,7 +50,7 @@ export const NotificationsSelectStationsScreen = observer(function Notifications
           gap: spacing[3],
         }}
       >
-        <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} autoFocus={true} />
+        <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} autoFocus={false} />
         <Pressable onPress={navigation.goBack}>
           <Text style={{ color: color.primary }}>
             {translate("common.done")} ({stationsNotifications.length})
