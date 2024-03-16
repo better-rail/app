@@ -23,27 +23,29 @@ if (Platform.OS === "android") {
  * Handle incoming notifications
  */
 const onRecievedMessage = async (message) => {
-  const { title, content: body, stations } = message.data
+  console.log(message)
+  const { title, body, stations } = message.data
+  const parsedStations = JSON.parse(stations)
 
   let displayNotification = false
 
   // If no stations are specified, it means all stations
   // are selected for notifications
-  if (stations.length === 0) {
+  if (parsedStations.length === 0) {
     displayNotification = true
   } else {
-    AsyncStorage.getItem("root").then((rootStoreString) => {
-      const rootStore = JSON.parse(rootStoreString)
-      const stationsNotifications = rootStore.settings.stationsNotifications
+    const rootStoreString = await AsyncStorage.getItem("root")
+    const rootStore = JSON.parse(rootStoreString)
 
-      stations.find((station) => {
-        if (stationsNotifications.includes(station)) {
-          displayNotification = true
-          return true
-        }
+    const stationsNotifications = rootStore.settings.stationsNotifications
 
-        return false
-      })
+    parsedStations.find((station) => {
+      if (stationsNotifications.includes(station)) {
+        displayNotification = true
+        return true
+      }
+
+      return false
     })
   }
 
