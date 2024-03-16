@@ -73,6 +73,7 @@ export const NotificationsSelectStationsScreen = observer(function Notifications
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
         estimatedItemSize={76 * fontScale}
+        contentContainerStyle={{ paddingTop: spacing[2], paddingBottom: spacing[5] }}
       />
     </View>
   )
