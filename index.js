@@ -27,6 +27,8 @@ const onRecievedMessage = async (message) => {
 
   let displayNotification = false
 
+  // If no stations are specified, it means all stations
+  // are selected for notifications
   if (stations.length === 0) {
     displayNotification = true
   } else {
