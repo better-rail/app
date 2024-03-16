@@ -6,6 +6,9 @@ import { useIsDarkMode } from "../../hooks"
 import { AnnouncementsScreenProps } from "../../navigators/announcements/announcements-navigator"
 import { AnnouncementsList } from "../../components/announcements/announcements-list"
 import TouchableScale from "react-native-touchable-scale"
+import * as storage from "../../utils/storage"
+import { useEffect, useState } from "react"
+import { useStores } from "../../models"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -21,7 +24,7 @@ const NOTIFICATOIN_BUTTON: ViewStyle = {
   height: 100 * fontScale,
   paddingHorizontal: spacing[3],
   marginBottom: spacing[3],
-  backgroundColor: color.primary,
+  backgroundColor: "#ffcc00",
   borderRadius: 12,
   shadowColor: color.palette.black,
   shadowOffset: { height: 0, width: 0 },
@@ -30,7 +33,18 @@ const NOTIFICATOIN_BUTTON: ViewStyle = {
 }
 
 export const AnnouncementsScreen = observer(function AnnouncementsScreen({ navigation }: AnnouncementsScreenProps) {
+  const { settings } = useStores()
   const isDarkMode = useIsDarkMode()
+
+  const navigateToNotificationsSetup = () => {
+    if (!settings.seenNotificationsScreen) {
+      setTimeout(() => {
+        // avoid flickering until the next screen is fully loaded
+        settings.setSeenNotificationsScreen(true)
+      }, 1250)
+    }
+    navigation.navigate("notificationsSetup")
+  }
 
   return (
     <Screen
@@ -41,22 +55,19 @@ export const AnnouncementsScreen = observer(function AnnouncementsScreen({ navig
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
     >
       <ScrollView contentContainerStyle={SCROLL_VIEW}>
-        <TouchableScale
-          onPress={() => navigation.navigate("notificationsSetup")}
-          activeScale={0.97}
-          friction={10}
-          style={NOTIFICATOIN_BUTTON}
-        >
-          <Text
-            tx="announcements.notifications.newButtonTitle"
-            style={{ textAlign: "center", fontSize: 18, color: color.whiteText, fontWeight: "500" }}
-          />
+        {!settings.seenNotificationsScreen && (
+          <TouchableScale onPress={navigateToNotificationsSetup} activeScale={0.97} friction={10} style={NOTIFICATOIN_BUTTON}>
+            <Text
+              tx="announcements.notifications.newButtonTitle"
+              style={{ textAlign: "center", fontSize: 18, color: color.palette.black, fontWeight: "500" }}
+            />
 
-          <Text
-            tx="announcements.notifications.newButtonContent"
-            style={{ textAlign: "center", fontSize: 16, color: color.whiteText }}
-          />
-        </TouchableScale>
+            <Text
+              tx="announcements.notifications.newButtonContent"
+              style={{ textAlign: "center", fontSize: 16, color: color.palette.black }}
+            />
+          </TouchableScale>
+        )}
 
         <AnnouncementsList updatesType="regular" />
       </ScrollView>

@@ -28,6 +28,7 @@ const HEADER_ICON_IMAGE: ImageStyle = {
   marginStart: spacing[3],
   tintColor: color.primary,
   opacity: 0.7,
+  transform: isRTL ? [{ rotateY: "180deg" }] : undefined,
 }
 
 const LIVE_BUTTON_IMAGE: ImageStyle = {
@@ -38,13 +39,24 @@ const LIVE_BUTTON_IMAGE: ImageStyle = {
   transform: isRTL ? [{ rotateY: "220deg" }] : undefined,
 }
 
+const NEW_DOT: ViewStyle = {
+  position: "absolute",
+  right: -4,
+  top: -3.5,
+  width: 10 * fontScale,
+  height: 10 * fontScale,
+  borderRadius: 50,
+  backgroundColor: "orange",
+  zIndex: 100,
+}
+
 const TRAIN_ICON = require("../../../assets/train.ios.png")
 const SPARKLES_ICON = require("../../../assets/sparkles.png")
-const UPDATES_ICON = require("../../../assets/updates.png")
+const UPDATES_ICON = require("../../../assets/megaphone.png")
 const SETTINGS_ICON = require("../../../assets/settings.png")
 
 export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
-  const { routePlan, ride } = useStores()
+  const { routePlan, ride, settings } = useStores()
   const navigation = useNavigation()
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
 
@@ -108,7 +120,8 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
           )}
         </View>
         <TouchableOpacity onPress={openAnnouncements} activeOpacity={0.8} accessibilityLabel={translate("routes.updates")}>
-          <Image source={UPDATES_ICON} style={HEADER_ICON_IMAGE} />
+          {!settings.seenNotificationsScreen && <View style={NEW_DOT} />}
+          <Image source={UPDATES_ICON} style={[HEADER_ICON_IMAGE]} />
         </TouchableOpacity>
         <TouchableOpacity onPress={openSettings} activeOpacity={0.8} accessibilityLabel={translate("settings.title")}>
           <Image source={SETTINGS_ICON} style={HEADER_ICON_IMAGE} />

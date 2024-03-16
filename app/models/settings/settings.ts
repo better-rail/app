@@ -5,6 +5,7 @@ export const SettingsModel = types
   .model("Settings")
   .props({
     stationsNotifications: types.optional(types.array(types.string), []),
+    seenNotificationsScreen: types.optional(types.boolean, false),
     profileCode: types.optional(types.number, 1),
     totalTip: types.optional(types.number, 0),
   })
@@ -15,6 +16,9 @@ export const SettingsModel = types
     },
   }))
   .actions((self) => ({
+    setSeenNotificationsScreen(seen: boolean) {
+      self.seenNotificationsScreen = seen
+    },
     setStationsNotifications(stations: string[]) {
       self.stationsNotifications.replace(stations)
     },
