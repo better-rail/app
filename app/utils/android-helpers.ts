@@ -36,6 +36,7 @@ export const configureAndroidNotifications = async () => {
     name: "Better Rail",
     description: "Israel Railways service updates",
     importance: AndroidImportance.HIGH,
+    vibration: true,
     sound: "default",
   })
 

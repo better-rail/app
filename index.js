@@ -23,7 +23,6 @@ if (Platform.OS === "android") {
  * Handle incoming notifications
  */
 const onRecievedMessage = async (message) => {
-  console.log(message)
   const { title, body, stations } = message.data
   const parsedStations = JSON.parse(stations)
 
@@ -53,8 +52,9 @@ const onRecievedMessage = async (message) => {
     notifee.displayNotification({
       title,
       body,
+      ios: { sound: "default" },
       android: {
-        channelId: "better-rail",
+        channelId: "better-rail-service-updates",
         smallIcon: "notification_icon",
         timeoutAfter: 60 * 1000,
         pressAction: {
