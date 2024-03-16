@@ -176,7 +176,7 @@
       "newButtonContent": "Получайте обновления о событиях, связанных с вашими станциями",
 
       "requestPermissionContent": "Разрешить Better Rail отправлять вам уведомления, связанные с вашими станциями.",
-      "enableNotification": "Включить уведомления",
+      "enableNotifications": "Включить уведомления",
 
       "notificationSetupContent": "Better Rail будет отправлять вам обновления о событиях, связанных с выбранными вами станциями",
       "selectStations": "Выбрать станции",

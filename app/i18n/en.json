@@ -265,7 +265,7 @@
       "newButtonContent": "Receive updates on events related to your stations",
 
       "requestPermissionContent": "Allow Better Rail to send you notifications related to your stations.",
-      "enableNotification": "Enable Notifications",
+      "enableNotifications": "Enable Notifications",
 
       "notificationSetupContent": "Better Rail will send you updates on events related to your selected stations",
       "selectStations": "Select Stations",

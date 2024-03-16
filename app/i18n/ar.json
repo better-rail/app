@@ -173,7 +173,7 @@
       "newButtonContent": "استقبل تحديثات حول الأحداث المتعلقة بمحطاتك",
 
       "requestPermissionContent": "السماح لـ Better Rail بإرسال الإشعارات المتعلقة بمحطاتك.",
-      "enableNotification": "تفعيل الإشعارات",
+      "enableNotifications": "تفعيل الإشعارات",
 
       "notificationSetupContent": "سوف يرسل لك Better Rail تحديثات حول الأحداث المتعلقة بالمحطات التي اخترتها",
       "selectStations": "اختر المحطات",
