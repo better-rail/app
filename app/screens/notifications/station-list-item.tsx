@@ -61,13 +61,14 @@ interface StationListItemProps {
   image: any
   selected?: boolean
   onSelect?: () => void
+  style?: ViewStyle
 }
 
 export function StationListItem(props: StationListItemProps) {
-  const { title, image, selected, onSelect } = props
+  const { title, image, selected, onSelect, style } = props
 
   return (
-    <TouchableScale style={WRAPPER} activeScale={0.97} friction={10} onPress={onSelect}>
+    <TouchableScale style={[WRAPPER, style]} activeScale={0.97} friction={10} onPress={onSelect}>
       <View style={IMAGE_WRAPPER}>
         {selected && (
           <Animated.Image

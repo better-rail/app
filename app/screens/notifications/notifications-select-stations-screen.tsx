@@ -1,9 +1,9 @@
 import { observer } from "mobx-react-lite"
 import { useState } from "react"
 
-import { Pressable, ScrollView, View } from "react-native"
+import { Pressable, View } from "react-native"
 import { StationListItem } from "./station-list-item"
-import { color, spacing } from "../../theme"
+import { color, fontScale, spacing } from "../../theme"
 import { Text } from "../../components"
 import { useNavigation } from "@react-navigation/native"
 import { SearchInput } from "../select-station/search-input"
@@ -13,8 +13,8 @@ import HapticFeedback from "react-native-haptic-feedback"
 import { useFilteredStations } from "../../hooks"
 import { useStations } from "../../data/stations"
 
-import messaging from "@react-native-firebase/messaging"
 import { FlatList } from "react-native-gesture-handler"
+import { FlashList } from "@shopify/flash-list"
 
 export const NotificationsSelectStationsScreen = observer(function NotificationsSelectStationsScreen() {
   const navigation = useNavigation()
@@ -40,7 +40,7 @@ export const NotificationsSelectStationsScreen = observer(function Notifications
   }
 
   return (
-    <View style={{ paddingHorizontal: spacing[3] }}>
+    <View style={{ flex: 1, paddingHorizontal: spacing[3] }}>
       <View
         style={{
           flexDirection: "row",
@@ -58,10 +58,8 @@ export const NotificationsSelectStationsScreen = observer(function Notifications
         </Pressable>
       </View>
 
-      <FlatList
+      <FlashList
         data={displayedStations}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ gap: spacing[3] }}
         renderItem={({ item }) => (
           <StationListItem
             key={item.id}
@@ -69,9 +67,12 @@ export const NotificationsSelectStationsScreen = observer(function Notifications
             image={item.image}
             selected={stationsNotifications.includes(item.id)}
             onSelect={() => onSelected(item.id)}
+            style={{ marginBottom: spacing[3] }}
           />
         )}
-        es
+        keyExtractor={(item) => item.id}
+        showsVerticalScrollIndicator={false}
+        estimatedItemSize={76 * fontScale}
       />
     </View>
   )
