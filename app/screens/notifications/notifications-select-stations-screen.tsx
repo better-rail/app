@@ -13,8 +13,8 @@ import HapticFeedback from "react-native-haptic-feedback"
 import { useFilteredStations } from "../../hooks"
 import { useStations } from "../../data/stations"
 
-import { FlatList } from "react-native-gesture-handler"
 import { FlashList } from "@shopify/flash-list"
+import { toJS } from "mobx"
 
 export const NotificationsSelectStationsScreen = observer(function NotificationsSelectStationsScreen() {
   const navigation = useNavigation()
@@ -60,20 +60,23 @@ export const NotificationsSelectStationsScreen = observer(function Notifications
 
       <FlashList
         data={displayedStations}
-        renderItem={({ item }) => (
-          <StationListItem
-            key={item.id}
-            title={item.name}
-            image={item.image}
-            selected={stationsNotifications.includes(item.id)}
-            onSelect={() => onSelected(item.id)}
-            style={{ marginBottom: spacing[3] }}
-          />
-        )}
+        renderItem={({ item, extraData: selectedStations }) => {
+          return (
+            <StationListItem
+              title={item.name}
+              image={item.image}
+              selected={selectedStations.includes(item.id)}
+              onSelect={() => onSelected(item.id)}
+              style={{ marginBottom: spacing[3] }}
+            />
+          )
+        }}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
         estimatedItemSize={76 * fontScale}
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ paddingTop: spacing[2], paddingBottom: spacing[5] }}
+        extraData={toJS(stationsNotifications)}
       />
     </View>
   )
