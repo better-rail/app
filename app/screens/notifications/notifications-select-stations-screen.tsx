@@ -14,6 +14,7 @@ import { useFilteredStations } from "../../hooks"
 import { useStations } from "../../data/stations"
 
 import messaging from "@react-native-firebase/messaging"
+import { FlatList } from "react-native-gesture-handler"
 
 export const NotificationsSelectStationsScreen = observer(function NotificationsSelectStationsScreen() {
   const navigation = useNavigation()
@@ -57,17 +58,21 @@ export const NotificationsSelectStationsScreen = observer(function Notifications
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={{ rowGap: 12 }} showsVerticalScrollIndicator={false}>
-        {displayedStations.map((station) => (
+      <FlatList
+        data={displayedStations}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={{ gap: spacing[3] }}
+        renderItem={({ item }) => (
           <StationListItem
-            key={station.id}
-            title={station.name}
-            image={station.image}
-            selected={stationsNotifications.includes(station.id)}
-            onSelect={() => onSelected(station.id)}
+            key={item.id}
+            title={item.name}
+            image={item.image}
+            selected={stationsNotifications.includes(item.id)}
+            onSelect={() => onSelected(item.id)}
           />
-        ))}
-      </ScrollView>
+        )}
+        es
+      />
     </View>
   )
 })
