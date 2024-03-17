@@ -52,7 +52,7 @@ const NEW_DOT: ViewStyle = {
 
 const TRAIN_ICON = require("../../../assets/train.ios.png")
 const SPARKLES_ICON = require("../../../assets/sparkles.png")
-const UPDATES_ICON = require("../../../assets/megaphone.png")
+const UPDATES_ICON = require("../../../assets/updates.png")
 const SETTINGS_ICON = require("../../../assets/settings.png")
 
 export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
