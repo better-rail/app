@@ -2554,6 +2554,11 @@
   dependencies:
     stacktrace-js "^2.0.0"
 
+"@react-native-firebase/firestore@^19.0.1":
+  version "19.0.1"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/firestore/-/firestore-19.0.1.tgz#e2672f717225ee55b1f84e90b0e1bd7194c7abbd"
+  integrity sha512-e/lI2onUuFM5zFVMzEt4e4FFbok/CgACD8jiwPZamtRRDXOaL6xnFeJY4CWvREEp5c8rRDGc4O5OsOU9Gpi/7A==
+
 "@react-native-firebase/messaging@^17.5.0":
   version "17.5.0"
   resolved "https://registry.yarnpkg.com/@react-native-firebase/messaging/-/messaging-17.5.0.tgz#9c6db50423c67760dd61e553189187b9e5a2b75e"
