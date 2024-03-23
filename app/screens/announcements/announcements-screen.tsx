@@ -1,4 +1,5 @@
 import { Platform, ScrollView, ViewStyle } from "react-native"
+import { toJS } from "mobx"
 import { observer } from "mobx-react-lite"
 import { Screen, Text } from "../../components"
 import { color, fontScale, spacing } from "../../theme"
@@ -59,8 +60,11 @@ export const AnnouncementsScreen = observer(function AnnouncementsScreen({ navig
 
     firestore()
       .collection("service-updates")
-      .where("expireAt", ">", new Date())
+      .where("expiresAt", ">", new Date())
+      .where("stations", "array-contains-any", toJS(settings.stationsNotifications))
       .onSnapshot((querySnapshot) => {
+        if (!querySnapshot) return
+
         querySnapshot.docs.forEach((doc) => {
           data = [...data, doc.data() as SerivceUpdate]
         })
