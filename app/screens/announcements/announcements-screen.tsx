@@ -1,5 +1,4 @@
 import { Platform, ScrollView, ViewStyle } from "react-native"
-import { toJS } from "mobx"
 import { observer } from "mobx-react-lite"
 import { Screen, Text } from "../../components"
 import { color, fontScale, spacing } from "../../theme"
@@ -7,16 +6,9 @@ import { useIsDarkMode } from "../../hooks"
 import { AnnouncementsScreenProps } from "../../navigators/announcements/announcements-navigator"
 import { AnnouncementsList } from "../../components/announcements/announcements-list"
 import TouchableScale from "react-native-touchable-scale"
-import firestore from "@react-native-firebase/firestore"
 import { useStores } from "../../models"
 import { AnnouncementCard } from "../../components/announcements/announcement-card"
-import { useEffect, useState } from "react"
-
-interface SerivceUpdate {
-  expireAt: Date
-  title: string
-  body: string
-}
+import useServiceUpdates from "./use-service-updates"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -42,8 +34,9 @@ const NOTIFICATOIN_BUTTON: ViewStyle = {
 
 export const AnnouncementsScreen = observer(function AnnouncementsScreen({ navigation }: AnnouncementsScreenProps) {
   const { settings } = useStores()
+  const { data: serviceUpdates } = useServiceUpdates()
+
   const isDarkMode = useIsDarkMode()
-  const [serviceUpdates, setServiceUpdates] = useState<SerivceUpdate[]>([])
 
   const navigateToNotificationsSetup = () => {
     if (!settings.seenNotificationsScreen) {
@@ -54,24 +47,6 @@ export const AnnouncementsScreen = observer(function AnnouncementsScreen({ navig
     }
     navigation.navigate("notificationsSetup")
   }
-
-  useEffect(() => {
-    let data: SerivceUpdate[] = []
-
-    firestore()
-      .collection("service-updates")
-      .where("expiresAt", ">", new Date())
-      .where("stations", "array-contains-any", toJS(settings.stationsNotifications))
-      .onSnapshot((querySnapshot) => {
-        if (!querySnapshot) return
-
-        querySnapshot.docs.forEach((doc) => {
-          data = [...data, doc.data() as SerivceUpdate]
-        })
-
-        setServiceUpdates(data)
-      })
-  }, [])
 
   return (
     <Screen
@@ -96,7 +71,7 @@ export const AnnouncementsScreen = observer(function AnnouncementsScreen({ navig
           </TouchableScale>
         )}
 
-        {serviceUpdates.map(({ title, body }, index) => (
+        {serviceUpdates?.map(({ title, body }, index) => (
           <AnnouncementCard key={index} title={title} body={body} type="notification" />
         ))}
 
