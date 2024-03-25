@@ -27,10 +27,11 @@ const onRecievedMessage = async (message) => {
   const parsedStations = JSON.parse(stations)
 
   let displayNotification = false
-
-  // If no stations are specified, it means all stations
-  // are selected for notifications
-  if (parsedStations.length === 0) {
+  /**
+   * If the message is for all stations, display it
+   * Otherwise, check if the message is for any of the stations that the user has enabled notifications for
+   */
+  if (parsedStations.includes("all-stations")) {
     displayNotification = true
   } else {
     const rootStoreString = await AsyncStorage.getItem("root")
