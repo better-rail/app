@@ -261,5 +261,21 @@
     "startFreeTrial": "הצטרפו ל-14 ימים בחינם",
     "afterTrialPrice": "ואז %{price} ל%{period}",
     "cancelAnytime": "ניתן לבטל בכל עת"
+  },
+  "announcements": {
+    "notifications": {
+      "notificationSettings": "הגדרת נוטפיקציות",
+      "newButtonTitle": "חדש: הגדרת נוטיפיקציות",
+      "newButtonContent": "קבלו התראות רלוונטיות לתחנות הקבועות שלכם",
+
+      "requestPermissionContent": "אפשרו לבטר רייל לשלוח התראות רלוונטיות לתחנות שלכם",
+      "enableNotifications": "הפעלת התראות",
+
+      "notificationSetupContent": "בטר רייל תשלח התראות רלוונטיות לתחנות המועדפות עליכם",
+      "selectStations": "בחירת תחנות",
+      "selectedStations": "תחנות",
+
+      "notificationNote": "בטר רייל תעשה כמיטב יכולתה לספק עדכונים מהירים ואמינים, אך תמיד מומלץ לבדוק גם עם המקורות הרשמיים של רכבת ישראל."
+    }
   }
 }

@@ -2554,6 +2554,11 @@
   dependencies:
     stacktrace-js "^2.0.0"
 
+"@react-native-firebase/firestore@^19.0.1":
+  version "19.0.1"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/firestore/-/firestore-19.0.1.tgz#e2672f717225ee55b1f84e90b0e1bd7194c7abbd"
+  integrity sha512-e/lI2onUuFM5zFVMzEt4e4FFbok/CgACD8jiwPZamtRRDXOaL6xnFeJY4CWvREEp5c8rRDGc4O5OsOU9Gpi/7A==
+
 "@react-native-firebase/messaging@^17.5.0":
   version "17.5.0"
   resolved "https://registry.yarnpkg.com/@react-native-firebase/messaging/-/messaging-17.5.0.tgz#9c6db50423c67760dd61e553189187b9e5a2b75e"
@@ -3517,10 +3522,10 @@
     "@types/scheduler" "*"
     csstype "^3.0.2"
 
-"@types/react@~18.0.27":
-  version "18.0.38"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-18.0.38.tgz#02a23bef8848b360a0d1dceef4432c15c21c600c"
-  integrity sha512-ExsidLLSzYj4cvaQjGnQCk4HFfVT9+EZ9XZsQ8Hsrcn8QNgXtpZ3m9vSIC2MWtx7jHictK6wYhQgGh6ic58oOw==
+"@types/react@^18.2.65":
+  version "18.2.65"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-18.2.65.tgz#54eb311fa9aba173c9e163d42ec188d5a42878b8"
+  integrity sha512-98TsY0aW4jqx/3RqsUXwMDZSWR1Z4CUlJNue8ueS2/wcxZOsz4xmW1X8ieaWVRHcmmQM3R8xVA4XWB3dJnWwDQ==
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"

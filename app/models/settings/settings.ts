@@ -3,14 +3,35 @@ import { translate, TxKeyPath } from "../../i18n"
 
 export const SettingsModel = types
   .model("Settings")
-  .props({ profileCode: types.optional(types.number, 1), totalTip: types.optional(types.number, 0) })
+  .props({
+    stationsNotifications: types.optional(types.array(types.string), []),
+    seenNotificationsScreen: types.optional(types.boolean, false),
+    profileCode: types.optional(types.number, 1),
+    totalTip: types.optional(types.number, 0),
+  })
   .views((self) => ({
     get profileCodeLabel() {
       const profile = PROFILE_CODES.find((profileCode) => profileCode.value === self.profileCode)
       return translate(profile.label)
     },
   }))
+  .actions((self) => ({
+    setSeenNotificationsScreen(seen: boolean) {
+      self.seenNotificationsScreen = seen
+    },
+    setStationsNotifications(stations: string[]) {
+      self.stationsNotifications.replace(stations)
+    },
+    addStationNotification(stationId: string) {
+      const updatedStations = [...self.stationsNotifications, stationId]
+      this.setStationsNotifications(updatedStations)
+    },
 
+    removeStationNotification(stationId: string) {
+      const updatedStations = self.stationsNotifications.filter((station) => station !== stationId)
+      this.setStationsNotifications(updatedStations)
+    },
+  }))
   .actions((self) => ({
     setProfileCode(code: number) {
       self.profileCode = code

@@ -168,5 +168,21 @@
     "notificationPermission2": "Мы используем эффективный механизм уведомлений и не отправляем ненужные уведомления.",
     "notificationPermission3": "Уведомления",
     "notificationPermission4": "Точные уведомления"
+  },
+  "announcements": {
+    "notifications": {
+      "notificationSettings": "Настройки уведомлений",
+      "newButtonTitle": "Новое: Настройка уведомлений",
+      "newButtonContent": "Получайте обновления о событиях, связанных с вашими станциями",
+
+      "requestPermissionContent": "Разрешить Better Rail отправлять вам уведомления, связанные с вашими станциями.",
+      "enableNotifications": "Включить уведомления",
+
+      "notificationSetupContent": "Better Rail будет отправлять вам обновления о событиях, связанных с выбранными вами станциями",
+      "selectStations": "Выбрать станции",
+      "selectedStations": "Выбранные станции",
+
+      "notificationNote": "Обратите внимание: хотя Better Rail и будет стараться предоставлять быстрые и надежные обновления, всегда рекомендуется проверять информацию у официальных источников Израильских железных дорог."
+    }
   }
 }

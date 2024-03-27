@@ -17,6 +17,7 @@ import { QueryClient, QueryClientProvider } from "react-query"
 import { NavigationContainerRef } from "@react-navigation/native"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet"
+import notifee, { EventType } from "@notifee/react-native"
 
 import analytics from "@react-native-firebase/analytics"
 import crashlytics from "@react-native-firebase/crashlytics"
@@ -138,6 +139,17 @@ function App() {
         setInitialLanguage()
       }
     })
+  }, [])
+
+  useEffect(() => {
+    // open the announcements screen if the app was opened from a notification
+    const unsubscribe = notifee.onForegroundEvent(({ type, detail }) => {
+      if (type === EventType.PRESS) {
+        navigationRef.current?.navigate("announcementsStack")
+      }
+    })
+
+    return unsubscribe
   }, [])
 
   useEffect(() => {

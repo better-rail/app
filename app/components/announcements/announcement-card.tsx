@@ -32,18 +32,28 @@ const BODY_STYLE: TextStyle = {
   fontSize: 14,
 }
 
+const NOTIFICATION_TITLE: TextStyle = {
+  color: color.palette.black,
+  fontWeight: "600",
+}
+
+const NOTIFICATION_TEXT: TextStyle = {
+  color: color.palette.black,
+}
+
 type AnnouncementCardProps = {
   title?: string
   body: string
   link?: string
+  type: "normal" | "notification"
 }
 
-export const AnnouncementCard = ({ title, body, link }: AnnouncementCardProps) => (
+export const AnnouncementCard = ({ title, body, link, type }: AnnouncementCardProps) => (
   <TouchableScale activeScale={0.98} friction={10} disabled={!link} onPress={() => openLink(link)}>
-    <View style={ANNOUNCEMENT_CARD}>
-      {title && <Text style={TITLE_STYLE}>{title}</Text>}
+    <View style={[ANNOUNCEMENT_CARD, type === "notification" && { backgroundColor: color.yellow }]}>
+      {title && <Text style={[TITLE_STYLE, type === "notification" && NOTIFICATION_TITLE]}>{title}</Text>}
 
-      <Text style={BODY_STYLE}>{removeHtmlTagsAndEntities(body)}</Text>
+      <Text style={[BODY_STYLE, type === "notification" && NOTIFICATION_TEXT]}>{removeHtmlTagsAndEntities(body)}</Text>
     </View>
   </TouchableScale>
 )

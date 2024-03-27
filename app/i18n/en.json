@@ -257,5 +257,21 @@
     "startFreeTrial": "Start 14 days free trial",
     "afterTrialPrice": "then %{price} / %{period}",
     "cancelAnytime": "Cancel anytime"
+  },
+  "announcements": {
+    "notifications": {
+      "notificationSettings": "Notification Settings",
+      "newButtonTitle": "New: Setup Notifications",
+      "newButtonContent": "Receive updates on events related to your stations",
+
+      "requestPermissionContent": "Allow Better Rail to send you notifications related to your stations.",
+      "enableNotifications": "Enable Notifications",
+
+      "notificationSetupContent": "Better Rail will send you updates on events related to your selected stations",
+      "selectStations": "Select Stations",
+      "selectedStations": "Selected Stations",
+
+      "notificationNote": "Please note: While Better Rail will do its best to provide fast and reliable updates, it is always advisable to check with the official sources of Israel Railways as well."
+    }
   }
 }

@@ -32,6 +32,15 @@ export const configureAndroidNotifications = async () => {
   })
 
   notifee.createChannel({
+    id: "better-rail-service-updates",
+    name: "Better Rail",
+    description: "Israel Railways service updates",
+    importance: AndroidImportance.HIGH,
+    vibration: true,
+    sound: "default",
+  })
+
+  notifee.createChannel({
     id: "better-rail-live",
     name: "Better Rail Live",
     description: "Get live ride persistent notification",

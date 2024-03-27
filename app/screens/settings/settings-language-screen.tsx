@@ -7,7 +7,7 @@ import { color, isDarkMode, spacing } from "../../theme"
 import { changeUserLanguage, translate, userLocale } from "../../i18n"
 import HapticFeedback from "react-native-haptic-feedback"
 import { SETTING_GROUP } from "./settings-styles"
-
+import messaging from "@react-native-firebase/messaging"
 const ROOT: ViewStyle = {
   flex: 1,
   paddingTop: spacing[4],
@@ -18,7 +18,7 @@ const ROOT: ViewStyle = {
 export const LanguageScreen = observer(function SettingsLanguageScreen() {
   const [clickCounter, setClickCounter] = useState(0)
 
-  const changeLanguage = (langaugeCode) => {
+  const changeLanguage = async (langaugeCode) => {
     if (langaugeCode === userLocale) {
       setClickCounter(clickCounter + 1)
       return
@@ -26,7 +26,21 @@ export const LanguageScreen = observer(function SettingsLanguageScreen() {
 
     Alert.alert(translate("settings.languageChangeAlertTitle"), translate("settings.languageChangeAlertMessage"), [
       { text: translate("common.cancel"), style: "cancel" },
-      { text: translate("common.ok"), onPress: () => changeUserLanguage(langaugeCode) },
+      {
+        text: translate("common.ok"),
+        onPress: async () => {
+          const notificationsEnabled = await messaging().hasPermission()
+
+          if (notificationsEnabled) {
+            await Promise.all([
+              messaging().unsubscribeFromTopic(`service-updates-${userLocale}`),
+              messaging().subscribeToTopic(`service-updates-${langaugeCode}`),
+            ])
+          }
+
+          changeUserLanguage(langaugeCode)
+        },
+      },
     ])
   }
 
