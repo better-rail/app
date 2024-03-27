@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite"
 import { Button, Screen, Text } from "../../components"
 import { AnnouncementsScreenProps } from "../../navigators/announcements/announcements-navigator"
-import { Alert, Linking, ScrollView, View } from "react-native"
+import { Alert, Linking, Platform, ScrollView, View } from "react-native"
 import { color, spacing } from "../../theme"
 import notifee, { AuthorizationStatus } from "@notifee/react-native"
 import { useEffect, useState } from "react"
@@ -78,9 +78,13 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
               onPress={() => navigation.navigate("notificationsPickStations")}
             />
 
-            <View style={{ borderBottomWidth: 1, borderColor: color.inputPlaceholderBackground }}>
-              <Text tx="announcements.notifications.selectedStations" style={{ fontWeight: "500" }} />
-            </View>
+            {settings.stationsNotifications.length > 0 && (
+              <View
+                style={{ borderBottomWidth: 1, borderColor: Platform.select({ ios: color.separator, android: "lightgrey" }) }}
+              >
+                <Text tx="announcements.notifications.selectedStations" style={{ fontWeight: "500" }} />
+              </View>
+            )}
 
             {settings.stationsNotifications.map((stationId) => {
               const station = stations.find((s) => s.id === stationId)
