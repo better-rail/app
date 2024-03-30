@@ -34,7 +34,9 @@ export const LiveRideSheet = observer(function LiveRideSheet(props: { progress; 
 
   return (
     <BottomScreenSheet>
-      <Text style={{ fontSize: 20, fontWeight: "bold", color: color.success }}>{progressText}</Text>
+      <Text style={{ fontSize: 20, fontWeight: "bold", color: color.success }} maxFontSizeMultiplier={1.2}>
+        {progressText}
+      </Text>
 
       <StopButton
         loading={!ride.id}

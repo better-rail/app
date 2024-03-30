@@ -122,7 +122,7 @@ export const RideModel = types
       this.checkLiveRideAuthorization()
     },
     startRide(route: RouteItem) {
-      if (!self.canRunLiveActivities) return
+      if (Platform.OS === "ios" && !self.canRunLiveActivities) return
 
       this.setRideLoading(true)
       this.setRoute(route)
