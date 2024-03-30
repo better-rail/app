@@ -100,9 +100,10 @@ export const RideModel = types
         const supported = await iOSHelpers.canRunLiveActivities()
         this.setCanRunLiveActivities(supported)
         return supported
+      } else {
+        this.setCanRunLiveActivities(true)
+        return true
       }
-
-      return false
     },
     async checkLiveRideAuthorization() {
       if (self.canRunLiveActivities) {
