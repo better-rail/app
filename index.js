@@ -7,69 +7,12 @@
 // side effect of breaking other tooling like mobile-center and react-native-rename.
 //
 // It's easier just to leave it here.
-import { AppRegistry, Platform } from "react-native"
-import messaging from "@react-native-firebase/messaging"
-import notifee, { AndroidLaunchActivityFlag } from "@notifee/react-native"
+import { AppRegistry } from "react-native"
 
 import App from "./app/app"
-import { configureAndroidNotifications } from "./app/utils/android-helpers"
-import AsyncStorage from "@react-native-async-storage/async-storage"
+import { configureNotifications } from "./app/utils/notification-helpers"
 
-if (Platform.OS === "android") {
-  configureAndroidNotifications()
-}
-
-/**
- * Handle incoming notifications
- */
-const onRecievedMessage = async (message) => {
-  const { title, body, stations } = message.data
-  const parsedStations = JSON.parse(stations)
-
-  let displayNotification = false
-  /**
-   * If the message is for all stations, display it
-   * Otherwise, check if the message is for any of the stations that the user has enabled notifications for
-   */
-  if (parsedStations.includes("all-stations")) {
-    displayNotification = true
-  } else {
-    const rootStoreString = await AsyncStorage.getItem("root")
-    const rootStore = JSON.parse(rootStoreString)
-
-    const stationsNotifications = rootStore.settings.stationsNotifications
-
-    parsedStations.find((station) => {
-      if (stationsNotifications.includes(station)) {
-        displayNotification = true
-        return true
-      }
-
-      return false
-    })
-  }
-
-  if (displayNotification) {
-    notifee.displayNotification({
-      title,
-      body,
-      ios: { sound: "default" },
-      android: {
-        channelId: "better-rail-service-updates",
-        smallIcon: "notification_icon",
-        timeoutAfter: 60 * 1000,
-        pressAction: {
-          id: "default",
-          launchActivity: "com.betterrail.MainActivity",
-          launchActivityFlags: [AndroidLaunchActivityFlag.SINGLE_TOP],
-        },
-      },
-    })
-  }
-}
-
-messaging().onMessage(onRecievedMessage)
-messaging().setBackgroundMessageHandler(onRecievedMessage)
+configureNotifications()
 
 AppRegistry.registerComponent("BetterRail", () => App)
 export default App

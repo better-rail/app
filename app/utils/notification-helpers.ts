@@ -6,6 +6,7 @@ import { findClosestStationInRoute, getRideStatus, getTrainFromStationId } from 
 import { addMinutes, addSeconds, differenceInMinutes, format } from "date-fns"
 import { getInitialLanguage, translate } from "../i18n"
 import i18n from "i18n-js"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 import {
   getRideRoute,
   setRideRoute,
@@ -18,87 +19,146 @@ import {
   setRideNotificationId,
   clearBackgroundStorage,
 } from "./storage/background-storage"
+import { Platform } from "react-native"
 
 const rideApi = new RideApi()
 let unsubscribeTokenUpdates: () => void
 
-export const configureAndroidNotifications = async () => {
-  notifee.createChannel({
-    id: "better-rail",
-    name: "Better Rail",
-    description: "Get live ride notifications",
-    importance: AndroidImportance.HIGH,
-    sound: "default",
-  })
+export const configureNotifications = async () => {
+  if (Platform.OS === "android") {
+    notifee.createChannel({
+      id: "better-rail",
+      name: "Better Rail",
+      description: "Get live ride notifications",
+      importance: AndroidImportance.HIGH,
+      sound: "default",
+    })
 
-  notifee.createChannel({
-    id: "better-rail-service-updates",
-    name: "Better Rail",
-    description: "Israel Railways service updates",
-    importance: AndroidImportance.HIGH,
-    vibration: true,
-    sound: "default",
-  })
+    notifee.createChannel({
+      id: "better-rail-service-updates",
+      name: "Service Updates",
+      description: "Israel Railways service updates",
+      importance: AndroidImportance.HIGH,
+      vibration: true,
+      sound: "default",
+    })
 
-  notifee.createChannel({
-    id: "better-rail-live",
-    name: "Better Rail Live",
-    description: "Get live ride persistent notification",
-    vibration: false,
-  })
+    notifee.createChannel({
+      id: "better-rail-live",
+      name: "Better Rail Live",
+      description: "Get live ride persistent notification",
+      vibration: false,
+    })
+  }
 
   const onRecievedMessage = async (message: FirebaseMessagingTypes.RemoteMessage) => {
-    if (message.data?.type !== "live-ride") return
-
-    if (message.data.notifee) {
-      notifee.displayNotification({
-        ...JSON.parse(message.data.notifee),
-        android: {
-          channelId: "better-rail",
-          smallIcon: "notification_icon",
-          timeoutAfter: 60 * 1000,
-          pressAction: {
-            id: "default",
-            launchActivity: "com.betterrail.MainActivity",
-            launchActivityFlags: [AndroidLaunchActivityFlag.SINGLE_TOP],
-          },
-        },
-      })
+    if (message.data?.type === "live-ride" && Platform.OS === "android") {
+      return handleLiveRideNotification(message)
     }
 
-    const state: RideState = {
-      status: message.data.status as RideStatus,
-      delay: Number(message.data.delay),
-      nextStationId: Number(message.data.nextStationId),
-    }
-
-    await setRideDelay(state.delay)
-    scheduleStaleNotification()
-
-    const rideNotificationId = await getRideNotificationId()
-    if (rideNotificationId && state) {
-      const rideRoute = await getRideRoute()
-      updateNotification(rideRoute, state)
+    if (message.data?.type === "service-update") {
+      return handleServiceUpdateNotification(message)
     }
   }
 
   messaging().onMessage(onRecievedMessage)
   messaging().setBackgroundMessageHandler(onRecievedMessage)
-  notifee.onBackgroundEvent(async ({ type, detail }) => {
-    if (type === EventType.DELIVERED && detail.notification?.data?.type === "live-ride-stale") {
-      const rideRoute = await getRideRoute()
-      const rideDelay = await getRideDelay()
-      if (addMinutes(rideRoute.arrivalTime, rideDelay).getTime() > Date.now()) {
-        const state: RideState = {
-          status: "stale",
-          delay: rideDelay,
-          nextStationId: rideRoute.trains[rideRoute.trains.length - 1].destinationStationId,
-        }
 
-        updateNotification(rideRoute, state)
+  if (Platform.OS === "android") {
+    notifee.onBackgroundEvent(async ({ type, detail }) => {
+      if (type === EventType.DELIVERED && detail.notification?.data?.type === "live-ride-stale") {
+        const rideRoute = await getRideRoute()
+        const rideDelay = await getRideDelay()
+        if (addMinutes(rideRoute.arrivalTime, rideDelay).getTime() > Date.now()) {
+          const state: RideState = {
+            status: "stale",
+            delay: rideDelay,
+            nextStationId: rideRoute.trains[rideRoute.trains.length - 1].destinationStationId,
+          }
+
+          updateNotification(rideRoute, state)
+        }
       }
-    }
-  })
+    })
+  }
+}
+
+const handleLiveRideNotification = async (message: FirebaseMessagingTypes.RemoteMessage) => {
+  if (message.data.notifee) {
+    notifee.displayNotification({
+      ...JSON.parse(message.data.notifee),
+      android: {
+        channelId: "better-rail",
+        smallIcon: "notification_icon",
+        timeoutAfter: 60 * 1000,
+        pressAction: {
+          id: "default",
+          launchActivity: "com.betterrail.MainActivity",
+          launchActivityFlags: [AndroidLaunchActivityFlag.SINGLE_TOP],
+        },
+      },
+    })
+  }
+
+  const state: RideState = {
+    status: message.data.status as RideStatus,
+    delay: Number(message.data.delay),
+    nextStationId: Number(message.data.nextStationId),
+  }
+
+  await setRideDelay(state.delay)
+  scheduleStaleNotification()
+
+  const rideNotificationId = await getRideNotificationId()
+  if (rideNotificationId && state) {
+    const rideRoute = await getRideRoute()
+    updateNotification(rideRoute, state)
+  }
+}
+
+const handleServiceUpdateNotification = async (message: FirebaseMessagingTypes.RemoteMessage) => {
+  const { title, body, stations } = message.data
+  const parsedStations = JSON.parse(stations)
+
+  let displayNotification = false
+  /**
+   * If the message is for all stations, display it
+   * Otherwise, check if the message is for any of the stations that the user has enabled notifications for
+   */
+  if (parsedStations.includes("all-stations")) {
+    displayNotification = true
+  } else {
+    const rootStoreString = await AsyncStorage.getItem("root")
+    const rootStore = JSON.parse(rootStoreString)
+
+    const stationsNotifications = rootStore.settings.stationsNotifications
+
+    parsedStations.find((station) => {
+      if (stationsNotifications.includes(station)) {
+        displayNotification = true
+        return true
+      }
+
+      return false
+    })
+  }
+
+  if (displayNotification) {
+    notifee.displayNotification({
+      title,
+      body,
+      ios: { sound: "default" },
+      android: {
+        channelId: "better-rail-service-updates",
+        smallIcon: "notification_icon",
+        pressAction: {
+          id: "default",
+          launchActivity: "com.betterrail.MainActivity",
+          launchActivityFlags: [AndroidLaunchActivityFlag.SINGLE_TOP],
+        },
+      },
+    })
+  }
 }
 
 export const startRideNotifications = async (route: RouteItem) => {
