@@ -100,9 +100,6 @@ export const RideModel = types
         const supported = await iOSHelpers.canRunLiveActivities()
         this.setCanRunLiveActivities(supported)
         return supported
-      } else if (Platform.OS === "android") {
-        this.setCanRunLiveActivities(true)
-        return true
       }
 
       return false
@@ -125,7 +122,7 @@ export const RideModel = types
       this.checkLiveRideAuthorization()
     },
     startRide(route: RouteItem) {
-      if (!self.canRunLiveActivities) return
+      if (Platform.OS === "ios" && !self.canRunLiveActivities) return
 
       this.setRideLoading(true)
       this.setRoute(route)
