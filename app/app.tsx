@@ -144,7 +144,7 @@ function App() {
   useEffect(() => {
     // open the announcements screen if the app was opened from a notification
     const unsubscribe = notifee.onForegroundEvent(({ type, detail }) => {
-      if (type === EventType.PRESS) {
+      if (detail.notification.data?.type === "service-update") {
         navigationRef.current?.navigate("announcementsStack")
       }
     })
