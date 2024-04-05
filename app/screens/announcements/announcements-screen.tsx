@@ -71,8 +71,8 @@ export const AnnouncementsScreen = observer(function AnnouncementsScreen({ navig
           </TouchableScale>
         )}
 
-        {serviceUpdates?.map(({ title, body }, index) => (
-          <AnnouncementCard key={index} title={title} body={body} type="notification" />
+        {serviceUpdates?.map(({ title, body, link }, index) => (
+          <AnnouncementCard key={index} title={title} body={body} link={link} type="notification" />
         ))}
 
         <AnnouncementsList updatesType="regular" />

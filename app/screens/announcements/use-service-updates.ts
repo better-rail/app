@@ -8,6 +8,7 @@ export interface ServiceUpdate {
   expireAt: Date
   title: string
   body: string
+  link?: string
 }
 
 export function useServiceUpdates() {
@@ -23,7 +24,8 @@ export function useServiceUpdates() {
       .get()
 
     querySnapshot.forEach((doc) => {
-      data.push(doc.data()[userLocale] as ServiceUpdate)
+      const documentData = doc.data()
+      data.push({ ...documentData[userLocale], link: documentData.url } as ServiceUpdate)
     })
 
     return data
