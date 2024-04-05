@@ -143,7 +143,7 @@ function App() {
       if (languageCode) {
         setUserLanguage(languageCode)
         setLocaleReady(true)
-        mixpanel.getPeople().set("user_locale", languageCode)
+        mixpanel.getPeople().set("app_locale", languageCode)
         analytics().setUserProperty("user_locale", languageCode)
       } else {
         setInitialLanguage()
