@@ -34,9 +34,11 @@ export const NotificationsSelectStationsScreen = observer(function Notifications
 
     if (stationsNotifications.includes(stationId)) {
       settings.removeStationNotification(stationId)
+      mixpanel.track("Station Notification Deselected", { stationId })
       return
     }
 
+    mixpanel.track("Station Notification Selected", { stationId })
     settings.addStationNotification(stationId)
   }
 
