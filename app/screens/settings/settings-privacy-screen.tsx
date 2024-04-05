@@ -11,6 +11,7 @@ import { translate } from "../../i18n"
 import { openLink } from "../../utils/helpers/open-link"
 import { useIsBetaTester } from "../../hooks/use-is-beta-tester"
 import crashlytics from "@react-native-firebase/crashlytics"
+import { mixpanel } from "../../app"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -24,11 +25,13 @@ export const PrivacyScreen = observer(function SettingsLanguageScreen() {
   const onTelemetryToggle = async (disableTelemetry: boolean) => {
     if (disableTelemetry) {
       analytics().logEvent("telemetry_disabled")
+      mixpanel.optOutTracking()
       user.setDisableTelemetry(disableTelemetry)
       await Promise.all([analytics().setAnalyticsCollectionEnabled(false), crashlytics().setCrashlyticsCollectionEnabled(false)])
     } else {
       analytics().logEvent("telemetry_enabled")
       user.setDisableTelemetry(disableTelemetry)
+      mixpanel.optInTracking()
       await Promise.all([analytics().setAnalyticsCollectionEnabled(true), crashlytics().setCrashlyticsCollectionEnabled(true)])
     }
   }
