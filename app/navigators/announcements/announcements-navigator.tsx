@@ -70,7 +70,6 @@ export const AnnouncementsNavigator = () => (
       component={NotificationsSetupScreen}
       options={({ navigation }) => ({
         title: translate("announcements.notifications.notificationSettings"),
-        // headerLeft: () => <CloseButton onPress={() => navigation.goBack()} style={{ marginRight: spacing[2] }} />,
         headerLeftContainerStyle: { marginBottom: 10 },
         headerTitleStyle: Platform.select({
           ios: { ...iOSTitleStyle, marginBottom: 10 },
