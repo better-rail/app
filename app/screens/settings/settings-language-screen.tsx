@@ -32,6 +32,14 @@ export const LanguageScreen = observer(function SettingsLanguageScreen() {
           const notificationsEnabled = await messaging().hasPermission()
 
           if (notificationsEnabled) {
+            let unsubscribeTopic = `service-updates-${userLocale}`
+            let subscribeTopic = `service-updates-${langaugeCode}`
+
+            if (__DEV__) {
+              unsubscribeTopic = `service-updates-test-${userLocale}`
+              subscribeTopic = `service-updates-test-${langaugeCode}`
+            }
+
             await Promise.all([
               messaging().unsubscribeFromTopic(`service-updates-${userLocale}`),
               messaging().subscribeToTopic(`service-updates-${langaugeCode}`),
