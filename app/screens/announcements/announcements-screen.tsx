@@ -19,7 +19,7 @@ const SCROLL_VIEW: ViewStyle = {
   paddingBottom: spacing[5],
 }
 
-const NOTIFICATOIN_BUTTON: ViewStyle = {
+const NOTIFICATION_BUTTON: ViewStyle = {
   justifyContent: "center",
   height: 100 * fontScale,
   paddingHorizontal: spacing[3],
@@ -58,7 +58,7 @@ export const AnnouncementsScreen = observer(function AnnouncementsScreen({ navig
     >
       <ScrollView contentContainerStyle={SCROLL_VIEW}>
         {!settings.seenNotificationsScreen && (
-          <TouchableScale onPress={navigateToNotificationsSetup} activeScale={0.97} friction={10} style={NOTIFICATOIN_BUTTON}>
+          <TouchableScale onPress={navigateToNotificationsSetup} activeScale={0.97} friction={10} style={NOTIFICATION_BUTTON}>
             <Text
               tx="announcements.notifications.newButtonTitle"
               style={{ textAlign: "center", fontSize: 18, color: color.palette.black, fontWeight: "500" }}
