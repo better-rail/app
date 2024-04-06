@@ -50,7 +50,7 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
   }, [appState])
 
   useEffect(() => {
-    if (notificationPermission === true) {
+    if (notificationPermission) {
       let topicName = `service-updates-${userLocale}`
 
       if (__DEV__) {
