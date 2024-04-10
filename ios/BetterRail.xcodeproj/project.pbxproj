@@ -85,6 +85,11 @@
 		C1286B51275E6C8300E1E05D /* RNBetterRail.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1286B50275E6C8300E1E05D /* RNBetterRail.swift */; };
 		C1286B55275E6D9D00E1E05D /* RNBetterRail.m in Sources */ = {isa = PBXBuildFile; fileRef = C1286B54275E6D9D00E1E05D /* RNBetterRail.m */; };
 		C13D49712A1A065100011397 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C13D49702A1A065100011397 /* GoogleService-Info.plist */; };
+		C14364422BC681ED00D2077D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = C14364412BC681ED00D2077D /* PrivacyInfo.xcprivacy */; };
+		C14364432BC681ED00D2077D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = C14364412BC681ED00D2077D /* PrivacyInfo.xcprivacy */; };
+		C14364442BC681ED00D2077D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = C14364412BC681ED00D2077D /* PrivacyInfo.xcprivacy */; };
+		C14364452BC681ED00D2077D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = C14364412BC681ED00D2077D /* PrivacyInfo.xcprivacy */; };
+		C14364462BC681ED00D2077D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = C14364412BC681ED00D2077D /* PrivacyInfo.xcprivacy */; };
 		C14F313426331361002A01D7 /* Swifty.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14F313326331361002A01D7 /* Swifty.swift */; };
 		C15A0E9A29F3DA3C00558103 /* TokenRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140AA29F1416100968904 /* TokenRegistry.swift */; };
 		C15DA0672763A8EB00A24EF3 /* Route.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = C1F7C89327627A60002A417F /* Route.intentdefinition */; };
@@ -257,6 +262,7 @@
 		C13D49702A1A065100011397 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		C13E85892A22618200B026CD /* BetterRailWidgetExtensionRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BetterRailWidgetExtensionRelease.entitlements; sourceTree = "<group>"; };
 		C13E858A2A2261AF00B026CD /* WatchBetterRail ExtensionRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "WatchBetterRail ExtensionRelease.entitlements"; sourceTree = "<group>"; };
+		C14364412BC681ED00D2077D /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		C14F313226331361002A01D7 /* BetterRail-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BetterRail-Bridging-Header.h"; sourceTree = "<group>"; };
 		C14F313326331361002A01D7 /* Swifty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Swifty.swift; sourceTree = "<group>"; };
 		C15DA06A2763AD2800A24EF3 /* he */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = he; path = he.lproj/Route.strings; sourceTree = "<group>"; };
@@ -447,6 +453,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				C14364412BC681ED00D2077D /* PrivacyInfo.xcprivacy */,
 				90749D2B2AC855F60065FCB7 /* BetterRailWatch.entitlements */,
 				C1E10B682A2357B800E5D8AC /* BetterRailWidgetExtensionDebug.entitlements */,
 				C13E85892A22618200B026CD /* BetterRailWidgetExtensionRelease.entitlements */,
@@ -873,6 +880,7 @@
 				73244C6A71D14F56B7316FA2 /* Heebo-Black.otf in Resources */,
 				02ED03C656594967A0656417 /* Heebo-Bold.otf in Resources */,
 				C1C6DC5B27493C56000E9EED /* Assets.xcassets in Resources */,
+				C14364422BC681ED00D2077D /* PrivacyInfo.xcprivacy in Resources */,
 				5EFC395D238C4D2ABEF902D0 /* Heebo-ExtraBold.otf in Resources */,
 				DA04D16B7E3649A49F843A15 /* Heebo-Light.otf in Resources */,
 				3948B514A79C47EFBFC7D1B2 /* Heebo-Medium.otf in Resources */,
@@ -887,6 +895,7 @@
 			files = (
 				90A47D8A2B7F950D00E4426A /* Assets.xcassets in Resources */,
 				901A3C9F2AC077CE004D68D6 /* stationsData.json in Resources */,
+				C14364452BC681ED00D2077D /* PrivacyInfo.xcprivacy in Resources */,
 				901A3CA02AC077CE004D68D6 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -896,6 +905,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				90749D4B2AC856D70065FCB7 /* Localizable.strings in Resources */,
+				C14364462BC681ED00D2077D /* PrivacyInfo.xcprivacy in Resources */,
 				90749D4C2AC856D70065FCB7 /* Assets.xcassets in Resources */,
 				90749D4D2AC856D70065FCB7 /* stationsData.json in Resources */,
 				90749D4E2AC856D70065FCB7 /* Heebo-Bold.otf in Resources */,
@@ -910,6 +920,7 @@
 			files = (
 				C1B1214B2762035B0085C269 /* stationsData.json in Resources */,
 				C1B1214F276225C60085C269 /* Localizable.strings in Resources */,
+				C14364432BC681ED00D2077D /* PrivacyInfo.xcprivacy in Resources */,
 				C1C6DC5927493C51000E9EED /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -918,6 +929,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C14364442BC681ED00D2077D /* PrivacyInfo.xcprivacy in Resources */,
 				C1B1214C2762035B0085C269 /* stationsData.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
