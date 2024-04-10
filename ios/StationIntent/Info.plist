@@ -37,6 +37,13 @@
 		<string>com.apple.intents-service</string>
 		<key>NSExtensionPrincipalClass</key>
 		<string>$(PRODUCT_MODULE_NAME).IntentHandler</string>
+		<key>NSPrivacyAccessedAPITypes</key>
+		<array>
+				<dict>
+						<key>NSPrivacyAccessedAPICategoryUserDefaults</key>
+						<string>The extension uses user defaults to manage user settings and preferences specific to the functionality of the Siri Intent extension.</string>
+				</dict>
+		</array>
 	</dict>
 </dict>
 </plist>
