@@ -19,7 +19,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
-	<string>14</string>
+	<string>16</string>
 	<key>NSExtension</key>
 	<dict>
 		<key>NSExtensionAttributes</key>
@@ -39,10 +39,10 @@
 		<string>$(PRODUCT_MODULE_NAME).IntentHandler</string>
 		<key>NSPrivacyAccessedAPITypes</key>
 		<array>
-				<dict>
-						<key>NSPrivacyAccessedAPICategoryUserDefaults</key>
-						<string>The extension uses user defaults to manage user settings and preferences specific to the functionality of the Siri Intent extension.</string>
-				</dict>
+			<dict>
+				<key>NSPrivacyAccessedAPICategoryUserDefaults</key>
+				<string>The extension uses user defaults to manage user settings and preferences specific to the functionality of the Siri Intent extension.</string>
+			</dict>
 		</array>
 	</dict>
 </dict>

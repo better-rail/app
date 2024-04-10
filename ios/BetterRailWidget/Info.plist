@@ -19,7 +19,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
-	<string>14</string>
+	<string>16</string>
 	<key>LSApplicationCategoryType</key>
 	<string></string>
 	<key>NSExtension</key>
@@ -29,10 +29,10 @@
 	</dict>
 	<key>NSPrivacyAccessedAPITypes</key>
 	<array>
-    <dict>
-        <key>NSPrivacyAccessedAPICategoryUserDefaults</key>
-        <string>The app uses user defaults to save user preferences and settings.</string>
-    </dict>
+		<dict>
+			<key>NSPrivacyAccessedAPICategoryUserDefaults</key>
+			<string>The app uses user defaults to save user preferences and settings.</string>
+		</dict>
 	</array>
 </dict>
 </plist>
