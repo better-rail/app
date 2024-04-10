@@ -49,7 +49,7 @@ if (__DEV__) {
 export let mixpanel: Mixpanel = null
 
 if (!__DEV__) {
-  const trackAutomaticEvents = false
+  const trackAutomaticEvents = true
   mixpanel = new Mixpanel("aee87333217b795f608e0a1ec50e979d", trackAutomaticEvents)
   mixpanel.init()
 }
