@@ -120,7 +120,7 @@ android {
         applicationId "com.betterrail"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 80
+        versionCode 81
         versionName "2.3.0"
         missingDimensionStrategy "store", "play"
     }
