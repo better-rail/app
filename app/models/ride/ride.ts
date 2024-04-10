@@ -1,7 +1,7 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { omit } from "ramda"
 import { Platform } from "react-native"
-import AndroidHelpers from "../../utils/android-helpers"
+import AndroidHelpers from "../../utils/notification-helpers"
 import iOSHelpers, { ActivityAuthorizationInfo } from "../../utils/ios-helpers"
 import { trainRouteSchema } from "../train-routes/train-routes"
 import { RouteItem } from "../../services/api"

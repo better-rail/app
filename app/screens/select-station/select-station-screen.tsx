@@ -5,12 +5,12 @@ import { Screen, Text, StationCard, FavoriteRoutes, cardHeight } from "../../com
 import { useStores } from "../../models"
 import { SelectStationScreenProps } from "../../navigators/main-navigator"
 import { color, spacing, isDarkMode } from "../../theme"
-import { NormalizedStation, useStations } from "../../data/stations"
+import { NormalizedStation } from "../../data/stations"
 import { SearchInput } from "./search-input"
 import { RecentSearchesBox } from "./recent-searches-box/recent-searches-box"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import Fuse from "fuse.js"
 import { FlashList } from "@shopify/flash-list"
+import { useFilteredStations } from "../../hooks"
 
 if (Platform.OS === "android") {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -48,17 +48,9 @@ const CANCEL_LINK: TextStyle = {
 
 export const SelectStationScreen = observer(function SelectStationScreen({ navigation, route }: SelectStationScreenProps) {
   const { routePlan, recentSearches, favoriteRoutes } = useStores()
-  const stations = useStations()
   const insets = useSafeAreaInsets()
   const [searchTerm, setSearchTerm] = useState("")
-
-  // our sweet fuzzy search engine
-  const fuse = useMemo(() => new Fuse(stations, { keys: ["name", "hebrew", "alias"], threshold: 0.3 }), [stations])
-
-  const filteredStations = useMemo(() => {
-    if (searchTerm === "") return []
-    return fuse.search(searchTerm).map((result) => result.item)
-  }, [searchTerm, fuse])
+  const { filteredStations } = useFilteredStations(searchTerm)
 
   const renderItem = useCallback(
     (station: NormalizedStation) => (

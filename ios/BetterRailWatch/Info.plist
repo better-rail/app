@@ -18,5 +18,12 @@
 		<string>Heebo-Bold.otf</string>
 		<string>Heebo-Medium.otf</string>
 	</array>
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>
+    <dict>
+        <key>NSPrivacyAccessedAPICategoryUserDefaults</key>
+        <string>The app uses user defaults to save user preferences and settings.</string>
+    </dict>
+	</array>
 </dict>
 </plist>
