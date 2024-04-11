@@ -94,7 +94,6 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
     HapticFeedback.trigger("notificationSuccess")
     ride.startRide(route)
     analytics().logEvent("start_live_ride")
-    mixpanel.track("Start Live Ride")
 
     // in reality the prompt would be shown on the 4th ride and not the 3rd, since the count
     // will be increased only after the ride has been started successfully.

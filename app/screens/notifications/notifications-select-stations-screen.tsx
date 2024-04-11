@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 import { Pressable, View } from "react-native"
 import { StationListItem } from "./station-list-item"
@@ -15,7 +15,6 @@ import { useStations } from "../../data/stations"
 
 import { FlashList } from "@shopify/flash-list"
 import { toJS } from "mobx"
-import { mixpanel } from "../../app"
 
 export const NotificationsSelectStationsScreen = observer(function NotificationsSelectStationsScreen() {
   const navigation = useNavigation()
@@ -34,17 +33,11 @@ export const NotificationsSelectStationsScreen = observer(function Notifications
 
     if (stationsNotifications.includes(stationId)) {
       settings.removeStationNotification(stationId)
-      mixpanel.track("Station Notification Deselected", { stationId })
       return
     }
 
-    mixpanel.track("Station Notification Selected", { stationId })
     settings.addStationNotification(stationId)
   }
-
-  useEffect(() => {
-    mixpanel.getPeople().set("Station Notifications", stationsNotifications)
-  }, [stationsNotifications])
 
   return (
     <View style={{ flex: 1, paddingHorizontal: spacing[3] }}>

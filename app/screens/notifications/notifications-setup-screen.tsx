@@ -9,9 +9,9 @@ import { translate, userLocale } from "../../i18n"
 import { useStores } from "../../models"
 import { StationListItem } from "./station-list-item"
 import { useStations } from "../../data/stations"
+import analytics from "@react-native-firebase/analytics"
 import messaging from "@react-native-firebase/messaging"
 import { useAppState } from "../../hooks"
-import { mixpanel } from "../../app"
 
 export const NotificationsSetupScreen = observer(function NotificationsSetupScreen({ navigation }: AnnouncementsScreenProps) {
   const { settings } = useStores()
@@ -23,10 +23,9 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
     const settings = await notifee.requestPermission()
 
     if (settings.authorizationStatus === AuthorizationStatus.AUTHORIZED) {
-      mixpanel.track("Notification Permission Granted")
+      analytics().logEvent("notification_permission_granted")
       setNotificationPermission(true)
     } else {
-      mixpanel.track("Notification Permission Denied")
       Alert.alert(
         "Permission denied",
         "You have denied the permission to receive notifications. You can enable it in the settings.",

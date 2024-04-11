@@ -56,7 +56,6 @@
     "fuse.js": "^6.4.6",
     "i18n-js": "3.8.0",
     "lodash": "^4.17.21",
-    "mixpanel-react-native": "^3.0.0-beta.2",
     "mobx": "6.3.2",
     "mobx-react-lite": "3.4.3",
     "mobx-state-tree": "5.1.8",
