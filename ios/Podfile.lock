@@ -816,12 +816,6 @@ PODS:
   - Libuv-gRPC/Implementation (0.0.10):
     - Libuv-gRPC/Interface (= 0.0.10)
   - Libuv-gRPC/Interface (0.0.10)
-  - Mixpanel-swift (4.2.0):
-    - Mixpanel-swift/Complete (= 4.2.0)
-  - Mixpanel-swift/Complete (4.2.0)
-  - MixpanelReactNative (3.0.0-beta.2):
-    - Mixpanel-swift (= 4.2.0)
-    - React-Core
   - nanopb (2.30909.0):
     - nanopb/decode (= 2.30909.0)
     - nanopb/encode (= 2.30909.0)
@@ -1309,7 +1303,6 @@ DEPENDENCIES:
   - GoogleUtilities
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - libevent (~> 2.1.12)
-  - MixpanelReactNative (from `../node_modules/mixpanel-react-native`)
   - nanopb
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
@@ -1401,7 +1394,6 @@ SPEC REPOS:
     - leveldb-library
     - libevent
     - Libuv-gRPC
-    - Mixpanel-swift
     - nanopb
     - PromisesObjC
     - PromisesSwift
@@ -1431,8 +1423,6 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
   hermes-engine:
     :podspec: "../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec"
-  MixpanelReactNative:
-    :path: "../node_modules/mixpanel-react-native"
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTRequired:
@@ -1595,8 +1585,6 @@ SPEC CHECKSUMS:
   leveldb-library: f03246171cce0484482ec291f88b6d563699ee06
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   Libuv-gRPC: 55e51798e14ef436ad9bc45d12d43b77b49df378
-  Mixpanel-swift: e5dd85295923e6a875acf17ccbab8d2ecb10ea65
-  MixpanelReactNative: 07c91e9adc7a2c722398108c10409d9ea789dc39
   nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
   PromisesObjC: 09985d6d70fbe7878040aa746d78236e6946d2ef
   PromisesSwift: cf9eb58666a43bbe007302226e510b16c1e10959

@@ -12,9 +12,10 @@ import { useStations } from "../../data/stations"
 import analytics from "@react-native-firebase/analytics"
 import messaging from "@react-native-firebase/messaging"
 import { useAppState } from "../../hooks"
+import { uniq } from "lodash"
 
 export const NotificationsSetupScreen = observer(function NotificationsSetupScreen({ navigation }: AnnouncementsScreenProps) {
-  const { settings } = useStores()
+  const { settings, favoriteRoutes } = useStores()
   const stations = useStations()
   const appState = useAppState()
   const [notificationPermission, setNotificationPermission] = useState(false)
@@ -80,16 +81,37 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
 
         {notificationPermission ? (
           <View style={{ flex: 1, gap: 12 }}>
-            <Button
-              title={translate("announcements.notifications.selectStations")}
-              onPress={() => navigation.navigate("notificationsPickStations")}
-            />
-
-            {settings.stationsNotifications.length > 0 && (
+            {favoriteRoutes.routes.length > 0 && (
               <View
                 style={{ borderBottomWidth: 1, borderColor: Platform.select({ ios: color.separator, android: "lightgrey" }) }}
               >
-                <Text tx="announcements.notifications.selectedStations" style={{ fontWeight: "500" }} />
+                <Text tx="announcements.notifications.stationsFromFavorites" style={{ fontWeight: "500" }} />
+              </View>
+            )}
+
+            {uniq(favoriteRoutes.routes.flatMap((route) => [route.originId, route.destinationId])).map((stationId) => {
+              const station = stations.find((s) => s.id === stationId)
+              return <StationListItem key={stationId} title={station.name} image={station.image} />
+            })}
+
+            {settings.stationsNotifications.length > 0 && (
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: "row",
+                  borderBottomWidth: 1,
+                  justifyContent: "space-between",
+                  borderColor: Platform.select({ ios: color.separator, android: "lightgrey" }),
+                }}
+              >
+                <Text
+                  tx={
+                    favoriteRoutes.routes.length > 0
+                      ? "announcements.notifications.selectedStations"
+                      : "announcements.notifications.stations"
+                  }
+                  style={{ fontWeight: "500" }}
+                />
               </View>
             )}
 
@@ -97,6 +119,11 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
               const station = stations.find((s) => s.id === stationId)
               return <StationListItem key={stationId} title={station.name} image={station.image} />
             })}
+
+            <Button
+              title={translate("announcements.notifications.selectStations")}
+              onPress={() => navigation.navigate("notificationsPickStations")}
+            />
 
             <Text
               tx="announcements.notifications.notificationNote"

@@ -176,8 +176,10 @@
       "enableNotifications": "تفعيل الإشعارات",
 
       "notificationSetupContent": "سوف يرسل لك Better Rail تحديثات حول الأحداث المتعلقة بالمحطات التي اخترتها",
+      "stations": "محطات",
       "selectStations": "اختر المحطات",
       "selectedStations": "المحطات المختارة",
+      "stationsFromFavorites": "من الطرق المفضلة",
 
       "notificationNote": "يرجى الملاحظة: بينما سيبذل Better Rail قصارى جهده لتوفير تحديثات سريعة وموثوقة، يُنصح دائمًا بالتحقق من المصادر الرسمية لسكك حديد إسرائيل كذلك."
     }
