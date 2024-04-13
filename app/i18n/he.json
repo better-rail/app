@@ -272,8 +272,10 @@
       "enableNotifications": "הפעלת התראות",
 
       "notificationSetupContent": "בטר רייל תשלח התראות רלוונטיות לתחנות המועדפות עליכם",
+      "stations": "תחנות",
       "selectStations": "בחירת תחנות",
-      "selectedStations": "תחנות",
+      "selectedStations": "תחנות נוספות",
+      "stationsFromFavorites": "תחנות ממסלולים מועדפים",
 
       "notificationNote": "בטר רייל תעשה כמיטב יכולתה לספק עדכונים מהירים ואמינים, אך תמיד מומלץ לבדוק גם עם המקורות הרשמיים של רכבת ישראל."
     }

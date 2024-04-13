@@ -131,10 +131,12 @@ const handleServiceUpdateNotification = async (message: FirebaseMessagingTypes.R
     const rootStoreString = await AsyncStorage.getItem("root")
     const rootStore = JSON.parse(rootStoreString)
 
-    const stationsNotifications = rootStore.settings.stationsNotifications
+    const stationsNotifications: string[] = rootStore.settings.stationsNotifications
+    const favoriteRoutes: string[] = rootStore.favoriteRoutes.routes.flatMap((route) => [route.originId, route.destinationId])
+    const stationsToCheck = [...stationsNotifications, ...favoriteRoutes]
 
     parsedStations.find((station) => {
-      if (stationsNotifications.includes(station)) {
+      if (stationsToCheck.includes(station)) {
         displayNotification = true
         return true
       }
