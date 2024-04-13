@@ -4,7 +4,7 @@ import { AnnouncementsScreenProps } from "../../navigators/announcements/announc
 import { Alert, Linking, Platform, ScrollView, View } from "react-native"
 import { color, spacing } from "../../theme"
 import notifee, { AuthorizationStatus } from "@notifee/react-native"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import { translate, userLocale } from "../../i18n"
 import { useStores } from "../../models"
 import { StationListItem } from "./station-list-item"
@@ -68,13 +68,11 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
     }
   }, [notificationPermission])
 
-  const favoriteStations = useMemo(() => {
-    return chain(favoriteRoutes.routes)
-      .flatMap((route) => [route.originId, route.destinationId])
-      .uniq()
-      .filter((station) => !settings.stationsNotifications.includes(station))
-      .value()
-  }, [favoriteRoutes.routes, settings.stationsNotifications])
+  const favoriteStations = chain(favoriteRoutes.routes)
+    .flatMap((route) => [route.originId, route.destinationId])
+    .uniq()
+    .filter((station) => !settings.stationsNotifications.includes(station))
+    .value()
 
   return (
     <Screen style={{ paddingHorizontal: spacing[4], flex: 1, paddingBottom: spacing[5] }} unsafe>
