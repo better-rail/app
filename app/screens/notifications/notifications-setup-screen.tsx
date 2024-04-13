@@ -4,7 +4,7 @@ import { AnnouncementsScreenProps } from "../../navigators/announcements/announc
 import { Alert, Linking, Platform, ScrollView, View } from "react-native"
 import { color, spacing } from "../../theme"
 import notifee, { AuthorizationStatus } from "@notifee/react-native"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { translate, userLocale } from "../../i18n"
 import { useStores } from "../../models"
 import { StationListItem } from "./station-list-item"
@@ -12,7 +12,7 @@ import { useStations } from "../../data/stations"
 import analytics from "@react-native-firebase/analytics"
 import messaging from "@react-native-firebase/messaging"
 import { useAppState } from "../../hooks"
-import { uniq } from "lodash"
+import { chain } from "lodash"
 
 export const NotificationsSetupScreen = observer(function NotificationsSetupScreen({ navigation }: AnnouncementsScreenProps) {
   const { settings, favoriteRoutes } = useStores()
@@ -68,6 +68,14 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
     }
   }, [notificationPermission])
 
+  const favoriteStations = useMemo(() => {
+    return chain(favoriteRoutes.routes)
+      .flatMap((route) => [route.originId, route.destinationId])
+      .uniq()
+      .filter((station) => !settings.stationsNotifications.includes(station))
+      .value()
+  }, [favoriteRoutes.routes, settings.stationsNotifications])
+
   return (
     <Screen style={{ paddingHorizontal: spacing[4], flex: 1, paddingBottom: spacing[5] }} unsafe>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -81,7 +89,7 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
 
         {notificationPermission ? (
           <View style={{ flex: 1, gap: 12 }}>
-            {favoriteRoutes.routes.length > 0 && (
+            {favoriteStations.length > 0 && (
               <View
                 style={{ borderBottomWidth: 1, borderColor: Platform.select({ ios: color.separator, android: "lightgrey" }) }}
               >
@@ -89,7 +97,7 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
               </View>
             )}
 
-            {uniq(favoriteRoutes.routes.flatMap((route) => [route.originId, route.destinationId])).map((stationId) => {
+            {favoriteStations.map((stationId) => {
               const station = stations.find((s) => s.id === stationId)
               return <StationListItem key={stationId} title={station.name} image={station.image} />
             })}
@@ -106,7 +114,7 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
               >
                 <Text
                   tx={
-                    favoriteRoutes.routes.length > 0
+                    favoriteStations.length > 0
                       ? "announcements.notifications.selectedStations"
                       : "announcements.notifications.stations"
                   }
