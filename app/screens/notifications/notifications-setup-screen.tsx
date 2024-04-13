@@ -75,75 +75,77 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
     .value()
 
   return (
-    <Screen style={{ paddingHorizontal: spacing[4], flex: 1, paddingBottom: spacing[5] }} unsafe>
+    <Screen style={{ paddingHorizontal: spacing[4], flex: 1 }} unsafe>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={{ marginVertical: spacing[2], gap: spacing[2] }}>
-          <Text style={{ textAlign: "center", fontSize: 56 }}>🔔</Text>
-          <Text
-            tx="announcements.notifications.notificationSetupContent"
-            style={{ textAlign: "center", paddingHorizontal: spacing[3], marginBottom: spacing[2] }}
-          />
-        </View>
-
-        {notificationPermission ? (
-          <View style={{ flex: 1, gap: 12 }}>
-            {favoriteStations.length > 0 && (
-              <View
-                style={{ borderBottomWidth: 1, borderColor: Platform.select({ ios: color.separator, android: "lightgrey" }) }}
-              >
-                <Text tx="announcements.notifications.stationsFromFavorites" style={{ fontWeight: "500" }} />
-              </View>
-            )}
-
-            {favoriteStations.map((stationId) => {
-              const station = stations.find((s) => s.id === stationId)
-              return <StationListItem key={stationId} title={station.name} image={station.image} />
-            })}
-
-            {settings.stationsNotifications.length > 0 && (
-              <View
-                style={{
-                  flex: 1,
-                  flexDirection: "row",
-                  borderBottomWidth: 1,
-                  justifyContent: "space-between",
-                  borderColor: Platform.select({ ios: color.separator, android: "lightgrey" }),
-                }}
-              >
-                <Text
-                  tx={
-                    favoriteStations.length > 0
-                      ? "announcements.notifications.selectedStations"
-                      : "announcements.notifications.stations"
-                  }
-                  style={{ fontWeight: "500" }}
-                />
-              </View>
-            )}
-
-            {settings.stationsNotifications.map((stationId) => {
-              const station = stations.find((s) => s.id === stationId)
-              return <StationListItem key={stationId} title={station.name} image={station.image} />
-            })}
-
-            <Button
-              title={translate("announcements.notifications.selectStations")}
-              onPress={() => navigation.navigate("notificationsPickStations")}
-            />
-
+        <View style={{ paddingBottom: spacing[6] }}>
+          <View style={{ marginVertical: spacing[2], gap: spacing[2] }}>
+            <Text style={{ textAlign: "center", fontSize: 56 }}>🔔</Text>
             <Text
-              tx="announcements.notifications.notificationNote"
-              style={{ textAlign: "center", opacity: 0.8 }}
-              preset="small"
+              tx="announcements.notifications.notificationSetupContent"
+              style={{ textAlign: "center", paddingHorizontal: spacing[3], marginBottom: spacing[2] }}
             />
           </View>
-        ) : (
-          <View style={{ gap: 16 }}>
-            <Text tx="announcements.notifications.requestPermissionContent" style={{ textAlign: "center" }} />
 
-            <Button title={translate("announcements.notifications.enableNotifications")} onPress={requestPermission} />
-          </View>
-        )}
+          {notificationPermission ? (
+            <View style={{ flex: 1, gap: 12 }}>
+              {favoriteStations.length > 0 && (
+                <View
+                  style={{ borderBottomWidth: 1, borderColor: Platform.select({ ios: color.separator, android: "lightgrey" }) }}
+                >
+                  <Text tx="announcements.notifications.stationsFromFavorites" style={{ fontWeight: "500" }} />
+                </View>
+              )}
+
+              {favoriteStations.map((stationId) => {
+                const station = stations.find((s) => s.id === stationId)
+                return <StationListItem key={stationId} title={station.name} image={station.image} />
+              })}
+
+              {settings.stationsNotifications.length > 0 && (
+                <View
+                  style={{
+                    flex: 1,
+                    flexDirection: "row",
+                    borderBottomWidth: 1,
+                    justifyContent: "space-between",
+                    borderColor: Platform.select({ ios: color.separator, android: "lightgrey" }),
+                  }}
+                >
+                  <Text
+                    tx={
+                      favoriteStations.length > 0
+                        ? "announcements.notifications.selectedStations"
+                        : "announcements.notifications.stations"
+                    }
+                    style={{ fontWeight: "500" }}
+                  />
+                </View>
+              )}
+
+              {settings.stationsNotifications.map((stationId) => {
+                const station = stations.find((s) => s.id === stationId)
+                return <StationListItem key={stationId} title={station.name} image={station.image} />
+              })}
+
+              <Button
+                title={translate("announcements.notifications.selectStations")}
+                onPress={() => navigation.navigate("notificationsPickStations")}
+              />
+
+              <Text
+                tx="announcements.notifications.notificationNote"
+                style={{ textAlign: "center", opacity: 0.8 }}
+                preset="small"
+              />
+            </View>
+          ) : (
+            <View style={{ gap: 16 }}>
+              <Text tx="announcements.notifications.requestPermissionContent" style={{ textAlign: "center" }} />
+
+              <Button title={translate("announcements.notifications.enableNotifications")} onPress={requestPermission} />
+            </View>
+          )}
+        </View>
       </ScrollView>
     </Screen>
   )
