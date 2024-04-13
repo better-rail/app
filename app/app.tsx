@@ -17,11 +17,10 @@ import { QueryClient, QueryClientProvider } from "react-query"
 import { NavigationContainerRef } from "@react-navigation/native"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet"
-import notifee, { EventType } from "@notifee/react-native"
+import notifee from "@notifee/react-native"
 
 import analytics from "@react-native-firebase/analytics"
 import crashlytics from "@react-native-firebase/crashlytics"
-import { Mixpanel, MixpanelType } from "mixpanel-react-native"
 
 import { initFonts } from "./theme/fonts" // expo
 import * as storage from "./utils/storage"
@@ -44,14 +43,6 @@ import PushNotification from "react-native-push-notification"
 if (__DEV__) {
   analytics().setAnalyticsCollectionEnabled(false)
   crashlytics().setCrashlyticsCollectionEnabled(false)
-}
-
-export let mixpanel: Mixpanel = null
-
-if (!__DEV__) {
-  const trackAutomaticEvents = true
-  mixpanel = new Mixpanel("aee87333217b795f608e0a1ec50e979d", trackAutomaticEvents)
-  mixpanel.init()
 }
 
 // This puts screens in a native ViewController or Activity. If you want fully native
@@ -143,7 +134,6 @@ function App() {
       if (languageCode) {
         setUserLanguage(languageCode)
         setLocaleReady(true)
-        mixpanel.getPeople().set("app_locale", languageCode)
         analytics().setUserProperty("user_locale", languageCode)
       } else {
         setInitialLanguage()
