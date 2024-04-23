@@ -29,6 +29,7 @@ const SCROLL_VIEW: ViewStyle = {
   minWidth: "100%",
   marginTop: spacing[3],
   paddingStart: spacing[3],
+  paddingEnd: spacing[4],
   gap: spacing[3],
 }
 
