@@ -1,5 +1,5 @@
 import React, { useMemo } from "react"
-import { View, Image, TextStyle, ViewStyle, ImageStyle } from "react-native"
+import { View, Image, TextStyle, ViewStyle, ImageStyle, Platform } from "react-native"
 import { observer } from "mobx-react-lite"
 import { useStores } from "../../../models"
 import analytics from "@react-native-firebase/analytics"
