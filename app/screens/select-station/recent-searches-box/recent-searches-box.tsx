@@ -67,7 +67,7 @@ export const RecentSearchesBox = observer(function RecentSearchesBox(props: Rece
         showsHorizontalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={SCROLL_VIEW}
-        snapToInterval={175 + spacing[5]}
+        snapToInterval={175 + spacing[3]}
       >
         {sortedSearches.map((entry) => {
           // if a station is removed from stations list, it might still be in recent searches
