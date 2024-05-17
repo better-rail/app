@@ -39,17 +39,6 @@ const LIVE_BUTTON_IMAGE: ImageStyle = {
   transform: isRTL ? [{ rotateY: "220deg" }] : undefined,
 }
 
-const NEW_DOT: ViewStyle = {
-  position: "absolute",
-  right: -4,
-  top: -3.5,
-  width: 10 * fontScale,
-  height: 10 * fontScale,
-  borderRadius: 50,
-  backgroundColor: "orange",
-  zIndex: 100,
-}
-
 const TRAIN_ICON = require("../../../assets/train.ios.png")
 const SPARKLES_ICON = require("../../../assets/sparkles.png")
 const UPDATES_ICON = require("../../../assets/updates.png")
@@ -119,7 +108,6 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
           )}
         </View>
         <TouchableOpacity onPress={openAnnouncements} activeOpacity={0.8} accessibilityLabel={translate("routes.updates")}>
-          {!settings.seenNotificationsScreen && <View style={NEW_DOT} />}
           <Image source={UPDATES_ICON} style={[HEADER_ICON_IMAGE]} />
         </TouchableOpacity>
         <TouchableOpacity onPress={openSettings} activeOpacity={0.8} accessibilityLabel={translate("settings.title")}>
