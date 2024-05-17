@@ -2,6 +2,8 @@ import { useEffect, useState } from "react"
 import { Image, ImageStyle, Platform, TouchableOpacity, View, ViewStyle } from "react-native"
 import { useNavigation } from "@react-navigation/core"
 import { observer } from "mobx-react-lite"
+import { StackNavigationProp } from "@react-navigation/stack"
+import { RootParamList } from "../../navigators"
 import * as storage from "../../utils/storage"
 import analytics from "@react-native-firebase/analytics"
 import { color, fontScale, spacing } from "../../theme"
@@ -39,25 +41,16 @@ const LIVE_BUTTON_IMAGE: ImageStyle = {
   transform: isRTL ? [{ rotateY: "220deg" }] : undefined,
 }
 
-const NEW_DOT: ViewStyle = {
-  position: "absolute",
-  right: -4,
-  top: -3.5,
-  width: 10 * fontScale,
-  height: 10 * fontScale,
-  borderRadius: 50,
-  backgroundColor: "orange",
-  zIndex: 100,
-}
-
 const TRAIN_ICON = require("../../../assets/train.ios.png")
 const SPARKLES_ICON = require("../../../assets/sparkles.png")
 const UPDATES_ICON = require("../../../assets/updates.png")
 const SETTINGS_ICON = require("../../../assets/settings.png")
 
+type NavigationProps = StackNavigationProp<RootParamList, "mainStack">
+
 export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
-  const { routePlan, ride, settings } = useStores()
-  const navigation = useNavigation()
+  const { routePlan, ride } = useStores()
+  const navigation = useNavigation<NavigationProps>()
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
 
   const { data: popupMessages } = useQuery<PopUpMessage[]>(["announcements", "urgent"], () => {
@@ -119,7 +112,6 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
           )}
         </View>
         <TouchableOpacity onPress={openAnnouncements} activeOpacity={0.8} accessibilityLabel={translate("routes.updates")}>
-          {!settings.seenNotificationsScreen && <View style={NEW_DOT} />}
           <Image source={UPDATES_ICON} style={[HEADER_ICON_IMAGE]} />
         </TouchableOpacity>
         <TouchableOpacity onPress={openSettings} activeOpacity={0.8} accessibilityLabel={translate("settings.title")}>
