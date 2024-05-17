@@ -2,6 +2,8 @@ import { useEffect, useState } from "react"
 import { Image, ImageStyle, Platform, TouchableOpacity, View, ViewStyle } from "react-native"
 import { useNavigation } from "@react-navigation/core"
 import { observer } from "mobx-react-lite"
+import { StackNavigationProp } from "@react-navigation/stack"
+import { RootParamList } from "../../navigators"
 import * as storage from "../../utils/storage"
 import analytics from "@react-native-firebase/analytics"
 import { color, fontScale, spacing } from "../../theme"
@@ -44,9 +46,11 @@ const SPARKLES_ICON = require("../../../assets/sparkles.png")
 const UPDATES_ICON = require("../../../assets/updates.png")
 const SETTINGS_ICON = require("../../../assets/settings.png")
 
+type NavigationProps = StackNavigationProp<RootParamList, "mainStack">
+
 export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
-  const { routePlan, ride, settings } = useStores()
-  const navigation = useNavigation()
+  const { routePlan, ride } = useStores()
+  const navigation = useNavigation<NavigationProps>()
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
 
   const { data: popupMessages } = useQuery<PopUpMessage[]>(["announcements", "urgent"], () => {
