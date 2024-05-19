@@ -1,25 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict>
-<key>NSPrivacyAccessedAPITypes</key>
-<array>
 	<dict>
-			<key>NSPrivacyAccessedAPICategoryUserDefaults</key>
-			<string>The app uses user defaults to save user preferences and settings.</string>
+		<key>NSPrivacyAccessedAPITypes</key>
+		<array>
+			<dict>
+				<key>NSPrivacyAccessedAPIType</key>
+				<string>NSPrivacyAccessedAPICategoryDiskSpace</string>
+				<key>NSPrivacyAccessedAPITypeReasons</key>
+				<array>
+ 					<string>85F4.1</string>
+				</array>
+			</dict>
+			<dict>
+				<key>NSPrivacyAccessedAPIType</key>
+				<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+				<key>NSPrivacyAccessedAPITypeReasons</key>
+				<array>
+ 					<string>CA92.1</string>
+				</array>
+			</dict>
+			<dict>
+				<key>NSPrivacyAccessedAPIType</key>
+				<string>NSPrivacyAccessedAPICategorySystemBootTime</string>
+				<key>NSPrivacyAccessedAPITypeReasons</key>
+				<array>
+ 					<string>35F9.1</string>
+				</array>
+			</dict>
+			<dict>
+				<key>NSPrivacyAccessedAPIType</key>
+				<string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+				<key>NSPrivacyAccessedAPITypeReasons</key>
+				<array>
+ 					<string>DDA9.1</string>
+				</array>
+			</dict>
+		</array>
 	</dict>
-	<dict>
-			<key>NSPrivacyAccessedAPICategoryDiskSpace</key>
-			<string>The app checks available disk space to ensure smooth operation and to prevent crashes due to insufficient space.</string>
-	</dict>
-	<dict>
-			<key>NSPrivacyAccessedAPICategoryFileTimestamp</key>
-			<string>The app accesses file timestamps to provide features like sorting files based on modification dates.</string>
-	</dict>
-	<dict>
-			<key>NSPrivacyAccessedAPICategorySystemBootTime</key>
-			<string>The app uses system boot time to track device uptime and to help in scheduling daily tasks efficiently.</string>
-	</dict>
-</array>
-</dict>
 </plist>
