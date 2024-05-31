@@ -59,7 +59,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
 
   const stations = useStations()
 
-  // The datetimepicker  docs says the first argument is an event, but we get a date instead
+  // The datetimepicker docs says the first argument is an event, but we get a date instead
   // https://github.com/react-native-datetimepicker/datetimepicker#onchange-optional
   const onDateChange = (date: Date) => {
     routePlan.setDate(date)
@@ -190,7 +190,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
 
         <Text preset="header" tx="plan.title" style={SCREEN_TITLE} />
 
-        <Text preset="fieldLabel" tx="plan.origin" text="תחנת מוצא" style={{ marginBottom: spacing[1] }} />
+        <Text preset="fieldLabel" tx="plan.origin" style={{ marginBottom: spacing[1] }} />
         <Animated.View style={{ transform: [{ scale: stationCardScale }] }}>
           <StationCard
             name={originData?.name}
