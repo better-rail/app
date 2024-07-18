@@ -14,7 +14,7 @@ COPY . .
 RUN if [ "$(uname)" == "Darwin" ] || [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then \
       yarn rename-dev-configs; \
     else \
-      cp /ios/firebase-config.development.js /ios/firebase-config.js && \
+      cp /ios/GoogleService-Info.development.plist /ios/GoogleService-Info.plist && \
       cp /android/app/firebase-config.development.js /android/app/firebase-config.js; \
     fi
 
