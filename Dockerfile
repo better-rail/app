@@ -15,7 +15,7 @@ RUN if [ "$(uname)" == "Darwin" ] || [ "$(expr substr $(uname -s) 1 5)" == "Linu
       yarn rename-dev-configs; \
     else \
       cp /ios/GoogleService-Info.development.plist /ios/GoogleService-Info.plist && \
-      cp /android/app/firebase-config.development.js /android/app/firebase-config.js; \
+      cp /android/app/google-services.development.js /android/app/google-services.js; \
     fi
 
 EXPOSE 8081
