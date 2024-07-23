@@ -5,6 +5,7 @@ ENV ENVIRONMENT=development
 WORKDIR /usr/src/app
 
 COPY package.json yarn.lock ./
+COPY bin /usr/src/app/bin
 
 RUN yarn install
 
@@ -15,7 +16,7 @@ RUN if [ "$(uname)" == "Darwin" ] || [ "$(expr substr $(uname -s) 1 5)" == "Linu
       yarn rename-dev-configs; \
     else \
       cp /ios/GoogleService-Info.development.plist /ios/GoogleService-Info.plist && \
-      cp /android/app/google-services.development.js /android/app/google-services.js; \
+      cp /android/app/firebase-config.development.js /android/app/firebase-config.js; \
     fi
 
 EXPOSE 8081
