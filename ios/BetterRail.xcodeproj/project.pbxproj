@@ -94,6 +94,7 @@
 		C15A0E9A29F3DA3C00558103 /* TokenRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F140AA29F1416100968904 /* TokenRegistry.swift */; };
 		C15DA0672763A8EB00A24EF3 /* Route.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = C1F7C89327627A60002A417F /* Route.intentdefinition */; };
 		C15DA0682763ABF100A24EF3 /* stationsData.json in Resources */ = {isa = PBXBuildFile; fileRef = C1F61C0C2709F08200CD3D44 /* stationsData.json */; };
+		C190FF762C5E559F00B74068 /* PreviewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C190FF752C5E559F00B74068 /* PreviewData.swift */; };
 		C1A802622747AB4D00A3073D /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1A802612747AB4D00A3073D /* WidgetKit.framework */; };
 		C1A802642747AB4D00A3073D /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1A802632747AB4D00A3073D /* SwiftUI.framework */; };
 		C1A802672747AB4D00A3073D /* BetterRailWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A802662747AB4D00A3073D /* BetterRailWidget.swift */; };
@@ -269,6 +270,7 @@
 		C1640A0827D510E400DEDB01 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Route.strings; sourceTree = "<group>"; };
 		C17FA4D02709EFBC003797D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C1832299270DF49100A44771 /* StationImageBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationImageBackground.swift; sourceTree = "<group>"; };
+		C190FF752C5E559F00B74068 /* PreviewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewData.swift; sourceTree = "<group>"; };
 		C1A802602747AB4D00A3073D /* BetterRailWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BetterRailWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		C1A802612747AB4D00A3073D /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		C1A802632747AB4D00A3073D /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -520,6 +522,14 @@
 			path = Shared;
 			sourceTree = "<group>";
 		};
+		C190FF742C5E559D00B74068 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				C190FF752C5E559F00B74068 /* PreviewData.swift */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
 		C1A802652747AB4D00A3073D /* BetterRailWidget */ = {
 			isa = PBXGroup;
 			children = (
@@ -586,6 +596,7 @@
 		C1F140A429F1416100968904 /* Live Activity */ = {
 			isa = PBXGroup;
 			children = (
+				C190FF742C5E559D00B74068 /* Data */,
 				C1F140A529F1416100968904 /* ViewModels */,
 				C1F140A729F1416100968904 /* ActivityUtils.swift */,
 				C1F140A829F1416100968904 /* BetterRailLiveActivity.swift */,
@@ -1155,6 +1166,7 @@
 				C1C6DC5027493A56000E9EED /* TrainDetail.swift in Sources */,
 				C1F7C89027627A60002A417F /* Route.intentdefinition in Sources */,
 				C1F140C529F1416100968904 /* RideInformationBar.swift in Sources */,
+				C190FF762C5E559F00B74068 /* PreviewData.swift in Sources */,
 				C1F140C829F1416100968904 /* ActivityNotificationsAPI.swift in Sources */,
 				C1B121272761FD260085C269 /* Utilities.swift in Sources */,
 				C1B121292761FD7E0085C269 /* Extensions.swift in Sources */,
@@ -1251,7 +1263,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = BetterRail/BetterRailDebug.entitlements;
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = UE6BVYPPFX;
 				ENABLE_BITCODE = NO;
@@ -1261,7 +1273,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.3.2;
+				MARKETING_VERSION = 2.3.3;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1294,7 +1306,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = UE6BVYPPFX;
 				INFOPLIST_FILE = BetterRail/Info.plist;
@@ -1303,7 +1315,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.3.2;
+				MARKETING_VERSION = 2.3.3;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1560,7 +1572,7 @@
 				CODE_SIGN_ENTITLEMENTS = BetterRailWatch.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = "";
@@ -1579,7 +1591,7 @@
 					"@executable_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 2.3.2;
+				MARKETING_VERSION = 2.3.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
@@ -1617,7 +1629,7 @@
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = "";
@@ -1636,7 +1648,7 @@
 					"@executable_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 2.3.2;
+				MARKETING_VERSION = 2.3.3;
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = "il.co.better-rail.watchkitapp";
