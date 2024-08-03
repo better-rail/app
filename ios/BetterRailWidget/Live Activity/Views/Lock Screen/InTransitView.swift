@@ -5,7 +5,21 @@ import ActivityKit
 
 struct LockScreenInTransitView: View {
   var vm: ActivityViewModel
-  
+  var activityFamily: ActivityFamily = .medium
+
+  init(vm: ActivityViewModel) {
+    self.vm = vm
+
+    if #available(iOS 18.0, *) {
+      let environment = EnvironmentValues()
+      if environment.activityFamily == .medium {
+        self.activityFamily = .medium
+      } else {
+        self.activityFamily = .small
+      }
+    }
+  }
+
   var body: some View {
     VStack(alignment: .leading) {
       ActivityHeader(vm: vm)
@@ -32,4 +46,10 @@ struct LockScreenInTransitView: View {
       RideInformationBar(vm: vm)
     }
   }
+}
+
+// Define ActivityFamily enum for iOS 17 and earlier
+enum ActivityFamily {
+    case small
+    case medium
 }

@@ -58,10 +58,12 @@ struct BetterRailLiveActivity: Widget {
         }
         .widgetURL(deepLinkURL(context.attributes.trainNumbers))
         .keylineTint(tintColor(context: context))
-    }
+      }
+      .applySupplementalFamilies()
   }
 }
 
+//
 struct LiveActivity_Previews: PreviewProvider {
   static let attributes = previewLiveActivityAttributes
   static let contentState = previewContentState
@@ -84,4 +86,15 @@ struct LiveActivity_Previews: PreviewProvider {
           .environment(\.layoutDirection, .rightToLeft)
           .environment(\.locale, .init(identifier: "he"))
     }
+}
+
+extension ActivityConfiguration {
+  func applySupplementalFamilies() -> some WidgetConfiguration {
+    if #available(iOS 18, *) {
+      // Support live activity on the Apple Watch
+      return self.supplementalActivityFamilies([.small])
+    } else {
+      return self
+    }
+  }
 }
