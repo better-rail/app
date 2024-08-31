@@ -603,10 +603,10 @@ PODS:
   - BoringSSL-GRPC/Implementation (0.0.24):
     - BoringSSL-GRPC/Interface (= 0.0.24)
   - BoringSSL-GRPC/Interface (0.0.24)
-  - Burnt (0.11.7):
+  - Burnt (0.12.2):
     - ExpoModulesCore
-    - SPAlert
-    - SPIndicator
+    - SPAlert (~> 4.2)
+    - SPIndicator (~> 1.6)
   - BVLinearGradient (2.8.3):
     - React-Core
   - DoubleConversion (1.1.6)
@@ -2478,7 +2478,7 @@ PODS:
   - RNWatch (1.1.0):
     - React
   - SocketRocket (0.7.0)
-  - SPAlert (5.1.8)
+  - SPAlert (4.2.0)
   - SPIndicator (1.6.4)
   - Yoga (0.0.0)
 
@@ -2836,7 +2836,7 @@ SPEC CHECKSUMS:
   abseil: ebe5b5529fb05d93a8bdb7951607be08b7fa71bc
   boost: 4cb898d0bf20404aab1850c656dcea009429d6c1
   BoringSSL-GRPC: 3175b25143e648463a56daeaaa499c6cb86dad33
-  Burnt: ab447594da52c2485e3520c9e68b70ac30d4eaf0
+  Burnt: dde5dd245f124a4594098e3938ba71aae4ec83c3
   BVLinearGradient: 880f91a7854faff2df62518f0281afb1c60d49a3
   DoubleConversion: 76ab83afb40bddeeee456813d9c04f67f78771b5
   Expo: b04d142a2b477a391b47c62d179c1a9e1140e6ad
@@ -2959,7 +2959,7 @@ SPEC CHECKSUMS:
   RNSVG: 07dbd870b0dcdecc99b3a202fa37c8ca163caec2
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
   SocketRocket: abac6f5de4d4d62d24e11868d7a2f427e0ef940d
-  SPAlert: 7027ed9df9a2ba8202cab39fd05b53e110f48a99
+  SPAlert: 735da1f16a887e294719217572ce1f936d8c8782
   SPIndicator: 93e0a4fb23de51294ac48e874c0f081a5e293e4f
   Yoga: 2a45d7e59592db061217551fd3bbe2dd993817ae
 
