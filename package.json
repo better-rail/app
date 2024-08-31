@@ -55,7 +55,7 @@
     "burnt": "^0.12.2",
     "date-fns": "2.30.0",
     "date-fns-tz": "^2.0.0",
-    "expo": "48.0.10",
+    "expo": "^51.0.31",
     "expo-localization": "~14.1.1",
     "fuse.js": "^6.4.6",
     "i18n-js": "3.8.0",
