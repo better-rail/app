@@ -2528,7 +2528,7 @@ PODS:
     - Yoga
   - RNShare (8.2.2):
     - React-Core
-  - RNSharedElement (0.8.8):
+  - RNSharedElement (0.8.9):
     - React-Core
   - RNSVG (13.4.0):
     - React-Core
@@ -3012,7 +3012,7 @@ SPEC CHECKSUMS:
   RNReanimated: b0912c8ba12f6c03db07c851c4de71c3eed6c83c
   RNScreens: 19719a9c326e925498ac3b2d35c4e50fe87afc06
   RNShare: d82e10f6b7677f4b0048c23709bd04098d5aee6c
-  RNSharedElement: 504fa28a235b12505b6daedbb452a9ec96809bd0
+  RNSharedElement: 3fd05877bd6bc95f71b332801bf4356ca69ab7f6
   RNSVG: 07dbd870b0dcdecc99b3a202fa37c8ca163caec2
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
   SocketRocket: abac6f5de4d4d62d24e11868d7a2f427e0ef940d
