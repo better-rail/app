@@ -612,7 +612,7 @@ PODS:
   - DoubleConversion (1.1.6)
   - Expo (51.0.31):
     - ExpoModulesCore
-  - ExpoLocalization (14.1.1):
+  - ExpoLocalization (15.0.3):
     - ExpoModulesCore
   - ExpoModulesCore (1.12.23):
     - DoubleConversion
@@ -2897,7 +2897,7 @@ SPEC CHECKSUMS:
   BVLinearGradient: 880f91a7854faff2df62518f0281afb1c60d49a3
   DoubleConversion: 76ab83afb40bddeeee456813d9c04f67f78771b5
   Expo: 4773e11951abd0f666f67023f0cb1d48c3e8a32b
-  ExpoLocalization: f26cd431ad9ea3533c5b08c4fabd879176a794bb
+  ExpoLocalization: f04eeec2e35bed01ab61c72ee1768ec04d093d01
   ExpoModulesCore: bfa5f6cbd610372986f5020890b18eb904794410
   FBLazyVector: 38bb611218305c3bc61803e287b8a81c6f63b619
   Firebase: 0219acf760880eeec8ce479895bd7767466d9f81
