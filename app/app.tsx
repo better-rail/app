@@ -183,26 +183,20 @@ function App() {
 
   // otherwise, we're ready to render the app
   return (
-    <ToggleStorybook>
-      <QueryClientProvider client={queryClient}>
-        <RootStoreProvider value={rootStore}>
-          <ActionSheetProvider>
-            <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-              {__DEV__ ? (
-                // Use navigation persistence for development
-                <RootNavigator
-                  ref={navigationRef}
-                  initialState={initialNavigationState}
-                  onStateChange={onNavigationStateChange}
-                />
-              ) : (
-                <RootNavigator ref={navigationRef} />
-              )}
-            </SafeAreaProvider>
-          </ActionSheetProvider>
-        </RootStoreProvider>
-      </QueryClientProvider>
-    </ToggleStorybook>
+    <QueryClientProvider client={queryClient}>
+      <RootStoreProvider value={rootStore}>
+        <ActionSheetProvider>
+          <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+            {__DEV__ ? (
+              // Use navigation persistence for development
+              <RootNavigator ref={navigationRef} initialState={initialNavigationState} onStateChange={onNavigationStateChange} />
+            ) : (
+              <RootNavigator ref={navigationRef} />
+            )}
+          </SafeAreaProvider>
+        </ActionSheetProvider>
+      </RootStoreProvider>
+    </QueryClientProvider>
   )
 }
 
