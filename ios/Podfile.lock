@@ -2407,8 +2407,27 @@ PODS:
     - RNFBApp
   - RNFlashList (1.6.1):
     - React-Core
-  - RNGestureHandler (2.9.0):
+  - RNGestureHandler (2.18.1):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
     - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - RNIap (12.10.8):
     - React-Core
   - RNInAppBrowser (3.7.0):
@@ -2485,9 +2504,28 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.20.0):
+  - RNScreens (3.34.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
     - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
     - React-RCTImage
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - RNShare (8.2.2):
     - React-Core
   - RNSharedElement (0.8.8):
@@ -2966,13 +3004,13 @@ SPEC CHECKSUMS:
   RNFBFirestore: dd8764489e487acde96d1e0c65094d771ca73197
   RNFBMessaging: 216693dd5ba4f18ba65fb39fc73a44a23c26190f
   RNFlashList: 236646d48f224a034f35baa0242e1b77db063b1e
-  RNGestureHandler: 071d7a9ad81e8b83fe7663b303d132406a7d8f39
+  RNGestureHandler: 939f21fabf5d45a725c0bf175eb819dd25cf2e70
   RNIap: 99a559a3642155b47aa0622f9693632010a0b4f7
   RNInAppBrowser: e36d6935517101ccba0e875bac8ad7b0cb655364
   RNNotifee: f3c01b391dd8e98e67f539f9a35a9cbcd3bae744
   RNReactNativeHapticFeedback: afa5bf2794aecbb2dba2525329253da0d66656df
   RNReanimated: b0912c8ba12f6c03db07c851c4de71c3eed6c83c
-  RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
+  RNScreens: 19719a9c326e925498ac3b2d35c4e50fe87afc06
   RNShare: d82e10f6b7677f4b0048c23709bd04098d5aee6c
   RNSharedElement: 504fa28a235b12505b6daedbb452a9ec96809bd0
   RNSVG: 07dbd870b0dcdecc99b3a202fa37c8ca163caec2
