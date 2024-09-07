@@ -203,13 +203,7 @@
   "eslintConfig": {
     "root": true,
     "parser": "@typescript-eslint/parser",
-    "extends": [
-      "prettier",
-      "plugin:@typescript-eslint/recommended",
-      "plugin:react/recommended",
-      "plugin:react-native/all",
-      "standard"
-    ],
+    "extends": ["@react-native"],
     "plugins": [
       "@typescript-eslint",
       "react",
