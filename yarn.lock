@@ -16290,10 +16290,10 @@ react-native-screens@^3.34.0:
     react-freeze "^1.0.0"
     warn-once "^0.1.0"
 
-react-native-share@8.2.2:
-  version "8.2.2"
-  resolved "https://registry.yarnpkg.com/react-native-share/-/react-native-share-8.2.2.tgz#987d6f164afe57b089950dca42e0555f19045d27"
-  integrity sha512-kVCI/cT0GnuYUTXe6mAimrjrnt4VWoRfrWqJZjFeoYFqAyOEfos84RC4eZlZnOT5eVtmTXRIkor5vgSkKOlZhw==
+react-native-share@^11.0.3:
+  version "11.0.3"
+  resolved "https://registry.yarnpkg.com/react-native-share/-/react-native-share-11.0.3.tgz#63f1f3a53fb0eb673eece6ab53bec683258786f8"
+  integrity sha512-nE9+2KY4E/Sj79NvZk25coy+YJcvw/xwPoSZsAPKLowmzfaq2IAIVeaO/LAhkVj1dSP1IjVrrbONpKQX0MyqeA==
 
 react-native-shared-element@^0.8.9:
   version "0.8.9"
