@@ -33,7 +33,6 @@ import {
   RootParamList,
 } from "./navigators"
 import { RootStore, RootStoreProvider, setupRootStore } from "./models"
-import { ToggleStorybook } from "../storybook/toggle-storybook"
 import { setInitialLanguage, setUserLanguage } from "./i18n/i18n"
 import "react-native-console-time-polyfill"
 import { useIAP, initConnection, finishTransaction, getAvailablePurchases, withIAPContext } from "react-native-iap"
@@ -183,26 +182,20 @@ function App() {
 
   // otherwise, we're ready to render the app
   return (
-    <ToggleStorybook>
-      <QueryClientProvider client={queryClient}>
-        <RootStoreProvider value={rootStore}>
-          <ActionSheetProvider>
-            <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-              {__DEV__ ? (
-                // Use navigation persistence for development
-                <RootNavigator
-                  ref={navigationRef}
-                  initialState={initialNavigationState}
-                  onStateChange={onNavigationStateChange}
-                />
-              ) : (
-                <RootNavigator ref={navigationRef} />
-              )}
-            </SafeAreaProvider>
-          </ActionSheetProvider>
-        </RootStoreProvider>
-      </QueryClientProvider>
-    </ToggleStorybook>
+    <QueryClientProvider client={queryClient}>
+      <RootStoreProvider value={rootStore}>
+        <ActionSheetProvider>
+          <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+            {__DEV__ ? (
+              // Use navigation persistence for development
+              <RootNavigator ref={navigationRef} initialState={initialNavigationState} onStateChange={onNavigationStateChange} />
+            ) : (
+              <RootNavigator ref={navigationRef} />
+            )}
+          </SafeAreaProvider>
+        </ActionSheetProvider>
+      </RootStoreProvider>
+    </QueryClientProvider>
   )
 }
 
