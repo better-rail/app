@@ -2067,7 +2067,7 @@
     xcode "^3.0.1"
     xml2js "0.6.0"
 
-"@expo/config-plugins@^6.0.1", "@expo/config-plugins@~6.0.0":
+"@expo/config-plugins@~6.0.0":
   version "6.0.2"
   resolved "https://registry.yarnpkg.com/@expo/config-plugins/-/config-plugins-6.0.2.tgz#cf07319515022ba94d9aa9fa30e0cff43a14256f"
   integrity sha512-Cn01fXMHwjU042EgO9oO3Mna0o/UCrW91MQLMbJa4pXM41CYGjNgVy1EVXiuRRx/upegHhvltBw5D+JaUm8aZQ==
@@ -16188,12 +16188,10 @@ react-native-haptic-feedback@^2.3.1:
   resolved "https://registry.yarnpkg.com/react-native-haptic-feedback/-/react-native-haptic-feedback-2.3.1.tgz#2ef4ac7d4f63ac06bd64b659f509362f127b16e5"
   integrity sha512-dPfjV4iVHfhVyfG+nRd88ygjahbdup7KFZDM5L2aNIAzqbNtKxHZn5O1pHegwSj1t15VJliu0GyTX7XpBDeXUw==
 
-react-native-iap@^12.10.5:
-  version "12.10.8"
-  resolved "https://registry.yarnpkg.com/react-native-iap/-/react-native-iap-12.10.8.tgz#4cf1670ca3401381b48a822ef444e0835f9af4f3"
-  integrity sha512-n5iw1Lzw0tXN54sx/bcS5nttfnJ6ecQb95FYzLHN3NIsrRK9nkudcf5LhmNXznHkfh6YdMk0w8V1vRWRWiDRcA==
-  dependencies:
-    "@expo/config-plugins" "^6.0.1"
+react-native-iap@^12.15.4:
+  version "12.15.4"
+  resolved "https://registry.yarnpkg.com/react-native-iap/-/react-native-iap-12.15.4.tgz#1f6afd2f7a05b68296799b984437889d0800a9e6"
+  integrity sha512-aGBlXZHo4mH+xqrvSj916WQhbc1VQPcpK8uLHCthcbttNlBjnZGvENVjoi/ULHSLB9l9agBewIJqdXbA9VlOEg==
 
 react-native-in-app-review@4.3.3:
   version "4.3.3"
@@ -16252,7 +16250,7 @@ react-native-push-notification@^8.1.1:
   resolved "https://registry.yarnpkg.com/react-native-push-notification/-/react-native-push-notification-8.1.1.tgz#a41d20c70ea5a7709417e96261b225461f8dc73a"
   integrity sha512-XpBtG/w+a6WXTxu6l1dNYyTiHnbgnvjoc3KxPTxYkaIABRmvuJZkFxqruyGvfCw7ELAlZEAJO+dthdTabCe1XA==
 
-react-native-quick-actions-shortcuts@1.0.2:
+react-native-quick-actions-shortcuts@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/react-native-quick-actions-shortcuts/-/react-native-quick-actions-shortcuts-1.0.2.tgz#621eece87f9ca686fd122470e61aec6dad4de01d"
   integrity sha512-9pINfI1bePo8QNQLjAeG0jdsZXtDW1syT1rjnvvijWQmI+HseEFu9QfSuap/lRrtUnCf7LgoibYrHvilOPvbWQ==

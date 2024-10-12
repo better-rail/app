@@ -73,7 +73,7 @@
     "react-native-device-info": "10.6.0",
     "react-native-gesture-handler": "^2.18.1",
     "react-native-haptic-feedback": "^2.3.1",
-    "react-native-iap": "^12.10.5",
+    "react-native-iap": "^12.15.4",
     "react-native-in-app-review": "4.3.3",
     "react-native-inappbrowser-reborn": "^3.7.0",
     "react-native-ios-context-menu": "1.15.3",
