@@ -26,7 +26,7 @@
     "rename-dev-configs": "cp ios/GoogleService-Info.development.plist ios/GoogleService-Info.plist && cp android/app/google-services.development.json android/app/google-services.json"
   },
   "dependencies": {
-    "@expo/react-native-action-sheet": "4.0.1",
+    "@expo/react-native-action-sheet": "^4.1.0",
     "@gorhom/bottom-sheet": "^4",
     "@notifee/react-native": "^7.7.1",
     "@react-native-async-storage/async-storage": "^2.0.0",
