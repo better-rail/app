@@ -43,7 +43,6 @@ struct WidgetEntryView: View {
                       .preferredFont(size: 11.5)
                       .foregroundColor(entry.isTomorrow ? Color("purply") : Color("pinky"))
 
-
                     Text(entry.departureTime)
                       .foregroundColor(.white)
                   }
