@@ -3,7 +3,7 @@
   "tasks": [
     {
       "type": "shell",
-      "command": "yarn run ios --simulator=\"iPhone 15 Pro\"",
+      "command": "yarn run ios --simulator=\"iPhone 16 Pro\"",
       "problemMatcher": [],
       "label": "Run iOS",
       "detail": "Serves the app with iOS"

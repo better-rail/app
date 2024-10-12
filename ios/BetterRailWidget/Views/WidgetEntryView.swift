@@ -42,6 +42,7 @@ struct WidgetEntryView: View {
                       .fontWeight(.medium)
                       .preferredFont(size: 11.5)
                       .foregroundColor(entry.isTomorrow ? Color("purply") : Color("pinky"))
+                      .widgetAccentable()
 
                     Text(entry.departureTime)
                       .foregroundColor(.white)

@@ -1,4 +1,5 @@
 {
+  "originHash" : "9ffd9d1e528caeb086342c7f29c68200ac4fca42d752e7c65ba5c5b00ddf6277",
   "pins" : [
     {
       "identity" : "easyskeleton",
@@ -6,7 +7,7 @@
       "location" : "https://github.com/SpectralDragon/EasySkeleton",
       "state" : {
         "branch" : "main",
-        "revision" : "1cfdd165da0619053a931df3b03d22b6f42a7924"
+        "revision" : "0047954dca0b2ae64c6ebb0bd69aef9b99cd123e"
       }
     },
     {
@@ -19,5 +20,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }
