@@ -1,11 +1,13 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { translate, TxKeyPath } from "../../i18n"
+import { PopUpMessage } from "../../services/api"
 
 export const SettingsModel = types
   .model("Settings")
   .props({
     stationsNotifications: types.optional(types.array(types.string), []),
     seenNotificationsScreen: types.optional(types.boolean, false),
+    seenUrgentMessagesIds: types.optional(types.array(types.number), []),
     profileCode: types.optional(types.number, 1),
     totalTip: types.optional(types.number, 0),
   })
@@ -39,6 +41,14 @@ export const SettingsModel = types
 
     addTip(amount: number) {
       self.totalTip = self.totalTip + amount
+    },
+  }))
+  .actions((self) => ({
+    setSeenUrgentMessagesIds(messagesIds: number[]) {
+      self.seenUrgentMessagesIds.replace(messagesIds)
+    },
+    filterUnseenUrgentMessages(messages: PopUpMessage[]) {
+      return messages.filter((message) => !self.seenUrgentMessagesIds.includes(message.id))
     },
   }))
 

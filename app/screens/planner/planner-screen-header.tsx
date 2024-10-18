@@ -49,7 +49,7 @@ const SETTINGS_ICON = require("../../../assets/settings.png")
 type NavigationProps = StackNavigationProp<RootParamList, "mainStack">
 
 export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
-  const { routePlan, ride } = useStores()
+  const { routePlan, ride, settings } = useStores()
   const navigation = useNavigation<NavigationProps>()
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
 
@@ -57,7 +57,9 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
     return railApi.getPopupMessages(userLocale)
   })
 
-  const showUrgentBar = !isEmpty(popupMessages)
+  // Filter unseen urgent messages from the popup messages
+  const unseenUrgentMessages = popupMessages ? settings.filterUnseenUrgentMessages(popupMessages) : []
+  const showUrgentBar = !isEmpty(unseenUrgentMessages)
 
   useEffect(() => {
     // display the "new" badge if the user has stations selected (not the initial launch),

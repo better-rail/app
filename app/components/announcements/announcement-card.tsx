@@ -45,7 +45,7 @@ type AnnouncementCardProps = {
   title?: string
   body: string
   link?: string
-  type: "normal" | "notification"
+  type?: "normal" | "notification"
 }
 
 export const AnnouncementCard = ({ title, body, link, type }: AnnouncementCardProps) => (
