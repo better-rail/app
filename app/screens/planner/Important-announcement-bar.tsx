@@ -70,7 +70,7 @@ export function ImportantAnnouncementBar({ title }: { title: string }) {
   )
 }
 
-function truncateString(inputString, numWords) {
+function truncateString(inputString: string, numWords: number) {
   // Split the input string into an array of words
   const words = inputString.split(" ")
 
