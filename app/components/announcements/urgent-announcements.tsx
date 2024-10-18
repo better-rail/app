@@ -8,6 +8,7 @@ import { spacing } from "../../theme"
 import { Screen, Text } from ".."
 import { useIsDarkMode } from "../../hooks"
 import { useStores } from "../../models"
+import { AnnouncementCard } from "./announcement-card"
 
 export const UrgentAnnouncements = () => {
   const { settings } = useStores()
@@ -17,14 +18,17 @@ export const UrgentAnnouncements = () => {
   const [unseenUrgentMessages, setUnseenUrgentMessages] = useState<PopUpMessage[]>([])
 
   useEffect(() => {
-    const unseenUrgentMessages = settings.filterUnseenUrgentMessages(messages)
-    setUnseenUrgentMessages(unseenUrgentMessages)
+    if (messages) {
+      const unseenUrgentMessages = settings.filterUnseenUrgentMessages(messages)
+      setUnseenUrgentMessages(unseenUrgentMessages)
 
-    if (unseenUrgentMessages) {
-      // Delay to avoid hiding the urgent announcement bar while the modal is opening
-      setTimeout(() => {
-        settings.setSeenUrgentMessagesIds(unseenUrgentMessages.map((message) => message.id))
-      }, 1000)
+      if (unseenUrgentMessages.length > 0) {
+        // Delay to avoid hiding the urgent announcement bar while the modal is opening.
+        // For some reason, the timeout also prevents the rerender of planner screen header.
+        setTimeout(() => {
+          settings.setSeenUrgentMessagesIds(unseenUrgentMessages.map((message) => message.id))
+        }, 1000)
+      }
     }
   }, [messages])
 
