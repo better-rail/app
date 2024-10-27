@@ -87,6 +87,7 @@ export function useDeepLinking(rootStore: RootStore, navigationRef: MutableRefOb
   }
 
   function openHomeScreenShortcut(item: ShortcutItem) {
+    if (!item) return
     const origin = stations.find((station) => station.id === item.data.originId)
     const destination = stations.find((station) => station.id === item.data.destinationId)
 

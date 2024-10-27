@@ -44,7 +44,7 @@
     "noChange": "Direct",
     "oneChange": "1 Change",
     "changes": "Changes",
-    "delayTime": "minutes delay",
+    "delayTime": "min delay",
     "noTrainsFound": "No trains were found for this route in the upcoming days",
     "sameStationsMessage": "Choose different origin and destination stations",
     "noInternetConnection": "It looks like your device is not currently connected to the internet.\nPlease check your network connection and try again.",
