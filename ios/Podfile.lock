@@ -2412,30 +2412,29 @@ PODS:
     - React-Core
   - RNDeviceInfo (10.6.0):
     - React-Core
-  - RNFBAnalytics (17.5.0):
-    - Firebase/AnalyticsWithoutAdIdSupport (= 10.7.0)
+  - RNFBAnalytics (21.4.0):
+    - Firebase/AnalyticsWithoutAdIdSupport (<= 11.4.0)
     - React-Core
     - RNFBApp
-  - RNFBApp (17.5.0):
-    - Firebase/CoreOnly (= 10.7.0)
+  - RNFBApp (21.4.0):
+    - Firebase/CoreOnly (<= 11.4.0)
     - React-Core
-  - RNFBAuth (17.5.0):
-    - Firebase/Auth (= 10.7.0)
-    - React-Core
-    - RNFBApp
-  - RNFBCrashlytics (17.5.0):
-    - Firebase/Crashlytics (= 10.7.0)
-    - FirebaseCoreExtension (= 10.7.0)
+  - RNFBAuth (21.4.0):
+    - Firebase/Auth (<= 11.4.0)
     - React-Core
     - RNFBApp
-  - RNFBFirestore (19.0.1):
-    - Firebase/Firestore (= 10.7.0)
-    - nanopb (< 2.30910.0, >= 2.30908.0)
+  - RNFBCrashlytics (21.4.0):
+    - Firebase/Crashlytics (<= 11.4.0)
+    - FirebaseCoreExtension (<= 11.4.0)
     - React-Core
     - RNFBApp
-  - RNFBMessaging (17.5.0):
-    - Firebase/Messaging (= 10.7.0)
-    - FirebaseCoreExtension (= 10.7.0)
+  - RNFBFirestore (21.4.0):
+    - Firebase/Firestore (<= 11.4.0)
+    - React-Core
+    - RNFBApp
+  - RNFBMessaging (21.4.0):
+    - Firebase/Messaging (<= 11.4.0)
+    - FirebaseCoreExtension (<= 11.4.0)
     - React-Core
     - RNFBApp
   - RNFlashList (1.7.1):
@@ -3087,12 +3086,12 @@ SPEC CHECKSUMS:
   RNDateTimePicker: 40ffda97d071a98a10fdca4fa97e3977102ccd14
   RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
   RNDeviceInfo: 475a4c447168d0ad4c807e48ef5e0963a0f4eb1b
-  RNFBAnalytics: 275d67a43d550306fd1ec6b5b632670d872f0380
-  RNFBApp: d59efa0872fff4e27de03cca3c528c203a436ae5
-  RNFBAuth: 54e598bb1358a0cf6c0a187f43161cd1bde90455
-  RNFBCrashlytics: f2dd2ad20eff4d5ceaa5c19936efff3b1607eb33
-  RNFBFirestore: dd8764489e487acde96d1e0c65094d771ca73197
-  RNFBMessaging: 216693dd5ba4f18ba65fb39fc73a44a23c26190f
+  RNFBAnalytics: b6fcb1f4c5789b28ab620bc71e0a85f5c5215e6d
+  RNFBApp: fa976629c5a8617da9870929534602020244e28f
+  RNFBAuth: fbabf33f5da7a7edaaba970ca0f055463d6173fc
+  RNFBCrashlytics: ca8b84081f953388401a2b256db9553b0f5641d0
+  RNFBFirestore: fbc66b687b3535d55a3325a6e6c5089352393977
+  RNFBMessaging: 6ead8f56af774a236cab58c13311dcf2c8df5e45
   RNFlashList: 115dd44377580761bff386a0caebf165424cf16f
   RNGestureHandler: 939f21fabf5d45a725c0bf175eb819dd25cf2e70
   RNIap: 38776f86996edea5837ba2a0dfc1e35427191327
@@ -3108,7 +3107,7 @@ SPEC CHECKSUMS:
   SocketRocket: abac6f5de4d4d62d24e11868d7a2f427e0ef940d
   SPAlert: 735da1f16a887e294719217572ce1f936d8c8782
   SPIndicator: 93e0a4fb23de51294ac48e874c0f081a5e293e4f
-  Yoga: 055f92ad73f8c8600a93f0e25ac0b2344c3b07e6
+  Yoga: aa3df615739504eebb91925fc9c58b4922ea9a08
 
 PODFILE CHECKSUM: 44a26264f6cd33442848b186227025ac1a856570
 
