@@ -1,5 +1,5 @@
 import messaging, { FirebaseMessagingTypes } from "@react-native-firebase/messaging"
-import notifee, { AndroidImportance, AndroidLaunchActivityFlag, EventType, TriggerType } from "@notifee/react-native"
+import notifee, { AndroidImportance, EventType, TriggerType } from "@notifee/react-native"
 import { RideState, RideStatus, getStatusEndDate, rideProgress } from "../hooks/use-ride-progress"
 import { RideApi, RouteItem } from "../services/api"
 import { findClosestStationInRoute, getRideStatus, getTrainFromStationId } from "./helpers/ride-helpers"
@@ -93,8 +93,6 @@ const handleLiveRideNotification = async (message: FirebaseMessagingTypes.Remote
         timeoutAfter: 60 * 1000,
         pressAction: {
           id: "default",
-          launchActivity: "com.betterrail.MainActivity",
-          launchActivityFlags: [AndroidLaunchActivityFlag.SINGLE_TOP],
         },
       },
     })
@@ -155,8 +153,6 @@ const handleServiceUpdateNotification = async (message: FirebaseMessagingTypes.R
         smallIcon: "notification_icon",
         pressAction: {
           id: "default",
-          launchActivity: "com.betterrail.MainActivity",
-          launchActivityFlags: [AndroidLaunchActivityFlag.SINGLE_TOP],
         },
       },
     })
@@ -254,8 +250,6 @@ const updateNotification = async (route: RouteItem, state: RideState) => {
       timeoutAfter: state.status === "arrived" ? 3 * 60 * 1000 : undefined,
       pressAction: {
         id: "default",
-        launchActivity: "com.betterrail.MainActivity",
-        launchActivityFlags: [AndroidLaunchActivityFlag.SINGLE_TOP],
       },
     },
   })
