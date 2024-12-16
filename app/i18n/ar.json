@@ -169,7 +169,6 @@
   "announcements": {
     "notifications": {
       "notificationSettings": "إعدادات الإشعارات",
-      "newButtonTitle": "جديد: إعداد الإشعارات",
       "newButtonContent": "استقبل تحديثات حول الأحداث المتعلقة بمحطاتك",
 
       "requestPermissionContent": "السماح لـ Better Rail بإرسال الإشعارات المتعلقة بمحطاتك.",
