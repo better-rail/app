@@ -265,7 +265,6 @@
   "announcements": {
     "notifications": {
       "notificationSettings": "הגדרת נוטפיקציות",
-      "newButtonTitle": "חדש: הגדרת נוטיפיקציות",
       "newButtonContent": "קבלו התראות רלוונטיות לתחנות הקבועות שלכם",
 
       "requestPermissionContent": "אפשרו לבטר רייל לשלוח התראות רלוונטיות לתחנות שלכם",

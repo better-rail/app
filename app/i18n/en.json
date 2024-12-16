@@ -261,7 +261,6 @@
   "announcements": {
     "notifications": {
       "notificationSettings": "Notification Settings",
-      "newButtonTitle": "New: Setup Notifications",
       "newButtonContent": "Receive updates on events related to your stations",
 
       "requestPermissionContent": "Allow Better Rail to send you notifications related to your stations.",

@@ -172,7 +172,6 @@
   "announcements": {
     "notifications": {
       "notificationSettings": "Настройки уведомлений",
-      "newButtonTitle": "Новое: Настройка уведомлений",
       "newButtonContent": "Получайте обновления о событиях, связанных с вашими станциями",
 
       "requestPermissionContent": "Разрешить Better Rail отправлять вам уведомления, связанные с вашими станциями.",
