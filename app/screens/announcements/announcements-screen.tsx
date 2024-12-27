@@ -60,7 +60,7 @@ export const AnnouncementsScreen = observer(function AnnouncementsScreen({ navig
         {!settings.seenNotificationsScreen && (
           <TouchableScale onPress={navigateToNotificationsSetup} activeScale={0.97} friction={10} style={NOTIFICATION_BUTTON}>
             <Text
-              tx="announcements.notifications.newButtonTitle"
+              tx="announcements.notifications.notificationSettings"
               style={{ textAlign: "center", fontSize: 18, color: color.palette.black, fontWeight: "500" }}
             />
 
