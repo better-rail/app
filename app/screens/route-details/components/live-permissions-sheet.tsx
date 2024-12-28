@@ -43,7 +43,7 @@ export const LivePermissionsSheet = observer(
     }
 
     return (
-      <BottomSheetModal ref={ref} enableDynamicSizing>
+      <BottomSheetModal ref={ref}>
         <BottomSheetView style={WRAPPER}>
           <Text tx="ride.notificationPermission1" style={TEXT} />
           <Text tx="ride.notificationPermission2" style={TEXT} />
