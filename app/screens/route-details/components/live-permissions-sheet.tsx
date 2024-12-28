@@ -68,7 +68,7 @@ export const LivePermissionsSheet = observer(
           <Button
             onPress={props.onDone}
             title={translate("liveAnnounce.startRide.title")}
-            containerStyle={{ width: "100%", maxHeight: 60 }}
+            containerStyle={{ width: "100%" }}
             disabled={
               ride.notifeeSettings?.notifications !== AuthorizationStatus.AUTHORIZED ||
               ride.notifeeSettings?.alarms !== AndroidNotificationSetting.ENABLED
