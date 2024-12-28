@@ -9,9 +9,7 @@ import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated"
 import { format } from "date-fns"
 
 import { useStores } from "../../models"
-import { RouteItem } from "../../services/api"
 import { useRideProgress } from "../../hooks/use-ride-progress"
-import { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import { color, spacing } from "../../theme"
 import { RouteDetailsHeader, Screen } from "../../components"
 import {
@@ -23,8 +21,11 @@ import {
   RouteStopCard,
   StartRideButton,
 } from "./components"
-import BottomSheet from "@gorhom/bottom-sheet"
 import { LivePermissionsSheet } from "./components/live-permissions-sheet"
+
+import type { RouteItem } from "../../services/api"
+import type { RouteDetailsScreenProps } from "../../navigators/main-navigator"
+import type BottomSheet from "@gorhom/bottom-sheet"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -37,7 +38,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
 
   // When we present the Live Permissions Sheet we initiate a promise that
   // resolves when all the permissions are given and the user starts a ride
-  const permissionsPromise = useRef<Function>(null)
+  const permissionsPromise = useRef<() => void>(null)
 
   // we re-run this check every time the ride changes
   const isRideOnThisRoute = useMemo(() => ride.isRouteActive(route.params.routeItem), [ride.route])

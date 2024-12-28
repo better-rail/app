@@ -1,6 +1,7 @@
 import { forwardRef } from "react"
-import { Image, PermissionsAndroid, TextStyle, View, ViewStyle } from "react-native"
-import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet"
+import { Image, PermissionsAndroid, View, type TextStyle, type ViewStyle } from "react-native"
+import type BottomSheet from "@gorhom/bottom-sheet"
+import { BottomSheetView } from "@gorhom/bottom-sheet"
 import { Button, Text } from "../../../components"
 import { BottomSheetModal } from "../../../components/sheets/bottom-sheet-modal"
 import { color, spacing } from "../../../theme"
@@ -43,7 +44,7 @@ export const LivePermissionsSheet = observer(
     }
 
     return (
-      <BottomSheetModal ref={ref} enableDynamicSizing>
+      <BottomSheetModal ref={ref}>
         <BottomSheetView style={WRAPPER}>
           <Text tx="ride.notificationPermission1" style={TEXT} />
           <Text tx="ride.notificationPermission2" style={TEXT} />
@@ -67,7 +68,7 @@ export const LivePermissionsSheet = observer(
           <Button
             onPress={props.onDone}
             title={translate("liveAnnounce.startRide.title")}
-            containerStyle={{ width: "100%", maxHeight: 60 }}
+            containerStyle={{ width: "100%" }}
             disabled={
               ride.notifeeSettings?.notifications !== AuthorizationStatus.AUTHORIZED ||
               ride.notifeeSettings?.alarms !== AndroidNotificationSetting.ENABLED
