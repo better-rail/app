@@ -1,5 +1,6 @@
 import React, { useMemo } from "react"
-import { View, TextStyle, ViewStyle, Platform, Image } from "react-native"
+import { View, Platform, Image } from "react-native"
+import type { TextStyle, ViewStyle } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
 import { useStores } from "../../models"
@@ -61,11 +62,11 @@ export const FavoriteRoutes = observer(function FavoriteRoutes(props: FavoriteRo
   const favorites = useMemo(() => {
     if (favoriteRoutes.routes.length === 0) {
       return <EmptyState />
-    } else {
-      return favoriteRoutes.routes.map((route) => (
-        <FavoriteRouteBox {...route} onPress={() => onFavoritePress(route.originId, route.destinationId)} key={route.id} />
-      ))
     }
+
+    return favoriteRoutes.routes.map((route) => (
+      <FavoriteRouteBox {...route} onPress={() => onFavoritePress(route.originId, route.destinationId)} key={route.id} />
+    ))
   }, [])
 
   return (

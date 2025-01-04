@@ -152,6 +152,7 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
           deleteRoute()
         }
       }}
+      previewConfig={{ borderRadius: 6 }}
       menuConfig={{
         menuTitle: "",
         menuItems: [
@@ -182,7 +183,7 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
         friction={8}
         tension={Platform.select({ ios: 8, android: undefined })}
         onPress={onPress}
-        onLongPress={onLongPress}
+        onLongPress={Platform.OS === "android" ? onLongPress : undefined}
       >
         <View style={CONTAINER}>
           <ImageBackground source={stationImage} style={IMAGE_BACKGROUND} blurRadius={6} />

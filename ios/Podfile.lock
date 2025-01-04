@@ -609,6 +609,11 @@ PODS:
     - SPIndicator (~> 1.6)
   - BVLinearGradient (2.8.3):
     - React-Core
+  - ComputableLayout (0.7.0):
+    - DGSwiftUtilities (~> 0.11)
+  - ContextMenuAuxiliaryPreview (0.5.2):
+    - DGSwiftUtilities (~> 0.29)
+  - DGSwiftUtilities (0.46.3)
   - DoubleConversion (1.1.6)
   - Expo (51.0.31):
     - ExpoModulesCore
@@ -2087,8 +2092,55 @@ PODS:
     - React-Core
   - react-native-in-app-review (4.3.3):
     - React-Core
-  - react-native-ios-context-menu (1.15.3):
+  - react-native-ios-context-menu (3.0.0-23):
+    - ContextMenuAuxiliaryPreview (~> 0.5)
+    - DGSwiftUtilities
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
     - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - react-native-ios-utilities
+    - React-NativeModulesApple
+    - React-RCTAppDelegate
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
+  - react-native-ios-utilities (5.0.0-59):
+    - ComputableLayout (~> 0.7)
+    - DGSwiftUtilities (~> 0.46)
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTAppDelegate
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - react-native-netinfo (9.3.7):
     - React-Core
   - react-native-restart (0.0.27):
@@ -2685,6 +2737,7 @@ DEPENDENCIES:
   - react-native-date-picker (from `../node_modules/react-native-date-picker`)
   - react-native-in-app-review (from `../node_modules/react-native-in-app-review`)
   - react-native-ios-context-menu (from `../node_modules/react-native-ios-context-menu`)
+  - react-native-ios-utilities (from `../node_modules/react-native-ios-utilities`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-restart (from `../node_modules/react-native-restart`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -2746,6 +2799,9 @@ SPEC REPOS:
   trunk:
     - abseil
     - BoringSSL-GRPC
+    - ComputableLayout
+    - ContextMenuAuxiliaryPreview
+    - DGSwiftUtilities
     - Firebase
     - FirebaseAnalytics
     - FirebaseAuth
@@ -2866,6 +2922,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-in-app-review"
   react-native-ios-context-menu:
     :path: "../node_modules/react-native-ios-context-menu"
+  react-native-ios-utilities:
+    :path: "../node_modules/react-native-ios-utilities"
   react-native-netinfo:
     :path: "../node_modules/@react-native-community/netinfo"
   react-native-restart:
@@ -2985,6 +3043,9 @@ SPEC CHECKSUMS:
   BoringSSL-GRPC: 3175b25143e648463a56daeaaa499c6cb86dad33
   Burnt: dde5dd245f124a4594098e3938ba71aae4ec83c3
   BVLinearGradient: 880f91a7854faff2df62518f0281afb1c60d49a3
+  ComputableLayout: c50faffac4ed9f8f05b0ce5e6f3a60df1f6042c8
+  ContextMenuAuxiliaryPreview: 20be0be795b783b68f8792732eed4bed9f202c1c
+  DGSwiftUtilities: 2f0d35d5ff3d57bd70ccc42f15971460db202c41
   DoubleConversion: 76ab83afb40bddeeee456813d9c04f67f78771b5
   Expo: 4773e11951abd0f666f67023f0cb1d48c3e8a32b
   ExpoLocalization: f04eeec2e35bed01ab61c72ee1768ec04d093d01
@@ -3049,7 +3110,8 @@ SPEC CHECKSUMS:
   react-native-blur: cfdad7b3c01d725ab62a8a729f42ea463998afa2
   react-native-date-picker: 89c419d88fa8e3c5f2d3cbae0bb7f7454ae8ea55
   react-native-in-app-review: db8bb167a5f238e7ceca5c242d6b36ce8c4404a4
-  react-native-ios-context-menu: e529171ba760a1af7f2ef0729f5a7f4d226171c5
+  react-native-ios-context-menu: dcefecc663a5bdb28118aa58bdf604df658f2e73
+  react-native-ios-utilities: 6a47e280897338c9d9d2dccc10f576af76cd2b7c
   react-native-netinfo: 2517ad504b3d303e90d7a431b0fcaef76d207983
   react-native-restart: 7595693413fe3ca15893702f2c8306c62a708162
   react-native-safe-area-context: ab8f4a3d8180913bd78ae75dd599c94cce3d5e9a
