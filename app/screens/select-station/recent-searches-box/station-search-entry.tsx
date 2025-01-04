@@ -1,5 +1,6 @@
 import React from "react"
-import { View, Image, ViewStyle, ImageStyle, ImageSourcePropType, Appearance, Platform } from "react-native"
+import { View, Image, Appearance, Platform } from "react-native"
+import type { ViewStyle, ImageStyle, TextStyle, ImageSourcePropType } from "react-native"
 import { ContextMenuView } from "react-native-ios-context-menu"
 import TouchableScale from "react-native-touchable-scale"
 import { Text } from "../../../components"
