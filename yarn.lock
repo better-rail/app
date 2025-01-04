@@ -16162,12 +16162,17 @@ react-native-inappbrowser-reborn@^3.7.0:
     invariant "^2.2.4"
     opencollective-postinstall "^2.0.3"
 
-react-native-ios-context-menu@1.15.3:
-  version "1.15.3"
-  resolved "https://registry.yarnpkg.com/react-native-ios-context-menu/-/react-native-ios-context-menu-1.15.3.tgz#c02e6a7af2df8c08d0b3e1c8f3395484b3c9c760"
-  integrity sha512-UNkVl7ocvSpNaEpvBvE1aHOfDy/DFdZ5I+ElfnTXFsRxrVZmxLtST0b1q2wSWGWDmd2Ig2AYd7GRbYtcY222Ag==
+react-native-ios-context-menu@^3.0.0-23:
+  version "3.0.0-23"
+  resolved "https://registry.yarnpkg.com/react-native-ios-context-menu/-/react-native-ios-context-menu-3.0.0-23.tgz#f97e432697652057b9caa81d658c63f8242e3841"
+  integrity sha512-gpjys1y59uU4MYuNTTQv9npTKnjafn7UJxV67984xSWL1OWSoKmhLvLJsAEj+271+ccZSA/T4qxA3MScZY7E6g==
   dependencies:
     "@dominicstop/ts-event-emitter" "^1.1.0"
+
+react-native-ios-utilities@^5.0.0-59:
+  version "5.0.0-59"
+  resolved "https://registry.yarnpkg.com/react-native-ios-utilities/-/react-native-ios-utilities-5.0.0-59.tgz#280d040917efe1cef7e64444cd4787755edc89da"
+  integrity sha512-HZ+A3Dow7ACucHOV6avbEndnwAM/SUaayloud0DrOeMxFycSlWliRxzETWOF44CK2Ee81edSc+JHF97L1y84Fw==
 
 react-native-linear-gradient@^2.5.6:
   version "2.8.3"
