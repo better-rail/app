@@ -63,6 +63,7 @@ export const StationSearchEntry = (props: StationSearchEntryProps) => (
           props.onHide()
         }
       }}
+      previewConfig={{ borderRadius: 6 }}
       menuConfig={{
         menuTitle: props.name,
         menuItems: [

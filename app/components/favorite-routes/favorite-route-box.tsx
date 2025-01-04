@@ -152,6 +152,7 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
           deleteRoute()
         }
       }}
+      previewConfig={{ borderRadius: 6 }}
       menuConfig={{
         menuTitle: "",
         menuItems: [
