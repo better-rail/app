@@ -14,7 +14,6 @@ const SEARCH_ENTRY_WRAPPER: ViewStyle = {
 }
 
 const SEARCH_ENTRY_IMAGE_WRAPPER: ViewStyle = {
-  marginBottom: spacing[1],
   shadowOffset: { width: 0, height: 0 },
   shadowColor: "rgba(0,0,0,.3)",
   shadowRadius: 1.5,
@@ -27,6 +26,10 @@ const SEARCH_ENTRY_IMAGE: ImageStyle = {
   width: 175,
   height: 125,
   borderRadius: Platform.select({ ios: 6, android: 4 }),
+}
+
+const SEARCH_ENTRY_TEXT: TextStyle = {
+  marginTop: spacing[1],
 }
 
 const EMPTY_CARD_WRAPPER: ViewStyle = {
@@ -88,6 +91,6 @@ export const StationSearchEntry = (props: StationSearchEntryProps) => (
         )}
       </View>
     </ContextMenuView>
-    <Text>{props.name}</Text>
+    <Text style={SEARCH_ENTRY_TEXT}>{props.name}</Text>
   </TouchableScale>
 )
