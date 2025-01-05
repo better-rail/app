@@ -11,7 +11,7 @@ import { Chip, Text } from "../../components"
 import { useStores } from "../../models"
 import { isRTL, translate, userLocale } from "../../i18n"
 import { ImportantAnnouncementBar } from "./Important-announcement-bar"
-import { PopUpMessage, railApi } from "../../services/api"
+import { railApi } from "../../services/api"
 import { useQuery } from "react-query"
 import { head, isEmpty } from "lodash"
 
@@ -53,7 +53,7 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
   const navigation = useNavigation<NavigationProps>()
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
 
-  const { data: popupMessages } = useQuery<PopUpMessage[]>(["announcements", "urgent"], () => {
+  const { data: popupMessages } = useQuery(["announcements", "urgent"], () => {
     return railApi.getPopupMessages(userLocale)
   })
 
