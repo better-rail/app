@@ -5,11 +5,10 @@
  * You'll likely spend most of your time in this file.
  */
 import React from "react"
-import { StackScreenProps, TransitionPresets } from "@react-navigation/stack"
+import { createStackNavigator, TransitionPresets, type StackScreenProps } from "@react-navigation/stack"
 import { PlannerScreen, SelectStationScreen, RouteListScreen, RouteDetailsScreen } from "../screens"
-import { createSharedElementStackNavigator } from "react-navigation-shared-element"
 import { color, typography } from "../theme"
-import { RouteItem } from "../services/api"
+import type { RouteItem } from "../services/api"
 import { Platform } from "react-native"
 
 /**
@@ -38,7 +37,7 @@ export type RouteListScreenProps = StackScreenProps<PrimaryParamList, "routeList
 export type RouteDetailsScreenProps = StackScreenProps<PrimaryParamList, "routeDetails">
 
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
-const Stack = createSharedElementStackNavigator<PrimaryParamList>()
+const Stack = createStackNavigator<PrimaryParamList>()
 
 export function MainNavigator() {
   return (
@@ -71,7 +70,6 @@ export function MainNavigator() {
         name="routeDetails"
         component={RouteDetailsScreen}
         options={{ headerTransparent: true, headerTintColor: "lightgrey", ...TransitionPresets.SlideFromRightIOS }}
-        sharedElements={() => Platform.select({ ios: ["route-header"], android: [] })}
       />
     </Stack.Navigator>
   )
