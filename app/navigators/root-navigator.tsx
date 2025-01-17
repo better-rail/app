@@ -50,7 +50,12 @@ export const RootNavigator = React.forwardRef<NavigationContainerRef, Partial<Re
     const colorScheme = useColorScheme()
 
     return (
-      <NavigationContainer {...props} ref={ref} theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <NavigationContainer
+        {...props}
+        ref={ref}
+        theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+        navigationInChildEnabled
+      >
         <RootStack />
       </NavigationContainer>
     )
