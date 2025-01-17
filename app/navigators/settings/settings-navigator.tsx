@@ -22,7 +22,7 @@ export const SettingsNavigator = () => (
   <SettingsStack.Navigator
     screenOptions={{
       headerTintColor: color.primary,
-      headerBackTitleVisible: false,
+      headerBackButtonDisplayMode: "minimal",
       headerStatusBarHeight: Platform.select({ ios: 10, android: 5 }),
     }}
   >

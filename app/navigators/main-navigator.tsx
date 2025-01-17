@@ -43,7 +43,7 @@ export function MainNavigator() {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerBackTitleVisible: false,
+        headerBackButtonDisplayMode: "minimal",
         headerTitleStyle: {
           fontSize: 20,
           fontFamily: typography.primary,
