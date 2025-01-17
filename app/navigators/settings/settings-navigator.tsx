@@ -1,18 +1,11 @@
 import React from "react"
-import { Platform, TextStyle } from "react-native"
-import { createStackNavigator, StackScreenProps } from "@react-navigation/stack"
+import { Platform, type TextStyle } from "react-native"
+import { createStackNavigator, type StackScreenProps } from "@react-navigation/stack"
 import { SettingsScreen, LanguageScreen, TipJarScreen, AboutScreen, PrivacyScreen } from "../../screens"
 import { color, spacing, typography } from "../../theme"
 import { translate } from "../../i18n"
 import { CloseButton } from "../../components"
-
-export type SettingsParamList = {
-  settings: undefined
-  language: undefined
-  tipJar: undefined
-  about: undefined
-  privacy: undefined
-}
+import { createNativeStackNavigator } from "@react-navigation/native-stack"
 
 const SettingsStack = createStackNavigator<SettingsParamList>()
 
@@ -82,6 +75,6 @@ const iOSTitleStyle: TextStyle = {
   marginBottom: 10,
 }
 
-const androidTitleStyle: TextStyle = { marginLeft: -18.5, marginBottom: 7.5 }
+const androidTitleStyle: TextStyle = { marginLeft: -6, marginBottom: 7.5 }
 
 const headerTitleStyle = Platform.select({ ios: iOSTitleStyle, android: androidTitleStyle })
