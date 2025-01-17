@@ -5,11 +5,11 @@
  * You'll likely spend most of your time in this file.
  */
 import React from "react"
-import { StackScreenProps, TransitionPresets } from "@react-navigation/stack"
+import type { StackScreenProps, TransitionPresets } from "@react-navigation/stack"
 import { PlannerScreen, SelectStationScreen, RouteListScreen, RouteDetailsScreen } from "../screens"
 import { createSharedElementStackNavigator } from "react-navigation-shared-element"
 import { color, typography } from "../theme"
-import { RouteItem } from "../services/api"
+import type { RouteItem } from "../services/api"
 import { Platform } from "react-native"
 
 /**
