@@ -3454,8 +3454,6 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNSharedElement (0.8.9):
-    - React-Core
   - RNSVG (15.11.1):
     - DoubleConversion
     - glog
@@ -3609,7 +3607,6 @@ DEPENDENCIES:
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNShare (from `../node_modules/react-native-share`)
-  - RNSharedElement (from `../node_modules/react-native-shared-element`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNWatch (from `../node_modules/react-native-watch-connectivity`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
@@ -3854,8 +3851,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-screens"
   RNShare:
     :path: "../node_modules/react-native-share"
-  RNSharedElement:
-    :path: "../node_modules/react-native-shared-element"
   RNSVG:
     :path: "../node_modules/react-native-svg"
   RNWatch:
@@ -3996,7 +3991,6 @@ SPEC CHECKSUMS:
   RNReanimated: bbfc101f2f9f69e403c581a4dd8ddfec31134e15
   RNScreens: f493b156fe5de2434806b5a2c410800b2cd76c0e
   RNShare: 0cc7cc40681d2a858390552cf8b757f9bb4d460c
-  RNSharedElement: 3fd05877bd6bc95f71b332801bf4356ca69ab7f6
   RNSVG: 3cd6669b7ad658c8b482db630dccf364c3b59cfb
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748

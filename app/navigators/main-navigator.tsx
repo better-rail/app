@@ -5,9 +5,8 @@
  * You'll likely spend most of your time in this file.
  */
 import React from "react"
-import type { StackScreenProps, TransitionPresets } from "@react-navigation/stack"
+import { createStackNavigator, type StackScreenProps, type TransitionPresets } from "@react-navigation/stack"
 import { PlannerScreen, SelectStationScreen, RouteListScreen, RouteDetailsScreen } from "../screens"
-import { createSharedElementStackNavigator } from "react-navigation-shared-element"
 import { color, typography } from "../theme"
 import type { RouteItem } from "../services/api"
 import { Platform } from "react-native"
@@ -38,7 +37,7 @@ export type RouteListScreenProps = StackScreenProps<PrimaryParamList, "routeList
 export type RouteDetailsScreenProps = StackScreenProps<PrimaryParamList, "routeDetails">
 
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
-const Stack = createSharedElementStackNavigator<PrimaryParamList>()
+const Stack = createStackNavigator<PrimaryParamList>()
 
 export function MainNavigator() {
   return (
