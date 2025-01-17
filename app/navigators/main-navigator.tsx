@@ -5,7 +5,7 @@
  * You'll likely spend most of your time in this file.
  */
 import React from "react"
-import { createStackNavigator, type StackScreenProps, type TransitionPresets } from "@react-navigation/stack"
+import { createStackNavigator, TransitionPresets, type StackScreenProps } from "@react-navigation/stack"
 import { PlannerScreen, SelectStationScreen, RouteListScreen, RouteDetailsScreen } from "../screens"
 import { color, typography } from "../theme"
 import type { RouteItem } from "../services/api"
@@ -70,7 +70,6 @@ export function MainNavigator() {
         name="routeDetails"
         component={RouteDetailsScreen}
         options={{ headerTransparent: true, headerTintColor: "lightgrey", ...TransitionPresets.SlideFromRightIOS }}
-        sharedElements={() => Platform.select({ ios: ["route-header"], android: [] })}
       />
     </Stack.Navigator>
   )
