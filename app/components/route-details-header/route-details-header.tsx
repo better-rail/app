@@ -1,5 +1,5 @@
 /* eslint-disable react/display-name */
-import React, { useMemo, useLayoutEffect, useRef, useEffect } from "react"
+import React, { useLayoutEffect, useRef, useEffect } from "react"
 import {
   Image,
   ImageBackground,
@@ -27,6 +27,7 @@ import * as Burnt from "burnt"
 import * as AddCalendarEvent from "react-native-add-calendar-event"
 import { CalendarIcon } from "../calendar-icon/calendar-icon"
 import { RouteItem } from "../../services/api"
+import { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types"
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableScale)
 
@@ -101,22 +102,27 @@ const HEADER_RIGHT_WRAPPER: ViewStyle = {
 export interface RouteDetailsHeaderProps {
   originId: string
   destinationId: string
-  routeItem: RouteItem
+  routeItem?: RouteItem
   /**
    * The screen name we're displaying the header inside
    */
   screenName?: "routeList" | "routeDetails" | "activeRide"
   style?: ViewStyle
   eventConfig?: AddCalendarEvent.CreateOptions
+  stationHoursSheetRef?: React.MutableRefObject<BottomSheetMethods>
 }
 
 export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
-  const { routeItem, originId, destinationId, screenName, style } = props
+  const { routeItem, originId, destinationId, screenName, style, stationHoursSheetRef } = props
   const { favoriteRoutes, routePlan } = useStores()
   const navigation = useNavigation()
 
   const routeEditDisabled = props.screenName !== "routeList"
   const stationCardScale = useRef(new Animated.Value(1)).current
+
+  const openStationHoursSheet = () => {
+    stationHoursSheetRef?.current?.expand()
+  }
 
   const addToCalendar = () => {
     analytics().logEvent("add_route_to_calendar")
@@ -207,6 +213,11 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
                   }
                 }}
               />
+            )}
+            {stationHoursSheetRef && (
+              <Text onPress={openStationHoursSheet} style={{ color: "white", marginLeft: spacing[2] }}>
+                🕒
+              </Text>
             )}
           </View>
         ),
