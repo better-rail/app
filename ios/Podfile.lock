@@ -1164,11 +1164,11 @@ PODS:
     - DGSwiftUtilities (~> 0.29)
   - DGSwiftUtilities (0.46.3)
   - DoubleConversion (1.1.6)
-  - Expo (51.0.39):
+  - Expo (52.0.25):
     - ExpoModulesCore
   - ExpoLocalization (15.0.3):
     - ExpoModulesCore
-  - ExpoModulesCore (1.12.26):
+  - ExpoModulesCore (2.1.3):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -3873,9 +3873,9 @@ SPEC CHECKSUMS:
   ContextMenuAuxiliaryPreview: 20be0be795b783b68f8792732eed4bed9f202c1c
   DGSwiftUtilities: 2f0d35d5ff3d57bd70ccc42f15971460db202c41
   DoubleConversion: f16ae600a246532c4020132d54af21d0ddb2a385
-  Expo: 8c995afb875c15bf8439af0b20bcb9ed8f90d0bd
+  Expo: 377cc60ce8c9030cf52e36987ab3ce099ab9006e
   ExpoLocalization: f04eeec2e35bed01ab61c72ee1768ec04d093d01
-  ExpoModulesCore: 678750026911e2a8292c458177a4b18ffa69c797
+  ExpoModulesCore: b8cf31b6555210d2455ba77d8812bfa6508a6119
   FBLazyVector: be509404b5de73a64a74284edcaf73a5d1e128b1
   Firebase: 7a56fe4f56b5ab81b86a6822f5b8f909ae6fc7e2
   FirebaseAnalytics: 2f4a11eeb7a0e9c6fcf642d4e6aaca7fa4d38c28
