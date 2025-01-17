@@ -93,7 +93,7 @@
     "react-native-screens": "^3.34.0",
     "react-native-share": "^11.0.3",
     "react-native-shared-element": "^0.8.9",
-    "react-native-svg": "13.4.0",
+    "react-native-svg": "^15.11.1",
     "react-native-touchable-scale": "2.2.0",
     "react-native-video": "^6.5.0",
     "react-native-watch-connectivity": "1.1.0",
