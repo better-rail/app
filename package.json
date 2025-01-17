@@ -73,7 +73,7 @@
     "react-native-date-picker": "4.2.10",
     "react-native-default-preference": "^1.4.4",
     "react-native-device-info": "10.6.0",
-    "react-native-gesture-handler": "2.20.0",
+    "react-native-gesture-handler": "^2.22.0",
     "react-native-haptic-feedback": "^2.3.3",
     "react-native-iap": "^12.15.4",
     "react-native-in-app-review": "4.3.3",
