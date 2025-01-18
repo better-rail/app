@@ -54,7 +54,9 @@ export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
   const insets = useSafeAreaInsets()
 
   const finish = () => {
-    navigation.navigate("planner")
+    navigation.popTo("mainStack", {
+      screen: "planner",
+    })
     storage.save("seenLiveAnnouncement", new Date().toISOString())
   }
 
