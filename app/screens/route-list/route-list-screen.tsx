@@ -1,5 +1,6 @@
 import React, { useMemo } from "react"
 import { View, ActivityIndicator, ViewStyle, Dimensions } from "react-native"
+import Animated from "react-native-reanimated"
 import { FlashList } from "@shopify/flash-list"
 import { observer } from "mobx-react-lite"
 import { useNetInfo } from "@react-native-community/netinfo"
@@ -121,12 +122,14 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
       statusBarBackgroundColor="transparent"
       translucent
     >
-      <RouteDetailsHeader
-        screenName="routeList"
-        originId={route.params.originId}
-        destinationId={route.params.destinationId}
-        style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
-      />
+      <Animated.View sharedTransitionTag="route-header">
+        <RouteDetailsHeader
+          screenName="routeList"
+          originId={route.params.originId}
+          destinationId={route.params.destinationId}
+          style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
+        />
+      </Animated.View>
 
       {!isInternetReachable && !trains.data && <RouteListError errorType="no-internet" />}
 

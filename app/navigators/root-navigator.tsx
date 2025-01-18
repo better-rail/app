@@ -1,6 +1,6 @@
 import React from "react"
 import { useColorScheme } from "react-native"
-import { NavigationContainer, NavigationContainerRef, DefaultTheme, DarkTheme } from "@react-navigation/native"
+import { NavigationContainer, type NavigationContainerRef, DefaultTheme, DarkTheme } from "@react-navigation/native"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { MainNavigator } from "./main-navigator"
 import { SettingsNavigator } from "./settings/settings-navigator"

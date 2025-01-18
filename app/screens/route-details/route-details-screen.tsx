@@ -89,13 +89,15 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
         statusBarBackgroundColor="transparent"
         translucent
       >
-        <RouteDetailsHeader
-          routeItem={routeItem}
-          originId={route.params.originId}
-          destinationId={route.params.destinationId}
-          screenName={route.name}
-          style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
-        />
+        <Animated.View sharedTransitionTag="route-header">
+          <RouteDetailsHeader
+            routeItem={routeItem}
+            originId={route.params.originId}
+            destinationId={route.params.destinationId}
+            screenName={route.name}
+            style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
+          />
+        </Animated.View>
 
         <ScrollView
           contentContainerStyle={{ paddingTop: spacing[4], paddingBottom: 80 + insets.bottom }}

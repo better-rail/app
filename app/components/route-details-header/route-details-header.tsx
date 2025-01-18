@@ -1,5 +1,5 @@
 /* eslint-disable react/display-name */
-import React, { useMemo, useLayoutEffect, useRef, useEffect } from "react"
+import React, { useLayoutEffect, useRef, useEffect } from "react"
 import {
   Image,
   ImageBackground,
@@ -9,7 +9,7 @@ import {
   ImageStyle,
   Alert,
   Linking,
-  Animated,
+  Animated as RNAnimated,
   TouchableOpacity,
 } from "react-native"
 import TouchableScale from "react-native-touchable-scale"
@@ -26,9 +26,10 @@ import { useStores } from "../../models"
 import * as Burnt from "burnt"
 import * as AddCalendarEvent from "react-native-add-calendar-event"
 import { CalendarIcon } from "../calendar-icon/calendar-icon"
-import { RouteItem } from "../../services/api"
+import type { RouteItem } from "../../services/api"
+import Animated from "react-native-reanimated"
 
-const AnimatedTouchable = Animated.createAnimatedComponent(TouchableScale)
+const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale)
 
 const arrowIcon = require("../../../assets/arrow-left.png")
 
@@ -116,7 +117,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   const navigation = useNavigation()
 
   const routeEditDisabled = props.screenName !== "routeList"
-  const stationCardScale = useRef(new Animated.Value(1)).current
+  const stationCardScale = useRef(new RNAnimated.Value(1)).current
 
   const addToCalendar = () => {
     analytics().logEvent("add_route_to_calendar")
@@ -169,13 +170,13 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   }, [routePlan.origin.id, routePlan.destination.id])
 
   const scaleStationCards = () => {
-    Animated.sequence([
-      Animated.timing(stationCardScale, {
+    RNAnimated.sequence([
+      RNAnimated.timing(stationCardScale, {
         toValue: 0.94,
         duration: 175,
         useNativeDriver: true,
       }),
-      Animated.timing(stationCardScale, {
+      RNAnimated.timing(stationCardScale, {
         toValue: 1,
         duration: 175,
         useNativeDriver: true,
@@ -189,9 +190,10 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
         headerRight: () => (
           <View style={HEADER_RIGHT_WRAPPER}>
             {screenName === "routeDetails" ? (
-              <CalendarIcon onPress={addToCalendar} style={{ marginEnd: spacing[2] }} />
+              <CalendarIcon onPress={addToCalendar} style={{ marginEnd: -1 * spacing[3] }} />
             ) : (
               <StarIcon
+                style={{ marginEnd: -1 * spacing[3] }}
                 filled={isFavorite}
                 onPress={() => {
                   const favorite = { id: routeId, originId, destinationId }
@@ -214,7 +216,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   }, [isFavorite, routeId])
 
   return (
-    <View>
+    <>
       <ImageBackground
         source={stationsObject[originId].image}
         style={{ width: "100%", height: screenName !== "activeRide" ? 200 : 155, zIndex: 0 }}
@@ -257,7 +259,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
           </AnimatedTouchable>
         </View>
       </View>
-    </View>
+    </>
   )
 })
 

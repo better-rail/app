@@ -17,7 +17,7 @@ export const WidgetOnboardingNavigator = () => (
   <WidgetOnboardingStack.Navigator
     screenOptions={({ navigation }) => ({
       headerTransparent: true,
-      headerBackTitleVisible: false,
+      headerBackButtonDisplayMode: "minimal",
       headerTintColor: "#ffffff55",
       title: "",
     })}
