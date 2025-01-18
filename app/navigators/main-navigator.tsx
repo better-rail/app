@@ -51,7 +51,7 @@ export function MainNavigator() {
           marginBottom: Platform.select({ android: 2.5, ios: 0 }),
         },
         headerBackTitleStyle: { fontFamily: typography.primary },
-        headerTintColor: color.primary,
+        headerTintColor: color.primary as unknown as string,
         headerTitle: "",
       }}
     >
