@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from "react"
+import React, { useEffect, useMemo, useRef } from "react"
 import { View, ActivityIndicator, ViewStyle, Dimensions } from "react-native"
 import Animated from "react-native-reanimated"
 import { FlashList } from "@shopify/flash-list"
@@ -26,6 +26,12 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   const { originId, destinationId, time, enableQuery } = route.params
 
   const stationHoursSheetRef = useRef<BottomSheet>(null)
+
+  useEffect(() => {
+    setTimeout(() => {
+      stationHoursSheetRef.current?.expand()
+    }, 1000)
+  }, [route.params.originId])
 
   const { isInternetReachable } = useNetInfo()
   const trains = useQuery(

@@ -2,7 +2,7 @@ import { forwardRef } from "react"
 import { View, type ViewStyle } from "react-native"
 import type BottomSheet from "@gorhom/bottom-sheet"
 import { BottomSheetView } from "@gorhom/bottom-sheet"
-import { Text } from "../../../components"
+import { Chip, Text } from "../../../components"
 import { BottomSheetModal } from "../../../components/sheets/bottom-sheet-modal"
 import { color, spacing } from "../../../theme"
 import { observer } from "mobx-react-lite"
@@ -32,8 +32,11 @@ export const StationHoursSheet = observer(
     })
 
     return (
-      <BottomSheetModal ref={ref}>
+      <BottomSheetModal snapPoints={["50%"]} ref={ref}>
         <BottomSheetView style={WRAPPER}>
+          <Chip variant="transparent" onPress={() => {}}>
+            <Text>hi</Text>
+          </Chip>
           {isLoading ? (
             <Text>טוען...</Text>
           ) : (
