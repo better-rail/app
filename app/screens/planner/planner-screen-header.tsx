@@ -106,12 +106,12 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
             </Chip>
           )}
 
-          {displayNewBadge && !showUrgentBar && (
-            <Chip color="primary" onPress={() => navigation.navigate("liveAnnouncementStack")}>
-              <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
-              <Text style={{ color: "white", fontWeight: "500" }} tx="common.new" />
-            </Chip>
-          )}
+          {/* {displayNewBadge && !showUrgentBar && ( */}
+          <Chip color="primary" onPress={() => navigation.navigate("liveAnnouncementStack")}>
+            <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
+            <Text style={{ color: "white", fontWeight: "500" }} tx="common.new" />
+          </Chip>
+          {/* )} */}
         </View>
         <TouchableOpacity onPress={openAnnouncements} activeOpacity={0.8} accessibilityLabel={translate("routes.updates")}>
           <Image source={UPDATES_ICON} style={[HEADER_ICON_IMAGE]} />

@@ -31,7 +31,7 @@ export const LiveAnnouncementNavigator = () => (
           if (Platform.OS === "android") return null
           return (
             <CloseButton
-              onPress={() => navigation.navigate("planner")}
+              onPress={() => navigation.popTo("mainStack", { screen: "planner" })}
               iconStyle={{
                 width: 32.5,
                 height: 32.5,

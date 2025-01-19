@@ -1,9 +1,9 @@
 import React, { useMemo, useRef } from "react"
 import { View, ActivityIndicator, ViewStyle, Dimensions } from "react-native"
+import Animated from "react-native-reanimated"
 import { FlashList } from "@shopify/flash-list"
 import { observer } from "mobx-react-lite"
 import { useNetInfo } from "@react-native-community/netinfo"
-import { SharedElement } from "react-navigation-shared-element"
 import { useQuery } from "react-query"
 import { closestIndexTo } from "date-fns"
 import { RouteListScreenProps } from "../../navigators/main-navigator"
@@ -130,7 +130,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
       statusBarBackgroundColor="transparent"
       translucent
     >
-      <SharedElement id="route-header">
+      <Animated.View sharedTransitionTag="route-header">
         <RouteDetailsHeader
           screenName="routeList"
           originId={route.params.originId}
@@ -138,7 +138,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
           stationHoursSheetRef={stationHoursSheetRef}
         />
-      </SharedElement>
+      </Animated.View>
 
       {!isInternetReachable && !trains.data && <RouteListError errorType="no-internet" />}
 

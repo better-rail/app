@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useRef, useState } from "react"
 import { Platform, View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { SharedElement } from "react-navigation-shared-element"
 import { ScrollView } from "react-native-gesture-handler"
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated"
 import { format } from "date-fns"
@@ -90,7 +89,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
         statusBarBackgroundColor="transparent"
         translucent
       >
-        <SharedElement id="route-header">
+        <Animated.View sharedTransitionTag="route-header">
           <RouteDetailsHeader
             routeItem={routeItem}
             originId={route.params.originId}
@@ -98,7 +97,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
             screenName={route.name}
             style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
           />
-        </SharedElement>
+        </Animated.View>
 
         <ScrollView
           contentContainerStyle={{ paddingTop: spacing[4], paddingBottom: 80 + insets.bottom }}

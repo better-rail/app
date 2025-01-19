@@ -51,6 +51,7 @@ import { enableScreens } from "react-native-screens"
 import { monitorLiveActivities } from "./utils/ios-helpers"
 import { useDeepLinking } from "./hooks/use-deep-linking"
 import { openActiveRide } from "./utils/helpers/ride-helpers"
+import { GestureHandlerRootView } from "react-native-gesture-handler"
 enableScreens()
 
 export const queryClient = new QueryClient()
@@ -184,16 +185,22 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <RootStoreProvider value={rootStore}>
-        <ActionSheetProvider>
-          <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-            {__DEV__ ? (
-              // Use navigation persistence for development
-              <RootNavigator ref={navigationRef} initialState={initialNavigationState} onStateChange={onNavigationStateChange} />
-            ) : (
-              <RootNavigator ref={navigationRef} />
-            )}
-          </SafeAreaProvider>
-        </ActionSheetProvider>
+        <GestureHandlerRootView>
+          <ActionSheetProvider>
+            <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+              {__DEV__ ? (
+                // Use navigation persistence for development
+                <RootNavigator
+                  ref={navigationRef}
+                  initialState={initialNavigationState}
+                  onStateChange={onNavigationStateChange}
+                />
+              ) : (
+                <RootNavigator ref={navigationRef} />
+              )}
+            </SafeAreaProvider>
+          </ActionSheetProvider>
+        </GestureHandlerRootView>
       </RootStoreProvider>
     </QueryClientProvider>
   )
