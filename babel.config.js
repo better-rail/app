@@ -11,7 +11,6 @@ module.exports = {
       },
     ],
     ["@babel/plugin-proposal-optional-catch-binding"],
-    ["react-native-unistyles/plugin"],
     "react-native-reanimated/plugin",
   ],
 }
