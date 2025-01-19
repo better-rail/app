@@ -1,4 +1,4 @@
-import { TouchableOpacity, ViewStyle } from "react-native"
+import { TouchableOpacity, type ViewStyle } from "react-native"
 import { color, fontScale, spacing } from "../../theme"
 
 const CHIP_WRAPPER: ViewStyle = {
@@ -9,22 +9,22 @@ const CHIP_WRAPPER: ViewStyle = {
   borderRadius: 30,
 }
 
-const COLORS = {
+const VARIANTS = {
   success: color.success,
   primary: color.primary,
 }
 
 interface ChipProps {
   children: React.ReactNode
-  color: keyof typeof COLORS
+  variant: keyof typeof VARIANTS
   onPress: () => void
   icon?: React.ReactNode
   style?: ViewStyle
 }
 
-export function Chip({ children, color, onPress, style }: ChipProps) {
+export function Chip({ children, variant, onPress, style }: ChipProps) {
   return (
-    <TouchableOpacity style={[CHIP_WRAPPER, { backgroundColor: COLORS[color] }, style]} onPress={onPress}>
+    <TouchableOpacity style={[CHIP_WRAPPER, { backgroundColor: VARIANTS[variant] }, style]} onPress={onPress}>
       {children}
     </TouchableOpacity>
   )
