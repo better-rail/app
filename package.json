@@ -85,7 +85,7 @@
     "react-native-material-tabs": "^4.2.0",
     "react-native-modal": "13.0.1",
     "react-native-modal-datetime-picker": "9.2.1",
-    "react-native-nitro-modules": "0.18.2",
+    "react-native-nitro-modules": "^0.21.0",
     "react-native-prompt-android": "^1.1.0",
     "react-native-push-notification": "^8.1.1",
     "react-native-quick-actions-shortcuts": "1.0.2",
