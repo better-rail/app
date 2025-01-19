@@ -44,12 +44,14 @@ export const StationHoursSheet = observer(
                   {gate.gateActivityHours
                     .filter((activityHour) => activityHour.activityHoursType === 1)
                     .map((activityHour) => (
-                      <>
+                      <View
+                        key={`${gate.stationGateId}-${activityHour.activityHoursType}-${activityHour.startHour}-${activityHour.endHour}`}
+                      >
                         <Text>{convertDaysToAbbreviation(activityHour.activityDaysNumbers)}</Text>
                         <Text>
                           {activityHour.startHour} {"->"} {activityHour.endHour}
                         </Text>
-                      </>
+                      </View>
                     ))}
                 </View>
               ))}
