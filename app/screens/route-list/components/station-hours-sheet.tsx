@@ -32,7 +32,7 @@ export const StationHoursSheet = observer(
     })
 
     return (
-      <BottomSheetModal ref={ref}>
+      <BottomSheetModal ref={ref} snapPoints={[]}>
         <BottomSheetView style={WRAPPER}>
           {isLoading ? (
             <Text>טוען...</Text>
