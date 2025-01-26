@@ -94,7 +94,9 @@ const GARDIENT: ViewStyle = {
 
 const HEADER_RIGHT_WRAPPER: ViewStyle = {
   flexDirection: "row",
-  alignItems: "center",
+  alignItems: "baseline",
+
+  gap: spacing[1],
   marginEnd: spacing[2],
   zIndex: 100,
 }
@@ -196,10 +198,9 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
         headerRight: () => (
           <View style={HEADER_RIGHT_WRAPPER}>
             {screenName === "routeDetails" ? (
-              <CalendarIcon onPress={addToCalendar} style={{ marginEnd: -1 * spacing[3] }} />
+              <CalendarIcon onPress={addToCalendar} />
             ) : (
               <StarIcon
-                style={{ marginEnd: -1 * spacing[3] }}
                 filled={isFavorite}
                 onPress={() => {
                   const favorite = { id: routeId, originId, destinationId }
@@ -217,9 +218,12 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
               />
             )}
             {stationHoursSheetRef && (
-              <Text onPress={openStationHoursSheet} style={{ color: "white", marginLeft: spacing[2] }}>
-                🕒
-              </Text>
+              <TouchableOpacity onPress={openStationHoursSheet}>
+                <Image
+                  source={require("../../../assets/clock-ios.png")}
+                  style={{ width: 23, height: 23, marginLeft: spacing[2], tintColor: "lightgrey", opacity: 0.9 }}
+                />
+              </TouchableOpacity>
             )}
           </View>
         ),
