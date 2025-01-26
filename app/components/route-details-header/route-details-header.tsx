@@ -1,5 +1,5 @@
 /* eslint-disable react/display-name */
-import React, { useLayoutEffect, useRef, useEffect } from "react";
+import React, { useLayoutEffect, useRef, useEffect } from "react"
 import {
   Image,
   ImageBackground,
@@ -11,35 +11,35 @@ import {
   Linking,
   Animated as RNAnimated,
   TouchableOpacity,
-} from "react-native";
-import TouchableScale from "react-native-touchable-scale";
-import analytics from "@react-native-firebase/analytics";
-import { useNavigation } from "@react-navigation/native";
-import { observer } from "mobx-react-lite";
-import LinearGradient from "react-native-linear-gradient";
-import { color, isDarkMode, spacing } from "../../theme";
-import { Text, StarIcon } from "../";
-import HapticFeedback from "react-native-haptic-feedback";
-import { stationsObject, stationLocale } from "../../data/stations";
-import { isRTL, translate } from "../../i18n";
-import { useStores } from "../../models";
-import * as Burnt from "burnt";
-import * as AddCalendarEvent from "react-native-add-calendar-event";
-import { CalendarIcon } from "../calendar-icon/calendar-icon";
-import { RouteItem } from "../../services/api";
-import { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types";
-import Animated from "react-native-reanimated";
+} from "react-native"
+import TouchableScale from "react-native-touchable-scale"
+import analytics from "@react-native-firebase/analytics"
+import { useNavigation } from "@react-navigation/native"
+import { observer } from "mobx-react-lite"
+import LinearGradient from "react-native-linear-gradient"
+import { color, isDarkMode, spacing } from "../../theme"
+import { Text, StarIcon } from "../"
+import HapticFeedback from "react-native-haptic-feedback"
+import { stationsObject, stationLocale } from "../../data/stations"
+import { isRTL, translate } from "../../i18n"
+import { useStores } from "../../models"
+import * as Burnt from "burnt"
+import * as AddCalendarEvent from "react-native-add-calendar-event"
+import { CalendarIcon } from "../calendar-icon/calendar-icon"
+import { RouteItem } from "../../services/api"
+import { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types"
+import Animated from "react-native-reanimated"
 
-const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale);
+const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale)
 
-const arrowIcon = require("../../../assets/arrow-left.png");
+const arrowIcon = require("../../../assets/arrow-left.png")
 
 // #region styles
 const ROUTE_DETAILS_WRAPPER: ViewStyle = {
   flexDirection: "row",
   justifyContent: "center",
   alignItems: "center",
-};
+}
 
 const ROUTE_DETAILS_STATION: ViewStyle = {
   flex: 1,
@@ -54,7 +54,7 @@ const ROUTE_DETAILS_STATION: ViewStyle = {
   shadowOpacity: isDarkMode ? 0 : 0.45,
   elevation: 3,
   zIndex: 0,
-};
+}
 
 const ROUTE_DETAILS_STATION_TEXT: TextStyle = {
   color: color.text,
@@ -62,7 +62,7 @@ const ROUTE_DETAILS_STATION_TEXT: TextStyle = {
   textAlign: "center",
   fontWeight: "600",
   fontSize: 14,
-};
+}
 
 const ROUTE_INFO_CIRCLE: ViewStyle = {
   width: 34,
@@ -74,14 +74,14 @@ const ROUTE_INFO_CIRCLE: ViewStyle = {
   borderRadius: 25,
   elevation: 3,
   zIndex: 5,
-};
+}
 
 const ARROW_ICON: ImageStyle = {
   width: 15,
   height: 15,
   tintColor: color.whiteText,
   transform: isRTL ? undefined : [{ rotate: "180deg" }],
-};
+}
 
 const GARDIENT: ViewStyle = {
   height: "100%",
@@ -90,94 +90,90 @@ const GARDIENT: ViewStyle = {
   right: 0,
   top: 0,
   opacity: 1,
-};
+}
 
 const HEADER_RIGHT_WRAPPER: ViewStyle = {
   flexDirection: "row",
   alignItems: "center",
   marginEnd: spacing[2],
   zIndex: 100,
-};
+}
 // #endregion
 
 export interface RouteDetailsHeaderProps {
-  originId: string;
-  destinationId: string;
-  routeItem?: RouteItem;
+  originId: string
+  destinationId: string
+  routeItem?: RouteItem
   /**
    * The screen name we're displaying the header inside
    */
-  screenName?: "routeList" | "routeDetails" | "activeRide";
-  style?: ViewStyle;
-  eventConfig?: AddCalendarEvent.CreateOptions;
-  stationHoursSheetRef?: React.MutableRefObject<BottomSheetMethods>;
+  screenName?: "routeList" | "routeDetails" | "activeRide"
+  style?: ViewStyle
+  eventConfig?: AddCalendarEvent.CreateOptions
+  stationHoursSheetRef?: React.MutableRefObject<BottomSheetMethods>
 }
 
 export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
-  const { routeItem, originId, destinationId, screenName, style, stationHoursSheetRef } = props;
-  const { favoriteRoutes, routePlan } = useStores();
-  const navigation = useNavigation();
+  const { routeItem, originId, destinationId, screenName, style, stationHoursSheetRef } = props
+  const { favoriteRoutes, routePlan } = useStores()
+  const navigation = useNavigation()
 
-  const routeEditDisabled = props.screenName !== "routeList";
-  const stationCardScale = useRef(new RNAnimated.Value(1)).current;
+  const routeEditDisabled = props.screenName !== "routeList"
+  const stationCardScale = useRef(new RNAnimated.Value(1)).current
 
   const openStationHoursSheet = () => {
-    stationHoursSheetRef?.current?.expand();
-  };
+    stationHoursSheetRef?.current?.expand()
+  }
 
   const addToCalendar = () => {
-    analytics().logEvent("add_route_to_calendar");
-    const eventConfig = createEventConfig(routeItem);
+    analytics().logEvent("add_route_to_calendar")
+    const eventConfig = createEventConfig(routeItem)
     AddCalendarEvent.presentEventCreatingDialog(eventConfig).catch((error) => {
       if (error === "permissionNotGranted") {
-        Alert.alert(
-          translate("routeDetails.noCalendarAccessTitle"),
-          translate("routeDetails.noCalendarAccessMessage"),
-          [
-            {
-              style: "cancel",
-              text: translate("common.cancel"),
-            },
-            {
-              text: translate("settings.title"),
-              onPress: () => Linking.openSettings(),
-            },
-          ],
-        );
+        Alert.alert(translate("routeDetails.noCalendarAccessTitle"), translate("routeDetails.noCalendarAccessMessage"), [
+          {
+            style: "cancel",
+            text: translate("common.cancel"),
+          },
+          {
+            text: translate("settings.title"),
+            onPress: () => Linking.openSettings(),
+          },
+        ])
       }
-    });
-  };
+    })
+  }
 
-  const originName = stationsObject[originId][stationLocale];
-  const destinationName = stationsObject[destinationId][stationLocale];
+  const originName = stationsObject[originId][stationLocale]
+  const destinationName = stationsObject[destinationId][stationLocale]
 
-  const routeId = `${originId}${destinationId}`;
-  const isFavorite = favoriteRoutes.routes.some((favorite) => favorite.id === routeId);
+  const routeId = `${originId}${destinationId}`
+  const isFavorite = favoriteRoutes.routes.some((favorite) => favorite.id === routeId)
 
   const swapDirection = () => {
-    scaleStationCards();
-    HapticFeedback.trigger("impactMedium");
+    scaleStationCards()
+    HapticFeedback.trigger("impactMedium")
 
     // Delay the actual switch so it'll be synced with the animation
     setTimeout(() => {
-      routePlan.switchDirection();
-    }, 50);
-  };
+      routePlan.switchDirection()
+    }, 50)
+  }
 
   const changeOriginStation = () => {
-    navigation.navigate("selectStation", { selectionType: "origin" });
-  };
+    navigation.navigate("selectStation", { selectionType: "origin" })
+  }
 
   const changeDestinationStation = () => {
-    navigation.navigate("selectStation", { selectionType: "destination" });
-  };
+    navigation.navigate("selectStation", { selectionType: "destination" })
+  }
 
   useEffect(() => {
     navigation.setParams({
       originId: routePlan.origin.id,
       destinationId: routePlan.destination.id,
-    } as any);
-  }, [routePlan.origin.id, routePlan.destination.id]);
+    } as any)
+  }, [routePlan.origin.id, routePlan.destination.id])
 
   const scaleStationCards = () => {
     RNAnimated.sequence([
@@ -191,8 +187,8 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
         duration: 175,
         useNativeDriver: true,
       }),
-    ]).start();
-  };
+    ]).start()
+  }
 
   useLayoutEffect(() => {
     screenName !== "activeRide" &&
@@ -206,16 +202,16 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
                 style={{ marginEnd: -1 * spacing[3] }}
                 filled={isFavorite}
                 onPress={() => {
-                  const favorite = { id: routeId, originId, destinationId };
+                  const favorite = { id: routeId, originId, destinationId }
                   if (!isFavorite) {
-                    Burnt.alert({ title: translate("favorites.added"), duration: 1.5 });
-                    HapticFeedback.trigger("impactMedium");
-                    favoriteRoutes.add(favorite);
-                    analytics().logEvent("favorite_route_added");
+                    Burnt.alert({ title: translate("favorites.added"), duration: 1.5 })
+                    HapticFeedback.trigger("impactMedium")
+                    favoriteRoutes.add(favorite)
+                    analytics().logEvent("favorite_route_added")
                   } else {
-                    HapticFeedback.trigger("impactLight");
-                    favoriteRoutes.remove(favorite.id);
-                    analytics().logEvent("favorite_route_removed");
+                    HapticFeedback.trigger("impactLight")
+                    favoriteRoutes.remove(favorite.id)
+                    analytics().logEvent("favorite_route_removed")
                   }
                 }}
               />
@@ -227,8 +223,12 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
             )}
           </View>
         ),
-      });
-  }, [isFavorite, routeId]);
+      })
+  }, [isFavorite, routeId])
+
+  useEffect(() => {
+    openStationHoursSheet()
+  }, [])
 
   return (
     <>
@@ -275,14 +275,14 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
         </View>
       </View>
     </>
-  );
-});
+  )
+})
 
 function createEventConfig(routeItem: RouteItem) {
-  const { destinationStationName: destination, originStationName: origin, trainNumber } = routeItem.trains[0];
+  const { destinationStationName: destination, originStationName: origin, trainNumber } = routeItem.trains[0]
 
-  const title = translate("plan.rideTo", { destination });
-  const notes = translate("plan.trainFromToStation", { trainNumber, origin, destination });
+  const title = translate("plan.rideTo", { destination })
+  const notes = translate("plan.trainFromToStation", { trainNumber, origin, destination })
 
   const eventConfig: AddCalendarEvent.CreateOptions = {
     title,
@@ -290,7 +290,7 @@ function createEventConfig(routeItem: RouteItem) {
     endDate: new Date(routeItem.arrivalTime).toISOString(),
     location: translate("plan.trainStation", { stationName: origin }),
     notes,
-  };
+  }
 
-  return eventConfig;
+  return eventConfig
 }

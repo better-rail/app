@@ -1,10 +1,10 @@
-import { forwardRef } from "react"
-import { View, type ViewStyle } from "react-native"
+import { forwardRef, useEffect, useState } from "react"
+import { ActivityIndicator, ScrollView, TextStyle, View, type ViewStyle } from "react-native"
 import type BottomSheet from "@gorhom/bottom-sheet"
 import { BottomSheetView } from "@gorhom/bottom-sheet"
-import { Text } from "../../../components"
+import { Chip, Text } from "../../../components"
 import { BottomSheetModal } from "../../../components/sheets/bottom-sheet-modal"
-import { color, spacing } from "../../../theme"
+import { color, fontScale, spacing } from "../../../theme"
 import { observer } from "mobx-react-lite"
 import { useQuery } from "react-query"
 import { railApi } from "../../../services/api"
@@ -13,11 +13,21 @@ import { addDays, format, parseISO } from "date-fns"
 
 const WRAPPER: ViewStyle = {
   paddingHorizontal: spacing[4],
-  paddingTop: spacing[5],
-  alignItems: "center",
+  paddingTop: spacing[4],
   gap: 16,
   flex: 1,
   backgroundColor: color.background,
+}
+
+const DAY_TEXT: TextStyle = {
+  fontSize: fontScale * 20,
+  color: color.text,
+  fontWeight: "bold",
+}
+
+const HOUR_TEXT: TextStyle = {
+  fontSize: fontScale * 20,
+  color: color.text,
 }
 
 type Props = {
@@ -27,34 +37,59 @@ type Props = {
 
 export const StationHoursSheet = observer(
   forwardRef<BottomSheet, Props>(({ stationId }, ref) => {
+    // TODO: Persist selected gate in local storage, so it's not reset when the user closes the sheet
     const { data: stationInfo, isLoading } = useQuery(["stationInfo", stationId], () => {
       return railApi.getStationInfo(userLocale, stationId)
     })
 
+    const [selectedGateId, setSelectedGateId] = useState<number | null>()
+    const selectedGate = stationInfo?.gateInfo.find((gate) => gate.stationGateId === selectedGateId)
+
+    useEffect(() => {
+      // Select the first gate by default
+      setSelectedGateId(stationInfo?.gateInfo[0]?.stationGateId)
+    }, [stationInfo])
+
     return (
-      <BottomSheetModal ref={ref} snapPoints={[]}>
+      <BottomSheetModal ref={ref} enableDynamicSizing>
         <BottomSheetView style={WRAPPER}>
-          {isLoading ? (
-            <Text>טוען...</Text>
+          {isLoading || !selectedGate ? (
+            <ActivityIndicator size="large" color="grey" />
           ) : (
             <View>
-              {stationInfo.gateInfo.map((gate) => (
-                <View key={gate.stationGateId}>
-                  <Text style={{ fontWeight: "bold" }}>{gate.gateName}</Text>
-                  {gate.gateActivityHours
-                    .filter((activityHour) => activityHour.activityHoursType === 1)
-                    .map((activityHour) => (
-                      <View
-                        key={`${gate.stationGateId}-${activityHour.activityHoursType}-${activityHour.startHour}-${activityHour.endHour}`}
-                      >
-                        <Text>{convertDaysToAbbreviation(activityHour.activityDaysNumbers)}</Text>
-                        <Text>
-                          {activityHour.startHour} {"->"} {activityHour.endHour}
-                        </Text>
-                      </View>
-                    ))}
-                </View>
-              ))}
+              <ScrollView
+                horizontal
+                contentContainerStyle={{ marginBottom: spacing[3], gap: spacing[2] }}
+                style={{ maxHeight: 40 * fontScale }}
+              >
+                {stationInfo.gateInfo.map((gate) => {
+                  const selected = selectedGateId === gate.stationGateId
+                  return (
+                    <Chip
+                      variant={selected ? "primary" : "transparent"}
+                      onPress={() => setSelectedGateId(gate.stationGateId)}
+                      key={gate.stationGateId}
+                    >
+                      <Text style={{ color: selected ? color.whiteText : color.text, textAlign: "center" }}>{gate.gateName}</Text>
+                    </Chip>
+                  )
+                })}
+              </ScrollView>
+
+              <View>
+                {selectedGate.gateActivityHours
+                  .filter((activityHour) => activityHour.activityHoursType === 1)
+                  .map((activityHour) => (
+                    <View
+                      key={`${selectedGate.stationGateId}-${activityHour.activityHoursType} - ${activityHour.startHour}-${activityHour.endHour}`}
+                    >
+                      <Text style={DAY_TEXT}>{convertDaysToAbbreviation(activityHour.activityDaysNumbers)}</Text>
+                      <Text style={HOUR_TEXT}>
+                        {activityHour.startHour} {"-"} {activityHour.endHour}
+                      </Text>
+                    </View>
+                  ))}
+              </View>
             </View>
           )}
         </BottomSheetView>
@@ -84,14 +119,14 @@ const convertDaysToAbbreviation = (input: string) => {
     if (daysOfWeek[i] === prev + 1) {
       prev = daysOfWeek[i]
     } else {
-      result.push(start === prev ? getDayName(start) : `${getDayName(start)}-${getDayName(prev)}`)
+      result.push(start === prev ? getDayName(start) : `${getDayName(start)} - ${getDayName(prev)}`)
       start = daysOfWeek[i]
       prev = daysOfWeek[i]
     }
   }
 
   // Push the last range or single day
-  result.push(start === prev ? getDayName(start) : `${getDayName(start)}-${getDayName(prev)}`)
+  result.push(start === prev ? getDayName(start) : `${getDayName(start)} - ${getDayName(prev)}`)
 
   return result.join(",")
 }

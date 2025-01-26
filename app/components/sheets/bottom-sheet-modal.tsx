@@ -13,15 +13,7 @@ export const BottomSheetModal = forwardRef<BottomSheet, BottomSheetModalProps>((
   const renderBackdrop = useCallback((props) => <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={2} />, [])
 
   return (
-    <BottomSheet
-      ref={ref}
-      index={-1}
-      enablePanDownToClose
-      snapPoints={sheetSnapPoints}
-      backdropComponent={renderBackdrop}
-      handleComponent={null}
-      {...rest}
-    >
+    <BottomSheet ref={ref} index={-1} enablePanDownToClose backdropComponent={renderBackdrop} handleComponent={null} {...rest}>
       {children}
     </BottomSheet>
   )
