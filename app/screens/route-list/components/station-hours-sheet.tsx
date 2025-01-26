@@ -12,7 +12,6 @@ import { dateFnsLocalization, userLocale } from "../../../i18n"
 import { addDays, format, parseISO } from "date-fns"
 
 const WRAPPER: ViewStyle = {
-  paddingHorizontal: spacing[4],
   paddingTop: spacing[4],
   paddingBottom: spacing[8],
   gap: 16,
@@ -60,7 +59,8 @@ export const StationHoursSheet = observer(
             <View>
               <ScrollView
                 horizontal
-                contentContainerStyle={{ marginBottom: spacing[3], gap: spacing[2] }}
+                contentContainerStyle={{ paddingHorizontal: spacing[4], marginBottom: spacing[3], gap: spacing[2] }}
+                showsHorizontalScrollIndicator={false}
                 style={{ maxHeight: 40 * fontScale }}
               >
                 {stationInfo.gateInfo.map((gate) => {
@@ -77,7 +77,7 @@ export const StationHoursSheet = observer(
                 })}
               </ScrollView>
 
-              <View>
+              <View style={{ paddingHorizontal: spacing[4] }}>
                 {selectedGate.gateActivityHours
                   .filter((activityHour) => activityHour.activityHoursType === 1)
                   .map((activityHour) => (
