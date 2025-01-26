@@ -176,7 +176,12 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         />
       )}
 
-      <StationHoursSheet stationId={route.params.originId} onDone={onDoneStationHoursSheet} ref={stationHoursSheetRef} />
+      <StationHoursSheet
+        stationId={route.params.originId}
+        onDone={onDoneStationHoursSheet}
+        ref={stationHoursSheetRef}
+        key={route.params.originId}
+      />
     </Screen>
   )
 })
