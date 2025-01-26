@@ -14,6 +14,7 @@ import { addDays, format, parseISO } from "date-fns"
 const WRAPPER: ViewStyle = {
   paddingHorizontal: spacing[4],
   paddingTop: spacing[4],
+  paddingBottom: spacing[8],
   gap: 16,
   flex: 1,
   backgroundColor: color.background,
