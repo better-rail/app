@@ -36,6 +36,7 @@ const ROUTE_DETAILS_WRAPPER: ViewStyle = {
   alignItems: "center",
 }
 
+// #region styles
 const ROUTE_DETAILS_STATION: ViewStyle = {
   flex: 1,
   padding: spacing[2],
@@ -91,6 +92,7 @@ const HEADER_RIGHT_WRAPPER: ViewStyle = {
   marginEnd: spacing[2],
   zIndex: 100,
 }
+// #endregion
 
 export interface RouteDetailsHeaderProps {
   originId: string
