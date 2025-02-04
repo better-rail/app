@@ -283,7 +283,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 
 function createEventConfig(routeItem: RouteItem) {
   if (!routeItem?.trains?.length) {
-    return { title: "", startDate: "", endDate: "", location: "", notes: "" }
+    throw new Error("No trains found in routeItem")
   }
 
   const { destinationStationName: destination, originStationName: origin, trainNumber } = routeItem.trains[0]
