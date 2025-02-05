@@ -49,8 +49,12 @@
 	</dict>
 	<key>NSCalendarsUsageDescription</key>
 	<string>We need access to your calendar to schedule events and reminders.</string>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>We need full access to your calendar to add and manage train ride events.</string>
 	<key>NSContactsUsageDescription</key>
 	<string>We need access to your contacts to import and manage contacts within our app.</string>
+	<key>NSRemindersFullAccessUsageDescription</key>
+	<string>We need full access to reminders to create alerts for your train rides.</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
 	<key>NSSupportsLiveActivitiesFrequentUpdates</key>
