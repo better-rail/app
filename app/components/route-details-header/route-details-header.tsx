@@ -149,26 +149,19 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 
   const addToCalendar = useCallback(async () => {
     analytics().logEvent("add_route_to_calendar")
+
     const { status } = await Calendar.requestCalendarPermissionsAsync()
+
     if (status !== "granted") {
       Alert.alert(translate("routeDetails.noCalendarAccessTitle"), translate("routeDetails.noCalendarAccessMessage"), [
         { style: "cancel", text: translate("common.cancel") },
-        {
-          text: translate("settings.title"),
-          onPress: () => Linking.openSettings(),
-        },
+        { text: translate("settings.title"), onPress: () => Linking.openSettings() },
       ])
       return
     }
 
-    const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT)
-    const defaultCalendar = calendars.find((cal) => cal.allowsModifications) || calendars[0]
-    if (!defaultCalendar) {
-      Alert.alert("No Calendar Found", "We couldn't find a calendar on your device.")
-      return
-    }
-
     const eventConfig = createEventConfig(routeItem)
+
     try {
       await Calendar.createEventInCalendarAsync({
         title: eventConfig.title,
@@ -177,6 +170,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
         location: eventConfig.location,
         notes: eventConfig.notes,
       })
+
       Burnt.alert({ title: "Event Added", duration: 1.5 })
     } catch (error) {
       if (error instanceof Error) {
