@@ -170,9 +170,8 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
         location: eventConfig.location,
         notes: eventConfig.notes,
       })
-
-      Burnt.alert({ title: "Event Added", duration: 1.5 })
     } catch (error) {
+      console.error(error)
       if (error instanceof Error) {
         Alert.alert("Event Error", error.message)
       }
