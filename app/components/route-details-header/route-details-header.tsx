@@ -170,7 +170,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 
     const eventConfig = createEventConfig(routeItem)
     try {
-      await Calendar.createEventAsync(defaultCalendar.id, {
+      await Calendar.createEventInCalendarAsync({
         title: eventConfig.title,
         startDate: new Date(eventConfig.startDate),
         endDate: new Date(eventConfig.endDate),
