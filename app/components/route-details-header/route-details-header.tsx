@@ -205,46 +205,28 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
       }
     }
 
-    return <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
+    return (
+      <View style={{ flexDirection: "row", alignItems: "baseline", gap: spacing[4] }}>
+        <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
+        {stationHoursSheetRef && (
+          <TouchableOpacity onPress={openStationHoursSheet}>
+            <Image
+              source={require("../../../assets/clock-ios.png")}
+              style={{ width: 23, height: 23, marginLeft: spacing[2], tintColor: "lightgrey", opacity: 0.9 }}
+            />
+          </TouchableOpacity>
+        )}
+      </View>
+    )
   }, [screenName, addToCalendar, isFavorite, routeId, favoriteRoutes, originId, destinationId])
 
   useLayoutEffect(() => {
-    screenName !== "activeRide" &&
-      navigation.setOptions({
-        headerRight: () => (
-          <View style={HEADER_RIGHT_WRAPPER}>
-            {screenName === "routeDetails" ? (
-              <CalendarIcon onPress={addToCalendar} />
-            ) : (
-              <StarIcon
-                filled={isFavorite}
-                onPress={() => {
-                  const favorite = { id: routeId, originId, destinationId }
-                  if (!isFavorite) {
-                    Burnt.alert({ title: translate("favorites.added"), duration: 1.5 })
-                    HapticFeedback.trigger("impactMedium")
-                    favoriteRoutes.add(favorite)
-                    analytics().logEvent("favorite_route_added")
-                  } else {
-                    HapticFeedback.trigger("impactLight")
-                    favoriteRoutes.remove(favorite.id)
-                    analytics().logEvent("favorite_route_removed")
-                  }
-                }}
-              />
-            )}
-            {stationHoursSheetRef && (
-              <TouchableOpacity onPress={openStationHoursSheet}>
-                <Image
-                  source={require("../../../assets/clock-ios.png")}
-                  style={{ width: 23, height: 23, marginLeft: spacing[2], tintColor: "lightgrey", opacity: 0.9 }}
-                />
-              </TouchableOpacity>
-            )}
-          </View>
-        ),
-      })
-  }, [isFavorite, routeId])
+    if (screenName === "activeRide") return
+
+    navigation.setOptions({
+      headerRight: () => <View style={HEADER_RIGHT_WRAPPER}>{renderHeaderRight()}</View>,
+    })
+  }, [screenName, navigation, renderHeaderRight])
 
   useEffect(() => {
     openStationHoursSheet()

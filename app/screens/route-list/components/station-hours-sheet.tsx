@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useState } from "react"
-import { ActivityIndicator, ScrollView, TextStyle, View, type ViewStyle } from "react-native"
+import { ActivityIndicator, ScrollView, TextStyle, useColorScheme, View, type ViewStyle } from "react-native"
 import type BottomSheet from "@gorhom/bottom-sheet"
 import { BottomSheetView } from "@gorhom/bottom-sheet"
 import { Chip, Text } from "../../../components"
@@ -14,7 +14,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const WRAPPER: ViewStyle = {
   paddingTop: spacing[4],
-  backgroundColor: color.background,
 }
 
 const DAY_TEXT: TextStyle = {
@@ -36,6 +35,7 @@ type Props = {
 export const StationHoursSheet = observer(
   forwardRef<BottomSheet, Props>(({ stationId }, ref) => {
     const insets = useSafeAreaInsets()
+    const colorScheme = useColorScheme()
 
     // TODO: Persist selected gate in local storage, so it's not reset when the user closes the sheet
     const { data: stationInfo, isLoading } = useQuery(["stationInfo", stationId], () => {
@@ -51,7 +51,11 @@ export const StationHoursSheet = observer(
     }, [stationInfo])
 
     return (
-      <BottomSheetModal ref={ref} enableDynamicSizing>
+      <BottomSheetModal
+        ref={ref}
+        enableDynamicSizing
+        backgroundStyle={{ backgroundColor: colorScheme === "light" ? color.tertiaryBackground : color.background }}
+      >
         <BottomSheetView style={[WRAPPER, { paddingBottom: insets.bottom }]} key={stationInfo?.gateInfo.length}>
           {isLoading || !selectedGate ? (
             <ActivityIndicator size="large" color="grey" />
