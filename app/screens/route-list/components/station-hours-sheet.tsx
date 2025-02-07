@@ -1,5 +1,6 @@
 import { forwardRef, useEffect, useState } from "react"
-import { ActivityIndicator, ScrollView, TextStyle, useColorScheme, View, type ViewStyle } from "react-native"
+import { ActivityIndicator, ScrollView, useColorScheme, View } from "react-native"
+import type { TextStyle, ViewStyle } from "react-native"
 import type BottomSheet from "@gorhom/bottom-sheet"
 import { BottomSheetView } from "@gorhom/bottom-sheet"
 import { Chip, Text } from "../../../components"
@@ -11,6 +12,7 @@ import { railApi } from "../../../services/api"
 import { dateFnsLocalization, userLocale } from "../../../i18n"
 import { addDays, format, parseISO } from "date-fns"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import HapticFeedback from "react-native-haptic-feedback"
 
 const WRAPPER: ViewStyle = {
   paddingTop: spacing[4],
@@ -72,7 +74,10 @@ export const StationHoursSheet = observer(
                   return (
                     <Chip
                       variant={selected ? "primary" : "transparent"}
-                      onPress={() => setSelectedGateId(gate.stationGateId)}
+                      onPress={() => {
+                        HapticFeedback.trigger("impactLight")
+                        setSelectedGateId(gate.stationGateId)
+                      }}
                       key={gate.stationGateId}
                     >
                       <Text style={{ color: selected ? color.whiteText : color.text, textAlign: "center" }}>{gate.gateName}</Text>
