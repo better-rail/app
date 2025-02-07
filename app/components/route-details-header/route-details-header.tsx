@@ -1,5 +1,4 @@
-/* eslint-disable react/display-name */
-import React, { useLayoutEffect, useRef, useEffect } from "react"
+import React, { useLayoutEffect, useRef, useEffect, useCallback } from "react"
 import {
   Image,
   ImageBackground,
@@ -24,29 +23,25 @@ import { stationsObject, stationLocale } from "../../data/stations"
 import { isRTL, translate } from "../../i18n"
 import { useStores } from "../../models"
 import * as Burnt from "burnt"
-import * as AddCalendarEvent from "react-native-add-calendar-event"
+import * as Calendar from "expo-calendar"
 import { CalendarIcon } from "../calendar-icon/calendar-icon"
 import type { RouteItem } from "../../services/api"
-import Animated from "react-native-reanimated"
 
 const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale)
-
 const arrowIcon = require("../../../assets/arrow-left.png")
 
-// #region styles
 const ROUTE_DETAILS_WRAPPER: ViewStyle = {
   flexDirection: "row",
   justifyContent: "center",
   alignItems: "center",
 }
 
+// #region styles
 const ROUTE_DETAILS_STATION: ViewStyle = {
   flex: 1,
   padding: spacing[2],
-
   backgroundColor: color.secondaryLighter,
   borderRadius: 25,
-
   shadowOffset: { width: 0, height: 1 },
   shadowColor: color.dim,
   shadowRadius: 1,
@@ -79,10 +74,10 @@ const ARROW_ICON: ImageStyle = {
   width: 15,
   height: 15,
   tintColor: color.whiteText,
-  transform: isRTL ? undefined : [{ rotate: "180deg" }],
+  transform: isRTL ? [] : [{ rotate: "180deg" }],
 }
 
-const GARDIENT: ViewStyle = {
+const GRADIENT: ViewStyle = {
   height: "100%",
   position: "absolute",
   left: 0,
@@ -103,73 +98,25 @@ export interface RouteDetailsHeaderProps {
   originId: string
   destinationId: string
   routeItem: RouteItem
-  /**
-   * The screen name we're displaying the header inside
-   */
   screenName?: "routeList" | "routeDetails" | "activeRide"
   style?: ViewStyle
-  eventConfig?: AddCalendarEvent.CreateOptions
+  eventConfig?: Calendar.Event
 }
 
 export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
-  const { routeItem, originId, destinationId, screenName, style } = props
+  const { originId, destinationId, routeItem, screenName, style } = props
   const { favoriteRoutes, routePlan } = useStores()
   const navigation = useNavigation()
+  const routeEditDisabled = screenName !== "routeList"
 
-  const routeEditDisabled = props.screenName !== "routeList"
   const stationCardScale = useRef(new RNAnimated.Value(1)).current
-
-  const addToCalendar = () => {
-    analytics().logEvent("add_route_to_calendar")
-    const eventConfig = createEventConfig(routeItem)
-    AddCalendarEvent.presentEventCreatingDialog(eventConfig).catch((error) => {
-      if (error === "permissionNotGranted") {
-        Alert.alert(translate("routeDetails.noCalendarAccessTitle"), translate("routeDetails.noCalendarAccessMessage"), [
-          {
-            style: "cancel",
-            text: translate("common.cancel"),
-          },
-          {
-            text: translate("settings.title"),
-            onPress: () => Linking.openSettings(),
-          },
-        ])
-      }
-    })
-  }
 
   const originName = stationsObject[originId][stationLocale]
   const destinationName = stationsObject[destinationId][stationLocale]
-
   const routeId = `${originId}${destinationId}`
-  const isFavorite = favoriteRoutes.routes.some((favorite) => favorite.id === routeId)
+  const isFavorite = favoriteRoutes.routes.some((fav) => fav.id === routeId)
 
-  const swapDirection = () => {
-    scaleStationCards()
-    HapticFeedback.trigger("impactMedium")
-
-    // Delay the actual switch so it'll be synced with the animation
-    setTimeout(() => {
-      routePlan.switchDirection()
-    }, 50)
-  }
-
-  const changeOriginStation = () => {
-    navigation.navigate("selectStation", { selectionType: "origin" })
-  }
-
-  const changeDestinationStation = () => {
-    navigation.navigate("selectStation", { selectionType: "destination" })
-  }
-
-  useEffect(() => {
-    navigation.setParams({
-      originId: routePlan.origin.id,
-      destinationId: routePlan.destination.id,
-    } as any)
-  }, [routePlan.origin.id, routePlan.destination.id])
-
-  const scaleStationCards = () => {
+  const scaleStationCards = useCallback(() => {
     RNAnimated.sequence([
       RNAnimated.timing(stationCardScale, {
         toValue: 0.94,
@@ -182,46 +129,103 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
         useNativeDriver: true,
       }),
     ]).start()
-  }
+  }, [stationCardScale])
+
+  const swapDirection = useCallback(() => {
+    scaleStationCards()
+    HapticFeedback.trigger("impactMedium")
+    setTimeout(() => {
+      routePlan.switchDirection()
+    }, 50)
+  }, [scaleStationCards, routePlan])
+
+  const changeOriginStation = useCallback(() => {
+    navigation.navigate("selectStation", { selectionType: "origin" })
+  }, [navigation])
+
+  const changeDestinationStation = useCallback(() => {
+    navigation.navigate("selectStation", { selectionType: "destination" })
+  }, [navigation])
+
+  const addToCalendar = useCallback(async () => {
+    analytics().logEvent("add_route_to_calendar")
+
+    const { status } = await Calendar.requestCalendarPermissionsAsync()
+
+    if (status !== "granted") {
+      Alert.alert(translate("routeDetails.noCalendarAccessTitle"), translate("routeDetails.noCalendarAccessMessage"), [
+        { style: "cancel", text: translate("common.cancel") },
+        { text: translate("settings.title"), onPress: () => Linking.openSettings() },
+      ])
+      return
+    }
+
+    const eventConfig = createEventConfig(routeItem)
+
+    try {
+      await Calendar.createEventInCalendarAsync({
+        title: eventConfig.title,
+        startDate: new Date(eventConfig.startDate),
+        endDate: new Date(eventConfig.endDate),
+        location: eventConfig.location,
+        notes: eventConfig.notes,
+      })
+    } catch (error) {
+      console.error(error)
+      if (error instanceof Error) {
+        Alert.alert("Event Error", error.message)
+      }
+    }
+  }, [routeItem])
+
+  useEffect(() => {
+    navigation.setParams({
+      originId: routePlan.origin.id,
+      destinationId: routePlan.destination.id,
+    } as any)
+  }, [routePlan.origin.id, routePlan.destination.id, navigation])
+
+  const renderHeaderRight = useCallback(() => {
+    if (screenName === "routeDetails") {
+      return <CalendarIcon onPress={addToCalendar} style={{ marginEnd: -spacing[3] }} />
+    }
+
+    const handleFavoritePress = () => {
+      const favorite = { id: routeId, originId, destinationId }
+      if (!isFavorite) {
+        Burnt.alert({ title: translate("favorites.added"), duration: 1.5 })
+        HapticFeedback.trigger("impactMedium")
+        favoriteRoutes.add(favorite)
+        analytics().logEvent("favorite_route_added")
+      } else {
+        HapticFeedback.trigger("impactLight")
+        favoriteRoutes.remove(favorite.id)
+        analytics().logEvent("favorite_route_removed")
+      }
+    }
+
+    return <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
+  }, [screenName, addToCalendar, isFavorite, routeId, favoriteRoutes, originId, destinationId])
 
   useLayoutEffect(() => {
-    screenName !== "activeRide" &&
-      navigation.setOptions({
-        headerRight: () => (
-          <View style={HEADER_RIGHT_WRAPPER}>
-            {screenName === "routeDetails" ? (
-              <CalendarIcon onPress={addToCalendar} style={{ marginEnd: -1 * spacing[3] }} />
-            ) : (
-              <StarIcon
-                style={{ marginEnd: -1 * spacing[3] }}
-                filled={isFavorite}
-                onPress={() => {
-                  const favorite = { id: routeId, originId, destinationId }
-                  if (!isFavorite) {
-                    Burnt.alert({ title: translate("favorites.added"), duration: 1.5 })
-                    HapticFeedback.trigger("impactMedium")
-                    favoriteRoutes.add(favorite)
-                    analytics().logEvent("favorite_route_added")
-                  } else {
-                    HapticFeedback.trigger("impactLight")
-                    favoriteRoutes.remove(favorite.id)
-                    analytics().logEvent("favorite_route_removed")
-                  }
-                }}
-              />
-            )}
-          </View>
-        ),
-      })
-  }, [isFavorite, routeId])
+    if (screenName === "activeRide") return
+
+    navigation.setOptions({
+      headerRight: () => <View style={HEADER_RIGHT_WRAPPER}>{renderHeaderRight()}</View>,
+    })
+  }, [screenName, navigation, renderHeaderRight])
 
   return (
     <>
       <ImageBackground
         source={stationsObject[originId].image}
-        style={{ width: "100%", height: screenName !== "activeRide" ? 200 : 155, zIndex: 0 }}
+        style={{
+          width: "100%",
+          height: screenName !== "activeRide" ? 200 : 155,
+          zIndex: 0,
+        }}
       >
-        <LinearGradient style={GARDIENT} colors={["rgba(0, 0, 0, 0.75)", "rgba(0, 0, 0, 0.05)"]} />
+        <LinearGradient style={GRADIENT} colors={["rgba(0, 0, 0, 0.75)", "rgba(0, 0, 0, 0.05)"]} />
       </ImageBackground>
 
       <View style={{ top: -20, marginBottom: -30, zIndex: 5 }}>
@@ -231,27 +235,34 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
             activeScale={0.95}
             disabled={routeEditDisabled}
             onPress={changeOriginStation}
-            style={[ROUTE_DETAILS_STATION, { marginEnd: spacing[5] }, { transform: [{ scale: stationCardScale }] }]}
+            style={[ROUTE_DETAILS_STATION, { marginEnd: spacing[5], transform: [{ scale: stationCardScale }] }]}
           >
             <Text style={ROUTE_DETAILS_STATION_TEXT} maxFontSizeMultiplier={1.1}>
               {originName}
             </Text>
           </AnimatedTouchable>
+
           <TouchableOpacity
             activeOpacity={0.8}
-            hitSlop={spacing[2]}
+            hitSlop={{
+              top: spacing[2],
+              bottom: spacing[2],
+              left: spacing[2],
+              right: spacing[2],
+            }}
             onPress={swapDirection}
             style={ROUTE_INFO_CIRCLE}
             disabled={routeEditDisabled}
           >
             <Image source={arrowIcon} style={ARROW_ICON} />
           </TouchableOpacity>
+
           <AnimatedTouchable
             friction={9}
             activeScale={0.95}
             disabled={routeEditDisabled}
-            style={[ROUTE_DETAILS_STATION, { transform: [{ scale: stationCardScale }] }]}
             onPress={changeDestinationStation}
+            style={[ROUTE_DETAILS_STATION, { transform: [{ scale: stationCardScale }] }]}
           >
             <Text style={ROUTE_DETAILS_STATION_TEXT} maxFontSizeMultiplier={1.1}>
               {destinationName}
@@ -264,18 +275,19 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 })
 
 function createEventConfig(routeItem: RouteItem) {
-  const { destinationStationName: destination, originStationName: origin, trainNumber } = routeItem.trains[0]
+  if (!routeItem?.trains?.length) {
+    throw new Error("No trains found in routeItem")
+  }
 
+  const { destinationStationName: destination, originStationName: origin, trainNumber } = routeItem.trains[0]
   const title = translate("plan.rideTo", { destination })
   const notes = translate("plan.trainFromToStation", { trainNumber, origin, destination })
 
-  const eventConfig: AddCalendarEvent.CreateOptions = {
+  return {
     title,
     startDate: new Date(routeItem.departureTime).toISOString(),
     endDate: new Date(routeItem.arrivalTime).toISOString(),
     location: translate("plan.trainStation", { stationName: origin }),
     notes,
   }
-
-  return eventConfig
 }
