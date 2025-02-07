@@ -14,8 +14,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const WRAPPER: ViewStyle = {
   paddingTop: spacing[4],
-  gap: 16,
-  flex: 1,
   backgroundColor: color.background,
 }
 
@@ -38,6 +36,7 @@ type Props = {
 export const StationHoursSheet = observer(
   forwardRef<BottomSheet, Props>(({ stationId }, ref) => {
     const insets = useSafeAreaInsets()
+
     // TODO: Persist selected gate in local storage, so it's not reset when the user closes the sheet
     const { data: stationInfo, isLoading } = useQuery(["stationInfo", stationId], () => {
       return railApi.getStationInfo(userLocale, stationId)
@@ -52,8 +51,8 @@ export const StationHoursSheet = observer(
     }, [stationInfo])
 
     return (
-      <BottomSheetModal ref={ref} key={stationInfo?.gateInfo.length} enableDynamicSizing snapPoints={[]}>
-        <BottomSheetView style={[WRAPPER, { paddingBottom: insets.bottom }]}>
+      <BottomSheetModal ref={ref} enableDynamicSizing>
+        <BottomSheetView style={[WRAPPER, { paddingBottom: insets.bottom }]} key={stationInfo?.gateInfo.length}>
           {isLoading || !selectedGate ? (
             <ActivityIndicator size="large" color="grey" />
           ) : (
