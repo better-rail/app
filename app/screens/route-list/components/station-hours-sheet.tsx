@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useState } from "react"
-import { ActivityIndicator, ScrollView, useColorScheme, View } from "react-native"
+import { ActivityIndicator, Image, ScrollView, useColorScheme, View } from "react-native"
 import type { TextStyle, ViewStyle } from "react-native"
 import type BottomSheet from "@gorhom/bottom-sheet"
 import { BottomSheetView } from "@gorhom/bottom-sheet"
@@ -9,7 +9,7 @@ import { color, fontScale, spacing } from "../../../theme"
 import { observer } from "mobx-react-lite"
 import { useQuery } from "react-query"
 import { railApi } from "../../../services/api"
-import { dateFnsLocalization, userLocale } from "../../../i18n"
+import { dateFnsLocalization, isRTL, userLocale } from "../../../i18n"
 import { addDays, format, parseISO } from "date-fns"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HapticFeedback from "react-native-haptic-feedback"
@@ -93,7 +93,20 @@ export const StationHoursSheet = observer(
                     <View key={Math.random().toString(36)}>
                       <Text style={DAY_TEXT}>{convertDaysToAbbreviation(activityHour.activityDaysNumbers)}</Text>
                       <Text style={HOUR_TEXT}>
-                        {activityHour.startHour} {"-"} {activityHour.endHour}
+                        {activityHour.activityHoursReplaceTextKey ?? (
+                          <View style={{ flexDirection: "row", alignItems: "center", gap: isRTL ? spacing[3] : 0 }}>
+                            <Text style={HOUR_TEXT}>{activityHour.startHour}</Text>
+                            {isRTL ? (
+                              <Image
+                                source={require("../../../../assets/arrow-left.png")}
+                                style={{ width: 12.5, height: 12.5 }}
+                              />
+                            ) : (
+                              <Text style={{ color: color.text, fontSize: fontScale * 18 }}>{" - "}</Text>
+                            )}
+                            <Text style={HOUR_TEXT}>{activityHour.endHour}</Text>
+                          </View>
+                        )}
                       </Text>
                     </View>
                   ))}
