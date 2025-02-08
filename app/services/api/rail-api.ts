@@ -1,7 +1,14 @@
 import axios, { AxiosInstance, AxiosResponse } from "axios"
 import { LanguageCode, railApiLocales } from "../../i18n"
-import { AnnouncementApiResult, PopUpMessagesApiResult } from "./api.types"
 import { isEmpty } from "lodash"
+import {
+  Announcement,
+  PopUpMessage,
+  AnnouncementApiResult,
+  PopUpMessagesApiResult,
+  StationInfoApiResult,
+  StationInfo,
+} from "./rail-api.types"
 
 export class RailApi {
   axiosInstance: AxiosInstance
@@ -17,7 +24,7 @@ export class RailApi {
     })
   }
 
-  async getAnnouncements(languageCode: LanguageCode, relevantStationIds?: string[]) {
+  async getAnnouncements(languageCode: LanguageCode, relevantStationIds?: string[]): Promise<Announcement[]> {
     const languageId = railApiLocales[languageCode]
 
     const response: AxiosResponse<AnnouncementApiResult> = await this.axiosInstance.get(
@@ -41,7 +48,20 @@ export class RailApi {
     )
   }
 
-  async getPopupMessages(languageCode: LanguageCode) {
+  async getStationInfo(languageCode: LanguageCode, stationId: string): Promise<StationInfo> {
+    const languageId = railApiLocales[languageCode]
+
+    const response: AxiosResponse<StationInfoApiResult> = await this.axiosInstance.get(
+      `/Stations/GetStationInformation?LanguageId=${languageId}&StationId=${stationId}&SystemType=1`,
+      {
+        baseURL: "https://israelrail.azurefd.net/common/api/v1/",
+      },
+    )
+
+    return response.data.result
+  }
+
+  async getPopupMessages(languageCode: LanguageCode): Promise<PopUpMessage[]> {
     const languageId = railApiLocales[languageCode]
 
     const response: AxiosResponse<PopUpMessagesApiResult> = await this.axiosInstance.get(

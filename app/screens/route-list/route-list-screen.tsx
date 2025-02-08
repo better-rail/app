@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import React, { useMemo, useRef } from "react"
 import { View, ActivityIndicator, ViewStyle, Dimensions } from "react-native"
 import Animated from "react-native-reanimated"
 import { FlashList } from "@shopify/flash-list"
@@ -10,10 +10,11 @@ import { RouteListScreenProps } from "../../navigators/main-navigator"
 import { useStores } from "../../models"
 import { color, fontScale, spacing } from "../../theme"
 import { RouteItem } from "../../services/api"
-import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight } from "../../components"
-import { NoTrainsFoundMessage, RouteListError, RouteListWarning, WarningType } from "./components"
+import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight, Text } from "../../components"
+import { NoTrainsFoundMessage, RouteListError, RouteListWarning, StationHoursSheet, WarningType } from "./components"
 import { flatMap, max, round } from "lodash"
 import { translate } from "../../i18n"
+import type BottomSheet from "@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -24,6 +25,8 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   const { trainRoutes, routePlan, ride } = useStores()
   const { originId, destinationId, time, enableQuery } = route.params
 
+  const stationHoursSheetRef = useRef<BottomSheet>(null)
+
   const { isInternetReachable } = useNetInfo()
   const trains = useQuery(
     ["origin", originId, "destination", destinationId, "time", routePlan.date.getDate()],
@@ -33,6 +36,11 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     },
     { enabled: enableQuery, retry: false },
   )
+
+  const onDoneStationHoursSheet = () => {
+    stationHoursSheetRef.current?.close()
+    stationHoursSheetRef.current = null
+  }
 
   // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
   // returns a route list for the whole day.
@@ -128,6 +136,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           originId={route.params.originId}
           destinationId={route.params.destinationId}
           style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
+          stationHoursSheetRef={stationHoursSheetRef}
         />
       </Animated.View>
 
@@ -166,6 +175,13 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           warningType={trainRoutes.resultType as WarningType}
         />
       )}
+
+      <StationHoursSheet
+        stationId={route.params.originId}
+        onDone={onDoneStationHoursSheet}
+        ref={stationHoursSheetRef}
+        key={route.params.originId}
+      />
     </Screen>
   )
 })

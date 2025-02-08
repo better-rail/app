@@ -1,16 +1,6 @@
-import React, { useLayoutEffect, useRef, useEffect, useCallback } from "react"
-import {
-  Image,
-  ImageBackground,
-  View,
-  ViewStyle,
-  TextStyle,
-  ImageStyle,
-  Alert,
-  Linking,
-  Animated as RNAnimated,
-  TouchableOpacity,
-} from "react-native"
+import { useLayoutEffect, useRef, useEffect, useCallback } from "react"
+import { Image, ImageBackground, View, Alert, Linking, Animated as RNAnimated, TouchableOpacity } from "react-native"
+import type { ViewStyle, TextStyle, ImageStyle } from "react-native"
 import TouchableScale from "react-native-touchable-scale"
 import analytics from "@react-native-firebase/analytics"
 import { useNavigation } from "@react-navigation/native"
@@ -26,6 +16,7 @@ import * as Burnt from "burnt"
 import * as Calendar from "expo-calendar"
 import { CalendarIcon } from "../calendar-icon/calendar-icon"
 import type { RouteItem } from "../../services/api"
+import type { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types"
 
 const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale)
 const arrowIcon = require("../../../assets/arrow-left.png")
@@ -88,7 +79,9 @@ const GRADIENT: ViewStyle = {
 
 const HEADER_RIGHT_WRAPPER: ViewStyle = {
   flexDirection: "row",
-  alignItems: "center",
+  alignItems: "baseline",
+
+  gap: spacing[1],
   marginEnd: spacing[2],
   zIndex: 100,
 }
@@ -97,14 +90,18 @@ const HEADER_RIGHT_WRAPPER: ViewStyle = {
 export interface RouteDetailsHeaderProps {
   originId: string
   destinationId: string
-  routeItem: RouteItem
+  routeItem?: RouteItem
+  /**
+   * The screen name we're displaying the header inside
+   */
   screenName?: "routeList" | "routeDetails" | "activeRide"
   style?: ViewStyle
   eventConfig?: Calendar.Event
+  stationHoursSheetRef?: React.MutableRefObject<BottomSheetMethods>
 }
 
 export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
-  const { originId, destinationId, routeItem, screenName, style } = props
+  const { routeItem, originId, destinationId, screenName, style, stationHoursSheetRef } = props
   const { favoriteRoutes, routePlan } = useStores()
   const navigation = useNavigation()
   const routeEditDisabled = screenName !== "routeList"
@@ -115,6 +112,11 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   const destinationName = stationsObject[destinationId][stationLocale]
   const routeId = `${originId}${destinationId}`
   const isFavorite = favoriteRoutes.routes.some((fav) => fav.id === routeId)
+
+  const openStationHoursSheet = () => {
+    HapticFeedback.trigger("impactMedium")
+    stationHoursSheetRef?.current?.expand()
+  }
 
   const scaleStationCards = useCallback(() => {
     RNAnimated.sequence([
@@ -204,7 +206,19 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
       }
     }
 
-    return <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
+    return (
+      <View style={{ flexDirection: "row", alignItems: "baseline", gap: spacing[4] }}>
+        <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
+        {stationHoursSheetRef && (
+          <TouchableOpacity onPress={openStationHoursSheet}>
+            <Image
+              source={require("../../../assets/clock-ios.png")}
+              style={{ width: 23, height: 23, marginLeft: spacing[2], tintColor: "lightgrey", opacity: 0.9 }}
+            />
+          </TouchableOpacity>
+        )}
+      </View>
+    )
   }, [screenName, addToCalendar, isFavorite, routeId, favoriteRoutes, originId, destinationId])
 
   useLayoutEffect(() => {
@@ -214,6 +228,10 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
       headerRight: () => <View style={HEADER_RIGHT_WRAPPER}>{renderHeaderRight()}</View>,
     })
   }, [screenName, navigation, renderHeaderRight])
+
+  useEffect(() => {
+    openStationHoursSheet()
+  }, [])
 
   return (
     <>

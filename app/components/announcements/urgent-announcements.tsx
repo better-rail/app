@@ -14,7 +14,7 @@ export const UrgentAnnouncements = () => {
   const { settings } = useStores()
   const isDarkMode = useIsDarkMode()
 
-  const { data: messages } = useQuery<PopUpMessage[]>(["announcements", "urgent"], () => railApi.getPopupMessages(userLocale))
+  const { data: messages } = useQuery(["announcements", "urgent"], () => railApi.getPopupMessages(userLocale))
   const [unseenUrgentMessages, setUnseenUrgentMessages] = useState<PopUpMessage[]>([])
 
   useEffect(() => {

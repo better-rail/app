@@ -11,7 +11,7 @@ import { Chip, Text } from "../../components"
 import { useStores } from "../../models"
 import { isRTL, translate, userLocale } from "../../i18n"
 import { ImportantAnnouncementBar } from "./Important-announcement-bar"
-import { PopUpMessage, railApi } from "../../services/api"
+import { railApi } from "../../services/api"
 import { useQuery } from "react-query"
 import { head, isEmpty } from "lodash"
 
@@ -53,7 +53,7 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
   const navigation = useNavigation<NavigationProps>()
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
 
-  const { data: popupMessages } = useQuery<PopUpMessage[]>(["announcements", "urgent"], () => {
+  const { data: popupMessages } = useQuery(["announcements", "urgent"], () => {
     return railApi.getPopupMessages(userLocale)
   })
 
@@ -90,7 +90,7 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
         <View style={{ flexDirection: "row", gap: spacing[2] }}>
           {ride.route && (
             <Chip
-              color="success"
+              variant="success"
               onPress={() => {
                 // @ts-expect-error
                 navigation.navigate("activeRideStack", {
@@ -107,7 +107,7 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
           )}
 
           {/* {displayNewBadge && !showUrgentBar && ( */}
-          <Chip color="primary" onPress={() => navigation.navigate("liveAnnouncementStack")}>
+          <Chip variant="primary" onPress={() => navigation.navigate("liveAnnouncementStack")}>
             <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
             <Text style={{ color: "white", fontWeight: "500" }} tx="common.new" />
           </Chip>

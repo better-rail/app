@@ -183,3 +183,89 @@ export interface PopUpMessage {
   endDate: string
   systemTypeId: number
 }
+
+export interface StationInfoApiResult {
+  creationDate: string
+  version: string
+  successStatus: number
+  statusCode: number
+  errorMessages: any
+  result: StationInfo
+}
+
+export interface StationInfo {
+  creationDate: string
+  version: any
+  successStatus: number
+  statusCode: number
+  errorMessages: any
+  stationUpdates: StationUpdate[]
+  stationDetails: StationDetails
+  gateInfo: GateInfo[]
+  easyCategories: string[]
+  safetyInfos: string[]
+}
+
+export interface StationUpdate {
+  updateHeader: string
+  updateContent: string
+  updateLink: string
+  stations: string[]
+  linkText: string
+  updateType: string
+}
+
+export interface StationDetails {
+  stationId: number
+  stationName: string
+  carParking: string
+  parkingCosts: string
+  bikeParking: string
+  bikeParkingCosts: string
+  airPollutionIcon: any
+  stationMap: any
+  nonActiveElevators: any
+  nonActiveElevatorsLink: any
+  stationIsClosed: boolean
+  stationIsClosedUntill: string
+  stationIsClosedText: any
+  stationInfoTitle: string
+  stationInfo: string
+  aboutStationTitle: string
+  aboutStationContent: string
+  parkingTitleTranslationKey: string
+  parkingContentTranslationKey: string
+}
+
+export interface GateInfo {
+  stationGateId: number
+  gateName: string
+  gateAddress?: string
+  gateLatitude: number
+  gateLontitude: number
+  gateActivityHours: GateActivityHour[]
+  gateServices: GateService[]
+  nonActiveElavators: string
+}
+
+export interface GateActivityHour {
+  activityHoursType: number
+  isClosedShortText: string
+  isClosedLongText: string
+  activityDaysNumbers: string
+  startHourTextKey: any
+  startHour: string
+  startHourReplaceTextKey: any
+  endHourPrefixTextKey: any
+  endHour: string
+  endHourReplaceTextKey: any
+  endHourPostfixTextKey: any
+  activityHoursReplaceTextKey?: string
+}
+
+export interface GateService {
+  serviceName: string
+  serviceIcon: string
+  serviceIconLink: string
+  serviceIconImg: any
+}
