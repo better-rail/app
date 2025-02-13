@@ -1,4 +1,4 @@
-import { Linking, Platform, PlatformColor, TextStyle, View, ViewStyle } from "react-native"
+import { Linking, Platform, PlatformColor, TextStyle, View, ViewStyle, Alert } from "react-native"
 import { observer } from "mobx-react-lite"
 import { Screen, Text } from "../../components"
 import { SettingBox } from "./components/settings-box"
@@ -9,6 +9,7 @@ import { SettingsScreenProps } from "../../navigators"
 import { SETTING_GROUP } from "./settings-styles"
 import { useIsDarkMode, useIsBetaTester } from "../../hooks"
 import { shareApp } from "./helpers/app-share-sheet"
+import { useStores } from "../../models"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -30,6 +31,25 @@ const storeLink = Platform.select({
 export const SettingsScreen = observer(function SettingsScreen({ navigation }: SettingsScreenProps) {
   const isDarkMode = useIsDarkMode()
   const isBetaTester = useIsBetaTester()
+  const rootStore = useStores()
+
+  const handleDeleteAllData = () => {
+    Alert.alert(
+      "Delete All Data",
+      "Are you sure you want to delete all local app data? This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            rootStore.clearAllData()
+          },
+        },
+      ],
+      { cancelable: true },
+    )
+  }
 
   return (
     <Screen
@@ -81,6 +101,10 @@ export const SettingsScreen = observer(function SettingsScreen({ navigation }: S
           onPress={() => Linking.openURL(storeLink)}
         />
         <SettingBox last title={translate("settings.about")} icon="ℹ️" chevron onPress={() => navigation.navigate("about")} />
+      </View>
+
+      <View style={SETTING_GROUP}>
+        <SettingBox first last title={"Delete Data"} icon="🗑️" onPress={handleDeleteAllData} />
       </View>
 
       <Text
