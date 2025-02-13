@@ -11,15 +11,28 @@ import { UserModel } from "../user/user"
  * A RootStore model.
  */
 // prettier-ignore
-export const RootStoreModel = types.model("RootStore").props({
-  routePlan: types.optional(RoutePlanModel, {} as any),
-  trainRoutes: types.optional(trainRoutesModel, {} as any),
-  recentSearches: types.optional(RecentSearchesModel, {} as any),
-  favoriteRoutes: types.optional(FavoritesModel, {} as any),
-  settings: types.optional(SettingsModel, {} as any),
-  ride: types.optional(RideModel, {} as any),
-  user: types.optional(UserModel, {} as any)
-})
+export const RootStoreModel = types
+  .model("RootStore")
+  .props({
+    routePlan: types.optional(RoutePlanModel, {} as any),
+    trainRoutes: types.optional(trainRoutesModel, {} as any),
+    recentSearches: types.optional(RecentSearchesModel, {} as any),
+    favoriteRoutes: types.optional(FavoritesModel, {} as any),
+    settings: types.optional(SettingsModel, {} as any),
+    ride: types.optional(RideModel, {} as any),
+    user: types.optional(UserModel, {} as any),
+  })
+  .actions((self) => ({
+    clearAllData() {
+      self.routePlan = RoutePlanModel.create({})
+      self.trainRoutes = trainRoutesModel.create({})
+      self.recentSearches = RecentSearchesModel.create({})
+      self.favoriteRoutes = FavoritesModel.create({})
+      self.settings = SettingsModel.create({})
+      self.ride = RideModel.create({})
+      self.user = UserModel.create({})
+    },
+  }))
 
 /**
  * The RootStore instance.
