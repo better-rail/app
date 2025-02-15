@@ -1,4 +1,4 @@
-import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { Instance, SnapshotOut, types, applySnapshot } from "mobx-state-tree"
 import { RoutePlanModel } from "../route-plan/route-plan"
 import { trainRoutesModel } from "../train-routes/train-routes"
 import { RecentSearchesModel } from "../recent-searches/recent-searches"
@@ -33,7 +33,7 @@ export const RootStoreModel = types
         ride: {},
         user: {}
       })
-    },```
+    },
   }))
 
 /**
