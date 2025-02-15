@@ -36,12 +36,12 @@ export const PrivacyScreen = observer(function SettingsLanguageScreen() {
 
   const handleDeleteAllData = () => {
     Alert.alert(
-      "Delete All Data",
-      "Are you sure you want to delete all local app data? This action cannot be undone.",
+      translate("settings.deleteAllData"),
+      translate("settings.deleteAllDataConfirm"),
       [
-        { text: "Cancel", style: "cancel" },
+        { text: translate("common.cancel"), style: "cancel" },
         {
-          text: "Delete",
+          text: translate("common.delete"),
           style: "destructive",
           onPress: () => {
             rootStore.clearAllData()
@@ -74,7 +74,12 @@ export const PrivacyScreen = observer(function SettingsLanguageScreen() {
             onToggle={onTelemetryToggle}
           />
         )}
-        <SettingBox title={"Delete All Data"} icon="🗑️" onPress={handleDeleteAllData} last />
+        <SettingBox 
+          title={translate("settings.deleteAllData")} 
+          icon="🗑️" 
+          onPress={handleDeleteAllData} 
+          last 
+        />
       </View>
     </Screen>
   )

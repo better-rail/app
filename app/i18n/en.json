@@ -106,7 +106,9 @@
     "follow": "Follow Better Rail",
     "facebook": "Facebook",
     "twitter": "Twitter",
-    "sourceCode": "Source Code"
+    "sourceCode": "Source Code",
+    "deleteAllData": "Delete All Data",
+    "deleteAllDataConfirm": "Are you sure you want to delete all local app data? This action cannot be undone."
   },
   "favorites": {
     "title": "Favorite Routes",
