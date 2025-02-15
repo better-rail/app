@@ -1,7 +1,7 @@
 import React from "react"
 import analytics from "@react-native-firebase/analytics"
 import { observer } from "mobx-react-lite"
-import { Platform, View, ViewStyle } from "react-native"
+import { Platform, View, ViewStyle, Alert } from "react-native"
 import { Screen } from "../../components"
 import { SettingBox } from "./components/settings-box"
 import { SETTING_GROUP } from "./settings-styles"
@@ -19,6 +19,7 @@ const ROOT: ViewStyle = {
 
 export const PrivacyScreen = observer(function SettingsLanguageScreen() {
   const { user } = useStores()
+  const rootStore = useStores()
   const isBetaTester = useIsBetaTester()
 
   const onTelemetryToggle = async (disableTelemetry: boolean) => {
@@ -31,6 +32,24 @@ export const PrivacyScreen = observer(function SettingsLanguageScreen() {
       user.setDisableTelemetry(disableTelemetry)
       await Promise.all([analytics().setAnalyticsCollectionEnabled(true), crashlytics().setCrashlyticsCollectionEnabled(true)])
     }
+  }
+
+  const handleDeleteAllData = () => {
+    Alert.alert(
+      "Delete All Data",
+      "Are you sure you want to delete all local app data? This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            rootStore.clearAllData()
+          },
+        },
+      ],
+      { cancelable: true },
+    )
   }
 
   return (
@@ -53,9 +72,9 @@ export const PrivacyScreen = observer(function SettingsLanguageScreen() {
             toggle
             toggleValue={user.disableTelemetry}
             onToggle={onTelemetryToggle}
-            last
           />
         )}
+        <SettingBox title={"Delete All Data"} icon="🗑️" onPress={handleDeleteAllData} last />
       </View>
     </Screen>
   )
