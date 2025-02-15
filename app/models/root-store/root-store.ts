@@ -24,14 +24,16 @@ export const RootStoreModel = types
   })
   .actions((self) => ({
     clearAllData() {
-      self.routePlan = RoutePlanModel.create({})
-      self.trainRoutes = trainRoutesModel.create({})
-      self.recentSearches = RecentSearchesModel.create({})
-      self.favoriteRoutes = FavoritesModel.create({})
-      self.settings = SettingsModel.create({})
-      self.ride = RideModel.create({})
-      self.user = UserModel.create({})
-    },
+      applySnapshot(self, {
+        routePlan: {},
+        trainRoutes: {},
+        recentSearches: {},
+        favoriteRoutes: {},
+        settings: {},
+        ride: {},
+        user: {}
+      })
+    },```
   }))
 
 /**
