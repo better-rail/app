@@ -76,12 +76,9 @@ export const PrivacyScreen = observer(function SettingsLanguageScreen() {
             onToggle={onTelemetryToggle}
           />
         )}
-        <SettingBox 
-          title={translate("settings.deleteAllData")} 
-          icon="🗑️" 
-          onPress={handleDeleteAllData} 
-          last 
-        />
+      </View>
+      <View style={SETTING_GROUP}>
+        <SettingBox title={translate("settings.deleteAllData")} onPress={handleDeleteAllData} first last />
       </View>
     </Screen>
   )
