@@ -11,6 +11,7 @@ import { translate } from "../../i18n"
 import { openLink } from "../../utils/helpers/open-link"
 import { useIsBetaTester } from "../../hooks/use-is-beta-tester"
 import crashlytics from "@react-native-firebase/crashlytics"
+import RNRestart from "react-native-restart"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -45,6 +46,7 @@ export const PrivacyScreen = observer(function SettingsLanguageScreen() {
           style: "destructive",
           onPress: () => {
             rootStore.clearAllData()
+            RNRestart.Restart()
           },
         },
       ],
