@@ -1,4 +1,4 @@
-import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { Instance, SnapshotOut, types, applySnapshot } from "mobx-state-tree"
 import { RoutePlanModel } from "../route-plan/route-plan"
 import { trainRoutesModel } from "../train-routes/train-routes"
 import { RecentSearchesModel } from "../recent-searches/recent-searches"
@@ -11,15 +11,30 @@ import { UserModel } from "../user/user"
  * A RootStore model.
  */
 // prettier-ignore
-export const RootStoreModel = types.model("RootStore").props({
-  routePlan: types.optional(RoutePlanModel, {} as any),
-  trainRoutes: types.optional(trainRoutesModel, {} as any),
-  recentSearches: types.optional(RecentSearchesModel, {} as any),
-  favoriteRoutes: types.optional(FavoritesModel, {} as any),
-  settings: types.optional(SettingsModel, {} as any),
-  ride: types.optional(RideModel, {} as any),
-  user: types.optional(UserModel, {} as any)
-})
+export const RootStoreModel = types
+  .model("RootStore")
+  .props({
+    routePlan: types.optional(RoutePlanModel, {} as any),
+    trainRoutes: types.optional(trainRoutesModel, {} as any),
+    recentSearches: types.optional(RecentSearchesModel, {} as any),
+    favoriteRoutes: types.optional(FavoritesModel, {} as any),
+    settings: types.optional(SettingsModel, {} as any),
+    ride: types.optional(RideModel, {} as any),
+    user: types.optional(UserModel, {} as any),
+  })
+  .actions((self) => ({
+    clearAllData() {
+      applySnapshot(self, {
+        routePlan: {},
+        trainRoutes: {},
+        recentSearches: {},
+        favoriteRoutes: {},
+        settings: {},
+        ride: {},
+        user: {}
+      })
+    },
+  }))
 
 /**
  * The RootStore instance.

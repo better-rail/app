@@ -109,7 +109,9 @@
     "privacyPolicy": "מדיניות פרטיות",
     "privacyPolicyLink": "https://better-rail.co.il/privacy-policy/",
     "disableTelemetry": "ביטול טלמטריה",
-    "sourceCode": "קוד מקור"
+    "sourceCode": "קוד מקור",
+    "deleteAllData": "מחיקת נתונים מקומית",
+    "deleteAllDataConfirm": "האם למחוק את נתוני האפליקציה המקומיים? לא ניתן לבטל פעולה זו."
   },
   "favorites": {
     "title": "מסלולים מועדפים",
