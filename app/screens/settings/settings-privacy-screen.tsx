@@ -42,7 +42,7 @@ export const PrivacyScreen = observer(function SettingsLanguageScreen() {
       [
         { text: translate("common.cancel"), style: "cancel" },
         {
-          text: translate("common.delete"),
+          text: translate("common.ok"),
           style: "destructive",
           onPress: () => {
             rootStore.clearAllData()
