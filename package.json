@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@expo/react-native-action-sheet": "^4.1.0",
-    "@gorhom/bottom-sheet": "^5.0.6",
+    "@gorhom/bottom-sheet": "^5.1.1",
     "@notifee/react-native": "^9.1.2",
     "@react-native-async-storage/async-storage": "^2.0.0",
     "@react-native-community/blur": "^4.3.2",
