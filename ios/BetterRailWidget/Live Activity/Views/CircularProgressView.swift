@@ -2,14 +2,14 @@ import SwiftUI
 import WidgetKit
 import ActivityKit
 
-enum Content {
+enum CircularProgressContent {
   case icon
   case time
 }
 
 struct CircularProgressView: View {
   var vm: ActivityViewModel
-  var content: Content
+  var content: CircularProgressContent
   
   var start: Date { getStatusStartDate(context: vm.context) }
   

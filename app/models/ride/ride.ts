@@ -1,8 +1,8 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { omit } from "ramda"
 import { Platform } from "react-native"
-import AndroidHelpers from "../../utils/android-helpers"
-import iOSHelpers, { ActivityAuthorizationInfo, canRunLiveActivities } from "../../utils/ios-helpers"
+import AndroidHelpers from "../../utils/notification-helpers"
+import iOSHelpers, { ActivityAuthorizationInfo } from "../../utils/ios-helpers"
 import { trainRouteSchema } from "../train-routes/train-routes"
 import { RouteItem } from "../../services/api"
 import { RouteApi } from "../../services/api/route-api"
@@ -11,6 +11,7 @@ import { formatDateForAPI } from "../../utils/helpers/date-helpers"
 import { addMinutes } from "date-fns"
 import { translate } from "../../i18n"
 import * as Burnt from "burnt"
+import notifee, { NotificationSettings } from "@notifee/react-native"
 
 const routeApi = new RouteApi()
 
@@ -44,7 +45,7 @@ export const RideModel = types
      */
     route: types.maybe(types.model(trainRouteSchema)),
     /**
-     * Activity authorization info
+     * Activity authorization info for iOS
      */
     activityAuthorizationInfo: types.maybe(
       types.model({
@@ -52,11 +53,25 @@ export const RideModel = types
         frequentPushesEnabled: types.boolean,
       }),
     ),
+    /**
+     * Notifee settings for Android
+     */
+    notifeeSettings: types.maybe(
+      types.model({
+        notifications: types.number,
+        alarms: types.number,
+      }),
+    ),
+    /**
+     * Number of rides the user has taken
+     */
+    rideCount: types.optional(types.number, 0),
+    /**
+     * Whether the user device can run live activities
+     */
+    canRunLiveActivities: types.optional(types.boolean, false),
   })
   .views((self) => ({
-    /**
-     *
-     */
     get originId() {
       if (!self.route) return undefined
       return self.route.trains[0].originStationId
@@ -68,13 +83,34 @@ export const RideModel = types
     },
   }))
   .actions((self) => ({
+    setNotifeeSettings(newSettings: NotificationSettings) {
+      self.notifeeSettings = {
+        notifications: newSettings.authorizationStatus,
+        alarms: newSettings.android.alarm,
+      }
+    },
     setActivityAuthorizationInfo(newInfo: ActivityAuthorizationInfo) {
       self.activityAuthorizationInfo = newInfo
     },
-    async checkActivityAuthorizationInfo() {
-      if (canRunLiveActivities) {
+    setCanRunLiveActivities(value: boolean) {
+      self.canRunLiveActivities = value
+    },
+    async checkLiveActivitiesSupported() {
+      if (Platform.OS === "ios") {
+        const supported = await iOSHelpers.canRunLiveActivities()
+        this.setCanRunLiveActivities(supported)
+        return supported
+      }
+
+      return false
+    },
+    async checkLiveRideAuthorization() {
+      if (self.canRunLiveActivities) {
         const info = await iOSHelpers.activityAuthorizationInfo()
         this.setActivityAuthorizationInfo(info)
+      } else if (Platform.OS === "android") {
+        const settings = await notifee.getNotificationSettings()
+        this.setNotifeeSettings(settings)
       }
     },
     afterCreate() {
@@ -83,10 +119,10 @@ export const RideModel = types
         this.isRideActive(self.id)
       }
 
-      this.checkActivityAuthorizationInfo()
+      this.checkLiveRideAuthorization()
     },
     startRide(route: RouteItem) {
-      if (Platform.OS === "ios" && !canRunLiveActivities) return
+      if (Platform.OS === "ios" && !self.canRunLiveActivities) return
 
       this.setRideLoading(true)
       this.setRoute(route)
@@ -95,6 +131,7 @@ export const RideModel = types
         .then((rideId) => {
           this.setRideId(rideId)
           this.setRideLoading(false)
+          this.setRideCount(self.rideCount + 1)
         })
         .catch(() => {
           this.setRoute(undefined)
@@ -109,7 +146,7 @@ export const RideModel = types
         })
     },
     stopRide(rideId: string) {
-      if (Platform.OS === "ios" && !canRunLiveActivities) return Promise.resolve()
+      if (Platform.OS === "ios" && !self.canRunLiveActivities) return Promise.resolve()
 
       this.setRideLoading(true)
       this.setRideId(undefined)
@@ -128,8 +165,11 @@ export const RideModel = types
     setRideId(rideId: string) {
       self.id = rideId
     },
+    setRideCount(count: number) {
+      self.rideCount = count
+    },
     isRideActive(rideId: string) {
-      if (canRunLiveActivities) {
+      if (self.canRunLiveActivities) {
         iOSHelpers.isRideActive(rideId).then((tokens) => {
           // TODO: Check if ride Id exists in the array.
           // Currently .rideId arrives always empty, so we only check if the array is empty.

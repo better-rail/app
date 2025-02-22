@@ -1,5 +1,5 @@
 import { MutableRefObject, useEffect } from "react"
-import { EmitterSubscription, Linking, Platform } from "react-native"
+import { EmitterSubscription, Linking, NativeEventEmitter, Platform } from "react-native"
 import { extractURLParams } from "../utils/helpers/url"
 import { donateRouteIntent, reloadAllTimelines } from "../utils/ios-helpers"
 import { RootStore } from "../models"
@@ -8,6 +8,9 @@ import { NavigationContainerRef } from "@react-navigation/native"
 import { isEqual } from "lodash"
 import analytics from "@react-native-firebase/analytics"
 import { useStations } from "../data/stations"
+import Shortcuts, { ShortcutItem } from "react-native-quick-actions-shortcuts"
+
+const ShortcutsEmitter = new NativeEventEmitter(Shortcuts)
 
 /**
  * Handles navigation of deep links provided to the app.
@@ -16,6 +19,8 @@ export function useDeepLinking(rootStore: RootStore, navigationRef: MutableRefOb
   const stations = useStations()
 
   function deepLinkWidgetURL(url: string) {
+    if (!rootStore) return
+
     const { originId, destinationId } = extractURLParams(url)
     const { setOrigin, setDestination } = rootStore.routePlan
 
@@ -81,8 +86,29 @@ export function useDeepLinking(rootStore: RootStore, navigationRef: MutableRefOb
     }
   }
 
+  function openHomeScreenShortcut(item: ShortcutItem) {
+    if (!item) return
+    const origin = stations.find((station) => station.id === item.data.originId)
+    const destination = stations.find((station) => station.id === item.data.destinationId)
+
+    rootStore.routePlan.setOrigin(origin)
+    rootStore.routePlan.setDestination(destination)
+    rootStore.routePlan.setDate(new Date())
+
+    // @ts-expect-error navigator type
+    navigationRef.current?.navigate("mainStack", {
+      screen: "routeList",
+      params: {
+        originId: origin?.id,
+        destinationId: destination?.id,
+        time: rootStore?.routePlan.date.getTime(),
+      },
+    })
+  }
+
   useEffect(() => {
     let linkingListener: EmitterSubscription
+    let shortcutsListener: EmitterSubscription
 
     if (Platform.OS === "ios") {
       Linking.getInitialURL().then(handleDeepLinkURL)
@@ -92,10 +118,14 @@ export function useDeepLinking(rootStore: RootStore, navigationRef: MutableRefOb
       })
     }
 
-    if (linkingListener !== undefined) {
-      return () => linkingListener.remove()
+    if (rootStore) {
+      Shortcuts.getInitialShortcut().then(openHomeScreenShortcut)
+      shortcutsListener = ShortcutsEmitter.addListener("onShortcutItemPressed", openHomeScreenShortcut)
     }
 
-    return undefined
+    return () => {
+      linkingListener?.remove()
+      shortcutsListener?.remove()
+    }
   }, [rootStore])
 }

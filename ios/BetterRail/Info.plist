@@ -23,7 +23,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>8</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>
@@ -36,6 +36,10 @@
 	<dict>
 		<key>NSExceptionDomains</key>
 		<dict>
+			<key>NSAllowsArbitraryLoads</key>
+			<false/>
+			<key>NSAllowsLocalNetworking</key>
+			<true/>
 			<key>localhost</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
@@ -43,6 +47,14 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSCalendarsUsageDescription</key>
+	<string>We need calendar access to add train rides.</string>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>We need calendar access to add train rides.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>We need access to your contacts to import and manage contacts within our app.</string>
+	<key>NSRemindersFullAccessUsageDescription</key>
+	<string>We need full access to reminders to create alerts for your train rides.</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
 	<key>NSSupportsLiveActivitiesFrequentUpdates</key>
@@ -61,11 +73,16 @@
 		<string>Heebo-Regular.otf</string>
 		<string>Heebo-Thin.otf</string>
 	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
-		<string>armv7</string>
+		<string>arm64</string>
 	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
@@ -78,11 +95,7 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>NSCalendarsUsageDescription</key>
-  <string>We need access to your calendar to schedule events and reminders.</string>
-
-  <key>NSContactsUsageDescription</key>
-  <string>We need access to your contacts to import and manage contacts within our app.</string>
-
+	<key>LSMinimumSystemVersion</key>
+	<string>12.0.0</string>
 </dict>
 </plist>

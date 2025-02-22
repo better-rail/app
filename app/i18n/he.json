@@ -11,7 +11,10 @@
     "save": "שמירה",
     "next": "המשך",
     "dismiss": "ביטול",
-    "areYouSure": "האם את/ה בטוח/ה?"
+    "areYouSure": "האם את/ה בטוח/ה?",
+    "tryAgain": "נסו שנית",
+    "error": "שגיאה",
+    "allow": "אפשר"
   },
   "plan": {
     "title": "תכנון מסלול",
@@ -26,7 +29,7 @@
     "switchStations": "החלפת תחנות",
     "switchStationsHint": "קיצור דרך להחלפת תחנת המוצא עם תחנת היעד",
     "trainFromToStation": "רכבת מס' %{trainNumber} מ%{origin} אל %{destination}",
-    "eventTitle": "נסיעה ל%{destination}",
+    "rideTo": "נסיעה ל%{destination}",
     "trainStation": "תחנת רכבת %{stationName}"
   },
   "selectStation": {
@@ -45,7 +48,9 @@
     "noTrainsFound": "לא נמצאו רכבות למסלול זה בימים הקרובים",
     "sameStationsMessage": "יש לבחור תחנות מוצא ויעד שונות",
     "noInternetConnection": "נראה שהמכשיר אינו מחובר לאינטרנט.\n אנא בדקו את חיבור הרשת ונסו שוב.",
+    "routesError": "אירעה שגיאה בעת טעינת מסלולים מרכבת ישראל",
     "updates": "עדכונים מרכבת ישראל",
+    "updatesError": "אירעה שגיאה בעת טעינת עדכונים מרכבת ישראל",
     "shortRoute": "מסלול קצר"
   },
   "routeDetails": {
@@ -104,7 +109,9 @@
     "privacyPolicy": "מדיניות פרטיות",
     "privacyPolicyLink": "https://better-rail.co.il/privacy-policy/",
     "disableTelemetry": "ביטול טלמטריה",
-    "sourceCode": "קוד מקור"
+    "sourceCode": "קוד מקור",
+    "deleteAllData": "מחיקת נתונים מקומית",
+    "deleteAllDataConfirm": "האם למחוק את נתוני האפליקציה המקומיים? לא ניתן לבטל פעולה זו."
   },
   "favorites": {
     "title": "מסלולים מועדפים",
@@ -182,7 +189,7 @@
     },
     "dynamicIsland": {
       "title": "אי דינאמי",
-      "description": "יש לכם אייפון 14 פרו? ברכותינו, קיבלתם כוחות על חדשים.",
+      "description": "יש לכם אייפון עם אי דינאמי? ברכות! קיבלתם כוחות על חדשים.",
       "description2": "נתוני הנסיעה יופיעו על גבי האי הדינאמי, אליו תוכלו לגשת מכל מקום במכשיר."
     },
     "supportUs": {
@@ -206,6 +213,7 @@
 
     "trainArriving": "הרכבת מתקרבת ליעד",
     "arrivingIn": "הגעה בעוד %{minutes} דק'",
+    "arrivingAt": "הגעה ב-%{time}",
     "arrived": "הגעת ליעד",
     "departsIn": "הרכבת יוצאת בעוד %{minutes} דק'",
     "departsNow": "הרכבת יוצאת עכשיו",
@@ -222,10 +230,14 @@
     "liveActivitiesDisabledMessage": "יש לאפשר פעילויות בזמן אמת בהגדרות המכשיר על מנת להתחיל נסיעה",
     "notificationsDisabledTitle": "התראות כבויות",
     "notificationsDisabledMessage": "יש לאפשר התראות בהגדרות המכשיר על מנת להתחיל נסיעה",
+    "alarmDisabledTitle": "התראות מדוייקות כבויות",
+    "alarmDisabledMessage": "יש לאפשר התראות מדוייקות על מנת שנוכל להודיע לכם בדיוק מירבי מתי לרדת מהרכבת",
+    "connectionIssues": "בעיות תקשורת",
 
-    "firstRideAlertP1": "במהלך שלושת ימי השימוש הראשונים, קיימת אפשרות שזמן ההגעה שיוצג בלייב אקטיביטי (על מסך הנעילה) יהיה לא מדויק.",
-    "firstRideAlertP2": "זאת בשל העובדה שלוקח למערכת זמן להקצות \"תקציב נוטיפיקציות\" מספק עבור האפליקציה.",
-    "firstRideAlertP3": "בעיה זו בדרך כלל נפתרת מעצמה לאחר כשלושה ימים של שימוש, לאחריהם הלייב אקטיביטי יפעל בצורה מדויקת."
+    "notificationPermission1": "על מנת שנוכל לעדכן אתכם בזמן אמת על התקדמות הרכבת, יש לאפשר לנו לשלוח נוטיפקציות למכשירכם.",
+    "notificationPermission2": "אנחנו משתמשים במנגנון נוטיפיקציות חסכוני, ולא שולחים נוטיפקציות מיותרות.",
+    "notificationPermission3": "התראות",
+    "notificationPermission4": "התראות מתוזמנות"
   },
   "paywall": {
     "betterCommute": "לא תאמינו איך נסיעה ברכבת יכולה להראות 😎",
@@ -251,5 +263,22 @@
     "startFreeTrial": "הצטרפו ל-14 ימים בחינם",
     "afterTrialPrice": "ואז %{price} ל%{period}",
     "cancelAnytime": "ניתן לבטל בכל עת"
+  },
+  "announcements": {
+    "notifications": {
+      "notificationSettings": "הגדרת נוטפיקציות",
+      "newButtonContent": "קבלו התראות רלוונטיות לתחנות הקבועות שלכם",
+
+      "requestPermissionContent": "אפשרו לבטר רייל לשלוח התראות רלוונטיות לתחנות שלכם",
+      "enableNotifications": "הפעלת התראות",
+
+      "notificationSetupContent": "בטר רייל תשלח התראות רלוונטיות לתחנות המועדפות עליכם",
+      "stations": "תחנות",
+      "selectStations": "בחירת תחנות",
+      "selectedStations": "תחנות נוספות",
+      "stationsFromFavorites": "תחנות ממסלולים מועדפים",
+
+      "notificationNote": "בטר רייל תעשה כמיטב יכולתה לספק עדכונים מהירים ואמינים, אך תמיד מומלץ לבדוק גם עם המקורות הרשמיים של רכבת ישראל."
+    }
   }
 }

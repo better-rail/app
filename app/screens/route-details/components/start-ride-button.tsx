@@ -1,6 +1,5 @@
-import { Alert, Dimensions, Image, ImageStyle, Linking, PermissionsAndroid, Platform, View, ViewStyle } from "react-native"
+import { Alert, Dimensions, Image, ImageStyle, Linking, Platform, View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
-import * as storage from "../../../utils/storage"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HapticFeedback from "react-native-haptic-feedback"
 import analytics from "@react-native-firebase/analytics"
@@ -12,14 +11,11 @@ import { differenceInMinutes, isAfter } from "date-fns"
 import { timezoneCorrection } from "../../../utils/helpers/date-helpers"
 import { color, fontScale } from "../../../theme"
 import { useStores } from "../../../models"
-import { canRunLiveActivities } from "../../../utils/ios-helpers"
+import { AndroidNotificationSetting, AuthorizationStatus } from "@notifee/react-native"
+import InAppReview from "react-native-in-app-review"
+import { mixpanel } from "../../../app"
 
 const { width: deviceWidth } = Dimensions.get("screen")
-
-// Those who know know.
-const currentDate = new Date() // Get the current date and time in the local time zone
-const targetDate = new Date(2023, 5, 11, 17) // Set the date to June 11th at 17:00
-const isAfterTargetDate = isAfter(currentDate, targetDate)
 
 const START_RIDE_BUTTON: ViewStyle = {
   shadowOffset: { width: 0, height: 2 },
@@ -39,7 +35,7 @@ const TRAIN_ICON: ImageStyle = {
 interface StartRideButtonProps {
   route: RouteItem
   screenName: "routeDetails" | "activeRide"
-  openFirstRideAlertSheet?: () => void
+  openPermissionsSheet?: () => Promise<unknown>
 }
 
 export const StartRideButton = observer(function StartRideButton(props: StartRideButtonProps) {
@@ -59,31 +55,18 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
    * We are also correcting the user's timezone to Asia/Jerusalem, so if foreign users are playing with the
    * feature, it'll allow them to start a ride as if they were at Israel at the moment.
    */
-  const isRouteInPast = isAfter(timezoneCorrection(new Date()).getTime(), route.arrivalTime)
-  const isRouteInFuture = differenceInMinutes(route.departureTime, timezoneCorrection(new Date()).getTime()) > 60
+  const isRouteInPast = isAfter(timezoneCorrection(new Date()).getTime(), route.arrivalTime + route.delay * 60000)
+  const isRouteInFuture =
+    differenceInMinutes(route.departureTime + route.delay * 60000, timezoneCorrection(new Date()).getTime()) > 60
 
   const areActivitiesDisabled = Platform.select({
-    ios: () => !canRunLiveActivities || !(ride?.activityAuthorizationInfo?.areActivitiesEnabled ?? true),
-    android: () => {
-      const result = PermissionsAndroid.RESULTS[PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS]
-      return result && result !== "granted"
-    },
+    ios: () => !ride.canRunLiveActivities || !(ride?.activityAuthorizationInfo?.areActivitiesEnabled ?? true),
+    android: () =>
+      ride.notifeeSettings?.notifications !== AuthorizationStatus.AUTHORIZED ||
+      ride.notifeeSettings?.alarms !== AndroidNotificationSetting.ENABLED,
   })
+
   const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || areActivitiesDisabled()
-
-  const shouldDisplayFirstRideAlert = async () => {
-    const isFirstRideAlertEnabled = isAfterTargetDate
-    if (!isFirstRideAlertEnabled) return false
-
-    const firstRideDate = await storage.load("firstRideDate")
-
-    if (!firstRideDate) {
-      await storage.save("firstRideDate", new Date().toISOString())
-      return true
-    }
-
-    return false
-  }
 
   const startRide = async () => {
     if (ride.id) {
@@ -108,21 +91,17 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
       rideId: ride.id ?? "null",
     })
 
-    if (Platform.OS === "ios") {
-      shouldDisplayFirstRideAlert().then((isFirstRide) => {
-        if (isFirstRide) {
-          props.openFirstRideAlertSheet()
-          analytics().logEvent("first_live_ride_alert")
-        }
-      })
-    } else if (Number(Platform.Version) >= 33) {
-      const result = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS)
-      if (result !== "granted") return
-    }
-
     HapticFeedback.trigger("notificationSuccess")
     ride.startRide(route)
     analytics().logEvent("start_live_ride")
+
+    // in reality the prompt would be shown on the 4th ride and not the 3rd, since the count
+    // will be increased only after the ride has been started successfully.
+    if (ride.rideCount === 3) {
+      InAppReview.RequestInAppReview().then(() => {
+        analytics().logEvent("start_live_ride_in_app_review_prompt")
+      })
+    }
   }
 
   return (
@@ -152,22 +131,23 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
           let disabledReason = ""
           if (areActivitiesDisabled()) {
             disabledReason = Platform.OS === "ios" ? "Live Activities disabled" : "Notifications disbled"
-            const alertTitle =
-              Platform.OS === "ios" ? translate("ride.liveActivitiesDisabledTitle") : translate("ride.notificationsDisabledTitle")
-            const alertMessage =
-              Platform.OS === "ios"
-                ? translate("ride.liveActivitiesDisabledMessage")
-                : translate("ride.notificationsDisabledMessage")
-            Alert.alert(alertTitle, alertMessage, [
-              {
-                style: "cancel",
-                text: translate("common.cancel"),
-              },
-              {
-                text: translate("settings.title"),
-                onPress: () => Linking.openSettings(),
-              },
-            ])
+
+            if (Platform.OS === "ios") {
+              const alertTitle = translate("ride.liveActivitiesDisabledTitle")
+              const alertMessage = translate("ride.liveActivitiesDisabledMessage")
+              Alert.alert(alertTitle, alertMessage, [
+                {
+                  style: "cancel",
+                  text: translate("common.cancel"),
+                },
+                {
+                  text: translate("settings.title"),
+                  onPress: () => Linking.openSettings(),
+                },
+              ])
+            } else {
+              props.openPermissionsSheet().then(startRide)
+            }
           } else {
             let message = ""
             if (isRouteInPast) {

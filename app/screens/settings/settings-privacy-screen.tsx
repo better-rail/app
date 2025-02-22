@@ -1,7 +1,7 @@
 import React from "react"
 import analytics from "@react-native-firebase/analytics"
 import { observer } from "mobx-react-lite"
-import { Platform, View, ViewStyle } from "react-native"
+import { Platform, View, ViewStyle, Alert } from "react-native"
 import { Screen } from "../../components"
 import { SettingBox } from "./components/settings-box"
 import { SETTING_GROUP } from "./settings-styles"
@@ -11,6 +11,7 @@ import { translate } from "../../i18n"
 import { openLink } from "../../utils/helpers/open-link"
 import { useIsBetaTester } from "../../hooks/use-is-beta-tester"
 import crashlytics from "@react-native-firebase/crashlytics"
+import RNRestart from "react-native-restart"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -19,6 +20,7 @@ const ROOT: ViewStyle = {
 
 export const PrivacyScreen = observer(function SettingsLanguageScreen() {
   const { user } = useStores()
+  const rootStore = useStores()
   const isBetaTester = useIsBetaTester()
 
   const onTelemetryToggle = async (disableTelemetry: boolean) => {
@@ -31,6 +33,25 @@ export const PrivacyScreen = observer(function SettingsLanguageScreen() {
       user.setDisableTelemetry(disableTelemetry)
       await Promise.all([analytics().setAnalyticsCollectionEnabled(true), crashlytics().setCrashlyticsCollectionEnabled(true)])
     }
+  }
+
+  const handleDeleteAllData = () => {
+    Alert.alert(
+      translate("settings.deleteAllData"),
+      translate("settings.deleteAllDataConfirm"),
+      [
+        { text: translate("common.cancel"), style: "cancel" },
+        {
+          text: translate("common.ok"),
+          style: "destructive",
+          onPress: () => {
+            rootStore.clearAllData()
+            RNRestart.Restart()
+          },
+        },
+      ],
+      { cancelable: true },
+    )
   }
 
   return (
@@ -53,9 +74,11 @@ export const PrivacyScreen = observer(function SettingsLanguageScreen() {
             toggle
             toggleValue={user.disableTelemetry}
             onToggle={onTelemetryToggle}
-            last
           />
         )}
+      </View>
+      <View style={SETTING_GROUP}>
+        <SettingBox title={translate("settings.deleteAllData")} onPress={handleDeleteAllData} first last />
       </View>
     </Screen>
   )

@@ -8,6 +8,7 @@
 "train %@" = "Train %@";
 "platform %@" = "Platform %@";
 "train %@ platform %@" = "Train %@ ・ Platform %@";
+"platform %@ train no. %@" = "PLATFORM %@・TRAIN NO. %@";
 
 "change" = "Change";
 "stay-at %@" = "Stay at Platform %@";
@@ -23,6 +24,8 @@
 "No trains for today." = "No trains for today.";
 "No more trains for today." = "No more trains for today.";
 "Something went wrong." = "Something went wrong.";
+"try again" = "Try Again";
+"critical alert" = "Critical Alert";
 
 // live activity localizations
 "min" = "min";

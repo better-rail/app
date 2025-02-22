@@ -7,13 +7,12 @@
 // side effect of breaking other tooling like mobile-center and react-native-rename.
 //
 // It's easier just to leave it here.
-import App from "./app/app.tsx"
-import { configureAndroidNotifications } from "./app/utils/android-helpers.ts"
-import { AppRegistry, Platform } from "react-native"
+import { AppRegistry } from "react-native"
 
-if (Platform.OS === "android") {
-  configureAndroidNotifications()
-}
+import App from "./app/app"
+import { configureNotifications } from "./app/utils/notification-helpers"
+
+configureNotifications()
 
 AppRegistry.registerComponent("BetterRail", () => App)
 export default App

@@ -12,12 +12,12 @@
 import "./i18n"
 import "./utils/ignore-warnings"
 import React, { useState, useEffect, useRef } from "react"
-import { AppState, Platform, NativeEventEmitter } from "react-native"
+import { AppState, Platform } from "react-native"
 import { QueryClient, QueryClientProvider } from "react-query"
 import { NavigationContainerRef } from "@react-navigation/native"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet"
-import Shortcuts, { ShortcutItem } from "react-native-quick-actions-shortcuts"
+import notifee from "@notifee/react-native"
 
 import analytics from "@react-native-firebase/analytics"
 import crashlytics from "@react-native-firebase/crashlytics"
@@ -33,10 +33,9 @@ import {
   RootParamList,
 } from "./navigators"
 import { RootStore, RootStoreProvider, setupRootStore } from "./models"
-import { ToggleStorybook } from "../storybook/toggle-storybook"
 import { setInitialLanguage, setUserLanguage } from "./i18n/i18n"
 import "react-native-console-time-polyfill"
-import { withIAPContext } from "react-native-iap"
+import { useIAP, initConnection, finishTransaction, getAvailablePurchases, withIAPContext } from "react-native-iap"
 import PushNotification from "react-native-push-notification"
 
 // Disable tracking in development environment
@@ -49,13 +48,11 @@ if (__DEV__) {
 // stack navigation, use `createNativeStackNavigator` in place of `createStackNavigator`:
 // https://github.com/kmagiera/react-native-screens#using-native-stack-navigator
 import { enableScreens } from "react-native-screens"
-import { canRunLiveActivities, monitorLiveActivities } from "./utils/ios-helpers"
+import { monitorLiveActivities } from "./utils/ios-helpers"
 import { useDeepLinking } from "./hooks/use-deep-linking"
 import { openActiveRide } from "./utils/helpers/ride-helpers"
-import { useStations } from "./data/stations"
+import { GestureHandlerRootView } from "react-native-gesture-handler"
 enableScreens()
-
-const ShortcutsEmitter = new NativeEventEmitter(Shortcuts)
 
 export const queryClient = new QueryClient()
 
@@ -68,16 +65,18 @@ function App() {
   const [rootStore, setRootStore] = useState<RootStore | undefined>(undefined)
   const [localeReady, setLocaleReady] = useState(false)
   const appState = useRef(AppState.currentState)
-  const stations = useStations()
+  const { currentPurchase } = useIAP()
 
   useDeepLinking(rootStore, navigationRef)
 
   useEffect(() => {
     // Activate live activities listener on iOS 16.2+
-    if (canRunLiveActivities) {
-      monitorLiveActivities()
-    }
-  }, [])
+    rootStore?.ride.checkLiveActivitiesSupported().then((canRunLiveActivities) => {
+      if (canRunLiveActivities === true) {
+        monitorLiveActivities()
+      }
+    })
+  }, [rootStore])
 
   useEffect(() => {
     if (Platform.OS === "android") {
@@ -91,33 +90,6 @@ function App() {
     }
   }, [rootStore, navigationRef])
 
-  // @ts-ignore: Not all code paths return a value
-  useEffect(() => {
-    const listener = (item: ShortcutItem) => {
-      const origin = stations.find((station) => station.id === item.data.originId)
-      const destination = stations.find((station) => station.id === item.data.destinationId)
-
-      rootStore?.routePlan.setOrigin(origin)
-      rootStore?.routePlan.setDestination(destination)
-      rootStore?.routePlan.setDate(new Date())
-
-      // @ts-expect-error navigator type
-      navigationRef.current?.navigate("mainStack", {
-        screen: "routeList",
-        params: {
-          originId: origin?.id,
-          destinationId: destination?.id,
-          time: rootStore?.routePlan.date.getTime(),
-        },
-      })
-    }
-
-    if (rootStore) {
-      const subscription = ShortcutsEmitter.addListener("onShortcutItemPressed", listener)
-      return () => ShortcutsEmitter.removeSubscription(subscription)
-    }
-  }, [rootStore, navigationRef])
-
   useEffect(() => {
     // Refresh app state when app is opened from background
     const subscription = AppState.addEventListener("change", (nextAppState) => {
@@ -127,8 +99,8 @@ function App() {
           // Sync favorites
           rootStore.favoriteRoutes.syncFavorites()
 
-          // Check Live Activities authorization
-          rootStore.ride.checkActivityAuthorizationInfo()
+          // Check Live Ride authorization
+          rootStore.ride.checkLiveRideAuthorization()
 
           if (rootStore.ride.id) {
             // Check if the current ride id is still active
@@ -162,12 +134,46 @@ function App() {
       if (languageCode) {
         setUserLanguage(languageCode)
         setLocaleReady(true)
-        analytics().setUserProperties({ userLocale: languageCode })
+        analytics().setUserProperty("user_locale", languageCode)
       } else {
         setInitialLanguage()
       }
     })
   }, [])
+
+  useEffect(() => {
+    // open the announcements screen if the app was opened from a notification
+    const unsubscribe = notifee.onForegroundEvent(({ type, detail }) => {
+      if (detail.notification.data?.type === "service-update") {
+        navigationRef.current?.navigate("announcementsStack")
+      }
+    })
+
+    return unsubscribe
+  }, [])
+
+  useEffect(() => {
+    // load products and flush available purchases for the tip jar
+    // see: https://github.com/dooboolab-community/react-native-iap/issues/126
+    // and: https://react-native-iap.dooboolab.com/docs/guides/purchases
+    const flushAvailablePurchases = async () => {
+      try {
+        await initConnection()
+        const availablePurchases = await getAvailablePurchases()
+
+        availablePurchases.forEach((purchase) => {
+          finishTransaction({ purchase, isConsumable: true })
+        })
+      } catch (error) {
+        console.error("Failed to connect to IAP and finish all available transactions", error)
+      }
+    }
+
+    // to avoid prompting for login during development, only flush purchases in production
+    if (!__DEV__) {
+      flushAvailablePurchases()
+    }
+  }, [currentPurchase])
 
   // Before we show the app, we have to wait for our state to be ready.
   // In the meantime, don't render anything. This will be the background
@@ -177,9 +183,9 @@ function App() {
 
   // otherwise, we're ready to render the app
   return (
-    <ToggleStorybook>
-      <QueryClientProvider client={queryClient}>
-        <RootStoreProvider value={rootStore}>
+    <QueryClientProvider client={queryClient}>
+      <RootStoreProvider value={rootStore}>
+        <GestureHandlerRootView>
           <ActionSheetProvider>
             <SafeAreaProvider initialMetrics={initialWindowMetrics}>
               {__DEV__ ? (
@@ -194,9 +200,9 @@ function App() {
               )}
             </SafeAreaProvider>
           </ActionSheetProvider>
-        </RootStoreProvider>
-      </QueryClientProvider>
-    </ToggleStorybook>
+        </GestureHandlerRootView>
+      </RootStoreProvider>
+    </QueryClientProvider>
   )
 }
 

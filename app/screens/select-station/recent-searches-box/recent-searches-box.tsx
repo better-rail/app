@@ -1,5 +1,5 @@
 import React, { useMemo } from "react"
-import { View, Image, TextStyle, ViewStyle, ImageStyle } from "react-native"
+import { View, Image, TextStyle, ViewStyle, ImageStyle, Platform } from "react-native"
 import { observer } from "mobx-react-lite"
 import { useStores } from "../../../models"
 import analytics from "@react-native-firebase/analytics"
@@ -29,6 +29,7 @@ const SCROLL_VIEW: ViewStyle = {
   minWidth: "100%",
   marginTop: spacing[3],
   paddingStart: spacing[3],
+  paddingEnd: spacing[4],
   gap: spacing[3],
 }
 
@@ -67,6 +68,7 @@ export const RecentSearchesBox = observer(function RecentSearchesBox(props: Rece
         showsHorizontalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={SCROLL_VIEW}
+        snapToInterval={175 + spacing[3]}
       >
         {sortedSearches.map((entry) => {
           // if a station is removed from stations list, it might still be in recent searches

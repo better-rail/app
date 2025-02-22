@@ -1,20 +1,28 @@
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import { View, ActivityIndicator, ViewStyle, Dimensions } from "react-native"
+import Animated from "react-native-reanimated"
 import { FlashList } from "@shopify/flash-list"
 import { observer } from "mobx-react-lite"
 import { useNetInfo } from "@react-native-community/netinfo"
-import { SharedElement } from "react-navigation-shared-element"
 import { useQuery } from "react-query"
 import { closestIndexTo } from "date-fns"
 import { RouteListScreenProps } from "../../navigators/main-navigator"
 import { useStores } from "../../models"
 import { color, fontScale, spacing } from "../../theme"
 import { RouteItem } from "../../services/api"
-import { flatMap, max, round, uniqBy } from "lodash"
-import { ResultDateCard } from "./components/result-date-card"
 import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight } from "../../components"
-import { NoTrainsFoundMessage, NoInternetConnection, RouteListWarning, WarningType, DateScroll } from "./components"
+import {
+  NoTrainsFoundMessage,
+  RouteListError,
+  RouteListWarning,
+  StationHoursSheet,
+  WarningType,
+  ResultDateCard,
+  DateScroll,
+} from "./components"
+import { flatMap, max, round, uniqBy } from "lodash"
 import { translate } from "../../i18n"
+import type BottomSheet from "@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -29,6 +37,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
 
   const [routeData, setRouteData] = useState<RouteData[]>([])
   const [searchTime, setSearchTime] = useState<number>(time)
+  const stationHoursSheetRef = useRef<BottomSheet>(null)
 
   const { isInternetReachable } = useNetInfo()
   const trains = useQuery(
@@ -49,6 +58,11 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
       )
     }
   }, [trains.data?.length])
+
+  const onDoneStationHoursSheet = () => {
+    stationHoursSheetRef.current?.close()
+    stationHoursSheetRef.current = null
+  }
 
   // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
   // returns a route list for the whole day.
@@ -141,20 +155,23 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
       statusBarBackgroundColor="transparent"
       translucent
     >
-      <SharedElement id="route-header">
+      <Animated.View sharedTransitionTag="route-header">
         <RouteDetailsHeader
           screenName="routeList"
           originId={route.params.originId}
           destinationId={route.params.destinationId}
           style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
+          stationHoursSheetRef={stationHoursSheetRef}
         />
-      </SharedElement>
+      </Animated.View>
 
-      {!isInternetReachable && !trains.data && <NoInternetConnection />}
+      {!isInternetReachable && !trains.data && <RouteListError errorType="no-internet" />}
+
+      {isInternetReachable && !trains.data && trains.status === "error" && <RouteListError errorType="request-error" />}
 
       {trains.status === "loading" && <ActivityIndicator size="large" style={{ marginTop: spacing[6] }} color="grey" />}
 
-      {trains.status === "success" && trains.data.length > 0 && (
+      {trains?.data?.length > 0 && (
         <FlashList
           renderItem={renderRouteCard}
           keyExtractor={(item) => (typeof item === "string" ? item : item.trains.map((train) => train.trainNumber).join())}
@@ -185,6 +202,13 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           warningType={trainRoutes.resultType as WarningType}
         />
       )}
+
+      <StationHoursSheet
+        stationId={route.params.originId}
+        onDone={onDoneStationHoursSheet}
+        ref={stationHoursSheetRef}
+        key={route.params.originId}
+      />
     </Screen>
   )
 })

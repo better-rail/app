@@ -7,7 +7,7 @@ app_identifier([
   "il.co.better-rail.watchkitapp",
   "il.co.better-rail.StationIntent",
   "il.co.better-rail.BetterRailWidget",
-  "il.co.better-rail.watchkitapp.watchkitextension"
+  "il.co.better-rail.watchkitapp.BetterRailWidget"
 ])
 
 team_id("UE6BVYPPFX")

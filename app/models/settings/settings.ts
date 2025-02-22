@@ -1,16 +1,39 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { translate, TxKeyPath } from "../../i18n"
+import { PopUpMessage } from "../../services/api"
 
 export const SettingsModel = types
   .model("Settings")
-  .props({ profileCode: types.optional(types.number, 1), totalTip: types.optional(types.number, 0) })
+  .props({
+    stationsNotifications: types.optional(types.array(types.string), []),
+    seenNotificationsScreen: types.optional(types.boolean, false),
+    seenUrgentMessagesIds: types.optional(types.array(types.number), []),
+    profileCode: types.optional(types.number, 1),
+    totalTip: types.optional(types.number, 0),
+  })
   .views((self) => ({
     get profileCodeLabel() {
       const profile = PROFILE_CODES.find((profileCode) => profileCode.value === self.profileCode)
       return translate(profile.label)
     },
   }))
+  .actions((self) => ({
+    setSeenNotificationsScreen(seen: boolean) {
+      self.seenNotificationsScreen = seen
+    },
+    setStationsNotifications(stations: string[]) {
+      self.stationsNotifications.replace(stations)
+    },
+    addStationNotification(stationId: string) {
+      const updatedStations = [...self.stationsNotifications, stationId]
+      this.setStationsNotifications(updatedStations)
+    },
 
+    removeStationNotification(stationId: string) {
+      const updatedStations = self.stationsNotifications.filter((station) => station !== stationId)
+      this.setStationsNotifications(updatedStations)
+    },
+  }))
   .actions((self) => ({
     setProfileCode(code: number) {
       self.profileCode = code
@@ -18,6 +41,14 @@ export const SettingsModel = types
 
     addTip(amount: number) {
       self.totalTip = self.totalTip + amount
+    },
+  }))
+  .actions((self) => ({
+    setSeenUrgentMessagesIds(messagesIds: number[]) {
+      self.seenUrgentMessagesIds.replace(messagesIds)
+    },
+    filterUnseenUrgentMessages(messages: PopUpMessage[]) {
+      return messages.filter((message) => !self.seenUrgentMessagesIds.includes(message.id))
     },
   }))
 

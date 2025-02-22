@@ -75,14 +75,14 @@ class RNBetterRail: NSObject {
           let error = NSError(domain: errorDomain, code: errorCode, userInfo: errorUserInfo)
     
           await LiveActivitiesController.tokenRegistry.deleteRideToken(rideId: "ERROR")
-          reject("error", "An error occured while starting activity from RN", error)
+          reject("error", "An error occurred while starting activity from RN", error)
         } else {
           resolve(newToken.rideId)
         }
       }
     } catch {
       print("Error decoding JSON: \(String(describing: error))")
-      reject("error", "An error occured while starting activity from RN", error)
+      reject("error", "An error occurred while starting activity from RN", error)
     }
   }
   
@@ -133,5 +133,14 @@ class RNBetterRail: NSObject {
       "areActivitiesEnabled": info.areActivitiesEnabled,
       "frequentPushesEnabled": info.frequentPushesEnabled
     ])
+  }
+  
+  @available(iOS 14.0, *)
+  @objc func isRunningOnMac(_ resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+    if ProcessInfo.processInfo.isiOSAppOnMac {
+      resolve(true)
+    } else {
+      resolve(false)
+    }
   }
 }

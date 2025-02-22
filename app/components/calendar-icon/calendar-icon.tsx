@@ -1,4 +1,4 @@
-import { Image, ImageStyle, TouchableOpacity, ViewStyle } from "react-native"
+import { TouchableOpacity, Image, type ImageStyle, type ViewStyle } from "react-native"
 import { translate } from "../../i18n"
 
 const CalenderImageIcon = require("../../../assets/calendar.png")

@@ -607,7 +607,7 @@ export const useStations = () => {
         hebrew: station.hebrew,
         alias: station.alias,
       }))
-      .sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase())
+      .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
   }, [locale])
 
   return normalizeStationNames

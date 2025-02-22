@@ -71,7 +71,8 @@ export class RouteApi {
             arrivalTimeString: arrivalTime,
             originPlatform: originPlatform,
             destinationPlatform: destPlatform,
-            lastStop: stationsObject[lastStationId][stationLocale],
+            // In rare cases when the API returns "ghost" stations that are not in stationsObject, return an empty string.
+            lastStop: stationsObject[lastStationId] ? stationsObject[lastStationId][stationLocale] : "",
             trainNumber,
             stopStations,
             routeStations,

@@ -8,6 +8,7 @@
 "train %@" = "רכבת מס' %@";
 "platform %@" = "רציף %@";
 "train %@ platform %@" = "רכבת מס' %@ ・ רציף %@";
+"platform %@ train no. %@" = "רציף %@・רכבת מס' %@";
 
 "change" = "החלפה";
 "stay-at %@" = "יש להשאר ברציף %@";
@@ -35,6 +36,8 @@
 "No more trains for today." = "אין יותר רכבות להיום.";
 "No trains for today." = "לא נמצאו רכבות להיום.";
 "Something went wrong." = "אופס, משהו השתבש";
+"try again" = "נסה שוב";
+"critical alert" = "הודעה חשובה";
 
 // live activity localizations
 "min" = "דק'";

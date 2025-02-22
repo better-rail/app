@@ -152,21 +152,14 @@ export const color = {
     android: PlatformColor("@color/greenBg"),
   }),
 
+  // when the background of the element is green and the element itself is green (e.g. a button with green text on green background)
+  contrastedGreenBackground: Platform.select({
+    ios: DynamicColorIOS({ light: "#C7EEBE", dark: "#5D7557" }),
+    android: PlatformColor("@color/contrastedGreenBg"),
+  }),
+
   stop: Platform.select({
     ios: DynamicColorIOS({ light: palette.pinky, dark: "#bb645b" }),
     android: PlatformColor("@color/red"),
   }),
-
-  /**
-   * Storybook background for Text stories, or any stories where
-   * the text color is color.text, which is white by default, and does not show
-   * in Stories against the default white background
-   */
-  storybookDarkBg: palette.black,
-
-  /**
-   * Storybook text color for stories that display Text components against the
-   * white background
-   */
-  storybookTextColor: palette.black,
 }

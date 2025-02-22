@@ -7,9 +7,10 @@ struct WidgetBackground: View {
 
   var body: some View {
     ZStack {
-      if let stationImage = image {
-        Image(stationImage)
+      if let image {
+        Image(image)
           .resizable()
+          .widgetBlur(radius: 1.5)
           .aspectRatio(contentMode: .fill)
           .frame(maxHeight: 170)
           .clipped()

@@ -17,6 +17,13 @@ i18n.translations = { he, en, ar, ru }
 
 export type LanguageCode = "he" | "ar" | "en" | "ru"
 
+export const railApiLocales = {
+  en: "English",
+  he: "Hebrew",
+  ru: "Russian",
+  ar: "Arabic",
+}
+
 export const isRTL = I18nManager.isRTL
 export let userLocale: LanguageCode = "en"
 export let dateFnsLocalization = enUS
@@ -24,7 +31,7 @@ export let dateDelimiter = " "
 export let dateLocale = "en-US"
 export const deviceLocale = Localization.locale
 
-analytics().setUserProperties({ deviceLocale })
+analytics().setUserProperty("device_locale", deviceLocale)
 
 export function getInitialLanguage(): LanguageCode {
   if (Localization.locale.startsWith("he")) {

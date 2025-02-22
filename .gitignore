@@ -41,6 +41,12 @@ local.properties
 node_modules/
 npm-debug.log
 yarn-error.log
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
 
 # fastlane
 #
@@ -58,9 +64,10 @@ yarn-error.log
 *.jsbundle
 
 # Ruby / CocoaPods
-/ios/Pods/
+**/Pods/
 /ios/GoogleService-Info.plist
 /vendor/bundle/
+
 
 # Ignite-specific items below
 # You can safely replace everything above this comment with whatever is

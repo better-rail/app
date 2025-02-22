@@ -1,34 +1,39 @@
 import React from "react"
-import { View, ViewStyle, TextStyle, Platform } from "react-native"
+import { View, ViewStyle, TextStyle, Platform, useColorScheme } from "react-native"
 import { Text } from "../text/text"
 import { translate } from "../../i18n"
 import { color, spacing } from "../../theme"
 
 const CONTAINER: ViewStyle = {
-  marginTop: spacing[1],
-  paddingVertical: spacing[0],
-  paddingHorizontal: spacing[3],
-  backgroundColor: color.destroy,
-  borderRadius: 12,
+  paddingVertical: 1,
+  paddingHorizontal: spacing[2],
+  borderRadius: 6,
 }
 
 const BADGE_TEXT: TextStyle = {
-  color: color.whiteText,
   fontSize: 14,
   fontWeight: Platform.select({ ios: "500", android: "bold" }),
+  color: color.whiteText,
 }
 
 interface DelayBadgeProps {
   delay: number
+  onlyNumber?: boolean
 }
 
 export const DelayBadge = function DelayBadge(props: DelayBadgeProps) {
-  const { delay } = props
+  const { delay, onlyNumber } = props
+
+  const colorScheme = useColorScheme()
+  const backgroundColor = colorScheme === "light" ? "#EE6958" : "#B22E4D"
 
   return (
-    <View style={CONTAINER}>
+    <View style={[CONTAINER, { backgroundColor }]}>
       <Text style={BADGE_TEXT} maxFontSizeMultiplier={1.15}>
-        {delay} {translate("routes.delayTime")}
+        {onlyNumber && "+"}
+        {delay}
+
+        {!onlyNumber && <> {translate("routes.delayTime")}</>}
       </Text>
     </View>
   )

@@ -1,5 +1,6 @@
 import React from "react"
-import { View, Image, ViewStyle, ImageStyle, ImageSourcePropType, Appearance, Platform } from "react-native"
+import { View, Image, Appearance, Platform } from "react-native"
+import type { ViewStyle, ImageStyle, TextStyle, ImageSourcePropType } from "react-native"
 import { ContextMenuView } from "react-native-ios-context-menu"
 import TouchableScale from "react-native-touchable-scale"
 import { Text } from "../../../components"
@@ -13,7 +14,6 @@ const SEARCH_ENTRY_WRAPPER: ViewStyle = {
 }
 
 const SEARCH_ENTRY_IMAGE_WRAPPER: ViewStyle = {
-  marginBottom: spacing[1],
   shadowOffset: { width: 0, height: 0 },
   shadowColor: "rgba(0,0,0,.3)",
   shadowRadius: 1.5,
@@ -26,6 +26,10 @@ const SEARCH_ENTRY_IMAGE: ImageStyle = {
   width: 175,
   height: 125,
   borderRadius: Platform.select({ ios: 6, android: 4 }),
+}
+
+const SEARCH_ENTRY_TEXT: TextStyle = {
+  marginTop: spacing[1],
 }
 
 const EMPTY_CARD_WRAPPER: ViewStyle = {
@@ -59,6 +63,7 @@ export const StationSearchEntry = (props: StationSearchEntryProps) => (
           props.onHide()
         }
       }}
+      previewConfig={{ borderRadius: 6 }}
       menuConfig={{
         menuTitle: props.name,
         menuItems: [
@@ -87,6 +92,6 @@ export const StationSearchEntry = (props: StationSearchEntryProps) => (
         )}
       </View>
     </ContextMenuView>
-    <Text>{props.name}</Text>
+    <Text style={SEARCH_ENTRY_TEXT}>{props.name}</Text>
   </TouchableScale>
 )

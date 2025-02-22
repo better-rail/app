@@ -12,14 +12,17 @@ let upcoming5 = UpcomingTrain(departureTime: "12:03", arrivalTime: "12:29", plat
 
 let upcomingTrainsSnapshot = [upcoming1, upcoming2, upcoming3, upcoming4, upcoming5]
 
-let snapshotEntry = TrainDetail(
-  date: Date(),
-  departureDate: "09/01/2007 09:43:00",
-  departureTime: "09:43",
-  arrivalTime: "10:09",
-  platform: 1,
-  trainNumber: 261,
-  origin: tlvStation,
-  destination: jlmStation,
-  upcomingTrains: upcomingTrainsSnapshot
-)
+func createSnapshotEntry(origin: Station = tlvStation, destination: Station = jlmStation, label: String? = nil) -> TrainDetail {
+  return TrainDetail(
+    date: Date(),
+    departureDate: "09/01/2007 09:43:00",
+    departureTime: "09:43",
+    arrivalTime: "10:09",
+    platform: 1,
+    trainNumber: 261,
+    origin: origin,
+    destination: destination,
+    label: label,
+    upcomingTrains: upcomingTrainsSnapshot
+  )
+}

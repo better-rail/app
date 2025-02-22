@@ -5,11 +5,10 @@
  * You'll likely spend most of your time in this file.
  */
 import React from "react"
-import { StackScreenProps, TransitionPresets } from "@react-navigation/stack"
+import { createNativeStackNavigator, type NativeStackScreenProps } from "@react-navigation/native-stack"
 import { PlannerScreen, SelectStationScreen, RouteListScreen, RouteDetailsScreen } from "../screens"
-import { createSharedElementStackNavigator } from "react-navigation-shared-element"
 import { color, typography } from "../theme"
-import { RouteItem } from "../services/api"
+import type { RouteItem } from "../services/api"
 import { Platform } from "react-native"
 
 /**
@@ -32,19 +31,19 @@ export type PrimaryParamList = {
   settings: undefined
 }
 
-export type PlannerScreenProps = StackScreenProps<PrimaryParamList, "planner">
-export type SelectStationScreenProps = StackScreenProps<PrimaryParamList, "selectStation">
-export type RouteListScreenProps = StackScreenProps<PrimaryParamList, "routeList">
-export type RouteDetailsScreenProps = StackScreenProps<PrimaryParamList, "routeDetails">
+export type PlannerScreenProps = NativeStackScreenProps<PrimaryParamList, "planner">
+export type SelectStationScreenProps = NativeStackScreenProps<PrimaryParamList, "selectStation">
+export type RouteListScreenProps = NativeStackScreenProps<PrimaryParamList, "routeList">
+export type RouteDetailsScreenProps = NativeStackScreenProps<PrimaryParamList, "routeDetails">
 
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
-const Stack = createSharedElementStackNavigator<PrimaryParamList>()
+const Stack = createNativeStackNavigator<PrimaryParamList>()
 
 export function MainNavigator() {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerBackTitleVisible: false,
+        headerBackButtonDisplayMode: "minimal",
         headerTitleStyle: {
           fontSize: 20,
           fontFamily: typography.primary,
@@ -52,7 +51,7 @@ export function MainNavigator() {
           marginBottom: Platform.select({ android: 2.5, ios: 0 }),
         },
         headerBackTitleStyle: { fontFamily: typography.primary },
-        headerTintColor: color.primary,
+        headerTintColor: color.primary as unknown as string,
         headerTitle: "",
       }}
     >
@@ -60,7 +59,10 @@ export function MainNavigator() {
       <Stack.Screen
         name="selectStation"
         component={SelectStationScreen}
-        options={{ headerShown: false, ...TransitionPresets.ModalSlideFromBottomIOS, presentation: "modal" }}
+        options={{
+          headerShown: false,
+          presentation: "fullScreenModal",
+        }}
       />
       <Stack.Screen
         name="routeList"
@@ -70,8 +72,7 @@ export function MainNavigator() {
       <Stack.Screen
         name="routeDetails"
         component={RouteDetailsScreen}
-        options={{ headerTransparent: true, headerTintColor: "lightgrey", ...TransitionPresets.SlideFromRightIOS }}
-        sharedElements={() => Platform.select({ ios: ["route-header"], android: [] })}
+        options={{ headerTransparent: true, headerTintColor: "lightgrey" }}
       />
     </Stack.Navigator>
   )
