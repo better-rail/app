@@ -14,6 +14,8 @@ import { addDays, format, parseISO } from "date-fns"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HapticFeedback from "react-native-haptic-feedback"
 
+const ARROW_LEFT = require("../../../../assets/arrow-left.png")
+
 const WRAPPER: ViewStyle = {
   paddingTop: spacing[4],
 }
@@ -97,10 +99,7 @@ export const StationHoursSheet = observer(
                           <View style={{ flexDirection: "row", alignItems: "center", gap: isRTL ? spacing[3] : 0 }}>
                             <Text style={HOUR_TEXT}>{activityHour.startHour}</Text>
                             {isRTL ? (
-                              <Image
-                                source={require("../../../../assets/arrow-left.png")}
-                                style={{ width: 12.5, height: 12.5 }}
-                              />
+                              <Image source={ARROW_LEFT} style={{ width: 12.5, height: 12.5 }} />
                             ) : (
                               <Text style={{ color: color.text, fontSize: fontScale * 18 }}>{" - "}</Text>
                             )}
