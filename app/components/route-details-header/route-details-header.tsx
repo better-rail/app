@@ -80,9 +80,7 @@ const GRADIENT: ViewStyle = {
 const HEADER_RIGHT_WRAPPER: ViewStyle = {
   flexDirection: "row",
   alignItems: "baseline",
-
   gap: spacing[1],
-  marginEnd: spacing[2],
   zIndex: 100,
 }
 // #endregion
@@ -189,7 +187,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 
   const renderHeaderRight = useCallback(() => {
     if (screenName === "routeDetails") {
-      return <CalendarIcon onPress={addToCalendar} style={{ marginEnd: -spacing[3] }} />
+      return <CalendarIcon onPress={addToCalendar} />
     }
 
     const handleFavoritePress = () => {
