@@ -51,7 +51,12 @@ export const AnnouncementsNavigator = () => (
             />
           </Pressable>
         ),
-        headerLeft: () => <CloseButton onPress={() => navigation.goBack()} style={{ marginRight: spacing[2] }} />,
+        headerLeft: () => (
+          <CloseButton
+            onPress={() => navigation.goBack()}
+            style={{ marginRight: Platform.select({ ios: spacing[2], android: spacing[5] }) }}
+          />
+        ),
         headerTitleStyle: Platform.select({ ios: iOSTitleStyle, android: { ...androidTitleStyle, marginBottom: 10 } }),
       })}
     />
