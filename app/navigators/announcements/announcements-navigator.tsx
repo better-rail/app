@@ -75,10 +75,8 @@ export const AnnouncementsNavigator = () => (
       component={NotificationsSetupScreen}
       options={({ navigation }) => ({
         title: translate("announcements.notifications.notificationSettings"),
-        headerLeftContainerStyle: { marginBottom: 10 },
         headerTitleStyle: Platform.select({
           ios: { ...iOSTitleStyle, marginBottom: 10 },
-          android: { ...androidTitleStyle, marginBottom: 10 },
         }),
       })}
     />
