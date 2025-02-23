@@ -113,9 +113,8 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   const isFavorite = favoriteRoutes.routes.some((fav) => fav.id === routeId)
 
   const openStationHoursSheet = () => {
-    console.log("openStationHoursSheet")
     HapticFeedback.trigger("impactMedium")
-    stationHoursSheetRef.current?.expand()
+    stationHoursSheetRef?.current?.expand()
   }
 
   const scaleStationCards = useCallback(() => {
