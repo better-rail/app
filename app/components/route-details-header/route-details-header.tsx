@@ -114,7 +114,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 
   const openStationHoursSheet = () => {
     HapticFeedback.trigger("impactMedium")
-    stationHoursSheetRef?.current?.expand()
+    stationHoursSheetRef.current?.expand()
   }
 
   const scaleStationCards = useCallback(() => {
@@ -225,10 +225,6 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
       headerRight: () => <View style={HEADER_RIGHT_WRAPPER}>{renderHeaderRight()}</View>,
     })
   }, [screenName, navigation, renderHeaderRight])
-
-  useEffect(() => {
-    openStationHoursSheet()
-  }, [])
 
   return (
     <>
