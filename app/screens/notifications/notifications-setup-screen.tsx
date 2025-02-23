@@ -11,7 +11,7 @@ import { StationListItem } from "./station-list-item"
 import { useStations } from "../../data/stations"
 import analytics from "@react-native-firebase/analytics"
 import messaging from "@react-native-firebase/messaging"
-import { useAppState } from "../../hooks"
+import { useAppState, useIsDarkMode } from "../../hooks"
 import { chain } from "lodash"
 
 export const NotificationsSetupScreen = observer(function NotificationsSetupScreen({ navigation }: AnnouncementsScreenProps) {
@@ -19,6 +19,8 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
   const stations = useStations()
   const appState = useAppState()
   const [notificationPermission, setNotificationPermission] = useState(false)
+
+  const isDarkMode = useIsDarkMode()
 
   const requestPermission = async () => {
     const settings = await notifee.requestPermission()
@@ -75,7 +77,7 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
     .value()
 
   return (
-    <Screen style={{ paddingHorizontal: spacing[4], flex: 1 }} unsafe>
+    <Screen style={{ paddingHorizontal: spacing[4], flex: 1 }} unsafe statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={{ paddingBottom: spacing[6] }}>
           <View style={{ marginVertical: spacing[2], gap: spacing[2] }}>
