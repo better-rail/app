@@ -1,17 +1,17 @@
 import React, { useMemo, useRef } from "react"
-import { View, ActivityIndicator, ViewStyle, Dimensions } from "react-native"
+import { View, ActivityIndicator, Dimensions, type ViewStyle } from "react-native"
 import Animated from "react-native-reanimated"
 import { FlashList } from "@shopify/flash-list"
 import { observer } from "mobx-react-lite"
 import { useNetInfo } from "@react-native-community/netinfo"
 import { useQuery } from "react-query"
 import { closestIndexTo } from "date-fns"
-import { RouteListScreenProps } from "../../navigators/main-navigator"
+import type { RouteListScreenProps } from "../../navigators/main-navigator"
 import { useStores } from "../../models"
 import { color, fontScale, spacing } from "../../theme"
-import { RouteItem } from "../../services/api"
-import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight, Text } from "../../components"
-import { NoTrainsFoundMessage, RouteListError, RouteListWarning, StationHoursSheet, WarningType } from "./components"
+import type { RouteItem } from "../../services/api"
+import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight } from "../../components"
+import { NoTrainsFoundMessage, RouteListError, RouteListWarning, StationHoursSheet, type WarningType } from "./components"
 import { flatMap, max, round } from "lodash"
 import { translate } from "../../i18n"
 import type BottomSheet from "@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet"
@@ -46,7 +46,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   // returns a route list for the whole day.
   const initialScrollIndex = useMemo(() => {
     if (trains.isSuccess) {
-      let index
+      let index: number
 
       if (routePlan.dateType === "departure") {
         const departureTimes = trains.data.map((route) => route.trains[0].departureTime)

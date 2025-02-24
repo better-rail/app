@@ -99,7 +99,7 @@ export const StationHoursSheet = observer(
                           <View style={{ flexDirection: "row", alignItems: "center", gap: isRTL ? spacing[3] : 0 }}>
                             <Text style={HOUR_TEXT}>{activityHour.startHour}</Text>
                             {isRTL ? (
-                              <Image source={ARROW_LEFT} style={{ width: 12.5, height: 12.5 }} />
+                              <Image source={ARROW_LEFT} style={{ width: 12.5, height: 12.5, tintColor: color.text }} />
                             ) : (
                               <Text style={{ color: color.text, fontSize: fontScale * 18 }}>{" - "}</Text>
                             )}
