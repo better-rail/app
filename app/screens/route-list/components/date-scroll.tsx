@@ -1,5 +1,5 @@
-import React, { Dispatch, SetStateAction, useCallback } from "react"
-import { View, Image, Pressable, ViewStyle, ImageStyle, TextStyle } from "react-native"
+import React, { useCallback } from "react"
+import { View, Image, Pressable, ViewStyle, ImageStyle, TextStyle, ActivityIndicator } from "react-native"
 
 import { color } from "../../../theme"
 import { Text } from "../../../components"
@@ -22,12 +22,23 @@ const PRESSABLE_STYLE: ViewStyle = {
   justifyContent: "space-around",
 }
 
+const DISABLED_STYLE: ViewStyle = {
+  opacity: 0.5,
+}
+
 const ARROW_URL = "../../../../assets/chevron.png"
 
 const ARROW_STYLE: ImageStyle = {
   width: 7,
   height: 15,
   tintColor: color.primary,
+}
+
+const INDICATOR_CONTAINER: ViewStyle = {
+  width: 7,
+  height: 15,
+  alignItems: "center",
+  justifyContent: "center",
 }
 
 const LINE_STYLE: ViewStyle = {
@@ -55,50 +66,58 @@ type DateScrollDirection = "forward" | "backward"
 
 export const DateScroll = function DateScroll(props: {
   direction: DateScrollDirection
-  setTime: Dispatch<SetStateAction<number>>
+  setTime: () => void
   currenTime: number
+  isLoadingDate?: boolean
 }) {
-  const getNewDate = useCallback(
-    (value: number) => {
-      const newDate = new Date(props.currenTime)
-      newDate.setDate(newDate.getDate() + value)
+  const { trainRoutes } = useStores()
+  const isLoading = trainRoutes.status === "pending" || props.isLoadingDate
 
-      return newDate
-    },
-    [props.currenTime],
-  )
+  // This date is already the target date for the direction (forward or backward)
+  const getDateString = useCallback(() => {
+    return new Date(props.currenTime).toDateString()
+  }, [props.currenTime])
 
-  const setNewDate = useCallback(
-    (value: number) => {
-      props.setTime((currentTime) => {
-        const currentDate = new Date(currentTime)
-        currentDate.setDate(currentDate.getDate() + value)
-        return currentDate.getTime()
-      })
-    },
-    [props.currenTime],
-  )
+  const handlePress = useCallback(() => {
+    // Don't allow new requests while loading
+    if (isLoading) return
+
+    // Call the callback to load data for this direction
+    props.setTime()
+  }, [props.setTime, isLoading])
 
   return (
     <View style={CONTAINER_STYLE}>
       {props.direction === "backward" ? (
         <>
-          <Pressable style={PRESSABLE_STYLE} onPress={() => setNewDate(-1)}>
+          <Pressable style={[PRESSABLE_STYLE, isLoading && DISABLED_STYLE]} onPress={handlePress} disabled={isLoading}>
             <View style={LINE_STYLE}></View>
             <View style={DATE_STYLE}>
-              <Text text={getNewDate(-1).toDateString()} style={TEXT_STYLE} />
-              <Image source={require(ARROW_URL)} style={{ ...ARROW_STYLE, transform: [{ rotate: "90deg" }] }} />
+              <Text text={getDateString()} style={TEXT_STYLE} />
+              {isLoading ? (
+                <View style={INDICATOR_CONTAINER}>
+                  <ActivityIndicator size="small" color={color.primary} />
+                </View>
+              ) : (
+                <Image source={require(ARROW_URL)} style={{ ...ARROW_STYLE, transform: [{ rotate: "90deg" }] }} />
+              )}
             </View>
             <View style={LINE_STYLE}></View>
           </Pressable>
         </>
       ) : (
         <>
-          <Pressable style={PRESSABLE_STYLE} onPress={() => setNewDate(1)}>
+          <Pressable style={[PRESSABLE_STYLE, isLoading && DISABLED_STYLE]} onPress={handlePress} disabled={isLoading}>
             <View style={LINE_STYLE}></View>
             <View style={DATE_STYLE}>
-              <Text text={getNewDate(1).toDateString()} style={TEXT_STYLE} />
-              <Image source={require(ARROW_URL)} style={{ ...ARROW_STYLE, transform: [{ rotate: "-90deg" }] }} />
+              <Text text={getDateString()} style={TEXT_STYLE} />
+              {isLoading ? (
+                <View style={INDICATOR_CONTAINER}>
+                  <ActivityIndicator size="small" color={color.primary} />
+                </View>
+              ) : (
+                <Image source={require(ARROW_URL)} style={{ ...ARROW_STYLE, transform: [{ rotate: "-90deg" }] }} />
+              )}
             </View>
             <View style={LINE_STYLE}></View>
           </Pressable>
