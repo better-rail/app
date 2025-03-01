@@ -428,7 +428,11 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         <FlashList
           ref={flashListRef}
           renderItem={renderRouteCard}
-          keyExtractor={(item) => (typeof item === "string" ? item : item.trains.map((train) => train.trainNumber).join())}
+          keyExtractor={(item) =>
+            typeof item === "string"
+              ? item
+              : item.trains.map((train) => `${train.trainNumber}-${train.departureTimeString}`).join()
+          }
           data={routeData}
           contentContainerStyle={{
             paddingTop: spacing[4],
