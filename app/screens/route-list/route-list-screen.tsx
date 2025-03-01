@@ -53,7 +53,9 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     if (trains.isSuccess) {
       setRouteData((prevData) =>
         uniqBy([...prevData, routePlan.date.toDateString(), ...trains.data], (item) => {
-          return typeof item === "string" ? item : item.trains.map((train) => train.departureTimeString).join()
+          return typeof item === "string"
+            ? item
+            : item.trains.map((train) => `${train.departureTimeString}-${train.trainNumber}`).join()
         }),
       )
     }
