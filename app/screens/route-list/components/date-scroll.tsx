@@ -69,28 +69,34 @@ export const DateScroll = function DateScroll(props: {
   setTime: () => void
   currenTime: number
   isLoadingDate?: boolean
+  isDisabled?: boolean
 }) {
   const { trainRoutes } = useStores()
   const isLoading = trainRoutes.status === "pending" || props.isLoadingDate
+  const isDisabled = isLoading || props.isDisabled
 
   // This date is already the target date for the direction (forward or backward)
   const getDateString = useCallback(() => {
+    // If disabled due to date limit (not due to loading) and it's backward direction, show limit message
+    if (props.isDisabled && props.direction === "backward") {
+      return "Cannot go back more than 3 days"
+    }
     return new Date(props.currenTime).toDateString()
-  }, [props.currenTime])
+  }, [props.currenTime, props.isDisabled, props.direction])
 
   const handlePress = useCallback(() => {
-    // Don't allow new requests while loading
-    if (isLoading) return
+    // Don't allow new requests while loading or disabled
+    if (isDisabled) return
 
     // Call the callback to load data for this direction
     props.setTime()
-  }, [props.setTime, isLoading])
+  }, [props.setTime, isDisabled])
 
   return (
     <View style={CONTAINER_STYLE}>
       {props.direction === "backward" ? (
         <>
-          <Pressable style={[PRESSABLE_STYLE, isLoading && DISABLED_STYLE]} onPress={handlePress} disabled={isLoading}>
+          <Pressable style={[PRESSABLE_STYLE, isDisabled && DISABLED_STYLE]} onPress={handlePress} disabled={isDisabled}>
             <View style={LINE_STYLE}></View>
             <View style={DATE_STYLE}>
               <Text text={getDateString()} style={TEXT_STYLE} />
@@ -107,7 +113,7 @@ export const DateScroll = function DateScroll(props: {
         </>
       ) : (
         <>
-          <Pressable style={[PRESSABLE_STYLE, isLoading && DISABLED_STYLE]} onPress={handlePress} disabled={isLoading}>
+          <Pressable style={[PRESSABLE_STYLE, isDisabled && DISABLED_STYLE]} onPress={handlePress} disabled={isDisabled}>
             <View style={LINE_STYLE}></View>
             <View style={DATE_STYLE}>
               <Text text={getDateString()} style={TEXT_STYLE} />

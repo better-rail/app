@@ -38,6 +38,9 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   const { trainRoutes, routePlan, ride } = useStores()
   const { originId, destinationId, time, enableQuery } = route.params
 
+  // Reference to the current real time for date limit calculations
+  const currentRealTime = useMemo(() => new Date(), [])
+
   const [routeData, setRouteData] = useState<RouteData[]>([])
 
   // Track the current date and the dates being loaded in each direction
@@ -60,6 +63,10 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
 
   const stationHoursSheetRef = useRef<BottomSheet>(null)
   const flashListRef = useRef(null)
+
+  // Add a ref to track if we need to scroll to the bottom of a backward date
+  const shouldScrollToBottomRef = useRef<boolean>(false)
+  const scrollTargetIndexRef = useRef<number | null>(null)
 
   // Helper function to organize routes by date
   const organizeRoutesByDate = useCallback((routes: RouteItem[], currentDateStr: string, existingData: RouteData[] = []) => {
@@ -123,6 +130,20 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     return newData
   }, [])
 
+  // Function to check if a date is within the allowed range (not more than 3 days before current real time)
+  const isDateWithinAllowedRange = useCallback(
+    (date: Date): boolean => {
+      // For forward navigation, always allow
+      // For backward navigation, check if the date is not more than 3 days before current real time
+      const threeDaysAgo = new Date(currentRealTime)
+      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3)
+
+      // Return true if the date is after or equal to three days ago
+      return date.getTime() >= threeDaysAgo.getTime()
+    },
+    [currentRealTime],
+  )
+
   // Function to get a date for a specific direction
   const getDateForDirection = useCallback(
     (direction: DateDirection): Date => {
@@ -141,6 +162,13 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     (direction: DateDirection) => {
       const newDate = getDateForDirection(direction)
       const newDateString = newDate.toDateString()
+
+      // For backward navigation, check if the date is within the allowed range
+      if (direction === "backward" && !isDateWithinAllowedRange(newDate)) {
+        // Don't allow navigation beyond the limit
+        console.log("Cannot navigate more than 3 days before current time")
+        return
+      }
 
       // Check if we've already loaded this date
       if (loadedDates.has(newDateString)) {
@@ -171,7 +199,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
       // Don't update the forward/backward dates until loading is complete
       // This ensures the DateScroll components show the correct dates during loading
     },
-    [getDateForDirection, loadedDates],
+    [getDateForDirection, loadedDates, isDateWithinAllowedRange],
   )
 
   const { isInternetReachable } = useNetInfo()
@@ -241,24 +269,59 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
       // Check if we already have this date in our data
       const dateExists = routeData.some((item) => typeof item === "string" && item === dateString)
 
-      // Organize routes by date
-      setRouteData((prevData) => organizeRoutesByDate(trains.data, dateString, prevData))
+      // Set flag to scroll to bottom if this is a new backward date
+      shouldScrollToBottomRef.current = !dateExists && loadingDirection === "backward"
 
-      // If we've just loaded a new date, scroll to the beginning of that date's routes
-      if (!dateExists && flashListRef.current) {
-        // Find the index of the new date in the updated routeData
-        setTimeout(() => {
-          const dateIndex = routeData.findIndex((item) => typeof item === "string" && item === dateString)
+      // Organize routes by date
+      setRouteData((prevData) => {
+        const newData = organizeRoutesByDate(trains.data, dateString, prevData)
+
+        // If we need to scroll to the bottom of a backward date, find the target index
+        if (shouldScrollToBottomRef.current) {
+          const dateIndex = newData.findIndex((item) => typeof item === "string" && item === dateString)
+
           if (dateIndex >= 0) {
-            flashListRef.current?.scrollToIndex({
-              index: dateIndex,
-              animated: true,
-            })
+            // Find the next date header or the end of the list
+            let nextDateIndex = newData.length
+            for (let i = dateIndex + 1; i < newData.length; i++) {
+              if (typeof newData[i] === "string") {
+                nextDateIndex = i
+                break
+              }
+            }
+
+            // Calculate the index of the last item in this date section
+            const lastItemIndex = nextDateIndex - 1
+
+            // Store the target index for scrolling after render
+            if (lastItemIndex > dateIndex) {
+              scrollTargetIndexRef.current = lastItemIndex
+            }
           }
-        }, 100)
-      }
+        }
+
+        return newData
+      })
     }
-  }, [trains.data?.length, currentDate, organizeRoutesByDate, trains.isSuccess, trains.isLoading])
+  }, [trains.data?.length, currentDate, organizeRoutesByDate, trains.isSuccess, trains.isLoading, loadingDirection])
+
+  // Separate useEffect for scrolling to avoid flashing
+  useEffect(() => {
+    // Only scroll if we have a target index and should scroll to bottom
+    if (shouldScrollToBottomRef.current && scrollTargetIndexRef.current !== null && flashListRef.current) {
+      // Use requestAnimationFrame to ensure the list has rendered
+      requestAnimationFrame(() => {
+        flashListRef.current?.scrollToIndex({
+          index: scrollTargetIndexRef.current,
+          animated: false,
+        })
+
+        // Reset the refs
+        shouldScrollToBottomRef.current = false
+        scrollTargetIndexRef.current = null
+      })
+    }
+  }, [routeData])
 
   // Initialize the loaded dates with the initial date
   useEffect(() => {
@@ -392,6 +455,12 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   const isNextDateLoading = loadingDirection === "forward" && loadingDate === nextDate.toDateString()
   const isPrevDateLoading = loadingDirection === "backward" && loadingDate === prevDate.toDateString()
 
+  // Check if backward navigation should be disabled (beyond 3 days limit)
+  const isBackwardNavigationDisabled = useMemo(
+    () => !isDateWithinAllowedRange(backwardDate),
+    [backwardDate, isDateWithinAllowedRange],
+  )
+
   return (
     <Screen
       style={ROOT}
@@ -459,6 +528,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
                 setTime={() => loadDataForDirection("backward")}
                 currenTime={backwardDate.getTime()}
                 isLoadingDate={isPrevDateLoading}
+                isDisabled={isBackwardNavigationDisabled}
               />
             </>
           }
