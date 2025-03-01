@@ -51,7 +51,8 @@
     "routesError": "An error occurred while attempting to load routes from Israel Railways",
     "updates": "Updates from Israel Railways",
     "updatesError": "An error occurred while attempting to load updates from Israel Railways",
-    "shortRoute": "Short Route"
+    "shortRoute": "Short Route",
+    "maxBackwardsDate": "Cannot go back more than 3 days"
   },
   "routeDetails": {
     "platform": "Platform",
@@ -239,7 +240,7 @@
     "betterCommute": "Make your commute better.",
     "intro": "Supercharge your train travels and support the app development.",
     "tryFree": "Try free for 14 days.",
-    "afterTrial": "Afterwards, it’s less than a cup of coffee ☕️",
+    "afterTrial": "Afterwards, it's less than a cup of coffee ☕️",
     "annual": "Annual",
     "year": "year",
     "monthly": "Monthly",
