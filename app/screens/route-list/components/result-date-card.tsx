@@ -1,6 +1,7 @@
 import { TextStyle, View, ViewStyle, ActivityIndicator } from "react-native"
 import { Text } from "../../../components"
 import { color, spacing } from "../../../theme"
+import { localizedDate } from "../../../i18n"
 
 const DATE_TEXT_STYLES: TextStyle = {
   color: color.primary,
@@ -19,7 +20,7 @@ const DATE_CONTAINER_STYLES: ViewStyle = {
 export const ResultDateCard = function ResultDateCard(props: { date: string; isLoading?: boolean }) {
   return (
     <View style={DATE_CONTAINER_STYLES}>
-      <Text text={props.date} style={DATE_TEXT_STYLES} />
+      <Text text={localizedDate(props.date)} style={DATE_TEXT_STYLES} />
       {props.isLoading && <ActivityIndicator size="small" color={color.primary} style={{ marginLeft: spacing[2] }} />}
     </View>
   )

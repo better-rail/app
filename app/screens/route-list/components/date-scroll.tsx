@@ -4,7 +4,7 @@ import { View, Image, Pressable, ViewStyle, ImageStyle, TextStyle, ActivityIndic
 import { color } from "../../../theme"
 import { Text } from "../../../components"
 import { useStores } from "../../../models"
-import { translate } from "../../../i18n"
+import { localizedDate, translate } from "../../../i18n"
 
 const CONTAINER_STYLE: ViewStyle = {
   height: "100%",
@@ -43,14 +43,14 @@ const INDICATOR_CONTAINER: ViewStyle = {
 }
 
 const LINE_STYLE: ViewStyle = {
-  width: "25%",
+  width: "20%",
   borderWidth: 1,
   borderColor: "#2196f3",
 }
 
 const DATE_STYLE: ViewStyle = {
   elevation: 6,
-  width: "50%",
+  width: "60%",
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
@@ -82,7 +82,8 @@ export const DateScroll = function DateScroll(props: {
     if (props.isDisabled && props.direction === "backward") {
       return translate("routes.maxBackwardsDate")
     }
-    return new Date(props.currenTime).toDateString()
+
+    return localizedDate(props.currenTime)
   }, [props.currenTime, props.isDisabled, props.direction])
 
   const handlePress = useCallback(() => {
