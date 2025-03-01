@@ -168,16 +168,8 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
       // Update the current date
       setCurrentDate(newDate)
 
-      // Update only the relevant date based on direction
-      if (direction === "forward") {
-        const nextDate = new Date(newDate)
-        nextDate.setDate(nextDate.getDate() + 1)
-        setForwardDate(nextDate)
-      } else if (direction === "backward") {
-        const prevDate = new Date(newDate)
-        prevDate.setDate(prevDate.getDate() - 1)
-        setBackwardDate(prevDate)
-      }
+      // Don't update the forward/backward dates until loading is complete
+      // This ensures the DateScroll components show the correct dates during loading
     },
     [getDateForDirection, loadedDates],
   )
@@ -204,15 +196,27 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         setLoadingDirection(null)
       },
       onSuccess: () => {
-        setLoadingDate(null)
-        setLoadingDirection(null)
-
         // Add the current date to the set of loaded dates
         setLoadedDates((prev) => {
           const newSet = new Set(prev)
           newSet.add(currentDate.toDateString())
           return newSet
         })
+
+        // Now that loading is complete, update only the relevant date based on the loading direction
+        if (loadingDirection === "forward") {
+          const nextDate = new Date(currentDate)
+          nextDate.setDate(nextDate.getDate() + 1)
+          setForwardDate(nextDate)
+        } else if (loadingDirection === "backward") {
+          const prevDate = new Date(currentDate)
+          prevDate.setDate(prevDate.getDate() - 1)
+          setBackwardDate(prevDate)
+        }
+
+        // Clear loading states
+        setLoadingDate(null)
+        setLoadingDirection(null)
       },
     },
   )
