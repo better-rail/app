@@ -4,6 +4,7 @@ import { View, Image, Pressable, ViewStyle, ImageStyle, TextStyle, ActivityIndic
 import { color } from "../../../theme"
 import { Text } from "../../../components"
 import { useStores } from "../../../models"
+import { translate } from "../../../i18n"
 
 const CONTAINER_STYLE: ViewStyle = {
   height: "100%",
@@ -79,7 +80,7 @@ export const DateScroll = function DateScroll(props: {
   const getDateString = useCallback(() => {
     // If disabled due to date limit (not due to loading) and it's backward direction, show limit message
     if (props.isDisabled && props.direction === "backward") {
-      return "Cannot go back more than 3 days"
+      return translate("routes.maxBackwardsDate")
     }
     return new Date(props.currenTime).toDateString()
   }, [props.currenTime, props.isDisabled, props.direction])

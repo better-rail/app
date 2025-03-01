@@ -51,7 +51,8 @@
     "routesError": "אירעה שגיאה בעת טעינת מסלולים מרכבת ישראל",
     "updates": "עדכונים מרכבת ישראל",
     "updatesError": "אירעה שגיאה בעת טעינת עדכונים מרכבת ישראל",
-    "shortRoute": "מסלול קצר"
+    "shortRoute": "מסלול קצר",
+    "maxBackwardsDate": "לא ניתן לחזור יותר מ-3 ימים"
   },
   "routeDetails": {
     "platform": "רציף",
