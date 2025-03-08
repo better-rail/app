@@ -73,6 +73,7 @@ export type Train = {
   lastStop: string
   delay: number
   trainPosition: TrainPosition
+  routeStations: RouteStation[]
 }
 
 export type RouteItem = {
