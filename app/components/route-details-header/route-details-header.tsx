@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useEffect, useCallback } from "react"
-import { Image, ImageBackground, View, Alert, Linking, Animated as RNAnimated, TouchableOpacity } from "react-native"
+import { Image, ImageBackground, View, Alert, Linking, Animated as RNAnimated, Pressable } from "react-native"
 import type { ViewStyle, TextStyle, ImageStyle } from "react-native"
+import { TouchableOpacity } from "react-native-gesture-handler"
 import TouchableScale from "react-native-touchable-scale"
 import analytics from "@react-native-firebase/analytics"
 import { useNavigation } from "@react-navigation/native"
@@ -95,7 +96,7 @@ export interface RouteDetailsHeaderProps {
   screenName?: "routeList" | "routeDetails" | "activeRide"
   style?: ViewStyle
   eventConfig?: Calendar.Event
-  stationHoursSheetRef?: React.MutableRefObject<BottomSheetMethods>
+  stationHoursSheetRef: React.MutableRefObject<BottomSheetMethods>
   showEntireRoute?: boolean
   setShowEntireRoute?: React.Dispatch<React.SetStateAction<boolean>>
 }
@@ -116,7 +117,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 
   const openStationHoursSheet = () => {
     HapticFeedback.trigger("impactMedium")
-    stationHoursSheetRef?.current?.expand()
+    stationHoursSheetRef.current?.expand()
   }
 
   const scaleStationCards = useCallback(() => {
@@ -230,14 +231,12 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
     return (
       <View style={{ flexDirection: "row", alignItems: "baseline", gap: spacing[4] }}>
         <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
-        {stationHoursSheetRef && (
-          <TouchableOpacity onPress={openStationHoursSheet}>
-            <Image
-              source={require("../../../assets/clock-ios.png")}
-              style={{ width: 23, height: 23, marginLeft: spacing[2], tintColor: "lightgrey", opacity: 0.9 }}
-            />
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity onPress={openStationHoursSheet}>
+          <Image
+            source={require("../../../assets/clock-ios.png")}
+            style={{ width: 23, height: 23, marginLeft: spacing[2], tintColor: "lightgrey", opacity: 0.9 }}
+          />
+        </TouchableOpacity>
       </View>
     )
   }, [
@@ -259,10 +258,6 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
       headerRight: () => <View style={HEADER_RIGHT_WRAPPER}>{renderHeaderRight()}</View>,
     })
   }, [screenName, navigation, renderHeaderRight])
-
-  useEffect(() => {
-    openStationHoursSheet()
-  }, [])
 
   return (
     <>
@@ -291,20 +286,14 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
             </Text>
           </AnimatedTouchable>
 
-          <TouchableOpacity
-            activeOpacity={0.8}
-            hitSlop={{
-              top: spacing[2],
-              bottom: spacing[2],
-              left: spacing[2],
-              right: spacing[2],
-            }}
+          <Pressable
+            hitSlop={{ top: spacing[2], bottom: spacing[2], left: spacing[2], right: spacing[2] }}
             onPress={swapDirection}
             style={ROUTE_INFO_CIRCLE}
             disabled={routeEditDisabled}
           >
             <Image source={arrowIcon} style={ARROW_ICON} />
-          </TouchableOpacity>
+          </Pressable>
 
           <AnimatedTouchable
             friction={9}

@@ -51,7 +51,12 @@ export const AnnouncementsNavigator = () => (
             />
           </Pressable>
         ),
-        headerLeft: () => <CloseButton onPress={() => navigation.goBack()} style={{ marginRight: spacing[2] }} />,
+        headerLeft: () => (
+          <CloseButton
+            onPress={() => navigation.goBack()}
+            style={{ marginRight: Platform.select({ ios: spacing[2], android: spacing[5] }) }}
+          />
+        ),
         headerTitleStyle: Platform.select({ ios: iOSTitleStyle, android: { ...androidTitleStyle, marginBottom: 10 } }),
       })}
     />
@@ -70,10 +75,9 @@ export const AnnouncementsNavigator = () => (
       component={NotificationsSetupScreen}
       options={({ navigation }) => ({
         title: translate("announcements.notifications.notificationSettings"),
-        headerLeftContainerStyle: { marginBottom: 10 },
+        headerLeftContainerStyle: { marginBottom: Platform.select({ ios: 10, android: 0 }) },
         headerTitleStyle: Platform.select({
           ios: { ...iOSTitleStyle, marginBottom: 10 },
-          android: { ...androidTitleStyle, marginBottom: 10 },
         }),
       })}
     />

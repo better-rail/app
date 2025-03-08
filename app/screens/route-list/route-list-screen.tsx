@@ -6,7 +6,7 @@ import { observer } from "mobx-react-lite"
 import { useNetInfo } from "@react-native-community/netinfo"
 import { useQuery } from "react-query"
 import { closestIndexTo } from "date-fns"
-import { RouteListScreenProps } from "../../navigators/main-navigator"
+import type { RouteListScreenProps } from "../../navigators/main-navigator"
 import { useStores } from "../../models"
 import { color, fontScale, spacing } from "../../theme"
 import { RouteItem } from "../../services/api"
@@ -20,7 +20,7 @@ import {
   ResultDateCard,
   DateScroll,
 } from "./components"
-import { flatMap, max, round, uniqBy } from "lodash"
+import { flatMap, max, round } from "lodash"
 import { translate } from "../../i18n"
 import type BottomSheet from "@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet"
 
@@ -235,7 +235,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   // returns a route list for the whole day.
   const initialScrollIndex = useMemo(() => {
     if (trains.isSuccess) {
-      let index
+      let index: number
 
       if (routePlan.dateType === "departure") {
         const departureTimes = trains.data.map((route) => route.trains[0].departureTime)
