@@ -68,6 +68,8 @@
     "routeWarning": "Long Route Warning",
     "routeWarningText": "There are shorter train routes around the departure time.",
     "addToCalendar": "Add to Calendar",
+    "showAllStations": "Show all route stations",
+    "hideAllStations": "Hide all route stations",
     "noCalendarAccessTitle": "Calendar access disabled",
     "noCalendarAccessMessage": "To add the ride to your calendar, open your device settings and grant access to your calendar."
   },

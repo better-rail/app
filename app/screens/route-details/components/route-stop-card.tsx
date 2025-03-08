@@ -2,9 +2,9 @@ import React from "react"
 import { View, ViewStyle, TextStyle } from "react-native"
 import { Text } from "../../../components"
 import { color, spacing } from "../../../theme"
-import { ROUTE_LINE_STATE_COLORS, RouteLine } from "./route-line"
+import { RouteLine } from "./route-line"
 import { RouteStationCircle } from "./route-station-circle"
-import { RouteLineStateType } from "../route-details-screen"
+import { RouteElementStateType } from "./use-route-colors"
 
 // #region styles
 const ROUTE_STOP_WRAPPER: ViewStyle = {
@@ -32,6 +32,10 @@ const ROUTE_STOP_TIME_DELAYED: TextStyle = {
   opacity: 0.5,
 }
 
+const OUTSIDE_JOURNEY_TEXT: TextStyle = {
+  color: color.dim,
+}
+
 // #endregion
 
 type RouteStopCardProps = {
@@ -43,22 +47,30 @@ type RouteStopCardProps = {
   delayedTime?: string
 
   style?: ViewStyle
-  topLineState: RouteLineStateType
-  bottomLineState: RouteLineStateType
+  topLineState: RouteElementStateType
+  bottomLineState: RouteElementStateType
+  /**
+   * Indicates if this station is outside the user's selected journey
+   * (before origin or after destination)
+   */
+  isOutsideUserJourney?: boolean
 }
 
 export const RouteStopCard = (props: RouteStopCardProps) => {
-  const { stationName, stopTime, delayedTime, topLineState, bottomLineState, style } = props
+  const { stationName, stopTime, delayedTime, topLineState, bottomLineState, style, isOutsideUserJourney } = props
 
   return (
     <View style={[ROUTE_STOP_WRAPPER, style]}>
       <View style={ROUTE_STOP_DETAILS}>
         <View style={{ flex: 0.265, alignItems: "flex-end" }}>
-          <Text style={[ROUTE_STOP_TIME, delayedTime && ROUTE_STOP_TIME_DELAYED]} maxFontSizeMultiplier={1.2}>
+          <Text
+            style={[ROUTE_STOP_TIME, delayedTime && ROUTE_STOP_TIME_DELAYED, isOutsideUserJourney && OUTSIDE_JOURNEY_TEXT]}
+            maxFontSizeMultiplier={1.2}
+          >
             {stopTime}
           </Text>
           {delayedTime && (
-            <Text style={ROUTE_STOP_TIME} maxFontSizeMultiplier={1.2}>
+            <Text style={[ROUTE_STOP_TIME, isOutsideUserJourney && OUTSIDE_JOURNEY_TEXT]} maxFontSizeMultiplier={1.2}>
               {delayedTime}
             </Text>
           )}
@@ -66,12 +78,15 @@ export const RouteStopCard = (props: RouteStopCardProps) => {
 
         <View style={{ flex: 0.2, alignItems: "center" }}>
           <RouteLine state={topLineState} />
-          <RouteStationCircle state={topLineState} />
+          <RouteStationCircle state={topLineState === "hidden" ? "idle" : topLineState} />
           <RouteLine state={bottomLineState} />
         </View>
 
         <View style={{ flex: 0.55, right: 15 }}>
-          <Text style={{ fontWeight: "600", fontSize: 15, marginStart: spacing[3] }} maxFontSizeMultiplier={1.2}>
+          <Text
+            style={[{ fontWeight: "600", fontSize: 15, marginStart: spacing[3] }, isOutsideUserJourney && OUTSIDE_JOURNEY_TEXT]}
+            maxFontSizeMultiplier={1.2}
+          >
             {stationName}
           </Text>
         </View>

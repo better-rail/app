@@ -61,6 +61,8 @@
     "routeWarning": "تحذير الطريق الطويل",
     "routeWarningText": "هناك طرق قطار أقصر حول وقت المغادرة.",
     "addToCalendar": "إضافة إلى التقويم",
+    "showAllStations": "عرض جميع محطات المسار",
+    "hideAllStations": "إخفاء جميع محطات المسار",
     "noCalendarAccessTitle": "تم تعطيل الوصول إلى التقويم",
     "noCalendarAccessMessage": "للإضافة إلى تقويم المسار ، يرجى فتح إعدادات جهازك وتمكين الوصول إلى التقويم."
   },

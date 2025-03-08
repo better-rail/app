@@ -7,16 +7,16 @@ import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
 import LinearGradient from "react-native-linear-gradient"
 import { color, isDarkMode, spacing } from "../../theme"
-import { Text, StarIcon } from "../"
+import { Text, StarIcon, MenuIcon } from "../"
 import HapticFeedback from "react-native-haptic-feedback"
 import { stationsObject, stationLocale } from "../../data/stations"
 import { isRTL, translate } from "../../i18n"
 import { useStores } from "../../models"
 import * as Burnt from "burnt"
 import * as Calendar from "expo-calendar"
-import { CalendarIcon } from "../calendar-icon/calendar-icon"
 import type { RouteItem } from "../../services/api"
 import type { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types"
+import ContextMenu from "react-native-context-menu-view"
 
 const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale)
 const arrowIcon = require("../../../assets/arrow-left.png")
@@ -96,10 +96,13 @@ export interface RouteDetailsHeaderProps {
   style?: ViewStyle
   eventConfig?: Calendar.Event
   stationHoursSheetRef?: React.MutableRefObject<BottomSheetMethods>
+  showEntireRoute?: boolean
+  setShowEntireRoute?: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
-  const { routeItem, originId, destinationId, screenName, style, stationHoursSheetRef } = props
+  const { routeItem, originId, destinationId, screenName, style, stationHoursSheetRef, showEntireRoute, setShowEntireRoute } =
+    props
   const { favoriteRoutes, routePlan } = useStores()
   const navigation = useNavigation()
   const routeEditDisabled = screenName !== "routeList"
@@ -187,7 +190,27 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 
   const renderHeaderRight = useCallback(() => {
     if (screenName === "routeDetails") {
-      return <CalendarIcon onPress={addToCalendar} />
+      return (
+        <ContextMenu
+          dropdownMenuMode
+          actions={[
+            { title: translate("routeDetails.addToCalendar"), systemIcon: "calendar" },
+            {
+              title: translate(showEntireRoute ? "routeDetails.hideAllStations" : "routeDetails.showAllStations"),
+              systemIcon: showEntireRoute ? "rectangle.compress.vertical" : "rectangle.expand.vertical",
+            },
+          ]}
+          onPress={(event) => {
+            if (event.nativeEvent.index === 0) {
+              addToCalendar()
+            } else if (event.nativeEvent.index === 1) {
+              setShowEntireRoute((prev) => !prev)
+            }
+          }}
+        >
+          <MenuIcon />
+        </ContextMenu>
+      )
     }
 
     const handleFavoritePress = () => {
@@ -217,7 +240,17 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
         )}
       </View>
     )
-  }, [screenName, addToCalendar, isFavorite, routeId, favoriteRoutes, originId, destinationId])
+  }, [
+    screenName,
+    addToCalendar,
+    isFavorite,
+    routeId,
+    favoriteRoutes,
+    originId,
+    destinationId,
+    showEntireRoute,
+    setShowEntireRoute,
+  ])
 
   useLayoutEffect(() => {
     if (screenName === "activeRide") return

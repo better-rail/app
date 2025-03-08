@@ -68,6 +68,8 @@
     "routeWarning": "רכבת מאספת",
     "routeWarningText": "קיימים מסלולי נסיעה קצרים יותר סביב שעת היציאה הנבחרת",
     "addToCalendar": "הוספה ליומן",
+    "showAllStations": "הצג את כל תחנות המסלול",
+    "hideAllStations": "הסתר את כל תחנות המסלול",
     "noCalendarAccessTitle": "גישה ללוח שנה כבויה",
     "noCalendarAccessMessage": "יש לאפשר גישה ללוח שנה בהגדרות המכשיר על מנת להוסיף נסיעה ליומן"
   },
