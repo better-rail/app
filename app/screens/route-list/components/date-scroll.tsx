@@ -1,13 +1,13 @@
 import React, { useCallback } from "react"
 import { View, Image, Pressable, ViewStyle, ImageStyle, TextStyle, ActivityIndicator } from "react-native"
 
-import { color } from "../../../theme"
+import { color, spacing } from "../../../theme"
 import { Text } from "../../../components"
 import { useStores } from "../../../models"
-import { localizedDate, translate } from "../../../i18n"
+import { localizedDate } from "../../../i18n"
 
 const CONTAINER_STYLE: ViewStyle = {
-  height: "100%",
+  height: spacing[7],
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
@@ -42,31 +42,20 @@ const INDICATOR_CONTAINER: ViewStyle = {
   justifyContent: "center",
 }
 
-const LINE_STYLE: ViewStyle = {
-  width: "20%",
-  borderWidth: 1,
-  borderColor: "#2196f3",
-}
-
 const DATE_STYLE: ViewStyle = {
   elevation: 6,
-  width: "60%",
+  width: "100%",
   display: "flex",
-  flexDirection: "row",
   alignItems: "center",
   justifyContent: "space-evenly",
 }
 
 const TEXT_STYLE: TextStyle = {
-  width: "70%",
   textAlign: "center",
   color: color.primary,
 }
 
-type DateScrollDirection = "forward" | "backward"
-
 export const DateScroll = function DateScroll(props: {
-  direction: DateScrollDirection
   setTime: () => void
   currenTime: number
   isLoadingDate?: boolean
@@ -78,13 +67,8 @@ export const DateScroll = function DateScroll(props: {
 
   // This date is already the target date for the direction (forward or backward)
   const getDateString = useCallback(() => {
-    // If disabled due to date limit (not due to loading) and it's backward direction, show limit message
-    if (props.isDisabled && props.direction === "backward") {
-      return translate("routes.maxBackwardsDate")
-    }
-
     return localizedDate(props.currenTime)
-  }, [props.currenTime, props.isDisabled, props.direction])
+  }, [props.currenTime, props.isDisabled])
 
   const handlePress = useCallback(() => {
     // Don't allow new requests while loading or disabled
@@ -96,41 +80,18 @@ export const DateScroll = function DateScroll(props: {
 
   return (
     <View style={CONTAINER_STYLE}>
-      {props.direction === "backward" ? (
-        <>
-          <Pressable style={[PRESSABLE_STYLE, isDisabled && DISABLED_STYLE]} onPress={handlePress} disabled={isDisabled}>
-            <View style={LINE_STYLE}></View>
-            <View style={DATE_STYLE}>
-              <Text text={getDateString()} style={TEXT_STYLE} />
-              {isLoading ? (
-                <View style={INDICATOR_CONTAINER}>
-                  <ActivityIndicator size="small" color={color.primary} />
-                </View>
-              ) : (
-                <Image source={require(ARROW_URL)} style={{ ...ARROW_STYLE, transform: [{ rotate: "90deg" }] }} />
-              )}
+      <Pressable style={[PRESSABLE_STYLE, isDisabled && DISABLED_STYLE]} onPress={handlePress} disabled={isDisabled}>
+        <View style={DATE_STYLE}>
+          <Text text={getDateString()} style={TEXT_STYLE} />
+          {isLoading ? (
+            <View style={INDICATOR_CONTAINER}>
+              <ActivityIndicator size="small" color={color.primary} />
             </View>
-            <View style={LINE_STYLE}></View>
-          </Pressable>
-        </>
-      ) : (
-        <>
-          <Pressable style={[PRESSABLE_STYLE, isDisabled && DISABLED_STYLE]} onPress={handlePress} disabled={isDisabled}>
-            <View style={LINE_STYLE}></View>
-            <View style={DATE_STYLE}>
-              <Text text={getDateString()} style={TEXT_STYLE} />
-              {isLoading ? (
-                <View style={INDICATOR_CONTAINER}>
-                  <ActivityIndicator size="small" color={color.primary} />
-                </View>
-              ) : (
-                <Image source={require(ARROW_URL)} style={{ ...ARROW_STYLE, transform: [{ rotate: "-90deg" }] }} />
-              )}
-            </View>
-            <View style={LINE_STYLE}></View>
-          </Pressable>
-        </>
-      )}
+          ) : (
+            <Image source={require(ARROW_URL)} style={{ ...ARROW_STYLE, transform: [{ rotate: "-90deg" }] }} />
+          )}
+        </View>
+      </Pressable>
     </View>
   )
 }

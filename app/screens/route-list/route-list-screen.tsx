@@ -387,14 +387,9 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           // so the list will re-render when the ride route changes, and so the item will be marked
           extraData={[ride.route, routePlan.date, trains.status, loadingDate]}
           ListFooterComponent={
-            <DateScroll
-              direction="forward"
-              setTime={loadNextDayData}
-              currenTime={nextDayDate.getTime()}
-              isLoadingDate={isNextDayLoading}
-            />
+            <DateScroll setTime={loadNextDayData} currenTime={nextDayDate.getTime()} isLoadingDate={isNextDayLoading} />
           }
-          ListFooterComponentStyle={{ height: spacing[7] }}
+          ListFooterComponentStyle={{ paddingBottom: spacing[3] }}
         />
       )}
 
