@@ -2692,6 +2692,8 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - react-native-context-menu-view (1.17.0):
+    - React
   - react-native-date-picker (4.2.10):
     - React-Core
   - react-native-in-app-review (4.3.3):
@@ -3550,6 +3552,7 @@ DEPENDENCIES:
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
   - react-native-actions-shortcuts (from `../node_modules/react-native-quick-actions-shortcuts`)
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
+  - react-native-context-menu-view (from `../node_modules/react-native-context-menu-view`)
   - react-native-date-picker (from `../node_modules/react-native-date-picker`)
   - react-native-in-app-review (from `../node_modules/react-native-in-app-review`)
   - react-native-ios-context-menu (from `../node_modules/react-native-ios-context-menu`)
@@ -3737,6 +3740,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-quick-actions-shortcuts"
   react-native-blur:
     :path: "../node_modules/@react-native-community/blur"
+  react-native-context-menu-view:
+    :path: "../node_modules/react-native-context-menu-view"
   react-native-date-picker:
     :path: "../node_modules/react-native-date-picker"
   react-native-in-app-review:
@@ -3933,6 +3938,7 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: 069ef12656a93e0344851e18de6cfb7bdfd9a59e
   react-native-actions-shortcuts: 241812296acd3d1b1babbb91d053f01be2810dcd
   react-native-blur: d81883c19b028d3d04b44126ea661ae9e7ff35b6
+  react-native-context-menu-view: 4a4de8bc59bc3fc4215f041881cbc6b2aeac31fe
   react-native-date-picker: 89c419d88fa8e3c5f2d3cbae0bb7f7454ae8ea55
   react-native-in-app-review: db8bb167a5f238e7ceca5c242d6b36ce8c4404a4
   react-native-ios-context-menu: c7f5bb808d8d4664e01af91ef2789204178368eb
@@ -3996,7 +4002,7 @@ SPEC CHECKSUMS:
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   SPAlert: 735da1f16a887e294719217572ce1f936d8c8782
   SPIndicator: 93e0a4fb23de51294ac48e874c0f081a5e293e4f
-  Yoga: c597d2c0803c51f27569fb69f05eeb76646c0074
+  Yoga: fd4ca32b81c4069b4175ad9460b042e17db94b66
 
 PODFILE CHECKSUM: 68ac86e02d21e8cb06b5a00ec7c1b09bf6404115
 

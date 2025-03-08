@@ -51,7 +51,8 @@
     "routesError": "אירעה שגיאה בעת טעינת מסלולים מרכבת ישראל",
     "updates": "עדכונים מרכבת ישראל",
     "updatesError": "אירעה שגיאה בעת טעינת עדכונים מרכבת ישראל",
-    "shortRoute": "מסלול קצר"
+    "shortRoute": "מסלול קצר",
+    "maxBackwardsDate": "לא ניתן לחזור יותר מ-3 ימים"
   },
   "routeDetails": {
     "platform": "רציף",
@@ -67,6 +68,8 @@
     "routeWarning": "רכבת מאספת",
     "routeWarningText": "קיימים מסלולי נסיעה קצרים יותר סביב שעת היציאה הנבחרת",
     "addToCalendar": "הוספה ליומן",
+    "showAllStations": "הצג את כל תחנות המסלול",
+    "hideAllStations": "הסתר את כל תחנות המסלול",
     "noCalendarAccessTitle": "גישה ללוח שנה כבויה",
     "noCalendarAccessMessage": "יש לאפשר גישה ללוח שנה בהגדרות המכשיר על מנת להוסיף נסיעה ליומן"
   },

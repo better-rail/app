@@ -4,18 +4,20 @@ import { useColorScheme } from "react-native"
 /**
  * The station / line state
  */
-export type RouteElementStateType = "idle" | "inProgress" | "passed"
+export type RouteElementStateType = "idle" | "inProgress" | "passed" | "hidden"
 
 export const ROUTE_LINE_STATE_COLORS = {
   idle: { light: "#3C3C434A", dark: "#54545899" },
   passed: { light: "#5CAB61", dark: "#475A42" },
   inProgress: { light: "#FF9500FF", dark: "#E08A00" },
+  hidden: { light: "transparent", dark: "transparent" },
 }
 
 export const ROUTE_STOP_CIRCLE_COLORS = {
   passed: { light: "#B0E1A5", dark: "#698661" },
   inProgress: { light: "#F5AF00", dark: "#F5AF00" },
   idle: { light: "#f2f2f7", dark: "#1c1c1e" },
+  hidden: { light: "transparent", dark: "transparent" },
 }
 
 /**

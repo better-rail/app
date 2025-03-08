@@ -1,7 +1,5 @@
 import { ViewStyle } from "react-native"
 import Animated from "react-native-reanimated"
-import { ROUTE_LINE_STATE_COLORS } from "./route-line"
-import { useRideProgressAnimation } from "../../../hooks/use-ride-progress"
 import { useAnimatedBackground, useAnimatedBorder } from "../../../hooks/animations/use-animated-color-props"
 import { RouteElementStateType, useRouteColors } from "./use-route-colors"
 
