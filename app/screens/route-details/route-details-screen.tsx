@@ -98,27 +98,11 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
             originId={route.params.originId}
             destinationId={route.params.destinationId}
             screenName={route.name}
+            showEntireRoute={showEntireRoute}
+            setShowEntireRoute={setShowEntireRoute}
             style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
           />
         </Animated.View>
-
-        <View
-          style={{ paddingHorizontal: spacing[4], marginBottom: spacing[2], flexDirection: "row", justifyContent: "flex-end" }}
-        >
-          <TouchableOpacity
-            onPress={() => setShowEntireRoute(!showEntireRoute)}
-            style={{
-              backgroundColor: showEntireRoute ? color.primary : color.palette.offWhite,
-              paddingHorizontal: spacing[3],
-              paddingVertical: spacing[1],
-              borderRadius: 20,
-            }}
-          >
-            <Text style={{ color: showEntireRoute ? color.palette.white : color.text, fontWeight: "600" }}>
-              {showEntireRoute ? "Show Selected Stops" : "Show Entire Route"}
-            </Text>
-          </TouchableOpacity>
-        </View>
 
         <ScrollView
           contentContainerStyle={{ paddingTop: spacing[4], paddingBottom: 80 + insets.bottom }}
