@@ -31,9 +31,6 @@ const ROOT: ViewStyle = {
 
 type RouteData = RouteItem | string
 
-// Direction type for date navigation
-type DateDirection = "forward" | "backward" | "initial"
-
 export const RouteListScreen = observer(function RouteListScreen({ navigation, route }: RouteListScreenProps) {
   const { trainRoutes, routePlan, ride } = useStores()
   const { originId, destinationId, time, enableQuery } = route.params
@@ -43,19 +40,13 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
 
   const [routeData, setRouteData] = useState<RouteData[]>([])
 
-  // Track the current date and the dates being loaded in each direction
+  // Track the current date and the next day being loaded
   const [currentDate, setCurrentDate] = useState<Date>(new Date(time))
-  const [forwardDate, setForwardDate] = useState<Date>(() => {
+  const [nextDayDate, setNextDayDate] = useState<Date>(() => {
     const date = new Date(time)
     date.setDate(date.getDate() + 1)
     return date
   })
-  const [backwardDate, setBackwardDate] = useState<Date>(() => {
-    const date = new Date(time)
-    date.setDate(date.getDate() - 1)
-    return date
-  })
-  const [loadingDirection, setLoadingDirection] = useState<DateDirection | null>(null)
   const [loadingDate, setLoadingDate] = useState<string | null>(null)
 
   // Keep track of the dates we've already loaded
@@ -63,10 +54,6 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
 
   const stationHoursSheetRef = useRef<BottomSheet>(null)
   const flashListRef = useRef(null)
-
-  // Add a ref to track if we need to scroll to the bottom of a backward date
-  const shouldScrollToBottomRef = useRef<boolean>(false)
-  const scrollTargetIndexRef = useRef<number | null>(null)
 
   // Helper function to organize routes by date
   const organizeRoutesByDate = useCallback((routes: RouteItem[], currentDateStr: string, existingData: RouteData[] = []) => {
@@ -130,77 +117,36 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     return newData
   }, [])
 
-  // Function to check if a date is within the allowed range (not more than 3 days before current real time)
-  const isDateWithinAllowedRange = useCallback(
-    (date: Date): boolean => {
-      // For forward navigation, always allow
-      // For backward navigation, check if the date is not more than 3 days before current real time
-      const threeDaysAgo = new Date(currentRealTime)
-      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3)
+  // Function to get the next day date
+  const getNextDayDate = useCallback((): Date => nextDayDate, [nextDayDate])
 
-      // Return true if the date is after or equal to three days ago
-      return date.getTime() >= threeDaysAgo.getTime()
-    },
-    [currentRealTime],
-  )
+  // Function to load data for the next day
+  const loadNextDayData = useCallback(() => {
+    const newDate = getNextDayDate()
+    const newDateString = newDate.toDateString()
 
-  // Function to get a date for a specific direction
-  const getDateForDirection = useCallback(
-    (direction: DateDirection): Date => {
-      if (direction === "forward") {
-        return forwardDate
-      } else if (direction === "backward") {
-        return backwardDate
-      }
-      return currentDate
-    },
-    [currentDate, forwardDate, backwardDate],
-  )
-
-  // Function to load data for a specific direction
-  const loadDataForDirection = useCallback(
-    (direction: DateDirection) => {
-      const newDate = getDateForDirection(direction)
-      const newDateString = newDate.toDateString()
-
-      // For backward navigation, check if the date is within the allowed range
-      if (direction === "backward" && !isDateWithinAllowedRange(newDate)) {
-        // Don't allow navigation beyond the limit
-        console.log("Cannot navigate more than 3 days before current time")
-        return
-      }
-
-      // Check if we've already loaded this date
-      if (loadedDates.has(newDateString)) {
-        // If we've already loaded this date, just update the current date
-        setCurrentDate(newDate)
-
-        // Update only the relevant date based on direction
-        if (direction === "forward") {
-          const nextDate = new Date(newDate)
-          nextDate.setDate(nextDate.getDate() + 1)
-          setForwardDate(nextDate)
-        } else if (direction === "backward") {
-          const prevDate = new Date(newDate)
-          prevDate.setDate(prevDate.getDate() - 1)
-          setBackwardDate(prevDate)
-        }
-
-        return
-      }
-
-      // Set the loading direction and date
-      setLoadingDirection(direction)
-      setLoadingDate(newDateString)
-
-      // Update the current date
+    // Check if we've already loaded this date
+    if (loadedDates.has(newDateString)) {
+      // If we've already loaded this date, just update the current date
       setCurrentDate(newDate)
 
-      // Don't update the forward/backward dates until loading is complete
-      // This ensures the DateScroll components show the correct dates during loading
-    },
-    [getDateForDirection, loadedDates, isDateWithinAllowedRange],
-  )
+      // Update the next day date
+      const nextDate = new Date(newDate)
+      nextDate.setDate(nextDate.getDate() + 1)
+      setNextDayDate(nextDate)
+
+      return
+    }
+
+    // Set the loading date
+    setLoadingDate(newDateString)
+
+    // Update the current date
+    setCurrentDate(newDate)
+
+    // Don't update the next day date until loading is complete
+    // This ensures the DateScroll component shows the correct date during loading
+  }, [getNextDayDate, loadedDates])
 
   const { isInternetReachable } = useNetInfo()
   const trains = useQuery(
@@ -221,7 +167,6 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           trainRoutes.updateResultType("not-found")
         }
         setLoadingDate(null)
-        setLoadingDirection(null)
       },
       onSuccess: () => {
         // Add the current date to the set of loaded dates
@@ -231,20 +176,13 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           return newSet
         })
 
-        // Now that loading is complete, update only the relevant date based on the loading direction
-        if (loadingDirection === "forward") {
-          const nextDate = new Date(currentDate)
-          nextDate.setDate(nextDate.getDate() + 1)
-          setForwardDate(nextDate)
-        } else if (loadingDirection === "backward") {
-          const prevDate = new Date(currentDate)
-          prevDate.setDate(prevDate.getDate() - 1)
-          setBackwardDate(prevDate)
-        }
+        // Now that loading is complete, update the next day date
+        const nextDate = new Date(currentDate)
+        nextDate.setDate(nextDate.getDate() + 1)
+        setNextDayDate(nextDate)
 
-        // Clear loading states
+        // Clear loading state
         setLoadingDate(null)
-        setLoadingDirection(null)
       },
     },
   )
@@ -266,79 +204,26 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
       // Create a new date string for the current date
       const dateString = currentDate.toDateString()
 
-      // Check if we already have this date in our data
-      const dateExists = routeData.some((item) => typeof item === "string" && item === dateString)
-
-      // Set flag to scroll to bottom if this is a new backward date
-      shouldScrollToBottomRef.current = !dateExists && loadingDirection === "backward"
-
       // Organize routes by date
       setRouteData((prevData) => {
         const newData = organizeRoutesByDate(trains.data, dateString, prevData)
-
-        // If we need to scroll to the bottom of a backward date, find the target index
-        if (shouldScrollToBottomRef.current) {
-          const dateIndex = newData.findIndex((item) => typeof item === "string" && item === dateString)
-
-          if (dateIndex >= 0) {
-            // Find the next date header or the end of the list
-            let nextDateIndex = newData.length
-            for (let i = dateIndex + 1; i < newData.length; i++) {
-              if (typeof newData[i] === "string") {
-                nextDateIndex = i
-                break
-              }
-            }
-
-            // Calculate the index of the last item in this date section
-            const lastItemIndex = nextDateIndex - 1
-
-            // Store the target index for scrolling after render
-            if (lastItemIndex > dateIndex) {
-              scrollTargetIndexRef.current = lastItemIndex
-            }
-          }
-        }
-
         return newData
       })
     }
-  }, [trains.data?.length, currentDate, organizeRoutesByDate, trains.isSuccess, trains.isLoading, loadingDirection])
-
-  // Separate useEffect for scrolling to avoid flashing
-  useEffect(() => {
-    // Only scroll if we have a target index and should scroll to bottom
-    if (shouldScrollToBottomRef.current && scrollTargetIndexRef.current !== null && flashListRef.current) {
-      // Use requestAnimationFrame to ensure the list has rendered
-      requestAnimationFrame(() => {
-        flashListRef.current?.scrollToIndex({
-          index: scrollTargetIndexRef.current,
-          animated: false,
-        })
-
-        // Reset the refs
-        shouldScrollToBottomRef.current = false
-        scrollTargetIndexRef.current = null
-      })
-    }
-  }, [routeData])
+  }, [trains.data?.length, currentDate, organizeRoutesByDate, trains.isSuccess, trains.isLoading])
 
   // Initialize the loaded dates with the initial date
   useEffect(() => {
     const initialDate = new Date(time).toDateString()
     setLoadedDates(new Set([initialDate]))
 
-    // Also make sure the current, forward, and backward dates are properly set
+    // Also make sure the current and next day dates are properly set
     const current = new Date(time)
     setCurrentDate(current)
 
-    const forward = new Date(time)
-    forward.setDate(forward.getDate() + 1)
-    setForwardDate(forward)
-
-    const backward = new Date(time)
-    backward.setDate(backward.getDate() - 1)
-    setBackwardDate(backward)
+    const nextDay = new Date(time)
+    nextDay.setDate(nextDay.getDate() + 1)
+    setNextDayDate(nextDay)
   }, [time])
 
   const onDoneStationHoursSheet = () => {
@@ -447,19 +332,8 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   const shouldShowWarning =
     trains.isSuccess && trains.data?.length > 0 && ["different-date", "different-hour"].includes(trainRoutes.resultType)
 
-  // Calculate the next and previous dates
-  const nextDate = useMemo(() => forwardDate, [forwardDate])
-  const prevDate = useMemo(() => backwardDate, [backwardDate])
-
-  // Check if the next and previous dates are currently loading
-  const isNextDateLoading = loadingDirection === "forward" && loadingDate === nextDate.toDateString()
-  const isPrevDateLoading = loadingDirection === "backward" && loadingDate === prevDate.toDateString()
-
-  // Check if backward navigation should be disabled (beyond 3 days limit)
-  const isBackwardNavigationDisabled = useMemo(
-    () => !isDateWithinAllowedRange(backwardDate),
-    [backwardDate, isDateWithinAllowedRange],
-  )
+  // Check if the next day date is currently loading
+  const isNextDayLoading = loadingDate === nextDayDate.toDateString()
 
   return (
     <Screen
@@ -511,28 +385,16 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           estimatedItemSize={RouteCardHeight + spacing[3]}
           initialScrollIndex={initialScrollIndex}
           // so the list will re-render when the ride route changes, and so the item will be marked
-          extraData={[ride.route, routePlan.date, trains.status, loadingDate, loadingDirection]}
+          extraData={[ride.route, routePlan.date, trains.status, loadingDate]}
           ListFooterComponent={
             <DateScroll
               direction="forward"
-              setTime={() => loadDataForDirection("forward")}
-              currenTime={forwardDate.getTime()}
-              isLoadingDate={isNextDateLoading}
+              setTime={loadNextDayData}
+              currenTime={nextDayDate.getTime()}
+              isLoadingDate={isNextDayLoading}
             />
           }
           ListFooterComponentStyle={{ height: spacing[7] }}
-          ListHeaderComponent={
-            <>
-              <DateScroll
-                direction="backward"
-                setTime={() => loadDataForDirection("backward")}
-                currenTime={backwardDate.getTime()}
-                isLoadingDate={isPrevDateLoading}
-                isDisabled={isBackwardNavigationDisabled}
-              />
-            </>
-          }
-          ListHeaderComponentStyle={{ height: spacing[7], marginBottom: spacing[3] }}
         />
       )}
 
