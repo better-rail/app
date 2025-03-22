@@ -121,7 +121,6 @@ export const TipJarScreen = observer(function TipJarScreen() {
       const purchase = (await requestPurchase(requestPurchaseParams)) as ProductPurchase
 
       await finishTransaction({ purchase, isConsumable: true })
-      alert("open modal")
       openModal("TipThanksModal")
 
       const item = products.find((product) => product.productId === sku)
