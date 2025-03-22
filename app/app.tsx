@@ -52,9 +52,16 @@ import { monitorLiveActivities } from "./utils/ios-helpers"
 import { useDeepLinking } from "./hooks/use-deep-linking"
 import { openActiveRide } from "./utils/helpers/ride-helpers"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
+import { createModalStack, ModalProvider } from "react-native-modalfy"
+import { TipThanksModal } from "./screens/settings/components/tip-thanks-modal"
 enableScreens()
 
 export const queryClient = new QueryClient()
+
+const modalConfig = { TipThanksModal }
+const defaultOptions = { backdropOpacity: 0.6 }
+
+const stack = createModalStack(modalConfig, defaultOptions)
 
 export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
 /**
@@ -186,20 +193,22 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <RootStoreProvider value={rootStore}>
         <GestureHandlerRootView>
-          <ActionSheetProvider>
-            <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-              {__DEV__ ? (
-                // Use navigation persistence for development
-                <RootNavigator
-                  ref={navigationRef}
-                  initialState={initialNavigationState}
-                  onStateChange={onNavigationStateChange}
-                />
-              ) : (
-                <RootNavigator ref={navigationRef} />
-              )}
-            </SafeAreaProvider>
-          </ActionSheetProvider>
+          <ModalProvider stack={stack}>
+            <ActionSheetProvider>
+              <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+                {__DEV__ ? (
+                  // Use navigation persistence for development
+                  <RootNavigator
+                    ref={navigationRef}
+                    initialState={initialNavigationState}
+                    onStateChange={onNavigationStateChange}
+                  />
+                ) : (
+                  <RootNavigator ref={navigationRef} />
+                )}
+              </SafeAreaProvider>
+            </ActionSheetProvider>
+          </ModalProvider>
         </GestureHandlerRootView>
       </RootStoreProvider>
     </QueryClientProvider>

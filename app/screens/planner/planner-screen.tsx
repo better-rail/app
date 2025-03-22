@@ -17,6 +17,7 @@ import { donateRouteIntent } from "../../utils/ios-helpers"
 import analytics from "@react-native-firebase/analytics"
 import { useFocusEffect } from "@react-navigation/native"
 import { PlannerScreenHeader } from "./planner-screen-header"
+import { useModal } from "react-native-modalfy"
 
 const { height: deviceHeight } = Dimensions.get("screen")
 
@@ -50,6 +51,7 @@ const CHANGE_DIRECTION_WRAPPER: ViewStyle = {
 export const PlannerScreen = observer(function PlannerScreen({ navigation }: PlannerScreenProps) {
   const { routePlan, trainRoutes } = useStores()
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
+  const { openModal } = useModal()
 
   const formattedDate = useFormattedDate(routePlan.date)
   const stationCardScale = useRef(new Animated.Value(1)).current
@@ -122,18 +124,23 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   }
 
   const onGetRoutePress = () => {
-    const { id: originId } = routePlan.origin
-    const { id: destinationId } = routePlan.destination
-
-    if (Platform.OS === "ios") {
-      donateRouteIntent(originId, destinationId)
-    }
-
-    navigation.navigate("routeList", {
-      originId,
-      destinationId,
-      time: routePlan.date.getTime(),
+    openModal("TipThanksModal", {
+      onOk: () => {
+        console.log("onOk")
+      },
     })
+    // const { id: originId } = routePlan.origin
+    // const { id: destinationId } = routePlan.destination
+
+    // if (Platform.OS === "ios") {
+    //   donateRouteIntent(originId, destinationId)
+    // }
+
+    // navigation.navigate("routeList", {
+    //   originId,
+    //   destinationId,
+    //   time: routePlan.date.getTime(),
+    // })
   }
 
   /**

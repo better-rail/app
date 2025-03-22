@@ -1,23 +1,21 @@
 import React from "react"
-import { ViewStyle, TextStyle, Platform } from "react-native"
-import Modal, { ModalProps } from "react-native-modal"
+import { View, Platform } from "react-native"
+import type { ViewStyle, TextStyle } from "react-native"
 import { Button, Text } from "../../../components"
 import { translate } from "../../../i18n"
-import { color, spacing } from "../../../theme"
+import { color, fontScale, spacing } from "../../../theme"
+import { ModalProps } from "react-native-modalfy"
 
 const MODAL_WRAPPER: ViewStyle = {
-  position: "absolute",
-  top: "12.5%",
-
   padding: spacing[6],
   alignSelf: "center",
   justifyContent: "center",
   alignItems: "center",
   backgroundColor: color.secondaryBackground,
-  borderRadius: Platform.select({ ios: 8, android: 4 }),
+  borderRadius: Platform.select({ ios: 14, android: 6 }),
   shadowOffset: { width: 0, height: 1 },
   shadowColor: color.palette.black,
-  shadowRadius: 2,
+  shadowRadius: 4,
   shadowOpacity: 0.45,
 }
 
@@ -42,25 +40,19 @@ const MODAL_BUTTON: ViewStyle = {
   minWidth: "90%",
 }
 
-export interface TipThanksModalProps extends ModalProps {
-  onOk: () => void
-}
-
-export const TipThanksModal = function TipThanksModal(props: TipThanksModalProps) {
+export const TipThanksModal = function TipThanksModal(props: ModalProps) {
   return (
-    <Modal
-      style={MODAL_WRAPPER}
-      animationIn="slideInUp"
-      animationOut="slideOutDown"
-      animationInTiming={825}
-      animationOutTiming={800}
-      {...props}
-    >
+    <View style={MODAL_WRAPPER}>
       <Text style={MODAL_ICON}>🙏</Text>
       <Text style={MODAL_TITLE} tx="settings.thankYou" />
       <Text style={MODAL_TEXT} tx="settings.thankYouText" />
 
-      <Button title={translate("common.close")} style={MODAL_BUTTON} onPress={props.onOk} />
-    </Modal>
+      <Button
+        title={translate("common.close")}
+        containerStyle={{ maxHeight: 60 * fontScale }}
+        style={MODAL_BUTTON}
+        onPress={() => props.modal.closeModal()}
+      />
+    </View>
   )
 }
