@@ -11,6 +11,7 @@ import { useStores } from "../../models"
 import { getInstallerPackageNameSync } from "react-native-device-info"
 import analytics from "@react-native-firebase/analytics"
 import crashlytics from "@react-native-firebase/crashlytics"
+import { useModal } from "react-native-modalfy"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -89,10 +90,9 @@ const PRODUCT_IDS = ["better_rail_tip_1", "better_rail_tip_2", "better_rail_tip_
 
 export const TipJarScreen = observer(function TipJarScreen() {
   const [isLoading, setIsLoading] = useState(false)
-  const [thanksModalVisible, setModalVisible] = useState(false)
   const [sortedProducts, setSortedProducts] = useState([])
   const { settings } = useStores()
-
+  const { openModal } = useModal()
   const { connected, products, finishTransaction, requestPurchase, getProducts, getAvailablePurchases, availablePurchases } =
     useIAP()
 
@@ -121,7 +121,7 @@ export const TipJarScreen = observer(function TipJarScreen() {
       const purchase = (await requestPurchase(requestPurchaseParams)) as ProductPurchase
 
       await finishTransaction({ purchase, isConsumable: true })
-      setModalVisible(true)
+      openModal("TipThanksModal")
 
       const item = products.find((product) => product.productId === sku)
       await analytics().logPurchase({
@@ -140,6 +140,7 @@ export const TipJarScreen = observer(function TipJarScreen() {
 
       settings.addTip(Number(amount))
     } catch (err) {
+      console.error(err)
       crashlytics().recordError(err)
     } finally {
       setIsLoading(false)
@@ -191,8 +192,6 @@ export const TipJarScreen = observer(function TipJarScreen() {
       ) : (
         <ActivityIndicator size="large" style={{ marginVertical: spacing[5] }} />
       )}
-
-      <TipThanksModal isVisible={thanksModalVisible} onOk={() => setModalVisible(false)} />
     </Screen>
   )
 })

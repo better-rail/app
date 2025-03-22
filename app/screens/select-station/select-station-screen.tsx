@@ -12,12 +12,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { FlashList } from "@shopify/flash-list"
 import { useFilteredStations } from "../../hooks"
 
-if (Platform.OS === "android") {
-  if (UIManager.setLayoutAnimationEnabledExperimental) {
-    UIManager.setLayoutAnimationEnabledExperimental(false)
-  }
-}
-
 // #region styles
 const ROOT: ViewStyle = {
   backgroundColor: color.secondaryBackground,
