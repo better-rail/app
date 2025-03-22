@@ -220,19 +220,30 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           placeholder={translate("plan.now")}
           value={formattedDate}
           style={{ marginBottom: spacing[5] }}
-          onPress={() => setDatePickerVisibility(true)}
+          onPress={() => {
+            if (Platform.OS === "android") {
+              openModal("DatePickerModal", {
+                onConfirm: handleConfirm,
+                minimumDate: now,
+              })
+            } else {
+              setDatePickerVisibility(true)
+            }
+          }}
           endSection={formattedDate !== translate("plan.now") && <ResetTimeButton onPress={onDateReset} />}
         />
 
-        <DatePickerModal
-          isVisible={isDatePickerVisible}
-          mode="datetime"
-          date={routePlan.date}
-          onChange={onDateChange}
-          onConfirm={handleConfirm}
-          onCancel={() => setDatePickerVisibility(false)}
-          minimumDate={now}
-        />
+        {Platform.OS === "ios" && (
+          <DatePickerModal
+            isVisible={isDatePickerVisible}
+            mode="datetime"
+            date={routePlan.date}
+            onChange={onDateChange}
+            onConfirm={handleConfirm}
+            onCancel={() => setDatePickerVisibility(false)}
+            minimumDate={now}
+          />
+        )}
 
         <Button
           title={translate("plan.find")}

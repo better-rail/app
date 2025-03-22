@@ -71,7 +71,7 @@
     "react-native": "0.76.6",
     "react-native-bouncy-checkbox": "^3.0.7",
     "react-native-context-menu-view": "^1.17.0",
-    "react-native-date-picker": "4.2.10",
+    "react-native-date-picker": "^5.0.11",
     "react-native-default-preference": "^1.4.4",
     "react-native-device-info": "10.6.0",
     "react-native-gesture-handler": "^2.22.0",

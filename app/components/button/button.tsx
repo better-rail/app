@@ -95,7 +95,9 @@ export const Button = function Button(props: CustomButtonProps) {
         ) : (
           <View style={TEXT_WRAPPER}>
             {icon}
-            <Text style={[TEXT, textStyle, size === "small" && SMALL_TEXT]}>{title}</Text>
+            <Text style={[TEXT, textStyle, size === "small" && SMALL_TEXT]} maxFontSizeMultiplier={1.3}>
+              {title}
+            </Text>
           </View>
         )}
       </Pressable>

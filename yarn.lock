@@ -11782,12 +11782,10 @@ react-native-context-menu-view@^1.17.0:
   resolved "https://registry.yarnpkg.com/react-native-context-menu-view/-/react-native-context-menu-view-1.17.0.tgz#3ff93a89a8d3486a51c5574303ceef505f6789c9"
   integrity sha512-GNuB6QI8H6YGT9PNjUyM6XUywG3CDi8BCWQrKA4xCjey7tolW/CsSZDBFiZx0G6sxYQUTQlUxErib5ImZEtbmA==
 
-react-native-date-picker@4.2.10:
-  version "4.2.10"
-  resolved "https://registry.yarnpkg.com/react-native-date-picker/-/react-native-date-picker-4.2.10.tgz#e84cba21ce413d72b2da1c784af3a8a4b2020df3"
-  integrity sha512-Qtu5mvuESjhSKCsecl5+V3kcGxjB3yUUJbbAq6u8JVZj9/fRf8+IV/yfDSREqMoiLM1ljMumxFT2Qdqkw/++Lw==
-  dependencies:
-    prop-types "^15.8.1"
+react-native-date-picker@^5.0.11:
+  version "5.0.11"
+  resolved "https://registry.yarnpkg.com/react-native-date-picker/-/react-native-date-picker-5.0.11.tgz#12ffba4be5e81d282e8cd0ad560dfa592da88d18"
+  integrity sha512-D7NSGVEhpgAEipo/PSy5oDJsLWRWaJQ5FS9ujr1HI1pVUIGJ0B6LaHoz2zR2X0LQ/IWWTA7mijUdeq5xbSXrEQ==
 
 react-native-default-preference@^1.4.4:
   version "1.4.4"

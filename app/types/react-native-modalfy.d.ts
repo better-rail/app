@@ -6,6 +6,10 @@ interface ModalStackParams {
     formattedRoutesDate: string
     onClose: () => void
   }
+  DatePickerModal: {
+    onConfirm: (date: Date) => void
+    minimumDate?: Date
+  }
 }
 
 declare module "react-native-modalfy" {
