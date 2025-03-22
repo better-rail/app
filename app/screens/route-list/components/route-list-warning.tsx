@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react"
-import { ViewStyle, TextStyle, Platform, View } from "react-native"
+import { Platform, View } from "react-native"
 import Animated, { FadeInDown } from "react-native-reanimated"
-import Modal from "react-native-modal"
-import { BottomScreenSheet, Button, Text } from "../../../components"
+import { BottomScreenSheet, Text } from "../../../components"
 import { format } from "date-fns"
 import { dateFnsLocalization, translate } from "../../../i18n"
-import { color, spacing } from "../../../theme"
 import * as Burnt from "burnt"
 import { useModal } from "react-native-modalfy"
 
@@ -39,8 +37,9 @@ export const RouteListWarning = function RouteListWarning({ routesDate, warningT
             warningType,
             formattedRoutesDate,
             onClose: () => {
-              console.log("onClose")
-              setDisplayWarningSheet(true)
+              setTimeout(() => {
+                setDisplayWarningSheet(true)
+              }, 350)
             },
           }),
         250,
