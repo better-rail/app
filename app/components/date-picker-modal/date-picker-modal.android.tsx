@@ -1,21 +1,16 @@
-import React, { useState } from "react"
-import { View, ViewStyle } from "react-native"
+import React, { useEffect, useState } from "react"
+import { View, type ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
-import Modal from "react-native-modal"
-import { DateType, useStores } from "../../models"
+import { type DateType, useStores } from "../../models"
 import { dateLocale, translate } from "../../i18n"
-import { color, spacing, isDarkMode } from "../../theme"
+import { color, spacing, isDarkMode, fontScale } from "../../theme"
 import DatePicker from "react-native-date-picker"
 import MaterialTabs from "react-native-material-tabs"
 import { Button } from "../button/button"
-
-// A dictionary to set the date type according to the segmented control selected index
-const DATE_TYPE: { [key: number]: DateType } = { 0: "departure", 1: "arrival" }
+import type { ModalProps } from "react-native-modalfy"
 
 const MODAL_WRAPPER: ViewStyle = {
-  position: "absolute",
-  top: "20%",
-  maxHeight: 400,
+  minHeight: 285,
   alignSelf: "center",
   justifyContent: "center",
   alignItems: "center",
@@ -38,14 +33,13 @@ export interface DatePickerModalProps {
   isVisible: boolean
   onChange: (date: Date) => void
   onConfirm: (date: Date) => void
-  onCancel: () => void
   minimumDate?: Date
   style?: ViewStyle
 }
 
-export const DatePickerModal = observer(function DatePickerModal(props: DatePickerModalProps) {
+export const DatePickerModal = observer(function DatePickerModal(props: ModalProps<"DatePickerModal">) {
   const { routePlan } = useStores()
-  const { isVisible, onConfirm, onCancel, minimumDate } = props
+  const { onConfirm, minimumDate } = props.modal.params
   const [selectedTab, setSelectedTab] = useState(0)
 
   const onDateTypeChange = (selectedTabIndex: number) => {
@@ -62,8 +56,8 @@ export const DatePickerModal = observer(function DatePickerModal(props: DatePick
   const [modalDate, setModalDate] = useState(new Date())
 
   return (
-    <Modal style={MODAL_WRAPPER} isVisible={isVisible} onBackButtonPress={onCancel} statusBarTranslucent>
-      <View style={{ flex: 1, width: "100%", padding: spacing[2] }}>
+    <View style={MODAL_WRAPPER}>
+      <View style={{ padding: spacing[2] }}>
         <MaterialTabs
           items={[translate("plan.leaveAt"), translate("plan.arriveAt")]}
           selectedIndex={selectedTab}
@@ -75,27 +69,34 @@ export const DatePickerModal = observer(function DatePickerModal(props: DatePick
         <DatePicker
           date={modalDate}
           onDateChange={setModalDate}
-          androidVariant="nativeAndroid"
           minuteInterval={15}
           locale={dateLocale}
           mode="datetime"
           minimumDate={minimumDate}
-          fadeToColor="red"
-          style={{ alignSelf: "center", marginVertical: spacing[5] }}
+          style={{ alignSelf: "center", marginVertical: spacing[4] }}
         />
 
-        <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
+        <View style={{ flexDirection: "row", justifyContent: "space-around", height: 40 }}>
           <Button
             title={translate("common.cancel")}
-            onPress={onCancel}
+            onPress={() => {
+              props.modal.closeModal()
+            }}
             style={CANCEL_BUTTON}
             containerStyle={{ marginEnd: spacing[1] }}
             textStyle={{ color: isDarkMode ? color.dim : color.primary }}
             size="small"
           />
-          <Button title={translate("common.set")} onPress={() => onConfirm(modalDate)} size="small" />
+          <Button
+            title={translate("common.set")}
+            onPress={() => {
+              onConfirm(modalDate)
+              props.modal.closeModal()
+            }}
+            size="small"
+          />
         </View>
       </View>
-    </Modal>
+    </View>
   )
 })

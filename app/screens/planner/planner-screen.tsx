@@ -1,14 +1,15 @@
 import React, { useRef, useState, useEffect } from "react"
 import { observer } from "mobx-react-lite"
-import { View, Animated, ViewStyle, TextStyle, Dimensions, AppState, AppStateStatus, Platform, Alert } from "react-native"
+import { View, Animated, Dimensions, AppState, Platform, Alert } from "react-native"
+import type { ViewStyle, TextStyle, AppStateStatus } from "react-native"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton, ResetTimeButton } from "../../components"
 import { useStores } from "../../models"
 import HapticFeedback from "react-native-haptic-feedback"
 import { color, primaryFontIOS, spacing } from "../../theme"
-import { PlannerScreenProps } from "../../navigators/main-navigator"
+import type { PlannerScreenProps } from "../../navigators/main-navigator"
 import { useStations } from "../../data/stations"
 import { translate, useFormattedDate } from "../../i18n"
-import DatePickerModal from "../../components/date-picker-modal"
+import { DatePickerModal } from "../../components/date-picker-modal/date-picker-modal.ios"
 import { useQuery } from "react-query"
 import { isWeekend } from "../../utils/helpers/date-helpers"
 import { differenceInHours, parseISO } from "date-fns"
@@ -17,6 +18,7 @@ import { donateRouteIntent } from "../../utils/ios-helpers"
 import analytics from "@react-native-firebase/analytics"
 import { useFocusEffect } from "@react-navigation/native"
 import { PlannerScreenHeader } from "./planner-screen-header"
+import { useModal } from "react-native-modalfy"
 
 const { height: deviceHeight } = Dimensions.get("screen")
 
@@ -50,6 +52,7 @@ const CHANGE_DIRECTION_WRAPPER: ViewStyle = {
 export const PlannerScreen = observer(function PlannerScreen({ navigation }: PlannerScreenProps) {
   const { routePlan, trainRoutes } = useStores()
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
+  const { openModal } = useModal()
 
   const formattedDate = useFormattedDate(routePlan.date)
   const stationCardScale = useRef(new Animated.Value(1)).current
@@ -124,11 +127,9 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   const onGetRoutePress = () => {
     const { id: originId } = routePlan.origin
     const { id: destinationId } = routePlan.destination
-
     if (Platform.OS === "ios") {
       donateRouteIntent(originId, destinationId)
     }
-
     navigation.navigate("routeList", {
       originId,
       destinationId,
@@ -220,19 +221,28 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           placeholder={translate("plan.now")}
           value={formattedDate}
           style={{ marginBottom: spacing[5] }}
-          onPress={() => setDatePickerVisibility(true)}
+          onPress={() => {
+            if (Platform.OS === "android") {
+              openModal("DatePickerModal", {
+                onConfirm: handleConfirm,
+                minimumDate: now,
+              })
+            } else {
+              setDatePickerVisibility(true)
+            }
+          }}
           endSection={formattedDate !== translate("plan.now") && <ResetTimeButton onPress={onDateReset} />}
         />
 
-        <DatePickerModal
-          isVisible={isDatePickerVisible}
-          mode="datetime"
-          date={routePlan.date}
-          onChange={onDateChange}
-          onConfirm={handleConfirm}
-          onCancel={() => setDatePickerVisibility(false)}
-          minimumDate={now}
-        />
+        {Platform.OS === "ios" && (
+          <DatePickerModal
+            isVisible={isDatePickerVisible}
+            onChange={onDateChange}
+            onConfirm={handleConfirm}
+            onCancel={() => setDatePickerVisibility(false)}
+            minimumDate={now}
+          />
+        )}
 
         <Button
           title={translate("plan.find")}

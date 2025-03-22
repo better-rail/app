@@ -1,51 +1,13 @@
 import React, { useEffect, useState } from "react"
-import { ViewStyle, TextStyle, Platform, View } from "react-native"
+import { Platform, View } from "react-native"
 import Animated, { FadeInDown } from "react-native-reanimated"
-import Modal from "react-native-modal"
-import { BottomScreenSheet, Button, Text } from "../../../components"
+import { BottomScreenSheet, Text } from "../../../components"
 import { format } from "date-fns"
 import { dateFnsLocalization, translate } from "../../../i18n"
-import { color, spacing } from "../../../theme"
 import * as Burnt from "burnt"
+import { useModal } from "react-native-modalfy"
 
 const shouldDisplayModal = Platform.OS === "android"
-
-const MODAL_WRAPPER: ViewStyle = {
-  position: "absolute",
-  top: "25%",
-  maxHeight: 400,
-  padding: spacing[5],
-  alignSelf: "center",
-  justifyContent: "center",
-  alignItems: "center",
-  backgroundColor: color.secondaryBackground,
-  borderRadius: Platform.select({ ios: 8, android: 4 }),
-  shadowOffset: { width: 0, height: 1 },
-  shadowColor: color.palette.black,
-  shadowRadius: 2,
-  shadowOpacity: 0.45,
-}
-
-const MODAL_ICON: TextStyle = {
-  fontSize: 72.5,
-}
-
-const MODAL_TITLE: TextStyle = {
-  marginBottom: spacing[2],
-  textAlign: "center",
-  fontSize: 22,
-  fontWeight: "700",
-}
-
-const MODAL_TEXT: TextStyle = {
-  marginBottom: spacing[4],
-  textAlign: "center",
-  fontSize: 18,
-}
-
-const MODAL_BUTTON: ViewStyle = {
-  minWidth: "80%",
-}
 
 export type WarningType = "different-hour" | "different-date"
 
@@ -61,14 +23,27 @@ export interface RouteListModalProps {
  * For iOS we'll display a native alert, for Android we'll show modal
  */
 export const RouteListWarning = function RouteListWarning({ routesDate, warningType }: RouteListModalProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const { openModal } = useModal()
   const [displayWarningSheet, setDisplayWarningSheet] = useState(false)
   const formattedRoutesDate = format(routesDate, "eeee, dd/MM/yyyy", { locale: dateFnsLocalization })
-
+  console.log("displayWarningSheet", displayWarningSheet)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: no need!
   useEffect(() => {
     if (shouldDisplayModal) {
       // so modal won't be opened immidiately; looks nicer
-      setTimeout(() => setIsModalOpen(true), 250)
+      setTimeout(
+        () =>
+          openModal("RouteListWarningModal", {
+            warningType,
+            formattedRoutesDate,
+            onClose: () => {
+              setTimeout(() => {
+                setDisplayWarningSheet(true)
+              }, 350)
+            },
+          }),
+        250,
+      )
     }
   }, [])
 
@@ -99,37 +74,8 @@ export const RouteListWarning = function RouteListWarning({ routesDate, warningT
     }
   }, [])
 
-  const androidModal = shouldDisplayModal && (
-    <Modal style={MODAL_WRAPPER} isVisible={isModalOpen} animationIn="zoomIn" animationOut="zoomOut">
-      <Text style={MODAL_ICON}>⚠️</Text>
-      <Text
-        style={MODAL_TITLE}
-        tx={warningType === "different-hour" ? "modals.noTrainsFoundForHour" : "modals.noTrainsFoundForDate"}
-      />
-      <Text style={MODAL_TEXT}>
-        {warningType === "different-hour" ? (
-          translate("modals.foundTrainsAtHour")
-        ) : (
-          <>
-            {translate("modals.foundTrainsAtDate")}
-            {formattedRoutesDate}
-          </>
-        )}
-      </Text>
-      <Button
-        title={translate("common.ok")}
-        style={MODAL_BUTTON}
-        onPress={() => {
-          setIsModalOpen(false)
-          setDisplayWarningSheet(true)
-        }}
-      />
-    </Modal>
-  )
-
   return (
     <>
-      {androidModal}
       {displayWarningSheet && (
         <Animated.View entering={FadeInDown}>
           <BottomScreenSheet style={{ backgroundColor: "orange" }}>
