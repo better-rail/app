@@ -1,14 +1,15 @@
 import React, { useRef, useState, useEffect } from "react"
 import { observer } from "mobx-react-lite"
-import { View, Animated, ViewStyle, TextStyle, Dimensions, AppState, AppStateStatus, Platform, Alert } from "react-native"
+import { View, Animated, Dimensions, AppState, Platform, Alert } from "react-native"
+import type { ViewStyle, TextStyle, AppStateStatus } from "react-native"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton, ResetTimeButton } from "../../components"
 import { useStores } from "../../models"
 import HapticFeedback from "react-native-haptic-feedback"
 import { color, primaryFontIOS, spacing } from "../../theme"
-import { PlannerScreenProps } from "../../navigators/main-navigator"
+import type { PlannerScreenProps } from "../../navigators/main-navigator"
 import { useStations } from "../../data/stations"
 import { translate, useFormattedDate } from "../../i18n"
-import DatePickerModal from "../../components/date-picker-modal"
+import { DatePickerModal } from "../../components/date-picker-modal/date-picker-modal.ios"
 import { useQuery } from "react-query"
 import { isWeekend } from "../../utils/helpers/date-helpers"
 import { differenceInHours, parseISO } from "date-fns"
@@ -236,8 +237,6 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
         {Platform.OS === "ios" && (
           <DatePickerModal
             isVisible={isDatePickerVisible}
-            mode="datetime"
-            date={routePlan.date}
             onChange={onDateChange}
             onConfirm={handleConfirm}
             onCancel={() => setDatePickerVisibility(false)}
