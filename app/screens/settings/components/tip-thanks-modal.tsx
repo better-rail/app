@@ -1,13 +1,13 @@
 import React from "react"
 import { View, Platform } from "react-native"
 import type { ViewStyle, TextStyle } from "react-native"
+import type { ModalProps } from "react-native-modalfy"
 import { Button, Text } from "../../../components"
 import { translate } from "../../../i18n"
 import { color, fontScale, spacing } from "../../../theme"
-import { ModalProps } from "react-native-modalfy"
 
 const MODAL_WRAPPER: ViewStyle = {
-  padding: spacing[6],
+  padding: Platform.select({ ios: spacing[6], android: spacing[5] }),
   alignSelf: "center",
   justifyContent: "center",
   alignItems: "center",

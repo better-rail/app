@@ -124,23 +124,16 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   }
 
   const onGetRoutePress = () => {
-    openModal("TipThanksModal", {
-      onOk: () => {
-        console.log("onOk")
-      },
+    const { id: originId } = routePlan.origin
+    const { id: destinationId } = routePlan.destination
+    if (Platform.OS === "ios") {
+      donateRouteIntent(originId, destinationId)
+    }
+    navigation.navigate("routeList", {
+      originId,
+      destinationId,
+      time: routePlan.date.getTime(),
     })
-    // const { id: originId } = routePlan.origin
-    // const { id: destinationId } = routePlan.destination
-
-    // if (Platform.OS === "ios") {
-    //   donateRouteIntent(originId, destinationId)
-    // }
-
-    // navigation.navigate("routeList", {
-    //   originId,
-    //   destinationId,
-    //   time: routePlan.date.getTime(),
-    // })
   }
 
   /**
