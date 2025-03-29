@@ -13,7 +13,9 @@ interface TrainPullRefreshProps {
 
 const MAX_PULL_DISTANCE = 150
 const REFRESH_THRESHOLD = MAX_PULL_DISTANCE / 2
-const REFRESH_DURATION = 300
+
+// I keep this because maybe in the future we'll add a network request here that updates train delays
+const REFRESH_DURATION = 0
 
 const CONTAINER: ViewStyle = {
   flex: 1,
