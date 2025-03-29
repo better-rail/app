@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useState } from "react"
-import { ActivityIndicator, Image, View } from "react-native"
+import { ActivityIndicator, Image, View, BackHandler } from "react-native"
 import { ScrollView } from "react-native-gesture-handler"
 import HapticFeedback from "react-native-haptic-feedback"
 import { BottomSheetView } from "@gorhom/bottom-sheet"
@@ -39,7 +39,7 @@ type Props = {
 }
 
 export const StationHoursSheet = observer(
-  forwardRef<BottomSheet, Props>(({ stationId }, ref) => {
+  forwardRef<BottomSheet, Props>(({ stationId, onDone }, ref) => {
     const insets = useSafeAreaInsets()
 
     const { data: stationInfo, isLoading } = useQuery(["stationInfo", stationId], () => {
@@ -53,6 +53,16 @@ export const StationHoursSheet = observer(
       // Select the first gate by default
       setSelectedGateId(stationInfo?.gateInfo[0]?.stationGateId)
     }, [stationInfo])
+
+    useEffect(() => {
+      // Prevents default back button behavior on Android
+      const backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
+        onDone()
+        return true
+      })
+
+      return () => backHandler.remove()
+    }, [onDone])
 
     return (
       <BottomSheetModal ref={ref} enableDynamicSizing backgroundStyle={{ backgroundColor: color.tertiaryBackground }}>
