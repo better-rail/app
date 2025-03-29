@@ -14,6 +14,7 @@ export const palette = {
   darkBurple: "#4144BC",
   lightGrey: "#939AA4",
   lighterGrey: "#e0e1e6",
+  darkGrey: "#2C2C2E",
   angry: "#dd3333",
   greenLightBg: "#e4ffdd",
   greenLightText: "#219f07",
