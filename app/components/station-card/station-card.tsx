@@ -134,7 +134,7 @@ export const StationCard = observer(function StationCard(props: StationCardProps
 
   return (
     <TouchableScale style={[CONTAINER, style]} activeScale={0.95} friction={9} {...rest}>
-      <ImageBackground imageStyle={{ borderRadius: Platform.select({ ios: 6, android: 3 }) }} source={image} style={BACKGROUND}>
+      <ImageBackground imageStyle={{ borderRadius: 6 }} source={image} style={BACKGROUND}>
         <LinearGradient
           style={GARDIENT}
           colors={["rgba(0, 0, 0, 0.05)", isDarkMode ? "rgba(0, 0, 0, 0.75)" : "rgba(0, 0, 0, 0.65)"]}
