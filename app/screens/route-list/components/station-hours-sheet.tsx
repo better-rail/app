@@ -1,7 +1,7 @@
 import { forwardRef, useEffect, useState } from "react"
-import { ActivityIndicator, Image, ScrollView, View } from "react-native"
-import type { TextStyle, ViewStyle } from "react-native"
-import type BottomSheet from "@gorhom/bottom-sheet"
+import { ActivityIndicator, Image, View } from "react-native"
+import { ScrollView } from "react-native-gesture-handler"
+import HapticFeedback from "react-native-haptic-feedback"
 import { BottomSheetView } from "@gorhom/bottom-sheet"
 import { Chip, Text } from "../../../components"
 import { BottomSheetModal } from "../../../components/sheets/bottom-sheet-modal"
@@ -12,7 +12,9 @@ import { railApi } from "../../../services/api"
 import { dateFnsLocalization, isRTL, userLocale } from "../../../i18n"
 import { addDays, format, parseISO } from "date-fns"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import HapticFeedback from "react-native-haptic-feedback"
+
+import type { TextStyle, ViewStyle } from "react-native"
+import type BottomSheet from "@gorhom/bottom-sheet"
 
 const ARROW_LEFT = require("../../../../assets/arrow-left.png")
 
