@@ -94,13 +94,22 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     // First, validate that each route actually belongs to this date
     const validatedRoutes = routes.filter((route) => {
       const routeDate = new Date(route.trains[0].departureTime).toDateString()
-      return routeDate === currentDateStr
+      // If the route date is different from the requested date, we need to handle it
+      if (routeDate !== currentDateStr) {
+        // If we don't have this date in our map yet, add it
+        if (!dateToRoutesMap.has(routeDate)) {
+          dateToRoutesMap.set(routeDate, [])
+        }
+        // Add this route to its actual date instead of the requested date
+        const routesForActualDate = dateToRoutesMap.get(routeDate) || []
+        routesForActualDate.push(route)
+        dateToRoutesMap.set(routeDate, routesForActualDate)
+        return false // Don't include this route in the current date's routes
+      }
+      return true
     })
 
-    if (validatedRoutes.length !== routes.length) {
-      console.warn(`Found ${routes.length - validatedRoutes.length} routes with incorrect dates`)
-    }
-
+    // Add the validated routes to the current date
     dateToRoutesMap.set(currentDateStr, validatedRoutes)
 
     // Convert the map back to a flat array with date headers followed by their routes
@@ -174,7 +183,20 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         }
         setLoadingDate(null)
       },
-      onSuccess: () => {
+      onSuccess: (data) => {
+        // Check if we need to update the date based on the actual routes
+        if (data && data.length > 0) {
+          const firstRouteDate = new Date(data[0].trains[0].departureTime).toDateString()
+          if (firstRouteDate !== currentDate.toDateString()) {
+            // Update the current date to match the actual date of the routes
+            setCurrentDate(new Date(firstRouteDate))
+            // Update the next day date accordingly
+            const nextDate = new Date(firstRouteDate)
+            nextDate.setDate(nextDate.getDate() + 1)
+            setNextDayDate(nextDate)
+          }
+        }
+
         // Add the current date to the set of loaded dates
         setLoadedDates((prev) => {
           const newSet = new Set(prev)
