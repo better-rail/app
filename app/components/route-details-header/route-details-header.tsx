@@ -319,12 +319,7 @@ function createEventConfig(routeItem: RouteItem) {
 
   const origin = routeItem.trains[0].originStationName
   const trainNumber = routeItem.trains[0].trainNumber
-  let destination = routeItem.trains[0].destinationStationName
-
-  if (routeItem.trains.length > 1) {
-    // If there are multiple trains, we need to get the destination of the last train
-    destination = routeItem.trains[routeItem.trains.length - 1].destinationStationName
-  }
+  const destination = routeItem.trains[routeItem.trains.length - 1].destinationStationName
 
   const title = translate("plan.rideTo", { destination })
   const notes = translate("plan.trainFromToStation", { trainNumber, origin, destination })
