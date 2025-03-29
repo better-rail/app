@@ -52,6 +52,12 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   // Keep track of the dates we've already loaded
   const [loadedDates, setLoadedDates] = useState<Set<string>>(new Set())
 
+  // Reset route data and loaded dates when origin or destination changes
+  useEffect(() => {
+    setRouteData([])
+    setLoadedDates(new Set())
+  }, [originId, destinationId])
+
   const stationHoursSheetRef = useRef<BottomSheet>(null)
   const flashListRef = useRef(null)
 
