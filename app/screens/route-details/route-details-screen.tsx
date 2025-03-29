@@ -1,8 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useEffect, useMemo, useRef, useState } from "react"
-import { Platform, View, ViewStyle } from "react-native"
-import { observer } from "mobx-react-lite"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
+import React, { useEffect, useMemo, useRef, useState, useCallback } from "react"
+import { Platform, View, type ViewStyle } from "react-native"
 import { ScrollView } from "react-native-gesture-handler"
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated"
 import { format } from "date-fns"
@@ -33,7 +31,22 @@ const ROOT: ViewStyle = {
   flex: 1,
   backgroundColor: color.background,
 }
-export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
+
+const HEADER_CONTAINER: ViewStyle = {
+  paddingHorizontal: spacing[3],
+  marginBottom: spacing[3],
+}
+
+const SCROLL_CONTENT: ViewStyle = {
+  paddingTop: spacing[4],
+  paddingBottom: 80,
+}
+
+const STATION_CONTAINER: ViewStyle = {
+  backgroundColor: color.background,
+}
+
+export function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
   const { ride } = useStores()
   const allStations = useStations()
   const permissionSheetRef = useRef<BottomSheet>(null)
@@ -55,13 +68,15 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
   const progress = useRideProgress({ route: routeItem, enabled: isRideOnThisRoute })
   const { stations } = progress
 
-  const insets = useSafeAreaInsets()
-
   const [shouldFadeRideButton, setShouldFadeRideButton] = useState(false)
   const [showEntireRoute, setShowEntireRoute] = useState(false)
 
+  const handleRefresh = useCallback(() => {
+    setShowEntireRoute((prev: boolean) => !prev)
+  }, [])
+
   const openLivePermissionsSheet = () => {
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
       permissionSheetRef.current?.expand()
       permissionsPromise.current = resolve
     })
@@ -102,16 +117,13 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
               screenName={route.name}
               showEntireRoute={showEntireRoute}
               setShowEntireRoute={setShowEntireRoute}
-              style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
+              style={HEADER_CONTAINER}
             />
           </Animated.View>
 
           <View style={{ flex: 1 }}>
-            <TrainPullRefresh onRefresh={() => setShowEntireRoute((prev) => !prev)} showEntireRoute={showEntireRoute}>
-              <ScrollView
-                contentContainerStyle={{ paddingTop: spacing[4], paddingBottom: 80 + insets.bottom }}
-                showsVerticalScrollIndicator={false}
-              >
+            <TrainPullRefresh onRefresh={handleRefresh} showEntireRoute={showEntireRoute}>
+              <ScrollView contentContainerStyle={SCROLL_CONTENT} showsVerticalScrollIndicator={false}>
                 {routeItem.isMuchLonger && route.name == "routeDetails" && <LongRouteWarning />}
                 {routeItem.trains.map((train, index) => {
                   // When showing the entire route, we need to organize all stations in order
@@ -123,7 +135,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
                     const destinationIndex = allRouteStations.findIndex((s) => s.stationId === train.destinationStationId)
 
                     return (
-                      <View key={train.trainNumber} style={{ backgroundColor: color.background }}>
+                      <View key={train.trainNumber} style={STATION_CONTAINER}>
                         {/* Stations before origin */}
                         {allRouteStations.slice(0, originIndex).map((station, idx) => {
                           const isFirstStation = idx === 0
@@ -219,7 +231,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
 
                   // Original display logic when not showing entire route
                   return (
-                    <View key={train.trainNumber} style={{ backgroundColor: color.background }}>
+                    <View key={train.trainNumber} style={STATION_CONTAINER}>
                       <RouteStationCard
                         stationName={train.originStationName}
                         stopTime={format(train.departureTime, "HH:mm")}
@@ -300,4 +312,4 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
       {Platform.OS === "android" && <LivePermissionsSheet onDone={onDoneLivePermissionsSheet} ref={permissionSheetRef} />}
     </>
   )
-})
+}

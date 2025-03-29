@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useRef } from "react"
-import { View, PanResponder, NativeSyntheticEvent, NativeScrollEvent, Image } from "react-native"
+import React, { useCallback, useEffect, useRef, useState } from "react"
+import { View, PanResponder, type NativeSyntheticEvent, type NativeScrollEvent, Image } from "react-native"
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, withDelay } from "react-native-reanimated"
 import { color, spacing } from "../../../theme"
 import { translate } from "../../../i18n/translate"
+import type { ViewStyle, TextStyle, ImageStyle } from "react-native"
 
 interface TrainPullRefreshProps {
   onRefresh: () => void
@@ -14,12 +15,52 @@ const MAX_PULL_DISTANCE = 150
 const REFRESH_THRESHOLD = MAX_PULL_DISTANCE / 2
 const REFRESH_DURATION = 300
 
-export const TrainPullRefresh: React.FC<TrainPullRefreshProps> = ({ onRefresh, showEntireRoute, children }) => {
+const CONTAINER: ViewStyle = {
+  flex: 1,
+  position: "relative",
+  overflow: "hidden",
+}
+
+const CONTENT: ViewStyle = {
+  flex: 1,
+}
+
+const REFRESH_CONTAINER: ViewStyle = {
+  position: "absolute",
+  top: 0,
+  left: 0,
+  right: 0,
+  zIndex: 10,
+  alignItems: "center",
+  justifyContent: "center",
+  backgroundColor: color.background,
+}
+
+const ICON_CONTAINER: ViewStyle = {
+  width: 32,
+  height: 32,
+  marginBottom: spacing[2],
+  alignItems: "center",
+  justifyContent: "center",
+}
+
+const ICON: ImageStyle = {
+  width: 24,
+  height: 24,
+}
+
+const REFRESH_TEXT: TextStyle = {
+  color: color.text,
+  fontSize: 14,
+  textAlign: "center",
+}
+
+export function TrainPullRefresh({ onRefresh, showEntireRoute, children }: TrainPullRefreshProps) {
   const scrollPosition = useSharedValue(0)
   const pullDownPosition = useSharedValue(0)
   const isReadyToRefresh = useSharedValue(false)
-  const [refreshing, setRefreshing] = React.useState(false)
-  const [isDragging, setIsDragging] = React.useState(false)
+  const [refreshing, setRefreshing] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
   const refreshTimeoutRef = useRef<NodeJS.Timeout>()
 
   // Cleanup timeout on unmount
@@ -140,56 +181,19 @@ export const TrainPullRefresh: React.FC<TrainPullRefreshProps> = ({ onRefresh, s
   })
 
   return (
-    <View style={styles.container}>
-      <Animated.View style={[styles.refreshContainer, refreshContainerStyles]}>
-        <Animated.View style={[styles.iconContainer, iconStyles]}>
-          <Image source={require("../../../../assets/route.png")} style={styles.icon} resizeMode="contain" />
+    <View style={CONTAINER}>
+      <Animated.View style={[REFRESH_CONTAINER, refreshContainerStyles]}>
+        <Animated.View style={[ICON_CONTAINER, iconStyles]}>
+          <Image source={require("../../../../assets/route.png")} style={ICON} resizeMode="contain" />
         </Animated.View>
-        <Animated.Text style={[styles.refreshText, textStyles]}>
+        <Animated.Text style={[REFRESH_TEXT, textStyles]}>
           {translate(showEntireRoute ? "routeDetails.hideAllStations" : "routeDetails.showAllStations")}
         </Animated.Text>
       </Animated.View>
 
-      <Animated.View style={[styles.content, pullDownStyles]} {...panResponderRef.current.panHandlers}>
+      <Animated.View style={[CONTENT, pullDownStyles]} {...panResponderRef.current.panHandlers}>
         {childrenWithProps}
       </Animated.View>
     </View>
   )
 }
-
-const styles = {
-  container: {
-    flex: 1,
-    position: "relative",
-    overflow: "hidden",
-  },
-  content: {
-    flex: 1,
-  },
-  refreshContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: color.background,
-  },
-  iconContainer: {
-    width: 32,
-    height: 32,
-    marginBottom: spacing[2],
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  icon: {
-    width: 24,
-    height: 24,
-  },
-  refreshText: {
-    color: color.text,
-    fontSize: 14,
-    textAlign: "center",
-  },
-} as const
