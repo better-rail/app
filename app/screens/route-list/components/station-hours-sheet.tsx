@@ -59,6 +59,9 @@ export const StationHoursSheet = observer(
             <ActivityIndicator size="large" color="grey" />
           ) : (
             <View>
+              <Text style={{ fontSize: 24, fontWeight: "bold", paddingHorizontal: spacing[4], marginBottom: spacing[2] }}>
+                {stationInfo.stationDetails.stationName}
+              </Text>
               <ScrollView
                 horizontal
                 contentContainerStyle={{ paddingHorizontal: spacing[4], marginBottom: spacing[3], gap: spacing[2] }}
