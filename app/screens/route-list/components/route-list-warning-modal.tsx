@@ -1,4 +1,4 @@
-import { Platform, View, type ViewStyle, type TextStyle } from "react-native"
+import { View, type ViewStyle, type TextStyle } from "react-native"
 import type { ModalProps } from "react-native-modalfy"
 import { color, fontScale } from "../../../theme"
 import { spacing } from "../../../theme"
@@ -8,11 +8,12 @@ import { translate } from "../../../i18n"
 const MODAL_WRAPPER: ViewStyle = {
   maxHeight: 400,
   padding: spacing[4],
+  marginHorizontal: spacing[3],
   alignSelf: "center",
   justifyContent: "center",
   alignItems: "center",
-  backgroundColor: color.secondaryBackground,
-  borderRadius: Platform.select({ ios: 8, android: 4 }),
+  backgroundColor: color.modalBackground,
+  borderRadius: 6,
   shadowOffset: { width: 0, height: 1 },
   shadowColor: color.palette.black,
   shadowRadius: 2,
