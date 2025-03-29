@@ -13,7 +13,7 @@ import { dateFnsLocalization, isRTL, userLocale } from "../../../i18n"
 import { addDays, format, parseISO } from "date-fns"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 
-import type { TextStyle, ViewStyle } from "react-native"
+import type { NativeEventSubscription, TextStyle, ViewStyle } from "react-native"
 import type BottomSheet from "@gorhom/bottom-sheet"
 
 const ARROW_LEFT = require("../../../../assets/arrow-left.png")
@@ -41,7 +41,7 @@ type Props = {
 export const StationHoursSheet = observer(
   forwardRef<BottomSheet, Props>(({ stationId, onDone }, ref) => {
     const insets = useSafeAreaInsets()
-
+    const [isOpen, setIsOpen] = useState(false)
     const { data: stationInfo, isLoading } = useQuery(["stationInfo", stationId], () => {
       return railApi.getStationInfo(userLocale, stationId)
     })
@@ -55,17 +55,30 @@ export const StationHoursSheet = observer(
     }, [stationInfo])
 
     useEffect(() => {
-      // Prevents default back button behavior on Android
-      const backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
+      const backHandler = () => {
         onDone()
         return true
-      })
+      }
 
-      return () => backHandler.remove()
-    }, [onDone])
+      if (isOpen) {
+        // Prevents default back button behavior on Android
+        BackHandler.addEventListener("hardwareBackPress", backHandler)
+      } else {
+        BackHandler.removeEventListener("hardwareBackPress", backHandler)
+      }
+
+      return () => BackHandler.removeEventListener("hardwareBackPress", backHandler)
+    }, [isOpen, onDone])
 
     return (
-      <BottomSheetModal ref={ref} enableDynamicSizing backgroundStyle={{ backgroundColor: color.tertiaryBackground }}>
+      <BottomSheetModal
+        ref={ref}
+        enableDynamicSizing
+        backgroundStyle={{ backgroundColor: color.tertiaryBackground }}
+        onChange={(index) => {
+          setIsOpen(index === 0)
+        }}
+      >
         <BottomSheetView style={[WRAPPER, { paddingBottom: insets.bottom + spacing[3] }]} key={stationInfo?.gateInfo.length}>
           {isLoading || !selectedGate ? (
             <ActivityIndicator size="large" color="grey" />
