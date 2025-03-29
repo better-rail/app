@@ -1,7 +1,7 @@
 import { forwardRef, useEffect, useState } from "react"
-import { ActivityIndicator, Image, ScrollView, useColorScheme, View } from "react-native"
-import type { TextStyle, ViewStyle } from "react-native"
-import type BottomSheet from "@gorhom/bottom-sheet"
+import { ActivityIndicator, Image, View, BackHandler } from "react-native"
+import { ScrollView } from "react-native-gesture-handler"
+import HapticFeedback from "react-native-haptic-feedback"
 import { BottomSheetView } from "@gorhom/bottom-sheet"
 import { Chip, Text } from "../../../components"
 import { BottomSheetModal } from "../../../components/sheets/bottom-sheet-modal"
@@ -12,7 +12,9 @@ import { railApi } from "../../../services/api"
 import { dateFnsLocalization, isRTL, userLocale } from "../../../i18n"
 import { addDays, format, parseISO } from "date-fns"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import HapticFeedback from "react-native-haptic-feedback"
+
+import type { TextStyle, ViewStyle } from "react-native"
+import type BottomSheet from "@gorhom/bottom-sheet"
 
 const ARROW_LEFT = require("../../../../assets/arrow-left.png")
 
@@ -37,11 +39,9 @@ type Props = {
 }
 
 export const StationHoursSheet = observer(
-  forwardRef<BottomSheet, Props>(({ stationId }, ref) => {
+  forwardRef<BottomSheet, Props>(({ stationId, onDone }, ref) => {
     const insets = useSafeAreaInsets()
-    const colorScheme = useColorScheme()
 
-    // TODO: Persist selected gate in local storage, so it's not reset when the user closes the sheet
     const { data: stationInfo, isLoading } = useQuery(["stationInfo", stationId], () => {
       return railApi.getStationInfo(userLocale, stationId)
     })
@@ -54,17 +54,26 @@ export const StationHoursSheet = observer(
       setSelectedGateId(stationInfo?.gateInfo[0]?.stationGateId)
     }, [stationInfo])
 
+    useEffect(() => {
+      // Prevents default back button behavior on Android
+      const backHandler = BackHandler.addEventListener("hardwareBackPress", () => {
+        onDone()
+        return true
+      })
+
+      return () => backHandler.remove()
+    }, [onDone])
+
     return (
-      <BottomSheetModal
-        ref={ref}
-        enableDynamicSizing
-        backgroundStyle={{ backgroundColor: colorScheme === "light" ? color.tertiaryBackground : color.background }}
-      >
+      <BottomSheetModal ref={ref} enableDynamicSizing backgroundStyle={{ backgroundColor: color.tertiaryBackground }}>
         <BottomSheetView style={[WRAPPER, { paddingBottom: insets.bottom + spacing[3] }]} key={stationInfo?.gateInfo.length}>
           {isLoading || !selectedGate ? (
             <ActivityIndicator size="large" color="grey" />
           ) : (
             <View>
+              <Text style={{ fontSize: 24, fontWeight: "bold", paddingHorizontal: spacing[4], marginBottom: spacing[2] }}>
+                {stationInfo.stationDetails.stationName}
+              </Text>
               <ScrollView
                 horizontal
                 contentContainerStyle={{ paddingHorizontal: spacing[4], marginBottom: spacing[3], gap: spacing[2] }}
