@@ -1,9 +1,8 @@
 import React, { useCallback } from "react"
-import { View, PanResponder, NativeSyntheticEvent, NativeScrollEvent } from "react-native"
+import { View, PanResponder, NativeSyntheticEvent, NativeScrollEvent, Image } from "react-native"
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, withDelay } from "react-native-reanimated"
 import { color, spacing } from "../../../theme"
 import { translate } from "../../../i18n/translate"
-import Svg, { Path, Rect } from "react-native-svg"
 
 interface TrainPullRefreshProps {
   onRefresh: () => void
@@ -89,24 +88,14 @@ export const TrainPullRefresh: React.FC<TrainPullRefreshProps> = ({ onRefresh, s
     }
   })
 
-  // Animation for train fill based on pull distance
-  const trainFillStyles = useAnimatedStyle(() => {
-    // Calculate fill percentage based on pull position
-    const fillPercentage = Math.min(1, pullDownPosition.value / REFRESH_THRESHOLD)
-
-    return {
-      opacity: fillPercentage,
-    }
-  })
-
-  const trainIconStyles = useAnimatedStyle(() => {
+  const iconStyles = useAnimatedStyle(() => {
     const scale = Math.min(1, Math.max(0.5, pullDownPosition.value / MAX_PULL_DISTANCE))
 
     return {
       opacity: refreshing
         ? withDelay(100, withTiming(0, { duration: 20 }))
         : Math.min(1, Math.max(0, pullDownPosition.value) / 50),
-      transform: [{ scale }, { rotate: `${pullDownPosition.value * 0.5}deg` }] as const,
+      transform: [{ scale }] as const,
     }
   }, [refreshing])
 
@@ -132,33 +121,8 @@ export const TrainPullRefresh: React.FC<TrainPullRefreshProps> = ({ onRefresh, s
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.refreshContainer, refreshContainerStyles]}>
-        <Animated.View style={[styles.trainIcon, trainIconStyles]}>
-          <Svg width={32} height={32} viewBox="0 0 24 24" fill="none">
-            {/* Train outline */}
-            <Path
-              d="M4 15.5V4C4 2.9 4.9 2 6 2H18C19.1 2 20 2.9 20 4V15.5C20 16.3 19.3 17 18.5 17H5.5C4.7 17 4 16.3 4 15.5Z"
-              stroke={color.text}
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            {/* Train windows */}
-            <Rect x="7" y="5" width="4" height="4" rx="1" stroke={color.text} strokeWidth={1.5} />
-            <Rect x="13" y="5" width="4" height="4" rx="1" stroke={color.text} strokeWidth={1.5} />
-
-            {/* Train fill - animated based on pull */}
-            <Animated.View style={trainFillStyles}>
-              <Svg width={32} height={32} viewBox="0 0 24 24">
-                <Rect x="4.5" y="2.5" width="15" height="14" rx="1" fill={color.primary} opacity={0.7} />
-                <Rect x="7.5" y="5.5" width="3" height="3" rx="0.5" fill={color.background} />
-                <Rect x="13.5" y="5.5" width="3" height="3" rx="0.5" fill={color.background} />
-              </Svg>
-            </Animated.View>
-
-            {/* Train bottom parts */}
-            <Path d="M9 20H15" stroke={color.text} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-            <Path d="M8 17H16" stroke={color.text} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-          </Svg>
+        <Animated.View style={[styles.iconContainer, iconStyles]}>
+          <Image source={require("../../../../assets/route.png")} style={styles.icon} resizeMode="contain" />
         </Animated.View>
         <Animated.Text style={[styles.refreshText, textStyles]}>
           {translate(showEntireRoute ? "routeDetails.hideAllStations" : "routeDetails.showAllStations")}
@@ -191,12 +155,16 @@ const styles = {
     justifyContent: "center",
     backgroundColor: color.background,
   },
-  trainIcon: {
+  iconContainer: {
     width: 32,
     height: 32,
     marginBottom: spacing[2],
     alignItems: "center",
     justifyContent: "center",
+  },
+  icon: {
+    width: 24,
+    height: 24,
   },
   refreshText: {
     color: color.text,
