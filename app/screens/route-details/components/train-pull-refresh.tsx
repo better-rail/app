@@ -1,4 +1,4 @@
-import React, { useCallback } from "react"
+import React, { useCallback, useEffect, useRef } from "react"
 import { View, PanResponder, NativeSyntheticEvent, NativeScrollEvent, Image } from "react-native"
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, withDelay } from "react-native-reanimated"
 import { color, spacing } from "../../../theme"
@@ -12,6 +12,7 @@ interface TrainPullRefreshProps {
 
 const MAX_PULL_DISTANCE = 150
 const REFRESH_THRESHOLD = MAX_PULL_DISTANCE / 2
+const REFRESH_DURATION = 300
 
 export const TrainPullRefresh: React.FC<TrainPullRefreshProps> = ({ onRefresh, showEntireRoute, children }) => {
   const scrollPosition = useSharedValue(0)
@@ -19,18 +20,28 @@ export const TrainPullRefresh: React.FC<TrainPullRefreshProps> = ({ onRefresh, s
   const isReadyToRefresh = useSharedValue(false)
   const [refreshing, setRefreshing] = React.useState(false)
   const [isDragging, setIsDragging] = React.useState(false)
+  const refreshTimeoutRef = useRef<NodeJS.Timeout>()
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (refreshTimeoutRef.current) {
+        clearTimeout(refreshTimeoutRef.current)
+      }
+    }
+  }, [])
 
   const handleScrollEvent = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetY = event.nativeEvent.contentOffset.y
     scrollPosition.value = offsetY
   }, [])
 
-  const onRefreshComplete = () => {
+  const onRefreshComplete = useCallback(() => {
     setRefreshing(false)
     pullDownPosition.value = withTiming(0, { duration: 180 })
-  }
+  }, [])
 
-  const onPanRelease = () => {
+  const onPanRelease = useCallback(() => {
     setIsDragging(false)
 
     if (isReadyToRefresh.value) {
@@ -41,20 +52,26 @@ export const TrainPullRefresh: React.FC<TrainPullRefreshProps> = ({ onRefresh, s
       // Perform the refresh action
       onRefresh()
 
-      // After a short delay, reset the pull-down position
-      setTimeout(() => {
+      // Clear any existing timeout
+      if (refreshTimeoutRef.current) {
+        clearTimeout(refreshTimeoutRef.current)
+      }
+
+      // Set new timeout for refresh completion
+      refreshTimeoutRef.current = setTimeout(() => {
         onRefreshComplete()
-      }, 300)
+      }, REFRESH_DURATION)
     } else {
       pullDownPosition.value = withTiming(0, { duration: 180 })
     }
-  }
+  }, [isReadyToRefresh.value, onRefresh, onRefreshComplete])
 
   const panResponderRef = React.useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (_, gestureState) => {
         // Only capture the gesture if we're at the top of the scroll and pulling down
-        return scrollPosition.value <= 0 && gestureState.dy > 0
+        // and not currently refreshing
+        return !refreshing && scrollPosition.value <= 0 && gestureState.dy > 0
       },
       onPanResponderGrant: () => {
         setIsDragging(true)
@@ -73,6 +90,10 @@ export const TrainPullRefresh: React.FC<TrainPullRefreshProps> = ({ onRefresh, s
       },
       onPanResponderRelease: onPanRelease,
       onPanResponderTerminate: onPanRelease,
+      onPanResponderReject: () => {
+        setIsDragging(false)
+        pullDownPosition.value = withTiming(0, { duration: 180 })
+      },
     }),
   )
 
@@ -111,8 +132,8 @@ export const TrainPullRefresh: React.FC<TrainPullRefreshProps> = ({ onRefresh, s
       return React.cloneElement(child, {
         onScroll: handleScrollEvent,
         scrollEventThrottle: 16,
-        // Disable scrolling while pulling down
-        scrollEnabled: !isDragging,
+        // Disable scrolling while pulling down or refreshing
+        scrollEnabled: !isDragging && !refreshing,
       } as any)
     }
     return child
