@@ -82,10 +82,12 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
         <View style={{ paddingBottom: spacing[6] }}>
           <View style={{ marginVertical: spacing[2], gap: spacing[2] }}>
             <Text style={{ textAlign: "center", fontSize: 56 }}>🔔</Text>
-            <Text
-              tx="announcements.notifications.notificationSetupContent"
-              style={{ textAlign: "center", paddingHorizontal: spacing[3], marginBottom: spacing[2] }}
-            />
+            {notificationPermission && (
+              <Text
+                tx="announcements.notifications.notificationSetupContent"
+                style={{ textAlign: "center", paddingHorizontal: spacing[3], marginBottom: spacing[2] }}
+              />
+            )}
           </View>
 
           {notificationPermission ? (

@@ -88,11 +88,11 @@ export const StationHoursSheet = observer(
                 })}
               </ScrollView>
 
-              <View style={{ paddingHorizontal: spacing[4] }}>
+              <View style={{ paddingHorizontal: spacing[4], gap: spacing[1] }}>
                 {selectedGate.gateActivityHours
                   .filter((activityHour) => activityHour.activityHoursType === 1)
                   .map((activityHour) => (
-                    <View key={Math.random().toString(36)}>
+                    <View style={{ flexDirection: "column", alignItems: "flex-start" }} key={Math.random().toString(36)}>
                       <Text style={DAY_TEXT}>{convertDaysToAbbreviation(activityHour.activityDaysNumbers)}</Text>
                       <Text style={HOUR_TEXT}>
                         {activityHour.activityHoursReplaceTextKey ?? (
