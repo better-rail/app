@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useMemo, useRef, useState } from "react"
-import { Platform, View, ViewStyle, TouchableOpacity } from "react-native"
+import { Platform, View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { ScrollView } from "react-native-gesture-handler"
@@ -27,6 +27,7 @@ import type { RouteItem } from "../../services/api"
 import type { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import type BottomSheet from "@gorhom/bottom-sheet"
 import { useStations } from "../../data/stations"
+import { calculateDelayedTime } from "../../utils/helpers/date-helpers"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -135,6 +136,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
                                     ? station.arrivalTime
                                     : format(new Date(station.arrivalTime), "HH:mm")
                                 }
+                                delayedTime={calculateDelayedTime(station.arrivalTime, train.delay)}
                                 style={{ zIndex: 20 - idx, opacity: 0.7 }}
                                 topLineState={isFirstStation ? "hidden" : "idle"}
                                 bottomLineState="idle"
@@ -164,6 +166,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
                                   ? station.arrivalTime
                                   : format(new Date(station.arrivalTime), "HH:mm")
                               }
+                              delayedTime={calculateDelayedTime(station.arrivalTime, train.delay)}
                               style={{ zIndex: 20 - idx }}
                               topLineState={isRideOnThisRoute ? stations[station.stationId]?.top || "idle" : "idle"}
                               bottomLineState={isRideOnThisRoute ? stations[station.stationId]?.bottom || "idle" : "idle"}
@@ -175,7 +178,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
                         <RouteStationCard
                           stationName={train.destinationStationName}
                           stopTime={format(train.arrivalTime, "HH:mm")}
-                          delayedTime={train.delay > 0 ? format(train.arrivalTime + train.delay * 60000, "HH:mm") : undefined}
+                          delayedTime={calculateDelayedTime(train.arrivalTime, train.delay)}
                           platform={train.destinationPlatform}
                         />
 
@@ -191,6 +194,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
                                     ? station.arrivalTime
                                     : format(new Date(station.arrivalTime), "HH:mm")
                                 }
+                                delayedTime={calculateDelayedTime(station.arrivalTime, train.delay)}
                                 style={{ zIndex: 20 - idx, opacity: 0.7 }}
                                 topLineState="idle"
                                 bottomLineState={isLastStation ? "hidden" : "idle"}
@@ -231,7 +235,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
                               <RouteStopCard
                                 stationName={stop.stationName}
                                 stopTime={format(stop.departureTime, "HH:mm")}
-                                delayedTime={train.delay ? format(stop.departureTime + train.delay * 60000, "HH:mm") : undefined}
+                                delayedTime={calculateDelayedTime(stop.departureTime, train.delay)}
                                 style={{ zIndex: 20 - idx }}
                                 topLineState={isRideOnThisRoute ? stations[stop.stationId]?.top || "idle" : "idle"}
                                 bottomLineState={isRideOnThisRoute ? stations[stop.stationId]?.bottom || "idle" : "idle"}
@@ -250,7 +254,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
                       <RouteStationCard
                         stationName={train.destinationStationName}
                         stopTime={format(train.arrivalTime, "HH:mm")}
-                        delayedTime={train.delay > 0 ? format(train.arrivalTime + train.delay * 60000, "HH:mm") : undefined}
+                        delayedTime={calculateDelayedTime(train.arrivalTime, train.delay)}
                         platform={train.destinationPlatform}
                       />
 
