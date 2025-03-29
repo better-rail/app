@@ -317,7 +317,10 @@ function createEventConfig(routeItem: RouteItem) {
     throw new Error("No trains found in routeItem")
   }
 
-  const { destinationStationName: destination, originStationName: origin, trainNumber } = routeItem.trains[0]
+  const origin = routeItem.trains[0].originStationName
+  const trainNumber = routeItem.trains[0].trainNumber
+  const destination = routeItem.trains[routeItem.trains.length - 1].destinationStationName
+
   const title = translate("plan.rideTo", { destination })
   const notes = translate("plan.trainFromToStation", { trainNumber, origin, destination })
 
