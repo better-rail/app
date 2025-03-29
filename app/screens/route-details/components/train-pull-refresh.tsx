@@ -184,7 +184,11 @@ export function TrainPullRefresh({ onRefresh, showEntireRoute, children }: Train
     <View style={CONTAINER}>
       <Animated.View style={[REFRESH_CONTAINER, refreshContainerStyles]}>
         <Animated.View style={[ICON_CONTAINER, iconStyles]}>
-          <Image source={require("../../../../assets/route.png")} style={ICON} resizeMode="contain" />
+          <Image
+            source={require("../../../../assets/route.png")}
+            style={[ICON, { tintColor: color.text }]}
+            resizeMode="contain"
+          />
         </Animated.View>
         <Animated.Text style={[REFRESH_TEXT, textStyles]}>
           {translate(showEntireRoute ? "routeDetails.hideAllStations" : "routeDetails.showAllStations")}
