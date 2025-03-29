@@ -3,7 +3,7 @@ import { color, fontScale, spacing } from "../../theme"
 
 const CHIP_WRAPPER: ViewStyle = {
   paddingHorizontal: spacing[3] * fontScale,
-  paddingVertical: spacing[0] + 1 * fontScale,
+  paddingVertical: (fontScale > 1 ? 1 : 0) * fontScale,
   flexDirection: "row",
   justifyContent: "center",
   alignItems: "center",
