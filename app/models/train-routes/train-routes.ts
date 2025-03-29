@@ -14,6 +14,13 @@ export const trainStop = {
   platform: types.number,
 }
 
+export const routeStop = {
+  arrivalTime: types.string,
+  stationId: types.number,
+  crowded: types.number,
+  platform: types.number,
+}
+
 export const trainListSchema = {
   delay: types.number,
   arrivalTime: types.number,
@@ -26,6 +33,7 @@ export const trainListSchema = {
   destinationPlatform: types.number,
   trainNumber: types.number,
   stopStations: types.array(types.model(trainStop)),
+  routeStations: types.array(types.model(routeStop)),
   lastStop: types.string,
 }
 

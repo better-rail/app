@@ -58,3 +58,14 @@ export function formatDateForAPI(date: number) {
 
   return [formattedDate, formattedTime]
 }
+
+export const calculateDelayedTime = (time: string | Date | number, delay: number): string | undefined => {
+  if (delay <= 0) return undefined
+
+  if (typeof time === "string") {
+    const [hours, minutes] = time.split(":").map(Number)
+    return format(new Date(new Date().setHours(hours, minutes) + delay * 60000), "HH:mm")
+  }
+
+  return format(new Date(time).getTime() + delay * 60000, "HH:mm")
+}

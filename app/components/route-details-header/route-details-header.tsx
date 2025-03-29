@@ -96,7 +96,7 @@ export interface RouteDetailsHeaderProps {
   screenName?: "routeList" | "routeDetails" | "activeRide"
   style?: ViewStyle
   eventConfig?: Calendar.Event
-  stationHoursSheetRef: React.MutableRefObject<BottomSheetMethods>
+  stationHoursSheetRef?: React.MutableRefObject<BottomSheetMethods>
   showEntireRoute?: boolean
   setShowEntireRoute?: React.Dispatch<React.SetStateAction<boolean>>
 }
@@ -117,7 +117,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 
   const openStationHoursSheet = () => {
     HapticFeedback.trigger("impactMedium")
-    stationHoursSheetRef.current?.expand()
+    stationHoursSheetRef?.current?.expand()
   }
 
   const scaleStationCards = useCallback(() => {
