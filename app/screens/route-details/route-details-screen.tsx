@@ -26,6 +26,7 @@ import type { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import type BottomSheet from "@gorhom/bottom-sheet"
 import { useStations } from "../../data/stations"
 import { calculateDelayedTime } from "../../utils/helpers/date-helpers"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -35,11 +36,6 @@ const ROOT: ViewStyle = {
 const HEADER_CONTAINER: ViewStyle = {
   paddingHorizontal: spacing[3],
   marginBottom: spacing[3],
-}
-
-const SCROLL_CONTENT: ViewStyle = {
-  paddingTop: spacing[4],
-  paddingBottom: 80,
 }
 
 const STATION_CONTAINER: ViewStyle = {
@@ -67,6 +63,8 @@ export function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
 
   const progress = useRideProgress({ route: routeItem, enabled: isRideOnThisRoute })
   const { stations } = progress
+
+  const insets = useSafeAreaInsets()
 
   const [shouldFadeRideButton, setShouldFadeRideButton] = useState(false)
   const [showEntireRoute, setShowEntireRoute] = useState(false)
@@ -123,7 +121,10 @@ export function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
 
           <View style={{ flex: 1 }}>
             <TrainPullRefresh onRefresh={handleRefresh} showEntireRoute={showEntireRoute}>
-              <ScrollView contentContainerStyle={SCROLL_CONTENT} showsVerticalScrollIndicator={false}>
+              <ScrollView
+                contentContainerStyle={{ paddingTop: spacing[4], paddingBottom: 80 + insets.bottom }}
+                showsVerticalScrollIndicator={false}
+              >
                 {routeItem.isMuchLonger && route.name == "routeDetails" && <LongRouteWarning />}
                 {routeItem.trains.map((train, index) => {
                   // When showing the entire route, we need to organize all stations in order
