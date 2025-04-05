@@ -26,7 +26,6 @@ export const RouteListWarning = function RouteListWarning({ routesDate, warningT
   const { openModal } = useModal()
   const [displayWarningSheet, setDisplayWarningSheet] = useState(false)
   const formattedRoutesDate = format(routesDate, "eeee, dd/MM/yyyy", { locale: dateFnsLocalization })
-  console.log("displayWarningSheet", displayWarningSheet)
   // biome-ignore lint/correctness/useExhaustiveDependencies: no need!
   useEffect(() => {
     if (shouldDisplayModal) {
