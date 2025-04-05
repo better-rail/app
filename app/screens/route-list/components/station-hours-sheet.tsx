@@ -69,7 +69,11 @@ export const StationHoursSheet = observer(
         subscription.remove()
       }
 
-      return () => subscription.remove()
+      return () => {
+        if (subscription) {
+          subscription.remove()
+        }
+      }
     }, [isOpen, onDone])
 
     return (
