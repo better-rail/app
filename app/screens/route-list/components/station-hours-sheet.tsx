@@ -65,7 +65,7 @@ export const StationHoursSheet = observer(
       if (isOpen) {
         // Prevents default back button behavior on Android
         subscription = BackHandler.addEventListener("hardwareBackPress", backHandler)
-      } else {
+      } else if (subscription) {
         subscription.remove()
       }
 
