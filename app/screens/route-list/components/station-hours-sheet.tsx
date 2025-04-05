@@ -55,6 +55,8 @@ export const StationHoursSheet = observer(
     }, [stationInfo])
 
     useEffect(() => {
+      let subscription: NativeEventSubscription | null = null
+
       const backHandler = () => {
         onDone()
         return true
@@ -62,12 +64,16 @@ export const StationHoursSheet = observer(
 
       if (isOpen) {
         // Prevents default back button behavior on Android
-        BackHandler.addEventListener("hardwareBackPress", backHandler)
-      } else {
-        BackHandler.removeEventListener("hardwareBackPress", backHandler)
+        subscription = BackHandler.addEventListener("hardwareBackPress", backHandler)
+      } else if (subscription) {
+        subscription.remove()
       }
 
-      return () => BackHandler.removeEventListener("hardwareBackPress", backHandler)
+      return () => {
+        if (subscription) {
+          subscription.remove()
+        }
+      }
     }, [isOpen, onDone])
 
     return (
