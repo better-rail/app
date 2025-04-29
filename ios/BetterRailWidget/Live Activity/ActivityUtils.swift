@@ -65,7 +65,6 @@ func rideProgress(route: Route, nextStationId: Int) -> (Int, Int) {
 
 /// Get the start date for the current status
 /// e.g. for `waitForTrain` we'll use the activity start date, and for `inTransit` we'd want to use the train departure time
-@available(iOS 16.1, *)
 func getStatusStartDate(context: ActivityViewContext<BetterRailActivityAttributes>) -> Date {
   let status = context.state.status;
   let route = context.attributes.route
@@ -88,7 +87,6 @@ func getStatusStartDate(context: ActivityViewContext<BetterRailActivityAttribute
   }
 }
 
-@available(iOS 16.1, *)
 func getStatusEndDate(context: ActivityViewContext<BetterRailActivityAttributes>) -> Date {
   let status = context.state.status
   let route = context.attributes.route
@@ -125,7 +123,6 @@ func getMinutesLeft(targetDate: Date) -> Int {
 /// Used to test what's the inital station Id for the activity, especially for cases where
 /// the train has departured already.
 /// - Returns: The station Id
-@available(iOS 15, *)
 func findClosestStationInRoute(route: Route, updatedDelay: Int? = nil, now: Date = .now) -> Int {
   // find the first station where the departure time is after the current time
   for train in route.trains {
@@ -150,7 +147,6 @@ func findClosestStationInRoute(route: Route, updatedDelay: Int? = nil, now: Date
   return route.trains.last!.destinationStation
 }
 
-@available(iOS 16.1, *)
 func getActivityStatus(route: Route, train: Train, nextStationId: Int, updatedDelay: Int? = nil, now: Date = .now) -> ActivityStatus {
   let delay = updatedDelay ?? train.delay
   
@@ -191,7 +187,6 @@ func getActivityStatus(route: Route, train: Train, nextStationId: Int, updatedDe
   return .inTransit
 }
 
-@available(iOS 16.1, *)
 func getActivityCurrentState(route: Route, updatedDelay: Int? = nil, now: Date = .now) throws -> BetterRailActivityAttributes.ContentState {
   let nextStationId = findClosestStationInRoute(route: route, updatedDelay: updatedDelay, now: now)
   let train = getTrainFromStationId(route: route, stationId: nextStationId)!

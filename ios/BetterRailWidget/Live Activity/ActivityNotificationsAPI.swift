@@ -37,7 +37,6 @@ struct EndActivityResult: Decodable {
   let success: Bool
 }
 
-@available(iOS 16.2, *)
 class ActivityNotificationsAPI {
   static let envPath = LiveActivitiesController.env == "production" ? "" : "-test"
   static let basePath = "https://better-rail\(envPath).up.railway.app/api/v1"
