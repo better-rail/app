@@ -44,14 +44,11 @@ class RNBetterRail: NSObject {
   }
   
   // MARK - Live Activities methods
-  
-  @available(iOS 16.2, *)
-  @objc func monitorActivities() {
+    @objc func monitorActivities() {
     LiveActivitiesController.shared.monitorLiveActivities()
   }
   
   /// data - A JSON representation of a Route
-  @available(iOS 16.2, *)
   @objc func startActivity(_ routeJSON: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
     let decoder = JSONDecoder()
 
@@ -87,7 +84,6 @@ class RNBetterRail: NSObject {
   }
   
   
-  @available(iOS 16.2, *)
   @objc func endActivity(_ rideId: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
     Task {
       // delete the activity on the device
@@ -106,7 +102,6 @@ class RNBetterRail: NSObject {
     }
   }
   
-  @available(iOS 16.2, *)
   @objc func isRideActive(_ rideId: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
     Task {
       let tokens = await LiveActivitiesController.tokenRegistry.getTokens()
@@ -126,7 +121,6 @@ class RNBetterRail: NSObject {
     }
   }
 
-  @available(iOS 16.2, *)
   @objc func activityAuthorizationInfo(_ emptyString: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
     let info = ActivityAuthorizationInfo()
     resolve([
