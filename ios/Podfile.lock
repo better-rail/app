@@ -2755,7 +2755,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-ios-utilities (5.1.0):
+  - react-native-ios-utilities (5.1.5):
     - ComputableLayout (~> 0.7)
     - DGSwiftUtilities (~> 0.46)
     - DoubleConversion
@@ -4006,7 +4006,7 @@ SPEC CHECKSUMS:
   react-native-date-picker: df2c13fcfa6e0f6d26188d72dc800fd8b2390059
   react-native-in-app-review: db8bb167a5f238e7ceca5c242d6b36ce8c4404a4
   react-native-ios-context-menu: fe430343360146c9743e3d63bfa5d07d26143686
-  react-native-ios-utilities: 4d44e631067213988514b9b8ccd5a450adee5d5f
+  react-native-ios-utilities: 2f8cf961364b21f17bca74188e708096b79366ee
   react-native-netinfo: 2517ad504b3d303e90d7a431b0fcaef76d207983
   react-native-restart: 7595693413fe3ca15893702f2c8306c62a708162
   react-native-safe-area-context: fc459d62fa26be4d3e304ee713251b7f57cdc9a7
