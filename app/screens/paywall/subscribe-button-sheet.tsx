@@ -1,5 +1,4 @@
-import { BlurView } from "@react-native-community/blur"
-import React, { useEffect, useState } from "react"
+import { BlurView } from "expo-blur"
 import { ActivityIndicator, Platform, TextStyle, View, ViewStyle } from "react-native"
 import Animated, { FadeIn } from "react-native-reanimated"
 import { color } from "../../theme"
@@ -9,7 +8,7 @@ import { TouchableOpacity } from "react-native-gesture-handler"
 import LinearGradient from "react-native-linear-gradient"
 import { PRESSABLE_BASE, Text } from "../../components"
 import { SubscriptionTypes } from "./"
-import { translate, userLocale } from "../../i18n"
+import { translate } from "../../i18n"
 import { useFontFamily } from "../../hooks/use-font-family"
 
 const BOTTOM_FLOATING_VIEW: ViewStyle = {
@@ -64,7 +63,8 @@ export function SubscribeButtonSheet({ subscriptionType, onPress, isLoading }: S
         colors={isDarkMode ? ["#5E17EB", "#9432C2"] : ["#7B1AEC", "#5755F2"]}
       />
       <BlurView
-        blurType={isDarkMode ? "ultraThinMaterialDark" : "xlight"}
+        tint={isDarkMode ? "systemUltraThinMaterialDark" : "systemThinMaterialDark"}
+        intensity={10}
         style={{ position: "absolute", top: 0, left: 0, bottom: 0, right: 0, zIndex: -1 }}
       />
     </View>

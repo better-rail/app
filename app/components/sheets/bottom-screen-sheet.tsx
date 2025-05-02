@@ -1,8 +1,8 @@
-import { Platform, View, ViewStyle, useColorScheme } from "react-native"
-import { BlurView } from "@react-native-community/blur"
+import type { ReactNode } from "react"
+import { Platform, View, type ViewStyle, useColorScheme } from "react-native"
+import { BlurView } from "expo-blur"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { color, isDarkMode } from "../../theme"
-import { ReactNode } from "react"
 
 const androidSeparatorColor = isDarkMode ? "#454545" : "#c6c6c6"
 
@@ -44,9 +44,8 @@ export function BottomScreenSheet({ children, style }: BottomScreenSheetProps) {
       {Platform.OS === "ios" && (
         <BlurView
           style={{ position: "absolute", top: 0, left: 0, bottom: 0, right: 0, zIndex: -1 }}
-          blurType={isDarkMode ? "ultraThinMaterialDark" : "xlight"}
-          blurAmount={20}
-          reducedTransparencyFallbackColor={color.tertiaryBackground as unknown as string}
+          tint={isDarkMode ? "systemUltraThinMaterialDark" : "extraLight"}
+          intensity={20}
         />
       )}
     </View>

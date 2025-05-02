@@ -1209,6 +1209,8 @@ PODS:
   - DoubleConversion (1.1.6)
   - Expo (52.0.25):
     - ExpoModulesCore
+  - ExpoBlur (14.0.3):
+    - ExpoModulesCore
   - ExpoCalendar (14.0.6):
     - ExpoModulesCore
   - ExpoLocalization (15.0.3):
@@ -2684,27 +2686,6 @@ PODS:
     - ReactCommon/turbomodule/core
   - react-native-actions-shortcuts (1.0.2):
     - React
-  - react-native-blur (4.4.1):
-    - DoubleConversion
-    - glog
-    - hermes-engine
-    - RCT-Folly (= 2024.11.18.00)
-    - RCTRequired
-    - RCTTypeSafety
-    - React-Core
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - Yoga
   - react-native-context-menu-view (1.17.0):
     - React
   - react-native-date-picker (5.0.12):
@@ -3598,6 +3579,7 @@ DEPENDENCIES:
   - BVLinearGradient (from `../node_modules/react-native-linear-gradient`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - Expo (from `../node_modules/expo`)
+  - ExpoBlur (from `../node_modules/expo-blur/ios`)
   - ExpoCalendar (from `../node_modules/expo-calendar/ios`)
   - ExpoLocalization (from `../node_modules/expo-localization/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core`)
@@ -3638,7 +3620,6 @@ DEPENDENCIES:
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
   - react-native-actions-shortcuts (from `../node_modules/react-native-quick-actions-shortcuts`)
-  - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-context-menu-view (from `../node_modules/react-native-context-menu-view`)
   - react-native-date-picker (from `../node_modules/react-native-date-picker`)
   - react-native-in-app-review (from `../node_modules/react-native-in-app-review`)
@@ -3752,6 +3733,8 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec"
   Expo:
     :path: "../node_modules/expo"
+  ExpoBlur:
+    :path: "../node_modules/expo-blur/ios"
   ExpoCalendar:
     :path: "../node_modules/expo-calendar/ios"
   ExpoLocalization:
@@ -3829,8 +3812,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/microtasks"
   react-native-actions-shortcuts:
     :path: "../node_modules/react-native-quick-actions-shortcuts"
-  react-native-blur:
-    :path: "../node_modules/@react-native-community/blur"
   react-native-context-menu-view:
     :path: "../node_modules/react-native-context-menu-view"
   react-native-date-picker:
@@ -3969,6 +3950,7 @@ SPEC CHECKSUMS:
   DGSwiftUtilities: 536456ae3d0e5083ac42e06b6b720921601864b5
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   Expo: 377cc60ce8c9030cf52e36987ab3ce099ab9006e
+  ExpoBlur: 567af66164e3043a9a30069594aed1ddf0a88d97
   ExpoCalendar: 2494a630f176436783a8941efd3c38a9c657ae65
   ExpoLocalization: f04eeec2e35bed01ab61c72ee1768ec04d093d01
   ExpoModulesCore: b75fb1c8ed6f68460908bb0f38306eabb91c1670
@@ -4033,7 +4015,6 @@ SPEC CHECKSUMS:
   React-Mapbuffer: 9af3695e354816d30d4429992714e0c8cefac25f
   React-microtasksnativemodule: ab4c1c9d4841e71a4116f167a4cd3f8dc1ab50ba
   react-native-actions-shortcuts: 241812296acd3d1b1babbb91d053f01be2810dcd
-  react-native-blur: 6782cb12b39a0200ad2a782fb9a5529c2c83c33b
   react-native-context-menu-view: 4a4de8bc59bc3fc4215f041881cbc6b2aeac31fe
   react-native-date-picker: df2c13fcfa6e0f6d26188d72dc800fd8b2390059
   react-native-in-app-review: db8bb167a5f238e7ceca5c242d6b36ce8c4404a4
