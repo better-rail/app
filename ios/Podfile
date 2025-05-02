@@ -10,7 +10,7 @@ require File.join(File.dirname(`cd #{pod_folder} && node --print "require.resolv
 require File.join(File.dirname(`cd #{pod_folder} && node --print "require.resolve('react-native/package.json')"`), "scripts/react_native_pods")
 require File.join(File.dirname(`cd #{pod_folder} && node --print "require.resolve('@react-native-community/cli-platform-ios/package.json')"`), "native_modules")
 
-platform :ios, '15.1'
+platform :ios, '17.0'
 install! 'cocoapods', :deterministic_uuids => false
 
 production = ENV["PRODUCTION"] == "1"
@@ -59,30 +59,6 @@ target 'BetterRail' do
             file.settings['COMPILER_FLAGS'] = flags.join(' ')
           end
         end
-      end
-    end
-
-    # Modify RCT-Folly Portability.h to disable coroutines
-    # Delete after upgrading to React Native 0.77: https://github.com/facebook/folly/issues/2297#issuecomment-2557356051
-    Dir.glob(installer.sandbox.root + "RCT-Folly/folly/Portability.h") do |file|
-      begin
-        # First try to make the file writable
-        system "chmod +w #{file}"
-        
-        contents = File.read(file)
-        modified_contents = contents.gsub(/#define FOLLY_HAS_COROUTINES 1/, '#define FOLLY_HAS_COROUTINES 0')
-        
-        # Try writing with elevated privileges if needed
-        if !File.writable?(file)
-          system "sudo chmod +w #{file}"
-        end
-        
-        File.write(file, modified_contents)
-        
-        # Optionally restore original permissions
-        system "chmod -w #{file}"
-      rescue => e
-        Pod::UI.warn "Failed to modify Portability.h: #{e.message}"
       end
     end
   end
