@@ -12214,10 +12214,10 @@ react-native-ios-context-menu@^3.0.0-23:
   dependencies:
     "@dominicstop/ts-event-emitter" "^1.1.0"
 
-react-native-ios-utilities@^5.0.0-59:
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/react-native-ios-utilities/-/react-native-ios-utilities-5.1.0.tgz#7e3e29645554329a380c09488750b5217c593b13"
-  integrity sha512-25QqdENHyMdlT48Xkr5hEke1yfGbbGk6Wy+hM5jFPlfXDmGgF/QicGN4SiQXIbSLWuMqFHVVoiJ2vkQ8ARP5mg==
+react-native-ios-utilities@5.1.5:
+  version "5.1.5"
+  resolved "https://registry.yarnpkg.com/react-native-ios-utilities/-/react-native-ios-utilities-5.1.5.tgz#ef577064735d6277342bc4a4264e4167c410876b"
+  integrity sha512-s+gsFwMk2Ty5ZXnCmdgPtxJ3ij1v5v4nJjEqyMD35dzGrI1FISj3UxNusGElT6edV8YaEinAnX/LkXhDA6lnYg==
 
 react-native-linear-gradient@^2.5.6:
   version "2.8.3"
