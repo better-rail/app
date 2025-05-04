@@ -12,6 +12,8 @@ import { openLink } from "../../utils/helpers/open-link"
 import { useIsBetaTester } from "../../hooks/use-is-beta-tester"
 import { crashlytics } from "../../services/firebase/crashlytics"
 import RNRestart from "react-native-restart"
+import { setCrashlyticsCollectionEnabled } from "@react-native-firebase/crashlytics"
+import { setAnalyticsCollectionEnabled } from "@react-native-firebase/analytics"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -27,11 +29,11 @@ export const PrivacyScreen = observer(function SettingsLanguageScreen() {
     if (disableTelemetry) {
       analytics.logEvent("telemetry_disabled")
       user.setDisableTelemetry(disableTelemetry)
-      await Promise.all([analytics.setAnalyticsCollectionEnabled(false), crashlytics.setCrashlyticsCollectionEnabled(false)])
+      await Promise.all([setAnalyticsCollectionEnabled(analytics, false), setCrashlyticsCollectionEnabled(crashlytics, false)])
     } else {
       analytics.logEvent("telemetry_enabled")
       user.setDisableTelemetry(disableTelemetry)
-      await Promise.all([analytics.setAnalyticsCollectionEnabled(true), crashlytics.setCrashlyticsCollectionEnabled(true)])
+      await Promise.all([setAnalyticsCollectionEnabled(analytics, true), setCrashlyticsCollectionEnabled(crashlytics, true)])
     }
   }
 

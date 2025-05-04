@@ -13,6 +13,7 @@ import { AndroidNotificationSetting, AuthorizationStatus } from "@notifee/react-
 import InAppReview from "react-native-in-app-review"
 import { analytics } from "../../../services/firebase/analytics"
 import { crashlytics } from "../../../services/firebase/crashlytics"
+import { log, setAttributes } from "@react-native-firebase/crashlytics"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -84,8 +85,8 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
       ])
     }
 
-    crashlytics.log("Start ride button pressed")
-    crashlytics.setAttributes({
+    log(crashlytics, "Start ride button pressed")
+    setAttributes(crashlytics, {
       route: JSON.stringify(route),
       rideId: ride.id ?? "null",
     })
