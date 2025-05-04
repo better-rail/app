@@ -3,7 +3,6 @@ import React
 import React_RCTAppDelegate
 import ReactAppDependencyProvider
 import Firebase
-import RNShortcuts
 
 @main
 class AppDelegate: RCTAppDelegate {
@@ -21,14 +20,6 @@ class AppDelegate: RCTAppDelegate {
 
   override func sourceURL(for bridge: RCTBridge) -> URL? {
     self.bundleURL()
-  }
-
-  func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
-    RNShortcuts.performAction(for: shortcutItem, completionHandler: completionHandler)
-  }
-
-  func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-    return RCTLinkingManager.application(app, open: url, options: options)
   }
 
   override func bundleURL() -> URL? {
