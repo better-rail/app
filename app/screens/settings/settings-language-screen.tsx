@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react"
 import { observer } from "mobx-react-lite"
-import { Alert, Platform, View, ViewStyle } from "react-native"
+import { Alert, Platform, View, type ViewStyle } from "react-native"
 import { Screen } from "../../components"
 import { SettingBox } from "./components/settings-box"
 import { color, isDarkMode, spacing } from "../../theme"
 import { changeUserLanguage, translate, userLocale } from "../../i18n"
 import HapticFeedback from "react-native-haptic-feedback"
 import { SETTING_GROUP } from "./settings-styles"
-import messaging from "@react-native-firebase/messaging"
+import { messaging } from "../../services/firebase/messaging"
+
 const ROOT: ViewStyle = {
   flex: 1,
   paddingTop: spacing[4],
@@ -29,7 +30,7 @@ export const LanguageScreen = observer(function SettingsLanguageScreen() {
       {
         text: translate("common.ok"),
         onPress: async () => {
-          const notificationsEnabled = await messaging().hasPermission()
+          const notificationsEnabled = await messaging.hasPermission()
 
           if (notificationsEnabled) {
             let unsubscribeTopic = `service-updates-${userLocale}`
@@ -41,8 +42,8 @@ export const LanguageScreen = observer(function SettingsLanguageScreen() {
             }
 
             await Promise.all([
-              messaging().unsubscribeFromTopic(`service-updates-${userLocale}`),
-              messaging().subscribeToTopic(`service-updates-${langaugeCode}`),
+              messaging.unsubscribeFromTopic(`service-updates-${userLocale}`),
+              messaging.subscribeToTopic(`service-updates-${langaugeCode}`),
             ])
           }
 

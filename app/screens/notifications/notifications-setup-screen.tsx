@@ -10,7 +10,7 @@ import { useStores } from "../../models"
 import { StationListItem } from "./station-list-item"
 import { useStations } from "../../data/stations"
 import { analytics } from "../../services/firebase/analytics"
-import messaging from "@react-native-firebase/messaging"
+import { messaging } from "../../services/firebase/messaging"
 import { useAppState, useIsDarkMode } from "../../hooks"
 import { chain } from "lodash"
 
@@ -62,11 +62,9 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
         topicName = `service-updates-test-${userLocale}`
       }
 
-      messaging()
-        .subscribeToTopic(topicName)
-        .then(() => {
-          console.log("Subscribed to service updates")
-        })
+      messaging.subscribeToTopic(topicName).then(() => {
+        console.log("Subscribed to service updates")
+      })
     }
   }, [notificationPermission])
 
