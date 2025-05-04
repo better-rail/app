@@ -6,11 +6,10 @@ import { Screen, Text } from "../../components"
 import { color, isDarkMode, spacing } from "../../theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { translate } from "../../i18n"
-import { TipThanksModal } from "./components/tip-thanks-modal"
 import { useStores } from "../../models"
 import { getInstallerPackageNameSync } from "react-native-device-info"
-import analytics from "@react-native-firebase/analytics"
-import crashlytics from "@react-native-firebase/crashlytics"
+import { analytics } from "../../services/firebase/analytics"
+import { crashlytics } from "../../services/firebase/crashlytics"
 import { useModal } from "react-native-modalfy"
 
 const ROOT: ViewStyle = {
@@ -124,7 +123,7 @@ export const TipJarScreen = observer(function TipJarScreen() {
       openModal("TipThanksModal")
 
       const item = products.find((product) => product.productId === sku)
-      await analytics().logPurchase({
+      await analytics.logPurchase({
         value: Number(amount),
         currency: products[0].currency,
         tax: 15,
@@ -141,7 +140,7 @@ export const TipJarScreen = observer(function TipJarScreen() {
       settings.addTip(Number(amount))
     } catch (err) {
       console.error(err)
-      crashlytics().recordError(err)
+      crashlytics.recordError(err)
     } finally {
       setIsLoading(false)
     }

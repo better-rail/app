@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite"
 import { Button, Screen, Text } from "../../components"
-import { AnnouncementsScreenProps } from "../../navigators/announcements/announcements-navigator"
+import type { AnnouncementsScreenProps } from "../../navigators/announcements/announcements-navigator"
 import { Alert, Linking, Platform, ScrollView, View } from "react-native"
 import { color, spacing } from "../../theme"
 import notifee, { AuthorizationStatus } from "@notifee/react-native"
@@ -9,7 +9,7 @@ import { translate, userLocale } from "../../i18n"
 import { useStores } from "../../models"
 import { StationListItem } from "./station-list-item"
 import { useStations } from "../../data/stations"
-import analytics from "@react-native-firebase/analytics"
+import { analytics } from "../../services/firebase/analytics"
 import messaging from "@react-native-firebase/messaging"
 import { useAppState, useIsDarkMode } from "../../hooks"
 import { chain } from "lodash"
@@ -26,7 +26,7 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
     const settings = await notifee.requestPermission()
 
     if (settings.authorizationStatus === AuthorizationStatus.AUTHORIZED) {
-      analytics().logEvent("notification_permission_granted")
+      analytics.logEvent("notification_permission_granted")
       setNotificationPermission(true)
     } else {
       Alert.alert(

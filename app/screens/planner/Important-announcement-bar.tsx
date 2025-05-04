@@ -1,9 +1,9 @@
 import { useEffect } from "react"
-import { Dimensions, TextStyle, TouchableOpacity } from "react-native"
+import { Dimensions, type TextStyle, TouchableOpacity } from "react-native"
 import Animated, { useAnimatedStyle, useSharedValue, withDelay, withTiming } from "react-native-reanimated"
 import { color, fontScale } from "../../theme"
 import { useNavigation } from "@react-navigation/native"
-import analytics from "@react-native-firebase/analytics"
+import { analytics } from "../../services/firebase/analytics"
 import { removeHtmlTagsAndEntities } from "../../components/announcements/announcements-utils"
 
 const TEXT_STYLE: TextStyle = {
@@ -31,7 +31,7 @@ export function ImportantAnnouncementBar({ title }: { title: string }) {
   }
 
   const navigateToAnnouncements = () => {
-    analytics().logEvent("urgent_announcement_bar_press")
+    analytics.logEvent("urgent_announcement_bar_press")
     navigation.navigate("announcementsStack", { screen: "urgent" })
   }
 

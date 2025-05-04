@@ -2,18 +2,17 @@ import { Alert, Dimensions, Image, ImageStyle, Linking, Platform, View, ViewStyl
 import { observer } from "mobx-react-lite"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HapticFeedback from "react-native-haptic-feedback"
-import analytics from "@react-native-firebase/analytics"
-import crashlytics from "@react-native-firebase/crashlytics"
 import { Button } from "../../../components"
 import { isRTL, translate, userLocale } from "../../../i18n"
-import { RouteItem } from "../../../services/api"
+import type { RouteItem } from "../../../services/api"
 import { differenceInMinutes, isAfter } from "date-fns"
 import { timezoneCorrection } from "../../../utils/helpers/date-helpers"
 import { color, fontScale } from "../../../theme"
 import { useStores } from "../../../models"
 import { AndroidNotificationSetting, AuthorizationStatus } from "@notifee/react-native"
 import InAppReview from "react-native-in-app-review"
-import { mixpanel } from "../../../app"
+import { analytics } from "../../../services/firebase/analytics"
+import { crashlytics } from "../../../services/firebase/crashlytics"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -85,21 +84,21 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
       ])
     }
 
-    crashlytics().log("Start ride button pressed")
-    crashlytics().setAttributes({
+    crashlytics.log("Start ride button pressed")
+    crashlytics.setAttributes({
       route: JSON.stringify(route),
       rideId: ride.id ?? "null",
     })
 
     HapticFeedback.trigger("notificationSuccess")
     ride.startRide(route)
-    analytics().logEvent("start_live_ride")
+    analytics.logEvent("start_live_ride")
 
     // in reality the prompt would be shown on the 4th ride and not the 3rd, since the count
     // will be increased only after the ride has been started successfully.
     if (ride.rideCount === 3) {
       InAppReview.RequestInAppReview().then(() => {
-        analytics().logEvent("start_live_ride_in_app_review_prompt")
+        analytics.logEvent("start_live_ride_in_app_review_prompt")
       })
     }
   }
@@ -119,7 +118,9 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
           width: Platform.OS === "ios" && userLocale === "he" ? 160 * fontScale : 148 * fontScale,
         }}
         icon={
-          Platform.OS == "android" ? undefined : <Image source={require("../../../../assets/train.ios.png")} style={TRAIN_ICON} />
+          Platform.OS === "android" ? undefined : (
+            <Image source={require("../../../../assets/train.ios.png")} style={TRAIN_ICON} />
+          )
         }
         pressedOpacity={0.85}
         title={translate("ride.startRide")}
@@ -161,7 +162,7 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
             Alert.alert(message)
           }
 
-          analytics().logEvent("start_live_ride_disabled_press", {
+          analytics.logEvent("start_live_ride_disabled_press", {
             reason: disabledReason,
           })
         }}

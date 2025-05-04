@@ -9,7 +9,7 @@ import { WidgetOnboardingStackProps } from "../../navigators/widget-onboarding/w
 import { color, fontScale, spacing } from "../../theme"
 import { WidgetOnboardingBackground } from "./widget-onboarding-background"
 import { useWidgetWrapperStyle } from "./widget-styles"
-import analytics from "@react-native-firebase/analytics"
+import { analytics } from "../../services/firebase/analytics"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -73,7 +73,7 @@ export const WidgetStep3 = function WidgetStep3({ navigation }: WidgetOnboarding
         <Button
           title={translate("common.done")}
           onPress={() => {
-            analytics().logEvent("finished_widget_onboarding")
+            analytics.logEvent("finished_widget_onboarding")
             navigation.navigate("settingsStack")
 
             storage.load("lastInAppReview").then((value) => {

@@ -1,5 +1,5 @@
 import { PixelRatio, Appearance } from "react-native"
-import analytics from "@react-native-firebase/analytics"
+import { analytics } from "../services/firebase/analytics"
 
 export * from "./color"
 export * from "./spacing"
@@ -10,4 +10,4 @@ export const fontScale = PixelRatio.getFontScale()
 const colorScheme = Appearance.getColorScheme()
 export const isDarkMode = colorScheme === "dark"
 
-analytics().setUserProperties({ color_scheme: colorScheme, font_scale: `${fontScale}` })
+analytics.setUserProperties({ color_scheme: colorScheme, font_scale: `${fontScale}` })

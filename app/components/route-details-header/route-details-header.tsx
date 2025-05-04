@@ -3,7 +3,7 @@ import { Image, ImageBackground, View, Alert, Linking, Animated as RNAnimated, P
 import type { ViewStyle, TextStyle, ImageStyle } from "react-native"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import TouchableScale from "react-native-touchable-scale"
-import analytics from "@react-native-firebase/analytics"
+import { analytics } from "../../services/firebase/analytics"
 import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
 import LinearGradient from "react-native-linear-gradient"
@@ -152,7 +152,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   }, [navigation])
 
   const addToCalendar = useCallback(async () => {
-    analytics().logEvent("add_route_to_calendar")
+    analytics.logEvent("add_route_to_calendar")
 
     const { status } = await Calendar.requestCalendarPermissionsAsync()
 
@@ -220,11 +220,11 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
         Burnt.alert({ title: translate("favorites.added"), duration: 1.5 })
         HapticFeedback.trigger("impactMedium")
         favoriteRoutes.add(favorite)
-        analytics().logEvent("favorite_route_added")
+        analytics.logEvent("favorite_route_added")
       } else {
         HapticFeedback.trigger("impactLight")
         favoriteRoutes.remove(favorite.id)
-        analytics().logEvent("favorite_route_removed")
+        analytics.logEvent("favorite_route_removed")
       }
     }
 
