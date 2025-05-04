@@ -1,5 +1,5 @@
 import { useQuery } from "react-query"
-import firestore from "@react-native-firebase/firestore"
+import { firestore } from "../../services/firebase/firestore"
 import { toJS } from "mobx"
 import { useStores } from "../../models"
 import { userLocale } from "../../i18n"
@@ -22,7 +22,7 @@ export function useServiceUpdates() {
     const favoriteStations = favoriteRoutes.routes.flatMap((route) => [route.originId, route.destinationId])
     const notificationsStations = uniq([...toJS(settings.stationsNotifications), ...favoriteStations])
 
-    const querySnapshot = await firestore()
+    const querySnapshot = await firestore
       .collection("service-updates")
       .where("expiresAt", ">", new Date())
       .where("stations", "array-contains-any", [...notificationsStations, "all-stations"])
