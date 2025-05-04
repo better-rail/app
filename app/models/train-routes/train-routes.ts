@@ -1,10 +1,10 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { withStatus } from ".."
 import { RouteApi } from "../../services/api/route-api"
 import { add, closestTo, differenceInMinutes } from "date-fns"
 import { omit } from "ramda"
 import { RouteItem } from "../../services/api"
 import { formatDateForAPI } from "../../utils/helpers/date-helpers"
+import { withStatus } from "../extensions/with-status"
 
 export const trainStop = {
   arrivalTime: types.number,
