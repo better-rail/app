@@ -1,7 +1,8 @@
 import React, { useMemo } from "react"
-import { Image, TouchableOpacity, ImageStyle, ViewStyle } from "react-native"
+import { Image, type ImageStyle, type ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import { color } from "../../theme"
+import { TouchableOpacity } from "react-native-gesture-handler"
 
 const starImage = require("../../../assets/star.png")
 
@@ -46,4 +47,3 @@ export const StarIcon = observer(function StarIcon(props: StarIconProps) {
     </TouchableOpacity>
   )
 })
-
