@@ -12325,10 +12325,10 @@ react-native-touchable-scale@2.2.0:
     deprecated-react-native-prop-types "^2.3.0"
     prop-types "^15.6.0"
 
-react-native-video@^6.5.0:
-  version "6.9.1"
-  resolved "https://registry.yarnpkg.com/react-native-video/-/react-native-video-6.9.1.tgz#e83bfcd608e381adf5e02295c07a943ff64eaaa1"
-  integrity sha512-JwQPp4+tp2a+hy59KEqKTxW7GtPZtd95sKeFedbz7ywIcRbjyaT2Zy97OuCSbbpI+1xmSMp74CH8R9ooG3VesQ==
+react-native-video@^6.13.0:
+  version "6.13.0"
+  resolved "https://registry.yarnpkg.com/react-native-video/-/react-native-video-6.13.0.tgz#c5161176fa3cbe78966ea1f26faa92503cbf475f"
+  integrity sha512-eY6jgLcmYKAAlAZhsZbp8wfCVrGu7jmUYTTspn8udN8j4jqr4Fq90ROOM/QegGkwNs4waclL0IkzGuq61kT4DQ==
 
 react-native-watch-connectivity@1.1.0:
   version "1.1.0"

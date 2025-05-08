@@ -95,7 +95,7 @@
     "react-native-share": "^11.0.3",
     "react-native-svg": "^15.11.1",
     "react-native-touchable-scale": "2.2.0",
-    "react-native-video": "^6.5.0",
+    "react-native-video": "^6.13.0",
     "react-native-watch-connectivity": "1.1.0",
     "react-query": "3.39.3",
     "reactotron-mst": "3.1.3",
