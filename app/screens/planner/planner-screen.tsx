@@ -186,7 +186,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   )
 
   return (
-    <Screen style={ROOT} preset="scroll">
+    <Screen style={ROOT}>
       <FlingGestureWrapper onFling={onSwitchPress}>
         <View style={CONTENT_WRAPPER}>
           <PlannerScreenHeader />

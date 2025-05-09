@@ -44,7 +44,7 @@ export function FlingGestureWrapper(props: FlingGestureWrapperProps) {
 
   return (
     <GestureDetector gesture={gesture}>
-      <Animated.View style={animatedStyle}>{children}</Animated.View>
+      <Animated.ScrollView style={animatedStyle}>{children}</Animated.ScrollView>
     </GestureDetector>
   )
 }
