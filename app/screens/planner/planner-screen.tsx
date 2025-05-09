@@ -19,6 +19,7 @@ import { analytics } from "../../services/firebase/analytics"
 import { useFocusEffect } from "@react-navigation/native"
 import { PlannerScreenHeader } from "./planner-screen-header"
 import { useModal } from "react-native-modalfy"
+import { FlingGestureWrapper } from "./planner-slider-wrapper"
 
 const { height: deviceHeight } = Dimensions.get("screen")
 
@@ -186,75 +187,77 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
 
   return (
     <Screen style={ROOT} preset="scroll">
-      <View style={CONTENT_WRAPPER}>
-        <PlannerScreenHeader />
+      <FlingGestureWrapper onFling={onSwitchPress}>
+        <View style={CONTENT_WRAPPER}>
+          <PlannerScreenHeader />
 
-        <Text preset="header" tx="plan.title" style={SCREEN_TITLE} />
+          <Text preset="header" tx="plan.title" style={SCREEN_TITLE} />
 
-        <Text preset="fieldLabel" tx="plan.origin" style={{ marginBottom: spacing[1] }} />
-        <Animated.View style={{ transform: [{ scale: stationCardScale }] }}>
-          <StationCard
-            name={originData?.name}
-            image={originData?.image}
-            style={{ marginBottom: spacing[4] }}
-            onPress={() => navigation.navigate("selectStation", { selectionType: "origin" })}
+          <Text preset="fieldLabel" tx="plan.origin" style={{ marginBottom: spacing[1] }} />
+          <Animated.View style={{ transform: [{ scale: stationCardScale }] }}>
+            <StationCard
+              name={originData?.name}
+              image={originData?.image}
+              style={{ marginBottom: spacing[4] }}
+              onPress={() => navigation.navigate("selectStation", { selectionType: "origin" })}
+            />
+          </Animated.View>
+
+          <View style={CHANGE_DIRECTION_WRAPPER}>
+            <ChangeDirectionButton onPress={onSwitchPress} disabled={!origin || !destination} />
+          </View>
+
+          <Text preset="fieldLabel" tx="plan.destination" style={{ marginBottom: spacing[1] }} />
+          <Animated.View style={{ transform: [{ scale: stationCardScale }] }}>
+            <StationCard
+              name={destinationData?.name}
+              image={destinationData?.image}
+              style={{ marginBottom: spacing[4] }}
+              onPress={() => navigation.navigate("selectStation", { selectionType: "destination" })}
+            />
+          </Animated.View>
+
+          <Text preset="fieldLabel" text={routePlan.dateTypeDisplayName} style={{ marginBottom: spacing[1] }} />
+
+          <DummyInput
+            placeholder={translate("plan.now")}
+            value={formattedDate}
+            style={{ marginBottom: spacing[5] }}
+            onPress={() => {
+              if (Platform.OS === "android") {
+                openModal("DatePickerModal", {
+                  onConfirm: handleConfirm,
+                  minimumDate: now,
+                })
+              } else {
+                setDatePickerVisibility(true)
+              }
+            }}
+            endSection={formattedDate !== translate("plan.now") && <ResetTimeButton onPress={onDateReset} />}
           />
-        </Animated.View>
 
-        <View style={CHANGE_DIRECTION_WRAPPER}>
-          <ChangeDirectionButton onPress={onSwitchPress} disabled={!origin || !destination} />
+          {Platform.OS === "ios" && (
+            <DatePickerModal
+              isVisible={isDatePickerVisible}
+              onChange={onDateChange}
+              onConfirm={handleConfirm}
+              onCancel={() => setDatePickerVisibility(false)}
+              minimumDate={now}
+            />
+          )}
+
+          <Button
+            title={translate("plan.find")}
+            onPress={onGetRoutePress}
+            disabled={!routePlan.origin || !routePlan.destination || routePlan.origin.id === routePlan.destination.id}
+            onDisabledPress={() => {
+              if (routePlan.origin?.id === routePlan.destination?.id) {
+                Alert.alert(translate("routes.sameStationsMessage"))
+              }
+            }}
+          />
         </View>
-
-        <Text preset="fieldLabel" tx="plan.destination" style={{ marginBottom: spacing[1] }} />
-        <Animated.View style={{ transform: [{ scale: stationCardScale }] }}>
-          <StationCard
-            name={destinationData?.name}
-            image={destinationData?.image}
-            style={{ marginBottom: spacing[4] }}
-            onPress={() => navigation.navigate("selectStation", { selectionType: "destination" })}
-          />
-        </Animated.View>
-
-        <Text preset="fieldLabel" text={routePlan.dateTypeDisplayName} style={{ marginBottom: spacing[1] }} />
-
-        <DummyInput
-          placeholder={translate("plan.now")}
-          value={formattedDate}
-          style={{ marginBottom: spacing[5] }}
-          onPress={() => {
-            if (Platform.OS === "android") {
-              openModal("DatePickerModal", {
-                onConfirm: handleConfirm,
-                minimumDate: now,
-              })
-            } else {
-              setDatePickerVisibility(true)
-            }
-          }}
-          endSection={formattedDate !== translate("plan.now") && <ResetTimeButton onPress={onDateReset} />}
-        />
-
-        {Platform.OS === "ios" && (
-          <DatePickerModal
-            isVisible={isDatePickerVisible}
-            onChange={onDateChange}
-            onConfirm={handleConfirm}
-            onCancel={() => setDatePickerVisibility(false)}
-            minimumDate={now}
-          />
-        )}
-
-        <Button
-          title={translate("plan.find")}
-          onPress={onGetRoutePress}
-          disabled={!routePlan.origin || !routePlan.destination || routePlan.origin.id === routePlan.destination.id}
-          onDisabledPress={() => {
-            if (routePlan.origin?.id === routePlan.destination?.id) {
-              Alert.alert(translate("routes.sameStationsMessage"))
-            }
-          }}
-        />
-      </View>
+      </FlingGestureWrapper>
     </Screen>
   )
 })
