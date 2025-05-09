@@ -2832,7 +2832,7 @@ PODS:
     - Yoga
   - react-native-segmented-control (2.4.0):
     - React-Core
-  - react-native-video (6.9.1):
+  - react-native-video (6.13.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2845,7 +2845,7 @@ PODS:
     - React-featureflags
     - React-graphics
     - React-ImageManager
-    - react-native-video/Video (= 6.9.1)
+    - react-native-video/Video (= 6.13.0)
     - React-NativeModulesApple
     - React-RCTFabric
     - React-rendererdebug
@@ -2854,7 +2854,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-video/Fabric (6.9.1):
+  - react-native-video/Fabric (6.13.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2875,7 +2875,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-video/Video (6.9.1):
+  - react-native-video/Video (6.13.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -3304,7 +3304,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNIap (12.16.0):
+  - RNIap (12.16.2):
     - RCT-Folly
     - RCTRequired
     - RCTTypeSafety
@@ -4024,7 +4024,7 @@ SPEC CHECKSUMS:
   react-native-restart: 7595693413fe3ca15893702f2c8306c62a708162
   react-native-safe-area-context: fc459d62fa26be4d3e304ee713251b7f57cdc9a7
   react-native-segmented-control: 06607462630512ff8eef652ec560e6235a30cc3e
-  react-native-video: bb41a8b34c01805bcea9cac64888811b9a34def8
+  react-native-video: a0e473fb32e8a6b9d5e72cad34df6ad9b219a001
   React-nativeconfig: 75658bde8f977492f668e94ae8eb9c0dfef7ed94
   React-NativeModulesApple: 1bd9fa09c40204ac489acbe7da239efa4aa47244
   React-perflogger: a0f49e229d1252d683102df60d2392229ece5837
@@ -4069,7 +4069,7 @@ SPEC CHECKSUMS:
   RNFBMessaging: af1ebc16b28e175a4278b263db731703a6aecc61
   RNFlashList: cccb2ec1bc19556e01763150c04db5f69e326fd2
   RNGestureHandler: e697c8169061739b02f370f61d8afb6537935970
-  RNIap: 2c3c65e445757dde21e566faa13984786d23fab1
+  RNIap: daac81aa70fe3ac6d6967c1c8da3dc4b415b73d6
   RNInAppBrowser: e36d6935517101ccba0e875bac8ad7b0cb655364
   RNNotifee: 4a6ee5c7deaf00e005050052d73ee6315dff7ec9
   RNReactNativeHapticFeedback: a49e613d48d721c99cad9689a490554104c22154
