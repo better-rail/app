@@ -3,3 +3,4 @@
 //
 
 #import <React/RCTBridgeModule.h>
+#import "RNShortcuts.h"

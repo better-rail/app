@@ -21,10 +21,10 @@ const os = require("os")
   { command: "jetify" },
 
   // on iOS, make sure our native modules are installed
-  { command: "pod install", cwd: "ios", onlyPlatforms: ["darwin"] },
+  { command: "pod install --repo-update", cwd: "ios", onlyPlatforms: ["darwin"] },
 ]
   .filter(({ onlyPlatforms }) => !onlyPlatforms || onlyPlatforms.includes(os.platform()))
-  .forEach(commandAndOptions => {
+  .forEach((commandAndOptions) => {
     const { command, onlyPlatform: _, ...options } = commandAndOptions
     try {
       childProcess.execSync(command, {
