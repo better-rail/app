@@ -14,13 +14,10 @@ import "./utils/ignore-warnings"
 import React, { useState, useEffect, useRef } from "react"
 import { AppState, Platform } from "react-native"
 import { QueryClient, QueryClientProvider } from "react-query"
-import { NavigationContainerRef } from "@react-navigation/native"
+import type { NavigationContainerRef } from "@react-navigation/native"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet"
 import notifee from "@notifee/react-native"
-
-import analytics from "@react-native-firebase/analytics"
-import crashlytics from "@react-native-firebase/crashlytics"
 
 import { initFonts } from "./theme/fonts" // expo
 import * as storage from "./utils/storage"
@@ -30,19 +27,13 @@ import {
   canExit,
   setRootNavigation,
   useNavigationPersistence,
-  RootParamList,
+  type RootParamList,
 } from "./navigators"
-import { RootStore, RootStoreProvider, setupRootStore } from "./models"
+import { type RootStore, RootStoreProvider, setupRootStore } from "./models"
 import { setInitialLanguage, setUserLanguage } from "./i18n/i18n"
 import "react-native-console-time-polyfill"
 import { useIAP, initConnection, finishTransaction, getAvailablePurchases, withIAPContext } from "react-native-iap"
 import PushNotification from "react-native-push-notification"
-
-// Disable tracking in development environment
-if (__DEV__) {
-  analytics().setAnalyticsCollectionEnabled(false)
-  crashlytics().setCrashlyticsCollectionEnabled(false)
-}
 
 // This puts screens in a native ViewController or Activity. If you want fully native
 // stack navigation, use `createNativeStackNavigator` in place of `createStackNavigator`:
@@ -56,6 +47,7 @@ import { createModalStack, ModalProvider } from "react-native-modalfy"
 import { TipThanksModal } from "./screens/settings/components/tip-thanks-modal"
 import { RouteListWarningModal } from "./screens/route-list/components/route-list-warning-modal"
 import { DatePickerModal } from "./components/date-picker-modal/date-picker-modal.android"
+import { analytics } from "./services/firebase/analytics"
 enableScreens()
 
 export const queryClient = new QueryClient()
@@ -143,7 +135,7 @@ function App() {
       if (languageCode) {
         setUserLanguage(languageCode)
         setLocaleReady(true)
-        analytics().setUserProperty("user_locale", languageCode)
+        analytics.setUserProperty("user_locale", languageCode)
       } else {
         setInitialLanguage()
       }

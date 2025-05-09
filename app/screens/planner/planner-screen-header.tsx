@@ -2,10 +2,10 @@ import { useEffect, useState } from "react"
 import { Image, ImageStyle, Platform, TouchableOpacity, View, ViewStyle } from "react-native"
 import { useNavigation } from "@react-navigation/core"
 import { observer } from "mobx-react-lite"
-import { StackNavigationProp } from "@react-navigation/stack"
-import { RootParamList } from "../../navigators"
+import type { StackNavigationProp } from "@react-navigation/stack"
+import type { RootParamList } from "../../navigators"
 import * as storage from "../../utils/storage"
-import analytics from "@react-native-firebase/analytics"
+import { analytics } from "../../services/firebase/analytics"
 import { color, fontScale, spacing } from "../../theme"
 import { Chip, Text } from "../../components"
 import { useStores } from "../../models"
@@ -76,12 +76,12 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
 
   const openAnnouncements = () => {
     navigation.navigate("announcementsStack")
-    analytics().logEvent("announcements_icon_pressed")
+    analytics.logEvent("announcements_icon_pressed")
   }
 
   const openSettings = () => {
     navigation.navigate("settingsStack")
-    analytics().logEvent("settings_icon_pressed")
+    analytics.logEvent("settings_icon_pressed")
   }
 
   return (
@@ -98,7 +98,7 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
                   params: { routeItem: ride.route, originId: ride.originId, destinationId: ride.destinationId },
                 })
 
-                analytics().logEvent("open_live_ride_modal_pressed")
+                analytics.logEvent("open_live_ride_modal_pressed")
               }}
             >
               {Platform.OS === "ios" && <Image source={TRAIN_ICON} style={LIVE_BUTTON_IMAGE} />}

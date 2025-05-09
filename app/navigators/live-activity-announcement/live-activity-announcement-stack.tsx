@@ -1,7 +1,7 @@
 import React from "react"
 import { createStackNavigator, StackScreenProps } from "@react-navigation/stack"
 import { StartRideAnnouncement, ActivityAnnouncementScreen, DynamicIslandScreen, SupportUsScreen } from "../../screens"
-import { BlurView } from "@react-native-community/blur"
+import { BlurView } from "expo-blur"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { CloseButton } from "../../components"
 import { useIsDarkMode } from "../../hooks"
@@ -56,7 +56,7 @@ export const LiveAnnouncementNavigator = () => (
 const LiveAnnouncementHeaderBackground = () => {
   const insets = useSafeAreaInsets()
   const isDarkMode = useIsDarkMode()
-  const blurType = isDarkMode ? "materialDark" : "thinMaterialDark"
+  const blurType = isDarkMode ? "systemMaterialDark" : "systemThinMaterialDark"
 
-  return <BlurView style={{ height: insets.top }} blurType={blurType} blurAmount={10} />
+  return <BlurView style={{ height: insets.top }} tint={blurType} intensity={10} />
 }

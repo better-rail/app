@@ -1,7 +1,7 @@
 import React from "react"
-import analytics from "@react-native-firebase/analytics"
+import { analytics } from "../../services/firebase/analytics"
 import { observer } from "mobx-react-lite"
-import { Platform, View, ViewStyle, Alert } from "react-native"
+import { Platform, View, type ViewStyle, Alert } from "react-native"
 import { Screen } from "../../components"
 import { SettingBox } from "./components/settings-box"
 import { SETTING_GROUP } from "./settings-styles"
@@ -10,8 +10,10 @@ import { useStores } from "../../models"
 import { translate } from "../../i18n"
 import { openLink } from "../../utils/helpers/open-link"
 import { useIsBetaTester } from "../../hooks/use-is-beta-tester"
-import crashlytics from "@react-native-firebase/crashlytics"
+import { crashlytics } from "../../services/firebase/crashlytics"
 import RNRestart from "react-native-restart"
+import { setCrashlyticsCollectionEnabled } from "@react-native-firebase/crashlytics"
+import { setAnalyticsCollectionEnabled } from "@react-native-firebase/analytics"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -25,13 +27,13 @@ export const PrivacyScreen = observer(function SettingsLanguageScreen() {
 
   const onTelemetryToggle = async (disableTelemetry: boolean) => {
     if (disableTelemetry) {
-      analytics().logEvent("telemetry_disabled")
+      analytics.logEvent("telemetry_disabled")
       user.setDisableTelemetry(disableTelemetry)
-      await Promise.all([analytics().setAnalyticsCollectionEnabled(false), crashlytics().setCrashlyticsCollectionEnabled(false)])
+      await Promise.all([setAnalyticsCollectionEnabled(analytics, false), setCrashlyticsCollectionEnabled(crashlytics, false)])
     } else {
-      analytics().logEvent("telemetry_enabled")
+      analytics.logEvent("telemetry_enabled")
       user.setDisableTelemetry(disableTelemetry)
-      await Promise.all([analytics().setAnalyticsCollectionEnabled(true), crashlytics().setCrashlyticsCollectionEnabled(true)])
+      await Promise.all([setAnalyticsCollectionEnabled(analytics, true), setCrashlyticsCollectionEnabled(crashlytics, true)])
     }
   }
 

@@ -8,7 +8,7 @@ import { PaywallScreenProps } from "../../navigators/paywall/paywall-navigator"
 import { SubscribeButtonSheet } from "./subscribe-button-sheet"
 import { FeaturesBox } from "./paywall-features-box"
 import { isRTL, translate } from "../../i18n"
-import { BlurView } from "@react-native-community/blur"
+import { BlurView } from "expo-blur"
 import Animated, {
   Extrapolate,
   interpolate,
@@ -87,9 +87,9 @@ export function PaywallScreen({ navigation, route }: PaywallScreenProps) {
             )}
             headerBackground={() => (
               <View style={{ width: "100%", height: headerHeight }}>
-                <BlurView style={{ height: insets.top }} blurType="regular" blurAmount={30} />
+                <BlurView style={{ height: insets.top }} intensity={30} />
                 <Animated.View style={[StyleSheet.absoluteFillObject, headerOpacity]}>
-                  <BlurView style={StyleSheet.absoluteFillObject} blurType="regular" blurAmount={30} />
+                  <BlurView style={StyleSheet.absoluteFillObject} intensity={30} />
                 </Animated.View>
               </View>
             )}

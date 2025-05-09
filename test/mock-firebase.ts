@@ -1,3 +1,9 @@
-jest.mock("@react-native-firebase/analytics", () => {
-  return () => ({ logEvent: () => {}, logScreenView: () => {}, setUserProperties: () => {}, setUserProperty: () => {} })
-})
+jest.mock("@react-native-firebase/analytics", () => ({
+  getAnalytics: () => ({
+    logEvent: () => {},
+    logScreenView: () => {},
+    setUserProperties: () => {},
+    setUserProperty: () => {},
+    setAnalyticsCollectionEnabled: () => {},
+  }),
+}))

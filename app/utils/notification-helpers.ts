@@ -1,4 +1,4 @@
-import messaging, { FirebaseMessagingTypes } from "@react-native-firebase/messaging"
+import { messaging } from "../services/firebase/messaging"
 import notifee, { AndroidImportance, EventType, TriggerType } from "@notifee/react-native"
 import { RideState, RideStatus, getStatusEndDate, rideProgress } from "../hooks/use-ride-progress"
 import { RideApi, RouteItem } from "../services/api"
@@ -20,6 +20,7 @@ import {
   clearBackgroundStorage,
 } from "./storage/background-storage"
 import { Platform } from "react-native"
+import { FirebaseMessagingTypes } from "@react-native-firebase/messaging"
 
 const rideApi = new RideApi()
 let unsubscribeTokenUpdates: () => void
@@ -61,8 +62,8 @@ export const configureNotifications = async () => {
     }
   }
 
-  messaging().onMessage(onRecievedMessage)
-  messaging().setBackgroundMessageHandler(onRecievedMessage)
+  messaging.onMessage(onRecievedMessage)
+  messaging.setBackgroundMessageHandler(onRecievedMessage)
 
   if (Platform.OS === "android") {
     notifee.onBackgroundEvent(async ({ type, detail }) => {
@@ -160,14 +161,14 @@ const handleServiceUpdateNotification = async (message: FirebaseMessagingTypes.R
 }
 
 export const startRideNotifications = async (route: RouteItem) => {
-  const token = await messaging().getToken()
+  const token = await messaging.getToken()
   const rideId = await rideApi.startRide(route, token)
 
   if (!rideId) {
     throw new Error("Couldn't start ride")
   }
 
-  unsubscribeTokenUpdates = messaging().onTokenRefresh((newToken) => {
+  unsubscribeTokenUpdates = messaging.onTokenRefresh((newToken) => {
     rideApi.updateRideToken(rideId, newToken)
   })
 
@@ -191,7 +192,7 @@ export const startRideNotifications = async (route: RouteItem) => {
 }
 
 export const cancelNotifications = async () => {
-  messaging().deleteToken()
+  messaging.deleteToken()
   if (unsubscribeTokenUpdates) unsubscribeTokenUpdates()
 
   const rideNotificationId = await getRideNotificationId()

@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react"
-import { Pressable, PressableProps, Image, ActivityIndicator, ViewStyle } from "react-native"
+import { Pressable, type PressableProps, Image, ActivityIndicator, type ViewStyle } from "react-native"
 import { color } from "../../../theme"
 import { Text, BottomScreenSheet } from "../../../components"
 import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
 import { useStores } from "../../../models"
 import { translate } from "../../../i18n"
-import analytics from "@react-native-firebase/analytics"
+import { analytics } from "../../../services/firebase/analytics"
 
 // TODO: add typings to progress
 export const LiveRideSheet = observer(function LiveRideSheet(props: { progress; screenName: "routeDetails" | "activeRide" }) {
@@ -42,7 +42,7 @@ export const LiveRideSheet = observer(function LiveRideSheet(props: { progress; 
         loading={!ride.id}
         onPress={() => {
           ride.stopRide(ride.id)
-          analytics().logEvent("stop_live_ride")
+          analytics.logEvent("stop_live_ride")
 
           if (screenName === "activeRide") {
             navigation.goBack()
