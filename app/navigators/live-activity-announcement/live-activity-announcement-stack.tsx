@@ -58,5 +58,5 @@ const LiveAnnouncementHeaderBackground = () => {
   const isDarkMode = useIsDarkMode()
   const blurType = isDarkMode ? "systemMaterialDark" : "systemThinMaterialDark"
 
-  return <BlurView style={{ height: insets.top }} tint={blurType} intensity={10} />
+  return <BlurView style={{ height: insets.top }} tint={blurType} intensity={70} />
 }

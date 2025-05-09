@@ -44,8 +44,8 @@ export function BottomScreenSheet({ children, style }: BottomScreenSheetProps) {
       {Platform.OS === "ios" && (
         <BlurView
           style={{ position: "absolute", top: 0, left: 0, bottom: 0, right: 0, zIndex: -1 }}
-          tint={isDarkMode ? "systemUltraThinMaterialDark" : "extraLight"}
-          intensity={20}
+          tint={isDarkMode ? "systemThickMaterialDark" : "systemThickMaterialLight"}
+          intensity={70}
         />
       )}
     </View>
