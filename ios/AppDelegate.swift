@@ -17,6 +17,10 @@ class AppDelegate: RCTAppDelegate {
 
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
+  
+  override func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
+    RNShortcuts.performAction(for: shortcutItem, completionHandler: completionHandler)
+  }
 
   override func sourceURL(for bridge: RCTBridge) -> URL? {
     self.bundleURL()
