@@ -1,7 +1,6 @@
 import { useLayoutEffect, useRef, useEffect, useCallback } from "react"
-import { Image, ImageBackground, View, Alert, Linking, Animated as RNAnimated, Pressable } from "react-native"
+import { Image, ImageBackground, View, Alert, Linking, Animated as RNAnimated, Pressable, Platform } from "react-native"
 import type { ViewStyle, TextStyle, ImageStyle } from "react-native"
-import { TouchableOpacity } from "react-native-gesture-handler"
 import TouchableScale from "react-native-touchable-scale"
 import { analytics } from "../../services/firebase/analytics"
 import { useNavigation } from "@react-navigation/native"
@@ -18,6 +17,7 @@ import * as Calendar from "expo-calendar"
 import type { RouteItem } from "../../services/api"
 import type { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types"
 import ContextMenu from "react-native-context-menu-view"
+import { HeaderBackButton } from "@react-navigation/elements"
 
 const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale)
 const arrowIcon = require("../../../assets/arrow-left.png")
@@ -208,6 +208,11 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
               setShowEntireRoute((prev) => !prev)
             }
           }}
+          style={{
+            ...(Platform.OS === "android" && {
+              marginTop: spacing[6],
+            }),
+          }}
         >
           <MenuIcon />
         </ContextMenu>
@@ -229,14 +234,22 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
     }
 
     return (
-      <View style={{ flexDirection: "row", alignItems: "baseline", gap: spacing[4] }}>
+      <View
+        style={{
+          marginRight: Platform.select({ ios: 0, android: 0 }),
+          flexDirection: "row",
+          alignItems: "baseline",
+          gap: spacing[4],
+          marginTop: Platform.select({ ios: 0, android: spacing[6] }),
+        }}
+      >
         <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
-        <TouchableOpacity onPress={openStationHoursSheet}>
+        <Pressable onPress={openStationHoursSheet}>
           <Image
             source={require("../../../assets/clock-ios.png")}
             style={{ width: 23, height: 23, marginLeft: spacing[2], tintColor: "lightgrey", opacity: 0.9 }}
           />
-        </TouchableOpacity>
+        </Pressable>
       </View>
     )
   }, [
@@ -255,6 +268,20 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
     if (screenName === "activeRide") return
 
     navigation.setOptions({
+      ...(Platform.OS === "android"
+        ? {
+            headerLeft: (props) => (
+              <View
+                style={{
+                  marginTop: spacing[6],
+                  marginLeft: -20,
+                }}
+              >
+                <HeaderBackButton tintColor="lightgrey" style={{ opacity: 0.9 }} onPress={() => navigation.goBack()} {...props} />
+              </View>
+            ),
+          }
+        : {}),
       headerRight: () => <View style={HEADER_RIGHT_WRAPPER}>{renderHeaderRight()}</View>,
     })
   }, [screenName, navigation, renderHeaderRight])
