@@ -236,7 +236,6 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
     return (
       <View
         style={{
-          marginRight: Platform.select({ ios: 0, android: 0 }),
           flexDirection: "row",
           alignItems: "baseline",
           gap: spacing[4],
