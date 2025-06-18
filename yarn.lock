@@ -11928,14 +11928,14 @@ react-native-inappbrowser-reborn@^3.7.0:
     invariant "^2.2.4"
     opencollective-postinstall "^2.0.3"
 
-react-native-ios-context-menu@^3.0.0-23:
+react-native-ios-context-menu@^3.1.2:
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/react-native-ios-context-menu/-/react-native-ios-context-menu-3.1.2.tgz#91a1270178dc25c23a9fcbf191596585d65d2da3"
   integrity sha512-xmwdygAlmEofBzQvIhJd5qa+2DzPznmWuwkkqkI9NJbe+cfOmIzbvLdVD5RkiayewnCX9Mp8v/muf3BRWq/T1A==
   dependencies:
     "@dominicstop/ts-event-emitter" "^1.1.0"
 
-react-native-ios-utilities@5.1.5:
+react-native-ios-utilities@^5.1.5:
   version "5.1.5"
   resolved "https://registry.yarnpkg.com/react-native-ios-utilities/-/react-native-ios-utilities-5.1.5.tgz#ef577064735d6277342bc4a4264e4167c410876b"
   integrity sha512-s+gsFwMk2Ty5ZXnCmdgPtxJ3ij1v5v4nJjEqyMD35dzGrI1FISj3UxNusGElT6edV8YaEinAnX/LkXhDA6lnYg==
