@@ -421,7 +421,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         />
       )}
 
-      {trainRoutes.resultType === "not-found" && !trains.isLoading && (
+      {trainRoutes.resultType === "not-found" && !trains.isLoading && isInternetReachable && (
         <View style={{ marginTop: spacing[4] }}>
           <NoTrainsFoundMessage />
         </View>
