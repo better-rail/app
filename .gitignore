@@ -36,6 +36,7 @@ local.properties
 !debug.keystore
 /android/app/google-services.json
 /android/app/release
+.kotlin/
 
 # node.js
 #
