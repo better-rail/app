@@ -41,6 +41,10 @@ const ACTIVE_RIDE_CONTAINER: ViewStyle = {
   elevation: 2,
 }
 
+const PAST_RIDE_CONTAINER: ViewStyle = {
+  opacity: 0.4,
+}
+
 const TIME_TYPE_TEXT: TextStyle = {
   marginBottom: primaryFontIOS === "System" ? 1 : -2,
   fontFamily: typography.primary,
@@ -74,6 +78,7 @@ export interface RouteCardProps extends TouchableScaleProps {
   style?: ViewStyle
   isActiveRide: boolean
   shouldShowDashedLine?: boolean
+  isRouteInThePast: boolean
 }
 
 export const RouteCard = function RouteCard(props: RouteCardProps) {
@@ -111,7 +116,7 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
       onPress={onPress}
       activeScale={0.95}
       friction={9}
-      style={[CONTAINER, props.isActiveRide && ACTIVE_RIDE_CONTAINER, style]}
+      style={[CONTAINER, props.isActiveRide && ACTIVE_RIDE_CONTAINER, props.isRouteInThePast && PAST_RIDE_CONTAINER, style]}
     >
       <View style={{ marginEnd: spacing[3] }}>
         <Text style={TIME_TYPE_TEXT} tx="routes.departure" />

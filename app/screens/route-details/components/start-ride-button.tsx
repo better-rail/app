@@ -5,8 +5,8 @@ import HapticFeedback from "react-native-haptic-feedback"
 import { Button } from "../../../components"
 import { isRTL, translate, userLocale } from "../../../i18n"
 import type { RouteItem } from "../../../services/api"
-import { differenceInMinutes, isAfter } from "date-fns"
-import { timezoneCorrection } from "../../../utils/helpers/date-helpers"
+import { differenceInMinutes } from "date-fns"
+import { isRouteInThePast, timezoneCorrection } from "../../../utils/helpers/date-helpers"
 import { color, fontScale } from "../../../theme"
 import { useStores } from "../../../models"
 import { AndroidNotificationSetting, AuthorizationStatus } from "@notifee/react-native"
@@ -55,7 +55,7 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
    * We are also correcting the user's timezone to Asia/Jerusalem, so if foreign users are playing with the
    * feature, it'll allow them to start a ride as if they were at Israel at the moment.
    */
-  const isRouteInPast = isAfter(timezoneCorrection(new Date()).getTime(), route.arrivalTime + route.delay * 60000)
+  const isRouteInPast = isRouteInThePast(route.arrivalTime, route.delay)
   const isRouteInFuture =
     differenceInMinutes(route.departureTime + route.delay * 60000, timezoneCorrection(new Date()).getTime()) > 60
 
