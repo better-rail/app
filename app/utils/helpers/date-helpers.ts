@@ -1,4 +1,4 @@
-import { differenceInMilliseconds, format, formatDuration, intervalToDuration, isWithinInterval, parse } from "date-fns"
+import { differenceInMilliseconds, format, formatDuration, intervalToDuration, isAfter, isWithinInterval, parse } from "date-fns"
 import { formatInTimeZone } from "date-fns-tz"
 import { dateDelimiter, dateFnsLocalization } from "../../i18n"
 
@@ -57,6 +57,10 @@ export function formatDateForAPI(date: number) {
   const formattedTime = format(date, "HH:mm")
 
   return [formattedDate, formattedTime]
+}
+
+export function isRouteInThePast(arrivalTime: number, delay: number) {
+  return isAfter(timezoneCorrection(new Date()).getTime(), arrivalTime + delay * 60000)
 }
 
 export const calculateDelayedTime = (time: string | Date | number, delay: number): string | undefined => {

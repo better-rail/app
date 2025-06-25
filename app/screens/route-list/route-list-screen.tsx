@@ -23,6 +23,7 @@ import {
 import { flatMap, max, round } from "lodash"
 import { translate } from "../../i18n"
 import type BottomSheet from "@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet"
+import { isRouteInThePast } from "../../utils/helpers/date-helpers"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -344,6 +345,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         arrivalTime={arrivalTime}
         delay={item.delay}
         isActiveRide={ride.isRouteActive(item)}
+        isRouteInThePast={isRouteInThePast(arrivalTime, item.delay)}
         onPress={() =>
           navigation.navigate("routeDetails", {
             routeItem: item,
