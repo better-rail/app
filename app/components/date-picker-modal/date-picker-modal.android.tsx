@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react"
-import { View, type ViewStyle } from "react-native"
+import React, { useState } from "react"
+import { Pressable, TextStyle, View, type ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import { type DateType, useStores } from "../../models"
 import { dateLocale, translate } from "../../i18n"
-import { color, spacing, isDarkMode, fontScale } from "../../theme"
+import { color, spacing, isDarkMode } from "../../theme"
 import DatePicker from "react-native-date-picker"
-import MaterialTabs from "react-native-material-tabs"
 import { Button } from "../button/button"
 import type { ModalProps } from "react-native-modalfy"
+import { Text } from "../text/text"
 
 const MODAL_WRAPPER: ViewStyle = {
   minHeight: 285,
@@ -27,6 +27,33 @@ const CANCEL_BUTTON: ViewStyle = {
   backgroundColor: isDarkMode ? "#1c1c1e" : "#fff",
   borderWidth: 1,
   borderColor: isDarkMode ? "#111111" : "#e5e5e9",
+}
+
+const TAB_STYLE: ViewStyle = {
+  flex: 1,
+  height: 40,
+  backgroundColor: isDarkMode ? "#1c1c1e" : "#fff",
+  borderBottomWidth: 2,
+}
+
+const ACTIVE_TAB_STYLE: ViewStyle = {
+  ...TAB_STYLE,
+  borderBottomColor: color.primary,
+}
+
+const INACTIVE_TAB_STYLE: ViewStyle = {
+  ...TAB_STYLE,
+  borderBottomColor: "transparent",
+}
+
+const TAB_TEXT_STYLEL: TextStyle = {
+  fontFamily: "sans-serif-medium",
+  fontSize: 14,
+  fontWeight: "600",
+  color: isDarkMode ? color.palette.white : color.palette.black,
+  textAlign: "center",
+  textTransform: "uppercase",
+  lineHeight: 40,
 }
 
 export interface DatePickerModalProps {
@@ -58,14 +85,22 @@ export const DatePickerModal = observer(function DatePickerModal(props: ModalPro
   return (
     <View style={MODAL_WRAPPER}>
       <View style={{ padding: spacing[2] }}>
-        <MaterialTabs
-          items={[translate("plan.leaveAt"), translate("plan.arriveAt")]}
-          selectedIndex={selectedTab}
-          onChange={onDateTypeChange}
-          barColor={isDarkMode ? "#010101" : "#fff"}
-          textStyle={{ color: color.text }}
-          indicatorColor={isDarkMode ? "#0c83ff" : "#2196f3"}
-        />
+        <View style={{ flexDirection: "row" }}>
+          <Pressable
+            style={selectedTab === 0 ? ACTIVE_TAB_STYLE : INACTIVE_TAB_STYLE}
+            onPress={() => onDateTypeChange(0)}
+            android_ripple={{ color: "rgba(0,0,0,0.1)" }}
+          >
+            <Text tx="plan.leaveAt" style={TAB_TEXT_STYLEL} />
+          </Pressable>
+          <Pressable
+            style={selectedTab === 1 ? ACTIVE_TAB_STYLE : INACTIVE_TAB_STYLE}
+            onPress={() => onDateTypeChange(1)}
+            android_ripple={{ color: "rgba(0,0,0,0.1)" }}
+          >
+            <Text tx="plan.arriveAt" style={TAB_TEXT_STYLEL} />
+          </Pressable>
+        </View>
         <DatePicker
           date={modalDate}
           onDateChange={setModalDate}
