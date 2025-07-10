@@ -9,7 +9,11 @@ export class RideApi {
   constructor() {
     const env: string = "production"
     const envPath = env === "production" ? "" : "-" + env
-    const baseURL = `https://better-rail${envPath}.up.railway.app/api/v1`
+    let baseURL = "https://api.better-rail.co.il/api/v1"
+
+    if (env !== "production") {
+      baseURL = `https://better-rail${envPath}.up.railway.app/api/v1`
+    }
 
     this.axiosInstance = axios.create({
       baseURL,
