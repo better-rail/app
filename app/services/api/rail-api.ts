@@ -15,11 +15,11 @@ export class RailApi {
 
   constructor() {
     this.axiosInstance = axios.create({
-      baseURL: "https://israelrail.azurefd.net/rjpa-prod/api/v1/timetable/",
+      baseURL: "https://rail-api.rail.co.il/rjpa/api/v1/timetable/",
       timeout: 30000,
       headers: {
         Accept: "application/json",
-        "Ocp-Apim-Subscription-Key": "4b0d355121fe4e0bb3d86e902efe9f20",
+        "Ocp-Apim-Subscription-Key": "5e64d66cf03f4547bcac5de2de06b566",
       },
     })
   }
@@ -30,7 +30,7 @@ export class RailApi {
     const response: AxiosResponse<AnnouncementApiResult> = await this.axiosInstance.get(
       `/railupdates/?LanguageId=${languageId}&SystemType=1`,
       {
-        baseURL: "https://israelrail.azurefd.net/common/api/v1/",
+        baseURL: "https://rail-api.rail.co.il/common/api/v1/",
       },
     )
 
@@ -54,7 +54,7 @@ export class RailApi {
     const response: AxiosResponse<StationInfoApiResult> = await this.axiosInstance.get(
       `/Stations/GetStationInformation?LanguageId=${languageId}&StationId=${stationId}&SystemType=1`,
       {
-        baseURL: "https://israelrail.azurefd.net/common/api/v1/",
+        baseURL: "https://rail-api.rail.co.il/common/api/v1/",
       },
     )
 
@@ -67,7 +67,7 @@ export class RailApi {
     const response: AxiosResponse<PopUpMessagesApiResult> = await this.axiosInstance.get(
       `/PopUpMessages/?LanguageId=${languageId}&PageTypeId=MainPage`,
       {
-        baseURL: "https://israelrail.azurefd.net/common/api/v1/",
+        baseURL: "https://rail-api.rail.co.il/common/api/v1/",
       },
     )
 
