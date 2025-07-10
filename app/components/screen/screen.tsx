@@ -1,4 +1,3 @@
-import React, { useState, useEffect, useMemo } from "react"
 import { Appearance, KeyboardAvoidingView, Platform, ScrollView, StatusBar, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { ScreenProps } from "./screen.props"
