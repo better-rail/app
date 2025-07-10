@@ -19,10 +19,10 @@ struct PopUpMessage: Decodable, Encodable, Identifiable {
 struct CriticalAlertsModel {
   func fetchCriticalAlerts(completion: @escaping (PopUpMessagesResult?) -> Void) {
       let language = getUserLocale().rawValue.capitalized
-      let url = URL(string: "https://israelrail.azurefd.net/common/api/v1/PopUpMessages/?LanguageId=\(language)&PageTypeId=MainPage")!
+      let url = URL(string: "https://rail-api.rail.co.il/common/api/v1/PopUpMessages/?LanguageId=\(language)&PageTypeId=MainPage")!
       
       var request = URLRequest(url: url)
-      request.addValue("4b0d355121fe4e0bb3d86e902efe9f20", forHTTPHeaderField: "Ocp-Apim-Subscription-Key")
+      request.addValue("5e64d66cf03f4547bcac5de2de06b566", forHTTPHeaderField: "Ocp-Apim-Subscription-Key")
       
       DispatchQueue.global(qos: .userInitiated).async {
           URLSession.shared.dataTask(with: request) { data, _, _ in
