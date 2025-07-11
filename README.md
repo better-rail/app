@@ -33,6 +33,8 @@ To follow these steps, ensure that your environment is configured to run Node.js
 - `REDIS_URL`: connection string for redis
 - `MONGO_URL`: connection string for mongodb
 - `RAIL_URL`: url of the rail api
+- `RAIL_API_KEY`: api key for the rail api
+- `PROXY_URL`: url of the proxy service
 - `APPLE_BUNDLE_ID`: bundle id of the iOS app to send notifications to
 - `APPLE_TEAM_ID`: team id for the developer account associated with the iOS app
 - `APPLE_KEY_ID`: apple notifications key id
