@@ -38,8 +38,7 @@ struct EndActivityResult: Decodable {
 }
 
 class ActivityNotificationsAPI {
-  static let envPath = LiveActivitiesController.env == "production" ? "" : "-test"
-  static let basePath = "https://better-rail\(envPath).up.railway.app/api/v1"
+  static let basePath = "https://api.better-rail.co.il/api/v1"
   
   static func startRide(ride: Ride) async -> String? {
       // Define the request URL
