@@ -18,7 +18,7 @@ const limiter = rateLimit({
 })
 
 const app = express()
-app.use(limiter)
+// app.use(limiter) TODO: Turn back on after migration to new api endpoint
 app.use(express.json())
 
 app.use("/api/v1", router)
