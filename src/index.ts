@@ -15,10 +15,14 @@ const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skip: () => env !== "production",
+  keyGenerator: (req) =>
+    (Array.isArray(req.headers["cf-connecting-ip"]) ? req.headers["cf-connecting-ip"][0] : req.headers["cf-connecting-ip"]) ||
+    (Array.isArray(req.headers["x-forwarded-for"]) ? req.headers["x-forwarded-for"][0] : req.headers["x-forwarded-for"]) ||
+    req.ip,
 })
 
 const app = express()
-// app.use(limiter) TODO: Turn back on after migration to new api endpoint
+app.use(limiter)
 app.use(express.json())
 
 app.use("/api/v1", router)
@@ -26,9 +30,6 @@ app.use("/api/v1", router)
 app.get("/isAlive", (req, res) => {
   res.status(200).send("App is ready! 🚂")
 })
-
-// TODO: Remove later
-app.get("/headers", (req, res) => res.json(JSON.stringify(req.headers)))
 
 app.listen(port, async () => {
   startLogger()
