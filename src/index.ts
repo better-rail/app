@@ -27,6 +27,9 @@ app.get("/isAlive", (req, res) => {
   res.status(200).send("App is ready! 🚂")
 })
 
+// TODO: Remove later
+app.get("/headers", (req, res) => res.json(JSON.stringify(req.headers)))
+
 app.listen(port, async () => {
   startLogger()
   await connectToRedis()
