@@ -55,6 +55,8 @@
 	<string>We need access to your contacts to import and manage contacts within our app.</string>
 	<key>NSRemindersFullAccessUsageDescription</key>
 	<string>We need full access to reminders to create alerts for your train rides.</string>
+	<key>NSRemindersUsageDescription</key>
+	<string>Allow $(PRODUCT_NAME) to access your reminders.</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
 	<key>NSSupportsLiveActivitiesFrequentUpdates</key>
