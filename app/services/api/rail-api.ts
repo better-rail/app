@@ -12,13 +12,11 @@ import {
 import { getRailApiBaseUrl, getRailApiKey } from "../../config/api-config"
 
 export class RailApi {
-  private axiosInstance: AxiosInstance | null = null
-  private baseUrl: string | null = null
+  axiosInstance: AxiosInstance
 
   constructor() {
-    this.baseUrl = getRailApiBaseUrl()
     this.axiosInstance = axios.create({
-      baseURL: this.baseUrl + "/rjpa/api/v1/timetable/",
+      baseURL: getRailApiBaseUrl(),
       timeout: 30000,
       headers: {
         Accept: "application/json",
@@ -31,10 +29,7 @@ export class RailApi {
     const languageId = railApiLocales[languageCode]
 
     const response: AxiosResponse<AnnouncementApiResult> = await this.axiosInstance.get(
-      `/railupdates/?LanguageId=${languageId}&SystemType=1`,
-      {
-        baseURL: this.baseUrl + "/common/api/v1/",
-      },
+      `/common/api/v1/railupdates/?LanguageId=${languageId}&SystemType=1`,
     )
 
     const announcements = response.data.result
@@ -55,10 +50,7 @@ export class RailApi {
     const languageId = railApiLocales[languageCode]
 
     const response: AxiosResponse<StationInfoApiResult> = await this.axiosInstance.get(
-      `/Stations/GetStationInformation?LanguageId=${languageId}&StationId=${stationId}&SystemType=1`,
-      {
-        baseURL: this.baseUrl + "/common/api/v1/",
-      },
+      `/common/api/v1/Stations/GetStationInformation?LanguageId=${languageId}&StationId=${stationId}&SystemType=1`,
     )
 
     return response.data.result
@@ -68,10 +60,7 @@ export class RailApi {
     const languageId = railApiLocales[languageCode]
 
     const response: AxiosResponse<PopUpMessagesApiResult> = await this.axiosInstance.get(
-      `/PopUpMessages/?LanguageId=${languageId}&PageTypeId=MainPage`,
-      {
-        baseURL: this.baseUrl + "/common/api/v1/",
-      },
+      `/common/api/v1/PopUpMessages/?LanguageId=${languageId}&PageTypeId=MainPage`,
     )
 
     return response.data.result.filter((result) => result.title && result.messageBody)
