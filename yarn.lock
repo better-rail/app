@@ -11369,6 +11369,11 @@ react-native-linear-gradient@^2.5.6:
   resolved "https://registry.yarnpkg.com/react-native-linear-gradient/-/react-native-linear-gradient-2.8.3.tgz#9a116649f86d74747304ee13db325e20b21e564f"
   integrity sha512-KflAXZcEg54PXkLyflaSZQ3PJp4uC4whM7nT/Uot9m0e/qxFV3p6uor1983D1YOBJbJN7rrWdqIjq0T42jOJyA==
 
+react-native-localize@^3.5.1:
+  version "3.5.1"
+  resolved "https://registry.yarnpkg.com/react-native-localize/-/react-native-localize-3.5.1.tgz#d74dba8d3e7763031a731b2c96cc225c9ea81ff2"
+  integrity sha512-AX2soRR1/BCK2GvzjIpH+0EQaR2acfojFtjAstnYBFPR7ThIQx5Xb+OlqpzYxcYTPDxIcU5i4/yMa23Agy7p8g==
+
 react-native-modal-datetime-picker@9.2.1:
   version "9.2.1"
   resolved "https://registry.yarnpkg.com/react-native-modal-datetime-picker/-/react-native-modal-datetime-picker-9.2.1.tgz#c299f3e263410a5d256143d1a3338168103eadf9"

@@ -9,17 +9,20 @@ import {
   StationInfoApiResult,
   StationInfo,
 } from "./rail-api.types"
+import { getRailApiBaseUrl, getRailApiKey } from "../../config/api-config"
 
 export class RailApi {
-  axiosInstance: AxiosInstance
+  private axiosInstance: AxiosInstance | null = null
+  private baseUrl: string | null = null
 
   constructor() {
+    this.baseUrl = getRailApiBaseUrl()
     this.axiosInstance = axios.create({
-      baseURL: "https://rail-api.rail.co.il/rjpa/api/v1/timetable/",
+      baseURL: this.baseUrl + "/rjpa/api/v1/timetable/",
       timeout: 30000,
       headers: {
         Accept: "application/json",
-        "Ocp-Apim-Subscription-Key": "5e64d66cf03f4547bcac5de2de06b566",
+        "Ocp-Apim-Subscription-Key": getRailApiKey(),
       },
     })
   }
@@ -30,7 +33,7 @@ export class RailApi {
     const response: AxiosResponse<AnnouncementApiResult> = await this.axiosInstance.get(
       `/railupdates/?LanguageId=${languageId}&SystemType=1`,
       {
-        baseURL: "https://rail-api.rail.co.il/common/api/v1/",
+        baseURL: this.baseUrl + "/common/api/v1/",
       },
     )
 
@@ -54,7 +57,7 @@ export class RailApi {
     const response: AxiosResponse<StationInfoApiResult> = await this.axiosInstance.get(
       `/Stations/GetStationInformation?LanguageId=${languageId}&StationId=${stationId}&SystemType=1`,
       {
-        baseURL: "https://rail-api.rail.co.il/common/api/v1/",
+        baseURL: this.baseUrl + "/common/api/v1/",
       },
     )
 
@@ -67,7 +70,7 @@ export class RailApi {
     const response: AxiosResponse<PopUpMessagesApiResult> = await this.axiosInstance.get(
       `/PopUpMessages/?LanguageId=${languageId}&PageTypeId=MainPage`,
       {
-        baseURL: "https://rail-api.rail.co.il/common/api/v1/",
+        baseURL: this.baseUrl + "/common/api/v1/",
       },
     )
 
