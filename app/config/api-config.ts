@@ -6,7 +6,6 @@ export const API_CONFIG = {
   DIRECT_RAIL_API: "https://rail-api.rail.co.il",
 
   // Proxy endpoint (for users outside Israel)
-  // Update this URL to your actual server domain
   PROXY_RAIL_API: "https://api.better-rail.co.il/api/v1/rail-api",
 }
 
