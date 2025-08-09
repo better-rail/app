@@ -9,7 +9,7 @@ import {
   StationInfoApiResult,
   StationInfo,
 } from "./rail-api.types"
-import { getRailApiBaseUrl, getRailApiKey } from "../../config/api-config"
+import { getRailApiBaseUrl, railApiKey } from "../../config/api-config"
 
 export class RailApi {
   axiosInstance: AxiosInstance
@@ -20,7 +20,7 @@ export class RailApi {
       timeout: 30000,
       headers: {
         Accept: "application/json",
-        "Ocp-Apim-Subscription-Key": getRailApiKey(),
+        "Ocp-Apim-Subscription-Key": railApiKey,
       },
     })
   }

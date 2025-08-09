@@ -1,4 +1,4 @@
-import { getTimeZone } from "react-native-localize"
+import { getCalendars } from "expo-localization"
 
 // API endpoints configuration
 export const API_CONFIG = {
@@ -12,9 +12,9 @@ export const API_CONFIG = {
 
 export function getRailApiBaseUrl(): string {
   try {
-    const inIsrael = getTimeZone() === "Asia/Jerusalem"
+    const isInIsrael = getCalendars()[0].timeZone === "Asia/Jerusalem"
 
-    if (inIsrael) {
+    if (isInIsrael) {
       return API_CONFIG.DIRECT_RAIL_API
     } else {
       return API_CONFIG.PROXY_RAIL_API
@@ -24,6 +24,4 @@ export function getRailApiBaseUrl(): string {
   }
 }
 
-export function getRailApiKey(): string {
-  return "5e64d66cf03f4547bcac5de2de06b566"
-}
+export const railApiKey = "5e64d66cf03f4547bcac5de2de06b566"
