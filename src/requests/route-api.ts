@@ -27,7 +27,7 @@ export class RouteApi {
     const date = dayjs(departureDate).format("YYYY-MM-DD")
 
     const response: AxiosResponse<RailApiGetRoutesResult> = await this.api.axiosInstance.get(
-      `searchTrainLuzForDateTime?fromStation=${originId}&toStation=${destinationId}&date=${date}&hour=${hour}&scheduleType=1&systemType=1&languageId=${railApiLocales[locale]}`,
+      `/rjpa/api/v1/timetable/searchTrainLuzForDateTime?fromStation=${originId}&toStation=${destinationId}&date=${date}&hour=${hour}&scheduleType=1&systemType=1&languageId=${railApiLocales[locale]}`,
     )
     if (!response.data?.result) {
       throw new Error("Error fetching results")
