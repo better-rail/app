@@ -82,7 +82,6 @@
     "react-native-ios-context-menu": "^3.1.2",
     "react-native-ios-utilities": "^5.1.5",
     "react-native-linear-gradient": "^2.5.6",
-    "react-native-localize": "^3.5.1",
     "react-native-modal-datetime-picker": "9.2.1",
     "react-native-modalfy": "^3.6.0",
     "react-native-prompt-android": "^1.1.0",
