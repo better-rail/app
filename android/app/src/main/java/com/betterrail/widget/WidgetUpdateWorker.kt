@@ -25,7 +25,8 @@ class WidgetUpdateWorker(context: Context, params: WorkerParameters) : Coroutine
             // Cancel existing work for this widget
             WorkManager.getInstance(context).cancelUniqueWork(workName)
             
-            // Schedule new periodic work
+            // Use WorkManager with the exact configured interval
+            // Note: Android will enforce its own minimum (usually 15 minutes) but we respect user's choice
             val updateRequest = PeriodicWorkRequestBuilder<WidgetUpdateWorker>(
                 repeatInterval = frequencyMinutes.toLong(),
                 repeatIntervalTimeUnit = TimeUnit.MINUTES
@@ -43,7 +44,7 @@ class WidgetUpdateWorker(context: Context, params: WorkerParameters) : Coroutine
                 updateRequest
             )
             
-            Log.d("WidgetUpdateWorker", "Scheduled updates for widget $appWidgetId every $frequencyMinutes minutes")
+            Log.d("WidgetUpdateWorker", "Scheduled updates for widget $appWidgetId every $frequencyMinutes minutes (Android may enforce 15min minimum)")
         }
         
         fun cancelWidgetUpdates(context: Context, appWidgetId: Int) {

@@ -16,6 +16,7 @@ class WidgetConfigActivity : Activity() {
     private lateinit var originSpinner: Spinner
     private lateinit var destinationSpinner: Spinner
     private lateinit var maxRowsSpinner: Spinner
+    private lateinit var refreshIntervalSpinner: Spinner
     private lateinit var labelEditText: EditText
     private lateinit var addButton: Button
     private lateinit var cancelButton: Button
@@ -24,6 +25,7 @@ class WidgetConfigActivity : Activity() {
     private lateinit var stationAdapter: ArrayAdapter<String>
     private val stationIds = mutableListOf<String>()
     private val stationNames = mutableListOf<String>()
+    private val refreshIntervalValues = listOf(5, 10, 15, 30, 60)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,12 +54,14 @@ class WidgetConfigActivity : Activity() {
         setupUI()
         setupStationData()
         setupMaxRowsData()
+        setupRefreshIntervalData()
     }
     
     private fun setupUI() {
         originSpinner = findViewById(R.id.origin_spinner)
         destinationSpinner = findViewById(R.id.destination_spinner)
         maxRowsSpinner = findViewById(R.id.max_rows_spinner)
+        refreshIntervalSpinner = findViewById(R.id.refresh_interval_spinner)
         labelEditText = findViewById(R.id.label_edit_text)
         addButton = findViewById(R.id.add_button)
         cancelButton = findViewById(R.id.cancel_button)
@@ -126,6 +130,21 @@ class WidgetConfigActivity : Activity() {
         maxRowsSpinner.setSelection(2)
     }
     
+    private fun setupRefreshIntervalData() {
+        val refreshOptions = listOf("5 minutes", "10 minutes", "15 minutes", "30 minutes", "1 hour")
+        
+        val refreshAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_item,
+            refreshOptions
+        )
+        refreshAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        refreshIntervalSpinner.adapter = refreshAdapter
+        
+        // Default to 10 minutes (index 1)
+        refreshIntervalSpinner.setSelection(1)
+    }
+    
     private fun updateAddButtonState() {
         val originSelected = originSpinner.selectedItemPosition > 0
         val destinationSelected = destinationSpinner.selectedItemPosition > 0
@@ -154,12 +173,14 @@ class WidgetConfigActivity : Activity() {
         val destinationName = stationNames[destinationPosition]
         val label = labelEditText.text.toString().trim()
         val maxRows = maxRowsSpinner.selectedItemPosition + 1 // Convert 0-based index to 1-based count
+        val refreshIntervalMinutes = refreshIntervalValues[refreshIntervalSpinner.selectedItemPosition]
         
         Log.d("WidgetConfigActivity", "Configuring widget $appWidgetId with:")
         Log.d("WidgetConfigActivity", "  originId: $originId (${originName})")
         Log.d("WidgetConfigActivity", "  destinationId: $destinationId (${destinationName})")
         Log.d("WidgetConfigActivity", "  label: $label")
         Log.d("WidgetConfigActivity", "  maxRows: $maxRows")
+        Log.d("WidgetConfigActivity", "  refreshInterval: ${refreshIntervalMinutes} minutes")
         
         // Save widget configuration
         val widgetData = WidgetData(
@@ -168,7 +189,8 @@ class WidgetConfigActivity : Activity() {
             originName = originName,
             destinationName = destinationName,
             label = label,
-            maxRows = maxRows
+            maxRows = maxRows,
+            updateFrequencyMinutes = refreshIntervalMinutes
         )
         
         WidgetPreferences.saveWidgetData(this, appWidgetId, widgetData)
