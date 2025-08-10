@@ -110,8 +110,8 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 
   const stationCardScale = useRef(new RNAnimated.Value(1)).current
 
-  const originName = stationsObject[originId][stationLocale]
-  const destinationName = stationsObject[destinationId][stationLocale]
+  const originName = stationsObject[originId]?.[stationLocale] || 'Unknown Station'
+  const destinationName = stationsObject[destinationId]?.[stationLocale] || 'Unknown Station'
   const routeId = `${originId}${destinationId}`
   const isFavorite = favoriteRoutes.routes.some((fav) => fav.id === routeId)
 
@@ -183,11 +183,13 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   }, [routeItem])
 
   useEffect(() => {
-    navigation.setParams({
-      originId: routePlan.origin.id,
-      destinationId: routePlan.destination.id,
-    } as any)
-  }, [routePlan.origin.id, routePlan.destination.id, navigation])
+    if (routePlan.origin?.id && routePlan.destination?.id) {
+      navigation.setParams({
+        originId: routePlan.origin.id,
+        destinationId: routePlan.destination.id,
+      } as any)
+    }
+  }, [routePlan.origin?.id, routePlan.destination?.id, navigation])
 
   const renderHeaderRight = useCallback(() => {
     if (screenName === "routeDetails") {
@@ -288,7 +290,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   return (
     <>
       <ImageBackground
-        source={stationsObject[originId].image}
+        source={stationsObject[originId]?.image}
         style={{
           width: "100%",
           height: screenName !== "activeRide" ? 200 : 155,

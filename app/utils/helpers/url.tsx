@@ -1,14 +1,23 @@
 export function extractURLParams(url: string): { [key: string]: string } {
   const searchCharIndex = url.indexOf("?")
-  const paramsString = url.substr(searchCharIndex + 1, url.length)
+  
+  if (searchCharIndex === -1) {
+    return {}
+  }
+  
+  const paramsString = url.substring(searchCharIndex + 1)
   const paramsArr = paramsString.split("&")
 
   const params = {}
 
   paramsArr.forEach((param) => {
-    const keyValueArr = param.split("=")
-    const [key, value] = keyValueArr
-    params[key] = value
+    if (param.includes("=")) {
+      const keyValueArr = param.split("=")
+      const [key, value] = keyValueArr
+      if (key && value) {
+        params[key] = decodeURIComponent(value)
+      }
+    }
   })
 
   return params

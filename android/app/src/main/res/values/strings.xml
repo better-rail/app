@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">Better Rail</string>
+    
+    <!-- Widget strings -->
+    <string name="widget_configure_title">Configure Train Widget</string>
+    <string name="widget_configure_description">Select your route to display train schedules on your home screen</string>
+    <string name="widget_from_label">From Station</string>
+    <string name="widget_to_label">To Station</string>
+    <string name="widget_label_hint">Custom label (optional)</string>
+    <string name="widget_cancel">Cancel</string>
+    <string name="widget_add">Add Widget</string>
+    <string name="widget_description">Train schedule widget for Better Rail</string>
 </resources>

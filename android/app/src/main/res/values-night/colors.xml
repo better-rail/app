@@ -23,4 +23,16 @@
   <color name="pinky">#6F68DF</color>
   <color name="lightPinky">#464552</color>
   <color name="lightGrey">#3a3a3c</color>
+  
+  <!-- Widget dark mode colors -->
+  <color name="widget_background">#1c1c1e</color>
+  <color name="widget_border">#3e3e41</color>
+  <color name="widget_text_primary">#ffffff</color>
+  <color name="widget_text_secondary">#98989f</color>
+  <color name="widget_text_tertiary">#48484a</color>
+  <color name="widget_accent">#3a3a3c</color>
+  <color name="widget_primary_background">#2c2c2e</color>
+  <color name="widget_delay_background">#FF5252</color>
+  <color name="widget_delay_text">#ffffff</color>
+  <color name="widget_icon_tint">#98989f</color>
 </resources>

@@ -83,12 +83,12 @@ export interface RouteDetailsProps {
 export const RouteDetails = function RouteDetails(props: RouteDetailsProps) {
   const { originId, destinationId, imageStyle, style } = props
 
-  const originName = stationsObject[originId][stationLocale]
-  const destinationName = stationsObject[destinationId][stationLocale]
+  const originName = stationsObject[originId]?.[stationLocale] || 'Unknown Station'
+  const destinationName = stationsObject[destinationId]?.[stationLocale] || 'Unknown Station'
 
   return (
     <View>
-      <ImageBackground source={stationsObject[originId].image} style={[{ width: "100%", height: 200, zIndex: 0 }, imageStyle]}>
+      <ImageBackground source={stationsObject[originId]?.image} style={[{ width: "100%", height: 200, zIndex: 0 }, imageStyle]}>
         <LinearGradient
           style={GARDIENT}
           colors={[colorScheme === "dark" ? "rgba(0, 0, 0, .5)" : "rgba(0, 0, 0, .25)", "rgba(0, 0, 0, 0)"]}

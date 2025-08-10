@@ -134,9 +134,9 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
   const { onLongPress } = useOnLongPress(label, renamePrompt, deleteRoute)
 
   const [originName, destinationName, stationImage] = useMemo(() => {
-    const origin = stationsObject[originId][stationLocale]
-    const destination = stationsObject[destinationId][stationLocale]
-    const image = stationsObject[originId].image
+    const origin = stationsObject[originId]?.[stationLocale] || 'Unknown Station'
+    const destination = stationsObject[destinationId]?.[stationLocale] || 'Unknown Station'
+    const image = stationsObject[originId]?.image
 
     return [origin, destination, image]
   }, [])

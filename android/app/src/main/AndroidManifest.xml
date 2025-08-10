@@ -28,6 +28,35 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <!-- Widget Configuration Activity -->
+        <activity
+            android:name=".widget.WidgetConfigActivity"
+            android:label="@string/widget_configure_title"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+        
+        <!-- Widget Provider -->
+        <receiver 
+            android:name=".widget.TrainScheduleWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/train_schedule_widget_info" />
+        </receiver>
+        
+        <!-- Widget RemoteViews Service -->
+        <service
+            android:name=".widget.TrainWidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS"
+            android:exported="false" />
+        
         <meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@drawable/notification_icon" />
     </application>
 </manifest>

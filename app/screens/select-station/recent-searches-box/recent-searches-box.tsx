@@ -76,8 +76,8 @@ export const RecentSearchesBox = observer(function RecentSearchesBox(props: Rece
 
           return (
             <StationSearchEntry
-              name={stationsObject[entry.id][stationLocale]}
-              image={stationsObject[entry.id].image}
+              name={stationsObject[entry.id]?.[stationLocale] || 'Unknown Station'}
+              image={stationsObject[entry.id]?.image}
               onPress={() => onStationPress(entry)}
               onHide={() => recentSearches.remove(entry.id)}
               key={entry.id}

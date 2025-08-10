@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@color/background">
+
+    <!-- Header -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/widget_configure_title"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/label"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/widget_configure_description"
+        android:textSize="16sp"
+        android:textColor="@color/secondaryLabel"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Origin Station -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/widget_from_label"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/label"
+        android:layout_marginBottom="8dp" />
+
+    <Spinner
+        android:id="@+id/origin_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/spinner_background"
+        android:padding="12dp" />
+
+    <!-- Destination Station -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/widget_to_label"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/label"
+        android:layout_marginBottom="8dp" />
+
+    <Spinner
+        android:id="@+id/destination_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/spinner_background"
+        android:padding="12dp" />
+
+    <!-- Optional Label -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/widget_label_hint"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/label"
+        android:layout_marginBottom="8dp" />
+
+    <EditText
+        android:id="@+id/label_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/edit_text_background"
+        android:hint="e.g., Home to Work"
+        android:textColorHint="@color/placeholderText"
+        android:textColor="@color/label"
+        android:textSize="16sp"
+        android:padding="12dp"
+        android:maxLines="1"
+        android:inputType="text" />
+
+    <!-- Number of Rows -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Number of train rows"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/label"
+        android:layout_marginBottom="8dp" />
+
+    <Spinner
+        android:id="@+id/max_rows_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/spinner_background"
+        android:padding="12dp" />
+
+    <!-- Spacer -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/cancel_button"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/widget_cancel"
+            android:textColor="@color/secondaryLabel"
+            android:textSize="16sp"
+            android:layout_marginEnd="8dp"
+            android:padding="16dp" />
+
+        <Button
+            android:id="@+id/add_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/widget_add"
+            android:textColor="@color/whiteText"
+            android:textSize="16sp"
+            android:background="@drawable/primary_button_background"
+            android:padding="16dp"
+            android:minWidth="120dp"
+            android:enabled="false" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -4,6 +4,9 @@ import { RouteItem } from "../services/api"
 const { RNBetterRail } = NativeModules
 
 export async function canRunLiveActivities() {
+  if (!RNBetterRail?.isRunningOnMac) {
+    return false
+  }
   const isRunningOnMac = await RNBetterRail.isRunningOnMac()
   const deviceSupported = Platform.OS == "ios" && parseFloat(Platform.Version) >= 16.2
 
@@ -11,21 +14,30 @@ export async function canRunLiveActivities() {
 }
 
 export function donateRouteIntent(originId: string, destinationId: string) {
-  RNBetterRail.donateRouteIntent(originId, destinationId)
+  if (RNBetterRail?.donateRouteIntent) {
+    RNBetterRail.donateRouteIntent(originId, destinationId)
+  }
 }
 
 export function reloadAllTimelines() {
-  RNBetterRail.reloadAllTimelines()
+  if (RNBetterRail?.reloadAllTimelines) {
+    RNBetterRail.reloadAllTimelines()
+  }
 }
 
 export function monitorLiveActivities() {
-  RNBetterRail.monitorActivities()
+  if (RNBetterRail?.monitorActivities) {
+    RNBetterRail.monitorActivities()
+  }
 }
 
 export type ActivityAuthorizationInfo = { areActivitiesEnabled: boolean; frequentPushesEnabled: boolean }
 
 export async function activityAuthorizationInfo(): Promise<ActivityAuthorizationInfo> {
-  return RNBetterRail.activityAuthorizationInfo("")
+  if (RNBetterRail?.activityAuthorizationInfo) {
+    return RNBetterRail.activityAuthorizationInfo("")
+  }
+  return { areActivitiesEnabled: false, frequentPushesEnabled: false }
 }
 
 function prepareDataForLiveActivities(route: RouteItem) {
@@ -70,6 +82,9 @@ function prepareDataForLiveActivities(route: RouteItem) {
 
 export async function startLiveActivity(route: RouteItem) {
   try {
+    if (!RNBetterRail?.startActivity) {
+      throw new Error("RNBetterRail.startActivity is not available")
+    }
     const modifiedRoute = prepareDataForLiveActivities(route)
     const routeJSON = JSON.stringify(modifiedRoute)
 
@@ -83,6 +98,9 @@ export async function startLiveActivity(route: RouteItem) {
 
 export async function endLiveActivity(routeId: string) {
   try {
+    if (!RNBetterRail?.endActivity) {
+      throw new Error("RNBetterRail.endActivity is not available")
+    }
     return (await RNBetterRail.endActivity(routeId)) as boolean
   } catch (err) {
     console.error(err)
@@ -91,6 +109,9 @@ export async function endLiveActivity(routeId: string) {
 }
 
 export async function isRideActive(routeId: string) {
+  if (!RNBetterRail?.isRideActive) {
+    return []
+  }
   const result: string = await RNBetterRail.isRideActive(routeId)
   if (result) return JSON.parse(result) as { rideId: string; token: string }[]
   return []
