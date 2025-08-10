@@ -117,6 +117,7 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
         
         views.setTextViewText(R.id.widget_title, "Tap to configure")
         views.setTextViewText(R.id.widget_subtitle, "Select your route")
+        views.setTextViewText(R.id.widget_updated_time, "")
         views.setViewVisibility(R.id.widget_train_list, android.view.View.GONE)
         views.setViewVisibility(R.id.widget_no_trains, android.view.View.GONE)
         views.setViewVisibility(R.id.widget_loading, android.view.View.GONE)
@@ -136,6 +137,7 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
             "${widgetData.originName} → ${widgetData.destinationName}" 
         })
         views.setTextViewText(R.id.widget_subtitle, "Loading schedule...")
+        views.setTextViewText(R.id.widget_updated_time, "")
         views.setViewVisibility(R.id.widget_train_list, android.view.View.GONE)
         views.setViewVisibility(R.id.widget_no_trains, android.view.View.GONE)
         views.setViewVisibility(R.id.widget_loading, android.view.View.VISIBLE)
@@ -208,7 +210,8 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
         
         if (routes.isEmpty()) {
             val currentTime = SimpleDateFormat(TIME_FORMAT, Locale.getDefault()).format(Date())
-            views.setTextViewText(R.id.widget_subtitle, "No trains found • $currentTime")
+            views.setTextViewText(R.id.widget_subtitle, "No trains found")
+            views.setTextViewText(R.id.widget_updated_time, "Updated $currentTime")
             views.setViewVisibility(R.id.widget_train_list, android.view.View.GONE)
             views.setViewVisibility(R.id.widget_no_trains, android.view.View.VISIBLE)
             views.setViewVisibility(R.id.widget_loading, android.view.View.GONE)
@@ -218,7 +221,8 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
             Log.d("WidgetProvider", "No routes found for widget $appWidgetId")
         } else {
             val currentTime = SimpleDateFormat(TIME_FORMAT, Locale.getDefault()).format(Date())
-            views.setTextViewText(R.id.widget_subtitle, "Next departures • Updated $currentTime")
+            views.setTextViewText(R.id.widget_subtitle, "Next departures")
+            views.setTextViewText(R.id.widget_updated_time, "Updated $currentTime")
             views.setViewVisibility(R.id.widget_loading, android.view.View.GONE)
             views.setViewVisibility(R.id.widget_error, android.view.View.GONE)
             views.setViewVisibility(R.id.widget_no_trains, android.view.View.GONE)
@@ -330,7 +334,8 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
             "${widgetData.originName} → ${widgetData.destinationName}" 
         })
         val currentTime = SimpleDateFormat(TIME_FORMAT, Locale.getDefault()).format(Date())
-        views.setTextViewText(R.id.widget_subtitle, "$errorMessage • $currentTime")
+        views.setTextViewText(R.id.widget_subtitle, errorMessage)
+        views.setTextViewText(R.id.widget_updated_time, "Updated $currentTime")
         views.setViewVisibility(R.id.widget_train_list, android.view.View.GONE)
         views.setViewVisibility(R.id.widget_no_trains, android.view.View.GONE)
         views.setViewVisibility(R.id.widget_loading, android.view.View.GONE)
