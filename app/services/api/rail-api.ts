@@ -9,17 +9,18 @@ import {
   StationInfoApiResult,
   StationInfo,
 } from "./rail-api.types"
+import { getRailApiBaseUrl, railApiKey } from "../../config/api-config"
 
 export class RailApi {
   axiosInstance: AxiosInstance
 
   constructor() {
     this.axiosInstance = axios.create({
-      baseURL: "https://rail-api.rail.co.il/rjpa/api/v1/timetable/",
+      baseURL: getRailApiBaseUrl(),
       timeout: 30000,
       headers: {
         Accept: "application/json",
-        "Ocp-Apim-Subscription-Key": "5e64d66cf03f4547bcac5de2de06b566",
+        "Ocp-Apim-Subscription-Key": railApiKey,
       },
     })
   }
@@ -28,10 +29,7 @@ export class RailApi {
     const languageId = railApiLocales[languageCode]
 
     const response: AxiosResponse<AnnouncementApiResult> = await this.axiosInstance.get(
-      `/railupdates/?LanguageId=${languageId}&SystemType=1`,
-      {
-        baseURL: "https://rail-api.rail.co.il/common/api/v1/",
-      },
+      `/common/api/v1/railupdates/?LanguageId=${languageId}&SystemType=1`,
     )
 
     const announcements = response.data.result
@@ -52,10 +50,7 @@ export class RailApi {
     const languageId = railApiLocales[languageCode]
 
     const response: AxiosResponse<StationInfoApiResult> = await this.axiosInstance.get(
-      `/Stations/GetStationInformation?LanguageId=${languageId}&StationId=${stationId}&SystemType=1`,
-      {
-        baseURL: "https://rail-api.rail.co.il/common/api/v1/",
-      },
+      `/common/api/v1/Stations/GetStationInformation?LanguageId=${languageId}&StationId=${stationId}&SystemType=1`,
     )
 
     return response.data.result
@@ -65,10 +60,7 @@ export class RailApi {
     const languageId = railApiLocales[languageCode]
 
     const response: AxiosResponse<PopUpMessagesApiResult> = await this.axiosInstance.get(
-      `/PopUpMessages/?LanguageId=${languageId}&PageTypeId=MainPage`,
-      {
-        baseURL: "https://rail-api.rail.co.il/common/api/v1/",
-      },
+      `/common/api/v1/PopUpMessages/?LanguageId=${languageId}&PageTypeId=MainPage`,
     )
 
     return response.data.result.filter((result) => result.title && result.messageBody)
