@@ -29,17 +29,16 @@ export let userLocale: LanguageCode = "en"
 export let dateFnsLocalization = enUS
 export let dateDelimiter = " "
 export let dateLocale = "en-US"
-export const deviceLocale = Localization.getLocales()[0]?.languageTag || "en-US"
+export const deviceLocale = Localization.locale
 
 analytics.setUserProperty("device_locale", deviceLocale)
 
 export function getInitialLanguage(): LanguageCode {
-  const locale = Localization.getLocales()[0]?.languageTag || "en-US"
-  if (locale.startsWith("he")) {
+  if (Localization.locale.startsWith("he")) {
     return "he"
-  } else if (locale.startsWith("ar")) {
+  } else if (Localization.locale.startsWith("ar")) {
     return "ar"
-  } else if (locale.startsWith("ru")) {
+  } else if (Localization.locale.startsWith("ru")) {
     return "ru"
   } else {
     return "en"

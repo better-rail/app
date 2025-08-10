@@ -10,19 +10,11 @@ import { isEmpty } from "lodash"
 if (Platform.OS === "ios") {
   // set analytics user property for apple watch
   getIsPaired().then((isPaired) => {
-    const value = isPaired === true ? "true" : "false"
-    analytics.setUserProperty("watch_paired", value)
-  }).catch(error => {
-    console.error("Failed to get watch paired status:", error)
-    analytics.setUserProperty("watch_paired", "unknown")
+    analytics.setUserProperty("watch_paired", isPaired ? "true" : "false")
   })
 
   getIsWatchAppInstalled().then((isInstalled) => {
-    const value = isInstalled === true ? "true" : "false"
-    analytics.setUserProperty("watch_app_installed", value)
-  }).catch(error => {
-    console.error("Failed to get watch app install status:", error)
-    analytics.setUserProperty("watch_app_installed", "unknown")
+    analytics.setUserProperty("watch_app_installed", isInstalled ? "true" : "false")
   })
 }
 
@@ -66,9 +58,9 @@ export const FavoritesModel = types
     },
     syncFavoritesToHomeShortcuts() {
       const fromText = (route: FavoriteRoute) =>
-        translate("favorites.fromStation", { stationName: stationsObject[route.originId]?.[stationLocale] || 'Unknown Station' })
+        translate("favorites.fromStation", { stationName: stationsObject[route.originId][stationLocale] })
       const toText = (route: FavoriteRoute) =>
-        translate("favorites.toStation", { stationName: stationsObject[route.destinationId]?.[stationLocale] || 'Unknown Station' })
+        translate("favorites.toStation", { stationName: stationsObject[route.destinationId][stationLocale] })
 
       Shortcuts.setShortcuts(
         self.routes.map((route) => ({

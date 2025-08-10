@@ -15,7 +15,7 @@ export class RouteApi {
 
     try {
       const response: AxiosResponse<RailApiGetRoutesResult> = await this.api.axiosInstance.get(
-        `searchTrainLuzForDateTime?fromStation=${originId}&toStation=${destinationId}&date=${date}&hour=${hour}&scheduleType=1&systemType=1&languageId=Hebrew`,
+        `/rjpa/api/v1/timetable/searchTrainLuzForDateTime?fromStation=${originId}&toStation=${destinationId}&date=${date}&hour=${hour}&scheduleType=1&systemType=1&languageId=Hebrew`,
       )
       if (!response.data?.result) throw new Error("Error fetching results")
 
@@ -42,7 +42,7 @@ export class RouteApi {
 
           const stopStations = train.stopStations.map((station) => {
             const { stationId } = station
-            const stationName = stationsObject[stationId]?.[stationLocale] || 'Unknown Station'
+            const stationName = stationsObject[stationId][stationLocale]
 
             return {
               ...station,
@@ -62,9 +62,9 @@ export class RouteApi {
           const modifiedTrain = {
             delay: trainPosition?.calcDiffMinutes ?? 0,
             originStationId: orignStation,
-            originStationName: stationsObject[orignStation]?.[stationLocale] || 'Unknown Station',
+            originStationName: stationsObject[orignStation][stationLocale],
             destinationStationId: destinationStation,
-            destinationStationName: stationsObject[destinationStation]?.[stationLocale] || 'Unknown Station',
+            destinationStationName: stationsObject[destinationStation][stationLocale],
             departureTime: new Date(departureTime).getTime(),
             departureTimeString: departureTime,
             arrivalTime: new Date(arrivalTime).getTime(),
@@ -72,7 +72,7 @@ export class RouteApi {
             originPlatform: originPlatform,
             destinationPlatform: destPlatform,
             // In rare cases when the API returns "ghost" stations that are not in stationsObject, return an empty string.
-            lastStop: stationsObject[lastStationId]?.[stationLocale] || "",
+            lastStop: stationsObject[lastStationId] ? stationsObject[lastStationId][stationLocale] : "",
             trainNumber,
             stopStations,
             routeStations,
