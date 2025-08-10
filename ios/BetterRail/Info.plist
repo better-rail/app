@@ -26,17 +26,6 @@
 	<string>1</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>com.betterrail.widget</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>betterrail</string>
-			</array>
-		</dict>
-	</array>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>twitter</string>
