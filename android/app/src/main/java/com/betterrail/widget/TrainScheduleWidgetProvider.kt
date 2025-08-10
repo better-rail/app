@@ -218,7 +218,7 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
             Log.d("WidgetProvider", "No routes found for widget $appWidgetId")
         } else {
             val currentTime = SimpleDateFormat(TIME_FORMAT, Locale.getDefault()).format(Date())
-            views.setTextViewText(R.id.widget_subtitle, "Next departures • $currentTime")
+            views.setTextViewText(R.id.widget_subtitle, "Next departures • Updated $currentTime")
             views.setViewVisibility(R.id.widget_loading, android.view.View.GONE)
             views.setViewVisibility(R.id.widget_error, android.view.View.GONE)
             views.setViewVisibility(R.id.widget_no_trains, android.view.View.GONE)
@@ -273,11 +273,13 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
             }
             views.setTextViewText(timeId, timeDisplay)
             
-            // Set platform
+            // Set platform with duration and changes (including dot for delay if needed)
             val platformText = if (route.platform.isNotEmpty()) {
-                "Platform ${route.platform}"
+                if (route.delay > 0) "Platform ${route.platform} • ${route.duration} • ${route.changesText} •" 
+                else "Platform ${route.platform} • ${route.duration} • ${route.changesText}"
             } else {
-                "Platform TBD"
+                if (route.delay > 0) "Platform TBD • ${route.duration} • ${route.changesText} •"
+                else "Platform TBD • ${route.duration} • ${route.changesText}"
             }
             val platformId = when (index) {
                 0 -> R.id.train_platform_1
@@ -289,7 +291,7 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
             }
             views.setTextViewText(platformId, platformText)
             
-            // Set delay if exists
+            // Set delay with proper color in separate TextView, positioned inline
             val delayId = when (index) {
                 0 -> R.id.train_delay_1
                 1 -> R.id.train_delay_2
@@ -299,7 +301,7 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
                 else -> R.id.train_delay_1
             }
             if (route.delay > 0) {
-                views.setTextViewText(delayId, "+${route.delay}m delay")
+                views.setTextViewText(delayId, " +${route.delay}m delay")
                 views.setViewVisibility(delayId, android.view.View.VISIBLE)
             } else {
                 views.setViewVisibility(delayId, android.view.View.GONE)
