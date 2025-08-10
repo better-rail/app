@@ -1,5 +1,6 @@
 package com.betterrail.widget.api
 
+import com.betterrail.BuildConfig
 import com.betterrail.widget.data.*
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -14,8 +15,8 @@ import java.util.concurrent.TimeUnit
 
 class RailApiService {
     companion object {
-        private const val BASE_URL = "https://rail-api.rail.co.il/rjpa/api/v1/timetable/"
-        private const val API_KEY = "5e64d66cf03f4547bcac5de2de06b566"
+        private val BASE_URL = BuildConfig.RAIL_API_TIMETABLE_URL
+        private val API_KEY = BuildConfig.RAIL_API_KEY
         private const val TIMEOUT_SECONDS = 30L
         private val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         private val TIME_FORMAT = SimpleDateFormat("HH:mm", Locale.getDefault())

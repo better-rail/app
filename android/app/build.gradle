@@ -108,6 +108,11 @@ android {
         versionCode 107
         versionName "2.4.4"
         missingDimensionStrategy "store", "play"
+        
+        // API Configuration
+        buildConfigField "String", "RAIL_API_BASE_URL", "\"https://rail-api.rail.co.il\""
+        buildConfigField "String", "RAIL_API_TIMETABLE_URL", "\"https://rail-api.rail.co.il/rjpa/api/v1/timetable/\""
+        buildConfigField "String", "RAIL_API_KEY", "\"5e64d66cf03f4547bcac5de2de06b566\""
     }
 
     signingConfigs {

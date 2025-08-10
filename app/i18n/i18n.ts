@@ -31,7 +31,7 @@ export let dateDelimiter = " "
 export let dateLocale = "en-US"
 export const deviceLocale = Localization.locale
 
-analytics.setUserProperty("device_locale", deviceLocale)
+analytics.setUserProperty("device_locale", String(deviceLocale))
 
 export function getInitialLanguage(): LanguageCode {
   if (Localization.locale.startsWith("he")) {
@@ -103,6 +103,6 @@ export type TxKeyPath = RecursiveKeyOf<DefaultLocale>
 
 type RecursiveKeyOf<TObj extends Record<string, any>> = {
   [TKey in keyof TObj & string]: TObj[TKey] extends Record<string, any>
-    ? `${TKey}` | `${TKey}.${RecursiveKeyOf<TObj[TKey]>}`
-    : `${TKey}`
+  ? `${TKey}` | `${TKey}.${RecursiveKeyOf<TObj[TKey]>}`
+  : `${TKey}`
 }[keyof TObj & string]
