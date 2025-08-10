@@ -1,4 +1,5 @@
 import { getCalendars } from "expo-localization"
+import { analytics } from "../services/firebase/analytics"
 
 // API endpoints configuration
 export const API_CONFIG = {
@@ -14,11 +15,14 @@ export function getRailApiBaseUrl(): string {
     const isInIsrael = getCalendars()[0].timeZone === "Asia/Jerusalem"
 
     if (isInIsrael) {
+      analytics.setUserProperty("rail_api", "direct")
       return API_CONFIG.DIRECT_RAIL_API
     } else {
+      analytics.setUserProperty("rail_api", "proxy")
       return API_CONFIG.PROXY_RAIL_API
     }
-  } catch (error) {
+  } catch {
+    analytics.setUserProperty("rail_api", "direct")
     return API_CONFIG.DIRECT_RAIL_API
   }
 }
