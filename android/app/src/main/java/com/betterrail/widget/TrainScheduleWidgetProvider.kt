@@ -177,7 +177,7 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
         
         // Try to use cached data first if requested
         if (useCache) {
-            val cachedData = WidgetCacheManager.getCachedData(context, widgetData.originId, widgetData.destinationId)
+            val cachedData = WidgetCacheManager.getCachedData(context, widgetData.originId, widgetData.destinationId, widgetData.updateFrequencyMinutes)
             if (cachedData != null) {
                 Log.d("WidgetProvider", "Using cached data for widget $appWidgetId")
                 showScheduleData(context, appWidgetManager, appWidgetId, widgetData, cachedData.routes)

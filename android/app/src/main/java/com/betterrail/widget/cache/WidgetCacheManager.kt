@@ -3,12 +3,12 @@ package com.betterrail.widget.cache
 import android.content.Context
 import android.content.SharedPreferences
 import com.betterrail.widget.data.WidgetScheduleData
+import com.betterrail.widget.data.WidgetPreferences
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 
 object WidgetCacheManager {
     private const val PREFS_NAME = "widget_cache"
-    private const val CACHE_DURATION_MS = 5 * 60 * 1000L // 5 minutes cache
     
     private val gson = Gson()
     
@@ -20,7 +20,7 @@ object WidgetCacheManager {
         return "${originId}_${destinationId}"
     }
     
-    fun getCachedData(context: Context, originId: String, destinationId: String, maxAgeMinutes: Int = 5): WidgetScheduleData? {
+    fun getCachedData(context: Context, originId: String, destinationId: String, maxAgeMinutes: Int): WidgetScheduleData? {
         val prefs = getSharedPreferences(context)
         val cacheKey = getCacheKey(originId, destinationId)
         
@@ -31,12 +31,12 @@ object WidgetCacheManager {
         }
         val cachedTimestamp = prefs.getLong("timestamp_$cacheKey", 0L)
         
-        // Check if cache is still valid (use configurable max age, but cap at CACHE_DURATION_MS)
-        val maxAgeMs = minOf(maxAgeMinutes * 60 * 1000L, CACHE_DURATION_MS)
+        // Check if cache is still valid using the configured max age
+        val maxAgeMs = maxAgeMinutes * 60 * 1000L
         val currentTime = System.currentTimeMillis()
         val age = currentTime - cachedTimestamp
         
-        android.util.Log.d("WidgetCacheManager", "Cache age: ${age}ms, max age: ${maxAgeMs}ms for key: $cacheKey")
+        android.util.Log.d("WidgetCacheManager", "Cache age: ${age}ms, max age: ${maxAgeMs}ms (${maxAgeMinutes}min) for key: $cacheKey")
         
         if (age > maxAgeMs) {
             // Cache expired, remove it
@@ -63,14 +63,15 @@ object WidgetCacheManager {
         }
     }
     
-    fun hasCachedData(context: Context, originId: String, destinationId: String): Boolean {
+    fun hasCachedData(context: Context, originId: String, destinationId: String, maxAgeMinutes: Int): Boolean {
         val prefs = getSharedPreferences(context)
         val cacheKey = getCacheKey(originId, destinationId)
         
         val cachedJson = prefs.getString("data_$cacheKey", null) ?: return false
         val cachedTimestamp = prefs.getLong("timestamp_$cacheKey", 0L)
         
-        return (System.currentTimeMillis() - cachedTimestamp <= CACHE_DURATION_MS)
+        val maxAgeMs = maxAgeMinutes * 60 * 1000L
+        return (System.currentTimeMillis() - cachedTimestamp <= maxAgeMs)
     }
     
     fun cacheData(context: Context, originId: String, destinationId: String, data: WidgetScheduleData) {
@@ -92,16 +93,18 @@ object WidgetCacheManager {
         }
     }
     
-    fun clearExpiredCache(context: Context) {
+    fun clearExpiredCache(context: Context, maxAgeMinutes: Int) {
         val prefs = getSharedPreferences(context)
         val editor = prefs.edit()
         val allEntries = prefs.all
         var hasExpired = false
         
+        val maxAgeMs = maxAgeMinutes * 60 * 1000L
+        
         for ((key, value) in allEntries) {
             if (key.startsWith("timestamp_")) {
                 val timestamp = value as? Long ?: 0L
-                if (System.currentTimeMillis() - timestamp > CACHE_DURATION_MS) {
+                if (System.currentTimeMillis() - timestamp > maxAgeMs) {
                     val cacheKey = key.removePrefix("timestamp_")
                     editor.remove("data_$cacheKey")
                     editor.remove("timestamp_$cacheKey")
@@ -127,5 +130,20 @@ object WidgetCacheManager {
     
     fun clearAllCache(context: Context) {
         getSharedPreferences(context).edit().clear().apply()
+    }
+    
+    fun getCachedDataForWidget(context: Context, appWidgetId: Int, originId: String, destinationId: String): WidgetScheduleData? {
+        val widgetData = WidgetPreferences.getWidgetData(context, appWidgetId)
+        return getCachedData(context, originId, destinationId, widgetData.updateFrequencyMinutes)
+    }
+    
+    fun hasCachedDataForWidget(context: Context, appWidgetId: Int, originId: String, destinationId: String): Boolean {
+        val widgetData = WidgetPreferences.getWidgetData(context, appWidgetId)
+        return hasCachedData(context, originId, destinationId, widgetData.updateFrequencyMinutes)
+    }
+    
+    fun clearExpiredCacheForWidget(context: Context, appWidgetId: Int) {
+        val widgetData = WidgetPreferences.getWidgetData(context, appWidgetId)
+        clearExpiredCache(context, widgetData.updateFrequencyMinutes)
     }
 }
