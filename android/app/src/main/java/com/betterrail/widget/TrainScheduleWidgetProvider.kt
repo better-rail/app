@@ -349,25 +349,6 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
     }
     
     private fun setupClickIntents(context: Context, views: RemoteViews, appWidgetId: Int, widgetData: WidgetData) {
-        // Create deep link URI
-        val deepLinkUri = "betterrail://widget?originId=${widgetData.originId}&destinationId=${widgetData.destinationId}"
-        
-        val openAppIntent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(deepLinkUri)).apply {
-            setPackage(context.packageName)
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            putExtra("widget_origin_id", widgetData.originId)
-            putExtra("widget_destination_id", widgetData.destinationId)
-            putExtra("widget_origin_name", widgetData.originName)
-            putExtra("widget_destination_name", widgetData.destinationName)
-            putExtra("from_widget", true)
-        }
-        
-        val openAppPendingIntent = PendingIntent.getActivity(
-            context, appWidgetId, openAppIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        views.setOnClickPendingIntent(R.id.widget_container, openAppPendingIntent)
-        
         // Set up refresh button
         val refreshIntent = Intent(context, TrainScheduleWidgetProvider::class.java)
         refreshIntent.action = ACTION_REFRESH
