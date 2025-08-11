@@ -79,6 +79,16 @@
             android:permission="android.permission.BIND_REMOTEVIEWS"
             android:exported="false" />
         
+        <!-- Screen State Receiver for Widget Updates -->
+        <receiver 
+            android:name=".widget.ScreenStateReceiver"
+            android:exported="false">
+            <intent-filter android:priority="1000">
+                <action android:name="android.intent.action.SCREEN_ON" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+            </intent-filter>
+        </receiver>
+        
         <meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@drawable/notification_icon" />
     </application>
 </manifest>

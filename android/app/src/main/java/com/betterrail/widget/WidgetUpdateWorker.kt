@@ -4,6 +4,7 @@ import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.os.PowerManager
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.PeriodicWorkRequestBuilder
@@ -62,8 +63,15 @@ class WidgetUpdateWorker(context: Context, params: WorkerParameters) : Coroutine
             return ListenableWorker.Result.failure()
         }
         
+        // Check if screen is on - skip update if screen is off to save battery
+        val powerManager = applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
+        if (!powerManager.isInteractive) {
+            Log.d("WidgetUpdateWorker", "Screen is off, skipping widget $appWidgetId update to save battery")
+            return ListenableWorker.Result.success()
+        }
+        
         return try {
-            Log.d("WidgetUpdateWorker", "Updating widget $appWidgetId")
+            Log.d("WidgetUpdateWorker", "Updating widget $appWidgetId (screen is on)")
             
             val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
             
