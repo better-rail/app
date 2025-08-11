@@ -12,6 +12,8 @@ import androidx.work.WorkManager
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.workDataOf
 import androidx.work.ListenableWorker
+import androidx.work.Constraints
+import androidx.work.NetworkType
 import java.util.concurrent.TimeUnit
 import android.util.Log
 
@@ -26,8 +28,12 @@ class WidgetUpdateWorker(context: Context, params: WorkerParameters) : Coroutine
             // Cancel existing work for this widget
             WorkManager.getInstance(context).cancelUniqueWork(workName)
             
-            // Use WorkManager with the exact configured interval
-            // Note: Android will enforce its own minimum (usually 15 minutes) but we respect user's choice
+            // Use WorkManager with constraints for better battery and user experience
+            val constraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED) // Only run when network is available
+                .setRequiresBatteryNotLow(true) // Skip when battery is low
+                .build()
+
             val updateRequest = PeriodicWorkRequestBuilder<WidgetUpdateWorker>(
                 repeatInterval = frequencyMinutes.toLong(),
                 repeatIntervalTimeUnit = TimeUnit.MINUTES
@@ -37,6 +43,7 @@ class WidgetUpdateWorker(context: Context, params: WorkerParameters) : Coroutine
                         "appWidgetId" to appWidgetId
                     )
                 )
+                .setConstraints(constraints)
                 .build()
             
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
