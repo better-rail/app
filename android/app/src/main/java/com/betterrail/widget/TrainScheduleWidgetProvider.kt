@@ -18,6 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.Calendar
 import android.util.Log
 import android.os.Bundle
 
@@ -27,6 +28,7 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
         const val ACTION_REFRESH = "com.betterrail.widget.ACTION_REFRESH"
         const val ACTION_WIDGET_UPDATE = "com.betterrail.widget.ACTION_WIDGET_UPDATE"
         private const val TIME_FORMAT = "HH:mm"
+        private val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     }
     
     private val apiService = RailApiService()
@@ -223,6 +225,12 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
     private fun showScheduleData(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData, routes: List<com.betterrail.widget.data.WidgetTrainItem>) {
         Log.d("WidgetProvider", "showScheduleData called for widget $appWidgetId with ${routes.size} routes")
         
+        if (routes.isEmpty()) {
+            // No trains today, try to get tomorrow's trains
+            loadTomorrowsTrains(context, appWidgetManager, appWidgetId, widgetData)
+            return
+        }
+        
         // Always use single view approach for predictable behavior
         Log.d("WidgetProvider", "Using single view approach for reliable widget sizing")
         val views = createSingleView(context, appWidgetManager, appWidgetId, widgetData, routes)
@@ -256,6 +264,7 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
         })
         
         if (routes.isEmpty()) {
+            // This should not happen since we handle empty routes at a higher level now
             val currentTime = SimpleDateFormat(TIME_FORMAT, Locale.getDefault()).format(Date())
             views.setTextViewText(R.id.widget_subtitle, "No trains found")
             views.setTextViewText(R.id.widget_updated_time, "Updated $currentTime")
@@ -428,6 +437,100 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
             } else {
                 views.setViewVisibility(delayId, android.view.View.GONE)
             }
+        }
+    }
+
+    private fun loadTomorrowsTrains(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData) {
+        Log.d("WidgetProvider", "Loading tomorrow's trains for widget $appWidgetId")
+        
+        // Calculate tomorrow's date
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.DAY_OF_MONTH, 1)
+        val tomorrowDate = DATE_FORMAT.format(calendar.time)
+        
+        Log.d("WidgetProvider", "Fetching trains for tomorrow: $tomorrowDate")
+        
+        // Show loading state while we fetch tomorrow's data
+        showLoadingState(context, appWidgetManager, appWidgetId, widgetData)
+        
+        // Make API call for tomorrow's trains
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                Log.d("WidgetProvider", "Calling API for tomorrow: originId=${widgetData.originId}, destinationId=${widgetData.destinationId}, date=$tomorrowDate, hour=00:00")
+                // Use 00:00 to get all trains from the beginning of the day
+                val result = apiService.getRoutes(widgetData.originId, widgetData.destinationId, date = tomorrowDate, hour = "00:00")
+                result.fold(
+                    onSuccess = { scheduleData ->
+                        Log.d("WidgetProvider", "Tomorrow API success for widget $appWidgetId: ${scheduleData.routes.size} routes")
+                        if (scheduleData.routes.isEmpty()) {
+                            Log.w("WidgetProvider", "Tomorrow API returned 0 routes for $tomorrowDate from ${widgetData.originId} to ${widgetData.destinationId}")
+                        }
+                        
+                        // Update UI on main thread
+                        CoroutineScope(Dispatchers.Main).launch {
+                            showTomorrowsScheduleData(context, appWidgetManager, appWidgetId, widgetData, scheduleData.routes)
+                        }
+                    },
+                    onFailure = { error ->
+                        Log.e("WidgetProvider", "Tomorrow API error for widget $appWidgetId: ${error.message}", error)
+                        
+                        // Update UI on main thread with fallback
+                        CoroutineScope(Dispatchers.Main).launch {
+                            showTomorrowsFallback(context, appWidgetManager, appWidgetId, widgetData)
+                        }
+                    }
+                )
+            } catch (e: Exception) {
+                Log.e("WidgetProvider", "Exception getting tomorrow's trains for widget $appWidgetId", e)
+                
+                // Update UI on main thread with fallback
+                CoroutineScope(Dispatchers.Main).launch {
+                    showTomorrowsFallback(context, appWidgetManager, appWidgetId, widgetData)
+                }
+            }
+        }
+    }
+
+    private fun showTomorrowsScheduleData(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData, routes: List<com.betterrail.widget.data.WidgetTrainItem>) {
+        Log.d("WidgetProvider", "showTomorrowsScheduleData called for widget $appWidgetId with ${routes.size} routes")
+        
+        // Use the same single view approach but with tomorrow's data
+        val views = createSingleView(context, appWidgetManager, appWidgetId, widgetData, routes)
+        
+        // Override the subtitle to indicate these are tomorrow's trains
+        if (routes.isNotEmpty()) {
+            val maxRows = getMaxRowsForWidgetSize(context, appWidgetManager, appWidgetId)
+            val displayCount = minOf(routes.size, maxRows)
+            views.setTextViewText(R.id.widget_subtitle, "Tomorrow's trains ($displayCount of ${routes.size} trains)")
+            Log.d("WidgetProvider", "Set tomorrow's train data for widget $appWidgetId: ${widgetData.originName} -> ${widgetData.destinationName}, showing $displayCount of ${routes.size} trains")
+        } else {
+            views.setTextViewText(R.id.widget_subtitle, "No trains tomorrow")
+        }
+        
+        setupClickIntents(context, views, appWidgetId, widgetData)
+        try {
+            appWidgetManager.updateAppWidget(appWidgetId, views)
+            Log.d("WidgetProvider", "Successfully updated widget $appWidgetId with tomorrow's data")
+        } catch (e: Exception) {
+            Log.e("WidgetProvider", "Error updating widget $appWidgetId with tomorrow's data", e)
+        }
+    }
+
+    private fun showTomorrowsFallback(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData) {
+        Log.d("WidgetProvider", "showTomorrowsFallback called for widget $appWidgetId")
+        
+        // Use the same single view approach with empty routes to show "no trains" state
+        val views = createSingleView(context, appWidgetManager, appWidgetId, widgetData, emptyList())
+        
+        // Override the subtitle to indicate this is about tomorrow
+        views.setTextViewText(R.id.widget_subtitle, "No trains scheduled for route")
+        
+        setupClickIntents(context, views, appWidgetId, widgetData)
+        try {
+            appWidgetManager.updateAppWidget(appWidgetId, views)
+            Log.d("WidgetProvider", "Showed fallback tomorrow data for widget $appWidgetId")
+        } catch (e: Exception) {
+            Log.e("WidgetProvider", "Error showing fallback tomorrow data for widget $appWidgetId", e)
         }
     }
     

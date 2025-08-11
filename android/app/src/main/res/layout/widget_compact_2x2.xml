@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_container_compact"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Station Background Image -->
+    <ImageView
+        android:id="@+id/widget_station_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/assets_railwaystation" />
+
+    <!-- Content Overlay -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:background="#BF000000">
+
+        <!-- Station Name -->
+        <TextView
+            android:id="@+id/widget_station_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Bet Yehoshu'a"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:shadowColor="#FF000000"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="4" />
+
+        <!-- Destination with Arrow -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="6dp">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_arrow_circle"
+                android:layout_marginEnd="4dp"
+                android:contentDescription="Arrow to destination" />
+
+            <TextView
+                android:id="@+id/widget_destination"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Tel Aviv"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:fontFamily="sans-serif"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:shadowColor="#FF000000"
+                android:shadowDx="2"
+                android:shadowDy="2"
+                android:shadowRadius="4" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Floating Platform and Train Number at Bottom -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/widget_platform"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Platform 1"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif"
+            android:shadowColor="#FF000000"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="3" />
+
+        <TextView
+            android:id="@+id/widget_train_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Train 249"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif"
+            android:shadowColor="#FF000000"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="3" />
+
+    </LinearLayout>
+
+    <!-- Floating Next Train Label -->
+    <TextView
+        android:id="@+id/widget_train_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:layout_marginTop="140dp"
+        android:layout_marginLeft="10dp"
+        android:text="NEXT TRAIN"
+        android:textColor="#FFFF9999"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif"
+        android:shadowColor="#FF000000"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="2" />
+
+    <!-- Floating Train Time -->
+    <TextView
+        android:id="@+id/widget_train_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:layout_marginTop="155dp"
+        android:layout_marginLeft="10dp"
+        android:text="13:05"
+        android:textColor="#FFFFFF"
+        android:textSize="36sp"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif"
+        android:shadowColor="#FF000000"
+        android:shadowDx="3"
+        android:shadowDy="3"
+        android:shadowRadius="6" />
+
+    <!-- Loading Overlay -->
+    <TextView
+        android:id="@+id/widget_loading_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Loading..."
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif"
+        android:shadowColor="#FF000000"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="4"
+        android:visibility="gone" />
+
+</FrameLayout>

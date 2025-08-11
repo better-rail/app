@@ -39,6 +39,16 @@
             </intent-filter>
         </activity>
         
+        <!-- Compact 2x2 Widget Configuration Activity -->
+        <activity
+            android:name=".widget.CompactWidget2x2ConfigActivity"
+            android:label="@string/widget_configure_title"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+        
         <!-- Widget Provider -->
         <receiver 
             android:name=".widget.TrainScheduleWidgetProvider"
@@ -49,6 +59,18 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/train_schedule_widget_info" />
+        </receiver>
+        
+        <!-- Compact 2x2 Widget Provider -->
+        <receiver 
+            android:name=".widget.CompactWidget2x2Provider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/compact_widget_2x2_info" />
         </receiver>
         
         <!-- Widget RemoteViews Service -->

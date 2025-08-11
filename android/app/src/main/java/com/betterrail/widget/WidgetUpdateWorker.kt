@@ -66,11 +66,36 @@ class WidgetUpdateWorker(context: Context, params: WorkerParameters) : Coroutine
             Log.d("WidgetUpdateWorker", "Updating widget $appWidgetId")
             
             val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
-            val widgetProvider = TrainScheduleWidgetProvider()
             
-            // Trigger a refresh for this specific widget
-            val refreshIntent = Intent(applicationContext, TrainScheduleWidgetProvider::class.java)
-            refreshIntent.action = TrainScheduleWidgetProvider.ACTION_WIDGET_UPDATE
+            // Determine which widget provider this widget ID belongs to
+            val compactWidgetIds = appWidgetManager.getAppWidgetIds(
+                ComponentName(applicationContext, CompactWidget2x2Provider::class.java)
+            )
+            val regularWidgetIds = appWidgetManager.getAppWidgetIds(
+                ComponentName(applicationContext, TrainScheduleWidgetProvider::class.java)
+            )
+            
+            val refreshIntent = when {
+                compactWidgetIds.contains(appWidgetId) -> {
+                    Log.d("WidgetUpdateWorker", "Widget $appWidgetId is a compact 2x2 widget")
+                    Intent(applicationContext, CompactWidget2x2Provider::class.java).apply {
+                        action = CompactWidget2x2Provider.ACTION_WIDGET_UPDATE
+                    }
+                }
+                regularWidgetIds.contains(appWidgetId) -> {
+                    Log.d("WidgetUpdateWorker", "Widget $appWidgetId is a regular 4x2 widget")
+                    Intent(applicationContext, TrainScheduleWidgetProvider::class.java).apply {
+                        action = TrainScheduleWidgetProvider.ACTION_WIDGET_UPDATE
+                    }
+                }
+                else -> {
+                    Log.w("WidgetUpdateWorker", "Widget $appWidgetId not found in either provider, defaulting to regular widget")
+                    Intent(applicationContext, TrainScheduleWidgetProvider::class.java).apply {
+                        action = TrainScheduleWidgetProvider.ACTION_WIDGET_UPDATE
+                    }
+                }
+            }
+            
             refreshIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
             applicationContext.sendBroadcast(refreshIntent)
             

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/widget_2x2_description"
+    android:initialKeyguardLayout="@layout/widget_compact_2x2"
+    android:initialLayout="@layout/widget_compact_2x2"
+    android:minWidth="130dp"
+    android:minHeight="130dp"
+    android:minResizeWidth="130dp"
+    android:minResizeHeight="130dp"
+    android:maxResizeWidth="130dp"
+    android:maxResizeHeight="130dp"
+    android:previewImage="@drawable/widget_preview_2x2"
+    android:resizeMode="none"
+    android:targetCellWidth="2"
+    android:targetCellHeight="2"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen"
+    android:configure="com.betterrail.widget.CompactWidget2x2ConfigActivity" />

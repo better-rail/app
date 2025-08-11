@@ -37,6 +37,7 @@ class RailApiService {
             try {
                 val requestDate = date ?: DATE_FORMAT.format(Date())
                 val requestHour = hour ?: "00:00"
+                val isRequestForFutureDate = date != null && date != DATE_FORMAT.format(Date())
 
                 val url = "${BASE_URL}searchTrainLuzForDateTime" +
                         "?fromStation=$originId" +
@@ -166,7 +167,7 @@ class RailApiService {
                             
                             android.util.Log.d("RailApiService", "Travel $i: dep=$formattedDepartureTime, arr=$formattedArrivalTime, platform=$originPlatform, delay=${delay}min")
                             
-                            if (formattedDepartureTime.isNotEmpty() && isUpcomingDeparture(formattedDepartureTime)) {
+                            if (formattedDepartureTime.isNotEmpty() && isUpcomingDeparture(formattedDepartureTime, isRequestForFutureDate)) {
                                 // Use the delay calculated above, don't reset to 0
                                 routes.add(
                                     WidgetTrainItem(
@@ -266,9 +267,16 @@ class RailApiService {
         }
     }
     
-    private fun isUpcomingDeparture(departureTime: String): Boolean {
+    private fun isUpcomingDeparture(departureTime: String, isRequestForFutureDate: Boolean = false): Boolean {
         return try {
             if (departureTime.isEmpty()) return false
+            
+            // If this is a request for a future date (like tomorrow), skip time comparison
+            // and return all trains since they're all in the future relative to today
+            if (isRequestForFutureDate) {
+                android.util.Log.d("RailApiService", "Future date request - including train at $departureTime")
+                return true
+            }
             
             // Get current time in HH:mm format
             val currentTime = TIME_FORMAT.format(Date())

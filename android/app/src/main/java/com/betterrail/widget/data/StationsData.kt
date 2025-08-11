@@ -1,82 +1,102 @@
 package com.betterrail.widget.data
 
+import com.betterrail.R
+
+data class StationInfo(
+    val name: String,
+    val imageResource: Int
+)
+
 object StationsData {
-    private val stationsMap = mapOf(
-        "3700" to "Tel Aviv - Savidor Center",
-        "3500" to "Herzliya",
-        "3400" to "Bet Yehoshu'a",
-        "3300" to "Netanya",
-        "3100" to "Hadera - West",
-        "2800" to "Binyamina",
-        "2820" to "Caesarea-Pardes Hana",
-        "2500" to "Atlit",
-        "2200" to "Haifa - Bat Galim",
-        "1300" to "Hutzot HaMifratz",
-        "700" to "Kiryat Hayim",
-        "1400" to "Kiryat Motzkin",
-        "1500" to "Ako",
-        "2300" to "Haifa - Hof HaKarmel",
-        "8700" to "Kfar Sava - Nordau",
-        "1600" to "Nahariya",
-        "6300" to "Bet Shemesh",
-        "7000" to "Kiryat Gat",
-        "5000" to "Lod",
-        "7300" to "Be'er Sheva - North/University",
-        "4800" to "Kfar Habad",
-        "4600" to "Tel Aviv - HaShalom",
-        "2100" to "Haifa Center - HaShmona",
-        "5010" to "Ramla",
-        "8800" to "Rosh Ha'Ayin - North",
-        "5300" to "Be'er Ya'akov",
-        "5200" to "Rehovot",
-        "5410" to "Yavne - East",
-        "9100" to "Rishon LeTsiyon - HaRishonim",
-        "5800" to "Ashdod - Ad Halom",
-        "4250" to "Petah Tikva - Segula",
-        "4100" to "Bnei Brak",
-        "3600" to "Tel Aviv - University",
-        "7320" to "Be'er Sheva - Center",
-        "1220" to "HaMifrats Central Station",
-        "4900" to "Tel Aviv - HaHagana",
-        "8600" to "Ben Gurion Airport",
-        "5900" to "Ashkelon",
-        "7500" to "Dimona",
-        "9200" to "Hod HaSharon - Sokolov",
-        "4170" to "Petah Tikva - Kiryat Arye",
-        "5150" to "Lod - Gane Aviv",
-        "8550" to "Lehavim - Rahat",
-        "300" to "Pa'ate Modi'in",
-        "400" to "Modi'in - Center",
-        "4640" to "Holon Junction",
-        "4660" to "Holon - Wolfson",
-        "4680" to "Bat Yam - Yoseftal",
-        "4690" to "Bat Yam - Komemiyut",
-        "9800" to "Rishon LeTsiyon - Moshe Dayan",
-        "9000" to "Yavne - West",
-        "9600" to "Sderot",
-        "9650" to "Netivot",
-        "9700" to "Ofakim",
-        "3310" to "Netanya - Sapir",
-        "1240" to "Yokne'am - Kfar Yehoshu'a",
-        "1250" to "Migdal Ha'emek - Kfar Barukh",
-        "1260" to "Afula R.Eitan",
-        "1280" to "Beit She'an",
-        "1820" to "Ahihud",
-        "1840" to "Karmiel",
-        "2940" to "Ra'anana West",
-        "2960" to "Ra'anana South",
-        "6150" to "Kiryat Malakhi – Yoav",
-        "680" to "Jerusalem - Yitzhak Navon",
-        "6900" to "Mazkeret Batya",
-        "1680" to "Kiryat Motzkin" // Fixed mapping - this was the issue
+    private val stations = mapOf(
+        // North Line
+        "1500" to StationInfo("Ako", R.drawable.assets_stationimages_ako),
+        "1600" to StationInfo("Nahariya", R.drawable.assets_stationimages_nahariya),
+        "1820" to StationInfo("Ahihud", R.drawable.assets_stationimages_ahihud),
+        "1840" to StationInfo("Karmiel", R.drawable.assets_stationimages_karmiel),
+        "1680" to StationInfo("Kiryat Motzkin", R.drawable.assets_stationimages_kiryatmotzkin),
+        "1400" to StationInfo("Kiryat Motzkin", R.drawable.assets_stationimages_kiryatmotzkin),
+        "1220" to StationInfo("HaMifrats Central Station", R.drawable.assets_stationimages_hamifrats),
+        "700" to StationInfo("Kiryat Hayim", R.drawable.assets_stationimages_kiryathaim),
+        "2200" to StationInfo("Haifa - Bat Galim", R.drawable.assets_stationimages_batgalim),
+        "2100" to StationInfo("Haifa Center - HaShmona", R.drawable.assets_stationimages_hofhakarmel),
+        "1300" to StationInfo("Hutzot HaMifratz", R.drawable.assets_stationimages_hotzothamifratz),
+        "2300" to StationInfo("Haifa - Hof HaKarmel", R.drawable.assets_stationimages_betyehoshua),
+        
+        // Central Line
+        "2500" to StationInfo("Atlit", R.drawable.assets_stationimages_atlit),
+        "3100" to StationInfo("Hadera - West", R.drawable.assets_stationimages_haderawest),
+        "2820" to StationInfo("Caesarea-Pardes Hana", R.drawable.assets_stationimages_caesarea),
+        "2800" to StationInfo("Binyamina", R.drawable.assets_stationimages_binyamina),
+        "3300" to StationInfo("Netanya", R.drawable.assets_stationimages_netanya),
+        "3310" to StationInfo("Netanya - Sapir", R.drawable.assets_stationimages_netanyasapir),
+        "3400" to StationInfo("Bet Yehoshu'a", R.drawable.assets_stationimages_betyehoshua),
+        "3500" to StationInfo("Herzliya", R.drawable.assets_stationimages_herzeliya),
+        "2940" to StationInfo("Ra'anana West", R.drawable.assets_stationimages_raananawest),
+        "2960" to StationInfo("Ra'anana South", R.drawable.assets_stationimages_raananasouth),
+        "8700" to StationInfo("Kfar Sava - Nordau", R.drawable.assets_stationimages_kfarsaba),
+        "9200" to StationInfo("Hod HaSharon - Sokolov", R.drawable.assets_stationimages_hodhasharonsokolov),
+        
+        // Tel Aviv Area
+        "3600" to StationInfo("Tel Aviv - University", R.drawable.assets_stationimages_tlvuniversity),
+        "4600" to StationInfo("Tel Aviv - HaShalom", R.drawable.assets_stationimages_tlvhashalom),
+        "3700" to StationInfo("Tel Aviv - Savidor Center", R.drawable.assets_stationimages_tlvcenter),
+        "4900" to StationInfo("Tel Aviv - HaHagana", R.drawable.assets_stationimages_tlvhagana),
+        "4100" to StationInfo("Bnei Brak", R.drawable.assets_stationimages_bneibrak),
+        "4250" to StationInfo("Petah Tikva - Segula", R.drawable.assets_stationimages_petahtikvasegula),
+        "4170" to StationInfo("Petah Tikva - Kiryat Arye", R.drawable.assets_stationimages_betyehoshua),
+        "8800" to StationInfo("Rosh Ha'Ayin - North", R.drawable.assets_stationimages_roshhaayin),
+        
+        // South
+        "4800" to StationInfo("Kfar Habad", R.drawable.assets_stationimages_kfarhabad),
+        "8600" to StationInfo("Ben Gurion Airport", R.drawable.assets_stationimages_bengurion),
+        "5000" to StationInfo("Lod", R.drawable.assets_stationimages_lod),
+        "5150" to StationInfo("Lod - Gane Aviv", R.drawable.assets_stationimages_betyehoshua),
+        "5010" to StationInfo("Ramla", R.drawable.assets_stationimages_ramla),
+        "5300" to StationInfo("Be'er Ya'akov", R.drawable.assets_stationimages_beeryaakov),
+        "5200" to StationInfo("Rehovot", R.drawable.assets_stationimages_rehovot),
+        "5410" to StationInfo("Yavne - East", R.drawable.assets_stationimages_yavneeast),
+        "9000" to StationInfo("Yavne - West", R.drawable.assets_stationimages_yavnewest),
+        "5800" to StationInfo("Ashdod - Ad Halom", R.drawable.assets_stationimages_ashdod),
+        "7000" to StationInfo("Kiryat Gat", R.drawable.assets_stationimages_kiryatgat),
+        "7320" to StationInfo("Be'er Sheva - Center", R.drawable.assets_stationimages_beershevacenter),
+        "7300" to StationInfo("Be'er Sheva - North/University", R.drawable.assets_stationimages_beershevauniversity),
+        
+        // Other stations (using default image)
+        "6300" to StationInfo("Bet Shemesh", R.drawable.assets_stationimages_betyehoshua),
+        "5900" to StationInfo("Ashkelon", R.drawable.assets_stationimages_betyehoshua),
+        "7500" to StationInfo("Dimona", R.drawable.assets_stationimages_betyehoshua),
+        "8550" to StationInfo("Lehavim - Rahat", R.drawable.assets_stationimages_betyehoshua),
+        "300" to StationInfo("Pa'ate Modi'in", R.drawable.assets_stationimages_betyehoshua),
+        "400" to StationInfo("Modi'in - Center", R.drawable.assets_stationimages_betyehoshua),
+        "4640" to StationInfo("Holon Junction", R.drawable.assets_stationimages_betyehoshua),
+        "4660" to StationInfo("Holon - Wolfson", R.drawable.assets_stationimages_betyehoshua),
+        "4680" to StationInfo("Bat Yam - Yoseftal", R.drawable.assets_stationimages_betyehoshua),
+        "4690" to StationInfo("Bat Yam - Komemiyut", R.drawable.assets_stationimages_betyehoshua),
+        "9100" to StationInfo("Rishon LeTsiyon - HaRishonim", R.drawable.assets_stationimages_betyehoshua),
+        "9800" to StationInfo("Rishon LeTsiyon - Moshe Dayan", R.drawable.assets_stationimages_betyehoshua),
+        "9600" to StationInfo("Sderot", R.drawable.assets_stationimages_betyehoshua),
+        "9650" to StationInfo("Netivot", R.drawable.assets_stationimages_betyehoshua),
+        "9700" to StationInfo("Ofakim", R.drawable.assets_stationimages_betyehoshua),
+        "1240" to StationInfo("Yokne'am - Kfar Yehoshu'a", R.drawable.assets_stationimages_betyehoshua),
+        "1250" to StationInfo("Migdal Ha'emek - Kfar Barukh", R.drawable.assets_stationimages_betyehoshua),
+        "1260" to StationInfo("Afula R.Eitan", R.drawable.assets_stationimages_betyehoshua),
+        "1280" to StationInfo("Beit She'an", R.drawable.assets_stationimages_betyehoshua),
+        "6150" to StationInfo("Kiryat Malakhi – Yoav", R.drawable.assets_stationimages_betyehoshua),
+        "680" to StationInfo("Jerusalem - Yitzhak Navon", R.drawable.assets_stationimages_betyehoshua),
+        "6900" to StationInfo("Mazkeret Batya", R.drawable.assets_stationimages_betyehoshua)
     )
 
     fun getStationsForDisplay(locale: String): List<Pair<String, String>> {
-        return stationsMap.map { (id, name) -> id to name }
+        return stations.map { (id, info) -> id to info.name }
             .sortedBy { it.second }
     }
 
     fun getStationName(stationId: String): String {
-        return stationsMap[stationId] ?: "Unknown Station"
+        return stations[stationId]?.name ?: "Unknown Station"
+    }
+
+    fun getStationImageResource(stationId: String): Int {
+        return stations[stationId]?.imageResource ?: R.drawable.assets_stationimages_betyehoshua
     }
 }
