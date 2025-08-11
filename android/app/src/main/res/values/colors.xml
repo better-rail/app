@@ -26,13 +26,30 @@
   
   <!-- Widget colors -->
   <color name="widget_background">#ffffff</color>
+  <color name="widget_background_end">#fafbfc</color>
+  <color name="widget_inner_glow">#f5f6fa</color>
   <color name="widget_border">#e0e1e6</color>
   <color name="widget_text_primary">#111111</color>
   <color name="widget_text_secondary">#757575</color>
   <color name="widget_accent">#2196f3</color>
-  <color name="widget_primary_background">#f8f9fa</color>
+  <color name="widget_primary_background">#fafbfc</color>
   <color name="widget_delay_background">#FF5252</color>
   <color name="widget_icon_tint">#757575</color>
-  <color name="widget_delay_text">#FF5252</color>
+  <color name="widget_delay_text">#ffffff</color>
   <color name="widget_text_tertiary">#aeaeb2</color>
+  
+  <!-- Enhanced widget colors -->
+  <color name="widget_card_border">#e8eaed</color>
+  <color name="widget_badge_background">#f1f3f4</color>
+  <color name="widget_button_background">#f8f9fa</color>
+  <color name="widget_button_border">#dadce0</color>
+  <color name="widget_error_background">#fce8e6</color>
+  <color name="widget_error_icon">#d93025</color>
+  <color name="widget_empty_background">#f1f3f4</color>
+  <color name="widget_empty_icon">#9aa0a6</color>
+  
+  <!-- Minimal widget colors -->
+  <color name="widget_minimal_bg">#fafbfc</color>
+  <color name="widget_minimal_card_bg">#ffffff</color>
+  <color name="widget_minimal_border">#f0f1f3</color>
 </resources>

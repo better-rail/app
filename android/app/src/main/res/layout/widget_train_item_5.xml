@@ -1,51 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingBottom="4dp">
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:background="@drawable/widget_minimal_train_card"
+    android:layout_marginBottom="6dp"
+    android:gravity="center_vertical">
 
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="6dp"
-    android:background="@drawable/widget_primary_train_background">
-
+    <!-- Time -->
     <TextView
-        android:id="@+id/train_time_5"
+        android:id="@+id/train_departure_time_5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="15:03 - 15:59"
+        android:text="16:03"
         android:textColor="@color/widget_text_primary"
-        android:textSize="14sp"
+        android:textSize="18sp"
         android:textStyle="bold"
-        android:layout_marginBottom="2dp" />
+        android:fontFamily="sans-serif-medium"
+        android:minWidth="50dp" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <!-- Separator dot -->
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:text="•"
+        android:textColor="@color/widget_text_tertiary"
+        android:textSize="12sp"
+        android:layout_marginHorizontal="8dp" />
 
-        <TextView
-            android:id="@+id/train_platform_5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Platform 2"
-            android:textColor="@color/widget_text_secondary"
-            android:textSize="12sp" />
+    <!-- Platform -->
+    <TextView
+        android:id="@+id/train_platform_5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Plat. 2"
+        android:textColor="@color/widget_text_secondary"
+        android:textSize="13sp"
+        android:fontFamily="sans-serif" />
 
-        <TextView
-            android:id="@+id/train_delay_5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="+2m delay"
-            android:textColor="@color/widget_delay_text"
-            android:textSize="11sp"
-            android:textStyle="bold"
-            android:visibility="gone" />
+    <!-- Spacer -->
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_weight="1" />
 
-    </LinearLayout>
+    <!-- Arrival time -->
+    <TextView
+        android:id="@+id/train_arrival_time_5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="16:59"
+        android:textColor="@color/widget_text_secondary"
+        android:textSize="13sp"
+        android:fontFamily="sans-serif" />
+
+    <!-- Delay indicator -->
+    <TextView
+        android:id="@+id/train_delay_5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="+2m"
+        android:textColor="@color/widget_delay_text"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif"
+        android:background="@drawable/widget_minimal_delay_badge"
+        android:paddingHorizontal="6dp"
+        android:paddingVertical="2dp"
+        android:layout_marginStart="8dp"
+        android:visibility="gone" />
 
 </LinearLayout>
-
-</FrameLayout>

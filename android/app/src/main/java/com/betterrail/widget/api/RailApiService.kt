@@ -112,7 +112,7 @@ class RailApiService {
                     
                     // Parse all travels to find upcoming trains
                     val maxRoutes = travels.size() // Check all available travels
-                    android.util.Log.d("RailApiService", "Processing $maxRoutes travels out of ${travels.size()} total")
+                    android.util.Log.d("RailApiService", "Processing all $maxRoutes travels (no limit)")
                     
                     for (i in 0 until maxRoutes) {
                         try {
@@ -180,8 +180,7 @@ class RailApiService {
                                     )
                                 )
                                 
-                                // Stop after finding 5 suitable trains
-                                if (routes.size >= 5) break
+                                // No longer limiting to 5 trains - return all available upcoming trains
                             }
                         } catch (e: Exception) {
                             // Skip this route if parsing fails

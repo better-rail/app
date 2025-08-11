@@ -91,23 +91,14 @@
         android:layout_marginVertical="16dp"
         android:background="@color/separator" />
 
-    <!-- Number of Rows -->
+    <!-- Info about responsive sizing -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Number of train rows"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="@color/label"
-        android:layout_marginBottom="8dp" />
-
-    <Spinner
-        android:id="@+id/max_rows_spinner"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/spinner_background"
-        android:padding="12dp" />
+        android:text="Widget will show more trains when resized larger"
+        android:textSize="14sp"
+        android:textColor="@color/secondaryLabel"
+        android:layout_marginBottom="24dp" />
 
     <!-- Refresh Interval -->
     <TextView

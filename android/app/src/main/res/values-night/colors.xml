@@ -26,6 +26,8 @@
   
   <!-- Widget dark mode colors -->
   <color name="widget_background">#1c1c1e</color>
+  <color name="widget_background_end">#1a1a1c</color>
+  <color name="widget_inner_glow">#2a2a2c</color>
   <color name="widget_border">#3e3e41</color>
   <color name="widget_text_primary">#ffffff</color>
   <color name="widget_text_secondary">#98989f</color>
@@ -35,4 +37,19 @@
   <color name="widget_delay_background">#FF5252</color>
   <color name="widget_delay_text">#ffffff</color>
   <color name="widget_icon_tint">#98989f</color>
+  
+  <!-- Enhanced widget dark mode colors -->
+  <color name="widget_card_border">#3e3e41</color>
+  <color name="widget_badge_background">#3a3a3c</color>
+  <color name="widget_button_background">#2c2c2e</color>
+  <color name="widget_button_border">#3e3e41</color>
+  <color name="widget_error_background">#472a29</color>
+  <color name="widget_error_icon">#ff6b6b</color>
+  <color name="widget_empty_background">#3a3a3c</color>
+  <color name="widget_empty_icon">#68686d</color>
+  
+  <!-- Minimal widget dark mode colors -->
+  <color name="widget_minimal_bg">#1c1c1e</color>
+  <color name="widget_minimal_card_bg">#2c2c2e</color>
+  <color name="widget_minimal_border">#3a3a3c</color>
 </resources>

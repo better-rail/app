@@ -19,6 +19,8 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 import android.util.Log
+import android.util.SizeF
+import android.os.Bundle
 
 class TrainScheduleWidgetProvider : AppWidgetProvider() {
 
@@ -36,6 +38,12 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
             updateAppWidget(context, appWidgetManager, appWidgetId)
         }
         super.onUpdate(context, appWidgetManager, appWidgetIds)
+    }
+    
+    override fun onAppWidgetOptionsChanged(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, newOptions: Bundle) {
+        Log.d("WidgetProvider", "onAppWidgetOptionsChanged for widget $appWidgetId")
+        updateAppWidget(context, appWidgetManager, appWidgetId)
+        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -113,21 +121,25 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
     }
 
     private fun showConfigurationState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
+        Log.d("WidgetProvider", "showConfigurationState called for widget $appWidgetId")
         val views = RemoteViews(context.packageName, R.layout.widget_train_schedule)
         
         views.setTextViewText(R.id.widget_title, "Tap to configure")
         views.setTextViewText(R.id.widget_subtitle, "Select your route")
         views.setTextViewText(R.id.widget_updated_time, "")
         views.setViewVisibility(R.id.widget_train_list, android.view.View.GONE)
-        views.setViewVisibility(R.id.widget_no_trains, android.view.View.GONE)
+        views.setViewVisibility(R.id.widget_no_trains_container, android.view.View.GONE)
         views.setViewVisibility(R.id.widget_loading, android.view.View.GONE)
         views.setViewVisibility(R.id.widget_error, android.view.View.GONE)
         hideAllTrainCards(views)
         
         setupClickIntents(context, views, appWidgetId, WidgetData())
-        appWidgetManager.updateAppWidget(appWidgetId, views)
-        
-        Log.d("WidgetProvider", "Showing configuration state for widget $appWidgetId")
+        try {
+            appWidgetManager.updateAppWidget(appWidgetId, views)
+            Log.d("WidgetProvider", "Successfully showed configuration state for widget $appWidgetId")
+        } catch (e: Exception) {
+            Log.e("WidgetProvider", "Error showing configuration state for widget $appWidgetId", e)
+        }
     }
 
     private fun showLoadingState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData) {
@@ -139,15 +151,18 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
         views.setTextViewText(R.id.widget_subtitle, "Loading schedule...")
         views.setTextViewText(R.id.widget_updated_time, "")
         views.setViewVisibility(R.id.widget_train_list, android.view.View.GONE)
-        views.setViewVisibility(R.id.widget_no_trains, android.view.View.GONE)
+        views.setViewVisibility(R.id.widget_no_trains_container, android.view.View.GONE)
         views.setViewVisibility(R.id.widget_loading, android.view.View.VISIBLE)
         views.setViewVisibility(R.id.widget_error, android.view.View.GONE)
         hideAllTrainCards(views)
         
         setupClickIntents(context, views, appWidgetId, widgetData)
-        appWidgetManager.updateAppWidget(appWidgetId, views)
-        
-        Log.d("WidgetProvider", "Showing loading state for widget $appWidgetId")
+        try {
+            appWidgetManager.updateAppWidget(appWidgetId, views)
+            Log.d("WidgetProvider", "Successfully showed loading state for widget $appWidgetId")
+        } catch (e: Exception) {
+            Log.e("WidgetProvider", "Error showing loading state for widget $appWidgetId", e)
+        }
     }
 
     private fun loadWidgetData(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData, useCache: Boolean) {
@@ -202,6 +217,80 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
     }
 
     private fun showScheduleData(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData, routes: List<com.betterrail.widget.data.WidgetTrainItem>) {
+        Log.d("WidgetProvider", "showScheduleData called for widget $appWidgetId with ${routes.size} routes")
+        
+        Log.d("WidgetProvider", "Android version: ${android.os.Build.VERSION.SDK_INT}, S=${android.os.Build.VERSION_CODES.S}")
+        
+        // For Android 12+ (API 31+), use responsive layouts
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            Log.d("WidgetProvider", "Using responsive layout for widget $appWidgetId")
+            try {
+                val responsiveViews = createResponsiveViews(context, appWidgetManager, appWidgetId, widgetData, routes)
+                appWidgetManager.updateAppWidget(appWidgetId, responsiveViews)
+                Log.d("WidgetProvider", "Successfully updated widget $appWidgetId with responsive views")
+            } catch (e: Exception) {
+                Log.e("WidgetProvider", "Error with responsive views, falling back to single view", e)
+                // Fallback to single view if responsive fails
+                val views = createSingleView(context, appWidgetManager, appWidgetId, widgetData, routes)
+                setupClickIntents(context, views, appWidgetId, widgetData)
+                appWidgetManager.updateAppWidget(appWidgetId, views)
+            }
+        } else {
+            Log.d("WidgetProvider", "Using legacy single view for widget $appWidgetId")
+            // Fallback for older Android versions
+            val views = createSingleView(context, appWidgetManager, appWidgetId, widgetData, routes)
+            setupClickIntents(context, views, appWidgetId, widgetData)
+            try {
+                appWidgetManager.updateAppWidget(appWidgetId, views)
+                Log.d("WidgetProvider", "Successfully updated widget $appWidgetId with single view (legacy)")
+            } catch (e: Exception) {
+                Log.e("WidgetProvider", "Error updating widget $appWidgetId with single view", e)
+            }
+        }
+    }
+    
+    private fun createResponsiveViews(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData, routes: List<com.betterrail.widget.data.WidgetTrainItem>): RemoteViews {
+        // Create different views for different sizes
+        val smallView = createViewForSize(context, widgetData, routes, 1) // 1 row
+        val mediumView = createViewForSize(context, widgetData, routes, 2) // 2 rows  
+        val largeView = createViewForSize(context, widgetData, routes, 3) // 3 rows
+        val xLargeView = createViewForSize(context, widgetData, routes, 4) // 4 rows
+        val xxLargeView = createViewForSize(context, widgetData, routes, 5) // 5 rows
+        val extraLargeView = createViewForSize(context, widgetData, routes, 6) // 6 rows
+        
+        // Setup click intents for all views
+        setupClickIntents(context, smallView, appWidgetId, widgetData)
+        setupClickIntents(context, mediumView, appWidgetId, widgetData)
+        setupClickIntents(context, largeView, appWidgetId, widgetData)
+        setupClickIntents(context, xLargeView, appWidgetId, widgetData)
+        setupClickIntents(context, xxLargeView, appWidgetId, widgetData)
+        setupClickIntents(context, extraLargeView, appWidgetId, widgetData)
+        
+        // Define size mappings (sizes in dp) - comprehensive coverage for all row counts
+        val viewMapping: Map<SizeF, RemoteViews> = mapOf(
+            SizeF(250f, 110f) to smallView,     // Minimum size - 1 row
+            SizeF(320f, 160f) to mediumView,    // Medium size - 2 rows (4x width default)
+            SizeF(320f, 210f) to largeView,     // Large size - 3 rows
+            SizeF(320f, 280f) to xLargeView,    // X-Large size - 4 rows
+            SizeF(320f, 350f) to xxLargeView,   // XX-Large size - 5 rows
+            SizeF(320f, 420f) to extraLargeView // Extra large - 6 rows
+        )
+        
+        Log.d("WidgetProvider", "Created responsive views with ${viewMapping.size} size variants for 1-6 rows")
+        Log.d("WidgetProvider", "Size mappings: ${viewMapping.keys.joinToString { "${it.width}x${it.height}" }}")
+        
+        // Create responsive RemoteViews
+        return RemoteViews(viewMapping)
+    }
+    
+    private fun createSingleView(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData, routes: List<com.betterrail.widget.data.WidgetTrainItem>): RemoteViews {
+        // Get current widget size and determine max rows
+        val maxRows = getMaxRowsForWidgetSize(context, appWidgetManager, appWidgetId)
+        return createViewForSize(context, widgetData, routes, maxRows)
+    }
+    
+    private fun createViewForSize(context: Context, widgetData: WidgetData, routes: List<com.betterrail.widget.data.WidgetTrainItem>, maxRows: Int): RemoteViews {
+        Log.d("WidgetProvider", "Creating view for $maxRows rows with ${routes.size} available routes")
         val views = RemoteViews(context.packageName, R.layout.widget_train_schedule)
         
         views.setTextViewText(R.id.widget_title, widgetData.label.ifEmpty { 
@@ -213,31 +302,59 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
             views.setTextViewText(R.id.widget_subtitle, "No trains found")
             views.setTextViewText(R.id.widget_updated_time, "Updated $currentTime")
             views.setViewVisibility(R.id.widget_train_list, android.view.View.GONE)
-            views.setViewVisibility(R.id.widget_no_trains, android.view.View.VISIBLE)
+            views.setViewVisibility(R.id.widget_no_trains_container, android.view.View.VISIBLE)
             views.setViewVisibility(R.id.widget_loading, android.view.View.GONE)
             views.setViewVisibility(R.id.widget_error, android.view.View.GONE)
             hideAllTrainCards(views)
-            
-            Log.d("WidgetProvider", "No routes found for widget $appWidgetId")
         } else {
             val currentTime = SimpleDateFormat(TIME_FORMAT, Locale.getDefault()).format(Date())
-            views.setTextViewText(R.id.widget_subtitle, "Next departures")
+            views.setTextViewText(R.id.widget_subtitle, "Next departures ($maxRows trains)")
             views.setTextViewText(R.id.widget_updated_time, "Updated $currentTime")
             views.setViewVisibility(R.id.widget_loading, android.view.View.GONE)
             views.setViewVisibility(R.id.widget_error, android.view.View.GONE)
-            views.setViewVisibility(R.id.widget_no_trains, android.view.View.GONE)
+            views.setViewVisibility(R.id.widget_no_trains_container, android.view.View.GONE)
             views.setViewVisibility(R.id.widget_train_list, android.view.View.VISIBLE)
             
-            // Populate CardView train items
-            populateTrainCards(views, routes, widgetData.maxRows)
+            // Populate train items based on size
+            populateTrainCards(views, routes, maxRows)
             
-            Log.d("WidgetProvider", "Showing ${routes.size} routes for widget $appWidgetId as CardViews")
+            Log.d("WidgetProvider", "Created view for size with $maxRows rows from ${routes.size} available routes")
         }
         
-        setupClickIntents(context, views, appWidgetId, widgetData)
-        appWidgetManager.updateAppWidget(appWidgetId, views)
-        
-        Log.d("WidgetProvider", "Updated widget $appWidgetId with schedule data")
+        return views
+    }
+    
+    private fun getMaxRowsForWidgetSize(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int): Int {
+        return try {
+            val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
+            val minHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 110)
+            val maxHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 110)
+            
+            // Use the larger of the two heights for better UX
+            val effectiveHeight = maxOf(minHeight, maxHeight)
+            
+            Log.d("WidgetProvider", "Widget $appWidgetId size: minHeight=$minHeight, maxHeight=$maxHeight, effective=$effectiveHeight")
+            
+            // Calculate rows based on height (in dp)
+            // Convert from pixels to dp
+            val density = context.resources.displayMetrics.density
+            val heightDp = (effectiveHeight / density).toInt()
+            
+            val maxRows = when {
+                heightDp < 150 -> 1  // Very small widget
+                heightDp < 200 -> 2  // Small widget  
+                heightDp < 300 -> 3  // Medium widget
+                heightDp < 400 -> 4  // Large widget
+                heightDp < 500 -> 5  // Large widget
+                else -> 6            // Extra large widget
+            }
+            
+            Log.d("WidgetProvider", "Widget $appWidgetId: heightDp=$heightDp -> maxRows=$maxRows")
+            maxRows
+        } catch (e: Exception) {
+            Log.e("WidgetProvider", "Error getting widget size, defaulting to 3 rows", e)
+            3 // Default fallback
+        }
     }
     
     private fun populateTrainCards(views: RemoteViews, routes: List<com.betterrail.widget.data.WidgetTrainItem>, maxRows: Int) {
@@ -246,10 +363,13 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
             R.id.widget_train_item_2,
             R.id.widget_train_item_3,
             R.id.widget_train_item_4,
-            R.id.widget_train_item_5
+            R.id.widget_train_item_5,
+            R.id.widget_train_item_6
         )
         
+        Log.d("WidgetProvider", "populateTrainCards: maxRows=$maxRows, trainItemIds.size=${trainItemIds.size}, routes.size=${routes.size}")
         val limitedRoutes = routes.take(minOf(maxRows, trainItemIds.size))
+        Log.d("WidgetProvider", "populateTrainCards: will show ${limitedRoutes.size} train cards")
         
         // Hide all train cards first
         trainItemIds.forEach { itemId ->
@@ -259,31 +379,43 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
         // Show and populate cards for available routes
         limitedRoutes.forEachIndexed { index, route ->
             val itemId = trainItemIds[index]
+            Log.d("WidgetProvider", "Showing train card $index: itemId=$itemId, departureTime=${route.departureTime}")
             views.setViewVisibility(itemId, android.view.View.VISIBLE)
             
-            // Set train time
-            val timeDisplay = if (route.arrivalTime.isNotEmpty()) {
-                "${route.departureTime} - ${route.arrivalTime}"
-            } else {
-                route.departureTime
+            // Set departure time
+            val departureTimeId = when (index) {
+                0 -> R.id.train_departure_time_1
+                1 -> R.id.train_departure_time_2
+                2 -> R.id.train_departure_time_3
+                3 -> R.id.train_departure_time_4
+                4 -> R.id.train_departure_time_5
+                5 -> R.id.train_departure_time_6
+                else -> R.id.train_departure_time_1
             }
-            val timeId = when (index) {
-                0 -> R.id.train_time_1
-                1 -> R.id.train_time_2
-                2 -> R.id.train_time_3
-                3 -> R.id.train_time_4
-                4 -> R.id.train_time_5
-                else -> R.id.train_time_1
-            }
-            views.setTextViewText(timeId, timeDisplay)
+            views.setTextViewText(departureTimeId, route.departureTime)
             
-            // Set platform with duration and changes (including dot for delay if needed)
-            val platformText = if (route.platform.isNotEmpty()) {
-                if (route.delay > 0) "Platform ${route.platform} • ${route.duration} • ${route.changesText} •" 
-                else "Platform ${route.platform} • ${route.duration} • ${route.changesText}"
+            // Set arrival time
+            val arrivalTimeId = when (index) {
+                0 -> R.id.train_arrival_time_1
+                1 -> R.id.train_arrival_time_2
+                2 -> R.id.train_arrival_time_3
+                3 -> R.id.train_arrival_time_4
+                4 -> R.id.train_arrival_time_5
+                5 -> R.id.train_arrival_time_6
+                else -> R.id.train_arrival_time_1
+            }
+            val arrivalText = if (route.arrivalTime.isNotEmpty()) {
+                "arrives ${route.arrivalTime}"
             } else {
-                if (route.delay > 0) "Platform TBD • ${route.duration} • ${route.changesText} •"
-                else "Platform TBD • ${route.duration} • ${route.changesText}"
+                "arrival time TBD"
+            }
+            views.setTextViewText(arrivalTimeId, arrivalText)
+            
+            // Set platform
+            val platformText = if (route.platform.isNotEmpty()) {
+                "Plat. ${route.platform}"
+            } else {
+                "Plat. TBD"
             }
             val platformId = when (index) {
                 0 -> R.id.train_platform_1
@@ -291,6 +423,7 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
                 2 -> R.id.train_platform_3
                 3 -> R.id.train_platform_4
                 4 -> R.id.train_platform_5
+                5 -> R.id.train_platform_6
                 else -> R.id.train_platform_1
             }
             views.setTextViewText(platformId, platformText)
@@ -302,10 +435,11 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
                 2 -> R.id.train_delay_3
                 3 -> R.id.train_delay_4
                 4 -> R.id.train_delay_5
+                5 -> R.id.train_delay_6
                 else -> R.id.train_delay_1
             }
             if (route.delay > 0) {
-                views.setTextViewText(delayId, " +${route.delay}m delay")
+                views.setTextViewText(delayId, "+${route.delay}m")
                 views.setViewVisibility(delayId, android.view.View.VISIBLE)
             } else {
                 views.setViewVisibility(delayId, android.view.View.GONE)
@@ -319,7 +453,8 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
             R.id.widget_train_item_2,
             R.id.widget_train_item_3,
             R.id.widget_train_item_4,
-            R.id.widget_train_item_5
+            R.id.widget_train_item_5,
+            R.id.widget_train_item_6
         )
         
         trainItemIds.forEach { itemId ->
@@ -337,15 +472,18 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
         views.setTextViewText(R.id.widget_subtitle, errorMessage)
         views.setTextViewText(R.id.widget_updated_time, "Updated $currentTime")
         views.setViewVisibility(R.id.widget_train_list, android.view.View.GONE)
-        views.setViewVisibility(R.id.widget_no_trains, android.view.View.GONE)
+        views.setViewVisibility(R.id.widget_no_trains_container, android.view.View.GONE)
         views.setViewVisibility(R.id.widget_loading, android.view.View.GONE)
         views.setViewVisibility(R.id.widget_error, android.view.View.VISIBLE)
         hideAllTrainCards(views)
         
         setupClickIntents(context, views, appWidgetId, widgetData)
-        appWidgetManager.updateAppWidget(appWidgetId, views)
-        
-        Log.d("WidgetProvider", "Showing error state for widget $appWidgetId: $errorMessage")
+        try {
+            appWidgetManager.updateAppWidget(appWidgetId, views)
+            Log.d("WidgetProvider", "Successfully showed error state for widget $appWidgetId: $errorMessage")
+        } catch (e: Exception) {
+            Log.e("WidgetProvider", "Error showing error state for widget $appWidgetId", e)
+        }
     }
     
     private fun setupClickIntents(context: Context, views: RemoteViews, appWidgetId: Int, widgetData: WidgetData) {

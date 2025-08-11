@@ -15,7 +15,6 @@ class WidgetConfigActivity : Activity() {
 
     private lateinit var originSpinner: Spinner
     private lateinit var destinationSpinner: Spinner
-    private lateinit var maxRowsSpinner: Spinner
     private lateinit var refreshIntervalSpinner: Spinner
     private lateinit var labelEditText: EditText
     private lateinit var addButton: Button
@@ -53,14 +52,12 @@ class WidgetConfigActivity : Activity() {
         
         setupUI()
         setupStationData()
-        setupMaxRowsData()
         setupRefreshIntervalData()
     }
     
     private fun setupUI() {
         originSpinner = findViewById(R.id.origin_spinner)
         destinationSpinner = findViewById(R.id.destination_spinner)
-        maxRowsSpinner = findViewById(R.id.max_rows_spinner)
         refreshIntervalSpinner = findViewById(R.id.refresh_interval_spinner)
         labelEditText = findViewById(R.id.label_edit_text)
         addButton = findViewById(R.id.add_button)
@@ -116,19 +113,6 @@ class WidgetConfigActivity : Activity() {
         }
     }
     
-    private fun setupMaxRowsData() {
-        val rowOptions = listOf("1 row", "2 rows", "3 rows", "4 rows", "5 rows")
-        val maxRowsAdapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_item,
-            rowOptions
-        )
-        maxRowsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        maxRowsSpinner.adapter = maxRowsAdapter
-        
-        // Default to 3 rows (index 2)
-        maxRowsSpinner.setSelection(2)
-    }
     
     private fun setupRefreshIntervalData() {
         val refreshOptions = listOf("5 minutes", "10 minutes", "15 minutes", "30 minutes", "1 hour")
@@ -172,14 +156,12 @@ class WidgetConfigActivity : Activity() {
         val originName = stationNames[originPosition]
         val destinationName = stationNames[destinationPosition]
         val label = labelEditText.text.toString().trim()
-        val maxRows = maxRowsSpinner.selectedItemPosition + 1 // Convert 0-based index to 1-based count
         val refreshIntervalMinutes = refreshIntervalValues[refreshIntervalSpinner.selectedItemPosition]
         
         Log.d("WidgetConfigActivity", "Configuring widget $appWidgetId with:")
         Log.d("WidgetConfigActivity", "  originId: $originId (${originName})")
         Log.d("WidgetConfigActivity", "  destinationId: $destinationId (${destinationName})")
         Log.d("WidgetConfigActivity", "  label: $label")
-        Log.d("WidgetConfigActivity", "  maxRows: $maxRows")
         Log.d("WidgetConfigActivity", "  refreshInterval: ${refreshIntervalMinutes} minutes")
         
         // Save widget configuration
@@ -189,7 +171,6 @@ class WidgetConfigActivity : Activity() {
             originName = originName,
             destinationName = destinationName,
             label = label,
-            maxRows = maxRows,
             updateFrequencyMinutes = refreshIntervalMinutes
         )
         

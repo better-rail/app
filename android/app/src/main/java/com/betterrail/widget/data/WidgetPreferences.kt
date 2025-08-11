@@ -10,7 +10,6 @@ object WidgetPreferences {
     private const val KEY_ORIGIN_NAME = "origin_name_"
     private const val KEY_DESTINATION_NAME = "destination_name_"
     private const val KEY_LABEL = "label_"
-    private const val KEY_MAX_ROWS = "max_rows_"
     private const val KEY_UPDATE_FREQUENCY = "update_frequency_"
 
     private fun getSharedPreferences(context: Context): SharedPreferences {
@@ -25,7 +24,6 @@ object WidgetPreferences {
             .putString(KEY_ORIGIN_NAME + appWidgetId, widgetData.originName)
             .putString(KEY_DESTINATION_NAME + appWidgetId, widgetData.destinationName)
             .putString(KEY_LABEL + appWidgetId, widgetData.label)
-            .putInt(KEY_MAX_ROWS + appWidgetId, widgetData.maxRows)
             .putInt(KEY_UPDATE_FREQUENCY + appWidgetId, widgetData.updateFrequencyMinutes)
             .apply()
     }
@@ -38,7 +36,6 @@ object WidgetPreferences {
             originName = prefs.getString(KEY_ORIGIN_NAME + appWidgetId, "") ?: "",
             destinationName = prefs.getString(KEY_DESTINATION_NAME + appWidgetId, "") ?: "",
             label = prefs.getString(KEY_LABEL + appWidgetId, "") ?: "",
-            maxRows = prefs.getInt(KEY_MAX_ROWS + appWidgetId, 3), // Default to 3 rows
             updateFrequencyMinutes = prefs.getInt(KEY_UPDATE_FREQUENCY + appWidgetId, 10) // Default to 10 minutes
         )
     }
@@ -51,7 +48,6 @@ object WidgetPreferences {
             .remove(KEY_ORIGIN_NAME + appWidgetId)
             .remove(KEY_DESTINATION_NAME + appWidgetId)
             .remove(KEY_LABEL + appWidgetId)
-            .remove(KEY_MAX_ROWS + appWidgetId)
             .remove(KEY_UPDATE_FREQUENCY + appWidgetId)
             .apply()
     }
@@ -63,6 +59,5 @@ data class WidgetData(
     val originName: String = "",
     val destinationName: String = "",
     val label: String = "",
-    val maxRows: Int = 3,
     val updateFrequencyMinutes: Int = 10
 )
