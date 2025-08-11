@@ -19,7 +19,6 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 import android.util.Log
-import android.util.SizeF
 import android.os.Bundle
 
 class TrainScheduleWidgetProvider : AppWidgetProvider() {
@@ -146,7 +145,12 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
         val views = RemoteViews(context.packageName, R.layout.widget_train_schedule)
         
         views.setTextViewText(R.id.widget_title, widgetData.label.ifEmpty { 
-            "${widgetData.originName} → ${widgetData.destinationName}" 
+            val combinedText = "${widgetData.originName} → ${widgetData.destinationName}"
+            if (combinedText.length > 30) {
+                "${widgetData.originName}\n→ ${widgetData.destinationName}"
+            } else {
+                combinedText
+            }
         })
         views.setTextViewText(R.id.widget_subtitle, "Loading schedule...")
         views.setTextViewText(R.id.widget_updated_time, "")
@@ -219,69 +223,18 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
     private fun showScheduleData(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData, routes: List<com.betterrail.widget.data.WidgetTrainItem>) {
         Log.d("WidgetProvider", "showScheduleData called for widget $appWidgetId with ${routes.size} routes")
         
-        Log.d("WidgetProvider", "Android version: ${android.os.Build.VERSION.SDK_INT}, S=${android.os.Build.VERSION_CODES.S}")
-        
-        // For Android 12+ (API 31+), use responsive layouts
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-            Log.d("WidgetProvider", "Using responsive layout for widget $appWidgetId")
-            try {
-                val responsiveViews = createResponsiveViews(context, appWidgetManager, appWidgetId, widgetData, routes)
-                appWidgetManager.updateAppWidget(appWidgetId, responsiveViews)
-                Log.d("WidgetProvider", "Successfully updated widget $appWidgetId with responsive views")
-            } catch (e: Exception) {
-                Log.e("WidgetProvider", "Error with responsive views, falling back to single view", e)
-                // Fallback to single view if responsive fails
-                val views = createSingleView(context, appWidgetManager, appWidgetId, widgetData, routes)
-                setupClickIntents(context, views, appWidgetId, widgetData)
-                appWidgetManager.updateAppWidget(appWidgetId, views)
-            }
-        } else {
-            Log.d("WidgetProvider", "Using legacy single view for widget $appWidgetId")
-            // Fallback for older Android versions
-            val views = createSingleView(context, appWidgetManager, appWidgetId, widgetData, routes)
-            setupClickIntents(context, views, appWidgetId, widgetData)
-            try {
-                appWidgetManager.updateAppWidget(appWidgetId, views)
-                Log.d("WidgetProvider", "Successfully updated widget $appWidgetId with single view (legacy)")
-            } catch (e: Exception) {
-                Log.e("WidgetProvider", "Error updating widget $appWidgetId with single view", e)
-            }
+        // Always use single view approach for predictable behavior
+        Log.d("WidgetProvider", "Using single view approach for reliable widget sizing")
+        val views = createSingleView(context, appWidgetManager, appWidgetId, widgetData, routes)
+        setupClickIntents(context, views, appWidgetId, widgetData)
+        try {
+            appWidgetManager.updateAppWidget(appWidgetId, views)
+            Log.d("WidgetProvider", "Successfully updated widget $appWidgetId with single view")
+        } catch (e: Exception) {
+            Log.e("WidgetProvider", "Error updating widget $appWidgetId with single view", e)
         }
     }
     
-    private fun createResponsiveViews(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData, routes: List<com.betterrail.widget.data.WidgetTrainItem>): RemoteViews {
-        // Create different views for different sizes
-        val smallView = createViewForSize(context, widgetData, routes, 1) // 1 row
-        val mediumView = createViewForSize(context, widgetData, routes, 2) // 2 rows  
-        val largeView = createViewForSize(context, widgetData, routes, 3) // 3 rows
-        val xLargeView = createViewForSize(context, widgetData, routes, 4) // 4 rows
-        val xxLargeView = createViewForSize(context, widgetData, routes, 5) // 5 rows
-        val extraLargeView = createViewForSize(context, widgetData, routes, 6) // 6 rows
-        
-        // Setup click intents for all views
-        setupClickIntents(context, smallView, appWidgetId, widgetData)
-        setupClickIntents(context, mediumView, appWidgetId, widgetData)
-        setupClickIntents(context, largeView, appWidgetId, widgetData)
-        setupClickIntents(context, xLargeView, appWidgetId, widgetData)
-        setupClickIntents(context, xxLargeView, appWidgetId, widgetData)
-        setupClickIntents(context, extraLargeView, appWidgetId, widgetData)
-        
-        // Define size mappings (sizes in dp) - comprehensive coverage for all row counts
-        val viewMapping: Map<SizeF, RemoteViews> = mapOf(
-            SizeF(250f, 110f) to smallView,     // Minimum size - 1 row
-            SizeF(320f, 160f) to mediumView,    // Medium size - 2 rows (4x width default)
-            SizeF(320f, 210f) to largeView,     // Large size - 3 rows
-            SizeF(320f, 280f) to xLargeView,    // X-Large size - 4 rows
-            SizeF(320f, 350f) to xxLargeView,   // XX-Large size - 5 rows
-            SizeF(320f, 420f) to extraLargeView // Extra large - 6 rows
-        )
-        
-        Log.d("WidgetProvider", "Created responsive views with ${viewMapping.size} size variants for 1-6 rows")
-        Log.d("WidgetProvider", "Size mappings: ${viewMapping.keys.joinToString { "${it.width}x${it.height}" }}")
-        
-        // Create responsive RemoteViews
-        return RemoteViews(viewMapping)
-    }
     
     private fun createSingleView(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData, routes: List<com.betterrail.widget.data.WidgetTrainItem>): RemoteViews {
         // Get current widget size and determine max rows
@@ -294,7 +247,12 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
         val views = RemoteViews(context.packageName, R.layout.widget_train_schedule)
         
         views.setTextViewText(R.id.widget_title, widgetData.label.ifEmpty { 
-            "${widgetData.originName} → ${widgetData.destinationName}" 
+            val combinedText = "${widgetData.originName} → ${widgetData.destinationName}"
+            if (combinedText.length > 30) {
+                "${widgetData.originName}\n→ ${widgetData.destinationName}"
+            } else {
+                combinedText
+            }
         })
         
         if (routes.isEmpty()) {
@@ -330,30 +288,36 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
             val minHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 110)
             val maxHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 110)
             
-            // Use the larger of the two heights for better UX
-            val effectiveHeight = maxOf(minHeight, maxHeight)
+            // Always use the maximum height available for best UX
+            val effectiveHeight = maxHeight
             
-            Log.d("WidgetProvider", "Widget $appWidgetId size: minHeight=$minHeight, maxHeight=$maxHeight, effective=$effectiveHeight")
+            Log.d("WidgetProvider", "Widget $appWidgetId size: minHeight=$minHeight, maxHeight=$maxHeight, using=$effectiveHeight")
             
-            // Calculate rows based on height (in dp)
-            // Convert from pixels to dp
-            val density = context.resources.displayMetrics.density
-            val heightDp = (effectiveHeight / density).toInt()
+            // Conservative calculation to ensure no cutoff - based on actual widget measurements
+            val headerHeight = 75  // Title + subtitle + spacing (slightly reduced)
+            val widgetPadding = 28 // Widget container padding (slightly reduced)
+            val bottomMargin = 12  // Bottom margin for safety (reduced)
+            val overhead = headerHeight + widgetPadding + bottomMargin
+            val availableHeight = effectiveHeight - overhead
+            val itemHeight = 48 // Each train item with proper spacing (slightly reduced)
             
+            val calculatedRows = if (availableHeight < itemHeight) 1 else (availableHeight / itemHeight).toInt()
+            
+            // Conservative approach - only show what definitely fits, but allow one more if calculated
             val maxRows = when {
-                heightDp < 150 -> 1  // Very small widget
-                heightDp < 200 -> 2  // Small widget  
-                heightDp < 300 -> 3  // Medium widget
-                heightDp < 400 -> 4  // Large widget
-                heightDp < 500 -> 5  // Large widget
-                else -> 6            // Extra large widget
+                calculatedRows >= 10 -> 10  // Only show 10 if we're very sure
+                calculatedRows >= 9 -> minOf(calculatedRows, 10)  // Allow 9-10 rows if calculated
+                calculatedRows >= 7 -> minOf(calculatedRows, 8)   // Allow 7-8 rows if calculated
+                calculatedRows >= 5 -> minOf(calculatedRows, 6)   // Allow 5-6 rows if calculated
+                calculatedRows >= 3 -> minOf(calculatedRows, 4)   // Allow 3-4 rows if calculated
+                else -> minOf(calculatedRows, 2) // Conservative fallback
             }
             
-            Log.d("WidgetProvider", "Widget $appWidgetId: heightDp=$heightDp -> maxRows=$maxRows")
+            Log.d("WidgetProvider", "Widget $appWidgetId: effectiveHeight=$effectiveHeight, availableHeight=$availableHeight, calculatedRows=$calculatedRows -> maxRows=$maxRows")
             maxRows
         } catch (e: Exception) {
             Log.e("WidgetProvider", "Error getting widget size, defaulting to 3 rows", e)
-            3 // Default fallback
+            3 // Conservative default
         }
     }
     
@@ -364,7 +328,11 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
             R.id.widget_train_item_3,
             R.id.widget_train_item_4,
             R.id.widget_train_item_5,
-            R.id.widget_train_item_6
+            R.id.widget_train_item_6,
+            R.id.widget_train_item_7,
+            R.id.widget_train_item_8,
+            R.id.widget_train_item_9,
+            R.id.widget_train_item_10
         )
         
         Log.d("WidgetProvider", "populateTrainCards: maxRows=$maxRows, trainItemIds.size=${trainItemIds.size}, routes.size=${routes.size}")
@@ -390,6 +358,10 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
                 3 -> R.id.train_departure_time_4
                 4 -> R.id.train_departure_time_5
                 5 -> R.id.train_departure_time_6
+                6 -> R.id.train_departure_time_7
+                7 -> R.id.train_departure_time_8
+                8 -> R.id.train_departure_time_9
+                9 -> R.id.train_departure_time_10
                 else -> R.id.train_departure_time_1
             }
             views.setTextViewText(departureTimeId, route.departureTime)
@@ -402,6 +374,10 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
                 3 -> R.id.train_arrival_time_4
                 4 -> R.id.train_arrival_time_5
                 5 -> R.id.train_arrival_time_6
+                6 -> R.id.train_arrival_time_7
+                7 -> R.id.train_arrival_time_8
+                8 -> R.id.train_arrival_time_9
+                9 -> R.id.train_arrival_time_10
                 else -> R.id.train_arrival_time_1
             }
             val arrivalText = if (route.arrivalTime.isNotEmpty()) {
@@ -424,6 +400,10 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
                 3 -> R.id.train_platform_4
                 4 -> R.id.train_platform_5
                 5 -> R.id.train_platform_6
+                6 -> R.id.train_platform_7
+                7 -> R.id.train_platform_8
+                8 -> R.id.train_platform_9
+                9 -> R.id.train_platform_10
                 else -> R.id.train_platform_1
             }
             views.setTextViewText(platformId, platformText)
@@ -436,6 +416,10 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
                 3 -> R.id.train_delay_4
                 4 -> R.id.train_delay_5
                 5 -> R.id.train_delay_6
+                6 -> R.id.train_delay_7
+                7 -> R.id.train_delay_8
+                8 -> R.id.train_delay_9
+                9 -> R.id.train_delay_10
                 else -> R.id.train_delay_1
             }
             if (route.delay > 0) {
@@ -454,7 +438,11 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
             R.id.widget_train_item_3,
             R.id.widget_train_item_4,
             R.id.widget_train_item_5,
-            R.id.widget_train_item_6
+            R.id.widget_train_item_6,
+            R.id.widget_train_item_7,
+            R.id.widget_train_item_8,
+            R.id.widget_train_item_9,
+            R.id.widget_train_item_10
         )
         
         trainItemIds.forEach { itemId ->
@@ -466,7 +454,12 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
         val views = RemoteViews(context.packageName, R.layout.widget_train_schedule)
         
         views.setTextViewText(R.id.widget_title, widgetData.label.ifEmpty { 
-            "${widgetData.originName} → ${widgetData.destinationName}" 
+            val combinedText = "${widgetData.originName} → ${widgetData.destinationName}"
+            if (combinedText.length > 30) {
+                "${widgetData.originName}\n→ ${widgetData.destinationName}"
+            } else {
+                combinedText
+            }
         })
         val currentTime = SimpleDateFormat(TIME_FORMAT, Locale.getDefault()).format(Date())
         views.setTextViewText(R.id.widget_subtitle, errorMessage)
