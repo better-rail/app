@@ -15,11 +15,28 @@ import java.util.concurrent.TimeUnit
 
 class RailApiService {
     companion object {
-        private val BASE_URL = BuildConfig.RAIL_API_TIMETABLE_URL
         private val API_KEY = BuildConfig.RAIL_API_KEY
         private const val TIMEOUT_SECONDS = 30L
         private val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         private val TIME_FORMAT = SimpleDateFormat("HH:mm", Locale.getDefault())
+        
+        private fun getRailApiBaseUrl(): String {
+            return try {
+                val timeZone = java.util.TimeZone.getDefault()
+                val isInIsrael = timeZone.id == "Asia/Jerusalem"
+                
+                if (isInIsrael) {
+                    android.util.Log.d("RailApiService", "Using direct rail API (detected Israel timezone)")
+                    BuildConfig.RAIL_API_TIMETABLE_URL
+                } else {
+                    android.util.Log.d("RailApiService", "Using proxy rail API (detected non-Israel timezone: ${timeZone.id})")
+                    BuildConfig.RAIL_API_PROXY_TIMETABLE_URL
+                }
+            } catch (e: Exception) {
+                android.util.Log.w("RailApiService", "Failed to determine timezone, falling back to direct API", e)
+                BuildConfig.RAIL_API_TIMETABLE_URL
+            }
+        }
     }
 
     private val client = OkHttpClient.Builder()
@@ -55,7 +72,8 @@ class RailApiService {
                 val requestHour = hour ?: "00:00"
                 val isRequestForFutureDate = date != null && date != DATE_FORMAT.format(Date())
 
-                val url = "${BASE_URL}searchTrainLuzForDateTime" +
+                val baseUrl = getRailApiBaseUrl()
+                val url = "${baseUrl}searchTrainLuzForDateTime" +
                         "?fromStation=$originId" +
                         "&toStation=$destinationId" +
                         "&date=$requestDate" +
