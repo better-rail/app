@@ -13,6 +13,7 @@ import com.betterrail.widget.data.WidgetData
 import com.betterrail.widget.api.RailApiService
 import com.betterrail.widget.api.fold
 import com.betterrail.widget.cache.WidgetCacheManager
+import com.betterrail.widget.utils.WidgetTrainFilter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -342,7 +343,10 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
     private fun showScheduleData(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData, routes: List<com.betterrail.widget.data.WidgetTrainItem>) {
         Log.d("WidgetProvider", "showScheduleData called for widget $appWidgetId with ${routes.size} routes")
         
-        if (routes.isEmpty()) {
+        // Filter for future trains only
+        val futureTrains = WidgetTrainFilter.filterFutureTrains(routes)
+        
+        if (futureTrains.isEmpty()) {
             // No trains today, try to get tomorrow's trains
             loadTomorrowsTrains(context, appWidgetManager, appWidgetId, widgetData)
             return
@@ -350,7 +354,7 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
         
         // Always use single view approach for predictable behavior
         Log.d("WidgetProvider", "Using single view approach for reliable widget sizing")
-        val views = createSingleView(context, appWidgetManager, appWidgetId, widgetData, routes)
+        val views = createSingleView(context, appWidgetManager, appWidgetId, widgetData, futureTrains)
         setupClickIntents(context, views, appWidgetId, widgetData)
         try {
             appWidgetManager.updateAppWidget(appWidgetId, views)

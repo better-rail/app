@@ -14,6 +14,7 @@ import com.betterrail.widget.data.StationsData
 import com.betterrail.widget.api.RailApiService
 import com.betterrail.widget.api.fold
 import com.betterrail.widget.cache.WidgetCacheManager
+import com.betterrail.widget.utils.WidgetTrainFilter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -295,12 +296,15 @@ class CompactWidget2x2Provider : AppWidgetProvider() {
         
         val views = RemoteViews(context.packageName, R.layout.widget_compact_2x2)
         
-        if (routes.isEmpty()) {
+        // Filter for future trains only
+        val futureTrains = WidgetTrainFilter.filterFutureTrains(routes)
+        
+        if (futureTrains.isEmpty()) {
             // No trains today, try to get tomorrow's first train
             loadTomorrowsFirstTrain(context, appWidgetManager, appWidgetId, widgetData, views)
             return
         } else {
-            val nextTrain = routes.first()
+            val nextTrain = futureTrains.first()
             
             views.setTextViewText(R.id.widget_station_name, widgetData.originName)
             views.setTextViewText(R.id.widget_destination, widgetData.destinationName)
@@ -540,4 +544,5 @@ class CompactWidget2x2Provider : AppWidgetProvider() {
             Log.d("CompactWidgetProvider", "Scheduled updates for compact widget $appWidgetId every ${widgetData.updateFrequencyMinutes} minutes")
         }
     }
+    
 }

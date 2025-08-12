@@ -8,6 +8,7 @@ import android.content.Intent
 import android.util.Log
 import com.betterrail.widget.cache.WidgetCacheManager
 import com.betterrail.widget.data.WidgetPreferences
+import com.betterrail.widget.utils.WidgetTrainFilter
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -107,7 +108,7 @@ class WidgetUpdateReceiver : BroadcastReceiver() {
         
         if (cachedData != null) {
             // Filter for future trains only
-            val futureTrains = filterFutureTrains(cachedData.routes)
+            val futureTrains = WidgetTrainFilter.filterFutureTrains(cachedData.routes)
             
             Log.d("WidgetUpdateReceiver", "Compact widget $appWidgetId: ${futureTrains.size} future trains from ${cachedData.routes.size} total")
             
@@ -152,7 +153,7 @@ class WidgetUpdateReceiver : BroadcastReceiver() {
         
         if (cachedData != null) {
             // Filter for future trains only
-            val futureTrains = filterFutureTrains(cachedData.routes)
+            val futureTrains = WidgetTrainFilter.filterFutureTrains(cachedData.routes)
             
             Log.d("WidgetUpdateReceiver", "Regular widget $appWidgetId: ${futureTrains.size} future trains from ${cachedData.routes.size} total")
             
@@ -230,40 +231,6 @@ class WidgetUpdateReceiver : BroadcastReceiver() {
         }
     }
 
-    /**
-     * Filters train routes to only show trains departing after the current time.
-     */
-    private fun filterFutureTrains(routes: List<com.betterrail.widget.data.WidgetTrainItem>): List<com.betterrail.widget.data.WidgetTrainItem> {
-        val currentTime = Calendar.getInstance()
-        val currentHour = currentTime.get(Calendar.HOUR_OF_DAY)
-        val currentMinute = currentTime.get(Calendar.MINUTE)
-        val currentTimeInMinutes = currentHour * 60 + currentMinute
-        
-        Log.d("WidgetUpdateReceiver", "Current time: ${String.format("%02d:%02d", currentHour, currentMinute)} ($currentTimeInMinutes minutes from midnight)")
-        
-        return routes.filter { route ->
-            try {
-                // Parse the departure time (format: "HH:mm")
-                val timeParts = route.departureTime.split(":")
-                if (timeParts.size == 2) {
-                    val trainHour = timeParts[0].toInt()
-                    val trainMinute = timeParts[1].toInt()
-                    val trainTimeInMinutes = trainHour * 60 + trainMinute
-                    
-                    val isFuture = trainTimeInMinutes > currentTimeInMinutes
-                    isFuture
-                } else {
-                    Log.w("WidgetUpdateReceiver", "Invalid time format for route: ${route.departureTime}")
-                    true // Keep train if we can't parse time
-                }
-            } catch (e: Exception) {
-                Log.e("WidgetUpdateReceiver", "Error filtering train time: ${route.departureTime}", e)
-                true // Keep train if error occurs
-            }
-        }.also { filteredRoutes ->
-            Log.d("WidgetUpdateReceiver", "Filtered ${routes.size} trains -> ${filteredRoutes.size} future trains")
-        }
-    }
     
     /**
      * Cleans up orphaned widget preferences for all widget types.
