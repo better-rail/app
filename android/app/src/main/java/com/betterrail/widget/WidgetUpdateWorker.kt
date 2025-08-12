@@ -28,14 +28,22 @@ class WidgetUpdateWorker(context: Context, params: WorkerParameters) : Coroutine
             // Cancel existing work for this widget
             WorkManager.getInstance(context).cancelUniqueWork(workName)
             
+            // Enforce 15-minute minimum (Android WorkManager constraint)
+            val actualFrequency = if (frequencyMinutes < 15) {
+                Log.w("WidgetUpdateWorker", "Frequency $frequencyMinutes minutes is below Android's 15-minute minimum. Using 15 minutes instead.")
+                15
+            } else {
+                frequencyMinutes
+            }
+            
             // Use WorkManager with constraints for better battery and user experience
             val constraints = Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED) // Only run when network is available
-                .setRequiresBatteryNotLow(true) // Skip when battery is low
+                .setRequiresBatteryNotLow(true) // Skip when battery is low - good for user experience
                 .build()
 
             val updateRequest = PeriodicWorkRequestBuilder<WidgetUpdateWorker>(
-                repeatInterval = frequencyMinutes.toLong(),
+                repeatInterval = actualFrequency.toLong(),
                 repeatIntervalTimeUnit = TimeUnit.MINUTES
             )
                 .setInputData(
@@ -52,7 +60,7 @@ class WidgetUpdateWorker(context: Context, params: WorkerParameters) : Coroutine
                 updateRequest
             )
             
-            Log.d("WidgetUpdateWorker", "Scheduled updates for widget $appWidgetId every $frequencyMinutes minutes (Android may enforce 15min minimum)")
+            Log.d("WidgetUpdateWorker", "Scheduled updates for widget $appWidgetId every $actualFrequency minutes")
         }
         
         fun cancelWidgetUpdates(context: Context, appWidgetId: Int) {
@@ -70,49 +78,18 @@ class WidgetUpdateWorker(context: Context, params: WorkerParameters) : Coroutine
             return ListenableWorker.Result.failure()
         }
         
-        // Check if screen is on - skip update if screen is off to save battery
+        // Always update widgets regardless of screen state - widgets need to show current info
         val powerManager = applicationContext.getSystemService(Context.POWER_SERVICE) as PowerManager
-        if (!powerManager.isInteractive) {
-            Log.d("WidgetUpdateWorker", "Screen is off, skipping widget $appWidgetId update to save battery")
-            return ListenableWorker.Result.success()
-        }
+        val screenOn = powerManager.isInteractive
+        Log.d("WidgetUpdateWorker", "Screen is ${if (screenOn) "on" else "off"}, updating widget $appWidgetId anyway")
         
         return try {
-            Log.d("WidgetUpdateWorker", "Updating widget $appWidgetId (screen is on)")
+            val currentTime = System.currentTimeMillis()
+            val timeFormat = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault())
+            Log.d("WidgetUpdateWorker", "*** WORKMANAGER API REFRESH *** at ${timeFormat.format(java.util.Date(currentTime))} for widget $appWidgetId (screen ${if (screenOn) "on" else "off"})")
             
-            val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
-            
-            // Determine which widget provider this widget ID belongs to
-            val compactWidgetIds = appWidgetManager.getAppWidgetIds(
-                ComponentName(applicationContext, CompactWidget2x2Provider::class.java)
-            )
-            val regularWidgetIds = appWidgetManager.getAppWidgetIds(
-                ComponentName(applicationContext, TrainScheduleWidgetProvider::class.java)
-            )
-            
-            val refreshIntent = when {
-                compactWidgetIds.contains(appWidgetId) -> {
-                    Log.d("WidgetUpdateWorker", "Widget $appWidgetId is a compact 2x2 widget")
-                    Intent(applicationContext, CompactWidget2x2Provider::class.java).apply {
-                        action = CompactWidget2x2Provider.ACTION_WIDGET_UPDATE
-                    }
-                }
-                regularWidgetIds.contains(appWidgetId) -> {
-                    Log.d("WidgetUpdateWorker", "Widget $appWidgetId is a regular 4x2 widget")
-                    Intent(applicationContext, TrainScheduleWidgetProvider::class.java).apply {
-                        action = TrainScheduleWidgetProvider.ACTION_WIDGET_UPDATE
-                    }
-                }
-                else -> {
-                    Log.w("WidgetUpdateWorker", "Widget $appWidgetId not found in either provider, defaulting to regular widget")
-                    Intent(applicationContext, TrainScheduleWidgetProvider::class.java).apply {
-                        action = TrainScheduleWidgetProvider.ACTION_WIDGET_UPDATE
-                    }
-                }
-            }
-            
-            refreshIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-            applicationContext.sendBroadcast(refreshIntent)
+            // Use the centralized widget refresh manager for API refresh
+            WidgetRefreshManager.forceRefreshWidget(applicationContext, appWidgetId)
             
             Log.d("WidgetUpdateWorker", "Successfully triggered update for widget $appWidgetId")
             ListenableWorker.Result.success()

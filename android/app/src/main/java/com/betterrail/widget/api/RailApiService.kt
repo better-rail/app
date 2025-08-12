@@ -28,6 +28,22 @@ class RailApiService {
         .writeTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .connectionPool(okhttp3.ConnectionPool(5, 2, TimeUnit.MINUTES)) // Reuse connections
         .retryOnConnectionFailure(true) // Auto-retry on connection failure
+        // Force IPv4-only to avoid IPv6 connectivity issues
+        .dns(object : okhttp3.Dns {
+            override fun lookup(hostname: String): List<java.net.InetAddress> {
+                val allAddresses = java.net.InetAddress.getAllByName(hostname).toList()
+                // Filter to only include IPv4 addresses
+                val ipv4Addresses = allAddresses.filterIsInstance<java.net.Inet4Address>()
+                android.util.Log.d("RailApiService", "DNS lookup for $hostname: ${allAddresses.size} total addresses, ${ipv4Addresses.size} IPv4 addresses")
+                
+                if (ipv4Addresses.isEmpty()) {
+                    android.util.Log.w("RailApiService", "No IPv4 addresses found for $hostname, falling back to all addresses")
+                    return allAddresses
+                }
+                
+                return ipv4Addresses
+            }
+        })
         .build()
 
     private val gson = Gson()

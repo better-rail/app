@@ -34,9 +34,20 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
     private val apiService = RailApiService()
     
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-        Log.d("WidgetProvider", "onUpdate called for ${appWidgetIds.size} widgets")
+        Log.d("WidgetProvider", "onUpdate called for ${appWidgetIds.size} widgets (system-triggered)")
         for (appWidgetId in appWidgetIds) {
-            updateAppWidget(context, appWidgetManager, appWidgetId)
+            val widgetData = WidgetPreferences.getWidgetData(context, appWidgetId)
+            
+            if (widgetData.originId.isEmpty() || widgetData.destinationId.isEmpty()) {
+                Log.d("WidgetProvider", "Widget $appWidgetId not configured, showing config state")
+                showConfigurationState(context, appWidgetManager, appWidgetId)
+            } else {
+                Log.d("WidgetProvider", "Widget $appWidgetId configured, loading data on system update")
+                // On system updates (app restart, reboot), try cached data first
+                loadWidgetData(context, appWidgetManager, appWidgetId, widgetData, useCache = true)
+                // Ensure alarm system is running for configured widgets
+                WidgetAlarmManager.scheduleRegularUpdates(context)
+            }
         }
         super.onUpdate(context, appWidgetManager, appWidgetIds)
     }
@@ -66,8 +77,16 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
                 val appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
                 if (appWidgetId != -1) {
                     val appWidgetManager = AppWidgetManager.getInstance(context)
-                    Log.d("WidgetProvider", "Triggered update for widget $appWidgetId")
-                    refreshWidget(context, appWidgetManager, appWidgetId)
+                    val forceViewRefresh = intent.getBooleanExtra("force_view_refresh", false)
+                    Log.d("WidgetProvider", "Triggered update for widget $appWidgetId (forceViewRefresh=$forceViewRefresh)")
+                    
+                    if (forceViewRefresh) {
+                        // Force refresh the view with cached data and update "Updated" time
+                        refreshWidgetView(context, appWidgetManager, appWidgetId)
+                    } else {
+                        // Force API refresh to get fresh data - use internal method to avoid recursion
+                        forceRefreshWidgetInternal(context, appWidgetManager, appWidgetId)
+                    }
                 }
             }
         }
@@ -90,12 +109,28 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
     override fun onEnabled(context: Context) {
         super.onEnabled(context)
         Log.d("WidgetProvider", "Widget provider enabled")
+        // Start the AlarmManager for regular widget updates
+        WidgetAlarmManager.scheduleRegularUpdates(context)
     }
     
     override fun onDisabled(context: Context) {
         super.onDisabled(context)
         Log.d("WidgetProvider", "Widget provider disabled - clearing cache")
         WidgetCacheManager.clearAllCache(context)
+        // Stop the AlarmManager when no widgets are active
+        WidgetAlarmManager.cancelRegularUpdates(context)
+    }
+    
+    private fun recordDisplayTime(context: Context, appWidgetId: Int) {
+        val prefs = context.getSharedPreferences("widget_display_times", Context.MODE_PRIVATE)
+        val currentTime = System.currentTimeMillis()
+        
+        prefs.edit()
+            .putLong("widget_${appWidgetId}_display_time", currentTime)
+            .apply()
+            
+        val timeFormat = SimpleDateFormat("HH:mm", java.util.Locale.getDefault())
+        Log.d("WidgetProvider", "Recorded display time for widget $appWidgetId: ${timeFormat.format(java.util.Date(currentTime))}")
     }
 
     private fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
@@ -116,8 +151,54 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
         val widgetData = WidgetPreferences.getWidgetData(context, appWidgetId)
         
         if (widgetData.originId.isNotEmpty() && widgetData.destinationId.isNotEmpty()) {
-            Log.d("WidgetProvider", "Force refreshing widget $appWidgetId")
+            Log.d("WidgetProvider", "Refreshing widget $appWidgetId view from cached data")
+            refreshWidgetFromCache(context, appWidgetManager, appWidgetId, widgetData)
+        }
+    }
+
+    private fun refreshWidgetFromCache(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData) {
+        // Try to get cached data with comprehensive fallback
+        val cachedData = WidgetCacheManager.getCachedDataIgnoreAge(context, appWidgetId, widgetData.originId, widgetData.destinationId)
+            ?: WidgetCacheManager.getMostRecentCachedDataForRoute(context, widgetData.originId, widgetData.destinationId)
+        
+        if (cachedData != null) {
+            Log.d("WidgetProvider", "Using cached data for widget refresh $appWidgetId (${cachedData.routes.size} routes)")
+            showScheduleData(context, appWidgetManager, appWidgetId, widgetData, cachedData.routes)
+        } else {
+            Log.w("WidgetProvider", "No cached data available anywhere for route ${widgetData.originId}->${widgetData.destinationId}")
+            showErrorState(context, appWidgetManager, appWidgetId, widgetData, "No data available")
+        }
+    }
+
+    private fun forceRefreshWidgetInternal(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
+        Log.d("WidgetProvider", "forceRefreshWidgetInternal called for widget $appWidgetId")
+        val widgetData = WidgetPreferences.getWidgetData(context, appWidgetId)
+        
+        if (widgetData.originId.isNotEmpty() && widgetData.destinationId.isNotEmpty()) {
+            Log.d("WidgetProvider", "Force API refresh for widget $appWidgetId")
             loadWidgetData(context, appWidgetManager, appWidgetId, widgetData, useCache = false)
+        }
+    }
+    
+    private fun refreshWidgetView(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
+        Log.d("WidgetProvider", "refreshWidgetView called for widget $appWidgetId")
+        val widgetData = WidgetPreferences.getWidgetData(context, appWidgetId)
+        
+        if (widgetData.originId.isNotEmpty() && widgetData.destinationId.isNotEmpty()) {
+            Log.d("WidgetProvider", "Refreshing widget view $appWidgetId with cached data")
+            
+            // Get cached data with comprehensive fallback
+            val cachedData = WidgetCacheManager.getCachedDataIgnoreAge(context, appWidgetId, widgetData.originId, widgetData.destinationId)
+                ?: WidgetCacheManager.getMostRecentCachedDataForRoute(context, widgetData.originId, widgetData.destinationId)
+            
+            if (cachedData != null) {
+                showScheduleData(context, appWidgetManager, appWidgetId, widgetData, cachedData.routes)
+                // Record the current display time since we're updating the view
+                recordDisplayTime(context, appWidgetId)
+            } else {
+                Log.w("WidgetProvider", "No cached data available anywhere for route ${widgetData.originId}->${widgetData.destinationId}")
+                showErrorState(context, appWidgetManager, appWidgetId, widgetData, "No data available")
+            }
         }
     }
 
@@ -172,51 +253,87 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
     }
 
     private fun loadWidgetData(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData, useCache: Boolean) {
-        // Show loading state immediately
-        showLoadingState(context, appWidgetManager, appWidgetId, widgetData)
-        
-        // Try to use cached data first if requested
-        if (useCache) {
-            val cachedData = WidgetCacheManager.getCachedData(context, widgetData.originId, widgetData.destinationId, widgetData.updateFrequencyMinutes)
-            if (cachedData != null) {
-                Log.d("WidgetProvider", "Using cached data for widget $appWidgetId")
-                showScheduleData(context, appWidgetManager, appWidgetId, widgetData, cachedData.routes)
-                return
-            }
+        // Always try cached data first for faster display
+        val cachedData = if (useCache) {
+            WidgetCacheManager.getCachedDataWithWidgetId(context, appWidgetId, widgetData.originId, widgetData.destinationId, widgetData.updateFrequencyMinutes)
+        } else {
+            // Even for force refresh, check if we have any cached data for immediate display
+            WidgetCacheManager.getCachedDataIgnoreAge(context, appWidgetId, widgetData.originId, widgetData.destinationId)
+        } ?: run {
+            // If no widget-specific cache, try to find any cached data for this route
+            Log.d("WidgetProvider", "No widget-specific cache found, checking for route-level cache for widget $appWidgetId")
+            WidgetCacheManager.getMostRecentCachedDataForRoute(context, widgetData.originId, widgetData.destinationId)
         }
         
-        // Load fresh data from API
-        Log.d("WidgetProvider", "Loading fresh data for widget $appWidgetId from API")
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val result = apiService.getRoutes(widgetData.originId, widgetData.destinationId)
-                result.fold(
-                    onSuccess = { scheduleData ->
-                        Log.d("WidgetProvider", "API success for widget $appWidgetId: ${scheduleData.routes.size} routes")
-                        
-                        // Cache the fresh data
-                        WidgetCacheManager.cacheData(context, widgetData.originId, widgetData.destinationId, scheduleData)
-                        
-                        // Update UI on main thread
-                        CoroutineScope(Dispatchers.Main).launch {
-                            showScheduleData(context, appWidgetManager, appWidgetId, widgetData, scheduleData.routes)
+        if (cachedData != null) {
+            Log.d("WidgetProvider", "Using cached data for immediate display widget $appWidgetId")
+            showScheduleData(context, appWidgetManager, appWidgetId, widgetData, cachedData.routes)
+            
+            // If we found valid cached data and useCache is true, we're done
+            if (useCache) {
+                return
+            }
+            // Otherwise continue to fetch fresh data in background
+        } else {
+            // No cached data available, show loading state
+            showLoadingState(context, appWidgetManager, appWidgetId, widgetData)
+        }
+        
+        // Only fetch fresh data when explicitly requested (!useCache) or no cache exists
+        if (!useCache || cachedData == null) {
+            Log.d("WidgetProvider", "Fetching fresh data for widget $appWidgetId from API (useCache=$useCache, hasCachedData=${cachedData != null})")
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val result = apiService.getRoutes(widgetData.originId, widgetData.destinationId)
+                    result.fold(
+                        onSuccess = { scheduleData ->
+                            Log.d("WidgetProvider", "API success for widget $appWidgetId: ${scheduleData.routes.size} routes")
+                            
+                            // Cache the fresh data using widget-specific key
+                            WidgetCacheManager.cacheDataForWidget(context, appWidgetId, widgetData.originId, widgetData.destinationId, scheduleData)
+                            
+                            // Update UI on main thread
+                            CoroutineScope(Dispatchers.Main).launch {
+                                Log.d("WidgetProvider", "Updating UI for widget $appWidgetId with fresh API data")
+                                showScheduleData(context, appWidgetManager, appWidgetId, widgetData, scheduleData.routes)
+                            }
+                            
+                            Log.d("WidgetProvider", "API data cached and displayed successfully for widget $appWidgetId")
+                        },
+                        onFailure = { error ->
+                            Log.e("WidgetProvider", "API error for widget $appWidgetId", error)
+                            
+                            // Try cached data as fallback (ignoring expiration)
+                            val fallbackData = WidgetCacheManager.getCachedDataIgnoreAge(context, appWidgetId, widgetData.originId, widgetData.destinationId)
+                                ?: WidgetCacheManager.getMostRecentCachedDataForRoute(context, widgetData.originId, widgetData.destinationId)
+                            
+                            // Update UI on main thread
+                            CoroutineScope(Dispatchers.Main).launch {
+                                if (fallbackData != null) {
+                                    Log.d("WidgetProvider", "Using fallback cached data for widget $appWidgetId")
+                                    showScheduleData(context, appWidgetManager, appWidgetId, widgetData, fallbackData.routes)
+                                } else {
+                                    showErrorState(context, appWidgetManager, appWidgetId, widgetData, "Failed to load")
+                                }
+                            }
                         }
-                    },
-                    onFailure = { error ->
-                        Log.e("WidgetProvider", "API error for widget $appWidgetId", error)
-                        
-                        // Update UI on main thread
-                        CoroutineScope(Dispatchers.Main).launch {
-                            showErrorState(context, appWidgetManager, appWidgetId, widgetData, "Failed to load trains")
+                    )
+                } catch (e: Exception) {
+                    Log.e("WidgetProvider", "Exception for widget $appWidgetId", e)
+                    
+                    // Try cached data as fallback (ignoring expiration)
+                    val fallbackData = WidgetCacheManager.getCachedDataIgnoreAge(context, appWidgetId, widgetData.originId, widgetData.destinationId)
+                        ?: WidgetCacheManager.getMostRecentCachedDataForRoute(context, widgetData.originId, widgetData.destinationId)
+                    
+                    // Update UI on main thread
+                    CoroutineScope(Dispatchers.Main).launch {
+                        if (fallbackData != null) {
+                            Log.d("WidgetProvider", "Using fallback cached data after exception for widget $appWidgetId")
+                            showScheduleData(context, appWidgetManager, appWidgetId, widgetData, fallbackData.routes)
+                        } else {
+                            showErrorState(context, appWidgetManager, appWidgetId, widgetData, "Connection error")
                         }
                     }
-                )
-            } catch (e: Exception) {
-                Log.e("WidgetProvider", "Exception for widget $appWidgetId", e)
-                
-                // Update UI on main thread
-                CoroutineScope(Dispatchers.Main).launch {
-                    showErrorState(context, appWidgetManager, appWidgetId, widgetData, "Connection error")
                 }
             }
         }
@@ -466,10 +583,9 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
                             Log.w("WidgetProvider", "Tomorrow API returned 0 routes for $tomorrowDate from ${widgetData.originId} to ${widgetData.destinationId}")
                         }
                         
-                        // Update UI on main thread
-                        CoroutineScope(Dispatchers.Main).launch {
-                            showTomorrowsScheduleData(context, appWidgetManager, appWidgetId, widgetData, scheduleData.routes)
-                        }
+                        // Cache tomorrow's data but don't refresh UI
+                        // The AlarmManager will handle view updates
+                        Log.d("WidgetProvider", "Tomorrow's API data cached for widget $appWidgetId")
                     },
                     onFailure = { error ->
                         Log.e("WidgetProvider", "Tomorrow API error for widget $appWidgetId: ${error.message}", error)
@@ -591,6 +707,20 @@ class TrainScheduleWidgetProvider : AppWidgetProvider() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         views.setOnClickPendingIntent(R.id.widget_refresh_button, refreshPendingIntent)
+        
+        // Set up tap-to-refresh for the entire widget (hard refresh with API call)
+        if (widgetData.originId.isNotEmpty() && widgetData.destinationId.isNotEmpty()) {
+            val widgetRefreshIntent = Intent(context, TrainScheduleWidgetProvider::class.java).apply {
+                action = ACTION_WIDGET_UPDATE
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                putExtra("force_view_refresh", false) // Trigger API call for hard refresh
+            }
+            val widgetRefreshPendingIntent = PendingIntent.getBroadcast(
+                context, appWidgetId + 1000, widgetRefreshIntent, // Use different request code to avoid conflicts
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            views.setOnClickPendingIntent(R.id.widget_train_list, widgetRefreshPendingIntent)
+        }
     }
 
     // Public method for configuration activity

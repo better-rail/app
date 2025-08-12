@@ -10,6 +10,7 @@ import android.util.Log
 import com.betterrail.widget.data.StationsData
 import com.betterrail.widget.data.WidgetData
 import com.betterrail.widget.data.WidgetPreferences
+import com.betterrail.widget.cache.WidgetCacheManager
 
 class WidgetConfigActivity : Activity() {
 
@@ -24,7 +25,7 @@ class WidgetConfigActivity : Activity() {
     private lateinit var stationAdapter: ArrayAdapter<String>
     private val stationIds = mutableListOf<String>()
     private val stationNames = mutableListOf<String>()
-    private val refreshIntervalValues = listOf(5, 10, 15, 30, 60)
+    private val refreshIntervalValues = listOf(15, 30, 60) // 15 minutes minimum due to Android WorkManager constraints
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -115,7 +116,7 @@ class WidgetConfigActivity : Activity() {
     
     
     private fun setupRefreshIntervalData() {
-        val refreshOptions = listOf("5 minutes", "10 minutes", "15 minutes", "30 minutes", "1 hour")
+        val refreshOptions = listOf("15 minutes", "30 minutes", "1 hour") // 15 minutes minimum due to Android WorkManager constraints
         
         val refreshAdapter = ArrayAdapter(
             this,
@@ -125,8 +126,8 @@ class WidgetConfigActivity : Activity() {
         refreshAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         refreshIntervalSpinner.adapter = refreshAdapter
         
-        // Default to 10 minutes (index 1)
-        refreshIntervalSpinner.setSelection(1)
+        // Default to 15 minutes (index 0)
+        refreshIntervalSpinner.setSelection(0)
     }
     
     private fun updateAddButtonState() {
@@ -164,6 +165,16 @@ class WidgetConfigActivity : Activity() {
         Log.d("WidgetConfigActivity", "  label: $label")
         Log.d("WidgetConfigActivity", "  refreshInterval: ${refreshIntervalMinutes} minutes")
         
+        // Check if this is a route change for existing widget
+        val existingWidgetData = WidgetPreferences.getWidgetData(this, appWidgetId)
+        val isRouteChange = existingWidgetData.originId.isNotEmpty() && 
+                           (existingWidgetData.originId != originId || existingWidgetData.destinationId != destinationId)
+        
+        if (isRouteChange) {
+            Log.d("WidgetConfigActivity", "Route change detected, clearing old cache for widget $appWidgetId")
+            WidgetCacheManager.clearWidgetCache(this, appWidgetId)
+        }
+        
         // Save widget configuration
         val widgetData = WidgetData(
             originId = originId,
@@ -181,12 +192,13 @@ class WidgetConfigActivity : Activity() {
         val widgetProvider = TrainScheduleWidgetProvider()
         widgetProvider.configureWidget(this, appWidgetId)
         
-        Log.d("WidgetConfigActivity", "Widget configured and initial load triggered")
-        
         // Return success
         val resultValue = Intent()
         resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
         setResult(Activity.RESULT_OK, resultValue)
+        
+        Log.d("WidgetConfigActivity", "Widget configured and initial load triggered")
+        
         finish()
     }
 }

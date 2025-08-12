@@ -51,6 +51,34 @@ object WidgetPreferences {
             .remove(KEY_UPDATE_FREQUENCY + appWidgetId)
             .apply()
     }
+
+    fun getAllWidgetIds(context: Context): List<Int> {
+        val prefs = getSharedPreferences(context)
+        val widgetIds = mutableSetOf<Int>()
+        
+        prefs.all.keys.forEach { key ->
+            when {
+                key.startsWith(KEY_ORIGIN_ID) -> {
+                    val id = key.substring(KEY_ORIGIN_ID.length).toIntOrNull()
+                    if (id != null) widgetIds.add(id)
+                }
+            }
+        }
+        
+        return widgetIds.toList().sorted()
+    }
+
+    fun cleanupOrphanedWidgets(context: Context, validWidgetIds: IntArray) {
+        val allStoredIds = getAllWidgetIds(context)
+        val validIds = validWidgetIds.toSet()
+        
+        allStoredIds.forEach { storedId ->
+            if (storedId !in validIds) {
+                deleteWidgetData(context, storedId)
+                android.util.Log.d("WidgetPreferences", "Cleaned up orphaned widget data for ID: $storedId")
+            }
+        }
+    }
 }
 
 data class WidgetData(

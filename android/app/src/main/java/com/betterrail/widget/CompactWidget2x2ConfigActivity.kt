@@ -10,6 +10,7 @@ import android.util.Log
 import com.betterrail.widget.data.StationsData
 import com.betterrail.widget.data.WidgetData
 import com.betterrail.widget.data.WidgetPreferences
+import com.betterrail.widget.cache.WidgetCacheManager
 
 class CompactWidget2x2ConfigActivity : Activity() {
 
@@ -24,7 +25,7 @@ class CompactWidget2x2ConfigActivity : Activity() {
     private lateinit var stationAdapter: ArrayAdapter<String>
     private val stationIds = mutableListOf<String>()
     private val stationNames = mutableListOf<String>()
-    private val refreshIntervalValues = listOf(5, 10, 15, 30, 60)
+    private val refreshIntervalValues = listOf(15, 30, 60) // 15 minutes minimum due to Android WorkManager constraints
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -123,8 +124,8 @@ class CompactWidget2x2ConfigActivity : Activity() {
         intervalAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         refreshIntervalSpinner.adapter = intervalAdapter
         
-        // Set default to 10 minutes
-        val defaultIndex = refreshIntervalValues.indexOf(10)
+        // Set default to 15 minutes
+        val defaultIndex = refreshIntervalValues.indexOf(15)
         if (defaultIndex != -1) {
             refreshIntervalSpinner.setSelection(defaultIndex)
         }
@@ -164,6 +165,16 @@ class CompactWidget2x2ConfigActivity : Activity() {
             
             Log.d("CompactWidgetConfig", "Saving widget data: $originName -> $destinationName")
             
+            // Check if this is a route change for existing widget
+            val existingWidgetData = WidgetPreferences.getWidgetData(this, appWidgetId)
+            val isRouteChange = existingWidgetData.originId.isNotEmpty() && 
+                               (existingWidgetData.originId != originId || existingWidgetData.destinationId != destinationId)
+            
+            if (isRouteChange) {
+                Log.d("CompactWidgetConfig", "Route change detected, clearing old cache for compact widget $appWidgetId")
+                WidgetCacheManager.clearWidgetCache(this, appWidgetId)
+            }
+            
             val widgetData = WidgetData(
                 originId = originId,
                 destinationId = destinationId,
@@ -186,6 +197,7 @@ class CompactWidget2x2ConfigActivity : Activity() {
             setResult(Activity.RESULT_OK, resultValue)
             
             Log.d("CompactWidgetConfig", "Compact widget $appWidgetId configured successfully")
+            
             finish()
             
         } catch (e: Exception) {

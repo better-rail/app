@@ -67,8 +67,16 @@ class CompactWidget2x2Provider : AppWidgetProvider() {
                 val appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
                 if (appWidgetId != -1) {
                     val appWidgetManager = AppWidgetManager.getInstance(context)
-                    Log.d("CompactWidgetProvider", "Triggered update for compact widget $appWidgetId")
-                    refreshWidget(context, appWidgetManager, appWidgetId)
+                    val forceViewRefresh = intent.getBooleanExtra("force_view_refresh", false)
+                    Log.d("CompactWidgetProvider", "Triggered update for compact widget $appWidgetId (forceViewRefresh=$forceViewRefresh)")
+                    
+                    if (forceViewRefresh) {
+                        // Just refresh the view with cached data
+                        refreshWidget(context, appWidgetManager, appWidgetId)
+                    } else {
+                        // Force API refresh to get fresh data - use internal method to avoid recursion
+                        forceRefreshWidgetInternal(context, appWidgetManager, appWidgetId)
+                    }
                 }
             }
         }
@@ -117,7 +125,31 @@ class CompactWidget2x2Provider : AppWidgetProvider() {
         val widgetData = WidgetPreferences.getWidgetData(context, appWidgetId)
         
         if (widgetData.originId.isNotEmpty() && widgetData.destinationId.isNotEmpty()) {
-            Log.d("CompactWidgetProvider", "Force refreshing compact widget $appWidgetId")
+            Log.d("CompactWidgetProvider", "Refreshing compact widget $appWidgetId view from cached data")
+            refreshWidgetFromCache(context, appWidgetManager, appWidgetId, widgetData)
+        }
+    }
+
+    private fun refreshWidgetFromCache(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData) {
+        // Try to get cached data with comprehensive fallback
+        val cachedData = WidgetCacheManager.getCachedDataIgnoreAge(context, appWidgetId, widgetData.originId, widgetData.destinationId)
+            ?: WidgetCacheManager.getMostRecentCachedDataForRoute(context, widgetData.originId, widgetData.destinationId)
+        
+        if (cachedData != null) {
+            Log.d("CompactWidgetProvider", "Using cached data for widget refresh $appWidgetId (${cachedData.routes.size} routes)")
+            showScheduleData(context, appWidgetManager, appWidgetId, widgetData, cachedData.routes)
+        } else {
+            Log.w("CompactWidgetProvider", "No cached data available anywhere for route ${widgetData.originId}->${widgetData.destinationId}")
+            showErrorState(context, appWidgetManager, appWidgetId, widgetData, "No data available")
+        }
+    }
+
+    private fun forceRefreshWidgetInternal(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
+        Log.d("CompactWidgetProvider", "forceRefreshWidgetInternal called for compact widget $appWidgetId")
+        val widgetData = WidgetPreferences.getWidgetData(context, appWidgetId)
+        
+        if (widgetData.originId.isNotEmpty() && widgetData.destinationId.isNotEmpty()) {
+            Log.d("CompactWidgetProvider", "Force API refresh for compact widget $appWidgetId")
             loadWidgetData(context, appWidgetManager, appWidgetId, widgetData, useCache = false)
         }
     }
@@ -174,51 +206,84 @@ class CompactWidget2x2Provider : AppWidgetProvider() {
     }
 
     private fun loadWidgetData(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData, useCache: Boolean) {
-        // Show loading state immediately
-        showLoadingState(context, appWidgetManager, appWidgetId, widgetData)
-        
-        // Try to use cached data first if requested
-        if (useCache) {
-            val cachedData = WidgetCacheManager.getCachedData(context, widgetData.originId, widgetData.destinationId, widgetData.updateFrequencyMinutes)
-            if (cachedData != null) {
-                Log.d("CompactWidgetProvider", "Using cached data for compact widget $appWidgetId")
-                showScheduleData(context, appWidgetManager, appWidgetId, widgetData, cachedData.routes)
-                return
-            }
+        // Always try cached data first for faster display
+        val cachedData = if (useCache) {
+            WidgetCacheManager.getCachedDataWithWidgetId(context, appWidgetId, widgetData.originId, widgetData.destinationId, widgetData.updateFrequencyMinutes)
+        } else {
+            // Even for force refresh, check if we have any cached data for immediate display
+            WidgetCacheManager.getCachedDataIgnoreAge(context, appWidgetId, widgetData.originId, widgetData.destinationId)
+        } ?: run {
+            // If no widget-specific cache, try to find any cached data for this route
+            Log.d("CompactWidgetProvider", "No widget-specific cache found, checking for route-level cache for widget $appWidgetId")
+            WidgetCacheManager.getMostRecentCachedDataForRoute(context, widgetData.originId, widgetData.destinationId)
         }
         
-        // Load fresh data from API
-        Log.d("CompactWidgetProvider", "Loading fresh data for compact widget $appWidgetId from API")
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val result = apiService.getRoutes(widgetData.originId, widgetData.destinationId)
-                result.fold(
-                    onSuccess = { scheduleData ->
-                        Log.d("CompactWidgetProvider", "API success for compact widget $appWidgetId: ${scheduleData.routes.size} routes")
-                        
-                        // Cache the fresh data
-                        WidgetCacheManager.cacheData(context, widgetData.originId, widgetData.destinationId, scheduleData)
-                        
-                        // Update UI on main thread
-                        CoroutineScope(Dispatchers.Main).launch {
-                            showScheduleData(context, appWidgetManager, appWidgetId, widgetData, scheduleData.routes)
+        if (cachedData != null) {
+            Log.d("CompactWidgetProvider", "Using cached data for immediate display compact widget $appWidgetId")
+            showScheduleData(context, appWidgetManager, appWidgetId, widgetData, cachedData.routes)
+            
+            // If we found valid cached data and useCache is true, we're done
+            if (useCache) {
+                return
+            }
+            // Otherwise continue to fetch fresh data in background
+        } else {
+            // No cached data available, show loading state
+            showLoadingState(context, appWidgetManager, appWidgetId, widgetData)
+        }
+        
+        // Only fetch fresh data when explicitly requested (!useCache) or no cache exists
+        if (!useCache || cachedData == null) {
+            Log.d("CompactWidgetProvider", "Fetching fresh data for compact widget $appWidgetId from API (useCache=$useCache, hasCachedData=${cachedData != null})")
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val result = apiService.getRoutes(widgetData.originId, widgetData.destinationId)
+                    result.fold(
+                        onSuccess = { scheduleData ->
+                            Log.d("CompactWidgetProvider", "API success for compact widget $appWidgetId: ${scheduleData.routes.size} routes")
+                            
+                            // Cache the fresh data using widget-specific key
+                            WidgetCacheManager.cacheDataForWidget(context, appWidgetId, widgetData.originId, widgetData.destinationId, scheduleData)
+                            
+                            // Update UI on main thread
+                            CoroutineScope(Dispatchers.Main).launch {
+                                showScheduleData(context, appWidgetManager, appWidgetId, widgetData, scheduleData.routes)
+                            }
+                        },
+                        onFailure = { error ->
+                            Log.e("CompactWidgetProvider", "API error for compact widget $appWidgetId", error)
+                            
+                            // Try cached data as fallback (ignoring expiration)
+                            val fallbackData = WidgetCacheManager.getCachedDataIgnoreAge(context, appWidgetId, widgetData.originId, widgetData.destinationId)
+                                ?: WidgetCacheManager.getMostRecentCachedDataForRoute(context, widgetData.originId, widgetData.destinationId)
+                            
+                            // Update UI on main thread
+                            CoroutineScope(Dispatchers.Main).launch {
+                                if (fallbackData != null) {
+                                    Log.d("CompactWidgetProvider", "Using fallback cached data for widget $appWidgetId")
+                                    showScheduleData(context, appWidgetManager, appWidgetId, widgetData, fallbackData.routes)
+                                } else {
+                                    showErrorState(context, appWidgetManager, appWidgetId, widgetData, "Failed to load")
+                                }
+                            }
                         }
-                    },
-                    onFailure = { error ->
-                        Log.e("CompactWidgetProvider", "API error for compact widget $appWidgetId", error)
-                        
-                        // Update UI on main thread
-                        CoroutineScope(Dispatchers.Main).launch {
-                            showErrorState(context, appWidgetManager, appWidgetId, widgetData, "Failed to load trains")
+                    )
+                } catch (e: Exception) {
+                    Log.e("CompactWidgetProvider", "Exception for compact widget $appWidgetId", e)
+                    
+                    // Try cached data as fallback (ignoring expiration)
+                    val fallbackData = WidgetCacheManager.getCachedDataIgnoreAge(context, appWidgetId, widgetData.originId, widgetData.destinationId)
+                        ?: WidgetCacheManager.getMostRecentCachedDataForRoute(context, widgetData.originId, widgetData.destinationId)
+                    
+                    // Update UI on main thread
+                    CoroutineScope(Dispatchers.Main).launch {
+                        if (fallbackData != null) {
+                            Log.d("CompactWidgetProvider", "Using fallback cached data after exception for widget $appWidgetId")
+                            showScheduleData(context, appWidgetManager, appWidgetId, widgetData, fallbackData.routes)
+                        } else {
+                            showErrorState(context, appWidgetManager, appWidgetId, widgetData, "Connection error")
                         }
                     }
-                )
-            } catch (e: Exception) {
-                Log.e("CompactWidgetProvider", "Exception for compact widget $appWidgetId", e)
-                
-                // Update UI on main thread
-                CoroutineScope(Dispatchers.Main).launch {
-                    showErrorState(context, appWidgetManager, appWidgetId, widgetData, "Connection error")
                 }
             }
         }
@@ -415,7 +480,7 @@ class CompactWidget2x2Provider : AppWidgetProvider() {
         // Set error content
         views.setTextViewText(R.id.widget_station_name, widgetData.originName.ifEmpty { "Error" })
         views.setTextViewText(R.id.widget_destination, widgetData.destinationName)
-        views.setTextViewText(R.id.widget_train_time, ":-(")
+        views.setTextViewText(R.id.widget_train_time, "--:--")
         views.setTextViewText(R.id.widget_platform, errorMessage)
         views.setTextViewText(R.id.widget_train_number, "Tap to retry")
         
@@ -432,7 +497,6 @@ class CompactWidget2x2Provider : AppWidgetProvider() {
     }
     
     private fun setupClickIntents(context: Context, views: RemoteViews, appWidgetId: Int, widgetData: WidgetData) {
-        // Only set up click intent for unconfigured widgets to allow initial setup
         if (widgetData.originId.isEmpty()) {
             // Open configuration for unconfigured widgets
             val intent = Intent(context, CompactWidget2x2ConfigActivity::class.java).apply {
@@ -445,8 +509,19 @@ class CompactWidget2x2Provider : AppWidgetProvider() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
             views.setOnClickPendingIntent(R.id.widget_container_compact, pendingIntent)
+        } else {
+            // Set up tap-to-refresh for configured widgets (hard refresh with API call)
+            val refreshIntent = Intent(context, CompactWidget2x2Provider::class.java).apply {
+                action = ACTION_WIDGET_UPDATE
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                putExtra("force_view_refresh", false) // Trigger API call
+            }
+            val refreshPendingIntent = PendingIntent.getBroadcast(
+                context, appWidgetId, refreshIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            views.setOnClickPendingIntent(R.id.widget_container_compact, refreshPendingIntent)
         }
-        // For configured widgets, do not set any click intent - widget becomes non-clickable
     }
 
     // Public method for configuration activity

@@ -77,6 +77,15 @@
                 android:resource="@xml/compact_widget_2x2_info" />
         </receiver>
         
+        <!-- Widget Update Receiver for AlarmManager -->
+        <receiver 
+            android:name=".widget.WidgetUpdateReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.betterrail.widget.ACTION_UPDATE_ALL_WIDGETS" />
+            </intent-filter>
+        </receiver>
+        
         <!-- Widget RemoteViews Service -->
         <service
             android:name=".widget.TrainWidgetService"
