@@ -9,7 +9,6 @@ data class StationInfo(
 
 object StationsData {
     private val stations = mapOf(
-        // North Line
         "1500" to StationInfo("Ako", R.drawable.assets_stationimages_ako),
         "1600" to StationInfo("Nahariya", R.drawable.assets_stationimages_nahariya),
         "1820" to StationInfo("Ahihud", R.drawable.assets_stationimages_ahihud),
@@ -21,8 +20,6 @@ object StationsData {
         "2100" to StationInfo("Haifa Center - HaShmona", R.drawable.assets_stationimages_hofhakarmel),
         "1300" to StationInfo("Hutzot HaMifratz", R.drawable.assets_stationimages_hotzothamifratz),
         "2300" to StationInfo("Haifa - Hof HaKarmel", R.drawable.assets_stationimages_hofhakarmel),
-        
-        // Central Line
         "2500" to StationInfo("Atlit", R.drawable.assets_stationimages_atlit),
         "3100" to StationInfo("Hadera - West", R.drawable.assets_stationimages_haderawest),
         "2820" to StationInfo("Caesarea-Pardes Hana", R.drawable.assets_stationimages_caesarea),
@@ -35,8 +32,6 @@ object StationsData {
         "2960" to StationInfo("Ra'anana South", R.drawable.assets_stationimages_raananasouth),
         "8700" to StationInfo("Kfar Sava - Nordau", R.drawable.assets_stationimages_kfarsaba),
         "9200" to StationInfo("Hod HaSharon - Sokolov", R.drawable.assets_stationimages_hodhasharonsokolov),
-        
-        // Tel Aviv Area
         "3600" to StationInfo("Tel Aviv - University", R.drawable.assets_stationimages_tlvuniversity),
         "4600" to StationInfo("Tel Aviv - HaShalom", R.drawable.assets_stationimages_tlvhashalom),
         "3700" to StationInfo("Tel Aviv - Savidor Center", R.drawable.assets_stationimages_tlvcenter),
@@ -45,8 +40,6 @@ object StationsData {
         "4250" to StationInfo("Petah Tikva - Segula", R.drawable.assets_stationimages_petahtikvasegula),
         "4170" to StationInfo("Petah Tikva - Kiryat Arye", R.drawable.assets_stationimages_kiryatarye),
         "8800" to StationInfo("Rosh Ha'Ayin - North", R.drawable.assets_stationimages_roshhaayin),
-        
-        // South
         "4800" to StationInfo("Kfar Habad", R.drawable.assets_stationimages_kfarhabad),
         "8600" to StationInfo("Ben Gurion Airport", R.drawable.assets_stationimages_bengurion),
         "5000" to StationInfo("Lod", R.drawable.assets_stationimages_lod),
@@ -60,8 +53,6 @@ object StationsData {
         "7000" to StationInfo("Kiryat Gat", R.drawable.assets_stationimages_kiryatgat),
         "7320" to StationInfo("Be'er Sheva - Center", R.drawable.assets_stationimages_beershevacenter),
         "7300" to StationInfo("Be'er Sheva - North/University", R.drawable.assets_stationimages_beershevauniversity),
-        
-        // Other stations (using default image)
         "6300" to StationInfo("Bet Shemesh", R.drawable.assets_stationimages_beitshemesh),
         "5900" to StationInfo("Ashkelon", R.drawable.assets_stationimages_ashkelon),
         "7500" to StationInfo("Dimona", R.drawable.assets_stationimages_dimona),
