@@ -84,31 +84,6 @@
         android:maxLines="1"
         android:inputType="text" />
 
-    <!-- Separator -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginVertical="16dp"
-        android:background="@color/separator" />
-
-
-    <!-- Refresh Interval -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Refresh interval"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="@color/label"
-        android:layout_marginBottom="8dp" />
-
-    <Spinner
-        android:id="@+id/refresh_interval_spinner"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginBottom="24dp"
-        android:background="@drawable/spinner_background"
-        android:padding="12dp" />
 
     <!-- Spacer -->
     <View

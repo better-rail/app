@@ -130,7 +130,7 @@ class WidgetUpdateReceiver : BroadcastReceiver() {
                 Log.d("WidgetUpdateReceiver", "Compact widget $appWidgetId is up-to-date, skipping update")
             }
         } else {
-            Log.d("WidgetUpdateReceiver", "No cached data for compact widget $appWidgetId, skipping update")
+            Log.d("WidgetUpdateReceiver", "Compact widget $appWidgetId has no cached data, skipping update (alarm should never trigger API refresh)")
         }
     }
     
@@ -175,7 +175,7 @@ class WidgetUpdateReceiver : BroadcastReceiver() {
                 Log.d("WidgetUpdateReceiver", "Regular widget $appWidgetId is up-to-date, skipping update")
             }
         } else {
-            Log.d("WidgetUpdateReceiver", "No cached data for regular widget $appWidgetId, skipping update")
+            Log.d("WidgetUpdateReceiver", "Regular widget $appWidgetId has no cached data, skipping update (alarm should never trigger API refresh)")
         }
     }
     
@@ -220,17 +220,103 @@ class WidgetUpdateReceiver : BroadcastReceiver() {
     
 
     /**
-     * Schedules the next alarm - used to chain alarms together
+     * Schedules the next alarm based on the earliest next train from all widgets
      */
     private fun scheduleNextAlarm(context: Context) {
         try {
-            Log.d("WidgetUpdateReceiver", "Chaining next alarm in exactly 1 minute")
-            WidgetAlarmManager.scheduleNextUpdate(context)
+            val nextTrainTime = getEarliestNextTrainTime(context)
+            Log.d("WidgetUpdateReceiver", "Chaining next alarm for next train: $nextTrainTime")
+            WidgetAlarmManager.scheduleNextUpdate(context, nextTrainTime)
         } catch (e: Exception) {
             Log.e("WidgetUpdateReceiver", "Failed to schedule next alarm", e)
         }
     }
+    
+    /**
+     * Gets the earliest next train departure time from all configured widgets
+     */
+    private fun getEarliestNextTrainTime(context: Context): String? {
+        val widgetManager = AppWidgetManager.getInstance(context)
+        var earliestTime: String? = null
+        var earliestTimeInMinutes = Int.MAX_VALUE
+        
+        // Check compact widgets
+        val compactWidgetIds = widgetManager.getAppWidgetIds(ComponentName(context, CompactWidget2x2Provider::class.java))
+        for (appWidgetId in compactWidgetIds) {
+            val widgetData = WidgetPreferences.getWidgetData(context, appWidgetId)
+            if (widgetData.originId.isNotEmpty() && widgetData.destinationId.isNotEmpty()) {
+                val cachedData = WidgetCacheManager.getCachedDataWithWidgetId(
+                    context, appWidgetId, widgetData.originId, widgetData.destinationId, widgetData.updateFrequencyMinutes
+                )
+                cachedData?.let { 
+                    val nextTrainTime = WidgetTrainFilter.getNextTrainDepartureTime(it.routes)
+                    nextTrainTime?.let { time ->
+                        val timeInMinutes = parseTimeToMinutes(time)
+                        if (timeInMinutes != null && timeInMinutes < earliestTimeInMinutes) {
+                            earliestTimeInMinutes = timeInMinutes
+                            earliestTime = time
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Check regular widgets
+        val regularWidgetIds = widgetManager.getAppWidgetIds(ComponentName(context, TrainScheduleWidgetProvider::class.java))
+        for (appWidgetId in regularWidgetIds) {
+            val widgetData = WidgetPreferences.getWidgetData(context, appWidgetId)
+            if (widgetData.originId.isNotEmpty() && widgetData.destinationId.isNotEmpty()) {
+                val cachedData = WidgetCacheManager.getCachedDataWithWidgetId(
+                    context, appWidgetId, widgetData.originId, widgetData.destinationId, widgetData.updateFrequencyMinutes
+                )
+                cachedData?.let { 
+                    val nextTrainTime = WidgetTrainFilter.getNextTrainDepartureTime(it.routes)
+                    nextTrainTime?.let { time ->
+                        val timeInMinutes = parseTimeToMinutes(time)
+                        if (timeInMinutes != null && timeInMinutes < earliestTimeInMinutes) {
+                            earliestTimeInMinutes = timeInMinutes
+                            earliestTime = time
+                        }
+                    }
+                }
+            }
+        }
+        
+        Log.d("WidgetUpdateReceiver", "Earliest next train time across all widgets: $earliestTime")
+        return earliestTime
+    }
+    
+    /**
+     * Parses "HH:mm" time format to minutes from midnight for comparison
+     */
+    private fun parseTimeToMinutes(timeString: String): Int? {
+        return try {
+            val parts = timeString.split(":")
+            if (parts.size == 2) {
+                val hour = parts[0].toInt()
+                val minute = parts[1].toInt()
+                hour * 60 + minute
+            } else null
+        } catch (e: Exception) {
+            null
+        }
+    }
 
+    
+    /**
+     * Triggers API refresh for a widget when no cached data exists
+     */
+    private fun triggerWidgetApiRefresh(context: Context, appWidgetId: Int, widgetType: String, providerClass: Class<out BroadcastReceiver>, action: String) {
+        Log.d("WidgetUpdateReceiver", "No cached data for $widgetType widget $appWidgetId, triggering API refresh")
+        
+        val refreshIntent = Intent(context, providerClass).apply {
+            this.action = action
+            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            putExtra("force_view_refresh", false)
+        }
+        context.sendBroadcast(refreshIntent)
+        Log.d("WidgetUpdateReceiver", "Sent API refresh intent for $widgetType widget $appWidgetId")
+    }
     
     /**
      * Cleans up orphaned widget preferences for all widget types.

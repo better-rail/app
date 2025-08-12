@@ -56,11 +56,11 @@ object WidgetAlarmManager {
     }
     
     /**
-     * Schedules the next alarm in the chain - used by WidgetUpdateReceiver.
-     * This maintains precise timing by scheduling exactly UPDATE_INTERVAL_MS from now.
+     * Schedules the next alarm based on next train departure time.
+     * Falls back to 1-minute interval if no train data available.
      */
-    fun scheduleNextUpdate(context: Context) {
-        Log.d("WidgetAlarmManager", "scheduleNextUpdate() called - chaining next alarm")
+    fun scheduleNextUpdate(context: Context, nextTrainDepartureTime: String? = null) {
+        Log.d("WidgetAlarmManager", "scheduleNextUpdate() called with next train: $nextTrainDepartureTime")
         val alarmManager = ContextCompat.getSystemService(context, AlarmManager::class.java)
         
         if (alarmManager == null) {
@@ -79,12 +79,61 @@ object WidgetAlarmManager {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         
-        // Schedule next alarm exactly UPDATE_INTERVAL_MS from now (no cancel needed)
-        val nextTime = System.currentTimeMillis() + UPDATE_INTERVAL_MS
+        val nextTime = calculateNextAlarmTime(nextTrainDepartureTime)
         
         scheduleNextExactAlarm(alarmManager, nextTime, pendingIntent)
         
-        Log.d("WidgetAlarmManager", "Next alarm chained for: ${java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date(nextTime))}")
+        Log.d("WidgetAlarmManager", "Next alarm scheduled for: ${java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date(nextTime))}")
+    }
+    
+    /**
+     * Calculates when to schedule the next alarm based on train departure time.
+     * Schedules 1 minute before next train, or uses fallback interval.
+     */
+    private fun calculateNextAlarmTime(nextTrainDepartureTime: String?): Long {
+        if (nextTrainDepartureTime == null) {
+            Log.d("WidgetAlarmManager", "No train time provided, using default interval")
+            return System.currentTimeMillis() + UPDATE_INTERVAL_MS
+        }
+        
+        try {
+            val timeParts = nextTrainDepartureTime.split(":")
+            if (timeParts.size == 2) {
+                val trainHour = timeParts[0].toInt()
+                val trainMinute = timeParts[1].toInt()
+                
+                val now = java.util.Calendar.getInstance()
+                val nextTrainTime = java.util.Calendar.getInstance().apply {
+                    set(java.util.Calendar.HOUR_OF_DAY, trainHour)
+                    set(java.util.Calendar.MINUTE, trainMinute)
+                    set(java.util.Calendar.SECOND, 0)
+                    set(java.util.Calendar.MILLISECOND, 0)
+                }
+                
+                // If train time has passed today, it's tomorrow
+                if (nextTrainTime.before(now)) {
+                    nextTrainTime.add(java.util.Calendar.DAY_OF_MONTH, 1)
+                }
+                
+                // Schedule alarm 1 minute before train departure
+                val alarmTime = nextTrainTime.timeInMillis - (60 * 1000L)
+                
+                // If alarm time is in the past or too soon (< 30 seconds), use default interval
+                val minTimeFromNow = now.timeInMillis + (30 * 1000L)
+                if (alarmTime <= minTimeFromNow) {
+                    Log.d("WidgetAlarmManager", "Train time too soon, using default interval")
+                    return System.currentTimeMillis() + UPDATE_INTERVAL_MS
+                }
+                
+                Log.d("WidgetAlarmManager", "Alarm set for 1 minute before train at $nextTrainDepartureTime")
+                return alarmTime
+            }
+        } catch (e: Exception) {
+            Log.e("WidgetAlarmManager", "Error parsing train time: $nextTrainDepartureTime", e)
+        }
+        
+        Log.d("WidgetAlarmManager", "Failed to parse train time, using default interval")
+        return System.currentTimeMillis() + UPDATE_INTERVAL_MS
     }
     
     /**

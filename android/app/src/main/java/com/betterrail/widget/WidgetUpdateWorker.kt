@@ -28,13 +28,7 @@ class WidgetUpdateWorker(context: Context, params: WorkerParameters) : Coroutine
             // Cancel existing work for this widget
             WorkManager.getInstance(context).cancelUniqueWork(workName)
             
-            // Enforce 15-minute minimum (Android WorkManager constraint)
-            val actualFrequency = if (frequencyMinutes < 15) {
-                Log.w("WidgetUpdateWorker", "Frequency $frequencyMinutes minutes is below Android's 15-minute minimum. Using 15 minutes instead.")
-                15
-            } else {
-                frequencyMinutes
-            }
+            val actualFrequency = frequencyMinutes
             
             // Use WorkManager with constraints for better battery and user experience
             val constraints = Constraints.Builder()

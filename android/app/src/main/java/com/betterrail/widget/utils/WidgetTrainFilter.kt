@@ -43,4 +43,12 @@ object WidgetTrainFilter {
             Log.d("WidgetTrainFilter", "Filtered ${routes.size} trains -> ${filteredRoutes.size} future trains")
         }
     }
+    
+    /**
+     * Gets the next train departure time, or null if no future trains.
+     */
+    fun getNextTrainDepartureTime(routes: List<WidgetTrainItem>): String? {
+        val futureTrains = filterFutureTrains(routes)
+        return futureTrains.firstOrNull()?.departureTime
+    }
 }

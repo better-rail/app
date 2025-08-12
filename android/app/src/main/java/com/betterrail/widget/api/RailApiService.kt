@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit
 class RailApiService {
     companion object {
         private val API_KEY = BuildConfig.RAIL_API_KEY
-        private const val TIMEOUT_SECONDS = 30L
+        private const val TIMEOUT_SECONDS = 10L
         private val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         private val TIME_FORMAT = SimpleDateFormat("HH:mm", Locale.getDefault())
         
