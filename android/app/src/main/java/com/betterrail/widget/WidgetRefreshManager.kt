@@ -27,30 +27,30 @@ object WidgetRefreshManager {
         }
         
         // Determine which widget provider this widget belongs to
-        val compactWidgetIds = appWidgetManager.getAppWidgetIds(
+        val compact2x2WidgetIds = appWidgetManager.getAppWidgetIds(
             ComponentName(context, CompactWidget2x2Provider::class.java)
         )
-        val regularWidgetIds = appWidgetManager.getAppWidgetIds(
-            ComponentName(context, TrainScheduleWidgetProvider::class.java)
+        val compact4x2WidgetIds = appWidgetManager.getAppWidgetIds(
+            ComponentName(context, CompactWidget4x2Provider::class.java)
         )
         
         val refreshIntent = when {
-            compactWidgetIds.contains(appWidgetId) -> {
+            compact2x2WidgetIds.contains(appWidgetId) -> {
                 Log.d("WidgetRefreshManager", "Widget $appWidgetId is a compact 2x2 widget, triggering API refresh")
                 Intent(context, CompactWidget2x2Provider::class.java).apply {
                     action = CompactWidget2x2Provider.ACTION_WIDGET_UPDATE
                 }
             }
-            regularWidgetIds.contains(appWidgetId) -> {
-                Log.d("WidgetRefreshManager", "Widget $appWidgetId is a regular widget, triggering API refresh")
-                Intent(context, TrainScheduleWidgetProvider::class.java).apply {
-                    action = TrainScheduleWidgetProvider.ACTION_WIDGET_UPDATE
+            compact4x2WidgetIds.contains(appWidgetId) -> {
+                Log.d("WidgetRefreshManager", "Widget $appWidgetId is a compact 4x2 widget, triggering API refresh")
+                Intent(context, CompactWidget4x2Provider::class.java).apply {
+                    action = CompactWidget4x2Provider.ACTION_WIDGET_UPDATE
                 }
             }
             else -> {
-                Log.w("WidgetRefreshManager", "Widget $appWidgetId not found in any provider, defaulting to regular widget")
-                Intent(context, TrainScheduleWidgetProvider::class.java).apply {
-                    action = TrainScheduleWidgetProvider.ACTION_WIDGET_UPDATE
+                Log.w("WidgetRefreshManager", "Widget $appWidgetId not found in any provider, defaulting to 2x2 widget")
+                Intent(context, CompactWidget2x2Provider::class.java).apply {
+                    action = CompactWidget2x2Provider.ACTION_WIDGET_UPDATE
                 }
             }
         }
@@ -77,30 +77,30 @@ object WidgetRefreshManager {
         }
         
         // Determine which widget provider this widget belongs to
-        val compactWidgetIds = appWidgetManager.getAppWidgetIds(
+        val compact2x2WidgetIds = appWidgetManager.getAppWidgetIds(
             ComponentName(context, CompactWidget2x2Provider::class.java)
         )
-        val regularWidgetIds = appWidgetManager.getAppWidgetIds(
-            ComponentName(context, TrainScheduleWidgetProvider::class.java)
+        val compact4x2WidgetIds = appWidgetManager.getAppWidgetIds(
+            ComponentName(context, CompactWidget4x2Provider::class.java)
         )
         
         val refreshIntent = when {
-            compactWidgetIds.contains(appWidgetId) -> {
+            compact2x2WidgetIds.contains(appWidgetId) -> {
                 Log.d("WidgetRefreshManager", "Widget $appWidgetId is a compact 2x2 widget, refreshing view from cache")
                 Intent(context, CompactWidget2x2Provider::class.java).apply {
                     action = CompactWidget2x2Provider.ACTION_WIDGET_UPDATE
                 }
             }
-            regularWidgetIds.contains(appWidgetId) -> {
-                Log.d("WidgetRefreshManager", "Widget $appWidgetId is a regular widget, refreshing view from cache")
-                Intent(context, TrainScheduleWidgetProvider::class.java).apply {
-                    action = TrainScheduleWidgetProvider.ACTION_WIDGET_UPDATE
+            compact4x2WidgetIds.contains(appWidgetId) -> {
+                Log.d("WidgetRefreshManager", "Widget $appWidgetId is a compact 4x2 widget, refreshing view from cache")
+                Intent(context, CompactWidget4x2Provider::class.java).apply {
+                    action = CompactWidget4x2Provider.ACTION_WIDGET_UPDATE
                 }
             }
             else -> {
-                Log.w("WidgetRefreshManager", "Widget $appWidgetId not found in any provider, defaulting to regular widget")
-                Intent(context, TrainScheduleWidgetProvider::class.java).apply {
-                    action = TrainScheduleWidgetProvider.ACTION_WIDGET_UPDATE
+                Log.w("WidgetRefreshManager", "Widget $appWidgetId not found in any provider, defaulting to 2x2 widget")
+                Intent(context, CompactWidget2x2Provider::class.java).apply {
+                    action = CompactWidget2x2Provider.ACTION_WIDGET_UPDATE
                 }
             }
         }

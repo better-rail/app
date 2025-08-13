@@ -9,6 +9,6 @@
     <string name="widget_label_hint">Custom label (optional)</string>
     <string name="widget_cancel">Cancel</string>
     <string name="widget_add">Add Widget</string>
-    <string name="widget_description">Train schedule widget for Better Rail</string>
     <string name="widget_2x2_description">Compact 2x2 train widget</string>
+    <string name="widget_4x2_description">Compact 4x2 train widget with upcoming trains</string>
 </resources>

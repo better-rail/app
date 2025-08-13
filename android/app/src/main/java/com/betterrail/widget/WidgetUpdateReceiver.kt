@@ -58,15 +58,26 @@ class WidgetUpdateReceiver : BroadcastReceiver() {
     }
     
     private fun updateCompactWidgets(context: Context, appWidgetManager: AppWidgetManager) {
-        val compactWidgetIds = appWidgetManager.getAppWidgetIds(
+        val compact2x2WidgetIds = appWidgetManager.getAppWidgetIds(
             ComponentName(context, CompactWidget2x2Provider::class.java)
         )
+        val compact4x2WidgetIds = appWidgetManager.getAppWidgetIds(
+            ComponentName(context, CompactWidget4x2Provider::class.java)
+        )
         
-        Log.d("WidgetUpdateReceiver", "Updating ${compactWidgetIds.size} compact widgets")
+        Log.d("WidgetUpdateReceiver", "Updating ${compact2x2WidgetIds.size} compact 2x2 widgets and ${compact4x2WidgetIds.size} compact 4x2 widgets")
         
-        compactWidgetIds.forEach { appWidgetId ->
+        compact2x2WidgetIds.forEach { appWidgetId ->
             try {
                 updateCompactWidget(context, appWidgetManager, appWidgetId)
+            } catch (e: Exception) {
+                Log.e("WidgetUpdateReceiver", "Failed to update compact 2x2 widget $appWidgetId", e)
+            }
+        }
+        
+        compact4x2WidgetIds.forEach { appWidgetId ->
+            try {
+                updateCompact4x2Widget(context, appWidgetManager, appWidgetId)
             } catch (e: Exception) {
                 Log.e("WidgetUpdateReceiver", "Failed to update compact widget $appWidgetId", e)
             }
@@ -74,9 +85,8 @@ class WidgetUpdateReceiver : BroadcastReceiver() {
     }
     
     private fun updateRegularWidgets(context: Context, appWidgetManager: AppWidgetManager) {
-        val regularWidgetIds = appWidgetManager.getAppWidgetIds(
-            ComponentName(context, TrainScheduleWidgetProvider::class.java)
-        )
+        // Regular widget provider has been removed
+        val regularWidgetIds = intArrayOf()
         
         Log.d("WidgetUpdateReceiver", "Updating ${regularWidgetIds.size} regular widgets")
         
@@ -137,6 +147,57 @@ class WidgetUpdateReceiver : BroadcastReceiver() {
             }
         } else {
             Log.d("WidgetUpdateReceiver", "Compact widget $appWidgetId has no cached data, skipping update (alarm should never trigger API refresh)")
+        }
+    }
+    
+    private fun updateCompact4x2Widget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
+        val widgetData = WidgetPreferences.getWidgetData(context, appWidgetId)
+        
+        if (widgetData.originId.isEmpty() || widgetData.destinationId.isEmpty()) {
+            Log.d("WidgetUpdateReceiver", "Compact 4x2 widget $appWidgetId not configured, skipping")
+            return
+        }
+        
+        // Get widget-specific cached data to avoid collisions
+        val cachedData = WidgetCacheManager.getCachedDataWithWidgetId(
+            context, 
+            appWidgetId,
+            widgetData.originId, 
+            widgetData.destinationId, 
+            widgetData.updateFrequencyMinutes
+        )
+        
+        if (cachedData != null) {
+            // Filter for future trains only
+            val futureTrains = WidgetTrainFilter.filterFutureTrains(cachedData.routes)
+            
+            Log.d("WidgetUpdateReceiver", "Compact 4x2 widget $appWidgetId: ${futureTrains.size} future trains from ${cachedData.routes.size} total")
+            
+            // Check if cache is stale (>6 hours) and needs API refresh
+            val isCacheStale = WidgetCacheManager.isCacheStale(context, appWidgetId, widgetData.originId, widgetData.destinationId)
+            
+            // Check if we need to refresh the view due to stale display time
+            val shouldRefreshView = isWidgetDisplayTimeStale(context, appWidgetId)
+            
+            val shouldUpdateWidget = shouldRefreshView || futureTrains.isEmpty()
+            
+            if (isCacheStale) {
+                Log.d("WidgetUpdateReceiver", "*** STALE CACHE DETECTED (>6h) - Triggering API refresh for compact 4x2 widget $appWidgetId ***")
+                WidgetRefreshManager.forceRefreshWidget(context, appWidgetId)
+                recordWidgetDisplayTime(context, appWidgetId)
+            } else if (shouldUpdateWidget) {
+                Log.d("WidgetUpdateReceiver", "Updating compact 4x2 widget $appWidgetId (stale=${shouldRefreshView}, noTrains=${futureTrains.isEmpty()})")
+                
+                // Send update intent to refresh the view with current cached data
+                WidgetRefreshManager.refreshWidgetView(context, appWidgetId)
+                
+                // Record new display time since we're updating the view
+                recordWidgetDisplayTime(context, appWidgetId)
+            } else {
+                Log.d("WidgetUpdateReceiver", "Compact 4x2 widget $appWidgetId is up-to-date, skipping update")
+            }
+        } else {
+            Log.d("WidgetUpdateReceiver", "Compact 4x2 widget $appWidgetId has no cached data, skipping update (alarm should never trigger API refresh)")
         }
     }
     
@@ -253,7 +314,9 @@ class WidgetUpdateReceiver : BroadcastReceiver() {
         var earliestTimeInMinutes = Int.MAX_VALUE
         
         // Check compact widgets
-        val compactWidgetIds = widgetManager.getAppWidgetIds(ComponentName(context, CompactWidget2x2Provider::class.java))
+        val compact2x2WidgetIds = widgetManager.getAppWidgetIds(ComponentName(context, CompactWidget2x2Provider::class.java))
+        val compact4x2WidgetIds = widgetManager.getAppWidgetIds(ComponentName(context, CompactWidget4x2Provider::class.java))
+        val compactWidgetIds = compact2x2WidgetIds + compact4x2WidgetIds
         for (appWidgetId in compactWidgetIds) {
             val widgetData = WidgetPreferences.getWidgetData(context, appWidgetId)
             if (widgetData.originId.isNotEmpty() && widgetData.destinationId.isNotEmpty()) {
@@ -273,8 +336,8 @@ class WidgetUpdateReceiver : BroadcastReceiver() {
             }
         }
         
-        // Check regular widgets
-        val regularWidgetIds = widgetManager.getAppWidgetIds(ComponentName(context, TrainScheduleWidgetProvider::class.java))
+        // Regular widgets have been removed
+        val regularWidgetIds = intArrayOf()
         for (appWidgetId in regularWidgetIds) {
             val widgetData = WidgetPreferences.getWidgetData(context, appWidgetId)
             if (widgetData.originId.isNotEmpty() && widgetData.destinationId.isNotEmpty()) {
@@ -337,14 +400,17 @@ class WidgetUpdateReceiver : BroadcastReceiver() {
     private fun cleanupOrphanedWidgets(context: Context, appWidgetManager: AppWidgetManager) {
         try {
             // Get all active widget IDs from both widget providers
-            val compactWidgetIds = appWidgetManager.getAppWidgetIds(
+            val compact2x2WidgetIds = appWidgetManager.getAppWidgetIds(
                 ComponentName(context, CompactWidget2x2Provider::class.java)
             )
-            val regularWidgetIds = appWidgetManager.getAppWidgetIds(
-                ComponentName(context, TrainScheduleWidgetProvider::class.java)
+            val compact4x2WidgetIds = appWidgetManager.getAppWidgetIds(
+                ComponentName(context, CompactWidget4x2Provider::class.java)
             )
+            val compactWidgetIds = compact2x2WidgetIds + compact4x2WidgetIds
+            // Regular widgets have been removed
+            val regularWidgetIds = intArrayOf()
             
-            // Combine all valid widget IDs
+            // Combine all valid widget IDs (now just compact widgets)
             val allValidWidgetIds = compactWidgetIds + regularWidgetIds
             
             Log.d("WidgetUpdateReceiver", "Found ${allValidWidgetIds.size} total valid widgets (${compactWidgetIds.size} compact, ${regularWidgetIds.size} regular)")

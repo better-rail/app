@@ -37,15 +37,6 @@
             </intent-filter>
         </activity>
         
-        <!-- Widget Configuration Activity -->
-        <activity
-            android:name=".widget.WidgetConfigActivity"
-            android:label="@string/widget_configure_title"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
-            </intent-filter>
-        </activity>
         
         <!-- Compact 2x2 Widget Configuration Activity -->
         <activity
@@ -57,19 +48,15 @@
             </intent-filter>
         </activity>
         
-        <!-- Widget Provider -->
-        <receiver 
-            android:name=".widget.TrainScheduleWidgetProvider"
-            android:exported="true">
+        <!-- Compact 4x2 Widget Configuration Activity -->
+        <activity
+            android:name=".widget.CompactWidget4x2ConfigActivity"
+            android:label="@string/widget_configure_title"
+            android:exported="false">
             <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.betterrail.widget.ACTION_REFRESH" />
-                <action android:name="com.betterrail.widget.ACTION_WIDGET_UPDATE" />
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/train_schedule_widget_info" />
-        </receiver>
+        </activity>
         
         <!-- Compact 2x2 Widget Provider -->
         <receiver 
@@ -83,6 +70,20 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/compact_widget_2x2_info" />
+        </receiver>
+        
+        <!-- Compact 4x2 Widget Provider -->
+        <receiver 
+            android:name=".widget.CompactWidget4x2Provider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.betterrail.widget.compact4x2.ACTION_REFRESH" />
+                <action android:name="com.betterrail.widget.compact4x2.ACTION_WIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/compact_widget_4x2_info" />
         </receiver>
         
         <!-- Widget Update Receiver for AlarmManager -->
