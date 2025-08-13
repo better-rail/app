@@ -421,10 +421,9 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             putExtra("widget_origin_id", widgetData.originId)
             putExtra("widget_destination_id", widgetData.destinationId)
-            // Pass station IDs instead of localized names to avoid language mismatch issues
-            // The app will resolve names in its own current language
-            putExtra("widget_origin_name", widgetData.originId) 
-            putExtra("widget_destination_name", widgetData.destinationId)
+            // Pass localized station names - both widget and app should use same locale context
+            putExtra("widget_origin_name", StationsData.getStationName(context, widgetData.originId))
+            putExtra("widget_destination_name", StationsData.getStationName(context, widgetData.destinationId))
             putExtra("from_widget", true)
             putExtra("widget_type", deeplinkPath)
         }
