@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Better Rail</string>
+
+    <!-- Widget strings -->
+    <string name="widget_configure_title">הגדרת ווידג׳ט</string>
+    <string name="widget_configure_description">בחרו מסלול להצגת לוח הזמנים</string>
+    <string name="widget_from_label">מוצא</string>
+    <string name="widget_to_label">יעד</string>
+    <string name="widget_label_hint">כינוי מסלול</string>
+    <string name="widget_cancel">ביטול</string>
+    <string name="widget_add">הוספת ווידג׳ט</string>
+    <string name="widget_2x2_description">ווידג׳ט קומפקטי 2x2</string>
+    <string name="widget_4x2_description">ווידג׳ט קומפקטי 4x2 עם רכבות קרובות</string>
+    <string name="widget_description">ווידג׳ט זמני רכבות ל- Better Rail</string>
+</resources>
+
+
