@@ -15,7 +15,9 @@ import com.betterrail.widget.cache.WidgetCacheManager
 import com.betterrail.widget.utils.WidgetTrainFilter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.Calendar
@@ -27,9 +29,71 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
     protected val apiService = RailApiService()
     
     companion object {
+        // Time and date formatting
         const val TIME_FORMAT = "HH:mm"
         val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        
+        // Widget configuration defaults
+        const val DEFAULT_REFRESH_INTERVAL_MINUTES = 30
+        const val INVALID_WIDGET_ID = -1
+        const val INVALID_POSITION = 0
+        
+        // Time calculations
+        const val MILLISECONDS_PER_SECOND = 1000L
+        const val SECONDS_PER_MINUTE = 60L
+        const val MILLISECONDS_PER_MINUTE = SECONDS_PER_MINUTE * MILLISECONDS_PER_SECOND
+        
+        // Cache and data management
+        const val EMPTY_ROUTES_COUNT = 0
+        const val DAY_OFFSET_TOMORROW = 1
+        
+        // Text display limits
+        const val MAX_ROUTE_TEXT_LENGTH = 30
+        
+        // Widget sizing (dp values)
+        const val DEFAULT_WIDGET_HEIGHT_DP = 110
+        const val WIDGET_HEADER_HEIGHT_DP = 75
+        const val WIDGET_PADDING_DP = 28
+        const val WIDGET_BOTTOM_MARGIN_DP = 12
+        const val WIDGET_ITEM_HEIGHT_DP = 48
+        
+        // Widget defaults
+        const val DEFAULT_WIDGET_ROWS = 3
+        
+        // API query parameters
+        const val TOMORROW_START_HOUR = "00:00"
+        const val COMPACT_WIDGET_START_HOUR = "04:00"
+        
+        // Pending intent offsets
+        const val PENDING_INTENT_OFFSET = 1000
+        
+        // Widget row calculation lookup table
+        private val WIDGET_SIZE_RULES = listOf(
+            WidgetSizeRule(threshold = 10, maxRows = 10),
+            WidgetSizeRule(threshold = 9, maxRows = 10),
+            WidgetSizeRule(threshold = 7, maxRows = 8),
+            WidgetSizeRule(threshold = 5, maxRows = 6),
+            WidgetSizeRule(threshold = 3, maxRows = 4),
+            WidgetSizeRule(threshold = 0, maxRows = 2)  // Default case
+        )
+        
+        @JvmStatic
+        protected val widgetScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+        @JvmStatic
+        protected val activeJobs = mutableMapOf<Int, Job>()
+        
+        // Helper function for widget row calculation
+        fun calculateMaxRows(calculatedRows: Int): Int {
+            return WIDGET_SIZE_RULES
+                .first { calculatedRows >= it.threshold }
+                .let { rule -> minOf(calculatedRows, rule.maxRows) }
+        }
     }
+    
+    private data class WidgetSizeRule(
+        val threshold: Int,
+        val maxRows: Int
+    )
 
     abstract fun getActionRefresh(): String
     abstract fun getActionWidgetUpdate(): String
@@ -74,8 +138,8 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
                 }
             }
             getActionWidgetUpdate() -> {
-                val appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
-                if (appWidgetId != -1) {
+                val appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, INVALID_WIDGET_ID)
+                if (appWidgetId != INVALID_WIDGET_ID) {
                     val appWidgetManager = AppWidgetManager.getInstance(context)
                     val forceViewRefresh = intent.getBooleanExtra("force_view_refresh", false)
                     Log.d(getLogTag(), "Triggered update for widget $appWidgetId (forceViewRefresh=$forceViewRefresh)")
@@ -93,9 +157,13 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
         Log.d(getLogTag(), "onDeleted for widgets: ${appWidgetIds.joinToString()}")
         for (appWidgetId in appWidgetIds) {
+            // Cancel any running coroutines for this specific widget
+            activeJobs[appWidgetId]?.cancel()
+            activeJobs.remove(appWidgetId)
+            
             WidgetUpdateWorker.cancelWidgetUpdates(context, appWidgetId)
             WidgetPreferences.deleteWidgetData(context, appWidgetId)
-            Log.d(getLogTag(), "Cleaned up widget $appWidgetId")
+            Log.d(getLogTag(), "Cleaned up widget $appWidgetId and cancelled its coroutines")
         }
         super.onDeleted(context, appWidgetIds)
     }
@@ -108,7 +176,12 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
     
     override fun onDisabled(context: Context) {
         super.onDisabled(context)
-        Log.d(getLogTag(), "Widget provider disabled - clearing cache")
+        Log.d(getLogTag(), "Widget provider disabled - clearing cache and cancelling all coroutines")
+        
+        // Cancel all remaining active jobs
+        activeJobs.values.forEach { it.cancel() }
+        activeJobs.clear()
+        
         WidgetCacheManager.clearAllCache(context)
         WidgetAlarmManager.cancelRegularUpdates(context)
     }
@@ -202,7 +275,11 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
         
         if (!useCache || cachedData == null) {
             Log.d(getLogTag(), "Fetching fresh data for widget $appWidgetId from API (useCache=$useCache, hasCachedData=${cachedData != null})")
-            CoroutineScope(Dispatchers.IO).launch {
+            
+            // Cancel any existing job for this widget
+            activeJobs[appWidgetId]?.cancel()
+            
+            val job = widgetScope.launch {
                 try {
                     val result = apiService.getRoutes(widgetData.originId, widgetData.destinationId)
                     result.fold(
@@ -250,6 +327,9 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
                     }
                 }
             }
+            
+            // Track this job for this specific widget
+            activeJobs[appWidgetId] = job
         }
     }
 
@@ -257,22 +337,25 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
         Log.d(getLogTag(), "Loading tomorrow's trains for widget $appWidgetId")
         
         val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_MONTH, 1)
+        calendar.add(Calendar.DAY_OF_MONTH, DAY_OFFSET_TOMORROW)
         val tomorrowDate = DATE_FORMAT.format(calendar.time)
         
         Log.d(getLogTag(), "Fetching trains for tomorrow: $tomorrowDate")
         
         showLoadingState(context, appWidgetManager, appWidgetId, widgetData)
         
-        CoroutineScope(Dispatchers.IO).launch {
+        // Cancel any existing job for this widget
+        activeJobs[appWidgetId]?.cancel()
+        
+        val job = widgetScope.launch {
             try {
-                Log.d(getLogTag(), "Calling API for tomorrow: originId=${widgetData.originId}, destinationId=${widgetData.destinationId}, date=$tomorrowDate, hour=00:00")
-                val result = apiService.getRoutes(widgetData.originId, widgetData.destinationId, date = tomorrowDate, hour = "00:00")
+                Log.d(getLogTag(), "Calling API for tomorrow: originId=${widgetData.originId}, destinationId=${widgetData.destinationId}, date=$tomorrowDate, hour=$TOMORROW_START_HOUR")
+                val result = apiService.getRoutes(widgetData.originId, widgetData.destinationId, date = tomorrowDate, hour = TOMORROW_START_HOUR)
                 result.fold(
                     onSuccess = { scheduleData ->
                         Log.d(getLogTag(), "Tomorrow API success for widget $appWidgetId: ${scheduleData.routes.size} routes")
                         if (scheduleData.routes.isEmpty()) {
-                            Log.w(getLogTag(), "Tomorrow API returned 0 routes for $tomorrowDate from ${widgetData.originId} to ${widgetData.destinationId}")
+                            Log.w(getLogTag(), "Tomorrow API returned $EMPTY_ROUTES_COUNT routes for $tomorrowDate from ${widgetData.originId} to ${widgetData.destinationId}")
                         }
                         
                         Log.d(getLogTag(), "Tomorrow's API data cached for widget $appWidgetId")
@@ -293,6 +376,9 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
                 }
             }
         }
+        
+        // Track this job for this specific widget
+        activeJobs[appWidgetId] = job
     }
 
     private fun recordDisplayTime(context: Context, appWidgetId: Int) {

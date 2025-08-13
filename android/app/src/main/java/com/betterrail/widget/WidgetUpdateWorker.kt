@@ -65,9 +65,9 @@ class WidgetUpdateWorker(context: Context, params: WorkerParameters) : Coroutine
     }
     
     override suspend fun doWork(): ListenableWorker.Result {
-        val appWidgetId = inputData.getInt("appWidgetId", 0)
+        val appWidgetId = inputData.getInt("appWidgetId", BaseWidgetProvider.INVALID_POSITION)
         
-        if (appWidgetId == 0) {
+        if (appWidgetId == BaseWidgetProvider.INVALID_POSITION) {
             Log.e("WidgetUpdateWorker", "Invalid widget ID")
             return ListenableWorker.Result.failure()
         }

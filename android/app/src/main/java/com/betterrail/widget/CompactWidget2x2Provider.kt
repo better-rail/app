@@ -129,7 +129,7 @@ class CompactWidget2x2Provider : BaseWidgetProvider() {
         Log.d(getLogTag(), "Loading tomorrow's first train for compact widget $appWidgetId")
         
         val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_MONTH, 1)
+        calendar.add(Calendar.DAY_OF_MONTH, DAY_OFFSET_TOMORROW)
         val tomorrowDate = BaseWidgetProvider.DATE_FORMAT.format(calendar.time)
         
         Log.d(getLogTag(), "Fetching trains for tomorrow: $tomorrowDate")
@@ -147,15 +147,18 @@ class CompactWidget2x2Provider : BaseWidgetProvider() {
         setupClickIntents(context, views, appWidgetId, widgetData)
         appWidgetManager.updateAppWidget(appWidgetId, views)
         
-        CoroutineScope(Dispatchers.IO).launch {
+        // Cancel any existing job for this widget
+        BaseWidgetProvider.activeJobs[appWidgetId]?.cancel()
+        
+        val job = BaseWidgetProvider.widgetScope.launch {
             try {
-                Log.d(getLogTag(), "Calling API for tomorrow: originId=${widgetData.originId}, destinationId=${widgetData.destinationId}, date=$tomorrowDate, hour=04:00")
-                val result = apiService.getRoutes(widgetData.originId, widgetData.destinationId, date = tomorrowDate, hour = "04:00")
+                Log.d(getLogTag(), "Calling API for tomorrow: originId=${widgetData.originId}, destinationId=${widgetData.destinationId}, date=$tomorrowDate, hour=$COMPACT_WIDGET_START_HOUR")
+                val result = apiService.getRoutes(widgetData.originId, widgetData.destinationId, date = tomorrowDate, hour = COMPACT_WIDGET_START_HOUR)
                 result.fold(
                     onSuccess = { scheduleData ->
                         Log.d(getLogTag(), "Tomorrow API success for compact widget $appWidgetId: ${scheduleData.routes.size} routes")
                         if (scheduleData.routes.isEmpty()) {
-                            Log.w(getLogTag(), "Tomorrow API returned 0 routes for $tomorrowDate from ${widgetData.originId} to ${widgetData.destinationId}")
+                            Log.w(getLogTag(), "Tomorrow API returned $EMPTY_ROUTES_COUNT routes for $tomorrowDate from ${widgetData.originId} to ${widgetData.destinationId}")
                         }
                         
                         CoroutineScope(Dispatchers.Main).launch {
@@ -178,6 +181,9 @@ class CompactWidget2x2Provider : BaseWidgetProvider() {
                 }
             }
         }
+        
+        // Track this job for this specific widget
+        BaseWidgetProvider.activeJobs[appWidgetId] = job
     }
 
     private fun showTomorrowsScheduleData(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData, routes: List<com.betterrail.widget.data.WidgetTrainItem>) {

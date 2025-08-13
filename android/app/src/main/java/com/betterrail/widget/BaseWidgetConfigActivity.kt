@@ -24,7 +24,7 @@ abstract class BaseWidgetConfigActivity : Activity() {
     protected lateinit var stationAdapter: ArrayAdapter<String>
     protected val stationIds = mutableListOf<String>()
     protected val stationNames = mutableListOf<String>()
-    private val defaultRefreshIntervalMinutes = 30
+    private val defaultRefreshIntervalMinutes = BaseWidgetProvider.DEFAULT_REFRESH_INTERVAL_MINUTES
 
     abstract fun getLogTag(): String
     abstract fun createWidgetProvider(): BaseWidgetProvider
@@ -116,8 +116,8 @@ abstract class BaseWidgetConfigActivity : Activity() {
     
     
     private fun updateAddButtonState() {
-        val originSelected = originSpinner.selectedItemPosition > 0
-        val destinationSelected = destinationSpinner.selectedItemPosition > 0
+        val originSelected = originSpinner.selectedItemPosition > BaseWidgetProvider.INVALID_POSITION
+        val destinationSelected = destinationSpinner.selectedItemPosition > BaseWidgetProvider.INVALID_POSITION
         val differentStations = originSpinner.selectedItemPosition != destinationSpinner.selectedItemPosition
         
         addButton.isEnabled = originSelected && destinationSelected && differentStations
@@ -130,7 +130,7 @@ abstract class BaseWidgetConfigActivity : Activity() {
             val originPosition = originSpinner.selectedItemPosition
             val destinationPosition = destinationSpinner.selectedItemPosition
             
-            if (originPosition <= 0 || destinationPosition <= 0) {
+            if (originPosition <= BaseWidgetProvider.INVALID_POSITION || destinationPosition <= BaseWidgetProvider.INVALID_POSITION) {
                 Toast.makeText(this, "Please select both origin and destination stations", Toast.LENGTH_SHORT).show()
                 return
             }

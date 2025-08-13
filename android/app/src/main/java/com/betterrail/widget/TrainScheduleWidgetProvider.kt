@@ -54,7 +54,7 @@ class TrainScheduleWidgetProvider : BaseWidgetProvider() {
         
         views.setTextViewText(R.id.widget_title, widgetData.label.ifEmpty { 
             val combinedText = "${widgetData.originName} → ${widgetData.destinationName}"
-            if (combinedText.length > 30) {
+            if (combinedText.length > MAX_ROUTE_TEXT_LENGTH) {
                 "${widgetData.originName}\n→ ${widgetData.destinationName}"
             } else {
                 combinedText
@@ -109,7 +109,7 @@ class TrainScheduleWidgetProvider : BaseWidgetProvider() {
         
         views.setTextViewText(R.id.widget_title, widgetData.label.ifEmpty { 
             val combinedText = "${widgetData.originName} → ${widgetData.destinationName}"
-            if (combinedText.length > 30) {
+            if (combinedText.length > MAX_ROUTE_TEXT_LENGTH) {
                 "${widgetData.originName}\n→ ${widgetData.destinationName}"
             } else {
                 combinedText
@@ -145,36 +145,29 @@ class TrainScheduleWidgetProvider : BaseWidgetProvider() {
     private fun getMaxRowsForWidgetSize(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int): Int {
         return try {
             val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
-            val minHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 110)
-            val maxHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 110)
+            val minHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, DEFAULT_WIDGET_HEIGHT_DP)
+            val maxHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, DEFAULT_WIDGET_HEIGHT_DP)
             
             val effectiveHeight = maxHeight
             
             Log.d(getLogTag(), "Widget $appWidgetId size: minHeight=$minHeight, maxHeight=$maxHeight, using=$effectiveHeight")
             
-            val headerHeight = 75
-            val widgetPadding = 28
-            val bottomMargin = 12
+            val headerHeight = WIDGET_HEADER_HEIGHT_DP
+            val widgetPadding = WIDGET_PADDING_DP
+            val bottomMargin = WIDGET_BOTTOM_MARGIN_DP
             val overhead = headerHeight + widgetPadding + bottomMargin
             val availableHeight = effectiveHeight - overhead
-            val itemHeight = 48
+            val itemHeight = WIDGET_ITEM_HEIGHT_DP
             
             val calculatedRows = if (availableHeight < itemHeight) 1 else (availableHeight / itemHeight).toInt()
             
-            val maxRows = when {
-                calculatedRows >= 10 -> 10
-                calculatedRows >= 9 -> minOf(calculatedRows, 10)
-                calculatedRows >= 7 -> minOf(calculatedRows, 8)
-                calculatedRows >= 5 -> minOf(calculatedRows, 6)
-                calculatedRows >= 3 -> minOf(calculatedRows, 4)
-                else -> minOf(calculatedRows, 2)
-            }
+            val maxRows = calculateMaxRows(calculatedRows)
             
             Log.d(getLogTag(), "Widget $appWidgetId: effectiveHeight=$effectiveHeight, availableHeight=$availableHeight, calculatedRows=$calculatedRows -> maxRows=$maxRows")
             maxRows
         } catch (e: Exception) {
-            Log.e(getLogTag(), "Error getting widget size, defaulting to 3 rows", e)
-            3
+            Log.e(getLogTag(), "Error getting widget size, defaulting to $DEFAULT_WIDGET_ROWS rows", e)
+            DEFAULT_WIDGET_ROWS
         }
     }
 
@@ -183,7 +176,7 @@ class TrainScheduleWidgetProvider : BaseWidgetProvider() {
         
         views.setTextViewText(R.id.widget_title, widgetData.label.ifEmpty { 
             val combinedText = "${widgetData.originName} → ${widgetData.destinationName}"
-            if (combinedText.length > 30) {
+            if (combinedText.length > MAX_ROUTE_TEXT_LENGTH) {
                 "${widgetData.originName}\n→ ${widgetData.destinationName}"
             } else {
                 combinedText
@@ -239,7 +232,7 @@ class TrainScheduleWidgetProvider : BaseWidgetProvider() {
                 putExtra("force_view_refresh", false)
             }
             val widgetRefreshPendingIntent = PendingIntent.getBroadcast(
-                context, appWidgetId + 1000, widgetRefreshIntent,
+                context, appWidgetId + PENDING_INTENT_OFFSET, widgetRefreshIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
             views.setOnClickPendingIntent(R.id.widget_train_list, widgetRefreshPendingIntent)

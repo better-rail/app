@@ -2,6 +2,7 @@ package com.betterrail.widget.cache
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.betterrail.widget.BaseWidgetProvider
 import com.betterrail.widget.data.WidgetScheduleData
 import com.betterrail.widget.data.WidgetPreferences
 import com.google.gson.Gson
@@ -36,7 +37,7 @@ object WidgetCacheManager {
         val cachedTimestamp = prefs.getLong("timestamp_$cacheKey", 0L)
         
         // Check if cache is still valid using the configured max age
-        val maxAgeMs = maxAgeMinutes * 60 * 1000L
+        val maxAgeMs = maxAgeMinutes * BaseWidgetProvider.MILLISECONDS_PER_MINUTE
         val currentTime = System.currentTimeMillis()
         val age = currentTime - cachedTimestamp
         
@@ -74,7 +75,7 @@ object WidgetCacheManager {
         val cachedJson = prefs.getString("data_$cacheKey", null) ?: return false
         val cachedTimestamp = prefs.getLong("timestamp_$cacheKey", 0L)
         
-        val maxAgeMs = maxAgeMinutes * 60 * 1000L
+        val maxAgeMs = maxAgeMinutes * BaseWidgetProvider.MILLISECONDS_PER_MINUTE
         return (System.currentTimeMillis() - cachedTimestamp <= maxAgeMs)
     }
     
@@ -132,7 +133,7 @@ object WidgetCacheManager {
         val allEntries = prefs.all
         var hasExpired = false
         
-        val maxAgeMs = maxAgeMinutes * 60 * 1000L
+        val maxAgeMs = maxAgeMinutes * BaseWidgetProvider.MILLISECONDS_PER_MINUTE
         
         for ((key, value) in allEntries) {
             if (key.startsWith("timestamp_")) {
@@ -235,7 +236,7 @@ object WidgetCacheManager {
         val cachedTimestamp = prefs.getLong("timestamp_$cacheKey", 0L)
         
         // Check if cache is still valid using the configured max age
-        val maxAgeMs = maxAgeMinutes * 60 * 1000L
+        val maxAgeMs = maxAgeMinutes * BaseWidgetProvider.MILLISECONDS_PER_MINUTE
         val currentTime = System.currentTimeMillis()
         val age = currentTime - cachedTimestamp
         
