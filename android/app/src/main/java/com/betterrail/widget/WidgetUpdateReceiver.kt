@@ -112,13 +112,19 @@ class WidgetUpdateReceiver : BroadcastReceiver() {
             
             Log.d("WidgetUpdateReceiver", "Compact widget $appWidgetId: ${futureTrains.size} future trains from ${cachedData.routes.size} total")
             
+            // Check if cache is stale (>6 hours) and needs API refresh
+            val isCacheStale = WidgetCacheManager.isCacheStale(context, appWidgetId, widgetData.originId, widgetData.destinationId)
+            
             // Check if we need to refresh the view due to stale display time
             val shouldRefreshView = isWidgetDisplayTimeStale(context, appWidgetId)
             
-            // TODO: In future, also check if train list has changed since last update
             val shouldUpdateWidget = shouldRefreshView || futureTrains.isEmpty()
             
-            if (shouldUpdateWidget) {
+            if (isCacheStale) {
+                Log.d("WidgetUpdateReceiver", "*** STALE CACHE DETECTED (>6h) - Triggering API refresh for compact widget $appWidgetId ***")
+                WidgetRefreshManager.forceRefreshWidget(context, appWidgetId)
+                recordWidgetDisplayTime(context, appWidgetId)
+            } else if (shouldUpdateWidget) {
                 Log.d("WidgetUpdateReceiver", "Updating compact widget $appWidgetId (stale=${shouldRefreshView}, noTrains=${futureTrains.isEmpty()})")
                 
                 // Send update intent to refresh the view with current cached data
@@ -157,13 +163,19 @@ class WidgetUpdateReceiver : BroadcastReceiver() {
             
             Log.d("WidgetUpdateReceiver", "Regular widget $appWidgetId: ${futureTrains.size} future trains from ${cachedData.routes.size} total")
             
+            // Check if cache is stale (>6 hours) and needs API refresh
+            val isCacheStale = WidgetCacheManager.isCacheStale(context, appWidgetId, widgetData.originId, widgetData.destinationId)
+            
             // Check if we need to refresh the view due to stale display time
             val shouldRefreshView = isWidgetDisplayTimeStale(context, appWidgetId)
             
-            // TODO: In future, also check if train list has changed since last update
             val shouldUpdateWidget = shouldRefreshView || futureTrains.isEmpty()
             
-            if (shouldUpdateWidget) {
+            if (isCacheStale) {
+                Log.d("WidgetUpdateReceiver", "*** STALE CACHE DETECTED (>6h) - Triggering API refresh for regular widget $appWidgetId ***")
+                WidgetRefreshManager.forceRefreshWidget(context, appWidgetId)
+                recordWidgetDisplayTime(context, appWidgetId)
+            } else if (shouldUpdateWidget) {
                 Log.d("WidgetUpdateReceiver", "Updating regular widget $appWidgetId (stale=${shouldRefreshView}, noTrains=${futureTrains.isEmpty()})")
                 
                 // Send update intent to refresh the view with current cached data

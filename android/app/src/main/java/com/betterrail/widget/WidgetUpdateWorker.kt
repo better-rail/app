@@ -80,7 +80,18 @@ class WidgetUpdateWorker(context: Context, params: WorkerParameters) : Coroutine
         return try {
             val currentTime = System.currentTimeMillis()
             val timeFormat = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault())
-            Log.d("WidgetUpdateWorker", "*** WORKMANAGER API REFRESH *** at ${timeFormat.format(java.util.Date(currentTime))} for widget $appWidgetId (screen ${if (screenOn) "on" else "off"})")
+            
+            // Check cache staleness before deciding update strategy
+            val widgetData = com.betterrail.widget.data.WidgetPreferences.getWidgetData(applicationContext, appWidgetId)
+            val isCacheStale = com.betterrail.widget.cache.WidgetCacheManager.isCacheStale(
+                applicationContext, appWidgetId, widgetData.originId, widgetData.destinationId
+            )
+            
+            if (isCacheStale) {
+                Log.d("WidgetUpdateWorker", "*** STALE CACHE DETECTED (>6h old) - FORCING API REFRESH *** at ${timeFormat.format(java.util.Date(currentTime))} for widget $appWidgetId")
+            } else {
+                Log.d("WidgetUpdateWorker", "*** WORKMANAGER API REFRESH *** at ${timeFormat.format(java.util.Date(currentTime))} for widget $appWidgetId (screen ${if (screenOn) "on" else "off"})")
+            }
             
             // Use the centralized widget refresh manager for API refresh
             WidgetRefreshManager.forceRefreshWidget(applicationContext, appWidgetId)

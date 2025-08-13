@@ -90,157 +90,200 @@ class RailApiService {
                     .addHeader("Ocp-Apim-Subscription-Key", API_KEY)
                     .build()
 
-                val response = client.newCall(request).execute()
+                // Retry logic for network timeouts with exponential backoff
+                var lastException: Exception? = null
+                val maxRetries = 3
+                val retryDelays = listOf(1000L, 2000L, 4000L) // 1s, 2s, 4s
                 
-                android.util.Log.d("RailApiService", "Response code: ${response.code}")
+                for (attempt in 0 until maxRetries) {
+                    try {
+                        android.util.Log.d("RailApiService", "API attempt ${attempt + 1}/$maxRetries")
+                        val response = client.newCall(request).execute()
+                        
+                        android.util.Log.d("RailApiService", "Response code: ${response.code}")
+                        
+                        if (!response.isSuccessful) {
+                            android.util.Log.e("RailApiService", "HTTP Error: ${response.code} - ${response.message}")
+                            return@withContext Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
+                        }
+
+                        val responseBody = response.body?.string()
+                        if (responseBody.isNullOrEmpty()) {
+                            android.util.Log.e("RailApiService", "Empty response body")
+                            return@withContext Result.failure(Exception("Empty response body"))
+                        }
+                        
+                        // Success! Process the response
+                        return@withContext processApiResponse(responseBody, originId, destinationId, isRequestForFutureDate)
+                        
+                    } catch (e: java.net.SocketTimeoutException) {
+                        android.util.Log.w("RailApiService", "Socket timeout on attempt ${attempt + 1}/$maxRetries: ${e.message}")
+                        lastException = e
+                        if (attempt < maxRetries - 1) {
+                            kotlinx.coroutines.delay(retryDelays[attempt])
+                        }
+                    } catch (e: java.net.ConnectException) {
+                        android.util.Log.w("RailApiService", "Connection failed on attempt ${attempt + 1}/$maxRetries: ${e.message}")
+                        lastException = e
+                        if (attempt < maxRetries - 1) {
+                            kotlinx.coroutines.delay(retryDelays[attempt])
+                        }
+                    } catch (e: IOException) {
+                        android.util.Log.w("RailApiService", "IO exception on attempt ${attempt + 1}/$maxRetries: ${e.message}")
+                        lastException = e
+                        if (attempt < maxRetries - 1) {
+                            kotlinx.coroutines.delay(retryDelays[attempt])
+                        }
+                    } catch (e: Exception) {
+                        // Non-retryable exceptions - fail immediately
+                        android.util.Log.e("RailApiService", "Non-retryable exception: ${e.message}", e)
+                        return@withContext Result.failure(e)
+                    }
+                }
                 
-                if (!response.isSuccessful) {
-                    android.util.Log.e("RailApiService", "HTTP Error: ${response.code} - ${response.message}")
-                    return@withContext Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
-                }
-
-                val responseBody = response.body?.string()
-                if (responseBody.isNullOrEmpty()) {
-                    android.util.Log.e("RailApiService", "Empty response body")
-                    return@withContext Result.failure(Exception("Empty response body"))
-                }
-
-                android.util.Log.d("RailApiService", "Response body: ${responseBody.take(500)}...")
-
-                // Parse the response with defensive parsing
-                try {
-                    val jsonResponse = JsonParser.parseString(responseBody).asJsonObject
-                    
-                    // Try different possible response structures
-                    var travels: com.google.gson.JsonArray? = null
-                    
-                    // Check for "result.travels" structure
-                    val result = jsonResponse.getAsJsonObject("result")
-                    if (result != null) {
-                        travels = result.getAsJsonArray("travels")
-                    }
-                    
-                    // If not found, try direct "travels" or "Data.Routes"
-                    if (travels == null) {
-                        travels = jsonResponse.getAsJsonArray("travels")
-                    }
-                    if (travels == null) {
-                        val data = jsonResponse.getAsJsonObject("Data")
-                        if (data != null) {
-                            travels = data.getAsJsonArray("Routes")
-                        }
-                    }
-                    
-                    if (travels == null || travels.size() == 0) {
-                        // No routes found, but this is not an error
-                        android.util.Log.d("RailApiService", "No travels/routes found in response")
-                        return@withContext Result.success(WidgetScheduleData(
-                            routes = emptyList(),
-                            originName = "Station $originId",
-                            destinationName = "Station $destinationId"
-                        ))
-                    }
-
-                    android.util.Log.d("RailApiService", "Found ${travels.size()} travels in response")
-
-                    val routes = mutableListOf<WidgetTrainItem>()
-                    
-                    // Parse all travels to find upcoming trains
-                    val maxRoutes = travels.size() // Check all available travels
-                    android.util.Log.d("RailApiService", "Processing all $maxRoutes travels (no limit)")
-                    
-                    for (i in 0 until maxRoutes) {
-                        try {
-                            val travel = travels[i].asJsonObject
-                            android.util.Log.d("RailApiService", "Processing travel $i: ${travel.toString()}")
-                            var trains: com.google.gson.JsonArray? = travel.getAsJsonArray("trains")
-                            
-                            // Try alternative structures
-                            if (trains == null) {
-                                trains = travel.getAsJsonArray("Train")
-                            }
-                            
-                            // Get departure and arrival times from travel object first
-                            val departureTime = travel.get("departureTime")?.asString ?: ""
-                            val arrivalTime = travel.get("arrivalTime")?.asString ?: ""
-                            
-                            // Get platform and delay from first train if available
-                            var originPlatform = "1"
-                            var delay = 0
-                            if (trains != null && trains.size() > 0) {
-                                val firstTrain = trains[0].asJsonObject
-                                originPlatform = firstTrain.get("originPlatform")?.asString 
-                                    ?: firstTrain.get("Platform")?.asString ?: "1"
-                                
-                                // Get delay if available
-                                val trainPositionElement = firstTrain.get("trainPosition")
-                                if (trainPositionElement != null && !trainPositionElement.isJsonNull) {
-                                    val trainPosition = trainPositionElement.asJsonObject
-                                    delay = trainPosition.get("calcDiffMinutes")?.asInt ?: 0
-                                }
-                                // Try alternative delay sources
-                                if (delay == 0) {
-                                    delay = firstTrain.get("Delay")?.asInt ?: travel.get("Delay")?.asInt ?: 0
-                                }
-                            } else {
-                                // No trains array, try to get platform from travel object
-                                originPlatform = travel.get("platform")?.asString ?: "1"
-                                // Try to get delay from travel object
-                                delay = travel.get("Delay")?.asInt ?: 0
-                            }
-                            
-                            val isExchange = trains?.size()?.let { it > 1 } ?: false
-                            
-                            // Format times for display (HH:mm)
-                            val formattedDepartureTime = formatTimeForDisplay(departureTime)
-                            val formattedArrivalTime = formatTimeForDisplay(arrivalTime)
-                            
-                            // Calculate duration and changes text
-                            val duration = calculateDuration(departureTime, arrivalTime)
-                            val changesText = formatChangesText(isExchange)
-                            
-                            android.util.Log.d("RailApiService", "Travel $i: dep=$formattedDepartureTime, arr=$formattedArrivalTime, platform=$originPlatform, delay=${delay}min")
-                            
-                            if (formattedDepartureTime.isNotEmpty() && isUpcomingDeparture(formattedDepartureTime, isRequestForFutureDate)) {
-                                // Use the delay calculated above, don't reset to 0
-                                routes.add(
-                                    WidgetTrainItem(
-                                        departureTime = formattedDepartureTime,
-                                        arrivalTime = formattedArrivalTime,
-                                        platform = originPlatform,
-                                        delay = delay,
-                                        isExchange = isExchange,
-                                        duration = duration,
-                                        changesText = changesText
-                                    )
-                                )
-                                
-                                // No longer limiting to 5 trains - return all available upcoming trains
-                            }
-                        } catch (e: Exception) {
-                            // Skip this route if parsing fails
-                            android.util.Log.e("RailApiService", "Failed to parse travel $i: ${e.message}", e)
-                            continue
-                        }
-                    }
-
-                    android.util.Log.d("RailApiService", "Parsed ${routes.size} routes successfully")
-                    
-                    Result.success(WidgetScheduleData(
-                        routes = routes,
-                        originName = "Station $originId", // TODO: Get actual station names
-                        destinationName = "Station $destinationId"
-                    ))
-                } catch (e: Exception) {
-                    return@withContext Result.failure(Exception("Failed to parse API response: ${e.message}"))
-                }
+                // All retries exhausted
+                android.util.Log.e("RailApiService", "All $maxRetries attempts failed, last error: ${lastException?.message}")
+                return@withContext Result.failure(lastException ?: Exception("All retry attempts failed"))
 
             } catch (e: Exception) {
+                android.util.Log.e("RailApiService", "Unexpected error in getRoutes: ${e.message}", e)
                 Result.failure(e)
             }
         }
     }
 
+    private fun processApiResponse(responseBody: String, originId: String, destinationId: String, isRequestForFutureDate: Boolean): Result<WidgetScheduleData> {
+        try {
+            android.util.Log.d("RailApiService", "Response body: ${responseBody.take(500)}...")
+
+            // Parse the response with defensive parsing
+            val jsonResponse = JsonParser.parseString(responseBody).asJsonObject
+            
+            // Try different possible response structures
+            var travels: com.google.gson.JsonArray? = null
+            
+            // Check for "result.travels" structure
+            val result = jsonResponse.getAsJsonObject("result")
+            if (result != null) {
+                travels = result.getAsJsonArray("travels")
+            }
+            
+            // If not found, try direct "travels" or "Data.Routes"
+            if (travels == null) {
+                travels = jsonResponse.getAsJsonArray("travels")
+            }
+            if (travels == null) {
+                val data = jsonResponse.getAsJsonObject("Data")
+                if (data != null) {
+                    travels = data.getAsJsonArray("Routes")
+                }
+            }
+            
+            if (travels == null || travels.size() == 0) {
+                // No routes found, but this is not an error
+                android.util.Log.d("RailApiService", "No travels/routes found in response")
+                return Result.success(WidgetScheduleData(
+                    routes = emptyList(),
+                    originName = "Station $originId",
+                    destinationName = "Station $destinationId"
+                ))
+            }
+
+            android.util.Log.d("RailApiService", "Found ${travels.size()} travels in response")
+
+            val routes = mutableListOf<WidgetTrainItem>()
+            
+            // Parse all travels to find upcoming trains
+            val maxRoutes = travels.size() // Check all available travels
+            android.util.Log.d("RailApiService", "Processing all $maxRoutes travels (no limit)")
+            
+            for (i in 0 until maxRoutes) {
+                try {
+                    val travel = travels[i].asJsonObject
+                    android.util.Log.d("RailApiService", "Processing travel $i: ${travel.toString()}")
+                    var trains: com.google.gson.JsonArray? = travel.getAsJsonArray("trains")
+                    
+                    // Try alternative structures
+                    if (trains == null) {
+                        trains = travel.getAsJsonArray("Train")
+                    }
+                    
+                    // Get departure and arrival times from travel object first
+                    val departureTime = travel.get("departureTime")?.asString ?: ""
+                    val arrivalTime = travel.get("arrivalTime")?.asString ?: ""
+                    
+                    // Get platform and delay from first train if available
+                    var originPlatform = "1"
+                    var delay = 0
+                    if (trains != null && trains.size() > 0) {
+                        val firstTrain = trains[0].asJsonObject
+                        originPlatform = firstTrain.get("originPlatform")?.asString 
+                            ?: firstTrain.get("Platform")?.asString ?: "1"
+                        
+                        // Get delay if available
+                        val trainPositionElement = firstTrain.get("trainPosition")
+                        if (trainPositionElement != null && !trainPositionElement.isJsonNull) {
+                            val trainPosition = trainPositionElement.asJsonObject
+                            delay = trainPosition.get("calcDiffMinutes")?.asInt ?: 0
+                        }
+                        // Try alternative delay sources
+                        if (delay == 0) {
+                            delay = firstTrain.get("Delay")?.asInt ?: travel.get("Delay")?.asInt ?: 0
+                        }
+                    } else {
+                        // No trains array, try to get platform from travel object
+                        originPlatform = travel.get("platform")?.asString ?: "1"
+                        // Try to get delay from travel object
+                        delay = travel.get("Delay")?.asInt ?: 0
+                    }
+                    
+                    val isExchange = trains?.size()?.let { it > 1 } ?: false
+                    
+                    // Format times for display (HH:mm)
+                    val formattedDepartureTime = formatTimeForDisplay(departureTime)
+                    val formattedArrivalTime = formatTimeForDisplay(arrivalTime)
+                    
+                    // Calculate duration and changes text
+                    val duration = calculateDuration(departureTime, arrivalTime)
+                    val changesText = formatChangesText(isExchange)
+                    
+                    android.util.Log.d("RailApiService", "Travel $i: dep=$formattedDepartureTime, arr=$formattedArrivalTime, platform=$originPlatform, delay=${delay}min")
+                    
+                    if (formattedDepartureTime.isNotEmpty() && isUpcomingDeparture(formattedDepartureTime, isRequestForFutureDate)) {
+                        // Use the delay calculated above, don't reset to 0
+                        routes.add(
+                            WidgetTrainItem(
+                                departureTime = formattedDepartureTime,
+                                arrivalTime = formattedArrivalTime,
+                                platform = originPlatform,
+                                delay = delay,
+                                isExchange = isExchange,
+                                duration = duration,
+                                changesText = changesText
+                            )
+                        )
+                        
+                        // No longer limiting to 5 trains - return all available upcoming trains
+                    }
+                } catch (e: Exception) {
+                    // Skip this route if parsing fails
+                    android.util.Log.e("RailApiService", "Failed to parse travel $i: ${e.message}", e)
+                    continue
+                }
+            }
+
+            android.util.Log.d("RailApiService", "Parsed ${routes.size} routes successfully")
+            
+            return Result.success(WidgetScheduleData(
+                routes = routes,
+                originName = "Station $originId", // TODO: Get actual station names
+                destinationName = "Station $destinationId"
+            ))
+        } catch (e: Exception) {
+            return Result.failure(Exception("Failed to parse API response: ${e.message}"))
+        }
+    }
+    
     private fun formatTimeForDisplay(isoTimeString: String): String {
         return try {
             if (isoTimeString.isEmpty()) return ""

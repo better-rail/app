@@ -10,6 +10,10 @@ import com.google.gson.JsonSyntaxException
 
 object WidgetCacheManager {
     private const val PREFS_NAME = "widget_cache"
+    private const val CACHE_EXPIRY_HOURS = 12 // Cache data for 12 hours
+    private const val CACHE_EXPIRY_MINUTES = CACHE_EXPIRY_HOURS * 60
+    private const val CACHE_STALENESS_HOURS = 6 // Consider cache stale after 6 hours for proactive refresh
+    private const val CACHE_STALENESS_MINUTES = CACHE_STALENESS_HOURS * 60
     
     private val gson = Gson()
     
@@ -36,16 +40,16 @@ object WidgetCacheManager {
         }
         val cachedTimestamp = prefs.getLong("timestamp_$cacheKey", 0L)
         
-        // Check if cache is still valid using the configured max age
-        val maxAgeMs = maxAgeMinutes * BaseWidgetProvider.MILLISECONDS_PER_MINUTE
+        // Check if cache is still valid using the fixed 12-hour expiry to prevent widget freezing
+        val maxAgeMs = CACHE_EXPIRY_MINUTES * BaseWidgetProvider.MILLISECONDS_PER_MINUTE
         val currentTime = System.currentTimeMillis()
         val age = currentTime - cachedTimestamp
         
-        android.util.Log.d("WidgetCacheManager", "Cache age: ${age}ms, max age: ${maxAgeMs}ms (${maxAgeMinutes}min) for key: $cacheKey")
+        android.util.Log.d("WidgetCacheManager", "Cache age: ${age}ms, max age: ${maxAgeMs}ms (${CACHE_EXPIRY_HOURS}h) for key: $cacheKey")
         
         if (age > maxAgeMs) {
-            // Cache expired, remove it
-            android.util.Log.d("WidgetCacheManager", "Cache expired for key: $cacheKey, removing")
+            // Cache expired after 12 hours, remove it
+            android.util.Log.d("WidgetCacheManager", "Cache expired after ${CACHE_EXPIRY_HOURS} hours for key: $cacheKey, removing")
             prefs.edit()
                 .remove("data_$cacheKey")
                 .remove("timestamp_$cacheKey")
@@ -75,7 +79,7 @@ object WidgetCacheManager {
         val cachedJson = prefs.getString("data_$cacheKey", null) ?: return false
         val cachedTimestamp = prefs.getLong("timestamp_$cacheKey", 0L)
         
-        val maxAgeMs = maxAgeMinutes * BaseWidgetProvider.MILLISECONDS_PER_MINUTE
+        val maxAgeMs = CACHE_EXPIRY_MINUTES * BaseWidgetProvider.MILLISECONDS_PER_MINUTE
         return (System.currentTimeMillis() - cachedTimestamp <= maxAgeMs)
     }
     
@@ -133,7 +137,7 @@ object WidgetCacheManager {
         val allEntries = prefs.all
         var hasExpired = false
         
-        val maxAgeMs = maxAgeMinutes * BaseWidgetProvider.MILLISECONDS_PER_MINUTE
+        val maxAgeMs = CACHE_EXPIRY_MINUTES * BaseWidgetProvider.MILLISECONDS_PER_MINUTE
         
         for ((key, value) in allEntries) {
             if (key.startsWith("timestamp_")) {
@@ -235,16 +239,16 @@ object WidgetCacheManager {
         }
         val cachedTimestamp = prefs.getLong("timestamp_$cacheKey", 0L)
         
-        // Check if cache is still valid using the configured max age
-        val maxAgeMs = maxAgeMinutes * BaseWidgetProvider.MILLISECONDS_PER_MINUTE
+        // Check if cache is still valid using the fixed 12-hour expiry to prevent widget freezing  
+        val maxAgeMs = CACHE_EXPIRY_MINUTES * BaseWidgetProvider.MILLISECONDS_PER_MINUTE
         val currentTime = System.currentTimeMillis()
         val age = currentTime - cachedTimestamp
         
-        android.util.Log.d("WidgetCacheManager", "Widget-specific cache age: ${age}ms, max age: ${maxAgeMs}ms (${maxAgeMinutes}min) for key: $cacheKey")
+        android.util.Log.d("WidgetCacheManager", "Widget-specific cache age: ${age}ms, max age: ${maxAgeMs}ms (${CACHE_EXPIRY_HOURS}h) for key: $cacheKey")
         
         if (age > maxAgeMs) {
-            // Cache expired, remove it
-            android.util.Log.d("WidgetCacheManager", "Widget-specific cache expired for key: $cacheKey, removing")
+            // Cache expired after 12 hours, remove it
+            android.util.Log.d("WidgetCacheManager", "Widget-specific cache expired after ${CACHE_EXPIRY_HOURS} hours for key: $cacheKey, removing")
             prefs.edit()
                 .remove("data_$cacheKey")
                 .remove("timestamp_$cacheKey")
@@ -307,6 +311,31 @@ object WidgetCacheManager {
         val prefs = getSharedPreferences(context)
         val cacheKey = getCacheKey(originId, destinationId)
         return prefs.getString("data_$cacheKey", null) != null
+    }
+
+    /**
+     * Checks if the widget's cache is stale (>6 hours old) and needs proactive refresh
+     */
+    fun isCacheStale(context: Context, appWidgetId: Int, originId: String, destinationId: String): Boolean {
+        val prefs = getSharedPreferences(context)
+        val cacheKey = getCacheKeyWithWidget(appWidgetId, originId, destinationId)
+        
+        val cachedTimestamp = prefs.getLong("timestamp_$cacheKey", 0L)
+        if (cachedTimestamp == 0L) {
+            android.util.Log.d("WidgetCacheManager", "No cache found for widget $appWidgetId, considering stale")
+            return true
+        }
+        
+        val currentTime = System.currentTimeMillis()
+        val age = currentTime - cachedTimestamp
+        val stalenessThresholdMs = CACHE_STALENESS_MINUTES * BaseWidgetProvider.MILLISECONDS_PER_MINUTE
+        
+        val isStale = age > stalenessThresholdMs
+        val ageHours = age / (60 * 60 * 1000)
+        
+        android.util.Log.d("WidgetCacheManager", "Cache staleness check for widget $appWidgetId: age=${ageHours}h, threshold=${CACHE_STALENESS_HOURS}h, isStale=$isStale")
+        
+        return isStale
     }
     
     fun clearExpiredCacheForWidget(context: Context, appWidgetId: Int) {
