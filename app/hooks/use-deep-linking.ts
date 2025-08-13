@@ -30,13 +30,28 @@ export function useDeepLinking(rootStore: RootStore, navigationRef: MutableRefOb
     setOrigin(origin)
     setDestination(destination)
 
-    // @ts-expect-error navigator type
-    navigationRef.current?.navigate("routeList", {
-      originId,
-      destinationId,
-      time: new Date().getTime(),
-      enableQuery: true,
-    })
+    if (Platform.OS === "ios") {
+      // iOS navigation - keep existing working logic
+      // @ts-expect-error navigator type
+      navigationRef.current?.navigate("routeList", {
+        originId,
+        destinationId,
+        time: new Date().getTime(),
+        enableQuery: true,
+      })
+    } else {
+      // Android navigation - use nested navigation structure
+      // @ts-expect-error navigator type
+      navigationRef.current?.navigate("mainStack", {
+        screen: "routeList",
+        params: {
+          originId,
+          destinationId,
+          time: new Date().getTime(),
+          enableQuery: true,
+        },
+      })
+    }
 
     // reload widget timeline
     reloadAllTimelines()
@@ -110,7 +125,7 @@ export function useDeepLinking(rootStore: RootStore, navigationRef: MutableRefOb
     let linkingListener: EmitterSubscription
     let shortcutsListener: EmitterSubscription
 
-    if (Platform.OS === "ios") {
+    if (Platform.OS === "ios" || Platform.OS === "android") {
       Linking.getInitialURL().then(handleDeepLinkURL)
 
       linkingListener = Linking.addEventListener("url", ({ url }) => {
