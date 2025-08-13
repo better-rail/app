@@ -70,22 +70,59 @@
 
         </LinearLayout>
 
-    </LinearLayout>
+        <!-- Middle - Next Train Info -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="bottom"
+            android:paddingBottom="8dp">
 
-    <!-- Floating Platform and Train Number at Bottom -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:padding="12dp">
+            <!-- Next Train Label -->
+            <TextView
+                android:id="@+id/widget_train_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="NEXT TRAIN"
+                android:textColor="#FFFF9999"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif"
+                android:shadowColor="#FF000000"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="2"
+                android:layout_marginBottom="2dp" />
+
+            <!-- Train Time -->
+            <TextView
+                android:id="@+id/widget_train_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--:--"
+                android:textColor="#FFFFFF"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif"
+                android:shadowColor="#FF000000"
+                android:shadowDx="3"
+                android:shadowDy="3"
+                android:shadowRadius="6" />
+
+        </LinearLayout>
+
+        <!-- Bottom - Platform Info -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
         <TextView
             android:id="@+id/widget_platform"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="Platform"
             android:textColor="#FFFFFF"
             android:textSize="12sp"
@@ -100,8 +137,8 @@
             android:id="@+id/widget_dot_separator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="12dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
             android:gravity="center"
             android:text="‧"
             android:textColor="#FFFFFF"
@@ -115,10 +152,8 @@
 
         <TextView
             android:id="@+id/widget_train_number"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="end"
             android:text="Train"
             android:textColor="#FFFFFF"
             android:textSize="12sp"
@@ -129,43 +164,9 @@
             android:shadowDy="1"
             android:shadowRadius="3" />
 
+        </LinearLayout>
+
     </LinearLayout>
-
-    <!-- Floating Next Train Label -->
-    <TextView
-        android:id="@+id/widget_train_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top"
-        android:layout_marginTop="140dp"
-        android:layout_marginLeft="10dp"
-        android:text="NEXT TRAIN"
-        android:textColor="#FFFF9999"
-        android:textSize="12sp"
-        android:textStyle="bold"
-        android:fontFamily="sans-serif"
-        android:shadowColor="#FF000000"
-        android:shadowDx="1"
-        android:shadowDy="1"
-        android:shadowRadius="2" />
-
-    <!-- Floating Train Time -->
-    <TextView
-        android:id="@+id/widget_train_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top"
-        android:layout_marginTop="155dp"
-        android:layout_marginLeft="10dp"
-        android:text="--:--"
-        android:textColor="#FFFFFF"
-        android:textSize="36sp"
-        android:textStyle="bold"
-        android:fontFamily="sans-serif"
-        android:shadowColor="#FF000000"
-        android:shadowDx="3"
-        android:shadowDy="3"
-        android:shadowRadius="6" />
 
     <!-- Loading Overlay -->
     <TextView

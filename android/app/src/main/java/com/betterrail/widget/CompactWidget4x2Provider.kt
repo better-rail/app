@@ -39,7 +39,8 @@ class CompactWidget4x2Provider : BaseWidgetProvider() {
         views.setTextViewText(R.id.widget_destination, "Select your route")
         views.setTextViewText(R.id.widget_next_train_time, "--:--")
         views.setTextViewText(R.id.widget_arrival_time, "--:--")
-        views.setTextViewText(R.id.widget_platform_train_info, "Platform -- • Train ---")
+        views.setTextViewText(R.id.widget_platform, "Platform --")
+        views.setTextViewText(R.id.widget_train_number, "Train ---")
         
         // Clear upcoming trains list
         clearUpcomingTrains(views)
@@ -69,7 +70,8 @@ class CompactWidget4x2Provider : BaseWidgetProvider() {
         views.setTextViewText(R.id.widget_destination, widgetData.destinationName)
         views.setTextViewText(R.id.widget_next_train_time, "--:--")
         views.setTextViewText(R.id.widget_arrival_time, "--:--")
-        views.setTextViewText(R.id.widget_platform_train_info, "Loading...")
+        views.setTextViewText(R.id.widget_platform, "Loading...")
+        views.setTextViewText(R.id.widget_train_number, "")
         
         clearUpcomingTrains(views)
         
@@ -110,7 +112,10 @@ class CompactWidget4x2Provider : BaseWidgetProvider() {
                 "Platform TBD"
             }
             val trainNumber = nextTrain.departureTime.replace(":", "")
-            views.setTextViewText(R.id.widget_platform_train_info, "$platformText • Train $trainNumber")
+            views.setTextViewText(R.id.widget_platform, platformText)
+            
+            val trainText = "Train $trainNumber"
+            views.setTextViewText(R.id.widget_train_number, trainText)
             
             // Show upcoming trains
             showUpcomingTrains(views, futureTrains.drop(1))
@@ -199,7 +204,8 @@ class CompactWidget4x2Provider : BaseWidgetProvider() {
         views.setTextViewText(R.id.widget_arrival_time, "--:--")
         views.setTextViewText(R.id.widget_train_label, "TOMORROW")
         views.setTextColor(R.id.widget_train_label, android.graphics.Color.parseColor("#FF9966CC"))
-        views.setTextViewText(R.id.widget_platform_train_info, "Loading...")
+        views.setTextViewText(R.id.widget_platform, "Loading...")
+        views.setTextViewText(R.id.widget_train_number, "")
         views.setViewVisibility(R.id.widget_loading_text, android.view.View.VISIBLE)
         
         clearUpcomingTrains(views)
@@ -265,7 +271,10 @@ class CompactWidget4x2Provider : BaseWidgetProvider() {
                 "Platform TBD"
             }
             val trainNumber = firstTrain.departureTime.replace(":", "")
-            views.setTextViewText(R.id.widget_platform_train_info, "$platformText • Train $trainNumber")
+            views.setTextViewText(R.id.widget_platform, platformText)
+            
+            val trainText = "Train $trainNumber"
+            views.setTextViewText(R.id.widget_train_number, trainText)
             
             // Show upcoming trains for tomorrow
             showUpcomingTrains(views, routes.drop(1))
@@ -274,7 +283,8 @@ class CompactWidget4x2Provider : BaseWidgetProvider() {
         } else {
             views.setTextViewText(R.id.widget_next_train_time, "No trains")
             views.setTextViewText(R.id.widget_arrival_time, "--:--")
-            views.setTextViewText(R.id.widget_platform_train_info, "Check schedule")
+            views.setTextViewText(R.id.widget_platform, "Check schedule")
+            views.setTextViewText(R.id.widget_train_number, "")
             clearUpcomingTrains(views)
         }
         
@@ -298,7 +308,8 @@ class CompactWidget4x2Provider : BaseWidgetProvider() {
         views.setTextViewText(R.id.widget_arrival_time, "--:--")
         views.setTextViewText(R.id.widget_train_label, "TOMORROW")
         views.setTextColor(R.id.widget_train_label, android.graphics.Color.parseColor("#FF9966CC"))
-        views.setTextViewText(R.id.widget_platform_train_info, "Check schedule")
+        views.setTextViewText(R.id.widget_platform, "Check schedule")
+        views.setTextViewText(R.id.widget_train_number, "")
         
         clearUpcomingTrains(views)
         
@@ -330,7 +341,8 @@ class CompactWidget4x2Provider : BaseWidgetProvider() {
         views.setTextViewText(R.id.widget_destination, widgetData.destinationName)
         views.setTextViewText(R.id.widget_next_train_time, "--:--")
         views.setTextViewText(R.id.widget_arrival_time, "--:--")
-        views.setTextViewText(R.id.widget_platform_train_info, "$errorMessage • Tap to retry")
+        views.setTextViewText(R.id.widget_platform, errorMessage)
+        views.setTextViewText(R.id.widget_train_number, "Tap to retry")
         
         clearUpcomingTrains(views)
         
