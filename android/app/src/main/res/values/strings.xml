@@ -10,7 +10,7 @@
     <string name="widget_cancel">Cancel</string>
     <string name="widget_add">Add Widget</string>
     <string name="widget_2x2_description">Compact 2x2 train widget</string>
-    <string name="widget_4x2_description">Compact 4x2 train widget with upcoming trains</string>
+    <string name="widget_4x2_description">Compact 4x2 train schedule</string>
     <string name="select_station">Select Station</string>
     
     <!-- Widget display strings -->
