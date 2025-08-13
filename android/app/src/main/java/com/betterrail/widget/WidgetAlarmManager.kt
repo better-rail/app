@@ -16,19 +16,24 @@ object WidgetAlarmManager {
     private const val UPDATE_INTERVAL_MS = 60000L // 1 minute (more reasonable for train data)
     
     /**
+     * Gets AlarmManager service safely
+     */
+    private fun getAlarmManager(context: Context): AlarmManager? {
+        return ContextCompat.getSystemService(context, AlarmManager::class.java)?.also {
+            Log.d("WidgetAlarmManager", "AlarmManager obtained successfully")
+        } ?: run {
+            Log.e("WidgetAlarmManager", "AlarmManager not available")
+            null
+        }
+    }
+
+    /**
      * Schedules regular widget view updates using AlarmManager.
      * This is the Android official way for time-critical widgets.
      */
     fun scheduleRegularUpdates(context: Context) {
         Log.d("WidgetAlarmManager", "scheduleRegularUpdates() called")
-        val alarmManager = ContextCompat.getSystemService(context, AlarmManager::class.java)
-        
-        if (alarmManager == null) {
-            Log.e("WidgetAlarmManager", "AlarmManager not available")
-            return
-        }
-        
-        Log.d("WidgetAlarmManager", "AlarmManager obtained successfully")
+        val alarmManager = getAlarmManager(context) ?: return
         
         val intent = Intent(context, WidgetUpdateReceiver::class.java).apply {
             action = WidgetUpdateReceiver.ACTION_UPDATE_ALL_WIDGETS
@@ -61,12 +66,7 @@ object WidgetAlarmManager {
      */
     fun scheduleNextUpdate(context: Context, nextTrainDepartureTime: String? = null) {
         Log.d("WidgetAlarmManager", "scheduleNextUpdate() called with next train: $nextTrainDepartureTime")
-        val alarmManager = ContextCompat.getSystemService(context, AlarmManager::class.java)
-        
-        if (alarmManager == null) {
-            Log.e("WidgetAlarmManager", "AlarmManager not available for chaining")
-            return
-        }
+        val alarmManager = getAlarmManager(context) ?: return
         
         val intent = Intent(context, WidgetUpdateReceiver::class.java).apply {
             action = WidgetUpdateReceiver.ACTION_UPDATE_ALL_WIDGETS
@@ -140,12 +140,7 @@ object WidgetAlarmManager {
      * Cancels all scheduled widget updates.
      */
     fun cancelRegularUpdates(context: Context) {
-        val alarmManager = ContextCompat.getSystemService(context, AlarmManager::class.java)
-        
-        if (alarmManager == null) {
-            Log.e("WidgetAlarmManager", "AlarmManager not available")
-            return
-        }
+        val alarmManager = getAlarmManager(context) ?: return
         
         val intent = Intent(context, WidgetUpdateReceiver::class.java).apply {
             action = WidgetUpdateReceiver.ACTION_UPDATE_ALL_WIDGETS
@@ -243,7 +238,7 @@ object WidgetAlarmManager {
      * Debug method to check current alarm status
      */
     fun getAlarmStatus(context: Context): String {
-        val alarmManager = ContextCompat.getSystemService(context, AlarmManager::class.java)
+        val alarmManager = getAlarmManager(context)
         val hasPermission = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
             alarmManager?.canScheduleExactAlarms() ?: false
         } else {

@@ -29,6 +29,7 @@ class CompactWidget4x2Provider : BaseWidgetProvider() {
     override fun getActionRefresh(): String = ACTION_REFRESH
     override fun getActionWidgetUpdate(): String = ACTION_WIDGET_UPDATE
     override fun getLayoutResource(): Int = R.layout.widget_compact_4x2
+    override fun getWidgetContainerId(): Int = R.id.widget_container_compact_4x2
     override fun getLogTag(): String = "CompactWidget4x2Provider"
 
     override fun showConfigurationState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
@@ -125,9 +126,7 @@ class CompactWidget4x2Provider : BaseWidgetProvider() {
         
         views.setViewVisibility(R.id.widget_loading_text, android.view.View.GONE)
         
-        setStationBackground(views, widgetData.originId)
-        
-        setupClickIntents(context, views, appWidgetId, widgetData)
+        setupWidgetViewBase(context, views, appWidgetId, widgetData, "widget4x2")
         try {
             Log.d(getLogTag(), "About to call updateAppWidget for compact 4x2 widget $appWidgetId with station background for originId: ${widgetData.originId}")
             appWidgetManager.updateAppWidget(appWidgetId, views)
@@ -210,8 +209,7 @@ class CompactWidget4x2Provider : BaseWidgetProvider() {
         
         clearUpcomingTrains(views)
         
-        setStationBackground(views, widgetData.originId)
-        setupClickIntents(context, views, appWidgetId, widgetData)
+        setupWidgetViewBase(context, views, appWidgetId, widgetData, "widget4x2")
         appWidgetManager.updateAppWidget(appWidgetId, views)
         
         // Cancel any existing job for this widget
@@ -292,8 +290,7 @@ class CompactWidget4x2Provider : BaseWidgetProvider() {
         views.setTextColor(R.id.widget_train_label, android.graphics.Color.parseColor("#FF9966CC"))
         
         views.setViewVisibility(R.id.widget_loading_text, android.view.View.GONE)
-        setStationBackground(views, widgetData.originId)
-        setupClickIntents(context, views, appWidgetId, widgetData)
+        setupWidgetViewBase(context, views, appWidgetId, widgetData, "widget4x2")
         
         appWidgetManager.updateAppWidget(appWidgetId, views)
         Log.d(getLogTag(), "Successfully updated compact 4x2 widget $appWidgetId with tomorrow's data")
@@ -314,23 +311,12 @@ class CompactWidget4x2Provider : BaseWidgetProvider() {
         clearUpcomingTrains(views)
         
         views.setViewVisibility(R.id.widget_loading_text, android.view.View.GONE)
-        setStationBackground(views, widgetData.originId)
-        setupClickIntents(context, views, appWidgetId, widgetData)
+        setupWidgetViewBase(context, views, appWidgetId, widgetData, "widget4x2")
         
         appWidgetManager.updateAppWidget(appWidgetId, views)
         Log.d(getLogTag(), "Showed fallback tomorrow data for compact 4x2 widget $appWidgetId")
     }
     
-    private fun setStationBackground(views: RemoteViews, originId: String) {
-        try {
-            val imageResource = StationsData.getStationImageResource(originId)
-            views.setImageViewResource(R.id.widget_station_background, imageResource)
-            Log.d(getLogTag(), "Set station background for $originId -> $imageResource")
-        } catch (e: Exception) {
-            Log.e(getLogTag(), "Error setting station background for $originId", e)
-            views.setImageViewResource(R.id.widget_station_background, R.drawable.assets_stationimages_betyehoshua)
-        }
-    }
 
     override fun showErrorState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData, errorMessage: String) {
         val views = RemoteViews(context.packageName, getLayoutResource())
@@ -346,9 +332,7 @@ class CompactWidget4x2Provider : BaseWidgetProvider() {
         
         clearUpcomingTrains(views)
         
-        setStationBackground(views, widgetData.originId)
-        
-        setupClickIntents(context, views, appWidgetId, widgetData)
+        setupWidgetViewBase(context, views, appWidgetId, widgetData, "widget4x2")
         try {
             appWidgetManager.updateAppWidget(appWidgetId, views)
             Log.d(getLogTag(), "Successfully showed error state for compact 4x2 widget $appWidgetId: $errorMessage")
@@ -369,7 +353,7 @@ class CompactWidget4x2Provider : BaseWidgetProvider() {
                 context, appWidgetId, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
-            views.setOnClickPendingIntent(R.id.widget_container_compact_4x2, pendingIntent)
+            views.setOnClickPendingIntent(getWidgetContainerId(), pendingIntent)
         } else {
             // Use the reusable deeplink helper from BaseWidgetProvider
             setupClickIntentsBase(
@@ -377,7 +361,7 @@ class CompactWidget4x2Provider : BaseWidgetProvider() {
                 views = views,
                 appWidgetId = appWidgetId,
                 widgetData = widgetData,
-                clickTargetId = R.id.widget_container_compact_4x2,
+                clickTargetId = getWidgetContainerId(),
                 useDeeplink = true,
                 deeplinkPath = "widget4x2"
             )

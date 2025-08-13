@@ -98,6 +98,7 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
     abstract fun getActionRefresh(): String
     abstract fun getActionWidgetUpdate(): String
     abstract fun getLayoutResource(): Int
+    abstract fun getWidgetContainerId(): Int
     
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         Log.d(getLogTag(), "onUpdate called for ${appWidgetIds.size} widgets (system-triggered)")
@@ -461,5 +462,41 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
         }
         
         views.setOnClickPendingIntent(clickTargetId, pendingIntent)
+    }
+
+    /**
+     * Sets the station background image for the widget
+     */
+    protected fun setStationBackground(views: RemoteViews, originId: String) {
+        try {
+            val imageResource = com.betterrail.widget.data.StationsData.getStationImageResource(originId)
+            views.setImageViewResource(R.id.widget_station_background, imageResource)
+            Log.d(getLogTag(), "Set station background for $originId -> $imageResource")
+        } catch (e: Exception) {
+            Log.e(getLogTag(), "Error setting station background for $originId", e)
+            views.setImageViewResource(R.id.widget_station_background, R.drawable.assets_stationimages_betyehoshua)
+        }
+    }
+
+    /**
+     * Common setup for widget views (background + click intents)
+     */
+    protected fun setupWidgetViewBase(
+        context: Context,
+        views: RemoteViews,
+        appWidgetId: Int,
+        widgetData: WidgetData,
+        deeplinkPath: String = "widget"
+    ) {
+        setStationBackground(views, widgetData.originId)
+        setupClickIntentsBase(
+            context = context,
+            views = views,
+            appWidgetId = appWidgetId,
+            widgetData = widgetData,
+            clickTargetId = getWidgetContainerId(),
+            useDeeplink = true,
+            deeplinkPath = deeplinkPath
+        )
     }
 }
