@@ -9,6 +9,7 @@ import android.widget.RemoteViews
 import com.betterrail.R
 import com.betterrail.widget.data.WidgetPreferences
 import com.betterrail.widget.data.WidgetData
+import com.betterrail.widget.data.StationsData
 import com.betterrail.widget.api.RailApiService
 import com.betterrail.widget.api.fold
 import com.betterrail.widget.cache.WidgetCacheManager
@@ -195,7 +196,7 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
             Log.d(getLogTag(), "Widget $appWidgetId not configured yet")
             showConfigurationState(context, appWidgetManager, appWidgetId)
         } else {
-            Log.d(getLogTag(), "Widget $appWidgetId configured: ${widgetData.originName} -> ${widgetData.destinationName}")
+            Log.d(getLogTag(), "Widget $appWidgetId configured: ${StationsData.getStationName(context, widgetData.originId)} -> ${StationsData.getStationName(context, widgetData.destinationId)}")
             loadWidgetData(context, appWidgetManager, appWidgetId, widgetData, useCache = true)
         }
     }
@@ -420,8 +421,10 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             putExtra("widget_origin_id", widgetData.originId)
             putExtra("widget_destination_id", widgetData.destinationId)
-            putExtra("widget_origin_name", widgetData.originName)
-            putExtra("widget_destination_name", widgetData.destinationName)
+            // Pass station IDs instead of localized names to avoid language mismatch issues
+            // The app will resolve names in its own current language
+            putExtra("widget_origin_name", widgetData.originId) 
+            putExtra("widget_destination_name", widgetData.destinationId)
             putExtra("from_widget", true)
             putExtra("widget_type", deeplinkPath)
         }

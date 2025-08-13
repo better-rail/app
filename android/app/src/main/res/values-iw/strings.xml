@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Better Rail</string>
+    
+    <!-- Widget strings -->
+    <string name="widget_configure_title">הגדר ווידג\'ט רכבת</string>
+    <string name="widget_configure_description">בחר את המסלול שלך להצגת לוחות זמנים של רכבות במסך הבית</string>
+    <string name="widget_from_label">מתחנת</string>
+    <string name="widget_to_label">לתחנת</string>
+    <string name="widget_label_hint">תווית מותאמת (אופציונלי)</string>
+    <string name="widget_cancel">ביטול</string>
+    <string name="widget_add">הוסף ווידג\'ט</string>
+    <string name="widget_2x2_description">ווידג\'ט רכבת קומפקטי 2x2</string>
+    <string name="widget_4x2_description">ווידג\'ט רכבת קומפקטי 4x2 עם רכבות קרובות</string>
+    <string name="select_station">בחר תחנה</string>
+    
+    <!-- Widget display strings -->
+    <string name="tap_to_configure">הקש כדי להגדיר</string>
+    <string name="select_your_route">בחר את המסלול שלך</string>
+    <string name="loading">טוען...</string>
+    <string name="next_train">הרכבת הבאה</string>
+    <string name="tomorrow">מחר</string>
+    <string name="platform_number">רציף %s</string>
+    <string name="platform_default">רציף --</string>
+    <string name="train_number">רכבת מס׳ %s</string>
+    <string name="train_default">רכבת ---</string>
+    <string name="no_trains">אין רכבות</string>
+    <string name="check_schedule">בדוק לוח זמנים</string>
+    <string name="tap_to_retry">הקש כדי לנסות שוב</string>
+    <string name="error">שגיאה</string>
+    <string name="time_placeholder">--:--</string>
+    <string name="upcoming">רכבות קרובות</string>
+    <string name="arrival">הגעה</string>
+    <string name="arrival_caps">הגעה</string>
+    
+    <!-- Station names -->
+    <string name="station_1500">עכו</string>
+    <string name="station_1600">נהריה</string>
+    <string name="station_1820">אחיהוד</string>
+    <string name="station_1840">כרמיאל</string>
+    <string name="station_1400">קריית מוצקין</string>
+    <string name="station_1220">המפרץ מרכז</string>
+    <string name="station_700">קריית חיים</string>
+    <string name="station_2200">חיפה - בת גלים</string>
+    <string name="station_2100">חיפה מרכז - השמונה</string>
+    <string name="station_1300">חוצות המפרץ</string>
+    <string name="station_2300">חיפה - חוף הכרמל</string>
+    <string name="station_2500">עתלית</string>
+    <string name="station_3100">חדרה - מערב</string>
+    <string name="station_2820">קיסריה - פרדס חנה</string>
+    <string name="station_2800">בנימינה</string>
+    <string name="station_3300">נתניה</string>
+    <string name="station_3310">נתניה - ספיר</string>
+    <string name="station_3400">בית יהושע</string>
+    <string name="station_3500">הרצליה</string>
+    <string name="station_2940">רעננה מערב</string>
+    <string name="station_2960">רעננה דרום</string>
+    <string name="station_8700">כפר סבא - נורדאו</string>
+    <string name="station_9200">הוד השרון - סוקולוב</string>
+    <string name="station_3600">תל אביב - אוניברסיטה</string>
+    <string name="station_4600">תל אביב - השלום</string>
+    <string name="station_3700">תל אביב - סבידור מרכז</string>
+    <string name="station_4900">תל אביב - ההגנה</string>
+    <string name="station_4100">בני ברק</string>
+    <string name="station_4250">פתח תקווה - סגולה</string>
+    <string name="station_4170">פתח תקווה - קריית אריה</string>
+    <string name="station_8800">ראש העין - צפון</string>
+    <string name="station_4800">כפר חב\"ד</string>
+    <string name="station_8600">נתב\"ג</string>
+    <string name="station_5000">לוד</string>
+    <string name="station_5150">לוד - גני אביב</string>
+    <string name="station_5010">רמלה</string>
+    <string name="station_5300">באר יעקב</string>
+    <string name="station_5200">רחובות</string>
+    <string name="station_5410">יבנה - מזרח</string>
+    <string name="station_9000">יבנה - מערב</string>
+    <string name="station_5800">אשדוד - עד הלום</string>
+    <string name="station_7000">קריית גת</string>
+    <string name="station_7320">באר שבע - מרכז</string>
+    <string name="station_7300">באר שבע - צפון/אוניברסיטה</string>
+    <string name="station_6300">בית שמש</string>
+    <string name="station_5900">אשקלון</string>
+    <string name="station_7500">דימונה</string>
+    <string name="station_8550">להבים - רהט</string>
+    <string name="station_300">פאתי מודיעין</string>
+    <string name="station_400">מודיעין - מרכז</string>
+    <string name="station_4640">צומת חולון</string>
+    <string name="station_4660">חולון - וולפסון</string>
+    <string name="station_4680">בת ים - יוספטל</string>
+    <string name="station_4690">בת ים - קוממיות</string>
+    <string name="station_9100">ראשון לציון - הראשונים</string>
+    <string name="station_9800">ראשון לציון - משה דיין</string>
+    <string name="station_9600">שדרות</string>
+    <string name="station_9650">נתיבות</string>
+    <string name="station_9700">אופקים</string>
+    <string name="station_1240">יקנעם - כפר יהושע</string>
+    <string name="station_1250">מגדל העמק - כפר ברוך</string>
+    <string name="station_1260">עפולה ר. איתן</string>
+    <string name="station_1280">בית שאן</string>
+    <string name="station_6150">קריית מלאכי - יואב</string>
+    <string name="station_680">ירושלים - יצחק נבון</string>
+    <string name="station_6900">מזכרת בתיה</string>
+</resources>

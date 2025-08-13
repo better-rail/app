@@ -16,7 +16,6 @@ abstract class BaseWidgetConfigActivity : Activity() {
 
     protected lateinit var originSpinner: Spinner
     protected lateinit var destinationSpinner: Spinner
-    protected lateinit var labelEditText: EditText
     protected lateinit var addButton: Button
     protected lateinit var cancelButton: Button
     
@@ -60,7 +59,6 @@ abstract class BaseWidgetConfigActivity : Activity() {
     private fun setupUI() {
         originSpinner = findViewById(R.id.origin_spinner)
         destinationSpinner = findViewById(R.id.destination_spinner)
-        labelEditText = findViewById(R.id.label_edit_text)
         addButton = findViewById(R.id.add_button)
         cancelButton = findViewById(R.id.cancel_button)
         
@@ -69,8 +67,14 @@ abstract class BaseWidgetConfigActivity : Activity() {
     }
     
     private fun setupStationData() {
-        // Get stations for display (using English names)
-        val stationsForDisplay = StationsData.getStationsForDisplay("english")
+        // Debug: Log current locale and test Hebrew string resolution
+        val currentLocale = resources.configuration.locales
+        val testHebrew = getString(R.string.station_2300) // Should be "חיפה - חוף הכרמל" in Hebrew
+        android.util.Log.d("WidgetConfig", "Current locale: $currentLocale")
+        android.util.Log.d("WidgetConfig", "Test station_2300 resolves to: '$testHebrew'")
+        
+        // Get stations for display (will use system locale for proper language)
+        val stationsForDisplay = StationsData.getStationsForDisplay(this)
         
         // Clear lists
         stationIds.clear()
@@ -78,7 +82,7 @@ abstract class BaseWidgetConfigActivity : Activity() {
         
         // Add "Select Station" as first option
         stationIds.add("")
-        stationNames.add("Select Station")
+        stationNames.add(getString(R.string.select_station))
         
         // Add all stations
         stationsForDisplay.forEach { (id, name) ->
@@ -144,7 +148,6 @@ abstract class BaseWidgetConfigActivity : Activity() {
             val destinationId = stationIds[destinationPosition]
             val originName = stationNames[originPosition]
             val destinationName = stationNames[destinationPosition]
-            val label = labelEditText.text.toString().trim()
             val refreshIntervalMinutes = defaultRefreshIntervalMinutes
             
             Log.d(getLogTag(), "Saving widget data: $originName -> $destinationName")
@@ -162,9 +165,9 @@ abstract class BaseWidgetConfigActivity : Activity() {
             val widgetData = WidgetData(
                 originId = originId,
                 destinationId = destinationId,
-                originName = originName,
-                destinationName = destinationName,
-                label = label,
+                originName = "", // Don't store localized names - look them up dynamically
+                destinationName = "", // Don't store localized names - look them up dynamically  
+                label = "",
                 updateFrequencyMinutes = refreshIntervalMinutes
             )
             

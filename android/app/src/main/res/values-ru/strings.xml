@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Better Rail</string>
+    
+    <!-- Widget strings -->
+    <string name="widget_configure_title">Настроить виджет поезда</string>
+    <string name="widget_configure_description">Выберите маршрут для отображения расписания поездов на главном экране</string>
+    <string name="widget_from_label">От станции</string>
+    <string name="widget_to_label">К станции</string>
+    <string name="widget_label_hint">Пользовательская метка (необязательно)</string>
+    <string name="widget_cancel">Отмена</string>
+    <string name="widget_add">Добавить виджет</string>
+    <string name="widget_2x2_description">Компактный виджет поезда 2x2</string>
+    <string name="widget_4x2_description">Компактный виджет поезда 4x2 с предстоящими поездами</string>
+    <string name="select_station">Выберите станцию</string>
+    
+    <!-- Widget display strings -->
+    <string name="tap_to_configure">Нажмите для настройки</string>
+    <string name="select_your_route">Выберите маршрут</string>
+    <string name="loading">Загрузка...</string>
+    <string name="next_train">Ближайший</string>
+    <string name="tomorrow">Завтра</string>
+    <string name="platform_number">Платформа %s</string>
+    <string name="platform_default">Платформа --</string>
+    <string name="train_number">Поезд %s</string>
+    <string name="train_default">Поезд ---</string>
+    <string name="no_trains">Поездов на сегодня не найдено</string>
+    <string name="check_schedule">Проверьте расписание</string>
+    <string name="tap_to_retry">Нажмите, чтобы повторить</string>
+    <string name="error">Ошибка</string>
+    <string name="time_placeholder">--:--</string>
+    <string name="upcoming">Следующие</string>
+    <string name="arrival">Прибытие</string>
+    <string name="arrival_caps">Время</string>
+    
+    <!-- Station names in Russian -->
+    <string name="station_1500">Акко</string>
+    <string name="station_1600">Нагария</string>
+    <string name="station_1820">Ахиуд</string>
+    <string name="station_1840">Кармиэль</string>
+    <string name="station_1400">Кирьят Моцкин</string>
+    <string name="station_1220">Центральная станция ХаМифрац</string>
+    <string name="station_700">Кирьят Хаим</string>
+    <string name="station_2200">Хайфа - Бат Галим</string>
+    <string name="station_2100">Хайфа Центр - ХаШмона</string>
+    <string name="station_1300">Хуцот ХаМифрац</string>
+    <string name="station_2300">Хайфа - Хоф ХаКармель</string>
+    <string name="station_2500">Атлит</string>
+    <string name="station_3100">Хадера - Запад</string>
+    <string name="station_2820">Кесария - Пардес Хана</string>
+    <string name="station_2800">Биньямина</string>
+    <string name="station_3300">Нетания</string>
+    <string name="station_3310">Нетания - Сапир</string>
+    <string name="station_3400">Бет Йехошуа</string>
+    <string name="station_3500">Герцлия</string>
+    <string name="station_2940">Раанана Запад</string>
+    <string name="station_2960">Раанана Юг</string>
+    <string name="station_8700">Кфар Сава - Нордау</string>
+    <string name="station_9200">Ход ХаШарон - Соколов</string>
+    <string name="station_3600">Тель-Авив - Университет</string>
+    <string name="station_4600">Тель-Авив - ХаШалом</string>
+    <string name="station_3700">Тель-Авив - Савидор Центр</string>
+    <string name="station_4900">Тель-Авив - ХаХагана</string>
+    <string name="station_4100">Бней Брак</string>
+    <string name="station_4250">Петах Тиква - Сегула</string>
+    <string name="station_4170">Петах Тиква - Кирьят Арье</string>
+    <string name="station_8800">Рош ХаАин - Север</string>
+    <string name="station_4800">Кфар Хабад</string>
+    <string name="station_8600">Аэропорт Бен Гурион</string>
+    <string name="station_5000">Лод</string>
+    <string name="station_5150">Лод - Ганей Авив</string>
+    <string name="station_5010">Рамла</string>
+    <string name="station_5300">Беэр Яков</string>
+    <string name="station_5200">Реховот</string>
+    <string name="station_5410">Явне - Восток</string>
+    <string name="station_9000">Явне - Запад</string>
+    <string name="station_5800">Ашдод - Ад Халом</string>
+    <string name="station_7000">Кирьят Гат</string>
+    <string name="station_7320">Беэр Шева - Центр</string>
+    <string name="station_7300">Беэр Шева - Север/Университет</string>
+    <string name="station_6300">Бет Шемеш</string>
+    <string name="station_5900">Ашкелон</string>
+    <string name="station_7500">Димона</string>
+    <string name="station_8550">Лехавим - Рахат</string>
+    <string name="station_300">Паате Модиин</string>
+    <string name="station_400">Модиин - Центр</string>
+    <string name="station_4640">Холон Перекресток</string>
+    <string name="station_4660">Холон - Вольфсон</string>
+    <string name="station_4680">Бат Ям - Йосефталь</string>
+    <string name="station_4690">Бат Ям - Комемиют</string>
+    <string name="station_9100">Ришон ЛеЦион - ХаРишоним</string>
+    <string name="station_9800">Ришон ЛеЦион - Моше Дайан</string>
+    <string name="station_9600">Сдерот</string>
+    <string name="station_9650">Нетивот</string>
+    <string name="station_9700">Офаким</string>
+    <string name="station_1240">Йокнеам - Кфар Йехошуа</string>
+    <string name="station_1250">Мигдаль ХаЭмек - Кфар Барух</string>
+    <string name="station_1260">Афула Р. Эйтан</string>
+    <string name="station_1280">Бет Шеан</string>
+    <string name="station_6150">Кирьят Малахи - Йоав</string>
+    <string name="station_680">Иерусалим - Ицхак Навон</string>
+    <string name="station_6900">Мазкерет Батья</string>
+</resources>

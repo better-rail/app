@@ -60,29 +60,6 @@
         android:background="@drawable/spinner_background"
         android:padding="12dp" />
 
-    <!-- Optional Label -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/widget_label_hint"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="@color/label"
-        android:layout_marginBottom="8dp" />
-
-    <EditText
-        android:id="@+id/label_edit_text"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginBottom="24dp"
-        android:background="@drawable/edit_text_background"
-        android:hint="e.g., Home to Work"
-        android:textColorHint="@color/placeholderText"
-        android:textColor="@color/label"
-        android:textSize="16sp"
-        android:padding="12dp"
-        android:maxLines="1"
-        android:inputType="text" />
 
 
     <!-- Spacer -->
