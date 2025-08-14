@@ -113,6 +113,15 @@ data class WidgetScheduleData(
     val lastUpdated: Long = System.currentTimeMillis()
 )
 
+data class WidgetData(
+    val originId: String = "",
+    val destinationId: String = "",
+    val originName: String = "",
+    val destinationName: String = "",
+    val label: String = "",
+    val updateFrequencyMinutes: Int = 15
+)
+
 // API Error response
 data class ApiError(
     val message: String,

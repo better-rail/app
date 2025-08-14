@@ -4,7 +4,7 @@ class CompactWidget4x2ConfigActivity : BaseWidgetConfigActivity() {
     
     override fun getLogTag(): String = "CompactWidget4x2Config"
     
-    override fun createWidgetProvider(): BaseWidgetProvider {
-        return CompactWidget4x2Provider()
+    override fun createWidgetProvider(): ModernBaseWidgetProvider {
+        return ModernCompactWidget4x2Provider()
     }
 }

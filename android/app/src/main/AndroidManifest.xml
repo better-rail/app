@@ -58,28 +58,28 @@
             </intent-filter>
         </activity>
         
-        <!-- Compact 2x2 Widget Provider -->
+        <!-- Modern Compact 2x2 Widget Provider -->
         <receiver 
-            android:name=".widget.CompactWidget2x2Provider"
+            android:name=".widget.ModernCompactWidget2x2Provider"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.betterrail.widget.compact.ACTION_REFRESH" />
-                <action android:name="com.betterrail.widget.compact.ACTION_WIDGET_UPDATE" />
+                <action android:name="com.betterrail.widget.modern.compact.ACTION_REFRESH" />
+                <action android:name="com.betterrail.widget.modern.compact.ACTION_WIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/compact_widget_2x2_info" />
         </receiver>
         
-        <!-- Compact 4x2 Widget Provider -->
+        <!-- Modern Compact 4x2 Widget Provider -->
         <receiver 
-            android:name=".widget.CompactWidget4x2Provider"
+            android:name=".widget.ModernCompactWidget4x2Provider"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.betterrail.widget.compact4x2.ACTION_REFRESH" />
-                <action android:name="com.betterrail.widget.compact4x2.ACTION_WIDGET_UPDATE" />
+                <action android:name="com.betterrail.widget.modern.compact4x2.ACTION_REFRESH" />
+                <action android:name="com.betterrail.widget.modern.compact4x2.ACTION_WIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"

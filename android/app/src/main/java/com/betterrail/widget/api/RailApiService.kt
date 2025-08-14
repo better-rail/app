@@ -7,6 +7,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.betterrail.widget.utils.RetryUtils
 import okhttp3.*
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -91,60 +92,33 @@ class RailApiService {
                     .build()
 
                 // Retry logic for network timeouts with exponential backoff
-                var lastException: Exception? = null
-                val maxRetries = 3
-                val retryDelays = listOf(1000L, 2000L, 4000L) // 1s, 2s, 4s
-                
-                for (attempt in 0 until maxRetries) {
-                    try {
-                        android.util.Log.d("RailApiService", "API attempt ${attempt + 1}/$maxRetries")
-                        val response = client.newCall(request).execute()
-                        
-                        android.util.Log.d("RailApiService", "Response code: ${response.code}")
-                        
-                        if (!response.isSuccessful) {
-                            android.util.Log.e("RailApiService", "HTTP Error: ${response.code} - ${response.message}")
-                            return@withContext Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
-                        }
-
+                return@withContext RetryUtils.withRetry(
+                    maxRetries = 3,
+                    retryDelays = listOf(1000L, 2000L, 4000L),
+                    logTag = "RailApiService"
+                ) { attempt ->
+                    val response = client.newCall(request).execute()
+                    
+                    android.util.Log.d("RailApiService", "Response code: ${response.code}")
+                    
+                    if (!response.isSuccessful) {
+                        android.util.Log.e("RailApiService", "HTTP Error: ${response.code} - ${response.message}")
+                        Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
+                    } else {
                         val responseBody = response.body?.string()
                         if (responseBody.isNullOrEmpty()) {
                             android.util.Log.e("RailApiService", "Empty response body")
-                            return@withContext Result.failure(Exception("Empty response body"))
+                            Result.failure(Exception("Empty response body"))
+                        } else {
+                            // Success! Process the response
+                            processApiResponse(responseBody, originId, destinationId, isRequestForFutureDate)
                         }
-                        
-                        // Success! Process the response
-                        return@withContext processApiResponse(responseBody, originId, destinationId, isRequestForFutureDate)
-                        
-                    } catch (e: java.net.SocketTimeoutException) {
-                        android.util.Log.w("RailApiService", "Socket timeout on attempt ${attempt + 1}/$maxRetries: ${e.message}")
-                        lastException = e
-                        if (attempt < maxRetries - 1) {
-                            kotlinx.coroutines.delay(retryDelays[attempt])
-                        }
-                    } catch (e: java.net.ConnectException) {
-                        android.util.Log.w("RailApiService", "Connection failed on attempt ${attempt + 1}/$maxRetries: ${e.message}")
-                        lastException = e
-                        if (attempt < maxRetries - 1) {
-                            kotlinx.coroutines.delay(retryDelays[attempt])
-                        }
-                    } catch (e: IOException) {
-                        android.util.Log.w("RailApiService", "IO exception on attempt ${attempt + 1}/$maxRetries: ${e.message}")
-                        lastException = e
-                        if (attempt < maxRetries - 1) {
-                            kotlinx.coroutines.delay(retryDelays[attempt])
-                        }
-                    } catch (e: Exception) {
-                        // Non-retryable exceptions - fail immediately
-                        android.util.Log.e("RailApiService", "Non-retryable exception: ${e.message}", e)
-                        return@withContext Result.failure(e)
                     }
                 }
-                
-                // All retries exhausted
-                android.util.Log.e("RailApiService", "All $maxRetries attempts failed, last error: ${lastException?.message}")
-                return@withContext Result.failure(lastException ?: Exception("All retry attempts failed"))
 
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                android.util.Log.d("RailApiService", "API request cancelled")
+                throw e // Re-throw cancellation to preserve coroutine semantics
             } catch (e: Exception) {
                 android.util.Log.e("RailApiService", "Unexpected error in getRoutes: ${e.message}", e)
                 Result.failure(e)
