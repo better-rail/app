@@ -10,10 +10,10 @@ import { useStores } from "../../models"
 import { translate } from "../../i18n"
 import { openLink } from "../../utils/helpers/open-link"
 import { crashlytics } from "../../services/firebase/crashlytics"
-import RNRestart from "react-native-restart"
 import { setCrashlyticsCollectionEnabled } from "@react-native-firebase/crashlytics"
 import { setAnalyticsCollectionEnabled } from "@react-native-firebase/analytics"
 import { isTestFlight } from "expo-testflight"
+import { reloadAppAsync } from "expo"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -47,7 +47,7 @@ export const PrivacyScreen = observer(function SettingsLanguageScreen() {
           style: "destructive",
           onPress: () => {
             rootStore.clearAllData()
-            RNRestart.Restart()
+            reloadAppAsync()
           },
         },
       ],

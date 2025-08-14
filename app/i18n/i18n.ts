@@ -1,8 +1,8 @@
 import { I18nManager, Platform } from "react-native"
-import RNRestart from "react-native-restart"
 import { analytics } from "../services/firebase/analytics"
 import * as SecureStore from "expo-secure-store"
 import * as storage from "../utils/storage"
+import { reloadAppAsync } from "expo"
 
 import * as Localization from "expo-localization"
 import i18n from "i18n-js"
@@ -53,7 +53,7 @@ export function setInitialLanguage() {
 export function changeUserLanguage(languageCode: LanguageCode) {
   storage.save("appLanguage", languageCode).then(() => {
     setUserLanguage(languageCode)
-    RNRestart.Restart()
+    reloadAppAsync()
   })
 }
 

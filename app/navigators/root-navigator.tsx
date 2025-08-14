@@ -6,7 +6,6 @@ import { MainNavigator } from "./main-navigator"
 import { SettingsNavigator } from "./settings/settings-navigator"
 import { ActiveRideNavigator } from "./active-ride/active-ride-navigator"
 import { WidgetOnboardingNavigator } from "./widget-onboarding/widget-onboarding-navigator"
-import { PaywallNavigator } from "./paywall/paywall-navigator"
 import { LiveAnnouncementNavigator } from "./live-activity-announcement/live-activity-announcement-stack"
 import { AnnouncementsNavigator } from "./announcements/announcements-navigator"
 
@@ -40,7 +39,6 @@ const RootStack = () => {
       <Stack.Group screenOptions={{ presentation: "fullScreenModal" }}>
         <Stack.Screen name="liveAnnouncementStack" component={LiveAnnouncementNavigator} />
         <Stack.Screen name="widgetOnboardingStack" component={WidgetOnboardingNavigator} />
-        <Stack.Screen name="paywallStack" component={PaywallNavigator} />
       </Stack.Group>
     </Stack.Navigator>
   )

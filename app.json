@@ -1,0 +1,5 @@
+{
+  "expo": {
+    "plugins": ["expo-localization", "expo-secure-store", "expo-video", "expo-web-browser"]
+  }
+}
