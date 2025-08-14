@@ -84,9 +84,11 @@ function App() {
       // Configure expo notifications
       Notifications.setNotificationHandler({
         handleNotification: async () => ({
+          shouldShowBanner: true,
           shouldShowAlert: true,
           shouldPlaySound: true,
           shouldSetBadge: false,
+          shouldShowList: true,
         }),
       })
 
