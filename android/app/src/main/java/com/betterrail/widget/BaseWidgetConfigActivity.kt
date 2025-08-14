@@ -66,13 +66,7 @@ abstract class BaseWidgetConfigActivity : Activity() {
         cancelButton.setOnClickListener { finish() }
     }
     
-    private fun setupStationData() {
-        // Debug: Log current locale and test Hebrew string resolution
-        val currentLocale = resources.configuration.locales
-        val testHebrew = getString(R.string.station_2300) // Should be "חיפה - חוף הכרמל" in Hebrew
-        android.util.Log.d("WidgetConfig", "Current locale: $currentLocale")
-        android.util.Log.d("WidgetConfig", "Test station_2300 resolves to: '$testHebrew'")
-        
+    private fun setupStationData() {       
         // Get stations for display (will use system locale for proper language)
         val stationsForDisplay = StationsData.getStationsForDisplay(this)
         

@@ -1,25 +1,12 @@
 package com.betterrail.widget
 
-import android.app.PendingIntent
-import android.appwidget.AppWidgetManager
-import android.content.Context
-import android.content.Intent
 import android.widget.RemoteViews
 import com.betterrail.R
-import com.betterrail.widget.data.WidgetPreferences
 import com.betterrail.widget.data.WidgetData
 import com.betterrail.widget.data.StationsData
-import com.betterrail.widget.utils.WidgetTrainFilter
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.*
-import java.util.Calendar
-import android.util.Log
-import android.os.Bundle
+import android.content.Context
 
-class CompactWidget2x2Provider : BaseWidgetProvider() {
+class CompactWidget2x2Provider : CompactWidgetProvider() {
 
     companion object {
         const val ACTION_REFRESH = "com.betterrail.widget.compact.ACTION_REFRESH"
@@ -30,201 +17,53 @@ class CompactWidget2x2Provider : BaseWidgetProvider() {
     override fun getActionWidgetUpdate(): String = ACTION_WIDGET_UPDATE
     override fun getLayoutResource(): Int = R.layout.widget_compact_2x2
     override fun getWidgetContainerId(): Int = R.id.widget_container_compact
-    override fun getLogTag(): String = "CompactWidgetProvider"
+    override fun getLogTag(): String = "CompactWidget2x2Provider"
+    override fun getWidgetType(): String = "widget2x2"
+    override fun getConfigActivityClass(): Class<*> = CompactWidget2x2ConfigActivity::class.java
 
-    override fun showConfigurationState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
-        Log.d(getLogTag(), "showConfigurationState called for compact widget $appWidgetId")
-        val views = RemoteViews(context.packageName, getLayoutResource())
-        
+    override fun setupConfigurationViews(context: Context, views: RemoteViews) {
         views.setTextViewText(R.id.widget_station_name, context.getString(R.string.tap_to_configure))
         views.setTextViewText(R.id.widget_destination, context.getString(R.string.select_your_route))
         views.setTextViewText(R.id.widget_train_time, "--:--")
         views.setTextViewText(R.id.widget_platform, context.getString(R.string.platform_default))
         views.setTextViewText(R.id.widget_train_number, context.getString(R.string.train_default))
-        
-        views.setViewVisibility(R.id.widget_loading_text, android.view.View.GONE)
-        
-        views.setImageViewResource(R.id.widget_station_background, R.drawable.assets_stationimages_betyehoshua)
-        
-        setupClickIntents(context, views, appWidgetId, WidgetData())
-        try {
-            appWidgetManager.updateAppWidget(appWidgetId, views)
-            Log.d(getLogTag(), "Successfully showed configuration state for compact widget $appWidgetId")
-        } catch (e: Exception) {
-            Log.e(getLogTag(), "Error showing configuration state for compact widget $appWidgetId", e)
-        }
     }
 
-    override fun showLoadingState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData) {
-        Log.d(getLogTag(), "showLoadingState called for compact widget $appWidgetId")
-        val views = RemoteViews(context.packageName, getLayoutResource())
-        
-        views.setViewVisibility(R.id.widget_loading_text, android.view.View.VISIBLE)
-        
-        setStationBackground(views, widgetData.originId)
-        
+    override fun setupLoadingViews(context: Context, views: RemoteViews, widgetData: WidgetData) {
         views.setTextViewText(R.id.widget_station_name, StationsData.getStationName(context, widgetData.originId).ifEmpty { context.getString(R.string.loading) })
         views.setTextViewText(R.id.widget_destination, StationsData.getStationName(context, widgetData.destinationId))
         views.setTextViewText(R.id.widget_train_time, "--:--")
         views.setTextViewText(R.id.widget_platform, context.getString(R.string.loading))
         views.setTextViewText(R.id.widget_train_number, "")
-        
-        setupClickIntents(context, views, appWidgetId, widgetData)
-        try {
-            appWidgetManager.updateAppWidget(appWidgetId, views)
-            Log.d(getLogTag(), "Successfully showed loading state for compact widget $appWidgetId")
-        } catch (e: Exception) {
-            Log.e(getLogTag(), "Error showing loading state for compact widget $appWidgetId", e)
-        }
     }
 
-    override fun showScheduleData(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData, routes: List<com.betterrail.widget.data.WidgetTrainItem>) {
-        Log.d(getLogTag(), "showScheduleData called for compact widget $appWidgetId with ${routes.size} routes")
-        
-        val views = RemoteViews(context.packageName, getLayoutResource())
-        
-        val futureTrains = WidgetTrainFilter.filterFutureTrains(routes)
-        
-        if (futureTrains.isEmpty()) {
-            Log.d(getLogTag(), "Widget $appWidgetId: No future trains in cached data (all have departed), fetching tomorrow's first train from API")
-            loadTomorrowsFirstTrain(context, appWidgetManager, appWidgetId, widgetData, views)
-            return
-        } else {
-            val nextTrain = futureTrains.first()
-            
-            views.setTextViewText(R.id.widget_station_name, StationsData.getStationName(context, widgetData.originId))
-            views.setTextViewText(R.id.widget_destination, StationsData.getStationName(context, widgetData.destinationId))
-            views.setTextViewText(R.id.widget_train_time, nextTrain.departureTime)
-            
-            views.setTextViewText(R.id.widget_train_label, context.getString(R.string.next_train))
-            views.setTextColor(R.id.widget_train_label, android.graphics.Color.parseColor("#FFFF9999"))
-            
-            val platformText = if (nextTrain.platform.isNotEmpty()) {
-                context.getString(R.string.platform_number, nextTrain.platform)
-            } else {
-                context.getString(R.string.platform_default)
-            }
-            views.setTextViewText(R.id.widget_platform, platformText)
-            
-            val trainText = context.getString(R.string.train_number, nextTrain.departureTime.replace(":", ""))
-            views.setTextViewText(R.id.widget_train_number, trainText)
-            
-            Log.d(getLogTag(), "Set train data: ${StationsData.getStationName(context, widgetData.originId)} -> ${StationsData.getStationName(context, widgetData.destinationId)}, train at ${nextTrain.departureTime}")
-        }
-        
-        views.setViewVisibility(R.id.widget_loading_text, android.view.View.GONE)
-        
-        setupWidgetViewBase(context, views, appWidgetId, widgetData, "widget2x2")
-        try {
-            Log.d(getLogTag(), "About to call updateAppWidget for compact widget $appWidgetId with station background for originId: ${widgetData.originId}")
-            appWidgetManager.updateAppWidget(appWidgetId, views)
-            Log.d(getLogTag(), "Successfully updated compact widget $appWidgetId with schedule data")
-        } catch (e: Exception) {
-            Log.e(getLogTag(), "Error updating compact widget $appWidgetId", e)
-        }
-    }
-
-    private fun loadTomorrowsFirstTrain(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData, views: RemoteViews) {
-        Log.d(getLogTag(), "Loading tomorrow's first train for compact widget $appWidgetId")
-        
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_MONTH, DAY_OFFSET_TOMORROW)
-        val tomorrowDate = BaseWidgetProvider.DATE_FORMAT.format(calendar.time)
-        
-        Log.d(getLogTag(), "Fetching trains for tomorrow: $tomorrowDate")
-        
+    override fun setupScheduleViews(context: Context, views: RemoteViews, widgetData: WidgetData, nextTrain: com.betterrail.widget.data.WidgetTrainItem) {
         views.setTextViewText(R.id.widget_station_name, StationsData.getStationName(context, widgetData.originId))
+        views.setTextViewText(R.id.widget_destination, StationsData.getStationName(context, widgetData.destinationId))
+        views.setTextViewText(R.id.widget_train_time, nextTrain.departureTime)
+        views.setTextViewText(R.id.widget_train_label, context.getString(R.string.next_train))
+        views.setTextColor(R.id.widget_train_label, android.graphics.Color.parseColor("#FFFF9999"))
+        
+        val platformText = if (nextTrain.platform.isNotEmpty()) {
+            context.getString(R.string.platform_number, nextTrain.platform)
+        } else {
+            context.getString(R.string.platform_default)
+        }
+        views.setTextViewText(R.id.widget_platform, platformText)
+        
+        val trainText = context.getString(R.string.train_number, nextTrain.departureTime.replace(":", ""))
+        views.setTextViewText(R.id.widget_train_number, trainText)
+    }
+
+    override fun setupErrorViews(context: Context, views: RemoteViews, widgetData: WidgetData, errorMessage: String) {
+        views.setTextViewText(R.id.widget_station_name, StationsData.getStationName(context, widgetData.originId).ifEmpty { context.getString(R.string.error) })
         views.setTextViewText(R.id.widget_destination, StationsData.getStationName(context, widgetData.destinationId))
         views.setTextViewText(R.id.widget_train_time, "--:--")
-        views.setTextViewText(R.id.widget_train_label, context.getString(R.string.tomorrow))
-        views.setTextColor(R.id.widget_train_label, android.graphics.Color.parseColor("#FF9966CC"))
-        views.setTextViewText(R.id.widget_platform, context.getString(R.string.loading))
-        views.setTextViewText(R.id.widget_train_number, "")
-        views.setViewVisibility(R.id.widget_loading_text, android.view.View.VISIBLE)
-        
-        setupWidgetViewBase(context, views, appWidgetId, widgetData, "widget2x2")
-        appWidgetManager.updateAppWidget(appWidgetId, views)
-        
-        // Cancel any existing job for this widget
-        BaseWidgetProvider.activeJobs[appWidgetId]?.cancel()
-        
-        val job = BaseWidgetProvider.widgetScope.launch {
-            try {
-                Log.d(getLogTag(), "Calling API for tomorrow: originId=${widgetData.originId}, destinationId=${widgetData.destinationId}, date=$tomorrowDate, hour=$COMPACT_WIDGET_START_HOUR")
-                val result = apiService.getRoutes(widgetData.originId, widgetData.destinationId, date = tomorrowDate, hour = COMPACT_WIDGET_START_HOUR)
-                result.fold(
-                    onSuccess = { scheduleData ->
-                        Log.d(getLogTag(), "Tomorrow API success for compact widget $appWidgetId: ${scheduleData.routes.size} routes")
-                        if (scheduleData.routes.isEmpty()) {
-                            Log.w(getLogTag(), "Tomorrow API returned $EMPTY_ROUTES_COUNT routes for $tomorrowDate from ${widgetData.originId} to ${widgetData.destinationId}")
-                        }
-                        
-                        CoroutineScope(Dispatchers.Main).launch {
-                            showTomorrowsScheduleData(context, appWidgetManager, appWidgetId, widgetData, scheduleData.routes)
-                        }
-                    },
-                    onFailure = { error ->
-                        Log.e(getLogTag(), "Tomorrow API error for compact widget $appWidgetId: ${error.message}", error)
-                        
-                        CoroutineScope(Dispatchers.Main).launch {
-                            showTomorrowsFallback(context, appWidgetManager, appWidgetId, widgetData)
-                        }
-                    }
-                )
-            } catch (e: Exception) {
-                Log.e(getLogTag(), "Exception getting tomorrow's trains for compact widget $appWidgetId", e)
-                
-                CoroutineScope(Dispatchers.Main).launch {
-                    showTomorrowsFallback(context, appWidgetManager, appWidgetId, widgetData)
-                }
-            }
-        }
-        
-        // Track this job for this specific widget
-        BaseWidgetProvider.activeJobs[appWidgetId] = job
+        views.setTextViewText(R.id.widget_platform, errorMessage)
+        views.setTextViewText(R.id.widget_train_number, context.getString(R.string.tap_to_retry))
     }
 
-    private fun showTomorrowsScheduleData(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData, routes: List<com.betterrail.widget.data.WidgetTrainItem>) {
-        val views = RemoteViews(context.packageName, getLayoutResource())
-        
-        views.setTextViewText(R.id.widget_station_name, StationsData.getStationName(context, widgetData.originId))
-        views.setTextViewText(R.id.widget_destination, StationsData.getStationName(context, widgetData.destinationId))
-        
-        if (routes.isNotEmpty()) {
-            val firstTrain = routes.first()
-            
-            views.setTextViewText(R.id.widget_train_time, firstTrain.departureTime)
-            
-            val platformText = if (firstTrain.platform.isNotEmpty()) {
-                context.getString(R.string.platform_number, firstTrain.platform)
-            } else {
-                context.getString(R.string.platform_default)
-            }
-            views.setTextViewText(R.id.widget_platform, platformText)
-            
-            val trainText = context.getString(R.string.train_number, firstTrain.departureTime.replace(":", ""))
-            views.setTextViewText(R.id.widget_train_number, trainText)
-            
-            Log.d(getLogTag(), "Set tomorrow's train data: ${StationsData.getStationName(context, widgetData.originId)} -> ${StationsData.getStationName(context, widgetData.destinationId)}, train at ${firstTrain.departureTime}")
-        } else {
-            views.setTextViewText(R.id.widget_train_time, context.getString(R.string.no_trains))
-            views.setTextViewText(R.id.widget_platform, context.getString(R.string.check_schedule))
-            views.setTextViewText(R.id.widget_train_number, "")
-        }
-        
-        views.setTextViewText(R.id.widget_train_label, context.getString(R.string.tomorrow))
-        views.setTextColor(R.id.widget_train_label, android.graphics.Color.parseColor("#FF9966CC"))
-        
-        views.setViewVisibility(R.id.widget_loading_text, android.view.View.GONE)
-        setupWidgetViewBase(context, views, appWidgetId, widgetData, "widget2x2")
-        
-        appWidgetManager.updateAppWidget(appWidgetId, views)
-        Log.d(getLogTag(), "Successfully updated compact widget $appWidgetId with tomorrow's data")
-    }
-
-    override fun showTomorrowsFallback(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData) {
-        val views = RemoteViews(context.packageName, getLayoutResource())
-        
+    override fun setupTomorrowsFallbackViews(context: Context, views: RemoteViews, widgetData: WidgetData) {
         views.setTextViewText(R.id.widget_station_name, StationsData.getStationName(context, widgetData.originId))
         views.setTextViewText(R.id.widget_destination, StationsData.getStationName(context, widgetData.destinationId))
         views.setTextViewText(R.id.widget_train_time, "--:--")
@@ -232,74 +71,43 @@ class CompactWidget2x2Provider : BaseWidgetProvider() {
         views.setTextColor(R.id.widget_train_label, android.graphics.Color.parseColor("#FF9966CC"))
         views.setTextViewText(R.id.widget_platform, context.getString(R.string.check_schedule))
         views.setTextViewText(R.id.widget_train_number, "")
-        
-        views.setViewVisibility(R.id.widget_loading_text, android.view.View.GONE)
-        setupWidgetViewBase(context, views, appWidgetId, widgetData, "widget2x2")
-        
-        appWidgetManager.updateAppWidget(appWidgetId, views)
-        Log.d(getLogTag(), "Showed fallback tomorrow data for compact widget $appWidgetId")
     }
-    
 
-    override fun showErrorState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData, errorMessage: String) {
-        val views = RemoteViews(context.packageName, getLayoutResource())
-        
-        views.setViewVisibility(R.id.widget_loading_text, android.view.View.GONE)
-        
-        views.setTextViewText(R.id.widget_station_name, StationsData.getStationName(context, widgetData.originId).ifEmpty { context.getString(R.string.error) })
+    override fun setupTomorrowsLoadingViews(context: Context, views: RemoteViews, widgetData: WidgetData) {
+        views.setTextViewText(R.id.widget_station_name, StationsData.getStationName(context, widgetData.originId))
         views.setTextViewText(R.id.widget_destination, StationsData.getStationName(context, widgetData.destinationId))
         views.setTextViewText(R.id.widget_train_time, "--:--")
-        views.setTextViewText(R.id.widget_platform, errorMessage)
-        views.setTextViewText(R.id.widget_train_number, context.getString(R.string.tap_to_retry))
-        
-        setupWidgetViewBase(context, views, appWidgetId, widgetData, "widget2x2")
-        try {
-            appWidgetManager.updateAppWidget(appWidgetId, views)
-            Log.d(getLogTag(), "Successfully showed error state for compact widget $appWidgetId: $errorMessage")
-        } catch (e: Exception) {
-            Log.e(getLogTag(), "Error showing error state for compact widget $appWidgetId", e)
-        }
-    }
-    
-    private fun setupClickIntents(context: Context, views: RemoteViews, appWidgetId: Int, widgetData: WidgetData) {
-        if (widgetData.originId.isEmpty()) {
-            // Show configuration activity for unconfigured widgets
-            val intent = Intent(context, CompactWidget2x2ConfigActivity::class.java).apply {
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            }
-            
-            val pendingIntent = PendingIntent.getActivity(
-                context, appWidgetId, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            views.setOnClickPendingIntent(getWidgetContainerId(), pendingIntent)
-        } else {
-            // Use the reusable deeplink helper from BaseWidgetProvider
-            setupClickIntentsBase(
-                context = context,
-                views = views,
-                appWidgetId = appWidgetId,
-                widgetData = widgetData,
-                clickTargetId = getWidgetContainerId(),
-                useDeeplink = true,
-                deeplinkPath = "widget2x2"
-            )
-        }
+        views.setTextViewText(R.id.widget_train_label, context.getString(R.string.tomorrow))
+        views.setTextColor(R.id.widget_train_label, android.graphics.Color.parseColor("#FF9966CC"))
+        views.setTextViewText(R.id.widget_platform, context.getString(R.string.loading))
+        views.setTextViewText(R.id.widget_train_number, "")
     }
 
-    override fun configureWidget(context: Context, appWidgetId: Int) {
-        Log.d(getLogTag(), "Compact widget $appWidgetId configured, starting initial load")
-        val appWidgetManager = AppWidgetManager.getInstance(context)
-        refreshWidget(context, appWidgetManager, appWidgetId)
-        scheduleWidgetUpdates(context, appWidgetId)
+    override fun setupTomorrowsTrainViews(context: Context, views: RemoteViews, firstTrain: com.betterrail.widget.data.WidgetTrainItem) {
+        views.setTextViewText(R.id.widget_train_time, firstTrain.departureTime)
+        
+        val platformText = if (firstTrain.platform.isNotEmpty()) {
+            context.getString(R.string.platform_number, firstTrain.platform)
+        } else {
+            context.getString(R.string.platform_default)
+        }
+        views.setTextViewText(R.id.widget_platform, platformText)
+        
+        val trainText = context.getString(R.string.train_number, firstTrain.departureTime.replace(":", ""))
+        views.setTextViewText(R.id.widget_train_number, trainText)
+    }
+
+    override fun setupNoTrainsViews(context: Context, views: RemoteViews) {
+        views.setTextViewText(R.id.widget_train_time, context.getString(R.string.no_trains))
+        views.setTextViewText(R.id.widget_platform, context.getString(R.string.check_schedule))
+        views.setTextViewText(R.id.widget_train_number, "")
+    }
+
+    override fun showUpcomingTrains(views: RemoteViews, upcomingTrains: List<com.betterrail.widget.data.WidgetTrainItem>) {
+        // 2x2 widget doesn't show upcoming trains list
     }
     
-    override fun scheduleWidgetUpdates(context: Context, appWidgetId: Int) {
-        val widgetData = WidgetPreferences.getWidgetData(context, appWidgetId)
-        if (widgetData.originId.isNotEmpty() && widgetData.destinationId.isNotEmpty()) {
-            WidgetUpdateWorker.scheduleWidgetUpdates(context, appWidgetId, widgetData.updateFrequencyMinutes)
-            Log.d(getLogTag(), "Scheduled updates for compact widget $appWidgetId every ${widgetData.updateFrequencyMinutes} minutes")
-        }
+    override fun clearUpcomingTrains(views: RemoteViews) {
+        // 2x2 widget doesn't show upcoming trains list
     }
 }

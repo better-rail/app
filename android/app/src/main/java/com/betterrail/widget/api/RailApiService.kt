@@ -307,42 +307,6 @@ class RailApiService {
         }
     }
     
-    private fun isFutureOrRecentDeparture(departureTime: String): Boolean {
-        return try {
-            if (departureTime.isEmpty()) return false
-            
-            // Get current time in HH:mm format
-            val currentTime = TIME_FORMAT.format(Date())
-            val currentParts = currentTime.split(":")
-            val departureParts = departureTime.split(":")
-            
-            android.util.Log.d("RailApiService", "Time comparison - Current: $currentTime, Departure: $departureTime")
-            
-            if (currentParts.size >= 2 && departureParts.size >= 2) {
-                val currentHour = currentParts[0].toInt()
-                val currentMinute = currentParts[1].toInt()
-                val departureHour = departureParts[0].toInt()
-                val departureMinute = departureParts[1].toInt()
-                
-                // Convert to minutes since midnight for easy comparison
-                val currentMinutes = currentHour * 60 + currentMinute
-                val departureMinutes = departureHour * 60 + departureMinute
-                
-                // Show trains departing in the future OR in the past 3 hours (for reference)
-                // This gives context and shows recent trains if no future ones exist
-                val isFutureOrRecent = departureMinutes >= (currentMinutes - 180) // 3 hours ago
-                
-                android.util.Log.d("RailApiService", "Current: ${currentMinutes}min, Departure: ${departureMinutes}min, Future/Recent: $isFutureOrRecent")
-                
-                return isFutureOrRecent
-            }
-            
-            false
-        } catch (e: Exception) {
-            android.util.Log.e("RailApiService", "Error comparing times: ${e.message}")
-            true // If we can't parse, include it to be safe
-        }
-    }
     
     private fun isUpcomingDeparture(departureTime: String, isRequestForFutureDate: Boolean = false): Boolean {
         return try {

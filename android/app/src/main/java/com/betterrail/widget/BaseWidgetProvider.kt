@@ -23,7 +23,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.Calendar
 import android.util.Log
-import android.os.Bundle
 
 abstract class BaseWidgetProvider : AppWidgetProvider() {
 
@@ -48,53 +47,15 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
         const val EMPTY_ROUTES_COUNT = 0
         const val DAY_OFFSET_TOMORROW = 1
         
-        // Text display limits
-        const val MAX_ROUTE_TEXT_LENGTH = 30
-        
-        // Widget sizing (dp values)
-        const val DEFAULT_WIDGET_HEIGHT_DP = 110
-        const val WIDGET_HEADER_HEIGHT_DP = 75
-        const val WIDGET_PADDING_DP = 28
-        const val WIDGET_BOTTOM_MARGIN_DP = 12
-        const val WIDGET_ITEM_HEIGHT_DP = 48
-        
-        // Widget defaults
-        const val DEFAULT_WIDGET_ROWS = 3
         
         // API query parameters
-        const val TOMORROW_START_HOUR = "00:00"
         const val COMPACT_WIDGET_START_HOUR = "04:00"
-        
-        // Pending intent offsets
-        const val PENDING_INTENT_OFFSET = 1000
-        
-        // Widget row calculation lookup table
-        private val WIDGET_SIZE_RULES = listOf(
-            WidgetSizeRule(threshold = 10, maxRows = 10),
-            WidgetSizeRule(threshold = 9, maxRows = 10),
-            WidgetSizeRule(threshold = 7, maxRows = 8),
-            WidgetSizeRule(threshold = 5, maxRows = 6),
-            WidgetSizeRule(threshold = 3, maxRows = 4),
-            WidgetSizeRule(threshold = 0, maxRows = 2)  // Default case
-        )
         
         @JvmStatic
         protected val widgetScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         @JvmStatic
         protected val activeJobs = mutableMapOf<Int, Job>()
-        
-        // Helper function for widget row calculation
-        fun calculateMaxRows(calculatedRows: Int): Int {
-            return WIDGET_SIZE_RULES
-                .first { calculatedRows >= it.threshold }
-                .let { rule -> minOf(calculatedRows, rule.maxRows) }
-        }
     }
-    
-    private data class WidgetSizeRule(
-        val threshold: Int,
-        val maxRows: Int
-    )
 
     abstract fun getActionRefresh(): String
     abstract fun getActionWidgetUpdate(): String
@@ -116,12 +77,6 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
             }
         }
         super.onUpdate(context, appWidgetManager, appWidgetIds)
-    }
-    
-    override fun onAppWidgetOptionsChanged(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, newOptions: Bundle) {
-        Log.d(getLogTag(), "onAppWidgetOptionsChanged for widget $appWidgetId")
-        updateAppWidget(context, appWidgetManager, appWidgetId)
-        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -335,53 +290,6 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
         }
     }
 
-    protected fun loadTomorrowsTrains(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData) {
-        Log.d(getLogTag(), "Loading tomorrow's trains for widget $appWidgetId")
-        
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_MONTH, DAY_OFFSET_TOMORROW)
-        val tomorrowDate = DATE_FORMAT.format(calendar.time)
-        
-        Log.d(getLogTag(), "Fetching trains for tomorrow: $tomorrowDate")
-        
-        showLoadingState(context, appWidgetManager, appWidgetId, widgetData)
-        
-        // Cancel any existing job for this widget
-        activeJobs[appWidgetId]?.cancel()
-        
-        val job = widgetScope.launch {
-            try {
-                Log.d(getLogTag(), "Calling API for tomorrow: originId=${widgetData.originId}, destinationId=${widgetData.destinationId}, date=$tomorrowDate, hour=$TOMORROW_START_HOUR")
-                val result = apiService.getRoutes(widgetData.originId, widgetData.destinationId, date = tomorrowDate, hour = TOMORROW_START_HOUR)
-                result.fold(
-                    onSuccess = { scheduleData ->
-                        Log.d(getLogTag(), "Tomorrow API success for widget $appWidgetId: ${scheduleData.routes.size} routes")
-                        if (scheduleData.routes.isEmpty()) {
-                            Log.w(getLogTag(), "Tomorrow API returned $EMPTY_ROUTES_COUNT routes for $tomorrowDate from ${widgetData.originId} to ${widgetData.destinationId}")
-                        }
-                        
-                        Log.d(getLogTag(), "Tomorrow's API data cached for widget $appWidgetId")
-                    },
-                    onFailure = { error ->
-                        Log.e(getLogTag(), "Tomorrow API error for widget $appWidgetId: ${error.message}", error)
-                        
-                        CoroutineScope(Dispatchers.Main).launch {
-                            showTomorrowsFallback(context, appWidgetManager, appWidgetId, widgetData)
-                        }
-                    }
-                )
-            } catch (e: Exception) {
-                Log.e(getLogTag(), "Exception getting tomorrow's trains for widget $appWidgetId", e)
-                
-                CoroutineScope(Dispatchers.Main).launch {
-                    showTomorrowsFallback(context, appWidgetManager, appWidgetId, widgetData)
-                }
-            }
-        }
-        
-        // Track this job for this specific widget
-        activeJobs[appWidgetId] = job
-    }
 
     private fun recordDisplayTime(context: Context, appWidgetId: Int) {
         val prefs = context.getSharedPreferences("widget_display_times", Context.MODE_PRIVATE)

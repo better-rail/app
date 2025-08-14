@@ -125,13 +125,11 @@ export function useDeepLinking(rootStore: RootStore, navigationRef: MutableRefOb
     let linkingListener: EmitterSubscription
     let shortcutsListener: EmitterSubscription
 
-    if (Platform.OS === "ios" || Platform.OS === "android") {
-      Linking.getInitialURL().then(handleDeepLinkURL)
+    Linking.getInitialURL().then(handleDeepLinkURL)
 
-      linkingListener = Linking.addEventListener("url", ({ url }) => {
-        handleDeepLinkURL(url)
-      })
-    }
+    linkingListener = Linking.addEventListener("url", ({ url }) => {
+      handleDeepLinkURL(url)
+    })
 
     if (rootStore) {
       Shortcuts.getInitialShortcut().then(openHomeScreenShortcut)

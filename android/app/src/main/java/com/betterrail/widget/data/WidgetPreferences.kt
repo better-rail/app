@@ -38,7 +38,7 @@ object WidgetPreferences {
             originName = prefs.getString(KEY_ORIGIN_NAME + appWidgetId, "") ?: "",
             destinationName = prefs.getString(KEY_DESTINATION_NAME + appWidgetId, "") ?: "",
             label = prefs.getString(KEY_LABEL + appWidgetId, "") ?: "",
-            updateFrequencyMinutes = prefs.getInt(KEY_UPDATE_FREQUENCY + appWidgetId, 10) // Default to 10 minutes
+            updateFrequencyMinutes = prefs.getInt(KEY_UPDATE_FREQUENCY + appWidgetId, 15) // Default to 15 minutes
         )
     }
 
@@ -89,5 +89,5 @@ data class WidgetData(
     val originName: String = "",
     val destinationName: String = "",
     val label: String = "",
-    val updateFrequencyMinutes: Int = 10
+    val updateFrequencyMinutes: Int = 15
 )
