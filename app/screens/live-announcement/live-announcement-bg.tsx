@@ -1,6 +1,6 @@
 import React from "react"
 import { useColorScheme, ViewStyle } from "react-native"
-import LinearGradient from "react-native-linear-gradient"
+import { LinearGradient } from "expo-linear-gradient"
 
 const GARDIENT: ViewStyle = {
   height: "200%",

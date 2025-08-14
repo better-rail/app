@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Image, ImageBackground, View, ViewStyle, TextStyle, ImageStyle, Appearance } from "react-native"
-import LinearGradient from "react-native-linear-gradient"
+import { LinearGradient } from "expo-linear-gradient"
 import { color, spacing } from "../../theme"
 import { Text } from "../"
 import { stationsObject, stationLocale } from "../../data/stations"

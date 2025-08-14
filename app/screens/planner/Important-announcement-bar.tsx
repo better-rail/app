@@ -5,6 +5,7 @@ import { color, fontScale } from "../../theme"
 import { useNavigation } from "@react-navigation/native"
 import { analytics } from "../../services/firebase/analytics"
 import { removeHtmlTagsAndEntities } from "../../components/announcements/announcements-utils"
+import type { RootParamList } from "../../navigators/root-navigator"
 
 const TEXT_STYLE: TextStyle = {
   color: color.whiteText,
@@ -18,7 +19,7 @@ const barWidth = deviceWidth - 106 // 106 is the padding of the screen + header 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity)
 
 export function ImportantAnnouncementBar({ title }: { title: string }) {
-  const navigation = useNavigation()
+  const navigation = useNavigation<any>()
   const width = useSharedValue(0)
   const opacity = useSharedValue(0)
 
@@ -32,7 +33,7 @@ export function ImportantAnnouncementBar({ title }: { title: string }) {
 
   const navigateToAnnouncements = () => {
     analytics.logEvent("urgent_announcement_bar_press")
-    navigation.navigate("announcementsStack", { screen: "urgent" })
+    navigation.navigate("announcementsStack" as keyof RootParamList, { screen: "urgent" })
   }
 
   useEffect(() => {

@@ -111,7 +111,7 @@ export const openActiveRide = (rootStore: RootStore, navigationRef: MutableRefOb
 
   const { name: screenName, params: screenParams } = navigationRef.current?.getCurrentRoute() ?? {}
 
-  if (screenName !== "routeDetails") {
+  if (screenName !== ("routeDetails" as any)) {
     // @ts-expect-error navigator type
     navigationRef.current?.navigate("activeRideStack", {
       screen: "activeRide",

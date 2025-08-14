@@ -3,7 +3,7 @@ import { View, ActivityIndicator, ViewStyle, Dimensions } from "react-native"
 import Animated from "react-native-reanimated"
 import { FlashList } from "@shopify/flash-list"
 import { observer } from "mobx-react-lite"
-import { useNetInfo } from "@react-native-community/netinfo"
+import * as Network from "expo-network"
 import { useQuery } from "react-query"
 import { closestIndexTo } from "date-fns"
 import type { RouteListScreenProps } from "../../navigators/main-navigator"
@@ -37,7 +37,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   const { originId, destinationId, time, enableQuery } = route.params
 
   // Reference to the current real time for date limit calculations
-  const currentRealTime = useMemo(() => new Date(), [])
+  // const currentRealTime = useMemo(() => new Date(), [])
 
   const [routeData, setRouteData] = useState<RouteData[]>([])
 
@@ -164,7 +164,23 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     // This ensures the DateScroll component shows the correct date during loading
   }, [getNextDayDate, loadedDates])
 
-  const { isInternetReachable } = useNetInfo()
+  const [isInternetReachable, setIsInternetReachable] = useState(true)
+
+  useEffect(() => {
+    const checkNetwork = async () => {
+      try {
+        const networkState = await Network.getNetworkStateAsync()
+        setIsInternetReachable(networkState.isConnected && networkState.isInternetReachable)
+      } catch (error) {
+        setIsInternetReachable(false)
+      }
+    }
+
+    checkNetwork()
+    const interval = setInterval(checkNetwork, 5000) // Check every 5 seconds
+
+    return () => clearInterval(interval)
+  }, [])
   const trains = useQuery(
     ["origin", originId, "destination", destinationId, "time", currentDate.getTime()],
     async () => {

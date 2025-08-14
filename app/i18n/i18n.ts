@@ -1,7 +1,7 @@
 import { I18nManager, Platform } from "react-native"
 import RNRestart from "react-native-restart"
 import { analytics } from "../services/firebase/analytics"
-import Preferences from "react-native-default-preference"
+import * as SecureStore from "expo-secure-store"
 import * as storage from "../utils/storage"
 
 import * as Localization from "expo-localization"
@@ -83,7 +83,7 @@ export function setUserLanguage(languageCode: LanguageCode) {
   i18n.locale = languageCode
 
   if (Platform.OS === "android") {
-    Preferences.set("userLocale", languageCode)
+    SecureStore.setItemAsync("userLocale", languageCode)
   }
 
   if (

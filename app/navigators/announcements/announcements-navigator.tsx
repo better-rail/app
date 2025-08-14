@@ -22,8 +22,9 @@ export type AnnouncementsScreenProps = StackScreenProps<AnnouncementsParamList>
 
 export const AnnouncementsNavigator = () => (
   <AnnouncementsStack.Navigator
+    {...({} as any)}
     screenOptions={{
-      headerTintColor: color.primary,
+      headerTintColor: color.primary as unknown as string,
       headerBackButtonDisplayMode: "minimal",
       headerStatusBarHeight: Platform.select({ ios: 10, android: 5 }),
     }}

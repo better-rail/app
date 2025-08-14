@@ -1,4 +1,4 @@
-import { Dimensions, DynamicColorIOS, Image, ImageStyle, Platform, PlatformColor, View, ViewStyle } from "react-native"
+import { Dimensions, DynamicColorIOS, Image, ImageStyle, Platform, View, ViewStyle } from "react-native"
 import { List, ListItem } from "../../components"
 import { CHEVRON_ICON } from "../settings"
 import { translate } from "../../i18n"

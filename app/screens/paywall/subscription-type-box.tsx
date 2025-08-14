@@ -56,13 +56,17 @@ export function SubscriptionTypeBox({ value, onChange }: SubscriptionTypeBoxProp
           </View>
         }
         onPress={() => onChange("annual")}
-        startBoxItem={<BouncyCheckbox disableBuiltInState isChecked={value === "annual"} fillColor={fillColor} />}
+        startBoxItem={
+          <BouncyCheckbox disableBuiltInState isChecked={value === "annual"} fillColor={fillColor as unknown as string} />
+        }
         endBoxItem={<Text style={SUBSCRIPTION_PRICE}>{translate("paywall.monthlyPrice", { price: "4.90₪" })}</Text>}
       />
       <ListItem
         title={translate("paywall.monthly")}
         onPress={() => onChange("monthly")}
-        startBoxItem={<BouncyCheckbox disableBuiltInState isChecked={value === "monthly"} fillColor={fillColor} />}
+        startBoxItem={
+          <BouncyCheckbox disableBuiltInState isChecked={value === "monthly"} fillColor={fillColor as unknown as string} />
+        }
         endBoxItem={<Text style={SUBSCRIPTION_PRICE}>{translate("paywall.monthlyPrice", { price: "6.90₪" })}</Text>}
       />
     </List>

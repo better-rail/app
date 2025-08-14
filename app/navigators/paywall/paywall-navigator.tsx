@@ -1,8 +1,8 @@
 import React from "react"
 import {
   createStackNavigator,
-  StackHeaderInterpolatedStyle,
-  StackHeaderInterpolationProps,
+  // StackHeaderInterpolatedStyle,
+  // StackHeaderInterpolationProps,
   StackScreenProps,
 } from "@react-navigation/stack"
 import { PaywallScreen } from "../../screens/paywall"
@@ -22,7 +22,7 @@ const PaywallStack = createStackNavigator<PaywallParamList>()
 export type PaywallScreenProps = StackScreenProps<PaywallParamList, "paywall">
 
 export const PaywallNavigator = () => (
-  <PaywallStack.Navigator>
+  <PaywallStack.Navigator id="PaywallStack" {...({} as any)}>
     <PaywallStack.Screen
       name="paywall"
       component={PaywallScreen}

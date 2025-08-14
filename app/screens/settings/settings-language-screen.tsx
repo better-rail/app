@@ -5,7 +5,7 @@ import { Screen } from "../../components"
 import { SettingBox } from "./components/settings-box"
 import { color, isDarkMode, spacing } from "../../theme"
 import { changeUserLanguage, translate, userLocale } from "../../i18n"
-import HapticFeedback from "react-native-haptic-feedback"
+import * as Haptics from "expo-haptics"
 import { SETTING_GROUP } from "./settings-styles"
 import { messaging } from "../../services/firebase/messaging"
 
@@ -33,14 +33,6 @@ export const LanguageScreen = observer(function SettingsLanguageScreen() {
           const notificationsEnabled = await messaging.hasPermission()
 
           if (notificationsEnabled) {
-            let unsubscribeTopic = `service-updates-${userLocale}`
-            let subscribeTopic = `service-updates-${langaugeCode}`
-
-            if (__DEV__) {
-              unsubscribeTopic = `service-updates-test-${userLocale}`
-              subscribeTopic = `service-updates-test-${langaugeCode}`
-            }
-
             await Promise.all([
               messaging.unsubscribeFromTopic(`service-updates-${userLocale}`),
               messaging.subscribeToTopic(`service-updates-${langaugeCode}`),
@@ -55,7 +47,7 @@ export const LanguageScreen = observer(function SettingsLanguageScreen() {
 
   useEffect(() => {
     if (clickCounter === 5) {
-      HapticFeedback.trigger("notificationError")
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
       Alert.alert(translate("common.relax"))
     }
   }, [clickCounter])

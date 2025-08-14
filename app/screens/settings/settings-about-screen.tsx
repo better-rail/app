@@ -8,7 +8,8 @@ import { color, spacing, isDarkMode } from "../../theme"
 import { openLink } from "../../utils/helpers/open-link"
 import { deviceLocale, translate, userLocale } from "../../i18n"
 import { SettingsScreenProps } from "../../navigators"
-import { getBuildNumber, getDeviceId, getSystemVersion, getVersion } from "react-native-device-info"
+import * as Device from "expo-device"
+import Constants from "expo-constants"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -52,8 +53,8 @@ const ABOUT_TEXT: TextStyle = {
 const emailBody = Platform.select({
   android: `%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A
 ---
-App: Better Rail ${getVersion()} (${getBuildNumber()})
-Device: ${getDeviceId()} (${getSystemVersion()})
+App: Better Rail ${Constants.expoConfig?.version || "1.0.0"} (${Constants.expoConfig?.ios?.buildNumber || "1"})
+Device: ${Device.deviceName || "Unknown"} (${Device.osVersion || "Unknown"})
 App Locale: ${userLocale}
 Device Locale: ${deviceLocale} 
 `,

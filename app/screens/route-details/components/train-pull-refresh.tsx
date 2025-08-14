@@ -63,7 +63,7 @@ export function TrainPullRefresh({ onRefresh, showEntireRoute, children }: Train
   const isReadyToRefresh = useSharedValue(false)
   const [refreshing, setRefreshing] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
-  const refreshTimeoutRef = useRef<NodeJS.Timeout>()
+  const refreshTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Cleanup timeout on unmount
   useEffect(() => {

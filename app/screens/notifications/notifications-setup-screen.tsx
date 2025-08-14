@@ -1,8 +1,8 @@
 import { observer } from "mobx-react-lite"
 import { Button, Screen, Text } from "../../components"
 import type { AnnouncementsScreenProps } from "../../navigators/announcements/announcements-navigator"
-import { Alert, Linking, Platform, ScrollView, View } from "react-native"
-import { color, spacing } from "../../theme"
+import { Alert, Linking, ScrollView, View } from "react-native"
+import { spacing } from "../../theme"
 import notifee, { AuthorizationStatus } from "@notifee/react-native"
 import { useEffect, useState } from "react"
 import { translate, userLocale } from "../../i18n"
@@ -91,9 +91,7 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
           {notificationPermission ? (
             <View style={{ flex: 1, gap: 12 }}>
               {favoriteStations.length > 0 && (
-                <View
-                  style={{ borderBottomWidth: 1, borderColor: Platform.select({ ios: color.separator, android: "lightgrey" }) }}
-                >
+                <View style={{ borderBottomWidth: 1, borderColor: "lightgrey" }}>
                   <Text tx="announcements.notifications.stationsFromFavorites" style={{ fontWeight: "500" }} />
                 </View>
               )}
@@ -110,7 +108,7 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
                     flexDirection: "row",
                     borderBottomWidth: 1,
                     justifyContent: "space-between",
-                    borderColor: Platform.select({ ios: color.separator, android: "lightgrey" }),
+                    borderColor: "lightgrey",
                   }}
                 >
                   <Text

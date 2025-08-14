@@ -5,16 +5,17 @@ import { SettingsScreen, LanguageScreen, TipJarScreen, AboutScreen, PrivacyScree
 import { color, spacing, typography } from "../../theme"
 import { translate } from "../../i18n"
 import { CloseButton } from "../../components"
-import { createNativeStackNavigator } from "@react-navigation/native-stack"
+// import { createNativeStackNavigator } from "@react-navigation/native-stack"
 
-const SettingsStack = createStackNavigator<SettingsParamList>()
+const SettingsStack = createStackNavigator<any>()
 
-export type SettingsScreenProps = StackScreenProps<SettingsParamList, "settings">
+export type SettingsScreenProps = StackScreenProps<any, "settings">
 
 export const SettingsNavigator = () => (
   <SettingsStack.Navigator
+    {...({} as any)}
     screenOptions={{
-      headerTintColor: color.primary,
+      headerTintColor: color.primary as unknown as string,
       headerBackButtonDisplayMode: "minimal",
       headerStatusBarHeight: Platform.select({ ios: 10, android: 5 }),
     }}

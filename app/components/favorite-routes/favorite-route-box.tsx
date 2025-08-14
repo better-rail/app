@@ -6,9 +6,8 @@ import { stationLocale, stationsObject } from "../../data/stations"
 import { color, spacing, fontScale } from "../../theme"
 import { translate } from "../../i18n"
 import { useActionSheet } from "@expo/react-native-action-sheet"
-import prompt from "react-native-prompt-android"
 import { useStores } from "../../models"
-import { ContextMenuView } from "react-native-ios-context-menu"
+import ContextMenuView from "react-native-context-menu-view"
 
 const borderRadius = Platform.select({ ios: 8, android: 6 })
 
@@ -108,19 +107,22 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
   const { favoriteRoutes } = useStores()
 
   const renamePrompt = () => {
-    prompt(
+    Alert.prompt(
       translate("favorites.renamePromptTitle"),
-      undefined,
+      translate("favorites.renamePromptPlaceholder"),
       [
         { text: translate("common.cancel"), style: "cancel" },
         {
           text: translate("common.save"),
           onPress: (newLabel) => {
-            favoriteRoutes.rename(id, newLabel)
+            if (newLabel) {
+              favoriteRoutes.rename(id, newLabel)
+            }
           },
         },
       ],
-      { defaultValue: label, placeholder: translate("favorites.renamePromptPlaceholder") },
+      "plain-text",
+      label,
     )
   }
 
@@ -143,38 +145,26 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
 
   return (
     <ContextMenuView
-      onPressMenuItem={({ nativeEvent }) => {
-        const { actionKey } = nativeEvent
+      onPress={({ nativeEvent }) => {
+        const { index } = nativeEvent
 
-        if (actionKey === "route-label") {
+        if (index === 0) {
           renamePrompt()
-        } else if (actionKey === "delete-favorite") {
+        } else if (index === 1) {
           deleteRoute()
         }
       }}
-      previewConfig={{ borderRadius: 6 }}
-      menuConfig={{
-        menuTitle: "",
-        menuItems: [
-          {
-            actionKey: "route-label",
-            actionTitle: label ? translate("favorites.changeLabel") : translate("favorites.addLabel"),
-            icon: {
-              iconType: "SYSTEM",
-              iconValue: "pencil",
-            },
-          },
-          {
-            actionKey: "delete-favorite",
-            actionTitle: translate("favorites.delete"),
-            menuAttributes: ["destructive"],
-            icon: {
-              iconType: "SYSTEM",
-              iconValue: "star.slash",
-            },
-          },
-        ],
-      }}
+      actions={[
+        {
+          title: label ? translate("favorites.changeLabel") : translate("favorites.addLabel"),
+          systemIcon: "pencil",
+        },
+        {
+          title: translate("favorites.delete"),
+          systemIcon: "star.slash",
+          destructive: true,
+        },
+      ]}
       style={{ marginBottom: spacing[4] }}
     >
       <TouchableScale

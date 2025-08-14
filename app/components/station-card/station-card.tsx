@@ -1,19 +1,9 @@
 /* eslint-disable react-native/no-inline-styles */
 
 import * as React from "react"
-import {
-  ImageBackground,
-  View,
-  Platform,
-  Dimensions,
-  TextStyle,
-  ImageSourcePropType,
-  ViewStyle,
-  Image,
-  Appearance,
-} from "react-native"
+import { ImageBackground, View, Dimensions, TextStyle, ImageSourcePropType, ViewStyle, Image, Appearance } from "react-native"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
-import LinearGradient from "react-native-linear-gradient"
+import { LinearGradient } from "expo-linear-gradient"
 import { observer } from "mobx-react-lite"
 import { color, spacing, typography } from "../../theme"
 import { Text } from "../"
@@ -119,12 +109,7 @@ export const StationCard = observer(function StationCard(props: StationCardProps
         friction={9}
         {...rest}
       >
-        <LinearGradient
-          style={GARDIENT}
-          end={{ x: 1, y: 0 }}
-          start={{ x: 0, y: 0 }}
-          colors={[Platform.select({ ios: color.secondaryLighter, android: "#f6eae3" }), "#ffd9c2"]}
-        />
+        <LinearGradient style={GARDIENT} end={{ x: 1, y: 0 }} start={{ x: 0, y: 0 }} colors={["#f6eae3", "#ffd9c2"]} />
         <LinearGradient style={GARDIENT} colors={["rgba(0, 0, 0, 0.05)", "rgba(0, 0, 0, 0.3)"]} />
 
         <Text style={TEXT}>{name}</Text>

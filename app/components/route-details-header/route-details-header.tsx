@@ -1,14 +1,14 @@
-import { useLayoutEffect, useRef, useEffect, useCallback } from "react"
+import { useLayoutEffect, useRef, useEffect, useCallback, useMemo } from "react"
 import { Image, ImageBackground, View, Alert, Linking, Animated as RNAnimated, Pressable, Platform } from "react-native"
 import type { ViewStyle, TextStyle, ImageStyle } from "react-native"
 import TouchableScale from "react-native-touchable-scale"
 import { analytics } from "../../services/firebase/analytics"
 import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
-import LinearGradient from "react-native-linear-gradient"
+import { LinearGradient } from "expo-linear-gradient"
 import { color, isDarkMode, spacing } from "../../theme"
 import { Text, StarIcon, MenuIcon } from "../"
-import HapticFeedback from "react-native-haptic-feedback"
+import * as Haptics from "expo-haptics"
 import { stationsObject, stationLocale } from "../../data/stations"
 import { isRTL, translate } from "../../i18n"
 import { useStores } from "../../models"
@@ -18,6 +18,7 @@ import type { RouteItem } from "../../services/api"
 import type { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types"
 import ContextMenu from "react-native-context-menu-view"
 import { HeaderBackButton } from "@react-navigation/elements"
+import type { PrimaryParamList } from "../../navigators/main-navigator"
 
 const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale)
 const arrowIcon = require("../../../assets/arrow-left.png")
@@ -102,21 +103,22 @@ export interface RouteDetailsHeaderProps {
 }
 
 export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
-  const { routeItem, originId, destinationId, screenName, style, stationHoursSheetRef, showEntireRoute, setShowEntireRoute } =
+  const { originId, destinationId, routeItem, screenName, style, stationHoursSheetRef, showEntireRoute, setShowEntireRoute } =
     props
-  const { favoriteRoutes, routePlan } = useStores()
-  const navigation = useNavigation()
-  const routeEditDisabled = screenName !== "routeList"
+  const { routePlan, favoriteRoutes } = useStores()
+  const navigation = useNavigation<any>()
+  const { routeId, isFavorite, originName, destinationName } = useMemo(() => {
+    const originName = stationsObject[originId][stationLocale]
+    const destinationName = stationsObject[destinationId][stationLocale]
+    const routeId = `${originId}${destinationId}`
+    const isFavorite = favoriteRoutes.routes.some((fav) => fav.id === routeId)
+    return { originName, destinationName, routeId, isFavorite }
+  }, [originId, destinationId, favoriteRoutes.routes])
 
   const stationCardScale = useRef(new RNAnimated.Value(1)).current
 
-  const originName = stationsObject[originId][stationLocale]
-  const destinationName = stationsObject[destinationId][stationLocale]
-  const routeId = `${originId}${destinationId}`
-  const isFavorite = favoriteRoutes.routes.some((fav) => fav.id === routeId)
-
   const openStationHoursSheet = () => {
-    HapticFeedback.trigger("impactMedium")
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
     stationHoursSheetRef?.current?.expand()
   }
 
@@ -137,18 +139,18 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 
   const swapDirection = useCallback(() => {
     scaleStationCards()
-    HapticFeedback.trigger("impactMedium")
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
     setTimeout(() => {
       routePlan.switchDirection()
     }, 50)
   }, [scaleStationCards, routePlan])
 
   const changeOriginStation = useCallback(() => {
-    navigation.navigate("selectStation", { selectionType: "origin" })
+    navigation.navigate("selectStation" as keyof PrimaryParamList, { selectionType: "origin" })
   }, [navigation])
 
   const changeDestinationStation = useCallback(() => {
-    navigation.navigate("selectStation", { selectionType: "destination" })
+    navigation.navigate("selectStation" as keyof PrimaryParamList, { selectionType: "destination" })
   }, [navigation])
 
   const addToCalendar = useCallback(async () => {
@@ -223,11 +225,11 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
       const favorite = { id: routeId, originId, destinationId }
       if (!isFavorite) {
         Burnt.alert({ title: translate("favorites.added"), duration: 1.5 })
-        HapticFeedback.trigger("impactMedium")
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
         favoriteRoutes.add(favorite)
         analytics.logEvent("favorite_route_added")
       } else {
-        HapticFeedback.trigger("impactLight")
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
         favoriteRoutes.remove(favorite.id)
         analytics.logEvent("favorite_route_removed")
       }
@@ -303,7 +305,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
           <AnimatedTouchable
             friction={9}
             activeScale={0.95}
-            disabled={routeEditDisabled}
+            disabled={screenName !== "routeList"}
             onPress={changeOriginStation}
             style={[ROUTE_DETAILS_STATION, { marginEnd: spacing[5], transform: [{ scale: stationCardScale }] }]}
           >
@@ -316,7 +318,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
             hitSlop={{ top: spacing[2], bottom: spacing[2], left: spacing[2], right: spacing[2] }}
             onPress={swapDirection}
             style={ROUTE_INFO_CIRCLE}
-            disabled={routeEditDisabled}
+            disabled={screenName !== "routeList"}
           >
             <Image source={arrowIcon} style={ARROW_ICON} />
           </Pressable>
@@ -324,7 +326,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
           <AnimatedTouchable
             friction={9}
             activeScale={0.95}
-            disabled={routeEditDisabled}
+            disabled={screenName !== "routeList"}
             onPress={changeDestinationStation}
             style={[ROUTE_DETAILS_STATION, { transform: [{ scale: stationCardScale }] }]}
           >

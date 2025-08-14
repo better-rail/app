@@ -14,7 +14,7 @@ const ActiveRideStack = createStackNavigator<ActiveRideList>()
 export type ActiveRideScreenProps = StackScreenProps<ActiveRideList, "activeRide">
 
 export const ActiveRideNavigator = () => (
-  <ActiveRideStack.Navigator>
+  <ActiveRideStack.Navigator {...({} as any)}>
     <ActiveRideStack.Screen
       name="activeRide"
       component={RouteDetailsScreen}

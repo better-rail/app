@@ -22,6 +22,7 @@ export type LiveAnnouncementStackProps = StackScreenProps<LiveAnnouncementParamL
 
 export const LiveAnnouncementNavigator = () => (
   <LiveAnnouncementStack.Navigator
+    {...({} as any)}
     screenOptions={({ navigation }) => ({
       headerTransparent: true,
       headerBackground: () => (Platform.OS === "ios" ? <LiveAnnouncementHeaderBackground /> : null),
@@ -31,7 +32,7 @@ export const LiveAnnouncementNavigator = () => (
           if (Platform.OS === "android") return null
           return (
             <CloseButton
-              onPress={() => navigation.popTo("mainStack", { screen: "planner" })}
+              onPress={() => navigation.navigate("mainStack" as any, { screen: "planner" })}
               iconStyle={{
                 width: 32.5,
                 height: 32.5,

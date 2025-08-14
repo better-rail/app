@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useMemo } from "react"
+import { forwardRef, useCallback } from "react"
 import { ViewStyle } from "react-native"
 import BottomSheet, { BottomSheetBackdrop, BottomSheetProps } from "@gorhom/bottom-sheet"
 
@@ -8,7 +8,7 @@ interface BottomSheetModalProps extends BottomSheetProps {
 }
 
 export const BottomSheetModal = forwardRef<BottomSheet, BottomSheetModalProps>(({ children, snapPoints, ...rest }, ref) => {
-  const sheetSnapPoints = useMemo(() => snapPoints || ["50%"], [])
+  // const sheetSnapPoints = useMemo(() => snapPoints || ["50%"], [])
 
   const renderBackdrop = useCallback((props) => <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={2} />, [])
 

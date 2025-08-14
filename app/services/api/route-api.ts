@@ -99,18 +99,25 @@ export class RouteApi {
       })
 
       const routesWithWarning = formattedRoutes.map((route) => {
-        const nextStationId = findClosestStationInRoute(route as RouteItem)
-        const train = getTrainFromStationId(route as RouteItem, nextStationId)
+        const nextStationId = findClosestStationInRoute(route as unknown as RouteItem)
+        const train = getTrainFromStationId(route as unknown as RouteItem, nextStationId)
 
         const delay = train.delay
-        const isMuchLonger = isRouteIsMuchLongerThanOtherRoutes(route as RouteItem, formattedRoutes as RouteItem[])
-        const isMuchShorter = isRouteMuchShorterThanOtherRoutes(route as RouteItem, formattedRoutes as RouteItem[])
+        const isMuchLonger = isRouteIsMuchLongerThanOtherRoutes(
+          route as unknown as RouteItem,
+          formattedRoutes as unknown as RouteItem[],
+        )
+        const isMuchShorter = isRouteMuchShorterThanOtherRoutes(
+          route as unknown as RouteItem,
+          formattedRoutes as unknown as RouteItem[],
+        )
         return Object.assign({}, route, { isMuchShorter, isMuchLonger, delay })
       })
 
       return routesWithWarning
     } catch (err) {
       console.error(err)
+      return []
     }
   }
 }

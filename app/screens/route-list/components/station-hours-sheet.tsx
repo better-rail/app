@@ -1,7 +1,7 @@
 import { forwardRef, useEffect, useState } from "react"
 import { ActivityIndicator, Image, View, BackHandler } from "react-native"
 import { ScrollView } from "react-native-gesture-handler"
-import HapticFeedback from "react-native-haptic-feedback"
+import * as Haptics from "expo-haptics"
 import { BottomSheetView } from "@gorhom/bottom-sheet"
 import { Chip, Text } from "../../../components"
 import { BottomSheetModal } from "../../../components/sheets/bottom-sheet-modal"
@@ -105,7 +105,7 @@ export const StationHoursSheet = observer(
                     <Chip
                       variant={selected ? "primary" : "transparent"}
                       onPress={() => {
-                        HapticFeedback.trigger("impactLight")
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
                         setSelectedGateId(gate.stationGateId)
                       }}
                       key={gate.stationGateId}

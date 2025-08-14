@@ -2,7 +2,7 @@ import React, { useMemo } from "react"
 import { View, Image, ViewStyle, ImageStyle, TextStyle, Dimensions } from "react-native"
 import { Text, ChangeDirectionButton } from "../../../components"
 import { color, spacing, fontScale } from "../../../theme"
-import { intervalToDuration, formatDuration, addMinutes, millisecondsToMinutes, milliseconds, Duration } from "date-fns"
+import { intervalToDuration, formatDuration, addMinutes, millisecondsToMinutes, milliseconds } from "date-fns"
 import { dateFnsLocalization, translate } from "../../../i18n"
 import { Train } from "../../../services/api"
 

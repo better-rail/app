@@ -32,8 +32,8 @@ import {
 import { type RootStore, RootStoreProvider, setupRootStore } from "./models"
 import { setInitialLanguage, setUserLanguage } from "./i18n/i18n"
 import "react-native-console-time-polyfill"
-import { useIAP, initConnection, finishTransaction, getAvailablePurchases, withIAPContext } from "react-native-iap"
-import PushNotification from "react-native-push-notification"
+import { connectAsync, finishTransactionAsync, getPurchaseHistoryAsync } from "expo-in-app-purchases"
+import * as Notifications from "expo-notifications"
 
 // This puts screens in a native ViewController or Activity. If you want fully native
 // stack navigation, use `createNativeStackNavigator` in place of `createStackNavigator`:
@@ -62,11 +62,11 @@ export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
  * This is the root component of our app.
  */
 function App() {
-  const navigationRef = useRef<NavigationContainerRef<RootParamList>>()
+  const navigationRef = useRef<NavigationContainerRef<RootParamList>>(null)
   const [rootStore, setRootStore] = useState<RootStore | undefined>(undefined)
   const [localeReady, setLocaleReady] = useState(false)
   const appState = useRef(AppState.currentState)
-  const { currentPurchase } = useIAP()
+  const [currentPurchase] = useState(null)
 
   useDeepLinking(rootStore, navigationRef)
 
@@ -81,14 +81,23 @@ function App() {
 
   useEffect(() => {
     if (Platform.OS === "android") {
-      PushNotification.configure({
-        onNotification(notification) {
-          if (notification.userInteraction) {
-            openActiveRide(rootStore, navigationRef)
-          }
-        },
+      // Configure expo notifications
+      Notifications.setNotificationHandler({
+        handleNotification: async () => ({
+          shouldShowAlert: true,
+          shouldPlaySound: true,
+          shouldSetBadge: false,
+        }),
       })
+
+      // Listen for notification responses
+      const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+        openActiveRide(rootStore, navigationRef)
+      })
+
+      return () => subscription.remove()
     }
+    return undefined
   }, [rootStore, navigationRef])
 
   useEffect(() => {
@@ -155,15 +164,13 @@ function App() {
 
   useEffect(() => {
     // load products and flush available purchases for the tip jar
-    // see: https://github.com/dooboolab-community/react-native-iap/issues/126
-    // and: https://react-native-iap.dooboolab.com/docs/guides/purchases
     const flushAvailablePurchases = async () => {
       try {
-        await initConnection()
-        const availablePurchases = await getAvailablePurchases()
+        await connectAsync()
+        const { results: availablePurchases } = await getPurchaseHistoryAsync()
 
         availablePurchases.forEach((purchase) => {
-          finishTransaction({ purchase, isConsumable: true })
+          finishTransactionAsync(purchase, true) // true for consumable items
         })
       } catch (error) {
         console.error("Failed to connect to IAP and finish all available transactions", error)
@@ -209,4 +216,4 @@ function App() {
   )
 }
 
-export default withIAPContext(App)
+export default App

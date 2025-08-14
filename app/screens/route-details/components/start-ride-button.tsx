@@ -1,7 +1,7 @@
 import { Alert, Dimensions, Image, ImageStyle, Linking, Platform, View, ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import HapticFeedback from "react-native-haptic-feedback"
+import * as Haptics from "expo-haptics"
 import { Button } from "../../../components"
 import { isRTL, translate, userLocale } from "../../../i18n"
 import type { RouteItem } from "../../../services/api"
@@ -10,7 +10,7 @@ import { isRouteInThePast, timezoneCorrection } from "../../../utils/helpers/dat
 import { color, fontScale } from "../../../theme"
 import { useStores } from "../../../models"
 import { AndroidNotificationSetting, AuthorizationStatus } from "@notifee/react-native"
-import InAppReview from "react-native-in-app-review"
+import * as StoreReview from "expo-store-review"
 import { analytics } from "../../../services/firebase/analytics"
 import { crashlytics } from "../../../services/firebase/crashlytics"
 import { log, setAttributes } from "@react-native-firebase/crashlytics"
@@ -91,14 +91,14 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
       rideId: ride.id ?? "null",
     })
 
-    HapticFeedback.trigger("notificationSuccess")
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
     ride.startRide(route)
     analytics.logEvent("start_live_ride")
 
     // in reality the prompt would be shown on the 4th ride and not the 3rd, since the count
     // will be increased only after the ride has been started successfully.
     if (ride.rideCount === 3) {
-      InAppReview.RequestInAppReview().then(() => {
+      StoreReview.requestReview().then(() => {
         analytics.logEvent("start_live_ride_in_app_review_prompt")
       })
     }
@@ -129,7 +129,7 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
         disabled={isStartRideButtonDisabled}
         onPress={startRide}
         onDisabledPress={() => {
-          HapticFeedback.trigger("notificationError")
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
           let disabledReason = ""
           if (areActivitiesDisabled()) {
             disabledReason = Platform.OS === "ios" ? "Live Activities disabled" : "Notifications disbled"

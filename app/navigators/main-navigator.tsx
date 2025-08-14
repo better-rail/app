@@ -9,7 +9,7 @@ import { createNativeStackNavigator, type NativeStackScreenProps } from "@react-
 import { PlannerScreen, SelectStationScreen, RouteListScreen, RouteDetailsScreen } from "../screens"
 import { color, typography } from "../theme"
 import type { RouteItem } from "../services/api"
-import { Platform } from "react-native"
+// import { Platform } from "react-native"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -42,13 +42,12 @@ const Stack = createNativeStackNavigator<PrimaryParamList>()
 export function MainNavigator() {
   return (
     <Stack.Navigator
+      {...({} as any)}
       screenOptions={{
         headerBackButtonDisplayMode: "minimal",
         headerTitleStyle: {
           fontSize: 20,
           fontFamily: typography.primary,
-          marginStart: Platform.select({ android: -22, ios: 0 }),
-          marginBottom: Platform.select({ android: 2.5, ios: 0 }),
         },
         headerBackTitleStyle: { fontFamily: typography.primary },
         headerTintColor: color.primary as unknown as string,

@@ -66,7 +66,7 @@ export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
   }, [])
 
   const finish = () => {
-    navigation.popTo("mainStack", {
+    navigation.navigate("mainStack" as any, {
       screen: "planner",
     })
     storage.save("seenLiveAnnouncement", new Date().toISOString())
@@ -115,7 +115,7 @@ export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
               finish()
 
               setTimeout(() => {
-                navigation.navigate("settingsStack", { screen: "tipJar" })
+                navigation.navigate("settingsStack" as any, { screen: "tipJar" })
               }, 150)
             }}
           />

@@ -57,7 +57,7 @@ export function useDeepLinking(rootStore: RootStore, navigationRef: MutableRefOb
   function deepLinkLiveActivity(url: string) {
     const { name: screenName, params: screenParams } = navigationRef.current?.getCurrentRoute()
 
-    if (screenName != "routeDetails") {
+    if (screenName !== ("routeDetails" as any)) {
       openActiveRideScreen()
     } else {
       // if we're on the route details screen, we need to check if it's the same route

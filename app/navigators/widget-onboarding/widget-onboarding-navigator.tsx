@@ -15,6 +15,7 @@ export type WidgetOnboardingStackProps = StackScreenProps<WidgetOnboardingsParam
 
 export const WidgetOnboardingNavigator = () => (
   <WidgetOnboardingStack.Navigator
+    {...({} as any)}
     screenOptions={({ navigation }) => ({
       headerTransparent: true,
       headerBackButtonDisplayMode: "minimal",

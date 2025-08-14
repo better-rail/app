@@ -1,5 +1,5 @@
 import React, { useMemo } from "react"
-import { View, Platform, Image } from "react-native"
+import { View, Image } from "react-native"
 import type { TextStyle, ViewStyle } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
@@ -27,7 +27,7 @@ const FAVORITE_ROUTES_HEADER: ViewStyle = {
   marginHorizontal: spacing[3],
   paddingBottom: spacing[1],
   borderBottomWidth: 0.5,
-  borderColor: Platform.select({ ios: color.inputPlaceholderBackground, android: isDarkMode ? "#3a3a3c" : "lightgrey" }),
+  borderColor: isDarkMode ? "#3a3a3c" : "lightgrey",
 }
 
 const ROUTES_CONTAINER: ViewStyle = {

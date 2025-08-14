@@ -9,11 +9,11 @@ import { color, isDarkMode, spacing } from "../../theme"
 import { useStores } from "../../models"
 import { translate } from "../../i18n"
 import { openLink } from "../../utils/helpers/open-link"
-import { useIsBetaTester } from "../../hooks/use-is-beta-tester"
 import { crashlytics } from "../../services/firebase/crashlytics"
 import RNRestart from "react-native-restart"
 import { setCrashlyticsCollectionEnabled } from "@react-native-firebase/crashlytics"
 import { setAnalyticsCollectionEnabled } from "@react-native-firebase/analytics"
+import { isTestFlight } from "expo-testflight"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -23,7 +23,6 @@ const ROOT: ViewStyle = {
 export const PrivacyScreen = observer(function SettingsLanguageScreen() {
   const { user } = useStores()
   const rootStore = useStores()
-  const isBetaTester = useIsBetaTester()
 
   const onTelemetryToggle = async (disableTelemetry: boolean) => {
     if (disableTelemetry) {
@@ -70,7 +69,7 @@ export const PrivacyScreen = observer(function SettingsLanguageScreen() {
           onPress={() => openLink(translate("settings.privacyPolicyLink"))}
           first
         />
-        {!isBetaTester && (
+        {!isTestFlight && (
           <SettingBox
             title={translate("settings.disableTelemetry")}
             toggle

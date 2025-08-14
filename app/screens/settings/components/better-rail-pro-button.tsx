@@ -1,5 +1,5 @@
 import { DynamicColorIOS, Platform, TouchableOpacity } from "react-native"
-import LinearGradient from "react-native-linear-gradient"
+import { LinearGradient } from "expo-linear-gradient"
 import { spacing } from "../../../theme"
 import { Text } from "../../../components"
 import { useFontFamily } from "../../../hooks/use-font-family"

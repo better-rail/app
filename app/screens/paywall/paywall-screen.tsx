@@ -17,7 +17,7 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated"
 import { Header, HeaderBackButton, useHeaderHeight } from "@react-navigation/elements"
-import { useStores } from "../../models"
+// import { useStores } from "../../models"
 import * as Burnt from "burnt"
 
 // #region styles

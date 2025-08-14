@@ -1,6 +1,6 @@
 import { Dimensions, ImageStyle, ScrollView, TextStyle, View, ViewStyle } from "react-native"
-import Video from "react-native-video"
-import { Button, Screen, Text } from "../../components"
+import { VideoView, useVideoPlayer } from "expo-video"
+import { Screen, Text } from "../../components"
 import { LiveAnnouncementBackground } from "./live-announcement-bg"
 import { color, spacing } from "../../theme"
 import { translate, userLocale } from "../../i18n"
@@ -47,6 +47,12 @@ export function StartRideAnnouncement({ navigation }: LiveAnnouncementStackProps
     userLocale === "he"
       ? require("../../../assets/live-activity/start-ride-hebrew.mp4")
       : require("../../../assets/live-activity/start-ride-english.mp4")
+
+  const player = useVideoPlayer(START_RIDE_VIDEO, (player) => {
+    player.loop = true
+    player.play()
+  })
+
   return (
     <Screen unsafe={true} statusBar="light-content">
       <LiveAnnouncementBackground />
@@ -55,7 +61,7 @@ export function StartRideAnnouncement({ navigation }: LiveAnnouncementStackProps
           <Text tx="liveAnnounce.startRide.title" preset="header" style={TITLE} maxFontSizeMultiplier={1.1} />
           <Text tx="liveAnnounce.startRide.description" style={TEXT} maxFontSizeMultiplier={1.1} />
           <View style={VIDEO_WRAPPER}>
-            <Video source={START_RIDE_VIDEO} style={VIDEO_STYLE} repeat={true} />
+            <VideoView player={player} style={VIDEO_STYLE} />
           </View>
           <Text
             tx="liveAnnounce.startRide.description2"

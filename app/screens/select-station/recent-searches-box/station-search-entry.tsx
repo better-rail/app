@@ -1,7 +1,7 @@
 import React from "react"
 import { View, Image, Appearance, Platform } from "react-native"
 import type { ViewStyle, ImageStyle, TextStyle, ImageSourcePropType } from "react-native"
-import { ContextMenuView } from "react-native-ios-context-menu"
+import ContextMenuView from "react-native-context-menu-view"
 import TouchableScale from "react-native-touchable-scale"
 import { Text } from "../../../components"
 import { translate } from "../../../i18n"
@@ -56,28 +56,20 @@ export const StationSearchEntry = (props: StationSearchEntryProps) => (
     style={SEARCH_ENTRY_WRAPPER}
   >
     <ContextMenuView
-      onPressMenuItem={({ nativeEvent }) => {
-        const { actionKey } = nativeEvent
+      onPress={({ nativeEvent }) => {
+        const { index } = nativeEvent
 
-        if (actionKey === "hide") {
+        if (index === 0) {
           props.onHide()
         }
       }}
-      previewConfig={{ borderRadius: 6 }}
-      menuConfig={{
-        menuTitle: props.name,
-        menuItems: [
-          {
-            actionKey: "hide",
-            actionTitle: translate("selectStation.hide"),
-            menuAttributes: ["destructive"],
-            icon: {
-              iconType: "SYSTEM",
-              iconValue: "trash",
-            },
-          },
-        ],
-      }}
+      actions={[
+        {
+          title: translate("selectStation.hide"),
+          systemIcon: "trash",
+          destructive: true,
+        },
+      ]}
     >
       <View style={SEARCH_ENTRY_IMAGE_WRAPPER}>
         {props.image ? (

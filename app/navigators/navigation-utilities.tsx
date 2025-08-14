@@ -14,7 +14,7 @@ export const RootNavigation = {
   },
 }
 
-export const setRootNavigation = (ref: React.RefObject<NavigationContainerRef>) => {
+export const setRootNavigation = (ref: React.RefObject<NavigationContainerRef<any>>) => {
   for (const method in RootNavigation) {
     RootNavigation[method] = (...args: any) => {
       if (ref.current) {
@@ -41,7 +41,7 @@ export function getActiveRouteName(state: NavigationState | PartialState<Navigat
  * Hook that handles Android back button presses and forwards those on to
  * the navigation or allows exiting the app.
  */
-export function useBackButtonHandler(ref: React.RefObject<NavigationContainerRef>, canExit: (routeName: string) => boolean) {
+export function useBackButtonHandler(ref: React.RefObject<NavigationContainerRef<any>>, canExit: (routeName: string) => boolean) {
   const canExitRef = useRef(canExit)
 
   useEffect(() => {
@@ -91,7 +91,7 @@ export function useNavigationPersistence(storage: any, persistenceKey: string) {
   const [initialNavigationState, setInitialNavigationState] = useState()
   const [isRestoringNavigationState, setIsRestoringNavigationState] = useState(true)
 
-  const routeNameRef = useRef()
+  const routeNameRef = useRef<string | null>(null)
   const onNavigationStateChange = (state) => {
     const previousRouteName = routeNameRef.current
     const currentRouteName = getActiveRouteName(state)

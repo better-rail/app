@@ -2,13 +2,14 @@ import { Linking, Platform, PlatformColor, TextStyle, View, ViewStyle } from "re
 import { observer } from "mobx-react-lite"
 import { Screen, Text } from "../../components"
 import { SettingBox } from "./components/settings-box"
-import { getVersion, getBuildNumber } from "react-native-device-info"
+import Constants from "expo-constants"
 import { color, spacing } from "../../theme"
 import { translate, userLocale } from "../../i18n"
 import { SettingsScreenProps } from "../../navigators"
 import { SETTING_GROUP } from "./settings-styles"
-import { useIsDarkMode, useIsBetaTester } from "../../hooks"
+import { useIsDarkMode } from "../../hooks"
 import { shareApp } from "./helpers/app-share-sheet"
+import { isTestFlight } from "expo-testflight"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -29,7 +30,6 @@ const storeLink = Platform.select({
 
 export const SettingsScreen = observer(function SettingsScreen({ navigation }: SettingsScreenProps) {
   const isDarkMode = useIsDarkMode()
-  const isBetaTester = useIsBetaTester()
 
   return (
     <Screen
@@ -84,11 +84,11 @@ export const SettingsScreen = observer(function SettingsScreen({ navigation }: S
       </View>
 
       <Text
-        style={[VERSION_TEXT, isBetaTester && { fontFamily: "System", fontWeight: "500", color: PlatformColor("systemOrange") }]}
+        style={[VERSION_TEXT, isTestFlight && { fontFamily: "System", fontWeight: "500", color: PlatformColor("systemOrange") }]}
       >
-        Better Rail {isBetaTester && "Beta "}v{getVersion()}
+        Better Rail {isTestFlight && "Beta "}v{Constants.expoConfig?.version || "1.0.0"}
       </Text>
-      {isBetaTester && <Text style={VERSION_TEXT}>Build {getBuildNumber()}</Text>}
+      {isTestFlight && <Text style={VERSION_TEXT}>Build {Constants.expoConfig?.ios?.buildNumber || "1"}</Text>}
     </Screen>
   )
 })

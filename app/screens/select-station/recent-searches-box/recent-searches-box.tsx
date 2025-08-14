@@ -1,5 +1,5 @@
 import React, { useMemo } from "react"
-import { View, Image, TextStyle, ViewStyle, ImageStyle, Platform } from "react-native"
+import { View, Image, TextStyle, ViewStyle, ImageStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import { useStores } from "../../../models"
 import { analytics } from "../../../services/firebase/analytics"
@@ -22,7 +22,7 @@ const RECENT_SEARCHERS_HEADER: ViewStyle = {
   marginHorizontal: spacing[3],
   paddingBottom: spacing[1],
   borderBottomWidth: 0.5,
-  borderColor: Platform.select({ ios: color.inputPlaceholderBackground, android: isDarkMode ? "#3a3a3c" : "lightgrey" }),
+  borderColor: isDarkMode ? "#3a3a3c" : "lightgrey",
 }
 
 const SCROLL_VIEW: ViewStyle = {

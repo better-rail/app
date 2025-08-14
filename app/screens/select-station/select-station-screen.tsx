@@ -1,6 +1,6 @@
-import React, { useCallback, useMemo, useState } from "react"
+import React, { useCallback, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { View, TextStyle, ViewStyle, Pressable, Platform, I18nManager, UIManager } from "react-native"
+import { View, TextStyle, ViewStyle, Pressable, Platform, I18nManager } from "react-native"
 import { Screen, Text, StationCard, FavoriteRoutes, cardHeight } from "../../components"
 import { useStores } from "../../models"
 import { SelectStationScreenProps } from "../../navigators/main-navigator"
@@ -26,7 +26,7 @@ const SEARCH_BAR_WRAPPER: ViewStyle = {
   marginBottom: spacing[3],
   backgroundColor: color.background,
   borderBottomWidth: 0.75,
-  borderBottomColor: Platform.select({ ios: color.dimmer, android: isDarkMode ? "#3a3a3c" : "lightgrey" }),
+  borderBottomColor: isDarkMode ? "#3a3a3c" : "lightgrey",
 }
 
 const CANCEL_LINK: TextStyle = {

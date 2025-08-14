@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { View, ViewStyle, TextStyle, Platform, ActivityIndicator } from "react-native"
-import { ProductPurchase, RequestPurchase, useIAP } from "react-native-iap"
+import { purchaseItemAsync, getProductsAsync } from "expo-in-app-purchases"
 import { Screen, Text } from "../../components"
 import { color, isDarkMode, spacing } from "../../theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { translate } from "../../i18n"
 import { useStores } from "../../models"
-import { getInstallerPackageNameSync } from "react-native-device-info"
 import { analytics } from "../../services/firebase/analytics"
 import { crashlytics } from "../../services/firebase/crashlytics"
 import { useModal } from "react-native-modalfy"
+import { isTestFlight } from "expo-testflight"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -83,8 +83,6 @@ const TIP_AMOUNT: TextStyle = {
 
 const TOTAL_TIPS: TextStyle = { textAlign: "center", marginTop: spacing[4] }
 
-const installSource = getInstallerPackageNameSync()
-
 const PRODUCT_IDS = ["better_rail_tip_1", "better_rail_tip_2", "better_rail_tip_3", "better_rail_tip_4"]
 
 export const TipJarScreen = observer(function TipJarScreen() {
@@ -92,40 +90,34 @@ export const TipJarScreen = observer(function TipJarScreen() {
   const [sortedProducts, setSortedProducts] = useState([])
   const { settings } = useStores()
   const { openModal } = useModal()
-  const { connected, products, finishTransaction, requestPurchase, getProducts, getAvailablePurchases, availablePurchases } =
-    useIAP()
 
   useEffect(() => {
-    if (connected) {
-      getProducts({ skus: PRODUCT_IDS })
+    const setupIAP = async () => {
+      try {
+        const { results: products } = await getProductsAsync(PRODUCT_IDS)
+        if (products.length > 0) {
+          const sortedProductsByPrice = products.sort((a, b) => Number(a.price) - Number(b.price))
+          setSortedProducts(sortedProductsByPrice)
+        }
+      } catch (error) {
+        console.error("Failed to setup IAP:", error)
+      }
     }
-  }, [connected, getProducts])
 
-  useEffect(() => {
-    if (products.length > 0) {
-      const sortedProductsByPrice = products.sort((a, b) => Number(a.price) - Number(b.price))
-      setSortedProducts(sortedProductsByPrice)
-    }
-  }, [products])
+    setupIAP()
+  }, [])
 
   const onTipButtonPress = async (sku: string, amount: string) => {
     try {
       setIsLoading(true)
 
-      const requestPurchaseParams: RequestPurchase = Platform.select({
-        ios: { sku },
-        android: { skus: [sku] },
-      })
-
-      const purchase = (await requestPurchase(requestPurchaseParams)) as ProductPurchase
-
-      await finishTransaction({ purchase, isConsumable: true })
+      await purchaseItemAsync(sku)
       openModal("TipThanksModal")
 
-      const item = products.find((product) => product.productId === sku)
+      const item = sortedProducts.find((product) => product.productId === sku)
       await analytics.logPurchase({
         value: Number(amount),
-        currency: products[0].currency,
+        currency: sortedProducts[0].currency,
         tax: 15,
         items: [
           {
@@ -157,7 +149,7 @@ export const TipJarScreen = observer(function TipJarScreen() {
       <Text style={HEART_ICON}>💖</Text>
       <Text tx="settings.tipJarTitle" style={TIP_INTRO_TITLE} />
       <Text tx="settings.tipJarSubtitle" style={TIP_INTRO_SUBTITLE} />
-      {installSource === "TestFlight" && <Text tx="settings.testflightMessage" style={TESTFLIGHT_MSG} />}
+      {isTestFlight && <Text tx="settings.testflightMessage" style={TESTFLIGHT_MSG} />}
 
       {sortedProducts.length > 0 && !isLoading ? (
         <>
@@ -184,7 +176,7 @@ export const TipJarScreen = observer(function TipJarScreen() {
 
           {settings.totalTip > 0 && (
             <Text style={TOTAL_TIPS}>
-              {translate("settings.totalTips")}: {settings.totalTip} {products[0].currency === "ILS" ? "₪" : "$"}
+              {translate("settings.totalTips")}: {settings.totalTip} {sortedProducts[0]?.currency === "ILS" ? "₪" : "$"}
             </Text>
           )}
         </>

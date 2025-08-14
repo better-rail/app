@@ -1,6 +1,6 @@
 import React from "react"
 import { View, TextStyle, ViewStyle, ImageStyle, Image, Dimensions } from "react-native"
-import InAppReview from "react-native-in-app-review"
+import * as StoreReview from "expo-store-review"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Screen, Text, Button } from "../../components"
 import { translate } from "../../i18n"
@@ -74,11 +74,11 @@ export const WidgetStep3 = function WidgetStep3({ navigation }: WidgetOnboarding
           title={translate("common.done")}
           onPress={() => {
             analytics.logEvent("finished_widget_onboarding")
-            navigation.navigate("settingsStack")
+            navigation.navigate("settingsStack" as any)
 
             storage.load("lastInAppReview").then((value) => {
               if (!value) {
-                InAppReview.RequestInAppReview().then(() => {
+                StoreReview.requestReview().then(() => {
                   storage.save("lastInAppReview", new Date().toISOString())
                 })
               }

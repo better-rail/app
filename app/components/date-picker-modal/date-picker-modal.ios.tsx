@@ -2,11 +2,11 @@ import React, { useMemo } from "react"
 import { ViewStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
-import SegmentedControl from "@react-native-segmented-control/segmented-control"
+import SegmentedControlBase from "@react-native-segmented-control/segmented-control"
 import { DateType, useStores } from "../../models"
 import { dateLocale, translate } from "../../i18n"
 import { spacing } from "../../theme"
-import HapticFeedback from "react-native-haptic-feedback"
+import * as Haptics from "expo-haptics"
 
 // A dictionary to set the date type according to the segmented control selected index
 const DATE_TYPE: { [key: number]: DateType } = { 0: "departure", 1: "arrival" }
@@ -32,12 +32,12 @@ export const DatePickerModal = observer(function DatePickerModal(props: DatePick
 
   const dateTypeControl = useMemo(
     () => (
-      <SegmentedControl
+      <SegmentedControlBase
         values={[translate("plan.leaveAt"), translate("plan.arriveAt")]}
         selectedIndex={routePlan.dateType === "departure" ? 0 : 1}
         onChange={(event) => {
           routePlan.setDateType(DATE_TYPE[event.nativeEvent.selectedSegmentIndex])
-          HapticFeedback.trigger("impactLight")
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
         }}
         style={SEGMENTED_CONTROL}
       />

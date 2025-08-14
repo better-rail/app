@@ -4,7 +4,7 @@ import { View, Animated, Dimensions, AppState, Platform, Alert } from "react-nat
 import type { ViewStyle, TextStyle, AppStateStatus } from "react-native"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton, ResetTimeButton } from "../../components"
 import { useStores } from "../../models"
-import HapticFeedback from "react-native-haptic-feedback"
+import * as Haptics from "expo-haptics"
 import { color, primaryFontIOS, spacing } from "../../theme"
 import type { PlannerScreenProps } from "../../navigators/main-navigator"
 import { useStations } from "../../data/stations"
@@ -78,7 +78,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
 
   const onDateReset = () => {
     analytics.logEvent("reset_date_press")
-    HapticFeedback.trigger("impactLight")
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
     onDateChange(new Date())
   }
 
@@ -115,7 +115,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
 
   const onSwitchPress = () => {
     scaleStationCards()
-    HapticFeedback.trigger("impactMedium")
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
 
     // Delay the actual switch so it'll be synced with the animation
     setTimeout(() => {

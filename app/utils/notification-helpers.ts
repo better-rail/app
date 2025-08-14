@@ -87,7 +87,7 @@ export const configureNotifications = async () => {
 const handleLiveRideNotification = async (message: FirebaseMessagingTypes.RemoteMessage) => {
   if (message.data.notifee) {
     notifee.displayNotification({
-      ...JSON.parse(message.data.notifee),
+      ...JSON.parse(message.data.notifee as string),
       android: {
         channelId: "better-rail",
         smallIcon: "notification_icon",
@@ -117,7 +117,7 @@ const handleLiveRideNotification = async (message: FirebaseMessagingTypes.Remote
 
 const handleServiceUpdateNotification = async (message: FirebaseMessagingTypes.RemoteMessage) => {
   const { title, body, stations } = message.data
-  const parsedStations = JSON.parse(stations)
+  const parsedStations = JSON.parse(stations as string)
 
   let displayNotification = false
   /**
@@ -146,8 +146,8 @@ const handleServiceUpdateNotification = async (message: FirebaseMessagingTypes.R
 
   if (displayNotification) {
     notifee.displayNotification({
-      title,
-      body,
+      title: title as string,
+      body: body as string,
       ios: { sound: "default" },
       android: {
         channelId: "better-rail-service-updates",

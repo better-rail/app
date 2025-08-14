@@ -10,7 +10,7 @@ import { Text } from "../"
 import { format } from "date-fns"
 import { translate } from "../../i18n"
 import { RouteIndicators } from "./"
-import { isRideActive } from "../../utils/ios-helpers"
+// import { isRideActive } from "../../utils/ios-helpers"
 
 // #region styles
 

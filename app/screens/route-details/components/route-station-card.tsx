@@ -130,7 +130,7 @@ export const RouteStationCard = (props: RouteStopCardProps) => {
           {stationName}
         </Text>
         <Text style={ROUTE_STATION_DETAILS_TEXT} maxFontSizeMultiplier={1.2}>
-          {translate("routeDetails.platform")} {platform === "0" ? translate("routeDetails.unknown") : platform}{" "}
+          {translate("routeDetails.platform")} {platform === 0 ? translate("routeDetails.unknown") : platform}{" "}
           {trainNumber && `· ${translate("routeDetails.trainNo")} ${trainNumber}`}
         </Text>
         {trainNumber && (

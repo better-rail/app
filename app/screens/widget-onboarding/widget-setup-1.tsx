@@ -8,7 +8,7 @@ import { color, fontScale, spacing } from "../../theme"
 import { WidgetOnboardingBackground } from "./widget-onboarding-background"
 import { useWidgetWrapperStyle } from "./widget-styles"
 
-const { width: deviceWidth, height: deviceHeight } = Dimensions.get("screen")
+const { width: deviceWidth } = Dimensions.get("screen")
 
 const TITLE: TextStyle = {
   color: color.whiteText,

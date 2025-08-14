@@ -9,7 +9,7 @@ import { useNavigation } from "@react-navigation/native"
 import { SearchInput } from "../select-station/search-input"
 import { translate } from "../../i18n"
 import { useStores } from "../../models"
-import HapticFeedback from "react-native-haptic-feedback"
+import * as Haptics from "expo-haptics"
 import { useFilteredStations } from "../../hooks"
 import { useStations } from "../../data/stations"
 
@@ -29,7 +29,7 @@ export const NotificationsSelectStationsScreen = observer(function Notifications
   const displayedStations = searchTerm === "" ? stations : filteredStations
 
   const onSelected = (stationId: string) => {
-    HapticFeedback.trigger("impactLight")
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
 
     if (stationsNotifications.includes(stationId)) {
       settings.removeStationNotification(stationId)
