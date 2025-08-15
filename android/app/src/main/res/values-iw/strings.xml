@@ -100,4 +100,8 @@
     <string name="station_6150">קריית מלאכי - יואב</string>
     <string name="station_680">ירושלים - יצחק נבון</string>
     <string name="station_6900">מזכרת בתיה</string>
+    
+    <!-- Test stations for mock data -->
+    <string name="station_9999">תחנת מוצא לבדיקה</string>
+    <string name="station_8888">תחנת יעד לבדיקה</string>
 </resources>

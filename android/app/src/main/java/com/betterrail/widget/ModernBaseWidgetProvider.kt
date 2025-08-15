@@ -298,14 +298,112 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         appWidgetId: Int,
         state: WidgetState
     ) {
-        try {
-            val views = renderWidgetState(context, state)
-            setupRefreshClickIntent(context, views)
-            appWidgetManager.updateAppWidget(appWidgetId, views)
-            Log.d(getLogTag(), "Updated widget $appWidgetId UI with state: ${state::class.simpleName}")
-        } catch (e: Exception) {
-            Log.e(getLogTag(), "Error updating widget $appWidgetId UI", e)
+        coroutineManager.launchInWidgetScope(appWidgetId) {
+            try {
+                val views = renderWidgetState(context, state)
+                
+                // Set up click intent based on widget state
+                when (state) {
+                    is WidgetState.Configuration -> {
+                        // Keep existing configuration click behavior
+                        setupConfigurationClickIntent(context, appWidgetManager, appWidgetId)
+                        return@launchInWidgetScope // Early return since setupConfigurationClickIntent handles the widget update
+                    }
+                    
+                    is WidgetState.Error -> {
+                        // For error state, use refresh behavior to retry
+                        setupRefreshClickIntent(context, views)
+                    }
+                    
+                    else -> {
+                        // For all other states, get the complete widget data from preferences for deeplink
+                        val widgetData = preferencesRepository.getWidgetData(appWidgetId)
+                        if (widgetData != null) {
+                            setupClickIntentsBase(
+                                context = context,
+                                views = views,
+                                appWidgetId = appWidgetId,
+                                widgetData = widgetData,
+                                clickTargetId = getWidgetContainerId(),
+                                useDeeplink = true,
+                                deeplinkPath = getWidgetType()
+                            )
+                        } else {
+                            // Fallback to refresh if no widget data found
+                            setupRefreshClickIntent(context, views)
+                        }
+                    }
+                }
+                
+                appWidgetManager.updateAppWidget(appWidgetId, views)
+                Log.d(getLogTag(), "Updated widget $appWidgetId UI with state: ${state::class.simpleName}")
+            } catch (e: Exception) {
+                Log.e(getLogTag(), "Error updating widget $appWidgetId UI", e)
+            }
         }
+    }
+
+    /**
+     * Creates a reusable deeplink intent for widget navigation
+     */
+    protected fun createDeeplinkIntent(
+        context: Context, 
+        appWidgetId: Int, 
+        widgetData: WidgetData,
+        deeplinkPath: String = "widget"
+    ): PendingIntent {
+        val deepLinkUri = "betterrail://$deeplinkPath?originId=${widgetData.originId}&destinationId=${widgetData.destinationId}"
+        
+        val openAppIntent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(deepLinkUri)).apply {
+            setPackage(context.packageName)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra("widget_origin_id", widgetData.originId)
+            putExtra("widget_destination_id", widgetData.destinationId)
+            // Pass localized station names - both widget and app should use same locale context
+            putExtra("widget_origin_name", StationsData.getStationName(context, widgetData.originId))
+            putExtra("widget_destination_name", StationsData.getStationName(context, widgetData.destinationId))
+            putExtra("from_widget", true)
+            putExtra("widget_type", deeplinkPath)
+        }
+        
+        return PendingIntent.getActivity(
+            context, appWidgetId, openAppIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+    }
+
+    /**
+     * Sets up click intents for widgets - supports both deeplink and refresh modes
+     */
+    protected fun setupClickIntentsBase(
+        context: Context, 
+        views: RemoteViews, 
+        appWidgetId: Int, 
+        widgetData: WidgetData, 
+        clickTargetId: Int,
+        useDeeplink: Boolean = true,
+        deeplinkPath: String = "widget"
+    ) {
+        if (widgetData.originId.isEmpty()) {
+            // Subclasses will handle configuration intents
+            return
+        }
+        
+        val pendingIntent = if (useDeeplink) {
+            createDeeplinkIntent(context, appWidgetId, widgetData, deeplinkPath)
+        } else {
+            // Set up tap-to-refresh for configured widgets
+            val refreshIntent = Intent(context, this::class.java).apply {
+                action = getActionRefresh()
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            }
+            PendingIntent.getBroadcast(
+                context, appWidgetId, refreshIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        }
+        
+        views.setOnClickPendingIntent(clickTargetId, pendingIntent)
     }
 
     private fun setupRefreshClickIntent(context: Context, views: RemoteViews) {

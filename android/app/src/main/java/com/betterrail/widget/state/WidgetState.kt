@@ -110,7 +110,7 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_platform, platformText)
         
         val trainText = if (state.nextTrain.trainNumber.isNotEmpty()) {
-            "Train ${state.nextTrain.trainNumber}"
+            context.getString(R.string.train_number, state.nextTrain.trainNumber)
         } else {
             ""
         }
@@ -196,7 +196,7 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_platform, platformText)
         
         val trainText = if (state.firstTrain.trainNumber.isNotEmpty()) {
-            "Train ${state.firstTrain.trainNumber}"
+            context.getString(R.string.train_number, state.firstTrain.trainNumber)
         } else {
             ""
         }

@@ -100,4 +100,8 @@
     <string name="station_6150">Кирьят Малахи - Йоав</string>
     <string name="station_680">Иерусалим - Ицхак Навон</string>
     <string name="station_6900">Мазкерет Батья</string>
+    
+    <!-- Test stations for mock data -->
+    <string name="station_9999">Тестовая станция отправления</string>
+    <string name="station_8888">Тестовая станция назначения</string>
 </resources>
