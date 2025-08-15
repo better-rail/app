@@ -176,6 +176,7 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_destination, state.destinationName)
         views.setTextViewText(getTrainTimeId(), "--:--")
         views.setTextViewText(R.id.widget_train_label, context.getString(R.string.tomorrow))
+        views.setTextColor(R.id.widget_train_label, context.getColor(R.color.widget_tomorrow_text))
         views.setTextViewText(R.id.widget_platform, "Loading...")
         views.setTextViewText(R.id.widget_train_number, "")
         views.setViewVisibility(R.id.widget_loading_text, android.view.View.VISIBLE)
@@ -191,6 +192,7 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_destination, state.destinationName)
         views.setTextViewText(getTrainTimeId(), state.firstTrain.departureTime)
         views.setTextViewText(R.id.widget_train_label, context.getString(R.string.tomorrow))
+        views.setTextColor(R.id.widget_train_label, context.getColor(R.color.widget_tomorrow_text))
         
         val platformText = formatPlatform(context, state.firstTrain.platform)
         views.setTextViewText(R.id.widget_platform, platformText)
