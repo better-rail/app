@@ -15,7 +15,6 @@ import com.betterrail.widget.repository.Resource
 import com.betterrail.widget.lifecycle.WidgetCoroutineManager
 import com.betterrail.widget.state.WidgetState
 import com.betterrail.widget.scheduler.WidgetUpdateScheduler
-import com.betterrail.widget.constants.DeeplinkConstants
 import kotlinx.coroutines.flow.collectLatest
 import android.util.Log
 import dagger.hilt.EntryPoint
@@ -179,7 +178,6 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                                 val nextTrain = resource.data.routes.first()
                                 val state = WidgetState.Schedule(
                                     originId = widgetData.originId,
-                                    destinationId = widgetData.destinationId,
                                     originName = StationsData.getStationName(context, widgetData.originId),
                                     destinationName = StationsData.getStationName(context, widgetData.destinationId),
                                     nextTrain = nextTrain,
@@ -244,7 +242,6 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                             if (resource.data.routes.isNotEmpty()) {
                                 val state = WidgetState.TomorrowSchedule(
                                     originId = widgetData.originId,
-                                    destinationId = widgetData.destinationId,
                                     originName = StationsData.getStationName(context, widgetData.originId),
                                     destinationName = StationsData.getStationName(context, widgetData.destinationId),
                                     firstTrain = resource.data.routes.first()
@@ -303,14 +300,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
     ) {
         try {
             val views = renderWidgetState(context, state)
-            
-            // Set up deeplink to main app for schedule states, refresh for others
-            when (state) {
-                is WidgetState.Schedule -> setupMainAppClickIntent(context, views, state.originId, state.destinationId)
-                is WidgetState.TomorrowSchedule -> setupMainAppClickIntent(context, views, state.originId, state.destinationId)
-                else -> setupRefreshClickIntent(context, views)
-            }
-            
+            setupRefreshClickIntent(context, views)
             appWidgetManager.updateAppWidget(appWidgetId, views)
             Log.d(getLogTag(), "Updated widget $appWidgetId UI with state: ${state::class.simpleName}")
         } catch (e: Exception) {
@@ -327,31 +317,6 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         views.setOnClickPendingIntent(getWidgetContainerId(), pendingIntent)
-    }
-    
-    private fun setupMainAppClickIntent(context: Context, views: RemoteViews, originId: String, destinationId: String) {
-        try {
-            // Create deeplink to main app with station information
-            val deepLinkUrl = DeeplinkConstants.createRouteDeeplink(originId, destinationId)
-            val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(deepLinkUrl)).apply {
-                setPackage(context.packageName)
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            }
-            
-            val pendingIntent = PendingIntent.getActivity(
-                context, 
-                originId.hashCode(), // Use originId as unique request code
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            
-            views.setOnClickPendingIntent(getWidgetContainerId(), pendingIntent)
-            Log.d(getLogTag(), "Set up deeplink: $deepLinkUrl")
-        } catch (e: Exception) {
-            Log.e(getLogTag(), "Failed to set up main app click intent", e)
-            // Fallback to refresh if deeplink fails
-            setupRefreshClickIntent(context, views)
-        }
     }
 
     private fun setupConfigurationClickIntent(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
