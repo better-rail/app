@@ -2,11 +2,13 @@ package com.betterrail.widget.api
 
 import com.betterrail.BuildConfig
 import com.betterrail.widget.data.*
+import com.betterrail.widget.config.NetworkConfig
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.first
 import com.betterrail.widget.utils.RetryUtils
 import okhttp3.*
 import java.io.IOException
@@ -14,10 +16,15 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class RailApiService {
+class RailApiService(
+    private val networkConfig: NetworkConfig
+) {
     companion object {
         private val API_KEY = BuildConfig.RAIL_API_KEY
-        private const val TIMEOUT_SECONDS = 10L
+        private const val MAX_RETRIES = 3
+        private const val MOCK_NETWORK_DELAY_MS = 500L
+        private const val MOCK_TOMORROW_DELAY_MS = 300L
+        private const val MINUTES_IN_HOUR = 60
         private val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         private val TIME_FORMAT = SimpleDateFormat("HH:mm", Locale.getDefault())
         
@@ -40,29 +47,40 @@ class RailApiService {
         }
     }
 
-    private val client = OkHttpClient.Builder()
-        .connectTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
-        .readTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
-        .writeTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
-        .connectionPool(okhttp3.ConnectionPool(5, 2, TimeUnit.MINUTES)) // Reuse connections
-        .retryOnConnectionFailure(true) // Auto-retry on connection failure
-        // Force IPv4-only to avoid IPv6 connectivity issues
-        .dns(object : okhttp3.Dns {
-            override fun lookup(hostname: String): List<java.net.InetAddress> {
-                val allAddresses = java.net.InetAddress.getAllByName(hostname).toList()
-                // Filter to only include IPv4 addresses
-                val ipv4Addresses = allAddresses.filterIsInstance<java.net.Inet4Address>()
-                android.util.Log.d("RailApiService", "DNS lookup for $hostname: ${allAddresses.size} total addresses, ${ipv4Addresses.size} IPv4 addresses")
-                
-                if (ipv4Addresses.isEmpty()) {
-                    android.util.Log.w("RailApiService", "No IPv4 addresses found for $hostname, falling back to all addresses")
-                    return allAddresses
+    /**
+     * Create HTTP client with configurable timeouts
+     */
+    private suspend fun createClient(): OkHttpClient {
+        val timeouts = networkConfig.networkTimeouts.first()
+        
+        return OkHttpClient.Builder()
+            .connectTimeout(timeouts.connectTimeoutSeconds, TimeUnit.SECONDS)
+            .readTimeout(timeouts.readTimeoutSeconds, TimeUnit.SECONDS)
+            .writeTimeout(timeouts.writeTimeoutSeconds, TimeUnit.SECONDS)
+            .connectionPool(okhttp3.ConnectionPool(
+                timeouts.connectionPoolSize, 
+                timeouts.connectionKeepAliveMinutes, 
+                TimeUnit.MINUTES
+            )) // Reuse connections
+            .retryOnConnectionFailure(true) // Auto-retry on connection failure
+            // Force IPv4-only to avoid IPv6 connectivity issues
+            .dns(object : okhttp3.Dns {
+                override fun lookup(hostname: String): List<java.net.InetAddress> {
+                    val allAddresses = java.net.InetAddress.getAllByName(hostname).toList()
+                    // Filter to only include IPv4 addresses
+                    val ipv4Addresses = allAddresses.filterIsInstance<java.net.Inet4Address>()
+                    android.util.Log.d("RailApiService", "DNS lookup for $hostname: ${allAddresses.size} total addresses, ${ipv4Addresses.size} IPv4 addresses")
+                    
+                    if (ipv4Addresses.isEmpty()) {
+                        android.util.Log.w("RailApiService", "No IPv4 addresses found for $hostname, falling back to all addresses")
+                        return allAddresses
+                    }
+                    
+                    return ipv4Addresses
                 }
-                
-                return ipv4Addresses
-            }
-        })
-        .build()
+            })
+            .build()
+    }
 
     private val gson = Gson()
 
@@ -93,10 +111,11 @@ class RailApiService {
 
                 // Retry logic for network timeouts with exponential backoff
                 return@withContext RetryUtils.withRetry(
-                    maxRetries = 3,
-                    retryDelays = listOf(1000L, 2000L, 4000L),
+                    maxRetries = MAX_RETRIES,
+                    retryDelays = RetryUtils.DEFAULT_RETRY_DELAYS,
                     logTag = "RailApiService"
                 ) { attempt ->
+                    val client = createClient()
                     val response = client.newCall(request).execute()
                     
                     android.util.Log.d("RailApiService", "Response code: ${response.code}")
@@ -186,13 +205,31 @@ class RailApiService {
                     val departureTime = travel.get("departureTime")?.asString ?: ""
                     val arrivalTime = travel.get("arrivalTime")?.asString ?: ""
                     
-                    // Get platform and delay from first train if available
+                    // Get platform, delay, and train number from first train if available
                     var originPlatform = "1"
                     var delay = 0
+                    var trainNumber = ""
                     if (trains != null && trains.size() > 0) {
                         val firstTrain = trains[0].asJsonObject
                         originPlatform = firstTrain.get("originPlatform")?.asString 
                             ?: firstTrain.get("Platform")?.asString ?: "1"
+                        
+                        // Get train number (can be string or number in JSON)
+                        trainNumber = firstTrain.get("trainNumber")?.let { element ->
+                            if (element.isJsonPrimitive) {
+                                element.asString
+                            } else ""
+                        } ?: firstTrain.get("TrainNumber")?.let { element ->
+                            if (element.isJsonPrimitive) {
+                                element.asString
+                            } else ""
+                        } ?: firstTrain.get("trainId")?.let { element ->
+                            if (element.isJsonPrimitive) {
+                                element.asString
+                            } else ""
+                        } ?: ""
+                        
+                        android.util.Log.d("RailApiService", "Extracted train number: '$trainNumber' from firstTrain")
                         
                         // Get delay if available
                         val trainPositionElement = firstTrain.get("trainPosition")
@@ -209,6 +246,8 @@ class RailApiService {
                         originPlatform = travel.get("platform")?.asString ?: "1"
                         // Try to get delay from travel object
                         delay = travel.get("Delay")?.asInt ?: 0
+                        // Try to get train number from travel object
+                        trainNumber = travel.get("trainNumber")?.asString ?: ""
                     }
                     
                     val isExchange = trains?.size()?.let { it > 1 } ?: false
@@ -233,7 +272,8 @@ class RailApiService {
                                 delay = delay,
                                 isExchange = isExchange,
                                 duration = duration,
-                                changesText = changesText
+                                changesText = changesText,
+                                trainNumber = trainNumber
                             )
                         )
                         
@@ -307,8 +347,8 @@ class RailApiService {
                 val departureMinute = departureParts[1].toInt()
                 
                 // Convert to minutes since midnight for easy comparison
-                val currentMinutes = currentHour * 60 + currentMinute
-                val departureMinutes = departureHour * 60 + departureMinute
+                val currentMinutes = currentHour * MINUTES_IN_HOUR + currentMinute
+                val departureMinutes = departureHour * MINUTES_IN_HOUR + departureMinute
                 
                 // Only show trains departing from current time onwards (no past trains)
                 val isUpcoming = departureMinutes >= currentMinutes
@@ -338,8 +378,8 @@ class RailApiService {
                 val arrTimePart = arrParts[1].split(":")
                 
                 if (depTimePart.size >= 2 && arrTimePart.size >= 2) {
-                    val depMinutes = depTimePart[0].toInt() * 60 + depTimePart[1].toInt()
-                    val arrMinutes = arrTimePart[0].toInt() * 60 + arrTimePart[1].toInt()
+                    val depMinutes = depTimePart[0].toInt() * MINUTES_IN_HOUR + depTimePart[1].toInt()
+                    val arrMinutes = arrTimePart[0].toInt() * MINUTES_IN_HOUR + arrTimePart[1].toInt()
                     
                     val durationMinutes = arrMinutes - depMinutes
                     

@@ -99,4 +99,8 @@
     <string name="station_6150">Kiryat Malakhi – Yoav</string>
     <string name="station_680">Jerusalem - Yitzhak Navon</string>
     <string name="station_6900">Mazkeret Batya</string>
+    
+    <!-- Test stations for mock data -->
+    <string name="station_9999">Test Origin Station</string>
+    <string name="station_8888">Test Destination Station</string>
 </resources>

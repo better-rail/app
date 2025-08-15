@@ -15,6 +15,7 @@ import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.soloader.SoLoader
 import com.betterrail.widget.lifecycle.WidgetCoroutineManager
 import com.betterrail.widget.lifecycle.WidgetLifecycleObserver
+import com.betterrail.widget.test.TestConfig
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
@@ -64,6 +65,9 @@ class MainApplication : Application(), ReactApplication {
     } catch (e: Exception) {
       Log.e(TAG, "Failed to initialize widget lifecycle management", e)
     }
+    
+    // Initialize test config (logs available test route)
+    TestConfig.enableMockModeForDebug(this)
   }
   
   override fun onTerminate() {

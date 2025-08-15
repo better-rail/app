@@ -35,7 +35,6 @@ class ModernWidgetPreferencesRepository @Inject constructor(
         private fun originNameKey(widgetId: Int) = stringPreferencesKey("origin_name_$widgetId")
         private fun destinationNameKey(widgetId: Int) = stringPreferencesKey("destination_name_$widgetId")
         private fun labelKey(widgetId: Int) = stringPreferencesKey("label_$widgetId")
-        private fun updateFrequencyKey(widgetId: Int) = intPreferencesKey("update_frequency_$widgetId")
     }
 
     private val dataStore = context.dataStore
@@ -63,8 +62,7 @@ class ModernWidgetPreferencesRepository @Inject constructor(
                             destinationId = destinationId,
                             originName = preferences[originNameKey(widgetId)] ?: "",
                             destinationName = preferences[destinationNameKey(widgetId)] ?: "",
-                            label = preferences[labelKey(widgetId)] ?: "",
-                            updateFrequencyMinutes = preferences[updateFrequencyKey(widgetId)] ?: 15
+                            label = preferences[labelKey(widgetId)] ?: ""
                         )
                     }
                 } catch (e: Exception) {
@@ -99,7 +97,6 @@ class ModernWidgetPreferencesRepository @Inject constructor(
                 preferences[originNameKey(widgetId)] = widgetData.originName
                 preferences[destinationNameKey(widgetId)] = widgetData.destinationName
                 preferences[labelKey(widgetId)] = widgetData.label
-                preferences[updateFrequencyKey(widgetId)] = widgetData.updateFrequencyMinutes
             }
             
             Log.d(TAG, "Successfully saved widget data for $widgetId")
@@ -122,7 +119,6 @@ class ModernWidgetPreferencesRepository @Inject constructor(
                 preferences.remove(originNameKey(widgetId))
                 preferences.remove(destinationNameKey(widgetId))
                 preferences.remove(labelKey(widgetId))
-                preferences.remove(updateFrequencyKey(widgetId))
             }
             
             Log.d(TAG, "Successfully deleted widget data for $widgetId")
@@ -177,7 +173,6 @@ class ModernWidgetPreferencesRepository @Inject constructor(
                                 originName = preferences[originNameKey(widgetId)] ?: "",
                                 destinationName = preferences[destinationNameKey(widgetId)] ?: "",
                                 label = preferences[labelKey(widgetId)] ?: "",
-                                updateFrequencyMinutes = preferences[updateFrequencyKey(widgetId)] ?: 15
                             )
                             widgetId to widgetData
                         } else {
@@ -210,7 +205,6 @@ class ModernWidgetPreferencesRepository @Inject constructor(
                         preferences.remove(originNameKey(storedId))
                         preferences.remove(destinationNameKey(storedId))
                         preferences.remove(labelKey(storedId))
-                        preferences.remove(updateFrequencyKey(storedId))
                     }
                 }
             }
@@ -235,7 +229,6 @@ class ModernWidgetPreferencesRepository @Inject constructor(
     suspend fun updateWidgetFrequency(widgetId: Int, frequencyMinutes: Int) {
         try {
             dataStore.edit { preferences ->
-                preferences[updateFrequencyKey(widgetId)] = frequencyMinutes
             }
             Log.d(TAG, "Updated frequency for widget $widgetId to ${frequencyMinutes}min")
         } catch (e: Exception) {
@@ -256,8 +249,7 @@ class ModernWidgetPreferencesRepository @Inject constructor(
                     preferences[originNameKey(widgetId)] = widgetData.originName
                     preferences[destinationNameKey(widgetId)] = widgetData.destinationName
                     preferences[labelKey(widgetId)] = widgetData.label
-                    preferences[updateFrequencyKey(widgetId)] = widgetData.updateFrequencyMinutes
-                }
+                    }
             }
             
             Log.d(TAG, "Successfully saved ${widgetDataMap.size} widgets in batch")

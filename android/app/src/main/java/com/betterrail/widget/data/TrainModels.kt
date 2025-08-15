@@ -103,7 +103,8 @@ data class WidgetTrainItem(
     val delay: Int,
     val isExchange: Boolean = false,
     val duration: String = "",
-    val changesText: String = ""
+    val changesText: String = "",
+    val trainNumber: String = ""
 )
 
 data class WidgetScheduleData(
@@ -118,8 +119,7 @@ data class WidgetData(
     val destinationId: String = "",
     val originName: String = "",
     val destinationName: String = "",
-    val label: String = "",
-    val updateFrequencyMinutes: Int = 15
+    val label: String = ""
 )
 
 // API Error response

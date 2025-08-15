@@ -7,6 +7,8 @@ import kotlinx.coroutines.delay
  * Utilities for retry logic with proper cancellation handling
  */
 object RetryUtils {
+    val DEFAULT_RETRY_DELAYS = listOf(1000L, 2000L, 4000L)
+    private const val DEFAULT_MAX_RETRIES = 3
 
     /**
      * Executes a retry delay with cancellation handling
@@ -24,8 +26,8 @@ object RetryUtils {
      * Executes a block with retry logic and proper cancellation handling
      */
     suspend fun <T> withRetry(
-        maxRetries: Int = 3,
-        retryDelays: List<Long> = listOf(1000L, 2000L, 4000L),
+        maxRetries: Int = DEFAULT_MAX_RETRIES,
+        retryDelays: List<Long> = DEFAULT_RETRY_DELAYS,
         logTag: String = "RetryUtils",
         block: suspend (attempt: Int) -> T
     ): T {

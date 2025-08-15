@@ -8,6 +8,7 @@ import java.util.*
  * Utility class for filtering train schedules in widgets.
  */
 object WidgetTrainFilter {
+    private const val MINUTES_IN_HOUR = 60
     
     /**
      * Filters train routes to only show trains departing after the current time.
@@ -16,7 +17,7 @@ object WidgetTrainFilter {
         val currentTime = Calendar.getInstance()
         val currentHour = currentTime.get(Calendar.HOUR_OF_DAY)
         val currentMinute = currentTime.get(Calendar.MINUTE)
-        val currentTimeInMinutes = currentHour * 60 + currentMinute
+        val currentTimeInMinutes = currentHour * MINUTES_IN_HOUR + currentMinute
         
         Log.d("WidgetTrainFilter", "Current time: ${String.format("%02d:%02d", currentHour, currentMinute)} ($currentTimeInMinutes minutes from midnight)")
         
@@ -27,7 +28,7 @@ object WidgetTrainFilter {
                 if (timeParts.size == 2) {
                     val trainHour = timeParts[0].toInt()
                     val trainMinute = timeParts[1].toInt()
-                    val trainTimeInMinutes = trainHour * 60 + trainMinute
+                    val trainTimeInMinutes = trainHour * MINUTES_IN_HOUR + trainMinute
                     
                     val isFuture = trainTimeInMinutes > currentTimeInMinutes
                     isFuture

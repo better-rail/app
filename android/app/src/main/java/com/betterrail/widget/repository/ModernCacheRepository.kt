@@ -31,6 +31,7 @@ class ModernCacheRepository @Inject constructor(
         private const val CACHE_EXPIRY_HOURS = 2 // Cache expires after 2 hours
         private const val MAX_CACHE_ENTRIES_PER_WIDGET = 5 // Keep max 5 entries per widget
         private const val MAX_TOTAL_CACHE_ENTRIES = 100 // Global cache limit
+        private const val HOURS_TO_MILLISECONDS = 60 * 60 * 1000L
         
         private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         
@@ -199,7 +200,7 @@ class ModernCacheRepository @Inject constructor(
     suspend fun performCacheCleanup(widgetId: Int? = null) {
         try {
             // Clean up expired entries
-            val expiryCutoff = System.currentTimeMillis() - (CACHE_EXPIRY_HOURS * 60 * 60 * 1000)
+            val expiryCutoff = System.currentTimeMillis() - (CACHE_EXPIRY_HOURS * HOURS_TO_MILLISECONDS)
             trainScheduleDao.deleteOldSchedules(expiryCutoff)
             
             // If specific widget, clean up excess entries for that widget
@@ -233,7 +234,7 @@ class ModernCacheRepository @Inject constructor(
         return try {
             val totalEntries = trainScheduleDao.getScheduleCount()
             val cachedWidgets = trainScheduleDao.getAllCachedWidgetIds()
-            val expiryCutoff = System.currentTimeMillis() - (CACHE_EXPIRY_HOURS * 60 * 60 * 1000)
+            val expiryCutoff = System.currentTimeMillis() - (CACHE_EXPIRY_HOURS * HOURS_TO_MILLISECONDS)
             val expiredKeys = trainScheduleDao.getExpiredCacheKeys(expiryCutoff)
             
             CacheStats(
@@ -248,7 +249,7 @@ class ModernCacheRepository @Inject constructor(
     }
 
     private fun isCacheValid(entity: TrainScheduleEntity): Boolean {
-        val expiryTime = entity.cacheTimestamp + (CACHE_EXPIRY_HOURS * 60 * 60 * 1000)
+        val expiryTime = entity.cacheTimestamp + (CACHE_EXPIRY_HOURS * HOURS_TO_MILLISECONDS)
         return System.currentTimeMillis() < expiryTime
     }
 }

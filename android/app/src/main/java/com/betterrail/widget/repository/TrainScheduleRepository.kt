@@ -8,6 +8,9 @@ import com.betterrail.widget.api.RailApiService
 import com.betterrail.widget.repository.ModernCacheRepository
 import com.betterrail.widget.data.WidgetScheduleData
 import com.betterrail.widget.data.WidgetData
+import com.betterrail.widget.data.StationsData
+import com.betterrail.widget.test.TestConfig
+import com.betterrail.widget.test.MockScheduleGenerator
 import android.util.Log
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -18,11 +21,19 @@ import javax.inject.Singleton
  */
 @Singleton
 class TrainScheduleRepository @Inject constructor(
+    @dagger.hilt.android.qualifiers.ApplicationContext private val context: Context,
     private val apiService: RailApiService,
     private val cacheRepository: ModernCacheRepository
 ) {
     companion object {
         private const val TAG = "TrainScheduleRepository"
+        private const val MOCK_NETWORK_DELAY_MS = 500L
+        private const val MOCK_TOMORROW_DELAY_MS = 300L
+        private const val HOURS_IN_DAY = 24L
+        private const val MINUTES_IN_HOUR = 60L
+        private const val SECONDS_IN_MINUTE = 60L
+        private const val MILLISECONDS_IN_SECOND = 1000L
+        private const val MILLISECONDS_IN_DAY = HOURS_IN_DAY * MINUTES_IN_HOUR * SECONDS_IN_MINUTE * MILLISECONDS_IN_SECOND
     }
 
     /**
@@ -36,6 +47,22 @@ class TrainScheduleRepository @Inject constructor(
         hour: String? = null
     ): Flow<Resource<WidgetScheduleData>> = flow {
         Log.d(TAG, "Getting schedule for widget $widgetId: ${widgetData.originId} -> ${widgetData.destinationId}")
+        
+        // Check if this route should use mock data
+        if (TestConfig.shouldUseMockData(context, widgetData.originId, widgetData.destinationId)) {
+            Log.d(TAG, "Mock mode enabled - generating test schedule")
+            emit(Resource.Loading())
+            
+            // Small delay to simulate network request
+            kotlinx.coroutines.delay(MOCK_NETWORK_DELAY_MS)
+            
+            val originName = StationsData.getStationName(context, widgetData.originId)
+            val destinationName = StationsData.getStationName(context, widgetData.destinationId)
+            val mockData = MockScheduleGenerator.generateMockSchedule(originName, destinationName)
+            
+            emit(Resource.Success(mockData, fromCache = false))
+            return@flow
+        }
         
         // Emit cached data first (if available)
         val cachedData = cacheRepository.getCachedSchedule(widgetId, widgetData.originId, widgetData.destinationId, date)
@@ -95,11 +122,28 @@ class TrainScheduleRepository @Inject constructor(
     fun getTomorrowSchedule(
         widgetId: Int,
         widgetData: WidgetData
-    ): Flow<Resource<WidgetScheduleData>> {
-        val tomorrow = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
-            .format(java.util.Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
+    ): Flow<Resource<WidgetScheduleData>> = flow {
+        // Check if this route should use mock data
+        if (TestConfig.shouldUseMockData(context, widgetData.originId, widgetData.destinationId)) {
+            Log.d(TAG, "Mock mode enabled - generating tomorrow test schedule")
+            emit(Resource.Loading())
+            
+            kotlinx.coroutines.delay(MOCK_TOMORROW_DELAY_MS)
+            
+            val originName = StationsData.getStationName(context, widgetData.originId)
+            val destinationName = StationsData.getStationName(context, widgetData.destinationId)
+            val mockData = MockScheduleGenerator.generateTomorrowMockSchedule(originName, destinationName)
+            
+            emit(Resource.Success(mockData, fromCache = false))
+            return@flow
+        }
         
-        return getSchedule(widgetId, widgetData, date = tomorrow, hour = "05:00")
+        val tomorrow = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+            .format(java.util.Date(System.currentTimeMillis() + MILLISECONDS_IN_DAY))
+        
+        getSchedule(widgetId, widgetData, date = tomorrow, hour = "05:00").collect { resource ->
+            emit(resource)
+        }
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.betterrail.widget.data
 
 import android.content.Context
+import com.betterrail.BuildConfig
 import com.betterrail.R
 
 data class StationInfo(
@@ -9,7 +10,7 @@ data class StationInfo(
 )
 
 object StationsData {
-    private val stations = mapOf(
+    private val productionStations = mapOf(
         "1500" to StationInfo(R.string.station_1500, R.drawable.assets_stationimages_ako),
         "1600" to StationInfo(R.string.station_1600, R.drawable.assets_stationimages_nahariya),
         "1820" to StationInfo(R.string.station_1820, R.drawable.assets_stationimages_ahihud),
@@ -77,6 +78,19 @@ object StationsData {
         "680" to StationInfo(R.string.station_680, R.drawable.assets_stationimages_jerusalemitzhaknavon),
         "6900" to StationInfo(R.string.station_6900, R.drawable.assets_stationimages_mazkeretbatya)
     )
+    
+    private val debugStations = mapOf(
+        // Special test stations for mock data (debug builds only)
+        "9999" to StationInfo(R.string.station_9999, R.drawable.assets_railwaystation),
+        "8888" to StationInfo(R.string.station_8888, R.drawable.assets_railwaystation)
+    )
+    
+    private val stations: Map<String, StationInfo>
+        get() = if (BuildConfig.DEBUG) {
+            productionStations + debugStations
+        } else {
+            productionStations
+        }
 
     fun getStationsForDisplay(context: Context): List<Pair<String, String>> {
         return stations.map { (id, info) -> 
@@ -94,6 +108,6 @@ object StationsData {
     }
 
     fun getStationImageResource(stationId: String): Int {
-        return stations[stationId]?.imageResource ?: R.drawable.assets_stationimages_betyehoshua
+        return stations[stationId]?.imageResource ?: R.drawable.assets_railwaystation
     }
 }

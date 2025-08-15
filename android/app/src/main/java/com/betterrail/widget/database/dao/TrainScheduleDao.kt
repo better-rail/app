@@ -47,7 +47,7 @@ interface TrainScheduleDao {
     suspend fun deleteSchedule(cacheKey: String)
 
     @Query("DELETE FROM train_schedules WHERE cacheTimestamp < :timestamp")
-    suspend fun deleteOldSchedules(timestamp: Long)
+    suspend fun deleteOldSchedules(timestamp: Long): Int
 
     @Query("DELETE FROM train_schedules")
     suspend fun deleteAllSchedules()

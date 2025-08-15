@@ -7,6 +7,7 @@ import com.betterrail.widget.repository.ModernCacheRepository
 import com.betterrail.widget.repository.TrainScheduleRepository
 import com.betterrail.widget.database.WidgetDatabase
 import com.betterrail.widget.database.dao.TrainScheduleDao
+import com.betterrail.widget.config.NetworkConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,8 +24,18 @@ object WidgetModule {
 
     @Provides
     @Singleton
-    fun provideRailApiService(): RailApiService {
-        return RailApiService()
+    fun provideNetworkConfig(
+        @ApplicationContext context: Context
+    ): NetworkConfig {
+        return NetworkConfig(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRailApiService(
+        networkConfig: NetworkConfig
+    ): RailApiService {
+        return RailApiService(networkConfig)
     }
 
 
@@ -61,9 +72,11 @@ object WidgetModule {
     @Provides
     @Singleton
     fun provideTrainScheduleRepository(
+        @ApplicationContext context: Context,
         apiService: RailApiService,
         cacheRepository: ModernCacheRepository
     ): TrainScheduleRepository {
-        return TrainScheduleRepository(apiService, cacheRepository)
+        return TrainScheduleRepository(context, apiService, cacheRepository)
     }
+
 }

@@ -17,6 +17,9 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 abstract class BaseWidgetConfigActivity : AppCompatActivity() {
+    companion object {
+        private const val FIRST_ITEM_INDEX = 0
+    }
 
     @Inject
     lateinit var preferencesRepository: ModernWidgetPreferencesRepository
@@ -33,7 +36,6 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
     protected lateinit var stationAdapter: ArrayAdapter<String>
     protected val stationIds = mutableListOf<String>()
     protected val stationNames = mutableListOf<String>()
-    private val defaultRefreshIntervalMinutes = 15
 
     abstract fun getLogTag(): String
     abstract fun createWidgetProvider(): ModernBaseWidgetProvider
@@ -124,8 +126,8 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
     
     
     private fun updateAddButtonState() {
-        val originSelected = originSpinner.selectedItemPosition > 0
-        val destinationSelected = destinationSpinner.selectedItemPosition > 0
+        val originSelected = originSpinner.selectedItemPosition > FIRST_ITEM_INDEX
+        val destinationSelected = destinationSpinner.selectedItemPosition > FIRST_ITEM_INDEX
         val differentStations = originSpinner.selectedItemPosition != destinationSpinner.selectedItemPosition
         
         addButton.isEnabled = originSelected && destinationSelected && differentStations
@@ -138,7 +140,7 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
             val originPosition = originSpinner.selectedItemPosition
             val destinationPosition = destinationSpinner.selectedItemPosition
             
-            if (originPosition <= 0 || destinationPosition <= 0) {
+            if (originPosition <= FIRST_ITEM_INDEX || destinationPosition <= FIRST_ITEM_INDEX) {
                 Toast.makeText(this, "Please select both origin and destination stations", Toast.LENGTH_SHORT).show()
                 return
             }
@@ -173,8 +175,7 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
                         destinationId = destinationId,
                         originName = "", // Don't store localized names - look them up dynamically
                         destinationName = "", // Don't store localized names - look them up dynamically  
-                        label = "",
-                        updateFrequencyMinutes = defaultRefreshIntervalMinutes
+                        label = ""
                     )
                     
                     // Save widget configuration
