@@ -24,6 +24,7 @@ sealed class WidgetState {
     
     data class Schedule(
         val originId: String,
+        val destinationId: String,
         val originName: String,
         val destinationName: String,
         val nextTrain: WidgetTrainItem,
@@ -52,6 +53,7 @@ sealed class WidgetState {
     
     data class TomorrowSchedule(
         val originId: String,
+        val destinationId: String,
         val originName: String,
         val destinationName: String,
         val firstTrain: WidgetTrainItem
