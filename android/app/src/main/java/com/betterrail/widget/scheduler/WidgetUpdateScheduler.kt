@@ -91,12 +91,14 @@ object WidgetUpdateScheduler {
                     trainTime.add(Calendar.DAY_OF_YEAR, 1)
                 }
                 
-                // Schedule update 1 minute after the train departure time
-                val updateTime = trainTime.timeInMillis + (SMART_UPDATE_DELAY_MINUTES * MINUTES_TO_MILLISECONDS)
+                // Schedule update at the exact train departure time
+                val updateTime = trainTime.timeInMillis
                 
                 Log.d(TAG, "Scheduling smart update at ${timeFormat.format(Date(updateTime))} for train departure at $nextTrainDepartureTime")
                 
-                alarmManager.setExactAndAllowWhileIdle(
+                // Use inexact alarm instead of exact alarm to avoid USE_EXACT_ALARM permission
+                // This may be less precise but still provides reasonable update timing
+                alarmManager.set(
                     AlarmManager.RTC_WAKEUP,
                     updateTime,
                     updateIntent

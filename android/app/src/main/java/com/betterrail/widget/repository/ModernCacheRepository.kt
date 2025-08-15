@@ -14,6 +14,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.Calendar
 
 /**
  * Modern cache repository using Room database
@@ -248,9 +249,63 @@ class ModernCacheRepository @Inject constructor(
         }
     }
 
+    /**
+     * Smart cache validation - checks both time expiry AND content relevance
+     * Cache is invalid if:
+     * 1. It's older than CACHE_EXPIRY_HOURS, OR
+     * 2. All trains in the cache have already departed
+     */
     private fun isCacheValid(entity: TrainScheduleEntity): Boolean {
+        // Check time-based expiry (keep existing 2-hour limit as max)
         val expiryTime = entity.cacheTimestamp + (CACHE_EXPIRY_HOURS * HOURS_TO_MILLISECONDS)
-        return System.currentTimeMillis() < expiryTime
+        val isWithinTimeLimit = System.currentTimeMillis() < expiryTime
+        
+        // Check if any trains are still in the future
+        val hasActiveFutureTrains = entity.routes.any { train ->
+            isTrainInFuture(train.departureTime)
+        }
+        
+        val isValid = isWithinTimeLimit && hasActiveFutureTrains
+        
+        if (!isValid) {
+            val reason = when {
+                !isWithinTimeLimit -> "time expired"
+                !hasActiveFutureTrains -> "all trains departed"
+                else -> "unknown"
+            }
+            Log.d(TAG, "Cache invalid for ${entity.cacheKey}: $reason")
+        }
+        
+        return isValid
+    }
+    
+    /**
+     * Check if a train departure time is in the future
+     * Uses same logic as WidgetTrainFilter for consistency
+     */
+    private fun isTrainInFuture(departureTime: String): Boolean {
+        return try {
+            val currentTime = Calendar.getInstance()
+            val currentHour = currentTime.get(Calendar.HOUR_OF_DAY)
+            val currentMinute = currentTime.get(Calendar.MINUTE)
+            val currentTimeInMinutes = currentHour * 60 + currentMinute
+            
+            // Parse the departure time (format: "HH:mm")
+            val timeParts = departureTime.split(":")
+            if (timeParts.size == 2) {
+                val trainHour = timeParts[0].toInt()
+                val trainMinute = timeParts[1].toInt()
+                val trainTimeInMinutes = trainHour * 60 + trainMinute
+                
+                trainTimeInMinutes >= currentTimeInMinutes
+            } else {
+                Log.w(TAG, "Invalid time format for train: $departureTime")
+                true // Keep train if we can't parse time
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error checking if train is in future: $departureTime", e)
+            true // Keep train if error occurs
+        }
     }
 }
 

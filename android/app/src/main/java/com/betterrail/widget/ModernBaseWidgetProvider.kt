@@ -244,7 +244,8 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                                     originId = widgetData.originId,
                                     originName = StationsData.getStationName(context, widgetData.originId),
                                     destinationName = StationsData.getStationName(context, widgetData.destinationId),
-                                    firstTrain = resource.data.routes.first()
+                                    firstTrain = resource.data.routes.first(),
+                                    upcomingTrains = resource.data.routes.drop(1)
                                 )
                                 updateWidgetUI(context, appWidgetManager, appWidgetId, state)
                             } else {

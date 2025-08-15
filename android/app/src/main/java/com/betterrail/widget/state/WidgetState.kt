@@ -54,7 +54,8 @@ sealed class WidgetState {
         val originId: String,
         val originName: String,
         val destinationName: String,
-        val firstTrain: WidgetTrainItem
+        val firstTrain: WidgetTrainItem,
+        val upcomingTrains: List<WidgetTrainItem> = emptyList()
     ) : WidgetState()
     
     data class NoTrains(
@@ -209,7 +210,13 @@ class WidgetStateRenderer(
         setStationBackground(views, state.originId)
         
         views.setViewVisibility(R.id.widget_loading_text, android.view.View.GONE)
-        hideUpcomingTrains(views)
+        
+        // Show upcoming trains for 4x2 widget (2x2 widget will ignore this)
+        if (state.upcomingTrains.isNotEmpty()) {
+            showUpcomingTrains(views, state.upcomingTrains)
+        } else {
+            hideUpcomingTrains(views)
+        }
     }
     
     private fun renderNoTrains(context: Context, views: RemoteViews, state: WidgetState.NoTrains) {

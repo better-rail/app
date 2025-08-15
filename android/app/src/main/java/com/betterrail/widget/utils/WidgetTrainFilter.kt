@@ -30,7 +30,7 @@ object WidgetTrainFilter {
                     val trainMinute = timeParts[1].toInt()
                     val trainTimeInMinutes = trainHour * MINUTES_IN_HOUR + trainMinute
                     
-                    val isFuture = trainTimeInMinutes > currentTimeInMinutes
+                    val isFuture = trainTimeInMinutes >= currentTimeInMinutes
                     isFuture
                 } else {
                     Log.w("WidgetTrainFilter", "Invalid time format for route: ${route.departureTime}")

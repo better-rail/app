@@ -141,8 +141,18 @@ class TrainScheduleRepository @Inject constructor(
         val tomorrow = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
             .format(java.util.Date(System.currentTimeMillis() + MILLISECONDS_IN_DAY))
         
-        getSchedule(widgetId, widgetData, date = tomorrow, hour = "05:00").collect { resource ->
-            emit(resource)
+        // Check tomorrow's cache first to avoid unnecessary API calls
+        val cachedData = cacheRepository.getCachedSchedule(widgetId, widgetData.originId, widgetData.destinationId, tomorrow)
+        if (cachedData != null) {
+            Log.d(TAG, "Emitting cached tomorrow data for widget $widgetId")
+            emit(Resource.Success(cachedData, fromCache = true))
+            return@flow  // Stop here - don't make API call
+        } else {
+            Log.d(TAG, "No cached tomorrow data for widget $widgetId, fetching from API")
+            // Continue to API call only if no cache available
+            getSchedule(widgetId, widgetData, date = tomorrow, hour = "05:00").collect { resource ->
+                emit(resource)
+            }
         }
     }
 
