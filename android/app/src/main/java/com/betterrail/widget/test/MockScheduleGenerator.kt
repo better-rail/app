@@ -47,7 +47,8 @@ object MockScheduleGenerator {
                     isExchange = i % 7 == 0, // Every 7th train requires exchange
                     duration = "25m",
                     changesText = if (i % 7 == 0) "1 change" else "Direct",
-                    trainNumber = trainNumber
+                    trainNumber = trainNumber,
+                    departureTimestamp = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.getDefault()).format(trainTime.time)
                 )
             )
         }
@@ -103,7 +104,8 @@ object MockScheduleGenerator {
                     isExchange = i % 5 == 0,
                     duration = "25m",
                     changesText = if (i % 5 == 0) "1 change" else "Direct",
-                    trainNumber = trainNumber
+                    trainNumber = trainNumber,
+                    departureTimestamp = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.getDefault()).format(trainTime.time)
                 )
             )
         }

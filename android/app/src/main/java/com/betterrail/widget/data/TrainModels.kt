@@ -104,7 +104,8 @@ data class WidgetTrainItem(
     val isExchange: Boolean = false,
     val duration: String = "",
     val changesText: String = "",
-    val trainNumber: String = ""
+    val trainNumber: String = "",
+    val departureTimestamp: String = "" // Full ISO timestamp for date calculations
 )
 
 data class WidgetScheduleData(

@@ -182,13 +182,28 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                             
                             if (resource.data.routes.isNotEmpty()) {
                                 val nextTrain = resource.data.routes.first()
-                                val state = WidgetState.Schedule(
-                                    originId = widgetData.originId,
-                                    originName = StationsData.getStationName(context, widgetData.originId),
-                                    destinationName = StationsData.getStationName(context, widgetData.destinationId),
-                                    nextTrain = nextTrain,
-                                    upcomingTrains = resource.data.routes.drop(1)
-                                )
+                                
+                                // Check if the next train is actually tomorrow's schedule
+                                val isTomorrowSchedule = isTrainForTomorrow(nextTrain.departureTimestamp)
+                                
+                                val state = if (isTomorrowSchedule) {
+                                    Log.d(getLogTag(), "Next train ${nextTrain.departureTime} detected as tomorrow's schedule")
+                                    WidgetState.TomorrowSchedule(
+                                        originId = widgetData.originId,
+                                        originName = StationsData.getStationName(context, widgetData.originId),
+                                        destinationName = StationsData.getStationName(context, widgetData.destinationId),
+                                        firstTrain = nextTrain,
+                                        upcomingTrains = resource.data.routes.drop(1)
+                                    )
+                                } else {
+                                    WidgetState.Schedule(
+                                        originId = widgetData.originId,
+                                        originName = StationsData.getStationName(context, widgetData.originId),
+                                        destinationName = StationsData.getStationName(context, widgetData.destinationId),
+                                        nextTrain = nextTrain,
+                                        upcomingTrains = resource.data.routes.drop(1)
+                                    )
+                                }
                                 updateWidgetUI(context, appWidgetManager, appWidgetId, state)
                                 
                                 // Schedule smart update after the next train departure
@@ -454,6 +469,38 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
             val appWidgetManager = AppWidgetManager.getInstance(context)
             Log.d(getLogTag(), "Scheduled update for widget $appWidgetId")
             updateWidget(context, appWidgetManager, appWidgetId)
+        }
+    }
+
+    /**
+     * Check if a train is for tomorrow by comparing the actual dates
+     * Uses the full timestamp from the API response instead of just time
+     */
+    private fun isTrainForTomorrow(fullTimestamp: String): Boolean {
+        return try {
+            if (fullTimestamp.isEmpty()) return false
+            
+            val today = java.util.Calendar.getInstance()
+            val tomorrow = java.util.Calendar.getInstance().apply { 
+                add(java.util.Calendar.DAY_OF_YEAR, 1) 
+            }
+            
+            // Parse the ISO timestamp to get the actual date
+            val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.getDefault())
+            val trainDate = dateFormat.parse(fullTimestamp) ?: return false
+            val trainCalendar = java.util.Calendar.getInstance().apply { time = trainDate }
+            
+            // Compare actual dates
+            val isTomorrow = trainCalendar.get(java.util.Calendar.DAY_OF_YEAR) == tomorrow.get(java.util.Calendar.DAY_OF_YEAR) &&
+                            trainCalendar.get(java.util.Calendar.YEAR) == tomorrow.get(java.util.Calendar.YEAR)
+            
+            Log.d(getLogTag(), "Date check - Today: ${today.get(java.util.Calendar.DAY_OF_YEAR)}, Train: ${trainCalendar.get(java.util.Calendar.DAY_OF_YEAR)}, Tomorrow: $isTomorrow")
+            
+            return isTomorrow
+            
+        } catch (e: Exception) {
+            Log.e(getLogTag(), "Error parsing train timestamp: $fullTimestamp", e)
+            false
         }
     }
 }

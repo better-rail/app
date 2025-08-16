@@ -273,7 +273,8 @@ class RailApiService(
                                 isExchange = isExchange,
                                 duration = duration,
                                 changesText = changesText,
-                                trainNumber = trainNumber
+                                trainNumber = trainNumber,
+                                departureTimestamp = departureTime // Pass original ISO timestamp
                             )
                         )
                         
@@ -350,8 +351,17 @@ class RailApiService(
                 val currentMinutes = currentHour * MINUTES_IN_HOUR + currentMinute
                 val departureMinutes = departureHour * MINUTES_IN_HOUR + departureMinute
                 
-                // Only show trains departing from current time onwards (no past trains)
-                val isUpcoming = departureMinutes >= currentMinutes
+                // Handle cross-day scenarios: if departure time is earlier in the day than current time,
+                // it likely means the departure is tomorrow (especially for early morning trains like 04:21)
+                val isUpcoming = if (departureMinutes < currentMinutes && departureHour < 12) {
+                    // Early morning train (before noon) that appears "earlier" than current time
+                    // is likely tomorrow's train, so it's upcoming
+                    android.util.Log.d("RailApiService", "Early morning train detected - likely tomorrow's schedule")
+                    true
+                } else {
+                    // Normal case: departure time should be >= current time for same day
+                    departureMinutes >= currentMinutes
+                }
                 
                 android.util.Log.d("RailApiService", "Current: ${currentMinutes}min, Departure: ${departureMinutes}min, Upcoming: $isUpcoming")
                 
