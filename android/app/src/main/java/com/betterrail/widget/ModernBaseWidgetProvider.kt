@@ -337,8 +337,32 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                         setupRefreshClickIntent(context, views)
                     }
                     
+                    is WidgetState.Schedule -> {
+                        // Smart refresh: check if next train is stale
+                        val isStale = isTrainTimeStale(state.nextTrain.departureTime)
+                        val widgetData = preferencesRepository.getWidgetData(appWidgetId)
+                        
+                        if (isStale && widgetData != null) {
+                            Log.d(getLogTag(), "Widget $appWidgetId shows stale train ${state.nextTrain.departureTime}, setting up refresh click")
+                            setupRefreshClickIntent(context, views)
+                        } else if (widgetData != null) {
+                            // Fresh data, use normal deeplink
+                            setupClickIntentsBase(
+                                context = context,
+                                views = views,
+                                appWidgetId = appWidgetId,
+                                widgetData = widgetData,
+                                clickTargetId = getWidgetContainerId(),
+                                useDeeplink = true,
+                                deeplinkPath = getWidgetType()
+                            )
+                        } else {
+                            setupRefreshClickIntent(context, views)
+                        }
+                    }
+                    
                     else -> {
-                        // For all other states, get the complete widget data from preferences for deeplink
+                        // For TomorrowSchedule and other states, get the complete widget data from preferences for deeplink
                         val widgetData = preferencesRepository.getWidgetData(appWidgetId)
                         if (widgetData != null) {
                             setupClickIntentsBase(
@@ -469,6 +493,37 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
             val appWidgetManager = AppWidgetManager.getInstance(context)
             Log.d(getLogTag(), "Scheduled update for widget $appWidgetId")
             updateWidget(context, appWidgetManager, appWidgetId)
+        }
+    }
+
+    /**
+     * Check if a displayed train time is stale (departed)
+     * Used for smart refresh logic on widget clicks
+     */
+    private fun isTrainTimeStale(departureTime: String): Boolean {
+        return try {
+            if (departureTime.isEmpty()) return false
+            
+            val currentTime = java.util.Calendar.getInstance()
+            val currentHour = currentTime.get(java.util.Calendar.HOUR_OF_DAY)
+            val currentMinute = currentTime.get(java.util.Calendar.MINUTE)
+            val currentTimeInMinutes = currentHour * 60 + currentMinute
+            
+            val timeParts = departureTime.split(":")
+            if (timeParts.size >= 2) {
+                val trainHour = timeParts[0].toInt()
+                val trainMinute = timeParts[1].toInt()
+                val trainTimeInMinutes = trainHour * 60 + trainMinute
+                
+                // Consider train stale if it's more than 1 minute past departure
+                val minutesLate = currentTimeInMinutes - trainTimeInMinutes
+                return minutesLate > 1
+            }
+            
+            false
+        } catch (e: Exception) {
+            Log.e(getLogTag(), "Error checking if train time is stale", e)
+            false
         }
     }
 
