@@ -1199,8 +1199,8 @@ PODS:
     - ExpoModulesCore
     - SPAlert (~> 4.2)
     - SPIndicator (~> 1.6)
-  - BVLinearGradient (2.8.3):
-    - React-Core
+  - BVLinearGradient (2.5.6):
+    - React
   - ComputableLayout (0.7.0):
     - DGSwiftUtilities (~> 0.11)
   - ContextMenuAuxiliaryPreview (0.5.2):
@@ -2835,7 +2835,7 @@ PODS:
     - ReactCommon/turbomodule/core
   - react-native-actions-shortcuts (1.0.2):
     - React
-  - react-native-context-menu-view (1.19.0):
+  - react-native-context-menu-view (1.17.0):
     - React
   - react-native-date-picker (5.0.12):
     - DoubleConversion
@@ -3004,7 +3004,7 @@ PODS:
     - Yoga
   - react-native-segmented-control (2.4.0):
     - React-Core
-  - react-native-video (6.14.0):
+  - react-native-video (6.13.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -3019,7 +3019,7 @@ PODS:
     - React-hermes
     - React-ImageManager
     - React-jsi
-    - react-native-video/Video (= 6.14.0)
+    - react-native-video/Video (= 6.13.0)
     - React-NativeModulesApple
     - React-RCTFabric
     - React-renderercss
@@ -3029,7 +3029,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-video/Fabric (6.14.0):
+  - react-native-video/Fabric (6.13.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -3053,7 +3053,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-video/Video (6.14.0):
+  - react-native-video/Video (6.13.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -3401,7 +3401,7 @@ PODS:
     - React-perflogger (= 0.79.4)
     - React-utils (= 0.79.4)
   - RecaptchaInterop (101.0.0)
-  - RNCAsyncStorage (2.1.2):
+  - RNCAsyncStorage (2.0.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -3429,7 +3429,7 @@ PODS:
     - React-Core
   - RNCPushNotificationIOS (1.11.0):
     - React-Core
-  - RNDateTimePicker (8.3.0):
+  - RNDateTimePicker (8.2.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -3482,7 +3482,7 @@ PODS:
     - FirebaseCoreExtension
     - React-Core
     - RNFBApp
-  - RNFlashList (1.8.0):
+  - RNFlashList (1.7.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -3506,7 +3506,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNGestureHandler (2.25.0):
+  - RNGestureHandler (2.22.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -3516,7 +3516,6 @@ PODS:
     - React-Core
     - React-debug
     - React-Fabric
-    - React-FabricComponents
     - React-featureflags
     - React-graphics
     - React-hermes
@@ -3539,10 +3538,10 @@ PODS:
     - ReactCommon/turbomodule/core
   - RNInAppBrowser (3.7.0):
     - React-Core
-  - RNNotifee (9.1.8):
+  - RNNotifee (9.1.2):
     - React-Core
-    - RNNotifee/NotifeeCore (= 9.1.8)
-  - RNNotifee/NotifeeCore (9.1.8):
+    - RNNotifee/NotifeeCore (= 9.1.2)
+  - RNNotifee/NotifeeCore (9.1.2):
     - React-Core
   - RNReactNativeHapticFeedback (2.3.3):
     - DoubleConversion
@@ -3692,7 +3691,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (4.10.0):
+  - RNScreens (4.5.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -3716,9 +3715,9 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNScreens/common (= 4.10.0)
+    - RNScreens/common (= 4.5.0)
     - Yoga
-  - RNScreens/common (4.10.0):
+  - RNScreens/common (4.5.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -3743,7 +3742,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNShare (11.1.0):
+  - RNShare (11.0.3):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -3767,7 +3766,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNSVG (15.11.2):
+  - RNSVG (15.11.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -3790,9 +3789,9 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNSVG/common (= 15.11.2)
+    - RNSVG/common (= 15.11.1)
     - Yoga
-  - RNSVG/common (15.11.2):
+  - RNSVG/common (15.11.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -4206,7 +4205,7 @@ SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
   BoringSSL-GRPC: dded2a44897e45f28f08ae87a55ee4bcd19bc508
   Burnt: dde5dd245f124a4594098e3938ba71aae4ec83c3
-  BVLinearGradient: 880f91a7854faff2df62518f0281afb1c60d49a3
+  BVLinearGradient: e3aad03778a456d77928f594a649e96995f1c872
   ComputableLayout: c50faffac4ed9f8f05b0ce5e6f3a60df1f6042c8
   ContextMenuAuxiliaryPreview: 20be0be795b783b68f8792732eed4bed9f202c1c
   DGSwiftUtilities: 536456ae3d0e5083ac42e06b6b720921601864b5
@@ -4279,7 +4278,7 @@ SPEC CHECKSUMS:
   React-Mapbuffer: a277896f59b5e763ac49fa94d8adfca330b8f884
   React-microtasksnativemodule: 3fe68fd19e77d569a33b74f458691846babaf242
   react-native-actions-shortcuts: 241812296acd3d1b1babbb91d053f01be2810dcd
-  react-native-context-menu-view: f20df4bf07145c6d14ef631c8b8663ccdac9fb7c
+  react-native-context-menu-view: 4a4de8bc59bc3fc4215f041881cbc6b2aeac31fe
   react-native-date-picker: 152b88cc5dcf23eb0d2370cebcc35dacbc57a2d6
   react-native-in-app-review: db8bb167a5f238e7ceca5c242d6b36ce8c4404a4
   react-native-ios-context-menu: 749dc6ab6a558a4b030938dc6d1d9789bc1e9094
@@ -4288,7 +4287,7 @@ SPEC CHECKSUMS:
   react-native-restart: 7595693413fe3ca15893702f2c8306c62a708162
   react-native-safe-area-context: 6cec90ce53951d3b52dc73e873323a4a7662fc0c
   react-native-segmented-control: 06607462630512ff8eef652ec560e6235a30cc3e
-  react-native-video: 48fea0a4e0d1ed66ea2da595b37d697c4fd65b20
+  react-native-video: b725aa02b54685ee726d7986a407de9f92ef17ec
   React-NativeModulesApple: 5566582f6bfc49eacd70ab42aeb1d29e173dacc6
   React-oscompat: 472a446c740e39ee39cd57cd7bfd32177c763a2b
   React-perflogger: 866cf619b19154e1170f8b6c7c7b73002f949fe4
@@ -4321,10 +4320,10 @@ SPEC CHECKSUMS:
   ReactCodegen: eac4e2cf6d9a6d737c000d4d1ea55db39f3cdd7a
   ReactCommon: eaa02856e231498d67f48d9b50e5a3bf5e5ee5b0
   RecaptchaInterop: 11e0b637842dfb48308d242afc3f448062325aba
-  RNCAsyncStorage: e25fda4679876e5204c4c502d297757ec1f17ced
+  RNCAsyncStorage: 9582228699fc82506cfd15b15b49e5413d526ba5
   RNCMaskedView: bc0170f389056201c82a55e242e5d90070e18e5a
   RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
-  RNDateTimePicker: c2039e91dca4d537272dd8a2525f04902dd7e300
+  RNDateTimePicker: b0dcda87e11129cc08fb9d52ccc6d86d5294405f
   RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
   RNDeviceInfo: 475a4c447168d0ad4c807e48ef5e0963a0f4eb1b
   RNFBAnalytics: c7e12de7bc87427a083ce13fad47ba0d0abb43d6
@@ -4333,16 +4332,16 @@ SPEC CHECKSUMS:
   RNFBCrashlytics: d88591bda155301f6a6f5b573a7517150c24ace3
   RNFBFirestore: c653384977d7156be402e520a788c25b56824c78
   RNFBMessaging: af1ebc16b28e175a4278b263db731703a6aecc61
-  RNFlashList: 360a5fcdc70c09abbb0aabc7d442b8a3a249df22
-  RNGestureHandler: b249b5be5a3659025aed8898aaaafd567dc2d660
+  RNFlashList: ef5d2dafad9480843c5c828246db7d165978fc92
+  RNGestureHandler: 0611cd6d9360d896e890aff4ef967f3ff4b2b034
   RNIap: daac81aa70fe3ac6d6967c1c8da3dc4b415b73d6
   RNInAppBrowser: e36d6935517101ccba0e875bac8ad7b0cb655364
-  RNNotifee: 4a6ee5c7deaf00e005050052d73ee6315dff7ec9
+  RNNotifee: bc20a5e3d581f629db988075944fdd944d363dfe
   RNReactNativeHapticFeedback: 85c0a6ff490d52f5e8073040296fefe5945ebbfa
   RNReanimated: 2b314b18e28adf1b300f606eb0f205a1a6a643e1
-  RNScreens: 4ada1709be95c3a4bf1f885378262ceadd9cc939
-  RNShare: 4c67127ec611a8e78a212e1794c929edd664ea6c
-  RNSVG: 257f59c952e296c9c36035a8f49b61fda48e398a
+  RNScreens: 65b100fe79352bc739c97860d9abb7842400cc15
+  RNShare: ff4189248d91bf9bba2d85cb1e6cdd89e2c0790b
+  RNSVG: 33d05aa67773a284d39fb23107fe0e3bb34a4d14
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   SPAlert: 735da1f16a887e294719217572ce1f936d8c8782
