@@ -72,12 +72,18 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
     // Abstract UI methods for state-driven updates
     abstract fun renderWidgetState(context: Context, state: WidgetState): RemoteViews
 
+    override fun onEnabled(context: Context) {
+        Log.d(getLogTag(), "onEnabled called - first widget added")
+        applicationContext = context.applicationContext
+        
+        // Start global periodic updates when first widget is added
+        WidgetUpdateScheduler.schedulePeriodicUpdates(context)
+        super.onEnabled(context)
+    }
+
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         Log.d(getLogTag(), "onUpdate called for ${appWidgetIds.size} widgets")
         applicationContext = context.applicationContext
-        
-        // Schedule periodic updates for all widgets
-        WidgetUpdateScheduler.schedulePeriodicUpdates(context)
         
         for (appWidgetId in appWidgetIds) {
             updateWidget(context, appWidgetManager, appWidgetId)
@@ -122,7 +128,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         Log.d(getLogTag(), "onDisabled called - last widget removed")
         applicationContext = context.applicationContext
         
-        // Cancel periodic updates when all widgets are removed
+        // Stop global periodic updates when last widget is removed
         WidgetUpdateScheduler.cancelPeriodicUpdates(context)
         
         // Clean up all data
