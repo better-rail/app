@@ -17,7 +17,7 @@
     "format:md": "prettier --write \"**/*.md\"",
     "format:ts": "prettier --write \"**/*.ts{,x}\"",
     "lint": "eslint index.js app test --fix --ext .js,.ts,.tsx && bun format",
-    "test": "jest",
+    "test": "bun test",
     "adb": "adb reverse tcp:9090 tcp:9090 && adb reverse tcp:3000 tcp:3000 && adb reverse tcp:9001 tcp:9001 && adb reverse tcp:8081 tcp:8081",
     "postinstall": "patch-package && node ./bin/postInstall",
     "build-ios": "react-native bundle --entry-file index.js --platform ios --dev false --bundle-output ios/main.jsbundle --assets-dest ios",
