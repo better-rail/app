@@ -106,6 +106,7 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_destination, state.destinationName)
         views.setTextViewText(getTrainTimeId(), state.nextTrain.departureTime)
         views.setTextViewText(R.id.widget_train_label, context.getString(R.string.next_train))
+        views.setTextColor(R.id.widget_train_label, context.getColor(R.color.widget_next_train_text))
         
         val platformText = formatPlatform(context, state.nextTrain.platform)
         views.setTextViewText(R.id.widget_platform, platformText)

@@ -46,4 +46,5 @@
   <color name="widget_minimal_card_bg">#ffffff</color>
   <color name="widget_minimal_border">#e0e1e6</color>
   <color name="widget_tomorrow_text">#9C27B0</color>
+  <color name="widget_next_train_text">#FFFF9999</color>
 </resources>

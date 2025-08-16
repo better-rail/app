@@ -63,8 +63,10 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
     // Abstract methods for subclasses to implement
     abstract fun getActionRefresh(): String
     abstract fun getActionWidgetUpdate(): String
+    abstract fun getActionReverseRoute(): String
     abstract fun getLayoutResource(): Int
     abstract fun getWidgetContainerId(): Int
+    abstract fun getStationNameIds(): List<Int> // Station name view IDs that should trigger reverse route
     abstract fun getLogTag(): String
     abstract fun getWidgetType(): String
     abstract fun getConfigActivityClass(): Class<*>
@@ -99,6 +101,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         when (intent.action) {
             getActionRefresh() -> handleRefreshAction(context)
             getActionWidgetUpdate() -> handleWidgetUpdateAction(context, intent)
+            getActionReverseRoute() -> handleReverseRouteAction(context, intent)
         }
     }
 
@@ -338,15 +341,9 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                     }
                     
                     is WidgetState.Schedule -> {
-                        // Smart refresh: check if next train is stale
-                        val isStale = isTrainTimeStale(state.nextTrain.departureTime)
+                        // Standard deeplink behavior for schedule state
                         val widgetData = preferencesRepository.getWidgetData(appWidgetId)
-                        
-                        if (isStale && widgetData != null) {
-                            Log.d(getLogTag(), "Widget $appWidgetId shows stale train ${state.nextTrain.departureTime}, setting up refresh click")
-                            setupRefreshClickIntent(context, views)
-                        } else if (widgetData != null) {
-                            // Fresh data, use normal deeplink
+                        if (widgetData != null) {
                             setupClickIntentsBase(
                                 context = context,
                                 views = views,
@@ -379,6 +376,11 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                             setupRefreshClickIntent(context, views)
                         }
                     }
+                }
+                
+                // Set up station name clicks for reverse route if widget is configured
+                if (state !is WidgetState.Configuration && state !is WidgetState.Error) {
+                    setupStationNameReverseIntents(context, views, appWidgetId)
                 }
                 
                 appWidgetManager.updateAppWidget(appWidgetId, views)
@@ -463,6 +465,28 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         views.setOnClickPendingIntent(getWidgetContainerId(), pendingIntent)
     }
 
+    /**
+     * Sets up reverse route intents for station name TextViews
+     * Users can tap origin or destination station names to reverse the route
+     */
+    private fun setupStationNameReverseIntents(context: Context, views: RemoteViews, appWidgetId: Int) {
+        val intent = Intent(context, this::class.java).apply {
+            action = getActionReverseRoute()
+            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+        }
+        val pendingIntent = PendingIntent.getBroadcast(
+            context, appWidgetId + 10000, intent, // Unique request code to avoid conflicts
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        
+        // Set reverse route action on all station name views
+        getStationNameIds().forEach { stationNameId ->
+            views.setOnClickPendingIntent(stationNameId, pendingIntent)
+        }
+        
+        Log.d(getLogTag(), "Reverse route intents set up for widget $appWidgetId on station name views: ${getStationNameIds()}")
+    }
+
     private fun setupConfigurationClickIntent(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
         val views = RemoteViews(context.packageName, getLayoutResource())
         val intent = Intent(context, getConfigActivityClass()).apply {
@@ -496,36 +520,41 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         }
     }
 
-    /**
-     * Check if a displayed train time is stale (departed)
-     * Used for smart refresh logic on widget clicks
-     */
-    private fun isTrainTimeStale(departureTime: String): Boolean {
-        return try {
-            if (departureTime.isEmpty()) return false
+    private fun handleReverseRouteAction(context: Context, intent: Intent) {
+        val appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, INVALID_WIDGET_ID)
+        if (appWidgetId != INVALID_WIDGET_ID) {
+            Log.d(getLogTag(), "Reverse route action for widget $appWidgetId")
             
-            val currentTime = java.util.Calendar.getInstance()
-            val currentHour = currentTime.get(java.util.Calendar.HOUR_OF_DAY)
-            val currentMinute = currentTime.get(java.util.Calendar.MINUTE)
-            val currentTimeInMinutes = currentHour * 60 + currentMinute
-            
-            val timeParts = departureTime.split(":")
-            if (timeParts.size >= 2) {
-                val trainHour = timeParts[0].toInt()
-                val trainMinute = timeParts[1].toInt()
-                val trainTimeInMinutes = trainHour * 60 + trainMinute
-                
-                // Consider train stale if it's more than 1 minute past departure
-                val minutesLate = currentTimeInMinutes - trainTimeInMinutes
-                return minutesLate > 1
+            coroutineManager.launchInWidgetScope(appWidgetId) {
+                try {
+                    val widgetData = preferencesRepository.getWidgetData(appWidgetId)
+                    if (widgetData != null) {
+                        // Create reversed widget data
+                        val reversedWidgetData = widgetData.copy(
+                            originId = widgetData.destinationId,
+                            destinationId = widgetData.originId,
+                            originName = widgetData.destinationName,
+                            destinationName = widgetData.originName
+                        )
+                        
+                        // Save the reversed route
+                        preferencesRepository.saveWidgetData(appWidgetId, reversedWidgetData)
+                        
+                        // Update the widget with the new route
+                        val appWidgetManager = AppWidgetManager.getInstance(context)
+                        updateWidget(context, appWidgetManager, appWidgetId)
+                        
+                        Log.d(getLogTag(), "Successfully reversed route for widget $appWidgetId: ${widgetData.originName} ↔ ${widgetData.destinationName}")
+                    } else {
+                        Log.w(getLogTag(), "No widget data found for reverse route action")
+                    }
+                } catch (e: Exception) {
+                    Log.e(getLogTag(), "Error handling reverse route action for widget $appWidgetId", e)
+                }
             }
-            
-            false
-        } catch (e: Exception) {
-            Log.e(getLogTag(), "Error checking if train time is stale", e)
-            false
         }
     }
+
 
     /**
      * Check if a train is for tomorrow by comparing the actual dates
