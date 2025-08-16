@@ -39,18 +39,18 @@ command -v watchman >/dev/null 2>&1 || {
   brew install watchman
 }
 
-# Ensure Yarn is installed
-command -v yarn >/dev/null 2>&1 || {
-  echo "This app requires Yarn package manager, but it was not found on your system."
-  echo "Installing yarn with brew..."
-  brew install yarn
+# Ensure Bun is installed
+command -v bun >/dev/null 2>&1 || {
+  echo "This app requires Bun package manager, but it was not found on your system."
+  echo "Installing bun with brew..."
+  brew install bun
 }
 
 # Ensure react-native-cli is installed
 command -v react-native >/dev/null 2>&1 || {
   echo "This app requires react-native-cli, but it was not found on your system."
-  echo "Installing react-native-cli globally with yarn..."
-  yarn global add react-native-cli
+  echo "Installing react-native-cli globally with bun..."
+  bun add -g react-native-cli
 }
 
 # IF NEEDED: Ensure appleSimUtils is installed
@@ -77,10 +77,10 @@ command -v react-native >/dev/null 2>&1 || {
 # }
 
 echo "----------------------------------------------------------"
-echo "Installing NPM Packages with Yarn"
+echo "Installing NPM Packages with Bun"
 echo "----------------------------------------------------------"
 
-yarn || { echo "NPM Packages could not be installed!"; exit 1; };
+bun install || { echo "NPM Packages could not be installed!"; exit 1; };
 
 echo "----------------------------------------------------------"
 echo "Installing CocoaPods"
@@ -102,7 +102,7 @@ echo "----------------------------------------------------------"
 echo "Running tests to verify setup is complete"
 echo "----------------------------------------------------------"
 
-yarn test || { exit 1; }
+bun test || { exit 1; }
 
 echo "----------------------------------------------------------"
 echo "Setup complete!"
