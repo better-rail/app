@@ -1,5 +1,16 @@
-jest.mock("i18n-js", () => {
-  return {
-    t: (key) => `${key}.test`,
-  }
-})
+import { mock } from "bun:test"
+
+mock.module("i18n-js", () => ({
+  default: {
+    t: (key: string) => `${key}.test`,
+    locale: "en",
+    defaultLocale: "en",
+    translations: {},
+    translate: (key: string) => `${key}.test`,
+  },
+  t: (key: string) => `${key}.test`,
+  locale: "en",
+  defaultLocale: "en",
+  translations: {},
+  translate: (key: string) => `${key}.test`,
+}))
