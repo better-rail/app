@@ -1,3 +1,4 @@
+import { test, expect } from "bun:test"
 import { getSnapshot } from "mobx-state-tree"
 import { RoutePlanModel } from "./route-plan"
 

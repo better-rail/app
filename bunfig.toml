@@ -1,0 +1,7 @@
+[test]
+# Configure test runner
+preload = ["./test/setup.ts"]
+
+[install]
+# Configure package installation
+auto = "force"
