@@ -107,10 +107,10 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
     }
 
     override fun onEnabled(context: Context) {
-        Log.d(getLogTag(), "onEnabled called - first widget added")
+        Log.d(getLogTag(), "onEnabled called - widget added")
         applicationContext = context.applicationContext
         
-        // Start global periodic updates when first widget is added
+        // Ensure periodic updates are running
         WidgetUpdateScheduler.schedulePeriodicUpdates(context)
         super.onEnabled(context)
     }
@@ -118,6 +118,9 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         Log.d(getLogTag(), "onUpdate called for ${appWidgetIds.size} widgets")
         applicationContext = context.applicationContext
+        
+        // Ensure periodic updates are running whenever widgets update
+        WidgetUpdateScheduler.schedulePeriodicUpdates(context)
         
         for (appWidgetId in appWidgetIds) {
             updateWidget(context, appWidgetManager, appWidgetId)
@@ -159,17 +162,15 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
     }
 
     override fun onDisabled(context: Context) {
-        Log.d(getLogTag(), "onDisabled called - last widget removed")
+        Log.d(getLogTag(), "onDisabled called - all widgets removed")
         applicationContext = context.applicationContext
         
-        // Stop global periodic updates when last widget is removed
-        WidgetUpdateScheduler.cancelPeriodicUpdates(context)
-        
-        // Clean up all data
+        // Only clean up cache data, keep periodic updates running in case onDisabled() 
+        // was called incorrectly (Android bug where it triggers even when widgets remain)
         coroutineManager.launchInWidgetScope(-1) {
             try {
                 scheduleRepository.clearAllCache()
-                Log.d(getLogTag(), "Cleaned up all widget data")
+                Log.d(getLogTag(), "Cleaned up all widget cache data")
             } catch (e: Exception) {
                 Log.e(getLogTag(), "Error during cleanup", e)
             }
