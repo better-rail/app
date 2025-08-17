@@ -63,20 +63,28 @@ class RailApiService(
                 TimeUnit.MINUTES
             )) // Reuse connections
             .retryOnConnectionFailure(true) // Auto-retry on connection failure
-            // Force IPv4-only to avoid IPv6 connectivity issues
+            // Force IPv4-only to avoid broken IPv6 connectivity in emulator
             .dns(object : okhttp3.Dns {
                 override fun lookup(hostname: String): List<java.net.InetAddress> {
-                    val allAddresses = java.net.InetAddress.getAllByName(hostname).toList()
-                    // Filter to only include IPv4 addresses
-                    val ipv4Addresses = allAddresses.filterIsInstance<java.net.Inet4Address>()
-                    android.util.Log.d("RailApiService", "DNS lookup for $hostname: ${allAddresses.size} total addresses, ${ipv4Addresses.size} IPv4 addresses")
-                    
-                    if (ipv4Addresses.isEmpty()) {
-                        android.util.Log.w("RailApiService", "No IPv4 addresses found for $hostname, falling back to all addresses")
-                        return allAddresses
+                    return try {
+                        android.util.Log.d("RailApiService", "Custom DNS lookup for $hostname")
+                        val allAddresses = okhttp3.Dns.SYSTEM.lookup(hostname)
+                        // Filter to only include IPv4 addresses
+                        val ipv4Addresses = allAddresses.filterIsInstance<java.net.Inet4Address>()
+                        android.util.Log.d("RailApiService", "DNS lookup for $hostname: ${allAddresses.size} total addresses, ${ipv4Addresses.size} IPv4 addresses")
+                        
+                        if (ipv4Addresses.isEmpty()) {
+                            android.util.Log.w("RailApiService", "No IPv4 addresses found for $hostname, using all addresses")
+                            allAddresses
+                        } else {
+                            android.util.Log.d("RailApiService", "Using IPv4-only addresses for $hostname")
+                            ipv4Addresses
+                        }
+                    } catch (e: Exception) {
+                        android.util.Log.e("RailApiService", "Custom DNS lookup failed for $hostname", e)
+                        // Fall back to system DNS if custom lookup fails
+                        okhttp3.Dns.SYSTEM.lookup(hostname)
                     }
-                    
-                    return ipv4Addresses
                 }
             })
             .build()
@@ -351,17 +359,9 @@ class RailApiService(
                 val currentMinutes = currentHour * MINUTES_IN_HOUR + currentMinute
                 val departureMinutes = departureHour * MINUTES_IN_HOUR + departureMinute
                 
-                // Handle cross-day scenarios: if departure time is earlier in the day than current time,
-                // it likely means the departure is tomorrow (especially for early morning trains like 04:21)
-                val isUpcoming = if (departureMinutes < currentMinutes && departureHour < 12) {
-                    // Early morning train (before noon) that appears "earlier" than current time
-                    // is likely tomorrow's train, so it's upcoming
-                    android.util.Log.d("RailApiService", "Early morning train detected - likely tomorrow's schedule")
-                    true
-                } else {
-                    // Normal case: departure time should be >= current time for same day
-                    departureMinutes >= currentMinutes
-                }
+                // Simple time comparison: train is upcoming if departure time >= current time
+                // Cross-day handling is now done properly by the widget using full ISO timestamps
+                val isUpcoming = departureMinutes >= currentMinutes
                 
                 android.util.Log.d("RailApiService", "Current: ${currentMinutes}min, Departure: ${departureMinutes}min, Upcoming: $isUpcoming")
                 

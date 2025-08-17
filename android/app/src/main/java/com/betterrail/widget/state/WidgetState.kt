@@ -97,7 +97,6 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_label, "TO CONFIGURE")
         views.setTextViewText(R.id.widget_platform, "")
         views.setTextViewText(R.id.widget_train_number, "")
-        views.setViewVisibility(R.id.widget_loading_text, android.view.View.GONE)
         hideUpcomingTrains(views)
     }
     
@@ -124,8 +123,6 @@ class WidgetStateRenderer(
         }
         
         setStationBackground(views, state.originId)
-        
-        views.setViewVisibility(R.id.widget_loading_text, android.view.View.GONE)
     }
     
     private fun renderError(context: Context, views: RemoteViews, state: WidgetState.Error) {
@@ -135,7 +132,6 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_label, "CONNECTION ERROR")
         views.setTextViewText(R.id.widget_platform, state.retryText)
         views.setTextViewText(R.id.widget_train_number, "")
-        views.setViewVisibility(R.id.widget_loading_text, android.view.View.GONE)
         
         setStationBackground(views, state.originId)
         
@@ -149,8 +145,6 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_label, "LOADING")
         views.setTextViewText(R.id.widget_platform, "")
         views.setTextViewText(R.id.widget_train_number, "")
-        views.setViewVisibility(R.id.widget_loading_text, android.view.View.VISIBLE)
-        views.setTextViewText(R.id.widget_loading_text, "Loading...")
         
         setStationBackground(views, state.originId)
         
@@ -164,7 +158,6 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_label, "NO SCHEDULE")
         views.setTextViewText(R.id.widget_platform, "Try again later")
         views.setTextViewText(R.id.widget_train_number, "")
-        views.setViewVisibility(R.id.widget_loading_text, android.view.View.GONE)
         
         setStationBackground(views, state.originId)
         
@@ -179,8 +172,6 @@ class WidgetStateRenderer(
         views.setTextColor(R.id.widget_train_label, context.getColor(R.color.widget_tomorrow_text))
         views.setTextViewText(R.id.widget_platform, "Loading...")
         views.setTextViewText(R.id.widget_train_number, "")
-        views.setViewVisibility(R.id.widget_loading_text, android.view.View.VISIBLE)
-        views.setTextViewText(R.id.widget_loading_text, "Loading tomorrow...")
         
         setStationBackground(views, state.originId)
         
@@ -210,8 +201,6 @@ class WidgetStateRenderer(
         
         setStationBackground(views, state.originId)
         
-        views.setViewVisibility(R.id.widget_loading_text, android.view.View.GONE)
-        
         // Show upcoming trains for 4x2 widget (2x2 widget will ignore this)
         if (state.upcomingTrains.isNotEmpty()) {
             showUpcomingTrains(views, state.upcomingTrains)
@@ -227,7 +216,6 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_label, "NO TRAINS")
         views.setTextViewText(R.id.widget_platform, "Check tomorrow")
         views.setTextViewText(R.id.widget_train_number, "")
-        views.setViewVisibility(R.id.widget_loading_text, android.view.View.GONE)
         
         setStationBackground(views, state.originId)
         

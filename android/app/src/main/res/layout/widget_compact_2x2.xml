@@ -168,21 +168,4 @@
 
     </LinearLayout>
 
-    <!-- Loading Overlay -->
-    <TextView
-        android:id="@+id/widget_loading_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Loading..."
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:fontFamily="sans-serif"
-        android:shadowColor="#FF000000"
-        android:shadowDx="2"
-        android:shadowDy="2"
-        android:shadowRadius="4"
-        android:visibility="gone" />
-
 </FrameLayout>

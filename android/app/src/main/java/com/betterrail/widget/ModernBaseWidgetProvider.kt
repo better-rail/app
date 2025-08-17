@@ -63,10 +63,8 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
     // Abstract methods for subclasses to implement
     abstract fun getActionRefresh(): String
     abstract fun getActionWidgetUpdate(): String
-    abstract fun getActionReverseRoute(): String
     abstract fun getLayoutResource(): Int
     abstract fun getWidgetContainerId(): Int
-    abstract fun getStationNameIds(): List<Int> // Station name view IDs that should trigger reverse route
     abstract fun getLogTag(): String
     abstract fun getWidgetType(): String
     abstract fun getConfigActivityClass(): Class<*>
@@ -101,7 +99,6 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         when (intent.action) {
             getActionRefresh() -> handleRefreshAction(context)
             getActionWidgetUpdate() -> handleWidgetUpdateAction(context, intent)
-            getActionReverseRoute() -> handleReverseRouteAction(context, intent)
         }
     }
 
@@ -378,11 +375,6 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                     }
                 }
                 
-                // Set up station name clicks for reverse route if widget is configured
-                if (state !is WidgetState.Configuration && state !is WidgetState.Error) {
-                    setupStationNameReverseIntents(context, views, appWidgetId)
-                }
-                
                 appWidgetManager.updateAppWidget(appWidgetId, views)
                 Log.d(getLogTag(), "Updated widget $appWidgetId UI with state: ${state::class.simpleName}")
             } catch (e: Exception) {
@@ -465,27 +457,6 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         views.setOnClickPendingIntent(getWidgetContainerId(), pendingIntent)
     }
 
-    /**
-     * Sets up reverse route intents for station name TextViews
-     * Users can tap origin or destination station names to reverse the route
-     */
-    private fun setupStationNameReverseIntents(context: Context, views: RemoteViews, appWidgetId: Int) {
-        val intent = Intent(context, this::class.java).apply {
-            action = getActionReverseRoute()
-            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-        }
-        val pendingIntent = PendingIntent.getBroadcast(
-            context, appWidgetId + 10000, intent, // Unique request code to avoid conflicts
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        
-        // Set reverse route action on all station name views
-        getStationNameIds().forEach { stationNameId ->
-            views.setOnClickPendingIntent(stationNameId, pendingIntent)
-        }
-        
-        Log.d(getLogTag(), "Reverse route intents set up for widget $appWidgetId on station name views: ${getStationNameIds()}")
-    }
 
     private fun setupConfigurationClickIntent(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
         val views = RemoteViews(context.packageName, getLayoutResource())
@@ -520,40 +491,6 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         }
     }
 
-    private fun handleReverseRouteAction(context: Context, intent: Intent) {
-        val appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, INVALID_WIDGET_ID)
-        if (appWidgetId != INVALID_WIDGET_ID) {
-            Log.d(getLogTag(), "Reverse route action for widget $appWidgetId")
-            
-            coroutineManager.launchInWidgetScope(appWidgetId) {
-                try {
-                    val widgetData = preferencesRepository.getWidgetData(appWidgetId)
-                    if (widgetData != null) {
-                        // Create reversed widget data
-                        val reversedWidgetData = widgetData.copy(
-                            originId = widgetData.destinationId,
-                            destinationId = widgetData.originId,
-                            originName = widgetData.destinationName,
-                            destinationName = widgetData.originName
-                        )
-                        
-                        // Save the reversed route
-                        preferencesRepository.saveWidgetData(appWidgetId, reversedWidgetData)
-                        
-                        // Update the widget with the new route
-                        val appWidgetManager = AppWidgetManager.getInstance(context)
-                        updateWidget(context, appWidgetManager, appWidgetId)
-                        
-                        Log.d(getLogTag(), "Successfully reversed route for widget $appWidgetId: ${widgetData.originName} ↔ ${widgetData.destinationName}")
-                    } else {
-                        Log.w(getLogTag(), "No widget data found for reverse route action")
-                    }
-                } catch (e: Exception) {
-                    Log.e(getLogTag(), "Error handling reverse route action for widget $appWidgetId", e)
-                }
-            }
-        }
-    }
 
 
     /**
