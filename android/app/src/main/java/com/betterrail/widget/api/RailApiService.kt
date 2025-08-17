@@ -27,25 +27,10 @@ class RailApiService(
         private const val MINUTES_IN_HOUR = 60
         private val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         private val TIME_FORMAT = SimpleDateFormat("HH:mm", Locale.getDefault())
-        
-        private fun getRailApiBaseUrl(): String {
-            return try {
-                val timeZone = java.util.TimeZone.getDefault()
-                val isInIsrael = timeZone.id == "Asia/Jerusalem"
-                
-                if (isInIsrael) {
-                    android.util.Log.d("RailApiService", "Using direct rail API (detected Israel timezone)")
-                    BuildConfig.RAIL_API_TIMETABLE_URL
-                } else {
-                    android.util.Log.d("RailApiService", "Using proxy rail API (detected non-Israel timezone: ${timeZone.id})")
-                    BuildConfig.RAIL_API_PROXY_TIMETABLE_URL
-                }
-            } catch (e: Exception) {
-                android.util.Log.w("RailApiService", "Failed to determine timezone, falling back to direct API", e)
-                BuildConfig.RAIL_API_TIMETABLE_URL
-            }
-        }
     }
+    
+    // Track whether we've fallen back to proxy API
+    private var hasFallenBackToProxy = false
 
     /**
      * Create HTTP client with configurable timeouts
@@ -99,49 +84,7 @@ class RailApiService(
                 val requestHour = hour ?: "00:00"
                 val isRequestForFutureDate = date != null && date != DATE_FORMAT.format(Date())
 
-                val baseUrl = getRailApiBaseUrl()
-                val url = "${baseUrl}searchTrainLuzForDateTime" +
-                        "?fromStation=$originId" +
-                        "&toStation=$destinationId" +
-                        "&date=$requestDate" +
-                        "&hour=$requestHour" +
-                        "&scheduleType=1" +
-                        "&systemType=1" +
-                        "&languageId=Hebrew"
-
-                android.util.Log.d("RailApiService", "Making API call to: $url")
-
-                val request = Request.Builder()
-                    .url(url)
-                    .addHeader("Accept", "application/json")
-                    .addHeader("Ocp-Apim-Subscription-Key", API_KEY)
-                    .build()
-
-                // Retry logic for network timeouts with exponential backoff
-                return@withContext RetryUtils.withRetry(
-                    maxRetries = MAX_RETRIES,
-                    retryDelays = RetryUtils.DEFAULT_RETRY_DELAYS,
-                    logTag = "RailApiService"
-                ) { attempt ->
-                    val client = createClient()
-                    val response = client.newCall(request).execute()
-                    
-                    android.util.Log.d("RailApiService", "Response code: ${response.code}")
-                    
-                    if (!response.isSuccessful) {
-                        android.util.Log.e("RailApiService", "HTTP Error: ${response.code} - ${response.message}")
-                        Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
-                    } else {
-                        val responseBody = response.body?.string()
-                        if (responseBody.isNullOrEmpty()) {
-                            android.util.Log.e("RailApiService", "Empty response body")
-                            Result.failure(Exception("Empty response body"))
-                        } else {
-                            // Success! Process the response
-                            processApiResponse(responseBody, originId, destinationId, isRequestForFutureDate)
-                        }
-                    }
-                }
+                return@withContext makeApiCall(originId, destinationId, requestDate, requestHour, isRequestForFutureDate)
 
             } catch (e: kotlinx.coroutines.CancellationException) {
                 android.util.Log.d("RailApiService", "API request cancelled")
@@ -149,6 +92,77 @@ class RailApiService(
             } catch (e: Exception) {
                 android.util.Log.e("RailApiService", "Unexpected error in getRoutes: ${e.message}", e)
                 Result.failure(e)
+            }
+        }
+    }
+    
+    private suspend fun makeApiCall(
+        originId: String, 
+        destinationId: String, 
+        requestDate: String, 
+        requestHour: String, 
+        isRequestForFutureDate: Boolean
+    ): Result<WidgetScheduleData> {
+        // Start with direct API
+        val baseUrl = if (hasFallenBackToProxy) {
+            BuildConfig.RAIL_API_PROXY_TIMETABLE_URL
+        } else {
+            BuildConfig.RAIL_API_TIMETABLE_URL
+        }
+        
+        val url = "${baseUrl}searchTrainLuzForDateTime" +
+                "?fromStation=$originId" +
+                "&toStation=$destinationId" +
+                "&date=$requestDate" +
+                "&hour=$requestHour" +
+                "&scheduleType=1" +
+                "&systemType=1" +
+                "&languageId=Hebrew"
+
+        android.util.Log.d("RailApiService", "Making API call to: $url")
+
+        val request = Request.Builder()
+            .url(url)
+            .addHeader("Accept", "application/json")
+            .addHeader("Ocp-Apim-Subscription-Key", API_KEY)
+            .build()
+
+        // Retry logic for network timeouts with exponential backoff
+        return RetryUtils.withRetry(
+            maxRetries = MAX_RETRIES,
+            retryDelays = RetryUtils.DEFAULT_RETRY_DELAYS,
+            logTag = "RailApiService"
+        ) { attempt ->
+            val client = createClient()
+            val response = client.newCall(request).execute()
+            
+            android.util.Log.d("RailApiService", "Response code: ${response.code}")
+            
+            when {
+                response.code == 403 && !hasFallenBackToProxy -> {
+                    // Fall back to proxy API on 403 error
+                    android.util.Log.w("RailApiService", "Got 403 error, falling back to proxy API")
+                    hasFallenBackToProxy = true
+                    
+                    // Retry with proxy API
+                    return@withRetry makeApiCall(originId, destinationId, requestDate, requestHour, isRequestForFutureDate)
+                }
+                
+                !response.isSuccessful -> {
+                    android.util.Log.e("RailApiService", "HTTP Error: ${response.code} - ${response.message}")
+                    Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
+                }
+                
+                else -> {
+                    val responseBody = response.body?.string()
+                    if (responseBody.isNullOrEmpty()) {
+                        android.util.Log.e("RailApiService", "Empty response body")
+                        Result.failure(Exception("Empty response body"))
+                    } else {
+                        // Success! Process the response
+                        processApiResponse(responseBody, originId, destinationId, isRequestForFutureDate)
+                    }
+                }
             }
         }
     }
