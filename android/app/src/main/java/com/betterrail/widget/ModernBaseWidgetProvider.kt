@@ -71,6 +71,40 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
 
     // Abstract UI methods for state-driven updates
     abstract fun renderWidgetState(context: Context, state: WidgetState): RemoteViews
+    
+    // Common method to render widget state with stale detection
+    protected fun renderWidgetStateWithStaleDetection(context: Context, state: WidgetState): RemoteViews {
+        val views = renderWidgetState(context, state)
+        
+        // Store displayed train time for stale detection
+        when (state) {
+            is WidgetState.Schedule -> {
+                storeDisplayedTrainTime(context, state.nextTrain.departureTime)
+            }
+            is WidgetState.TomorrowSchedule -> {
+                storeDisplayedTrainTime(context, state.firstTrain.departureTime)
+            }
+            else -> {
+                // Other states don't show train times
+            }
+        }
+        
+        return views
+    }
+    
+    private fun storeDisplayedTrainTime(context: Context, trainTime: String) {
+        try {
+            val sharedPrefs = context.getSharedPreferences("widget_display_state", Context.MODE_PRIVATE)
+            sharedPrefs.edit()
+                .putString("${getWidgetType()}_last_train_time", trainTime)
+                .putLong("${getWidgetType()}_last_update", System.currentTimeMillis())
+                .apply()
+                
+            Log.d(getLogTag(), "Stored displayed train time: $trainTime for widget type ${getWidgetType()}")
+        } catch (e: Exception) {
+            Log.e(getLogTag(), "Error storing displayed train time", e)
+        }
+    }
 
     override fun onEnabled(context: Context) {
         Log.d(getLogTag(), "onEnabled called - first widget added")
@@ -151,6 +185,11 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                 Log.d(getLogTag(), "Widget $appWidgetId not configured, showing configuration state")
                 showConfigurationState(context, appWidgetManager, appWidgetId)
             } else {
+                // Check if widget is showing stale data and refresh from cache if needed
+                if (isWidgetShowingDepartedTrain(context, appWidgetId)) {
+                    Log.d(getLogTag(), "Widget $appWidgetId showing departed train - refreshing from cache")
+                }
+                
                 Log.d(getLogTag(), "Widget $appWidgetId configured, loading schedule data")
                 loadScheduleData(context, appWidgetManager, appWidgetId, widgetData)
             }
@@ -205,9 +244,6 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                                     )
                                 }
                                 updateWidgetUI(context, appWidgetManager, appWidgetId, state)
-                                
-                                // Schedule smart update after the next train departure
-                                WidgetUpdateScheduler.scheduleSmartUpdate(context, nextTrain.departureTime)
                             } else {
                                 // No trains available, try tomorrow's schedule
                                 loadTomorrowSchedule(context, appWidgetManager, appWidgetId, widgetData)
@@ -322,7 +358,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
     ) {
         coroutineManager.launchInWidgetScope(appWidgetId) {
             try {
-                val views = renderWidgetState(context, state)
+                val views = renderWidgetStateWithStaleDetection(context, state)
                 
                 // Set up click intent based on widget state
                 when (state) {
@@ -492,6 +528,44 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
     }
 
 
+
+    /**
+     * Check if widget is currently showing a departed train (time has passed)
+     */
+    private fun isWidgetShowingDepartedTrain(context: Context, appWidgetId: Int): Boolean {
+        return try {
+            // Get the last displayed train time from preferences
+            val sharedPrefs = context.getSharedPreferences("widget_display_state", Context.MODE_PRIVATE)
+            val lastDisplayedTime = sharedPrefs.getString("${getWidgetType()}_last_train_time", "")
+            
+            if (lastDisplayedTime.isNullOrEmpty()) return false
+            
+            // Get current time
+            val currentTime = java.util.Calendar.getInstance()
+            val currentMinutes = currentTime.get(java.util.Calendar.HOUR_OF_DAY) * 60 + currentTime.get(java.util.Calendar.MINUTE)
+            
+            // Parse displayed time
+            val timeParts = lastDisplayedTime.split(":")
+            if (timeParts.size >= 2) {
+                val displayedMinutes = timeParts[0].toInt() * 60 + timeParts[1].toInt()
+                
+                // Train is considered departed if current time has passed the displayed time
+                val isDeparted = currentMinutes > displayedMinutes
+                
+                if (isDeparted) {
+                    val minutesPastDeparture = currentMinutes - displayedMinutes
+                    Log.d(getLogTag(), "Widget $appWidgetId showing departed train: $lastDisplayedTime (${minutesPastDeparture}min ago)")
+                }
+                
+                return isDeparted
+            }
+            
+            false
+        } catch (e: Exception) {
+            Log.e(getLogTag(), "Error checking if widget showing departed train", e)
+            false
+        }
+    }
 
     /**
      * Check if a train is for tomorrow by comparing the actual dates

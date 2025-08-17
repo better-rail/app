@@ -9,20 +9,15 @@ import android.os.SystemClock
 import android.util.Log
 import com.betterrail.widget.ModernCompactWidget2x2Provider
 import com.betterrail.widget.ModernCompactWidget4x2Provider
-import java.text.SimpleDateFormat
-import java.util.*
 
 /**
  * Manages periodic widget updates using AlarmManager
  */
 object WidgetUpdateScheduler {
     private const val TAG = "WidgetUpdateScheduler"
-    private const val UPDATE_INTERVAL_MINUTES = 1L // Update every minute to catch train time changes
+    private const val UPDATE_INTERVAL_MINUTES = 1L // Update every minute for stale detection
     private const val ACTION_WIDGET_UPDATE = "com.betterrail.widget.UPDATE_ALL_WIDGETS"
     private const val MINUTES_TO_MILLISECONDS = 60 * 1000L
-    private const val SMART_UPDATE_DELAY_MINUTES = 1L
-    
-    private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
     
     /**
      * Schedule periodic updates for all widgets
@@ -65,49 +60,6 @@ object WidgetUpdateScheduler {
         alarmManager.cancel(updateIntent)
     }
     
-    /**
-     * Schedule next smart update based on train departure times
-     */
-    fun scheduleSmartUpdate(context: Context, nextTrainDepartureTime: String) {
-        try {
-            if (nextTrainDepartureTime.isEmpty()) return
-            
-            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            val updateIntent = createUpdateIntent(context)
-            
-            // Parse the departure time
-            val now = Calendar.getInstance()
-            val trainTime = Calendar.getInstance()
-            
-            val timeParts = nextTrainDepartureTime.split(":")
-            if (timeParts.size >= 2) {
-                trainTime.set(Calendar.HOUR_OF_DAY, timeParts[0].toInt())
-                trainTime.set(Calendar.MINUTE, timeParts[1].toInt())
-                trainTime.set(Calendar.SECOND, 0)
-                trainTime.set(Calendar.MILLISECOND, 0)
-                
-                // If the train time is in the past today, assume it's tomorrow
-                if (trainTime.timeInMillis <= now.timeInMillis) {
-                    trainTime.add(Calendar.DAY_OF_YEAR, 1)
-                }
-                
-                // Schedule update at the exact train departure time
-                val updateTime = trainTime.timeInMillis
-                
-                Log.d(TAG, "Scheduling smart update at ${timeFormat.format(Date(updateTime))} for train departure at $nextTrainDepartureTime")
-                
-                // Use inexact alarm instead of exact alarm to avoid USE_EXACT_ALARM permission
-                // This may be less precise but still provides reasonable update timing
-                alarmManager.set(
-                    AlarmManager.RTC_WAKEUP,
-                    updateTime,
-                    updateIntent
-                )
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to schedule smart update", e)
-        }
-    }
     
     /**
      * Update all widgets immediately
