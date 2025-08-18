@@ -5,6 +5,7 @@ import com.betterrail.widget.data.*
 import com.betterrail.widget.config.NetworkConfig
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import com.google.gson.JsonArray
 import com.google.gson.JsonParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -47,30 +48,6 @@ class RailApiService(
                 TimeUnit.MINUTES
             )) // Reuse connections
             .retryOnConnectionFailure(true) // Auto-retry on connection failure
-            // Force IPv4-only to avoid broken IPv6 connectivity in emulator
-            .dns(object : okhttp3.Dns {
-                override fun lookup(hostname: String): List<java.net.InetAddress> {
-                    return try {
-                        android.util.Log.d("RailApiService", "Custom DNS lookup for $hostname")
-                        val allAddresses = okhttp3.Dns.SYSTEM.lookup(hostname)
-                        // Filter to only include IPv4 addresses
-                        val ipv4Addresses = allAddresses.filterIsInstance<java.net.Inet4Address>()
-                        android.util.Log.d("RailApiService", "DNS lookup for $hostname: ${allAddresses.size} total addresses, ${ipv4Addresses.size} IPv4 addresses")
-                        
-                        if (ipv4Addresses.isEmpty()) {
-                            android.util.Log.w("RailApiService", "No IPv4 addresses found for $hostname, using all addresses")
-                            allAddresses
-                        } else {
-                            android.util.Log.d("RailApiService", "Using IPv4-only addresses for $hostname")
-                            ipv4Addresses
-                        }
-                    } catch (e: Exception) {
-                        android.util.Log.e("RailApiService", "Custom DNS lookup failed for $hostname", e)
-                        // Fall back to system DNS if custom lookup fails
-                        okhttp3.Dns.SYSTEM.lookup(hostname)
-                    }
-                }
-            })
             .build()
     }
 
@@ -223,108 +200,10 @@ class RailApiService(
 
             android.util.Log.d("RailApiService", "Found ${travels.size()} travels in response")
 
-            val routes = mutableListOf<WidgetTrainItem>()
-            
-            // Parse all travels to find upcoming trains
-            val maxRoutes = travels.size() // Check all available travels
-            android.util.Log.d("RailApiService", "Processing all $maxRoutes travels (no limit)")
-            
-            for (i in 0 until maxRoutes) {
-                try {
-                    val travel = travels[i].asJsonObject
-                    android.util.Log.d("RailApiService", "Processing travel $i: ${travel.toString()}")
-                    var trains: com.google.gson.JsonArray? = travel.getAsJsonArray("trains")
-                    
-                    // Try alternative structures
-                    if (trains == null) {
-                        trains = travel.getAsJsonArray("Train")
-                    }
-                    
-                    // Get departure and arrival times from travel object first
-                    val departureTime = travel.get("departureTime")?.asString ?: ""
-                    val arrivalTime = travel.get("arrivalTime")?.asString ?: ""
-                    
-                    // Get platform, delay, and train number from first train if available
-                    var originPlatform = "1"
-                    var delay = 0
-                    var trainNumber = ""
-                    if (trains != null && trains.size() > 0) {
-                        val firstTrain = trains[0].asJsonObject
-                        originPlatform = firstTrain.get("originPlatform")?.asString 
-                            ?: firstTrain.get("Platform")?.asString ?: "1"
-                        
-                        // Get train number (can be string or number in JSON)
-                        trainNumber = firstTrain.get("trainNumber")?.let { element ->
-                            if (element.isJsonPrimitive) {
-                                element.asString
-                            } else ""
-                        } ?: firstTrain.get("TrainNumber")?.let { element ->
-                            if (element.isJsonPrimitive) {
-                                element.asString
-                            } else ""
-                        } ?: firstTrain.get("trainId")?.let { element ->
-                            if (element.isJsonPrimitive) {
-                                element.asString
-                            } else ""
-                        } ?: ""
-                        
-                        android.util.Log.d("RailApiService", "Extracted train number: '$trainNumber' from firstTrain")
-                        
-                        // Get delay if available
-                        val trainPositionElement = firstTrain.get("trainPosition")
-                        if (trainPositionElement != null && !trainPositionElement.isJsonNull) {
-                            val trainPosition = trainPositionElement.asJsonObject
-                            delay = trainPosition.get("calcDiffMinutes")?.asInt ?: 0
-                        }
-                        // Try alternative delay sources
-                        if (delay == 0) {
-                            delay = firstTrain.get("Delay")?.asInt ?: travel.get("Delay")?.asInt ?: 0
-                        }
-                    } else {
-                        // No trains array, try to get platform from travel object
-                        originPlatform = travel.get("platform")?.asString ?: "1"
-                        // Try to get delay from travel object
-                        delay = travel.get("Delay")?.asInt ?: 0
-                        // Try to get train number from travel object
-                        trainNumber = travel.get("trainNumber")?.asString ?: ""
-                    }
-                    
-                    val isExchange = trains?.size()?.let { it > 1 } ?: false
-                    
-                    // Format times for display (HH:mm)
-                    val formattedDepartureTime = formatTimeForDisplay(departureTime)
-                    val formattedArrivalTime = formatTimeForDisplay(arrivalTime)
-                    
-                    // Calculate duration and changes text
-                    val duration = calculateDuration(departureTime, arrivalTime)
-                    val changesText = formatChangesText(isExchange)
-                    
-                    android.util.Log.d("RailApiService", "Travel $i: dep=$formattedDepartureTime, arr=$formattedArrivalTime, platform=$originPlatform, delay=${delay}min")
-                    
-                    if (formattedDepartureTime.isNotEmpty() && isUpcomingDeparture(formattedDepartureTime, isRequestForFutureDate)) {
-                        // Use the delay calculated above, don't reset to 0
-                        routes.add(
-                            WidgetTrainItem(
-                                departureTime = formattedDepartureTime,
-                                arrivalTime = formattedArrivalTime,
-                                platform = originPlatform,
-                                delay = delay,
-                                isExchange = isExchange,
-                                duration = duration,
-                                changesText = changesText,
-                                trainNumber = trainNumber,
-                                departureTimestamp = departureTime // Pass original ISO timestamp
-                            )
-                        )
-                        
-                        // No longer limiting to 5 trains - return all available upcoming trains
-                    }
-                } catch (e: Exception) {
-                    // Skip this route if parsing fails
-                    android.util.Log.e("RailApiService", "Failed to parse travel $i: ${e.message}", e)
-                    continue
-                }
-            }
+            // Functional approach: map travels to routes, filter nulls
+            val routes = travels.asSequence()
+                .mapIndexedNotNull { index, travel -> parseTravelToRoute(travel.asJsonObject, index, isRequestForFutureDate) }
+                .toList()
 
             android.util.Log.d("RailApiService", "Parsed ${routes.size} routes successfully")
             
@@ -336,6 +215,102 @@ class RailApiService(
         } catch (e: Exception) {
             return Result.failure(Exception("Failed to parse API response: ${e.message}"))
         }
+    }
+    
+    /**
+     * Parse a single travel JSON object into a WidgetTrainItem
+     */
+    private fun parseTravelToRoute(travel: JsonObject, index: Int, isRequestForFutureDate: Boolean): WidgetTrainItem? {
+        return try {
+            android.util.Log.d("RailApiService", "Processing travel $index")
+            
+            // Extract basic travel info
+            val departureTime = travel.get("departureTime")?.asString ?: ""
+            val arrivalTime = travel.get("arrivalTime")?.asString ?: ""
+            val formattedDepartureTime = formatTimeForDisplay(departureTime)
+            val formattedArrivalTime = formatTimeForDisplay(arrivalTime)
+            
+            // Skip if invalid departure time or not upcoming
+            if (formattedDepartureTime.isEmpty() || !isUpcomingDeparture(formattedDepartureTime, isRequestForFutureDate)) {
+                return null
+            }
+            
+            // Extract train details from trains array or travel object
+            val trains = travel.getAsJsonArray("trains") ?: travel.getAsJsonArray("Train")
+            val trainDetails = extractTrainDetails(trains, travel)
+            
+            // Create the route item
+            WidgetTrainItem(
+                departureTime = formattedDepartureTime,
+                arrivalTime = formattedArrivalTime,
+                platform = trainDetails.platform,
+                delay = trainDetails.delay,
+                isExchange = trainDetails.isExchange,
+                duration = calculateDuration(departureTime, arrivalTime),
+                changesText = formatChangesText(trainDetails.isExchange),
+                trainNumber = trainDetails.trainNumber,
+                departureTimestamp = departureTime
+            )
+        } catch (e: Exception) {
+            android.util.Log.e("RailApiService", "Failed to parse travel $index: ${e.message}", e)
+            null
+        }
+    }
+    
+    /**
+     * Extract train details (platform, delay, number, exchange info) from JSON
+     */
+    private data class TrainDetails(
+        val platform: String,
+        val delay: Int,
+        val trainNumber: String,
+        val isExchange: Boolean
+    )
+    
+    private fun extractTrainDetails(trains: JsonArray?, travel: JsonObject): TrainDetails {
+        val isExchange = trains?.size()?.let { it > 1 } ?: false
+        
+        return if (trains != null && trains.size() > 0) {
+            val firstTrain = trains.get(0).asJsonObject
+            TrainDetails(
+                platform = firstTrain.get("originPlatform")?.asString 
+                    ?: firstTrain.get("Platform")?.asString ?: "1",
+                delay = extractDelay(firstTrain, travel),
+                trainNumber = extractTrainNumber(firstTrain, travel),
+                isExchange = isExchange
+            )
+        } else {
+            TrainDetails(
+                platform = travel.get("platform")?.asString ?: "1",
+                delay = travel.get("Delay")?.asInt ?: 0,
+                trainNumber = travel.get("trainNumber")?.asString ?: "",
+                isExchange = isExchange
+            )
+        }
+    }
+    
+    private fun extractDelay(firstTrain: JsonObject, travel: JsonObject): Int {
+        // Try train position delay first
+        firstTrain.get("trainPosition")?.takeIf { !it.isJsonNull }?.asJsonObject?.let { position ->
+            position.get("calcDiffMinutes")?.asInt?.let { return it }
+        }
+        
+        // Try other delay sources
+        return firstTrain.get("Delay")?.asInt 
+            ?: travel.get("Delay")?.asInt 
+            ?: 0
+    }
+    
+    private fun extractTrainNumber(firstTrain: JsonObject, travel: JsonObject): String {
+        val sources = listOf("trainNumber", "TrainNumber", "trainId")
+        
+        for (source in sources) {
+            firstTrain.get(source)?.takeIf { it.isJsonPrimitive }?.asString?.let { 
+                return it 
+            }
+        }
+        
+        return travel.get("trainNumber")?.asString ?: ""
     }
     
     private fun formatTimeForDisplay(isoTimeString: String): String {
