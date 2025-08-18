@@ -11,6 +11,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.first
 import com.betterrail.widget.utils.RetryUtils
 import okhttp3.*
+import android.net.Uri
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -22,8 +23,6 @@ class RailApiService(
     companion object {
         private val API_KEY = BuildConfig.RAIL_API_KEY
         private const val MAX_RETRIES = 3
-        private const val MOCK_NETWORK_DELAY_MS = 500L
-        private const val MOCK_TOMORROW_DELAY_MS = 300L
         private const val MINUTES_IN_HOUR = 60
         private val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         private val TIME_FORMAT = SimpleDateFormat("HH:mm", Locale.getDefault())
@@ -77,6 +76,31 @@ class RailApiService(
 
     private val gson = Gson()
 
+    /**
+     * Builds API URL using URI Builder for optimal performance and proper URL encoding
+     * Eliminates string concatenation that creates multiple temporary objects
+     */
+    private fun buildApiUrl(
+        baseUrl: String,
+        originId: String, 
+        destinationId: String,
+        requestDate: String,
+        requestHour: String
+    ): String {
+        return Uri.parse(baseUrl)
+            .buildUpon()
+            .appendPath("searchTrainLuzForDateTime")
+            .appendQueryParameter("fromStation", originId)
+            .appendQueryParameter("toStation", destinationId)
+            .appendQueryParameter("date", requestDate)
+            .appendQueryParameter("hour", requestHour)
+            .appendQueryParameter("scheduleType", "1")
+            .appendQueryParameter("systemType", "1")
+            .appendQueryParameter("languageId", "Hebrew")
+            .build()
+            .toString()
+    }
+
     suspend fun getRoutes(originId: String, destinationId: String, date: String? = null, hour: String? = null): Result<WidgetScheduleData> {
         return withContext(Dispatchers.IO) {
             try {
@@ -110,14 +134,7 @@ class RailApiService(
             BuildConfig.RAIL_API_TIMETABLE_URL
         }
         
-        val url = "${baseUrl}searchTrainLuzForDateTime" +
-                "?fromStation=$originId" +
-                "&toStation=$destinationId" +
-                "&date=$requestDate" +
-                "&hour=$requestHour" +
-                "&scheduleType=1" +
-                "&systemType=1" +
-                "&languageId=Hebrew"
+        val url = buildApiUrl(baseUrl, originId, destinationId, requestDate, requestHour)
 
         android.util.Log.d("RailApiService", "Making API call to: $url")
 
@@ -313,7 +330,7 @@ class RailApiService(
             
             return Result.success(WidgetScheduleData(
                 routes = routes,
-                originName = "Station $originId", // TODO: Get actual station names
+                originName = "Station $originId",
                 destinationName = "Station $destinationId"
             ))
         } catch (e: Exception) {

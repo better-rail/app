@@ -6,6 +6,7 @@ import com.betterrail.R
 import com.betterrail.widget.data.WidgetData
 import com.betterrail.widget.data.WidgetTrainItem
 import com.betterrail.widget.data.StationsData
+import com.betterrail.widget.resources.UpcomingTrainResources
 
 /**
  * Represents the possible states of a train widget
@@ -97,7 +98,7 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_label, "TO CONFIGURE")
         views.setTextViewText(R.id.widget_platform, "")
         views.setTextViewText(R.id.widget_train_number, "")
-        hideUpcomingTrains(views)
+        hideUpcomingTrains(context, views)
     }
     
     private fun renderSchedule(context: Context, views: RemoteViews, state: WidgetState.Schedule) {
@@ -119,7 +120,7 @@ class WidgetStateRenderer(
         
         if (layoutResource == R.layout.widget_compact_4x2) {
             views.setTextViewText(R.id.widget_arrival_time, state.nextTrain.arrivalTime)
-            showUpcomingTrains(views, state.upcomingTrains)
+            showUpcomingTrains(context, views, state.upcomingTrains)
         }
         
         setStationBackground(views, state.originId)
@@ -135,7 +136,7 @@ class WidgetStateRenderer(
         
         setStationBackground(views, state.originId)
         
-        hideUpcomingTrains(views)
+        hideUpcomingTrains(context, views)
     }
     
     private fun renderLoading(context: Context, views: RemoteViews, state: WidgetState.Loading) {
@@ -148,7 +149,7 @@ class WidgetStateRenderer(
         
         setStationBackground(views, state.originId)
         
-        hideUpcomingTrains(views)
+        hideUpcomingTrains(context, views)
     }
     
     private fun renderTomorrowFallback(context: Context, views: RemoteViews, state: WidgetState.TomorrowFallback) {
@@ -161,7 +162,7 @@ class WidgetStateRenderer(
         
         setStationBackground(views, state.originId)
         
-        hideUpcomingTrains(views)
+        hideUpcomingTrains(context, views)
     }
     
     private fun renderTomorrowLoading(context: Context, views: RemoteViews, state: WidgetState.TomorrowLoading) {
@@ -175,7 +176,7 @@ class WidgetStateRenderer(
         
         setStationBackground(views, state.originId)
         
-        hideUpcomingTrains(views)
+        hideUpcomingTrains(context, views)
     }
     
     private fun renderTomorrowSchedule(context: Context, views: RemoteViews, state: WidgetState.TomorrowSchedule) {
@@ -203,9 +204,9 @@ class WidgetStateRenderer(
         
         // Show upcoming trains for 4x2 widget (2x2 widget will ignore this)
         if (state.upcomingTrains.isNotEmpty()) {
-            showUpcomingTrains(views, state.upcomingTrains)
+            showUpcomingTrains(context, views, state.upcomingTrains)
         } else {
-            hideUpcomingTrains(views)
+            hideUpcomingTrains(context, views)
         }
     }
     
@@ -219,7 +220,7 @@ class WidgetStateRenderer(
         
         setStationBackground(views, state.originId)
         
-        hideUpcomingTrains(views)
+        hideUpcomingTrains(context, views)
     }
     
     private fun formatPlatform(context: Context, platform: String): String {
@@ -238,41 +239,29 @@ class WidgetStateRenderer(
         }
     }
     
-    private fun showUpcomingTrains(views: RemoteViews, upcomingTrains: List<WidgetTrainItem>) {
+    private fun showUpcomingTrains(context: Context, views: RemoteViews, upcomingTrains: List<WidgetTrainItem>) {
         if (layoutResource != R.layout.widget_compact_4x2) return
         
-        val upcomingIds = listOf(
-            Pair(R.id.widget_upcoming_row_1, Pair(R.id.widget_upcoming_train_1, R.id.widget_upcoming_arrival_1)),
-            Pair(R.id.widget_upcoming_row_2, Pair(R.id.widget_upcoming_train_2, R.id.widget_upcoming_arrival_2)),
-            Pair(R.id.widget_upcoming_row_3, Pair(R.id.widget_upcoming_train_3, R.id.widget_upcoming_arrival_3)),
-            Pair(R.id.widget_upcoming_row_4, Pair(R.id.widget_upcoming_train_4, R.id.widget_upcoming_arrival_4)),
-            Pair(R.id.widget_upcoming_row_5, Pair(R.id.widget_upcoming_train_5, R.id.widget_upcoming_arrival_5))
-        )
+        val resourcesHelper = UpcomingTrainResources.createDefault(context)
         
-        upcomingIds.forEachIndexed { index, (rowId, textIds) ->
+        resourcesHelper.forEachRow { index, resources ->
             if (index < upcomingTrains.size) {
                 val train = upcomingTrains[index]
-                views.setViewVisibility(rowId, android.view.View.VISIBLE)
-                views.setTextViewText(textIds.first, train.departureTime)
-                views.setTextViewText(textIds.second, train.arrivalTime)
+                views.setViewVisibility(resources.rowId, android.view.View.VISIBLE)
+                views.setTextViewText(resources.trainTimeId, train.departureTime)
+                views.setTextViewText(resources.arrivalTimeId, train.arrivalTime)
             } else {
-                views.setViewVisibility(rowId, android.view.View.GONE)
+                views.setViewVisibility(resources.rowId, android.view.View.GONE)
             }
         }
     }
     
-    private fun hideUpcomingTrains(views: RemoteViews) {
+    private fun hideUpcomingTrains(context: Context, views: RemoteViews) {
         if (layoutResource != R.layout.widget_compact_4x2) return
         
-        val upcomingRowIds = listOf(
-            R.id.widget_upcoming_row_1,
-            R.id.widget_upcoming_row_2,
-            R.id.widget_upcoming_row_3,
-            R.id.widget_upcoming_row_4,
-            R.id.widget_upcoming_row_5
-        )
+        val resourcesHelper = UpcomingTrainResources.createDefault(context)
         
-        upcomingRowIds.forEach { rowId ->
+        resourcesHelper.getRowIds().forEach { rowId ->
             views.setViewVisibility(rowId, android.view.View.GONE)
         }
     }

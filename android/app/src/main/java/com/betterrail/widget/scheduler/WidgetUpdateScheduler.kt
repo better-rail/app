@@ -65,35 +65,42 @@ object WidgetUpdateScheduler {
      * Update all widgets immediately
      */
     fun updateAllWidgets(context: Context) {
-        Log.d(TAG, "Updating all widgets immediately")
-        
         val appWidgetManager = AppWidgetManager.getInstance(context)
         
-        // Update 2x2 widgets
-        val widget2x2Ids = appWidgetManager.getAppWidgetIds(
-            android.content.ComponentName(context, ModernCompactWidget2x2Provider::class.java)
+        // Get all widget provider classes dynamically
+        val widgetProviders = listOf(
+            ModernCompactWidget2x2Provider::class.java,
+            ModernCompactWidget4x2Provider::class.java
         )
-        if (widget2x2Ids.isNotEmpty()) {
-            val intent2x2 = Intent(context, ModernCompactWidget2x2Provider::class.java).apply {
-                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widget2x2Ids)
+        
+        var totalWidgets = 0
+        val updateResults = mutableListOf<String>()
+        
+        // Check each widget provider
+        for (providerClass in widgetProviders) {
+            val widgetIds = appWidgetManager.getAppWidgetIds(
+                android.content.ComponentName(context, providerClass)
+            )
+            
+            totalWidgets += widgetIds.size
+            
+            if (widgetIds.isNotEmpty()) {
+                val intent = Intent(context, providerClass).apply {
+                    action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds)
+                }
+                context.sendBroadcast(intent)
+                updateResults.add("${widgetIds.size} ${providerClass.simpleName}")
             }
-            context.sendBroadcast(intent2x2)
-            Log.d(TAG, "Updated ${widget2x2Ids.size} 2x2 widgets")
         }
         
-        // Update 4x2 widgets
-        val widget4x2Ids = appWidgetManager.getAppWidgetIds(
-            android.content.ComponentName(context, ModernCompactWidget4x2Provider::class.java)
-        )
-        if (widget4x2Ids.isNotEmpty()) {
-            val intent4x2 = Intent(context, ModernCompactWidget4x2Provider::class.java).apply {
-                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widget4x2Ids)
-            }
-            context.sendBroadcast(intent4x2)
-            Log.d(TAG, "Updated ${widget4x2Ids.size} 4x2 widgets")
+        if (totalWidgets == 0) {
+            Log.d(TAG, "No widgets installed, cancelling periodic updates")
+            cancelPeriodicUpdates(context)
+            return
         }
+        
+        Log.d(TAG, "Updated $totalWidgets widgets: ${updateResults.joinToString(", ")}")
     }
     
     private fun createUpdateIntent(context: Context): PendingIntent {
