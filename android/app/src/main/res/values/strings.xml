@@ -12,6 +12,8 @@
     <string name="widget_2x2_description">Compact 2x2 train widget</string>
     <string name="widget_4x2_description">Compact 4x2 train schedule</string>
     <string name="select_station">Select Station</string>
+    <string name="search_origin_hint">Search origin station...</string>
+    <string name="search_destination_hint">Search destination station...</string>
     
     <!-- Widget display strings -->
     <string name="tap_to_configure">Tap to configure</string>

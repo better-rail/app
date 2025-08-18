@@ -13,6 +13,8 @@
     <string name="widget_2x2_description">ווידג\'ט רכבת קומפקטי 2x2</string>
     <string name="widget_4x2_description">ווידג\'ט רכבת קומפקטי 4x2 עם רכבות קרובות</string>
     <string name="select_station">בחר תחנה</string>
+    <string name="search_origin_hint">חפש תחנת מוצא...</string>
+    <string name="search_destination_hint">חפש תחנת יעד...</string>
     
     <!-- Widget display strings -->
     <string name="tap_to_configure">הקש כדי להגדיר</string>

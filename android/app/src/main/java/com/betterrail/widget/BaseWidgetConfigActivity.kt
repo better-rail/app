@@ -5,6 +5,8 @@ import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
 import android.widget.*
+import android.text.TextWatcher
+import android.text.Editable
 import com.betterrail.R
 import android.util.Log
 import com.betterrail.widget.data.StationsData
@@ -27,8 +29,8 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
     @Inject
     lateinit var cacheRepository: ModernCacheRepository
 
-    protected lateinit var originSpinner: Spinner
-    protected lateinit var destinationSpinner: Spinner
+    protected lateinit var originSearch: AutoCompleteTextView
+    protected lateinit var destinationSearch: AutoCompleteTextView
     protected lateinit var addButton: Button
     protected lateinit var cancelButton: Button
     
@@ -36,6 +38,9 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
     protected lateinit var stationAdapter: ArrayAdapter<String>
     protected val stationIds = mutableListOf<String>()
     protected val stationNames = mutableListOf<String>()
+    
+    private var selectedOriginId: String = ""
+    private var selectedDestinationId: String = ""
 
     abstract fun getLogTag(): String
     abstract fun createWidgetProvider(): ModernBaseWidgetProvider
@@ -69,8 +74,8 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
     }
     
     private fun setupUI() {
-        originSpinner = findViewById(R.id.origin_spinner)
-        destinationSpinner = findViewById(R.id.destination_spinner)
+        originSearch = findViewById(R.id.origin_search)
+        destinationSearch = findViewById(R.id.destination_search)
         addButton = findViewById(R.id.add_button)
         cancelButton = findViewById(R.id.cancel_button)
         
@@ -86,49 +91,103 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
         stationIds.clear()
         stationNames.clear()
         
-        // Add "Select Station" as first option
-        stationIds.add("")
-        stationNames.add(getString(R.string.select_station))
-        
-        // Add all stations
+        // Add all stations (no "Select Station" needed for AutoCompleteTextView)
         stationsForDisplay.forEach { (id, name) ->
             stationIds.add(id)
             stationNames.add(name)
         }
         
-        // Create adapter
+        // Create adapter for AutoCompleteTextView
         stationAdapter = ArrayAdapter(
             this,
-            android.R.layout.simple_spinner_item,
+            android.R.layout.simple_dropdown_item_1line,
             stationNames
         )
-        stationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         
         // Set adapters
-        originSpinner.adapter = stationAdapter
-        destinationSpinner.adapter = stationAdapter
+        originSearch.setAdapter(stationAdapter)
+        destinationSearch.setAdapter(stationAdapter)
         
-        // Set listeners to update button state
-        originSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
-                updateAddButtonState()
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
+        // Configure AutoCompleteTextView to show all items when empty
+        originSearch.threshold = 0
+        destinationSearch.threshold = 0
         
-        destinationSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
-                updateAddButtonState()
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
+        // Set listeners for selection and text changes
+        setupSearchListeners()
     }
     
+    private fun setupSearchListeners() {
+        // Origin search listeners
+        originSearch.setOnItemClickListener { _, _, position, _ ->
+            val selectedName = stationAdapter.getItem(position)
+            val selectedIndex = stationNames.indexOf(selectedName)
+            if (selectedIndex >= 0) {
+                selectedOriginId = stationIds[selectedIndex]
+                Log.d(getLogTag(), "Origin selected: $selectedName (ID: $selectedOriginId)")
+                updateAddButtonState()
+            }
+        }
+        
+        // Show dropdown when text field is focused
+        originSearch.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus && originSearch.text.isEmpty()) {
+                originSearch.showDropDown()
+            }
+        }
+        
+        originSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                val text = s.toString()
+                val exactMatch = stationNames.indexOf(text)
+                if (exactMatch >= 0) {
+                    selectedOriginId = stationIds[exactMatch]
+                } else {
+                    selectedOriginId = ""
+                }
+                updateAddButtonState()
+            }
+        })
+        
+        // Destination search listeners  
+        destinationSearch.setOnItemClickListener { _, _, position, _ ->
+            val selectedName = stationAdapter.getItem(position)
+            val selectedIndex = stationNames.indexOf(selectedName)
+            if (selectedIndex >= 0) {
+                selectedDestinationId = stationIds[selectedIndex]
+                Log.d(getLogTag(), "Destination selected: $selectedName (ID: $selectedDestinationId)")
+                updateAddButtonState()
+            }
+        }
+        
+        // Show dropdown when text field is focused
+        destinationSearch.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus && destinationSearch.text.isEmpty()) {
+                destinationSearch.showDropDown()
+            }
+        }
+        
+        destinationSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                val text = s.toString()
+                val exactMatch = stationNames.indexOf(text)
+                if (exactMatch >= 0) {
+                    selectedDestinationId = stationIds[exactMatch]
+                } else {
+                    selectedDestinationId = ""
+                }
+                updateAddButtonState()
+            }
+        })
+    }
     
     private fun updateAddButtonState() {
-        val originSelected = originSpinner.selectedItemPosition > FIRST_ITEM_INDEX
-        val destinationSelected = destinationSpinner.selectedItemPosition > FIRST_ITEM_INDEX
-        val differentStations = originSpinner.selectedItemPosition != destinationSpinner.selectedItemPosition
+        val originSelected = selectedOriginId.isNotEmpty()
+        val destinationSelected = selectedDestinationId.isNotEmpty()
+        val differentStations = selectedOriginId != selectedDestinationId
         
         addButton.isEnabled = originSelected && destinationSelected && differentStations
     }
@@ -137,23 +196,20 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
         try {
             Log.d(getLogTag(), "Add button clicked for widget $appWidgetId")
             
-            val originPosition = originSpinner.selectedItemPosition
-            val destinationPosition = destinationSpinner.selectedItemPosition
-            
-            if (originPosition <= FIRST_ITEM_INDEX || destinationPosition <= FIRST_ITEM_INDEX) {
+            if (selectedOriginId.isEmpty() || selectedDestinationId.isEmpty()) {
                 Toast.makeText(this, "Please select both origin and destination stations", Toast.LENGTH_SHORT).show()
                 return
             }
             
-            if (originPosition == destinationPosition) {
+            if (selectedOriginId == selectedDestinationId) {
                 Toast.makeText(this, "Origin and destination must be different", Toast.LENGTH_SHORT).show()
                 return
             }
             
-            val originId = stationIds[originPosition]
-            val destinationId = stationIds[destinationPosition]
-            val originName = stationNames[originPosition]
-            val destinationName = stationNames[destinationPosition]
+            val originId = selectedOriginId
+            val destinationId = selectedDestinationId
+            val originName = originSearch.text.toString()
+            val destinationName = destinationSearch.text.toString()
             
             Log.d(getLogTag(), "Saving widget data: $originName -> $destinationName")
             

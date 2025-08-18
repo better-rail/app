@@ -13,6 +13,8 @@
     <string name="widget_2x2_description">Компактный виджет поезда 2x2</string>
     <string name="widget_4x2_description">Компактный виджет поезда 4x2 с предстоящими поездами</string>
     <string name="select_station">Выберите станцию</string>
+    <string name="search_origin_hint">Поиск станции отправления...</string>
+    <string name="search_destination_hint">Поиск станции назначения...</string>
     
     <!-- Widget display strings -->
     <string name="tap_to_configure">Нажмите для настройки</string>

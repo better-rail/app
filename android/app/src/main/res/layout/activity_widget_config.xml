@@ -35,13 +35,19 @@
         android:textColor="@color/label"
         android:layout_marginBottom="8dp" />
 
-    <Spinner
-        android:id="@+id/origin_spinner"
+    <AutoCompleteTextView
+        android:id="@+id/origin_search"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginBottom="16dp"
         android:background="@drawable/spinner_background"
-        android:padding="12dp" />
+        android:padding="12dp"
+        android:hint="@string/search_origin_hint"
+        android:textSize="16sp"
+        android:textColor="@color/label"
+        android:textColorHint="@color/secondaryLabel"
+        android:completionThreshold="0"
+        android:dropDownHeight="300dp" />
 
     <!-- Destination Station -->
     <TextView
@@ -53,13 +59,19 @@
         android:textColor="@color/label"
         android:layout_marginBottom="8dp" />
 
-    <Spinner
-        android:id="@+id/destination_spinner"
+    <AutoCompleteTextView
+        android:id="@+id/destination_search"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginBottom="16dp"
         android:background="@drawable/spinner_background"
-        android:padding="12dp" />
+        android:padding="12dp"
+        android:hint="@string/search_destination_hint"
+        android:textSize="16sp"
+        android:textColor="@color/label"
+        android:textColorHint="@color/secondaryLabel"
+        android:completionThreshold="0"
+        android:dropDownHeight="300dp" />
 
 
 
