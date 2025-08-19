@@ -86,9 +86,8 @@ export const SettingsScreen = observer(function SettingsScreen({ navigation }: S
       <Text
         style={[VERSION_TEXT, isBetaTester && { fontFamily: "System", fontWeight: "500", color: PlatformColor("systemOrange") }]}
       >
-        Better Rail {isBetaTester && "Beta "}v{getVersion()}
+        Better Rail {isBetaTester && "Beta "}v{getVersion()} (Build {getBuildNumber()})
       </Text>
-      {isBetaTester && <Text style={VERSION_TEXT}>Build {getBuildNumber()}</Text>}
     </Screen>
   )
 })

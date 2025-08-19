@@ -13,6 +13,7 @@ import com.betterrail.widget.data.StationsData
 import com.betterrail.widget.repository.TrainScheduleRepository
 import com.betterrail.widget.repository.ModernWidgetPreferencesRepository
 import com.betterrail.widget.repository.Resource
+import com.betterrail.widget.data.WidgetScheduleData
 import com.betterrail.widget.lifecycle.WidgetCoroutineManager
 import com.betterrail.widget.state.WidgetState
 import com.betterrail.widget.scheduler.WidgetUpdateScheduler
@@ -232,75 +233,76 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
             try {
                 scheduleRepository.getSchedule(appWidgetId, widgetData).collectLatest { resource ->
                     when (resource) {
-                        is Resource.Loading -> {
-                            Log.d(getLogTag(), "Loading schedule for widget $appWidgetId")
-                            val state = WidgetState.Loading(
-                                originId = widgetData.originId,
-                                originName = StationsData.getStationName(context, widgetData.originId),
-                                destinationName = StationsData.getStationName(context, widgetData.destinationId)
-                            )
-                            updateWidgetUI(context, appWidgetManager, appWidgetId, state)
-                        }
-                        
-                        is Resource.Success -> {
-                            Log.d(getLogTag(), "Successfully loaded ${resource.data.routes.size} routes for widget $appWidgetId (cache: ${resource.fromCache})")
-                            
-                            if (resource.data.routes.isNotEmpty()) {
-                                val nextTrain = resource.data.routes.first()
-                                
-                                // Check if the next train is actually tomorrow's schedule
-                                val isTomorrowSchedule = isTrainForTomorrow(nextTrain.departureTimestamp)
-                                
-                                val state = if (isTomorrowSchedule) {
-                                    Log.d(getLogTag(), "Next train ${nextTrain.departureTime} detected as tomorrow's schedule")
-                                    WidgetState.TomorrowSchedule(
-                                        originId = widgetData.originId,
-                                        originName = StationsData.getStationName(context, widgetData.originId),
-                                        destinationName = StationsData.getStationName(context, widgetData.destinationId),
-                                        firstTrain = nextTrain,
-                                        upcomingTrains = resource.data.routes.drop(1)
-                                    )
-                                } else {
-                                    WidgetState.Schedule(
-                                        originId = widgetData.originId,
-                                        originName = StationsData.getStationName(context, widgetData.originId),
-                                        destinationName = StationsData.getStationName(context, widgetData.destinationId),
-                                        nextTrain = nextTrain,
-                                        upcomingTrains = resource.data.routes.drop(1)
-                                    )
-                                }
-                                updateWidgetUI(context, appWidgetManager, appWidgetId, state)
-                            } else {
-                                // No trains available, try tomorrow's schedule
-                                loadTomorrowSchedule(context, appWidgetManager, appWidgetId, widgetData)
-                            }
-                        }
-                        
+                        is Resource.Loading -> showLoadingState(context, appWidgetManager, appWidgetId, widgetData)
+                        is Resource.Success -> handleSuccessfulSchedule(context, appWidgetManager, appWidgetId, widgetData, resource)
                         is Resource.Error -> {
                             Log.e(getLogTag(), "Error loading schedule for widget $appWidgetId: ${resource.message}")
-                            val state = WidgetState.Error(
-                                originId = widgetData.originId,
-                                originName = StationsData.getStationName(context, widgetData.originId),
-                                destinationName = StationsData.getStationName(context, widgetData.destinationId),
-                                errorMessage = resource.message,
-                                retryText = context.getString(R.string.tap_to_retry)
-                            )
-                            updateWidgetUI(context, appWidgetManager, appWidgetId, state)
+                            showErrorState(context, appWidgetManager, appWidgetId, widgetData, resource.message)
                         }
                     }
                 }
             } catch (e: Exception) {
                 Log.e(getLogTag(), "Exception in loadScheduleData for widget $appWidgetId", e)
-                val state = WidgetState.Error(
-                    originId = widgetData.originId,
-                    originName = StationsData.getStationName(context, widgetData.originId),
-                    destinationName = StationsData.getStationName(context, widgetData.destinationId),
-                    errorMessage = e.message ?: "Unknown error",
-                    retryText = context.getString(R.string.tap_to_retry)
-                )
-                updateWidgetUI(context, appWidgetManager, appWidgetId, state)
+                showErrorState(context, appWidgetManager, appWidgetId, widgetData, e.message ?: "Unknown error")
             }
         }
+    }
+
+    private suspend fun handleSuccessfulSchedule(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        widgetData: WidgetData,
+        resource: Resource.Success<WidgetScheduleData>
+    ) {
+        Log.d(getLogTag(), "Successfully loaded ${resource.data.routes.size} routes for widget $appWidgetId (cache: ${resource.fromCache})")
+        
+        if (resource.data.routes.isEmpty()) {
+            loadTomorrowSchedule(context, appWidgetManager, appWidgetId, widgetData)
+            return
+        }
+        
+        val futureTrains = com.betterrail.widget.utils.WidgetTrainFilter.filterFutureTrains(resource.data.routes)
+        if (futureTrains.isEmpty()) {
+            Log.d(getLogTag(), "No future trains available for widget $appWidgetId, loading tomorrow's schedule")
+            loadTomorrowSchedule(context, appWidgetManager, appWidgetId, widgetData)
+            return
+        }
+        
+        val nextTrain = futureTrains.first()
+        val isTomorrowSchedule = isTrainForTomorrow(nextTrain.departureTimestamp)
+        val originName = StationsData.getStationName(context, widgetData.originId)
+        val destinationName = StationsData.getStationName(context, widgetData.destinationId)
+        
+        val state = if (isTomorrowSchedule) {
+            Log.d(getLogTag(), "Next train ${nextTrain.departureTime} detected as tomorrow's schedule")
+            WidgetState.TomorrowSchedule(widgetData.originId, originName, destinationName, nextTrain, futureTrains.drop(1))
+        } else {
+            WidgetState.Schedule(widgetData.originId, originName, destinationName, nextTrain, futureTrains.drop(1))
+        }
+        
+        updateWidgetUI(context, appWidgetManager, appWidgetId, state)
+    }
+
+    private suspend fun showLoadingState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData) {
+        Log.d(getLogTag(), "Loading schedule for widget $appWidgetId")
+        val state = WidgetState.Loading(
+            widgetData.originId,
+            StationsData.getStationName(context, widgetData.originId),
+            StationsData.getStationName(context, widgetData.destinationId)
+        )
+        updateWidgetUI(context, appWidgetManager, appWidgetId, state)
+    }
+
+    private suspend fun showErrorState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData, errorMessage: String) {
+        val state = WidgetState.Error(
+            widgetData.originId,
+            StationsData.getStationName(context, widgetData.originId),
+            StationsData.getStationName(context, widgetData.destinationId),
+            errorMessage,
+            context.getString(R.string.tap_to_retry)
+        )
+        updateWidgetUI(context, appWidgetManager, appWidgetId, state)
     }
 
     private fun loadTomorrowSchedule(
@@ -312,44 +314,12 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         coroutineManager.launchInWidgetScope(appWidgetId) {
             try {
                 // Show tomorrow loading state first
-                val loadingState = WidgetState.TomorrowLoading(
-                    originId = widgetData.originId,
-                    originName = StationsData.getStationName(context, widgetData.originId),
-                    destinationName = StationsData.getStationName(context, widgetData.destinationId)
-                )
-                updateWidgetUI(context, appWidgetManager, appWidgetId, loadingState)
+                showTomorrowLoadingState(context, appWidgetManager, appWidgetId, widgetData)
 
                 scheduleRepository.getTomorrowSchedule(appWidgetId, widgetData).collectLatest { resource ->
                     when (resource) {
-                        is Resource.Success -> {
-                            if (resource.data.routes.isNotEmpty()) {
-                                val state = WidgetState.TomorrowSchedule(
-                                    originId = widgetData.originId,
-                                    originName = StationsData.getStationName(context, widgetData.originId),
-                                    destinationName = StationsData.getStationName(context, widgetData.destinationId),
-                                    firstTrain = resource.data.routes.first(),
-                                    upcomingTrains = resource.data.routes.drop(1)
-                                )
-                                updateWidgetUI(context, appWidgetManager, appWidgetId, state)
-                            } else {
-                                val state = WidgetState.NoTrains(
-                                    originId = widgetData.originId,
-                                    originName = StationsData.getStationName(context, widgetData.originId),
-                                    destinationName = StationsData.getStationName(context, widgetData.destinationId)
-                                )
-                                updateWidgetUI(context, appWidgetManager, appWidgetId, state)
-                            }
-                        }
-                        
-                        is Resource.Error -> {
-                            val state = WidgetState.TomorrowFallback(
-                                originId = widgetData.originId,
-                                originName = StationsData.getStationName(context, widgetData.originId),
-                                destinationName = StationsData.getStationName(context, widgetData.destinationId)
-                            )
-                            updateWidgetUI(context, appWidgetManager, appWidgetId, state)
-                        }
-                        
+                        is Resource.Success -> handleTomorrowScheduleSuccess(context, appWidgetManager, appWidgetId, widgetData, resource)
+                        is Resource.Error -> showTomorrowFallbackState(context, appWidgetManager, appWidgetId, widgetData)
                         is Resource.Loading -> {
                             // Already handled above
                         }
@@ -357,14 +327,61 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                 }
             } catch (e: Exception) {
                 Log.e(getLogTag(), "Exception in loadTomorrowSchedule for widget $appWidgetId", e)
-                val state = WidgetState.TomorrowFallback(
-                    originId = widgetData.originId,
-                    originName = StationsData.getStationName(context, widgetData.originId),
-                    destinationName = StationsData.getStationName(context, widgetData.destinationId)
-                )
-                updateWidgetUI(context, appWidgetManager, appWidgetId, state)
+                showTomorrowFallbackState(context, appWidgetManager, appWidgetId, widgetData)
             }
         }
+    }
+
+    private suspend fun handleTomorrowScheduleSuccess(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        widgetData: WidgetData,
+        resource: Resource.Success<WidgetScheduleData>
+    ) {
+        if (resource.data.routes.isEmpty()) {
+            showNoTrainsState(context, appWidgetManager, appWidgetId, widgetData)
+            return
+        }
+
+        val originName = StationsData.getStationName(context, widgetData.originId)
+        val destinationName = StationsData.getStationName(context, widgetData.destinationId)
+        
+        val state = WidgetState.TomorrowSchedule(
+            widgetData.originId,
+            originName,
+            destinationName,
+            resource.data.routes.first(),
+            resource.data.routes.drop(1)
+        )
+        updateWidgetUI(context, appWidgetManager, appWidgetId, state)
+    }
+
+    private suspend fun showTomorrowLoadingState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData) {
+        val state = WidgetState.TomorrowLoading(
+            widgetData.originId,
+            StationsData.getStationName(context, widgetData.originId),
+            StationsData.getStationName(context, widgetData.destinationId)
+        )
+        updateWidgetUI(context, appWidgetManager, appWidgetId, state)
+    }
+
+    private suspend fun showNoTrainsState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData) {
+        val state = WidgetState.NoTrains(
+            widgetData.originId,
+            StationsData.getStationName(context, widgetData.originId),
+            StationsData.getStationName(context, widgetData.destinationId)
+        )
+        updateWidgetUI(context, appWidgetManager, appWidgetId, state)
+    }
+
+    private suspend fun showTomorrowFallbackState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData) {
+        val state = WidgetState.TomorrowFallback(
+            widgetData.originId,
+            StationsData.getStationName(context, widgetData.originId),
+            StationsData.getStationName(context, widgetData.destinationId)
+        )
+        updateWidgetUI(context, appWidgetManager, appWidgetId, state)
     }
 
     private fun showConfigurationState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
@@ -553,10 +570,6 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         }
     }
 
-
-
-
-
     /**
      * Check if widget is currently showing a departed train (time has passed)
      */
@@ -582,7 +595,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                 
                 if (isDeparted) {
                     val minutesPastDeparture = currentMinutes - displayedMinutes
-                    Log.d(getLogTag(), "Widget $appWidgetId showing departed train: $lastDisplayedTime (${minutesPastDeparture}min ago)")
+                    Log.d(getLogTag(), "Widget $appWidgetId detected stale data: train $lastDisplayedTime departed ${minutesPastDeparture}min ago")
                 }
                 
                 return isDeparted
