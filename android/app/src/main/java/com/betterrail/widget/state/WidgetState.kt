@@ -130,7 +130,7 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_station_name, state.originName.ifEmpty { context.getString(R.string.error) })
         views.setTextViewText(R.id.widget_destination, state.destinationName)
         views.setTextViewText(getTrainTimeId(), "ERROR")
-        views.setTextViewText(R.id.widget_train_label, "CONNECTION ERROR")
+        views.setTextViewText(R.id.widget_train_label, "CONNECTION")
         views.setTextViewText(R.id.widget_platform, state.retryText)
         views.setTextViewText(R.id.widget_train_number, "")
         

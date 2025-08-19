@@ -12,7 +12,7 @@ enum class WidgetSize(
     val logTag: String,
     val configActivity: Class<*>,
     val actionRefresh: String,
-    val actionWidgetUpdate: String
+    val actionWidgetUpdate: String,
 ) {
     COMPACT_2X2(
         layoutRes = R.layout.widget_compact_2x2,

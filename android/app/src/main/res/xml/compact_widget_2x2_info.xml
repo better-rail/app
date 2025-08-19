@@ -7,12 +7,13 @@
     android:minHeight="130dp"
     android:minResizeWidth="130dp"
     android:minResizeHeight="130dp"
-    android:maxResizeWidth="130dp"
-    android:maxResizeHeight="130dp"
+    android:maxResizeWidth="320dp"
+    android:maxResizeHeight="320dp"
     android:previewImage="@drawable/widget_preview_2x2"
-    android:resizeMode="none"
+    android:resizeMode="horizontal|vertical"
     android:targetCellWidth="2"
     android:targetCellHeight="2"
     android:updatePeriodMillis="0"
     android:widgetCategory="home_screen"
-    android:configure="com.betterrail.widget.CompactWidget2x2ConfigActivity" />
+    android:configure="com.betterrail.widget.CompactWidget2x2ConfigActivity"
+    android:widgetFeatures="reconfigurable" />

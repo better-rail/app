@@ -530,6 +530,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
 
 
 
+
     /**
      * Check if widget is currently showing a departed train (time has passed)
      */

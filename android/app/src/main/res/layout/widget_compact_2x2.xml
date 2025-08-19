@@ -12,6 +12,7 @@
         android:scaleType="centerCrop"
         android:src="@drawable/assets_railwaystation" />
 
+
     <!-- Content Overlay -->
     <LinearLayout
         android:layout_width="match_parent"

@@ -14,6 +14,7 @@ import com.betterrail.widget.data.WidgetData
 import com.betterrail.widget.repository.ModernWidgetPreferencesRepository
 import com.betterrail.widget.repository.ModernCacheRepository
 import kotlinx.coroutines.*
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -41,6 +42,7 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
     
     private var selectedOriginId: String = ""
     private var selectedDestinationId: String = ""
+    private var isReconfiguring: Boolean = false
 
     abstract fun getLogTag(): String
     abstract fun createWidgetProvider(): ModernBaseWidgetProvider
@@ -71,7 +73,13 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
         
         setupUI()
         setupStationData()
+        
+        // Check if widget already exists (reconfiguration)
+        lifecycleScope.launch {
+            checkIfReconfiguring()
+        }
     }
+    
     
     private fun setupUI() {
         originSearch = findViewById(R.id.origin_search)
@@ -184,12 +192,64 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
         })
     }
     
+    
     private fun updateAddButtonState() {
         val originSelected = selectedOriginId.isNotEmpty()
         val destinationSelected = selectedDestinationId.isNotEmpty()
         val differentStations = selectedOriginId != selectedDestinationId
         
         addButton.isEnabled = originSelected && destinationSelected && differentStations
+    }
+    
+    /**
+     * Check if this is a reconfiguration of an existing widget
+     */
+    private suspend fun checkIfReconfiguring() {
+        try {
+            // Check if widget data already exists
+            val existingData = withContext(Dispatchers.IO) {
+                preferencesRepository.getWidgetData(appWidgetId)
+            }
+            
+            isReconfiguring = existingData != null
+            
+            // Update button text based on mode
+            if (isReconfiguring) {
+                addButton.text = getString(R.string.widget_edit)
+                // Load existing data
+                loadExistingWidgetData(existingData!!)
+            } else {
+                addButton.text = getString(R.string.widget_add)
+            }
+            
+            Log.d(getLogTag(), "Widget reconfiguration mode: $isReconfiguring")
+        } catch (e: Exception) {
+            Log.e(getLogTag(), "Error checking widget reconfiguration status", e)
+            // Default to new widget mode
+            addButton.text = getString(R.string.widget_add)
+        }
+    }
+    
+    /**
+     * Load existing widget data for reconfiguration
+     */
+    private fun loadExistingWidgetData(data: WidgetData) {
+        selectedOriginId = data.originId
+        selectedDestinationId = data.destinationId
+        
+        // Find and set station names in search fields
+        val originIndex = stationIds.indexOf(selectedOriginId)
+        val destinationIndex = stationIds.indexOf(selectedDestinationId)
+        
+        if (originIndex >= 0) {
+            originSearch.setText(stationNames[originIndex])
+        }
+        if (destinationIndex >= 0) {
+            destinationSearch.setText(stationNames[destinationIndex])
+        }
+        
+        updateAddButtonState()
+        Log.d(getLogTag(), "Loaded existing widget data: ${stationNames.getOrNull(originIndex)} -> ${stationNames.getOrNull(destinationIndex)}")
     }
     
     private fun onAddButtonClicked() {
