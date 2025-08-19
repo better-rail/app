@@ -76,8 +76,6 @@
                         android:textColor="#FFFFFF"
                         android:textSize="14sp"
                         android:fontFamily="sans-serif-medium"
-                        android:maxLines="1"
-                        android:ellipsize="end"
                         android:shadowColor="#FF000000"
                         android:shadowDx="2"
                         android:shadowDy="2"

@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import android.widget.RemoteViews
 import com.betterrail.R
 import com.betterrail.widget.data.WidgetData
@@ -73,8 +74,12 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
     abstract fun renderWidgetState(context: Context, state: WidgetState): RemoteViews
     
     // Common method to render widget state with stale detection
-    protected fun renderWidgetStateWithStaleDetection(context: Context, state: WidgetState): RemoteViews {
-        val views = renderWidgetState(context, state)
+    protected fun renderWidgetStateWithStaleDetection(context: Context, state: WidgetState, appWidgetId: Int): RemoteViews {
+        val views = if (this is UnifiedWidgetProvider) {
+            renderWidgetStateResponsive(context, state, appWidgetId)
+        } else {
+            renderWidgetState(context, state)
+        }
         
         // Store displayed train time for stale detection
         when (state) {
@@ -159,6 +164,26 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
             }
         }
         super.onDeleted(context, appWidgetIds)
+    }
+
+    override fun onAppWidgetOptionsChanged(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        newOptions: Bundle
+    ) {
+        Log.d(getLogTag(), "onAppWidgetOptionsChanged for widget $appWidgetId")
+        
+        // Extract dimensions
+        val minWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
+        val minHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
+        val maxWidth = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH)
+        val maxHeight = newOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT)
+        
+        // Update widget when size changes - responsive rendering will handle layout selection
+        updateWidget(context, appWidgetManager, appWidgetId)
+        
+        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
     }
 
     override fun onDisabled(context: Context) {
@@ -359,7 +384,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
     ) {
         coroutineManager.launchInWidgetScope(appWidgetId) {
             try {
-                val views = renderWidgetStateWithStaleDetection(context, state)
+                val views = renderWidgetStateWithStaleDetection(context, state, appWidgetId)
                 
                 // Set up click intent based on widget state
                 when (state) {
@@ -527,6 +552,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
             updateWidget(context, appWidgetManager, appWidgetId)
         }
     }
+
 
 
 
