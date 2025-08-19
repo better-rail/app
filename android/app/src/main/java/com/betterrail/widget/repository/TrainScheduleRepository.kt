@@ -64,17 +64,18 @@ class TrainScheduleRepository @Inject constructor(
             return@flow
         }
         
-        // Emit cached data first (if available)
+        // Check cached data first
         val cachedData = cacheRepository.getCachedSchedule(widgetId, widgetData.originId, widgetData.destinationId, date)
         if (cachedData != null) {
-            Log.d(TAG, "Emitting cached data for widget $widgetId")
+            Log.d(TAG, "Found valid cached data for widget $widgetId, skipping API request")
             emit(Resource.Success(cachedData, fromCache = true))
+            return@flow // Exit early - no need to fetch from API
         } else {
-            Log.d(TAG, "No cached data for widget $widgetId, emitting loading state")
+            Log.d(TAG, "No valid cached data for widget $widgetId, fetching from API")
             emit(Resource.Loading())
         }
         
-        // Then fetch fresh data from API
+        // Fetch fresh data from API only when cache is stale/missing
         try {
             Log.d(TAG, "Fetching fresh data from API for widget $widgetId")
             val result = apiService.getRoutes(
