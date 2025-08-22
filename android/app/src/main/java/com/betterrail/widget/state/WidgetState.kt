@@ -64,6 +64,15 @@ sealed class WidgetState {
         val originName: String,
         val destinationName: String
     ) : WidgetState()
+    
+    data class FutureSchedule(
+        val originId: String,
+        val originName: String,
+        val destinationName: String,
+        val firstTrain: WidgetTrainItem,
+        val upcomingTrains: List<WidgetTrainItem> = emptyList(),
+        val daysAway: Int
+    ) : WidgetState()
 }
 
 /**
@@ -86,6 +95,7 @@ class WidgetStateRenderer(
             is WidgetState.TomorrowLoading -> renderTomorrowLoading(context, views, state)
             is WidgetState.TomorrowSchedule -> renderTomorrowSchedule(context, views, state)
             is WidgetState.NoTrains -> renderNoTrains(context, views, state)
+            is WidgetState.FutureSchedule -> renderFutureSchedule(context, views, state)
         }
         
         return views
@@ -155,7 +165,7 @@ class WidgetStateRenderer(
     private fun renderTomorrowFallback(context: Context, views: RemoteViews, state: WidgetState.TomorrowFallback) {
         views.setTextViewText(R.id.widget_station_name, state.originName)
         views.setTextViewText(R.id.widget_destination, state.destinationName)
-        views.setTextViewText(getTrainTimeId(), "----")
+        views.setTextViewText(getTrainTimeId(), "--:--")
         views.setTextViewText(R.id.widget_train_label, "NO SCHEDULE")
         views.setTextViewText(R.id.widget_platform, "Try again later")
         views.setTextViewText(R.id.widget_train_number, "")
@@ -213,7 +223,7 @@ class WidgetStateRenderer(
     private fun renderNoTrains(context: Context, views: RemoteViews, state: WidgetState.NoTrains) {
         views.setTextViewText(R.id.widget_station_name, state.originName)
         views.setTextViewText(R.id.widget_destination, state.destinationName)
-        views.setTextViewText(getTrainTimeId(), "----")
+        views.setTextViewText(getTrainTimeId(), "--:--")
         views.setTextViewText(R.id.widget_train_label, "NO TRAINS")
         views.setTextViewText(R.id.widget_platform, "Check tomorrow")
         views.setTextViewText(R.id.widget_train_number, "")
@@ -221,6 +231,39 @@ class WidgetStateRenderer(
         setStationBackground(views, state.originId)
         
         hideUpcomingTrains(context, views)
+    }
+    
+    private fun renderFutureSchedule(context: Context, views: RemoteViews, state: WidgetState.FutureSchedule) {
+        views.setTextViewText(R.id.widget_station_name, state.originName)
+        views.setTextViewText(R.id.widget_destination, state.destinationName)
+        views.setTextViewText(getTrainTimeId(), state.firstTrain.departureTime)
+        
+        val labelText = "UPCOMING IN ${state.daysAway} DAYS"
+        views.setTextViewText(R.id.widget_train_label, labelText)
+        views.setTextColor(R.id.widget_train_label, context.getColor(R.color.widget_tomorrow_text)) // Purple color
+        
+        val platformText = formatPlatform(context, state.firstTrain.platform)
+        views.setTextViewText(R.id.widget_platform, platformText)
+        
+        val trainText = if (state.firstTrain.trainNumber.isNotEmpty()) {
+            context.getString(R.string.train_number, state.firstTrain.trainNumber)
+        } else {
+            ""
+        }
+        views.setTextViewText(R.id.widget_train_number, trainText)
+        
+        if (layoutResource == R.layout.widget_compact_4x2) {
+            views.setTextViewText(R.id.widget_arrival_time, state.firstTrain.arrivalTime)
+        }
+        
+        setStationBackground(views, state.originId)
+        
+        // Show upcoming trains for 4x2 widget
+        if (state.upcomingTrains.isNotEmpty()) {
+            showUpcomingTrains(context, views, state.upcomingTrains)
+        } else {
+            hideUpcomingTrains(context, views)
+        }
     }
     
     private fun formatPlatform(context: Context, platform: String): String {

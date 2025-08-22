@@ -90,6 +90,9 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
             is WidgetState.TomorrowSchedule -> {
                 storeDisplayedTrainTime(context, state.firstTrain.departureTime)
             }
+            is WidgetState.FutureSchedule -> {
+                storeDisplayedTrainTime(context, state.firstTrain.departureTime)
+            }
             else -> {
                 // Other states don't show train times
             }
@@ -270,15 +273,25 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         }
         
         val nextTrain = futureTrains.first()
-        val isTomorrowSchedule = isTrainForTomorrow(nextTrain.departureTimestamp)
+        val daysAway = getDaysFromToday(nextTrain.departureTimestamp)
         val originName = StationsData.getStationName(context, widgetData.originId)
         val destinationName = StationsData.getStationName(context, widgetData.destinationId)
         
-        val state = if (isTomorrowSchedule) {
-            Log.d(getLogTag(), "Next train ${nextTrain.departureTime} detected as tomorrow's schedule")
-            WidgetState.TomorrowSchedule(widgetData.originId, originName, destinationName, nextTrain, futureTrains.drop(1))
-        } else {
-            WidgetState.Schedule(widgetData.originId, originName, destinationName, nextTrain, futureTrains.drop(1))
+        val state = when (daysAway) {
+            0 -> {
+                // Today's train
+                WidgetState.Schedule(widgetData.originId, originName, destinationName, nextTrain, futureTrains.drop(1))
+            }
+            1 -> {
+                // Tomorrow's train
+                Log.d(getLogTag(), "Next train ${nextTrain.departureTime} detected as tomorrow's schedule")
+                WidgetState.TomorrowSchedule(widgetData.originId, originName, destinationName, nextTrain, futureTrains.drop(1))
+            }
+            else -> {
+                // Train is 2+ days away - show future schedule with "IN X DAYS" label
+                Log.d(getLogTag(), "Next train ${nextTrain.departureTime} is $daysAway days away - showing future schedule")
+                WidgetState.FutureSchedule(widgetData.originId, originName, destinationName, nextTrain, futureTrains.drop(1), daysAway)
+            }
         }
         
         updateWidgetUI(context, appWidgetManager, appWidgetId, state)
@@ -435,7 +448,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                     }
                     
                     else -> {
-                        // For TomorrowSchedule and other states, get the complete widget data from preferences for deeplink
+                        // For TomorrowSchedule, FutureSchedule and other states, get the complete widget data from preferences for deeplink
                         val widgetData = preferencesRepository.getWidgetData(appWidgetId)
                         if (widgetData != null) {
                             setupClickIntentsBase(
@@ -609,34 +622,37 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
     }
 
     /**
+     * Calculate how many days away a train is from today
+     */
+    private fun getDaysFromToday(fullTimestamp: String): Int {
+        return try {
+            if (fullTimestamp.isEmpty()) return 0
+            
+            val today = java.util.Calendar.getInstance()
+            val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.getDefault())
+            val trainDate = dateFormat.parse(fullTimestamp) ?: return 0
+            val trainCalendar = java.util.Calendar.getInstance().apply { time = trainDate }
+            
+            val todayDayOfYear = today.get(java.util.Calendar.DAY_OF_YEAR)
+            val trainDayOfYear = trainCalendar.get(java.util.Calendar.DAY_OF_YEAR)
+            val yearDiff = trainCalendar.get(java.util.Calendar.YEAR) - today.get(java.util.Calendar.YEAR)
+            
+            val daysAway = (yearDiff * 365) + (trainDayOfYear - todayDayOfYear)
+            
+            Log.d(getLogTag(), "Date check - Today: $todayDayOfYear, Train: $trainDayOfYear, Days away: $daysAway")
+            
+            return daysAway
+        } catch (e: Exception) {
+            Log.e(getLogTag(), "Error parsing train timestamp: $fullTimestamp", e)
+            0
+        }
+    }
+    
+    /**
      * Check if a train is for tomorrow by comparing the actual dates
      * Uses the full timestamp from the API response instead of just time
      */
     private fun isTrainForTomorrow(fullTimestamp: String): Boolean {
-        return try {
-            if (fullTimestamp.isEmpty()) return false
-            
-            val today = java.util.Calendar.getInstance()
-            val tomorrow = java.util.Calendar.getInstance().apply { 
-                add(java.util.Calendar.DAY_OF_YEAR, 1) 
-            }
-            
-            // Parse the ISO timestamp to get the actual date
-            val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.getDefault())
-            val trainDate = dateFormat.parse(fullTimestamp) ?: return false
-            val trainCalendar = java.util.Calendar.getInstance().apply { time = trainDate }
-            
-            // Compare actual dates
-            val isTomorrow = trainCalendar.get(java.util.Calendar.DAY_OF_YEAR) == tomorrow.get(java.util.Calendar.DAY_OF_YEAR) &&
-                            trainCalendar.get(java.util.Calendar.YEAR) == tomorrow.get(java.util.Calendar.YEAR)
-            
-            Log.d(getLogTag(), "Date check - Today: ${today.get(java.util.Calendar.DAY_OF_YEAR)}, Train: ${trainCalendar.get(java.util.Calendar.DAY_OF_YEAR)}, Tomorrow: $isTomorrow")
-            
-            return isTomorrow
-            
-        } catch (e: Exception) {
-            Log.e(getLogTag(), "Error parsing train timestamp: $fullTimestamp", e)
-            false
-        }
+        return getDaysFromToday(fullTimestamp) == 1
     }
 }
