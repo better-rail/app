@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.widget.RemoteViews
 import com.betterrail.R
 import com.betterrail.widget.data.WidgetData
+import com.betterrail.widget.data.WidgetTrainItem
 import com.betterrail.widget.data.StationsData
 import com.betterrail.widget.repository.TrainScheduleRepository
 import com.betterrail.widget.repository.ModernWidgetPreferencesRepository
@@ -265,36 +266,85 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
             return
         }
         
-        val futureTrains = com.betterrail.widget.utils.WidgetTrainFilter.filterFutureTrains(resource.data.routes)
-        if (futureTrains.isEmpty()) {
-            Log.d(getLogTag(), "No future trains available for widget $appWidgetId, loading tomorrow's schedule")
-            loadTomorrowSchedule(context, appWidgetManager, appWidgetId, widgetData)
+        // Process all trains with unified date-aware logic
+        processTrainsWithDateAwareLogic(context, appWidgetManager, appWidgetId, widgetData, resource.data.routes, false)
+    }
+    
+    /**
+     * Unified function that processes trains using date-aware logic and time-based filtering
+     */
+    private suspend fun processTrainsWithDateAwareLogic(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        widgetData: WidgetData,
+        allTrains: List<WidgetTrainItem>,
+        isFromTomorrowRequest: Boolean
+    ) {
+        // Filter to get only future trains based on current date/time
+        val upcomingTrains = filterUpcomingTrains(allTrains)
+        
+        if (upcomingTrains.isEmpty()) {
+            if (isFromTomorrowRequest) {
+                showNoTrainsState(context, appWidgetManager, appWidgetId, widgetData)
+            } else {
+                Log.d(getLogTag(), "No upcoming trains for today, loading tomorrow's schedule")
+                loadTomorrowSchedule(context, appWidgetManager, appWidgetId, widgetData)
+            }
             return
         }
         
-        val nextTrain = futureTrains.first()
-        val daysAway = getDaysFromToday(nextTrain.departureTimestamp)
+        // Always use the first upcoming train to determine widget state based on its actual date
+        val firstTrain = upcomingTrains.first()
+        val daysAway = getDaysFromToday(firstTrain.departureTimestamp)
         val originName = StationsData.getStationName(context, widgetData.originId)
         val destinationName = StationsData.getStationName(context, widgetData.destinationId)
         
+        Log.d(getLogTag(), "First upcoming train: ${firstTrain.departureTimestamp}, Days away: $daysAway")
+        
         val state = when (daysAway) {
             0 -> {
-                // Today's train
-                WidgetState.Schedule(widgetData.originId, originName, destinationName, nextTrain, futureTrains.drop(1))
+                // Same date as today = NEXT TRAIN
+                Log.d(getLogTag(), "First train ${firstTrain.departureTime} is today - showing as NEXT TRAIN")
+                WidgetState.Schedule(widgetData.originId, originName, destinationName, firstTrain, upcomingTrains.drop(1))
             }
             1 -> {
-                // Tomorrow's train
-                Log.d(getLogTag(), "Next train ${nextTrain.departureTime} detected as tomorrow's schedule")
-                WidgetState.TomorrowSchedule(widgetData.originId, originName, destinationName, nextTrain, futureTrains.drop(1))
+                // +1 day from today = TOMORROW
+                Log.d(getLogTag(), "First train ${firstTrain.departureTime} is tomorrow - showing as TOMORROW")
+                WidgetState.TomorrowSchedule(widgetData.originId, originName, destinationName, firstTrain, upcomingTrains.drop(1))
             }
             else -> {
-                // Train is 2+ days away - show future schedule with "IN X DAYS" label
-                Log.d(getLogTag(), "Next train ${nextTrain.departureTime} is $daysAway days away - showing future schedule")
-                WidgetState.FutureSchedule(widgetData.originId, originName, destinationName, nextTrain, futureTrains.drop(1), daysAway)
+                // +2 or more days = UPCOMING IN X DAYS
+                Log.d(getLogTag(), "First train ${firstTrain.departureTime} is $daysAway days away - showing as UPCOMING IN X DAYS")
+                WidgetState.FutureSchedule(widgetData.originId, originName, destinationName, firstTrain, upcomingTrains.drop(1), daysAway)
             }
         }
         
         updateWidgetUI(context, appWidgetManager, appWidgetId, state)
+    }
+    
+    /**
+     * Filter trains to show only those that are upcoming based on current date and time
+     */
+    private fun filterUpcomingTrains(trains: List<WidgetTrainItem>): List<WidgetTrainItem> {
+        val currentDateTime = java.util.Date()
+        val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.getDefault())
+        
+        return trains.filter { train ->
+            try {
+                if (train.departureTimestamp.isEmpty()) return@filter false
+                
+                val trainDateTime = dateFormat.parse(train.departureTimestamp)
+                val isUpcoming = trainDateTime != null && trainDateTime.after(currentDateTime)
+                
+                Log.d(getLogTag(), "Train ${train.departureTime} (${train.departureTimestamp}): upcoming = $isUpcoming")
+                
+                isUpcoming
+            } catch (e: Exception) {
+                Log.e(getLogTag(), "Error parsing train timestamp: ${train.departureTimestamp}", e)
+                false
+            }
+        }
     }
 
     private suspend fun showLoadingState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData) {
@@ -352,22 +402,15 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         widgetData: WidgetData,
         resource: Resource.Success<WidgetScheduleData>
     ) {
+        Log.d(getLogTag(), "Successfully loaded ${resource.data.routes.size} tomorrow routes for widget $appWidgetId")
+        
         if (resource.data.routes.isEmpty()) {
             showNoTrainsState(context, appWidgetManager, appWidgetId, widgetData)
             return
         }
-
-        val originName = StationsData.getStationName(context, widgetData.originId)
-        val destinationName = StationsData.getStationName(context, widgetData.destinationId)
         
-        val state = WidgetState.TomorrowSchedule(
-            widgetData.originId,
-            originName,
-            destinationName,
-            resource.data.routes.first(),
-            resource.data.routes.drop(1)
-        )
-        updateWidgetUI(context, appWidgetManager, appWidgetId, state)
+        // Process tomorrow's trains with same unified date-aware logic
+        processTrainsWithDateAwareLogic(context, appWidgetManager, appWidgetId, widgetData, resource.data.routes, true)
     }
 
     private suspend fun showTomorrowLoadingState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData) {
