@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.widget.*
 import android.text.TextWatcher
 import android.text.Editable
+import android.view.KeyEvent
+import android.view.inputmethod.EditorInfo
 import com.betterrail.R
 import android.util.Log
 import com.betterrail.widget.data.StationsData
@@ -122,6 +124,9 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
         
         // Set listeners for selection and text changes
         setupSearchListeners()
+        
+        // Setup IME action listeners for Enter key handling
+        setupImeActionListeners()
     }
     
     private fun setupSearchListeners() {
@@ -136,9 +141,9 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
             }
         }
         
-        // Show dropdown when text field is focused
+        // Show dropdown when text field is focused or clicked
         originSearch.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus && originSearch.text.isEmpty()) {
+            if (hasFocus) {
                 originSearch.showDropDown()
             }
         }
@@ -154,6 +159,12 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
                 } else {
                     selectedOriginId = ""
                 }
+                
+                // Show dropdown when text becomes empty
+                if (text.isEmpty() && originSearch.hasFocus()) {
+                    showDropdownWhenEmpty(originSearch)
+                }
+                
                 updateAddButtonState()
             }
         })
@@ -169,9 +180,9 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
             }
         }
         
-        // Show dropdown when text field is focused
+        // Show dropdown when text field is focused or clicked
         destinationSearch.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus && destinationSearch.text.isEmpty()) {
+            if (hasFocus) {
                 destinationSearch.showDropDown()
             }
         }
@@ -187,11 +198,66 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
                 } else {
                     selectedDestinationId = ""
                 }
+                
+                // Show dropdown when text becomes empty
+                if (text.isEmpty() && destinationSearch.hasFocus()) {
+                    showDropdownWhenEmpty(destinationSearch)
+                }
+                
                 updateAddButtonState()
             }
         })
     }
     
+    private fun setupImeActionListeners() {
+        // Handle Enter key in origin search - move to destination
+        originSearch.setOnEditorActionListener { _, actionId, event ->
+            when (actionId) {
+                EditorInfo.IME_ACTION_NEXT -> {
+                    destinationSearch.requestFocus()
+                    true
+                }
+                else -> {
+                    // Handle hardware Enter key
+                    if (event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
+                        destinationSearch.requestFocus()
+                        true
+                    } else {
+                        false
+                    }
+                }
+            }
+        }
+        
+        // Handle Enter key in destination search - trigger add button if enabled
+        destinationSearch.setOnEditorActionListener { _, actionId, event ->
+            when (actionId) {
+                EditorInfo.IME_ACTION_DONE -> {
+                    if (addButton.isEnabled) {
+                        onAddButtonClicked()
+                    }
+                    true
+                }
+                else -> {
+                    // Handle hardware Enter key
+                    if (event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
+                        if (addButton.isEnabled) {
+                            onAddButtonClicked()
+                        }
+                        true
+                    } else {
+                        false
+                    }
+                }
+            }
+        }
+    }
+    
+    private fun showDropdownWhenEmpty(autoCompleteTextView: AutoCompleteTextView) {
+        autoCompleteTextView.postDelayed({
+            autoCompleteTextView.showDropDown()
+        }, 50)
+    }
     
     private fun updateAddButtonState() {
         val originSelected = selectedOriginId.isNotEmpty()

@@ -47,7 +47,11 @@
         android:textColor="@color/label"
         android:textColorHint="@color/secondaryLabel"
         android:completionThreshold="0"
-        android:dropDownHeight="300dp" />
+        android:dropDownHeight="300dp"
+        android:imeOptions="actionNext"
+        android:inputType="text"
+        android:maxLines="1"
+        android:singleLine="true" />
 
     <!-- Destination Station -->
     <TextView
@@ -71,7 +75,11 @@
         android:textColor="@color/label"
         android:textColorHint="@color/secondaryLabel"
         android:completionThreshold="0"
-        android:dropDownHeight="300dp" />
+        android:dropDownHeight="300dp"
+        android:imeOptions="actionDone"
+        android:inputType="text"
+        android:maxLines="1"
+        android:singleLine="true" />
 
 
 
