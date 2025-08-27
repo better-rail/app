@@ -10,7 +10,6 @@ import { Text } from "../"
 import { format } from "date-fns"
 import { translate } from "../../i18n"
 import { RouteIndicators } from "./"
-import { isRideActive } from "../../utils/ios-helpers"
 
 // #region styles
 
@@ -79,6 +78,7 @@ export interface RouteCardProps extends TouchableScaleProps {
   isActiveRide: boolean
   shouldShowDashedLine?: boolean
   isRouteInThePast: boolean
+  onLongPress?: () => void
 }
 
 export const RouteCard = function RouteCard(props: RouteCardProps) {
@@ -91,6 +91,7 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
     isMuchShorter,
     isMuchLonger,
     onPress = null,
+    onLongPress = null,
     style,
     shouldShowDashedLine = true,
   } = props
@@ -114,6 +115,7 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
   return (
     <TouchableScale
       onPress={onPress}
+      onLongPress={onLongPress}
       activeScale={0.95}
       friction={9}
       style={[CONTAINER, props.isActiveRide && ACTIVE_RIDE_CONTAINER, props.isRouteInThePast && PAST_RIDE_CONTAINER, style]}

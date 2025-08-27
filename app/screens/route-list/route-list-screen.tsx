@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react"
+import HapticFeedback from "react-native-haptic-feedback"
+import * as Burnt from "burnt"
 import { View, ActivityIndicator, ViewStyle, Dimensions } from "react-native"
 import Animated from "react-native-reanimated"
 import { FlashList } from "@shopify/flash-list"
@@ -22,8 +24,10 @@ import {
 } from "./components"
 import { flatMap, max, round } from "lodash"
 import { translate } from "../../i18n"
+import { copyRouteToClipboard, shareRoute, addRouteToCalendar } from "../../utils/helpers/route-share-helpers"
 import type BottomSheet from "@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet"
 import { isRouteInThePast } from "../../utils/helpers/date-helpers"
+import { useActionSheet } from "@expo/react-native-action-sheet"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -35,6 +39,7 @@ type RouteData = RouteItem | string
 export const RouteListScreen = observer(function RouteListScreen({ navigation, route }: RouteListScreenProps) {
   const { trainRoutes, routePlan, ride } = useStores()
   const { originId, destinationId, time, enableQuery } = route.params
+  const { showActionSheetWithOptions } = useActionSheet()
 
   // Reference to the current real time for date limit calculations
   const currentRealTime = useMemo(() => new Date(), [])
@@ -302,6 +307,69 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     return fontScale <= 1.2 && deviceWidth >= 360 && shouldShowDashedLineByTextLength
   }, [trains.data])
 
+  const handleRouteLongPress = useCallback(async (routeItem: RouteItem) => {
+    HapticFeedback.trigger("impactMedium")
+
+    const options = [
+      translate("routes.copyRoute"),
+      translate("routeDetails.addToCalendar"),
+      translate("routes.share"),
+      translate("common.cancel")
+    ]
+    const cancelButtonIndex = 3
+
+    showActionSheetWithOptions(
+      {
+        options,
+        cancelButtonIndex,
+        title: translate("routes.routeActions")
+      },
+      async (selectedIndex) => {
+        if (selectedIndex === cancelButtonIndex) return
+
+        try {
+          switch (selectedIndex) {
+            case 0: // Copy
+              await copyRouteToClipboard(routeItem, originId, destinationId)
+              Burnt.toast({
+                title: translate("routes.routeCopied"),
+                preset: "done",
+                message: translate("routes.routeCopied"),
+              })
+              break
+
+            case 1: // Add to Calendar
+              await addRouteToCalendar(routeItem)
+              Burnt.toast({
+                title: translate("routes.addedToCalendar"),
+                preset: "done",
+                message: translate("routes.addedToCalendar"),
+              })
+              break
+
+            case 2: // Share
+              await shareRoute(routeItem, originId, destinationId)
+              break
+
+            default:
+              // Should never happen since we check for cancelButtonIndex above
+              break
+          }
+        } catch (error) {
+          // Don't show error if user just cancelled the share sheet
+          if (error?.message !== "User did not share") {
+            console.error("Failed to perform action:", error)
+            Burnt.toast({
+              title: translate("common.error"),
+              preset: "error",
+              message: "Failed to perform action",
+            })
+          }
+        }
+      }
+    )
+  }, [originId, destinationId, showActionSheetWithOptions])
+
   const renderRouteCard = ({ item, index }: { item: RouteData; index: number }) => {
     if (typeof item === "string") {
       // If this date is currently loading, show the loading indicator
@@ -353,6 +421,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
             destinationId: route.params.destinationId,
           })
         }
+        onLongPress={() => handleRouteLongPress(item)}
         shouldShowDashedLine={shouldShowDashedLine}
         style={{ marginBottom: spacing[3] }}
       />
