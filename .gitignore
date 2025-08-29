@@ -36,6 +36,10 @@ local.properties
 !debug.keystore
 /android/app/google-services.json
 /android/app/release
+/android/app/src/main/assets/index.android.bundle
+/android/app/src/main/res/drawable-*/assets_*
+/android/app/src/main/res/drawable-*/node_modules_*
+/android/app/src/main/res/raw/assets_*
 .kotlin/
 
 # node.js
