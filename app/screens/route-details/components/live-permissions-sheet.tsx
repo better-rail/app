@@ -28,6 +28,7 @@ const TEXT: TextStyle = {
 
 type Props = {
   onDone: () => void
+  onClose?: () => void
 }
 
 export const LivePermissionsSheet = observer(
@@ -44,7 +45,7 @@ export const LivePermissionsSheet = observer(
     }
 
     return (
-      <BottomSheetModal ref={ref}>
+      <BottomSheetModal ref={ref} onChange={(index) => index === -1 && props.onClose?.()}>
         <BottomSheetView style={WRAPPER}>
           <Text tx="ride.notificationPermission1" style={TEXT} />
           <Text tx="ride.notificationPermission2" style={TEXT} />
