@@ -307,6 +307,72 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     return fontScale <= 1.2 && deviceWidth >= 360 && shouldShowDashedLineByTextLength
   }, [trains.data])
 
+  const getContextMenuActions = useCallback((routeItem: RouteItem) => [
+    {
+      title: translate("routes.copyRoute"),
+      systemIcon: 'doc.on.clipboard',
+      onPress: async () => {
+        HapticFeedback.trigger("impactMedium")
+        try {
+          await copyRouteToClipboard(routeItem, originId, destinationId)
+          Burnt.toast({
+            title: translate("routes.routeCopied"),
+            preset: "done",
+            message: translate("routes.routeCopied"),
+          })
+        } catch (error) {
+          console.error("Failed to copy route:", error)
+          Burnt.toast({
+            title: translate("common.error"),
+            preset: "error",
+            message: "Failed to copy route",
+          })
+        }
+      }
+    },
+    {
+      title: translate("routeDetails.addToCalendar"),
+      systemIcon: 'calendar.badge.plus',
+      onPress: async () => {
+        HapticFeedback.trigger("impactMedium")
+        try {
+          await addRouteToCalendar(routeItem)
+          Burnt.toast({
+            title: translate("routes.addedToCalendar"),
+            preset: "done",
+            message: translate("routes.addedToCalendar"),
+          })
+        } catch (error) {
+          console.error("Failed to add to calendar:", error)
+          Burnt.toast({
+            title: translate("common.error"),
+            preset: "error",
+            message: "Failed to add to calendar",
+          })
+        }
+      }
+    },
+    {
+      title: translate("routes.share"),
+      systemIcon: 'square.and.arrow.up',
+      onPress: async () => {
+        HapticFeedback.trigger("impactMedium")
+        try {
+          await shareRoute(routeItem, originId, destinationId)
+        } catch (error) {
+          if (error?.message !== "User did not share") {
+            console.error("Failed to share route:", error)
+            Burnt.toast({
+              title: translate("common.error"),
+              preset: "error",
+              message: "Failed to share route",
+            })
+          }
+        }
+      }
+    }
+  ], [originId, destinationId])
+
   const handleRouteLongPress = useCallback(async (routeItem: RouteItem) => {
     HapticFeedback.trigger("impactMedium")
 
@@ -422,6 +488,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           })
         }
         onLongPress={() => handleRouteLongPress(item)}
+        contextMenuActions={getContextMenuActions(item)}
         shouldShowDashedLine={shouldShowDashedLine}
         style={{ marginBottom: spacing[3] }}
       />
