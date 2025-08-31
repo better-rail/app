@@ -118,11 +118,7 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
           backgroundColor: color.secondary,
           width: Platform.OS === "ios" && userLocale === "he" ? 160 * fontScale : 148 * fontScale,
         }}
-        icon={
-          Platform.OS === "android" ? undefined : (
-            <Image source={require("../../../../assets/train.ios.png")} style={TRAIN_ICON} />
-          )
-        }
+        icon={<Image source={require("../../../../assets/train.ios.png")} style={TRAIN_ICON} />}
         pressedOpacity={0.85}
         title={translate("ride.startRide")}
         loading={ride.loading}
