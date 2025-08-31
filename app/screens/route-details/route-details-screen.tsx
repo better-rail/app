@@ -69,7 +69,6 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
 
   const [shouldFadeRideButton, setShouldFadeRideButton] = useState(false)
   const [showEntireRoute, setShowEntireRoute] = useState(false)
-  const [isPermissionSheetOpen, setIsPermissionSheetOpen] = useState(false)
 
   const handleRefresh = useCallback(() => {
     setShowEntireRoute((prev: boolean) => !prev)
@@ -77,14 +76,12 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
 
   const openLivePermissionsSheet = () => {
     return new Promise<void>((resolve) => {
-      setIsPermissionSheetOpen(true)
       permissionSheetRef.current?.expand()
       permissionsPromise.current = resolve
     })
   }
 
   const onDoneLivePermissionsSheet = () => {
-    setIsPermissionSheetOpen(false)
     permissionSheetRef.current?.close()
     permissionsPromise.current?.()
   }
@@ -302,7 +299,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
             </Animated.View>
           )}
 
-          {(Platform.OS === "android" || ride.canRunLiveActivities) && !isRideOnThisRoute && !isPermissionSheetOpen && (
+          {(Platform.OS === "android" || ride.canRunLiveActivities) && !isRideOnThisRoute && (
             <Animated.View
               entering={shouldFadeRideButton && FadeInDown.delay(100)}
               exiting={FadeOutDown}
@@ -314,13 +311,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
         </View>
       </Screen>
 
-      {Platform.OS === "android" && (
-        <LivePermissionsSheet
-          onDone={onDoneLivePermissionsSheet}
-          onClose={() => setIsPermissionSheetOpen(false)}
-          ref={permissionSheetRef}
-        />
-      )}
+      {Platform.OS === "android" && <LivePermissionsSheet onDone={onDoneLivePermissionsSheet} ref={permissionSheetRef} />}
     </>
   )
 })
