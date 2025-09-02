@@ -163,6 +163,7 @@
     "configStep1": "1. Touch and hold a widget to open the quick actions menu.",
     "configStep2": "2. Tap Edit Widget.",
     "configStep3": "3. Select the stations for the widget, then tap outside the widget to exit.",
+
     "stacking": "Creating Stacks",
     "stackingIntro": "In order to display 2 routes inside one widget (i.e. riding to work and back), you can create a widget stack.",
     "stackingStep1": "1. Touch and hold an area on your Home Screen until the apps jiggle.",
@@ -213,6 +214,7 @@
     "activatingRide": "Starting ride...",
     "rideInFutureAlert": "You can start a new ride only from an hour before the train's departure time.",
     "rideInPastAlert": "This ride has ended.",
+
     "trainArriving": "Train arrives at the destination",
     "arrivingIn": "Arriving in %{minutes} min",
     "arrivingAt": "Arriving at %{time}",
@@ -223,6 +225,7 @@
     "getOffNextStop": "Get off at the next stop",
     "getOffInStops": "Get off in %{stopsLeft} stops",
     "greeting": "Thanks for riding with Better Rail",
+
     "rideExistsTitle": "An active ride exists",
     "rideExistsMessage": "Starting a new ride will cancel the current one",
     "liveActivitiesDisabledTitle": "Live Activities disabled",
@@ -232,7 +235,9 @@
     "alarmDisabledTitle": "Alarm notifications disabled",
     "alarmDisabledMessage": "To notify you when to get off the train more accurately, please open your device settings and enable alarm notifications.",
     "connectionIssues": "Connection issues",
+
     "error": "An error occurred while starting the ride - please try to start a new ride.",
+    
     "notificationPermission1": "To receive real-time updates on the train's progress, please grant permission for us to send you notifications.",
     "notificationPermission2": "Our notification system is designed for efficiency, and we avoid sending unnecessary alerts.",
     "notificationPermission3": "Notifications",
