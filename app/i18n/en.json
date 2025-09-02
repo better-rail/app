@@ -94,8 +94,10 @@
     "privacyPolicyLink": "https://better-rail.co.il/en/privacy-policy",
     "disableTelemetry": "Disable Telemetry",
     "feedback": "Send Feedback",
+
     "languageChangeAlertTitle": "Language Change",
     "languageChangeAlertMessage": "The app will restart to apply the changes",
+
     "tipJar": "Tip Jar",
     "tipJarTitle": "Better Rail relies on your support to fund it's development",
     "tipJarSubtitle": "If you love using Better Rail, please consider supporting the app by sending a tip.",
@@ -107,7 +109,9 @@
     "thankYou": "Thank You",
     "thankYouText": "We appreciate this donation from the bottom of our hearts. \n\n Enjoy the ride! \nGuy & Matan",
     "testflightMessage": "The app has been installed via TestFlight.\nIn order to send a tip, you'll need to download the app from the App Store.",
+
     "aboutText": "Better Rail is an open source app that aims to make Israel Railways schedules more accessible to the public.",
+
     "follow": "Follow Better Rail",
     "facebook": "Facebook",
     "twitter": "Twitter",
@@ -150,6 +154,7 @@
     "homeWidgets": "Home Screen Widgets",
     "widgetDescription": "Beautiful widgets for checking the upcoming train schedule.",
     "widgetGuide": "Here's a quick set up guide with a few tips on how to get the full benefit from them.",
+
     "howToAdd": "Adding Widgets",
     "addStep1": "1. From the Home Screen, touch and hold a widget or an empty area until the apps jiggle.",
     "addStep2": "2. Tap the Add button (+) in the upper-left corner.",
@@ -262,13 +267,16 @@
     "notifications": {
       "notificationSettings": "Notification Settings",
       "newButtonContent": "Receive updates on events related to your stations",
+
       "requestPermissionContent": "Allow Better Rail to send you notifications related to your stations.",
       "enableNotifications": "Enable Notifications",
+
       "notificationSetupContent": "Better Rail will send you updates on events related to your selected stations",
       "stations": "Stations",
       "selectStations": "Select Stations",
       "selectedStations": "Selected Stations",
       "stationsFromFavorites": "From Favorite Routes",
+
       "notificationNote": "Please note: While Better Rail will do its best to provide fast and reliable updates, it is always advisable to check with the official sources of Israel Railways as well."
     }
   }
