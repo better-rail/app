@@ -1,12 +1,10 @@
-import { Alert, Linking } from "react-native"
 import * as Clipboard from 'expo-clipboard'
 import Share from "react-native-share"
-import * as Calendar from "expo-calendar"
 import { format } from "date-fns"
 import { RouteItem } from "../../services/api"
 import { translate, isRTL } from "../../i18n"
 import { stationsObject, stationLocale } from "../../data/stations"
-import { analytics } from "../../services/firebase/analytics"
+import { addRouteToCalendar as addRouteToCalendarHelper } from "./calendar-helpers"
 
 export function formatRouteForSharing(
   routeItem: RouteItem,
@@ -129,55 +127,6 @@ export async function shareRoute(
   await Share.open(shareOptions)
 }
 
-function createEventConfig(routeItem: RouteItem) {
-  if (!routeItem?.trains?.length) {
-    throw new Error("No trains found in routeItem")
-  }
-
-  const origin = routeItem.trains[0].originStationName
-  const trainNumber = routeItem.trains[0].trainNumber
-  const destination = routeItem.trains[routeItem.trains.length - 1].destinationStationName
-
-  const title = translate("plan.rideTo", { destination })
-  const notes = translate("plan.trainFromToStation", { trainNumber, origin, destination })
-
-  return {
-    title,
-    startDate: new Date(routeItem.departureTime).toISOString(),
-    endDate: new Date(routeItem.arrivalTime).toISOString(),
-    location: translate("plan.trainStation", { stationName: origin }),
-    notes,
-  }
-}
-
 export async function addRouteToCalendar(routeItem: RouteItem): Promise<void> {
-  analytics.logEvent("add_route_to_calendar")
-
-  const { status } = await Calendar.requestCalendarPermissionsAsync()
-
-  if (status !== "granted") {
-    Alert.alert(translate("routeDetails.noCalendarAccessTitle"), translate("routeDetails.noCalendarAccessMessage"), [
-      { style: "cancel", text: translate("common.cancel") },
-      { text: translate("settings.title"), onPress: () => Linking.openSettings() },
-    ])
-    return
-  }
-
-  const eventConfig = createEventConfig(routeItem)
-
-  try {
-    await Calendar.createEventInCalendarAsync({
-      title: eventConfig.title,
-      startDate: new Date(eventConfig.startDate),
-      endDate: new Date(eventConfig.endDate),
-      location: eventConfig.location,
-      notes: eventConfig.notes,
-    })
-  } catch (error) {
-    console.error(error)
-    if (error instanceof Error) {
-      Alert.alert("Event Error", error.message)
-    }
-    throw error
-  }
+  return addRouteToCalendarHelper(routeItem)
 }

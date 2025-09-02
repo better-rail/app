@@ -24,7 +24,8 @@ import {
 } from "./components"
 import { flatMap, max, round } from "lodash"
 import { translate } from "../../i18n"
-import { copyRouteToClipboard, shareRoute, addRouteToCalendar } from "../../utils/helpers/route-share-helpers"
+import { shareRoute } from "../../utils/helpers/route-share-helpers"
+import { addRouteToCalendar } from "../../utils/helpers/calendar-helpers"
 import type BottomSheet from "@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet"
 import { isRouteInThePast } from "../../utils/helpers/date-helpers"
 import { useActionSheet } from "@expo/react-native-action-sheet"
@@ -307,82 +308,16 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     return fontScale <= 1.2 && deviceWidth >= 360 && shouldShowDashedLineByTextLength
   }, [trains.data])
 
-  const getContextMenuActions = useCallback((routeItem: RouteItem) => [
-    {
-      title: translate("routes.copyRoute"),
-      systemIcon: 'doc.on.clipboard',
-      onPress: async () => {
-        HapticFeedback.trigger("impactMedium")
-        try {
-          await copyRouteToClipboard(routeItem, originId, destinationId)
-          Burnt.alert({
-            title: translate("routes.routeCopied"),
-            preset: "done",
-            message: translate("routes.routeCopied"),
-          })
-        } catch (error) {
-          console.error("Failed to copy route:", error)
-          Burnt.alert({
-            title: translate("common.error"),
-            preset: "error",
-            message: "Failed to copy route",
-          })
-        }
-      }
-    },
-    {
-      title: translate("routeDetails.addToCalendar"),
-      systemIcon: 'calendar.badge.plus',
-      onPress: async () => {
-        HapticFeedback.trigger("impactMedium")
-        try {
-          await addRouteToCalendar(routeItem)
-          Burnt.alert({
-            title: translate("routes.addedToCalendar"),
-            preset: "done",
-            message: translate("routes.addedToCalendar"),
-          })
-        } catch (error) {
-          console.error("Failed to add to calendar:", error)
-          Burnt.alert({
-            title: translate("common.error"),
-            preset: "error",
-            message: "Failed to add to calendar",
-          })
-        }
-      }
-    },
-    {
-      title: translate("routes.share"),
-      systemIcon: 'square.and.arrow.up',
-      onPress: async () => {
-        HapticFeedback.trigger("impactMedium")
-        try {
-          await shareRoute(routeItem, originId, destinationId)
-        } catch (error) {
-          if (error?.message !== "User did not share") {
-            console.error("Failed to share route:", error)
-            Burnt.alert({
-              title: translate("common.error"),
-              preset: "error",
-              message: "Failed to share route",
-            })
-          }
-        }
-      }
-    }
-  ], [originId, destinationId])
 
   const handleRouteLongPress = useCallback(async (routeItem: RouteItem) => {
     HapticFeedback.trigger("impactMedium")
 
     const options = [
-      translate("routes.copyRoute"),
       translate("routeDetails.addToCalendar"),
       translate("routes.share"),
       translate("common.cancel")
     ]
-    const cancelButtonIndex = 3
+    const cancelButtonIndex = 2
 
     showActionSheetWithOptions(
       {
@@ -395,25 +330,18 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
 
         try {
           switch (selectedIndex) {
-            case 0: // Copy
-              await copyRouteToClipboard(routeItem, originId, destinationId)
-              Burnt.alert({
-                title: translate("routes.routeCopied"),
-                preset: "done",
-                message: translate("routes.routeCopied"),
-              })
+            case 0: // Add to Calendar
+              const wasAdded = await addRouteToCalendar(routeItem)
+              if (wasAdded) {
+                Burnt.alert({
+                  title: translate("routes.addedToCalendar"),
+                  preset: "done",
+                  message: translate("routes.addedToCalendar"),
+                })
+              }
               break
 
-            case 1: // Add to Calendar
-              await addRouteToCalendar(routeItem)
-              Burnt.alert({
-                title: translate("routes.addedToCalendar"),
-                preset: "done",
-                message: translate("routes.addedToCalendar"),
-              })
-              break
-
-            case 2: // Share
+            case 1: // Share
               await shareRoute(routeItem, originId, destinationId)
               break
 
@@ -488,7 +416,9 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           })
         }
         onLongPress={() => handleRouteLongPress(item)}
-        contextMenuActions={getContextMenuActions(item)}
+        routeItem={item}
+        originId={originId}
+        destinationId={destinationId}
         shouldShowDashedLine={shouldShowDashedLine}
         style={{ marginBottom: spacing[3] }}
       />

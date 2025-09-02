@@ -11,6 +11,8 @@ import { format } from "date-fns"
 import { translate } from "../../i18n"
 import { RouteIndicators } from "./"
 import { RouteContextMenu, RouteContextMenuAction } from "./platform-context-menu"
+import { createContextMenuActions } from "./route-context-menu-actions"
+import type { RouteItem } from "../../services/api"
 
 // #region styles
 
@@ -81,6 +83,9 @@ export interface RouteCardProps extends TouchableScaleProps {
   isRouteInThePast: boolean
   onLongPress?: () => void
   contextMenuActions?: RouteContextMenuAction[]
+  routeItem?: RouteItem
+  originId?: string
+  destinationId?: string
 }
 
 export const RouteCard = function RouteCard(props: RouteCardProps) {
@@ -97,6 +102,9 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
     style,
     shouldShowDashedLine = true,
     contextMenuActions,
+    routeItem,
+    originId,
+    destinationId,
   } = props
 
   // Format times
@@ -115,14 +123,22 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
 
   const isBloatedIndicators = isMuchShorter && !isMuchLonger && delay > 0
 
-  const TouchableComponent = contextMenuActions && Platform.OS === 'ios' ? TouchableOpacity : TouchableScale
+  // Generate context menu actions if routeItem and IDs are provided
+  const generatedContextMenuActions = useMemo(() => {
+    if (routeItem && originId && destinationId) {
+      return createContextMenuActions(routeItem, originId, destinationId)
+    }
+    return contextMenuActions || []
+  }, [routeItem, originId, destinationId, contextMenuActions])
+
+  const TouchableComponent = generatedContextMenuActions && Platform.OS === 'ios' ? TouchableOpacity : TouchableScale
   
   const cardContent = (
     <TouchableComponent
       onPress={onPress}
       onLongPress={Platform.OS === "android" ? onLongPress : undefined}
-      activeScale={contextMenuActions && Platform.OS === 'ios' ? undefined : 0.95}
-      friction={contextMenuActions && Platform.OS === 'ios' ? undefined : 9}
+      activeScale={generatedContextMenuActions && Platform.OS === 'ios' ? undefined : 0.95}
+      friction={generatedContextMenuActions && Platform.OS === 'ios' ? undefined : 9}
       style={[CONTAINER, props.isActiveRide && ACTIVE_RIDE_CONTAINER, props.isRouteInThePast && PAST_RIDE_CONTAINER, style]}
     >
       <View style={{ marginEnd: spacing[3] }}>
@@ -159,7 +175,7 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
 
   return (
     <RouteContextMenu
-      actions={contextMenuActions || []}
+      actions={generatedContextMenuActions}
       onLongPress={onLongPress}
     >
       {cardContent}
