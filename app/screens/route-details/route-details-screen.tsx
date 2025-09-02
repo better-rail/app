@@ -303,7 +303,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
             <Animated.View
               entering={shouldFadeRideButton && FadeInDown.delay(100)}
               exiting={FadeOutDown}
-              style={{ position: "absolute", left: 0, right: 0, bottom: 0, zIndex: 1 }}
+              style={{ position: "absolute", left: 0, right: 0, bottom: 0, zIndex: 0 }}
             >
               <StartRideButton route={routeItem} screenName={route.name} openPermissionsSheet={openLivePermissionsSheet} />
             </Animated.View>
