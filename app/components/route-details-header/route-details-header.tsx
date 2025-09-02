@@ -1,8 +1,7 @@
 import { useLayoutEffect, useRef, useEffect, useCallback } from "react"
-import { Image, ImageBackground, View, Alert, Linking, Animated as RNAnimated, Pressable, Platform } from "react-native"
+import { Image, ImageBackground, View, Animated as RNAnimated, Pressable, Platform } from "react-native"
 import type { ViewStyle, TextStyle, ImageStyle } from "react-native"
 import TouchableScale from "react-native-touchable-scale"
-import { analytics } from "../../services/firebase/analytics"
 import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
 import LinearGradient from "react-native-linear-gradient"
@@ -10,14 +9,14 @@ import { color, isDarkMode, spacing } from "../../theme"
 import { Text, StarIcon, MenuIcon } from "../"
 import HapticFeedback from "react-native-haptic-feedback"
 import { stationsObject, stationLocale } from "../../data/stations"
-import { isRTL, translate } from "../../i18n"
+import { translate, isRTL } from "../../i18n"
 import { useStores } from "../../models"
 import * as Burnt from "burnt"
-import * as Calendar from "expo-calendar"
 import type { RouteItem } from "../../services/api"
 import type { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types"
 import ContextMenu from "react-native-context-menu-view"
 import { HeaderBackButton } from "@react-navigation/elements"
+import { addRouteToCalendar as addRouteToCalendarHelper } from "../../utils/helpers/calendar-helpers"
 
 const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale)
 const arrowIcon = require("../../../assets/arrow-left.png")
@@ -152,33 +151,13 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   }, [navigation])
 
   const addToCalendar = useCallback(async () => {
-    analytics.logEvent("add_route_to_calendar")
-
-    const { status } = await Calendar.requestCalendarPermissionsAsync()
-
-    if (status !== "granted") {
-      Alert.alert(translate("routeDetails.noCalendarAccessTitle"), translate("routeDetails.noCalendarAccessMessage"), [
-        { style: "cancel", text: translate("common.cancel") },
-        { text: translate("settings.title"), onPress: () => Linking.openSettings() },
-      ])
-      return
-    }
-
-    const eventConfig = createEventConfig(routeItem)
-
+    if (!routeItem) return
+    
     try {
-      await Calendar.createEventInCalendarAsync({
-        title: eventConfig.title,
-        startDate: new Date(eventConfig.startDate),
-        endDate: new Date(eventConfig.endDate),
-        location: eventConfig.location,
-        notes: eventConfig.notes,
-      })
+      await addRouteToCalendarHelper(routeItem)
     } catch (error) {
-      console.error(error)
-      if (error instanceof Error) {
-        Alert.alert("Event Error", error.message)
-      }
+      // Error handling is already done in the helper
+      console.error("Failed to add to calendar:", error)
     }
   }, [routeItem])
 
@@ -338,23 +317,3 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   )
 })
 
-function createEventConfig(routeItem: RouteItem) {
-  if (!routeItem?.trains?.length) {
-    throw new Error("No trains found in routeItem")
-  }
-
-  const origin = routeItem.trains[0].originStationName
-  const trainNumber = routeItem.trains[0].trainNumber
-  const destination = routeItem.trains[routeItem.trains.length - 1].destinationStationName
-
-  const title = translate("plan.rideTo", { destination })
-  const notes = translate("plan.trainFromToStation", { trainNumber, origin, destination })
-
-  return {
-    title,
-    startDate: new Date(routeItem.departureTime).toISOString(),
-    endDate: new Date(routeItem.arrivalTime).toISOString(),
-    location: translate("plan.trainStation", { stationName: origin }),
-    notes,
-  }
-}

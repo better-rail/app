@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { useMemo } from "react"
-import { TextStyle, View, ViewStyle, Platform } from "react-native"
+import { TextStyle, View, ViewStyle, Platform, TouchableOpacity } from "react-native"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import { Svg, Line } from "react-native-svg"
 import { color, spacing, typography, fontScale } from "../../theme"
@@ -10,7 +10,9 @@ import { Text } from "../"
 import { format } from "date-fns"
 import { translate } from "../../i18n"
 import { RouteIndicators } from "./"
-import { isRideActive } from "../../utils/ios-helpers"
+import { RouteContextMenu, RouteContextMenuAction } from "./platform-context-menu"
+import { createContextMenuActions } from "./route-context-menu-actions"
+import type { RouteItem } from "../../services/api"
 
 // #region styles
 
@@ -79,6 +81,11 @@ export interface RouteCardProps extends TouchableScaleProps {
   isActiveRide: boolean
   shouldShowDashedLine?: boolean
   isRouteInThePast: boolean
+  onLongPress?: () => void
+  contextMenuActions?: RouteContextMenuAction[]
+  routeItem?: RouteItem
+  originId?: string
+  destinationId?: string
 }
 
 export const RouteCard = function RouteCard(props: RouteCardProps) {
@@ -91,8 +98,13 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
     isMuchShorter,
     isMuchLonger,
     onPress = null,
+    onLongPress = null,
     style,
     shouldShowDashedLine = true,
+    contextMenuActions,
+    routeItem,
+    originId,
+    destinationId,
   } = props
 
   // Format times
@@ -111,11 +123,22 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
 
   const isBloatedIndicators = isMuchShorter && !isMuchLonger && delay > 0
 
-  return (
-    <TouchableScale
+  // Generate context menu actions if routeItem and IDs are provided
+  const generatedContextMenuActions = useMemo(() => {
+    if (routeItem && originId && destinationId) {
+      return createContextMenuActions(routeItem, originId, destinationId)
+    }
+    return contextMenuActions || []
+  }, [routeItem, originId, destinationId, contextMenuActions])
+
+  const TouchableComponent = generatedContextMenuActions && Platform.OS === 'ios' ? TouchableOpacity : TouchableScale
+  
+  const cardContent = (
+    <TouchableComponent
       onPress={onPress}
-      activeScale={0.95}
-      friction={9}
+      onLongPress={Platform.OS === "android" ? onLongPress : undefined}
+      activeScale={generatedContextMenuActions && Platform.OS === 'ios' ? undefined : 0.95}
+      friction={generatedContextMenuActions && Platform.OS === 'ios' ? undefined : 9}
       style={[CONTAINER, props.isActiveRide && ACTIVE_RIDE_CONTAINER, props.isRouteInThePast && PAST_RIDE_CONTAINER, style]}
     >
       <View style={{ marginEnd: spacing[3] }}>
@@ -147,7 +170,16 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
         <Text style={TIME_TYPE_TEXT} tx="routes.arrival" />
         <Text style={TIME_TEXT}>{formattedArrivalTime}</Text>
       </View>
-    </TouchableScale>
+    </TouchableComponent>
+  )
+
+  return (
+    <RouteContextMenu
+      actions={generatedContextMenuActions}
+      onLongPress={onLongPress}
+    >
+      {cardContent}
+    </RouteContextMenu>
   )
 }
 

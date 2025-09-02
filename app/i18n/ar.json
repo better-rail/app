@@ -46,7 +46,13 @@
     "updates": "تحديثات من قطار اسرائيل",
     "updatesError": "حدث خطأ أثناء تحميل التحديثات من قطارات إسرائيل",
     "shortRoute": "طريق قصير",
-    "maxBackwardsDate": "لا يمكن الرجوع أكثر من 3 أيام"
+    "maxBackwardsDate": "لا يمكن الرجوع أكثر من 3 أيام",
+    "routeDetails": "تفاصيل المسار",
+    "routeActions": "إجراءات المسار",
+    "copyRoute": "نسخ المسار",
+    "share": "مشاركة تفاصيل الرحلة",
+    "routeCopied": "تم نسخ المسار",
+    "addedToCalendar": "تمت الإضافة للتقويم"
   },
   "routeDetails": {
     "platform": "رصيف",

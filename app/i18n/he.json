@@ -52,7 +52,13 @@
     "updates": "עדכונים מרכבת ישראל",
     "updatesError": "אירעה שגיאה בעת טעינת עדכונים מרכבת ישראל",
     "shortRoute": "מסלול קצר",
-    "maxBackwardsDate": "לא ניתן לחזור יותר מ-3 ימים"
+    "maxBackwardsDate": "לא ניתן לחזור יותר מ-3 ימים",
+    "routeDetails": "פרטי מסלול",
+    "routeActions": "פעולות",
+    "copyRoute": "העתקה",
+    "share": "שתף פרטי נסיעה",
+    "routeCopied": "המסלול הועתק",
+    "addedToCalendar": "נוסף ליומן"
   },
   "routeDetails": {
     "platform": "רציף",
@@ -82,10 +88,8 @@
     "shareMessage": "האלטרנטיבה לאפליקציית רכבת ישראל",
     "rateIOS": "דרגו ב- App Store",
     "rateAndroid": "דרגו ב- Play Store",
-
     "languageChangeAlertTitle": "שינוי שפה",
     "languageChangeAlertMessage": "האפליקצייה תאותחל מחדש",
-
     "tipJar": "צנצנת טיפים",
     "tipJarTitle": " פיתוח האפליקצייה ממומן על ידיכם, המשתמשים!",
     "tipJarSubtitle": "אם אתם אוהבים להשתמש ב- Better Rail, אנא שיקלו לשלוח טיפ לתמיכה בהמשך פיתוח האפליקצייה :-)",
@@ -95,14 +99,10 @@
     "hugeTip": "🤯 טיפ טיפה הגזמתם",
     "totalTips": "עד כה תרמתם",
     "thankYou": "תודה רבה!",
-
     "testflightMessage": "שימו לב: האפליקצייה הותקנה דרך TestFlight.\n על מנת לשלוח טיפ, יש להוריד את האפליקצייה דרך האפ סטור",
-
     "thankYouText": "המון תודה על התרומה. זה מרגש וממלא במוטיבציה.‪\n\n שתהיה נסיעה טובה :-)\nגיא ומתן",
-
     "aboutText": "בטר רייל היא אפליקציית קוד פתוח שנוצרה במטרה להנגיש את זמני רכבת ישראל לציבור",
     "independenceDeclaration": "האפליקצייה מפותחת באופן עצמאי ונכתבת בקוד פתוח",
-
     "follow": "עקבו אחרי Better Rail",
     "facebook": "פייסבוק",
     "twitter": "טוויטר",
@@ -151,17 +151,14 @@
     "homeWidgets": "ווידג׳טים למסך הבית",
     "widgetDescription": "3 ווידג׳טים לצפייה בזמני הרכבות הקרובות היישר מדף הבית",
     "widgetGuide": "הכנו מדריך קצר עם טיפים לשימוש בווידג׳טים החדשים",
-
     "howToAdd": "איך להוסיף ווידג׳ט",
     "addStep1": "1. ממסך הבית, לחצו לחיצה ארוכה באזור ריק עד שהאפליקציות יתחילו להתנועע",
     "addStep2": "2. הקישו על לחצן ההוספה (+) בפינה הימנית העליונה",
     "addStep3": "3. בחרו את Better Rail מרשימת האפליקציות, בחרו את גודל הווידג׳ט הרצוי ולחצו ״הוסף ווידג׳ט״",
-
     "configuring": "הגדרת ווידג׳ט",
     "configStep1": "1. לחצו לחיצה ארוכה על הווידג'ט כדי לפתוח את תפריט הפעולות",
     "configStep2": "2. הקישו על ״עריכת ווידג׳ט״",
     "configStep3": "3. בחרו את תחנת המוצא והיעד עבור הווידג׳ט ולחצו מחוצה לו על מנת לחזור למסך הבית",
-
     "stacking": "יצירת ערמה",
     "stackingIntro": "על מנת להציג 2 מסלולי נסיעה בווידג׳ט אחד (לדוגמה נסיעה לעבודה וחזרה) ניתן ליצור ערמת ווידג׳טים",
     "stackingStep1": "1. לחצו לחיצה ארוכה על אזור ריק במסך הבית",
@@ -213,7 +210,6 @@
     "activatingRide": "יוצאים לדרך...",
     "rideInFutureAlert": "ניתן להתחיל נסיעה החל משעה לפני זמן יציאת הרכבת.",
     "rideInPastAlert": "נסיעה זו כבר הסתיימה.",
-
     "trainArriving": "הרכבת מתקרבת ליעד",
     "arrivingIn": "הגעה בעוד %{minutes} דק'",
     "arrivingAt": "הגעה ב-%{time}",
@@ -224,9 +220,7 @@
     "getOffNextStop": "הגעה ליעד בתחנה הבאה",
     "getOffInStops": "הגעה ליעד בעוד %{stopsLeft} תחנות",
     "greeting": "תודה שנסעתם עם בטר רייל!",
-
     "error": "שגיאה התרחשה בעת הפעלת נסיעה, אנא נסו שנית.",
-
     "rideExistsTitle": "קיימת נסיעה פעילה",
     "rideExistsMessage": "התחלת נסיעה חדשה תבטל את הנוכחית",
     "liveActivitiesDisabledTitle": "פעילויות בזמן אמת כבויות",
@@ -236,7 +230,6 @@
     "alarmDisabledTitle": "התראות מדוייקות כבויות",
     "alarmDisabledMessage": "יש לאפשר התראות מדוייקות על מנת שנוכל להודיע לכם בדיוק מירבי מתי לרדת מהרכבת",
     "connectionIssues": "בעיות תקשורת",
-
     "notificationPermission1": "על מנת שנוכל לעדכן אתכם בזמן אמת על התקדמות הרכבת, יש לאפשר לנו לשלוח נוטיפקציות למכשירכם.",
     "notificationPermission2": "אנחנו משתמשים במנגנון נוטיפיקציות חסכוני, ולא שולחים נוטיפקציות מיותרות.",
     "notificationPermission3": "התראות",
@@ -271,16 +264,13 @@
     "notifications": {
       "notificationSettings": "הגדרת נוטפיקציות",
       "newButtonContent": "קבלו התראות רלוונטיות לתחנות הקבועות שלכם",
-
       "requestPermissionContent": "אפשרו לבטר רייל לשלוח התראות רלוונטיות לתחנות שלכם",
       "enableNotifications": "הפעלת התראות",
-
       "notificationSetupContent": "בטר רייל תשלח התראות רלוונטיות לתחנות המועדפות עליכם",
       "stations": "תחנות",
       "selectStations": "בחירת תחנות",
       "selectedStations": "תחנות נוספות",
       "stationsFromFavorites": "תחנות ממסלולים מועדפים",
-
       "notificationNote": "בטר רייל תעשה כמיטב יכולתה לספק עדכונים מהירים ואמינים, אך תמיד מומלץ לבדוק גם עם המקורות הרשמיים של רכבת ישראל."
     }
   }
