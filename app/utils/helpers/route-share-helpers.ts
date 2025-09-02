@@ -56,18 +56,9 @@ const messageTemplates = {
 
   date: (date: string) => `📅 ${date}`,
 
-  time: (departure: string, arrival: string) => `⏰ ${departure} - ${arrival}`,
+  departure: (time: string) => `Departs at ${time}`,
 
-  duration: (duration: string) => `⏱️ ${duration}`,
-
-  exchange: (text: string) => `🔄 ${text}`,
-
-  delay: (minutes: number, text: string) => `⚠️ ${minutes} ${text}`,
-
-  trainDetail: (index: number, trainNumber: number, departure: string, arrival: string) =>
-    `${index}. ${translate("routeDetails.trainNo")} ${trainNumber}: ${departure} - ${arrival}`,
-
-  footer: () => "📱 Better Rail"
+  arrival: (time: string) => `Arrives at ${time}`,
 }
 
 function formatRouteMessage(data: ReturnType<typeof buildRouteData>): string {
@@ -75,28 +66,15 @@ function formatRouteMessage(data: ReturnType<typeof buildRouteData>): string {
     // Header with route
     messageTemplates.header(data.route.originName, data.route.destinationName),
 
-    // Date and time
+    // Empty line
+    "",
+
+    // Date
     messageTemplates.date(data.schedule.departureDate),
-    messageTemplates.time(data.schedule.departureTime, data.schedule.arrivalTime),
-    messageTemplates.duration(data.schedule.duration),
-
-    // Exchange information
-    messageTemplates.exchange(data.exchange.text),
-
-    // Delay (if any)
-    ...(data.delay ? [messageTemplates.delay(data.delay.minutes, data.delay.text)] : []),
-
-    // Separator
-    "",
-
-    // Individual trains
-    ...data.trains.map(train =>
-      messageTemplates.trainDetail(train.index, train.trainNumber, train.departureTime, train.arrivalTime)
-    ),
-
-    // Footer
-    "",
-    messageTemplates.footer()
+    
+    // Departure and arrival times
+    messageTemplates.departure(data.schedule.departureTime),
+    messageTemplates.arrival(data.schedule.arrivalTime),
   ]
 
   return sections.join("\n")
@@ -128,5 +106,5 @@ export async function shareRoute(
 }
 
 export async function addRouteToCalendar(routeItem: RouteItem): Promise<void> {
-  return addRouteToCalendarHelper(routeItem)
+  await addRouteToCalendarHelper(routeItem)
 }
