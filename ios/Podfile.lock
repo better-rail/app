@@ -1238,6 +1238,8 @@ PODS:
     - ExpoModulesCore
   - ExpoCalendar (14.0.6):
     - ExpoModulesCore
+  - ExpoClipboard (7.1.5):
+    - ExpoModulesCore
   - ExpoLocalization (15.0.3):
     - ExpoModulesCore
   - ExpoModulesCore (2.4.0):
@@ -3830,6 +3832,7 @@ DEPENDENCIES:
   - Expo (from `../node_modules/expo`)
   - ExpoBlur (from `../node_modules/expo-blur/ios`)
   - ExpoCalendar (from `../node_modules/expo-calendar/ios`)
+  - ExpoClipboard (from `../node_modules/expo-clipboard/ios`)
   - ExpoLocalization (from `../node_modules/expo-localization/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core`)
   - fast_float (from `../node_modules/react-native/third-party-podspecs/fast_float.podspec`)
@@ -3990,6 +3993,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-blur/ios"
   ExpoCalendar:
     :path: "../node_modules/expo-calendar/ios"
+  ExpoClipboard:
+    :path: "../node_modules/expo-clipboard/ios"
   ExpoLocalization:
     :path: "../node_modules/expo-localization/ios"
   ExpoModulesCore:
@@ -4213,6 +4218,7 @@ SPEC CHECKSUMS:
   Expo: 427bebf00201669a046f5ebcaa1a2f023b4b343e
   ExpoBlur: 567af66164e3043a9a30069594aed1ddf0a88d97
   ExpoCalendar: 2494a630f176436783a8941efd3c38a9c657ae65
+  ExpoClipboard: 6b9aae54fd48a579473fb101051ad693435b9294
   ExpoLocalization: f04eeec2e35bed01ab61c72ee1768ec04d093d01
   ExpoModulesCore: 4f1efd2360fd016b3ab7f13c9983320412208976
   fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6
@@ -4348,6 +4354,6 @@ SPEC CHECKSUMS:
   SPIndicator: 93e0a4fb23de51294ac48e874c0f081a5e293e4f
   Yoga: dfabf1234ccd5ac41d1b1d43179f024366ae9831
 
-PODFILE CHECKSUM: 343941e6c013ef069bdb33a8bca5ab8dfd2a0f34
+PODFILE CHECKSUM: 10687705d02d582e3f4260625c66bd04384cfb99
 
 COCOAPODS: 1.16.2
