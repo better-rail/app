@@ -315,14 +315,14 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         HapticFeedback.trigger("impactMedium")
         try {
           await copyRouteToClipboard(routeItem, originId, destinationId)
-          Burnt.toast({
+          Burnt.alert({
             title: translate("routes.routeCopied"),
             preset: "done",
             message: translate("routes.routeCopied"),
           })
         } catch (error) {
           console.error("Failed to copy route:", error)
-          Burnt.toast({
+          Burnt.alert({
             title: translate("common.error"),
             preset: "error",
             message: "Failed to copy route",
@@ -337,14 +337,14 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         HapticFeedback.trigger("impactMedium")
         try {
           await addRouteToCalendar(routeItem)
-          Burnt.toast({
+          Burnt.alert({
             title: translate("routes.addedToCalendar"),
             preset: "done",
             message: translate("routes.addedToCalendar"),
           })
         } catch (error) {
           console.error("Failed to add to calendar:", error)
-          Burnt.toast({
+          Burnt.alert({
             title: translate("common.error"),
             preset: "error",
             message: "Failed to add to calendar",
@@ -362,7 +362,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         } catch (error) {
           if (error?.message !== "User did not share") {
             console.error("Failed to share route:", error)
-            Burnt.toast({
+            Burnt.alert({
               title: translate("common.error"),
               preset: "error",
               message: "Failed to share route",
@@ -397,7 +397,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           switch (selectedIndex) {
             case 0: // Copy
               await copyRouteToClipboard(routeItem, originId, destinationId)
-              Burnt.toast({
+              Burnt.alert({
                 title: translate("routes.routeCopied"),
                 preset: "done",
                 message: translate("routes.routeCopied"),
@@ -406,7 +406,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
 
             case 1: // Add to Calendar
               await addRouteToCalendar(routeItem)
-              Burnt.toast({
+              Burnt.alert({
                 title: translate("routes.addedToCalendar"),
                 preset: "done",
                 message: translate("routes.addedToCalendar"),
@@ -425,7 +425,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           // Don't show error if user just cancelled the share sheet
           if (error?.message !== "User did not share") {
             console.error("Failed to perform action:", error)
-            Burnt.toast({
+            Burnt.alert({
               title: translate("common.error"),
               preset: "error",
               message: "Failed to perform action",
