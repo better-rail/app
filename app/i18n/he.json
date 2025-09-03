@@ -45,6 +45,8 @@
     "oneChange": "החלפה אחת",
     "changes": "החלפות",
     "delayTime": "דק' עיכוב",
+    "departsAt": "יוצאת ב",
+    "arrivesAt": "מגיעה ב",
     "noTrainsFound": "לא נמצאו רכבות למסלול זה בימים הקרובים",
     "sameStationsMessage": "יש לבחור תחנות מוצא ויעד שונות",
     "noInternetConnection": "נראה שהמכשיר אינו מחובר לאינטרנט.\n אנא בדקו את חיבור הרשת ונסו שוב.",

@@ -56,9 +56,9 @@ const messageTemplates = {
 
   date: (date: string) => `📅 ${date}`,
 
-  departure: (time: string) => `Departs at ${time}`,
+  departure: (time: string) => `${translate("routes.departsAt")} ${time}`,
 
-  arrival: (time: string) => `Arrives at ${time}`,
+  arrival: (time: string) => `${translate("routes.arrivesAt")} ${time}`,
 }
 
 function formatRouteMessage(data: ReturnType<typeof buildRouteData>): string {
