@@ -22,5 +22,6 @@ export const headerTitleStyle = Platform.select({
 
 export const androidHeaderOptions = {
   headerLeftContainerStyle: { marginTop: 40, marginBottom: 6 },
+  headerRightContainerStyle: { marginTop: 40 },
   headerStyle: { height: 96 },
 }
