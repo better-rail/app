@@ -5,6 +5,7 @@ export * from "./color"
 export * from "./spacing"
 export * from "./typography"
 export * from "./timing"
+export * from "./navigation-styles"
 
 export const fontScale = PixelRatio.getFontScale()
 const colorScheme = Appearance.getColorScheme()

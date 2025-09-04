@@ -1,8 +1,8 @@
 import React from "react"
-import { Platform, type TextStyle } from "react-native"
+import { Platform } from "react-native"
 import { createStackNavigator, type StackScreenProps } from "@react-navigation/stack"
 import { SettingsScreen, LanguageScreen, TipJarScreen, AboutScreen, PrivacyScreen } from "../../screens"
-import { color, spacing, typography } from "../../theme"
+import { color, spacing, headerTitleStyle, androidHeaderOptions } from "../../theme"
 import { translate } from "../../i18n"
 import { CloseButton } from "../../components"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
@@ -25,7 +25,7 @@ export const SettingsNavigator = () => (
       options={({ navigation }) => ({
         title: translate("settings.title"),
         headerLeft: () => <CloseButton onPress={() => navigation.goBack()} style={{ marginRight: spacing[2] }} />,
-        headerTitleStyle: Platform.select({ ios: iOSTitleStyle, android: { ...androidTitleStyle, marginBottom: 10 } }),
+        headerTitleStyle,
         ...androidHeaderOptions,
       })}
     />
@@ -68,23 +68,3 @@ export const SettingsNavigator = () => (
   </SettingsStack.Navigator>
 )
 
-const iOSTitleStyle: TextStyle = {
-  fontSize: 19,
-  fontFamily: typography.primary,
-  fontWeight: "400",
-  marginRight: 10,
-  marginBottom: 10,
-}
-
-const androidTitleStyle: TextStyle = { 
-  marginLeft: -6, 
-  marginBottom: 7.5, 
-  marginTop: 40 
-}
-
-const headerTitleStyle = Platform.select({ ios: iOSTitleStyle, android: androidTitleStyle })
-
-const androidHeaderOptions = {
-  headerLeftContainerStyle: { marginTop: 40, marginBottom: 6 },
-  headerStyle: { height: 96 },
-}

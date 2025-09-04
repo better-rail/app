@@ -2,7 +2,7 @@ import React from "react"
 import { createStackNavigator, StackScreenProps } from "@react-navigation/stack"
 import { CloseButton } from "../../components"
 import { AnnouncementsScreen } from "../../screens/announcements/announcements-screen"
-import { color, spacing, typography } from "../../theme"
+import { color, spacing, iOSTitleStyle, androidTitleStyle } from "../../theme"
 import { Image, Platform, Pressable, TextStyle } from "react-native"
 import { translate } from "../../i18n"
 import { UrgentAnnouncements } from "../../components/announcements/urgent-announcements"
@@ -95,22 +95,9 @@ export const AnnouncementsNavigator = () => (
   </AnnouncementsStack.Navigator>
 )
 
-const iOSTitleStyle: TextStyle = {
-  fontSize: 19,
-  fontFamily: typography.primary,
-  fontWeight: "400",
-  marginRight: 10,
-  marginBottom: 8,
-}
-
-const androidTitleStyle: TextStyle = {
-  marginLeft: -6,
-  marginBottom: 7.5,
-  marginTop: 40
-}
-
 const androidHeaderOptions = {
   headerLeftContainerStyle: { marginTop: 40 },
   headerRightContainerStyle: { marginTop: 40 },
   headerStyle: { height: 96 },
 }
+
