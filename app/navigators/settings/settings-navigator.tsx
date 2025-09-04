@@ -26,6 +26,7 @@ export const SettingsNavigator = () => (
         title: translate("settings.title"),
         headerLeft: () => <CloseButton onPress={() => navigation.goBack()} style={{ marginRight: spacing[2] }} />,
         headerTitleStyle: Platform.select({ ios: iOSTitleStyle, android: { ...androidTitleStyle, marginBottom: 10 } }),
+        ...androidHeaderOptions,
       })}
     />
     <SettingsStack.Screen
@@ -33,8 +34,8 @@ export const SettingsNavigator = () => (
       component={LanguageScreen}
       options={{
         title: translate("settings.language"),
-        headerLeftContainerStyle: { marginBottom: 6 },
         headerTitleStyle,
+        ...androidHeaderOptions,
       }}
     />
     <SettingsStack.Screen
@@ -42,8 +43,8 @@ export const SettingsNavigator = () => (
       component={TipJarScreen}
       options={{
         title: translate("settings.tipJar"),
-        headerLeftContainerStyle: { marginBottom: 6 },
         headerTitleStyle,
+        ...androidHeaderOptions,
       }}
     />
     <SettingsStack.Screen
@@ -51,8 +52,8 @@ export const SettingsNavigator = () => (
       component={AboutScreen}
       options={{
         title: translate("settings.about"),
-        headerLeftContainerStyle: { marginBottom: 6 },
         headerTitleStyle,
+        ...androidHeaderOptions,
       }}
     />
     <SettingsStack.Screen
@@ -60,8 +61,8 @@ export const SettingsNavigator = () => (
       component={PrivacyScreen}
       options={{
         title: translate("settings.privacy"),
-        headerLeftContainerStyle: { marginBottom: 6 },
         headerTitleStyle,
+        ...androidHeaderOptions,
       }}
     />
   </SettingsStack.Navigator>
@@ -75,6 +76,15 @@ const iOSTitleStyle: TextStyle = {
   marginBottom: 10,
 }
 
-const androidTitleStyle: TextStyle = { marginLeft: -6, marginBottom: 7.5 }
+const androidTitleStyle: TextStyle = { 
+  marginLeft: -6, 
+  marginBottom: 7.5, 
+  marginTop: 40 
+}
 
 const headerTitleStyle = Platform.select({ ios: iOSTitleStyle, android: androidTitleStyle })
+
+const androidHeaderOptions = {
+  headerLeftContainerStyle: { marginTop: 40, marginBottom: 6 },
+  headerStyle: { height: 96 },
+}

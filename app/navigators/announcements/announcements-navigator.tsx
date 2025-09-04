@@ -58,6 +58,7 @@ export const AnnouncementsNavigator = () => (
           />
         ),
         headerTitleStyle: Platform.select({ ios: iOSTitleStyle, android: { ...androidTitleStyle, marginBottom: 10 } }),
+        ...androidHeaderOptions,
       })}
     />
     <AnnouncementsStack.Screen
@@ -75,10 +76,11 @@ export const AnnouncementsNavigator = () => (
       component={NotificationsSetupScreen}
       options={({ navigation }) => ({
         title: translate("announcements.notifications.notificationSettings"),
-        headerLeftContainerStyle: { marginBottom: Platform.select({ ios: 10, android: 0 }) },
         headerTitleStyle: Platform.select({
-          ios: { ...iOSTitleStyle, marginBottom: 10 },
+          ios: iOSTitleStyle,
+          android: { ...androidTitleStyle, marginBottom: 1 }
         }),
+        ...androidHeaderOptions,
       })}
     />
 
@@ -101,4 +103,14 @@ const iOSTitleStyle: TextStyle = {
   marginBottom: 8,
 }
 
-const androidTitleStyle: TextStyle = { marginLeft: -18.5, marginBottom: 7.5 }
+const androidTitleStyle: TextStyle = {
+  marginLeft: -6,
+  marginBottom: 7.5,
+  marginTop: 40
+}
+
+const androidHeaderOptions = {
+  headerLeftContainerStyle: { marginTop: 40 },
+  headerRightContainerStyle: { marginTop: 40 },
+  headerStyle: { height: 96 },
+}
