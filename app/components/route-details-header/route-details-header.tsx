@@ -3,6 +3,7 @@ import { Image, ImageBackground, View, Animated as RNAnimated, Pressable, Platfo
 import type { ViewStyle, TextStyle, ImageStyle } from "react-native"
 import TouchableScale from "react-native-touchable-scale"
 import { useNavigation } from "@react-navigation/native"
+import { analytics } from "../../services/firebase/analytics"
 import { observer } from "mobx-react-lite"
 import LinearGradient from "react-native-linear-gradient"
 import { color, isDarkMode, spacing } from "../../theme"
