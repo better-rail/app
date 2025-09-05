@@ -267,11 +267,13 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
             }}
           >
             {/* Back Button */}
-            <HeaderBackButton 
-              tintColor="lightgrey" 
-              style={{ opacity: 0.9 }} 
-              onPress={() => navigation.goBack()}
-            />
+            <View style={Platform.select({ android: { marginLeft: -spacing[4] }, ios: {} })}>
+              <HeaderBackButton
+                tintColor="lightgrey"
+                style={{ opacity: 0.9 }}
+                onPress={() => navigation.goBack()}
+              />
+            </View>
 
             {/* Right Icons */}
             <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[4] }}>
