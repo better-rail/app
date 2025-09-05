@@ -3,6 +3,7 @@ import { Image, ImageBackground, View, Animated as RNAnimated, Pressable, Platfo
 import type { ViewStyle, TextStyle, ImageStyle } from "react-native"
 import TouchableScale from "react-native-touchable-scale"
 import { useNavigation } from "@react-navigation/native"
+import { analytics } from "../../services/firebase/analytics"
 import { observer } from "mobx-react-lite"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import LinearGradient from "react-native-linear-gradient"
@@ -16,8 +17,8 @@ import * as Burnt from "burnt"
 import type { RouteItem } from "../../services/api"
 import type { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types"
 import ContextMenu from "react-native-context-menu-view"
-import { addRouteToCalendar as addRouteToCalendarHelper } from "../../utils/helpers/calendar-helpers"
 import { HeaderBackButton } from "@react-navigation/elements"
+import { addRouteToCalendar as addRouteToCalendarHelper } from "../../utils/helpers/calendar-helpers"
 
 const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale)
 const arrowIcon = require("../../../assets/arrow-left.png")
