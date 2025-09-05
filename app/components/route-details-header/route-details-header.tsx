@@ -4,6 +4,7 @@ import type { ViewStyle, TextStyle, ImageStyle } from "react-native"
 import TouchableScale from "react-native-touchable-scale"
 import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 import LinearGradient from "react-native-linear-gradient"
 import { color, isDarkMode, spacing } from "../../theme"
 import { Text, StarIcon, MenuIcon } from "../"
@@ -105,6 +106,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
     props
   const { favoriteRoutes, routePlan } = useStores()
   const navigation = useNavigation()
+  const insets = useSafeAreaInsets()
   const routeEditDisabled = screenName !== "routeList"
 
   const stationCardScale = useRef(new RNAnimated.Value(1)).current
@@ -189,7 +191,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
           }}
           style={{
             ...(Platform.OS === "android" && {
-              marginTop: spacing[6],
+              marginTop: 0,
             }),
           }}
         >
@@ -218,7 +220,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
           flexDirection: "row",
           alignItems: "baseline",
           gap: spacing[4],
-          marginTop: Platform.select({ ios: 0, android: spacing[6] }),
+          marginTop: Platform.select({ ios: 0, android: 0 }),
         }}
       >
         <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
@@ -251,7 +253,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
             headerLeft: (props) => (
               <View
                 style={{
-                  marginTop: spacing[6],
+                  marginTop: 0,
                   marginLeft: -20,
                 }}
               >

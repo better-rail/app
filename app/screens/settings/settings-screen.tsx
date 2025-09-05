@@ -35,7 +35,6 @@ export const SettingsScreen = observer(function SettingsScreen({ navigation }: S
     <Screen
       style={ROOT}
       preset="scroll"
-      unsafe={true}
       statusBar={Platform.select({ ios: "light-content" })}
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
     >

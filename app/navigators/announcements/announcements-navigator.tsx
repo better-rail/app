@@ -1,5 +1,6 @@
 import React from "react"
 import { createStackNavigator, StackScreenProps } from "@react-navigation/stack"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { CloseButton } from "../../components"
 import { AnnouncementsScreen } from "../../screens/announcements/announcements-screen"
 import { color, spacing, typography } from "../../theme"
@@ -20,14 +21,17 @@ const AnnouncementsStack = createStackNavigator()
 
 export type AnnouncementsScreenProps = StackScreenProps<AnnouncementsParamList>
 
-export const AnnouncementsNavigator = () => (
-  <AnnouncementsStack.Navigator
-    screenOptions={{
-      headerTintColor: color.primary,
-      headerBackButtonDisplayMode: "minimal",
-      headerStatusBarHeight: Platform.select({ ios: 10, android: 5 }),
-    }}
-  >
+export const AnnouncementsNavigator = () => {
+  const insets = useSafeAreaInsets()
+  
+  return (
+    <AnnouncementsStack.Navigator
+      screenOptions={{
+        headerTintColor: color.primary,
+        headerBackButtonDisplayMode: "minimal",
+        headerStatusBarHeight: Platform.select({ ios: 10, android: insets.top }),
+      }}
+    >
     <AnnouncementsStack.Screen
       name="announcement"
       component={AnnouncementsScreen}
@@ -91,7 +95,8 @@ export const AnnouncementsNavigator = () => (
       })}
     />
   </AnnouncementsStack.Navigator>
-)
+  )
+}
 
 const iOSTitleStyle: TextStyle = {
   fontSize: 19,

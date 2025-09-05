@@ -1,6 +1,7 @@
 import React from "react"
 import { Platform, type TextStyle } from "react-native"
 import { createStackNavigator, type StackScreenProps } from "@react-navigation/stack"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { SettingsScreen, LanguageScreen, TipJarScreen, AboutScreen, PrivacyScreen } from "../../screens"
 import { color, spacing, typography } from "../../theme"
 import { translate } from "../../i18n"
@@ -11,14 +12,17 @@ const SettingsStack = createStackNavigator<SettingsParamList>()
 
 export type SettingsScreenProps = StackScreenProps<SettingsParamList, "settings">
 
-export const SettingsNavigator = () => (
-  <SettingsStack.Navigator
-    screenOptions={{
-      headerTintColor: color.primary,
-      headerBackButtonDisplayMode: "minimal",
-      headerStatusBarHeight: Platform.select({ ios: 10, android: 5 }),
-    }}
-  >
+export const SettingsNavigator = () => {
+  const insets = useSafeAreaInsets()
+  
+  return (
+    <SettingsStack.Navigator
+      screenOptions={{
+        headerTintColor: color.primary,
+        headerBackButtonDisplayMode: "minimal",
+        headerStatusBarHeight: Platform.select({ ios: 10, android: insets.top }),
+      }}
+    >
     <SettingsStack.Screen
       name="settings"
       component={SettingsScreen}
@@ -65,7 +69,8 @@ export const SettingsNavigator = () => (
       }}
     />
   </SettingsStack.Navigator>
-)
+  )
+}
 
 const iOSTitleStyle: TextStyle = {
   fontSize: 19,
