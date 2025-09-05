@@ -11,10 +11,8 @@ import { useIsDarkMode, useIsBetaTester } from "../../hooks"
 import { shareApp } from "./helpers/app-share-sheet"
 
 const ROOT: ViewStyle = {
-  flex: 1,
   backgroundColor: color.background,
-  paddingTop: spacing[4],
-  paddingHorizontal: spacing[4],
+  padding: spacing[4],
 }
 
 const VERSION_TEXT: TextStyle = {
@@ -35,6 +33,7 @@ export const SettingsScreen = observer(function SettingsScreen({ navigation }: S
     <Screen
       style={ROOT}
       preset="scroll"
+      unsafe={true}
       statusBar={Platform.select({ ios: "light-content" })}
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
     >
