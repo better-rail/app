@@ -17,6 +17,7 @@ import type { RouteItem } from "../../services/api"
 import type { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types"
 import ContextMenu from "react-native-context-menu-view"
 import { addRouteToCalendar as addRouteToCalendarHelper } from "../../utils/helpers/calendar-helpers"
+import { HeaderBackButton } from "@react-navigation/elements"
 
 const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale)
 const arrowIcon = require("../../../assets/arrow-left.png")
@@ -266,23 +267,11 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
             }}
           >
             {/* Back Button */}
-            <Pressable
+            <HeaderBackButton 
+              tintColor="lightgrey" 
+              style={{ opacity: 0.9 }} 
               onPress={() => navigation.goBack()}
-              style={{
-                padding: spacing[2],
-              }}
-            >
-              <Image
-                source={require("../../../assets/arrow-left.png")}
-                style={{
-                  width: 24,
-                  height: 24,
-                  tintColor: "lightgrey",
-                  opacity: 0.9,
-                  transform: [{ rotate: "0deg" }]
-                }}
-              />
-            </Pressable>
+            />
 
             {/* Right Icons */}
             <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[4] }}>
