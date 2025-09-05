@@ -3,8 +3,8 @@ import { Image, ImageBackground, View, Animated as RNAnimated, Pressable, Platfo
 import type { ViewStyle, TextStyle, ImageStyle } from "react-native"
 import TouchableScale from "react-native-touchable-scale"
 import { useNavigation } from "@react-navigation/native"
-import { analytics } from "../../services/firebase/analytics"
 import { observer } from "mobx-react-lite"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 import LinearGradient from "react-native-linear-gradient"
 import { color, isDarkMode, spacing } from "../../theme"
 import { Text, StarIcon, MenuIcon } from "../"
@@ -16,8 +16,8 @@ import * as Burnt from "burnt"
 import type { RouteItem } from "../../services/api"
 import type { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types"
 import ContextMenu from "react-native-context-menu-view"
-import { HeaderBackButton } from "@react-navigation/elements"
 import { addRouteToCalendar as addRouteToCalendarHelper } from "../../utils/helpers/calendar-helpers"
+import { HeaderBackButton } from "@react-navigation/elements"
 
 const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale)
 const arrowIcon = require("../../../assets/arrow-left.png")
@@ -106,6 +106,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
     props
   const { favoriteRoutes, routePlan } = useStores()
   const navigation = useNavigation()
+  const insets = useSafeAreaInsets()
   const routeEditDisabled = screenName !== "routeList"
 
   const stationCardScale = useRef(new RNAnimated.Value(1)).current
@@ -153,7 +154,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 
   const addToCalendar = useCallback(async () => {
     if (!routeItem) return
-    
+
     try {
       await addRouteToCalendarHelper(routeItem)
     } catch (error) {
@@ -188,11 +189,6 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
               setShowEntireRoute((prev) => !prev)
             }
           }}
-          style={{
-            ...(Platform.OS === "android" && {
-              marginTop: spacing[6],
-            }),
-          }}
         >
           <MenuIcon />
         </ContextMenu>
@@ -214,14 +210,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
     }
 
     return (
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "baseline",
-          gap: spacing[4],
-          marginTop: Platform.select({ ios: 0, android: spacing[6] }),
-        }}
-      >
+      <>
         <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
         <Pressable onPress={openStationHoursSheet}>
           <Image
@@ -229,7 +218,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
             style={{ width: 23, height: 23, marginLeft: spacing[2], tintColor: "lightgrey", opacity: 0.9 }}
           />
         </Pressable>
-      </View>
+      </>
     )
   }, [
     screenName,
@@ -247,23 +236,9 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
     if (screenName === "activeRide") return
 
     navigation.setOptions({
-      ...(Platform.OS === "android"
-        ? {
-            headerLeft: (props) => (
-              <View
-                style={{
-                  marginTop: spacing[6],
-                  marginLeft: -20,
-                }}
-              >
-                <HeaderBackButton tintColor="lightgrey" style={{ opacity: 0.9 }} onPress={() => navigation.goBack()} {...props} />
-              </View>
-            ),
-          }
-        : {}),
-      headerRight: () => <View style={HEADER_RIGHT_WRAPPER}>{renderHeaderRight()}</View>,
+      headerShown: false,
     })
-  }, [screenName, navigation, renderHeaderRight])
+  }, [navigation, screenName])
 
   return (
     <>
@@ -276,6 +251,36 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
         }}
       >
         <LinearGradient style={GRADIENT} colors={["rgba(0, 0, 0, 0.75)", "rgba(0, 0, 0, 0.05)"]} />
+
+        {screenName !== "activeRide" && (
+          <View
+            style={{
+              position: "absolute",
+              top: insets.top,
+              left: 0,
+              right: 0,
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              paddingHorizontal: spacing[4],
+              zIndex: 1000,
+            }}
+          >
+            {/* Back Button */}
+            <View style={Platform.select({ android: { marginLeft: -spacing[4] }, ios: {} })}>
+              <HeaderBackButton
+                tintColor="lightgrey"
+                style={{ opacity: 0.9 }}
+                onPress={() => navigation.goBack()}
+              />
+            </View>
+
+            {/* Right Icons */}
+            <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[4] }}>
+              {renderHeaderRight()}
+            </View>
+          </View>
+        )}
       </ImageBackground>
 
       <View style={{ top: -20, marginBottom: -30, zIndex: 5 }}>
@@ -317,4 +322,3 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
     </>
   )
 })
-

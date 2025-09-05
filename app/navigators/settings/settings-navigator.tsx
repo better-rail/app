@@ -5,7 +5,6 @@ import { SettingsScreen, LanguageScreen, TipJarScreen, AboutScreen, PrivacyScree
 import { color, spacing, typography } from "../../theme"
 import { translate } from "../../i18n"
 import { CloseButton } from "../../components"
-import { createNativeStackNavigator } from "@react-navigation/native-stack"
 
 const SettingsStack = createStackNavigator<SettingsParamList>()
 
@@ -16,7 +15,6 @@ export const SettingsNavigator = () => (
     screenOptions={{
       headerTintColor: color.primary,
       headerBackButtonDisplayMode: "minimal",
-      headerStatusBarHeight: Platform.select({ ios: 10, android: 5 }),
     }}
   >
     <SettingsStack.Screen
