@@ -1,4 +1,5 @@
 import { TouchableOpacity, Image, type ImageStyle, type ViewStyle } from "react-native"
+import { translate } from "../../i18n"
 
 const ICON_STYLE: ImageStyle = {
   width: 24,
@@ -15,7 +16,11 @@ export const MenuIcon = function CalendarIcon(props: { style?: ViewStyle }) {
   const { style } = props
 
   return (
-    <TouchableOpacity style={[CONTAINER, style]}>
+    <TouchableOpacity
+      style={[CONTAINER, style]}
+      accessibilityRole="button"
+      accessibilityLabel={translate("routes.routeActions")}
+    >
       <Image source={require("../../../assets/ellipsis.png")} style={[ICON_STYLE]} />
     </TouchableOpacity>
   )
