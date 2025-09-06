@@ -266,6 +266,8 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
               paddingHorizontal: spacing[4],
               zIndex: 1000,
             }}
+            accessibilityRole="header"
+            accessibilityLabel={screenName === "routeDetails" ? translate("routes.routeDetails") : translate("plan.title")}
           >
             {/* Back Button */}
             <View style={Platform.select({ android: { marginLeft: -spacing[4] }, ios: {} })}>
@@ -277,7 +279,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
             </View>
 
             {/* Right Icons */}
-            <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[4] }}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[4] }} accessibilityRole="toolbar">
               {renderHeaderRight()}
             </View>
           </View>
@@ -292,6 +294,8 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
             disabled={routeEditDisabled}
             onPress={changeOriginStation}
             style={[ROUTE_DETAILS_STATION, { marginEnd: spacing[5], transform: [{ scale: stationCardScale }] }]}
+            accessibilityLabel={`${translate("plan.origin")}: ${originName}`}
+            accessibilityHint={translate("plan.selectStation")}
           >
             <Text style={ROUTE_DETAILS_STATION_TEXT} maxFontSizeMultiplier={1.1}>
               {originName}
@@ -303,6 +307,8 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
             onPress={swapDirection}
             style={ROUTE_INFO_CIRCLE}
             disabled={routeEditDisabled}
+            accessibilityLabel={translate("plan.switchStations")}
+            accessibilityHint={translate("plan.switchStationsHint")}
           >
             <Image source={arrowIcon} style={ARROW_ICON} />
           </Pressable>
@@ -313,6 +319,8 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
             disabled={routeEditDisabled}
             onPress={changeDestinationStation}
             style={[ROUTE_DETAILS_STATION, { transform: [{ scale: stationCardScale }] }]}
+            accessibilityLabel={`${translate("plan.destination")}: ${destinationName}`}
+            accessibilityHint={translate("plan.selectStation")}
           >
             <Text style={ROUTE_DETAILS_STATION_TEXT} maxFontSizeMultiplier={1.1}>
               {destinationName}

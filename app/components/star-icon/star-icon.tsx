@@ -1,5 +1,7 @@
 import React, { useMemo } from "react"
 import { Image, type ImageStyle, type ViewStyle } from "react-native"
+import { AccessibilityState } from "react-native"
+import { translate } from "../../i18n"
 import { observer } from "mobx-react-lite"
 import { color } from "../../theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
@@ -42,8 +44,14 @@ export const StarIcon = observer(function StarIcon(props: StarIconProps) {
   }, [filled])
 
   return (
-    <TouchableOpacity onPress={onPress} style={[CONTAINER, style]}>
-      <Image source={starImage} style={[STAR_ICON, STAR_STATE_STYLE]} />
+    <TouchableOpacity
+      onPress={onPress}
+      style={[CONTAINER, style]}
+      accessibilityRole="button"
+      accessibilityLabel={translate("favorites.title")}
+      accessibilityState={{ selected: filled } as AccessibilityState}
+    >
+      <Image source={starImage} style={[STAR_ICON, STAR_STATE_STYLE]} accessible={false} />
     </TouchableOpacity>
   )
 })
