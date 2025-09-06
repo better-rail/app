@@ -25,7 +25,6 @@ export const AnnouncementsNavigator = () => (
     screenOptions={{
       headerTintColor: color.primary,
       headerBackButtonDisplayMode: "minimal",
-      headerStatusBarHeight: Platform.select({ ios: 10, android: 5 }),
     }}
   >
     <AnnouncementsStack.Screen

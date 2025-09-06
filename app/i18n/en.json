@@ -45,6 +45,8 @@
     "oneChange": "1 Change",
     "changes": "Changes",
     "delayTime": "min delay",
+    "departsAt": "Departs at",
+    "arrivesAt": "Arrives at",
     "noTrainsFound": "No trains were found for this route in the upcoming days",
     "sameStationsMessage": "Choose different origin and destination stations",
     "noInternetConnection": "It looks like your device is not currently connected to the internet.\nPlease check your network connection and try again.",
@@ -52,7 +54,13 @@
     "updates": "Updates from Israel Railways",
     "updatesError": "An error occurred while attempting to load updates from Israel Railways",
     "shortRoute": "Short Route",
-    "maxBackwardsDate": "Cannot go back more than 3 days"
+    "maxBackwardsDate": "Cannot go back more than 3 days",
+    "routeDetails": "Route Details",
+    "routeActions": "Actions",
+    "copyRoute": "Copy",
+    "share": "Share Ride Details",
+    "routeCopied": "Copied to clipboard",
+    "addedToCalendar": "Added to calendar"
   },
   "routeDetails": {
     "platform": "Platform",
@@ -153,7 +161,6 @@
     "addStep1": "1. From the Home Screen, touch and hold a widget or an empty area until the apps jiggle.",
     "addStep2": "2. Tap the Add button (+) in the upper-left corner.",
     "addStep3": "3. Select Better Rail from the list, the desired widget size and press \"Add Widget\".",
-
     "configuring": "Configuring Widgets",
     "configStep1": "1. Touch and hold a widget to open the quick actions menu.",
     "configStep2": "2. Tap Edit Widget.",
@@ -232,7 +239,7 @@
     "connectionIssues": "Connection issues",
 
     "error": "An error occurred while starting the ride - please try to start a new ride.",
-
+    
     "notificationPermission1": "To receive real-time updates on the train's progress, please grant permission for us to send you notifications.",
     "notificationPermission2": "Our notification system is designed for efficiency, and we avoid sending unnecessary alerts.",
     "notificationPermission3": "Notifications",
