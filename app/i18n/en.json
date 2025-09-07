@@ -58,7 +58,7 @@
     "routeDetails": "Route Details",
     "routeActions": "Actions",
     "copyRoute": "Copy",
-    "share": "Share Ride Details",
+    "share": "Share Details",
     "routeCopied": "Copied to clipboard",
     "addedToCalendar": "Added to calendar"
   },
@@ -76,8 +76,8 @@
     "routeWarning": "Long Route Warning",
     "routeWarningText": "There are shorter train routes around the departure time.",
     "addToCalendar": "Add to Calendar",
-    "showAllStations": "Show all route stations",
-    "hideAllStations": "Hide all route stations",
+    "showAllStations": "Show Full Route",
+    "hideAllStations": "Hide Full Route",
     "noCalendarAccessTitle": "Calendar access disabled",
     "noCalendarAccessMessage": "To add the ride to your calendar, open your device settings and grant access to your calendar."
   },
@@ -239,7 +239,7 @@
     "connectionIssues": "Connection issues",
 
     "error": "An error occurred while starting the ride - please try to start a new ride.",
-    
+
     "notificationPermission1": "To receive real-time updates on the train's progress, please grant permission for us to send you notifications.",
     "notificationPermission2": "Our notification system is designed for efficiency, and we avoid sending unnecessary alerts.",
     "notificationPermission3": "Notifications",

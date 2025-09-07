@@ -191,8 +191,8 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
         <ContextMenu
           dropdownMenuMode
           actions={[
-            { title: translate("routeDetails.addToCalendar"), systemIcon: "calendar" },
             { title: translate("routes.share"), systemIcon: "square.and.arrow.up" },
+            { title: translate("routeDetails.addToCalendar"), systemIcon: "calendar" },
             {
               title: translate(showEntireRoute ? "routeDetails.hideAllStations" : "routeDetails.showAllStations"),
               systemIcon: showEntireRoute ? "rectangle.compress.vertical" : "rectangle.expand.vertical",
