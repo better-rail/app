@@ -1,7 +1,7 @@
 import HapticFeedback from "react-native-haptic-feedback"
 import * as Burnt from "burnt"
 import { translate } from "../../i18n"
-import { shareRoute } from "../../utils/helpers/route-share-helpers"
+import { shareRouteAction } from "../../utils/helpers/route-share-helpers"
 import { addRouteToCalendar } from "../../utils/helpers/calendar-helpers"
 import type { RouteItem } from "../../services/api"
 import type { RouteContextMenuAction } from "./platform-context-menu"
@@ -34,20 +34,6 @@ export const createContextMenuActions = (routeItem: RouteItem, originId: string,
   {
     title: translate("routes.share"),
     systemIcon: 'square.and.arrow.up',
-    onPress: async () => {
-      HapticFeedback.trigger("impactMedium")
-      try {
-        await shareRoute(routeItem, originId, destinationId)
-      } catch (error) {
-        if (error?.message !== "User did not share") {
-          console.error("Failed to share route:", error)
-          Burnt.alert({
-            title: translate("common.error"),
-            preset: "error",
-            message: "Failed to share route",
-          })
-        }
-      }
-    }
+    onPress: () => shareRouteAction(routeItem, originId, destinationId)
   }
 ]

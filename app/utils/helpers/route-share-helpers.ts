@@ -1,6 +1,8 @@
 import * as Clipboard from 'expo-clipboard'
 import Share from "react-native-share"
 import { format } from "date-fns"
+import HapticFeedback from "react-native-haptic-feedback"
+import * as Burnt from "burnt"
 import { RouteItem } from "../../services/api"
 import { translate, isRTL } from "../../i18n"
 import { stationsObject, stationLocale } from "../../data/stations"
@@ -107,4 +109,24 @@ export async function shareRoute(
 
 export async function addRouteToCalendar(routeItem: RouteItem): Promise<void> {
   await addRouteToCalendarHelper(routeItem)
+}
+
+export async function shareRouteAction(
+  routeItem: RouteItem,
+  originId: string,
+  destinationId: string,
+): Promise<void> {
+  HapticFeedback.trigger("impactMedium")
+  try {
+    await shareRoute(routeItem, originId, destinationId)
+  } catch (error) {
+    if (error?.message !== "User did not share") {
+      console.error("Failed to share route:", error)
+      Burnt.alert({
+        title: translate("common.error"),
+        preset: "error",
+        message: "Failed to share route",
+      })
+    }
+  }
 }
