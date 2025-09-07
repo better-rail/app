@@ -272,7 +272,6 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
             {/* Back Button */}
             <View style={Platform.select({ android: { marginLeft: -spacing[4] }, ios: {} })}>
               <HeaderBackButton
-                // Using rgba instead of style={{ opacity }} to avoid animation conflicts with TouchableScale
                 tintColor="rgba(211, 211, 211, 0.9)"
                 onPress={() => navigation.goBack()}
               />
