@@ -3484,30 +3484,6 @@ PODS:
     - FirebaseCoreExtension
     - React-Core
     - RNFBApp
-  - RNFlashList (1.7.1):
-    - DoubleConversion
-    - glog
-    - hermes-engine
-    - RCT-Folly (= 2024.11.18.00)
-    - RCTRequired
-    - RCTTypeSafety
-    - React-Core
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-hermes
-    - React-ImageManager
-    - React-jsi
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-renderercss
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - Yoga
   - RNGestureHandler (2.22.0):
     - DoubleConversion
     - glog
@@ -3927,7 +3903,6 @@ DEPENDENCIES:
   - "RNFBCrashlytics (from `../node_modules/@react-native-firebase/crashlytics`)"
   - "RNFBFirestore (from `../node_modules/@react-native-firebase/firestore`)"
   - "RNFBMessaging (from `../node_modules/@react-native-firebase/messaging`)"
-  - "RNFlashList (from `../node_modules/@shopify/flash-list`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNIap (from `../node_modules/react-native-iap`)
   - RNInAppBrowser (from `../node_modules/react-native-inappbrowser-reborn`)
@@ -4180,8 +4155,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-firebase/firestore"
   RNFBMessaging:
     :path: "../node_modules/@react-native-firebase/messaging"
-  RNFlashList:
-    :path: "../node_modules/@shopify/flash-list"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   RNIap:
@@ -4338,7 +4311,6 @@ SPEC CHECKSUMS:
   RNFBCrashlytics: d88591bda155301f6a6f5b573a7517150c24ace3
   RNFBFirestore: c653384977d7156be402e520a788c25b56824c78
   RNFBMessaging: af1ebc16b28e175a4278b263db731703a6aecc61
-  RNFlashList: ef5d2dafad9480843c5c828246db7d165978fc92
   RNGestureHandler: 0611cd6d9360d896e890aff4ef967f3ff4b2b034
   RNIap: daac81aa70fe3ac6d6967c1c8da3dc4b415b73d6
   RNInAppBrowser: e36d6935517101ccba0e875bac8ad7b0cb655364
@@ -4354,6 +4326,6 @@ SPEC CHECKSUMS:
   SPIndicator: 93e0a4fb23de51294ac48e874c0f081a5e293e4f
   Yoga: dfabf1234ccd5ac41d1b1d43179f024366ae9831
 
-PODFILE CHECKSUM: 10687705d02d582e3f4260625c66bd04384cfb99
+PODFILE CHECKSUM: 27f2519aaebd8de683dd2ac866daef71c00ee45b
 
 COCOAPODS: 1.16.2
