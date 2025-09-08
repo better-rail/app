@@ -75,7 +75,7 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
     .value()
 
   return (
-    <Screen style={{ paddingHorizontal: spacing[4], flex: 1 }} unsafe statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}>
+    <Screen style={{ paddingHorizontal: spacing[4], flex: 1 }} unsafe statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"} translucent>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={{ paddingBottom: spacing[6] }}>
           <View style={{ marginVertical: spacing[2], gap: spacing[2] }}>

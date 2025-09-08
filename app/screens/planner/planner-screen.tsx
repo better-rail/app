@@ -188,7 +188,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   return (
     <Screen
       style={ROOT}
-      preset="fixed"
+      preset="scroll"
       statusBarBackgroundColor="transparent"
       translucent
     >
