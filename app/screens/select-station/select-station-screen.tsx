@@ -34,6 +34,7 @@ const CANCEL_LINK: TextStyle = {
   // Android is quirky when switching RTL/LTR modes, so this is a workaround
   paddingRight: Platform.select({ ios: undefined, android: I18nManager.isRTL ? spacing[3] : undefined }),
   paddingLeft: Platform.select({ ios: undefined, android: I18nManager.isRTL ? undefined : spacing[3] }),
+  marginStart: Platform.select({ android: spacing[3] }),
 
   color: color.link,
 }
