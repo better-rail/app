@@ -38,6 +38,7 @@ export const SettingsScreen = observer(function SettingsScreen({ navigation }: S
       unsafe={true}
       statusBar={Platform.select({ ios: "light-content" })}
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
+      translucent
     >
       <View style={SETTING_GROUP}>
         <SettingBox
