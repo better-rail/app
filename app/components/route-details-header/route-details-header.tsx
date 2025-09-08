@@ -187,25 +187,31 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 
   const renderHeaderRight = useCallback(() => {
     if (screenName === "routeDetails") {
+      const actions = [
+        { 
+          title: translate("routes.share"), 
+          systemIcon: "square.and.arrow.up",
+          onPress: handleShare 
+        },
+        { 
+          title: translate("routeDetails.addToCalendar"), 
+          systemIcon: "calendar",
+          onPress: addToCalendar 
+        },
+        {
+          title: translate(showEntireRoute ? "routeDetails.hideAllStations" : "routeDetails.showAllStations"),
+          systemIcon: showEntireRoute ? "rectangle.compress.vertical" : "rectangle.expand.vertical",
+          onPress: () => setShowEntireRoute((prev) => !prev)
+        },
+      ]
+
       return (
         <ContextMenu
           dropdownMenuMode
-          actions={[
-            { title: translate("routes.share"), systemIcon: "square.and.arrow.up" },
-            { title: translate("routeDetails.addToCalendar"), systemIcon: "calendar" },
-            {
-              title: translate(showEntireRoute ? "routeDetails.hideAllStations" : "routeDetails.showAllStations"),
-              systemIcon: showEntireRoute ? "rectangle.compress.vertical" : "rectangle.expand.vertical",
-            },
-          ]}
+          actions={actions}
           onPress={(event) => {
-            if (event.nativeEvent.index === 0) {
-              addToCalendar()
-            } else if (event.nativeEvent.index === 1) {
-              handleShare()
-            } else if (event.nativeEvent.index === 2) {
-              setShowEntireRoute((prev) => !prev)
-            }
+            const action = actions[event.nativeEvent.index];
+            action?.onPress?.();
           }}
         >
           <MenuIcon />
