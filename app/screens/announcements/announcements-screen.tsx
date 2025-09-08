@@ -55,6 +55,7 @@ export const AnnouncementsScreen = observer(function AnnouncementsScreen({ navig
       unsafe={true}
       statusBar={Platform.select({ ios: "light-content" })}
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
+      translucent
     >
       <ScrollView contentContainerStyle={SCROLL_VIEW}>
         {!settings.seenNotificationsScreen && (

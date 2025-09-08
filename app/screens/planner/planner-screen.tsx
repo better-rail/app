@@ -186,7 +186,11 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   )
 
   return (
-    <Screen style={ROOT}>
+    <Screen
+      style={ROOT}
+      statusBarBackgroundColor="transparent"
+      translucent
+    >
       <FlingGestureWrapper onFling={onSwitchPress}>
         <View style={CONTENT_WRAPPER}>
           <PlannerScreenHeader />

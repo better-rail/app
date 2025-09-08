@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useEffect, useCallback } from "react"
+import { useLayoutEffect, useRef, useEffect, useCallback, useMemo } from "react"
 import { Image, ImageBackground, View, Animated as RNAnimated, Pressable, Platform } from "react-native"
 import type { ViewStyle, TextStyle, ImageStyle } from "react-native"
 import TouchableScale from "react-native-touchable-scale"
@@ -19,6 +19,7 @@ import type { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/typ
 import ContextMenu from "react-native-context-menu-view"
 import { HeaderBackButton } from "@react-navigation/elements"
 import { addRouteToCalendar as addRouteToCalendarHelper } from "../../utils/helpers/calendar-helpers"
+import { createContextMenuActions } from "../route-card/route-context-menu-actions"
 
 const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale)
 const arrowIcon = require("../../../assets/arrow-left.png")
@@ -164,6 +165,19 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
     }
   }, [routeItem])
 
+  const routeMenuActions = useMemo(() => {
+    if (!routeItem) return []
+    return createContextMenuActions(routeItem, originId, destinationId)
+  }, [routeItem, originId, destinationId])
+
+  const shareAction = routeMenuActions.find(action => action.systemIcon === 'square.and.arrow.up')
+  
+  const handleShare = useCallback(async () => {
+    if (shareAction) {
+      await shareAction.onPress()
+    }
+  }, [shareAction])
+
   useEffect(() => {
     navigation.setParams({
       originId: routePlan.origin.id,
@@ -177,6 +191,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
         <ContextMenu
           dropdownMenuMode
           actions={[
+            { title: translate("routes.share"), systemIcon: "square.and.arrow.up" },
             { title: translate("routeDetails.addToCalendar"), systemIcon: "calendar" },
             {
               title: translate(showEntireRoute ? "routeDetails.hideAllStations" : "routeDetails.showAllStations"),
@@ -187,6 +202,8 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
             if (event.nativeEvent.index === 0) {
               addToCalendar()
             } else if (event.nativeEvent.index === 1) {
+              handleShare()
+            } else if (event.nativeEvent.index === 2) {
               setShowEntireRoute((prev) => !prev)
             }
           }}
@@ -224,6 +241,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   }, [
     screenName,
     addToCalendar,
+    handleShare,
     isFavorite,
     routeId,
     favoriteRoutes,
@@ -272,8 +290,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
             {/* Back Button */}
             <View style={Platform.select({ android: { marginLeft: -spacing[4] }, ios: {} })}>
               <HeaderBackButton
-                tintColor="lightgrey"
-                style={{ opacity: 0.9 }}
+                tintColor="rgba(211, 211, 211, 0.9)"
                 onPress={() => navigation.goBack()}
               />
             </View>

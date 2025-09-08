@@ -24,7 +24,7 @@ import {
 } from "./components"
 import { flatMap, max, round } from "lodash"
 import { translate } from "../../i18n"
-import { shareRoute } from "../../utils/helpers/route-share-helpers"
+import { shareRouteAction } from "../../utils/helpers/route-share-helpers"
 import { addRouteToCalendar } from "../../utils/helpers/calendar-helpers"
 import type BottomSheet from "@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet"
 import { isRouteInThePast } from "../../utils/helpers/date-helpers"
@@ -342,7 +342,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
               break
 
             case 1: // Share
-              await shareRoute(routeItem, originId, destinationId)
+              await shareRouteAction(routeItem, originId, destinationId)
               break
 
             default:
@@ -350,13 +350,12 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
               break
           }
         } catch (error) {
-          // Don't show error if user just cancelled the share sheet
-          if (error?.message !== "User did not share") {
-            console.error("Failed to perform action:", error)
+          if (selectedIndex === 0) {
+            console.error("Failed to add to calendar:", error)
             Burnt.alert({
               title: translate("common.error"),
               preset: "error",
-              message: "Failed to perform action",
+              message: "Failed to add to calendar",
             })
           }
         }
