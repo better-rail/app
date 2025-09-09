@@ -30,11 +30,7 @@ const SEARCH_BAR_WRAPPER: ViewStyle = {
 }
 
 const CANCEL_LINK: TextStyle = {
-  paddingStart: Platform.select({ ios: spacing[3], android: undefined }),
-  // Android is quirky when switching RTL/LTR modes, so this is a workaround
-  paddingRight: Platform.select({ ios: undefined, android: I18nManager.isRTL ? spacing[3] : undefined }),
-  paddingLeft: Platform.select({ ios: undefined, android: I18nManager.isRTL ? undefined : spacing[3] }),
-
+  marginStart: spacing[3],
   color: color.link,
 }
 
