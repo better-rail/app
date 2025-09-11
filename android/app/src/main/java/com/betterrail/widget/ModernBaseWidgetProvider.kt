@@ -503,9 +503,11 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                                 deeplinkPath = getWidgetType()
                             )
                             
-                            // Set up route reversal click handler if enabled
+                            // Set up route-specific click handlers
                             if (widgetData.allowRouteReversal) {
                                 setupRouteReversalClickIntent(context, views, appWidgetId)
+                            } else {
+                                setupRouteDeepLinkClickIntent(context, views, appWidgetId, widgetData)
                             }
                         } else {
                             setupRefreshClickIntent(context, views)
@@ -526,9 +528,11 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                                 deeplinkPath = getWidgetType()
                             )
                             
-                            // Set up route reversal click handler if enabled
+                            // Set up route-specific click handlers
                             if (widgetData.allowRouteReversal) {
                                 setupRouteReversalClickIntent(context, views, appWidgetId)
+                            } else {
+                                setupRouteDeepLinkClickIntent(context, views, appWidgetId, widgetData)
                             }
                         } else {
                             // Fallback to refresh if no widget data found
@@ -636,6 +640,34 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         Log.d(getLogTag(), "Set up route reversal click intent for widget $appWidgetId")
     }
 
+    private fun setupRouteDeepLinkClickIntent(
+        context: Context, 
+        views: RemoteViews, 
+        appWidgetId: Int, 
+        widgetData: WidgetData
+    ) {
+        setupClickIntentsBase(
+            context = context,
+            views = views,
+            appWidgetId = appWidgetId,
+            widgetData = widgetData,
+            clickTargetId = R.id.widget_station_name,
+            useDeeplink = true,
+            deeplinkPath = getWidgetType()
+        )
+        
+        setupClickIntentsBase(
+            context = context,
+            views = views,
+            appWidgetId = appWidgetId,
+            widgetData = widgetData,
+            clickTargetId = R.id.widget_destination,
+            useDeeplink = true,
+            deeplinkPath = getWidgetType()
+        )
+        
+        Log.d(getLogTag(), "Set up route deep link click intent for widget $appWidgetId")
+    }
 
     private fun isWidgetRouteReversed(context: Context, appWidgetId: Int): Boolean {
         val sharedPrefs = context.getSharedPreferences("widget_route_state", Context.MODE_PRIVATE)
