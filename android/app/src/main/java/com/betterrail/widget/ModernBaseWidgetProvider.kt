@@ -709,9 +709,9 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                         // Save swapped data
                         preferencesRepository.saveWidgetData(appWidgetId, swappedWidgetData)
                         
-                        // Update widget display using ONLY cached data - no API calls
+                        // Update widget display with fresh data from API
                         val appWidgetManager = AppWidgetManager.getInstance(context)
-                        updateReversedWidgetFromCache(context, appWidgetManager, appWidgetId, swappedWidgetData)
+                        updateWidget(context, appWidgetManager, appWidgetId)
                     } else {
                         Log.d(getLogTag(), "Route reversal not allowed for widget $appWidgetId")
                     }
@@ -722,71 +722,6 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         }
     }
 
-    private suspend fun updateReversedWidgetFromCache(
-        context: Context,
-        appWidgetManager: AppWidgetManager,
-        appWidgetId: Int,
-        widgetData: WidgetData
-    ) {
-        try {
-            Log.d(getLogTag(), "Updating reversed widget $appWidgetId from cache only (no API calls)")
-            
-            // Try to get cached data for today
-            val today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date())
-            val cachedData = cacheRepository.getCachedSchedule(appWidgetId, widgetData.originId, widgetData.destinationId, today)
-            
-            when {
-                cachedData != null && cachedData.routes.isNotEmpty() -> {
-                    // Use cached data to render with swapped station names
-                    val upcomingTrains = filterUpcomingTrains(cachedData.routes)
-                    if (upcomingTrains.isNotEmpty()) {
-                        val firstTrain = upcomingTrains.first()
-                        val daysAway = getDaysFromToday(firstTrain.departureTimestamp)
-                        val originName = StationsData.getStationName(context, widgetData.originId)
-                        val destinationName = StationsData.getStationName(context, widgetData.destinationId)
-                        
-                        val state = when (daysAway) {
-                            0 -> WidgetState.Schedule(widgetData.originId, originName, destinationName, firstTrain, upcomingTrains.drop(1))
-                            1 -> WidgetState.TomorrowSchedule(widgetData.originId, originName, destinationName, firstTrain, upcomingTrains.drop(1))
-                            else -> WidgetState.FutureSchedule(widgetData.originId, originName, destinationName, firstTrain, upcomingTrains.drop(1), daysAway)
-                        }
-                        
-                        updateWidgetUI(context, appWidgetManager, appWidgetId, state)
-                        Log.d(getLogTag(), "Successfully updated widget $appWidgetId using cached data")
-                        return
-                    }
-                }
-            }
-            
-            // No cached data available - show message that route was reversed but data needs refresh
-            val originName = StationsData.getStationName(context, widgetData.originId)
-            val destinationName = StationsData.getStationName(context, widgetData.destinationId)
-            
-            val state = WidgetState.Loading(
-                widgetData.originId,
-                originName,
-                destinationName
-            )
-            updateWidgetUI(context, appWidgetManager, appWidgetId, state)
-            Log.d(getLogTag(), "No cached data for reversed route - showing loading state")
-            
-        } catch (e: Exception) {
-            Log.e(getLogTag(), "Error updating widget $appWidgetId from cache only", e)
-            
-            // Fallback: show error state with swapped station names
-            val originName = StationsData.getStationName(context, widgetData.originId)
-            val destinationName = StationsData.getStationName(context, widgetData.destinationId)
-            
-            val state = WidgetState.Error(
-                widgetData.originId,
-                originName,
-                destinationName,
-                "Route reversed",
-                "Tap to refresh"
-            )
-            updateWidgetUI(context, appWidgetManager, appWidgetId, state)
-        }
-    }
 
 
     /**
