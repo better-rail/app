@@ -81,7 +81,16 @@
         android:maxLines="1"
         android:singleLine="true" />
 
-
+    <!-- Route Reversal Option -->
+    <CheckBox
+        android:id="@+id/route_reversal_checkbox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/widget_allow_route_reversal"
+        android:textSize="16sp"
+        android:textColor="@color/label"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp" />
 
     <!-- Spacer -->
     <View

@@ -15,7 +15,8 @@
     <string name="select_station">בחר תחנה</string>
     <string name="search_origin_hint">חפש תחנת מוצא...</string>
     <string name="search_destination_hint">חפש תחנת יעד...</string>
-    
+    <string name="widget_allow_route_reversal">אפשר החלפת כיוון על ידי הקשה על המסלול</string>
+  
     <!-- Widget display strings -->
     <string name="tap_to_configure">הקש כדי להגדיר</string>
     <string name="select_your_route">בחר את המסלול שלך</string>

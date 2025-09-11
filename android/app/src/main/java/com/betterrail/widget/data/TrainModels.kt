@@ -120,7 +120,8 @@ data class WidgetData(
     val destinationId: String = "",
     val originName: String = "",
     val destinationName: String = "",
-    val label: String = ""
+    val label: String = "",
+    val allowRouteReversal: Boolean = false
 )
 
 // API Error response

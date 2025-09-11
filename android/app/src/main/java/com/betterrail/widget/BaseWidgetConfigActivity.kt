@@ -34,6 +34,7 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
 
     protected lateinit var originSearch: AutoCompleteTextView
     protected lateinit var destinationSearch: AutoCompleteTextView
+    protected lateinit var routeReversalCheckbox: CheckBox
     protected lateinit var addButton: Button
     protected lateinit var cancelButton: Button
     
@@ -86,6 +87,7 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
     private fun setupUI() {
         originSearch = findViewById(R.id.origin_search)
         destinationSearch = findViewById(R.id.destination_search)
+        routeReversalCheckbox = findViewById(R.id.route_reversal_checkbox)
         addButton = findViewById(R.id.add_button)
         cancelButton = findViewById(R.id.cancel_button)
         
@@ -314,6 +316,9 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
             destinationSearch.setText(stationNames[destinationIndex])
         }
         
+        // Set route reversal checkbox
+        routeReversalCheckbox.isChecked = data.allowRouteReversal
+        
         updateAddButtonState()
         Log.d(getLogTag(), "Loaded existing widget data: ${stationNames.getOrNull(originIndex)} -> ${stationNames.getOrNull(destinationIndex)}")
     }
@@ -357,7 +362,8 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
                         destinationId = destinationId,
                         originName = "", // Don't store localized names - look them up dynamically
                         destinationName = "", // Don't store localized names - look them up dynamically  
-                        label = ""
+                        label = "",
+                        allowRouteReversal = routeReversalCheckbox.isChecked
                     )
                     
                     // Save widget configuration

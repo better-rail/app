@@ -19,6 +19,7 @@ abstract class UnifiedWidgetProvider(
 
     override fun getActionRefresh(): String = defaultWidgetSize.actionRefresh
     override fun getActionWidgetUpdate(): String = defaultWidgetSize.actionWidgetUpdate
+    override fun getActionRouteReversal(): String = defaultWidgetSize.actionRouteReversal
     override fun getLayoutResource(): Int = defaultWidgetSize.layoutRes
     override fun getWidgetContainerId(): Int = defaultWidgetSize.containerId
     override fun getLogTag(): String = defaultWidgetSize.logTag

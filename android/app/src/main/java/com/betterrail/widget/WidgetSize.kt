@@ -13,6 +13,7 @@ enum class WidgetSize(
     val configActivity: Class<*>,
     val actionRefresh: String,
     val actionWidgetUpdate: String,
+    val actionRouteReversal: String,
 ) {
     COMPACT_2X2(
         layoutRes = R.layout.widget_compact_2x2,
@@ -21,7 +22,8 @@ enum class WidgetSize(
         logTag = "ModernCompactWidget2x2Provider",
         configActivity = CompactWidget2x2ConfigActivity::class.java,
         actionRefresh = "com.betterrail.widget.modern.compact.ACTION_REFRESH",
-        actionWidgetUpdate = "com.betterrail.widget.modern.compact.ACTION_WIDGET_UPDATE"
+        actionWidgetUpdate = "com.betterrail.widget.modern.compact.ACTION_WIDGET_UPDATE",
+        actionRouteReversal = "com.betterrail.widget.modern.compact.ACTION_ROUTE_REVERSAL"
     ),
     COMPACT_4X2(
         layoutRes = R.layout.widget_compact_4x2,
@@ -30,7 +32,8 @@ enum class WidgetSize(
         logTag = "ModernCompactWidget4x2Provider",
         configActivity = CompactWidget4x2ConfigActivity::class.java,
         actionRefresh = "com.betterrail.widget.modern.compact4x2.ACTION_REFRESH",
-        actionWidgetUpdate = "com.betterrail.widget.modern.compact4x2.ACTION_WIDGET_UPDATE"
+        actionWidgetUpdate = "com.betterrail.widget.modern.compact4x2.ACTION_WIDGET_UPDATE",
+        actionRouteReversal = "com.betterrail.widget.modern.compact4x2.ACTION_ROUTE_REVERSAL"
     ),
     COMPACT_5X2(
         layoutRes = R.layout.widget_compact_4x2, // Reuse 4x2 layout for now
@@ -39,7 +42,8 @@ enum class WidgetSize(
         logTag = "ModernCompactWidget5x2Provider",
         configActivity = CompactWidget4x2ConfigActivity::class.java, // Reuse 4x2 config
         actionRefresh = "com.betterrail.widget.modern.compact5x2.ACTION_REFRESH",
-        actionWidgetUpdate = "com.betterrail.widget.modern.compact5x2.ACTION_WIDGET_UPDATE"
+        actionWidgetUpdate = "com.betterrail.widget.modern.compact5x2.ACTION_WIDGET_UPDATE",
+        actionRouteReversal = "com.betterrail.widget.modern.compact5x2.ACTION_ROUTE_REVERSAL"
     );
     
     companion object {

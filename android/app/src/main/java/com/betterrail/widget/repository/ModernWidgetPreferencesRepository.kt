@@ -35,6 +35,7 @@ class ModernWidgetPreferencesRepository @Inject constructor(
         private fun originNameKey(widgetId: Int) = stringPreferencesKey("origin_name_$widgetId")
         private fun destinationNameKey(widgetId: Int) = stringPreferencesKey("destination_name_$widgetId")
         private fun labelKey(widgetId: Int) = stringPreferencesKey("label_$widgetId")
+        private fun allowRouteReversalKey(widgetId: Int) = booleanPreferencesKey("allow_route_reversal_$widgetId")
     }
 
     private val dataStore = context.dataStore
@@ -62,7 +63,8 @@ class ModernWidgetPreferencesRepository @Inject constructor(
                             destinationId = destinationId,
                             originName = preferences[originNameKey(widgetId)] ?: "",
                             destinationName = preferences[destinationNameKey(widgetId)] ?: "",
-                            label = preferences[labelKey(widgetId)] ?: ""
+                            label = preferences[labelKey(widgetId)] ?: "",
+                            allowRouteReversal = preferences[allowRouteReversalKey(widgetId)] ?: false
                         )
                     }
                 } catch (e: Exception) {
@@ -97,6 +99,7 @@ class ModernWidgetPreferencesRepository @Inject constructor(
                 preferences[originNameKey(widgetId)] = widgetData.originName
                 preferences[destinationNameKey(widgetId)] = widgetData.destinationName
                 preferences[labelKey(widgetId)] = widgetData.label
+                preferences[allowRouteReversalKey(widgetId)] = widgetData.allowRouteReversal
             }
             
             Log.d(TAG, "Successfully saved widget data for $widgetId")
@@ -119,6 +122,7 @@ class ModernWidgetPreferencesRepository @Inject constructor(
                 preferences.remove(originNameKey(widgetId))
                 preferences.remove(destinationNameKey(widgetId))
                 preferences.remove(labelKey(widgetId))
+                preferences.remove(allowRouteReversalKey(widgetId))
             }
             
             Log.d(TAG, "Successfully deleted widget data for $widgetId")
@@ -173,6 +177,7 @@ class ModernWidgetPreferencesRepository @Inject constructor(
                                 originName = preferences[originNameKey(widgetId)] ?: "",
                                 destinationName = preferences[destinationNameKey(widgetId)] ?: "",
                                 label = preferences[labelKey(widgetId)] ?: "",
+                                allowRouteReversal = preferences[allowRouteReversalKey(widgetId)] ?: false
                             )
                             widgetId to widgetData
                         } else {
@@ -205,6 +210,7 @@ class ModernWidgetPreferencesRepository @Inject constructor(
                         preferences.remove(originNameKey(storedId))
                         preferences.remove(destinationNameKey(storedId))
                         preferences.remove(labelKey(storedId))
+                        preferences.remove(allowRouteReversalKey(storedId))
                     }
                 }
             }
@@ -249,6 +255,7 @@ class ModernWidgetPreferencesRepository @Inject constructor(
                     preferences[originNameKey(widgetId)] = widgetData.originName
                     preferences[destinationNameKey(widgetId)] = widgetData.destinationName
                     preferences[labelKey(widgetId)] = widgetData.label
+                    preferences[allowRouteReversalKey(widgetId)] = widgetData.allowRouteReversal
                     }
             }
             

@@ -36,6 +36,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
     interface WidgetProviderEntryPoint {
         fun scheduleRepository(): TrainScheduleRepository
         fun preferencesRepository(): ModernWidgetPreferencesRepository
+        fun cacheRepository(): com.betterrail.widget.repository.ModernCacheRepository
     }
 
     private var applicationContext: android.content.Context? = null
@@ -57,6 +58,14 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         hiltEntryPoint.preferencesRepository()
     }
     
+    private val cacheRepository: com.betterrail.widget.repository.ModernCacheRepository by lazy {
+        val context = applicationContext ?: throw IllegalStateException("Application context not initialized")
+        val hiltEntryPoint = EntryPointAccessors.fromApplication(
+            context, WidgetProviderEntryPoint::class.java
+        )
+        hiltEntryPoint.cacheRepository()
+    }
+    
     private val coroutineManager = WidgetCoroutineManager.getInstance()
     
     companion object {
@@ -66,6 +75,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
     // Abstract methods for subclasses to implement
     abstract fun getActionRefresh(): String
     abstract fun getActionWidgetUpdate(): String
+    abstract fun getActionRouteReversal(): String
     abstract fun getLayoutResource(): Int
     abstract fun getWidgetContainerId(): Int
     abstract fun getLogTag(): String
@@ -146,6 +156,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         when (intent.action) {
             getActionRefresh() -> handleRefreshAction(context)
             getActionWidgetUpdate() -> handleWidgetUpdateAction(context, intent)
+            getActionRouteReversal() -> handleRouteReversalAction(context, intent)
         }
     }
 
@@ -156,6 +167,12 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         for (appWidgetId in appWidgetIds) {
             // Cancel widget coroutines
             coroutineManager.cancelWidget(appWidgetId, "Widget deleted")
+            
+            // Clear widget reversed state
+            val sharedPrefs = context.getSharedPreferences("widget_route_state", Context.MODE_PRIVATE)
+            sharedPrefs.edit()
+                .remove("widget_${appWidgetId}_reversed")
+                .apply()
             
             // Clear widget data using repository
             coroutineManager.launchInWidgetScope(appWidgetId) {
@@ -485,6 +502,11 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                                 useDeeplink = true,
                                 deeplinkPath = getWidgetType()
                             )
+                            
+                            // Set up route reversal click handler if enabled
+                            if (widgetData.allowRouteReversal) {
+                                setupRouteReversalClickIntent(context, views, appWidgetId)
+                            }
                         } else {
                             setupRefreshClickIntent(context, views)
                         }
@@ -503,6 +525,11 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                                 useDeeplink = true,
                                 deeplinkPath = getWidgetType()
                             )
+                            
+                            // Set up route reversal click handler if enabled
+                            if (widgetData.allowRouteReversal) {
+                                setupRouteReversalClickIntent(context, views, appWidgetId)
+                            }
                         } else {
                             // Fallback to refresh if no widget data found
                             setupRefreshClickIntent(context, views)
@@ -592,6 +619,37 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         views.setOnClickPendingIntent(getWidgetContainerId(), pendingIntent)
     }
 
+    private fun setupRouteReversalClickIntent(context: Context, views: RemoteViews, appWidgetId: Int) {
+        val intent = Intent(context, this::class.java).apply {
+            action = getActionRouteReversal()
+            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+        }
+        val pendingIntent = PendingIntent.getBroadcast(
+            context, appWidgetId + 1000, intent, // Use unique request code to avoid conflicts
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        
+        // Set click handler on the route display elements (station name and destination)
+        views.setOnClickPendingIntent(R.id.widget_station_name, pendingIntent)
+        views.setOnClickPendingIntent(R.id.widget_destination, pendingIntent)
+        
+        Log.d(getLogTag(), "Set up route reversal click intent for widget $appWidgetId")
+    }
+
+
+    private fun isWidgetRouteReversed(context: Context, appWidgetId: Int): Boolean {
+        val sharedPrefs = context.getSharedPreferences("widget_route_state", Context.MODE_PRIVATE)
+        return sharedPrefs.getBoolean("widget_${appWidgetId}_reversed", false)
+    }
+
+    private fun setWidgetRouteReversed(context: Context, appWidgetId: Int, isReversed: Boolean) {
+        val sharedPrefs = context.getSharedPreferences("widget_route_state", Context.MODE_PRIVATE)
+        sharedPrefs.edit()
+            .putBoolean("widget_${appWidgetId}_reversed", isReversed)
+            .apply()
+    }
+
+
 
     private fun setupConfigurationClickIntent(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
         val views = RemoteViews(context.packageName, getLayoutResource())
@@ -625,6 +683,111 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
             updateWidget(context, appWidgetManager, appWidgetId)
         }
     }
+
+    private fun handleRouteReversalAction(context: Context, intent: Intent) {
+        val appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, INVALID_WIDGET_ID)
+        if (appWidgetId != INVALID_WIDGET_ID) {
+            coroutineManager.launchInWidgetScope(appWidgetId) {
+                try {
+                    val widgetData = preferencesRepository.getWidgetData(appWidgetId)
+                    if (widgetData?.allowRouteReversal == true) {
+                        // Toggle reversed state
+                        val isCurrentlyReversed = isWidgetRouteReversed(context, appWidgetId)
+                        val newReversedState = !isCurrentlyReversed
+                        setWidgetRouteReversed(context, appWidgetId, newReversedState)
+                        
+                        Log.d(getLogTag(), "Toggling route display for widget $appWidgetId: reversed=$newReversedState")
+                        
+                        // Always just swap the current route data
+                        val swappedWidgetData = widgetData.copy(
+                            originId = widgetData.destinationId,
+                            destinationId = widgetData.originId,
+                            originName = widgetData.destinationName,
+                            destinationName = widgetData.originName
+                        )
+                        
+                        // Save swapped data
+                        preferencesRepository.saveWidgetData(appWidgetId, swappedWidgetData)
+                        
+                        // Update widget display using ONLY cached data - no API calls
+                        val appWidgetManager = AppWidgetManager.getInstance(context)
+                        updateReversedWidgetFromCache(context, appWidgetManager, appWidgetId, swappedWidgetData)
+                    } else {
+                        Log.d(getLogTag(), "Route reversal not allowed for widget $appWidgetId")
+                    }
+                } catch (e: Exception) {
+                    Log.e(getLogTag(), "Error reversing route for widget $appWidgetId", e)
+                }
+            }
+        }
+    }
+
+    private suspend fun updateReversedWidgetFromCache(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        widgetData: WidgetData
+    ) {
+        try {
+            Log.d(getLogTag(), "Updating reversed widget $appWidgetId from cache only (no API calls)")
+            
+            // Try to get cached data for today
+            val today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date())
+            val cachedData = cacheRepository.getCachedSchedule(appWidgetId, widgetData.originId, widgetData.destinationId, today)
+            
+            when {
+                cachedData != null && cachedData.routes.isNotEmpty() -> {
+                    // Use cached data to render with swapped station names
+                    val upcomingTrains = filterUpcomingTrains(cachedData.routes)
+                    if (upcomingTrains.isNotEmpty()) {
+                        val firstTrain = upcomingTrains.first()
+                        val daysAway = getDaysFromToday(firstTrain.departureTimestamp)
+                        val originName = StationsData.getStationName(context, widgetData.originId)
+                        val destinationName = StationsData.getStationName(context, widgetData.destinationId)
+                        
+                        val state = when (daysAway) {
+                            0 -> WidgetState.Schedule(widgetData.originId, originName, destinationName, firstTrain, upcomingTrains.drop(1))
+                            1 -> WidgetState.TomorrowSchedule(widgetData.originId, originName, destinationName, firstTrain, upcomingTrains.drop(1))
+                            else -> WidgetState.FutureSchedule(widgetData.originId, originName, destinationName, firstTrain, upcomingTrains.drop(1), daysAway)
+                        }
+                        
+                        updateWidgetUI(context, appWidgetManager, appWidgetId, state)
+                        Log.d(getLogTag(), "Successfully updated widget $appWidgetId using cached data")
+                        return
+                    }
+                }
+            }
+            
+            // No cached data available - show message that route was reversed but data needs refresh
+            val originName = StationsData.getStationName(context, widgetData.originId)
+            val destinationName = StationsData.getStationName(context, widgetData.destinationId)
+            
+            val state = WidgetState.Loading(
+                widgetData.originId,
+                originName,
+                destinationName
+            )
+            updateWidgetUI(context, appWidgetManager, appWidgetId, state)
+            Log.d(getLogTag(), "No cached data for reversed route - showing loading state")
+            
+        } catch (e: Exception) {
+            Log.e(getLogTag(), "Error updating widget $appWidgetId from cache only", e)
+            
+            // Fallback: show error state with swapped station names
+            val originName = StationsData.getStationName(context, widgetData.originId)
+            val destinationName = StationsData.getStationName(context, widgetData.destinationId)
+            
+            val state = WidgetState.Error(
+                widgetData.originId,
+                originName,
+                destinationName,
+                "Route reversed",
+                "Tap to refresh"
+            )
+            updateWidgetUI(context, appWidgetManager, appWidgetId, state)
+        }
+    }
+
 
     /**
      * Check if widget is currently showing a departed train (time has passed)
