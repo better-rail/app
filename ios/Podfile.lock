@@ -3196,7 +3196,7 @@ PODS:
     - Yoga
   - react-native-in-app-review (4.3.3):
     - React-Core
-  - react-native-ios-context-menu (3.1.2):
+  - react-native-ios-context-menu (3.1.3):
     - boost
     - ContextMenuAuxiliaryPreview (~> 0.5)
     - DGSwiftUtilities
@@ -3231,7 +3231,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - react-native-ios-utilities (5.1.5):
+  - react-native-ios-utilities (5.1.8):
     - boost
     - ComputableLayout (~> 0.7)
     - DGSwiftUtilities (~> 0.46)
@@ -3253,6 +3253,7 @@ PODS:
     - React-ImageManager
     - React-jsi
     - React-jsinspector
+    - React-jsinspectorcdp
     - React-jsinspectortracing
     - React-jsitooling
     - React-NativeModulesApple
@@ -4861,8 +4862,8 @@ SPEC CHECKSUMS:
   react-native-context-menu-view: 4a4de8bc59bc3fc4215f041881cbc6b2aeac31fe
   react-native-date-picker: 50b4dfbe40efbe44d49f912d01a93a683423c455
   react-native-in-app-review: db8bb167a5f238e7ceca5c242d6b36ce8c4404a4
-  react-native-ios-context-menu: 3b20b736140964ab9a42398a55a3da95281a566c
-  react-native-ios-utilities: 139d8c739b3d9c958bb7b12e2eaa3864c7f4e2b7
+  react-native-ios-context-menu: ef4e3872094775ffd74a4b9f8287a2236699cae7
+  react-native-ios-utilities: 399e0178b15408f4fc5ed826c02f5da8e731e9a5
   react-native-netinfo: 2517ad504b3d303e90d7a431b0fcaef76d207983
   react-native-restart: 7595693413fe3ca15893702f2c8306c62a708162
   react-native-safe-area-context: f8e20c4e9453e4bb545db6478495dc5b1128f504

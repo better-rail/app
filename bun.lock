@@ -59,8 +59,8 @@
         "react-native-iap": "12.16.2",
         "react-native-in-app-review": "4.3.3",
         "react-native-inappbrowser-reborn": "3.7.0",
-        "react-native-ios-context-menu": "3.1.2",
-        "react-native-ios-utilities": "5.1.5",
+        "react-native-ios-context-menu": "3.1.3",
+        "react-native-ios-utilities": "5.1.8",
         "react-native-linear-gradient": "2.5.6",
         "react-native-modal-datetime-picker": "9.2.1",
         "react-native-modalfy": "3.6.0",
@@ -2245,9 +2245,9 @@
 
     "react-native-inappbrowser-reborn": ["react-native-inappbrowser-reborn@3.7.0", "", { "dependencies": { "invariant": "^2.2.4", "opencollective-postinstall": "^2.0.3" }, "peerDependencies": { "react-native": ">=0.56" } }, "sha512-Ia53jYNtFcbNaX5W3QfOmN25I7bcvuDiQmSY5zABXjy4+WI20bPc9ua09li55F8yDCjv3C99jX6vKms68mBV7g=="],
 
-    "react-native-ios-context-menu": ["react-native-ios-context-menu@3.1.2", "", { "dependencies": { "@dominicstop/ts-event-emitter": "^1.1.0" }, "peerDependencies": { "react": "*", "react-native": "*", "react-native-ios-utilities": "*" } }, "sha512-xmwdygAlmEofBzQvIhJd5qa+2DzPznmWuwkkqkI9NJbe+cfOmIzbvLdVD5RkiayewnCX9Mp8v/muf3BRWq/T1A=="],
+    "react-native-ios-context-menu": ["react-native-ios-context-menu@3.1.3", "", { "dependencies": { "@dominicstop/ts-event-emitter": "^1.1.0" }, "peerDependencies": { "react": "*", "react-native": "*", "react-native-ios-utilities": "*" } }, "sha512-p65JTOxL0D8TOgTgq3A7nVhr/hQuRTtlmsH/aQ7vaOgxY4Na/QVcEF9s4wHc7y+Rcmv84bi6V6DhqxGkFFLPmA=="],
 
-    "react-native-ios-utilities": ["react-native-ios-utilities@5.1.5", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-s+gsFwMk2Ty5ZXnCmdgPtxJ3ij1v5v4nJjEqyMD35dzGrI1FISj3UxNusGElT6edV8YaEinAnX/LkXhDA6lnYg=="],
+    "react-native-ios-utilities": ["react-native-ios-utilities@5.1.8", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-2lWerAkd0Kn18kUAc/RaBzHnOGG1VjbKVfTR4eEXvwYFYqCS709gOg0tGUaVLsm6CAyMe7/jA+AvKMMztzHf4g=="],
 
     "react-native-is-edge-to-edge": ["react-native-is-edge-to-edge@1.1.7", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-EH6i7E8epJGIcu7KpfXYXiV2JFIYITtq+rVS8uEb+92naMRBdxhTuS8Wn2Q7j9sqyO0B+Xbaaf9VdipIAmGW4w=="],
 
