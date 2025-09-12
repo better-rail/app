@@ -1207,7 +1207,7 @@ PODS:
     - DGSwiftUtilities (~> 0.29)
   - DGSwiftUtilities (0.47.0)
   - DoubleConversion (1.1.6)
-  - Expo (53.0.12):
+  - Expo (54.0.2):
     - boost
     - DoubleConversion
     - ExpoModulesCore
@@ -1247,7 +1247,7 @@ PODS:
     - ExpoModulesCore
   - ExpoLocalization (15.0.3):
     - ExpoModulesCore
-  - ExpoModulesCore (2.4.0):
+  - ExpoModulesCore (3.0.15):
     - boost
     - DoubleConversion
     - fast_float
@@ -4788,12 +4788,12 @@ SPEC CHECKSUMS:
   ContextMenuAuxiliaryPreview: 20be0be795b783b68f8792732eed4bed9f202c1c
   DGSwiftUtilities: 567f8d5ee618f0b7afb185b17aa45ff356315a0f
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
-  Expo: c2fe4a5c7c4062fd50d9ff39ba8b244a0d3cecbb
+  Expo: eb002e02be05e684bd45d57eb8716db8d70b530c
   ExpoBlur: 567af66164e3043a9a30069594aed1ddf0a88d97
   ExpoCalendar: 2494a630f176436783a8941efd3c38a9c657ae65
   ExpoClipboard: 6b9aae54fd48a579473fb101051ad693435b9294
   ExpoLocalization: f04eeec2e35bed01ab61c72ee1768ec04d093d01
-  ExpoModulesCore: b7947c9c24805cd8fbb0cf3e3390e30b92a9030c
+  ExpoModulesCore: 02bc7a835251516de8598a2388a38d7b1855eb17
   fast_float: b32c788ed9c6a8c584d114d0047beda9664e7cc6
   FBLazyVector: 86588b5a1547e7a417942a08f49559b184e002c8
   Firebase: 735108d2d0b67827cd929bfe8254983907c4479f
