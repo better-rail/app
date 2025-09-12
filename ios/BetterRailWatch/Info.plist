@@ -19,6 +19,8 @@
 			<string>The app uses user defaults to save user preferences and settings.</string>
 		</dict>
 	</array>
+	<key>RCTNewArchEnabled</key>
+	<true/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Heebo-Regular.otf</string>

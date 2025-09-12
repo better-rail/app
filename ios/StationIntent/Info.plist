@@ -45,5 +45,7 @@
 			</dict>
 		</array>
 	</dict>
+	<key>RCTNewArchEnabled</key>
+	<true/>
 </dict>
 </plist>
