@@ -11,7 +11,7 @@
         "@react-native-community/cli": "19.1.1",
         "@react-native-community/cli-platform-android": "19.1.1",
         "@react-native-community/cli-platform-ios": "19.1.1",
-        "@react-native-community/datetimepicker": "8.2.0",
+        "@react-native-community/datetimepicker": "8.4.4",
         "@react-native-community/netinfo": "9.3.7",
         "@react-native-community/push-notification-ios": "1.11.0",
         "@react-native-firebase/analytics": "22.1.0",
@@ -62,7 +62,7 @@
         "react-native-ios-context-menu": "3.1.3",
         "react-native-ios-utilities": "5.1.8",
         "react-native-linear-gradient": "2.5.6",
-        "react-native-modal-datetime-picker": "9.2.1",
+        "react-native-modal-datetime-picker": "18.0.0",
         "react-native-modalfy": "3.6.0",
         "react-native-prompt-android": "1.1.0",
         "react-native-push-notification": "8.1.1",
@@ -637,7 +637,7 @@
 
     "@react-native-community/cli-types": ["@react-native-community/cli-types@19.1.1", "", { "dependencies": { "joi": "^17.2.1" } }, "sha512-rOGiYjeDM9tkYBEuK6TJrnxpMhmaId1Un8pjQJswz7W9w2Vb6+nnLfWja7X7VmDIvqIK5GhVobRHsmKCKIdDEA=="],
 
-    "@react-native-community/datetimepicker": ["@react-native-community/datetimepicker@8.2.0", "", { "dependencies": { "invariant": "^2.2.4" }, "peerDependencies": { "expo": ">=50.0.0", "react": "*", "react-native": "*", "react-native-windows": "*" }, "optionalPeers": ["expo", "react-native-windows"] }, "sha512-qrUPhiBvKGuG9Y+vOqsc56RPFcHa1SU2qbAMT0hfGkoFIj3FodE0VuPVrEa8fgy7kcD5NQmkZIKgHOBLV0+hWg=="],
+    "@react-native-community/datetimepicker": ["@react-native-community/datetimepicker@8.4.4", "", { "dependencies": { "invariant": "^2.2.4" }, "peerDependencies": { "expo": ">=52.0.0", "react": "*", "react-native": "*", "react-native-windows": "*" }, "optionalPeers": ["expo", "react-native-windows"] }, "sha512-bc4ZixEHxZC9/qf5gbdYvIJiLZ5CLmEsC3j+Yhe1D1KC/3QhaIfGDVdUcid0PdlSoGOSEq4VlB93AWyetEyBSQ=="],
 
     "@react-native-community/netinfo": ["@react-native-community/netinfo@9.3.7", "", { "peerDependencies": { "react-native": ">=0.59" } }, "sha512-+taWmE5WpBp0uS6kf+bouCx/sn89G9EpR4s2M/ReLvctVIFL2Qh8WnWfBxqK9qwgmFha/uqjSr2Gq03OOtiDcw=="],
 
