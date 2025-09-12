@@ -1,3 +1,110 @@
 <resources>
     <string name="app_name">Better Rail</string>
+    
+    <!-- Widget strings -->
+    <string name="widget_configure_title">Configure Train Widget</string>
+    <string name="widget_configure_description">Select your route to display train schedules on your home screen</string>
+    <string name="widget_from_label">From Station</string>
+    <string name="widget_to_label">To Station</string>
+    <string name="widget_label_hint">Custom label (optional)</string>
+    <string name="widget_cancel">Cancel</string>
+    <string name="widget_add">Add Widget</string>
+    <string name="widget_edit">Edit Widget</string>
+    <string name="widget_2x2_description">Compact 2x2 train widget</string>
+    <string name="widget_4x2_description">Compact 4x2 train schedule</string>
+    <string name="select_station">Select Station</string>
+    <string name="search_origin_hint">Search origin station...</string>
+    <string name="search_destination_hint">Search destination station...</string>
+    <string name="widget_allow_route_reversal">Allow tapping station names to switch direction</string>
+    
+    <!-- Widget display strings -->
+    <string name="tap_to_configure">Tap to configure</string>
+    <string name="select_your_route">Select your route</string>
+    <string name="loading">Loading...</string>
+    <string name="next_train">NEXT TRAIN</string>
+    <string name="tomorrow">TOMORROW</string>
+    <string name="platform_number">Platform %s</string>
+    <string name="platform_default">Platform --</string>
+    <string name="train_number">Train %s</string>
+    <string name="train_default">Train ---</string>
+    <string name="no_trains">No trains</string>
+    <string name="check_schedule">Check schedule</string>
+    <string name="tap_to_retry">Tap to retry</string>
+    <string name="error">Error</string>
+    <string name="time_placeholder">--:--</string>
+    <string name="upcoming">UPCOMING</string>
+    <string name="arrival">Arrival</string>
+    <string name="arrival_caps">ARRIVAL</string>
+    
+    <!-- Station names -->
+    <string name="station_1500">Ako</string>
+    <string name="station_1600">Nahariya</string>
+    <string name="station_1820">Ahihud</string>
+    <string name="station_1840">Karmiel</string>
+    <string name="station_1400">Kiryat Motzkin</string>
+    <string name="station_1220">HaMifrats Central Station</string>
+    <string name="station_700">Kiryat Hayim</string>
+    <string name="station_2200">Haifa - Bat Galim</string>
+    <string name="station_2100">Haifa Center - HaShmona</string>
+    <string name="station_1300">Hutzot HaMifratz</string>
+    <string name="station_2300">Haifa - Hof HaKarmel</string>
+    <string name="station_2500">Atlit</string>
+    <string name="station_3100">Hadera - West</string>
+    <string name="station_2820">Caesarea-Pardes Hana</string>
+    <string name="station_2800">Binyamina</string>
+    <string name="station_3300">Netanya</string>
+    <string name="station_3310">Netanya - Sapir</string>
+    <string name="station_3400">Bet Yehoshu\'a</string>
+    <string name="station_3500">Herzliya</string>
+    <string name="station_2940">Ra\'anana West</string>
+    <string name="station_2960">Ra\'anana South</string>
+    <string name="station_8700">Kfar Sava - Nordau</string>
+    <string name="station_9200">Hod HaSharon - Sokolov</string>
+    <string name="station_3600">Tel Aviv - University</string>
+    <string name="station_4600">Tel Aviv - HaShalom</string>
+    <string name="station_3700">Tel Aviv - Savidor Center</string>
+    <string name="station_4900">Tel Aviv - HaHagana</string>
+    <string name="station_4100">Bnei Brak</string>
+    <string name="station_4250">Petah Tikva - Segula</string>
+    <string name="station_4170">Petah Tikva - Kiryat Arye</string>
+    <string name="station_8800">Rosh Ha\'Ayin - North</string>
+    <string name="station_4800">Kfar Habad</string>
+    <string name="station_8600">Ben Gurion Airport</string>
+    <string name="station_5000">Lod</string>
+    <string name="station_5150">Lod - Gane Aviv</string>
+    <string name="station_5010">Ramla</string>
+    <string name="station_5300">Be\'er Ya\'akov</string>
+    <string name="station_5200">Rehovot</string>
+    <string name="station_5410">Yavne - East</string>
+    <string name="station_9000">Yavne - West</string>
+    <string name="station_5800">Ashdod - Ad Halom</string>
+    <string name="station_7000">Kiryat Gat</string>
+    <string name="station_7320">Be\'er Sheva - Center</string>
+    <string name="station_7300">Be\'er Sheva - North/University</string>
+    <string name="station_6300">Bet Shemesh</string>
+    <string name="station_5900">Ashkelon</string>
+    <string name="station_7500">Dimona</string>
+    <string name="station_8550">Lehavim - Rahat</string>
+    <string name="station_300">Pa\'ate Modi\'in</string>
+    <string name="station_400">Modi\'in - Center</string>
+    <string name="station_4640">Holon Junction</string>
+    <string name="station_4660">Holon - Wolfson</string>
+    <string name="station_4680">Bat Yam - Yoseftal</string>
+    <string name="station_4690">Bat Yam - Komemiyut</string>
+    <string name="station_9100">Rishon LeTsiyon - HaRishonim</string>
+    <string name="station_9800">Rishon LeTsiyon - Moshe Dayan</string>
+    <string name="station_9600">Sderot</string>
+    <string name="station_9650">Netivot</string>
+    <string name="station_9700">Ofakim</string>
+    <string name="station_1240">Yokne\'am - Kfar Yehoshu\'a</string>
+    <string name="station_1250">Migdal Ha\'emek - Kfar Barukh</string>
+    <string name="station_1260">Afula R.Eitan</string>
+    <string name="station_1280">Beit She\'an</string>
+    <string name="station_6150">Kiryat Malakhi – Yoav</string>
+    <string name="station_680">Jerusalem - Yitzhak Navon</string>
+    <string name="station_6900">Mazkeret Batya</string>
+    
+    <!-- Test stations for mock data -->
+    <string name="station_9999">Test Origin Station</string>
+    <string name="station_8888">Test Destination Station</string>
 </resources>

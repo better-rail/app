@@ -11,11 +11,15 @@ export async function canRunLiveActivities() {
 }
 
 export function donateRouteIntent(originId: string, destinationId: string) {
-  RNBetterRail.donateRouteIntent(originId, destinationId)
+  if (Platform.OS === "ios" && RNBetterRail) {
+    RNBetterRail.donateRouteIntent(originId, destinationId)
+  }
 }
 
 export function reloadAllTimelines() {
-  RNBetterRail.reloadAllTimelines()
+  if (Platform.OS === "ios" && RNBetterRail) {
+    RNBetterRail.reloadAllTimelines()
+  }
 }
 
 export function monitorLiveActivities() {
