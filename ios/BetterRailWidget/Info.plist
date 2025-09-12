@@ -34,5 +34,7 @@
 			<string>The app uses user defaults to save user preferences and settings.</string>
 		</dict>
 	</array>
+	<key>RCTNewArchEnabled</key>
+	<true/>
 </dict>
 </plist>

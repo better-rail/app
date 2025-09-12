@@ -50,11 +50,7 @@ class MainApplication : Application(), ReactApplication {
     super.onCreate()
     
     // Initialize React Native
-    SoLoader.init(this, OpenSourceMergedSoMapping)
-    if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
-      // If you opted-in for the New Architecture, we load the native entry point for this app.
-      load()
-    }
+    loadReactNative(this)
     
     // Initialize widget lifecycle management
     try {
