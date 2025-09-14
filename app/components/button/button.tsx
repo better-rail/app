@@ -50,6 +50,7 @@ const LIQUID_GLASS_STYLE: ViewStyle = {
   height: 55,
   padding: spacing[4] * fontScale,
   borderRadius: 16,
+  borderCurve: "continuous",
 }
 
 export interface CustomButtonProps extends ButtonProps {

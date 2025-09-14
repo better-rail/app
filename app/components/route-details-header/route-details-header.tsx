@@ -20,6 +20,7 @@ import { HeaderBackButton } from "@react-navigation/elements"
 import { addRouteToCalendar as addRouteToCalendarHelper } from "../../utils/helpers/calendar-helpers"
 import { createContextMenuActions } from "../route-card/route-context-menu-actions"
 import { RouteStationNameButton } from "./route-station-name-button"
+import { LiquidGlassView } from "@callstack/liquid-glass"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
 
@@ -44,16 +45,19 @@ const ROUTE_DETAILS_STATION: ViewStyle = {
   zIndex: 0,
 }
 
+const ROUTE_INFO_CIRCLE_WRAPPER: ViewStyle = {
+  position: "absolute",
+  zIndex: 5,
+}
+
 const ROUTE_INFO_CIRCLE: ViewStyle = {
   width: 34,
   height: 34,
-  position: "absolute",
   alignItems: "center",
   justifyContent: "center",
   backgroundColor: color.secondary,
   borderRadius: 25,
   elevation: 3,
-  zIndex: 5,
 }
 
 const ARROW_ICON: ImageStyle = {
@@ -313,12 +317,14 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
           <Pressable
             hitSlop={{ top: spacing[2], bottom: spacing[2], left: spacing[2], right: spacing[2] }}
             onPress={swapDirection}
-            style={ROUTE_INFO_CIRCLE}
+            style={ROUTE_INFO_CIRCLE_WRAPPER}
             disabled={routeEditDisabled}
             accessibilityLabel={translate("plan.switchStations")}
             accessibilityHint={translate("plan.switchStationsHint")}
           >
-            <Image source={arrowIcon} style={ARROW_ICON} />
+            <LiquidGlassView interactive style={ROUTE_INFO_CIRCLE} tintColor={color.secondary}>
+              <Image source={arrowIcon} style={ARROW_ICON} />
+            </LiquidGlassView>
           </Pressable>
 
           <RouteStationNameButton

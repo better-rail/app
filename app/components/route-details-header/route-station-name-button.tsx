@@ -32,8 +32,8 @@ export function RouteStationNameButton(props: RouteStationNameButtonProps) {
 
   if (isLiquidGlassSupported) {
     return (
-      <Pressable onPress={onPress}>
-        <LiquidGlassView interactive tintColor={color.secondaryLighter} style={LIQUID_GLASS_STYLE}>
+      <Pressable onPress={onPress} disabled={disabled}>
+        <LiquidGlassView interactive={!disabled} tintColor={color.secondaryLighter} style={LIQUID_GLASS_STYLE}>
           <Text style={ROUTE_DETAILS_STATION_TEXT} maxFontSizeMultiplier={1.1}>
             {name}
           </Text>
