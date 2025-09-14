@@ -50,6 +50,7 @@ export const StarIcon = observer(function StarIcon(props: StarIconProps) {
       accessibilityRole="button"
       accessibilityLabel={translate("favorites.title")}
       accessibilityState={{ selected: filled } as AccessibilityState}
+      hitSlop={10}
     >
       <Image source={starImage} style={[STAR_ICON, STAR_STATE_STYLE]} accessible={false} />
     </TouchableOpacity>
