@@ -1,5 +1,5 @@
 import React, { useState, useMemo, ReactNode } from "react"
-import { View, Pressable, TextStyle, ViewStyle, ButtonProps, Platform, ActivityIndicator, PlatformColor } from "react-native"
+import { View, Pressable, TextStyle, ViewStyle, ButtonProps, Platform, ActivityIndicator } from "react-native"
 import { color, fontScale, spacing, typography } from "../../theme"
 import { Text } from "../"
 import { LiquidGlassView, isLiquidGlassSupported } from "@callstack/liquid-glass"
@@ -62,7 +62,7 @@ export interface CustomButtonProps extends ButtonProps {
   icon?: ReactNode
   pressedOpacity?: number
   size?: "small"
-  variant?: "primary" | "secondary"
+  variant?: "primary" | "secondary" | "success"
   /**
    * An optional onPress handler that is only called when the button is disabled.
    */
@@ -87,12 +87,7 @@ export const Button = function Button(props: CustomButtonProps) {
   if (isLiquidGlassSupported) {
     return (
       <Pressable onPress={onPress} disabled={disabled}>
-        <LiquidGlassView
-          interactive
-          effect="clear"
-          style={LIQUID_GLASS_STYLE}
-          tintColor={variant === "primary" ? color.primary : color.secondary}
-        >
+        <LiquidGlassView interactive={!!onPress} style={[LIQUID_GLASS_STYLE, style]} tintColor={color[variant]}>
           <View style={TEXT_WRAPPER}>
             {loading ? (
               <ActivityIndicator color={color.whiteText} />
