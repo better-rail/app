@@ -13,6 +13,7 @@ import {
 import { Text } from "../../../components"
 import { isRTL } from "../../../i18n"
 import { color, spacing } from "../../../theme"
+import { isLiquidGlassSupported } from "@callstack/liquid-glass"
 
 const chevronIcon = require("../../../../assets/chevron.png")
 const checkmarkIcon = require("../../../../assets/checkmark.png")
@@ -109,7 +110,13 @@ export const SettingBox = function SettingBox(props: SettingBoxProps) {
         {externalLink && <Image style={EXTERNAL_LINK_ICON} source={externalLinkIcon} />}
         {chevron && <Image style={CHEVRON_ICON} source={chevronIcon} />}
         {checkmark && <Image style={CHECKMARK_ICON} source={checkmarkIcon} />}
-        {toggle && <Switch value={props.toggleValue} onValueChange={props.onToggle} />}
+        {toggle && (
+          <Switch
+            value={props.toggleValue}
+            onValueChange={props.onToggle}
+            style={{ marginEnd: isLiquidGlassSupported ? spacing[4] : 0 }}
+          />
+        )}
       </View>
     </TouchableHighlight>
   )
