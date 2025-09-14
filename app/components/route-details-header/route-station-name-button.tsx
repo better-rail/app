@@ -1,8 +1,7 @@
-import { Animated as RNAnimated, TextStyle, ViewStyle } from "react-native"
+import { Animated as RNAnimated, TextStyle } from "react-native"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
-import { translate } from "../../i18n"
 import { Text } from "../"
-import { color, spacing } from "../../theme"
+import { color } from "../../theme"
 
 const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale)
 
