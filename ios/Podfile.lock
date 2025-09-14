@@ -1239,13 +1239,13 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - ExpoBlur (14.0.3):
+  - ExpoBlur (15.0.7):
     - ExpoModulesCore
-  - ExpoCalendar (14.0.6):
+  - ExpoCalendar (15.0.7):
     - ExpoModulesCore
-  - ExpoClipboard (7.1.5):
+  - ExpoClipboard (8.0.7):
     - ExpoModulesCore
-  - ExpoLocalization (15.0.3):
+  - ExpoLocalization (17.0.7):
     - ExpoModulesCore
   - ExpoModulesCore (3.0.15):
     - boost
@@ -4789,10 +4789,10 @@ SPEC CHECKSUMS:
   DGSwiftUtilities: 567f8d5ee618f0b7afb185b17aa45ff356315a0f
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   Expo: eb002e02be05e684bd45d57eb8716db8d70b530c
-  ExpoBlur: 567af66164e3043a9a30069594aed1ddf0a88d97
-  ExpoCalendar: 2494a630f176436783a8941efd3c38a9c657ae65
-  ExpoClipboard: 6b9aae54fd48a579473fb101051ad693435b9294
-  ExpoLocalization: f04eeec2e35bed01ab61c72ee1768ec04d093d01
+  ExpoBlur: b5b7a26572b3c33a11f0b2aa2f95c17c4c393b76
+  ExpoCalendar: 46ad51c48d2cb1a95439c2215b182428919a0c3d
+  ExpoClipboard: 99109306a2d9ed2fbd16f6b856e6267b2afa8472
+  ExpoLocalization: 6c6f0f89ad2822001ab0bc2eb6d4d980c77f080c
   ExpoModulesCore: 02bc7a835251516de8598a2388a38d7b1855eb17
   fast_float: b32c788ed9c6a8c584d114d0047beda9664e7cc6
   FBLazyVector: 86588b5a1547e7a417942a08f49559b184e002c8

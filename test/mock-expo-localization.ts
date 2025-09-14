@@ -2,6 +2,19 @@ import { mock } from "bun:test"
 
 mock.module("expo-localization", () => {
   return {
-    t: (key) => `${key}.test`,
+    getLocales: () => [
+      {
+        languageCode: "en",
+        languageTag: "en-US",
+        regionCode: "US",
+        currencyCode: "USD",
+        currencySymbol: "$",
+        decimalSeparator: ".",
+        digitGroupingSeparator: ",",
+        textDirection: "ltr",
+        measurementSystem: "metric",
+        temperatureUnit: "celsius"
+      }
+    ]
   }
 })
