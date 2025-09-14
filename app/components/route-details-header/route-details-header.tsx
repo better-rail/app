@@ -26,6 +26,7 @@ const arrowIcon = require("../../../assets/arrow-left.png")
 const ROUTE_DETAILS_WRAPPER: ViewStyle = {
   flexDirection: "row",
   justifyContent: "center",
+  gap: spacing[4],
   alignItems: "center",
 }
 
@@ -301,7 +302,8 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
         <View style={[ROUTE_DETAILS_WRAPPER, style]}>
           <RouteStationNameButton
             disabled={routeEditDisabled}
-            style={[ROUTE_DETAILS_STATION, { marginEnd: spacing[5], transform: [{ scale: stationCardScale }] }]}
+            style={ROUTE_DETAILS_STATION}
+            buttonScale={stationCardScale}
             onPress={changeOriginStation}
             accessibilityLabel={`${translate("plan.origin")}: ${originName}`}
             accessibilityHint={translate("plan.selectStation")}
@@ -322,7 +324,8 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
           <RouteStationNameButton
             disabled={routeEditDisabled}
             onPress={changeDestinationStation}
-            style={[ROUTE_DETAILS_STATION, { transform: [{ scale: stationCardScale }] }]}
+            style={ROUTE_DETAILS_STATION}
+            buttonScale={stationCardScale}
             accessibilityLabel={`${translate("plan.destination")}: ${destinationName}`}
             accessibilityHint={translate("plan.selectStation")}
             name={destinationName}
