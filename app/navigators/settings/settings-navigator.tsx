@@ -15,6 +15,7 @@ export const SettingsNavigator = () => (
     screenOptions={{
       headerTintColor: color.primary,
       headerBackButtonDisplayMode: "minimal",
+      headerStatusBarHeight: Platform.OS === "ios" ? 16 : undefined,
     }}
   >
     <SettingsStack.Screen

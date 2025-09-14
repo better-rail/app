@@ -25,6 +25,7 @@ export const AnnouncementsNavigator = () => (
     screenOptions={{
       headerTintColor: color.primary,
       headerBackButtonDisplayMode: "minimal",
+      headerStatusBarHeight: Platform.OS === "ios" ? 16 : undefined,
     }}
   >
     <AnnouncementsStack.Screen
