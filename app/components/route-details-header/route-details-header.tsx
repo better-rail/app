@@ -1,7 +1,6 @@
 import { useLayoutEffect, useRef, useEffect, useCallback, useMemo } from "react"
 import { Image, ImageBackground, View, Animated as RNAnimated, Pressable, Platform } from "react-native"
 import type { ViewStyle, TextStyle, ImageStyle } from "react-native"
-import TouchableScale from "react-native-touchable-scale"
 import { useNavigation } from "@react-navigation/native"
 import { analytics } from "../../services/firebase/analytics"
 import { observer } from "mobx-react-lite"
@@ -20,8 +19,8 @@ import ContextMenu from "react-native-context-menu-view"
 import { HeaderBackButton } from "@react-navigation/elements"
 import { addRouteToCalendar as addRouteToCalendarHelper } from "../../utils/helpers/calendar-helpers"
 import { createContextMenuActions } from "../route-card/route-context-menu-actions"
+import { RouteStationNameButton } from "./route-station-name-button"
 
-const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale)
 const arrowIcon = require("../../../assets/arrow-left.png")
 
 const ROUTE_DETAILS_WRAPPER: ViewStyle = {
@@ -42,14 +41,6 @@ const ROUTE_DETAILS_STATION: ViewStyle = {
   shadowOpacity: isDarkMode ? 0 : 0.45,
   elevation: 3,
   zIndex: 0,
-}
-
-const ROUTE_DETAILS_STATION_TEXT: TextStyle = {
-  color: color.text,
-  opacity: 0.8,
-  textAlign: "center",
-  fontWeight: "600",
-  fontSize: 14,
 }
 
 const ROUTE_INFO_CIRCLE: ViewStyle = {
@@ -170,8 +161,8 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
     return createContextMenuActions(routeItem, originId, destinationId)
   }, [routeItem, originId, destinationId])
 
-  const shareAction = routeMenuActions.find(action => action.systemIcon === 'square.and.arrow.up')
-  
+  const shareAction = routeMenuActions.find((action) => action.systemIcon === "square.and.arrow.up")
+
   const handleShare = useCallback(async () => {
     if (shareAction) {
       await shareAction.onPress()
@@ -188,20 +179,20 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   const renderHeaderRight = useCallback(() => {
     if (screenName === "routeDetails") {
       const actions = [
-        { 
-          title: translate("routes.share"), 
+        {
+          title: translate("routes.share"),
           systemIcon: "square.and.arrow.up",
-          onPress: handleShare 
+          onPress: handleShare,
         },
-        { 
-          title: translate("routeDetails.addToCalendar"), 
+        {
+          title: translate("routeDetails.addToCalendar"),
           systemIcon: "calendar",
-          onPress: addToCalendar 
+          onPress: addToCalendar,
         },
         {
           title: translate(showEntireRoute ? "routeDetails.hideAllStations" : "routeDetails.showAllStations"),
           systemIcon: showEntireRoute ? "rectangle.compress.vertical" : "rectangle.expand.vertical",
-          onPress: () => setShowEntireRoute((prev) => !prev)
+          onPress: () => setShowEntireRoute((prev) => !prev),
         },
       ]
 
@@ -210,8 +201,8 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
           dropdownMenuMode
           actions={actions}
           onPress={(event) => {
-            const action = actions[event.nativeEvent.index];
-            action?.onPress?.();
+            const action = actions[event.nativeEvent.index]
+            action?.onPress?.()
           }}
         >
           <MenuIcon />
@@ -295,10 +286,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
           >
             {/* Back Button */}
             <View style={Platform.select({ android: { marginLeft: -spacing[4] }, ios: {} })}>
-              <HeaderBackButton
-                tintColor="rgba(211, 211, 211, 0.9)"
-                onPress={() => navigation.goBack()}
-              />
+              <HeaderBackButton tintColor="rgba(211, 211, 211, 0.9)" onPress={() => navigation.goBack()} />
             </View>
 
             {/* Right Icons */}
@@ -311,19 +299,14 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 
       <View style={{ top: -20, marginBottom: -30, zIndex: 5 }}>
         <View style={[ROUTE_DETAILS_WRAPPER, style]}>
-          <AnimatedTouchable
-            friction={9}
-            activeScale={0.95}
+          <RouteStationNameButton
             disabled={routeEditDisabled}
-            onPress={changeOriginStation}
             style={[ROUTE_DETAILS_STATION, { marginEnd: spacing[5], transform: [{ scale: stationCardScale }] }]}
+            onPress={changeOriginStation}
             accessibilityLabel={`${translate("plan.origin")}: ${originName}`}
             accessibilityHint={translate("plan.selectStation")}
-          >
-            <Text style={ROUTE_DETAILS_STATION_TEXT} maxFontSizeMultiplier={1.1}>
-              {originName}
-            </Text>
-          </AnimatedTouchable>
+            name={originName}
+          />
 
           <Pressable
             hitSlop={{ top: spacing[2], bottom: spacing[2], left: spacing[2], right: spacing[2] }}
@@ -336,19 +319,14 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
             <Image source={arrowIcon} style={ARROW_ICON} />
           </Pressable>
 
-          <AnimatedTouchable
-            friction={9}
-            activeScale={0.95}
+          <RouteStationNameButton
             disabled={routeEditDisabled}
             onPress={changeDestinationStation}
             style={[ROUTE_DETAILS_STATION, { transform: [{ scale: stationCardScale }] }]}
             accessibilityLabel={`${translate("plan.destination")}: ${destinationName}`}
             accessibilityHint={translate("plan.selectStation")}
-          >
-            <Text style={ROUTE_DETAILS_STATION_TEXT} maxFontSizeMultiplier={1.1}>
-              {destinationName}
-            </Text>
-          </AnimatedTouchable>
+            name={destinationName}
+          />
         </View>
       </View>
     </>
