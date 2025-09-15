@@ -114,6 +114,7 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
       }}
     >
       <Button
+        variant="secondary"
         style={{
           backgroundColor: color.secondary,
           width: Platform.OS === "ios" && userLocale === "he" ? 160 * fontScale : 148 * fontScale,

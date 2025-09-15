@@ -25,11 +25,7 @@ const Stack = createNativeStackNavigator<RootParamList>()
 
 const RootStack = () => {
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="mainStack" component={MainNavigator} />
       <Stack.Group screenOptions={{ presentation: "modal" }}>
         <Stack.Screen name="settingsStack" component={SettingsNavigator} />

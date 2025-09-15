@@ -109,6 +109,7 @@ export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
           <Button
             title={translate("liveAnnounce.supportUs.tipJarButton")}
             style={{ minHeight: 55 * fontScale, backgroundColor: isDarkMode ? color.success : color.greenText }}
+            variant="success"
             containerStyle={{ minHeight: 55 * fontScale }}
             onPress={() => {
               analytics.logEvent("live_announcement_tip_jar_press")

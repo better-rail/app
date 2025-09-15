@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
-import { Pressable, type PressableProps, Image, ActivityIndicator, type ViewStyle } from "react-native"
+import { Pressable, type PressableProps, Image, ActivityIndicator, type ViewStyle, PlatformColor } from "react-native"
 import { color } from "../../../theme"
 import { Text, BottomScreenSheet } from "../../../components"
 import { useNavigation } from "@react-navigation/native"
@@ -7,6 +7,7 @@ import { observer } from "mobx-react-lite"
 import { useStores } from "../../../models"
 import { translate } from "../../../i18n"
 import { analytics } from "../../../services/firebase/analytics"
+import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
 
 // TODO: add typings to progress
 export const LiveRideSheet = observer(function LiveRideSheet(props: { progress; screenName: "routeDetails" | "activeRide" }) {
@@ -88,6 +89,20 @@ const StopButton = (props: { loading: boolean } & PressableProps) => {
       }
     }
   }, [loading])
+
+  if (isLiquidGlassSupported) {
+    return (
+      <Pressable>
+        <LiquidGlassView interactive style={STOP_BUTTON} tintColor={PlatformColor("systemRed")}>
+          {loading ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Image source={require("../../../../assets/stop-rect.png")} style={{ width: 17.5, height: 17.5 }} />
+          )}
+        </LiquidGlassView>
+      </Pressable>
+    )
+  }
 
   return (
     <Pressable disabled={isDisabled} style={STOP_BUTTON} {...props}>

@@ -2,11 +2,13 @@ import * as React from "react"
 import { Platform, TextStyle, TouchableOpacity, ViewStyle, PressableProps } from "react-native"
 import { color, spacing, typography } from "../../theme"
 import { Text } from "../"
+import { isLiquidGlassSupported } from "@callstack/liquid-glass"
 
 const CONTAINER: ViewStyle = {
   padding: spacing[4],
   backgroundColor: color.inputBackground,
-  borderRadius: Platform.select({ ios: 12, android: 6 }),
+  borderRadius: Platform.select({ ios: isLiquidGlassSupported ? 16 : 12, android: 6 }),
+  borderCurve: "continuous",
   shadowColor: color.palette.black,
   shadowOffset: { height: 0, width: 0 },
   shadowOpacity: 0.2,
