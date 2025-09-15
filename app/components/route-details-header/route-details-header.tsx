@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useEffect, useCallback, useMemo } from "react"
 import { Image, ImageBackground, View, Animated as RNAnimated, Pressable, Platform } from "react-native"
 import type { ViewStyle, TextStyle, ImageStyle } from "react-native"
+import TouchableScale from "react-native-touchable-scale"
 import { useNavigation } from "@react-navigation/native"
 import { analytics } from "../../services/firebase/analytics"
 import { observer } from "mobx-react-lite"
@@ -19,15 +20,13 @@ import ContextMenu from "react-native-context-menu-view"
 import { HeaderBackButton } from "@react-navigation/elements"
 import { addRouteToCalendar as addRouteToCalendarHelper } from "../../utils/helpers/calendar-helpers"
 import { createContextMenuActions } from "../route-card/route-context-menu-actions"
-import { RouteStationNameButton } from "./route-station-name-button"
-import { LiquidGlassView } from "@callstack/liquid-glass"
 
+const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale)
 const arrowIcon = require("../../../assets/arrow-left.png")
 
 const ROUTE_DETAILS_WRAPPER: ViewStyle = {
   flexDirection: "row",
   justifyContent: "center",
-  gap: spacing[4],
   alignItems: "center",
 }
 
@@ -45,19 +44,24 @@ const ROUTE_DETAILS_STATION: ViewStyle = {
   zIndex: 0,
 }
 
-const ROUTE_INFO_CIRCLE_WRAPPER: ViewStyle = {
-  position: "absolute",
-  zIndex: 5,
+const ROUTE_DETAILS_STATION_TEXT: TextStyle = {
+  color: color.text,
+  opacity: 0.8,
+  textAlign: "center",
+  fontWeight: "600",
+  fontSize: 14,
 }
 
 const ROUTE_INFO_CIRCLE: ViewStyle = {
   width: 34,
   height: 34,
+  position: "absolute",
   alignItems: "center",
   justifyContent: "center",
   backgroundColor: color.secondary,
   borderRadius: 25,
   elevation: 3,
+  zIndex: 5,
 }
 
 const ARROW_ICON: ImageStyle = {
@@ -290,7 +294,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
             accessibilityLabel={screenName === "routeDetails" ? translate("routes.routeDetails") : translate("plan.title")}
           >
             {/* Back Button */}
-            <View style={Platform.select({ android: { marginLeft: -spacing[4] }, ios: {} })}>
+            <View style={Platform.select({ android: { marginLeft: -spacing[4] }, ios: { marginLeft: -spacing[3] } })}>
               <HeaderBackButton tintColor="rgba(211, 211, 211, 0.9)" onPress={() => navigation.goBack()} />
             </View>
 
@@ -304,38 +308,44 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 
       <View style={{ top: -20, marginBottom: -30, zIndex: 5 }}>
         <View style={[ROUTE_DETAILS_WRAPPER, style]}>
-          <RouteStationNameButton
+          <AnimatedTouchable
+            friction={9}
+            activeScale={0.95}
             disabled={routeEditDisabled}
-            style={ROUTE_DETAILS_STATION}
-            buttonScale={stationCardScale}
             onPress={changeOriginStation}
+            style={[ROUTE_DETAILS_STATION, { marginEnd: spacing[5], transform: [{ scale: stationCardScale }] }]}
             accessibilityLabel={`${translate("plan.origin")}: ${originName}`}
             accessibilityHint={translate("plan.selectStation")}
-            name={originName}
-          />
+          >
+            <Text style={ROUTE_DETAILS_STATION_TEXT} maxFontSizeMultiplier={1.1}>
+              {originName}
+            </Text>
+          </AnimatedTouchable>
 
           <Pressable
             hitSlop={{ top: spacing[2], bottom: spacing[2], left: spacing[2], right: spacing[2] }}
             onPress={swapDirection}
-            style={ROUTE_INFO_CIRCLE_WRAPPER}
+            style={ROUTE_INFO_CIRCLE}
             disabled={routeEditDisabled}
             accessibilityLabel={translate("plan.switchStations")}
             accessibilityHint={translate("plan.switchStationsHint")}
           >
-            <LiquidGlassView interactive style={ROUTE_INFO_CIRCLE} tintColor={color.secondary}>
-              <Image source={arrowIcon} style={ARROW_ICON} />
-            </LiquidGlassView>
+            <Image source={arrowIcon} style={ARROW_ICON} />
           </Pressable>
 
-          <RouteStationNameButton
+          <AnimatedTouchable
+            friction={9}
+            activeScale={0.95}
             disabled={routeEditDisabled}
             onPress={changeDestinationStation}
-            style={ROUTE_DETAILS_STATION}
-            buttonScale={stationCardScale}
+            style={[ROUTE_DETAILS_STATION, { transform: [{ scale: stationCardScale }] }]}
             accessibilityLabel={`${translate("plan.destination")}: ${destinationName}`}
             accessibilityHint={translate("plan.selectStation")}
-            name={destinationName}
-          />
+          >
+            <Text style={ROUTE_DETAILS_STATION_TEXT} maxFontSizeMultiplier={1.1}>
+              {destinationName}
+            </Text>
+          </AnimatedTouchable>
         </View>
       </View>
     </>
