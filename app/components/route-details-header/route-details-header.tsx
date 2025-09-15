@@ -170,8 +170,8 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
     return createContextMenuActions(routeItem, originId, destinationId)
   }, [routeItem, originId, destinationId])
 
-  const shareAction = routeMenuActions.find(action => action.systemIcon === 'square.and.arrow.up')
-  
+  const shareAction = routeMenuActions.find((action) => action.systemIcon === "square.and.arrow.up")
+
   const handleShare = useCallback(async () => {
     if (shareAction) {
       await shareAction.onPress()
@@ -188,20 +188,20 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   const renderHeaderRight = useCallback(() => {
     if (screenName === "routeDetails") {
       const actions = [
-        { 
-          title: translate("routes.share"), 
+        {
+          title: translate("routes.share"),
           systemIcon: "square.and.arrow.up",
-          onPress: handleShare 
+          onPress: handleShare,
         },
-        { 
-          title: translate("routeDetails.addToCalendar"), 
+        {
+          title: translate("routeDetails.addToCalendar"),
           systemIcon: "calendar",
-          onPress: addToCalendar 
+          onPress: addToCalendar,
         },
         {
           title: translate(showEntireRoute ? "routeDetails.hideAllStations" : "routeDetails.showAllStations"),
           systemIcon: showEntireRoute ? "rectangle.compress.vertical" : "rectangle.expand.vertical",
-          onPress: () => setShowEntireRoute((prev) => !prev)
+          onPress: () => setShowEntireRoute((prev) => !prev),
         },
       ]
 
@@ -210,8 +210,8 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
           dropdownMenuMode
           actions={actions}
           onPress={(event) => {
-            const action = actions[event.nativeEvent.index];
-            action?.onPress?.();
+            const action = actions[event.nativeEvent.index]
+            action?.onPress?.()
           }}
         >
           <MenuIcon />
@@ -294,11 +294,8 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
             accessibilityLabel={screenName === "routeDetails" ? translate("routes.routeDetails") : translate("plan.title")}
           >
             {/* Back Button */}
-            <View style={Platform.select({ android: { marginLeft: -spacing[4] }, ios: {} })}>
-              <HeaderBackButton
-                tintColor="rgba(211, 211, 211, 0.9)"
-                onPress={() => navigation.goBack()}
-              />
+            <View style={Platform.select({ android: { marginLeft: -spacing[4] }, ios: { marginLeft: -spacing[3] } })}>
+              <HeaderBackButton tintColor="rgba(211, 211, 211, 0.9)" onPress={() => navigation.goBack()} />
             </View>
 
             {/* Right Icons */}
