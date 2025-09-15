@@ -67,7 +67,7 @@ export const ChangeDirectionButton = observer(function ChangeDirectionButton(pro
 
   if (isLiquidGlassSupported) {
     return (
-      <Pressable {...props}>
+      <Pressable {...props} style={buttonStyle}>
         <LiquidGlassView interactive style={CONTAINER} tintColor={color.secondary}>
           <Image source={upDownArrowIcon} style={ARROW_ICON} />
         </LiquidGlassView>
