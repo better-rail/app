@@ -52,7 +52,6 @@ class MainApplication : Application(), ReactApplication {
     // Initialize SoLoader
     SoLoader.init(this, OpenSourceMergedSoMapping)
     if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
-      // If you opted-in for React Native's New Architecture (also known as Fabric + TurboModules)
       load()
     }
     
