@@ -1,0 +1,35 @@
+diff --git a/node_modules/react-native-quick-actions-shortcuts/.DS_Store b/.DS_Store
+new file mode 100644
+index 0000000000000000000000000000000000000000..90e6380c47e133fbee5a1c7eb1bd228704af972f
+Binary files /dev/null and b/.DS_Store differ
+diff --git a/node_modules/react-native-quick-actions-shortcuts/android/.DS_Store b/android/.DS_Store
+new file mode 100644
+index 0000000000000000000000000000000000000000..58094ad07646529b5424145a9741183d9005eff5
+Binary files /dev/null and b/android/.DS_Store differ
+diff --git a/android/src/main/java/com/reactnativeshortcuts/ShortcutsModule.kt b/android/src/main/java/com/reactnativeshortcuts/ShortcutsModule.kt
+index ec847cc11ec842a94a9689b9cbfd313fcb3db599..e12d52371d972a7504893896c2d14d08a436ef9f 100644
+--- a/android/src/main/java/com/reactnativeshortcuts/ShortcutsModule.kt
++++ b/android/src/main/java/com/reactnativeshortcuts/ShortcutsModule.kt
+@@ -33,11 +33,11 @@ class ShortcutsModule(reactContext: ReactApplicationContext) :
+         super.onCatalystInstanceDestroy()
+     }
+ 
+-    override fun onActivityResult(activity: Activity?, requestCode: Int, resultCode: Int, data: Intent?) {
++    override fun onActivityResult(activity: Activity, requestCode: Int, resultCode: Int, data: Intent?) {
+         // No implementation needed
+     }
+ 
+-    override fun onNewIntent(intent: Intent?) {
++    override fun onNewIntent(intent: Intent) {
+         emitEvent(intent)
+     }
+ 
+@@ -126,7 +126,7 @@ class ShortcutsModule(reactContext: ReactApplicationContext) :
+     }
+ 
+     private fun getShortcutItemFromIntent(intent: Intent?): ShortcutItem? {
+-        if (intent?.action !== INTENT_ACTION_SHORTCUT) {
++        if (intent?.action != INTENT_ACTION_SHORTCUT) {
+             return null
+         }
+ 
