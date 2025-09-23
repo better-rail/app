@@ -88,7 +88,7 @@ export const AboutScreen = observer(function AboutScreen({ navigation }: Setting
           externalLink
           onPress={() =>
             Linking.openURL("twitter://user?screen_name=better_rail").catch(() => {
-              Linking.openURL("https://www.twitter.com/better_rail")
+              Linking.openURL("https://x.com/better_rail")
             })
           }
         />
