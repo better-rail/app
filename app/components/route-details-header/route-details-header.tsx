@@ -20,6 +20,7 @@ import ContextMenu from "react-native-context-menu-view"
 import { HeaderBackButton } from "@react-navigation/elements"
 import { addRouteToCalendar as addRouteToCalendarHelper } from "../../utils/helpers/calendar-helpers"
 import { createContextMenuActions } from "../route-card/route-context-menu-actions"
+import { isLiquidGlassSupported, LiquidGlassContainerView, LiquidGlassView } from "@callstack/liquid-glass"
 
 const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale)
 const arrowIcon = require("../../../assets/arrow-left.png")
@@ -233,6 +234,19 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
       }
     }
 
+    if (isLiquidGlassSupported) {
+      return (
+        <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[4] }}>
+          <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
+          <Pressable onPress={openStationHoursSheet}>
+            <LiquidGlassView interactive colorScheme="dark" tintColor="rgba(51, 51, 51, 0.9)" style={{ padding: 10, borderRadius: 50 }} >
+              <Image source={require("../../../assets/clock-ios.png")} style={{ width: 23, height: 23,  tintColor: "lightgrey", opacity: 0.9 }} />
+            </LiquidGlassView>
+          </Pressable>
+        </View>
+      )
+    }
+
     return (
       <>
         <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
@@ -299,9 +313,9 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
             </View>
 
             {/* Right Icons */}
-            <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[4] }} accessibilityRole="toolbar">
+            {/* <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[4] }} accessibilityRole="toolbar"> */}
               {renderHeaderRight()}
-            </View>
+            {/* </View> */}
           </View>
         )}
       </ImageBackground>

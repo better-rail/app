@@ -1,10 +1,11 @@
 import React, { useMemo } from "react"
-import { Image, type ImageStyle, type ViewStyle } from "react-native"
+import { Image, Pressable, type ImageStyle, type ViewStyle } from "react-native"
 import { AccessibilityState } from "react-native"
 import { translate } from "../../i18n"
 import { observer } from "mobx-react-lite"
 import { color } from "../../theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
+import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
 
 const starImage = require("../../../assets/star.png")
 
@@ -42,6 +43,14 @@ export const StarIcon = observer(function StarIcon(props: StarIconProps) {
 
     return [STAR_ICON_SOURCE, STAR_STATE_STYLE]
   }, [filled])
+
+  if (isLiquidGlassSupported) {
+    return <Pressable onPress={onPress} style={[CONTAINER, style]}>
+      <LiquidGlassView interactive colorScheme="dark" tintColor="rgba(51, 51, 51, 0.9)" style={{ padding: 8, borderRadius: 50 }}>
+        <Image source={starImage} style={[STAR_ICON, STAR_STATE_STYLE]} accessible={false} />
+      </LiquidGlassView>
+    </Pressable>
+  }
 
   return (
     <TouchableOpacity
