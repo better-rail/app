@@ -250,5 +250,8 @@
       "react/prop-types": "off",
       "space-before-function-paren": 0
     }
+  },
+  "patchedDependencies": {
+    "react-native-quick-actions-shortcuts@1.0.2": "patches/react-native-quick-actions-shortcuts@1.0.2.patch"
   }
 }
