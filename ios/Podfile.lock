@@ -3363,7 +3363,7 @@ PODS:
     - Yoga
   - react-native-segmented-control (2.4.0):
     - React-Core
-  - react-native-video (6.13.0):
+  - react-native-video (6.16.1):
     - boost
     - DoubleConversion
     - fast_float
@@ -3382,7 +3382,7 @@ PODS:
     - React-hermes
     - React-ImageManager
     - React-jsi
-    - react-native-video/Video (= 6.13.0)
+    - react-native-video/Video (= 6.16.1)
     - React-NativeModulesApple
     - React-RCTFabric
     - React-renderercss
@@ -3393,7 +3393,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - react-native-video/Fabric (6.13.0):
+  - react-native-video/Fabric (6.16.1):
     - boost
     - DoubleConversion
     - fast_float
@@ -3422,7 +3422,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - react-native-video/Video (6.13.0):
+  - react-native-video/Video (6.16.1):
     - boost
     - DoubleConversion
     - fast_float
@@ -4018,7 +4018,7 @@ PODS:
     - FirebaseCoreExtension
     - React-Core
     - RNFBApp
-  - RNGestureHandler (2.22.0):
+  - RNGestureHandler (2.28.0):
     - boost
     - DoubleConversion
     - fast_float
@@ -4032,6 +4032,7 @@ PODS:
     - React-Core
     - React-debug
     - React-Fabric
+    - React-FabricComponents
     - React-featureflags
     - React-graphics
     - React-hermes
@@ -4868,7 +4869,7 @@ SPEC CHECKSUMS:
   react-native-restart: 7595693413fe3ca15893702f2c8306c62a708162
   react-native-safe-area-context: f8e20c4e9453e4bb545db6478495dc5b1128f504
   react-native-segmented-control: 06607462630512ff8eef652ec560e6235a30cc3e
-  react-native-video: 757e02947c7daf208b2b583cf5bf11e5bff3cb34
+  react-native-video: 71973843c2c9ac154c54f95a5a408fd8b041790e
   React-NativeModulesApple: d061f458c3febdf0ac99b1b0faf23b7305974b25
   React-oscompat: 56d6de59f9ae95cd006a1c40be2cde83bc06a4e1
   React-perflogger: 0633844e495d8b34798c9bf0cb32ce315f1d5c9f
@@ -4913,7 +4914,7 @@ SPEC CHECKSUMS:
   RNFBCrashlytics: d88591bda155301f6a6f5b573a7517150c24ace3
   RNFBFirestore: c653384977d7156be402e520a788c25b56824c78
   RNFBMessaging: af1ebc16b28e175a4278b263db731703a6aecc61
-  RNGestureHandler: e7b58a5347bd013668b8f8ac1d224c4f391c10ab
+  RNGestureHandler: 8c4c3ff641284e689208dc01e51d5c1e6807cf3c
   RNIap: daac81aa70fe3ac6d6967c1c8da3dc4b415b73d6
   RNInAppBrowser: e36d6935517101ccba0e875bac8ad7b0cb655364
   RNNotifee: bc20a5e3d581f629db988075944fdd944d363dfe
