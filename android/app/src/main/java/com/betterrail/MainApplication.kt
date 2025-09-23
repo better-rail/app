@@ -49,8 +49,11 @@ class MainApplication : Application(), ReactApplication {
   override fun onCreate() {
     super.onCreate()
     
-    // Initialize React Native
-    loadReactNative(this)
+    // Initialize SoLoader
+    SoLoader.init(this, OpenSourceMergedSoMapping)
+    if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
+      load()
+    }
     
     // Initialize widget lifecycle management
     try {
