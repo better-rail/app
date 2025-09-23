@@ -17,13 +17,12 @@ import type { RouteItem } from "../../services/api"
 // #region styles
 
 // Setting static height for FlatList getItemLayout
-export let RouteCardHeight = 75
-if (fontScale > 1.1) RouteCardHeight = 85
+export let RouteCardHeight = 95
+if (fontScale > 1.1) RouteCardHeight = 105
 
 const CONTAINER: ViewStyle = {
-  flexDirection: "row",
+  flexDirection: "column",
   justifyContent: "space-between",
-  alignItems: "center",
   height: RouteCardHeight,
 
   paddingVertical: spacing[2],
@@ -35,6 +34,60 @@ const CONTAINER: ViewStyle = {
   shadowOffset: { height: 0, width: 0 },
   shadowOpacity: 0.05,
   elevation: 1,
+}
+
+const ROUTE_HEADER: ViewStyle = {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: spacing[2],
+  paddingBottom: spacing[1],
+  borderBottomWidth: 0.5,
+  borderBottomColor: color.separator,
+  flexWrap: "wrap",
+  gap: spacing[2],
+}
+
+const ROUTE_CONTENT: ViewStyle = {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  flex: 1,
+}
+
+const HEADER_TEXT: TextStyle = {
+  fontFamily: typography.primary,
+  fontSize: 11,
+  fontWeight: "600",
+  color: color.dim,
+  textTransform: "uppercase",
+  letterSpacing: 0.5,
+}
+
+const TRAIN_NUMBER_TEXT: TextStyle = {
+  fontFamily: typography.primary,
+  fontSize: 12,
+  fontWeight: "700",
+  color: color.text,
+}
+
+const PLATFORM_BADGE: ViewStyle = {
+  flexDirection: "row",
+  alignItems: "center",
+}
+
+const PLATFORM_TEXT: TextStyle = {
+  fontFamily: typography.primary,
+  fontSize: 12,
+  fontWeight: "700",
+  color: color.text,
+}
+
+const TRAIN_TYPE_TEXT: TextStyle = {
+  fontFamily: typography.primary,
+  fontSize: 12,
+  fontWeight: "700",
+  color: color.text,
 }
 
 const ACTIVE_RIDE_CONTAINER: ViewStyle = {
@@ -132,7 +185,20 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
   }, [routeItem, originId, destinationId, contextMenuActions])
 
   const TouchableComponent = generatedContextMenuActions && Platform.OS === 'ios' ? TouchableOpacity : TouchableScale
-  
+
+  // Get the main train (first train for departure info)
+  const mainTrain = routeItem?.trains?.[0]
+
+  // Placeholder function to determine train type based on train number
+  const getTrainType = (trainNumber: number): string => {
+    // This is a placeholder logic until we have real data
+    const numStr = trainNumber.toString()
+    if (numStr.startsWith('1') || numStr.startsWith('3')) return 'Electric'
+    if (numStr.startsWith('2') || numStr.startsWith('4')) return 'Double-decker'
+    if (numStr.startsWith('5') || numStr.startsWith('6')) return 'Single-decker'
+    return 'TBD'
+  }
+
   const cardContent = (
     <TouchableComponent
       onPress={onPress}
@@ -141,34 +207,65 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
       friction={generatedContextMenuActions && Platform.OS === 'ios' ? undefined : 9}
       style={[CONTAINER, props.isActiveRide && ACTIVE_RIDE_CONTAINER, props.isRouteInThePast && PAST_RIDE_CONTAINER, style]}
     >
-      <View style={{ marginEnd: spacing[3] }}>
-        <Text style={TIME_TYPE_TEXT} tx="routes.departure" />
-        <Text style={TIME_TEXT}>{formattedDepatureTime}</Text>
-      </View>
+      {/* Header with train information */}
+      {mainTrain && (
+        <View style={ROUTE_HEADER}>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Text style={HEADER_TEXT}>PLT</Text>
+            <Text style={[TRAIN_NUMBER_TEXT, { marginLeft: spacing[1] }]}>
+              {mainTrain.originPlatform}
+            </Text>
+          </View>
 
-      {shouldShowDashedLine && !isBloatedIndicators && <DashedLine />}
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Text style={HEADER_TEXT}>train</Text>
+            <Text style={[TRAIN_TYPE_TEXT, { marginLeft: spacing[1] }]}>
+              {getTrainType(mainTrain.trainNumber)}
+            </Text>
+          </View>
 
-      <View style={{ marginHorizontal: spacing[1] }}>
-        <View style={{ alignItems: "center", gap: spacing[0] }}>
-          <Text style={DURATION_TEXT} maxFontSizeMultiplier={1}>
-            {duration}
-          </Text>
-
-          <RouteIndicators
-            isMuchShorter={isMuchShorter}
-            isMuchLonger={isMuchLonger}
-            delay={delay}
-            stopsText={stopsText}
-            isRideActive={props.isActiveRide}
-          />
+          {mainTrain.originPlatform > 0 && (
+            <View style={PLATFORM_BADGE}>
+              <Text style={HEADER_TEXT}>no.</Text>
+              <Text style={[PLATFORM_TEXT, { marginLeft: spacing[1] }]}>
+                {mainTrain.trainNumber}
+              </Text>
+            </View>
+          )}
         </View>
-      </View>
+      )}
 
-      {shouldShowDashedLine && !isBloatedIndicators && <DashedLine />}
+      {/* Main route content */}
+      <View style={ROUTE_CONTENT}>
+        <View style={{ marginEnd: spacing[3] }}>
+          <Text style={TIME_TYPE_TEXT} tx="routes.departure" />
+          <Text style={TIME_TEXT}>{formattedDepatureTime}</Text>
+        </View>
 
-      <View style={{ alignItems: "flex-end", marginStart: spacing[3] }}>
-        <Text style={TIME_TYPE_TEXT} tx="routes.arrival" />
-        <Text style={TIME_TEXT}>{formattedArrivalTime}</Text>
+        {shouldShowDashedLine && !isBloatedIndicators && <DashedLine />}
+
+        <View style={{ marginHorizontal: spacing[1] }}>
+          <View style={{ alignItems: "center", gap: spacing[0] }}>
+            <Text style={DURATION_TEXT} maxFontSizeMultiplier={1}>
+              {duration}
+            </Text>
+
+            <RouteIndicators
+              isMuchShorter={isMuchShorter}
+              isMuchLonger={isMuchLonger}
+              delay={delay}
+              stopsText={stopsText}
+              isRideActive={props.isActiveRide}
+            />
+          </View>
+        </View>
+
+        {shouldShowDashedLine && !isBloatedIndicators && <DashedLine />}
+
+        <View style={{ alignItems: "flex-end", marginStart: spacing[3] }}>
+          <Text style={TIME_TYPE_TEXT} tx="routes.arrival" />
+          <Text style={TIME_TEXT}>{formattedArrivalTime}</Text>
+        </View>
       </View>
     </TouchableComponent>
   )
