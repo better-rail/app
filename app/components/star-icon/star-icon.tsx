@@ -46,7 +46,7 @@ export const StarIcon = observer(function StarIcon(props: StarIconProps) {
 
   if (isLiquidGlassSupported) {
     return <Pressable onPress={onPress} style={[CONTAINER, style]}>
-      <LiquidGlassView interactive colorScheme="dark" tintColor="rgba(51, 51, 51, 0.9)" style={{ padding: 8, borderRadius: 50 }}>
+      <LiquidGlassView interactive colorScheme="dark" tintColor="rgba(51, 51, 51, 0.9)" style={{ padding: 10, borderRadius: 50 }}>
         <Image source={starImage} style={[STAR_ICON, STAR_STATE_STYLE]} accessible={false} />
       </LiquidGlassView>
     </Pressable>

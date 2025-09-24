@@ -20,7 +20,7 @@ import ContextMenu from "react-native-context-menu-view"
 import { HeaderBackButton } from "@react-navigation/elements"
 import { addRouteToCalendar as addRouteToCalendarHelper } from "../../utils/helpers/calendar-helpers"
 import { createContextMenuActions } from "../route-card/route-context-menu-actions"
-import { isLiquidGlassSupported, LiquidGlassContainerView, LiquidGlassView } from "@callstack/liquid-glass"
+import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
 
 const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale)
 const arrowIcon = require("../../../assets/arrow-left.png")
@@ -207,16 +207,18 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
       ]
 
       return (
-        <ContextMenu
-          dropdownMenuMode
-          actions={actions}
-          onPress={(event) => {
-            const action = actions[event.nativeEvent.index]
-            action?.onPress?.()
-          }}
-        >
-          <MenuIcon />
-        </ContextMenu>
+        <LiquidGlassView colorScheme="dark" style={{ padding: 10, borderRadius: 50 }}>
+          <ContextMenu
+            dropdownMenuMode
+            actions={actions}
+            onPress={(event) => {
+              const action = actions[event.nativeEvent.index]
+              action?.onPress?.()
+            }}
+          >
+            <MenuIcon />
+          </ContextMenu>
+        </LiquidGlassView>
       )
     }
 
@@ -236,11 +238,30 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 
     if (isLiquidGlassSupported) {
       return (
-        <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[4] }}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: spacing[4],
+          }}
+        >
           <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
           <Pressable onPress={openStationHoursSheet}>
-            <LiquidGlassView interactive colorScheme="dark" tintColor="rgba(51, 51, 51, 0.9)" style={{ padding: 10, borderRadius: 50 }} >
-              <Image source={require("../../../assets/clock-ios.png")} style={{ width: 23, height: 23,  tintColor: "lightgrey", opacity: 0.9 }} />
+            <LiquidGlassView
+              interactive
+              colorScheme="dark"
+              tintColor="rgba(51, 51, 51, 0.9)"
+              style={{ padding: 12, borderRadius: 50 }}
+            >
+              <Image
+                source={require("../../../assets/clock-ios.png")}
+                style={{
+                  width: 23,
+                  height: 23,
+                  tintColor: "lightgrey",
+                  opacity: 0.9,
+                }}
+              />
             </LiquidGlassView>
           </Pressable>
         </View>
@@ -253,7 +274,13 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
         <Pressable onPress={openStationHoursSheet}>
           <Image
             source={require("../../../assets/clock-ios.png")}
-            style={{ width: 23, height: 23, marginLeft: spacing[2], tintColor: "lightgrey", opacity: 0.9 }}
+            style={{
+              width: 23,
+              height: 23,
+              marginLeft: spacing[2],
+              tintColor: "lightgrey",
+              opacity: 0.9,
+            }}
           />
         </Pressable>
       </>
@@ -308,13 +335,40 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
             accessibilityLabel={screenName === "routeDetails" ? translate("routes.routeDetails") : translate("plan.title")}
           >
             {/* Back Button */}
-            <View style={Platform.select({ android: { marginLeft: -spacing[4] }, ios: { marginLeft: -spacing[3] } })}>
+            {/* TODO: Create a back button component, for liquid & non liquid glass */}
+
+            {/* <View style={Platform.select({ android: { marginLeft: -spacing[4] }, ios: { marginLeft: -spacing[3] } })}>
               <HeaderBackButton tintColor="rgba(211, 211, 211, 0.9)" onPress={() => navigation.goBack()} />
-            </View>
+            </View> */}
+
+            <Pressable onPress={() => navigation.goBack()}>
+              <LiquidGlassView
+                interactive
+                style={{
+                  width: 45,
+                  height: 45,
+                  borderRadius: 50,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Image
+                  source={require("../../../assets/chevron.png")}
+                  style={{
+                    width: 10,
+                    height: 18,
+                    marginLeft: -spacing[0],
+                    tintColor: "lightgrey",
+                    opacity: 0.9,
+                    transform: isRTL ? [{ rotate: "180deg" }] : [{ rotate: "0deg" }],
+                  }}
+                />
+              </LiquidGlassView>
+            </Pressable>
 
             {/* Right Icons */}
             {/* <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[4] }} accessibilityRole="toolbar"> */}
-              {renderHeaderRight()}
+            {renderHeaderRight()}
             {/* </View> */}
           </View>
         )}
@@ -327,7 +381,13 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
             activeScale={0.95}
             disabled={routeEditDisabled}
             onPress={changeOriginStation}
-            style={[ROUTE_DETAILS_STATION, { marginEnd: spacing[5], transform: [{ scale: stationCardScale }] }]}
+            style={[
+              ROUTE_DETAILS_STATION,
+              {
+                marginEnd: spacing[5],
+                transform: [{ scale: stationCardScale }],
+              },
+            ]}
             accessibilityLabel={`${translate("plan.origin")}: ${originName}`}
             accessibilityHint={translate("plan.selectStation")}
           >
@@ -337,7 +397,12 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
           </AnimatedTouchable>
 
           <Pressable
-            hitSlop={{ top: spacing[2], bottom: spacing[2], left: spacing[2], right: spacing[2] }}
+            hitSlop={{
+              top: spacing[2],
+              bottom: spacing[2],
+              left: spacing[2],
+              right: spacing[2],
+            }}
             onPress={swapDirection}
             style={ROUTE_INFO_CIRCLE}
             disabled={routeEditDisabled}
