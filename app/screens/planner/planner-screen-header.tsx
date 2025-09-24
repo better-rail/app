@@ -102,14 +102,14 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
               }}
             >
               {Platform.OS === "ios" && <Image source={TRAIN_ICON} style={LIVE_BUTTON_IMAGE} />}
-              <Text style={{ color: "white", fontWeight: "500" }} tx="ride.live" />
+              <Text style={{ color: "white", fontWeight: "500", marginVertical: spacing[1] }} tx="ride.live" />
             </Chip>
           )}
 
           {displayNewBadge && !showUrgentBar && (
             <Chip variant="primary" onPress={() => navigation.navigate("liveAnnouncementStack")}>
               <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
-              <Text style={{ color: "white", fontWeight: "500" }} tx="common.new" />
+              <Text style={{ color: "white", fontWeight: "500", marginVertical: spacing[1] }} tx="common.new" />
             </Chip>
           )}
         </View>
