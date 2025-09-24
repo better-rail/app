@@ -31,7 +31,7 @@ export function HeaderBackButton() {
   if (isLiquidGlassSupported) {
     return (
       <Pressable onPress={() => navigation.goBack()}>
-        <LiquidGlassView interactive style={LIQUID_WRAPPER}>
+        <LiquidGlassView interactive colorScheme="dark" style={LIQUID_WRAPPER}>
           <Image source={CHEVRON} style={ICON} />
         </LiquidGlassView>
       </Pressable>
