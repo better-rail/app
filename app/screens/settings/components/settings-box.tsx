@@ -14,6 +14,7 @@ import { Text } from "../../../components"
 import { isRTL } from "../../../i18n"
 import { color, spacing } from "../../../theme"
 import { isLiquidGlassSupported } from "@callstack/liquid-glass"
+import { settingsBorderRadius } from "../settings-styles"
 
 const chevronIcon = require("../../../../assets/chevron.png")
 const checkmarkIcon = require("../../../../assets/checkmark.png")
@@ -88,11 +89,11 @@ export const SettingBox = function SettingBox(props: SettingBoxProps) {
   if (!first && Platform.OS === "ios") boxStyle = { borderTopColor: color.background, borderTopWidth: 1 }
 
   if (first) {
-    boxStyle = { borderTopLeftRadius: 10, borderTopRightRadius: 10, ...boxStyle }
+    boxStyle = { borderTopLeftRadius: settingsBorderRadius, borderTopRightRadius: settingsBorderRadius, ...boxStyle }
   }
 
   if (last) {
-    boxStyle = { borderBottomLeftRadius: 10, borderBottomRightRadius: 10, ...boxStyle }
+    boxStyle = { borderBottomLeftRadius: settingsBorderRadius, borderBottomRightRadius: settingsBorderRadius, ...boxStyle }
   }
 
   return (
