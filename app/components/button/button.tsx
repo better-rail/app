@@ -47,10 +47,13 @@ const SMALL_TEXT: TextStyle = {
 }
 
 const LIQUID_GLASS_STYLE: ViewStyle = {
-  height: 55,
-  padding: spacing[4] * fontScale,
+  // Set the minimum height of the button to 55
+  // If the system font is scaled, increase the height by no more than 1.3
+  height: Math.max(55, 55 * Math.min(fontScale, 1.3)),
+  padding: spacing[4],
   borderRadius: 16,
   borderCurve: "continuous",
+  justifyContent: "center",
 }
 
 export interface CustomButtonProps extends ButtonProps {
@@ -98,7 +101,7 @@ export const Button = function Button(props: CustomButtonProps) {
             ) : (
               <>
                 {icon}
-                <Text style={[TEXT, textStyle, size === "small" && SMALL_TEXT]} maxFontSizeMultiplier={1.3}>
+                <Text style={[TEXT, textStyle, size === "small" && SMALL_TEXT]} maxFontSizeMultiplier={1.55}>
                   {title}
                 </Text>
               </>
