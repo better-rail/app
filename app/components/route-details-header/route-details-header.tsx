@@ -17,10 +17,10 @@ import * as Burnt from "burnt"
 import type { RouteItem } from "../../services/api"
 import type { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types"
 import ContextMenu from "react-native-context-menu-view"
-import { HeaderBackButton } from "@react-navigation/elements"
 import { addRouteToCalendar as addRouteToCalendarHelper } from "../../utils/helpers/calendar-helpers"
 import { createContextMenuActions } from "../route-card/route-context-menu-actions"
 import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
+import { HeaderBackButton } from "../header-back-button"
 
 const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale)
 const arrowIcon = require("../../../assets/arrow-left.png")
@@ -335,38 +335,10 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
             accessibilityLabel={screenName === "routeDetails" ? translate("routes.routeDetails") : translate("plan.title")}
           >
             {/* Back Button */}
-            {/* TODO: Create a back button component, for liquid & non liquid glass */}
-
-            {/* <View style={Platform.select({ android: { marginLeft: -spacing[4] }, ios: { marginLeft: -spacing[3] } })}>
-              <HeaderBackButton tintColor="rgba(211, 211, 211, 0.9)" onPress={() => navigation.goBack()} />
-            </View> */}
-
-            <Pressable onPress={() => navigation.goBack()}>
-              <LiquidGlassView
-                interactive
-                style={{
-                  width: 45,
-                  height: 45,
-                  borderRadius: 50,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <Image
-                  source={require("../../../assets/chevron.png")}
-                  style={{
-                    width: 10,
-                    height: 18,
-                    marginLeft: -spacing[0],
-                    tintColor: "lightgrey",
-                    opacity: 0.9,
-                    transform: isRTL ? [{ rotate: "180deg" }] : [{ rotate: "0deg" }],
-                  }}
-                />
-              </LiquidGlassView>
-            </Pressable>
+            <HeaderBackButton />
 
             {/* Right Icons */}
+            {/* TODO: Check this on iOS 18 & Android */}
             {/* <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[4] }} accessibilityRole="toolbar"> */}
             {renderHeaderRight()}
             {/* </View> */}
