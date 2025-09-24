@@ -87,7 +87,11 @@ export const Button = function Button(props: CustomButtonProps) {
   if (isLiquidGlassSupported) {
     return (
       <Pressable onPress={onPress} disabled={disabled}>
-        <LiquidGlassView interactive={!!onPress} style={[LIQUID_GLASS_STYLE, style]} tintColor={color[variant]}>
+        <LiquidGlassView
+          interactive={!!onPress}
+          style={[LIQUID_GLASS_STYLE, style]}
+          tintColor={disabled ? color.disabled : color[variant]}
+        >
           <View style={TEXT_WRAPPER}>
             {loading ? (
               <ActivityIndicator color={color.whiteText} />
