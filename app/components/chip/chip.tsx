@@ -3,7 +3,7 @@ import { color, fontScale, spacing } from "../../theme"
 import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
 
 const CHIP_WRAPPER: ViewStyle = {
-  paddingHorizontal: spacing[3] * fontScale,
+  paddingHorizontal: spacing[3] * Math.min(fontScale, 1.5),
   paddingVertical: (fontScale > 1 ? 1 : 0) * fontScale,
   flexDirection: "row",
   justifyContent: "center",
