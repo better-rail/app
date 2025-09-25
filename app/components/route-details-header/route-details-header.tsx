@@ -343,9 +343,9 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 
             {/* Right Icons */}
             {/* TODO: Check this on iOS 18 & Android */}
-            {/* <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[4] }} accessibilityRole="toolbar"> */}
-            {renderHeaderRight()}
-            {/* </View> */}
+            <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[4] }} accessibilityRole="toolbar">
+              {renderHeaderRight()}
+            </View>
           </View>
         )}
       </ImageBackground>
