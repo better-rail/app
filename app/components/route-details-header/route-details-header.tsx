@@ -1,14 +1,13 @@
 import { useLayoutEffect, useRef, useEffect, useCallback, useMemo } from "react"
-import { Image, ImageBackground, View, Animated as RNAnimated, Pressable, Platform } from "react-native"
+import { Image, ImageBackground, View, Animated as RNAnimated, Pressable } from "react-native"
 import type { ViewStyle, TextStyle, ImageStyle } from "react-native"
-import TouchableScale from "react-native-touchable-scale"
 import { useNavigation } from "@react-navigation/native"
 import { analytics } from "../../services/firebase/analytics"
 import { observer } from "mobx-react-lite"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import LinearGradient from "react-native-linear-gradient"
 import { color, isDarkMode, spacing } from "../../theme"
-import { Text, StarIcon, MenuIcon } from "../"
+import { StarIcon, MenuIcon } from "../"
 import HapticFeedback from "react-native-haptic-feedback"
 import { stationsObject, stationLocale } from "../../data/stations"
 import { translate, isRTL } from "../../i18n"
@@ -17,13 +16,13 @@ import * as Burnt from "burnt"
 import type { RouteItem } from "../../services/api"
 import type { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types"
 import ContextMenu from "react-native-context-menu-view"
-import { addRouteToCalendar as addRouteToCalendarHelper } from "../../utils/helpers/calendar-helpers"
+import { addRouteToCalendar as addRouteToCalendarHelper, CalendarEventConfig } from "../../utils/helpers/calendar-helpers"
 import { createContextMenuActions } from "../route-card/route-context-menu-actions"
 import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
 import { HeaderBackButton } from "../header-back-button"
 import { RouteStationNameButton } from "./route-station-name-button"
+import { Calendar } from "expo-calendar"
 
-const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale)
 const arrowIcon = require("../../../assets/arrow-left.png")
 
 const ROUTE_DETAILS_WRAPPER: ViewStyle = {
@@ -103,7 +102,7 @@ export interface RouteDetailsHeaderProps {
    */
   screenName?: "routeList" | "routeDetails" | "activeRide"
   style?: ViewStyle
-  eventConfig?: Calendar.Event
+  eventConfig?: CalendarEventConfig
   stationHoursSheetRef?: React.MutableRefObject<BottomSheetMethods>
   showEntireRoute?: boolean
   setShowEntireRoute?: React.Dispatch<React.SetStateAction<boolean>>
@@ -383,7 +382,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 
           <RouteStationNameButton
             disabled={routeEditDisabled}
-            onPress={changeOriginStation}
+            onPress={changeDestinationStation}
             buttonScale={stationCardScale}
             style={ROUTE_DETAILS_STATION}
             name={destinationName}
