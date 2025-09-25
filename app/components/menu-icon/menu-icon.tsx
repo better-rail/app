@@ -3,6 +3,11 @@ import { translate } from "../../i18n"
 import { isLiquidGlassSupported } from "@callstack/liquid-glass"
 import { color } from "../../theme"
 
+let menuIcon = require("../../../assets/ellipsis.png")
+if (isLiquidGlassSupported) {
+  menuIcon = require("../../../assets/ellipsis.regular.png")
+}
+
 const ICON_STYLE: ImageStyle = {
   width: 24,
   height: 24,
@@ -17,13 +22,13 @@ const CONTAINER: ViewStyle = {
 export const MenuIcon = function CalendarIcon(props: { style?: ViewStyle }) {
   const { style } = props
 
+  if (isLiquidGlassSupported) {
+    return <Image source={menuIcon} style={[ICON_STYLE]} />
+  }
+
   return (
-    <TouchableOpacity
-      style={[CONTAINER, style]}
-      accessibilityRole="button"
-      accessibilityLabel={translate("routes.routeActions")}
-    >
-      <Image source={require("../../../assets/ellipsis.png")} style={[ICON_STYLE]} />
+    <TouchableOpacity style={[CONTAINER, style]} accessibilityRole="button" accessibilityLabel={translate("routes.routeActions")}>
+      <Image source={menuIcon} style={[ICON_STYLE]} />
     </TouchableOpacity>
   )
 }
