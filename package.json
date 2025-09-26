@@ -25,6 +25,7 @@
     "rename-dev-configs": "cp ios/GoogleService-Info.development.plist ios/GoogleService-Info.plist && cp android/app/google-services.development.json android/app/google-services.json"
   },
   "dependencies": {
+    "@callstack/liquid-glass": "^0.4.0",
     "@expo/react-native-action-sheet": "4.1.1",
     "@gorhom/bottom-sheet": "5.1.1",
     "@notifee/react-native": "9.1.2",
@@ -47,10 +48,10 @@
     "@react-native/eslint-config": "0.80.2",
     "@react-native/metro-config": "0.80.2",
     "@react-native/typescript-config": "0.80.2",
-    "@react-navigation/elements": "2.2.5",
-    "@react-navigation/native": "7.0.14",
-    "@react-navigation/native-stack": "7.2.0",
-    "@react-navigation/stack": "7.1.1",
+    "@react-navigation/elements": "2.6.4",
+    "@react-navigation/native": "7.1.17",
+    "@react-navigation/native-stack": "7.3.26",
+    "@react-navigation/stack": "7.4.8",
     "@shopify/flash-list": "^2.0.3",
     "axios": "1.4.0",
     "burnt": "0.12.2",
@@ -252,6 +253,7 @@
     }
   },
   "patchedDependencies": {
-    "react-native-quick-actions-shortcuts@1.0.2": "patches/react-native-quick-actions-shortcuts@1.0.2.patch"
+    "react-native-quick-actions-shortcuts@1.0.2": "patches/react-native-quick-actions-shortcuts@1.0.2.patch",
+    "react-native-modal-datetime-picker@18.0.0": "patches/react-native-modal-datetime-picker@18.0.0.patch"
   }
 }

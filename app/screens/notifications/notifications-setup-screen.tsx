@@ -75,7 +75,12 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
     .value()
 
   return (
-    <Screen style={{ paddingHorizontal: spacing[4], flex: 1 }} unsafe statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"} translucent>
+    <Screen
+      style={{ paddingHorizontal: spacing[4], flex: 1 }}
+      unsafe
+      statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
+      translucent
+    >
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={{ paddingBottom: spacing[6] }}>
           <View style={{ marginVertical: spacing[2], gap: spacing[2] }}>
@@ -130,6 +135,7 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
               })}
 
               <Button
+                variant="primary"
                 title={translate("announcements.notifications.selectStations")}
                 onPress={() => navigation.navigate("notificationsPickStations")}
               />
@@ -144,7 +150,11 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
             <View style={{ gap: 16 }}>
               <Text tx="announcements.notifications.requestPermissionContent" style={{ textAlign: "center" }} />
 
-              <Button title={translate("announcements.notifications.enableNotifications")} onPress={requestPermission} />
+              <Button
+                title={translate("announcements.notifications.enableNotifications")}
+                onPress={requestPermission}
+                variant="primary"
+              />
             </View>
           )}
         </View>
