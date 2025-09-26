@@ -9,6 +9,7 @@ import { openLink } from "../../utils/helpers/open-link"
 import { deviceLocale, translate, userLocale } from "../../i18n"
 import { SettingsScreenProps } from "../../navigators"
 import { getBuildNumber, getDeviceId, getSystemVersion, getVersion } from "react-native-device-info"
+import { settingsBorderRadius } from "./settings-styles"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -17,7 +18,7 @@ const ROOT: ViewStyle = {
 
 const SETTING_GROUP: ViewStyle = {
   marginBottom: spacing[4],
-  borderRadius: 10,
+  borderRadius: settingsBorderRadius,
   backgroundColor: color.secondaryBackground,
   shadowOffset: { width: 0, height: 0 },
   shadowColor: color.dim,

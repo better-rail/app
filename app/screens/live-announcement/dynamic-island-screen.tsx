@@ -57,7 +57,7 @@ export function DynamicIslandScreen({ navigation }: LiveAnnouncementStackProps) 
           />
         </View>
 
-        {isHighDevice && <View style={{ flex: 1 }} />}
+        {isHighDevice && <View style={{ flex: 0.65 }} />}
 
         <NextButton
           onPress={() => {

@@ -1,0 +1,45 @@
+diff --git a/src/DateTimePickerModal.ios.js b/src/DateTimePickerModal.ios.js
+index 6ef0b0ac0d0e68a6fa8be1084a074cc28e3cfc76..1fa32b632f18d0a722d0aa259e75dbdb75eda6c1 100644
+--- a/src/DateTimePickerModal.ios.js
++++ b/src/DateTimePickerModal.ios.js
+@@ -6,6 +6,7 @@ import {
+   TouchableHighlight,
+   View,
+   Appearance,
++  Platform,
+ } from "react-native";
+ import DateTimePicker from "@react-native-community/datetimepicker";
+ import Modal from "./Modal";
+@@ -15,7 +16,8 @@ export const BACKGROUND_COLOR_LIGHT = "white";
+ export const BACKGROUND_COLOR_DARK = "#0E0E0E";
+ export const BORDER_COLOR = "#d5d5d5";
+ export const BORDER_COLOR_DARK = "#272729";
+-export const BORDER_RADIUS = 13;
++export const BORDER_TOP_RADIUS = Platform.Version >= 26 ? 30 : 13;
++export const BORDER_BOTTOM_RADIUS = Platform.Version >= 26 ? 50 : 13;
+ export const BUTTON_FONT_WEIGHT = "normal";
+ export const BUTTON_FONT_COLOR = "#007ff9";
+ export const BUTTON_FONT_SIZE = 20;
+@@ -224,8 +226,11 @@ const pickerStyles = StyleSheet.create({
+     marginBottom: isIphoneX() ? 34 : 10,
+   },
+   container: {
+-    borderRadius: BORDER_RADIUS,
+-    marginBottom: 8,
++    borderTopLeftRadius: BORDER_TOP_RADIUS,
++    borderTopRightRadius: BORDER_TOP_RADIUS,
++    borderBottomLeftRadius: BORDER_BOTTOM_RADIUS,
++    borderBottomRightRadius: BORDER_BOTTOM_RADIUS,
++    marginBottom: Platform.Version >= 26 ? 2 : 8,
+     overflow: "hidden",
+   },
+   pickerSpinner: {
+@@ -340,7 +345,7 @@ export const CancelButton = ({
+ 
+ export const cancelButtonStyles = StyleSheet.create({
+   button: {
+-    borderRadius: BORDER_RADIUS,
++    borderRadius: BORDER_BOTTOM_RADIUS,
+     height: 57,
+     justifyContent: "center",
+   },

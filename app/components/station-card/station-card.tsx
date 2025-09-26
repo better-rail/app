@@ -17,6 +17,7 @@ import LinearGradient from "react-native-linear-gradient"
 import { observer } from "mobx-react-lite"
 import { color, spacing, typography } from "../../theme"
 import { Text } from "../"
+import { isLiquidGlassSupported } from "@callstack/liquid-glass"
 
 const isDarkMode = Appearance.getColorScheme() === "dark"
 const { height: deviceHeight } = Dimensions.get("screen")
@@ -86,7 +87,7 @@ const GARDIENT: ViewStyle = {
   right: 0,
   top: 0,
   opacity: 1,
-  borderRadius: 6,
+  borderRadius: isLiquidGlassSupported ? 12 : 6,
 }
 
 export interface StationCardProps extends TouchableScaleProps {
@@ -134,7 +135,7 @@ export const StationCard = observer(function StationCard(props: StationCardProps
 
   return (
     <TouchableScale style={[CONTAINER, style]} activeScale={0.95} friction={9} {...rest}>
-      <ImageBackground imageStyle={{ borderRadius: 6 }} source={image} style={BACKGROUND}>
+      <ImageBackground imageStyle={{ borderRadius: isLiquidGlassSupported ? 14 : 6 }} source={image} style={BACKGROUND}>
         <LinearGradient
           style={GARDIENT}
           colors={["rgba(0, 0, 0, 0.05)", isDarkMode ? "rgba(0, 0, 0, 0.75)" : "rgba(0, 0, 0, 0.65)"]}
