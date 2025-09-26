@@ -23,7 +23,7 @@ export const MenuIcon = function CalendarIcon(props: { style?: ViewStyle }) {
   const { style } = props
 
   if (isLiquidGlassSupported) {
-    return <Image source={menuIcon} style={[ICON_STYLE]} />
+    return <Image source={menuIcon} style={[ICON_STYLE, { width: 20, height: 20 }]} />
   }
 
   return (

@@ -211,7 +211,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
       ]
 
       return (
-        <LiquidGlassView interactive colorScheme="dark" style={{ padding: 10, borderRadius: 50 }}>
+        <LiquidGlassView interactive colorScheme="dark" style={{ padding: isLiquidGlassSupported ? 12 : 10, borderRadius: 50 }}>
           <ContextMenu
             dropdownMenuMode
             actions={actions}
