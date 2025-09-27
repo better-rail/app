@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef, useEffect, useCallback, useMemo } from "react"
 import { Image, ImageBackground, View, Animated as RNAnimated, Pressable } from "react-native"
 import type { ViewStyle, TextStyle, ImageStyle } from "react-native"
 import { useNavigation } from "@react-navigation/native"
-import { analytics } from "../../services/firebase/analytics"
+import { trackEvent } from "../../services/analytics"
 import { observer } from "mobx-react-lite"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import LinearGradient from "react-native-linear-gradient"
@@ -232,11 +232,11 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
         Burnt.alert({ title: translate("favorites.added"), duration: 1.5 })
         HapticFeedback.trigger("impactMedium")
         favoriteRoutes.add(favorite)
-        analytics.logEvent("favorite_route_added")
+        trackEvent("favorite_route_added")
       } else {
         HapticFeedback.trigger("impactLight")
         favoriteRoutes.remove(favorite.id)
-        analytics.logEvent("favorite_route_removed")
+        trackEvent("favorite_route_removed")
       }
     }
 

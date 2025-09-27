@@ -8,7 +8,7 @@ import { TouchableOpacity } from "react-native-gesture-handler"
 import { translate } from "../../i18n"
 import { useStores } from "../../models"
 import { getInstallerPackageNameSync } from "react-native-device-info"
-import { analytics } from "../../services/firebase/analytics"
+import { trackPurchase } from "../../services/analytics"
 import { crashlytics } from "../../services/firebase/crashlytics"
 import { useModal } from "react-native-modalfy"
 
@@ -123,7 +123,7 @@ export const TipJarScreen = observer(function TipJarScreen() {
       openModal("TipThanksModal")
 
       const item = products.find((product) => product.productId === sku)
-      await analytics.logPurchase({
+      await trackPurchase({
         value: Number(amount),
         currency: products[0].currency,
         tax: 15,

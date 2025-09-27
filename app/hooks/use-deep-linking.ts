@@ -6,7 +6,7 @@ import { RootStore } from "../models"
 import { PrimaryParamList, RootParamList } from "../navigators"
 import { NavigationContainerRef } from "@react-navigation/native"
 import { isEqual } from "lodash"
-import { analytics } from "../services/firebase/analytics"
+import { trackEvent } from "../services/analytics"
 import { useStations } from "../data/stations"
 import Shortcuts, { ShortcutItem } from "react-native-quick-actions-shortcuts"
 
@@ -93,11 +93,11 @@ export function useDeepLinking(rootStore: RootStore, navigationRef: MutableRefOb
     if (!url) return
     if (url.includes("widget")) {
       deepLinkWidgetURL(url)
-      analytics.logEvent("deep_link_widget")
+      trackEvent("deep_link_widget")
     }
     if (url.includes("liveActivity")) {
       deepLinkLiveActivity(url)
-      analytics.logEvent("deep_link_live_activity")
+      trackEvent("deep_link_live_activity")
     }
   }
 

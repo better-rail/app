@@ -4,6 +4,7 @@ mock.module("@react-native-firebase/analytics", () => ({
   getAnalytics: () => ({
     logEvent: () => {},
     logScreenView: () => {},
+    logPurchase: () => {},
     setUserProperties: () => {},
     setUserProperty: () => {},
     setAnalyticsCollectionEnabled: () => {},

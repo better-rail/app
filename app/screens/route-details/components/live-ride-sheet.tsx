@@ -6,7 +6,7 @@ import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
 import { useStores } from "../../../models"
 import { translate } from "../../../i18n"
-import { analytics } from "../../../services/firebase/analytics"
+import { trackEvent } from "../../../services/analytics"
 import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
 
 // TODO: add typings to progress
@@ -43,7 +43,7 @@ export const LiveRideSheet = observer(function LiveRideSheet(props: { progress; 
         loading={!ride.id}
         onPress={() => {
           ride.stopRide(ride.id)
-          analytics.logEvent("stop_live_ride")
+          trackEvent("stop_live_ride")
 
           if (screenName === "activeRide") {
             navigation.goBack()

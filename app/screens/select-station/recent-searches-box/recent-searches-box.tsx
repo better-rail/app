@@ -2,7 +2,7 @@ import React, { useMemo } from "react"
 import { View, Image, TextStyle, ViewStyle, ImageStyle, Platform } from "react-native"
 import { observer } from "mobx-react-lite"
 import { useStores } from "../../../models"
-import { analytics } from "../../../services/firebase/analytics"
+import { trackEvent } from "../../../services/analytics"
 import { ScrollView } from "react-native-gesture-handler"
 import { Text } from "../../../components"
 import { color, isDarkMode, spacing } from "../../../theme"
@@ -46,7 +46,7 @@ export const RecentSearchesBox = observer(function RecentSearchesBox(props: Rece
   }, [toJS(recentSearches.entries)])
 
   const onStationPress = (entry) => {
-    analytics.logEvent("recent_station_selected")
+    trackEvent("recent_station_selected")
     const station = { id: entry.id, name: entry.id }
 
     if (props.selectionType === "origin") {

@@ -1,7 +1,7 @@
 import { Alert, Linking } from "react-native"
 import * as Calendar from "expo-calendar"
 import { translate } from "../../i18n"
-import { analytics } from "../../services/firebase/analytics"
+import { trackEvent } from "../../services/analytics"
 import type { RouteItem } from "../../services/api"
 
 export interface CalendarEventConfig {
@@ -34,7 +34,7 @@ export function createEventConfig(routeItem: RouteItem): CalendarEventConfig {
 }
 
 export async function addRouteToCalendar(routeItem: RouteItem): Promise<boolean> {
-  analytics.logEvent("add_route_to_calendar")
+  trackEvent("add_route_to_calendar")
 
   const { status } = await Calendar.requestCalendarPermissionsAsync()
 

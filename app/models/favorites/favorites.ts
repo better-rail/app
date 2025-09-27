@@ -1,6 +1,6 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { Platform } from "react-native"
-import { analytics } from "../../services/firebase/analytics"
+import { setAnalyticsUserProperty } from "../../services/analytics"
 import { getIsWatchAppInstalled, updateApplicationContext, getIsPaired, WatchPayload } from "react-native-watch-connectivity"
 import Shortcuts from "react-native-quick-actions-shortcuts"
 import { stationLocale, stationsObject } from "../../data/stations"
@@ -10,11 +10,11 @@ import { isEmpty } from "lodash"
 if (Platform.OS === "ios") {
   // set analytics user property for apple watch
   getIsPaired().then((isPaired) => {
-    analytics.setUserProperty("watch_paired", isPaired ? "true" : "false")
+    setAnalyticsUserProperty("watch_paired", isPaired ? "true" : "false")
   })
 
   getIsWatchAppInstalled().then((isInstalled) => {
-    analytics.setUserProperty("watch_app_installed", isInstalled ? "true" : "false")
+    setAnalyticsUserProperty("watch_app_installed", isInstalled ? "true" : "false")
   })
 }
 
