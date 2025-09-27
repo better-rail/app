@@ -1,17 +1,14 @@
 import { getAnalytics } from "@react-native-firebase/analytics"
 
+type AnalyticsParams = Record<string, string | number | boolean | null | undefined>
+
 const firebaseAnalytics = getAnalytics()
 
-export const trackEvent = (
-  eventName: string,
-  params?: Record<string, string | number | boolean | null | undefined>,
-) => {
+export const trackEvent = (eventName: string, params?: AnalyticsParams) => {
   firebaseAnalytics.logEvent(eventName, params)
 }
 
-export const trackScreenView = (
-  params: Record<string, string | number | boolean | null | undefined>,
-) => {
+export const trackScreenView = (params: AnalyticsParams) => {
   firebaseAnalytics.logScreenView(params)
 }
 
@@ -28,7 +25,7 @@ export const setAnalyticsUserProperty = (name: string, value: string) => {
   firebaseAnalytics.setUserProperty(name, value)
 }
 
-export const setAnalyticsUserProperties = (properties: Record<string, string | null | undefined>) => {
+export const setAnalyticsUserProperties = (properties: AnalyticsParams) => {
   firebaseAnalytics.setUserProperties(properties)
 }
 
