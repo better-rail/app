@@ -47,7 +47,7 @@ import { createModalStack, ModalProvider } from "react-native-modalfy"
 import { TipThanksModal } from "./screens/settings/components/tip-thanks-modal"
 import { RouteListWarningModal } from "./screens/route-list/components/route-list-warning-modal"
 import { DatePickerModal } from "./components/date-picker-modal/date-picker-modal.android"
-import { analytics } from "./services/firebase/analytics"
+import { setAnalyticsUserProperty } from "./services/analytics"
 enableScreens()
 
 export const queryClient = new QueryClient()
@@ -135,7 +135,7 @@ function App() {
       if (languageCode) {
         setUserLanguage(languageCode)
         setLocaleReady(true)
-        analytics.setUserProperty("user_locale", languageCode)
+        setAnalyticsUserProperty("user_locale", languageCode)
       } else {
         setInitialLanguage()
       }

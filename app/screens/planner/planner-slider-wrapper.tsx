@@ -8,7 +8,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated"
-import { logAnalyticsEvent } from "../../services/firebase/analytics"
+import { trackEvent } from "../../services/analytics"
 
 interface FlingGestureWrapperProps {
   children: React.ReactNode
@@ -38,7 +38,7 @@ export function FlingGestureWrapper(props: FlingGestureWrapperProps) {
         withSpring(0, { damping: 10, stiffness: 100 }),
       )
       runOnJS(onFling)()
-      runOnJS(logAnalyticsEvent)("switch_stations_fling")
+      runOnJS(trackEvent)("switch_stations_fling")
     }
   })
 

@@ -1,6 +1,6 @@
 import { I18nManager, Platform } from "react-native"
 import RNRestart from "react-native-restart"
-import { analytics } from "../services/firebase/analytics"
+import { setAnalyticsUserProperty } from "../services/analytics"
 import Preferences from "react-native-default-preference"
 import * as storage from "../utils/storage"
 
@@ -31,7 +31,7 @@ export let dateDelimiter = " "
 export let dateLocale = "en-US"
 export const deviceLocale = Localization.getLocales()[0].languageCode
 
-analytics.setUserProperty("device_locale", deviceLocale)
+setAnalyticsUserProperty("device_locale", deviceLocale)
 
 export function getInitialLanguage(): LanguageCode {
   if (deviceLocale.startsWith("he")) {

@@ -10,14 +10,14 @@ import {
   StationInfo,
 } from "./rail-api.types"
 import { railApiKey, API_CONFIG } from "../../config/api-config"
-import { analytics } from "../../services/firebase/analytics"
+import { setAnalyticsUserProperty } from "../../services/analytics"
 
 export class RailApi {
   axiosInstance: AxiosInstance
   private hasFallenBackToProxy = false
 
   constructor() {
-    analytics.setUserProperty("rail_api", "direct")
+    setAnalyticsUserProperty("rail_api", "direct")
     this.axiosInstance = axios.create({
       baseURL: API_CONFIG.DIRECT_RAIL_API,
       timeout: 30000,
@@ -37,7 +37,7 @@ export class RailApi {
         if (response?.status === 403 && !this.hasFallenBackToProxy) {
           this.hasFallenBackToProxy = true
 
-          analytics.setUserProperty("rail_api", "proxy")
+          setAnalyticsUserProperty("rail_api", "proxy")
           this.axiosInstance.defaults.baseURL = API_CONFIG.PROXY_RAIL_API
 
           const originalRequest = config

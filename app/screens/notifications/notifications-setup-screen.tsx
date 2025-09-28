@@ -9,7 +9,7 @@ import { translate, userLocale } from "../../i18n"
 import { useStores } from "../../models"
 import { StationListItem } from "./station-list-item"
 import { useStations } from "../../data/stations"
-import { analytics } from "../../services/firebase/analytics"
+import { trackEvent } from "../../services/analytics"
 import { messaging } from "../../services/firebase/messaging"
 import { useAppState, useIsDarkMode } from "../../hooks"
 import { chain } from "lodash"
@@ -26,7 +26,7 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
     const settings = await notifee.requestPermission()
 
     if (settings.authorizationStatus === AuthorizationStatus.AUTHORIZED) {
-      analytics.logEvent("notification_permission_granted")
+      trackEvent("notification_permission_granted")
       setNotificationPermission(true)
     } else {
       Alert.alert(
