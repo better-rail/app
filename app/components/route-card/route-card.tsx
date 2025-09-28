@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { useMemo } from "react"
-import { TextStyle, View, ViewStyle, Platform, TouchableOpacity } from "react-native"
+import { TextStyle, View, ViewStyle, Platform, TouchableOpacity, Pressable } from "react-native"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import { Svg, Line } from "react-native-svg"
 import { color, spacing, typography, fontScale } from "../../theme"
@@ -131,14 +131,13 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
     return contextMenuActions || []
   }, [routeItem, originId, destinationId, contextMenuActions])
 
-  const TouchableComponent = generatedContextMenuActions && Platform.OS === 'ios' ? TouchableOpacity : TouchableScale
-  
+  const TouchableComponent = generatedContextMenuActions && Platform.OS === "ios" ? Pressable : TouchableScale
+
   const cardContent = (
     <TouchableComponent
       onPress={onPress}
       onLongPress={Platform.OS === "android" ? onLongPress : undefined}
-      activeScale={generatedContextMenuActions && Platform.OS === 'ios' ? undefined : 0.95}
-      friction={generatedContextMenuActions && Platform.OS === 'ios' ? undefined : 9}
+      friction={generatedContextMenuActions && Platform.OS === "ios" ? undefined : 9}
       style={[CONTAINER, props.isActiveRide && ACTIVE_RIDE_CONTAINER, props.isRouteInThePast && PAST_RIDE_CONTAINER, style]}
     >
       <View style={{ marginEnd: spacing[3] }}>
@@ -174,10 +173,7 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
   )
 
   return (
-    <RouteContextMenu
-      actions={generatedContextMenuActions}
-      onLongPress={onLongPress}
-    >
+    <RouteContextMenu actions={generatedContextMenuActions} onLongPress={onLongPress}>
       {cardContent}
     </RouteContextMenu>
   )
