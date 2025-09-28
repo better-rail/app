@@ -38,6 +38,13 @@
     "recentSearches": "חיפושים אחרונים",
     "hide": "הסרה"
   },
+  "trainTypes": {
+    "train": "רכבת",
+    "doubleDecker": "דו-קומתית",
+    "electric": "חשמלית",
+    "singleDecker": "חד-קומתית",
+    "tbd": "לא ידוע"
+  },
   "routes": {
     "departure": "יציאה",
     "arrival": "הגעה",

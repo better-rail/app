@@ -37,6 +37,13 @@
     "recentSearches": "Недавние запросы",
     "hide": "Скрыть"
   },
+  "trainTypes": {
+    "train": "Поезд",
+    "doubleDecker": "Двухэтажный",
+    "electric": "Электрический",
+    "singleDecker": "Одноэтажный",
+    "tbd": "неизвестно"
+  },
   "routes": {
     "departure": "Отправление",
     "arrival": "Прибытие",

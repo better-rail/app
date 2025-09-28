@@ -189,14 +189,22 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
   // Get the main train (first train for departure info)
   const mainTrain = routeItem?.trains?.[0]
 
-  // Placeholder function to determine train type based on train number
-  const getTrainType = (trainNumber: number): string => {
-    // This is a placeholder logic until we have real data
-    const numStr = trainNumber.toString()
-    if (numStr.startsWith('1') || numStr.startsWith('3')) return 'Electric'
-    if (numStr.startsWith('2') || numStr.startsWith('4')) return 'Double-decker'
-    if (numStr.startsWith('5') || numStr.startsWith('6')) return 'Single-decker'
-    return 'TBD'
+  const getTrainType = (train: any): string => {
+    if (!train?.visaWagonData?.wagons?.[0]?.krsG3) {
+      return translate('trainTypes.tbd')
+    }
+
+    const carType = train.visaWagonData.wagons[0].krsG3
+    switch (carType) {
+      case 'DD':
+        return translate('trainTypes.doubleDecker')
+      case 'EMU':
+        return translate('trainTypes.electric')
+      case 'SIM':
+        return translate('trainTypes.singleDecker')
+      default:
+        return translate('trainTypes.tbd')
+    }
   }
 
   const cardContent = (
@@ -211,22 +219,22 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
       {mainTrain && (
         <View style={ROUTE_HEADER}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Text style={HEADER_TEXT}>PLT</Text>
+            <Text style={HEADER_TEXT} tx="routeDetails.platform" />
             <Text style={[TRAIN_NUMBER_TEXT, { marginLeft: spacing[1] }]}>
               {mainTrain.originPlatform}
             </Text>
           </View>
 
           <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Text style={HEADER_TEXT}>train</Text>
+            <Text style={HEADER_TEXT} tx="trainTypes.train" />
             <Text style={[TRAIN_TYPE_TEXT, { marginLeft: spacing[1] }]}>
-              {getTrainType(mainTrain.trainNumber)}
+              {getTrainType(mainTrain)}
             </Text>
           </View>
 
           {mainTrain.originPlatform > 0 && (
             <View style={PLATFORM_BADGE}>
-              <Text style={HEADER_TEXT}>no.</Text>
+              <Text style={HEADER_TEXT} tx="routeDetails.trainNo" />
               <Text style={[PLATFORM_TEXT, { marginLeft: spacing[1] }]}>
                 {mainTrain.trainNumber}
               </Text>

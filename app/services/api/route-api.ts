@@ -38,6 +38,7 @@ export class RouteApi {
             trainNumber,
             routeStations,
             trainPosition,
+            visaWagonData,
           } = train
 
           const stopStations = train.stopStations.map((station) => {
@@ -77,6 +78,7 @@ export class RouteApi {
             stopStations,
             routeStations,
             trainPosition,
+            visaWagonData,
           }
 
           return modifiedTrain
