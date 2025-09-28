@@ -1,8 +1,19 @@
 import * as React from "react"
-import { Image, ViewStyle, ImageStyle, TouchableOpacity, TouchableOpacityProps, Platform, Dimensions } from "react-native"
+import {
+  Image,
+  ViewStyle,
+  ImageStyle,
+  TouchableOpacity,
+  TouchableOpacityProps,
+  Platform,
+  Dimensions,
+  PlatformColor,
+  Pressable,
+} from "react-native"
 import { observer } from "mobx-react-lite"
 import { color } from "../../theme"
 import { translate } from "../../i18n"
+import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
 
 const upDownArrowIcon = require("../../../assets/up-down-arrow.png")
 
@@ -53,6 +64,16 @@ export interface ChangeDirectionButtonProps extends TouchableOpacityProps {
  */
 export const ChangeDirectionButton = observer(function ChangeDirectionButton(props: ChangeDirectionButtonProps) {
   const { onPress, buttonStyle } = props
+
+  if (isLiquidGlassSupported) {
+    return (
+      <Pressable {...props} style={buttonStyle}>
+        <LiquidGlassView interactive style={CONTAINER} tintColor={color.secondary}>
+          <Image source={upDownArrowIcon} style={ARROW_ICON} />
+        </LiquidGlassView>
+      </Pressable>
+    )
+  }
 
   return (
     <TouchableOpacity

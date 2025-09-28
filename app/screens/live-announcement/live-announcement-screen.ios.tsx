@@ -74,7 +74,7 @@ export function LiveAnnouncementScreen({ navigation }: LiveAnnouncementStackProp
           <Text tx="liveAnnounce.announcement.weMadeAGuide" style={TEXT} maxFontSizeMultiplier={1.1} />
         </View>
 
-        <View style={{ flex: 1 }} />
+        <View style={{ flex: 0.9 }} />
 
         <NextButton onPress={() => navigation.navigate("startRide")} />
       </ScrollView>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react"
 import { BackHandler } from "react-native"
 import { PartialState, NavigationState, NavigationContainerRef } from "@react-navigation/native"
-import { analytics } from "../services/firebase/analytics"
+import { trackScreenView } from "../services/analytics"
 
 export const RootNavigation = {
   navigate(name: string) {
@@ -98,7 +98,7 @@ export function useNavigationPersistence(storage: any, persistenceKey: string) {
 
     if (previousRouteName !== currentRouteName) {
       // track screens.
-      analytics.logScreenView({
+      trackScreenView({
         screen_name: currentRouteName,
         screen_class: currentRouteName,
       })

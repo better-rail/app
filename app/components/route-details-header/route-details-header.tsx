@@ -1,14 +1,13 @@
 import { useLayoutEffect, useRef, useEffect, useCallback, useMemo } from "react"
-import { Image, ImageBackground, View, Animated as RNAnimated, Pressable, Platform } from "react-native"
+import { Image, ImageBackground, View, Animated as RNAnimated, Pressable } from "react-native"
 import type { ViewStyle, TextStyle, ImageStyle } from "react-native"
-import TouchableScale from "react-native-touchable-scale"
 import { useNavigation } from "@react-navigation/native"
-import { analytics } from "../../services/firebase/analytics"
+import { trackEvent } from "../../services/analytics"
 import { observer } from "mobx-react-lite"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import LinearGradient from "react-native-linear-gradient"
 import { color, isDarkMode, spacing } from "../../theme"
-import { Text, StarIcon, MenuIcon } from "../"
+import { StarIcon, MenuIcon } from "../"
 import HapticFeedback from "react-native-haptic-feedback"
 import { stationsObject, stationLocale } from "../../data/stations"
 import { translate, isRTL } from "../../i18n"
@@ -17,17 +16,20 @@ import * as Burnt from "burnt"
 import type { RouteItem } from "../../services/api"
 import type { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types"
 import ContextMenu from "react-native-context-menu-view"
-import { HeaderBackButton } from "@react-navigation/elements"
-import { addRouteToCalendar as addRouteToCalendarHelper } from "../../utils/helpers/calendar-helpers"
+import { addRouteToCalendar as addRouteToCalendarHelper, CalendarEventConfig } from "../../utils/helpers/calendar-helpers"
 import { createContextMenuActions } from "../route-card/route-context-menu-actions"
+import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
+import { HeaderBackButton } from "../header-back-button"
+import { RouteStationNameButton } from "./route-station-name-button"
+import { Calendar } from "expo-calendar"
 
-const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale)
 const arrowIcon = require("../../../assets/arrow-left.png")
 
 const ROUTE_DETAILS_WRAPPER: ViewStyle = {
   flexDirection: "row",
   justifyContent: "center",
   alignItems: "center",
+  gap: spacing[5],
 }
 
 // #region styles
@@ -52,16 +54,19 @@ const ROUTE_DETAILS_STATION_TEXT: TextStyle = {
   fontSize: 14,
 }
 
+const ROUTE_INFO_CIRCLE_WRAPPER: ViewStyle = {
+  position: "absolute",
+  zIndex: 5,
+}
+
 const ROUTE_INFO_CIRCLE: ViewStyle = {
   width: 34,
   height: 34,
-  position: "absolute",
   alignItems: "center",
   justifyContent: "center",
   backgroundColor: color.secondary,
   borderRadius: 25,
   elevation: 3,
-  zIndex: 5,
 }
 
 const ARROW_ICON: ImageStyle = {
@@ -97,7 +102,7 @@ export interface RouteDetailsHeaderProps {
    */
   screenName?: "routeList" | "routeDetails" | "activeRide"
   style?: ViewStyle
-  eventConfig?: Calendar.Event
+  eventConfig?: CalendarEventConfig
   stationHoursSheetRef?: React.MutableRefObject<BottomSheetMethods>
   showEntireRoute?: boolean
   setShowEntireRoute?: React.Dispatch<React.SetStateAction<boolean>>
@@ -206,16 +211,18 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
       ]
 
       return (
-        <ContextMenu
-          dropdownMenuMode
-          actions={actions}
-          onPress={(event) => {
-            const action = actions[event.nativeEvent.index]
-            action?.onPress?.()
-          }}
-        >
-          <MenuIcon />
-        </ContextMenu>
+        <LiquidGlassView interactive colorScheme="dark" style={{ padding: isLiquidGlassSupported ? 12 : 10, borderRadius: 50 }}>
+          <ContextMenu
+            dropdownMenuMode
+            actions={actions}
+            onPress={(event) => {
+              const action = actions[event.nativeEvent.index]
+              action?.onPress?.()
+            }}
+          >
+            <MenuIcon />
+          </ContextMenu>
+        </LiquidGlassView>
       )
     }
 
@@ -225,12 +232,44 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
         Burnt.alert({ title: translate("favorites.added"), duration: 1.5 })
         HapticFeedback.trigger("impactMedium")
         favoriteRoutes.add(favorite)
-        analytics.logEvent("favorite_route_added")
+        trackEvent("favorite_route_added")
       } else {
         HapticFeedback.trigger("impactLight")
         favoriteRoutes.remove(favorite.id)
-        analytics.logEvent("favorite_route_removed")
+        trackEvent("favorite_route_removed")
       }
+    }
+
+    if (isLiquidGlassSupported) {
+      return (
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: spacing[4],
+          }}
+        >
+          <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
+          <Pressable onPress={openStationHoursSheet}>
+            <LiquidGlassView
+              interactive
+              colorScheme="dark"
+              tintColor="rgba(51, 51, 51, 0.9)"
+              style={{ padding: 12, borderRadius: 50 }}
+            >
+              <Image
+                source={require("../../../assets/clock-ios.png")}
+                style={{
+                  width: 23,
+                  height: 23,
+                  tintColor: "lightgrey",
+                  opacity: 0.9,
+                }}
+              />
+            </LiquidGlassView>
+          </Pressable>
+        </View>
+      )
     }
 
     return (
@@ -239,7 +278,13 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
         <Pressable onPress={openStationHoursSheet}>
           <Image
             source={require("../../../assets/clock-ios.png")}
-            style={{ width: 23, height: 23, marginLeft: spacing[2], tintColor: "lightgrey", opacity: 0.9 }}
+            style={{
+              width: 23,
+              height: 23,
+              marginLeft: spacing[2],
+              tintColor: "lightgrey",
+              opacity: 0.9,
+            }}
           />
         </Pressable>
       </>
@@ -294,11 +339,10 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
             accessibilityLabel={screenName === "routeDetails" ? translate("routes.routeDetails") : translate("plan.title")}
           >
             {/* Back Button */}
-            <View style={Platform.select({ android: { marginLeft: -spacing[4] }, ios: { marginLeft: -spacing[3] } })}>
-              <HeaderBackButton tintColor="rgba(211, 211, 211, 0.9)" onPress={() => navigation.goBack()} />
-            </View>
+            <HeaderBackButton />
 
             {/* Right Icons */}
+            {/* TODO: Check this on iOS 18 & Android */}
             <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[4] }} accessibilityRole="toolbar">
               {renderHeaderRight()}
             </View>
@@ -308,44 +352,43 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 
       <View style={{ top: -20, marginBottom: -30, zIndex: 5 }}>
         <View style={[ROUTE_DETAILS_WRAPPER, style]}>
-          <AnimatedTouchable
-            friction={9}
-            activeScale={0.95}
+          <RouteStationNameButton
             disabled={routeEditDisabled}
             onPress={changeOriginStation}
-            style={[ROUTE_DETAILS_STATION, { marginEnd: spacing[5], transform: [{ scale: stationCardScale }] }]}
+            buttonScale={stationCardScale}
+            style={ROUTE_DETAILS_STATION}
+            name={originName}
             accessibilityLabel={`${translate("plan.origin")}: ${originName}`}
             accessibilityHint={translate("plan.selectStation")}
-          >
-            <Text style={ROUTE_DETAILS_STATION_TEXT} maxFontSizeMultiplier={1.1}>
-              {originName}
-            </Text>
-          </AnimatedTouchable>
+          />
 
           <Pressable
-            hitSlop={{ top: spacing[2], bottom: spacing[2], left: spacing[2], right: spacing[2] }}
+            hitSlop={{
+              top: spacing[2],
+              bottom: spacing[2],
+              left: spacing[2],
+              right: spacing[2],
+            }}
             onPress={swapDirection}
-            style={ROUTE_INFO_CIRCLE}
+            style={ROUTE_INFO_CIRCLE_WRAPPER}
             disabled={routeEditDisabled}
             accessibilityLabel={translate("plan.switchStations")}
             accessibilityHint={translate("plan.switchStationsHint")}
           >
-            <Image source={arrowIcon} style={ARROW_ICON} />
+            <LiquidGlassView interactive style={ROUTE_INFO_CIRCLE} tintColor={color.secondary}>
+              <Image source={arrowIcon} style={ARROW_ICON} />
+            </LiquidGlassView>
           </Pressable>
 
-          <AnimatedTouchable
-            friction={9}
-            activeScale={0.95}
+          <RouteStationNameButton
             disabled={routeEditDisabled}
             onPress={changeDestinationStation}
-            style={[ROUTE_DETAILS_STATION, { transform: [{ scale: stationCardScale }] }]}
+            buttonScale={stationCardScale}
+            style={ROUTE_DETAILS_STATION}
+            name={destinationName}
             accessibilityLabel={`${translate("plan.destination")}: ${destinationName}`}
             accessibilityHint={translate("plan.selectStation")}
-          >
-            <Text style={ROUTE_DETAILS_STATION_TEXT} maxFontSizeMultiplier={1.1}>
-              {destinationName}
-            </Text>
-          </AnimatedTouchable>
+          />
         </View>
       </View>
     </>

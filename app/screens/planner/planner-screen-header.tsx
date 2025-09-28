@@ -5,7 +5,7 @@ import { observer } from "mobx-react-lite"
 import type { StackNavigationProp } from "@react-navigation/stack"
 import type { RootParamList } from "../../navigators"
 import * as storage from "../../utils/storage"
-import { analytics } from "../../services/firebase/analytics"
+import { trackEvent } from "../../services/analytics"
 import { color, fontScale, spacing } from "../../theme"
 import { Chip, Text } from "../../components"
 import { useStores } from "../../models"
@@ -76,12 +76,12 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
 
   const openAnnouncements = () => {
     navigation.navigate("announcementsStack")
-    analytics.logEvent("announcements_icon_pressed")
+    trackEvent("announcements_icon_pressed")
   }
 
   const openSettings = () => {
     navigation.navigate("settingsStack")
-    analytics.logEvent("settings_icon_pressed")
+    trackEvent("settings_icon_pressed")
   }
 
   return (
@@ -98,18 +98,18 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
                   params: { routeItem: ride.route, originId: ride.originId, destinationId: ride.destinationId },
                 })
 
-                analytics.logEvent("open_live_ride_modal_pressed")
+                trackEvent("open_live_ride_modal_pressed")
               }}
             >
               {Platform.OS === "ios" && <Image source={TRAIN_ICON} style={LIVE_BUTTON_IMAGE} />}
-              <Text style={{ color: "white", fontWeight: "500" }} tx="ride.live" />
+              <Text style={{ color: "white", fontWeight: "500", marginVertical: spacing[1] }} tx="ride.live" />
             </Chip>
           )}
 
           {displayNewBadge && !showUrgentBar && (
             <Chip variant="primary" onPress={() => navigation.navigate("liveAnnouncementStack")}>
               <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
-              <Text style={{ color: "white", fontWeight: "500" }} tx="common.new" />
+              <Text style={{ color: "white", fontWeight: "500", marginVertical: spacing[1] }} tx="common.new" />
             </Chip>
           )}
         </View>

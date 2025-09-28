@@ -15,7 +15,7 @@ import { isWeekend } from "../../utils/helpers/date-helpers"
 import { differenceInHours, parseISO } from "date-fns"
 import { save, load } from "../../utils/storage"
 import { donateRouteIntent } from "../../utils/ios-helpers"
-import { analytics } from "../../services/firebase/analytics"
+import { trackEvent } from "../../services/analytics"
 import { useFocusEffect } from "@react-navigation/native"
 import { PlannerScreenHeader } from "./planner-screen-header"
 import { useModal } from "react-native-modalfy"
@@ -77,7 +77,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   }
 
   const onDateReset = () => {
-    analytics.logEvent("reset_date_press")
+    trackEvent("reset_date_press")
     HapticFeedback.trigger("impactLight")
     onDateChange(new Date())
   }
@@ -122,7 +122,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
       routePlan.switchDirection()
     }, 50)
 
-    analytics.logEvent("switch_stations_btn_press")
+    trackEvent("switch_stations_btn_press")
   }
 
   const onGetRoutePress = () => {
@@ -186,11 +186,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
   )
 
   return (
-    <Screen
-      style={ROOT}
-      statusBarBackgroundColor="transparent"
-      translucent
-    >
+    <Screen style={ROOT} statusBarBackgroundColor="transparent" translucent>
       <FlingGestureWrapper onFling={onSwitchPress}>
         <View style={CONTENT_WRAPPER}>
           <PlannerScreenHeader />

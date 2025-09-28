@@ -9,7 +9,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import * as storage from "../../utils/storage"
 import { useIsDarkMode } from "../../hooks"
 import { NextButton } from "./announcement-next-button"
-import { analytics } from "../../services/firebase/analytics"
+import { trackEvent } from "../../services/analytics"
 
 const deviceHeight = Dimensions.get("screen").height
 const isHighDevice = deviceHeight > 800
@@ -109,9 +109,10 @@ export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
           <Button
             title={translate("liveAnnounce.supportUs.tipJarButton")}
             style={{ minHeight: 55 * fontScale, backgroundColor: isDarkMode ? color.success : color.greenText }}
+            variant="success"
             containerStyle={{ minHeight: 55 * fontScale }}
             onPress={() => {
-              analytics.logEvent("live_announcement_tip_jar_press")
+              trackEvent("live_announcement_tip_jar_press")
               finish()
 
               setTimeout(() => {
@@ -123,7 +124,7 @@ export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
           <NextButton
             title={translate("common.done")}
             onPress={() => {
-              analytics.logEvent("live_announcement_done_press")
+              trackEvent("live_announcement_done_press")
               finish()
             }}
           />

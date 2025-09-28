@@ -1,5 +1,5 @@
 import React from "react"
-import { analytics } from "../../services/firebase/analytics"
+import { setAnalyticsCollectionEnabled, trackEvent } from "../../services/analytics"
 import { observer } from "mobx-react-lite"
 import { Platform, View, type ViewStyle, Alert } from "react-native"
 import { Screen } from "../../components"
@@ -13,7 +13,6 @@ import { useIsBetaTester } from "../../hooks/use-is-beta-tester"
 import { crashlytics } from "../../services/firebase/crashlytics"
 import RNRestart from "react-native-restart"
 import { setCrashlyticsCollectionEnabled } from "@react-native-firebase/crashlytics"
-import { setAnalyticsCollectionEnabled } from "@react-native-firebase/analytics"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -27,13 +26,13 @@ export const PrivacyScreen = observer(function SettingsLanguageScreen() {
 
   const onTelemetryToggle = async (disableTelemetry: boolean) => {
     if (disableTelemetry) {
-      analytics.logEvent("telemetry_disabled")
+      trackEvent("telemetry_disabled")
       user.setDisableTelemetry(disableTelemetry)
-      await Promise.all([setAnalyticsCollectionEnabled(analytics, false), setCrashlyticsCollectionEnabled(crashlytics, false)])
+      await Promise.all([setAnalyticsCollectionEnabled(false), setCrashlyticsCollectionEnabled(crashlytics, false)])
     } else {
-      analytics.logEvent("telemetry_enabled")
+      trackEvent("telemetry_enabled")
       user.setDisableTelemetry(disableTelemetry)
-      await Promise.all([setAnalyticsCollectionEnabled(analytics, true), setCrashlyticsCollectionEnabled(crashlytics, true)])
+      await Promise.all([setAnalyticsCollectionEnabled(true), setCrashlyticsCollectionEnabled(crashlytics, true)])
     }
   }
 

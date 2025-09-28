@@ -6,7 +6,7 @@ import { LiveAnnouncementStackProps } from "../../navigators/live-activity-annou
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import * as storage from "../../utils/storage"
 import { useIsDarkMode } from "../../hooks"
-import { analytics } from "../../services/firebase/analytics"
+import { trackEvent } from "../../services/analytics"
 
 const deviceHeight = Dimensions.get("screen").height
 const isHighDevice = deviceHeight > 800
@@ -97,7 +97,7 @@ export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
             style={{ minHeight: 55 * fontScale, backgroundColor: isDarkMode ? color.success : color.greenText }}
             containerStyle={{ minHeight: 55 * fontScale }}
             onPress={() => {
-              analytics.logEvent("live_announcement_tip_jar_press")
+              trackEvent("live_announcement_tip_jar_press")
               finish()
 
               setTimeout(() => {
@@ -113,7 +113,7 @@ export function SupportUsScreen({ navigation }: LiveAnnouncementStackProps) {
           <Button
             title={translate("common.done")}
             onPress={() => {
-              analytics.logEvent("live_announcement_done_press")
+              trackEvent("live_announcement_done_press")
               finish()
             }}
           />
