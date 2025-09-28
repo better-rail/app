@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { useMemo } from "react"
-import { TextStyle, View, ViewStyle, Platform, TouchableOpacity, Pressable } from "react-native"
+import { TextStyle, View, ViewStyle, Platform, TouchableOpacity, Pressable, Image, ImageStyle } from "react-native"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import { Svg, Line } from "react-native-svg"
 import { color, spacing, typography, fontScale } from "../../theme"
@@ -88,6 +88,12 @@ const TRAIN_TYPE_TEXT: TextStyle = {
   fontSize: 12,
   fontWeight: "700",
   color: color.text,
+}
+
+const TRAIN_TYPE_IMAGE: ImageStyle = {
+  width: 20,
+  height: 14,
+  marginLeft: spacing[1],
 }
 
 const ACTIVE_RIDE_CONTAINER: ViewStyle = {
@@ -207,6 +213,25 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
     }
   }
 
+  const trainTypeImages = {
+    DD: require('../../../assets/double-decker.png'),
+    SIM: require('../../../assets/single-decker.png'),
+    EMU: require('../../../assets/electric.png'),
+  }
+
+  const renderTrainType = (train: any) => {
+    const carType = train?.visaWagonData?.wagons?.[0]?.krsG3
+    const imageSource = trainTypeImages[carType as keyof typeof trainTypeImages] || require('../../../assets/tbd.png')
+
+    return (
+      <Image
+        source={imageSource}
+        style={TRAIN_TYPE_IMAGE}
+        resizeMode="contain"
+      />
+    )
+  }
+
   const cardContent = (
     <TouchableComponent
       onPress={onPress}
@@ -224,19 +249,13 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
             </Text>
           </View>
 
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Text style={HEADER_TEXT} tx="trainTypes.train" />
-            <Text style={[TRAIN_TYPE_TEXT, { marginLeft: spacing[1] }]}>
-              {getTrainType(mainTrain)}
-            </Text>
-          </View>
-
           {mainTrain.originPlatform > 0 && (
             <View style={PLATFORM_BADGE}>
               <Text style={HEADER_TEXT} tx="routeDetails.trainNo" />
               <Text style={[PLATFORM_TEXT, { marginLeft: spacing[1] }]}>
                 {mainTrain.trainNumber}
               </Text>
+              {renderTrainType(mainTrain)}
             </View>
           )}
         </View>
