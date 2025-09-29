@@ -348,19 +348,6 @@ footer {
   color: #8e8e93;
 }
 
-.join-us-box {
-  flex: 1;
-  padding: 16px;
-  background-color: #f1f1f6;
-  border-radius: 8px;
-}
-
-.join-us-box-text {
-  font-size: 16px;
-  margin: 0;
-  letter-spacing: -0.85;
-}
-
 @media (min-width: 768px) {
   .team-member-list {
     justify-content: center;
@@ -382,9 +369,5 @@ footer {
     width: 150px;
     height: 206px;
     border-radius: 18px;
-  }
-
-  .join-us-box-text {
-    font-size: 18px;
   }
 }
