@@ -14,8 +14,20 @@ export class RouteApi {
     if (!originId || !destinationId) throw new Error("Missing origin / destination data")
 
     try {
-      const response: AxiosResponse<RailApiGetRoutesResult> = await this.api.axiosInstance.get(
-        `/rjpa/api/v1/timetable/searchTrainLuzForDateTime?fromStation=${originId}&toStation=${destinationId}&date=${date}&hour=${hour}&scheduleType=1&systemType=1&languageId=Hebrew`,
+      const requestBody = {
+        methodName: "searchTrainLuzForDateTime",
+        fromStation: parseInt(originId),
+        toStation: parseInt(destinationId),
+        date: date,
+        hour: hour,
+        systemType: "1",
+        scheduleType: "ByDeparture",
+        languageId: "Hebrew"
+      }
+
+      const response: AxiosResponse<RailApiGetRoutesResult> = await this.api.axiosInstance.post(
+        `/rjpa/api/v1/timetable/searchTrain`,
+        requestBody
       )
       if (!response.data?.result) throw new Error("Error fetching results")
 
@@ -95,22 +107,25 @@ export class RouteApi {
           delay: trains?.[0].delay ?? 0,
           duration: formatRouteDuration(routeDurationInMs(departureTime, arrivalTime)),
           isExchange: trains.length > 1,
+          isMuchLonger: false,
+          isMuchShorter: false,
         }
       })
 
       const routesWithWarning = formattedRoutes.map((route) => {
-        const nextStationId = findClosestStationInRoute(route as RouteItem)
-        const train = getTrainFromStationId(route as RouteItem, nextStationId)
+        const nextStationId = findClosestStationInRoute(route)
+        const train = getTrainFromStationId(route, nextStationId)
 
         const delay = train.delay
-        const isMuchLonger = isRouteIsMuchLongerThanOtherRoutes(route as RouteItem, formattedRoutes as RouteItem[])
-        const isMuchShorter = isRouteMuchShorterThanOtherRoutes(route as RouteItem, formattedRoutes as RouteItem[])
+        const isMuchLonger = isRouteIsMuchLongerThanOtherRoutes(route, formattedRoutes)
+        const isMuchShorter = isRouteMuchShorterThanOtherRoutes(route, formattedRoutes)
         return Object.assign({}, route, { isMuchShorter, isMuchLonger, delay })
       })
 
       return routesWithWarning
     } catch (err) {
       console.error(err)
+      return []
     }
   }
 }
