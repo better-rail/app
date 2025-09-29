@@ -57,7 +57,7 @@ export const WidgetStep3 = function WidgetStep3({ navigation }: WidgetOnboarding
       <View style={wrapperStyle}>
         <Text preset="header" style={TITLE} tx="widgetOnboarding.stacking" />
 
-        <Text style={[TEXT, { textAlign: "center", marginBottom: spacing[5] }]} tx="widgetOnboarding.stackingIntro" />
+        <Text style={[TEXT, { textAlign: "center", marginBottom: spacing[5] }]} tx="widgetOnboarding.stackingIntro"></Text>
         <Text style={TEXT} tx="widgetOnboarding.stackingStep1" />
         <Text style={TEXT} tx="widgetOnboarding.stackingStep2" />
       </View>
