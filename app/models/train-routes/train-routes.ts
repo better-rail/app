@@ -17,7 +17,7 @@ export const trainStop = {
 export const routeStop = {
   arrivalTime: types.string,
   stationId: types.number,
-  crowded: types.number,
+  crowded: types.optional(types.number, 0),
   platform: types.number,
 }
 

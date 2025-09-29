@@ -105,10 +105,30 @@ struct RouteModel {
   func fetchRoute(originId: String, destinationId: String, date: Date? = nil, completion: @escaping (FetchRouteResult) -> Void) {
       let (routeDate, routeTime) = formatRouteDate(date ?? Date())
       
-      let url = URL(string: "https://rail-api.rail.co.il/rjpa/api/v1/timetable/searchTrainLuzForDateTime?fromStation=\(originId)&toStation=\(destinationId)&date=\(routeDate)&hour=\(routeTime)&scheduleType=1&systemType=1&languageId=Hebrew")!
+      let url = URL(string: "https://rail-api.rail.co.il/rjpa/api/v1/timetable/searchTrain")!
       
       var request = URLRequest(url: url)
+      request.httpMethod = "POST"
       request.addValue("5e64d66cf03f4547bcac5de2de06b566", forHTTPHeaderField: "Ocp-Apim-Subscription-Key")
+      request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+      
+      // Create request body with the parameters
+      let requestBody: [String: Any] = [
+        "fromStation": originId,
+        "toStation": destinationId,
+        "date": routeDate,
+        "hour": routeTime,
+        "scheduleType": 1,
+        "systemType": 1,
+        "languageId": "Hebrew"
+      ]
+      
+      do {
+        request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+      } catch {
+        completion(FetchRouteResult(status: .failed, routes: nil, error: error))
+        return
+      }
       
       DispatchQueue.global(qos: .userInitiated).async {
           URLSession.shared.dataTask(with: request) { data, _, _ in
