@@ -1,9 +1,9 @@
 import { Router } from "express"
 
-import { railProxy } from "./proxy"
 import { buildRide } from "../utils/ride-utils"
 import { RideRequestSchema } from "../types/ride"
 import { createRateLimiter } from "../utils/rate-limiter"
+import { railProxy, handleSearchTrainRequest } from "./proxy"
 import { DeleteRideBody, UpdateRideTokenBody, bodyValidator } from "./validations"
 import { endRideNotifications, startRideNotifications, updateRideToken } from "../rides"
 
@@ -31,6 +31,14 @@ rideRouter.delete("/", bodyValidator(DeleteRideBody), async (req, res) => {
 })
 
 router.use("/ride", rideRouter)
+// Handle the specific search train request with transformation
+router.get(
+  "/rail-api/rjpa/api/v1/timetable/searchTrainLuzForDateTime",
+  createRateLimiter(10 * 60 * 1000, 1000),
+  handleSearchTrainRequest,
+)
+
+// Use proxy for all other rail API requests
 router.use("/rail-api", createRateLimiter(10 * 60 * 1000, 1000), railProxy)
 
 export { router }
