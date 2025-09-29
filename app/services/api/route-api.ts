@@ -20,7 +20,7 @@ export class RouteApi {
         toStation: parseInt(destinationId),
         date: date,
         hour: hour,
-        systemType: "2",
+        systemType: "1",
         scheduleType: "ByDeparture",
         languageId: "Hebrew"
       }
