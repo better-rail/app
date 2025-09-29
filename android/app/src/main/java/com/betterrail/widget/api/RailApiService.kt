@@ -12,6 +12,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.first
 import com.betterrail.widget.utils.RetryUtils
 import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaType
 import android.net.Uri
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -53,29 +54,35 @@ class RailApiService(
 
     private val gson = Gson()
 
-    /**
-     * Builds API URL using URI Builder for optimal performance and proper URL encoding
-     * Eliminates string concatenation that creates multiple temporary objects
-     */
-    private fun buildApiUrl(
-        baseUrl: String,
-        originId: String, 
+    private fun buildApiUrl(baseUrl: String): String {
+        return Uri.parse(baseUrl)
+            .buildUpon()
+            .appendPath("searchTrain")
+            .build()
+            .toString()
+    }
+
+    private fun createRequestBody(
+        originId: String,
         destinationId: String,
         requestDate: String,
         requestHour: String
-    ): String {
-        return Uri.parse(baseUrl)
-            .buildUpon()
-            .appendPath("searchTrainLuzForDateTime")
-            .appendQueryParameter("fromStation", originId)
-            .appendQueryParameter("toStation", destinationId)
-            .appendQueryParameter("date", requestDate)
-            .appendQueryParameter("hour", requestHour)
-            .appendQueryParameter("scheduleType", "1")
-            .appendQueryParameter("systemType", "1")
-            .appendQueryParameter("languageId", "Hebrew")
-            .build()
-            .toString()
+    ): RequestBody {
+        val jsonBody = JsonObject().apply {
+            addProperty("methodName", "searchTrainLuzForDateTime")
+            addProperty("fromStation", originId.toInt())
+            addProperty("toStation", destinationId.toInt())
+            addProperty("date", requestDate)
+            addProperty("hour", requestHour)
+            addProperty("systemType", "2")
+            addProperty("scheduleType", "ByDeparture")
+            addProperty("languageId", "Hebrew")
+        }
+
+        return RequestBody.create(
+            "application/json; charset=utf-8".toMediaType(),
+            gson.toJson(jsonBody)
+        )
     }
 
     suspend fun getRoutes(originId: String, destinationId: String, date: String? = null, hour: String? = null): Result<WidgetScheduleData> {
@@ -98,10 +105,10 @@ class RailApiService(
     }
     
     private suspend fun makeApiCall(
-        originId: String, 
-        destinationId: String, 
-        requestDate: String, 
-        requestHour: String, 
+        originId: String,
+        destinationId: String,
+        requestDate: String,
+        requestHour: String,
         isRequestForFutureDate: Boolean
     ): Result<WidgetScheduleData> {
         // Start with direct API
@@ -110,15 +117,27 @@ class RailApiService(
         } else {
             BuildConfig.RAIL_API_TIMETABLE_URL
         }
-        
-        val url = buildApiUrl(baseUrl, originId, destinationId, requestDate, requestHour)
+
+        val url = buildApiUrl(baseUrl)
+        val requestBody = createRequestBody(originId, destinationId, requestDate, requestHour)
 
         android.util.Log.d("RailApiService", "Making API call to: $url")
+        android.util.Log.d("RailApiService", "Request body: ${gson.toJson(JsonObject().apply {
+            addProperty("methodName", "searchTrainLuzForDateTime")
+            addProperty("fromStation", originId.toInt())
+            addProperty("toStation", destinationId.toInt())
+            addProperty("date", requestDate)
+            addProperty("hour", requestHour)
+            addProperty("systemType", "2")
+            addProperty("scheduleType", "ByDeparture")
+            addProperty("languageId", "Hebrew")
+        })}")
 
         val request = Request.Builder()
             .url(url)
-            .addHeader("Accept", "application/json")
-            .addHeader("Ocp-Apim-Subscription-Key", API_KEY)
+            .post(requestBody)
+            .addHeader("Content-Type", "application/json")
+            .addHeader("ocp-apim-subscription-key", API_KEY)
             .build()
 
         // Retry logic for network timeouts with exponential backoff
