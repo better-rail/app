@@ -226,6 +226,8 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
     }
 
     private fun updateWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
+        applicationContext = context.applicationContext
+
         coroutineManager.launchInWidgetScope(appWidgetId) {
             val widgetData = preferencesRepository.getWidgetData(appWidgetId)
             
