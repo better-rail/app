@@ -4085,10 +4085,10 @@ PODS:
     - ReactCommon/turbomodule/core
   - RNInAppBrowser (3.7.0):
     - React-Core
-  - RNNotifee (9.1.2):
+  - RNNotifee (9.1.8):
     - React-Core
-    - RNNotifee/NotifeeCore (= 9.1.2)
-  - RNNotifee/NotifeeCore (9.1.2):
+    - RNNotifee/NotifeeCore (= 9.1.8)
+  - RNNotifee/NotifeeCore (9.1.8):
     - React-Core
   - RNReactNativeHapticFeedback (2.3.3):
     - boost
@@ -4950,7 +4950,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: a52292df4f8fc7daab354ad2c37be401d4c3bed8
   RNIap: d73cedfb73b396cad75f90f4ed7d64352d6381cf
   RNInAppBrowser: 6d3eb68d471b9834335c664704719b8be1bfdb20
-  RNNotifee: 52b319634ba89a2eacdfbadc01e059fd18505f04
+  RNNotifee: 5e3b271e8ea7456a36eec994085543c9adca9168
   RNReactNativeHapticFeedback: d39b9a5b334ce26f49ca6abe9eea8b3938532aee
   RNReanimated: 0b4147a00b6e539c484a12e182396dfc7443f310
   RNScreens: 028db6b7a2454cefb7ef52afc9b6e3d07f55ac37
