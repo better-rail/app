@@ -28,7 +28,7 @@
     "@callstack/liquid-glass": "^0.4.1",
     "@expo/react-native-action-sheet": "4.1.1",
     "@gorhom/bottom-sheet": "5.1.1",
-    "@notifee/react-native": "9.1.2",
+    "@notifee/react-native": "9.1.8",
     "@react-native-async-storage/async-storage": "2.0.0",
     "@react-native-community/cli": "19.1.1",
     "@react-native-community/cli-platform-android": "19.1.1",
