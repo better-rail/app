@@ -146,7 +146,7 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
         // Show dropdown when text field is focused or clicked
         originSearch.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
-                originSearch.showDropDown()
+                showDropdownSafely(originSearch)
             }
         }
         
@@ -185,7 +185,7 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
         // Show dropdown when text field is focused or clicked
         destinationSearch.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
-                destinationSearch.showDropDown()
+                showDropdownSafely(destinationSearch)
             }
         }
         
@@ -255,10 +255,16 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
         }
     }
     
-    private fun showDropdownWhenEmpty(autoCompleteTextView: AutoCompleteTextView) {
+    private fun showDropdownSafely(autoCompleteTextView: AutoCompleteTextView, delayMs: Long = 0) {
         autoCompleteTextView.postDelayed({
-            autoCompleteTextView.showDropDown()
-        }, 50)
+            if (autoCompleteTextView.isAttachedToWindow) {
+                autoCompleteTextView.showDropDown()
+            }
+        }, delayMs)
+    }
+
+    private fun showDropdownWhenEmpty(autoCompleteTextView: AutoCompleteTextView) {
+        showDropdownSafely(autoCompleteTextView, 50)
     }
     
     private fun updateAddButtonState() {
