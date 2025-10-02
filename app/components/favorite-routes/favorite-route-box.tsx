@@ -1,11 +1,12 @@
 import React, { useMemo } from "react"
-import { View, ViewStyle, TextStyle, ImageBackground, ImageStyle, Platform, StyleSheet, Alert } from "react-native"
+import { View, ViewStyle, TextStyle, ImageBackground, ImageStyle, Platform, StyleSheet, Alert, useColorScheme } from "react-native"
 import TouchableScale from "react-native-touchable-scale"
 import { Text } from "../"
 import { stationLocale, stationsObject } from "../../data/stations"
 import { color, spacing, fontScale } from "../../theme"
 import { translate } from "../../i18n"
 import { useActionSheet } from "@expo/react-native-action-sheet"
+import { getActionSheetStyleOptions } from "../../utils/helpers/action-sheet-helpers"
 import prompt from "react-native-prompt-android"
 import { useStores } from "../../models"
 import { ContextMenuView } from "react-native-ios-context-menu"
@@ -210,17 +211,27 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
 
 function useOnLongPress(currentLabel: string, renamePrompt: () => void, deleteRoute: () => void) {
   const actionSheet = useActionSheet()
+  const colorScheme = useColorScheme()
 
   const onLongPress = () => {
+    const options = [
+      currentLabel ? translate("favorites.changeLabel") : translate("favorites.addLabel"),
+      translate("common.delete"),
+      translate("common.cancel"),
+    ]
+    const destructiveButtonIndex = 1
+    const cancelButtonIndex = 2
+
     actionSheet.showActionSheetWithOptions(
       {
-        options: [
-          currentLabel ? translate("favorites.changeLabel") : translate("favorites.addLabel"),
-          translate("common.delete"),
-        ],
-        destructiveButtonIndex: 1,
+        options,
+        destructiveButtonIndex,
+        cancelButtonIndex,
+        ...getActionSheetStyleOptions(colorScheme),
       },
       (buttonIndex) => {
+        if (buttonIndex === cancelButtonIndex) return
+
         if (buttonIndex === 0) {
           renamePrompt()
         } else if (buttonIndex === 1) {

@@ -26,6 +26,7 @@ import { flatMap, max, round } from "lodash"
 import { translate } from "../../i18n"
 import { shareRouteAction } from "../../utils/helpers/route-share-helpers"
 import { addRouteToCalendar } from "../../utils/helpers/calendar-helpers"
+import { getActionSheetStyleOptions } from "../../utils/helpers/action-sheet-helpers"
 import type BottomSheet from "@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet"
 import { isRouteInThePast } from "../../utils/helpers/date-helpers"
 import { useActionSheet } from "@expo/react-native-action-sheet"
@@ -325,12 +326,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         options,
         cancelButtonIndex,
         title: translate("routes.routeActions"),
-        ...(colorScheme === "dark" && {
-          containerStyle: { backgroundColor: "#2c2c2e" },
-          separatorStyle: { backgroundColor: "#3e3e41" },
-          textStyle: { color: "#ffffff" },
-          titleTextStyle: { color: "#ffffff" },
-        }),
+        ...getActionSheetStyleOptions(colorScheme),
       },
       async (selectedIndex) => {
         if (selectedIndex === cancelButtonIndex) return
