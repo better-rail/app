@@ -1,10 +1,10 @@
 import { observer } from "mobx-react-lite"
 import { useState } from "react"
 
-import { Pressable, View } from "react-native"
+import { Platform, Pressable, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { StationListItem } from "./station-list-item"
-import { color, fontScale, spacing } from "../../theme"
+import { color, spacing } from "../../theme"
 import { Screen, Text } from "../../components"
 import { useNavigation } from "@react-navigation/native"
 import { SearchInput } from "../select-station/search-input"
@@ -50,7 +50,7 @@ export const NotificationsSelectStationsScreen = observer(function Notifications
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
       translucent
     >
-      <View style={{ flex: 1, paddingHorizontal: spacing[3], paddingTop: insets.top }}>
+      <View style={{ flex: 1, paddingHorizontal: spacing[3], paddingTop: Platform.OS === "android" ? insets.top : 0 }}>
         <View
           style={{
             flexDirection: "row",
@@ -83,7 +83,6 @@ export const NotificationsSelectStationsScreen = observer(function Notifications
           }}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
-          estimatedItemSize={76 * fontScale}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ paddingTop: spacing[2], paddingBottom: spacing[5] }}
           extraData={toJS(stationsNotifications)}
