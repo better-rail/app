@@ -9,6 +9,8 @@ import { WidgetOnboardingNavigator } from "./widget-onboarding/widget-onboarding
 import { PaywallNavigator } from "./paywall/paywall-navigator"
 import { LiveAnnouncementNavigator } from "./live-activity-announcement/live-activity-announcement-stack"
 import { AnnouncementsNavigator } from "./announcements/announcements-navigator"
+import { PostHogProvider } from "posthog-react-native"
+import { posthogOptions } from "../services/analytics"
 
 export type RootParamList = {
   mainStack: undefined
@@ -47,7 +49,9 @@ export const RootNavigator = React.forwardRef<NavigationContainerRef, Partial<Re
 
     return (
       <NavigationContainer {...props} ref={ref} theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <RootStack />
+        <PostHogProvider apiKey="phc_86hcnoNOI0EchduJZT2EWStBYa7bNEJKE1f5013nHyH" options={posthogOptions}>
+          <RootStack />
+        </PostHogProvider>
       </NavigationContainer>
     )
   },
