@@ -1,7 +1,12 @@
 import { POSTHOG_API_KEY } from "@env"
-import AsyncStorage from "@react-native-async-storage/async-storage"
 import { getAnalytics } from "@react-native-firebase/analytics"
 import PostHog from 'posthog-react-native'
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import {
+  hydratePosthogProperties,
+  setCachedPosthogProperties,
+  setCachedPosthogProperty,
+} from "./posthog-user-properties"
 
 export const posthogOptions = {
   host: "https://eu.i.posthog.com",
@@ -10,6 +15,8 @@ export const posthogOptions = {
 }
 
 export const posthog = new PostHog(POSTHOG_API_KEY, posthogOptions)
+
+void hydratePosthogProperties()
 
 type AnalyticsParams = Record<string, string | number | boolean | null | undefined>
 
@@ -32,12 +39,30 @@ export const trackPurchase = (params: AnalyticsParams) => {
 
 export const setAnalyticsUserProperty = (name: string, value: string) => {
   firebaseAnalytics.setUserProperty(name, value)
-  posthog.identify(posthog.getDistinctId(), { [name]: value })
+
+  const updated = setCachedPosthogProperty(name, value)
+
+  if (!(name in updated)) {
+    return
+  }
+
+  posthog.identify(posthog.getDistinctId(), {
+    $set: { [name]: value },
+  })
 }
 
 export const setAnalyticsUserProperties = (properties: Record<string, string>) => {
   firebaseAnalytics.setUserProperties(properties)
-  posthog.identify(posthog.getDistinctId(), properties)
+
+  const updated = setCachedPosthogProperties(properties)
+
+  if (Object.keys(updated).length === 0) {
+    return
+  }
+
+  posthog.identify(posthog.getDistinctId(), {
+    $set: updated,
+  })
 }
 
 export const setAnalyticsCollectionEnabled = (enabled: boolean) => {
