@@ -30,7 +30,7 @@ export const trackPurchase = (params: AnalyticsParams) => {
 
 export const setAnalyticsUserProperty = (name: string, value: string) => {
   firebaseAnalytics.setUserProperty(name, value)
-
+  posthog.identify(posthog.getDistinctId(), { [name]: value })
 }
 
 export const setAnalyticsUserProperties = (properties: Record<string, string>) => {
