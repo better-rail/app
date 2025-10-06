@@ -23,13 +23,9 @@ export const trackScreenView = (params: AnalyticsParams) => {
   firebaseAnalytics.logScreenView(params)
 }
 
-export const trackPurchase = (params: Record<string, unknown>) => {
-  if (typeof firebaseAnalytics.logPurchase === "function") {
+export const trackPurchase = (params: AnalyticsParams) => {
     firebaseAnalytics.logPurchase(params)
-    return
-  }
-
-  firebaseAnalytics.logEvent("purchase", params)
+    posthog.capture("tip_purchased", params)
 }
 
 export const setAnalyticsUserProperty = (name: string, value: string) => {
