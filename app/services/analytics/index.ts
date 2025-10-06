@@ -42,13 +42,7 @@ export const setAnalyticsUserProperty = (name: string, value: string) => {
 
   const updated = setCachedPosthogProperty(name, value)
 
-  if (!(name in updated)) {
-    return
-  }
-
-  posthog.identify(posthog.getDistinctId(), {
-    $set: { [name]: value },
-  })
+  posthog.identify(undefined, updated)
 }
 
 export const setAnalyticsUserProperties = (properties: Record<string, string>) => {
@@ -56,13 +50,7 @@ export const setAnalyticsUserProperties = (properties: Record<string, string>) =
 
   const updated = setCachedPosthogProperties(properties)
 
-  if (Object.keys(updated).length === 0) {
-    return
-  }
-
-  posthog.identify(posthog.getDistinctId(), {
-    $set: updated,
-  })
+  posthog.identify(undefined, updated)
 }
 
 export const setAnalyticsCollectionEnabled = (enabled: boolean) => {
