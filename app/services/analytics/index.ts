@@ -1,3 +1,4 @@
+import { POSTHOG_API_KEY } from "@env"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { getAnalytics } from "@react-native-firebase/analytics"
 import PostHog from 'posthog-react-native'
@@ -8,7 +9,7 @@ export const posthogOptions = {
   customStorage: AsyncStorage,
 }
 
-export const posthog = new PostHog("phc_86hcnoNOI0EchduJZT2EWStBYa7bNEJKE1f5013nHyH", posthogOptions)
+export const posthog = new PostHog(POSTHOG_API_KEY, posthogOptions)
 
 type AnalyticsParams = Record<string, string | number | boolean | null | undefined>
 

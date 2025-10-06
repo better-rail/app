@@ -11,6 +11,13 @@ module.exports = {
       },
     ],
     ["@babel/plugin-proposal-optional-catch-binding"],
+    [
+      "module:react-native-dotenv",
+      {
+        moduleName: "@env",
+        path: ".env",
+      },
+    ],
     "react-native-reanimated/plugin",
   ],
 }

@@ -48,8 +48,6 @@ import { TipThanksModal } from "./screens/settings/components/tip-thanks-modal"
 import { RouteListWarningModal } from "./screens/route-list/components/route-list-warning-modal"
 import { DatePickerModal } from "./components/date-picker-modal/date-picker-modal.android"
 import { setAnalyticsUserProperty } from "./services/analytics"
-import { usePostHog } from "posthog-react-native"
-import auth from "@react-native-firebase/auth"
 
 enableScreens()
 

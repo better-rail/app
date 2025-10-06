@@ -1,3 +1,4 @@
+import { POSTHOG_API_KEY } from "@env"
 import React from "react"
 import { useColorScheme } from "react-native"
 import { NavigationContainer, type NavigationContainerRef, DefaultTheme, DarkTheme } from "@react-navigation/native"
@@ -49,7 +50,7 @@ export const RootNavigator = React.forwardRef<NavigationContainerRef, Partial<Re
 
     return (
       <NavigationContainer {...props} ref={ref} theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <PostHogProvider apiKey="phc_86hcnoNOI0EchduJZT2EWStBYa7bNEJKE1f5013nHyH" options={posthogOptions}>
+        <PostHogProvider apiKey={POSTHOG_API_KEY} options={posthogOptions}>
           <RootStack />
         </PostHogProvider>
       </NavigationContainer>
