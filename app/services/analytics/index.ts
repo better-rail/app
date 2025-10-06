@@ -21,6 +21,7 @@ export const trackEvent = (eventName: string, params?: AnalyticsParams) => {
 
 export const trackScreenView = (params: AnalyticsParams) => {
   firebaseAnalytics.logScreenView(params)
+  // posthog is already tracking screen views through <PostHogProvider />
 }
 
 export const trackPurchase = (params: AnalyticsParams) => {
