@@ -42,6 +42,10 @@ export const setAnalyticsUserProperty = (name: string, value: string) => {
 
   const updated = setCachedPosthogProperty(name, value)
 
+  if (Object.keys(updated).length === 0) {
+    return
+  }
+
   posthog.identify(undefined, updated)
 }
 
@@ -49,6 +53,10 @@ export const setAnalyticsUserProperties = (properties: Record<string, string>) =
   firebaseAnalytics.setUserProperties(properties)
 
   const updated = setCachedPosthogProperties(properties)
+
+  if (Object.keys(updated).length === 0) {
+    return
+  }
 
   posthog.identify(undefined, updated)
 }
