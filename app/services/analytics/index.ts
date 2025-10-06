@@ -1,12 +1,8 @@
 import { POSTHOG_API_KEY } from "@env"
 import { getAnalytics } from "@react-native-firebase/analytics"
-import PostHog from 'posthog-react-native'
+import PostHog from "posthog-react-native"
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import {
-  hydratePosthogProperties,
-  setCachedPosthogProperties,
-  setCachedPosthogProperty,
-} from "./posthog-user-properties"
+import { hydratePosthogProperties, setCachedPosthogProperties, setCachedPosthogProperty } from "./posthog-user-properties"
 
 export const posthogOptions = {
   host: "https://eu.i.posthog.com",
@@ -33,8 +29,8 @@ export const trackScreenView = (params: AnalyticsParams) => {
 }
 
 export const trackPurchase = (params: AnalyticsParams) => {
-    firebaseAnalytics.logPurchase(params)
-    posthog.capture("tip_purchased", params)
+  firebaseAnalytics.logPurchase(params)
+  posthog.capture("tip_purchased", params)
 }
 
 export const setAnalyticsUserProperty = (name: string, value: string) => {
@@ -61,10 +57,17 @@ export const setAnalyticsUserProperties = (properties: Record<string, string>) =
   posthog.identify(undefined, updated)
 }
 
-export const setAnalyticsCollectionEnabled = (enabled: boolean) => {
-  firebaseAnalytics.setAnalyticsCollectionEnabled(enabled)
+export const setAnalyticsCollectionEnabled = async (enabled: boolean) => {
+  await firebaseAnalytics.setAnalyticsCollectionEnabled(enabled)
+
+  if (enabled) {
+    await posthog.optIn()
+  } else {
+    await posthog.optOut()
+  }
 }
 
 if (__DEV__) {
   setAnalyticsCollectionEnabled(false)
+  posthog.optOut()
 }
