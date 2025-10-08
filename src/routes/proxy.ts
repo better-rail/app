@@ -1,4 +1,3 @@
-import { createProxyMiddleware, Options } from "http-proxy-middleware"
 import { Request, Response } from "express"
 import { railUrl, railApiKey } from "../data/config"
 
@@ -47,20 +46,26 @@ const handleSearchTrainRequest = async (req: Request, res: Response) => {
   }
 }
 
-// Create proxy middleware for rail API
-const railProxy = createProxyMiddleware({
-  target: railUrl,
-  changeOrigin: true,
-  onProxyReq: (proxyReq: any) => {
-    proxyReq.setHeader("Accept", "application/json")
-    proxyReq.setHeader("Ocp-Apim-Subscription-Key", railApiKey)
-  },
-  onError: (err: any, req: any, res: any) => {
+const railProxy = async (req: Request, res: Response) => {
+  try {
+    const url = `${railUrl}${req.path}`
+    const response = await fetch(url, {
+      method: req.method,
+      headers: {
+        "Content-Type": req.headers["content-type"] || "application/json",
+        "Ocp-Apim-Subscription-Key": railApiKey,
+        Accept: "application/json",
+      },
+      body: req.method !== "GET" ? JSON.stringify(req.body) : undefined,
+    })
+    const data = await response.json()
+    res.status(response.status).json(data)
+  } catch (error: any) {
     res.status(500).json({
       error: "Failed to fetch rail data",
-      message: err.message,
+      message: error.message,
     })
-  },
-} as Options)
+  }
+}
 
 export { railProxy, handleSearchTrainRequest }
