@@ -72,7 +72,8 @@
     "showAllStations": "عرض جميع محطات المسار",
     "hideAllStations": "إخفاء جميع محطات المسار",
     "noCalendarAccessTitle": "تم تعطيل الوصول إلى التقويم",
-    "noCalendarAccessMessage": "للإضافة إلى تقويم المسار ، يرجى فتح إعدادات جهازك وتمكين الوصول إلى التقويم."
+    "noCalendarAccessMessage": "للإضافة إلى تقويم المسار ، يرجى فتح إعدادات جهازك وتمكين الوصول إلى التقويم.",
+    "noPlatformSet": "لم يتم تعيين قفص الاتهام"
   },
   "settings": {
     "title": "اعدادت",
