@@ -13,6 +13,7 @@ import { RouteIndicators } from "./"
 import { RouteContextMenu, RouteContextMenuAction } from "./platform-context-menu"
 import { createContextMenuActions } from "./route-context-menu-actions"
 import type { RouteItem } from "../../services/api"
+import { useIsDarkMode } from "../../hooks/use-is-dark-mode"
 
 // #region styles
 
@@ -166,6 +167,8 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
     destinationId,
   } = props
 
+  const isDarkMode = useIsDarkMode()
+
   // Format times
   const [formattedDepatureTime, formattedArrivalTime] = useMemo(() => {
     const formattedDepatureTime = format(new Date(departureTime), "HH:mm")
@@ -226,7 +229,7 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
     return (
       <Image
         source={imageSource}
-        style={TRAIN_TYPE_IMAGE}
+        style={[TRAIN_TYPE_IMAGE, { tintColor: isDarkMode ? 'white' : 'black' }]}
         resizeMode="contain"
       />
     )
