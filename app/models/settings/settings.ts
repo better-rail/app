@@ -10,7 +10,7 @@ export const SettingsModel = types
     seenUrgentMessagesIds: types.optional(types.array(types.number), []),
     profileCode: types.optional(types.number, 1),
     totalTip: types.optional(types.number, 0),
-    showRouteCardHeader: types.optional(types.boolean, true),
+    showRouteCardHeader: types.optional(types.boolean, false),
   })
   .views((self) => ({
     get profileCodeLabel() {
