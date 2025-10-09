@@ -69,6 +69,7 @@ export const AboutScreen = observer(function AboutScreen({ navigation }: Setting
       unsafe={true}
       statusBar={Platform.select({ ios: "light-content" })}
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
+      translucent
     >
       <View style={[SETTING_GROUP, { alignItems: "center", padding: spacing[4] }]}>
         <View style={APP_ICON_WRAPPER}>

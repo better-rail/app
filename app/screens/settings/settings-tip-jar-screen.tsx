@@ -153,6 +153,7 @@ export const TipJarScreen = observer(function TipJarScreen() {
       unsafe={true}
       statusBar={Platform.select({ ios: "light-content" })}
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
+      translucent
     >
       <Text style={HEART_ICON}>💖</Text>
       <Text tx="settings.tipJarTitle" style={TIP_INTRO_TITLE} />

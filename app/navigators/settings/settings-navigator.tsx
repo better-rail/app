@@ -25,6 +25,7 @@ export const SettingsNavigator = () => (
       options={({ navigation }) => ({
         title: translate("settings.title"),
         headerLeft: () => <CloseButton onPress={() => navigation.goBack()} style={{ marginRight: spacing[2] }} />,
+        headerLeftContainerStyle: { marginBottom: 6 },
         headerTitleStyle: Platform.select({ ios: iOSTitleStyle, android: { ...androidTitleStyle, marginBottom: 10 } }),
       })}
     />
