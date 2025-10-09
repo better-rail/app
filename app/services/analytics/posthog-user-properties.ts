@@ -61,10 +61,20 @@ export const hydratePosthogProperties = async () => {
 
 export const isPosthogPropertiesHydrated = hydrated
 
+/**
+ * Ensures PostHog user properties are hydrated exactly once and provides
+ * a single completion signal for any number of concurrent callers.
+ */
 export const ensurePosthogPropertiesHydrated = () => {
+  // Already hydrated.
   if (hydrated) return Promise.resolve()
+
+  // Hydration in progress: reuse the same promise.
   if (hydrationPromise) return hydrationPromise
+
+  // Kick off hydration once and cache the in-flight promise.
   hydrationPromise = hydratePosthogProperties().finally(() => {
+    // Clear the reference when done
     hydrationPromise = null
   })
   return hydrationPromise
