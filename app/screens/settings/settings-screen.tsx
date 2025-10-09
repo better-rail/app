@@ -43,11 +43,17 @@ export const SettingsScreen = observer(function SettingsScreen({ navigation }: S
       <View style={SETTING_GROUP}>
         <SettingBox
           first
-          last
           title={translate("settings.language")}
           icon="💬"
           chevron
           onPress={() => navigation.navigate("language")}
+        />
+        <SettingBox
+          last
+          title={translate("settings.uiSettings")}
+          icon="🎨"
+          chevron
+          onPress={() => navigation.navigate("uiSettings")}
         />
       </View>
 
