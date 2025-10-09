@@ -5,6 +5,7 @@ const STORAGE_KEY = "posthog_user_properties"
 let cache: Record<string, string> = {}
 let hydrated = false
 let dirtyBeforeHydration = false
+let hydrationPromise: Promise<void> | null = null
 
 const persist = () => {
   AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(cache)).catch((error) => {
@@ -56,6 +57,17 @@ export const hydratePosthogProperties = async () => {
       persist()
     }
   }
+}
+
+export const isPosthogPropertiesHydrated = hydrated
+
+export const ensurePosthogPropertiesHydrated = () => {
+  if (hydrated) return Promise.resolve()
+  if (hydrationPromise) return hydrationPromise
+  hydrationPromise = hydratePosthogProperties().finally(() => {
+    hydrationPromise = null
+  })
+  return hydrationPromise
 }
 
 export const setCachedPosthogProperty = (name: string, value: string) => {

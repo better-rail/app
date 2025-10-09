@@ -2,7 +2,7 @@ import { POSTHOG_API_KEY } from "@env"
 import { getAnalytics } from "@react-native-firebase/analytics"
 import PostHog from "posthog-react-native"
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import { hydratePosthogProperties, setCachedPosthogProperties, setCachedPosthogProperty } from "./posthog-user-properties"
+import { ensurePosthogPropertiesHydrated, setCachedPosthogProperties, setCachedPosthogProperty } from "./posthog-user-properties"
 
 export const posthogOptions = {
   host: "https://eu.i.posthog.com",
@@ -11,8 +11,6 @@ export const posthogOptions = {
 }
 
 export const posthog = new PostHog(POSTHOG_API_KEY, posthogOptions)
-
-void hydratePosthogProperties()
 
 type AnalyticsParams = Record<string, string | number | boolean | null | undefined>
 
@@ -42,7 +40,7 @@ export const setAnalyticsUserProperty = (name: string, value: string) => {
     return
   }
 
-  posthog.identify(undefined, updated)
+  ensurePosthogPropertiesHydrated().then(() => posthog.identify(undefined, updated))
 }
 
 export const setAnalyticsUserProperties = (properties: Record<string, string>) => {
@@ -54,7 +52,7 @@ export const setAnalyticsUserProperties = (properties: Record<string, string>) =
     return
   }
 
-  posthog.identify(undefined, updated)
+  ensurePosthogPropertiesHydrated().then(() => posthog.identify(undefined, updated))
 }
 
 export const setAnalyticsCollectionEnabled = async (enabled: boolean) => {
