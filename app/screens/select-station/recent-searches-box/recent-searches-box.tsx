@@ -89,7 +89,7 @@ export const RecentSearchesBox = observer(function RecentSearchesBox(props: Rece
   }, [sortedSearches])
 
   return (
-    <View>
+    <View style={{ marginTop: spacing[5] }}>
       <View style={RECENT_SEARCHERS_HEADER}>
         <Text tx="selectStation.recentSearches" style={RECENT_SEARCHES_TITLE} />
       </View>

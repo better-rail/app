@@ -8,6 +8,7 @@ import { color, spacing, isDarkMode } from "../../theme"
 import { NormalizedStation } from "../../data/stations"
 import { SearchInput } from "./search-input"
 import { RecentSearchesBox } from "./recent-searches-box/recent-searches-box"
+import { ClosestStationsBox } from "./closest-stations-box/closest-stations-box"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { FlashList } from "@shopify/flash-list"
 import { useFilteredStations } from "../../hooks"
@@ -83,6 +84,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
         estimatedItemSize={cardHeight + spacing[3]}
         ListEmptyComponent={() => (
           <View>
+            <ClosestStationsBox selectionType={route.params.selectionType} />
             <RecentSearchesBox selectionType={route.params.selectionType} />
             {recentSearches.entries.length > 1 && <FavoriteRoutes />}
           </View>

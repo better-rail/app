@@ -43,55 +43,65 @@ const EMPTY_CARD_WRAPPER: ViewStyle = {
 type StationSearchEntryProps = {
   image: ImageSourcePropType
   name: string
-  onHide: () => void
+  onHide?: () => void
   onPress: () => void
 }
 
-export const StationSearchEntry = (props: StationSearchEntryProps) => (
-  <TouchableScale
-    onPress={props.onPress}
-    activeScale={0.96}
-    friction={8}
-    tension={Platform.select({ ios: 8, android: undefined })}
-    style={SEARCH_ENTRY_WRAPPER}
-  >
-    <ContextMenuView
-      onPressMenuItem={({ nativeEvent }) => {
-        const { actionKey } = nativeEvent
+export const StationSearchEntry = (props: StationSearchEntryProps) => {
+  const imageContent = (
+    <View style={SEARCH_ENTRY_IMAGE_WRAPPER}>
+      {props.image ? (
+        <Image source={props.image} style={SEARCH_ENTRY_IMAGE} />
+      ) : (
+        <View style={EMPTY_CARD_WRAPPER}>
+          <Image
+            source={require("../../../../assets/railway-station.png")}
+            style={{ width: 48, height: 48, marginBottom: spacing[2], tintColor: color.dim }}
+          />
+        </View>
+      )}
+    </View>
+  )
 
-        if (actionKey === "hide") {
-          props.onHide()
-        }
-      }}
-      previewConfig={{ borderRadius: 6 }}
-      menuConfig={{
-        menuTitle: props.name,
-        menuItems: [
-          {
-            actionKey: "hide",
-            actionTitle: translate("selectStation.hide"),
-            menuAttributes: ["destructive"],
-            icon: {
-              iconType: "SYSTEM",
-              iconValue: "trash",
-            },
-          },
-        ],
-      }}
+  return (
+    <TouchableScale
+      onPress={props.onPress}
+      activeScale={0.96}
+      friction={8}
+      tension={Platform.select({ ios: 8, android: undefined })}
+      style={SEARCH_ENTRY_WRAPPER}
     >
-      <View style={SEARCH_ENTRY_IMAGE_WRAPPER}>
-        {props.image ? (
-          <Image source={props.image} style={SEARCH_ENTRY_IMAGE} />
-        ) : (
-          <View style={EMPTY_CARD_WRAPPER}>
-            <Image
-              source={require("../../../../assets/railway-station.png")}
-              style={{ width: 48, height: 48, marginBottom: spacing[2], tintColor: color.dim }}
-            />
-          </View>
-        )}
-      </View>
-    </ContextMenuView>
-    <Text style={SEARCH_ENTRY_TEXT}>{props.name}</Text>
-  </TouchableScale>
-)
+      {props.onHide ? (
+        <ContextMenuView
+          onPressMenuItem={({ nativeEvent }) => {
+            const { actionKey } = nativeEvent
+
+            if (actionKey === "hide" && props.onHide) {
+              props.onHide()
+            }
+          }}
+          previewConfig={{ borderRadius: 6 }}
+          menuConfig={{
+            menuTitle: props.name,
+            menuItems: [
+              {
+                actionKey: "hide",
+                actionTitle: translate("selectStation.hide"),
+                menuAttributes: ["destructive"],
+                icon: {
+                  iconType: "SYSTEM",
+                  iconValue: "trash",
+                },
+              },
+            ],
+          }}
+        >
+          {imageContent}
+        </ContextMenuView>
+      ) : (
+        imageContent
+      )}
+      <Text style={SEARCH_ENTRY_TEXT}>{props.name}</Text>
+    </TouchableScale>
+  )
+}
