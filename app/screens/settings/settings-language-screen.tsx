@@ -67,6 +67,7 @@ export const LanguageScreen = observer(function SettingsLanguageScreen() {
       unsafe={true}
       statusBar={Platform.select({ ios: "light-content" })}
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
+      translucent
     >
       <View style={SETTING_GROUP}>
         <SettingBox first title="עברית" onPress={() => changeLanguage("he")} checkmark={userLocale === "he"} />
