@@ -20,10 +20,6 @@ export const UISettingsScreen = observer(function UISettingsScreen() {
   const isDarkMode = useIsDarkMode()
   const { settings } = useStores()
 
-  const toggleRouteCardHeader = () => {
-    settings.setShowRouteCardHeader(!settings.showRouteCardHeader)
-  }
-
   return (
     <Screen
       style={ROOT}
@@ -38,8 +34,9 @@ export const UISettingsScreen = observer(function UISettingsScreen() {
           first
           last
           title={translate("settings.showRouteCardHeader")}
-          onPress={toggleRouteCardHeader}
-          checkmark={settings.showRouteCardHeader}
+          toggle
+          toggleValue={settings.showRouteCardHeader}
+          onToggle={(value) => settings.setShowRouteCardHeader(value)}
         />
       </View>
     </Screen>
