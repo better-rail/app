@@ -11,6 +11,7 @@ export function NextButton({ title, onPress }: NextButtonProps) {
   return (
     <Button
       title={title || translate("common.next")}
+      variant="primary"
       containerStyle={{ minHeight: 60 * fontScale }}
       style={{ minHeight: 60 * fontScale, maxHeight: 60 * fontScale }}
       onPress={onPress}

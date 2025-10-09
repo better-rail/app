@@ -1,6 +1,6 @@
-<img src="https://better-rail.co.il/assets/images/iphone-screenshot@2x.png" width="300" align="right">
-
 # Better Rail
+
+<img src="https://better-rail.co.il/assets/images/iphone-screenshot@2x.png" width="300" align="right">
 
 <a href="https://github.com/guytepper/better-rail/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-brightgreen" alt="" /></a>&nbsp;<a href="https://x.com/better_rail"><img src="https://img.shields.io/twitter/follow/better_rail" alt="" /></a>
 

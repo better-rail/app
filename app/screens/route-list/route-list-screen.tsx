@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react"
 import HapticFeedback from "react-native-haptic-feedback"
 import * as Burnt from "burnt"
-import { View, ActivityIndicator, ViewStyle, Dimensions } from "react-native"
+import { View, ActivityIndicator, ViewStyle, Dimensions, useColorScheme } from "react-native"
 import Animated from "react-native-reanimated"
 import { FlashList } from "@shopify/flash-list"
 import { observer } from "mobx-react-lite"
@@ -26,6 +26,7 @@ import { flatMap, max, round } from "lodash"
 import { translate } from "../../i18n"
 import { shareRouteAction } from "../../utils/helpers/route-share-helpers"
 import { addRouteToCalendar } from "../../utils/helpers/calendar-helpers"
+import { getActionSheetStyleOptions } from "../../utils/helpers/action-sheet-helpers"
 import type BottomSheet from "@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet"
 import { isRouteInThePast } from "../../utils/helpers/date-helpers"
 import { useActionSheet } from "@expo/react-native-action-sheet"
@@ -41,6 +42,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   const { trainRoutes, routePlan, ride } = useStores()
   const { originId, destinationId, time, enableQuery } = route.params
   const { showActionSheetWithOptions } = useActionSheet()
+  const colorScheme = useColorScheme()
 
   // Reference to the current real time for date limit calculations
   const currentRealTime = useMemo(() => new Date(), [])
@@ -323,7 +325,8 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
       {
         options,
         cancelButtonIndex,
-        title: translate("routes.routeActions")
+        title: translate("routes.routeActions"),
+        ...getActionSheetStyleOptions(colorScheme),
       },
       async (selectedIndex) => {
         if (selectedIndex === cancelButtonIndex) return

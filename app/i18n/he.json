@@ -86,7 +86,8 @@
     "showAllStations": "הצגת המסלול המלא",
     "hideAllStations": "הסתרת המסלול המלא",
     "noCalendarAccessTitle": "גישה ללוח שנה כבויה",
-    "noCalendarAccessMessage": "יש לאפשר גישה ללוח שנה בהגדרות המכשיר על מנת להוסיף נסיעה ליומן"
+    "noCalendarAccessMessage": "יש לאפשר גישה ללוח שנה בהגדרות המכשיר על מנת להוסיף נסיעה ליומן",
+    "noPlatformSet": "לא נקבע רציף"
   },
   "settings": {
     "title": "הגדרות",
