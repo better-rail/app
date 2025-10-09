@@ -14,18 +14,19 @@ import { RouteContextMenu, RouteContextMenuAction } from "./platform-context-men
 import { createContextMenuActions } from "./route-context-menu-actions"
 import type { RouteItem } from "../../services/api"
 import { useIsDarkMode } from "../../hooks/use-is-dark-mode"
+import { useStores } from "../../models"
 
 // #region styles
 
 // Setting static height for FlatList getItemLayout
-export let RouteCardHeight = 95
-if (fontScale > 1.1) RouteCardHeight = 105
+export let RouteCardHeight = 75
+export let RouteCardHeightWithHeader = 95
+if (fontScale > 1.1) {
+  RouteCardHeight = 85
+  RouteCardHeightWithHeader = 105
+}
 
-const CONTAINER: ViewStyle = {
-  flexDirection: "column",
-  justifyContent: "space-between",
-  height: RouteCardHeight,
-
+const CONTAINER_BASE: ViewStyle = {
   paddingVertical: spacing[2],
   paddingHorizontal: spacing[4],
   backgroundColor: color.inputBackground,
@@ -35,6 +36,21 @@ const CONTAINER: ViewStyle = {
   shadowOffset: { height: 0, width: 0 },
   shadowOpacity: 0.05,
   elevation: 1,
+}
+
+const CONTAINER_WITHOUT_HEADER: ViewStyle = {
+  ...CONTAINER_BASE,
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  height: RouteCardHeight,
+}
+
+const CONTAINER_WITH_HEADER: ViewStyle = {
+  ...CONTAINER_BASE,
+  flexDirection: "column",
+  justifyContent: "space-between",
+  height: RouteCardHeightWithHeader,
 }
 
 const ROUTE_HEADER: ViewStyle = {
@@ -168,6 +184,7 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
   } = props
 
   const isDarkMode = useIsDarkMode()
+  const { settings } = useStores()
 
   // Format times
   const [formattedDepatureTime, formattedArrivalTime] = useMemo(() => {
@@ -235,15 +252,18 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
     )
   }
 
+  const showHeader = mainTrain && settings.showRouteCardHeader
+  const containerStyle = showHeader ? CONTAINER_WITH_HEADER : CONTAINER_WITHOUT_HEADER
+
   const cardContent = (
     <TouchableComponent
       onPress={onPress}
       onLongPress={Platform.OS === "android" ? onLongPress : undefined}
       friction={generatedContextMenuActions && Platform.OS === "ios" ? undefined : 9}
-      style={[CONTAINER, props.isActiveRide && ACTIVE_RIDE_CONTAINER, props.isRouteInThePast && PAST_RIDE_CONTAINER, style]}
+      style={[containerStyle, props.isActiveRide && ACTIVE_RIDE_CONTAINER, props.isRouteInThePast && PAST_RIDE_CONTAINER, style]}
     >
       {/* Header with train information */}
-      {mainTrain && (
+      {showHeader && (
         <View style={ROUTE_HEADER}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Text style={HEADER_TEXT} tx="routeDetails.platform" />

@@ -92,6 +92,8 @@
   "settings": {
     "title": "Settings",
     "language": "App Language",
+    "uiSettings": "UI Settings",
+    "showRouteCardHeader": "Show Route Card Header",
     "about": "About",
     "share": "Share App",
     "widget": "Widget Guide",

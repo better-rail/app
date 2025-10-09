@@ -85,6 +85,8 @@
   "settings": {
     "title": "اعدادت",
     "language": "لغة",
+    "uiSettings": "إعدادات واجهة المستخدم",
+    "showRouteCardHeader": "إظهار رأس بطاقة المسار",
     "about": "عن",
     "share": "مشاركة Better Rail",
     "widget": "دليل القطعة",

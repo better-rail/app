@@ -1,10 +1,19 @@
 import React from "react"
 import { Platform, type TextStyle } from "react-native"
 import { createStackNavigator, type StackScreenProps } from "@react-navigation/stack"
-import { SettingsScreen, LanguageScreen, TipJarScreen, AboutScreen, PrivacyScreen } from "../../screens"
+import { SettingsScreen, LanguageScreen, UISettingsScreen, TipJarScreen, AboutScreen, PrivacyScreen } from "../../screens"
 import { color, spacing, typography } from "../../theme"
 import { translate } from "../../i18n"
 import { CloseButton } from "../../components"
+
+export type SettingsParamList = {
+  settings: undefined
+  language: undefined
+  uiSettings: undefined
+  tipJar: undefined
+  about: undefined
+  privacy: undefined
+}
 
 const SettingsStack = createStackNavigator<SettingsParamList>()
 
@@ -33,6 +42,15 @@ export const SettingsNavigator = () => (
       component={LanguageScreen}
       options={{
         title: translate("settings.language"),
+        headerLeftContainerStyle: { marginBottom: 6 },
+        headerTitleStyle,
+      }}
+    />
+    <SettingsStack.Screen
+      name="uiSettings"
+      component={UISettingsScreen}
+      options={{
+        title: translate("settings.uiSettings"),
         headerLeftContainerStyle: { marginBottom: 6 },
         headerTitleStyle,
       }}
