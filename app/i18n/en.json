@@ -36,6 +36,7 @@
     "placeholder": "Search Stations",
     "instructions": "Search for train stations using the search bar above.",
     "recentSearches": "Recently Searched",
+    "nearestStations": "Nearest Stations",
     "hide": "Hide"
   },
   "routes": {
