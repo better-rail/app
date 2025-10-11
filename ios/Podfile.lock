@@ -1549,6 +1549,37 @@ PODS:
     - nanopb/encode (= 3.30910.0)
   - nanopb/decode (3.30910.0)
   - nanopb/encode (3.30910.0)
+  - PostHog (3.32.0)
+  - posthog-react-native-session-replay (1.2.0):
+    - boost
+    - DoubleConversion
+    - fast_float
+    - fmt
+    - glog
+    - hermes-engine
+    - PostHog (~> 3.21)
+    - RCT-Folly
+    - RCT-Folly/Fabric
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - SocketRocket
+    - Yoga
   - PromisesObjC (2.4.0)
   - PromisesSwift (2.4.0):
     - PromisesObjC (= 2.4.0)
@@ -4473,6 +4504,7 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - "LiquidGlass (from `../node_modules/@callstack/liquid-glass`)"
+  - posthog-react-native-session-replay (from `../node_modules/posthog-react-native-session-replay`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTDeprecation (from `../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)
   - RCTRequired (from `../node_modules/react-native/Libraries/Required`)
@@ -4606,6 +4638,7 @@ SPEC REPOS:
     - GTMSessionFetcher
     - leveldb-library
     - nanopb
+    - PostHog
     - PromisesObjC
     - PromisesSwift
     - RecaptchaInterop
@@ -4649,6 +4682,8 @@ EXTERNAL SOURCES:
     :tag: hermes-2025-07-24-RNv0.80.2-5c7dbc0a78cb2d2a8bc81c41c617c3abecf209ff
   LiquidGlass:
     :path: "../node_modules/@callstack/liquid-glass"
+  posthog-react-native-session-replay:
+    :path: "../node_modules/posthog-react-native-session-replay"
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTDeprecation:
@@ -4895,6 +4930,8 @@ SPEC CHECKSUMS:
   leveldb-library: cc8b8f8e013647a295ad3f8cd2ddf49a6f19be19
   LiquidGlass: 5696d70d79fe65ceec5c2243921b915fc48e7094
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
+  PostHog: 9a72bf7af69258c8e335670394a8974de4c6f160
+  posthog-react-native-session-replay: 7a993356c69fb61cc095b69d766dd9e63e0b5e8c
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   PromisesSwift: 9d77319bbe72ebf6d872900551f7eeba9bce2851
   RCT-Folly: 846fda9475e61ec7bcbf8a3fe81edfcaeb090669
