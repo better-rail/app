@@ -1,13 +1,14 @@
 import { POSTHOG_API_KEY } from "@env"
 import { getAnalytics } from "@react-native-firebase/analytics"
-import PostHog from "posthog-react-native"
+import PostHog, { PostHogOptions } from "posthog-react-native"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { ensurePosthogPropertiesHydrated, setCachedPosthogProperties, setCachedPosthogProperty } from "./posthog-user-properties"
 
-export const posthogOptions = {
+export const posthogOptions: PostHogOptions = {
   host: "https://eu.i.posthog.com",
   persistence: "file" as const,
   customStorage: AsyncStorage,
+  enableSessionReplay: true
 }
 
 export const posthog = new PostHog(POSTHOG_API_KEY, posthogOptions)
