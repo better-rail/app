@@ -55,6 +55,8 @@
 	<string>We need calendar access to add train rides.</string>
 	<key>NSContactsUsageDescription</key>
 	<string>We need access to your contacts to import and manage contacts within our app.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We need your location to show you the nearest train stations.</string>
 	<key>NSRemindersFullAccessUsageDescription</key>
 	<string>We need full access to reminders to create alerts for your train rides.</string>
 	<key>NSRemindersUsageDescription</key>
