@@ -50,6 +50,7 @@ export const setAnalyticsUserProperties = (properties: Record<string, string>) =
   if (Object.keys(updated).length === 0) {
     return
   }
+}
 
 export const identifyPosthogUser = async () => {
   await ensurePosthogPropertiesHydrated()
