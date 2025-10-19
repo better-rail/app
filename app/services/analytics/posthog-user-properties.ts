@@ -87,3 +87,7 @@ export const setCachedPosthogProperty = (name: string, value: string) => {
 export const setCachedPosthogProperties = (properties: Properties) => {
   return applyMerge(properties)
 }
+
+export const getCachedPosthogProperties = () => {
+  return { ...cache }
+}

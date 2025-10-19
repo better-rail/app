@@ -47,7 +47,7 @@ import { createModalStack, ModalProvider } from "react-native-modalfy"
 import { TipThanksModal } from "./screens/settings/components/tip-thanks-modal"
 import { RouteListWarningModal } from "./screens/route-list/components/route-list-warning-modal"
 import { DatePickerModal } from "./components/date-picker-modal/date-picker-modal.android"
-import { setAnalyticsUserProperty } from "./services/analytics"
+import { identifyPosthogUser, setAnalyticsUserProperty } from "./services/analytics"
 
 enableScreens()
 
@@ -132,6 +132,9 @@ function App() {
   }, [])
 
   useEffect(() => {
+    // Identify once per session as early as possible, per PostHog best practices
+    identifyPosthogUser()
+
     storage.load("appLanguage").then((languageCode) => {
       if (languageCode) {
         setUserLanguage(languageCode)
