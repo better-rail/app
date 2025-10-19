@@ -4,7 +4,7 @@
     "": {
       "name": "better-rail",
       "dependencies": {
-        "@callstack/liquid-glass": "^0.4.2",
+        "@callstack/liquid-glass": "0.4.3",
         "@expo/react-native-action-sheet": "4.1.1",
         "@gorhom/bottom-sheet": "5.1.1",
         "@notifee/react-native": "9.1.8",
@@ -47,7 +47,7 @@
         "mobx": "6.3.2",
         "mobx-react-lite": "3.4.3",
         "mobx-state-tree": "5.1.8",
-        "posthog-react-native": "4.9.1",
+        "posthog-react-native": "^4.9.1",
         "posthog-react-native-session-replay": "^1.2.0",
         "ramda": "0.27.1",
         "react": "19.1.0",
@@ -390,7 +390,7 @@
 
     "@babel/types": ["@babel/types@7.28.4", "", { "dependencies": { "@babel/helper-string-parser": "^7.27.1", "@babel/helper-validator-identifier": "^7.27.1" } }, "sha512-bkFqkLhh3pMBUQQkpVgWDWq/lqzc2678eUyDlTBhRqhCHFguYYGM0Efga7tYk4TogG/3x0EEl66/OQ+WGbWB/Q=="],
 
-    "@callstack/liquid-glass": ["@callstack/liquid-glass@0.4.2", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-Swpz6xker4B0l3leBiKI8DjI4ZsNqEa8YFv6rDZn6eQluOCpSQN/WldzJMaRt6xLwCvjHKxNDBdgmmw7t86YVA=="],
+    "@callstack/liquid-glass": ["@callstack/liquid-glass@0.4.3", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-CBLOCicRvJBgeoTiD7BthhMdHJ1WoXne6hPBkQRftL1M3SM9+Kjq2sbmCTPAh5Rao+mXB18j6hMlgLug5WW8Mw=="],
 
     "@dominicstop/ts-event-emitter": ["@dominicstop/ts-event-emitter@1.1.0", "", {}, "sha512-CcxmJIvUb1vsFheuGGVSQf4KdPZC44XolpUT34+vlal+LyQoBUOn31pjFET5M9ctOxEpt8xa0M3/2M7uUiAoJw=="],
 
