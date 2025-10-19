@@ -25,7 +25,7 @@
     "rename-dev-configs": "cp ios/GoogleService-Info.development.plist ios/GoogleService-Info.plist && cp android/app/google-services.development.json android/app/google-services.json"
   },
   "dependencies": {
-    "@callstack/liquid-glass": "^0.4.2",
+    "@callstack/liquid-glass": "^0.4.3",
     "@expo/react-native-action-sheet": "4.1.1",
     "@gorhom/bottom-sheet": "5.1.1",
     "@notifee/react-native": "9.1.8",
