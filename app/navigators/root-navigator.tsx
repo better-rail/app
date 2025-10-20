@@ -10,7 +10,7 @@ import { WidgetOnboardingNavigator } from "./widget-onboarding/widget-onboarding
 import { PaywallNavigator } from "./paywall/paywall-navigator"
 import { LiveAnnouncementNavigator } from "./live-activity-announcement/live-activity-announcement-stack"
 import { AnnouncementsNavigator } from "./announcements/announcements-navigator"
-import { PostHogProvider } from "posthog-react-native"
+import { PostHogProvider, usePostHog } from "posthog-react-native"
 import { posthogOptions } from "../services/analytics"
 
 export type RootParamList = {
@@ -44,16 +44,44 @@ const RootStack = () => {
   )
 }
 
-export const RootNavigator = React.forwardRef<NavigationContainerRef, Partial<React.ComponentProps<typeof NavigationContainer>>>(
-  (props, ref) => {
-    const colorScheme = useColorScheme()
+const NavigationWithTracking = React.forwardRef<NavigationContainerRef<RootParamList>, Partial<React.ComponentProps<typeof NavigationContainer>>>((props, ref) => {
+  const posthog = usePostHog()
+  const colorScheme = useColorScheme()
+  const navigationRef = React.useRef<NavigationContainerRef<RootParamList>>(null)
 
+  React.useImperativeHandle(ref, () => navigationRef.current as NavigationContainerRef<RootParamList>)
+
+  return (
+    <NavigationContainer
+      {...props}
+      ref={navigationRef as any}
+      theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+      onReady={() => {
+        const route = navigationRef.current?.getCurrentRoute()
+        if (route?.name) {
+          posthog?.screen(route.name)
+        }
+      }}
+      onStateChange={() => {
+        const route = navigationRef.current?.getCurrentRoute()
+        if (route?.name) {
+          posthog?.screen(route.name)
+        }
+      }}
+    >
+      <RootStack />
+    </NavigationContainer>
+  )
+})
+
+NavigationWithTracking.displayName = "NavigationWithTracking"
+
+export const RootNavigator = React.forwardRef<NavigationContainerRef<RootParamList>, Partial<React.ComponentProps<typeof NavigationContainer>>>(
+  (props, ref) => {
     return (
-      <NavigationContainer {...props} ref={ref} theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <PostHogProvider apiKey={POSTHOG_API_KEY} options={posthogOptions}>
-          <RootStack />
-        </PostHogProvider>
-      </NavigationContainer>
+      <PostHogProvider apiKey={POSTHOG_API_KEY} options={posthogOptions} autocapture={{ captureScreens: false }}>
+        <NavigationWithTracking {...props} ref={ref} />
+      </PostHogProvider>
     )
   },
 )
