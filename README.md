@@ -19,7 +19,10 @@ If this is your first time, check out the [official set up guide](https://reactn
 
 #### Prerequisites
 
+- **Node.js**: Minimum supported version>=18
 - **Bun**: This project uses Bun as the package manager. Please see the [Bun installation guide](https://bun.com/docs/installation) for instructions.
+- **cocoapods**: Manages library dependencies for your Xcode projects. You can use Homebrew to install cocoapods with `brew install cocoapods`
+- **Java Development Kit**: Java Runtime is required for android development, install via `brew install openjdk@21`
 
 #### Setup Steps
 
@@ -27,6 +30,7 @@ If this is your first time, check out the [official set up guide](https://reactn
 - Run `bun install`
 - **MacOS / Linux users**: Run `bun rename-dev-configs` to rename the firebase development configs.
 - **Windows users**: Duplicate the firebase configs in `/ios` and `/android/app`, and remove the `.development` suffix from the duplicated files.
+- Run `bun build-android` to generate the Android assets.
 - Run `bun start` to start the metro development server
 - Run the app with `bun ios` (to open the iPhone simulator) or `bun android` (for the Android simulator).
 
