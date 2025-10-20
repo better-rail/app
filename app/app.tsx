@@ -32,7 +32,7 @@ import {
 import { type RootStore, RootStoreProvider, setupRootStore } from "./models"
 import { setInitialLanguage, setUserLanguage } from "./i18n/i18n"
 import "react-native-console-time-polyfill"
-import { useIAP, initConnection, finishTransaction, getAvailablePurchases, withIAPContext } from "react-native-iap"
+import { useIAP, initConnection, finishTransaction, getAvailablePurchases } from "react-native-iap"
 import PushNotification from "react-native-push-notification"
 
 // This puts screens in a native ViewController or Activity. If you want fully native
@@ -67,7 +67,7 @@ function App() {
   const [rootStore, setRootStore] = useState<RootStore | undefined>(undefined)
   const [localeReady, setLocaleReady] = useState(false)
   const appState = useRef(AppState.currentState)
-  const { currentPurchase } = useIAP()
+  useIAP()
 
   useDeepLinking(rootStore, navigationRef)
 
@@ -178,7 +178,7 @@ function App() {
     if (!__DEV__) {
       flushAvailablePurchases()
     }
-  }, [currentPurchase])
+  }, [])
 
   // Before we show the app, we have to wait for our state to be ready.
   // In the meantime, don't render anything. This will be the background
@@ -213,4 +213,4 @@ function App() {
   )
 }
 
-export default withIAPContext(App)
+export default App
