@@ -92,7 +92,7 @@ const StopButton = (props: { loading: boolean } & PressableProps) => {
 
   if (isLiquidGlassSupported) {
     return (
-      <Pressable>
+      <Pressable disabled={isDisabled} {...props}>
         <LiquidGlassView interactive style={STOP_BUTTON} tintColor={PlatformColor("systemRed")}>
           {loading ? (
             <ActivityIndicator color="white" />
