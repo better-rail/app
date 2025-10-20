@@ -15,7 +15,7 @@ Better Rail is written primarily with React Native. We also use Swift & SwiftUI 
 ### Installation
 
 The following steps assumes your environment is already set up for running React Native apps.  
-If this is your first time, check out the [official set up guide](https://reactnative.dev/docs/environment-setup) beforehand.
+If this is your first time, check out the [official set up guide](https://reactnative.dev/docs/set-up-your-environment) beforehand.
 
 #### Prerequisites
 
@@ -27,6 +27,7 @@ If this is your first time, check out the [official set up guide](https://reactn
 - Run `bun install`
 - **MacOS / Linux users**: Run `bun rename-dev-configs` to rename the firebase development configs.
 - **Windows users**: Duplicate the firebase configs in `/ios` and `/android/app`, and remove the `.development` suffix from the duplicated files.
+- Run `bun build-android` to generate the Android assets.
 - Run `bun start` to start the metro development server
 - Run the app with `bun ios` (to open the iPhone simulator) or `bun android` (for the Android simulator).
 
