@@ -21,7 +21,7 @@ If this is your first time, check out the [official set up guide](https://reactn
 
 - **Node.js**: Minimum supported version>=18
 - **Bun**: This project uses Bun as the package manager. Please see the [Bun installation guide](https://bun.com/docs/installation) for instructions.
-- **cocoapods**: Manages library dependencies for your Xcode projects. You can use Homebrew to install cocoapods with `brew install cocoapods`
+- **CocoaPods**: Manages library dependencies for your Xcode projects. You can use Homebrew to install CocoaPods with `brew install cocoapods`
 - **Java Development Kit**: Java Runtime is required for android development, install via `brew install openjdk@21`
 
 #### Setup Steps
