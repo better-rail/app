@@ -15,7 +15,7 @@ Better Rail is written primarily with React Native. We also use Swift & SwiftUI 
 ### Installation
 
 The following steps assumes your environment is already set up for running React Native apps.  
-If this is your first time, check out the [official set up guide](https://reactnative.dev/docs/environment-setup) beforehand.
+If this is your first time, check out the [official set up guide](https://reactnative.dev/docs/set-up-your-environment) beforehand.
 
 #### Prerequisites
 
