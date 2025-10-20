@@ -44,43 +44,40 @@ const RootStack = () => {
   )
 }
 
-const NavigationWithTracking = React.forwardRef<NavigationContainerRef<RootParamList>, Partial<React.ComponentProps<typeof NavigationContainer>>>((props, ref) => {
-  const posthog = usePostHog()
-  const colorScheme = useColorScheme()
-  const navigationRef = React.useRef<NavigationContainerRef<RootParamList>>(null)
-
-  React.useImperativeHandle(ref, () => navigationRef.current as NavigationContainerRef<RootParamList>)
-
-  return (
-    <NavigationContainer
-      {...props}
-      ref={navigationRef as any}
-      theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-      onReady={() => {
-        const route = navigationRef.current?.getCurrentRoute()
-        if (route?.name) {
-          posthog?.screen(route.name)
-        }
-      }}
-      onStateChange={() => {
-        const route = navigationRef.current?.getCurrentRoute()
-        if (route?.name) {
-          posthog?.screen(route.name)
-        }
-      }}
-    >
-      <RootStack />
-    </NavigationContainer>
-  )
-})
-
-NavigationWithTracking.displayName = "NavigationWithTracking"
-
 export const RootNavigator = React.forwardRef<NavigationContainerRef<RootParamList>, Partial<React.ComponentProps<typeof NavigationContainer>>>(
   (props, ref) => {
+    const posthog = usePostHog()
+    const colorScheme = useColorScheme()
+    const navigationRef = React.useRef<NavigationContainerRef<RootParamList>>(null)
+    const routeNameRef = React.useRef<string>()
+
+    React.useImperativeHandle(ref, () => navigationRef.current!)
+
     return (
       <PostHogProvider apiKey={POSTHOG_API_KEY} options={posthogOptions} autocapture={{ captureScreens: false }}>
-        <NavigationWithTracking {...props} ref={ref} />
+        <NavigationContainer<RootParamList>
+          {...props}
+          ref={navigationRef}
+          theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+          onReady={() => {
+            routeNameRef.current = navigationRef.current?.getCurrentRoute()?.name
+            if (routeNameRef.current) {
+              posthog?.screen(routeNameRef.current)
+            }
+          }}
+          onStateChange={() => {
+            const previousRouteName = routeNameRef.current
+            const currentRouteName = navigationRef.current?.getCurrentRoute()?.name
+
+            if (previousRouteName !== currentRouteName && currentRouteName) {
+              posthog?.screen(currentRouteName)
+            }
+
+            routeNameRef.current = currentRouteName
+          }}
+        >
+          <RootStack />
+        </NavigationContainer>
       </PostHogProvider>
     )
   },
