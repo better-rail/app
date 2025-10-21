@@ -13,6 +13,7 @@ import "./i18n"
 import "./utils/ignore-warnings"
 import React, { useState, useEffect, useRef } from "react"
 import { AppState, Platform } from "react-native"
+import DeviceInfo from "react-native-device-info"
 import { QueryClient, QueryClientProvider } from "react-query"
 import type { NavigationContainerRef } from "@react-navigation/native"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
@@ -67,7 +68,11 @@ function App() {
   const [rootStore, setRootStore] = useState<RootStore | undefined>(undefined)
   const [localeReady, setLocaleReady] = useState(false)
   const appState = useRef(AppState.currentState)
-  useIAP()
+
+  const isEmulator = DeviceInfo.isEmulatorSync()
+  if (!isEmulator) {
+    useIAP()
+  }
 
   useDeepLinking(rootStore, navigationRef)
 

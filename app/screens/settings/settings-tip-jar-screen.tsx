@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { View, ViewStyle, TextStyle, Platform, ActivityIndicator } from "react-native"
-import { ProductPurchase, RequestPurchase, useIAP } from "react-native-iap"
+import { useIAP } from "react-native-iap"
 import { Screen, Text } from "../../components"
 import { color, isDarkMode, spacing } from "../../theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
@@ -92,14 +92,14 @@ export const TipJarScreen = observer(function TipJarScreen() {
   const [sortedProducts, setSortedProducts] = useState([])
   const { settings } = useStores()
   const { openModal } = useModal()
-  const { connected, products, finishTransaction, requestPurchase, getProducts, getAvailablePurchases, availablePurchases } =
+  const { connected, products, finishTransaction, requestPurchase, fetchProducts, getAvailablePurchases, availablePurchases } =
     useIAP()
 
   useEffect(() => {
     if (connected) {
-      getProducts({ skus: PRODUCT_IDS })
+      fetchProducts({ skus: PRODUCT_IDS })
     }
-  }, [connected, getProducts])
+  }, [connected, fetchProducts])
 
   useEffect(() => {
     if (products.length > 0) {
@@ -112,17 +112,25 @@ export const TipJarScreen = observer(function TipJarScreen() {
     try {
       setIsLoading(true)
 
-      const requestPurchaseParams: RequestPurchase = Platform.select({
-        ios: { sku },
-        android: { skus: [sku] },
+      const purchaseResult = await requestPurchase({
+        request: {
+          ios: { sku },
+          android: { skus: [sku] },
+        },
+        type: 'in-app',
       })
 
-      const purchase = (await requestPurchase(requestPurchaseParams)) as ProductPurchase
+      // Handle the result - can be Purchase, Purchase[], or null
+      const purchase = Array.isArray(purchaseResult) ? purchaseResult[0] : purchaseResult
+
+      if (!purchase) {
+        throw new Error('Purchase cancelled or failed')
+      }
 
       await finishTransaction({ purchase, isConsumable: true })
       openModal("TipThanksModal")
 
-      const item = products.find((product) => product.productId === sku)
+      const item = products.find((product) => product.id === sku)
       await trackPurchase({
         value: Number(amount),
         currency: products[0].currency,
@@ -164,23 +172,23 @@ export const TipJarScreen = observer(function TipJarScreen() {
         <>
           <TipRow
             title={translate("settings.generousTip")}
-            amount={sortedProducts[0].localizedPrice}
-            onPress={() => onTipButtonPress(sortedProducts[0].productId, sortedProducts[0].price)}
+            amount={sortedProducts[0].displayPrice}
+            onPress={() => onTipButtonPress(sortedProducts[0].id, sortedProducts[0].price)}
           />
           <TipRow
             title={translate("settings.amazingTip")}
-            amount={sortedProducts[1].localizedPrice}
-            onPress={() => onTipButtonPress(sortedProducts[1].productId, sortedProducts[1].price)}
+            amount={sortedProducts[1].displayPrice}
+            onPress={() => onTipButtonPress(sortedProducts[1].id, sortedProducts[1].price)}
           />
           <TipRow
             title={translate("settings.massiveTip")}
-            amount={sortedProducts[2].localizedPrice}
-            onPress={() => onTipButtonPress(sortedProducts[2].productId, sortedProducts[2].price)}
+            amount={sortedProducts[2].displayPrice}
+            onPress={() => onTipButtonPress(sortedProducts[2].id, sortedProducts[2].price)}
           />
           <TipRow
             title={translate("settings.hugeTip")}
-            amount={sortedProducts[3].localizedPrice}
-            onPress={() => onTipButtonPress(sortedProducts[3].productId, sortedProducts[3].price)}
+            amount={sortedProducts[3].displayPrice}
+            onPress={() => onTipButtonPress(sortedProducts[3].id, sortedProducts[3].price)}
           />
 
           {settings.totalTip > 0 && (
