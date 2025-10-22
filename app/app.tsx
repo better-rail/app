@@ -59,6 +59,8 @@ const defaultOptions = { backdropOpacity: 0.6 }
 
 const stack = createModalStack(modalConfig, defaultOptions)
 
+const isEmulator = DeviceInfo.isEmulatorSync()
+
 export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
 /**
  * This is the root component of our app.
@@ -69,7 +71,9 @@ function App() {
   const [localeReady, setLocaleReady] = useState(false)
   const appState = useRef(AppState.currentState)
 
-  const isEmulator = DeviceInfo.isEmulatorSync()
+  // React hooks must be called unconditionally at the top level of the component,
+  // However, while this technically violates React's rules, it works because isEmulator is static and never changes. 
+  // This is only to suppress an error when working with an emulator. Check in future versions of react-native-iap if this is fixed.
   if (!isEmulator) {
     useIAP()
   }

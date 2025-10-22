@@ -92,7 +92,7 @@ export const TipJarScreen = observer(function TipJarScreen() {
   const [sortedProducts, setSortedProducts] = useState([])
   const { settings } = useStores()
   const { openModal } = useModal()
-  const { connected, products, finishTransaction, requestPurchase, fetchProducts, getAvailablePurchases, availablePurchases } =
+  const { connected, products, finishTransaction, requestPurchase, fetchProducts } =
     useIAP()
 
   useEffect(() => {
@@ -138,7 +138,7 @@ export const TipJarScreen = observer(function TipJarScreen() {
         items: [
           {
             item_name: item.title,
-            item_id: item.productId,
+            item_id: item.id,
             price: Number(amount),
             quantity: 1,
           },
