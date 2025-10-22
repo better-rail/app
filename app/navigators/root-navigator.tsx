@@ -10,7 +10,7 @@ import { WidgetOnboardingNavigator } from "./widget-onboarding/widget-onboarding
 import { PaywallNavigator } from "./paywall/paywall-navigator"
 import { LiveAnnouncementNavigator } from "./live-activity-announcement/live-activity-announcement-stack"
 import { AnnouncementsNavigator } from "./announcements/announcements-navigator"
-import { PostHogProvider } from "posthog-react-native"
+import { PostHogProvider, usePostHog } from "posthog-react-native"
 import { posthogOptions } from "../services/analytics"
 
 export type RootParamList = {
@@ -44,16 +44,41 @@ const RootStack = () => {
   )
 }
 
-export const RootNavigator = React.forwardRef<NavigationContainerRef, Partial<React.ComponentProps<typeof NavigationContainer>>>(
+export const RootNavigator = React.forwardRef<NavigationContainerRef<RootParamList>, Partial<React.ComponentProps<typeof NavigationContainer>>>(
   (props, ref) => {
+    const posthog = usePostHog()
     const colorScheme = useColorScheme()
+    const navigationRef = React.useRef<NavigationContainerRef<RootParamList>>(null)
+    const routeNameRef = React.useRef<string>()
+
+    React.useImperativeHandle(ref, () => navigationRef.current!)
 
     return (
-      <NavigationContainer {...props} ref={ref} theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <PostHogProvider apiKey={POSTHOG_API_KEY} options={posthogOptions}>
+      <PostHogProvider apiKey={POSTHOG_API_KEY} options={posthogOptions} autocapture={{ captureScreens: false }}>
+        <NavigationContainer<RootParamList>
+          {...props}
+          ref={navigationRef}
+          theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+          onReady={() => {
+            routeNameRef.current = navigationRef.current?.getCurrentRoute()?.name
+            if (routeNameRef.current) {
+              posthog?.screen(routeNameRef.current)
+            }
+          }}
+          onStateChange={() => {
+            const previousRouteName = routeNameRef.current
+            const currentRouteName = navigationRef.current?.getCurrentRoute()?.name
+
+            if (previousRouteName !== currentRouteName && currentRouteName) {
+              posthog?.screen(currentRouteName)
+            }
+
+            routeNameRef.current = currentRouteName
+          }}
+        >
           <RootStack />
-        </PostHogProvider>
-      </NavigationContainer>
+        </NavigationContainer>
+      </PostHogProvider>
     )
   },
 )
