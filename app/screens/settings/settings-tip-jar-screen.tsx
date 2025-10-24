@@ -92,8 +92,58 @@ export const TipJarScreen = observer(function TipJarScreen() {
   const [sortedProducts, setSortedProducts] = useState([])
   const { settings } = useStores()
   const { openModal } = useModal()
-  const { connected, products, finishTransaction, requestPurchase, fetchProducts } =
-    useIAP()
+
+  const handlePurchaseSuccess = async (purchase) => {
+    try {
+      await finishTransaction({ purchase, isConsumable: true })
+
+      openModal("TipThanksModal")
+
+      const item = products.find((product) => product.id === purchase.productId)
+      if (item) {
+        settings.addTip(Number(item.price))
+
+        try {
+          await trackPurchase({
+            value: Number(item.price),
+            currency: products[0].currency,
+            tax: 15,
+            items: [
+              {
+                item_name: item.title,
+                item_id: item.id,
+                price: Number(item.price),
+                quantity: 1,
+              },
+            ],
+          })
+        } catch (trackErr) {
+          console.error('Failed to track purchase:', trackErr)
+        }
+      }
+    } catch (err) {
+      console.error('[TipJar] Error in purchase success handler:', err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handlePurchaseError = (error) => {
+    setIsLoading(false)
+
+    // Check if user cancelled the purchase
+    if (error.code === 'user-cancelled') {
+      throw new Error(error.message)
+    } else {
+      crashlytics.recordError(new Error(error.message))
+      throw new Error(error.message)
+    }
+  }
+
+  const { connected, products, finishTransaction, requestPurchase, fetchProducts } = useIAP({
+    onPurchaseSuccess: handlePurchaseSuccess,
+    onPurchaseError: handlePurchaseError,
+  })
 
   useEffect(() => {
     if (connected) {
@@ -108,48 +158,21 @@ export const TipJarScreen = observer(function TipJarScreen() {
     }
   }, [products])
 
-  const onTipButtonPress = async (sku: string, amount: string) => {
+  const onTipButtonPress = async (sku: string) => {
     try {
       setIsLoading(true)
 
-      const purchaseResult = await requestPurchase({
+      // Request purchase - success/error will be handled by callbacks
+      await requestPurchase({
         request: {
           ios: { sku },
           android: { skus: [sku] },
         },
         type: 'in-app',
       })
-
-      // Handle the result - can be Purchase, Purchase[], or null
-      const purchase = Array.isArray(purchaseResult) ? purchaseResult[0] : purchaseResult
-
-      if (!purchase) {
-        throw new Error('Purchase cancelled or failed')
-      }
-
-      await finishTransaction({ purchase, isConsumable: true })
-      openModal("TipThanksModal")
-
-      const item = products.find((product) => product.id === sku)
-      await trackPurchase({
-        value: Number(amount),
-        currency: products[0].currency,
-        tax: 15,
-        items: [
-          {
-            item_name: item.title,
-            item_id: item.id,
-            price: Number(amount),
-            quantity: 1,
-          },
-        ],
-      })
-
-      settings.addTip(Number(amount))
     } catch (err) {
-      console.error(err)
+      console.error('[TipJar] Error requesting purchase:', err)
       crashlytics.recordError(err)
-    } finally {
       setIsLoading(false)
     }
   }
@@ -173,22 +196,22 @@ export const TipJarScreen = observer(function TipJarScreen() {
           <TipRow
             title={translate("settings.generousTip")}
             amount={sortedProducts[0].displayPrice}
-            onPress={() => onTipButtonPress(sortedProducts[0].id, sortedProducts[0].price)}
+            onPress={() => onTipButtonPress(sortedProducts[0].id)}
           />
           <TipRow
             title={translate("settings.amazingTip")}
             amount={sortedProducts[1].displayPrice}
-            onPress={() => onTipButtonPress(sortedProducts[1].id, sortedProducts[1].price)}
+            onPress={() => onTipButtonPress(sortedProducts[1].id)}
           />
           <TipRow
             title={translate("settings.massiveTip")}
             amount={sortedProducts[2].displayPrice}
-            onPress={() => onTipButtonPress(sortedProducts[2].id, sortedProducts[2].price)}
+            onPress={() => onTipButtonPress(sortedProducts[2].id)}
           />
           <TipRow
             title={translate("settings.hugeTip")}
             amount={sortedProducts[3].displayPrice}
-            onPress={() => onTipButtonPress(sortedProducts[3].id, sortedProducts[3].price)}
+            onPress={() => onTipButtonPress(sortedProducts[3].id)}
           />
 
           {settings.totalTip > 0 && (
