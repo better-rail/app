@@ -117,7 +117,9 @@
     "disableTelemetry": "ביטול טלמטריה",
     "sourceCode": "קוד מקור",
     "deleteAllData": "מחיקת נתונים מקומית",
-    "deleteAllDataConfirm": "האם למחוק את נתוני האפליקציה המקומיים? לא ניתן לבטל פעולה זו."
+    "deleteAllDataConfirm": "האם למחוק את נתוני האפליקציה המקומיים? לא ניתן לבטל פעולה זו.",
+    "purchaseCancelled": "הפעולה בוטלה",
+    "purchaseFailed": "הפעולה נכשלה"
   },
   "favorites": {
     "title": "מסלולים מועדפים",

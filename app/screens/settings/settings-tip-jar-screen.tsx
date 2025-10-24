@@ -11,6 +11,7 @@ import { getInstallerPackageNameSync } from "react-native-device-info"
 import { trackPurchase } from "../../services/analytics"
 import { crashlytics } from "../../services/firebase/crashlytics"
 import { useModal } from "react-native-modalfy"
+import { toast } from "burnt"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -131,11 +132,11 @@ export const TipJarScreen = observer(function TipJarScreen() {
   const handlePurchaseError = (error) => {
     setIsLoading(false)
 
-    if (error.code === 'user-cancelled') {
-      throw new Error(error.message)
-    } else {
+    if (error.code !== 'user-cancelled') {
+      toast({ title: translate('settings.purchaseFailed'), message: error.message, preset: 'error' })
       crashlytics.recordError(new Error(error.message))
-      throw new Error(error.message)
+    } else {
+      toast({ title: translate('settings.purchaseCancelled'), message: error.message, preset: 'none' })
     }
   }
 
