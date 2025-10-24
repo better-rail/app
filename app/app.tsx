@@ -73,7 +73,7 @@ function App() {
 
   // React hooks must be called unconditionally at the top level of the component,
   // However, while this technically violates React's rules, it works because isEmulator is static and never changes. 
-  // This is only to suppress an error when working with an emulator. Check in future versions of react-native-iap if this fixed.
+  // This is only to suppress an error when working with an emulator. Check in future versions of react-native-iap if this is fixed.
   if (!isEmulator) {
     useIAP()
   }
