@@ -19,7 +19,7 @@
     "lint": "eslint index.js app test --fix --ext .js,.ts,.tsx && bun format",
     "test": "bun test",
     "adb": "adb reverse tcp:9090 tcp:9090 && adb reverse tcp:3000 tcp:3000 && adb reverse tcp:9001 tcp:9001 && adb reverse tcp:8081 tcp:8081",
-    "postinstall": "patch-package && node ./bin/postInstall",
+    "postinstall": "node ./bin/postInstall",
     "build-ios": "react-native bundle --entry-file index.js --platform ios --dev false --bundle-output ios/main.jsbundle --assets-dest ios",
     "build-android": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res",
     "rename-dev-configs": "cp ios/GoogleService-Info.development.plist ios/GoogleService-Info.plist && cp android/app/google-services.development.json android/app/google-services.json"
@@ -132,7 +132,6 @@
     "jetifier": "1.6.6",
     "mocha": "8.2.1",
     "npm-run-all": "4.1.5",
-    "patch-package": "6.2.2",
     "postinstall-prepare": "1.0.1",
     "prettier": "2.8.8",
     "react-devtools-core": "4.10.1",
@@ -259,6 +258,7 @@
   },
   "patchedDependencies": {
     "react-native-quick-actions-shortcuts@1.0.2": "patches/react-native-quick-actions-shortcuts@1.0.2.patch",
-    "react-native-modal-datetime-picker@18.0.0": "patches/react-native-modal-datetime-picker@18.0.0.patch"
+    "react-native-modal-datetime-picker@18.0.0": "patches/react-native-modal-datetime-picker@18.0.0.patch",
+    "react-native-watch-connectivity@1.1.0": "patches/react-native-watch-connectivity@1.1.0.patch"
   }
 }

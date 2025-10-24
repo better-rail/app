@@ -1,7 +1,7 @@
-diff --git a/node_modules/react-native-watch-connectivity/ios/RNWatch/RNWatch.h b/node_modules/react-native-watch-connectivity/ios/RNWatch/RNWatch.h
-index abb8fa5..535cd8f 100644
---- a/node_modules/react-native-watch-connectivity/ios/RNWatch/RNWatch.h
-+++ b/node_modules/react-native-watch-connectivity/ios/RNWatch/RNWatch.h
+diff --git a/ios/RNWatch/RNWatch.h b/ios/RNWatch/RNWatch.h
+index abb8fa56bc21d82aac74858efb0979c671b3e2f2..535cd8f3eecc6b3bd09916ffa6e3eaf3fd5f9141 100644
+--- a/ios/RNWatch/RNWatch.h
++++ b/ios/RNWatch/RNWatch.h
 @@ -1,20 +1,5 @@
 -// import RCTBridgeModule.h
 -#if __has_include("RCTBridgeModule.h")
