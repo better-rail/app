@@ -131,13 +131,11 @@ export const TipJarScreen = observer(function TipJarScreen() {
   const handlePurchaseError = (error) => {
     setIsLoading(false)
 
-    // Check if user cancelled the purchase
-    if (error.code === 'user-cancelled') {
-      throw new Error(error.message)
-    } else {
+    if (error.code !== 'user-cancelled') {
       crashlytics.recordError(new Error(error.message))
-      throw new Error(error.message)
     }
+
+    throw new Error(error.message)
   }
 
   const { connected, products, finishTransaction, requestPurchase, fetchProducts } = useIAP({
