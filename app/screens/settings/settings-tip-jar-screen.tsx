@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { View, ViewStyle, TextStyle, Platform, ActivityIndicator } from "react-native"
-import { ProductPurchase, RequestPurchase, useIAP } from "react-native-iap"
+import { useIAP } from "react-native-iap"
 import { Screen, Text } from "../../components"
 import { color, isDarkMode, spacing } from "../../theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
@@ -11,6 +11,7 @@ import { getInstallerPackageNameSync } from "react-native-device-info"
 import { trackPurchase } from "../../services/analytics"
 import { crashlytics } from "../../services/firebase/crashlytics"
 import { useModal } from "react-native-modalfy"
+import { toast } from "burnt"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -92,14 +93,63 @@ export const TipJarScreen = observer(function TipJarScreen() {
   const [sortedProducts, setSortedProducts] = useState([])
   const { settings } = useStores()
   const { openModal } = useModal()
-  const { connected, products, finishTransaction, requestPurchase, getProducts, getAvailablePurchases, availablePurchases } =
-    useIAP()
+
+  const handlePurchaseSuccess = async (purchase) => {
+    try {
+      await finishTransaction({ purchase, isConsumable: true })
+
+      openModal("TipThanksModal")
+
+      const item = products.find((product) => product.id === purchase.productId)
+      if (item) {
+        settings.addTip(Number(item.price))
+
+        try {
+          await trackPurchase({
+            value: Number(item.price),
+            currency: products[0].currency,
+            tax: 15,
+            items: [
+              {
+                item_name: item.title,
+                item_id: item.id,
+                price: Number(item.price),
+                quantity: 1,
+              },
+            ],
+          })
+        } catch (trackErr) {
+          console.error('Failed to track purchase:', trackErr)
+        }
+      }
+    } catch (err) {
+      console.error('[TipJar] Error in purchase success handler:', err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handlePurchaseError = (error) => {
+    setIsLoading(false)
+
+    if (error.code !== 'user-cancelled') {
+      toast({ title: translate('settings.purchaseFailed'), message: error.message, preset: 'error' })
+      crashlytics.recordError(new Error(error.message))
+    } else {
+      toast({ title: translate('settings.purchaseCancelled'), message: error.message, preset: 'none' })
+    }
+  }
+
+  const { connected, products, finishTransaction, requestPurchase, fetchProducts } = useIAP({
+    onPurchaseSuccess: handlePurchaseSuccess,
+    onPurchaseError: handlePurchaseError,
+  })
 
   useEffect(() => {
     if (connected) {
-      getProducts({ skus: PRODUCT_IDS })
+      fetchProducts({ skus: PRODUCT_IDS })
     }
-  }, [connected, getProducts])
+  }, [connected, fetchProducts])
 
   useEffect(() => {
     if (products.length > 0) {
@@ -108,40 +158,21 @@ export const TipJarScreen = observer(function TipJarScreen() {
     }
   }, [products])
 
-  const onTipButtonPress = async (sku: string, amount: string) => {
+  const onTipButtonPress = async (sku: string) => {
     try {
       setIsLoading(true)
 
-      const requestPurchaseParams: RequestPurchase = Platform.select({
-        ios: { sku },
-        android: { skus: [sku] },
+      // Request purchase - success/error will be handled by callbacks
+      await requestPurchase({
+        request: {
+          ios: { sku },
+          android: { skus: [sku] },
+        },
+        type: 'in-app',
       })
-
-      const purchase = (await requestPurchase(requestPurchaseParams)) as ProductPurchase
-
-      await finishTransaction({ purchase, isConsumable: true })
-      openModal("TipThanksModal")
-
-      const item = products.find((product) => product.productId === sku)
-      await trackPurchase({
-        value: Number(amount),
-        currency: products[0].currency,
-        tax: 15,
-        items: [
-          {
-            item_name: item.title,
-            item_id: item.productId,
-            price: Number(amount),
-            quantity: 1,
-          },
-        ],
-      })
-
-      settings.addTip(Number(amount))
     } catch (err) {
-      console.error(err)
+      console.error('[TipJar] Error requesting purchase:', err)
       crashlytics.recordError(err)
-    } finally {
       setIsLoading(false)
     }
   }
@@ -164,23 +195,23 @@ export const TipJarScreen = observer(function TipJarScreen() {
         <>
           <TipRow
             title={translate("settings.generousTip")}
-            amount={sortedProducts[0].localizedPrice}
-            onPress={() => onTipButtonPress(sortedProducts[0].productId, sortedProducts[0].price)}
+            amount={sortedProducts[0].displayPrice}
+            onPress={() => onTipButtonPress(sortedProducts[0].id)}
           />
           <TipRow
             title={translate("settings.amazingTip")}
-            amount={sortedProducts[1].localizedPrice}
-            onPress={() => onTipButtonPress(sortedProducts[1].productId, sortedProducts[1].price)}
+            amount={sortedProducts[1].displayPrice}
+            onPress={() => onTipButtonPress(sortedProducts[1].id)}
           />
           <TipRow
             title={translate("settings.massiveTip")}
-            amount={sortedProducts[2].localizedPrice}
-            onPress={() => onTipButtonPress(sortedProducts[2].productId, sortedProducts[2].price)}
+            amount={sortedProducts[2].displayPrice}
+            onPress={() => onTipButtonPress(sortedProducts[2].id)}
           />
           <TipRow
             title={translate("settings.hugeTip")}
-            amount={sortedProducts[3].localizedPrice}
-            onPress={() => onTipButtonPress(sortedProducts[3].productId, sortedProducts[3].price)}
+            amount={sortedProducts[3].displayPrice}
+            onPress={() => onTipButtonPress(sortedProducts[3].id)}
           />
 
           {settings.totalTip > 0 && (

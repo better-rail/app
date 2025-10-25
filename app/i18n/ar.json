@@ -101,7 +101,9 @@
     "disableTelemetry": "تعطيل التتبع عن بعد",
     "sourceCode": "كود التطبيق",
     "deleteAllData": "حذف جميع البيانات",
-    "deleteAllDataConfirm": "هل أنت متأكد أنك تريد حذف جميع بيانات التطبيق المحلية؟ لا يمكن التراجع عن هذا الإجراء."
+    "deleteAllDataConfirm": "هل أنت متأكد أنك تريد حذف جميع بيانات التطبيق المحلية؟ لا يمكن التراجع عن هذا الإجراء.",
+    "purchaseCancelled": "تم إلغاء الشراء",
+    "purchaseFailed": "فشل الشراء"
   },
   "favorites": {
     "title": "طرق مفضلة",
