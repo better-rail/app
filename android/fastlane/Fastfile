@@ -1,0 +1,14 @@
+default_platform(:android)
+
+platform :android do
+  desc "Fastlane test"
+    gradle(task: "clean")
+    gradle(
+        task: 'bundle',
+        build_type: 'Release'
+    ) 
+
+    upload_to_play_store(track: 'internal')
+  end
+
+end

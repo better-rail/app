@@ -35,12 +35,17 @@ jobs:
           bun build-android
 
       - name: "Fastlane"
-        env:
-          JAVA_HOME: ${{ env.JAVA_HOME_21_X64 }}
         working-directory: android
+        env:
+          ANDROID_KEYSTORE_PATH: /var/tmp/keystore.jks
+          ANDROID_KEYSTORE_PASSWORD:
+          ANDROID_KEY_ALIAS:
+          ANDROID_KEY_PASSWORD:
         run: |
-          printenv
+          export JAVA_HOME=$JAVA_HOME_21_X64
+          
+          echo -n ${{ secrets.ANDROID_KEYSTORE_BASE64 }} | base64 -d > ${{ env.ANDROID_KEYSTORE_PATH }}
 
-
+          fastlane run validate_play_store_json_key json_key:${{ env.ANDROID_KEYSTORE_PATH }}
 
 
