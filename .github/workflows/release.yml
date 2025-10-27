@@ -30,8 +30,17 @@ jobs:
       - name: "Build RN"
         run: bun install
 
-      - name: "Build Android"
+      - name: "Gen Android assets"
         run: |
           bun build-android
-          bun android
+
+      - name: "Fastlane"
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME_21_X64 }}
+        working-directory: android
+        run: |
+          printenv
+
+
+
 
