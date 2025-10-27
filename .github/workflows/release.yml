@@ -37,7 +37,7 @@ jobs:
       - name: "Fastlane: validate key"
         working-directory: android
         run: |
-          echo "${{ secrets.ANDROID_PLAY_STORE_JSON_KEY }}" | jq -r tostring > /var/tmp/svc.json
+          jq -c . < ${{ secrets.ANDROID_PLAY_STORE_JSON_KEY }} > /var/tmp/svc.json
           fastlane run validate_play_store_json_key json_key:/var/tmp/svc.json
 
       - name: "Fastlane: validate key"
