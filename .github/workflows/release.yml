@@ -30,18 +30,10 @@ jobs:
       - name: "Build React Native app"
         run: bun install
 
-      # - name: "Gen Android assets"
-      #   run: |
-      #     bun build-android
-
       - name: "Fastlane: Validate key"
         working-directory: android
         run: |
-          cat << EOF > /var/tmp/svc.json
-          ${{ secrets.ANDROID_PLAY_STORE_JSON_KEY }}
-          EOF
-
-          fastlane run validate_play_store_json_key json_key:/var/tmp/svc.json
+          fastlane run validate_play_store_json_key json_key_data:${{ secrets.ANDROID_PLAY_STORE_JSON_KEY }}
 
       - name: "Fastlane: Build"
         working-directory: android
@@ -53,9 +45,12 @@ jobs:
           ANDROID_KEYSTORE_PATH: /var/tmp/keystore.jks
         run: |
           export JAVA_HOME=$JAVA_HOME_21_X64
-          
-          echo -n ${{ env.ANDROID_KEYSTORE_BASE64 }} | base64 -d > ${{ env.ANDROID_KEYSTORE_PATH }}
 
-          fastlane deploy_internal
+          echo -n ${{ env.ANDROID_KEYSTORE_BASE64 }} | base64 -d > ${{ env.ANDROID_KEYSTORE_PATH }}
+          cat << EOF > app/google-services.json
+          ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON }}
+          EOF
+
+          fastlane deploy_internal json_key_data:${{ secrets.ANDROID_PLAY_STORE_JSON_KEY }}
 
 

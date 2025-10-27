@@ -12,8 +12,7 @@ platform :android do
     ) 
 
     upload_to_play_store(
-      track: 'internal',
-      json_key: '/var/tmp/svc.json'
+      track: 'internal'
     )
   end
 
