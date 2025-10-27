@@ -12,7 +12,7 @@ platform :android do
     ) 
 
     upload_to_play_store(
-      track: 'internal'
+      track: 'internal',
       json_key: options[:json_key]
     )
   end
