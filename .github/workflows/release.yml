@@ -20,19 +20,19 @@ jobs:
         with:
           node-version: ${{ steps.vars.outputs.node_version }}
 
-      # - name: "Pre-reqs"
-      #   run: |
-      #     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-      #     brew install cocoapods
+      - name: "Pre-reqs"
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew install cocoapods
 
-      #     npm install -g bun
+          npm install -g bun
 
-      # - name: "Build React Native app"
-      #   run: bun install
+      - name: "Build React Native app"
+        run: bun install
 
-      # - name: "Gen Android assets"
-      #   run: |
-      #     bun build-android
+      - name: "Gen Android assets"
+        run: |
+          bun build-android
 
       - name: "Fastlane: Validate key"
         working-directory: android
