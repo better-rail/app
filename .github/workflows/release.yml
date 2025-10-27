@@ -34,7 +34,7 @@ jobs:
       #   run: |
       #     bun build-android
 
-      - name: "Fastlane: validate key"
+      - name: "Fastlane: Validate key"
         working-directory: android
         run: |
           cat << EOF > /var/tmp/svc.json
@@ -42,18 +42,19 @@ jobs:
           EOF
           fastlane run validate_play_store_json_key json_key:/var/tmp/svc.json
 
-      - name: "Fastlane: validate key"
+      - name: "Fastlane: Build"
         working-directory: android
         env:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEYSTORE_PATH: /var/tmp/keystore.jks
         run: |
           export JAVA_HOME=$JAVA_HOME_21_X64
           
-          echo -n ${{ env.ANDROID_KEYSTORE_BASE64 }} | base64 -d > /var/tmp/keystore.jks
+          echo -n ${{ env.ANDROID_KEYSTORE_BASE64 }} | base64 -d > ${{ env.ANDROID_KEYSTORE_PATH }}
 
-          printenv
+          fastlane deploy_internal
 
 
