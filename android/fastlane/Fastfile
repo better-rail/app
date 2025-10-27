@@ -1,5 +1,3 @@
-opt_out_usage
-
 default_platform(:android)
 
 platform :android do
