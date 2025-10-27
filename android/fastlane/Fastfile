@@ -11,7 +11,10 @@ platform :android do
         build_type: 'Release'
     ) 
 
-    upload_to_play_store(track: 'internal')
+    upload_to_play_store(
+      track: 'internal',
+      json_key: '/var/tmp/svc.json'
+    )
   end
 
 end

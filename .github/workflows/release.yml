@@ -30,9 +30,9 @@ jobs:
       - name: "Build React Native app"
         run: bun install
 
-      - name: "Gen Android assets"
-        run: |
-          bun build-android
+      # - name: "Gen Android assets"
+      #   run: |
+      #     bun build-android
 
       - name: "Fastlane: Validate key"
         working-directory: android
