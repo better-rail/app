@@ -41,7 +41,7 @@ jobs:
           ${{ secrets.ANDROID_PLAY_STORE_JSON_KEY }}
           EOF
 
-          bundle exec fastlane run validate_play_store_json_key json_key:/var/tmp/svc.json
+          fastlane run validate_play_store_json_key json_key:/var/tmp/svc.json
 
       - name: "Fastlane: Build"
         working-directory: android
