@@ -20,23 +20,24 @@ jobs:
         with:
           node-version: ${{ steps.vars.outputs.node_version }}
 
-      - name: "Pre-reqs"
-        run: |
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew install cocoapods
+      # - name: "Pre-reqs"
+      #   run: |
+      #     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+      #     brew install cocoapods
 
-          npm install -g bun
+      #     npm install -g bun
 
-      - name: "Build React Native app"
-        run: bun install
+      # - name: "Build React Native app"
+      #   run: bun install
 
-      - name: "Gen Android assets"
-        run: |
-          bun build-android
+      # - name: "Gen Android assets"
+      #   run: |
+      #     bun build-android
 
       - name: "Fastlane"
         working-directory: android
         env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           ANDROID_KEYSTORE_PATH: /var/tmp/keystore.jks
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
@@ -44,7 +45,7 @@ jobs:
         run: |
           export JAVA_HOME=$JAVA_HOME_21_X64
           
-          echo -n ${{ secrets.ANDROID_KEYSTORE_BASE64 }} | base64 -d > ${{ env.ANDROID_KEYSTORE_PATH }}
+          echo -n ${{ env.ANDROID_KEYSTORE_BASE64 }} | base64 -d > ${{ env.ANDROID_KEYSTORE_PATH }}
 
           fastlane run validate_play_store_json_key json_key:${{ env.ANDROID_KEYSTORE_PATH }}
 
