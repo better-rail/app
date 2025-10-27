@@ -1,7 +1,10 @@
+opt_out_usage
+
 default_platform(:android)
 
 platform :android do
   desc "Fastlane test"
+  lane :deploy_internal do
     gradle(task: "clean")
     gradle(
         task: 'bundle',
