@@ -4,17 +4,18 @@ default_platform(:android)
 
 platform :android do
   desc "Fastlane test"
-  lane :deploy_internal do
+  lane :deploy_internal do |options|
     gradle(task: "clean")
     gradle(
-        task: 'bundle',
-        build_type: 'Release'
-    ) 
-
+      task: 'bundle',
+      build_type: 'Release'
+    )
+    
+    json_key_path = options[:json_key] || ENV["GOOGLE_PLAY_JSON_KEY"]
+    
     upload_to_play_store(
       track: 'internal',
-      json_key: options[:json_key]
+      json_key: json_key_path
     )
   end
-
 end

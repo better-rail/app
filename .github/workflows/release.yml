@@ -44,7 +44,7 @@ jobs:
       - name: "Fastlane: Validate key"
         working-directory: android
         run: |
-
+          fastlane run opt_out_usage
           fastlane run validate_play_store_json_key json_key:/var/tmp/store_service_account.json
 
       - name: "Fastlane: Build"
