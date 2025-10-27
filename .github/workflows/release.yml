@@ -23,7 +23,7 @@ jobs:
           ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON_KEY }}
           EOF
 
-          echo -n ${{ env.ANDROID_KEYSTORE_BASE64 }} | base64 -d > ${{ env.ANDROID_KEYSTORE_PATH }}
+          echo -n ${{ secrets.ANDROID_KEYSTORE_BASE64 }} | base64 -d > ${{ env.ANDROID_KEYSTORE_PATH }}
           echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
 
       - name: "Setup Node"
@@ -50,10 +50,9 @@ jobs:
       - name: "Fastlane: Build"
         working-directory: android
         env:
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
         run: |
           export JAVA_HOME=$JAVA_HOME_21_X64
 
