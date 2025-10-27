@@ -20,20 +20,20 @@ jobs:
         with:
           node-version: ${{ steps.vars.outputs.node_version }}
 
-      - name: "Pre-reqs"
-        run: |
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew install cocoapods
+      # - name: "Pre-reqs"
+      #   run: |
+      #     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+      #     brew install cocoapods
 
-          npm install -g bun
+      #     npm install -g bun
 
-      - name: "Build React Native app"
-        run: bun install
+      # - name: "Build React Native app"
+      #   run: bun install
 
       - name: "Fastlane: Validate key"
         working-directory: android
         run: |
-          fastlane run validate_play_store_json_key json_key_data:${{ secrets.ANDROID_PLAY_STORE_JSON_KEY }}
+          fastlane run validate_play_store_json_key json_key_data:"${{ secrets.ANDROID_PLAY_STORE_JSON_KEY }}"
 
       - name: "Fastlane: Build"
         working-directory: android
@@ -48,9 +48,9 @@ jobs:
 
           echo -n ${{ env.ANDROID_KEYSTORE_BASE64 }} | base64 -d > ${{ env.ANDROID_KEYSTORE_PATH }}
           cat << EOF > app/google-services.json
-          ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON }}
+          ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON_KEY }}
           EOF
 
-          fastlane deploy_internal json_key_data:${{ secrets.ANDROID_PLAY_STORE_JSON_KEY }}
+          fastlane deploy_internal json_key_data:"${{ secrets.ANDROID_PLAY_STORE_JSON_KEY }}"
 
 
