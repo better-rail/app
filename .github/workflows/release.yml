@@ -27,7 +27,7 @@ jobs:
 
           npm install -g bun
 
-      - name: "Build RN"
+      - name: "Build React Native app"
         run: bun install
 
       - name: "Gen Android assets"
@@ -38,9 +38,9 @@ jobs:
         working-directory: android
         env:
           ANDROID_KEYSTORE_PATH: /var/tmp/keystore.jks
-          ANDROID_KEYSTORE_PASSWORD:
-          ANDROID_KEY_ALIAS:
-          ANDROID_KEY_PASSWORD:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           export JAVA_HOME=$JAVA_HOME_21_X64
           
