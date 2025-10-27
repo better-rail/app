@@ -39,8 +39,7 @@ jobs:
         env:
           ANDROID_PLAY_STORE_JSON_KEY: ${{ secrets.ANDROID_PLAY_STORE_JSON_KEY }}
         run: |
-          echo -n ${{ env.ANDROID_PLAY_STORE_JSON_KEY }} > /var/tmp/svc.json
-          fastlane run validate_play_store_json_key json_key:/var/tmp/svc.json
+          fastlane run validate_play_store_json_key json_key:${{ secrets.ANDROID_PLAY_STORE_JSON_KEY }}
 
       - name: "Fastlane: validate key"
         working-directory: android
