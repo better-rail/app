@@ -1,0 +1,23 @@
+name: release
+
+on: [push]
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v5
+
+      - name: "Setup Node"
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: "Pre-reqs"
+        run: |
+          brew install oven-sh/bun/bun
+          brew install cocoapods
+
+      - name: "Build"
+        run: bun android
