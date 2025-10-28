@@ -1,13 +1,19 @@
 name: release
 
-on: [push]
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'android/app/build.gradle'
 
 jobs:
   android:
     runs-on: ubuntu-latest
+
     env:
       ANDROID_KEYSTORE_PATH: /var/tmp/keystore.jks
       POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
+      
     steps:
       - name: "Checkout"
         uses: actions/checkout@v5
@@ -32,39 +38,39 @@ jobs:
           echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
           echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
 
-      # - name: "Setup Node"
-      #   uses: actions/setup-node@v6
-      #   with:
-      #     node-version: ${{ steps.vars.outputs.node_version }}
+      - name: "Setup Node"
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ steps.vars.outputs.node_version }}
 
-      # - name: "Pre-reqs"
-      #   run: |
-      #     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-      #     brew install cocoapods
+      - name: "Pre-reqs"
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew install cocoapods
 
-      #     npm install -g bun
+          npm install -g bun
 
-      # - name: "Build React Native app"
-      #   run: bun install
+      - name: "Build React Native app"
+        run: bun install
 
-      # - name: "Fastlane: Validate key"
-      #   working-directory: android
-      #   run: |
-      #     fastlane run opt_out_usage
-      #     fastlane run validate_play_store_json_key json_key:/var/tmp/store_service_account.json
+      - name: "Fastlane: Validate key"
+        working-directory: android
+        run: |
+          fastlane run opt_out_usage
+          fastlane run validate_play_store_json_key json_key:/var/tmp/store_service_account.json
 
-      # - name: "Fastlane: Build"
-      #   working-directory: android
-      #   env:
-      #     KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-      #     KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-      #     KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-      #   run: |
-      #     export JAVA_HOME=$JAVA_HOME_21_X64
+      - name: "Fastlane: Build"
+        working-directory: android
+        env:
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          export JAVA_HOME=$JAVA_HOME_21_X64
 
-      #     fastlane deploy_internal \
-      #       json_key:/var/tmp/store_service_account.json \
-      #       gradle_file:${{ github.workspace }}/android/app/build.gradle
+          fastlane deploy_internal \
+            json_key:/var/tmp/store_service_account.json \
+            gradle_file:${{ github.workspace }}/android/app/build.gradle
 
       - name: "Notification"
         if: always()
