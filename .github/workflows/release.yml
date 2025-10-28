@@ -60,4 +60,4 @@ jobs:
 
           fastlane deploy_internal \
             json_key:/var/tmp/store_service_account.json \
-            gradle_file:app/build.gradle
+            gradle_file:./app/build.gradle
