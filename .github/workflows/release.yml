@@ -39,6 +39,8 @@ jobs:
           npm install -g bun
 
       - name: "Build React Native app"
+        env:
+          POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
         run: bun install
 
       - name: "Fastlane: Validate key"

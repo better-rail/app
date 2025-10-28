@@ -11,11 +11,18 @@ platform :android do
       build_type: 'Release'
     )
     
+    
+    gradle_file = File.read("android/app/build.gradle")
+    version_code = gradle_file.match(/versionCode\s+(\d+)/)[1]
+    version_name = gradle_file.match(/versionName\s+"([^"]+)"/)[1]
+    
     json_key_path = options[:json_key] || ENV["GOOGLE_PLAY_JSON_KEY"]
+    release_name = "#{version_code} (#{version_name})"
     
     upload_to_play_store(
       track: 'internal',
-      json_key: json_key_path
+      json_key: json_key_path,
+      version_name: release_name
     )
   end
 end
