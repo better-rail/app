@@ -7,6 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ANDROID_KEYSTORE_PATH: /var/tmp/keystore.jks
+      POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
     steps:
       - name: "Checkout"
         uses: actions/checkout@v5
@@ -39,8 +40,6 @@ jobs:
           npm install -g bun
 
       - name: "Build React Native app"
-        env:
-          POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
         run: bun install
 
       - name: "Fastlane: Validate key"
