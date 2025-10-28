@@ -18,7 +18,7 @@ platform :android do
     gradle_file = File.read(gradle_file_path)
     version_code = gradle_file.match(/versionCode\s+(\d+)/)[1]
     version_name = gradle_file.match(/versionName\s+"([^"]+)"/)[1]
-    
+
     release_name = "#{version_code} (#{version_name})"
     
     upload_to_play_store(
