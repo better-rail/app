@@ -84,20 +84,22 @@ class WidgetStateRenderer(
 ) {
     
     fun render(context: Context, state: WidgetState): RemoteViews {
-        val views = RemoteViews(context.packageName, layoutResource)
-        
+        // Use app's language setting for all widget string resources
+        val localeContext = com.betterrail.widget.utils.LocaleUtils.createLocaleContext(context)
+        val views = RemoteViews(localeContext.packageName, layoutResource)
+
         when (state) {
-            is WidgetState.Configuration -> renderConfiguration(context, views, state)
-            is WidgetState.Loading -> renderLoading(context, views, state)
-            is WidgetState.Schedule -> renderSchedule(context, views, state)
-            is WidgetState.Error -> renderError(context, views, state)
-            is WidgetState.TomorrowFallback -> renderTomorrowFallback(context, views, state)
-            is WidgetState.TomorrowLoading -> renderTomorrowLoading(context, views, state)
-            is WidgetState.TomorrowSchedule -> renderTomorrowSchedule(context, views, state)
-            is WidgetState.NoTrains -> renderNoTrains(context, views, state)
-            is WidgetState.FutureSchedule -> renderFutureSchedule(context, views, state)
+            is WidgetState.Configuration -> renderConfiguration(localeContext, views, state)
+            is WidgetState.Loading -> renderLoading(localeContext, views, state)
+            is WidgetState.Schedule -> renderSchedule(localeContext, views, state)
+            is WidgetState.Error -> renderError(localeContext, views, state)
+            is WidgetState.TomorrowFallback -> renderTomorrowFallback(localeContext, views, state)
+            is WidgetState.TomorrowLoading -> renderTomorrowLoading(localeContext, views, state)
+            is WidgetState.TomorrowSchedule -> renderTomorrowSchedule(localeContext, views, state)
+            is WidgetState.NoTrains -> renderNoTrains(localeContext, views, state)
+            is WidgetState.FutureSchedule -> renderFutureSchedule(localeContext, views, state)
         }
-        
+
         return views
     }
     

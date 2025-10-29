@@ -316,8 +316,10 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         // Always use the first upcoming train to determine widget state based on its actual date
         val firstTrain = upcomingTrains.first()
         val daysAway = getDaysFromToday(firstTrain.departureTimestamp)
-        val originName = StationsData.getStationName(context, widgetData.originId)
-        val destinationName = StationsData.getStationName(context, widgetData.destinationId)
+        // Use locale-aware context for consistent language
+        val localeContext = com.betterrail.widget.utils.LocaleUtils.createLocaleContext(context)
+        val originName = StationsData.getStationName(localeContext, widgetData.originId)
+        val destinationName = StationsData.getStationName(localeContext, widgetData.destinationId)
         
         Log.d(getLogTag(), "First upcoming train: ${firstTrain.departureTimestamp}, Days away: $daysAway")
         
@@ -368,21 +370,25 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
 
     private suspend fun showLoadingState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData) {
         Log.d(getLogTag(), "Loading schedule for widget $appWidgetId")
+        // Use locale-aware context for consistent language
+        val localeContext = com.betterrail.widget.utils.LocaleUtils.createLocaleContext(context)
         val state = WidgetState.Loading(
             widgetData.originId,
-            StationsData.getStationName(context, widgetData.originId),
-            StationsData.getStationName(context, widgetData.destinationId)
+            StationsData.getStationName(localeContext, widgetData.originId),
+            StationsData.getStationName(localeContext, widgetData.destinationId)
         )
         updateWidgetUI(context, appWidgetManager, appWidgetId, state)
     }
 
     private suspend fun showErrorState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData, errorMessage: String) {
+        // Use locale-aware context for consistent language
+        val localeContext = com.betterrail.widget.utils.LocaleUtils.createLocaleContext(context)
         val state = WidgetState.Error(
             widgetData.originId,
-            StationsData.getStationName(context, widgetData.originId),
-            StationsData.getStationName(context, widgetData.destinationId),
+            StationsData.getStationName(localeContext, widgetData.originId),
+            StationsData.getStationName(localeContext, widgetData.destinationId),
             errorMessage,
-            context.getString(R.string.tap_to_retry)
+            localeContext.getString(R.string.tap_to_retry)
         )
         updateWidgetUI(context, appWidgetManager, appWidgetId, state)
     }
@@ -433,36 +439,44 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
     }
 
     private suspend fun showTomorrowLoadingState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData) {
+        // Use locale-aware context for consistent language
+        val localeContext = com.betterrail.widget.utils.LocaleUtils.createLocaleContext(context)
         val state = WidgetState.TomorrowLoading(
             widgetData.originId,
-            StationsData.getStationName(context, widgetData.originId),
-            StationsData.getStationName(context, widgetData.destinationId)
+            StationsData.getStationName(localeContext, widgetData.originId),
+            StationsData.getStationName(localeContext, widgetData.destinationId)
         )
         updateWidgetUI(context, appWidgetManager, appWidgetId, state)
     }
 
     private suspend fun showNoTrainsState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData) {
+        // Use locale-aware context for consistent language
+        val localeContext = com.betterrail.widget.utils.LocaleUtils.createLocaleContext(context)
         val state = WidgetState.NoTrains(
             widgetData.originId,
-            StationsData.getStationName(context, widgetData.originId),
-            StationsData.getStationName(context, widgetData.destinationId)
+            StationsData.getStationName(localeContext, widgetData.originId),
+            StationsData.getStationName(localeContext, widgetData.destinationId)
         )
         updateWidgetUI(context, appWidgetManager, appWidgetId, state)
     }
 
     private suspend fun showTomorrowFallbackState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData) {
+        // Use locale-aware context for consistent language
+        val localeContext = com.betterrail.widget.utils.LocaleUtils.createLocaleContext(context)
         val state = WidgetState.TomorrowFallback(
             widgetData.originId,
-            StationsData.getStationName(context, widgetData.originId),
-            StationsData.getStationName(context, widgetData.destinationId)
+            StationsData.getStationName(localeContext, widgetData.originId),
+            StationsData.getStationName(localeContext, widgetData.destinationId)
         )
         updateWidgetUI(context, appWidgetManager, appWidgetId, state)
     }
 
     private fun showConfigurationState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
+        // Use locale-aware context for consistent language
+        val localeContext = com.betterrail.widget.utils.LocaleUtils.createLocaleContext(context)
         val state = WidgetState.Configuration(
-            message = context.getString(R.string.tap_to_configure),
-            subtitle = context.getString(R.string.select_your_route)
+            message = localeContext.getString(R.string.tap_to_configure),
+            subtitle = localeContext.getString(R.string.select_your_route)
         )
         updateWidgetUI(context, appWidgetManager, appWidgetId, state)
         setupConfigurationClickIntent(context, appWidgetManager, appWidgetId)
@@ -555,25 +569,28 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
      * Creates a reusable deeplink intent for widget navigation
      */
     protected fun createDeeplinkIntent(
-        context: Context, 
-        appWidgetId: Int, 
+        context: Context,
+        appWidgetId: Int,
         widgetData: WidgetData,
         deeplinkPath: String = "widget"
     ): PendingIntent {
         val deepLinkUri = "betterrail://$deeplinkPath?originId=${widgetData.originId}&destinationId=${widgetData.destinationId}"
-        
+
+        // Use locale-aware context for consistent language
+        val localeContext = com.betterrail.widget.utils.LocaleUtils.createLocaleContext(context)
+
         val openAppIntent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(deepLinkUri)).apply {
             setPackage(context.packageName)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             putExtra("widget_origin_id", widgetData.originId)
             putExtra("widget_destination_id", widgetData.destinationId)
-            // Pass localized station names - both widget and app should use same locale context
-            putExtra("widget_origin_name", StationsData.getStationName(context, widgetData.originId))
-            putExtra("widget_destination_name", StationsData.getStationName(context, widgetData.destinationId))
+            // Pass localized station names using app's language setting
+            putExtra("widget_origin_name", StationsData.getStationName(localeContext, widgetData.originId))
+            putExtra("widget_destination_name", StationsData.getStationName(localeContext, widgetData.destinationId))
             putExtra("from_widget", true)
             putExtra("widget_type", deeplinkPath)
         }
-        
+
         return PendingIntent.getActivity(
             context, appWidgetId, openAppIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
