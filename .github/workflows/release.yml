@@ -1,0 +1,84 @@
+name: Publish to Play Store
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'android/app/build.gradle'
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+
+    env:
+      ANDROID_KEYSTORE_PATH: /var/tmp/keystore.jks
+      POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v5
+
+      - name: "Vars"
+        id: vars
+        run: |
+          NODE_VERSION=$(jq -r '.engines.node' package.json)
+          VERSION_CODE=$(grep -oP 'versionCode\s+\K\d+' android/app/build.gradle)
+          VERSION_NAME=$(grep -oP 'versionName\s+"\K[^"]+' android/app/build.gradle)
+
+          cat << EOF > /var/tmp/store_service_account.json
+          ${{ secrets.ANDROID_PLAY_STORE_JSON_KEY }}
+          EOF
+          cat << EOF > android/app/google-services.json
+          ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON_KEY }}
+          EOF
+
+          echo -n ${{ secrets.ANDROID_KEYSTORE_BASE64 }} | base64 -d > ${{ env.ANDROID_KEYSTORE_PATH }}
+
+          echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
+          echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
+          echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
+
+      - name: "Setup Node"
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ steps.vars.outputs.node_version }}
+
+      - name: "Pre-reqs"
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew install cocoapods
+
+          npm install -g bun
+
+      - name: "Build React Native app"
+        run: bun install
+
+      - name: "Fastlane: Validate key"
+        working-directory: android
+        run: |
+          fastlane run opt_out_usage
+          fastlane run validate_play_store_json_key json_key:/var/tmp/store_service_account.json
+
+      - name: "Fastlane: Build"
+        working-directory: android
+        env:
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          export JAVA_HOME=$JAVA_HOME_21_X64
+
+          fastlane deploy_internal \
+            json_key:/var/tmp/store_service_account.json \
+            gradle_file:${{ github.workspace }}/android/app/build.gradle
+
+      - name: "Notification"
+        if: always()
+        run: |
+          curl "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_API_KEY }}/sendMessage" \
+            --header "Content-Type: application/json" \
+            --request POST \
+            --data "{
+              \"chat_id\": \"${{ secrets.TELEGRAM_CHAT_ID }}\",
+              \"text\": \"Android Release ${{ steps.vars.outputs.version_name }} (Build ${{ steps.vars.outputs.version_code }}): ${{ job.status }}\n\nCommit: ${{ github.sha }}\nWorkflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
+            }"
