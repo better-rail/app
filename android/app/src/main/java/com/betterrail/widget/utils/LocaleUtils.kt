@@ -60,17 +60,9 @@ object LocaleUtils {
 
     fun getLayoutDirection(context: Context): Int {
         return if (isRTL(context)) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                android.view.View.LAYOUT_DIRECTION_RTL
-            } else {
-                1 // LAYOUT_DIRECTION_RTL value for older APIs
-            }
+            android.view.View.LAYOUT_DIRECTION_RTL
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                android.view.View.LAYOUT_DIRECTION_LTR
-            } else {
-                0 // LAYOUT_DIRECTION_LTR value for older APIs
-            }
+            android.view.View.LAYOUT_DIRECTION_LTR
         }
     }
 }
