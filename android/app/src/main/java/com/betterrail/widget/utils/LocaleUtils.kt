@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
 import android.util.Log
+import androidx.preference.PreferenceManager
 import java.util.Locale
 
 object LocaleUtils {
@@ -12,7 +13,7 @@ object LocaleUtils {
 
     fun getAppLanguage(context: Context): String? {
         return try {
-            val defaultPrefs = android.preference.PreferenceManager.getDefaultSharedPreferences(context)
+            val defaultPrefs = PreferenceManager.getDefaultSharedPreferences(context)
             val languageCode = defaultPrefs.getString(LANGUAGE_KEY, null)
             Log.d(TAG, "Retrieved app language from default SharedPreferences: '$languageCode'")
             languageCode
@@ -29,7 +30,7 @@ object LocaleUtils {
             return context
         }
 
-        val locale = Locale(effectiveLanguage)
+        val locale = Locale.forLanguageTag(effectiveLanguage)
         val configuration = Configuration(context.resources.configuration)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -53,8 +54,8 @@ object LocaleUtils {
     }
 
     fun isRTL(context: Context): Boolean {
-        val languageCode = getAppLanguage(context)
-        return languageCode == "he" || languageCode == "ar"
+        val languageCode = getAppLanguage(context) ?: return false
+        return languageCode.startsWith("he") || languageCode.startsWith("ar")
     }
 
     fun getLayoutDirection(context: Context): Int {
