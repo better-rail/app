@@ -6,25 +6,12 @@ import android.os.Build
 import android.util.Log
 import java.util.Locale
 
-/**
- * Utility for creating locale-aware contexts for widget internationalization
- * Reads the app's language preference from SharedPreferences to ensure widgets
- * display in the same language as the main app.
- */
 object LocaleUtils {
     private const val TAG = "LocaleUtils"
     private const val LANGUAGE_KEY = "userLocale"
 
-    /**
-     * Gets the app's language setting from SharedPreferences
-     * Falls back to system locale if not set
-     *
-     * @param context The context
-     * @return The language code (e.g., "he", "en", "ar", "ru") or null for system default
-     */
     fun getAppLanguage(context: Context): String? {
         return try {
-            // The react-native-default-preference library uses Android's default SharedPreferences
             val defaultPrefs = android.preference.PreferenceManager.getDefaultSharedPreferences(context)
             val languageCode = defaultPrefs.getString(LANGUAGE_KEY, null)
             Log.d(TAG, "Retrieved app language from default SharedPreferences: '$languageCode'")
@@ -35,20 +22,10 @@ object LocaleUtils {
         }
     }
 
-    /**
-     * Creates a context with a specific locale override
-     * If languageCode is null, uses the app's language setting from SharedPreferences
-     *
-     * @param context The base context
-     * @param languageCode The language code to override (e.g., "he", "en"), or null to use app language
-     * @return A context configured with the specified locale
-     */
     fun createLocaleContext(context: Context, languageCode: String? = null): Context {
-        // Get the language - either from parameter or from app settings
         val effectiveLanguage = languageCode ?: getAppLanguage(context)
 
         if (effectiveLanguage == null) {
-            // No app language set - return original context with system locale
             return context
         }
 
@@ -65,28 +42,34 @@ object LocaleUtils {
         return context.createConfigurationContext(configuration)
     }
 
-    /**
-     * Gets a localized string resource using the app's language setting
-     *
-     * @param context The base context
-     * @param resourceId The string resource ID
-     * @return The localized string
-     */
     fun getLocalizedString(context: Context, resourceId: Int): String {
         val localeContext = createLocaleContext(context)
         return localeContext.getString(resourceId)
     }
 
-    /**
-     * Gets a localized string resource with format arguments using the app's language setting
-     *
-     * @param context The base context
-     * @param resourceId The string resource ID
-     * @param formatArgs The format arguments
-     * @return The localized formatted string
-     */
     fun getLocalizedString(context: Context, resourceId: Int, vararg formatArgs: Any): String {
         val localeContext = createLocaleContext(context)
         return localeContext.getString(resourceId, *formatArgs)
+    }
+
+    fun isRTL(context: Context): Boolean {
+        val languageCode = getAppLanguage(context)
+        return languageCode == "he" || languageCode == "ar"
+    }
+
+    fun getLayoutDirection(context: Context): Int {
+        return if (isRTL(context)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                android.view.View.LAYOUT_DIRECTION_RTL
+            } else {
+                1 // LAYOUT_DIRECTION_RTL value for older APIs
+            }
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                android.view.View.LAYOUT_DIRECTION_LTR
+            } else {
+                0 // LAYOUT_DIRECTION_LTR value for older APIs
+            }
+        }
     }
 }

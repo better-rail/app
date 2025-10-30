@@ -88,6 +88,9 @@ class WidgetStateRenderer(
         val localeContext = com.betterrail.widget.utils.LocaleUtils.createLocaleContext(context)
         val views = RemoteViews(localeContext.packageName, layoutResource)
 
+        // Apply RTL layout adjustments (direction, arrow rotation, etc.)
+        com.betterrail.widget.utils.WidgetRTLHelper.applyRTLAdjustments(context, views, layoutResource)
+
         when (state) {
             is WidgetState.Configuration -> renderConfiguration(localeContext, views, state)
             is WidgetState.Loading -> renderLoading(localeContext, views, state)
@@ -286,9 +289,13 @@ class WidgetStateRenderer(
     
     private fun showUpcomingTrains(context: Context, views: RemoteViews, upcomingTrains: List<WidgetTrainItem>) {
         if (layoutResource != R.layout.widget_compact_4x2) return
-        
+
+        // Set localized labels for upcoming trains section
+        views.setTextViewText(R.id.widget_upcoming_label, context.getString(R.string.upcoming))
+        views.setTextViewText(R.id.widget_arrival_label, context.getString(R.string.arrival_caps))
+
         val resourcesHelper = UpcomingTrainResources.createDefault(context)
-        
+
         resourcesHelper.forEachRow { index, resources ->
             if (index < upcomingTrains.size) {
                 val train = upcomingTrains[index]
@@ -300,10 +307,10 @@ class WidgetStateRenderer(
             }
         }
     }
-    
+
     private fun hideUpcomingTrains(context: Context, views: RemoteViews) {
         if (layoutResource != R.layout.widget_compact_4x2) return
-        
+
         val resourcesHelper = UpcomingTrainResources.createDefault(context)
         
         resourcesHelper.getRowIds().forEach { rowId ->
