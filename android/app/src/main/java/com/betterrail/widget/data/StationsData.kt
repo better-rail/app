@@ -100,7 +100,6 @@ object StationsData {
 
     fun getStationName(context: Context, stationId: String): String {
         return stations[stationId]?.let { stationInfo ->
-            // Use app's language setting for consistent localization
             val localeContext = com.betterrail.widget.utils.LocaleUtils.createLocaleContext(context)
             localeContext.getString(stationInfo.stringResourceId)
         } ?: "Unknown Station"

@@ -84,7 +84,6 @@ class WidgetStateRenderer(
 ) {
     
     fun render(context: Context, state: WidgetState): RemoteViews {
-        // Use app's language setting for all widget string resources
         val localeContext = com.betterrail.widget.utils.LocaleUtils.createLocaleContext(context)
         val views = RemoteViews(localeContext.packageName, layoutResource)
 
