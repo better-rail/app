@@ -316,7 +316,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         // Always use the first upcoming train to determine widget state based on its actual date
         val firstTrain = upcomingTrains.first()
         val daysAway = getDaysFromToday(firstTrain.departureTimestamp)
-        // Use locale-aware context for consistent language
+
         val localeContext = com.betterrail.widget.utils.LocaleUtils.createLocaleContext(context)
         val originName = StationsData.getStationName(localeContext, widgetData.originId)
         val destinationName = StationsData.getStationName(localeContext, widgetData.destinationId)
@@ -370,7 +370,6 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
 
     private suspend fun showLoadingState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData) {
         Log.d(getLogTag(), "Loading schedule for widget $appWidgetId")
-        // Use locale-aware context for consistent language
         val localeContext = com.betterrail.widget.utils.LocaleUtils.createLocaleContext(context)
         val state = WidgetState.Loading(
             widgetData.originId,
@@ -381,7 +380,6 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
     }
 
     private suspend fun showErrorState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData, errorMessage: String) {
-        // Use locale-aware context for consistent language
         val localeContext = com.betterrail.widget.utils.LocaleUtils.createLocaleContext(context)
         val state = WidgetState.Error(
             widgetData.originId,
@@ -439,7 +437,6 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
     }
 
     private suspend fun showTomorrowLoadingState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData) {
-        // Use locale-aware context for consistent language
         val localeContext = com.betterrail.widget.utils.LocaleUtils.createLocaleContext(context)
         val state = WidgetState.TomorrowLoading(
             widgetData.originId,
@@ -450,7 +447,6 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
     }
 
     private suspend fun showNoTrainsState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData) {
-        // Use locale-aware context for consistent language
         val localeContext = com.betterrail.widget.utils.LocaleUtils.createLocaleContext(context)
         val state = WidgetState.NoTrains(
             widgetData.originId,
@@ -461,7 +457,6 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
     }
 
     private suspend fun showTomorrowFallbackState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, widgetData: WidgetData) {
-        // Use locale-aware context for consistent language
         val localeContext = com.betterrail.widget.utils.LocaleUtils.createLocaleContext(context)
         val state = WidgetState.TomorrowFallback(
             widgetData.originId,
@@ -472,7 +467,6 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
     }
 
     private fun showConfigurationState(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
-        // Use locale-aware context for consistent language
         val localeContext = com.betterrail.widget.utils.LocaleUtils.createLocaleContext(context)
         val state = WidgetState.Configuration(
             message = localeContext.getString(R.string.tap_to_configure),
@@ -576,7 +570,6 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
     ): PendingIntent {
         val deepLinkUri = "betterrail://$deeplinkPath?originId=${widgetData.originId}&destinationId=${widgetData.destinationId}"
 
-        // Use locale-aware context for consistent language
         val localeContext = com.betterrail.widget.utils.LocaleUtils.createLocaleContext(context)
 
         val openAppIntent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(deepLinkUri)).apply {
