@@ -242,7 +242,7 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_destination, state.destinationName)
         views.setTextViewText(getTrainTimeId(), state.firstTrain.departureTime)
 
-        val labelText = context.getString(R.string.upcoming_in_days, state.daysAway)
+        val labelText = context.resources.getQuantityString(R.plurals.upcoming_in_days, state.daysAway, state.daysAway)
         views.setTextViewText(R.id.widget_train_label, labelText)
         views.setTextColor(R.id.widget_train_label, context.getColor(R.color.widget_tomorrow_text)) // Purple color
         

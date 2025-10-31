@@ -35,7 +35,13 @@
     <string name="upcoming">Следующие</string>
     <string name="arrival">Прибытие</string>
     <string name="arrival_caps">Время</string>
-    <string name="upcoming_in_days">Через %d дня</string>
+
+    <plurals name="upcoming_in_days">
+        <item quantity="one">Через %d день</item>
+        <item quantity="few">Через %d дня</item>
+        <item quantity="many">Через %d дней</item>
+        <item quantity="other">Через %d дней</item>
+    </plurals>
 
     <!-- Station names in Russian -->
     <string name="station_1500">Акко</string>

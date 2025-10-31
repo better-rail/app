@@ -33,7 +33,12 @@
     <string name="error">Error</string>
     <string name="time_placeholder">--:--</string>
     <string name="upcoming">UPCOMING</string>
-    <string name="upcoming_in_days">UPCOMING IN %d DAYS</string>
+
+    <plurals name="upcoming_in_days">
+        <item quantity="one">UPCOMING IN %d DAY</item>
+        <item quantity="other">UPCOMING IN %d DAYS</item>
+    </plurals>
+
     <string name="arrival">Arrival</string>
     <string name="arrival_caps">ARRIVAL</string>
 
