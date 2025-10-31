@@ -100,10 +100,8 @@ object StationsData {
 
     fun getStationName(context: Context, stationId: String): String {
         return stations[stationId]?.let { stationInfo ->
-            val resolvedName = context.getString(stationInfo.stringResourceId)
-            // Debug logging to see what's happening
-            android.util.Log.d("StationsData", "Station $stationId: resourceId=${stationInfo.stringResourceId}, resolved='$resolvedName', locale=${context.resources.configuration.locales}")
-            resolvedName
+            val localeContext = com.betterrail.widget.utils.LocaleUtils.createLocaleContext(context)
+            localeContext.getString(stationInfo.stringResourceId)
         } ?: "Unknown Station"
     }
 

@@ -155,7 +155,10 @@ dependencies {
     
     // RN BootSplash
     implementation("androidx.core:core-splashscreen:1.0.0")
-    
+
+    // AndroidX Preference for SharedPreferences
+    implementation("androidx.preference:preference-ktx:1.2.1")
+
     // Gson for JSON parsing
     implementation("com.google.code.gson:gson:2.10.1")
     

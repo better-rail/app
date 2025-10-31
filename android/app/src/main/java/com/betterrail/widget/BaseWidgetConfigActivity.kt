@@ -90,7 +90,9 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
         routeReversalCheckbox = findViewById(R.id.route_reversal_checkbox)
         addButton = findViewById(R.id.add_button)
         cancelButton = findViewById(R.id.cancel_button)
-        
+
+        routeReversalCheckbox.isChecked = true
+
         addButton.setOnClickListener { onAddButtonClicked() }
         cancelButton.setOnClickListener { finish() }
     }

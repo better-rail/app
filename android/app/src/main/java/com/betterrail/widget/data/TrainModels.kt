@@ -121,7 +121,7 @@ data class WidgetData(
     val originName: String = "",
     val destinationName: String = "",
     val label: String = "",
-    val allowRouteReversal: Boolean = false
+    val allowRouteReversal: Boolean = true
 )
 
 // API Error response
