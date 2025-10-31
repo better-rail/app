@@ -33,9 +33,10 @@
     <string name="error">Error</string>
     <string name="time_placeholder">--:--</string>
     <string name="upcoming">UPCOMING</string>
+    <string name="upcoming_in_days">UPCOMING IN %d DAYS</string>
     <string name="arrival">Arrival</string>
     <string name="arrival_caps">ARRIVAL</string>
-    
+
     <!-- Station names -->
     <string name="station_1500">Ako</string>
     <string name="station_1600">Nahariya</string>

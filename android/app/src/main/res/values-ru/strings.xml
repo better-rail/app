@@ -35,7 +35,8 @@
     <string name="upcoming">Следующие</string>
     <string name="arrival">Прибытие</string>
     <string name="arrival_caps">Время</string>
-    
+    <string name="upcoming_in_days">Через %d дня</string>
+
     <!-- Station names in Russian -->
     <string name="station_1500">Акко</string>
     <string name="station_1600">Нагария</string>

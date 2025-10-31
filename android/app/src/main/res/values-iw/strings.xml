@@ -33,9 +33,10 @@
     <string name="error">שגיאה</string>
     <string name="time_placeholder">--:--</string>
     <string name="upcoming">רכבות קרובות</string>
+    <string name="upcoming_in_days">בעוד %d ימים</string>
     <string name="arrival">הגעה</string>
     <string name="arrival_caps">הגעה</string>
-    
+
     <!-- Station names -->
     <string name="station_1500">עכו</string>
     <string name="station_1600">נהריה</string>
