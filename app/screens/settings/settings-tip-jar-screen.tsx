@@ -10,8 +10,8 @@ import { useStores } from "../../models"
 import { getInstallerPackageNameSync } from "react-native-device-info"
 import { trackPurchase } from "../../services/analytics"
 import { crashlytics } from "../../services/firebase/crashlytics"
-import { useModal } from "react-native-modalfy"
 import { toast } from "burnt"
+import { TipThanksModalNative } from "./components/tip-thanks-modal-native"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -91,14 +91,14 @@ const PRODUCT_IDS = ["better_rail_tip_1", "better_rail_tip_2", "better_rail_tip_
 export const TipJarScreen = observer(function TipJarScreen() {
   const [isLoading, setIsLoading] = useState(false)
   const [sortedProducts, setSortedProducts] = useState([])
+  const [showThanksModal, setShowThanksModal] = useState(false)
   const { settings } = useStores()
-  const { openModal } = useModal()
 
   const handlePurchaseSuccess = async (purchase) => {
     try {
       await finishTransaction({ purchase, isConsumable: true })
 
-      openModal("TipThanksModal")
+      setShowThanksModal(true)
 
       const item = products.find((product) => product.id === purchase.productId)
       if (item) {
@@ -135,8 +135,6 @@ export const TipJarScreen = observer(function TipJarScreen() {
     if (error.code !== 'user-cancelled') {
       toast({ title: translate('settings.purchaseFailed'), message: error.message, preset: 'error' })
       crashlytics.recordError(new Error(error.message))
-    } else {
-      toast({ title: translate('settings.purchaseCancelled'), message: error.message, preset: 'none' })
     }
   }
 
@@ -178,14 +176,15 @@ export const TipJarScreen = observer(function TipJarScreen() {
   }
 
   return (
-    <Screen
-      style={ROOT}
-      preset="scroll"
-      unsafe={true}
-      statusBar={Platform.select({ ios: "light-content" })}
-      statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
-      translucent
-    >
+    <>
+      <Screen
+        style={ROOT}
+        preset="scroll"
+        unsafe={true}
+        statusBar={Platform.select({ ios: "light-content" })}
+        statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
+        translucent
+      >
       <Text style={HEART_ICON}>💖</Text>
       <Text tx="settings.tipJarTitle" style={TIP_INTRO_TITLE} />
       <Text tx="settings.tipJarSubtitle" style={TIP_INTRO_SUBTITLE} />
@@ -223,7 +222,13 @@ export const TipJarScreen = observer(function TipJarScreen() {
       ) : (
         <ActivityIndicator size="large" style={{ marginVertical: spacing[5] }} />
       )}
-    </Screen>
+      </Screen>
+
+      <TipThanksModalNative
+        visible={showThanksModal}
+        onClose={() => setShowThanksModal(false)}
+      />
+    </>
   )
 })
 
