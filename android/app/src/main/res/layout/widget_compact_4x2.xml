@@ -61,6 +61,7 @@
                     android:layout_marginTop="2dp">
 
                     <ImageView
+                        android:id="@+id/widget_arrow_icon"
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:src="@drawable/ic_arrow_circle"
@@ -142,6 +143,7 @@
                         android:gravity="center">
 
                         <TextView
+                            android:id="@+id/widget_arrival_label"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/arrival_caps"
@@ -248,6 +250,7 @@
 
             <!-- Upcoming Header -->
             <TextView
+                android:id="@+id/widget_upcoming_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/upcoming"

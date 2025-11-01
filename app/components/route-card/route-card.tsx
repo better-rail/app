@@ -237,11 +237,12 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
     DD: require('../../../assets/double-decker.png'),
     SIM: require('../../../assets/single-decker.png'),
     EMU: require('../../../assets/electric.png'),
+    TBD: require('../../../assets/tbd.png'),
   }
 
   const renderTrainType = (train: any) => {
     const carType = train?.visaWagonData?.wagons?.[0]?.krsG3
-    const imageSource = trainTypeImages[carType as keyof typeof trainTypeImages] || require('../../../assets/tbd.png')
+    const imageSource = trainTypeImages[carType as keyof typeof trainTypeImages] || trainTypeImages.TBD
 
     return (
       <Image

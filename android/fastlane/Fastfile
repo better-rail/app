@@ -1,0 +1,30 @@
+opt_out_usage
+
+default_platform(:android)
+
+platform :android do
+  desc "Push a new beta build to Internal testing"
+  lane :deploy_internal do |options|
+    gradle(task: "clean")
+    gradle(
+      task: 'bundle',
+      build_type: 'Release'
+    )
+    
+    
+    gradle_file_path = options[:gradle_file] || ENV["GRADLE_FILE"]
+    json_key_path = options[:json_key] || ENV["GOOGLE_PLAY_JSON_KEY"]
+
+    gradle_file = File.read(gradle_file_path)
+    version_code = gradle_file.match(/versionCode\s+(\d+)/)[1]
+    version_name = gradle_file.match(/versionName\s+"([^"]+)"/)[1]
+
+    release_name = "#{version_code} (#{version_name})"
+    
+    upload_to_play_store(
+      track: 'internal',
+      json_key: json_key_path,
+      version_name: release_name
+    )
+  end
+end
