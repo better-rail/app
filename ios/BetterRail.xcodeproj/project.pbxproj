@@ -927,7 +927,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
+			shellScript = "NODE_BINARY_PATH=\"\"\nif command -v node >/dev/null 2>&1; then\n  NODE_BINARY_PATH=\"$(command -v node)\"\nfi\nif [ -z \"$NODE_BINARY_PATH\" ]; then\n  export NVM_DIR=\"$HOME/.nvm\"\n  if [ -s \"$NVM_DIR/nvm.sh\" ]; then\n    . \"$NVM_DIR/nvm.sh\"\n    nvm use --silent >/dev/null 2>&1 || nvm use --silent default >/dev/null 2>&1 || true\n  fi\n  if command -v node >/dev/null 2>&1; then\n    NODE_BINARY_PATH=\"$(command -v node)\"\n  fi\nfi\nif [ -z \"$NODE_BINARY_PATH\" ]; then\n  for CANDIDATE in \"$HOME/.volta/bin/node\" \"/opt/homebrew/bin/node\" \"/usr/local/bin/node\"; do\n    if [ -x \"$CANDIDATE\" ]; then\n      NODE_BINARY_PATH=\"$CANDIDATE\"\n      break\n    fi\n  done\nfi\nif [ -z \"$NODE_BINARY_PATH\" ]; then\n  echo \"error: Unable to locate Node.js executable. Install Node.js or update the build script.\"\n  exit 1\nfi\nexport NODE_BINARY=\"$NODE_BINARY_PATH\"\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
 		};
 		259B1A2C8E633A75C9232CC3 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
