@@ -10,7 +10,7 @@ jobs:
     if: |
       github.event.issue.pull_request &&
       contains(github.event.comment.body, '/publish') &&
-      contains(vars.AUTHORIZED_ACTORS, github.actor)
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)
 
     env:
       ANDROID_KEYSTORE_PATH: /var/tmp/keystore.jks
