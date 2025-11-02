@@ -10,7 +10,6 @@ interface ModalStackParams {
     onConfirm: (date: Date) => void
     minimumDate?: Date
   }
-  TipThanksModal: Record<string, never>
 }
 
 declare module "react-native-modalfy" {

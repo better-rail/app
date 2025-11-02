@@ -2,7 +2,7 @@ import { POSTHOG_API_KEY } from "@env"
 import { getAnalytics } from "@react-native-firebase/analytics"
 import PostHog, { PostHogOptions } from "posthog-react-native"
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import { ensurePosthogPropertiesHydrated, setCachedPosthogProperties, setCachedPosthogProperty } from "./posthog-user-properties"
+import { ensurePosthogPropertiesHydrated, getCachedPosthogProperties, setCachedPosthogProperties, setCachedPosthogProperty } from "./posthog-user-properties"
 
 export const posthogOptions: PostHogOptions = {
   host: "https://eu.i.posthog.com",
@@ -40,8 +40,6 @@ export const setAnalyticsUserProperty = (name: string, value: string) => {
   if (Object.keys(updated).length === 0) {
     return
   }
-
-  ensurePosthogPropertiesHydrated().then(() => posthog.identify(undefined, updated))
 }
 
 export const setAnalyticsUserProperties = (properties: Record<string, string>) => {
@@ -52,8 +50,12 @@ export const setAnalyticsUserProperties = (properties: Record<string, string>) =
   if (Object.keys(updated).length === 0) {
     return
   }
+}
 
-  ensurePosthogPropertiesHydrated().then(() => posthog.identify(undefined, updated))
+export const identifyPosthogUser = async () => {
+  await ensurePosthogPropertiesHydrated()
+  const props = getCachedPosthogProperties()
+  posthog.identify(undefined, props)
 }
 
 export const setAnalyticsCollectionEnabled = async (enabled: boolean) => {

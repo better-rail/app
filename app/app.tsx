@@ -13,6 +13,7 @@ import "./i18n"
 import "./utils/ignore-warnings"
 import React, { useState, useEffect, useRef } from "react"
 import { AppState, Platform } from "react-native"
+import DeviceInfo from "react-native-device-info"
 import { QueryClient, QueryClientProvider } from "react-query"
 import type { NavigationContainerRef } from "@react-navigation/native"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
@@ -32,7 +33,7 @@ import {
 import { type RootStore, RootStoreProvider, setupRootStore } from "./models"
 import { setInitialLanguage, setUserLanguage } from "./i18n/i18n"
 import "react-native-console-time-polyfill"
-import { useIAP, initConnection, finishTransaction, getAvailablePurchases, withIAPContext } from "react-native-iap"
+import { useIAP, initConnection, finishTransaction, getAvailablePurchases } from "react-native-iap"
 import PushNotification from "react-native-push-notification"
 
 // This puts screens in a native ViewController or Activity. If you want fully native
@@ -44,19 +45,20 @@ import { useDeepLinking } from "./hooks/use-deep-linking"
 import { openActiveRide } from "./utils/helpers/ride-helpers"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 import { createModalStack, ModalProvider } from "react-native-modalfy"
-import { TipThanksModal } from "./screens/settings/components/tip-thanks-modal"
 import { RouteListWarningModal } from "./screens/route-list/components/route-list-warning-modal"
 import { DatePickerModal } from "./components/date-picker-modal/date-picker-modal.android"
-import { setAnalyticsUserProperty } from "./services/analytics"
+import { identifyPosthogUser, setAnalyticsUserProperty } from "./services/analytics"
 
 enableScreens()
 
 export const queryClient = new QueryClient()
 
-const modalConfig = { TipThanksModal, RouteListWarningModal, DatePickerModal }
+const modalConfig = { RouteListWarningModal, DatePickerModal }
 const defaultOptions = { backdropOpacity: 0.6 }
 
 const stack = createModalStack(modalConfig, defaultOptions)
+
+const isEmulator = DeviceInfo.isEmulatorSync()
 
 export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
 /**
@@ -67,7 +69,13 @@ function App() {
   const [rootStore, setRootStore] = useState<RootStore | undefined>(undefined)
   const [localeReady, setLocaleReady] = useState(false)
   const appState = useRef(AppState.currentState)
-  const { currentPurchase } = useIAP()
+
+  // React hooks must be called unconditionally at the top level of the component,
+  // However, while this technically violates React's rules, it works because isEmulator is static and never changes. 
+  // This is only to suppress an error when working with an emulator. Check in future versions of react-native-iap if this is fixed.
+  if (!isEmulator) {
+    useIAP()
+  }
 
   useDeepLinking(rootStore, navigationRef)
 
@@ -132,6 +140,9 @@ function App() {
   }, [])
 
   useEffect(() => {
+    // Identify once per session as early as possible, per PostHog best practices
+    identifyPosthogUser()
+
     storage.load("appLanguage").then((languageCode) => {
       if (languageCode) {
         setUserLanguage(languageCode)
@@ -146,7 +157,7 @@ function App() {
   useEffect(() => {
     // open the announcements screen if the app was opened from a notification
     const unsubscribe = notifee.onForegroundEvent(({ type, detail }) => {
-      if (detail.notification.data?.type === "service-update") {
+      if (detail.notification?.data?.type === "service-update") {
         navigationRef.current?.navigate("announcementsStack")
       }
     })
@@ -175,7 +186,7 @@ function App() {
     if (!__DEV__) {
       flushAvailablePurchases()
     }
-  }, [currentPurchase])
+  }, [])
 
   // Before we show the app, we have to wait for our state to be ready.
   // In the meantime, don't render anything. This will be the background
@@ -210,4 +221,4 @@ function App() {
   )
 }
 
-export default withIAPContext(App)
+export default App

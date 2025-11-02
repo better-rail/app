@@ -84,20 +84,24 @@ class WidgetStateRenderer(
 ) {
     
     fun render(context: Context, state: WidgetState): RemoteViews {
-        val views = RemoteViews(context.packageName, layoutResource)
-        
+        val localeContext = com.betterrail.widget.utils.LocaleUtils.createLocaleContext(context)
+        val views = RemoteViews(localeContext.packageName, layoutResource)
+
+        // Apply RTL layout adjustments (direction, arrow rotation, etc.)
+        com.betterrail.widget.utils.WidgetRTLHelper.applyRTLAdjustments(context, views, layoutResource)
+
         when (state) {
-            is WidgetState.Configuration -> renderConfiguration(context, views, state)
-            is WidgetState.Loading -> renderLoading(context, views, state)
-            is WidgetState.Schedule -> renderSchedule(context, views, state)
-            is WidgetState.Error -> renderError(context, views, state)
-            is WidgetState.TomorrowFallback -> renderTomorrowFallback(context, views, state)
-            is WidgetState.TomorrowLoading -> renderTomorrowLoading(context, views, state)
-            is WidgetState.TomorrowSchedule -> renderTomorrowSchedule(context, views, state)
-            is WidgetState.NoTrains -> renderNoTrains(context, views, state)
-            is WidgetState.FutureSchedule -> renderFutureSchedule(context, views, state)
+            is WidgetState.Configuration -> renderConfiguration(localeContext, views, state)
+            is WidgetState.Loading -> renderLoading(localeContext, views, state)
+            is WidgetState.Schedule -> renderSchedule(localeContext, views, state)
+            is WidgetState.Error -> renderError(localeContext, views, state)
+            is WidgetState.TomorrowFallback -> renderTomorrowFallback(localeContext, views, state)
+            is WidgetState.TomorrowLoading -> renderTomorrowLoading(localeContext, views, state)
+            is WidgetState.TomorrowSchedule -> renderTomorrowSchedule(localeContext, views, state)
+            is WidgetState.NoTrains -> renderNoTrains(localeContext, views, state)
+            is WidgetState.FutureSchedule -> renderFutureSchedule(localeContext, views, state)
         }
-        
+
         return views
     }
     
@@ -237,8 +241,8 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_station_name, state.originName)
         views.setTextViewText(R.id.widget_destination, state.destinationName)
         views.setTextViewText(getTrainTimeId(), state.firstTrain.departureTime)
-        
-        val labelText = "UPCOMING IN ${state.daysAway} DAYS"
+
+        val labelText = context.resources.getQuantityString(R.plurals.upcoming_in_days, state.daysAway, state.daysAway)
         views.setTextViewText(R.id.widget_train_label, labelText)
         views.setTextColor(R.id.widget_train_label, context.getColor(R.color.widget_tomorrow_text)) // Purple color
         
@@ -284,9 +288,13 @@ class WidgetStateRenderer(
     
     private fun showUpcomingTrains(context: Context, views: RemoteViews, upcomingTrains: List<WidgetTrainItem>) {
         if (layoutResource != R.layout.widget_compact_4x2) return
-        
+
+        // Set localized labels for upcoming trains section
+        views.setTextViewText(R.id.widget_upcoming_label, context.getString(R.string.upcoming))
+        views.setTextViewText(R.id.widget_arrival_label, context.getString(R.string.arrival_caps))
+
         val resourcesHelper = UpcomingTrainResources.createDefault(context)
-        
+
         resourcesHelper.forEachRow { index, resources ->
             if (index < upcomingTrains.size) {
                 val train = upcomingTrains[index]
@@ -298,10 +306,10 @@ class WidgetStateRenderer(
             }
         }
     }
-    
+
     private fun hideUpcomingTrains(context: Context, views: RemoteViews) {
         if (layoutResource != R.layout.widget_compact_4x2) return
-        
+
         val resourcesHelper = UpcomingTrainResources.createDefault(context)
         
         resourcesHelper.getRowIds().forEach { rowId ->
