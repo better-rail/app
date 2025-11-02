@@ -85,6 +85,8 @@ export const configureNotifications = async () => {
 }
 
 const handleLiveRideNotification = async (message: FirebaseMessagingTypes.RemoteMessage) => {
+  if (!message.data) return;
+
   if (message.data.notifee) {
     notifee.displayNotification({
       ...JSON.parse(message.data.notifee),
@@ -116,6 +118,8 @@ const handleLiveRideNotification = async (message: FirebaseMessagingTypes.Remote
 }
 
 const handleServiceUpdateNotification = async (message: FirebaseMessagingTypes.RemoteMessage) => {
+  if (!message.data) return;
+
   const { title, body, stations } = message.data
   const parsedStations = JSON.parse(stations)
 
