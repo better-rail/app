@@ -1,6 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { useMemo } from "react"
+import { observer } from "mobx-react-lite"
 import { TextStyle, View, ViewStyle, Platform, TouchableOpacity, Pressable, Image, ImageStyle } from "react-native"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import { Svg, Line } from "react-native-svg"
@@ -164,7 +165,7 @@ export interface RouteCardProps extends TouchableScaleProps {
   destinationId?: string
 }
 
-export const RouteCard = function RouteCard(props: RouteCardProps) {
+export const RouteCard = observer(function RouteCard(props: RouteCardProps) {
   const {
     departureTime,
     arrivalTime,
@@ -321,7 +322,7 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
       {cardContent}
     </RouteContextMenu>
   )
-}
+})
 
 const DashedLine = () => (
   <Svg height={5} width={35}>
