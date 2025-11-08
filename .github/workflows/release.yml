@@ -17,6 +17,17 @@ jobs:
       POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
 
     steps:
+      - name: "Add start reaction"
+        uses: actions/github-script@v8
+        with:
+          script: |
+            github.rest.reactions.createForIssueComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: context.payload.comment.id,
+              content: 'eyes'
+            });
+
       - name: "Checkout"
         uses: actions/checkout@v5
         with:
@@ -101,3 +112,22 @@ jobs:
               \"chat_id\": \"${{ secrets.TELEGRAM_CHAT_ID }}\",
               \"text\": \"Android Release ${{ steps.vars.outputs.version_name }} (Build ${{ steps.vars.outputs.version_code }}): ${{ job.status }}\n\nCommit: ${{ github.sha }}\nWorkflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
             }"
+
+      - name: "Add job done reaction"
+        if: always()
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const reactions = {
+              success: 'hooray',
+              failure: '-1',
+              cancelled: 'confused'
+            };
+            const content = reactions['${{ job.status }}'] || 'confused';
+
+            github.rest.reactions.createForIssueComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: context.payload.comment.id,
+              content: content
+            });
