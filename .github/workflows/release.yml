@@ -46,6 +46,15 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: ${{ steps.vars.outputs.node_version }}
+          cache: "npm"
+
+      - name: "Setup Java"
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+          cache: "gradle"
+          cache-dependency-path: android/**/*.gradle*
 
       - name: "Pre-reqs"
         run: |
@@ -53,6 +62,14 @@ jobs:
           brew install cocoapods
 
           npm install -g bun
+
+      - name: "Cache node_modules"
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package.json', '**/bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: "Build React Native app"
         run: bun install
@@ -70,8 +87,6 @@ jobs:
           KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
           KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
         run: |
-          export JAVA_HOME=$JAVA_HOME_21_X64
-
           fastlane deploy_internal \
             json_key:/var/tmp/store_service_account.json \
             gradle_file:${{ github.workspace }}/android/app/build.gradle
