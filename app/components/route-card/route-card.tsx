@@ -217,29 +217,30 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
 
   const getTrainType = (train: any): string => {
     if (!train?.visaWagonData?.wagons?.[0]?.krsG3) {
-      return translate('trainTypes.tbd')
+      return translate("trainTypes.tbd")
     }
 
     const carType = train.visaWagonData.wagons[0].krsG3
     switch (carType) {
-      case 'DD':
-        return translate('trainTypes.doubleDecker')
-      case 'EMU':
-        return translate('trainTypes.electric')
-      case 'SIM':
-        return translate('trainTypes.singleDecker')
+      case "DD":
+        return translate("trainTypes.doubleDecker")
+      case "EMU":
+        return translate("trainTypes.electric")
+      case "SIM":
+        return translate("trainTypes.singleDecker")
       default:
-        return translate('trainTypes.tbd')
+        return translate("trainTypes.tbd")
     }
   }
 
   const trainTypeImages = {
-    DD: require('../../../assets/double-decker.png'),
-    SIM: require('../../../assets/single-decker.png'),
-    EMU: require('../../../assets/electric.png'),
-    TBD: require('../../../assets/tbd.png'),
+    DD: require("../../../assets/double-decker.png"),
+    SIM: require("../../../assets/single-decker.png"),
+    EMU: require("../../../assets/electric.png"),
+    TBD: require("../../../assets/tbd.png"),
   }
 
+  // TODO: Use this once we have a proper train type icon
   const renderTrainType = (train: any) => {
     const carType = train?.visaWagonData?.wagons?.[0]?.krsG3
     const imageSource = trainTypeImages[carType as keyof typeof trainTypeImages] || trainTypeImages.TBD
@@ -247,7 +248,7 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
     return (
       <Image
         source={imageSource}
-        style={[TRAIN_TYPE_IMAGE, { tintColor: isDarkMode ? 'white' : 'black' }]}
+        style={[TRAIN_TYPE_IMAGE, { tintColor: isDarkMode ? "white" : "black" }]}
         resizeMode="contain"
       />
     )
@@ -268,18 +269,13 @@ export const RouteCard = function RouteCard(props: RouteCardProps) {
         <View style={ROUTE_HEADER}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Text style={HEADER_TEXT} tx="routeDetails.platform" />
-            <Text style={[TRAIN_NUMBER_TEXT, { marginLeft: spacing[1] }]}>
-              {mainTrain.originPlatform}
-            </Text>
+            <Text style={[TRAIN_NUMBER_TEXT, { marginLeft: spacing[1] }]}>{mainTrain.originPlatform}</Text>
           </View>
 
           {mainTrain.originPlatform > 0 && (
             <View style={PLATFORM_BADGE}>
               <Text style={HEADER_TEXT} tx="routeDetails.trainNo" />
-              <Text style={[PLATFORM_TEXT, { marginLeft: spacing[1] }]}>
-                {mainTrain.trainNumber}
-              </Text>
-              {renderTrainType(mainTrain)}
+              <Text style={[PLATFORM_TEXT, { marginLeft: spacing[1] }]}>{mainTrain.trainNumber}</Text>
             </View>
           )}
         </View>
