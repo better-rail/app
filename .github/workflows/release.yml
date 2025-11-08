@@ -1,14 +1,16 @@
 name: Publish to Play Store
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'android/app/build.gradle'
+  issue_comment:
+    types: [created]
 
 jobs:
   android:
     runs-on: ubuntu-latest
+    if: |
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, '/publish') &&
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)
 
     env:
       ANDROID_KEYSTORE_PATH: /var/tmp/keystore.jks
@@ -17,6 +19,8 @@ jobs:
     steps:
       - name: "Checkout"
         uses: actions/checkout@v5
+        with:
+          ref: refs/pull/${{ github.event.issue.number }}/head
 
       - name: "Vars"
         id: vars
