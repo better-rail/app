@@ -11,7 +11,8 @@ import { useIsDarkMode } from "../../hooks"
 import { useStores } from "../../models"
 import { formatRouteDuration, routeDurationInMs } from "../../utils/helpers/date-helpers"
 import { RouteItem } from "../../services/api"
-import Animated, { LinearTransition, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
+import { setAnalyticsUserProperty, trackEvent } from "../../services/analytics"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -73,6 +74,17 @@ export const UISettingsScreen = observer(function UISettingsScreen() {
     }
   })
 
+  const onRouteCardHeaderToggle = (value: boolean) => {
+    if (value) {
+      trackEvent("route_card_header_enabled")
+      setAnalyticsUserProperty("route_card_header_enabled", "true")
+    } else {
+      trackEvent("route_card_header_disabled")
+      setAnalyticsUserProperty("route_card_header_enabled", "false")
+    }
+    settings.setShowRouteCardHeader(value)
+  }
+
   return (
     <Screen
       style={ROOT}
@@ -106,7 +118,7 @@ export const UISettingsScreen = observer(function UISettingsScreen() {
           title={translate("settings.showRouteCardHeader")}
           toggle
           toggleValue={settings.showRouteCardHeader}
-          onToggle={(value) => settings.setShowRouteCardHeader(value)}
+          onToggle={onRouteCardHeaderToggle}
         />
       </View>
     </Screen>
