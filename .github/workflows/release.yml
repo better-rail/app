@@ -120,7 +120,7 @@ jobs:
           script: |
             const reactions = {
               success: 'hooray',
-              failure: 'thumbs_down',
+              failure: '-1',
               cancelled: 'confused'
             };
             const content = reactions['${{ job.status }}'] || 'confused';
