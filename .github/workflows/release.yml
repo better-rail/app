@@ -113,7 +113,7 @@ jobs:
               \"text\": \"Android Release ${{ steps.vars.outputs.version_name }} (Build ${{ steps.vars.outputs.version_code }}): ${{ job.status }}\n\nCommit: ${{ github.sha }}\nWorkflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
             }"
 
-      - name: "Finish reaction"
+      - name: "Add job done reaction"
         if: always()
         uses: actions/github-script@v8
         with:
