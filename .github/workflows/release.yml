@@ -3,14 +3,25 @@ name: Publish to Play Store
 on:
   issue_comment:
     types: [created]
+  repository_dispatch:
+    types: [publish-command]
 
 jobs:
+  slash-command-dispatch:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issue_comment'
+    steps:
+      - name: Slash Command Dispatch
+        uses: peter-evans/slash-command-dispatch@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commands: publish
+          permission: write
+          issue-type: pull-request
+
   android:
     runs-on: ubuntu-latest
-    if: |
-      github.event.issue.pull_request &&
-      contains(github.event.comment.body, '/publish') &&
-      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)
+    if: github.event_name == 'repository_dispatch'
 
     env:
       ANDROID_KEYSTORE_PATH: /var/tmp/keystore.jks
@@ -20,7 +31,8 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v5
         with:
-          ref: refs/pull/${{ github.event.issue.number }}/head
+          ref: refs/pull/${{ github.event.client_payload.pull_request.number }}/head
+          repository: ${{ github.event.client_payload.pull_request.base.repo.full_name }}
 
       - name: "Vars"
         id: vars
