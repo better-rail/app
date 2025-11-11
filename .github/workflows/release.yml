@@ -56,11 +56,10 @@ jobs:
           echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
           echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
 
-      - name: "Setup Node"
-        uses: actions/setup-node@v6
+      - name: "Setup Bun"
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: ${{ steps.vars.outputs.node_version }}
-          cache: "npm"
+          bun-version: latest
 
       - name: "Setup Java"
         uses: actions/setup-java@v4
@@ -74,8 +73,6 @@ jobs:
         run: |
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           brew install cocoapods
-
-          npm install -g bun
 
       - name: "Cache node_modules"
         uses: actions/cache@v4
@@ -105,16 +102,16 @@ jobs:
             json_key:/var/tmp/store_service_account.json \
             gradle_file:${{ github.workspace }}/android/app/build.gradle
 
-      - name: "Notification"
-        if: always()
-        run: |
-          curl "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_API_KEY }}/sendMessage" \
-            --header "Content-Type: application/json" \
-            --request POST \
-            --data "{
-              \"chat_id\": \"${{ secrets.TELEGRAM_CHAT_ID }}\",
-              \"text\": \"Android Release ${{ steps.vars.outputs.version_name }} (Build ${{ steps.vars.outputs.version_code }}): ${{ job.status }}\n\nCommit: ${{ github.sha }}\nWorkflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
-            }"
+      # - name: "Notification"
+      #   if: always()
+      #   run: |
+      #     curl "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_API_KEY }}/sendMessage" \
+      #       --header "Content-Type: application/json" \
+      #       --request POST \
+      #       --data "{
+      #         \"chat_id\": \"${{ secrets.TELEGRAM_CHAT_ID }}\",
+      #         \"text\": \"Android Release ${{ steps.vars.outputs.version_name }} (Build ${{ steps.vars.outputs.version_code }}): ${{ job.status }}\n\nCommit: ${{ github.sha }}\nWorkflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
+      #       }"
 
       - name: "Add job done reaction"
         if: always()
