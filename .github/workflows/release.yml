@@ -102,16 +102,16 @@ jobs:
             json_key:/var/tmp/store_service_account.json \
             gradle_file:${{ github.workspace }}/android/app/build.gradle
 
-      # - name: "Notification"
-      #   if: always()
-      #   run: |
-      #     curl "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_API_KEY }}/sendMessage" \
-      #       --header "Content-Type: application/json" \
-      #       --request POST \
-      #       --data "{
-      #         \"chat_id\": \"${{ secrets.TELEGRAM_CHAT_ID }}\",
-      #         \"text\": \"Android Release ${{ steps.vars.outputs.version_name }} (Build ${{ steps.vars.outputs.version_code }}): ${{ job.status }}\n\nCommit: ${{ github.sha }}\nWorkflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
-      #       }"
+      - name: "Notification"
+        if: always()
+        run: |
+          curl "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_API_KEY }}/sendMessage" \
+            --header "Content-Type: application/json" \
+            --request POST \
+            --data "{
+              \"chat_id\": \"${{ secrets.TELEGRAM_CHAT_ID }}\",
+              \"text\": \"Android Release ${{ steps.vars.outputs.version_name }} (Build ${{ steps.vars.outputs.version_code }}): ${{ job.status }}\n\nCommit: ${{ github.sha }}\nWorkflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
+            }"
 
       - name: "Add job done reaction"
         if: always()
