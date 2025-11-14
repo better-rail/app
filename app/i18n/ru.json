@@ -37,6 +37,13 @@
     "recentSearches": "Недавние запросы",
     "hide": "Скрыть"
   },
+  "trainTypes": {
+    "train": "Поезд",
+    "doubleDecker": "Двухэтажный",
+    "electric": "Электрический",
+    "singleDecker": "Одноэтажный",
+    "tbd": "неизвестно"
+  },
   "routes": {
     "departure": "Отправление",
     "arrival": "Прибытие",
@@ -82,6 +89,9 @@
   "settings": {
     "title": "Настройки",
     "language": "Язык приложения",
+    "uiSettings": "Настройки интерфейса",
+    "routeCard": "Карточка поездки",
+    "showRouteCardHeader": "Показать заголовок карточки маршрута",
     "about": "О приложении",
     "share": "Поделиться",
     "widget": "Руководство по виджетам",
