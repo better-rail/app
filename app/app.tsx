@@ -19,6 +19,7 @@ import type { NavigationContainerRef } from "@react-navigation/native"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet"
 import notifee from "@notifee/react-native"
+import * as Sentry from "@sentry/react-native"
 
 import { initFonts } from "./theme/fonts" // expo
 import * as storage from "./utils/storage"
@@ -51,6 +52,10 @@ import { identifyPosthogUser, setAnalyticsUserProperty } from "./services/analyt
 
 enableScreens()
 
+Sentry.init({
+  dsn: "https://203d8d08bca79bc415c95f41ab496d0b@o4510306230534144.ingest.us.sentry.io/4510307294248960",
+})
+
 export const queryClient = new QueryClient()
 
 const modalConfig = { RouteListWarningModal, DatePickerModal }
@@ -71,7 +76,7 @@ function App() {
   const appState = useRef(AppState.currentState)
 
   // React hooks must be called unconditionally at the top level of the component,
-  // However, while this technically violates React's rules, it works because isEmulator is static and never changes. 
+  // However, while this technically violates React's rules, it works because isEmulator is static and never changes.
   // This is only to suppress an error when working with an emulator. Check in future versions of react-native-iap if this is fixed.
   if (!isEmulator) {
     useIAP()
@@ -221,4 +226,4 @@ function App() {
   )
 }
 
-export default App
+export default Sentry.wrap(App)

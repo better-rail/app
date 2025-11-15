@@ -4555,6 +4555,36 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
+  - RNSentry (7.6.0):
+    - boost
+    - DoubleConversion
+    - fast_float
+    - fmt
+    - glog
+    - hermes-engine
+    - RCT-Folly
+    - RCT-Folly/Fabric
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Sentry/HybridSDK (= 8.57.2)
+    - SocketRocket
+    - Yoga
   - RNShare (11.0.3):
     - boost
     - DoubleConversion
@@ -4642,6 +4672,7 @@ PODS:
     - Yoga
   - RNWatch (1.1.0):
     - React
+  - Sentry/HybridSDK (8.57.2)
   - SocketRocket (0.7.1)
   - SPAlert (4.2.0)
   - SPIndicator (1.6.4)
@@ -4761,6 +4792,7 @@ DEPENDENCIES:
   - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - "RNSentry (from `../node_modules/@sentry/react-native`)"
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNWatch (from `../node_modules/react-native-watch-connectivity`)
@@ -4803,6 +4835,7 @@ SPEC REPOS:
     - PromisesObjC
     - PromisesSwift
     - RecaptchaInterop
+    - Sentry
     - SocketRocket
     - SPAlert
     - SPIndicator
@@ -5033,6 +5066,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNSentry:
+    :path: "../node_modules/@sentry/react-native"
   RNShare:
     :path: "../node_modules/react-native-share"
   RNSVG:
@@ -5189,9 +5224,11 @@ SPEC CHECKSUMS:
   RNReactNativeHapticFeedback: 5f1542065f0b24c9252bd8cf3e83bc9c548182e4
   RNReanimated: 9a194cc49afc2ae6c6b2c3763639c6d141ce85c7
   RNScreens: 4f2aed147a2775017923789d8a0a2d377712ec2e
+  RNSentry: 4832a7acd1fe48982149f585e1802f4d9fc7b00a
   RNShare: 4abf366befdce6164931530de5fc4f6473749139
   RNSVG: 94a1be05fab4043354bcf7104f0f9b0e2231ef05
   RNWatch: 28fe1f5e0c6410d45fd20925f4796fce05522e3f
+  Sentry: 83a3814c3ca042874b39c5c5bdffb6570d4d760e
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   SPAlert: 735da1f16a887e294719217572ce1f936d8c8782
   SPIndicator: 93e0a4fb23de51294ac48e874c0f081a5e293e4f

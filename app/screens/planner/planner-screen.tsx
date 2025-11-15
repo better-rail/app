@@ -20,7 +20,7 @@ import { useFocusEffect } from "@react-navigation/native"
 import { PlannerScreenHeader } from "./planner-screen-header"
 import { useModal } from "react-native-modalfy"
 import { FlingGestureWrapper } from "./planner-slider-wrapper"
-
+import * as Sentry from "@sentry/react-native"
 const { height: deviceHeight } = Dimensions.get("screen")
 
 // #region styles
@@ -254,6 +254,13 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
               if (routePlan.origin?.id === routePlan.destination?.id) {
                 Alert.alert(translate("routes.sameStationsMessage"))
               }
+            }}
+          />
+
+          <Button
+            title="Try!"
+            onPress={() => {
+              Sentry.captureException(new Error("Second error"))
             }}
           />
         </View>

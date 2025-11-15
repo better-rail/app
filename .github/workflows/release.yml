@@ -18,6 +18,7 @@ jobs:
     env:
       ANDROID_KEYSTORE_PATH: /var/tmp/keystore.jks
       POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
     steps:
       - name: "Add start reaction"
