@@ -1,5 +1,5 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { withStatus } from ".."
+import { withStatus } from "../extensions/with-status"
 import { RouteApi } from "../../services/api/route-api"
 import { add, closestTo, differenceInMinutes } from "date-fns"
 import { omit } from "ramda"
