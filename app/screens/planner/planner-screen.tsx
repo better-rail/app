@@ -260,7 +260,6 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
           <Button
             title="Try!"
             onPress={() => {
-              Sentry.captureException(new Error("Second error"))
             }}
           />
         </View>
