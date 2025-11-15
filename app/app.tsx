@@ -54,6 +54,7 @@ enableScreens()
 
 Sentry.init({
   dsn: "https://203d8d08bca79bc415c95f41ab496d0b@o4510306230534144.ingest.us.sentry.io/4510307294248960",
+  enabled: !__DEV__,
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,
   integrations: [Sentry.mobileReplayIntegration({ maskAllText: false, maskAllImages: false, maskAllVectors: false })],
@@ -156,6 +157,7 @@ function App() {
         setUserLanguage(languageCode)
         setLocaleReady(true)
         setAnalyticsUserProperty("user_locale", languageCode)
+        Sentry.setTag("user_locale", languageCode)
       } else {
         setInitialLanguage()
       }
