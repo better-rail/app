@@ -12,8 +12,6 @@ import { useStores } from "../../../models"
 import { AndroidNotificationSetting, AuthorizationStatus } from "@notifee/react-native"
 import InAppReview from "react-native-in-app-review"
 import { trackEvent } from "../../../services/analytics"
-import { crashlytics } from "../../../services/firebase/crashlytics"
-import { log, setAttributes } from "@react-native-firebase/crashlytics"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -84,12 +82,6 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
         },
       ])
     }
-
-    log(crashlytics, "Start ride button pressed")
-    setAttributes(crashlytics, {
-      route: JSON.stringify(route),
-      rideId: ride.id ?? "null",
-    })
 
     HapticFeedback.trigger("notificationSuccess")
     ride.startRide(route)

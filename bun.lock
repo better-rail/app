@@ -18,7 +18,6 @@
         "@react-native-firebase/analytics": "22.1.0",
         "@react-native-firebase/app": "22.1.0",
         "@react-native-firebase/auth": "22.1.0",
-        "@react-native-firebase/crashlytics": "22.1.0",
         "@react-native-firebase/firestore": "22.1.0",
         "@react-native-firebase/messaging": "22.1.0",
         "@react-native-masked-view/masked-view": "0.2.8",
@@ -663,8 +662,6 @@
     "@react-native-firebase/app": ["@react-native-firebase/app@22.1.0", "", { "dependencies": { "firebase": "11.3.1" }, "peerDependencies": { "expo": ">=47.0.0", "react": "*", "react-native": "*" }, "optionalPeers": ["expo"] }, "sha512-s01yjF92Fpre7Ff5UzNpVE4q25x2eF+nD8SGzZzBp7nTQjK+4U+VllJ3ajvbjJkfIyMYNBowM135iK/DO5cwDA=="],
 
     "@react-native-firebase/auth": ["@react-native-firebase/auth@22.1.0", "", { "dependencies": { "plist": "^3.1.0" }, "peerDependencies": { "@react-native-firebase/app": "22.1.0", "expo": ">=47.0.0" }, "optionalPeers": ["expo"] }, "sha512-MOYNCMPGWKkSHQauurFjikFMcnEHpPPdXFylPhLYjodDgmHjbIkbCm82GBhgzKbQR5LDFWUGkq2CE8Hw59VyNw=="],
-
-    "@react-native-firebase/crashlytics": ["@react-native-firebase/crashlytics@22.1.0", "", { "dependencies": { "stacktrace-js": "^2.0.2" }, "peerDependencies": { "@react-native-firebase/app": "22.1.0", "expo": ">=47.0.0" }, "optionalPeers": ["expo"] }, "sha512-fuDKFpXzytE/K7xKrgqEGT3E4995PBUJKmvuRTOawVIP8XRhAop2yC8L4mUZVW72MUJSG8c4oexYYA8IGKdzow=="],
 
     "@react-native-firebase/firestore": ["@react-native-firebase/firestore@22.1.0", "", { "peerDependencies": { "@react-native-firebase/app": "22.1.0" } }, "sha512-jiizCp+XGMDy7FjuuSAOhjp6dgkFOgZZRoWnSYAOxo9kHJKkJqwtXTO3Bmc94nTGudQGoRVFWG2D8CPv+Cj7hA=="],
 
@@ -2500,15 +2497,9 @@
 
     "sprintf-js": ["sprintf-js@1.0.3", "", {}, "sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g=="],
 
-    "stack-generator": ["stack-generator@2.0.10", "", { "dependencies": { "stackframe": "^1.3.4" } }, "sha512-mwnua/hkqM6pF4k8SnmZ2zfETsRUpWXREfA/goT8SLCV4iOFa4bzOX2nDipWAZFPTjLvQB82f5yaodMVhK0yJQ=="],
-
     "stack-utils": ["stack-utils@2.0.6", "", { "dependencies": { "escape-string-regexp": "^2.0.0" } }, "sha512-XlkWvfIm6RmsWtNJx+uqtKLS8eqFbxUg0ZzLXqY0caEy9l7hruX8IpiDnjsLavoBgqCCR71TqWO8MaXYheJ3RQ=="],
 
     "stackframe": ["stackframe@1.3.4", "", {}, "sha512-oeVtt7eWQS+Na6F//S4kJ2K2VbRlS9D43mAlMyVpVWovy9o+jfgH8O9agzANzaiLjclA0oYzUXEM4PurhSUChw=="],
-
-    "stacktrace-gps": ["stacktrace-gps@3.1.2", "", { "dependencies": { "source-map": "0.5.6", "stackframe": "^1.3.4" } }, "sha512-GcUgbO4Jsqqg6RxfyTHFiPxdPqF+3LFmQhm7MgCuYQOYuWyqxo5pwRPz5d/u6/WYJdEnWfK4r+jGbyD8TSggXQ=="],
-
-    "stacktrace-js": ["stacktrace-js@2.0.2", "", { "dependencies": { "error-stack-parser": "^2.0.6", "stack-generator": "^2.0.5", "stacktrace-gps": "^3.0.4" } }, "sha512-Je5vBeY4S1r/RnLydLl0TBTi3F2qdfWmYsGvtfZgEI+SCprPppaIhQf5nGcal4gI4cGpCV/duLcAzT1np6sQqg=="],
 
     "stacktrace-parser": ["stacktrace-parser@0.1.11", "", { "dependencies": { "type-fest": "^0.7.1" } }, "sha512-WjlahMgHmCJpqzU8bIBy4qtsZdU9lRlcZE3Lvyej6t4tuOuv1vk57OW3MBrj6hXBFx/nNoC9MPMTcr5YA7NQbg=="],
 
@@ -3261,8 +3252,6 @@
     "split-string/extend-shallow": ["extend-shallow@3.0.2", "", { "dependencies": { "assign-symbols": "^1.0.0", "is-extendable": "^1.0.1" } }, "sha512-BwY5b5Ql4+qZoefgMj2NUmx+tehVTH/Kf4k1ZEtOHNFcm2wSxMRo992l6X3TIgni2eZVTZ85xMOjF31fwZAj6Q=="],
 
     "stack-utils/escape-string-regexp": ["escape-string-regexp@2.0.0", "", {}, "sha512-UpzcLCXolUWcNu5HtVMHYdXJjArjsF9C0aNnquZYY4uW/Vu0miy5YoWvbV345HauVvcAUnpRuhMMcqTcGOY2+w=="],
-
-    "stacktrace-gps/source-map": ["source-map@0.5.6", "", {}, "sha512-MjZkVp0NHr5+TPihLcadqnlVoGIoWo4IBHptutGh9wI3ttUYvCG26HkSuDi+K6lsZ25syXJXcctwgyVCt//xqA=="],
 
     "stacktrace-parser/type-fest": ["type-fest@0.7.1", "", {}, "sha512-Ne2YiiGN8bmrmJJEuTWTLJR32nh/JdL1+PSicowtNb0WFpn59GK8/lfD61bVtzguz7b3PBt74nxpv/Pw5po5Rg=="],
 

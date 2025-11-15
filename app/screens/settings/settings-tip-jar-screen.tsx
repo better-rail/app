@@ -9,9 +9,9 @@ import { translate } from "../../i18n"
 import { useStores } from "../../models"
 import { getInstallerPackageNameSync } from "react-native-device-info"
 import { trackPurchase } from "../../services/analytics"
-import { crashlytics } from "../../services/firebase/crashlytics"
 import { toast } from "burnt"
 import { TipThanksModalNative } from "./components/tip-thanks-modal-native"
+import * as Sentry from "@sentry/react-native"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -119,11 +119,11 @@ export const TipJarScreen = observer(function TipJarScreen() {
             ],
           })
         } catch (trackErr) {
-          console.error('Failed to track purchase:', trackErr)
+          console.error("Failed to track purchase:", trackErr)
         }
       }
     } catch (err) {
-      console.error('[TipJar] Error in purchase success handler:', err)
+      console.error("[TipJar] Error in purchase success handler:", err)
     } finally {
       setIsLoading(false)
     }
@@ -132,9 +132,8 @@ export const TipJarScreen = observer(function TipJarScreen() {
   const handlePurchaseError = (error) => {
     setIsLoading(false)
 
-    if (error.code !== 'user-cancelled') {
-      toast({ title: translate('settings.purchaseFailed'), message: error.message, preset: 'error' })
-      crashlytics.recordError(new Error(error.message))
+    if (error.code !== "user-cancelled") {
+      toast({ title: translate("settings.purchaseFailed"), message: error.message, preset: "error" })
     }
   }
 
@@ -166,11 +165,11 @@ export const TipJarScreen = observer(function TipJarScreen() {
           ios: { sku },
           android: { skus: [sku] },
         },
-        type: 'in-app',
+        type: "in-app",
       })
     } catch (err) {
-      console.error('[TipJar] Error requesting purchase:', err)
-      crashlytics.recordError(err)
+      console.error("[TipJar] Error requesting purchase:", err)
+      Sentry.captureException(err)
       setIsLoading(false)
     }
   }
@@ -185,49 +184,46 @@ export const TipJarScreen = observer(function TipJarScreen() {
         statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
         translucent
       >
-      <Text style={HEART_ICON}>💖</Text>
-      <Text tx="settings.tipJarTitle" style={TIP_INTRO_TITLE} />
-      <Text tx="settings.tipJarSubtitle" style={TIP_INTRO_SUBTITLE} />
-      {installSource === "TestFlight" && <Text tx="settings.testflightMessage" style={TESTFLIGHT_MSG} />}
+        <Text style={HEART_ICON}>💖</Text>
+        <Text tx="settings.tipJarTitle" style={TIP_INTRO_TITLE} />
+        <Text tx="settings.tipJarSubtitle" style={TIP_INTRO_SUBTITLE} />
+        {installSource === "TestFlight" && <Text tx="settings.testflightMessage" style={TESTFLIGHT_MSG} />}
 
-      {sortedProducts.length > 0 && !isLoading ? (
-        <>
-          <TipRow
-            title={translate("settings.generousTip")}
-            amount={sortedProducts[0].displayPrice}
-            onPress={() => onTipButtonPress(sortedProducts[0].id)}
-          />
-          <TipRow
-            title={translate("settings.amazingTip")}
-            amount={sortedProducts[1].displayPrice}
-            onPress={() => onTipButtonPress(sortedProducts[1].id)}
-          />
-          <TipRow
-            title={translate("settings.massiveTip")}
-            amount={sortedProducts[2].displayPrice}
-            onPress={() => onTipButtonPress(sortedProducts[2].id)}
-          />
-          <TipRow
-            title={translate("settings.hugeTip")}
-            amount={sortedProducts[3].displayPrice}
-            onPress={() => onTipButtonPress(sortedProducts[3].id)}
-          />
+        {sortedProducts.length > 0 && !isLoading ? (
+          <>
+            <TipRow
+              title={translate("settings.generousTip")}
+              amount={sortedProducts[0].displayPrice}
+              onPress={() => onTipButtonPress(sortedProducts[0].id)}
+            />
+            <TipRow
+              title={translate("settings.amazingTip")}
+              amount={sortedProducts[1].displayPrice}
+              onPress={() => onTipButtonPress(sortedProducts[1].id)}
+            />
+            <TipRow
+              title={translate("settings.massiveTip")}
+              amount={sortedProducts[2].displayPrice}
+              onPress={() => onTipButtonPress(sortedProducts[2].id)}
+            />
+            <TipRow
+              title={translate("settings.hugeTip")}
+              amount={sortedProducts[3].displayPrice}
+              onPress={() => onTipButtonPress(sortedProducts[3].id)}
+            />
 
-          {settings.totalTip > 0 && (
-            <Text style={TOTAL_TIPS}>
-              {translate("settings.totalTips")}: {settings.totalTip} {products[0].currency === "ILS" ? "₪" : "$"}
-            </Text>
-          )}
-        </>
-      ) : (
-        <ActivityIndicator size="large" style={{ marginVertical: spacing[5] }} />
-      )}
+            {settings.totalTip > 0 && (
+              <Text style={TOTAL_TIPS}>
+                {translate("settings.totalTips")}: {settings.totalTip} {products[0].currency === "ILS" ? "₪" : "$"}
+              </Text>
+            )}
+          </>
+        ) : (
+          <ActivityIndicator size="large" style={{ marginVertical: spacing[5] }} />
+        )}
       </Screen>
 
-      <TipThanksModalNative
-        visible={showThanksModal}
-        onClose={() => setShowThanksModal(false)}
-      />
+      <TipThanksModalNative visible={showThanksModal} onClose={() => setShowThanksModal(false)} />
     </>
   )
 })
