@@ -1,6 +1,7 @@
 import React from "react"
-import { Platform } from "react-native"
+import { Platform, Text, View } from "react-native"
 import ContextMenuView from "react-native-context-menu-view"
+import { color, spacing } from "../../theme"
 
 export interface RouteContextMenuAction {
   title: string
@@ -24,10 +25,10 @@ export const RouteContextMenu = function RouteContextMenu(props: RouteContextMen
   }
 
   // On iOS, use ContextMenuView
-  if (Platform.OS === 'ios') {
+  if (Platform.OS === "ios") {
     return (
       <ContextMenuView
-        actions={actions.map(action => ({
+        actions={actions.map((action) => ({
           title: action.title,
           systemIcon: action.systemIcon,
         }))}
@@ -38,6 +39,7 @@ export const RouteContextMenu = function RouteContextMenu(props: RouteContextMen
             action.onPress()
           }
         }}
+        previewBackgroundColor={color.inputBackground}
       >
         {children}
       </ContextMenuView>
