@@ -11,6 +11,9 @@ import { translate } from "../../i18n"
 import { openLink } from "../../utils/helpers/open-link"
 import { useIsBetaTester } from "../../hooks/use-is-beta-tester"
 import RNRestart from "react-native-restart"
+import * as storage from "../../utils/storage"
+
+const TELEMETRY_DISABLED_STORAGE_KEY = "telemetry_disabled"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -27,10 +30,12 @@ export const PrivacyScreen = observer(function SettingsLanguageScreen() {
       trackEvent("telemetry_disabled")
       user.setDisableTelemetry(disableTelemetry)
       await setAnalyticsCollectionEnabled(false)
+      await storage.save(TELEMETRY_DISABLED_STORAGE_KEY, true)
     } else {
       trackEvent("telemetry_enabled")
       user.setDisableTelemetry(disableTelemetry)
       await setAnalyticsCollectionEnabled(true)
+      await storage.remove(TELEMETRY_DISABLED_STORAGE_KEY)
     }
   }
 

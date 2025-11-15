@@ -52,13 +52,42 @@ import { identifyPosthogUser, setAnalyticsUserProperty } from "./services/analyt
 
 enableScreens()
 
-Sentry.init({
-  dsn: "https://203d8d08bca79bc415c95f41ab496d0b@o4510306230534144.ingest.us.sentry.io/4510307294248960",
-  enabled: !__DEV__,
-  replaysSessionSampleRate: 0.1,
-  replaysOnErrorSampleRate: 1.0,
-  integrations: [Sentry.mobileReplayIntegration({ maskAllText: false, maskAllImages: false, maskAllVectors: false })],
-})
+const TELEMETRY_DISABLED_STORAGE_KEY = "telemetry_disabled"
+
+/**
+ * Conditionally initialize Sentry based on telemetry settings.
+ * Only initializes Sentry if telemetry is enabled (not disabled in async storage).
+ */
+async function initializeSentryIfEnabled() {
+  try {
+    const telemetryDisabled = await storage.load(TELEMETRY_DISABLED_STORAGE_KEY)
+    const shouldEnableSentry = !__DEV__ && !telemetryDisabled
+
+    if (shouldEnableSentry) {
+      Sentry.init({
+        dsn: "https://203d8d08bca79bc415c95f41ab496d0b@o4510306230534144.ingest.us.sentry.io/4510307294248960",
+        enabled: true,
+        replaysSessionSampleRate: 0.1,
+        replaysOnErrorSampleRate: 1.0,
+        integrations: [Sentry.mobileReplayIntegration({ maskAllText: false, maskAllImages: false, maskAllVectors: false })],
+      })
+    }
+  } catch (error) {
+    // If there's an error reading storage, default to initializing Sentry in production
+    if (!__DEV__) {
+      Sentry.init({
+        dsn: "https://203d8d08bca79bc415c95f41ab496d0b@o4510306230534144.ingest.us.sentry.io/4510307294248960",
+        enabled: true,
+        replaysSessionSampleRate: 0.1,
+        replaysOnErrorSampleRate: 1.0,
+        integrations: [Sentry.mobileReplayIntegration({ maskAllText: false, maskAllImages: false, maskAllVectors: false })],
+      })
+    }
+  }
+}
+
+// Initialize Sentry before app starts
+initializeSentryIfEnabled()
 
 export const queryClient = new QueryClient()
 
