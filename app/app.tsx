@@ -103,7 +103,7 @@ export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
  * This is the root component of our app.
  */
 function App() {
-  const navigationRef = useRef<NavigationContainerRef<RootParamList>>()
+  const navigationRef = useRef<NavigationContainerRef<RootParamList> | undefined>(undefined)
   const [rootStore, setRootStore] = useState<RootStore | undefined>(undefined)
   const [localeReady, setLocaleReady] = useState(false)
   const appState = useRef(AppState.currentState)
