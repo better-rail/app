@@ -256,6 +256,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
               }
             }}
           />
+
         </View>
       </FlingGestureWrapper>
     </Screen>

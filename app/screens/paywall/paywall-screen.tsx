@@ -103,7 +103,6 @@ export function PaywallScreen({ navigation, route }: PaywallScreenProps) {
     try {
       setPurchaseInProgress(true)
     } catch (error) {
-      // TODO: Add crashlytics report here
       Burnt.alert({ title: "Something went wrong", preset: "error" })
     } finally {
       setPurchaseInProgress(false)
