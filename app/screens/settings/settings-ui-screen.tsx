@@ -107,7 +107,7 @@ export const UISettingsScreen = observer(function UISettingsScreen() {
           stops={0}
           delay={0}
           routeItem={routeItem}
-          style={{ marginBottom: spacing[4] }}
+          style={{ marginBottom: spacing[4], backgroundColor: color.secondaryBackground }}
         />
       </Animated.View>
 
