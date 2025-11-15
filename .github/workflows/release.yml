@@ -80,7 +80,7 @@ jobs:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('**/package.json', '**/bun.lock') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-node-${{ hashFiles('**/package.json', '**/bun.lock') }}
 
       - name: "Build React Native app"
         run: bun install
