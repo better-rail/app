@@ -21,7 +21,6 @@ import { createContextMenuActions } from "../route-card/route-context-menu-actio
 import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
 import { HeaderBackButton } from "../header-back-button"
 import { RouteStationNameButton } from "./route-station-name-button"
-import { Calendar } from "expo-calendar"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
 
@@ -375,7 +374,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
             accessibilityLabel={translate("plan.switchStations")}
             accessibilityHint={translate("plan.switchStationsHint")}
           >
-            <LiquidGlassView interactive style={ROUTE_INFO_CIRCLE} tintColor={color.secondary}>
+            <LiquidGlassView interactive={!routeEditDisabled} style={ROUTE_INFO_CIRCLE} tintColor={color.secondary}>
               <Image source={arrowIcon} style={ARROW_ICON} />
             </LiquidGlassView>
           </Pressable>
