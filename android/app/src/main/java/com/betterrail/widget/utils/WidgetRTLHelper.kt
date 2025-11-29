@@ -30,7 +30,6 @@ object WidgetRTLHelper {
 
     private fun setArrowDirection(context: Context, views: RemoteViews) {
         val isRTL = LocaleUtils.isRTL(context)
-        // Use different drawable resources instead of setRotation() for Xiaomi compatibility
         val arrowDrawable = if (isRTL) R.drawable.ic_arrow_circle_rtl else R.drawable.ic_arrow_circle
         views.setImageViewResource(R.id.widget_arrow_icon, arrowDrawable)
     }
