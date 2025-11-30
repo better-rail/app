@@ -30,7 +30,7 @@ object WidgetRTLHelper {
 
     private fun setArrowDirection(context: Context, views: RemoteViews) {
         val isRTL = LocaleUtils.isRTL(context)
-        val rotationDegrees = if (isRTL) 180f else 0f
-        views.setFloat(R.id.widget_arrow_icon, "setRotation", rotationDegrees)
+        val arrowDrawable = if (isRTL) R.drawable.ic_arrow_circle_rtl else R.drawable.ic_arrow_circle
+        views.setImageViewResource(R.id.widget_arrow_icon, arrowDrawable)
     }
 }
