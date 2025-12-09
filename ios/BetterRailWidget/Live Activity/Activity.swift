@@ -83,9 +83,19 @@ class LiveActivitiesController {
   func monitorLiveActivities() {
       // Listen to on-going and new Live Activities.
       Task {
-          for await activity in Activity<BetterRailActivityAttributes>.activityUpdates {
-            print("Activity received an update: \(activity.content.state)")
+          // Re-attach to any existing activities so the app can react to them when it returns to the foreground.
+          for activity in Activity<BetterRailActivityAttributes>.activities {
+            LiveActivitiesController.currentActivity = activity
+            LiveActivitiesController.route = activity.attributes.route
             LiveActivitiesController.lastUpdateTime = Date()
+            monitorLiveActivity(activity)
+          }
+
+          for await activity in Activity<BetterRailActivityAttributes>.activityUpdates {
+            LiveActivitiesController.currentActivity = activity
+            LiveActivitiesController.route = activity.attributes.route
+            LiveActivitiesController.lastUpdateTime = Date()
+            print("Activity received an update: \(activity.content.state)")
             monitorLiveActivity(activity)
           }
       }
