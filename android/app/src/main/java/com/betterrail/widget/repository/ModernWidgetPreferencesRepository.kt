@@ -36,6 +36,7 @@ class ModernWidgetPreferencesRepository @Inject constructor(
         private fun destinationNameKey(widgetId: Int) = stringPreferencesKey("destination_name_$widgetId")
         private fun labelKey(widgetId: Int) = stringPreferencesKey("label_$widgetId")
         private fun allowRouteReversalKey(widgetId: Int) = booleanPreferencesKey("allow_route_reversal_$widgetId")
+        private fun maxChangesKey(widgetId: Int) = intPreferencesKey("max_changes_$widgetId")
     }
 
     private val dataStore = context.dataStore
@@ -64,7 +65,8 @@ class ModernWidgetPreferencesRepository @Inject constructor(
                             originName = preferences[originNameKey(widgetId)] ?: "",
                             destinationName = preferences[destinationNameKey(widgetId)] ?: "",
                             label = preferences[labelKey(widgetId)] ?: "",
-                            allowRouteReversal = preferences[allowRouteReversalKey(widgetId)] ?: false
+                            allowRouteReversal = preferences[allowRouteReversalKey(widgetId)] ?: false,
+                            maxChanges = preferences[maxChangesKey(widgetId)] // null = no limit
                         )
                     }
                 } catch (e: Exception) {
@@ -100,6 +102,13 @@ class ModernWidgetPreferencesRepository @Inject constructor(
                 preferences[destinationNameKey(widgetId)] = widgetData.destinationName
                 preferences[labelKey(widgetId)] = widgetData.label
                 preferences[allowRouteReversalKey(widgetId)] = widgetData.allowRouteReversal
+
+                // Store maxChanges, or remove if null (no limit)
+                if (widgetData.maxChanges != null) {
+                    preferences[maxChangesKey(widgetId)] = widgetData.maxChanges!!
+                } else {
+                    preferences.remove(maxChangesKey(widgetId))
+                }
             }
             
             Log.d(TAG, "Successfully saved widget data for $widgetId")
@@ -123,6 +132,7 @@ class ModernWidgetPreferencesRepository @Inject constructor(
                 preferences.remove(destinationNameKey(widgetId))
                 preferences.remove(labelKey(widgetId))
                 preferences.remove(allowRouteReversalKey(widgetId))
+                preferences.remove(maxChangesKey(widgetId))
             }
             
             Log.d(TAG, "Successfully deleted widget data for $widgetId")
@@ -177,7 +187,8 @@ class ModernWidgetPreferencesRepository @Inject constructor(
                                 originName = preferences[originNameKey(widgetId)] ?: "",
                                 destinationName = preferences[destinationNameKey(widgetId)] ?: "",
                                 label = preferences[labelKey(widgetId)] ?: "",
-                                allowRouteReversal = preferences[allowRouteReversalKey(widgetId)] ?: false
+                                allowRouteReversal = preferences[allowRouteReversalKey(widgetId)] ?: false,
+                                maxChanges = preferences[maxChangesKey(widgetId)]
                             )
                             widgetId to widgetData
                         } else {
@@ -211,6 +222,7 @@ class ModernWidgetPreferencesRepository @Inject constructor(
                         preferences.remove(destinationNameKey(storedId))
                         preferences.remove(labelKey(storedId))
                         preferences.remove(allowRouteReversalKey(storedId))
+                        preferences.remove(maxChangesKey(storedId))
                     }
                 }
             }
@@ -256,7 +268,14 @@ class ModernWidgetPreferencesRepository @Inject constructor(
                     preferences[destinationNameKey(widgetId)] = widgetData.destinationName
                     preferences[labelKey(widgetId)] = widgetData.label
                     preferences[allowRouteReversalKey(widgetId)] = widgetData.allowRouteReversal
+
+                    // Store maxChanges, or remove if null (no limit)
+                    if (widgetData.maxChanges != null) {
+                        preferences[maxChangesKey(widgetId)] = widgetData.maxChanges!!
+                    } else {
+                        preferences.remove(maxChangesKey(widgetId))
                     }
+                }
             }
             
             Log.d(TAG, "Successfully saved ${widgetDataMap.size} widgets in batch")

@@ -81,6 +81,26 @@
         android:maxLines="1"
         android:singleLine="true" />
 
+    <!-- Maximum Changes Filter -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/widget_max_changes_label"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/label"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp" />
+
+    <Spinner
+        android:id="@+id/max_changes_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/spinner_background"
+        android:padding="12dp"
+        android:spinnerMode="dropdown" />
+
     <!-- Route Reversal Option -->
     <CheckBox
         android:id="@+id/route_reversal_checkbox"
