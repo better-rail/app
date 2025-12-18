@@ -38,6 +38,9 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
     protected lateinit var maxChangesSpinner: Spinner
     protected lateinit var addButton: Button
     protected lateinit var cancelButton: Button
+    protected lateinit var advancedHeader: android.view.View
+    protected lateinit var advancedChevron: TextView
+    protected lateinit var advancedOptionsContainer: android.view.View
     
     protected var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
     protected lateinit var stationAdapter: ArrayAdapter<String>
@@ -59,9 +62,7 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
             null -> 0  // No limit
             0 -> 1     // Direct only
             1 -> 2     // 1 change
-            2 -> 3     // 2 changes
-            3 -> 4     // 3 changes
-            else -> 0  // Default to no limit
+            else -> 0  // Default to no limit (handles 2, 3, or any other value)
         }
     }
 
@@ -73,8 +74,6 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
             0 -> null   // No limit
             1 -> 0      // Direct only
             2 -> 1      // 1 change max
-            3 -> 2      // 2 changes max
-            4 -> 3      // 3 changes max
             else -> null
         }
     }
@@ -120,6 +119,9 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
         maxChangesSpinner = findViewById(R.id.max_changes_spinner)
         addButton = findViewById(R.id.add_button)
         cancelButton = findViewById(R.id.cancel_button)
+        advancedHeader = findViewById(R.id.advanced_header)
+        advancedChevron = findViewById(R.id.advanced_chevron)
+        advancedOptionsContainer = findViewById(R.id.advanced_options_container)
 
         routeReversalCheckbox.isChecked = true
 
@@ -134,8 +136,31 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
         maxChangesSpinner.adapter = changesAdapter
         maxChangesSpinner.setSelection(0)  // Default: No limit
 
+        // Setup advanced section expand/collapse
+        setupAdvancedSection()
+
         addButton.setOnClickListener { onAddButtonClicked() }
         cancelButton.setOnClickListener { finish() }
+    }
+
+    private fun setupAdvancedSection() {
+        advancedHeader.setOnClickListener {
+            toggleAdvancedSection()
+        }
+    }
+
+    private fun toggleAdvancedSection() {
+        val isExpanded = advancedOptionsContainer.visibility == android.view.View.VISIBLE
+
+        if (isExpanded) {
+            // Collapse
+            advancedOptionsContainer.visibility = android.view.View.GONE
+            advancedChevron.rotation = 0f
+        } else {
+            // Expand
+            advancedOptionsContainer.visibility = android.view.View.VISIBLE
+            advancedChevron.rotation = 90f
+        }
     }
     
     private fun setupStationData() {       
@@ -370,6 +395,13 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
 
         // Set max changes spinner
         maxChangesSpinner.setSelection(maxChangesToSpinnerPosition(data.maxChanges))
+
+        // Auto-expand advanced section if any advanced options are non-default
+        // (route reversal checked OR max changes filter set)
+        if (data.allowRouteReversal || data.maxChanges != null) {
+            advancedOptionsContainer.visibility = android.view.View.VISIBLE
+            advancedChevron.rotation = 90f
+        }
 
         updateAddButtonState()
         Log.d(getLogTag(), "Loaded existing widget data: ${stationNames.getOrNull(originIndex)} -> ${stationNames.getOrNull(destinationIndex)}")

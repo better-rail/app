@@ -15,14 +15,13 @@
     <string name="select_station">Select Station</string>
     <string name="search_origin_hint">Search origin station...</string>
     <string name="search_destination_hint">Search destination station...</string>
+    <string name="widget_advanced_label">Advanced</string>
     <string name="widget_allow_route_reversal">Allow tapping station names to switch direction</string>
     <string name="widget_max_changes_label">Limit train changes to</string>
     <string-array name="max_changes_options">
         <item>No limit</item>
         <item>Direct trains only</item>
         <item>Up to 1 change</item>
-        <item>Up to 2 changes</item>
-        <item>Up to 3 changes</item>
     </string-array>
 
     <!-- Widget display strings -->

@@ -15,14 +15,13 @@
     <string name="select_station">Выберите станцию</string>
     <string name="search_origin_hint">Поиск станции отправления...</string>
     <string name="search_destination_hint">Поиск станции назначения...</string>
+    <string name="widget_advanced_label">Дополнительно</string>
     <string name="widget_allow_route_reversal">Разрешить нажатие на название станций для смены направления</string>
     <string name="widget_max_changes_label">Ограничить пересадки до</string>
     <string-array name="max_changes_options">
         <item>Без ограничений</item>
         <item>Только прямые поезда</item>
         <item>До 1 пересадки</item>
-        <item>До 2 пересадок</item>
-        <item>До 3 пересадок</item>
     </string-array>
 
     <!-- Widget display strings -->
