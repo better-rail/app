@@ -644,18 +644,18 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
             context, appWidgetId + 1000, intent, // Use unique request code to avoid conflicts
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        
+
         // Set click handler on the route display elements (station name and destination)
         views.setOnClickPendingIntent(R.id.widget_station_name, pendingIntent)
-        views.setOnClickPendingIntent(R.id.widget_destination, pendingIntent)
-        
+        views.setOnClickPendingIntent(R.id.widget_destination_container, pendingIntent)
+
         Log.d(getLogTag(), "Set up route reversal click intent for widget $appWidgetId")
     }
 
     private fun setupRouteDeepLinkClickIntent(
-        context: Context, 
-        views: RemoteViews, 
-        appWidgetId: Int, 
+        context: Context,
+        views: RemoteViews,
+        appWidgetId: Int,
         widgetData: WidgetData
     ) {
         setupClickIntentsBase(
@@ -667,17 +667,17 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
             useDeeplink = true,
             deeplinkPath = getWidgetType()
         )
-        
+
         setupClickIntentsBase(
             context = context,
             views = views,
             appWidgetId = appWidgetId,
             widgetData = widgetData,
-            clickTargetId = R.id.widget_destination,
+            clickTargetId = R.id.widget_destination_container,
             useDeeplink = true,
             deeplinkPath = getWidgetType()
         )
-        
+
         Log.d(getLogTag(), "Set up route deep link click intent for widget $appWidgetId")
     }
 
