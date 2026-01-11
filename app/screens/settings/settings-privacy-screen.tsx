@@ -10,7 +10,7 @@ import { useStores } from "../../models"
 import { translate } from "../../i18n"
 import { openLink } from "../../utils/helpers/open-link"
 import { useIsBetaTester } from "../../hooks/use-is-beta-tester"
-import RNRestart from "react-native-restart"
+import RNRestart from "react-native-restart-newarch"
 import * as storage from "../../utils/storage"
 
 const TELEMETRY_DISABLED_STORAGE_KEY = "telemetry_disabled"
