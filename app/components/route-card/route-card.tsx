@@ -1,4 +1,3 @@
-/* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { useMemo } from "react"
 import { observer } from "mobx-react-lite"

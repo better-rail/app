@@ -1,5 +1,5 @@
 import { useMemo } from "react"
-import { View, ViewStyle, ScrollView, Image, ImageStyle, TextStyle } from "react-native"
+import { View, ViewStyle, ScrollView, TextStyle } from "react-native"
 import { Text } from "../../components"
 import { color, spacing } from "../../theme"
 import { RouteDetailsTrainInfoScreenProps } from "../../navigators/main-navigator"
@@ -24,9 +24,6 @@ const TRAIN_ICON: ImageStyle = {
   resizeMode: "contain",
 }
 
-const WAGON_ROW_CONTAINER: ViewStyle = {
-  marginTop: spacing[1],
-}
 
 const WAGON_ITEM_CONTAINER: ViewStyle = {
   alignItems: "center",
@@ -44,9 +41,69 @@ const WAGON_NUMBER_TEXT: TextStyle = {
 
 const WAGONS_SCROLL_CONTAINER: ViewStyle = {
   flexDirection: "row",
-  paddingHorizontal: spacing[2],
+  paddingHorizontal: spacing[4],
   alignItems: "flex-start",
-  marginTop: spacing[8],
+  justifyContent: "center",
+  flexGrow: 1,
+}
+
+const DIRECTION_INDICATOR: ViewStyle = {
+  alignItems: "center",
+  justifyContent: "center",
+  marginLeft: spacing[2],
+}
+
+const DIRECTION_ARROW: TextStyle = {
+  fontSize: 20,
+  color: color.primary,
+}
+
+const DIRECTION_LABEL: TextStyle = {
+  fontSize: 10,
+  color: color.label,
+  marginTop: spacing[0],
+}
+
+const LEGEND_CONTAINER: ViewStyle = {
+  flexDirection: "row",
+  justifyContent: "center",
+  alignItems: "center",
+  marginTop: spacing[4],
+  gap: spacing[4],
+}
+
+const LEGEND_ITEM: ViewStyle = {
+  flexDirection: "row",
+  alignItems: "center",
+  gap: spacing[1],
+}
+
+const LEGEND_TEXT: TextStyle = {
+  fontSize: 13,
+  color: color.label,
+}
+
+const METADATA_CONTAINER: ViewStyle = {
+  flexDirection: "row",
+  justifyContent: "center",
+  alignItems: "center",
+  marginTop: spacing[5],
+  gap: spacing[4],
+}
+
+const METADATA_ITEM: ViewStyle = {
+  flexDirection: "row",
+  alignItems: "center",
+  gap: spacing[1],
+}
+
+const METADATA_TEXT: TextStyle = {
+  fontSize: 14,
+  color: color.text,
+}
+
+const WAGONS_SECTION: ViewStyle = {
+  marginTop: spacing[4],
 }
 
 const WAGON_BOX: ViewStyle = {
@@ -90,9 +147,15 @@ const FEATURE_ICON_CONTAINER: ViewStyle = {
   alignItems: "center",
 }
 
+const FEATURE_ICON_BADGE: ViewStyle = {
+  backgroundColor: "white",
+  borderRadius: 4,
+  paddingHorizontal: 2,
+  paddingVertical: 1,
+}
+
 const FEATURE_ICON_TEXT: TextStyle = {
-  fontSize: 16,
-  color: color.whiteText,
+  fontSize: 14,
 }
 
 const trainIcon = require("../../../assets/train.ios.png")
@@ -120,8 +183,16 @@ function WagonItem({ wagon, isFirst, isLast }: { wagon: Wagon; isFirst: boolean;
       <View style={boxStyle}>
         {hasFeatures && (
           <View style={FEATURE_ICON_CONTAINER}>
-            {wagon.handicapped && <Text style={FEATURE_ICON_TEXT}>♿</Text>}
-            {wagon.bicycle && <Text style={FEATURE_ICON_TEXT}>🚲</Text>}
+            {wagon.handicapped && (
+              <View style={FEATURE_ICON_BADGE}>
+                <Text style={FEATURE_ICON_TEXT}>♿</Text>
+              </View>
+            )}
+            {wagon.bicycle && (
+              <View style={FEATURE_ICON_BADGE}>
+                <Text style={FEATURE_ICON_TEXT}>🚲</Text>
+              </View>
+            )}
           </View>
         )}
       </View>
@@ -140,6 +211,12 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
   }, [train.visaWagonData])
 
   const hasWagons = sortedWagons.length > 0
+  const hasHandicapped = sortedWagons.some((w) => w.handicapped)
+  const hasBicycle = sortedWagons.some((w) => w.bicycle)
+  const showLegend = hasHandicapped || hasBicycle
+
+  const seatCount = train.visaWagonData?.seatplaces
+  const wagonCount = train.visaWagonData?.totkr
 
   return (
     <View style={ROOT}>
@@ -150,16 +227,61 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
       </View>
 
       {hasWagons ? (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={WAGONS_SCROLL_CONTAINER}
-          style={WAGON_ROW_CONTAINER}
-        >
-          {sortedWagons.map((wagon, index) => (
-            <WagonItem key={wagon.krsid} wagon={wagon} isFirst={index === 0} isLast={index === sortedWagons.length - 1} />
-          ))}
-        </ScrollView>
+        <>
+          <View style={WAGONS_SECTION}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={WAGONS_SCROLL_CONTAINER}
+            >
+              {sortedWagons.map((wagon, index) => (
+                <WagonItem
+                  key={wagon.krsid}
+                  wagon={wagon}
+                  isFirst={index === 0}
+                  isLast={index === sortedWagons.length - 1}
+                />
+              ))}
+              <View style={DIRECTION_INDICATOR}>
+                <Text style={WAGON_NUMBER_TEXT}> </Text>
+                <Text style={DIRECTION_ARROW}>→</Text>
+                <Text style={DIRECTION_LABEL}>Direction</Text>
+              </View>
+            </ScrollView>
+          </View>
+
+          {showLegend && (
+            <View style={LEGEND_CONTAINER}>
+              {hasHandicapped && (
+                <View style={LEGEND_ITEM}>
+                  <Text style={{ fontSize: 16 }}>♿</Text>
+                  <Text style={LEGEND_TEXT}>Wheelchair accessible</Text>
+                </View>
+              )}
+              {hasBicycle && (
+                <View style={LEGEND_ITEM}>
+                  <Text style={{ fontSize: 16 }}>🚲</Text>
+                  <Text style={LEGEND_TEXT}>Bicycles allowed</Text>
+                </View>
+              )}
+            </View>
+          )}
+
+          {(seatCount || wagonCount) && (
+            <View style={METADATA_CONTAINER}>
+              {wagonCount && (
+                <View style={METADATA_ITEM}>
+                  <Text style={METADATA_TEXT}>{wagonCount} wagons</Text>
+                </View>
+              )}
+              {seatCount && (
+                <View style={METADATA_ITEM}>
+                  <Text style={METADATA_TEXT}>{seatCount} seats</Text>
+                </View>
+              )}
+            </View>
+          )}
+        </>
       ) : (
         <Text style={{ color: color.label, marginTop: spacing[2] }}>No wagon information available</Text>
       )}
