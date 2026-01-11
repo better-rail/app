@@ -18,13 +18,6 @@ const HEADER_CONTAINER: ViewStyle = {
   gap: spacing[2],
 }
 
-const TRAIN_ICON: ImageStyle = {
-  width: 20,
-  height: 20,
-  tintColor: color.destroy,
-  resizeMode: "contain",
-}
-
 const WAGON_ITEM_CONTAINER: ViewStyle = {
   alignItems: "center",
   marginRight: spacing[1],
