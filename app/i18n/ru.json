@@ -13,7 +13,8 @@
     "dismiss": "Отклонить",
     "areYouSure": "Вы уверены?",
     "tryAgain": "Попробуйте еще раз",
-    "error": "ошибка"
+    "error": "ошибка",
+    "toStationName": "к %{stationName}"
   },
   "plan": {
     "title": "Поездка",

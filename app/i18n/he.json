@@ -14,7 +14,8 @@
     "areYouSure": "האם את/ה בטוח/ה?",
     "tryAgain": "נסו שנית",
     "error": "שגיאה",
-    "allow": "אפשר"
+    "allow": "אפשר",
+    "toStationName": "ל%{stationName}"
   },
   "plan": {
     "title": "תכנון מסלול",

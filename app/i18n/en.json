@@ -14,7 +14,8 @@
     "areYouSure": "Are you sure?",
     "tryAgain": "Try Again",
     "error": "Error",
-    "allow": "Allow"
+    "allow": "Allow",
+    "toStationName": "to %{stationName}"
   },
   "plan": {
     "title": "Trip Plan",

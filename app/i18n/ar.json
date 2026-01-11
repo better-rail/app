@@ -10,7 +10,8 @@
     "dismiss": "إلغاء",
     "areYouSure": "هل أنت متأكد؟",
     "tryAgain": "حاول ثانية",
-    "error": "خطأ"
+    "error": "خطأ",
+    "toStationName": "إلى %{stationName}"
   },
   "plan": {
     "title": "تخطيط المسار",

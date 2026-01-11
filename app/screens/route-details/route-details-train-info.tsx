@@ -81,7 +81,7 @@ const METADATA_CONTAINER: ViewStyle = {
   flexDirection: "row",
   justifyContent: "center",
   alignItems: "center",
-  marginTop: spacing[5],
+  marginTop: spacing[1],
   gap: spacing[4],
 }
 
@@ -215,8 +215,8 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
   return (
     <View style={ROOT}>
       <View style={HEADER_CONTAINER}>
-        <Text style={{ fontSize: 18, fontWeight: "600", color: color.text }}>
-          {train.trainNumber} {train.destinationStationName}
+        <Text style={{ fontSize: 14, fontWeight: "600", color: color.text, textAlign: "center" }}>
+          {train.trainNumber} {train.lastStop}
         </Text>
       </View>
 
@@ -253,6 +253,8 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
               )}
             </View>
           )}
+
+          <View style={DIVIDER} />
 
           {(seatCount || wagonCount) && (
             <View style={METADATA_CONTAINER}>
