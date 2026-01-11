@@ -1,5 +1,5 @@
 import { I18nManager, Platform } from "react-native"
-import RNRestart from "react-native-restart"
+import RNRestart from "react-native-restart-newarch"
 import { setAnalyticsUserProperty } from "../services/analytics"
 import Preferences from "react-native-default-preference"
 import * as storage from "../utils/storage"
