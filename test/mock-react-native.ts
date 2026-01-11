@@ -75,3 +75,11 @@ mock.module("react-native/Libraries/Utilities/codegenNativeComponent", () => ({
   __esModule: true,
   default: () => ({}),
 }))
+
+mock.module("react-native-restart-newarch", () => ({
+  __esModule: true,
+  default: {
+    Restart: mock(),
+    restart: mock(),
+  },
+}))
