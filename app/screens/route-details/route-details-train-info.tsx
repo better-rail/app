@@ -8,7 +8,6 @@ import { translate } from "../../i18n"
 
 const ROOT: ViewStyle = {
   flex: 1,
-  padding: spacing[3],
 }
 
 const HEADER_CONTAINER: ViewStyle = {
@@ -16,6 +15,8 @@ const HEADER_CONTAINER: ViewStyle = {
   alignItems: "center",
   marginBottom: spacing[4],
   gap: spacing[2],
+  paddingTop: spacing[4],
+  paddingStart: spacing[5],
 }
 
 const WAGON_ITEM_CONTAINER: ViewStyle = {
@@ -38,6 +39,7 @@ const WAGONS_SCROLL_CONTAINER: ViewStyle = {
   alignItems: "flex-start",
   justifyContent: "center",
   flexGrow: 1,
+  direction: "ltr",
 }
 
 const DIRECTION_INDICATOR: ViewStyle = {
@@ -61,12 +63,11 @@ const LEGEND_CONTAINER: ViewStyle = {
   flexDirection: "row",
   justifyContent: "center",
   alignItems: "center",
-  marginTop: spacing[4],
   gap: spacing[4],
 }
 
 const LEGEND_ITEM: ViewStyle = {
-  flexDirection: "row",
+  flexDirection: "column",
   alignItems: "center",
   gap: spacing[1],
 }
@@ -93,10 +94,6 @@ const METADATA_ITEM: ViewStyle = {
 const METADATA_TEXT: TextStyle = {
   fontSize: 14,
   color: color.text,
-}
-
-const WAGONS_SECTION: ViewStyle = {
-  marginTop: spacing[4],
 }
 
 const WAGON_BOX: ViewStyle = {
@@ -151,7 +148,11 @@ const FEATURE_ICON_TEXT: TextStyle = {
   fontSize: 14,
 }
 
-const trainIcon = require("../../../assets/train.ios.png")
+const DIVIDER: ViewStyle = {
+  height: 1,
+  backgroundColor: color.separator,
+  marginVertical: spacing[4],
+}
 
 function WagonItem({ wagon, isFirst, isLast }: { wagon: Wagon; isFirst: boolean; isLast: boolean }) {
   const hasFeatures = wagon.handicapped || wagon.bicycle
@@ -221,7 +222,7 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
 
       {hasWagons ? (
         <>
-          <View style={WAGONS_SECTION}>
+          <View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={WAGONS_SCROLL_CONTAINER}>
               {sortedWagons.map((wagon, index) => (
                 <WagonItem key={wagon.krsid} wagon={wagon} isFirst={index === 0} isLast={index === sortedWagons.length - 1} />
@@ -233,6 +234,8 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
               </View>
             </ScrollView>
           </View>
+
+          <View style={DIVIDER} />
 
           {showLegend && (
             <View style={LEGEND_CONTAINER}>
