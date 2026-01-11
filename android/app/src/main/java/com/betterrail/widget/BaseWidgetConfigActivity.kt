@@ -397,7 +397,6 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
         maxChangesSpinner.setSelection(maxChangesToSpinnerPosition(data.maxChanges))
 
         // Auto-expand advanced section if any advanced options are non-default
-        // (route reversal checked OR max changes filter set)
         if (data.allowRouteReversal || data.maxChanges != null) {
             advancedOptionsContainer.visibility = android.view.View.VISIBLE
             advancedChevron.rotation = 90f

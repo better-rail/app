@@ -105,7 +105,7 @@ class ModernWidgetPreferencesRepository @Inject constructor(
 
                 // Store maxChanges, or remove if null (no limit)
                 if (widgetData.maxChanges != null) {
-                    preferences[maxChangesKey(widgetId)] = widgetData.maxChanges!!
+                    preferences[maxChangesKey(widgetId)] = widgetData.maxChanges
                 } else {
                     preferences.remove(maxChangesKey(widgetId))
                 }
@@ -251,36 +251,6 @@ class ModernWidgetPreferencesRepository @Inject constructor(
             Log.d(TAG, "Updated frequency for widget $widgetId to ${frequencyMinutes}min")
         } catch (e: Exception) {
             Log.e(TAG, "Error updating frequency for widget $widgetId", e)
-            throw e
-        }
-    }
-
-    /**
-     * Batch update multiple widgets
-     */
-    suspend fun saveMultipleWidgets(widgetDataMap: Map<Int, WidgetData>) {
-        try {
-            dataStore.edit { preferences ->
-                widgetDataMap.forEach { (widgetId, widgetData) ->
-                    preferences[originIdKey(widgetId)] = widgetData.originId
-                    preferences[destinationIdKey(widgetId)] = widgetData.destinationId
-                    preferences[originNameKey(widgetId)] = widgetData.originName
-                    preferences[destinationNameKey(widgetId)] = widgetData.destinationName
-                    preferences[labelKey(widgetId)] = widgetData.label
-                    preferences[allowRouteReversalKey(widgetId)] = widgetData.allowRouteReversal
-
-                    // Store maxChanges, or remove if null (no limit)
-                    if (widgetData.maxChanges != null) {
-                        preferences[maxChangesKey(widgetId)] = widgetData.maxChanges!!
-                    } else {
-                        preferences.remove(maxChangesKey(widgetId))
-                    }
-                }
-            }
-            
-            Log.d(TAG, "Successfully saved ${widgetDataMap.size} widgets in batch")
-        } catch (e: Exception) {
-            Log.e(TAG, "Error in batch save operation", e)
             throw e
         }
     }
