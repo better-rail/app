@@ -17,7 +17,7 @@
     <string name="search_destination_hint">חפש תחנת יעד...</string>
     <string name="widget_advanced_label">מתקדם</string>
     <string name="widget_allow_route_reversal">אפשר החלפת כיוון על ידי הקשה על המסלול</string>
-    <string name="widget_max_changes_label">הגבל מספר החלפות ל</string>
+    <string name="widget_max_changes_label">הגבלת מספר החלפות ל</string>
     <string-array name="max_changes_options">
         <item>ללא הגבלה</item>
         <item>רכבת ישירה בלבד</item>
