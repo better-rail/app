@@ -17,7 +17,7 @@
     <string name="search_destination_hint">Search destination station...</string>
     <string name="widget_advanced_label">Advanced</string>
     <string name="widget_allow_route_reversal">Allow tapping station names to switch direction</string>
-    <string name="widget_max_changes_label">Train Exchange</string>
+    <string name="widget_max_changes_label">Limit train changes to</string>
     <string-array name="max_changes_options">
         <item>No limit</item>
         <item>Direct trains only</item>

@@ -123,7 +123,7 @@ data class WidgetData(
     val destinationName: String = "",
     val label: String = "",
     val allowRouteReversal: Boolean = true,
-    val maxChanges: Int? = null // null = no limit, 0 = direct only, 1/2/3 = max changes allowed
+    val maxChanges: Int? = null // null = no limit, 0 = direct only, 1 = up to 1 change
 )
 
 // API Error response
