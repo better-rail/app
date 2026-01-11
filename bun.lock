@@ -1,5 +1,6 @@
 {
   "lockfileVersion": 1,
+  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "better-rail",
@@ -73,7 +74,7 @@
         "react-native-push-notification": "8.1.1",
         "react-native-quick-actions-shortcuts": "1.0.2",
         "react-native-reanimated": "3.19.1",
-        "react-native-restart": "0.0.27",
+        "react-native-restart-newarch": "^1.0.85",
         "react-native-safe-area-context": "^5.5.2",
         "react-native-screens": "4.15.4",
         "react-native-share": "11.0.3",
@@ -2305,7 +2306,7 @@
 
     "react-native-reanimated": ["react-native-reanimated@3.19.1", "", { "dependencies": { "@babel/plugin-transform-arrow-functions": "^7.0.0-0", "@babel/plugin-transform-class-properties": "^7.0.0-0", "@babel/plugin-transform-classes": "^7.0.0-0", "@babel/plugin-transform-nullish-coalescing-operator": "^7.0.0-0", "@babel/plugin-transform-optional-chaining": "^7.0.0-0", "@babel/plugin-transform-shorthand-properties": "^7.0.0-0", "@babel/plugin-transform-template-literals": "^7.0.0-0", "@babel/plugin-transform-unicode-regex": "^7.0.0-0", "@babel/preset-typescript": "^7.16.7", "convert-source-map": "^2.0.0", "invariant": "^2.2.4", "react-native-is-edge-to-edge": "1.1.7" }, "peerDependencies": { "@babel/core": "^7.0.0-0", "react": "*", "react-native": "*" } }, "sha512-ILL0FSNzSVIg6WuawrsMBvNxk2yJFiTUcahimXDAeNiE/09eagVUlHhYWXAAmH0umvAOafBaGjO7YfBhUrf5ZQ=="],
 
-    "react-native-restart": ["react-native-restart@0.0.27", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-8KScVICrXwcTSJ1rjWkqVTHyEKQIttm5AIMGSK1QG1+RS5owYlE4z/1DykOTdWfVl9l16FIk0w9Xzk9ZO6jxlA=="],
+    "react-native-restart-newarch": ["react-native-restart-newarch@1.0.85", "", { "peerDependencies": { "react-native": ">=0.60.0" } }, "sha512-oanl4m0aI9wI91F0Lc1xEK3zM+hs8NK1PBQPnf4XZjrYWsVahdWX6gYdTNhDpR8ekpBHSXkBPr7meGHwfHfNKQ=="],
 
     "react-native-safe-area-context": ["react-native-safe-area-context@5.6.1", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-/wJE58HLEAkATzhhX1xSr+fostLsK8Q97EfpfMDKo8jlOc1QKESSX/FQrhk7HhQH/2uSaox4Y86sNaI02kteiA=="],
 
