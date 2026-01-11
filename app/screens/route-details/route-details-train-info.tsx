@@ -216,7 +216,7 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
     <View style={ROOT}>
       <View style={HEADER_CONTAINER}>
         <Text style={{ fontSize: 14, fontWeight: "600", color: color.text, textAlign: "center" }}>
-          {train.trainNumber} {train.lastStop}
+          {train.trainNumber} {translate("common.toStationName", { stationName: train.lastStop })}
         </Text>
       </View>
 
