@@ -84,7 +84,11 @@
     "hideAllStations": "Скрыть все станции маршрута",
     "noCalendarAccessTitle": "Доступ к календарю отключен",
     "noCalendarAccessMessage": "Чтобы добавить маршрут в календарь, откройте настройки устройства и включите доступ к календарю.",
-    "noPlatformSet": "Нет пирс набора"
+    "noPlatformSet": "Нет пирс набора",
+    "wheelchairAccessible": "Доступно для инвалидных колясок",
+    "bicyclesAllowed": "Разрешены велосипеды",
+    "wagonsCount": "%{count} вагонов",
+    "seatsCount": "%{count} мест"
   },
   "settings": {
     "title": "Настройки",

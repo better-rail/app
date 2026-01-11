@@ -87,7 +87,11 @@
     "hideAllStations": "Hide Full Route",
     "noCalendarAccessTitle": "Calendar access disabled",
     "noCalendarAccessMessage": "To add the ride to your calendar, open your device settings and grant access to your calendar.",
-    "noPlatformSet": "Platform not assigned"
+    "noPlatformSet": "Platform not assigned",
+    "wheelchairAccessible": "Wheelchair accessible",
+    "bicyclesAllowed": "Bicycles allowed",
+    "wagonsCount": "%{count} wagons",
+    "seatsCount": "%{count} seats"
   },
   "settings": {
     "title": "Settings",

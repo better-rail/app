@@ -80,7 +80,11 @@
     "hideAllStations": "إخفاء جميع محطات المسار",
     "noCalendarAccessTitle": "تم تعطيل الوصول إلى التقويم",
     "noCalendarAccessMessage": "للإضافة إلى تقويم المسار ، يرجى فتح إعدادات جهازك وتمكين الوصول إلى التقويم.",
-    "noPlatformSet": "لم يتم تعيين قفص الاتهام"
+    "noPlatformSet": "لم يتم تعيين قفص الاتهام",
+    "wheelchairAccessible": "متاح للكراسي المتحركة",
+    "bicyclesAllowed": "مسموح بالدراجات",
+    "wagonsCount": "%{count} عربات",
+    "seatsCount": "%{count} مقاعد"
   },
   "settings": {
     "title": "اعدادت",

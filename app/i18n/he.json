@@ -87,7 +87,11 @@
     "hideAllStations": "הסתרת המסלול המלא",
     "noCalendarAccessTitle": "גישה ללוח שנה כבויה",
     "noCalendarAccessMessage": "יש לאפשר גישה ללוח שנה בהגדרות המכשיר על מנת להוסיף נסיעה ליומן",
-    "noPlatformSet": "לא נקבע רציף"
+    "noPlatformSet": "לא נקבע רציף",
+    "wheelchairAccessible": "נגיש לכיסאות גלגלים",
+    "bicyclesAllowed": "מותר להעלות אופניים",
+    "wagonsCount": "%{count} קרונות",
+    "seatsCount": "%{count} מושבים"
   },
   "settings": {
     "title": "הגדרות",

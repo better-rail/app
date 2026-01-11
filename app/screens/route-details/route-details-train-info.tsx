@@ -4,6 +4,7 @@ import { Text } from "../../components"
 import { color, spacing } from "../../theme"
 import { RouteDetailsTrainInfoScreenProps } from "../../navigators/main-navigator"
 import type { Wagon } from "../../services/api/rail-api.types"
+import { translate } from "../../i18n"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -23,7 +24,6 @@ const TRAIN_ICON: ImageStyle = {
   tintColor: color.destroy,
   resizeMode: "contain",
 }
-
 
 const WAGON_ITEM_CONTAINER: ViewStyle = {
   alignItems: "center",
@@ -229,18 +229,9 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
       {hasWagons ? (
         <>
           <View style={WAGONS_SECTION}>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={WAGONS_SCROLL_CONTAINER}
-            >
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={WAGONS_SCROLL_CONTAINER}>
               {sortedWagons.map((wagon, index) => (
-                <WagonItem
-                  key={wagon.krsid}
-                  wagon={wagon}
-                  isFirst={index === 0}
-                  isLast={index === sortedWagons.length - 1}
-                />
+                <WagonItem key={wagon.krsid} wagon={wagon} isFirst={index === 0} isLast={index === sortedWagons.length - 1} />
               ))}
               <View style={DIRECTION_INDICATOR}>
                 <Text style={WAGON_NUMBER_TEXT}> </Text>
@@ -255,13 +246,13 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
               {hasHandicapped && (
                 <View style={LEGEND_ITEM}>
                   <Text style={{ fontSize: 16 }}>♿</Text>
-                  <Text style={LEGEND_TEXT}>Wheelchair accessible</Text>
+                  <Text style={LEGEND_TEXT}>{translate("routeDetails.wheelchairAccessible")}</Text>
                 </View>
               )}
               {hasBicycle && (
                 <View style={LEGEND_ITEM}>
                   <Text style={{ fontSize: 16 }}>🚲</Text>
-                  <Text style={LEGEND_TEXT}>Bicycles allowed</Text>
+                  <Text style={LEGEND_TEXT}>{translate("routeDetails.bicyclesAllowed")}</Text>
                 </View>
               )}
             </View>
@@ -271,12 +262,12 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
             <View style={METADATA_CONTAINER}>
               {wagonCount && (
                 <View style={METADATA_ITEM}>
-                  <Text style={METADATA_TEXT}>{wagonCount} wagons</Text>
+                  <Text style={METADATA_TEXT}>{translate("routeDetails.wagonsCount", { count: wagonCount })}</Text>
                 </View>
               )}
               {seatCount && (
                 <View style={METADATA_ITEM}>
-                  <Text style={METADATA_TEXT}>{seatCount} seats</Text>
+                  <Text style={METADATA_TEXT}>{translate("routeDetails.seatsCount", { count: seatCount })}</Text>
                 </View>
               )}
             </View>
