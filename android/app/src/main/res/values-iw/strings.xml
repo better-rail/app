@@ -20,7 +20,7 @@
     <string name="widget_max_changes_label">הגבלת מספר החלפות ל</string>
     <string-array name="max_changes_options">
         <item>ללא הגבלה</item>
-        <item>רכבת ישירה בלבד</item>
+        <item>רכבות ישירות בלבד</item>
         <item>החלפה אחת לכל היותר</item>
     </string-array>
   
