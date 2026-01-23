@@ -265,8 +265,9 @@ class RailApiService(
                 platform = trainDetails.platform,
                 delay = trainDetails.delay,
                 isExchange = trainDetails.isExchange,
+                numberOfChanges = trainDetails.numberOfChanges,
                 duration = calculateDuration(departureTime, arrivalTime),
-                changesText = formatChangesText(trainDetails.isExchange),
+                changesText = formatChangesText(trainDetails.numberOfChanges),
                 trainNumber = trainDetails.trainNumber,
                 departureTimestamp = departureTime
             )
@@ -283,27 +284,36 @@ class RailApiService(
         val platform: String,
         val delay: Int,
         val trainNumber: String,
-        val isExchange: Boolean
+        val isExchange: Boolean,
+        val numberOfChanges: Int
     )
     
     private fun extractTrainDetails(trains: JsonArray?, travel: JsonObject): TrainDetails {
-        val isExchange = trains?.size()?.let { it > 1 } ?: false
-        
+        // Calculate number of changes: number of train segments - 1
+        val numberOfChanges = if (trains != null && trains.size() > 0) {
+            trains.size() - 1
+        } else {
+            0
+        }
+        val isExchange = numberOfChanges > 0
+
         return if (trains != null && trains.size() > 0) {
             val firstTrain = trains.get(0).asJsonObject
             TrainDetails(
-                platform = firstTrain.get("originPlatform")?.asString 
+                platform = firstTrain.get("originPlatform")?.asString
                     ?: firstTrain.get("Platform")?.asString ?: "1",
                 delay = extractDelay(firstTrain, travel),
                 trainNumber = extractTrainNumber(firstTrain, travel),
-                isExchange = isExchange
+                isExchange = isExchange,
+                numberOfChanges = numberOfChanges
             )
         } else {
             TrainDetails(
                 platform = travel.get("platform")?.asString ?: "1",
                 delay = travel.get("Delay")?.asInt ?: 0,
                 trainNumber = travel.get("trainNumber")?.asString ?: "",
-                isExchange = isExchange
+                isExchange = isExchange,
+                numberOfChanges = numberOfChanges
             )
         }
     }
@@ -434,8 +444,12 @@ class RailApiService(
         }
     }
     
-    private fun formatChangesText(isExchange: Boolean): String {
-        return if (isExchange) "1 change" else "Direct"
+    private fun formatChangesText(numberOfChanges: Int): String {
+        return when (numberOfChanges) {
+            0 -> "Direct"
+            1 -> "1 change"
+            else -> "$numberOfChanges changes"
+        }
     }
 }
 

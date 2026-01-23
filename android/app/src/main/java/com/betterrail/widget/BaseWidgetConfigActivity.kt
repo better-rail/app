@@ -35,8 +35,12 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
     protected lateinit var originSearch: AutoCompleteTextView
     protected lateinit var destinationSearch: AutoCompleteTextView
     protected lateinit var routeReversalCheckbox: CheckBox
+    protected lateinit var maxChangesSpinner: Spinner
     protected lateinit var addButton: Button
     protected lateinit var cancelButton: Button
+    protected lateinit var advancedHeader: android.view.View
+    protected lateinit var advancedChevron: TextView
+    protected lateinit var advancedOptionsContainer: android.view.View
     
     protected var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
     protected lateinit var stationAdapter: ArrayAdapter<String>
@@ -49,6 +53,30 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
 
     abstract fun getLogTag(): String
     abstract fun createWidgetProvider(): ModernBaseWidgetProvider
+
+    /**
+     * Convert maxChanges value to spinner position
+     */
+    private fun maxChangesToSpinnerPosition(maxChanges: Int?): Int {
+        return when (maxChanges) {
+            null -> 0  // No limit
+            0 -> 1     // Direct only
+            1 -> 2     // 1 change
+            else -> 0  // Default to no limit (handles 2, 3, or any other value)
+        }
+    }
+
+    /**
+     * Convert spinner position to maxChanges value
+     */
+    private fun spinnerPositionToMaxChanges(position: Int): Int? {
+        return when (position) {
+            0 -> null   // No limit
+            1 -> 0      // Direct only
+            2 -> 1      // 1 change max
+            else -> null
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,13 +116,51 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
         originSearch = findViewById(R.id.origin_search)
         destinationSearch = findViewById(R.id.destination_search)
         routeReversalCheckbox = findViewById(R.id.route_reversal_checkbox)
+        maxChangesSpinner = findViewById(R.id.max_changes_spinner)
         addButton = findViewById(R.id.add_button)
         cancelButton = findViewById(R.id.cancel_button)
+        advancedHeader = findViewById(R.id.advanced_header)
+        advancedChevron = findViewById(R.id.advanced_chevron)
+        advancedOptionsContainer = findViewById(R.id.advanced_options_container)
 
         routeReversalCheckbox.isChecked = true
 
+        // Setup max changes spinner
+        val changesOptions = resources.getStringArray(R.array.max_changes_options)
+        val changesAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_item,
+            changesOptions
+        )
+        changesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        maxChangesSpinner.adapter = changesAdapter
+        maxChangesSpinner.setSelection(0)  // Default: No limit
+
+        // Setup advanced section expand/collapse
+        setupAdvancedSection()
+
         addButton.setOnClickListener { onAddButtonClicked() }
         cancelButton.setOnClickListener { finish() }
+    }
+
+    private fun setupAdvancedSection() {
+        advancedHeader.setOnClickListener {
+            toggleAdvancedSection()
+        }
+    }
+
+    private fun toggleAdvancedSection() {
+        val isExpanded = advancedOptionsContainer.visibility == android.view.View.VISIBLE
+
+        if (isExpanded) {
+            // Collapse
+            advancedOptionsContainer.visibility = android.view.View.GONE
+            advancedChevron.rotation = 0f
+        } else {
+            // Expand
+            advancedOptionsContainer.visibility = android.view.View.VISIBLE
+            advancedChevron.rotation = 90f
+        }
     }
     
     private fun setupStationData() {       
@@ -312,21 +378,30 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
     private fun loadExistingWidgetData(data: WidgetData) {
         selectedOriginId = data.originId
         selectedDestinationId = data.destinationId
-        
+
         // Find and set station names in search fields
         val originIndex = stationIds.indexOf(selectedOriginId)
         val destinationIndex = stationIds.indexOf(selectedDestinationId)
-        
+
         if (originIndex >= 0) {
             originSearch.setText(stationNames[originIndex])
         }
         if (destinationIndex >= 0) {
             destinationSearch.setText(stationNames[destinationIndex])
         }
-        
+
         // Set route reversal checkbox
         routeReversalCheckbox.isChecked = data.allowRouteReversal
-        
+
+        // Set max changes spinner
+        maxChangesSpinner.setSelection(maxChangesToSpinnerPosition(data.maxChanges))
+
+        // Auto-expand advanced section if any advanced options are non-default
+        if (data.allowRouteReversal || data.maxChanges != null) {
+            advancedOptionsContainer.visibility = android.view.View.VISIBLE
+            advancedChevron.rotation = 90f
+        }
+
         updateAddButtonState()
         Log.d(getLogTag(), "Loaded existing widget data: ${stationNames.getOrNull(originIndex)} -> ${stationNames.getOrNull(destinationIndex)}")
     }
@@ -355,23 +430,28 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
             // Use coroutine for async operations
             CoroutineScope(Dispatchers.Main).launch {
                 try {
-                    // Check if this is a route change for existing widget
+                    // Convert spinner selection to maxChanges value
+                    val maxChanges = spinnerPositionToMaxChanges(maxChangesSpinner.selectedItemPosition)
+
+                    // Check if this is a route or filter change for existing widget
                     val existingWidgetData = preferencesRepository.getWidgetData(appWidgetId)
-                    val isRouteChange = existingWidgetData != null && 
+                    val isRouteChange = existingWidgetData != null &&
                                        (existingWidgetData.originId != originId || existingWidgetData.destinationId != destinationId)
-                    
-                    if (isRouteChange) {
-                        Log.d(getLogTag(), "Route change detected, clearing old cache for widget $appWidgetId")
+                    val isFilterChange = existingWidgetData != null && existingWidgetData.maxChanges != maxChanges
+
+                    if (isRouteChange || isFilterChange) {
+                        Log.d(getLogTag(), "Route or filter change detected, clearing old cache for widget $appWidgetId")
                         cacheRepository.clearWidgetCache(appWidgetId)
                     }
-                    
+
                     val widgetData = WidgetData(
                         originId = originId,
                         destinationId = destinationId,
                         originName = "", // Don't store localized names - look them up dynamically
-                        destinationName = "", // Don't store localized names - look them up dynamically  
+                        destinationName = "", // Don't store localized names - look them up dynamically
                         label = "",
-                        allowRouteReversal = routeReversalCheckbox.isChecked
+                        allowRouteReversal = routeReversalCheckbox.isChecked,
+                        maxChanges = maxChanges
                     )
                     
                     // Save widget configuration

@@ -102,6 +102,7 @@ data class WidgetTrainItem(
     val platform: String,
     val delay: Int,
     val isExchange: Boolean = false,
+    val numberOfChanges: Int = 0,
     val duration: String = "",
     val changesText: String = "",
     val trainNumber: String = "",
@@ -121,7 +122,8 @@ data class WidgetData(
     val originName: String = "",
     val destinationName: String = "",
     val label: String = "",
-    val allowRouteReversal: Boolean = true
+    val allowRouteReversal: Boolean = true,
+    val maxChanges: Int? = null // null = no limit, 0 = direct only, 1 = up to 1 change
 )
 
 // API Error response

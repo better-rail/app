@@ -88,12 +88,16 @@ class TrainScheduleRepository @Inject constructor(
             result.fold(
                 onSuccess = { scheduleData ->
                     Log.d(TAG, "Successfully fetched ${scheduleData.routes.size} routes for widget $widgetId")
-                    
-                    // Cache the fresh data
-                    cacheRepository.cacheSchedule(widgetId, widgetData.originId, widgetData.destinationId, scheduleData, date, hour)
-                    
-                    // Emit fresh data
-                    emit(Resource.Success(scheduleData, fromCache = false))
+
+                    // Apply changes filter if configured
+                    val filteredScheduleData = applyChangesFilter(scheduleData, widgetData.maxChanges)
+                    Log.d(TAG, "After filtering: ${filteredScheduleData.routes.size} routes remain")
+
+                    // Cache the filtered data
+                    cacheRepository.cacheSchedule(widgetId, widgetData.originId, widgetData.destinationId, filteredScheduleData, date, hour)
+
+                    // Emit filtered data
+                    emit(Resource.Success(filteredScheduleData, fromCache = false))
                 },
                 onFailure = { error ->
                     Log.e(TAG, "Failed to fetch schedule for widget $widgetId", error)
@@ -155,6 +159,28 @@ class TrainScheduleRepository @Inject constructor(
                 emit(resource)
             }
         }
+    }
+
+    /**
+     * Apply changes filter based on maximum number of changes preference
+     */
+    private fun applyChangesFilter(
+        scheduleData: WidgetScheduleData,
+        maxChanges: Int?
+    ): WidgetScheduleData {
+        // null means no limit - return all routes
+        if (maxChanges == null) {
+            Log.d(TAG, "No changes filter configured - showing all routes")
+            return scheduleData
+        }
+
+        val filteredRoutes = scheduleData.routes.filter { train ->
+            train.numberOfChanges <= maxChanges
+        }
+
+        Log.d(TAG, "Filtered routes with maxChanges=$maxChanges: ${scheduleData.routes.size} -> ${filteredRoutes.size}")
+
+        return scheduleData.copy(routes = filteredRoutes)
     }
 
     /**
