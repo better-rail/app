@@ -10,6 +10,7 @@
     <string name="widget_label_hint">Пользовательская метка (необязательно)</string>
     <string name="widget_cancel">Отмена</string>
     <string name="widget_add">Добавить виджет</string>
+    <string name="widget_edit">Редактировать виджет</string>
     <string name="widget_2x2_description">Компактный виджет поезда 2x2</string>
     <string name="widget_4x2_description">Компактный виджет поезда 4x2 с предстоящими поездами</string>
     <string name="select_station">Выберите станцию</string>
@@ -17,7 +18,7 @@
     <string name="search_destination_hint">Поиск станции назначения...</string>
     <string name="widget_advanced_label">Дополнительно</string>
     <string name="widget_allow_route_reversal">Разрешить нажатие на название станций для смены направления</string>
-    <string name="widget_max_changes_label">Ограничить пересадки до</string>
+    <string name="widget_max_changes_label">Пересадка</string>
     <string-array name="max_changes_options">
         <item>Без ограничений</item>
         <item>Только прямые поезда</item>

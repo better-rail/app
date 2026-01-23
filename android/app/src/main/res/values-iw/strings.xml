@@ -10,6 +10,7 @@
     <string name="widget_label_hint">תווית מותאמת (אופציונלי)</string>
     <string name="widget_cancel">ביטול</string>
     <string name="widget_add">הוסף ווידג\'ט</string>
+    <string name="widget_edit">ערוך ווידג\'ט</string>
     <string name="widget_2x2_description">ווידג\'ט רכבת קומפקטי 2x2</string>
     <string name="widget_4x2_description">ווידג\'ט רכבת קומפקטי 4x2 עם רכבות קרובות</string>
     <string name="select_station">בחר תחנה</string>
@@ -17,7 +18,7 @@
     <string name="search_destination_hint">חפש תחנת יעד...</string>
     <string name="widget_advanced_label">מתקדם</string>
     <string name="widget_allow_route_reversal">אפשר החלפת כיוון על ידי הקשה על המסלול</string>
-    <string name="widget_max_changes_label">הגבלת מספר החלפות ל</string>
+    <string name="widget_max_changes_label">החלפת רכבות</string>
     <string-array name="max_changes_options">
         <item>ללא הגבלה</item>
         <item>רכבות ישירות בלבד</item>
