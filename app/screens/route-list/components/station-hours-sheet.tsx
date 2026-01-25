@@ -81,6 +81,7 @@ export const StationHoursSheet = observer(
         ref={ref}
         enableDynamicSizing
         backgroundStyle={{ backgroundColor: color.tertiaryBackground }}
+        style={{ borderRadius: 32, overflow: "hidden" }}
         onChange={(index) => {
           setIsOpen(index === 0)
         }}
