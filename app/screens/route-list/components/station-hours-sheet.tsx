@@ -81,11 +81,12 @@ export const StationHoursSheet = observer(
         ref={ref}
         enableDynamicSizing
         backgroundStyle={{ backgroundColor: color.tertiaryBackground }}
+        style={{ borderRadius: 32, overflow: "hidden" }}
         onChange={(index) => {
           setIsOpen(index === 0)
         }}
       >
-        <BottomSheetView style={[WRAPPER, { paddingBottom: insets.bottom + spacing[3] }]} key={stationInfo?.gateInfo.length}>
+        <BottomSheetView style={[WRAPPER, { paddingBottom: insets.bottom + spacing[4] }]} key={stationInfo?.gateInfo.length}>
           {isLoading || !selectedGate ? (
             <ActivityIndicator size="large" color="grey" />
           ) : (
