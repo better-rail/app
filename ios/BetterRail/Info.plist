@@ -26,6 +26,18 @@
 	<string>1</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>il.co.better-rail</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>widget</string>
+				<string>liveActivity</string>
+			</array>
+		</dict>
+	</array>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>twitter</string>
