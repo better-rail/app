@@ -5,7 +5,7 @@ import { View, ActivityIndicator, ViewStyle, Dimensions, useColorScheme } from "
 import Animated from "react-native-reanimated"
 import { FlashList } from "@shopify/flash-list"
 import { observer } from "mobx-react-lite"
-import { useNetInfo } from "@react-native-community/netinfo"
+import { useNetworkInfo } from "../../hooks/useNetworkInfo"
 import { useQuery } from "react-query"
 import { closestIndexTo } from "date-fns"
 import type { RouteListScreenProps } from "../../navigators/main-navigator"
@@ -172,7 +172,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     // This ensures the DateScroll component shows the correct date during loading
   }, [getNextDayDate, loadedDates])
 
-  const { isInternetReachable } = useNetInfo()
+  const { isConnected } = useNetworkInfo()
   const trains = useQuery(
     ["origin", originId, "destination", destinationId, "time", currentDate.getTime()],
     async () => {
@@ -453,10 +453,10 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
       </Animated.View>
 
       {/* Only show the no internet error if we're not loading and there's no data */}
-      {!isInternetReachable && !trains.isLoading && !trains.data && <RouteListError errorType="no-internet" />}
+      {!isConnected && !trains.isLoading && !trains.data && <RouteListError errorType="no-internet" />}
 
       {/* Only show the request error if we're not loading, internet is available, and there's an error */}
-      {isInternetReachable && !trains.isLoading && trains.status === "error" && !trains.data && (
+      {isConnected && !trains.isLoading && trains.status === "error" && !trains.data && (
         <RouteListError errorType="request-error" />
       )}
 
@@ -491,7 +491,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         />
       )}
 
-      {trainRoutes.resultType === "not-found" && !trains.isLoading && isInternetReachable && (
+      {trainRoutes.resultType === "not-found" && !trains.isLoading && isConnected && (
         <View style={{ marginTop: spacing[4] }}>
           <NoTrainsFoundMessage />
         </View>

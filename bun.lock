@@ -14,7 +14,6 @@
         "@react-native-community/cli-platform-android": "20.0.0",
         "@react-native-community/cli-platform-ios": "20.0.0",
         "@react-native-community/datetimepicker": "8.4.4",
-        "@react-native-community/netinfo": "9.3.7",
         "@react-native-community/push-notification-ios": "1.11.0",
         "@react-native-firebase/analytics": "22.1.0",
         "@react-native-firebase/app": "22.1.0",
@@ -69,7 +68,8 @@
         "react-native-localize": "^3.5.2",
         "react-native-modal-datetime-picker": "18.0.0",
         "react-native-modalfy": "3.6.0",
-        "react-native-nitro-modules": "^0.31.0",
+        "react-native-nitro-modules": "0.31.2",
+        "react-native-nitro-network-info": "^1.0.7",
         "react-native-prompt-android": "1.1.0",
         "react-native-push-notification": "8.1.1",
         "react-native-quick-actions-shortcuts": "1.0.2",
@@ -653,8 +653,6 @@
     "@react-native-community/cli-types": ["@react-native-community/cli-types@20.0.0", "", { "dependencies": { "joi": "^17.2.1" } }, "sha512-7J4hzGWOPTBV1d30Pf2NidV+bfCWpjfCOiGO3HUhz1fH4MvBM0FbbBmE9LE5NnMz7M8XSRSi68ZGYQXgLBB2Qw=="],
 
     "@react-native-community/datetimepicker": ["@react-native-community/datetimepicker@8.4.4", "", { "dependencies": { "invariant": "^2.2.4" }, "peerDependencies": { "expo": ">=52.0.0", "react": "*", "react-native": "*", "react-native-windows": "*" }, "optionalPeers": ["expo", "react-native-windows"] }, "sha512-bc4ZixEHxZC9/qf5gbdYvIJiLZ5CLmEsC3j+Yhe1D1KC/3QhaIfGDVdUcid0PdlSoGOSEq4VlB93AWyetEyBSQ=="],
-
-    "@react-native-community/netinfo": ["@react-native-community/netinfo@9.3.7", "", { "peerDependencies": { "react-native": ">=0.59" } }, "sha512-+taWmE5WpBp0uS6kf+bouCx/sn89G9EpR4s2M/ReLvctVIFL2Qh8WnWfBxqK9qwgmFha/uqjSr2Gq03OOtiDcw=="],
 
     "@react-native-community/push-notification-ios": ["@react-native-community/push-notification-ios@1.11.0", "", { "dependencies": { "invariant": "^2.2.4" }, "peerDependencies": { "react": ">=16.6.3", "react-native": ">=0.58.4" } }, "sha512-nfkUs8P2FeydOCR4r7BNmtGxAxI22YuGP6RmqWt6c8EEMUpqvIhNKWkRSFF3pHjkgJk2tpRb9wQhbezsqTyBvA=="],
 
@@ -2296,7 +2294,9 @@
 
     "react-native-modalfy": ["react-native-modalfy@3.6.0", "", { "dependencies": { "hoist-non-react-statics": "^3.3.2", "react-is": "^17.0.2", "use-memo-one": "^1.1.2" }, "peerDependencies": { "react": ">=16.8.3", "react-native": ">=0.59.0", "react-native-gesture-handler": ">=2.2.1" } }, "sha512-tk0RlyGU88ypVofTVclL1DxvmeK6FN2PZvtAuujNxpOKpZ/uboNmOSo0J/NlkCYSsrDeRq3ym+j3BtNf9yq6ZA=="],
 
-    "react-native-nitro-modules": ["react-native-nitro-modules@0.31.0", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-2sZBj6ap32DE5N9WHD4sFldpSqv1FgTVDNyeWRpIw9kW7YBBQ/cmDGASX0EyK7R8ZzevfOoIQ1BPuN3Q/2jg8g=="],
+    "react-native-nitro-modules": ["react-native-nitro-modules@0.31.2", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-UTG1kfLq5XDlR1OkhrNLNMbU6EvxIdLp4RUWT4PY8eBKyykOq8/kjc3fYMYxVEUZG+mrujRSMNXKeqHfiMUhOQ=="],
+
+    "react-native-nitro-network-info": ["react-native-nitro-network-info@1.0.7", "", { "peerDependencies": { "react": "*", "react-native": "*", "react-native-nitro-modules": "*" } }, "sha512-KNRrK7aonTwpKwCBtFwk4Gth3PU7iUn5UxcoSqJ5ewSP9XVEKoq45zHM1jiMMtQ42AWQnOzRP3up/i96MZUvtw=="],
 
     "react-native-prompt-android": ["react-native-prompt-android@1.1.0", "", {}, "sha512-4JoyEaT2ZnK9IH+tDFpbTiQBgva8UIFGQf4/Uw/tnEVWBERlVlzcs5B82T9BkeEhEqXhp89JaiSBnLWj30lciw=="],
 

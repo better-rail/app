@@ -1553,13 +1553,43 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - NitroModules (0.31.0):
+  - NitroModules (0.31.2):
     - boost
     - DoubleConversion
     - fast_float
     - fmt
     - glog
     - hermes-engine
+    - RCT-Folly
+    - RCT-Folly/Fabric
+    - RCTRequired
+    - RCTTypeSafety
+    - React-callinvoker
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - SocketRocket
+    - Yoga
+  - NitroNetworkInfo (1.0.7):
+    - boost
+    - DoubleConversion
+    - fast_float
+    - fmt
+    - glog
+    - hermes-engine
+    - NitroModules
     - RCT-Folly
     - RCT-Folly/Fabric
     - RCTRequired
@@ -3457,8 +3487,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - react-native-netinfo (9.3.7):
-    - React-Core
   - react-native-safe-area-context (5.6.1):
     - boost
     - DoubleConversion
@@ -4694,6 +4722,7 @@ DEPENDENCIES:
   - "LiquidGlass (from `../node_modules/@callstack/liquid-glass`)"
   - NitroIap (from `../node_modules/react-native-iap`)
   - NitroModules (from `../node_modules/react-native-nitro-modules`)
+  - NitroNetworkInfo (from `../node_modules/react-native-nitro-network-info`)
   - posthog-react-native-session-replay (from `../node_modules/posthog-react-native-session-replay`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTDeprecation (from `../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)
@@ -4735,7 +4764,6 @@ DEPENDENCIES:
   - react-native-in-app-review (from `../node_modules/react-native-in-app-review`)
   - react-native-ios-context-menu (from `../node_modules/react-native-ios-context-menu`)
   - react-native-ios-utilities (from `../node_modules/react-native-ios-utilities`)
-  - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-segmented-control (from `../node_modules/@react-native-segmented-control/segmented-control`)"
   - react-native-video (from `../node_modules/react-native-video`)
@@ -4870,6 +4898,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-iap"
   NitroModules:
     :path: "../node_modules/react-native-nitro-modules"
+  NitroNetworkInfo:
+    :path: "../node_modules/react-native-nitro-network-info"
   posthog-react-native-session-replay:
     :path: "../node_modules/posthog-react-native-session-replay"
   RCT-Folly:
@@ -4950,8 +4980,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-ios-context-menu"
   react-native-ios-utilities:
     :path: "../node_modules/react-native-ios-utilities"
-  react-native-netinfo:
-    :path: "../node_modules/@react-native-community/netinfo"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-segmented-control:
@@ -5111,7 +5139,8 @@ SPEC CHECKSUMS:
   LiquidGlass: d0f1442780763a50273219c8f0068a1259918e4d
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   NitroIap: 4dc018bd561764a28408eac1a3795646fcf90726
-  NitroModules: 8f30b6fd4290c8b8ecc079ccef195085b7f83774
+  NitroModules: e9e74317de99645ab221e886557136ef02c519b8
+  NitroNetworkInfo: 474ce6616fd29c1d927762af8b78d311372c9a33
   openiap: 6b09e05908b9536a0466a56ff763d21d71094077
   PostHog: bbb7eaecb2f5a286d9da3c833cbb18ae08799655
   posthog-react-native-session-replay: 4ddaea1b661f9c631a55ca6aa744cc0622273594
@@ -5155,7 +5184,6 @@ SPEC CHECKSUMS:
   react-native-in-app-review: b3d1eed3d1596ebf6539804778272c4c65e4a400
   react-native-ios-context-menu: 64a47a53b4ba27896d977a741ac98b562aa59571
   react-native-ios-utilities: 064e3e5bf2c59d2e41db98f5c748732d9a7018f7
-  react-native-netinfo: be701059f57093572e5ba08cba14483d334b425d
   react-native-safe-area-context: ee1e8e2a7abf737a8d4d9d1a5686a7f2e7466236
   react-native-segmented-control: e21b475ecaec3b4e2c515d0276e0b22163c6590b
   react-native-video: 6ed94120c73e29c8fbea89ec4e3cedf3528751d6
