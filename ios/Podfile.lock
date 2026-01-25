@@ -3358,7 +3358,7 @@ PODS:
     - React
   - react-native-context-menu-view (1.17.0):
     - React
-  - react-native-date-picker (5.0.12):
+  - react-native-date-picker (5.0.13):
     - boost
     - DoubleConversion
     - fast_float
@@ -4552,7 +4552,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - RNSentry (7.6.0):
+  - RNSentry (7.10.0):
     - boost
     - DoubleConversion
     - fast_float
@@ -4579,7 +4579,7 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - Sentry/HybridSDK (= 8.57.2)
+    - Sentry/HybridSDK (= 8.58.0)
     - SocketRocket
     - Yoga
   - RNShare (11.0.3):
@@ -4669,7 +4669,7 @@ PODS:
     - Yoga
   - RNWatch (1.1.0):
     - React
-  - Sentry/HybridSDK (8.57.2)
+  - Sentry/HybridSDK (8.58.0)
   - SocketRocket (0.7.1)
   - SPAlert (4.2.0)
   - SPIndicator (1.6.4)
@@ -5151,7 +5151,7 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: 86334c5c06315e0bccb7b6e6f2c905e92f98b615
   react-native-actions-shortcuts: 890ebc88c8d5da2700299d55d1c7b48bbbf4688c
   react-native-context-menu-view: f72a7edd2a54cdb14e57a48ce8ac50d3b1602a9d
-  react-native-date-picker: a06d7eb5d84c27b6f02a2e3f3a01ce50b2f4a3a0
+  react-native-date-picker: 64ccae6c3a8104a168cef950fea8e1fe616cda82
   react-native-in-app-review: b3d1eed3d1596ebf6539804778272c4c65e4a400
   react-native-ios-context-menu: 64a47a53b4ba27896d977a741ac98b562aa59571
   react-native-ios-utilities: 064e3e5bf2c59d2e41db98f5c748732d9a7018f7
@@ -5209,11 +5209,11 @@ SPEC CHECKSUMS:
   RNReactNativeHapticFeedback: 5f1542065f0b24c9252bd8cf3e83bc9c548182e4
   RNReanimated: 9a194cc49afc2ae6c6b2c3763639c6d141ce85c7
   RNScreens: 4f2aed147a2775017923789d8a0a2d377712ec2e
-  RNSentry: 4832a7acd1fe48982149f585e1802f4d9fc7b00a
+  RNSentry: 97b8c8d909e1492e6d79b79cd157757874898e69
   RNShare: 4abf366befdce6164931530de5fc4f6473749139
   RNSVG: 94a1be05fab4043354bcf7104f0f9b0e2231ef05
   RNWatch: 28fe1f5e0c6410d45fd20925f4796fce05522e3f
-  Sentry: 83a3814c3ca042874b39c5c5bdffb6570d4d760e
+  Sentry: d587a8fe91ca13503ecd69a1905f3e8a0fcf61be
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   SPAlert: 735da1f16a887e294719217572ce1f936d8c8782
   SPIndicator: 93e0a4fb23de51294ac48e874c0f081a5e293e4f
