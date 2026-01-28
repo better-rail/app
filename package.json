@@ -34,7 +34,6 @@
     "@react-native-community/cli-platform-android": "20.0.0",
     "@react-native-community/cli-platform-ios": "20.0.0",
     "@react-native-community/datetimepicker": "8.4.4",
-    "@react-native-community/netinfo": "9.3.7",
     "@react-native-community/push-notification-ios": "1.11.0",
     "@react-native-firebase/analytics": "22.1.0",
     "@react-native-firebase/app": "22.1.0",
@@ -62,6 +61,7 @@
     "expo-calendar": "~15.0.7",
     "expo-clipboard": "^8.0.7",
     "expo-localization": "~17.0.7",
+    "expo-network": "~8.0.8",
     "fuse.js": "6.4.6",
     "i18n-js": "3.8.0",
     "lodash": "4.17.21",
@@ -259,6 +259,6 @@
   "patchedDependencies": {
     "react-native-quick-actions-shortcuts@1.0.2": "patches/react-native-quick-actions-shortcuts@1.0.2.patch",
     "react-native-modal-datetime-picker@18.0.0": "patches/react-native-modal-datetime-picker@18.0.0.patch",
-    "react-native-watch-connectivity@1.1.0": "patches/react-native-watch-connectivity@1.1.0.patch"  
+    "react-native-watch-connectivity@1.1.0": "patches/react-native-watch-connectivity@1.1.0.patch"
   }
 }

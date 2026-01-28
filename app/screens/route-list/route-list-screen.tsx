@@ -5,7 +5,7 @@ import { View, ActivityIndicator, ViewStyle, Dimensions, useColorScheme } from "
 import Animated from "react-native-reanimated"
 import { FlashList } from "@shopify/flash-list"
 import { observer } from "mobx-react-lite"
-import { useNetInfo } from "@react-native-community/netinfo"
+import { useNetworkState } from "expo-network"
 import { useQuery } from "react-query"
 import { closestIndexTo } from "date-fns"
 import type { RouteListScreenProps } from "../../navigators/main-navigator"
@@ -172,7 +172,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     // This ensures the DateScroll component shows the correct date during loading
   }, [getNextDayDate, loadedDates])
 
-  const { isInternetReachable } = useNetInfo()
+  const { isInternetReachable } = useNetworkState()
   const trains = useQuery(
     ["origin", originId, "destination", destinationId, "time", currentDate.getTime()],
     async () => {
