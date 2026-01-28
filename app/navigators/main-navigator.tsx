@@ -6,10 +6,11 @@
  */
 import React from "react"
 import { createNativeStackNavigator, type NativeStackScreenProps } from "@react-navigation/native-stack"
-import { PlannerScreen, SelectStationScreen, RouteListScreen, RouteDetailsScreen } from "../screens"
+import { PlannerScreen, SelectStationScreen, RouteListScreen, RouteDetailsScreen, StationHoursScreen } from "../screens"
 import { color, typography } from "../theme"
 import type { RouteItem } from "../services/api"
 import { Platform } from "react-native"
+import { isLiquidGlassSupported } from "@callstack/liquid-glass"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -28,6 +29,7 @@ export type PrimaryParamList = {
   selectStation: { selectionType: "origin" | "destination" }
   routeList: { originId: string; destinationId: string; time: number; enableQuery?: boolean }
   routeDetails: { routeItem: RouteItem; originId: string; destinationId: string }
+  stationHours: { stationId: string }
   settings: undefined
 }
 
@@ -35,6 +37,7 @@ export type PlannerScreenProps = NativeStackScreenProps<PrimaryParamList, "plann
 export type SelectStationScreenProps = NativeStackScreenProps<PrimaryParamList, "selectStation">
 export type RouteListScreenProps = NativeStackScreenProps<PrimaryParamList, "routeList">
 export type RouteDetailsScreenProps = NativeStackScreenProps<PrimaryParamList, "routeDetails">
+export type StationHoursScreenProps = NativeStackScreenProps<PrimaryParamList, "stationHours">
 
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
 const Stack = createNativeStackNavigator<PrimaryParamList>()
@@ -73,6 +76,17 @@ export function MainNavigator() {
         name="routeDetails"
         component={RouteDetailsScreen}
         options={{ headerTransparent: true, headerTintColor: "lightgrey" }}
+      />
+      <Stack.Screen
+        name="stationHours"
+        component={StationHoursScreen}
+        options={{
+          presentation: "formSheet",
+          headerShown: false,
+          sheetAllowedDetents: "fitToContents",
+          contentStyle: { backgroundColor: isLiquidGlassSupported ? "transparent" : color.background },
+          sheetGrabberVisible: true,
+        }}
       />
     </Stack.Navigator>
   )
