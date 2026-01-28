@@ -85,6 +85,7 @@ export function MainNavigator() {
           headerShown: false,
           sheetAllowedDetents: "fitToContents",
           contentStyle: { backgroundColor: isLiquidGlassSupported ? "transparent" : color.background },
+          sheetGrabberVisible: true,
         }}
       />
     </Stack.Navigator>
