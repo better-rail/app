@@ -13,21 +13,12 @@ import { useStores } from "../../models"
 import { color, fontScale, spacing } from "../../theme"
 import { RouteItem } from "../../services/api"
 import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight } from "../../components"
-import {
-  NoTrainsFoundMessage,
-  RouteListError,
-  RouteListWarning,
-  StationHoursSheet,
-  WarningType,
-  ResultDateCard,
-  DateScroll,
-} from "./components"
+import { NoTrainsFoundMessage, RouteListError, RouteListWarning, WarningType, ResultDateCard, DateScroll } from "./components"
 import { flatMap, max, round } from "lodash"
 import { translate } from "../../i18n"
 import { shareRouteAction } from "../../utils/helpers/route-share-helpers"
 import { addRouteToCalendar } from "../../utils/helpers/calendar-helpers"
 import { getActionSheetStyleOptions } from "../../utils/helpers/action-sheet-helpers"
-import type BottomSheet from "@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet"
 import { isRouteInThePast } from "../../utils/helpers/date-helpers"
 import { useActionSheet } from "@expo/react-native-action-sheet"
 
@@ -67,7 +58,6 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     setLoadedDates(new Set())
   }, [originId, destinationId])
 
-  const stationHoursSheetRef = useRef<BottomSheet>(null)
   const flashListRef = useRef(null)
 
   // Helper function to organize routes by date
@@ -264,11 +254,6 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     setNextDayDate(nextDay)
   }, [time])
 
-  const onDoneStationHoursSheet = () => {
-    stationHoursSheetRef.current?.close()
-    stationHoursSheetRef.current = null
-  }
-
   // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
   // returns a route list for the whole day.
   const initialScrollIndex = useMemo(() => {
@@ -447,7 +432,6 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           originId={route.params.originId}
           destinationId={route.params.destinationId}
           style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
-          stationHoursSheetRef={stationHoursSheetRef}
         />
       </Animated.View>
 
@@ -502,13 +486,6 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           warningType={trainRoutes.resultType as WarningType}
         />
       )}
-
-      <StationHoursSheet
-        stationId={route.params.originId}
-        onDone={onDoneStationHoursSheet}
-        ref={stationHoursSheetRef}
-        key={route.params.originId}
-      />
     </Screen>
   )
 })
