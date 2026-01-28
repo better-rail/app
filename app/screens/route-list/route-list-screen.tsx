@@ -5,7 +5,7 @@ import { View, ActivityIndicator, ViewStyle, Dimensions, useColorScheme } from "
 import Animated from "react-native-reanimated"
 import { FlashList } from "@shopify/flash-list"
 import { observer } from "mobx-react-lite"
-import { useNetInfo } from "@react-native-community/netinfo"
+import { useNetworkState } from "expo-network"
 import { useQuery } from "react-query"
 import { closestIndexTo } from "date-fns"
 import type { RouteListScreenProps } from "../../navigators/main-navigator"
@@ -172,7 +172,8 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     // This ensures the DateScroll component shows the correct date during loading
   }, [getNextDayDate, loadedDates])
 
-  const { isInternetReachable } = useNetInfo()
+  const { isInternetReachable } = useNetworkState()
+
   const trains = useQuery(
     ["origin", originId, "destination", destinationId, "time", currentDate.getTime()],
     async () => {
@@ -310,61 +311,59 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     return fontScale <= 1.2 && deviceWidth >= 360 && shouldShowDashedLineByTextLength
   }, [trains.data])
 
+  const handleRouteLongPress = useCallback(
+    async (routeItem: RouteItem) => {
+      HapticFeedback.trigger("impactMedium")
 
-  const handleRouteLongPress = useCallback(async (routeItem: RouteItem) => {
-    HapticFeedback.trigger("impactMedium")
+      const options = [translate("routeDetails.addToCalendar"), translate("routes.share"), translate("common.cancel")]
+      const cancelButtonIndex = 2
 
-    const options = [
-      translate("routeDetails.addToCalendar"),
-      translate("routes.share"),
-      translate("common.cancel")
-    ]
-    const cancelButtonIndex = 2
+      showActionSheetWithOptions(
+        {
+          options,
+          cancelButtonIndex,
+          title: translate("routes.routeActions"),
+          ...getActionSheetStyleOptions(colorScheme),
+        },
+        async (selectedIndex) => {
+          if (selectedIndex === cancelButtonIndex) return
 
-    showActionSheetWithOptions(
-      {
-        options,
-        cancelButtonIndex,
-        title: translate("routes.routeActions"),
-        ...getActionSheetStyleOptions(colorScheme),
-      },
-      async (selectedIndex) => {
-        if (selectedIndex === cancelButtonIndex) return
+          try {
+            switch (selectedIndex) {
+              case 0: // Add to Calendar
+                const wasAdded = await addRouteToCalendar(routeItem)
+                if (wasAdded) {
+                  Burnt.alert({
+                    title: translate("routes.addedToCalendar"),
+                    preset: "done",
+                    message: translate("routes.addedToCalendar"),
+                  })
+                }
+                break
 
-        try {
-          switch (selectedIndex) {
-            case 0: // Add to Calendar
-              const wasAdded = await addRouteToCalendar(routeItem)
-              if (wasAdded) {
-                Burnt.alert({
-                  title: translate("routes.addedToCalendar"),
-                  preset: "done",
-                  message: translate("routes.addedToCalendar"),
-                })
-              }
-              break
+              case 1: // Share
+                await shareRouteAction(routeItem, originId, destinationId)
+                break
 
-            case 1: // Share
-              await shareRouteAction(routeItem, originId, destinationId)
-              break
-
-            default:
-              // Should never happen since we check for cancelButtonIndex above
-              break
+              default:
+                // Should never happen since we check for cancelButtonIndex above
+                break
+            }
+          } catch (error) {
+            if (selectedIndex === 0) {
+              console.error("Failed to add to calendar:", error)
+              Burnt.alert({
+                title: translate("common.error"),
+                preset: "error",
+                message: "Failed to add to calendar",
+              })
+            }
           }
-        } catch (error) {
-          if (selectedIndex === 0) {
-            console.error("Failed to add to calendar:", error)
-            Burnt.alert({
-              title: translate("common.error"),
-              preset: "error",
-              message: "Failed to add to calendar",
-            })
-          }
-        }
-      }
-    )
-  }, [originId, destinationId, showActionSheetWithOptions])
+        },
+      )
+    },
+    [originId, destinationId, showActionSheetWithOptions],
+  )
 
   const renderRouteCard = ({ item, index }: { item: RouteData; index: number }) => {
     if (typeof item === "string") {
