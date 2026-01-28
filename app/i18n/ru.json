@@ -89,7 +89,8 @@
     "wheelchairAccessible": "Доступно для инвалидных колясок",
     "bicyclesAllowed": "Разрешены велосипеды",
     "wagonsCount": "%{count} вагонов",
-    "seatsCount": "%{count} мест"
+    "seatsCount": "%{count} мест",
+    "trainInformation": "Информация о поезде"
   },
   "settings": {
     "title": "Настройки",

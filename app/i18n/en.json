@@ -92,7 +92,8 @@
     "wheelchairAccessible": "Wheelchair accessible",
     "bicyclesAllowed": "Bicycles allowed",
     "wagonsCount": "%{count} wagons",
-    "seatsCount": "%{count} seats"
+    "seatsCount": "%{count} seats",
+    "trainInformation": "Train information"
   },
   "settings": {
     "title": "Settings",

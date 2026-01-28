@@ -22,14 +22,14 @@ import {
 import { LivePermissionsSheet } from "./components/live-permissions-sheet"
 
 import type { RouteItem } from "../../services/api"
-import type { RouteDetailsScreenProps, RouteDetailsTrainInfoScreenProps } from "../../navigators/main-navigator"
+import type { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import type BottomSheet from "@gorhom/bottom-sheet"
 import { useStations } from "../../data/stations"
 import { calculateDelayedTime } from "../../utils/helpers/date-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { observer } from "mobx-react-lite"
 import { LiquidGlassView } from "@callstack/liquid-glass"
-import { useNavigation } from "@react-navigation/native"
+import { translate } from "../../i18n"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -316,7 +316,10 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route, 
                 gap: spacing[3],
               }}
             >
-              <Pressable onPress={() => navigation.navigate("routeDetailsTrainInfo", { train: routeItem.trains[0] })}>
+              <Pressable
+                onPress={() => navigation.navigate("routeDetailsTrainInfo", { train: routeItem.trains[0] })}
+                accessibilityLabel={translate("routeDetails.trainInformation")}
+              >
                 <LiquidGlassView style={{ padding: 14, borderRadius: 16 }} interactive effect="regular">
                   <Image source={require("../../../assets/info.circle.png")} style={{ width: 24, height: 24 }} />
                 </LiquidGlassView>

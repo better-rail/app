@@ -85,7 +85,8 @@
     "wheelchairAccessible": "متاح للكراسي المتحركة",
     "bicyclesAllowed": "مسموح بالدراجات",
     "wagonsCount": "%{count} عربات",
-    "seatsCount": "%{count} مقاعد"
+    "seatsCount": "%{count} مقاعد",
+    "trainInformation": "معلومات القطار"
   },
   "settings": {
     "title": "اعدادت",
