@@ -11,7 +11,6 @@ const CHIP_WRAPPER: ViewStyle = {
   borderRadius: 30,
   borderWidth: 1,
   borderColor: "transparent",
-  overflow: "hidden",
 }
 
 const TRANSPARENT_CHIP_WRAPPER: ViewStyle = {
@@ -23,6 +22,7 @@ const TRANSPARENT_CHIP_WRAPPER: ViewStyle = {
 const VARIANTS = {
   success: color.success,
   primary: color.primary,
+  default: color.secondaryBackground,
   transparent: "transparent",
 }
 

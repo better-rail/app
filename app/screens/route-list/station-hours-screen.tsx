@@ -65,7 +65,7 @@ export const StationHoursScreen = observer(function StationHoursScreen({ route }
               const selected = selectedGateId === gate.stationGateId
               return (
                 <Chip
-                  variant={selected ? "primary" : "transparent"}
+                  variant={selected ? "primary" : "default"}
                   onPress={() => {
                     HapticFeedback.trigger("impactLight")
                     setSelectedGateId(gate.stationGateId)
