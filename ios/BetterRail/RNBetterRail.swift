@@ -103,21 +103,29 @@ class RNBetterRail: NSObject {
   }
   
   @objc func isRideActive(_ rideId: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
-    Task {
-      let tokens = await LiveActivitiesController.tokenRegistry.getTokens()
-      let jsonArray = tokens.map { (rideToken) -> [String: String] in
-        return ["rideId": rideToken.rideId, "token": rideToken.token]
+    // Use ActivityKit's API to get running activities instead of in-memory TokenRegistry.
+    // This works even after app restart since ActivityKit maintains the activity state.
+    let runningActivities = Activity<BetterRailActivityAttributes>.activities
+
+    let jsonArray = runningActivities.map { activity -> [String: String] in
+      let tokenString: String
+      if let token = activity.pushToken {
+        tokenString = token.map { String(format: "%02x", $0) }.joined()
+      } else {
+        tokenString = ""
       }
-      
-      do {
-          let jsonData = try JSONSerialization.data(withJSONObject: jsonArray, options: .prettyPrinted)
-          if let jsonString = String(data: jsonData, encoding: .utf8) {
-              resolve(jsonString)
-          }
-      } catch {
-        print(error.localizedDescription)
-          reject("error", "error", error)
+
+      return ["rideId": activity.id, "token": tokenString]
+    }
+
+    do {
+      let jsonData = try JSONSerialization.data(withJSONObject: jsonArray, options: .prettyPrinted)
+      if let jsonString = String(data: jsonData, encoding: .utf8) {
+        resolve(jsonString)
       }
+    } catch {
+      print(error.localizedDescription)
+      reject("error", "error", error)
     }
   }
 

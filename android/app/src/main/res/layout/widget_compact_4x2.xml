@@ -54,11 +54,14 @@
 
                 <!-- Destination with Arrow -->
                 <LinearLayout
+                    android:id="@+id/widget_destination_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginTop="2dp">
+                    android:layout_marginTop="2dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp">
 
                     <ImageView
                         android:id="@+id/widget_arrow_icon"

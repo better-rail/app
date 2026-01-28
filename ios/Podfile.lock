@@ -1275,6 +1275,8 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
+  - ExpoNetwork (8.0.8):
+    - ExpoModulesCore
   - fast_float (8.0.0)
   - FBLazyVector (0.81.4)
   - Firebase/AnalyticsWithoutAdIdSupport (11.12.0):
@@ -3358,7 +3360,7 @@ PODS:
     - React
   - react-native-context-menu-view (1.17.0):
     - React
-  - react-native-date-picker (5.0.12):
+  - react-native-date-picker (5.0.13):
     - boost
     - DoubleConversion
     - fast_float
@@ -3457,8 +3459,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - react-native-netinfo (9.3.7):
-    - React-Core
   - react-native-safe-area-context (5.6.1):
     - boost
     - DoubleConversion
@@ -4552,7 +4552,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - RNSentry (7.6.0):
+  - RNSentry (7.10.0):
     - boost
     - DoubleConversion
     - fast_float
@@ -4579,7 +4579,7 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - Sentry/HybridSDK (= 8.57.2)
+    - Sentry/HybridSDK (= 8.58.0)
     - SocketRocket
     - Yoga
   - RNShare (11.0.3):
@@ -4669,7 +4669,7 @@ PODS:
     - Yoga
   - RNWatch (1.1.0):
     - React
-  - Sentry/HybridSDK (8.57.2)
+  - Sentry/HybridSDK (8.58.0)
   - SocketRocket (0.7.1)
   - SPAlert (4.2.0)
   - SPIndicator (1.6.4)
@@ -4686,6 +4686,7 @@ DEPENDENCIES:
   - ExpoClipboard (from `../node_modules/expo-clipboard/ios`)
   - ExpoLocalization (from `../node_modules/expo-localization/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core`)
+  - ExpoNetwork (from `../node_modules/expo-network/ios`)
   - fast_float (from `../node_modules/react-native/third-party-podspecs/fast_float.podspec`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - fmt (from `../node_modules/react-native/third-party-podspecs/fmt.podspec`)
@@ -4735,7 +4736,6 @@ DEPENDENCIES:
   - react-native-in-app-review (from `../node_modules/react-native-in-app-review`)
   - react-native-ios-context-menu (from `../node_modules/react-native-ios-context-menu`)
   - react-native-ios-utilities (from `../node_modules/react-native-ios-utilities`)
-  - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-segmented-control (from `../node_modules/@react-native-segmented-control/segmented-control`)"
   - react-native-video (from `../node_modules/react-native-video`)
@@ -4853,6 +4853,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-localization/ios"
   ExpoModulesCore:
     :path: "../node_modules/expo-modules-core"
+  ExpoNetwork:
+    :path: "../node_modules/expo-network/ios"
   fast_float:
     :podspec: "../node_modules/react-native/third-party-podspecs/fast_float.podspec"
   FBLazyVector:
@@ -4950,8 +4952,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-ios-context-menu"
   react-native-ios-utilities:
     :path: "../node_modules/react-native-ios-utilities"
-  react-native-netinfo:
-    :path: "../node_modules/@react-native-community/netinfo"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-segmented-control:
@@ -5083,6 +5083,7 @@ SPEC CHECKSUMS:
   ExpoClipboard: af650d14765f19c60ce2a1eaf9dfe6445eff7365
   ExpoLocalization: b852a5d8ec14c5349c1593eca87896b5b3ebfcca
   ExpoModulesCore: 39cd4ea1ea448a09e610e330ded03701c3497a0c
+  ExpoNetwork: ee1fb67b0de59ab7f36794caf8242955dd8ae046
   fast_float: b32c788ed9c6a8c584d114d0047beda9664e7cc6
   FBLazyVector: 941bef1c8eeabd9fe1f501e30a5220beee913886
   Firebase: 735108d2d0b67827cd929bfe8254983907c4479f
@@ -5151,11 +5152,10 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: 86334c5c06315e0bccb7b6e6f2c905e92f98b615
   react-native-actions-shortcuts: 890ebc88c8d5da2700299d55d1c7b48bbbf4688c
   react-native-context-menu-view: f72a7edd2a54cdb14e57a48ce8ac50d3b1602a9d
-  react-native-date-picker: a06d7eb5d84c27b6f02a2e3f3a01ce50b2f4a3a0
+  react-native-date-picker: 64ccae6c3a8104a168cef950fea8e1fe616cda82
   react-native-in-app-review: b3d1eed3d1596ebf6539804778272c4c65e4a400
   react-native-ios-context-menu: 64a47a53b4ba27896d977a741ac98b562aa59571
   react-native-ios-utilities: 064e3e5bf2c59d2e41db98f5c748732d9a7018f7
-  react-native-netinfo: be701059f57093572e5ba08cba14483d334b425d
   react-native-safe-area-context: ee1e8e2a7abf737a8d4d9d1a5686a7f2e7466236
   react-native-segmented-control: e21b475ecaec3b4e2c515d0276e0b22163c6590b
   react-native-video: 6ed94120c73e29c8fbea89ec4e3cedf3528751d6
@@ -5209,11 +5209,11 @@ SPEC CHECKSUMS:
   RNReactNativeHapticFeedback: 5f1542065f0b24c9252bd8cf3e83bc9c548182e4
   RNReanimated: 9a194cc49afc2ae6c6b2c3763639c6d141ce85c7
   RNScreens: 4f2aed147a2775017923789d8a0a2d377712ec2e
-  RNSentry: 4832a7acd1fe48982149f585e1802f4d9fc7b00a
+  RNSentry: 97b8c8d909e1492e6d79b79cd157757874898e69
   RNShare: 4abf366befdce6164931530de5fc4f6473749139
   RNSVG: 94a1be05fab4043354bcf7104f0f9b0e2231ef05
   RNWatch: 28fe1f5e0c6410d45fd20925f4796fce05522e3f
-  Sentry: 83a3814c3ca042874b39c5c5bdffb6570d4d760e
+  Sentry: d587a8fe91ca13503ecd69a1905f3e8a0fcf61be
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   SPAlert: 735da1f16a887e294719217572ce1f936d8c8782
   SPIndicator: 93e0a4fb23de51294ac48e874c0f081a5e293e4f

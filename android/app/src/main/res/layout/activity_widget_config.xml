@@ -81,16 +81,80 @@
         android:maxLines="1"
         android:singleLine="true" />
 
-    <!-- Route Reversal Option -->
-    <CheckBox
-        android:id="@+id/route_reversal_checkbox"
+    <!-- Advanced Section Header -->
+    <LinearLayout
+        android:id="@+id/advanced_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/widget_allow_route_reversal"
-        android:textSize="16sp"
-        android:textColor="@color/label"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:layout_marginTop="16dp"
-        android:layout_marginBottom="8dp" />
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackground">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/widget_advanced_label"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/label" />
+
+        <TextView
+            android:id="@+id/advanced_chevron"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="›"
+            android:textSize="24sp"
+            android:textColor="@color/secondaryLabel"
+            android:rotation="0" />
+
+    </LinearLayout>
+
+    <!-- Advanced Options Container (initially hidden) -->
+    <LinearLayout
+        android:id="@+id/advanced_options_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <!-- Route Reversal Option -->
+        <CheckBox
+            android:id="@+id/route_reversal_checkbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/widget_allow_route_reversal"
+            android:textSize="16sp"
+            android:textColor="@color/label"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Maximum Changes Filter -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/widget_max_changes_label"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/label"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" />
+
+        <Spinner
+            android:id="@+id/max_changes_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/spinner_background"
+            android:padding="12dp"
+            android:spinnerMode="dropdown" />
+
+    </LinearLayout>
 
     <!-- Spacer -->
     <View

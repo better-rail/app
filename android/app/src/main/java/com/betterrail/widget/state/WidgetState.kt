@@ -112,9 +112,14 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_label, "TO CONFIGURE")
         views.setTextViewText(R.id.widget_platform, "")
         views.setTextViewText(R.id.widget_train_number, "")
+
+        if (layoutResource == R.layout.widget_compact_4x2) {
+            views.setTextViewText(R.id.widget_arrival_time, "--:--")
+        }
+
         hideUpcomingTrains(context, views)
     }
-    
+
     private fun renderSchedule(context: Context, views: RemoteViews, state: WidgetState.Schedule) {
         views.setTextViewText(R.id.widget_station_name, state.originName)
         views.setTextViewText(R.id.widget_destination, state.destinationName)
@@ -147,12 +152,16 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_label, "CONNECTION")
         views.setTextViewText(R.id.widget_platform, state.retryText)
         views.setTextViewText(R.id.widget_train_number, "")
-        
+
+        if (layoutResource == R.layout.widget_compact_4x2) {
+            views.setTextViewText(R.id.widget_arrival_time, "--:--")
+        }
+
         setStationBackground(views, state.originId)
-        
+
         hideUpcomingTrains(context, views)
     }
-    
+
     private fun renderLoading(context: Context, views: RemoteViews, state: WidgetState.Loading) {
         views.setTextViewText(R.id.widget_station_name, state.originName.ifEmpty { context.getString(R.string.loading) })
         views.setTextViewText(R.id.widget_destination, state.destinationName)
@@ -160,12 +169,16 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_label, "LOADING")
         views.setTextViewText(R.id.widget_platform, "")
         views.setTextViewText(R.id.widget_train_number, "")
-        
+
+        if (layoutResource == R.layout.widget_compact_4x2) {
+            views.setTextViewText(R.id.widget_arrival_time, "--:--")
+        }
+
         setStationBackground(views, state.originId)
-        
+
         hideUpcomingTrains(context, views)
     }
-    
+
     private fun renderTomorrowFallback(context: Context, views: RemoteViews, state: WidgetState.TomorrowFallback) {
         views.setTextViewText(R.id.widget_station_name, state.originName)
         views.setTextViewText(R.id.widget_destination, state.destinationName)
@@ -173,12 +186,16 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_label, "NO SCHEDULE")
         views.setTextViewText(R.id.widget_platform, "Try again later")
         views.setTextViewText(R.id.widget_train_number, "")
-        
+
+        if (layoutResource == R.layout.widget_compact_4x2) {
+            views.setTextViewText(R.id.widget_arrival_time, "--:--")
+        }
+
         setStationBackground(views, state.originId)
-        
+
         hideUpcomingTrains(context, views)
     }
-    
+
     private fun renderTomorrowLoading(context: Context, views: RemoteViews, state: WidgetState.TomorrowLoading) {
         views.setTextViewText(R.id.widget_station_name, state.originName)
         views.setTextViewText(R.id.widget_destination, state.destinationName)
@@ -187,12 +204,16 @@ class WidgetStateRenderer(
         views.setTextColor(R.id.widget_train_label, context.getColor(R.color.widget_tomorrow_text))
         views.setTextViewText(R.id.widget_platform, "Loading...")
         views.setTextViewText(R.id.widget_train_number, "")
-        
+
+        if (layoutResource == R.layout.widget_compact_4x2) {
+            views.setTextViewText(R.id.widget_arrival_time, "--:--")
+        }
+
         setStationBackground(views, state.originId)
-        
+
         hideUpcomingTrains(context, views)
     }
-    
+
     private fun renderTomorrowSchedule(context: Context, views: RemoteViews, state: WidgetState.TomorrowSchedule) {
         views.setTextViewText(R.id.widget_station_name, state.originName)
         views.setTextViewText(R.id.widget_destination, state.destinationName)
@@ -231,12 +252,16 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_label, "NO TRAINS")
         views.setTextViewText(R.id.widget_platform, "Check tomorrow")
         views.setTextViewText(R.id.widget_train_number, "")
-        
+
+        if (layoutResource == R.layout.widget_compact_4x2) {
+            views.setTextViewText(R.id.widget_arrival_time, "--:--")
+        }
+
         setStationBackground(views, state.originId)
-        
+
         hideUpcomingTrains(context, views)
     }
-    
+
     private fun renderFutureSchedule(context: Context, views: RemoteViews, state: WidgetState.FutureSchedule) {
         views.setTextViewText(R.id.widget_station_name, state.originName)
         views.setTextViewText(R.id.widget_destination, state.destinationName)

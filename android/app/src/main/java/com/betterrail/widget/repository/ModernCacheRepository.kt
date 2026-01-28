@@ -259,14 +259,23 @@ class ModernCacheRepository @Inject constructor(
         // Check time-based expiry (keep existing 2-hour limit as max)
         val expiryTime = entity.cacheTimestamp + (CACHE_EXPIRY_HOURS * HOURS_TO_MILLISECONDS)
         val isWithinTimeLimit = System.currentTimeMillis() < expiryTime
-        
+
+        // If no routes in cache, it could be due to filtering (not departed trains)
+        // Trust the cache if it's within time limit
+        if (entity.routes.isEmpty()) {
+            if (!isWithinTimeLimit) {
+                Log.d(TAG, "Cache invalid for ${entity.cacheKey}: time expired (empty cache)")
+            }
+            return isWithinTimeLimit
+        }
+
         // Check if any trains are still in the future
         val hasActiveFutureTrains = entity.routes.any { train ->
             isTrainInFuture(train.departureTime)
         }
-        
+
         val isValid = isWithinTimeLimit && hasActiveFutureTrains
-        
+
         if (!isValid) {
             val reason = when {
                 !isWithinTimeLimit -> "time expired"
@@ -275,7 +284,7 @@ class ModernCacheRepository @Inject constructor(
             }
             Log.d(TAG, "Cache invalid for ${entity.cacheKey}: $reason")
         }
-        
+
         return isValid
     }
     
