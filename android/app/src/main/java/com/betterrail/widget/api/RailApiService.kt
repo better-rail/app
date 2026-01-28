@@ -29,9 +29,6 @@ class RailApiService(
         private val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         private val TIME_FORMAT = SimpleDateFormat("HH:mm", Locale.getDefault())
     }
-    
-    // Track whether we've fallen back to proxy API
-    private var hasFallenBackToProxy = false
 
     /**
      * Create HTTP client with configurable timeouts
@@ -111,12 +108,7 @@ class RailApiService(
         requestHour: String,
         isRequestForFutureDate: Boolean
     ): Result<WidgetScheduleData> {
-        // Start with direct API
-        val baseUrl = if (hasFallenBackToProxy) {
-            BuildConfig.RAIL_API_PROXY_TIMETABLE_URL
-        } else {
-            BuildConfig.RAIL_API_TIMETABLE_URL
-        }
+        val baseUrl = BuildConfig.RAIL_API_TIMETABLE_URL
 
         val url = buildApiUrl(baseUrl)
         val requestBody = createRequestBody(originId, destinationId, requestDate, requestHour)
@@ -152,15 +144,6 @@ class RailApiService(
             android.util.Log.d("RailApiService", "Response code: ${response.code}")
             
             when {
-                response.code == 403 && !hasFallenBackToProxy -> {
-                    // Fall back to proxy API on 403 error
-                    android.util.Log.w("RailApiService", "Got 403 error, falling back to proxy API")
-                    hasFallenBackToProxy = true
-                    
-                    // Retry with proxy API
-                    return@withRetry makeApiCall(originId, destinationId, requestDate, requestHour, isRequestForFutureDate)
-                }
-                
                 !response.isSuccessful -> {
                     android.util.Log.e("RailApiService", "HTTP Error: ${response.code} - ${response.message}")
                     Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
