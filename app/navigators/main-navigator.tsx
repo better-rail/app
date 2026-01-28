@@ -10,6 +10,7 @@ import { PlannerScreen, SelectStationScreen, RouteListScreen, RouteDetailsScreen
 import { color, typography } from "../theme"
 import type { RouteItem } from "../services/api"
 import { Platform } from "react-native"
+import { isLiquidGlassSupported } from "@callstack/liquid-glass"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -83,7 +84,7 @@ export function MainNavigator() {
           presentation: "formSheet",
           headerShown: false,
           sheetAllowedDetents: "fitToContents",
-          contentStyle: { backgroundColor: "transparent" },
+          contentStyle: { backgroundColor: isLiquidGlassSupported ? "transparent" : color.background },
         }}
       />
     </Stack.Navigator>
