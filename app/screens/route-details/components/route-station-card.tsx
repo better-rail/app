@@ -58,12 +58,12 @@ const ROUTE_STATION_NAME: TextStyle = {
 
 const ROUTE_STATION_DETAILS_TEXT: TextStyle = {
   fontSize: 14,
-  fontWeight: "300",
+  fontWeight: "400",
 }
 
 const LAST_DESTINATION_TEXT: TextStyle = {
   fontSize: 14,
-  fontWeight: "300",
+  fontWeight: "400",
   opacity: 0.8,
 }
 
