@@ -64,7 +64,12 @@
     "copyRoute": "Копировать",
     "share": "Поделиться деталями поездки",
     "routeCopied": "Скопирован",
-    "addedToCalendar": "Добавлено в календарь"
+    "addedToCalendar": "Добавлено в календарь",
+    "collectorTrainsFilterTitle": "Собирающие поезда",
+    "filter": "Фильтр",
+    "stationHours": "Часы работы",
+    "hideCollectorTrains": "Скрыть собирающие поезда",
+    "collectorTrainsDescription": "Собирающие поезда — это более длинные маршруты, которые занимают больше времени, чем другие"
   },
   "routeDetails": {
     "platform": "Платформа",

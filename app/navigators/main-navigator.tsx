@@ -6,7 +6,14 @@
  */
 import React from "react"
 import { createNativeStackNavigator, type NativeStackScreenProps } from "@react-navigation/native-stack"
-import { PlannerScreen, SelectStationScreen, RouteListScreen, RouteDetailsScreen, StationHoursScreen } from "../screens"
+import {
+  PlannerScreen,
+  SelectStationScreen,
+  RouteListScreen,
+  RouteDetailsScreen,
+  StationHoursScreen,
+  FilterScreen,
+} from "../screens"
 import { color, typography } from "../theme"
 import type { RouteItem } from "../services/api"
 import { Platform } from "react-native"
@@ -30,6 +37,7 @@ export type PrimaryParamList = {
   routeList: { originId: string; destinationId: string; time: number; enableQuery?: boolean }
   routeDetails: { routeItem: RouteItem; originId: string; destinationId: string }
   stationHours: { stationId: string }
+  collectorTrainsFilter: undefined
   settings: undefined
 }
 
@@ -80,6 +88,17 @@ export function MainNavigator() {
       <Stack.Screen
         name="stationHours"
         component={StationHoursScreen}
+        options={{
+          presentation: "formSheet",
+          headerShown: false,
+          sheetAllowedDetents: "fitToContents",
+          contentStyle: { backgroundColor: isLiquidGlassSupported ? "transparent" : color.background },
+          sheetGrabberVisible: true,
+        }}
+      />
+      <Stack.Screen
+        name="collectorTrainsFilter"
+        component={FilterScreen}
         options={{
           presentation: "formSheet",
           headerShown: false,
