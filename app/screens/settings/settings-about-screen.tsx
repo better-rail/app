@@ -49,6 +49,9 @@ const ABOUT_TEXT: TextStyle = {
   textAlign: "center",
 }
 
+const TWITTER_DEEP_LINK = "twitter://user?screen_name=better_rail"
+const TWITTER_WEB_URL = "https://x.com/better_rail"
+
 // TODO: Add mail body to iOS - need to understand how to add newlines correctly
 const emailBody = Platform.select({
   android: `%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A
@@ -56,7 +59,7 @@ const emailBody = Platform.select({
 App: Better Rail ${getVersion()} (${getBuildNumber()})
 Device: ${getDeviceId()} (${getSystemVersion()})
 App Locale: ${userLocale}
-Device Locale: ${deviceLocale} 
+Device Locale: ${deviceLocale}
 `,
   ios: "",
 })
@@ -89,16 +92,14 @@ export const AboutScreen = observer(function AboutScreen({ navigation }: Setting
           icon="🐦"
           externalLink
           onPress={async () => {
-            const twitterUrl = "twitter://user?screen_name=better_rail"
-
             try {
-              if (await Linking.canOpenURL(twitterUrl)) {
-                await Linking.openURL(twitterUrl)
+              if (await Linking.canOpenURL(TWITTER_DEEP_LINK)) {
+                await Linking.openURL(TWITTER_DEEP_LINK)
               } else {
-                await openLink("https://x.com/better_rail")
+                await openLink(TWITTER_WEB_URL)
               }
             } catch {
-              await openLink("https://x.com/better_rail")
+              await openLink(TWITTER_WEB_URL)
             }
           }}
         />
