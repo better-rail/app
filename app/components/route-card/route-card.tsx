@@ -262,7 +262,7 @@ export const RouteCard = observer(function RouteCard(props: RouteCardProps) {
     <TouchableComponent
       onPress={onPress}
       onLongPress={Platform.OS === "android" ? onLongPress : undefined}
-      activeScale={0.95}
+      activeScale={0.97}
       friction={generatedContextMenuActions && Platform.OS === "ios" ? undefined : 9}
       style={[containerStyle, props.isActiveRide && ACTIVE_RIDE_CONTAINER, props.isRouteInThePast && PAST_RIDE_CONTAINER, style]}
     >
