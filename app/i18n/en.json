@@ -67,7 +67,12 @@
     "copyRoute": "Copy",
     "share": "Share Details",
     "routeCopied": "Copied to clipboard",
-    "addedToCalendar": "Added to calendar"
+    "addedToCalendar": "Added to calendar",
+    "collectorTrainsFilterTitle": "Collector Trains",
+    "filter": "Filter",
+    "stationHours": "Station Hours",
+    "hideCollectorTrains": "Hide Collector Trains",
+    "collectorTrainsDescription": "Collector trains are longer routes that take more time than others"
   },
   "routeDetails": {
     "platform": "Platform",

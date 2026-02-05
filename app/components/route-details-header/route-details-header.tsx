@@ -236,6 +236,19 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
       }
     }
 
+    const menuActions = [
+      {
+        title: translate("routes.filter"),
+        systemIcon: "line.3.horizontal.decrease",
+        onPress: () => navigation.navigate("collectorTrainsFilter"),
+      },
+      {
+        title: translate("routes.stationHours"),
+        systemIcon: "clock",
+        onPress: openStationHoursSheet,
+      },
+    ]
+
     if (isLiquidGlassSupported) {
       return (
         <View
@@ -246,24 +259,32 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
           }}
         >
           <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
-          <Pressable onPress={openStationHoursSheet}>
-            <LiquidGlassView
-              interactive
-              colorScheme="dark"
-              tintColor="rgba(51, 51, 51, 0.9)"
-              style={{ padding: 12, borderRadius: 50 }}
+          <LiquidGlassView
+            interactive
+            colorScheme="dark"
+            tintColor="rgba(51, 51, 51, 0.9)"
+            style={{ padding: 12, borderRadius: 50 }}
+          >
+            <ContextMenu
+              dropdownMenuMode
+              actions={menuActions}
+              onPress={(event) => {
+                HapticFeedback.trigger("impactMedium")
+                menuActions[event.nativeEvent.index]?.onPress?.()
+              }}
             >
               <Image
-                source={require("../../../assets/clock-ios.png")}
+                source={require("../../../assets/ellipsis.regular.png")}
                 style={{
                   width: 23,
                   height: 23,
+                  resizeMode: "contain",
                   tintColor: "lightgrey",
                   opacity: 0.9,
                 }}
               />
-            </LiquidGlassView>
-          </Pressable>
+            </ContextMenu>
+          </LiquidGlassView>
         </View>
       )
     }
@@ -271,9 +292,16 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
     return (
       <>
         <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
-        <Pressable onPress={openStationHoursSheet}>
+        <ContextMenu
+          dropdownMenuMode
+          actions={menuActions}
+          onPress={(event) => {
+            HapticFeedback.trigger("impactMedium")
+            menuActions[event.nativeEvent.index]?.onPress?.()
+          }}
+        >
           <Image
-            source={require("../../../assets/clock-ios.png")}
+            source={require("../../../assets/ellipsis.regular.png")}
             style={{
               width: 23,
               height: 23,
@@ -282,7 +310,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
               opacity: 0.9,
             }}
           />
-        </Pressable>
+        </ContextMenu>
       </>
     )
   }, [
@@ -296,6 +324,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
     destinationId,
     showEntireRoute,
     setShowEntireRoute,
+    navigation,
   ])
 
   useLayoutEffect(() => {

@@ -11,6 +11,7 @@ export const SettingsModel = types
     profileCode: types.optional(types.number, 1),
     totalTip: types.optional(types.number, 0),
     showRouteCardHeader: types.optional(types.boolean, false),
+    hideCollectorTrains: types.optional(types.boolean, false),
   })
   .views((self) => ({
     get profileCodeLabel() {
@@ -46,6 +47,10 @@ export const SettingsModel = types
 
     setShowRouteCardHeader(show: boolean) {
       self.showRouteCardHeader = show
+    },
+
+    setHideCollectorTrains(hide: boolean) {
+      self.hideCollectorTrains = hide
     },
   }))
   .actions((self) => ({

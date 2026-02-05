@@ -30,7 +30,7 @@ const ROOT: ViewStyle = {
 type RouteData = RouteItem | string
 
 export const RouteListScreen = observer(function RouteListScreen({ navigation, route }: RouteListScreenProps) {
-  const { trainRoutes, routePlan, ride } = useStores()
+  const { trainRoutes, routePlan, ride, settings } = useStores()
   const { originId, destinationId, time, enableQuery } = route.params
   const { showActionSheetWithOptions } = useActionSheet()
   const colorScheme = useColorScheme()
@@ -274,6 +274,15 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     return undefined
   }, [trains.isSuccess])
 
+  // Filter out collector trains when the setting is enabled
+  const filteredRouteData = useMemo(() => {
+    if (!settings.hideCollectorTrains) return routeData
+    return routeData.filter((item) => {
+      if (typeof item === "string") return true // Keep date headers
+      return !item.isMuchLonger
+    })
+  }, [routeData, settings.hideCollectorTrains])
+
   const shouldShowDashedLine = useMemo(() => {
     const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -361,7 +370,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     let headerIndex = index
     while (headerIndex > 0) {
       headerIndex--
-      const headerItem = routeData[headerIndex]
+      const headerItem = filteredRouteData[headerIndex]
       if (typeof headerItem === "string") {
         // Check if the route's departure date matches the header date
         const routeDate = new Date(item.trains[0].departureTime).toDateString()
@@ -444,11 +453,11 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
       )}
 
       {/* Show the loading indicator only when we're loading and there's no data yet */}
-      {trains.isLoading && routeData.length === 0 && (
+      {trains.isLoading && filteredRouteData.length === 0 && (
         <ActivityIndicator size="large" style={{ marginTop: spacing[6] }} color="grey" />
       )}
 
-      {routeData.length > 0 && (
+      {filteredRouteData.length > 0 && (
         <FlashList
           ref={flashListRef}
           renderItem={renderRouteCard}
@@ -457,7 +466,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
               ? item
               : item.trains.map((train) => `${train.trainNumber}-${train.departureTimeString}`).join()
           }
-          data={routeData}
+          data={filteredRouteData}
           contentContainerStyle={{
             paddingTop: spacing[4],
             paddingHorizontal: spacing[3],
@@ -466,7 +475,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           estimatedItemSize={RouteCardHeight + spacing[3]}
           initialScrollIndex={initialScrollIndex}
           // so the list will re-render when the ride route changes, and so the item will be marked
-          extraData={[ride.route, routePlan.date, trains.status, loadingDate]}
+          extraData={[ride.route, routePlan.date, trains.status, loadingDate, settings.hideCollectorTrains]}
           ListFooterComponent={
             <DateScroll setTime={loadNextDayData} currenTime={nextDayDate.getTime()} isLoadingDate={isNextDayLoading} />
           }
