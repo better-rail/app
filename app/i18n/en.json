@@ -93,7 +93,8 @@
     "bicyclesAllowed": "Bicycles allowed",
     "wagonsCount": "%{count} wagons",
     "seatsCount": "%{count} seats",
-    "trainInformation": "Train information"
+    "trainInformation": "Train information",
+    "noWagonInformationAvailable": "No wagon information available"
   },
   "settings": {
     "title": "Settings",

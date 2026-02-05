@@ -93,7 +93,8 @@
     "bicyclesAllowed": "מותר להעלות אופניים",
     "wagonsCount": "%{count} קרונות",
     "seatsCount": "%{count} מושבים",
-    "trainInformation": "מידע על הרכבת"
+    "trainInformation": "מידע על הרכבת",
+    "noWagonInformationAvailable": "לא נמצא מידע על הרכבת"
   },
   "settings": {
     "title": "הגדרות",

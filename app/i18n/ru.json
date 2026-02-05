@@ -90,7 +90,8 @@
     "bicyclesAllowed": "Разрешены велосипеды",
     "wagonsCount": "%{count} вагонов",
     "seatsCount": "%{count} мест",
-    "trainInformation": "Информация о поезде"
+    "trainInformation": "Информация о поезде",
+    "noWagonInformationAvailable": "Информация о вагонах недоступна"
   },
   "settings": {
     "title": "Настройки",

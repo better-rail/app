@@ -86,7 +86,8 @@
     "bicyclesAllowed": "مسموح بالدراجات",
     "wagonsCount": "%{count} عربات",
     "seatsCount": "%{count} مقاعد",
-    "trainInformation": "معلومات القطار"
+    "trainInformation": "معلومات القطار",
+    "noWagonInformationAvailable": "لا توجد معلومات عن العربات متاحة"
   },
   "settings": {
     "title": "اعدادت",

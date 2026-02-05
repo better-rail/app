@@ -154,6 +154,21 @@ const DIVIDER: ViewStyle = {
   marginVertical: spacing[4],
 }
 
+const EMPTY_STATE_CONTAINER: ViewStyle = {
+  flex: 1,
+  justifyContent: "center",
+  alignItems: "center",
+  paddingHorizontal: spacing[5],
+  paddingVertical: spacing[6],
+}
+
+const EMPTY_STATE_TEXT: TextStyle = {
+  fontSize: 15,
+  color: color.label,
+  textAlign: "center",
+  lineHeight: 22,
+}
+
 function WagonItem({ wagon, isFirst, isLast }: { wagon: Wagon; isFirst: boolean; isLast: boolean }) {
   const hasFeatures = wagon.handicapped || wagon.bicycle
 
@@ -272,7 +287,9 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
           )}
         </>
       ) : (
-        <Text style={{ color: color.label, marginTop: spacing[2] }}>No wagon information available</Text>
+        <View style={EMPTY_STATE_CONTAINER}>
+          <Text style={EMPTY_STATE_TEXT}>{translate("routeDetails.noWagonInformationAvailable")}</Text>
+        </View>
       )}
     </View>
   )
