@@ -14,7 +14,6 @@ import { translate, isRTL } from "../../i18n"
 import { useStores } from "../../models"
 import * as Burnt from "burnt"
 import type { RouteItem } from "../../services/api"
-import type { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types"
 import ContextMenu from "react-native-context-menu-view"
 import { addRouteToCalendar as addRouteToCalendarHelper, CalendarEventConfig } from "../../utils/helpers/calendar-helpers"
 import { createContextMenuActions } from "../route-card/route-context-menu-actions"
@@ -102,14 +101,12 @@ export interface RouteDetailsHeaderProps {
   screenName?: "routeList" | "routeDetails" | "activeRide"
   style?: ViewStyle
   eventConfig?: CalendarEventConfig
-  stationHoursSheetRef?: React.MutableRefObject<BottomSheetMethods>
   showEntireRoute?: boolean
   setShowEntireRoute?: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
-  const { routeItem, originId, destinationId, screenName, style, stationHoursSheetRef, showEntireRoute, setShowEntireRoute } =
-    props
+  const { routeItem, originId, destinationId, screenName, style, showEntireRoute, setShowEntireRoute } = props
   const { favoriteRoutes, routePlan } = useStores()
   const navigation = useNavigation()
   const insets = useSafeAreaInsets()
@@ -124,7 +121,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 
   const openStationHoursSheet = () => {
     HapticFeedback.trigger("impactMedium")
-    stationHoursSheetRef?.current?.expand()
+    navigation.navigate("stationHours", { stationId: originId })
   }
 
   const scaleStationCards = useCallback(() => {

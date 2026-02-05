@@ -6,11 +6,12 @@
  */
 import React from "react"
 import { createNativeStackNavigator, type NativeStackScreenProps } from "@react-navigation/native-stack"
-import { PlannerScreen, SelectStationScreen, RouteListScreen, RouteDetailsScreen } from "../screens"
+import { PlannerScreen, SelectStationScreen, RouteListScreen, RouteDetailsScreen, StationHoursScreen } from "../screens"
 import { color, typography } from "../theme"
 import { Platform } from "react-native"
 import { RouteDetailsTrainInfo } from "../screens/route-details/route-details-train-info"
 import type { RouteItem, Train } from "../services/api/rail-api.types"
+import { isLiquidGlassSupported } from "@callstack/liquid-glass"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -30,6 +31,7 @@ export type PrimaryParamList = {
   routeList: { originId: string; destinationId: string; time: number; enableQuery?: boolean }
   routeDetails: { routeItem: RouteItem; originId: string; destinationId: string }
   routeDetailsTrainInfo: { train: Train }
+  stationHours: { stationId: string }
   settings: undefined
 }
 
@@ -38,6 +40,7 @@ export type SelectStationScreenProps = NativeStackScreenProps<PrimaryParamList, 
 export type RouteListScreenProps = NativeStackScreenProps<PrimaryParamList, "routeList">
 export type RouteDetailsScreenProps = NativeStackScreenProps<PrimaryParamList, "routeDetails">
 export type RouteDetailsTrainInfoScreenProps = NativeStackScreenProps<PrimaryParamList, "routeDetailsTrainInfo">
+export type StationHoursScreenProps = NativeStackScreenProps<PrimaryParamList, "stationHours">
 
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
 const Stack = createNativeStackNavigator<PrimaryParamList>()
@@ -86,6 +89,17 @@ export function MainNavigator() {
           presentation: "formSheet",
           sheetAllowedDetents: [0.35],
           contentStyle: { backgroundColor: color.background },
+        }}
+      />
+      <Stack.Screen
+        name="stationHours"
+        component={StationHoursScreen}
+        options={{
+          presentation: "formSheet",
+          headerShown: false,
+          sheetAllowedDetents: "fitToContents",
+          contentStyle: { backgroundColor: isLiquidGlassSupported ? "transparent" : color.background },
+          sheetGrabberVisible: true,
         }}
       />
     </Stack.Navigator>
