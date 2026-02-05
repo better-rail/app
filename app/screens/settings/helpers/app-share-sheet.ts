@@ -1,8 +1,9 @@
 import { Platform } from "react-native"
 import Share, { ShareOptions } from "react-native-share"
 import { translate } from "../../../i18n"
+import { isShareCancelledError } from "../../../utils/helpers/share-errors"
 
-export function shareApp() {
+export async function shareApp() {
   const url = "https://better-rail.co.il/"
   const title = "Better Rail"
   const message = translate("settings.shareMessage")
@@ -29,5 +30,11 @@ export function shareApp() {
     },
   })
 
-  Share.open(shareOptions)
+  try {
+    await Share.open(shareOptions)
+  } catch (error) {
+    if (!isShareCancelledError(error)) {
+      console.error("Failed to share app:", error)
+    }
+  }
 }

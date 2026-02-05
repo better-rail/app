@@ -7,6 +7,7 @@ import { RouteItem } from "../../services/api"
 import { translate, isRTL } from "../../i18n"
 import { stationsObject, stationLocale } from "../../data/stations"
 import { addRouteToCalendar as addRouteToCalendarHelper } from "./calendar-helpers"
+import { isShareCancelledError } from "./share-errors"
 
 export function formatRouteForSharing(
   routeItem: RouteItem,
@@ -120,7 +121,7 @@ export async function shareRouteAction(
   try {
     await shareRoute(routeItem, originId, destinationId)
   } catch (error) {
-    if (error?.message !== "User did not share") {
+    if (!isShareCancelledError(error)) {
       console.error("Failed to share route:", error)
       Burnt.alert({
         title: translate("common.error"),
