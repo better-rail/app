@@ -305,6 +305,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
               width: 23,
               height: 23,
               marginLeft: spacing[2],
+              resizeMode: "contain",
               tintColor: "lightgrey",
               opacity: 0.9,
             }}
