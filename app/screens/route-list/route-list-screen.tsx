@@ -254,26 +254,6 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     setNextDayDate(nextDay)
   }, [time])
 
-  // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
-  // returns a route list for the whole day.
-  const initialScrollIndex = useMemo(() => {
-    if (trains.isSuccess) {
-      let index: number
-
-      if (routePlan.dateType === "departure") {
-        const departureTimes = trains.data.map((route) => route.trains[0].departureTime)
-        index = closestIndexTo(route.params.time, departureTimes)
-      } else if (routePlan.dateType === "arrival") {
-        const arrivalTimes = trains.data.map((route) => route.trains[0].arrivalTime)
-        index = closestIndexTo(route.params.time, arrivalTimes)
-      }
-
-      return index
-    }
-
-    return undefined
-  }, [trains.isSuccess])
-
   // Filter out collector trains when the setting is enabled
   const filteredRouteData = useMemo(() => {
     if (!settings.hideCollectorTrains) return routeData
@@ -282,6 +262,34 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
       return !item.isMuchLonger
     })
   }, [routeData, settings.hideCollectorTrains])
+
+  // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
+  // returns a route list for the whole day.
+  const initialScrollIndex = useMemo(() => {
+    if (!trains.isSuccess || filteredRouteData.length === 0) return undefined
+
+    // Get only the route items (not date headers)
+    const routeItems = filteredRouteData.filter((item): item is RouteItem => typeof item !== "string")
+
+    if (routeItems.length === 0) return undefined
+
+    let targetRoute: RouteItem | undefined
+
+    if (routePlan.dateType === "departure") {
+      const departureTimes = routeItems.map((r) => r.trains[0].departureTime)
+      const closestIdx = closestIndexTo(route.params.time, departureTimes)
+      targetRoute = routeItems[closestIdx]
+    } else if (routePlan.dateType === "arrival") {
+      const arrivalTimes = routeItems.map((r) => r.trains[0].arrivalTime)
+      const closestIdx = closestIndexTo(route.params.time, arrivalTimes)
+      targetRoute = routeItems[closestIdx]
+    }
+
+    if (!targetRoute) return undefined
+
+    // Find the actual index in filteredRouteData (which includes date headers)
+    return filteredRouteData.findIndex((item) => item === targetRoute)
+  }, [trains.isSuccess, filteredRouteData, routePlan.dateType, route.params.time])
 
   const shouldShowDashedLine = useMemo(() => {
     const { width: deviceWidth } = Dimensions.get("screen")
@@ -459,6 +467,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
 
       {filteredRouteData.length > 0 && (
         <FlashList
+          key={`route-list-${settings.hideCollectorTrains}`}
           ref={flashListRef}
           renderItem={renderRouteCard}
           keyExtractor={(item) =>
