@@ -88,11 +88,19 @@ export const AboutScreen = observer(function AboutScreen({ navigation }: Setting
           title={translate("settings.twitter")}
           icon="🐦"
           externalLink
-          onPress={() =>
-            Linking.openURL("twitter://user?screen_name=better_rail").catch(() => {
-              Linking.openURL("https://x.com/better_rail")
-            })
-          }
+          onPress={async () => {
+            const twitterUrl = "twitter://user?screen_name=better_rail"
+
+            try {
+              if (await Linking.canOpenURL(twitterUrl)) {
+                await Linking.openURL(twitterUrl)
+              } else {
+                await openLink("https://x.com/better_rail")
+              }
+            } catch {
+              await openLink("https://x.com/better_rail")
+            }
+          }}
         />
       </View>
 
