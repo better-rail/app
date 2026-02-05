@@ -120,7 +120,6 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   const isFavorite = favoriteRoutes.routes.some((fav) => fav.id === routeId)
 
   const openStationHoursSheet = () => {
-    HapticFeedback.trigger("impactMedium")
     navigation.navigate("stationHours", { stationId: originId })
   }
 
