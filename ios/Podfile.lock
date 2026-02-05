@@ -3360,7 +3360,7 @@ PODS:
     - React
   - react-native-context-menu-view (1.17.0):
     - React
-  - react-native-date-picker (5.0.13):
+  - react-native-date-picker (5.0.12):
     - boost
     - DoubleConversion
     - fast_float
@@ -5152,7 +5152,7 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: 86334c5c06315e0bccb7b6e6f2c905e92f98b615
   react-native-actions-shortcuts: 890ebc88c8d5da2700299d55d1c7b48bbbf4688c
   react-native-context-menu-view: f72a7edd2a54cdb14e57a48ce8ac50d3b1602a9d
-  react-native-date-picker: 64ccae6c3a8104a168cef950fea8e1fe616cda82
+  react-native-date-picker: a06d7eb5d84c27b6f02a2e3f3a01ce50b2f4a3a0
   react-native-in-app-review: b3d1eed3d1596ebf6539804778272c4c65e4a400
   react-native-ios-context-menu: 64a47a53b4ba27896d977a741ac98b562aa59571
   react-native-ios-utilities: 064e3e5bf2c59d2e41db98f5c748732d9a7018f7
