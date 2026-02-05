@@ -68,11 +68,11 @@
     "share": "Share Details",
     "routeCopied": "Copied to clipboard",
     "addedToCalendar": "Added to calendar",
-    "collectorTrainsFilterTitle": "Collector Trains",
+    "collectorTrainsFilterTitle": "Slow Trains",
     "filter": "Filter",
     "stationHours": "Station Hours",
-    "hideCollectorTrains": "Hide Collector Trains",
-    "collectorTrainsDescription": "Collector trains are trains whose route and travel time are significantly longer than other trains."
+    "hideCollectorTrains": "Hide Slow Trains",
+    "collectorTrainsDescription": "Slow trains are trains whose route and travel time are significantly longer than other trains."
   },
   "routeDetails": {
     "platform": "Platform",

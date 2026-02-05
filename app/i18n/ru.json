@@ -65,11 +65,11 @@
     "share": "Поделиться деталями поездки",
     "routeCopied": "Скопирован",
     "addedToCalendar": "Добавлено в календарь",
-    "collectorTrainsFilterTitle": "Собирающие поезда",
+    "collectorTrainsFilterTitle": "Медленные поезда",
     "filter": "Фильтр",
     "stationHours": "Часы работы",
-    "hideCollectorTrains": "Скрыть собирающие поезда",
-    "collectorTrainsDescription": "Собирающие поезда — это более длинные маршруты, которые занимают больше времени, чем другие"
+    "hideCollectorTrains": "Скрыть медленные поезда",
+    "collectorTrainsDescription": "Медленные поезда — это поезда, у которых маршрут и время в пути значительно длиннее, чем у других."
   },
   "routeDetails": {
     "platform": "Платформа",

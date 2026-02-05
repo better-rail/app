@@ -62,11 +62,11 @@
     "share": "مشاركة تفاصيل الرحلة",
     "routeCopied": "تم نسخ المسار",
     "addedToCalendar": "تمت الإضافة للتقويم",
-    "collectorTrainsFilterTitle": "قطارات جامعة",
+    "collectorTrainsFilterTitle": "قطارات بطيئة",
     "filter": "تصفية",
     "stationHours": "ساعات المحطة",
-    "hideCollectorTrains": "إخفاء القطارات الجامعة",
-    "collectorTrainsDescription": "القطارات الجامعة هي مسارات أطول تستغرق وقتًا أكثر من غيرها"
+    "hideCollectorTrains": "إخفاء القطارات البطيئة",
+    "collectorTrainsDescription": "القطارات البطيئة هي قطارات يكون مسارها ووقت الرحلة أطول بكثير من القطارات الأخرى."
   },
   "routeDetails": {
     "platform": "رصيف",
