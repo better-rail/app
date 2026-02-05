@@ -22,6 +22,7 @@ import { HeaderBackButton } from "../header-back-button"
 import { RouteStationNameButton } from "./route-station-name-button"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
+const ellipsisIcon = require("../../../assets/ellipsis.regular.png")
 
 const ROUTE_DETAILS_WRAPPER: ViewStyle = {
   flexDirection: "row",
@@ -273,7 +274,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
               }}
             >
               <Image
-                source={require("../../../assets/ellipsis.regular.png")}
+                source={ellipsisIcon}
                 style={{
                   width: 23,
                   height: 23,
@@ -300,7 +301,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
           }}
         >
           <Image
-            source={require("../../../assets/ellipsis.regular.png")}
+            source={ellipsisIcon}
             style={{
               width: 23,
               height: 23,
