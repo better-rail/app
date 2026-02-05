@@ -72,7 +72,7 @@
     "filter": "Filter",
     "stationHours": "Station Hours",
     "hideCollectorTrains": "Hide Collector Trains",
-    "collectorTrainsDescription": "Collector trains are longer routes that take more time than others"
+    "collectorTrainsDescription": "Collector trains are trains whose route and travel time are significantly longer than other trains."
   },
   "routeDetails": {
     "platform": "Platform",

@@ -8,9 +8,9 @@ import { SETTING_GROUP } from "../settings/settings-styles"
 import { translate } from "../../i18n"
 
 const WRAPPER: ViewStyle = {
-  paddingTop: spacing[4],
+  paddingTop: spacing[5],
   paddingHorizontal: spacing[4],
-  minHeight: 200,
+  minHeight: 180,
 }
 
 const TITLE: TextStyle = {
@@ -21,6 +21,7 @@ const TITLE: TextStyle = {
 }
 
 const DESCRIPTION: TextStyle = {
+  marginTop: -spacing[2],
   fontSize: 14,
   paddingHorizontal: spacing[2],
   opacity: 0.8,
