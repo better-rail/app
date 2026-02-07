@@ -37,7 +37,7 @@ export type PrimaryParamList = {
   routeList: { originId: string; destinationId: string; time: number; enableQuery?: boolean }
   routeDetails: { routeItem: RouteItem; originId: string; destinationId: string }
   stationHours: { stationId: string }
-  collectorTrainsFilter: undefined
+  slowTrainsFilter: undefined
   settings: undefined
 }
 
@@ -97,7 +97,7 @@ export function MainNavigator() {
         }}
       />
       <Stack.Screen
-        name="collectorTrainsFilter"
+        name="slowTrainsFilter"
         component={FilterScreen}
         options={{
           presentation: "formSheet",

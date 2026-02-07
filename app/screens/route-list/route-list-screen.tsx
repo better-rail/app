@@ -254,14 +254,14 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
     setNextDayDate(nextDay)
   }, [time])
 
-  // Filter out collector trains when the setting is enabled
+  // Filter out slow trains when the setting is enabled
   const filteredRouteData = useMemo(() => {
-    if (!settings.hideCollectorTrains) return routeData
+    if (!settings.hideSlowTrains) return routeData
     return routeData.filter((item) => {
       if (typeof item === "string") return true // Keep date headers
       return !item.isMuchLonger
     })
-  }, [routeData, settings.hideCollectorTrains])
+  }, [routeData, settings.hideSlowTrains])
 
   // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
   // returns a route list for the whole day.
@@ -467,7 +467,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
 
       {filteredRouteData.length > 0 && (
         <FlashList
-          key={`route-list-${settings.hideCollectorTrains}`}
+          key={`route-list-${settings.hideSlowTrains}`}
           ref={flashListRef}
           renderItem={renderRouteCard}
           keyExtractor={(item) =>
@@ -484,7 +484,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           estimatedItemSize={RouteCardHeight + spacing[3]}
           initialScrollIndex={initialScrollIndex}
           // so the list will re-render when the ride route changes, and so the item will be marked
-          extraData={[ride.route, routePlan.date, trains.status, loadingDate, settings.hideCollectorTrains]}
+          extraData={[ride.route, routePlan.date, trains.status, loadingDate, settings.hideSlowTrains]}
           ListFooterComponent={
             <DateScroll setTime={loadNextDayData} currenTime={nextDayDate.getTime()} isLoadingDate={isNextDayLoading} />
           }

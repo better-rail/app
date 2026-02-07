@@ -202,7 +202,7 @@ export const RouteCard = observer(function RouteCard(props: RouteCardProps) {
   }, [stops])
 
   // Check if indicators are bloated (short route badge with delay shown)
-  const isBloatedIndicators = isMuchShorter && !isMuchLonger && delay > 0 && !settings.hideCollectorTrains
+  const isBloatedIndicators = isMuchShorter && !isMuchLonger && delay > 0 && !settings.hideSlowTrains
 
   // Generate context menu actions if routeItem and IDs are provided
   const generatedContextMenuActions = useMemo(() => {
@@ -305,7 +305,7 @@ export const RouteCard = observer(function RouteCard(props: RouteCardProps) {
               delay={delay}
               stopsText={stopsText}
               isRideActive={props.isActiveRide}
-              hideShortRouteBadge={settings.hideCollectorTrains}
+              hideShortRouteBadge={settings.hideSlowTrains}
             />
           </View>
         </View>
