@@ -31,7 +31,7 @@ export const FilterScreen = observer(function FilterScreen() {
   const { settings } = useStores()
 
   const onToggle = (value: boolean) => {
-    settings.setHideCollectorTrains(value)
+    settings.setHideSlowTrains(value)
   }
 
   return (
@@ -42,14 +42,14 @@ export const FilterScreen = observer(function FilterScreen() {
         <SettingBox
           first
           last
-          title={translate("routes.hideCollectorTrains")}
+          title={translate("routes.hideSlowTrains")}
           toggle
-          toggleValue={settings.hideCollectorTrains}
+          toggleValue={settings.hideSlowTrains}
           onToggle={onToggle}
         />
       </View>
 
-      <Text style={DESCRIPTION}>{translate("routes.collectorTrainsDescription")}</Text>
+      <Text style={DESCRIPTION}>{translate("routes.slowTrainsDescription")}</Text>
     </View>
   )
 })

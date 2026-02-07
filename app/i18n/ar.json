@@ -62,11 +62,11 @@
     "share": "مشاركة تفاصيل الرحلة",
     "routeCopied": "تم نسخ المسار",
     "addedToCalendar": "تمت الإضافة للتقويم",
-    "collectorTrainsFilterTitle": "قطارات بطيئة",
+    "slowTrainsFilterTitle": "قطارات بطيئة",
     "filter": "تصفية",
     "stationHours": "ساعات المحطة",
-    "hideCollectorTrains": "إخفاء القطارات البطيئة",
-    "collectorTrainsDescription": "القطارات البطيئة هي قطارات يكون مسارها ووقت الرحلة أطول بكثير من القطارات الأخرى."
+    "hideSlowTrains": "إخفاء القطارات البطيئة",
+    "slowTrainsDescription": "القطارات البطيئة هي قطارات يكون مسارها ووقت الرحلة أطول بكثير من القطارات الأخرى."
   },
   "routeDetails": {
     "platform": "رصيف",

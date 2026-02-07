@@ -240,7 +240,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
       {
         title: translate("routes.filter"),
         systemIcon: "line.3.horizontal.decrease",
-        onPress: () => navigation.navigate("collectorTrainsFilter"),
+        onPress: () => navigation.navigate("slowTrainsFilter"),
       },
       {
         title: translate("routes.stationHours"),
