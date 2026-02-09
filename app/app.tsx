@@ -97,9 +97,10 @@ export const queryClient = new QueryClient({
     },
   }),
   mutationCache: new MutationCache({
-    onError: (error) => {
+    onError: (error, _variables, _context, mutation) => {
       Sentry.captureException(error, {
         tags: { source: "react-query-mutation" },
+        extra: { mutationKey: mutation.options.mutationKey },
       })
     },
   }),
