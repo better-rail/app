@@ -14,7 +14,7 @@ import "./utils/ignore-warnings"
 import React, { useState, useEffect, useRef } from "react"
 import { AppState, Platform } from "react-native"
 import DeviceInfo from "react-native-device-info"
-import { QueryClient, QueryClientProvider } from "react-query"
+import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from "react-query"
 import type { NavigationContainerRef } from "@react-navigation/native"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet"
@@ -87,7 +87,23 @@ async function disableSentryIfTelemetryDisabled() {
 // Disable Sentry if telemetry is disabled (async, non-blocking)
 disableSentryIfTelemetryDisabled()
 
-export const queryClient = new QueryClient()
+export const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (error, query) => {
+      Sentry.captureException(error, {
+        tags: { source: "react-query" },
+        extra: { queryKey: query.queryKey },
+      })
+    },
+  }),
+  mutationCache: new MutationCache({
+    onError: (error) => {
+      Sentry.captureException(error, {
+        tags: { source: "react-query-mutation" },
+      })
+    },
+  }),
+})
 
 const modalConfig = { RouteListWarningModal, DatePickerModal }
 const defaultOptions = { backdropOpacity: 0.6 }
