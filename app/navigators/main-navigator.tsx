@@ -6,7 +6,14 @@
  */
 import React from "react"
 import { createNativeStackNavigator, type NativeStackScreenProps } from "@react-navigation/native-stack"
-import { PlannerScreen, SelectStationScreen, RouteListScreen, RouteDetailsScreen, StationHoursScreen } from "../screens"
+import {
+  PlannerScreen,
+  SelectStationScreen,
+  RouteListScreen,
+  RouteDetailsScreen,
+  StationHoursScreen,
+  FilterScreen,
+} from "../screens"
 import { color, typography } from "../theme"
 import { Platform } from "react-native"
 import { RouteDetailsTrainInfo } from "../screens/route-details/route-details-train-info"
@@ -32,6 +39,7 @@ export type PrimaryParamList = {
   routeDetails: { routeItem: RouteItem; originId: string; destinationId: string }
   routeDetailsTrainInfo: { train: Train }
   stationHours: { stationId: string }
+  slowTrainsFilter: undefined
   settings: undefined
 }
 
@@ -94,6 +102,17 @@ export function MainNavigator() {
       <Stack.Screen
         name="stationHours"
         component={StationHoursScreen}
+        options={{
+          presentation: "formSheet",
+          headerShown: false,
+          sheetAllowedDetents: "fitToContents",
+          contentStyle: { backgroundColor: isLiquidGlassSupported ? "transparent" : color.background },
+          sheetGrabberVisible: true,
+        }}
+      />
+      <Stack.Screen
+        name="slowTrainsFilter"
+        component={FilterScreen}
         options={{
           presentation: "formSheet",
           headerShown: false,

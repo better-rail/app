@@ -68,7 +68,12 @@
     "copyRoute": "העתקה",
     "share": "שיתוף פרטי נסיעה",
     "routeCopied": "המסלול הועתק",
-    "addedToCalendar": "נוסף ליומן"
+    "addedToCalendar": "נוסף ליומן",
+    "slowTrainsFilterTitle": "רכבות מאספות",
+    "filter": "סינון",
+    "stationHours": "שעות פעילות",
+    "hideSlowTrains": "הסתרת רכבות מאספות",
+    "slowTrainsDescription": "רכבות מאספות הן רכבות שהמסלול וזמן הנסיעה שלהן ארוכים משמעותית מרכבות אחרות."
   },
   "routeDetails": {
     "platform": "רציף",

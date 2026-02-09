@@ -5,7 +5,6 @@ default_platform(:android)
 platform :android do
   desc "Push a new beta build to Internal testing"
   lane :deploy_internal do |options|
-    gradle(task: "clean")
     gradle(
       task: 'bundle',
       build_type: 'Release'

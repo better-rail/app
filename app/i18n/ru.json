@@ -65,7 +65,12 @@
     "copyRoute": "Копировать",
     "share": "Поделиться деталями поездки",
     "routeCopied": "Скопирован",
-    "addedToCalendar": "Добавлено в календарь"
+    "addedToCalendar": "Добавлено в календарь",
+    "slowTrainsFilterTitle": "Медленные поезда",
+    "filter": "Фильтр",
+    "stationHours": "Часы работы",
+    "hideSlowTrains": "Скрыть медленные поезда",
+    "slowTrainsDescription": "Медленные поезда — это поезда, у которых маршрут и время в пути значительно длиннее, чем у других."
   },
   "routeDetails": {
     "platform": "Платформа",

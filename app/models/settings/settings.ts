@@ -2,7 +2,7 @@ import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { translate, TxKeyPath } from "../../i18n"
 import { PopUpMessage } from "../../services/api"
 
-export const SettingsModel = types
+const SettingsModelBase = types
   .model("Settings")
   .props({
     stationsNotifications: types.optional(types.array(types.string), []),
@@ -11,6 +11,7 @@ export const SettingsModel = types
     profileCode: types.optional(types.number, 1),
     totalTip: types.optional(types.number, 0),
     showRouteCardHeader: types.optional(types.boolean, false),
+    hideSlowTrains: types.optional(types.boolean, false),
   })
   .views((self) => ({
     get profileCodeLabel() {
@@ -47,6 +48,10 @@ export const SettingsModel = types
     setShowRouteCardHeader(show: boolean) {
       self.showRouteCardHeader = show
     },
+
+    setHideSlowTrains(hide: boolean) {
+      self.hideSlowTrains = hide
+    },
   }))
   .actions((self) => ({
     setSeenUrgentMessagesIds(messagesIds: number[]) {
@@ -56,6 +61,25 @@ export const SettingsModel = types
       return messages.filter((message) => !self.seenUrgentMessagesIds.includes(message.id))
     },
   }))
+
+export const SettingsModel = types.snapshotProcessor(SettingsModelBase, {
+  preProcessor(snapshot) {
+    if (!snapshot || typeof snapshot !== "object") {
+      return snapshot
+    }
+
+    const { hideCollectorTrains, ...rest } = snapshot as {
+      hideCollectorTrains?: boolean
+      [key: string]: unknown
+    }
+
+    if (hideCollectorTrains !== undefined && !("hideSlowTrains" in rest)) {
+      return { ...rest, hideSlowTrains: hideCollectorTrains }
+    }
+
+    return rest
+  },
+})
 
 type SettingsType = Instance<typeof SettingsModel>
 export interface Settings extends SettingsType {}

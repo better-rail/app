@@ -68,7 +68,12 @@
     "copyRoute": "Copy",
     "share": "Share Details",
     "routeCopied": "Copied to clipboard",
-    "addedToCalendar": "Added to calendar"
+    "addedToCalendar": "Added to calendar",
+    "slowTrainsFilterTitle": "Slow Trains",
+    "filter": "Filter",
+    "stationHours": "Station Hours",
+    "hideSlowTrains": "Hide Slow Trains",
+    "slowTrainsDescription": "Slow trains are trains whose route and travel time are significantly longer than other trains."
   },
   "routeDetails": {
     "platform": "Platform",
