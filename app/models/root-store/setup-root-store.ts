@@ -90,7 +90,6 @@ export async function setupRootStore() {
   const persist = () => storage.save(ROOT_STATE_STORAGE_KEY, getSnapshot())
 
   useRoutePlanStore.subscribe(persist)
-  useTrainRoutesStore.subscribe(persist)
   useRecentSearchesStore.subscribe(persist)
   useFavoritesStore.subscribe(persist)
   useSettingsStore.subscribe(persist)
