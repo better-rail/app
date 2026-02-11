@@ -65,10 +65,10 @@ export const useRoutePlanStore = create<RoutePlanStore>((set, get) => ({
 
   switchDirection() {
     const { origin, destination } = get()
-    const origCopy = origin ? { ...origin } : undefined
-    const destCopy = destination ? { ...destination } : undefined
-    get().setOrigin(destCopy)
-    get().setDestination(origCopy)
+    const newOrigin = destination ? { ...destination } : undefined
+    const newDestination = origin ? { ...origin } : undefined
+    set({ origin: newOrigin, destination: newDestination })
+    sendCurrentRouteToiOS(newOrigin?.id, newDestination?.id)
   },
 
   dateTypeDisplayName() {
