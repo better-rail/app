@@ -8,7 +8,7 @@ import { trackEvent } from "../../services/analytics"
 import { color, fontScale, spacing } from "../../theme"
 import { Chip, Text } from "../../components"
 import { useShallow } from "zustand/react/shallow"
-import { useRoutePlanStore, useRideStore, useSettingsStore } from "../../models"
+import { useRoutePlanStore, useRideStore, useSettingsStore, filterUnseenUrgentMessages } from "../../models"
 import { isRTL, translate, userLocale } from "../../i18n"
 import { ImportantAnnouncementBar } from "./Important-announcement-bar"
 import { railApi } from "../../services/api"
@@ -55,7 +55,7 @@ export function PlannerScreenHeader() {
   const { route: rideRoute, canRunLiveActivities, originId: rideOriginId, destinationId: rideDestinationId } = useRideStore(
     useShallow((s) => ({ route: s.route, canRunLiveActivities: s.canRunLiveActivities, originId: s.originId, destinationId: s.destinationId }))
   )
-  const filterUnseenUrgentMessages = useSettingsStore((s) => s.filterUnseenUrgentMessages)
+  const seenUrgentMessagesIds = useSettingsStore((s) => s.seenUrgentMessagesIds)
   const navigation = useNavigation<NavigationProps>()
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
 
@@ -64,7 +64,7 @@ export function PlannerScreenHeader() {
   })
 
   // Filter unseen urgent messages from the popup messages
-  const unseenUrgentMessages = popupMessages ? filterUnseenUrgentMessages(popupMessages) : []
+  const unseenUrgentMessages = popupMessages ? filterUnseenUrgentMessages(popupMessages, seenUrgentMessagesIds) : []
   const showUrgentBar = !isEmpty(unseenUrgentMessages)
 
   useEffect(() => {

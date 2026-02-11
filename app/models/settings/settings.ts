@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import { translate, TxKeyPath } from "../../i18n"
+import { TxKeyPath } from "../../i18n"
 import { PopUpMessage } from "../../services/api"
 
 export interface SettingsState {
@@ -22,8 +22,6 @@ export interface SettingsActions {
   setShowRouteCardHeader: (show: boolean) => void
   setHideSlowTrains: (hide: boolean) => void
   setSeenUrgentMessagesIds: (messagesIds: number[]) => void
-  filterUnseenUrgentMessages: (messages: PopUpMessage[]) => PopUpMessage[]
-  profileCodeLabel: () => string
 }
 
 export type SettingsStore = SettingsState & SettingsActions
@@ -74,18 +72,11 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
   setSeenUrgentMessagesIds(messagesIds) {
     set({ seenUrgentMessagesIds: messagesIds })
   },
-
-  filterUnseenUrgentMessages(messages) {
-    const { seenUrgentMessagesIds } = get()
-    return messages.filter((message) => !seenUrgentMessagesIds.includes(message.id))
-  },
-
-  profileCodeLabel() {
-    const { profileCode } = get()
-    const profile = PROFILE_CODES.find((p) => p.value === profileCode)
-    return translate(profile.label)
-  },
 }))
+
+export function filterUnseenUrgentMessages(messages: PopUpMessage[], seenIds: number[]) {
+  return messages.filter((message) => !seenIds.includes(message.id))
+}
 
 export function getSettingsSnapshot(state: SettingsState) {
   return {

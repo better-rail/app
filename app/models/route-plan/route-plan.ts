@@ -32,7 +32,6 @@ export interface RoutePlanActions {
   setDate: (date: Date) => void
   setDateType: (type: DateType) => void
   switchDirection: () => void
-  dateTypeDisplayName: () => string
 }
 
 export type RoutePlanStore = RoutePlanState & RoutePlanActions
@@ -71,12 +70,12 @@ export const useRoutePlanStore = create<RoutePlanStore>((set, get) => ({
     sendCurrentRouteToiOS(newOrigin?.id, newDestination?.id)
   },
 
-  dateTypeDisplayName() {
-    const { dateType } = get()
-    if (dateType === "departure") return translate("plan.leaveAt")
-    return translate("plan.arriveAt")
-  },
 }))
+
+export function useDateTypeDisplayName() {
+  const dateType = useRoutePlanStore((s) => s.dateType)
+  return dateType === "departure" ? translate("plan.leaveAt") : translate("plan.arriveAt")
+}
 
 // Snapshot helpers for persistence - exclude date and dateType from persistence
 export function getRoutePlanSnapshot(state: RoutePlanState) {

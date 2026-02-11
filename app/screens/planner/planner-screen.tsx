@@ -3,7 +3,7 @@ import { View, Animated, Dimensions, AppState, Platform, Alert } from "react-nat
 import type { ViewStyle, TextStyle, AppStateStatus } from "react-native"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton, ResetTimeButton } from "../../components"
 import { useShallow } from "zustand/react/shallow"
-import { useRoutePlanStore, useTrainRoutesStore } from "../../models"
+import { useRoutePlanStore, useTrainRoutesStore, useDateTypeDisplayName } from "../../models"
 import HapticFeedback from "react-native-haptic-feedback"
 import { color, primaryFontIOS, spacing } from "../../theme"
 import type { PlannerScreenProps } from "../../navigators/main-navigator"
@@ -51,9 +51,10 @@ const CHANGE_DIRECTION_WRAPPER: ViewStyle = {
 // #endregion
 
 export function PlannerScreen({ navigation }: PlannerScreenProps) {
-  const { date, origin, destination, setDate, switchDirection, dateTypeDisplayName } = useRoutePlanStore(
-    useShallow((s) => ({ date: s.date, origin: s.origin, destination: s.destination, setDate: s.setDate, switchDirection: s.switchDirection, dateTypeDisplayName: s.dateTypeDisplayName }))
+  const { date, origin, destination, setDate, switchDirection } = useRoutePlanStore(
+    useShallow((s) => ({ date: s.date, origin: s.origin, destination: s.destination, setDate: s.setDate, switchDirection: s.switchDirection }))
   )
+  const dateTypeDisplayName = useDateTypeDisplayName()
   const { updateResultType, getRoutes } = useTrainRoutesStore(
     useShallow((s) => ({ updateResultType: s.updateResultType, getRoutes: s.getRoutes }))
   )
@@ -221,7 +222,7 @@ export function PlannerScreen({ navigation }: PlannerScreenProps) {
             />
           </Animated.View>
 
-          <Text preset="fieldLabel" text={dateTypeDisplayName()} style={{ marginBottom: spacing[1] }} />
+          <Text preset="fieldLabel" text={dateTypeDisplayName} style={{ marginBottom: spacing[1] }} />
 
           <DummyInput
             placeholder={translate("plan.now")}

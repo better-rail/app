@@ -7,14 +7,12 @@ import { PopUpMessage, railApi } from "../../services/api"
 import { spacing } from "../../theme"
 import { Screen, Text } from ".."
 import { useIsDarkMode } from "../../hooks"
-import { useShallow } from "zustand/react/shallow"
-import { useSettingsStore } from "../../models"
+import { useSettingsStore, filterUnseenUrgentMessages } from "../../models"
 import { AnnouncementCard } from "./announcement-card"
 
 export const UrgentAnnouncements = () => {
-  const { filterUnseenUrgentMessages, setSeenUrgentMessagesIds } = useSettingsStore(
-    useShallow((s) => ({ filterUnseenUrgentMessages: s.filterUnseenUrgentMessages, setSeenUrgentMessagesIds: s.setSeenUrgentMessagesIds }))
-  )
+  const seenUrgentMessagesIds = useSettingsStore((s) => s.seenUrgentMessagesIds)
+  const setSeenUrgentMessagesIds = useSettingsStore((s) => s.setSeenUrgentMessagesIds)
   const isDarkMode = useIsDarkMode()
 
   const { data: messages } = useQuery(["announcements", "urgent"], () => railApi.getPopupMessages(userLocale))
@@ -22,7 +20,7 @@ export const UrgentAnnouncements = () => {
 
   useEffect(() => {
     if (messages) {
-      const unseen = filterUnseenUrgentMessages(messages)
+      const unseen = filterUnseenUrgentMessages(messages, seenUrgentMessagesIds)
       setUnseenUrgentMessages(unseen)
 
       if (unseen.length > 0) {
