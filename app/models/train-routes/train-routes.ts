@@ -32,6 +32,7 @@ export const useTrainRoutesStore = create<TrainRoutesStore>((set, get) => ({
   },
 
   updateResultType(type) {
+    if (get().resultType === type) return
     set({ resultType: type })
   },
 

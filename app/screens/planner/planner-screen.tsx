@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react"
+import React, { useCallback, useRef, useState, useEffect } from "react"
 import { View, Animated, Dimensions, AppState, Platform, Alert } from "react-native"
 import type { ViewStyle, TextStyle, AppStateStatus } from "react-native"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton, ResetTimeButton } from "../../components"
@@ -165,12 +165,14 @@ export function PlannerScreen({ navigation }: PlannerScreenProps) {
     return () => subscription.remove()
   }, [])
 
-  useFocusEffect(() => {
-    // if the result type is not "normal", it'll be the initial type upon navigating to the
-    // route list - so we need to ensure we reset it back to it's normal state once back to the
-    // planner screen.
-    trainRoutes.updateResultType("normal")
-  })
+  useFocusEffect(
+    useCallback(() => {
+      // if the result type is not "normal", it'll be the initial type upon navigating to the
+      // route list - so we need to ensure we reset it back to it's normal state once back to the
+      // planner screen.
+      trainRoutes.updateResultType("normal")
+    }, []),
+  )
 
   useQuery(
     ["origin", origin?.id, "destination", destination?.id, "time", routePlan.date.getDate()],
