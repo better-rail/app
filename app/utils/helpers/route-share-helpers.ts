@@ -3,6 +3,7 @@ import Share from "react-native-share"
 import { format } from "date-fns"
 import HapticFeedback from "react-native-haptic-feedback"
 import * as Burnt from "burnt"
+import * as Sentry from "@sentry/react-native"
 import { RouteItem } from "../../services/api"
 import { translate, isRTL } from "../../i18n"
 import { stationsObject, stationLocale } from "../../data/stations"
@@ -123,6 +124,7 @@ export async function shareRouteAction(
   } catch (error) {
     if (!isShareCancelledError(error)) {
       console.error("Failed to share route:", error)
+      Sentry.captureException(error)
       Burnt.alert({
         title: translate("common.error"),
         preset: "error",
