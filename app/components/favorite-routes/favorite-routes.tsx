@@ -70,7 +70,7 @@ export function FavoriteRoutes(props: FavoriteRoutesProps) {
     return favoriteRoutesData.map((route) => (
       <FavoriteRouteBox {...route} onPress={() => onFavoritePress(route.originId, route.destinationId)} key={route.id} />
     ))
-  }, [])
+  }, [favoriteRoutesData])
 
   return (
     <View style={[CONTAINER, style]}>
