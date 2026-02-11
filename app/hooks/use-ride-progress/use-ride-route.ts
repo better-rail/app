@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react"
 import { formatDateForAPI } from "../../utils/helpers/date-helpers"
 import { RouteApi } from "../../services/api/route-api"
 import { findClosestStationInRoute, getSelectedRide } from "../../utils/helpers/ride-helpers"
-import { useStores } from "../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useRoutePlanStore, useRideStore } from "../../models"
 
 const api = new RouteApi()
 
@@ -12,7 +13,10 @@ const api = new RouteApi()
  * This function is used to find the next station in the route
  */
 export function useRideRoute(route: RouteItem) {
-  const { routePlan, ride } = useStores()
+  const routePlanDate = useRoutePlanStore((s) => s.date)
+  const { isRouteActive, setRoute } = useRideStore(
+    useShallow((s) => ({ isRouteActive: s.isRouteActive, setRoute: s.setRoute }))
+  )
 
   // we'll need this to update the query cached routes when we refetch routes
   const queryClient = useQueryClient()
@@ -28,7 +32,7 @@ export function useRideRoute(route: RouteItem) {
 
     // update the query cached routes
     queryClient.setQueryData(
-      ["origin", originId, "destination", destinationId, "time", new Date(routePlan.date.getDate())],
+      ["origin", originId, "destination", destinationId, "time", new Date(routePlanDate.getDate())],
       routes,
     )
 
@@ -45,9 +49,9 @@ export function useRideRoute(route: RouteItem) {
 
     if (!updatedRoute) return
 
-    if (ride.isRouteActive(route)) {
+    if (isRouteActive(route)) {
       // update the ride store route if the route item has an active ride
-      ride.setRoute(updatedRoute)
+      setRoute(updatedRoute)
     }
 
     setDelay(updatedRoute.delay)

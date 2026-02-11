@@ -3,7 +3,6 @@ import { Image, ImageBackground, View, Animated as RNAnimated, Pressable } from 
 import type { ViewStyle, TextStyle, ImageStyle } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { trackEvent } from "../../services/analytics"
-import { observer } from "mobx-react-lite"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import LinearGradient from "react-native-linear-gradient"
 import { color, isDarkMode, spacing } from "../../theme"
@@ -11,7 +10,8 @@ import { StarIcon, MenuIcon } from "../"
 import HapticFeedback from "react-native-haptic-feedback"
 import { stationsObject, stationLocale } from "../../data/stations"
 import { translate, isRTL } from "../../i18n"
-import { useStores } from "../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useFavoritesStore, useRoutePlanStore } from "../../models"
 import * as Burnt from "burnt"
 import type { RouteItem } from "../../services/api"
 import ContextMenu from "react-native-context-menu-view"
@@ -106,9 +106,14 @@ export interface RouteDetailsHeaderProps {
   setShowEntireRoute?: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
+export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const { routeItem, originId, destinationId, screenName, style, showEntireRoute, setShowEntireRoute } = props
-  const { favoriteRoutes, routePlan } = useStores()
+  const { routes: favoriteRoutesData, add: addFavorite, remove: removeFavorite } = useFavoritesStore(
+    useShallow((s) => ({ routes: s.routes, add: s.add, remove: s.remove }))
+  )
+  const { origin: routePlanOrigin, destination: routePlanDestination, switchDirection } = useRoutePlanStore(
+    useShallow((s) => ({ origin: s.origin, destination: s.destination, switchDirection: s.switchDirection }))
+  )
   const navigation = useNavigation()
   const insets = useSafeAreaInsets()
   const routeEditDisabled = screenName !== "routeList"
@@ -118,7 +123,7 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
   const originName = stationsObject[originId][stationLocale]
   const destinationName = stationsObject[destinationId][stationLocale]
   const routeId = `${originId}${destinationId}`
-  const isFavorite = favoriteRoutes.routes.some((fav) => fav.id === routeId)
+  const isFavorite = favoriteRoutesData.some((fav) => fav.id === routeId)
 
   const openStationHoursSheet = () => {
     navigation.navigate("stationHours", { stationId: originId })
@@ -143,9 +148,9 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
     scaleStationCards()
     HapticFeedback.trigger("impactMedium")
     setTimeout(() => {
-      routePlan.switchDirection()
+      switchDirection()
     }, 50)
-  }, [scaleStationCards, routePlan])
+  }, [scaleStationCards, switchDirection])
 
   const changeOriginStation = useCallback(() => {
     navigation.navigate("selectStation", { selectionType: "origin" })
@@ -181,10 +186,10 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
 
   useEffect(() => {
     navigation.setParams({
-      originId: routePlan.origin.id,
-      destinationId: routePlan.destination.id,
+      originId: routePlanOrigin.id,
+      destinationId: routePlanDestination.id,
     } as any)
-  }, [routePlan.origin.id, routePlan.destination.id, navigation])
+  }, [routePlanOrigin.id, routePlanDestination.id, navigation])
 
   const renderHeaderRight = useCallback(() => {
     if (screenName === "routeDetails") {
@@ -227,11 +232,11 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
       if (!isFavorite) {
         Burnt.alert({ title: translate("favorites.added"), duration: 1.5 })
         HapticFeedback.trigger("impactMedium")
-        favoriteRoutes.add(favorite)
+        addFavorite(favorite)
         trackEvent("favorite_route_added")
       } else {
         HapticFeedback.trigger("impactLight")
-        favoriteRoutes.remove(favorite.id)
+        removeFavorite(favorite.id)
         trackEvent("favorite_route_removed")
       }
     }
@@ -320,7 +325,8 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
     handleShare,
     isFavorite,
     routeId,
-    favoriteRoutes,
+    addFavorite,
+    removeFavorite,
     originId,
     destinationId,
     showEntireRoute,
@@ -419,4 +425,4 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
       </View>
     </>
   )
-})
+}

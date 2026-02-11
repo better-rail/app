@@ -1,8 +1,8 @@
-import { observer } from "mobx-react-lite"
 import React from "react"
 import { Image, ViewStyle, ImageStyle, ScrollView, TextStyle } from "react-native"
 import { Text } from "../../../components"
-import { useStores } from "../../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useRoutePlanStore } from "../../../models"
 import { spacing, color } from "../../../theme"
 import { AnnouncementsList } from "../../../components/announcements/announcements-list"
 import { AnnouncementsHeader } from "../../../components/announcements/announcements-header"
@@ -26,10 +26,12 @@ const NO_TRAINS_FOUND_TEXT: TextStyle = {
   textAlign: "center",
 }
 
-export const NoTrainsFoundMessage = observer(function NoTrainsFoundMessage() {
-  const { routePlan } = useStores()
-  const originId = routePlan.origin.id
-  const destinationId = routePlan.destination.id
+export function NoTrainsFoundMessage() {
+  const { origin, destination } = useRoutePlanStore(
+    useShallow((s) => ({ origin: s.origin, destination: s.destination }))
+  )
+  const originId = origin.id
+  const destinationId = destination.id
 
   const shouldShowAnnouncements = originId !== destinationId
 
@@ -46,4 +48,4 @@ export const NoTrainsFoundMessage = observer(function NoTrainsFoundMessage() {
       )}
     </ScrollView>
   )
-})
+}

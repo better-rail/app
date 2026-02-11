@@ -1,5 +1,4 @@
 import { Alert, Dimensions, Image, ImageStyle, Linking, Platform, View, ViewStyle } from "react-native"
-import { observer } from "mobx-react-lite"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HapticFeedback from "react-native-haptic-feedback"
 import { Button } from "../../../components"
@@ -8,7 +7,8 @@ import type { RouteItem } from "../../../services/api"
 import { differenceInMinutes } from "date-fns"
 import { isRouteInThePast, timezoneCorrection } from "../../../utils/helpers/date-helpers"
 import { color, fontScale } from "../../../theme"
-import { useStores } from "../../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useRideStore } from "../../../models"
 import { AndroidNotificationSetting, AuthorizationStatus } from "@notifee/react-native"
 import InAppReview from "react-native-in-app-review"
 import { trackEvent } from "../../../services/analytics"
@@ -36,8 +36,19 @@ interface StartRideButtonProps {
   openPermissionsSheet?: () => Promise<unknown>
 }
 
-export const StartRideButton = observer(function StartRideButton(props: StartRideButtonProps) {
-  const { ride } = useStores()
+export function StartRideButton(props: StartRideButtonProps) {
+  const ride = useRideStore(
+    useShallow((s) => ({
+      id: s.id,
+      canRunLiveActivities: s.canRunLiveActivities,
+      activityAuthorizationInfo: s.activityAuthorizationInfo,
+      notifeeSettings: s.notifeeSettings,
+      loading: s.loading,
+      rideCount: s.rideCount,
+      startRide: s.startRide,
+      stopRide: s.stopRide,
+    }))
+  )
 
   const { route, screenName } = props
   const insets = useSafeAreaInsets()
@@ -163,4 +174,4 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
       />
     </View>
   )
-})
+}

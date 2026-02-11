@@ -2,8 +2,8 @@ import React, { useMemo } from "react"
 import { View, Platform, Image } from "react-native"
 import type { TextStyle, ViewStyle } from "react-native"
 import { useNavigation } from "@react-navigation/native"
-import { observer } from "mobx-react-lite"
-import { useStores } from "../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useRoutePlanStore, useFavoritesStore } from "../../models"
 import { trackEvent } from "../../services/analytics"
 import { color, isDarkMode, spacing } from "../../theme"
 import { Text } from "../"
@@ -41,11 +41,14 @@ export interface FavoriteRoutesProps {
   style?: ViewStyle
 }
 
-export const FavoriteRoutes = observer(function FavoriteRoutes(props: FavoriteRoutesProps) {
+export function FavoriteRoutes(props: FavoriteRoutesProps) {
   const { style } = props
   const navigation = useNavigation()
   const stations = useStations()
-  const { routePlan, favoriteRoutes } = useStores()
+  const { setOrigin, setDestination } = useRoutePlanStore(
+    useShallow((s) => ({ setOrigin: s.setOrigin, setDestination: s.setDestination }))
+  )
+  const favoriteRoutesData = useFavoritesStore((s) => s.routes)
 
   const onFavoritePress = (originId: string, destinationId: string) => {
     trackEvent("favorite_route_selected")
@@ -53,21 +56,21 @@ export const FavoriteRoutes = observer(function FavoriteRoutes(props: FavoriteRo
     const origin = stations.find((s) => s.id === originId)
     const destination = stations.find((s) => s.id === destinationId)
 
-    routePlan.setOrigin(origin)
-    routePlan.setDestination(destination)
+    setOrigin(origin)
+    setDestination(destination)
 
     navigation.goBack()
   }
 
   const favorites = useMemo(() => {
-    if (favoriteRoutes.routes.length === 0) {
+    if (favoriteRoutesData.length === 0) {
       return <EmptyState />
     }
 
-    return favoriteRoutes.routes.map((route) => (
+    return favoriteRoutesData.map((route) => (
       <FavoriteRouteBox {...route} onPress={() => onFavoritePress(route.originId, route.destinationId)} key={route.id} />
     ))
-  }, [])
+  }, [favoriteRoutesData])
 
   return (
     <View style={[CONTAINER, style]}>
@@ -77,7 +80,7 @@ export const FavoriteRoutes = observer(function FavoriteRoutes(props: FavoriteRo
       <View style={ROUTES_CONTAINER}>{favorites}</View>
     </View>
   )
-})
+}
 
 const EMPTY_STATE_WRAPPER: ViewStyle = {
   alignItems: "center",

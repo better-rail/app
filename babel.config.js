@@ -4,12 +4,6 @@ module.exports = {
     production: {},
   },
   plugins: [
-    [
-      "@babel/plugin-proposal-decorators",
-      {
-        legacy: true,
-      },
-    ],
     ["@babel/plugin-proposal-optional-catch-binding"],
     [
       "module:react-native-dotenv",

@@ -4,12 +4,12 @@ import * as Burnt from "burnt"
 import { View, ActivityIndicator, ViewStyle, Dimensions, useColorScheme } from "react-native"
 import Animated from "react-native-reanimated"
 import { FlashList } from "@shopify/flash-list"
-import { observer } from "mobx-react-lite"
 import { useNetworkState } from "expo-network"
 import { useQuery } from "react-query"
 import { closestIndexTo } from "date-fns"
 import type { RouteListScreenProps } from "../../navigators/main-navigator"
-import { useStores } from "../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useTrainRoutesStore, useRoutePlanStore, useRideStore, useSettingsStore } from "../../models"
 import { color, fontScale, spacing } from "../../theme"
 import { RouteItem } from "../../services/api"
 import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight } from "../../components"
@@ -29,8 +29,16 @@ const ROOT: ViewStyle = {
 
 type RouteData = RouteItem | string
 
-export const RouteListScreen = observer(function RouteListScreen({ navigation, route }: RouteListScreenProps) {
-  const { trainRoutes, routePlan, ride, settings } = useStores()
+export function RouteListScreen({ navigation, route }: RouteListScreenProps) {
+  const { resultType, getRoutes, updateResultType } = useTrainRoutesStore(
+    useShallow((s) => ({ resultType: s.resultType, getRoutes: s.getRoutes, updateResultType: s.updateResultType }))
+  )
+  const { dateType, date: routePlanDate } = useRoutePlanStore(
+    useShallow((s) => ({ dateType: s.dateType, date: s.date }))
+  )
+  const isRouteActive = useRideStore((s) => s.isRouteActive)
+  const rideRoute = useRideStore((s) => s.route)
+  const hideSlowTrains = useSettingsStore((s) => s.hideSlowTrains)
   const { originId, destinationId, time, enableQuery } = route.params
   const { showActionSheetWithOptions } = useActionSheet()
   const colorScheme = useColorScheme()
@@ -167,7 +175,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   const trains = useQuery(
     ["origin", originId, "destination", destinationId, "time", currentDate.getTime()],
     async () => {
-      const result = await trainRoutes.getRoutes(originId, destinationId, currentDate.getTime())
+      const result = await getRoutes(originId, destinationId, currentDate.getTime())
       return result
     },
     {
@@ -179,7 +187,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
       onError: () => {
         // Only update the error state if we don't have any data yet
         if (routeData.length === 0) {
-          trainRoutes.updateResultType("not-found")
+          updateResultType("not-found")
         }
         setLoadingDate(null)
       },
@@ -225,7 +233,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   useEffect(() => {
     // Reset the error state when starting a new query
     if (trains.isLoading) {
-      trainRoutes.updateResultType("normal")
+      updateResultType("normal")
     }
 
     if (trains.isSuccess) {
@@ -256,12 +264,12 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
 
   // Filter out slow trains when the setting is enabled
   const filteredRouteData = useMemo(() => {
-    if (!settings.hideSlowTrains) return routeData
+    if (!hideSlowTrains) return routeData
     return routeData.filter((item) => {
       if (typeof item === "string") return true // Keep date headers
       return !item.isMuchLonger
     })
-  }, [routeData, settings.hideSlowTrains])
+  }, [routeData, hideSlowTrains])
 
   // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
   // returns a route list for the whole day.
@@ -275,11 +283,11 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
 
     let targetRoute: RouteItem | undefined
 
-    if (routePlan.dateType === "departure") {
+    if (dateType === "departure") {
       const departureTimes = routeItems.map((r) => r.trains[0].departureTime)
       const closestIdx = closestIndexTo(route.params.time, departureTimes)
       targetRoute = routeItems[closestIdx]
-    } else if (routePlan.dateType === "arrival") {
+    } else if (dateType === "arrival") {
       const arrivalTimes = routeItems.map((r) => r.trains[0].arrivalTime)
       const closestIdx = closestIndexTo(route.params.time, arrivalTimes)
       targetRoute = routeItems[closestIdx]
@@ -289,7 +297,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
 
     // Find the actual index in filteredRouteData (which includes date headers)
     return filteredRouteData.findIndex((item) => item === targetRoute)
-  }, [trains.isSuccess, filteredRouteData, routePlan.dateType, route.params.time])
+  }, [trains.isSuccess, filteredRouteData, dateType, route.params.time])
 
   const shouldShowDashedLine = useMemo(() => {
     const { width: deviceWidth } = Dimensions.get("screen")
@@ -409,7 +417,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         departureTime={departureTime}
         arrivalTime={arrivalTime}
         delay={item.delay}
-        isActiveRide={ride.isRouteActive(item)}
+        isActiveRide={isRouteActive(item)}
         isRouteInThePast={isRouteInThePast(arrivalTime, item.delay)}
         onPress={() =>
           navigation.navigate("routeDetails", {
@@ -429,7 +437,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
   }
 
   const shouldShowWarning =
-    trains.isSuccess && trains.data?.length > 0 && ["different-date", "different-hour"].includes(trainRoutes.resultType)
+    trains.isSuccess && trains.data?.length > 0 && ["different-date", "different-hour"].includes(resultType)
 
   // Check if the next day date is currently loading
   const isNextDayLoading = loadingDate === nextDayDate.toDateString()
@@ -467,7 +475,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
 
       {filteredRouteData.length > 0 && (
         <FlashList
-          key={`route-list-${settings.hideSlowTrains}`}
+          key={`route-list-${hideSlowTrains}`}
           ref={flashListRef}
           renderItem={renderRouteCard}
           keyExtractor={(item) =>
@@ -484,7 +492,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
           estimatedItemSize={RouteCardHeight + spacing[3]}
           initialScrollIndex={initialScrollIndex}
           // so the list will re-render when the ride route changes, and so the item will be marked
-          extraData={[ride.route, routePlan.date, trains.status, loadingDate, settings.hideSlowTrains]}
+          extraData={[rideRoute, routePlanDate, trains.status, loadingDate, hideSlowTrains]}
           ListFooterComponent={
             <DateScroll setTime={loadNextDayData} currenTime={nextDayDate.getTime()} isLoadingDate={isNextDayLoading} />
           }
@@ -492,7 +500,7 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
         />
       )}
 
-      {trainRoutes.resultType === "not-found" && !trains.isLoading && isInternetReachable && (
+      {resultType === "not-found" && !trains.isLoading && isInternetReachable && (
         <View style={{ marginTop: spacing[4] }}>
           <NoTrainsFoundMessage />
         </View>
@@ -501,9 +509,9 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
       {shouldShowWarning && !trains.isLoading && (
         <RouteListWarning
           routesDate={trains.data[0].trains[0].departureTime}
-          warningType={trainRoutes.resultType as WarningType}
+          warningType={resultType as WarningType}
         />
       )}
     </Screen>
   )
-})
+}

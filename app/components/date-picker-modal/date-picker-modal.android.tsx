@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { Pressable, TextStyle, View, type ViewStyle } from "react-native"
-import { observer } from "mobx-react-lite"
-import { useStores } from "../../models"
+import { useRoutePlanStore } from "../../models"
 import { dateLocale, translate } from "../../i18n"
 import { color, spacing, isDarkMode } from "../../theme"
 import DatePicker from "react-native-date-picker"
@@ -64,8 +63,8 @@ export interface DatePickerModalProps {
   style?: ViewStyle
 }
 
-export const DatePickerModal = observer(function DatePickerModal(props: ModalProps<"DatePickerModal">) {
-  const { routePlan } = useStores()
+export function DatePickerModal(props: ModalProps<"DatePickerModal">) {
+  const setDateType = useRoutePlanStore((s) => s.setDateType)
   const { onConfirm, minimumDate } = props.modal.params
   const [selectedTab, setSelectedTab] = useState(0)
 
@@ -73,9 +72,9 @@ export const DatePickerModal = observer(function DatePickerModal(props: ModalPro
     setSelectedTab(selectedTabIndex)
 
     if (selectedTabIndex === 0) {
-      routePlan.setDateType("departure")
+      setDateType("departure")
     } else {
-      routePlan.setDateType("arrival")
+      setDateType("arrival")
     }
   }
 
@@ -134,4 +133,4 @@ export const DatePickerModal = observer(function DatePickerModal(props: ModalPro
       </View>
     </View>
   )
-})
+}

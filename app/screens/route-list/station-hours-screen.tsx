@@ -4,7 +4,6 @@ import { ScrollView } from "react-native-gesture-handler"
 import HapticFeedback from "react-native-haptic-feedback"
 import { Chip, Text } from "../../components"
 import { color, fontScale, spacing } from "../../theme"
-import { observer } from "mobx-react-lite"
 import { useQuery } from "react-query"
 import { railApi } from "../../services/api"
 import { dateFnsLocalization, isRTL, userLocale } from "../../i18n"
@@ -30,7 +29,7 @@ const HOUR_TEXT: TextStyle = {
   color: color.text,
 }
 
-export const StationHoursScreen = observer(function StationHoursScreen({ route }: StationHoursScreenProps) {
+export function StationHoursScreen({ route }: StationHoursScreenProps) {
   const { stationId } = route.params
   const { data: stationInfo, isLoading } = useQuery(["stationInfo", stationId], () => {
     return railApi.getStationInfo(userLocale, stationId)
@@ -104,7 +103,7 @@ export const StationHoursScreen = observer(function StationHoursScreen({ route }
       )}
     </View>
   )
-})
+}
 
 const convertDaysToAbbreviation = (input: string) => {
   const daysOfWeek = input

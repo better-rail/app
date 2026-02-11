@@ -1,118 +1,102 @@
-import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { withStatus } from "../extensions/with-status"
+import { create } from "zustand"
 import { RouteApi } from "../../services/api/route-api"
 import { add, closestTo, differenceInMinutes } from "date-fns"
-import { omit } from "ramda"
 import { RouteItem } from "../../services/api"
 import { formatDateForAPI } from "../../utils/helpers/date-helpers"
 
-export const trainStop = {
-  arrivalTime: types.number,
-  departureTime: types.number,
-  stationId: types.number,
-  stationName: types.string,
-  platform: types.number,
+export type StatusType = "idle" | "pending" | "done" | "error"
+export type ResultType = "normal" | "different-date" | "different-hour" | "not-found"
+
+export interface TrainRoutesState {
+  routes: RouteItem[]
+  resultType: ResultType
+  status: StatusType
 }
 
-export const routeStop = {
-  arrivalTime: types.string,
-  stationId: types.number,
-  crowded: types.optional(types.number, 0),
-  platform: types.number,
+export interface TrainRoutesActions {
+  saveRoutes: (routes: RouteItem[]) => void
+  updateResultType: (type: ResultType) => void
+  setStatus: (value: StatusType) => void
+  getRoutes: (originId: string, destinationId: string, time: number) => Promise<RouteItem[]>
 }
 
-export const trainListSchema = {
-  delay: types.number,
-  arrivalTime: types.number,
-  departureTime: types.number,
-  originStationId: types.number,
-  originStationName: types.string,
-  destinationStationId: types.number,
-  destinationStationName: types.string,
-  originPlatform: types.number,
-  destinationPlatform: types.number,
-  trainNumber: types.number,
-  stopStations: types.array(types.model(trainStop)),
-  routeStations: types.array(types.model(routeStop)),
-  lastStop: types.string,
+export type TrainRoutesStore = TrainRoutesState & TrainRoutesActions
+
+const initialTrainRoutesState: TrainRoutesState = {
+  routes: [],
+  resultType: "normal",
+  status: "idle",
 }
 
-export const trainRouteSchema = {
-  departureTime: types.number,
-  isExchange: types.boolean,
-  duration: types.string,
-  trains: types.array(types.model(trainListSchema)),
-  delay: types.number,
-}
+export const resetTrainRoutesStore = () => useTrainRoutesStore.setState(initialTrainRoutesState)
 
-export const trainRoutesModel = types
-  .model("trainRoutes")
-  .props({
-    routes: types.array(types.model(trainRouteSchema)),
-    resultType: "normal",
-  })
-  .extend(withStatus)
-  .actions((self) => ({
-    saveRoutes: (routesSnapshot) => {
-      self.routes.replace(routesSnapshot)
-    },
-    updateResultType(type: "normal" | "different-date" | "different-hour" | "not-found") {
-      self.resultType = type
-    },
-  }))
-  .actions((self) => ({
-    getRoutes: async (originId: string, destinationId: string, time: number): Promise<RouteItem[]> => {
-      self.setStatus("pending")
-      self.updateResultType("normal")
+export const useTrainRoutesStore = create<TrainRoutesStore>((set, get) => ({
+  ...initialTrainRoutesState,
 
-      const routeApi = new RouteApi()
-      let foundRoutes = false
-      let apiHitCount = 0
-      let requestDate = time
+  saveRoutes(routes) {
+    set({ routes })
+  },
 
-      // If no routes are found, try to fetch results for the upcoming 3 days.
-      while (!foundRoutes && apiHitCount < 4) {
-        // Format times for Israel Rail API
-        const [date, hour] = formatDateForAPI(requestDate)
+  updateResultType(type) {
+    if (get().resultType === type) return
+    set({ resultType: type })
+  },
 
-        const result = await routeApi.getRoutes(originId, destinationId, date, hour)
+  setStatus(value) {
+    set({ status: value })
+  },
 
-        if (result.length > 0) {
-          foundRoutes = true
-          self.saveRoutes(result)
-          self.setStatus("done")
+  async getRoutes(originId, destinationId, time) {
+    set({ status: "pending", resultType: "normal" })
 
-          if (apiHitCount > 0) {
-            // We found routes for a date different than the requested date.
-            self.updateResultType("different-date")
-          } else {
-            const closestDateToNow = closestTo(
-              time,
-              result.map((result) => result.departureTime),
-            )
-            const difference = differenceInMinutes(closestDateToNow, time)
-            if (Math.abs(difference) >= 90) {
-              // We found routes for the selected day but not at the requested hour.
-              self.updateResultType("different-hour")
-            }
-          }
+    const routeApi = new RouteApi()
+    let foundRoutes = false
+    let apiHitCount = 0
+    let requestDate = time
 
-          return result
+    // If no routes are found, try to fetch results for the upcoming 3 days.
+    while (!foundRoutes && apiHitCount < 4) {
+      // Format times for Israel Rail API
+      const [date, hour] = formatDateForAPI(requestDate)
+
+      const result = await routeApi.getRoutes(originId, destinationId, date, hour)
+
+      if (result.length > 0) {
+        foundRoutes = true
+        set({ routes: result, status: "done" })
+
+        if (apiHitCount > 0) {
+          // We found routes for a date different than the requested date.
+          set({ resultType: "different-date" })
         } else {
-          apiHitCount += 1
-          requestDate = add(requestDate, { days: 1 }).getTime()
+          const closestDateToNow = closestTo(
+            time,
+            result.map((result) => result.departureTime),
+          )
+          const difference = differenceInMinutes(closestDateToNow, time)
+          if (Math.abs(difference) >= 90) {
+            // We found routes for the selected day but not at the requested hour.
+            set({ resultType: "different-hour" })
+          }
         }
-      }
-      // We couldn't find routes for the requested date.
-      self.updateResultType("not-found")
-      self.setStatus("done")
-      throw new Error("Not found")
-    },
-  }))
-  .postProcessSnapshot(omit(["routes", "resultType"]))
 
-type RouteType = Instance<typeof trainRoutesModel>
-export interface Route extends RouteType {}
-type RouteSnapshotType = SnapshotOut<typeof trainRoutesModel>
-export interface RouteSnapshot extends RouteSnapshotType {}
-export const createRouteDefaultModel = () => types.optional(trainRoutesModel, {})
+        return result
+      } else {
+        apiHitCount += 1
+        requestDate = add(requestDate, { days: 1 }).getTime()
+      }
+    }
+    // We couldn't find routes for the requested date.
+    set({ resultType: "not-found", status: "done" })
+    throw new Error("Not found")
+  },
+}))
+
+// Routes and resultType are not persisted (transient state)
+export function getTrainRoutesSnapshot() {
+  return {}
+}
+
+export function hydrateTrainRoutesStore(_data: any) {
+  // No persistent state to hydrate - routes are always fetched fresh
+}

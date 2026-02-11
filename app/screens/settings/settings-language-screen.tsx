@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react"
-import { observer } from "mobx-react-lite"
 import { Alert, Platform, View, type ViewStyle } from "react-native"
 import { Screen } from "../../components"
 import { SettingBox } from "./components/settings-box"
@@ -17,7 +16,7 @@ const ROOT: ViewStyle = {
   backgroundColor: color.background,
 }
 
-export const LanguageScreen = observer(function SettingsLanguageScreen() {
+export function LanguageScreen() {
   const [clickCounter, setClickCounter] = useState(0)
 
   const changeLanguage = async (langaugeCode) => {
@@ -76,4 +75,4 @@ export const LanguageScreen = observer(function SettingsLanguageScreen() {
       </View>
     </Screen>
   )
-})
+}

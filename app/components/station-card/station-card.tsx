@@ -14,7 +14,6 @@ import {
 } from "react-native"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import LinearGradient from "react-native-linear-gradient"
-import { observer } from "mobx-react-lite"
 import { color, spacing, typography } from "../../theme"
 import { Text } from "../"
 import { isLiquidGlassSupported } from "@callstack/liquid-glass"
@@ -95,7 +94,7 @@ export interface StationCardProps extends TouchableScaleProps {
   image: ImageSourcePropType
   style?: ViewStyle
 }
-export const StationCard = observer(function StationCard(props: StationCardProps) {
+export function StationCard(props: StationCardProps) {
   const { name, image, style, ...rest } = props
 
   if (!name) {
@@ -145,4 +144,4 @@ export const StationCard = observer(function StationCard(props: StationCardProps
       </ImageBackground>
     </TouchableScale>
   )
-})
+}

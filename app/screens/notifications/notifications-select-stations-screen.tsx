@@ -1,4 +1,3 @@
-import { observer } from "mobx-react-lite"
 import { useState } from "react"
 
 import { Platform, Pressable, View } from "react-native"
@@ -9,21 +8,21 @@ import { Screen, Text } from "../../components"
 import { useNavigation } from "@react-navigation/native"
 import { SearchInput } from "../select-station/search-input"
 import { translate } from "../../i18n"
-import { useStores } from "../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useSettingsStore } from "../../models"
 import HapticFeedback from "react-native-haptic-feedback"
 import { useFilteredStations, useIsDarkMode } from "../../hooks"
 import { useStations } from "../../data/stations"
 
 import { FlashList } from "@shopify/flash-list"
-import { toJS } from "mobx"
-
-export const NotificationsSelectStationsScreen = observer(function NotificationsSelectStationsScreen() {
+export function NotificationsSelectStationsScreen() {
   const navigation = useNavigation()
   const [searchTerm, setSearchTerm] = useState("")
   const insets = useSafeAreaInsets()
 
-  const { settings } = useStores()
-  const { stationsNotifications } = settings
+  const { stationsNotifications, removeStationNotification, addStationNotification } = useSettingsStore(
+    useShallow((s) => ({ stationsNotifications: s.stationsNotifications, removeStationNotification: s.removeStationNotification, addStationNotification: s.addStationNotification }))
+  )
 
   const stations = useStations()
   const { filteredStations } = useFilteredStations(searchTerm)
@@ -36,11 +35,11 @@ export const NotificationsSelectStationsScreen = observer(function Notifications
     HapticFeedback.trigger("impactLight")
 
     if (stationsNotifications.includes(stationId)) {
-      settings.removeStationNotification(stationId)
+      removeStationNotification(stationId)
       return
     }
 
-    settings.addStationNotification(stationId)
+    addStationNotification(stationId)
   }
 
   return (
@@ -85,9 +84,9 @@ export const NotificationsSelectStationsScreen = observer(function Notifications
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ paddingTop: spacing[2], paddingBottom: spacing[5] }}
-          extraData={toJS(stationsNotifications)}
+          extraData={stationsNotifications}
         />
       </View>
     </Screen>
   )
-})
+}

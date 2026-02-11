@@ -1,5 +1,4 @@
 import { Linking, Platform, PlatformColor, TextStyle, View, ViewStyle } from "react-native"
-import { observer } from "mobx-react-lite"
 import { Screen, Text } from "../../components"
 import { SettingBox } from "./components/settings-box"
 import { getVersion, getBuildNumber } from "react-native-device-info"
@@ -27,7 +26,7 @@ const storeLink = Platform.select({
   android: "market://details?id=com.betterrail",
 })
 
-export const SettingsScreen = observer(function SettingsScreen({ navigation }: SettingsScreenProps) {
+export function SettingsScreen({ navigation }: SettingsScreenProps) {
   const isDarkMode = useIsDarkMode()
   const isBetaTester = useIsBetaTester()
 
@@ -97,4 +96,4 @@ export const SettingsScreen = observer(function SettingsScreen({ navigation }: S
       </Text>
     </Screen>
   )
-})
+}

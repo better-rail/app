@@ -1,8 +1,17 @@
 import { test, expect } from "bun:test"
-import { SettingsModel } from "./settings"
+import { useSettingsStore, hydrateSettingsStore } from "./settings"
 
-test("can be created", () => {
-  const instance = SettingsModel.create({})
+test("can be created with default state", () => {
+  const state = useSettingsStore.getState()
 
-  expect(instance).toBeTruthy()
+  expect(state).toBeTruthy()
+  expect(state.profileCode).toBe(1)
+  expect(state.hideSlowTrains).toBe(false)
+})
+
+test("migrates hideCollectorTrains to hideSlowTrains", () => {
+  hydrateSettingsStore({ hideCollectorTrains: true })
+
+  const state = useSettingsStore.getState()
+  expect(state.hideSlowTrains).toBe(true)
 })

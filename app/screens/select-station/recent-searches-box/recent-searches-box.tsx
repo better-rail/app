@@ -1,7 +1,7 @@
 import React, { useMemo } from "react"
 import { View, Image, TextStyle, ViewStyle, ImageStyle, Platform } from "react-native"
-import { observer } from "mobx-react-lite"
-import { useStores } from "../../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useRoutePlanStore, useRecentSearchesStore } from "../../../models"
 import { trackEvent } from "../../../services/analytics"
 import { ScrollView } from "react-native-gesture-handler"
 import { Text } from "../../../components"
@@ -9,8 +9,6 @@ import { color, isDarkMode, spacing } from "../../../theme"
 import { stationLocale, stationsObject } from "../../../data/stations"
 import { StationSearchEntry } from "./station-search-entry"
 import { useNavigation } from "@react-navigation/core"
-import { toJS } from "mobx"
-
 const RECENT_SEARCHES_TITLE: TextStyle = {
   fontWeight: "500",
   opacity: 0.8,
@@ -37,30 +35,35 @@ type RecentSearchesBoxProps = {
   selectionType: "origin" | "destination"
 }
 
-export const RecentSearchesBox = observer(function RecentSearchesBox(props: RecentSearchesBoxProps) {
+export function RecentSearchesBox(props: RecentSearchesBoxProps) {
   const navigation = useNavigation()
-  const { routePlan, recentSearches } = useStores()
+  const { setOrigin, setDestination } = useRoutePlanStore(
+    useShallow((s) => ({ setOrigin: s.setOrigin, setDestination: s.setDestination }))
+  )
+  const { entries, save, remove } = useRecentSearchesStore(
+    useShallow((s) => ({ entries: s.entries, save: s.save, remove: s.remove }))
+  )
 
   const sortedSearches = useMemo(() => {
-    return [...recentSearches.entries].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 6)
-  }, [toJS(recentSearches.entries)])
+    return [...entries].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 6)
+  }, [entries])
 
   const onStationPress = (entry) => {
     trackEvent("recent_station_selected")
     const station = { id: entry.id, name: entry.id }
 
     if (props.selectionType === "origin") {
-      routePlan.setOrigin(station)
+      setOrigin(station)
     } else {
-      routePlan.setDestination(station)
+      setDestination(station)
     }
 
-    recentSearches.save({ id: station.id })
+    save({ id: station.id })
     navigation.goBack()
   }
 
   const content = useMemo(() => {
-    if (recentSearches.entries.length === 0) return <RecentSearchesPlacerholder />
+    if (entries.length === 0) return <RecentSearchesPlacerholder />
 
     return (
       <ScrollView
@@ -79,7 +82,7 @@ export const RecentSearchesBox = observer(function RecentSearchesBox(props: Rece
               name={stationsObject[entry.id][stationLocale]}
               image={stationsObject[entry.id].image}
               onPress={() => onStationPress(entry)}
-              onHide={() => recentSearches.remove(entry.id)}
+              onHide={() => remove(entry.id)}
               key={entry.id}
             />
           )
@@ -97,7 +100,7 @@ export const RecentSearchesBox = observer(function RecentSearchesBox(props: Rece
       {content}
     </View>
   )
-})
+}
 
 const PLACEHOLDER_WRAPPER: ViewStyle = {
   marginTop: spacing[3],

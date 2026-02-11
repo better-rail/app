@@ -1,7 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { useMemo } from "react"
-import { observer } from "mobx-react-lite"
 import { TextStyle, View, ViewStyle, Platform, TouchableOpacity, Pressable, Image, ImageStyle } from "react-native"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import { Svg, Line } from "react-native-svg"
@@ -15,7 +14,8 @@ import { RouteContextMenu, RouteContextMenuAction } from "./platform-context-men
 import { createContextMenuActions } from "./route-context-menu-actions"
 import type { RouteItem } from "../../services/api"
 import { useIsDarkMode } from "../../hooks/use-is-dark-mode"
-import { useStores } from "../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useSettingsStore } from "../../models"
 
 // #region styles
 
@@ -165,7 +165,7 @@ export interface RouteCardProps extends TouchableScaleProps {
   destinationId?: string
 }
 
-export const RouteCard = observer(function RouteCard(props: RouteCardProps) {
+export function RouteCard(props: RouteCardProps) {
   const {
     departureTime,
     arrivalTime,
@@ -185,7 +185,9 @@ export const RouteCard = observer(function RouteCard(props: RouteCardProps) {
   } = props
 
   const isDarkMode = useIsDarkMode()
-  const { settings } = useStores()
+  const { hideSlowTrains, showRouteCardHeader } = useSettingsStore(
+    useShallow((s) => ({ hideSlowTrains: s.hideSlowTrains, showRouteCardHeader: s.showRouteCardHeader }))
+  )
 
   // Format times
   const [formattedDepatureTime, formattedArrivalTime] = useMemo(() => {
@@ -202,7 +204,7 @@ export const RouteCard = observer(function RouteCard(props: RouteCardProps) {
   }, [stops])
 
   // Check if indicators are bloated (short route badge with delay shown)
-  const isBloatedIndicators = isMuchShorter && !isMuchLonger && delay > 0 && !settings.hideSlowTrains
+  const isBloatedIndicators = isMuchShorter && !isMuchLonger && delay > 0 && !hideSlowTrains
 
   // Generate context menu actions if routeItem and IDs are provided
   const generatedContextMenuActions = useMemo(() => {
@@ -256,7 +258,7 @@ export const RouteCard = observer(function RouteCard(props: RouteCardProps) {
     )
   }
 
-  const showHeader = mainTrain && settings.showRouteCardHeader
+  const showHeader = mainTrain && showRouteCardHeader
   const containerStyle = showHeader ? CONTAINER_WITH_HEADER : CONTAINER_WITHOUT_HEADER
 
   const cardContent = (
@@ -305,7 +307,7 @@ export const RouteCard = observer(function RouteCard(props: RouteCardProps) {
               delay={delay}
               stopsText={stopsText}
               isRideActive={props.isActiveRide}
-              hideShortRouteBadge={settings.hideSlowTrains}
+              hideShortRouteBadge={hideSlowTrains}
             />
           </View>
         </View>
@@ -325,7 +327,7 @@ export const RouteCard = observer(function RouteCard(props: RouteCardProps) {
       {cardContent}
     </RouteContextMenu>
   )
-})
+}
 
 const DashedLine = () => (
   <Svg height={5} width={35}>

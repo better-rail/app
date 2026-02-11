@@ -7,11 +7,12 @@ import { PopUpMessage, railApi } from "../../services/api"
 import { spacing } from "../../theme"
 import { Screen, Text } from ".."
 import { useIsDarkMode } from "../../hooks"
-import { useStores } from "../../models"
+import { useSettingsStore, filterUnseenUrgentMessages } from "../../models"
 import { AnnouncementCard } from "./announcement-card"
 
 export const UrgentAnnouncements = () => {
-  const { settings } = useStores()
+  const seenUrgentMessagesIds = useSettingsStore((s) => s.seenUrgentMessagesIds)
+  const setSeenUrgentMessagesIds = useSettingsStore((s) => s.setSeenUrgentMessagesIds)
   const isDarkMode = useIsDarkMode()
 
   const { data: messages } = useQuery(["announcements", "urgent"], () => railApi.getPopupMessages(userLocale))
@@ -19,14 +20,14 @@ export const UrgentAnnouncements = () => {
 
   useEffect(() => {
     if (messages) {
-      const unseenUrgentMessages = settings.filterUnseenUrgentMessages(messages)
-      setUnseenUrgentMessages(unseenUrgentMessages)
+      const unseen = filterUnseenUrgentMessages(messages, seenUrgentMessagesIds)
+      setUnseenUrgentMessages(unseen)
 
-      if (unseenUrgentMessages.length > 0) {
+      if (unseen.length > 0) {
         // Delay to avoid hiding the urgent announcement bar while the modal is opening.
         // For some reason, the timeout also prevents the rerender of planner screen header.
         setTimeout(() => {
-          settings.setSeenUrgentMessagesIds(unseenUrgentMessages.map((message) => message.id))
+          setSeenUrgentMessagesIds(unseen.map((message) => message.id))
         }, 1000)
       }
     }

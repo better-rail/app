@@ -1,7 +1,8 @@
-import { RecentSearchesModel } from "./recent-searches"
+import { useRecentSearchesStore } from "./recent-searches"
 
-test("can be created", () => {
-  const instance = RecentSearchesModel.create({})
+test("can be created with default state", () => {
+  const state = useRecentSearchesStore.getState()
 
-  expect(instance).toBeTruthy()
+  expect(state).toBeTruthy()
+  expect(state.entries).toEqual([])
 })
