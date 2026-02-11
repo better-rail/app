@@ -24,6 +24,7 @@ abstract class UnifiedWidgetProvider(
     override fun getWidgetContainerId(): Int = defaultWidgetSize.containerId
     override fun getLogTag(): String = defaultWidgetSize.logTag
     override fun getWidgetType(): String = defaultWidgetSize.widgetType
+    override fun getClickTargetIds(): IntArray = defaultWidgetSize.clickTargets
     override fun getConfigActivityClass(): Class<*> = defaultWidgetSize.configActivity
 
     /**
