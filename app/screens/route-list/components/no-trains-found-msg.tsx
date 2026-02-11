@@ -1,4 +1,3 @@
-import { observer } from "mobx-react-lite"
 import React from "react"
 import { Image, ViewStyle, ImageStyle, ScrollView, TextStyle } from "react-native"
 import { Text } from "../../../components"
@@ -26,7 +25,7 @@ const NO_TRAINS_FOUND_TEXT: TextStyle = {
   textAlign: "center",
 }
 
-export const NoTrainsFoundMessage = observer(function NoTrainsFoundMessage() {
+export function NoTrainsFoundMessage() {
   const { routePlan } = useStores()
   const originId = routePlan.origin.id
   const destinationId = routePlan.destination.id
@@ -46,4 +45,4 @@ export const NoTrainsFoundMessage = observer(function NoTrainsFoundMessage() {
       )}
     </ScrollView>
   )
-})
+}

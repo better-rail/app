@@ -1,5 +1,4 @@
 import React, { useEffect } from "react"
-import { observer } from "mobx-react-lite"
 import { Platform, View, type ViewStyle } from "react-native"
 import { RouteCard, Screen, Text } from "../../components"
 import { RouteCardHeight, RouteCardHeightWithHeader } from "../../components/route-card/route-card"
@@ -54,7 +53,7 @@ const routeItem: RouteItem = {
   ],
 }
 
-export const UISettingsScreen = observer(function UISettingsScreen() {
+export function UISettingsScreen() {
   const isDarkMode = useIsDarkMode()
   const { settings } = useStores()
 
@@ -123,4 +122,4 @@ export const UISettingsScreen = observer(function UISettingsScreen() {
       </View>
     </Screen>
   )
-})
+}

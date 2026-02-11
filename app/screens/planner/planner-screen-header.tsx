@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import { Image, ImageStyle, Platform, TouchableOpacity, View, ViewStyle } from "react-native"
 import { useNavigation } from "@react-navigation/core"
-import { observer } from "mobx-react-lite"
 import type { StackNavigationProp } from "@react-navigation/stack"
 import type { RootParamList } from "../../navigators"
 import * as storage from "../../utils/storage"
@@ -48,7 +47,7 @@ const SETTINGS_ICON = require("../../../assets/settings.png")
 
 type NavigationProps = StackNavigationProp<RootParamList, "mainStack">
 
-export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
+export function PlannerScreenHeader() {
   const { routePlan, ride, settings } = useStores()
   const navigation = useNavigation<NavigationProps>()
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
@@ -95,7 +94,7 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
                 // @ts-expect-error
                 navigation.navigate("activeRideStack", {
                   screen: "activeRide",
-                  params: { routeItem: ride.route, originId: ride.originId, destinationId: ride.destinationId },
+                  params: { routeItem: ride.route, originId: ride.originId(), destinationId: ride.destinationId() },
                 })
 
                 trackEvent("open_live_ride_modal_pressed")
@@ -128,4 +127,4 @@ export const PlannerScreenHeader = observer(function PlannerScreenHeader() {
       )}
     </>
   )
-})
+}

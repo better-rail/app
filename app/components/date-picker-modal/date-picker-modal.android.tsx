@@ -1,6 +1,5 @@
 import { useState } from "react"
 import { Pressable, TextStyle, View, type ViewStyle } from "react-native"
-import { observer } from "mobx-react-lite"
 import { useStores } from "../../models"
 import { dateLocale, translate } from "../../i18n"
 import { color, spacing, isDarkMode } from "../../theme"
@@ -64,7 +63,7 @@ export interface DatePickerModalProps {
   style?: ViewStyle
 }
 
-export const DatePickerModal = observer(function DatePickerModal(props: ModalProps<"DatePickerModal">) {
+export function DatePickerModal(props: ModalProps<"DatePickerModal">) {
   const { routePlan } = useStores()
   const { onConfirm, minimumDate } = props.modal.params
   const [selectedTab, setSelectedTab] = useState(0)
@@ -134,4 +133,4 @@ export const DatePickerModal = observer(function DatePickerModal(props: ModalPro
       </View>
     </View>
   )
-})
+}

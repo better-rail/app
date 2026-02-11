@@ -2,7 +2,8 @@ import { MutableRefObject, useEffect } from "react"
 import { EmitterSubscription, Linking, NativeEventEmitter, Platform } from "react-native"
 import { extractURLParams } from "../utils/helpers/url"
 import { donateRouteIntent, reloadAllTimelines } from "../utils/ios-helpers"
-import { RootStore } from "../models"
+import { useRoutePlanStore } from "../models/route-plan/route-plan"
+import { useRideStore } from "../models/ride/ride"
 import { PrimaryParamList, RootParamList } from "../navigators"
 import { NavigationContainerRef } from "@react-navigation/native"
 import { isEqual } from "lodash"
@@ -15,20 +16,20 @@ const ShortcutsEmitter = new NativeEventEmitter(Shortcuts)
 /**
  * Handles navigation of deep links provided to the app.
  */
-export function useDeepLinking(rootStore: RootStore, navigationRef: MutableRefObject<NavigationContainerRef<RootParamList>>) {
+export function useDeepLinking(storeReady: boolean, navigationRef: MutableRefObject<NavigationContainerRef<RootParamList>>) {
   const stations = useStations()
 
   function deepLinkWidgetURL(url: string) {
-    if (!rootStore) return
+    if (!storeReady) return
 
     const { originId, destinationId } = extractURLParams(url)
-    const { setOrigin, setDestination } = rootStore.routePlan
+    const routePlan = useRoutePlanStore.getState()
 
     const origin = stations.find((station) => station.id === originId)
     const destination = stations.find((station) => station.id === destinationId)
 
-    setOrigin(origin)
-    setDestination(destination)
+    routePlan.setOrigin(origin)
+    routePlan.setDestination(destination)
 
     if (Platform.OS === "ios") {
       // iOS navigation - keep existing working logic
@@ -59,7 +60,10 @@ export function useDeepLinking(rootStore: RootStore, navigationRef: MutableRefOb
   }
 
   function openActiveRideScreen() {
-    const { route, originId, destinationId } = rootStore.ride
+    const rideState = useRideStore.getState()
+    const { route } = rideState
+    const originId = rideState.originId()
+    const destinationId = rideState.destinationId()
     if (!route) return
 
     // @ts-expect-error navigator type
@@ -106,9 +110,10 @@ export function useDeepLinking(rootStore: RootStore, navigationRef: MutableRefOb
     const origin = stations.find((station) => station.id === item.data.originId)
     const destination = stations.find((station) => station.id === item.data.destinationId)
 
-    rootStore.routePlan.setOrigin(origin)
-    rootStore.routePlan.setDestination(destination)
-    rootStore.routePlan.setDate(new Date())
+    const routePlan = useRoutePlanStore.getState()
+    routePlan.setOrigin(origin)
+    routePlan.setDestination(destination)
+    routePlan.setDate(new Date())
 
     // @ts-expect-error navigator type
     navigationRef.current?.navigate("mainStack", {
@@ -116,7 +121,7 @@ export function useDeepLinking(rootStore: RootStore, navigationRef: MutableRefOb
       params: {
         originId: origin?.id,
         destinationId: destination?.id,
-        time: rootStore?.routePlan.date.getTime(),
+        time: new Date().getTime(),
       },
     })
   }
@@ -131,7 +136,7 @@ export function useDeepLinking(rootStore: RootStore, navigationRef: MutableRefOb
       handleDeepLinkURL(url)
     })
 
-    if (rootStore) {
+    if (storeReady) {
       Shortcuts.getInitialShortcut().then(openHomeScreenShortcut)
       shortcutsListener = ShortcutsEmitter.addListener("onShortcutItemPressed", openHomeScreenShortcut)
     }
@@ -140,5 +145,5 @@ export function useDeepLinking(rootStore: RootStore, navigationRef: MutableRefOb
       linkingListener?.remove()
       shortcutsListener?.remove()
     }
-  }, [rootStore])
+  }, [storeReady])
 }

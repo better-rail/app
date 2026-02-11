@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo, useState } from "react"
-import { observer } from "mobx-react-lite"
 import { View, TextStyle, ViewStyle, Pressable, Platform, I18nManager, UIManager } from "react-native"
 import { Screen, Text, StationCard, FavoriteRoutes, cardHeight } from "../../components"
 import { useStores } from "../../models"
@@ -36,7 +35,7 @@ const CANCEL_LINK: TextStyle = {
 
 // #endregion
 
-export const SelectStationScreen = observer(function SelectStationScreen({ navigation, route }: SelectStationScreenProps) {
+export function SelectStationScreen({ navigation, route }: SelectStationScreenProps) {
   const { routePlan, recentSearches, favoriteRoutes } = useStores()
   const insets = useSafeAreaInsets()
   const [searchTerm, setSearchTerm] = useState("")
@@ -90,4 +89,4 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
       />
     </Screen>
   )
-})
+}

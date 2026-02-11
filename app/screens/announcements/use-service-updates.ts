@@ -1,6 +1,5 @@
 import { useQuery } from "react-query"
 import { firestore } from "../../services/firebase/firestore"
-import { toJS } from "mobx"
 import { useStores } from "../../models"
 import { userLocale } from "../../i18n"
 import { uniq } from "lodash"
@@ -21,7 +20,7 @@ export function useServiceUpdates() {
 
     // Get all the station that the user has notifications enabled for, including their favorite routes
     const favoriteStations = favoriteRoutes.routes.flatMap((route) => [route.originId, route.destinationId])
-    const notificationsStations = uniq([...toJS(settings.stationsNotifications), ...favoriteStations])
+    const notificationsStations = uniq([...settings.stationsNotifications, ...favoriteStations])
 
     const q = query(
       collection(firestore, "service-updates"),

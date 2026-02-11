@@ -1,9 +1,7 @@
-import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { omit } from "ramda"
+import { create } from "zustand"
 import { Platform } from "react-native"
 import AndroidHelpers from "../../utils/notification-helpers"
 import iOSHelpers, { ActivityAuthorizationInfo } from "../../utils/ios-helpers"
-import { trainRouteSchema } from "../train-routes/train-routes"
 import { RouteItem } from "../../services/api"
 import { RouteApi } from "../../services/api/route-api"
 import { head, last } from "lodash"
@@ -25,197 +23,211 @@ const endRideHandler: (routeId: string) => Promise<boolean> = Platform.select({
   android: AndroidHelpers.endRideNotifications,
 })
 
-/**
- * Live Ride store.
- */
-export const RideModel = types
-  .model("Ride")
-  .props({
-    /**
-     * Whether the user has requested to start a ride and
-     * it's being registered at the moment.
-     */
-    loading: types.optional(types.boolean, false),
-    /**
-     * The ride id
-     */
-    id: types.maybe(types.string),
-    /**
-     * The ride route
-     */
-    route: types.maybe(types.model(trainRouteSchema)),
-    /**
-     * Activity authorization info for iOS
-     */
-    activityAuthorizationInfo: types.maybe(
-      types.model({
-        areActivitiesEnabled: types.boolean,
-        frequentPushesEnabled: types.boolean,
-      }),
-    ),
-    /**
-     * Notifee settings for Android
-     */
-    notifeeSettings: types.maybe(
-      types.model({
-        notifications: types.number,
-        alarms: types.number,
-      }),
-    ),
-    /**
-     * Number of rides the user has taken
-     */
-    rideCount: types.optional(types.number, 0),
-    /**
-     * Whether the user device can run live activities
-     */
-    canRunLiveActivities: types.optional(types.boolean, false),
-  })
-  .views((self) => ({
-    get originId() {
-      if (!self.route) return undefined
-      return self.route.trains[0].originStationId
-    },
-    get destinationId() {
-      if (!self.route) return undefined
-      const lastTrainIndex = self.route.trains.length - 1
-      return self.route.trains[lastTrainIndex].destinationStationId
-    },
-  }))
-  .actions((self) => ({
-    setNotifeeSettings(newSettings: NotificationSettings) {
-      self.notifeeSettings = {
+export interface RideState {
+  loading: boolean
+  id: string | undefined
+  route: RouteItem | undefined
+  activityAuthorizationInfo: { areActivitiesEnabled: boolean; frequentPushesEnabled: boolean } | undefined
+  notifeeSettings: { notifications: number; alarms: number } | undefined
+  rideCount: number
+  canRunLiveActivities: boolean
+}
+
+export interface RideActions {
+  setNotifeeSettings: (newSettings: NotificationSettings) => void
+  setActivityAuthorizationInfo: (newInfo: ActivityAuthorizationInfo) => void
+  setCanRunLiveActivities: (value: boolean) => void
+  checkLiveActivitiesSupported: () => Promise<boolean>
+  checkLiveRideAuthorization: () => Promise<void>
+  startRide: (route: RouteItem) => void
+  stopRide: (rideId: string) => Promise<void>
+  setRoute: (route: RouteItem | undefined) => void
+  setRideLoading: (state: boolean) => void
+  setRideId: (rideId: string | undefined) => void
+  setRideCount: (count: number) => void
+  isRideActive: (rideId: string) => void
+  isRouteActive: (routeItem: RouteItem) => boolean
+  originId: () => number | undefined
+  destinationId: () => number | undefined
+}
+
+export type RideStore = RideState & RideActions
+
+export const useRideStore = create<RideStore>((set, get) => ({
+  loading: false,
+  id: undefined,
+  route: undefined,
+  activityAuthorizationInfo: undefined,
+  notifeeSettings: undefined,
+  rideCount: 0,
+  canRunLiveActivities: false,
+
+  setNotifeeSettings(newSettings) {
+    set({
+      notifeeSettings: {
         notifications: newSettings.authorizationStatus,
         alarms: newSettings.android.alarm,
-      }
-    },
-    setActivityAuthorizationInfo(newInfo: ActivityAuthorizationInfo) {
-      self.activityAuthorizationInfo = newInfo
-    },
-    setCanRunLiveActivities(value: boolean) {
-      self.canRunLiveActivities = value
-    },
-    async checkLiveActivitiesSupported() {
-      if (Platform.OS === "ios") {
-        const supported = await iOSHelpers.canRunLiveActivities()
-        this.setCanRunLiveActivities(supported)
-        return supported
-      }
+      },
+    })
+  },
 
-      return false
-    },
-    async checkLiveRideAuthorization() {
-      if (self.canRunLiveActivities) {
-        const info = await iOSHelpers.activityAuthorizationInfo()
-        this.setActivityAuthorizationInfo(info)
-      } else if (Platform.OS === "android") {
-        const settings = await notifee.getNotificationSettings()
-        this.setNotifeeSettings(settings)
-      }
-    },
-    afterCreate() {
-      if (self.id) {
-        // We check if the ride is still active.
-        this.isRideActive(self.id)
-      }
+  setActivityAuthorizationInfo(newInfo) {
+    set({ activityAuthorizationInfo: newInfo })
+  },
 
-      this.checkLiveRideAuthorization()
-    },
-    startRide(route: RouteItem) {
-      if (Platform.OS === "ios" && !self.canRunLiveActivities) return
+  setCanRunLiveActivities(value) {
+    set({ canRunLiveActivities: value })
+  },
 
-      this.setRideLoading(true)
-      this.setRoute(route)
+  async checkLiveActivitiesSupported() {
+    if (Platform.OS === "ios") {
+      const supported = await iOSHelpers.canRunLiveActivities()
+      set({ canRunLiveActivities: supported })
+      return supported
+    }
+    return false
+  },
 
-      startRideHandler(route)
-        .then((rideId) => {
-          this.setRideId(rideId)
-          this.setRideLoading(false)
-          this.setRideCount(self.rideCount + 1)
-        })
-        .catch(() => {
-          this.setRoute(undefined)
-          this.setRideId(undefined)
-          this.setRideLoading(false)
+  async checkLiveRideAuthorization() {
+    const { canRunLiveActivities } = get()
+    if (canRunLiveActivities) {
+      const info = await iOSHelpers.activityAuthorizationInfo()
+      set({ activityAuthorizationInfo: info })
+    } else if (Platform.OS === "android") {
+      const settings = await notifee.getNotificationSettings()
+      get().setNotifeeSettings(settings)
+    }
+  },
 
-          if (Platform.OS === "android") {
-            AndroidHelpers.cancelNotifications()
-          }
+  startRide(route) {
+    const { canRunLiveActivities } = get()
+    if (Platform.OS === "ios" && !canRunLiveActivities) return
 
-          Burnt.alert({ title: translate("ride.error"), preset: "error", duration: 3 })
-        })
-    },
-    stopRide(rideId: string) {
-      if (Platform.OS === "ios" && !self.canRunLiveActivities) return Promise.resolve()
+    set({ loading: true, route })
 
-      this.setRideLoading(true)
-      this.setRideId(undefined)
-      this.setRoute(undefined)
-
-      return endRideHandler(rideId).then(() => {
-        this.setRideLoading(false)
+    startRideHandler(route)
+      .then((rideId) => {
+        set((state) => ({ id: rideId, loading: false, rideCount: state.rideCount + 1 }))
       })
-    },
-    setRoute(route: RouteItem) {
-      self.route = route as any
-    },
-    setRideLoading(state: boolean) {
-      self.loading = state
-    },
-    setRideId(rideId: string) {
-      self.id = rideId
-    },
-    setRideCount(count: number) {
-      self.rideCount = count
-    },
-    isRideActive(rideId: string) {
-      if (self.canRunLiveActivities) {
-        iOSHelpers.isRideActive(rideId).then((tokens) => {
-          // TODO: Check if ride Id exists in the array.
-          // Currently .rideId arrives always empty, so we only check if the array is empty.
-          // stop ride if it's not active
-          if (tokens && tokens.length === 0) {
-            this.stopRide(rideId)
-          }
-        })
-      } else if (Platform.OS === "android") {
-        if (!self.route || !self.id) return
+      .catch(() => {
+        set({ route: undefined, id: undefined, loading: false })
 
-        const originId = head(self.route.trains).originStationId
-        const destinationId = last(self.route.trains).destinationStationId
-        const [date, time] = formatDateForAPI(self.route.departureTime)
+        if (Platform.OS === "android") {
+          AndroidHelpers.cancelNotifications()
+        }
 
-        routeApi.getRoutes(originId.toString(), destinationId.toString(), date, time).then((routes) => {
-          const currentRouteTrains = self.route.trains.map((train) => train.trainNumber).join()
-          const currentRoute = routes.find(
-            (route) => currentRouteTrains === route.trains.map((train) => train.trainNumber).join(),
-          )
+        Burnt.alert({ title: translate("ride.error"), preset: "error", duration: 3 })
+      })
+  },
 
-          if (currentRoute && Date.now() >= addMinutes(currentRoute.arrivalTime, last(currentRoute.trains).delay).getTime()) {
-            this.stopRide(rideId)
-          }
-        })
-      }
-    },
-    /**
-     * Checks if the given route is the current active route.
-     */
-    isRouteActive(routeItem: RouteItem) {
-      const currentRoute = self.route
-      if (!currentRoute) return false
+  async stopRide(rideId) {
+    const { canRunLiveActivities } = get()
+    if (Platform.OS === "ios" && !canRunLiveActivities) return
 
-      return (
-        currentRoute.departureTime === routeItem.departureTime &&
-        currentRoute.trains[0].trainNumber === routeItem.trains[0].trainNumber &&
-        currentRoute.trains[currentRoute.trains.length - 1].destinationStationId ===
-          routeItem.trains[routeItem.trains.length - 1].destinationStationId
-      )
-    },
-  }))
-  .postProcessSnapshot(omit(["loading"]))
+    set({ loading: true, id: undefined, route: undefined })
 
-type RideType = Instance<typeof RideModel>
-export interface Ride extends RideType {}
-type RideSnapshotType = SnapshotOut<typeof RideModel>
-export interface RideSnapshot extends RideSnapshotType {}
-export const createRideDefaultModel = () => types.optional(RideModel, {})
+    await endRideHandler(rideId)
+    set({ loading: false })
+  },
+
+  setRoute(route) {
+    set({ route })
+  },
+
+  setRideLoading(state) {
+    set({ loading: state })
+  },
+
+  setRideId(rideId) {
+    set({ id: rideId })
+  },
+
+  setRideCount(count) {
+    set({ rideCount: count })
+  },
+
+  isRideActive(rideId) {
+    const { canRunLiveActivities, route, id } = get()
+
+    if (canRunLiveActivities) {
+      iOSHelpers.isRideActive(rideId).then((tokens) => {
+        if (tokens && tokens.length === 0) {
+          get().stopRide(rideId)
+        }
+      })
+    } else if (Platform.OS === "android") {
+      if (!route || !id) return
+
+      const originId = head(route.trains).originStationId
+      const destinationId = last(route.trains).destinationStationId
+      const [date, time] = formatDateForAPI(route.departureTime)
+
+      routeApi.getRoutes(originId.toString(), destinationId.toString(), date, time).then((routes) => {
+        const currentRouteTrains = route.trains.map((train) => train.trainNumber).join()
+        const currentRoute = routes.find(
+          (r) => currentRouteTrains === r.trains.map((train) => train.trainNumber).join(),
+        )
+
+        if (currentRoute && Date.now() >= addMinutes(currentRoute.arrivalTime, last(currentRoute.trains).delay).getTime()) {
+          get().stopRide(rideId)
+        }
+      })
+    }
+  },
+
+  isRouteActive(routeItem) {
+    const currentRoute = get().route
+    if (!currentRoute) return false
+
+    return (
+      currentRoute.departureTime === routeItem.departureTime &&
+      currentRoute.trains[0].trainNumber === routeItem.trains[0].trainNumber &&
+      currentRoute.trains[currentRoute.trains.length - 1].destinationStationId ===
+        routeItem.trains[routeItem.trains.length - 1].destinationStationId
+    )
+  },
+
+  originId() {
+    const route = get().route
+    if (!route) return undefined
+    return route.trains[0].originStationId
+  },
+
+  destinationId() {
+    const route = get().route
+    if (!route) return undefined
+    const lastTrainIndex = route.trains.length - 1
+    return route.trains[lastTrainIndex].destinationStationId
+  },
+}))
+
+// Exclude loading from persistence (transient state)
+export function getRideSnapshot(state: RideState) {
+  const { loading, ...rest } = state
+  return rest
+}
+
+export function hydrateRideStore(data: any) {
+  if (!data) return
+  useRideStore.setState({
+    loading: false,
+    id: data.id ?? undefined,
+    route: data.route ?? undefined,
+    activityAuthorizationInfo: data.activityAuthorizationInfo ?? undefined,
+    notifeeSettings: data.notifeeSettings ?? undefined,
+    rideCount: data.rideCount ?? 0,
+    canRunLiveActivities: data.canRunLiveActivities ?? false,
+  })
+}
+
+/**
+ * Run afterCreate logic - checks if ride is still active and authorization.
+ * Should be called after hydration.
+ */
+export function initializeRideStore() {
+  const state = useRideStore.getState()
+  if (state.id) {
+    state.isRideActive(state.id)
+  }
+  state.checkLiveRideAuthorization()
+}

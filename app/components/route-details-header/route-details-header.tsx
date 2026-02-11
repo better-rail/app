@@ -3,7 +3,6 @@ import { Image, ImageBackground, View, Animated as RNAnimated, Pressable } from 
 import type { ViewStyle, TextStyle, ImageStyle } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { trackEvent } from "../../services/analytics"
-import { observer } from "mobx-react-lite"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import LinearGradient from "react-native-linear-gradient"
 import { color, isDarkMode, spacing } from "../../theme"
@@ -106,7 +105,7 @@ export interface RouteDetailsHeaderProps {
   setShowEntireRoute?: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
+export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const { routeItem, originId, destinationId, screenName, style, showEntireRoute, setShowEntireRoute } = props
   const { favoriteRoutes, routePlan } = useStores()
   const navigation = useNavigation()
@@ -419,4 +418,4 @@ export const RouteDetailsHeader = observer(function RouteDetailsHeader(props: Ro
       </View>
     </>
   )
-})
+}

@@ -3,14 +3,13 @@ import { Pressable, type PressableProps, Image, ActivityIndicator, type ViewStyl
 import { color } from "../../../theme"
 import { Text, BottomScreenSheet } from "../../../components"
 import { useNavigation } from "@react-navigation/native"
-import { observer } from "mobx-react-lite"
 import { useStores } from "../../../models"
 import { translate } from "../../../i18n"
 import { trackEvent } from "../../../services/analytics"
 import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
 
 // TODO: add typings to progress
-export const LiveRideSheet = observer(function LiveRideSheet(props: { progress; screenName: "routeDetails" | "activeRide" }) {
+export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "activeRide" }) {
   const { ride } = useStores()
   const { progress, screenName } = props
 
@@ -52,7 +51,7 @@ export const LiveRideSheet = observer(function LiveRideSheet(props: { progress; 
       />
     </BottomScreenSheet>
   )
-})
+}
 
 const STOP_BUTTON: ViewStyle = {
   width: 42.5,

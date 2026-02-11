@@ -1,6 +1,5 @@
 import React, { useMemo } from "react"
 import { ViewStyle } from "react-native"
-import { observer } from "mobx-react-lite"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
 import SegmentedControl from "@react-native-segmented-control/segmented-control"
 import { DateType, useStores } from "../../models"
@@ -26,7 +25,7 @@ export interface DatePickerModalProps {
   style?: ViewStyle
 }
 
-export const DatePickerModal = observer(function DatePickerModal(props: DatePickerModalProps) {
+export function DatePickerModal(props: DatePickerModalProps) {
   const { routePlan } = useStores()
   const { isVisible, onChange, onConfirm, onCancel, minimumDate } = props
 
@@ -61,4 +60,4 @@ export const DatePickerModal = observer(function DatePickerModal(props: DatePick
       confirmTextIOS={translate("common.ok")}
     />
   )
-})
+}

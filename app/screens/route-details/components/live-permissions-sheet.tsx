@@ -9,8 +9,6 @@ import { TouchableOpacity } from "react-native-gesture-handler"
 import { translate } from "../../../i18n"
 import { useStores } from "../../../models"
 import notifee, { AndroidNotificationSetting, AuthorizationStatus } from "@notifee/react-native"
-import { observer } from "mobx-react-lite"
-
 const WRAPPER: ViewStyle = {
   paddingHorizontal: spacing[4],
   paddingTop: spacing[5],
@@ -30,8 +28,7 @@ type Props = {
   onDone: () => void
 }
 
-export const LivePermissionsSheet = observer(
-  forwardRef<BottomSheet, Props>((props, ref) => {
+export const LivePermissionsSheet = forwardRef<BottomSheet, Props>((props, ref) => {
     const { ride } = useStores()
 
     const grantNotifications = async () => {
@@ -77,9 +74,7 @@ export const LivePermissionsSheet = observer(
         </BottomSheetView>
       </BottomSheetModal>
     )
-  }),
-)
-
+  })
 const PERMISSION_BUTTON_WRAPPER: ViewStyle = {
   width: 120,
   height: 50,

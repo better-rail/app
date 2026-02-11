@@ -1,6 +1,5 @@
 import React from "react"
 import { setAnalyticsCollectionEnabled, trackEvent } from "../../services/analytics"
-import { observer } from "mobx-react-lite"
 import { Platform, View, type ViewStyle, Alert } from "react-native"
 import { Screen } from "../../components"
 import { SettingBox } from "./components/settings-box"
@@ -20,7 +19,7 @@ const ROOT: ViewStyle = {
   padding: spacing[4],
 }
 
-export const PrivacyScreen = observer(function SettingsLanguageScreen() {
+export function PrivacyScreen() {
   const { user } = useStores()
   const rootStore = useStores()
   const isBetaTester = useIsBetaTester()
@@ -86,4 +85,4 @@ export const PrivacyScreen = observer(function SettingsLanguageScreen() {
       </View>
     </Screen>
   )
-})
+}

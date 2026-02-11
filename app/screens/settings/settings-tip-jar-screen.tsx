@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react"
-import { observer } from "mobx-react-lite"
 import { View, ViewStyle, TextStyle, Platform, ActivityIndicator } from "react-native"
 import { useIAP } from "react-native-iap"
 import { Screen, Text } from "../../components"
@@ -88,7 +87,7 @@ const installSource = getInstallerPackageNameSync()
 
 const PRODUCT_IDS = ["better_rail_tip_1", "better_rail_tip_2", "better_rail_tip_3", "better_rail_tip_4"]
 
-export const TipJarScreen = observer(function TipJarScreen() {
+export function TipJarScreen() {
   const [isLoading, setIsLoading] = useState(false)
   const [sortedProducts, setSortedProducts] = useState([])
   const [showThanksModal, setShowThanksModal] = useState(false)
@@ -226,7 +225,7 @@ export const TipJarScreen = observer(function TipJarScreen() {
       <TipThanksModalNative visible={showThanksModal} onClose={() => setShowThanksModal(false)} />
     </>
   )
-})
+}
 
 const TipRow = ({ title, amount, onPress }) => (
   <View style={LIST_ROW}>

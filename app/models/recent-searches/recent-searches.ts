@@ -1,37 +1,53 @@
-import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { create } from "zustand"
 
 type Station = { id: string }
 
-const RecentSearchEntry = { id: types.string, updatedAt: types.number }
+export interface RecentSearchEntry {
+  id: string
+  updatedAt: number
+}
 
-export const RecentSearchesModel = types
-  .model("RecentSearches")
-  .props({
-    entries: types.array(types.model(RecentSearchEntry)),
+export interface RecentSearchesState {
+  entries: RecentSearchEntry[]
+}
+
+export interface RecentSearchesActions {
+  save: (station: Station) => void
+  remove: (stationId: string) => void
+}
+
+export type RecentSearchesStore = RecentSearchesState & RecentSearchesActions
+
+export const useRecentSearchesStore = create<RecentSearchesStore>((set, get) => ({
+  entries: [],
+
+  save(station) {
+    const { entries } = get()
+    const existingEntry = entries.find((entry) => entry.id === station.id)
+
+    if (existingEntry) {
+      const entryIndex = entries.indexOf(existingEntry)
+      const updatedEntry = { ...existingEntry, updatedAt: new Date().getTime() }
+      const updatedEntries = [...entries.slice(0, entryIndex), updatedEntry, ...entries.slice(entryIndex + 1)]
+      set({ entries: updatedEntries })
+    } else {
+      set({ entries: [...entries, { id: station.id, updatedAt: new Date().getTime() }] })
+    }
+  },
+
+  remove(stationId) {
+    const { entries } = get()
+    set({ entries: entries.filter((station) => station.id !== stationId) })
+  },
+}))
+
+export function getRecentSearchesSnapshot(state: RecentSearchesState) {
+  return { entries: state.entries }
+}
+
+export function hydrateRecentSearchesStore(data: any) {
+  if (!data) return
+  useRecentSearchesStore.setState({
+    entries: data.entries ?? [],
   })
-  .actions((self) => ({
-    save(station: Station) {
-      const existingEntry = self.entries.find((entry) => entry.id === station.id)
-
-      // If the station already exists in the entries array, update it's `updatedAt` property.
-      if (existingEntry) {
-        const entryIndex = self.entries.indexOf(existingEntry)
-        const updatedEntry = Object.assign({}, existingEntry, { updatedAt: new Date().getTime() })
-        const updatedEntries = [...self.entries.slice(0, entryIndex), updatedEntry, ...self.entries.slice(entryIndex + 1)]
-
-        self.entries.replace(updatedEntries)
-      } else {
-        self.entries.push({ id: station.id, updatedAt: new Date().getTime() })
-      }
-    },
-    remove(stationId: string) {
-      const filteredSearches = self.entries.filter((station) => station.id !== stationId)
-      self.entries.replace(filteredSearches)
-    },
-  }))
-
-type RecentSearchesType = Instance<typeof RecentSearchesModel>
-export interface RecentSearches extends RecentSearchesType {}
-type RecentSearchesSnapshotType = SnapshotOut<typeof RecentSearchesModel>
-export interface RecentSearchesSnapshot extends RecentSearchesSnapshotType {}
-export const createRecentSearchesDefaultModel = () => types.optional(RecentSearchesModel, {})
+}

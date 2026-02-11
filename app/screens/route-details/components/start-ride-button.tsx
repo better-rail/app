@@ -1,5 +1,4 @@
 import { Alert, Dimensions, Image, ImageStyle, Linking, Platform, View, ViewStyle } from "react-native"
-import { observer } from "mobx-react-lite"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HapticFeedback from "react-native-haptic-feedback"
 import { Button } from "../../../components"
@@ -36,7 +35,7 @@ interface StartRideButtonProps {
   openPermissionsSheet?: () => Promise<unknown>
 }
 
-export const StartRideButton = observer(function StartRideButton(props: StartRideButtonProps) {
+export function StartRideButton(props: StartRideButtonProps) {
   const { ride } = useStores()
 
   const { route, screenName } = props
@@ -163,4 +162,4 @@ export const StartRideButton = observer(function StartRideButton(props: StartRid
       />
     </View>
   )
-})
+}

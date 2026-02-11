@@ -1,5 +1,4 @@
 import React, { useRef, useState, useEffect } from "react"
-import { observer } from "mobx-react-lite"
 import { View, Animated, Dimensions, AppState, Platform, Alert } from "react-native"
 import type { ViewStyle, TextStyle, AppStateStatus } from "react-native"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton, ResetTimeButton } from "../../components"
@@ -50,7 +49,7 @@ const CHANGE_DIRECTION_WRAPPER: ViewStyle = {
 
 // #endregion
 
-export const PlannerScreen = observer(function PlannerScreen({ navigation }: PlannerScreenProps) {
+export function PlannerScreen({ navigation }: PlannerScreenProps) {
   const { routePlan, trainRoutes } = useStores()
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
   const { openModal } = useModal()
@@ -217,7 +216,7 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
             />
           </Animated.View>
 
-          <Text preset="fieldLabel" text={routePlan.dateTypeDisplayName} style={{ marginBottom: spacing[1] }} />
+          <Text preset="fieldLabel" text={routePlan.dateTypeDisplayName()} style={{ marginBottom: spacing[1] }} />
 
           <DummyInput
             placeholder={translate("plan.now")}
@@ -261,4 +260,4 @@ export const PlannerScreen = observer(function PlannerScreen({ navigation }: Pla
       </FlingGestureWrapper>
     </Screen>
   )
-})
+}

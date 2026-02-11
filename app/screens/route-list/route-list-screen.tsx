@@ -4,7 +4,6 @@ import * as Burnt from "burnt"
 import { View, ActivityIndicator, ViewStyle, Dimensions, useColorScheme } from "react-native"
 import Animated from "react-native-reanimated"
 import { FlashList } from "@shopify/flash-list"
-import { observer } from "mobx-react-lite"
 import { useNetworkState } from "expo-network"
 import { useQuery } from "react-query"
 import { closestIndexTo } from "date-fns"
@@ -29,7 +28,7 @@ const ROOT: ViewStyle = {
 
 type RouteData = RouteItem | string
 
-export const RouteListScreen = observer(function RouteListScreen({ navigation, route }: RouteListScreenProps) {
+export function RouteListScreen({ navigation, route }: RouteListScreenProps) {
   const { trainRoutes, routePlan, ride, settings } = useStores()
   const { originId, destinationId, time, enableQuery } = route.params
   const { showActionSheetWithOptions } = useActionSheet()
@@ -506,4 +505,4 @@ export const RouteListScreen = observer(function RouteListScreen({ navigation, r
       )}
     </Screen>
   )
-})
+}

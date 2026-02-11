@@ -1,13 +1,11 @@
-import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { omit } from "ramda"
-import { translate } from "../../i18n"
+import { create } from "zustand"
 import { NativeModules, Platform } from "react-native"
+import { translate } from "../../i18n"
 
 const { RNBetterRail } = NativeModules
 
 // Saves the current route to iOS App Group
 // Later it'll be used by the widget as the initial route
-// TODO: Move to another file
 function sendCurrentRouteToiOS(originId: string, destinationId: string) {
   if (Platform.OS === "ios" && originId && destinationId) {
     RNBetterRail.saveCurrentRoute(originId, destinationId)
@@ -16,56 +14,88 @@ function sendCurrentRouteToiOS(originId: string, destinationId: string) {
 
 export type DateType = "departure" | "arrival"
 
-const StationSchema = {
-  id: types.string,
-  name: types.string,
+export type Station = {
+  id: string
+  name: string
 }
 
-export const RoutePlanModel = types
-  .model("RoutePlan")
-  .props({
-    origin: types.maybe(types.model(StationSchema)),
-    destination: types.maybe(types.model(StationSchema)),
-    date: types.optional(types.Date, () => new Date()),
-    dateType: types.optional(types.enumeration(["departure", "arrival"]), "departure"),
+export interface RoutePlanState {
+  origin: Station | undefined
+  destination: Station | undefined
+  date: Date
+  dateType: DateType
+}
+
+export interface RoutePlanActions {
+  setOrigin: (station: Station | undefined) => void
+  setDestination: (station: Station | undefined) => void
+  setDate: (date: Date) => void
+  setDateType: (type: DateType) => void
+  switchDirection: () => void
+  dateTypeDisplayName: () => string
+}
+
+export type RoutePlanStore = RoutePlanState & RoutePlanActions
+
+export const useRoutePlanStore = create<RoutePlanStore>((set, get) => ({
+  origin: undefined,
+  destination: undefined,
+  date: new Date(),
+  dateType: "departure",
+
+  setOrigin(station) {
+    set({ origin: station })
+    const dest = get().destination
+    sendCurrentRouteToiOS(station?.id, dest?.id)
+  },
+
+  setDestination(station) {
+    set({ destination: station })
+    const orig = get().origin
+    sendCurrentRouteToiOS(orig?.id, station?.id)
+  },
+
+  setDate(date) {
+    set({ date })
+  },
+
+  setDateType(type) {
+    set({ dateType: type })
+  },
+
+  switchDirection() {
+    const { origin, destination } = get()
+    const origCopy = origin ? { ...origin } : undefined
+    const destCopy = destination ? { ...destination } : undefined
+    get().setOrigin(destCopy)
+    get().setDestination(origCopy)
+  },
+
+  dateTypeDisplayName() {
+    const { dateType } = get()
+    if (dateType === "departure") return translate("plan.leaveAt")
+    return translate("plan.arriveAt")
+  },
+}))
+
+// Snapshot helpers for persistence - exclude date and dateType from persistence
+export function getRoutePlanSnapshot(state: RoutePlanState) {
+  const { date, dateType, ...rest } = state
+  return {
+    origin: rest.origin ? { ...rest.origin } : undefined,
+    destination: rest.destination ? { ...rest.destination } : undefined,
+  }
+}
+
+export function hydrateRoutePlanStore(data: any) {
+  if (!data) return
+  useRoutePlanStore.setState({
+    origin: data.origin ?? undefined,
+    destination: data.destination ?? undefined,
+    // Always start with fresh date and default dateType
+    date: new Date(),
+    dateType: "departure",
   })
-  .views((self) => {
-    return {
-      get dateTypeDisplayName() {
-        if (self.dateType === "departure") return translate("plan.leaveAt")
-        return translate("plan.arriveAt")
-      },
-    }
-  })
+}
 
-  .actions((self) => ({
-    setOrigin(station) {
-      self.origin = station
-      sendCurrentRouteToiOS(self.origin?.id, self.destination?.id)
-    },
-    setDestination(station) {
-      self.destination = station
-      sendCurrentRouteToiOS(self.origin?.id, self.destination?.id)
-    },
-    setDate(date) {
-      self.date = date
-    },
-    setDateType(type: DateType) {
-      self.dateType = type
-    },
-    switchDirection() {
-      // Handle cases where the origin/destination are undefined (for example, on initial app launch)
-      const origin = self.origin ? Object.assign({}, self.origin) : undefined
-      const destination = self.destination ? Object.assign({}, self.destination) : undefined
-
-      this.setOrigin(destination)
-      this.setDestination(origin)
-    },
-  }))
-  .postProcessSnapshot(omit(["date", "dateType"]))
-
-type RoutePlanType = Instance<typeof RoutePlanModel>
-export interface RoutePlan extends RoutePlanType {}
-type RoutePlanSnapshotType = SnapshotOut<typeof RoutePlanModel>
-export interface RoutePlanSnapshot extends RoutePlanSnapshotType {}
-export const createRoutePlanDefaultModel = () => types.optional(RoutePlanModel, {})
+export type { Station as RoutePlanStation }

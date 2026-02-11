@@ -1,4 +1,3 @@
-import { observer } from "mobx-react-lite"
 import { useState } from "react"
 
 import { Platform, Pressable, View } from "react-native"
@@ -15,9 +14,7 @@ import { useFilteredStations, useIsDarkMode } from "../../hooks"
 import { useStations } from "../../data/stations"
 
 import { FlashList } from "@shopify/flash-list"
-import { toJS } from "mobx"
-
-export const NotificationsSelectStationsScreen = observer(function NotificationsSelectStationsScreen() {
+export function NotificationsSelectStationsScreen() {
   const navigation = useNavigation()
   const [searchTerm, setSearchTerm] = useState("")
   const insets = useSafeAreaInsets()
@@ -85,9 +82,9 @@ export const NotificationsSelectStationsScreen = observer(function Notifications
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ paddingTop: spacing[2], paddingBottom: spacing[5] }}
-          extraData={toJS(stationsNotifications)}
+          extraData={stationsNotifications}
         />
       </View>
     </Screen>
   )
-})
+}

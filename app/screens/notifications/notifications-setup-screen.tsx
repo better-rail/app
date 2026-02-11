@@ -1,4 +1,3 @@
-import { observer } from "mobx-react-lite"
 import { Button, Screen, Text } from "../../components"
 import type { AnnouncementsScreenProps } from "../../navigators/announcements/announcements-navigator"
 import { Alert, Linking, Platform, ScrollView, View } from "react-native"
@@ -14,7 +13,7 @@ import { messaging } from "../../services/firebase/messaging"
 import { useAppState, useIsDarkMode } from "../../hooks"
 import { chain } from "lodash"
 
-export const NotificationsSetupScreen = observer(function NotificationsSetupScreen({ navigation }: AnnouncementsScreenProps) {
+export function NotificationsSetupScreen({ navigation }: AnnouncementsScreenProps) {
   const { settings, favoriteRoutes } = useStores()
   const stations = useStations()
   const appState = useAppState()
@@ -161,4 +160,4 @@ export const NotificationsSetupScreen = observer(function NotificationsSetupScre
       </ScrollView>
     </Screen>
   )
-})
+}

@@ -1,6 +1,5 @@
 import React, { useMemo } from "react"
 import { View, Image, TextStyle, ViewStyle, ImageStyle, Platform } from "react-native"
-import { observer } from "mobx-react-lite"
 import { useStores } from "../../../models"
 import { trackEvent } from "../../../services/analytics"
 import { ScrollView } from "react-native-gesture-handler"
@@ -9,8 +8,6 @@ import { color, isDarkMode, spacing } from "../../../theme"
 import { stationLocale, stationsObject } from "../../../data/stations"
 import { StationSearchEntry } from "./station-search-entry"
 import { useNavigation } from "@react-navigation/core"
-import { toJS } from "mobx"
-
 const RECENT_SEARCHES_TITLE: TextStyle = {
   fontWeight: "500",
   opacity: 0.8,
@@ -37,13 +34,13 @@ type RecentSearchesBoxProps = {
   selectionType: "origin" | "destination"
 }
 
-export const RecentSearchesBox = observer(function RecentSearchesBox(props: RecentSearchesBoxProps) {
+export function RecentSearchesBox(props: RecentSearchesBoxProps) {
   const navigation = useNavigation()
   const { routePlan, recentSearches } = useStores()
 
   const sortedSearches = useMemo(() => {
     return [...recentSearches.entries].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 6)
-  }, [toJS(recentSearches.entries)])
+  }, [recentSearches.entries])
 
   const onStationPress = (entry) => {
     trackEvent("recent_station_selected")
@@ -97,7 +94,7 @@ export const RecentSearchesBox = observer(function RecentSearchesBox(props: Rece
       {content}
     </View>
   )
-})
+}
 
 const PLACEHOLDER_WRAPPER: ViewStyle = {
   marginTop: spacing[3],

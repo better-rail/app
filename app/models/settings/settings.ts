@@ -1,91 +1,124 @@
-import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { create } from "zustand"
 import { translate, TxKeyPath } from "../../i18n"
 import { PopUpMessage } from "../../services/api"
 
-const SettingsModelBase = types
-  .model("Settings")
-  .props({
-    stationsNotifications: types.optional(types.array(types.string), []),
-    seenNotificationsScreen: types.optional(types.boolean, false),
-    seenUrgentMessagesIds: types.optional(types.array(types.number), []),
-    profileCode: types.optional(types.number, 1),
-    totalTip: types.optional(types.number, 0),
-    showRouteCardHeader: types.optional(types.boolean, false),
-    hideSlowTrains: types.optional(types.boolean, false),
-  })
-  .views((self) => ({
-    get profileCodeLabel() {
-      const profile = PROFILE_CODES.find((profileCode) => profileCode.value === self.profileCode)
-      return translate(profile.label)
-    },
-  }))
-  .actions((self) => ({
-    setSeenNotificationsScreen(seen: boolean) {
-      self.seenNotificationsScreen = seen
-    },
-    setStationsNotifications(stations: string[]) {
-      self.stationsNotifications.replace(stations)
-    },
-    addStationNotification(stationId: string) {
-      const updatedStations = [...self.stationsNotifications, stationId]
-      this.setStationsNotifications(updatedStations)
-    },
+export interface SettingsState {
+  stationsNotifications: string[]
+  seenNotificationsScreen: boolean
+  seenUrgentMessagesIds: number[]
+  profileCode: number
+  totalTip: number
+  showRouteCardHeader: boolean
+  hideSlowTrains: boolean
+}
 
-    removeStationNotification(stationId: string) {
-      const updatedStations = self.stationsNotifications.filter((station) => station !== stationId)
-      this.setStationsNotifications(updatedStations)
-    },
-  }))
-  .actions((self) => ({
-    setProfileCode(code: number) {
-      self.profileCode = code
-    },
+export interface SettingsActions {
+  setSeenNotificationsScreen: (seen: boolean) => void
+  setStationsNotifications: (stations: string[]) => void
+  addStationNotification: (stationId: string) => void
+  removeStationNotification: (stationId: string) => void
+  setProfileCode: (code: number) => void
+  addTip: (amount: number) => void
+  setShowRouteCardHeader: (show: boolean) => void
+  setHideSlowTrains: (hide: boolean) => void
+  setSeenUrgentMessagesIds: (messagesIds: number[]) => void
+  filterUnseenUrgentMessages: (messages: PopUpMessage[]) => PopUpMessage[]
+  profileCodeLabel: () => string
+}
 
-    addTip(amount: number) {
-      self.totalTip = self.totalTip + amount
-    },
+export type SettingsStore = SettingsState & SettingsActions
 
-    setShowRouteCardHeader(show: boolean) {
-      self.showRouteCardHeader = show
-    },
+export const useSettingsStore = create<SettingsStore>((set, get) => ({
+  stationsNotifications: [],
+  seenNotificationsScreen: false,
+  seenUrgentMessagesIds: [],
+  profileCode: 1,
+  totalTip: 0,
+  showRouteCardHeader: false,
+  hideSlowTrains: false,
 
-    setHideSlowTrains(hide: boolean) {
-      self.hideSlowTrains = hide
-    },
-  }))
-  .actions((self) => ({
-    setSeenUrgentMessagesIds(messagesIds: number[]) {
-      self.seenUrgentMessagesIds.replace(messagesIds)
-    },
-    filterUnseenUrgentMessages(messages: PopUpMessage[]) {
-      return messages.filter((message) => !self.seenUrgentMessagesIds.includes(message.id))
-    },
-  }))
-
-export const SettingsModel = types.snapshotProcessor(SettingsModelBase, {
-  preProcessor(snapshot) {
-    if (!snapshot || typeof snapshot !== "object") {
-      return snapshot
-    }
-
-    const { hideCollectorTrains, ...rest } = snapshot as {
-      hideCollectorTrains?: boolean
-      [key: string]: unknown
-    }
-
-    if (hideCollectorTrains !== undefined && !("hideSlowTrains" in rest)) {
-      return { ...rest, hideSlowTrains: hideCollectorTrains }
-    }
-
-    return rest
+  setSeenNotificationsScreen(seen) {
+    set({ seenNotificationsScreen: seen })
   },
-})
 
-type SettingsType = Instance<typeof SettingsModel>
-export interface Settings extends SettingsType {}
-type SettingsSnapshotType = SnapshotOut<typeof SettingsModel>
-export interface SettingsSnapshot extends SettingsSnapshotType {}
-export const createSettingsDefaultModel = () => types.optional(SettingsModel, {})
+  setStationsNotifications(stations) {
+    set({ stationsNotifications: stations })
+  },
+
+  addStationNotification(stationId) {
+    set((state) => ({ stationsNotifications: [...state.stationsNotifications, stationId] }))
+  },
+
+  removeStationNotification(stationId) {
+    set((state) => ({
+      stationsNotifications: state.stationsNotifications.filter((station) => station !== stationId),
+    }))
+  },
+
+  setProfileCode(code) {
+    set({ profileCode: code })
+  },
+
+  addTip(amount) {
+    set((state) => ({ totalTip: state.totalTip + amount }))
+  },
+
+  setShowRouteCardHeader(show) {
+    set({ showRouteCardHeader: show })
+  },
+
+  setHideSlowTrains(hide) {
+    set({ hideSlowTrains: hide })
+  },
+
+  setSeenUrgentMessagesIds(messagesIds) {
+    set({ seenUrgentMessagesIds: messagesIds })
+  },
+
+  filterUnseenUrgentMessages(messages) {
+    const { seenUrgentMessagesIds } = get()
+    return messages.filter((message) => !seenUrgentMessagesIds.includes(message.id))
+  },
+
+  profileCodeLabel() {
+    const { profileCode } = get()
+    const profile = PROFILE_CODES.find((p) => p.value === profileCode)
+    return translate(profile.label)
+  },
+}))
+
+export function getSettingsSnapshot(state: SettingsState) {
+  return {
+    stationsNotifications: state.stationsNotifications,
+    seenNotificationsScreen: state.seenNotificationsScreen,
+    seenUrgentMessagesIds: state.seenUrgentMessagesIds,
+    profileCode: state.profileCode,
+    totalTip: state.totalTip,
+    showRouteCardHeader: state.showRouteCardHeader,
+    hideSlowTrains: state.hideSlowTrains,
+  }
+}
+
+export function hydrateSettingsStore(data: any) {
+  if (!data) return
+
+  // Migration: handle old "hideCollectorTrains" property
+  let processedData = { ...data }
+  if (data.hideCollectorTrains !== undefined && !("hideSlowTrains" in data)) {
+    processedData.hideSlowTrains = data.hideCollectorTrains
+  }
+  delete processedData.hideCollectorTrains
+
+  useSettingsStore.setState({
+    stationsNotifications: processedData.stationsNotifications ?? [],
+    seenNotificationsScreen: processedData.seenNotificationsScreen ?? false,
+    seenUrgentMessagesIds: processedData.seenUrgentMessagesIds ?? [],
+    profileCode: processedData.profileCode ?? 1,
+    totalTip: processedData.totalTip ?? 0,
+    showRouteCardHeader: processedData.showRouteCardHeader ?? false,
+    hideSlowTrains: processedData.hideSlowTrains ?? false,
+  })
+}
 
 export const PROFILE_CODES: { label: TxKeyPath; value: number }[] = [
   { label: "profileCodes.general", value: 1 },

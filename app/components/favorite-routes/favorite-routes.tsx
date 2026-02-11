@@ -2,7 +2,6 @@ import React, { useMemo } from "react"
 import { View, Platform, Image } from "react-native"
 import type { TextStyle, ViewStyle } from "react-native"
 import { useNavigation } from "@react-navigation/native"
-import { observer } from "mobx-react-lite"
 import { useStores } from "../../models"
 import { trackEvent } from "../../services/analytics"
 import { color, isDarkMode, spacing } from "../../theme"
@@ -41,7 +40,7 @@ export interface FavoriteRoutesProps {
   style?: ViewStyle
 }
 
-export const FavoriteRoutes = observer(function FavoriteRoutes(props: FavoriteRoutesProps) {
+export function FavoriteRoutes(props: FavoriteRoutesProps) {
   const { style } = props
   const navigation = useNavigation()
   const stations = useStations()
@@ -77,7 +76,7 @@ export const FavoriteRoutes = observer(function FavoriteRoutes(props: FavoriteRo
       <View style={ROUTES_CONTAINER}>{favorites}</View>
     </View>
   )
-})
+}
 
 const EMPTY_STATE_WRAPPER: ViewStyle = {
   alignItems: "center",

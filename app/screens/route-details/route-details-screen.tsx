@@ -26,8 +26,6 @@ import type BottomSheet from "@gorhom/bottom-sheet"
 import { useStations } from "../../data/stations"
 import { calculateDelayedTime } from "../../utils/helpers/date-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { observer } from "mobx-react-lite"
-
 const ROOT: ViewStyle = {
   flex: 1,
   backgroundColor: color.background,
@@ -42,7 +40,7 @@ const STATION_CONTAINER: ViewStyle = {
   backgroundColor: color.background,
 }
 
-export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
+export function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
   const { ride } = useStores()
   const allStations = useStations()
   const permissionSheetRef = useRef<BottomSheet>(null)
@@ -307,4 +305,4 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route }
       {Platform.OS === "android" && <LivePermissionsSheet onDone={onDoneLivePermissionsSheet} ref={permissionSheetRef} />}
     </>
   )
-})
+}

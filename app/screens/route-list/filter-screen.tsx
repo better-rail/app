@@ -1,5 +1,4 @@
 import { View, ViewStyle, TextStyle } from "react-native"
-import { observer } from "mobx-react-lite"
 import { Text } from "../../components"
 import { color, spacing } from "../../theme"
 import { useStores } from "../../models"
@@ -27,7 +26,7 @@ const DESCRIPTION: TextStyle = {
   opacity: 0.8,
 }
 
-export const FilterScreen = observer(function FilterScreen() {
+export function FilterScreen() {
   const { settings } = useStores()
 
   const onToggle = (value: boolean) => {
@@ -52,4 +51,4 @@ export const FilterScreen = observer(function FilterScreen() {
       <Text style={DESCRIPTION}>{translate("routes.slowTrainsDescription")}</Text>
     </View>
   )
-})
+}

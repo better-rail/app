@@ -1,5 +1,4 @@
 import { Platform, ScrollView, ViewStyle } from "react-native"
-import { observer } from "mobx-react-lite"
 import { Screen, Text } from "../../components"
 import { color, fontScale, spacing } from "../../theme"
 import { useIsDarkMode } from "../../hooks"
@@ -32,7 +31,7 @@ const NOTIFICATION_BUTTON: ViewStyle = {
   elevation: 4,
 }
 
-export const AnnouncementsScreen = observer(function AnnouncementsScreen({ navigation }: AnnouncementsScreenProps) {
+export function AnnouncementsScreen({ navigation }: AnnouncementsScreenProps) {
   const { settings } = useStores()
   const { data: serviceUpdates } = useServiceUpdates()
 
@@ -80,4 +79,4 @@ export const AnnouncementsScreen = observer(function AnnouncementsScreen({ navig
       </ScrollView>
     </Screen>
   )
-})
+}
