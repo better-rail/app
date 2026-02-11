@@ -14,7 +14,8 @@ import { RouteContextMenu, RouteContextMenuAction } from "./platform-context-men
 import { createContextMenuActions } from "./route-context-menu-actions"
 import type { RouteItem } from "../../services/api"
 import { useIsDarkMode } from "../../hooks/use-is-dark-mode"
-import { useStores } from "../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useSettingsStore } from "../../models"
 
 // #region styles
 
@@ -184,7 +185,9 @@ export function RouteCard(props: RouteCardProps) {
   } = props
 
   const isDarkMode = useIsDarkMode()
-  const { settings } = useStores()
+  const { hideSlowTrains, showRouteCardHeader } = useSettingsStore(
+    useShallow((s) => ({ hideSlowTrains: s.hideSlowTrains, showRouteCardHeader: s.showRouteCardHeader }))
+  )
 
   // Format times
   const [formattedDepatureTime, formattedArrivalTime] = useMemo(() => {
@@ -201,7 +204,7 @@ export function RouteCard(props: RouteCardProps) {
   }, [stops])
 
   // Check if indicators are bloated (short route badge with delay shown)
-  const isBloatedIndicators = isMuchShorter && !isMuchLonger && delay > 0 && !settings.hideSlowTrains
+  const isBloatedIndicators = isMuchShorter && !isMuchLonger && delay > 0 && !hideSlowTrains
 
   // Generate context menu actions if routeItem and IDs are provided
   const generatedContextMenuActions = useMemo(() => {
@@ -255,7 +258,7 @@ export function RouteCard(props: RouteCardProps) {
     )
   }
 
-  const showHeader = mainTrain && settings.showRouteCardHeader
+  const showHeader = mainTrain && showRouteCardHeader
   const containerStyle = showHeader ? CONTAINER_WITH_HEADER : CONTAINER_WITHOUT_HEADER
 
   const cardContent = (
@@ -304,7 +307,7 @@ export function RouteCard(props: RouteCardProps) {
               delay={delay}
               stopsText={stopsText}
               isRideActive={props.isActiveRide}
-              hideShortRouteBadge={settings.hideSlowTrains}
+              hideShortRouteBadge={hideSlowTrains}
             />
           </View>
         </View>

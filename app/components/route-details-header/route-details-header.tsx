@@ -10,7 +10,8 @@ import { StarIcon, MenuIcon } from "../"
 import HapticFeedback from "react-native-haptic-feedback"
 import { stationsObject, stationLocale } from "../../data/stations"
 import { translate, isRTL } from "../../i18n"
-import { useStores } from "../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useFavoritesStore, useRoutePlanStore } from "../../models"
 import * as Burnt from "burnt"
 import type { RouteItem } from "../../services/api"
 import ContextMenu from "react-native-context-menu-view"
@@ -107,7 +108,12 @@ export interface RouteDetailsHeaderProps {
 
 export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const { routeItem, originId, destinationId, screenName, style, showEntireRoute, setShowEntireRoute } = props
-  const { favoriteRoutes, routePlan } = useStores()
+  const { routes: favoriteRoutesData, add: addFavorite, remove: removeFavorite } = useFavoritesStore(
+    useShallow((s) => ({ routes: s.routes, add: s.add, remove: s.remove }))
+  )
+  const { origin: routePlanOrigin, destination: routePlanDestination, switchDirection } = useRoutePlanStore(
+    useShallow((s) => ({ origin: s.origin, destination: s.destination, switchDirection: s.switchDirection }))
+  )
   const navigation = useNavigation()
   const insets = useSafeAreaInsets()
   const routeEditDisabled = screenName !== "routeList"
@@ -117,7 +123,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const originName = stationsObject[originId][stationLocale]
   const destinationName = stationsObject[destinationId][stationLocale]
   const routeId = `${originId}${destinationId}`
-  const isFavorite = favoriteRoutes.routes.some((fav) => fav.id === routeId)
+  const isFavorite = favoriteRoutesData.some((fav) => fav.id === routeId)
 
   const openStationHoursSheet = () => {
     navigation.navigate("stationHours", { stationId: originId })
@@ -142,9 +148,9 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     scaleStationCards()
     HapticFeedback.trigger("impactMedium")
     setTimeout(() => {
-      routePlan.switchDirection()
+      switchDirection()
     }, 50)
-  }, [scaleStationCards, routePlan])
+  }, [scaleStationCards, switchDirection])
 
   const changeOriginStation = useCallback(() => {
     navigation.navigate("selectStation", { selectionType: "origin" })
@@ -180,10 +186,10 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
 
   useEffect(() => {
     navigation.setParams({
-      originId: routePlan.origin.id,
-      destinationId: routePlan.destination.id,
+      originId: routePlanOrigin.id,
+      destinationId: routePlanDestination.id,
     } as any)
-  }, [routePlan.origin.id, routePlan.destination.id, navigation])
+  }, [routePlanOrigin.id, routePlanDestination.id, navigation])
 
   const renderHeaderRight = useCallback(() => {
     if (screenName === "routeDetails") {
@@ -226,11 +232,11 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       if (!isFavorite) {
         Burnt.alert({ title: translate("favorites.added"), duration: 1.5 })
         HapticFeedback.trigger("impactMedium")
-        favoriteRoutes.add(favorite)
+        addFavorite(favorite)
         trackEvent("favorite_route_added")
       } else {
         HapticFeedback.trigger("impactLight")
-        favoriteRoutes.remove(favorite.id)
+        removeFavorite(favorite.id)
         trackEvent("favorite_route_removed")
       }
     }
@@ -319,7 +325,8 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     handleShare,
     isFavorite,
     routeId,
-    favoriteRoutes,
+    addFavorite,
+    removeFavorite,
     originId,
     destinationId,
     showEntireRoute,

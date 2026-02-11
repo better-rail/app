@@ -5,7 +5,8 @@ import { Screen, Text } from "../../components"
 import { color, isDarkMode, spacing } from "../../theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { translate } from "../../i18n"
-import { useStores } from "../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useSettingsStore } from "../../models"
 import { getInstallerPackageNameSync } from "react-native-device-info"
 import { trackPurchase } from "../../services/analytics"
 import { toast } from "burnt"
@@ -91,7 +92,9 @@ export function TipJarScreen() {
   const [isLoading, setIsLoading] = useState(false)
   const [sortedProducts, setSortedProducts] = useState([])
   const [showThanksModal, setShowThanksModal] = useState(false)
-  const { settings } = useStores()
+  const { totalTip, addTip } = useSettingsStore(
+    useShallow((s) => ({ totalTip: s.totalTip, addTip: s.addTip }))
+  )
 
   const handlePurchaseSuccess = async (purchase) => {
     try {
@@ -101,7 +104,7 @@ export function TipJarScreen() {
 
       const item = products.find((product) => product.id === purchase.productId)
       if (item) {
-        settings.addTip(Number(item.price))
+        addTip(Number(item.price))
 
         try {
           await trackPurchase({
@@ -211,9 +214,9 @@ export function TipJarScreen() {
               onPress={() => onTipButtonPress(sortedProducts[3].id)}
             />
 
-            {settings.totalTip > 0 && (
+            {totalTip > 0 && (
               <Text style={TOTAL_TIPS}>
-                {translate("settings.totalTips")}: {settings.totalTip} {products[0].currency === "ILS" ? "₪" : "$"}
+                {translate("settings.totalTips")}: {totalTip} {products[0].currency === "ILS" ? "₪" : "$"}
               </Text>
             )}
           </>

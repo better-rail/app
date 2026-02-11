@@ -7,7 +7,8 @@ import * as storage from "../../utils/storage"
 import { trackEvent } from "../../services/analytics"
 import { color, fontScale, spacing } from "../../theme"
 import { Chip, Text } from "../../components"
-import { useStores } from "../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useRoutePlanStore, useRideStore, useSettingsStore } from "../../models"
 import { isRTL, translate, userLocale } from "../../i18n"
 import { ImportantAnnouncementBar } from "./Important-announcement-bar"
 import { railApi } from "../../services/api"
@@ -48,7 +49,13 @@ const SETTINGS_ICON = require("../../../assets/settings.png")
 type NavigationProps = StackNavigationProp<RootParamList, "mainStack">
 
 export function PlannerScreenHeader() {
-  const { routePlan, ride, settings } = useStores()
+  const { origin, destination } = useRoutePlanStore(
+    useShallow((s) => ({ origin: s.origin, destination: s.destination }))
+  )
+  const { route: rideRoute, canRunLiveActivities, originId: rideOriginId, destinationId: rideDestinationId } = useRideStore(
+    useShallow((s) => ({ route: s.route, canRunLiveActivities: s.canRunLiveActivities, originId: s.originId, destinationId: s.destinationId }))
+  )
+  const filterUnseenUrgentMessages = useSettingsStore((s) => s.filterUnseenUrgentMessages)
   const navigation = useNavigation<NavigationProps>()
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
 
@@ -57,15 +64,15 @@ export function PlannerScreenHeader() {
   })
 
   // Filter unseen urgent messages from the popup messages
-  const unseenUrgentMessages = popupMessages ? settings.filterUnseenUrgentMessages(popupMessages) : []
+  const unseenUrgentMessages = popupMessages ? filterUnseenUrgentMessages(popupMessages) : []
   const showUrgentBar = !isEmpty(unseenUrgentMessages)
 
   useEffect(() => {
     // display the "new" badge if the user has stations selected (not the initial launch),
     // and they haven't seen the live announcement screen yet,
     // and the user can run live activities (iOS only)
-    if (routePlan.origin && routePlan.destination) {
-      if (Platform.OS === "android" || ride.canRunLiveActivities) {
+    if (origin && destination) {
+      if (Platform.OS === "android" || canRunLiveActivities) {
         storage.load("seenLiveAnnouncement").then((hasSeenLiveAnnouncementScreen) => {
           if (!hasSeenLiveAnnouncementScreen) setDisplayNewBadge(true)
         })
@@ -87,14 +94,14 @@ export function PlannerScreenHeader() {
     <>
       <View style={HEADER_WRAPPER}>
         <View style={{ flexDirection: "row", gap: spacing[2] }}>
-          {ride.route && (
+          {rideRoute && (
             <Chip
               variant="success"
               onPress={() => {
                 // @ts-expect-error
                 navigation.navigate("activeRideStack", {
                   screen: "activeRide",
-                  params: { routeItem: ride.route, originId: ride.originId(), destinationId: ride.destinationId() },
+                  params: { routeItem: rideRoute, originId: rideOriginId(), destinationId: rideDestinationId() },
                 })
 
                 trackEvent("open_live_ride_modal_pressed")
@@ -120,7 +127,7 @@ export function PlannerScreenHeader() {
         </TouchableOpacity>
       </View>
 
-      {showUrgentBar && !ride.route && (
+      {showUrgentBar && !rideRoute && (
         <View style={{ position: "absolute", top: 0, left: 16 }}>
           <ImportantAnnouncementBar title={head(popupMessages)?.messageBody} />
         </View>

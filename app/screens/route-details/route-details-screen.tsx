@@ -5,7 +5,8 @@ import { ScrollView } from "react-native-gesture-handler"
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated"
 import { format } from "date-fns"
 
-import { useStores } from "../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useRideStore } from "../../models"
 import { useRideProgress } from "../../hooks/use-ride-progress"
 import { color, spacing } from "../../theme"
 import { RouteDetailsHeader, Screen } from "../../components"
@@ -41,7 +42,10 @@ const STATION_CONTAINER: ViewStyle = {
 }
 
 export function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
-  const { ride } = useStores()
+  const { rideRoute, id: rideId, isRouteActive, stopRide } = useRideStore(
+    useShallow((s) => ({ rideRoute: s.route, id: s.id, isRouteActive: s.isRouteActive, stopRide: s.stopRide }))
+  )
+  const canRunLiveActivities = useRideStore((s) => s.canRunLiveActivities)
   const allStations = useStations()
   const permissionSheetRef = useRef<BottomSheet>(null)
 
@@ -50,14 +54,14 @@ export function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
   const permissionsPromise = useRef<() => void>(null)
 
   // we re-run this check every time the ride changes
-  const isRideOnThisRoute = useMemo(() => ride.isRouteActive(route.params.routeItem), [ride.route])
+  const isRideOnThisRoute = useMemo(() => isRouteActive(route.params.routeItem), [rideRoute])
 
   // if the ride is on this route, we use the ride's route, since it has the latest data
   // otherwise we use the route from the route params
   const routeItem = useMemo(() => {
-    if (isRideOnThisRoute) return ride.route as unknown as RouteItem
+    if (isRideOnThisRoute) return rideRoute as unknown as RouteItem
     return route.params.routeItem
-  }, [isRideOnThisRoute, ride.route, route.params.routeItem])
+  }, [isRideOnThisRoute, rideRoute, route.params.routeItem])
 
   const progress = useRideProgress({ route: routeItem, enabled: isRideOnThisRoute })
   const { stations } = progress
@@ -85,10 +89,10 @@ export function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
   }, [])
 
   useEffect(() => {
-    if (ride.id && progress.status === "arrived") {
-      ride.stopRide(ride.id)
+    if (rideId && progress.status === "arrived") {
+      stopRide(rideId)
     }
-  }, [progress.status, ride.id])
+  }, [progress.status, rideId])
 
   return (
     <>
@@ -290,7 +294,7 @@ export function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
             </Animated.View>
           )}
 
-          {(Platform.OS === "android" || ride.canRunLiveActivities) && !isRideOnThisRoute && (
+          {(Platform.OS === "android" || canRunLiveActivities) && !isRideOnThisRoute && (
             <Animated.View
               entering={shouldFadeRideButton && FadeInDown.delay(100)}
               exiting={FadeOutDown}

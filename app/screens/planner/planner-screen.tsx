@@ -2,7 +2,8 @@ import React, { useRef, useState, useEffect } from "react"
 import { View, Animated, Dimensions, AppState, Platform, Alert } from "react-native"
 import type { ViewStyle, TextStyle, AppStateStatus } from "react-native"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton, ResetTimeButton } from "../../components"
-import { useStores } from "../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useRoutePlanStore, useTrainRoutesStore } from "../../models"
 import HapticFeedback from "react-native-haptic-feedback"
 import { color, primaryFontIOS, spacing } from "../../theme"
 import type { PlannerScreenProps } from "../../navigators/main-navigator"
@@ -50,22 +51,26 @@ const CHANGE_DIRECTION_WRAPPER: ViewStyle = {
 // #endregion
 
 export function PlannerScreen({ navigation }: PlannerScreenProps) {
-  const { routePlan, trainRoutes } = useStores()
+  const { date, origin, destination, setDate, switchDirection, dateTypeDisplayName } = useRoutePlanStore(
+    useShallow((s) => ({ date: s.date, origin: s.origin, destination: s.destination, setDate: s.setDate, switchDirection: s.switchDirection, dateTypeDisplayName: s.dateTypeDisplayName }))
+  )
+  const { updateResultType, getRoutes } = useTrainRoutesStore(
+    useShallow((s) => ({ updateResultType: s.updateResultType, getRoutes: s.getRoutes }))
+  )
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
   const { openModal } = useModal()
 
-  const formattedDate = useFormattedDate(routePlan.date)
+  const formattedDate = useFormattedDate(date)
   const stationCardScale = useRef(new Animated.Value(1)).current
 
   const now = new Date()
-  const { origin, destination } = routePlan
 
   const stations = useStations()
 
   // The datetimepicker docs says the first argument is an event, but we get a date instead
   // https://github.com/react-native-datetimepicker/datetimepicker#onchange-optional
-  const onDateChange = (date: Date) => {
-    routePlan.setDate(date)
+  const onDateChange = (newDate: Date) => {
+    setDate(newDate)
   }
 
   const handleConfirm = (date: Date) => {
@@ -82,20 +87,20 @@ export function PlannerScreen({ navigation }: PlannerScreenProps) {
   }
 
   const originData = React.useMemo(() => {
-    if (routePlan.origin) {
-      return stations.find((s) => s.id === routePlan.origin.id)
+    if (origin) {
+      return stations.find((s) => s.id === origin.id)
     }
 
     return undefined
-  }, [routePlan.origin?.name, stations])
+  }, [origin?.name, stations])
 
   const destinationData = React.useMemo(() => {
-    if (routePlan.destination) {
-      return stations.find((s) => s.id === routePlan.destination.id)
+    if (destination) {
+      return stations.find((s) => s.id === destination.id)
     }
 
     return undefined
-  }, [routePlan.destination?.name, stations])
+  }, [destination?.name, stations])
 
   const scaleStationCards = () => {
     Animated.sequence([
@@ -118,22 +123,22 @@ export function PlannerScreen({ navigation }: PlannerScreenProps) {
 
     // Delay the actual switch so it'll be synced with the animation
     setTimeout(() => {
-      routePlan.switchDirection()
+      switchDirection()
     }, 50)
 
     trackEvent("switch_stations_btn_press")
   }
 
   const onGetRoutePress = () => {
-    const { id: originId } = routePlan.origin
-    const { id: destinationId } = routePlan.destination
+    const { id: originId } = origin
+    const { id: destinationId } = destination
     if (Platform.OS === "ios") {
       donateRouteIntent(originId, destinationId)
     }
     navigation.navigate("routeList", {
       originId,
       destinationId,
-      time: routePlan.date.getTime(),
+      time: date.getTime(),
     })
   }
 
@@ -151,7 +156,7 @@ export function PlannerScreen({ navigation }: PlannerScreenProps) {
             const hoursDiff = differenceInHours(new Date(), parseISO(launchDate))
 
             if (hoursDiff >= 1) {
-              routePlan.setDate(new Date())
+              setDate(new Date())
             }
           }
           save("lastAppLaunch", new Date())
@@ -169,19 +174,19 @@ export function PlannerScreen({ navigation }: PlannerScreenProps) {
     // if the result type is not "normal", it'll be the initial type upon navigating to the
     // route list - so we need to ensure we reset it back to it's normal state once back to the
     // planner screen.
-    trainRoutes.updateResultType("normal")
+    updateResultType("normal")
   })
 
   useQuery(
-    ["origin", origin?.id, "destination", destination?.id, "time", routePlan.date.getDate()],
-    () => trainRoutes.getRoutes(origin?.id, destination?.id, routePlan.date.getTime()),
+    ["origin", origin?.id, "destination", destination?.id, "time", date.getDate()],
+    () => getRoutes(origin?.id, destination?.id, date.getTime()),
     /**
      *  TODO: Temporary fix for displaying "no trains found" modal, omitting cache during the weekend.
      *  Usually on weekends there are no trains, and the results are displayed for a different day.
      *  Those results will be cached and the "no trains modal" modal won't be displayed for them. Therefor we omit caching during
      *  for weekend requests.
      */
-    { cacheTime: isWeekend(routePlan.date) ? 0 : 7200000, retry: false },
+    { cacheTime: isWeekend(date) ? 0 : 7200000, retry: false },
   )
 
   return (
@@ -216,7 +221,7 @@ export function PlannerScreen({ navigation }: PlannerScreenProps) {
             />
           </Animated.View>
 
-          <Text preset="fieldLabel" text={routePlan.dateTypeDisplayName()} style={{ marginBottom: spacing[1] }} />
+          <Text preset="fieldLabel" text={dateTypeDisplayName()} style={{ marginBottom: spacing[1] }} />
 
           <DummyInput
             placeholder={translate("plan.now")}
@@ -248,9 +253,9 @@ export function PlannerScreen({ navigation }: PlannerScreenProps) {
           <Button
             title={translate("plan.find")}
             onPress={onGetRoutePress}
-            disabled={!routePlan.origin || !routePlan.destination || routePlan.origin.id === routePlan.destination.id}
+            disabled={!origin || !destination || origin.id === destination.id}
             onDisabledPress={() => {
-              if (routePlan.origin?.id === routePlan.destination?.id) {
+              if (origin?.id === destination?.id) {
                 Alert.alert(translate("routes.sameStationsMessage"))
               }
             }}

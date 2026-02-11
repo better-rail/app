@@ -8,7 +8,8 @@ import { Screen, Text } from "../../components"
 import { useNavigation } from "@react-navigation/native"
 import { SearchInput } from "../select-station/search-input"
 import { translate } from "../../i18n"
-import { useStores } from "../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useSettingsStore } from "../../models"
 import HapticFeedback from "react-native-haptic-feedback"
 import { useFilteredStations, useIsDarkMode } from "../../hooks"
 import { useStations } from "../../data/stations"
@@ -19,8 +20,9 @@ export function NotificationsSelectStationsScreen() {
   const [searchTerm, setSearchTerm] = useState("")
   const insets = useSafeAreaInsets()
 
-  const { settings } = useStores()
-  const { stationsNotifications } = settings
+  const { stationsNotifications, removeStationNotification, addStationNotification } = useSettingsStore(
+    useShallow((s) => ({ stationsNotifications: s.stationsNotifications, removeStationNotification: s.removeStationNotification, addStationNotification: s.addStationNotification }))
+  )
 
   const stations = useStations()
   const { filteredStations } = useFilteredStations(searchTerm)
@@ -33,11 +35,11 @@ export function NotificationsSelectStationsScreen() {
     HapticFeedback.trigger("impactLight")
 
     if (stationsNotifications.includes(stationId)) {
-      settings.removeStationNotification(stationId)
+      removeStationNotification(stationId)
       return
     }
 
-    settings.addStationNotification(stationId)
+    addStationNotification(stationId)
   }
 
   return (

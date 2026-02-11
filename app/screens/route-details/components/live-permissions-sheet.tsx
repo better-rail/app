@@ -7,7 +7,8 @@ import { BottomSheetModal } from "../../../components/sheets/bottom-sheet-modal"
 import { color, spacing } from "../../../theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { translate } from "../../../i18n"
-import { useStores } from "../../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useRideStore } from "../../../models"
 import notifee, { AndroidNotificationSetting, AuthorizationStatus } from "@notifee/react-native"
 const WRAPPER: ViewStyle = {
   paddingHorizontal: spacing[4],
@@ -29,11 +30,13 @@ type Props = {
 }
 
 export const LivePermissionsSheet = forwardRef<BottomSheet, Props>((props, ref) => {
-    const { ride } = useStores()
+    const { notifeeSettings, checkLiveRideAuthorization } = useRideStore(
+      useShallow((s) => ({ notifeeSettings: s.notifeeSettings, checkLiveRideAuthorization: s.checkLiveRideAuthorization }))
+    )
 
     const grantNotifications = async () => {
       await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS)
-      return ride.checkLiveRideAuthorization()
+      return checkLiveRideAuthorization()
     }
 
     const grantAlarms = () => {
@@ -51,14 +54,14 @@ export const LivePermissionsSheet = forwardRef<BottomSheet, Props>((props, ref) 
               <Text style={{ fontSize: 18, fontWeight: "bold" }} tx="ride.notificationPermission3" />
               <PermissionButton
                 onPress={grantNotifications}
-                permitted={ride.notifeeSettings?.notifications === AuthorizationStatus.AUTHORIZED}
+                permitted={notifeeSettings?.notifications === AuthorizationStatus.AUTHORIZED}
               />
             </View>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
               <Text style={{ fontSize: 18, fontWeight: "bold" }} tx="ride.notificationPermission4" />
               <PermissionButton
                 onPress={grantAlarms}
-                permitted={ride.notifeeSettings?.alarms === AndroidNotificationSetting.ENABLED}
+                permitted={notifeeSettings?.alarms === AndroidNotificationSetting.ENABLED}
               />
             </View>
           </View>
@@ -67,8 +70,8 @@ export const LivePermissionsSheet = forwardRef<BottomSheet, Props>((props, ref) 
             title={translate("liveAnnounce.startRide.title")}
             containerStyle={{ width: "100%" }}
             disabled={
-              ride.notifeeSettings?.notifications !== AuthorizationStatus.AUTHORIZED ||
-              ride.notifeeSettings?.alarms !== AndroidNotificationSetting.ENABLED
+              notifeeSettings?.notifications !== AuthorizationStatus.AUTHORIZED ||
+              notifeeSettings?.alarms !== AndroidNotificationSetting.ENABLED
             }
           />
         </BottomSheetView>

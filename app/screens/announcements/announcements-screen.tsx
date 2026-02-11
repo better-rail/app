@@ -5,7 +5,8 @@ import { useIsDarkMode } from "../../hooks"
 import { AnnouncementsScreenProps } from "../../navigators/announcements/announcements-navigator"
 import { AnnouncementsList } from "../../components/announcements/announcements-list"
 import TouchableScale from "react-native-touchable-scale"
-import { useStores } from "../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useSettingsStore } from "../../models"
 import { AnnouncementCard } from "../../components/announcements/announcement-card"
 import useServiceUpdates from "./use-service-updates"
 
@@ -32,16 +33,18 @@ const NOTIFICATION_BUTTON: ViewStyle = {
 }
 
 export function AnnouncementsScreen({ navigation }: AnnouncementsScreenProps) {
-  const { settings } = useStores()
+  const { seenNotificationsScreen, setSeenNotificationsScreen } = useSettingsStore(
+    useShallow((s) => ({ seenNotificationsScreen: s.seenNotificationsScreen, setSeenNotificationsScreen: s.setSeenNotificationsScreen }))
+  )
   const { data: serviceUpdates } = useServiceUpdates()
 
   const isDarkMode = useIsDarkMode()
 
   const navigateToNotificationsSetup = () => {
-    if (!settings.seenNotificationsScreen) {
+    if (!seenNotificationsScreen) {
       setTimeout(() => {
         // avoid flickering until the next screen is fully loaded
-        settings.setSeenNotificationsScreen(true)
+        setSeenNotificationsScreen(true)
       }, 1250)
     }
     navigation.navigate("notificationsSetup")
@@ -57,7 +60,7 @@ export function AnnouncementsScreen({ navigation }: AnnouncementsScreenProps) {
       translucent
     >
       <ScrollView contentContainerStyle={SCROLL_VIEW}>
-        {!settings.seenNotificationsScreen && (
+        {!seenNotificationsScreen && (
           <TouchableScale onPress={navigateToNotificationsSetup} activeScale={0.97} friction={10} style={NOTIFICATION_BUTTON}>
             <Text
               tx="announcements.notifications.notificationSettings"

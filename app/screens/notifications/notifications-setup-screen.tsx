@@ -5,7 +5,7 @@ import { color, spacing } from "../../theme"
 import notifee, { AuthorizationStatus } from "@notifee/react-native"
 import { useEffect, useState } from "react"
 import { translate, userLocale } from "../../i18n"
-import { useStores } from "../../models"
+import { useSettingsStore, useFavoritesStore } from "../../models"
 import { StationListItem } from "./station-list-item"
 import { useStations } from "../../data/stations"
 import { trackEvent } from "../../services/analytics"
@@ -14,7 +14,8 @@ import { useAppState, useIsDarkMode } from "../../hooks"
 import { chain } from "lodash"
 
 export function NotificationsSetupScreen({ navigation }: AnnouncementsScreenProps) {
-  const { settings, favoriteRoutes } = useStores()
+  const stationsNotifications = useSettingsStore((s) => s.stationsNotifications)
+  const favoriteRoutesData = useFavoritesStore((s) => s.routes)
   const stations = useStations()
   const appState = useAppState()
   const [notificationPermission, setNotificationPermission] = useState(false)
@@ -67,10 +68,10 @@ export function NotificationsSetupScreen({ navigation }: AnnouncementsScreenProp
     }
   }, [notificationPermission])
 
-  const favoriteStations = chain(favoriteRoutes.routes)
+  const favoriteStations = chain(favoriteRoutesData)
     .flatMap((route) => [route.originId, route.destinationId])
     .uniq()
-    .filter((station) => !settings.stationsNotifications.includes(station))
+    .filter((station) => !stationsNotifications.includes(station))
     .value()
 
   return (
@@ -107,7 +108,7 @@ export function NotificationsSetupScreen({ navigation }: AnnouncementsScreenProp
                 return <StationListItem key={stationId} title={station.name} image={station.image} />
               })}
 
-              {settings.stationsNotifications.length > 0 && (
+              {stationsNotifications.length > 0 && (
                 <View
                   style={{
                     flex: 1,
@@ -128,7 +129,7 @@ export function NotificationsSetupScreen({ navigation }: AnnouncementsScreenProp
                 </View>
               )}
 
-              {settings.stationsNotifications.map((stationId) => {
+              {stationsNotifications.map((stationId) => {
                 const station = stations.find((s) => s.id === stationId)
                 return <StationListItem key={stationId} title={station.name} image={station.image} />
               })}

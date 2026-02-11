@@ -1,7 +1,8 @@
 import { View, ViewStyle, TextStyle } from "react-native"
 import { Text } from "../../components"
 import { color, spacing } from "../../theme"
-import { useStores } from "../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useSettingsStore } from "../../models"
 import { SettingBox } from "../settings/components/settings-box"
 import { SETTING_GROUP } from "../settings/settings-styles"
 import { translate } from "../../i18n"
@@ -27,10 +28,12 @@ const DESCRIPTION: TextStyle = {
 }
 
 export function FilterScreen() {
-  const { settings } = useStores()
+  const { hideSlowTrains, setHideSlowTrains } = useSettingsStore(
+    useShallow((s) => ({ hideSlowTrains: s.hideSlowTrains, setHideSlowTrains: s.setHideSlowTrains }))
+  )
 
   const onToggle = (value: boolean) => {
-    settings.setHideSlowTrains(value)
+    setHideSlowTrains(value)
   }
 
   return (
@@ -43,7 +46,7 @@ export function FilterScreen() {
           last
           title={translate("routes.hideSlowTrains")}
           toggle
-          toggleValue={settings.hideSlowTrains}
+          toggleValue={hideSlowTrains}
           onToggle={onToggle}
         />
       </View>

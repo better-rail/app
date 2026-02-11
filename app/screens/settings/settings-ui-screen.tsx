@@ -7,7 +7,8 @@ import { color, spacing } from "../../theme"
 import { translate } from "../../i18n"
 import { SETTING_GROUP, SETTING_GROUP_TITLE } from "./settings-styles"
 import { useIsDarkMode } from "../../hooks"
-import { useStores } from "../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useSettingsStore } from "../../models"
 import { formatRouteDuration, routeDurationInMs } from "../../utils/helpers/date-helpers"
 import { RouteItem } from "../../services/api"
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
@@ -55,15 +56,17 @@ const routeItem: RouteItem = {
 
 export function UISettingsScreen() {
   const isDarkMode = useIsDarkMode()
-  const { settings } = useStores()
+  const { showRouteCardHeader, setShowRouteCardHeader } = useSettingsStore(
+    useShallow((s) => ({ showRouteCardHeader: s.showRouteCardHeader, setShowRouteCardHeader: s.setShowRouteCardHeader }))
+  )
 
   // Animate card container height based on header visibility
-  const cardHeight = useSharedValue(settings.showRouteCardHeader ? RouteCardHeightWithHeader : RouteCardHeight)
+  const cardHeight = useSharedValue(showRouteCardHeader ? RouteCardHeightWithHeader : RouteCardHeight)
 
   useEffect(() => {
-    cardHeight.value = withTiming(settings.showRouteCardHeader ? RouteCardHeightWithHeader : RouteCardHeight, { duration: 300 })
+    cardHeight.value = withTiming(showRouteCardHeader ? RouteCardHeightWithHeader : RouteCardHeight, { duration: 300 })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings.showRouteCardHeader])
+  }, [showRouteCardHeader])
 
   const animatedCardStyle = useAnimatedStyle(() => {
     return {
@@ -81,7 +84,7 @@ export function UISettingsScreen() {
       trackEvent("route_card_header_disabled")
       setAnalyticsUserProperty("route_card_header_enabled", "false")
     }
-    settings.setShowRouteCardHeader(value)
+    setShowRouteCardHeader(value)
   }
 
   return (
@@ -116,7 +119,7 @@ export function UISettingsScreen() {
           last
           title={translate("settings.showRouteCardHeader")}
           toggle
-          toggleValue={settings.showRouteCardHeader}
+          toggleValue={showRouteCardHeader}
           onToggle={onRouteCardHeaderToggle}
         />
       </View>

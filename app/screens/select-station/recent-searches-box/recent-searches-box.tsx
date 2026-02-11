@@ -1,6 +1,7 @@
 import React, { useMemo } from "react"
 import { View, Image, TextStyle, ViewStyle, ImageStyle, Platform } from "react-native"
-import { useStores } from "../../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useRoutePlanStore, useRecentSearchesStore } from "../../../models"
 import { trackEvent } from "../../../services/analytics"
 import { ScrollView } from "react-native-gesture-handler"
 import { Text } from "../../../components"
@@ -36,28 +37,33 @@ type RecentSearchesBoxProps = {
 
 export function RecentSearchesBox(props: RecentSearchesBoxProps) {
   const navigation = useNavigation()
-  const { routePlan, recentSearches } = useStores()
+  const { setOrigin, setDestination } = useRoutePlanStore(
+    useShallow((s) => ({ setOrigin: s.setOrigin, setDestination: s.setDestination }))
+  )
+  const { entries, save, remove } = useRecentSearchesStore(
+    useShallow((s) => ({ entries: s.entries, save: s.save, remove: s.remove }))
+  )
 
   const sortedSearches = useMemo(() => {
-    return [...recentSearches.entries].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 6)
-  }, [recentSearches.entries])
+    return [...entries].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 6)
+  }, [entries])
 
   const onStationPress = (entry) => {
     trackEvent("recent_station_selected")
     const station = { id: entry.id, name: entry.id }
 
     if (props.selectionType === "origin") {
-      routePlan.setOrigin(station)
+      setOrigin(station)
     } else {
-      routePlan.setDestination(station)
+      setDestination(station)
     }
 
-    recentSearches.save({ id: station.id })
+    save({ id: station.id })
     navigation.goBack()
   }
 
   const content = useMemo(() => {
-    if (recentSearches.entries.length === 0) return <RecentSearchesPlacerholder />
+    if (entries.length === 0) return <RecentSearchesPlacerholder />
 
     return (
       <ScrollView
@@ -76,7 +82,7 @@ export function RecentSearchesBox(props: RecentSearchesBoxProps) {
               name={stationsObject[entry.id][stationLocale]}
               image={stationsObject[entry.id].image}
               onPress={() => onStationPress(entry)}
-              onHide={() => recentSearches.remove(entry.id)}
+              onHide={() => remove(entry.id)}
               key={entry.id}
             />
           )
