@@ -187,7 +187,7 @@ export function PlannerScreen({ navigation }: PlannerScreenProps) {
      *  Those results will be cached and the "no trains modal" modal won't be displayed for them. Therefor we omit caching during
      *  for weekend requests.
      */
-    { cacheTime: isWeekend(date) ? 0 : 7200000, retry: false },
+    { cacheTime: isWeekend(date) ? 0 : 7200000, retry: false, enabled: !!origin && !!destination },
   )
 
   return (
