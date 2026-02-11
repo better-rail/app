@@ -53,7 +53,7 @@ export function DatePickerModal(props: DatePickerModalProps) {
       isVisible={isVisible}
       mode="datetime"
       date={date}
-      onChange={(_, date) => onChange(date)}
+      onChange={onChange}
       onConfirm={onConfirm}
       onCancel={onCancel}
       locale={dateLocale}
