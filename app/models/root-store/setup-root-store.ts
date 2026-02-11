@@ -30,6 +30,11 @@ function getSnapshot() {
 
 /**
  * Setup the root state - loads persisted data and subscribes to changes.
+ *
+ * This reads from the same "root" AsyncStorage key that was previously used
+ * by MobX State Tree. The snapshot format is compatible: MST's onSnapshot
+ * produced plain JSON with the same key structure our hydrate functions expect.
+ * On first run after migration, the data is re-persisted in Zustand format.
  */
 export async function setupRootStore() {
   let data: any
@@ -40,21 +45,35 @@ export async function setupRootStore() {
     data = {}
   }
 
-  // Hydrate all stores from persisted data
-  try {
-    hydrateRoutePlanStore(data.routePlan)
-    hydrateTrainRoutesStore(data.trainRoutes)
-    hydrateRecentSearchesStore(data.recentSearches)
-    hydrateFavoritesStore(data.favoriteRoutes)
-    hydrateSettingsStore(data.settings)
-    hydrateRideStore(data.ride)
-    hydrateUserStore(data.user)
-  } catch (e) {
-    // If there's any problem loading, stores keep their defaults
+  // Hydrate each store individually so a failure in one doesn't prevent others
+  const hydrators = [
+    () => hydrateRoutePlanStore(data.routePlan),
+    () => hydrateTrainRoutesStore(data.trainRoutes),
+    () => hydrateRecentSearchesStore(data.recentSearches),
+    () => hydrateFavoritesStore(data.favoriteRoutes),
+    () => hydrateSettingsStore(data.settings),
+    () => hydrateRideStore(data.ride),
+    () => hydrateUserStore(data.user),
+  ]
+
+  for (const hydrate of hydrators) {
+    try {
+      hydrate()
+    } catch (e) {
+      // If a store fails to hydrate, it keeps its defaults
+      if (__DEV__) {
+        console.warn("Store hydration failed:", e)
+      }
+    }
   }
 
   // Run afterCreate equivalents
   initializeRideStore()
+
+  // Re-persist immediately to normalize the data format.
+  // This ensures any data saved by the old MobX State Tree format
+  // is re-written in the Zustand snapshot format on first launch.
+  await storage.save(ROOT_STATE_STORAGE_KEY, getSnapshot())
 
   // Sync telemetry disabled flag with async storage for backwards compatibility
   const userState = useUserStore.getState()
