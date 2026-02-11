@@ -53,7 +53,7 @@ export interface RideActions {
 
 export type RideStore = RideState & RideActions
 
-export const useRideStore = create<RideStore>((set, get) => ({
+const initialRideState: RideState = {
   loading: false,
   id: undefined,
   route: undefined,
@@ -61,6 +61,12 @@ export const useRideStore = create<RideStore>((set, get) => ({
   notifeeSettings: undefined,
   rideCount: 0,
   canRunLiveActivities: false,
+}
+
+export const resetRideStore = () => useRideStore.setState(initialRideState)
+
+export const useRideStore = create<RideStore>((set, get) => ({
+  ...initialRideState,
 
   setNotifeeSettings(newSettings) {
     set({

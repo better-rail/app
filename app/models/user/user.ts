@@ -10,8 +10,14 @@ export interface UserActions {
 
 export type UserStore = UserState & UserActions
 
-export const useUserStore = create<UserStore>((set) => ({
+const initialUserState: UserState = {
   disableTelemetry: undefined,
+}
+
+export const resetUserStore = () => useUserStore.setState(initialUserState)
+
+export const useUserStore = create<UserStore>((set) => ({
+  ...initialUserState,
 
   setDisableTelemetry(value) {
     set({ disableTelemetry: value })

@@ -22,10 +22,16 @@ export interface TrainRoutesActions {
 
 export type TrainRoutesStore = TrainRoutesState & TrainRoutesActions
 
-export const useTrainRoutesStore = create<TrainRoutesStore>((set, get) => ({
+const initialTrainRoutesState: TrainRoutesState = {
   routes: [],
   resultType: "normal",
   status: "idle",
+}
+
+export const resetTrainRoutesStore = () => useTrainRoutesStore.setState(initialTrainRoutesState)
+
+export const useTrainRoutesStore = create<TrainRoutesStore>((set, get) => ({
+  ...initialTrainRoutesState,
 
   saveRoutes(routes) {
     set({ routes })

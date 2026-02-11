@@ -40,8 +40,14 @@ export interface FavoritesActions {
 
 export type FavoritesStore = FavoritesState & FavoritesActions
 
-export const useFavoritesStore = create<FavoritesStore>((set, get) => ({
+const initialFavoritesState: FavoritesState = {
   routes: [],
+}
+
+export const resetFavoritesStore = () => useFavoritesStore.setState(initialFavoritesState)
+
+export const useFavoritesStore = create<FavoritesStore>((set, get) => ({
+  ...initialFavoritesState,
 
   syncFavorites() {
     if (Platform.OS === "ios") {

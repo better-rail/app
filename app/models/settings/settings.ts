@@ -26,7 +26,7 @@ export interface SettingsActions {
 
 export type SettingsStore = SettingsState & SettingsActions
 
-export const useSettingsStore = create<SettingsStore>((set, get) => ({
+const initialSettingsState: SettingsState = {
   stationsNotifications: [],
   seenNotificationsScreen: false,
   seenUrgentMessagesIds: [],
@@ -34,6 +34,12 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
   totalTip: 0,
   showRouteCardHeader: false,
   hideSlowTrains: false,
+}
+
+export const resetSettingsStore = () => useSettingsStore.setState(initialSettingsState)
+
+export const useSettingsStore = create<SettingsStore>((set, get) => ({
+  ...initialSettingsState,
 
   setSeenNotificationsScreen(seen) {
     set({ seenNotificationsScreen: seen })

@@ -36,11 +36,17 @@ export interface RoutePlanActions {
 
 export type RoutePlanStore = RoutePlanState & RoutePlanActions
 
-export const useRoutePlanStore = create<RoutePlanStore>((set, get) => ({
+const initialRoutePlanState: RoutePlanState = {
   origin: undefined,
   destination: undefined,
   date: new Date(),
   dateType: "departure",
+}
+
+export const resetRoutePlanStore = () => useRoutePlanStore.setState({ ...initialRoutePlanState, date: new Date() })
+
+export const useRoutePlanStore = create<RoutePlanStore>((set, get) => ({
+  ...initialRoutePlanState,
 
   setOrigin(station) {
     set({ origin: station })

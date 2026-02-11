@@ -18,8 +18,14 @@ export interface RecentSearchesActions {
 
 export type RecentSearchesStore = RecentSearchesState & RecentSearchesActions
 
-export const useRecentSearchesStore = create<RecentSearchesStore>((set, get) => ({
+const initialRecentSearchesState: RecentSearchesState = {
   entries: [],
+}
+
+export const resetRecentSearchesStore = () => useRecentSearchesStore.setState(initialRecentSearchesState)
+
+export const useRecentSearchesStore = create<RecentSearchesStore>((set, get) => ({
+  ...initialRecentSearchesState,
 
   save(station) {
     const { entries } = get()
