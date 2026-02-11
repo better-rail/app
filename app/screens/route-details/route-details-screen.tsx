@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useMemo, useRef, useState } from "react"
-import { Platform, View, type ViewStyle } from "react-native"
+import { Image, Platform, Pressable, View, type ViewStyle } from "react-native"
 import { ScrollView } from "react-native-gesture-handler"
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated"
 import { format } from "date-fns"
@@ -27,6 +27,9 @@ import type BottomSheet from "@gorhom/bottom-sheet"
 import { useStations } from "../../data/stations"
 import { calculateDelayedTime } from "../../utils/helpers/date-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { LiquidGlassView } from "@callstack/liquid-glass"
+import { translate } from "../../i18n"
+
 const ROOT: ViewStyle = {
   flex: 1,
   backgroundColor: color.background,
@@ -41,7 +44,7 @@ const STATION_CONTAINER: ViewStyle = {
   backgroundColor: color.background,
 }
 
-export function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
+export function RouteDetailsScreen({ route, navigation }: RouteDetailsScreenProps) {
   const { rideRoute, id: rideId, isRouteActive, stopRide } = useRideStore(
     useShallow((s) => ({ rideRoute: s.route, id: s.id, isRouteActive: s.isRouteActive, stopRide: s.stopRide }))
   )
@@ -298,9 +301,30 @@ export function RouteDetailsScreen({ route }: RouteDetailsScreenProps) {
             <Animated.View
               entering={shouldFadeRideButton && FadeInDown.delay(100)}
               exiting={FadeOutDown}
-              style={{ position: "absolute", left: 0, right: 0, bottom: 0, zIndex: 0 }}
+              style={{
+                position: "absolute",
+                left: 0,
+                right: insets.right + 18,
+                bottom: Math.max(insets.bottom + 12, 32),
+                zIndex: 10,
+                flexDirection: "row",
+                justifyContent: "flex-end",
+                alignItems: "center",
+                gap: spacing[3],
+              }}
             >
-              <StartRideButton route={routeItem} screenName={route.name} openPermissionsSheet={openLivePermissionsSheet} />
+              <Pressable
+                onPress={() => navigation.navigate("routeDetailsTrainInfo", { train: routeItem.trains[0] })}
+                accessibilityLabel={translate("routeDetails.trainInformation")}
+              >
+                <LiquidGlassView style={{ padding: 14, borderRadius: 16 }} interactive effect="regular">
+                  <Image source={require("../../../assets/info.circle.png")} style={{ width: 24, height: 24 }} />
+                </LiquidGlassView>
+              </Pressable>
+
+              <Animated.View entering={shouldFadeRideButton && FadeInDown.delay(100)} exiting={FadeOutDown}>
+                <StartRideButton route={routeItem} screenName={route.name} openPermissionsSheet={openLivePermissionsSheet} />
+              </Animated.View>
             </Animated.View>
           )}
         </View>

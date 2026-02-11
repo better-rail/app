@@ -14,7 +14,8 @@
     "areYouSure": "האם את/ה בטוח/ה?",
     "tryAgain": "נסו שנית",
     "error": "שגיאה",
-    "allow": "אפשר"
+    "allow": "אפשר",
+    "toStationName": "ל%{stationName}"
   },
   "plan": {
     "title": "תכנון מסלול",
@@ -65,7 +66,7 @@
     "routeDetails": "פרטי מסלול",
     "routeActions": "פעולות",
     "copyRoute": "העתקה",
-    "share": "שתף פרטי נסיעה",
+    "share": "שיתוף פרטי נסיעה",
     "routeCopied": "המסלול הועתק",
     "addedToCalendar": "נוסף ליומן",
     "slowTrainsFilterTitle": "רכבות מאספות",
@@ -92,7 +93,13 @@
     "hideAllStations": "הסתרת המסלול המלא",
     "noCalendarAccessTitle": "גישה ללוח שנה כבויה",
     "noCalendarAccessMessage": "יש לאפשר גישה ללוח שנה בהגדרות המכשיר על מנת להוסיף נסיעה ליומן",
-    "noPlatformSet": "לא נקבע רציף"
+    "noPlatformSet": "לא נקבע רציף",
+    "wheelchairAccessible": "נגיש לכיסאות גלגלים",
+    "bicyclesAllowed": "מותר להעלות אופניים",
+    "wagonsCount": "%{count} קרונות",
+    "seatsCount": "%{count} מושבים",
+    "trainInformation": "מידע על הרכבת",
+    "noWagonInformationAvailable": "לא נמצא מידע על הרכבת"
   },
   "settings": {
     "title": "הגדרות",

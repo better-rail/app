@@ -15,8 +15,9 @@ import {
   FilterScreen,
 } from "../screens"
 import { color, typography } from "../theme"
-import type { RouteItem } from "../services/api"
 import { Platform } from "react-native"
+import { RouteDetailsTrainInfo } from "../screens/route-details/route-details-train-info"
+import type { RouteItem, Train } from "../services/api/rail-api.types"
 import { isLiquidGlassSupported } from "@callstack/liquid-glass"
 
 /**
@@ -36,6 +37,7 @@ export type PrimaryParamList = {
   selectStation: { selectionType: "origin" | "destination" }
   routeList: { originId: string; destinationId: string; time: number; enableQuery?: boolean }
   routeDetails: { routeItem: RouteItem; originId: string; destinationId: string }
+  routeDetailsTrainInfo: { train: Train }
   stationHours: { stationId: string }
   slowTrainsFilter: undefined
   settings: undefined
@@ -45,6 +47,7 @@ export type PlannerScreenProps = NativeStackScreenProps<PrimaryParamList, "plann
 export type SelectStationScreenProps = NativeStackScreenProps<PrimaryParamList, "selectStation">
 export type RouteListScreenProps = NativeStackScreenProps<PrimaryParamList, "routeList">
 export type RouteDetailsScreenProps = NativeStackScreenProps<PrimaryParamList, "routeDetails">
+export type RouteDetailsTrainInfoScreenProps = NativeStackScreenProps<PrimaryParamList, "routeDetailsTrainInfo">
 export type StationHoursScreenProps = NativeStackScreenProps<PrimaryParamList, "stationHours">
 
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
@@ -84,6 +87,17 @@ export function MainNavigator() {
         name="routeDetails"
         component={RouteDetailsScreen}
         options={{ headerTransparent: true, headerTintColor: "lightgrey" }}
+      />
+
+      <Stack.Screen
+        name="routeDetailsTrainInfo"
+        component={RouteDetailsTrainInfo}
+        options={{
+          headerShown: false,
+          presentation: "formSheet",
+          sheetAllowedDetents: [0.35],
+          contentStyle: { backgroundColor: color.background },
+        }}
       />
       <Stack.Screen
         name="stationHours"

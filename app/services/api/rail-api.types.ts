@@ -1,5 +1,3 @@
-/* eslint-disable camelcase */
-
 type RailApiRouteItem = {
   departureTime: string
   arrivalTime: string

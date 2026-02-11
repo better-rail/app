@@ -110,10 +110,8 @@ export function StartRideButton(props: StartRideButtonProps) {
   return (
     <View
       style={{
-        position: "absolute",
         ...START_RIDE_BUTTON,
-        bottom: insets.bottom > 0 ? insets.bottom + 5 : 15,
-        right: 15 + insets.right,
+        // right: 15 + insets.right,
       }}
     >
       <Button
