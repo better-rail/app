@@ -5,7 +5,8 @@ import { ScrollView } from "react-native-gesture-handler"
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated"
 import { format } from "date-fns"
 
-import { useStores } from "../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useRideStore } from "../../models"
 import { useRideProgress } from "../../hooks/use-ride-progress"
 import { color, spacing } from "../../theme"
 import { RouteDetailsHeader, Screen } from "../../components"
@@ -26,7 +27,6 @@ import type BottomSheet from "@gorhom/bottom-sheet"
 import { useStations } from "../../data/stations"
 import { calculateDelayedTime } from "../../utils/helpers/date-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { observer } from "mobx-react-lite"
 import { LiquidGlassView } from "@callstack/liquid-glass"
 import { translate } from "../../i18n"
 
@@ -44,8 +44,11 @@ const STATION_CONTAINER: ViewStyle = {
   backgroundColor: color.background,
 }
 
-export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route, navigation }: RouteDetailsScreenProps) {
-  const { ride } = useStores()
+export function RouteDetailsScreen({ route, navigation }: RouteDetailsScreenProps) {
+  const { rideRoute, id: rideId, isRouteActive, stopRide } = useRideStore(
+    useShallow((s) => ({ rideRoute: s.route, id: s.id, isRouteActive: s.isRouteActive, stopRide: s.stopRide }))
+  )
+  const canRunLiveActivities = useRideStore((s) => s.canRunLiveActivities)
   const allStations = useStations()
   const permissionSheetRef = useRef<BottomSheet>(null)
 
@@ -54,14 +57,14 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route, 
   const permissionsPromise = useRef<() => void>(null)
 
   // we re-run this check every time the ride changes
-  const isRideOnThisRoute = useMemo(() => ride.isRouteActive(route.params.routeItem), [ride.route])
+  const isRideOnThisRoute = useMemo(() => isRouteActive(route.params.routeItem), [rideRoute])
 
   // if the ride is on this route, we use the ride's route, since it has the latest data
   // otherwise we use the route from the route params
   const routeItem = useMemo(() => {
-    if (isRideOnThisRoute) return ride.route as unknown as RouteItem
+    if (isRideOnThisRoute) return rideRoute as unknown as RouteItem
     return route.params.routeItem
-  }, [isRideOnThisRoute, ride.route, route.params.routeItem])
+  }, [isRideOnThisRoute, rideRoute, route.params.routeItem])
 
   const progress = useRideProgress({ route: routeItem, enabled: isRideOnThisRoute })
   const { stations } = progress
@@ -89,10 +92,10 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route, 
   }, [])
 
   useEffect(() => {
-    if (ride.id && progress.status === "arrived") {
-      ride.stopRide(ride.id)
+    if (rideId && progress.status === "arrived") {
+      stopRide(rideId)
     }
-  }, [progress.status, ride.id])
+  }, [progress.status, rideId])
 
   return (
     <>
@@ -294,15 +297,16 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route, 
             </Animated.View>
           )}
 
-          {(Platform.OS === "android" || ride.canRunLiveActivities) && !isRideOnThisRoute && (
-            <View
+          {(Platform.OS === "android" || canRunLiveActivities) && !isRideOnThisRoute && (
+            <Animated.View
+              entering={shouldFadeRideButton && FadeInDown.delay(100)}
+              exiting={FadeOutDown}
               style={{
                 position: "absolute",
                 left: 0,
                 right: insets.right + 18,
                 bottom: Math.max(insets.bottom + 12, 32),
                 zIndex: 10,
-
                 flexDirection: "row",
                 justifyContent: "flex-end",
                 alignItems: "center",
@@ -321,7 +325,7 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route, 
               <Animated.View entering={shouldFadeRideButton && FadeInDown.delay(100)} exiting={FadeOutDown}>
                 <StartRideButton route={routeItem} screenName={route.name} openPermissionsSheet={openLivePermissionsSheet} />
               </Animated.View>
-            </View>
+            </Animated.View>
           )}
         </View>
       </Screen>
@@ -329,4 +333,4 @@ export const RouteDetailsScreen = observer(function RouteDetailsScreen({ route, 
       {Platform.OS === "android" && <LivePermissionsSheet onDone={onDoneLivePermissionsSheet} ref={permissionSheetRef} />}
     </>
   )
-})
+}

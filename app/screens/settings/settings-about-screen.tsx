@@ -1,5 +1,4 @@
 import React from "react"
-import { observer } from "mobx-react-lite"
 import { Image, Linking, Platform, TextStyle, View, ViewStyle, ImageStyle } from "react-native"
 import { Screen, Text } from "../../components"
 import { SettingBox } from "./components/settings-box"
@@ -64,7 +63,7 @@ Device Locale: ${deviceLocale}
   ios: "",
 })
 
-export const AboutScreen = observer(function AboutScreen({ navigation }: SettingsScreenProps) {
+export function AboutScreen({ navigation }: SettingsScreenProps) {
   return (
     <Screen
       style={ROOT}
@@ -138,4 +137,4 @@ export const AboutScreen = observer(function AboutScreen({ navigation }: Setting
       </View>
     </Screen>
   )
-})
+}

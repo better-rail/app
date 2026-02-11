@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo, useState } from "react"
-import { observer } from "mobx-react-lite"
 import { View, TextStyle, ViewStyle, Pressable, Platform, I18nManager, UIManager } from "react-native"
 import { Screen, Text, StationCard, FavoriteRoutes, cardHeight } from "../../components"
-import { useStores } from "../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useRoutePlanStore, useRecentSearchesStore, useFavoritesStore } from "../../models"
 import { SelectStationScreenProps } from "../../navigators/main-navigator"
 import { color, spacing, isDarkMode } from "../../theme"
 import { NormalizedStation } from "../../data/stations"
@@ -36,8 +36,13 @@ const CANCEL_LINK: TextStyle = {
 
 // #endregion
 
-export const SelectStationScreen = observer(function SelectStationScreen({ navigation, route }: SelectStationScreenProps) {
-  const { routePlan, recentSearches, favoriteRoutes } = useStores()
+export function SelectStationScreen({ navigation, route }: SelectStationScreenProps) {
+  const { setOrigin, setDestination } = useRoutePlanStore(
+    useShallow((s) => ({ setOrigin: s.setOrigin, setDestination: s.setDestination }))
+  )
+  const saveRecentSearch = useRecentSearchesStore((s) => s.save)
+  const recentSearchEntries = useRecentSearchesStore((s) => s.entries)
+  const favoriteRoutesData = useFavoritesStore((s) => s.routes)
   const insets = useSafeAreaInsets()
   const [searchTerm, setSearchTerm] = useState("")
   const { filteredStations } = useFilteredStations(searchTerm)
@@ -50,18 +55,18 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
         style={{ marginHorizontal: spacing[3], marginBottom: spacing[3] }}
         onPress={() => {
           if (route.params.selectionType === "origin") {
-            routePlan.setOrigin(station)
+            setOrigin(station)
           } else if (route.params.selectionType === "destination") {
-            routePlan.setDestination(station)
+            setDestination(station)
           } else {
             throw new Error("Selection type was not provided.")
           }
-          recentSearches.save({ id: station.id })
+          saveRecentSearch({ id: station.id })
           navigation.goBack()
         }}
       />
     ),
-    [route, navigation, routePlan, recentSearches],
+    [route, navigation, setOrigin, setDestination, saveRecentSearch],
   )
 
   return (
@@ -69,7 +74,7 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
       <View
         style={[SEARCH_BAR_WRAPPER, { paddingTop: insets.top > 20 ? insets.top : Platform.select({ ios: 27.5, android: 12.5 }) }]}
       >
-        <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} autoFocus={favoriteRoutes.routes.length < 2} />
+        <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} autoFocus={favoriteRoutesData.length < 2} />
         <Pressable onPress={navigation.goBack}>
           <Text style={CANCEL_LINK} tx="common.cancel" />
         </Pressable>
@@ -84,10 +89,10 @@ export const SelectStationScreen = observer(function SelectStationScreen({ navig
         ListEmptyComponent={() => (
           <View>
             <RecentSearchesBox selectionType={route.params.selectionType} />
-            {recentSearches.entries.length > 1 && <FavoriteRoutes />}
+            {recentSearchEntries.length > 1 && <FavoriteRoutes />}
           </View>
         )}
       />
     </Screen>
   )
-})
+}

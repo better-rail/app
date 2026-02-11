@@ -1,4 +1,4 @@
-import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { create } from "zustand"
 import { Platform } from "react-native"
 import { setAnalyticsUserProperty } from "../../services/analytics"
 import { getIsWatchAppInstalled, updateApplicationContext, getIsPaired, WatchPayload } from "react-native-watch-connectivity"
@@ -18,96 +18,110 @@ if (Platform.OS === "ios") {
   })
 }
 
-export const favoriteRouteSchema = {
-  id: types.string,
-  originId: types.string,
-  destinationId: types.string,
-  label: types.maybe(types.string),
-}
-
-/**
- * Favorite routes store.
- */
-export const FavoritesModel = types
-  .model("Favorites")
-  .props({
-    routes: types.array(types.model(favoriteRouteSchema)),
-  })
-  .actions((self) => ({
-    afterCreate() {
-      this.syncFavorites()
-    },
-    syncFavorites() {
-      if (Platform.OS === "ios") {
-        getIsWatchAppInstalled().then((isInstalled) => {
-          if (isInstalled) {
-            this.syncFavoritesToAppleWatch()
-          }
-        })
-      }
-
-      this.syncFavoritesToHomeShortcuts()
-    },
-    syncFavoritesToAppleWatch() {
-      const appContext: WatchPayload = {}
-      self.routes.forEach((route, index) => {
-        const label = isEmpty(route.label) ? "" : `,label:${route.label}`
-        appContext[index] = `originId:${route.originId},destinationId:${route.destinationId}${label}`
-      })
-      updateApplicationContext(appContext)
-    },
-    syncFavoritesToHomeShortcuts() {
-      const fromText = (route: FavoriteRoute) =>
-        translate("favorites.fromStation", { stationName: stationsObject[route.originId][stationLocale] })
-      const toText = (route: FavoriteRoute) =>
-        translate("favorites.toStation", { stationName: stationsObject[route.destinationId][stationLocale] })
-
-      Shortcuts.setShortcuts(
-        self.routes.map((route) => ({
-          type: `favorite-${route.id}`,
-          title: route.label || fromText(route),
-          subtitle: !route.label && toText(route),
-          iconName: "star",
-          data: {
-            originId: route.originId,
-            destinationId: route.destinationId,
-          },
-        })),
-      )
-    },
-    add(route: FavoriteRoute) {
-      self.routes.push({ ...route })
-      this.syncFavorites()
-    },
-    remove(routeId: string) {
-      const filteredFavorites = self.routes.filter((favorite) => favorite.id !== routeId)
-      self.routes.replace(filteredFavorites)
-      this.syncFavorites()
-    },
-    rename(routeId: FavoriteRoute["id"], newLabel: string) {
-      const filteredFavorites = self.routes.map((favorite) => {
-        if (routeId === favorite.id) {
-          return {
-            ...favorite,
-            label: newLabel,
-          }
-        }
-        return favorite
-      })
-      self.routes.replace(filteredFavorites)
-      this.syncFavorites()
-    },
-  }))
-
-type FavoritesType = Instance<typeof FavoritesModel>
-export interface Favorites extends FavoritesType {}
-type FavoritesSnapshotType = SnapshotOut<typeof FavoritesModel>
-export interface FavoritesSnapshot extends FavoritesSnapshotType {}
-export const createFavoritesDefaultModel = () => types.optional(FavoritesModel, {})
-
 export type FavoriteRoute = {
   id: string
   originId: string
   destinationId: string
   label?: string
+}
+
+export interface FavoritesState {
+  routes: FavoriteRoute[]
+}
+
+export interface FavoritesActions {
+  syncFavorites: () => void
+  syncFavoritesToAppleWatch: () => void
+  syncFavoritesToHomeShortcuts: () => void
+  add: (route: FavoriteRoute) => void
+  remove: (routeId: string) => void
+  rename: (routeId: string, newLabel: string) => void
+}
+
+export type FavoritesStore = FavoritesState & FavoritesActions
+
+const initialFavoritesState: FavoritesState = {
+  routes: [],
+}
+
+export const resetFavoritesStore = () => useFavoritesStore.setState(initialFavoritesState)
+
+export const useFavoritesStore = create<FavoritesStore>((set, get) => ({
+  ...initialFavoritesState,
+
+  syncFavorites() {
+    if (Platform.OS === "ios") {
+      getIsWatchAppInstalled().then((isInstalled) => {
+        if (isInstalled) {
+          get().syncFavoritesToAppleWatch()
+        }
+      })
+    }
+
+    get().syncFavoritesToHomeShortcuts()
+  },
+
+  syncFavoritesToAppleWatch() {
+    const appContext: WatchPayload = {}
+    get().routes.forEach((route, index) => {
+      const label = isEmpty(route.label) ? "" : `,label:${route.label}`
+      appContext[index] = `originId:${route.originId},destinationId:${route.destinationId}${label}`
+    })
+    updateApplicationContext(appContext)
+  },
+
+  syncFavoritesToHomeShortcuts() {
+    const fromText = (route: FavoriteRoute) =>
+      translate("favorites.fromStation", { stationName: stationsObject[route.originId][stationLocale] })
+    const toText = (route: FavoriteRoute) =>
+      translate("favorites.toStation", { stationName: stationsObject[route.destinationId][stationLocale] })
+
+    Shortcuts.setShortcuts(
+      get().routes.map((route) => ({
+        type: `favorite-${route.id}`,
+        title: route.label || fromText(route),
+        subtitle: !route.label && toText(route),
+        iconName: "star",
+        data: {
+          originId: route.originId,
+          destinationId: route.destinationId,
+        },
+      })),
+    )
+  },
+
+  add(route) {
+    set((state) => ({ routes: [...state.routes, { ...route }] }))
+    get().syncFavorites()
+  },
+
+  remove(routeId) {
+    set((state) => ({ routes: state.routes.filter((favorite) => favorite.id !== routeId) }))
+    get().syncFavorites()
+  },
+
+  rename(routeId, newLabel) {
+    set((state) => ({
+      routes: state.routes.map((favorite) => {
+        if (routeId === favorite.id) {
+          return { ...favorite, label: newLabel }
+        }
+        return favorite
+      }),
+    }))
+    get().syncFavorites()
+  },
+}))
+
+export function getFavoritesSnapshot(state: FavoritesState) {
+  return { routes: state.routes }
+}
+
+export function hydrateFavoritesStore(data: any) {
+  if (!data) return
+  useFavoritesStore.setState({
+    routes: data.routes ?? [],
+  })
+  // Sync favorites after hydration (replaces afterCreate)
+  useFavoritesStore.getState().syncFavorites()
 }

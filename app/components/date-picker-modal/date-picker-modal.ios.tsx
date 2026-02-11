@@ -1,9 +1,10 @@
 import React, { useMemo } from "react"
 import { ViewStyle } from "react-native"
-import { observer } from "mobx-react-lite"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
 import SegmentedControl from "@react-native-segmented-control/segmented-control"
-import { DateType, useStores } from "../../models"
+import { useShallow } from "zustand/react/shallow"
+import type { DateType } from "../../models"
+import { useRoutePlanStore } from "../../models"
 import { dateLocale, translate } from "../../i18n"
 import { spacing } from "../../theme"
 import HapticFeedback from "react-native-haptic-feedback"
@@ -26,31 +27,33 @@ export interface DatePickerModalProps {
   style?: ViewStyle
 }
 
-export const DatePickerModal = observer(function DatePickerModal(props: DatePickerModalProps) {
-  const { routePlan } = useStores()
+export function DatePickerModal(props: DatePickerModalProps) {
+  const { dateType, date, setDateType } = useRoutePlanStore(
+    useShallow((s) => ({ dateType: s.dateType, date: s.date, setDateType: s.setDateType }))
+  )
   const { isVisible, onChange, onConfirm, onCancel, minimumDate } = props
 
   const dateTypeControl = useMemo(
     () => (
       <SegmentedControl
         values={[translate("plan.leaveAt"), translate("plan.arriveAt")]}
-        selectedIndex={routePlan.dateType === "departure" ? 0 : 1}
+        selectedIndex={dateType === "departure" ? 0 : 1}
         onChange={(event) => {
-          routePlan.setDateType(DATE_TYPE[event.nativeEvent.selectedSegmentIndex])
+          setDateType(DATE_TYPE[event.nativeEvent.selectedSegmentIndex])
           HapticFeedback.trigger("impactLight")
         }}
         style={SEGMENTED_CONTROL}
       />
     ),
-    [routePlan.dateType],
+    [dateType],
   )
 
   return (
     <DateTimePickerModal
       isVisible={isVisible}
       mode="datetime"
-      date={routePlan.date}
-      onChange={(_, date) => onChange(date)}
+      date={date}
+      onChange={onChange}
       onConfirm={onConfirm}
       onCancel={onCancel}
       locale={dateLocale}
@@ -61,4 +64,4 @@ export const DatePickerModal = observer(function DatePickerModal(props: DatePick
       confirmTextIOS={translate("common.ok")}
     />
   )
-})
+}

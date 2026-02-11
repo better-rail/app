@@ -14,7 +14,7 @@ import "./utils/ignore-warnings"
 import React, { useState, useEffect, useRef } from "react"
 import { AppState, Platform } from "react-native"
 import DeviceInfo from "react-native-device-info"
-import { QueryClient, QueryClientProvider } from "react-query"
+import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from "react-query"
 import type { NavigationContainerRef } from "@react-navigation/native"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet"
@@ -31,7 +31,9 @@ import {
   useNavigationPersistence,
   type RootParamList,
 } from "./navigators"
-import { type RootStore, RootStoreProvider, setupRootStore } from "./models"
+import { setupRootStore } from "./models"
+import { useRideStore } from "./models/ride/ride"
+import { useFavoritesStore } from "./models/favorites/favorites"
 import { setInitialLanguage, setUserLanguage } from "./i18n/i18n"
 import "react-native-console-time-polyfill"
 import { useIAP, initConnection, finishTransaction, getAvailablePurchases } from "react-native-iap"
@@ -87,7 +89,24 @@ async function disableSentryIfTelemetryDisabled() {
 // Disable Sentry if telemetry is disabled (async, non-blocking)
 disableSentryIfTelemetryDisabled()
 
-export const queryClient = new QueryClient()
+export const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (error, query) => {
+      Sentry.captureException(error, {
+        tags: { source: "react-query" },
+        extra: { queryKey: query.queryKey },
+      })
+    },
+  }),
+  mutationCache: new MutationCache({
+    onError: (error, _variables, _context, mutation) => {
+      Sentry.captureException(error, {
+        tags: { source: "react-query-mutation" },
+        extra: { mutationKey: mutation.options.mutationKey },
+      })
+    },
+  }),
+})
 
 const modalConfig = { RouteListWarningModal, DatePickerModal }
 const defaultOptions = { backdropOpacity: 0.6 }
@@ -102,7 +121,7 @@ export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
  */
 function App() {
   const navigationRef = useRef<NavigationContainerRef<RootParamList> | undefined>(undefined)
-  const [rootStore, setRootStore] = useState<RootStore | undefined>(undefined)
+  const [storeReady, setStoreReady] = useState(false)
   const [localeReady, setLocaleReady] = useState(false)
   const appState = useRef(AppState.currentState)
 
@@ -113,45 +132,46 @@ function App() {
     useIAP()
   }
 
-  useDeepLinking(rootStore, navigationRef)
+  useDeepLinking(storeReady, navigationRef)
 
   useEffect(() => {
+    if (!storeReady) return
     // Activate live activities listener on iOS 16.2+
-    rootStore?.ride.checkLiveActivitiesSupported().then((canRunLiveActivities) => {
+    useRideStore.getState().checkLiveActivitiesSupported().then((canRunLiveActivities) => {
       if (canRunLiveActivities === true) {
         monitorLiveActivities()
       }
     })
-  }, [rootStore])
+  }, [storeReady])
 
   useEffect(() => {
     if (Platform.OS === "android") {
       PushNotification.configure({
         onNotification(notification) {
           if (notification.userInteraction) {
-            openActiveRide(rootStore, navigationRef)
+            openActiveRide(navigationRef)
           }
         },
       })
     }
-  }, [rootStore, navigationRef])
+  }, [storeReady, navigationRef])
 
   useEffect(() => {
+    if (!storeReady) return undefined
     // Refresh app state when app is opened from background
     const subscription = AppState.addEventListener("change", (nextAppState) => {
       if (appState.current.match(/inactive|background/) && nextAppState === "active") {
         // App has come to the foreground!
-        if (rootStore) {
-          // Sync favorites
-          rootStore.favoriteRoutes.syncFavorites()
+        // Sync favorites
+        useFavoritesStore.getState().syncFavorites()
 
-          // Check Live Ride authorization
-          rootStore.ride.checkLiveRideAuthorization()
+        // Check Live Ride authorization
+        const rideState = useRideStore.getState()
+        rideState.checkLiveRideAuthorization()
 
-          if (rootStore.ride.id) {
-            // Check if the current ride id is still active
-            rootStore.ride.isRideActive(rootStore.ride.id)
-          }
+        if (rideState.id) {
+          // Check if the current ride id is still active
+          rideState.isRideActive(rideState.id)
         }
       }
 
@@ -161,7 +181,7 @@ function App() {
     return () => {
       subscription.remove()
     }
-  }, [rootStore])
+  }, [storeReady])
 
   setRootNavigation(navigationRef)
   useBackButtonHandler(navigationRef, canExit)
@@ -171,7 +191,7 @@ function App() {
   useEffect(() => {
     ;(async () => {
       await initFonts() // expo
-      setupRootStore().then(setRootStore)
+      setupRootStore().then(() => setStoreReady(true))
     })()
   }, [])
 
@@ -229,31 +249,29 @@ function App() {
   // In the meantime, don't render anything. This will be the background
   // color set in native by rootView's background color. You can replace
   // with your own loading component if you wish.
-  if (!rootStore || !localeReady) return null
+  if (!storeReady || !localeReady) return null
 
   // otherwise, we're ready to render the app
   return (
     <QueryClientProvider client={queryClient}>
-      <RootStoreProvider value={rootStore}>
-        <GestureHandlerRootView>
-          <ModalProvider stack={stack}>
-            <ActionSheetProvider>
-              <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-                {__DEV__ ? (
-                  // Use navigation persistence for development
-                  <RootNavigator
-                    ref={navigationRef}
-                    initialState={initialNavigationState}
-                    onStateChange={onNavigationStateChange}
-                  />
-                ) : (
-                  <RootNavigator ref={navigationRef} />
-                )}
-              </SafeAreaProvider>
-            </ActionSheetProvider>
-          </ModalProvider>
-        </GestureHandlerRootView>
-      </RootStoreProvider>
+      <GestureHandlerRootView>
+        <ModalProvider stack={stack}>
+          <ActionSheetProvider>
+            <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+              {__DEV__ ? (
+                // Use navigation persistence for development
+                <RootNavigator
+                  ref={navigationRef}
+                  initialState={initialNavigationState}
+                  onStateChange={onNavigationStateChange}
+                />
+              ) : (
+                <RootNavigator ref={navigationRef} />
+              )}
+            </SafeAreaProvider>
+          </ActionSheetProvider>
+        </ModalProvider>
+      </GestureHandlerRootView>
     </QueryClientProvider>
   )
 }

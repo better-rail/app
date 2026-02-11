@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react"
-import { observer } from "mobx-react-lite"
 import { View, ViewStyle, TextStyle, Platform, ActivityIndicator } from "react-native"
 import { useIAP } from "react-native-iap"
 import { Screen, Text } from "../../components"
 import { color, isDarkMode, spacing } from "../../theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { translate } from "../../i18n"
-import { useStores } from "../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useSettingsStore } from "../../models"
 import { getInstallerPackageNameSync } from "react-native-device-info"
 import { trackPurchase } from "../../services/analytics"
 import { toast } from "burnt"
@@ -88,11 +88,13 @@ const installSource = getInstallerPackageNameSync()
 
 const PRODUCT_IDS = ["better_rail_tip_1", "better_rail_tip_2", "better_rail_tip_3", "better_rail_tip_4"]
 
-export const TipJarScreen = observer(function TipJarScreen() {
+export function TipJarScreen() {
   const [isLoading, setIsLoading] = useState(false)
   const [sortedProducts, setSortedProducts] = useState([])
   const [showThanksModal, setShowThanksModal] = useState(false)
-  const { settings } = useStores()
+  const { totalTip, addTip } = useSettingsStore(
+    useShallow((s) => ({ totalTip: s.totalTip, addTip: s.addTip }))
+  )
 
   const handlePurchaseSuccess = async (purchase) => {
     try {
@@ -102,7 +104,7 @@ export const TipJarScreen = observer(function TipJarScreen() {
 
       const item = products.find((product) => product.id === purchase.productId)
       if (item) {
-        settings.addTip(Number(item.price))
+        addTip(Number(item.price))
 
         try {
           await trackPurchase({
@@ -212,9 +214,9 @@ export const TipJarScreen = observer(function TipJarScreen() {
               onPress={() => onTipButtonPress(sortedProducts[3].id)}
             />
 
-            {settings.totalTip > 0 && (
+            {totalTip > 0 && (
               <Text style={TOTAL_TIPS}>
-                {translate("settings.totalTips")}: {settings.totalTip} {products[0].currency === "ILS" ? "₪" : "$"}
+                {translate("settings.totalTips")}: {totalTip} {products[0].currency === "ILS" ? "₪" : "$"}
               </Text>
             )}
           </>
@@ -226,7 +228,7 @@ export const TipJarScreen = observer(function TipJarScreen() {
       <TipThanksModalNative visible={showThanksModal} onClose={() => setShowThanksModal(false)} />
     </>
   )
-})
+}
 
 const TipRow = ({ title, amount, onPress }) => (
   <View style={LIST_ROW}>

@@ -3,7 +3,7 @@ import { View, Image, Pressable, ViewStyle, ImageStyle, TextStyle, ActivityIndic
 
 import { color, spacing } from "../../../theme"
 import { Text } from "../../../components"
-import { useStores } from "../../../models"
+import { useTrainRoutesStore } from "../../../models"
 import { localizedDate } from "../../../i18n"
 
 const CONTAINER_STYLE: ViewStyle = {
@@ -61,8 +61,8 @@ export const DateScroll = function DateScroll(props: {
   isLoadingDate?: boolean
   isDisabled?: boolean
 }) {
-  const { trainRoutes } = useStores()
-  const isLoading = trainRoutes.status === "pending" || props.isLoadingDate
+  const status = useTrainRoutesStore((s) => s.status)
+  const isLoading = status === "pending" || props.isLoadingDate
   const isDisabled = isLoading || props.isDisabled
 
   // This date is already the target date for the direction (forward or backward)

@@ -1,37 +1,36 @@
-import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import auth from "@react-native-firebase/auth"
+import { create } from "zustand"
 
-export const UserModel = types
-  .model("User")
-  .props({
-    // currentUserId: types.maybe(types.string),
-    disableTelemetry: types.maybe(types.boolean),
+export interface UserState {
+  disableTelemetry: boolean | undefined
+}
+
+export interface UserActions {
+  setDisableTelemetry: (value: boolean) => void
+}
+
+export type UserStore = UserState & UserActions
+
+const initialUserState: UserState = {
+  disableTelemetry: undefined,
+}
+
+export const resetUserStore = () => useUserStore.setState(initialUserState)
+
+export const useUserStore = create<UserStore>((set) => ({
+  ...initialUserState,
+
+  setDisableTelemetry(value) {
+    set({ disableTelemetry: value })
+  },
+}))
+
+export function getUserSnapshot(state: UserState) {
+  return { disableTelemetry: state.disableTelemetry }
+}
+
+export function hydrateUserStore(data: any) {
+  if (!data) return
+  useUserStore.setState({
+    disableTelemetry: data.disableTelemetry ?? undefined,
   })
-  // .views((self) => ({
-  //   get currentUser() {
-  //     return auth().currentUser
-  //   },
-  // }))
-  .actions((self) => ({
-    // setCurrentUserId(uid?: string) {
-    //   self.currentUserId = uid
-    // },
-    // async afterCreate() {
-    //   if (!self.currentUser) {
-    //     auth().signInAnonymously()
-    //   }
-
-    //   auth().onAuthStateChanged((user) => {
-    //     this.setCurrentUserId(user?.uid)
-    //   })
-    // },
-    setDisableTelemetry(value: boolean) {
-      self.disableTelemetry = value
-    },
-  }))
-
-type UserType = Instance<typeof UserModel>
-export interface User extends UserType {}
-type UserSnapshotType = SnapshotOut<typeof UserModel>
-export interface UserSnapshot extends UserSnapshotType {}
-export const createUserDefaultModel = () => types.optional(UserModel, {})
+}

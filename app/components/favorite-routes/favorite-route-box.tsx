@@ -8,7 +8,8 @@ import { translate } from "../../i18n"
 import { useActionSheet } from "@expo/react-native-action-sheet"
 import { getActionSheetStyleOptions } from "../../utils/helpers/action-sheet-helpers"
 import prompt from "react-native-prompt-android"
-import { useStores } from "../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useFavoritesStore } from "../../models"
 import { ContextMenuView } from "react-native-ios-context-menu"
 
 const borderRadius = Platform.select({ ios: 8, android: 6 })
@@ -106,7 +107,9 @@ type FavoriteRouteBoxProps = {
 
 export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
   const { originId, destinationId, onPress, style, id, label } = props
-  const { favoriteRoutes } = useStores()
+  const { rename, remove } = useFavoritesStore(
+    useShallow((s) => ({ rename: s.rename, remove: s.remove }))
+  )
 
   const renamePrompt = () => {
     prompt(
@@ -117,7 +120,7 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
         {
           text: translate("common.save"),
           onPress: (newLabel) => {
-            favoriteRoutes.rename(id, newLabel)
+            rename(id, newLabel)
           },
         },
       ],
@@ -127,7 +130,7 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
 
   const deleteRoute = () => {
     Alert.alert(translate("favorites.delete"), translate("common.areYouSure"), [
-      { text: translate("common.delete"), onPress: () => favoriteRoutes.remove(id), style: "destructive" },
+      { text: translate("common.delete"), onPress: () => remove(id), style: "destructive" },
       { text: translate("common.cancel"), style: "cancel" },
     ])
   }

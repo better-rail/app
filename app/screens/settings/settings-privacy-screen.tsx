@@ -1,12 +1,12 @@
 import React from "react"
 import { setAnalyticsCollectionEnabled, trackEvent } from "../../services/analytics"
-import { observer } from "mobx-react-lite"
 import { Platform, View, type ViewStyle, Alert } from "react-native"
 import { Screen } from "../../components"
 import { SettingBox } from "./components/settings-box"
 import { SETTING_GROUP } from "./settings-styles"
 import { color, isDarkMode, spacing } from "../../theme"
-import { useStores } from "../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useUserStore, clearAllData } from "../../models"
 import { translate } from "../../i18n"
 import { openLink } from "../../utils/helpers/open-link"
 import { useIsBetaTester } from "../../hooks/use-is-beta-tester"
@@ -20,20 +20,21 @@ const ROOT: ViewStyle = {
   padding: spacing[4],
 }
 
-export const PrivacyScreen = observer(function SettingsLanguageScreen() {
-  const { user } = useStores()
-  const rootStore = useStores()
+export function PrivacyScreen() {
+  const { disableTelemetry, setDisableTelemetry } = useUserStore(
+    useShallow((s) => ({ disableTelemetry: s.disableTelemetry, setDisableTelemetry: s.setDisableTelemetry }))
+  )
   const isBetaTester = useIsBetaTester()
 
-  const onTelemetryToggle = async (disableTelemetry: boolean) => {
-    if (disableTelemetry) {
+  const onTelemetryToggle = async (newDisableTelemetry: boolean) => {
+    if (newDisableTelemetry) {
       trackEvent("telemetry_disabled")
-      user.setDisableTelemetry(disableTelemetry)
+      setDisableTelemetry(newDisableTelemetry)
       await setAnalyticsCollectionEnabled(false)
       await storage.save(TELEMETRY_DISABLED_STORAGE_KEY, true)
     } else {
       trackEvent("telemetry_enabled")
-      user.setDisableTelemetry(disableTelemetry)
+      setDisableTelemetry(newDisableTelemetry)
       await setAnalyticsCollectionEnabled(true)
       await storage.remove(TELEMETRY_DISABLED_STORAGE_KEY)
     }
@@ -49,7 +50,7 @@ export const PrivacyScreen = observer(function SettingsLanguageScreen() {
           text: translate("common.ok"),
           style: "destructive",
           onPress: () => {
-            rootStore.clearAllData()
+            clearAllData()
             RNRestart.Restart()
           },
         },
@@ -76,7 +77,7 @@ export const PrivacyScreen = observer(function SettingsLanguageScreen() {
           <SettingBox
             title={translate("settings.disableTelemetry")}
             toggle
-            toggleValue={user.disableTelemetry}
+            toggleValue={disableTelemetry}
             onToggle={onTelemetryToggle}
           />
         )}
@@ -86,4 +87,4 @@ export const PrivacyScreen = observer(function SettingsLanguageScreen() {
       </View>
     </Screen>
   )
-})
+}

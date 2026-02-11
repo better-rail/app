@@ -10,7 +10,6 @@ import {
   PlatformColor,
   Pressable,
 } from "react-native"
-import { observer } from "mobx-react-lite"
 import { color } from "../../theme"
 import { translate } from "../../i18n"
 import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
@@ -62,7 +61,7 @@ export interface ChangeDirectionButtonProps extends TouchableOpacityProps {
 /**
  * Describe your component here
  */
-export const ChangeDirectionButton = observer(function ChangeDirectionButton(props: ChangeDirectionButtonProps) {
+export function ChangeDirectionButton(props: ChangeDirectionButtonProps) {
   const { onPress, buttonStyle } = props
 
   if (isLiquidGlassSupported) {
@@ -86,4 +85,4 @@ export const ChangeDirectionButton = observer(function ChangeDirectionButton(pro
       <Image source={upDownArrowIcon} style={ARROW_ICON} />
     </TouchableOpacity>
   )
-})
+}

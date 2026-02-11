@@ -4,7 +4,7 @@ import { RouteItem, Train } from "../../services/api"
 import { isEqual, last } from "lodash"
 import { NavigationContainerRef } from "@react-navigation/native"
 import { MutableRefObject } from "react"
-import { RootStore } from "../../models"
+import { useRideStore } from "../../models/ride/ride"
 import { PrimaryParamList, RootParamList } from "../../navigators"
 
 /**
@@ -105,8 +105,11 @@ export function getRideStatus(route: RouteItem, train: Train, nextStationId: num
   return "inTransit"
 }
 
-export const openActiveRide = (rootStore: RootStore, navigationRef: MutableRefObject<NavigationContainerRef<RootParamList>>) => {
-  const { route, originId, destinationId } = rootStore.ride
+export const openActiveRide = (navigationRef: MutableRefObject<NavigationContainerRef<RootParamList>>) => {
+  const rideState = useRideStore.getState()
+  const { route } = rideState
+  const originId = rideState.originId()
+  const destinationId = rideState.destinationId()
   if (!route) return
 
   const { name: screenName, params: screenParams } = navigationRef.current?.getCurrentRoute() ?? {}

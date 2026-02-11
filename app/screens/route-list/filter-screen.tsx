@@ -1,8 +1,8 @@
 import { View, ViewStyle, TextStyle } from "react-native"
-import { observer } from "mobx-react-lite"
 import { Text } from "../../components"
 import { color, spacing } from "../../theme"
-import { useStores } from "../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useSettingsStore } from "../../models"
 import { SettingBox } from "../settings/components/settings-box"
 import { SETTING_GROUP } from "../settings/settings-styles"
 import { translate } from "../../i18n"
@@ -27,11 +27,13 @@ const DESCRIPTION: TextStyle = {
   opacity: 0.8,
 }
 
-export const FilterScreen = observer(function FilterScreen() {
-  const { settings } = useStores()
+export function FilterScreen() {
+  const { hideSlowTrains, setHideSlowTrains } = useSettingsStore(
+    useShallow((s) => ({ hideSlowTrains: s.hideSlowTrains, setHideSlowTrains: s.setHideSlowTrains }))
+  )
 
   const onToggle = (value: boolean) => {
-    settings.setHideSlowTrains(value)
+    setHideSlowTrains(value)
   }
 
   return (
@@ -44,7 +46,7 @@ export const FilterScreen = observer(function FilterScreen() {
           last
           title={translate("routes.hideSlowTrains")}
           toggle
-          toggleValue={settings.hideSlowTrains}
+          toggleValue={hideSlowTrains}
           onToggle={onToggle}
         />
       </View>
@@ -52,4 +54,4 @@ export const FilterScreen = observer(function FilterScreen() {
       <Text style={DESCRIPTION}>{translate("routes.slowTrainsDescription")}</Text>
     </View>
   )
-})
+}

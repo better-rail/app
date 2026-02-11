@@ -1,12 +1,12 @@
 import { Platform, ScrollView, ViewStyle } from "react-native"
-import { observer } from "mobx-react-lite"
 import { Screen, Text } from "../../components"
 import { color, fontScale, spacing } from "../../theme"
 import { useIsDarkMode } from "../../hooks"
 import { AnnouncementsScreenProps } from "../../navigators/announcements/announcements-navigator"
 import { AnnouncementsList } from "../../components/announcements/announcements-list"
 import TouchableScale from "react-native-touchable-scale"
-import { useStores } from "../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useSettingsStore } from "../../models"
 import { AnnouncementCard } from "../../components/announcements/announcement-card"
 import useServiceUpdates from "./use-service-updates"
 
@@ -32,17 +32,19 @@ const NOTIFICATION_BUTTON: ViewStyle = {
   elevation: 4,
 }
 
-export const AnnouncementsScreen = observer(function AnnouncementsScreen({ navigation }: AnnouncementsScreenProps) {
-  const { settings } = useStores()
+export function AnnouncementsScreen({ navigation }: AnnouncementsScreenProps) {
+  const { seenNotificationsScreen, setSeenNotificationsScreen } = useSettingsStore(
+    useShallow((s) => ({ seenNotificationsScreen: s.seenNotificationsScreen, setSeenNotificationsScreen: s.setSeenNotificationsScreen }))
+  )
   const { data: serviceUpdates } = useServiceUpdates()
 
   const isDarkMode = useIsDarkMode()
 
   const navigateToNotificationsSetup = () => {
-    if (!settings.seenNotificationsScreen) {
+    if (!seenNotificationsScreen) {
       setTimeout(() => {
         // avoid flickering until the next screen is fully loaded
-        settings.setSeenNotificationsScreen(true)
+        setSeenNotificationsScreen(true)
       }, 1250)
     }
     navigation.navigate("notificationsSetup")
@@ -58,7 +60,7 @@ export const AnnouncementsScreen = observer(function AnnouncementsScreen({ navig
       translucent
     >
       <ScrollView contentContainerStyle={SCROLL_VIEW}>
-        {!settings.seenNotificationsScreen && (
+        {!seenNotificationsScreen && (
           <TouchableScale onPress={navigateToNotificationsSetup} activeScale={0.97} friction={10} style={NOTIFICATION_BUTTON}>
             <Text
               tx="announcements.notifications.notificationSettings"
@@ -80,4 +82,4 @@ export const AnnouncementsScreen = observer(function AnnouncementsScreen({ navig
       </ScrollView>
     </Screen>
   )
-})
+}

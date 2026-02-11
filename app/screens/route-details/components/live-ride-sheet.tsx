@@ -3,15 +3,17 @@ import { Pressable, type PressableProps, Image, ActivityIndicator, type ViewStyl
 import { color } from "../../../theme"
 import { Text, BottomScreenSheet } from "../../../components"
 import { useNavigation } from "@react-navigation/native"
-import { observer } from "mobx-react-lite"
-import { useStores } from "../../../models"
+import { useShallow } from "zustand/react/shallow"
+import { useRideStore } from "../../../models"
 import { translate } from "../../../i18n"
 import { trackEvent } from "../../../services/analytics"
 import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
 
 // TODO: add typings to progress
-export const LiveRideSheet = observer(function LiveRideSheet(props: { progress; screenName: "routeDetails" | "activeRide" }) {
-  const { ride } = useStores()
+export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "activeRide" }) {
+  const { id, stopRide } = useRideStore(
+    useShallow((s) => ({ id: s.id, stopRide: s.stopRide }))
+  )
   const { progress, screenName } = props
 
   const navigation = useNavigation()
@@ -19,7 +21,7 @@ export const LiveRideSheet = observer(function LiveRideSheet(props: { progress; 
   const { status, minutesLeft } = progress
 
   const progressText = useMemo(() => {
-    if (!ride.id) return translate("ride.activatingRide")
+    if (!id) return translate("ride.activatingRide")
     if (status === "inTransit" && minutesLeft < 2) {
       return translate("ride.trainArriving")
     } else if (status === "inTransit") {
@@ -31,7 +33,7 @@ export const LiveRideSheet = observer(function LiveRideSheet(props: { progress; 
     }
 
     return translate("ride.departsIn", { minutes: minutesLeft })
-  }, [minutesLeft, status, ride.id])
+  }, [minutesLeft, status, id])
 
   return (
     <BottomScreenSheet>
@@ -40,9 +42,9 @@ export const LiveRideSheet = observer(function LiveRideSheet(props: { progress; 
       </Text>
 
       <StopButton
-        loading={!ride.id}
+        loading={!id}
         onPress={() => {
-          ride.stopRide(ride.id)
+          stopRide(id)
           trackEvent("stop_live_ride")
 
           if (screenName === "activeRide") {
@@ -52,7 +54,7 @@ export const LiveRideSheet = observer(function LiveRideSheet(props: { progress; 
       />
     </BottomScreenSheet>
   )
-})
+}
 
 const STOP_BUTTON: ViewStyle = {
   width: 42.5,
