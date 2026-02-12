@@ -25,7 +25,7 @@ class NetworkConfig @Inject constructor(
         private const val DEFAULT_CONNECT_TIMEOUT_SECONDS = 30L
         private const val DEFAULT_READ_TIMEOUT_SECONDS = 30L
         private const val DEFAULT_WRITE_TIMEOUT_SECONDS = 30L
-        private const val DEFAULT_CONNECTION_POOL_SIZE = 10
+        private const val DEFAULT_CONNECTION_POOL_SIZE = 5
         private const val DEFAULT_CONNECTION_KEEP_ALIVE_MINUTES = 2L
         
         // Preference keys
