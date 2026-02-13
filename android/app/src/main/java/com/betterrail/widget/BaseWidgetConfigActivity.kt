@@ -35,6 +35,7 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
     protected lateinit var originSearch: AutoCompleteTextView
     protected lateinit var destinationSearch: AutoCompleteTextView
     protected lateinit var routeReversalCheckbox: CheckBox
+    protected lateinit var autoReverseRouteCheckbox: CheckBox
     protected lateinit var maxChangesSpinner: Spinner
     protected lateinit var addButton: Button
     protected lateinit var cancelButton: Button
@@ -85,6 +86,22 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
         setResult(RESULT_CANCELED)
         
         setContentView(R.layout.activity_widget_config)
+
+        // Set status bar icons color based on theme
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            val view = window.decorView
+            var flags = view.systemUiVisibility
+            
+            val nightModeFlags = resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK
+            if (nightModeFlags == android.content.res.Configuration.UI_MODE_NIGHT_YES) {
+                // In dark mode, clear the flag to get light icons (standard behavior)
+                flags = flags and android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
+            } else {
+                // In light mode, set the flag to get dark icons
+                flags = flags or android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+            }
+            view.systemUiVisibility = flags
+        }
         
         // Find the widget id from the intent
         val intent = intent
@@ -116,6 +133,7 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
         originSearch = findViewById(R.id.origin_search)
         destinationSearch = findViewById(R.id.destination_search)
         routeReversalCheckbox = findViewById(R.id.route_reversal_checkbox)
+        autoReverseRouteCheckbox = findViewById(R.id.auto_reverse_route_checkbox)
         maxChangesSpinner = findViewById(R.id.max_changes_spinner)
         addButton = findViewById(R.id.add_button)
         cancelButton = findViewById(R.id.cancel_button)
@@ -124,6 +142,7 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
         advancedOptionsContainer = findViewById(R.id.advanced_options_container)
 
         routeReversalCheckbox.isChecked = true
+        autoReverseRouteCheckbox.isChecked = false
 
         // Setup max changes spinner
         val changesOptions = resources.getStringArray(R.array.max_changes_options)
@@ -392,12 +411,15 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
 
         // Set route reversal checkbox
         routeReversalCheckbox.isChecked = data.allowRouteReversal
+        
+        // Set auto-reverse route checkbox
+        autoReverseRouteCheckbox.isChecked = data.autoReverseRoute
 
         // Set max changes spinner
         maxChangesSpinner.setSelection(maxChangesToSpinnerPosition(data.maxChanges))
 
         // Auto-expand advanced section if any advanced options are non-default
-        if (data.allowRouteReversal || data.maxChanges != null) {
+        if (data.allowRouteReversal || data.autoReverseRoute || data.maxChanges != null) {
             advancedOptionsContainer.visibility = android.view.View.VISIBLE
             advancedChevron.rotation = 90f
         }
@@ -437,7 +459,9 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
                     val existingWidgetData = preferencesRepository.getWidgetData(appWidgetId)
                     val isRouteChange = existingWidgetData != null &&
                                        (existingWidgetData.originId != originId || existingWidgetData.destinationId != destinationId)
-                    val isFilterChange = existingWidgetData != null && existingWidgetData.maxChanges != maxChanges
+                    val isFilterChange = existingWidgetData != null && 
+                                       (existingWidgetData.maxChanges != maxChanges || 
+                                        existingWidgetData.autoReverseRoute != autoReverseRouteCheckbox.isChecked)
 
                     if (isRouteChange || isFilterChange) {
                         Log.d(getLogTag(), "Route or filter change detected, clearing old cache for widget $appWidgetId")
@@ -451,6 +475,8 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
                         destinationName = "", // Don't store localized names - look them up dynamically
                         label = "",
                         allowRouteReversal = routeReversalCheckbox.isChecked,
+                        autoReverseRoute = autoReverseRouteCheckbox.isChecked,
+                        manualOverrideUntil = 0, // Reset override on configuration change
                         maxChanges = maxChanges
                     )
                     

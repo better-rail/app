@@ -123,6 +123,8 @@ data class WidgetData(
     val destinationName: String = "",
     val label: String = "",
     val allowRouteReversal: Boolean = true,
+    val autoReverseRoute: Boolean = false,
+    val manualOverrideUntil: Long = 0, // Timestamp when override expires
     val maxChanges: Int? = null // null = no limit, 0 = direct only, 1 = up to 1 change
 )
 

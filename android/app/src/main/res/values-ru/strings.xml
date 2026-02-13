@@ -11,8 +11,8 @@
     <string name="widget_cancel">Отмена</string>
     <string name="widget_add">Добавить виджет</string>
     <string name="widget_edit">Редактировать виджет</string>
-    <string name="widget_2x2_description">Компактный виджет поезда 2x2</string>
-    <string name="widget_4x2_description">Компактный виджет поезда 4x2 с предстоящими поездами</string>
+    <string name="widget_2x2_description">Время ближайшего отправления</string>
+    <string name="widget_4x2_description">Расписание ближайших рейсов</string>
     <string name="select_station">Выберите станцию</string>
     <string name="search_origin_hint">Поиск станции отправления...</string>
     <string name="search_destination_hint">Поиск станции назначения...</string>
@@ -24,6 +24,8 @@
         <item>Только прямые поезда</item>
         <item>До 1 пересадки</item>
     </string-array>
+    <string name="widget_auto_reverse_route">Авто-разворот маршрута (13:00 - 01:00)</string>
+    <string name="widget_auto_reverse_description">Автоматически меняет направление маршрута между утренним и вечерним окнами</string>
 
     <!-- Widget display strings -->
     <string name="tap_to_configure">Нажмите для настройки</string>
