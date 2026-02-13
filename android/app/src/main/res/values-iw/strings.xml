@@ -3,7 +3,7 @@
     <string name="app_name">Better Rail</string>
     
     <!-- Widget strings -->
-    <string name="widget_configure_title">הגדר ווידג\'ט רכבת</string>
+    <string name="widget_configure_title">הגדרת ווידג\'ט</string>
     <string name="widget_configure_description">בחר את המסלול שלך להצגת לוחות זמנים של רכבות במסך הבית</string>
     <string name="widget_from_label">מתחנת</string>
     <string name="widget_to_label">לתחנת</string>
@@ -24,7 +24,7 @@
         <item>רכבות ישירות בלבד</item>
         <item>החלפה אחת לכל היותר</item>
     </string-array>
-    <string name="widget_auto_reverse_route">היפוך מסלול אוטומטי (13:00 - 01:00)</string>
+    <string name="widget_auto_reverse_route">היפוך מסלול אוטומטי (01:00 - 13:00)</string>
     <string name="widget_auto_reverse_description">מבצע החלפה אוטומטית של כיוון הנסיעה בהתאם לשעות בוקר וערב</string>
   
     <!-- Widget display strings -->

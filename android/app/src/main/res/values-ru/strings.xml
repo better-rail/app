@@ -3,7 +3,7 @@
     <string name="app_name">Better Rail</string>
     
     <!-- Widget strings -->
-    <string name="widget_configure_title">Настроить виджет поезда</string>
+    <string name="widget_configure_title">Настройка виджета</string>
     <string name="widget_configure_description">Выберите маршрут для отображения расписания поездов на главном экране</string>
     <string name="widget_from_label">От станции</string>
     <string name="widget_to_label">К станции</string>

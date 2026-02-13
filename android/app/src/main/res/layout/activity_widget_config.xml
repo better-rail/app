@@ -104,14 +104,20 @@
             android:textStyle="bold"
             android:textColor="@color/label" />
 
-        <TextView
-            android:id="@+id/advanced_chevron"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="›"
-            android:textSize="24sp"
-            android:textColor="@color/secondaryLabel"
-            android:rotation="0" />
+        <FrameLayout
+            android:layout_width="32dp"
+            android:layout_height="32dp">
+            
+            <TextView
+                android:id="@+id/advanced_chevron"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="›"
+                android:textSize="24sp"
+                android:textColor="@color/secondaryLabel"
+                android:rotation="0" />
+        </FrameLayout>
 
     </LinearLayout>
 
