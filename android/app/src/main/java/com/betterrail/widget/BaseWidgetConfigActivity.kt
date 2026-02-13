@@ -88,20 +88,9 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
         setContentView(R.layout.activity_widget_config)
 
         // Set status bar icons color based on theme
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            val view = window.decorView
-            var flags = view.systemUiVisibility
-            
-            val nightModeFlags = resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK
-            if (nightModeFlags == android.content.res.Configuration.UI_MODE_NIGHT_YES) {
-                // In dark mode, clear the flag to get light icons (standard behavior)
-                flags = flags and android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
-            } else {
-                // In light mode, set the flag to get dark icons
-                flags = flags or android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-            }
-            view.systemUiVisibility = flags
-        }
+        val windowInsetsController = androidx.core.view.WindowCompat.getInsetsController(window, window.decorView)
+        val isLightMode = (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) != android.content.res.Configuration.UI_MODE_NIGHT_YES
+        windowInsetsController.isAppearanceLightStatusBars = isLightMode
         
         // Find the widget id from the intent
         val intent = intent
