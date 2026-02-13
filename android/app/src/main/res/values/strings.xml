@@ -23,8 +23,8 @@
         <item>Direct trains only</item>
         <item>Up to 1 change</item>
     </string-array>
-    <string name="widget_auto_reverse_route">Smart Commute Window (1PM - 1AM)</string>
-    <string name="widget_auto_reverse_description">Automatically swaps route direction between morning and evening windows</string>
+    <string name="widget_auto_reverse_route">Smart Commute Window</string>
+    <string name="widget_auto_reverse_description">Automatically swaps route direction based on morning and evening hours</string>
 
     <!-- Widget display strings -->
     <string name="tap_to_configure">Tap to configure</string>
