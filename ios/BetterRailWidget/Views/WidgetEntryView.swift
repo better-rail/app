@@ -38,7 +38,7 @@ struct WidgetEntryView: View {
               } else {
                 HStack(alignment: .lastTextBaseline) {
                   VStack(alignment: .leading) {
-                    Text(entry.isTomorrow ? "TOMORROW" : "NEXT TRAIN")
+                    Text(String(localized: entry.isTomorrow ? "TOMORROW" : "NEXT TRAIN"))
                       .fontWeight(.medium)
                       .preferredFont(size: 11.5)
                       .foregroundColor(entry.isTomorrow ? Color("purply") : Color("pinky"))
@@ -47,6 +47,48 @@ struct WidgetEntryView: View {
                     Text(entry.departureTime)
                       .foregroundColor(.white)
                   }
+
+                  if (widgetFamily == .systemMedium ||
+                      widgetFamily == .systemLarge) {
+                    VStack(alignment: .leading) {
+                      Text(String(localized: "ARRIVAL"))
+                        .preferredFont(size: 11).fontWeight(.medium)
+                      
+                      Text(entry.arrivalTime).font(.system(size: 22, weight: .bold))
+                    }.foregroundColor(.gray)
+                    .padding(.leading,
+                      widgetFamily == .systemLarge && isMediumScreen
+                       ? 8 : 2)
+                    
+                    if (widgetFamily == .systemLarge) {
+                      VStack(alignment: .leading) {
+                        Text(String(localized: "PLATFORM"))
+                          .preferredFont(size: 11).fontWeight(.medium)
+                        
+                        Text(String(entry.platform)).font(.system(size: 22, weight: .bold))
+                      }
+                      .foregroundColor(.gray)
+                      .padding(.leading, isMediumScreen ? CGFloat(8.0) : 4.0)
+
+                      if (UIScreen.main.bounds.width >= 360) {
+                        VStack(alignment: .leading) {
+                          Text(String(localized: isMediumScreen ? "TRAIN NO." : "TRAIN"))
+                            .preferredFont(size: 11).fontWeight(.medium)
+                          
+                          Text(String(entry.trainNumber)).font(.system(size: 22, weight: .bold))
+                        }
+                        .foregroundColor(.gray)
+                        .padding(.leading, 8)
+                      }
+
+                    }
+                }
+                  .font(.system(size: nextTrainFontSize, weight: .bold))
+                  
+                if (widgetFamily != .systemLarge) {
+                  Text("Platform \(String(entry.platform))・Train \(String(entry.trainNumber))")
+                    .font(.system(size: 11.5)).fontWeight(.medium).foregroundColor(.white).opacity(/*@START_MENU_TOKEN@*/0.8/*@END_MENU_TOKEN@*/)
+                }
 
                   if (widgetFamily == .systemMedium ||
                       widgetFamily == .systemLarge) {
@@ -116,7 +158,7 @@ struct WidgetEntryView: View {
           VStack(alignment: .leading) {
             Spacer()
             
-            Text(entry.isTomorrow ? "TOMORROW" : "UPCOMING")
+            Text(String(localized: entry.isTomorrow ? "TOMORROW" : "UPCOMING"))
               .preferredFont(size: 12)
               .fontWeight(.semibold)
               .foregroundColor(.gray)

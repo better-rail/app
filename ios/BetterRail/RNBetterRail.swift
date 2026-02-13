@@ -145,4 +145,8 @@ class RNBetterRail: NSObject {
       resolve(false)
     }
   }
+
+  @objc func setAppGroupUserLocale(_ languageCode: String) -> Void {
+    UserDefaults(suiteName: "group.il.co.better-rail")!.set(languageCode, forKey: "userLocale")
+  }
 }
