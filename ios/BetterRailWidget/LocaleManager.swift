@@ -1,22 +1,29 @@
 import Foundation
 import SwiftUI
 
-let appGroupUserDefaults = UserDefaults(suiteName: "group.il.co.better-rail")
+class LocaleManager {
+    static let shared = LocaleManager()
 
-func getAppLanguage() -> String {
-  return appGroupUserDefaults?.string(forKey: "userLocale") ?? "en"
-}
+    private let appGroupUserDefaults: UserDefaults?
 
-func getAppLocale() -> Locale {
-  let languageCode = getAppLanguage()
-  return Locale(identifier: languageCode)
-}
+    private init() {
+        self.appGroupUserDefaults = UserDefaults(suiteName: "group.il.co.better-rail")
+    }
 
-func isAppRTL() -> Bool {
-  let languageCode = getAppLanguage()
-  return languageCode == "he" || languageCode == "ar"
-}
+    func getAppLanguage() -> String {
+        return appGroupUserDefaults?.string(forKey: "userLocale") ?? "en"
+    }
 
-func getLayoutDirection() -> LayoutDirection {
-  return isAppRTL() ? .rightToLeft : .leftToRight
+    func getAppLocale() -> Locale {
+        return Locale(identifier: getAppLanguage())
+    }
+
+    func isAppRTL() -> Bool {
+        let languageCode = getAppLanguage()
+        return languageCode == "he" || languageCode == "ar"
+    }
+
+    func getLayoutDirection() -> LayoutDirection {
+        return isAppRTL() ? .rightToLeft : .leftToRight
+    }
 }
