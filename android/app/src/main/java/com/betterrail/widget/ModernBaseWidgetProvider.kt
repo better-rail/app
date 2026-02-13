@@ -24,6 +24,12 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import java.time.ZonedDateTime
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 /**
  * Modern widget provider base class using Repository pattern
@@ -350,15 +356,15 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
      * Filter trains to show only those that are upcoming based on current date and time
      */
     private fun filterUpcomingTrains(trains: List<WidgetTrainItem>): List<WidgetTrainItem> {
-        val currentDateTime = java.util.Date()
-        val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.getDefault())
+        val now = LocalDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.getDefault())
         
         return trains.filter { train ->
             try {
                 if (train.departureTimestamp.isEmpty()) return@filter false
                 
-                val trainDateTime = dateFormat.parse(train.departureTimestamp)
-                val isUpcoming = trainDateTime != null && trainDateTime.after(currentDateTime)
+                val trainDateTime = LocalDateTime.parse(train.departureTimestamp, formatter)
+                val isUpcoming = trainDateTime.isAfter(now)
                 
                 Log.d(getLogTag(), "Train ${train.departureTime} (${train.departureTimestamp}): upcoming = $isUpcoming")
                 
@@ -804,25 +810,20 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
             if (lastDisplayedTime.isNullOrEmpty()) return false
             
             // Get current time
-            val currentTime = java.util.Calendar.getInstance()
-            val currentMinutes = currentTime.get(java.util.Calendar.HOUR_OF_DAY) * 60 + currentTime.get(java.util.Calendar.MINUTE)
+            val now = LocalTime.now()
             
-            // Parse displayed time
-            val timeParts = lastDisplayedTime.split(":")
-            if (timeParts.size >= 2) {
-                val displayedMinutes = timeParts[0].toInt() * 60 + timeParts[1].toInt()
-                
-                // Train is considered departed if current time has passed the displayed time
-                val isDeparted = currentMinutes > displayedMinutes
-                
-                if (isDeparted) {
-                    val minutesPastDeparture = currentMinutes - displayedMinutes
-                    Log.d(getLogTag(), "Widget $appWidgetId detected stale data: train $lastDisplayedTime departed ${minutesPastDeparture}min ago")
-                }
-                
-                return isDeparted
+            // Parse displayed time (HH:mm)
+            val displayedTime = LocalTime.parse(lastDisplayedTime)
+            
+            // Train is considered departed if current time has passed the displayed time
+            val isDeparted = now.isAfter(displayedTime)
+            
+            if (isDeparted) {
+                val minutesPastDeparture = java.time.Duration.between(displayedTime, now).toMinutes()
+                Log.d(getLogTag(), "Widget $appWidgetId detected stale data: train $lastDisplayedTime departed ${minutesPastDeparture}min ago")
             }
-            return false
+            
+            return isDeparted
         } catch (e: Exception) {
             Log.e(getLogTag(), "Error checking for departed train", e)
             return false
@@ -837,11 +838,9 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         if (!widgetData.autoReverseRoute) return widgetData
 
         val currentTimestamp = System.currentTimeMillis()
-        val calendar = java.util.Calendar.getInstance()
-        val hour = calendar.get(java.util.Calendar.HOUR_OF_DAY)
+        val now = ZonedDateTime.now()
+        val hour = now.hour
         
-        // Evening window: 13:00 (1 PM) to 01:00 (1 AM)
-        // hour >= 13 OR hour < 1
         val isEvening = hour >= 13 || hour < 1
         
         val isOverrideActive = currentTimestamp < widgetData.manualOverrideUntil
@@ -866,31 +865,21 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
      * Calculates the timestamp for the start of the next time window
      */
     private fun calculateNextWindowStart(): Long {
-        val calendar = java.util.Calendar.getInstance()
-        val hour = calendar.get(java.util.Calendar.HOUR_OF_DAY)
-                
-        if (hour in 1..12) {
+        val now = ZonedDateTime.now()
+        val hour = now.hour
+        
+        val nextWindowStart = if (hour in 1..12) {
             // Morning -> Next is 13:00 Today
-            calendar.set(java.util.Calendar.HOUR_OF_DAY, 13)
-            calendar.set(java.util.Calendar.MINUTE, 0)
-            calendar.set(java.util.Calendar.SECOND, 0)
-            calendar.set(java.util.Calendar.MILLISECOND, 0)
+            now.withHour(13).withMinute(0).withSecond(0).withNano(0)
         } else if (hour >= 13) {
             // Evening Part 1 -> Next is 01:00 Tomorrow
-            calendar.add(java.util.Calendar.DAY_OF_YEAR, 1)
-            calendar.set(java.util.Calendar.HOUR_OF_DAY, 1)
-            calendar.set(java.util.Calendar.MINUTE, 0)
-            calendar.set(java.util.Calendar.SECOND, 0)
-            calendar.set(java.util.Calendar.MILLISECOND, 0)
+            now.plusDays(1).withHour(1).withMinute(0).withSecond(0).withNano(0)
         } else {
             // Evening Part 2 (hour 0) -> Next is 01:00 Today
-            calendar.set(java.util.Calendar.HOUR_OF_DAY, 1)
-            calendar.set(java.util.Calendar.MINUTE, 0)
-            calendar.set(java.util.Calendar.SECOND, 0)
-            calendar.set(java.util.Calendar.MILLISECOND, 0)
+            now.withHour(1).withMinute(0).withSecond(0).withNano(0)
         }
         
-        return calendar.timeInMillis
+        return nextWindowStart.toInstant().toEpochMilli()
     }
             
     /**
@@ -900,33 +889,19 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         return try {
             if (fullTimestamp.isEmpty()) return 0
             
-            val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.getDefault())
-            val trainDate = dateFormat.parse(fullTimestamp) ?: return 0
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.getDefault())
+            val trainDateTime = LocalDateTime.parse(fullTimestamp, formatter)
+            val today = LocalDate.now()
             
-            val today = java.util.Calendar.getInstance()
-            val train = java.util.Calendar.getInstance().apply { time = trainDate }
+            val diffDays = ChronoUnit.DAYS.between(today, trainDateTime.toLocalDate()).toInt()
             
-            // Strip time components to compare only dates
-            stripTime(today)
-            stripTime(train)
-            
-            val diffMillis = train.timeInMillis - today.timeInMillis
-            val diffDays = java.util.concurrent.TimeUnit.MILLISECONDS.toDays(diffMillis).toInt()
-            
-            Log.d(getLogTag(), "Date check - Today: ${today.time}, Train: ${train.time}, Days away: $diffDays")
+            Log.d(getLogTag(), "Date check - Today: $today, Train: ${trainDateTime.toLocalDate()}, Days away: $diffDays")
             
             return diffDays
         } catch (e: Exception) {
             Log.e(getLogTag(), "Error parsing train timestamp: $fullTimestamp", e)
             0
         }
-    }
-    
-    private fun stripTime(calendar: java.util.Calendar) {
-        calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
-        calendar.set(java.util.Calendar.MINUTE, 0)
-        calendar.set(java.util.Calendar.SECOND, 0)
-        calendar.set(java.util.Calendar.MILLISECOND, 0)
     }
     
     /**
