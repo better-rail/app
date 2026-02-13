@@ -868,9 +868,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
     private fun calculateNextWindowStart(): Long {
         val calendar = java.util.Calendar.getInstance()
         val hour = calendar.get(java.util.Calendar.HOUR_OF_DAY)
-        
-        // Windows: 01:00-13:00 (Morning), 13:00-01:00 (Evening)
-        
+                
         if (hour in 1..12) {
             // Morning -> Next is 13:00 Today
             calendar.set(java.util.Calendar.HOUR_OF_DAY, 13)
