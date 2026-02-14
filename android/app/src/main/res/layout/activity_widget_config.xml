@@ -104,14 +104,20 @@
             android:textStyle="bold"
             android:textColor="@color/label" />
 
-        <TextView
-            android:id="@+id/advanced_chevron"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="›"
-            android:textSize="24sp"
-            android:textColor="@color/secondaryLabel"
-            android:rotation="0" />
+        <FrameLayout
+            android:layout_width="32dp"
+            android:layout_height="32dp">
+            
+            <TextView
+                android:id="@+id/advanced_chevron"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="›"
+                android:textSize="24sp"
+                android:textColor="@color/secondaryLabel"
+                android:rotation="0" />
+        </FrameLayout>
 
     </LinearLayout>
 
@@ -133,6 +139,25 @@
             android:textColor="@color/label"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp" />
+
+        <!-- Auto-Reverse Route Option -->
+        <CheckBox
+            android:id="@+id/auto_reverse_route_checkbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/widget_auto_reverse_route"
+            android:textSize="16sp"
+            android:textColor="@color/label"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/widget_auto_reverse_description"
+            android:textSize="14sp"
+            android:textColor="@color/secondaryLabel"
+            android:layout_marginStart="32dp"
+            android:layout_marginBottom="16dp" />
 
         <!-- Maximum Changes Filter -->
         <TextView

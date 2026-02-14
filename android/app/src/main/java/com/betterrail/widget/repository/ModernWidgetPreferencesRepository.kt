@@ -36,6 +36,8 @@ class ModernWidgetPreferencesRepository @Inject constructor(
         private fun destinationNameKey(widgetId: Int) = stringPreferencesKey("destination_name_$widgetId")
         private fun labelKey(widgetId: Int) = stringPreferencesKey("label_$widgetId")
         private fun allowRouteReversalKey(widgetId: Int) = booleanPreferencesKey("allow_route_reversal_$widgetId")
+        private fun autoReverseRouteKey(widgetId: Int) = booleanPreferencesKey("auto_reverse_route_$widgetId")
+        private fun manualOverrideUntilKey(widgetId: Int) = longPreferencesKey("manual_override_until_$widgetId")
         private fun maxChangesKey(widgetId: Int) = intPreferencesKey("max_changes_$widgetId")
     }
 
@@ -66,6 +68,8 @@ class ModernWidgetPreferencesRepository @Inject constructor(
                             destinationName = preferences[destinationNameKey(widgetId)] ?: "",
                             label = preferences[labelKey(widgetId)] ?: "",
                             allowRouteReversal = preferences[allowRouteReversalKey(widgetId)] ?: false,
+                            autoReverseRoute = preferences[autoReverseRouteKey(widgetId)] ?: false,
+                            manualOverrideUntil = preferences[manualOverrideUntilKey(widgetId)] ?: 0,
                             maxChanges = preferences[maxChangesKey(widgetId)] // null = no limit
                         )
                     }
@@ -102,6 +106,8 @@ class ModernWidgetPreferencesRepository @Inject constructor(
                 preferences[destinationNameKey(widgetId)] = widgetData.destinationName
                 preferences[labelKey(widgetId)] = widgetData.label
                 preferences[allowRouteReversalKey(widgetId)] = widgetData.allowRouteReversal
+                preferences[autoReverseRouteKey(widgetId)] = widgetData.autoReverseRoute
+                preferences[manualOverrideUntilKey(widgetId)] = widgetData.manualOverrideUntil
 
                 // Store maxChanges, or remove if null (no limit)
                 if (widgetData.maxChanges != null) {
@@ -132,6 +138,8 @@ class ModernWidgetPreferencesRepository @Inject constructor(
                 preferences.remove(destinationNameKey(widgetId))
                 preferences.remove(labelKey(widgetId))
                 preferences.remove(allowRouteReversalKey(widgetId))
+                preferences.remove(autoReverseRouteKey(widgetId))
+                preferences.remove(manualOverrideUntilKey(widgetId))
                 preferences.remove(maxChangesKey(widgetId))
             }
             
@@ -188,6 +196,8 @@ class ModernWidgetPreferencesRepository @Inject constructor(
                                 destinationName = preferences[destinationNameKey(widgetId)] ?: "",
                                 label = preferences[labelKey(widgetId)] ?: "",
                                 allowRouteReversal = preferences[allowRouteReversalKey(widgetId)] ?: false,
+                                autoReverseRoute = preferences[autoReverseRouteKey(widgetId)] ?: false,
+                                manualOverrideUntil = preferences[manualOverrideUntilKey(widgetId)] ?: 0,
                                 maxChanges = preferences[maxChangesKey(widgetId)]
                             )
                             widgetId to widgetData
@@ -222,6 +232,8 @@ class ModernWidgetPreferencesRepository @Inject constructor(
                         preferences.remove(destinationNameKey(storedId))
                         preferences.remove(labelKey(storedId))
                         preferences.remove(allowRouteReversalKey(storedId))
+                        preferences.remove(autoReverseRouteKey(storedId))
+                        preferences.remove(manualOverrideUntilKey(storedId))
                         preferences.remove(maxChangesKey(storedId))
                     }
                 }
