@@ -14,6 +14,7 @@ import {
   StationHoursScreen,
   FilterScreen,
 } from "../screens"
+import { LivePermissionsScreen } from "../screens/route-details/components/live-permissions-screen"
 import { color, typography } from "../theme"
 import type { RouteItem } from "../services/api"
 import { Platform } from "react-native"
@@ -38,6 +39,7 @@ export type PrimaryParamList = {
   routeDetails: { routeItem: RouteItem; originId: string; destinationId: string }
   stationHours: { stationId: string }
   slowTrainsFilter: undefined
+  livePermissions: { routeItem: RouteItem }
   settings: undefined
 }
 
@@ -99,6 +101,17 @@ export function MainNavigator() {
       <Stack.Screen
         name="slowTrainsFilter"
         component={FilterScreen}
+        options={{
+          presentation: "formSheet",
+          headerShown: false,
+          sheetAllowedDetents: "fitToContents",
+          contentStyle: { backgroundColor: isLiquidGlassSupported ? "transparent" : color.background },
+          sheetGrabberVisible: true,
+        }}
+      />
+      <Stack.Screen
+        name="livePermissions"
+        component={LivePermissionsScreen}
         options={{
           presentation: "formSheet",
           headerShown: false,
