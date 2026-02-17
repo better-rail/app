@@ -2,7 +2,7 @@
     <string name="app_name">Better Rail</string>
     
     <!-- Widget strings -->
-    <string name="widget_configure_title">Configure Train Widget</string>
+    <string name="widget_configure_title">Widget Settings</string>
     <string name="widget_configure_description">Select your route to display train schedules on your home screen</string>
     <string name="widget_from_label">From Station</string>
     <string name="widget_to_label">To Station</string>
@@ -10,19 +10,21 @@
     <string name="widget_cancel">Cancel</string>
     <string name="widget_add">Add Widget</string>
     <string name="widget_edit">Edit Widget</string>
-    <string name="widget_2x2_description">Compact 2x2 train widget</string>
-    <string name="widget_4x2_description">Compact 4x2 train schedule</string>
+    <string name="widget_2x2_description">Single Departure Time</string>
+    <string name="widget_4x2_description">Multi-Train Schedule</string>
     <string name="select_station">Select Station</string>
     <string name="search_origin_hint">Search origin station...</string>
     <string name="search_destination_hint">Search destination station...</string>
     <string name="widget_advanced_label">Advanced</string>
-    <string name="widget_allow_route_reversal">Allow tapping station names to switch direction</string>
+    <string name="widget_allow_route_reversal">Allow tapping station names to swap direction</string>
     <string name="widget_max_changes_label">Train Exchanges</string>
     <string-array name="max_changes_options">
         <item>No limit</item>
         <item>Direct trains only</item>
         <item>Up to 1 change</item>
     </string-array>
+    <string name="widget_auto_reverse_route">Morning/evening auto-reverse</string>
+    <string name="widget_auto_reverse_description">Automatically reverses your route in the evening and back in the morning</string>
 
     <!-- Widget display strings -->
     <string name="tap_to_configure">Tap to configure</string>
