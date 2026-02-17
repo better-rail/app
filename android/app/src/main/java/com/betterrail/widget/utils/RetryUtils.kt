@@ -7,7 +7,7 @@ import kotlinx.coroutines.delay
  * Utilities for retry logic with proper cancellation handling
  */
 object RetryUtils {
-    val DEFAULT_RETRY_DELAYS = listOf(1000L, 2000L, 4000L)
+    val DEFAULT_RETRY_DELAYS = listOf(2000L, 5000L, 10000L)
     private const val DEFAULT_MAX_RETRIES = 3
 
     /**

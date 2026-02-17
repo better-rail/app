@@ -249,8 +249,8 @@
     "alarmDisabledMessage": "To notify you when to get off the train more accurately, please open your device settings and enable alarm notifications.",
     "connectionIssues": "Connection issues",
     "error": "An error occurred while starting the ride - please try to start a new ride.",
-    "notificationPermission1": "To receive real-time updates on the train's progress, please grant permission for us to send you notifications.",
-    "notificationPermission2": "Our notification system is designed for efficiency, and we avoid sending unnecessary alerts.",
+    "notificationPermission1": "To receive real-time updates on your train's progress, please allow us to send you notifications.",
+    "notificationPermission2": "We only send relevant alerts and avoid unnecessary notifications.",
     "notificationPermission3": "Notifications",
     "notificationPermission4": "Exact Notifications"
   },

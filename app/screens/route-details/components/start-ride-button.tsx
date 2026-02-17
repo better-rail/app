@@ -1,5 +1,6 @@
 import { Alert, Dimensions, Image, ImageStyle, Linking, Platform, View, ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { useNavigation } from "@react-navigation/native"
 import HapticFeedback from "react-native-haptic-feedback"
 import { Button } from "../../../components"
 import { isRTL, translate, userLocale } from "../../../i18n"
@@ -12,6 +13,8 @@ import { useRideStore } from "../../../models"
 import { AndroidNotificationSetting, AuthorizationStatus } from "@notifee/react-native"
 import InAppReview from "react-native-in-app-review"
 import { trackEvent } from "../../../services/analytics"
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
+import type { PrimaryParamList } from "../../../navigators/main-navigator"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -33,10 +36,10 @@ const TRAIN_ICON: ImageStyle = {
 interface StartRideButtonProps {
   route: RouteItem
   screenName: "routeDetails" | "activeRide"
-  openPermissionsSheet?: () => Promise<unknown>
 }
 
 export function StartRideButton(props: StartRideButtonProps) {
+  const navigation = useNavigation<NativeStackNavigationProp<PrimaryParamList>>()
   const ride = useRideStore(
     useShallow((s) => ({
       id: s.id,
@@ -152,7 +155,7 @@ export function StartRideButton(props: StartRideButtonProps) {
                 },
               ])
             } else {
-              props.openPermissionsSheet().then(startRide)
+              navigation.navigate("livePermissions", { routeItem: route })
             }
           } else {
             let message = ""

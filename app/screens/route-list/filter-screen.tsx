@@ -1,4 +1,4 @@
-import { View, ViewStyle, TextStyle } from "react-native"
+import { View, ViewStyle, TextStyle, Platform } from "react-native"
 import { Text } from "../../components"
 import { color, spacing } from "../../theme"
 import { useShallow } from "zustand/react/shallow"
@@ -10,7 +10,7 @@ import { translate } from "../../i18n"
 const WRAPPER: ViewStyle = {
   paddingTop: spacing[5],
   paddingHorizontal: spacing[4],
-  minHeight: 180,
+  minHeight: Platform.OS === "ios" ? 180 : 225,
 }
 
 const TITLE: TextStyle = {
@@ -29,7 +29,7 @@ const DESCRIPTION: TextStyle = {
 
 export function FilterScreen() {
   const { hideSlowTrains, setHideSlowTrains } = useSettingsStore(
-    useShallow((s) => ({ hideSlowTrains: s.hideSlowTrains, setHideSlowTrains: s.setHideSlowTrains }))
+    useShallow((s) => ({ hideSlowTrains: s.hideSlowTrains, setHideSlowTrains: s.setHideSlowTrains })),
   )
 
   const onToggle = (value: boolean) => {

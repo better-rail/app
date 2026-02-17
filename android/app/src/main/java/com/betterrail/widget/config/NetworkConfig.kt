@@ -22,9 +22,9 @@ class NetworkConfig @Inject constructor(
 ) {
     companion object {
         // Default timeout values (in seconds)
-        private const val DEFAULT_CONNECT_TIMEOUT_SECONDS = 10L
-        private const val DEFAULT_READ_TIMEOUT_SECONDS = 10L
-        private const val DEFAULT_WRITE_TIMEOUT_SECONDS = 10L
+        private const val DEFAULT_CONNECT_TIMEOUT_SECONDS = 30L
+        private const val DEFAULT_READ_TIMEOUT_SECONDS = 30L
+        private const val DEFAULT_WRITE_TIMEOUT_SECONDS = 30L
         private const val DEFAULT_CONNECTION_POOL_SIZE = 5
         private const val DEFAULT_CONNECTION_KEEP_ALIVE_MINUTES = 2L
         
