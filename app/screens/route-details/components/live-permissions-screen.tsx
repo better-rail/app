@@ -1,4 +1,4 @@
-import { Image, PermissionsAndroid, View, type TextStyle, type ViewStyle } from "react-native"
+import { Alert, Image, PermissionsAndroid, View, type TextStyle, type ViewStyle } from "react-native"
 import { Button, Text } from "../../../components"
 import { color, spacing } from "../../../theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
@@ -27,17 +27,27 @@ const TEXT: TextStyle = {
   color: color.text,
 }
 
+const PERMISSION_ROW: ViewStyle = {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+}
+
+const PERMISSION_LABEL: TextStyle = {
+  fontSize: 18,
+  fontWeight: "bold",
+}
+
 type Props = NativeStackScreenProps<PrimaryParamList, "livePermissions">
 
 export function LivePermissionsScreen({ route, navigation }: Props) {
-  const { notifeeSettings, checkLiveRideAuthorization, startRide, stopRide, id: rideId, loading, rideCount } = useRideStore(
+  const { notifeeSettings, checkLiveRideAuthorization, startRide, stopRide, id: rideId, rideCount } = useRideStore(
     useShallow((s) => ({
       notifeeSettings: s.notifeeSettings,
       checkLiveRideAuthorization: s.checkLiveRideAuthorization,
       startRide: s.startRide,
       stopRide: s.stopRide,
       id: s.id,
-      loading: s.loading,
       rideCount: s.rideCount,
     })),
   )
@@ -53,11 +63,7 @@ export function LivePermissionsScreen({ route, navigation }: Props) {
     notifee.openAlarmPermissionSettings()
   }
 
-  const onStartRide = async () => {
-    if (rideId) {
-      await stopRide(rideId)
-    }
-
+  const beginRide = () => {
     HapticFeedback.trigger("notificationSuccess")
     startRide(routeItem)
     trackEvent("start_live_ride")
@@ -71,21 +77,42 @@ export function LivePermissionsScreen({ route, navigation }: Props) {
     navigation.goBack()
   }
 
+  const onStartRide = () => {
+    if (rideId) {
+      Alert.alert(translate("ride.rideExistsTitle"), translate("ride.rideExistsMessage"), [
+        {
+          style: "cancel",
+          text: translate("common.cancel"),
+        },
+        {
+          text: translate("ride.startNewRide"),
+          onPress: async () => {
+            await stopRide(rideId)
+            beginRide()
+          },
+        },
+      ])
+      return
+    }
+
+    beginRide()
+  }
+
   return (
     <View style={WRAPPER}>
       <Text tx="ride.notificationPermission1" style={TEXT} />
       <Text tx="ride.notificationPermission2" style={TEXT} />
 
       <View style={{ width: "100%", gap: 20 }}>
-        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-          <Text style={{ fontSize: 18, fontWeight: "bold" }} tx="ride.notificationPermission3" />
+        <View style={PERMISSION_ROW}>
+          <Text style={PERMISSION_LABEL} tx="ride.notificationPermission3" />
           <PermissionButton
             onPress={grantNotifications}
             permitted={notifeeSettings?.notifications === AuthorizationStatus.AUTHORIZED}
           />
         </View>
-        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-          <Text style={{ fontSize: 18, fontWeight: "bold" }} tx="ride.notificationPermission4" />
+        <View style={PERMISSION_ROW}>
+          <Text style={PERMISSION_LABEL} tx="ride.notificationPermission4" />
           <PermissionButton
             onPress={grantAlarms}
             permitted={notifeeSettings?.alarms === AndroidNotificationSetting.ENABLED}

@@ -52,6 +52,14 @@ export type StationHoursScreenProps = NativeStackScreenProps<PrimaryParamList, "
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
 const Stack = createNativeStackNavigator<PrimaryParamList>()
 
+const formSheetOptions = {
+  presentation: "formSheet" as const,
+  headerShown: false,
+  sheetAllowedDetents: "fitToContents" as const,
+  contentStyle: { backgroundColor: isLiquidGlassSupported ? "transparent" : color.background },
+  sheetGrabberVisible: true,
+}
+
 export function MainNavigator() {
   return (
     <Stack.Navigator
@@ -87,39 +95,9 @@ export function MainNavigator() {
         component={RouteDetailsScreen}
         options={{ headerTransparent: true, headerTintColor: "lightgrey" }}
       />
-      <Stack.Screen
-        name="stationHours"
-        component={StationHoursScreen}
-        options={{
-          presentation: "formSheet",
-          headerShown: false,
-          sheetAllowedDetents: "fitToContents",
-          contentStyle: { backgroundColor: isLiquidGlassSupported ? "transparent" : color.background },
-          sheetGrabberVisible: true,
-        }}
-      />
-      <Stack.Screen
-        name="slowTrainsFilter"
-        component={FilterScreen}
-        options={{
-          presentation: "formSheet",
-          headerShown: false,
-          sheetAllowedDetents: "fitToContents",
-          contentStyle: { backgroundColor: isLiquidGlassSupported ? "transparent" : color.background },
-          sheetGrabberVisible: true,
-        }}
-      />
-      <Stack.Screen
-        name="livePermissions"
-        component={LivePermissionsScreen}
-        options={{
-          presentation: "formSheet",
-          headerShown: false,
-          sheetAllowedDetents: "fitToContents",
-          contentStyle: { backgroundColor: isLiquidGlassSupported ? "transparent" : color.background },
-          sheetGrabberVisible: true,
-        }}
-      />
+      <Stack.Screen name="stationHours" component={StationHoursScreen} options={formSheetOptions} />
+      <Stack.Screen name="slowTrainsFilter" component={FilterScreen} options={formSheetOptions} />
+      <Stack.Screen name="livePermissions" component={LivePermissionsScreen} options={formSheetOptions} />
     </Stack.Navigator>
   )
 }
