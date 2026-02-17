@@ -25,7 +25,7 @@
         <item>החלפה אחת לכל היותר</item>
     </string-array>
     <string name="widget_auto_reverse_route">היפוך מסלול בוקר/ערב</string>
-    <string name="widget_auto_reverse_description">בצע החלפה אוטומטית של כיוון הנסיעה בהתאם לשעות בוקר וערב</string>
+    <string name="widget_auto_reverse_description">הכיוון מתהפך אוטומטית בהתאם לשעות בוקר וערב</string>
   
     <!-- Widget display strings -->
     <string name="tap_to_configure">הקש כדי להגדיר</string>
