@@ -1,4 +1,4 @@
-import { Alert, Image, PermissionsAndroid, View, type TextStyle, type ViewStyle } from "react-native"
+import { Alert, Image, PermissionsAndroid, Platform, View, type TextStyle, type ViewStyle } from "react-native"
 import { Button, Text } from "../../../components"
 import { color, spacing } from "../../../theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
@@ -13,6 +13,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack"
 import type { PrimaryParamList } from "../../../navigators/main-navigator"
 
 const WRAPPER: ViewStyle = {
+  minHeight: 420,
   paddingHorizontal: spacing[4],
   paddingTop: spacing[5],
   alignItems: "center",
@@ -41,7 +42,14 @@ const PERMISSION_LABEL: TextStyle = {
 type Props = NativeStackScreenProps<PrimaryParamList, "livePermissions">
 
 export function LivePermissionsScreen({ route, navigation }: Props) {
-  const { notifeeSettings, checkLiveRideAuthorization, startRide, stopRide, id: rideId, rideCount } = useRideStore(
+  const {
+    notifeeSettings,
+    checkLiveRideAuthorization,
+    startRide,
+    stopRide,
+    id: rideId,
+    rideCount,
+  } = useRideStore(
     useShallow((s) => ({
       notifeeSettings: s.notifeeSettings,
       checkLiveRideAuthorization: s.checkLiveRideAuthorization,
@@ -113,16 +121,13 @@ export function LivePermissionsScreen({ route, navigation }: Props) {
         </View>
         <View style={PERMISSION_ROW}>
           <Text style={PERMISSION_LABEL} tx="ride.notificationPermission4" />
-          <PermissionButton
-            onPress={grantAlarms}
-            permitted={notifeeSettings?.alarms === AndroidNotificationSetting.ENABLED}
-          />
+          <PermissionButton onPress={grantAlarms} permitted={notifeeSettings?.alarms === AndroidNotificationSetting.ENABLED} />
         </View>
       </View>
       <Button
         onPress={onStartRide}
         title={translate("liveAnnounce.startRide.title")}
-        containerStyle={{ width: "100%" }}
+        containerStyle={{ width: "100%", height: 60, flex: 0 }}
         disabled={
           notifeeSettings?.notifications !== AuthorizationStatus.AUTHORIZED ||
           notifeeSettings?.alarms !== AndroidNotificationSetting.ENABLED

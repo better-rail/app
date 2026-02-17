@@ -5,7 +5,11 @@
  * You'll likely spend most of your time in this file.
  */
 import React from "react"
-import { createNativeStackNavigator, type NativeStackScreenProps } from "@react-navigation/native-stack"
+import {
+  createNativeStackNavigator,
+  NativeStackNavigationOptions,
+  type NativeStackScreenProps,
+} from "@react-navigation/native-stack"
 import {
   PlannerScreen,
   SelectStationScreen,
@@ -52,10 +56,10 @@ export type StationHoursScreenProps = NativeStackScreenProps<PrimaryParamList, "
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
 const Stack = createNativeStackNavigator<PrimaryParamList>()
 
-const formSheetOptions = {
-  presentation: "formSheet" as const,
+const formSheetOptions: NativeStackNavigationOptions = {
+  presentation: "formSheet",
   headerShown: false,
-  sheetAllowedDetents: "fitToContents" as const,
+  sheetAllowedDetents: "fitToContents",
   contentStyle: { backgroundColor: isLiquidGlassSupported ? "transparent" : color.background },
   sheetGrabberVisible: true,
 }
