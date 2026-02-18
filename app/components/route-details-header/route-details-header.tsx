@@ -211,6 +211,23 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
         },
       ]
 
+      if (isLiquidGlassSupported) {
+        return (
+          <ContextMenu
+            dropdownMenuMode
+            actions={actions}
+            onPress={(event) => {
+              const action = actions[event.nativeEvent.index]
+              action?.onPress?.()
+            }}
+          >
+            <LiquidGlassView interactive colorScheme="dark" style={{ padding: 12, borderRadius: 50 }}>
+              <MenuIcon />
+            </LiquidGlassView>
+          </ContextMenu>
+        )
+      }
+
       return (
         <ContextMenu
           dropdownMenuMode
@@ -220,9 +237,16 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
             action?.onPress?.()
           }}
         >
-          <LiquidGlassView interactive colorScheme="dark" style={{ padding: isLiquidGlassSupported ? 12 : 10, borderRadius: 50 }}>
-            <MenuIcon />
-          </LiquidGlassView>
+          <Image
+            source={ellipsisIcon}
+            style={{
+              width: 23,
+              height: 23,
+              resizeMode: "contain",
+              tintColor: "lightgrey",
+              opacity: 0.9,
+            }}
+          />
         </ContextMenu>
       )
     }
