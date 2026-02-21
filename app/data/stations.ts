@@ -7,6 +7,8 @@ type Station = {
   english: string
   russian: string
   arabic: string
+  lat: number
+  lon: number
   image?: any
   blurhash?: string
   alias?: string[]
@@ -27,6 +29,8 @@ const stations: Station[] = [
     english: "Tel Aviv - Savidor Center",
     russian: "Тель-Авив - Мерказ - Центральная",
     arabic: "تل ابيب – ساڤيدور المركز",
+    lat: 32.083715,
+    lon: 34.798247,
     image: require("../../assets/station-images/tlv-center.jpg"),
   },
   {
@@ -35,6 +39,8 @@ const stations: Station[] = [
     english: "Herzliya",
     russian: "Герцлия",
     arabic: "هرتسليا",
+    lat: 32.163558,
+    lon: 34.817406,
     image: require("../../assets/station-images/herzeliya.jpeg"),
   },
   {
@@ -43,6 +49,8 @@ const stations: Station[] = [
     english: "Bet Yehoshu'a",
     russian: "Бейт-Иегошуа ",
     arabic: "بيت يهوشوع",
+    lat: 32.262346,
+    lon: 34.860112,
     image: require("../../assets/station-images/bet-yehoshua.jpeg"),
   },
   {
@@ -51,6 +59,8 @@ const stations: Station[] = [
     english: "Netanya",
     russian: "Нетания",
     arabic: "نتانيا",
+    lat: 32.319915,
+    lon: 34.869257,
     image: require("../../assets/station-images/netanya.jpg"),
   },
   {
@@ -59,6 +69,8 @@ const stations: Station[] = [
     english: "Hadera - West",
     russian: "Хадера - Маарав",
     arabic: "الخضيرة - غرب  ",
+    lat: 32.438199,
+    lon: 34.899321,
     image: require("../../assets/station-images/hadera-west.jpg"),
   },
   {
@@ -67,6 +79,8 @@ const stations: Station[] = [
     english: "Binyamina",
     russian: "Биньямина",
     arabic: "بنيامينا",
+    lat: 32.514386,
+    lon: 34.949573,
     image: require("../../assets/station-images/binyamina.jpg"),
   },
   {
@@ -75,6 +89,8 @@ const stations: Station[] = [
     english: "Caesarea-Pardes Hana",
     russian: "Кейсария - Пардес-Хана",
     arabic: "قيساريا - بارديس حنا",
+    lat: 32.485187,
+    lon: 34.954099,
     image: require("../../assets/station-images/caesarea.jpg"),
   },
   {
@@ -83,6 +99,8 @@ const stations: Station[] = [
     english: "Atlit",
     russian: "Атлит",
     arabic: "عتليت",
+    lat: 32.692924,
+    lon: 34.940314,
     image: require("../../assets/station-images/atlit.jpeg"),
   },
   {
@@ -91,6 +109,8 @@ const stations: Station[] = [
     english: "Haifa - Bat Galim",
     russian: "Хайфа - Бат-Галим",
     arabic: "حيفا - بات چاليم",
+    lat: 32.830498,
+    lon: 34.981888,
     image: require("../../assets/station-images/bat-galim.jpg"),
   },
   {
@@ -99,6 +119,8 @@ const stations: Station[] = [
     english: "Hutzot HaMifratz",
     russian: "Хоцот ха-Мифрац ",
     arabic: "حوتسوت همفراتس",
+    lat: 32.809527,
+    lon: 35.054514,
     image: require("../../assets/station-images/hotzot-hamifratz.jpeg"),
   },
   {
@@ -107,6 +129,8 @@ const stations: Station[] = [
     english: "Kiryat Hayim",
     russian: "Кирьят-Хаим",
     arabic: "كريات حاييم",
+    lat: 32.824918,
+    lon: 35.06429,
     image: require("../../assets/station-images/kiryat-haim.jpg"),
   },
   {
@@ -115,6 +139,8 @@ const stations: Station[] = [
     english: "Kiryat Motzkin",
     russian: "Кирьят-Моцкин",
     arabic: "كريات موتسكين",
+    lat: 32.833133,
+    lon: 35.07003,
     image: require("../../assets/station-images/kiryat-motzkin.jpeg"),
   },
   {
@@ -123,6 +149,8 @@ const stations: Station[] = [
     english: "Ako",
     russian: "Акко ",
     arabic: "عكا",
+    lat: 32.928339,
+    lon: 35.082984,
     image: require("../../assets/station-images/ako.jpeg"),
   },
   {
@@ -131,6 +159,8 @@ const stations: Station[] = [
     english: "Haifa - Hof HaKarmel",
     russian: "Хайфа Хоф ха - Кармель",
     arabic: "حيفا - شاطئ الكرمل",
+    lat: 32.7936,
+    lon: 34.957404,
     image: require("../../assets/station-images/hof-hakarmel.jpg"),
   },
   {
@@ -139,6 +169,8 @@ const stations: Station[] = [
     english: "Kfar Sava - Nordau",
     russian: "Кфар-Саба – Нордау",
     arabic: "كفار سابا - نورداو",
+    lat: 32.167369,
+    lon: 34.917428,
     image: require("../../assets/station-images/kfar-saba.jpg"),
   },
   {
@@ -147,6 +179,8 @@ const stations: Station[] = [
     english: "Nahariya",
     russian: "Нагария",
     arabic: "نهاريا",
+    lat: 33.005075,
+    lon: 35.09871,
     image: require("../../assets/station-images/nahariya.jpg"),
   },
   {
@@ -155,6 +189,8 @@ const stations: Station[] = [
     english: "Bet Shemesh",
     russian: "Бейт Шемеш",
     arabic: "بيت شيمش",
+    lat: 31.757821,
+    lon: 34.989515,
     image: require("../../assets/station-images/beit-shemesh.jpg"),
   },
   {
@@ -163,6 +199,8 @@ const stations: Station[] = [
     english: "Kiryat Gat",
     russian: "Кирьят-Гат ",
     arabic: "كريات چات",
+    lat: 31.603526,
+    lon: 34.777955,
     image: require("../../assets/station-images/kiryat-gat.jpg"),
   },
   {
@@ -171,6 +209,8 @@ const stations: Station[] = [
     english: "Lod",
     russian: "Лод",
     arabic: "اللد",
+    lat: 31.947694,
+    lon: 34.879159,
     image: require("../../assets/station-images/lod.jpg"),
   },
   {
@@ -179,6 +219,8 @@ const stations: Station[] = [
     english: "Be'er Sheva - North/University",
     russian: "Беер - Шева Цафон",
     arabic: "بئر السبع - شمال/الجامعة",
+    lat: 31.262089,
+    lon: 34.809287,
     image: require("../../assets/station-images/beer-sheva-university.jpg"),
   },
   {
@@ -187,6 +229,8 @@ const stations: Station[] = [
     english: "Kfar Habad",
     russian: "Кфар ХАБАД",
     arabic: "كفار حباد",
+    lat: 31.993188,
+    lon: 34.85303,
     image: require("../../assets/station-images/kfar-habad.jpg"),
   },
   {
@@ -195,6 +239,8 @@ const stations: Station[] = [
     english: "Tel Aviv - HaShalom",
     russian: "Тель-Авив - ха-Шалом",
     arabic: "تل أبيب - السلام",
+    lat: 32.073346,
+    lon: 34.793256,
     image: require("../../assets/station-images/tlv-hashalom.jpg"),
   },
   {
@@ -203,6 +249,8 @@ const stations: Station[] = [
     english: "Haifa Center - HaShmona",
     russian: "Хайфа - Мерказ - Центральная",
     arabic: "حيفا المركز - هشمونا",
+    lat: 32.822306,
+    lon: 34.997177,
     image: require("../../assets/station-images/hashmona.jpg"),
   },
   {
@@ -211,6 +259,8 @@ const stations: Station[] = [
     english: "Ramla",
     russian: "Рамле",
     arabic: "الرملة",
+    lat: 31.928809,
+    lon: 34.877304,
     image: require("../../assets/station-images/ramla.jpg"),
   },
   {
@@ -219,6 +269,8 @@ const stations: Station[] = [
     english: "Rosh Ha'Ayin - North",
     russian: "Рош ха - Айн Цафон",
     arabic: "روش هعاين - شمال",
+    lat: 32.120865,
+    lon: 34.934527,
     image: require("../../assets/station-images/rosh-haayin.jpg"),
   },
   {
@@ -227,6 +279,8 @@ const stations: Station[] = [
     english: "Be'er Ya'akov",
     russian: "Беер-Яаков",
     arabic: "بئير يعكوف",
+    lat: 31.932781,
+    lon: 34.828591,
     image: require("../../assets/station-images/beer-yaakov.jpg"),
   },
   {
@@ -235,6 +289,8 @@ const stations: Station[] = [
     english: "Rehovot",
     russian: "Реховот",
     arabic: "رحوڤوت",
+    lat: 31.908691,
+    lon: 34.806351,
     image: require("../../assets/station-images/rehovot.jpg"),
   },
   {
@@ -243,6 +299,8 @@ const stations: Station[] = [
     english: "Yavne - East",
     russian: "Явне - Восток",
     arabic: "ياڤنه - شرق",
+    lat: 31.861702,
+    lon: 34.744295,
     image: require("../../assets/station-images/yavne-east.jpg"),
   },
   {
@@ -251,6 +309,8 @@ const stations: Station[] = [
     english: "Rishon LeTsiyon - HaRishonim",
     russian: "Ришон ле-Цион - Ха-Ришоним ",
     arabic: "ريشون لتسيون - هريشونيم",
+    lat: 31.948927,
+    lon: 34.802622,
   },
   {
     id: "5800",
@@ -258,6 +318,8 @@ const stations: Station[] = [
     english: "Ashdod - Ad Halom",
     russian: "Ашдод - ад-Халом",
     arabic: "أشدود - عاد هلوم",
+    lat: 31.774061,
+    lon: 34.666059,
     image: require("../../assets/station-images/ashdod.jpg"),
   },
   {
@@ -266,6 +328,8 @@ const stations: Station[] = [
     english: "Petah Tikva - Segula",
     russian: "Петах-Тиква - Сгула",
     arabic: "بيتح تكڤا - سچوله",
+    lat: 32.111918,
+    lon: 34.901335,
     image: require("../../assets/station-images/petah-tikva-segula.jpeg"),
   },
   {
@@ -274,6 +338,8 @@ const stations: Station[] = [
     english: "Bnei Brak",
     russian: "Бней-Брак",
     arabic: "بني براك",
+    lat: 32.102938,
+    lon: 34.830131,
     image: require("../../assets/station-images/bnei-brak.jpg"),
   },
   {
@@ -282,6 +348,8 @@ const stations: Station[] = [
     english: "Tel Aviv - University",
     russian: "Тель-Авив - Университет",
     arabic: "تل أبيب - الجامعة",
+    lat: 32.103516,
+    lon: 34.804499,
     image: require("../../assets/station-images/tlv-university.jpg"),
   },
   {
@@ -290,6 +358,8 @@ const stations: Station[] = [
     english: "Be'er Sheva - Center",
     russian: "Беер - Шева Мерказ",
     arabic: "بئر السبع - المركز",
+    lat: 31.242886,
+    lon: 34.798546,
     image: require("../../assets/station-images/beer-sheva-center.jpg"),
   },
   {
@@ -298,6 +368,8 @@ const stations: Station[] = [
     english: "HaMifrats Central Station",
     russian: "Центральная станция Ха-Мифрац",
     arabic: "همفراتس المركزية",
+    lat: 32.792942,
+    lon: 35.032964,
     image: require("../../assets/station-images/hamifrats.jpg"),
   },
   {
@@ -306,6 +378,8 @@ const stations: Station[] = [
     english: "Tel Aviv - HaHagana",
     russian: "Тель-Авив - ха-Хагана ",
     arabic: "تل أبيب - ههچناه",
+    lat: 32.053978,
+    lon: 34.784839,
     image: require("../../assets/station-images/tlv-hagana.jpg"),
   },
   {
@@ -314,6 +388,8 @@ const stations: Station[] = [
     english: "Ben Gurion Airport",
     russian: "Бен-Гурион Аэропорт",
     arabic: "مطار بن چوريون",
+    lat: 32.00036,
+    lon: 34.870481,
     image: require("../../assets/station-images/ben-gurion.jpg"),
     alias: ["נתבג"],
   },
@@ -331,6 +407,8 @@ const stations: Station[] = [
     english: "Ashkelon",
     russian: "Ашкелон ",
     arabic: "أشكلون",
+    lat: 31.676856,
+    lon: 34.604447,
     image: require("../../assets/station-images/ashkelon.jpg"),
   },
   {
@@ -339,6 +417,8 @@ const stations: Station[] = [
     english: "Dimona",
     russian: "Димона",
     arabic: "ديمونا",
+    lat: 31.068597,
+    lon: 35.01171,
     image: require("../../assets/station-images/dimona.jpg"),
   },
   {
@@ -347,6 +427,8 @@ const stations: Station[] = [
     english: "Hod HaSharon - Sokolov",
     russian: "Ход Хашарон - Соколов",
     arabic: "هود هشارون - سوكولوڤ",
+    lat: 32.170213,
+    lon: 34.901609,
     image: require("../../assets/station-images/hod-hasharon-sokolov.jpg"),
   },
   {
@@ -355,6 +437,8 @@ const stations: Station[] = [
     english: "Petah Tikva - Kiryat Arye",
     russian: "Петах Тиква – Кирьят Арье",
     arabic: "بيتح تكڤا - كريات أريه",
+    lat: 32.106273,
+    lon: 34.863205,
     image: require("../../assets/station-images/kiryat-arye.jpg"),
   },
   {
@@ -363,6 +447,8 @@ const stations: Station[] = [
     english: "Lod - Gane Aviv",
     russian: "Лод - Ганей Авив",
     arabic: "اللد - چاني أڤيڤ",
+    lat: 31.966977,
+    lon: 34.87879,
     image: require("../../assets/station-images/lod-gane-aviv.jpg"),
   },
   {
@@ -371,6 +457,8 @@ const stations: Station[] = [
     english: "Lehavim - Rahat",
     russian: "Леавим - Рахат",
     arabic: "لهاڤيم - رهط",
+    lat: 31.369907,
+    lon: 34.79804,
     image: require("../../assets/station-images/lehavim.jpg"),
   },
   {
@@ -379,6 +467,8 @@ const stations: Station[] = [
     english: "Pa'ate Modi'in",
     russian: "Патей Модиин",
     arabic: "بأتي موديعين",
+    lat: 31.893133,
+    lon: 34.960682,
     image: require("../../assets/station-images/paate-modiin.jpg"),
   },
   {
@@ -387,6 +477,8 @@ const stations: Station[] = [
     english: "Modi'in - Center",
     russian: "Модиин центр ",
     arabic: "موديعين - المركز",
+    lat: 31.901238,
+    lon: 35.005712,
     image: require("../../assets/station-images/modiin-center.jpg"),
   },
   {
@@ -395,6 +487,8 @@ const stations: Station[] = [
     english: "Holon Junction",
     russian: "Холон - Развязка Холон",
     arabic: "مفترق حولون",
+    lat: 32.037036,
+    lon: 34.776461,
     image: require("../../assets/station-images/holon-junction.jpeg"),
   },
   {
@@ -403,6 +497,8 @@ const stations: Station[] = [
     english: "Holon - Wolfson",
     russian: "Холон - Вольфсон",
     arabic: "حولون - ڤولفسون",
+    lat: 32.035462,
+    lon: 34.759782,
     image: require("../../assets/station-images/holon-wolfson.jpg"),
   },
   {
@@ -411,6 +507,8 @@ const stations: Station[] = [
     english: "Bat Yam - Yoseftal",
     russian: "Бат Ям - Йосеф Таль",
     arabic: "بات يام - يوسفطال",
+    lat: 32.014588,
+    lon: 34.762082,
     image: require("../../assets/station-images/bat-yam-yoseftal.jpg"),
   },
   {
@@ -419,6 +517,8 @@ const stations: Station[] = [
     english: "Bat Yam - Komemiyut",
     russian: "Бат Ям - Комемуют",
     arabic: "بات يام - كوميميوت",
+    lat: 32.000989,
+    lon: 34.759437,
     image: require("../../assets/station-images/bat-yam-komemiyut.jpg"),
   },
   {
@@ -427,6 +527,8 @@ const stations: Station[] = [
     english: "Rishon LeTsiyon - Moshe Dayan",
     russian: "Ришон-Ле-Цион станция им. Моше Даяна",
     arabic: "ريشون لتسيون -موشي ديان",
+    lat: 31.987987,
+    lon: 34.757392,
     image: require("../../assets/station-images/rishon-moshe-dayan.jpg"),
   },
   {
@@ -435,6 +537,8 @@ const stations: Station[] = [
     english: "Yavne - West",
     russian: "Явне-Запад",
     arabic: "ياڤني - غرب",
+    lat: 31.891676,
+    lon: 34.731526,
     image: require("../../assets/station-images/yavne-west.jpg"),
   },
   {
@@ -443,6 +547,8 @@ const stations: Station[] = [
     english: "Sderot",
     russian: "Сдерот",
     arabic: "سديروت",
+    lat: 31.515877,
+    lon: 34.586059,
     image: require("../../assets/station-images/sderot.jpg"),
   },
   {
@@ -451,6 +557,8 @@ const stations: Station[] = [
     english: "Netivot",
     russian: "Нетивот",
     arabic: "نتيفوت",
+    lat: 31.410871,
+    lon: 34.571423,
     image: require("../../assets/station-images/netivot.jpg"),
   },
   {
@@ -459,6 +567,8 @@ const stations: Station[] = [
     english: "Ofakim",
     russian: "Офаким",
     arabic: "أوفاكيم",
+    lat: 31.322628,
+    lon: 34.634078,
     image: require("../../assets/station-images/ofakim.jpg"),
   },
   {
@@ -467,6 +577,8 @@ const stations: Station[] = [
     english: "Netanya - Sapir",
     russian: "Нетания – Сапир",
     arabic: "نتانيا - سبير",
+    lat: 32.278832,
+    lon: 34.865175,
     image: require("../../assets/station-images/netanya-sapir.jpeg"),
   },
   {
@@ -475,6 +587,8 @@ const stations: Station[] = [
     english: "Yokne'am - Kfar Yehoshu'a",
     russian: "Йокнеам – Кфар-Иегошуа",
     arabic: "يوكنعام – كفار يهوشوع",
+    lat: 32.681069,
+    lon: 35.124624,
     image: require("../../assets/station-images/yokneam.jpg"),
   },
   {
@@ -483,6 +597,8 @@ const stations: Station[] = [
     english: "Migdal Ha'emek - Kfar Barukh",
     russian: "Мигдаль-Ха-Эмек – Кфар Барух",
     arabic: "مجدال هعيمك – كفار باروخ",
+    lat: 32.647554,
+    lon: 35.207967,
     image: require("../../assets/station-images/migdal-haeemek.jpg"),
   },
   {
@@ -491,6 +607,8 @@ const stations: Station[] = [
     english: "Afula R.Eitan",
     russian: "Афула Р. Эйтан",
     arabic: "العفولة  ر. ايتان",
+    lat: 32.622003,
+    lon: 35.294721,
     image: require("../../assets/station-images/afula.jpg"),
   },
   {
@@ -499,6 +617,8 @@ const stations: Station[] = [
     english: "Beit She'an",
     russian: "Бейт Шеан",
     arabic: "بيت شآن",
+    lat: 32.514683,
+    lon: 35.488106,
     image: require("../../assets/station-images/beit-shean.jpg"),
   },
   {
@@ -507,6 +627,8 @@ const stations: Station[] = [
     english: "Ahihud",
     russian: "Ахихуд",
     arabic: "احيهود",
+    lat: 32.91159,
+    lon: 35.174068,
     image: require("../../assets/station-images/ahihud.jpeg"),
   },
   {
@@ -515,6 +637,8 @@ const stations: Station[] = [
     english: "Karmiel",
     russian: "Кармиэль",
     arabic: "كرميئيل",
+    lat: 32.924764,
+    lon: 35.294801,
     image: require("../../assets/station-images/karmiel.jpg"),
   },
   {
@@ -523,6 +647,8 @@ const stations: Station[] = [
     english: "Ra'anana West",
     russian: "Раанана-Вест",
     arabic: "رعنانا – غرب",
+    lat: 32.180006,
+    lon: 34.850737,
     image: require("../../assets/station-images/raanana-west.jpeg"),
   },
   {
@@ -531,6 +657,8 @@ const stations: Station[] = [
     english: "Ra'anana South",
     russian: "Раанана Южный",
     arabic: "رعنانا الجنوبية",
+    lat: 32.172568,
+    lon: 34.886294,
     image: require("../../assets/station-images/raanana-south.jpeg"),
   },
   {
@@ -539,6 +667,8 @@ const stations: Station[] = [
     english: "Kiryat Malakhi – Yoav",
     russian: "Кирьят Малахи-Йоав",
     arabic: "كريات ملاخي – يوآڤ",
+    lat: 31.747335,
+    lon: 34.822479,
     image: require("../../assets/station-images/kiryat-malachi.jpg"),
   },
   {
@@ -547,6 +677,8 @@ const stations: Station[] = [
     english: "Jerusalem - Yitzhak Navon",
     russian: "Иерусалим - Ицхак Навон",
     arabic: "أورشليم – يتسحاق ناڤون",
+    lat: 31.788062,
+    lon: 35.202545,
     image: require("../../assets/station-images/jerusalem-itzhak-navon.jpg"),
     blurhash: "9KGSDi?w",
   },
@@ -556,6 +688,8 @@ const stations: Station[] = [
     english: "Mazkeret Batya",
     russian: "Мазкерет Батья",
     arabic: "مزكيرت باتيا",
+    lat: 31.841507,
+    lon: 34.855948,
     image: require("../../assets/station-images/mazkeret-batya.jpg"),
   },
 ]
@@ -567,6 +701,8 @@ type StationsObjectType = {
     english: string
     russian: string
     arabic: string
+    lat: number
+    lon: number
     image?: undefined
     blurhash?: string
   }
