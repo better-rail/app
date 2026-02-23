@@ -80,6 +80,7 @@ export function RouteDetailsScreen({ route, navigation }: RouteDetailsScreenProp
 
   const insets = useSafeAreaInsets()
 
+  const hasWagonData = routeItem.trains[0]?.visaWagonData?.wagons?.length > 0
   const [shouldFadeRideButton, setShouldFadeRideButton] = useState(false)
   const [showEntireRoute, setShowEntireRoute] = useState(false)
 
@@ -309,7 +310,7 @@ export function RouteDetailsScreen({ route, navigation }: RouteDetailsScreenProp
               gap: spacing[3],
             }}
           >
-            {routeItem.trains[0]?.visaWagonData?.wagons?.length > 0 && (
+            {hasWagonData && (
               <Pressable
                 onPress={() => navigation.navigate("routeDetailsTrainInfo", { train: routeItem.trains[0] })}
                 accessibilityLabel={translate("routeDetails.trainInformation")}
