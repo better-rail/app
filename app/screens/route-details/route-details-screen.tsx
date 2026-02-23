@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useMemo, useState } from "react"
-import { Image, Platform, PlatformColor, Pressable, View, type ViewStyle } from "react-native"
+import { Image, Platform, PlatformColor, Pressable, View, type ImageStyle, type ViewStyle } from "react-native"
 import { ScrollView } from "react-native-gesture-handler"
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated"
 import { format } from "date-fns"
@@ -25,7 +25,7 @@ import type { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import { useStations } from "../../data/stations"
 import { calculateDelayedTime } from "../../utils/helpers/date-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { LiquidGlassView } from "@callstack/liquid-glass"
+import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
 import { translate } from "../../i18n"
 
 const ROOT: ViewStyle = {
@@ -40,6 +40,20 @@ const HEADER_CONTAINER: ViewStyle = {
 
 const STATION_CONTAINER: ViewStyle = {
   backgroundColor: color.background,
+}
+
+const INFO_BUTTON: ViewStyle = {
+  padding: Platform.select({ ios: 14, android: 18 }),
+  borderRadius: Platform.select({ ios: 16, android: 6 }),
+  overflow: "hidden",
+  backgroundColor: isLiquidGlassSupported ? undefined : color.tertiaryBackground,
+  elevation: 1,
+}
+
+const INFO_BUTTON_ICON: ImageStyle = {
+  width: 24,
+  height: 24,
+  tintColor: color.text,
 }
 
 export function RouteDetailsScreen({ route, navigation }: RouteDetailsScreenProps) {
@@ -301,15 +315,12 @@ export function RouteDetailsScreen({ route, navigation }: RouteDetailsScreenProp
               accessibilityLabel={translate("routeDetails.trainInformation")}
             >
               <LiquidGlassView
-                style={{ padding: 14, borderRadius: 16 }}
+                style={INFO_BUTTON}
                 interactive
                 effect="regular"
                 tintColor={PlatformColor("tertiarySystemBackground")}
               >
-                <Image
-                  source={require("../../../assets/info.circle.png")}
-                  style={{ width: 24, height: 24, tintColor: color.text }}
-                />
+                <Image source={require("../../../assets/info.circle.png")} style={INFO_BUTTON_ICON} />
               </LiquidGlassView>
             </Pressable>
 
