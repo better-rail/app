@@ -277,7 +277,11 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
                 <View style={[DIRECTION_INDICATOR, { marginLeft: 0, marginRight: spacing[2] }]}>
                   <Text style={WAGON_NUMBER_TEXT}> </Text>
                   <Text style={DIRECTION_ARROW}>←</Text>
-                  <Text style={DIRECTION_LABEL}>{direction}</Text>
+                  <Text style={DIRECTION_LABEL}>
+                    {direction === "S"
+                      ? translate("routeDetails.directionSouth")
+                      : translate("routeDetails.directionWest")}
+                  </Text>
                 </View>
               )}
               {displayWagons.map((wagon, index) => (
@@ -293,7 +297,13 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
                 <View style={DIRECTION_INDICATOR}>
                   <Text style={WAGON_NUMBER_TEXT}> </Text>
                   <Text style={DIRECTION_ARROW}>→</Text>
-                  <Text style={DIRECTION_LABEL}>{direction ?? "?"}</Text>
+                  <Text style={DIRECTION_LABEL}>
+                    {direction === "N"
+                      ? translate("routeDetails.directionNorth")
+                      : direction === "E"
+                      ? translate("routeDetails.directionEast")
+                      : "?"}
+                  </Text>
                 </View>
               )}
             </ScrollView>

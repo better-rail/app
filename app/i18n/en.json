@@ -99,7 +99,11 @@
     "wagonsCount": "%{count} wagons",
     "seatsCount": "%{count} seats",
     "trainInformation": "Train information",
-    "noWagonInformationAvailable": "No wagon information available"
+    "noWagonInformationAvailable": "No wagon information available",
+    "directionNorth": "North",
+    "directionSouth": "South",
+    "directionEast": "East",
+    "directionWest": "West"
   },
   "settings": {
     "title": "Settings",
