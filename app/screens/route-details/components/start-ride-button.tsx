@@ -1,5 +1,4 @@
 import { Alert, Dimensions, Image, ImageStyle, Linking, Platform, View, ViewStyle } from "react-native"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useNavigation } from "@react-navigation/native"
 import HapticFeedback from "react-native-haptic-feedback"
 import { Button } from "../../../components"
@@ -19,10 +18,6 @@ import type { PrimaryParamList } from "../../../navigators/main-navigator"
 const { width: deviceWidth } = Dimensions.get("screen")
 
 const START_RIDE_BUTTON: ViewStyle = {
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.2,
-  shadowRadius: 2,
-  shadowColor: "#333",
   elevation: 4,
 }
 
@@ -50,11 +45,10 @@ export function StartRideButton(props: StartRideButtonProps) {
       rideCount: s.rideCount,
       startRide: s.startRide,
       stopRide: s.stopRide,
-    }))
+    })),
   )
 
   const { route, screenName } = props
-  const insets = useSafeAreaInsets()
 
   /*
    * Check that the device isn't a tablet.
@@ -111,9 +105,7 @@ export function StartRideButton(props: StartRideButtonProps) {
   }
 
   return (
-    <View
-      style={START_RIDE_BUTTON}
-    >
+    <View style={START_RIDE_BUTTON}>
       <Button
         variant="secondary"
         style={{
