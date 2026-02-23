@@ -309,19 +309,21 @@ export function RouteDetailsScreen({ route, navigation }: RouteDetailsScreenProp
               gap: spacing[3],
             }}
           >
-            <Pressable
-              onPress={() => navigation.navigate("routeDetailsTrainInfo", { train: routeItem.trains[0] })}
-              accessibilityLabel={translate("routeDetails.trainInformation")}
-            >
-              <LiquidGlassView
-                style={INFO_BUTTON}
-                interactive
-                effect="regular"
-                tintColor={PlatformColor("tertiarySystemBackground")}
+            {routeItem.trains[0]?.visaWagonData?.wagons?.length > 0 && (
+              <Pressable
+                onPress={() => navigation.navigate("routeDetailsTrainInfo", { train: routeItem.trains[0] })}
+                accessibilityLabel={translate("routeDetails.trainInformation")}
               >
-                <Image source={require("../../../assets/info.circle.png")} style={INFO_BUTTON_ICON} />
-              </LiquidGlassView>
-            </Pressable>
+                <LiquidGlassView
+                  style={INFO_BUTTON}
+                  interactive
+                  effect="regular"
+                  tintColor={PlatformColor("tertiarySystemBackground")}
+                >
+                  <Image source={require("../../../assets/info.circle.png")} style={INFO_BUTTON_ICON} />
+                </LiquidGlassView>
+              </Pressable>
+            )}
 
             <StartRideButton route={routeItem} screenName={route.name} />
           </Animated.View>
