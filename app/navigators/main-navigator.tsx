@@ -124,6 +124,16 @@ export function MainNavigator() {
           sheetGrabberVisible: true,
         }}
       />
+      <Stack.Screen
+        name="routeDetailsTrainInfo"
+        component={RouteDetailsTrainInfo}
+        options={formSheetOptions}
+      />
+      <Stack.Screen
+        name="livePermissions"
+        component={LivePermissionsScreen}
+        options={formSheetOptions}
+      />
     </Stack.Navigator>
   )
 }
