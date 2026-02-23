@@ -5,6 +5,7 @@ import { color, spacing } from "../../theme"
 import { RouteDetailsTrainInfoScreenProps } from "../../navigators/main-navigator"
 import type { Wagon } from "../../services/api/rail-api.types"
 import { translate } from "../../i18n"
+import { getTrainDirection } from "../../utils/helpers/direction-helpers"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -169,12 +170,21 @@ const EMPTY_STATE_TEXT: TextStyle = {
   lineHeight: 22,
 }
 
-function WagonItem({ wagon, isFirst, isLast }: { wagon: Wagon; isFirst: boolean; isLast: boolean }) {
-  const hasFeatures = wagon.handicapped || wagon.bicycle
+function WagonItem({
+  wagon,
+  isFirst,
+  isLast,
+  isAccessibilityWagon,
+}: {
+  wagon: Wagon
+  isFirst: boolean
+  isLast: boolean
+  isAccessibilityWagon: boolean
+}) {
+  const hasFeatures = isAccessibilityWagon || wagon.bicycle
 
   let boxStyle: ViewStyle
   if (hasFeatures) {
-    // When wagon has features, use base style and override with feature style
     boxStyle = isFirst
       ? { ...WAGON_BOX_FIRST, ...WAGON_BOX_WITH_FEATURES }
       : isLast
@@ -192,7 +202,7 @@ function WagonItem({ wagon, isFirst, isLast }: { wagon: Wagon; isFirst: boolean;
       <View style={boxStyle}>
         {hasFeatures && (
           <View style={FEATURE_ICON_CONTAINER}>
-            {wagon.handicapped && (
+            {isAccessibilityWagon && (
               <View style={FEATURE_ICON_BADGE}>
                 <Text style={FEATURE_ICON_TEXT}>♿</Text>
               </View>
@@ -219,8 +229,32 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
     return [...train.visaWagonData.wagons].sort((a, b) => a.shurA2 - b.shurA2)
   }, [train.visaWagonData])
 
-  const hasWagons = sortedWagons.length > 0
-  const hasHandicapped = sortedWagons.some((w) => w.handicapped)
+  const direction = useMemo(() => {
+    try {
+      const routeStationIds = train.routeStations.map((s) => s.stationId.toString())
+      return getTrainDirection(train.originStationId.toString(), routeStationIds)
+    } catch {
+      return null
+    }
+  }, [train])
+
+  // Car #1 is always the front (locomotive end). Accessibility = southernmost car.
+  // N/E: descending (car #N on left = southernmost/accessibility, car #1 on right = front) → N
+  // S/W: ascending  (car #1 on left = southernmost/accessibility/front)              ← S
+  // In both cases the accessibility car lands at index 0 (leftmost).
+  const displayWagons = useMemo(() => {
+    if (direction === "N" || direction === "E") return [...sortedWagons].reverse()
+    return sortedWagons
+  }, [direction, sortedWagons])
+
+  // Accessibility = southernmost car = highest shurA2 = always index 0 in the descending display.
+  const accessibilityWagonIndex = useMemo(() => {
+    if (!direction || displayWagons.length === 0) return null
+    return 0
+  }, [direction, displayWagons])
+
+  const hasWagons = displayWagons.length > 0
+  const hasHandicapped = accessibilityWagonIndex !== null
   const hasBicycle = sortedWagons.some((w) => w.bicycle)
   const showLegend = hasHandicapped || hasBicycle
 
@@ -239,14 +273,29 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
         <>
           <View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={WAGONS_SCROLL_CONTAINER}>
-              {sortedWagons.map((wagon, index) => (
-                <WagonItem key={wagon.krsid} wagon={wagon} isFirst={index === 0} isLast={index === sortedWagons.length - 1} />
+              {(direction === "S" || direction === "W") && (
+                <View style={[DIRECTION_INDICATOR, { marginLeft: 0, marginRight: spacing[2] }]}>
+                  <Text style={WAGON_NUMBER_TEXT}> </Text>
+                  <Text style={DIRECTION_ARROW}>←</Text>
+                  <Text style={DIRECTION_LABEL}>{direction}</Text>
+                </View>
+              )}
+              {displayWagons.map((wagon, index) => (
+                <WagonItem
+                  key={wagon.krsid}
+                  wagon={wagon}
+                  isFirst={index === 0}
+                  isLast={index === displayWagons.length - 1}
+                  isAccessibilityWagon={index === accessibilityWagonIndex}
+                />
               ))}
-              <View style={DIRECTION_INDICATOR}>
-                <Text style={WAGON_NUMBER_TEXT}> </Text>
-                <Text style={DIRECTION_ARROW}>→</Text>
-                <Text style={DIRECTION_LABEL}>Direction</Text>
-              </View>
+              {(direction === "N" || direction === "E" || direction === null) && (
+                <View style={DIRECTION_INDICATOR}>
+                  <Text style={WAGON_NUMBER_TEXT}> </Text>
+                  <Text style={DIRECTION_ARROW}>→</Text>
+                  <Text style={DIRECTION_LABEL}>{direction ?? "?"}</Text>
+                </View>
+              )}
             </ScrollView>
           </View>
 
