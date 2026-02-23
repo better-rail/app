@@ -102,28 +102,8 @@ export function MainNavigator() {
         component={RouteDetailsScreen}
         options={{ headerTransparent: true, headerTintColor: "lightgrey" }}
       />
-      <Stack.Screen
-        name="stationHours"
-        component={StationHoursScreen}
-        options={{
-          presentation: "formSheet",
-          headerShown: false,
-          sheetAllowedDetents: "fitToContents",
-          contentStyle: { backgroundColor: isLiquidGlassSupported ? "transparent" : color.background },
-          sheetGrabberVisible: true,
-        }}
-      />
-      <Stack.Screen
-        name="slowTrainsFilter"
-        component={FilterScreen}
-        options={{
-          presentation: "formSheet",
-          headerShown: false,
-          sheetAllowedDetents: "fitToContents",
-          contentStyle: { backgroundColor: isLiquidGlassSupported ? "transparent" : color.background },
-          sheetGrabberVisible: true,
-        }}
-      />
+      <Stack.Screen name="stationHours" component={StationHoursScreen} options={formSheetOptions} />
+      <Stack.Screen name="slowTrainsFilter" component={FilterScreen} options={formSheetOptions} />
       <Stack.Screen
         name="routeDetailsTrainInfo"
         component={RouteDetailsTrainInfo}

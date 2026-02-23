@@ -112,10 +112,7 @@ export function StartRideButton(props: StartRideButtonProps) {
 
   return (
     <View
-      style={{
-        ...START_RIDE_BUTTON,
-        // right: 15 + insets.right,
-      }}
+      style={START_RIDE_BUTTON}
     >
       <Button
         variant="secondary"
