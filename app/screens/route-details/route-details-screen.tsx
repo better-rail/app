@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useMemo, useState } from "react"
-import { Image, Platform, Pressable, View, type ViewStyle } from "react-native"
+import { Image, Platform, PlatformColor, Pressable, View, type ViewStyle } from "react-native"
 import { ScrollView } from "react-native-gesture-handler"
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated"
 import { format } from "date-fns"
@@ -300,7 +300,12 @@ export function RouteDetailsScreen({ route, navigation }: RouteDetailsScreenProp
               onPress={() => navigation.navigate("routeDetailsTrainInfo", { train: routeItem.trains[0] })}
               accessibilityLabel={translate("routeDetails.trainInformation")}
             >
-              <LiquidGlassView style={{ padding: 14, borderRadius: 16 }} interactive effect="regular">
+              <LiquidGlassView
+                style={{ padding: 14, borderRadius: 16 }}
+                interactive
+                effect="regular"
+                tintColor={PlatformColor("tertiarySystemBackground")}
+              >
                 <Image
                   source={require("../../../assets/info.circle.png")}
                   style={{ width: 24, height: 24, tintColor: color.text }}

@@ -5,7 +5,8 @@ import { Text } from "../"
 import { LiquidGlassView, isLiquidGlassSupported } from "@callstack/liquid-glass"
 
 const BUTTON_WRAPPER: ViewStyle = {
-  borderRadius: Platform.select({ ios: 12, android: 6 }),
+  borderRadius: Platform.select({ ios: isLiquidGlassSupported ? 16 : 12, android: 6 }),
+  borderCurve: "continuous",
   overflow: "hidden",
   elevation: 1,
   flex: 1,
