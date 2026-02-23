@@ -211,8 +211,8 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
         },
       ]
 
-      return (
-        <LiquidGlassView interactive colorScheme="dark" style={{ padding: isLiquidGlassSupported ? 12 : 10, borderRadius: 50 }}>
+      if (isLiquidGlassSupported) {
+        return (
           <ContextMenu
             dropdownMenuMode
             actions={actions}
@@ -221,9 +221,33 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
               action?.onPress?.()
             }}
           >
-            <MenuIcon />
+            <LiquidGlassView interactive colorScheme="dark" style={{ padding: 12, borderRadius: 50 }}>
+              <MenuIcon />
+            </LiquidGlassView>
           </ContextMenu>
-        </LiquidGlassView>
+        )
+      }
+
+      return (
+        <ContextMenu
+          dropdownMenuMode
+          actions={actions}
+          onPress={(event) => {
+            const action = actions[event.nativeEvent.index]
+            action?.onPress?.()
+          }}
+        >
+          <Image
+            source={ellipsisIcon}
+            style={{
+              width: 23,
+              height: 23,
+              resizeMode: "contain",
+              tintColor: "lightgrey",
+              opacity: 0.9,
+            }}
+          />
+        </ContextMenu>
       )
     }
 
@@ -264,19 +288,19 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
           }}
         >
           <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
-          <LiquidGlassView
-            interactive
-            colorScheme="dark"
-            tintColor="rgba(51, 51, 51, 0.9)"
-            style={{ padding: 12, borderRadius: 50 }}
+          <ContextMenu
+            dropdownMenuMode
+            actions={menuActions}
+            onPress={(event) => {
+              HapticFeedback.trigger("impactMedium")
+              menuActions[event.nativeEvent.index]?.onPress?.()
+            }}
           >
-            <ContextMenu
-              dropdownMenuMode
-              actions={menuActions}
-              onPress={(event) => {
-                HapticFeedback.trigger("impactMedium")
-                menuActions[event.nativeEvent.index]?.onPress?.()
-              }}
+            <LiquidGlassView
+              interactive
+              colorScheme="dark"
+              tintColor="rgba(51, 51, 51, 0.9)"
+              style={{ padding: 12, borderRadius: 50 }}
             >
               <Image
                 source={ellipsisIcon}
@@ -288,8 +312,8 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
                   opacity: 0.9,
                 }}
               />
-            </ContextMenu>
-          </LiquidGlassView>
+            </LiquidGlassView>
+          </ContextMenu>
         </View>
       )
     }

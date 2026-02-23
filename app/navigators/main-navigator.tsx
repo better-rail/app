@@ -5,7 +5,11 @@
  * You'll likely spend most of your time in this file.
  */
 import React from "react"
-import { createNativeStackNavigator, type NativeStackScreenProps } from "@react-navigation/native-stack"
+import {
+  createNativeStackNavigator,
+  NativeStackNavigationOptions,
+  type NativeStackScreenProps,
+} from "@react-navigation/native-stack"
 import {
   PlannerScreen,
   SelectStationScreen,
@@ -14,6 +18,7 @@ import {
   StationHoursScreen,
   FilterScreen,
 } from "../screens"
+import { LivePermissionsScreen } from "../screens/route-details/components/live-permissions-screen"
 import { color, typography } from "../theme"
 import { Platform } from "react-native"
 import { RouteDetailsTrainInfo } from "../screens/route-details/route-details-train-info"
@@ -40,6 +45,7 @@ export type PrimaryParamList = {
   routeDetailsTrainInfo: { train: Train }
   stationHours: { stationId: string }
   slowTrainsFilter: undefined
+  livePermissions: { routeItem: RouteItem }
   settings: undefined
 }
 
@@ -52,6 +58,14 @@ export type StationHoursScreenProps = NativeStackScreenProps<PrimaryParamList, "
 
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
 const Stack = createNativeStackNavigator<PrimaryParamList>()
+
+const formSheetOptions: NativeStackNavigationOptions = {
+  presentation: "formSheet",
+  headerShown: false,
+  sheetAllowedDetents: "fitToContents",
+  contentStyle: { backgroundColor: isLiquidGlassSupported ? "transparent" : color.background },
+  sheetGrabberVisible: true,
+}
 
 export function MainNavigator() {
   return (
@@ -87,17 +101,6 @@ export function MainNavigator() {
         name="routeDetails"
         component={RouteDetailsScreen}
         options={{ headerTransparent: true, headerTintColor: "lightgrey" }}
-      />
-
-      <Stack.Screen
-        name="routeDetailsTrainInfo"
-        component={RouteDetailsTrainInfo}
-        options={{
-          headerShown: false,
-          presentation: "formSheet",
-          sheetAllowedDetents: [0.35],
-          contentStyle: { backgroundColor: color.background },
-        }}
       />
       <Stack.Screen
         name="stationHours"

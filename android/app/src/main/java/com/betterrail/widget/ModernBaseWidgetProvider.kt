@@ -24,6 +24,12 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import java.time.ZonedDateTime
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 /**
  * Modern widget provider base class using Repository pattern
@@ -229,7 +235,9 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         applicationContext = context.applicationContext
 
         coroutineManager.launchInWidgetScope(appWidgetId) {
-            val widgetData = preferencesRepository.getWidgetData(appWidgetId)
+
+            val storedWidgetData = preferencesRepository.getWidgetData(appWidgetId)
+            val widgetData = getEffectiveWidgetData(storedWidgetData)
             
             if (widgetData == null) {
                 Log.d(getLogTag(), "Widget $appWidgetId not configured, showing configuration state")
@@ -348,15 +356,15 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
      * Filter trains to show only those that are upcoming based on current date and time
      */
     private fun filterUpcomingTrains(trains: List<WidgetTrainItem>): List<WidgetTrainItem> {
-        val currentDateTime = java.util.Date()
-        val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.getDefault())
+        val now = LocalDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.getDefault())
         
         return trains.filter { train ->
             try {
                 if (train.departureTimestamp.isEmpty()) return@filter false
                 
-                val trainDateTime = dateFormat.parse(train.departureTimestamp)
-                val isUpcoming = trainDateTime != null && trainDateTime.after(currentDateTime)
+                val trainDateTime = LocalDateTime.parse(train.departureTimestamp, formatter)
+                val isUpcoming = trainDateTime.isAfter(now)
                 
                 Log.d(getLogTag(), "Train ${train.departureTime} (${train.departureTimestamp}): upcoming = $isUpcoming")
                 
@@ -735,27 +743,49 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                 try {
                     val widgetData = preferencesRepository.getWidgetData(appWidgetId)
                     if (widgetData?.allowRouteReversal == true) {
-                        // Toggle reversed state
-                        val isCurrentlyReversed = isWidgetRouteReversed(context, appWidgetId)
-                        val newReversedState = !isCurrentlyReversed
-                        setWidgetRouteReversed(context, appWidgetId, newReversedState)
-                        
-                        Log.d(getLogTag(), "Toggling route display for widget $appWidgetId: reversed=$newReversedState")
-                        
-                        // Always just swap the current route data
-                        val swappedWidgetData = widgetData.copy(
-                            originId = widgetData.destinationId,
-                            destinationId = widgetData.originId,
-                            originName = widgetData.destinationName,
-                            destinationName = widgetData.originName
-                        )
-                        
-                        // Save swapped data
-                        preferencesRepository.saveWidgetData(appWidgetId, swappedWidgetData)
-                        
-                        // Update widget display with fresh data from API
-                        val appWidgetManager = AppWidgetManager.getInstance(context)
-                        updateWidget(context, appWidgetManager, appWidgetId)
+                        if (widgetData.autoReverseRoute) {
+                            // Smart Override Logic
+                            val currentTimestamp = System.currentTimeMillis()
+                            val isOverrideActive = currentTimestamp < widgetData.manualOverrideUntil
+                            
+                            // Toggle override: If active, clear it. If inactive, set it for current window.
+                            val newOverrideUntil = if (isOverrideActive) {
+                                0L
+                            } else {
+                                calculateNextWindowStart()
+                            }
+                            
+                            Log.d(getLogTag(), "Smart Reversal Toggle for $appWidgetId: active=$isOverrideActive -> newUntil=$newOverrideUntil")
+                            
+                            preferencesRepository.saveWidgetData(appWidgetId, widgetData.copy(manualOverrideUntil = newOverrideUntil))
+                            
+                            // Trigger update
+                            val appWidgetManager = AppWidgetManager.getInstance(context)
+                            updateWidget(context, appWidgetManager, appWidgetId)
+                        } else {
+                            // Legacy Permanent Swap Logic
+                            // Toggle reversed state
+                            val isCurrentlyReversed = isWidgetRouteReversed(context, appWidgetId)
+                            val newReversedState = !isCurrentlyReversed
+                            setWidgetRouteReversed(context, appWidgetId, newReversedState)
+                            
+                            Log.d(getLogTag(), "Toggling route display for widget $appWidgetId: reversed=$newReversedState")
+                            
+                            // Always just swap the current route data
+                            val swappedWidgetData = widgetData.copy(
+                                originId = widgetData.destinationId,
+                                destinationId = widgetData.originId,
+                                originName = widgetData.destinationName,
+                                destinationName = widgetData.originName
+                            )
+                            
+                            // Save swapped data
+                            preferencesRepository.saveWidgetData(appWidgetId, swappedWidgetData)
+                            
+                            // Update widget display with fresh data from API
+                            val appWidgetManager = AppWidgetManager.getInstance(context)
+                            updateWidget(context, appWidgetManager, appWidgetId)
+                        }
                     } else {
                         Log.d(getLogTag(), "Route reversal not allowed for widget $appWidgetId")
                     }
@@ -780,32 +810,78 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
             if (lastDisplayedTime.isNullOrEmpty()) return false
             
             // Get current time
-            val currentTime = java.util.Calendar.getInstance()
-            val currentMinutes = currentTime.get(java.util.Calendar.HOUR_OF_DAY) * 60 + currentTime.get(java.util.Calendar.MINUTE)
+            val now = LocalTime.now()
             
-            // Parse displayed time
-            val timeParts = lastDisplayedTime.split(":")
-            if (timeParts.size >= 2) {
-                val displayedMinutes = timeParts[0].toInt() * 60 + timeParts[1].toInt()
-                
-                // Train is considered departed if current time has passed the displayed time
-                val isDeparted = currentMinutes > displayedMinutes
-                
-                if (isDeparted) {
-                    val minutesPastDeparture = currentMinutes - displayedMinutes
-                    Log.d(getLogTag(), "Widget $appWidgetId detected stale data: train $lastDisplayedTime departed ${minutesPastDeparture}min ago")
-                }
-                
-                return isDeparted
+            // Parse displayed time (HH:mm)
+            val displayedTime = LocalTime.parse(lastDisplayedTime)
+            
+            // Train is considered departed if current time has passed the displayed time
+            val isDeparted = now.isAfter(displayedTime)
+            
+            if (isDeparted) {
+                val minutesPastDeparture = java.time.Duration.between(displayedTime, now).toMinutes()
+                Log.d(getLogTag(), "Widget $appWidgetId detected stale data: train $lastDisplayedTime departed ${minutesPastDeparture}min ago")
             }
             
-            false
+            return isDeparted
         } catch (e: Exception) {
-            Log.e(getLogTag(), "Error checking if widget showing departed train", e)
-            false
+            Log.e(getLogTag(), "Error checking for departed train", e)
+            return false
         }
     }
 
+    /**
+     * Calculates the effective widget data based on auto-reverse rules and overrides
+     */
+    private fun getEffectiveWidgetData(widgetData: WidgetData?): WidgetData? {
+        if (widgetData == null) return null
+        if (!widgetData.autoReverseRoute) return widgetData
+
+        val currentTimestamp = System.currentTimeMillis()
+        val now = ZonedDateTime.now()
+        val hour = now.hour
+        
+        val isEvening = hour >= 13 || hour < 1
+        
+        val isOverrideActive = currentTimestamp < widgetData.manualOverrideUntil
+        
+        // XOR Logic: Reverse if (Evening AND NotOverride) OR (NotEvening AND Override)
+        val shouldReverse = isEvening xor isOverrideActive
+        
+        return if (shouldReverse) {
+             Log.d(getLogTag(), "Smart Reversal ACTIVE for widget (Evening=$isEvening, Override=$isOverrideActive)")
+             widgetData.copy(
+                originId = widgetData.destinationId,
+                destinationId = widgetData.originId,
+                originName = widgetData.destinationName,
+                destinationName = widgetData.originName
+            )
+        } else {
+             widgetData
+        }
+    }
+
+    /**
+     * Calculates the timestamp for the start of the next time window
+     */
+    private fun calculateNextWindowStart(): Long {
+        val now = ZonedDateTime.now()
+        val hour = now.hour
+        
+        val nextWindowStart = if (hour in 1..12) {
+            // Morning -> Next is 13:00 Today
+            now.withHour(13).withMinute(0).withSecond(0).withNano(0)
+        } else if (hour >= 13) {
+            // Evening Part 1 -> Next is 01:00 Tomorrow
+            now.plusDays(1).withHour(1).withMinute(0).withSecond(0).withNano(0)
+        } else {
+            // Evening Part 2 (hour 0) -> Next is 01:00 Today
+            now.withHour(1).withMinute(0).withSecond(0).withNano(0)
+        }
+        
+        return nextWindowStart.toInstant().toEpochMilli()
+    }
+            
     /**
      * Calculate how many days away a train is from today
      */
@@ -813,20 +889,15 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         return try {
             if (fullTimestamp.isEmpty()) return 0
             
-            val today = java.util.Calendar.getInstance()
-            val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.getDefault())
-            val trainDate = dateFormat.parse(fullTimestamp) ?: return 0
-            val trainCalendar = java.util.Calendar.getInstance().apply { time = trainDate }
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.getDefault())
+            val trainDateTime = LocalDateTime.parse(fullTimestamp, formatter)
+            val today = LocalDate.now()
             
-            val todayDayOfYear = today.get(java.util.Calendar.DAY_OF_YEAR)
-            val trainDayOfYear = trainCalendar.get(java.util.Calendar.DAY_OF_YEAR)
-            val yearDiff = trainCalendar.get(java.util.Calendar.YEAR) - today.get(java.util.Calendar.YEAR)
+            val diffDays = ChronoUnit.DAYS.between(today, trainDateTime.toLocalDate()).toInt()
             
-            val daysAway = (yearDiff * 365) + (trainDayOfYear - todayDayOfYear)
+            Log.d(getLogTag(), "Date check - Today: $today, Train: ${trainDateTime.toLocalDate()}, Days away: $diffDays")
             
-            Log.d(getLogTag(), "Date check - Today: $todayDayOfYear, Train: $trainDayOfYear, Days away: $daysAway")
-            
-            return daysAway
+            return diffDays
         } catch (e: Exception) {
             Log.e(getLogTag(), "Error parsing train timestamp: $fullTimestamp", e)
             0

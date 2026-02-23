@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useEffect, useMemo, useRef, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { Image, Platform, Pressable, View, type ViewStyle } from "react-native"
 import { ScrollView } from "react-native-gesture-handler"
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated"
@@ -19,11 +19,9 @@ import {
   RouteStopCard,
   StartRideButton,
 } from "./components"
-import { LivePermissionsSheet } from "./components/live-permissions-sheet"
 
 import type { RouteItem } from "../../services/api"
 import type { RouteDetailsScreenProps } from "../../navigators/main-navigator"
-import type BottomSheet from "@gorhom/bottom-sheet"
 import { useStations } from "../../data/stations"
 import { calculateDelayedTime } from "../../utils/helpers/date-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -50,11 +48,6 @@ export function RouteDetailsScreen({ route, navigation }: RouteDetailsScreenProp
   )
   const canRunLiveActivities = useRideStore((s) => s.canRunLiveActivities)
   const allStations = useStations()
-  const permissionSheetRef = useRef<BottomSheet>(null)
-
-  // When we present the Live Permissions Sheet we initiate a promise that
-  // resolves when all the permissions are given and the user starts a ride
-  const permissionsPromise = useRef<() => void>(null)
 
   // we re-run this check every time the ride changes
   const isRideOnThisRoute = useMemo(() => isRouteActive(route.params.routeItem), [rideRoute])
@@ -74,18 +67,6 @@ export function RouteDetailsScreen({ route, navigation }: RouteDetailsScreenProp
   const [shouldFadeRideButton, setShouldFadeRideButton] = useState(false)
   const [showEntireRoute, setShowEntireRoute] = useState(false)
 
-  const openLivePermissionsSheet = () => {
-    return new Promise<void>((resolve) => {
-      permissionSheetRef.current?.expand()
-      permissionsPromise.current = resolve
-    })
-  }
-
-  const onDoneLivePermissionsSheet = () => {
-    permissionSheetRef.current?.close()
-    permissionsPromise.current?.()
-  }
-
   useEffect(() => {
     // allow button fade only after the view mounts; disable the animation when the view appears initally.
     setShouldFadeRideButton(true)
@@ -98,15 +79,14 @@ export function RouteDetailsScreen({ route, navigation }: RouteDetailsScreenProp
   }, [progress.status, rideId])
 
   return (
-    <>
-      <Screen
-        style={ROOT}
-        preset="fixed"
-        unsafe={true}
-        statusBar="light-content"
-        statusBarBackgroundColor="transparent"
-        translucent
-      >
+    <Screen
+      style={ROOT}
+      preset="fixed"
+      unsafe={true}
+      statusBar="light-content"
+      statusBarBackgroundColor="transparent"
+      translucent
+    >
         <View style={{ flex: 1 }}>
           <Animated.View sharedTransitionTag="route-header">
             <RouteDetailsHeader
@@ -323,14 +303,11 @@ export function RouteDetailsScreen({ route, navigation }: RouteDetailsScreenProp
               </Pressable>
 
               <Animated.View entering={shouldFadeRideButton && FadeInDown.delay(100)} exiting={FadeOutDown}>
-                <StartRideButton route={routeItem} screenName={route.name} openPermissionsSheet={openLivePermissionsSheet} />
+                <StartRideButton route={routeItem} screenName={route.name} />
               </Animated.View>
             </Animated.View>
           )}
         </View>
-      </Screen>
-
-      {Platform.OS === "android" && <LivePermissionsSheet onDone={onDoneLivePermissionsSheet} ref={permissionSheetRef} />}
-    </>
+    </Screen>
   )
 }
