@@ -45,7 +45,6 @@ const STATION_CONTAINER: ViewStyle = {
 const INFO_BUTTON: ViewStyle = {
   padding: Platform.select({ ios: 14, android: 18 }),
   borderRadius: Platform.select({ ios: 16, android: 6 }),
-  overflow: "hidden",
   backgroundColor: isLiquidGlassSupported ? undefined : color.tertiaryBackground,
   elevation: 1,
 }

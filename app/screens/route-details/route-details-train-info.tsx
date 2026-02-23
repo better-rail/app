@@ -1,11 +1,12 @@
 import { useMemo, useRef } from "react"
-import { View, ViewStyle, ScrollView, TextStyle } from "react-native"
+import { View, ViewStyle, ScrollView, TextStyle, Platform } from "react-native"
 import { Text } from "../../components"
 import { color, spacing } from "../../theme"
 import { RouteDetailsTrainInfoScreenProps } from "../../navigators/main-navigator"
 import type { Wagon } from "../../services/api/rail-api.types"
 import { translate } from "../../i18n"
 import { getTrainDirection } from "../../utils/helpers/direction-helpers"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -221,7 +222,7 @@ function WagonItem({
 
 export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProps) {
   const { train } = route.params
-
+  const insets = useSafeAreaInsets()
   const sortedWagons = useMemo(() => {
     if (!train.visaWagonData?.wagons || train.visaWagonData.wagons.length === 0) {
       return []
@@ -264,7 +265,7 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
   const wagonCount = train.visaWagonData?.totkr
 
   return (
-    <View style={ROOT}>
+    <View style={[ROOT, { paddingBottom: Platform.select({ ios: 0, android: insets.bottom + 8 }) }]}>
       <View style={HEADER_CONTAINER}>
         <Text style={{ fontSize: 14, fontWeight: "600", color: color.text, textAlign: "center" }}>
           {train.trainNumber} {translate("common.toStationName", { stationName: train.lastStop })}
@@ -290,9 +291,7 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
                   <Text style={WAGON_NUMBER_TEXT}> </Text>
                   <Text style={DIRECTION_ARROW}>←</Text>
                   <Text style={DIRECTION_LABEL}>
-                    {direction === "S"
-                      ? translate("routeDetails.directionSouth")
-                      : translate("routeDetails.directionWest")}
+                    {direction === "S" ? translate("routeDetails.directionSouth") : translate("routeDetails.directionWest")}
                   </Text>
                 </View>
               )}
