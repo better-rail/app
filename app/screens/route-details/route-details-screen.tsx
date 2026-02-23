@@ -281,7 +281,9 @@ export function RouteDetailsScreen({ route, navigation }: RouteDetailsScreenProp
         )}
 
         {(Platform.OS === "android" || canRunLiveActivities) && !isRideOnThisRoute && (
-          <View
+          <Animated.View
+            entering={shouldFadeRideButton && FadeInDown.delay(100)}
+            exiting={FadeOutDown}
             style={{
               position: "absolute",
               left: 0,
@@ -299,14 +301,15 @@ export function RouteDetailsScreen({ route, navigation }: RouteDetailsScreenProp
               accessibilityLabel={translate("routeDetails.trainInformation")}
             >
               <LiquidGlassView style={{ padding: 14, borderRadius: 16 }} interactive effect="regular">
-                <Image source={require("../../../assets/info.circle.png")} style={{ width: 24, height: 24 }} />
+                <Image
+                  source={require("../../../assets/info.circle.png")}
+                  style={{ width: 24, height: 24, tintColor: color.text }}
+                />
               </LiquidGlassView>
             </Pressable>
 
-            <Animated.View entering={shouldFadeRideButton && FadeInDown.delay(100)} exiting={FadeOutDown}>
-              <StartRideButton route={routeItem} screenName={route.name} />
-            </Animated.View>
-          </View>
+            <StartRideButton route={routeItem} screenName={route.name} />
+          </Animated.View>
         )}
       </View>
     </Screen>
