@@ -1,4 +1,4 @@
-import { useMemo } from "react"
+import { useMemo, useRef } from "react"
 import { View, ViewStyle, ScrollView, TextStyle } from "react-native"
 import { Text } from "../../components"
 import { color, spacing } from "../../theme"
@@ -238,6 +238,8 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
     }
   }, [train])
 
+  const scrollViewRef = useRef<ScrollView>(null)
+
   // Car #1 is always the front (locomotive end). Accessibility = southernmost car.
   // N/E: descending (car #N on left = southernmost/accessibility, car #1 on right = front) → N
   // S/W: ascending  (car #1 on left = southernmost/accessibility/front)              ← S
@@ -272,7 +274,17 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
       {hasWagons ? (
         <>
           <View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={WAGONS_SCROLL_CONTAINER}>
+            <ScrollView
+              ref={scrollViewRef}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={WAGONS_SCROLL_CONTAINER}
+              onContentSizeChange={() => {
+                if (direction === "N" || direction === "E") {
+                  scrollViewRef.current?.scrollToEnd({ animated: false })
+                }
+              }}
+            >
               {(direction === "S" || direction === "W") && (
                 <View style={[DIRECTION_INDICATOR, { marginLeft: 0, marginRight: spacing[2] }]}>
                   <Text style={WAGON_NUMBER_TEXT}> </Text>
