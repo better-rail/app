@@ -46,8 +46,13 @@ const WAGONS_SCROLL_CONTAINER: ViewStyle = {
 
 const DIRECTION_INDICATOR: ViewStyle = {
   alignItems: "center",
-  justifyContent: "center",
   marginLeft: spacing[2],
+}
+
+const DIRECTION_ARROW_CONTAINER: ViewStyle = {
+  height: 50,
+  justifyContent: "center",
+  alignItems: "center",
 }
 
 const DIRECTION_ARROW: TextStyle = {
@@ -287,7 +292,9 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
               {(direction === "S" || direction === "W") && (
                 <View style={[DIRECTION_INDICATOR, { marginLeft: 0, marginRight: spacing[2] }]}>
                   <Text style={WAGON_NUMBER_TEXT}> </Text>
-                  <Text style={DIRECTION_ARROW}>←</Text>
+                  <View style={DIRECTION_ARROW_CONTAINER}>
+                    <Text style={DIRECTION_ARROW}>←</Text>
+                  </View>
                 </View>
               )}
               {displayWagons.map((wagon, index) => (
@@ -302,7 +309,9 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
               {(direction === "N" || direction === "E" || direction === null) && (
                 <View style={DIRECTION_INDICATOR}>
                   <Text style={WAGON_NUMBER_TEXT}> </Text>
-                  <Text style={DIRECTION_ARROW}>→</Text>
+                  <View style={DIRECTION_ARROW_CONTAINER}>
+                    <Text style={DIRECTION_ARROW}>→</Text>
+                  </View>
                 </View>
               )}
             </ScrollView>
