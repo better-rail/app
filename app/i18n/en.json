@@ -14,7 +14,8 @@
     "areYouSure": "Are you sure?",
     "tryAgain": "Try Again",
     "error": "Error",
-    "allow": "Allow"
+    "allow": "Allow",
+    "toStationName": "to %{stationName}"
   },
   "plan": {
     "title": "Trip Plan",
@@ -92,7 +93,13 @@
     "hideAllStations": "Hide Full Route",
     "noCalendarAccessTitle": "Calendar access disabled",
     "noCalendarAccessMessage": "To add the ride to your calendar, open your device settings and grant access to your calendar.",
-    "noPlatformSet": "Platform not assigned"
+    "noPlatformSet": "Platform not assigned",
+    "wheelchairAccessible": "Wheelchair accessible",
+    "bicyclesAllowed": "Bicycles allowed",
+    "wagonsCount": "%{count} wagons",
+    "seatsCount": "%{count} seats",
+    "trainInformation": "Train information",
+    "noWagonInformationAvailable": "No wagon information available"
   },
   "settings": {
     "title": "Settings",

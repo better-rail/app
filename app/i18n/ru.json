@@ -13,7 +13,8 @@
     "dismiss": "Отклонить",
     "areYouSure": "Вы уверены?",
     "tryAgain": "Попробуйте еще раз",
-    "error": "ошибка"
+    "error": "ошибка",
+    "toStationName": "к %{stationName}"
   },
   "plan": {
     "title": "Поездка",
@@ -89,7 +90,13 @@
     "hideAllStations": "Скрыть все станции маршрута",
     "noCalendarAccessTitle": "Доступ к календарю отключен",
     "noCalendarAccessMessage": "Чтобы добавить маршрут в календарь, откройте настройки устройства и включите доступ к календарю.",
-    "noPlatformSet": "Нет пирс набора"
+    "noPlatformSet": "Нет пирс набора",
+    "wheelchairAccessible": "Доступно для инвалидных колясок",
+    "bicyclesAllowed": "Разрешены велосипеды",
+    "wagonsCount": "%{count} вагонов",
+    "seatsCount": "%{count} мест",
+    "trainInformation": "Информация о поезде",
+    "noWagonInformationAvailable": "Информация о вагонах недоступна"
   },
   "settings": {
     "title": "Настройки",

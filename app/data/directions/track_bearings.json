@@ -1,0 +1,1395 @@
+[
+  {
+    "stationId": "3700",
+    "nameEn": "Tel Aviv - Savidor Center",
+    "nameHe": "תל אביב - סבידור מרכז",
+    "trackDistanceM": 1,
+    "directions": [
+      {
+        "bearing": 193.31,
+        "sampleLat": 31.9668257,
+        "sampleLon": 34.8788335
+      },
+      {
+        "bearing": 17.62,
+        "sampleLat": 32.215346,
+        "sampleLon": 34.8396536
+      },
+      {
+        "bearing": 13.02,
+        "sampleLat": 32.180168,
+        "sampleLon": 34.8503607
+      },
+      {
+        "bearing": 192.88,
+        "sampleLat": 31.9682624,
+        "sampleLon": 34.7573309
+      },
+      {
+        "bearing": 190.57,
+        "sampleLat": 31.9979993,
+        "sampleLon": 34.8749816
+      }
+    ]
+  },
+  {
+    "stationId": "3500",
+    "nameEn": "Herzliya",
+    "nameHe": "הרצליה",
+    "trackDistanceM": 2,
+    "directions": [
+      {
+        "bearing": 197.77,
+        "sampleLat": 32.0368922,
+        "sampleLon": 34.7761074
+      },
+      {
+        "bearing": 17.77,
+        "sampleLat": 32.1520803,
+        "sampleLon": 34.9357616
+      },
+      {
+        "bearing": 197.23,
+        "sampleLat": 32.0228479,
+        "sampleLon": 34.8150592
+      },
+      {
+        "bearing": 17.23,
+        "sampleLat": 32.2915874,
+        "sampleLon": 34.8675277
+      },
+      {
+        "bearing": 195.27,
+        "sampleLat": 32.0335381,
+        "sampleLon": 34.8000692
+      },
+      {
+        "bearing": 197.43,
+        "sampleLat": 32.1596152,
+        "sampleLon": 34.8159579
+      },
+      {
+        "bearing": 17.23,
+        "sampleLat": 32.1712414,
+        "sampleLon": 34.8208747
+      }
+    ]
+  },
+  {
+    "stationId": "3400",
+    "nameEn": "Bet Yehoshu'a",
+    "nameHe": "בית יהושע",
+    "trackDistanceM": 1,
+    "directions": [
+      {
+        "bearing": 194.48,
+        "sampleLat": 32.1348401,
+        "sampleLon": 34.809928
+      },
+      {
+        "bearing": 14.48,
+        "sampleLat": 32.396038,
+        "sampleLon": 34.8885063
+      }
+    ]
+  },
+  {
+    "stationId": "3300",
+    "nameEn": "Netanya",
+    "nameHe": "נתניה",
+    "trackDistanceM": 3,
+    "directions": [
+      {
+        "bearing": 189.7,
+        "sampleLat": 32.1892761,
+        "sampleLon": 34.8291041
+      },
+      {
+        "bearing": 9.7,
+        "sampleLat": 32.4468745,
+        "sampleLon": 34.918904
+      }
+    ]
+  },
+  {
+    "stationId": "3100",
+    "nameEn": "Hadera-West",
+    "nameHe": "חדרה - מערב",
+    "trackDistanceM": 13,
+    "directions": [
+      {
+        "bearing": 232.63,
+        "sampleLat": 32.3064756,
+        "sampleLon": 34.8679134
+      },
+      {
+        "bearing": 52.66,
+        "sampleLat": 32.5461582,
+        "sampleLon": 34.9308675
+      }
+    ]
+  },
+  {
+    "stationId": "2800",
+    "nameEn": "Binyamina",
+    "nameHe": "בנימינה",
+    "trackDistanceM": 7,
+    "directions": [
+      {
+        "bearing": 350.85,
+        "sampleLat": 32.6423845,
+        "sampleLon": 34.9314121
+      },
+      {
+        "bearing": 170.85,
+        "sampleLat": 32.4018303,
+        "sampleLon": 34.8886289
+      }
+    ]
+  },
+  {
+    "stationId": "2820",
+    "nameEn": "Caesarea-Pardes Hana",
+    "nameHe": "קיסריה - פרדס חנה",
+    "trackDistanceM": 5,
+    "directions": [
+      {
+        "bearing": 174.56,
+        "sampleLat": 32.3765579,
+        "sampleLon": 34.8892208
+      },
+      {
+        "bearing": 354.56,
+        "sampleLat": 32.6162952,
+        "sampleLon": 34.9268485
+      }
+    ]
+  },
+  {
+    "stationId": "2500",
+    "nameEn": "Atlit",
+    "nameHe": "עתלית",
+    "trackDistanceM": 3,
+    "directions": [
+      {
+        "bearing": 10.21,
+        "sampleLat": 32.8266526,
+        "sampleLon": 34.9597924
+      },
+      {
+        "bearing": 190.2,
+        "sampleLat": 32.5577097,
+        "sampleLon": 34.9309305
+      },
+      {
+        "bearing": 10.21,
+        "sampleLat": 32.697732,
+        "sampleLon": 34.9412455
+      }
+    ]
+  },
+  {
+    "stationId": "2200",
+    "nameEn": "Haifa - Bat Galim",
+    "nameHe": "חיפה - בת גלים",
+    "trackDistanceM": 9,
+    "directions": [
+      {
+        "bearing": 102.68,
+        "sampleLat": 32.8534404,
+        "sampleLon": 35.084593
+      },
+      {
+        "bearing": 281.93,
+        "sampleLat": 32.7137841,
+        "sampleLon": 34.9455408
+      }
+    ]
+  },
+  {
+    "stationId": "1300",
+    "nameEn": "Hutzot HaMifratz",
+    "nameHe": "חוצות המפרץ",
+    "trackDistanceM": 5,
+    "directions": [
+      {
+        "bearing": 52.64,
+        "sampleLat": 32.9329397,
+        "sampleLon": 35.0813268
+      },
+      {
+        "bearing": 230.62,
+        "sampleLat": 32.7952946,
+        "sampleLon": 34.9573946
+      }
+    ]
+  },
+  {
+    "stationId": "700",
+    "nameEn": "Kiryat Hayim",
+    "nameHe": "קריית חיים",
+    "trackDistanceM": 6,
+    "directions": [
+      {
+        "bearing": 29.51,
+        "sampleLat": 32.9572577,
+        "sampleLon": 35.0853383
+      },
+      {
+        "bearing": 211.16,
+        "sampleLat": 32.8147258,
+        "sampleLon": 34.9548373
+      }
+    ]
+  },
+  {
+    "stationId": "1400",
+    "nameEn": "Kiryat Motzkin",
+    "nameHe": "קריית מוצקין",
+    "trackDistanceM": 2,
+    "directions": [
+      {
+        "bearing": 31.46,
+        "sampleLat": 32.9610643,
+        "sampleLon": 35.0862262
+      },
+      {
+        "bearing": 210.84,
+        "sampleLat": 32.8238662,
+        "sampleLon": 34.9566199
+      }
+    ]
+  },
+  {
+    "stationId": "1500",
+    "nameEn": "Ako",
+    "nameHe": "עכו",
+    "trackDistanceM": 1,
+    "directions": [
+      {
+        "bearing": 162.63,
+        "sampleLat": 32.8074021,
+        "sampleLon": 35.0511643
+      },
+      {
+        "bearing": 342.56,
+        "sampleLat": 33.0055889,
+        "sampleLon": 35.0988985
+      }
+    ]
+  },
+  {
+    "stationId": "2300",
+    "nameEn": "Haifa - Hof HaKarmel",
+    "nameHe": "חיפה - חוף הכרמל",
+    "trackDistanceM": 2,
+    "directions": [
+      {
+        "bearing": 2.02,
+        "sampleLat": 32.8074021,
+        "sampleLon": 35.0511643
+      },
+      {
+        "bearing": 182.01,
+        "sampleLat": 32.658666,
+        "sampleLon": 34.9339483
+      },
+      {
+        "bearing": 2.01,
+        "sampleLat": 32.8016657,
+        "sampleLon": 34.9577189
+      },
+      {
+        "bearing": 181.67,
+        "sampleLat": 32.7892895,
+        "sampleLon": 34.9571447
+      }
+    ]
+  },
+  {
+    "stationId": "8700",
+    "nameEn": "Kfar Sava - Nordau",
+    "nameHe": "כפר סבא - נורדאו",
+    "trackDistanceM": 3,
+    "directions": [
+      {
+        "bearing": 285.97,
+        "sampleLat": 32.1428055,
+        "sampleLon": 34.810137
+      },
+      {
+        "bearing": 105.95,
+        "sampleLat": 32.1034148,
+        "sampleLon": 34.8500461
+      },
+      {
+        "bearing": 105.96,
+        "sampleLat": 32.1248711,
+        "sampleLon": 34.9341032
+      }
+    ]
+  },
+  {
+    "stationId": "1600",
+    "nameEn": "Nahariya",
+    "nameHe": "נהריה",
+    "trackDistanceM": 6,
+    "directions": [
+      {
+        "bearing": 191.08,
+        "sampleLat": 32.8756929,
+        "sampleLon": 35.0953574
+      },
+      {
+        "bearing": 11.51,
+        "sampleLat": 33.0055889,
+        "sampleLon": 35.0988985
+      }
+    ]
+  },
+  {
+    "stationId": "6300",
+    "nameEn": "Bet Shemesh",
+    "nameHe": "בית שמש",
+    "trackDistanceM": 1,
+    "directions": [
+      {
+        "bearing": 266.13,
+        "sampleLat": 31.7580443,
+        "sampleLon": 34.9893631
+      },
+      {
+        "bearing": 271.34,
+        "sampleLat": 31.8212982,
+        "sampleLon": 34.8676554
+      },
+      {
+        "bearing": 93.32,
+        "sampleLat": 31.7568713,
+        "sampleLon": 35.0887978
+      }
+    ]
+  },
+  {
+    "stationId": "7000",
+    "nameEn": "Kiryat Gat",
+    "nameHe": "קריית גת",
+    "trackDistanceM": 12,
+    "directions": [
+      {
+        "bearing": 20.26,
+        "sampleLat": 31.737045,
+        "sampleLon": 34.8216385
+      },
+      {
+        "bearing": 200.23,
+        "sampleLat": 31.473196,
+        "sampleLon": 34.7787686
+      }
+    ]
+  },
+  {
+    "stationId": "5000",
+    "nameEn": "Lod",
+    "nameHe": "לוד",
+    "trackDistanceM": 50,
+    "directions": [
+      {
+        "bearing": 50.09,
+        "sampleLat": 32.0453987,
+        "sampleLon": 34.7875391
+      },
+      {
+        "bearing": 230.67,
+        "sampleLat": 31.8896494,
+        "sampleLon": 34.7811011
+      },
+      {
+        "bearing": 232.22,
+        "sampleLat": 31.8747883,
+        "sampleLon": 34.7608596
+      },
+      {
+        "bearing": 230.43,
+        "sampleLat": 31.8276153,
+        "sampleLon": 34.8497704
+      },
+      {
+        "bearing": 49.74,
+        "sampleLat": 31.9514695,
+        "sampleLon": 34.8834437
+      }
+    ]
+  },
+  {
+    "stationId": "7300",
+    "nameEn": "Be'er Sheva - North/University",
+    "nameHe": "באר שבע - צפון/אוניברסיטה",
+    "trackDistanceM": 1,
+    "directions": [
+      {
+        "bearing": 119.45,
+        "sampleLat": 31.1929348,
+        "sampleLon": 34.9402004
+      },
+      {
+        "bearing": 298.86,
+        "sampleLat": 31.2633597,
+        "sampleLon": 34.8067576
+      },
+      {
+        "bearing": 299.33,
+        "sampleLat": 31.3304433,
+        "sampleLon": 34.7235773
+      },
+      {
+        "bearing": 120.08,
+        "sampleLat": 31.242985,
+        "sampleLon": 34.798421
+      },
+      {
+        "bearing": 119.36,
+        "sampleLat": 31.255521,
+        "sampleLon": 34.8218733
+      },
+      {
+        "bearing": 299.26,
+        "sampleLat": 31.3947529,
+        "sampleLon": 34.7950674
+      }
+    ]
+  },
+  {
+    "stationId": "4800",
+    "nameEn": "Kfar Habad",
+    "nameHe": "כפר חב\"ד",
+    "trackDistanceM": 3,
+    "directions": [
+      {
+        "bearing": 320.1,
+        "sampleLat": 32.0994374,
+        "sampleLon": 34.8025339
+      },
+      {
+        "bearing": 140.1,
+        "sampleLat": 31.9147425,
+        "sampleLon": 34.8112165
+      }
+    ]
+  },
+  {
+    "stationId": "4600",
+    "nameEn": "Tel Aviv - HaShalom",
+    "nameHe": "תל אביב - השלום",
+    "trackDistanceM": 4,
+    "directions": [
+      {
+        "bearing": 183.06,
+        "sampleLat": 31.9918748,
+        "sampleLon": 34.8846301
+      },
+      {
+        "bearing": 5.82,
+        "sampleLat": 32.2031871,
+        "sampleLon": 34.8333434
+      },
+      {
+        "bearing": 184.79,
+        "sampleLat": 31.9668257,
+        "sampleLon": 34.8788335
+      },
+      {
+        "bearing": 2.24,
+        "sampleLat": 32.1885165,
+        "sampleLon": 34.8397607
+      },
+      {
+        "bearing": 182.87,
+        "sampleLat": 31.9568259,
+        "sampleLon": 34.7588107
+      }
+    ]
+  },
+  {
+    "stationId": "2100",
+    "nameEn": "Haifa Center - HaShmona",
+    "nameHe": "חיפה - מרכז השמונה",
+    "trackDistanceM": 6,
+    "directions": [
+      {
+        "bearing": 121.42,
+        "sampleLat": 32.8044219,
+        "sampleLon": 35.0124838
+      },
+      {
+        "bearing": 120.95,
+        "sampleLat": 32.8656141,
+        "sampleLon": 35.0931648
+      },
+      {
+        "bearing": 301.42,
+        "sampleLat": 32.822306,
+        "sampleLon": 34.997177
+      }
+    ]
+  },
+  {
+    "stationId": "5010",
+    "nameEn": "Ramla",
+    "nameHe": "רמלה",
+    "trackDistanceM": 2,
+    "directions": [
+      {
+        "bearing": 139.3,
+        "sampleLat": 31.8080487,
+        "sampleLon": 34.8345216
+      },
+      {
+        "bearing": 319.31,
+        "sampleLat": 31.9491784,
+        "sampleLon": 34.880313
+      }
+    ]
+  },
+  {
+    "stationId": "8800",
+    "nameEn": "Rosh Ha'Ayin - North",
+    "nameHe": "ראש העין - צפון",
+    "trackDistanceM": 21,
+    "directions": [
+      {
+        "bearing": 181.55,
+        "sampleLat": 32.0926468,
+        "sampleLon": 34.8010399
+      },
+      {
+        "bearing": 1.38,
+        "sampleLat": 32.1471711,
+        "sampleLon": 34.9351619
+      }
+    ]
+  },
+  {
+    "stationId": "5300",
+    "nameEn": "Be'er Ya'akov",
+    "nameHe": "באר יעקב",
+    "trackDistanceM": 3,
+    "directions": [
+      {
+        "bearing": 99.09,
+        "sampleLat": 32.0131091,
+        "sampleLon": 34.8287516
+      },
+      {
+        "bearing": 279.09,
+        "sampleLat": 31.8896494,
+        "sampleLon": 34.7811011
+      },
+      {
+        "bearing": 279.09,
+        "sampleLat": 31.8434476,
+        "sampleLon": 34.7195023
+      }
+    ]
+  },
+  {
+    "stationId": "5200",
+    "nameEn": "Rehovot",
+    "nameHe": "רחובות",
+    "trackDistanceM": 2,
+    "directions": [
+      {
+        "bearing": 59.09,
+        "sampleLat": 31.9871296,
+        "sampleLon": 34.8589574
+      },
+      {
+        "bearing": 238.26,
+        "sampleLat": 31.8896494,
+        "sampleLon": 34.7811011
+      },
+      {
+        "bearing": 238.68,
+        "sampleLat": 31.812846,
+        "sampleLon": 34.6959833
+      },
+      {
+        "bearing": 59.05,
+        "sampleLat": 31.9125479,
+        "sampleLon": 34.8109227
+      }
+    ]
+  },
+  {
+    "stationId": "5410",
+    "nameEn": "Yavne-East",
+    "nameHe": "יבנה מזרח",
+    "trackDistanceM": 4,
+    "directions": [
+      {
+        "bearing": 48.73,
+        "sampleLat": 31.9401854,
+        "sampleLon": 34.8561582
+      },
+      {
+        "bearing": 228.75,
+        "sampleLat": 31.7541197,
+        "sampleLon": 34.6526982
+      }
+    ]
+  },
+  {
+    "stationId": "9100",
+    "nameEn": "Rishon LeTsiyon - HaRishonim",
+    "nameHe": "ראשון לציון - הראשונים",
+    "trackDistanceM": 16,
+    "directions": [
+      {
+        "bearing": 108.39,
+        "sampleLat": 31.936951,
+        "sampleLon": 34.816123
+      },
+      {
+        "bearing": 288.44,
+        "sampleLat": 31.9488754,
+        "sampleLon": 34.8027763
+      }
+    ]
+  },
+  {
+    "stationId": "5800",
+    "nameEn": "Ashdod - Ad Halom",
+    "nameHe": "אשדוד עד הלום",
+    "trackDistanceM": 12,
+    "directions": [
+      {
+        "bearing": 185.78,
+        "sampleLat": 31.6531783,
+        "sampleLon": 34.6052197
+      },
+      {
+        "bearing": 5.78,
+        "sampleLat": 31.8923329,
+        "sampleLon": 34.7317595
+      }
+    ]
+  },
+  {
+    "stationId": "4250",
+    "nameEn": "Petah Tikva - Segula",
+    "nameHe": "פתח תקווה - סגולה",
+    "trackDistanceM": 2,
+    "directions": [
+      {
+        "bearing": 276,
+        "sampleLat": 32.0596499,
+        "sampleLon": 34.7862543
+      },
+      {
+        "bearing": 96,
+        "sampleLat": 32.1471711,
+        "sampleLon": 34.9351619
+      }
+    ]
+  },
+  {
+    "stationId": "4100",
+    "nameEn": "Bnei Brak",
+    "nameHe": "בני ברק",
+    "trackDistanceM": 1,
+    "directions": [
+      {
+        "bearing": 112.45,
+        "sampleLat": 32.1023839,
+        "sampleLon": 34.8311121
+      },
+      {
+        "bearing": 96.03,
+        "sampleLat": 32.1471711,
+        "sampleLon": 34.9351619
+      },
+      {
+        "bearing": 276.04,
+        "sampleLat": 32.0117845,
+        "sampleLon": 34.7619019
+      }
+    ]
+  },
+  {
+    "stationId": "3600",
+    "nameEn": "Tel Aviv - University",
+    "nameHe": "תל אביב - אוניברסיטה",
+    "trackDistanceM": 2,
+    "directions": [
+      {
+        "bearing": 29.54,
+        "sampleLat": 32.1721157,
+        "sampleLon": 34.8718292
+      },
+      {
+        "bearing": 208.6,
+        "sampleLat": 31.9868357,
+        "sampleLon": 34.7570033
+      },
+      {
+        "bearing": 209.67,
+        "sampleLat": 32.0101456,
+        "sampleLon": 34.8551346
+      },
+      {
+        "bearing": 29.49,
+        "sampleLat": 32.232265,
+        "sampleLon": 34.8485461
+      },
+      {
+        "bearing": 211.02,
+        "sampleLat": 31.9958435,
+        "sampleLon": 34.8501418
+      }
+    ]
+  },
+  {
+    "stationId": "7320",
+    "nameEn": "Be'er Sheva - Center",
+    "nameHe": "באר שבע - מרכז",
+    "trackDistanceM": 8,
+    "directions": [
+      {
+        "bearing": 160.63,
+        "sampleLat": 31.3297248,
+        "sampleLon": 34.7699687
+      },
+      {
+        "bearing": 340.63,
+        "sampleLat": 31.2429522,
+        "sampleLon": 34.7983116
+      },
+      {
+        "bearing": 155.54,
+        "sampleLat": 31.3437294,
+        "sampleLon": 34.7974556
+      }
+    ]
+  },
+  {
+    "stationId": "1220",
+    "nameEn": "HaMifrats Central Station",
+    "nameHe": "מרכזית המפרץ (לב המפרץ)",
+    "trackDistanceM": 1,
+    "directions": [
+      {
+        "bearing": 97.86,
+        "sampleLat": 32.9082538,
+        "sampleLon": 35.0839901
+      },
+      {
+        "bearing": 278.14,
+        "sampleLat": 32.7654895,
+        "sampleLon": 34.9545905
+      },
+      {
+        "bearing": 126.18,
+        "sampleLat": 32.6838342,
+        "sampleLon": 35.1174358
+      }
+    ]
+  },
+  {
+    "stationId": "4900",
+    "nameEn": "Tel Aviv - HaHagana",
+    "nameHe": "תל אביב - ההגנה",
+    "trackDistanceM": 5,
+    "directions": [
+      {
+        "bearing": 3.88,
+        "sampleLat": 32.182408,
+        "sampleLon": 34.8270466
+      },
+      {
+        "bearing": 182.42,
+        "sampleLat": 31.9408628,
+        "sampleLon": 34.744845
+      },
+      {
+        "bearing": 181.07,
+        "sampleLat": 31.9549911,
+        "sampleLon": 34.887046
+      },
+      {
+        "bearing": 182,
+        "sampleLat": 31.9755469,
+        "sampleLon": 34.9008698
+      }
+    ]
+  },
+  {
+    "stationId": "8600",
+    "nameEn": "Ben Gurion Airport",
+    "nameHe": "נמל תעופה בן גוריון",
+    "trackDistanceM": 5,
+    "directions": [
+      {
+        "bearing": 301.19,
+        "sampleLat": 32.0860357,
+        "sampleLon": 34.7989414
+      },
+      {
+        "bearing": 123.25,
+        "sampleLat": 31.8936883,
+        "sampleLon": 34.9571438
+      }
+    ]
+  },
+  {
+    "stationId": "5900",
+    "nameEn": "Ashkelon",
+    "nameHe": "אשקלון",
+    "trackDistanceM": 1,
+    "directions": [
+      {
+        "bearing": 358.32,
+        "sampleLat": 31.7911433,
+        "sampleLon": 34.6793802
+      },
+      {
+        "bearing": 178.01,
+        "sampleLat": 31.5492678,
+        "sampleLon": 34.5791113
+      },
+      {
+        "bearing": 178.49,
+        "sampleLat": 31.6748809,
+        "sampleLon": 34.6042918
+      }
+    ]
+  },
+  {
+    "stationId": "7500",
+    "nameEn": "Dimona",
+    "nameHe": "דימונה",
+    "trackDistanceM": 5,
+    "directions": [
+      {
+        "bearing": 112.33,
+        "sampleLat": 31.0032937,
+        "sampleLon": 35.0720369
+      },
+      {
+        "bearing": 293.81,
+        "sampleLat": 31.1637719,
+        "sampleLon": 34.9879574
+      }
+    ]
+  },
+  {
+    "stationId": "9200",
+    "nameEn": "Hod HaSharon - Sokolov",
+    "nameHe": "הוד השרון - סוקולוב",
+    "trackDistanceM": 3,
+    "directions": [
+      {
+        "bearing": 114.05,
+        "sampleLat": 32.1248711,
+        "sampleLon": 34.9341032
+      },
+      {
+        "bearing": 114.29,
+        "sampleLat": 32.1072454,
+        "sampleLon": 34.8666329
+      },
+      {
+        "bearing": 293.72,
+        "sampleLat": 32.1267495,
+        "sampleLon": 34.810341
+      }
+    ]
+  },
+  {
+    "stationId": "4170",
+    "nameEn": "Petah Tikva - Kiryat Arye",
+    "nameHe": "פתח תקווה  - קריית אריה",
+    "trackDistanceM": 5,
+    "directions": [
+      {
+        "bearing": 72.33,
+        "sampleLat": 32.1471711,
+        "sampleLon": 34.9351619
+      },
+      {
+        "bearing": 252.28,
+        "sampleLat": 32.0374273,
+        "sampleLon": 34.7669099
+      }
+    ]
+  },
+  {
+    "stationId": "5150",
+    "nameEn": "Lod - Gane Aviv",
+    "nameHe": "לוד גני אביב",
+    "trackDistanceM": 2,
+    "directions": [
+      {
+        "bearing": 320.2,
+        "sampleLat": 32.0671317,
+        "sampleLon": 34.7919588
+      },
+      {
+        "bearing": 140.09,
+        "sampleLat": 31.8896494,
+        "sampleLon": 34.7811011
+      }
+    ]
+  },
+  {
+    "stationId": "8550",
+    "nameEn": "Lehavim - Rahat",
+    "nameHe": "להבים - רהט",
+    "trackDistanceM": 3,
+    "directions": [
+      {
+        "bearing": 355.56,
+        "sampleLat": 31.5005106,
+        "sampleLon": 34.7859651
+      },
+      {
+        "bearing": 175.32,
+        "sampleLat": 31.2460705,
+        "sampleLon": 34.8242583
+      }
+    ]
+  },
+  {
+    "stationId": "300",
+    "nameEn": "Pa'ate Modi'in",
+    "nameHe": "פאתי מודיעין",
+    "trackDistanceM": 3,
+    "directions": [
+      {
+        "bearing": 281.01,
+        "sampleLat": 31.997451,
+        "sampleLon": 34.8761884
+      },
+      {
+        "bearing": 101.44,
+        "sampleLat": 31.9013627,
+        "sampleLon": 35.0055827
+      },
+      {
+        "bearing": 102.01,
+        "sampleLat": 31.8927136,
+        "sampleLon": 34.9627335
+      },
+      {
+        "bearing": 280.7,
+        "sampleLat": 31.8810954,
+        "sampleLon": 34.9513142
+      }
+    ]
+  },
+  {
+    "stationId": "400",
+    "nameEn": "Modi'in - Center",
+    "nameHe": "מודיעין - מרכז",
+    "trackDistanceM": 2,
+    "directions": [
+      {
+        "bearing": 166.87,
+        "sampleLat": 31.9649902,
+        "sampleLon": 34.9047339
+      },
+      {
+        "bearing": 346.87,
+        "sampleLat": 31.901238,
+        "sampleLon": 35.005712
+      }
+    ]
+  },
+  {
+    "stationId": "4640",
+    "nameEn": "Holon Junction",
+    "nameHe": "צומת חולון",
+    "trackDistanceM": 0,
+    "directions": [
+      {
+        "bearing": 54.65,
+        "sampleLat": 32.1637362,
+        "sampleLon": 34.8176626
+      },
+      {
+        "bearing": 239.11,
+        "sampleLat": 31.9179613,
+        "sampleLon": 34.739834
+      }
+    ]
+  },
+  {
+    "stationId": "4660",
+    "nameEn": "Holon - Wolfson",
+    "nameHe": "חולון - וולפסון",
+    "trackDistanceM": 2,
+    "directions": [
+      {
+        "bearing": 11.22,
+        "sampleLat": 32.1491093,
+        "sampleLon": 34.8121025
+      },
+      {
+        "bearing": 184.74,
+        "sampleLat": 31.9029975,
+        "sampleLon": 34.7366101
+      }
+    ]
+  },
+  {
+    "stationId": "4680",
+    "nameEn": "Bat Yam - Yoseftal",
+    "nameHe": "בת ים - יוספטל",
+    "trackDistanceM": 7,
+    "directions": [
+      {
+        "bearing": 359.97,
+        "sampleLat": 32.1267495,
+        "sampleLon": 34.810341
+      },
+      {
+        "bearing": 181.3,
+        "sampleLat": 31.8859395,
+        "sampleLon": 34.7280845
+      }
+    ]
+  },
+  {
+    "stationId": "4690",
+    "nameEn": "Bat Yam - Komemiyut",
+    "nameHe": "בת ים - קוממיות",
+    "trackDistanceM": 2,
+    "directions": [
+      {
+        "bearing": 10.56,
+        "sampleLat": 32.1127828,
+        "sampleLon": 34.8103536
+      },
+      {
+        "bearing": 189.15,
+        "sampleLat": 31.872864,
+        "sampleLon": 34.7188583
+      }
+    ]
+  },
+  {
+    "stationId": "9800",
+    "nameEn": "Rishon LeTsiyon - Moshe Dayan",
+    "nameHe": "ראשון לציון - משה דיין",
+    "trackDistanceM": 7,
+    "directions": [
+      {
+        "bearing": 8.04,
+        "sampleLat": 32.1007113,
+        "sampleLon": 34.8030138
+      },
+      {
+        "bearing": 187.43,
+        "sampleLat": 31.861156,
+        "sampleLon": 34.7159892
+      }
+    ]
+  },
+  {
+    "stationId": "9000",
+    "nameEn": "Yavne - West",
+    "nameHe": "יבנה מערב",
+    "trackDistanceM": 2,
+    "directions": [
+      {
+        "bearing": 22.45,
+        "sampleLat": 32.0187482,
+        "sampleLon": 34.7617498
+      },
+      {
+        "bearing": 204.6,
+        "sampleLat": 31.770897,
+        "sampleLon": 34.6658043
+      }
+    ]
+  },
+  {
+    "stationId": "9600",
+    "nameEn": "Sderot",
+    "nameHe": "שדרות",
+    "trackDistanceM": 48,
+    "directions": [
+      {
+        "bearing": 3.35,
+        "sampleLat": 31.640119,
+        "sampleLon": 34.5995358
+      },
+      {
+        "bearing": 185.27,
+        "sampleLat": 31.3986912,
+        "sampleLon": 34.583594
+      }
+    ]
+  },
+  {
+    "stationId": "9650",
+    "nameEn": "Netivot",
+    "nameHe": "נתיבות",
+    "trackDistanceM": 2,
+    "directions": [
+      {
+        "bearing": 304.97,
+        "sampleLat": 31.5277574,
+        "sampleLon": 34.5790743
+      },
+      {
+        "bearing": 124.97,
+        "sampleLat": 31.3144055,
+        "sampleLon": 34.66993
+      }
+    ]
+  },
+  {
+    "stationId": "9700",
+    "nameEn": "Ofakim",
+    "nameHe": "אופקים",
+    "trackDistanceM": 83,
+    "directions": [
+      {
+        "bearing": 120.51,
+        "sampleLat": 31.3259473,
+        "sampleLon": 34.7826899
+      },
+      {
+        "bearing": 299.33,
+        "sampleLat": 31.434621,
+        "sampleLon": 34.5583489
+      }
+    ]
+  },
+  {
+    "stationId": "3310",
+    "nameEn": "Netanya - Sapir",
+    "nameHe": "נתניה - ספיר",
+    "trackDistanceM": 4,
+    "directions": [
+      {
+        "bearing": 194.57,
+        "sampleLat": 32.1520121,
+        "sampleLon": 34.8129551
+      },
+      {
+        "bearing": 14.65,
+        "sampleLat": 32.4138146,
+        "sampleLon": 34.8888228
+      }
+    ]
+  },
+  {
+    "stationId": "1240",
+    "nameEn": "Yokne'am - Kfar Yehoshu'a",
+    "nameHe": "יקנעם - כפר יהושע",
+    "trackDistanceM": 7,
+    "directions": [
+      {
+        "bearing": 293.48,
+        "sampleLat": 32.7842695,
+        "sampleLon": 35.0380455
+      },
+      {
+        "bearing": 113.58,
+        "sampleLat": 32.6276771,
+        "sampleLon": 35.2734551
+      }
+    ]
+  },
+  {
+    "stationId": "1250",
+    "nameEn": "Migdal Ha'emek - Kfar Barukh",
+    "nameHe": "מגדל העמק - כפר ברוך",
+    "trackDistanceM": 13,
+    "directions": [
+      {
+        "bearing": 292.62,
+        "sampleLat": 32.7238555,
+        "sampleLon": 35.0954026
+      },
+      {
+        "bearing": 113.38,
+        "sampleLat": 32.5757363,
+        "sampleLon": 35.3270156
+      }
+    ]
+  },
+  {
+    "stationId": "1260",
+    "nameEn": "Afula R.Eitan",
+    "nameHe": "עפולה ר. איתן",
+    "trackDistanceM": 24,
+    "directions": [
+      {
+        "bearing": 309.51,
+        "sampleLat": 32.6638163,
+        "sampleLon": 35.1486487
+      },
+      {
+        "bearing": 129.33,
+        "sampleLat": 32.5467614,
+        "sampleLon": 35.4130718
+      }
+    ]
+  },
+  {
+    "stationId": "1280",
+    "nameEn": "Beit She'an",
+    "nameHe": "בית שאן",
+    "trackDistanceM": 13,
+    "directions": [
+      {
+        "bearing": 290.83,
+        "sampleLat": 32.5643441,
+        "sampleLon": 35.3432785
+      },
+      {
+        "bearing": 110.26,
+        "sampleLat": 32.51384,
+        "sampleLon": 35.4911404
+      }
+    ]
+  },
+  {
+    "stationId": "1820",
+    "nameEn": "Ahihud",
+    "nameHe": "אחיהוד",
+    "trackDistanceM": 2,
+    "directions": [
+      {
+        "bearing": 268.08,
+        "sampleLat": 32.9001317,
+        "sampleLon": 35.0851738
+      },
+      {
+        "bearing": 88.24,
+        "sampleLat": 32.9242721,
+        "sampleLon": 35.2995402
+      }
+    ]
+  },
+  {
+    "stationId": "1840",
+    "nameEn": "Karmiel",
+    "nameHe": "כרמיאל",
+    "trackDistanceM": 29,
+    "directions": [
+      {
+        "bearing": 273.6,
+        "sampleLat": 32.9126926,
+        "sampleLon": 35.1357861
+      },
+      {
+        "bearing": 92.62,
+        "sampleLat": 32.9242721,
+        "sampleLon": 35.2995402
+      }
+    ]
+  },
+  {
+    "stationId": "2940",
+    "nameEn": "Ra'anana West",
+    "nameHe": "רעננה מערב",
+    "trackDistanceM": 0,
+    "directions": [
+      {
+        "bearing": 116.9,
+        "sampleLat": 32.1248711,
+        "sampleLon": 34.9341032
+      },
+      {
+        "bearing": 297.19,
+        "sampleLat": 32.0833561,
+        "sampleLon": 34.7981985
+      },
+      {
+        "bearing": 117.35,
+        "sampleLat": 32.1109141,
+        "sampleLon": 34.9203769
+      }
+    ]
+  },
+  {
+    "stationId": "2960",
+    "nameEn": "Ra'anana South",
+    "nameHe": "רעננה דרום",
+    "trackDistanceM": 3,
+    "directions": [
+      {
+        "bearing": 265.87,
+        "sampleLat": 32.1160528,
+        "sampleLon": 34.810579
+      },
+      {
+        "bearing": 88.73,
+        "sampleLat": 32.1107533,
+        "sampleLon": 34.8796684
+      },
+      {
+        "bearing": 85.7,
+        "sampleLat": 32.1248711,
+        "sampleLon": 34.9341032
+      }
+    ]
+  },
+  {
+    "stationId": "6150",
+    "nameEn": "Kiryat Malakhi – Yoav",
+    "nameHe": "קריית מלאכי - יואב",
+    "trackDistanceM": 5,
+    "directions": [
+      {
+        "bearing": 5.27,
+        "sampleLat": 31.8722274,
+        "sampleLon": 34.8708594
+      },
+      {
+        "bearing": 185.34,
+        "sampleLat": 31.620345,
+        "sampleLon": 34.7793334
+      }
+    ]
+  },
+  {
+    "stationId": "680",
+    "nameEn": "Jerusalem - Yitzhak Navon",
+    "nameHe": "ירושלים - יצחק נבון",
+    "trackDistanceM": 10,
+    "directions": [
+      {
+        "bearing": 99.78,
+        "sampleLat": 31.7875145,
+        "sampleLon": 35.2056411
+      },
+      {
+        "bearing": 282.87,
+        "sampleLat": 31.826118,
+        "sampleLon": 35.0478736
+      }
+    ]
+  },
+  {
+    "stationId": "6900",
+    "nameEn": "Mazkeret Batya",
+    "nameHe": "מזכרת בתיה",
+    "trackDistanceM": 4,
+    "directions": [
+      {
+        "bearing": 25.81,
+        "sampleLat": 31.9491784,
+        "sampleLon": 34.880313
+      },
+      {
+        "bearing": 204.2,
+        "sampleLat": 31.7134521,
+        "sampleLon": 34.8174224
+      }
+    ]
+  }
+]

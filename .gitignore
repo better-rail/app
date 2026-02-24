@@ -108,3 +108,4 @@ app/config/env.*.js
 .metro-health-check*
 ios/fastlane/.env
 .cursor/mcp.json
+*.log
