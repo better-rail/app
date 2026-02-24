@@ -281,8 +281,12 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={WAGONS_SCROLL_CONTAINER}
               onContentSizeChange={() => {
+                // Content is forced LTR, so scroll positions are always physical:
+                // scrollToEnd = rightmost (car #1 for N/E), scrollTo(0) = leftmost (car #1 for S/W).
                 if (direction === "N" || direction === "E") {
                   scrollViewRef.current?.scrollToEnd({ animated: false })
+                } else if (direction === "S" || direction === "W") {
+                  scrollViewRef.current?.scrollTo({ x: 0, animated: false })
                 }
               }}
             >
