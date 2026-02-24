@@ -99,11 +99,7 @@
     "wagonsCount": "%{count} קרונות",
     "seatsCount": "%{count} מושבים",
     "trainInformation": "מידע על הרכבת",
-    "noWagonInformationAvailable": "לא נמצא מידע על הרכבת",
-    "directionNorth": "צפון",
-    "directionSouth": "דרום",
-    "directionEast": "מזרח",
-    "directionWest": "מערב"
+    "noWagonInformationAvailable": "לא נמצא מידע על הרכבת"
   },
   "settings": {
     "title": "הגדרות",

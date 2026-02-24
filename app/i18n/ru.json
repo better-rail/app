@@ -96,11 +96,7 @@
     "wagonsCount": "%{count} вагонов",
     "seatsCount": "%{count} мест",
     "trainInformation": "Информация о поезде",
-    "noWagonInformationAvailable": "Информация о вагонах недоступна",
-    "directionNorth": "Север",
-    "directionSouth": "Юг",
-    "directionEast": "Восток",
-    "directionWest": "Запад"
+    "noWagonInformationAvailable": "Информация о вагонах недоступна"
   },
   "settings": {
     "title": "Настройки",

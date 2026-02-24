@@ -92,11 +92,7 @@
     "wagonsCount": "%{count} عربات",
     "seatsCount": "%{count} مقاعد",
     "trainInformation": "معلومات القطار",
-    "noWagonInformationAvailable": "لا توجد معلومات عن العربات متاحة",
-    "directionNorth": "شمال",
-    "directionSouth": "جنوب",
-    "directionEast": "شرق",
-    "directionWest": "غرب"
+    "noWagonInformationAvailable": "لا توجد معلومات عن العربات متاحة"
   },
   "settings": {
     "title": "اعدادت",

@@ -55,12 +55,6 @@ const DIRECTION_ARROW: TextStyle = {
   color: color.primary,
 }
 
-const DIRECTION_LABEL: TextStyle = {
-  fontSize: 10,
-  color: color.label,
-  marginTop: spacing[0],
-}
-
 const LEGEND_CONTAINER: ViewStyle = {
   flexDirection: "row",
   justifyContent: "center",
@@ -294,9 +288,6 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
                 <View style={[DIRECTION_INDICATOR, { marginLeft: 0, marginRight: spacing[2] }]}>
                   <Text style={WAGON_NUMBER_TEXT}> </Text>
                   <Text style={DIRECTION_ARROW}>←</Text>
-                  <Text style={DIRECTION_LABEL}>
-                    {direction === "S" ? translate("routeDetails.directionSouth") : translate("routeDetails.directionWest")}
-                  </Text>
                 </View>
               )}
               {displayWagons.map((wagon, index) => (
@@ -312,13 +303,6 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
                 <View style={DIRECTION_INDICATOR}>
                   <Text style={WAGON_NUMBER_TEXT}> </Text>
                   <Text style={DIRECTION_ARROW}>→</Text>
-                  <Text style={DIRECTION_LABEL}>
-                    {direction === "N"
-                      ? translate("routeDetails.directionNorth")
-                      : direction === "E"
-                      ? translate("routeDetails.directionEast")
-                      : "?"}
-                  </Text>
                 </View>
               )}
             </ScrollView>
