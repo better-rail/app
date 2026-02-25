@@ -1,5 +1,5 @@
-import { useMemo, useRef } from "react"
-import { View, ViewStyle, ScrollView, TextStyle, Platform } from "react-native"
+import { useCallback, useMemo, useRef } from "react"
+import { View, ViewStyle, ScrollView, TextStyle, Platform, Pressable, LayoutChangeEvent } from "react-native"
 import { Text } from "../../components"
 import { color, spacing } from "../../theme"
 import { RouteDetailsTrainInfoScreenProps } from "../../navigators/main-navigator"
@@ -7,6 +7,7 @@ import type { Wagon } from "../../services/api/rail-api.types"
 import { translate } from "../../i18n"
 import { getTrainDirection } from "../../utils/helpers/direction-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import HapticFeedback from "react-native-haptic-feedback"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -175,11 +176,13 @@ function WagonItem({
   isFirst,
   isLast,
   isAccessibilityWagon,
+  onLayout,
 }: {
   wagon: Wagon
   isFirst: boolean
   isLast: boolean
   isAccessibilityWagon: boolean
+  onLayout?: (e: LayoutChangeEvent) => void
 }) {
   const hasFeatures = isAccessibilityWagon || wagon.bicycle
 
@@ -197,7 +200,7 @@ function WagonItem({
   const containerStyle = isLast ? [WAGON_ITEM_CONTAINER, { marginRight: 0 }] : WAGON_ITEM_CONTAINER
 
   return (
-    <View style={containerStyle}>
+    <View style={containerStyle} onLayout={onLayout}>
       <Text style={WAGON_NUMBER_TEXT}>{wagon.shurA2}</Text>
       <View style={boxStyle}>
         {hasFeatures && (
@@ -239,6 +242,14 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
   }, [train])
 
   const scrollViewRef = useRef<ScrollView>(null)
+  const wagonLayoutsRef = useRef<Record<number, number>>({})
+
+  const scrollToWagonIndex = useCallback((targetIndex: number) => {
+    const x = wagonLayoutsRef.current[targetIndex]
+    if (x !== undefined) {
+      scrollViewRef.current?.scrollTo({ x: Math.max(0, x - 20), animated: true })
+    }
+  }, [])
 
   // Car #1 is always the front (locomotive end). Accessibility = southernmost car.
   // N/E: descending (car #N on left = southernmost/accessibility, car #1 on right = front) → N
@@ -259,6 +270,21 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
   const hasHandicapped = accessibilityWagonIndex !== null
   const hasBicycle = sortedWagons.some((w) => w.bicycle)
   const showLegend = hasHandicapped || hasBicycle
+
+  const handleAccessibilityPress = useCallback(() => {
+    if (accessibilityWagonIndex !== null) {
+      HapticFeedback.trigger("impactLight")
+      scrollToWagonIndex(accessibilityWagonIndex)
+    }
+  }, [accessibilityWagonIndex, scrollToWagonIndex])
+
+  const handleBicyclePress = useCallback(() => {
+    const firstBicycleIndex = displayWagons.findIndex((w) => w.bicycle)
+    if (firstBicycleIndex !== -1) {
+      HapticFeedback.trigger("impactLight")
+      scrollToWagonIndex(firstBicycleIndex)
+    }
+  }, [displayWagons, scrollToWagonIndex])
 
   const seatCount = train.visaWagonData?.seatplaces
   const wagonCount = train.visaWagonData?.totkr
@@ -304,6 +330,9 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
                   isFirst={index === 0}
                   isLast={index === displayWagons.length - 1}
                   isAccessibilityWagon={index === accessibilityWagonIndex}
+                  onLayout={(e) => {
+                    wagonLayoutsRef.current[index] = e.nativeEvent.layout.x
+                  }}
                 />
               ))}
               {(direction === "N" || direction === "E" || direction === null) && (
@@ -322,16 +351,16 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
           {showLegend && (
             <View style={LEGEND_CONTAINER}>
               {hasHandicapped && (
-                <View style={LEGEND_ITEM}>
+                <Pressable style={LEGEND_ITEM} onPress={handleAccessibilityPress}>
                   <Text style={{ fontSize: 16 }}>♿</Text>
                   <Text style={LEGEND_TEXT}>{translate("routeDetails.wheelchairAccessible")}</Text>
-                </View>
+                </Pressable>
               )}
               {hasBicycle && (
-                <View style={LEGEND_ITEM}>
+                <Pressable style={LEGEND_ITEM} onPress={handleBicyclePress}>
                   <Text style={{ fontSize: 16 }}>🚲</Text>
                   <Text style={LEGEND_TEXT}>{translate("routeDetails.bicyclesAllowed")}</Text>
-                </View>
+                </Pressable>
               )}
             </View>
           )}
