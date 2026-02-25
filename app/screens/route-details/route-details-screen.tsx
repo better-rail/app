@@ -26,6 +26,7 @@ import { useStations } from "../../data/stations"
 import { calculateDelayedTime } from "../../utils/helpers/date-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
+import HapticFeedback from "react-native-haptic-feedback"
 import { translate } from "../../i18n"
 
 const ROOT: ViewStyle = {
@@ -312,7 +313,10 @@ export function RouteDetailsScreen({ route, navigation }: RouteDetailsScreenProp
           >
             {hasWagonData && (
               <Pressable
-                onPress={() => navigation.navigate("routeDetailsTrainInfo", { train: routeItem.trains[0] })}
+                onPress={() => {
+                  HapticFeedback.trigger("impactLight")
+                  navigation.navigate("routeDetailsTrainInfo", { train: routeItem.trains[0] })
+                }}
                 accessibilityLabel={translate("routeDetails.trainInformation")}
               >
                 <LiquidGlassView
