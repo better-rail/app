@@ -73,7 +73,7 @@
     "filter": "סינון",
     "stationHours": "שעות פעילות",
     "hideSlowTrains": "הסתרת רכבות מאספות",
-    "slowTrainsDescription": "רכבות מאספות הן רכבות שהמסלול וזמן הנסיעה שלהן ארוכים משמעותית מרכבות אחרות."
+    "slowTrainsDescription": "רכבות מאספות הן רכבות שמסלול וזמן הנסיעה שלהם ארוך משמעותית מרכבות אחרות."
   },
   "routeDetails": {
     "platform": "רציף",
