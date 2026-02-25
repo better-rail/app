@@ -7,6 +7,7 @@ import type { Wagon } from "../../services/api/rail-api.types"
 import { translate } from "../../i18n"
 import { getTrainDirection } from "../../utils/helpers/direction-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import HapticFeedback from "react-native-haptic-feedback"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -272,6 +273,7 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
 
   const handleAccessibilityPress = useCallback(() => {
     if (accessibilityWagonIndex !== null) {
+      HapticFeedback.trigger("impactLight")
       scrollToWagonIndex(accessibilityWagonIndex)
     }
   }, [accessibilityWagonIndex, scrollToWagonIndex])
@@ -279,6 +281,7 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
   const handleBicyclePress = useCallback(() => {
     const firstBicycleIndex = displayWagons.findIndex((w) => w.bicycle)
     if (firstBicycleIndex !== -1) {
+      HapticFeedback.trigger("impactLight")
       scrollToWagonIndex(firstBicycleIndex)
     }
   }, [displayWagons, scrollToWagonIndex])
