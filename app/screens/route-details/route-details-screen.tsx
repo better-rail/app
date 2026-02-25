@@ -26,6 +26,7 @@ import { useStations } from "../../data/stations"
 import { calculateDelayedTime } from "../../utils/helpers/date-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
+import HapticFeedback from "react-native-haptic-feedback"
 import { translate } from "../../i18n"
 import { trackEvent } from "../../services/analytics"
 
@@ -315,6 +316,7 @@ export function RouteDetailsScreen({ route, navigation }: RouteDetailsScreenProp
               <Pressable
                 onPress={() => {
                   trackEvent("train_info_sheet_opened")
+                  HapticFeedback.trigger("impactLight")
                   navigation.navigate("routeDetailsTrainInfo", { train: routeItem.trains[0] })
                 }}
                 accessibilityLabel={translate("routeDetails.trainInformation")}
