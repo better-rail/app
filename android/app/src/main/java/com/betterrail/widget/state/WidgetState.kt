@@ -35,8 +35,7 @@ sealed class WidgetState {
         val originId: String,
         val originName: String,
         val destinationName: String,
-        val errorMessage: String,
-        val retryText: String = "Tap to retry"
+        val errorMessage: String
     ) : WidgetState()
     
     data class TomorrowFallback(
@@ -148,10 +147,12 @@ class WidgetStateRenderer(
     private fun renderError(context: Context, views: RemoteViews, state: WidgetState.Error) {
         views.setTextViewText(R.id.widget_station_name, state.originName.ifEmpty { context.getString(R.string.error) })
         views.setTextViewText(R.id.widget_destination, state.destinationName)
-        views.setTextViewText(getTrainTimeId(), "ERROR")
-        views.setTextViewText(R.id.widget_train_label, "CONNECTION")
-        views.setTextViewText(R.id.widget_platform, state.retryText)
+        views.setTextViewText(getTrainTimeId(), "--:--")
+        views.setTextViewText(R.id.widget_train_label, context.getString(R.string.next_train))
+        views.setTextColor(R.id.widget_train_label, context.getColor(R.color.widget_next_train_text))
+        views.setTextViewText(R.id.widget_platform, context.getString(R.string.connection_error))
         views.setTextViewText(R.id.widget_train_number, "")
+        views.setViewVisibility(R.id.widget_dot_separator, android.view.View.GONE)
 
         if (layoutResource == R.layout.widget_compact_4x2) {
             views.setTextViewText(R.id.widget_arrival_time, "--:--")

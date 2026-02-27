@@ -39,6 +39,7 @@
     <string name="no_trains">No trains</string>
     <string name="check_schedule">Check schedule</string>
     <string name="tap_to_retry">Tap to retry</string>
+    <string name="connection_error">Connection error</string>
     <string name="error">Error</string>
     <string name="time_placeholder">--:--</string>
     <string name="upcoming">UPCOMING</string>
