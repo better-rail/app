@@ -148,24 +148,24 @@ class RailApiService(
             retryDelays = RetryUtils.DEFAULT_RETRY_DELAYS,
             logTag = "RailApiService"
         ) { attempt ->
-            val response = client.newCall(request).execute()
-            
-            android.util.Log.d("RailApiService", "Response code: ${response.code}")
-            
-            when {
-                !response.isSuccessful -> {
-                    android.util.Log.e("RailApiService", "HTTP Error: ${response.code} - ${response.message}")
-                    Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
-                }
-                
-                else -> {
-                    val responseBody = response.body?.string()
-                    if (responseBody.isNullOrEmpty()) {
-                        android.util.Log.e("RailApiService", "Empty response body")
-                        Result.failure(Exception("Empty response body"))
-                    } else {
-                        // Success! Process the response
-                        processApiResponse(responseBody, originId, destinationId, isRequestForFutureDate)
+            client.newCall(request).execute().use { response ->
+                android.util.Log.d("RailApiService", "Response code: ${response.code}")
+
+                when {
+                    !response.isSuccessful -> {
+                        android.util.Log.e("RailApiService", "HTTP Error: ${response.code} - ${response.message}")
+                        Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
+                    }
+
+                    else -> {
+                        val responseBody = response.body?.string()
+                        if (responseBody.isNullOrEmpty()) {
+                            android.util.Log.e("RailApiService", "Empty response body")
+                            Result.failure(Exception("Empty response body"))
+                        } else {
+                            // Success! Process the response
+                            processApiResponse(responseBody, originId, destinationId, isRequestForFutureDate)
+                        }
                     }
                 }
             }
