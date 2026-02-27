@@ -30,23 +30,30 @@ class RailApiService(
         private val TIME_FORMAT = SimpleDateFormat("HH:mm", Locale.getDefault())
     }
 
+    @Volatile
+    private var cachedClient: OkHttpClient? = null
+
     /**
-     * Create HTTP client with configurable timeouts
+     * Get or create a shared HTTP client. The client is cached so that connection pooling
+     * and keep-alive actually work across requests and retry attempts.
      */
-    private suspend fun createClient(): OkHttpClient {
+    private suspend fun getOrCreateClient(): OkHttpClient {
+        cachedClient?.let { return it }
+
         val timeouts = networkConfig.networkTimeouts.first()
-        
+
         return OkHttpClient.Builder()
             .connectTimeout(timeouts.connectTimeoutSeconds, TimeUnit.SECONDS)
             .readTimeout(timeouts.readTimeoutSeconds, TimeUnit.SECONDS)
             .writeTimeout(timeouts.writeTimeoutSeconds, TimeUnit.SECONDS)
             .connectionPool(okhttp3.ConnectionPool(
-                timeouts.connectionPoolSize, 
-                timeouts.connectionKeepAliveMinutes, 
+                timeouts.connectionPoolSize,
+                timeouts.connectionKeepAliveMinutes,
                 TimeUnit.MINUTES
-            )) // Reuse connections
-            .retryOnConnectionFailure(true) // Auto-retry on connection failure
+            ))
+            .retryOnConnectionFailure(true)
             .build()
+            .also { cachedClient = it }
     }
 
     private val gson = Gson()
@@ -132,31 +139,33 @@ class RailApiService(
             .addHeader("ocp-apim-subscription-key", API_KEY)
             .build()
 
+        // Create client once before retries so connection pooling works across attempts
+        val client = getOrCreateClient()
+
         // Retry logic for network timeouts with exponential backoff
         return RetryUtils.withRetry(
             maxRetries = MAX_RETRIES,
             retryDelays = RetryUtils.DEFAULT_RETRY_DELAYS,
             logTag = "RailApiService"
         ) { attempt ->
-            val client = createClient()
-            val response = client.newCall(request).execute()
-            
-            android.util.Log.d("RailApiService", "Response code: ${response.code}")
-            
-            when {
-                !response.isSuccessful -> {
-                    android.util.Log.e("RailApiService", "HTTP Error: ${response.code} - ${response.message}")
-                    Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
-                }
-                
-                else -> {
-                    val responseBody = response.body?.string()
-                    if (responseBody.isNullOrEmpty()) {
-                        android.util.Log.e("RailApiService", "Empty response body")
-                        Result.failure(Exception("Empty response body"))
-                    } else {
-                        // Success! Process the response
-                        processApiResponse(responseBody, originId, destinationId, isRequestForFutureDate)
+            client.newCall(request).execute().use { response ->
+                android.util.Log.d("RailApiService", "Response code: ${response.code}")
+
+                when {
+                    !response.isSuccessful -> {
+                        android.util.Log.e("RailApiService", "HTTP Error: ${response.code} - ${response.message}")
+                        Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
+                    }
+
+                    else -> {
+                        val responseBody = response.body?.string()
+                        if (responseBody.isNullOrEmpty()) {
+                            android.util.Log.e("RailApiService", "Empty response body")
+                            Result.failure(Exception("Empty response body"))
+                        } else {
+                            // Success! Process the response
+                            processApiResponse(responseBody, originId, destinationId, isRequestForFutureDate)
+                        }
                     }
                 }
             }
