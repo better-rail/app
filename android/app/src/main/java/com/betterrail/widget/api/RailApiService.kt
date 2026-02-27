@@ -10,6 +10,8 @@ import com.google.gson.JsonParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import com.betterrail.widget.utils.RetryUtils
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
@@ -22,6 +24,10 @@ import java.util.concurrent.TimeUnit
 class RailApiService(
     private val networkConfig: NetworkConfig
 ) {
+    private var cachedClient: OkHttpClient? = null
+    private var cachedTimeouts: NetworkConfig.NetworkTimeouts? = null
+    private val clientMutex = Mutex()
+
     companion object {
         private val API_KEY = BuildConfig.RAIL_API_KEY
         private const val MAX_RETRIES = 3
@@ -31,22 +37,38 @@ class RailApiService(
     }
 
     /**
-     * Create HTTP client with configurable timeouts
+     * Get or create HTTP client with configurable timeouts
      */
-    private suspend fun createClient(): OkHttpClient {
-        val timeouts = networkConfig.networkTimeouts.first()
+    private suspend fun getClient(): OkHttpClient {
+        val currentTimeouts = networkConfig.networkTimeouts.first()
         
-        return OkHttpClient.Builder()
-            .connectTimeout(timeouts.connectTimeoutSeconds, TimeUnit.SECONDS)
-            .readTimeout(timeouts.readTimeoutSeconds, TimeUnit.SECONDS)
-            .writeTimeout(timeouts.writeTimeoutSeconds, TimeUnit.SECONDS)
-            .connectionPool(okhttp3.ConnectionPool(
-                timeouts.connectionPoolSize, 
-                timeouts.connectionKeepAliveMinutes, 
-                TimeUnit.MINUTES
-            )) // Reuse connections
-            .retryOnConnectionFailure(true) // Auto-retry on connection failure
-            .build()
+        return clientMutex.withLock {
+            val client = cachedClient
+            val timeouts = cachedTimeouts
+            if (client != null && timeouts == currentTimeouts) {
+                client
+            } else {
+                android.util.Log.d("RailApiService", "Creating new OkHttpClient instance")
+                // Cleanup old client resources if replacing
+                client?.dispatcher?.executorService?.shutdown()
+                client?.connectionPool?.evictAll()
+                
+                OkHttpClient.Builder()
+                    .connectTimeout(currentTimeouts.connectTimeoutSeconds, TimeUnit.SECONDS)
+                    .readTimeout(currentTimeouts.readTimeoutSeconds, TimeUnit.SECONDS)
+                    .writeTimeout(currentTimeouts.writeTimeoutSeconds, TimeUnit.SECONDS)
+                    .connectionPool(okhttp3.ConnectionPool(
+                        currentTimeouts.connectionPoolSize, 
+                        currentTimeouts.connectionKeepAliveMinutes, 
+                        TimeUnit.MINUTES
+                    )) // Reuse connections
+                    .retryOnConnectionFailure(true) // Auto-retry on connection failure
+                    .build().also {
+                        cachedClient = it
+                        cachedTimeouts = currentTimeouts
+                    }
+            }
+        }
     }
 
     private val gson = Gson()
@@ -138,25 +160,25 @@ class RailApiService(
             retryDelays = RetryUtils.DEFAULT_RETRY_DELAYS,
             logTag = "RailApiService"
         ) { attempt ->
-            val client = createClient()
-            val response = client.newCall(request).execute()
-            
-            android.util.Log.d("RailApiService", "Response code: ${response.code}")
-            
-            when {
-                !response.isSuccessful -> {
-                    android.util.Log.e("RailApiService", "HTTP Error: ${response.code} - ${response.message}")
-                    Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
-                }
+            val client = getClient()
+            client.newCall(request).execute().use { response ->
+                android.util.Log.d("RailApiService", "Response code: ${response.code}")
                 
-                else -> {
-                    val responseBody = response.body?.string()
-                    if (responseBody.isNullOrEmpty()) {
-                        android.util.Log.e("RailApiService", "Empty response body")
-                        Result.failure(Exception("Empty response body"))
-                    } else {
-                        // Success! Process the response
-                        processApiResponse(responseBody, originId, destinationId, isRequestForFutureDate)
+                when {
+                    !response.isSuccessful -> {
+                        android.util.Log.e("RailApiService", "HTTP Error: ${response.code} - ${response.message}")
+                        Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
+                    }
+                    
+                    else -> {
+                        val responseBody = response.body?.string()
+                        if (responseBody.isNullOrEmpty()) {
+                            android.util.Log.e("RailApiService", "Empty response body")
+                            Result.failure(Exception("Empty response body"))
+                        } else {
+                            // Success! Process the response
+                            processApiResponse(responseBody, originId, destinationId, isRequestForFutureDate)
+                        }
                     }
                 }
             }
