@@ -35,8 +35,7 @@ sealed class WidgetState {
         val originId: String,
         val originName: String,
         val destinationName: String,
-        val errorMessage: String,
-        val retryText: String = "Tap to retry"
+        val errorMessage: String
     ) : WidgetState()
     
     data class TomorrowFallback(

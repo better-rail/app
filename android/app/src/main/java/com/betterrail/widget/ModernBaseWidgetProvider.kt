@@ -393,8 +393,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
             widgetData.originId,
             StationsData.getStationName(localeContext, widgetData.originId),
             StationsData.getStationName(localeContext, widgetData.destinationId),
-            errorMessage,
-            localeContext.getString(R.string.tap_to_retry)
+            errorMessage
         )
         updateWidgetUI(context, appWidgetManager, appWidgetId, state)
     }
