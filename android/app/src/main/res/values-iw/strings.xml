@@ -40,6 +40,7 @@
     <string name="no_trains">אין רכבות</string>
     <string name="check_schedule">בדוק לוח זמנים</string>
     <string name="tap_to_retry">הקש כדי לנסות שוב</string>
+    <string name="connection_error">שגיאת חיבור</string>
     <string name="error">שגיאה</string>
     <string name="time_placeholder">--:--</string>
     <string name="upcoming">רכבות קרובות</string>
