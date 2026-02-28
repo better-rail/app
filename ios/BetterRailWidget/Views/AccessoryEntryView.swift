@@ -80,10 +80,10 @@ struct AccessoryEntryView: View {
                 Spacer()
               } else {
                 VStack(alignment: .leading) {
-                  Text(entry.isTomorrow ? "TOMORROW" : "NEXT TRAIN")
-                    .font(.system(size: geometry.size.width * 0.06))
-                    .foregroundColor(entry.isTomorrow ? Color("purply") : Color("pinky"))
-                    .offset(y: 4)
+              Text(entry.isTomorrow ? String(localized: "TOMORROW") : String(localized: "NEXT TRAIN"))
+                .font(.system(size: geometry.size.width * 0.06))
+                .foregroundColor(entry.isTomorrow ? Color("purply") : Color("pinky"))
+                .offset(y: 4)
                   Text(entry.departureTime)
                     .bold()
                     .font(.system(size: geometry.size.width * 0.145, design: .rounded))
@@ -92,7 +92,7 @@ struct AccessoryEntryView: View {
                 
                 if let upcomingTrains = entry.upcomingTrains?.prefix(2), !upcomingTrains.isEmpty {
                   VStack(alignment: .leading) {
-                    Text("UPCOMING")
+                    Text(String(localized: "UPCOMING"))
                       .font(.system(size: geometry.size.width * 0.055))
                       .foregroundColor(.gray)
                       .offset(y: 2)

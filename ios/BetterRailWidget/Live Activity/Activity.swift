@@ -137,7 +137,7 @@ class LiveActivitiesController {
   private func registerLiveActivity(_ activity: LiveActivityRoute, token: String) async {
     let details = activity.attributes
           
-    let ride = Ride(token: token, departureDate: details.departureTime, originId: details.originStationId, destinationId: details.destinationStationId, trains: details.trainNumbers, locale: "en")
+    let ride = Ride(token: token, departureDate: details.departureTime, originId: details.originStationId, destinationId: details.destinationStationId, trains: details.trainNumbers, locale: getAppLanguage())
 
     Task.init {
       do {

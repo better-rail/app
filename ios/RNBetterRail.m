@@ -18,5 +18,6 @@ RCT_EXTERN_METHOD(monitorActivities)
 RCT_EXTERN_METHOD(reloadAllTimelines)
 RCT_EXTERN_METHOD(activityAuthorizationInfo:(NSString *)emptyString resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(isRunningOnMac:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(setAppGroupUserLocale:(NSString *)languageCode)
 
 @end

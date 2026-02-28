@@ -15,12 +15,16 @@ struct BetterRailWidgetView: View {
     if accessoryWidgetFamilies.contains(widgetFamily) {
       AccessoryEntryView(entry: entry)
         .widgetURL(URL(string: "widget://route?originId=\(entry.origin.id)&destinationId=\(entry.destination.id)")!)
+        .environment(\.locale, getAppLocale())
+        .environment(\.layoutDirection, getLayoutDirection())
     } else {
       #if os(watchOS)
         EmptyView()
       #else
       WidgetEntryView(entry: entry)
         .widgetURL(URL(string: "widget://route?originId=\(entry.origin.id)&destinationId=\(entry.destination.id)")!)
+        .environment(\.locale, getAppLocale())
+        .environment(\.layoutDirection, getLayoutDirection())
       #endif
     }
   }

@@ -145,4 +145,12 @@ class RNBetterRail: NSObject {
       resolve(false)
     }
   }
+
+  @objc func setAppGroupUserLocale(_ languageCode: String) -> Void {
+    guard let userDefaults = UserDefaults(suiteName: "group.il.co.better-rail") else {
+      print("Error: Could not access UserDefaults for app group 'group.il.co.better-rail'.")
+      return
+    }
+    userDefaults.set(languageCode, forKey: "userLocale")
+  }
 }
