@@ -14,10 +14,16 @@ enum class WidgetSize(
     val actionRefresh: String,
     val actionWidgetUpdate: String,
     val actionRouteReversal: String,
+    val clickTargets: IntArray
 ) {
     COMPACT_2X2(
         layoutRes = R.layout.widget_compact_2x2,
-        containerId = R.id.widget_container_compact,
+        containerId = R.id.widget_content_container_2x2,
+        clickTargets = intArrayOf(
+            R.id.widget_container_compact,
+            R.id.widget_content_container_2x2,
+            R.id.widget_station_background
+        ),
         widgetType = "modern_widget2x2",
         logTag = "ModernCompactWidget2x2Provider",
         configActivity = CompactWidget2x2ConfigActivity::class.java,
@@ -27,7 +33,12 @@ enum class WidgetSize(
     ),
     COMPACT_4X2(
         layoutRes = R.layout.widget_compact_4x2,
-        containerId = R.id.widget_container_compact_4x2,
+        containerId = R.id.widget_content_container_4x2,
+        clickTargets = intArrayOf(
+            R.id.widget_container_compact_4x2,
+            R.id.widget_content_container_4x2,
+            R.id.widget_station_background
+        ),
         widgetType = "modern_widget4x2",
         logTag = "ModernCompactWidget4x2Provider",
         configActivity = CompactWidget4x2ConfigActivity::class.java,
@@ -37,7 +48,12 @@ enum class WidgetSize(
     ),
     COMPACT_5X2(
         layoutRes = R.layout.widget_compact_4x2, // Reuse 4x2 layout for now
-        containerId = R.id.widget_container_compact_4x2,
+        containerId = R.id.widget_content_container_4x2,
+        clickTargets = intArrayOf(
+            R.id.widget_container_compact_4x2,
+            R.id.widget_content_container_4x2,
+            R.id.widget_station_background
+        ),
         widgetType = "modern_widget5x2",
         logTag = "ModernCompactWidget5x2Provider",
         configActivity = CompactWidget4x2ConfigActivity::class.java, // Reuse 4x2 config

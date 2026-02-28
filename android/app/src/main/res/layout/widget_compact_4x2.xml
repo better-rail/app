@@ -15,6 +15,7 @@
 
     <!-- Main Content Layout -->
     <LinearLayout
+        android:id="@+id/widget_content_container_4x2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
