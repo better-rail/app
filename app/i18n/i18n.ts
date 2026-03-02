@@ -1,4 +1,4 @@
-import { I18nManager, Platform } from "react-native"
+import { I18nManager, Platform, NativeModules } from "react-native"
 import RNRestart from "react-native-restart-newarch"
 import { setAnalyticsUserProperty } from "../services/analytics"
 import Preferences from "react-native-default-preference"
@@ -84,6 +84,10 @@ export function setUserLanguage(languageCode: LanguageCode) {
 
   if (Platform.OS === "android") {
     Preferences.set("userLocale", languageCode)
+  }
+
+  if (Platform.OS === "ios") {
+    NativeModules.RNBetterRail.setAppGroupUserLocale(languageCode)
   }
 
   if (
