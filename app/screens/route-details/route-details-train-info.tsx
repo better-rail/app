@@ -299,7 +299,7 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
 
       {hasWagons ? (
         <>
-          <View>
+          <View style={{ direction: "ltr" }}>
             <ScrollView
               ref={scrollViewRef}
               horizontal
