@@ -84,6 +84,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
     abstract fun getActionRouteReversal(): String
     abstract fun getLayoutResource(): Int
     abstract fun getWidgetContainerId(): Int
+    open fun getClickTargetIds(): IntArray = intArrayOf(getWidgetContainerId())
     abstract fun getLogTag(): String
     abstract fun getWidgetType(): String
     abstract fun getConfigActivityClass(): Class<*>
@@ -515,7 +516,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                                 views = views,
                                 appWidgetId = appWidgetId,
                                 widgetData = widgetData,
-                                clickTargetId = getWidgetContainerId(),
+                                clickTargetIds = getClickTargetIds(),
                                 useDeeplink = true,
                                 deeplinkPath = getWidgetType()
                             )
@@ -540,7 +541,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                                 views = views,
                                 appWidgetId = appWidgetId,
                                 widgetData = widgetData,
-                                clickTargetId = getWidgetContainerId(),
+                                clickTargetIds = getClickTargetIds(),
                                 useDeeplink = true,
                                 deeplinkPath = getWidgetType()
                             )
@@ -605,7 +606,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         views: RemoteViews, 
         appWidgetId: Int, 
         widgetData: WidgetData, 
-        clickTargetId: Int,
+        clickTargetIds: IntArray,
         useDeeplink: Boolean = true,
         deeplinkPath: String = "widget"
     ) {
@@ -628,7 +629,9 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
             )
         }
         
-        views.setOnClickPendingIntent(clickTargetId, pendingIntent)
+        for (clickTargetId in clickTargetIds) {
+            views.setOnClickPendingIntent(clickTargetId, pendingIntent)
+        }
     }
 
     private fun setupRefreshClickIntent(context: Context, views: RemoteViews) {
@@ -639,7 +642,9 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
             context, 0, intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        views.setOnClickPendingIntent(getWidgetContainerId(), pendingIntent)
+        for (targetId in getClickTargetIds()) {
+            views.setOnClickPendingIntent(targetId, pendingIntent)
+        }
     }
 
     private fun setupRouteReversalClickIntent(context: Context, views: RemoteViews, appWidgetId: Int) {
@@ -670,7 +675,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
             views = views,
             appWidgetId = appWidgetId,
             widgetData = widgetData,
-            clickTargetId = R.id.widget_station_name,
+            clickTargetIds = intArrayOf(R.id.widget_station_name),
             useDeeplink = true,
             deeplinkPath = getWidgetType()
         )
@@ -680,7 +685,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
             views = views,
             appWidgetId = appWidgetId,
             widgetData = widgetData,
-            clickTargetId = R.id.widget_destination_container,
+            clickTargetIds = intArrayOf(R.id.widget_destination_container),
             useDeeplink = true,
             deeplinkPath = getWidgetType()
         )
