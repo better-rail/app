@@ -17,15 +17,15 @@
     <string name="search_origin_hint">חפש תחנת מוצא...</string>
     <string name="search_destination_hint">חפש תחנת יעד...</string>
     <string name="widget_advanced_label">מתקדם</string>
-    <string name="widget_allow_route_reversal">אפשר הקשה על שמות התחנות להחלפת כיוון</string>
+    <string name="widget_allow_route_reversal">לחיצה על שם התחנה להחלפת כיוון</string>
     <string name="widget_max_changes_label">החלפת רכבות</string>
     <string-array name="max_changes_options">
         <item>ללא הגבלה</item>
         <item>רכבות ישירות בלבד</item>
         <item>החלפה אחת לכל היותר</item>
     </string-array>
-    <string name="widget_auto_reverse_route">היפוך מסלול בוקר/ערב</string>
-    <string name="widget_auto_reverse_description">הכיוון מתהפך אוטומטית בהתאם לשעות בוקר וערב</string>
+    <string name="widget_auto_reverse_route">שינוי כיוון אוטומטי</string>
+    <string name="widget_auto_reverse_description">שינוי כיוון בהתאם לשעה (בוקר/ערב)</string>
   
     <!-- Widget display strings -->
     <string name="tap_to_configure">הקש כדי להגדיר</string>
