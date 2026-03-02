@@ -33,6 +33,9 @@ class RailApiService(
     @Volatile
     private var cachedClient: OkHttpClient? = null
 
+    // Track whether we've fallen back to proxy API
+    private var hasFallenBackToProxy = false
+
     /**
      * Get or create a shared HTTP client. The client is cached so that connection pooling
      * and keep-alive actually work across requests and retry attempts.
@@ -115,7 +118,12 @@ class RailApiService(
         requestHour: String,
         isRequestForFutureDate: Boolean
     ): Result<WidgetScheduleData> {
-        val baseUrl = BuildConfig.RAIL_API_TIMETABLE_URL
+        // Start with direct API
+        val baseUrl = if (hasFallenBackToProxy) {
+            BuildConfig.RAIL_API_PROXY_TIMETABLE_URL
+        } else {
+            BuildConfig.RAIL_API_TIMETABLE_URL
+        }
 
         val url = buildApiUrl(baseUrl)
         val requestBody = createRequestBody(originId, destinationId, requestDate, requestHour)
@@ -152,6 +160,12 @@ class RailApiService(
                 android.util.Log.d("RailApiService", "Response code: ${response.code}")
 
                 when {
+                    response.code == 403 && !hasFallenBackToProxy -> {
+                        android.util.Log.w("RailApiService", "Got 403 error, falling back to proxy API")
+                        hasFallenBackToProxy = true
+                        return@withRetry makeApiCall(originId, destinationId, requestDate, requestHour, isRequestForFutureDate)
+                    }
+
                     !response.isSuccessful -> {
                         android.util.Log.e("RailApiService", "HTTP Error: ${response.code} - ${response.message}")
                         Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
@@ -163,7 +177,6 @@ class RailApiService(
                             android.util.Log.e("RailApiService", "Empty response body")
                             Result.failure(Exception("Empty response body"))
                         } else {
-                            // Success! Process the response
                             processApiResponse(responseBody, originId, destinationId, isRequestForFutureDate)
                         }
                     }

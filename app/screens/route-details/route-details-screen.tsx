@@ -28,6 +28,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
 import HapticFeedback from "react-native-haptic-feedback"
 import { translate } from "../../i18n"
+import { trackEvent } from "../../services/analytics"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -314,6 +315,7 @@ export function RouteDetailsScreen({ route, navigation }: RouteDetailsScreenProp
             {hasWagonData && (
               <Pressable
                 onPress={() => {
+                  trackEvent("train_info_sheet_opened")
                   HapticFeedback.trigger("impactLight")
                   navigation.navigate("routeDetailsTrainInfo", { train: routeItem.trains[0] })
                 }}
