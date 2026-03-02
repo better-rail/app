@@ -150,7 +150,7 @@ class WidgetStateRenderer(
         views.setTextViewText(getTrainTimeId(), "--:--")
         views.setTextViewText(R.id.widget_train_label, context.getString(R.string.next_train))
         views.setTextColor(R.id.widget_train_label, context.getColor(R.color.widget_next_train_text))
-        views.setTextViewText(R.id.widget_platform, context.getString(R.string.connection_error))
+        views.setTextViewText(R.id.widget_platform, context.getString(R.string.connection_error) + " ⋅ " + context.getString(R.string.tap_to_retry))
         views.setTextViewText(R.id.widget_train_number, "")
         views.setViewVisibility(R.id.widget_dot_separator, android.view.View.GONE)
 
