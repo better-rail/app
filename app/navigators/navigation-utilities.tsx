@@ -66,14 +66,11 @@ export function useBackButtonHandler(ref: React.RefObject<NavigationContainerRef
         return false
       }
 
-      // we can't exit, so let's turn this into a back action
-      if (navigation.canGoBack()) {
-        navigation.goBack()
-
-        return true
-      }
-
-      return false
+      // Don't call goBack() here — react-native-screens handles back navigation
+      // natively for both the hardware button and the predictive back gesture.
+      // Calling goBack() as well would pop two screens instead of one.
+      // We only return true to prevent the app from exiting.
+      return true
     }
 
     // Subscribe when we come to life
