@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 const TEXT: TextStyle = {
   fontSize: 18,
   textAlign: "center",
+  color: "white",
 }
 
 export function ZollyAnnouncementScreen({ navigation }: LiveAnnouncementStackProps) {
@@ -17,27 +18,29 @@ export function ZollyAnnouncementScreen({ navigation }: LiveAnnouncementStackPro
   }
 
   return (
-    <Screen preset="scroll">
-      <ScrollView
-        contentContainerStyle={{
-          flex: 1,
-          paddingTop: insets.top + spacing[4],
-          paddingHorizontal: spacing[5],
-          paddingBottom: spacing[5] * fontScale,
-        }}
-      >
-        <View style={{ marginBottom: spacing[6], alignItems: "center" }}>
-          <Image
-            source={require("../../../assets/zolly.png")}
-            style={{ height: 80, width: 200, resizeMode: "contain", marginBottom: spacing[3] }}
-          />
-          <Text text="Coming soon" style={TEXT} />
-        </View>
+    <ScrollView
+      contentContainerStyle={{
+        flex: 1,
+        paddingTop: insets.top + spacing[4],
+        paddingHorizontal: spacing[5],
+        paddingBottom: spacing[5] * fontScale,
+        backgroundColor: "#116012",
+      }}
+    >
+      <View style={{ marginBottom: spacing[3], alignItems: "center" }}>
+        <Text text="חדש מבטר רייל" style={TEXT} />
+        <Image
+          source={require("../../../assets/zolly.png")}
+          tintColor="#def49e"
+          style={{ height: 200, width: 200, resizeMode: "contain" }}
+        />
+      </View>
 
-        <View style={{ flex: 1 }} />
+      <Text>יצרנו אפליקצייה חדשה</Text>
 
-        <Button title="Done" onPress={handleDone} />
-      </ScrollView>
-    </Screen>
+      <View style={{ flex: 1 }} />
+
+      <Button title="Done" onPress={handleDone} />
+    </ScrollView>
   )
 }
