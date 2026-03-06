@@ -40,7 +40,7 @@ export function Chip({ children, variant, onPress, style }: ChipProps) {
       <Pressable onPress={onPress}>
         <LiquidGlassView
           interactive
-          style={variant === "transparent" ? TRANSPARENT_CHIP_WRAPPER : CHIP_WRAPPER}
+          style={[variant === "transparent" ? TRANSPARENT_CHIP_WRAPPER : CHIP_WRAPPER, style]}
           tintColor={VARIANTS[variant]}
         >
           {children}

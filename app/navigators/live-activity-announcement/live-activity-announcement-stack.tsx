@@ -1,6 +1,6 @@
 import React from "react"
 import { createStackNavigator, StackScreenProps } from "@react-navigation/stack"
-import { StartRideAnnouncement, ActivityAnnouncementScreen, DynamicIslandScreen, SupportUsScreen } from "../../screens"
+import { StartRideAnnouncement, ActivityAnnouncementScreen, DynamicIslandScreen, SupportUsScreen, ZollyAnnouncementScreen } from "../../screens"
 import { BlurView } from "expo-blur"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { CloseButton } from "../../components"
@@ -14,6 +14,7 @@ export type LiveAnnouncementParamList = {
   liveActivity: undefined
   dynamicIsland: undefined
   supportUs: undefined
+  zolly: undefined
 }
 
 const LiveAnnouncementStack = createStackNavigator<LiveAnnouncementParamList>()
@@ -50,6 +51,7 @@ export const LiveAnnouncementNavigator = () => (
     <LiveAnnouncementStack.Screen name="liveActivity" component={ActivityAnnouncementScreen} />
     <LiveAnnouncementStack.Screen name="dynamicIsland" component={DynamicIslandScreen} />
     <LiveAnnouncementStack.Screen name="supportUs" component={SupportUsScreen} />
+    <LiveAnnouncementStack.Screen name="zolly" component={ZollyAnnouncementScreen} />
   </LiveAnnouncementStack.Navigator>
 )
 

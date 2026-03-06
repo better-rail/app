@@ -14,6 +14,7 @@ import { ImportantAnnouncementBar } from "./Important-announcement-bar"
 import { railApi } from "../../services/api"
 import { useQuery } from "react-query"
 import { head, isEmpty } from "lodash"
+import { isLiquidGlassSupported } from "@callstack/liquid-glass"
 
 const HEADER_WRAPPER: ViewStyle = {
   flexDirection: "row",
@@ -45,15 +46,24 @@ const TRAIN_ICON = require("../../../assets/train.ios.png")
 const SPARKLES_ICON = require("../../../assets/sparkles.png")
 const UPDATES_ICON = require("../../../assets/updates.png")
 const SETTINGS_ICON = require("../../../assets/settings.png")
+const ZOLLY_LOGO = require("../../../assets/zolly.png")
 
 type NavigationProps = StackNavigationProp<RootParamList, "mainStack">
 
 export function PlannerScreenHeader() {
-  const { origin, destination } = useRoutePlanStore(
-    useShallow((s) => ({ origin: s.origin, destination: s.destination }))
-  )
-  const { route: rideRoute, canRunLiveActivities, originId: rideOriginId, destinationId: rideDestinationId } = useRideStore(
-    useShallow((s) => ({ route: s.route, canRunLiveActivities: s.canRunLiveActivities, originId: s.originId, destinationId: s.destinationId }))
+  const { origin, destination } = useRoutePlanStore(useShallow((s) => ({ origin: s.origin, destination: s.destination })))
+  const {
+    route: rideRoute,
+    canRunLiveActivities,
+    originId: rideOriginId,
+    destinationId: rideDestinationId,
+  } = useRideStore(
+    useShallow((s) => ({
+      route: s.route,
+      canRunLiveActivities: s.canRunLiveActivities,
+      originId: s.originId,
+      destinationId: s.destinationId,
+    })),
   )
   const seenUrgentMessagesIds = useSettingsStore((s) => s.seenUrgentMessagesIds)
   const navigation = useNavigation<NavigationProps>()
@@ -118,6 +128,17 @@ export function PlannerScreenHeader() {
               <Text style={{ color: "white", fontWeight: "500", marginVertical: spacing[1] }} tx="common.new" />
             </Chip>
           )}
+
+          <Chip
+            variant="success"
+            onPress={() => navigation.navigate("liveAnnouncementStack", { screen: "zolly" })}
+            style={{
+              backgroundColor: isLiquidGlassSupported ? "transparent" : "#115210",
+              paddingStart: spacing[4],
+            }}
+          >
+            <Image source={ZOLLY_LOGO} style={{ height: 32, width: 32, resizeMode: "center", tintColor: "#f5fea7" }} />
+          </Chip>
         </View>
         <TouchableOpacity onPress={openAnnouncements} activeOpacity={0.8} accessibilityLabel={translate("routes.updates")}>
           <Image source={UPDATES_ICON} style={[HEADER_ICON_IMAGE]} />
