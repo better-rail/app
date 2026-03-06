@@ -33,7 +33,11 @@
     "placeholder": "البحث عن محطة",
     "instructions": "ابحث عن محطات القطار باستخدام شريط البحث",
     "recentSearches": "عمليات البحث الأخيرة",
-    "hide": "إخفاء"
+    "hide": "إخفاء",
+    "nearbyStations": "المحطات القريبة",
+    "findNearbyStations": "البحث عن محطات قريبة",
+    "locationDenied": "تم رفض الوصول إلى الموقع",
+    "locationError": "خطأ في الحصول على الموقع"
   },
   "trainTypes": {
     "train": "قطار",

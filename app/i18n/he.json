@@ -37,7 +37,11 @@
     "placeholder": "חיפוש תחנה",
     "instructions": "חפשו תחנות רכבת באמצעות שורת החיפוש",
     "recentSearches": "חיפושים אחרונים",
-    "hide": "הסרה"
+    "hide": "הסרה",
+    "nearbyStations": "תחנות קרובות",
+    "findNearbyStations": "מציאת תחנות קרובות",
+    "locationDenied": "הגישה למיקום נדחתה",
+    "locationError": "שגיאה בקבלת המיקום"
   },
   "trainTypes": {
     "train": "רכבת",

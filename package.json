@@ -58,6 +58,7 @@
     "expo-calendar": "~15.0.7",
     "expo-clipboard": "^8.0.7",
     "expo-localization": "~17.0.7",
+    "expo-location": "^55.1.2",
     "expo-network": "~8.0.8",
     "fuse.js": "6.4.6",
     "i18n-js": "3.8.0",

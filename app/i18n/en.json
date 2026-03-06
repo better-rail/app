@@ -37,7 +37,11 @@
     "placeholder": "Search Stations",
     "instructions": "Search for train stations using the search bar above.",
     "recentSearches": "Recently Searched",
-    "hide": "Hide"
+    "hide": "Hide",
+    "nearbyStations": "Nearby Stations",
+    "findNearbyStations": "Find Nearby Stations",
+    "locationDenied": "Location access denied",
+    "locationError": "Error getting location"
   },
   "trainTypes": {
     "train": "Train",

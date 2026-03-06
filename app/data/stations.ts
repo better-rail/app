@@ -20,6 +20,8 @@ export type NormalizedStation = {
   image?: any
   hebrew: string
   alias: string[]
+  lat: number
+  lon: number
 }
 
 const stations: Station[] = [
@@ -742,6 +744,8 @@ export const useStations = () => {
         image: station.image,
         hebrew: station.hebrew,
         alias: station.alias,
+        lat: station.lat,
+        lon: station.lon,
       }))
       .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
   }, [locale])

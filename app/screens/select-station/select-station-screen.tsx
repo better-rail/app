@@ -8,6 +8,7 @@ import { color, spacing, isDarkMode } from "../../theme"
 import { NormalizedStation } from "../../data/stations"
 import { SearchInput } from "./search-input"
 import { RecentSearchesBox } from "./recent-searches-box/recent-searches-box"
+import { NearbyStationsBox } from "./nearby-stations-box/nearby-stations-box"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { FlashList } from "@shopify/flash-list"
 import { useFilteredStations } from "../../hooks"
@@ -89,6 +90,7 @@ export function SelectStationScreen({ navigation, route }: SelectStationScreenPr
         ListEmptyComponent={() => (
           <View>
             <RecentSearchesBox selectionType={route.params.selectionType} />
+            <NearbyStationsBox selectionType={route.params.selectionType} />
             {recentSearchEntries.length > 1 && <FavoriteRoutes />}
           </View>
         )}
