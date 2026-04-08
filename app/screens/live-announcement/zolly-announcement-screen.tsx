@@ -36,7 +36,9 @@ export function ZollyAnnouncementScreen({ navigation }: LiveAnnouncementStackPro
         />
       </View>
 
-      <Text>יצרנו אפליקצייה חדשה</Text>
+      <Text>זולי היא אפליקצייה חדשה שעבדנו עליה בשנה האחרונה, שתעזור לכם לחסוך כסף בקניות בסופר. </Text>
+      <Text>היא עוזרת בהשוואת סל הקניות בין חנויות, מציאת מבצעים ושיתוף רשימת הקניות בין חברים ומשפחה.</Text>
+      <Text>זמין עכשיו להורדה בחינם דרך חנות האפליקציות.</Text>
 
       <View style={{ flex: 1 }} />
 
