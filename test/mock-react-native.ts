@@ -50,6 +50,8 @@ mock.module("react-native", () => {
     Linking: {
       openURL: mock(),
       canOpenURL: mock(() => Promise.resolve(true)),
+      getInitialURL: mock(() => Promise.resolve(null)),
+      addEventListener: mock(() => ({ remove: mock() })),
     },
     processColor: (color: string) => color,
     AppState: {
