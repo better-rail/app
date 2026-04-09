@@ -2,8 +2,12 @@ package com.betterrail.modules
 
 import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.util.Log
 import android.content.Context
+import com.betterrail.widget.ModernCompactWidget2x2Provider
+import com.betterrail.widget.ModernCompactWidget4x2Provider
 
 @ReactModule(name = WidgetNavigationModule.NAME)
 class WidgetNavigationModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
@@ -66,6 +70,32 @@ class WidgetNavigationModule(reactContext: ReactApplicationContext) : ReactConte
             promise.resolve(true)
         } catch (e: Exception) {
             promise.reject("ERROR", "Failed to clear pending navigation", e)
+        }
+    }
+
+    @ReactMethod
+    fun getInstalledWidgets(promise: Promise) {
+        try {
+            val appWidgetManager = AppWidgetManager.getInstance(reactApplicationContext)
+            val families = WritableNativeArray()
+
+            val compact2x2Ids = appWidgetManager.getAppWidgetIds(
+                ComponentName(reactApplicationContext, ModernCompactWidget2x2Provider::class.java)
+            )
+            if (compact2x2Ids.isNotEmpty()) {
+                families.pushString("compact")
+            }
+
+            val compact4x2Ids = appWidgetManager.getAppWidgetIds(
+                ComponentName(reactApplicationContext, ModernCompactWidget4x2Provider::class.java)
+            )
+            if (compact4x2Ids.isNotEmpty()) {
+                families.pushString("wide")
+            }
+
+            promise.resolve(families)
+        } catch (e: Exception) {
+            promise.reject("ERROR", "Failed to get installed widgets", e)
         }
     }
 

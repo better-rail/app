@@ -145,4 +145,34 @@ class RNBetterRail: NSObject {
       resolve(false)
     }
   }
+
+  @objc func getInstalledWidgets(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
+    WidgetCenter.shared.getCurrentConfigurations { result in
+      switch result {
+      case .success(let widgets):
+        var families: [String] = []
+        for widget in widgets {
+          switch widget.family {
+          case .systemSmall:
+            families.append("small")
+          case .systemMedium:
+            families.append("medium")
+          case .systemLarge:
+            families.append("large")
+          case .accessoryCircular:
+            families.append("accessoryCircular")
+          case .accessoryInline:
+            families.append("accessoryInline")
+          case .accessoryRectangular:
+            families.append("accessoryRectangular")
+          @unknown default:
+            families.append("unknown")
+          }
+        }
+        resolve(families)
+      case .failure(let error):
+        reject("error", "Failed to get widget configurations", error)
+      }
+    }
+  }
 }
