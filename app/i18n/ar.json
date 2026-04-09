@@ -92,6 +92,7 @@
     "wagonsCount": "%{count} عربات",
     "seatsCount": "%{count} مقاعد",
     "trainInformation": "معلومات القطار",
+    "noTrainDetails": "تفاصيل القطار غير متوفرة بعد لهذا القطار.",
     "noWagonInformationAvailable": "لا توجد معلومات عن العربات متاحة"
   },
   "settings": {
