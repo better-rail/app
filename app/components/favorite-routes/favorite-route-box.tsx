@@ -20,14 +20,12 @@ const CONTAINER: ViewStyle = {
 }
 
 const IMAGE_BACKGROUND: ImageStyle = {
-  ...StyleSheet.absoluteFill,
   justifyContent: "center",
   borderRadius: borderRadius,
   overflow: "hidden",
 }
 
 const BACKGROUND_DIMMER: ViewStyle = {
-  ...StyleSheet.absoluteFill,
   borderRadius: borderRadius,
   backgroundColor: "#111",
   opacity: 0.6,
@@ -190,8 +188,8 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
         onLongPress={Platform.OS === "android" ? onLongPress : undefined}
       >
         <View style={CONTAINER}>
-          <ImageBackground source={stationImage} style={IMAGE_BACKGROUND} blurRadius={6} />
-          <View style={BACKGROUND_DIMMER} />
+          <ImageBackground source={stationImage} style={[StyleSheet.absoluteFill, IMAGE_BACKGROUND]} blurRadius={6} />
+          <View style={[StyleSheet.absoluteFill, BACKGROUND_DIMMER]} />
 
           {label ? <Text style={ROUTE_LABEL}>{label}</Text> : null}
 
