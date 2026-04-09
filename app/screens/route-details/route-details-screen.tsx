@@ -85,7 +85,7 @@ export function RouteDetailsScreen({ route, navigation }: RouteDetailsScreenProp
   // Periodically refetch route data to catch platform changes and delays.
   // Skip when ride is active — the ride polling already handles updates.
   const { data: freshRouteItem } = useQuery(
-    ["routeDetails", paramsRouteItem.departureTime, ...trainNumbers],
+    ["routeDetails", route.params.originId, route.params.destinationId, paramsRouteItem.departureTime, ...trainNumbers],
     async () => {
       const [date, time] = formatDateForAPI(paramsRouteItem.departureTime)
       const originId = paramsRouteItem.trains[0].originStationId.toString()
