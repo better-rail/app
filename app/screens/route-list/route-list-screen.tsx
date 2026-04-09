@@ -181,6 +181,8 @@ export function RouteListScreen({ navigation, route }: RouteListScreenProps) {
     {
       enabled: enableQuery,
       retry: false,
+      // Periodically refresh to catch platform changes and delays
+      refetchInterval: 60_000,
       // Don't show stale data while refetching
       keepPreviousData: false,
       // Handle errors properly
