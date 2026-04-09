@@ -1,5 +1,15 @@
 import React, { useMemo } from "react"
-import { View, ViewStyle, TextStyle, ImageBackground, ImageStyle, Platform, StyleSheet, Alert, useColorScheme } from "react-native"
+import {
+  View,
+  ViewStyle,
+  TextStyle,
+  ImageBackground,
+  ImageStyle,
+  Platform,
+  StyleSheet,
+  Alert,
+  useColorScheme,
+} from "react-native"
 import TouchableScale from "react-native-touchable-scale"
 import { Text } from "../"
 import { stationLocale, stationsObject } from "../../data/stations"
@@ -12,7 +22,7 @@ import { useShallow } from "zustand/react/shallow"
 import { useFavoritesStore } from "../../models"
 import { ContextMenuView } from "react-native-ios-context-menu"
 
-const borderRadius = Platform.select({ ios: 8, android: 6 })
+const borderRadius = Platform.select({ ios: 10, android: 6 })
 
 // #region styles
 const CONTAINER: ViewStyle = {
@@ -105,9 +115,7 @@ type FavoriteRouteBoxProps = {
 
 export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
   const { originId, destinationId, onPress, style, id, label } = props
-  const { rename, remove } = useFavoritesStore(
-    useShallow((s) => ({ rename: s.rename, remove: s.remove }))
-  )
+  const { rename, remove } = useFavoritesStore(useShallow((s) => ({ rename: s.rename, remove: s.remove })))
 
   const renamePrompt = () => {
     prompt(
@@ -154,7 +162,7 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
           deleteRoute()
         }
       }}
-      previewConfig={{ borderRadius: 6 }}
+      previewConfig={{ borderRadius: 12 }}
       menuConfig={{
         menuTitle: "",
         menuItems: [
