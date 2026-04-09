@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useEffect, useMemo, useRef, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { Alert, Image, Platform, PlatformColor, Pressable, View, type ImageStyle, type ViewStyle } from "react-native"
 import { ScrollView } from "react-native-gesture-handler"
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated"
@@ -23,6 +23,8 @@ import {
 import { useQuery } from "react-query"
 import type { RouteItem } from "../../services/api"
 import { RouteApi } from "../../services/api/route-api"
+
+const routeApi = new RouteApi()
 import type { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import { useStations } from "../../data/stations"
 import { calculateDelayedTime, formatDateForAPI } from "../../utils/helpers/date-helpers"
@@ -78,19 +80,18 @@ export function RouteDetailsScreen({ route, navigation }: RouteDetailsScreenProp
   const isRideOnThisRoute = useMemo(() => isRouteActive(route.params.routeItem), [rideRoute])
 
   const paramsRouteItem = route.params.routeItem
-  const trainNumbers = useRef(paramsRouteItem.trains.map((t) => t.trainNumber))
+  const trainNumbers = useMemo(() => paramsRouteItem.trains.map((t) => t.trainNumber), [paramsRouteItem])
 
   // Periodically refetch route data to catch platform changes and delays.
   // Skip when ride is active — the ride polling already handles updates.
-  const routeApiRef = useRef(new RouteApi())
   const { data: freshRouteItem } = useQuery(
-    ["routeDetails", ...trainNumbers.current],
+    ["routeDetails", ...trainNumbers],
     async () => {
       const [date, time] = formatDateForAPI(paramsRouteItem.departureTime)
       const originId = paramsRouteItem.trains[0].originStationId.toString()
       const destinationId = paramsRouteItem.trains[paramsRouteItem.trains.length - 1].destinationStationId.toString()
-      const routes = await routeApiRef.current.getRoutes(originId, destinationId, date, time)
-      return getSelectedRide(routes, trainNumbers.current) ?? paramsRouteItem
+      const routes = await routeApi.getRoutes(originId, destinationId, date, time)
+      return getSelectedRide(routes, trainNumbers) ?? paramsRouteItem
     },
     {
       initialData: paramsRouteItem,
