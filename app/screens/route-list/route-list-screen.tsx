@@ -181,6 +181,8 @@ export function RouteListScreen({ navigation, route }: RouteListScreenProps) {
     {
       enabled: enableQuery,
       retry: false,
+      // Periodically refresh to catch platform changes and delays
+      refetchInterval: 60_000,
       // Don't show stale data while refetching
       keepPreviousData: false,
       // Handle errors properly
@@ -246,7 +248,7 @@ export function RouteListScreen({ navigation, route }: RouteListScreenProps) {
         return newData
       })
     }
-  }, [trains.data?.length, currentDate, organizeRoutesByDate, trains.isSuccess, trains.isLoading])
+  }, [trains.data, currentDate, organizeRoutesByDate, trains.isSuccess, trains.isLoading])
 
   // Initialize the loaded dates with the initial date
   useEffect(() => {

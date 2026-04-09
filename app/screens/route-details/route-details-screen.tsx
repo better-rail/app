@@ -20,11 +20,16 @@ import {
   StartRideButton,
 } from "./components"
 
+import { useQuery } from "react-query"
 import type { RouteItem } from "../../services/api"
+import { RouteApi } from "../../services/api/route-api"
 import type { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import { useStations } from "../../data/stations"
-import { calculateDelayedTime } from "../../utils/helpers/date-helpers"
+import { calculateDelayedTime, formatDateForAPI } from "../../utils/helpers/date-helpers"
+import { getSelectedRide } from "../../utils/helpers/ride-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+
+const routeApi = new RouteApi()
 import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
 import HapticFeedback from "react-native-haptic-feedback"
 import { translate } from "../../i18n"
@@ -74,12 +79,33 @@ export function RouteDetailsScreen({ route, navigation }: RouteDetailsScreenProp
   // we re-run this check every time the ride changes
   const isRideOnThisRoute = useMemo(() => isRouteActive(route.params.routeItem), [rideRoute])
 
+  const paramsRouteItem = route.params.routeItem
+  const trainNumbers = useMemo(() => paramsRouteItem.trains.map((t) => t.trainNumber), [paramsRouteItem])
+
+  // Periodically refetch route data to catch platform changes and delays.
+  // Skip when ride is active — the ride polling already handles updates.
+  const { data: freshRouteItem } = useQuery(
+    ["routeDetails", route.params.originId, route.params.destinationId, paramsRouteItem.departureTime, ...trainNumbers],
+    async () => {
+      const [date, time] = formatDateForAPI(paramsRouteItem.departureTime)
+      const originId = paramsRouteItem.trains[0].originStationId.toString()
+      const destinationId = paramsRouteItem.trains[paramsRouteItem.trains.length - 1].destinationStationId.toString()
+      const routes = await routeApi.getRoutes(originId, destinationId, date, time)
+      return getSelectedRide(routes, trainNumbers) ?? paramsRouteItem
+    },
+    {
+      initialData: paramsRouteItem,
+      refetchInterval: 60_000,
+      enabled: !isRideOnThisRoute,
+    },
+  )
+
   // if the ride is on this route, we use the ride's route, since it has the latest data
-  // otherwise we use the route from the route params
+  // otherwise we use the freshly fetched route data
   const routeItem = useMemo(() => {
     if (isRideOnThisRoute) return rideRoute as unknown as RouteItem
-    return route.params.routeItem
-  }, [isRideOnThisRoute, rideRoute, route.params.routeItem])
+    return freshRouteItem ?? paramsRouteItem
+  }, [isRideOnThisRoute, rideRoute, freshRouteItem, paramsRouteItem])
 
   const progress = useRideProgress({ route: routeItem, enabled: isRideOnThisRoute })
   const { stations } = progress
