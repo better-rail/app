@@ -248,7 +248,7 @@ export function RouteListScreen({ navigation, route }: RouteListScreenProps) {
         return newData
       })
     }
-  }, [trains.data?.length, currentDate, organizeRoutesByDate, trains.isSuccess, trains.isLoading])
+  }, [trains.data, currentDate, organizeRoutesByDate, trains.isSuccess, trains.isLoading])
 
   // Initialize the loaded dates with the initial date
   useEffect(() => {

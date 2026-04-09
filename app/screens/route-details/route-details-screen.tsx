@@ -23,13 +23,13 @@ import {
 import { useQuery } from "react-query"
 import type { RouteItem } from "../../services/api"
 import { RouteApi } from "../../services/api/route-api"
-
-const routeApi = new RouteApi()
 import type { RouteDetailsScreenProps } from "../../navigators/main-navigator"
 import { useStations } from "../../data/stations"
 import { calculateDelayedTime, formatDateForAPI } from "../../utils/helpers/date-helpers"
 import { getSelectedRide } from "../../utils/helpers/ride-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+
+const routeApi = new RouteApi()
 import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
 import HapticFeedback from "react-native-haptic-feedback"
 import { translate } from "../../i18n"
@@ -85,7 +85,7 @@ export function RouteDetailsScreen({ route, navigation }: RouteDetailsScreenProp
   // Periodically refetch route data to catch platform changes and delays.
   // Skip when ride is active — the ride polling already handles updates.
   const { data: freshRouteItem } = useQuery(
-    ["routeDetails", ...trainNumbers],
+    ["routeDetails", paramsRouteItem.departureTime, ...trainNumbers],
     async () => {
       const [date, time] = formatDateForAPI(paramsRouteItem.departureTime)
       const originId = paramsRouteItem.trains[0].originStationId.toString()
