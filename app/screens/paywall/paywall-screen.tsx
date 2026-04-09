@@ -87,8 +87,8 @@ export function PaywallScreen({ navigation, route }: PaywallScreenProps) {
             headerBackground={() => (
               <View style={{ width: "100%", height: headerHeight }}>
                 <BlurView style={{ height: insets.top }} intensity={30} />
-                <Animated.View style={[StyleSheet.absoluteFillObject, headerOpacity]}>
-                  <BlurView style={StyleSheet.absoluteFillObject} intensity={30} />
+                <Animated.View style={[StyleSheet.absoluteFill, headerOpacity]}>
+                  <BlurView style={StyleSheet.absoluteFill} intensity={30} />
                 </Animated.View>
               </View>
             )}

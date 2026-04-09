@@ -20,14 +20,14 @@ const CONTAINER: ViewStyle = {
 }
 
 const IMAGE_BACKGROUND: ImageStyle = {
-  ...StyleSheet.absoluteFillObject,
+  ...StyleSheet.absoluteFill,
   justifyContent: "center",
   borderRadius: borderRadius,
   overflow: "hidden",
 }
 
 const BACKGROUND_DIMMER: ViewStyle = {
-  ...StyleSheet.absoluteFillObject,
+  ...StyleSheet.absoluteFill,
   borderRadius: borderRadius,
   backgroundColor: "#111",
   opacity: 0.6,
