@@ -1571,15 +1571,15 @@ PODS:
     - SocketRocket
     - Yoga
   - openiap (1.2.26)
-  - PostHog (3.38.0)
-  - posthog-react-native-session-replay (1.2.0):
+  - PostHog (3.42.1)
+  - posthog-react-native-session-replay (1.5.2):
     - boost
     - DoubleConversion
     - fast_float
     - fmt
     - glog
     - hermes-engine
-    - PostHog (~> 3.21)
+    - PostHog (~> 3.42.0)
     - RCT-Folly
     - RCT-Folly/Fabric
     - RCTRequired
@@ -5054,8 +5054,8 @@ SPEC CHECKSUMS:
   NitroIap: 4dc018bd561764a28408eac1a3795646fcf90726
   NitroModules: 8f30b6fd4290c8b8ecc079ccef195085b7f83774
   openiap: 6b09e05908b9536a0466a56ff763d21d71094077
-  PostHog: b42fd6ae60326411582e97bea5786ba748cab8a0
-  posthog-react-native-session-replay: 4ddaea1b661f9c631a55ca6aa744cc0622273594
+  PostHog: 148d2d62bac68c6da50a2325030b3fb2d6bca95b
+  posthog-react-native-session-replay: 79efc1a399fb775790010abe704e4061c0e35b0c
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   RCT-Folly: 846fda9475e61ec7bcbf8a3fe81edfcaeb090669
   RCTDeprecation: c0ed3249a97243002615517dff789bf4666cf585
