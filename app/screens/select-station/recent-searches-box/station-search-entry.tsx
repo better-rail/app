@@ -19,13 +19,14 @@ const SEARCH_ENTRY_IMAGE_WRAPPER: ViewStyle = {
   shadowRadius: 1.5,
   shadowOpacity: colorScheme === "light" ? 0.5 : 0,
   backgroundColor: color.inputPlaceholderBackground,
-  borderRadius: Platform.select({ ios: 6, android: 4 }),
+  borderRadius: Platform.select({ ios: 10, android: 4 }),
+  borderCurve: "continuous",
 }
 
 const SEARCH_ENTRY_IMAGE: ImageStyle = {
   width: 175,
   height: 125,
-  borderRadius: Platform.select({ ios: 6, android: 4 }),
+  borderRadius: Platform.select({ ios: 10, android: 6 }),
 }
 
 const SEARCH_ENTRY_TEXT: TextStyle = {

@@ -42,8 +42,8 @@
         "fuse.js": "6.4.6",
         "i18n-js": "3.8.0",
         "lodash": "4.17.21",
-        "posthog-react-native": "^4.9.1",
-        "posthog-react-native-session-replay": "^1.2.0",
+        "posthog-react-native": "4.39.4",
+        "posthog-react-native-session-replay": "1.5.2",
         "ramda": "0.27.1",
         "react": "19.1.0",
         "react-native": "0.81.4",
@@ -583,7 +583,7 @@
 
     "@pkgjs/parseargs": ["@pkgjs/parseargs@0.11.0", "", {}, "sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg=="],
 
-    "@posthog/core": ["@posthog/core@1.2.4", "", {}, "sha512-o2TkycuV98PtAkcqE8B1DJv5LBvHEDTWirK5TlkQMeF2MJg0BYliY95CeRZFILNgZJCbI3k/fhahSMRQlpXOMg=="],
+    "@posthog/core": ["@posthog/core@1.24.6", "", {}, "sha512-9WkcRKqmXSWIJcca6m3VwA9YbFd4HiG2hKEtDq6FcwEHlvfDhQQUZ5/sJZ47Fw8OtyNMHQ6rW4+COttk4Bg5NQ=="],
 
     "@protobufjs/aspromise": ["@protobufjs/aspromise@1.1.2", "", {}, "sha512-j+gKExEuLmKwvz3OgROXtrJ2UG2x8Ch2YZUxahh+s1F2HZ+wAceUNLkvy6zKCPVRkU++ZWQrdxsUeQXmcg4uoQ=="],
 
@@ -1815,9 +1815,9 @@
 
     "postcss": ["postcss@8.4.49", "", { "dependencies": { "nanoid": "^3.3.7", "picocolors": "^1.1.1", "source-map-js": "^1.2.1" } }, "sha512-OCVPnIObs4N29kxTjzLfUryOkvZEq+pf8jTF0lg8E7uETuWHA+v7j3c/xJmiqpX450191LlmZfUKkXxkTry7nA=="],
 
-    "posthog-react-native": ["posthog-react-native@4.9.1", "", { "dependencies": { "@posthog/core": "1.2.4" }, "peerDependencies": { "@react-native-async-storage/async-storage": ">=1.0.0", "@react-navigation/native": ">= 5.0.0", "expo-application": ">= 4.0.0", "expo-device": ">= 4.0.0", "expo-file-system": ">= 13.0.0", "expo-localization": ">= 11.0.0", "posthog-react-native-session-replay": ">= 1.2.0", "react-native-device-info": ">= 10.0.0", "react-native-localize": ">= 3.0.0", "react-native-navigation": ">= 6.0.0", "react-native-safe-area-context": ">= 4.0.0", "react-native-svg": ">= 15.0.0" }, "optionalPeers": ["@react-native-async-storage/async-storage", "@react-navigation/native", "expo-application", "expo-device", "expo-file-system", "expo-localization", "posthog-react-native-session-replay", "react-native-device-info", "react-native-localize", "react-native-navigation", "react-native-safe-area-context"] }, "sha512-zdwKNpFzimdPnRWumPwtOFif0jviyRnpw+aCYsYFFAOpfhALGLR70pxqj4dQLsr95QQ5R/KeKwF5cHb6/dm9Vg=="],
+    "posthog-react-native": ["posthog-react-native@4.39.4", "", { "dependencies": { "@posthog/core": "1.24.6" }, "peerDependencies": { "@react-native-async-storage/async-storage": ">=1.0.0", "@react-navigation/native": ">= 5.0.0", "expo-application": ">= 4.0.0", "expo-device": ">= 4.0.0", "expo-file-system": ">= 13.0.0", "expo-localization": ">= 11.0.0", "posthog-react-native-session-replay": ">= 1.5.2", "react-native-device-info": ">= 10.0.0", "react-native-localize": ">= 3.0.0", "react-native-navigation": ">= 6.0.0", "react-native-safe-area-context": ">= 4.0.0", "react-native-svg": ">= 15.0.0" }, "optionalPeers": ["@react-native-async-storage/async-storage", "@react-navigation/native", "expo-application", "expo-device", "expo-file-system", "expo-localization", "posthog-react-native-session-replay", "react-native-device-info", "react-native-localize", "react-native-navigation", "react-native-safe-area-context"] }, "sha512-5R1HEOoSimuEKGOP+0sni939VyIniRyFkT+Lxl2btKLSy+FKzfIREYGkyADTpNOJmKxiFVHuOgDHj3iY6l+7Ww=="],
 
-    "posthog-react-native-session-replay": ["posthog-react-native-session-replay@1.2.0", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-WPJR6cYhsFtzTCU8AZ7Z5AvOH1SCcF3IID/9r2MKVqI8KBVCOe02k4OHaClA7jHMEDcYYAYp+0keJnRVe8nFhA=="],
+    "posthog-react-native-session-replay": ["posthog-react-native-session-replay@1.5.2", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-NS/HbEOp9NQSkL99pNmkCSprLV42SHgEv7uUvCNeWByG1TG4MUMzk83U3n3V5odENphNQvkYPChRKneiKourPQ=="],
 
     "postinstall-prepare": ["postinstall-prepare@1.0.1", "", {}, "sha512-4zxO4DjrV0XfD+ABUFEP0MiQmhKOGBnov5LfLsra/XVOUcQ5gMLLMcV3b8K8wJUfNDv1ozleGblYb06gPbjVUQ=="],
 
@@ -1914,8 +1914,6 @@
     "react-native-is-edge-to-edge": ["react-native-is-edge-to-edge@1.1.7", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-EH6i7E8epJGIcu7KpfXYXiV2JFIYITtq+rVS8uEb+92naMRBdxhTuS8Wn2Q7j9sqyO0B+Xbaaf9VdipIAmGW4w=="],
 
     "react-native-linear-gradient": ["react-native-linear-gradient@2.5.6", "", { "peerDependencies": { "react-native": ">=0.55" } }, "sha512-HDwEaXcQIuXXCV70O+bK1rizFong3wj+5Q/jSyifKFLg0VWF95xh8XQgfzXwtq0NggL9vNjPKXa016KuFu+VFg=="],
-
-    "react-native-localize": ["react-native-localize@3.5.2", "", { "peerDependencies": { "@expo/config-plugins": "^9.0.0 || ^10.0.0", "react": "*", "react-native": "*", "react-native-macos": "*" }, "optionalPeers": ["@expo/config-plugins", "react-native-macos"] }, "sha512-HfQdwv5sRjh4AQ8a97OTjXYcxPNRlBxiQb861c7Ob6mRuNYCPtaJ45QTcZxZr31vAM3THvtOBp1soqWlQFxjnA=="],
 
     "react-native-modal-datetime-picker": ["react-native-modal-datetime-picker@18.0.0", "", { "dependencies": { "prop-types": "^15.7.2" }, "peerDependencies": { "@react-native-community/datetimepicker": ">=6.7.0", "react-native": ">=0.65.0" } }, "sha512-0jdvhhraZQlRACwr7pM6vmZ2kxgzJ4CpnmV6J3TVA6MrXMXK6Zo/upRBKkRp0+fTOiKuNblzesA2U59rYo6SGA=="],
 
