@@ -15,9 +15,8 @@ import { LiveAnnouncementStackProps } from "../../navigators/live-activity-annou
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import Animated, { FadeIn } from "react-native-reanimated"
 
-// TODO: Replace with actual store URLs before release
-const ZOLLY_IOS_URL = ""
-const ZOLLY_ANDROID_URL = ""
+const ZOLLY_IOS_URL = "https://apps.apple.com/app/id6752520444"
+const ZOLLY_ANDROID_URL = "https://play.google.com/store/apps/details?id=app.zolly"
 
 const TEXT: TextStyle = {
   fontSize: 18,
@@ -56,7 +55,7 @@ export function ZollyAnnouncementScreen({ navigation }: LiveAnnouncementStackPro
 
   const handleDownload = () => {
     const url = Platform.OS === "ios" ? ZOLLY_IOS_URL : ZOLLY_ANDROID_URL
-    if (url) Linking.openURL(url)
+    Linking.openURL(url)
     navigation.getParent()?.navigate("mainStack", { screen: "planner" })
   }
 
