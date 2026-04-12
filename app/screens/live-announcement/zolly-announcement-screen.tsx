@@ -1,8 +1,23 @@
-import { Image, ScrollView, TextStyle, View } from "react-native"
-import { Button, Screen, Text } from "../../components"
-import { fontScale, spacing } from "../../theme"
+import {
+  Image,
+  ImageSourcePropType,
+  Linking,
+  Platform,
+  Pressable,
+  ScrollView,
+  TextStyle,
+  useWindowDimensions,
+  View,
+} from "react-native"
+import { Button, Text } from "../../components"
+import { spacing } from "../../theme"
 import { LiveAnnouncementStackProps } from "../../navigators/live-activity-announcement/live-activity-announcement-stack"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import Animated, { FadeIn } from "react-native-reanimated"
+
+// TODO: Replace with actual store URLs before release
+const ZOLLY_IOS_URL = ""
+const ZOLLY_ANDROID_URL = ""
 
 const TEXT: TextStyle = {
   fontSize: 18,
@@ -10,39 +25,92 @@ const TEXT: TextStyle = {
   color: "white",
 }
 
+const BODY_TEXT: TextStyle = {
+  ...TEXT,
+  fontSize: 16,
+  lineHeight: 21,
+  opacity: 0.95,
+}
+
+// All screenshots share the same intrinsic aspect ratio (width / height)
+const SCREENSHOT_ASPECT_RATIO = 1145 / 2326
+
+const SCREENSHOTS: ImageSourcePropType[] = [
+  require("../../../assets/zolly-announcement/zolly-4.png"),
+  require("../../../assets/zolly-announcement/zolly-3.png"),
+  require("../../../assets/zolly-announcement/zolly-2.png"),
+  require("../../../assets/zolly-announcement/zolly-1.png"),
+]
+
 export function ZollyAnnouncementScreen({ navigation }: LiveAnnouncementStackProps) {
   const insets = useSafeAreaInsets()
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions()
+  const ITEM_GAP = 14
 
-  const handleDone = () => {
+  // Image height capped so everything fits on screen without scrolling
+  const imageHeight = windowHeight * 0.52
+  const imageWidth = imageHeight * SCREENSHOT_ASPECT_RATIO
+  // Padding that centers the active image, letting adjacent ones peek in from both sides
+  const sideInset = (windowWidth - imageWidth) / 2 - ITEM_GAP / 2
+  const snapInterval = imageWidth + ITEM_GAP
+
+  const handleDownload = () => {
+    const url = Platform.OS === "ios" ? ZOLLY_IOS_URL : ZOLLY_ANDROID_URL
+    if (url) Linking.openURL(url)
+    navigation.getParent()?.navigate("mainStack", { screen: "planner" })
+  }
+
+  const handleLater = () => {
     navigation.getParent()?.navigate("mainStack", { screen: "planner" })
   }
 
   return (
-    <ScrollView
-      contentContainerStyle={{
+    <View
+      style={{
         flex: 1,
-        paddingTop: insets.top + spacing[4],
-        paddingHorizontal: spacing[5],
-        paddingBottom: spacing[5] * fontScale,
         backgroundColor: "#116012",
+        paddingTop: insets.top + spacing[3],
+        paddingBottom: insets.bottom + spacing[3],
       }}
     >
-      <View style={{ marginBottom: spacing[3], alignItems: "center" }}>
-        <Text text="חדש מבטר רייל" style={TEXT} />
+      {/* Header */}
+      <View style={{ alignItems: "center", paddingHorizontal: spacing[5] }}>
+        <Text style={{ ...TEXT, fontSize: 20, fontWeight: "500", marginTop: spacing[2] }}>חדש מבטר רייל</Text>
         <Image
-          source={require("../../../assets/zolly.png")}
+          source={require("../../../assets/zolly-announcement/zolly.png")}
           tintColor="#def49e"
-          style={{ height: 200, width: 200, resizeMode: "contain" }}
+          style={{ height: 78, width: 78, resizeMode: "contain" }}
         />
+        <Text style={{ ...BODY_TEXT, marginTop: spacing[1], marginBottom: spacing[2] }}>
+          השוואת מחירים בין חנויות, מציאת מבצעים ושיתוף רשימת קניות
+        </Text>
       </View>
 
-      <Text>זולי היא אפליקצייה חדשה שעבדנו עליה בשנה האחרונה, שתעזור לכם לחסוך כסף בקניות בסופר. </Text>
-      <Text>היא עוזרת בהשוואת סל הקניות בין חנויות, מציאת מבצעים ושיתוף רשימת הקניות בין חברים ומשפחה.</Text>
-      <Text>זמין עכשיו להורדה בחינם דרך חנות האפליקציות.</Text>
+      {/* Screenshot carousel */}
+      <Animated.View entering={FadeIn.duration(400)} style={{ flex: 1, marginTop: spacing[3] }}>
+        <ScrollView
+          horizontal
+          pagingEnabled={false}
+          snapToInterval={snapInterval}
+          decelerationRate="fast"
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: sideInset }}
+        >
+          {SCREENSHOTS.map((source, index) => (
+            <View key={index} style={{ marginHorizontal: ITEM_GAP / 2 }}>
+              <Image source={source} style={{ width: imageWidth, height: imageHeight }} resizeMode="contain" />
+            </View>
+          ))}
+        </ScrollView>
+      </Animated.View>
 
-      <View style={{ flex: 1 }} />
-
-      <Button title="Done" onPress={handleDone} />
-    </ScrollView>
+      {/* CTA */}
+      <View style={{ paddingHorizontal: spacing[5], marginTop: spacing[4] }}>
+        <Button title="הורידו את זולי עכשיו" onPress={handleDownload} />
+        <Pressable onPress={handleLater} style={{ marginTop: spacing[3], alignItems: "center" }}>
+          <Text style={{ color: "rgba(255,255,255,0.55)", fontSize: 14 }}>אולי מאוחר יותר</Text>
+        </Pressable>
+      </View>
+    </View>
   )
 }

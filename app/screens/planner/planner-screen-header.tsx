@@ -46,7 +46,7 @@ const TRAIN_ICON = require("../../../assets/train.ios.png")
 const SPARKLES_ICON = require("../../../assets/sparkles.png")
 const UPDATES_ICON = require("../../../assets/updates.png")
 const SETTINGS_ICON = require("../../../assets/settings.png")
-const ZOLLY_LOGO = require("../../../assets/zolly.png")
+const ZOLLY_LOGO = require("../../../assets/zolly-announcement/zolly.png")
 
 type NavigationProps = StackNavigationProp<RootParamList, "mainStack">
 
