@@ -15,6 +15,7 @@ import { railApi } from "../../services/api"
 import { useQuery } from "react-query"
 import { head, isEmpty } from "lodash"
 import { isLiquidGlassSupported } from "@callstack/liquid-glass"
+import { useFeatureFlag } from "posthog-react-native"
 
 const HEADER_WRAPPER: ViewStyle = {
   flexDirection: "row",
@@ -68,6 +69,8 @@ export function PlannerScreenHeader() {
   const seenUrgentMessagesIds = useSettingsStore((s) => s.seenUrgentMessagesIds)
   const navigation = useNavigation<NavigationProps>()
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
+  const [showZollyButton, setShowZollyButton] = useState(false)
+  const zollyFlag = useFeatureFlag("show-zolly-announcement")
 
   const { data: popupMessages } = useQuery(["announcements", "urgent"], () => {
     return railApi.getPopupMessages(userLocale)
@@ -89,6 +92,13 @@ export function PlannerScreenHeader() {
       }
     }
   }, [])
+
+  useEffect(() => {
+    if (!zollyFlag) return
+    storage.load("seenZollyAnnouncement").then((hasSeen) => {
+      if (!hasSeen) setShowZollyButton(true)
+    })
+  }, [zollyFlag])
 
   const openAnnouncements = () => {
     navigation.navigate("announcementsStack")
@@ -129,16 +139,21 @@ export function PlannerScreenHeader() {
             </Chip>
           )}
 
-          <Chip
-            variant="success"
-            onPress={() => navigation.navigate("liveAnnouncementStack", { screen: "zolly" })}
-            style={{
-              backgroundColor: isLiquidGlassSupported ? "transparent" : "#115210",
-              paddingStart: spacing[4],
-            }}
-          >
-            <Image source={ZOLLY_LOGO} style={{ height: 32, width: 32, resizeMode: "center", tintColor: "#f5fea7" }} />
-          </Chip>
+          {showZollyButton && (
+            <Chip
+              variant="success"
+              onPress={() => {
+                trackEvent("zolly_header_chip_press")
+                navigation.navigate("liveAnnouncementStack", { screen: "zolly" })
+              }}
+              style={{
+                backgroundColor: isLiquidGlassSupported ? "transparent" : "#115210",
+                paddingStart: spacing[4],
+              }}
+            >
+              <Image source={ZOLLY_LOGO} style={{ height: 32, width: 32, resizeMode: "center", tintColor: "#f5fea7" }} />
+            </Chip>
+          )}
         </View>
         <TouchableOpacity onPress={openAnnouncements} activeOpacity={0.8} accessibilityLabel={translate("routes.updates")}>
           <Image source={UPDATES_ICON} style={[HEADER_ICON_IMAGE]} />

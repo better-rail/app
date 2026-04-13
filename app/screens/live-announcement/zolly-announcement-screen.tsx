@@ -9,11 +9,14 @@ import {
   useWindowDimensions,
   View,
 } from "react-native"
+import { useEffect } from "react"
 import { Button, Text } from "../../components"
 import { spacing } from "../../theme"
 import { LiveAnnouncementStackProps } from "../../navigators/live-activity-announcement/live-activity-announcement-stack"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import Animated, { FadeIn } from "react-native-reanimated"
+import * as storage from "../../utils/storage"
+import { trackEvent } from "../../services/analytics"
 
 const ZOLLY_IOS_URL = "https://apps.apple.com/app/id6752520444"
 const ZOLLY_ANDROID_URL = "https://play.google.com/store/apps/details?id=app.zolly"
@@ -46,6 +49,10 @@ export function ZollyAnnouncementScreen({ navigation }: LiveAnnouncementStackPro
   const { width: windowWidth, height: windowHeight } = useWindowDimensions()
   const ITEM_GAP = 14
 
+  useEffect(() => {
+    storage.save("seenZollyAnnouncement", new Date().toISOString())
+  }, [])
+
   // Image height capped so everything fits on screen without scrolling
   const imageHeight = windowHeight * 0.52
   const imageWidth = imageHeight * SCREENSHOT_ASPECT_RATIO
@@ -54,12 +61,14 @@ export function ZollyAnnouncementScreen({ navigation }: LiveAnnouncementStackPro
   const snapInterval = imageWidth + ITEM_GAP
 
   const handleDownload = () => {
+    trackEvent("zolly_download_press")
     const url = Platform.OS === "ios" ? ZOLLY_IOS_URL : ZOLLY_ANDROID_URL
     Linking.openURL(url)
     navigation.getParent()?.navigate("mainStack", { screen: "planner" })
   }
 
   const handleLater = () => {
+    trackEvent("zolly_later_press")
     navigation.getParent()?.navigate("mainStack", { screen: "planner" })
   }
 
