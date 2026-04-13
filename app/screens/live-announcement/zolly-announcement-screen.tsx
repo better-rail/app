@@ -19,7 +19,7 @@ import * as storage from "../../utils/storage"
 import { trackEvent } from "../../services/analytics"
 
 const ZOLLY_IOS_URL = "https://apps.apple.com/app/id6752520444"
-const ZOLLY_ANDROID_URL = "https://play.google.com/store/apps/details?id=app.zolly"
+const ZOLLY_ANDROID_URL = "https://play.google.com/store/apps/details?id=app.zolly&referrer=utm_source%3Dbetter-rail"
 
 const TEXT: TextStyle = {
   fontSize: 18,
