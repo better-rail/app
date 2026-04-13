@@ -15,7 +15,7 @@ const BUTTON_WRAPPER: ViewStyle = {
 export const PRESSABLE_BASE: ViewStyle = {
   flex: 1,
   minHeight: 55,
-  padding: spacing[4] * fontScale,
+  padding: spacing[4] * Math.min(fontScale, 1.2),
   backgroundColor: color.primary,
   borderRadius: Platform.select({ ios: 12, android: 6 }),
   opacity: 1,
@@ -50,7 +50,7 @@ const SMALL_TEXT: TextStyle = {
 const LIQUID_GLASS_STYLE: ViewStyle = {
   // Set the minimum height of the button to 55
   // If the system font is scaled, increase the height by no more than 1.3
-  height: Math.max(55, 55 * Math.min(fontScale, 1.3)),
+  height: Math.max(55, 55 * Math.min(fontScale, 1.2)),
   padding: spacing[4],
   borderRadius: 16,
   borderCurve: "continuous",
@@ -102,7 +102,7 @@ export const Button = function Button(props: CustomButtonProps) {
             ) : (
               <>
                 {icon}
-                <Text style={[TEXT, textStyle, size === "small" && SMALL_TEXT]} maxFontSizeMultiplier={1.55}>
+                <Text style={[TEXT, textStyle, size === "small" && SMALL_TEXT]} maxFontSizeMultiplier={1.3}>
                   {title}
                 </Text>
               </>
