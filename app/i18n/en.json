@@ -300,5 +300,10 @@
       "stationsFromFavorites": "From Favorite Routes",
       "notificationNote": "Please note: While Better Rail will do its best to provide fast and reliable updates, it is always advisable to check with the official sources of Israel Railways as well."
     }
+  },
+  "forceUpdate": {
+    "title": "Update Required",
+    "description": "A new version of Better Rail is available. Please update to continue using the app.",
+    "button": "Update Now"
   }
 }
