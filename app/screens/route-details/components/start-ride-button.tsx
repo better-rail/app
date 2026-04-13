@@ -110,7 +110,7 @@ export function StartRideButton(props: StartRideButtonProps) {
         variant="secondary"
         style={{
           backgroundColor: color.secondary,
-          width: Platform.OS === "ios" && userLocale === "he" ? 160 * fontScale : 148 * fontScale,
+          width: Platform.OS === "ios" && userLocale === "he" ? 160 * Math.min(fontScale, 1.2) : 148 * Math.min(fontScale, 1.2),
         }}
         icon={
           Platform.OS === "android" ? undefined : (

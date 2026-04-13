@@ -14,6 +14,8 @@ import { ImportantAnnouncementBar } from "./Important-announcement-bar"
 import { railApi } from "../../services/api"
 import { useQuery } from "react-query"
 import { head, isEmpty } from "lodash"
+import { isLiquidGlassSupported } from "@callstack/liquid-glass"
+import { useFeatureFlag } from "posthog-react-native"
 
 const HEADER_WRAPPER: ViewStyle = {
   flexDirection: "row",
@@ -45,19 +47,30 @@ const TRAIN_ICON = require("../../../assets/train.ios.png")
 const SPARKLES_ICON = require("../../../assets/sparkles.png")
 const UPDATES_ICON = require("../../../assets/updates.png")
 const SETTINGS_ICON = require("../../../assets/settings.png")
+const ZOLLY_LOGO = require("../../../assets/zolly-announcement/zolly.png")
 
 type NavigationProps = StackNavigationProp<RootParamList, "mainStack">
 
 export function PlannerScreenHeader() {
-  const { origin, destination } = useRoutePlanStore(
-    useShallow((s) => ({ origin: s.origin, destination: s.destination }))
-  )
-  const { route: rideRoute, canRunLiveActivities, originId: rideOriginId, destinationId: rideDestinationId } = useRideStore(
-    useShallow((s) => ({ route: s.route, canRunLiveActivities: s.canRunLiveActivities, originId: s.originId, destinationId: s.destinationId }))
+  const { origin, destination } = useRoutePlanStore(useShallow((s) => ({ origin: s.origin, destination: s.destination })))
+  const {
+    route: rideRoute,
+    canRunLiveActivities,
+    originId: rideOriginId,
+    destinationId: rideDestinationId,
+  } = useRideStore(
+    useShallow((s) => ({
+      route: s.route,
+      canRunLiveActivities: s.canRunLiveActivities,
+      originId: s.originId,
+      destinationId: s.destinationId,
+    })),
   )
   const seenUrgentMessagesIds = useSettingsStore((s) => s.seenUrgentMessagesIds)
   const navigation = useNavigation<NavigationProps>()
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
+  const [showZollyButton, setShowZollyButton] = useState(false)
+  const zollyFlag = useFeatureFlag("show-zolly-announcement")
 
   const { data: popupMessages } = useQuery(["announcements", "urgent"], () => {
     return railApi.getPopupMessages(userLocale)
@@ -79,6 +92,13 @@ export function PlannerScreenHeader() {
       }
     }
   }, [])
+
+  useEffect(() => {
+    if (!zollyFlag) return
+    storage.load("seenZollyAnnouncement").then((hasSeen) => {
+      if (!hasSeen) setShowZollyButton(true)
+    })
+  }, [zollyFlag])
 
   const openAnnouncements = () => {
     navigation.navigate("announcementsStack")
@@ -116,6 +136,30 @@ export function PlannerScreenHeader() {
             <Chip variant="primary" onPress={() => navigation.navigate("liveAnnouncementStack")}>
               <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
               <Text style={{ color: "white", fontWeight: "500", marginVertical: spacing[1] }} tx="common.new" />
+            </Chip>
+          )}
+
+          {showZollyButton && (
+            <Chip
+              variant="success"
+              onPress={() => {
+                trackEvent("zolly_header_chip_press")
+                navigation.navigate("liveAnnouncementStack", { screen: "zolly" })
+              }}
+              style={{
+                backgroundColor: isLiquidGlassSupported ? "transparent" : "#115210",
+                paddingStart: spacing[4] * Math.min(fontScale, 1.4),
+              }}
+            >
+              <Image
+                source={ZOLLY_LOGO}
+                style={{
+                  height: 32 * Math.min(fontScale, 1.2),
+                  width: 32 * Math.min(fontScale, 1.2),
+                  resizeMode: "contain",
+                  tintColor: "#f5fea7",
+                }}
+              />
             </Chip>
           )}
         </View>

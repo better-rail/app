@@ -55,7 +55,7 @@ export function ForceUpdateScreen() {
   const insets = useSafeAreaInsets()
 
   const onPress = () => {
-    trackEvent("force_update_store_press", { platform: Platform.OS })
+    trackEvent("force_update_store_press")
     Linking.openURL(STORE_URL)
   }
 
