@@ -69,7 +69,7 @@ export function PlannerScreenHeader() {
   const seenUrgentMessagesIds = useSettingsStore((s) => s.seenUrgentMessagesIds)
   const navigation = useNavigation<NavigationProps>()
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
-  const [showZollyButton, setShowZollyButton] = useState(true)
+  const [showZollyButton, setShowZollyButton] = useState(false)
   const zollyFlag = useFeatureFlag("show-zolly-announcement")
 
   const { data: popupMessages } = useQuery(["announcements", "urgent"], () => {
