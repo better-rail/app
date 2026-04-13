@@ -39,8 +39,9 @@ const SCREENSHOT_ASPECT_RATIO = 1145 / 2326
 
 const SCREENSHOTS: ImageSourcePropType[] = [
   require("../../../assets/zolly-announcement/zolly-4.png"),
-  require("../../../assets/zolly-announcement/zolly-3.png"),
   require("../../../assets/zolly-announcement/zolly-2.png"),
+  require("../../../assets/zolly-announcement/zolly-3.png"),
+  require("../../../assets/zolly-announcement/zolly-5.png"),
   require("../../../assets/zolly-announcement/zolly-1.png"),
 ]
 
