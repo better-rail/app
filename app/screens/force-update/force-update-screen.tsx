@@ -5,6 +5,7 @@ import { Text } from "../../components"
 import { Button } from "../../components/button/button"
 import { color, spacing } from "../../theme"
 import { translate } from "../../i18n"
+import { trackEvent } from "../../services/analytics"
 
 const STORE_URL = Platform.select({
   ios: "https://apps.apple.com/app/better-rail/id1562982976",
@@ -43,9 +44,7 @@ const DESCRIPTION: TextStyle = {
 }
 
 const BUTTON: ViewStyle = {
-  alignSelf: "stretch",
-  width: "100%",
-  flex: 0,
+  minWidth: "100%",
 }
 
 const BUTTON_LIQUID_GLASS: ViewStyle = {
@@ -55,18 +54,18 @@ const BUTTON_LIQUID_GLASS: ViewStyle = {
 export function ForceUpdateScreen() {
   const insets = useSafeAreaInsets()
 
+  const onPress = () => {
+    trackEvent("force_update_store_press", { platform: Platform.OS })
+    Linking.openURL(STORE_URL)
+  }
+
   return (
     <View style={[CONTAINER, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
       <View style={CONTENT}>
         <Text style={EMOJI}>🚂</Text>
         <Text style={TITLE}>{translate("forceUpdate.title")}</Text>
         <Text style={DESCRIPTION}>{translate("forceUpdate.description")}</Text>
-        <Button
-          title={translate("forceUpdate.button")}
-          onPress={() => Linking.openURL(STORE_URL)}
-          containerStyle={BUTTON}
-          style={BUTTON_LIQUID_GLASS}
-        />
+        <Button title={translate("forceUpdate.button")} onPress={onPress} containerStyle={BUTTON} style={BUTTON_LIQUID_GLASS} />
       </View>
     </View>
   )
