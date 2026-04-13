@@ -12,6 +12,8 @@ import { LiveAnnouncementNavigator } from "./live-activity-announcement/live-act
 import { AnnouncementsNavigator } from "./announcements/announcements-navigator"
 import { PostHogProvider, usePostHog } from "posthog-react-native"
 import { posthogOptions } from "../services/analytics"
+import { useForceUpdate } from "../hooks/use-force-update"
+import { ForceUpdateScreen } from "../screens/force-update/force-update-screen"
 
 export type RootParamList = {
   mainStack: undefined
@@ -27,6 +29,12 @@ export type RootParamList = {
 const Stack = createNativeStackNavigator<RootParamList>()
 
 const RootStack = () => {
+  const { isUpdateRequired } = useForceUpdate()
+
+  if (isUpdateRequired) {
+    return <ForceUpdateScreen />
+  }
+
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="mainStack" component={MainNavigator} />
