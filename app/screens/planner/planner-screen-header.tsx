@@ -69,7 +69,7 @@ export function PlannerScreenHeader() {
   const seenUrgentMessagesIds = useSettingsStore((s) => s.seenUrgentMessagesIds)
   const navigation = useNavigation<NavigationProps>()
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
-  const [showZollyButton, setShowZollyButton] = useState(false)
+  const [showZollyButton, setShowZollyButton] = useState(true)
   const zollyFlag = useFeatureFlag("show-zolly-announcement")
 
   const { data: popupMessages } = useQuery(["announcements", "urgent"], () => {
@@ -148,10 +148,18 @@ export function PlannerScreenHeader() {
               }}
               style={{
                 backgroundColor: isLiquidGlassSupported ? "transparent" : "#115210",
-                paddingStart: spacing[4],
+                paddingStart: spacing[4] * Math.min(fontScale, 1.4),
               }}
             >
-              <Image source={ZOLLY_LOGO} style={{ height: 32, width: 32, resizeMode: "center", tintColor: "#f5fea7" }} />
+              <Image
+                source={ZOLLY_LOGO}
+                style={{
+                  height: 32 * Math.min(fontScale, 1.2),
+                  width: 32 * Math.min(fontScale, 1.2),
+                  resizeMode: "contain",
+                  tintColor: "#f5fea7",
+                }}
+              />
             </Chip>
           )}
         </View>
