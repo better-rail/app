@@ -94,11 +94,30 @@ export function PlannerScreenHeader() {
   }, [])
 
   useEffect(() => {
-    if (!zollyFlag) return
-    storage.load("seenZollyAnnouncement").then((hasSeen) => {
-      if (!hasSeen) setShowZollyButton(true)
+    storage.load("appInstallDate").then((installDate) => {
+      if (!installDate) {
+        storage.save("appInstallDate", new Date().toISOString())
+      }
     })
-  }, [zollyFlag])
+  }, [])
+
+  useEffect(() => {
+    if (!zollyFlag) return
+    if (!origin || !destination) return
+
+    Promise.all([storage.load("seenZollyAnnouncement"), storage.load("appInstallDate")]).then(
+      ([hasSeen, installDate]) => {
+        if (hasSeen) return
+        if (!installDate) return
+
+        const oneWeekMs = 7 * 24 * 60 * 60 * 1000
+        const installedAt = new Date(installDate).getTime()
+        if (Date.now() - installedAt > oneWeekMs) {
+          setShowZollyButton(true)
+        }
+      },
+    )
+  }, [zollyFlag, origin, destination])
 
   const openAnnouncements = () => {
     navigation.navigate("announcementsStack")
