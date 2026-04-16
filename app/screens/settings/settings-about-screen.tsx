@@ -51,17 +51,17 @@ const ABOUT_TEXT: TextStyle = {
 const TWITTER_DEEP_LINK = "twitter://user?screen_name=better_rail"
 const TWITTER_WEB_URL = "https://x.com/better_rail"
 
-// TODO: Add mail body to iOS - need to understand how to add newlines correctly
-const emailBody = Platform.select({
-  android: `%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A
+const emailBody = `
+
+
+
+
 ---
 App: Better Rail ${getVersion()} (${getBuildNumber()})
 Device: ${getDeviceId()} (${getSystemVersion()})
 App Locale: ${userLocale}
 Device Locale: ${deviceLocale}
-`,
-  ios: "",
-})
+`
 
 export function AboutScreen({ navigation }: SettingsScreenProps) {
   return (
