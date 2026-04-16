@@ -96,7 +96,7 @@
     "noPlatformSet": "Platform not assigned",
     "wheelchairAccessible": "Wheelchair accessible",
     "bicyclesAllowed": "Bicycles allowed",
-    "wagonsCount": "%{count} wagons",
+    "carsCount": "%{count} cars",
     "seatsCount": "%{count} seats",
     "trainInformation": "Train information",
     "noTrainDetails": "Train details are not available yet for this train.",

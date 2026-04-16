@@ -93,7 +93,7 @@
     "noPlatformSet": "Нет пирс набора",
     "wheelchairAccessible": "Доступно для инвалидных колясок",
     "bicyclesAllowed": "Разрешены велосипеды",
-    "wagonsCount": "%{count} вагонов",
+    "carsCount": "%{count} вагонов",
     "seatsCount": "%{count} мест",
     "trainInformation": "Информация о поезде",
     "noTrainDetails": "Подробности о поезде пока недоступны.",

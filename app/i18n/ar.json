@@ -89,7 +89,7 @@
     "noPlatformSet": "لم يتم تعيين قفص الاتهام",
     "wheelchairAccessible": "متاح للكراسي المتحركة",
     "bicyclesAllowed": "مسموح بالدراجات",
-    "wagonsCount": "%{count} عربات",
+    "carsCount": "%{count} عربات",
     "seatsCount": "%{count} مقاعد",
     "trainInformation": "معلومات القطار",
     "noTrainDetails": "تفاصيل القطار غير متوفرة بعد لهذا القطار.",

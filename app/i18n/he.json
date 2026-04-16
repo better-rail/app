@@ -96,7 +96,7 @@
     "noPlatformSet": "לא נקבע רציף",
     "wheelchairAccessible": "נגיש לכיסאות גלגלים",
     "bicyclesAllowed": "מותר להעלות אופניים",
-    "wagonsCount": "%{count} קרונות",
+    "carsCount": "%{count} קרונות",
     "seatsCount": "%{count} מושבים",
     "trainInformation": "פרטי רכבת",
     "noTrainDetails": "פרטי הרכבת עדיין לא זמינים לנסיעה זו.",
