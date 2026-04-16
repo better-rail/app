@@ -371,7 +371,7 @@ export function RouteDetailsTrainInfo({ route }: RouteDetailsTrainInfoScreenProp
             <View style={METADATA_CONTAINER}>
               {wagonCount && (
                 <View style={METADATA_ITEM}>
-                  <Text style={METADATA_TEXT}>{translate("routeDetails.wagonsCount", { count: wagonCount })}</Text>
+                  <Text style={METADATA_TEXT}>{translate("routeDetails.carsCount", { count: wagonCount })}</Text>
                 </View>
               )}
               {seatCount && (
