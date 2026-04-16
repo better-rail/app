@@ -51,7 +51,17 @@ const ABOUT_TEXT: TextStyle = {
 const TWITTER_DEEP_LINK = "twitter://user?screen_name=better_rail"
 const TWITTER_WEB_URL = "https://x.com/better_rail"
 
-const emailBody = `\n\n\n\n\n\n\n\n\n---\nApp: Better Rail ${getVersion()} (${getBuildNumber()})\nDevice: ${getDeviceId()} (${getSystemVersion()})\nApp Locale: ${userLocale}\nDevice Locale: ${deviceLocale}\n`
+const emailBody = `
+
+
+
+
+---
+App: Better Rail ${getVersion()} (${getBuildNumber()})
+Device: ${getDeviceId()} (${getSystemVersion()})
+App Locale: ${userLocale}
+Device Locale: ${deviceLocale}
+`
 
 export function AboutScreen({ navigation }: SettingsScreenProps) {
   return (
