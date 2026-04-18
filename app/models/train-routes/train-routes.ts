@@ -88,7 +88,8 @@ export const useTrainRoutesStore = create<TrainRoutesStore>((set, get) => ({
     }
     // We couldn't find routes for the requested date.
     set({ resultType: "not-found", status: "done" })
-    throw new Error("Not found")
+    // "No routes" is an expected UI state, not an exceptional failure.
+    return []
   },
 }))
 
