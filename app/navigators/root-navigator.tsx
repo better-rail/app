@@ -9,7 +9,7 @@ import { WidgetOnboardingNavigator } from "./widget-onboarding/widget-onboarding
 import { PaywallNavigator } from "./paywall/paywall-navigator"
 import { LiveAnnouncementNavigator } from "./live-activity-announcement/live-activity-announcement-stack"
 import { AnnouncementsNavigator } from "./announcements/announcements-navigator"
-import { PostHogProvider, usePostHog } from "posthog-react-native"
+import { PostHogProvider } from "posthog-react-native"
 import { posthog } from "../services/analytics"
 import { useForceUpdate } from "../hooks/use-force-update"
 import { ForceUpdateScreen } from "../screens/force-update/force-update-screen"
@@ -53,7 +53,6 @@ const RootStack = () => {
 
 export const RootNavigator = React.forwardRef<NavigationContainerRef<RootParamList>, Partial<React.ComponentProps<typeof NavigationContainer>>>(
   (props, ref) => {
-    const posthog = usePostHog()
     const colorScheme = useColorScheme()
     const navigationRef = React.useRef<NavigationContainerRef<RootParamList>>(null)
     const routeNameRef = React.useRef<string>()
@@ -69,7 +68,7 @@ export const RootNavigator = React.forwardRef<NavigationContainerRef<RootParamLi
           onReady={() => {
             routeNameRef.current = navigationRef.current?.getCurrentRoute()?.name
             if (routeNameRef.current) {
-              posthog?.screen(routeNameRef.current)
+              posthog.screen(routeNameRef.current)
             }
           }}
           onStateChange={() => {
@@ -77,7 +76,7 @@ export const RootNavigator = React.forwardRef<NavigationContainerRef<RootParamLi
             const currentRouteName = navigationRef.current?.getCurrentRoute()?.name
 
             if (previousRouteName !== currentRouteName && currentRouteName) {
-              posthog?.screen(currentRouteName)
+              posthog.screen(currentRouteName)
             }
 
             routeNameRef.current = currentRouteName
