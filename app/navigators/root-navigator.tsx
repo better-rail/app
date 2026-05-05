@@ -1,4 +1,3 @@
-import { POSTHOG_API_KEY } from "@env"
 import React from "react"
 import { useColorScheme } from "react-native"
 import { NavigationContainer, type NavigationContainerRef, DefaultTheme, DarkTheme } from "@react-navigation/native"
@@ -11,7 +10,7 @@ import { PaywallNavigator } from "./paywall/paywall-navigator"
 import { LiveAnnouncementNavigator } from "./live-activity-announcement/live-activity-announcement-stack"
 import { AnnouncementsNavigator } from "./announcements/announcements-navigator"
 import { PostHogProvider, usePostHog } from "posthog-react-native"
-import { posthogOptions } from "../services/analytics"
+import { posthog } from "../services/analytics"
 import { useForceUpdate } from "../hooks/use-force-update"
 import { ForceUpdateScreen } from "../screens/force-update/force-update-screen"
 
@@ -62,7 +61,7 @@ export const RootNavigator = React.forwardRef<NavigationContainerRef<RootParamLi
     React.useImperativeHandle(ref, () => navigationRef.current!)
 
     return (
-      <PostHogProvider apiKey={POSTHOG_API_KEY} options={posthogOptions} autocapture={{ captureScreens: false }}>
+      <PostHogProvider client={posthog} autocapture={{ captureScreens: false }}>
         <NavigationContainer<RootParamList>
           {...props}
           ref={navigationRef}
