@@ -507,8 +507,8 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                     }
                     
                     is WidgetState.Schedule -> {
-                        // Standard deeplink behavior for schedule state
-                        val widgetData = preferencesRepository.getWidgetData(appWidgetId)
+                        // Apply time-of-day reversal so the deep link matches the displayed route
+                        val widgetData = getEffectiveWidgetData(preferencesRepository.getWidgetData(appWidgetId))
                         if (widgetData != null) {
                             setupClickIntentsBase(
                                 context = context,
@@ -533,7 +533,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                     
                     else -> {
                         // For TomorrowSchedule, FutureSchedule and other states, get the complete widget data from preferences for deeplink
-                        val widgetData = preferencesRepository.getWidgetData(appWidgetId)
+                        val widgetData = getEffectiveWidgetData(preferencesRepository.getWidgetData(appWidgetId))
                         if (widgetData != null) {
                             setupClickIntentsBase(
                                 context = context,
