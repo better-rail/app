@@ -3,6 +3,38 @@ opt_out_usage
 default_platform(:android)
 
 platform :android do
+  desc "Verify that the version code doesn't collide with existing version"
+  lane :verify_version do |options|
+    json_key_path = options[:json_key]
+    version_code = options[:version_code]
+    version_name = options[:version_name]
+
+    unless version_code && version_name
+      UI.user_error!("Missing required parameters: version_code and version_name must be provided.")
+    end
+
+    version_code = version_code.to_i
+
+    tracks_to_check = ['internal']
+    tracks_to_check.each do |track|
+      existing_codes = nil
+      begin
+        existing_codes = google_play_track_version_codes(
+          track: track,
+          json_key: json_key_path
+        )
+      rescue => err
+        UI.message("Could not retrieve version codes for track '#{track}': #{err.message}")
+      end
+
+      if existing_codes && existing_codes.any? { |code| code >= version_code }
+        UI.user_error!("Collision detected: versionCode #{version_code} (#{version_name}) is not greater than the latest versionCode #{existing_codes.max} on the '#{track}' track.")
+      end
+    end
+
+    UI.success("Success: versionCode #{version_code} (#{version_name}) is unique!")
+  end
+
   desc "Push a new beta build to Internal testing"
   lane :deploy_internal do |options|
     gradle(
