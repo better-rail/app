@@ -42,8 +42,8 @@
         "fuse.js": "6.4.6",
         "i18n-js": "3.8.0",
         "lodash": "4.17.21",
-        "posthog-react-native": "4.39.4",
-        "posthog-react-native-session-replay": "1.5.2",
+        "posthog-react-native": "4.44.1",
+        "posthog-react-native-session-replay": "1.5.6",
         "ramda": "0.27.1",
         "react": "19.1.0",
         "react-native": "0.81.4",
@@ -583,7 +583,9 @@
 
     "@pkgjs/parseargs": ["@pkgjs/parseargs@0.11.0", "", {}, "sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg=="],
 
-    "@posthog/core": ["@posthog/core@1.24.6", "", {}, "sha512-9WkcRKqmXSWIJcca6m3VwA9YbFd4HiG2hKEtDq6FcwEHlvfDhQQUZ5/sJZ47Fw8OtyNMHQ6rW4+COttk4Bg5NQ=="],
+    "@posthog/core": ["@posthog/core@1.28.1", "", { "dependencies": { "@posthog/types": "1.372.7" } }, "sha512-eCzWduboLer105RHKnnM8sfRvBhhvzU0m/PXtedJzYjRs5aJSEgCT7zrmw63XCmOl33ffKU2n61EaWiFeuRKPA=="],
+
+    "@posthog/types": ["@posthog/types@1.372.7", "", {}, "sha512-atYFeTnG+5WcZ4hXFI9cA2q269+a1CYoK9nG6TowJqWclv0vr1KZBb1Fhe4CpHOarfgJUfD/2PZe5WTq9Frz3w=="],
 
     "@protobufjs/aspromise": ["@protobufjs/aspromise@1.1.2", "", {}, "sha512-j+gKExEuLmKwvz3OgROXtrJ2UG2x8Ch2YZUxahh+s1F2HZ+wAceUNLkvy6zKCPVRkU++ZWQrdxsUeQXmcg4uoQ=="],
 
@@ -1815,9 +1817,9 @@
 
     "postcss": ["postcss@8.4.49", "", { "dependencies": { "nanoid": "^3.3.7", "picocolors": "^1.1.1", "source-map-js": "^1.2.1" } }, "sha512-OCVPnIObs4N29kxTjzLfUryOkvZEq+pf8jTF0lg8E7uETuWHA+v7j3c/xJmiqpX450191LlmZfUKkXxkTry7nA=="],
 
-    "posthog-react-native": ["posthog-react-native@4.39.4", "", { "dependencies": { "@posthog/core": "1.24.6" }, "peerDependencies": { "@react-native-async-storage/async-storage": ">=1.0.0", "@react-navigation/native": ">= 5.0.0", "expo-application": ">= 4.0.0", "expo-device": ">= 4.0.0", "expo-file-system": ">= 13.0.0", "expo-localization": ">= 11.0.0", "posthog-react-native-session-replay": ">= 1.5.2", "react-native-device-info": ">= 10.0.0", "react-native-localize": ">= 3.0.0", "react-native-navigation": ">= 6.0.0", "react-native-safe-area-context": ">= 4.0.0", "react-native-svg": ">= 15.0.0" }, "optionalPeers": ["@react-native-async-storage/async-storage", "@react-navigation/native", "expo-application", "expo-device", "expo-file-system", "expo-localization", "posthog-react-native-session-replay", "react-native-device-info", "react-native-localize", "react-native-navigation", "react-native-safe-area-context"] }, "sha512-5R1HEOoSimuEKGOP+0sni939VyIniRyFkT+Lxl2btKLSy+FKzfIREYGkyADTpNOJmKxiFVHuOgDHj3iY6l+7Ww=="],
+    "posthog-react-native": ["posthog-react-native@4.44.1", "", { "dependencies": { "@posthog/core": "1.28.1", "@posthog/types": "1.372.7" }, "peerDependencies": { "@react-native-async-storage/async-storage": ">=1.0.0", "@react-navigation/native": ">= 5.0.0", "expo-application": ">= 4.0.0", "expo-device": ">= 4.0.0", "expo-file-system": ">= 13.0.0", "expo-localization": ">= 11.0.0", "posthog-react-native-session-replay": ">= 1.5.6", "react-native-device-info": ">= 10.0.0", "react-native-localize": ">= 3.0.0", "react-native-navigation": ">= 6.0.0", "react-native-safe-area-context": ">= 4.0.0", "react-native-svg": ">= 15.0.0" }, "optionalPeers": ["@react-native-async-storage/async-storage", "@react-navigation/native", "expo-application", "expo-device", "expo-file-system", "expo-localization", "posthog-react-native-session-replay", "react-native-device-info", "react-native-localize", "react-native-navigation", "react-native-safe-area-context", "react-native-svg"] }, "sha512-fY72Enf1WR41H5pSCqR4disIUyf47lhEAIZ+zyYtlJuAFaPwG/VKc63Wt5Bv8XuJ6kb43JbKwMYJ4d1h3GcAwg=="],
 
-    "posthog-react-native-session-replay": ["posthog-react-native-session-replay@1.5.2", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-NS/HbEOp9NQSkL99pNmkCSprLV42SHgEv7uUvCNeWByG1TG4MUMzk83U3n3V5odENphNQvkYPChRKneiKourPQ=="],
+    "posthog-react-native-session-replay": ["posthog-react-native-session-replay@1.5.6", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-tNnjxn/mLZ2UMHknES+9/XnUdEcQ+qzDvU8gsCW0CnW20GMSJbeKGGgNVI4qcnXK10iH1z/Bgmnkb+LtDlyMTA=="],
 
     "postinstall-prepare": ["postinstall-prepare@1.0.1", "", {}, "sha512-4zxO4DjrV0XfD+ABUFEP0MiQmhKOGBnov5LfLsra/XVOUcQ5gMLLMcV3b8K8wJUfNDv1ozleGblYb06gPbjVUQ=="],
 
