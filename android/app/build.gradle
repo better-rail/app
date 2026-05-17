@@ -107,8 +107,8 @@ android {
         applicationId "com.betterrail"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 153
-        versionName "2.6.1"
+        versionCode 155
+        versionName "2.6.3"
         missingDimensionStrategy "store", "play"
         
         // API Configuration

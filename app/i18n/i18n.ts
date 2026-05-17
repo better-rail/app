@@ -52,12 +52,11 @@ export function setInitialLanguage() {
 
 export function changeUserLanguage(languageCode: LanguageCode) {
   storage.save("appLanguage", languageCode).then(() => {
-    setUserLanguage(languageCode)
-    RNRestart.Restart()
+    setUserLanguage(languageCode, true)
   })
 }
 
-export function setUserLanguage(languageCode: LanguageCode) {
+export function setUserLanguage(languageCode: LanguageCode, allowRestart = false) {
   if (languageCode === "he" || languageCode === "ar") {
     I18nManager.allowRTL(true)
     I18nManager.forceRTL(true)
@@ -86,10 +85,7 @@ export function setUserLanguage(languageCode: LanguageCode) {
     Preferences.set("userLocale", languageCode)
   }
 
-  if (
-    ((languageCode === "he" || languageCode === "ar") && !isRTL) ||
-    ((languageCode === "en" || languageCode === "ru") && isRTL)
-  ) {
+  if (allowRestart) {
     RNRestart.Restart()
   }
 }
