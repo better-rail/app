@@ -5,7 +5,6 @@ import { RailApiGetRoutesResult } from "./rail-api.types"
 import { formatRouteDuration, isOneHourDifference, routeDurationInMs } from "../../utils/helpers/date-helpers"
 import { RouteItem } from "."
 import { getHours, parse, isSameDay, addDays } from "date-fns"
-import { findClosestStationInRoute, getTrainFromStationId } from "../../utils/helpers/ride-helpers"
 
 export class RouteApi {
   private api = railApi
@@ -115,13 +114,9 @@ export class RouteApi {
       })
 
       const routesWithWarning = formattedRoutes.map((route) => {
-        const nextStationId = findClosestStationInRoute(route)
-        const train = getTrainFromStationId(route, nextStationId)
-
-        const delay = train.delay
         const isMuchLonger = isRouteIsMuchLongerThanOtherRoutes(route, formattedRoutes)
         const isMuchShorter = isRouteMuchShorterThanOtherRoutes(route, formattedRoutes)
-        return Object.assign({}, route, { isMuchShorter, isMuchLonger, delay })
+        return Object.assign({}, route, { isMuchShorter, isMuchLonger })
       })
 
       return routesWithWarning
