@@ -3,7 +3,7 @@ import { useQueryClient } from "react-query"
 import { useEffect, useMemo, useState } from "react"
 import { formatDateForAPI } from "../../utils/helpers/date-helpers"
 import { RouteApi } from "../../services/api/route-api"
-import { findClosestStationInRoute, getSelectedRide } from "../../utils/helpers/ride-helpers"
+import { findClosestStationInRoute, getSelectedRide, getTrainFromStationId } from "../../utils/helpers/ride-helpers"
 import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore, useRideStore } from "../../models"
 
@@ -54,10 +54,9 @@ export function useRideRoute(route: RouteItem) {
       setRoute(updatedRoute)
     }
 
-    setDelay(updatedRoute.delay)
-
     const stationId = findClosestStationInRoute(updatedRoute)
     setNextStationId(stationId)
+    setDelay(getTrainFromStationId(updatedRoute, stationId)?.delay ?? 0)
   }
 
   useEffect(() => {
@@ -69,7 +68,7 @@ export function useRideRoute(route: RouteItem) {
     // set the route details immidiately on mount
     const stationId = findClosestStationInRoute(route)
     setNextStationId(stationId)
-    setDelay(route.delay)
+    setDelay(getTrainFromStationId(route, stationId)?.delay ?? 0)
 
     // then check if there's a delay
     updateRide()
