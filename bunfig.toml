@@ -5,4 +5,5 @@ preload = ["./test/setup.ts"]
 [install]
 # Configure package installation
 auto = "force"
+exact = true
 minimumReleaseAge = 172800
