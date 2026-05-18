@@ -76,17 +76,23 @@ export const useFavoritesStore = create<FavoritesStore>((set, get) => ({
     const toText = (route: FavoriteRoute) =>
       translate("favorites.toStation", { stationName: stationsObject[route.destinationId][stationLocale] })
 
+    // Both iOS quick actions and Android dynamic shortcuts cap at ~4-5 per app;
+    // some Android devices report lower limits and throw if exceeded.
+    const MAX_HOME_SHORTCUTS = 4
+
     Shortcuts.setShortcuts(
-      get().routes.map((route) => ({
-        type: `favorite-${route.id}`,
-        title: route.label || fromText(route),
-        subtitle: !route.label && toText(route),
-        iconName: "star",
-        data: {
-          originId: route.originId,
-          destinationId: route.destinationId,
-        },
-      })),
+      get()
+        .routes.slice(0, MAX_HOME_SHORTCUTS)
+        .map((route) => ({
+          type: `favorite-${route.id}`,
+          title: route.label || fromText(route),
+          subtitle: !route.label && toText(route),
+          iconName: "star",
+          data: {
+            originId: route.originId,
+            destinationId: route.destinationId,
+          },
+        })),
     )
   },
 
