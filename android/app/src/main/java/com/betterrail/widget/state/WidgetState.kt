@@ -111,6 +111,7 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_label, "TO CONFIGURE")
         views.setTextViewText(R.id.widget_platform, "")
         views.setTextViewText(R.id.widget_train_number, "")
+        views.setViewVisibility(R.id.widget_dot_separator, android.view.View.GONE)
 
         if (layoutResource == R.layout.widget_compact_4x2) {
             views.setTextViewText(R.id.widget_arrival_time, "--:--")
@@ -130,8 +131,10 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_platform, platformText)
         
         val trainText = if (state.nextTrain.trainNumber.isNotEmpty()) {
+            views.setViewVisibility(R.id.widget_dot_separator, android.view.View.VISIBLE)
             context.getString(R.string.train_number, state.nextTrain.trainNumber)
         } else {
+            views.setViewVisibility(R.id.widget_dot_separator, android.view.View.GONE)
             ""
         }
         views.setTextViewText(R.id.widget_train_number, trainText)
@@ -170,6 +173,7 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_label, "LOADING")
         views.setTextViewText(R.id.widget_platform, "")
         views.setTextViewText(R.id.widget_train_number, "")
+        views.setViewVisibility(R.id.widget_dot_separator, android.view.View.GONE)
 
         if (layoutResource == R.layout.widget_compact_4x2) {
             views.setTextViewText(R.id.widget_arrival_time, "--:--")
@@ -187,6 +191,7 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_label, "NO SCHEDULE")
         views.setTextViewText(R.id.widget_platform, "Try again later")
         views.setTextViewText(R.id.widget_train_number, "")
+        views.setViewVisibility(R.id.widget_dot_separator, android.view.View.GONE)
 
         if (layoutResource == R.layout.widget_compact_4x2) {
             views.setTextViewText(R.id.widget_arrival_time, "--:--")
@@ -205,6 +210,7 @@ class WidgetStateRenderer(
         views.setTextColor(R.id.widget_train_label, context.getColor(R.color.widget_tomorrow_text))
         views.setTextViewText(R.id.widget_platform, "Loading...")
         views.setTextViewText(R.id.widget_train_number, "")
+        views.setViewVisibility(R.id.widget_dot_separator, android.view.View.GONE)
 
         if (layoutResource == R.layout.widget_compact_4x2) {
             views.setTextViewText(R.id.widget_arrival_time, "--:--")
@@ -226,8 +232,10 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_platform, platformText)
         
         val trainText = if (state.firstTrain.trainNumber.isNotEmpty()) {
+            views.setViewVisibility(R.id.widget_dot_separator, android.view.View.VISIBLE)
             context.getString(R.string.train_number, state.firstTrain.trainNumber)
         } else {
+            views.setViewVisibility(R.id.widget_dot_separator, android.view.View.GONE)
             ""
         }
         views.setTextViewText(R.id.widget_train_number, trainText)
@@ -253,6 +261,7 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_label, "NO TRAINS")
         views.setTextViewText(R.id.widget_platform, "Check tomorrow")
         views.setTextViewText(R.id.widget_train_number, "")
+        views.setViewVisibility(R.id.widget_dot_separator, android.view.View.GONE)
 
         if (layoutResource == R.layout.widget_compact_4x2) {
             views.setTextViewText(R.id.widget_arrival_time, "--:--")
@@ -276,8 +285,10 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_platform, platformText)
         
         val trainText = if (state.firstTrain.trainNumber.isNotEmpty()) {
+            views.setViewVisibility(R.id.widget_dot_separator, android.view.View.VISIBLE)
             context.getString(R.string.train_number, state.firstTrain.trainNumber)
         } else {
+            views.setViewVisibility(R.id.widget_dot_separator, android.view.View.GONE)
             ""
         }
         views.setTextViewText(R.id.widget_train_number, trainText)
