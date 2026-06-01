@@ -64,7 +64,7 @@ class RailApiService(
     private fun buildApiUrl(baseUrl: String): String {
         return Uri.parse(baseUrl)
             .buildUpon()
-            .appendPath("searchTrain")
+            .appendPath("searchTrainForMobile")
             .build()
             .toString()
     }
