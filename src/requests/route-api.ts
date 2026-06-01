@@ -38,7 +38,7 @@ export class RouteApi {
     }
 
     const response: AxiosResponse<RailApiGetRoutesResult> = await this.api.axiosInstance.post(
-      `/rjpa/api/v1/timetable/searchTrain`,
+      `/rjpa/api/v1/timetable/searchTrainForMobile`,
       requestBody,
     )
     if (!response.data?.result) {

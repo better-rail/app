@@ -26,7 +26,7 @@ const handleSearchTrainRequest = async (req: Request, res: Response) => {
     }
 
     // Make the POST request to the rail API
-    const response = await fetch(`${railUrl}/rjpa/api/v1/timetable/searchTrain`, {
+    const response = await fetch(`${railUrl}/rjpa/api/v1/timetable/searchTrainForMobile`, {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -48,7 +48,23 @@ const handleSearchTrainRequest = async (req: Request, res: Response) => {
 
 const railProxy = async (req: Request, res: Response) => {
   try {
-    const url = `${railUrl}${req.path}`
+    // Older app versions call the legacy `searchTrain` endpoint directly, then fall
+    // back to this proxy when it returns 403 (it's now blocked by Cloudflare's WAF).
+    // Transparently rewrite that path to the `searchTrainForMobile` endpoint so
+    // already-released clients keep working. Exact match only — a substring replace
+    // would turn `searchTrainForMobile` into `searchTrainForMobileForMobile`.
+    const path =
+      req.path === "/rjpa/api/v1/timetable/searchTrain"
+        ? "/rjpa/api/v1/timetable/searchTrainForMobile"
+        : req.path
+
+    // Preserve the query string — the GET endpoints (railupdates, station info)
+    // depend on `LanguageId`/`SystemType` params, and an old client routes every
+    // request through here once it has fallen back to the proxy.
+    const queryIndex = req.url.indexOf("?")
+    const search = queryIndex === -1 ? "" : req.url.slice(queryIndex)
+
+    const url = `${railUrl}${path}${search}`
     const response = await fetch(url, {
       method: req.method,
       headers: {
