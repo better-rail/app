@@ -1,0 +1,20 @@
+"3Tfkm5" = "Проверить расписание поездов";
+
+"RdlXVF" = "Станция";
+
+"WdYtkA" = "Назначение";
+
+"YTTH5N" = "Начало";
+
+"jPSLxu" = "Выбор маршрута";
+
+"pRpSub" = "Найдено ${count} вариантов для ‘${destination}’.";
+
+"qHDCp4" = "Маршрут";
+
+// No need to translate the following:
+"FdK8O5" = "Just to confirm, you wanted ‘${origin}’?";
+
+"MYJKgF" = "There are ${count} options matching ‘${origin}’.";
+
+"RPaAqI" = "Just to confirm, you wanted ‘${destination}’?";

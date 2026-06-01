@@ -1,5 +1,5 @@
 module.exports = {
-  presets: ["module:@react-native/babel-preset"],
+  presets: ["babel-preset-expo"],
   env: {
     production: {},
   },
@@ -14,6 +14,7 @@ module.exports = {
         allowUndefined: true,
       },
     ],
+    // Reanimated's babel plugin must be listed last.
     "react-native-reanimated/plugin",
   ],
 }
