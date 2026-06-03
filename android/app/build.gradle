@@ -108,7 +108,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 156
-        versionName "2.6.4"
+        versionName "2.6.5"
         missingDimensionStrategy "store", "play"
         
         // API Configuration
