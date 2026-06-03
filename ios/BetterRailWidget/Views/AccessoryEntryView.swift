@@ -72,8 +72,10 @@ struct AccessoryEntryView: View {
               HStack(spacing: 3) {
                 Text(formatStationName(entry.origin.name))
                 Image(systemName: "arrow.forward.circle.fill")
+                  .accessibilityHidden(true)
                 Text(formatStationName(entry.destination.name))
               }
+              .accessibilityElement(children: .combine)
               .font(.system(size: geometry.size.width * 0.09))
               .lineLimit(1)
               .fontWeight(.medium)
