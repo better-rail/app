@@ -65,10 +65,18 @@ struct AccessoryEntryView: View {
                 .lineLimit(1)
                 .fontWeight(.medium)
             } else {
-              Text("\(formatStationName(entry.origin.name)) \(Image(systemName: "arrow.forward.circle.fill")) \(formatStationName(entry.destination.name))")
-                .font(.system(size: geometry.size.width * 0.09))
-                .lineLimit(1)
-                .fontWeight(.medium)
+              // Use an explicit HStack rather than a single interpolated Text so the
+              // layout direction (not the bidi algorithm) controls ordering. A single
+              // Text with an embedded SF Symbol gets reordered in RTL, which swapped
+              // the origin and destination on the lock screen.
+              HStack(spacing: 3) {
+                Text(formatStationName(entry.origin.name))
+                Image(systemName: "arrow.forward.circle.fill")
+                Text(formatStationName(entry.destination.name))
+              }
+              .font(.system(size: geometry.size.width * 0.09))
+              .lineLimit(1)
+              .fontWeight(.medium)
             }
             Spacer()
             HStack(alignment: .lastTextBaseline, spacing: 3.5) {
