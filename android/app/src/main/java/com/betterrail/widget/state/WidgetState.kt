@@ -127,17 +127,7 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_label, context.getString(R.string.next_train))
         views.setTextColor(R.id.widget_train_label, context.getColor(R.color.widget_next_train_text))
         
-        val platformText = formatPlatform(context, state.nextTrain.platform)
-        views.setTextViewText(R.id.widget_platform, platformText)
-        
-        val trainText = if (state.nextTrain.trainNumber.isNotEmpty()) {
-            views.setViewVisibility(R.id.widget_dot_separator, android.view.View.VISIBLE)
-            context.getString(R.string.train_number, state.nextTrain.trainNumber)
-        } else {
-            views.setViewVisibility(R.id.widget_dot_separator, android.view.View.GONE)
-            ""
-        }
-        views.setTextViewText(R.id.widget_train_number, trainText)
+        renderTrainDetails(context, views, state.nextTrain)
         
         if (layoutResource == R.layout.widget_compact_4x2) {
             views.setTextViewText(R.id.widget_arrival_time, state.nextTrain.arrivalTime)
@@ -228,17 +218,7 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_label, context.getString(R.string.tomorrow))
         views.setTextColor(R.id.widget_train_label, context.getColor(R.color.widget_tomorrow_text))
         
-        val platformText = formatPlatform(context, state.firstTrain.platform)
-        views.setTextViewText(R.id.widget_platform, platformText)
-        
-        val trainText = if (state.firstTrain.trainNumber.isNotEmpty()) {
-            views.setViewVisibility(R.id.widget_dot_separator, android.view.View.VISIBLE)
-            context.getString(R.string.train_number, state.firstTrain.trainNumber)
-        } else {
-            views.setViewVisibility(R.id.widget_dot_separator, android.view.View.GONE)
-            ""
-        }
-        views.setTextViewText(R.id.widget_train_number, trainText)
+        renderTrainDetails(context, views, state.firstTrain)
         
         if (layoutResource == R.layout.widget_compact_4x2) {
             views.setTextViewText(R.id.widget_arrival_time, state.firstTrain.arrivalTime)
@@ -281,17 +261,7 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_label, labelText)
         views.setTextColor(R.id.widget_train_label, context.getColor(R.color.widget_tomorrow_text)) // Purple color
         
-        val platformText = formatPlatform(context, state.firstTrain.platform)
-        views.setTextViewText(R.id.widget_platform, platformText)
-        
-        val trainText = if (state.firstTrain.trainNumber.isNotEmpty()) {
-            views.setViewVisibility(R.id.widget_dot_separator, android.view.View.VISIBLE)
-            context.getString(R.string.train_number, state.firstTrain.trainNumber)
-        } else {
-            views.setViewVisibility(R.id.widget_dot_separator, android.view.View.GONE)
-            ""
-        }
-        views.setTextViewText(R.id.widget_train_number, trainText)
+        renderTrainDetails(context, views, state.firstTrain)
         
         if (layoutResource == R.layout.widget_compact_4x2) {
             views.setTextViewText(R.id.widget_arrival_time, state.firstTrain.arrivalTime)
@@ -307,12 +277,24 @@ class WidgetStateRenderer(
         }
     }
     
-    private fun formatPlatform(context: Context, platform: String): String {
-        return if (platform.isNotEmpty()) {
-            context.getString(R.string.platform_number, platform)
+    private fun renderTrainDetails(context: Context, views: RemoteViews, train: WidgetTrainItem) {
+        val platformText = if (train.platform.isNotEmpty()) {
+            context.getString(R.string.platform_number, train.platform)
         } else {
             context.getString(R.string.platform_default)
         }
+        views.setTextViewText(R.id.widget_platform, platformText)
+
+        val trainText = if (train.trainNumber.isNotEmpty()) {
+            context.getString(R.string.train_number, train.trainNumber)
+        } else {
+            ""
+        }
+        views.setTextViewText(R.id.widget_train_number, trainText)
+        views.setViewVisibility(
+            R.id.widget_dot_separator,
+            if (trainText.isNotEmpty()) android.view.View.VISIBLE else android.view.View.GONE
+        )
     }
     
     private fun getTrainTimeId(): Int {
