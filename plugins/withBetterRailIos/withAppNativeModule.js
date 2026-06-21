@@ -70,9 +70,20 @@ const withAppNativeModule = (config) =>
     proj.addSourceFile(INTENT_DEF[1], { target: targetKey }, groupKey)
 
     // Bundled resources -> Copy Bundle Resources phase (loaded via Bundle.main at runtime).
+    // NOTE: we deliberately avoid proj.addResourceFile(). In xcode@3.0.1 it unconditionally
+    // calls correctForResourcesPath(), which dereferences a PBXGroup literally named
+    // "Resources" — a group Expo's freshly generated project doesn't have, so it throws
+    // "Cannot read properties of null (reading 'path')" on a clean EAS prebuild. Instead we
+    // mirror addSourceFile's lower-level wiring (addFile -> build-file -> Resources phase),
+    // which skips that path-correction entirely.
     for (const [relSrc, destName] of RESOURCE_FILES) {
       copy(relSrc, destName)
-      proj.addResourceFile(destName, { target: targetKey }, groupKey)
+      const resFile = proj.addFile(destName, groupKey, { target: targetKey })
+      if (!resFile) throw new Error(`[withBetterRailIos] failed to add resource ${destName}`)
+      resFile.target = targetKey
+      resFile.uuid = proj.generateUuid()
+      proj.addToPbxBuildFileSection(resFile)
+      proj.addToPbxResourcesBuildPhase(resFile)
     }
 
     // Enable Swift intent codegen on the app target.

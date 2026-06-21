@@ -63,6 +63,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       tinted: "./assets/icons/ios-icon-tinted.png",
     },
     infoPlist: {
+      // Only standard HTTPS/TLS — exempt encryption (skips export-compliance docs per submission).
+      ITSAppUsesNonExemptEncryption: false,
       LSApplicationQueriesSchemes: ["twitter"],
       NSUserActivityTypes: ["RouteIntent"],
       NSSupportsLiveActivities: true,
