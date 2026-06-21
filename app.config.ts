@@ -31,7 +31,16 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: "Better Rail",
   slug: "better-rail",
+  owner: "better-rail",
   version: "2.6.5",
+  updates: {
+    url: "https://u.expo.dev/b7819f45-8466-4c11-8628-3539099e6c78",
+  },
+  // OTA updates only reach builds with the same runtime version; tied to `version` above,
+  // so bump `version` whenever the native layer (modules/widgets/plugins) changes.
+  runtimeVersion: {
+    policy: "appVersion",
+  },
   orientation: "portrait",
   userInterfaceStyle: "automatic",
   icon: "./assets/icons/ios-icon-light.png",
@@ -151,8 +160,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 
   extra: {
     eas: {
-      // TODO: set EAS project id (`eas init`) before running EAS builds / updates.
-      projectId: process.env.EAS_PROJECT_ID ?? "",
+      projectId: process.env.EAS_PROJECT_ID ?? "b7819f45-8466-4c11-8628-3539099e6c78",
     },
     appleTeamId: APPLE_TEAM_ID,
     appGroup: APP_GROUP,
