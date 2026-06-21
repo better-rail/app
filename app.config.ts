@@ -31,7 +31,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: "Better Rail",
   slug: "better-rail",
-  version: "2.6.4",
+  version: "2.6.5",
   orientation: "portrait",
   userInterfaceStyle: "automatic",
   icon: "./assets/icons/ios-icon-light.png",
