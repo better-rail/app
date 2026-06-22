@@ -33,13 +33,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: "better-rail",
   owner: "better-rail",
   version: "2.7.0",
+  // expo-updates is DISABLED. It was auto-added by `eas update:configure`, but the pre-CNG app
+  // never shipped OTA. With it enabled, the release crashed on launch: expo-updates' enabled
+  // controller couldn't produce a launchable embedded update, so launchAssetUrl() was nil →
+  // "JavaScript failed to load" → ErrorRecovery → SIGABRT. Disabled, the embedded bundle loads
+  // directly (parity with the old app). Re-enable + wire the embedded-update build phase as a
+  // separate, non-blocking task if OTA is wanted later.
+  // updates URL (for when re-enabled): https://u.expo.dev/b7819f45-8466-4c11-8628-3539099e6c78
   updates: {
-    url: "https://u.expo.dev/b7819f45-8466-4c11-8628-3539099e6c78",
-  },
-  // OTA updates only reach builds with the same runtime version; tied to `version` above,
-  // so bump `version` whenever the native layer (modules/widgets/plugins) changes.
-  runtimeVersion: {
-    policy: "appVersion",
+    enabled: false,
   },
   orientation: "portrait",
   userInterfaceStyle: "automatic",
