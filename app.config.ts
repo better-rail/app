@@ -32,7 +32,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   name: "Better Rail",
   slug: "better-rail",
   owner: "better-rail",
-  version: "2.6.5",
+  version: "2.7.0",
   updates: {
     url: "https://u.expo.dev/b7819f45-8466-4c11-8628-3539099e6c78",
   },
@@ -91,7 +91,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 
   android: {
     package: ANDROID_PACKAGE,
-    versionCode: 156,
+    versionCode: 157,
     googleServicesFile: IS_DEV ? "./google-services.development.json" : "./google-services.json",
     allowBackup: false,
     // Widget network calls / local dev (replaces the original network_security_config.xml).
