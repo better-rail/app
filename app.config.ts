@@ -56,7 +56,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // Consumed by @bacons/apple-targets for signing the generated extension/widget/watch targets.
     appleTeamId: APPLE_TEAM_ID,
     supportsTablet: false,
-    googleServicesFile: IS_DEV ? "./GoogleService-Info.development.plist" : "./GoogleService-Info.plist",
+    // Prod plist is git-ignored, so on EAS it comes from a file secret (GOOGLE_SERVICES_PLIST);
+    // falls back to the local path for on-machine prod prebuilds.
+    googleServicesFile: IS_DEV
+      ? "./GoogleService-Info.development.plist"
+      : process.env.GOOGLE_SERVICES_PLIST ?? "./GoogleService-Info.plist",
     icon: {
       light: "./assets/icons/ios-icon-light.png",
       dark: "./assets/icons/ios-icon-dark.png",
@@ -92,7 +96,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   android: {
     package: ANDROID_PACKAGE,
     versionCode: 157,
-    googleServicesFile: IS_DEV ? "./google-services.development.json" : "./google-services.json",
+    // Prod JSON is git-ignored, so on EAS it comes from a file secret (GOOGLE_SERVICES_JSON);
+    // falls back to the local path for on-machine prod prebuilds.
+    googleServicesFile: IS_DEV
+      ? "./google-services.development.json"
+      : process.env.GOOGLE_SERVICES_JSON ?? "./google-services.json",
     allowBackup: false,
     // Widget network calls / local dev (replaces the original network_security_config.xml).
     usesCleartextTraffic: true,
