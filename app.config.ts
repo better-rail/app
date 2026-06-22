@@ -63,8 +63,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       : process.env.GOOGLE_SERVICES_PLIST ?? "./GoogleService-Info.plist",
     // Icon Composer (Liquid Glass) icon — a string path, per Expo's requirement. The .icon
     // bundle carries its own light/dark/tinted appearance specializations, so it replaces the
-    // light/dark/tinted PNG object. (watchOS can't consume .icon — see targets/watch.)
-    icon: "./assets/icons/Icon.icon",
+    // light/dark/tinted PNG object. Named "AppIcon" (not "Icon") so the project-wide
+    // ASSETCATALOG_COMPILER_APPICON_NAME matches the AppIcon set the widget catalog already
+    // ships — otherwise the BetterRailWidget archive fails ("no app icon named Icon").
+    // (watchOS can't consume .icon — see targets/watch.)
+    icon: "./assets/icons/AppIcon.icon",
     infoPlist: {
       // Only standard HTTPS/TLS — exempt encryption (skips export-compliance docs per submission).
       ITSAppUsesNonExemptEncryption: false,
