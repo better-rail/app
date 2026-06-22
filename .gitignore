@@ -133,3 +133,6 @@ android-native/res/drawable-*/assets_*
 !android-native/res/drawable-*/assets_railwaystation.*
 android-native/res/drawable-*/node_modules_*
 android-native/res/raw/assets_*
+
+# apple-targets regenerates the watch app icon from targets/watch/icon.png each prebuild
+targets/watch/Assets.xcassets/AppIcon.appiconset/
