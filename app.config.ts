@@ -61,11 +61,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     googleServicesFile: IS_DEV
       ? "./GoogleService-Info.development.plist"
       : process.env.GOOGLE_SERVICES_PLIST ?? "./GoogleService-Info.plist",
-    icon: {
-      light: "./assets/icons/ios-icon-light.png",
-      dark: "./assets/icons/ios-icon-dark.png",
-      tinted: "./assets/icons/ios-icon-tinted.png",
-    },
+    // Icon Composer (Liquid Glass) icon — a string path, per Expo's requirement. The .icon
+    // bundle carries its own light/dark/tinted appearance specializations, so it replaces the
+    // light/dark/tinted PNG object. (watchOS can't consume .icon — see targets/watch.)
+    icon: "./assets/icons/Icon.icon",
     infoPlist: {
       // Only standard HTTPS/TLS — exempt encryption (skips export-compliance docs per submission).
       ITSAppUsesNonExemptEncryption: false,
