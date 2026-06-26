@@ -32,7 +32,7 @@
     "@react-native-community/cli-platform-android": "20.0.0",
     "@react-native-community/cli-platform-ios": "20.0.0",
     "@react-native-community/datetimepicker": "9.1.0",
-    "@react-native-community/push-notification-ios": "1.11.0",
+    "@react-native-community/push-notification-ios": "1.12.0",
     "@react-native-firebase/analytics": "22.1.0",
     "@react-native-firebase/app": "22.1.0",
     "@react-native-firebase/firestore": "22.1.0",
@@ -247,6 +247,8 @@
   "patchedDependencies": {
     "react-native-quick-actions-shortcuts@1.0.2": "patches/react-native-quick-actions-shortcuts@1.0.2.patch",
     "react-native-modal-datetime-picker@18.0.0": "patches/react-native-modal-datetime-picker@18.0.0.patch",
-    "react-native-watch-connectivity@1.1.0": "patches/react-native-watch-connectivity@1.1.0.patch"
+    "react-native-watch-connectivity@1.1.0": "patches/react-native-watch-connectivity@1.1.0.patch",
+    "react-native-push-notification@8.1.1": "patches/react-native-push-notification@8.1.1.patch",
+    "react-native-prompt-android@1.1.0": "patches/react-native-prompt-android@1.1.0.patch"
   }
 }

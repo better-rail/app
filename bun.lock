@@ -13,7 +13,7 @@
         "@react-native-community/cli-platform-android": "20.0.0",
         "@react-native-community/cli-platform-ios": "20.0.0",
         "@react-native-community/datetimepicker": "9.1.0",
-        "@react-native-community/push-notification-ios": "1.11.0",
+        "@react-native-community/push-notification-ios": "1.12.0",
         "@react-native-firebase/analytics": "22.1.0",
         "@react-native-firebase/app": "22.1.0",
         "@react-native-firebase/firestore": "22.1.0",
@@ -116,6 +116,8 @@
   "patchedDependencies": {
     "react-native-quick-actions-shortcuts@1.0.2": "patches/react-native-quick-actions-shortcuts@1.0.2.patch",
     "react-native-watch-connectivity@1.1.0": "patches/react-native-watch-connectivity@1.1.0.patch",
+    "react-native-prompt-android@1.1.0": "patches/react-native-prompt-android@1.1.0.patch",
+    "react-native-push-notification@8.1.1": "patches/react-native-push-notification@8.1.1.patch",
     "react-native-modal-datetime-picker@18.0.0": "patches/react-native-modal-datetime-picker@18.0.0.patch",
   },
   "packages": {
@@ -629,7 +631,7 @@
 
     "@react-native-community/datetimepicker": ["@react-native-community/datetimepicker@9.1.0", "", { "dependencies": { "invariant": "^2.2.4" }, "peerDependencies": { "expo": ">=52.0.0", "react": "*", "react-native": "*", "react-native-windows": "*" }, "optionalPeers": ["expo", "react-native-windows"] }, "sha512-eadbnk+I2vxvW30iTAsm/qlCnMMAadkifIMYNEB2lzhxN/SvlKc7S2V4k5DyrwjdCbqdcMk3t9K6fnUMcAV34w=="],
 
-    "@react-native-community/push-notification-ios": ["@react-native-community/push-notification-ios@1.11.0", "", { "dependencies": { "invariant": "^2.2.4" }, "peerDependencies": { "react": ">=16.6.3", "react-native": ">=0.58.4" } }, "sha512-nfkUs8P2FeydOCR4r7BNmtGxAxI22YuGP6RmqWt6c8EEMUpqvIhNKWkRSFF3pHjkgJk2tpRb9wQhbezsqTyBvA=="],
+    "@react-native-community/push-notification-ios": ["@react-native-community/push-notification-ios@1.12.0", "", { "dependencies": { "invariant": "^2.2.4" }, "peerDependencies": { "react": ">=16.6.3", "react-native": ">=0.58.4" } }, "sha512-nu6ctimVlK4E3id3QHs9yZJ4vCP5UG3lRaBvSboJZ2IWU0XROcIJnNVIXsSH7C3hTlb84lNwPWir3y/TxRj0oA=="],
 
     "@react-native-firebase/analytics": ["@react-native-firebase/analytics@22.1.0", "", { "dependencies": { "superstruct": "^2.0.2" }, "peerDependencies": { "@react-native-firebase/app": "22.1.0" } }, "sha512-ANZGYW9/GG+inJgba0yQC2f3ucwFul+fDiehYHPE2NeDbqucIc8zkp5GjXkdh9rQdgdJS5XjwL+TbYuUXFyvFg=="],
 
