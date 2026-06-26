@@ -1,10 +1,11 @@
 import "@/i18n"
 import "@/utils/ignore-warnings"
 import React, { useState, useEffect, useRef } from "react"
-import { AppState, Platform } from "react-native"
+import { AppState, Platform, useColorScheme } from "react-native"
 import { useDeepLinking } from "@/hooks/use-deep-linking"
 import { Stack } from "expo-router/stack"
 import { useRouter } from "expo-router"
+import { ThemeProvider, DarkTheme, DefaultTheme } from "expo-router/react-navigation"
 import DeviceInfo from "react-native-device-info"
 import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from "react-query"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
@@ -85,20 +86,23 @@ const stack = createModalStack(modalConfig, defaultOptions)
 const isEmulator = DeviceInfo.isEmulatorSync()
 
 function AppStack() {
+  const colorScheme = useColorScheme()
   const { isUpdateRequired } = useForceUpdate()
 
   if (isUpdateRequired) return <ForceUpdateScreen />
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(main)" options={{ headerShown: false }} />
-      <Stack.Screen name="settings" options={{ presentation: "modal" }} />
-      <Stack.Screen name="active-ride" options={{ presentation: "modal" }} />
-      <Stack.Screen name="announcements" options={{ presentation: "modal" }} />
-      <Stack.Screen name="live-announcement" options={{ presentation: "fullScreenModal" }} />
-      <Stack.Screen name="widget-onboarding" options={{ presentation: "fullScreenModal" }} />
-      <Stack.Screen name="paywall" options={{ presentation: "fullScreenModal" }} />
-    </Stack>
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(main)" options={{ headerShown: false }} />
+        <Stack.Screen name="settings" options={{ presentation: "modal" }} />
+        <Stack.Screen name="active-ride" options={{ presentation: "modal" }} />
+        <Stack.Screen name="announcements" options={{ presentation: "modal" }} />
+        <Stack.Screen name="live-announcement" options={{ presentation: "fullScreenModal" }} />
+        <Stack.Screen name="widget-onboarding" options={{ presentation: "fullScreenModal" }} />
+        <Stack.Screen name="paywall" options={{ presentation: "fullScreenModal" }} />
+      </Stack>
+    </ThemeProvider>
   )
 }
 
