@@ -1,4 +1,4 @@
-const he = require("../app/i18n/he.json")
+const he = require("../src/i18n/he.json")
 const { exec } = require("child_process")
 
 // Use this array for keys that for whatever reason aren't greppable so they
@@ -43,8 +43,8 @@ function iterate(obj, stack, array) {
 describe("i18n", () => {
   test("There are no missing keys", (done) => {
     // Actual command output:
-    // grep "Tx=\"\S*\"\|tx=\"\S*\"\|translate(\"\S*\"" -ohr './app' | grep -o "\".*\""
-    const command = `grep "Tx=\\"\\S*\\"\\|tx=\\"\\S*\\"\\|translate(\\"\\S*\\"" -ohr './app' | grep -o "\\".*\\""`
+    // grep "Tx=\"\S*\"\|tx=\"\S*\"\|translate(\"\S*\"" -ohr './src' './app' | grep -o "\".*\""
+    const command = `grep "Tx=\\"\\S*\\"\\|tx=\\"\\S*\\"\\|translate(\\"\\S*\\"" -ohr './src' './app' | grep -o "\\".*\\""`
     exec(command, (_, stdout) => {
       const allTranslationsDefined = iterate(he, "", [])
       const allTranslationsUsed = stdout.replace(/"/g, "").split("\n")
