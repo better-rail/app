@@ -15,6 +15,8 @@ const withAndroidGradleProperties = (config) =>
     }
     upsert("android.useAndroidX", "true")
     upsert("android.enableJetifier", "true")
+    // Jetifier needs more heap to transform large AARs like react-android.aar.
+    upsert("org.gradle.jvmargs", "-Xmx4096m -XX:MaxMetaspaceSize=512m")
     return cfg
   })
 

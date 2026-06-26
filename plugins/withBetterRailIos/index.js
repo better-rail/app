@@ -15,7 +15,6 @@
 const { withAppNativeModule } = require("./withAppNativeModule")
 const { withAppDelegateShortcuts } = require("./withAppDelegateShortcuts")
 const { withAppBridgingHeader } = require("./withAppBridgingHeader")
-const { withPodfilePostInstall } = require("./withPodfilePostInstall")
 
 // NOTE: the watch app's former SPM deps (EasySkeleton, HTMLString) are vendored into
 // targets/watch/Vendor and compiled directly into the watch target — apple-targets 4.0.7 can't
@@ -25,7 +24,6 @@ const withBetterRailIos = (config) => {
   config = withAppNativeModule(config)
   config = withAppBridgingHeader(config)
   config = withAppDelegateShortcuts(config)
-  config = withPodfilePostInstall(config)
   return config
 }
 
