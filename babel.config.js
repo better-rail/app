@@ -5,6 +5,15 @@ module.exports = {
   },
   plugins: [
     ["@babel/plugin-proposal-optional-catch-binding"],
+    [
+      "module-resolver",
+      {
+        root: ["./"],
+        alias: {
+          "@": "./src",
+        },
+      },
+    ],
     // Reanimated's babel plugin must be listed last.
     "react-native-reanimated/plugin",
   ],

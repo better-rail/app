@@ -1,0 +1,197 @@
+import { useEffect, useState } from "react"
+import { Image, ImageStyle, Platform, TouchableOpacity, View, ViewStyle } from "react-native"
+import { useRouter } from "expo-router"
+import * as storage from "../../utils/storage"
+import { trackEvent } from "../../services/analytics"
+import { color, fontScale, spacing } from "../../theme"
+import { Chip, Text } from "../../components"
+import { useShallow } from "zustand/react/shallow"
+import { useRoutePlanStore, useRideStore, useSettingsStore, filterUnseenUrgentMessages } from "../../models"
+import { isRTL, translate, userLocale } from "../../i18n"
+import { ImportantAnnouncementBar } from "./Important-announcement-bar"
+import { railApi } from "../../services/api"
+import { useQuery } from "react-query"
+import { head, isEmpty } from "lodash"
+import { isLiquidGlassSupported } from "@callstack/liquid-glass"
+import { useFeatureFlag } from "posthog-react-native"
+import { useNavigationParamsStore } from "../../models/navigation-params/navigation-params"
+
+const HEADER_WRAPPER: ViewStyle = {
+  flexDirection: "row",
+  justifyContent: "flex-end",
+  alignItems: "center",
+}
+
+let headerIconSize = 25
+if (fontScale > 1.15) headerIconSize = 30
+
+const HEADER_ICON_IMAGE: ImageStyle = {
+  width: headerIconSize,
+  height: headerIconSize,
+  marginStart: spacing[3],
+  tintColor: color.primary,
+  opacity: 0.7,
+  transform: isRTL ? [{ rotateY: "180deg" }] : undefined,
+}
+
+const LIVE_BUTTON_IMAGE: ImageStyle = {
+  width: 22.5,
+  height: 14,
+  marginEnd: isRTL ? spacing[1] : spacing[2],
+  tintColor: "white",
+  transform: isRTL ? [{ rotateY: "220deg" }] : undefined,
+}
+
+const TRAIN_ICON = require("../../../assets/train.ios.png")
+const SPARKLES_ICON = require("../../../assets/sparkles.png")
+const UPDATES_ICON = require("../../../assets/updates.png")
+const SETTINGS_ICON = require("../../../assets/settings.png")
+const ZOLLY_LOGO = require("../../../assets/zolly-announcement/zolly.png")
+
+export function PlannerScreenHeader() {
+  const { origin, destination } = useRoutePlanStore(useShallow((s) => ({ origin: s.origin, destination: s.destination })))
+  const {
+    route: rideRoute,
+    canRunLiveActivities,
+    originId: rideOriginId,
+    destinationId: rideDestinationId,
+  } = useRideStore(
+    useShallow((s) => ({
+      route: s.route,
+      canRunLiveActivities: s.canRunLiveActivities,
+      originId: s.originId,
+      destinationId: s.destinationId,
+    })),
+  )
+  const seenUrgentMessagesIds = useSettingsStore((s) => s.seenUrgentMessagesIds)
+  const router = useRouter()
+  const [displayNewBadge, setDisplayNewBadge] = useState(false)
+  const [showZollyButton, setShowZollyButton] = useState(false)
+  const zollyFlag = useFeatureFlag("show-zolly-announcement")
+
+  const { data: popupMessages } = useQuery(["announcements", "urgent"], () => {
+    return railApi.getPopupMessages(userLocale)
+  })
+
+  // Filter unseen urgent messages from the popup messages
+  const unseenUrgentMessages = popupMessages ? filterUnseenUrgentMessages(popupMessages, seenUrgentMessagesIds) : []
+  const showUrgentBar = !isEmpty(unseenUrgentMessages)
+
+  useEffect(() => {
+    // display the "new" badge if the user has stations selected (not the initial launch),
+    // and they haven't seen the live announcement screen yet,
+    // and the user can run live activities (iOS only)
+    if (origin && destination) {
+      if (Platform.OS === "android" || canRunLiveActivities) {
+        storage.load("seenLiveAnnouncement").then((hasSeenLiveAnnouncementScreen) => {
+          if (!hasSeenLiveAnnouncementScreen) setDisplayNewBadge(true)
+        })
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    storage.load("appInstallDate").then((installDate) => {
+      if (!installDate) {
+        storage.save("appInstallDate", new Date().toISOString())
+      }
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!zollyFlag) return
+    if (!origin || !destination) return
+
+    Promise.all([storage.load("seenZollyAnnouncement"), storage.load("appInstallDate")]).then(
+      ([hasSeen, installDate]) => {
+        if (hasSeen) return
+        if (!installDate) return
+
+        const oneWeekMs = 7 * 24 * 60 * 60 * 1000
+        const installedAt = new Date(installDate).getTime()
+        if (Date.now() - installedAt > oneWeekMs) {
+          setShowZollyButton(true)
+        }
+      },
+    )
+  }, [zollyFlag, origin, destination])
+
+  const openAnnouncements = () => {
+    router.push("/announcements")
+    trackEvent("announcements_icon_pressed")
+  }
+
+  const openSettings = () => {
+    router.push("/settings")
+    trackEvent("settings_icon_pressed")
+  }
+
+  return (
+    <>
+      <View style={HEADER_WRAPPER}>
+        <View style={{ flexDirection: "row", gap: spacing[2] }}>
+          {rideRoute && (
+            <Chip
+              variant="success"
+              onPress={() => {
+                useNavigationParamsStore.getState().setRouteDetails({
+                  routeItem: rideRoute as any,
+                  originId: String(rideOriginId()),
+                  destinationId: String(rideDestinationId()),
+                })
+                router.push("/active-ride")
+                trackEvent("open_live_ride_modal_pressed")
+              }}
+            >
+              {Platform.OS === "ios" && <Image source={TRAIN_ICON} style={LIVE_BUTTON_IMAGE} />}
+              <Text style={{ color: "white", fontWeight: "500", marginVertical: spacing[1] }} tx="ride.live" />
+            </Chip>
+          )}
+
+          {displayNewBadge && !showUrgentBar && (
+            <Chip variant="primary" onPress={() => router.push("/live-announcement")}>
+              <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
+              <Text style={{ color: "white", fontWeight: "500", marginVertical: spacing[1] }} tx="common.new" />
+            </Chip>
+          )}
+
+          {showZollyButton && (
+            <Chip
+              variant="success"
+              onPress={() => {
+                trackEvent("zolly_header_chip_press")
+                router.push("/live-announcement/zolly")
+              }}
+              style={{
+                backgroundColor: isLiquidGlassSupported ? "transparent" : "#115210",
+                paddingStart: spacing[4] * Math.min(fontScale, 1.4),
+              }}
+            >
+              <Image
+                source={ZOLLY_LOGO}
+                style={{
+                  height: 32 * Math.min(fontScale, 1.2),
+                  width: 32 * Math.min(fontScale, 1.2),
+                  resizeMode: "contain",
+                  tintColor: "#f5fea7",
+                }}
+              />
+            </Chip>
+          )}
+        </View>
+        <TouchableOpacity onPress={openAnnouncements} activeOpacity={0.8} accessibilityLabel={translate("routes.updates")}>
+          <Image source={UPDATES_ICON} style={[HEADER_ICON_IMAGE]} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={openSettings} activeOpacity={0.8} accessibilityLabel={translate("settings.title")}>
+          <Image source={SETTINGS_ICON} style={HEADER_ICON_IMAGE} />
+        </TouchableOpacity>
+      </View>
+
+      {showUrgentBar && !rideRoute && (
+        <View style={{ position: "absolute", top: 0, left: 16 }}>
+          <ImportantAnnouncementBar title={head(popupMessages)?.messageBody} />
+        </View>
+      )}
+    </>
+  )
+}
