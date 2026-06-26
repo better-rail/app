@@ -79,14 +79,29 @@ const withAppGradle = (config) =>
 
 const withProjectGradle = (config) =>
   withProjectBuildGradle(config, (cfg) => {
-    cfg.modResults.contents = mergeContents({
+    let src = cfg.modResults.contents
+
+    src = mergeContents({
       tag: "better-rail-android-hilt-classpath",
-      src: cfg.modResults.contents,
+      src,
       newSrc: `        classpath("com.google.dagger:hilt-android-gradle-plugin:${HILT_VERSION}")`,
       anchor: /dependencies\s*{/,
       offset: 1,
       comment: "//",
     }).contents
+
+    // Gradle 9 ignores rootProject.allprojects{} from subproject build files, so
+    // notifee's local AAR repo must be declared at the root level.
+    src = mergeContents({
+      tag: "better-rail-android-notifee-maven",
+      src,
+      newSrc: `    maven { url "$rootDir/../node_modules/@notifee/react-native/android/libs" }`,
+      anchor: /maven \{ url 'https:\/\/www\.jitpack\.io' \}/,
+      offset: 1,
+      comment: "//",
+    }).contents
+
+    cfg.modResults.contents = src
     return cfg
   })
 
