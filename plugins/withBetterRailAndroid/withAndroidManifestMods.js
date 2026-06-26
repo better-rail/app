@@ -33,7 +33,16 @@ const configActivity = (name) => ({
 
 const withAndroidManifestMods = (config) =>
   withAndroidManifest(config, (cfg) => {
-    const app = cfg.modResults.manifest.application[0]
+    const manifest = cfg.modResults.manifest
+
+    // Firebase Analytics pulls in play-services-ads-identifier which unconditionally adds this
+    // permission. Strip it — we disable ADID collection via firebase.json and our Play Console
+    // declaration says we don't use advertising ID.
+    manifest["uses-permission"] = (manifest["uses-permission"] || []).filter(
+      (p) => p.$?.["android:name"] !== "com.google.android.gms.permission.AD_ID",
+    )
+
+    const app = manifest.application[0]
 
     app.activity = app.activity || []
     app.receiver = app.receiver || []
