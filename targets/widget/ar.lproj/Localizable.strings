@@ -1,0 +1,41 @@
+"no-favorites" = "لا مفضلات";
+"no-favorites-message" = "يمكنك إضافة مفضلات من جهاز iPhone الخاص بك";
+"no-trains-found" = "لا توجد قطارات لهذا اليوم";
+
+"departure" = "انطلاق";
+"arrival" = "وصول";
+
+"train %@" = "قطار رقم %@";
+"platform %@" = "رصيف %@";
+"train %@ platform %@" = "قطار رقم %@ ・ رصيف %@";
+"platform %@ train no. %@" = "المنصة %@・ رقم القطار %@";
+
+"change" = "تبديل";
+"stay-at %@" = "الرجاء الانتظار في الرصيف %@";
+"move-to %@" = "الرجاء الانتقال الى رصيف %@";
+
+"from" = "من";
+"to" = "ل";
+"origin" = "أصل";
+"destination" = "وجهة";
+"search" = "يبحث";
+"search route" = "البحث عن الطريق";
+"min" = "دقائق";
+
+"NEXT TRAIN" = "القطار القادم";
+"UPCOMING" = "القطارات القادمة";
+"TOMORROW" = "غدا";
+"ARRIVAL" = "وصول";
+"PLATFORM" = "رصيف";
+"TRAIN NO." = "يدرب";
+"TRAIN" = "يدرب";
+
+"Platform %@・Train %@" = "رصيف %@・قطار رقم %@";
+"Schedule" = "جدول";
+"Display the upcoming train times." = "عرض مواعيد القطار القادمة";
+
+"No more trains for today." = "لا مزيد من القطارات لهذا اليوم.";
+"No trains for today." = "لا توجد قطارات لهذا اليوم.";
+"Something went wrong." = "هناك خطأ ما.";
+"try again" = "حاول ثانية";
+"critical alert" = "تنبيه بالغ الأهمية";

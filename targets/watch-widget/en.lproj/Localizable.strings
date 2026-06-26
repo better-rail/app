@@ -1,0 +1,50 @@
+"no-favorites" = "No Favorites";
+"no-favorites-message" = "You can add favorites from your iPhone";
+"no-trains-found" = "No trains found for today";
+
+"departure" = "Depart";
+"arrival" = "Arrive";
+
+"train %@" = "Train %@";
+"platform %@" = "Platform %@";
+"train %@ platform %@" = "Train %@ ・ Platform %@";
+"platform %@ train no. %@" = "PLATFORM %@・TRAIN NO. %@";
+
+"change" = "Change";
+"stay-at %@" = "Stay at Platform %@";
+"move-to %@" = "Move to Platform %@";
+
+"from" = "From";
+"to" = "To";
+"origin" = "Origin";
+"destination" = "Destination";
+"search" = "Search";
+"search route" = "Search Route";
+
+"No trains for today." = "No trains for today.";
+"No more trains for today." = "No more trains for today.";
+"Something went wrong." = "Something went wrong.";
+"try again" = "Try Again";
+"critical alert" = "Critical Alert";
+
+// live activity localizations
+"min" = "min";
+"depart" = "DEPART";
+"%@ min" = "%@ min";
+"+%@ min" = "+%@ min";
+"headed to" = "HEADED TO";
+"wait in" = "WAIT IN";
+"arrive" = "ARRIVE";
+"next station" = "NEXT STATION";
+"arrived at" = "ARRIVED AT";
+"train %@ to %@" = "Train %@ to %@";
+"depart from platform %@" = "Departs from Platform %@";
+"train %@ dest %@" = "TRAIN %@ TO %@";
+"get off at the next stop" = "Get off at the next stop";
+"get off in %@ stops" = "Get off in %@ stops";
+"get off" = "Get off the train";
+"thanks for riding with better rail" = "Thanks for riding with Better Rail!";
+"time left depart" = "Time left to departure";
+"time left arrival" = "Time left to arrival";
+"connection issues" = "CONNECTION ISSUES";
+"%@ min delay" = "%@ min delay";

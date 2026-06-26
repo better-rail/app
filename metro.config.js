@@ -1,14 +1,11 @@
-const { getDefaultConfig, mergeConfig } = require("@react-native/metro-config")
-const { withSentryConfig } = require("@sentry/react-native/metro");
+// Learn more: https://docs.expo.dev/guides/customizing-metro/
+const { getSentryExpoConfig } = require("@sentry/react-native/metro")
 
-/**
- * Metro configuration
- * https://reactnative.dev/docs/metro
- *
- * @type {import('@react-native/metro-config').MetroConfig}
- */
-const config = getDefaultConfig(__dirname);
+// Use Sentry's Expo-aware Metro config (NOT the bare-RN withSentryConfig). withSentryConfig
+// installs a serializer that crashes Expo's production bundle (`expo export:embed --eager`)
+// in determineDebugIdFromBundleSource — getSentryExpoConfig wires Sentry's debug-id handling
+// through Expo's serializer instead. It calls Expo's getDefaultConfig internally.
+/** @type {import('expo/metro-config').MetroConfig} */
+const config = getSentryExpoConfig(__dirname)
 
-module.exports = withSentryConfig(
-  mergeConfig(getDefaultConfig(__dirname), config),
-);
+module.exports = config

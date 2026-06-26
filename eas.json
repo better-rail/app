@@ -1,0 +1,56 @@
+{
+  "cli": {
+    "version": ">= 12.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "base": {
+      "node": "20.18.0",
+      "ios": {
+        "resourceClass": "m-medium"
+      }
+    },
+    "development": {
+      "extends": "base",
+      "developmentClient": true,
+      "distribution": "internal",
+      "channel": "development",
+      "env": {
+        "APP_VARIANT": "development"
+      },
+      "ios": {
+        "simulator": false
+      }
+    },
+    "development-simulator": {
+      "extends": "development",
+      "ios": {
+        "simulator": true
+      }
+    },
+    "preview": {
+      "extends": "base",
+      "distribution": "internal",
+      "channel": "preview",
+      "env": {
+        "APP_VARIANT": "production"
+      }
+    },
+    "production": {
+      "extends": "base",
+      "distribution": "store",
+      "channel": "production",
+      "autoIncrement": true,
+      "env": {
+        "APP_VARIANT": "production"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleTeamId": "UE6BVYPPFX"
+      }
+    }
+  }
+}
