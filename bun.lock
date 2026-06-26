@@ -50,7 +50,7 @@
         "react": "19.2.3",
         "react-native": "0.85.3",
         "react-native-bouncy-checkbox": "3.0.7",
-        "react-native-context-menu-view": "1.17.0",
+        "react-native-context-menu-view": "1.21.0",
         "react-native-date-picker": "5.0.12",
         "react-native-default-preference": "1.4.4",
         "react-native-device-info": "10.6.0",
@@ -1825,7 +1825,7 @@
 
     "react-native-console-time-polyfill": ["react-native-console-time-polyfill@1.2.3", "", { "peerDependencies": { "react": ">=15.4.0", "react-native": ">=0.40.0" } }, "sha512-C7CUb1c6GsCssqvjtRuqVqnGwlfEHXxXDvCUuGNbq/gpZZt+9YbZD3ODmXBDxis3tDQA0k1lbT1VMTqWQw9rDg=="],
 
-    "react-native-context-menu-view": ["react-native-context-menu-view@1.17.0", "", { "peerDependencies": { "react": "^16.8.1 || ^17.0.0 || ^18.0.0", "react-native": ">=0.60.0-rc.0 <1.0.x" } }, "sha512-GNuB6QI8H6YGT9PNjUyM6XUywG3CDi8BCWQrKA4xCjey7tolW/CsSZDBFiZx0G6sxYQUTQlUxErib5ImZEtbmA=="],
+    "react-native-context-menu-view": ["react-native-context-menu-view@1.21.0", "", { "peerDependencies": { "react": "^16.8.1 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react-native": ">=0.60.0-rc.0 <1.0.x" } }, "sha512-GVQckdDxKyM4BYqWqiApnfzzk56vLEMWiVLsvs95mPhJJYvzRXx+Ev3T6DVEasWCZxk6PbgtcZaWi9jnXGdhCQ=="],
 
     "react-native-date-picker": ["react-native-date-picker@5.0.12", "", { "peerDependencies": { "react": ">= 17.0.1", "react-native": ">= 0.64.3" } }, "sha512-R/mUnCKhcuxbhKPFwYdBQCxQt9HHLqpM4ruRUqlcBjiUZ3N2wdnwOMyc888Ps8qp8e7v29PrDHtUlG8LPuFn9w=="],
 

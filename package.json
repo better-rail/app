@@ -69,7 +69,7 @@
     "react": "19.2.3",
     "react-native": "0.85.3",
     "react-native-bouncy-checkbox": "3.0.7",
-    "react-native-context-menu-view": "1.17.0",
+    "react-native-context-menu-view": "1.21.0",
     "react-native-date-picker": "5.0.12",
     "react-native-default-preference": "1.4.4",
     "react-native-device-info": "10.6.0",
