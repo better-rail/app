@@ -35,12 +35,14 @@ const withAndroidManifestMods = (config) =>
   withAndroidManifest(config, (cfg) => {
     const manifest = cfg.modResults.manifest
 
-    // Firebase Analytics pulls in play-services-ads-identifier which unconditionally adds this
-    // permission. Strip it — we disable ADID collection via firebase.json and our Play Console
-    // declaration says we don't use advertising ID.
-    manifest["uses-permission"] = (manifest["uses-permission"] || []).filter(
-      (p) => p.$?.["android:name"] !== "com.google.android.gms.permission.AD_ID",
-    )
+    // Firebase's AAR merges com.google.android.gms.permission.AD_ID during the Gradle build.
+    // tools:node="remove" tells the manifest merger to strip it, which is the only way to
+    // override a permission injected by a library dependency at build time (not at prebuild time).
+    manifest.$["xmlns:tools"] = "http://schemas.android.com/tools"
+    manifest["uses-permission"] = manifest["uses-permission"] || []
+    manifest["uses-permission"].push({
+      $: { "android:name": "com.google.android.gms.permission.AD_ID", "tools:node": "remove" },
+    })
 
     const app = manifest.application[0]
 
