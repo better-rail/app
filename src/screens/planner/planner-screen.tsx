@@ -8,7 +8,7 @@ import HapticFeedback from "react-native-haptic-feedback"
 import { color, primaryFontIOS, spacing } from "../../theme"
 import { useStations } from "../../data/stations"
 import { translate, useFormattedDate } from "../../i18n"
-import { DatePickerModal } from "../../components/date-picker-modal/date-picker-modal.ios"
+import { DatePickerModal } from "../../components/date-picker-modal/date-picker-modal"
 import { useQuery } from "react-query"
 import { isWeekend } from "../../utils/helpers/date-helpers"
 import { differenceInHours, parseISO } from "date-fns"
@@ -17,7 +17,6 @@ import { donateRouteIntent } from "../../utils/ios-helpers"
 import { trackEvent } from "../../services/analytics"
 import { useRouter, useFocusEffect } from "expo-router"
 import { PlannerScreenHeader } from "./planner-screen-header"
-import { useModal } from "react-native-modalfy"
 import { FlingGestureWrapper } from "./planner-slider-wrapper"
 
 const { height: deviceHeight } = Dimensions.get("screen")
@@ -59,7 +58,6 @@ export function PlannerScreen() {
     useShallow((s) => ({ updateResultType: s.updateResultType, getRoutes: s.getRoutes }))
   )
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
-  const { openModal } = useModal()
 
   const formattedDate = useFormattedDate(date)
   const stationCardScale = useRef(new Animated.Value(1)).current
@@ -224,28 +222,17 @@ export function PlannerScreen() {
             placeholder={translate("plan.now")}
             value={formattedDate}
             style={{ marginBottom: spacing[5] }}
-            onPress={() => {
-              if (Platform.OS === "android") {
-                openModal("DatePickerModal", {
-                  onConfirm: handleConfirm,
-                  minimumDate: now,
-                })
-              } else {
-                setDatePickerVisibility(true)
-              }
-            }}
+            onPress={() => setDatePickerVisibility(true)}
             endSection={formattedDate !== translate("plan.now") && <ResetTimeButton onPress={onDateReset} />}
           />
 
-          {Platform.OS === "ios" && (
-            <DatePickerModal
-              isVisible={isDatePickerVisible}
-              onChange={onDateChange}
-              onConfirm={handleConfirm}
-              onCancel={() => setDatePickerVisibility(false)}
-              minimumDate={now}
-            />
-          )}
+          <DatePickerModal
+            isVisible={isDatePickerVisible}
+            onChange={onDateChange}
+            onConfirm={handleConfirm}
+            onCancel={() => setDatePickerVisibility(false)}
+            minimumDate={now}
+          />
 
           <Button
             title={translate("plan.find")}

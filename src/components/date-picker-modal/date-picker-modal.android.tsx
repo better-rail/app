@@ -1,12 +1,19 @@
-import { useState } from "react"
-import { Pressable, TextStyle, View, type ViewStyle } from "react-native"
+import { useEffect, useState } from "react"
+import { Modal, Pressable, TextStyle, View, type ViewStyle } from "react-native"
+import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore } from "../../models"
 import { dateLocale, translate } from "../../i18n"
 import { color, spacing, isDarkMode } from "../../theme"
 import DatePicker from "react-native-date-picker"
 import { Button } from "../button/button"
-import type { ModalProps } from "react-native-modalfy"
 import { Text } from "../text/text"
+
+const MODAL_OVERLAY: ViewStyle = {
+  flex: 1,
+  backgroundColor: "rgba(0,0,0,0.6)",
+  justifyContent: "center",
+  alignItems: "center",
+}
 
 const MODAL_WRAPPER: ViewStyle = {
   minHeight: 285,
@@ -45,7 +52,7 @@ const INACTIVE_TAB_STYLE: ViewStyle = {
   borderBottomColor: "transparent",
 }
 
-const TAB_TEXT_STYLEL: TextStyle = {
+const TAB_TEXT_STYLE: TextStyle = {
   fontFamily: "sans-serif-medium",
   fontSize: 14,
   fontWeight: "600",
@@ -57,80 +64,79 @@ const TAB_TEXT_STYLEL: TextStyle = {
 
 export interface DatePickerModalProps {
   isVisible: boolean
-  onChange: (date: Date) => void
+  onChange?: (date: Date) => void
   onConfirm: (date: Date) => void
+  onCancel: () => void
   minimumDate?: Date
   style?: ViewStyle
 }
 
-export function DatePickerModal(props: ModalProps<"DatePickerModal">) {
-  const setDateType = useRoutePlanStore((s) => s.setDateType)
-  const { onConfirm, minimumDate } = props.modal.params
-  const [selectedTab, setSelectedTab] = useState(0)
+export function DatePickerModal({ isVisible, onConfirm, onCancel, minimumDate }: DatePickerModalProps) {
+  const { setDateType, dateType } = useRoutePlanStore(useShallow((s) => ({ setDateType: s.setDateType, dateType: s.dateType })))
+  const [selectedTab, setSelectedTab] = useState(dateType === "arrival" ? 1 : 0)
+  const [modalDate, setModalDate] = useState(new Date())
+
+  useEffect(() => {
+    if (isVisible) {
+      setSelectedTab(dateType === "arrival" ? 1 : 0)
+      setModalDate(new Date())
+    }
+  }, [isVisible])
 
   const onDateTypeChange = (selectedTabIndex: number) => {
     setSelectedTab(selectedTabIndex)
-
-    if (selectedTabIndex === 0) {
-      setDateType("departure")
-    } else {
-      setDateType("arrival")
-    }
+    setDateType(selectedTabIndex === 0 ? "departure" : "arrival")
   }
 
-  // Date will be kept locally until user confirmation
-  const [modalDate, setModalDate] = useState(new Date())
-
   return (
-    <View style={MODAL_WRAPPER}>
-      <View style={{ padding: spacing[2] }}>
-        <View style={{ flexDirection: "row" }}>
-          <Pressable
-            style={selectedTab === 0 ? ACTIVE_TAB_STYLE : INACTIVE_TAB_STYLE}
-            onPress={() => onDateTypeChange(0)}
-            android_ripple={{ color: "rgba(0,0,0,0.1)" }}
-          >
-            <Text tx="plan.leaveAt" style={TAB_TEXT_STYLEL} />
-          </Pressable>
-          <Pressable
-            style={selectedTab === 1 ? ACTIVE_TAB_STYLE : INACTIVE_TAB_STYLE}
-            onPress={() => onDateTypeChange(1)}
-            android_ripple={{ color: "rgba(0,0,0,0.1)" }}
-          >
-            <Text tx="plan.arriveAt" style={TAB_TEXT_STYLEL} />
-          </Pressable>
-        </View>
-        <DatePicker
-          date={modalDate}
-          onDateChange={setModalDate}
-          minuteInterval={15}
-          locale={dateLocale}
-          mode="datetime"
-          minimumDate={minimumDate}
-          style={{ alignSelf: "center", marginVertical: spacing[4] }}
-        />
+    <Modal visible={isVisible} transparent animationType="fade" onRequestClose={onCancel}>
+      <View style={MODAL_OVERLAY}>
+        <View style={MODAL_WRAPPER}>
+          <View style={{ padding: spacing[2] }}>
+            <View style={{ flexDirection: "row" }}>
+              <Pressable
+                style={selectedTab === 0 ? ACTIVE_TAB_STYLE : INACTIVE_TAB_STYLE}
+                onPress={() => onDateTypeChange(0)}
+                android_ripple={{ color: "rgba(0,0,0,0.1)" }}
+              >
+                <Text tx="plan.leaveAt" style={TAB_TEXT_STYLE} />
+              </Pressable>
+              <Pressable
+                style={selectedTab === 1 ? ACTIVE_TAB_STYLE : INACTIVE_TAB_STYLE}
+                onPress={() => onDateTypeChange(1)}
+                android_ripple={{ color: "rgba(0,0,0,0.1)" }}
+              >
+                <Text tx="plan.arriveAt" style={TAB_TEXT_STYLE} />
+              </Pressable>
+            </View>
+            <DatePicker
+              date={modalDate}
+              onDateChange={setModalDate}
+              minuteInterval={15}
+              locale={dateLocale}
+              mode="datetime"
+              minimumDate={minimumDate}
+              style={{ alignSelf: "center", marginVertical: spacing[4] }}
+            />
 
-        <View style={{ flexDirection: "row", justifyContent: "space-around", height: 40 }}>
-          <Button
-            title={translate("common.cancel")}
-            onPress={() => {
-              props.modal.closeModal()
-            }}
-            style={CANCEL_BUTTON}
-            containerStyle={{ marginEnd: spacing[1] }}
-            textStyle={{ color: isDarkMode ? color.dim : color.primary }}
-            size="small"
-          />
-          <Button
-            title={translate("common.set")}
-            onPress={() => {
-              onConfirm(modalDate)
-              props.modal.closeModal()
-            }}
-            size="small"
-          />
+            <View style={{ flexDirection: "row", justifyContent: "space-around", height: 40 }}>
+              <Button
+                title={translate("common.cancel")}
+                onPress={onCancel}
+                style={CANCEL_BUTTON}
+                containerStyle={{ marginEnd: spacing[1] }}
+                textStyle={{ color: isDarkMode ? color.dim : color.primary }}
+                size="small"
+              />
+              <Button
+                title={translate("common.set")}
+                onPress={() => onConfirm(modalDate)}
+                size="small"
+              />
+            </View>
+          </View>
         </View>
       </View>
-    </View>
+    </Modal>
   )
 }
