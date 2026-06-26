@@ -1,9 +1,24 @@
-import { View, type ViewStyle, type TextStyle } from "react-native"
-import type { ModalProps } from "react-native-modalfy"
+import { Modal, View, type ViewStyle, type TextStyle } from "react-native"
 import { color, fontScale } from "../../../theme"
 import { spacing } from "../../../theme"
 import { Button, Text } from "../../../components"
 import { translate } from "../../../i18n"
+
+export type WarningType = "different-hour" | "different-date"
+
+export interface RouteListWarningModalProps {
+  visible: boolean
+  warningType: WarningType
+  formattedRoutesDate: string
+  onClose: () => void
+}
+
+const MODAL_OVERLAY: ViewStyle = {
+  flex: 1,
+  backgroundColor: "rgba(0,0,0,0.6)",
+  justifyContent: "center",
+  alignItems: "center",
+}
 
 const MODAL_WRAPPER: ViewStyle = {
   maxHeight: 400,
@@ -18,6 +33,7 @@ const MODAL_WRAPPER: ViewStyle = {
   shadowColor: color.palette.black,
   shadowRadius: 2,
   shadowOpacity: 0.45,
+  elevation: 6,
 }
 
 const MODAL_ICON: TextStyle = {
@@ -41,35 +57,34 @@ const MODAL_BUTTON: ViewStyle = {
   minWidth: "80%",
 }
 
-export function RouteListWarningModal(props: ModalProps<"RouteListWarningModal">) {
-  const { warningType, formattedRoutesDate, onClose } = props.modal.params
-
+export function RouteListWarningModal({ visible, warningType, formattedRoutesDate, onClose }: RouteListWarningModalProps) {
   return (
-    <View style={MODAL_WRAPPER}>
-      <Text style={MODAL_ICON}>⚠️</Text>
-      <Text
-        style={MODAL_TITLE}
-        tx={warningType === "different-hour" ? "modals.noTrainsFoundForHour" : "modals.noTrainsFoundForDate"}
-      />
-      <Text style={MODAL_TEXT}>
-        {warningType === "different-hour" ? (
-          translate("modals.foundTrainsAtHour")
-        ) : (
-          <>
-            {translate("modals.foundTrainsAtDate")}
-            {formattedRoutesDate}
-          </>
-        )}
-      </Text>
-      <Button
-        title={translate("common.ok")}
-        containerStyle={{ maxHeight: 60 * fontScale }}
-        style={MODAL_BUTTON}
-        onPress={() => {
-          onClose()
-          props.modal.closeModal()
-        }}
-      />
-    </View>
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <View style={MODAL_OVERLAY}>
+        <View style={MODAL_WRAPPER}>
+          <Text style={MODAL_ICON}>⚠️</Text>
+          <Text
+            style={MODAL_TITLE}
+            tx={warningType === "different-hour" ? "modals.noTrainsFoundForHour" : "modals.noTrainsFoundForDate"}
+          />
+          <Text style={MODAL_TEXT}>
+            {warningType === "different-hour" ? (
+              translate("modals.foundTrainsAtHour")
+            ) : (
+              <>
+                {translate("modals.foundTrainsAtDate")}
+                {formattedRoutesDate}
+              </>
+            )}
+          </Text>
+          <Button
+            title={translate("common.ok")}
+            containerStyle={{ maxHeight: 60 * fontScale }}
+            style={MODAL_BUTTON}
+            onPress={onClose}
+          />
+        </View>
+      </View>
+    </Modal>
   )
 }

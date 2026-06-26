@@ -15,7 +15,6 @@ import * as Sentry from "@sentry/react-native"
 import { enableScreens } from "react-native-screens"
 import { PostHogProvider } from "posthog-react-native"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
-import { createModalStack, ModalProvider } from "react-native-modalfy"
 import { useIAP, initConnection, finishTransaction, getAvailablePurchases } from "react-native-iap"
 
 import { initFonts } from "@/theme/fonts"
@@ -30,8 +29,6 @@ import { trackInstalledWidgets } from "@/utils/widget-helpers"
 import { monitorLiveActivities } from "@/utils/ios-helpers"
 import { useForceUpdate } from "@/hooks/use-force-update"
 import { ForceUpdateScreen } from "@/screens/force-update/force-update-screen"
-import { RouteListWarningModal } from "@/screens/route-list/components/route-list-warning-modal"
-import { DatePickerModal } from "@/components/date-picker-modal/date-picker-modal.android"
 import { openActiveRide } from "@/utils/helpers/ride-helpers"
 import PushNotification from "react-native-push-notification"
 import "react-native-console-time-polyfill"
@@ -78,10 +75,6 @@ export const queryClient = new QueryClient({
     },
   }),
 })
-
-const modalConfig = { RouteListWarningModal, DatePickerModal }
-const defaultOptions = { backdropOpacity: 0.6 }
-const stack = createModalStack(modalConfig, defaultOptions)
 
 const isEmulator = DeviceInfo.isEmulatorSync()
 
@@ -210,15 +203,13 @@ function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <ModalProvider stack={stack}>
-          <ActionSheetProvider>
-            <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-              <PostHogProvider client={posthog} autocapture={{ captureScreens: false }}>
-                <AppStack />
-              </PostHogProvider>
-            </SafeAreaProvider>
-          </ActionSheetProvider>
-        </ModalProvider>
+        <ActionSheetProvider>
+          <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+            <PostHogProvider client={posthog} autocapture={{ captureScreens: false }}>
+              <AppStack />
+            </PostHogProvider>
+          </SafeAreaProvider>
+        </ActionSheetProvider>
       </GestureHandlerRootView>
     </QueryClientProvider>
   )
