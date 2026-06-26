@@ -1,7 +1,7 @@
-import React, { useMemo } from "react"
+import React from "react"
 import { ViewStyle } from "react-native"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
-import SegmentedControl from "@react-native-segmented-control/segmented-control"
+import SegmentedControl from "@expo/ui/community/segmented-control"
 import { useShallow } from "zustand/react/shallow"
 import type { DateType } from "../../models"
 import { useRoutePlanStore } from "../../models"
@@ -33,21 +33,6 @@ export function DatePickerModal(props: DatePickerModalProps) {
   )
   const { isVisible, onChange, onConfirm, onCancel, minimumDate } = props
 
-  const dateTypeControl = useMemo(
-    () => (
-      <SegmentedControl
-        values={[translate("plan.leaveAt"), translate("plan.arriveAt")]}
-        selectedIndex={dateType === "departure" ? 0 : 1}
-        onChange={(event) => {
-          setDateType(DATE_TYPE[event.nativeEvent.selectedSegmentIndex])
-          HapticFeedback.trigger("impactLight")
-        }}
-        style={SEGMENTED_CONTROL}
-      />
-    ),
-    [dateType],
-  )
-
   return (
     <DateTimePickerModal
       isVisible={isVisible}
@@ -59,7 +44,17 @@ export function DatePickerModal(props: DatePickerModalProps) {
       locale={dateLocale}
       minimumDate={minimumDate}
       minuteInterval={15}
-      customHeaderIOS={() => dateTypeControl}
+      customHeaderIOS={() => (
+        <SegmentedControl
+          values={[translate("plan.leaveAt"), translate("plan.arriveAt")]}
+          selectedIndex={dateType === "departure" ? 0 : 1}
+          onChange={(event) => {
+            setDateType(DATE_TYPE[event.nativeEvent.selectedSegmentIndex])
+            HapticFeedback.trigger("impactLight")
+          }}
+          style={SEGMENTED_CONTROL}
+        />
+      )}
       customCancelButtonIOS={() => null}
       confirmTextIOS={translate("common.ok")}
     />
