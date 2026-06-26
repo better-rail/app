@@ -47,7 +47,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   icon: "./assets/icons/ios-icon-light.png",
   // App URL scheme + the schemes the app responds to (widget://, liveActivity://)
   scheme: ["betterrail", "widget", "liveActivity"],
-  newArchEnabled: true,
   jsEngine: "hermes",
   assetBundlePatterns: ["**/*"],
 
