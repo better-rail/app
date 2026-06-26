@@ -3,7 +3,7 @@ import { Platform } from "react-native"
 import { useRouter } from "expo-router"
 import { BlurView } from "expo-blur"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { CloseButton } from "@/components"
+import { translate } from "@/i18n"
 import { useIsDarkMode } from "@/hooks"
 
 function LiveAnnouncementHeaderBackground() {
@@ -24,18 +24,9 @@ export default function LiveAnnouncementLayout() {
         headerBackground: () => (Platform.OS === "ios" ? <LiveAnnouncementHeaderBackground /> : null),
         title: "",
         ...(Platform.OS === "ios" && {
-          headerLeft: () => (
-            <CloseButton
-              onPress={() => router.dismiss()}
-              iconStyle={{
-                width: 32.5,
-                height: 32.5,
-                tintColor: Platform.select({ ios: "white", android: "grey" }),
-                opacity: 0.5,
-                marginTop: 8,
-              }}
-            />
-          ),
+          unstable_headerLeftItems: () => [
+            { type: "button", label: translate("common.close") ?? "Close", icon: { type: "sfSymbol", name: "xmark" }, tintColor: "white", onPress: () => router.dismiss() },
+          ],
         }),
       }}
     >

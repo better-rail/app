@@ -1,5 +1,5 @@
 import { Stack } from "expo-router/stack"
-import { Image, Platform, Pressable, type TextStyle } from "react-native"
+import { Image, Pressable, type TextStyle } from "react-native"
 import { color, spacing, typography } from "@/theme"
 import { translate } from "@/i18n"
 import { CloseButton } from "@/components"
@@ -36,19 +36,16 @@ export default function AnnouncementsLayout() {
                   width: 24,
                   height: 27,
                   marginRight: spacing[3],
-                  marginBottom: spacing[2],
                   opacity: 0.6,
                   tintColor: "#e67e22",
                 }}
               />
             </Pressable>
           ),
-          headerLeft: () => (
-            <CloseButton
-              onPress={() => router.back()}
-              style={{ marginRight: Platform.select({ ios: spacing[2], android: spacing[5] }) }}
-            />
-          ),
+          headerLeft: () => <CloseButton onPress={() => router.back()} style={{ marginRight: spacing[5] }} />,
+          unstable_headerLeftItems: () => [
+            { type: "button", label: translate("common.close") ?? "Close", icon: { type: "sfSymbol", name: "xmark" }, onPress: () => router.back() },
+          ],
           headerTitleStyle: iOSTitleStyle,
         }}
       />
@@ -57,6 +54,9 @@ export default function AnnouncementsLayout() {
         options={{
           title: translate("routes.updates") ?? "",
           headerLeft: () => <CloseButton onPress={() => router.back()} style={{ marginRight: spacing[2] }} />,
+          unstable_headerLeftItems: () => [
+            { type: "button", label: translate("common.close") ?? "Close", icon: { type: "sfSymbol", name: "xmark" }, onPress: () => router.back() },
+          ],
           headerTitleStyle: iOSTitleStyle,
         }}
       />

@@ -5,8 +5,6 @@ import { color } from "../../theme"
 const CLOSE_ICON_STYLE: ImageStyle = {
   width: 37.5,
   height: 37.5,
-  marginLeft: 7.5,
-  marginBottom: 7.5,
   tintColor: color.dim,
   opacity: 0.5,
 }
