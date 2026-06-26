@@ -132,6 +132,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
 
   plugins: [
+    "expo-router",
     [
       "expo-build-properties",
       {

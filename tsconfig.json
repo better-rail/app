@@ -5,7 +5,7 @@
     "experimentalDecorators": true,
     "jsx": "react-native",
     "module": "es2015",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "noImplicitAny": false,
     "noImplicitReturns": true,
     "noImplicitThis": true,
@@ -16,7 +16,10 @@
       "esnext"
     ],
     "skipLibCheck": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "exclude": [
     "node_modules",
@@ -25,6 +28,7 @@
   "include": [
     "index.js",
     "app",
+    "src",
     "test"
   ],
   "extends": "expo/tsconfig.base"

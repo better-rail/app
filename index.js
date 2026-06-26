@@ -1,16 +1,11 @@
-// Expo entry point. `registerRootComponent` registers the root component as "main",
-// which matches the module/component name in the CNG-generated native projects.
-import { registerRootComponent } from "expo"
+// Early setup — runs before the Expo Router root component mounts.
+// expo-router/entry handles registerRootComponent; this file handles
+// startup-time configuration that must run before the React tree.
 import * as Sentry from "@sentry/react-native"
+import { configureNotifications } from "./src/utils/notification-helpers"
 
-import App from "./app/app"
-import { configureNotifications } from "./app/utils/notification-helpers"
-
-// The EAS release build was hard-crashing at launch: a fatal JS error early in startup got turned
-// into a native SIGABRT by expo-updates' ErrorRecovery, with no reason in the crash report — so we
-// could never see the actual error. Install a global handler that reports it (Sentry + console)
-// and, only during the startup window, swallows fatal errors so a single failing init can't crash
-// the launch. After startup, errors propagate to the default handler normally.
+// Guard fatal startup errors so a single failing init can't crash launch.
+// After the startup window closes, errors propagate to the default handler.
 const defaultErrorHandler = global.ErrorUtils && global.ErrorUtils.getGlobalHandler()
 let withinStartupWindow = true
 setTimeout(() => {
@@ -25,8 +20,6 @@ if (global.ErrorUtils) {
       if (Sentry && Sentry.captureException) Sentry.captureException(error)
     } catch (_) {}
 
-    // Swallow fatal errors during launch so the app still boots; let post-startup errors fall
-    // through to the default handler.
     if (isFatal && withinStartupWindow) return
     if (defaultErrorHandler) defaultErrorHandler(error, isFatal)
   })
@@ -36,7 +29,3 @@ if (global.ErrorUtils) {
 Promise.resolve()
   .then(configureNotifications)
   .catch((e) => console.error("[BetterRail] configureNotifications failed:", e))
-
-registerRootComponent(App)
-
-export default App
