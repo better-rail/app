@@ -12,7 +12,6 @@ import { RouteIndicators } from "./route-indicators"
 import { RouteContextMenu, RouteContextMenuAction } from "./platform-context-menu"
 import { createContextMenuActions } from "./route-context-menu-actions"
 import type { RouteItem } from "@/services/api"
-import { useIsDarkMode } from "@/hooks/use-is-dark-mode"
 import { useShallow } from "zustand/react/shallow"
 import { useSettingsStore } from "@/models"
 
@@ -62,7 +61,6 @@ export function RouteCard(props: RouteCardProps) {
     destinationId,
   } = props
 
-  const isDarkMode = useIsDarkMode()
   const { hideSlowTrains, showRouteCardHeader } = useSettingsStore(
     useShallow((s) => ({ hideSlowTrains: s.hideSlowTrains, showRouteCardHeader: s.showRouteCardHeader }))
   )
@@ -130,7 +128,7 @@ export function RouteCard(props: RouteCardProps) {
     return (
       <Image
         source={imageSource}
-        style={[styles.trainTypeImage, { tintColor: isDarkMode ? "white" : "black" }]}
+        style={styles.trainTypeImage}
         resizeMode="contain"
       />
     )
@@ -219,7 +217,7 @@ const DashedLine = () => (
   </Svg>
 )
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, rt) => ({
   containerBase: {
     paddingVertical: theme.spacing[2],
     paddingHorizontal: theme.spacing[4],
@@ -293,6 +291,7 @@ const styles = StyleSheet.create((theme) => ({
     width: 20,
     height: 14,
     marginLeft: theme.spacing[1],
+    tintColor: rt.colorScheme === "dark" ? "white" : "black",
   },
   activeRideContainer: {
     backgroundColor: theme.colors.greenBackground,

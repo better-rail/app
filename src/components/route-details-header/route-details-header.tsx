@@ -6,7 +6,7 @@ import { useRouter } from "expo-router"
 import { trackEvent } from "@/services/analytics"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import LinearGradient from "react-native-linear-gradient"
-import { color, isDarkMode, spacing } from "@/theme"
+import { color, spacing } from "@/theme"
 import { StarIcon } from "@/components/star-icon/star-icon"
 import { MenuIcon } from "@/components/menu-icon/menu-icon"
 import HapticFeedback from "react-native-haptic-feedback"
@@ -392,7 +392,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     shadowOffset: { width: 0, height: 1 },
     shadowColor: theme.colors.dim,
     shadowRadius: 1,
-    shadowOpacity: isDarkMode ? 0 : 0.45,
+    shadowOpacity: rt.colorScheme === "dark" ? 0 : 0.45,
     elevation: 3,
     zIndex: 0,
   },

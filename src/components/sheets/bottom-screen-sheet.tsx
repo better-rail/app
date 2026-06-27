@@ -2,10 +2,7 @@ import type { ReactNode } from "react"
 import { Platform, PlatformColor, View, type ViewStyle, useColorScheme } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { BlurView } from "expo-blur"
-import { isDarkMode } from "@/theme"
 import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
-
-const androidSeparatorColor = isDarkMode ? "#454545" : "#c6c6c6"
 
 interface BottomScreenSheetProps {
   children: ReactNode
@@ -45,7 +42,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     justifyContent: "space-between",
     position: "absolute",
     width: "100%",
-    borderTopColor: Platform.OS === "ios" ? theme.colors.separator : androidSeparatorColor,
+    borderTopColor: Platform.OS === "ios" ? theme.colors.separator : rt.colorScheme === "dark" ? "#454545" : "#c6c6c6",
     borderTopWidth: 1,
     backgroundColor: Platform.OS === "android" ? theme.colors.tertiaryBackground : undefined,
     paddingBottom: rt.insets.bottom > 0 ? 25 : 0,
