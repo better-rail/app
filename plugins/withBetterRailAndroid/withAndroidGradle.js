@@ -11,8 +11,7 @@ const DEFAULT_CONFIG = `        missingDimensionStrategy "store", "play"
         // proxied Israel Railways API. No direct calls to rail.co.il, no API key.
         def railApiBaseUrl = "https://api.better-rail.co.il/api/v1/rail-api"
         buildConfigField "String", "RAIL_API_BASE_URL", "\\"\${railApiBaseUrl}\\""
-        buildConfigField "String", "RAIL_API_TIMETABLE_URL", "\\"\${railApiBaseUrl}/rjpa/api/v1/timetable/\\""
-        buildConfigField "String", "RAIL_API_PROXY_TIMETABLE_URL", "\\"\${railApiBaseUrl}/rjpa/api/v1/timetable/\\""`
+        buildConfigField "String", "RAIL_API_TIMETABLE_URL", "\\"\${railApiBaseUrl}/rjpa/api/v1/timetable/\\""`
 
 const DEPENDENCIES = `    implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("com.google.code.gson:gson:2.10.1")

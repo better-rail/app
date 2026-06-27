@@ -4,10 +4,7 @@
 // GTFS-backed timetable and proxies the not-yet-migrated Israel Railways
 // endpoints (announcements, popup messages, station info). The client never
 // calls rail.co.il directly and no longer ships an API key.
-const env: string = "production"
-const envPath = env === "production" ? "" : "-" + env
-const serverBaseURL =
-  env === "production" ? "https://api.better-rail.co.il/api/v1" : `https://better-rail${envPath}.up.railway.app/api/v1`
+const serverBaseURL = "https://api.better-rail.co.il/api/v1"
 
 export const API_CONFIG = {
   // Base for rail endpoints on our server (timetable + proxied Israel Railways API).

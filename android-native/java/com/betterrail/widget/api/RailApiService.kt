@@ -32,9 +32,6 @@ class RailApiService(
     @Volatile
     private var cachedClient: OkHttpClient? = null
 
-    // Track whether we've fallen back to proxy API
-    private var hasFallenBackToProxy = false
-
     /**
      * Get or create a shared HTTP client. The client is cached so that connection pooling
      * and keep-alive actually work across requests and retry attempts.
@@ -117,12 +114,8 @@ class RailApiService(
         requestHour: String,
         isRequestForFutureDate: Boolean
     ): Result<WidgetScheduleData> {
-        // Start with direct API
-        val baseUrl = if (hasFallenBackToProxy) {
-            BuildConfig.RAIL_API_PROXY_TIMETABLE_URL
-        } else {
-            BuildConfig.RAIL_API_TIMETABLE_URL
-        }
+        // All rail data is served by the Better Rail server now (single base URL).
+        val baseUrl = BuildConfig.RAIL_API_TIMETABLE_URL
 
         val url = buildApiUrl(baseUrl)
         val requestBody = createRequestBody(originId, destinationId, requestDate, requestHour)
@@ -158,12 +151,6 @@ class RailApiService(
                 android.util.Log.d("RailApiService", "Response code: ${response.code}")
 
                 when {
-                    response.code == 403 && !hasFallenBackToProxy -> {
-                        android.util.Log.w("RailApiService", "Got 403 error, falling back to proxy API")
-                        hasFallenBackToProxy = true
-                        return@withRetry makeApiCall(originId, destinationId, requestDate, requestHour, isRequestForFutureDate)
-                    }
-
                     !response.isSuccessful -> {
                         android.util.Log.e("RailApiService", "HTTP Error: ${response.code} - ${response.message}")
                         Result.failure(Exception("HTTP ${response.code}: ${response.message}"))
