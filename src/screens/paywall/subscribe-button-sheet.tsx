@@ -1,25 +1,15 @@
 import { BlurView } from "expo-blur"
-import { ActivityIndicator, Platform, TextStyle, View, ViewStyle } from "react-native"
+import { ActivityIndicator, View } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import Animated, { FadeIn } from "react-native-reanimated"
 import { color } from "@/theme"
 import { useIsDarkMode } from "@/hooks/use-is-dark-mode"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import LinearGradient from "react-native-linear-gradient"
 import { PRESSABLE_BASE, Text } from "@/components"
 import { SubscriptionTypes } from "./"
 import { translate } from "@/i18n"
 import { useFontFamily } from "@/hooks/use-font-family"
-
-const BOTTOM_FLOATING_VIEW: ViewStyle = {
-  position: "absolute",
-  bottom: 0,
-  width: "100%",
-  paddingTop: 12,
-  paddingHorizontal: 16,
-  borderTopWidth: 1,
-  borderTopColor: color.separator,
-}
 
 interface SubscribeButtonSheetProps {
   subscriptionType: SubscriptionTypes
@@ -28,27 +18,26 @@ interface SubscribeButtonSheetProps {
 }
 
 export function SubscribeButtonSheet({ subscriptionType, onPress, isLoading }: SubscribeButtonSheetProps) {
-  const insets = useSafeAreaInsets()
   const isDarkMode = useIsDarkMode()
 
   const { fontFamily, isHeebo } = useFontFamily()
 
   return (
-    <View style={[BOTTOM_FLOATING_VIEW, { height: 97.5 + insets.bottom }]}>
+    <View style={styles.bottomFloatingView}>
       <GradientButton
         title={translate("paywall.startFreeTrial")}
         subtitle={
           <>
             {subscriptionType === "annual" && (
               <Animated.View entering={FadeIn}>
-                <Text style={[SUBSCRIPTION_BUTTON_SUBTITLE, { fontFamily }]}>
+                <Text style={[styles.subscriptionButtonSubtitle, { fontFamily }]}>
                   {translate("paywall.afterTrialPrice", { price: "59.90₪", period: translate("paywall.year") })}
                 </Text>
               </Animated.View>
             )}
             {subscriptionType === "monthly" && (
               <Animated.View entering={FadeIn}>
-                <Text style={[SUBSCRIPTION_BUTTON_SUBTITLE, { fontFamily }]}>
+                <Text style={[styles.subscriptionButtonSubtitle, { fontFamily }]}>
                   {translate("paywall.afterTrialPrice", { price: "6.90₪", period: translate("paywall.month") })}.{" "}
                   {translate("paywall.cancelAnytime")}
                 </Text>
@@ -65,22 +54,10 @@ export function SubscribeButtonSheet({ subscriptionType, onPress, isLoading }: S
       <BlurView
         tint={isDarkMode ? "systemUltraThinMaterialDark" : "systemThinMaterialDark"}
         intensity={10}
-        style={{ position: "absolute", top: 0, left: 0, bottom: 0, right: 0, zIndex: -1 }}
+        style={styles.blur}
       />
     </View>
   )
-}
-
-const SUBSCRIPTION_BUTTON_TITLE: TextStyle = {
-  textAlign: "center",
-  fontWeight: "600",
-  fontSize: 18,
-}
-
-const SUBSCRIPTION_BUTTON_SUBTITLE: TextStyle = {
-  color: color.whiteText,
-  textAlign: "center",
-  letterSpacing: -0.2,
 }
 
 const GradientButton = ({ onPress, contentStyle, titleStyle, colors, title, subtitle, isLoading }) => {
@@ -88,16 +65,54 @@ const GradientButton = ({ onPress, contentStyle, titleStyle, colors, title, subt
     <TouchableOpacity onPress={onPress} activeOpacity={0.9}>
       <LinearGradient colors={colors} style={[PRESSABLE_BASE, { minHeight: 70 }]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
         {isLoading ? (
-          <View style={{ marginTop: 8 }}>
+          <View style={styles.loadingWrapper}>
             <ActivityIndicator color={color.whiteText} />
           </View>
         ) : (
-          <View style={[{ alignItems: "center", marginTop: -4 }, contentStyle]}>
-            <Text style={[SUBSCRIPTION_BUTTON_TITLE, titleStyle]}>{title}</Text>
-            <Text style={[SUBSCRIPTION_BUTTON_SUBTITLE, titleStyle]}>{subtitle}</Text>
+          <View style={[styles.contentWrapper, contentStyle]}>
+            <Text style={[styles.subscriptionButtonTitle, titleStyle]}>{title}</Text>
+            <Text style={[styles.subscriptionButtonSubtitle, titleStyle]}>{subtitle}</Text>
           </View>
         )}
       </LinearGradient>
     </TouchableOpacity>
   )
 }
+
+const styles = StyleSheet.create((theme, rt) => ({
+  bottomFloatingView: {
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+    paddingTop: 12,
+    paddingHorizontal: 16,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.separator,
+    height: 97.5 + rt.insets.bottom,
+  },
+  blur: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+    zIndex: -1,
+  },
+  loadingWrapper: {
+    marginTop: 8,
+  },
+  contentWrapper: {
+    alignItems: "center",
+    marginTop: -4,
+  },
+  subscriptionButtonTitle: {
+    textAlign: "center",
+    fontWeight: "600",
+    fontSize: 18,
+  },
+  subscriptionButtonSubtitle: {
+    color: theme.colors.whiteText,
+    textAlign: "center",
+    letterSpacing: -0.2,
+  },
+}))

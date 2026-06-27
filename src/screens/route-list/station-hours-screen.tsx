@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
-import { ActivityIndicator, Image, View, TextStyle, ViewStyle } from "react-native"
+import { ActivityIndicator, Image, View } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { ScrollView } from "react-native-gesture-handler"
 import HapticFeedback from "react-native-haptic-feedback"
 import { Chip, Text } from "@/components"
@@ -11,23 +12,6 @@ import { addDays, format, parseISO } from "date-fns"
 import { useLocalSearchParams } from "expo-router"
 
 const ARROW_LEFT = require("../../../assets/arrow-left.png")
-
-const WRAPPER: ViewStyle = {
-  paddingTop: spacing[4],
-  paddingHorizontal: spacing[1],
-  minHeight: 328,
-}
-
-const DAY_TEXT: TextStyle = {
-  fontSize: fontScale * 20,
-  color: color.text,
-  fontWeight: "bold",
-}
-
-const HOUR_TEXT: TextStyle = {
-  fontSize: fontScale * 20,
-  color: color.text,
-}
 
 export function StationHoursScreen() {
   const { stationId } = useLocalSearchParams<{ stationId: string }>()
@@ -44,7 +28,7 @@ export function StationHoursScreen() {
   }, [stationInfo])
 
   return (
-    <View style={WRAPPER} key={stationInfo?.gateInfo.length}>
+    <View style={styles.wrapper} key={stationInfo?.gateInfo.length}>
       {isLoading || !selectedGate ? (
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
           <ActivityIndicator size="large" color="grey" />
@@ -82,17 +66,17 @@ export function StationHoursScreen() {
               .filter((activityHour) => activityHour.activityHoursType === 1)
               .map((activityHour) => (
                 <View style={{ flexDirection: "column", alignItems: "flex-start" }} key={Math.random().toString(36)}>
-                  <Text style={DAY_TEXT}>{convertDaysToAbbreviation(activityHour.activityDaysNumbers)}</Text>
-                  <Text style={HOUR_TEXT}>
+                  <Text style={styles.dayText}>{convertDaysToAbbreviation(activityHour.activityDaysNumbers)}</Text>
+                  <Text style={styles.hourText}>
                     {activityHour.activityHoursReplaceTextKey ?? (
                       <View style={{ flexDirection: "row", alignItems: "center", gap: isRTL ? spacing[3] : 0 }}>
-                        <Text style={HOUR_TEXT}>{activityHour.startHour}</Text>
+                        <Text style={styles.hourText}>{activityHour.startHour}</Text>
                         {isRTL ? (
                           <Image source={ARROW_LEFT} style={{ width: 12.5, height: 12.5, tintColor: color.text }} />
                         ) : (
                           <Text style={{ color: color.text, fontSize: fontScale * 18 }}>{" - "}</Text>
                         )}
-                        <Text style={HOUR_TEXT}>{activityHour.endHour}</Text>
+                        <Text style={styles.hourText}>{activityHour.endHour}</Text>
                       </View>
                     )}
                   </Text>
@@ -104,6 +88,23 @@ export function StationHoursScreen() {
     </View>
   )
 }
+
+const styles = StyleSheet.create((theme, rt) => ({
+  wrapper: {
+    paddingTop: theme.spacing[4],
+    paddingHorizontal: theme.spacing[1],
+    minHeight: 328,
+  },
+  dayText: {
+    fontSize: rt.fontScale * 20,
+    color: theme.colors.text,
+    fontWeight: "bold",
+  },
+  hourText: {
+    fontSize: rt.fontScale * 20,
+    color: theme.colors.text,
+  },
+}))
 
 const convertDaysToAbbreviation = (input: string) => {
   const daysOfWeek = input

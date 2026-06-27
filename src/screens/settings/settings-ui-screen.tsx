@@ -1,9 +1,10 @@
 import React, { useEffect } from "react"
-import { Platform, View, type ViewStyle } from "react-native"
+import { Platform, View } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { RouteCard, Screen, Text } from "@/components"
 import { RouteCardHeight, RouteCardHeightWithHeader } from "@/components/route-card/route-card"
 import { SettingBox } from "./components/settings-box"
-import { color, spacing } from "@/theme"
+import { spacing } from "@/theme"
 import { translate } from "@/i18n"
 import { SETTING_GROUP, SETTING_GROUP_TITLE } from "./settings-styles"
 import { useIsDarkMode } from "@/hooks"
@@ -13,13 +14,6 @@ import { formatRouteDuration, routeDurationInMs } from "@/utils/helpers/date-hel
 import { RouteItem } from "@/services/api"
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
 import { setAnalyticsUserProperty, trackEvent } from "@/services/analytics"
-
-const ROOT: ViewStyle = {
-  flex: 1,
-  paddingTop: spacing[4],
-  paddingHorizontal: spacing[4],
-  backgroundColor: color.background,
-}
 
 const routeItem: RouteItem = {
   delay: 0,
@@ -89,7 +83,7 @@ export function UISettingsScreen() {
 
   return (
     <Screen
-      style={ROOT}
+      style={styles.root}
       preset="scroll"
       unsafe={true}
       statusBar={Platform.select({ ios: "light-content" })}
@@ -109,7 +103,7 @@ export function UISettingsScreen() {
           stops={0}
           delay={0}
           routeItem={routeItem}
-          style={{ marginBottom: spacing[4], backgroundColor: color.secondaryBackground }}
+          style={styles.routeCard}
         />
       </Animated.View>
 
@@ -126,3 +120,16 @@ export function UISettingsScreen() {
     </Screen>
   )
 }
+
+const styles = StyleSheet.create((theme) => ({
+  root: {
+    flex: 1,
+    paddingTop: theme.spacing[4],
+    paddingHorizontal: theme.spacing[4],
+    backgroundColor: theme.colors.background,
+  },
+  routeCard: {
+    marginBottom: theme.spacing[4],
+    backgroundColor: theme.colors.secondaryBackground,
+  },
+}))

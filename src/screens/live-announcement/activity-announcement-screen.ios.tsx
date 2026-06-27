@@ -1,35 +1,13 @@
-import { Image, ImageStyle, ScrollView, TextStyle, View } from "react-native"
+import { Image, ScrollView, View } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text } from "@/components"
 import { LiveAnnouncementBackground } from "./live-announcement-bg"
-import { color, spacing } from "@/theme"
 import { userLocale } from "@/i18n"
 import { useRouter } from "expo-router"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { NextButton } from "./announcement-next-button"
-
-const TITLE: TextStyle = {
-  color: color.whiteText,
-  fontSize: 42,
-  textAlign: "center",
-  marginBottom: spacing[2],
-  fontWeight: "800",
-}
-
-const TEXT: TextStyle = {
-  fontSize: 18,
-  textAlign: "center",
-  color: color.whiteText,
-}
-
-const LIVE_ACTIVITY_IMAGE: ImageStyle = {
-  width: "100%",
-  height: 155,
-  resizeMode: "contain",
-}
 
 export function ActivityAnnouncementScreen() {
   const router = useRouter()
-  const insets = useSafeAreaInsets()
   const LIVE_ACTIVITY =
     userLocale === "he"
       ? require("../../../assets/live-activity/live-activity-delay-hebrew.png")
@@ -38,32 +16,17 @@ export function ActivityAnnouncementScreen() {
   return (
     <Screen unsafe={true} statusBar="light-content">
       <LiveAnnouncementBackground />
-      <ScrollView
-        contentContainerStyle={{
-          height: "100%",
-          paddingTop: insets.top,
-          paddingHorizontal: spacing[5],
-          paddingBottom: insets.bottom + 15,
-        }}
-      >
-        <View style={{ marginTop: spacing[4] }}>
-          <Text tx="liveAnnounce.liveActivity.title" preset="header" style={TITLE} maxFontSizeMultiplier={1.1} />
-          <Text tx="liveAnnounce.liveActivity.description" style={TEXT} maxFontSizeMultiplier={1.1} />
-          <View
-            style={{
-              shadowColor: "#333",
-              shadowOffset: { height: 0, width: 0 },
-              shadowOpacity: 0.2,
-              shadowRadius: 3,
-              marginVertical: spacing[5],
-            }}
-          >
-            <Image source={LIVE_ACTIVITY} style={LIVE_ACTIVITY_IMAGE} />
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.content}>
+          <Text tx="liveAnnounce.liveActivity.title" preset="header" style={styles.title} maxFontSizeMultiplier={1.1} />
+          <Text tx="liveAnnounce.liveActivity.description" style={styles.text} maxFontSizeMultiplier={1.1} />
+          <View style={styles.imageShadow}>
+            <Image source={LIVE_ACTIVITY} style={styles.liveActivityImage} />
           </View>
-          <Text tx="liveAnnounce.liveActivity.tip" style={TEXT} maxFontSizeMultiplier={1.1} />
+          <Text tx="liveAnnounce.liveActivity.tip" style={styles.text} maxFontSizeMultiplier={1.1} />
         </View>
 
-        <View style={{ flex: 1 }} />
+        <View style={styles.spacer} />
 
         <NextButton
           onPress={() => {
@@ -74,3 +37,42 @@ export function ActivityAnnouncementScreen() {
     </Screen>
   )
 }
+
+const styles = StyleSheet.create((theme, rt) => ({
+  scrollContent: {
+    height: "100%",
+    paddingTop: rt.insets.top,
+    paddingHorizontal: theme.spacing[5],
+    paddingBottom: rt.insets.bottom + 15,
+  },
+  content: {
+    marginTop: theme.spacing[4],
+  },
+  title: {
+    color: theme.colors.whiteText,
+    fontSize: 42,
+    textAlign: "center",
+    marginBottom: theme.spacing[2],
+    fontWeight: "800",
+  },
+  text: {
+    fontSize: 18,
+    textAlign: "center",
+    color: theme.colors.whiteText,
+  },
+  imageShadow: {
+    shadowColor: "#333",
+    shadowOffset: { height: 0, width: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    marginVertical: theme.spacing[5],
+  },
+  liveActivityImage: {
+    width: "100%",
+    height: 155,
+    resizeMode: "contain",
+  },
+  spacer: {
+    flex: 1,
+  },
+}))

@@ -1,27 +1,8 @@
 import { ReactNode, useMemo } from "react"
 import { TouchableHighlight, View, ViewStyle } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { color } from "@/theme"
 import { Text } from "@/components/text/text"
-
-const LIST_ITEM_WRAPPER: ViewStyle = {
-  paddingHorizontal: 24,
-  paddingTop: 12,
-  backgroundColor: color.tertiaryBackground,
-}
-
-const FIRST_ITEM: ViewStyle = { borderRadius: 14, borderBottomStartRadius: 0, borderBottomEndRadius: 0 }
-const LAST_ITEM: ViewStyle = {
-  paddingBottom: 2,
-  borderRadius: 14,
-  borderTopStartRadius: 0,
-  borderTopEndRadius: 0,
-}
-
-const LIST_ITEM_SEPARATOR: ViewStyle = {
-  borderBottomWidth: 1,
-  borderBottomColor: color.separator,
-  opacity: 0.9,
-}
 
 export interface ListItemProps {
   title: string | ReactNode
@@ -37,44 +18,75 @@ export interface ListItemProps {
 export const ListItem = (props: ListItemProps) => {
   const { title, subtitle, isLastItem, isFirstItem, onPress, startBoxItem, endBoxItem } = props
 
-  const touchableStyle = useMemo(() => {
-    const baseStyle = [LIST_ITEM_WRAPPER]
-
-    if (isFirstItem) baseStyle.push(FIRST_ITEM)
-    if (isLastItem) baseStyle.push(LAST_ITEM)
-
-    return baseStyle
-  }, [isFirstItem, isLastItem])
+  const touchableStyle = useMemo(
+    () => [styles.listItemWrapper, isFirstItem && styles.firstItem, isLastItem && styles.lastItem],
+    [isFirstItem, isLastItem],
+  )
 
   return (
     <TouchableHighlight underlayColor={color.inputPlaceholderBackground} onPress={onPress} style={touchableStyle}>
       <View>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            paddingBottom: subtitle ? 6 : 12,
-          }}
-        >
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            {startBoxItem && <View style={{ marginEnd: 6 }}>{startBoxItem}</View>}
+        <View style={[styles.row, styles.rowSpaceBetween, styles.rowPaddingBottom(!!subtitle)]}>
+          <View style={styles.row}>
+            {startBoxItem && <View style={styles.startBox}>{startBoxItem}</View>}
 
             <View style={props.contentStyle}>
-              {typeof title === "string" ? <Text style={{ fontSize: 18 }}>{title}</Text> : <>{title}</>}
+              {typeof title === "string" ? <Text style={styles.title}>{title}</Text> : <>{title}</>}
 
-              {subtitle && <Text style={{ color: color.grey }}>{subtitle}</Text>}
+              {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
             </View>
           </View>
 
           {endBoxItem}
         </View>
         {!isLastItem && (
-          <View style={{ paddingStart: startBoxItem ? 48 : 0 }}>
-            <View style={LIST_ITEM_SEPARATOR} />
+          <View style={styles.separatorWrapper(!!startBoxItem)}>
+            <View style={styles.listItemSeparator} />
           </View>
         )}
       </View>
     </TouchableHighlight>
   )
 }
+
+const styles = StyleSheet.create((theme) => ({
+  listItemWrapper: {
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    backgroundColor: theme.colors.tertiaryBackground,
+  },
+  firstItem: { borderRadius: 14, borderBottomStartRadius: 0, borderBottomEndRadius: 0 },
+  lastItem: {
+    paddingBottom: 2,
+    borderRadius: 14,
+    borderTopStartRadius: 0,
+    borderTopEndRadius: 0,
+  },
+  listItemSeparator: {
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.separator,
+    opacity: 0.9,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  rowSpaceBetween: {
+    justifyContent: "space-between",
+  },
+  rowPaddingBottom: (hasSubtitle: boolean) => ({
+    paddingBottom: hasSubtitle ? 6 : 12,
+  }),
+  startBox: {
+    marginEnd: 6,
+  },
+  title: {
+    fontSize: 18,
+  },
+  subtitle: {
+    color: theme.colors.grey,
+  },
+  separatorWrapper: (hasStartBox: boolean) => ({
+    paddingStart: hasStartBox ? 48 : 0,
+  }),
+}))

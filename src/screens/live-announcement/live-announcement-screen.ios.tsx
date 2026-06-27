@@ -1,45 +1,13 @@
-import { Image, ImageStyle, ScrollView, TextStyle, View } from "react-native"
+import { Image, ScrollView, View } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text } from "@/components"
 import { LiveAnnouncementBackground } from "./live-announcement-bg"
-import { color, fontScale, spacing } from "@/theme"
 import { userLocale } from "@/i18n"
 import { useRouter } from "expo-router"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { NextButton } from "./announcement-next-button"
-
-const SUB_TITLE: TextStyle = {
-  color: color.whiteText,
-  fontSize: 20,
-  textAlign: "center",
-  marginBottom: -4,
-  fontWeight: "400",
-}
-
-const TITLE: TextStyle = {
-  color: color.whiteText,
-  fontSize: 42,
-  textAlign: "center",
-  marginBottom: spacing[2],
-  fontWeight: "800",
-  letterSpacing: -0.8,
-}
-
-const TEXT: TextStyle = {
-  fontSize: 18,
-  textAlign: "center",
-  color: color.whiteText,
-}
-
-const LIVE_ACTIVITY_IMAGE: ImageStyle = {
-  width: "100%",
-  height: 155,
-  resizeMode: "contain",
-  marginVertical: fontScale > 1.1 ? spacing[4] : spacing[6],
-}
 
 export function LiveAnnouncementScreen() {
   const router = useRouter()
-  const insets = useSafeAreaInsets()
 
   const LIVE_ACTIVITY =
     userLocale === "he"
@@ -49,36 +17,69 @@ export function LiveAnnouncementScreen() {
   return (
     <Screen unsafe={true} statusBar="light-content">
       <LiveAnnouncementBackground />
-      <ScrollView
-        contentContainerStyle={{
-          flex: 1,
-          height: "100%",
-          paddingTop: insets.top,
-          paddingHorizontal: spacing[5],
-          paddingBottom: spacing[5],
-        }}
-      >
-        <View style={{ marginTop: spacing[5] }}>
-          <Text tx="liveAnnounce.announcement.subtitle" style={SUB_TITLE} maxFontSizeMultiplier={1.1} />
-          <Text tx="liveAnnounce.announcement.title" preset="header" style={TITLE} maxFontSizeMultiplier={1.1} />
-          <Text tx="liveAnnounce.announcement.description" style={TEXT} maxFontSizeMultiplier={1.15} />
-          <View
-            style={{
-              shadowColor: "#333",
-              shadowOffset: { height: 0, width: 0 },
-              shadowOpacity: 0.2,
-              shadowRadius: 3,
-            }}
-          >
-            <Image source={LIVE_ACTIVITY} style={LIVE_ACTIVITY_IMAGE} />
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.content}>
+          <Text tx="liveAnnounce.announcement.subtitle" style={styles.subTitle} maxFontSizeMultiplier={1.1} />
+          <Text tx="liveAnnounce.announcement.title" preset="header" style={styles.title} maxFontSizeMultiplier={1.1} />
+          <Text tx="liveAnnounce.announcement.description" style={styles.text} maxFontSizeMultiplier={1.15} />
+          <View style={styles.imageWrapper}>
+            <Image source={LIVE_ACTIVITY} style={styles.liveActivityImage} />
           </View>
-          <Text tx="liveAnnounce.announcement.weMadeAGuide" style={TEXT} maxFontSizeMultiplier={1.1} />
+          <Text tx="liveAnnounce.announcement.weMadeAGuide" style={styles.text} maxFontSizeMultiplier={1.1} />
         </View>
 
-        <View style={{ flex: 0.9 }} />
+        <View style={styles.spacer} />
 
         <NextButton onPress={() => router.push("/live-announcement/start-ride")} />
       </ScrollView>
     </Screen>
   )
 }
+
+const styles = StyleSheet.create((theme, rt) => ({
+  scrollContent: {
+    flex: 1,
+    height: "100%",
+    paddingTop: rt.insets.top,
+    paddingHorizontal: theme.spacing[5],
+    paddingBottom: theme.spacing[5],
+  },
+  content: {
+    marginTop: theme.spacing[5],
+  },
+  subTitle: {
+    color: theme.colors.whiteText,
+    fontSize: 20,
+    textAlign: "center",
+    marginBottom: -4,
+    fontWeight: "400",
+  },
+  title: {
+    color: theme.colors.whiteText,
+    fontSize: 42,
+    textAlign: "center",
+    marginBottom: theme.spacing[2],
+    fontWeight: "800",
+    letterSpacing: -0.8,
+  },
+  text: {
+    fontSize: 18,
+    textAlign: "center",
+    color: theme.colors.whiteText,
+  },
+  imageWrapper: {
+    shadowColor: "#333",
+    shadowOffset: { height: 0, width: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  liveActivityImage: {
+    width: "100%",
+    height: 155,
+    resizeMode: "contain",
+    marginVertical: rt.fontScale > 1.1 ? theme.spacing[4] : theme.spacing[6],
+  },
+  spacer: {
+    flex: 0.9,
+  },
+}))

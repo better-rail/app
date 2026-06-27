@@ -152,6 +152,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 
   plugins: [
     "expo-router",
+    // Required by react-native-unistyles on Android (edge-to-edge insets via the mini runtime).
+    "react-native-edge-to-edge",
     [
       "expo-build-properties",
       {

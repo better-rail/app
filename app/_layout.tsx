@@ -1,3 +1,4 @@
+import "@/theme/unistyles" // Configure Unistyles before anything reads a stylesheet.
 import "@/i18n"
 import "@/utils/ignore-warnings"
 import React, { useState, useEffect, useRef } from "react"

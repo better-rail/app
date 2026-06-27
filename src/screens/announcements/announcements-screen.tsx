@@ -1,6 +1,6 @@
-import { Platform, ScrollView, ViewStyle } from "react-native"
+import { Platform, ScrollView } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text } from "@/components"
-import { color, fontScale, spacing } from "@/theme"
 import { useIsDarkMode } from "@/hooks"
 import { useRouter } from "expo-router"
 import { AnnouncementsList } from "@/components/announcements/announcements-list"
@@ -9,28 +9,6 @@ import { useShallow } from "zustand/react/shallow"
 import { useSettingsStore } from "@/models"
 import { AnnouncementCard } from "@/components/announcements/announcement-card"
 import useServiceUpdates from "./use-service-updates"
-
-const ROOT: ViewStyle = {
-  backgroundColor: color.background,
-}
-
-const SCROLL_VIEW: ViewStyle = {
-  padding: spacing[3],
-  paddingBottom: spacing[5],
-}
-
-const NOTIFICATION_BUTTON: ViewStyle = {
-  justifyContent: "center",
-  height: 100 * fontScale,
-  paddingHorizontal: spacing[3],
-  marginBottom: spacing[3],
-  backgroundColor: "#ffcc00",
-  borderRadius: 12,
-  shadowColor: color.palette.black,
-  shadowOffset: { height: 0, width: 0 },
-  shadowOpacity: 0.05,
-  elevation: 4,
-}
 
 export function AnnouncementsScreen() {
   const router = useRouter()
@@ -53,25 +31,19 @@ export function AnnouncementsScreen() {
 
   return (
     <Screen
-      style={ROOT}
+      style={styles.root}
       preset="fixed"
       unsafe={true}
       statusBar={Platform.select({ ios: "light-content" })}
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
       translucent
     >
-      <ScrollView contentContainerStyle={SCROLL_VIEW}>
+      <ScrollView contentContainerStyle={styles.scrollView}>
         {!seenNotificationsScreen && (
-          <TouchableScale onPress={navigateToNotificationsSetup} activeScale={0.97} friction={10} style={NOTIFICATION_BUTTON}>
-            <Text
-              tx="announcements.notifications.notificationSettings"
-              style={{ textAlign: "center", fontSize: 18, color: color.palette.black, fontWeight: "500" }}
-            />
+          <TouchableScale onPress={navigateToNotificationsSetup} activeScale={0.97} friction={10} style={styles.notificationButton}>
+            <Text tx="announcements.notifications.notificationSettings" style={styles.notificationTitle} />
 
-            <Text
-              tx="announcements.notifications.newButtonContent"
-              style={{ textAlign: "center", fontSize: 16, color: color.palette.black }}
-            />
+            <Text tx="announcements.notifications.newButtonContent" style={styles.notificationSubtitle} />
           </TouchableScale>
         )}
 
@@ -84,3 +56,36 @@ export function AnnouncementsScreen() {
     </Screen>
   )
 }
+
+const styles = StyleSheet.create((theme, rt) => ({
+  root: {
+    backgroundColor: theme.colors.background,
+  },
+  scrollView: {
+    padding: theme.spacing[3],
+    paddingBottom: theme.spacing[5],
+  },
+  notificationButton: {
+    justifyContent: "center",
+    height: 100 * rt.fontScale,
+    paddingHorizontal: theme.spacing[3],
+    marginBottom: theme.spacing[3],
+    backgroundColor: "#ffcc00",
+    borderRadius: 12,
+    shadowColor: theme.colors.palette.black,
+    shadowOffset: { height: 0, width: 0 },
+    shadowOpacity: 0.05,
+    elevation: 4,
+  },
+  notificationTitle: {
+    textAlign: "center",
+    fontSize: 18,
+    color: theme.colors.palette.black,
+    fontWeight: "500",
+  },
+  notificationSubtitle: {
+    textAlign: "center",
+    fontSize: 16,
+    color: theme.colors.palette.black,
+  },
+}))

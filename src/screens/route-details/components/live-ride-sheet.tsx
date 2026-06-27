@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
-import { Pressable, type PressableProps, Image, ActivityIndicator, type ViewStyle, PlatformColor } from "react-native"
-import { color } from "@/theme"
+import { Pressable, type PressableProps, Image, ActivityIndicator, PlatformColor } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { Text, BottomScreenSheet } from "@/components"
 import { useRouter } from "expo-router"
 import { useShallow } from "zustand/react/shallow"
@@ -37,7 +37,7 @@ export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "a
 
   return (
     <BottomScreenSheet>
-      <Text style={{ fontSize: 20, fontWeight: "bold", color: color.success }} maxFontSizeMultiplier={1.2}>
+      <Text style={styles.progressText} maxFontSizeMultiplier={1.2}>
         {progressText}
       </Text>
 
@@ -54,15 +54,6 @@ export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "a
       />
     </BottomScreenSheet>
   )
-}
-
-const STOP_BUTTON: ViewStyle = {
-  width: 42.5,
-  height: 42.5,
-  alignItems: "center",
-  justifyContent: "center",
-  backgroundColor: color.stop,
-  borderRadius: 30,
 }
 
 const StopButton = (props: { loading: boolean } & PressableProps) => {
@@ -95,7 +86,7 @@ const StopButton = (props: { loading: boolean } & PressableProps) => {
   if (isLiquidGlassSupported) {
     return (
       <Pressable disabled={isDisabled} {...props}>
-        <LiquidGlassView interactive style={STOP_BUTTON} tintColor={PlatformColor("systemRed")}>
+        <LiquidGlassView interactive style={styles.stopButton} tintColor={PlatformColor("systemRed")}>
           {loading ? (
             <ActivityIndicator color="white" />
           ) : (
@@ -107,7 +98,7 @@ const StopButton = (props: { loading: boolean } & PressableProps) => {
   }
 
   return (
-    <Pressable disabled={isDisabled} style={STOP_BUTTON} {...props}>
+    <Pressable disabled={isDisabled} style={styles.stopButton} {...props}>
       {loading ? (
         <ActivityIndicator color="white" />
       ) : (
@@ -116,3 +107,19 @@ const StopButton = (props: { loading: boolean } & PressableProps) => {
     </Pressable>
   )
 }
+
+const styles = StyleSheet.create((theme) => ({
+  progressText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: theme.colors.success,
+  },
+  stopButton: {
+    width: 42.5,
+    height: 42.5,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: theme.colors.stop,
+    borderRadius: 30,
+  },
+}))

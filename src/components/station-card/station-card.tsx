@@ -6,15 +6,15 @@ import {
   View,
   Platform,
   Dimensions,
-  TextStyle,
   ImageSourcePropType,
   ViewStyle,
   Image,
   Appearance,
 } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import LinearGradient from "react-native-linear-gradient"
-import { color, spacing, typography } from "@/theme"
+import { color } from "@/theme"
 import { Text } from "@/components/text/text"
 import { isLiquidGlassSupported } from "@callstack/liquid-glass"
 
@@ -39,56 +39,6 @@ if (deviceHeight > 900) {
   cardHeight = 190
 }
 
-const CONTAINER: ViewStyle = {
-  borderRadius: 12,
-  backgroundColor: color.inputPlaceholderBackground,
-  shadowColor: color.palette.black,
-  shadowOffset: { height: 1, width: 0 },
-  shadowOpacity: 0.2,
-  elevation: 3,
-}
-
-const EMPTY_CARD_WRAPPER: ViewStyle = {
-  width: "100%",
-  height: cardHeight,
-  justifyContent: "center",
-  alignItems: "center",
-  borderRadius: 12,
-}
-
-const BACKGROUND: ViewStyle = {
-  width: "100%",
-  height: cardHeight,
-  justifyContent: "flex-end",
-}
-
-const TEXT: TextStyle = {
-  marginStart: spacing[3],
-  marginBottom: spacing[2],
-  color: color.palette.white,
-  fontFamily: typography.primary,
-  fontSize: 22,
-  fontWeight: "700",
-  textAlign: "left",
-  textShadowColor: color.palette.black,
-  textShadowOffset: { width: 0, height: 1 },
-  textShadowRadius: 3,
-}
-
-const EMPTY_CARD_TEXT: TextStyle = {
-  color: color.dim,
-}
-
-const GARDIENT: ViewStyle = {
-  height: "100%",
-  position: "absolute",
-  left: 0,
-  right: 0,
-  top: 0,
-  opacity: 1,
-  borderRadius: isLiquidGlassSupported ? 12 : 6,
-}
-
 export interface StationCardProps extends TouchableScaleProps {
   name: string
   image: ImageSourcePropType
@@ -99,13 +49,10 @@ export function StationCard(props: StationCardProps) {
 
   if (!name) {
     return (
-      <TouchableScale style={[CONTAINER, style]} activeScale={0.95} friction={9} {...rest}>
-        <View style={EMPTY_CARD_WRAPPER}>
-          <Image
-            source={require("../../../assets/railway-station.png")}
-            style={{ width: 48, height: 48, marginBottom: spacing[2], tintColor: color.dim }}
-          />
-          <Text style={EMPTY_CARD_TEXT} tx="plan.selectStation" />
+      <TouchableScale style={[styles.container, style]} activeScale={0.95} friction={9} {...rest}>
+        <View style={styles.emptyCardWrapper}>
+          <Image source={require("../../../assets/railway-station.png")} style={styles.emptyCardImage} />
+          <Text style={styles.emptyCardText} tx="plan.selectStation" />
         </View>
       </TouchableScale>
     )
@@ -113,35 +60,90 @@ export function StationCard(props: StationCardProps) {
 
   if (!image) {
     return (
-      <TouchableScale
-        style={[CONTAINER, { height: cardHeight, justifyContent: "flex-end" }, style]}
-        activeScale={0.95}
-        friction={9}
-        {...rest}
-      >
+      <TouchableScale style={[styles.container, styles.imagelessCard, style]} activeScale={0.95} friction={9} {...rest}>
         <LinearGradient
-          style={GARDIENT}
+          style={styles.gardient}
           end={{ x: 1, y: 0 }}
           start={{ x: 0, y: 0 }}
           colors={[Platform.select({ ios: color.secondaryLighter, android: "#f6eae3" }), "#ffd9c2"]}
         />
-        <LinearGradient style={GARDIENT} colors={["rgba(0, 0, 0, 0.05)", "rgba(0, 0, 0, 0.3)"]} />
+        <LinearGradient style={styles.gardient} colors={["rgba(0, 0, 0, 0.05)", "rgba(0, 0, 0, 0.3)"]} />
 
-        <Text style={TEXT}>{name}</Text>
+        <Text style={styles.text}>{name}</Text>
       </TouchableScale>
     )
   }
 
   return (
-    <TouchableScale style={[CONTAINER, style]} activeScale={0.95} friction={9} {...rest}>
-      <ImageBackground imageStyle={{ borderRadius: isLiquidGlassSupported ? 14 : 6 }} source={image} style={BACKGROUND}>
+    <TouchableScale style={[styles.container, style]} activeScale={0.95} friction={9} {...rest}>
+      <ImageBackground imageStyle={styles.imageBackgroundImage} source={image} style={styles.background}>
         <LinearGradient
-          style={GARDIENT}
+          style={styles.gardient}
           colors={["rgba(0, 0, 0, 0.05)", isDarkMode ? "rgba(0, 0, 0, 0.75)" : "rgba(0, 0, 0, 0.65)"]}
         />
 
-        <Text style={TEXT}>{name}</Text>
+        <Text style={styles.text}>{name}</Text>
       </ImageBackground>
     </TouchableScale>
   )
 }
+
+const styles = StyleSheet.create((theme) => ({
+  container: {
+    borderRadius: 12,
+    backgroundColor: theme.colors.inputPlaceholderBackground,
+    shadowColor: theme.colors.palette.black,
+    shadowOffset: { height: 1, width: 0 },
+    shadowOpacity: 0.2,
+    elevation: 3,
+  },
+  imagelessCard: {
+    height: cardHeight,
+    justifyContent: "flex-end",
+  },
+  emptyCardWrapper: {
+    width: "100%",
+    height: cardHeight,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 12,
+  },
+  emptyCardImage: {
+    width: 48,
+    height: 48,
+    marginBottom: theme.spacing[2],
+    tintColor: theme.colors.dim,
+  },
+  background: {
+    width: "100%",
+    height: cardHeight,
+    justifyContent: "flex-end",
+  },
+  imageBackgroundImage: {
+    borderRadius: isLiquidGlassSupported ? 14 : 6,
+  },
+  text: {
+    marginStart: theme.spacing[3],
+    marginBottom: theme.spacing[2],
+    color: theme.colors.palette.white,
+    fontFamily: theme.typography.primary,
+    fontSize: 22,
+    fontWeight: "700",
+    textAlign: "left",
+    textShadowColor: theme.colors.palette.black,
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  emptyCardText: {
+    color: theme.colors.dim,
+  },
+  gardient: {
+    height: "100%",
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    opacity: 1,
+    borderRadius: isLiquidGlassSupported ? 12 : 6,
+  },
+}))

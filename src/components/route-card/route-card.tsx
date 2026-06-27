@@ -1,9 +1,10 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useMemo } from "react"
-import { TextStyle, View, ViewStyle, Platform, TouchableOpacity, Pressable, Image, ImageStyle } from "react-native"
+import { View, ViewStyle, Platform, TouchableOpacity, Pressable, Image } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import { Svg, Line } from "react-native-svg"
-import { color, spacing, typography, fontScale } from "@/theme"
+import { color, spacing, fontScale } from "@/theme"
 import { Text } from "@/components/text/text"
 import { format } from "date-fns"
 import { translate } from "@/i18n"
@@ -15,8 +16,6 @@ import { useIsDarkMode } from "@/hooks/use-is-dark-mode"
 import { useShallow } from "zustand/react/shallow"
 import { useSettingsStore } from "@/models"
 
-// #region styles
-
 // Setting static height for FlatList getItemLayout
 export let RouteCardHeight = 75
 export let RouteCardHeightWithHeader = 95
@@ -24,125 +23,6 @@ if (fontScale > 1.1) {
   RouteCardHeight = 85
   RouteCardHeightWithHeader = 105
 }
-
-const CONTAINER_BASE: ViewStyle = {
-  paddingVertical: spacing[2],
-  paddingHorizontal: spacing[4],
-  backgroundColor: color.inputBackground,
-  borderRadius: Platform.select({ ios: 12, android: 8 }),
-
-  shadowColor: color.palette.black,
-  shadowOffset: { height: 0, width: 0 },
-  shadowOpacity: 0.05,
-  elevation: 1,
-}
-
-const CONTAINER_WITHOUT_HEADER: ViewStyle = {
-  ...CONTAINER_BASE,
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-  height: RouteCardHeight,
-}
-
-const CONTAINER_WITH_HEADER: ViewStyle = {
-  ...CONTAINER_BASE,
-  flexDirection: "column",
-  justifyContent: "space-between",
-  height: RouteCardHeightWithHeader,
-}
-
-const ROUTE_HEADER: ViewStyle = {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginBottom: spacing[2],
-  paddingBottom: spacing[1],
-  borderBottomWidth: 0.5,
-  borderBottomColor: color.separator,
-  flexWrap: "wrap",
-  gap: spacing[2],
-}
-
-const ROUTE_CONTENT: ViewStyle = {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-  flex: 1,
-}
-
-const HEADER_TEXT: TextStyle = {
-  fontFamily: typography.primary,
-  fontSize: 11,
-  fontWeight: "600",
-  color: color.dim,
-  textTransform: "uppercase",
-  letterSpacing: 0.5,
-}
-
-const TRAIN_NUMBER_TEXT: TextStyle = {
-  fontFamily: typography.primary,
-  fontSize: 12,
-  fontWeight: "700",
-  color: color.text,
-}
-
-const PLATFORM_BADGE: ViewStyle = {
-  flexDirection: "row",
-  alignItems: "center",
-}
-
-const PLATFORM_TEXT: TextStyle = {
-  fontFamily: typography.primary,
-  fontSize: 12,
-  fontWeight: "700",
-  color: color.text,
-}
-
-const TRAIN_TYPE_TEXT: TextStyle = {
-  fontFamily: typography.primary,
-  fontSize: 12,
-  fontWeight: "700",
-  color: color.text,
-}
-
-const TRAIN_TYPE_IMAGE: ImageStyle = {
-  width: 20,
-  height: 14,
-  marginLeft: spacing[1],
-}
-
-const ACTIVE_RIDE_CONTAINER: ViewStyle = {
-  backgroundColor: color.greenBackground,
-  shadowOpacity: 0.15,
-  elevation: 2,
-}
-
-const PAST_RIDE_CONTAINER: ViewStyle = {
-  opacity: 0.4,
-}
-
-const TIME_TYPE_TEXT: TextStyle = {
-  marginBottom: -2,
-  fontFamily: typography.primary,
-  fontSize: 14,
-  fontWeight: "500",
-  color: color.dim,
-}
-
-const TIME_TEXT: TextStyle = {
-  fontFamily: typography.primary,
-  fontWeight: "700",
-  fontSize: 24,
-  color: color.text,
-}
-
-const DURATION_TEXT: TextStyle = {
-  marginBottom: -2,
-  fontSize: 16,
-}
-
-// #endregion
 
 export interface RouteCardProps extends TouchableScaleProps {
   departureTime: number
@@ -250,14 +130,14 @@ export function RouteCard(props: RouteCardProps) {
     return (
       <Image
         source={imageSource}
-        style={[TRAIN_TYPE_IMAGE, { tintColor: isDarkMode ? "white" : "black" }]}
+        style={[styles.trainTypeImage, { tintColor: isDarkMode ? "white" : "black" }]}
         resizeMode="contain"
       />
     )
   }
 
   const showHeader = mainTrain && showRouteCardHeader
-  const containerStyle = showHeader ? CONTAINER_WITH_HEADER : CONTAINER_WITHOUT_HEADER
+  const containerStyle = showHeader ? styles.containerWithHeader : styles.containerWithoutHeader
 
   const cardContent = (
     <TouchableComponent
@@ -265,37 +145,43 @@ export function RouteCard(props: RouteCardProps) {
       onLongPress={Platform.OS === "android" ? onLongPress : undefined}
       activeScale={0.97}
       friction={generatedContextMenuActions && Platform.OS === "ios" ? undefined : 9}
-      style={[containerStyle, props.isActiveRide && ACTIVE_RIDE_CONTAINER, props.isRouteInThePast && PAST_RIDE_CONTAINER, style]}
+      style={[
+        styles.containerBase,
+        containerStyle,
+        props.isActiveRide && styles.activeRideContainer,
+        props.isRouteInThePast && styles.pastRideContainer,
+        style,
+      ]}
     >
       {/* Header with train information */}
       {showHeader && (
-        <View style={ROUTE_HEADER}>
+        <View style={styles.routeHeader}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Text style={HEADER_TEXT} tx="routeDetails.platform" />
-            <Text style={[TRAIN_NUMBER_TEXT, { marginLeft: spacing[1] }]}>{mainTrain.originPlatform}</Text>
+            <Text style={styles.headerText} tx="routeDetails.platform" />
+            <Text style={[styles.trainNumberText, { marginLeft: spacing[1] }]}>{mainTrain.originPlatform}</Text>
           </View>
 
           {mainTrain.originPlatform > 0 && (
-            <View style={PLATFORM_BADGE}>
-              <Text style={HEADER_TEXT} tx="routeDetails.trainNo" />
-              <Text style={[PLATFORM_TEXT, { marginLeft: spacing[1] }]}>{mainTrain.trainNumber}</Text>
+            <View style={styles.platformBadge}>
+              <Text style={styles.headerText} tx="routeDetails.trainNo" />
+              <Text style={[styles.platformText, { marginLeft: spacing[1] }]}>{mainTrain.trainNumber}</Text>
             </View>
           )}
         </View>
       )}
 
       {/* Main route content */}
-      <View style={ROUTE_CONTENT}>
+      <View style={styles.routeContent}>
         <View style={{ marginEnd: spacing[3] }}>
-          <Text style={TIME_TYPE_TEXT} tx="routes.departure" />
-          <Text style={TIME_TEXT}>{formattedDepatureTime}</Text>
+          <Text style={styles.timeTypeText} tx="routes.departure" />
+          <Text style={styles.timeText}>{formattedDepatureTime}</Text>
         </View>
 
         {shouldShowDashedLine && !isBloatedIndicators && <DashedLine />}
 
         <View style={{ marginHorizontal: spacing[1] }}>
           <View style={{ alignItems: "center", gap: spacing[0] }}>
-            <Text style={DURATION_TEXT} maxFontSizeMultiplier={1}>
+            <Text style={styles.durationText} maxFontSizeMultiplier={1}>
               {duration}
             </Text>
 
@@ -313,8 +199,8 @@ export function RouteCard(props: RouteCardProps) {
         {shouldShowDashedLine && !isBloatedIndicators && <DashedLine />}
 
         <View style={{ alignItems: "flex-end", marginStart: spacing[3] }}>
-          <Text style={TIME_TYPE_TEXT} tx="routes.arrival" />
-          <Text style={TIME_TEXT}>{formattedArrivalTime}</Text>
+          <Text style={styles.timeTypeText} tx="routes.arrival" />
+          <Text style={styles.timeText}>{formattedArrivalTime}</Text>
         </View>
       </View>
     </TouchableComponent>
@@ -332,3 +218,105 @@ const DashedLine = () => (
     <Line stroke={color.dim} strokeWidth={4} strokeDasharray="5,5" x1="0" y1="0" x2="100%" y2={0} />
   </Svg>
 )
+
+const styles = StyleSheet.create((theme) => ({
+  containerBase: {
+    paddingVertical: theme.spacing[2],
+    paddingHorizontal: theme.spacing[4],
+    backgroundColor: theme.colors.inputBackground,
+    borderRadius: Platform.select({ ios: 12, android: 8 }),
+
+    shadowColor: theme.colors.palette.black,
+    shadowOffset: { height: 0, width: 0 },
+    shadowOpacity: 0.05,
+    elevation: 1,
+  },
+  containerWithoutHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    height: RouteCardHeight,
+  },
+  containerWithHeader: {
+    flexDirection: "column",
+    justifyContent: "space-between",
+    height: RouteCardHeightWithHeader,
+  },
+  routeHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: theme.spacing[2],
+    paddingBottom: theme.spacing[1],
+    borderBottomWidth: 0.5,
+    borderBottomColor: theme.colors.separator,
+    flexWrap: "wrap",
+    gap: theme.spacing[2],
+  },
+  routeContent: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    flex: 1,
+  },
+  headerText: {
+    fontFamily: theme.typography.primary,
+    fontSize: 11,
+    fontWeight: "600",
+    color: theme.colors.dim,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  trainNumberText: {
+    fontFamily: theme.typography.primary,
+    fontSize: 12,
+    fontWeight: "700",
+    color: theme.colors.text,
+  },
+  platformBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  platformText: {
+    fontFamily: theme.typography.primary,
+    fontSize: 12,
+    fontWeight: "700",
+    color: theme.colors.text,
+  },
+  trainTypeText: {
+    fontFamily: theme.typography.primary,
+    fontSize: 12,
+    fontWeight: "700",
+    color: theme.colors.text,
+  },
+  trainTypeImage: {
+    width: 20,
+    height: 14,
+    marginLeft: theme.spacing[1],
+  },
+  activeRideContainer: {
+    backgroundColor: theme.colors.greenBackground,
+    shadowOpacity: 0.15,
+    elevation: 2,
+  },
+  pastRideContainer: {
+    opacity: 0.4,
+  },
+  timeTypeText: {
+    marginBottom: -2,
+    fontFamily: theme.typography.primary,
+    fontSize: 14,
+    fontWeight: "500",
+    color: theme.colors.dim,
+  },
+  timeText: {
+    fontFamily: theme.typography.primary,
+    fontWeight: "700",
+    fontSize: 24,
+    color: theme.colors.text,
+  },
+  durationText: {
+    marginBottom: -2,
+    fontSize: 16,
+  },
+}))

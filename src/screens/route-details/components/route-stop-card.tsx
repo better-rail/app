@@ -1,42 +1,10 @@
 import React from "react"
-import { View, ViewStyle, TextStyle } from "react-native"
+import { View, ViewStyle } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
-import { color, spacing } from "@/theme"
 import { RouteLine } from "./route-line"
 import { RouteStationCircle } from "./route-station-circle"
 import { RouteElementStateType } from "./use-route-colors"
-
-// #region styles
-const ROUTE_STOP_WRAPPER: ViewStyle = {
-  alignItems: "center",
-  backgroundColor: color.background,
-}
-
-const ROUTE_STOP_DETAILS: ViewStyle = {
-  width: "100%",
-  flexDirection: "row",
-  alignItems: "center",
-}
-
-const ROUTE_STOP_TIME: TextStyle = {
-  fontSize: 16,
-  fontFamily: "System",
-  fontWeight: "600",
-}
-
-const ROUTE_STOP_TIME_DELAYED: TextStyle = {
-  textDecorationLine: "line-through",
-  fontSize: 12,
-  marginTop: -18,
-  marginBottom: spacing[0],
-  opacity: 0.5,
-}
-
-const OUTSIDE_JOURNEY_TEXT: TextStyle = {
-  color: color.dim,
-}
-
-// #endregion
 
 type RouteStopCardProps = {
   stationName: string
@@ -60,17 +28,17 @@ export const RouteStopCard = (props: RouteStopCardProps) => {
   const { stationName, stopTime, delayedTime, topLineState, bottomLineState, style, isOutsideUserJourney } = props
 
   return (
-    <View style={[ROUTE_STOP_WRAPPER, style]}>
-      <View style={ROUTE_STOP_DETAILS}>
+    <View style={[styles.routeStopWrapper, style]}>
+      <View style={styles.routeStopDetails}>
         <View style={{ flex: 0.265, alignItems: "flex-end" }}>
           <Text
-            style={[ROUTE_STOP_TIME, delayedTime && ROUTE_STOP_TIME_DELAYED, isOutsideUserJourney && OUTSIDE_JOURNEY_TEXT]}
+            style={[styles.routeStopTime, delayedTime && styles.routeStopTimeDelayed, isOutsideUserJourney && styles.outsideJourneyText]}
             maxFontSizeMultiplier={1.2}
           >
             {stopTime}
           </Text>
           {delayedTime && (
-            <Text style={[ROUTE_STOP_TIME, isOutsideUserJourney && OUTSIDE_JOURNEY_TEXT]} maxFontSizeMultiplier={1.2}>
+            <Text style={[styles.routeStopTime, isOutsideUserJourney && styles.outsideJourneyText]} maxFontSizeMultiplier={1.2}>
               {delayedTime}
             </Text>
           )}
@@ -83,10 +51,7 @@ export const RouteStopCard = (props: RouteStopCardProps) => {
         </View>
 
         <View style={{ flex: 0.55, right: 15 }}>
-          <Text
-            style={[{ fontWeight: "600", fontSize: 15, marginStart: spacing[3] }, isOutsideUserJourney && OUTSIDE_JOURNEY_TEXT]}
-            maxFontSizeMultiplier={1.2}
-          >
+          <Text style={[styles.stationName, isOutsideUserJourney && styles.outsideJourneyText]} maxFontSizeMultiplier={1.2}>
             {stationName}
           </Text>
         </View>
@@ -94,3 +59,35 @@ export const RouteStopCard = (props: RouteStopCardProps) => {
     </View>
   )
 }
+
+const styles = StyleSheet.create((theme) => ({
+  routeStopWrapper: {
+    alignItems: "center",
+    backgroundColor: theme.colors.background,
+  },
+  routeStopDetails: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  routeStopTime: {
+    fontSize: 16,
+    fontFamily: "System",
+    fontWeight: "600",
+  },
+  routeStopTimeDelayed: {
+    textDecorationLine: "line-through",
+    fontSize: 12,
+    marginTop: -18,
+    marginBottom: theme.spacing[0],
+    opacity: 0.5,
+  },
+  outsideJourneyText: {
+    color: theme.colors.dim,
+  },
+  stationName: {
+    fontWeight: "600",
+    fontSize: 15,
+    marginStart: theme.spacing[3],
+  },
+}))

@@ -1,11 +1,12 @@
 import React, { useRef, useState, useEffect } from "react"
-import { View, Animated, Dimensions, AppState, Platform, Alert } from "react-native"
-import type { ViewStyle, TextStyle, AppStateStatus } from "react-native"
+import { View, Animated, AppState, Platform, Alert } from "react-native"
+import type { AppStateStatus } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton, ResetTimeButton } from "@/components"
 import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore, useTrainRoutesStore, useDateTypeDisplayName } from "@/models"
 import HapticFeedback from "react-native-haptic-feedback"
-import { color, spacing } from "@/theme"
+import { spacing } from "@/theme"
 import { useStations } from "@/data/stations"
 import { translate, useFormattedDate } from "@/i18n"
 import { DatePickerModal } from "@/components/date-picker-modal/date-picker-modal"
@@ -18,35 +19,6 @@ import { trackEvent } from "@/services/analytics"
 import { useRouter, useFocusEffect } from "expo-router"
 import { PlannerScreenHeader } from "./planner-screen-header"
 import { FlingGestureWrapper } from "./planner-slider-wrapper"
-
-const { height: deviceHeight } = Dimensions.get("screen")
-
-// #region styles
-const ROOT: ViewStyle = {
-  backgroundColor: color.background,
-}
-
-const CONTENT_WRAPPER: ViewStyle = {
-  flex: 1,
-  padding: spacing[4],
-  backgroundColor: color.background,
-}
-
-const SCREEN_TITLE: TextStyle = {
-  marginBottom: 3,
-}
-
-const CHANGE_DIRECTION_WRAPPER: ViewStyle = {
-  width: 65,
-  height: 65,
-  top: deviceHeight > 730 ? -30 : -25,
-  end: deviceHeight > 730 ? 10 : 5,
-  alignSelf: "flex-end",
-  marginBottom: -60,
-  zIndex: 10,
-}
-
-// #endregion
 
 export function PlannerScreen() {
   const router = useRouter()
@@ -185,12 +157,12 @@ export function PlannerScreen() {
   )
 
   return (
-    <Screen style={ROOT} statusBarBackgroundColor="transparent" translucent>
+    <Screen style={styles.root} statusBarBackgroundColor="transparent" translucent>
       <FlingGestureWrapper onFling={onSwitchPress}>
-        <View style={CONTENT_WRAPPER}>
+        <View style={styles.contentWrapper}>
           <PlannerScreenHeader />
 
-          <Text preset="header" tx="plan.title" style={SCREEN_TITLE} />
+          <Text preset="header" tx="plan.title" style={styles.screenTitle} />
 
           <Text preset="fieldLabel" tx="plan.origin" style={{ marginBottom: spacing[1] }} />
           <Animated.View style={{ transform: [{ scale: stationCardScale }] }}>
@@ -202,7 +174,7 @@ export function PlannerScreen() {
             />
           </Animated.View>
 
-          <View style={CHANGE_DIRECTION_WRAPPER}>
+          <View style={styles.changeDirectionWrapper}>
             <ChangeDirectionButton onPress={onSwitchPress} disabled={!origin || !destination} />
           </View>
 
@@ -250,3 +222,26 @@ export function PlannerScreen() {
     </Screen>
   )
 }
+
+const styles = StyleSheet.create((theme, rt) => ({
+  root: {
+    backgroundColor: theme.colors.background,
+  },
+  contentWrapper: {
+    flex: 1,
+    padding: theme.spacing[4],
+    backgroundColor: theme.colors.background,
+  },
+  screenTitle: {
+    marginBottom: 3,
+  },
+  changeDirectionWrapper: {
+    width: 65,
+    height: 65,
+    top: rt.screen.height > 730 ? -30 : -25,
+    end: rt.screen.height > 730 ? 10 : 5,
+    alignSelf: "flex-end",
+    marginBottom: -60,
+    zIndex: 10,
+  },
+}))

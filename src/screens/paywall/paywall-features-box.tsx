@@ -1,10 +1,8 @@
-import { Dimensions, DynamicColorIOS, Image, ImageStyle, Platform, PlatformColor, View, ViewStyle } from "react-native"
+import { DynamicColorIOS, Image, Platform, View } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { List, ListItem } from "@/components"
 import { CHEVRON_ICON } from "@/screens/settings"
 import { translate } from "@/i18n"
-
-const deviceWidth = Dimensions.get("screen").width
-const isLargeScreen = deviceWidth > 375
 
 const LiveActivityIcon = require("../../../assets/live-activity.png")
 const WidgetsIcon = require("../../../assets/widgets.png")
@@ -82,7 +80,7 @@ const FeatureBox = ({ title, subtitle, icon, bgColor, iconColor, ...rest }) => (
   <ListItem
     title={title}
     subtitle={subtitle}
-    contentStyle={{ width: isLargeScreen ? 230 : 220 }}
+    contentStyle={styles.featureContent}
     startBoxItem={<FeatureBoxIcon icon={icon} backgroundColor={bgColor} tintColor={iconColor} />}
     endBoxItem={<Image source={ChevronIcon} style={[CHEVRON_ICON, { marginStart: 0, marginEnd: 0 }]} />}
     onPress={() => {}}
@@ -90,26 +88,30 @@ const FeatureBox = ({ title, subtitle, icon, bgColor, iconColor, ...rest }) => (
   />
 )
 
-const ICON_BOX_WRAPPER: ViewStyle = {
-  width: 40,
-  height: 40,
-  marginTop: -12,
-  marginStart: -8,
-  marginEnd: 12,
-  padding: 18,
-  alignItems: "center",
-  justifyContent: "center",
-  borderRadius: 8,
-}
-
-const ICON_STYLE: ImageStyle = {
-  height: 25,
-  resizeMode: "contain",
-  tintColor: "white",
-}
-
 const FeatureBoxIcon = ({ icon, backgroundColor, tintColor }) => (
-  <View style={[ICON_BOX_WRAPPER, { backgroundColor }]}>
-    <Image source={icon} style={[ICON_STYLE, { tintColor }]} />
+  <View style={[styles.iconBoxWrapper, { backgroundColor }]}>
+    <Image source={icon} style={[styles.iconStyle, { tintColor }]} />
   </View>
 )
+
+const styles = StyleSheet.create((theme, rt) => ({
+  featureContent: {
+    width: rt.screen.width > 375 ? 230 : 220,
+  },
+  iconBoxWrapper: {
+    width: 40,
+    height: 40,
+    marginTop: -12,
+    marginStart: -8,
+    marginEnd: 12,
+    padding: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 8,
+  },
+  iconStyle: {
+    height: 25,
+    resizeMode: "contain",
+    tintColor: "white",
+  },
+}))
