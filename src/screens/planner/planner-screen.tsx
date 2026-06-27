@@ -5,7 +5,7 @@ import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton, R
 import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore, useTrainRoutesStore, useDateTypeDisplayName } from "@/models"
 import HapticFeedback from "react-native-haptic-feedback"
-import { color, primaryFontIOS, spacing } from "@/theme"
+import { color, spacing } from "@/theme"
 import { useStations } from "@/data/stations"
 import { translate, useFormattedDate } from "@/i18n"
 import { DatePickerModal } from "@/components/date-picker-modal/date-picker-modal"
@@ -33,7 +33,7 @@ const CONTENT_WRAPPER: ViewStyle = {
 }
 
 const SCREEN_TITLE: TextStyle = {
-  marginBottom: primaryFontIOS === "System" ? 6 : 3,
+  marginBottom: 3,
 }
 
 const CHANGE_DIRECTION_WRAPPER: ViewStyle = {

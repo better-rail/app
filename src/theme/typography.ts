@@ -1,9 +1,8 @@
 import { Platform } from "react-native"
 
-// Heebo is now registered on both platforms (see the expo-font config in app.config.ts —
-// iOS by family name, Android via an XML font family + ReactFontManager). Kept named
-// `primaryFontIOS` for backwards compatibility with the layout nudges that import it.
-export const primaryFontIOS = "Heebo"
+// Heebo is registered on both platforms (see the expo-font config in app.config.ts —
+// iOS by family name, Android via an XML font family + ReactFontManager).
+export const primaryFont = "Heebo"
 
 /**
  * You can find a list of available fonts on both iOS and Android here:
@@ -17,9 +16,9 @@ export const primaryFontIOS = "Heebo"
  */
 export const typography = {
   /**
-   * The primary font.  Used in most places.
+   * The primary font.  Used in most places. Heebo on both platforms.
    */
-  primary: Platform.select({ ios: primaryFontIOS, android: "Heebo" }),
+  primary: primaryFont,
 
   /**
    * An alternate font used for perhaps titles and stuff.
