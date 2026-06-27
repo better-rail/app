@@ -23,7 +23,6 @@ class RailApiService(
     private val networkConfig: NetworkConfig
 ) {
     companion object {
-        private val API_KEY = BuildConfig.RAIL_API_KEY
         private const val MAX_RETRIES = 3
         private const val MINUTES_IN_HOUR = 60
         private val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -144,7 +143,6 @@ class RailApiService(
             .url(url)
             .post(requestBody)
             .addHeader("Content-Type", "application/json")
-            .addHeader("ocp-apim-subscription-key", API_KEY)
             .build()
 
         // Create client once before retries so connection pooling works across attempts
