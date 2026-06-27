@@ -692,6 +692,33 @@ const stations: Station[] = [
     lon: 34.855948,
     image: require("../../assets/station-images/mazkeret-batya.jpg"),
   },
+  {
+    id: "3900",
+    hebrew: "חדרה - מזרח",
+    english: "Hadera - East",
+    russian: "Хадера – Восток",
+    arabic: "حديرا - شرق",
+    lat: 32.450496,
+    lon: 35.020744,
+  },
+  {
+    id: "4300",
+    hebrew: "שומרון - טייבה",
+    english: "Shomron – Tayyiba",
+    russian: "Шומрון – Тайбе",
+    arabic: "هشومرون – الطيبة",
+    lat: 32.277165,
+    lon: 35.005913,
+  },
+  {
+    id: "4310",
+    hebrew: "טירה - כוכב יאיר",
+    english: "Tira - Kokhav Ya'ir",
+    russian: "Тира – Кохав-Яир",
+    arabic: "الطيرة - كوخاڤ يَئير",
+    lat: 32.234875,
+    lon: 34.957647,
+  },
 ]
 
 type StationsObjectType = {
