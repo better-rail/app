@@ -10,8 +10,8 @@ import { color, fontScale } from "@/theme"
 import { useShallow } from "zustand/react/shallow"
 import { useRideStore } from "@/models"
 import { AndroidNotificationSetting, AuthorizationStatus } from "@notifee/react-native"
-import InAppReview from "react-native-in-app-review"
 import { trackEvent } from "@/services/analytics"
+import { requestStoreReview } from "@/utils/helpers/store-review-helpers"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 
 const { width: deviceWidth } = Dimensions.get("screen")
@@ -97,7 +97,7 @@ export function StartRideButton(props: StartRideButtonProps) {
     // in reality the prompt would be shown on the 4th ride and not the 3rd, since the count
     // will be increased only after the ride has been started successfully.
     if (ride.rideCount === 3) {
-      InAppReview.RequestInAppReview().then(() => {
+      requestStoreReview().then(() => {
         trackEvent("start_live_ride_in_app_review_prompt")
       })
     }

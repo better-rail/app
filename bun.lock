@@ -42,6 +42,7 @@
         "expo-localization": "~56.0.6",
         "expo-network": "~56.0.5",
         "expo-router": "~56.2.11",
+        "expo-store-review": "~56.0.3",
         "expo-updates": "~56.0.19",
         "fuse.js": "6.4.6",
         "i18n-js": "3.8.0",
@@ -59,7 +60,6 @@
         "react-native-gesture-handler": "~2.31.1",
         "react-native-haptic-feedback": "2.3.3",
         "react-native-iap": "14.4.25",
-        "react-native-in-app-review": "4.3.3",
         "react-native-inappbrowser-reborn": "3.7.0",
         "react-native-ios-context-menu": "3.1.3",
         "react-native-ios-utilities": "github:dominicstop/react-native-ios-utilities#v5.2.1",
@@ -1280,6 +1280,8 @@
 
     "expo-server": ["expo-server@56.0.5", "", {}, "sha512-SmM2p2g3Jrktpiazcst+OxhjSzOHXKAY4BPURHYHXvApzzoybMmrNF4IEZ8DKZ145BhSe4ydAmlEFCRTsdtgUQ=="],
 
+    "expo-store-review": ["expo-store-review@56.0.3", "", { "peerDependencies": { "expo": "*", "react-native": "*" } }, "sha512-pLlSmizlcXC3dYdydKpYtNslEEr1pyUMHH4YV/zc/HmnEIAIG752N0NadAQ+jxX5i5B8iDwOfYc9iJe9Qyc0UA=="],
+
     "expo-structured-headers": ["expo-structured-headers@56.0.0", "", {}, "sha512-Yv4x+SQxNnMQm4nu8NFfzx197YaDhdYH2N0u7tGErwWTmH9Tm1SAhqo7bLbBWLC9kf7W+kdzTshLU9rTiCXWGw=="],
 
     "expo-symbols": ["expo-symbols@56.0.6", "", { "dependencies": { "@expo-google-fonts/material-symbols": "^0.4.1", "sf-symbols-typescript": "^2.0.0" }, "peerDependencies": { "expo": "*", "expo-font": "*", "react": "*", "react-native": "*" } }, "sha512-BrA81DjcNafdj7gXVhdrExb9LtUiSVyOf/NavyMmDAHgHMY1GqeR5cnn1PSAZeYKnSgQhee/H89XUpAxtog5hg=="],
@@ -1937,8 +1939,6 @@
     "react-native-haptic-feedback": ["react-native-haptic-feedback@2.3.3", "", { "peerDependencies": { "react-native": ">=0.60.0" } }, "sha512-svS4D5PxfNv8o68m9ahWfwje5NqukM3qLS48+WTdhbDkNUkOhP9rDfDSRHzlhk4zq+ISjyw95EhLeh8NkKX5vQ=="],
 
     "react-native-iap": ["react-native-iap@14.4.25", "", { "peerDependencies": { "react": "*", "react-native": "*", "react-native-nitro-modules": "^0.29.6" } }, "sha512-64ws+9Qmpd9rsbdCNO320EcN73KdPJdwYrScOxfh7CAwmiInhpZ4JU+hacgHiFlw3xlv421EWfCbTenvT+dDTQ=="],
-
-    "react-native-in-app-review": ["react-native-in-app-review@4.3.3", "", {}, "sha512-Q9sXBtK8tCBYFPCGmMgeMlkxXC5e6vAyPZK26OC1oOKUuKUd0QORnryk/qbwnuN4fLshHQN8UKlLgyHLGRuK3A=="],
 
     "react-native-inappbrowser-reborn": ["react-native-inappbrowser-reborn@3.7.0", "", { "dependencies": { "invariant": "^2.2.4", "opencollective-postinstall": "^2.0.3" }, "peerDependencies": { "react-native": ">=0.56" } }, "sha512-Ia53jYNtFcbNaX5W3QfOmN25I7bcvuDiQmSY5zABXjy4+WI20bPc9ua09li55F8yDCjv3C99jX6vKms68mBV7g=="],
 
