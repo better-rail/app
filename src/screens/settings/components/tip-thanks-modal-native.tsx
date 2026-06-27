@@ -1,9 +1,9 @@
 import React from "react"
 import { View, Modal, TouchableWithoutFeedback, Dimensions, Platform } from "react-native"
 import type { ViewStyle, TextStyle } from "react-native"
-import { Button, Text } from "../../../components"
-import { translate } from "../../../i18n"
-import { color, fontScale, spacing } from "../../../theme"
+import { Button, Text } from "@/components"
+import { translate } from "@/i18n"
+import { color, fontScale, spacing } from "@/theme"
 
 const { width } = Dimensions.get("window")
 

@@ -2,7 +2,7 @@ import type { ReactNode } from "react"
 import { Platform, PlatformColor, View, type ViewStyle, useColorScheme } from "react-native"
 import { BlurView } from "expo-blur"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { color, isDarkMode } from "../../theme"
+import { color, isDarkMode } from "@/theme"
 import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
 
 const androidSeparatorColor = isDarkMode ? "#454545" : "#c6c6c6"

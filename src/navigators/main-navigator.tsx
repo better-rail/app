@@ -17,12 +17,12 @@ import {
   RouteDetailsScreen,
   StationHoursScreen,
   FilterScreen,
-} from "../screens"
-import { LivePermissionsScreen } from "../screens/route-details/components/live-permissions-screen"
-import { color, typography } from "../theme"
+} from "@/screens"
+import { LivePermissionsScreen } from "@/screens/route-details/components/live-permissions-screen"
+import { color, typography } from "@/theme"
 import { Platform } from "react-native"
-import { RouteDetailsTrainInfo } from "../screens/route-details/route-details-train-info"
-import type { RouteItem, Train } from "../services/api/rail-api.types"
+import { RouteDetailsTrainInfo } from "@/screens/route-details/route-details-train-info"
+import type { RouteItem, Train } from "@/services/api/rail-api.types"
 import { isLiquidGlassSupported } from "@callstack/liquid-glass"
 
 /**

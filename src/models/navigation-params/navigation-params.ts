@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import type { RouteItem, Train } from "../../services/api"
+import type { RouteItem, Train } from "@/services/api"
 
 type NavigationParamsStore = {
   routeItem: RouteItem | null

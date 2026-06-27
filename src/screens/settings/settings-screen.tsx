@@ -1,12 +1,12 @@
 import { Linking, Platform, PlatformColor, TextStyle, View, ViewStyle } from "react-native"
-import { Screen, Text } from "../../components"
+import { Screen, Text } from "@/components"
 import { SettingBox } from "./components/settings-box"
 import { getVersion, getBuildNumber } from "react-native-device-info"
-import { color, spacing } from "../../theme"
-import { translate, userLocale } from "../../i18n"
+import { color, spacing } from "@/theme"
+import { translate, userLocale } from "@/i18n"
 import { useRouter } from "expo-router"
 import { SETTING_GROUP } from "./settings-styles"
-import { useIsDarkMode, useIsBetaTester } from "../../hooks"
+import { useIsDarkMode, useIsBetaTester } from "@/hooks"
 import { shareApp } from "./helpers/app-share-sheet"
 
 const ROOT: ViewStyle = {

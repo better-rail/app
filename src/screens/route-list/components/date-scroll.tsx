@@ -1,10 +1,10 @@
 import React, { useCallback } from "react"
 import { View, Image, Pressable, ViewStyle, ImageStyle, TextStyle, ActivityIndicator } from "react-native"
 
-import { color, spacing } from "../../../theme"
-import { Text } from "../../../components"
-import { useTrainRoutesStore } from "../../../models"
-import { localizedDate } from "../../../i18n"
+import { color, spacing } from "@/theme"
+import { Text } from "@/components"
+import { useTrainRoutesStore } from "@/models"
+import { localizedDate } from "@/i18n"
 
 const CONTAINER_STYLE: ViewStyle = {
   height: spacing[7],

@@ -1,7 +1,7 @@
 import { Dimensions, DynamicColorIOS, Image, ImageStyle, Platform, PlatformColor, View, ViewStyle } from "react-native"
-import { List, ListItem } from "../../components"
-import { CHEVRON_ICON } from "../settings"
-import { translate } from "../../i18n"
+import { List, ListItem } from "@/components"
+import { CHEVRON_ICON } from "@/screens/settings"
+import { translate } from "@/i18n"
 
 const deviceWidth = Dimensions.get("screen").width
 const isLargeScreen = deviceWidth > 375

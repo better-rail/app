@@ -1,10 +1,10 @@
 import { useEffect } from "react"
 import { Dimensions, type TextStyle, TouchableOpacity } from "react-native"
 import Animated, { useAnimatedStyle, useSharedValue, withDelay, withTiming } from "react-native-reanimated"
-import { color, fontScale } from "../../theme"
+import { color, fontScale } from "@/theme"
 import { useRouter } from "expo-router"
-import { trackEvent } from "../../services/analytics"
-import { removeHtmlTagsAndEntities } from "../../components/announcements/announcements-utils"
+import { trackEvent } from "@/services/analytics"
+import { removeHtmlTagsAndEntities } from "@/components/announcements/announcements-utils"
 
 const TEXT_STYLE: TextStyle = {
   color: color.whiteText,

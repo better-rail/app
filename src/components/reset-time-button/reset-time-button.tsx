@@ -1,6 +1,6 @@
 import { TouchableOpacity, TouchableOpacityProps, Image, ImageStyle, Platform } from "react-native"
-import { color, fontScale, spacing } from "../../theme"
-import { translate } from "../../i18n"
+import { color, fontScale, spacing } from "@/theme"
+import { translate } from "@/i18n"
 
 const ResetTimeIcon = Platform.select({
   ios: require("../../../assets/reset-time.ios.png"),

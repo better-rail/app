@@ -1,10 +1,10 @@
 import * as React from "react"
 import { Image, ImageBackground, View, ViewStyle, TextStyle, ImageStyle, Appearance } from "react-native"
 import LinearGradient from "react-native-linear-gradient"
-import { color, spacing } from "../../theme"
-import { Text } from "../"
-import { stationsObject, stationLocale } from "../../data/stations"
-import { isRTL } from "../../i18n"
+import { color, spacing } from "@/theme"
+import { Text } from "@/components/text/text"
+import { stationsObject, stationLocale } from "@/data/stations"
+import { isRTL } from "@/i18n"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
 

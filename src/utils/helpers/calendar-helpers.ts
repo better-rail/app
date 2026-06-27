@@ -1,8 +1,8 @@
 import { Alert, Linking } from "react-native"
 import * as Calendar from "expo-calendar"
-import { translate } from "../../i18n"
-import { trackEvent } from "../../services/analytics"
-import type { RouteItem } from "../../services/api"
+import { translate } from "@/i18n"
+import { trackEvent } from "@/services/analytics"
+import type { RouteItem } from "@/services/api"
 
 export interface CalendarEventConfig {
   title: string

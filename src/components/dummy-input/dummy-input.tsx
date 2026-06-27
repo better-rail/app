@@ -1,7 +1,7 @@
 import * as React from "react"
 import { Platform, TextStyle, TouchableOpacity, ViewStyle, PressableProps } from "react-native"
-import { color, spacing, typography } from "../../theme"
-import { Text } from "../"
+import { color, spacing, typography } from "@/theme"
+import { Text } from "@/components/text/text"
 import { isLiquidGlassSupported } from "@callstack/liquid-glass"
 
 const CONTAINER: ViewStyle = {

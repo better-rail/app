@@ -1,11 +1,11 @@
 import React from "react"
 import { Image, ViewStyle, ImageStyle, ScrollView, TextStyle } from "react-native"
-import { Text } from "../../../components"
+import { Text } from "@/components"
 import { useShallow } from "zustand/react/shallow"
-import { useRoutePlanStore } from "../../../models"
-import { spacing, color } from "../../../theme"
-import { AnnouncementsList } from "../../../components/announcements/announcements-list"
-import { AnnouncementsHeader } from "../../../components/announcements/announcements-header"
+import { useRoutePlanStore } from "@/models"
+import { spacing, color } from "@/theme"
+import { AnnouncementsList } from "@/components/announcements/announcements-list"
+import { AnnouncementsHeader } from "@/components/announcements/announcements-header"
 
 const CONTAINER: ViewStyle = {
   alignItems: "center",

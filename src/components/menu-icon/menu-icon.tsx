@@ -1,7 +1,7 @@
 import { TouchableOpacity, Image, type ImageStyle, type ViewStyle } from "react-native"
-import { translate } from "../../i18n"
+import { translate } from "@/i18n"
 import { isLiquidGlassSupported } from "@callstack/liquid-glass"
-import { color } from "../../theme"
+import { color } from "@/theme"
 
 let menuIcon = require("../../../assets/ellipsis.png")
 if (isLiquidGlassSupported) {

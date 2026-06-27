@@ -1,15 +1,15 @@
 import { BlurView } from "expo-blur"
 import { ActivityIndicator, Platform, TextStyle, View, ViewStyle } from "react-native"
 import Animated, { FadeIn } from "react-native-reanimated"
-import { color } from "../../theme"
-import { useIsDarkMode } from "../../hooks/use-is-dark-mode"
+import { color } from "@/theme"
+import { useIsDarkMode } from "@/hooks/use-is-dark-mode"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import LinearGradient from "react-native-linear-gradient"
-import { PRESSABLE_BASE, Text } from "../../components"
+import { PRESSABLE_BASE, Text } from "@/components"
 import { SubscriptionTypes } from "./"
-import { translate } from "../../i18n"
-import { useFontFamily } from "../../hooks/use-font-family"
+import { translate } from "@/i18n"
+import { useFontFamily } from "@/hooks/use-font-family"
 
 const BOTTOM_FLOATING_VIEW: ViewStyle = {
   position: "absolute",

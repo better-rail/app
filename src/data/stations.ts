@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react"
-import * as storage from "../utils/storage"
+import * as storage from "@/utils/storage"
 
 type Station = {
   id: string

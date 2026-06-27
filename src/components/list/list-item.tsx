@@ -1,7 +1,7 @@
 import { ReactNode, useMemo } from "react"
 import { TouchableHighlight, View, ViewStyle } from "react-native"
-import { color } from "../../theme"
-import { Text } from "../text/text"
+import { color } from "@/theme"
+import { Text } from "@/components/text/text"
 
 const LIST_ITEM_WRAPPER: ViewStyle = {
   paddingHorizontal: 24,

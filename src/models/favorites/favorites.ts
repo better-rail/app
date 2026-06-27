@@ -1,10 +1,10 @@
 import { create } from "zustand"
 import { Platform } from "react-native"
-import { setAnalyticsUserProperty } from "../../services/analytics"
+import { setAnalyticsUserProperty } from "@/services/analytics"
 import { getIsWatchAppInstalled, updateApplicationContext, getIsPaired, WatchPayload } from "react-native-watch-connectivity"
 import Shortcuts from "react-native-quick-actions-shortcuts"
-import { stationLocale, stationsObject } from "../../data/stations"
-import { translate } from "../../i18n"
+import { stationLocale, stationsObject } from "@/data/stations"
+import { translate } from "@/i18n"
 import { isEmpty } from "lodash"
 
 if (Platform.OS === "ios") {

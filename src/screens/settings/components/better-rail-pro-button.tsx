@@ -1,8 +1,8 @@
 import { DynamicColorIOS, Platform, TouchableOpacity } from "react-native"
 import LinearGradient from "react-native-linear-gradient"
-import { spacing } from "../../../theme"
-import { Text } from "../../../components"
-import { useFontFamily } from "../../../hooks/use-font-family"
+import { spacing } from "@/theme"
+import { Text } from "@/components"
+import { useFontFamily } from "@/hooks/use-font-family"
 
 const colors = Platform.OS === "ios" && {
   start: DynamicColorIOS({ light: "#0017E4", dark: "#5E17EB" }),

@@ -1,12 +1,12 @@
 import { useState } from "react"
 import { Pressable, TextStyle, View, type ViewStyle } from "react-native"
-import { useRoutePlanStore } from "../../models"
-import { dateLocale, translate } from "../../i18n"
-import { color, spacing, isDarkMode } from "../../theme"
+import { useRoutePlanStore } from "@/models"
+import { dateLocale, translate } from "@/i18n"
+import { color, spacing, isDarkMode } from "@/theme"
 import DatePicker from "react-native-date-picker"
-import { Button } from "../button/button"
+import { Button } from "@/components/button/button"
 import type { ModalProps } from "react-native-modalfy"
-import { Text } from "../text/text"
+import { Text } from "@/components/text/text"
 
 const MODAL_WRAPPER: ViewStyle = {
   minHeight: 285,

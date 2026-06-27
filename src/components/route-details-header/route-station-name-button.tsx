@@ -1,7 +1,7 @@
 import { Dimensions, Pressable, Animated as RNAnimated, TextStyle, ViewStyle } from "react-native"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
-import { Text } from "../"
-import { color, spacing } from "../../theme"
+import { Text } from "@/components/text/text"
+import { color, spacing } from "@/theme"
 import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
 
 const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale)

@@ -1,9 +1,9 @@
 import { View, type ViewStyle, type TextStyle } from "react-native"
 import type { ModalProps } from "react-native-modalfy"
-import { color, fontScale } from "../../../theme"
-import { spacing } from "../../../theme"
-import { Button, Text } from "../../../components"
-import { translate } from "../../../i18n"
+import { color, fontScale } from "@/theme"
+import { spacing } from "@/theme"
+import { Button, Text } from "@/components"
+import { translate } from "@/i18n"
 
 const MODAL_WRAPPER: ViewStyle = {
   maxHeight: 400,

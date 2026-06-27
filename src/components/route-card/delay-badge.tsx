@@ -1,8 +1,8 @@
 import React from "react"
 import { View, ViewStyle, TextStyle, Platform, useColorScheme } from "react-native"
-import { Text } from "../text/text"
-import { translate } from "../../i18n"
-import { color, spacing } from "../../theme"
+import { Text } from "@/components/text/text"
+import { translate } from "@/i18n"
+import { color, spacing } from "@/theme"
 
 const CONTAINER: ViewStyle = {
   paddingVertical: 1,

@@ -1,12 +1,12 @@
 import { StyleSheet, TextStyle, View, ViewStyle } from "react-native"
-import { Screen, Text, CloseButton } from "../../components"
-import { color, spacing } from "../../theme"
+import { Screen, Text, CloseButton } from "@/components"
+import { color, spacing } from "@/theme"
 import { useState } from "react"
-import { SubscriptionTypeBox, SubscriptionTypes } from "./"
+import { SubscriptionTypeBox, SubscriptionTypes } from "./subscription-type-box"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { SubscribeButtonSheet } from "./subscribe-button-sheet"
 import { FeaturesBox } from "./paywall-features-box"
-import { isRTL, translate } from "../../i18n"
+import { isRTL, translate } from "@/i18n"
 import { BlurView } from "expo-blur"
 import Animated, {
   Extrapolate,

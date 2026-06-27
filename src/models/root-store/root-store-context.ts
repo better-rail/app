@@ -2,8 +2,8 @@
 // by direct store imports with selectors for better performance.
 //
 // Import individual store hooks directly:
-//   import { useRoutePlanStore } from "../route-plan/route-plan"
-//   import { useSettingsStore } from "../settings/settings"
+//   import { useRoutePlanStore } from "@/models/route-plan/route-plan"
+//   import { useSettingsStore } from "@/models/settings/settings"
 //   etc.
 //
 // Use selectors to avoid unnecessary re-renders:

@@ -1,9 +1,9 @@
 import { OpaqueColorValue, TextStyle, View, ViewStyle } from "react-native"
-import { Text, List, ListItem } from "../../components"
-import { color } from "../../theme"
+import { Text, List, ListItem } from "@/components"
+import { color } from "@/theme"
 import BouncyCheckbox from "react-native-bouncy-checkbox"
-import { useIsDarkMode } from "../../hooks/use-is-dark-mode"
-import { translate } from "../../i18n"
+import { useIsDarkMode } from "@/hooks/use-is-dark-mode"
+import { translate } from "@/i18n"
 
 export type SubscriptionTypes = "annual" | "monthly"
 

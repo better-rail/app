@@ -1,7 +1,7 @@
 import React from "react"
 import { Image, ImageStyle, TextStyle, View, ViewStyle } from "react-native"
-import { Text } from "../../../components"
-import { spacing, color } from "../../../theme"
+import { Text } from "@/components"
+import { spacing, color } from "@/theme"
 
 const MESSAGE_WRAPPER: ViewStyle = {
   justifyContent: "center",

@@ -1,7 +1,7 @@
 import { TextStyle, View, ViewStyle, ActivityIndicator } from "react-native"
-import { Text } from "../../../components"
-import { color, spacing } from "../../../theme"
-import { localizedDate } from "../../../i18n"
+import { Text } from "@/components"
+import { color, spacing } from "@/theme"
+import { localizedDate } from "@/i18n"
 
 const DATE_TEXT_STYLES: TextStyle = {
   color: color.primary,

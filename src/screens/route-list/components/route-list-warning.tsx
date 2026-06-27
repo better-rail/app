@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react"
 import { Platform, View } from "react-native"
 import Animated, { FadeInDown } from "react-native-reanimated"
-import { BottomScreenSheet, Text } from "../../../components"
+import { BottomScreenSheet, Text } from "@/components"
 import { format } from "date-fns"
-import { dateFnsLocalization, translate } from "../../../i18n"
+import { dateFnsLocalization, translate } from "@/i18n"
 import * as Burnt from "burnt"
 import { useModal } from "react-native-modalfy"
 

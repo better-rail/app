@@ -1,9 +1,9 @@
 import { addMinutes, differenceInSeconds } from "date-fns"
-import { RideStatus } from "../../hooks/use-ride-progress"
-import { RouteItem, Train } from "../../services/api"
+import { RideStatus } from "@/hooks/use-ride-progress"
+import { RouteItem, Train } from "@/services/api"
 import { isEqual, last } from "lodash"
-import { useRideStore } from "../../models/ride/ride"
-import { useNavigationParamsStore } from "../../models/navigation-params/navigation-params"
+import { useRideStore } from "@/models/ride/ride"
+import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { router } from "expo-router"
 
 /**

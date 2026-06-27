@@ -1,5 +1,5 @@
 import { Gesture, GestureDetector } from "react-native-gesture-handler"
-import { isRTL } from "../../i18n"
+import { isRTL } from "@/i18n"
 import Animated, {
   runOnJS,
   useAnimatedStyle,
@@ -8,7 +8,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated"
-import { trackEvent } from "../../services/analytics"
+import { trackEvent } from "@/services/analytics"
 
 interface FlingGestureWrapperProps {
   children: React.ReactNode

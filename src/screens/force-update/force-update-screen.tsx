@@ -1,11 +1,11 @@
 import React from "react"
 import { Linking, Platform, View, ViewStyle, TextStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { Text } from "../../components"
-import { Button } from "../../components/button/button"
-import { color, spacing } from "../../theme"
-import { translate } from "../../i18n"
-import { trackEvent } from "../../services/analytics"
+import { Text } from "@/components"
+import { Button } from "@/components/button/button"
+import { color, spacing } from "@/theme"
+import { translate } from "@/i18n"
+import { trackEvent } from "@/services/analytics"
 
 const STORE_URL = Platform.select({
   ios: "https://apps.apple.com/app/better-rail/id1562982976",

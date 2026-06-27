@@ -1,8 +1,8 @@
 import { railApi } from "./rail-api"
 import { AxiosResponse } from "axios"
-import { stationsObject, stationLocale } from "../../data/stations"
+import { stationsObject, stationLocale } from "@/data/stations"
 import { RailApiGetRoutesResult } from "./rail-api.types"
-import { formatRouteDuration, isOneHourDifference, routeDurationInMs } from "../../utils/helpers/date-helpers"
+import { formatRouteDuration, isOneHourDifference, routeDurationInMs } from "@/utils/helpers/date-helpers"
 import { RouteItem } from "."
 import { getHours, parse, isSameDay, addDays } from "date-fns"
 

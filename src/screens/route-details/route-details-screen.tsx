@@ -6,10 +6,10 @@ import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated"
 import { format } from "date-fns"
 
 import { useShallow } from "zustand/react/shallow"
-import { useRideStore } from "../../models"
-import { useRideProgress } from "../../hooks/use-ride-progress"
-import { color, spacing } from "../../theme"
-import { RouteDetailsHeader, Screen } from "../../components"
+import { useRideStore } from "@/models"
+import { useRideProgress } from "@/hooks/use-ride-progress"
+import { color, spacing } from "@/theme"
+import { RouteDetailsHeader, Screen } from "@/components"
 import {
   LiveRideSheet,
   LongRouteWarning,
@@ -21,20 +21,20 @@ import {
 } from "./components"
 
 import { useQuery } from "react-query"
-import type { RouteItem } from "../../services/api"
-import { RouteApi } from "../../services/api/route-api"
+import type { RouteItem } from "@/services/api"
+import { RouteApi } from "@/services/api/route-api"
 import { useRouter, usePathname } from "expo-router"
-import { useNavigationParamsStore } from "../../models/navigation-params/navigation-params"
-import { useStations } from "../../data/stations"
-import { calculateDelayedTime, formatDateForAPI } from "../../utils/helpers/date-helpers"
-import { getSelectedRide } from "../../utils/helpers/ride-helpers"
+import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
+import { useStations } from "@/data/stations"
+import { calculateDelayedTime, formatDateForAPI } from "@/utils/helpers/date-helpers"
+import { getSelectedRide } from "@/utils/helpers/ride-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const routeApi = new RouteApi()
 import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
 import HapticFeedback from "react-native-haptic-feedback"
-import { translate } from "../../i18n"
-import { trackEvent } from "../../services/analytics"
+import { translate } from "@/i18n"
+import { trackEvent } from "@/services/analytics"
 
 const ROOT: ViewStyle = {
   flex: 1,

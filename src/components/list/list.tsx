@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react"
 import { ViewStyle, View } from "react-native"
-import { color } from "../../theme"
+import { color } from "@/theme"
 import { ListItemProps } from "./list-item"
 
 const LIST_WRAPPER: ViewStyle = {

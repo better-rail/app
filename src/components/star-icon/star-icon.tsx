@@ -1,8 +1,8 @@
 import React, { useMemo } from "react"
 import { Image, Pressable, type ImageStyle, type ViewStyle } from "react-native"
 import { AccessibilityState } from "react-native"
-import { translate } from "../../i18n"
-import { color } from "../../theme"
+import { translate } from "@/i18n"
+import { color } from "@/theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
 

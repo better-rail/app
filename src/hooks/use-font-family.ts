@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { Platform } from "react-native"
-import * as storage from "../utils/storage"
+import * as storage from "@/utils/storage"
 
 /**
  * For cases when the System font is wanted to be used instead of Heebo, when the app is

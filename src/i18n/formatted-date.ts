@@ -1,5 +1,6 @@
 import { formatRelative, differenceInMinutes, format } from "date-fns"
-import { dateFnsLocalization, translate } from "."
+import { dateFnsLocalization } from "./i18n"
+import { translate } from "./translate"
 
 export function useFormattedDate(date: Date) {
   const now = new Date()

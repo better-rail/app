@@ -14,8 +14,8 @@ import {
 } from "react-native"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import LinearGradient from "react-native-linear-gradient"
-import { color, spacing, typography } from "../../theme"
-import { Text } from "../"
+import { color, spacing, typography } from "@/theme"
+import { Text } from "@/components/text/text"
 import { isLiquidGlassSupported } from "@callstack/liquid-glass"
 
 const isDarkMode = Appearance.getColorScheme() === "dark"

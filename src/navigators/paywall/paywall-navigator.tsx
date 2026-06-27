@@ -5,7 +5,7 @@ import {
   StackHeaderInterpolationProps,
   StackScreenProps,
 } from "@react-navigation/stack"
-import { PaywallScreen } from "../../screens/paywall"
+import { PaywallScreen } from "@/screens/paywall"
 
 export type PaywallParamList = {
   paywall: {

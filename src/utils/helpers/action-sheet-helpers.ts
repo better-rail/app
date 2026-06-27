@@ -1,5 +1,5 @@
 import { ColorSchemeName } from "react-native"
-import { color } from "../../theme"
+import { color } from "@/theme"
 
 export function getActionSheetStyleOptions(colorScheme: ColorSchemeName) {
   return colorScheme === "dark"

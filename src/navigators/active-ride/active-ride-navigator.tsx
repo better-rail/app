@@ -1,8 +1,8 @@
 import React from "react"
 import { createStackNavigator, StackScreenProps, TransitionPresets } from "@react-navigation/stack"
-import { RouteDetailsScreen } from "../../screens"
-import { RouteItem } from "../../services/api"
-import { CloseButton } from "../../components"
+import { RouteDetailsScreen } from "@/screens"
+import { RouteItem } from "@/services/api"
+import { CloseButton } from "@/components"
 import { Platform } from "react-native"
 
 export type ActiveRideList = {

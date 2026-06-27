@@ -1,5 +1,5 @@
 import { PixelRatio, Appearance } from "react-native"
-import { setAnalyticsUserProperties } from "../services/analytics"
+import { setAnalyticsUserProperties } from "@/services/analytics"
 
 export * from "./color"
 export * from "./spacing"

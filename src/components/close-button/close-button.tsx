@@ -1,6 +1,6 @@
 import React from "react"
 import { Image, TouchableOpacity, ImageStyle, TouchableOpacityProps } from "react-native"
-import { color } from "../../theme"
+import { color } from "@/theme"
 
 const CLOSE_ICON_STYLE: ImageStyle = {
   width: 37.5,

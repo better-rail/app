@@ -1,11 +1,11 @@
-import { RouteItem } from "../../services/api"
+import { RouteItem } from "@/services/api"
 import { useQueryClient } from "react-query"
 import { useEffect, useMemo, useState } from "react"
-import { formatDateForAPI } from "../../utils/helpers/date-helpers"
-import { RouteApi } from "../../services/api/route-api"
-import { findClosestStationInRoute, getSelectedRide, getTrainFromStationId } from "../../utils/helpers/ride-helpers"
+import { formatDateForAPI } from "@/utils/helpers/date-helpers"
+import { RouteApi } from "@/services/api/route-api"
+import { findClosestStationInRoute, getSelectedRide, getTrainFromStationId } from "@/utils/helpers/ride-helpers"
 import { useShallow } from "zustand/react/shallow"
-import { useRoutePlanStore, useRideStore } from "../../models"
+import { useRoutePlanStore, useRideStore } from "@/models"
 
 const api = new RouteApi()
 

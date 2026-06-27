@@ -1,5 +1,5 @@
 import { NativeModules, Platform } from "react-native"
-import { setAnalyticsUserProperties } from "../services/analytics"
+import { setAnalyticsUserProperties } from "@/services/analytics"
 
 const { RNBetterRail, WidgetNavigation } = NativeModules
 

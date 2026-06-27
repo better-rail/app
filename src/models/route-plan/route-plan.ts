@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import { NativeModules, Platform } from "react-native"
-import { translate } from "../../i18n"
+import { translate } from "@/i18n"
 
 const { RNBetterRail } = NativeModules
 

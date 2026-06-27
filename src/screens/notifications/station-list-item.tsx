@@ -1,6 +1,6 @@
 import { Image, ImageStyle, TextStyle, View, ViewStyle } from "react-native"
-import { Text } from "../../components"
-import { color } from "../../theme"
+import { Text } from "@/components"
+import { color } from "@/theme"
 import TouchableScale from "react-native-touchable-scale"
 import Animated, { ZoomIn, ZoomOut } from "react-native-reanimated"
 

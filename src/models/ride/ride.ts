@@ -1,27 +1,28 @@
 import { create } from "zustand"
 import { Platform } from "react-native"
-import AndroidHelpers from "../../utils/notification-helpers"
-import iOSHelpers, { ActivityAuthorizationInfo } from "../../utils/ios-helpers"
-import { RouteItem } from "../../services/api"
-import { RouteApi } from "../../services/api/route-api"
+import type AndroidHelpersModule from "@/utils/notification-helpers"
+import iOSHelpers, { ActivityAuthorizationInfo } from "@/utils/ios-helpers"
+import { RouteItem } from "@/services/api"
+import { RouteApi } from "@/services/api/route-api"
 import { head, last } from "lodash"
-import { formatDateForAPI } from "../../utils/helpers/date-helpers"
+import { formatDateForAPI } from "@/utils/helpers/date-helpers"
 import { addMinutes } from "date-fns"
-import { translate } from "../../i18n"
+import { translate } from "@/i18n"
 import * as Burnt from "burnt"
 import notifee, { NotificationSettings } from "@notifee/react-native"
 
 const routeApi = new RouteApi()
 
-const startRideHandler: (route: RouteItem) => Promise<string> = Platform.select({
-  ios: iOSHelpers.startLiveActivity,
-  android: AndroidHelpers.startRideNotifications,
-})
+// Loaded lazily to avoid a require cycle (notification-helpers imports back into the ride hooks/models).
+// The Android helpers are only used at runtime on Android, so a deferred require is safe here.
+const androidHelpers = () =>
+  (require("@/utils/notification-helpers") as { default: typeof AndroidHelpersModule }).default
 
-const endRideHandler: (routeId: string) => Promise<boolean> = Platform.select({
-  ios: iOSHelpers.endLiveActivity,
-  android: AndroidHelpers.endRideNotifications,
-})
+const startRideHandler = (route: RouteItem): Promise<string> =>
+  Platform.OS === "ios" ? iOSHelpers.startLiveActivity(route) : androidHelpers().startRideNotifications(route)
+
+const endRideHandler = (routeId: string): Promise<boolean> =>
+  Platform.OS === "ios" ? iOSHelpers.endLiveActivity(routeId) : androidHelpers().endRideNotifications(routeId)
 
 export interface RideState {
   loading: boolean
@@ -119,7 +120,7 @@ export const useRideStore = create<RideStore>((set, get) => ({
         set({ route: undefined, id: undefined, loading: false })
 
         if (Platform.OS === "android") {
-          AndroidHelpers.cancelNotifications()
+          androidHelpers().cancelNotifications()
         }
 
         Burnt.alert({ title: translate("ride.error"), preset: "error", duration: 3 })

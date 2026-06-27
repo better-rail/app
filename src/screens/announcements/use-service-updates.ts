@@ -1,7 +1,7 @@
 import { useQuery } from "react-query"
-import { firestore } from "../../services/firebase/firestore"
-import { useSettingsStore, useFavoritesStore } from "../../models"
-import { userLocale } from "../../i18n"
+import { firestore } from "@/services/firebase/firestore"
+import { useSettingsStore, useFavoritesStore } from "@/models"
+import { userLocale } from "@/i18n"
 import { uniq } from "lodash"
 import { collection, getDocs, query, where } from "@react-native-firebase/firestore"
 

@@ -1,16 +1,16 @@
 import React, { useCallback, useMemo, useState } from "react"
 import { View, TextStyle, ViewStyle, Pressable, Platform, I18nManager, UIManager } from "react-native"
-import { Screen, Text, StationCard, FavoriteRoutes, cardHeight } from "../../components"
+import { Screen, Text, StationCard, FavoriteRoutes, cardHeight } from "@/components"
 import { useShallow } from "zustand/react/shallow"
-import { useRoutePlanStore, useRecentSearchesStore, useFavoritesStore } from "../../models"
+import { useRoutePlanStore, useRecentSearchesStore, useFavoritesStore } from "@/models"
 import { useRouter, useLocalSearchParams } from "expo-router"
-import { color, spacing, isDarkMode } from "../../theme"
-import { NormalizedStation } from "../../data/stations"
+import { color, spacing, isDarkMode } from "@/theme"
+import { NormalizedStation } from "@/data/stations"
 import { SearchInput } from "./search-input"
 import { RecentSearchesBox } from "./recent-searches-box/recent-searches-box"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { FlashList } from "@shopify/flash-list"
-import { useFilteredStations } from "../../hooks"
+import { useFilteredStations } from "@/hooks"
 
 // #region styles
 const ROOT: ViewStyle = {

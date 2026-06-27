@@ -1,5 +1,5 @@
 import { useMemo } from "react"
-import { getRideStatus, getTrainFromStationId } from "../../utils/helpers/ride-helpers"
+import { getRideStatus, getTrainFromStationId } from "@/utils/helpers/ride-helpers"
 
 export function useRideStatus({ route, delay, nextStationId }) {
   const status = useMemo(() => {

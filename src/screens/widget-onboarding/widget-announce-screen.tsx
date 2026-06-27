@@ -1,10 +1,10 @@
 import React from "react"
 import { View, TextStyle, Image, Dimensions } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { Screen, Text, Button } from "../../components"
-import { translate, userLocale } from "../../i18n"
+import { Screen, Text, Button } from "@/components"
+import { translate, userLocale } from "@/i18n"
 import { useRouter } from "expo-router"
-import { color, fontScale, spacing } from "../../theme"
+import { color, fontScale, spacing } from "@/theme"
 import { WidgetOnboardingBackground } from "./widget-onboarding-background"
 import { useWidgetWrapperStyle } from "./widget-styles"
 
