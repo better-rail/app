@@ -705,7 +705,7 @@ const stations: Station[] = [
     id: "4300",
     hebrew: "שומרון - טייבה",
     english: "Shomron – Tayyiba",
-    russian: "Шומрון – Тайбе",
+    russian: "Шомрон – Тайбе",
     arabic: "هشومرون – الطيبة",
     lat: 32.277165,
     lon: 35.005913,
