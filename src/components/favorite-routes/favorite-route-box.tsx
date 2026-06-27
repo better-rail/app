@@ -11,15 +11,15 @@ import {
   useColorScheme,
 } from "react-native"
 import TouchableScale from "react-native-touchable-scale"
-import { Text } from "../"
-import { stationLocale, stationsObject } from "../../data/stations"
-import { color, spacing, fontScale } from "../../theme"
-import { translate } from "../../i18n"
+import { Text } from "@/components/text/text"
+import { stationLocale, stationsObject } from "@/data/stations"
+import { color, spacing, fontScale } from "@/theme"
+import { translate } from "@/i18n"
 import { useActionSheet } from "@expo/react-native-action-sheet"
-import { getActionSheetStyleOptions } from "../../utils/helpers/action-sheet-helpers"
+import { getActionSheetStyleOptions } from "@/utils/helpers/action-sheet-helpers"
 import prompt from "react-native-prompt-android"
 import { useShallow } from "zustand/react/shallow"
-import { useFavoritesStore } from "../../models"
+import { useFavoritesStore } from "@/models"
 import { ContextMenuView } from "react-native-ios-context-menu"
 
 const borderRadius = Platform.select({ ios: 10, android: 6 })

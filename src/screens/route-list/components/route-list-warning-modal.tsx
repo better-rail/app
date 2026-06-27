@@ -1,8 +1,8 @@
 import { Modal, View, type ViewStyle, type TextStyle } from "react-native"
-import { color, fontScale } from "../../../theme"
-import { spacing } from "../../../theme"
-import { Button, Text } from "../../../components"
-import { translate } from "../../../i18n"
+import { color, fontScale } from "@/theme"
+import { spacing } from "@/theme"
+import { Button, Text } from "@/components"
+import { translate } from "@/i18n"
 
 export type WarningType = "different-hour" | "different-date"
 

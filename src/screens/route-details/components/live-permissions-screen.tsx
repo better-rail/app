@@ -1,16 +1,16 @@
 import { Alert, Image, PermissionsAndroid, Platform, View, type TextStyle, type ViewStyle } from "react-native"
-import { Button, Text } from "../../../components"
-import { color, spacing } from "../../../theme"
+import { Button, Text } from "@/components"
+import { color, spacing } from "@/theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
-import { translate } from "../../../i18n"
+import { translate } from "@/i18n"
 import { useShallow } from "zustand/react/shallow"
-import { useRideStore } from "../../../models"
+import { useRideStore } from "@/models"
 import notifee, { AndroidNotificationSetting, AuthorizationStatus } from "@notifee/react-native"
 import HapticFeedback from "react-native-haptic-feedback"
-import { trackEvent } from "../../../services/analytics"
+import { trackEvent } from "@/services/analytics"
 import InAppReview from "react-native-in-app-review"
 import { useRouter } from "expo-router"
-import { useNavigationParamsStore } from "../../../models/navigation-params/navigation-params"
+import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 
 const WRAPPER: ViewStyle = {
   minHeight: 420,

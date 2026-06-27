@@ -1,11 +1,11 @@
 import React from "react"
 import { ActivityIndicator, Button, Image, TextStyle, View, ViewStyle } from "react-native"
 import { useQuery } from "react-query"
-import { translate, userLocale } from "../../i18n"
-import { Announcement, PopUpMessage, railApi } from "../../services/api"
-import { color, spacing } from "../../theme"
+import { translate, userLocale } from "@/i18n"
+import { Announcement, PopUpMessage, railApi } from "@/services/api"
+import { color, spacing } from "@/theme"
 import { AnnouncementCard } from "./announcement-card"
-import { Text } from "../text/text"
+import { Text } from "@/components/text/text"
 
 type AnnouncementsListProps = {
   updatesType: "regular" | "urgent"

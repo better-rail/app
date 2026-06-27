@@ -10,8 +10,8 @@ import {
   PlatformColor,
   Pressable,
 } from "react-native"
-import { color } from "../../theme"
-import { translate } from "../../i18n"
+import { color } from "@/theme"
+import { translate } from "@/i18n"
 import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
 
 const upDownArrowIcon = require("../../../assets/up-down-arrow.png")

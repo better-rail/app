@@ -1,6 +1,6 @@
 import React from "react"
 import { createStackNavigator, StackScreenProps } from "@react-navigation/stack"
-import { WidgetAnnouncement, WidgetStep1, WidgetStep2, WidgetStep3 } from "../../screens"
+import { WidgetAnnouncement, WidgetStep1, WidgetStep2, WidgetStep3 } from "@/screens"
 
 export type WidgetOnboardingsParamList = {
   main: undefined

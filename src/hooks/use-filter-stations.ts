@@ -1,6 +1,6 @@
 import Fuse from "fuse.js"
 import { useMemo } from "react"
-import { useStations } from "../data/stations"
+import { useStations } from "@/data/stations"
 
 export function useFilteredStations(searchTerm: string) {
   const stations = useStations()

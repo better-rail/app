@@ -1,5 +1,5 @@
 import Preferences from "react-native-default-preference"
-import { RouteItem } from "../../services/api"
+import { RouteItem } from "@/services/api"
 
 const getUserLocale = () => Preferences.get("userLocale")
 

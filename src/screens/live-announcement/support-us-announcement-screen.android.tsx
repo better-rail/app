@@ -1,12 +1,12 @@
 import { Dimensions, Image, ImageStyle, ScrollView, TextStyle, View, ViewStyle } from "react-native"
-import { Button, Screen, Text } from "../../components"
-import { color, fontScale, spacing } from "../../theme"
-import { translate } from "../../i18n"
+import { Button, Screen, Text } from "@/components"
+import { color, fontScale, spacing } from "@/theme"
+import { translate } from "@/i18n"
 import { useRouter } from "expo-router"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import * as storage from "../../utils/storage"
-import { useIsDarkMode } from "../../hooks"
-import { trackEvent } from "../../services/analytics"
+import * as storage from "@/utils/storage"
+import { useIsDarkMode } from "@/hooks"
+import { trackEvent } from "@/services/analytics"
 
 const deviceHeight = Dimensions.get("screen").height
 const isHighDevice = deviceHeight > 800

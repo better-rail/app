@@ -1,6 +1,6 @@
 import { differenceInMilliseconds, format, formatDuration, intervalToDuration, isAfter, isWithinInterval, parse } from "date-fns"
 import { formatInTimeZone } from "date-fns-tz"
-import { dateDelimiter, dateFnsLocalization } from "../../i18n"
+import { dateDelimiter, dateFnsLocalization } from "@/i18n"
 
 /**
  * Parses a string date as formatted in the Israel Rail API.

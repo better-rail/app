@@ -1,7 +1,7 @@
 import React, { useState, useMemo, ReactNode } from "react"
 import { View, Pressable, TextStyle, ViewStyle, ButtonProps, Platform, ActivityIndicator } from "react-native"
-import { color, fontScale, spacing, typography } from "../../theme"
-import { Text } from "../"
+import { color, fontScale, spacing, typography } from "@/theme"
+import { Text } from "@/components/text/text"
 import { LiquidGlassView, isLiquidGlassSupported } from "@callstack/liquid-glass"
 
 const BUTTON_WRAPPER: ViewStyle = {

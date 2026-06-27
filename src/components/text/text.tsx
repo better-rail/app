@@ -2,7 +2,7 @@ import * as React from "react"
 import { Text as ReactNativeText } from "react-native"
 import { presets } from "./text.presets"
 import type { TextProps } from "./text.props"
-import { translate } from "../../i18n"
+import { translate } from "@/i18n"
 import { mergeAll, flatten } from "ramda"
 
 /**

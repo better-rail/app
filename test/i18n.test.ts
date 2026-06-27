@@ -1,4 +1,4 @@
-const he = require("../src/i18n/he.json")
+const he = require("@/i18n/he.json")
 const { exec } = require("child_process")
 
 // Use this array for keys that for whatever reason aren't greppable so they

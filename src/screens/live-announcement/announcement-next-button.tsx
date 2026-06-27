@@ -1,6 +1,6 @@
-import { Button } from "../../components"
-import { translate } from "../../i18n"
-import { fontScale } from "../../theme"
+import { Button } from "@/components"
+import { translate } from "@/i18n"
+import { fontScale } from "@/theme"
 
 interface NextButtonProps {
   title?: string

@@ -1,6 +1,6 @@
 import { View, Image, ViewStyle } from "react-native"
-import { spacing, color } from "../../theme"
-import { Text } from "../text/text"
+import { spacing, color } from "@/theme"
+import { Text } from "@/components/text/text"
 
 const SEPARATOR_STYLE: ViewStyle = {
   backgroundColor: color.separator,

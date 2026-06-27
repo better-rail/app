@@ -1,8 +1,8 @@
 import { I18nManager, Platform } from "react-native"
 import RNRestart from "react-native-restart-newarch"
-import { setAnalyticsUserProperty } from "../services/analytics"
+import { setAnalyticsUserProperty } from "@/services/analytics"
 import Preferences from "react-native-default-preference"
-import * as storage from "../utils/storage"
+import * as storage from "@/utils/storage"
 
 import * as Localization from "expo-localization"
 import i18n from "i18n-js"

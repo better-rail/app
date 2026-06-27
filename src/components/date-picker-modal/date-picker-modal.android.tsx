@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react"
 import { Modal, Pressable, TextStyle, View, type ViewStyle } from "react-native"
 import { useShallow } from "zustand/react/shallow"
-import { useRoutePlanStore } from "../../models"
-import { dateLocale, translate } from "../../i18n"
-import { color, spacing, isDarkMode } from "../../theme"
+import { useRoutePlanStore } from "@/models"
+import { dateLocale, translate } from "@/i18n"
+import { color, spacing, isDarkMode } from "@/theme"
 import DatePicker from "react-native-date-picker"
-import { Button } from "../button/button"
-import { Text } from "../text/text"
+import { Button } from "@/components/button/button"
+import { Text } from "@/components/text/text"
 
 const MODAL_OVERLAY: ViewStyle = {
   flex: 1,

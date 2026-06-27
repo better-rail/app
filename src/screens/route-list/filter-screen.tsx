@@ -1,11 +1,11 @@
 import { View, ViewStyle, TextStyle, Platform } from "react-native"
-import { Text } from "../../components"
-import { color, spacing } from "../../theme"
+import { Text } from "@/components"
+import { color, spacing } from "@/theme"
 import { useShallow } from "zustand/react/shallow"
-import { useSettingsStore } from "../../models"
-import { SettingBox } from "../settings/components/settings-box"
-import { SETTING_GROUP } from "../settings/settings-styles"
-import { translate } from "../../i18n"
+import { useSettingsStore } from "@/models"
+import { SettingBox } from "@/screens/settings/components/settings-box"
+import { SETTING_GROUP } from "@/screens/settings/settings-styles"
+import { translate } from "@/i18n"
 
 const WRAPPER: ViewStyle = {
   paddingTop: spacing[5],

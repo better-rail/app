@@ -1,7 +1,7 @@
 import React from "react"
 import { Platform, Text, View } from "react-native"
 import ContextMenuView from "react-native-context-menu-view"
-import { color, spacing } from "../../theme"
+import { color, spacing } from "@/theme"
 
 export interface RouteContextMenuAction {
   title: string

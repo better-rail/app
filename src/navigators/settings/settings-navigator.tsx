@@ -1,10 +1,10 @@
 import React from "react"
 import { Platform, type TextStyle } from "react-native"
 import { createStackNavigator, type StackScreenProps } from "@react-navigation/stack"
-import { SettingsScreen, LanguageScreen, UISettingsScreen, TipJarScreen, AboutScreen, PrivacyScreen } from "../../screens"
-import { color, spacing, typography } from "../../theme"
-import { translate } from "../../i18n"
-import { CloseButton } from "../../components"
+import { SettingsScreen, LanguageScreen, UISettingsScreen, TipJarScreen, AboutScreen, PrivacyScreen } from "@/screens"
+import { color, spacing, typography } from "@/theme"
+import { translate } from "@/i18n"
+import { CloseButton } from "@/components"
 
 export type SettingsParamList = {
   settings: undefined

@@ -1,8 +1,8 @@
 import { create } from "zustand"
-import { RouteApi } from "../../services/api/route-api"
+import { RouteApi } from "@/services/api/route-api"
 import { add, closestTo, differenceInMinutes } from "date-fns"
-import { RouteItem } from "../../services/api"
-import { formatDateForAPI } from "../../utils/helpers/date-helpers"
+import { RouteItem } from "@/services/api"
+import { formatDateForAPI } from "@/utils/helpers/date-helpers"
 
 export type StatusType = "idle" | "pending" | "done" | "error"
 export type ResultType = "normal" | "different-date" | "different-hour" | "not-found"

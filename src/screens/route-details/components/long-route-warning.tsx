@@ -1,6 +1,6 @@
 import { TextStyle, View, ViewStyle } from "react-native"
-import { Text } from "../../../components"
-import { color, spacing } from "../../../theme"
+import { Text } from "@/components"
+import { color, spacing } from "@/theme"
 
 const LONG_ROUTE_WARNING_WRAPPER: ViewStyle = {
   justifyContent: "center",

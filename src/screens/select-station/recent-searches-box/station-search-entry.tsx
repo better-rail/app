@@ -3,9 +3,9 @@ import { View, Image, Appearance, Platform } from "react-native"
 import type { ViewStyle, ImageStyle, TextStyle, ImageSourcePropType } from "react-native"
 import { ContextMenuView } from "react-native-ios-context-menu"
 import TouchableScale from "react-native-touchable-scale"
-import { Text } from "../../../components"
-import { translate } from "../../../i18n"
-import { spacing, color } from "../../../theme"
+import { Text } from "@/components"
+import { translate } from "@/i18n"
+import { spacing, color } from "@/theme"
 
 const colorScheme = Appearance.getColorScheme()
 

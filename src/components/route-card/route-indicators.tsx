@@ -1,8 +1,8 @@
 import { Platform, TextStyle, View, ViewStyle } from "react-native"
-import { Text } from "../text/text"
+import { Text } from "@/components/text/text"
 import { DelayBadge } from "./delay-badge"
-import { userLocale } from "../../i18n"
-import { color, spacing } from "../../theme"
+import { userLocale } from "@/i18n"
+import { color, spacing } from "@/theme"
 
 const WRAPPER: ViewStyle = {
   marginTop: Platform.OS === "ios" ? (userLocale === "he" ? 4 : 2) : 6,

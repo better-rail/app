@@ -10,11 +10,11 @@ import {
   Platform,
   Switch,
 } from "react-native"
-import { Text } from "../../../components"
-import { isRTL } from "../../../i18n"
-import { color, spacing } from "../../../theme"
+import { Text } from "@/components"
+import { isRTL } from "@/i18n"
+import { color, spacing } from "@/theme"
 import { isLiquidGlassSupported } from "@callstack/liquid-glass"
-import { settingsBorderRadius } from "../settings-styles"
+import { settingsBorderRadius } from "@/screens/settings/settings-styles"
 
 const chevronIcon = require("../../../../assets/chevron.png")
 const checkmarkIcon = require("../../../../assets/checkmark.png")

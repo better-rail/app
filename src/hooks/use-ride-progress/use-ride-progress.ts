@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react"
 import { AppState } from "react-native"
 import { differenceInMinutes } from "date-fns"
-import { RouteItem } from "../../services/api"
-import { useRideRoute, getStopStationStatus, useRideStatus, getStatusEndDate } from "./"
+import { RouteItem } from "@/services/api"
+import { useRideRoute } from "./use-ride-route"
+import { getStopStationStatus } from "./get-stop-stations-status"
+import { useRideStatus } from "./use-ride-status"
+import { getStatusEndDate } from "./utils"
 
 export type RideStatus = "waitForTrain" | "inTransit" | "inExchange" | "arrived" | "stale"
 

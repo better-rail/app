@@ -1,5 +1,5 @@
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios"
-import { LanguageCode, railApiLocales } from "../../i18n"
+import { LanguageCode, railApiLocales } from "@/i18n"
 import { isEmpty } from "lodash"
 import {
   Announcement,
@@ -9,8 +9,8 @@ import {
   StationInfoApiResult,
   StationInfo,
 } from "./rail-api.types"
-import { railApiKey, API_CONFIG } from "../../config/api-config"
-import { setAnalyticsUserProperty } from "../../services/analytics"
+import { railApiKey, API_CONFIG } from "@/config/api-config"
+import { setAnalyticsUserProperty } from "@/services/analytics"
 
 export class RailApi {
   axiosInstance: AxiosInstance

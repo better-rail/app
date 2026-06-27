@@ -1,5 +1,5 @@
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { spacing } from "../../theme"
+import { spacing } from "@/theme"
 import { ViewStyle } from "react-native"
 
 export const useWidgetWrapperStyle = () => {

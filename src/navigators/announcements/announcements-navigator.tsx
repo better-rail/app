@@ -1,13 +1,13 @@
 import React from "react"
 import { createStackNavigator, StackScreenProps } from "@react-navigation/stack"
-import { CloseButton } from "../../components"
-import { AnnouncementsScreen } from "../../screens/announcements/announcements-screen"
-import { color, spacing, typography } from "../../theme"
+import { CloseButton } from "@/components"
+import { AnnouncementsScreen } from "@/screens/announcements/announcements-screen"
+import { color, spacing, typography } from "@/theme"
 import { Image, Platform, Pressable, TextStyle } from "react-native"
-import { translate } from "../../i18n"
-import { UrgentAnnouncements } from "../../components/announcements/urgent-announcements"
-import { NotificationsSelectStationsScreen } from "../../screens/notifications/notifications-select-stations-screen"
-import { NotificationsSetupScreen } from "../../screens/notifications/notifications-setup-screen"
+import { translate } from "@/i18n"
+import { UrgentAnnouncements } from "@/components/announcements/urgent-announcements"
+import { NotificationsSelectStationsScreen } from "@/screens/notifications/notifications-select-stations-screen"
+import { NotificationsSetupScreen } from "@/screens/notifications/notifications-setup-screen"
 
 export type AnnouncementsParamList = {
   announcement: undefined

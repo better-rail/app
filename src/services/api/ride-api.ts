@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from "axios"
 import { RouteItem } from "./rail-api.types"
-import { userLocale } from "../../i18n"
+import { userLocale } from "@/i18n"
 import { head, last } from "lodash"
 
 export class RideApi {

@@ -1,6 +1,6 @@
 import { ViewStyle } from "react-native"
 import Animated from "react-native-reanimated"
-import { useAnimatedBackground, useAnimatedBorder } from "../../../hooks/animations/use-animated-color-props"
+import { useAnimatedBackground, useAnimatedBorder } from "@/hooks/animations/use-animated-color-props"
 import { RouteElementStateType, useRouteColors } from "./use-route-colors"
 
 const ROUTE_STOP_CIRCLE: ViewStyle = {

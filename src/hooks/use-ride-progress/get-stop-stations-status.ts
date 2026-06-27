@@ -1,7 +1,7 @@
 import { keyBy } from "lodash"
-import { RouteElementStateType } from "../../screens/route-details/components/use-route-colors"
-import { RouteItem } from "../../services/api"
-import { getTrainFromStationId } from "../../utils/helpers/ride-helpers"
+import { RouteElementStateType } from "@/screens/route-details/components/use-route-colors"
+import { RouteItem } from "@/services/api"
+import { getTrainFromStationId } from "@/utils/helpers/ride-helpers"
 import { RideStatus } from "./use-ride-progress"
 
 interface StopStationStatusItem {

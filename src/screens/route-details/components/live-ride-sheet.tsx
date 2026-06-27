@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react"
 import { Pressable, type PressableProps, Image, ActivityIndicator, type ViewStyle, PlatformColor } from "react-native"
-import { color } from "../../../theme"
-import { Text, BottomScreenSheet } from "../../../components"
+import { color } from "@/theme"
+import { Text, BottomScreenSheet } from "@/components"
 import { useRouter } from "expo-router"
 import { useShallow } from "zustand/react/shallow"
-import { useRideStore } from "../../../models"
-import { translate } from "../../../i18n"
-import { trackEvent } from "../../../services/analytics"
+import { useRideStore } from "@/models"
+import { translate } from "@/i18n"
+import { trackEvent } from "@/services/analytics"
 import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
 
 // TODO: add typings to progress

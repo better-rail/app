@@ -1,7 +1,7 @@
 import { Image, ImageStyle, ScrollView, TextStyle, View } from "react-native"
-import { Button, Text } from "../../components"
-import { color, spacing } from "../../theme"
-import { translate, userLocale } from "../../i18n"
+import { Button, Text } from "@/components"
+import { color, spacing } from "@/theme"
+import { translate, userLocale } from "@/i18n"
 import { useRouter } from "expo-router"
 
 const TITLE: TextStyle = {

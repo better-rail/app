@@ -1,12 +1,12 @@
 import React from "react"
 import { createStackNavigator, StackScreenProps } from "@react-navigation/stack"
-import { StartRideAnnouncement, ActivityAnnouncementScreen, DynamicIslandScreen, SupportUsScreen, ZollyAnnouncementScreen } from "../../screens"
+import { StartRideAnnouncement, ActivityAnnouncementScreen, DynamicIslandScreen, SupportUsScreen, ZollyAnnouncementScreen } from "@/screens"
 import { BlurView } from "expo-blur"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { CloseButton } from "../../components"
-import { useIsDarkMode } from "../../hooks"
+import { CloseButton } from "@/components"
+import { useIsDarkMode } from "@/hooks"
 import { Platform } from "react-native"
-import { LiveAnnouncementScreen } from "../../screens/live-announcement/live-announcement-screen"
+import { LiveAnnouncementScreen } from "@/screens/live-announcement/live-announcement-screen"
 
 export type LiveAnnouncementParamList = {
   main: undefined

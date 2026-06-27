@@ -1,5 +1,5 @@
 import { Pressable, TouchableOpacity, type ViewStyle } from "react-native"
-import { color, fontScale, spacing } from "../../theme"
+import { color, fontScale, spacing } from "@/theme"
 import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
 
 const CHIP_WRAPPER: ViewStyle = {

@@ -1,11 +1,11 @@
-import * as storage from "../../utils/storage"
-import { useRoutePlanStore, getRoutePlanSnapshot, hydrateRoutePlanStore, resetRoutePlanStore } from "../route-plan/route-plan"
-import { getTrainRoutesSnapshot, hydrateTrainRoutesStore, resetTrainRoutesStore } from "../train-routes/train-routes"
-import { useRecentSearchesStore, getRecentSearchesSnapshot, hydrateRecentSearchesStore, resetRecentSearchesStore } from "../recent-searches/recent-searches"
-import { useFavoritesStore, getFavoritesSnapshot, hydrateFavoritesStore, resetFavoritesStore } from "../favorites/favorites"
-import { useSettingsStore, getSettingsSnapshot, hydrateSettingsStore, resetSettingsStore } from "../settings/settings"
-import { useRideStore, getRideSnapshot, hydrateRideStore, initializeRideStore, resetRideStore } from "../ride/ride"
-import { useUserStore, getUserSnapshot, hydrateUserStore, resetUserStore } from "../user/user"
+import * as storage from "@/utils/storage"
+import { useRoutePlanStore, getRoutePlanSnapshot, hydrateRoutePlanStore, resetRoutePlanStore } from "@/models/route-plan/route-plan"
+import { getTrainRoutesSnapshot, hydrateTrainRoutesStore, resetTrainRoutesStore } from "@/models/train-routes/train-routes"
+import { useRecentSearchesStore, getRecentSearchesSnapshot, hydrateRecentSearchesStore, resetRecentSearchesStore } from "@/models/recent-searches/recent-searches"
+import { useFavoritesStore, getFavoritesSnapshot, hydrateFavoritesStore, resetFavoritesStore } from "@/models/favorites/favorites"
+import { useSettingsStore, getSettingsSnapshot, hydrateSettingsStore, resetSettingsStore } from "@/models/settings/settings"
+import { useRideStore, getRideSnapshot, hydrateRideStore, initializeRideStore, resetRideStore } from "@/models/ride/ride"
+import { useUserStore, getUserSnapshot, hydrateUserStore, resetUserStore } from "@/models/user/user"
 
 /**
  * The key we'll be saving our state as within async storage.

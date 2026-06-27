@@ -1,8 +1,8 @@
 import { ViewStyle, Platform, View, TextStyle } from "react-native"
 import TouchableScale from "react-native-touchable-scale"
-import { fontScale, spacing, color } from "../../theme"
-import { Text } from "../text/text"
-import { openLink } from "../../utils/helpers/open-link"
+import { fontScale, spacing, color } from "@/theme"
+import { Text } from "@/components/text/text"
+import { openLink } from "@/utils/helpers/open-link"
 import { removeHtmlTagsAndEntities } from "./announcements-utils"
 
 const ANNOUNCEMENT_CARD: ViewStyle = {

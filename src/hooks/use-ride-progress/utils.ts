@@ -1,6 +1,6 @@
 import { addMinutes } from "date-fns"
-import { RouteItem } from "../../services/api"
-import { getTrainFromStationId, getPreviousTrainFromStationId } from "../../utils/helpers/ride-helpers"
+import { RouteItem } from "@/services/api"
+import { getTrainFromStationId, getPreviousTrainFromStationId } from "@/utils/helpers/ride-helpers"
 import { RideStatus } from "./use-ride-progress"
 
 export type RideState = {

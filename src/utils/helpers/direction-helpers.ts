@@ -10,8 +10,8 @@
  *   const dir = getTrainDirection("3700", ["400","300","8600","4900","4600","3700","3600","3500"]); // "N"
  */
 
-import trackBearingsData from "../../data/directions/track_bearings.json"
-import { stationsObject } from "../../data/stations"
+import trackBearingsData from "@/data/directions/track_bearings.json"
+import { stationsObject } from "@/data/stations"
 
 export type Direction = "N" | "S" | "E" | "W"
 

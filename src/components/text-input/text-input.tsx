@@ -1,6 +1,6 @@
 import * as React from "react"
 import { TextInput as RNTextInput, TextInputProps as RNTextInputProps, View, TextStyle, ViewStyle } from "react-native"
-import { color, spacing, typography } from "../../theme"
+import { color, spacing, typography } from "@/theme"
 
 const CONTAINER: ViewStyle = {
   padding: spacing[4],

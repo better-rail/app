@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react"
 import { Alert, Platform, View, type ViewStyle } from "react-native"
-import { Screen } from "../../components"
+import { Screen } from "@/components"
 import { SettingBox } from "./components/settings-box"
-import { color, isDarkMode, spacing } from "../../theme"
-import { changeUserLanguage, translate, userLocale } from "../../i18n"
+import { color, isDarkMode, spacing } from "@/theme"
+import { changeUserLanguage, translate, userLocale } from "@/i18n"
 import HapticFeedback from "react-native-haptic-feedback"
 import { SETTING_GROUP } from "./settings-styles"
-import { messaging } from "../../services/firebase/messaging"
+import { messaging } from "@/services/firebase/messaging"
 import notifee, { AuthorizationStatus } from "@notifee/react-native"
 
 const ROOT: ViewStyle = {

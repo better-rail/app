@@ -10,9 +10,9 @@ import { PaywallNavigator } from "./paywall/paywall-navigator"
 import { LiveAnnouncementNavigator } from "./live-activity-announcement/live-activity-announcement-stack"
 import { AnnouncementsNavigator } from "./announcements/announcements-navigator"
 import { PostHogProvider } from "posthog-react-native"
-import { posthog } from "../services/analytics"
-import { useForceUpdate } from "../hooks/use-force-update"
-import { ForceUpdateScreen } from "../screens/force-update/force-update-screen"
+import { posthog } from "@/services/analytics"
+import { useForceUpdate } from "@/hooks/use-force-update"
+import { ForceUpdateScreen } from "@/screens/force-update/force-update-screen"
 
 export type RootParamList = {
   mainStack: undefined

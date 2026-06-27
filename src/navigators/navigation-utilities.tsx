@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react"
 import { BackHandler } from "react-native"
 import { PartialState, NavigationState, NavigationContainerRef } from "@react-navigation/native"
-import { trackScreenView } from "../services/analytics"
+import { trackScreenView } from "@/services/analytics"
 
 export const RootNavigation = {
   navigate(name: string) {

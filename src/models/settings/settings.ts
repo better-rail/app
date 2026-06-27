@@ -1,6 +1,6 @@
 import { create } from "zustand"
-import { TxKeyPath } from "../../i18n"
-import { PopUpMessage } from "../../services/api"
+import { TxKeyPath } from "@/i18n"
+import { PopUpMessage } from "@/services/api"
 
 export interface SettingsState {
   stationsNotifications: string[]

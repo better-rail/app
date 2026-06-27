@@ -1,7 +1,7 @@
 import { Platform } from "react-native"
 import Share, { ShareOptions } from "react-native-share"
-import { translate } from "../../../i18n"
-import { isShareCancelledError } from "../../../utils/helpers/share-errors"
+import { translate } from "@/i18n"
+import { isShareCancelledError } from "@/utils/helpers/share-errors"
 
 export async function shareApp() {
   const url = "https://better-rail.co.il/"
