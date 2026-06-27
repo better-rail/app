@@ -86,7 +86,14 @@ export function setUserLanguage(languageCode: LanguageCode, allowRestart = false
   }
 
   if (allowRestart) {
-    RNRestart.Restart()
+    // On Android, SharedPreferences.apply() is asynchronous. Without a delay,
+    // Runtime.exit(0) in RNRestart can race with the async write and lose the
+    // forceRTL preference, causing the UI direction to stay stale after restart.
+    if (Platform.OS === "android") {
+      setTimeout(() => RNRestart.Restart(), 300)
+    } else {
+      RNRestart.Restart()
+    }
   }
 }
 

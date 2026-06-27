@@ -5,11 +5,11 @@ import { BottomScreenSheet, Text } from "@/components"
 import { format } from "date-fns"
 import { dateFnsLocalization, translate } from "@/i18n"
 import * as Burnt from "burnt"
-import { useModal } from "react-native-modalfy"
+import { RouteListWarningModal, type WarningType } from "./route-list-warning-modal"
 
 const shouldDisplayModal = Platform.OS === "android"
 
-export type WarningType = "different-hour" | "different-date"
+export type { WarningType }
 
 export interface RouteListModalProps {
   routesDate: number
@@ -23,26 +23,14 @@ export interface RouteListModalProps {
  * For iOS we'll display a native alert, for Android we'll show modal
  */
 export const RouteListWarning = function RouteListWarning({ routesDate, warningType }: RouteListModalProps) {
-  const { openModal } = useModal()
+  const [warningVisible, setWarningVisible] = useState(false)
   const [displayWarningSheet, setDisplayWarningSheet] = useState(false)
   const formattedRoutesDate = format(routesDate, "eeee, dd/MM/yyyy", { locale: dateFnsLocalization })
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: no need!
   useEffect(() => {
     if (shouldDisplayModal) {
-      // so modal won't be opened immidiately; looks nicer
-      setTimeout(
-        () =>
-          openModal("RouteListWarningModal", {
-            warningType,
-            formattedRoutesDate,
-            onClose: () => {
-              setTimeout(() => {
-                setDisplayWarningSheet(true)
-              }, 350)
-            },
-          }),
-        250,
-      )
+      setTimeout(() => setWarningVisible(true), 250)
     }
   }, [])
 
@@ -73,8 +61,21 @@ export const RouteListWarning = function RouteListWarning({ routesDate, warningT
     }
   }, [])
 
+  const handleClose = () => {
+    setWarningVisible(false)
+    setTimeout(() => setDisplayWarningSheet(true), 350)
+  }
+
   return (
     <>
+      {shouldDisplayModal && (
+        <RouteListWarningModal
+          visible={warningVisible}
+          warningType={warningType}
+          formattedRoutesDate={formattedRoutesDate}
+          onClose={handleClose}
+        />
+      )}
       {displayWarningSheet && (
         <Animated.View entering={FadeInDown}>
           <BottomScreenSheet style={{ backgroundColor: "orange" }}>
