@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react"
 import HapticFeedback from "react-native-haptic-feedback"
 import * as Burnt from "burnt"
-import { View, ActivityIndicator, ViewStyle, Dimensions, useColorScheme } from "react-native"
+import { View, ActivityIndicator, Dimensions, useColorScheme } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import Animated from "react-native-reanimated"
 import { FlashList } from "@shopify/flash-list"
 import { useNetworkState } from "expo-network"
@@ -11,7 +12,7 @@ import { useRouter, useLocalSearchParams } from "expo-router"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useShallow } from "zustand/react/shallow"
 import { useTrainRoutesStore, useRoutePlanStore, useRideStore, useSettingsStore } from "@/models"
-import { color, fontScale, spacing } from "@/theme"
+import { fontScale, spacing } from "@/theme"
 import { RouteItem } from "@/services/api"
 import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight } from "@/components"
 import { NoTrainsFoundMessage, RouteListError, RouteListWarning, WarningType, ResultDateCard, DateScroll } from "./components"
@@ -22,11 +23,6 @@ import { addRouteToCalendar } from "@/utils/helpers/calendar-helpers"
 import { getActionSheetStyleOptions } from "@/utils/helpers/action-sheet-helpers"
 import { isRouteInThePast } from "@/utils/helpers/date-helpers"
 import { useActionSheet } from "@expo/react-native-action-sheet"
-
-const ROOT: ViewStyle = {
-  backgroundColor: color.background,
-  flex: 1,
-}
 
 type RouteData = RouteItem | string
 
@@ -449,7 +445,7 @@ export function RouteListScreen() {
 
   return (
     <Screen
-      style={ROOT}
+      style={styles.root}
       preset="fixed"
       unsafe={true}
       statusBar="light-content"
@@ -520,3 +516,10 @@ export function RouteListScreen() {
     </Screen>
   )
 }
+
+const styles = StyleSheet.create((theme) => ({
+  root: {
+    backgroundColor: theme.colors.background,
+    flex: 1,
+  },
+}))

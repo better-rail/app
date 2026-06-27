@@ -1,6 +1,11 @@
-// Early setup — runs before the Expo Router root component mounts.
-// expo-router/entry handles registerRootComponent; this file handles
-// startup-time configuration that must run before the React tree.
+// App entry point — runs before the Expo Router root component mounts.
+//
+// 1. Configure Unistyles FIRST, before any route module (every screen now uses
+//    `StyleSheet.create` from react-native-unistyles) is evaluated by expo-router's
+//    require.context. Importing it in `app/_layout` is too late — routes resolve first.
+// 2. Install the startup-time error / notification guards.
+// 3. Hand off to expo-router/entry LAST (it builds the route tree + registers the root).
+import "./src/theme/unistyles"
 import * as Sentry from "@sentry/react-native"
 import { configureNotifications } from "./src/utils/notification-helpers"
 
@@ -29,3 +34,7 @@ if (global.ErrorUtils) {
 Promise.resolve()
   .then(configureNotifications)
   .catch((e) => console.error("[BetterRail] configureNotifications failed:", e))
+
+// Hand off to Expo Router last — it imports the app/ route tree (whose screens rely on
+// Unistyles already being configured above) and registers the root component.
+require("expo-router/entry")

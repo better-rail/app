@@ -1,9 +1,8 @@
 import { useState } from "react"
 
 import { Platform, Pressable, View } from "react-native"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { StyleSheet } from "react-native-unistyles"
 import { StationListItem } from "./station-list-item"
-import { color, spacing } from "@/theme"
 import { Screen, Text } from "@/components"
 import { useRouter } from "expo-router"
 import { SearchInput } from "@/screens/select-station/search-input"
@@ -18,7 +17,6 @@ import { FlashList } from "@shopify/flash-list"
 export function NotificationsSelectStationsScreen() {
   const router = useRouter()
   const [searchTerm, setSearchTerm] = useState("")
-  const insets = useSafeAreaInsets()
 
   const { stationsNotifications, removeStationNotification, addStationNotification } = useSettingsStore(
     useShallow((s) => ({ stationsNotifications: s.stationsNotifications, removeStationNotification: s.removeStationNotification, addStationNotification: s.addStationNotification }))
@@ -49,19 +47,11 @@ export function NotificationsSelectStationsScreen() {
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
       translucent
     >
-      <View style={{ flex: 1, paddingHorizontal: spacing[3], paddingTop: Platform.OS === "android" ? insets.top : 0 }}>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            marginTop: spacing[3],
-            marginBottom: spacing[2],
-            gap: spacing[3],
-          }}
-        >
+      <View style={styles.container}>
+        <View style={styles.searchRow}>
           <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} autoFocus={false} />
           <Pressable onPress={router.back}>
-            <Text style={{ color: color.primary }}>
+            <Text style={styles.doneText}>
               {translate("common.done")} ({stationsNotifications.length})
             </Text>
           </Pressable>
@@ -76,17 +66,42 @@ export function NotificationsSelectStationsScreen() {
                 image={item.image}
                 selected={selectedStations.includes(item.id)}
                 onSelect={() => onSelected(item.id)}
-                style={{ marginBottom: spacing[3] }}
+                style={styles.listItem}
               />
             )
           }}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ paddingTop: spacing[2], paddingBottom: spacing[5] }}
+          contentContainerStyle={styles.listContent}
           extraData={stationsNotifications}
         />
       </View>
     </Screen>
   )
 }
+
+const styles = StyleSheet.create((theme, rt) => ({
+  container: {
+    flex: 1,
+    paddingHorizontal: theme.spacing[3],
+    paddingTop: Platform.OS === "android" ? rt.insets.top : 0,
+  },
+  searchRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: theme.spacing[3],
+    marginBottom: theme.spacing[2],
+    gap: theme.spacing[3],
+  },
+  doneText: {
+    color: theme.colors.primary,
+  },
+  listItem: {
+    marginBottom: theme.spacing[3],
+  },
+  listContent: {
+    paddingTop: theme.spacing[2],
+    paddingBottom: theme.spacing[5],
+  },
+}))

@@ -1,12 +1,13 @@
-import { StyleSheet, TextStyle, View, ViewStyle } from "react-native"
+import { View } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text, CloseButton } from "@/components"
-import { color, spacing } from "@/theme"
+import { color } from "@/theme"
 import { useState } from "react"
 import { SubscriptionTypeBox, SubscriptionTypes } from "./subscription-type-box"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { SubscribeButtonSheet } from "./subscribe-button-sheet"
 import { FeaturesBox } from "./paywall-features-box"
-import { isRTL, translate } from "@/i18n"
+import { translate } from "@/i18n"
 import { BlurView } from "expo-blur"
 import Animated, {
   Extrapolate,
@@ -19,30 +20,6 @@ import { Header, HeaderBackButton, useHeaderHeight } from "expo-router/react-nav
 import { useRouter } from "expo-router"
 import { Stack } from "expo-router/stack"
 import * as Burnt from "burnt"
-
-// #region styles
-const HEAD_WRAPPER: ViewStyle = {
-  alignItems: "center",
-  marginBottom: spacing[5],
-}
-
-const BETTER_RAIL_PRO_TITLE: TextStyle = {
-  marginBottom: spacing[0],
-  textAlign: "center",
-  fontSize: 28,
-  fontWeight: "700",
-  fontFamily: "System",
-  letterSpacing: -0.85,
-}
-
-const BETTER_RAIL_PRO_SUBTITLE: TextStyle = {
-  textAlign: "center",
-  letterSpacing: -0.4,
-  paddingHorizontal: 24,
-  fontSize: isRTL ? 18 : 16,
-}
-
-// #endregion
 
 export function PaywallScreen() {
   const [subscriptionType, setSubscriptionType] = useState<SubscriptionTypes>("annual")
@@ -75,7 +52,7 @@ export function PaywallScreen() {
         />
       )}
       headerTitle={() => (
-        <Animated.Text style={[{ fontSize: 17, fontWeight: 600, color: color.text }, headerOpacity]}>
+        <Animated.Text style={[styles.headerTitleText, headerOpacity]}>
           Better Rail Pro
         </Animated.Text>
       )}
@@ -101,29 +78,29 @@ export function PaywallScreen() {
   }
 
   return (
-    <Screen style={{ flex: 1, backgroundColor: color.background }}>
+    <Screen style={styles.screen}>
       <Stack.Screen options={{ header: customHeader }} />
       <Animated.ScrollView
         onScroll={scrollHandler}
-        style={{ height: "100%" }}
+        style={styles.scrollView}
         scrollEventThrottle={1}
         contentContainerStyle={{ paddingTop: 10 + insets.top, paddingBottom: 120 + insets.bottom }}
       >
-        <View style={HEAD_WRAPPER}>
-          <View style={{ width: 200, height: 200, backgroundColor: "grey", borderRadius: 8, marginBottom: 24 }} />
-          <Text style={BETTER_RAIL_PRO_TITLE}>Better Rail Pro</Text>
-          <Text tx="paywall.intro" style={[BETTER_RAIL_PRO_SUBTITLE, { paddingHorizontal: spacing[6] }]} />
+        <View style={styles.headWrapper}>
+          <View style={styles.placeholder} />
+          <Text style={styles.betterRailProTitle}>Better Rail Pro</Text>
+          <Text tx="paywall.intro" style={[styles.betterRailProSubtitle, styles.introSubtitle]} />
         </View>
 
-        <View style={{ gap: 18 }}>
+        <View style={styles.featuresWrapper}>
           <FeaturesBox />
 
           <View>
             <Text
               tx="paywall.tryFree"
-              style={[BETTER_RAIL_PRO_SUBTITLE, { fontSize: 20, fontWeight: "500", marginBottom: -2 }]}
+              style={[styles.betterRailProSubtitle, styles.tryFreeSubtitle]}
             />
-            <Text tx="paywall.afterTrial" style={BETTER_RAIL_PRO_SUBTITLE} />
+            <Text tx="paywall.afterTrial" style={styles.betterRailProSubtitle} />
           </View>
 
           <SubscriptionTypeBox value={subscriptionType} onChange={setSubscriptionType} />
@@ -134,3 +111,54 @@ export function PaywallScreen() {
     </Screen>
   )
 }
+
+const styles = StyleSheet.create((theme, rt) => ({
+  screen: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  scrollView: {
+    height: "100%",
+  },
+  headerTitleText: {
+    fontSize: 17,
+    fontWeight: 600,
+    color: theme.colors.text,
+  },
+  headWrapper: {
+    alignItems: "center",
+    marginBottom: theme.spacing[5],
+  },
+  placeholder: {
+    width: 200,
+    height: 200,
+    backgroundColor: "grey",
+    borderRadius: 8,
+    marginBottom: 24,
+  },
+  betterRailProTitle: {
+    marginBottom: theme.spacing[0],
+    textAlign: "center",
+    fontSize: 28,
+    fontWeight: "700",
+    fontFamily: "System",
+    letterSpacing: -0.85,
+  },
+  betterRailProSubtitle: {
+    textAlign: "center",
+    letterSpacing: -0.4,
+    paddingHorizontal: 24,
+    fontSize: rt.rtl ? 18 : 16,
+  },
+  introSubtitle: {
+    paddingHorizontal: theme.spacing[6],
+  },
+  featuresWrapper: {
+    gap: 18,
+  },
+  tryFreeSubtitle: {
+    fontSize: 20,
+    fontWeight: "500",
+    marginBottom: -2,
+  },
+}))

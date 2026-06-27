@@ -1,9 +1,8 @@
 import React from "react"
-import { Linking, Platform, View, ViewStyle, TextStyle } from "react-native"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { Linking, Platform, View } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
 import { Button } from "@/components/button/button"
-import { color, spacing } from "@/theme"
 import { translate } from "@/i18n"
 import { trackEvent } from "@/services/analytics"
 
@@ -12,61 +11,62 @@ const STORE_URL = Platform.select({
   android: "market://details?id=com.betterrail",
 })!
 
-const CONTAINER: ViewStyle = {
-  flex: 1,
-  backgroundColor: color.background,
-  paddingHorizontal: spacing[4],
-}
-
-const CONTENT: ViewStyle = {
-  flex: 1,
-  justifyContent: "center",
-  alignItems: "center",
-  gap: 12,
-}
-
-const EMOJI: TextStyle = {
-  fontSize: 64,
-  marginBottom: spacing[2],
-}
-
-const TITLE: TextStyle = {
-  fontSize: 24,
-  fontWeight: "700",
-  textAlign: "center",
-}
-
-const DESCRIPTION: TextStyle = {
-  fontSize: 16,
-  textAlign: "center",
-  color: color.text,
-  lineHeight: 24,
-}
-
-const BUTTON: ViewStyle = {
-  minWidth: "100%",
-}
-
-const BUTTON_LIQUID_GLASS: ViewStyle = {
-  minWidth: "100%",
-}
-
 export function ForceUpdateScreen() {
-  const insets = useSafeAreaInsets()
-
   const onPress = () => {
     trackEvent("force_update_store_press")
     Linking.openURL(STORE_URL)
   }
 
   return (
-    <View style={[CONTAINER, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-      <View style={CONTENT}>
-        <Text style={EMOJI}>🚂</Text>
-        <Text style={TITLE}>{translate("forceUpdate.title")}</Text>
-        <Text style={DESCRIPTION}>{translate("forceUpdate.description")}</Text>
-        <Button title={translate("forceUpdate.button")} onPress={onPress} containerStyle={BUTTON} style={BUTTON_LIQUID_GLASS} />
+    <View style={styles.container}>
+      <View style={styles.content}>
+        <Text style={styles.emoji}>🚂</Text>
+        <Text style={styles.title}>{translate("forceUpdate.title")}</Text>
+        <Text style={styles.description}>{translate("forceUpdate.description")}</Text>
+        <Button
+          title={translate("forceUpdate.button")}
+          onPress={onPress}
+          containerStyle={styles.button}
+          style={styles.buttonLiquidGlass}
+        />
       </View>
     </View>
   )
 }
+
+const styles = StyleSheet.create((theme, rt) => ({
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+    paddingHorizontal: theme.spacing[4],
+    paddingTop: rt.insets.top,
+    paddingBottom: rt.insets.bottom,
+  },
+  content: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 12,
+  },
+  emoji: {
+    fontSize: 64,
+    marginBottom: theme.spacing[2],
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "700",
+    textAlign: "center",
+  },
+  description: {
+    fontSize: 16,
+    textAlign: "center",
+    color: theme.colors.text,
+    lineHeight: 24,
+  },
+  button: {
+    minWidth: "100%",
+  },
+  buttonLiquidGlass: {
+    minWidth: "100%",
+  },
+}))

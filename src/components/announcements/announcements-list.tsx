@@ -1,9 +1,9 @@
 import React from "react"
-import { ActivityIndicator, Button, Image, TextStyle, View, ViewStyle } from "react-native"
+import { ActivityIndicator, Button, Image, View } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { useQuery } from "react-query"
 import { translate, userLocale } from "@/i18n"
 import { Announcement, PopUpMessage, railApi } from "@/services/api"
-import { color, spacing } from "@/theme"
 import { AnnouncementCard } from "./announcement-card"
 import { Text } from "@/components/text/text"
 
@@ -30,7 +30,7 @@ export const AnnouncementsList: React.FC<AnnouncementsListProps> = ({ updatesTyp
       return <></>
     }
 
-    return <ActivityIndicator style={{ marginTop: spacing[5] }} size="large" />
+    return <ActivityIndicator style={styles.loader} size="large" />
   }
 
   if (isError) {
@@ -52,27 +52,38 @@ export const AnnouncementsList: React.FC<AnnouncementsListProps> = ({ updatesTyp
   )
 }
 
-const ERORR_MESSAGE_WRAPPER: ViewStyle = {
-  paddingHorizontal: spacing[3],
-  alignItems: "center",
-}
-
-const ERORR_MESSAGE_TEXT: TextStyle = {
-  fontSize: 20,
-  fontWeight: "bold",
-  marginBottom: spacing[1],
-}
-
 function ErrorMessage({ refetch }) {
   return (
-    <View style={ERORR_MESSAGE_WRAPPER}>
-      <Image
-        source={require("../../../assets/info.png")}
-        style={{ width: 80, height: 80, marginBottom: spacing[0], tintColor: color.error }}
-      />
-      <Text tx="common.error" style={ERORR_MESSAGE_TEXT} />
-      <Text tx="routes.updatesError" style={{ textAlign: "center", marginBottom: spacing[2] }} />
+    <View style={styles.errorMessageWrapper}>
+      <Image source={require("../../../assets/info.png")} style={styles.errorIcon} />
+      <Text tx="common.error" style={styles.errorMessageText} />
+      <Text tx="routes.updatesError" style={styles.errorDescription} />
       <Button onPress={() => refetch()} title={translate("common.tryAgain")} />
     </View>
   )
 }
+
+const styles = StyleSheet.create((theme) => ({
+  loader: {
+    marginTop: theme.spacing[5],
+  },
+  errorMessageWrapper: {
+    paddingHorizontal: theme.spacing[3],
+    alignItems: "center",
+  },
+  errorMessageText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: theme.spacing[1],
+  },
+  errorIcon: {
+    width: 80,
+    height: 80,
+    marginBottom: theme.spacing[0],
+    tintColor: theme.colors.error,
+  },
+  errorDescription: {
+    textAlign: "center",
+    marginBottom: theme.spacing[2],
+  },
+}))

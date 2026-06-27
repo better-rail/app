@@ -1,7 +1,7 @@
 import { Button, Screen, Text } from "@/components"
 import { useRouter } from "expo-router"
 import { Alert, Linking, Platform, ScrollView, View } from "react-native"
-import { color, spacing } from "@/theme"
+import { StyleSheet } from "react-native-unistyles"
 import notifee, { AuthorizationStatus } from "@notifee/react-native"
 import { useEffect, useState } from "react"
 import { translate, userLocale } from "@/i18n"
@@ -77,30 +77,28 @@ export function NotificationsSetupScreen() {
 
   return (
     <Screen
-      style={{ paddingHorizontal: spacing[4], flex: 1 }}
+      style={styles.screen}
       unsafe
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
       translucent
     >
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={{ paddingBottom: spacing[6] }}>
-          <View style={{ marginVertical: spacing[2], gap: spacing[2] }}>
-            <Text style={{ textAlign: "center", fontSize: 56 }}>🔔</Text>
+        <View style={styles.contentWrapper}>
+          <View style={styles.emojiWrapper}>
+            <Text style={styles.emoji}>🔔</Text>
             {notificationPermission && (
               <Text
                 tx="announcements.notifications.notificationSetupContent"
-                style={{ textAlign: "center", paddingHorizontal: spacing[3], marginBottom: spacing[2] }}
+                style={styles.setupContent}
               />
             )}
           </View>
 
           {notificationPermission ? (
-            <View style={{ flex: 1, gap: 12 }}>
+            <View style={styles.permissionGrantedWrapper}>
               {favoriteStations.length > 0 && (
-                <View
-                  style={{ borderBottomWidth: 1, borderColor: Platform.select({ ios: color.separator, android: "lightgrey" }) }}
-                >
-                  <Text tx="announcements.notifications.stationsFromFavorites" style={{ fontWeight: "500" }} />
+                <View style={styles.sectionHeader}>
+                  <Text tx="announcements.notifications.stationsFromFavorites" style={styles.sectionHeaderText} />
                 </View>
               )}
 
@@ -110,22 +108,14 @@ export function NotificationsSetupScreen() {
               })}
 
               {stationsNotifications.length > 0 && (
-                <View
-                  style={{
-                    flex: 1,
-                    flexDirection: "row",
-                    borderBottomWidth: 1,
-                    justifyContent: "space-between",
-                    borderColor: Platform.select({ ios: color.separator, android: "lightgrey" }),
-                  }}
-                >
+                <View style={styles.sectionHeaderRow}>
                   <Text
                     tx={
                       favoriteStations.length > 0
                         ? "announcements.notifications.selectedStations"
                         : "announcements.notifications.stations"
                     }
-                    style={{ fontWeight: "500" }}
+                    style={styles.sectionHeaderText}
                   />
                 </View>
               )}
@@ -143,13 +133,13 @@ export function NotificationsSetupScreen() {
 
               <Text
                 tx="announcements.notifications.notificationNote"
-                style={{ textAlign: "center", opacity: 0.8 }}
+                style={styles.note}
                 preset="small"
               />
             </View>
           ) : (
-            <View style={{ gap: 16 }}>
-              <Text tx="announcements.notifications.requestPermissionContent" style={{ textAlign: "center" }} />
+            <View style={styles.requestPermissionWrapper}>
+              <Text tx="announcements.notifications.requestPermissionContent" style={styles.requestPermissionText} />
 
               <Button
                 title={translate("announcements.notifications.enableNotifications")}
@@ -163,3 +153,54 @@ export function NotificationsSetupScreen() {
     </Screen>
   )
 }
+
+const styles = StyleSheet.create((theme) => ({
+  screen: {
+    paddingHorizontal: theme.spacing[4],
+    flex: 1,
+  },
+  contentWrapper: {
+    paddingBottom: theme.spacing[6],
+  },
+  emojiWrapper: {
+    marginVertical: theme.spacing[2],
+    gap: theme.spacing[2],
+  },
+  emoji: {
+    textAlign: "center",
+    fontSize: 56,
+  },
+  setupContent: {
+    textAlign: "center",
+    paddingHorizontal: theme.spacing[3],
+    marginBottom: theme.spacing[2],
+  },
+  permissionGrantedWrapper: {
+    flex: 1,
+    gap: 12,
+  },
+  sectionHeader: {
+    borderBottomWidth: 1,
+    borderColor: Platform.select({ ios: theme.colors.separator, android: "lightgrey" }),
+  },
+  sectionHeaderRow: {
+    flex: 1,
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    justifyContent: "space-between",
+    borderColor: Platform.select({ ios: theme.colors.separator, android: "lightgrey" }),
+  },
+  sectionHeaderText: {
+    fontWeight: "500",
+  },
+  note: {
+    textAlign: "center",
+    opacity: 0.8,
+  },
+  requestPermissionWrapper: {
+    gap: 16,
+  },
+  requestPermissionText: {
+    textAlign: "center",
+  },
+}))

@@ -1,28 +1,9 @@
 import * as React from "react"
-import { Platform, TextStyle, TouchableOpacity, ViewStyle, PressableProps } from "react-native"
-import { color, spacing, typography } from "@/theme"
+import { Platform, TouchableOpacity, ViewStyle, PressableProps } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
+import { color } from "@/theme"
 import { Text } from "@/components/text/text"
 import { isLiquidGlassSupported } from "@callstack/liquid-glass"
-
-const CONTAINER: ViewStyle = {
-  padding: spacing[4],
-  backgroundColor: color.inputBackground,
-  borderRadius: Platform.select({ ios: isLiquidGlassSupported ? 16 : 12, android: 6 }),
-  borderCurve: "continuous",
-  shadowColor: color.palette.black,
-  shadowOffset: { height: 0, width: 0 },
-  shadowOpacity: 0.2,
-  shadowRadius: 0,
-  elevation: 1,
-}
-
-const TEXT: TextStyle = {
-  fontFamily: typography.primary,
-  fontWeight: "500",
-  fontSize: 16,
-  textAlign: "left",
-  color: color.dim,
-}
 
 export interface DummyInputProps extends PressableProps {
   /**
@@ -61,11 +42,11 @@ export const DummyInput = function DummyInput(props: DummyInputProps) {
   if (label) {
     return (
       <TouchableOpacity
-        style={[CONTAINER, style, { flexDirection: "row", justifyContent: "space-between", alignItems: "center" }]}
+        style={[styles.container, style, { flexDirection: "row", justifyContent: "space-between", alignItems: "center" }]}
         activeOpacity={0.75}
         {...rest}
       >
-        <Text style={[TEXT, value && { color: color.text }]}>{label}</Text>
+        <Text style={[styles.text, value && { color: color.text }]}>{label}</Text>
         <Text style={value && { color: color.text }}>{value || placeholder}</Text>
       </TouchableOpacity>
     )
@@ -73,12 +54,33 @@ export const DummyInput = function DummyInput(props: DummyInputProps) {
 
   return (
     <TouchableOpacity
-      style={[CONTAINER, style, { flexDirection: "row", justifyContent: "space-between", alignItems: "center" }]}
+      style={[styles.container, style, { flexDirection: "row", justifyContent: "space-between", alignItems: "center" }]}
       activeOpacity={0.75}
       {...rest}
     >
-      <Text style={[TEXT, value && { color: color.text }]}>{value || placeholder}</Text>
+      <Text style={[styles.text, value && { color: color.text }]}>{value || placeholder}</Text>
       {endSection}
     </TouchableOpacity>
   )
 }
+
+const styles = StyleSheet.create((theme) => ({
+  container: {
+    padding: theme.spacing[4],
+    backgroundColor: theme.colors.inputBackground,
+    borderRadius: Platform.select({ ios: isLiquidGlassSupported ? 16 : 12, android: 6 }),
+    borderCurve: "continuous",
+    shadowColor: theme.colors.palette.black,
+    shadowOffset: { height: 0, width: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 0,
+    elevation: 1,
+  },
+  text: {
+    fontFamily: theme.typography.primary,
+    fontWeight: "500",
+    fontSize: 16,
+    textAlign: "left",
+    color: theme.colors.dim,
+  },
+}))

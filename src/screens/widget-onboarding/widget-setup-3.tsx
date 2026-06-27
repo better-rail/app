@@ -1,76 +1,38 @@
 import React from "react"
-import { View, TextStyle, ViewStyle, ImageStyle, Image, Dimensions } from "react-native"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { View, Image } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text, Button } from "@/components"
 import { translate } from "@/i18n"
 import * as storage from "@/utils/storage"
 import { useRouter } from "expo-router"
-import { color, fontScale, spacing } from "@/theme"
 import { WidgetOnboardingBackground } from "./widget-onboarding-background"
 import { useWidgetWrapperStyle } from "./widget-styles"
 import { trackEvent } from "@/services/analytics"
 import { requestStoreReview } from "@/utils/helpers/store-review-helpers"
 
-const { width: deviceWidth } = Dimensions.get("screen")
-
-const TITLE: TextStyle = {
-  color: color.whiteText,
-  marginBottom: spacing[3],
-  fontSize: 32,
-  textAlign: "center",
-}
-
-const TEXT: TextStyle = {
-  color: color.whiteText,
-  marginBottom: spacing[3],
-}
-
-const IMAGE_CONTAINER: ViewStyle = {
-  alignItems: "center",
-  overflow: "hidden",
-  shadowOffset: { width: 0, height: 0 },
-  shadowColor: color.palette.black,
-  shadowRadius: 5,
-  shadowOpacity: 0.5,
-  marginBottom: spacing[1],
-}
-
-const IMAGE_STYLE: ImageStyle = {
-  width: 300,
-  borderWidth: 1,
-  borderColor: "rgba(0, 0, 0, 1)",
-  height: 150,
-  resizeMode: "contain",
-  marginHorizontal: -24,
-  borderRadius: 12,
-  marginTop: spacing[2],
-  marginBottom: spacing[4],
-}
-
 export const WidgetStep3 = function WidgetStep3() {
   const router = useRouter()
-  const insets = useSafeAreaInsets()
   const wrapperStyle = useWidgetWrapperStyle()
 
   return (
     <Screen unsafe={true} statusBar="light-content" preset="scroll">
       <WidgetOnboardingBackground />
       <View style={wrapperStyle}>
-        <Text preset="header" style={TITLE} tx="widgetOnboarding.stacking" />
+        <Text preset="header" style={styles.title} tx="widgetOnboarding.stacking" />
 
-        <Text style={[TEXT, { textAlign: "center", marginBottom: spacing[5] }]} tx="widgetOnboarding.stackingIntro" />
-        <Text style={TEXT} tx="widgetOnboarding.stackingStep1" />
-        <Text style={TEXT} tx="widgetOnboarding.stackingStep2" />
+        <Text style={[styles.text, styles.introText]} tx="widgetOnboarding.stackingIntro" />
+        <Text style={styles.text} tx="widgetOnboarding.stackingStep1" />
+        <Text style={styles.text} tx="widgetOnboarding.stackingStep2" />
       </View>
-      <View style={IMAGE_CONTAINER}>
-        <Image source={require("../../../assets/widget-stack-hebrew.gif")} style={IMAGE_STYLE} />
+      <View style={styles.imageContainer}>
+        <Image source={require("../../../assets/widget-stack-hebrew.gif")} style={styles.image} />
       </View>
-      <View style={{ paddingHorizontal: spacing[6], marginBottom: spacing[3] }}>
-        <Text style={TEXT} tx="widgetOnboarding.stackingStep3" />
-        <Text style={TEXT} tx="widgetOnboarding.stackingStep4" />
+      <View style={styles.step3Container}>
+        <Text style={styles.text} tx="widgetOnboarding.stackingStep3" />
+        <Text style={styles.text} tx="widgetOnboarding.stackingStep4" />
       </View>
 
-      <View style={{ alignItems: "center", marginTop: fontScale < 1.2 ? spacing[4] + 12 : 0, marginBottom: insets.bottom + 4 }}>
+      <View style={styles.buttonContainer}>
         <Button
           title={translate("common.done")}
           onPress={() => {
@@ -85,9 +47,58 @@ export const WidgetStep3 = function WidgetStep3() {
               }
             })
           }}
-          containerStyle={{ width: deviceWidth - 40 }}
+          containerStyle={styles.button}
         />
       </View>
     </Screen>
   )
 }
+
+const styles = StyleSheet.create((theme, rt) => ({
+  title: {
+    color: theme.colors.whiteText,
+    marginBottom: theme.spacing[3],
+    fontSize: 32,
+    textAlign: "center",
+  },
+  text: {
+    color: theme.colors.whiteText,
+    marginBottom: theme.spacing[3],
+  },
+  introText: {
+    textAlign: "center",
+    marginBottom: theme.spacing[5],
+  },
+  imageContainer: {
+    alignItems: "center",
+    overflow: "hidden",
+    shadowOffset: { width: 0, height: 0 },
+    shadowColor: theme.colors.palette.black,
+    shadowRadius: 5,
+    shadowOpacity: 0.5,
+    marginBottom: theme.spacing[1],
+  },
+  image: {
+    width: 300,
+    borderWidth: 1,
+    borderColor: "rgba(0, 0, 0, 1)",
+    height: 150,
+    resizeMode: "contain",
+    marginHorizontal: -24,
+    borderRadius: 12,
+    marginTop: theme.spacing[2],
+    marginBottom: theme.spacing[4],
+  },
+  step3Container: {
+    paddingHorizontal: theme.spacing[6],
+    marginBottom: theme.spacing[3],
+  },
+  buttonContainer: {
+    alignItems: "center",
+    marginTop: rt.fontScale < 1.2 ? theme.spacing[4] + 12 : 0,
+    marginBottom: rt.insets.bottom + 4,
+  },
+  button: {
+    width: rt.screen.width - 40,
+  },
+}))

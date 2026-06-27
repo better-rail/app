@@ -1,4 +1,5 @@
-import { OpaqueColorValue, TextStyle, View, ViewStyle } from "react-native"
+import { OpaqueColorValue, View } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { Text, List, ListItem } from "@/components"
 import { color } from "@/theme"
 import BouncyCheckbox from "react-native-bouncy-checkbox"
@@ -6,27 +7,6 @@ import { useIsDarkMode } from "@/hooks/use-is-dark-mode"
 import { translate } from "@/i18n"
 
 export type SubscriptionTypes = "annual" | "monthly"
-
-const ANNUAL_ITEM_TITLE_WRAPPER: ViewStyle = {
-  flexDirection: "row",
-  alignItems: "center",
-  gap: 6,
-  marginBottom: 2,
-}
-
-const ANNUAL_ITEM_TITLE: TextStyle = {
-  fontSize: 18,
-}
-
-const ITEM_SUBTITLE: TextStyle = {
-  fontSize: 14,
-  color: color.dim,
-}
-
-const SUBSCRIPTION_PRICE: TextStyle = {
-  color: color.grey,
-  fontSize: 18,
-}
 
 interface SubscriptionTypeBoxProps {
   value: SubscriptionTypes
@@ -44,50 +24,72 @@ export function SubscriptionTypeBox({ value, onChange }: SubscriptionTypeBoxProp
     <List>
       <ListItem
         title={
-          <View style={ANNUAL_ITEM_TITLE_WRAPPER}>
-            <Text tx="paywall.annual" style={ANNUAL_ITEM_TITLE} />
+          <View style={styles.annualItemTitleWrapper}>
+            <Text tx="paywall.annual" style={styles.annualItemTitle} />
             <DiscountBadge value={30} backgroundColor={fillColor} />
           </View>
         }
         subtitle={
-          <View style={{ flexDirection: "row", gap: 3 }}>
-            <Text style={[ITEM_SUBTITLE, { textDecorationLine: "line-through" }]}>₪82.90</Text>
-            <Text style={ITEM_SUBTITLE}>{translate("paywall.yearlyPrice", { price: "59.90₪" })}</Text>
+          <View style={styles.subtitleRow}>
+            <Text style={[styles.itemSubtitle, { textDecorationLine: "line-through" }]}>₪82.90</Text>
+            <Text style={styles.itemSubtitle}>{translate("paywall.yearlyPrice", { price: "59.90₪" })}</Text>
           </View>
         }
         onPress={() => onChange("annual")}
         startBoxItem={<BouncyCheckbox disableBuiltInState isChecked={value === "annual"} fillColor={fillColor} />}
-        endBoxItem={<Text style={SUBSCRIPTION_PRICE}>{translate("paywall.monthlyPrice", { price: "4.90₪" })}</Text>}
+        endBoxItem={<Text style={styles.subscriptionPrice}>{translate("paywall.monthlyPrice", { price: "4.90₪" })}</Text>}
       />
       <ListItem
         title={translate("paywall.monthly")}
         onPress={() => onChange("monthly")}
         startBoxItem={<BouncyCheckbox disableBuiltInState isChecked={value === "monthly"} fillColor={fillColor} />}
-        endBoxItem={<Text style={SUBSCRIPTION_PRICE}>{translate("paywall.monthlyPrice", { price: "6.90₪" })}</Text>}
+        endBoxItem={<Text style={styles.subscriptionPrice}>{translate("paywall.monthlyPrice", { price: "6.90₪" })}</Text>}
       />
     </List>
   )
 }
 
-const DISCOUNT_BADGE_WRAPPER: ViewStyle = {
-  borderRadius: 4,
-  paddingHorizontal: 3,
-  paddingVertical: 2,
-  marginBottom: 1,
-}
-
-const DISCOUNT_BADGE_TEXT: TextStyle = {
-  fontSize: 14,
-  fontFamily: "System",
-  fontWeight: "bold",
-  letterSpacing: -0.5,
-  color: color.whiteText,
-}
-
 const DiscountBadge = ({ value, backgroundColor }: { value: number; backgroundColor: string | OpaqueColorValue }) => {
   return (
-    <View style={[DISCOUNT_BADGE_WRAPPER, { backgroundColor: backgroundColor }]}>
-      <Text style={DISCOUNT_BADGE_TEXT}>-{value}%</Text>
+    <View style={[styles.discountBadgeWrapper, { backgroundColor: backgroundColor }]}>
+      <Text style={styles.discountBadgeText}>-{value}%</Text>
     </View>
   )
 }
+
+const styles = StyleSheet.create((theme) => ({
+  annualItemTitleWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 2,
+  },
+  annualItemTitle: {
+    fontSize: 18,
+  },
+  subtitleRow: {
+    flexDirection: "row",
+    gap: 3,
+  },
+  itemSubtitle: {
+    fontSize: 14,
+    color: theme.colors.dim,
+  },
+  subscriptionPrice: {
+    color: theme.colors.grey,
+    fontSize: 18,
+  },
+  discountBadgeWrapper: {
+    borderRadius: 4,
+    paddingHorizontal: 3,
+    paddingVertical: 2,
+    marginBottom: 1,
+  },
+  discountBadgeText: {
+    fontSize: 14,
+    fontFamily: "System",
+    fontWeight: "bold",
+    letterSpacing: -0.5,
+    color: theme.colors.whiteText,
+  },
+}))

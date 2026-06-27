@@ -1,25 +1,7 @@
 import React from "react"
-import { Image, ImageStyle, TextStyle, View, ViewStyle } from "react-native"
+import { Image, View } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
-import { spacing, color } from "@/theme"
-
-const MESSAGE_WRAPPER: ViewStyle = {
-  justifyContent: "center",
-  alignItems: "center",
-  marginTop: spacing[8],
-  paddingHorizontal: spacing[5],
-}
-
-const ICON: ImageStyle = {
-  width: 45,
-  marginBottom: spacing[4],
-  tintColor: color.dim,
-  opacity: 0.75,
-}
-
-const TEXT: TextStyle = {
-  textAlign: "center",
-}
 
 type Props = {
   errorType: "no-internet" | "request-error"
@@ -32,9 +14,27 @@ export const RouteListError: React.FC<Props> = function NoInternetConnection({ e
   const textKey = errorType === "no-internet" ? "routes.noInternetConnection" : "routes.routesError"
 
   return (
-    <View style={MESSAGE_WRAPPER}>
-      <Image source={imageSrc} style={[ICON, { height: errorType === "no-internet" ? 36 : 45 }]} />
-      <Text style={TEXT} tx={textKey} />
+    <View style={styles.messageWrapper}>
+      <Image source={imageSrc} style={[styles.icon, { height: errorType === "no-internet" ? 36 : 45 }]} />
+      <Text style={styles.text} tx={textKey} />
     </View>
   )
 }
+
+const styles = StyleSheet.create((theme) => ({
+  messageWrapper: {
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: theme.spacing[8],
+    paddingHorizontal: theme.spacing[5],
+  },
+  icon: {
+    width: 45,
+    marginBottom: theme.spacing[4],
+    tintColor: theme.colors.dim,
+    opacity: 0.75,
+  },
+  text: {
+    textAlign: "center",
+  },
+}))

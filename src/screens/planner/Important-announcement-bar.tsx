@@ -1,16 +1,10 @@
 import { useEffect } from "react"
-import { Dimensions, type TextStyle, TouchableOpacity } from "react-native"
+import { Dimensions, TouchableOpacity } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import Animated, { useAnimatedStyle, useSharedValue, withDelay, withTiming } from "react-native-reanimated"
-import { color, fontScale } from "@/theme"
 import { useRouter } from "expo-router"
 import { trackEvent } from "@/services/analytics"
 import { removeHtmlTagsAndEntities } from "@/components/announcements/announcements-utils"
-
-const TEXT_STYLE: TextStyle = {
-  color: color.whiteText,
-  fontWeight: "bold",
-  textAlign: "left",
-}
 
 const { width: deviceWidth } = Dimensions.get("screen")
 const barWidth = deviceWidth - 106 // 106 is the padding of the screen + header buttons
@@ -48,22 +42,8 @@ export function ImportantAnnouncementBar({ title }: { title: string }) {
   }))
 
   return (
-    <AnimatedTouchable
-      activeOpacity={0.75}
-      style={[
-        {
-          height: fontScale > 1 ? 40 : 32,
-          marginTop: 12,
-          justifyContent: "center",
-          paddingHorizontal: 10,
-          backgroundColor: "#e74c3c",
-          borderRadius: 10,
-        },
-        WrapperAnimatedStyle,
-      ]}
-      onPress={navigateToAnnouncements}
-    >
-      <Animated.Text style={[TEXT_STYLE, TextAnimatedStyle]} maxFontSizeMultiplier={1.15}>
+    <AnimatedTouchable activeOpacity={0.75} style={[styles.wrapper, WrapperAnimatedStyle]} onPress={navigateToAnnouncements}>
+      <Animated.Text style={[styles.text, TextAnimatedStyle]} maxFontSizeMultiplier={1.15}>
         {truncateString(removeHtmlTagsAndEntities(title), 5)}
       </Animated.Text>
     </AnimatedTouchable>
@@ -84,3 +64,19 @@ function truncateString(inputString: string, numWords: number) {
     return truncatedString
   }
 }
+
+const styles = StyleSheet.create((theme, rt) => ({
+  wrapper: {
+    height: rt.fontScale > 1 ? 40 : 32,
+    marginTop: 12,
+    justifyContent: "center",
+    paddingHorizontal: 10,
+    backgroundColor: "#e74c3c",
+    borderRadius: 10,
+  },
+  text: {
+    color: theme.colors.whiteText,
+    fontWeight: "bold",
+    textAlign: "left",
+  },
+}))

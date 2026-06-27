@@ -1,41 +1,14 @@
 import React, { useMemo } from "react"
 import { View, Platform, Image } from "react-native"
-import type { TextStyle, ViewStyle } from "react-native"
+import type { ViewStyle } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { useRouter } from "expo-router"
 import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore, useFavoritesStore } from "@/models"
 import { trackEvent } from "@/services/analytics"
-import { color, isDarkMode, spacing } from "@/theme"
 import { Text } from "@/components/text/text"
 import { useStations } from "@/data/stations"
 import { FavoriteRouteBox } from "./favorite-route-box"
-
-// #region styles
-const CONTAINER: ViewStyle = {
-  justifyContent: "center",
-  marginTop: spacing[4] + 2,
-}
-
-const FAVORITE_ROUTES_TITLE: TextStyle = {
-  fontWeight: "500",
-  opacity: 0.8,
-}
-
-const FAVORITE_ROUTES_HEADER: ViewStyle = {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  marginHorizontal: spacing[3],
-  paddingBottom: spacing[1],
-  borderBottomWidth: 0.5,
-  borderColor: Platform.select({ ios: color.inputPlaceholderBackground, android: isDarkMode ? "#3a3a3c" : "lightgrey" }),
-}
-
-const ROUTES_CONTAINER: ViewStyle = {
-  marginTop: spacing[3],
-  marginHorizontal: spacing[3],
-}
-
-// #endregion
 
 export interface FavoriteRoutesProps {
   style?: ViewStyle
@@ -73,31 +46,59 @@ export function FavoriteRoutes(props: FavoriteRoutesProps) {
   }, [favoriteRoutesData])
 
   return (
-    <View style={[CONTAINER, style]}>
-      <View style={FAVORITE_ROUTES_HEADER}>
-        <Text tx="favorites.title" style={FAVORITE_ROUTES_TITLE} />
+    <View style={[styles.container, style]}>
+      <View style={styles.favoriteRoutesHeader}>
+        <Text tx="favorites.title" style={styles.favoriteRoutesTitle} />
       </View>
-      <View style={ROUTES_CONTAINER}>{favorites}</View>
+      <View style={styles.routesContainer}>{favorites}</View>
     </View>
   )
 }
 
-const EMPTY_STATE_WRAPPER: ViewStyle = {
-  alignItems: "center",
-  marginTop: spacing[2],
-}
-
-const EMPTY_STATE_TEXT: TextStyle = {
-  color: color.dim,
-}
-
 const EmptyState = () => (
-  <View style={EMPTY_STATE_WRAPPER}>
-    <Image
-      source={require("../../../assets/star-fill.png")}
-      style={{ width: 58, height: 55, marginBottom: spacing[2], tintColor: color.dim, opacity: 0.75 }}
-    />
-    <Text tx="favorites.empty" style={EMPTY_STATE_TEXT} />
-    <Text tx="favorites.emptyDescription" preset="small" style={EMPTY_STATE_TEXT} />
+  <View style={styles.emptyStateWrapper}>
+    <Image source={require("../../../assets/star-fill.png")} style={styles.emptyStateImage} />
+    <Text tx="favorites.empty" style={styles.emptyStateText} />
+    <Text tx="favorites.emptyDescription" preset="small" style={styles.emptyStateText} />
   </View>
 )
+
+const styles = StyleSheet.create((theme, rt) => ({
+  container: {
+    justifyContent: "center",
+    marginTop: theme.spacing[4] + 2,
+  },
+  favoriteRoutesTitle: {
+    fontWeight: "500",
+    opacity: 0.8,
+  },
+  favoriteRoutesHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginHorizontal: theme.spacing[3],
+    paddingBottom: theme.spacing[1],
+    borderBottomWidth: 0.5,
+    borderColor: Platform.select({
+      ios: theme.colors.inputPlaceholderBackground,
+      android: rt.colorScheme === "dark" ? "#3a3a3c" : "lightgrey",
+    }),
+  },
+  routesContainer: {
+    marginTop: theme.spacing[3],
+    marginHorizontal: theme.spacing[3],
+  },
+  emptyStateWrapper: {
+    alignItems: "center",
+    marginTop: theme.spacing[2],
+  },
+  emptyStateText: {
+    color: theme.colors.dim,
+  },
+  emptyStateImage: {
+    width: 58,
+    height: 55,
+    marginBottom: theme.spacing[2],
+    tintColor: theme.colors.dim,
+    opacity: 0.75,
+  },
+}))

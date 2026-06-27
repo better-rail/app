@@ -1,13 +1,7 @@
 import React, { ReactNode } from "react"
-import { ViewStyle, View } from "react-native"
-import { color } from "@/theme"
+import { View } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { ListItemProps } from "./list-item"
-
-const LIST_WRAPPER: ViewStyle = {
-  marginHorizontal: 16,
-  borderRadius: 14,
-  backgroundColor: color.tertiaryBackground,
-}
 
 type ListProps = {
   children: ReactNode
@@ -30,5 +24,13 @@ export const List = ({ children }: ListProps) => {
     return child
   })
 
-  return <View style={LIST_WRAPPER}>{modifiedChildren}</View>
+  return <View style={styles.listWrapper}>{modifiedChildren}</View>
 }
+
+const styles = StyleSheet.create((theme) => ({
+  listWrapper: {
+    marginHorizontal: 16,
+    borderRadius: 14,
+    backgroundColor: theme.colors.tertiaryBackground,
+  },
+}))
