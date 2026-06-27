@@ -4,7 +4,6 @@ import { TextStyle, View, ViewStyle, Platform, TouchableOpacity, Pressable, Imag
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import { Svg, Line } from "react-native-svg"
 import { color, spacing, typography, fontScale } from "@/theme"
-import { primaryFontIOS } from "@/theme/typography"
 import { Text } from "@/components/text/text"
 import { format } from "date-fns"
 import { translate } from "@/i18n"
@@ -124,7 +123,7 @@ const PAST_RIDE_CONTAINER: ViewStyle = {
 }
 
 const TIME_TYPE_TEXT: TextStyle = {
-  marginBottom: primaryFontIOS === "System" ? 1 : -2,
+  marginBottom: -2,
   fontFamily: typography.primary,
   fontSize: 14,
   fontWeight: "500",
@@ -139,7 +138,7 @@ const TIME_TEXT: TextStyle = {
 }
 
 const DURATION_TEXT: TextStyle = {
-  marginBottom: primaryFontIOS === "System" ? 2 : -2,
+  marginBottom: -2,
   fontSize: 16,
 }
 

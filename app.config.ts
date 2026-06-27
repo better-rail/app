@@ -17,7 +17,9 @@ const APPLE_TEAM_ID = "UE6BVYPPFX"
 const IOS_BUNDLE_ID = "il.co.better-rail"
 const ANDROID_PACKAGE = "com.betterrail"
 
-const HEEBO_FONTS = [
+// iOS registers fonts by the family name baked into each file ("Heebo"), selecting the weight
+// via `fontWeight`. The flat string array is all iOS needs.
+const HEEBO_FONTS_IOS = [
   "./assets/fonts/Heebo-Black.otf",
   "./assets/fonts/Heebo-Bold.otf",
   "./assets/fonts/Heebo-ExtraBold.otf",
@@ -26,6 +28,23 @@ const HEEBO_FONTS = [
   "./assets/fonts/Heebo-Regular.otf",
   "./assets/fonts/Heebo-Thin.otf",
 ]
+
+// Android can't weight-select within a family from loose asset files — each file would be its own
+// family (e.g. "Heebo-Bold"). The object form makes expo-font emit an XML font resource and call
+// ReactFontManager.addCustomFont("Heebo", …), so `fontFamily: "Heebo"` + `fontWeight` resolves to
+// the right file natively, matching iOS. (Heebo has no 600/SemiBold file; Android picks the nearest.)
+const HEEBO_FONT_ANDROID = {
+  fontFamily: "Heebo",
+  fontDefinitions: [
+    { path: "./assets/fonts/Heebo-Thin.otf", weight: 100 },
+    { path: "./assets/fonts/Heebo-Light.otf", weight: 300 },
+    { path: "./assets/fonts/Heebo-Regular.otf", weight: 400 },
+    { path: "./assets/fonts/Heebo-Medium.otf", weight: 500 },
+    { path: "./assets/fonts/Heebo-Bold.otf", weight: 700 },
+    { path: "./assets/fonts/Heebo-ExtraBold.otf", weight: 800 },
+    { path: "./assets/fonts/Heebo-Black.otf", weight: 900 },
+  ],
+}
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -153,7 +172,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         },
       },
     ],
-    ["expo-font", { fonts: HEEBO_FONTS }],
+    ["expo-font", { ios: { fonts: HEEBO_FONTS_IOS }, android: { fonts: [HEEBO_FONT_ANDROID] } }],
     "@react-native-firebase/app",
     [
       "@sentry/react-native/expo",
