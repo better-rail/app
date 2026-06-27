@@ -8,7 +8,7 @@ import { useRideStore } from "@/models"
 import notifee, { AndroidNotificationSetting, AuthorizationStatus } from "@notifee/react-native"
 import HapticFeedback from "react-native-haptic-feedback"
 import { trackEvent } from "@/services/analytics"
-import InAppReview from "react-native-in-app-review"
+import { requestStoreReview } from "@/utils/helpers/store-review-helpers"
 import { useRouter } from "expo-router"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 
@@ -76,7 +76,7 @@ export function LivePermissionsScreen() {
     trackEvent("start_live_ride")
 
     if (rideCount === 3) {
-      InAppReview.RequestInAppReview().then(() => {
+      requestStoreReview().then(() => {
         trackEvent("start_live_ride_in_app_review_prompt")
       })
     }

@@ -1,6 +1,5 @@
 import React from "react"
 import { View, TextStyle, ViewStyle, ImageStyle, Image, Dimensions } from "react-native"
-import InAppReview from "react-native-in-app-review"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Screen, Text, Button } from "@/components"
 import { translate } from "@/i18n"
@@ -10,6 +9,7 @@ import { color, fontScale, spacing } from "@/theme"
 import { WidgetOnboardingBackground } from "./widget-onboarding-background"
 import { useWidgetWrapperStyle } from "./widget-styles"
 import { trackEvent } from "@/services/analytics"
+import { requestStoreReview } from "@/utils/helpers/store-review-helpers"
 
 const { width: deviceWidth } = Dimensions.get("screen")
 
@@ -79,7 +79,7 @@ export const WidgetStep3 = function WidgetStep3() {
 
             storage.load("lastInAppReview").then((value) => {
               if (!value) {
-                InAppReview.RequestInAppReview().then(() => {
+                requestStoreReview().then(() => {
                   storage.save("lastInAppReview", new Date().toISOString())
                 })
               }
