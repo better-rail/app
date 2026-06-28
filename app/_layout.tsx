@@ -14,6 +14,7 @@ import notifee from "@notifee/react-native"
 import * as Sentry from "@sentry/react-native"
 import { enableScreens } from "react-native-screens"
 import { PostHogProvider } from "posthog-react-native"
+import { ObserveRoot, useObserve } from "expo-observe"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 import { useIAP, initConnection, finishTransaction, getAvailablePurchases } from "react-native-iap"
 
@@ -104,6 +105,7 @@ function RootLayout() {
   const [localeReady, setLocaleReady] = useState(false)
   const appState = useRef(AppState.currentState)
   const router = useRouter()
+  const { markInteractive } = useObserve()
 
   useDeepLinking(storeReady)
 
@@ -198,6 +200,14 @@ function RootLayout() {
     }
   }, [])
 
+  useEffect(() => {
+    // Signal EAS Observe that the app is interactive once the store + locale are
+    // ready — this is the point we stop returning null and render the real UI.
+    if (storeReady && localeReady) {
+      markInteractive()
+    }
+  }, [storeReady, localeReady, markInteractive])
+
   if (!storeReady || !localeReady) return null
 
   return (
@@ -215,4 +225,4 @@ function RootLayout() {
   )
 }
 
-export default Sentry.wrap(RootLayout)
+export default Sentry.wrap(ObserveRoot.wrap(RootLayout))
