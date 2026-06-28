@@ -54,6 +54,7 @@
     "expo-clipboard": "~56.0.4",
     "expo-dev-client": "~56.0.20",
     "expo-font": "~56.0.7",
+    "expo-insights": "~56.0.18",
     "expo-localization": "~56.0.6",
     "expo-network": "~56.0.5",
     "expo-observe": "~56.0.21",
