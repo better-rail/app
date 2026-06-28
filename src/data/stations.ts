@@ -700,6 +700,7 @@ const stations: Station[] = [
     arabic: "حديرا - شرق",
     lat: 32.450496,
     lon: 35.020744,
+    image: require("../../assets/station-images/hadera-east.jpg"),
   },
   {
     id: "4300",
@@ -718,6 +719,7 @@ const stations: Station[] = [
     arabic: "الطيرة - كوخاڤ يَئير",
     lat: 32.234875,
     lon: 34.957647,
+    image: require("../../assets/station-images/tira-kokhav-yair.jpg"),
   },
 ]
 
