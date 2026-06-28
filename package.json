@@ -56,6 +56,7 @@
     "expo-font": "~56.0.7",
     "expo-localization": "~56.0.6",
     "expo-network": "~56.0.5",
+    "expo-observe": "~56.0.21",
     "expo-router": "~56.2.11",
     "expo-store-review": "~56.0.3",
     "expo-updates": "~56.0.19",
