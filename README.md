@@ -10,7 +10,7 @@ Better Rail is an open source mobile client for Israel Railways, with an emphasi
 
 ## Overview
 
-Better Rail is built with React Native. We also use Swift, SwiftUI and Kotlin to leverage the native platforms functionalities.
+Better Rail is built with React Native. We also use Swift, SwiftUI and Kotlin to leverage native platform functionalities.
 
 ### Installation
 
@@ -20,7 +20,7 @@ If this is your first time, check out the [Expo local development setup guide](h
 #### Prerequisites
 
 - **Bun**: This project uses Bun as the package manager. See the [Bun installation guide](https://bun.com/docs/installation) for instructions.
-- **CocoaPods** (iOS only): required by the prebuild step. See the [installation guide](https://guides.cocoapods.org/using/getting-started.html#installation).
+- **CocoaPods** (iOS only): Required by the prebuild step. See the [installation guide](https://guides.cocoapods.org/using/getting-started.html#installation).
 
 #### Setup Steps
 
