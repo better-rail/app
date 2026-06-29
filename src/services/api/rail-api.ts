@@ -40,7 +40,10 @@ export class RailApi {
           setAnalyticsUserProperty("rail_api", "proxy")
           this.axiosInstance.defaults.baseURL = API_CONFIG.PROXY_RAIL_API
 
-          const originalRequest = config
+          // Override baseURL on the replayed request itself — an explicit
+          // config.baseURL takes precedence over defaults.baseURL, so changing
+          // the default alone would send the retry back to the direct API.
+          const originalRequest = { ...config, baseURL: API_CONFIG.PROXY_RAIL_API }
           return this.axiosInstance.request(originalRequest)
         }
 
