@@ -82,7 +82,7 @@ export function useDeepLinking(storeReady: boolean) {
       deepLinkWidgetURL(url)
       trackEvent("deep_link_widget")
     }
-    if (url.includes("liveActivity")) {
+    if (url.toLowerCase().includes("liveactivity")) {
       deepLinkLiveActivity(url)
       trackEvent("deep_link_live_activity")
     }
