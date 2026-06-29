@@ -532,7 +532,8 @@
       "hebrew": "חדרה - מזרח",
       "english": "Hadera - East",
       "russian": "Хадера – Восток",
-      "arabic": "حديرا - شرق"
+      "arabic": "حديرا - شرق",
+      "image": "hadera-east"
    },
    {
       "id": "4300",
@@ -547,6 +548,7 @@
       "hebrew": "טירה - כוכב יאיר",
       "english": "Tira - Kokhav Ya'ir",
       "russian": "Тира – Кохав-Яир",
-      "arabic": "الطيرة - كوخاڤ يَئير"
+      "arabic": "الطيرة - كوخاڤ يَئير",
+      "image": "tira-kokhav-yair"
    }
 ]
