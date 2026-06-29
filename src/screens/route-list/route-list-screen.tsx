@@ -9,6 +9,7 @@ import { useNetworkState } from "expo-network"
 import { useQuery } from "react-query"
 import { closestIndexTo } from "date-fns"
 import { useRouter, useLocalSearchParams } from "expo-router"
+import { useObserve } from "expo-observe"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useShallow } from "zustand/react/shallow"
 import { useTrainRoutesStore, useRoutePlanStore, useRideStore, useSettingsStore } from "@/models"
@@ -44,6 +45,7 @@ export function RouteListScreen() {
   const hideSlowTrains = useSettingsStore((s) => s.hideSlowTrains)
   const { showActionSheetWithOptions } = useActionSheet()
   const colorScheme = useColorScheme()
+  const { markInteractive } = useObserve()
 
   // Reference to the current real time for date limit calculations
   const currentRealTime = useMemo(() => new Date(), [])
@@ -274,6 +276,16 @@ export function RouteListScreen() {
       return !item.isMuchLonger
     })
   }, [routeData, hideSlowTrains])
+
+  // Signal EAS Observe per-route TTI once the route results have resolved — either
+  // routes are rendered, or we've reached a terminal not-found / error state.
+  useEffect(() => {
+    const hasResults = filteredRouteData.length > 0
+    const isTerminalEmpty = !trains.isLoading && (resultType === "not-found" || trains.status === "error")
+    if (hasResults || isTerminalEmpty) {
+      markInteractive()
+    }
+  }, [filteredRouteData.length, trains.isLoading, trains.status, resultType, markInteractive])
 
   // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
   // returns a route list for the whole day.
