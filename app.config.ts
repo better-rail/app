@@ -64,8 +64,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   orientation: "portrait",
   userInterfaceStyle: "automatic",
   icon: "./assets/icons/ios-icon-light.png",
-  // App URL scheme + the schemes the app responds to (widget://, liveActivity://)
-  scheme: ["betterrail", "widget", "liveActivity"],
+  // App URL scheme + the schemes the app responds to (widget://, liveactivity://)
+  // Note: schemes must be lowercase to pass EAS Update manifest validation.
+  scheme: ["betterrail", "widget", "liveactivity"],
   jsEngine: "hermes",
   assetBundlePatterns: ["**/*"],
 
