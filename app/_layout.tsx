@@ -14,7 +14,7 @@ import notifee from "@notifee/react-native"
 import * as Sentry from "@sentry/react-native"
 import { enableScreens } from "react-native-screens"
 import { PostHogProvider } from "posthog-react-native"
-import { ObserveRoot, useObserve } from "expo-observe"
+import { Observe, ObserveRoot, useObserve } from "expo-observe"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 import { useIAP, initConnection, finishTransaction, getAvailablePurchases } from "react-native-iap"
 
@@ -35,6 +35,12 @@ import PushNotification from "react-native-push-notification"
 import "react-native-console-time-polyfill"
 
 enableScreens()
+
+// Enable per-route navigation metrics (cold/warm TTR, per-route TTI). Must run at
+// module scope before any screen mounts — it cannot be toggled at runtime.
+Observe.configure({
+  integrations: { "expo-router": true },
+})
 
 const TELEMETRY_DISABLED_STORAGE_KEY = "telemetry_disabled"
 
