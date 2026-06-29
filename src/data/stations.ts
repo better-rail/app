@@ -710,6 +710,7 @@ const stations: Station[] = [
     arabic: "هشومرون – الطيبة",
     lat: 32.277165,
     lon: 35.005913,
+    image: require("../../assets/station-images/shomron-taybe.jpg"),
   },
   {
     id: "4310",
