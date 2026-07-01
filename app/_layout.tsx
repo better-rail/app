@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react"
 import { AppState, Platform, useColorScheme } from "react-native"
 import { useDeepLinking } from "@/hooks/use-deep-linking"
 import { Stack } from "expo-router/stack"
-import { useRouter } from "expo-router"
+import { useRouter, ErrorBoundary as ExpoErrorBoundary } from "expo-router"
 import { ThemeProvider, DarkTheme, DefaultTheme } from "expo-router/react-navigation"
 import DeviceInfo from "react-native-device-info"
 import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from "react-query"
@@ -63,6 +63,10 @@ async function disableSentryIfTelemetryDisabled() {
 }
 
 disableSentryIfTelemetryDisabled()
+
+// Capture render-phase errors per route via Expo Router's ErrorBoundary. Attaches
+// route context to the event and marks in-flight navigation transactions as errored.
+export const ErrorBoundary = Sentry.wrapExpoRouterErrorBoundary(ExpoErrorBoundary)
 
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({

@@ -40,7 +40,7 @@
     "@react-native-firebase/messaging": "22.1.0",
     "@react-native-masked-view/masked-view": "0.3.2",
     "@react-native/eslint-config": "0.81.4",
-    "@sentry/react-native": "8.15.1",
+    "@sentry/react-native": "8.16.0",
     "@shopify/flash-list": "2.0.2",
     "axios": "1.4.0",
     "babel-plugin-module-resolver": "5.0.3",
