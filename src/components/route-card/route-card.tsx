@@ -40,6 +40,11 @@ export interface RouteCardProps extends TouchableScaleProps {
   routeItem?: RouteItem
   originId?: string
   destinationId?: string
+  /**
+   * Forces the train info header on/off regardless of the `showRouteCardHeader` setting.
+   * Used to render side-by-side preview cards (e.g. the train info prompt).
+   */
+  showHeaderOverride?: boolean
 }
 
 export function RouteCard(props: RouteCardProps) {
@@ -59,6 +64,7 @@ export function RouteCard(props: RouteCardProps) {
     routeItem,
     originId,
     destinationId,
+    showHeaderOverride,
   } = props
 
   const { hideSlowTrains, showRouteCardHeader } = useSettingsStore(
@@ -134,7 +140,7 @@ export function RouteCard(props: RouteCardProps) {
     )
   }
 
-  const showHeader = mainTrain && showRouteCardHeader
+  const showHeader = mainTrain && (showHeaderOverride ?? showRouteCardHeader)
   const containerStyle = showHeader ? styles.containerWithHeader : styles.containerWithoutHeader
 
   const cardContent = (

@@ -73,7 +73,12 @@
     "filter": "סינון",
     "stationHours": "שעות פעילות",
     "hideSlowTrains": "הסתרת רכבות מאספות",
-    "slowTrainsDescription": "רכבות מאספות הן רכבות שמסלול וזמן הנסיעה שלהן ארוכים משמעותית מרכבות אחרות."
+    "slowTrainsDescription": "רכבות מאספות הן רכבות שמסלול וזמן הנסיעה שלהן ארוכים משמעותית מרכבות אחרות.",
+    "trainInfoPromptTitle": "מידע על הנסיעה",
+    "trainInfoPromptDescription": "הוספת מספר הרציף ומספר הרכבת לכרטיס הנסיעה.",
+    "trainInfoPromptShow": "מתקדם",
+    "trainInfoPromptDefault": "ברירת מחדל",
+    "trainInfoPromptFootnote": "אפשר לשנות מאוחר יותר בהגדרות האפליקציה"
   },
   "routeDetails": {
     "platform": "רציף",
