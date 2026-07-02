@@ -67,12 +67,7 @@
     "filter": "تصفية",
     "stationHours": "ساعات المحطة",
     "hideSlowTrains": "إخفاء القطارات البطيئة",
-    "slowTrainsDescription": "القطارات البطيئة هي قطارات يكون مسارها ووقت الرحلة أطول بكثير من القطارات الأخرى.",
-    "trainInfoPromptTitle": "معلومات الرحلة",
-    "trainInfoPromptDescription": "أضف رقم الرصيف ورقم القطار إلى بطاقة المسار.",
-    "trainInfoPromptShow": "متقدم",
-    "trainInfoPromptDefault": "افتراضي",
-    "trainInfoPromptFootnote": "يمكنك تغيير ذلك لاحقًا في إعدادات التطبيق"
+    "slowTrainsDescription": "القطارات البطيئة هي قطارات يكون مسارها ووقت الرحلة أطول بكثير من القطارات الأخرى."
   },
   "routeDetails": {
     "platform": "رصيف",

@@ -70,12 +70,7 @@
     "filter": "Фильтр",
     "stationHours": "Часы работы",
     "hideSlowTrains": "Скрыть медленные поезда",
-    "slowTrainsDescription": "Медленные поезда — это поезда, у которых маршрут и время в пути значительно длиннее, чем у других.",
-    "trainInfoPromptTitle": "Информация о поездке",
-    "trainInfoPromptDescription": "Добавьте номер платформы и номер поезда в карточку маршрута.",
-    "trainInfoPromptShow": "Расширенные",
-    "trainInfoPromptDefault": "По умолчанию",
-    "trainInfoPromptFootnote": "Это можно изменить позже в настройках приложения"
+    "slowTrainsDescription": "Медленные поезда — это поезда, у которых маршрут и время в пути значительно длиннее, чем у других."
   },
   "routeDetails": {
     "platform": "Платформа",

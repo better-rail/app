@@ -73,12 +73,7 @@
     "filter": "Filter",
     "stationHours": "Station Hours",
     "hideSlowTrains": "Hide Slow Trains",
-    "slowTrainsDescription": "Slow trains are trains whose route and travel time are significantly longer than other trains.",
-    "trainInfoPromptTitle": "Route Appearance",
-    "trainInfoPromptDescription": "Add the platform and train number to the route card.",
-    "trainInfoPromptShow": "Advanced",
-    "trainInfoPromptDefault": "Default",
-    "trainInfoPromptFootnote": "You can change this later in the app settings"
+    "slowTrainsDescription": "Slow trains are trains whose route and travel time are significantly longer than other trains."
   },
   "routeDetails": {
     "platform": "Platform",

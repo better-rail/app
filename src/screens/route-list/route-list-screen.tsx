@@ -24,7 +24,6 @@ import { addRouteToCalendar } from "@/utils/helpers/calendar-helpers"
 import { getActionSheetStyleOptions } from "@/utils/helpers/action-sheet-helpers"
 import { isRouteInThePast } from "@/utils/helpers/date-helpers"
 import { useActionSheet } from "@expo/react-native-action-sheet"
-import { useFeatureFlag } from "posthog-react-native"
 
 type RouteData = RouteItem | string
 
@@ -44,8 +43,6 @@ export function RouteListScreen() {
   const isRouteActive = useRideStore((s) => s.isRouteActive)
   const rideRoute = useRideStore((s) => s.route)
   const hideSlowTrains = useSettingsStore((s) => s.hideSlowTrains)
-  const seenTrainInfoPrompt = useSettingsStore((s) => s.seenTrainInfoPrompt)
-  const setSeenTrainInfoPrompt = useSettingsStore((s) => s.setSeenTrainInfoPrompt)
   const { showActionSheetWithOptions } = useActionSheet()
   const colorScheme = useColorScheme()
   const { markInteractive } = useObserve()
@@ -74,23 +71,6 @@ export function RouteListScreen() {
   }, [originId, destinationId])
 
   const flashListRef = useRef(null)
-
-  // Prompt the user once to choose whether to show the "Train Info" row on route cards.
-  // Gated behind the "show-train-info-prompt" PostHog feature flag; shown at most once per
-  // user (tracked via seenTrainInfoPrompt).
-  const trainInfoPromptFlag = useFeatureFlag("show-train-info-prompt")
-  useEffect(() => {
-    if (!trainInfoPromptFlag || seenTrainInfoPrompt) return
-
-    // Wait for the route-list push transition to settle before presenting the sheet.
-    const timeout = setTimeout(() => {
-      setSeenTrainInfoPrompt(true)
-      router.push("/train-info-prompt")
-    }, 600)
-
-    return () => clearTimeout(timeout)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [trainInfoPromptFlag])
 
   // Helper function to organize routes by date
   const organizeRoutesByDate = useCallback((routes: RouteItem[], currentDateStr: string, existingData: RouteData[] = []) => {
