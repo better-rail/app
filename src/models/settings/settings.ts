@@ -10,6 +10,7 @@ export interface SettingsState {
   totalTip: number
   showRouteCardHeader: boolean
   hideSlowTrains: boolean
+  seenTrainInfoPrompt: boolean
 }
 
 export interface SettingsActions {
@@ -22,6 +23,7 @@ export interface SettingsActions {
   setShowRouteCardHeader: (show: boolean) => void
   setHideSlowTrains: (hide: boolean) => void
   setSeenUrgentMessagesIds: (messagesIds: number[]) => void
+  setSeenTrainInfoPrompt: (seen: boolean) => void
 }
 
 export type SettingsStore = SettingsState & SettingsActions
@@ -34,6 +36,7 @@ const initialSettingsState: SettingsState = {
   totalTip: 0,
   showRouteCardHeader: false,
   hideSlowTrains: false,
+  seenTrainInfoPrompt: false,
 }
 
 export const resetSettingsStore = () => useSettingsStore.setState(initialSettingsState)
@@ -78,6 +81,10 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
   setSeenUrgentMessagesIds(messagesIds) {
     set({ seenUrgentMessagesIds: messagesIds })
   },
+
+  setSeenTrainInfoPrompt(seen) {
+    set({ seenTrainInfoPrompt: seen })
+  },
 }))
 
 export function filterUnseenUrgentMessages(messages: PopUpMessage[], seenIds: number[]) {
@@ -93,6 +100,7 @@ export function getSettingsSnapshot(state: SettingsState) {
     totalTip: state.totalTip,
     showRouteCardHeader: state.showRouteCardHeader,
     hideSlowTrains: state.hideSlowTrains,
+    seenTrainInfoPrompt: state.seenTrainInfoPrompt,
   }
 }
 
@@ -114,6 +122,7 @@ export function hydrateSettingsStore(data: any) {
     totalTip: processedData.totalTip ?? 0,
     showRouteCardHeader: processedData.showRouteCardHeader ?? false,
     hideSlowTrains: processedData.hideSlowTrains ?? false,
+    seenTrainInfoPrompt: processedData.seenTrainInfoPrompt ?? false,
   })
 }
 
