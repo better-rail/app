@@ -27,7 +27,7 @@ If this is your first time, check out the [Expo local development setup guide](h
 - Fork the repo and clone it to your machine.
 - Run `bun install`.
 - Run `bun start` to start the development server.
-- Run `mv GoogleService-Info{.development,}.plist && mv google-services{.development,}.json`
+- Run `cp -v GoogleService-Info{.development,}.plist && cp -v google-services{.development,}.json`
 - Run the app with:
   - `bun prebuild --platform ios && bun ios` (to open the iPhone simulator)
   - `bun prebuild --platform android && bun android` (for the Android emulator).
