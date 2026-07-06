@@ -73,10 +73,12 @@ export const useTrainRoutesStore = create<TrainRoutesStore>((set, get) => ({
             time,
             result.map((result) => result.departureTime),
           )
-          const difference = differenceInMinutes(closestDateToNow, time)
-          if (Math.abs(difference) >= 90) {
-            // We found routes for the selected day but not at the requested hour.
-            resultType = "different-hour"
+          if (closestDateToNow) {
+            const difference = differenceInMinutes(closestDateToNow, time)
+            if (Math.abs(difference) >= 90) {
+              // We found routes for the selected day but not at the requested hour.
+              resultType = "different-hour"
+            }
           }
         }
 
