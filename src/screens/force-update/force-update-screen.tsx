@@ -64,7 +64,10 @@ const styles = StyleSheet.create((theme, rt) => ({
     lineHeight: 24,
   },
   button: {
-    minWidth: "100%",
+    // Button's wrapper is flex: 1; without this it stretches to fill the screen on Android.
+    flex: 0,
+    width: "100%",
+    minHeight: 55,
   },
   buttonLiquidGlass: {
     minWidth: "100%",
