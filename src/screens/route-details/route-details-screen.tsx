@@ -154,7 +154,7 @@ export function RouteDetailsScreen() {
                       return (
                         <View key={`before-${station.stationId}`}>
                           <RouteStopCard
-                            stationName={allStations.find((c) => c.id === station.stationId.toString()).name}
+                            stationName={allStations.find((c) => c.id === station.stationId.toString())?.name ?? ""}
                             stopTime={
                               typeof station.arrivalTime === "string"
                                 ? station.arrivalTime
@@ -185,7 +185,7 @@ export function RouteDetailsScreen() {
                       betweenStations.map((station, idx) => (
                         <View key={`between-${station.stationId}`}>
                           <RouteStopCard
-                            stationName={allStations.find((c) => c.id === station.stationId.toString()).name}
+                            stationName={allStations.find((c) => c.id === station.stationId.toString())?.name ?? ""}
                             stopTime={
                               typeof station.arrivalTime === "string"
                                 ? station.arrivalTime
@@ -219,7 +219,7 @@ export function RouteDetailsScreen() {
                       return (
                         <View key={`after-${station.stationId}`}>
                           <RouteStopCard
-                            stationName={allStations.find((c) => c.id === station.stationId.toString()).name}
+                            stationName={allStations.find((c) => c.id === station.stationId.toString())?.name ?? ""}
                             stopTime={
                               typeof station.arrivalTime === "string"
                                 ? station.arrivalTime
