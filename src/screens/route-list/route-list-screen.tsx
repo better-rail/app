@@ -222,10 +222,14 @@ export function RouteListScreen() {
         if (data && data.length > 0) {
           const firstRouteDate = new Date(data[0].trains[0].departureTime).toDateString()
           if (firstRouteDate !== currentDate.toDateString()) {
-            // Update the current date to match the actual date of the routes
-            setCurrentDate(new Date(firstRouteDate))
+            // Update the current date to match the actual date of the routes, keeping the
+            // originally requested time-of-day — resetting to midnight re-runs the query
+            // with 00:00 and triggers a spurious "different-hour" warning.
+            const updatedDate = new Date(firstRouteDate)
+            updatedDate.setHours(currentDate.getHours(), currentDate.getMinutes(), 0, 0)
+            setCurrentDate(updatedDate)
             // Update the next day date accordingly
-            const nextDate = new Date(firstRouteDate)
+            const nextDate = new Date(updatedDate)
             nextDate.setDate(nextDate.getDate() + 1)
             setNextDayDate(nextDate)
           }
@@ -533,7 +537,9 @@ export function RouteListScreen() {
         />
       )}
 
-      {resultType === "not-found" && !trains.isLoading && isInternetReachable && (
+      {/* A failed background refetch sets "not-found" in the store directly, bypassing the
+          onError guard — so also require that no results are currently displayed. */}
+      {resultType === "not-found" && !trains.isLoading && isInternetReachable && routeData.length === 0 && (
         <View style={{ marginTop: spacing[4] }}>
           <NoTrainsFoundMessage />
         </View>
