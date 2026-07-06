@@ -15,12 +15,7 @@ export function BetterRailProButton({ onPress }) {
   return (
     <TouchableOpacity activeOpacity={0.9} style={styles.touchable} onPress={onPress}>
       {/* @ts-expect-error OpaqueColorValue */}
-      <LinearGradient
-        colors={[colors.start, colors.end]}
-        style={styles.gradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1.5, y: 0 }}
-      >
+      <LinearGradient colors={[colors.start, colors.end]} style={styles.gradient} start={{ x: 0, y: 0 }} end={{ x: 1.5, y: 0 }}>
         <Text style={styles.title}>Better Rail Pro</Text>
         <Text tx="paywall.betterCommute" style={styles.subtitle(fontFamily, isHeebo)} />
       </LinearGradient>

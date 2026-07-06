@@ -76,21 +76,13 @@ export function NotificationsSetupScreen() {
     .value()
 
   return (
-    <Screen
-      style={styles.screen}
-      unsafe
-      statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
-      translucent
-    >
+    <Screen style={styles.screen} unsafe statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"} translucent>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.contentWrapper}>
           <View style={styles.emojiWrapper}>
             <Text style={styles.emoji}>🔔</Text>
             {notificationPermission && (
-              <Text
-                tx="announcements.notifications.notificationSetupContent"
-                style={styles.setupContent}
-              />
+              <Text tx="announcements.notifications.notificationSetupContent" style={styles.setupContent} />
             )}
           </View>
 
@@ -131,11 +123,7 @@ export function NotificationsSetupScreen() {
                 onPress={() => router.push("/announcements/notifications-stations")}
               />
 
-              <Text
-                tx="announcements.notifications.notificationNote"
-                style={styles.note}
-                preset="small"
-              />
+              <Text tx="announcements.notifications.notificationNote" style={styles.note} preset="small" />
             </View>
           ) : (
             <View style={styles.requestPermissionWrapper}>

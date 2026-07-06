@@ -14,9 +14,7 @@ const api = new RouteApi()
  */
 export function useRideRoute(route: RouteItem) {
   const routePlanDate = useRoutePlanStore((s) => s.date)
-  const { isRouteActive, setRoute } = useRideStore(
-    useShallow((s) => ({ isRouteActive: s.isRouteActive, setRoute: s.setRoute }))
-  )
+  const { isRouteActive, setRoute } = useRideStore(useShallow((s) => ({ isRouteActive: s.isRouteActive, setRoute: s.setRoute })))
 
   // we'll need this to update the query cached routes when we refetch routes
   const queryClient = useQueryClient()

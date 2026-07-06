@@ -18,10 +18,10 @@ type RecentSearchesBoxProps = {
 export function RecentSearchesBox(props: RecentSearchesBoxProps) {
   const router = useRouter()
   const { setOrigin, setDestination } = useRoutePlanStore(
-    useShallow((s) => ({ setOrigin: s.setOrigin, setDestination: s.setDestination }))
+    useShallow((s) => ({ setOrigin: s.setOrigin, setDestination: s.setDestination })),
   )
   const { entries, save, remove } = useRecentSearchesStore(
-    useShallow((s) => ({ entries: s.entries, save: s.save, remove: s.remove }))
+    useShallow((s) => ({ entries: s.entries, save: s.save, remove: s.remove })),
   )
 
   const sortedSearches = useMemo(() => {

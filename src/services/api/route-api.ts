@@ -21,12 +21,12 @@ export class RouteApi {
         hour: hour,
         systemType: "1",
         scheduleType: "ByDeparture",
-        languageId: "Hebrew"
+        languageId: "Hebrew",
       }
 
       const response: AxiosResponse<RailApiGetRoutesResult> = await this.api.axiosInstance.post(
         `/rjpa/api/v1/timetable/searchTrainForMobile`,
-        requestBody
+        requestBody,
       )
       if (!response.data?.result) throw new Error("Error fetching results")
 

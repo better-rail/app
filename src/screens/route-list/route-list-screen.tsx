@@ -14,9 +14,16 @@ import { useNavigationParamsStore } from "@/models/navigation-params/navigation-
 import { useShallow } from "zustand/react/shallow"
 import { useTrainRoutesStore, useRoutePlanStore, useRideStore, useSettingsStore } from "@/models"
 import { fontScale, spacing } from "@/theme"
-import { RouteItem } from "@/services/api"
+import type { RouteItem } from "@/services/api"
 import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight } from "@/components"
-import { NoTrainsFoundMessage, RouteListError, RouteListWarning, WarningType, ResultDateCard, DateScroll } from "./components"
+import {
+  NoTrainsFoundMessage,
+  RouteListError,
+  RouteListWarning,
+  type WarningType,
+  ResultDateCard,
+  DateScroll,
+} from "./components"
 import { flatMap, max, round } from "lodash"
 import { translate } from "@/i18n"
 import { shareRouteAction } from "@/utils/helpers/route-share-helpers"
@@ -33,14 +40,12 @@ export function RouteListScreen() {
   const rawParams = useLocalSearchParams<{ originId: string; destinationId: string; time: string; enableQuery?: string }>()
   const originId = rawParams.originId
   const destinationId = rawParams.destinationId
-  const time = parseInt(rawParams.time as string)
+  const time = parseInt(rawParams.time as string, 10)
   const enableQuery = rawParams.enableQuery === "true"
   const { resultType, getRoutes, updateResultType } = useTrainRoutesStore(
-    useShallow((s) => ({ resultType: s.resultType, getRoutes: s.getRoutes, updateResultType: s.updateResultType }))
+    useShallow((s) => ({ resultType: s.resultType, getRoutes: s.getRoutes, updateResultType: s.updateResultType })),
   )
-  const { dateType, date: routePlanDate } = useRoutePlanStore(
-    useShallow((s) => ({ dateType: s.dateType, date: s.date }))
-  )
+  const { dateType, date: routePlanDate } = useRoutePlanStore(useShallow((s) => ({ dateType: s.dateType, date: s.date })))
   const isRouteActive = useRideStore((s) => s.isRouteActive)
   const rideRoute = useRideStore((s) => s.route)
   const hideSlowTrains = useSettingsStore((s) => s.hideSlowTrains)
@@ -49,9 +54,6 @@ export function RouteListScreen() {
   const { showActionSheetWithOptions } = useActionSheet()
   const colorScheme = useColorScheme()
   const { markInteractive } = useObserve()
-
-  // Reference to the current real time for date limit calculations
-  const currentRealTime = useMemo(() => new Date(), [])
 
   const [routeData, setRouteData] = useState<RouteData[]>([])
 
@@ -546,10 +548,7 @@ export function RouteListScreen() {
       )}
 
       {shouldShowWarning && !trains.isLoading && (
-        <RouteListWarning
-          routesDate={trains.data[0].trains[0].departureTime}
-          warningType={resultType as WarningType}
-        />
+        <RouteListWarning routesDate={trains.data[0].trains[0].departureTime} warningType={resultType as WarningType} />
       )}
     </Screen>
   )

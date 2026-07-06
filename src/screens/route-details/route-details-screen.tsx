@@ -41,8 +41,12 @@ export function RouteDetailsScreen() {
   const router = useRouter()
   const pathname = usePathname()
   const screenName = pathname.includes("active-ride") ? "activeRide" : "routeDetails"
-  const { routeItem: paramsRouteItem, originId, destinationId } = useNavigationParamsStore(
-    useShallow((s) => ({ routeItem: s.routeItem, originId: s.originId, destinationId: s.destinationId }))
+  const {
+    routeItem: paramsRouteItem,
+    originId,
+    destinationId,
+  } = useNavigationParamsStore(
+    useShallow((s) => ({ routeItem: s.routeItem, originId: s.originId, destinationId: s.destinationId })),
   )
   const {
     rideRoute,
@@ -150,7 +154,7 @@ export function RouteDetailsScreen() {
                       return (
                         <View key={`before-${station.stationId}`}>
                           <RouteStopCard
-                            stationName={allStations.find((c) => c.id === station.stationId.toString()).name}
+                            stationName={allStations.find((c) => c.id === station.stationId.toString())?.name ?? ""}
                             stopTime={
                               typeof station.arrivalTime === "string"
                                 ? station.arrivalTime
@@ -177,28 +181,29 @@ export function RouteDetailsScreen() {
                     />
 
                     {/* Stations between origin and destination */}
-                    {betweenStations.length > 0
-                      ? betweenStations.map((station, idx) => (
-                          <View key={`between-${station.stationId}`}>
-                            <RouteStopCard
-                              stationName={allStations.find((c) => c.id === station.stationId.toString()).name}
-                              stopTime={
-                                typeof station.arrivalTime === "string"
-                                  ? station.arrivalTime
-                                  : format(new Date(station.arrivalTime), "HH:mm")
-                              }
-                              delayedTime={calculateDelayedTime(station.arrivalTime, train.delay)}
-                              style={{ zIndex: 20 - idx }}
-                              topLineState={isRideOnThisRoute ? stations[station.stationId]?.top || "idle" : "idle"}
-                              bottomLineState={isRideOnThisRoute ? stations[station.stationId]?.bottom || "idle" : "idle"}
-                            />
-                          </View>
-                        ))
-                      : // if there are no stops, display a separating line between the route station cards
-                        <RouteLine
-                          style={{ start: "35.44%", height: 30 }}
-                          state={isRideOnThisRoute ? stations[train.destinationStationId]?.bottom || "idle" : "idle"}
-                        />}
+                    {betweenStations.length > 0 ? (
+                      betweenStations.map((station, idx) => (
+                        <View key={`between-${station.stationId}`}>
+                          <RouteStopCard
+                            stationName={allStations.find((c) => c.id === station.stationId.toString())?.name ?? ""}
+                            stopTime={
+                              typeof station.arrivalTime === "string"
+                                ? station.arrivalTime
+                                : format(new Date(station.arrivalTime), "HH:mm")
+                            }
+                            delayedTime={calculateDelayedTime(station.arrivalTime, train.delay)}
+                            style={{ zIndex: 20 - idx }}
+                            topLineState={isRideOnThisRoute ? stations[station.stationId]?.top || "idle" : "idle"}
+                            bottomLineState={isRideOnThisRoute ? stations[station.stationId]?.bottom || "idle" : "idle"}
+                          />
+                        </View>
+                      )) // if there are no stops, display a separating line between the route station cards
+                    ) : (
+                      <RouteLine
+                        style={{ start: "35.44%", height: 30 }}
+                        state={isRideOnThisRoute ? stations[train.destinationStationId]?.bottom || "idle" : "idle"}
+                      />
+                    )}
 
                     {/* Destination station */}
                     <RouteStationCard
@@ -214,7 +219,7 @@ export function RouteDetailsScreen() {
                       return (
                         <View key={`after-${station.stationId}`}>
                           <RouteStopCard
-                            stationName={allStations.find((c) => c.id === station.stationId.toString()).name}
+                            stationName={allStations.find((c) => c.id === station.stationId.toString())?.name ?? ""}
                             stopTime={
                               typeof station.arrivalTime === "string"
                                 ? station.arrivalTime

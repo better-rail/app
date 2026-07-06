@@ -13,7 +13,10 @@ import useServiceUpdates from "./use-service-updates"
 export function AnnouncementsScreen() {
   const router = useRouter()
   const { seenNotificationsScreen, setSeenNotificationsScreen } = useSettingsStore(
-    useShallow((s) => ({ seenNotificationsScreen: s.seenNotificationsScreen, setSeenNotificationsScreen: s.setSeenNotificationsScreen }))
+    useShallow((s) => ({
+      seenNotificationsScreen: s.seenNotificationsScreen,
+      setSeenNotificationsScreen: s.setSeenNotificationsScreen,
+    })),
   )
   const { data: serviceUpdates } = useServiceUpdates()
 
@@ -40,7 +43,12 @@ export function AnnouncementsScreen() {
     >
       <ScrollView contentContainerStyle={styles.scrollView}>
         {!seenNotificationsScreen && (
-          <TouchableScale onPress={navigateToNotificationsSetup} activeScale={0.97} friction={10} style={styles.notificationButton}>
+          <TouchableScale
+            onPress={navigateToNotificationsSetup}
+            activeScale={0.97}
+            friction={10}
+            style={styles.notificationButton}
+          >
             <Text tx="announcements.notifications.notificationSettings" style={styles.notificationTitle} />
 
             <Text tx="announcements.notifications.newButtonContent" style={styles.notificationSubtitle} />

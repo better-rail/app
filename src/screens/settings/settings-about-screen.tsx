@@ -86,7 +86,13 @@ export function AboutScreen() {
           icon="🖼"
           onPress={() => openLink("https://better-rail.co.il/image-attributions/")}
         />
-        <SettingBox last title={translate("settings.privacy")} chevron icon="✋" onPress={() => router.push("/settings/privacy")} />
+        <SettingBox
+          last
+          title={translate("settings.privacy")}
+          chevron
+          icon="✋"
+          onPress={() => router.push("/settings/privacy")}
+        />
       </View>
 
       <View style={styles.settingGroup}>

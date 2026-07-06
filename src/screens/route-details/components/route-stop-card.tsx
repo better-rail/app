@@ -32,7 +32,11 @@ export const RouteStopCard = (props: RouteStopCardProps) => {
       <View style={styles.routeStopDetails}>
         <View style={{ flex: 0.265, alignItems: "flex-end" }}>
           <Text
-            style={[styles.routeStopTime, delayedTime && styles.routeStopTimeDelayed, isOutsideUserJourney && styles.outsideJourneyText]}
+            style={[
+              styles.routeStopTime,
+              delayedTime && styles.routeStopTimeDelayed,
+              isOutsideUserJourney && styles.outsideJourneyText,
+            ]}
             maxFontSizeMultiplier={1.2}
           >
             {stopTime}

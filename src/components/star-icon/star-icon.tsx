@@ -22,11 +22,13 @@ export function StarIcon(props: StarIconProps) {
   const { onPress, filled, style } = props
 
   if (isLiquidGlassSupported) {
-    return <Pressable onPress={onPress} style={[styles.container, style]}>
-      <LiquidGlassView interactive colorScheme="dark" tintColor="rgba(51, 51, 51, 0.9)" style={styles.liquidGlass}>
-        <Image source={starImage} style={[styles.starIcon, styles.starState(filled)]} accessible={false} />
-      </LiquidGlassView>
-    </Pressable>
+    return (
+      <Pressable onPress={onPress} style={[styles.container, style]}>
+        <LiquidGlassView interactive colorScheme="dark" tintColor="rgba(51, 51, 51, 0.9)" style={styles.liquidGlass}>
+          <Image source={starImage} style={[styles.starIcon, styles.starState(filled)]} accessible={false} />
+        </LiquidGlassView>
+      </Pressable>
+    )
   }
 
   return (
@@ -58,6 +60,5 @@ const styles = StyleSheet.create((theme) => ({
     padding: 10,
     borderRadius: 50,
   },
-  starState: (filled: boolean) =>
-    filled ? { tintColor: theme.colors.yellow, opacity: 0.75 } : { tintColor: "lightgrey" },
+  starState: (filled: boolean) => (filled ? { tintColor: theme.colors.yellow, opacity: 0.75 } : { tintColor: "lightgrey" }),
 }))

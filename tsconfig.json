@@ -12,24 +12,14 @@
     "noUnusedLocals": true,
     "sourceMap": true,
     "target": "esnext",
-    "lib": [
-      "esnext"
-    ],
+    "lib": ["esnext"],
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "exclude": [
-    "node_modules",
-    "server"
-  ],
-  "include": [
-    "index.js",
-    "app",
-    "src",
-    "test"
-  ],
+  "exclude": ["node_modules", "server"],
+  "include": ["index.js", "app", "src", "test"],
   "extends": "expo/tsconfig.base"
 }

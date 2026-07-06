@@ -42,12 +42,16 @@ export interface RouteDetailsHeaderProps {
 
 export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const { routeItem, originId, destinationId, screenName, style, showEntireRoute, setShowEntireRoute } = props
-  const { routes: favoriteRoutesData, add: addFavorite, remove: removeFavorite } = useFavoritesStore(
-    useShallow((s) => ({ routes: s.routes, add: s.add, remove: s.remove }))
-  )
-  const { origin: routePlanOrigin, destination: routePlanDestination, switchDirection } = useRoutePlanStore(
-    useShallow((s) => ({ origin: s.origin, destination: s.destination, switchDirection: s.switchDirection }))
-  )
+  const {
+    routes: favoriteRoutesData,
+    add: addFavorite,
+    remove: removeFavorite,
+  } = useFavoritesStore(useShallow((s) => ({ routes: s.routes, add: s.add, remove: s.remove })))
+  const {
+    origin: routePlanOrigin,
+    destination: routePlanDestination,
+    switchDirection,
+  } = useRoutePlanStore(useShallow((s) => ({ origin: s.origin, destination: s.destination, switchDirection: s.switchDirection })))
   const router = useRouter()
   const insets = useSafeAreaInsets()
   const routeEditDisabled = screenName !== "routeList"

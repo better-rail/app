@@ -11,9 +11,7 @@ import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass
 
 // TODO: add typings to progress
 export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "activeRide" }) {
-  const { id, stopRide } = useRideStore(
-    useShallow((s) => ({ id: s.id, stopRide: s.stopRide }))
-  )
+  const { id, stopRide } = useRideStore(useShallow((s) => ({ id: s.id, stopRide: s.stopRide })))
   const { progress, screenName } = props
 
   const router = useRouter()

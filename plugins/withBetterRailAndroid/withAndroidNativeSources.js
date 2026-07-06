@@ -28,10 +28,7 @@ const withAndroidNativeSources = (config) =>
       const androidMain = path.join(cfg.modRequest.platformProjectRoot, "app", "src", "main")
 
       // Kotlin sources
-      copyDir(
-        path.join(root, "android-native", "java", "com", "betterrail"),
-        path.join(androidMain, "java", "com", "betterrail"),
-      )
+      copyDir(path.join(root, "android-native", "java", "com", "betterrail"), path.join(androidMain, "java", "com", "betterrail"))
       // Resources (merged additively into the Expo-generated res/)
       copyDir(path.join(root, "android-native", "res"), path.join(androidMain, "res"))
 

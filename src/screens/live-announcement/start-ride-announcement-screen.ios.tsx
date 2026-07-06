@@ -24,11 +24,7 @@ export function StartRideAnnouncement() {
           <View style={styles.videoWrapper}>
             <Video source={START_RIDE_VIDEO} style={styles.video} repeat={true} />
           </View>
-          <Text
-            tx="liveAnnounce.startRide.description2"
-            style={[styles.text, styles.description2]}
-            maxFontSizeMultiplier={1.1}
-          />
+          <Text tx="liveAnnounce.startRide.description2" style={[styles.text, styles.description2]} maxFontSizeMultiplier={1.1} />
         </View>
 
         <NextButton

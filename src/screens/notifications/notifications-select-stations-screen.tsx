@@ -19,7 +19,11 @@ export function NotificationsSelectStationsScreen() {
   const [searchTerm, setSearchTerm] = useState("")
 
   const { stationsNotifications, removeStationNotification, addStationNotification } = useSettingsStore(
-    useShallow((s) => ({ stationsNotifications: s.stationsNotifications, removeStationNotification: s.removeStationNotification, addStationNotification: s.addStationNotification }))
+    useShallow((s) => ({
+      stationsNotifications: s.stationsNotifications,
+      removeStationNotification: s.removeStationNotification,
+      addStationNotification: s.addStationNotification,
+    })),
   )
 
   const stations = useStations()
@@ -41,12 +45,7 @@ export function NotificationsSelectStationsScreen() {
   }
 
   return (
-    <Screen
-      style={{ flex: 1 }}
-      unsafe={true}
-      statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
-      translucent
-    >
+    <Screen style={{ flex: 1 }} unsafe={true} statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"} translucent>
       <View style={styles.container}>
         <View style={styles.searchRow}>
           <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} autoFocus={false} />
