@@ -47,7 +47,7 @@ export const useTrainRoutesStore = create<TrainRoutesStore>((set, get) => ({
   },
 
   async getRoutes(originId, destinationId, time) {
-    set({ status: "pending", resultType: "normal" })
+    set({ status: "pending" })
 
     const routeApi = new RouteApi()
     let foundRoutes = false
@@ -63,11 +63,11 @@ export const useTrainRoutesStore = create<TrainRoutesStore>((set, get) => ({
 
       if (result.length > 0) {
         foundRoutes = true
-        set({ routes: result, status: "done" })
 
+        let resultType: ResultType = "normal"
         if (apiHitCount > 0) {
           // We found routes for a date different than the requested date.
-          set({ resultType: "different-date" })
+          resultType = "different-date"
         } else {
           const closestDateToNow = closestTo(
             time,
@@ -76,9 +76,13 @@ export const useTrainRoutesStore = create<TrainRoutesStore>((set, get) => ({
           const difference = differenceInMinutes(closestDateToNow, time)
           if (Math.abs(difference) >= 90) {
             // We found routes for the selected day but not at the requested hour.
-            set({ resultType: "different-hour" })
+            resultType = "different-hour"
           }
         }
+
+        // Set resultType once, atomically with the results — flipping it through "normal"
+        // mid-fetch remounts RouteListWarning and re-fires its alert on every background refetch.
+        set({ routes: result, status: "done", resultType })
 
         return result
       } else {
