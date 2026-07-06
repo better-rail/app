@@ -1,16 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 
 import * as React from "react"
-import {
-  ImageBackground,
-  View,
-  Platform,
-  Dimensions,
-  ImageSourcePropType,
-  ViewStyle,
-  Image,
-  Appearance,
-} from "react-native"
+import { ImageBackground, View, Platform, Dimensions, ImageSourcePropType, ViewStyle, Image, Appearance } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import LinearGradient from "react-native-linear-gradient"

@@ -80,7 +80,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // falls back to the local path for on-machine prod prebuilds.
     googleServicesFile: IS_DEV
       ? "./GoogleService-Info.development.plist"
-      : process.env.GOOGLE_SERVICES_PLIST ?? "./GoogleService-Info.plist",
+      : (process.env.GOOGLE_SERVICES_PLIST ?? "./GoogleService-Info.plist"),
     // Icon Composer (Liquid Glass) icon — a string path, per Expo's requirement. The .icon
     // bundle carries its own light/dark/tinted appearance specializations, so it replaces the
     // light/dark/tinted PNG object. Named "AppIcon" (not "Icon") so the project-wide
@@ -122,7 +122,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // falls back to the local path for on-machine prod prebuilds.
     googleServicesFile: IS_DEV
       ? "./google-services.development.json"
-      : process.env.GOOGLE_SERVICES_JSON ?? "./google-services.json",
+      : (process.env.GOOGLE_SERVICES_JSON ?? "./google-services.json"),
     allowBackup: false,
     // Widget network calls / local dev (replaces the original network_security_config.xml).
     usesCleartextTraffic: true,

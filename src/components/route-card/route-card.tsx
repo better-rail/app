@@ -68,7 +68,7 @@ export function RouteCard(props: RouteCardProps) {
   } = props
 
   const { hideSlowTrains, showRouteCardHeader } = useSettingsStore(
-    useShallow((s) => ({ hideSlowTrains: s.hideSlowTrains, showRouteCardHeader: s.showRouteCardHeader }))
+    useShallow((s) => ({ hideSlowTrains: s.hideSlowTrains, showRouteCardHeader: s.showRouteCardHeader })),
   )
 
   // Format times
@@ -131,13 +131,7 @@ export function RouteCard(props: RouteCardProps) {
     const carType = train?.visaWagonData?.wagons?.[0]?.krsG3
     const imageSource = trainTypeImages[carType as keyof typeof trainTypeImages] || trainTypeImages.TBD
 
-    return (
-      <Image
-        source={imageSource}
-        style={styles.trainTypeImage}
-        resizeMode="contain"
-      />
-    )
+    return <Image source={imageSource} style={styles.trainTypeImage} resizeMode="contain" />
   }
 
   const showHeader = mainTrain && (showHeaderOverride ?? showRouteCardHeader)

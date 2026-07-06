@@ -13,8 +13,8 @@ mock.module("expo-localization", () => {
         digitGroupingSeparator: ",",
         textDirection: "ltr",
         measurementSystem: "metric",
-        temperatureUnit: "celsius"
-      }
-    ]
+        temperatureUnit: "celsius",
+      },
+    ],
   }
 })

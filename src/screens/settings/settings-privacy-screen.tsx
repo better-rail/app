@@ -18,7 +18,7 @@ const TELEMETRY_DISABLED_STORAGE_KEY = "telemetry_disabled"
 
 export function PrivacyScreen() {
   const { disableTelemetry, setDisableTelemetry } = useUserStore(
-    useShallow((s) => ({ disableTelemetry: s.disableTelemetry, setDisableTelemetry: s.setDisableTelemetry }))
+    useShallow((s) => ({ disableTelemetry: s.disableTelemetry, setDisableTelemetry: s.setDisableTelemetry })),
   )
   const isBetaTester = useIsBetaTester()
 

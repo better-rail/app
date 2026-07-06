@@ -16,7 +16,7 @@ import { setAnalyticsUserProperty, trackEvent } from "@/services/analytics"
 export function UISettingsScreen() {
   const isDarkMode = useIsDarkMode()
   const { showRouteCardHeader, setShowRouteCardHeader } = useSettingsStore(
-    useShallow((s) => ({ showRouteCardHeader: s.showRouteCardHeader, setShowRouteCardHeader: s.setShowRouteCardHeader }))
+    useShallow((s) => ({ showRouteCardHeader: s.showRouteCardHeader, setShowRouteCardHeader: s.setShowRouteCardHeader })),
   )
 
   // Animate card container height based on header visibility

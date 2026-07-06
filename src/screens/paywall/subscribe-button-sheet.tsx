@@ -51,11 +51,7 @@ export function SubscribeButtonSheet({ subscriptionType, onPress, isLoading }: S
         contentStyle={{ gap: isHeebo ? 1 : 6 }}
         colors={isDarkMode ? ["#5E17EB", "#9432C2"] : ["#7B1AEC", "#5755F2"]}
       />
-      <BlurView
-        tint={isDarkMode ? "systemUltraThinMaterialDark" : "systemThinMaterialDark"}
-        intensity={10}
-        style={styles.blur}
-      />
+      <BlurView tint={isDarkMode ? "systemUltraThinMaterialDark" : "systemThinMaterialDark"} intensity={10} style={styles.blur} />
     </View>
   )
 }

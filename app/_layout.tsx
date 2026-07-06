@@ -126,11 +126,14 @@ function RootLayout() {
 
   useEffect(() => {
     if (!storeReady) return
-    useRideStore.getState().checkLiveActivitiesSupported().then((canRunLiveActivities) => {
-      if (canRunLiveActivities === true) {
-        monitorLiveActivities()
-      }
-    })
+    useRideStore
+      .getState()
+      .checkLiveActivitiesSupported()
+      .then((canRunLiveActivities) => {
+        if (canRunLiveActivities === true) {
+          monitorLiveActivities()
+        }
+      })
   }, [storeReady])
 
   useEffect(() => {

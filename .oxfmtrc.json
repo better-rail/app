@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 130,
+  "semi": false,
+  "singleQuote": false,
+  "trailingComma": "all",
+  "sortPackageJson": false,
+  "ignorePatterns": [
+    "node_modules",
+    "ios-native",
+    "android-native",
+    ".vscode",
+    "package.json",
+    "**/*.xcassets",
+    "assets/icons/AppIcon.icon",
+    "google-services.development.json"
+  ]
+}

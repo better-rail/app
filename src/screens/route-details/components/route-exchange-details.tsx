@@ -73,10 +73,7 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
             <Text style={styles.infoText}>{platformDetailText}</Text>
           </View>
           <View
-            style={[
-              styles.infoDetailWrapper,
-              { marginBottom: isExchangeSafe ? (fontScale > 1 ? spacing[3] : 0) : spacing[1] },
-            ]}
+            style={[styles.infoDetailWrapper, { marginBottom: isExchangeSafe ? (fontScale > 1 ? spacing[3] : 0) : spacing[1] }]}
           >
             <Image style={styles.infoIcon} source={clockIcon} />
             <Text style={styles.infoText}>

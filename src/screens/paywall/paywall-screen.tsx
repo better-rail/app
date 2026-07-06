@@ -51,11 +51,7 @@ export function PaywallScreen() {
           accessibilityLabel={translate("common.close")}
         />
       )}
-      headerTitle={() => (
-        <Animated.Text style={[styles.headerTitleText, headerOpacity]}>
-          Better Rail Pro
-        </Animated.Text>
-      )}
+      headerTitle={() => <Animated.Text style={[styles.headerTitleText, headerOpacity]}>Better Rail Pro</Animated.Text>}
       headerBackground={() => (
         <View style={{ width: "100%", height: headerHeight }}>
           <BlurView style={{ height: insets.top }} intensity={30} />
@@ -96,10 +92,7 @@ export function PaywallScreen() {
           <FeaturesBox />
 
           <View>
-            <Text
-              tx="paywall.tryFree"
-              style={[styles.betterRailProSubtitle, styles.tryFreeSubtitle]}
-            />
+            <Text tx="paywall.tryFree" style={[styles.betterRailProSubtitle, styles.tryFreeSubtitle]} />
             <Text tx="paywall.afterTrial" style={styles.betterRailProSubtitle} />
           </View>
 

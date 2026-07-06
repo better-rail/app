@@ -19,7 +19,7 @@ export function FavoriteRoutes(props: FavoriteRoutesProps) {
   const router = useRouter()
   const stations = useStations()
   const { setOrigin, setDestination } = useRoutePlanStore(
-    useShallow((s) => ({ setOrigin: s.setOrigin, setDestination: s.setDestination }))
+    useShallow((s) => ({ setOrigin: s.setOrigin, setDestination: s.setDestination })),
   )
   const favoriteRoutesData = useFavoritesStore((s) => s.routes)
 

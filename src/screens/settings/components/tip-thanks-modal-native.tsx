@@ -11,13 +11,7 @@ interface TipThanksModalNativeProps {
 
 export const TipThanksModalNative = function TipThanksModalNative({ visible, onClose }: TipThanksModalNativeProps) {
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="fade"
-      presentationStyle="overFullScreen"
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} transparent={true} animationType="fade" presentationStyle="overFullScreen" onRequestClose={onClose}>
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.backdrop}>
           <TouchableWithoutFeedback>

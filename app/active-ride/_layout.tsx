@@ -15,7 +15,13 @@ export default function ActiveRideLayout() {
           title: "",
           headerLeft: () => <CloseButton onPress={() => router.back()} iconStyle={{ tintColor: "white" }} />,
           unstable_headerLeftItems: () => [
-            { type: "button", label: translate("common.close") ?? "Close", icon: { type: "sfSymbol", name: "xmark" }, tintColor: "white", onPress: () => router.back() },
+            {
+              type: "button",
+              label: translate("common.close") ?? "Close",
+              icon: { type: "sfSymbol", name: "xmark" },
+              tintColor: "white",
+              onPress: () => router.back(),
+            },
           ],
         }}
       />

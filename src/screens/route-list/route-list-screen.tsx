@@ -36,11 +36,9 @@ export function RouteListScreen() {
   const time = parseInt(rawParams.time as string)
   const enableQuery = rawParams.enableQuery === "true"
   const { resultType, getRoutes, updateResultType } = useTrainRoutesStore(
-    useShallow((s) => ({ resultType: s.resultType, getRoutes: s.getRoutes, updateResultType: s.updateResultType }))
+    useShallow((s) => ({ resultType: s.resultType, getRoutes: s.getRoutes, updateResultType: s.updateResultType })),
   )
-  const { dateType, date: routePlanDate } = useRoutePlanStore(
-    useShallow((s) => ({ dateType: s.dateType, date: s.date }))
-  )
+  const { dateType, date: routePlanDate } = useRoutePlanStore(useShallow((s) => ({ dateType: s.dateType, date: s.date })))
   const isRouteActive = useRideStore((s) => s.isRouteActive)
   const rideRoute = useRideStore((s) => s.route)
   const hideSlowTrains = useSettingsStore((s) => s.hideSlowTrains)
@@ -546,10 +544,7 @@ export function RouteListScreen() {
       )}
 
       {shouldShowWarning && !trains.isLoading && (
-        <RouteListWarning
-          routesDate={trains.data[0].trains[0].departureTime}
-          warningType={resultType as WarningType}
-        />
+        <RouteListWarning routesDate={trains.data[0].trains[0].departureTime} warningType={resultType as WarningType} />
       )}
     </Screen>
   )

@@ -6,7 +6,9 @@ import LinearGradient from "react-native-linear-gradient"
 export const WidgetOnboardingBackground = () => {
   const colorScheme = useColorScheme()
 
-  return <LinearGradient style={styles.gradient} colors={colorScheme === "dark" ? ["#2E25AD", "#5D54DB"] : ["#0575E6", "#021B79"]} />
+  return (
+    <LinearGradient style={styles.gradient} colors={colorScheme === "dark" ? ["#2E25AD", "#5D54DB"] : ["#0575E6", "#021B79"]} />
+  )
 }
 
 const styles = StyleSheet.create({

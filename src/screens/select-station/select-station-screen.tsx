@@ -17,7 +17,7 @@ export function SelectStationScreen() {
   const router = useRouter()
   const { selectionType } = useLocalSearchParams<{ selectionType: "origin" | "destination" }>()
   const { setOrigin, setDestination } = useRoutePlanStore(
-    useShallow((s) => ({ setOrigin: s.setOrigin, setDestination: s.setDestination }))
+    useShallow((s) => ({ setOrigin: s.setOrigin, setDestination: s.setDestination })),
   )
   const saveRecentSearch = useRecentSearchesStore((s) => s.save)
   const recentSearchEntries = useRecentSearchesStore((s) => s.entries)

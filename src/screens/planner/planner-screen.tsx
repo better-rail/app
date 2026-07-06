@@ -23,11 +23,17 @@ import { FlingGestureWrapper } from "./planner-slider-wrapper"
 export function PlannerScreen() {
   const router = useRouter()
   const { date, origin, destination, setDate, switchDirection } = useRoutePlanStore(
-    useShallow((s) => ({ date: s.date, origin: s.origin, destination: s.destination, setDate: s.setDate, switchDirection: s.switchDirection }))
+    useShallow((s) => ({
+      date: s.date,
+      origin: s.origin,
+      destination: s.destination,
+      setDate: s.setDate,
+      switchDirection: s.switchDirection,
+    })),
   )
   const dateTypeDisplayName = useDateTypeDisplayName()
   const { updateResultType, getRoutes } = useTrainRoutesStore(
-    useShallow((s) => ({ updateResultType: s.updateResultType, getRoutes: s.getRoutes }))
+    useShallow((s) => ({ updateResultType: s.updateResultType, getRoutes: s.getRoutes })),
   )
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
 
@@ -106,7 +112,10 @@ export function PlannerScreen() {
     if (Platform.OS === "ios") {
       donateRouteIntent(originId, destinationId)
     }
-    router.push({ pathname: "/route-list", params: { originId, destinationId, time: String(date.getTime()), enableQuery: "true" } })
+    router.push({
+      pathname: "/route-list",
+      params: { originId, destinationId, time: String(date.getTime()), enableQuery: "true" },
+    })
   }
 
   /**
@@ -216,7 +225,6 @@ export function PlannerScreen() {
               }
             }}
           />
-
         </View>
       </FlingGestureWrapper>
     </Screen>
