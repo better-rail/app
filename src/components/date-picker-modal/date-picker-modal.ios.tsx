@@ -1,22 +1,16 @@
 import React from "react"
 import { ViewStyle } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
 import SegmentedControl from "@expo/ui/community/segmented-control"
 import { useShallow } from "zustand/react/shallow"
 import type { DateType } from "@/models"
 import { useRoutePlanStore } from "@/models"
 import { dateLocale, translate } from "@/i18n"
-import { spacing } from "@/theme"
 import HapticFeedback from "react-native-haptic-feedback"
 
 // A dictionary to set the date type according to the segmented control selected index
 const DATE_TYPE: { [key: number]: DateType } = { 0: "departure", 1: "arrival" }
-
-const SEGMENTED_CONTROL: ViewStyle = {
-  marginHorizontal: spacing[3],
-  marginTop: spacing[3],
-  marginBottom: -6,
-}
 
 export interface DatePickerModalProps {
   isVisible: boolean
@@ -52,7 +46,7 @@ export function DatePickerModal(props: DatePickerModalProps) {
             setDateType(DATE_TYPE[event.nativeEvent.selectedSegmentIndex])
             HapticFeedback.trigger("impactLight")
           }}
-          style={SEGMENTED_CONTROL}
+          style={styles.segmentedControl}
         />
       )}
       customCancelButtonIOS={() => null}
@@ -60,3 +54,11 @@ export function DatePickerModal(props: DatePickerModalProps) {
     />
   )
 }
+
+const styles = StyleSheet.create((theme) => ({
+  segmentedControl: {
+    marginHorizontal: theme.spacing[3],
+    marginTop: theme.spacing[3],
+    marginBottom: -6,
+  },
+}))

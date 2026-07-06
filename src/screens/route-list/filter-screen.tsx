@@ -1,31 +1,11 @@
-import { View, ViewStyle, TextStyle, Platform } from "react-native"
+import { View, Platform } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
-import { color, spacing } from "@/theme"
 import { useShallow } from "zustand/react/shallow"
 import { useSettingsStore } from "@/models"
 import { SettingBox } from "@/screens/settings/components/settings-box"
 import { SETTING_GROUP } from "@/screens/settings/settings-styles"
 import { translate } from "@/i18n"
-
-const WRAPPER: ViewStyle = {
-  paddingTop: spacing[5],
-  paddingHorizontal: spacing[4],
-  minHeight: Platform.OS === "ios" ? 180 : 225,
-}
-
-const TITLE: TextStyle = {
-  fontSize: 24,
-  fontWeight: "bold",
-  color: color.text,
-  marginBottom: spacing[2],
-}
-
-const DESCRIPTION: TextStyle = {
-  marginTop: -spacing[2],
-  fontSize: 14,
-  paddingHorizontal: spacing[2],
-  opacity: 0.8,
-}
 
 export function FilterScreen() {
   const { hideSlowTrains, setHideSlowTrains } = useSettingsStore(
@@ -37,8 +17,8 @@ export function FilterScreen() {
   }
 
   return (
-    <View style={WRAPPER}>
-      <Text style={TITLE}>{translate("routes.filter")}</Text>
+    <View style={styles.wrapper}>
+      <Text style={styles.title}>{translate("routes.filter")}</Text>
 
       <View style={SETTING_GROUP}>
         <SettingBox
@@ -51,7 +31,27 @@ export function FilterScreen() {
         />
       </View>
 
-      <Text style={DESCRIPTION}>{translate("routes.slowTrainsDescription")}</Text>
+      <Text style={styles.description}>{translate("routes.slowTrainsDescription")}</Text>
     </View>
   )
 }
+
+const styles = StyleSheet.create((theme) => ({
+  wrapper: {
+    paddingTop: theme.spacing[5],
+    paddingHorizontal: theme.spacing[4],
+    minHeight: Platform.OS === "ios" ? 180 : 225,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: theme.colors.text,
+    marginBottom: theme.spacing[2],
+  },
+  description: {
+    marginTop: -theme.spacing[2],
+    fontSize: 14,
+    paddingHorizontal: theme.spacing[2],
+    opacity: 0.8,
+  },
+}))

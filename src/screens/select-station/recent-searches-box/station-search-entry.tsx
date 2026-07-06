@@ -1,45 +1,13 @@
 import React from "react"
 import { View, Image, Appearance, Platform } from "react-native"
-import type { ViewStyle, ImageStyle, TextStyle, ImageSourcePropType } from "react-native"
+import type { ImageSourcePropType } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { ContextMenuView } from "react-native-ios-context-menu"
 import TouchableScale from "react-native-touchable-scale"
 import { Text } from "@/components"
 import { translate } from "@/i18n"
-import { spacing, color } from "@/theme"
 
 const colorScheme = Appearance.getColorScheme()
-
-const SEARCH_ENTRY_WRAPPER: ViewStyle = {
-  alignItems: "center",
-}
-
-const SEARCH_ENTRY_IMAGE_WRAPPER: ViewStyle = {
-  shadowOffset: { width: 0, height: 0 },
-  shadowColor: "rgba(0,0,0,.3)",
-  shadowRadius: 1.5,
-  shadowOpacity: colorScheme === "light" ? 0.5 : 0,
-  backgroundColor: color.inputPlaceholderBackground,
-  borderRadius: Platform.select({ ios: 10, android: 4 }),
-  borderCurve: "continuous",
-}
-
-const SEARCH_ENTRY_IMAGE: ImageStyle = {
-  width: 175,
-  height: 125,
-  borderRadius: Platform.select({ ios: 10, android: 6 }),
-}
-
-const SEARCH_ENTRY_TEXT: TextStyle = {
-  marginTop: spacing[1],
-}
-
-const EMPTY_CARD_WRAPPER: ViewStyle = {
-  width: 175,
-  height: 125,
-  justifyContent: "center",
-  alignItems: "center",
-  borderRadius: Platform.select({ ios: 6, android: 4 }),
-}
 
 type StationSearchEntryProps = {
   image: ImageSourcePropType
@@ -54,7 +22,7 @@ export const StationSearchEntry = (props: StationSearchEntryProps) => (
     activeScale={0.96}
     friction={8}
     tension={Platform.select({ ios: 8, android: undefined })}
-    style={SEARCH_ENTRY_WRAPPER}
+    style={styles.searchEntryWrapper}
   >
     <ContextMenuView
       onPressMenuItem={({ nativeEvent }) => {
@@ -80,19 +48,52 @@ export const StationSearchEntry = (props: StationSearchEntryProps) => (
         ],
       }}
     >
-      <View style={SEARCH_ENTRY_IMAGE_WRAPPER}>
+      <View style={styles.searchEntryImageWrapper}>
         {props.image ? (
-          <Image source={props.image} style={SEARCH_ENTRY_IMAGE} />
+          <Image source={props.image} style={styles.searchEntryImage} />
         ) : (
-          <View style={EMPTY_CARD_WRAPPER}>
-            <Image
-              source={require("../../../../assets/railway-station.png")}
-              style={{ width: 48, height: 48, marginBottom: spacing[2], tintColor: color.dim }}
-            />
+          <View style={styles.emptyCardWrapper}>
+            <Image source={require("../../../../assets/railway-station.png")} style={styles.emptyCardImage} />
           </View>
         )}
       </View>
     </ContextMenuView>
-    <Text style={SEARCH_ENTRY_TEXT}>{props.name}</Text>
+    <Text style={styles.searchEntryText}>{props.name}</Text>
   </TouchableScale>
 )
+
+const styles = StyleSheet.create((theme) => ({
+  searchEntryWrapper: {
+    alignItems: "center",
+  },
+  searchEntryImageWrapper: {
+    shadowOffset: { width: 0, height: 0 },
+    shadowColor: "rgba(0,0,0,.3)",
+    shadowRadius: 1.5,
+    shadowOpacity: colorScheme === "light" ? 0.5 : 0,
+    backgroundColor: theme.colors.inputPlaceholderBackground,
+    borderRadius: Platform.select({ ios: 10, android: 4 }),
+    borderCurve: "continuous",
+  },
+  searchEntryImage: {
+    width: 175,
+    height: 125,
+    borderRadius: Platform.select({ ios: 10, android: 6 }),
+  },
+  searchEntryText: {
+    marginTop: theme.spacing[1],
+  },
+  emptyCardWrapper: {
+    width: 175,
+    height: 125,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: Platform.select({ ios: 6, android: 4 }),
+  },
+  emptyCardImage: {
+    width: 48,
+    height: 48,
+    marginBottom: theme.spacing[2],
+    tintColor: theme.colors.dim,
+  },
+}))

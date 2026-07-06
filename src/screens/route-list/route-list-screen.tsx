@@ -1,17 +1,19 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react"
 import HapticFeedback from "react-native-haptic-feedback"
 import * as Burnt from "burnt"
-import { View, ActivityIndicator, ViewStyle, Dimensions, useColorScheme } from "react-native"
+import { View, ActivityIndicator, Dimensions, useColorScheme } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import Animated from "react-native-reanimated"
 import { FlashList } from "@shopify/flash-list"
 import { useNetworkState } from "expo-network"
 import { useQuery } from "react-query"
 import { closestIndexTo } from "date-fns"
 import { useRouter, useLocalSearchParams } from "expo-router"
+import { useObserve } from "expo-observe"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useShallow } from "zustand/react/shallow"
 import { useTrainRoutesStore, useRoutePlanStore, useRideStore, useSettingsStore } from "@/models"
-import { color, fontScale, spacing } from "@/theme"
+import { fontScale, spacing } from "@/theme"
 import { RouteItem } from "@/services/api"
 import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight } from "@/components"
 import { NoTrainsFoundMessage, RouteListError, RouteListWarning, WarningType, ResultDateCard, DateScroll } from "./components"
@@ -22,11 +24,7 @@ import { addRouteToCalendar } from "@/utils/helpers/calendar-helpers"
 import { getActionSheetStyleOptions } from "@/utils/helpers/action-sheet-helpers"
 import { isRouteInThePast } from "@/utils/helpers/date-helpers"
 import { useActionSheet } from "@expo/react-native-action-sheet"
-
-const ROOT: ViewStyle = {
-  backgroundColor: color.background,
-  flex: 1,
-}
+import { useFeatureFlag } from "posthog-react-native"
 
 type RouteData = RouteItem | string
 
@@ -46,8 +44,11 @@ export function RouteListScreen() {
   const isRouteActive = useRideStore((s) => s.isRouteActive)
   const rideRoute = useRideStore((s) => s.route)
   const hideSlowTrains = useSettingsStore((s) => s.hideSlowTrains)
+  const seenTrainInfoPrompt = useSettingsStore((s) => s.seenTrainInfoPrompt)
+  const setSeenTrainInfoPrompt = useSettingsStore((s) => s.setSeenTrainInfoPrompt)
   const { showActionSheetWithOptions } = useActionSheet()
   const colorScheme = useColorScheme()
+  const { markInteractive } = useObserve()
 
   // Reference to the current real time for date limit calculations
   const currentRealTime = useMemo(() => new Date(), [])
@@ -73,6 +74,23 @@ export function RouteListScreen() {
   }, [originId, destinationId])
 
   const flashListRef = useRef(null)
+
+  // Prompt the user once to choose whether to show the "Train Info" row on route cards.
+  // Gated behind the "show-train-info-prompt" PostHog feature flag; shown at most once per
+  // user (tracked via seenTrainInfoPrompt).
+  const trainInfoPromptFlag = useFeatureFlag("show-train-info-prompt")
+  useEffect(() => {
+    if (!trainInfoPromptFlag || seenTrainInfoPrompt) return
+
+    // Wait for the route-list push transition to settle before presenting the sheet.
+    const timeout = setTimeout(() => {
+      setSeenTrainInfoPrompt(true)
+      router.push("/train-info-prompt")
+    }, 600)
+
+    return () => clearTimeout(timeout)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trainInfoPromptFlag])
 
   // Helper function to organize routes by date
   const organizeRoutesByDate = useCallback((routes: RouteItem[], currentDateStr: string, existingData: RouteData[] = []) => {
@@ -204,10 +222,14 @@ export function RouteListScreen() {
         if (data && data.length > 0) {
           const firstRouteDate = new Date(data[0].trains[0].departureTime).toDateString()
           if (firstRouteDate !== currentDate.toDateString()) {
-            // Update the current date to match the actual date of the routes
-            setCurrentDate(new Date(firstRouteDate))
+            // Update the current date to match the actual date of the routes, keeping the
+            // originally requested time-of-day — resetting to midnight re-runs the query
+            // with 00:00 and triggers a spurious "different-hour" warning.
+            const updatedDate = new Date(firstRouteDate)
+            updatedDate.setHours(currentDate.getHours(), currentDate.getMinutes(), 0, 0)
+            setCurrentDate(updatedDate)
             // Update the next day date accordingly
-            const nextDate = new Date(firstRouteDate)
+            const nextDate = new Date(updatedDate)
             nextDate.setDate(nextDate.getDate() + 1)
             setNextDayDate(nextDate)
           }
@@ -278,6 +300,16 @@ export function RouteListScreen() {
       return !item.isMuchLonger
     })
   }, [routeData, hideSlowTrains])
+
+  // Signal EAS Observe per-route TTI once the route results have resolved — either
+  // routes are rendered, or we've reached a terminal not-found / error state.
+  useEffect(() => {
+    const hasResults = filteredRouteData.length > 0
+    const isTerminalEmpty = !trains.isLoading && (resultType === "not-found" || trains.status === "error")
+    if (hasResults || isTerminalEmpty) {
+      markInteractive()
+    }
+  }, [filteredRouteData.length, trains.isLoading, trains.status, resultType, markInteractive])
 
   // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
   // returns a route list for the whole day.
@@ -449,7 +481,7 @@ export function RouteListScreen() {
 
   return (
     <Screen
-      style={ROOT}
+      style={styles.root}
       preset="fixed"
       unsafe={true}
       statusBar="light-content"
@@ -505,7 +537,9 @@ export function RouteListScreen() {
         />
       )}
 
-      {resultType === "not-found" && !trains.isLoading && isInternetReachable && (
+      {/* A failed background refetch sets "not-found" in the store directly, bypassing the
+          onError guard — so also require that no results are currently displayed. */}
+      {resultType === "not-found" && !trains.isLoading && isInternetReachable && routeData.length === 0 && (
         <View style={{ marginTop: spacing[4] }}>
           <NoTrainsFoundMessage />
         </View>
@@ -520,3 +554,10 @@ export function RouteListScreen() {
     </Screen>
   )
 }
+
+const styles = StyleSheet.create((theme) => ({
+  root: {
+    backgroundColor: theme.colors.background,
+    flex: 1,
+  },
+}))

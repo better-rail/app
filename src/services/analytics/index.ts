@@ -59,7 +59,18 @@ export const setAnalyticsCollectionEnabled = async (enabled: boolean) => {
   }
 }
 
-if (__DEV__) {
+// Analytics is disabled in development by default. To verify events locally (e.g. PostHog),
+// set EXPO_PUBLIC_ANALYTICS_IN_DEV=true in .env.local and restart the bundler with `-c`.
+// Production behaviour is unaffected — this only relaxes the dev opt-out.
+const ANALYTICS_ENABLED_IN_DEV = process.env.EXPO_PUBLIC_ANALYTICS_IN_DEV === "true"
+
+if (__DEV__ && !ANALYTICS_ENABLED_IN_DEV) {
   setAnalyticsCollectionEnabled(false)
   posthog.optOut()
+} else if (__DEV__ && ANALYTICS_ENABLED_IN_DEV) {
+  // PostHog persists opt-out state to storage, so a previous dev run that called optOut()
+  // keeps it opted out across launches. Explicitly opt back in to clear that.
+  posthog.optIn()
+  // Log every capture/flush to the Metro console so events are easy to verify locally.
+  posthog.debug(true)
 }

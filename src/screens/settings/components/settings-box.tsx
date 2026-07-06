@@ -1,15 +1,6 @@
 import React from "react"
-import {
-  Image,
-  View,
-  ViewStyle,
-  TextStyle,
-  TouchableHighlight,
-  TouchableHighlightProps,
-  ImageStyle,
-  Platform,
-  Switch,
-} from "react-native"
+import { Image, View, ViewStyle, ImageStyle, TouchableHighlight, TouchableHighlightProps, Platform, Switch } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
 import { isRTL } from "@/i18n"
 import { color, spacing } from "@/theme"
@@ -20,42 +11,10 @@ const chevronIcon = require("../../../../assets/chevron.png")
 const checkmarkIcon = require("../../../../assets/checkmark.png")
 const externalLinkIcon = require("../../../../assets/external-link.png")
 
-const SETTINGS_BOX_BASE: ViewStyle = {
-  flexDirection: "row",
-  paddingVertical: 16,
-  paddingHorizontal: 12,
-}
-
-const SETTINGS_BOX_WRAPPER: ViewStyle = {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-  flex: 1,
-}
-
-const SETTINGS_BOX_DETAILS: ViewStyle = {
-  flexDirection: "row",
-  alignItems: "center",
-}
-
-const SETTINGS_BOX_TITLE: TextStyle = { marginStart: spacing[2], fontSize: 16.5, fontWeight: "400" }
-
-const CHECKMARK_ICON: ImageStyle = {
-  width: 19.5,
-  height: 19.5,
-  marginEnd: spacing[1],
-  tintColor: color.primary,
-}
-
-const EXTERNAL_LINK_ICON: ImageStyle = {
-  width: 19.5,
-  height: 19.5,
-  marginEnd: spacing[1],
-  tintColor: color.dim,
-  opacity: 0.45,
-  transform: isRTL ? undefined : [{ rotate: "90deg" }],
-}
-
+/**
+ * Plain (non-Unistyles) style kept because it's exported and shared cross-file
+ * (e.g. the paywall features box layers it inside a style array).
+ */
 export const CHEVRON_ICON: ImageStyle = {
   width: 8,
   height: 16,
@@ -100,25 +59,56 @@ export const SettingBox = function SettingBox(props: SettingBoxProps) {
     <TouchableHighlight
       underlayColor={color.inputPlaceholderBackground}
       onPress={onPress}
-      style={[SETTINGS_BOX_BASE, boxStyle, style]}
+      style={[styles.settingsBoxBase, boxStyle, style]}
     >
-      <View style={SETTINGS_BOX_WRAPPER}>
-        <View style={SETTINGS_BOX_DETAILS}>
-          {icon && <Text style={{ fontSize: 18 }}>{icon}</Text>}
-          <Text style={SETTINGS_BOX_TITLE}>{title}</Text>
+      <View style={styles.settingsBoxWrapper}>
+        <View style={styles.settingsBoxDetails}>
+          {icon && <Text style={styles.icon}>{icon}</Text>}
+          <Text style={styles.settingsBoxTitle}>{title}</Text>
         </View>
 
-        {externalLink && <Image style={EXTERNAL_LINK_ICON} source={externalLinkIcon} />}
+        {externalLink && <Image style={styles.externalLinkIcon} source={externalLinkIcon} />}
         {chevron && <Image style={CHEVRON_ICON} source={chevronIcon} />}
-        {checkmark && <Image style={CHECKMARK_ICON} source={checkmarkIcon} />}
-        {toggle && (
-          <Switch
-            value={props.toggleValue}
-            onValueChange={props.onToggle}
-            style={{ marginEnd: isLiquidGlassSupported ? spacing[4] : 0 }}
-          />
-        )}
+        {checkmark && <Image style={styles.checkmarkIcon} source={checkmarkIcon} />}
+        {toggle && <Switch value={props.toggleValue} onValueChange={props.onToggle} style={styles.switch} />}
       </View>
     </TouchableHighlight>
   )
 }
+
+const styles = StyleSheet.create((theme, rt) => ({
+  settingsBoxBase: {
+    flexDirection: "row",
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+  },
+  settingsBoxWrapper: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    flex: 1,
+  },
+  settingsBoxDetails: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  settingsBoxTitle: { marginStart: theme.spacing[2], fontSize: 16.5, fontWeight: "400" },
+  icon: { fontSize: 18 },
+  checkmarkIcon: {
+    width: 19.5,
+    height: 19.5,
+    marginEnd: theme.spacing[1],
+    tintColor: theme.colors.primary,
+  },
+  externalLinkIcon: {
+    width: 19.5,
+    height: 19.5,
+    marginEnd: theme.spacing[1],
+    tintColor: theme.colors.dim,
+    opacity: 0.45,
+    transform: rt.rtl ? undefined : [{ rotate: "90deg" }],
+  },
+  switch: {
+    marginEnd: isLiquidGlassSupported ? theme.spacing[4] : 0,
+  },
+}))

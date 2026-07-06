@@ -1,30 +1,11 @@
 import React from "react"
-import { Image, ViewStyle, ImageStyle, ScrollView, TextStyle } from "react-native"
+import { Image, ScrollView } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
 import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore } from "@/models"
-import { spacing, color } from "@/theme"
 import { AnnouncementsList } from "@/components/announcements/announcements-list"
 import { AnnouncementsHeader } from "@/components/announcements/announcements-header"
-
-const CONTAINER: ViewStyle = {
-  alignItems: "center",
-  paddingBottom: 250,
-  paddingHorizontal: spacing[4],
-}
-
-const SEARCH_ICON: ImageStyle = {
-  width: 57.5,
-  height: 57.5,
-  marginBottom: spacing[2],
-  opacity: 0.7,
-  tintColor: color.text,
-}
-
-const NO_TRAINS_FOUND_TEXT: TextStyle = {
-  marginBottom: spacing[2],
-  textAlign: "center",
-}
 
 export function NoTrainsFoundMessage() {
   const { origin, destination } = useRoutePlanStore(
@@ -36,9 +17,9 @@ export function NoTrainsFoundMessage() {
   const shouldShowAnnouncements = originId !== destinationId
 
   return (
-    <ScrollView contentContainerStyle={CONTAINER}>
-      <Image style={SEARCH_ICON} source={require("../../../../assets/search.png")} />
-      <Text tx={shouldShowAnnouncements ? "routes.noTrainsFound" : "routes.sameStationsMessage"} style={NO_TRAINS_FOUND_TEXT} />
+    <ScrollView contentContainerStyle={styles.container}>
+      <Image style={styles.searchIcon} source={require("../../../../assets/search.png")} />
+      <Text tx={shouldShowAnnouncements ? "routes.noTrainsFound" : "routes.sameStationsMessage"} style={styles.noTrainsFoundText} />
 
       {shouldShowAnnouncements && (
         <>
@@ -49,3 +30,22 @@ export function NoTrainsFoundMessage() {
     </ScrollView>
   )
 }
+
+const styles = StyleSheet.create((theme) => ({
+  container: {
+    alignItems: "center",
+    paddingBottom: 250,
+    paddingHorizontal: theme.spacing[4],
+  },
+  searchIcon: {
+    width: 57.5,
+    height: 57.5,
+    marginBottom: theme.spacing[2],
+    opacity: 0.7,
+    tintColor: theme.colors.text,
+  },
+  noTrainsFoundText: {
+    marginBottom: theme.spacing[2],
+    textAlign: "center",
+  },
+}))

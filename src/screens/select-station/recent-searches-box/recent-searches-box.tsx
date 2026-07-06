@@ -1,35 +1,15 @@
 import React, { useMemo } from "react"
-import { View, Image, TextStyle, ViewStyle, ImageStyle, Platform } from "react-native"
+import { View, Image, Platform } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore, useRecentSearchesStore } from "@/models"
 import { trackEvent } from "@/services/analytics"
 import { ScrollView } from "react-native-gesture-handler"
 import { Text } from "@/components"
-import { color, isDarkMode, spacing } from "@/theme"
+import { isDarkMode, spacing } from "@/theme"
 import { stationLocale, stationsObject } from "@/data/stations"
 import { StationSearchEntry } from "./station-search-entry"
 import { useRouter } from "expo-router"
-const RECENT_SEARCHES_TITLE: TextStyle = {
-  fontWeight: "500",
-  opacity: 0.8,
-}
-
-const RECENT_SEARCHERS_HEADER: ViewStyle = {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  marginHorizontal: spacing[3],
-  paddingBottom: spacing[1],
-  borderBottomWidth: 0.5,
-  borderColor: Platform.select({ ios: color.inputPlaceholderBackground, android: isDarkMode ? "#3a3a3c" : "lightgrey" }),
-}
-
-const SCROLL_VIEW: ViewStyle = {
-  minWidth: "100%",
-  marginTop: spacing[3],
-  paddingStart: spacing[3],
-  paddingEnd: spacing[4],
-  gap: spacing[3],
-}
 
 type RecentSearchesBoxProps = {
   selectionType: "origin" | "destination"
@@ -70,7 +50,7 @@ export function RecentSearchesBox(props: RecentSearchesBoxProps) {
         horizontal
         showsHorizontalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={SCROLL_VIEW}
+        contentContainerStyle={styles.scrollView}
         snapToInterval={175 + spacing[3]}
       >
         {sortedSearches.map((entry) => {
@@ -93,8 +73,8 @@ export function RecentSearchesBox(props: RecentSearchesBoxProps) {
 
   return (
     <View>
-      <View style={RECENT_SEARCHERS_HEADER}>
-        <Text tx="selectStation.recentSearches" style={RECENT_SEARCHES_TITLE} />
+      <View style={styles.recentSearchersHeader}>
+        <Text tx="selectStation.recentSearches" style={styles.recentSearchesTitle} />
       </View>
 
       {content}
@@ -102,28 +82,50 @@ export function RecentSearchesBox(props: RecentSearchesBoxProps) {
   )
 }
 
-const PLACEHOLDER_WRAPPER: ViewStyle = {
-  marginTop: spacing[3],
-  alignItems: "center",
-}
-
-const SEARCH_ICON: ImageStyle = {
-  width: 57.5,
-  height: 57.5,
-  marginBottom: spacing[2],
-  tintColor: color.dim,
-  opacity: 0.8,
-}
-
-const PLACEHOLDER_INSTRUCTIONS: TextStyle = {
-  color: color.dim,
-  textAlign: "center",
-  maxWidth: 220,
-}
-
 const RecentSearchesPlacerholder = () => (
-  <View style={PLACEHOLDER_WRAPPER}>
-    <Image style={SEARCH_ICON} source={require("../../../../assets/search.png")} />
-    <Text style={PLACEHOLDER_INSTRUCTIONS} tx="selectStation.instructions" />
+  <View style={styles.placeholderWrapper}>
+    <Image style={styles.searchIcon} source={require("../../../../assets/search.png")} />
+    <Text style={styles.placeholderInstructions} tx="selectStation.instructions" />
   </View>
 )
+
+const styles = StyleSheet.create((theme) => ({
+  recentSearchesTitle: {
+    fontWeight: "500",
+    opacity: 0.8,
+  },
+  recentSearchersHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginHorizontal: theme.spacing[3],
+    paddingBottom: theme.spacing[1],
+    borderBottomWidth: 0.5,
+    borderColor: Platform.select({
+      ios: theme.colors.inputPlaceholderBackground,
+      android: isDarkMode ? "#3a3a3c" : "lightgrey",
+    }),
+  },
+  scrollView: {
+    minWidth: "100%",
+    marginTop: theme.spacing[3],
+    paddingStart: theme.spacing[3],
+    paddingEnd: theme.spacing[4],
+    gap: theme.spacing[3],
+  },
+  placeholderWrapper: {
+    marginTop: theme.spacing[3],
+    alignItems: "center",
+  },
+  searchIcon: {
+    width: 57.5,
+    height: 57.5,
+    marginBottom: theme.spacing[2],
+    tintColor: theme.colors.dim,
+    opacity: 0.8,
+  },
+  placeholderInstructions: {
+    color: theme.colors.dim,
+    textAlign: "center",
+    maxWidth: 220,
+  },
+}))

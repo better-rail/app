@@ -1,10 +1,11 @@
 import React from "react"
 import { setAnalyticsCollectionEnabled, trackEvent } from "@/services/analytics"
-import { Platform, View, type ViewStyle, Alert } from "react-native"
+import { Platform, View, Alert } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { Screen } from "@/components"
 import { SettingBox } from "./components/settings-box"
 import { SETTING_GROUP } from "./settings-styles"
-import { color, isDarkMode, spacing } from "@/theme"
+import { isDarkMode } from "@/theme"
 import { useShallow } from "zustand/react/shallow"
 import { useUserStore, clearAllData } from "@/models"
 import { translate } from "@/i18n"
@@ -14,11 +15,6 @@ import RNRestart from "react-native-restart-newarch"
 import * as storage from "@/utils/storage"
 
 const TELEMETRY_DISABLED_STORAGE_KEY = "telemetry_disabled"
-
-const ROOT: ViewStyle = {
-  backgroundColor: color.background,
-  padding: spacing[4],
-}
 
 export function PrivacyScreen() {
   const { disableTelemetry, setDisableTelemetry } = useUserStore(
@@ -61,7 +57,7 @@ export function PrivacyScreen() {
 
   return (
     <Screen
-      style={ROOT}
+      style={styles.root}
       preset="scroll"
       unsafe={true}
       statusBar={Platform.select({ ios: "light-content" })}
@@ -88,3 +84,10 @@ export function PrivacyScreen() {
     </Screen>
   )
 }
+
+const styles = StyleSheet.create((theme) => ({
+  root: {
+    backgroundColor: theme.colors.background,
+    padding: theme.spacing[4],
+  },
+}))

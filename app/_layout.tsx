@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react"
 import { AppState, Platform, useColorScheme } from "react-native"
 import { useDeepLinking } from "@/hooks/use-deep-linking"
 import { Stack } from "expo-router/stack"
+import { ErrorBoundary as ExpoErrorBoundary } from "expo-router"
 import { ThemeProvider, DarkTheme, DefaultTheme } from "expo-router/react-navigation"
 import DeviceInfo from "react-native-device-info"
 import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from "react-query"
@@ -12,6 +13,7 @@ import { ActionSheetProvider } from "@expo/react-native-action-sheet"
 import * as Sentry from "@sentry/react-native"
 import { enableScreens } from "react-native-screens"
 import { PostHogProvider } from "posthog-react-native"
+import { Observe, ObserveRoot, useObserve } from "expo-observe"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 import { useIAP, initConnection, finishTransaction, getAvailablePurchases } from "react-native-iap"
 
@@ -32,6 +34,12 @@ import PushNotification from "react-native-push-notification"
 import "react-native-console-time-polyfill"
 
 enableScreens()
+
+// Enable per-route navigation metrics (cold/warm TTR, per-route TTI). Must run at
+// module scope before any screen mounts — it cannot be toggled at runtime.
+Observe.configure({
+  integrations: { "expo-router": true },
+})
 
 const TELEMETRY_DISABLED_STORAGE_KEY = "telemetry_disabled"
 
@@ -54,6 +62,10 @@ async function disableSentryIfTelemetryDisabled() {
 }
 
 disableSentryIfTelemetryDisabled()
+
+// Capture render-phase errors per route via Expo Router's ErrorBoundary. Attaches
+// route context to the event and marks in-flight navigation transactions as errored.
+export const ErrorBoundary = Sentry.wrapExpoRouterErrorBoundary(ExpoErrorBoundary)
 
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -101,6 +113,7 @@ function RootLayout() {
   const [storeReady, setStoreReady] = useState(false)
   const [localeReady, setLocaleReady] = useState(false)
   const appState = useRef(AppState.currentState)
+  const { markInteractive } = useObserve()
 
   useDeepLinking(storeReady)
 
@@ -185,6 +198,14 @@ function RootLayout() {
     }
   }, [])
 
+  useEffect(() => {
+    // Signal EAS Observe that the app is interactive once the store + locale are
+    // ready — this is the point we stop returning null and render the real UI.
+    if (storeReady && localeReady) {
+      markInteractive()
+    }
+  }, [storeReady, localeReady, markInteractive])
+
   if (!storeReady || !localeReady) return null
 
   return (
@@ -202,4 +223,4 @@ function RootLayout() {
   )
 }
 
-export default Sentry.wrap(RootLayout)
+export default Sentry.wrap(ObserveRoot.wrap(RootLayout))

@@ -34,13 +34,16 @@ export class RailApi {
         const { response, config } = error
 
         // If we get a 403 error and haven't fallen back to proxy yet
-        if (response?.status === 403 && !this.hasFallenBackToProxy) {
+        if (response?.status === 403 && !this.hasFallenBackToProxy && config) {
           this.hasFallenBackToProxy = true
 
           setAnalyticsUserProperty("rail_api", "proxy")
           this.axiosInstance.defaults.baseURL = API_CONFIG.PROXY_RAIL_API
 
-          const originalRequest = config
+          // Override baseURL on the replayed request itself — an explicit
+          // config.baseURL takes precedence over defaults.baseURL, so changing
+          // the default alone would send the retry back to the direct API.
+          const originalRequest = { ...config, baseURL: API_CONFIG.PROXY_RAIL_API }
           return this.axiosInstance.request(originalRequest)
         }
 

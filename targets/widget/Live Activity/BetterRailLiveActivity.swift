@@ -11,7 +11,7 @@ struct BetterRailLiveActivity: Widget {
   func deepLinkURL(_ trainNumbers: [Int]) -> URL {
     // convert train numbers to be used as a URL parameter
     let urlParam = trainNumbers.map(String.init).joined(separator: ",")
-    return URL(string: "liveActivity://?trains=\(urlParam)")!
+    return URL(string: "liveactivity://?trains=\(urlParam)")!
   }
   
   var body: some WidgetConfiguration {

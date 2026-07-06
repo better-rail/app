@@ -1,24 +1,11 @@
-import { Dimensions, Pressable, Animated as RNAnimated, TextStyle, ViewStyle } from "react-native"
+import { Pressable, Animated as RNAnimated } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import { Text } from "@/components/text/text"
-import { color, spacing } from "@/theme"
+import { color } from "@/theme"
 import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
 
 const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale)
-
-const ROUTE_DETAILS_STATION_TEXT: TextStyle = {
-  color: color.text,
-  opacity: 0.8,
-  textAlign: "center",
-  fontWeight: "600",
-  fontSize: 14,
-}
-
-const LIQUID_GLASS_STYLE: ViewStyle = {
-  width: Dimensions.get("screen").width / 2 - spacing[2] * 2,
-  padding: spacing[2],
-  borderRadius: 25,
-}
 
 interface RouteStationNameButtonProps extends TouchableScaleProps {
   disabled: boolean
@@ -33,8 +20,8 @@ export function RouteStationNameButton(props: RouteStationNameButtonProps) {
   if (isLiquidGlassSupported) {
     return (
       <Pressable onPress={onPress} disabled={disabled}>
-        <LiquidGlassView interactive={!disabled} tintColor={color.secondaryLighter} style={LIQUID_GLASS_STYLE}>
-          <Text style={ROUTE_DETAILS_STATION_TEXT} maxFontSizeMultiplier={1.1}>
+        <LiquidGlassView interactive={!disabled} tintColor={color.secondaryLighter} style={styles.liquidGlass}>
+          <Text style={styles.routeDetailsStationText} maxFontSizeMultiplier={1.1}>
             {name}
           </Text>
         </LiquidGlassView>
@@ -51,9 +38,24 @@ export function RouteStationNameButton(props: RouteStationNameButtonProps) {
       style={[style, { transform: [{ scale: buttonScale }] }]}
       {...rest}
     >
-      <Text style={ROUTE_DETAILS_STATION_TEXT} maxFontSizeMultiplier={1.1}>
+      <Text style={styles.routeDetailsStationText} maxFontSizeMultiplier={1.1}>
         {name}
       </Text>
     </AnimatedTouchable>
   )
 }
+
+const styles = StyleSheet.create((theme, rt) => ({
+  routeDetailsStationText: {
+    color: theme.colors.text,
+    opacity: 0.8,
+    textAlign: "center",
+    fontWeight: "600",
+    fontSize: 14,
+  },
+  liquidGlass: {
+    width: rt.screen.width / 2 - theme.spacing[2] * 2,
+    padding: theme.spacing[2],
+    borderRadius: 25,
+  },
+}))
