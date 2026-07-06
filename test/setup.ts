@@ -3,7 +3,6 @@ import "./mock-react-native"
 import "./mock-async-storage"
 import "./mock-expo-localization"
 import "./mock-i18n"
-import "./mock-firebase"
 import "./mock-env"
 
 declare global {

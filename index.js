@@ -25,7 +25,7 @@ if (global.ErrorUtils) {
   })
 }
 
-// Never let notification setup (Firebase Cloud Messaging) hard-crash launch.
+// Never let notification setup (expo-notifications FCM task) hard-crash launch.
 Promise.resolve()
   .then(configureNotifications)
   .catch((e) => console.error("[BetterRail] configureNotifications failed:", e))

@@ -6,8 +6,6 @@ import { color, isDarkMode, spacing } from "@/theme"
 import { changeUserLanguage, translate, userLocale } from "@/i18n"
 import HapticFeedback from "react-native-haptic-feedback"
 import { SETTING_GROUP } from "./settings-styles"
-import { messaging } from "@/services/firebase/messaging"
-import notifee, { AuthorizationStatus } from "@notifee/react-native"
 
 const ROOT: ViewStyle = {
   flex: 1,
@@ -29,22 +27,7 @@ export function LanguageScreen() {
       { text: translate("common.cancel"), style: "cancel" },
       {
         text: translate("common.ok"),
-        onPress: async () => {
-          const notificationSettings = await notifee.getNotificationSettings()
-          const notificationsEnabled = notificationSettings.authorizationStatus === AuthorizationStatus.AUTHORIZED
-
-          if (notificationsEnabled) {
-            let unsubscribeTopic = `service-updates-${userLocale}`
-            let subscribeTopic = `service-updates-${langaugeCode}`
-
-            if (__DEV__) {
-              unsubscribeTopic = `service-updates-test-${userLocale}`
-              subscribeTopic = `service-updates-test-${langaugeCode}`
-            }
-
-            await Promise.all([messaging.unsubscribeFromTopic(unsubscribeTopic), messaging.subscribeToTopic(subscribeTopic)])
-          }
-
+        onPress: () => {
           changeUserLanguage(langaugeCode)
         },
       },

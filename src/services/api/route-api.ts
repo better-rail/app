@@ -54,7 +54,8 @@ export class RouteApi {
 
           const stopStations = train.stopStations.map((station) => {
             const { stationId } = station
-            const stationName = stationsObject[stationId][stationLocale]
+            // In rare cases the API returns "ghost" stations that are not in stationsObject
+            const stationName = stationsObject[stationId]?.[stationLocale] ?? ""
 
             return {
               ...station,
@@ -74,9 +75,9 @@ export class RouteApi {
           const modifiedTrain = {
             delay: trainPosition?.calcDiffMinutes ?? 0,
             originStationId: orignStation,
-            originStationName: stationsObject[orignStation][stationLocale],
+            originStationName: stationsObject[orignStation]?.[stationLocale] ?? "",
             destinationStationId: destinationStation,
-            destinationStationName: stationsObject[destinationStation][stationLocale],
+            destinationStationName: stationsObject[destinationStation]?.[stationLocale] ?? "",
             departureTime: new Date(departureTime).getTime(),
             departureTimeString: departureTime,
             arrivalTime: new Date(arrivalTime).getTime(),

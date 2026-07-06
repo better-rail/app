@@ -78,6 +78,10 @@ const withAppNativeModule = (config) =>
     // which skips that path-correction entirely.
     for (const [relSrc, destName] of RESOURCE_FILES) {
       copy(relSrc, destName)
+      // addFile returns null when the pbxproj already references this path (e.g. a non-clean
+      // re-prebuild over an existing ios/). Skip re-adding rather than throwing — mirrors how
+      // addSourceFile silently no-ops on already-present sources.
+      if (proj.hasFile(destName)) continue
       const resFile = proj.addFile(destName, groupKey, { target: targetKey })
       if (!resFile) throw new Error(`[withBetterRailIos] failed to add resource ${destName}`)
       resFile.target = targetKey
