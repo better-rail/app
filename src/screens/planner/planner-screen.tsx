@@ -2,14 +2,22 @@ import React, { useRef, useState, useEffect } from "react"
 import { View, Animated, AppState, Platform, Alert } from "react-native"
 import type { AppStateStatus } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton, ResetTimeButton } from "@/components"
+import {
+  Screen,
+  Button,
+  Text,
+  StationCard,
+  DummyInput,
+  ChangeDirectionButton,
+  ResetTimeButton,
+  DatePickerModal,
+} from "@/components"
 import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore, useTrainRoutesStore, useDateTypeDisplayName } from "@/models"
 import HapticFeedback from "react-native-haptic-feedback"
 import { spacing } from "@/theme"
 import { useStations } from "@/data/stations"
 import { translate, useFormattedDate } from "@/i18n"
-import { DatePickerModal } from "@/components/date-picker-modal/date-picker-modal"
 import { useQuery } from "react-query"
 import { isWeekend } from "@/utils/helpers/date-helpers"
 import { differenceInHours, parseISO } from "date-fns"
