@@ -64,7 +64,11 @@ export function StartRideButton(props: StartRideButtonProps) {
   const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || areActivitiesDisabled()
 
   const startRide = async () => {
-    if (ride.id) {
+    // Read the id from the store rather than the render snapshot: after stopRide
+    // clears it, the recursive call below must see the fresh value or it will
+    // re-show this alert in a loop.
+    const activeRideId = useRideStore.getState().id
+    if (activeRideId) {
       return Alert.alert(translate("ride.rideExistsTitle"), translate("ride.rideExistsMessage"), [
         {
           style: "cancel",
@@ -73,7 +77,7 @@ export function StartRideButton(props: StartRideButtonProps) {
         {
           text: translate("ride.startNewRide"),
           onPress: async () => {
-            await ride.stopRide(ride.id)
+            await ride.stopRide(activeRideId)
             return startRide()
           },
         },
