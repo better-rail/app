@@ -1,4 +1,4 @@
-import React, { useState, useMemo, ReactNode } from "react"
+import React, { useState, ReactNode } from "react"
 import { View, Pressable, ViewStyle, TextStyle, ButtonProps, Platform, ActivityIndicator } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { color, fontScale, spacing } from "@/theme"
@@ -41,7 +41,7 @@ export const Button = function Button(props: CustomButtonProps) {
   const [isPressed, setIsPressed] = useState(false)
   const { title, onPress, loading = false, disabled, textStyle, containerStyle, size, icon, style, variant = "primary" } = props
 
-  const PRESSABLE_STYLE = useMemo(() => {
+  const PRESSABLE_STYLE = (() => {
     let modifiedStyles = Object.assign({}, PRESSABLE_BASE, style)
     if (size === "small") modifiedStyles = Object.assign({}, modifiedStyles, smallButtonStyle)
     if (Platform.OS === "ios") {
@@ -50,7 +50,7 @@ export const Button = function Button(props: CustomButtonProps) {
       }
     }
     return modifiedStyles
-  }, [isPressed, disabled, style])
+  })()
 
   if (isLiquidGlassSupported) {
     return (

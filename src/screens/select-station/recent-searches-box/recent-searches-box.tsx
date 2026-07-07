@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import React from "react"
 import { View, Image, Platform } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { useShallow } from "zustand/react/shallow"
@@ -24,9 +24,7 @@ export function RecentSearchesBox(props: RecentSearchesBoxProps) {
     useShallow((s) => ({ entries: s.entries, save: s.save, remove: s.remove })),
   )
 
-  const sortedSearches = useMemo(() => {
-    return [...entries].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 6)
-  }, [entries])
+  const sortedSearches = [...entries].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 6)
 
   const onStationPress = (entry) => {
     trackEvent("recent_station_selected")
@@ -42,7 +40,7 @@ export function RecentSearchesBox(props: RecentSearchesBoxProps) {
     router.back()
   }
 
-  const content = useMemo(() => {
+  const content = (() => {
     if (entries.length === 0) return <RecentSearchesPlacerholder />
 
     return (
@@ -69,7 +67,7 @@ export function RecentSearchesBox(props: RecentSearchesBoxProps) {
         })}
       </ScrollView>
     )
-  }, [sortedSearches])
+  })()
 
   return (
     <View>

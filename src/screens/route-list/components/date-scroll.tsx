@@ -24,13 +24,13 @@ export const DateScroll = function DateScroll(props: {
     return localizedDate(props.currenTime)
   }, [props.currenTime, props.isDisabled])
 
-  const handlePress = useCallback(() => {
+  const handlePress = () => {
     // Don't allow new requests while loading or disabled
     if (isDisabled) return
 
     // Call the callback to load data for this direction
     props.setTime()
-  }, [props.setTime, isDisabled])
+  }
 
   return (
     <View style={styles.container}>

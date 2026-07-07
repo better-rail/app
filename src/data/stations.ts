@@ -1,4 +1,3 @@
-import { useMemo } from "react"
 import type { LanguageCode } from "@/i18n/i18n"
 
 type Station = {
@@ -761,13 +760,9 @@ function normalizeStation(station: Station): NormalizedStation {
 }
 
 export const useStations = (): NormalizedStation[] =>
-  useMemo(
-    () =>
-      stations
-        .map(normalizeStation)
-        .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())),
-    [],
-  )
+  stations
+    .map(normalizeStation)
+    .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
 
 /**
  * Resolves a single station by id using `stationLocale` at call time.

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import React from "react"
 import { ViewStyle } from "react-native"
 import { RouteCard } from "./route-card"
 import { RouteItem } from "@/services/api"
@@ -19,7 +19,7 @@ interface RouteCardPreviewProps {
  * module was first imported — often English, before the user's language is set.
  */
 export function RouteCardPreview({ showHeaderOverride, style }: RouteCardPreviewProps) {
-  const routeItem = useMemo<RouteItem>(() => {
+  const routeItem = ((): RouteItem => {
     const now = new Date().getTime()
     const arrivalTime = now + 1000 * 60 * 26
 
@@ -55,7 +55,7 @@ export function RouteCardPreview({ showHeaderOverride, style }: RouteCardPreview
         },
       ],
     }
-  }, [])
+  })()
 
   return (
     <RouteCard
