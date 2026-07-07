@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from "react"
-import * as storage from "@/utils/storage"
+import { useMemo } from "react"
+import type { LanguageCode } from "@/i18n/i18n"
 
 type Station = {
   id: string
@@ -740,41 +740,27 @@ type StationsObjectType = {
 
 export let stationLocale = "hebrew"
 
+export function setStationLocale(lang: LanguageCode) {
+  stationLocale = { he: "hebrew", en: "english", ar: "arabic", ru: "russian" }[lang] ?? "hebrew"
+}
+
 export const stationsObject: StationsObjectType = {}
 
 stations.forEach((station) => {
   stationsObject[station.id] = station
 })
 
-export const useStations = () => {
-  const [locale, setLocale] = useState("hebrew")
-
-  useEffect(() => {
-    storage.load("appLanguage").then((languageCode) => {
-      if (languageCode === "ar") {
-        stationLocale = "arabic"
-        setLocale("arabic")
-      } else if (languageCode === "en") {
-        stationLocale = "english"
-        setLocale("english")
-      } else if (languageCode === "ru") {
-        stationLocale = "russian"
-        setLocale("russian")
-      }
-    })
-  }, [])
-
-  const normalizeStationNames: NormalizedStation[] = useMemo(() => {
-    return stations
-      .map((station) => ({
-        id: station.id,
-        name: station[locale],
-        image: station.image,
-        hebrew: station.hebrew,
-        alias: station.alias,
-      }))
-      .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
-  }, [locale])
-
-  return normalizeStationNames
-}
+export const useStations = (): NormalizedStation[] =>
+  useMemo(
+    () =>
+      stations
+        .map((station) => ({
+          id: station.id,
+          name: station[stationLocale],
+          image: station.image,
+          hebrew: station.hebrew,
+          alias: station.alias,
+        }))
+        .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())),
+    [],
+  )
