@@ -25,11 +25,14 @@ import { save, load } from "@/utils/storage"
 import { donateRouteIntent } from "@/utils/ios-helpers"
 import { trackEvent } from "@/services/analytics"
 import { useRouter, useFocusEffect } from "expo-router"
+import { useObserve } from "expo-observe"
+import { useMountEffect } from "@/hooks"
 import { PlannerScreenHeader } from "./planner-screen-header"
 import { FlingGestureWrapper } from "./planner-slider-wrapper"
 
 export function PlannerScreen() {
   const router = useRouter()
+  const { markInteractive } = useObserve()
   const { date, origin, destination, setDate, switchDirection } = useRoutePlanStore(
     useShallow((s) => ({
       date: s.date,
@@ -153,6 +156,11 @@ export function PlannerScreen() {
 
     return () => subscription.remove()
   }, [])
+
+  useMountEffect(() => {
+    // Mark the screen as interactive for EAS Observe TTI metrics.
+    markInteractive()
+  })
 
   useFocusEffect(() => {
     // if the result type is not "normal", it'll be the initial type upon navigating to the
