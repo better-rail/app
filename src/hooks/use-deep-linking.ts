@@ -8,7 +8,7 @@ import { useRideStore } from "@/models/ride/ride"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { isEqual } from "lodash"
 import { trackEvent } from "@/services/analytics"
-import { useStations } from "@/data/stations"
+import { getStationById } from "@/data/stations"
 import Shortcuts, { ShortcutItem } from "react-native-quick-actions-shortcuts"
 
 const ShortcutsEmitter = new NativeEventEmitter(Shortcuts)
@@ -17,16 +17,14 @@ const ShortcutsEmitter = new NativeEventEmitter(Shortcuts)
  * Handles navigation of deep links provided to the app.
  */
 export function useDeepLinking(storeReady: boolean) {
-  const stations = useStations()
-
   function deepLinkWidgetURL(url: string) {
     if (!storeReady) return
 
     const { originId, destinationId } = extractURLParams(url)
     const routePlan = useRoutePlanStore.getState()
 
-    const origin = stations.find((station) => station.id === originId)
-    const destination = stations.find((station) => station.id === destinationId)
+    const origin = getStationById(originId)
+    const destination = getStationById(destinationId)
 
     routePlan.setOrigin(origin)
     routePlan.setDestination(destination)
@@ -90,8 +88,8 @@ export function useDeepLinking(storeReady: boolean) {
 
   function openHomeScreenShortcut(item: ShortcutItem) {
     if (!item) return
-    const origin = stations.find((station) => station.id === item.data.originId)
-    const destination = stations.find((station) => station.id === item.data.destinationId)
+    const origin = getStationById(item.data.originId)
+    const destination = getStationById(item.data.destinationId)
 
     const routePlan = useRoutePlanStore.getState()
     routePlan.setOrigin(origin)
