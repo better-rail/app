@@ -7,10 +7,10 @@ export function useFilteredStations(searchTerm: string) {
 
   const fuse = useMemo(() => new Fuse(stations, { keys: ["name", "hebrew", "alias"], threshold: 0.3 }), [stations])
 
-  const filteredStations = useMemo(() => {
+  const filteredStations = (() => {
     if (searchTerm === "") return []
     return fuse.search(searchTerm).map((result) => result.item)
-  }, [searchTerm, fuse])
+  })()
 
   return { filteredStations }
 }

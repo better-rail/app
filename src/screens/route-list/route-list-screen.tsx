@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState, useCallback } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import HapticFeedback from "react-native-haptic-feedback"
 import * as Burnt from "burnt"
 import { View, ActivityIndicator, Dimensions, useColorScheme } from "react-native"
@@ -95,7 +95,7 @@ export function RouteListScreen() {
   }, [trainInfoPromptFlag])
 
   // Helper function to organize routes by date
-  const organizeRoutesByDate = useCallback((routes: RouteItem[], currentDateStr: string, existingData: RouteData[] = []) => {
+  const organizeRoutesByDate = (routes: RouteItem[], currentDateStr: string, existingData: RouteData[] = []) => {
     // Extract all existing dates and their routes
     const dateToRoutesMap = new Map<string, RouteItem[]>()
 
@@ -163,13 +163,13 @@ export function RouteListScreen() {
     }
 
     return newData
-  }, [])
+  }
 
   // Function to get the next day date
-  const getNextDayDate = useCallback((): Date => nextDayDate, [nextDayDate])
+  const getNextDayDate = (): Date => nextDayDate
 
   // Function to load data for the next day
-  const loadNextDayData = useCallback(() => {
+  const loadNextDayData = () => {
     const newDate = getNextDayDate()
     const newDateString = newDate.toDateString()
 
@@ -194,7 +194,7 @@ export function RouteListScreen() {
 
     // Don't update the next day date until loading is complete
     // This ensures the DateScroll component shows the correct date during loading
-  }, [getNextDayDate, loadedDates])
+  }
 
   const { isInternetReachable } = useNetworkState()
 
@@ -295,13 +295,13 @@ export function RouteListScreen() {
   }, [time])
 
   // Filter out slow trains when the setting is enabled
-  const filteredRouteData = useMemo(() => {
+  const filteredRouteData = (() => {
     if (!hideSlowTrains) return routeData
     return routeData.filter((item) => {
       if (typeof item === "string") return true // Keep date headers
       return !item.isMuchLonger
     })
-  }, [routeData, hideSlowTrains])
+  })()
 
   // Signal EAS Observe per-route TTI once the route results have resolved — either
   // routes are rendered, or we've reached a terminal not-found / error state.
@@ -315,7 +315,7 @@ export function RouteListScreen() {
 
   // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
   // returns a route list for the whole day.
-  const initialScrollIndex = useMemo(() => {
+  const initialScrollIndex = (() => {
     if (!trains.isSuccess || filteredRouteData.length === 0) return undefined
 
     // Get only the route items (not date headers)
@@ -339,9 +339,9 @@ export function RouteListScreen() {
 
     // Find the actual index in filteredRouteData (which includes date headers)
     return filteredRouteData.findIndex((item) => item === targetRoute)
-  }, [trains.isSuccess, filteredRouteData, dateType, time])
+  })()
 
-  const shouldShowDashedLine = useMemo(() => {
+  const shouldShowDashedLine = (() => {
     const { width: deviceWidth } = Dimensions.get("screen")
 
     // Get the longest text for duration and delay that will be in the list
@@ -361,61 +361,58 @@ export function RouteListScreen() {
      * - There's enough space for the dashed line with the longest duration/delay text
      */
     return fontScale <= 1.2 && deviceWidth >= 360 && shouldShowDashedLineByTextLength
-  }, [trains.data])
+  })()
 
-  const handleRouteLongPress = useCallback(
-    async (routeItem: RouteItem) => {
-      HapticFeedback.trigger("impactMedium")
+  const handleRouteLongPress = async (routeItem: RouteItem) => {
+    HapticFeedback.trigger("impactMedium")
 
-      const options = [translate("routeDetails.addToCalendar"), translate("routes.share"), translate("common.cancel")]
-      const cancelButtonIndex = 2
+    const options = [translate("routeDetails.addToCalendar"), translate("routes.share"), translate("common.cancel")]
+    const cancelButtonIndex = 2
 
-      showActionSheetWithOptions(
-        {
-          options,
-          cancelButtonIndex,
-          title: translate("routes.routeActions"),
-          ...getActionSheetStyleOptions(colorScheme),
-        },
-        async (selectedIndex) => {
-          if (selectedIndex === cancelButtonIndex) return
+    showActionSheetWithOptions(
+      {
+        options,
+        cancelButtonIndex,
+        title: translate("routes.routeActions"),
+        ...getActionSheetStyleOptions(colorScheme),
+      },
+      async (selectedIndex) => {
+        if (selectedIndex === cancelButtonIndex) return
 
-          try {
-            switch (selectedIndex) {
-              case 0: // Add to Calendar
-                const wasAdded = await addRouteToCalendar(routeItem)
-                if (wasAdded) {
-                  Burnt.alert({
-                    title: translate("routes.addedToCalendar"),
-                    preset: "done",
-                    message: translate("routes.addedToCalendar"),
-                  })
-                }
-                break
+        try {
+          switch (selectedIndex) {
+            case 0: // Add to Calendar
+              const wasAdded = await addRouteToCalendar(routeItem)
+              if (wasAdded) {
+                Burnt.alert({
+                  title: translate("routes.addedToCalendar"),
+                  preset: "done",
+                  message: translate("routes.addedToCalendar"),
+                })
+              }
+              break
 
-              case 1: // Share
-                await shareRouteAction(routeItem, originId, destinationId)
-                break
+            case 1: // Share
+              await shareRouteAction(routeItem, originId, destinationId)
+              break
 
-              default:
-                // Should never happen since we check for cancelButtonIndex above
-                break
-            }
-          } catch (error) {
-            if (selectedIndex === 0) {
-              console.error("Failed to add to calendar:", error)
-              Burnt.alert({
-                title: translate("common.error"),
-                preset: "error",
-                message: "Failed to add to calendar",
-              })
-            }
+            default:
+              // Should never happen since we check for cancelButtonIndex above
+              break
           }
-        },
-      )
-    },
-    [originId, destinationId, showActionSheetWithOptions],
-  )
+        } catch (error) {
+          if (selectedIndex === 0) {
+            console.error("Failed to add to calendar:", error)
+            Burnt.alert({
+              title: translate("common.error"),
+              preset: "error",
+              message: "Failed to add to calendar",
+            })
+          }
+        }
+      },
+    )
+  }
 
   const renderRouteCard = ({ item, index }: { item: RouteData; index: number }) => {
     if (typeof item === "string") {

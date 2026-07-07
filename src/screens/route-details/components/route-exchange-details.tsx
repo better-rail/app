@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import React from "react"
 import { View, Image, ViewStyle, Dimensions } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text, ChangeDirectionButton } from "@/components"
@@ -31,15 +31,15 @@ type RouteExchangeProps = {
 export const RouteExchangeDetails = (props: RouteExchangeProps) => {
   const { stationName, arrivalPlatform, departurePlatform, firstTrain, secondTrain, style } = props
 
-  const platformDetailText = useMemo(() => {
+  const platformDetailText = (() => {
     if (arrivalPlatform === departurePlatform) {
       return `${translate("routeDetails.platformStay")} ${arrivalPlatform}`
     } else {
       return `${translate("routeDetails.platformChange")} ${departurePlatform}`
     }
-  }, [])
+  })()
 
-  const exchangeDuration = useMemo(() => {
+  const exchangeDuration = (() => {
     const arrivalTime = addMinutes(firstTrain.arrivalTime, firstTrain.delay)
     const departureTime = addMinutes(secondTrain.departureTime, secondTrain.delay)
 
@@ -48,16 +48,14 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
     }
 
     return intervalToDuration({ start: arrivalTime, end: departureTime })
-  }, [])
+  })()
 
-  const exchangeDurationText = useMemo(() => {
-    return formatDuration(exchangeDuration, { locale: dateFnsLocalization })
-  }, [exchangeDuration])
+  const exchangeDurationText = formatDuration(exchangeDuration, { locale: dateFnsLocalization })
 
-  const isExchangeSafe = useMemo(() => {
+  const isExchangeSafe = (() => {
     const exchangeMs = milliseconds(exchangeDuration)
     return millisecondsToMinutes(exchangeMs) >= SAFE_DURATION_MINS
-  }, [exchangeDuration])
+  })()
 
   return (
     <View style={[styles.wrapper, style]}>
