@@ -35,6 +35,79 @@ import { useFeatureFlag } from "posthog-react-native"
 
 type RouteData = RouteItem | string
 
+// Organize routes into a flat list of date headers followed by their routes.
+// Kept at module scope for a stable reference — as a component-scoped function its
+// reference would change each render and re-trigger the effect that calls setRouteData.
+function organizeRoutesByDate(routes: RouteItem[], currentDateStr: string, existingData: RouteData[] = []) {
+  // Extract all existing dates and their routes
+  const dateToRoutesMap = new Map<string, RouteItem[]>()
+
+  // Initialize with empty arrays for all dates from existing data
+  const allDates = existingData.filter((item) => typeof item === "string") as string[]
+  allDates.forEach((date) => dateToRoutesMap.set(date, []))
+
+  // Add the current date if it doesn't exist
+  if (!dateToRoutesMap.has(currentDateStr)) {
+    dateToRoutesMap.set(currentDateStr, [])
+  }
+
+  // Fill in routes for each date from existing data
+  let headerDate: string | null = null
+  for (const item of existingData) {
+    if (typeof item === "string") {
+      headerDate = item
+    } else if (headerDate) {
+      // Only add the route if it's not from the date we're updating
+      if (headerDate !== currentDateStr) {
+        const existingRoutes = dateToRoutesMap.get(headerDate) || []
+        existingRoutes.push(item)
+        dateToRoutesMap.set(headerDate, existingRoutes)
+      }
+    }
+  }
+
+  // Add the new routes for the current date
+  // First, validate that each route actually belongs to this date
+  const validatedRoutes = routes.filter((route) => {
+    const routeDate = new Date(route.trains[0].departureTime).toDateString()
+    // If the route date is different from the requested date, we need to handle it
+    if (routeDate !== currentDateStr) {
+      // If we don't have this date in our map yet, add it
+      if (!dateToRoutesMap.has(routeDate)) {
+        dateToRoutesMap.set(routeDate, [])
+      }
+      // Add this route to its actual date instead of the requested date
+      const routesForActualDate = dateToRoutesMap.get(routeDate) || []
+      routesForActualDate.push(route)
+      dateToRoutesMap.set(routeDate, routesForActualDate)
+      return false // Don't include this route in the current date's routes
+    }
+    return true
+  })
+
+  // Add the validated routes to the current date
+  dateToRoutesMap.set(currentDateStr, validatedRoutes)
+
+  // Convert the map back to a flat array with date headers followed by their routes
+  const newData: RouteData[] = []
+
+  // Sort dates chronologically
+  const sortedDates = Array.from(dateToRoutesMap.keys()).sort((a, b) => {
+    return new Date(a).getTime() - new Date(b).getTime()
+  })
+
+  // Build the final array with dates and their routes
+  for (const date of sortedDates) {
+    const dateRoutes = dateToRoutesMap.get(date) || []
+    if (dateRoutes.length > 0) {
+      newData.push(date)
+      newData.push(...dateRoutes)
+    }
+  }
+
+  return newData
+}
+
 export function RouteListScreen() {
   const router = useRouter()
   const rawParams = useLocalSearchParams<{ originId: string; destinationId: string; time: string; enableQuery?: string }>()
@@ -93,77 +166,6 @@ export function RouteListScreen() {
     return () => clearTimeout(timeout)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trainInfoPromptFlag])
-
-  // Helper function to organize routes by date
-  const organizeRoutesByDate = (routes: RouteItem[], currentDateStr: string, existingData: RouteData[] = []) => {
-    // Extract all existing dates and their routes
-    const dateToRoutesMap = new Map<string, RouteItem[]>()
-
-    // Initialize with empty arrays for all dates from existing data
-    const allDates = existingData.filter((item) => typeof item === "string") as string[]
-    allDates.forEach((date) => dateToRoutesMap.set(date, []))
-
-    // Add the current date if it doesn't exist
-    if (!dateToRoutesMap.has(currentDateStr)) {
-      dateToRoutesMap.set(currentDateStr, [])
-    }
-
-    // Fill in routes for each date from existing data
-    let headerDate: string | null = null
-    for (const item of existingData) {
-      if (typeof item === "string") {
-        headerDate = item
-      } else if (headerDate) {
-        // Only add the route if it's not from the date we're updating
-        if (headerDate !== currentDateStr) {
-          const existingRoutes = dateToRoutesMap.get(headerDate) || []
-          existingRoutes.push(item)
-          dateToRoutesMap.set(headerDate, existingRoutes)
-        }
-      }
-    }
-
-    // Add the new routes for the current date
-    // First, validate that each route actually belongs to this date
-    const validatedRoutes = routes.filter((route) => {
-      const routeDate = new Date(route.trains[0].departureTime).toDateString()
-      // If the route date is different from the requested date, we need to handle it
-      if (routeDate !== currentDateStr) {
-        // If we don't have this date in our map yet, add it
-        if (!dateToRoutesMap.has(routeDate)) {
-          dateToRoutesMap.set(routeDate, [])
-        }
-        // Add this route to its actual date instead of the requested date
-        const routesForActualDate = dateToRoutesMap.get(routeDate) || []
-        routesForActualDate.push(route)
-        dateToRoutesMap.set(routeDate, routesForActualDate)
-        return false // Don't include this route in the current date's routes
-      }
-      return true
-    })
-
-    // Add the validated routes to the current date
-    dateToRoutesMap.set(currentDateStr, validatedRoutes)
-
-    // Convert the map back to a flat array with date headers followed by their routes
-    const newData: RouteData[] = []
-
-    // Sort dates chronologically
-    const sortedDates = Array.from(dateToRoutesMap.keys()).sort((a, b) => {
-      return new Date(a).getTime() - new Date(b).getTime()
-    })
-
-    // Build the final array with dates and their routes
-    for (const date of sortedDates) {
-      const dateRoutes = dateToRoutesMap.get(date) || []
-      if (dateRoutes.length > 0) {
-        newData.push(date)
-        newData.push(...dateRoutes)
-      }
-    }
-
-    return newData
-  }
 
   // Function to get the next day date
   const getNextDayDate = (): Date => nextDayDate
@@ -278,7 +280,7 @@ export function RouteListScreen() {
         return newData
       })
     }
-  }, [trains.data, currentDate, organizeRoutesByDate, trains.isSuccess, trains.isLoading])
+  }, [trains.data, currentDate, trains.isSuccess, trains.isLoading])
 
   // Initialize the loaded dates with the initial date
   useEffect(() => {
