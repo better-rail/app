@@ -70,6 +70,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   jsEngine: "hermes",
   assetBundlePatterns: ["**/*"],
 
+  experiments: {
+    reactCompiler: true,
+  },
+
   ios: {
     bundleIdentifier: IOS_BUNDLE_ID,
     buildNumber: "1",

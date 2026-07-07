@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import { Pressable, type PressableProps, Image, ActivityIndicator, PlatformColor } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text, BottomScreenSheet } from "@/components"
@@ -18,7 +18,7 @@ export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "a
 
   const { status, minutesLeft } = progress
 
-  const progressText = useMemo(() => {
+  const progressText = (() => {
     if (!id) return translate("ride.activatingRide")
     if (status === "inTransit" && minutesLeft < 2) {
       return translate("ride.trainArriving")
@@ -31,7 +31,7 @@ export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "a
     }
 
     return translate("ride.departsIn", { minutes: minutesLeft })
-  }, [minutesLeft, status, id])
+  })()
 
   return (
     <BottomScreenSheet>

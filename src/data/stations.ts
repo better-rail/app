@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect } from "react"
 import * as storage from "@/utils/storage"
 
 type Station = {
@@ -764,17 +764,15 @@ export const useStations = () => {
     })
   }, [])
 
-  const normalizeStationNames: NormalizedStation[] = useMemo(() => {
-    return stations
-      .map((station) => ({
-        id: station.id,
-        name: station[locale],
-        image: station.image,
-        hebrew: station.hebrew,
-        alias: station.alias,
-      }))
-      .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
-  }, [locale])
+  const normalizeStationNames: NormalizedStation[] = stations
+    .map((station) => ({
+      id: station.id,
+      name: station[locale],
+      image: station.image,
+      hebrew: station.hebrew,
+      alias: station.alias,
+    }))
+    .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
 
   return normalizeStationNames
 }

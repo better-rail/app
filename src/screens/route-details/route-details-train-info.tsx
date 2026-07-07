@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef } from "react"
+import { useRef } from "react"
 import { View, ScrollView, Platform, Pressable, LayoutChangeEvent } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
@@ -55,66 +55,66 @@ function WagonItem({
 export function RouteDetailsTrainInfo() {
   const train = useNavigationParamsStore((s) => s.train)
   const insets = useSafeAreaInsets()
-  const sortedWagons = useMemo(() => {
+  const sortedWagons = (() => {
     if (!train.visaWagonData?.wagons || train.visaWagonData.wagons.length === 0) {
       return []
     }
     return [...train.visaWagonData.wagons].sort((a, b) => a.shurA2 - b.shurA2)
-  }, [train.visaWagonData])
+  })()
 
-  const direction = useMemo(() => {
+  const direction = (() => {
     try {
       const routeStationIds = train.routeStations.map((s) => s.stationId.toString())
       return getTrainDirection(train.originStationId.toString(), routeStationIds)
     } catch {
       return null
     }
-  }, [train])
+  })()
 
   const scrollViewRef = useRef<ScrollView>(null)
   const wagonLayoutsRef = useRef<Record<number, number>>({})
 
-  const scrollToWagonIndex = useCallback((targetIndex: number) => {
+  const scrollToWagonIndex = (targetIndex: number) => {
     const x = wagonLayoutsRef.current[targetIndex]
     if (x !== undefined) {
       scrollViewRef.current?.scrollTo({ x: Math.max(0, x - 20), animated: true })
     }
-  }, [])
+  }
 
   // Car #1 is always the front (locomotive end). Accessibility = southernmost car.
   // N/E: descending (car #N on left = southernmost/accessibility, car #1 on right = front) → N
   // S/W: ascending  (car #1 on left = southernmost/accessibility/front)              ← S
   // In both cases the accessibility car lands at index 0 (leftmost).
-  const displayWagons = useMemo(() => {
+  const displayWagons = (() => {
     if (direction === "N" || direction === "E") return [...sortedWagons].reverse()
     return sortedWagons
-  }, [direction, sortedWagons])
+  })()
 
   // Accessibility = southernmost car = highest shurA2 = always index 0 in the descending display.
-  const accessibilityWagonIndex = useMemo(() => {
+  const accessibilityWagonIndex = (() => {
     if (!direction || displayWagons.length === 0) return null
     return 0
-  }, [direction, displayWagons])
+  })()
 
   const hasWagons = displayWagons.length > 0
   const hasHandicapped = accessibilityWagonIndex !== null
   const hasBicycle = sortedWagons.some((w) => w.bicycle)
   const showLegend = hasHandicapped || hasBicycle
 
-  const handleAccessibilityPress = useCallback(() => {
+  const handleAccessibilityPress = () => {
     if (accessibilityWagonIndex !== null) {
       HapticFeedback.trigger("impactLight")
       scrollToWagonIndex(accessibilityWagonIndex)
     }
-  }, [accessibilityWagonIndex, scrollToWagonIndex])
+  }
 
-  const handleBicyclePress = useCallback(() => {
+  const handleBicyclePress = () => {
     const firstBicycleIndex = displayWagons.findIndex((w) => w.bicycle)
     if (firstBicycleIndex !== -1) {
       HapticFeedback.trigger("impactLight")
       scrollToWagonIndex(firstBicycleIndex)
     }
-  }, [displayWagons, scrollToWagonIndex])
+  }
 
   const seatCount = train.visaWagonData?.seatplaces
   const wagonCount = train.visaWagonData?.totkr

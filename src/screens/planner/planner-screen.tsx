@@ -74,21 +74,21 @@ export function PlannerScreen() {
     onDateChange(new Date())
   }
 
-  const originData = React.useMemo(() => {
+  const originData = (() => {
     if (origin) {
       return stations.find((s) => s.id === origin.id)
     }
 
     return undefined
-  }, [origin?.name, stations])
+  })()
 
-  const destinationData = React.useMemo(() => {
+  const destinationData = (() => {
     if (destination) {
       return stations.find((s) => s.id === destination.id)
     }
 
     return undefined
-  }, [destination?.name, stations])
+  })()
 
   const scaleStationCards = () => {
     Animated.sequence([

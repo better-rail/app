@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback, useMemo } from "react"
+import { useRef, useEffect } from "react"
 import { Image, ImageBackground, View, Animated as RNAnimated, Pressable } from "react-native"
 import type { ViewStyle } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
@@ -67,7 +67,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     router.push({ pathname: "/station-hours", params: { stationId: originId } })
   }
 
-  const scaleStationCards = useCallback(() => {
+  const scaleStationCards = () => {
     RNAnimated.sequence([
       RNAnimated.timing(stationCardScale, {
         toValue: 0.94,
@@ -80,25 +80,25 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
         useNativeDriver: true,
       }),
     ]).start()
-  }, [stationCardScale])
+  }
 
-  const swapDirection = useCallback(() => {
+  const swapDirection = () => {
     scaleStationCards()
     HapticFeedback.trigger("impactMedium")
     setTimeout(() => {
       switchDirection()
     }, 50)
-  }, [scaleStationCards, switchDirection])
+  }
 
-  const changeOriginStation = useCallback(() => {
+  const changeOriginStation = () => {
     router.push({ pathname: "/select-station", params: { selectionType: "origin" } })
-  }, [router])
+  }
 
-  const changeDestinationStation = useCallback(() => {
+  const changeDestinationStation = () => {
     router.push({ pathname: "/select-station", params: { selectionType: "destination" } })
-  }, [router])
+  }
 
-  const addToCalendar = useCallback(async () => {
+  const addToCalendar = async () => {
     if (!routeItem) return
 
     try {
@@ -107,20 +107,20 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       // Error handling is already done in the helper
       console.error("Failed to add to calendar:", error)
     }
-  }, [routeItem])
+  }
 
-  const routeMenuActions = useMemo(() => {
+  const routeMenuActions = (() => {
     if (!routeItem) return []
     return createContextMenuActions(routeItem, originId, destinationId)
-  }, [routeItem, originId, destinationId])
+  })()
 
   const shareAction = routeMenuActions.find((action) => action.systemIcon === "square.and.arrow.up")
 
-  const handleShare = useCallback(async () => {
+  const handleShare = async () => {
     if (shareAction) {
       await shareAction.onPress()
     }
-  }, [shareAction])
+  }
 
   useEffect(() => {
     router.setParams({
@@ -129,7 +129,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     })
   }, [routePlanOrigin.id, routePlanDestination.id])
 
-  const renderHeaderRight = useCallback(() => {
+  const renderHeaderRight = () => {
     if (screenName === "routeDetails") {
       const actions = [
         {
@@ -281,20 +281,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
         </ContextMenu>
       </>
     )
-  }, [
-    screenName,
-    addToCalendar,
-    handleShare,
-    isFavorite,
-    routeId,
-    addFavorite,
-    removeFavorite,
-    originId,
-    destinationId,
-    showEntireRoute,
-    setShowEntireRoute,
-    router,
-  ])
+  }
 
   return (
     <>

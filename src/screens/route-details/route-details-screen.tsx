@@ -60,7 +60,7 @@ export function RouteDetailsScreen() {
   // we re-run this check every time the ride changes
   const isRideOnThisRoute = useMemo(() => isRouteActive(paramsRouteItem), [rideRoute])
 
-  const trainNumbers = useMemo(() => paramsRouteItem.trains.map((t) => t.trainNumber), [paramsRouteItem])
+  const trainNumbers = paramsRouteItem.trains.map((t) => t.trainNumber)
 
   // Periodically refetch route data to catch platform changes and delays.
   // Skip when ride is active — the ride polling already handles updates.
@@ -82,10 +82,10 @@ export function RouteDetailsScreen() {
 
   // if the ride is on this route, we use the ride's route, since it has the latest data
   // otherwise we use the freshly fetched route data
-  const routeItem = useMemo(() => {
+  const routeItem = (() => {
     if (isRideOnThisRoute) return rideRoute as unknown as RouteItem
     return freshRouteItem ?? paramsRouteItem
-  }, [isRideOnThisRoute, rideRoute, freshRouteItem, paramsRouteItem])
+  })()
 
   const progress = useRideProgress({ route: routeItem, enabled: isRideOnThisRoute })
   const { stations } = progress

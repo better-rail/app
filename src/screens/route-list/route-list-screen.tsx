@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState, useCallback } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import HapticFeedback from "react-native-haptic-feedback"
 import * as Burnt from "burnt"
 import { View, ActivityIndicator, Dimensions, useColorScheme } from "react-native"
@@ -34,6 +34,79 @@ import { useActionSheet } from "@expo/react-native-action-sheet"
 import { useFeatureFlag } from "posthog-react-native"
 
 type RouteData = RouteItem | string
+
+// Organize routes into a flat list of date headers followed by their routes.
+// Kept at module scope for a stable reference — as a component-scoped function its
+// reference would change each render and re-trigger the effect that calls setRouteData.
+function organizeRoutesByDate(routes: RouteItem[], currentDateStr: string, existingData: RouteData[] = []) {
+  // Extract all existing dates and their routes
+  const dateToRoutesMap = new Map<string, RouteItem[]>()
+
+  // Initialize with empty arrays for all dates from existing data
+  const allDates = existingData.filter((item) => typeof item === "string") as string[]
+  allDates.forEach((date) => dateToRoutesMap.set(date, []))
+
+  // Add the current date if it doesn't exist
+  if (!dateToRoutesMap.has(currentDateStr)) {
+    dateToRoutesMap.set(currentDateStr, [])
+  }
+
+  // Fill in routes for each date from existing data
+  let headerDate: string | null = null
+  for (const item of existingData) {
+    if (typeof item === "string") {
+      headerDate = item
+    } else if (headerDate) {
+      // Only add the route if it's not from the date we're updating
+      if (headerDate !== currentDateStr) {
+        const existingRoutes = dateToRoutesMap.get(headerDate) || []
+        existingRoutes.push(item)
+        dateToRoutesMap.set(headerDate, existingRoutes)
+      }
+    }
+  }
+
+  // Add the new routes for the current date
+  // First, validate that each route actually belongs to this date
+  const validatedRoutes = routes.filter((route) => {
+    const routeDate = new Date(route.trains[0].departureTime).toDateString()
+    // If the route date is different from the requested date, we need to handle it
+    if (routeDate !== currentDateStr) {
+      // If we don't have this date in our map yet, add it
+      if (!dateToRoutesMap.has(routeDate)) {
+        dateToRoutesMap.set(routeDate, [])
+      }
+      // Add this route to its actual date instead of the requested date
+      const routesForActualDate = dateToRoutesMap.get(routeDate) || []
+      routesForActualDate.push(route)
+      dateToRoutesMap.set(routeDate, routesForActualDate)
+      return false // Don't include this route in the current date's routes
+    }
+    return true
+  })
+
+  // Add the validated routes to the current date
+  dateToRoutesMap.set(currentDateStr, validatedRoutes)
+
+  // Convert the map back to a flat array with date headers followed by their routes
+  const newData: RouteData[] = []
+
+  // Sort dates chronologically
+  const sortedDates = Array.from(dateToRoutesMap.keys()).sort((a, b) => {
+    return new Date(a).getTime() - new Date(b).getTime()
+  })
+
+  // Build the final array with dates and their routes
+  for (const date of sortedDates) {
+    const dateRoutes = dateToRoutesMap.get(date) || []
+    if (dateRoutes.length > 0) {
+      newData.push(date)
+      newData.push(...dateRoutes)
+    }
+  }
+
+  return newData
+}
 
 export function RouteListScreen() {
   const router = useRouter()
@@ -94,82 +167,11 @@ export function RouteListScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trainInfoPromptFlag])
 
-  // Helper function to organize routes by date
-  const organizeRoutesByDate = useCallback((routes: RouteItem[], currentDateStr: string, existingData: RouteData[] = []) => {
-    // Extract all existing dates and their routes
-    const dateToRoutesMap = new Map<string, RouteItem[]>()
-
-    // Initialize with empty arrays for all dates from existing data
-    const allDates = existingData.filter((item) => typeof item === "string") as string[]
-    allDates.forEach((date) => dateToRoutesMap.set(date, []))
-
-    // Add the current date if it doesn't exist
-    if (!dateToRoutesMap.has(currentDateStr)) {
-      dateToRoutesMap.set(currentDateStr, [])
-    }
-
-    // Fill in routes for each date from existing data
-    let headerDate: string | null = null
-    for (const item of existingData) {
-      if (typeof item === "string") {
-        headerDate = item
-      } else if (headerDate) {
-        // Only add the route if it's not from the date we're updating
-        if (headerDate !== currentDateStr) {
-          const existingRoutes = dateToRoutesMap.get(headerDate) || []
-          existingRoutes.push(item)
-          dateToRoutesMap.set(headerDate, existingRoutes)
-        }
-      }
-    }
-
-    // Add the new routes for the current date
-    // First, validate that each route actually belongs to this date
-    const validatedRoutes = routes.filter((route) => {
-      const routeDate = new Date(route.trains[0].departureTime).toDateString()
-      // If the route date is different from the requested date, we need to handle it
-      if (routeDate !== currentDateStr) {
-        // If we don't have this date in our map yet, add it
-        if (!dateToRoutesMap.has(routeDate)) {
-          dateToRoutesMap.set(routeDate, [])
-        }
-        // Add this route to its actual date instead of the requested date
-        const routesForActualDate = dateToRoutesMap.get(routeDate) || []
-        routesForActualDate.push(route)
-        dateToRoutesMap.set(routeDate, routesForActualDate)
-        return false // Don't include this route in the current date's routes
-      }
-      return true
-    })
-
-    // Add the validated routes to the current date
-    dateToRoutesMap.set(currentDateStr, validatedRoutes)
-
-    // Convert the map back to a flat array with date headers followed by their routes
-    const newData: RouteData[] = []
-
-    // Sort dates chronologically
-    const sortedDates = Array.from(dateToRoutesMap.keys()).sort((a, b) => {
-      return new Date(a).getTime() - new Date(b).getTime()
-    })
-
-    // Build the final array with dates and their routes
-    for (const date of sortedDates) {
-      const dateRoutes = dateToRoutesMap.get(date) || []
-      if (dateRoutes.length > 0) {
-        newData.push(date)
-        newData.push(...dateRoutes)
-      }
-    }
-
-    return newData
-  }, [])
-
   // Function to get the next day date
-  const getNextDayDate = useCallback((): Date => nextDayDate, [nextDayDate])
+  const getNextDayDate = (): Date => nextDayDate
 
   // Function to load data for the next day
-  const loadNextDayData = useCallback(() => {
+  const loadNextDayData = () => {
     const newDate = getNextDayDate()
     const newDateString = newDate.toDateString()
 
@@ -194,7 +196,7 @@ export function RouteListScreen() {
 
     // Don't update the next day date until loading is complete
     // This ensures the DateScroll component shows the correct date during loading
-  }, [getNextDayDate, loadedDates])
+  }
 
   const { isInternetReachable } = useNetworkState()
 
@@ -278,7 +280,7 @@ export function RouteListScreen() {
         return newData
       })
     }
-  }, [trains.data, currentDate, organizeRoutesByDate, trains.isSuccess, trains.isLoading])
+  }, [trains.data, currentDate, trains.isSuccess, trains.isLoading])
 
   // Initialize the loaded dates with the initial date
   useEffect(() => {
@@ -295,13 +297,13 @@ export function RouteListScreen() {
   }, [time])
 
   // Filter out slow trains when the setting is enabled
-  const filteredRouteData = useMemo(() => {
+  const filteredRouteData = (() => {
     if (!hideSlowTrains) return routeData
     return routeData.filter((item) => {
       if (typeof item === "string") return true // Keep date headers
       return !item.isMuchLonger
     })
-  }, [routeData, hideSlowTrains])
+  })()
 
   // Signal EAS Observe per-route TTI once the route results have resolved — either
   // routes are rendered, or we've reached a terminal not-found / error state.
@@ -315,7 +317,7 @@ export function RouteListScreen() {
 
   // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
   // returns a route list for the whole day.
-  const initialScrollIndex = useMemo(() => {
+  const initialScrollIndex = (() => {
     if (!trains.isSuccess || filteredRouteData.length === 0) return undefined
 
     // Get only the route items (not date headers)
@@ -339,9 +341,9 @@ export function RouteListScreen() {
 
     // Find the actual index in filteredRouteData (which includes date headers)
     return filteredRouteData.findIndex((item) => item === targetRoute)
-  }, [trains.isSuccess, filteredRouteData, dateType, time])
+  })()
 
-  const shouldShowDashedLine = useMemo(() => {
+  const shouldShowDashedLine = (() => {
     const { width: deviceWidth } = Dimensions.get("screen")
 
     // Get the longest text for duration and delay that will be in the list
@@ -361,61 +363,58 @@ export function RouteListScreen() {
      * - There's enough space for the dashed line with the longest duration/delay text
      */
     return fontScale <= 1.2 && deviceWidth >= 360 && shouldShowDashedLineByTextLength
-  }, [trains.data])
+  })()
 
-  const handleRouteLongPress = useCallback(
-    async (routeItem: RouteItem) => {
-      HapticFeedback.trigger("impactMedium")
+  const handleRouteLongPress = async (routeItem: RouteItem) => {
+    HapticFeedback.trigger("impactMedium")
 
-      const options = [translate("routeDetails.addToCalendar"), translate("routes.share"), translate("common.cancel")]
-      const cancelButtonIndex = 2
+    const options = [translate("routeDetails.addToCalendar"), translate("routes.share"), translate("common.cancel")]
+    const cancelButtonIndex = 2
 
-      showActionSheetWithOptions(
-        {
-          options,
-          cancelButtonIndex,
-          title: translate("routes.routeActions"),
-          ...getActionSheetStyleOptions(colorScheme),
-        },
-        async (selectedIndex) => {
-          if (selectedIndex === cancelButtonIndex) return
+    showActionSheetWithOptions(
+      {
+        options,
+        cancelButtonIndex,
+        title: translate("routes.routeActions"),
+        ...getActionSheetStyleOptions(colorScheme),
+      },
+      async (selectedIndex) => {
+        if (selectedIndex === cancelButtonIndex) return
 
-          try {
-            switch (selectedIndex) {
-              case 0: // Add to Calendar
-                const wasAdded = await addRouteToCalendar(routeItem)
-                if (wasAdded) {
-                  Burnt.alert({
-                    title: translate("routes.addedToCalendar"),
-                    preset: "done",
-                    message: translate("routes.addedToCalendar"),
-                  })
-                }
-                break
+        try {
+          switch (selectedIndex) {
+            case 0: // Add to Calendar
+              const wasAdded = await addRouteToCalendar(routeItem)
+              if (wasAdded) {
+                Burnt.alert({
+                  title: translate("routes.addedToCalendar"),
+                  preset: "done",
+                  message: translate("routes.addedToCalendar"),
+                })
+              }
+              break
 
-              case 1: // Share
-                await shareRouteAction(routeItem, originId, destinationId)
-                break
+            case 1: // Share
+              await shareRouteAction(routeItem, originId, destinationId)
+              break
 
-              default:
-                // Should never happen since we check for cancelButtonIndex above
-                break
-            }
-          } catch (error) {
-            if (selectedIndex === 0) {
-              console.error("Failed to add to calendar:", error)
-              Burnt.alert({
-                title: translate("common.error"),
-                preset: "error",
-                message: "Failed to add to calendar",
-              })
-            }
+            default:
+              // Should never happen since we check for cancelButtonIndex above
+              break
           }
-        },
-      )
-    },
-    [originId, destinationId, showActionSheetWithOptions],
-  )
+        } catch (error) {
+          if (selectedIndex === 0) {
+            console.error("Failed to add to calendar:", error)
+            Burnt.alert({
+              title: translate("common.error"),
+              preset: "error",
+              message: "Failed to add to calendar",
+            })
+          }
+        }
+      },
+    )
+  }
 
   const renderRouteCard = ({ item, index }: { item: RouteData; index: number }) => {
     if (typeof item === "string") {
