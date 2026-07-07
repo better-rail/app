@@ -156,6 +156,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // Required by react-native-unistyles on Android (edge-to-edge insets via the mini runtime).
     "react-native-edge-to-edge",
     [
+      "expo-splash-screen",
+      {
+        backgroundColor: "#f2f2f7",
+        dark: {
+          backgroundColor: "#1c1c1e",
+        },
+      },
+    ],
+    [
       "expo-build-properties",
       {
         ios: {
