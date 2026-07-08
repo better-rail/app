@@ -16,8 +16,7 @@ const TWITTER_WEB_URL = "https://x.com/better_rail"
 
 // TODO: Add mail body to iOS - need to understand how to add newlines correctly
 const emailBody = Platform.select({
-  android: `%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A
----
+  android: `\n\n\n\n\n\n\n\n\n\n---
 App: Better Rail ${getVersion()} (${getBuildNumber()})
 Device: ${getDeviceId()} (${getSystemVersion()})
 App Locale: ${userLocale}
@@ -75,7 +74,11 @@ export function AboutScreen() {
           title={translate("settings.feedback")}
           icon="📨"
           onPress={() =>
-            Linking.openURL(encodeURI(`mailto:feedback@better-rail.co.il?subject=פידבק על Better Rail&body=${emailBody}`))
+            Linking.openURL(
+              `mailto:feedback@better-rail.co.il?subject=${encodeURIComponent(
+                "פידבק על Better Rail",
+              )}&body=${encodeURIComponent(emailBody)}`,
+            )
           }
         />
       </View>
