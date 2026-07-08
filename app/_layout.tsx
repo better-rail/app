@@ -4,13 +4,12 @@ import React, { useState, useEffect, useRef } from "react"
 import { AppState, Platform, useColorScheme } from "react-native"
 import { useDeepLinking } from "@/hooks/use-deep-linking"
 import { Stack } from "expo-router/stack"
-import { useRouter, ErrorBoundary as ExpoErrorBoundary } from "expo-router"
+import { ErrorBoundary as ExpoErrorBoundary } from "expo-router"
 import { ThemeProvider, DarkTheme, DefaultTheme } from "expo-router/react-navigation"
 import DeviceInfo from "react-native-device-info"
 import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from "react-query"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet"
-import notifee from "@notifee/react-native"
 import * as Sentry from "@sentry/react-native"
 import { enableScreens } from "react-native-screens"
 import { PostHogProvider } from "posthog-react-native"
@@ -114,7 +113,6 @@ function RootLayout() {
   const [storeReady, setStoreReady] = useState(false)
   const [localeReady, setLocaleReady] = useState(false)
   const appState = useRef(AppState.currentState)
-  const router = useRouter()
   const { markInteractive } = useObserve()
 
   useDeepLinking(storeReady)
@@ -185,16 +183,6 @@ function RootLayout() {
       }
     })
   }, [])
-
-  useEffect(() => {
-    if (!storeReady) return undefined
-    const unsubscribe = notifee.onForegroundEvent(({ detail }) => {
-      if (detail.notification?.data?.type === "service-update") {
-        router.push("/announcements")
-      }
-    })
-    return unsubscribe
-  }, [storeReady])
 
   useEffect(() => {
     const flushAvailablePurchases = async () => {

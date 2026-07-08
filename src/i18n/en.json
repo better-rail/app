@@ -292,20 +292,6 @@
     "afterTrialPrice": "then %{price} / %{period}",
     "cancelAnytime": "Cancel anytime"
   },
-  "announcements": {
-    "notifications": {
-      "notificationSettings": "Notification Settings",
-      "newButtonContent": "Receive updates on events related to your stations",
-      "requestPermissionContent": "Allow Better Rail to send you notifications related to your stations.",
-      "enableNotifications": "Enable Notifications",
-      "notificationSetupContent": "Better Rail will send you updates on events related to your selected stations",
-      "stations": "Stations",
-      "selectStations": "Select Stations",
-      "selectedStations": "Selected Stations",
-      "stationsFromFavorites": "From Favorite Routes",
-      "notificationNote": "Please note: While Better Rail will do its best to provide fast and reliable updates, it is always advisable to check with the official sources of Israel Railways as well."
-    }
-  },
   "forceUpdate": {
     "title": "Update Required",
     "description": "A new version of Better Rail is available. Please update to continue using the app.",

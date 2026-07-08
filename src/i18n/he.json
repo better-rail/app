@@ -293,20 +293,6 @@
     "afterTrialPrice": "ואז %{price} ל%{period}",
     "cancelAnytime": "ניתן לבטל בכל עת"
   },
-  "announcements": {
-    "notifications": {
-      "notificationSettings": "הגדרת נוטפיקציות",
-      "newButtonContent": "קבלו התראות רלוונטיות לתחנות הקבועות שלכם",
-      "requestPermissionContent": "אפשרו לבטר רייל לשלוח התראות רלוונטיות לתחנות שלכם",
-      "enableNotifications": "הפעלת התראות",
-      "notificationSetupContent": "בטר רייל תשלח התראות רלוונטיות לתחנות המועדפות עליכם",
-      "stations": "תחנות",
-      "selectStations": "בחירת תחנות",
-      "selectedStations": "תחנות נוספות",
-      "stationsFromFavorites": "תחנות ממסלולים מועדפים",
-      "notificationNote": "בטר רייל תעשה כמיטב יכולתה לספק עדכונים מהירים ואמינים, אך תמיד מומלץ לבדוק גם עם המקורות הרשמיים של רכבת ישראל."
-    }
-  },
   "forceUpdate": {
     "title": "נדרש עדכון",
     "description": "גרסה חדשה של Better Rail זמינה.\n אנא עדכנו כדי להמשיך להשתמש באפליקציה.",

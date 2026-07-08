@@ -3,8 +3,6 @@ import { TxKeyPath } from "@/i18n"
 import { PopUpMessage } from "@/services/api"
 
 export interface SettingsState {
-  stationsNotifications: string[]
-  seenNotificationsScreen: boolean
   seenUrgentMessagesIds: number[]
   profileCode: number
   totalTip: number
@@ -14,10 +12,6 @@ export interface SettingsState {
 }
 
 export interface SettingsActions {
-  setSeenNotificationsScreen: (seen: boolean) => void
-  setStationsNotifications: (stations: string[]) => void
-  addStationNotification: (stationId: string) => void
-  removeStationNotification: (stationId: string) => void
   setProfileCode: (code: number) => void
   addTip: (amount: number) => void
   setShowRouteCardHeader: (show: boolean) => void
@@ -29,8 +23,6 @@ export interface SettingsActions {
 export type SettingsStore = SettingsState & SettingsActions
 
 const initialSettingsState: SettingsState = {
-  stationsNotifications: [],
-  seenNotificationsScreen: false,
   seenUrgentMessagesIds: [],
   profileCode: 1,
   totalTip: 0,
@@ -43,24 +35,6 @@ export const resetSettingsStore = () => useSettingsStore.setState(initialSetting
 
 export const useSettingsStore = create<SettingsStore>((set, get) => ({
   ...initialSettingsState,
-
-  setSeenNotificationsScreen(seen) {
-    set({ seenNotificationsScreen: seen })
-  },
-
-  setStationsNotifications(stations) {
-    set({ stationsNotifications: stations })
-  },
-
-  addStationNotification(stationId) {
-    set((state) => ({ stationsNotifications: [...state.stationsNotifications, stationId] }))
-  },
-
-  removeStationNotification(stationId) {
-    set((state) => ({
-      stationsNotifications: state.stationsNotifications.filter((station) => station !== stationId),
-    }))
-  },
 
   setProfileCode(code) {
     set({ profileCode: code })
@@ -93,8 +67,6 @@ export function filterUnseenUrgentMessages(messages: PopUpMessage[], seenIds: nu
 
 export function getSettingsSnapshot(state: SettingsState) {
   return {
-    stationsNotifications: state.stationsNotifications,
-    seenNotificationsScreen: state.seenNotificationsScreen,
     seenUrgentMessagesIds: state.seenUrgentMessagesIds,
     profileCode: state.profileCode,
     totalTip: state.totalTip,
@@ -115,8 +87,6 @@ export function hydrateSettingsStore(data: any) {
   delete processedData.hideCollectorTrains
 
   useSettingsStore.setState({
-    stationsNotifications: processedData.stationsNotifications ?? [],
-    seenNotificationsScreen: processedData.seenNotificationsScreen ?? false,
     seenUrgentMessagesIds: processedData.seenUrgentMessagesIds ?? [],
     profileCode: processedData.profileCode ?? 1,
     totalTip: processedData.totalTip ?? 0,

@@ -1,4 +1,5 @@
-import { messaging } from "@/services/firebase/messaging"
+import * as Notifications from "expo-notifications"
+import * as TaskManager from "expo-task-manager"
 import notifee, { AndroidImportance, EventType, TriggerType } from "@notifee/react-native"
 import { RideState, RideStatus, getStatusEndDate, rideProgress } from "@/hooks/use-ride-progress"
 import { RideApi, RouteItem } from "@/services/api"
@@ -6,7 +7,6 @@ import { findClosestStationInRoute, getRideStatus, getTrainFromStationId } from 
 import { addMinutes, addSeconds, differenceInMinutes, format } from "date-fns"
 import { getInitialLanguage, translate } from "@/i18n"
 import i18n from "i18n-js"
-import AsyncStorage from "@react-native-async-storage/async-storage"
 import {
   getRideRoute,
   setRideRoute,
@@ -20,10 +20,45 @@ import {
   clearBackgroundStorage,
 } from "./storage/background-storage"
 import { Platform } from "react-native"
-import { FirebaseMessagingTypes } from "@react-native-firebase/messaging"
 
 const rideApi = new RideApi()
-let unsubscribeTokenUpdates: () => void
+let tokenSubscription: Notifications.Subscription | undefined
+
+// expo-notifications is the sole FCM receiver on Android. Live-ride updates arrive as
+// data-only FCM messages; Notifee owns all display, so suppress expo-notifications from
+// rendering anything itself (prevents an empty/duplicate notification).
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: false,
+    shouldShowList: false,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+})
+
+const BACKGROUND_LIVE_RIDE_TASK = "better-rail-live-ride-notification"
+
+// Pulls the FCM `data` map out of whatever expo-notifications hands us. The wrapper shape
+// differs between the background task and the foreground listener, so probe the known
+// locations. VERIFY the resolved shape on a real device (see migration notes).
+const extractLiveRidePayload = (raw: any): Record<string, string> | null => {
+  const data =
+    raw?.notification?.request?.content?.data ??
+    raw?.notification?.request?.trigger?.remoteMessage?.data ??
+    raw?.request?.content?.data ??
+    raw?.notification?.data ??
+    raw?.data ??
+    raw
+  return data?.type === "live-ride" ? data : null
+}
+
+// Defined at module scope so it registers when index.js loads this file — including when
+// the app is woken from a killed/background state to process a live-ride data message.
+TaskManager.defineTask(BACKGROUND_LIVE_RIDE_TASK, ({ data, error }) => {
+  if (error) return
+  const payload = extractLiveRidePayload(data)
+  if (payload) return handleLiveRideNotification(payload)
+})
 
 export const configureNotifications = async () => {
   if (Platform.OS === "android") {
@@ -36,36 +71,21 @@ export const configureNotifications = async () => {
     })
 
     notifee.createChannel({
-      id: "better-rail-service-updates",
-      name: "Service Updates",
-      description: "Israel Railways service updates",
-      importance: AndroidImportance.HIGH,
-      vibration: true,
-      sound: "default",
-    })
-
-    notifee.createChannel({
       id: "better-rail-live",
       name: "Better Rail Live",
       description: "Get live ride persistent notification",
       vibration: false,
     })
-  }
 
-  const onRecievedMessage = async (message: FirebaseMessagingTypes.RemoteMessage) => {
-    if (message.data?.type === "live-ride" && Platform.OS === "android") {
-      return handleLiveRideNotification(message)
-    }
+    // Background / killed: expo-notifications wakes the JS task defined at module scope.
+    await Notifications.registerTaskAsync(BACKGROUND_LIVE_RIDE_TASK)
 
-    if (message.data?.type === "service-update") {
-      return handleServiceUpdateNotification(message)
-    }
-  }
+    // Foreground: data messages are delivered to this listener rather than the task.
+    Notifications.addNotificationReceivedListener((notification) => {
+      const payload = extractLiveRidePayload(notification)
+      if (payload) handleLiveRideNotification(payload).catch(() => {})
+    })
 
-  messaging.onMessage(onRecievedMessage)
-  messaging.setBackgroundMessageHandler(onRecievedMessage)
-
-  if (Platform.OS === "android") {
     notifee.onBackgroundEvent(async ({ type, detail }) => {
       if (type === EventType.DELIVERED && detail.notification?.data?.type === "live-ride-stale") {
         const rideRoute = await getRideRoute()
@@ -84,12 +104,12 @@ export const configureNotifications = async () => {
   }
 }
 
-const handleLiveRideNotification = async (message: FirebaseMessagingTypes.RemoteMessage) => {
-  if (!message.data) return
+const handleLiveRideNotification = async (data: Record<string, string>) => {
+  if (!data) return
 
-  if (message.data.notifee) {
+  if (data.notifee) {
     notifee.displayNotification({
-      ...JSON.parse(message.data.notifee),
+      ...JSON.parse(data.notifee),
       android: {
         channelId: "better-rail",
         smallIcon: "notification_icon",
@@ -102,9 +122,9 @@ const handleLiveRideNotification = async (message: FirebaseMessagingTypes.Remote
   }
 
   const state: RideState = {
-    status: message.data.status as RideStatus,
-    delay: Number(message.data.delay),
-    nextStationId: Number(message.data.nextStationId),
+    status: data.status as RideStatus,
+    delay: Number(data.delay),
+    nextStationId: Number(data.nextStationId),
   }
 
   await setRideDelay(state.delay)
@@ -117,63 +137,17 @@ const handleLiveRideNotification = async (message: FirebaseMessagingTypes.Remote
   }
 }
 
-const handleServiceUpdateNotification = async (message: FirebaseMessagingTypes.RemoteMessage) => {
-  if (!message.data) return
-
-  const { title, body, stations } = message.data
-  const parsedStations = JSON.parse(stations)
-
-  let displayNotification = false
-  /**
-   * If the message is for all stations, display it
-   * Otherwise, check if the message is for any of the stations that the user has enabled notifications for
-   */
-  if (parsedStations.includes("all-stations")) {
-    displayNotification = true
-  } else {
-    const rootStoreString = await AsyncStorage.getItem("root")
-    const rootStore = JSON.parse(rootStoreString)
-
-    const stationsNotifications: string[] = rootStore.settings.stationsNotifications
-    const favoriteRoutes: string[] = rootStore.favoriteRoutes.routes.flatMap((route) => [route.originId, route.destinationId])
-    const stationsToCheck = [...stationsNotifications, ...favoriteRoutes]
-
-    parsedStations.find((station) => {
-      if (stationsToCheck.includes(station)) {
-        displayNotification = true
-        return true
-      }
-
-      return false
-    })
-  }
-
-  if (displayNotification) {
-    notifee.displayNotification({
-      title,
-      body,
-      ios: { sound: "default" },
-      android: {
-        channelId: "better-rail-service-updates",
-        smallIcon: "notification_icon",
-        pressAction: {
-          id: "default",
-        },
-      },
-    })
-  }
-}
-
 export const startRideNotifications = async (route: RouteItem) => {
-  const token = await messaging.getToken()
+  const token = String((await Notifications.getDevicePushTokenAsync()).data)
   const rideId = await rideApi.startRide(route, token)
 
   if (!rideId) {
     throw new Error("Couldn't start ride")
   }
 
-  unsubscribeTokenUpdates = messaging.onTokenRefresh((newToken) => {
-    rideApi.updateRideToken(rideId, newToken)
+  tokenSubscription?.remove()
+  tokenSubscription = Notifications.addPushTokenListener((newToken) => {
+    rideApi.updateRideToken(rideId, String(newToken.data))
   })
 
   await setRideRoute(route)
@@ -196,8 +170,10 @@ export const startRideNotifications = async (route: RouteItem) => {
 }
 
 export const cancelNotifications = async () => {
-  messaging.deleteToken()
-  if (unsubscribeTokenUpdates) unsubscribeTokenUpdates()
+  if (tokenSubscription) {
+    tokenSubscription.remove()
+    tokenSubscription = undefined
+  }
 
   const rideNotificationId = await getRideNotificationId()
   if (rideNotificationId) {

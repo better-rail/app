@@ -1,4 +1,3 @@
-import { getAnalytics } from "@react-native-firebase/analytics"
 import PostHog, { PostHogOptions } from "posthog-react-native"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import {
@@ -31,41 +30,24 @@ export const posthog = POSTHOG_API_KEY
 
 type AnalyticsParams = Record<string, string | number | boolean | null | undefined>
 
-const firebaseAnalytics = getAnalytics()
-
 export const trackEvent = (eventName: string, params?: AnalyticsParams) => {
-  firebaseAnalytics.logEvent(eventName, params)
   posthog.capture(eventName, params)
 }
 
-export const trackScreenView = (params: AnalyticsParams) => {
-  firebaseAnalytics.logScreenView(params)
+export const trackScreenView = (_params: AnalyticsParams) => {
   // posthog is already tracking screen views through <PostHogProvider />
 }
 
 export const trackPurchase = (params: AnalyticsParams) => {
-  firebaseAnalytics.logPurchase(params)
   posthog.capture("tip_purchased", params)
 }
 
 export const setAnalyticsUserProperty = (name: string, value: string) => {
-  firebaseAnalytics.setUserProperty(name, value)
-
-  const updated = setCachedPosthogProperty(name, value)
-
-  if (Object.keys(updated).length === 0) {
-    return
-  }
+  setCachedPosthogProperty(name, value)
 }
 
 export const setAnalyticsUserProperties = (properties: Record<string, string>) => {
-  firebaseAnalytics.setUserProperties(properties)
-
-  const updated = setCachedPosthogProperties(properties)
-
-  if (Object.keys(updated).length === 0) {
-    return
-  }
+  setCachedPosthogProperties(properties)
 }
 
 export const identifyPosthogUser = async () => {
@@ -75,8 +57,6 @@ export const identifyPosthogUser = async () => {
 }
 
 export const setAnalyticsCollectionEnabled = async (enabled: boolean) => {
-  await firebaseAnalytics.setAnalyticsCollectionEnabled(enabled)
-
   if (enabled) {
     await posthog.optIn()
   } else {

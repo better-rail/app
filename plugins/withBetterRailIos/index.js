@@ -9,8 +9,9 @@
  *                              handler to the generated Swift AppDelegate.
  *  - withPodfilePostInstall:   re-applies the BoringSSL flag strip + libc++ C++17 define.
  *
- * Firebase init, URL-scheme/universal-link handling, App Groups, keychain, Live Activity
- * Info.plist keys, fonts and Sentry are handled by app.config.ts + first-party plugins.
+ * URL-scheme/universal-link handling, App Groups, keychain, Live Activity Info.plist keys,
+ * fonts and Sentry are handled by app.config.ts + first-party plugins. (iOS push uses APNs
+ * directly — no Firebase.)
  */
 const { withAppNativeModule } = require("./withAppNativeModule")
 const { withAppDelegateShortcuts } = require("./withAppDelegateShortcuts")

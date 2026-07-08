@@ -1,5 +1,5 @@
 import { Stack } from "expo-router/stack"
-import { Image, Pressable, type TextStyle } from "react-native"
+import { type TextStyle } from "react-native"
 import { color, spacing, typography } from "@/theme"
 import { translate } from "@/i18n"
 import { CloseButton } from "@/components"
@@ -26,20 +26,6 @@ export default function AnnouncementsLayout() {
         name="index"
         options={{
           title: translate("routes.updates") ?? "",
-          headerRight: () => (
-            <Pressable onPress={() => router.push("/announcements/notifications-setup")}>
-              <Image
-                source={require("../../assets/bell.png")}
-                style={{
-                  width: 24,
-                  height: 27,
-                  marginRight: spacing[3],
-                  opacity: 0.6,
-                  tintColor: "#e67e22",
-                }}
-              />
-            </Pressable>
-          ),
           headerLeft: () => <CloseButton onPress={() => router.back()} style={{ marginRight: spacing[5] }} />,
           unstable_headerLeftItems: () => [
             {
@@ -68,14 +54,6 @@ export default function AnnouncementsLayout() {
           headerTitleStyle: iOSTitleStyle,
         }}
       />
-      <Stack.Screen
-        name="notifications-setup"
-        options={{
-          title: translate("announcements.notifications.notificationSettings") ?? "",
-          headerTitleStyle: iOSTitleStyle,
-        }}
-      />
-      <Stack.Screen name="notifications-stations" options={{ title: "Select Stations", headerShown: false }} />
     </Stack>
   )
 }
