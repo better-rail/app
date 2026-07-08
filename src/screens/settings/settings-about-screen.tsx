@@ -23,6 +23,7 @@ App Locale: ${userLocale}
 Device Locale: ${deviceLocale}
 `,
   ios: "",
+  default: "",
 })
 
 export function AboutScreen() {
@@ -78,7 +79,9 @@ export function AboutScreen() {
               `mailto:feedback@better-rail.co.il?subject=${encodeURIComponent(
                 "פידבק על Better Rail",
               )}&body=${encodeURIComponent(emailBody)}`,
-            )
+            ).catch((error) => {
+              console.error("Failed to open mail client:", error)
+            })
           }
         />
       </View>
