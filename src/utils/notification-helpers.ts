@@ -83,7 +83,7 @@ export const configureNotifications = async () => {
     // Foreground: data messages are delivered to this listener rather than the task.
     Notifications.addNotificationReceivedListener((notification) => {
       const payload = extractLiveRidePayload(notification)
-      if (payload) handleLiveRideNotification(payload)
+      if (payload) handleLiveRideNotification(payload).catch(() => {})
     })
 
     notifee.onBackgroundEvent(async ({ type, detail }) => {
@@ -145,6 +145,7 @@ export const startRideNotifications = async (route: RouteItem) => {
     throw new Error("Couldn't start ride")
   }
 
+  tokenSubscription?.remove()
   tokenSubscription = Notifications.addPushTokenListener((newToken) => {
     rideApi.updateRideToken(rideId, String(newToken.data))
   })
