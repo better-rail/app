@@ -1,5 +1,5 @@
 diff --git a/src/DateTimePickerModal.ios.js b/src/DateTimePickerModal.ios.js
-index 6ef0b0ac0d0e68a6fa8be1084a074cc28e3cfc76..1fa32b632f18d0a722d0aa259e75dbdb75eda6c1 100644
+index 6ef0b0ac0d0e68a6fa8be1084a074cc28e3cfc76..122ea01319edde84356a5d5e071529664e080e61 100644
 --- a/src/DateTimePickerModal.ios.js
 +++ b/src/DateTimePickerModal.ios.js
 @@ -6,6 +6,7 @@ import {
@@ -20,6 +20,15 @@ index 6ef0b0ac0d0e68a6fa8be1084a074cc28e3cfc76..1fa32b632f18d0a722d0aa259e75dbdb
  export const BUTTON_FONT_WEIGHT = "normal";
  export const BUTTON_FONT_COLOR = "#007ff9";
  export const BUTTON_FONT_SIZE = 20;
+@@ -178,7 +180,7 @@ export class DateTimePickerModal extends React.PureComponent {
+               display={display || "spinner"}
+               {...otherProps}
+               value={this.state.currentDate}
+-              onChange={this.handleChange}
++              onValueChange={this.handleChange}
+               // Recent versions @react-native-community/datetimepicker (at least starting with 6.7.0)
+               // have a peculiar iOS behaviour where sometimes, for example in react-native Modal,
+               // the inline picker is not rendered correctly if in datetime mode. Explicitly setting the height
 @@ -224,8 +226,11 @@ const pickerStyles = StyleSheet.create({
      marginBottom: isIphoneX() ? 34 : 10,
    },
