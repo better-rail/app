@@ -11,7 +11,6 @@ import { Text } from "@/components/text/text"
 
 export interface DatePickerModalProps {
   isVisible: boolean
-  onChange?: (date: Date) => void
   onConfirm: (date: Date) => void
   onCancel: () => void
   minimumDate?: Date

@@ -226,7 +226,6 @@ export function PlannerScreen() {
 
           <DatePickerModal
             isVisible={isDatePickerVisible}
-            onChange={onDateChange}
             onConfirm={handleConfirm}
             onCancel={() => setDatePickerVisibility(false)}
             minimumDate={now}

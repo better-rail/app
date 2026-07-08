@@ -14,7 +14,6 @@ const DATE_TYPE: { [key: number]: DateType } = { 0: "departure", 1: "arrival" }
 
 export interface DatePickerModalProps {
   isVisible: boolean
-  onChange: (date: Date) => void
   onConfirm: (date: Date) => void
   onCancel: () => void
   minimumDate?: Date
@@ -25,14 +24,15 @@ export function DatePickerModal(props: DatePickerModalProps) {
   const { dateType, date, setDateType } = useRoutePlanStore(
     useShallow((s) => ({ dateType: s.dateType, date: s.date, setDateType: s.setDateType })),
   )
-  const { isVisible, onChange, onConfirm, onCancel, minimumDate } = props
+  const { isVisible, onConfirm, onCancel, minimumDate } = props
 
   return (
+    // Commit on confirm only (like Android) — forwarding the picker's live onChange would
+    // re-key the planner's route prefetch on every scroll tick and spam the API.
     <DateTimePickerModal
       isVisible={isVisible}
       mode="datetime"
       date={date}
-      onChange={onChange}
       onConfirm={onConfirm}
       onCancel={onCancel}
       locale={dateLocale}
