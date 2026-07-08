@@ -1,5 +1,5 @@
 import React from "react"
-import { Image, Linking, Platform, View } from "react-native"
+import { Alert, Image, Linking, Platform, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text } from "@/components"
 import { SettingBox } from "./components/settings-box"
@@ -79,8 +79,8 @@ export function AboutScreen() {
               `mailto:feedback@better-rail.co.il?subject=${encodeURIComponent(
                 "פידבק על Better Rail",
               )}&body=${encodeURIComponent(emailBody)}`,
-            ).catch((error) => {
-              console.error("Failed to open mail client:", error)
+            ).catch(() => {
+              Alert.alert(translate("settings.feedbackMailError"))
             })
           }
         />

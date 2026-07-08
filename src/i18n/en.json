@@ -125,6 +125,7 @@
     "privacyPolicyLink": "https://better-rail.co.il/en/privacy-policy",
     "disableTelemetry": "Disable Telemetry",
     "feedback": "Send Feedback",
+    "feedbackMailError": "Could not open the mail app. You can reach us at feedback@better-rail.co.il",
     "languageChangeAlertTitle": "Language Change",
     "languageChangeAlertMessage": "The app will restart to apply the changes",
     "tipJar": "Tip Jar",
