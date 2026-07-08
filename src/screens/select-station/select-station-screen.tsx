@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react"
+import React, { useState } from "react"
 import { View, Pressable, Platform } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text, StationCard, FavoriteRoutes, cardHeight } from "@/components"
@@ -17,7 +17,7 @@ export function SelectStationScreen() {
   const router = useRouter()
   const { selectionType } = useLocalSearchParams<{ selectionType: "origin" | "destination" }>()
   const { setOrigin, setDestination } = useRoutePlanStore(
-    useShallow((s) => ({ setOrigin: s.setOrigin, setDestination: s.setDestination }))
+    useShallow((s) => ({ setOrigin: s.setOrigin, setDestination: s.setDestination })),
   )
   const saveRecentSearch = useRecentSearchesStore((s) => s.save)
   const recentSearchEntries = useRecentSearchesStore((s) => s.entries)
@@ -26,26 +26,23 @@ export function SelectStationScreen() {
   const [searchTerm, setSearchTerm] = useState("")
   const { filteredStations } = useFilteredStations(searchTerm)
 
-  const renderItem = useCallback(
-    (station: NormalizedStation) => (
-      <StationCard
-        name={station.name}
-        image={station.image}
-        style={styles.stationCard}
-        onPress={() => {
-          if (selectionType === "origin") {
-            setOrigin(station)
-          } else if (selectionType === "destination") {
-            setDestination(station)
-          } else {
-            throw new Error("Selection type was not provided.")
-          }
-          saveRecentSearch({ id: station.id })
-          router.back()
-        }}
-      />
-    ),
-    [selectionType, router, setOrigin, setDestination, saveRecentSearch],
+  const renderItem = (station: NormalizedStation) => (
+    <StationCard
+      name={station.name}
+      image={station.image}
+      style={styles.stationCard}
+      onPress={() => {
+        if (selectionType === "origin") {
+          setOrigin(station)
+        } else if (selectionType === "destination") {
+          setDestination(station)
+        } else {
+          throw new Error("Selection type was not provided.")
+        }
+        saveRecentSearch({ id: station.id })
+        router.back()
+      }}
+    />
   )
 
   return (

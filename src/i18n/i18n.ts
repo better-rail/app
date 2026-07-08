@@ -1,6 +1,7 @@
 import { I18nManager, Platform } from "react-native"
 import RNRestart from "react-native-restart-newarch"
 import { setAnalyticsUserProperty } from "@/services/analytics"
+import { setStationLocale } from "@/data/stations"
 import Preferences from "react-native-default-preference"
 import * as storage from "@/utils/storage"
 
@@ -80,6 +81,7 @@ export function setUserLanguage(languageCode: LanguageCode, allowRestart = false
 
   userLocale = languageCode
   i18n.locale = languageCode
+  setStationLocale(languageCode)
 
   if (Platform.OS === "android") {
     Preferences.set("userLocale", languageCode)

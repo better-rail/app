@@ -16,7 +16,11 @@ export const MenuIcon = function CalendarIcon(props: { style?: ViewStyle }) {
   }
 
   return (
-    <TouchableOpacity style={[styles.container, style]} accessibilityRole="button" accessibilityLabel={translate("routes.routeActions")}>
+    <TouchableOpacity
+      style={[styles.container, style]}
+      accessibilityRole="button"
+      accessibilityLabel={translate("routes.routeActions")}
+    >
       <Image source={menuIcon} style={[styles.icon]} />
     </TouchableOpacity>
   )

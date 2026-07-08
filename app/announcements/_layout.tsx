@@ -28,7 +28,12 @@ export default function AnnouncementsLayout() {
           title: translate("routes.updates") ?? "",
           headerLeft: () => <CloseButton onPress={() => router.back()} style={{ marginRight: spacing[5] }} />,
           unstable_headerLeftItems: () => [
-            { type: "button", label: translate("common.close") ?? "Close", icon: { type: "sfSymbol", name: "xmark" }, onPress: () => router.back() },
+            {
+              type: "button",
+              label: translate("common.close") ?? "Close",
+              icon: { type: "sfSymbol", name: "xmark" },
+              onPress: () => router.back(),
+            },
           ],
           headerTitleStyle: iOSTitleStyle,
         }}
@@ -39,7 +44,12 @@ export default function AnnouncementsLayout() {
           title: translate("routes.updates") ?? "",
           headerLeft: () => <CloseButton onPress={() => router.back()} style={{ marginRight: spacing[2] }} />,
           unstable_headerLeftItems: () => [
-            { type: "button", label: translate("common.close") ?? "Close", icon: { type: "sfSymbol", name: "xmark" }, onPress: () => router.back() },
+            {
+              type: "button",
+              label: translate("common.close") ?? "Close",
+              icon: { type: "sfSymbol", name: "xmark" },
+              onPress: () => router.back(),
+            },
           ],
           headerTitleStyle: iOSTitleStyle,
         }}

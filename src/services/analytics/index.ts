@@ -1,12 +1,17 @@
 import PostHog, { PostHogOptions } from "posthog-react-native"
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import { ensurePosthogPropertiesHydrated, getCachedPosthogProperties, setCachedPosthogProperties, setCachedPosthogProperty } from "./posthog-user-properties"
+import {
+  ensurePosthogPropertiesHydrated,
+  getCachedPosthogProperties,
+  setCachedPosthogProperties,
+  setCachedPosthogProperty,
+} from "./posthog-user-properties"
 
 export const posthogOptions: PostHogOptions = {
   host: "https://eu.i.posthog.com",
   persistence: "file" as const,
   customStorage: AsyncStorage,
-  enableSessionReplay: true
+  enableSessionReplay: true,
 }
 
 // Inlined into the JS bundle by babel-preset-expo (EXPO_PUBLIC_* prefix). Available in EAS

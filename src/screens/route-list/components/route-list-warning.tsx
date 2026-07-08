@@ -55,9 +55,12 @@ export const RouteListWarning = function RouteListWarning({ routesDate, warningT
       })
 
       // display sheet after the alert has disappeared
-      setTimeout(() => {
-        setDisplayWarningSheet(true)
-      }, duration * 1000 + 350)
+      setTimeout(
+        () => {
+          setDisplayWarningSheet(true)
+        },
+        duration * 1000 + 350,
+      )
     }
   }, [])
 

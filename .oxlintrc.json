@@ -1,0 +1,26 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "import", "promise", "jest"],
+  "env": {
+    "builtin": true,
+    "jest": true
+  },
+  "globals": {
+    "__DEV__": "readonly"
+  },
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "no-unused-vars": "off",
+    "typescript/no-explicit-any": "off",
+    "typescript/no-require-imports": "off",
+    "typescript/no-empty-interface": "off",
+    "react/no-unescaped-entities": "off",
+    "import/default": "off",
+    "jest/no-conditional-expect": "off",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn"
+  },
+  "ignorePatterns": ["node_modules", "ios-native", "android-native", "scripts", "bin"]
+}

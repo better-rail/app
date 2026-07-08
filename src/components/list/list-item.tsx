@@ -1,4 +1,4 @@
-import { ReactNode, useMemo } from "react"
+import { ReactNode } from "react"
 import { TouchableHighlight, View, ViewStyle } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { color } from "@/theme"
@@ -18,10 +18,7 @@ export interface ListItemProps {
 export const ListItem = (props: ListItemProps) => {
   const { title, subtitle, isLastItem, isFirstItem, onPress, startBoxItem, endBoxItem } = props
 
-  const touchableStyle = useMemo(
-    () => [styles.listItemWrapper, isFirstItem && styles.firstItem, isLastItem && styles.lastItem],
-    [isFirstItem, isLastItem],
-  )
+  const touchableStyle = [styles.listItemWrapper, isFirstItem && styles.firstItem, isLastItem && styles.lastItem]
 
   return (
     <TouchableHighlight underlayColor={color.inputPlaceholderBackground} onPress={onPress} style={touchableStyle}>

@@ -1,4 +1,3 @@
-import { useMemo } from "react"
 import { useColorScheme } from "react-native"
 
 /**
@@ -30,11 +29,9 @@ export const ROUTE_STOP_CIRCLE_COLORS = {
 export function useRouteColors(state: RouteElementStateType, element: "line" | "circle") {
   const colorScheme = useColorScheme()
 
-  return useMemo(() => {
-    if (element === "line") {
-      return ROUTE_LINE_STATE_COLORS[state][colorScheme]
-    }
+  if (element === "line") {
+    return ROUTE_LINE_STATE_COLORS[state][colorScheme]
+  }
 
-    return ROUTE_STOP_CIRCLE_COLORS[state][colorScheme]
-  }, [state, colorScheme])
+  return ROUTE_STOP_CIRCLE_COLORS[state][colorScheme]
 }

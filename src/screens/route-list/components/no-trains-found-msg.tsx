@@ -8,9 +8,7 @@ import { AnnouncementsList } from "@/components/announcements/announcements-list
 import { AnnouncementsHeader } from "@/components/announcements/announcements-header"
 
 export function NoTrainsFoundMessage() {
-  const { origin, destination } = useRoutePlanStore(
-    useShallow((s) => ({ origin: s.origin, destination: s.destination }))
-  )
+  const { origin, destination } = useRoutePlanStore(useShallow((s) => ({ origin: s.origin, destination: s.destination })))
   const originId = origin.id
   const destinationId = destination.id
 
@@ -19,7 +17,10 @@ export function NoTrainsFoundMessage() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Image style={styles.searchIcon} source={require("../../../../assets/search.png")} />
-      <Text tx={shouldShowAnnouncements ? "routes.noTrainsFound" : "routes.sameStationsMessage"} style={styles.noTrainsFoundText} />
+      <Text
+        tx={shouldShowAnnouncements ? "routes.noTrainsFound" : "routes.sameStationsMessage"}
+        style={styles.noTrainsFoundText}
+      />
 
       {shouldShowAnnouncements && (
         <>

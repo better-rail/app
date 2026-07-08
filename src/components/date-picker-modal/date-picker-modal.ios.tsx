@@ -23,7 +23,7 @@ export interface DatePickerModalProps {
 
 export function DatePickerModal(props: DatePickerModalProps) {
   const { dateType, date, setDateType } = useRoutePlanStore(
-    useShallow((s) => ({ dateType: s.dateType, date: s.date, setDateType: s.setDateType }))
+    useShallow((s) => ({ dateType: s.dateType, date: s.date, setDateType: s.setDateType })),
   )
   const { isVisible, onChange, onConfirm, onCancel, minimumDate } = props
 

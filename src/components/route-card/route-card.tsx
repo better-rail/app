@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useMemo } from "react"
+import React from "react"
 import { View, ViewStyle, Platform, TouchableOpacity, Pressable, Image } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
@@ -68,33 +68,33 @@ export function RouteCard(props: RouteCardProps) {
   } = props
 
   const { hideSlowTrains, showRouteCardHeader } = useSettingsStore(
-    useShallow((s) => ({ hideSlowTrains: s.hideSlowTrains, showRouteCardHeader: s.showRouteCardHeader }))
+    useShallow((s) => ({ hideSlowTrains: s.hideSlowTrains, showRouteCardHeader: s.showRouteCardHeader })),
   )
 
   // Format times
-  const [formattedDepatureTime, formattedArrivalTime] = useMemo(() => {
+  const [formattedDepatureTime, formattedArrivalTime] = (() => {
     const formattedDepatureTime = format(new Date(departureTime), "HH:mm")
     const formattedArrivalTime = format(new Date(arrivalTime), "HH:mm")
 
     return [formattedDepatureTime, formattedArrivalTime]
-  }, [departureTime, arrivalTime])
+  })()
 
-  const stopsText = useMemo(() => {
+  const stopsText = (() => {
     if (stops === 0) return translate("routes.noChange")
     if (stops === 1) return translate("routes.oneChange")
     return `${stops} ${translate("routes.changes")}`
-  }, [stops])
+  })()
 
   // Check if indicators are bloated (short route badge with delay shown)
   const isBloatedIndicators = isMuchShorter && !isMuchLonger && delay > 0 && !hideSlowTrains
 
   // Generate context menu actions if routeItem and IDs are provided
-  const generatedContextMenuActions = useMemo(() => {
+  const generatedContextMenuActions = (() => {
     if (routeItem && originId && destinationId) {
       return createContextMenuActions(routeItem, originId, destinationId)
     }
     return contextMenuActions || []
-  }, [routeItem, originId, destinationId, contextMenuActions])
+  })()
 
   const TouchableComponent = generatedContextMenuActions && Platform.OS === "ios" ? Pressable : TouchableScale
 
@@ -131,13 +131,7 @@ export function RouteCard(props: RouteCardProps) {
     const carType = train?.visaWagonData?.wagons?.[0]?.krsG3
     const imageSource = trainTypeImages[carType as keyof typeof trainTypeImages] || trainTypeImages.TBD
 
-    return (
-      <Image
-        source={imageSource}
-        style={styles.trainTypeImage}
-        resizeMode="contain"
-      />
-    )
+    return <Image source={imageSource} style={styles.trainTypeImage} resizeMode="contain" />
   }
 
   const showHeader = mainTrain && (showHeaderOverride ?? showRouteCardHeader)

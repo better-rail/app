@@ -70,6 +70,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   jsEngine: "hermes",
   assetBundlePatterns: ["**/*"],
 
+  experiments: {
+    reactCompiler: true,
+  },
+
   ios: {
     bundleIdentifier: IOS_BUNDLE_ID,
     buildNumber: "1",
@@ -117,7 +121,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // falls back to the local path for on-machine prod prebuilds.
     googleServicesFile: IS_DEV
       ? "./google-services.development.json"
-      : process.env.GOOGLE_SERVICES_JSON ?? "./google-services.json",
+      : (process.env.GOOGLE_SERVICES_JSON ?? "./google-services.json"),
     allowBackup: false,
     // Widget network calls / local dev (replaces the original network_security_config.xml).
     usesCleartextTraffic: true,
@@ -150,6 +154,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-router",
     // Required by react-native-unistyles on Android (edge-to-edge insets via the mini runtime).
     "react-native-edge-to-edge",
+    [
+      "expo-splash-screen",
+      {
+        backgroundColor: "#f2f2f7",
+        dark: {
+          backgroundColor: "#1c1c1e",
+        },
+      },
+    ],
     [
       "expo-build-properties",
       {

@@ -22,9 +22,7 @@ export function TipJarScreen() {
   const [isLoading, setIsLoading] = useState(false)
   const [sortedProducts, setSortedProducts] = useState([])
   const [showThanksModal, setShowThanksModal] = useState(false)
-  const { totalTip, addTip } = useSettingsStore(
-    useShallow((s) => ({ totalTip: s.totalTip, addTip: s.addTip }))
-  )
+  const { totalTip, addTip } = useSettingsStore(useShallow((s) => ({ totalTip: s.totalTip, addTip: s.addTip })))
 
   const handlePurchaseSuccess = async (purchase) => {
     try {

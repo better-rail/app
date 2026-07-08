@@ -15,8 +15,7 @@ const routeApi = new RouteApi()
 
 // Loaded lazily to avoid a require cycle (notification-helpers imports back into the ride hooks/models).
 // The Android helpers are only used at runtime on Android, so a deferred require is safe here.
-const androidHelpers = () =>
-  (require("@/utils/notification-helpers") as { default: typeof AndroidHelpersModule }).default
+const androidHelpers = () => (require("@/utils/notification-helpers") as { default: typeof AndroidHelpersModule }).default
 
 const startRideHandler = (route: RouteItem): Promise<string> =>
   Platform.OS === "ios" ? iOSHelpers.startLiveActivity(route) : androidHelpers().startRideNotifications(route)
@@ -171,9 +170,7 @@ export const useRideStore = create<RideStore>((set, get) => ({
 
       routeApi.getRoutes(originId.toString(), destinationId.toString(), date, time).then((routes) => {
         const currentRouteTrains = route.trains.map((train) => train.trainNumber).join()
-        const currentRoute = routes.find(
-          (r) => currentRouteTrains === r.trains.map((train) => train.trainNumber).join(),
-        )
+        const currentRoute = routes.find((r) => currentRouteTrains === r.trains.map((train) => train.trainNumber).join())
 
         if (currentRoute && Date.now() >= addMinutes(currentRoute.arrivalTime, last(currentRoute.trains).delay).getTime()) {
           get().stopRide(rideId)

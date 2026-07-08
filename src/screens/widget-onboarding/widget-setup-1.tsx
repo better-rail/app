@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import React from "react"
 import { View, Image } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text, Button } from "@/components"
@@ -11,13 +11,13 @@ export const WidgetStep1 = function WidgetStep1() {
   const router = useRouter()
   const wrapperStyle = useWidgetWrapperStyle()
 
-  const addWidgetImage = useMemo(() => {
+  const addWidgetImage = (() => {
     if (userLocale === "he") {
       return require("../../../assets/add-widget-hebrew.png")
     } else {
       return require("../../../assets/add-widget-english.png")
     }
-  }, [])
+  })()
 
   return (
     <Screen unsafe={true} statusBar="light-content" preset="scroll">

@@ -75,7 +75,6 @@ export const useRoutePlanStore = create<RoutePlanStore>((set, get) => ({
     set({ origin: newOrigin, destination: newDestination })
     sendCurrentRouteToiOS(newOrigin?.id, newDestination?.id)
   },
-
 }))
 
 export function useDateTypeDisplayName() {

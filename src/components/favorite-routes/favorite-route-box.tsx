@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import React from "react"
 import { View, ViewStyle, ImageBackground, Platform, Alert, useColorScheme } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import TouchableScale from "react-native-touchable-scale"
@@ -53,13 +53,13 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
 
   const { onLongPress } = useOnLongPress(label, renamePrompt, deleteRoute)
 
-  const [originName, destinationName, stationImage] = useMemo(() => {
+  const [originName, destinationName, stationImage] = (() => {
     const origin = stationsObject[originId][stationLocale]
     const destination = stationsObject[destinationId][stationLocale]
     const image = stationsObject[originId].image
 
     return [origin, destination, image]
-  }, [])
+  })()
 
   return (
     <ContextMenuView

@@ -79,7 +79,10 @@ export function SettingsScreen() {
       </View>
 
       <Text
-        style={[styles.versionText, isBetaTester && { fontFamily: "System", fontWeight: "500", color: PlatformColor("systemOrange") }]}
+        style={[
+          styles.versionText,
+          isBetaTester && { fontFamily: "System", fontWeight: "500", color: PlatformColor("systemOrange") },
+        ]}
       >
         Better Rail {isBetaTester && "Beta "}v{getVersion()} (Build {getBuildNumber()})
       </Text>

@@ -54,11 +54,7 @@ export function ZollyAnnouncementScreen() {
       {/* Header */}
       <View style={styles.header}>
         <Text style={[styles.text, styles.headerTitle]}>חדש מבטר רייל</Text>
-        <Image
-          source={require("../../../assets/zolly-announcement/zolly.png")}
-          tintColor="#def49e"
-          style={styles.logo}
-        />
+        <Image source={require("../../../assets/zolly-announcement/zolly.png")} tintColor="#def49e" style={styles.logo} />
         <Text style={[styles.bodyText, styles.intro]}>השוואת מחירים בין חנויות, מציאת מבצעים ושיתוף רשימת קניות</Text>
       </View>
 
