@@ -1,5 +1,5 @@
 import React from "react"
-import { Image, Linking, Platform, View } from "react-native"
+import { Alert, Image, Linking, Platform, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text } from "@/components"
 import { SettingBox } from "./components/settings-box"
@@ -16,14 +16,14 @@ const TWITTER_WEB_URL = "https://x.com/better_rail"
 
 // TODO: Add mail body to iOS - need to understand how to add newlines correctly
 const emailBody = Platform.select({
-  android: `%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A
----
+  android: `\n\n\n\n\n\n\n\n\n\n---
 App: Better Rail ${getVersion()} (${getBuildNumber()})
 Device: ${getDeviceId()} (${getSystemVersion()})
 App Locale: ${userLocale}
 Device Locale: ${deviceLocale}
 `,
   ios: "",
+  default: "",
 })
 
 export function AboutScreen() {
@@ -75,7 +75,13 @@ export function AboutScreen() {
           title={translate("settings.feedback")}
           icon="📨"
           onPress={() =>
-            Linking.openURL(encodeURI(`mailto:feedback@better-rail.co.il?subject=פידבק על Better Rail&body=${emailBody}`))
+            Linking.openURL(
+              `mailto:feedback@better-rail.co.il?subject=${encodeURIComponent(
+                "פידבק על Better Rail",
+              )}&body=${encodeURIComponent(emailBody)}`,
+            ).catch(() => {
+              Alert.alert(translate("settings.feedbackMailError"))
+            })
           }
         />
       </View>

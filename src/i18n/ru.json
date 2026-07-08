@@ -122,6 +122,7 @@
     "privacyPolicyLink": "https://better-rail.co.il/en/privacy-policy",
     "disableTelemetry": "Отключить телеметрию",
     "feedback": "Обратная связь",
+    "feedbackMailError": "Не удалось открыть почтовое приложение. Вы можете написать нам на feedback@better-rail.co.il",
     "languageChangeAlertTitle": "Смена языка",
     "languageChangeAlertMessage": "Приложение перезагрузится чтобы применить новые настройки",
     "aboutText": "Better Rail это приложение с открытым исходным кодом, целью которого является сделать расписания Израильских Железных Дорог более доступными для общественности.",

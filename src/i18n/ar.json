@@ -119,6 +119,7 @@
     "facebook": "فيسبوك",
     "twitter": "تويتر",
     "feedback": "ارسال الملاحظات",
+    "feedbackMailError": "تعذر فتح تطبيق البريد. يمكنكم مراسلتنا على feedback@better-rail.co.il",
     "imageAttribution": "كرديت الصور",
     "privacy": "خصوصية",
     "privacyPolicy": "سياسة الخصوصية",

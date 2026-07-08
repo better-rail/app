@@ -138,6 +138,7 @@
     "facebook": "פייסבוק",
     "twitter": "טוויטר",
     "feedback": "שליחת פידבק",
+    "feedbackMailError": "לא ניתן לפתוח את אפליקציית המייל. אפשר לכתוב לנו לכתובת feedback@better-rail.co.il",
     "imageAttribution": "קרדיט תמונות",
     "privacy": "פרטיות",
     "privacyPolicy": "מדיניות פרטיות",
