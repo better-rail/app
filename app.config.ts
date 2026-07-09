@@ -161,19 +161,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         dark: {
           backgroundColor: "#1c1c1e",
         },
-        // Android 12+ always renders a splash icon, and expo-splash-screen's theme
-        // unconditionally points `windowSplashScreenAnimatedIcon` at
-        // @drawable/splashscreen_logo — a drawable it only generates when an `image`
-        // is set. Without one the release build fails linking that missing resource
-        // (`processReleaseResources`). Use the brand mark so the Android splash is
-        // intentional and the build links; a dark variant keeps the icon on-color in
-        // dark mode. (iOS stays color-only — its splash needs no image.)
         android: {
           image: "./assets/icons/android-foreground.png",
           imageWidth: 180,
-          dark: {
-            image: "./assets/icons/android-foreground.png",
-          },
         },
       },
     ],
