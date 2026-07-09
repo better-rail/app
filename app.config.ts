@@ -161,6 +161,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         dark: {
           backgroundColor: "#1c1c1e",
         },
+        android: {
+          image: "./assets/icons/android-foreground.png",
+          imageWidth: 180,
+        },
       },
     ],
     [
