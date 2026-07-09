@@ -61,6 +61,7 @@ export function useDeepLinking(storeReady: boolean) {
   }
 
   function deepLinkLiveActivity() {
+    if (!storeReady) return
     openActiveRideScreen()
   }
 

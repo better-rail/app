@@ -22,5 +22,5 @@ export function redirectSystemPath({ path }: { path: string; initial: boolean })
     // the default behavior on any unexpected input.
   }
 
-  return path
+  return path || null
 }
