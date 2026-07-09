@@ -124,12 +124,14 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   }
 
   useEffect(() => {
-    navigation.setParams({
-      originId: routePlanOrigin.id,
-      destinationId: routePlanDestination.id,
-    } as never)
+    if (routePlanOrigin?.id && routePlanDestination?.id) {
+      navigation.setParams({
+        originId: routePlanOrigin.id,
+        destinationId: routePlanDestination.id,
+      } as never)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routePlanOrigin.id, routePlanDestination.id])
+  }, [routePlanOrigin?.id, routePlanDestination?.id])
 
   const renderHeaderRight = () => {
     if (screenName === "routeDetails") {
