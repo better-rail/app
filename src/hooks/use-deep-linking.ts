@@ -6,7 +6,6 @@ import { donateRouteIntent, reloadAllTimelines } from "@/utils/ios-helpers"
 import { useRoutePlanStore } from "@/models/route-plan/route-plan"
 import { useRideStore } from "@/models/ride/ride"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
-import { isEqual } from "lodash"
 import { trackEvent } from "@/services/analytics"
 import { getStationById } from "@/data/stations"
 import Shortcuts, { ShortcutItem } from "react-native-quick-actions-shortcuts"
@@ -55,23 +54,15 @@ export function useDeepLinking(storeReady: boolean) {
       originId: String(originId),
       destinationId: String(destinationId),
     })
-    router.push("/active-ride")
+    // `navigate` (not `push`) so that if the active-ride modal is already open
+    // it stays intact instead of stacking a duplicate, and if it was dismissed —
+    // or another screen is showing — it reliably reopens.
+    router.navigate("/active-ride")
   }
 
-  function deepLinkLiveActivity(url: string) {
-    const currentRouteItem = useNavigationParamsStore.getState().routeItem
-
-    if (!currentRouteItem) {
-      openActiveRideScreen()
-    } else {
-      const { trains } = extractURLParams(url)
-      const activityTrainNumbers = trains.split(",").map((t) => parseInt(t))
-      const routeTrainNumbers = currentRouteItem.trains.map((t) => t.trainNumber)
-
-      if (!isEqual(activityTrainNumbers, routeTrainNumbers)) {
-        openActiveRideScreen()
-      }
-    }
+  function deepLinkLiveActivity() {
+    if (!storeReady) return
+    openActiveRideScreen()
   }
 
   function handleDeepLinkURL(url: string) {
@@ -81,7 +72,7 @@ export function useDeepLinking(storeReady: boolean) {
       trackEvent("deep_link_widget")
     }
     if (url.toLowerCase().includes("liveactivity")) {
-      deepLinkLiveActivity(url)
+      deepLinkLiveActivity()
       trackEvent("deep_link_live_activity")
     }
   }
