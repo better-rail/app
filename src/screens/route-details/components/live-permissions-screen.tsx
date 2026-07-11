@@ -1,6 +1,7 @@
-import { Alert, Image, PermissionsAndroid, Platform, View, type TextStyle, type ViewStyle } from "react-native"
+import { Alert, Image, PermissionsAndroid, View } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { Button, Text } from "@/components"
-import { color, spacing } from "@/theme"
+import { color } from "@/theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { translate } from "@/i18n"
 import { useShallow } from "zustand/react/shallow"
@@ -11,33 +12,6 @@ import { trackEvent } from "@/services/analytics"
 import { requestStoreReview } from "@/utils/helpers/store-review-helpers"
 import { useRouter } from "expo-router"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
-
-const WRAPPER: ViewStyle = {
-  minHeight: 420,
-  paddingHorizontal: spacing[4],
-  paddingTop: spacing[5],
-  alignItems: "center",
-  gap: 16,
-  flex: 1,
-  backgroundColor: color.background,
-}
-
-const TEXT: TextStyle = {
-  fontSize: 18,
-  textAlign: "center",
-  color: color.text,
-}
-
-const PERMISSION_ROW: ViewStyle = {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-}
-
-const PERMISSION_LABEL: TextStyle = {
-  fontSize: 18,
-  fontWeight: "bold",
-}
 
 export function LivePermissionsScreen() {
   const router = useRouter()
@@ -106,20 +80,20 @@ export function LivePermissionsScreen() {
   }
 
   return (
-    <View style={WRAPPER}>
-      <Text tx="ride.notificationPermission1" style={TEXT} />
-      <Text tx="ride.notificationPermission2" style={TEXT} />
+    <View style={styles.wrapper}>
+      <Text tx="ride.notificationPermission1" style={styles.text} />
+      <Text tx="ride.notificationPermission2" style={styles.text} />
 
       <View style={{ width: "100%", gap: 20 }}>
-        <View style={PERMISSION_ROW}>
-          <Text style={PERMISSION_LABEL} tx="ride.notificationPermission3" />
+        <View style={styles.permissionRow}>
+          <Text style={styles.permissionLabel} tx="ride.notificationPermission3" />
           <PermissionButton
             onPress={grantNotifications}
             permitted={notifeeSettings?.notifications === AuthorizationStatus.AUTHORIZED}
           />
         </View>
-        <View style={PERMISSION_ROW}>
-          <Text style={PERMISSION_LABEL} tx="ride.notificationPermission4" />
+        <View style={styles.permissionRow}>
+          <Text style={styles.permissionLabel} tx="ride.notificationPermission4" />
           <PermissionButton onPress={grantAlarms} permitted={notifeeSettings?.alarms === AndroidNotificationSetting.ENABLED} />
         </View>
       </View>
@@ -136,14 +110,6 @@ export function LivePermissionsScreen() {
   )
 }
 
-const PERMISSION_BUTTON_WRAPPER: ViewStyle = {
-  width: 120,
-  height: 50,
-  justifyContent: "center",
-  alignItems: "center",
-  borderRadius: 6,
-}
-
 const CHECKMARK_ICON = require("../../../../assets/checkmark.png")
 
 const PermissionButton = ({ permitted = false, onPress = () => {} }) => {
@@ -151,7 +117,7 @@ const PermissionButton = ({ permitted = false, onPress = () => {} }) => {
 
   return (
     <TouchableOpacity
-      style={[PERMISSION_BUTTON_WRAPPER, { backgroundColor }]}
+      style={[styles.permissionButtonWrapper, { backgroundColor }]}
       activeOpacity={0.9}
       onPress={permitted ? undefined : onPress}
     >
@@ -163,3 +129,36 @@ const PermissionButton = ({ permitted = false, onPress = () => {} }) => {
     </TouchableOpacity>
   )
 }
+
+const styles = StyleSheet.create((theme) => ({
+  wrapper: {
+    minHeight: 420,
+    paddingHorizontal: theme.spacing[4],
+    paddingTop: theme.spacing[5],
+    alignItems: "center",
+    gap: 16,
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  text: {
+    fontSize: 18,
+    textAlign: "center",
+    color: theme.colors.text,
+  },
+  permissionRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  permissionLabel: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  permissionButtonWrapper: {
+    width: 120,
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 6,
+  },
+}))

@@ -2,14 +2,15 @@
  * withBetterRailAndroid — reproduces the custom Android widget system under CNG:
  *   - withAndroidNativeSources: copies the widget + modules Kotlin and widget resources.
  *   - withAndroidGradle:        Hilt/Room/DataStore/WorkManager/OkHttp/Gson/coroutines deps,
- *                               kapt + Hilt plugins, buildConfig fields, flavor strategy.
+ *                               kapt + Hilt plugins, buildConfig fields, flavor strategy, and
+ *                               the Google Services gradle plugin (for expo-notifications FCM).
  *   - withAndroidManifestMods:  widget receivers, update receiver, RemoteViews service,
- *                               config activities, Firebase notification icon.
+ *                               config activities, notification icon.
  *   - withMainApplicationHilt:  @HiltAndroidApp + widget lifecycle management.
  *   - withMainActivityMods:     RNScreens fragment factory + deep-link onNewIntent.
  *
- * Firebase (google-services), permissions and the betterrail:// deep link come from
- * app.config.ts + the @react-native-firebase/app plugin.
+ * google-services.json comes from app.config.ts (android.googleServicesFile); permissions and
+ * the betterrail:// deep link are also declared there.
  */
 const { withAndroidNativeSources } = require("./withAndroidNativeSources")
 const { withAndroidGradle } = require("./withAndroidGradle")

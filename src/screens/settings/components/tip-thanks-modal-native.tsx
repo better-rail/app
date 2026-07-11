@@ -1,55 +1,8 @@
 import React from "react"
-import { View, Modal, TouchableWithoutFeedback, Dimensions, Platform } from "react-native"
-import type { ViewStyle, TextStyle } from "react-native"
+import { View, Modal, TouchableWithoutFeedback, Platform } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { Button, Text } from "@/components"
 import { translate } from "@/i18n"
-import { color, fontScale, spacing } from "@/theme"
-
-const { width } = Dimensions.get("window")
-
-const BACKDROP: ViewStyle = {
-  flex: 1,
-  backgroundColor: "rgba(0, 0, 0, 0.6)",
-  justifyContent: "center",
-  alignItems: "center",
-}
-
-const MODAL_WRAPPER: ViewStyle = {
-  padding: Platform.select({ ios: spacing[6], android: spacing[5] }),
-  marginHorizontal: spacing[4],
-  maxWidth: width - spacing[4] * 2,
-  alignSelf: "center",
-  justifyContent: "center",
-  alignItems: "center",
-  backgroundColor: color.modalBackground,
-  borderRadius: Platform.select({ ios: 14, android: 6 }),
-  shadowOffset: { width: 0, height: 1 },
-  shadowColor: color.palette.black,
-  shadowRadius: 4,
-  shadowOpacity: 0.45,
-  elevation: 5,
-}
-
-const MODAL_ICON: TextStyle = {
-  fontSize: 72.5,
-}
-
-const MODAL_TITLE: TextStyle = {
-  marginBottom: spacing[2],
-  textAlign: "center",
-  fontSize: 22,
-  fontWeight: "700",
-}
-
-const MODAL_TEXT: TextStyle = {
-  marginBottom: spacing[3],
-  textAlign: "center",
-  fontSize: 18,
-}
-
-const MODAL_BUTTON: ViewStyle = {
-  minWidth: "90%",
-}
 
 interface TipThanksModalNativeProps {
   visible: boolean
@@ -58,25 +11,19 @@ interface TipThanksModalNativeProps {
 
 export const TipThanksModalNative = function TipThanksModalNative({ visible, onClose }: TipThanksModalNativeProps) {
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="fade"
-      presentationStyle="overFullScreen"
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} transparent={true} animationType="fade" presentationStyle="overFullScreen" onRequestClose={onClose}>
       <TouchableWithoutFeedback onPress={onClose}>
-        <View style={BACKDROP}>
+        <View style={styles.backdrop}>
           <TouchableWithoutFeedback>
-            <View style={MODAL_WRAPPER}>
-              <Text style={MODAL_ICON}>🙏</Text>
-              <Text style={MODAL_TITLE} tx="settings.thankYou" />
-              <Text style={MODAL_TEXT} tx="settings.thankYouText" />
+            <View style={styles.modalWrapper}>
+              <Text style={styles.modalIcon}>🙏</Text>
+              <Text style={styles.modalTitle} tx="settings.thankYou" />
+              <Text style={styles.modalText} tx="settings.thankYouText" />
 
               <Button
                 title={translate("common.close")}
-                containerStyle={{ maxHeight: 60 * fontScale }}
-                style={MODAL_BUTTON}
+                containerStyle={styles.modalButtonContainer}
+                style={styles.modalButton}
                 onPress={onClose}
               />
             </View>
@@ -86,3 +33,47 @@ export const TipThanksModalNative = function TipThanksModalNative({ visible, onC
     </Modal>
   )
 }
+
+const styles = StyleSheet.create((theme, rt) => ({
+  backdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalWrapper: {
+    padding: Platform.select({ ios: theme.spacing[6], android: theme.spacing[5] }),
+    marginHorizontal: theme.spacing[4],
+    maxWidth: rt.screen.width - theme.spacing[4] * 2,
+    alignSelf: "center",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: theme.colors.modalBackground,
+    borderRadius: Platform.select({ ios: 14, android: 6 }),
+    shadowOffset: { width: 0, height: 1 },
+    shadowColor: theme.colors.palette.black,
+    shadowRadius: 4,
+    shadowOpacity: 0.45,
+    elevation: 5,
+  },
+  modalIcon: {
+    fontSize: 72.5,
+  },
+  modalTitle: {
+    marginBottom: theme.spacing[2],
+    textAlign: "center",
+    fontSize: 22,
+    fontWeight: "700",
+  },
+  modalText: {
+    marginBottom: theme.spacing[3],
+    textAlign: "center",
+    fontSize: 18,
+  },
+  modalButtonContainer: {
+    maxHeight: 60 * rt.fontScale,
+  },
+  modalButton: {
+    minWidth: "90%",
+  },
+}))

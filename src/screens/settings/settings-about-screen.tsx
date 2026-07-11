@@ -1,90 +1,53 @@
 import React from "react"
-import { Image, Linking, Platform, TextStyle, View, ViewStyle, ImageStyle } from "react-native"
+import { Alert, Image, Linking, Platform, View } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text } from "@/components"
 import { SettingBox } from "./components/settings-box"
 
-import { color, spacing, isDarkMode } from "@/theme"
+import { isDarkMode } from "@/theme"
 import { openLink } from "@/utils/helpers/open-link"
 import { deviceLocale, translate, userLocale } from "@/i18n"
 import { useRouter } from "expo-router"
 import { getBuildNumber, getDeviceId, getSystemVersion, getVersion } from "react-native-device-info"
 import { settingsBorderRadius } from "./settings-styles"
 
-const ROOT: ViewStyle = {
-  backgroundColor: color.background,
-  padding: spacing[4],
-}
-
-const SETTING_GROUP: ViewStyle = {
-  marginBottom: spacing[4],
-  borderRadius: settingsBorderRadius,
-  backgroundColor: color.secondaryBackground,
-  shadowOffset: { width: 0, height: 0 },
-  shadowColor: color.dim,
-  shadowRadius: 0.25,
-  shadowOpacity: 0.2,
-  elevation: 1,
-}
-
-const APP_ICON_WRAPPER: ViewStyle = {
-  marginBottom: spacing[4],
-  borderRadius: 50,
-  shadowOffset: { width: 0, height: 0 },
-  shadowColor: "#222222",
-  shadowRadius: 4,
-  shadowOpacity: 0.25,
-}
-
-const APP_ICON_IMAGE: ImageStyle = {
-  width: 120,
-  height: 120,
-  borderRadius: 20,
-  resizeMode: "contain",
-}
-
-const ABOUT_TEXT: TextStyle = {
-  marginBottom: spacing[2],
-  fontSize: 18,
-  textAlign: "center",
-}
-
 const TWITTER_DEEP_LINK = "twitter://user?screen_name=better_rail"
 const TWITTER_WEB_URL = "https://x.com/better_rail"
 
 // TODO: Add mail body to iOS - need to understand how to add newlines correctly
 const emailBody = Platform.select({
-  android: `%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A
----
+  android: `\n\n\n\n\n\n\n\n\n\n---
 App: Better Rail ${getVersion()} (${getBuildNumber()})
 Device: ${getDeviceId()} (${getSystemVersion()})
 App Locale: ${userLocale}
 Device Locale: ${deviceLocale}
 `,
   ios: "",
+  default: "",
 })
 
 export function AboutScreen() {
   const router = useRouter()
   return (
     <Screen
-      style={ROOT}
+      style={styles.root}
       preset="scroll"
       unsafe={true}
       statusBar={Platform.select({ ios: "light-content" })}
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
       translucent
     >
-      <View style={[SETTING_GROUP, { alignItems: "center", padding: spacing[4] }]}>
-        <View style={APP_ICON_WRAPPER}>
-          <Image source={require("../../../assets/app-icon.png")} style={APP_ICON_IMAGE} />
+      <View style={[styles.settingGroup, styles.aboutGroup]}>
+        <View style={styles.appIconWrapper}>
+          <Image source={require("../../../assets/app-icon.png")} style={styles.appIconImage} />
         </View>
 
-        <Text style={ABOUT_TEXT} tx="settings.aboutText" />
+        <Text style={styles.aboutText} tx="settings.aboutText" />
       </View>
 
-      <Text style={{ marginBottom: spacing[1] }} tx="settings.follow" preset="fieldLabel" />
+      <Text style={styles.followLabel} tx="settings.follow" preset="fieldLabel" />
 
-      <View style={SETTING_GROUP}>
+      <View style={styles.settingGroup}>
         <SettingBox
           first
           last
@@ -105,28 +68,40 @@ export function AboutScreen() {
         />
       </View>
 
-      <View style={SETTING_GROUP}>
+      <View style={styles.settingGroup}>
         <SettingBox
           first
           last
           title={translate("settings.feedback")}
           icon="📨"
           onPress={() =>
-            Linking.openURL(encodeURI(`mailto:feedback@better-rail.co.il?subject=פידבק על Better Rail&body=${emailBody}`))
+            Linking.openURL(
+              `mailto:feedback@better-rail.co.il?subject=${encodeURIComponent(
+                "פידבק על Better Rail",
+              )}&body=${encodeURIComponent(emailBody)}`,
+            ).catch(() => {
+              Alert.alert(translate("settings.feedbackMailError"))
+            })
           }
         />
       </View>
-      <View style={SETTING_GROUP}>
+      <View style={styles.settingGroup}>
         <SettingBox
           first
           title={translate("settings.imageAttribution")}
           icon="🖼"
           onPress={() => openLink("https://better-rail.co.il/image-attributions/")}
         />
-        <SettingBox last title={translate("settings.privacy")} chevron icon="✋" onPress={() => router.push("/settings/privacy")} />
+        <SettingBox
+          last
+          title={translate("settings.privacy")}
+          chevron
+          icon="✋"
+          onPress={() => router.push("/settings/privacy")}
+        />
       </View>
 
-      <View style={SETTING_GROUP}>
+      <View style={styles.settingGroup}>
         <SettingBox
           first
           last
@@ -139,3 +114,46 @@ export function AboutScreen() {
     </Screen>
   )
 }
+
+const styles = StyleSheet.create((theme) => ({
+  root: {
+    backgroundColor: theme.colors.background,
+    padding: theme.spacing[4],
+  },
+  settingGroup: {
+    marginBottom: theme.spacing[4],
+    borderRadius: settingsBorderRadius,
+    backgroundColor: theme.colors.secondaryBackground,
+    shadowOffset: { width: 0, height: 0 },
+    shadowColor: theme.colors.dim,
+    shadowRadius: 0.25,
+    shadowOpacity: 0.2,
+    elevation: 1,
+  },
+  aboutGroup: {
+    alignItems: "center",
+    padding: theme.spacing[4],
+  },
+  appIconWrapper: {
+    marginBottom: theme.spacing[4],
+    borderRadius: 50,
+    shadowOffset: { width: 0, height: 0 },
+    shadowColor: "#222222",
+    shadowRadius: 4,
+    shadowOpacity: 0.25,
+  },
+  appIconImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 20,
+    resizeMode: "contain",
+  },
+  aboutText: {
+    marginBottom: theme.spacing[2],
+    fontSize: 18,
+    textAlign: "center",
+  },
+  followLabel: {
+    marginBottom: theme.spacing[1],
+  },
+}))

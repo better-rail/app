@@ -1,6 +1,6 @@
 import { RouteItem } from "@/services/api"
 import { useQueryClient } from "react-query"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import { formatDateForAPI } from "@/utils/helpers/date-helpers"
 import { RouteApi } from "@/services/api/route-api"
 import { findClosestStationInRoute, getSelectedRide, getTrainFromStationId } from "@/utils/helpers/ride-helpers"
@@ -14,9 +14,7 @@ const api = new RouteApi()
  */
 export function useRideRoute(route: RouteItem) {
   const routePlanDate = useRoutePlanStore((s) => s.date)
-  const { isRouteActive, setRoute } = useRideStore(
-    useShallow((s) => ({ isRouteActive: s.isRouteActive, setRoute: s.setRoute }))
-  )
+  const { isRouteActive, setRoute } = useRideStore(useShallow((s) => ({ isRouteActive: s.isRouteActive, setRoute: s.setRoute })))
 
   // we'll need this to update the query cached routes when we refetch routes
   const queryClient = useQueryClient()
@@ -24,7 +22,7 @@ export function useRideRoute(route: RouteItem) {
   const [nextStationId, setNextStationId] = useState<number>(route.trains[0].originStationId)
   const [delay, setDelay] = useState<number>(0)
 
-  const { originId, destinationId, date, time } = useMemo(() => getRouteDetails(route), [route])
+  const { originId, destinationId, date, time } = getRouteDetails(route)
 
   const refetchRoute = async () => {
     // fetch route - needed for getting delay information

@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react"
-import { Pressable, type PressableProps, Image, ActivityIndicator, type ViewStyle, PlatformColor } from "react-native"
-import { color } from "@/theme"
+import { useEffect, useState } from "react"
+import { Pressable, type PressableProps, Image, ActivityIndicator, PlatformColor } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { Text, BottomScreenSheet } from "@/components"
 import { useRouter } from "expo-router"
 import { useShallow } from "zustand/react/shallow"
@@ -11,16 +11,14 @@ import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass
 
 // TODO: add typings to progress
 export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "activeRide" }) {
-  const { id, stopRide } = useRideStore(
-    useShallow((s) => ({ id: s.id, stopRide: s.stopRide }))
-  )
+  const { id, stopRide } = useRideStore(useShallow((s) => ({ id: s.id, stopRide: s.stopRide })))
   const { progress, screenName } = props
 
   const router = useRouter()
 
   const { status, minutesLeft } = progress
 
-  const progressText = useMemo(() => {
+  const progressText = (() => {
     if (!id) return translate("ride.activatingRide")
     if (status === "inTransit" && minutesLeft < 2) {
       return translate("ride.trainArriving")
@@ -33,11 +31,11 @@ export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "a
     }
 
     return translate("ride.departsIn", { minutes: minutesLeft })
-  }, [minutesLeft, status, id])
+  })()
 
   return (
     <BottomScreenSheet>
-      <Text style={{ fontSize: 20, fontWeight: "bold", color: color.success }} maxFontSizeMultiplier={1.2}>
+      <Text style={styles.progressText} maxFontSizeMultiplier={1.2}>
         {progressText}
       </Text>
 
@@ -54,15 +52,6 @@ export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "a
       />
     </BottomScreenSheet>
   )
-}
-
-const STOP_BUTTON: ViewStyle = {
-  width: 42.5,
-  height: 42.5,
-  alignItems: "center",
-  justifyContent: "center",
-  backgroundColor: color.stop,
-  borderRadius: 30,
 }
 
 const StopButton = (props: { loading: boolean } & PressableProps) => {
@@ -95,7 +84,7 @@ const StopButton = (props: { loading: boolean } & PressableProps) => {
   if (isLiquidGlassSupported) {
     return (
       <Pressable disabled={isDisabled} {...props}>
-        <LiquidGlassView interactive style={STOP_BUTTON} tintColor={PlatformColor("systemRed")}>
+        <LiquidGlassView interactive style={styles.stopButton} tintColor={PlatformColor("systemRed")}>
           {loading ? (
             <ActivityIndicator color="white" />
           ) : (
@@ -107,7 +96,7 @@ const StopButton = (props: { loading: boolean } & PressableProps) => {
   }
 
   return (
-    <Pressable disabled={isDisabled} style={STOP_BUTTON} {...props}>
+    <Pressable disabled={isDisabled} style={styles.stopButton} {...props}>
       {loading ? (
         <ActivityIndicator color="white" />
       ) : (
@@ -116,3 +105,19 @@ const StopButton = (props: { loading: boolean } & PressableProps) => {
     </Pressable>
   )
 }
+
+const styles = StyleSheet.create((theme) => ({
+  progressText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: theme.colors.success,
+  },
+  stopButton: {
+    width: 42.5,
+    height: 42.5,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: theme.colors.stop,
+    borderRadius: 30,
+  },
+}))

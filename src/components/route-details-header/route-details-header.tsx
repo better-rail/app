@@ -1,16 +1,17 @@
-import { useRef, useEffect, useCallback, useMemo } from "react"
+import { useRef, useEffect } from "react"
 import { Image, ImageBackground, View, Animated as RNAnimated, Pressable } from "react-native"
-import type { ViewStyle, TextStyle, ImageStyle } from "react-native"
-import { useRouter } from "expo-router"
+import type { ViewStyle } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
+import { useRouter, useNavigation } from "expo-router"
 import { trackEvent } from "@/services/analytics"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import LinearGradient from "react-native-linear-gradient"
-import { color, isDarkMode, spacing } from "@/theme"
+import { color, spacing } from "@/theme"
 import { StarIcon } from "@/components/star-icon/star-icon"
 import { MenuIcon } from "@/components/menu-icon/menu-icon"
 import HapticFeedback from "react-native-haptic-feedback"
 import { stationsObject, stationLocale } from "@/data/stations"
-import { translate, isRTL } from "@/i18n"
+import { translate } from "@/i18n"
 import { useShallow } from "zustand/react/shallow"
 import { useFavoritesStore, useRoutePlanStore } from "@/models"
 import * as Burnt from "burnt"
@@ -24,74 +25,6 @@ import { RouteStationNameButton } from "./route-station-name-button"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
 const ellipsisIcon = require("../../../assets/ellipsis.regular.png")
-
-const ROUTE_DETAILS_WRAPPER: ViewStyle = {
-  flexDirection: "row",
-  justifyContent: "center",
-  alignItems: "center",
-  gap: spacing[5],
-}
-
-// #region styles
-const ROUTE_DETAILS_STATION: ViewStyle = {
-  flex: 1,
-  padding: spacing[2],
-  backgroundColor: color.secondaryLighter,
-  borderRadius: 25,
-  shadowOffset: { width: 0, height: 1 },
-  shadowColor: color.dim,
-  shadowRadius: 1,
-  shadowOpacity: isDarkMode ? 0 : 0.45,
-  elevation: 3,
-  zIndex: 0,
-}
-
-const ROUTE_DETAILS_STATION_TEXT: TextStyle = {
-  color: color.text,
-  opacity: 0.8,
-  textAlign: "center",
-  fontWeight: "600",
-  fontSize: 14,
-}
-
-const ROUTE_INFO_CIRCLE_WRAPPER: ViewStyle = {
-  position: "absolute",
-  zIndex: 5,
-}
-
-const ROUTE_INFO_CIRCLE: ViewStyle = {
-  width: 34,
-  height: 34,
-  alignItems: "center",
-  justifyContent: "center",
-  backgroundColor: color.secondary,
-  borderRadius: 25,
-  elevation: 3,
-}
-
-const ARROW_ICON: ImageStyle = {
-  width: 15,
-  height: 15,
-  tintColor: color.whiteText,
-  transform: isRTL ? [] : [{ rotate: "180deg" }],
-}
-
-const GRADIENT: ViewStyle = {
-  height: "100%",
-  position: "absolute",
-  left: 0,
-  right: 0,
-  top: 0,
-  opacity: 1,
-}
-
-const HEADER_RIGHT_WRAPPER: ViewStyle = {
-  flexDirection: "row",
-  alignItems: "baseline",
-  gap: spacing[1],
-  zIndex: 100,
-}
-// #endregion
 
 export interface RouteDetailsHeaderProps {
   originId: string
@@ -109,13 +42,18 @@ export interface RouteDetailsHeaderProps {
 
 export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const { routeItem, originId, destinationId, screenName, style, showEntireRoute, setShowEntireRoute } = props
-  const { routes: favoriteRoutesData, add: addFavorite, remove: removeFavorite } = useFavoritesStore(
-    useShallow((s) => ({ routes: s.routes, add: s.add, remove: s.remove }))
-  )
-  const { origin: routePlanOrigin, destination: routePlanDestination, switchDirection } = useRoutePlanStore(
-    useShallow((s) => ({ origin: s.origin, destination: s.destination, switchDirection: s.switchDirection }))
-  )
+  const {
+    routes: favoriteRoutesData,
+    add: addFavorite,
+    remove: removeFavorite,
+  } = useFavoritesStore(useShallow((s) => ({ routes: s.routes, add: s.add, remove: s.remove })))
+  const {
+    origin: routePlanOrigin,
+    destination: routePlanDestination,
+    switchDirection,
+  } = useRoutePlanStore(useShallow((s) => ({ origin: s.origin, destination: s.destination, switchDirection: s.switchDirection })))
   const router = useRouter()
+  const navigation = useNavigation()
   const insets = useSafeAreaInsets()
   const routeEditDisabled = screenName !== "routeList"
 
@@ -130,7 +68,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     router.push({ pathname: "/station-hours", params: { stationId: originId } })
   }
 
-  const scaleStationCards = useCallback(() => {
+  const scaleStationCards = () => {
     RNAnimated.sequence([
       RNAnimated.timing(stationCardScale, {
         toValue: 0.94,
@@ -143,25 +81,25 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
         useNativeDriver: true,
       }),
     ]).start()
-  }, [stationCardScale])
+  }
 
-  const swapDirection = useCallback(() => {
+  const swapDirection = () => {
     scaleStationCards()
     HapticFeedback.trigger("impactMedium")
     setTimeout(() => {
       switchDirection()
     }, 50)
-  }, [scaleStationCards, switchDirection])
+  }
 
-  const changeOriginStation = useCallback(() => {
+  const changeOriginStation = () => {
     router.push({ pathname: "/select-station", params: { selectionType: "origin" } })
-  }, [router])
+  }
 
-  const changeDestinationStation = useCallback(() => {
+  const changeDestinationStation = () => {
     router.push({ pathname: "/select-station", params: { selectionType: "destination" } })
-  }, [router])
+  }
 
-  const addToCalendar = useCallback(async () => {
+  const addToCalendar = async () => {
     if (!routeItem) return
 
     try {
@@ -170,29 +108,32 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       // Error handling is already done in the helper
       console.error("Failed to add to calendar:", error)
     }
-  }, [routeItem])
+  }
 
-  const routeMenuActions = useMemo(() => {
+  const routeMenuActions = (() => {
     if (!routeItem) return []
     return createContextMenuActions(routeItem, originId, destinationId)
-  }, [routeItem, originId, destinationId])
+  })()
 
   const shareAction = routeMenuActions.find((action) => action.systemIcon === "square.and.arrow.up")
 
-  const handleShare = useCallback(async () => {
+  const handleShare = async () => {
     if (shareAction) {
       await shareAction.onPress()
     }
-  }, [shareAction])
+  }
 
   useEffect(() => {
-    router.setParams({
-      originId: routePlanOrigin.id,
-      destinationId: routePlanDestination.id,
-    })
-  }, [routePlanOrigin.id, routePlanDestination.id])
+    if (routePlanOrigin?.id && routePlanDestination?.id) {
+      navigation.setParams({
+        originId: routePlanOrigin.id,
+        destinationId: routePlanDestination.id,
+      } as never)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routePlanOrigin?.id, routePlanDestination?.id])
 
-  const renderHeaderRight = useCallback(() => {
+  const renderHeaderRight = () => {
     if (screenName === "routeDetails") {
       const actions = [
         {
@@ -344,20 +285,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
         </ContextMenu>
       </>
     )
-  }, [
-    screenName,
-    addToCalendar,
-    handleShare,
-    isFavorite,
-    routeId,
-    addFavorite,
-    removeFavorite,
-    originId,
-    destinationId,
-    showEntireRoute,
-    setShowEntireRoute,
-    router,
-  ])
+  }
 
   return (
     <>
@@ -369,7 +297,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
           zIndex: 0,
         }}
       >
-        <LinearGradient style={GRADIENT} colors={["rgba(0, 0, 0, 0.75)", "rgba(0, 0, 0, 0.05)"]} />
+        <LinearGradient style={styles.gradient} colors={["rgba(0, 0, 0, 0.75)", "rgba(0, 0, 0, 0.05)"]} />
 
         {screenName !== "activeRide" && (
           <View
@@ -400,12 +328,12 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       </ImageBackground>
 
       <View style={{ top: -20, marginBottom: -30, zIndex: 5 }}>
-        <View style={[ROUTE_DETAILS_WRAPPER, style]}>
+        <View style={[styles.routeDetailsWrapper, style]}>
           <RouteStationNameButton
             disabled={routeEditDisabled}
             onPress={changeOriginStation}
             buttonScale={stationCardScale}
-            style={ROUTE_DETAILS_STATION}
+            style={styles.routeDetailsStation}
             name={originName}
             accessibilityLabel={`${translate("plan.origin")}: ${originName}`}
             accessibilityHint={translate("plan.selectStation")}
@@ -419,13 +347,13 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
               right: spacing[2],
             }}
             onPress={swapDirection}
-            style={ROUTE_INFO_CIRCLE_WRAPPER}
+            style={styles.routeInfoCircleWrapper}
             disabled={routeEditDisabled}
             accessibilityLabel={translate("plan.switchStations")}
             accessibilityHint={translate("plan.switchStationsHint")}
           >
-            <LiquidGlassView interactive={!routeEditDisabled} style={ROUTE_INFO_CIRCLE} tintColor={color.secondary}>
-              <Image source={arrowIcon} style={ARROW_ICON} />
+            <LiquidGlassView interactive={!routeEditDisabled} style={styles.routeInfoCircle} tintColor={color.secondary}>
+              <Image source={arrowIcon} style={styles.arrowIcon} />
             </LiquidGlassView>
           </Pressable>
 
@@ -433,7 +361,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
             disabled={routeEditDisabled}
             onPress={changeDestinationStation}
             buttonScale={stationCardScale}
-            style={ROUTE_DETAILS_STATION}
+            style={styles.routeDetailsStation}
             name={destinationName}
             accessibilityLabel={`${translate("plan.destination")}: ${destinationName}`}
             accessibilityHint={translate("plan.selectStation")}
@@ -443,3 +371,51 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     </>
   )
 }
+
+const styles = StyleSheet.create((theme, rt) => ({
+  routeDetailsWrapper: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: theme.spacing[5],
+  },
+  routeDetailsStation: {
+    flex: 1,
+    padding: theme.spacing[2],
+    backgroundColor: theme.colors.secondaryLighter,
+    borderRadius: 25,
+    shadowOffset: { width: 0, height: 1 },
+    shadowColor: theme.colors.dim,
+    shadowRadius: 1,
+    shadowOpacity: rt.colorScheme === "dark" ? 0 : 0.45,
+    elevation: 3,
+    zIndex: 0,
+  },
+  routeInfoCircleWrapper: {
+    position: "absolute",
+    zIndex: 5,
+  },
+  routeInfoCircle: {
+    width: 34,
+    height: 34,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: theme.colors.secondary,
+    borderRadius: 25,
+    elevation: 3,
+  },
+  arrowIcon: {
+    width: 15,
+    height: 15,
+    tintColor: theme.colors.whiteText,
+    transform: rt.rtl ? [] : [{ rotate: "180deg" }],
+  },
+  gradient: {
+    height: "100%",
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    opacity: 1,
+  },
+}))

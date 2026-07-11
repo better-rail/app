@@ -1,14 +1,23 @@
 import React, { useRef, useState, useEffect } from "react"
-import { View, Animated, Dimensions, AppState, Platform, Alert } from "react-native"
-import type { ViewStyle, TextStyle, AppStateStatus } from "react-native"
-import { Screen, Button, Text, StationCard, DummyInput, ChangeDirectionButton, ResetTimeButton } from "@/components"
+import { View, Animated, AppState, Platform, Alert } from "react-native"
+import type { AppStateStatus } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
+import {
+  Screen,
+  Button,
+  Text,
+  StationCard,
+  DummyInput,
+  ChangeDirectionButton,
+  ResetTimeButton,
+  DatePickerModal,
+} from "@/components"
 import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore, useTrainRoutesStore, useDateTypeDisplayName } from "@/models"
 import HapticFeedback from "react-native-haptic-feedback"
-import { color, spacing } from "@/theme"
+import { spacing } from "@/theme"
 import { useStations } from "@/data/stations"
 import { translate, useFormattedDate } from "@/i18n"
-import { DatePickerModal } from "@/components/date-picker-modal/date-picker-modal"
 import { useQuery } from "react-query"
 import { isWeekend } from "@/utils/helpers/date-helpers"
 import { differenceInHours, parseISO } from "date-fns"
@@ -16,46 +25,26 @@ import { save, load } from "@/utils/storage"
 import { donateRouteIntent } from "@/utils/ios-helpers"
 import { trackEvent } from "@/services/analytics"
 import { useRouter, useFocusEffect } from "expo-router"
+import { useObserve } from "expo-observe"
+import { useMountEffect } from "@/hooks"
 import { PlannerScreenHeader } from "./planner-screen-header"
 import { FlingGestureWrapper } from "./planner-slider-wrapper"
 
-const { height: deviceHeight } = Dimensions.get("screen")
-
-// #region styles
-const ROOT: ViewStyle = {
-  backgroundColor: color.background,
-}
-
-const CONTENT_WRAPPER: ViewStyle = {
-  flex: 1,
-  padding: spacing[4],
-  backgroundColor: color.background,
-}
-
-const SCREEN_TITLE: TextStyle = {
-  marginBottom: 3,
-}
-
-const CHANGE_DIRECTION_WRAPPER: ViewStyle = {
-  width: 65,
-  height: 65,
-  top: deviceHeight > 730 ? -30 : -25,
-  end: deviceHeight > 730 ? 10 : 5,
-  alignSelf: "flex-end",
-  marginBottom: -60,
-  zIndex: 10,
-}
-
-// #endregion
-
 export function PlannerScreen() {
   const router = useRouter()
+  const { markInteractive } = useObserve()
   const { date, origin, destination, setDate, switchDirection } = useRoutePlanStore(
-    useShallow((s) => ({ date: s.date, origin: s.origin, destination: s.destination, setDate: s.setDate, switchDirection: s.switchDirection }))
+    useShallow((s) => ({
+      date: s.date,
+      origin: s.origin,
+      destination: s.destination,
+      setDate: s.setDate,
+      switchDirection: s.switchDirection,
+    })),
   )
   const dateTypeDisplayName = useDateTypeDisplayName()
   const { updateResultType, getRoutes } = useTrainRoutesStore(
-    useShallow((s) => ({ updateResultType: s.updateResultType, getRoutes: s.getRoutes }))
+    useShallow((s) => ({ updateResultType: s.updateResultType, getRoutes: s.getRoutes })),
   )
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
 
@@ -85,21 +74,21 @@ export function PlannerScreen() {
     onDateChange(new Date())
   }
 
-  const originData = React.useMemo(() => {
+  const originData = (() => {
     if (origin) {
       return stations.find((s) => s.id === origin.id)
     }
 
     return undefined
-  }, [origin?.name, stations])
+  })()
 
-  const destinationData = React.useMemo(() => {
+  const destinationData = (() => {
     if (destination) {
       return stations.find((s) => s.id === destination.id)
     }
 
     return undefined
-  }, [destination?.name, stations])
+  })()
 
   const scaleStationCards = () => {
     Animated.sequence([
@@ -134,7 +123,10 @@ export function PlannerScreen() {
     if (Platform.OS === "ios") {
       donateRouteIntent(originId, destinationId)
     }
-    router.push({ pathname: "/route-list", params: { originId, destinationId, time: String(date.getTime()), enableQuery: "true" } })
+    router.push({
+      pathname: "/route-list",
+      params: { originId, destinationId, time: String(date.getTime()), enableQuery: "true" },
+    })
   }
 
   /**
@@ -165,6 +157,11 @@ export function PlannerScreen() {
     return () => subscription.remove()
   }, [])
 
+  useMountEffect(() => {
+    // Mark the screen as interactive for EAS Observe TTI metrics.
+    markInteractive()
+  })
+
   useFocusEffect(() => {
     // if the result type is not "normal", it'll be the initial type upon navigating to the
     // route list - so we need to ensure we reset it back to it's normal state once back to the
@@ -172,8 +169,9 @@ export function PlannerScreen() {
     updateResultType("normal")
   })
 
+  // Prefetch routes so the route list loads instantly.
   useQuery(
-    ["origin", origin?.id, "destination", destination?.id, "time", date.getDate()],
+    ["origin", origin?.id, "destination", destination?.id, "time", date.getTime()],
     () => getRoutes(origin?.id, destination?.id, date.getTime()),
     /**
      *  TODO: Temporary fix for displaying "no trains found" modal, omitting cache during the weekend.
@@ -185,12 +183,12 @@ export function PlannerScreen() {
   )
 
   return (
-    <Screen style={ROOT} statusBarBackgroundColor="transparent" translucent>
+    <Screen style={styles.root} statusBarBackgroundColor="transparent" translucent>
       <FlingGestureWrapper onFling={onSwitchPress}>
-        <View style={CONTENT_WRAPPER}>
+        <View style={styles.contentWrapper}>
           <PlannerScreenHeader />
 
-          <Text preset="header" tx="plan.title" style={SCREEN_TITLE} />
+          <Text preset="header" tx="plan.title" style={styles.screenTitle} />
 
           <Text preset="fieldLabel" tx="plan.origin" style={{ marginBottom: spacing[1] }} />
           <Animated.View style={{ transform: [{ scale: stationCardScale }] }}>
@@ -202,7 +200,7 @@ export function PlannerScreen() {
             />
           </Animated.View>
 
-          <View style={CHANGE_DIRECTION_WRAPPER}>
+          <View style={styles.changeDirectionWrapper}>
             <ChangeDirectionButton onPress={onSwitchPress} disabled={!origin || !destination} />
           </View>
 
@@ -228,7 +226,6 @@ export function PlannerScreen() {
 
           <DatePickerModal
             isVisible={isDatePickerVisible}
-            onChange={onDateChange}
             onConfirm={handleConfirm}
             onCancel={() => setDatePickerVisibility(false)}
             minimumDate={now}
@@ -244,9 +241,31 @@ export function PlannerScreen() {
               }
             }}
           />
-
         </View>
       </FlingGestureWrapper>
     </Screen>
   )
 }
+
+const styles = StyleSheet.create((theme, rt) => ({
+  root: {
+    backgroundColor: theme.colors.background,
+  },
+  contentWrapper: {
+    flex: 1,
+    padding: theme.spacing[4],
+    backgroundColor: theme.colors.background,
+  },
+  screenTitle: {
+    marginBottom: 3,
+  },
+  changeDirectionWrapper: {
+    width: 65,
+    height: 65,
+    top: rt.screen.height > 730 ? -30 : -25,
+    end: rt.screen.height > 730 ? 10 : 5,
+    alignSelf: "flex-end",
+    marginBottom: -60,
+    zIndex: 10,
+  },
+}))

@@ -39,7 +39,10 @@ export default function SettingsLayout() {
         }}
       />
       <Stack.Screen name="language" options={{ title: translate("settings.language") ?? "", headerTitleStyle: iOSTitleStyle }} />
-      <Stack.Screen name="ui-settings" options={{ title: translate("settings.uiSettings") ?? "", headerTitleStyle: iOSTitleStyle }} />
+      <Stack.Screen
+        name="ui-settings"
+        options={{ title: translate("settings.uiSettings") ?? "", headerTitleStyle: iOSTitleStyle }}
+      />
       <Stack.Screen name="tip-jar" options={{ title: translate("settings.tipJar") ?? "", headerTitleStyle: iOSTitleStyle }} />
       <Stack.Screen name="about" options={{ title: translate("settings.about") ?? "", headerTitleStyle: iOSTitleStyle }} />
       <Stack.Screen name="privacy" options={{ title: translate("settings.privacy") ?? "", headerTitleStyle: iOSTitleStyle }} />

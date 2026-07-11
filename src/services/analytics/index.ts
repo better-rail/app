@@ -1,13 +1,17 @@
-import { getAnalytics } from "@react-native-firebase/analytics"
 import PostHog, { PostHogOptions } from "posthog-react-native"
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import { ensurePosthogPropertiesHydrated, getCachedPosthogProperties, setCachedPosthogProperties, setCachedPosthogProperty } from "./posthog-user-properties"
+import {
+  ensurePosthogPropertiesHydrated,
+  getCachedPosthogProperties,
+  setCachedPosthogProperties,
+  setCachedPosthogProperty,
+} from "./posthog-user-properties"
 
 export const posthogOptions: PostHogOptions = {
   host: "https://eu.i.posthog.com",
   persistence: "file" as const,
   customStorage: AsyncStorage,
-  enableSessionReplay: true
+  enableSessionReplay: true,
 }
 
 // Inlined into the JS bundle by babel-preset-expo (EXPO_PUBLIC_* prefix). Available in EAS
@@ -26,41 +30,24 @@ export const posthog = POSTHOG_API_KEY
 
 type AnalyticsParams = Record<string, string | number | boolean | null | undefined>
 
-const firebaseAnalytics = getAnalytics()
-
 export const trackEvent = (eventName: string, params?: AnalyticsParams) => {
-  firebaseAnalytics.logEvent(eventName, params)
   posthog.capture(eventName, params)
 }
 
-export const trackScreenView = (params: AnalyticsParams) => {
-  firebaseAnalytics.logScreenView(params)
+export const trackScreenView = (_params: AnalyticsParams) => {
   // posthog is already tracking screen views through <PostHogProvider />
 }
 
 export const trackPurchase = (params: AnalyticsParams) => {
-  firebaseAnalytics.logPurchase(params)
   posthog.capture("tip_purchased", params)
 }
 
 export const setAnalyticsUserProperty = (name: string, value: string) => {
-  firebaseAnalytics.setUserProperty(name, value)
-
-  const updated = setCachedPosthogProperty(name, value)
-
-  if (Object.keys(updated).length === 0) {
-    return
-  }
+  setCachedPosthogProperty(name, value)
 }
 
 export const setAnalyticsUserProperties = (properties: Record<string, string>) => {
-  firebaseAnalytics.setUserProperties(properties)
-
-  const updated = setCachedPosthogProperties(properties)
-
-  if (Object.keys(updated).length === 0) {
-    return
-  }
+  setCachedPosthogProperties(properties)
 }
 
 export const identifyPosthogUser = async () => {
@@ -70,8 +57,6 @@ export const identifyPosthogUser = async () => {
 }
 
 export const setAnalyticsCollectionEnabled = async (enabled: boolean) => {
-  await firebaseAnalytics.setAnalyticsCollectionEnabled(enabled)
-
   if (enabled) {
     await posthog.optIn()
   } else {
@@ -79,7 +64,18 @@ export const setAnalyticsCollectionEnabled = async (enabled: boolean) => {
   }
 }
 
-if (__DEV__) {
+// Analytics is disabled in development by default. To verify events locally (e.g. PostHog),
+// set EXPO_PUBLIC_ANALYTICS_IN_DEV=true in .env.local and restart the bundler with `-c`.
+// Production behaviour is unaffected — this only relaxes the dev opt-out.
+const ANALYTICS_ENABLED_IN_DEV = process.env.EXPO_PUBLIC_ANALYTICS_IN_DEV === "true"
+
+if (__DEV__ && !ANALYTICS_ENABLED_IN_DEV) {
   setAnalyticsCollectionEnabled(false)
   posthog.optOut()
+} else if (__DEV__ && ANALYTICS_ENABLED_IN_DEV) {
+  // PostHog persists opt-out state to storage, so a previous dev run that called optOut()
+  // keeps it opted out across launches. Explicitly opt back in to clear that.
+  posthog.optIn()
+  // Log every capture/flush to the Metro console so events are easy to verify locally.
+  posthog.debug(true)
 }

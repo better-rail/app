@@ -1,27 +1,32 @@
-import { TextStyle, View, ViewStyle, ActivityIndicator } from "react-native"
+import { View, ActivityIndicator } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
-import { color, spacing } from "@/theme"
+import { color } from "@/theme"
 import { localizedDate } from "@/i18n"
-
-const DATE_TEXT_STYLES: TextStyle = {
-  color: color.primary,
-}
-
-const DATE_CONTAINER_STYLES: ViewStyle = {
-  display: "flex",
-  alignItems: "center",
-  alignContent: "center",
-  paddingBottom: spacing[2],
-  height: "100%",
-  justifyContent: "center",
-  flexDirection: "row",
-}
 
 export const ResultDateCard = function ResultDateCard(props: { date: string; isLoading?: boolean }) {
   return (
-    <View style={DATE_CONTAINER_STYLES}>
-      <Text text={localizedDate(props.date)} style={DATE_TEXT_STYLES} />
-      {props.isLoading && <ActivityIndicator size="small" color={color.primary} style={{ marginLeft: spacing[2] }} />}
+    <View style={styles.dateContainer}>
+      <Text text={localizedDate(props.date)} style={styles.dateText} />
+      {props.isLoading && <ActivityIndicator size="small" color={color.primary} style={styles.indicator} />}
     </View>
   )
 }
+
+const styles = StyleSheet.create((theme) => ({
+  dateText: {
+    color: theme.colors.primary,
+  },
+  dateContainer: {
+    display: "flex",
+    alignItems: "center",
+    alignContent: "center",
+    paddingBottom: theme.spacing[2],
+    height: "100%",
+    justifyContent: "center",
+    flexDirection: "row",
+  },
+  indicator: {
+    marginLeft: theme.spacing[2],
+  },
+}))

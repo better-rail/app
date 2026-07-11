@@ -68,7 +68,12 @@
     "filter": "تصفية",
     "stationHours": "ساعات المحطة",
     "hideSlowTrains": "إخفاء القطارات البطيئة",
-    "slowTrainsDescription": "القطارات البطيئة هي قطارات يكون مسارها ووقت الرحلة أطول بكثير من القطارات الأخرى."
+    "slowTrainsDescription": "القطارات البطيئة هي قطارات يكون مسارها ووقت الرحلة أطول بكثير من القطارات الأخرى.",
+    "trainInfoPromptTitle": "معلومات الرحلة",
+    "trainInfoPromptDescription": "أضف رقم الرصيف ورقم القطار إلى بطاقة المسار.",
+    "trainInfoPromptShow": "متقدم",
+    "trainInfoPromptDefault": "افتراضي",
+    "trainInfoPromptFootnote": "يمكنك تغيير ذلك لاحقًا في إعدادات التطبيق"
   },
   "routeDetails": {
     "platform": "رصيف",
@@ -119,6 +124,7 @@
     "facebook": "فيسبوك",
     "twitter": "تويتر",
     "feedback": "ارسال الملاحظات",
+    "feedbackMailError": "تعذر فتح تطبيق البريد. يمكنكم مراسلتنا على feedback@better-rail.co.il",
     "imageAttribution": "كرديت الصور",
     "privacy": "خصوصية",
     "privacyPolicy": "سياسة الخصوصية",
@@ -200,20 +206,6 @@
     "notificationPermission2": "نستخدم آلية إشعار فعّالة ولا نرسل إشعارات غير ضرورية.",
     "notificationPermission3": "الإشعارات",
     "notificationPermission4": "إشعارات دقيقة"
-  },
-  "announcements": {
-    "notifications": {
-      "notificationSettings": "إعدادات الإشعارات",
-      "newButtonContent": "استقبل تحديثات حول الأحداث المتعلقة بمحطاتك",
-      "requestPermissionContent": "السماح لـ Better Rail بإرسال الإشعارات المتعلقة بمحطاتك.",
-      "enableNotifications": "تفعيل الإشعارات",
-      "notificationSetupContent": "سوف يرسل لك Better Rail تحديثات حول الأحداث المتعلقة بالمحطات التي اخترتها",
-      "stations": "محطات",
-      "selectStations": "اختر المحطات",
-      "selectedStations": "المحطات المختارة",
-      "stationsFromFavorites": "من الطرق المفضلة",
-      "notificationNote": "يرجى الملاحظة: بينما سيبذل Better Rail قصارى جهده لتوفير تحديثات سريعة وموثوقة، يُنصح دائمًا بالتحقق من المصادر الرسمية لسكك حديد إسرائيل كذلك."
-    }
   },
   "forceUpdate": {
     "title": "التحديث مطلوب",

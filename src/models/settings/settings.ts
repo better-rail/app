@@ -3,61 +3,38 @@ import { TxKeyPath } from "@/i18n"
 import { PopUpMessage } from "@/services/api"
 
 export interface SettingsState {
-  stationsNotifications: string[]
-  seenNotificationsScreen: boolean
   seenUrgentMessagesIds: number[]
   profileCode: number
   totalTip: number
   showRouteCardHeader: boolean
   hideSlowTrains: boolean
+  seenTrainInfoPrompt: boolean
 }
 
 export interface SettingsActions {
-  setSeenNotificationsScreen: (seen: boolean) => void
-  setStationsNotifications: (stations: string[]) => void
-  addStationNotification: (stationId: string) => void
-  removeStationNotification: (stationId: string) => void
   setProfileCode: (code: number) => void
   addTip: (amount: number) => void
   setShowRouteCardHeader: (show: boolean) => void
   setHideSlowTrains: (hide: boolean) => void
   setSeenUrgentMessagesIds: (messagesIds: number[]) => void
+  setSeenTrainInfoPrompt: (seen: boolean) => void
 }
 
 export type SettingsStore = SettingsState & SettingsActions
 
 const initialSettingsState: SettingsState = {
-  stationsNotifications: [],
-  seenNotificationsScreen: false,
   seenUrgentMessagesIds: [],
   profileCode: 1,
   totalTip: 0,
   showRouteCardHeader: false,
   hideSlowTrains: false,
+  seenTrainInfoPrompt: false,
 }
 
 export const resetSettingsStore = () => useSettingsStore.setState(initialSettingsState)
 
 export const useSettingsStore = create<SettingsStore>((set, get) => ({
   ...initialSettingsState,
-
-  setSeenNotificationsScreen(seen) {
-    set({ seenNotificationsScreen: seen })
-  },
-
-  setStationsNotifications(stations) {
-    set({ stationsNotifications: stations })
-  },
-
-  addStationNotification(stationId) {
-    set((state) => ({ stationsNotifications: [...state.stationsNotifications, stationId] }))
-  },
-
-  removeStationNotification(stationId) {
-    set((state) => ({
-      stationsNotifications: state.stationsNotifications.filter((station) => station !== stationId),
-    }))
-  },
 
   setProfileCode(code) {
     set({ profileCode: code })
@@ -78,6 +55,10 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
   setSeenUrgentMessagesIds(messagesIds) {
     set({ seenUrgentMessagesIds: messagesIds })
   },
+
+  setSeenTrainInfoPrompt(seen) {
+    set({ seenTrainInfoPrompt: seen })
+  },
 }))
 
 export function filterUnseenUrgentMessages(messages: PopUpMessage[], seenIds: number[]) {
@@ -86,13 +67,12 @@ export function filterUnseenUrgentMessages(messages: PopUpMessage[], seenIds: nu
 
 export function getSettingsSnapshot(state: SettingsState) {
   return {
-    stationsNotifications: state.stationsNotifications,
-    seenNotificationsScreen: state.seenNotificationsScreen,
     seenUrgentMessagesIds: state.seenUrgentMessagesIds,
     profileCode: state.profileCode,
     totalTip: state.totalTip,
     showRouteCardHeader: state.showRouteCardHeader,
     hideSlowTrains: state.hideSlowTrains,
+    seenTrainInfoPrompt: state.seenTrainInfoPrompt,
   }
 }
 
@@ -107,13 +87,12 @@ export function hydrateSettingsStore(data: any) {
   delete processedData.hideCollectorTrains
 
   useSettingsStore.setState({
-    stationsNotifications: processedData.stationsNotifications ?? [],
-    seenNotificationsScreen: processedData.seenNotificationsScreen ?? false,
     seenUrgentMessagesIds: processedData.seenUrgentMessagesIds ?? [],
     profileCode: processedData.profileCode ?? 1,
     totalTip: processedData.totalTip ?? 0,
     showRouteCardHeader: processedData.showRouteCardHeader ?? false,
     hideSlowTrains: processedData.hideSlowTrains ?? false,
+    seenTrainInfoPrompt: processedData.seenTrainInfoPrompt ?? false,
   })
 }
 

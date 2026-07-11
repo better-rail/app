@@ -25,7 +25,13 @@ export default function LiveAnnouncementLayout() {
         title: "",
         ...(Platform.OS === "ios" && {
           unstable_headerLeftItems: () => [
-            { type: "button", label: translate("common.close") ?? "Close", icon: { type: "sfSymbol", name: "xmark" }, tintColor: "white", onPress: () => router.dismiss() },
+            {
+              type: "button",
+              label: translate("common.close") ?? "Close",
+              icon: { type: "sfSymbol", name: "xmark" },
+              tintColor: "white",
+              onPress: () => router.dismiss(),
+            },
           ],
         }),
       }}

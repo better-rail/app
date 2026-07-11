@@ -1,20 +1,8 @@
 import React from "react"
-import { View, ViewStyle, TextStyle, Platform, useColorScheme } from "react-native"
+import { View, Platform } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components/text/text"
 import { translate } from "@/i18n"
-import { color, spacing } from "@/theme"
-
-const CONTAINER: ViewStyle = {
-  paddingVertical: 1,
-  paddingHorizontal: spacing[2],
-  borderRadius: 6,
-}
-
-const BADGE_TEXT: TextStyle = {
-  fontSize: 14,
-  fontWeight: Platform.select({ ios: "500", android: "bold" }),
-  color: color.whiteText,
-}
 
 interface DelayBadgeProps {
   delay: number
@@ -24,12 +12,9 @@ interface DelayBadgeProps {
 export const DelayBadge = function DelayBadge(props: DelayBadgeProps) {
   const { delay, onlyNumber } = props
 
-  const colorScheme = useColorScheme()
-  const backgroundColor = colorScheme === "light" ? "#EE6958" : "#B22E4D"
-
   return (
-    <View style={[CONTAINER, { backgroundColor }]}>
-      <Text style={BADGE_TEXT} maxFontSizeMultiplier={1.15}>
+    <View style={styles.container}>
+      <Text style={styles.badgeText} maxFontSizeMultiplier={1.15}>
         {onlyNumber && "+"}
         {delay}
 
@@ -40,12 +25,23 @@ export const DelayBadge = function DelayBadge(props: DelayBadgeProps) {
 }
 
 export const CancelledBadge = function CancelledBadge() {
-  const colorScheme = useColorScheme()
-  const backgroundColor = colorScheme === "light" ? "#EE6958" : "#B22E4D"
-
   return (
-    <View style={[CONTAINER, { backgroundColor }]}>
-      <Text style={BADGE_TEXT} maxFontSizeMultiplier={1.15} tx="routes.cancelled" />
+    <View style={styles.container}>
+      <Text style={styles.badgeText} maxFontSizeMultiplier={1.15} tx="routes.cancelled" />
     </View>
   )
 }
+
+const styles = StyleSheet.create((theme, rt) => ({
+  container: {
+    paddingVertical: 1,
+    paddingHorizontal: theme.spacing[2],
+    borderRadius: 6,
+    backgroundColor: rt.colorScheme === "light" ? "#EE6958" : "#B22E4D",
+  },
+  badgeText: {
+    fontSize: 14,
+    fontWeight: Platform.select({ ios: "500", android: "bold" }),
+    color: theme.colors.whiteText,
+  },
+}))

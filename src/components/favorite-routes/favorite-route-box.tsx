@@ -1,19 +1,9 @@
-import React, { useMemo } from "react"
-import {
-  View,
-  ViewStyle,
-  TextStyle,
-  ImageBackground,
-  ImageStyle,
-  Platform,
-  StyleSheet,
-  Alert,
-  useColorScheme,
-} from "react-native"
+import React from "react"
+import { View, ViewStyle, ImageBackground, Platform, Alert, useColorScheme } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import TouchableScale from "react-native-touchable-scale"
 import { Text } from "@/components/text/text"
 import { stationLocale, stationsObject } from "@/data/stations"
-import { color, spacing, fontScale } from "@/theme"
 import { translate } from "@/i18n"
 import { useActionSheet } from "@expo/react-native-action-sheet"
 import { getActionSheetStyleOptions } from "@/utils/helpers/action-sheet-helpers"
@@ -23,86 +13,6 @@ import { useFavoritesStore } from "@/models"
 import { ContextMenuView } from "react-native-ios-context-menu"
 
 const borderRadius = Platform.select({ ios: 10, android: 6 })
-
-// #region styles
-const CONTAINER: ViewStyle = {
-  padding: spacing[3],
-}
-
-const IMAGE_BACKGROUND: ImageStyle = {
-  justifyContent: "center",
-  borderRadius: borderRadius,
-  overflow: "hidden",
-}
-
-const BACKGROUND_DIMMER: ViewStyle = {
-  borderRadius: borderRadius,
-  backgroundColor: "#111",
-  opacity: 0.6,
-}
-
-const STATION_WRAPPER: ViewStyle = {
-  flexDirection: "row",
-  alignItems: "center",
-}
-
-const STATION_NAME: TextStyle = {
-  color: color.whiteText,
-  fontWeight: "500",
-  fontSize: 16.5,
-  textShadowRadius: 6,
-  textShadowColor: "rgba(0,0,0,0.5)",
-}
-
-const STATION_CIRCLE_SIZE = 14 * fontScale
-
-const STATION_CIRCLE: ViewStyle = {
-  width: STATION_CIRCLE_SIZE,
-  height: STATION_CIRCLE_SIZE,
-  marginEnd: spacing[2],
-  backgroundColor: "#fff",
-  borderWidth: 2,
-  borderColor: "lightgrey",
-  borderRadius: 10,
-  zIndex: 10,
-  shadowOffset: { height: 0, width: 0 },
-  shadowOpacity: 0.5,
-  shadowRadius: 4,
-  elevation: 2,
-}
-
-const STATION_ORIGIN_CIRCLE: ViewStyle = {
-  backgroundColor: color.secondary,
-  borderColor: "#fff",
-}
-
-const CONTENT: ViewStyle = {
-  position: "relative",
-}
-
-const LINE_WIDTH = 2.5 * fontScale
-
-const LINE: ViewStyle = {
-  position: "absolute",
-  start: (STATION_CIRCLE_SIZE - LINE_WIDTH) / 2,
-  top: STATION_CIRCLE_SIZE + 4.75,
-  width: LINE_WIDTH,
-  height: 32,
-  backgroundColor: "lightgrey",
-  shadowOffset: { height: 0, width: 0 },
-  shadowOpacity: 0.5,
-  shadowRadius: 4,
-  elevation: 2,
-  zIndex: 0,
-}
-
-const ROUTE_LABEL: TextStyle = {
-  color: color.whiteText,
-  fontSize: 20,
-  fontWeight: "bold",
-  marginBottom: spacing[2],
-}
-// #endregion
 
 type FavoriteRouteBoxProps = {
   id: string
@@ -143,13 +53,13 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
 
   const { onLongPress } = useOnLongPress(label, renamePrompt, deleteRoute)
 
-  const [originName, destinationName, stationImage] = useMemo(() => {
+  const [originName, destinationName, stationImage] = (() => {
     const origin = stationsObject[originId][stationLocale]
     const destination = stationsObject[destinationId][stationLocale]
     const image = stationsObject[originId].image
 
     return [origin, destination, image]
-  }, [])
+  })()
 
   return (
     <ContextMenuView
@@ -185,7 +95,7 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
           },
         ],
       }}
-      style={{ marginBottom: spacing[4] }}
+      style={styles.contextMenu}
     >
       <TouchableScale
         style={style}
@@ -195,21 +105,21 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
         onPress={onPress}
         onLongPress={Platform.OS === "android" ? onLongPress : undefined}
       >
-        <View style={CONTAINER}>
-          <ImageBackground source={stationImage} style={[StyleSheet.absoluteFill, IMAGE_BACKGROUND]} blurRadius={6} />
-          <View style={[StyleSheet.absoluteFill, BACKGROUND_DIMMER]} />
+        <View style={styles.container}>
+          <ImageBackground source={stationImage} style={[StyleSheet.absoluteFill, styles.imageBackground]} blurRadius={6} />
+          <View style={[StyleSheet.absoluteFill, styles.backgroundDimmer]} />
 
-          {label ? <Text style={ROUTE_LABEL}>{label}</Text> : null}
+          {label ? <Text style={styles.routeLabel}>{label}</Text> : null}
 
-          <View style={CONTENT}>
-            <View style={[STATION_WRAPPER, { marginBottom: spacing[3] }]}>
-              <View style={[STATION_CIRCLE, STATION_ORIGIN_CIRCLE]} />
-              <Text style={STATION_NAME}>{originName}</Text>
+          <View style={styles.content}>
+            <View style={[styles.stationWrapper, styles.stationWrapperOrigin]}>
+              <View style={[styles.stationCircle, styles.stationOriginCircle]} />
+              <Text style={styles.stationName}>{originName}</Text>
             </View>
-            <View style={LINE} />
-            <View style={STATION_WRAPPER}>
-              <View style={STATION_CIRCLE} />
-              <Text style={STATION_NAME}>{destinationName}</Text>
+            <View style={styles.line} />
+            <View style={styles.stationWrapper}>
+              <View style={styles.stationCircle} />
+              <Text style={styles.stationName}>{destinationName}</Text>
             </View>
           </View>
         </View>
@@ -252,3 +162,81 @@ function useOnLongPress(currentLabel: string, renamePrompt: () => void, deleteRo
 
   return { onLongPress }
 }
+
+const styles = StyleSheet.create((theme, rt) => {
+  const stationCircleSize = 14 * rt.fontScale
+  const lineWidth = 2.5 * rt.fontScale
+
+  return {
+    contextMenu: {
+      marginBottom: theme.spacing[4],
+    },
+    container: {
+      padding: theme.spacing[3],
+    },
+    imageBackground: {
+      justifyContent: "center",
+      borderRadius: borderRadius,
+      overflow: "hidden",
+    },
+    backgroundDimmer: {
+      borderRadius: borderRadius,
+      backgroundColor: "#111",
+      opacity: 0.6,
+    },
+    stationWrapper: {
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    stationWrapperOrigin: {
+      marginBottom: theme.spacing[3],
+    },
+    stationName: {
+      color: theme.colors.whiteText,
+      fontWeight: "500",
+      fontSize: 16.5,
+      textShadowRadius: 6,
+      textShadowColor: "rgba(0,0,0,0.5)",
+    },
+    stationCircle: {
+      width: stationCircleSize,
+      height: stationCircleSize,
+      marginEnd: theme.spacing[2],
+      backgroundColor: "#fff",
+      borderWidth: 2,
+      borderColor: "lightgrey",
+      borderRadius: 10,
+      zIndex: 10,
+      shadowOffset: { height: 0, width: 0 },
+      shadowOpacity: 0.5,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    stationOriginCircle: {
+      backgroundColor: theme.colors.secondary,
+      borderColor: "#fff",
+    },
+    content: {
+      position: "relative",
+    },
+    line: {
+      position: "absolute",
+      start: (stationCircleSize - lineWidth) / 2,
+      top: stationCircleSize + 4.75,
+      width: lineWidth,
+      height: 32,
+      backgroundColor: "lightgrey",
+      shadowOffset: { height: 0, width: 0 },
+      shadowOpacity: 0.5,
+      shadowRadius: 4,
+      elevation: 2,
+      zIndex: 0,
+    },
+    routeLabel: {
+      color: theme.colors.whiteText,
+      fontSize: 20,
+      fontWeight: "bold",
+      marginBottom: theme.spacing[2],
+    },
+  }
+})

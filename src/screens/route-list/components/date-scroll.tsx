@@ -1,59 +1,13 @@
 import React, { useCallback } from "react"
-import { View, Image, Pressable, ViewStyle, ImageStyle, TextStyle, ActivityIndicator } from "react-native"
+import { View, Image, Pressable, ActivityIndicator } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 
-import { color, spacing } from "@/theme"
+import { color } from "@/theme"
 import { Text } from "@/components"
 import { useTrainRoutesStore } from "@/models"
 import { localizedDate } from "@/i18n"
 
-const CONTAINER_STYLE: ViewStyle = {
-  height: spacing[7],
-  display: "flex",
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "center",
-}
-
-const PRESSABLE_STYLE: ViewStyle = {
-  width: "100%",
-  height: "100%",
-  display: "flex",
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "space-around",
-}
-
-const DISABLED_STYLE: ViewStyle = {
-  opacity: 0.5,
-}
-
 const ARROW_URL = "../../../../assets/chevron.png"
-
-const ARROW_STYLE: ImageStyle = {
-  width: 7,
-  height: 15,
-  tintColor: color.primary,
-}
-
-const INDICATOR_CONTAINER: ViewStyle = {
-  width: 7,
-  height: 15,
-  alignItems: "center",
-  justifyContent: "center",
-}
-
-const DATE_STYLE: ViewStyle = {
-  elevation: 6,
-  width: "100%",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-evenly",
-}
-
-const TEXT_STYLE: TextStyle = {
-  textAlign: "center",
-  color: color.primary,
-}
 
 export const DateScroll = function DateScroll(props: {
   setTime: () => void
@@ -70,28 +24,71 @@ export const DateScroll = function DateScroll(props: {
     return localizedDate(props.currenTime)
   }, [props.currenTime, props.isDisabled])
 
-  const handlePress = useCallback(() => {
+  const handlePress = () => {
     // Don't allow new requests while loading or disabled
     if (isDisabled) return
 
     // Call the callback to load data for this direction
     props.setTime()
-  }, [props.setTime, isDisabled])
+  }
 
   return (
-    <View style={CONTAINER_STYLE}>
-      <Pressable style={[PRESSABLE_STYLE, isDisabled && DISABLED_STYLE]} onPress={handlePress} disabled={isDisabled}>
-        <View style={DATE_STYLE}>
-          <Text text={getDateString()} style={TEXT_STYLE} />
+    <View style={styles.container}>
+      <Pressable style={[styles.pressable, isDisabled && styles.disabled]} onPress={handlePress} disabled={isDisabled}>
+        <View style={styles.date}>
+          <Text text={getDateString()} style={styles.text} />
           {isLoading ? (
-            <View style={INDICATOR_CONTAINER}>
+            <View style={styles.indicatorContainer}>
               <ActivityIndicator size="small" color={color.primary} />
             </View>
           ) : (
-            <Image source={require(ARROW_URL)} style={{ ...ARROW_STYLE, transform: [{ rotate: "-90deg" }] }} />
+            <Image source={require(ARROW_URL)} style={[styles.arrow, { transform: [{ rotate: "-90deg" }] }]} />
           )}
         </View>
       </Pressable>
     </View>
   )
 }
+
+const styles = StyleSheet.create((theme) => ({
+  container: {
+    height: theme.spacing[7],
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pressable: {
+    width: "100%",
+    height: "100%",
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-around",
+  },
+  disabled: {
+    opacity: 0.5,
+  },
+  arrow: {
+    width: 7,
+    height: 15,
+    tintColor: theme.colors.primary,
+  },
+  indicatorContainer: {
+    width: 7,
+    height: 15,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  date: {
+    elevation: 6,
+    width: "100%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-evenly",
+  },
+  text: {
+    textAlign: "center",
+    color: theme.colors.primary,
+  },
+}))

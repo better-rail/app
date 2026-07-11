@@ -1,4 +1,4 @@
-import * as Clipboard from 'expo-clipboard'
+import * as Clipboard from "expo-clipboard"
 import Share from "react-native-share"
 import { format } from "date-fns"
 import HapticFeedback from "react-native-haptic-feedback"
@@ -10,11 +10,7 @@ import { stationsObject, stationLocale } from "@/data/stations"
 import { addRouteToCalendar as addRouteToCalendarHelper } from "./calendar-helpers"
 import { isShareCancelledError } from "./share-errors"
 
-export function formatRouteForSharing(
-  routeItem: RouteItem,
-  originId: string,
-  destinationId: string,
-): string {
+export function formatRouteForSharing(routeItem: RouteItem, originId: string, destinationId: string): string {
   const data = buildRouteData(routeItem, originId, destinationId)
   return formatRouteMessage(data)
 }
@@ -29,11 +25,12 @@ function buildRouteData(routeItem: RouteItem, originId: string, destinationId: s
 
   const exchangeInfo = routeItem.isExchange
     ? {
-      stops: routeItem.trains.length - 1,
-      text: routeItem.trains.length - 1 === 1
-        ? translate("routes.oneChange")
-        : `${routeItem.trains.length - 1} ${translate("routes.changes")}`
-    }
+        stops: routeItem.trains.length - 1,
+        text:
+          routeItem.trains.length - 1 === 1
+            ? translate("routes.oneChange")
+            : `${routeItem.trains.length - 1} ${translate("routes.changes")}`,
+      }
     : { text: translate("routes.noChange") }
 
   const trainDetails = routeItem.trains.map((train, index) => ({
@@ -75,7 +72,7 @@ function formatRouteMessage(data: ReturnType<typeof buildRouteData>): string {
 
     // Date
     messageTemplates.date(data.schedule.departureDate),
-    
+
     // Departure and arrival times
     messageTemplates.departure(data.schedule.departureTime),
     messageTemplates.arrival(data.schedule.arrivalTime),
@@ -84,21 +81,13 @@ function formatRouteMessage(data: ReturnType<typeof buildRouteData>): string {
   return sections.join("\n")
 }
 
-export async function copyRouteToClipboard(
-  routeItem: RouteItem,
-  originId: string,
-  destinationId: string,
-): Promise<void> {
+export async function copyRouteToClipboard(routeItem: RouteItem, originId: string, destinationId: string): Promise<void> {
   const routeText = formatRouteForSharing(routeItem, originId, destinationId)
 
   await Clipboard.setStringAsync(routeText)
 }
 
-export async function shareRoute(
-  routeItem: RouteItem,
-  originId: string,
-  destinationId: string,
-): Promise<void> {
+export async function shareRoute(routeItem: RouteItem, originId: string, destinationId: string): Promise<void> {
   const routeText = formatRouteForSharing(routeItem, originId, destinationId)
 
   const shareOptions = {
@@ -113,11 +102,7 @@ export async function addRouteToCalendar(routeItem: RouteItem): Promise<void> {
   await addRouteToCalendarHelper(routeItem)
 }
 
-export async function shareRouteAction(
-  routeItem: RouteItem,
-  originId: string,
-  destinationId: string,
-): Promise<void> {
+export async function shareRouteAction(routeItem: RouteItem, originId: string, destinationId: string): Promise<void> {
   HapticFeedback.trigger("impactMedium")
   try {
     await shareRoute(routeItem, originId, destinationId)

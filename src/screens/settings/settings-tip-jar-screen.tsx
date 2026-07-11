@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react"
-import { View, ViewStyle, TextStyle, Platform, ActivityIndicator } from "react-native"
+import { View, Platform, ActivityIndicator } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { useIAP } from "react-native-iap"
 import { Screen, Text } from "@/components"
-import { color, isDarkMode, spacing } from "@/theme"
+import { isDarkMode } from "@/theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { translate } from "@/i18n"
 import { useShallow } from "zustand/react/shallow"
@@ -13,77 +14,6 @@ import { toast } from "burnt"
 import { TipThanksModalNative } from "./components/tip-thanks-modal-native"
 import * as Sentry from "@sentry/react-native"
 
-const ROOT: ViewStyle = {
-  flex: 1,
-  paddingTop: spacing[4],
-  paddingHorizontal: spacing[4],
-  backgroundColor: color.background,
-}
-
-const HEART_ICON: TextStyle = {
-  fontSize: 68,
-  textAlign: "center",
-  marginBottom: spacing[2],
-}
-
-const TIP_INTRO_TITLE: TextStyle = {
-  fontSize: 21,
-  textAlign: "center",
-  fontWeight: "500",
-  letterSpacing: -0.35,
-  marginBottom: spacing[2],
-}
-
-const TIP_INTRO_SUBTITLE: TextStyle = {
-  paddingHorizontal: spacing[4] + 2,
-  marginBottom: spacing[4],
-  fontSize: 16.5,
-  textAlign: "center",
-}
-
-const TESTFLIGHT_MSG: TextStyle = {
-  marginBottom: spacing[4],
-  fontWeight: "500",
-  textAlign: "center",
-  color: color.error,
-}
-
-const LIST_ROW: ViewStyle = {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-  paddingHorizontal: spacing[3],
-  paddingVertical: spacing[2] + 2,
-  marginHorizontal: spacing[2],
-  marginBottom: spacing[2],
-  backgroundColor: color.secondaryBackground,
-  borderRadius: 10,
-  shadowOffset: { width: 0, height: 0 },
-  shadowColor: color.dim,
-  shadowRadius: 0.5,
-  shadowOpacity: 0.2,
-  elevation: 1,
-}
-
-const TIP_BUTTON: ViewStyle = {
-  minWidth: 70,
-  paddingHorizontal: spacing[3],
-  paddingVertical: spacing[1],
-  borderRadius: 6,
-  borderWidth: 1,
-  borderColor: color.transparent,
-  backgroundColor: color.success,
-}
-
-const TIP_AMOUNT: TextStyle = {
-  fontSize: 14,
-  textAlign: "center",
-  fontWeight: "500",
-  color: color.whiteText,
-}
-
-const TOTAL_TIPS: TextStyle = { textAlign: "center", marginTop: spacing[4] }
-
 const installSource = getInstallerPackageNameSync()
 
 const PRODUCT_IDS = ["better_rail_tip_1", "better_rail_tip_2", "better_rail_tip_3", "better_rail_tip_4"]
@@ -92,9 +22,7 @@ export function TipJarScreen() {
   const [isLoading, setIsLoading] = useState(false)
   const [sortedProducts, setSortedProducts] = useState([])
   const [showThanksModal, setShowThanksModal] = useState(false)
-  const { totalTip, addTip } = useSettingsStore(
-    useShallow((s) => ({ totalTip: s.totalTip, addTip: s.addTip }))
-  )
+  const { totalTip, addTip } = useSettingsStore(useShallow((s) => ({ totalTip: s.totalTip, addTip: s.addTip })))
 
   const handlePurchaseSuccess = async (purchase) => {
     try {
@@ -164,8 +92,8 @@ export function TipJarScreen() {
       // Request purchase - success/error will be handled by callbacks
       await requestPurchase({
         request: {
-          ios: { sku },
-          android: { skus: [sku] },
+          apple: { sku },
+          google: { skus: [sku] },
         },
         type: "in-app",
       })
@@ -179,17 +107,17 @@ export function TipJarScreen() {
   return (
     <>
       <Screen
-        style={ROOT}
+        style={styles.root}
         preset="scroll"
         unsafe={true}
         statusBar={Platform.select({ ios: "light-content" })}
         statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
         translucent
       >
-        <Text style={HEART_ICON}>💖</Text>
-        <Text tx="settings.tipJarTitle" style={TIP_INTRO_TITLE} />
-        <Text tx="settings.tipJarSubtitle" style={TIP_INTRO_SUBTITLE} />
-        {installSource === "TestFlight" && <Text tx="settings.testflightMessage" style={TESTFLIGHT_MSG} />}
+        <Text style={styles.heartIcon}>💖</Text>
+        <Text tx="settings.tipJarTitle" style={styles.tipIntroTitle} />
+        <Text tx="settings.tipJarSubtitle" style={styles.tipIntroSubtitle} />
+        {installSource === "TestFlight" && <Text tx="settings.testflightMessage" style={styles.testflightMsg} />}
 
         {sortedProducts.length > 0 && !isLoading ? (
           <>
@@ -215,13 +143,13 @@ export function TipJarScreen() {
             />
 
             {totalTip > 0 && (
-              <Text style={TOTAL_TIPS}>
+              <Text style={styles.totalTips}>
                 {translate("settings.totalTips")}: {totalTip} {products[0].currency === "ILS" ? "₪" : "$"}
               </Text>
             )}
           </>
         ) : (
-          <ActivityIndicator size="large" style={{ marginVertical: spacing[5] }} />
+          <ActivityIndicator size="large" style={styles.activityIndicator} />
         )}
       </Screen>
 
@@ -231,10 +159,76 @@ export function TipJarScreen() {
 }
 
 const TipRow = ({ title, amount, onPress }) => (
-  <View style={LIST_ROW}>
+  <View style={styles.listRow}>
     <Text>{title}</Text>
-    <TouchableOpacity style={TIP_BUTTON} onPress={onPress} activeOpacity={0.6}>
-      <Text style={TIP_AMOUNT}>{amount}</Text>
+    <TouchableOpacity style={styles.tipButton} onPress={onPress} activeOpacity={0.6}>
+      <Text style={styles.tipAmount}>{amount}</Text>
     </TouchableOpacity>
   </View>
 )
+
+const styles = StyleSheet.create((theme) => ({
+  root: {
+    flex: 1,
+    paddingTop: theme.spacing[4],
+    paddingHorizontal: theme.spacing[4],
+    backgroundColor: theme.colors.background,
+  },
+  heartIcon: {
+    fontSize: 68,
+    textAlign: "center",
+    marginBottom: theme.spacing[2],
+  },
+  tipIntroTitle: {
+    fontSize: 21,
+    textAlign: "center",
+    fontWeight: "500",
+    letterSpacing: -0.35,
+    marginBottom: theme.spacing[2],
+  },
+  tipIntroSubtitle: {
+    paddingHorizontal: theme.spacing[4] + 2,
+    marginBottom: theme.spacing[4],
+    fontSize: 16.5,
+    textAlign: "center",
+  },
+  testflightMsg: {
+    marginBottom: theme.spacing[4],
+    fontWeight: "500",
+    textAlign: "center",
+    color: theme.colors.error,
+  },
+  listRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: theme.spacing[3],
+    paddingVertical: theme.spacing[2] + 2,
+    marginHorizontal: theme.spacing[2],
+    marginBottom: theme.spacing[2],
+    backgroundColor: theme.colors.secondaryBackground,
+    borderRadius: 10,
+    shadowOffset: { width: 0, height: 0 },
+    shadowColor: theme.colors.dim,
+    shadowRadius: 0.5,
+    shadowOpacity: 0.2,
+    elevation: 1,
+  },
+  tipButton: {
+    minWidth: 70,
+    paddingHorizontal: theme.spacing[3],
+    paddingVertical: theme.spacing[1],
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: theme.colors.transparent,
+    backgroundColor: theme.colors.success,
+  },
+  tipAmount: {
+    fontSize: 14,
+    textAlign: "center",
+    fontWeight: "500",
+    color: theme.colors.whiteText,
+  },
+  totalTips: { textAlign: "center", marginTop: theme.spacing[4] },
+  activityIndicator: { marginVertical: theme.spacing[5] },
+}))

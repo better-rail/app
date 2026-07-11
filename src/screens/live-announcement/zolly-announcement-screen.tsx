@@ -1,38 +1,14 @@
-import {
-  Image,
-  ImageSourcePropType,
-  Linking,
-  Platform,
-  Pressable,
-  ScrollView,
-  TextStyle,
-  useWindowDimensions,
-  View,
-} from "react-native"
+import { Image, ImageSourcePropType, Linking, Platform, Pressable, ScrollView, useWindowDimensions, View } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { useEffect } from "react"
 import { Button, Text } from "@/components"
-import { spacing } from "@/theme"
 import { useRouter } from "expo-router"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
 import Animated, { FadeIn } from "react-native-reanimated"
 import * as storage from "@/utils/storage"
 import { trackEvent } from "@/services/analytics"
 
 const ZOLLY_IOS_URL = "https://apps.apple.com/app/id6752520444"
 const ZOLLY_ANDROID_URL = "https://play.google.com/store/apps/details?id=app.zolly&referrer=utm_source%3Dbetter-rail"
-
-const TEXT: TextStyle = {
-  fontSize: 18,
-  textAlign: "center",
-  color: "white",
-}
-
-const BODY_TEXT: TextStyle = {
-  ...TEXT,
-  fontSize: 16,
-  lineHeight: 21,
-  opacity: 0.95,
-}
 
 // All screenshots share the same intrinsic aspect ratio (width / height)
 const SCREENSHOT_ASPECT_RATIO = 1145 / 2326
@@ -47,7 +23,6 @@ const SCREENSHOTS: ImageSourcePropType[] = [
 
 export function ZollyAnnouncementScreen() {
   const router = useRouter()
-  const insets = useSafeAreaInsets()
   const { width: windowWidth, height: windowHeight } = useWindowDimensions()
   const ITEM_GAP = 14
 
@@ -75,52 +50,104 @@ export function ZollyAnnouncementScreen() {
   }
 
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: "#116012",
-        paddingTop: insets.top + spacing[3],
-        paddingBottom: insets.bottom + spacing[3],
-      }}
-    >
+    <View style={styles.container}>
       {/* Header */}
-      <View style={{ alignItems: "center", paddingHorizontal: spacing[5] }}>
-        <Text style={{ ...TEXT, fontSize: 20, fontWeight: "500", marginTop: spacing[2] }}>חדש מבטר רייל</Text>
-        <Image
-          source={require("../../../assets/zolly-announcement/zolly.png")}
-          tintColor="#def49e"
-          style={{ height: 78, width: 78, resizeMode: "contain" }}
-        />
-        <Text style={{ ...BODY_TEXT, marginTop: spacing[1], marginBottom: spacing[2] }}>
-          השוואת מחירים בין חנויות, מציאת מבצעים ושיתוף רשימת קניות
-        </Text>
+      <View style={styles.header}>
+        <Text style={[styles.text, styles.headerTitle]}>חדש מבטר רייל</Text>
+        <Image source={require("../../../assets/zolly-announcement/zolly.png")} tintColor="#def49e" style={styles.logo} />
+        <Text style={[styles.bodyText, styles.intro]}>השוואת מחירים בין חנויות, מציאת מבצעים ושיתוף רשימת קניות</Text>
       </View>
 
       {/* Screenshot carousel */}
-      <Animated.View entering={FadeIn.duration(400)} style={{ flex: 1, marginTop: spacing[3] }}>
+      <Animated.View entering={FadeIn.duration(400)} style={styles.carousel}>
         <ScrollView
           horizontal
           pagingEnabled={false}
           snapToInterval={snapInterval}
           decelerationRate="fast"
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: sideInset }}
+          contentContainerStyle={styles.carouselContent(sideInset)}
         >
           {SCREENSHOTS.map((source, index) => (
-            <View key={index} style={{ marginHorizontal: ITEM_GAP / 2 }}>
-              <Image source={source} style={{ width: imageWidth, height: imageHeight }} resizeMode="contain" />
+            <View key={index} style={styles.carouselItem(ITEM_GAP)}>
+              <Image source={source} style={styles.screenshot(imageWidth, imageHeight)} resizeMode="contain" />
             </View>
           ))}
         </ScrollView>
       </Animated.View>
 
       {/* CTA */}
-      <View style={{ paddingHorizontal: spacing[5], marginTop: spacing[4] }}>
+      <View style={styles.cta}>
         <Button title="הורידו את זולי עכשיו" onPress={handleDownload} />
-        <Pressable onPress={handleLater} style={{ marginTop: spacing[3], alignItems: "center" }}>
-          <Text style={{ color: "rgba(255,255,255,0.55)", fontSize: 14 }}>אולי מאוחר יותר</Text>
+        <Pressable onPress={handleLater} style={styles.laterButton}>
+          <Text style={styles.laterText}>אולי מאוחר יותר</Text>
         </Pressable>
       </View>
     </View>
   )
 }
+
+const styles = StyleSheet.create((theme, rt) => ({
+  container: {
+    flex: 1,
+    backgroundColor: "#116012",
+    paddingTop: rt.insets.top + theme.spacing[3],
+    paddingBottom: rt.insets.bottom + theme.spacing[3],
+  },
+  header: {
+    alignItems: "center",
+    paddingHorizontal: theme.spacing[5],
+  },
+  text: {
+    fontSize: 18,
+    textAlign: "center",
+    color: "white",
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "500",
+    marginTop: theme.spacing[2],
+  },
+  bodyText: {
+    fontSize: 16,
+    textAlign: "center",
+    color: "white",
+    lineHeight: 21,
+    opacity: 0.95,
+  },
+  intro: {
+    marginTop: theme.spacing[1],
+    marginBottom: theme.spacing[2],
+  },
+  logo: {
+    height: 78,
+    width: 78,
+    resizeMode: "contain",
+  },
+  carousel: {
+    flex: 1,
+    marginTop: theme.spacing[3],
+  },
+  carouselContent: (sideInset: number) => ({
+    paddingHorizontal: sideInset,
+  }),
+  carouselItem: (itemGap: number) => ({
+    marginHorizontal: itemGap / 2,
+  }),
+  screenshot: (width: number, height: number) => ({
+    width,
+    height,
+  }),
+  cta: {
+    paddingHorizontal: theme.spacing[5],
+    marginTop: theme.spacing[4],
+  },
+  laterButton: {
+    marginTop: theme.spacing[3],
+    alignItems: "center",
+  },
+  laterText: {
+    color: "rgba(255,255,255,0.55)",
+    fontSize: 14,
+  },
+}))

@@ -15,6 +15,11 @@ const DynamicColorIOS = Platform.select({
  *
  * If you have a specific use-case, like a spinner color.  It makes more sense to
  * put that in the <Spinner /> component.
+ *
+ * This `color` object is the IMPERATIVE color API — use it for color props passed to
+ * native / 3rd-party components, navigation `screenOptions`, gradients, SVG, etc.
+ * Inside Unistyles styles, prefer `StyleSheet.create(theme => ({ ... theme.colors.x }))`.
+ * The two are kept in sync by hand — see `./themes.ts`.
  */
 export const color = {
   /**

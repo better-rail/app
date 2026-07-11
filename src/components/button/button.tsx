@@ -1,17 +1,17 @@
-import React, { useState, useMemo, ReactNode } from "react"
-import { View, Pressable, TextStyle, ViewStyle, ButtonProps, Platform, ActivityIndicator } from "react-native"
-import { color, fontScale, spacing, typography } from "@/theme"
+import React, { useState, ReactNode } from "react"
+import { View, Pressable, ViewStyle, TextStyle, ButtonProps, Platform, ActivityIndicator } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
+import { color, fontScale, spacing } from "@/theme"
 import { Text } from "@/components/text/text"
 import { LiquidGlassView, isLiquidGlassSupported } from "@callstack/liquid-glass"
 
-const BUTTON_WRAPPER: ViewStyle = {
-  borderRadius: Platform.select({ ios: isLiquidGlassSupported ? 16 : 12, android: 6 }),
-  borderCurve: "continuous",
-  overflow: "hidden",
-  elevation: 1,
-  flex: 1,
-}
-
+/**
+ * Plain (non-Unistyles) base style for the pressable surface.
+ *
+ * Kept as a plain object because it's shared cross-file (e.g. the paywall subscribe button
+ * layers it under a `LinearGradient`) and merged imperatively via `Object.assign` below.
+ * Colors here are platform-adaptive (`color.primary`), so they still react to appearance natively.
+ */
 export const PRESSABLE_BASE: ViewStyle = {
   flex: 1,
   minHeight: 55,
@@ -19,42 +19,6 @@ export const PRESSABLE_BASE: ViewStyle = {
   backgroundColor: color.primary,
   borderRadius: Platform.select({ ios: 12, android: 6 }),
   opacity: 1,
-}
-
-const SMALL_BUTTON: ViewStyle = {
-  height: 40,
-  padding: spacing[2] + 1.5,
-}
-
-const TEXT_WRAPPER: ViewStyle = {
-  display: "flex",
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: 8,
-}
-
-const TEXT: TextStyle = {
-  fontFamily: typography.primary,
-  fontWeight: "700",
-  fontSize: 18,
-  textAlign: "center",
-  color: color.whiteText,
-}
-
-const SMALL_TEXT: TextStyle = {
-  fontSize: 14,
-  fontWeight: "normal",
-}
-
-const LIQUID_GLASS_STYLE: ViewStyle = {
-  // Set the minimum height of the button to 55
-  // If the system font is scaled, increase the height by no more than 1.3
-  height: Math.max(55, 55 * Math.min(fontScale, 1.2)),
-  padding: spacing[4],
-  borderRadius: 16,
-  borderCurve: "continuous",
-  justifyContent: "center",
 }
 
 export interface CustomButtonProps extends ButtonProps {
@@ -77,32 +41,32 @@ export const Button = function Button(props: CustomButtonProps) {
   const [isPressed, setIsPressed] = useState(false)
   const { title, onPress, loading = false, disabled, textStyle, containerStyle, size, icon, style, variant = "primary" } = props
 
-  const PRESSABLE_STYLE = useMemo(() => {
+  const PRESSABLE_STYLE = (() => {
     let modifiedStyles = Object.assign({}, PRESSABLE_BASE, style)
-    if (size === "small") modifiedStyles = Object.assign({}, modifiedStyles, SMALL_BUTTON)
+    if (size === "small") modifiedStyles = Object.assign({}, modifiedStyles, smallButtonStyle)
     if (Platform.OS === "ios") {
       if (isPressed && !disabled) {
         modifiedStyles = Object.assign(modifiedStyles, { opacity: props.pressedOpacity || 0.8 })
       }
     }
     return modifiedStyles
-  }, [isPressed, disabled, style])
+  })()
 
   if (isLiquidGlassSupported) {
     return (
       <Pressable onPress={onPress} disabled={disabled}>
         <LiquidGlassView
           interactive={!!onPress}
-          style={[LIQUID_GLASS_STYLE, style]}
+          style={[styles.liquidGlass, style]}
           tintColor={disabled ? color.disabled : color[variant]}
         >
-          <View style={TEXT_WRAPPER}>
+          <View style={styles.textWrapper}>
             {loading ? (
               <ActivityIndicator color={color.whiteText} />
             ) : (
               <>
                 {icon}
-                <Text style={[TEXT, textStyle, size === "small" && SMALL_TEXT]} maxFontSizeMultiplier={1.3}>
+                <Text style={[styles.text, textStyle, size === "small" && styles.smallText]} maxFontSizeMultiplier={1.3}>
                   {title}
                 </Text>
               </>
@@ -113,7 +77,7 @@ export const Button = function Button(props: CustomButtonProps) {
     )
   } else {
     return (
-      <View style={[BUTTON_WRAPPER, containerStyle]}>
+      <View style={[styles.buttonWrapper, containerStyle]}>
         <Pressable
           style={[PRESSABLE_STYLE, disabled && { backgroundColor: color.disabled }]}
           onPressIn={() => setIsPressed(true)}
@@ -130,9 +94,9 @@ export const Button = function Button(props: CustomButtonProps) {
           {loading ? (
             <ActivityIndicator color={color.whiteText} />
           ) : (
-            <View style={TEXT_WRAPPER}>
+            <View style={styles.textWrapper}>
               {icon}
-              <Text style={[TEXT, textStyle, size === "small" && SMALL_TEXT]} maxFontSizeMultiplier={1.3}>
+              <Text style={[styles.text, textStyle, size === "small" && styles.smallText]} maxFontSizeMultiplier={1.3}>
                 {title}
               </Text>
             </View>
@@ -142,3 +106,45 @@ export const Button = function Button(props: CustomButtonProps) {
     )
   }
 }
+
+// `smallButtonStyle` is plain so it can merge with the plain `PRESSABLE_STYLE` above.
+const smallButtonStyle: ViewStyle = {
+  height: 40,
+  padding: spacing[2] + 1.5,
+}
+
+const styles = StyleSheet.create((theme, rt) => ({
+  buttonWrapper: {
+    borderRadius: Platform.select({ ios: isLiquidGlassSupported ? 16 : 12, android: 6 }),
+    borderCurve: "continuous",
+    overflow: "hidden",
+    elevation: 1,
+    flex: 1,
+  },
+  textWrapper: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+  text: {
+    fontFamily: theme.typography.primary,
+    fontWeight: "700",
+    fontSize: 18,
+    textAlign: "center",
+    color: theme.colors.whiteText,
+  },
+  smallText: {
+    fontSize: 14,
+    fontWeight: "normal",
+  },
+  liquidGlass: {
+    // Minimum height of 55, growing with the system font scale by no more than ~1.2x.
+    height: Math.max(55, 55 * Math.min(rt.fontScale, 1.2)),
+    padding: theme.spacing[4],
+    borderRadius: 16,
+    borderCurve: "continuous",
+    justifyContent: "center",
+  },
+}))

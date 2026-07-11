@@ -1,25 +1,13 @@
-import { Linking, Platform, PlatformColor, TextStyle, View, ViewStyle } from "react-native"
+import { Linking, Platform, PlatformColor, View } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text } from "@/components"
 import { SettingBox } from "./components/settings-box"
 import { getVersion, getBuildNumber } from "react-native-device-info"
-import { color, spacing } from "@/theme"
 import { translate, userLocale } from "@/i18n"
 import { useRouter } from "expo-router"
 import { SETTING_GROUP } from "./settings-styles"
 import { useIsDarkMode, useIsBetaTester } from "@/hooks"
 import { shareApp } from "./helpers/app-share-sheet"
-
-const ROOT: ViewStyle = {
-  flex: 1,
-  backgroundColor: color.background,
-  paddingTop: spacing[4],
-  paddingHorizontal: spacing[4],
-}
-
-const VERSION_TEXT: TextStyle = {
-  textAlign: "center",
-  color: color.dim,
-}
 
 const storeLink = Platform.select({
   ios: "https://apps.apple.com/app/better-rail/id1562982976?action=write-review",
@@ -33,7 +21,7 @@ export function SettingsScreen() {
 
   return (
     <Screen
-      style={ROOT}
+      style={styles.root}
       preset="scroll"
       unsafe={true}
       statusBar={Platform.select({ ios: "light-content" })}
@@ -91,10 +79,26 @@ export function SettingsScreen() {
       </View>
 
       <Text
-        style={[VERSION_TEXT, isBetaTester && { fontFamily: "System", fontWeight: "500", color: PlatformColor("systemOrange") }]}
+        style={[
+          styles.versionText,
+          isBetaTester && { fontFamily: "System", fontWeight: "500", color: PlatformColor("systemOrange") },
+        ]}
       >
         Better Rail {isBetaTester && "Beta "}v{getVersion()} (Build {getBuildNumber()})
       </Text>
     </Screen>
   )
 }
+
+const styles = StyleSheet.create((theme) => ({
+  root: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+    paddingTop: theme.spacing[4],
+    paddingHorizontal: theme.spacing[4],
+  },
+  versionText: {
+    textAlign: "center",
+    color: theme.colors.dim,
+  },
+}))

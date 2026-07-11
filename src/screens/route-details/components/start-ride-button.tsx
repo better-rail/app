@@ -1,8 +1,9 @@
-import { Alert, Dimensions, Image, ImageStyle, Linking, Platform, View, ViewStyle } from "react-native"
+import { Alert, Dimensions, Image, Linking, Platform, View } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { useRouter } from "expo-router"
 import HapticFeedback from "react-native-haptic-feedback"
 import { Button } from "@/components"
-import { isRTL, translate, userLocale } from "@/i18n"
+import { translate, userLocale } from "@/i18n"
 import type { RouteItem } from "@/services/api"
 import { differenceInMinutes } from "date-fns"
 import { isRouteInThePast, timezoneCorrection } from "@/utils/helpers/date-helpers"
@@ -15,17 +16,6 @@ import { requestStoreReview } from "@/utils/helpers/store-review-helpers"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 
 const { width: deviceWidth } = Dimensions.get("screen")
-
-const START_RIDE_BUTTON: ViewStyle = {
-  elevation: 4,
-}
-
-const TRAIN_ICON: ImageStyle = {
-  width: 22.5,
-  height: 14,
-  tintColor: "white",
-  transform: [{ rotateY: isRTL ? "180deg" : "0deg" }],
-}
 
 interface StartRideButtonProps {
   route: RouteItem
@@ -74,7 +64,11 @@ export function StartRideButton(props: StartRideButtonProps) {
   const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || areActivitiesDisabled()
 
   const startRide = async () => {
-    if (ride.id) {
+    // Read the id from the store rather than the render snapshot: after stopRide
+    // clears it, the recursive call below must see the fresh value or it will
+    // re-show this alert in a loop.
+    const activeRideId = useRideStore.getState().id
+    if (activeRideId) {
       return Alert.alert(translate("ride.rideExistsTitle"), translate("ride.rideExistsMessage"), [
         {
           style: "cancel",
@@ -83,7 +77,7 @@ export function StartRideButton(props: StartRideButtonProps) {
         {
           text: translate("ride.startNewRide"),
           onPress: async () => {
-            await ride.stopRide(ride.id)
+            await ride.stopRide(activeRideId)
             return startRide()
           },
         },
@@ -104,7 +98,7 @@ export function StartRideButton(props: StartRideButtonProps) {
   }
 
   return (
-    <View style={START_RIDE_BUTTON}>
+    <View style={styles.startRideButton}>
       <Button
         variant="secondary"
         style={{
@@ -113,7 +107,7 @@ export function StartRideButton(props: StartRideButtonProps) {
         }}
         icon={
           Platform.OS === "android" ? undefined : (
-            <Image source={require("../../../../assets/train.ios.png")} style={TRAIN_ICON} />
+            <Image source={require("../../../../assets/train.ios.png")} style={styles.trainIcon} />
           )
         }
         pressedOpacity={0.85}
@@ -165,3 +159,15 @@ export function StartRideButton(props: StartRideButtonProps) {
     </View>
   )
 }
+
+const styles = StyleSheet.create((theme, rt) => ({
+  startRideButton: {
+    elevation: 4,
+  },
+  trainIcon: {
+    width: 22.5,
+    height: 14,
+    tintColor: "white",
+    transform: [{ rotateY: rt.rtl ? "180deg" : "0deg" }],
+  },
+}))

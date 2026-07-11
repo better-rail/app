@@ -108,7 +108,7 @@ export type RouteItem = {
   isExchange: boolean
   duration: string
   departureTime: number
-  departureTimeString: String
+  departureTimeString: string
   arrivalTime: number
   arrivalTimeString: string
   isMuchLonger: boolean
@@ -301,21 +301,21 @@ export interface GateService {
 }
 
 export interface VisaWagonData {
-  totkr: number         // Total Wagons
-  kvsgkR_MOVIL: string  // Train type identifier
-  kvsgkR_LAST: string   // Last wagon type identifier
-  seatplaces: number    // Total number of seats
+  totkr: number // Total Wagons
+  kvsgkR_MOVIL: string // Train type identifier
+  kvsgkR_LAST: string // Last wagon type identifier
+  seatplaces: number // Total number of seats
   updateDate: string
   updateTime: string
   wagons: Wagon[]
 }
 
 export interface Wagon {
-  krsid: number               // Wagon ID
-  shurA2: number              // Wagon position in train
-  krsG3: string               // Wagon type
-  wagoN_TEUR_DISPLAY: string  // Hebrew-encoded display text for wagon type
-  kvsgkr: string              // Wagon model code
-  handicapped: boolean        // Wheelchair accessible
-  bicycle: boolean            // Bicycle allowed
+  krsid: number // Wagon ID
+  shurA2: number // Wagon position in train
+  krsG3: string // Wagon type
+  wagoN_TEUR_DISPLAY: string // Hebrew-encoded display text for wagon type
+  kvsgkr: string // Wagon model code
+  handicapped: boolean // Wheelchair accessible
+  bicycle: boolean // Bicycle allowed
 }

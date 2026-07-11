@@ -1,7 +1,17 @@
 import * as storage from "@/utils/storage"
-import { useRoutePlanStore, getRoutePlanSnapshot, hydrateRoutePlanStore, resetRoutePlanStore } from "@/models/route-plan/route-plan"
+import {
+  useRoutePlanStore,
+  getRoutePlanSnapshot,
+  hydrateRoutePlanStore,
+  resetRoutePlanStore,
+} from "@/models/route-plan/route-plan"
 import { getTrainRoutesSnapshot, hydrateTrainRoutesStore, resetTrainRoutesStore } from "@/models/train-routes/train-routes"
-import { useRecentSearchesStore, getRecentSearchesSnapshot, hydrateRecentSearchesStore, resetRecentSearchesStore } from "@/models/recent-searches/recent-searches"
+import {
+  useRecentSearchesStore,
+  getRecentSearchesSnapshot,
+  hydrateRecentSearchesStore,
+  resetRecentSearchesStore,
+} from "@/models/recent-searches/recent-searches"
 import { useFavoritesStore, getFavoritesSnapshot, hydrateFavoritesStore, resetFavoritesStore } from "@/models/favorites/favorites"
 import { useSettingsStore, getSettingsSnapshot, hydrateSettingsStore, resetSettingsStore } from "@/models/settings/settings"
 import { useRideStore, getRideSnapshot, hydrateRideStore, initializeRideStore, resetRideStore } from "@/models/ride/ride"

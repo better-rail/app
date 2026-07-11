@@ -1,83 +1,10 @@
 import React from "react"
-import { View, ViewStyle, Image, ImageStyle, TextStyle } from "react-native"
+import { View, ViewStyle, Image } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
-import { isRTL, translate } from "@/i18n"
-import { color, fontScale, spacing } from "@/theme"
+import { translate } from "@/i18n"
 
 const railwayStationIcon = require("../../../../assets/railway-station.png")
-
-// #region styles
-const ROUTE_STATION_WRAPPER: ViewStyle = {
-  flexDirection: "row",
-  alignItems: "center",
-  paddingVertical: spacing[3],
-  paddingHorizontal: spacing[6] + 8,
-  paddingEnd: spacing[2],
-  backgroundColor: color.secondaryBackground,
-  zIndex: 100,
-}
-
-const ROUTE_STATION_TIME_WRAPPER: ViewStyle = {
-  flex: 0.4,
-  alignItems: fontScale > 1.2 ? "flex-start" : "flex-end",
-}
-
-const ROUTE_STATION_DETAILS: ViewStyle = {
-  flex: 1,
-  marginStart: spacing[4],
-}
-
-const ROUTE_STATION_TIME: TextStyle = {
-  minWidth: 52 * fontScale,
-  marginEnd: spacing[4],
-  fontSize: 18,
-  fontWeight: "700",
-  fontFamily: "System",
-}
-
-const ROUTE_STATION_TIME_DELAYED: TextStyle = {
-  textDecorationLine: "line-through",
-  fontSize: 12,
-  textAlign: "right",
-  opacity: 0.6,
-}
-
-const ROUTE_DELAY_TIME: TextStyle = {
-  width: 70 * fontScale,
-  marginEnd: isRTL ? 0 : spacing[3] * fontScale,
-  color: color.destroy,
-  fontWeight: "bold",
-}
-
-const ROUTE_STATION_NAME: TextStyle = {
-  marginBottom: -1,
-  marginEnd: spacing[3],
-  fontSize: 17,
-  fontWeight: "700",
-}
-
-const ROUTE_STATION_DETAILS_TEXT: TextStyle = {
-  fontSize: 14,
-  fontWeight: "400",
-}
-
-const LAST_DESTINATION_TEXT: TextStyle = {
-  fontSize: 14,
-  fontWeight: "400",
-  opacity: 0.8,
-}
-
-const REALTIME_CHANGE_TEXT: TextStyle = {
-  color: color.destroy,
-  fontWeight: "700",
-}
-
-const RAILWAY_ICON: ImageStyle = {
-  width: 42.5,
-  height: 42.5,
-}
-
-// #endregion
 
 type RouteStopCardProps = {
   stationName: string
@@ -119,24 +46,24 @@ export const RouteStationCard = (props: RouteStopCardProps) => {
     platform === 0 ? translate("routeDetails.noPlatformSet") : `${translate("routeDetails.platform")} ${platform}`
 
   return (
-    <View style={[ROUTE_STATION_WRAPPER, style]}>
-      <View style={ROUTE_STATION_TIME_WRAPPER}>
+    <View style={[styles.routeStationWrapper, style]}>
+      <View style={styles.routeStationTimeWrapper}>
         {delayedTime ? (
           <>
-            <Text style={[ROUTE_STATION_TIME, ROUTE_STATION_TIME_DELAYED]} maxFontSizeMultiplier={1.1}>
+            <Text style={[styles.routeStationTime, styles.routeStationTimeDelayed]} maxFontSizeMultiplier={1.1}>
               {stopTime}
             </Text>
-            <Text style={[ROUTE_STATION_TIME, { minWidth: undefined }]} maxFontSizeMultiplier={1.1}>
+            <Text style={[styles.routeStationTime, { minWidth: undefined }]} maxFontSizeMultiplier={1.1}>
               {delayedTime}
             </Text>
           </>
         ) : (
           <>
-            <Text style={ROUTE_STATION_TIME} maxFontSizeMultiplier={1.1}>
+            <Text style={styles.routeStationTime} maxFontSizeMultiplier={1.1}>
               {stopTime}
             </Text>
             {delay > 0 && (
-              <Text style={ROUTE_DELAY_TIME} maxFontSizeMultiplier={1.1}>
+              <Text style={styles.routeDelayTime} maxFontSizeMultiplier={1.1}>
                 + {delay} {translate("routeDetails.minutes")}
               </Text>
             )}
@@ -144,22 +71,25 @@ export const RouteStationCard = (props: RouteStopCardProps) => {
         )}
       </View>
 
-      <Image style={RAILWAY_ICON} source={railwayStationIcon} />
+      <Image style={styles.railwayIcon} source={railwayStationIcon} />
 
-      <View style={ROUTE_STATION_DETAILS}>
-        <Text style={ROUTE_STATION_NAME} maxFontSizeMultiplier={1.25}>
+      <View style={styles.routeStationDetails}>
+        <Text style={styles.routeStationName} maxFontSizeMultiplier={1.25}>
           {stationName}
         </Text>
-        <Text style={ROUTE_STATION_DETAILS_TEXT} maxFontSizeMultiplier={1.2}>
-          <Text style={[ROUTE_STATION_DETAILS_TEXT, platformChanged && REALTIME_CHANGE_TEXT]} maxFontSizeMultiplier={1.2}>
+        <Text style={styles.routeStationDetailsText} maxFontSizeMultiplier={1.2}>
+          <Text
+            style={[styles.routeStationDetailsText, platformChanged && styles.realtimeChangeText]}
+            maxFontSizeMultiplier={1.2}
+          >
             {platformText}
           </Text>{" "}
           {trainNumber && `· ${translate("routeDetails.trainNo")} ${trainNumber}`}
         </Text>
         {trainNumber && (
-          <Text style={LAST_DESTINATION_TEXT} maxFontSizeMultiplier={1.2}>
+          <Text style={styles.lastDestinationText} maxFontSizeMultiplier={1.2}>
             {`${translate("routeDetails.lastStop")}: `}
-            <Text style={[LAST_DESTINATION_TEXT, lastStopChanged && REALTIME_CHANGE_TEXT]} maxFontSizeMultiplier={1.2}>
+            <Text style={[styles.lastDestinationText, lastStopChanged && styles.realtimeChangeText]} maxFontSizeMultiplier={1.2}>
               {lastStop}
             </Text>
           </Text>
@@ -168,3 +98,65 @@ export const RouteStationCard = (props: RouteStopCardProps) => {
     </View>
   )
 }
+
+const styles = StyleSheet.create((theme, rt) => ({
+  routeStationWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: theme.spacing[3],
+    paddingHorizontal: theme.spacing[6] + 8,
+    paddingEnd: theme.spacing[2],
+    backgroundColor: theme.colors.secondaryBackground,
+    zIndex: 100,
+  },
+  routeStationTimeWrapper: {
+    flex: 0.4,
+    alignItems: rt.fontScale > 1.2 ? "flex-start" : "flex-end",
+  },
+  routeStationDetails: {
+    flex: 1,
+    marginStart: theme.spacing[4],
+  },
+  routeStationTime: {
+    minWidth: 52 * rt.fontScale,
+    marginEnd: theme.spacing[4],
+    fontSize: 18,
+    fontWeight: "700",
+    fontFamily: "System",
+  },
+  routeStationTimeDelayed: {
+    textDecorationLine: "line-through",
+    fontSize: 12,
+    textAlign: "right",
+    opacity: 0.6,
+  },
+  routeDelayTime: {
+    width: 70 * rt.fontScale,
+    marginEnd: rt.rtl ? 0 : theme.spacing[3] * rt.fontScale,
+    color: theme.colors.destroy,
+    fontWeight: "bold",
+  },
+  routeStationName: {
+    marginBottom: -1,
+    marginEnd: theme.spacing[3],
+    fontSize: 17,
+    fontWeight: "700",
+  },
+  routeStationDetailsText: {
+    fontSize: 14,
+    fontWeight: "400",
+  },
+  lastDestinationText: {
+    fontSize: 14,
+    fontWeight: "400",
+    opacity: 0.8,
+  },
+  realtimeChangeText: {
+    color: theme.colors.destroy,
+    fontWeight: "700",
+  },
+  railwayIcon: {
+    width: 42.5,
+    height: 42.5,
+  },
+}))

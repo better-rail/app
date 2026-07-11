@@ -74,7 +74,12 @@
     "filter": "Filter",
     "stationHours": "Station Hours",
     "hideSlowTrains": "Hide Slow Trains",
-    "slowTrainsDescription": "Slow trains are trains whose route and travel time are significantly longer than other trains."
+    "slowTrainsDescription": "Slow trains are trains whose route and travel time are significantly longer than other trains.",
+    "trainInfoPromptTitle": "Route Appearance",
+    "trainInfoPromptDescription": "Add the platform and train number to the route card.",
+    "trainInfoPromptShow": "Advanced",
+    "trainInfoPromptDefault": "Default",
+    "trainInfoPromptFootnote": "You can change this later in the app settings"
   },
   "routeDetails": {
     "platform": "Platform",
@@ -125,6 +130,7 @@
     "privacyPolicyLink": "https://better-rail.co.il/en/privacy-policy",
     "disableTelemetry": "Disable Telemetry",
     "feedback": "Send Feedback",
+    "feedbackMailError": "Could not open the mail app. You can reach us at feedback@better-rail.co.il",
     "languageChangeAlertTitle": "Language Change",
     "languageChangeAlertMessage": "The app will restart to apply the changes",
     "tipJar": "Tip Jar",
@@ -291,20 +297,6 @@
     "startFreeTrial": "Start 14 days free trial",
     "afterTrialPrice": "then %{price} / %{period}",
     "cancelAnytime": "Cancel anytime"
-  },
-  "announcements": {
-    "notifications": {
-      "notificationSettings": "Notification Settings",
-      "newButtonContent": "Receive updates on events related to your stations",
-      "requestPermissionContent": "Allow Better Rail to send you notifications related to your stations.",
-      "enableNotifications": "Enable Notifications",
-      "notificationSetupContent": "Better Rail will send you updates on events related to your selected stations",
-      "stations": "Stations",
-      "selectStations": "Select Stations",
-      "selectedStations": "Selected Stations",
-      "stationsFromFavorites": "From Favorite Routes",
-      "notificationNote": "Please note: While Better Rail will do its best to provide fast and reliable updates, it is always advisable to check with the official sources of Israel Railways as well."
-    }
   },
   "forceUpdate": {
     "title": "Update Required",

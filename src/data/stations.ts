@@ -1,5 +1,4 @@
-import { useState, useEffect, useMemo } from "react"
-import * as storage from "@/utils/storage"
+import type { LanguageCode } from "@/i18n/i18n"
 
 type Station = {
   id: string
@@ -700,6 +699,7 @@ const stations: Station[] = [
     arabic: "حديرا - شرق",
     lat: 32.450496,
     lon: 35.020744,
+    image: require("../../assets/station-images/hadera-east.jpg"),
   },
   {
     id: "4300",
@@ -709,6 +709,7 @@ const stations: Station[] = [
     arabic: "هشومرون – الطيبة",
     lat: 32.277165,
     lon: 35.005913,
+    image: require("../../assets/station-images/shomron-taybe.jpg"),
   },
   {
     id: "4310",
@@ -718,6 +719,7 @@ const stations: Station[] = [
     arabic: "الطيرة - كوخاڤ يَئير",
     lat: 32.234875,
     lon: 34.957647,
+    image: require("../../assets/station-images/tira-kokhav-yair.jpg"),
   },
 ]
 
@@ -737,41 +739,40 @@ type StationsObjectType = {
 
 export let stationLocale = "hebrew"
 
+export function setStationLocale(lang: LanguageCode) {
+  stationLocale = { he: "hebrew", en: "english", ar: "arabic", ru: "russian" }[lang] ?? "hebrew"
+}
+
 export const stationsObject: StationsObjectType = {}
 
 stations.forEach((station) => {
   stationsObject[station.id] = station
 })
 
-export const useStations = () => {
-  const [locale, setLocale] = useState("hebrew")
+function normalizeStation(station: Station): NormalizedStation {
+  return {
+    id: station.id,
+    name: station[stationLocale],
+    image: station.image,
+    hebrew: station.hebrew,
+    alias: station.alias,
+  }
+}
 
-  useEffect(() => {
-    storage.load("appLanguage").then((languageCode) => {
-      if (languageCode === "ar") {
-        stationLocale = "arabic"
-        setLocale("arabic")
-      } else if (languageCode === "en") {
-        stationLocale = "english"
-        setLocale("english")
-      } else if (languageCode === "ru") {
-        stationLocale = "russian"
-        setLocale("russian")
-      }
-    })
-  }, [])
+export const useStations = (): NormalizedStation[] =>
+  stations
+    .map(normalizeStation)
+    .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
 
-  const normalizeStationNames: NormalizedStation[] = useMemo(() => {
-    return stations
-      .map((station) => ({
-        id: station.id,
-        name: station[locale],
-        image: station.image,
-        hebrew: station.hebrew,
-        alias: station.alias,
-      }))
-      .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
-  }, [locale])
-
-  return normalizeStationNames
+/**
+ * Resolves a single station by id using `stationLocale` at call time.
+ *
+ * Unlike `useStations` (which snapshots the locale at render), this reads the
+ * locale when invoked, so it stays correct for callers that run before locale
+ * initialization — e.g. deep-link / home-screen-shortcut handlers, which mount
+ * above the locale gate and would otherwise capture the default Hebrew names.
+ */
+export function getStationById(id: string): NormalizedStation | undefined {
+  const station = stationsObject[id]
+  return station ? normalizeStation(station) : undefined
 }

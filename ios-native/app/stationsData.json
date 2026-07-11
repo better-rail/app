@@ -532,20 +532,23 @@
       "hebrew": "חדרה - מזרח",
       "english": "Hadera - East",
       "russian": "Хадера – Восток",
-      "arabic": "حديرا - شرق"
+      "arabic": "حديرا - شرق",
+      "image": "hadera-east"
    },
    {
       "id": "4300",
       "hebrew": "שומרון - טייבה",
       "english": "Shomron – Tayyiba",
       "russian": "Шомрон – Тайбе",
-      "arabic": "هشومرون – الطيبة"
+      "arabic": "هشومرون – الطيبة",
+      "image": "shomron-taybe"
    },
    {
       "id": "4310",
       "hebrew": "טירה - כוכב יאיר",
       "english": "Tira - Kokhav Ya'ir",
       "russian": "Тира – Кохав-Яир",
-      "arabic": "الطيرة - كوخاڤ يَئير"
+      "arabic": "الطيرة - كوخاڤ يَئير",
+      "image": "tira-kokhav-yair"
    }
 ]

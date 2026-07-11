@@ -2,6 +2,7 @@ const { withAppBuildGradle, withProjectBuildGradle } = require("@expo/config-plu
 const { mergeContents } = require("@expo/config-plugins/build/utils/generateCode")
 
 const HILT_VERSION = "2.53.1"
+const GOOGLE_SERVICES_VERSION = "4.4.2"
 
 const APP_PLUGINS = `apply plugin: "kotlin-kapt"
 apply plugin: "dagger.hilt.android.plugin"`
@@ -37,6 +38,19 @@ const withAppGradle = (config) =>
       tag: "better-rail-android-plugins",
       src,
       newSrc: APP_PLUGINS,
+      anchor: /apply plugin: "com\.facebook\.react"/,
+      offset: 1,
+      comment: "//",
+    }).contents
+
+    // 1b) Apply the Google Services gradle plugin so google-services.json is processed and
+    // FirebaseApp auto-inits — required for expo-notifications to obtain an FCM token on Android.
+    // Replaces what the removed @react-native-firebase/app config plugin used to do. The
+    // google-services.json itself is copied by Expo core from android.googleServicesFile.
+    src = mergeContents({
+      tag: "better-rail-android-google-services",
+      src,
+      newSrc: `apply plugin: "com.google.gms.google-services"`,
       anchor: /apply plugin: "com\.facebook\.react"/,
       offset: 1,
       comment: "//",
@@ -86,6 +100,17 @@ const withProjectGradle = (config) =>
       tag: "better-rail-android-hilt-classpath",
       src,
       newSrc: `        classpath("com.google.dagger:hilt-android-gradle-plugin:${HILT_VERSION}")`,
+      anchor: /dependencies\s*{/,
+      offset: 1,
+      comment: "//",
+    }).contents
+
+    // Google Services gradle plugin classpath (buildscript) — pairs with the apply plugin in
+    // the app build.gradle; required for expo-notifications FCM (replaces @react-native-firebase/app).
+    src = mergeContents({
+      tag: "better-rail-android-google-services-classpath",
+      src,
+      newSrc: `        classpath("com.google.gms:google-services:${GOOGLE_SERVICES_VERSION}")`,
       anchor: /dependencies\s*{/,
       offset: 1,
       comment: "//",

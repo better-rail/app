@@ -1,20 +1,12 @@
 import React, { useState, useEffect } from "react"
-import { Alert, Platform, View, type ViewStyle } from "react-native"
+import { Alert, Platform, View } from "react-native"
+import { StyleSheet } from "react-native-unistyles"
 import { Screen } from "@/components"
 import { SettingBox } from "./components/settings-box"
-import { color, isDarkMode, spacing } from "@/theme"
+import { isDarkMode } from "@/theme"
 import { changeUserLanguage, translate, userLocale } from "@/i18n"
 import HapticFeedback from "react-native-haptic-feedback"
 import { SETTING_GROUP } from "./settings-styles"
-import { messaging } from "@/services/firebase/messaging"
-import notifee, { AuthorizationStatus } from "@notifee/react-native"
-
-const ROOT: ViewStyle = {
-  flex: 1,
-  paddingTop: spacing[4],
-  paddingHorizontal: spacing[4],
-  backgroundColor: color.background,
-}
 
 export function LanguageScreen() {
   const [clickCounter, setClickCounter] = useState(0)
@@ -29,22 +21,7 @@ export function LanguageScreen() {
       { text: translate("common.cancel"), style: "cancel" },
       {
         text: translate("common.ok"),
-        onPress: async () => {
-          const notificationSettings = await notifee.getNotificationSettings()
-          const notificationsEnabled = notificationSettings.authorizationStatus === AuthorizationStatus.AUTHORIZED
-
-          if (notificationsEnabled) {
-            let unsubscribeTopic = `service-updates-${userLocale}`
-            let subscribeTopic = `service-updates-${langaugeCode}`
-
-            if (__DEV__) {
-              unsubscribeTopic = `service-updates-test-${userLocale}`
-              subscribeTopic = `service-updates-test-${langaugeCode}`
-            }
-
-            await Promise.all([messaging.unsubscribeFromTopic(unsubscribeTopic), messaging.subscribeToTopic(subscribeTopic)])
-          }
-
+        onPress: () => {
           changeUserLanguage(langaugeCode)
         },
       },
@@ -60,7 +37,7 @@ export function LanguageScreen() {
 
   return (
     <Screen
-      style={ROOT}
+      style={styles.root}
       preset="scroll"
       unsafe={true}
       statusBar={Platform.select({ ios: "light-content" })}
@@ -76,3 +53,12 @@ export function LanguageScreen() {
     </Screen>
   )
 }
+
+const styles = StyleSheet.create((theme) => ({
+  root: {
+    flex: 1,
+    paddingTop: theme.spacing[4],
+    paddingHorizontal: theme.spacing[4],
+    backgroundColor: theme.colors.background,
+  },
+}))
