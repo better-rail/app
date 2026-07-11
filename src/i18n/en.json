@@ -105,7 +105,6 @@
     "carsCount": "%{count} cars",
     "seatsCount": "%{count} seats",
     "trainInformation": "Train information",
-    "noTrainDetails": "Train details are not available yet for this train.",
     "noWagonInformationAvailable": "No wagon information available"
   },
   "settings": {

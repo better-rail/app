@@ -102,7 +102,6 @@
     "carsCount": "%{count} вагонов",
     "seatsCount": "%{count} мест",
     "trainInformation": "Информация о поезде",
-    "noTrainDetails": "Подробности о поезде пока недоступны.",
     "noWagonInformationAvailable": "Информация о вагонах недоступна"
   },
   "settings": {

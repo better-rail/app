@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useMemo, useState } from "react"
-import { Alert, Image, Platform, PlatformColor, Pressable, View, type ImageStyle, type ViewStyle } from "react-native"
+import { Image, Platform, PlatformColor, Pressable, View, type ImageStyle, type ViewStyle } from "react-native"
 import { ScrollView } from "react-native-gesture-handler"
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated"
 import { format } from "date-fns"
@@ -56,10 +56,6 @@ const INFO_BUTTON: ViewStyle = {
   borderRadius: Platform.select({ ios: 16, android: 6 }),
   backgroundColor: isLiquidGlassSupported ? undefined : color.tertiaryBackground,
   elevation: 1,
-}
-
-const INFO_BUTTON_DISABLED: ViewStyle = {
-  opacity: 0.5,
 }
 
 const INFO_BUTTON_ICON: ImageStyle = {
@@ -363,28 +359,26 @@ export function RouteDetailsScreen() {
               gap: spacing[3],
             }}
           >
-            <Pressable
-              onPress={() => {
-                if (hasWagonData) {
+            {hasWagonData && (
+              <Pressable
+                onPress={() => {
                   trackEvent("train_info_sheet_opened")
                   HapticFeedback.trigger("impactLight")
                   useNavigationParamsStore.getState().setTrainInfo(routeItem.trains[0])
                   router.push("/train-info")
-                } else {
-                  Alert.alert(translate("routeDetails.trainInformation"), translate("routeDetails.noTrainDetails"))
-                }
-              }}
-              accessibilityLabel={translate("routeDetails.trainInformation")}
-            >
-              <LiquidGlassView
-                style={[INFO_BUTTON, !hasWagonData && INFO_BUTTON_DISABLED]}
-                interactive={hasWagonData}
-                effect="regular"
-                tintColor={PlatformColor("tertiarySystemBackground")}
+                }}
+                accessibilityLabel={translate("routeDetails.trainInformation")}
               >
-                <Image source={require("../../../assets/info.circle.png")} style={INFO_BUTTON_ICON} />
-              </LiquidGlassView>
-            </Pressable>
+                <LiquidGlassView
+                  style={INFO_BUTTON}
+                  interactive
+                  effect="regular"
+                  tintColor={PlatformColor("tertiarySystemBackground")}
+                >
+                  <Image source={require("../../../assets/info.circle.png")} style={INFO_BUTTON_ICON} />
+                </LiquidGlassView>
+              </Pressable>
+            )}
 
             <StartRideButton route={routeItem} screenName={screenName} />
           </Animated.View>
