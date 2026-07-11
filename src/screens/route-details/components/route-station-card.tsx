@@ -113,12 +113,10 @@ export const RouteStationCard = (props: RouteStopCardProps) => {
   const { stationName, stopTime, platform, trainNumber, delay, delayedTime, lastStop, platformChanged, lastStopChanged, style } =
     props
 
+  // When the platform changes in realtime we keep the normal "Platform X" text and
+  // just style it bold red, matching how a changed last stop is highlighted.
   const platformText =
-    platform === 0
-      ? translate("routeDetails.noPlatformSet")
-      : platformChanged
-      ? translate("routeDetails.platformChangedTo", { platform })
-      : `${translate("routeDetails.platform")} ${platform}`
+    platform === 0 ? translate("routeDetails.noPlatformSet") : `${translate("routeDetails.platform")} ${platform}`
 
   return (
     <View style={[ROUTE_STATION_WRAPPER, style]}>

@@ -92,7 +92,6 @@
     "routeChanged": "שינוי במסלול",
     "skippedStationText": "הרכבת לא תעצור בתחנת %{station}.",
     "lastStopChangedText": "היעד הסופי של הרכבת שונה ל-%{station}.",
-    "platformChangedTo": "הרציף שונה לרציף %{platform}",
     "routeWarning": "רכבת מאספת",
     "routeWarningText": "קיימים מסלולי נסיעה קצרים יותר סביב שעת היציאה הנבחרת",
     "addToCalendar": "הוספה ליומן",

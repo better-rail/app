@@ -85,7 +85,6 @@
     "routeChanged": "تغيير في المسار",
     "skippedStationText": "لن يتوقف القطار في محطة %{station}.",
     "lastStopChangedText": "تم تغيير المحطة الأخيرة للقطار إلى %{station}.",
-    "platformChangedTo": "تم تغيير الرصيف إلى رصيف %{platform}",
     "routeWarning": "تحذير الطريق الطويل",
     "routeWarningText": "هناك طرق قطار أقصر حول وقت المغادرة.",
     "addToCalendar": "إضافة إلى التقويم",

@@ -92,7 +92,6 @@
     "routeChanged": "Route Changed",
     "skippedStationText": "The train will not stop at %{station}.",
     "lastStopChangedText": "The train's last stop has changed to %{station}.",
-    "platformChangedTo": "Platform changed to %{platform}",
     "routeWarning": "Long Route Warning",
     "routeWarningText": "There are shorter train routes around the departure time.",
     "addToCalendar": "Add to Calendar",

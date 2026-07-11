@@ -89,7 +89,6 @@
     "routeChanged": "Маршрут изменён",
     "skippedStationText": "Поезд не будет останавливаться на станции %{station}.",
     "lastStopChangedText": "Конечная станция поезда изменена на %{station}.",
-    "platformChangedTo": "Платформа изменена на %{platform}",
     "routeWarning": "Предупреждение о длинном маршруте",
     "routeWarningText": "Во время отправления есть более короткие маршруты поездов.",
     "addToCalendar": "Добавить в календарь",
