@@ -36,12 +36,17 @@ export function createEventConfig(routeItem: RouteItem): CalendarEventConfig {
 // getDefaultCalendarSync is iOS-only, so on Android we pick the primary (or any modifiable) calendar
 async function getEventCalendar(): Promise<Calendar.ExpoCalendar> {
   if (Platform.OS === "ios") {
-    return Calendar.getDefaultCalendarSync()
+    const defaultCalendar = Calendar.getDefaultCalendarSync()
+    if (!defaultCalendar) {
+      throw new Error("No default calendar found on device")
+    }
+    return defaultCalendar
   }
 
   const calendars = await Calendar.getCalendars()
   const eventCalendar =
-    calendars.find((calendar) => calendar.isPrimary) ?? calendars.find((calendar) => calendar.allowsModifications)
+    calendars.find((calendar) => calendar.isPrimary && calendar.allowsModifications) ??
+    calendars.find((calendar) => calendar.allowsModifications)
   if (!eventCalendar) {
     throw new Error("No modifiable calendar found on device")
   }
