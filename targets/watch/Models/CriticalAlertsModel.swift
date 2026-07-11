@@ -20,7 +20,8 @@ struct CriticalAlertsModel {
   func fetchCriticalAlerts(completion: @escaping (PopUpMessagesResult?) -> Void) {
       let language = getUserLocale().rawValue.capitalized
       // Popup messages still come from the Israel Railways API, but via our server proxy.
-      let urlString = "https://api.better-rail.co.il/api/v1/rail-api/common/api/v1/PopUpMessages/?LanguageId=\(language)&PageTypeId=MainPage"
+      // TEMP: point to Railway; revert host to api.better-rail.co.il
+      let urlString = "https://better-rail.up.railway.app/api/v1/rail-api/common/api/v1/PopUpMessages/?LanguageId=\(language)&PageTypeId=MainPage"
       guard let url = URL(string: urlString) else {
           completion(nil)
           return

@@ -106,7 +106,8 @@ struct RouteModel {
       let (routeDate, routeTime) = formatRouteDate(date ?? Date())
       
       // Timetable now comes from our server (GTFS-backed), which returns the same shape.
-      let url = URL(string: "https://api.better-rail.co.il/api/v1/rail-api/rjpa/api/v1/timetable/searchTrainForMobile")!
+      // TEMP: point to Railway; revert host to api.better-rail.co.il
+      let url = URL(string: "https://better-rail.up.railway.app/api/v1/rail-api/rjpa/api/v1/timetable/searchTrainForMobile")!
 
       var request = URLRequest(url: url)
       request.httpMethod = "POST"
