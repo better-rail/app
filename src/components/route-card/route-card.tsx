@@ -137,6 +137,15 @@ const TIME_TEXT: TextStyle = {
   color: color.text,
 }
 
+const CANCELLED_TIME_TEXT: TextStyle = {
+  textDecorationLine: "line-through",
+  opacity: 0.6,
+}
+
+const PLATFORM_CHANGED_TEXT: TextStyle = {
+  color: color.destroy,
+}
+
 const DURATION_TEXT: TextStyle = {
   marginBottom: -2,
   fontSize: 16,
@@ -216,6 +225,7 @@ export function RouteCard(props: RouteCardProps) {
 
   // Get the main train (first train for departure info)
   const mainTrain = routeItem?.trains?.[0]
+  const isCancelled = routeItem?.isCancelled ?? false
 
   const getTrainType = (train: any): string => {
     if (!train?.visaWagonData?.wagons?.[0]?.krsG3) {
@@ -271,8 +281,10 @@ export function RouteCard(props: RouteCardProps) {
       {showHeader && (
         <View style={ROUTE_HEADER}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Text style={HEADER_TEXT} tx="routeDetails.platform" />
-            <Text style={[TRAIN_NUMBER_TEXT, { marginLeft: spacing[1] }]}>{mainTrain.originPlatform}</Text>
+            <Text style={[HEADER_TEXT, mainTrain.originPlatformChanged && PLATFORM_CHANGED_TEXT]} tx="routeDetails.platform" />
+            <Text style={[TRAIN_NUMBER_TEXT, { marginLeft: spacing[1] }, mainTrain.originPlatformChanged && PLATFORM_CHANGED_TEXT]}>
+              {mainTrain.originPlatform}
+            </Text>
           </View>
 
           {mainTrain.originPlatform > 0 && (
@@ -288,7 +300,7 @@ export function RouteCard(props: RouteCardProps) {
       <View style={ROUTE_CONTENT}>
         <View style={{ marginEnd: spacing[3] }}>
           <Text style={TIME_TYPE_TEXT} tx="routes.departure" />
-          <Text style={TIME_TEXT}>{formattedDepatureTime}</Text>
+          <Text style={[TIME_TEXT, isCancelled && CANCELLED_TIME_TEXT]}>{formattedDepatureTime}</Text>
         </View>
 
         {shouldShowDashedLine && !isBloatedIndicators && <DashedLine />}
@@ -306,6 +318,7 @@ export function RouteCard(props: RouteCardProps) {
               stopsText={stopsText}
               isRideActive={props.isActiveRide}
               hideShortRouteBadge={hideSlowTrains}
+              isCancelled={isCancelled}
             />
           </View>
         </View>
@@ -314,7 +327,7 @@ export function RouteCard(props: RouteCardProps) {
 
         <View style={{ alignItems: "flex-end", marginStart: spacing[3] }}>
           <Text style={TIME_TYPE_TEXT} tx="routes.arrival" />
-          <Text style={TIME_TEXT}>{formattedArrivalTime}</Text>
+          <Text style={[TIME_TEXT, isCancelled && CANCELLED_TIME_TEXT]}>{formattedArrivalTime}</Text>
         </View>
       </View>
     </TouchableComponent>

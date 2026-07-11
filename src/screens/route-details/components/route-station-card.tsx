@@ -67,6 +67,11 @@ const LAST_DESTINATION_TEXT: TextStyle = {
   opacity: 0.8,
 }
 
+const REALTIME_CHANGE_TEXT: TextStyle = {
+  color: color.destroy,
+  fontWeight: "700",
+}
+
 const RAILWAY_ICON: ImageStyle = {
   width: 42.5,
   height: 42.5,
@@ -91,11 +96,29 @@ type RouteStopCardProps = {
    */
   delayedTime?: string
 
+  /**
+   * The live platform differs from the scheduled one
+   */
+  platformChanged?: boolean
+
+  /**
+   * The train's last stop differs from the scheduled one
+   */
+  lastStopChanged?: boolean
+
   style?: ViewStyle
 }
 
 export const RouteStationCard = (props: RouteStopCardProps) => {
-  const { stationName, stopTime, platform, trainNumber, delay, delayedTime, lastStop, style } = props
+  const { stationName, stopTime, platform, trainNumber, delay, delayedTime, lastStop, platformChanged, lastStopChanged, style } =
+    props
+
+  const platformText =
+    platform === 0
+      ? translate("routeDetails.noPlatformSet")
+      : platformChanged
+      ? translate("routeDetails.platformChangedTo", { platform })
+      : `${translate("routeDetails.platform")} ${platform}`
 
   return (
     <View style={[ROUTE_STATION_WRAPPER, style]}>
@@ -130,12 +153,17 @@ export const RouteStationCard = (props: RouteStopCardProps) => {
           {stationName}
         </Text>
         <Text style={ROUTE_STATION_DETAILS_TEXT} maxFontSizeMultiplier={1.2}>
-          {platform === 0 ? translate("routeDetails.noPlatformSet") : `${translate("routeDetails.platform")} ${platform}`}{" "}
+          <Text style={[ROUTE_STATION_DETAILS_TEXT, platformChanged && REALTIME_CHANGE_TEXT]} maxFontSizeMultiplier={1.2}>
+            {platformText}
+          </Text>{" "}
           {trainNumber && `· ${translate("routeDetails.trainNo")} ${trainNumber}`}
         </Text>
         {trainNumber && (
           <Text style={LAST_DESTINATION_TEXT} maxFontSizeMultiplier={1.2}>
-            {translate("routeDetails.lastStop")}: {lastStop}
+            {`${translate("routeDetails.lastStop")}: `}
+            <Text style={[LAST_DESTINATION_TEXT, lastStopChanged && REALTIME_CHANGE_TEXT]} maxFontSizeMultiplier={1.2}>
+              {lastStop}
+            </Text>
           </Text>
         )}
       </View>

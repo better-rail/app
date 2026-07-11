@@ -38,3 +38,14 @@ export const DelayBadge = function DelayBadge(props: DelayBadgeProps) {
     </View>
   )
 }
+
+export const CancelledBadge = function CancelledBadge() {
+  const colorScheme = useColorScheme()
+  const backgroundColor = colorScheme === "light" ? "#EE6958" : "#B22E4D"
+
+  return (
+    <View style={[CONTAINER, { backgroundColor }]}>
+      <Text style={BADGE_TEXT} maxFontSizeMultiplier={1.15} tx="routes.cancelled" />
+    </View>
+  )
+}

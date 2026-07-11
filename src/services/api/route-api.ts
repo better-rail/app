@@ -50,6 +50,10 @@ export class RouteApi {
             routeStations,
             trainPosition,
             visaWagonData,
+            isCancelled,
+            actualLastStationId,
+            originPlatformChanged,
+            destPlatformChanged,
           } = train
 
           const stopStations = train.stopStations.map((station) => {
@@ -69,10 +73,23 @@ export class RouteApi {
           // The last stop is fetched from the "crowded" details
           // const trainCrowdDetail = crowdDetails.find((detail) => detail.TrainNumber === Number(Trainno))
           // const lastStationId = trainCrowdDetail.Stations[trainCrowdDetail.Stations.length - 1].StationNumber
-          const lastStationId = routeStations[routeStations.length - 1].stationId
+          const scheduledLastStationId = routeStations[routeStations.length - 1].stationId
+          // Realtime route change: the server sets actualLastStationId when the train
+          // terminates at a different station — show that as the last stop.
+          const lastStationId =
+            actualLastStationId && stationsObject[actualLastStationId] ? actualLastStationId : scheduledLastStationId
+
+          const stationCancelled = (stationId: number) =>
+            routeStations.find((station) => station.stationId === stationId)?.cancelled ?? false
 
           const modifiedTrain = {
             delay: trainPosition?.calcDiffMinutes ?? 0,
+            isCancelled: isCancelled ?? false,
+            isLastStopChanged: lastStationId !== scheduledLastStationId,
+            originCancelled: stationCancelled(orignStation),
+            destinationCancelled: stationCancelled(destinationStation),
+            originPlatformChanged: originPlatformChanged ?? false,
+            destinationPlatformChanged: destPlatformChanged ?? false,
             originStationId: orignStation,
             originStationName: stationsObject[orignStation][stationLocale],
             destinationStationId: destinationStation,
@@ -106,6 +123,9 @@ export class RouteApi {
           departureTimeString: route.departureTime,
           arrivalTimeString: route.arrivalTime,
           delay: trains?.[0].delay ?? 0,
+          // The journey is unusable when a leg is cancelled outright or skips the
+          // station the rider boards or alights at.
+          isCancelled: trains.some((train) => train.isCancelled || train.originCancelled || train.destinationCancelled),
           duration: formatRouteDuration(routeDurationInMs(departureTime, arrivalTime)),
           isExchange: trains.length > 1,
           isMuchLonger: false,

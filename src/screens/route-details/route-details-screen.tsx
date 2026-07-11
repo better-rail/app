@@ -13,6 +13,7 @@ import { RouteDetailsHeader, Screen } from "@/components"
 import {
   LiveRideSheet,
   LongRouteWarning,
+  RouteChangeWarnings,
   RouteExchangeDetails,
   RouteLine,
   RouteStationCard,
@@ -172,6 +173,8 @@ export function RouteDetailsScreen() {
 
                 return (
                   <View key={train.trainNumber} style={STATION_CONTAINER}>
+                    <RouteChangeWarnings train={train} />
+
                     {/* Stations before origin */}
                     {allRouteStations.slice(0, originIndex).map((station, idx) => {
                       const isFirstStation = idx === 0
@@ -189,6 +192,7 @@ export function RouteDetailsScreen() {
                             topLineState={isFirstStation ? "hidden" : "idle"}
                             bottomLineState="idle"
                             isOutsideUserJourney={true}
+                            isCancelled={station.cancelled}
                           />
                         </View>
                       )
@@ -199,8 +203,10 @@ export function RouteDetailsScreen() {
                       stationName={train.originStationName}
                       stopTime={format(train.departureTime, "HH:mm")}
                       platform={train.originPlatform}
+                      platformChanged={train.originPlatformChanged}
                       trainNumber={train.trainNumber}
                       lastStop={train.lastStop}
+                      lastStopChanged={train.isLastStopChanged}
                       delay={train.delay}
                     />
 
@@ -218,6 +224,7 @@ export function RouteDetailsScreen() {
                           style={{ zIndex: 20 - idx }}
                           topLineState={isRideOnThisRoute ? stations[station.stationId]?.top || "idle" : "idle"}
                           bottomLineState={isRideOnThisRoute ? stations[station.stationId]?.bottom || "idle" : "idle"}
+                          isCancelled={station.cancelled}
                         />
                       </View>
                     ))}
@@ -228,6 +235,7 @@ export function RouteDetailsScreen() {
                       stopTime={format(train.arrivalTime, "HH:mm")}
                       delayedTime={calculateDelayedTime(train.arrivalTime, train.delay)}
                       platform={train.destinationPlatform}
+                      platformChanged={train.destinationPlatformChanged}
                     />
 
                     {/* Stations after destination */}
@@ -247,6 +255,7 @@ export function RouteDetailsScreen() {
                             topLineState="idle"
                             bottomLineState={isLastStation ? "hidden" : "idle"}
                             isOutsideUserJourney={true}
+                            isCancelled={station.cancelled}
                           />
                         </View>
                       )
@@ -268,12 +277,16 @@ export function RouteDetailsScreen() {
               // Original display logic when not showing entire route
               return (
                 <View key={train.trainNumber} style={STATION_CONTAINER}>
+                  <RouteChangeWarnings train={train} />
+
                   <RouteStationCard
                     stationName={train.originStationName}
                     stopTime={format(train.departureTime, "HH:mm")}
                     platform={train.originPlatform}
+                    platformChanged={train.originPlatformChanged}
                     trainNumber={train.trainNumber}
                     lastStop={train.lastStop}
+                    lastStopChanged={train.isLastStopChanged}
                     delay={train.delay}
                   />
 
@@ -287,6 +300,7 @@ export function RouteDetailsScreen() {
                             style={{ zIndex: 20 - idx }}
                             topLineState={isRideOnThisRoute ? stations[stop.stationId]?.top || "idle" : "idle"}
                             bottomLineState={isRideOnThisRoute ? stations[stop.stationId]?.bottom || "idle" : "idle"}
+                            isCancelled={stop.cancelled}
                           />
                         </View>
                       ))
@@ -304,6 +318,7 @@ export function RouteDetailsScreen() {
                     stopTime={format(train.arrivalTime, "HH:mm")}
                     delayedTime={calculateDelayedTime(train.arrivalTime, train.delay)}
                     platform={train.destinationPlatform}
+                    platformChanged={train.destinationPlatformChanged}
                   />
 
                   {routeItem.isExchange && routeItem.trains.length - 1 !== index && (

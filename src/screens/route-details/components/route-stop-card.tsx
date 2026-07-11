@@ -36,6 +36,11 @@ const OUTSIDE_JOURNEY_TEXT: TextStyle = {
   color: color.dim,
 }
 
+const CANCELLED_STOP_TEXT: TextStyle = {
+  textDecorationLine: "line-through",
+  opacity: 0.5,
+}
+
 // #endregion
 
 type RouteStopCardProps = {
@@ -54,17 +59,26 @@ type RouteStopCardProps = {
    * (before origin or after destination)
    */
   isOutsideUserJourney?: boolean
+  /**
+   * Realtime: the train will skip this stop
+   */
+  isCancelled?: boolean
 }
 
 export const RouteStopCard = (props: RouteStopCardProps) => {
-  const { stationName, stopTime, delayedTime, topLineState, bottomLineState, style, isOutsideUserJourney } = props
+  const { stationName, stopTime, delayedTime, topLineState, bottomLineState, style, isOutsideUserJourney, isCancelled } = props
 
   return (
     <View style={[ROUTE_STOP_WRAPPER, style]}>
       <View style={ROUTE_STOP_DETAILS}>
         <View style={{ flex: 0.265, alignItems: "flex-end" }}>
           <Text
-            style={[ROUTE_STOP_TIME, delayedTime && ROUTE_STOP_TIME_DELAYED, isOutsideUserJourney && OUTSIDE_JOURNEY_TEXT]}
+            style={[
+              ROUTE_STOP_TIME,
+              delayedTime && ROUTE_STOP_TIME_DELAYED,
+              isOutsideUserJourney && OUTSIDE_JOURNEY_TEXT,
+              isCancelled && CANCELLED_STOP_TEXT,
+            ]}
             maxFontSizeMultiplier={1.2}
           >
             {stopTime}
@@ -84,7 +98,11 @@ export const RouteStopCard = (props: RouteStopCardProps) => {
 
         <View style={{ flex: 0.55, right: 15 }}>
           <Text
-            style={[{ fontWeight: "600", fontSize: 15, marginStart: spacing[3] }, isOutsideUserJourney && OUTSIDE_JOURNEY_TEXT]}
+            style={[
+              { fontWeight: "600", fontSize: 15, marginStart: spacing[3] },
+              isOutsideUserJourney && OUTSIDE_JOURNEY_TEXT,
+              isCancelled && CANCELLED_STOP_TEXT,
+            ]}
             maxFontSizeMultiplier={1.2}
           >
             {stationName}
