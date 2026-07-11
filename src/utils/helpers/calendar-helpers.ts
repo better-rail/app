@@ -1,4 +1,4 @@
-import { Alert, Linking } from "react-native"
+import { Alert, Linking, Platform } from "react-native"
 import * as Calendar from "expo-calendar"
 import { translate } from "@/i18n"
 import { trackEvent } from "@/services/analytics"
@@ -33,10 +33,25 @@ export function createEventConfig(routeItem: RouteItem): CalendarEventConfig {
   }
 }
 
+// getDefaultCalendarSync is iOS-only, so on Android we pick the primary (or any modifiable) calendar
+async function getEventCalendar(): Promise<Calendar.ExpoCalendar> {
+  if (Platform.OS === "ios") {
+    return Calendar.getDefaultCalendarSync()
+  }
+
+  const calendars = await Calendar.getCalendars()
+  const eventCalendar =
+    calendars.find((calendar) => calendar.isPrimary) ?? calendars.find((calendar) => calendar.allowsModifications)
+  if (!eventCalendar) {
+    throw new Error("No modifiable calendar found on device")
+  }
+  return eventCalendar
+}
+
 export async function addRouteToCalendar(routeItem: RouteItem): Promise<boolean> {
   trackEvent("add_route_to_calendar")
 
-  const { status } = await Calendar.requestCalendarPermissionsAsync()
+  const { status } = await Calendar.requestCalendarPermissions()
 
   if (status !== "granted") {
     Alert.alert(translate("routeDetails.noCalendarAccessTitle"), translate("routeDetails.noCalendarAccessMessage"), [
@@ -49,14 +64,15 @@ export async function addRouteToCalendar(routeItem: RouteItem): Promise<boolean>
   const eventConfig = createEventConfig(routeItem)
 
   try {
-    await Calendar.createEventInCalendarAsync({
+    const eventCalendar = await getEventCalendar()
+    const { action } = await eventCalendar.addEventWithForm({
       title: eventConfig.title,
       startDate: new Date(eventConfig.startDate),
       endDate: new Date(eventConfig.endDate),
       location: eventConfig.location,
       notes: eventConfig.notes,
     })
-    return true
+    return action !== "canceled"
   } catch (error) {
     console.error(error)
     if (error instanceof Error) {
