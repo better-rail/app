@@ -82,6 +82,8 @@ jobs:
           echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
 
       - name: Run Maestro flows
+        env:
+          MAESTRO_CLI_NO_ANALYTICS: "1"
         run: maestro test .maestro/flows
 
       - name: Upload logs and screenshots
