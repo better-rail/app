@@ -42,7 +42,9 @@ jobs:
           }
           curl -fsSL "$BUILD_URL" -o /tmp/build.tar.gz
           mkdir /tmp/app && tar -xzf /tmp/build.tar.gz -C /tmp/app
-          APP_PATH=$(find /tmp/app -maxdepth 2 -name '*.app' | head -n 1)
+          # The archive contains the watch app as a sibling product
+          # (Debug-watchsimulator/) — select the iPhone app explicitly.
+          APP_PATH=$(find /tmp/app -maxdepth 2 -name '*.app' -path '*iphonesimulator*' | head -n 1)
           test -n "$APP_PATH"
           # The bundle embeds the watch app, which a simulator without a paired
           # Apple Watch refuses to install. The flows don't use it — strip it.
