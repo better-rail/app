@@ -28,9 +28,18 @@ jobs:
       # (eas build --profile development-simulator --platform ios).
       - name: Download latest dev-client simulator build from EAS
         run: |
+          # EAS deletes build artifacts after a retention window (expirationDate),
+          # so pick the newest build whose artifact is still downloadable.
           BUILD_URL=$(eas build:list --platform ios --profile development-simulator \
-            --status finished --limit 1 --json --non-interactive \
-            | jq -re '.[0].artifacts | .applicationArchiveUrl // .buildUrl')
+            --status finished --limit 10 --json --non-interactive \
+            | jq -re '[.[] | select(.expirationDate > (now | todate))
+                           | .artifacts.applicationArchiveUrl // .artifacts.buildUrl
+                           | select(. != null)]
+                      | first') || {
+            echo "::error::No development-simulator build with a live artifact on EAS." \
+                 "Run: eas build --profile development-simulator --platform ios"
+            exit 1
+          }
           curl -fsSL "$BUILD_URL" -o /tmp/build.tar.gz
           mkdir /tmp/app && tar -xzf /tmp/build.tar.gz -C /tmp/app
           APP_PATH=$(find /tmp/app -maxdepth 2 -name '*.app' | head -n 1)
