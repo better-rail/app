@@ -16,7 +16,7 @@ tags:
 # now-saved server and loads from the warm bundle, which reliably recovers.
 # For a release build this whole block can be replaced with a plain launchApp.
 - retry:
-    maxRetries: 4
+    maxRetries: 5
     commands:
       - launchApp
       - runFlow:
@@ -29,13 +29,15 @@ tags:
             - tapOn:
                 text: "exp://"
             - inputText: "http://localhost:8081"
-            - tapOn:
-                text: "Connect"
+            # Submit with the keyboard's return key rather than tapping the
+            # "Connect" button: on shorter simulators the keyboard covers the
+            # button, so tapping it silently fails and the URL is never saved.
+            - pressKey: Enter
       # First load bundles the app, so allow extra time.
       - extendedWaitUntil:
           visible:
             id: "planner-origin-card"
-          timeout: 90000
+          timeout: 120000
 
 # Select origin station: Jerusalem - Yitzhak Navon.
 # Search terms are typed in Hebrew because station search always indexes
