@@ -24,9 +24,26 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
 
       # The dev client loads JS from Metro, so the PR's JavaScript is what gets
-      # tested — the EAS binary only needs rebuilding when native deps change
-      # (eas build --profile development-simulator --platform ios).
-      - name: Download latest dev-client simulator build from EAS
+      # tested — the EAS binary only needs rebuilding when native inputs change.
+      # @expo/fingerprint hashes exactly those inputs (native deps, config
+      # plugins, eas.json, patches...), so we cache the extracted .app under it
+      # and only hit EAS when the fingerprint changes or the cache is evicted.
+      - name: Compute native fingerprint
+        id: fingerprint
+        run: |
+          HASH=$(node node_modules/@expo/fingerprint/bin/cli.js fingerprint:generate \
+            --platform ios | jq -re '.hash')
+          echo "hash=$HASH" >> "$GITHUB_OUTPUT"
+
+      - name: Restore cached simulator build
+        id: build-cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/app
+          key: ios-sim-build-${{ steps.fingerprint.outputs.hash }}
+
+      - name: Download dev-client simulator build from EAS
+        if: steps.build-cache.outputs.cache-hit != 'true'
         run: |
           # EAS deletes build artifacts after a retention window (expirationDate),
           # so pick the newest build whose artifact is still downloadable.
@@ -42,6 +59,9 @@ jobs:
           }
           curl -fsSL "$BUILD_URL" -o /tmp/build.tar.gz
           mkdir /tmp/app && tar -xzf /tmp/build.tar.gz -C /tmp/app
+
+      - name: Locate and prepare the app bundle
+        run: |
           # The archive contains the watch app as a sibling product
           # (Debug-watchsimulator/) — select the iPhone app explicitly.
           APP_PATH=$(find /tmp/app -maxdepth 2 -name '*.app' -path '*iphonesimulator*' | head -n 1)
