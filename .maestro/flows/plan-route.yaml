@@ -3,23 +3,39 @@ name: Plan a route
 tags:
   - core
 ---
-# Launch through the dev-client deep link so the app connects to the local Metro server.
-# For release builds this can be replaced with a plain launchApp.
-- openLink: betterrail://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081
-
-# iOS may ask for confirmation before opening the deep link
-- tapOn:
-    text: "Open"
-    optional: true
-- tapOn:
-    text: "Open"
-    optional: true
-
-# Wait for the planner screen (first load bundles the app, so allow extra time)
-- extendedWaitUntil:
-    visible:
-      id: "planner-origin-card"
-    timeout: 60000
+# Launch the app and wait for the planner. The dev client loads JS from the
+# local Metro server, so we point it at localhost:8081.
+#
+# On a fresh install the launcher has no saved server, so the URL is entered
+# manually (guarded by `runFlow: when: visible`); on any later launch the dev
+# client auto-reconnects to the saved server, so those steps are skipped.
+#
+# The whole launch is wrapped in `retry`: expo/fetch can intermittently crash
+# the JS runtime during the initial connect-and-reload on the iOS 18 simulator,
+# dropping the app to the home screen. Relaunching auto-reconnects to the
+# now-saved server and loads from the warm bundle, which reliably recovers.
+# For a release build this whole block can be replaced with a plain launchApp.
+- retry:
+    maxRetries: 4
+    commands:
+      - launchApp
+      - runFlow:
+          when:
+            visible:
+              text: "Enter URL manually"
+          commands:
+            - tapOn:
+                text: "Enter URL manually"
+            - tapOn:
+                text: "exp://"
+            - inputText: "http://localhost:8081"
+            - tapOn:
+                text: "Connect"
+      # First load bundles the app, so allow extra time.
+      - extendedWaitUntil:
+          visible:
+            id: "planner-origin-card"
+          timeout: 90000
 
 # Select origin station: Jerusalem - Yitzhak Navon.
 # Search terms are typed in Hebrew because station search always indexes

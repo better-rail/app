@@ -78,6 +78,10 @@ jobs:
           xcrun simctl boot "$UDID"
           xcrun simctl bootstatus "$UDID" -b
           xcrun simctl install "$UDID" "$APP_PATH"
+          # Mark the expo-dev-menu onboarding as finished so its "Continue"
+          # sheet doesn't cover the launcher and block the flow's URL entry.
+          xcrun simctl spawn "$UDID" defaults write il.co.better-rail \
+            EXDevMenuIsOnboardingFinished -bool true
 
       - name: Start Metro
         run: |
