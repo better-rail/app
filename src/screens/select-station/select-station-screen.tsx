@@ -28,6 +28,7 @@ export function SelectStationScreen() {
 
   const renderItem = (station: NormalizedStation) => (
     <StationCard
+      testID={`station-item-${station.id}`}
       name={station.name}
       image={station.image}
       style={styles.stationCard}

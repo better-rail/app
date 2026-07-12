@@ -1,0 +1,80 @@
+name: E2E
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  maestro-ios:
+    # Fork PRs don't get secrets, so EAS auth would fail — skip them.
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      # The dev client loads JS from Metro, so the PR's JavaScript is what gets
+      # tested — the EAS binary only needs rebuilding when native deps change
+      # (eas build --profile development-simulator --platform ios).
+      - name: Download latest dev-client simulator build from EAS
+        run: |
+          BUILD_URL=$(eas build:list --platform ios --profile development-simulator \
+            --status finished --limit 1 --json --non-interactive \
+            | jq -re '.[0].artifacts | .applicationArchiveUrl // .buildUrl')
+          curl -fsSL "$BUILD_URL" -o /tmp/build.tar.gz
+          mkdir /tmp/app && tar -xzf /tmp/build.tar.gz -C /tmp/app
+          APP_PATH=$(find /tmp/app -maxdepth 2 -name '*.app' | head -n 1)
+          test -n "$APP_PATH"
+          echo "APP_PATH=$APP_PATH" >> "$GITHUB_ENV"
+
+      - name: Boot simulator and install the app
+        run: |
+          UDID=$(xcrun simctl list devices available --json \
+            | jq -re '[.devices | to_entries[] | select(.key | contains("iOS")) | .value[] | select(.name | startswith("iPhone"))] | last | .udid')
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl install "$UDID" "$APP_PATH"
+
+      - name: Start Metro
+        run: |
+          nohup bun start > metro.log 2>&1 &
+          for i in {1..30}; do
+            curl -sf http://localhost:8081/status > /dev/null && break
+            sleep 2
+          done
+          curl -sf http://localhost:8081/status
+
+      # Warm Metro's transform cache so the app's first load in the flows stays
+      # within their timeouts. Non-fatal: a real bundling error will surface in
+      # the Maestro run (and metro.log) anyway.
+      - name: Pre-build the JS bundle
+        run: |
+          curl -sf --max-time 600 -o /dev/null "http://localhost:8081/index.bundle?platform=ios&dev=true" \
+            || echo "pre-build failed (non-fatal)"
+
+      - name: Install Maestro
+        run: |
+          curl -fsSL https://get.maestro.mobile.dev | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+
+      - name: Run Maestro flows
+        run: maestro test .maestro/flows
+
+      - name: Upload logs and screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-artifacts
+          path: |
+            ~/.maestro/tests
+            metro.log

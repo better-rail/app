@@ -1,0 +1,52 @@
+appId: il.co.better-rail
+name: Plan a route
+tags:
+  - core
+---
+# Launch through the dev-client deep link so the app connects to the local Metro server.
+# For release builds this can be replaced with a plain launchApp.
+- openLink: betterrail://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081
+
+# iOS may ask for confirmation before opening the deep link
+- tapOn:
+    text: "Open"
+    optional: true
+- tapOn:
+    text: "Open"
+    optional: true
+
+# Wait for the planner screen (first load bundles the app, so allow extra time)
+- extendedWaitUntil:
+    visible:
+      id: "planner-origin-card"
+    timeout: 60000
+
+# Select origin station: Jerusalem - Yitzhak Navon.
+# Search terms are typed in Hebrew because station search always indexes
+# Hebrew names, regardless of the app's display language.
+- tapOn:
+    id: "planner-origin-card"
+- tapOn:
+    id: "station-search-input"
+- inputText: "ירושלים"
+- tapOn:
+    id: "station-item-680"
+
+# Select destination station: Tel Aviv - HaShalom
+- tapOn:
+    id: "planner-destination-card"
+- tapOn:
+    id: "station-search-input"
+- inputText: "השלום"
+- tapOn:
+    id: "station-item-4600"
+
+# Search for routes
+- tapOn:
+    id: "find-routes-button"
+
+# Route list should show at least one train
+- extendedWaitUntil:
+    visible:
+      id: "route-card"
+    timeout: 30000

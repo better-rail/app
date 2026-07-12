@@ -54,7 +54,7 @@ export const Button = function Button(props: CustomButtonProps) {
 
   if (isLiquidGlassSupported) {
     return (
-      <Pressable onPress={onPress} disabled={disabled}>
+      <Pressable onPress={onPress} disabled={disabled} testID={props.testID}>
         <LiquidGlassView
           interactive={!!onPress}
           style={[styles.liquidGlass, style]}
@@ -79,6 +79,7 @@ export const Button = function Button(props: CustomButtonProps) {
     return (
       <View style={[styles.buttonWrapper, containerStyle]}>
         <Pressable
+          testID={props.testID}
           style={[PRESSABLE_STYLE, disabled && { backgroundColor: color.disabled }]}
           onPressIn={() => setIsPressed(true)}
           onPressOut={() => setIsPressed(false)}

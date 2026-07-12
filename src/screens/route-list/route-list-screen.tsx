@@ -451,6 +451,7 @@ export function RouteListScreen() {
 
     return (
       <RouteCard
+        testID="route-card"
         duration={item.duration}
         isMuchShorter={item.isMuchShorter}
         isMuchLonger={item.isMuchLonger}

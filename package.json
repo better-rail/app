@@ -18,6 +18,7 @@
     "format:check": "oxfmt --check",
     "lint": "oxlint --fix && bun format",
     "test": "bun test",
+    "e2e": "maestro test .maestro/flows",
     "adb": "adb reverse tcp:9090 tcp:9090 && adb reverse tcp:3000 tcp:3000 && adb reverse tcp:9001 tcp:9001 && adb reverse tcp:8081 tcp:8081"
   },
   "dependencies": {
