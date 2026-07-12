@@ -1,0 +1,70 @@
+appId: il.co.better-rail
+name: Plan a route
+tags:
+  - core
+---
+# Launch the app and wait for the planner. The dev client loads JS from the
+# local Metro server, so we point it at localhost:8081.
+#
+# On a fresh install the launcher has no saved server, so the URL is entered
+# manually (guarded by `runFlow: when: visible`); on any later launch the dev
+# client auto-reconnects to the saved server, so those steps are skipped.
+#
+# The whole launch is wrapped in `retry`: expo/fetch can intermittently crash
+# the JS runtime during the initial connect-and-reload on the iOS 18 simulator,
+# dropping the app to the home screen. Relaunching auto-reconnects to the
+# now-saved server and loads from the warm bundle, which reliably recovers.
+# For a release build this whole block can be replaced with a plain launchApp.
+- retry:
+    maxRetries: 5
+    commands:
+      - launchApp
+      - runFlow:
+          when:
+            visible:
+              text: "Enter URL manually"
+          commands:
+            - tapOn:
+                text: "Enter URL manually"
+            - tapOn:
+                text: "exp://"
+            - inputText: "http://localhost:8081"
+            # Submit with the keyboard's return key rather than tapping the
+            # "Connect" button: on shorter simulators the keyboard covers the
+            # button, so tapping it silently fails and the URL is never saved.
+            - pressKey: Enter
+      # First load bundles the app, so allow extra time.
+      - extendedWaitUntil:
+          visible:
+            id: "planner-origin-card"
+          timeout: 120000
+
+# Select origin station: Jerusalem - Yitzhak Navon.
+# Search terms are typed in Hebrew because station search always indexes
+# Hebrew names, regardless of the app's display language.
+- tapOn:
+    id: "planner-origin-card"
+- tapOn:
+    id: "station-search-input"
+- inputText: "ירושלים"
+- tapOn:
+    id: "station-item-680"
+
+# Select destination station: Tel Aviv - HaShalom
+- tapOn:
+    id: "planner-destination-card"
+- tapOn:
+    id: "station-search-input"
+- inputText: "השלום"
+- tapOn:
+    id: "station-item-4600"
+
+# Search for routes
+- tapOn:
+    id: "find-routes-button"
+
+# Route list should show at least one train
+- extendedWaitUntil:
+    visible:
+      id: "route-card"
+    timeout: 30000
