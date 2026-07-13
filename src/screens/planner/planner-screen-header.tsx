@@ -102,7 +102,9 @@ export function PlannerScreenHeader() {
   return (
     <>
       <View style={styles.headerWrapper}>
-        <View style={{ flexDirection: "row", gap: spacing[2] }}>
+        <View style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: spacing[2] }}>
+          {showUrgentBar && !rideRoute && <ImportantAnnouncementBar title={head(popupMessages)?.messageBody} />}
+
           {rideRoute && (
             <Chip
               variant="success"
@@ -159,12 +161,6 @@ export function PlannerScreenHeader() {
           <Image source={SETTINGS_ICON} style={styles.headerIconImage} />
         </TouchableOpacity>
       </View>
-
-      {showUrgentBar && !rideRoute && (
-        <View style={{ position: "absolute", top: 0, left: 16 }}>
-          <ImportantAnnouncementBar title={head(popupMessages)?.messageBody} />
-        </View>
-      )}
     </>
   )
 }
@@ -177,6 +173,8 @@ const styles = StyleSheet.create((theme, rt) => {
       flexDirection: "row",
       justifyContent: "flex-end",
       alignItems: "center",
+      minHeight: 40,
+      marginBottom: theme.spacing[2],
     },
     headerIconImage: {
       width: headerIconSize,
