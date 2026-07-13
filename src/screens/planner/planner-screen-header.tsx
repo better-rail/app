@@ -123,13 +123,6 @@ export function PlannerScreenHeader() {
             </Chip>
           )}
 
-          {displayNewBadge && !showUrgentBar && (
-            <Chip variant="primary" onPress={() => router.push("/live-announcement")}>
-              <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
-              <Text style={{ color: "white", fontWeight: "500", marginVertical: spacing[1] }} tx="common.new" />
-            </Chip>
-          )}
-
           {showZollyButton && !showUrgentBar && (
             <Chip
               variant="success"
@@ -154,6 +147,12 @@ export function PlannerScreenHeader() {
             </Chip>
           )}
         </View>
+        {displayNewBadge && !showUrgentBar && (
+          <Chip variant="primary" style={{ marginStart: spacing[2] }} onPress={() => router.push("/live-announcement")}>
+            <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
+            <Text style={{ color: "white", fontWeight: "500", marginVertical: spacing[1] }} tx="common.new" />
+          </Chip>
+        )}
         <TouchableOpacity onPress={openAnnouncements} activeOpacity={0.8} accessibilityLabel={translate("routes.updates")}>
           <Image source={UPDATES_ICON} style={[styles.headerIconImage]} />
         </TouchableOpacity>
