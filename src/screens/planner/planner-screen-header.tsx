@@ -103,7 +103,7 @@ export function PlannerScreenHeader() {
     <>
       <View style={styles.headerWrapper}>
         <View style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: spacing[2] }}>
-          {showUrgentBar && !rideRoute && <ImportantAnnouncementBar title={head(popupMessages)?.messageBody} />}
+          {showUrgentBar && !rideRoute && <ImportantAnnouncementBar title={head(unseenUrgentMessages)?.messageBody ?? ""} />}
 
           {rideRoute && (
             <Chip
@@ -130,7 +130,7 @@ export function PlannerScreenHeader() {
             </Chip>
           )}
 
-          {showZollyButton && (
+          {showZollyButton && !showUrgentBar && (
             <Chip
               variant="success"
               onPress={() => {
