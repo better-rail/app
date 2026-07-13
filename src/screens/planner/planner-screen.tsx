@@ -257,6 +257,9 @@ const styles = StyleSheet.create((theme, rt) => ({
   contentWrapper: {
     flex: 1,
     padding: theme.spacing[4],
+    // The Screen wrapper already applies the top safe-area inset, so keep the top
+    // padding flush to sit the header close to the status bar and reclaim screen space.
+    paddingTop: 0,
     backgroundColor: theme.colors.background,
   },
   screenTitle: {

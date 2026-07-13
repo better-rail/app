@@ -68,7 +68,6 @@ function truncateString(inputString: string, numWords: number) {
 const styles = StyleSheet.create((theme, rt) => ({
   wrapper: {
     height: rt.fontScale > 1 ? 40 : 32,
-    marginTop: 12,
     justifyContent: "center",
     paddingHorizontal: 10,
     backgroundColor: "#e74c3c",
