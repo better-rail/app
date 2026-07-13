@@ -148,7 +148,7 @@ export function PlannerScreenHeader() {
           )}
         </View>
         {displayNewBadge && !showUrgentBar && (
-          <Chip variant="primary" onPress={() => router.push("/live-announcement")}>
+          <Chip variant="primary" style={{ marginStart: spacing[2] }} onPress={() => router.push("/live-announcement")}>
             <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
             <Text style={{ color: "white", fontWeight: "500", marginVertical: spacing[1] }} tx="common.new" />
           </Chip>
