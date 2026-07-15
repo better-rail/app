@@ -41,7 +41,6 @@ export default function LiveAnnouncementLayout() {
       <Stack.Screen name="live-activity" />
       <Stack.Screen name="dynamic-island" />
       <Stack.Screen name="support-us" />
-      <Stack.Screen name="zolly" />
     </Stack>
   )
 }

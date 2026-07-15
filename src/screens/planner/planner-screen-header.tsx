@@ -4,7 +4,7 @@ import { StyleSheet } from "react-native-unistyles"
 import { useRouter } from "expo-router"
 import * as storage from "@/utils/storage"
 import { trackEvent } from "@/services/analytics"
-import { fontScale, spacing } from "@/theme"
+import { spacing } from "@/theme"
 import { Chip, Text } from "@/components"
 import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore, useRideStore, useSettingsStore, filterUnseenUrgentMessages } from "@/models"
@@ -13,15 +13,12 @@ import { ImportantAnnouncementBar } from "./Important-announcement-bar"
 import { railApi } from "@/services/api"
 import { useQuery } from "react-query"
 import { head, isEmpty } from "lodash"
-import { isLiquidGlassSupported } from "@callstack/liquid-glass"
-import { useFeatureFlag } from "posthog-react-native"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 
 const TRAIN_ICON = require("../../../assets/train.ios.png")
 const SPARKLES_ICON = require("../../../assets/sparkles.png")
 const UPDATES_ICON = require("../../../assets/updates.png")
 const SETTINGS_ICON = require("../../../assets/settings.png")
-const ZOLLY_LOGO = require("../../../assets/zolly-announcement/zolly.png")
 const SHOW_NEW_BADGE = false
 
 export function PlannerScreenHeader() {
@@ -42,8 +39,6 @@ export function PlannerScreenHeader() {
   const seenUrgentMessagesIds = useSettingsStore((s) => s.seenUrgentMessagesIds)
   const router = useRouter()
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
-  const [showZollyButton, setShowZollyButton] = useState(false)
-  const zollyFlag = useFeatureFlag("show-zolly-announcement")
 
   const { data: popupMessages } = useQuery(["announcements", "urgent"], () => {
     return railApi.getPopupMessages(userLocale)
@@ -65,30 +60,6 @@ export function PlannerScreenHeader() {
       }
     }
   }, [])
-
-  useEffect(() => {
-    storage.load("appInstallDate").then((installDate) => {
-      if (!installDate) {
-        storage.save("appInstallDate", new Date().toISOString())
-      }
-    })
-  }, [])
-
-  useEffect(() => {
-    if (!zollyFlag) return
-    if (!origin || !destination) return
-
-    Promise.all([storage.load("seenZollyAnnouncement"), storage.load("appInstallDate")]).then(([hasSeen, installDate]) => {
-      if (hasSeen) return
-      if (!installDate) return
-
-      const oneWeekMs = 7 * 24 * 60 * 60 * 1000
-      const installedAt = new Date(installDate).getTime()
-      if (Date.now() - installedAt > oneWeekMs) {
-        setShowZollyButton(true)
-      }
-    })
-  }, [zollyFlag, origin, destination])
 
   const openAnnouncements = () => {
     router.push("/announcements")
@@ -121,30 +92,6 @@ export function PlannerScreenHeader() {
             >
               {Platform.OS === "ios" && <Image source={TRAIN_ICON} style={styles.liveButtonImage} />}
               <Text style={{ color: "white", fontWeight: "500", marginVertical: spacing[1] }} tx="ride.live" />
-            </Chip>
-          )}
-
-          {showZollyButton && !showUrgentBar && (
-            <Chip
-              variant="success"
-              onPress={() => {
-                trackEvent("zolly_header_chip_press")
-                router.push("/live-announcement/zolly")
-              }}
-              style={{
-                backgroundColor: isLiquidGlassSupported ? "transparent" : "#115210",
-                paddingStart: spacing[4] * Math.min(fontScale, 1.4),
-              }}
-            >
-              <Image
-                source={ZOLLY_LOGO}
-                style={{
-                  height: 32 * Math.min(fontScale, 1.2),
-                  width: 32 * Math.min(fontScale, 1.2),
-                  resizeMode: "contain",
-                  tintColor: "#f5fea7",
-                }}
-              />
             </Chip>
           )}
         </View>
