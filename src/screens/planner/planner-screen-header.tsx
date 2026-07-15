@@ -61,6 +61,14 @@ export function PlannerScreenHeader() {
     }
   }, [])
 
+  useEffect(() => {
+    storage.load("appInstallDate").then((installDate) => {
+      if (!installDate) {
+        storage.save("appInstallDate", new Date().toISOString())
+      }
+    })
+  }, [])
+
   const openAnnouncements = () => {
     router.push("/announcements")
     trackEvent("announcements_icon_pressed")
