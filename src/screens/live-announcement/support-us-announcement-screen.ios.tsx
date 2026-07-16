@@ -1,4 +1,4 @@
-import { Image, ScrollView, View } from "react-native"
+import { Image, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Button, Screen, Text } from "@/components"
 import { Stack, useRouter } from "expo-router"
@@ -8,6 +8,7 @@ import * as storage from "@/utils/storage"
 import { useIsDarkMode } from "@/hooks"
 import { NextButton } from "./announcement-next-button"
 import { trackEvent } from "@/services/analytics"
+import { LiveAnnouncementScrollView } from "./live-announcement-scroll-view"
 
 const GUY_IMAGE = require("../../../assets/live-activity/guy.jpeg")
 const MATAN_IMAGE = require("../../../assets/live-activity/matan.jpeg")
@@ -25,7 +26,7 @@ export function SupportUsScreen() {
     <Screen unsafe={true} statusBar="light-content">
       <Stack.Screen options={{ headerLeft: () => null }} />
       <LiveAnnouncementBackground />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <LiveAnnouncementScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.content}>
           <Text tx="liveAnnounce.supportUs.title" preset="header" style={styles.title} />
 
@@ -73,7 +74,7 @@ export function SupportUsScreen() {
             }}
           />
         </View>
-      </ScrollView>
+      </LiveAnnouncementScrollView>
     </Screen>
   )
 }
