@@ -7,8 +7,8 @@ export default function LiveAnnouncementLayout() {
   const router = useRouter()
 
   // iOS: show an X "close" button that dismisses the whole flow. Only applied to
-  // entry screens (the first onboarding screen and the standalone zolly promo) —
-  // the other screens are pushed on top and use the default back chevron instead.
+  // the entry screen — the other screens are pushed on top and use the default
+  // back chevron instead.
   const closeButtonOptions =
     Platform.OS === "ios"
       ? {
@@ -43,7 +43,6 @@ export default function LiveAnnouncementLayout() {
       <Stack.Screen name="live-activity" />
       <Stack.Screen name="dynamic-island" />
       <Stack.Screen name="support-us" />
-      <Stack.Screen name="zolly" options={closeButtonOptions} />
     </Stack>
   )
 }
