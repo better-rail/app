@@ -23,6 +23,9 @@ const SETTINGS_ICON = require("../../../assets/settings.png")
 // DEBUG: force-show the "new" badge regardless of its normal display conditions. Set back to false before shipping.
 const DEBUG_FORCE_NEW_BADGE = false
 
+// Temporarily hide the urgent announcement red bar. Set back to false to re-enable it.
+const HIDE_URGENT_BAR = true
+
 export function PlannerScreenHeader() {
   const { origin, destination } = useRoutePlanStore(useShallow((s) => ({ origin: s.origin, destination: s.destination })))
   const {
@@ -48,7 +51,8 @@ export function PlannerScreenHeader() {
 
   // Filter unseen urgent messages from the popup messages
   const unseenUrgentMessages = popupMessages ? filterUnseenUrgentMessages(popupMessages, seenUrgentMessagesIds) : []
-  const showUrgentBar = !isEmpty(unseenUrgentMessages)
+  const hasUnseenUrgentMessages = !isEmpty(unseenUrgentMessages)
+  const showUrgentBar = !HIDE_URGENT_BAR && hasUnseenUrgentMessages
 
   useEffect(() => {
     // display the "new" badge if the user has stations selected (not the initial launch),
@@ -105,7 +109,7 @@ export function PlannerScreenHeader() {
             </Chip>
           )}
         </View>
-        {(DEBUG_FORCE_NEW_BADGE || (displayNewBadge && !showUrgentBar)) && (
+        {(DEBUG_FORCE_NEW_BADGE || (displayNewBadge && !hasUnseenUrgentMessages)) && (
           <Chip variant="primary" style={{ marginStart: spacing[2] }} onPress={() => router.push("/live-announcement")}>
             <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
             <Text style={{ color: "white", fontWeight: "500", marginVertical: spacing[1] }} tx="common.new" />
