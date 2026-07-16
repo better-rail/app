@@ -19,7 +19,7 @@ export function SupportUsScreen() {
 
   const finish = () => {
     storage.save("seenLiveAnnouncement", new Date().toISOString())
-    router.dismissAll()
+    router.dismissTo("/")
   }
 
   return (
