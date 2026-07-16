@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>פערים בין נתוני GTFS/SIRI לנתוני רכבת ישראל</title>
+<style>
+  :root {
+    --surface-1: #fcfcfb;
+    --page: #f9f9f7;
+    --ink-1: #0b0b0b;
+    --ink-2: #52514e;
+    --ink-muted: #898781;
+    --hairline: #e1e0d9;
+    --border: rgba(11,11,11,0.10);
+    --blue: #2a78d6;          /* GTFS / משרד התחבורה */
+    --blue-wash: rgba(42,120,214,0.08);
+    --gray-mark: #a9a7a0;     /* אתר הרכבת (de-emphasis) */
+    --good: #0ca30c;
+    --good-text: #006300;
+    --critical: #d03b3b;
+    --critical-wash: rgba(208,59,59,0.07);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--page);
+    color: var(--ink-1);
+    line-height: 1.55;
+    padding: 40px 20px 64px;
+  }
+
+  .page { max-width: 860px; margin: 0 auto; }
+
+  /* ---------- header ---------- */
+  .kicker {
+    font-size: 13px; font-weight: 600; letter-spacing: 0.02em;
+    color: var(--ink-muted); margin-bottom: 8px;
+  }
+  .page-footer {
+    margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border);
+    font-size: 13px; font-weight: 600; letter-spacing: 0.02em; color: var(--ink-muted);
+  }
+  h1 { font-size: 26px; font-weight: 700; line-height: 1.3; margin-bottom: 8px; }
+  .subtitle { font-size: 15px; color: var(--ink-2); max-width: 640px; }
+
+  /* ---------- source chips (consistent everywhere) ---------- */
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12.5px; font-weight: 600; color: var(--ink-2);
+  }
+  .chip::before {
+    content: ""; width: 10px; height: 10px; border-radius: 3px; flex: none;
+  }
+  .chip.gtfs::before  { background: var(--blue); }
+  .chip.rail::before  { background: var(--gray-mark); }
+
+  /* ---------- summary stat row ---------- */
+  .stat-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+    margin: 28px 0 40px;
+  }
+  .stat {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: 10px; padding: 18px 18px 16px;
+  }
+  .stat .label { font-size: 13px; color: var(--ink-2); margin-bottom: 6px; }
+  .stat .value { font-size: 34px; font-weight: 650; line-height: 1.1; }
+  .stat .note  { font-size: 12.5px; color: var(--ink-muted); margin-top: 6px; }
+
+  /* ---------- sections & cards ---------- */
+  .section-title {
+    font-size: 14px; font-weight: 700; color: var(--ink-muted);
+    letter-spacing: 0.04em; margin: 40px 0 14px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-title::after { content: ""; flex: 1; height: 1px; background: var(--hairline); }
+
+  .card {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px; margin-bottom: 16px;
+  }
+  .card h2 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .card .desc { font-size: 14px; color: var(--ink-2); margin-bottom: 20px; max-width: 620px; }
+  .card .num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 6px;
+    background: var(--blue-wash); color: var(--blue);
+    font-size: 13px; font-weight: 700; margin-inline-end: 8px;
+    vertical-align: -3px;
+  }
+  .footnote { font-size: 12px; color: var(--ink-muted); margin-top: 14px; }
+
+  /* ---------- side-by-side comparison panels ---------- */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .panel {
+    border: 1px solid var(--hairline); border-radius: 10px; padding: 14px;
+  }
+  .panel .panel-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--hairline);
+  }
+
+  /* mock schedule row */
+  .sched-row {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 14px; padding: 9px 4px;
+  }
+  .sched-row + .sched-row { border-top: 1px solid var(--hairline); }
+  .sched-row .time { font-weight: 650; font-variant-numeric: tabular-nums; }
+  .sched-row .train { color: var(--ink-2); flex: 1; }
+  .platform-badge {
+    font-size: 12.5px; font-weight: 600; padding: 2px 9px; border-radius: 20px;
+    background: #f0efec; color: var(--ink-1); white-space: nowrap;
+  }
+  .platform-badge.missing {
+    background: none; border: 1.5px dashed var(--ink-muted); color: var(--ink-muted);
+    font-weight: 500;
+  }
+
+  /* ---------- bar chart (dwell times) ---------- */
+  .barchart { margin-top: 6px; }
+  .bar-row { display: grid; grid-template-columns: 150px 1fr; align-items: center; gap: 14px; margin-bottom: 18px; }
+  .bar-row .bar-label { font-size: 13.5px; color: var(--ink-2); }
+  .bar-track { position: relative; height: 24px; }
+  .bar-fill {
+    position: absolute; inset-block: 0; inset-inline-start: 0;
+    border-start-end-radius: 0; border-end-end-radius: 0;
+    border-start-start-radius: 0; border-end-start-radius: 0;
+    border-radius: 0 4px 4px 0; /* rounded at data end (left in RTL), square at baseline */
+    height: 24px;
+  }
+  [dir="rtl"] .bar-fill { border-radius: 4px 0 0 4px; }
+  .bar-fill.gtfs { background: var(--blue); }
+  .bar-fill.rail { background: var(--gray-mark); }
+  .bar-value {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    font-size: 13.5px; font-weight: 650; color: var(--ink-1); white-space: nowrap;
+  }
+  .axis-line { height: 1px; background: var(--hairline); margin: 4px 164px 6px 0; }
+  .axis-ticks {
+    display: flex; justify-content: space-between; margin-right: 164px;
+    font-size: 11.5px; color: var(--ink-muted); font-variant-numeric: tabular-nums;
+  }
+  .legend { display: flex; gap: 18px; margin-top: 14px; }
+
+  /* ---------- exceptional day ---------- */
+  .datebox {
+    display: inline-flex; flex-direction: column; align-items: center;
+    border: 1px solid var(--hairline); border-radius: 10px; overflow: hidden;
+    margin-bottom: 16px; min-width: 92px;
+  }
+  .datebox .d-top { background: var(--ink-1); color: #fff; font-size: 12px; font-weight: 600; width: 100%; text-align: center; padding: 3px 10px; }
+  .datebox .d-day { font-size: 26px; font-weight: 700; padding: 4px 10px 0; }
+  .datebox .d-sub { font-size: 12px; color: var(--ink-2); padding: 0 10px 6px; }
+
+  .station-line { font-size: 14px; padding: 8px 4px; display: flex; align-items: center; gap: 8px; }
+  .station-line + .station-line { border-top: 1px solid var(--hairline); }
+  .station-line .s-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-2); flex: none; }
+  .station-line.cut { color: var(--ink-muted); }
+  .station-line.cut .s-name { text-decoration: line-through; }
+  .station-line.cut .s-dot { background: none; border: 1.5px solid var(--ink-muted); }
+  .tag {
+    font-size: 11.5px; font-weight: 600; padding: 1px 8px; border-radius: 20px; white-space: nowrap;
+  }
+  .tag.closed { background: var(--critical-wash); color: var(--critical); }
+  .tag.wrong  { background: var(--critical-wash); color: var(--critical); }
+
+  /* ---------- stop count ---------- */
+  .stopline { position: relative; margin: 26px 8px 10px; height: 46px; }
+  .stopline .rail-track { position: absolute; top: 11px; right: 0; left: 0; height: 2px; border-radius: 2px; }
+  .stopline .stops { position: absolute; top: 0; right: 0; left: 0; display: flex; justify-content: space-between; }
+  .stop-dot {
+    width: 12px; height: 12px; border-radius: 50%; background: var(--surface-1);
+    border: 2.5px solid; margin-top: 6px;
+  }
+  .stop-dot.extra { border-style: dashed; border-width: 2px; }
+  .stop-count { font-size: 13.5px; font-weight: 650; margin-top: 26px; text-align: center; }
+
+  /* ---------- SIRI matrix ---------- */
+  table.matrix { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .matrix th {
+    text-align: right; font-size: 12.5px; font-weight: 600; color: var(--ink-muted);
+    padding: 8px 10px; border-bottom: 1px solid var(--hairline);
+  }
+  .matrix td { padding: 11px 10px; border-bottom: 1px solid var(--hairline); }
+  .matrix tr:last-child td { border-bottom: none; }
+  .matrix td:first-child { font-weight: 600; }
+  .status { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; }
+  .status .ico {
+    width: 18px; height: 18px; border-radius: 50%; flex: none;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; color: #fff; font-weight: 700;
+  }
+  .status.ok  { color: var(--good-text); }
+  .status.ok .ico { background: var(--good); }
+  .status.no  { color: var(--critical); }
+  .status.no .ico { background: var(--critical); }
+  .status.neutral { color: var(--ink-2); }
+  .status.neutral .ico { background: var(--ink-2); }
+
+  /* ---------- route diagram ---------- */
+  .route-card { border: 1px solid var(--hairline); border-radius: 10px; padding: 18px 18px 14px; margin-top: 14px; }
+  .route-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
+  .route-head .train-no {
+    font-size: 13px; font-weight: 700; color: #fff; background: var(--ink-1);
+    border-radius: 6px; padding: 1px 9px;
+  }
+  .route-head .route-title { font-size: 14.5px; font-weight: 650; }
+  .route-head .route-sub { font-size: 12.5px; color: var(--ink-muted); }
+
+  /* two rows per train: planned (gray) vs actual (blue), same station columns */
+  .rt-row { display: grid; grid-template-columns: 64px 1fr; align-items: start; margin-top: 14px; }
+  .rt-tag {
+    font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 20px;
+    justify-self: start; margin-top: 8px; white-space: nowrap;
+  }
+  .rt-tag.plan { background: #f0efec; color: var(--ink-2); }
+  .rt-tag.actual { background: var(--blue); color: #fff; }
+
+  .trk { position: relative; height: 54px; }
+  .trk .seg { position: absolute; top: 14px; height: 3px; border-radius: 3px; }
+  .seg.plan { background: var(--gray-mark); }
+  .seg.run  { background: var(--blue); height: 4px; top: 13.5px; }
+  .seg.skip { top: 14px; height: 0; border-top: 3px dotted var(--ink-muted); border-radius: 0; }
+
+  .trk .nd {
+    position: absolute; top: 8.5px; width: 14px; height: 14px; border-radius: 50%;
+    background: var(--surface-1); transform: translateX(50%);
+    box-shadow: 0 0 0 2px var(--surface-1);
+  }
+  .nd.plan  { border: 2.5px solid var(--gray-mark); }
+  .nd.run   { border: 3px solid var(--blue); }
+  .nd.term  { border: 3px solid var(--blue); background: var(--blue); }
+  .nd.ghost { border: 2px dashed var(--ink-muted); }
+
+  .trk .note {
+    position: absolute; top: 31px; font-size: 11px; color: var(--ink-muted);
+    transform: translateX(50%); white-space: nowrap;
+  }
+  .trk .note.badge {
+    color: var(--critical); background: var(--critical-wash);
+    font-weight: 650; padding: 1.5px 8px; border-radius: 5px; top: 29px;
+  }
+  .trk .skiplabel {
+    position: absolute; top: -3px; font-size: 10.5px; color: var(--ink-muted);
+    transform: translateX(50%); white-space: nowrap;
+  }
+  .trk .arrow {
+    position: absolute; top: 10.5px; width: 0; height: 0;
+    border: 5px solid transparent; transform: translateX(50%);
+  }
+  .arrow.to-left  { border-right-width: 7px; border-right-style: solid; border-left: none; }
+  .arrow.to-right { border-left-width: 7px; border-left-style: solid; border-right: none; }
+
+  .rt-stations { display: grid; grid-template-columns: 64px 1fr; margin-top: 2px; }
+  .rt-stations .cols { display: flex; }
+  .rt-stations .col { flex: 1; text-align: center; }
+  .rt-stations .st-name { font-size: 13px; font-weight: 650; }
+  .rt-stations .col.ghost .st-name { color: var(--ink-muted); font-weight: 500; }
+  .rt-stations .st-role { font-size: 11px; color: var(--ink-muted); }
+
+  .siri-callout {
+    margin-top: 16px; border-radius: 10px; padding: 14px 16px;
+    background: var(--critical-wash); border: 1px solid rgba(208,59,59,0.18);
+    font-size: 14px;
+  }
+  .siri-callout strong { color: var(--critical); }
+  .siri-callout .sub { font-size: 13px; color: var(--ink-2); margin-top: 4px; }
+
+  @media (max-width: 640px) {
+    .stat-row, .compare { grid-template-columns: 1fr; }
+    .bar-row { grid-template-columns: 100px 1fr; }
+    .axis-line, .axis-ticks { margin-right: 114px; }
+  }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    .card, .stat { break-inside: avoid; box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <h1>פערים בין נתוני GTFS / SIRI של משרד התחבורה לבין נתוני רכבת ישראל</h1>
+    <p class="subtitle">
+      במסגרת המעבר מה־API של רכבת ישראל למקורות המידע המוסדרים של משרד התחבורה,
+      מיפינו פערים שמשפיעים ישירות על הנוסעים. המסמך מציג כל פער עם דוגמה מוחשית.
+    </p>
+  </header>
+
+  <div class="stat-row">
+    <div class="stat">
+      <div class="label">עצירות עם המתנה של 1–2 דק׳ ב־GTFS</div>
+      <div class="value">90%</div>
+      <div class="note">לעומת כ־2% בלבד בנתוני אתר הרכבת</div>
+    </div>
+    <div class="stat">
+      <div class="label">מידע על רציפים ב־GTFS</div>
+      <div class="value">אין</div>
+      <div class="note">שדה הרציף אינו קיים כלל במידע הסטטי</div>
+    </div>
+    <div class="stat">
+      <div class="label">סוגי עדכוני זמן־אמת שאינם מוזרמים ב־SIRI</div>
+      <div class="value">3 מתוך 4</div>
+      <div class="note">רק דיווחי עיכובים עוברים בפועל</div>
+    </div>
+  </div>
+
+  <!-- ================= GTFS ================= -->
+  <div class="section-title">חלק א׳ · המידע הסטטי (GTFS)</div>
+
+  <!-- 1. platforms -->
+  <div class="card">
+    <h2><span class="num">1</span>אין מידע על הרציף שבו עוצרת הרכבת</h2>
+    <p class="desc">
+      נתון הרציף — קריטי להתמצאות הנוסע בתחנה — קיים בנתוני רכבת ישראל אך נעדר לחלוטין מה־GTFS.
+    </p>
+    <div class="compare">
+      <div class="panel">
+        <div class="panel-head"><span class="chip rail">אתר רכבת ישראל</span></div>
+        <div class="sched-row">
+          <span class="time">08:24</span><span class="train">רכבת 522 · לנתניה</span>
+          <span class="platform-badge">רציף 6</span>
+        </div>
+        <div class="sched-row">
+          <span class="time">08:54</span><span class="train">רכבת 226 · לירושלים</span>
+          <span class="platform-badge">רציף 2</span>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="chip gtfs">GTFS · משרד התחבורה</span></div>
+        <div class="sched-row">
+          <span class="time">08:24</span><span class="train">רכבת 522 · לנתניה</span>
+          <span class="platform-badge missing">אין נתון</span>
+        </div>
+        <div class="sched-row">
+          <span class="time">08:54</span><span class="train">רכבת 226 · לירושלים</span>
+          <span class="platform-badge missing">אין נתון</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. dwell times -->
+  <div class="card">
+    <h2><span class="num">2</span>זמני עצירה מנופחים — המתנה "מלאכותית" של 1–2 דקות כמעט בכל תחנה</h2>
+    <p class="desc">
+      שיעור העצירות היומיות שבהן מוצגת המתנה של 1–2 דקות (פער בין זמן ההגעה לזמן היציאה),
+      בהשוואה בין שני המקורות:
+    </p>
+    <div class="barchart">
+      <div class="bar-row">
+        <span class="bar-label"><span class="chip gtfs">GTFS · משרד התחבורה</span></span>
+        <div class="bar-track">
+          <div class="bar-fill gtfs" style="width: 90%"></div>
+          <span class="bar-value" style="inset-inline-start: calc(90% + 10px)">90%</span>
+        </div>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label"><span class="chip rail">אתר רכבת ישראל</span></span>
+        <div class="bar-track">
+          <div class="bar-fill rail" style="width: 2%"></div>
+          <span class="bar-value" dir="ltr" style="inset-inline-start: calc(2% + 10px)">~2%</span>
+        </div>
+      </div>
+      <div class="axis-line"></div>
+      <div class="axis-ticks"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+    </div>
+    <p class="footnote">
+      משמעות בפועל: זמני נסיעה מוצגים לנוסע ארוכים מהאמת, וחישובי החלפות בין רכבות מתעוותים.
+    </p>
+  </div>
+
+  <!-- 3. exceptional days -->
+  <div class="card">
+    <h2><span class="num">3</span>ימים חריגים (סגירות מסילה) אינם מעודכנים</h2>
+    <p class="desc">
+      דוגמה: ביום חמישי 16.7 המסילה סגורה בקטע אשקלון–אשדוד. אתר הרכבת מעודכן —
+      ב־GTFS מופיע לוח זמנים של יום חמישי רגיל.
+    </p>
+    <div class="datebox">
+      <div class="d-top">יולי 2026</div>
+      <div class="d-day">16</div>
+      <div class="d-sub">יום חמישי</div>
+    </div>
+    <div class="compare">
+      <div class="panel">
+        <div class="panel-head">
+          <span class="chip rail">אתר רכבת ישראל</span>
+          <span class="status ok" style="font-size:12px"><span class="ico">✓</span>מעודכן</span>
+        </div>
+        <div class="station-line"><span class="s-dot"></span><span class="s-name">תל אביב — ההגנה</span></div>
+        <div class="station-line cut"><span class="s-dot"></span><span class="s-name">אשדוד — עד הלום</span><span class="tag closed">אין עצירה · עבודות</span></div>
+        <div class="station-line cut"><span class="s-dot"></span><span class="s-name">אשקלון</span><span class="tag closed">אין עצירה · עבודות</span></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <span class="chip gtfs">GTFS · משרד התחבורה</span>
+          <span class="status no" style="font-size:12px"><span class="ico">✕</span>לא מעודכן</span>
+        </div>
+        <div class="station-line"><span class="s-dot"></span><span class="s-name">תל אביב — ההגנה</span></div>
+        <div class="station-line"><span class="s-dot"></span><span class="s-name">אשדוד — עד הלום</span><span class="tag wrong">מוצג כפעיל</span></div>
+        <div class="station-line"><span class="s-dot"></span><span class="s-name">אשקלון</span><span class="tag wrong">מוצג כפעיל</span></div>
+      </div>
+    </div>
+    <p class="footnote">נוסע שמתכנן נסיעה לפי ה־GTFS יגיע לתחנה שרכבות כלל אינן עוצרות בה באותו יום.</p>
+  </div>
+
+  <!-- 4. stop count -->
+  <div class="card">
+    <h2><span class="num">4</span>אי־התאמה במספר העצירות של אותה רכבת</h2>
+    <p class="desc">
+      ישנן רכבות שמספר העצירות שלהן ב־GTFS שונה ממספר העצירות בנתוני רכבת ישראל —
+      עצירות מופיעות במקור אחד ונעדרות מהשני:
+    </p>
+    <div class="compare">
+      <div class="panel">
+        <div class="panel-head"><span class="chip rail">אתר רכבת ישראל</span></div>
+        <div class="stopline">
+          <div class="rail-track" style="background: var(--gray-mark)"></div>
+          <div class="stops">
+            <div class="stop-dot" style="border-color: var(--gray-mark)"></div>
+            <div class="stop-dot" style="border-color: var(--gray-mark)"></div>
+            <div class="stop-dot" style="border-color: var(--gray-mark)"></div>
+            <div class="stop-dot" style="border-color: var(--gray-mark)"></div>
+            <div class="stop-dot" style="border-color: var(--gray-mark)"></div>
+            <div class="stop-dot" style="border-color: var(--gray-mark)"></div>
+            <div class="stop-dot" style="border-color: var(--gray-mark)"></div>
+          </div>
+        </div>
+        <div class="stop-count">7 עצירות</div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span class="chip gtfs">GTFS · משרד התחבורה</span></div>
+        <div class="stopline">
+          <div class="rail-track" style="background: var(--blue)"></div>
+          <div class="stops">
+            <div class="stop-dot" style="border-color: var(--blue)"></div>
+            <div class="stop-dot" style="border-color: var(--blue)"></div>
+            <div class="stop-dot extra" style="border-color: var(--critical)"></div>
+            <div class="stop-dot" style="border-color: var(--blue)"></div>
+            <div class="stop-dot" style="border-color: var(--blue)"></div>
+            <div class="stop-dot extra" style="border-color: var(--critical)"></div>
+            <div class="stop-dot" style="border-color: var(--blue)"></div>
+            <div class="stop-dot" style="border-color: var(--blue)"></div>
+            <div class="stop-dot" style="border-color: var(--blue)"></div>
+          </div>
+        </div>
+        <div class="stop-count">9 עצירות <span class="tag wrong" style="vertical-align: 1px">+2 שאינן קיימות</span></div>
+      </div>
+    </div>
+    <p class="footnote">המחשה סכמטית — נשמח להעביר רשימת רכבות ספציפיות שבהן זוהה הפער.</p>
+  </div>
+
+  <!-- ================= SIRI ================= -->
+  <div class="section-title">חלק ב׳ · מידע בזמן אמת (SIRI)</div>
+
+  <!-- 5. matrix -->
+  <div class="card">
+    <h2><span class="num">5</span>עדכוני זמן־אמת: קיימים בפרוטוקול, לא מוזרמים בפועל</h2>
+    <p class="desc">
+      פרוטוקול SIRI תומך בכל סוגי העדכונים שלהלן — אך בנתוני רכבת ישראל רק דיווחי עיכובים מוזרמים בפועל:
+    </p>
+    <table class="matrix">
+      <thead>
+        <tr>
+          <th>סוג עדכון</th>
+          <th>נתמך בפרוטוקול SIRI</th>
+          <th>מוזרם בפועל בנתוני רכבת ישראל</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>דיווחי עיכובים</td>
+          <td><span class="status neutral"><span class="ico">✓</span>נתמך</span></td>
+          <td><span class="status ok"><span class="ico">✓</span>מוזרם</span></td>
+        </tr>
+        <tr>
+          <td>שינויי מסלול / קיצור נסיעה</td>
+          <td><span class="status neutral"><span class="ico">✓</span>נתמך</span></td>
+          <td><span class="status no"><span class="ico">✕</span>לא מוזרם</span></td>
+        </tr>
+        <tr>
+          <td>שינוי תחנת יעד</td>
+          <td><span class="status neutral"><span class="ico">✓</span>נתמך</span></td>
+          <td><span class="status no"><span class="ico">✕</span>לא מוזרם</span></td>
+        </tr>
+        <tr>
+          <td>שינוי רציף</td>
+          <td><span class="status neutral"><span class="ico">✓</span>נתמך</span></td>
+          <td><span class="status no"><span class="ico">✕</span>לא מוזרם</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="footnote">אומת בזמן אמת גם מול אפליקציות נוספות המבוססות על SIRI (למשל "אוטובוס קרוב").</p>
+  </div>
+
+  <!-- 6. case study -->
+  <div class="card">
+    <h2><span class="num">6</span>מקרה בוחן — 7.7, שיבוש שלא שוקף כלל ב־SIRI</h2>
+    <p class="desc">
+      בעקבות עיכובים בתנועת הרכבות, שתי נסיעות שונו באופן מהותי. באפליקציה הרשמית של רכבת ישראל
+      השינויים הוצגו — ב־SIRI לא שוקף דבר מלבד העיכוב עצמו.
+    </p>
+
+    <div class="route-card">
+      <div class="route-head">
+        <span class="train-no">רכבת 522</span>
+        <span class="route-title">בית שמש ← נתניה</span>
+        <span class="route-sub">בפועל: סיימה את נסיעתה בהרצליה</span>
+      </div>
+      <div class="rt-row">
+        <span class="rt-tag plan">מתוכנן</span>
+        <div class="trk">
+          <div class="seg plan" style="right: 12.5%; width: 75%"></div>
+          <div class="arrow to-left" style="right: 75%; border-right-color: var(--gray-mark)"></div>
+          <div class="nd plan" style="right: 12.5%"></div>
+          <div class="nd plan" style="right: 37.5%"></div>
+          <div class="nd plan" style="right: 62.5%"></div>
+          <div class="nd plan" style="right: 87.5%"></div>
+          <span class="note" style="right: 62.5%">רציף 6</span>
+        </div>
+      </div>
+      <div class="rt-row">
+        <span class="rt-tag actual">בפועל</span>
+        <div class="trk">
+          <div class="seg run" style="right: 12.5%; width: 50%"></div>
+          <div class="arrow to-left" style="right: 50%; border-right-color: var(--blue)"></div>
+          <div class="seg skip" style="right: 62.5%; width: 25%"></div>
+          <span class="skiplabel" style="right: 75%">קטע שלא בוצע</span>
+          <div class="nd run" style="right: 12.5%"></div>
+          <div class="nd run" style="right: 37.5%"></div>
+          <div class="nd term" style="right: 62.5%"></div>
+          <div class="nd ghost" style="right: 87.5%"></div>
+          <span class="note badge" style="right: 62.5%">סיום הנסיעה · רציף 3</span>
+          <span class="note" style="right: 87.5%">לא הגיעה לנתניה</span>
+        </div>
+      </div>
+      <div class="rt-stations">
+        <span></span>
+        <div class="cols">
+          <div class="col"><div class="st-name">בית שמש</div><div class="st-role">מוצא</div></div>
+          <div class="col"><div class="st-name">תל אביב — סבידור</div></div>
+          <div class="col"><div class="st-name">הרצליה</div></div>
+          <div class="col ghost"><div class="st-name">נתניה</div><div class="st-role">יעד</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="route-card">
+      <div class="route-head">
+        <span class="train-no">רכבת 525</span>
+        <span class="route-title">נתניה ← בית שמש</span>
+        <span class="route-sub">בפועל: החלה את נסיעתה בהרצליה</span>
+      </div>
+      <div class="rt-row">
+        <span class="rt-tag plan">מתוכנן</span>
+        <div class="trk">
+          <div class="seg plan" style="right: 12.5%; width: 75%"></div>
+          <div class="arrow to-right" style="right: 25%; border-left-color: var(--gray-mark)"></div>
+          <div class="nd plan" style="right: 12.5%"></div>
+          <div class="nd plan" style="right: 37.5%"></div>
+          <div class="nd plan" style="right: 62.5%"></div>
+          <div class="nd plan" style="right: 87.5%"></div>
+          <span class="note" style="right: 62.5%">רציף 4</span>
+        </div>
+      </div>
+      <div class="rt-row">
+        <span class="rt-tag actual">בפועל</span>
+        <div class="trk">
+          <div class="seg run" style="right: 12.5%; width: 50%"></div>
+          <div class="arrow to-right" style="right: 25%; border-left-color: var(--blue)"></div>
+          <div class="seg skip" style="right: 62.5%; width: 25%"></div>
+          <span class="skiplabel" style="right: 75%">קטע שלא בוצע</span>
+          <div class="nd run" style="right: 12.5%"></div>
+          <div class="nd run" style="right: 37.5%"></div>
+          <div class="nd term" style="right: 62.5%"></div>
+          <div class="nd ghost" style="right: 87.5%"></div>
+          <span class="note badge" style="right: 62.5%">יציאה בפועל · רציף 3</span>
+          <span class="note" style="right: 87.5%">לא יצאה מנתניה</span>
+        </div>
+      </div>
+      <div class="rt-stations">
+        <span></span>
+        <div class="cols">
+          <div class="col"><div class="st-name">בית שמש</div><div class="st-role">יעד</div></div>
+          <div class="col"><div class="st-name">תל אביב — סבידור</div></div>
+          <div class="col"><div class="st-name">הרצליה</div></div>
+          <div class="col ghost"><div class="st-name">נתניה</div><div class="st-role">מוצא מתוכנן</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="siri-callout">
+      <strong>אף אחד מהשינויים האלה לא שוקף ב־SIRI:</strong>
+      לא קיצור המסלול, לא שינוי תחנת המוצא/היעד ולא שינויי הרציפים.
+      <div class="sub">
+        באפליקציה הרשמית של רכבת ישראל המידע כן הוצג — כלומר הנתונים קיימים אצל המפעיל.
+        נשמח להבין האם הם מועברים למשרד התחבורה, ואם כן — כיצד ניתן לצרוך אותם.
+      </div>
+    </div>
+  </div>
+
+  <footer class="page-footer">Better Rail · יולי 2026</footer>
+
+</div>
+</body>
+</html>
