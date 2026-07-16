@@ -1,10 +1,11 @@
-import { Image, ScrollView, View } from "react-native"
+import { Image, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text } from "@/components"
 import { LiveAnnouncementBackground } from "./live-announcement-bg"
 import { userLocale } from "@/i18n"
 import { useRouter } from "expo-router"
 import { NextButton } from "./announcement-next-button"
+import { LiveAnnouncementScrollView } from "./live-announcement-scroll-view"
 
 export function LiveAnnouncementScreen() {
   const router = useRouter()
@@ -17,7 +18,7 @@ export function LiveAnnouncementScreen() {
   return (
     <Screen unsafe={true} statusBar="light-content">
       <LiveAnnouncementBackground />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <LiveAnnouncementScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.content}>
           <Text tx="liveAnnounce.announcement.subtitle" style={styles.subTitle} maxFontSizeMultiplier={1.1} />
           <Text tx="liveAnnounce.announcement.title" preset="header" style={styles.title} maxFontSizeMultiplier={1.1} />
@@ -31,7 +32,7 @@ export function LiveAnnouncementScreen() {
         <View style={styles.spacer} />
 
         <NextButton onPress={() => router.push("/live-announcement/start-ride")} />
-      </ScrollView>
+      </LiveAnnouncementScrollView>
     </Screen>
   )
 }

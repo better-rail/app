@@ -19,7 +19,9 @@ const TRAIN_ICON = require("../../../assets/train.ios.png")
 const SPARKLES_ICON = require("../../../assets/sparkles.png")
 const UPDATES_ICON = require("../../../assets/updates.png")
 const SETTINGS_ICON = require("../../../assets/settings.png")
-const SHOW_NEW_BADGE = false
+
+// DEBUG: force-show the "new" badge regardless of its normal display conditions. Set back to false before shipping.
+const DEBUG_FORCE_NEW_BADGE = false
 
 export function PlannerScreenHeader() {
   const { origin, destination } = useRoutePlanStore(useShallow((s) => ({ origin: s.origin, destination: s.destination })))
@@ -103,7 +105,7 @@ export function PlannerScreenHeader() {
             </Chip>
           )}
         </View>
-        {SHOW_NEW_BADGE && displayNewBadge && !showUrgentBar && (
+        {(DEBUG_FORCE_NEW_BADGE || (displayNewBadge && !showUrgentBar)) && (
           <Chip variant="primary" style={{ marginStart: spacing[2] }} onPress={() => router.push("/live-announcement")}>
             <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
             <Text style={{ color: "white", fontWeight: "500", marginVertical: spacing[1] }} tx="common.new" />
