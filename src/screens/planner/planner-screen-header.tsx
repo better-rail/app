@@ -23,6 +23,9 @@ const SETTINGS_ICON = require("../../../assets/settings.png")
 // DEBUG: force-show the "new" badge regardless of its normal display conditions. Set back to false before shipping.
 const DEBUG_FORCE_NEW_BADGE = false
 
+// Temporarily hide the urgent announcement red bar. Set back to false to re-enable it.
+const HIDE_URGENT_BAR = true
+
 export function PlannerScreenHeader() {
   const { origin, destination } = useRoutePlanStore(useShallow((s) => ({ origin: s.origin, destination: s.destination })))
   const {
@@ -48,7 +51,7 @@ export function PlannerScreenHeader() {
 
   // Filter unseen urgent messages from the popup messages
   const unseenUrgentMessages = popupMessages ? filterUnseenUrgentMessages(popupMessages, seenUrgentMessagesIds) : []
-  const showUrgentBar = !isEmpty(unseenUrgentMessages)
+  const showUrgentBar = !HIDE_URGENT_BAR && !isEmpty(unseenUrgentMessages)
 
   useEffect(() => {
     // display the "new" badge if the user has stations selected (not the initial launch),
