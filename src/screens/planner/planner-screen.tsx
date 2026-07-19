@@ -24,14 +24,14 @@ import { differenceInHours, parseISO } from "date-fns"
 import { save, load } from "@/utils/storage"
 import { donateRouteIntent } from "@/utils/ios-helpers"
 import { trackEvent } from "@/services/analytics"
-import { useRouter, useFocusEffect } from "expo-router"
+import { useFocusEffect } from "expo-router"
 import { useObserve } from "expo-observe"
-import { useMountEffect } from "@/hooks"
+import { useMountEffect, useGuardedNavigation } from "@/hooks"
 import { PlannerScreenHeader } from "./planner-screen-header"
 import { FlingGestureWrapper } from "./planner-slider-wrapper"
 
 export function PlannerScreen() {
-  const router = useRouter()
+  const router = useGuardedNavigation()
   const { markInteractive } = useObserve()
   const { date, origin, destination, setDate, switchDirection } = useRoutePlanStore(
     useShallow((s) => ({

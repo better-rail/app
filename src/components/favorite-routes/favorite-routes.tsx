@@ -2,12 +2,12 @@ import React from "react"
 import { View, Platform, Image } from "react-native"
 import type { ViewStyle } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { useRouter } from "expo-router"
 import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore, useFavoritesStore } from "@/models"
 import { trackEvent } from "@/services/analytics"
 import { Text } from "@/components/text/text"
 import { useStations } from "@/data/stations"
+import { useGuardedNavigation } from "@/hooks"
 import { FavoriteRouteBox } from "./favorite-route-box"
 
 export interface FavoriteRoutesProps {
@@ -16,7 +16,7 @@ export interface FavoriteRoutesProps {
 
 export function FavoriteRoutes(props: FavoriteRoutesProps) {
   const { style } = props
-  const router = useRouter()
+  const router = useGuardedNavigation()
   const stations = useStations()
   const { setOrigin, setDestination } = useRoutePlanStore(
     useShallow((s) => ({ setOrigin: s.setOrigin, setDestination: s.setDestination })),

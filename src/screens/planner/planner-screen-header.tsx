@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import { Image, Platform, TouchableOpacity, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { useRouter } from "expo-router"
 import * as storage from "@/utils/storage"
 import { trackEvent } from "@/services/analytics"
 import { spacing } from "@/theme"
@@ -14,6 +13,7 @@ import { railApi } from "@/services/api"
 import { useQuery } from "react-query"
 import { head, isEmpty } from "lodash"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
+import { useGuardedNavigation } from "@/hooks"
 
 const TRAIN_ICON = require("../../../assets/train.ios.png")
 const SPARKLES_ICON = require("../../../assets/sparkles.png")
@@ -42,7 +42,7 @@ export function PlannerScreenHeader() {
     })),
   )
   const seenUrgentMessagesIds = useSettingsStore((s) => s.seenUrgentMessagesIds)
-  const router = useRouter()
+  const router = useGuardedNavigation()
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
 
   const { data: popupMessages } = useQuery(["announcements", "urgent"], () => {

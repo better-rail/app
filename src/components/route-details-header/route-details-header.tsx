@@ -2,7 +2,8 @@ import { useRef, useEffect } from "react"
 import { Image, ImageBackground, View, Animated as RNAnimated, Pressable } from "react-native"
 import type { ViewStyle } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { useRouter, useNavigation } from "expo-router"
+import { useNavigation } from "expo-router"
+import { useGuardedNavigation } from "@/hooks"
 import { trackEvent } from "@/services/analytics"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import LinearGradient from "react-native-linear-gradient"
@@ -52,7 +53,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     destination: routePlanDestination,
     switchDirection,
   } = useRoutePlanStore(useShallow((s) => ({ origin: s.origin, destination: s.destination, switchDirection: s.switchDirection })))
-  const router = useRouter()
+  const router = useGuardedNavigation()
   const navigation = useNavigation()
   const insets = useSafeAreaInsets()
   const routeEditDisabled = screenName !== "routeList"

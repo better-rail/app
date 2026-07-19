@@ -9,14 +9,14 @@ import { Text } from "@/components"
 import { isDarkMode, spacing } from "@/theme"
 import { stationLocale, stationsObject } from "@/data/stations"
 import { StationSearchEntry } from "./station-search-entry"
-import { useRouter } from "expo-router"
+import { useGuardedNavigation } from "@/hooks"
 
 type RecentSearchesBoxProps = {
   selectionType: "origin" | "destination"
 }
 
 export function RecentSearchesBox(props: RecentSearchesBoxProps) {
-  const router = useRouter()
+  const router = useGuardedNavigation()
   const { setOrigin, setDestination } = useRoutePlanStore(
     useShallow((s) => ({ setOrigin: s.setOrigin, setDestination: s.setDestination })),
   )

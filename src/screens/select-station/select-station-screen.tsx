@@ -4,17 +4,17 @@ import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text, StationCard, FavoriteRoutes, cardHeight } from "@/components"
 import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore, useRecentSearchesStore, useFavoritesStore } from "@/models"
-import { useRouter, useLocalSearchParams } from "expo-router"
+import { useLocalSearchParams } from "expo-router"
 import { spacing, isDarkMode } from "@/theme"
 import { NormalizedStation } from "@/data/stations"
 import { SearchInput } from "./search-input"
 import { RecentSearchesBox } from "./recent-searches-box/recent-searches-box"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { FlashList } from "@shopify/flash-list"
-import { useFilteredStations } from "@/hooks"
+import { useFilteredStations, useGuardedNavigation } from "@/hooks"
 
 export function SelectStationScreen() {
-  const router = useRouter()
+  const router = useGuardedNavigation()
   const { selectionType } = useLocalSearchParams<{ selectionType: "origin" | "destination" }>()
   const { setOrigin, setDestination } = useRoutePlanStore(
     useShallow((s) => ({ setOrigin: s.setOrigin, setDestination: s.setDestination })),

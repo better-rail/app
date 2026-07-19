@@ -1,13 +1,13 @@
 import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
 import { Pressable, Image, Platform, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { useRouter } from "expo-router"
 import { HeaderBackButton as BackButton } from "expo-router/react-navigation"
+import { useGuardedNavigation } from "@/hooks"
 
 const CHEVRON = require("../../../assets/chevron.png")
 
 export function HeaderBackButton() {
-  const router = useRouter()
+  const router = useGuardedNavigation()
 
   if (isLiquidGlassSupported) {
     return (
