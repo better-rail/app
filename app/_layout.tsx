@@ -19,7 +19,7 @@ import { useIAP, initConnection, finishTransaction, getAvailablePurchases } from
 
 import { initFonts } from "@/theme/fonts"
 import * as storage from "@/utils/storage"
-import { setupRootStore } from "@/models"
+import { setupRootStore, RoutesNotFoundError } from "@/models"
 import { useRideStore } from "@/models/ride/ride"
 import { useFavoritesStore } from "@/models/favorites/favorites"
 import { setInitialLanguage, setUserLanguage } from "@/i18n/i18n"
@@ -70,6 +70,11 @@ export const ErrorBoundary = Sentry.wrapExpoRouterErrorBoundary(ExpoErrorBoundar
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error, query) => {
+      // "No routes found" is an expected, app-handled outcome (offline or genuinely no
+      // trains for the date). It's thrown only to drive react-query's onError, so skip
+      // reporting it — it otherwise floods Sentry with tens of thousands of noise events.
+      if (error instanceof RoutesNotFoundError) return
+
       Sentry.captureException(error, {
         tags: { source: "react-query" },
         extra: { queryKey: query.queryKey },
