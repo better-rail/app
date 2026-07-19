@@ -89,6 +89,7 @@ export const configureNotifications = async () => {
     notifee.onBackgroundEvent(async ({ type, detail }) => {
       if (type === EventType.DELIVERED && detail.notification?.data?.type === "live-ride-stale") {
         const rideRoute = await getRideRoute()
+        if (!rideRoute) return
         const rideDelay = await getRideDelay()
         if (addMinutes(rideRoute.arrivalTime, rideDelay).getTime() > Date.now()) {
           const state: RideState = {
@@ -133,6 +134,7 @@ const handleLiveRideNotification = async (data: Record<string, string>) => {
   const rideNotificationId = await getRideNotificationId()
   if (rideNotificationId && state) {
     const rideRoute = await getRideRoute()
+    if (!rideRoute) return
     updateNotification(rideRoute, state)
   }
 }
