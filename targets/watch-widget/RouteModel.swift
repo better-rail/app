@@ -105,11 +105,12 @@ struct RouteModel {
   func fetchRoute(originId: String, destinationId: String, date: Date? = nil, completion: @escaping (FetchRouteResult) -> Void) {
       let (routeDate, routeTime) = formatRouteDate(date ?? Date())
       
-      let url = URL(string: "https://rail-api.rail.co.il/rjpa/api/v1/timetable/searchTrainForMobile")!
-      
+      // Timetable now comes from our server (GTFS-backed), which returns the same shape.
+      // TEMP: point to Railway; revert host to api.better-rail.co.il
+      let url = URL(string: "https://better-rail.up.railway.app/api/v1/rail-api/rjpa/api/v1/timetable/searchTrainForMobile")!
+
       var request = URLRequest(url: url)
       request.httpMethod = "POST"
-      request.addValue("5e64d66cf03f4547bcac5de2de06b566", forHTTPHeaderField: "Ocp-Apim-Subscription-Key")
       request.addValue("application/json", forHTTPHeaderField: "Content-Type")
       
       // Create request body with the parameters

@@ -53,6 +53,7 @@
     "oneChange": "1 Change",
     "changes": "Changes",
     "delayTime": "min delay",
+    "cancelled": "Cancelled",
     "departsAt": "Departs at",
     "arrivesAt": "Arrives at",
     "noTrainsFound": "No trains were found for this route in the upcoming days",
@@ -91,6 +92,11 @@
     "minutes": "min",
     "unsafeChange": "This change isn't guaranteed",
     "lastStop": "Last Stop",
+    "trainCancelled": "Train Cancelled",
+    "trainCancelledText": "According to Israel Railways, this train has been cancelled. Please choose a different route.",
+    "routeChanged": "Route Changed",
+    "skippedStationText": "The train will not stop at %{station}.",
+    "lastStopChangedText": "The train's last stop has changed to %{station}.",
     "routeWarning": "Long Route Warning",
     "routeWarningText": "There are shorter train routes around the departure time.",
     "addToCalendar": "Add to Calendar",
@@ -104,7 +110,6 @@
     "carsCount": "%{count} cars",
     "seatsCount": "%{count} seats",
     "trainInformation": "Train information",
-    "noTrainDetails": "Train details are not available yet for this train.",
     "noWagonInformationAvailable": "No wagon information available"
   },
   "settings": {

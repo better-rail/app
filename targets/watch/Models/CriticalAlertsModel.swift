@@ -19,10 +19,15 @@ struct PopUpMessage: Decodable, Encodable, Identifiable {
 struct CriticalAlertsModel {
   func fetchCriticalAlerts(completion: @escaping (PopUpMessagesResult?) -> Void) {
       let language = getUserLocale().rawValue.capitalized
-      let url = URL(string: "https://rail-api.rail.co.il/common/api/v1/PopUpMessages/?LanguageId=\(language)&PageTypeId=MainPage")!
-      
+      // Popup messages still come from the Israel Railways API, but via our server proxy.
+      // TEMP: point to Railway; revert host to api.better-rail.co.il
+      let urlString = "https://better-rail.up.railway.app/api/v1/rail-api/common/api/v1/PopUpMessages/?LanguageId=\(language)&PageTypeId=MainPage"
+      guard let url = URL(string: urlString) else {
+          completion(nil)
+          return
+      }
+
       var request = URLRequest(url: url)
-      request.addValue("5e64d66cf03f4547bcac5de2de06b566", forHTTPHeaderField: "Ocp-Apim-Subscription-Key")
       
       DispatchQueue.global(qos: .userInitiated).async {
           URLSession.shared.dataTask(with: request) { data, _, _ in
