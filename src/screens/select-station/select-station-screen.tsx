@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { View, Pressable, Platform } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { Screen, Text, StationCard, FavoriteRoutes, cardHeight } from "@/components"
+import { Screen, Text, StationCard, FavoriteRoutes } from "@/components"
 import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore, useRecentSearchesStore, useFavoritesStore } from "@/models"
 import { useRouter, useLocalSearchParams } from "expo-router"
@@ -65,7 +65,6 @@ export function SelectStationScreen() {
         renderItem={({ item }) => renderItem(item)}
         keyExtractor={(item) => item.id}
         keyboardShouldPersistTaps="handled"
-        estimatedItemSize={cardHeight + spacing[3]}
         ListEmptyComponent={() => (
           <View>
             <RecentSearchesBox selectionType={selectionType} />
