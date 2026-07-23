@@ -51,7 +51,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   name: "Better Rail",
   slug: "better-rail",
   owner: "better-rail",
-  version: "2.7.4",
+  version: "2.7.5",
   updates: {
     url: "https://u.expo.dev/b7819f45-8466-4c11-8628-3539099e6c78",
   },
