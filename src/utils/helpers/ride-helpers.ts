@@ -37,7 +37,7 @@ export function findClosestStationInRoute(route: RouteItem) {
 }
 
 /// Get the train which includes the provided stop station
-export function getTrainFromStationId(route: RouteItem, stationId: number): Train {
+export function getTrainFromStationId(route: RouteItem, stationId: number): Train | undefined {
   // lookup for the station in the stop stations list
   const train = route.trains.find((train) => {
     return !!train.stopStations.find((s) => s.stationId === stationId)
@@ -54,6 +54,7 @@ export function getTrainFromStationId(route: RouteItem, stationId: number): Trai
 export function getPreviousTrainFromStationId(route: RouteItem, stationId: number): Train | null {
   // the current station train
   const train = getTrainFromStationId(route, stationId)
+  if (!train) return null
   const trainIndex = route.trains.findIndex((current) => current.trainNumber === train.trainNumber)
 
   if (trainIndex < 1) return null
@@ -69,7 +70,8 @@ export function getSelectedRide(routes: RouteItem[], rideTrainNumbers: number[])
   )
 }
 
-export function getRideStatus(route: RouteItem, train: Train, nextStationId: number, delay: number = train.delay): RideStatus {
+export function getRideStatus(route: RouteItem, train: Train | undefined, nextStationId: number, delay: number = train?.delay ?? 0): RideStatus {
+  if (!train) return "loading"
   if (train.originStationId === nextStationId) {
     if (route.trains[0].originStationId == train.originStationId) {
       return "waitForTrain"
@@ -88,11 +90,10 @@ export function getRideStatus(route: RouteItem, train: Train, nextStationId: num
 
   if (train.destinationStationId === nextStationId) {
     const nextTrain = getTrainFromStationId(route, nextStationId)
-    const nextTrainDepartureTime = addMinutes(nextTrain.departureTime, delay)
     const arrivalTime = addMinutes(train.arrivalTime, delay)
     const timeToArrival = differenceInSeconds(arrivalTime, new Date())
 
-    if (nextTrainDepartureTime.getTime() >= Date.now()) {
+    if (nextTrain && addMinutes(nextTrain.departureTime, delay).getTime() >= Date.now()) {
       return "inExchange"
     } else if (timeToArrival >= 0) {
       return "inTransit"

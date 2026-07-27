@@ -14,6 +14,7 @@ export type RideState = {
  */
 export const getStatusEndDate = (route: RouteItem, state: RideState) => {
   const train = getTrainFromStationId(route, state.nextStationId)
+  if (!train) return null
   const departureDate = addMinutes(train.departureTime, state.delay)
   const arrivalDate = addMinutes(train.arrivalTime, state.delay)
 

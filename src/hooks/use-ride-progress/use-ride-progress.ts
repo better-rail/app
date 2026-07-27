@@ -7,7 +7,7 @@ import { getStopStationStatus } from "./get-stop-stations-status"
 import { useRideStatus } from "./use-ride-status"
 import { getStatusEndDate } from "./utils"
 
-export type RideStatus = "waitForTrain" | "inTransit" | "inExchange" | "arrived" | "stale"
+export type RideStatus = "waitForTrain" | "inTransit" | "inExchange" | "arrived" | "stale" | "loading"
 
 export function useRideProgress({ route, enabled }: { route: RouteItem; enabled: boolean }) {
   const [minutesLeft, setMinutesLeft] = useState<number>(0)
