@@ -45,7 +45,7 @@ export function PlannerScreenHeader() {
   const router = useRouter()
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
 
-  const { data: popupMessages } = useQuery(["announcements", "urgent"], () => {
+  const { data: popupMessages, isFetched: didFetchPopupMessages } = useQuery(["announcements", "urgent"], () => {
     return railApi.getPopupMessages(userLocale)
   })
 
@@ -53,6 +53,11 @@ export function PlannerScreenHeader() {
   const unseenUrgentMessages = popupMessages ? filterUnseenUrgentMessages(popupMessages, seenUrgentMessagesIds) : []
   const hasUnseenUrgentMessages = !isEmpty(unseenUrgentMessages)
   const showUrgentBar = !HIDE_URGENT_BAR && hasUnseenUrgentMessages
+
+  // Unseen urgent messages suppress the "new" badge. That answer only arrives with the popup
+  // messages response, so hold the badge back until the query settles — rendering it beforehand
+  // shows it on every launch and then yanks it away the moment the response lands.
+  const showNewBadge = displayNewBadge && didFetchPopupMessages && !hasUnseenUrgentMessages
 
   useEffect(() => {
     // display the "new" badge if the user has stations selected (not the initial launch),
@@ -109,7 +114,7 @@ export function PlannerScreenHeader() {
             </Chip>
           )}
         </View>
-        {(DEBUG_FORCE_NEW_BADGE || (displayNewBadge && !hasUnseenUrgentMessages)) && (
+        {(DEBUG_FORCE_NEW_BADGE || showNewBadge) && (
           <Chip variant="primary" style={{ marginStart: spacing[2] }} onPress={() => router.push("/live-announcement")}>
             <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
             <Text style={{ color: "white", fontWeight: "500", marginVertical: spacing[1] }} tx="common.new" />
