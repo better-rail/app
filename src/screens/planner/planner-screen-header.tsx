@@ -95,25 +95,25 @@ export function PlannerScreenHeader() {
       <View style={styles.headerWrapper}>
         <View style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: spacing[2] }}>
           {showUrgentBar && !rideRoute && <ImportantAnnouncementBar title={head(unseenUrgentMessages)?.messageBody ?? ""} />}
-
-          {rideRoute && (
-            <Chip
-              variant="success"
-              onPress={() => {
-                useNavigationParamsStore.getState().setRouteDetails({
-                  routeItem: rideRoute as any,
-                  originId: String(rideOriginId()),
-                  destinationId: String(rideDestinationId()),
-                })
-                router.push("/active-ride")
-                trackEvent("open_live_ride_modal_pressed")
-              }}
-            >
-              {Platform.OS === "ios" && <Image source={TRAIN_ICON} style={styles.liveButtonImage} />}
-              <Text style={{ color: "white", fontWeight: "500", marginVertical: spacing[1] }} tx="ride.live" />
-            </Chip>
-          )}
         </View>
+        {rideRoute && (
+          <Chip
+            variant="success"
+            style={{ marginStart: spacing[2] }}
+            onPress={() => {
+              useNavigationParamsStore.getState().setRouteDetails({
+                routeItem: rideRoute as any,
+                originId: String(rideOriginId()),
+                destinationId: String(rideDestinationId()),
+              })
+              router.push("/active-ride")
+              trackEvent("open_live_ride_modal_pressed")
+            }}
+          >
+            {Platform.OS === "ios" && <Image source={TRAIN_ICON} style={styles.liveButtonImage} />}
+            <Text style={{ color: "white", fontWeight: "500", marginVertical: spacing[1] }} tx="ride.live" />
+          </Chip>
+        )}
         {(DEBUG_FORCE_NEW_BADGE || showNewBadge) && (
           <Chip variant="primary" style={{ marginStart: spacing[2] }} onPress={() => router.push("/live-announcement")}>
             <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
