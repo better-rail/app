@@ -29,7 +29,7 @@ import { trackInstalledWidgets } from "@/utils/widget-helpers"
 import { monitorLiveActivities } from "@/utils/ios-helpers"
 import { useForceUpdate } from "@/hooks/use-force-update"
 import { ForceUpdateScreen } from "@/screens/force-update/force-update-screen"
-import { openActiveRide } from "@/utils/helpers/ride-helpers"
+import { openActiveRide } from "@/utils/helpers/open-active-ride"
 import PushNotification from "react-native-push-notification"
 import "react-native-console-time-polyfill"
 

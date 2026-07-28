@@ -12,23 +12,32 @@ export type RideState = {
 /**
  * Returns the end date for the current ride state.
  */
-export const getStatusEndDate = (route: RouteItem, state: RideState) => {
+export const getStatusEndDate = (route: RouteItem, state: RideState): Date | null => {
   const train = getTrainFromStationId(route, state.nextStationId)
+  if (!train) return null
+
   const departureDate = addMinutes(train.departureTime, state.delay)
   const arrivalDate = addMinutes(train.arrivalTime, state.delay)
 
-  if (state.status === "waitForTrain" || state.status === "inExchange") {
-    return departureDate
-  } else if (
-    state.status === "inTransit" &&
-    train.originStationId == state.nextStationId &&
-    departureDate.getTime() > Date.now()
-  ) {
-    const previousTrain = getPreviousTrainFromStationId(route, state.nextStationId) ?? train
-    return addMinutes(previousTrain.arrivalTime, state.delay)
-  } else {
-    return arrivalDate
-  }
+  const endDate = (() => {
+    if (state.status === "waitForTrain" || state.status === "inExchange") {
+      return departureDate
+    } else if (
+      state.status === "inTransit" &&
+      train.originStationId == state.nextStationId &&
+      departureDate.getTime() > Date.now()
+    ) {
+      const previousTrain = getPreviousTrainFromStationId(route, state.nextStationId) ?? train
+      return addMinutes(previousTrain.arrivalTime, state.delay)
+    } else {
+      return arrivalDate
+    }
+  })()
+
+  // a NaN delay or a missing time in the payload produces an Invalid Date, which is truthy and
+  // so slips past a `!endDate` check at the call site - normalise it to null here instead, so
+  // "we have no end date" has exactly one representation.
+  return isNaN(endDate.getTime()) ? null : endDate
 }
 
 /**

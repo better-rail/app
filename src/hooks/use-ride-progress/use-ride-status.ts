@@ -1,10 +1,6 @@
 import { getRideStatus, getTrainFromStationId } from "@/utils/helpers/ride-helpers"
 
 export function useRideStatus({ route, delay, nextStationId }) {
-  const status = (() => {
-    const train = getTrainFromStationId(route, nextStationId)
-    return getRideStatus(route, train, nextStationId, delay)
-  })()
-
-  return status
+  // getRideStatus returns "loading" when the station can't be matched to a train
+  return getRideStatus(route, getTrainFromStationId(route, nextStationId), nextStationId, delay)
 }
