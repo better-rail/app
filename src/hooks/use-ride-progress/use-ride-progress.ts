@@ -11,16 +11,22 @@ export type RideStatus = "waitForTrain" | "inTransit" | "inExchange" | "arrived"
 
 export function useRideProgress({ route, enabled }: { route: RouteItem; enabled: boolean }) {
   const [minutesLeft, setMinutesLeft] = useState<number>(0)
-  const [delay, nextStationId] = useRideRoute(route)
-  const status = useRideStatus({ route, delay, nextStationId })
-  const stations = getStopStationStatus({ route, nextStationId, status, enabled })
+  // always resolve `nextStationId` against the route it was found in, never the `route` prop -
+  // the two drift apart when a refetch changes the route's stop stations
+  const { delay, nextStationId, activeRoute } = useRideRoute(route)
+  const status = useRideStatus({ route: activeRoute, delay, nextStationId })
+  const stations = getStopStationStatus({ route: activeRoute, nextStationId, status, enabled })
 
   const calculateMinutesLeft = () => {
-    const date = getStatusEndDate(route, {
+    const date = getStatusEndDate(activeRoute, {
       delay,
       status,
       nextStationId,
     })
+    // no end date means we couldn't resolve the train or its times - keep the last known value
+    // rather than rendering NaN
+    if (!date) return
+
     setMinutesLeft(differenceInMinutes(date, Date.now(), { roundingMethod: "ceil" }))
   }
 
@@ -41,7 +47,7 @@ export function useRideProgress({ route, enabled }: { route: RouteItem; enabled:
       clearInterval(timer)
       subscription.remove()
     }
-  }, [status, delay, nextStationId])
+  }, [status, delay, nextStationId, activeRoute])
 
   return { status, minutesLeft, stations, nextStationId }
 }

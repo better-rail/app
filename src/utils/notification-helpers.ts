@@ -105,6 +105,11 @@ export const configureNotifications = async () => {
   }
 }
 
+/// Maps the server's ride status onto the one we compute locally. The server sends `getOff` a
+/// minute before arrival, which has no local equivalent - it's still the same in-transit phase,
+/// and leaving it unmapped falls through to the "you have arrived" title while the train moves.
+const toRideStatus = (status: string): RideStatus => (status === "getOff" ? "inTransit" : (status as RideStatus))
+
 const handleLiveRideNotification = async (data: Record<string, string>) => {
   if (!data) return
 
@@ -123,7 +128,7 @@ const handleLiveRideNotification = async (data: Record<string, string>) => {
   }
 
   const state: RideState = {
-    status: data.status as RideStatus,
+    status: toRideStatus(data.status),
     delay: Number(data.delay),
     nextStationId: Number(data.nextStationId),
   }
@@ -160,7 +165,7 @@ export const startRideNotifications = async (route: RouteItem) => {
   const state: RideState = {
     status,
     nextStationId,
-    delay: train.delay,
+    delay: train?.delay ?? 0,
   }
 
   await setRideDelay(state.delay)
@@ -238,8 +243,18 @@ const updateNotification = async (route: RouteItem, state: RideState) => {
   })
 }
 
+/// The route destination, used as a fallback when we can't resolve the ride's current position
+const getRideDestination = (route: RouteItem) => route.trains[route.trains.length - 1].destinationStationName
+
 const getTitleText = (route: RouteItem, state: RideState) => {
   const targetDate = getStatusEndDate(route, state)
+
+  // the next station couldn't be matched to a train, so there's no time to show.
+  // fall back to the ride destination instead of rendering an invalid date.
+  if (!targetDate || state.status === "loading") {
+    return translate("plan.rideTo", { destination: getRideDestination(route) })
+  }
+
   const minutes = differenceInMinutes(targetDate, Date.now(), { roundingMethod: "ceil" })
   const time = format(targetDate, "HH:mm")
   const timeText = "(" + time + ")"
@@ -259,18 +274,30 @@ const getTitleText = (route: RouteItem, state: RideState) => {
 
 const getBodyText = (route: RouteItem, state: RideState) => {
   if (state.status === "stale") {
-    const destination = route.trains[route.trains.length - 1].destinationStationName
+    const destination = getRideDestination(route)
     return translate("plan.rideTo", { destination }) + " | " + translate("ride.connectionIssues")
+  } else if (state.status === "loading") {
+    return translate("ride.activatingRide")
   } else if (state.status === "waitForTrain" || state.status === "inExchange") {
     const train = getTrainFromStationId(route, state.nextStationId)
+
+    // the status comes from the server while the lookup runs against the locally cached route,
+    // so the two can disagree - fall back rather than reading a missing train's details.
+    if (!train) return translate("ride.activatingRide")
+
     return translate("ride.trainInfo", {
       trainNumber: train.trainNumber,
       lastStop: train.lastStop,
       platform: train.originPlatform,
     })
   } else if (state.status === "inTransit") {
-    const progress = rideProgress(route, state.nextStationId)
-    const stopsLeft = progress[1] - progress[0]
+    const [currentIndex, totalStations] = rideProgress(route, state.nextStationId)
+    const stopsLeft = totalStations - currentIndex
+
+    // rideProgress reports [0, 0] when the station isn't in the route, which would render
+    // "get off in 0 stops" - fall back rather than showing a nonsense count
+    if (stopsLeft <= 0) return translate("plan.rideTo", { destination: getRideDestination(route) })
+
     if (stopsLeft === 1) return translate("ride.getOffNextStop")
     else return translate("ride.getOffInStops", { stopsLeft })
   } else {
