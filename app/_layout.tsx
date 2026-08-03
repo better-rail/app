@@ -73,7 +73,7 @@ export const queryClient = new QueryClient({
       // "No routes found" is an expected, app-handled outcome (offline or genuinely no
       // trains for the date). It's thrown only to drive react-query's onError, so skip
       // reporting it — it otherwise floods Sentry with tens of thousands of noise events.
-      if (error instanceof RoutesNotFoundError) return
+      if (error instanceof RoutesNotFoundError || error?.name === "RoutesNotFoundError") return
 
       Sentry.captureException(error, {
         tags: { source: "react-query" },
