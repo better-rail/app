@@ -38,7 +38,8 @@ struct EndActivityResult: Decodable {
 }
 
 class ActivityNotificationsAPI {
-  static let basePath = "https://api.better-rail.co.il/api/v1"
+  // TEMP: point to Railway; revert host to api.better-rail.co.il
+  static let basePath = "https://better-rail.up.railway.app/api/v1"
   
   static func startRide(ride: Ride) async -> String? {
       // Define the request URL

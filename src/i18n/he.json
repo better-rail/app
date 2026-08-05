@@ -53,6 +53,7 @@
     "oneChange": "החלפה אחת",
     "changes": "החלפות",
     "delayTime": "דק' עיכוב",
+    "cancelled": "מבוטלת",
     "departsAt": "יוצאת ב",
     "arrivesAt": "מגיעה ב",
     "noTrainsFound": "לא נמצאו רכבות למסלול זה בימים הקרובים",
@@ -91,6 +92,11 @@
     "minutes": "דק'",
     "unsafeChange": "החלפה זו אינה בטוחה",
     "lastStop": "יעד סופי",
+    "trainCancelled": "הרכבת בוטלה",
+    "trainCancelledText": "על פי עדכון רכבת ישראל, רכבת זו בוטלה. מומלץ לבחור מסלול אחר.",
+    "routeChanged": "שינוי במסלול",
+    "skippedStationText": "הרכבת לא תעצור בתחנת %{station}.",
+    "lastStopChangedText": "היעד הסופי של הרכבת שונה ל-%{station}.",
     "routeWarning": "רכבת מאספת",
     "routeWarningText": "קיימים מסלולי נסיעה קצרים יותר סביב שעת היציאה הנבחרת",
     "addToCalendar": "הוספה ליומן",
@@ -104,7 +110,6 @@
     "carsCount": "%{count} קרונות",
     "seatsCount": "%{count} מושבים",
     "trainInformation": "פרטי רכבת",
-    "noTrainDetails": "פרטי הרכבת עדיין לא זמינים לנסיעה זו.",
     "noWagonInformationAvailable": "לא נמצא מידע על הרכבת"
   },
   "settings": {

@@ -23,11 +23,27 @@ type RouteStopCardProps = {
    */
   delayedTime?: string
 
+  /**
+   * The live platform differs from the scheduled one
+   */
+  platformChanged?: boolean
+
+  /**
+   * The train's last stop differs from the scheduled one
+   */
+  lastStopChanged?: boolean
+
   style?: ViewStyle
 }
 
 export const RouteStationCard = (props: RouteStopCardProps) => {
-  const { stationName, stopTime, platform, trainNumber, delay, delayedTime, lastStop, style } = props
+  const { stationName, stopTime, platform, trainNumber, delay, delayedTime, lastStop, platformChanged, lastStopChanged, style } =
+    props
+
+  // When the platform changes in realtime we keep the normal "Platform X" text and
+  // just style it bold red, matching how a changed last stop is highlighted.
+  const platformText =
+    platform === 0 ? translate("routeDetails.noPlatformSet") : `${translate("routeDetails.platform")} ${platform}`
 
   return (
     <View style={[styles.routeStationWrapper, style]}>
@@ -62,12 +78,20 @@ export const RouteStationCard = (props: RouteStopCardProps) => {
           {stationName}
         </Text>
         <Text style={styles.routeStationDetailsText} maxFontSizeMultiplier={1.2}>
-          {platform === 0 ? translate("routeDetails.noPlatformSet") : `${translate("routeDetails.platform")} ${platform}`}{" "}
+          <Text
+            style={[styles.routeStationDetailsText, platformChanged && styles.realtimeChangeText]}
+            maxFontSizeMultiplier={1.2}
+          >
+            {platformText}
+          </Text>{" "}
           {trainNumber && `· ${translate("routeDetails.trainNo")} ${trainNumber}`}
         </Text>
         {trainNumber && (
           <Text style={styles.lastDestinationText} maxFontSizeMultiplier={1.2}>
-            {translate("routeDetails.lastStop")}: {lastStop}
+            {`${translate("routeDetails.lastStop")}: `}
+            <Text style={[styles.lastDestinationText, lastStopChanged && styles.realtimeChangeText]} maxFontSizeMultiplier={1.2}>
+              {lastStop}
+            </Text>
           </Text>
         )}
       </View>
@@ -126,6 +150,10 @@ const styles = StyleSheet.create((theme, rt) => ({
     fontSize: 14,
     fontWeight: "400",
     opacity: 0.8,
+  },
+  realtimeChangeText: {
+    color: theme.colors.destroy,
+    fontWeight: "700",
   },
   railwayIcon: {
     width: 42.5,

@@ -1,13 +1,26 @@
 import { Platform, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components/text/text"
-import { DelayBadge } from "./delay-badge"
+import { CancelledBadge, DelayBadge } from "./delay-badge"
 import { userLocale } from "@/i18n"
 
 /**
- * Displays route indicators (stops count, delay, short route badge) in the route card.
+ * Displays route indicators (stops count, delay, cancellation, short route badge) in the route card.
  */
-export const RouteIndicators = ({ isMuchShorter, isMuchLonger, delay, stopsText, isRideActive, hideShortRouteBadge }) => {
+export const RouteIndicators = ({
+  isMuchShorter,
+  isMuchLonger,
+  delay,
+  stopsText,
+  isRideActive,
+  hideShortRouteBadge,
+  isCancelled = false,
+}) => {
+  // A cancelled journey trumps every other indicator.
+  if (isCancelled) {
+    return <CancelledBadge />
+  }
+
   // Show short route badge only when filter is off (hideShortRouteBadge is false)
   if (isMuchShorter && !isMuchLonger && !hideShortRouteBadge) {
     return (

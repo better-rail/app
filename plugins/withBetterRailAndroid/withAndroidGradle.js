@@ -8,11 +8,12 @@ const APP_PLUGINS = `apply plugin: "kotlin-kapt"
 apply plugin: "dagger.hilt.android.plugin"`
 
 const DEFAULT_CONFIG = `        missingDimensionStrategy "store", "play"
-        def railApiBaseUrl = "https://rail-api.rail.co.il"
+        // All rail data flows through the Better Rail server: GTFS-backed timetable +
+        // proxied Israel Railways API. No direct calls to rail.co.il, no API key.
+        // TEMP: point to Railway; revert host to api.better-rail.co.il
+        def railApiBaseUrl = "https://better-rail.up.railway.app/api/v1/rail-api"
         buildConfigField "String", "RAIL_API_BASE_URL", "\\"\${railApiBaseUrl}\\""
-        buildConfigField "String", "RAIL_API_TIMETABLE_URL", "\\"\${railApiBaseUrl}/rjpa/api/v1/timetable/\\""
-        buildConfigField "String", "RAIL_API_PROXY_TIMETABLE_URL", "\\"https://api.better-rail.co.il/api/v1/rail-api/rjpa/api/v1/timetable/\\""
-        buildConfigField "String", "RAIL_API_KEY", "\\"5e64d66cf03f4547bcac5de2de06b566\\""`
+        buildConfigField "String", "RAIL_API_TIMETABLE_URL", "\\"\${railApiBaseUrl}/rjpa/api/v1/timetable/\\""`
 
 const DEPENDENCIES = `    implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("com.google.code.gson:gson:2.10.1")
