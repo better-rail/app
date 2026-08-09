@@ -22,6 +22,7 @@ import { createContextMenuActions } from "@/components/route-card/route-context-
 import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
 import { HeaderBackButton } from "@/components/header-back-button"
 import { RouteStationNameButton } from "./route-station-name-button"
+import { HIDE_STATION_HOURS } from "@/config/features"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
 const ellipsisIcon = require("../../../assets/ellipsis.regular.png")
@@ -213,11 +214,15 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
         systemIcon: "line.3.horizontal.decrease",
         onPress: () => router.push("/filter"),
       },
-      {
-        title: translate("routes.stationHours"),
-        systemIcon: "clock",
-        onPress: openStationHoursSheet,
-      },
+      ...(HIDE_STATION_HOURS
+        ? []
+        : [
+            {
+              title: translate("routes.stationHours"),
+              systemIcon: "clock",
+              onPress: openStationHoursSheet,
+            },
+          ]),
     ]
 
     if (isLiquidGlassSupported) {

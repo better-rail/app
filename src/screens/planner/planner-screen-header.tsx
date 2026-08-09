@@ -11,6 +11,7 @@ import { useRoutePlanStore, useRideStore, useSettingsStore, filterUnseenUrgentMe
 import { translate, userLocale } from "@/i18n"
 import { ImportantAnnouncementBar } from "./Important-announcement-bar"
 import { railApi } from "@/services/api"
+import { HIDE_RAIL_SERVICE_UPDATES } from "@/config/features"
 import { useQuery } from "react-query"
 import { head, isEmpty } from "lodash"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
@@ -22,9 +23,6 @@ const SETTINGS_ICON = require("../../../assets/settings.png")
 
 // DEBUG: force-show the "new" badge regardless of its normal display conditions. Set back to false before shipping.
 const DEBUG_FORCE_NEW_BADGE = false
-
-// Temporarily hide the urgent announcement red bar. Set back to false to re-enable it.
-const HIDE_URGENT_BAR = true
 
 export function PlannerScreenHeader() {
   const { origin, destination } = useRoutePlanStore(useShallow((s) => ({ origin: s.origin, destination: s.destination })))
@@ -45,19 +43,22 @@ export function PlannerScreenHeader() {
   const router = useRouter()
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
 
-  const { data: popupMessages, isFetched: didFetchPopupMessages } = useQuery(["announcements", "urgent"], () => {
-    return railApi.getPopupMessages(userLocale)
-  })
+  const { data: popupMessages, isFetched: didFetchPopupMessages } = useQuery(
+    ["announcements", "urgent"],
+    () => railApi.getPopupMessages(userLocale),
+    { enabled: !HIDE_RAIL_SERVICE_UPDATES },
+  )
 
   // Filter unseen urgent messages from the popup messages
   const unseenUrgentMessages = popupMessages ? filterUnseenUrgentMessages(popupMessages, seenUrgentMessagesIds) : []
   const hasUnseenUrgentMessages = !isEmpty(unseenUrgentMessages)
-  const showUrgentBar = !HIDE_URGENT_BAR && hasUnseenUrgentMessages
+  const showUrgentBar = !HIDE_RAIL_SERVICE_UPDATES && hasUnseenUrgentMessages
 
   // Unseen urgent messages suppress the "new" badge. That answer only arrives with the popup
   // messages response, so hold the badge back until the query settles — rendering it beforehand
   // shows it on every launch and then yanks it away the moment the response lands.
-  const showNewBadge = displayNewBadge && didFetchPopupMessages && !hasUnseenUrgentMessages
+  // (With service updates hidden the query never runs, so the badge doesn't wait for it.)
+  const showNewBadge = displayNewBadge && (HIDE_RAIL_SERVICE_UPDATES || (didFetchPopupMessages && !hasUnseenUrgentMessages))
 
   useEffect(() => {
     // display the "new" badge if the user has stations selected (not the initial launch),
@@ -120,9 +121,11 @@ export function PlannerScreenHeader() {
             <Text style={{ color: "white", fontWeight: "500", marginVertical: spacing[1] }} tx="common.new" />
           </Chip>
         )}
-        <TouchableOpacity onPress={openAnnouncements} activeOpacity={0.8} accessibilityLabel={translate("routes.updates")}>
-          <Image source={UPDATES_ICON} style={[styles.headerIconImage]} />
-        </TouchableOpacity>
+        {!HIDE_RAIL_SERVICE_UPDATES && (
+          <TouchableOpacity onPress={openAnnouncements} activeOpacity={0.8} accessibilityLabel={translate("routes.updates")}>
+            <Image source={UPDATES_ICON} style={[styles.headerIconImage]} />
+          </TouchableOpacity>
+        )}
         <TouchableOpacity onPress={openSettings} activeOpacity={0.8} accessibilityLabel={translate("settings.title")}>
           <Image source={SETTINGS_ICON} style={styles.headerIconImage} />
         </TouchableOpacity>

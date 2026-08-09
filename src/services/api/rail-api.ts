@@ -16,8 +16,10 @@ export class RailApi {
   axiosInstance: AxiosInstance
 
   constructor() {
-    // Everything goes through our server now — the timetable from GTFS, the rest
-    // proxied to the Israel Railways API. No direct calls, no API key, no 403 fallback.
+    // Everything goes through our server (GTFS timetable + SIRI realtime).
+    // The announcements / popup messages / station info endpoints below are
+    // retired server-side and answer empty — their UI is hidden behind the
+    // flags in config/features.ts until the data has a new source.
     setAnalyticsUserProperty("rail_api", "server")
     this.axiosInstance = axios.create({
       baseURL: API_CONFIG.RAIL_API,
