@@ -1,4 +1,4 @@
-import { Dimensions, ScrollView, View } from "react-native"
+import { Dimensions, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import Video from "react-native-video"
 import { Screen, Text } from "@/components"
@@ -6,6 +6,7 @@ import { LiveAnnouncementBackground } from "./live-announcement-bg"
 import { userLocale } from "@/i18n"
 import { useRouter } from "expo-router"
 import { NextButton } from "./announcement-next-button"
+import { LiveAnnouncementScrollView } from "./live-announcement-scroll-view"
 
 const deviceHeight = Dimensions.get("screen").height
 const isHighDevice = deviceHeight > 820
@@ -20,7 +21,7 @@ export function DynamicIslandScreen() {
   return (
     <Screen unsafe={true} statusBar="light-content">
       <LiveAnnouncementBackground />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <LiveAnnouncementScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.content}>
           <Text tx="liveAnnounce.dynamicIsland.title" preset="header" style={styles.title} maxFontSizeMultiplier={1.1} />
           <Text tx="liveAnnounce.dynamicIsland.description" style={styles.text} maxFontSizeMultiplier={1.1} />
@@ -39,7 +40,7 @@ export function DynamicIslandScreen() {
             router.push("/live-announcement/support-us")
           }}
         />
-      </ScrollView>
+      </LiveAnnouncementScrollView>
     </Screen>
   )
 }

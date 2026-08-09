@@ -7,6 +7,21 @@ import { formatDateForAPI } from "@/utils/helpers/date-helpers"
 export type StatusType = "idle" | "pending" | "done" | "error"
 export type ResultType = "normal" | "different-date" | "different-hour" | "not-found"
 
+/**
+ * Thrown by `getRoutes` when no routes are found for the requested date (an expected,
+ * app-handled outcome — the UI shows a "no trains" / "no internet" state). It is used
+ * only to drive react-query's `onError`, so it is filtered out of Sentry reporting to
+ * avoid flooding the dashboard with tens of thousands of non-actionable events.
+ */
+export class RoutesNotFoundError extends Error {
+  constructor() {
+    super("Not found")
+    this.name = "RoutesNotFoundError"
+    // Restore the prototype chain so `instanceof` holds after transpilation to older targets.
+    Object.setPrototypeOf(this, RoutesNotFoundError.prototype)
+  }
+}
+
 export interface TrainRoutesState {
   routes: RouteItem[]
   resultType: ResultType
@@ -94,7 +109,7 @@ export const useTrainRoutesStore = create<TrainRoutesStore>((set, get) => ({
     }
     // We couldn't find routes for the requested date.
     set({ resultType: "not-found", status: "done" })
-    throw new Error("Not found")
+    throw new RoutesNotFoundError()
   },
 }))
 

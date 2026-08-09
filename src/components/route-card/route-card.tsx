@@ -140,6 +140,7 @@ export function RouteCard(props: RouteCardProps) {
 
   const cardContent = (
     <TouchableComponent
+      testID={props.testID}
       onPress={onPress}
       onLongPress={Platform.OS === "android" ? onLongPress : undefined}
       activeScale={0.97}

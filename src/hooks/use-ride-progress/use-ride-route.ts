@@ -21,6 +21,11 @@ export function useRideRoute(route: RouteItem) {
 
   const [nextStationId, setNextStationId] = useState<number>(route.trains[0].originStationId)
   const [delay, setDelay] = useState<number>(0)
+  // the route `nextStationId` was resolved against. keeping the two together guarantees the
+  // station is always present in the route our consumers look it up in - a refetch can change
+  // the stop stations, and pairing a fresh station id with a stale route is what makes the
+  // lookup return undefined.
+  const [activeRoute, setActiveRoute] = useState<RouteItem>(route)
 
   const { originId, destinationId, date, time } = getRouteDetails(route)
 
@@ -53,6 +58,7 @@ export function useRideRoute(route: RouteItem) {
     }
 
     const stationId = findClosestStationInRoute(updatedRoute)
+    setActiveRoute(updatedRoute)
     setNextStationId(stationId)
     setDelay(getTrainFromStationId(updatedRoute, stationId)?.delay ?? 0)
   }
@@ -65,6 +71,7 @@ export function useRideRoute(route: RouteItem) {
 
     // set the route details immidiately on mount
     const stationId = findClosestStationInRoute(route)
+    setActiveRoute(route)
     setNextStationId(stationId)
     setDelay(getTrainFromStationId(route, stationId)?.delay ?? 0)
 
@@ -75,7 +82,7 @@ export function useRideRoute(route: RouteItem) {
     return () => clearInterval(timer)
   }, [])
 
-  return [delay, nextStationId]
+  return { delay, nextStationId, activeRoute }
 }
 
 /**

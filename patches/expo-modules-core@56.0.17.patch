@@ -1,0 +1,24 @@
+diff --git a/ios/Core/DynamicTypes/DynamicConvertibleType.swift b/ios/Core/DynamicTypes/DynamicConvertibleType.swift
+index 1188204ab9d08d0f60f8b0fd9b149f97861a967b..63c4a9c7d8a9ccf6f847728696e8f9ad24ad4d92 100644
+--- a/ios/Core/DynamicTypes/DynamicConvertibleType.swift
++++ b/ios/Core/DynamicTypes/DynamicConvertibleType.swift
+@@ -101,7 +101,18 @@ internal struct DynamicConvertibleType: AnyDynamicType {
+       return result
+     }
+     if let result = value as? AnyArgument {
+-      return try type(of: result).getDynamicType().castToJS(result, appContext: appContext)
++      let resultType = type(of: result).getDynamicType()
++      // Guard against infinite recursion / stack overflow: when a `Convertible` relies on the
++      // default `convertResult` (which returns the value unchanged), `convertOriginalValueToJS`
++      // hands that same value back here and its dynamic type is this exact `DynamicConvertibleType`.
++      // Re-dispatching to `castToJS` would loop forever, so serialize it generically instead.
++      if !resultType.equals(self) {
++        return try resultType.castToJS(result, appContext: appContext)
++      }
++      // Diagnostic (Better Rail / BETTER-RAIL-2Q): this is the exact value that WOULD have
++      // caused the infinite recursion. Logging its concrete Swift type identifies the module
++      // that hands a bare `Convertible` (URL/Date/CGRect/…) back to JS.
++      log.warn("DynamicConvertibleType: prevented stack-overflow serializing bare Convertible of type '\(type(of: result))' (innerType: \(innerType)) — using generic serialization instead")
+     }
+     return try Conversions.unknownToJavaScriptValue(value, appContext: appContext)
+   }

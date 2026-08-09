@@ -20,6 +20,8 @@ export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "a
 
   const progressText = (() => {
     if (!id) return translate("ride.activatingRide")
+    // we don't know which leg of the ride we're on yet, so don't guess between "departs" / "arrives"
+    if (status === "loading") return translate("ride.activatingRide")
     if (status === "inTransit" && minutesLeft < 2) {
       return translate("ride.trainArriving")
     } else if (status === "inTransit") {

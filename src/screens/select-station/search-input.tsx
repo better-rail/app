@@ -30,6 +30,7 @@ export const SearchInput = ({ searchTerm, setSearchTerm, autoFocus }) => {
       <View style={styles.searchInputWrapper}>
         <Image style={styles.searchIcon} source={searchIcon} />
         <TextInput
+          testID="station-search-input"
           style={styles.textInput}
           placeholder={translate("selectStation.placeholder")}
           placeholderTextColor={color.dim}

@@ -51,7 +51,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   name: "Better Rail",
   slug: "better-rail",
   owner: "better-rail",
-  version: "3.0.0",
+  version: "2.7.6",
   updates: {
     url: "https://u.expo.dev/b7819f45-8466-4c11-8628-3539099e6c78",
   },
@@ -206,6 +206,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "./plugins/withBetterRailIos",
     // Android widget system: Kotlin source, Hilt/Room gradle, manifest, MainApplication/Activity (Phase 4)
     "./plugins/withBetterRailAndroid",
+    // RNRepo (rnrepo.org) — downloads prebuilt AARs/xcframeworks for supported community libs
+    // instead of compiling them. Unsupported libs (and rnrepo.config.json opt-outs) fall back
+    // to source. Wires the Maven repo + Gradle plugin into android/, the CocoaPods hook into ios/.
+    "@rnrepo/expo-config-plugin",
   ],
 
   extra: {
