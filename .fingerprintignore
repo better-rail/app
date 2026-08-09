@@ -1,0 +1,4 @@
+# RNRepo extracts downloaded xcframeworks into node_modules/*/.rnrepo-cache on every
+# `pod install`. Those are build inputs, not source — hashing them would churn the
+# fingerprint (and EAS build cache) on every artifact refresh.
+**/.rnrepo-cache/**/*

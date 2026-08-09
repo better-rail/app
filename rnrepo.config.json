@@ -1,0 +1,6 @@
+{
+  "//": "Libraries we patch must build from source — a prebuilt artifact is built upstream and would drop the patch.",
+  "denyList": {
+    "android": ["react-native-screens"]
+  }
+}

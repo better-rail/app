@@ -193,6 +193,7 @@ export function PlannerScreen() {
           <Text preset="fieldLabel" tx="plan.origin" style={{ marginBottom: spacing[1] }} />
           <Animated.View style={{ transform: [{ scale: stationCardScale }] }}>
             <StationCard
+              testID="planner-origin-card"
               name={originData?.name}
               image={originData?.image}
               style={{ marginBottom: spacing[4] }}
@@ -207,6 +208,7 @@ export function PlannerScreen() {
           <Text preset="fieldLabel" tx="plan.destination" style={{ marginBottom: spacing[1] }} />
           <Animated.View style={{ transform: [{ scale: stationCardScale }] }}>
             <StationCard
+              testID="planner-destination-card"
               name={destinationData?.name}
               image={destinationData?.image}
               style={{ marginBottom: spacing[4] }}
@@ -232,6 +234,7 @@ export function PlannerScreen() {
           />
 
           <Button
+            testID="find-routes-button"
             title={translate("plan.find")}
             onPress={onGetRoutePress}
             disabled={!origin || !destination || origin.id === destination.id}
@@ -254,6 +257,9 @@ const styles = StyleSheet.create((theme, rt) => ({
   contentWrapper: {
     flex: 1,
     padding: theme.spacing[4],
+    // The Screen wrapper already applies the top safe-area inset, so keep the top
+    // padding flush to sit the header close to the status bar and reclaim screen space.
+    paddingTop: 0,
     backgroundColor: theme.colors.background,
   },
   screenTitle: {

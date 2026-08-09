@@ -38,6 +38,11 @@ export function getStopStationStatus({ route, nextStationId, status, enabled }: 
   // get the train that the next station is in
   const train = getTrainFromStationId(route, nextStationId)
 
+  // the next station isn't part of this route - this happens when the route is refetched and its
+  // stop stations change while we're still rendering the previous one. leave every station idle
+  // until the next station catches up, rather than reading properties off a missing train.
+  if (!train) return stopStationsObject
+
   // get the index of the train in the route
   const trainIndex = route.trains.indexOf(train)
 
