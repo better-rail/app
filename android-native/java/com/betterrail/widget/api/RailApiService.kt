@@ -114,7 +114,6 @@ class RailApiService(
         requestHour: String,
         isRequestForFutureDate: Boolean
     ): Result<WidgetScheduleData> {
-        // All rail data is served by the Better Rail server now (single base URL).
         val baseUrl = BuildConfig.RAIL_API_TIMETABLE_URL
 
         val url = buildApiUrl(baseUrl)

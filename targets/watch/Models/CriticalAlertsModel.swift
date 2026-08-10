@@ -19,9 +19,6 @@ struct PopUpMessage: Decodable, Encodable, Identifiable {
 struct CriticalAlertsModel {
   func fetchCriticalAlerts(completion: @escaping (PopUpMessagesResult?) -> Void) {
       let language = getUserLocale().rawValue.capitalized
-      // The server retired this endpoint (the Israel Railways proxy is gone): it now
-      // always answers with an empty result, so no alert button is shown. The fetch is
-      // kept so alerts light up again if the server ever serves them from a new source.
       // TEMP: point to Railway; revert host to api.better-rail.co.il
       let urlString = "https://better-rail.up.railway.app/api/v1/rail-api/common/api/v1/PopUpMessages/?LanguageId=\(language)&PageTypeId=MainPage"
       guard let url = URL(string: urlString) else {

@@ -75,8 +75,6 @@ export class RouteApi {
           // const trainCrowdDetail = crowdDetails.find((detail) => detail.TrainNumber === Number(Trainno))
           // const lastStationId = trainCrowdDetail.Stations[trainCrowdDetail.Stations.length - 1].StationNumber
           const scheduledLastStationId = routeStations[routeStations.length - 1].stationId
-          // Realtime route change: the server sets actualLastStationId when the train
-          // terminates at a different station — show that as the last stop.
           const lastStationId =
             actualLastStationId && stationsObject[actualLastStationId] ? actualLastStationId : scheduledLastStationId
 
@@ -124,8 +122,6 @@ export class RouteApi {
           departureTimeString: route.departureTime,
           arrivalTimeString: route.arrivalTime,
           delay: trains?.[0].delay ?? 0,
-          // The journey is unusable when a leg is cancelled outright or skips the
-          // station the rider boards or alights at.
           isCancelled: trains.some((train) => train.isCancelled || train.originCancelled || train.destinationCancelled),
           duration: formatRouteDuration(routeDurationInMs(departureTime, arrivalTime)),
           isExchange: trains.length > 1,

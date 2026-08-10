@@ -16,7 +16,6 @@ export const RouteIndicators = ({
   hideShortRouteBadge,
   isCancelled = false,
 }) => {
-  // A cancelled journey trumps every other indicator.
   if (isCancelled) {
     return <CancelledBadge />
   }

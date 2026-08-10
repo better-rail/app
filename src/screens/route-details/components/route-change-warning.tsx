@@ -34,10 +34,6 @@ const Warning = ({ emoji, title, text }: { emoji: string; title: string; text: s
   </View>
 )
 
-/**
- * Realtime service-change banners for a single train leg: a full cancellation,
- * a skipped boarding/alighting station, or a changed last stop.
- */
 export const RouteChangeWarnings = ({ train }: { train: Train }) => {
   if (train.isCancelled) {
     return <Warning emoji="🚫" title={t("routeDetails.trainCancelled")} text={t("routeDetails.trainCancelledText")} />

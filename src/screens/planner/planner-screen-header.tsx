@@ -57,7 +57,6 @@ export function PlannerScreenHeader() {
   // Unseen urgent messages suppress the "new" badge. That answer only arrives with the popup
   // messages response, so hold the badge back until the query settles — rendering it beforehand
   // shows it on every launch and then yanks it away the moment the response lands.
-  // (With service updates hidden the query never runs, so the badge doesn't wait for it.)
   const showNewBadge = displayNewBadge && (HIDE_RAIL_SERVICE_UPDATES || (didFetchPopupMessages && !hasUnseenUrgentMessages))
 
   useEffect(() => {

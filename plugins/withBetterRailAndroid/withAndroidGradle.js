@@ -8,8 +8,6 @@ const APP_PLUGINS = `apply plugin: "kotlin-kapt"
 apply plugin: "dagger.hilt.android.plugin"`
 
 const DEFAULT_CONFIG = `        missingDimensionStrategy "store", "play"
-        // All rail data flows through the Better Rail server: GTFS-backed timetable +
-        // proxied Israel Railways API. No direct calls to rail.co.il, no API key.
         // TEMP: point to Railway; revert host to api.better-rail.co.il
         def railApiBaseUrl = "https://better-rail.up.railway.app/api/v1/rail-api"
         buildConfigField "String", "RAIL_API_BASE_URL", "\\"\${railApiBaseUrl}\\""

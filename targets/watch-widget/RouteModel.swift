@@ -105,7 +105,6 @@ struct RouteModel {
   func fetchRoute(originId: String, destinationId: String, date: Date? = nil, completion: @escaping (FetchRouteResult) -> Void) {
       let (routeDate, routeTime) = formatRouteDate(date ?? Date())
       
-      // Timetable now comes from our server (GTFS-backed), which returns the same shape.
       // TEMP: point to Railway; revert host to api.better-rail.co.il
       let url = URL(string: "https://better-rail.up.railway.app/api/v1/rail-api/rjpa/api/v1/timetable/searchTrainForMobile")!
 

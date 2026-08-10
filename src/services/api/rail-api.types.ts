@@ -21,11 +21,9 @@ export interface ApiTrain {
   trainPosition: TrainPosition
   routeStations: RouteStation[]
   visaWagonData: VisaWagonData | null
-  // Realtime (SIRI) fields from the Better Rail server; absent when there's no live data.
+  // Realtime (SIRI) fields, absent when there's no live data
   isCancelled?: boolean
-  /** The train now terminates at a different station than scheduled. */
   actualLastStationId?: number
-  /** Live platform differs from the scheduled one at the boarding/alighting station. */
   originPlatformChanged?: boolean
   destPlatformChanged?: boolean
 }
@@ -40,9 +38,7 @@ export interface StopStation {
   departureTime: string
   platform: number
   crowded: number
-  /** Realtime: live platform differs from the scheduled one. */
   platformChanged?: boolean
-  /** Realtime: the train will skip this stop. */
   cancelled?: boolean
 }
 
@@ -51,9 +47,7 @@ export interface RouteStation {
   arrivalTime: string
   crowded: number
   platform: number
-  /** Realtime: live platform differs from the scheduled one. */
   platformChanged?: boolean
-  /** Realtime: the train will skip this stop. */
   cancelled?: boolean
 }
 
@@ -87,14 +81,11 @@ export type Train = {
     cancelled?: boolean
   }[]
   lastStop: string
-  /** The train's last stop differs from the scheduled one (lastStop holds the live one). */
   isLastStopChanged: boolean
-  /** The whole train is cancelled. */
   isCancelled: boolean
-  /** The train skips the boarding / alighting station of this leg. */
+  /** The train skips this leg's boarding / alighting station */
   originCancelled: boolean
   destinationCancelled: boolean
-  /** Live platform differs from the scheduled one. */
   originPlatformChanged: boolean
   destinationPlatformChanged: boolean
   delay: number
@@ -113,7 +104,6 @@ export type RouteItem = {
   arrivalTimeString: string
   isMuchLonger: boolean
   isMuchShorter: boolean
-  /** A leg is cancelled or skips this journey's boarding/alighting station. */
   isCancelled: boolean
   trains: Train[]
 }
