@@ -24,6 +24,14 @@ export const DelayBadge = function DelayBadge(props: DelayBadgeProps) {
   )
 }
 
+export const CancelledBadge = function CancelledBadge() {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.badgeText} maxFontSizeMultiplier={1.15} tx="routes.cancelled" />
+    </View>
+  )
+}
+
 const styles = StyleSheet.create((theme, rt) => ({
   container: {
     paddingVertical: 1,

@@ -49,6 +49,7 @@
     "oneChange": "تبديل واحد",
     "changes": "تبديلات",
     "delayTime": "دقائق تأخير",
+    "cancelled": "ملغاة",
     "departsAt": "يغادر في",
     "arrivesAt": "يصل في",
     "noInternetConnection": "يبدو أن الجهاز الخاص بك ليس متصلًا بالإنترنت في الوقت الحالي.\nيرجى التحقق من اتصال الشبكة الخاصة بك والمحاولة مرة أخرى.",
@@ -84,6 +85,11 @@
     "waitingTime": "مدة الانتظار",
     "unsafeChange": "هذا التغيير غير مضمون",
     "lastStop": "المحطة الأخيرة",
+    "trainCancelled": "تم إلغاء القطار",
+    "trainCancelledText": "وفقًا لقطارات إسرائيل، تم إلغاء هذا القطار. يرجى اختيار مسار آخر.",
+    "routeChanged": "تغيير في المسار",
+    "skippedStationText": "لن يتوقف القطار في محطة %{station}.",
+    "lastStopChangedText": "تم تغيير المحطة الأخيرة للقطار إلى %{station}.",
     "routeWarning": "تحذير الطريق الطويل",
     "routeWarningText": "هناك طرق قطار أقصر حول وقت المغادرة.",
     "addToCalendar": "إضافة إلى التقويم",
@@ -97,7 +103,6 @@
     "carsCount": "%{count} عربات",
     "seatsCount": "%{count} مقاعد",
     "trainInformation": "معلومات القطار",
-    "noTrainDetails": "تفاصيل القطار غير متوفرة بعد لهذا القطار.",
     "noWagonInformationAvailable": "لا توجد معلومات عن العربات متاحة"
   },
   "settings": {

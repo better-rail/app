@@ -21,6 +21,11 @@ export interface ApiTrain {
   trainPosition: TrainPosition
   routeStations: RouteStation[]
   visaWagonData: VisaWagonData | null
+  // Realtime (SIRI) fields, absent when there's no live data
+  isCancelled?: boolean
+  actualLastStationId?: number
+  originPlatformChanged?: boolean
+  destPlatformChanged?: boolean
 }
 
 export interface TrainPosition {
@@ -33,6 +38,8 @@ export interface StopStation {
   departureTime: string
   platform: number
   crowded: number
+  platformChanged?: boolean
+  cancelled?: boolean
 }
 
 export interface RouteStation {
@@ -40,6 +47,8 @@ export interface RouteStation {
   arrivalTime: string
   crowded: number
   platform: number
+  platformChanged?: boolean
+  cancelled?: boolean
 }
 
 export type RailApiGetRoutesResult = {
@@ -68,8 +77,17 @@ export type Train = {
     stationId: number
     stationName: string
     platform: number
+    platformChanged?: boolean
+    cancelled?: boolean
   }[]
   lastStop: string
+  isLastStopChanged: boolean
+  isCancelled: boolean
+  /** The train skips this leg's boarding / alighting station */
+  originCancelled: boolean
+  destinationCancelled: boolean
+  originPlatformChanged: boolean
+  destinationPlatformChanged: boolean
   delay: number
   trainPosition: TrainPosition
   routeStations: RouteStation[]
@@ -86,6 +104,7 @@ export type RouteItem = {
   arrivalTimeString: string
   isMuchLonger: boolean
   isMuchShorter: boolean
+  isCancelled: boolean
   trains: Train[]
 }
 

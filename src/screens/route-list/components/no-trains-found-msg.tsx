@@ -6,13 +6,14 @@ import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore } from "@/models"
 import { AnnouncementsList } from "@/components/announcements/announcements-list"
 import { AnnouncementsHeader } from "@/components/announcements/announcements-header"
+import { HIDE_RAIL_SERVICE_UPDATES } from "@/config/features"
 
 export function NoTrainsFoundMessage() {
   const { origin, destination } = useRoutePlanStore(useShallow((s) => ({ origin: s.origin, destination: s.destination })))
   const originId = origin.id
   const destinationId = destination.id
 
-  const shouldShowAnnouncements = originId !== destinationId
+  const shouldShowAnnouncements = !HIDE_RAIL_SERVICE_UPDATES && originId !== destinationId
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

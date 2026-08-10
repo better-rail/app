@@ -22,10 +22,14 @@ type RouteStopCardProps = {
    * (before origin or after destination)
    */
   isOutsideUserJourney?: boolean
+  /**
+   * Realtime: the train will skip this stop
+   */
+  isCancelled?: boolean
 }
 
 export const RouteStopCard = (props: RouteStopCardProps) => {
-  const { stationName, stopTime, delayedTime, topLineState, bottomLineState, style, isOutsideUserJourney } = props
+  const { stationName, stopTime, delayedTime, topLineState, bottomLineState, style, isOutsideUserJourney, isCancelled } = props
 
   return (
     <View style={[styles.routeStopWrapper, style]}>
@@ -36,6 +40,7 @@ export const RouteStopCard = (props: RouteStopCardProps) => {
               styles.routeStopTime,
               delayedTime && styles.routeStopTimeDelayed,
               isOutsideUserJourney && styles.outsideJourneyText,
+              isCancelled && styles.cancelledStopText,
             ]}
             maxFontSizeMultiplier={1.2}
           >
@@ -55,7 +60,14 @@ export const RouteStopCard = (props: RouteStopCardProps) => {
         </View>
 
         <View style={{ flex: 0.55, right: 15 }}>
-          <Text style={[styles.stationName, isOutsideUserJourney && styles.outsideJourneyText]} maxFontSizeMultiplier={1.2}>
+          <Text
+            style={[
+              styles.stationName,
+              isOutsideUserJourney && styles.outsideJourneyText,
+              isCancelled && styles.cancelledStopText,
+            ]}
+            maxFontSizeMultiplier={1.2}
+          >
             {stationName}
           </Text>
         </View>
@@ -88,6 +100,10 @@ const styles = StyleSheet.create((theme) => ({
   },
   outsideJourneyText: {
     color: theme.colors.dim,
+  },
+  cancelledStopText: {
+    textDecorationLine: "line-through",
+    opacity: 0.5,
   },
   stationName: {
     fontWeight: "600",

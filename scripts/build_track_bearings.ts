@@ -16,7 +16,7 @@
 import { readFileSync, writeFileSync } from "node:fs"
 import { join } from "node:path"
 
-import { stationsObject } from "../app/data/stations"
+import { stationsObject } from "../src/data/stations"
 
 const DATA_DIR = join(__dirname, "..", "app", "data", "directions")
 
