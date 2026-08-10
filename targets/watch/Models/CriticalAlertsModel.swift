@@ -19,8 +19,7 @@ struct PopUpMessage: Decodable, Encodable, Identifiable {
 struct CriticalAlertsModel {
   func fetchCriticalAlerts(completion: @escaping (PopUpMessagesResult?) -> Void) {
       let language = getUserLocale().rawValue.capitalized
-      // TEMP: point to Railway; revert host to api.better-rail.co.il
-      let urlString = "https://better-rail.up.railway.app/api/v1/rail-api/common/api/v1/PopUpMessages/?LanguageId=\(language)&PageTypeId=MainPage"
+      let urlString = "https://api.better-rail.co.il/api/v1/rail-api/common/api/v1/PopUpMessages/?LanguageId=\(language)&PageTypeId=MainPage"
       guard let url = URL(string: urlString) else {
           completion(nil)
           return

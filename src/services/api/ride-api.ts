@@ -9,8 +9,7 @@ export class RideApi {
   constructor() {
     const env: string = "production"
     const envPath = env === "production" ? "" : "-" + env
-    // TEMP: point to Railway; revert host to api.better-rail.co.il
-    let baseURL = "https://better-rail.up.railway.app/api/v1"
+    let baseURL = "https://api.better-rail.co.il/api/v1"
 
     if (env !== "production") {
       baseURL = `https://better-rail${envPath}.up.railway.app/api/v1`

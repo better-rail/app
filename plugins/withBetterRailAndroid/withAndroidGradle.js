@@ -8,8 +8,7 @@ const APP_PLUGINS = `apply plugin: "kotlin-kapt"
 apply plugin: "dagger.hilt.android.plugin"`
 
 const DEFAULT_CONFIG = `        missingDimensionStrategy "store", "play"
-        // TEMP: point to Railway; revert host to api.better-rail.co.il
-        def railApiBaseUrl = "https://better-rail.up.railway.app/api/v1/rail-api"
+        def railApiBaseUrl = "https://api.better-rail.co.il/api/v1/rail-api"
         buildConfigField "String", "RAIL_API_BASE_URL", "\\"\${railApiBaseUrl}\\""
         buildConfigField "String", "RAIL_API_TIMETABLE_URL", "\\"\${railApiBaseUrl}/rjpa/api/v1/timetable/\\""`
 

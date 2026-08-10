@@ -105,8 +105,7 @@ struct RouteModel {
   func fetchRoute(originId: String, destinationId: String, date: Date? = nil, completion: @escaping (FetchRouteResult) -> Void) {
       let (routeDate, routeTime) = formatRouteDate(date ?? Date())
       
-      // TEMP: point to Railway; revert host to api.better-rail.co.il
-      let url = URL(string: "https://better-rail.up.railway.app/api/v1/rail-api/rjpa/api/v1/timetable/searchTrainForMobile")!
+      let url = URL(string: "https://api.better-rail.co.il/api/v1/rail-api/rjpa/api/v1/timetable/searchTrainForMobile")!
 
       var request = URLRequest(url: url)
       request.httpMethod = "POST"
