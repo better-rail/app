@@ -1,10 +1,7 @@
 import { addMinutes, differenceInSeconds } from "date-fns"
-import { RideStatus } from "@/hooks/use-ride-progress"
-import { RouteItem, Train } from "@/services/api"
-import { isEqual, last } from "lodash"
-import { useRideStore } from "@/models/ride/ride"
-import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
-import { router } from "expo-router"
+import { isEqual } from "lodash"
+import type { RideStatus } from "@/hooks/use-ride-progress"
+import type { RouteItem, Train } from "@/services/api"
 
 /**
  * Find the closest station to the current time.
@@ -33,11 +30,12 @@ export function findClosestStationInRoute(route: RouteItem) {
     }
   }
 
-  return last(route.trains)?.destinationStationId
+  // the ride has ended - fall back to the final destination
+  return route.trains[route.trains.length - 1].destinationStationId
 }
 
 /// Get the train which includes the provided stop station
-export function getTrainFromStationId(route: RouteItem, stationId: number): Train {
+export function getTrainFromStationId(route: RouteItem, stationId: number): Train | undefined {
   // lookup for the station in the stop stations list
   const train = route.trains.find((train) => {
     return !!train.stopStations.find((s) => s.stationId === stationId)
@@ -54,6 +52,7 @@ export function getTrainFromStationId(route: RouteItem, stationId: number): Trai
 export function getPreviousTrainFromStationId(route: RouteItem, stationId: number): Train | null {
   // the current station train
   const train = getTrainFromStationId(route, stationId)
+  if (!train) return null
   const trainIndex = route.trains.findIndex((current) => current.trainNumber === train.trainNumber)
 
   if (trainIndex < 1) return null
@@ -69,7 +68,15 @@ export function getSelectedRide(routes: RouteItem[], rideTrainNumbers: number[])
   )
 }
 
-export function getRideStatus(route: RouteItem, train: Train, nextStationId: number, delay: number = train.delay): RideStatus {
+export function getRideStatus(
+  route: RouteItem,
+  train: Train | undefined,
+  nextStationId: number,
+  delay: number = train?.delay ?? 0,
+): RideStatus {
+  // the station isn't part of any train in this route - we can't tell where the ride is
+  if (!train) return "loading"
+
   if (train.originStationId === nextStationId) {
     if (route.trains[0].originStationId == train.originStationId) {
       return "waitForTrain"
@@ -88,11 +95,10 @@ export function getRideStatus(route: RouteItem, train: Train, nextStationId: num
 
   if (train.destinationStationId === nextStationId) {
     const nextTrain = getTrainFromStationId(route, nextStationId)
-    const nextTrainDepartureTime = addMinutes(nextTrain.departureTime, delay)
     const arrivalTime = addMinutes(train.arrivalTime, delay)
     const timeToArrival = differenceInSeconds(arrivalTime, new Date())
 
-    if (nextTrainDepartureTime.getTime() >= Date.now()) {
+    if (nextTrain && addMinutes(nextTrain.departureTime, delay).getTime() >= Date.now()) {
       return "inExchange"
     } else if (timeToArrival >= 0) {
       return "inTransit"
@@ -102,19 +108,4 @@ export function getRideStatus(route: RouteItem, train: Train, nextStationId: num
   }
 
   return "inTransit"
-}
-
-export const openActiveRide = () => {
-  const rideState = useRideStore.getState()
-  const { route } = rideState
-  const originId = rideState.originId()
-  const destinationId = rideState.destinationId()
-  if (!route) return
-
-  useNavigationParamsStore.getState().setRouteDetails({
-    routeItem: route,
-    originId: String(originId),
-    destinationId: String(destinationId),
-  })
-  router.push("/active-ride")
 }

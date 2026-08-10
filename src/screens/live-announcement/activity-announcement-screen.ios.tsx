@@ -1,10 +1,11 @@
-import { Image, ScrollView, View } from "react-native"
+import { Image, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text } from "@/components"
 import { LiveAnnouncementBackground } from "./live-announcement-bg"
 import { userLocale } from "@/i18n"
 import { useRouter } from "expo-router"
 import { NextButton } from "./announcement-next-button"
+import { LiveAnnouncementScrollView } from "./live-announcement-scroll-view"
 
 export function ActivityAnnouncementScreen() {
   const router = useRouter()
@@ -16,7 +17,7 @@ export function ActivityAnnouncementScreen() {
   return (
     <Screen unsafe={true} statusBar="light-content">
       <LiveAnnouncementBackground />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <LiveAnnouncementScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.content}>
           <Text tx="liveAnnounce.liveActivity.title" preset="header" style={styles.title} maxFontSizeMultiplier={1.1} />
           <Text tx="liveAnnounce.liveActivity.description" style={styles.text} maxFontSizeMultiplier={1.1} />
@@ -33,7 +34,7 @@ export function ActivityAnnouncementScreen() {
             router.push("/live-announcement/dynamic-island")
           }}
         />
-      </ScrollView>
+      </LiveAnnouncementScrollView>
     </Screen>
   )
 }

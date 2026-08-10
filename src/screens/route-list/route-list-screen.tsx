@@ -15,7 +15,7 @@ import { useShallow } from "zustand/react/shallow"
 import { useTrainRoutesStore, useRoutePlanStore, useRideStore, useSettingsStore } from "@/models"
 import { fontScale, spacing } from "@/theme"
 import type { RouteItem } from "@/services/api"
-import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight } from "@/components"
+import { Screen, RouteDetailsHeader, RouteCard } from "@/components"
 import {
   NoTrainsFoundMessage,
   RouteListError,
@@ -528,7 +528,6 @@ export function RouteListScreen() {
             paddingHorizontal: spacing[3],
             paddingBottom: shouldShowWarning ? spacing[8] + 12 : spacing[3],
           }}
-          estimatedItemSize={RouteCardHeight + spacing[3]}
           initialScrollIndex={initialScrollIndex}
           // so the list will re-render when the ride route changes, and so the item will be marked
           extraData={[rideRoute, routePlanDate, trains.status, loadingDate, hideSlowTrains]}

@@ -33,11 +33,14 @@ tags:
             # "Connect" button: on shorter simulators the keyboard covers the
             # button, so tapping it silently fails and the URL is never saved.
             - pressKey: Enter
-      # First load bundles the app, so allow extra time.
+      # First load triggers a cold JS bundle from Metro. With React Compiler over
+      # ~4200 modules this takes ~3 min on CI, so wait well past that — a shorter
+      # timeout makes the retry relaunch mid-build and wedge the dev client on a
+      # "Failed to connect" dialog before the bundle ever finishes.
       - extendedWaitUntil:
           visible:
             id: "planner-origin-card"
-          timeout: 120000
+          timeout: 300000
 
 # Select origin station: Jerusalem - Yitzhak Navon.
 # Search terms are typed in Hebrew because station search always indexes

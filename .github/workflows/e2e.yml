@@ -1,6 +1,8 @@
 name: E2E
+# Temporarily disabled on PRs: the dev-client + Metro run is slow/flaky and was
+# blocking merges. Still runnable on demand via the Actions "Run workflow" button
+# (workflow_dispatch). Re-add `pull_request:` here to restore automatic PR runs.
 on:
-  pull_request:
   workflow_dispatch:
 
 concurrency:

@@ -1,0 +1,95 @@
+diff --git a/android/src/main/java/com/swmansion/rnscreens/Screen.kt b/android/src/main/java/com/swmansion/rnscreens/Screen.kt
+index 04c53160789e9ef19529c532f83331859630d5f9..b8a06a6f29837379983406bd93ca921c8eb69035 100644
+--- a/android/src/main/java/com/swmansion/rnscreens/Screen.kt
++++ b/android/src/main/java/com/swmansion/rnscreens/Screen.kt
+@@ -450,27 +450,21 @@ class Screen(
+             return
+         }
+         isBeingRemoved = false
+-        endTransitionRecursive(this)
++        endViewTransition()
+     }
+ 
+-    private fun endTransitionRecursive(parent: ViewGroup) {
+-        parent.children.forEach { childView ->
+-            parent.endViewTransition(childView)
+-
+-            if (childView is ScreenStackHeaderConfig) {
+-                endTransitionRecursive(childView.toolbar)
+-            }
+-
+-            if (childView is ViewGroup) {
+-                endTransitionRecursive(childView)
+-            }
+-        }
+-    }
++    private val transitioningViews = mutableListOf<Pair<ViewGroup, View>>()
+ 
++    /**
++     * Called when a screen gets removed. This is to mark all children as in transition,
++     * so they are not removed from the view hierarchy until endRemovalTransition is called.
++     * This is needed for the screen transition animation to work properly (otherwise the children
++     * would instantly disappear from the screen).
++     */
+     private fun startTransitionRecursive(parent: ViewGroup?) {
+-        parent?.let {
+-            for (i in 0 until it.childCount) {
+-                val child = it.getChildAt(i)
++        parent?.let { parentView ->
++            for (i in 0 until parentView.childCount) {
++                val child = parentView.getChildAt(i)
+ 
+                 if (parent is SwipeRefreshLayout && child is ImageView) {
+                     // SwipeRefreshLayout class which has CircleImageView as a child,
+@@ -479,9 +473,12 @@ class Screen(
+                     // wrong index if we called `startViewTransition` on the views on new arch.
+                     // We add a simple View to bump the number of children to make it work.
+                     // TODO: find a better way to handle this scenario
+-                    it.addView(View(context), i)
++                    parentView.addView(View(context), i)
+                 } else {
+-                    child?.let { view -> it.startViewTransition(view) }
++                    child?.let { childView ->
++                        parentView.startViewTransition(childView)
++                        transitioningViews.add(Pair(parentView, childView))
++                    }
+                 }
+ 
+                 if (child is ScreenStackHeaderConfig) {
+@@ -497,6 +494,21 @@ class Screen(
+         }
+     }
+ 
++    /**
++     * Called when the removal transition is finished. This will clear the transition state
++     * from all children and allow them to be removed from the view hierarchy and their mParent
++     * field to be set to null.
++     */
++    private fun endViewTransition() {
++        // IMPORTANT: Reverse order is needed, inner children first!
++        // Otherwise parents will call dispatchOnDetachedFromWindow on all their children,
++        // which will cause endViewTransition to have no effect on them anymore.
++        transitioningViews.asReversed().forEach { (parent, child) ->
++            parent.endViewTransition(child)
++        }
++        transitioningViews.clear()
++    }
++
+     // We do not want to perform any action, therefore do not need to override the associated method.
+     @SuppressLint("ClickableViewAccessibility")
+     override fun onTouchEvent(event: MotionEvent?): Boolean =
+diff --git a/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt b/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt
+index bffd9c7c72f6f56e499f51d92e8ad3e597a63687..3e7e7e9028e1a55be72b8f3962162e0636f3d43c 100644
+--- a/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt
++++ b/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt
+@@ -76,6 +76,10 @@ class ScreenStack(
+     }
+ 
+     override fun endViewTransition(view: View) {
++        if (view is ScreensCoordinatorLayout) {
++            view.fragment.screen.endRemovalTransition()
++        }
++
+         super.endViewTransition(view)
+ 
+         disappearingTransitioningChildren.remove(view)
