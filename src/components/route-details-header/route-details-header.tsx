@@ -30,6 +30,9 @@ const ellipsisIcon = require("../../../assets/ellipsis.regular.png")
 /** Longer than any stack dismiss animation, so it only ever fires if `transitionEnd` is missed. */
 const STATION_PICKER_FALLBACK_MS = 700
 
+/** `closing` is false when the screen has finished transitioning back to the top of the stack. */
+type TransitionEndEvent = { data?: { closing?: boolean } }
+
 export interface RouteDetailsHeaderProps {
   originId: string
   destinationId: string
@@ -132,6 +135,19 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       await shareAction.onPress()
     }
   }
+
+  // The picker can also be dismissed without picking anything (Cancel, or the back gesture),
+  // which leaves no store change behind to clear the flag. Clear it whenever this screen has
+  // finished transitioning back to the top, so a later in-place change isn't needlessly deferred.
+  // Only on `closing: false` — a closing event means the picker is opening over us, which is
+  // exactly when the flag has to stay set.
+  useEffect(() => {
+    if (routeEditDisabled) return
+
+    return navigation.addListener("transitionEnd" as never, ((event: TransitionEndEvent) => {
+      if (!event.data?.closing) awaitingStationPicker.current = false
+    }) as never)
+  }, [navigation, routeEditDisabled])
 
   // Only the route list reads its stations from the navigation params — route details and the
   // active ride get theirs from the navigation params store, so syncing there writes params
