@@ -27,17 +27,12 @@ import { HIDE_STATION_HOURS } from "@/config/features"
 const arrowIcon = require("../../../assets/arrow-left.png")
 const ellipsisIcon = require("../../../assets/ellipsis.regular.png")
 
-/** Longer than any stack dismiss animation, so it only ever fires if `transitionEnd` is missed. */
+/** Longer than any dismiss animation, so it only fires if `transitionEnd` is missed. */
 const STATION_PICKER_FALLBACK_MS = 700
 
 type TransitionEndEvent = { data?: { closing?: boolean } }
 
-/**
- * react-native-screens reports `closing: false` once this screen has finished transitioning back
- * to the top of the stack, and `closing: true` when it is being covered by one being pushed over
- * it. Only the former means it is safe to mutate the screen. Anything else — including an event
- * without the flag — is treated as "still moving", leaving the caller's timeout to catch it.
- */
+/** `closing: false` means this screen is back on top and done animating, so it's safe to mutate. */
 const hasSettledOnTop = (event: TransitionEndEvent) => event.data?.closing === false
 
 export interface RouteDetailsHeaderProps {
@@ -72,7 +67,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const routeEditDisabled = screenName !== "routeList"
 
   const stationCardScale = useRef(new RNAnimated.Value(1)).current
-  /** Set while the station picker is open, so we know a store change is arriving mid-transition. */
+  /** Set while the station picker is open, so we know a store change came from it. */
   const awaitingStationPicker = useRef(false)
 
   const originName = stationsObject[originId][stationLocale]
@@ -100,7 +95,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   }
 
   const swapDirection = () => {
-    // This is an in-place change, so clear a flag left over from a picker the user cancelled.
+    // In-place change — clear a flag left over from a cancelled picker.
     awaitingStationPicker.current = false
     scaleStationCards()
     HapticFeedback.trigger("impactMedium")
@@ -143,9 +138,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     }
   }
 
-  // The picker can also be dismissed without picking anything (Cancel, or the back gesture),
-  // which leaves no store change behind to clear the flag. Clear it once this screen has settled
-  // back on top, so a later in-place change isn't needlessly deferred.
+  // A cancelled picker leaves no store change behind to clear the flag, so clear it here instead.
   useEffect(() => {
     if (routeEditDisabled) return
 
@@ -154,9 +147,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     }) as never)
   }, [navigation, routeEditDisabled])
 
-  // Only the route list reads its stations from the navigation params — route details and the
-  // active ride get theirs from the navigation params store, so syncing there writes params
-  // nobody reads (and would describe the planned route rather than the one being viewed).
+  // Only the route list reads its stations from params — the other screens use the params store.
   useEffect(() => {
     if (routeEditDisabled) return
 
@@ -170,24 +161,19 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       navigation.setParams({ originId: nextOriginId, destinationId: nextDestinationId } as never)
     }
 
-    // Changed in place (the swap-direction button) — nothing is animating, apply right away.
+    // In-place change (the swap button) — nothing is animating, apply right away.
     if (!awaitingStationPicker.current) {
       applyParams()
       return
     }
 
-    // The change came from the station picker, which writes to the store and pops itself in the
-    // same tick. Applying now rebuilds this whole screen (header image, route FlashList) while
-    // react-native-screens is still running the Android dismiss transition — Fabric then tries to
-    // mount a view that is still attached to the outgoing fragment and throws
-    // "addViewAt: failed to insert view [x] into parent [y]", killing the app or leaving a black
-    // screen. See software-mansion/react-native-screens#3249. Wait until we're back on top —
-    // and only then: if something else got pushed over this screen before the picker finished
-    // dismissing, that transition is just as unsafe to mutate during.
+    // The picker writes to the store and pops itself in the same tick. Applying now rebuilds this
+    // screen mid-transition, which crashes Fabric on Android with "addViewAt: failed to insert
+    // view" (react-native-screens#3249). Wait until we've settled instead.
     const unsubscribe = navigation.addListener("transitionEnd" as never, ((event: TransitionEndEvent) => {
       if (hasSettledOnTop(event)) applyParams()
     }) as never)
-    // Safety net: the params must never be dropped if no settled `transitionEnd` arrives.
+    // Safety net, so the params are never dropped.
     const fallback = setTimeout(applyParams, STATION_PICKER_FALLBACK_MS)
 
     return () => {
