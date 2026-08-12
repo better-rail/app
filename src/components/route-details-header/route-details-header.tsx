@@ -30,8 +30,15 @@ const ellipsisIcon = require("../../../assets/ellipsis.regular.png")
 /** Longer than any stack dismiss animation, so it only ever fires if `transitionEnd` is missed. */
 const STATION_PICKER_FALLBACK_MS = 700
 
-/** `closing` is false when the screen has finished transitioning back to the top of the stack. */
 type TransitionEndEvent = { data?: { closing?: boolean } }
+
+/**
+ * react-native-screens reports `closing: false` once this screen has finished transitioning back
+ * to the top of the stack, and `closing: true` when it is being covered by one being pushed over
+ * it. Only the former means it is safe to mutate the screen. Anything else — including an event
+ * without the flag — is treated as "still moving", leaving the caller's timeout to catch it.
+ */
+const hasSettledOnTop = (event: TransitionEndEvent) => event.data?.closing === false
 
 export interface RouteDetailsHeaderProps {
   originId: string
@@ -137,15 +144,13 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   }
 
   // The picker can also be dismissed without picking anything (Cancel, or the back gesture),
-  // which leaves no store change behind to clear the flag. Clear it whenever this screen has
-  // finished transitioning back to the top, so a later in-place change isn't needlessly deferred.
-  // Only on `closing: false` — a closing event means the picker is opening over us, which is
-  // exactly when the flag has to stay set.
+  // which leaves no store change behind to clear the flag. Clear it once this screen has settled
+  // back on top, so a later in-place change isn't needlessly deferred.
   useEffect(() => {
     if (routeEditDisabled) return
 
     return navigation.addListener("transitionEnd" as never, ((event: TransitionEndEvent) => {
-      if (!event.data?.closing) awaitingStationPicker.current = false
+      if (hasSettledOnTop(event)) awaitingStationPicker.current = false
     }) as never)
   }, [navigation, routeEditDisabled])
 
@@ -176,9 +181,13 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     // react-native-screens is still running the Android dismiss transition — Fabric then tries to
     // mount a view that is still attached to the outgoing fragment and throws
     // "addViewAt: failed to insert view [x] into parent [y]", killing the app or leaving a black
-    // screen. See software-mansion/react-native-screens#3249. Wait until we're back on top.
-    const unsubscribe = navigation.addListener("transitionEnd" as never, applyParams)
-    // Safety net: the params must never be dropped if `transitionEnd` doesn't arrive.
+    // screen. See software-mansion/react-native-screens#3249. Wait until we're back on top —
+    // and only then: if something else got pushed over this screen before the picker finished
+    // dismissing, that transition is just as unsafe to mutate during.
+    const unsubscribe = navigation.addListener("transitionEnd" as never, ((event: TransitionEndEvent) => {
+      if (hasSettledOnTop(event)) applyParams()
+    }) as never)
+    // Safety net: the params must never be dropped if no settled `transitionEnd` arrives.
     const fallback = setTimeout(applyParams, STATION_PICKER_FALLBACK_MS)
 
     return () => {
