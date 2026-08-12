@@ -141,14 +141,10 @@ export function RouteListScreen() {
   // Keep track of the dates we've already loaded
   const [loadedDates, setLoadedDates] = useState<Set<string>>(new Set())
 
-  // The station pair the current `routeData` belongs to. When it changes we replace the data
-  // instead of merging into it, rather than emptying it first — emptying unmounts the FlashList,
-  // and the remount ~1s later (once the new routes arrive) lands on whatever transition is running
-  // by then. Users routinely change the second station a second after the first, so that remount
-  // hits the picker's push transition and Fabric crashes inserting an already-parented view.
+  // The station pair the current `routeData` belongs to. We replace the data once the new routes
+  // arrive instead of emptying it here, since unmounting the FlashList mid-transition crashes Fabric.
   const routeDataStations = useRef(`${originId}-${destinationId}`)
 
-  // Loaded dates are plain state, so resetting them costs no unmount.
   useEffect(() => {
     setLoadedDates(new Set())
   }, [originId, destinationId])
@@ -279,7 +275,7 @@ export function RouteListScreen() {
       // Create a new date string for the current date
       const dateString = currentDate.toDateString()
 
-      // Routes for a different station pair must replace the old ones rather than merge with them.
+      // Routes for a different station pair replace the old ones instead of merging with them
       const stations = `${originId}-${destinationId}`
       const stationsChanged = routeDataStations.current !== stations
       routeDataStations.current = stations
