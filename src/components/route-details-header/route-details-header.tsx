@@ -27,6 +27,14 @@ import { HIDE_STATION_HOURS } from "@/config/features"
 const arrowIcon = require("../../../assets/arrow-left.png")
 const ellipsisIcon = require("../../../assets/ellipsis.regular.png")
 
+/** Longer than any dismiss animation, so it only fires if `transitionEnd` is missed. */
+const STATION_PICKER_FALLBACK_MS = 700
+
+type TransitionEndEvent = { data?: { closing?: boolean } }
+
+/** `closing: false` means this screen is back on top and done animating, so it's safe to mutate. */
+const hasSettledOnTop = (event: TransitionEndEvent) => event.data?.closing === false
+
 export interface RouteDetailsHeaderProps {
   originId: string
   destinationId: string
@@ -59,6 +67,8 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const routeEditDisabled = screenName !== "routeList"
 
   const stationCardScale = useRef(new RNAnimated.Value(1)).current
+  /** Set while the station picker is open, so we know a store change came from it. */
+  const awaitingStationPicker = useRef(false)
 
   const originName = stationsObject[originId][stationLocale]
   const destinationName = stationsObject[destinationId][stationLocale]
@@ -85,6 +95,8 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   }
 
   const swapDirection = () => {
+    // In-place change — clear a flag left over from a cancelled picker.
+    awaitingStationPicker.current = false
     scaleStationCards()
     HapticFeedback.trigger("impactMedium")
     setTimeout(() => {
@@ -93,10 +105,12 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   }
 
   const changeOriginStation = () => {
+    awaitingStationPicker.current = true
     router.push({ pathname: "/select-station", params: { selectionType: "origin" } })
   }
 
   const changeDestinationStation = () => {
+    awaitingStationPicker.current = true
     router.push({ pathname: "/select-station", params: { selectionType: "destination" } })
   }
 
@@ -124,15 +138,50 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     }
   }
 
+  // A cancelled picker leaves no store change behind to clear the flag, so clear it here instead.
   useEffect(() => {
-    if (routePlanOrigin?.id && routePlanDestination?.id) {
-      navigation.setParams({
-        originId: routePlanOrigin.id,
-        destinationId: routePlanDestination.id,
-      } as never)
+    if (routeEditDisabled) return
+
+    return navigation.addListener("transitionEnd" as never, ((event: TransitionEndEvent) => {
+      if (hasSettledOnTop(event)) awaitingStationPicker.current = false
+    }) as never)
+  }, [navigation, routeEditDisabled])
+
+  // Only the route list reads its stations from params — the other screens use the params store.
+  useEffect(() => {
+    if (routeEditDisabled) return
+
+    const nextOriginId = routePlanOrigin?.id
+    const nextDestinationId = routePlanDestination?.id
+    if (!nextOriginId || !nextDestinationId) return
+    if (nextOriginId === originId && nextDestinationId === destinationId) return
+
+    const applyParams = () => {
+      awaitingStationPicker.current = false
+      navigation.setParams({ originId: nextOriginId, destinationId: nextDestinationId } as never)
+    }
+
+    // In-place change (the swap button) — nothing is animating, apply right away.
+    if (!awaitingStationPicker.current) {
+      applyParams()
+      return
+    }
+
+    // The picker writes to the store and pops itself in the same tick. Applying now rebuilds this
+    // screen mid-transition, which crashes Fabric on Android with "addViewAt: failed to insert
+    // view" (react-native-screens#3249). Wait until we've settled instead.
+    const unsubscribe = navigation.addListener("transitionEnd" as never, ((event: TransitionEndEvent) => {
+      if (hasSettledOnTop(event)) applyParams()
+    }) as never)
+    // Safety net, so the params are never dropped.
+    const fallback = setTimeout(applyParams, STATION_PICKER_FALLBACK_MS)
+
+    return () => {
+      unsubscribe()
+      clearTimeout(fallback)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routePlanOrigin?.id, routePlanDestination?.id])
+  }, [routePlanOrigin?.id, routePlanDestination?.id, originId, destinationId, routeEditDisabled])
 
   const renderHeaderRight = () => {
     if (screenName === "routeDetails") {
