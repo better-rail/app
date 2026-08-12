@@ -141,9 +141,15 @@ export function RouteListScreen() {
   // Keep track of the dates we've already loaded
   const [loadedDates, setLoadedDates] = useState<Set<string>>(new Set())
 
-  // Reset route data and loaded dates when origin or destination changes
+  // The station pair the current `routeData` belongs to. When it changes we replace the data
+  // instead of merging into it, rather than emptying it first — emptying unmounts the FlashList,
+  // and the remount ~1s later (once the new routes arrive) lands on whatever transition is running
+  // by then. Users routinely change the second station a second after the first, so that remount
+  // hits the picker's push transition and Fabric crashes inserting an already-parented view.
+  const routeDataStations = useRef(`${originId}-${destinationId}`)
+
+  // Loaded dates are plain state, so resetting them costs no unmount.
   useEffect(() => {
-    setRouteData([])
     setLoadedDates(new Set())
   }, [originId, destinationId])
 
@@ -273,13 +279,19 @@ export function RouteListScreen() {
       // Create a new date string for the current date
       const dateString = currentDate.toDateString()
 
+      // Routes for a different station pair must replace the old ones rather than merge with them.
+      const stations = `${originId}-${destinationId}`
+      const stationsChanged = routeDataStations.current !== stations
+      routeDataStations.current = stations
+
       // Organize routes by date
       setRouteData((prevData) => {
-        const newData = organizeRoutesByDate(trains.data, dateString, prevData)
+        const newData = organizeRoutesByDate(trains.data, dateString, stationsChanged ? [] : prevData)
         return newData
       })
     }
-  }, [trains.data, currentDate, trains.isSuccess, trains.isLoading])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trains.data, currentDate, trains.isSuccess, trains.isLoading, originId, destinationId])
 
   // Initialize the loaded dates with the initial date
   useEffect(() => {

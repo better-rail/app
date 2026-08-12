@@ -48,7 +48,14 @@ Sentry.init({
   enabled: !__DEV__,
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,
-  integrations: [Sentry.mobileReplayIntegration({ maskAllText: false, maskAllImages: false, maskAllVectors: false })],
+  integrations: [
+    Sentry.mobileReplayIntegration({ maskAllText: false, maskAllImages: false, maskAllVectors: false }),
+    // Records `navigation` / `navigation.dispatch` breadcrumbs (push/pop, from → to). Without
+    // these, crash reports only carry touch breadcrumbs and the screen has to be guessed from
+    // which element was tapped — which made BETTER-RAIL-37 much harder to diagnose than it
+    // needed to be. Tracing stays off (no `tracesSampleRate`); the breadcrumbs are unconditional.
+    Sentry.expoRouterIntegration(),
+  ],
 })
 
 async function disableSentryIfTelemetryDisabled() {
