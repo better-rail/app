@@ -286,8 +286,20 @@ export function RouteListScreen() {
         return newData
       })
     }
+
+    // The old routes stay on screen while the new pair loads, but if the query fails they have to
+    // go — otherwise they sit under the new stations forever, and neither the empty nor the error
+    // state appears, since both are gated on `routeData` being empty.
+    if (trains.isError) {
+      const stations = `${originId}-${destinationId}`
+      if (routeDataStations.current !== stations) {
+        routeDataStations.current = stations
+        setRouteData([])
+        updateResultType("not-found")
+      }
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [trains.data, currentDate, trains.isSuccess, trains.isLoading, originId, destinationId])
+  }, [trains.data, currentDate, trains.isSuccess, trains.isLoading, trains.isError, originId, destinationId])
 
   // Initialize the loaded dates with the initial date
   useEffect(() => {
