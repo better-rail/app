@@ -141,9 +141,12 @@ export function RouteListScreen() {
   // Keep track of the dates we've already loaded
   const [loadedDates, setLoadedDates] = useState<Set<string>>(new Set())
 
-  // The station pair the current `routeData` belongs to. We replace the data once the new routes
-  // arrive instead of emptying it here, since unmounting the FlashList mid-transition crashes Fabric.
-  const routeDataStations = useRef(`${originId}-${destinationId}`)
+  // The station pair `routeData` belongs to. We replace the data once the new routes arrive
+  // instead of emptying it here, since unmounting the FlashList mid-transition crashes Fabric.
+  // Kept in state rather than a ref because rendering needs it: while the new pair loads the old
+  // routes stay on screen, and a card tapped in that window must carry the stations it was
+  // actually fetched for, not the ones now showing in the header.
+  const [routeDataStations, setRouteDataStations] = useState({ originId, destinationId })
 
   useEffect(() => {
     setLoadedDates(new Set())
@@ -276,9 +279,8 @@ export function RouteListScreen() {
       const dateString = currentDate.toDateString()
 
       // Routes for a different station pair replace the old ones instead of merging with them
-      const stations = `${originId}-${destinationId}`
-      const stationsChanged = routeDataStations.current !== stations
-      routeDataStations.current = stations
+      const stationsChanged = routeDataStations.originId !== originId || routeDataStations.destinationId !== destinationId
+      if (stationsChanged) setRouteDataStations({ originId, destinationId })
 
       // Organize routes by date
       setRouteData((prevData) => {
@@ -291,9 +293,8 @@ export function RouteListScreen() {
     // go — otherwise they sit under the new stations forever, and neither the empty nor the error
     // state appears, since both are gated on `routeData` being empty.
     if (trains.isError) {
-      const stations = `${originId}-${destinationId}`
-      if (routeDataStations.current !== stations) {
-        routeDataStations.current = stations
+      if (routeDataStations.originId !== originId || routeDataStations.destinationId !== destinationId) {
+        setRouteDataStations({ originId, destinationId })
         setRouteData([])
         updateResultType("not-found")
       }
@@ -414,7 +415,7 @@ export function RouteListScreen() {
               break
 
             case 1: // Share
-              await shareRouteAction(routeItem, originId, destinationId)
+              await shareRouteAction(routeItem, routeDataStations.originId, routeDataStations.destinationId)
               break
 
             default:
@@ -481,13 +482,13 @@ export function RouteListScreen() {
         isActiveRide={isRouteActive(item)}
         isRouteInThePast={isRouteInThePast(arrivalTime, item.delay)}
         onPress={() => {
-          useNavigationParamsStore.getState().setRouteDetails({ routeItem: item, originId, destinationId })
+          useNavigationParamsStore.getState().setRouteDetails({ routeItem: item, ...routeDataStations })
           router.push("/route-details")
         }}
         onLongPress={() => handleRouteLongPress(item)}
         routeItem={item}
-        originId={originId}
-        destinationId={destinationId}
+        originId={routeDataStations.originId}
+        destinationId={routeDataStations.destinationId}
         shouldShowDashedLine={shouldShowDashedLine}
         style={{ marginBottom: spacing[3] }}
       />
