@@ -48,10 +48,7 @@ Sentry.init({
   enabled: !__DEV__,
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,
-  integrations: [
-    Sentry.mobileReplayIntegration({ maskAllText: false, maskAllImages: false, maskAllVectors: false }),
-    Sentry.expoRouterIntegration(),
-  ],
+  integrations: [Sentry.mobileReplayIntegration({ maskAllText: false, maskAllImages: false, maskAllVectors: false })],
 })
 
 async function disableSentryIfTelemetryDisabled() {
