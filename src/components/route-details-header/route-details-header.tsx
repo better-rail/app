@@ -27,6 +27,9 @@ import { HIDE_STATION_HOURS } from "@/config/features"
 const arrowIcon = require("../../../assets/arrow-left.png")
 const ellipsisIcon = require("../../../assets/ellipsis.regular.png")
 
+/** Longer than any stack dismiss animation, so it only ever fires if `transitionEnd` is missed. */
+const STATION_PICKER_FALLBACK_MS = 700
+
 export interface RouteDetailsHeaderProps {
   originId: string
   destinationId: string
@@ -59,6 +62,8 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const routeEditDisabled = screenName !== "routeList"
 
   const stationCardScale = useRef(new RNAnimated.Value(1)).current
+  /** Set while the station picker is open, so we know a store change is arriving mid-transition. */
+  const awaitingStationPicker = useRef(false)
 
   const originName = stationsObject[originId][stationLocale]
   const destinationName = stationsObject[destinationId][stationLocale]
@@ -85,6 +90,8 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   }
 
   const swapDirection = () => {
+    // This is an in-place change, so clear a flag left over from a picker the user cancelled.
+    awaitingStationPicker.current = false
     scaleStationCards()
     HapticFeedback.trigger("impactMedium")
     setTimeout(() => {
@@ -93,10 +100,12 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   }
 
   const changeOriginStation = () => {
+    awaitingStationPicker.current = true
     router.push({ pathname: "/select-station", params: { selectionType: "origin" } })
   }
 
   const changeDestinationStation = () => {
+    awaitingStationPicker.current = true
     router.push({ pathname: "/select-station", params: { selectionType: "destination" } })
   }
 
@@ -124,15 +133,44 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     }
   }
 
+  // Only the route list reads its stations from the navigation params — route details and the
+  // active ride get theirs from the navigation params store, so syncing there writes params
+  // nobody reads (and would describe the planned route rather than the one being viewed).
   useEffect(() => {
-    if (routePlanOrigin?.id && routePlanDestination?.id) {
-      navigation.setParams({
-        originId: routePlanOrigin.id,
-        destinationId: routePlanDestination.id,
-      } as never)
+    if (routeEditDisabled) return
+
+    const nextOriginId = routePlanOrigin?.id
+    const nextDestinationId = routePlanDestination?.id
+    if (!nextOriginId || !nextDestinationId) return
+    if (nextOriginId === originId && nextDestinationId === destinationId) return
+
+    const applyParams = () => {
+      awaitingStationPicker.current = false
+      navigation.setParams({ originId: nextOriginId, destinationId: nextDestinationId } as never)
+    }
+
+    // Changed in place (the swap-direction button) — nothing is animating, apply right away.
+    if (!awaitingStationPicker.current) {
+      applyParams()
+      return
+    }
+
+    // The change came from the station picker, which writes to the store and pops itself in the
+    // same tick. Applying now rebuilds this whole screen (header image, route FlashList) while
+    // react-native-screens is still running the Android dismiss transition — Fabric then tries to
+    // mount a view that is still attached to the outgoing fragment and throws
+    // "addViewAt: failed to insert view [x] into parent [y]", killing the app or leaving a black
+    // screen. See software-mansion/react-native-screens#3249. Wait until we're back on top.
+    const unsubscribe = navigation.addListener("transitionEnd" as never, applyParams)
+    // Safety net: the params must never be dropped if `transitionEnd` doesn't arrive.
+    const fallback = setTimeout(applyParams, STATION_PICKER_FALLBACK_MS)
+
+    return () => {
+      unsubscribe()
+      clearTimeout(fallback)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routePlanOrigin?.id, routePlanDestination?.id])
+  }, [routePlanOrigin?.id, routePlanDestination?.id, originId, destinationId, routeEditDisabled])
 
   const renderHeaderRight = () => {
     if (screenName === "routeDetails") {

@@ -118,17 +118,15 @@ export function RouteDetailsScreen() {
       translucent
     >
       <View style={{ flex: 1 }}>
-        <Animated.View sharedTransitionTag="route-header">
-          <RouteDetailsHeader
-            routeItem={routeItem}
-            originId={originId}
-            destinationId={destinationId}
-            screenName={screenName}
-            showEntireRoute={showEntireRoute}
-            setShowEntireRoute={setShowEntireRoute}
-            style={styles.headerContainer}
-          />
-        </Animated.View>
+        <RouteDetailsHeader
+          routeItem={routeItem}
+          originId={originId}
+          destinationId={destinationId}
+          screenName={screenName}
+          showEntireRoute={showEntireRoute}
+          setShowEntireRoute={setShowEntireRoute}
+          style={styles.headerContainer}
+        />
 
         <View style={{ flex: 1 }}>
           <ScrollView

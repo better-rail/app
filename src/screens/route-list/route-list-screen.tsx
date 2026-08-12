@@ -3,7 +3,6 @@ import HapticFeedback from "react-native-haptic-feedback"
 import * as Burnt from "burnt"
 import { View, ActivityIndicator, Dimensions, useColorScheme } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import Animated from "react-native-reanimated"
 import { FlashList } from "@shopify/flash-list"
 import { useNetworkState } from "expo-network"
 import { useQuery } from "react-query"
@@ -490,14 +489,12 @@ export function RouteListScreen() {
       statusBarBackgroundColor="transparent"
       translucent
     >
-      <Animated.View sharedTransitionTag="route-header">
-        <RouteDetailsHeader
-          screenName="routeList"
-          originId={originId}
-          destinationId={destinationId}
-          style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
-        />
-      </Animated.View>
+      <RouteDetailsHeader
+        screenName="routeList"
+        originId={originId}
+        destinationId={destinationId}
+        style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
+      />
 
       {/* Only show the no internet error if we're not loading and there's no data */}
       {!isInternetReachable && !trains.isLoading && !trains.data && <RouteListError errorType="no-internet" />}
