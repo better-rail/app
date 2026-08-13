@@ -27,7 +27,7 @@ export const RouteListWarning = function RouteListWarning({ routesDate, warningT
   const [displayWarningSheet, setDisplayWarningSheet] = useState(false)
   const formattedRoutesDate = format(routesDate, "eeee, dd/MM/yyyy", { locale: dateFnsLocalization })
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: no need!
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (shouldDisplayModal) {
       setTimeout(() => setWarningVisible(true), 250)
