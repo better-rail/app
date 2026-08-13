@@ -59,9 +59,9 @@ export function useDeepLinking(storeReady: boolean) {
   }
 
   function openHomeScreenShortcut(item: ShortcutItem) {
-    if (!item) return
-    const origin = getStationById(item.data.originId)
-    const destination = getStationById(item.data.destinationId)
+    if (!item || !item.data) return
+    const origin = getStationById(item.data?.originId)
+    const destination = getStationById(item.data?.destinationId)
 
     const routePlan = useRoutePlanStore.getState()
     routePlan.setOrigin(origin)
