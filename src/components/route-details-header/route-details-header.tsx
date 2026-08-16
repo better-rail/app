@@ -70,8 +70,8 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   /** Set while the station picker is open, so we know a store change came from it. */
   const awaitingStationPicker = useRef(false)
 
-  const originName = stationsObject[originId][stationLocale]
-  const destinationName = stationsObject[destinationId][stationLocale]
+  const originName = stationsObject[originId]?.[stationLocale]
+  const destinationName = stationsObject[destinationId]?.[stationLocale]
   const routeId = `${originId}${destinationId}`
   const isFavorite = favoriteRoutesData.some((fav) => fav.id === routeId)
 
@@ -344,7 +344,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   return (
     <>
       <ImageBackground
-        source={stationsObject[originId].image}
+        source={stationsObject[originId]?.image}
         style={{
           width: "100%",
           height: screenName !== "activeRide" ? 200 : 155,
