@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useRef } from "react"
 import { View, Image, Platform } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { useShallow } from "zustand/react/shallow"
@@ -24,7 +24,17 @@ export function RecentSearchesBox(props: RecentSearchesBoxProps) {
     useShallow((s) => ({ entries: s.entries, save: s.save, remove: s.remove })),
   )
 
-  const sortedSearches = [...entries].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 6)
+  // Rank by recency once per mount — the new order only shows the next time the picker opens.
+  // Picking an entry bumps its `updatedAt` and pops the screen in the same commit, and Fabric on
+  // Android can't mount a re-sort inside a subtree that same commit is deleting: it throws
+  // "addViewAt: cannot insert view […] View already has a parent" and blanks the app.
+  const initialRankRef = useRef<Map<string, number> | null>(null)
+  const initialRank = (initialRankRef.current ??= new Map(
+    [...entries].sort((a, b) => b.updatedAt - a.updatedAt).map((entry, index) => [entry.id, index]),
+  ))
+
+  const rankOf = (id: string) => initialRank.get(id) ?? Number.MAX_SAFE_INTEGER
+  const sortedSearches = [...entries].sort((a, b) => rankOf(a.id) - rankOf(b.id)).slice(0, 6)
 
   const onStationPress = (entry) => {
     trackEvent("recent_station_selected")
