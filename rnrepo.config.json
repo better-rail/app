@@ -1,6 +1,10 @@
 {
-  "//": "Libraries we patch must build from source — a prebuilt artifact is built upstream and would drop the patch.",
+  "//": "Patched libraries must build from source — prebuilts are built upstream and drop the patch.",
   "denyList": {
     "android": ["react-native-screens"]
+  },
+  "//ios": "No iOS prebuilts: rnrepo injects RNWorklets' modulemap into ExpoModulesCore without a target dependency, racing [CP] Copy XCFrameworks.",
+  "allowList": {
+    "ios": []
   }
 }
