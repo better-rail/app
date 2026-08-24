@@ -7,7 +7,7 @@ import { FlashList } from "@shopify/flash-list"
 import { useNetworkState } from "expo-network"
 import { useQuery } from "react-query"
 import { closestIndexTo } from "date-fns"
-import { useRouter, useLocalSearchParams } from "expo-router"
+import { useRouter, useLocalSearchParams, Redirect } from "expo-router"
 import { useObserve } from "expo-observe"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useShallow } from "zustand/react/shallow"
@@ -478,6 +478,10 @@ export function RouteListScreen() {
 
   // Check if the next day date is currently loading
   const isNextDayLoading = loadingDate === nextDayDate.toDateString()
+
+  if (!originId || !destinationId) {
+    return <Redirect href="/" />
+  }
 
   return (
     <Screen
