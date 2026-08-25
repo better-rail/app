@@ -72,9 +72,9 @@ export const useFavoritesStore = create<FavoritesStore>((set, get) => ({
 
   syncFavoritesToHomeShortcuts() {
     const fromText = (route: FavoriteRoute) =>
-      translate("favorites.fromStation", { stationName: stationsObject[route.originId][stationLocale] })
+      translate("favorites.fromStation", { stationName: stationsObject[route.originId]?.[stationLocale] })
     const toText = (route: FavoriteRoute) =>
-      translate("favorites.toStation", { stationName: stationsObject[route.destinationId][stationLocale] })
+      translate("favorites.toStation", { stationName: stationsObject[route.destinationId]?.[stationLocale] })
 
     // Both iOS quick actions and Android dynamic shortcuts cap at ~4-5 per app;
     // some Android devices report lower limits and throw if exceeded.
@@ -82,7 +82,8 @@ export const useFavoritesStore = create<FavoritesStore>((set, get) => ({
 
     Shortcuts.setShortcuts(
       get()
-        .routes.slice(0, MAX_HOME_SHORTCUTS)
+        .routes.filter((route) => stationsObject[route.originId] && stationsObject[route.destinationId])
+        .slice(0, MAX_HOME_SHORTCUTS)
         .map((route) => ({
           type: `favorite-${route.id}`,
           title: route.label || fromText(route),
