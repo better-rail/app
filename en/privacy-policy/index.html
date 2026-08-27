@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" dir="ltr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Better Rail - Privacy Policy</title>
-    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/style.css?v=bb189fcb" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
     <link rel="icon" type="image/png" href="/assets/favicon/favicon-32x32.png" sizes="32x32" />
     <link rel="icon" type="image/png" href="/assets/favicon/favicon-16x16.png" sizes="16x16" />
@@ -54,14 +54,14 @@
             u.people = u.people || [];
             u.toString = function (t) {
               var e = "posthog";
-              return "posthog" !== a && (e += "." + a), t || (e += " (stub)"), e;
+              return ("posthog" !== a && (e += "." + a), t || (e += " (stub)"), e);
             };
             u.people.toString = function () {
               return u.toString(1) + ".people (stub)";
             };
             n =
               "capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags".split(
-                " "
+                " ",
               );
             for (p = 0; p < n.length; p++) g(u, n[p]);
             e._i.push([i, s, a]);
@@ -119,24 +119,18 @@
         help us identify and resolve issues with the feature.
       </p>
 
-      <h3 class="site-page-content-subtitle">Information from Israel Railways</h3>
+      <h3 class="site-page-content-subtitle">Where our data comes from</h3>
       <p class="site-page-content-text">
-        All information related to station & train routes comes directly from Israel Railways. <br />When you search for trains
-        schedule in the app, the request is passed directly to Israel Railways, and the sole responsibility for processing the
-        information is at theirs.
+        Train schedules and routes are calculated on our own servers, based on the Israeli Ministry of Transport's open public
+        transport data (GTFS). Real-time information about delays, cancellations and platform changes comes from the Ministry of
+        Transport's SIRI service.
       </p>
       <p class="site-page-content-text">
-        Please refer to Israel Railways'
-        <a
-          href="https://www.rail.co.il/pages/sitepolicy.aspx"
-          style="white-space: pre-wrap"
-          target="_blank"
-          rel="”noreferrer noopener”"
-          >privacy policy</a
-        >
-        for more information.
+        Search requests used to be passed directly to Israel Railways. That is no longer the case &mdash; searches you make in the
+        app are sent only to our servers, and are not forwarded to Israel Railways. These requests contain no identifying
+        information, and we don't store them.
       </p>
-      <p class="site-page-content-last-updated">Last updated on June 5th, 2023</p>
+      <p class="site-page-content-last-updated">Last updated on August 27th, 2026</p>
     </main>
 
     <hr />

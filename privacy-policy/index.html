@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="he" dir="rtl">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Better Rail - מדיניות פרטיות</title>
-    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/style.css?v=bb189fcb" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
     <link rel="icon" type="image/png" href="/assets/favicon/favicon-32x32.png" sizes="32x32" />
     <link rel="icon" type="image/png" href="/assets/favicon/favicon-16x16.png" sizes="16x16" />
@@ -54,14 +54,14 @@
             u.people = u.people || [];
             u.toString = function (t) {
               var e = "posthog";
-              return "posthog" !== a && (e += "." + a), t || (e += " (stub)"), e;
+              return ("posthog" !== a && (e += "." + a), t || (e += " (stub)"), e);
             };
             u.people.toString = function () {
               return u.toString(1) + ".people (stub)";
             };
             n =
               "capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags".split(
-                " "
+                " ",
               );
             for (p = 0; p < n.length; p++) g(u, n[p]);
             e._i.push([i, s, a]);
@@ -101,7 +101,10 @@
         Firebase Crashlytics עשוי לאסוף מידע מסוים על המכשיר, לוגים ופרטי אבחון אחרים. מידע זה הוא אנונימי, ומשמש אך ורק למטרת
         זיהוי ופתרון בעיות כדי שהאפליקציה תהיה יציבה.
       </p>
-      <p class="site-page-content-text">מידע על נסיעות שביצעתם/ן ומידע אישי אשר מוזן באפליקצייה לא עובר אלינו.</p>
+      <p class="site-page-content-text">
+        חיפושי המסלולים באפליקציה מעובדים בשרתים שלנו, אך אינם נשמרים ואינם משויכים אליך. מידע אישי אשר מוזן באפליקציה לא עובר
+        אלינו.
+      </p>
       <p class="site-page-content-text">תמיד ניתן לבטל את איסוף הנתונים על ידי השבתת האפשרות "טלמטריה" בהגדרות האפליקציה</p>
 
       <h3 class="site-page-content-subtitle">Better Rail Live</h3>
@@ -111,22 +114,16 @@
         לזהות ולפתור בעיות.
       </p>
 
-      <h3 class="site-page-content-subtitle">מידע ברשות רכבת ישראל</h3>
-      <p class="site-page-content-text">מידע על מסלולי הרכבת באפליקציה נמשך משרתי רכבת ישראל. <br /></p>
+      <h3 class="site-page-content-subtitle">מקורות המידע באפליקציה</h3>
       <p class="site-page-content-text">
-        המידע שמועבר לרכבת בעת חישוב מסלולי הנסיעה מועבר באופן ישיר אל רכבת ישראל והאחריות על המידע נמצא באחריותה בלבד.
+        לוחות הזמנים ומסלולי הנסיעה מחושבים בשרתים שלנו, על בסיס נתוני התחבורה הציבורית הפתוחים (GTFS) של משרד התחבורה. מידע על
+        עיכובים, ביטולים ושינויי רציף מתקבל בזמן אמת משירות ה-SIRI של משרד התחבורה.
       </p>
-      <p class="site-page-content-text underline-hovered-link">
-        ניתן לקרוא את מדיניות הפרטיות של רכבת ישראל
-        <a
-          href="https://www.rail.co.il/pages/sitepolicy.aspx"
-          style="white-space: pre-wrap"
-          target="_blank"
-          rel="”noreferrer noopener”"
-          >באתר הרשמי</a
-        >.
+      <p class="site-page-content-text">
+        בעבר בקשות החיפוש הועברו ישירות לשרתי רכבת ישראל. זה כבר לא המצב &mdash; החיפושים באפליקציה נשלחים לשרתים שלנו בלבד, ואינם
+        מועברים לרכבת ישראל. בקשות החיפוש אינן כוללות מידע מזהה, ואיננו שומרים אותן.
       </p>
-      <p class="site-page-content-last-updated">עודכן לאחרונה ב- 5 ביוני 2023</p>
+      <p class="site-page-content-last-updated">עודכן לאחרונה ב- 27 באוגוסט 2026</p>
     </main>
 
     <hr />
