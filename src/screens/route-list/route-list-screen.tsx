@@ -205,7 +205,7 @@ export function RouteListScreen() {
       return result
     },
     {
-      enabled: enableQuery,
+      enabled: enableQuery && !!originId && !!destinationId,
       retry: false,
       // Periodically refresh to catch platform changes and delays
       refetchInterval: 60_000,
