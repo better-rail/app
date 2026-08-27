@@ -49,6 +49,8 @@ a {
 
 .app-screenshot {
   width: 100%;
+  height: auto;
+  aspect-ratio: 373 / 395;
 }
 
 .features {
@@ -173,6 +175,7 @@ footer {
   .app-screenshot {
     width: 380px;
     margin-inline-end: 48px;
+    aspect-ratio: 457 / 565;
   }
 
   .features {
