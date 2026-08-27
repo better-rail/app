@@ -8,6 +8,7 @@
 module.exports = {
   type: "watch",
   name: "BetterRailWatch",
+  displayName: "Better Rail",
   bundleIdentifier: ".watchkitapp",
   deploymentTarget: "9.0",
   frameworks: ["SwiftUI"],
