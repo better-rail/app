@@ -4,16 +4,6 @@
 <dict>
 	<key>CFBundleDisplayName</key>
 	<string>Better Rail</string>
-	<key>NSExtension</key>
-	<dict>
-		<key>NSExtensionAttributes</key>
-		<dict>
-			<key>WKAppBundleIdentifier</key>
-			<string>il.co.better-rail.watchkitapp</string>
-		</dict>
-		<key>NSExtensionPointIdentifier</key>
-		<string>com.apple.widgetkit-extension</string>
-	</dict>
 	<key>NSPrivacyAccessedAPITypes</key>
 	<array>
 		<dict>
