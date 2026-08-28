@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { EmitterSubscription, Linking, NativeEventEmitter } from "react-native"
 import { router } from "expo-router"
 import { extractURLParams } from "@/utils/helpers/url"
@@ -79,23 +79,39 @@ export function useDeepLinking(storeReady: boolean) {
     })
   }
 
+  const initialUrlRef = useRef<string | null>(null)
+
+  // Run once on mount: fetch the initial URL and register the URL listener.
+  // Keeping this separate from the storeReady effect prevents multiple
+  // Linking.getInitialURL() calls, which causes a ConcurrentModificationException
+  // in React Native's IntentModule on Android.
   useEffect(() => {
-    let linkingListener: EmitterSubscription
-    let shortcutsListener: EmitterSubscription
+    Linking.getInitialURL().then((url) => {
+      initialUrlRef.current = url
+    })
 
-    Linking.getInitialURL().then(handleDeepLinkURL)
-
-    linkingListener = Linking.addEventListener("url", ({ url }) => {
+    const linkingListener = Linking.addEventListener("url", ({ url }) => {
       handleDeepLinkURL(url)
     })
 
-    if (storeReady) {
-      Shortcuts.getInitialShortcut().then(openHomeScreenShortcut)
-      shortcutsListener = ShortcutsEmitter.addListener("onShortcutItemPressed", openHomeScreenShortcut)
+    return () => {
+      linkingListener.remove()
+    }
+  }, [])
+
+  // Process the initial URL and shortcuts once the store is ready.
+  useEffect(() => {
+    if (!storeReady) return
+
+    if (initialUrlRef.current) {
+      handleDeepLinkURL(initialUrlRef.current)
     }
 
+    let shortcutsListener: EmitterSubscription
+    Shortcuts.getInitialShortcut().then(openHomeScreenShortcut)
+    shortcutsListener = ShortcutsEmitter.addListener("onShortcutItemPressed", openHomeScreenShortcut)
+
     return () => {
-      linkingListener?.remove()
       shortcutsListener?.remove()
     }
   }, [storeReady])
