@@ -53,8 +53,6 @@ Sentry.init({
       maskAllText: false,
       maskAllImages: false,
       maskAllVectors: false,
-      // Preserve replay while avoiding UIView.drawHierarchy's expensive main-thread capture path.
-      enableFastViewRendering: true,
       // Text is intentionally unmasked, so don't traverse every React Native text leaf for redaction.
       excludedViewClasses: ["RCTParagraphComponentView"],
     }),
