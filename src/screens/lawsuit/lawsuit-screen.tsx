@@ -5,7 +5,6 @@ import { useHeaderHeight } from "expo-router/react-navigation"
 import { Screen, Text, Button } from "@/components"
 import { useIsDarkMode, useMountEffect } from "@/hooks"
 import { translate } from "@/i18n"
-import { spacing } from "@/theme"
 import { trackEvent } from "@/services/analytics"
 import { openLink } from "@/utils/helpers/open-link"
 
@@ -18,8 +17,6 @@ export function LawsuitScreen() {
   const { source } = useLocalSearchParams<{ source?: string }>()
   const headerHeight = useHeaderHeight()
 
-  // Screen views aren't autocaptured, so track them explicitly. "Dismissed" fires on unmount,
-  // which covers every exit path (close button, swipe down, Android back).
   useMountEffect(() => {
     const openedAt = Date.now()
     trackEvent("lawsuit_screen_view", { source: source ?? "direct" })
@@ -51,10 +48,8 @@ export function LawsuitScreen() {
     <Screen unsafe statusBar={Platform.select({ ios: "light-content" })} statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}>
       <View style={styles.contentWrapper}>
         <ScrollView
-          contentContainerStyle={[
-            styles.scrollContent,
-            { paddingTop: Platform.OS === "ios" ? Math.max(headerHeight - spacing[5], spacing[3]) : spacing[3] },
-          ]}
+          style={styles.scroll}
+          contentContainerStyle={[styles.scrollContent, styles.scrollTopInset(headerHeight)]}
           contentInsetAdjustmentBehavior="never"
           alwaysBounceVertical={false}
         >
@@ -65,23 +60,35 @@ export function LawsuitScreen() {
         </ScrollView>
 
         <View style={styles.buttonsWrapper}>
-          <Button title={translate("lawsuit.readPost")} onPress={openPost} />
-          <Button title={translate("lawsuit.followTwitter")} onPress={openTwitter} style={{ backgroundColor: "#000" }} />
+          <Button title={translate("lawsuit.readPost")} onPress={openPost} containerStyle={styles.button} />
+          <Button
+            title={translate("lawsuit.followTwitter")}
+            onPress={openTwitter}
+            containerStyle={styles.button}
+            style={{ backgroundColor: "#000" }}
+          />
         </View>
       </View>
     </Screen>
   )
 }
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, rt) => ({
   contentWrapper: {
     flex: 1,
     paddingBottom: theme.spacing[7],
+  },
+  scroll: {
+    flex: 1,
   },
   scrollContent: {
     paddingHorizontal: theme.spacing[4],
     paddingBottom: theme.spacing[2],
   },
+  scrollTopInset: (headerHeight: number) => ({
+    paddingTop:
+      Platform.OS === "ios" ? Math.max(headerHeight - theme.spacing[5], theme.spacing[3]) : rt.insets.top + theme.spacing[3],
+  }),
   appIcon: {
     width: 80,
     height: 80,
@@ -109,5 +116,10 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.spacing[2],
     paddingHorizontal: theme.spacing[4],
     marginTop: "auto",
+  },
+  button: {
+    flex: 0,
+    width: "100%",
+    minHeight: 55,
   },
 }))
