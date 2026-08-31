@@ -1,0 +1,19 @@
+steps:
+  - echo: Restart Better Rail and wait for the trip planner.
+  - launch: il.co.better-rail
+  - await:
+      visible:
+        id: planner-origin-card
+      timeout: 15000
+  - await:
+      idle: true
+  - echo: On the planner with Tel Aviv HaHagana to Jerusalem Navon selected. Tap
+      Find Routes and expect the route list.
+  - tap:
+      id: find-routes-button
+  - await:
+      visible:
+        id: route-card
+      timeout: 20000
+  - await:
+      idle: true

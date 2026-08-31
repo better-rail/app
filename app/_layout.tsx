@@ -49,7 +49,15 @@ Sentry.init({
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,
   integrations: [
-    Sentry.mobileReplayIntegration({ maskAllText: false, maskAllImages: false, maskAllVectors: false }),
+    Sentry.mobileReplayIntegration({
+      maskAllText: false,
+      maskAllImages: false,
+      maskAllVectors: false,
+      // Preserve replay while avoiding UIView.drawHierarchy's expensive main-thread capture path.
+      enableFastViewRendering: true,
+      // Text is intentionally unmasked, so don't traverse every React Native text leaf for redaction.
+      excludedViewClasses: ["RCTParagraphComponentView"],
+    }),
     // Records navigation breadcrumbs (push/pop, from → to). Needs SDK >= 8.19, since this
     // `init()` runs before the Root Layout mounts and older versions gave up instead of retrying.
     Sentry.expoRouterIntegration(),
