@@ -250,10 +250,12 @@ footer {
 
 .site-page-content-title {
   margin: 8px 0 4px;
+  font-size: 1.5rem;
 }
 
 .site-page-content-subtitle {
   margin: 0;
+  font-size: 1.17rem;
 }
 
 .site-page-content-text {
