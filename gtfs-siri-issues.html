@@ -1347,6 +1347,62 @@
       </div>
     </div>
 
+    <!-- ================= Train info ================= -->
+    <div class="section-title">חלק ד׳ · מידע על הרכבת</div>
+
+    <!-- 9. train composition -->
+    <div class="card">
+      <h2><span class="num">9</span>הרכב הרכבת — מספר קרונות, נגישות והעלאת אופניים</h2>
+      <p class="desc">
+        עבור כל נסיעה רכבת ישראל מחזיקה במידע על סוג הרכבת, מספר הקרונות, מספר המקומות,
+        ומידע על כל קרון אם הוא נגיש לכיסא גלגלים ואם מותר להעלות בו אופניים.
+        אף אחד מהנתונים האלה אינו מונגש בנתוני משרד התחבורה.
+      </p>
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th>הנתון</th>
+            <th>נתוני רכבת ישראל</th>
+            <th>GTFS · משרד התחבורה</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>סוג הרכבת שמגיעה</td>
+            <td><span class="status ok"><span class="ico">✓</span>קיים</span></td>
+            <td><span class="status no"><span class="ico">✕</span>אין שדה</span></td>
+          </tr>
+          <tr>
+            <td>מספר הקרונות ברכבת</td>
+            <td><span class="status ok"><span class="ico">✓</span>קיים</span></td>
+            <td><span class="status no"><span class="ico">✕</span>אין שדה</span></td>
+          </tr>
+          <tr>
+            <td>מספר מקומות הישיבה</td>
+            <td><span class="status ok"><span class="ico">✓</span>קיים</span></td>
+            <td><span class="status no"><span class="ico">✕</span>אין שדה</span></td>
+          </tr>
+          <tr>
+            <td>קרון נגיש לכיסא גלגלים</td>
+            <td><span class="status ok"><span class="ico">✓</span>ברמת הקרון</span></td>
+            <td><span class="status no"><span class="ico">✕</span>השדה קיים בפיד, וריק</span></td>
+          </tr>
+          <tr>
+            <td>קרון שמותר להעלות בו אופניים</td>
+            <td><span class="status ok"><span class="ico">✓</span>ברמת הקרון</span></td>
+            <td><span class="status no"><span class="ico">✕</span>השדה אינו קיים בפיד</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="footnote">
+        נבדק בפיד מ־30.8.2026: העמודה <code>wheelchair_accessible</code> קיימת ב־<code>trips.txt</code>
+        וריקה בכל 1,118 נסיעות רכבת ישראל שבפיד (1,058 קווים, <code>agency_id=2</code>);
+        העמודה <code>bikes_allowed</code> אינה קיימת בפיד; ואין בו שדה שמתאר את הרכב הרכבת.
+        ה־API של רכבת ישראל מחזיר לכל רכבת מספר קרונות, מספר מקומות וסוג רכבת,
+        ורשומה לכל קרון עם סימון נגישות ואופניים.
+      </p>
+    </div>
+
     <footer class="page-footer">Better Rail · אוגוסט 2026</footer>
 
   </div>
