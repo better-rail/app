@@ -7,7 +7,6 @@ import { Stack } from "expo-router/stack"
 import { useRouter } from "expo-router"
 import { ErrorBoundary as ExpoErrorBoundary } from "expo-router"
 import { ThemeProvider, DarkTheme, DefaultTheme } from "expo-router/react-navigation"
-import DeviceInfo from "react-native-device-info"
 import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from "react-query"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet"
@@ -16,7 +15,6 @@ import { enableScreens } from "react-native-screens"
 import { PostHogProvider } from "posthog-react-native"
 import { Observe, ObserveRoot, useObserve } from "expo-observe"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
-import { useIAP, initConnection, finishTransaction, getAvailablePurchases } from "react-native-iap"
 
 import { initFonts } from "@/theme/fonts"
 import * as storage from "@/utils/storage"
@@ -98,8 +96,6 @@ export const queryClient = new QueryClient({
   }),
 })
 
-const isEmulator = DeviceInfo.isEmulatorSync()
-
 function AppStack() {
   const colorScheme = useColorScheme()
   const router = useRouter()
@@ -151,11 +147,6 @@ function RootLayout() {
   const { markInteractive } = useObserve()
 
   useDeepLinking(storeReady)
-
-  if (!isEmulator) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useIAP()
-  }
 
   useEffect(() => {
     if (!storeReady) return
@@ -217,23 +208,6 @@ function RootLayout() {
         setInitialLanguage()
       }
     })
-  }, [])
-
-  useEffect(() => {
-    const flushAvailablePurchases = async () => {
-      try {
-        await initConnection()
-        const availablePurchases = await getAvailablePurchases()
-        availablePurchases.forEach((purchase) => {
-          finishTransaction({ purchase, isConsumable: true })
-        })
-      } catch (error) {
-        console.error("Failed to connect to IAP and finish all available transactions", error)
-      }
-    }
-    if (!__DEV__) {
-      flushAvailablePurchases()
-    }
   }, [])
 
   useEffect(() => {

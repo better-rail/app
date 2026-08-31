@@ -9,6 +9,7 @@ import { useIsDarkMode } from "@/hooks"
 import { NextButton } from "./announcement-next-button"
 import { trackEvent } from "@/services/analytics"
 import { LiveAnnouncementScrollView } from "./live-announcement-scroll-view"
+import { openSupportBetterRail } from "@/utils/helpers/open-support-better-rail"
 
 const GUY_IMAGE = require("../../../assets/live-activity/guy.jpeg")
 const MATAN_IMAGE = require("../../../assets/live-activity/matan.jpeg")
@@ -52,20 +53,17 @@ export function SupportUsScreen() {
 
         <View style={styles.actions}>
           <Button
-            title={translate("liveAnnounce.supportUs.tipJarButton") ?? ""}
-            style={styles.tipJarButton(isDarkMode)}
+            title={translate("liveAnnounce.supportUs.supportButton") ?? ""}
+            style={styles.supportButton(isDarkMode)}
             variant="success"
-            containerStyle={styles.tipJarButtonContainer}
+            containerStyle={styles.supportButtonContainer}
             onPress={() => {
-              trackEvent("live_announcement_tip_jar_press")
+              trackEvent("support_better_rail_press", { source: "live_announcement" })
               finish()
-
-              setTimeout(() => {
-                router.push("/settings/tip-jar")
-              }, 150)
+              openSupportBetterRail()
             }}
           />
-          <Text style={[styles.text, styles.tipJarNote]} tx="liveAnnounce.supportUs.tipJarNote" />
+          <Text style={[styles.text, styles.supportNote]} tx="liveAnnounce.supportUs.supportNote" />
           <NextButton
             title={translate("common.done") ?? ""}
             onPress={() => {
@@ -135,14 +133,14 @@ const styles = StyleSheet.create((theme, rt) => {
     actions: {
       gap: theme.spacing[3],
     },
-    tipJarButton: (isDarkMode: boolean) => ({
+    supportButton: (isDarkMode: boolean) => ({
       minHeight: 55 * rt.fontScale,
       backgroundColor: isDarkMode ? theme.colors.success : theme.colors.greenText,
     }),
-    tipJarButtonContainer: {
+    supportButtonContainer: {
       minHeight: 55 * rt.fontScale,
     },
-    tipJarNote: {
+    supportNote: {
       fontSize: 14,
       marginHorizontal: -14,
     },

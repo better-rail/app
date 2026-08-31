@@ -8,6 +8,8 @@ import { useRouter } from "expo-router"
 import { SETTING_GROUP } from "./settings-styles"
 import { useIsDarkMode, useIsBetaTester } from "@/hooks"
 import { shareApp } from "./helpers/app-share-sheet"
+import { openSupportBetterRail } from "@/utils/helpers/open-support-better-rail"
+import { trackEvent } from "@/services/analytics"
 
 const storeLink = Platform.select({
   ios: "https://apps.apple.com/app/better-rail/id1562982976?action=write-review",
@@ -49,10 +51,12 @@ export function SettingsScreen() {
         <SettingBox
           first
           last
-          title={translate("settings.tipJar")}
+          title={translate("settings.supportBetterRail")}
           icon="💖"
-          chevron
-          onPress={() => router.push("/settings/tip-jar")}
+          onPress={() => {
+            trackEvent("support_better_rail_press", { source: "settings" })
+            openSupportBetterRail()
+          }}
         />
       </View>
 

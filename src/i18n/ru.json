@@ -130,15 +130,14 @@
     "feedbackMailError": "Не удалось открыть почтовое приложение. Вы можете написать нам на feedback@better-rail.co.il",
     "languageChangeAlertTitle": "Смена языка",
     "languageChangeAlertMessage": "Приложение перезагрузится чтобы применить новые настройки",
+    "supportBetterRail": "Поддержать Better Rail",
     "aboutText": "Better Rail это приложение с открытым исходным кодом, целью которого является сделать расписания Израильских Железных Дорог более доступными для общественности.",
     "follow": "Следить за Better Rail",
     "facebook": "Facebook",
     "twitter": "Twitter",
     "sourceCode": "Исходный код",
     "deleteAllData": "Удалить все данные",
-    "deleteAllDataConfirm": "Вы уверены, что хотите удалить все локальные данные приложения? Это действие нельзя отменить.",
-    "purchaseCancelled": "Покупка отменена",
-    "purchaseFailed": "Ошибка покупки"
+    "deleteAllDataConfirm": "Вы уверены, что хотите удалить все локальные данные приложения? Это действие нельзя отменить."
   },
   "favorites": {
     "title": "Избранное",

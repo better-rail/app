@@ -33,10 +33,6 @@ export const trackEvent = (eventName: string, params?: AnalyticsParams) => {
   posthog.capture(eventName, params)
 }
 
-export const trackPurchase = (params: AnalyticsParams) => {
-  posthog.capture("tip_purchased", params)
-}
-
 export const setAnalyticsUserProperty = (name: string, value: string) => {
   setCachedPosthogProperty(name, value)
 }

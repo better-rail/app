@@ -5,7 +5,6 @@ import { PopUpMessage } from "@/services/api"
 export interface SettingsState {
   seenUrgentMessagesIds: number[]
   profileCode: number
-  totalTip: number
   showRouteCardHeader: boolean
   hideSlowTrains: boolean
   seenTrainInfoPrompt: boolean
@@ -14,7 +13,6 @@ export interface SettingsState {
 
 export interface SettingsActions {
   setProfileCode: (code: number) => void
-  addTip: (amount: number) => void
   setShowRouteCardHeader: (show: boolean) => void
   setHideSlowTrains: (hide: boolean) => void
   setSeenUrgentMessagesIds: (messagesIds: number[]) => void
@@ -27,7 +25,6 @@ export type SettingsStore = SettingsState & SettingsActions
 const initialSettingsState: SettingsState = {
   seenUrgentMessagesIds: [],
   profileCode: 1,
-  totalTip: 0,
   showRouteCardHeader: false,
   hideSlowTrains: false,
   seenTrainInfoPrompt: false,
@@ -41,10 +38,6 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
 
   setProfileCode(code) {
     set({ profileCode: code })
-  },
-
-  addTip(amount) {
-    set((state) => ({ totalTip: state.totalTip + amount }))
   },
 
   setShowRouteCardHeader(show) {
@@ -76,7 +69,6 @@ export function getSettingsSnapshot(state: SettingsState) {
   return {
     seenUrgentMessagesIds: state.seenUrgentMessagesIds,
     profileCode: state.profileCode,
-    totalTip: state.totalTip,
     showRouteCardHeader: state.showRouteCardHeader,
     hideSlowTrains: state.hideSlowTrains,
     seenTrainInfoPrompt: state.seenTrainInfoPrompt,
@@ -97,7 +89,6 @@ export function hydrateSettingsStore(data: any) {
   useSettingsStore.setState({
     seenUrgentMessagesIds: processedData.seenUrgentMessagesIds ?? [],
     profileCode: processedData.profileCode ?? 1,
-    totalTip: processedData.totalTip ?? 0,
     showRouteCardHeader: processedData.showRouteCardHeader ?? false,
     hideSlowTrains: processedData.hideSlowTrains ?? false,
     seenTrainInfoPrompt: processedData.seenTrainInfoPrompt ?? false,
