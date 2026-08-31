@@ -186,6 +186,13 @@
     "noTrainsFoundForHour": "No trains found at the requested time",
     "foundTrainsAtHour": "Trains available at different times on the selected date"
   },
+  "lawsuit": {
+    "title": "Israel Railways threatens to sue us",
+    "intro": "We received a pre-lawsuit warning for using the Israel Railways timetable",
+    "whatNow": "In response to the letter, the app has switched to using data from the Ministry of Transport.\n\nThis data may at times be less up to date than Israel Railways - the railway keeps the fresh information to itself and prevents us from making it accessible to you, the passengers.\n\nWe need your help: please tell your friends about Better Rail. The more users we have, the stronger we become!",
+    "readPost": "Read the full post",
+    "followTwitter": "Follow us on Twitter for updates"
+  },
   "widgetOnboarding": {
     "homeWidgets": "Home Screen Widgets",
     "widgetDescription": "Beautiful widgets for checking the upcoming train schedule.",

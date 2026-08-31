@@ -10,11 +10,13 @@ import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore, useRideStore, useSettingsStore, filterUnseenUrgentMessages } from "@/models"
 import { translate, userLocale } from "@/i18n"
 import { ImportantAnnouncementBar } from "./Important-announcement-bar"
+import { LawsuitAnnouncementBar } from "./lawsuit-announcement-bar"
 import { railApi } from "@/services/api"
 import { HIDE_RAIL_SERVICE_UPDATES } from "@/config/features"
 import { useQuery } from "react-query"
 import { head, isEmpty } from "lodash"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
+import { useFeatureFlag } from "posthog-react-native"
 
 const TRAIN_ICON = require("../../../assets/train.ios.png")
 const SPARKLES_ICON = require("../../../assets/sparkles.png")
@@ -42,6 +44,10 @@ export function PlannerScreenHeader() {
   const seenUrgentMessagesIds = useSettingsStore((s) => s.seenUrgentMessagesIds)
   const router = useRouter()
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
+  const [canShowLawsuitBar] = useState(
+    () => Boolean(origin && destination) && !useSettingsStore.getState().seenLawsuitAnnouncement,
+  )
+  const lawsuitAnnouncementFlag = useFeatureFlag("show-lawsuit-announcement")
 
   const { data: popupMessages, isFetched: didFetchPopupMessages } = useQuery(
     ["announcements", "urgent"],
@@ -53,6 +59,7 @@ export function PlannerScreenHeader() {
   const unseenUrgentMessages = popupMessages ? filterUnseenUrgentMessages(popupMessages, seenUrgentMessagesIds) : []
   const hasUnseenUrgentMessages = !isEmpty(unseenUrgentMessages)
   const showUrgentBar = !HIDE_RAIL_SERVICE_UPDATES && hasUnseenUrgentMessages
+  const showLawsuitBar = Boolean(lawsuitAnnouncementFlag) && canShowLawsuitBar && !showUrgentBar && !rideRoute
 
   // Unseen urgent messages suppress the "new" badge. That answer only arrives with the popup
   // messages response, so hold the badge back until the query settles — rendering it beforehand
@@ -95,6 +102,7 @@ export function PlannerScreenHeader() {
       <View style={styles.headerWrapper}>
         <View style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: spacing[2] }}>
           {showUrgentBar && !rideRoute && <ImportantAnnouncementBar title={head(unseenUrgentMessages)?.messageBody ?? ""} />}
+          {showLawsuitBar && <LawsuitAnnouncementBar />}
         </View>
         {rideRoute && (
           <Chip
@@ -114,20 +122,22 @@ export function PlannerScreenHeader() {
             <Text style={{ color: "white", fontWeight: "500", marginVertical: spacing[1] }} tx="ride.live" />
           </Chip>
         )}
-        {(DEBUG_FORCE_NEW_BADGE || showNewBadge) && (
+        {(DEBUG_FORCE_NEW_BADGE || (showNewBadge && !showLawsuitBar)) && (
           <Chip variant="primary" style={{ marginStart: spacing[2] }} onPress={() => router.push("/live-announcement")}>
             <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
             <Text style={{ color: "white", fontWeight: "500", marginVertical: spacing[1] }} tx="common.new" />
           </Chip>
         )}
-        {!HIDE_RAIL_SERVICE_UPDATES && (
+        {!HIDE_RAIL_SERVICE_UPDATES && !showLawsuitBar && (
           <TouchableOpacity onPress={openAnnouncements} activeOpacity={0.8} accessibilityLabel={translate("routes.updates")}>
             <Image source={UPDATES_ICON} style={[styles.headerIconImage]} />
           </TouchableOpacity>
         )}
-        <TouchableOpacity onPress={openSettings} activeOpacity={0.8} accessibilityLabel={translate("settings.title")}>
-          <Image source={SETTINGS_ICON} style={styles.headerIconImage} />
-        </TouchableOpacity>
+        {!showLawsuitBar && (
+          <TouchableOpacity onPress={openSettings} activeOpacity={0.8} accessibilityLabel={translate("settings.title")}>
+            <Image source={SETTINGS_ICON} style={styles.headerIconImage} />
+          </TouchableOpacity>
+        )}
       </View>
     </>
   )

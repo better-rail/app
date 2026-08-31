@@ -58,7 +58,7 @@ export const Button = function Button(props: CustomButtonProps) {
         <LiquidGlassView
           interactive={!!onPress}
           style={[styles.liquidGlass, style]}
-          tintColor={disabled ? color.disabled : color[variant]}
+          tintColor={disabled ? color.disabled : (style?.backgroundColor ?? color[variant])}
         >
           <View style={styles.textWrapper}>
             {loading ? (
