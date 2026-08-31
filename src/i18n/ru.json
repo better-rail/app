@@ -199,6 +199,12 @@
     "stackingStep3": "3. Inside the stack you can scroll between the two widgets.",
     "stackingStep4": "Tip: You can view the full train scheduale quickly by tapping on the widget."
   },
+  "liveAnnounce": {
+    "supportUs": {
+      "supportButton": "Поддержать Better Rail",
+      "supportNote": "Вы можете поддержать Better Rail в любое время в настройках приложения."
+    }
+  },
   "ride": {
     "live": "Live",
     "startRide": "начать поездку",
