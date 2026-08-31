@@ -11,7 +11,6 @@ export const posthogOptions: PostHogOptions = {
   host: "https://eu.i.posthog.com",
   persistence: "file" as const,
   customStorage: AsyncStorage,
-  enableSessionReplay: false,
 }
 
 // Inlined into the JS bundle by babel-preset-expo (EXPO_PUBLIC_* prefix). Available in EAS
@@ -26,7 +25,7 @@ const POSTHOG_API_KEY = process.env.EXPO_PUBLIC_POSTHOG_API_KEY
 // disabled client (placeholder key passes the falsy check; `disabled` makes it a no-op).
 export const posthog = POSTHOG_API_KEY
   ? new PostHog(POSTHOG_API_KEY, posthogOptions)
-  : new PostHog("phc_disabled_placeholder", { ...posthogOptions, enableSessionReplay: false, disabled: true })
+  : new PostHog("phc_disabled_placeholder", { ...posthogOptions, disabled: true })
 
 type AnalyticsParams = Record<string, string | number | boolean | null | undefined>
 
