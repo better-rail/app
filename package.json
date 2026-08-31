@@ -61,8 +61,7 @@
     "fuse.js": "6.4.6",
     "i18n-js": "3.8.0",
     "lodash": "4.18.1",
-    "posthog-react-native": "^4.39.4",
-    "posthog-react-native-session-replay": "^1.5.2",
+    "posthog-react-native": "^4.66.2",
     "ramda": "0.27.1",
     "react": "19.2.3",
     "react-native": "0.85.3",
@@ -159,7 +158,6 @@
           "react-native-push-notification",
           "react-native-default-preference",
           "@notifee/react-native",
-          "posthog-react-native-session-replay",
           "react-native-prompt-android",
           "react-native-quick-actions-shortcuts"
         ]
