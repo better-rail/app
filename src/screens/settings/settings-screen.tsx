@@ -33,26 +33,35 @@ export function SettingsScreen() {
       <View style={SETTING_GROUP}>
         <SettingBox
           first
-          title={translate("settings.language")}
+          title={translate("settings.language") ?? ""}
           icon="💬"
           chevron
           onPress={() => router.push("/settings/language")}
         />
         <SettingBox
           last
-          title={translate("settings.uiSettings")}
+          title={translate("settings.uiSettings") ?? ""}
           icon="🎨"
           chevron
           onPress={() => router.push("/settings/ui-settings")}
         />
       </View>
 
-      {Platform.OS === "android" && (
-        <View style={SETTING_GROUP}>
+      <View style={SETTING_GROUP}>
+        {Platform.OS === "ios" ? (
           <SettingBox
             first
             last
-            title={translate("settings.supportBetterRail")}
+            title={translate("settings.tipJar") ?? ""}
+            icon="💖"
+            chevron
+            onPress={() => router.push("/settings/tip-jar")}
+          />
+        ) : (
+          <SettingBox
+            first
+            last
+            title={translate("settings.supportBetterRail") ?? ""}
             icon="💖"
             externalLink
             onPress={() => {
@@ -60,15 +69,15 @@ export function SettingsScreen() {
               openSupportBetterRail()
             }}
           />
-        </View>
-      )}
+        )}
+      </View>
 
       {Platform.OS === "ios" && userLocale !== "ar" && (
         <View style={SETTING_GROUP}>
           <SettingBox
             first
             last
-            title={translate("settings.widget")}
+            title={translate("settings.widget") ?? ""}
             icon="📱"
             onPress={() => router.push("/widget-onboarding")}
           />
@@ -76,13 +85,19 @@ export function SettingsScreen() {
       )}
 
       <View style={SETTING_GROUP}>
-        <SettingBox first title={translate("settings.share")} icon="🕺" onPress={shareApp} />
+        <SettingBox first title={translate("settings.share") ?? ""} icon="🕺" onPress={shareApp} />
         <SettingBox
-          title={Platform.select({ ios: translate("settings.rateIOS"), android: translate("settings.rateAndroid") })}
+          title={Platform.select({ ios: translate("settings.rateIOS"), android: translate("settings.rateAndroid") }) ?? ""}
           icon="⭐️"
-          onPress={() => Linking.openURL(storeLink)}
+          onPress={() => storeLink && Linking.openURL(storeLink)}
         />
-        <SettingBox last title={translate("settings.about")} icon="ℹ️" chevron onPress={() => router.push("/settings/about")} />
+        <SettingBox
+          last
+          title={translate("settings.about") ?? ""}
+          icon="ℹ️"
+          chevron
+          onPress={() => router.push("/settings/about")}
+        />
       </View>
 
       <Text

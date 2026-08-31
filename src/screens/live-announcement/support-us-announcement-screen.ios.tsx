@@ -1,10 +1,11 @@
 import { Image, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { Screen, Text } from "@/components"
+import { Button, Screen, Text } from "@/components"
 import { Stack, useRouter } from "expo-router"
 import { LiveAnnouncementBackground } from "./live-announcement-bg"
 import { translate } from "@/i18n"
 import * as storage from "@/utils/storage"
+import { useIsDarkMode } from "@/hooks"
 import { NextButton } from "./announcement-next-button"
 import { trackEvent } from "@/services/analytics"
 import { LiveAnnouncementScrollView } from "./live-announcement-scroll-view"
@@ -14,6 +15,7 @@ const MATAN_IMAGE = require("../../../assets/live-activity/matan.jpeg")
 
 export function SupportUsScreen() {
   const router = useRouter()
+  const isDarkMode = useIsDarkMode()
 
   const finish = () => {
     storage.save("seenLiveAnnouncement", new Date().toISOString())
@@ -49,6 +51,21 @@ export function SupportUsScreen() {
         <View style={styles.spacer} />
 
         <View style={styles.actions}>
+          <Button
+            title={translate("liveAnnounce.supportUs.tipJarButton") ?? ""}
+            style={styles.tipJarButton(isDarkMode)}
+            variant="success"
+            containerStyle={styles.tipJarButtonContainer}
+            onPress={() => {
+              trackEvent("live_announcement_tip_jar_press")
+              finish()
+
+              setTimeout(() => {
+                router.push("/settings/tip-jar")
+              }, 150)
+            }}
+          />
+          <Text style={[styles.text, styles.tipJarNote]} tx="liveAnnounce.supportUs.tipJarNote" />
           <NextButton
             title={translate("common.done") ?? ""}
             onPress={() => {
@@ -117,6 +134,17 @@ const styles = StyleSheet.create((theme, rt) => {
     },
     actions: {
       gap: theme.spacing[3],
+    },
+    tipJarButton: (isDarkMode: boolean) => ({
+      minHeight: 55 * rt.fontScale,
+      backgroundColor: isDarkMode ? theme.colors.success : theme.colors.greenText,
+    }),
+    tipJarButtonContainer: {
+      minHeight: 55 * rt.fontScale,
+    },
+    tipJarNote: {
+      fontSize: 14,
+      marginHorizontal: -14,
     },
   }
 })

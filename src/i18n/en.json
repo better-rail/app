@@ -133,6 +133,19 @@
     "feedbackMailError": "Could not open the mail app. You can reach us at feedback@better-rail.co.il",
     "languageChangeAlertTitle": "Language Change",
     "languageChangeAlertMessage": "The app will restart to apply the changes",
+    "tipJar": "Tip Jar",
+    "tipJarTitle": "Better Rail relies on your support to fund its development",
+    "tipJarSubtitle": "If you love using Better Rail, please consider supporting the app by sending a tip.",
+    "generousTip": "🙂  Generous Tip",
+    "amazingTip": "😃  Amazing Tip",
+    "massiveTip": "😍  Massive Tip",
+    "hugeTip": "🤯  Huge Tip",
+    "totalTips": "Total Tips",
+    "thankYou": "Thank You",
+    "thankYouText": "We appreciate this donation from the bottom of our hearts. \n\n Enjoy the ride! \nGuy, Matan & Danny",
+    "testflightMessage": "The app has been installed via TestFlight.\nIn order to send a tip, you'll need to download the app from the App Store.",
+    "purchaseCancelled": "Purchase cancelled",
+    "purchaseFailed": "Purchase failed",
     "supportBetterRail": "Support Better Rail",
     "supportLinkError": "Could not open the support page.",
 
@@ -232,6 +245,8 @@
       "description3": "Creating Better Rail involves hundreds of hours of work, and we're covering the app's maintenance costs ourselves.",
       "description4": "If our app improved your train travel experience, please consider supporting us.",
       "description5": "Financial support helps us cover expenses, dedicate more time to improve the app, and create cool new features.",
+      "tipJarButton": "Open Tip Jar",
+      "tipJarNote": "Access the tip jar anytime through the app settings.",
       "supportButton": "Support Better Rail",
       "supportNote": "You can support Better Rail anytime through the app settings."
     }
