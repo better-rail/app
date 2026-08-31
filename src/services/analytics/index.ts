@@ -34,10 +34,6 @@ export const trackEvent = (eventName: string, params?: AnalyticsParams) => {
   posthog.capture(eventName, params)
 }
 
-export const trackScreenView = (_params: AnalyticsParams) => {
-  // No-op — <PostHogProvider /> runs with `captureScreens: false`; screens track their own views.
-}
-
 export const trackPurchase = (params: AnalyticsParams) => {
   posthog.capture("tip_purchased", params)
 }

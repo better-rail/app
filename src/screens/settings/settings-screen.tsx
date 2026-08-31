@@ -1,4 +1,4 @@
-import { DevSettings, Linking, Platform, PlatformColor, View } from "react-native"
+import { Linking, Platform, PlatformColor, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text } from "@/components"
 import { SettingBox } from "./components/settings-box"
@@ -7,7 +7,6 @@ import { translate, userLocale } from "@/i18n"
 import { useRouter } from "expo-router"
 import { SETTING_GROUP } from "./settings-styles"
 import { useIsDarkMode, useIsBetaTester } from "@/hooks"
-import { useSettingsStore } from "@/models"
 import { shareApp } from "./helpers/app-share-sheet"
 
 const storeLink = Platform.select({
@@ -19,14 +18,6 @@ export function SettingsScreen() {
   const router = useRouter()
   const isDarkMode = useIsDarkMode()
   const isBetaTester = useIsBetaTester()
-
-  // TEMPORARY: lets us re-test the lawsuit announcement bar without reinstalling the app.
-  const resetLawsuitBar = async () => {
-    useSettingsStore.getState().setSeenLawsuitAnnouncement(false)
-    // The bar reads the flag once on mount, so reload — after giving the store time to persist.
-    await new Promise<void>((resolve) => setTimeout(() => resolve(), 300))
-    DevSettings.reload()
-  }
 
   return (
     <Screen
@@ -86,12 +77,6 @@ export function SettingsScreen() {
         />
         <SettingBox last title={translate("settings.about")} icon="ℹ️" chevron onPress={() => router.push("/settings/about")} />
       </View>
-
-      {__DEV__ && (
-        <View style={SETTING_GROUP}>
-          <SettingBox first last title="Reset lawsuit bar" icon="🧪" onPress={resetLawsuitBar} />
-        </View>
-      )}
 
       <Text
         style={[
