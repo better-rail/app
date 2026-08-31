@@ -9,6 +9,7 @@ export interface SettingsState {
   showRouteCardHeader: boolean
   hideSlowTrains: boolean
   seenTrainInfoPrompt: boolean
+  seenLawsuitAnnouncement: boolean
 }
 
 export interface SettingsActions {
@@ -18,6 +19,7 @@ export interface SettingsActions {
   setHideSlowTrains: (hide: boolean) => void
   setSeenUrgentMessagesIds: (messagesIds: number[]) => void
   setSeenTrainInfoPrompt: (seen: boolean) => void
+  setSeenLawsuitAnnouncement: (seen: boolean) => void
 }
 
 export type SettingsStore = SettingsState & SettingsActions
@@ -29,6 +31,7 @@ const initialSettingsState: SettingsState = {
   showRouteCardHeader: false,
   hideSlowTrains: false,
   seenTrainInfoPrompt: false,
+  seenLawsuitAnnouncement: false,
 }
 
 export const resetSettingsStore = () => useSettingsStore.setState(initialSettingsState)
@@ -59,6 +62,10 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
   setSeenTrainInfoPrompt(seen) {
     set({ seenTrainInfoPrompt: seen })
   },
+
+  setSeenLawsuitAnnouncement(seen) {
+    set({ seenLawsuitAnnouncement: seen })
+  },
 }))
 
 export function filterUnseenUrgentMessages(messages: PopUpMessage[], seenIds: number[]) {
@@ -73,6 +80,7 @@ export function getSettingsSnapshot(state: SettingsState) {
     showRouteCardHeader: state.showRouteCardHeader,
     hideSlowTrains: state.hideSlowTrains,
     seenTrainInfoPrompt: state.seenTrainInfoPrompt,
+    seenLawsuitAnnouncement: state.seenLawsuitAnnouncement,
   }
 }
 
@@ -93,6 +101,7 @@ export function hydrateSettingsStore(data: any) {
     showRouteCardHeader: processedData.showRouteCardHeader ?? false,
     hideSlowTrains: processedData.hideSlowTrains ?? false,
     seenTrainInfoPrompt: processedData.seenTrainInfoPrompt ?? false,
+    seenLawsuitAnnouncement: processedData.seenLawsuitAnnouncement ?? false,
   })
 }
 
