@@ -11,7 +11,7 @@ export const posthogOptions: PostHogOptions = {
   host: "https://eu.i.posthog.com",
   persistence: "file" as const,
   customStorage: AsyncStorage,
-  enableSessionReplay: true,
+  enableSessionReplay: false,
 }
 
 // Inlined into the JS bundle by babel-preset-expo (EXPO_PUBLIC_* prefix). Available in EAS
