@@ -53,8 +53,6 @@ Sentry.init({
       maskAllText: false,
       maskAllImages: false,
       maskAllVectors: false,
-      // Text is intentionally unmasked, so don't traverse every React Native text leaf for redaction.
-      excludedViewClasses: ["RCTParagraphComponentView"],
     }),
     // Records navigation breadcrumbs (push/pop, from → to). Needs SDK >= 8.19, since this
     // `init()` runs before the Root Layout mounts and older versions gave up instead of retrying.
