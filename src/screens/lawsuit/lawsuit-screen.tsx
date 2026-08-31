@@ -110,7 +110,6 @@ const styles = StyleSheet.create((theme, rt) => ({
   paragraph: {
     fontSize: 18,
     marginBottom: theme.spacing[4],
-    textAlign: "left",
   },
   buttonsWrapper: {
     gap: theme.spacing[2],
