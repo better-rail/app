@@ -194,16 +194,39 @@ footer {
 .underline-hovered-link:after {
   content: "";
   width: 100%;
-  height: 2px;
+  height: 1.5px;
   left: 0;
   position: absolute;
-  bottom: -2px;
-  z-index: -1;
-  transition: 0.2s;
+  bottom: -1px;
+  border-radius: 1px;
+  background-color: currentColor;
+  pointer-events: none;
   opacity: 0;
+  transform: scaleX(0.4);
+  transform-origin: left center;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.18s ease-out;
 }
-.underline-hovered-link:hover:after {
-  opacity: 1;
+
+[dir="rtl"] .underline-hovered-link:after {
+  transform-origin: right center;
+}
+
+.underline-hovered-link:hover:after,
+.underline-hovered-link:focus-visible:after {
+  opacity: 0.65;
+  transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .underline-hovered-link:after {
+    transform: none;
+    transition: opacity 0.15s ease-out;
+  }
+
+  .underline-hovered-link:hover:after,
+  .underline-hovered-link:focus-visible:after {
+    transform: none;
+  }
 }
 /* #endregion */
 

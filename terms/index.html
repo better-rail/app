@@ -79,6 +79,9 @@
       })(document, window.posthog || []);
       posthog.init("phc_86hcnoNOI0EchduJZT2EWStBYa7bNEJKE1f5013nHyH", {
         api_host: "https://eu.i.posthog.com",
+        disable_session_recording: true,
+        disable_surveys: true,
+        capture_performance: false,
       });
     </script>
   </head>
@@ -181,7 +184,5 @@
       </div>
     </footer>
 
-    <script async defer src="https://tr.better-rail.co.il/latest.js"></script>
-    <noscript><img src="https://tr.better-rail.co.il/noscript.gif" alt="" /></noscript>
   </body>
 </html>

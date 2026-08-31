@@ -17,6 +17,63 @@
     <meta name="twitter:description" content="האלטרנטיבה לאפליקציית רכבת ישראל" />
     <meta name="twitter:site" content="@betterr_rail" />
 
+    <style>
+      .announcement-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 4px 10px;
+        padding: 11px 18px;
+        background-color: #0a81dd;
+        color: #fff;
+        font-size: 15px;
+        line-height: 1.4;
+        letter-spacing: -0.4px;
+        text-align: center;
+        transition: background-color 0.2s ease-out;
+      }
+
+      .announcement-bar:hover,
+      .announcement-bar:focus-visible {
+        background-color: #0972c4;
+        color: #fff;
+      }
+
+      .announcement-bar-title {
+        font-weight: 700;
+      }
+
+      .announcement-bar-arrow {
+        display: inline-flex;
+        align-items: center;
+        transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      .announcement-bar:hover .announcement-bar-arrow,
+      .announcement-bar:focus-visible .announcement-bar-arrow {
+        transform: translateX(-4px);
+      }
+
+      @media (max-width: 480px) {
+        .announcement-bar {
+          font-size: 14px;
+          padding: 10px 14px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .announcement-bar-arrow {
+          transition: none;
+        }
+
+        .announcement-bar:hover .announcement-bar-arrow,
+        .announcement-bar:focus-visible .announcement-bar-arrow {
+          transform: none;
+        }
+      }
+    </style>
+
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
     <link rel="icon" type="image/png" href="/assets/favicon/favicon-32x32.png" sizes="32x32" />
     <link rel="icon" type="image/png" href="/assets/favicon/favicon-16x16.png" sizes="16x16" />
@@ -114,10 +171,18 @@
       })(document, window.posthog || []);
       posthog.init("phc_86hcnoNOI0EchduJZT2EWStBYa7bNEJKE1f5013nHyH", {
         api_host: "https://eu.i.posthog.com",
+        disable_session_recording: true,
+        disable_surveys: true,
+        capture_performance: false,
       });
     </script>
   </head>
   <body class="site-wrapper">
+    <a class="announcement-bar" href="/israel-railways-lawsuit/">
+      <span class="announcement-bar-title">רכבת ישראל מאיימת לתבוע את בטר רייל</span>
+      <span class="announcement-bar-arrow" aria-hidden="true">←</span>
+    </a>
+
     <header class="page-header">
       <div class="app-icon">
         <img src="/assets/images/icon.svg" width="50" height="60" alt="" />
@@ -218,20 +283,21 @@
 
     <footer>
       <a
-        href="https://patreon.com/BetterRail"
+        href="https://pages.greeninvoice.co.il/payments/links/696f6413-1068-4002-a0f7-6b9b6676ead5"
         target="_blank"
+        rel="noopener noreferrer"
         style="
           padding-block: 2px;
           padding-inline: 26px;
           margin-block: 4px 24px;
-          background: #ff424d;
+          background: #0972c4;
           color: white;
           border-radius: 24px;
           font-size: 20px;
         "
-        id="patreon-badge"
+        id="support-badge"
       >
-        תמכו בנו בפטראון
+        תמכו בנו
       </a>
       <div class="footer-social-links">
         <a href="https://github.com/better-rail/app" target="_blank" rel="noopener noreferrer"
@@ -257,8 +323,8 @@
       document.getElementById("play-store-badge").addEventListener("click", function () {
         posthog.capture("download_click", { platform: "android" });
       });
-      document.getElementById("patreon-badge").addEventListener("click", function () {
-        posthog.capture("patreon_click");
+      document.getElementById("support-badge").addEventListener("click", function () {
+        posthog.capture("support_click");
       });
     </script>
   </body>
