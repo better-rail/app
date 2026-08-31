@@ -127,6 +127,7 @@
     "languageChangeAlertTitle": "שינוי שפה",
     "languageChangeAlertMessage": "האפליקצייה תאותחל מחדש",
     "supportBetterRail": "תמיכה ב-Better Rail",
+    "supportLinkError": "לא ניתן לפתוח את עמוד התמיכה.",
     "aboutText": "בטר רייל היא אפליקציית קוד פתוח שנוצרה במטרה להנגיש את זמני רכבת ישראל לציבור",
     "independenceDeclaration": "האפליקצייה מפותחת באופן עצמאי ונכתבת בקוד פתוח",
     "follow": "עקבו אחרי Better Rail",

@@ -3,10 +3,12 @@ import { StyleSheet } from "react-native-unistyles"
 import Video from "react-native-video"
 import { Screen, Text } from "@/components"
 import { LiveAnnouncementBackground } from "./live-announcement-bg"
-import { userLocale } from "@/i18n"
+import { translate, userLocale } from "@/i18n"
 import { useRouter } from "expo-router"
 import { NextButton } from "./announcement-next-button"
 import { LiveAnnouncementScrollView } from "./live-announcement-scroll-view"
+import * as storage from "@/utils/storage"
+import { trackEvent } from "@/services/analytics"
 
 const deviceHeight = Dimensions.get("screen").height
 const isHighDevice = deviceHeight > 820
@@ -17,6 +19,12 @@ export function DynamicIslandScreen() {
     userLocale === "he"
       ? require("../../../assets/live-activity/dynamic-island-hebrew.mp4")
       : require("../../../assets/live-activity/dynamic-island-english.mp4")
+
+  const finish = () => {
+    trackEvent("live_announcement_done_press")
+    storage.save("seenLiveAnnouncement", new Date().toISOString())
+    router.dismissTo("/")
+  }
 
   return (
     <Screen unsafe={true} statusBar="light-content">
@@ -35,11 +43,7 @@ export function DynamicIslandScreen() {
 
         {isHighDevice && <View style={styles.highDeviceSpacer} />}
 
-        <NextButton
-          onPress={() => {
-            router.push("/live-announcement/support-us")
-          }}
-        />
+        <NextButton title={translate("common.done") ?? ""} onPress={finish} />
       </LiveAnnouncementScrollView>
     </Screen>
   )

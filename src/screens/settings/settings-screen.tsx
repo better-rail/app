@@ -47,18 +47,21 @@ export function SettingsScreen() {
         />
       </View>
 
-      <View style={SETTING_GROUP}>
-        <SettingBox
-          first
-          last
-          title={translate("settings.supportBetterRail")}
-          icon="💖"
-          onPress={() => {
-            trackEvent("support_better_rail_press", { source: "settings" })
-            openSupportBetterRail()
-          }}
-        />
-      </View>
+      {Platform.OS === "android" && (
+        <View style={SETTING_GROUP}>
+          <SettingBox
+            first
+            last
+            title={translate("settings.supportBetterRail")}
+            icon="💖"
+            externalLink
+            onPress={() => {
+              trackEvent("support_better_rail_press", { source: "settings" })
+              openSupportBetterRail()
+            }}
+          />
+        </View>
+      )}
 
       {Platform.OS === "ios" && userLocale !== "ar" && (
         <View style={SETTING_GROUP}>

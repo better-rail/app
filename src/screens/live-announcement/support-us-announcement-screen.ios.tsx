@@ -1,22 +1,19 @@
 import { Image, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { Button, Screen, Text } from "@/components"
+import { Screen, Text } from "@/components"
 import { Stack, useRouter } from "expo-router"
 import { LiveAnnouncementBackground } from "./live-announcement-bg"
 import { translate } from "@/i18n"
 import * as storage from "@/utils/storage"
-import { useIsDarkMode } from "@/hooks"
 import { NextButton } from "./announcement-next-button"
 import { trackEvent } from "@/services/analytics"
 import { LiveAnnouncementScrollView } from "./live-announcement-scroll-view"
-import { openSupportBetterRail } from "@/utils/helpers/open-support-better-rail"
 
 const GUY_IMAGE = require("../../../assets/live-activity/guy.jpeg")
 const MATAN_IMAGE = require("../../../assets/live-activity/matan.jpeg")
 
 export function SupportUsScreen() {
   const router = useRouter()
-  const isDarkMode = useIsDarkMode()
 
   const finish = () => {
     storage.save("seenLiveAnnouncement", new Date().toISOString())
@@ -52,18 +49,6 @@ export function SupportUsScreen() {
         <View style={styles.spacer} />
 
         <View style={styles.actions}>
-          <Button
-            title={translate("liveAnnounce.supportUs.supportButton") ?? ""}
-            style={styles.supportButton(isDarkMode)}
-            variant="success"
-            containerStyle={styles.supportButtonContainer}
-            onPress={() => {
-              trackEvent("support_better_rail_press", { source: "live_announcement" })
-              finish()
-              openSupportBetterRail()
-            }}
-          />
-          <Text style={[styles.text, styles.supportNote]} tx="liveAnnounce.supportUs.supportNote" />
           <NextButton
             title={translate("common.done") ?? ""}
             onPress={() => {
@@ -132,17 +117,6 @@ const styles = StyleSheet.create((theme, rt) => {
     },
     actions: {
       gap: theme.spacing[3],
-    },
-    supportButton: (isDarkMode: boolean) => ({
-      minHeight: 55 * rt.fontScale,
-      backgroundColor: isDarkMode ? theme.colors.success : theme.colors.greenText,
-    }),
-    supportButtonContainer: {
-      minHeight: 55 * rt.fontScale,
-    },
-    supportNote: {
-      fontSize: 14,
-      marginHorizontal: -14,
     },
   }
 })

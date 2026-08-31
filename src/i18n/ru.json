@@ -131,6 +131,7 @@
     "languageChangeAlertTitle": "Смена языка",
     "languageChangeAlertMessage": "Приложение перезагрузится чтобы применить новые настройки",
     "supportBetterRail": "Поддержать Better Rail",
+    "supportLinkError": "Не удалось открыть страницу поддержки.",
     "aboutText": "Better Rail это приложение с открытым исходным кодом, целью которого является сделать расписания Израильских Железных Дорог более доступными для общественности.",
     "follow": "Следить за Better Rail",
     "facebook": "Facebook",

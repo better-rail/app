@@ -134,6 +134,7 @@
     "languageChangeAlertTitle": "Language Change",
     "languageChangeAlertMessage": "The app will restart to apply the changes",
     "supportBetterRail": "Support Better Rail",
+    "supportLinkError": "Could not open the support page.",
 
     "aboutText": "Better Rail is an open source app that aims to make Israel Railways schedules more accessible to the public.",
     "follow": "Follow Better Rail",
