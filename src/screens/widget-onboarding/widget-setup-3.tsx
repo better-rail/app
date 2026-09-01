@@ -4,14 +4,14 @@ import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text, Button } from "@/components"
 import { translate } from "@/i18n"
 import * as storage from "@/utils/storage"
-import { useRouter } from "expo-router"
+import { useNavigation } from "expo-router"
 import { WidgetOnboardingBackground } from "./widget-onboarding-background"
 import { useWidgetWrapperStyle } from "./widget-styles"
 import { trackEvent } from "@/services/analytics"
 import { requestStoreReview } from "@/utils/helpers/store-review-helpers"
 
 export const WidgetStep3 = function WidgetStep3() {
-  const router = useRouter()
+  const navigation = useNavigation()
   const wrapperStyle = useWidgetWrapperStyle()
 
   return (
@@ -37,7 +37,7 @@ export const WidgetStep3 = function WidgetStep3() {
           title={translate("common.done")}
           onPress={() => {
             trackEvent("finished_widget_onboarding")
-            router.dismiss()
+            navigation.getParent()?.goBack()
 
             storage.load("lastInAppReview").then((value) => {
               if (!value) {
@@ -94,11 +94,11 @@ const styles = StyleSheet.create((theme, rt) => ({
     marginBottom: theme.spacing[3],
   },
   buttonContainer: {
-    alignItems: "center",
+    paddingHorizontal: theme.spacing[5],
     marginTop: rt.fontScale < 1.2 ? theme.spacing[4] + 12 : 0,
     marginBottom: rt.insets.bottom + 4,
   },
   button: {
-    width: rt.screen.width - 40,
+    width: "100%",
   },
 }))
