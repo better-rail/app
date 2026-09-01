@@ -9,7 +9,13 @@ import { getHours, parse, isSameDay, addDays } from "date-fns"
 export class RouteApi {
   private api = railApi
 
-  async getRoutes(originId: string, destinationId: string, date: string, hour: string): Promise<RouteItem[]> {
+  async getRoutes(
+    originId: string,
+    destinationId: string,
+    date: string,
+    hour: string,
+    options: { hideSlowTrains?: boolean } = {},
+  ): Promise<RouteItem[]> {
     if (!originId || !destinationId) throw new Error("Missing origin / destination data")
 
     try {
@@ -22,6 +28,7 @@ export class RouteApi {
         systemType: "1",
         scheduleType: "ByDeparture",
         languageId: "Hebrew",
+        hideSlowTrains: options.hideSlowTrains ?? false,
       }
 
       const response: AxiosResponse<RailApiGetRoutesResult> = await this.api.axiosInstance.post(
