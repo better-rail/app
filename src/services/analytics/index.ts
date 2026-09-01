@@ -27,7 +27,8 @@ export const posthog = POSTHOG_API_KEY
   ? new PostHog(POSTHOG_API_KEY, posthogOptions)
   : new PostHog("phc_disabled_placeholder", { ...posthogOptions, disabled: true })
 
-type AnalyticsParams = Record<string, string | number | boolean | null | undefined>
+type AnalyticsValue = string | number | boolean | null | AnalyticsValue[] | { [key: string]: AnalyticsValue }
+type AnalyticsParams = Record<string, AnalyticsValue>
 
 export const trackEvent = (eventName: string, params?: AnalyticsParams) => {
   posthog.capture(eventName, params)

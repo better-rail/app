@@ -16,7 +16,7 @@ import { enableScreens } from "react-native-screens"
 import { PostHogProvider } from "posthog-react-native"
 import { Observe, ObserveRoot, useObserve } from "expo-observe"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
-import { useIAP, initConnection, finishTransaction, getAvailablePurchases } from "react-native-iap"
+import { finishTransaction, getAvailablePurchases, initConnection, useIAP } from "react-native-iap"
 
 import { initFonts } from "@/theme/fonts"
 import * as storage from "@/utils/storage"
@@ -44,6 +44,7 @@ Observe.configure({
 })
 
 const TELEMETRY_DISABLED_STORAGE_KEY = "telemetry_disabled"
+const isEmulator = DeviceInfo.isEmulatorSync()
 
 Sentry.init({
   dsn: "https://203d8d08bca79bc415c95f41ab496d0b@o4510306230534144.ingest.us.sentry.io/4510307294248960",
@@ -80,7 +81,11 @@ export const queryClient = new QueryClient({
       // "No routes found" is an expected, app-handled outcome (offline or genuinely no
       // trains for the date). It's thrown only to drive react-query's onError, so skip
       // reporting it — it otherwise floods Sentry with tens of thousands of noise events.
-      if (error instanceof RoutesNotFoundError || error?.name === "RoutesNotFoundError" || error?.message === "Not found") return
+      if (
+        error instanceof RoutesNotFoundError ||
+        (error instanceof Error && (error.name === "RoutesNotFoundError" || error.message === "Not found"))
+      )
+        return
 
       Sentry.captureException(error, {
         tags: { source: "react-query" },
@@ -98,7 +103,27 @@ export const queryClient = new QueryClient({
   }),
 })
 
-const isEmulator = DeviceInfo.isEmulatorSync()
+function IOSIAPConnectionManager() {
+  useIAP()
+
+  useEffect(() => {
+    if (__DEV__) return
+
+    const flushAvailablePurchases = async () => {
+      try {
+        await initConnection()
+        const availablePurchases = await getAvailablePurchases()
+        await Promise.all(availablePurchases.map((purchase) => finishTransaction({ purchase, isConsumable: true })))
+      } catch (error) {
+        console.error("Failed to connect to IAP and finish all available transactions", error)
+      }
+    }
+
+    flushAvailablePurchases()
+  }, [])
+
+  return null
+}
 
 function AppStack() {
   const colorScheme = useColorScheme()
@@ -151,11 +176,6 @@ function RootLayout() {
   const { markInteractive } = useObserve()
 
   useDeepLinking(storeReady)
-
-  if (!isEmulator) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useIAP()
-  }
 
   useEffect(() => {
     if (!storeReady) return
@@ -220,23 +240,6 @@ function RootLayout() {
   }, [])
 
   useEffect(() => {
-    const flushAvailablePurchases = async () => {
-      try {
-        await initConnection()
-        const availablePurchases = await getAvailablePurchases()
-        availablePurchases.forEach((purchase) => {
-          finishTransaction({ purchase, isConsumable: true })
-        })
-      } catch (error) {
-        console.error("Failed to connect to IAP and finish all available transactions", error)
-      }
-    }
-    if (!__DEV__) {
-      flushAvailablePurchases()
-    }
-  }, [])
-
-  useEffect(() => {
     // Signal EAS Observe that the app is interactive once the store + locale are
     // ready — this is the point we stop returning null and render the real UI.
     if (storeReady && localeReady) {
@@ -252,6 +255,7 @@ function RootLayout() {
         <ActionSheetProvider>
           <SafeAreaProvider initialMetrics={initialWindowMetrics}>
             <PostHogProvider client={posthog} autocapture={{ captureScreens: false }}>
+              {Platform.OS === "ios" && !isEmulator && <IOSIAPConnectionManager />}
               <AppStack />
             </PostHogProvider>
           </SafeAreaProvider>

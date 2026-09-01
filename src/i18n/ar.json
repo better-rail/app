@@ -119,6 +119,8 @@
     "rateAndroid": "للتقييم في Play Store",
     "languageChangeAlertTitle": "تغيير اللغة",
     "languageChangeAlertMessage": "سيتم تشغيل التطبيق من جديد",
+    "supportBetterRail": "دعم Better Rail",
+    "supportLinkError": "تعذر فتح صفحة الدعم.",
     "aboutText": "اسمي جاي تيبر ولقد أنشأت Better Rail لجعل خدمات المواصلات في متناول الجمهور",
     "follow": "متابعة Better Rail",
     "facebook": "فيسبوك",
@@ -192,6 +194,12 @@
     "stackingStep2": "2. Drag a widget on top of another widget.",
     "stackingStep3": "3. Inside the stack you can scroll between the two widgets.",
     "stackingStep4": "Tip: You can view the full train scheduale quickly by tapping on the widget."
+  },
+  "liveAnnounce": {
+    "supportUs": {
+      "supportButton": "دعم Better Rail",
+      "supportNote": "يمكنك دعم Better Rail في أي وقت من خلال إعدادات التطبيق."
+    }
   },
   "ride": {
     "live": "Live",

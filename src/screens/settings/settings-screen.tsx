@@ -8,6 +8,8 @@ import { useRouter } from "expo-router"
 import { SETTING_GROUP } from "./settings-styles"
 import { useIsDarkMode, useIsBetaTester } from "@/hooks"
 import { shareApp } from "./helpers/app-share-sheet"
+import { openSupportBetterRail } from "@/utils/helpers/open-support-better-rail"
+import { trackEvent } from "@/services/analytics"
 
 const storeLink = Platform.select({
   ios: "https://apps.apple.com/app/better-rail/id1562982976?action=write-review",
@@ -31,14 +33,14 @@ export function SettingsScreen() {
       <View style={SETTING_GROUP}>
         <SettingBox
           first
-          title={translate("settings.language")}
+          title={translate("settings.language") ?? ""}
           icon="💬"
           chevron
           onPress={() => router.push("/settings/language")}
         />
         <SettingBox
           last
-          title={translate("settings.uiSettings")}
+          title={translate("settings.uiSettings") ?? ""}
           icon="🎨"
           chevron
           onPress={() => router.push("/settings/ui-settings")}
@@ -46,14 +48,28 @@ export function SettingsScreen() {
       </View>
 
       <View style={SETTING_GROUP}>
-        <SettingBox
-          first
-          last
-          title={translate("settings.tipJar")}
-          icon="💖"
-          chevron
-          onPress={() => router.push("/settings/tip-jar")}
-        />
+        {Platform.OS === "ios" ? (
+          <SettingBox
+            first
+            last
+            title={translate("settings.tipJar") ?? ""}
+            icon="💖"
+            chevron
+            onPress={() => router.push("/settings/tip-jar")}
+          />
+        ) : (
+          <SettingBox
+            first
+            last
+            title={translate("settings.supportBetterRail") ?? ""}
+            icon="💖"
+            externalLink
+            onPress={() => {
+              trackEvent("support_better_rail_press", { source: "settings" })
+              openSupportBetterRail()
+            }}
+          />
+        )}
       </View>
 
       {Platform.OS === "ios" && userLocale !== "ar" && (
@@ -61,7 +77,7 @@ export function SettingsScreen() {
           <SettingBox
             first
             last
-            title={translate("settings.widget")}
+            title={translate("settings.widget") ?? ""}
             icon="📱"
             onPress={() => router.push("/widget-onboarding")}
           />
@@ -69,13 +85,19 @@ export function SettingsScreen() {
       )}
 
       <View style={SETTING_GROUP}>
-        <SettingBox first title={translate("settings.share")} icon="🕺" onPress={shareApp} />
+        <SettingBox first title={translate("settings.share") ?? ""} icon="🕺" onPress={shareApp} />
         <SettingBox
-          title={Platform.select({ ios: translate("settings.rateIOS"), android: translate("settings.rateAndroid") })}
+          title={Platform.select({ ios: translate("settings.rateIOS"), android: translate("settings.rateAndroid") }) ?? ""}
           icon="⭐️"
-          onPress={() => Linking.openURL(storeLink)}
+          onPress={() => storeLink && Linking.openURL(storeLink)}
         />
-        <SettingBox last title={translate("settings.about")} icon="ℹ️" chevron onPress={() => router.push("/settings/about")} />
+        <SettingBox
+          last
+          title={translate("settings.about") ?? ""}
+          icon="ℹ️"
+          chevron
+          onPress={() => router.push("/settings/about")}
+        />
       </View>
 
       <Text

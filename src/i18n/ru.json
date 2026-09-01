@@ -130,6 +130,8 @@
     "feedbackMailError": "Не удалось открыть почтовое приложение. Вы можете написать нам на feedback@better-rail.co.il",
     "languageChangeAlertTitle": "Смена языка",
     "languageChangeAlertMessage": "Приложение перезагрузится чтобы применить новые настройки",
+    "supportBetterRail": "Поддержать Better Rail",
+    "supportLinkError": "Не удалось открыть страницу поддержки.",
     "aboutText": "Better Rail это приложение с открытым исходным кодом, целью которого является сделать расписания Израильских Железных Дорог более доступными для общественности.",
     "follow": "Следить за Better Rail",
     "facebook": "Facebook",
@@ -196,6 +198,12 @@
     "stackingStep2": "2. Drag a widget on top of another widget.",
     "stackingStep3": "3. Inside the stack you can scroll between the two widgets.",
     "stackingStep4": "Tip: You can view the full train scheduale quickly by tapping on the widget."
+  },
+  "liveAnnounce": {
+    "supportUs": {
+      "supportButton": "Поддержать Better Rail",
+      "supportNote": "Вы можете поддержать Better Rail в любое время в настройках приложения."
+    }
   },
   "ride": {
     "live": "Live",

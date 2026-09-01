@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { View, Platform, ActivityIndicator } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { useIAP } from "react-native-iap"
+import { Product, Purchase, PurchaseError, useIAP } from "react-native-iap"
 import { Screen, Text } from "@/components"
 import { isDarkMode } from "@/theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
@@ -20,30 +20,30 @@ const PRODUCT_IDS = ["better_rail_tip_1", "better_rail_tip_2", "better_rail_tip_
 
 export function TipJarScreen() {
   const [isLoading, setIsLoading] = useState(false)
-  const [sortedProducts, setSortedProducts] = useState([])
+  const [sortedProducts, setSortedProducts] = useState<Product[]>([])
   const [showThanksModal, setShowThanksModal] = useState(false)
   const { totalTip, addTip } = useSettingsStore(useShallow((s) => ({ totalTip: s.totalTip, addTip: s.addTip })))
 
-  const handlePurchaseSuccess = async (purchase) => {
+  const handlePurchaseSuccess = async (purchase: Purchase) => {
     try {
       await finishTransaction({ purchase, isConsumable: true })
 
       setShowThanksModal(true)
 
       const item = products.find((product) => product.id === purchase.productId)
-      if (item) {
-        addTip(Number(item.price))
+      if (item?.price != null) {
+        addTip(item.price)
 
         try {
           await trackPurchase({
-            value: Number(item.price),
-            currency: products[0].currency,
+            value: item.price,
+            currency: item.currency,
             tax: 15,
             items: [
               {
                 item_name: item.title,
                 item_id: item.id,
-                price: Number(item.price),
+                price: item.price,
                 quantity: 1,
               },
             ],
@@ -59,11 +59,11 @@ export function TipJarScreen() {
     }
   }
 
-  const handlePurchaseError = (error) => {
+  const handlePurchaseError = (error: PurchaseError) => {
     setIsLoading(false)
 
     if (error.code !== "user-cancelled") {
-      toast({ title: translate("settings.purchaseFailed"), message: error.message, preset: "error" })
+      toast({ title: translate("settings.purchaseFailed") ?? "", message: error.message, preset: "error" })
     }
   }
 
@@ -80,8 +80,7 @@ export function TipJarScreen() {
 
   useEffect(() => {
     if (products.length > 0) {
-      const sortedProductsByPrice = products.sort((a, b) => Number(a.price) - Number(b.price))
-      setSortedProducts(sortedProductsByPrice)
+      setSortedProducts([...products].sort((a, b) => Number(a.price) - Number(b.price)))
     }
   }, [products])
 
@@ -89,12 +88,9 @@ export function TipJarScreen() {
     try {
       setIsLoading(true)
 
-      // Request purchase - success/error will be handled by callbacks
+      // This route is iOS-only; Android uses the external support link instead.
       await requestPurchase({
-        request: {
-          apple: { sku },
-          google: { skus: [sku] },
-        },
+        request: { apple: { sku } },
         type: "in-app",
       })
     } catch (err) {
@@ -119,25 +115,25 @@ export function TipJarScreen() {
         <Text tx="settings.tipJarSubtitle" style={styles.tipIntroSubtitle} />
         {installSource === "TestFlight" && <Text tx="settings.testflightMessage" style={styles.testflightMsg} />}
 
-        {sortedProducts.length > 0 && !isLoading ? (
+        {sortedProducts.length >= PRODUCT_IDS.length && !isLoading ? (
           <>
             <TipRow
-              title={translate("settings.generousTip")}
+              title={translate("settings.generousTip") ?? ""}
               amount={sortedProducts[0].displayPrice}
               onPress={() => onTipButtonPress(sortedProducts[0].id)}
             />
             <TipRow
-              title={translate("settings.amazingTip")}
+              title={translate("settings.amazingTip") ?? ""}
               amount={sortedProducts[1].displayPrice}
               onPress={() => onTipButtonPress(sortedProducts[1].id)}
             />
             <TipRow
-              title={translate("settings.massiveTip")}
+              title={translate("settings.massiveTip") ?? ""}
               amount={sortedProducts[2].displayPrice}
               onPress={() => onTipButtonPress(sortedProducts[2].id)}
             />
             <TipRow
-              title={translate("settings.hugeTip")}
+              title={translate("settings.hugeTip") ?? ""}
               amount={sortedProducts[3].displayPrice}
               onPress={() => onTipButtonPress(sortedProducts[3].id)}
             />
@@ -158,7 +154,13 @@ export function TipJarScreen() {
   )
 }
 
-const TipRow = ({ title, amount, onPress }) => (
+interface TipRowProps {
+  title: string
+  amount: string
+  onPress: () => void
+}
+
+const TipRow = ({ title, amount, onPress }: TipRowProps) => (
   <View style={styles.listRow}>
     <Text>{title}</Text>
     <TouchableOpacity style={styles.tipButton} onPress={onPress} activeOpacity={0.6}>

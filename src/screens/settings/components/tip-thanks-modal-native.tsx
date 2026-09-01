@@ -21,7 +21,7 @@ export const TipThanksModalNative = function TipThanksModalNative({ visible, onC
               <Text style={styles.modalText} tx="settings.thankYouText" />
 
               <Button
-                title={translate("common.close")}
+                title={translate("common.close") ?? ""}
                 containerStyle={styles.modalButtonContainer}
                 style={styles.modalButton}
                 onPress={onClose}
