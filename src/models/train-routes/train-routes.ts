@@ -3,6 +3,7 @@ import { RouteApi } from "@/services/api/route-api"
 import { add, closestTo, differenceInMinutes } from "date-fns"
 import { RouteItem } from "@/services/api"
 import { formatDateForAPI } from "@/utils/helpers/date-helpers"
+import { useSettingsStore } from "@/models/settings/settings"
 
 export type StatusType = "idle" | "pending" | "done" | "error"
 export type ResultType = "normal" | "different-date" | "different-hour" | "not-found"
@@ -68,13 +69,15 @@ export const useTrainRoutesStore = create<TrainRoutesStore>((set, get) => ({
     let foundRoutes = false
     let apiHitCount = 0
     let requestDate = time
+    // Route lists honour the "hide slow trains" setting; ride lookups elsewhere always see every train.
+    const { hideSlowTrains } = useSettingsStore.getState()
 
     // If no routes are found, try to fetch results for the upcoming 3 days.
     while (!foundRoutes && apiHitCount < 4) {
       // Format times for Israel Rail API
       const [date, hour] = formatDateForAPI(requestDate)
 
-      const result = await routeApi.getRoutes(originId, destinationId, date, hour)
+      const result = await routeApi.getRoutes(originId, destinationId, date, hour, { hideSlowTrains })
 
       if (result.length > 0) {
         foundRoutes = true

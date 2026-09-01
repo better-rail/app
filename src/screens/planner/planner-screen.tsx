@@ -13,7 +13,7 @@ import {
   DatePickerModal,
 } from "@/components"
 import { useShallow } from "zustand/react/shallow"
-import { useRoutePlanStore, useTrainRoutesStore, useDateTypeDisplayName } from "@/models"
+import { useRoutePlanStore, useTrainRoutesStore, useSettingsStore, useDateTypeDisplayName } from "@/models"
 import HapticFeedback from "react-native-haptic-feedback"
 import { spacing } from "@/theme"
 import { useStations } from "@/data/stations"
@@ -43,6 +43,7 @@ export function PlannerScreen() {
     })),
   )
   const dateTypeDisplayName = useDateTypeDisplayName()
+  const hideSlowTrains = useSettingsStore((s) => s.hideSlowTrains)
   const { updateResultType, getRoutes } = useTrainRoutesStore(
     useShallow((s) => ({ updateResultType: s.updateResultType, getRoutes: s.getRoutes })),
   )
@@ -171,7 +172,7 @@ export function PlannerScreen() {
 
   // Prefetch routes so the route list loads instantly.
   useQuery(
-    ["origin", origin?.id, "destination", destination?.id, "time", date.getTime()],
+    ["origin", origin?.id, "destination", destination?.id, "time", date.getTime(), "hideSlowTrains", hideSlowTrains],
     () => getRoutes(origin?.id, destination?.id, date.getTime()),
     /**
      *  TODO: Temporary fix for displaying "no trains found" modal, omitting cache during the weekend.

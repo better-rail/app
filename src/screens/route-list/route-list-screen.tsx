@@ -199,7 +199,7 @@ export function RouteListScreen() {
   const { isInternetReachable } = useNetworkState()
 
   const trains = useQuery(
-    ["origin", originId, "destination", destinationId, "time", currentDate.getTime()],
+    ["origin", originId, "destination", destinationId, "time", currentDate.getTime(), "hideSlowTrains", hideSlowTrains],
     async () => {
       const result = await getRoutes(originId, destinationId, currentDate.getTime())
       return result
