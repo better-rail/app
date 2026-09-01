@@ -280,9 +280,10 @@ export function RouteListScreen() {
     }
   }, [trains.data, currentDate, trains.isSuccess, trains.isLoading, updateResultType])
 
-  // Initialize the loaded dates with the initial date
+  // Start over from the requested date
   useEffect(() => {
     const initialDate = new Date(time).toDateString()
+    setRouteData([])
     setLoadedDates(new Set([initialDate]))
 
     // Also make sure the current and next day dates are properly set
@@ -292,7 +293,7 @@ export function RouteListScreen() {
     const nextDay = new Date(time)
     nextDay.setDate(nextDay.getDate() + 1)
     setNextDayDate(nextDay)
-  }, [time])
+  }, [time, hideSlowTrains])
 
   // Filter out slow trains when the setting is enabled
   const filteredRouteData = (() => {

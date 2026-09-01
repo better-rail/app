@@ -28,7 +28,6 @@ export class RouteApi {
         systemType: "1",
         scheduleType: "ByDeparture",
         languageId: "Hebrew",
-        // The "hide slow trains" setting; the server drops direct trains a faster direct train shadows.
         hideSlowTrains: options.hideSlowTrains ?? false,
       }
 

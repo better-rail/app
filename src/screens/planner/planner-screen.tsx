@@ -24,7 +24,7 @@ import { differenceInHours, parseISO } from "date-fns"
 import { save, load } from "@/utils/storage"
 import { donateRouteIntent } from "@/utils/ios-helpers"
 import { trackEvent } from "@/services/analytics"
-import { useRouter, useFocusEffect } from "expo-router"
+import { useRouter, useFocusEffect, useIsFocused } from "expo-router"
 import { useObserve } from "expo-observe"
 import { useMountEffect } from "@/hooks"
 import { PlannerScreenHeader } from "./planner-screen-header"
@@ -44,6 +44,7 @@ export function PlannerScreen() {
   )
   const dateTypeDisplayName = useDateTypeDisplayName()
   const hideSlowTrains = useSettingsStore((s) => s.hideSlowTrains)
+  const isFocused = useIsFocused()
   const { updateResultType, getRoutes } = useTrainRoutesStore(
     useShallow((s) => ({ updateResultType: s.updateResultType, getRoutes: s.getRoutes })),
   )
@@ -180,7 +181,7 @@ export function PlannerScreen() {
      *  Those results will be cached and the "no trains modal" modal won't be displayed for them. Therefor we omit caching during
      *  for weekend requests.
      */
-    { cacheTime: isWeekend(date) ? 0 : 7200000, retry: false, enabled: !!origin && !!destination },
+    { cacheTime: isWeekend(date) ? 0 : 7200000, retry: false, enabled: !!origin && !!destination && isFocused },
   )
 
   return (

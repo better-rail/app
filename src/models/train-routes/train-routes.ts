@@ -69,7 +69,6 @@ export const useTrainRoutesStore = create<TrainRoutesStore>((set, get) => ({
     let foundRoutes = false
     let apiHitCount = 0
     let requestDate = time
-    // Route lists honour the "hide slow trains" setting; ride lookups elsewhere always see every train.
     const { hideSlowTrains } = useSettingsStore.getState()
 
     // If no routes are found, try to fetch results for the upcoming 3 days.
