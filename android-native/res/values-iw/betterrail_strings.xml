@@ -121,6 +121,9 @@
     <string name="station_6150">קריית מלאכי - יואב</string>
     <string name="station_680">ירושלים - יצחק נבון</string>
     <string name="station_6900">מזכרת בתיה</string>
+    <string name="station_3900">חדרה - מזרח</string>
+    <string name="station_4300">שומרון - טייבה</string>
+    <string name="station_4310">טירה - כוכב יאיר</string>
     
     <!-- Test stations for mock data -->
     <string name="station_9999">תחנת מוצא לבדיקה</string>

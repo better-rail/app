@@ -76,7 +76,10 @@ object StationsData {
         "1280" to StationInfo(R.string.station_1280, R.drawable.assets_stationimages_beitshean),
         "6150" to StationInfo(R.string.station_6150, R.drawable.assets_stationimages_kiryatmalachi),
         "680" to StationInfo(R.string.station_680, R.drawable.assets_stationimages_jerusalemitzhaknavon),
-        "6900" to StationInfo(R.string.station_6900, R.drawable.assets_stationimages_mazkeretbatya)
+        "6900" to StationInfo(R.string.station_6900, R.drawable.assets_stationimages_mazkeretbatya),
+        "3900" to StationInfo(R.string.station_3900, R.drawable.assets_stationimages_haderaeast),
+        "4300" to StationInfo(R.string.station_4300, R.drawable.assets_stationimages_shomrontaybe),
+        "4310" to StationInfo(R.string.station_4310, R.drawable.assets_stationimages_tirakokhavyair)
     )
     
     private val debugStations = mapOf(
