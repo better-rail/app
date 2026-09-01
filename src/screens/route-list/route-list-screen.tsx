@@ -295,32 +295,23 @@ export function RouteListScreen() {
     setNextDayDate(nextDay)
   }, [time, hideSlowTrains])
 
-  // Filter out slow trains when the setting is enabled
-  const filteredRouteData = (() => {
-    if (!hideSlowTrains) return routeData
-    return routeData.filter((item) => {
-      if (typeof item === "string") return true // Keep date headers
-      return !item.isMuchLonger
-    })
-  })()
-
   // Signal EAS Observe per-route TTI once the route results have resolved — either
   // routes are rendered, or we've reached a terminal not-found / error state.
   useEffect(() => {
-    const hasResults = filteredRouteData.length > 0
+    const hasResults = routeData.length > 0
     const isTerminalEmpty = !trains.isLoading && (resultType === "not-found" || trains.status === "error")
     if (hasResults || isTerminalEmpty) {
       markInteractive()
     }
-  }, [filteredRouteData.length, trains.isLoading, trains.status, resultType, markInteractive])
+  }, [routeData.length, trains.isLoading, trains.status, resultType, markInteractive])
 
   // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
   // returns a route list for the whole day.
   const initialScrollIndex = (() => {
-    if (!trains.isSuccess || filteredRouteData.length === 0) return undefined
+    if (!trains.isSuccess || routeData.length === 0) return undefined
 
     // Get only the route items (not date headers)
-    const routeItems = filteredRouteData.filter((item): item is RouteItem => typeof item !== "string")
+    const routeItems = routeData.filter((item): item is RouteItem => typeof item !== "string")
 
     if (routeItems.length === 0) return undefined
 
@@ -338,8 +329,8 @@ export function RouteListScreen() {
 
     if (!targetRoute) return undefined
 
-    // Find the actual index in filteredRouteData (which includes date headers)
-    return filteredRouteData.findIndex((item) => item === targetRoute)
+    // Find the actual index in routeData (which includes date headers)
+    return routeData.findIndex((item) => item === targetRoute)
   })()
 
   const shouldShowDashedLine = (() => {
@@ -426,7 +417,7 @@ export function RouteListScreen() {
     let headerIndex = index
     while (headerIndex > 0) {
       headerIndex--
-      const headerItem = filteredRouteData[headerIndex]
+      const headerItem = routeData[headerIndex]
       if (typeof headerItem === "string") {
         // Check if the route's departure date matches the header date
         const routeDate = new Date(item.trains[0].departureTime).toDateString()
@@ -509,11 +500,11 @@ export function RouteListScreen() {
       )}
 
       {/* Show the loading indicator only when we're loading and there's no data yet */}
-      {trains.isLoading && filteredRouteData.length === 0 && (
+      {trains.isLoading && routeData.length === 0 && (
         <ActivityIndicator size="large" style={{ marginTop: spacing[6] }} color="grey" />
       )}
 
-      {filteredRouteData.length > 0 && (
+      {routeData.length > 0 && (
         <FlashList
           key={`route-list-${hideSlowTrains}`}
           ref={flashListRef}
@@ -523,7 +514,7 @@ export function RouteListScreen() {
               ? item
               : item.trains.map((train) => `${train.trainNumber}-${train.departureTimeString}`).join()
           }
-          data={filteredRouteData}
+          data={routeData}
           contentContainerStyle={{
             paddingTop: spacing[4],
             paddingHorizontal: spacing[3],
