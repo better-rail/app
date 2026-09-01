@@ -80,11 +80,11 @@ const styles = StyleSheet.create((theme, rt) => ({
     marginBottom: theme.spacing[4],
   },
   buttonContainer: {
-    alignItems: "center",
+    paddingHorizontal: theme.spacing[5],
     marginTop: rt.fontScale < 1.2 ? theme.spacing[5] : 0,
     marginBottom: rt.insets.bottom + 4,
   },
   button: {
-    width: rt.screen.width - 40,
+    width: "100%",
   },
 }))
