@@ -1,69 +1,38 @@
 diff --git a/ios/AppDelegates/ExpoReactNativeFactory.mm b/ios/AppDelegates/ExpoReactNativeFactory.mm
-index 8dec877617b0a971a44a1eeb9d7674ab981c945c..732ecef48a43158cb573c32cfb1ec8760ac3b624 100644
+index 8dec877617b0a971a44a1eeb9d7674ab981c945c..49b7e392c0a5ef9ae91e7d95c3bdf2f7f9dd75ad 100644
 --- a/ios/AppDelegates/ExpoReactNativeFactory.mm
 +++ b/ios/AppDelegates/ExpoReactNativeFactory.mm
-@@ -22,6 +22,50 @@
- #import <react/renderer/runtimescheduler/RuntimeSchedulerBinding.h>
- #import <ExpoModulesCore/EXReactSchedulerDispatch.h>
+@@ -43,20 +43,28 @@ - (void)host:(nonnull RCTHost *)host didInitializeRuntime:(facebook::jsi::Runtim
  
-+#include <memory>
-+#include <mutex>
-+#include <vector>
-+
-+namespace {
-+
-+/**
-+ The React `RuntimeScheduler` is owned by the `ReactInstance`, but `setRuntime:`
-+ below only hands over a raw pointer to it — `expo::RuntimeScheduler` (in the
-+ prebuilt ExpoModulesJSI) stores it as a bare `void *` and never takes ownership.
-+ Native work that settles *after* the React instance is torn down still dispatches
-+ through that pointer, so it reads freed memory and crashes inside
-+ `facebook::react::RuntimeScheduler::scheduleTask`.
-+
-+ That is not hypothetical: tearing the instance down (e.g. `RNRestart.Restart()`
-+ from the initial-language setup) runs `ExpoFetchModule`'s `OnDestroy`, which calls
-+ `urlSession.invalidateAndCancel()`. The cancelled requests then reject their JS
-+ promises from `expo.modules.fetch.RequestQueue`, hitting the dangling scheduler.
-+ See Sentry BETTER-RAIL-2G.
-+
-+ Keep a strong reference to every scheduler we expose so the pointer stays valid
-+ for the lifetime of the process. Scheduling on an orphaned scheduler is a no-op
-+ rather than a crash: `RuntimeScheduler` dispatches through the `RuntimeExecutor`
-+ that `ReactInstance` built, and that executor bails out as soon as its weak
-+ reference to the runtime has expired.
-+
-+ Upstream still passes the unowned pointer as of expo@56.0.21 — re-check when
-+ bumping the SDK.
-+ */
-+void retainRuntimeSchedulerForProcessLifetime(std::shared_ptr<facebook::react::RuntimeScheduler> scheduler)
-+{
-+  // Intentionally leaked: these must outlive static destruction too, since
-+  // background queues can still dispatch through them while the process exits.
-+  // `RuntimeScheduler` stays incomplete here — we only move and store the
-+  // `shared_ptr`, exactly like the unpatched code already does.
-+  static auto *retained = new std::vector<std::shared_ptr<facebook::react::RuntimeScheduler>>();
-+  static auto *mutex = new std::mutex();
-+
-+  std::lock_guard<std::mutex> lock(*mutex);
-+  retained->push_back(std::move(scheduler));
-+}
-+
-+} // namespace
-+
- @implementation EXReactNativeFactory {
-   EXAppContext *_appContext;
- }
-@@ -54,6 +98,13 @@ - (void)host:(nonnull RCTHost *)host didInitializeRuntime:(facebook::jsi::Runtim
+   // Resolve the React runtime scheduler so ExpoModulesJSI can dispatch work onto
+   // the JS thread. Doing it here (rather than inside the xcframework) keeps
+-  // React-runtimescheduler symbols out of the prebuilt ExpoModulesJSI.framework
+-  // — important for source-built RN, where those symbols are hidden after link
++  // React-runtimescheduler symbols out of the prebuilt ExpoModulesJSI.framework.
++  // That matters for source-built RN, where those symbols are hidden after link
+   // and unreachable via -undefined dynamic_lookup.
+   //
++  // The handle references the scheduler weakly, so dispatching after the React
++  // instance tore it down (e.g. on reload) drops the task instead of calling
++  // into freed memory. See `EXReactSchedulerDispatch.h`.
++  //
+   // If RN didn't install a RuntimeSchedulerBinding for some reason, pass nullptr
+-  // for both — AppContext.setRuntime falls back to a synchronous no-op scheduler
++  // for both. AppContext.setRuntime falls back to a synchronous no-op scheduler
+   // so the app still launches; modules that require async dispatch can gate on
+   // `JavaScriptRuntime.supportsAsyncScheduling`.
++  //
++  // [Better Rail] Backport of the SDK 57 fix for the use-after-free reported as
++  // Sentry BETTER-RAIL-2G. Drop this patch when upgrading to Expo SDK 57.
    auto binding = facebook::react::RuntimeSchedulerBinding::getBinding(runtime);
    auto scheduler = binding ? binding->getRuntimeScheduler() : nullptr;
++  void *schedulerHandle = expo::createReactSchedulerHandle(scheduler);
  
-+  // `setRuntime:` keeps only the raw pointer, so make sure the scheduler outlives
-+  // the React instance it belongs to. See the note above
-+  // `retainRuntimeSchedulerForProcessLifetime`.
-+  if (scheduler) {
-+    retainRuntimeSchedulerForProcessLifetime(scheduler);
-+  }
-+
    [_appContext setRuntime:&runtime
-                 scheduler:scheduler.get()
-                  dispatch:scheduler ? reinterpret_cast<const void *>(&expo::dispatchOnReactScheduler) : nullptr];
+-                scheduler:scheduler.get()
+-                 dispatch:scheduler ? reinterpret_cast<const void *>(&expo::dispatchOnReactScheduler) : nullptr];
++                scheduler:schedulerHandle
++                 dispatch:schedulerHandle ? reinterpret_cast<const void *>(&expo::dispatchOnReactScheduler) : nullptr];
+   [_appContext setHostWrapper:[[EXHostWrapper alloc] initWithHost:host]];
+ 
+   [_appContext registerNativeModules];

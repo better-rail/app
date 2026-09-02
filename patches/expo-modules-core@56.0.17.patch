@@ -22,3 +22,127 @@ index 1188204ab9d08d0f60f8b0fd9b149f97861a967b..63c4a9c7d8a9ccf6f847728696e8f9ad
      }
      return try Conversions.unknownToJavaScriptValue(value, appContext: appContext)
    }
+diff --git a/ios/JS/EXReactSchedulerDispatch.h b/ios/JS/EXReactSchedulerDispatch.h
+index c390ad2b915474ae8cef02edcc6cecb45dd507ce..0b62004b9c2ddb1861376fbc3c39defa9366b80a 100644
+--- a/ios/JS/EXReactSchedulerDispatch.h
++++ b/ios/JS/EXReactSchedulerDispatch.h
+@@ -1,27 +1,61 @@
+ // Copyright 2025-present 650 Industries. All rights reserved.
++//
++// [Better Rail] Backport of the SDK 57 fix for the use-after-free reported as
++// Sentry BETTER-RAIL-2G. Drop this patch when upgrading to Expo SDK 57.
+ 
+ #pragma once
+ 
+ #ifdef __cplusplus
+ 
++#include <memory>
++
++namespace facebook::react {
++class RuntimeScheduler;
++} // namespace facebook::react
++
+ namespace expo {
+ 
+ /**
+- Trampoline that `ExpoModulesJSI` calls to dispatch work onto the JS thread.
+- Casts the `nativeScheduler` pointer back to a `react::RuntimeScheduler *` and
+- calls `scheduleTask` on it. The signature matches `expo::RuntimeScheduler::ScheduleFn`
+- declared in the xcframework's `RuntimeScheduler.h`.
++ Creates an opaque handle for `dispatchOnReactScheduler` that references the given React
++ runtime scheduler weakly. Returns `nullptr` when the scheduler is `nullptr` (e.g. no
++ `RuntimeSchedulerBinding` was installed).
++
++ The handle is never freed by design. Dispatch calls are bounded only by the lifetime of the
++ `JavaScriptRuntime` wrapper, which any escaped closure can extend past every point at which
++ the handle could be safely deleted. Each runtime creation therefore leaks the handle and,
++ because React Native allocates the scheduler with `std::make_shared`, the weak reference
++ also keeps the scheduler's storage from being reclaimed after its destruction. That cost
++ is small and bounded, unlike the use-after-free it prevents.
++ */
++void *createReactSchedulerHandle(const std::shared_ptr<facebook::react::RuntimeScheduler> &scheduler);
++
++/**
++ Trampoline that `ExpoModulesJSI` calls to dispatch work onto the JS thread. Locks the
++ scheduler weakly referenced by the handle (created with `createReactSchedulerHandle`) and
++ calls `scheduleTask` on it. The React instance owns the scheduler and destroys it on
++ teardown (e.g. reload) while native code may still dispatch through a retained
++ `JavaScriptRuntime`, so when the scheduler is gone (or the handle is `nullptr` because
++ no scheduler existed at creation) the task is dropped instead of dereferencing freed
++ memory. The signature matches `expo::RuntimeScheduler::ScheduleFn` declared in the
++ xcframework's `RuntimeScheduler.h`.
++
++ A narrow edge remains: when the lock races the React instance's final release, this
++ thread becomes the scheduler's last owner and runs its destructor once `scheduleTask`
++ returns, off the JS thread and potentially after the runtime is gone, destroying
++ still-queued tasks that may hold JSI values. React Native's own
++ `RuntimeSchedulerCallInvoker` locks the same weak reference to schedule work, so this
++ matches upstream behavior.
+ 
+  Lives in ExpoModulesCore (rather than in the xcframework) so that
+  ExpoModulesJSI.framework's prebuilt binary doesn't need to link against
+- React-runtimescheduler — important for source-built RN, where those symbols
++ React-runtimescheduler. That matters for source-built RN, where those symbols
+  are hidden after link and unreachable via -undefined dynamic_lookup.
+ 
+  Hosts that initialize their own runtime (e.g. ExpoReactNativeFactory, Expo Go)
+  pass `&expo::dispatchOnReactScheduler` as the `dispatch` argument to
+- `AppContext.setRuntime`.
++ `AppContext.setRuntime`, with the handle as the `scheduler` argument.
+  */
+-void dispatchOnReactScheduler(void *nativeScheduler, int priority, void (^callback)()) noexcept;
++void dispatchOnReactScheduler(void *schedulerHandle, int priority, void (^callback)()) noexcept;
+ 
+ } // namespace expo
+ 
+diff --git a/ios/JS/EXReactSchedulerDispatch.mm b/ios/JS/EXReactSchedulerDispatch.mm
+index e9b1554e711d9c1adea32e6ed8fbc1a3e3791cd8..c059a8591bf6f00ee797b07fa304efc3ad6f28b3 100644
+--- a/ios/JS/EXReactSchedulerDispatch.mm
++++ b/ios/JS/EXReactSchedulerDispatch.mm
+@@ -1,4 +1,7 @@
+ // Copyright 2025-present 650 Industries. All rights reserved.
++//
++// [Better Rail] Backport of the SDK 57 fix for the use-after-free reported as
++// Sentry BETTER-RAIL-2G. Drop this patch when upgrading to Expo SDK 57.
+ 
+ #import "EXReactSchedulerDispatch.h"
+ 
+@@ -6,9 +9,36 @@
+ 
+ namespace expo {
+ 
+-void dispatchOnReactScheduler(void *nativeScheduler, int priority, void (^callback)()) noexcept
++namespace {
++
++struct SchedulerHandle {
++  std::weak_ptr<facebook::react::RuntimeScheduler> scheduler;
++};
++
++} // namespace
++
++void *createReactSchedulerHandle(const std::shared_ptr<facebook::react::RuntimeScheduler> &scheduler)
++{
++  if (!scheduler) {
++    return nullptr;
++  }
++  return new SchedulerHandle{scheduler};
++}
++
++void dispatchOnReactScheduler(void *schedulerHandle, int priority, void (^callback)()) noexcept
+ {
+-  auto *scheduler = static_cast<facebook::react::RuntimeScheduler *>(nativeScheduler);
++  auto *handle = static_cast<SchedulerHandle *>(schedulerHandle);
++  if (handle == nullptr) {
++    // `createReactSchedulerHandle` returns null when there was no scheduler to reference.
++    // Drop the task so callers don't have to guard the handle/dispatch pair themselves.
++    return;
++  }
++  // Locking either keeps the scheduler alive for the duration of `scheduleTask` or reports
++  // that the React instance already destroyed it, in which case the task is dropped.
++  auto scheduler = handle->scheduler.lock();
++  if (!scheduler) {
++    return;
++  }
+   scheduler->scheduleTask(
+     static_cast<facebook::react::SchedulerPriority>(priority),
+     [callback](facebook::jsi::Runtime &) {
