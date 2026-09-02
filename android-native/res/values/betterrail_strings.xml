@@ -118,6 +118,9 @@
     <string name="station_6150">Kiryat Malakhi – Yoav</string>
     <string name="station_680">Jerusalem - Yitzhak Navon</string>
     <string name="station_6900">Mazkeret Batya</string>
+    <string name="station_3900">Hadera - East</string>
+    <string name="station_4300">Shomron – Tayyiba</string>
+    <string name="station_4310">Tira - Kokhav Ya\'ir</string>
     
     <!-- Test stations for mock data -->
     <string name="station_9999">Test Origin Station</string>

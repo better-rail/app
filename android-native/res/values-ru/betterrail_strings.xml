@@ -120,6 +120,9 @@
     <string name="station_6150">Кирьят Малахи - Йоав</string>
     <string name="station_680">Иерусалим - Ицхак Навон</string>
     <string name="station_6900">Мазкерет Батья</string>
+    <string name="station_3900">Хадера – Восток</string>
+    <string name="station_4300">Шомрон – Тайбе</string>
+    <string name="station_4310">Тира – Кохав-Яир</string>
     
     <!-- Test stations for mock data -->
     <string name="station_9999">Тестовая станция отправления</string>

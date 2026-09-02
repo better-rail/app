@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <!-- Widget strings -->
+    <string name="widget_configure_title">إعدادات الأداة</string>
+    <string name="widget_configure_description">اختر مسارك لعرض جدول مواعيد القطارات على شاشتك الرئيسية</string>
+    <string name="widget_from_label">من محطة</string>
+    <string name="widget_to_label">إلى محطة</string>
+    <string name="widget_label_hint">اسم مخصص (اختياري)</string>
+    <string name="widget_cancel">إلغاء</string>
+    <string name="widget_add">إضافة أداة</string>
+    <string name="widget_edit">تعديل الأداة</string>
+    <string name="widget_2x2_description">موعد القطار القادم</string>
+    <string name="widget_4x2_description">جدول القطارات</string>
+    <string name="select_station">اختيار المحطة</string>
+    <string name="search_origin_hint">البحث عن محطة البداية...</string>
+    <string name="search_destination_hint">البحث عن محطة الوصول...</string>
+    <string name="widget_advanced_label">متقدم</string>
+    <string name="widget_allow_route_reversal">الضغط على اسم المحطة لتبديل الاتجاه</string>
+    <string name="widget_max_changes_label">تبديل القطارات</string>
+    <string-array name="max_changes_options">
+        <item>بدون قيود</item>
+        <item>قطارات مباشرة فقط</item>
+        <item>تبديل واحد كحد أقصى</item>
+    </string-array>
+    <string name="widget_auto_reverse_route">عكس المسار تلقائيًا</string>
+    <string name="widget_auto_reverse_description">عكس المسار تلقائيًا حسب الوقت (صباحًا/مساءً)</string>
+
+    <!-- Widget display strings -->
+    <string name="tap_to_configure">اضغط للإعداد</string>
+    <string name="select_your_route">اختر مسارك</string>
+    <string name="loading">جارٍ التحميل...</string>
+    <string name="next_train">القطار القادم</string>
+    <string name="tomorrow">غدًا</string>
+    <string name="platform_number">رصيف %s</string>
+    <string name="platform_default">رصيف --</string>
+    <string name="train_number">قطار رقم %s</string>
+    <string name="train_default">قطار ---</string>
+    <string name="no_trains">لا توجد قطارات</string>
+    <string name="check_schedule">تحقق من جدول المواعيد</string>
+    <string name="tap_to_retry">اضغط للمحاولة مرة أخرى</string>
+    <string name="connection_error">خطأ في الاتصال</string>
+    <string name="error">خطأ</string>
+    <string name="time_placeholder">--:--</string>
+    <string name="upcoming">القطارات القادمة</string>
+
+    <plurals name="upcoming_in_days">
+        <item quantity="zero">اليوم</item>
+        <item quantity="one">خلال يوم واحد</item>
+        <item quantity="two">خلال يومين</item>
+        <item quantity="few">خلال %d أيام</item>
+        <item quantity="many">خلال %d يومًا</item>
+        <item quantity="other">خلال %d يوم</item>
+    </plurals>
+
+    <string name="arrival">وصول</string>
+    <string name="arrival_caps">وصول</string>
+
+    <!-- Station names -->
+    <string name="station_1500">عكا</string>
+    <string name="station_1600">نهاريا</string>
+    <string name="station_1820">احيهود</string>
+    <string name="station_1840">كرميئيل</string>
+    <string name="station_1400">كريات موتسكين</string>
+    <string name="station_1220">همفراتس المركزية</string>
+    <string name="station_700">كريات حاييم</string>
+    <string name="station_2200">حيفا - بات چاليم</string>
+    <string name="station_2100">حيفا المركز - هشمونا</string>
+    <string name="station_1300">حوتسوت همفراتس</string>
+    <string name="station_2300">حيفا - شاطئ الكرمل</string>
+    <string name="station_2500">عتليت</string>
+    <string name="station_3100">الخضيرة - غرب</string>
+    <string name="station_2820">قيساريا - بارديس حنا</string>
+    <string name="station_2800">بنيامينا</string>
+    <string name="station_3300">نتانيا</string>
+    <string name="station_3310">نتانيا - سبير</string>
+    <string name="station_3400">بيت يهوشوع</string>
+    <string name="station_3500">هرتسليا</string>
+    <string name="station_2940">رعنانا – غرب</string>
+    <string name="station_2960">رعنانا الجنوبية</string>
+    <string name="station_8700">كفار سابا - نورداو</string>
+    <string name="station_9200">هود هشارون - سوكولوڤ</string>
+    <string name="station_3600">تل أبيب - الجامعة</string>
+    <string name="station_4600">تل أبيب - السلام</string>
+    <string name="station_3700">تل ابيب – ساڤيدور المركز</string>
+    <string name="station_4900">تل أبيب - ههچناه</string>
+    <string name="station_4100">بني براك</string>
+    <string name="station_4250">بيتح تكڤا - سچوله</string>
+    <string name="station_4170">بيتح تكڤا - كريات أريه</string>
+    <string name="station_8800">روش هعاين - شمال</string>
+    <string name="station_4800">كفار حباد</string>
+    <string name="station_8600">مطار بن چوريون</string>
+    <string name="station_5000">اللد</string>
+    <string name="station_5150">اللد - چاني أڤيڤ</string>
+    <string name="station_5010">الرملة</string>
+    <string name="station_5300">بئير يعكوف</string>
+    <string name="station_5200">رحوڤوت</string>
+    <string name="station_5410">ياڤنه - شرق</string>
+    <string name="station_9000">ياڤني - غرب</string>
+    <string name="station_5800">أشدود - عاد هلوم</string>
+    <string name="station_7000">كريات چات</string>
+    <string name="station_7320">بئر السبع - المركز</string>
+    <string name="station_7300">بئر السبع - شمال/الجامعة</string>
+    <string name="station_6300">بيت شيمش</string>
+    <string name="station_5900">أشكلون</string>
+    <string name="station_7500">ديمونا</string>
+    <string name="station_8550">لهاڤيم - رهط</string>
+    <string name="station_300">بأتي موديعين</string>
+    <string name="station_400">موديعين - المركز</string>
+    <string name="station_4640">مفترق حولون</string>
+    <string name="station_4660">حولون - ڤولفسون</string>
+    <string name="station_4680">بات يام - يوسفطال</string>
+    <string name="station_4690">بات يام - كوميميوت</string>
+    <string name="station_9100">ريشون لتسيون - هريشونيم</string>
+    <string name="station_9800">ريشون لتسيون -موشي ديان</string>
+    <string name="station_9600">سديروت</string>
+    <string name="station_9650">نتيفوت</string>
+    <string name="station_9700">أوفاكيم</string>
+    <string name="station_1240">يوكنعام – كفار يهوشوع</string>
+    <string name="station_1250">مجدال هعيمك – كفار باروخ</string>
+    <string name="station_1260">العفولة  ر. ايتان</string>
+    <string name="station_1280">بيت شآن</string>
+    <string name="station_6150">كريات ملاخي – يوآڤ</string>
+    <string name="station_680">أورشليم – يتسحاق ناڤون</string>
+    <string name="station_6900">مزكيرت باتيا</string>
+    <string name="station_3900">حديرا - شرق</string>
+    <string name="station_4300">هشومرون – الطيبة</string>
+    <string name="station_4310">الطيرة - كوخاڤ يَئير</string>
+    
+    <!-- Test stations for mock data -->
+    <string name="station_9999">محطة بداية للاختبار</string>
+    <string name="station_8888">محطة وصول للاختبار</string>
+</resources>
