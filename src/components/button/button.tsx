@@ -13,7 +13,9 @@ import { LiquidGlassView, isLiquidGlassSupported } from "@callstack/liquid-glass
  * Colors here are platform-adaptive (`color.primary`), so they still react to appearance natively.
  */
 export const PRESSABLE_BASE: ViewStyle = {
-  flex: 1,
+  flexGrow: 1,
+  flexShrink: 1,
+  flexBasis: "auto",
   minHeight: 55,
   padding: spacing[4] * Math.min(fontScale, 1.2),
   backgroundColor: color.primary,
@@ -142,7 +144,7 @@ const styles = StyleSheet.create((theme, rt) => ({
   },
   liquidGlass: {
     // Minimum height of 55, growing with the system font scale by no more than ~1.2x.
-    height: Math.max(55, 55 * Math.min(rt.fontScale, 1.2)),
+    minHeight: Math.max(55, 55 * Math.min(rt.fontScale, 1.2)),
     padding: theme.spacing[4],
     borderRadius: 16,
     borderCurve: "continuous",

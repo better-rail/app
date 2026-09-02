@@ -119,6 +119,5 @@ const styles = StyleSheet.create((theme, rt) => ({
   button: {
     flex: 0,
     width: "100%",
-    minHeight: 55,
   },
 }))
