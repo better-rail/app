@@ -8,10 +8,34 @@ import { head, last } from "lodash"
 import { formatDateForAPI } from "@/utils/helpers/date-helpers"
 import { addMinutes } from "date-fns"
 import { translate } from "@/i18n"
-import * as Burnt from "burnt"
+import * as Sentry from "@sentry/react-native"
 import notifee, { NotificationSettings } from "@notifee/react-native"
+import { trackEvent } from "@/services/analytics"
+import { showErrorAlert } from "@/utils/helpers/error-alert"
+import { rideStartErrorLevel, rideStartErrorTags } from "@/utils/helpers/ride-errors"
 
 const routeApi = new RouteApi()
+
+const reportRideStartFailure = (error: unknown, route: RouteItem) => {
+  const tags = rideStartErrorTags(error)
+
+  Sentry.withScope((scope) => {
+    scope.setLevel(rideStartErrorLevel(error))
+    scope.setTags({ feature: "live_ride", ...tags })
+    scope.setContext("ride", {
+      originId: head(route.trains)?.originStationId,
+      destinationId: last(route.trains)?.destinationStationId,
+      trains: route.trains.map((train) => train.trainNumber),
+      departureDate: route.departureTimeString,
+      delay: route.delay,
+    })
+    // Group these in Sentry by stage + reason. Without it they'd group by the axios message, which includes the URL.
+    scope.setFingerprint(["live-ride-start-failed", tags.ride_start_stage, tags.ride_start_reason])
+    Sentry.captureException(error)
+  })
+
+  trackEvent("start_live_ride_failed", tags)
+}
 
 // Loaded lazily to avoid a require cycle (notification-helpers imports back into the ride hooks/models).
 // The Android helpers are only used at runtime on Android, so a deferred require is safe here.
@@ -115,14 +139,15 @@ export const useRideStore = create<RideStore>((set, get) => ({
       .then((rideId) => {
         set((state) => ({ id: rideId, loading: false, rideCount: state.rideCount + 1 }))
       })
-      .catch(() => {
+      .catch((error) => {
         set({ route: undefined, id: undefined, loading: false })
 
         if (Platform.OS === "android") {
           androidHelpers().cancelNotifications()
         }
 
-        Burnt.alert({ title: translate("ride.error"), preset: "error", duration: 3 })
+        reportRideStartFailure(error, route)
+        showErrorAlert({ title: translate("ride.error") })
       })
   },
 
