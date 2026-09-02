@@ -5,6 +5,8 @@ import { color, fontScale, spacing } from "@/theme"
 import { Text } from "@/components/text/text"
 import { LiquidGlassView, isLiquidGlassSupported } from "@callstack/liquid-glass"
 
+export const BUTTON_MIN_HEIGHT = 55 * Math.min(fontScale, 1.3)
+
 /**
  * Plain (non-Unistyles) base style for the pressable surface.
  *
@@ -13,8 +15,10 @@ import { LiquidGlassView, isLiquidGlassSupported } from "@callstack/liquid-glass
  * Colors here are platform-adaptive (`color.primary`), so they still react to appearance natively.
  */
 export const PRESSABLE_BASE: ViewStyle = {
-  flex: 1,
-  minHeight: 55,
+  flexGrow: 1,
+  flexShrink: 1,
+  flexBasis: "auto",
+  minHeight: BUTTON_MIN_HEIGHT,
   padding: spacing[4] * Math.min(fontScale, 1.2),
   backgroundColor: color.primary,
   borderRadius: Platform.select({ ios: 12, android: 6 }),
@@ -111,6 +115,7 @@ export const Button = function Button(props: CustomButtonProps) {
 // `smallButtonStyle` is plain so it can merge with the plain `PRESSABLE_STYLE` above.
 const smallButtonStyle: ViewStyle = {
   height: 40,
+  minHeight: 40,
   padding: spacing[2] + 1.5,
 }
 
@@ -141,8 +146,8 @@ const styles = StyleSheet.create((theme, rt) => ({
     fontWeight: "normal",
   },
   liquidGlass: {
-    // Minimum height of 55, growing with the system font scale by no more than ~1.2x.
-    height: Math.max(55, 55 * Math.min(rt.fontScale, 1.2)),
+    // Minimum height of 55, growing with the system font scale by no more than 1.3x.
+    minHeight: Math.max(55, 55 * Math.min(rt.fontScale, 1.3)),
     padding: theme.spacing[4],
     borderRadius: 16,
     borderCurve: "continuous",
