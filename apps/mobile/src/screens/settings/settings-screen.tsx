@@ -1,4 +1,4 @@
-import { Linking, Platform, PlatformColor, View } from "react-native"
+import { Alert, Linking, Platform, PlatformColor, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text } from "@/components"
 import { SettingBox } from "./components/settings-box"
@@ -7,9 +7,11 @@ import { translate, userLocale } from "@/i18n"
 import { useRouter } from "expo-router"
 import { SETTING_GROUP } from "./settings-styles"
 import { useIsDarkMode, useIsBetaTester } from "@/hooks"
+import { useRoutePlanStore } from "@/models"
 import { shareApp } from "./helpers/app-share-sheet"
 import { openSupportBetterRail } from "@/utils/helpers/open-support-better-rail"
 import { trackEvent } from "@/services/analytics"
+import { requestPinAndroidWidget } from "@/utils/widget-helpers"
 
 const storeLink = Platform.select({
   ios: "https://apps.apple.com/app/better-rail/id1562982976?action=write-review",
@@ -20,6 +22,15 @@ export function SettingsScreen() {
   const router = useRouter()
   const isDarkMode = useIsDarkMode()
   const isBetaTester = useIsBetaTester()
+
+  const handleAddAndroidWidget = async () => {
+    const { origin, destination } = useRoutePlanStore.getState()
+    const pinned = await requestPinAndroidWidget({ originId: origin?.id, destinationId: destination?.id })
+    trackEvent("widget_pin_requested", { source: "settings", supported: pinned })
+    if (!pinned) {
+      Alert.alert(translate("settings.addWidgetManualTitle") ?? "", translate("settings.addWidgetManualMessage") ?? "")
+    }
+  }
 
   return (
     <Screen
@@ -81,6 +92,12 @@ export function SettingsScreen() {
             icon="📱"
             onPress={() => router.push("/widget-onboarding")}
           />
+        </View>
+      )}
+
+      {Platform.OS === "android" && (
+        <View style={SETTING_GROUP}>
+          <SettingBox first last title={translate("settings.addWidget") ?? ""} icon="📱" onPress={handleAddAndroidWidget} />
         </View>
       )}
 

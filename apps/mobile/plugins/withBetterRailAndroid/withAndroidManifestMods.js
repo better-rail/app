@@ -69,6 +69,7 @@ const withAndroidManifestMods = (config) =>
         "com.betterrail.widget.modern.compact4x2.ACTION_WIDGET_UPDATE",
         "@xml/compact_widget_4x2_info",
       ),
+      { $: { "android:name": ".widget.WidgetPinReceiver", "android:exported": "false" } },
       {
         $: { "android:name": ".widget.scheduler.WidgetUpdateReceiver", "android:exported": "false" },
         "intent-filter": [

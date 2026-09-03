@@ -39,3 +39,13 @@ export async function trackInstalledWidgets() {
 
   setAnalyticsUserProperties(properties)
 }
+
+/** Opens the Android pin-widget dialog. Resolves false when the launcher doesn't support it. */
+export async function requestPinAndroidWidget(prefill?: { originId?: string; destinationId?: string }): Promise<boolean> {
+  if (Platform.OS !== "android") return false
+  try {
+    return (await WidgetNavigation.requestPinWidget(prefill?.originId ?? "", prefill?.destinationId ?? "")) === true
+  } catch {
+    return false
+  }
+}
