@@ -178,9 +178,9 @@ export const startRideNotifications = async (route: RouteItem) => {
     await setRideNotificationId(rideNotificationId)
     scheduleStaleNotification()
   } catch (error) {
-    // The server already created the ride, so end it and drop everything we stored for it.
-    await cancelNotifications()
-    await rideApi.endRide(rideId)
+    // The server already created the ride, so end it and drop everything we stored for it. Settle
+    // both: one failing must not skip the other, nor replace the tagged error the reporter needs.
+    await Promise.allSettled([cancelNotifications(), rideApi.endRide(rideId)])
     throw new RideStartError("notification", "Couldn't display the live ride notification", { cause: error })
   }
 
