@@ -26,9 +26,9 @@ export function TipJarScreen() {
 
   const handlePurchaseSuccess = async (purchase: Purchase) => {
     try {
-      await finishTransaction({ purchase, isConsumable: true })
-
       setShowThanksModal(true)
+
+      await finishTransaction({ purchase, isConsumable: true })
 
       const item = products.find((product) => product.id === purchase.productId)
       if (item?.price != null) {
