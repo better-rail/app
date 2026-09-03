@@ -96,6 +96,7 @@ export function TipJarScreen() {
     } catch (err) {
       console.error("[TipJar] Error requesting purchase:", err)
       Sentry.captureException(err)
+    } finally {
       setIsLoading(false)
     }
   }
