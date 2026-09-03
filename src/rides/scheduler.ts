@@ -56,7 +56,7 @@ export class Scheduler {
         await deleteRide(ride.rideId)
       }
 
-      throw new RideNotInTimeError(logNames.scheduler.rideInPast)
+      throw new RideNotInTimeError(logNames.scheduler.rideInPast, "ride_in_past")
     }
 
     if (env === "production" && dayjs(route.departureTime).add(route.delay, "minutes").diff(dayjs(), "minutes") > 60) {
@@ -70,7 +70,7 @@ export class Scheduler {
         await deleteRide(ride.rideId)
       }
 
-      throw new RideNotInTimeError(logNames.scheduler.rideInFuture)
+      throw new RideNotInTimeError(logNames.scheduler.rideInFuture, "ride_in_future")
     }
 
     if (!isExisting) {
