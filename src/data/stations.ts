@@ -320,6 +320,7 @@ const stations: Station[] = [
     lat: 31.774061,
     lon: 34.666059,
     image: require("../../assets/station-images/ashdod.jpg"),
+    alias: ["מטרופול", "Metropol", "Метропол", "متروپول"],
   },
   {
     id: "4250",
@@ -350,6 +351,7 @@ const stations: Station[] = [
     lat: 32.103516,
     lon: 34.804499,
     image: require("../../assets/station-images/tlv-university.jpg"),
+    alias: ["אקספו", "Expo", "Экспо", "إكسپو"],
   },
   {
     id: "7320",
@@ -509,6 +511,7 @@ const stations: Station[] = [
     lat: 32.014588,
     lon: 34.762082,
     image: require("../../assets/station-images/bat-yam-yoseftal.jpg"),
+    alias: ["אלי כהן", "Eli Cohen", "Эли Коэн", "إلي كوهين"],
   },
   {
     id: "4690",
@@ -619,6 +622,7 @@ const stations: Station[] = [
     lat: 32.514683,
     lon: 35.488106,
     image: require("../../assets/station-images/beit-shean.jpg"),
+    alias: ["דוד לוי", "David Levy", "Давид Леви", "دڤيد لِڤي"],
   },
   {
     id: "1820",
@@ -755,14 +759,12 @@ function normalizeStation(station: Station): NormalizedStation {
     name: station[stationLocale],
     image: station.image,
     hebrew: station.hebrew,
-    alias: station.alias,
+    alias: station.alias ?? [],
   }
 }
 
 export const useStations = (): NormalizedStation[] =>
-  stations
-    .map(normalizeStation)
-    .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
+  stations.map(normalizeStation).sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
 
 /**
  * Resolves a single station by id using `stationLocale` at call time.
