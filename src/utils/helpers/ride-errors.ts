@@ -1,6 +1,6 @@
 import axios from "axios"
 
-export type RideStartStage = "push_token" | "api" | "notification"
+export type RideStartStage = "push_token" | "api" | "notification" | "live_activity"
 
 export type RideStartServerReason = "route_not_found" | "ride_in_past" | "ride_in_future" | "internal_error"
 

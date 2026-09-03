@@ -1,5 +1,6 @@
 import { NativeModules, Platform } from "react-native"
 import { RouteItem } from "@/services/api"
+import { RideStartError } from "./helpers/ride-errors"
 
 const { RNBetterRail } = NativeModules
 
@@ -81,7 +82,8 @@ export async function startLiveActivity(route: RouteItem) {
     return rideId
   } catch (err) {
     console.error("Error starting live activity", err)
-    throw err
+    // Tagged like the Android stages, so an iOS failure isn't reported as an untyped error.
+    throw new RideStartError("live_activity", "Couldn't start the live activity", { cause: err })
   }
 }
 

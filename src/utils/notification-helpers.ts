@@ -178,9 +178,8 @@ export const startRideNotifications = async (route: RouteItem) => {
     await setRideNotificationId(rideNotificationId)
     scheduleStaleNotification()
   } catch (error) {
-    // The server already created the ride, so cancel it — otherwise it keeps sending updates the app can't display.
-    tokenSubscription?.remove()
-    tokenSubscription = undefined
+    // The server already created the ride, so end it and drop everything we stored for it.
+    await cancelNotifications()
     await rideApi.endRide(rideId)
     throw new RideStartError("notification", "Couldn't display the live ride notification", { cause: error })
   }
@@ -197,8 +196,11 @@ export const cancelNotifications = async () => {
   const rideNotificationId = await getRideNotificationId()
   if (rideNotificationId) {
     notifee.cancelNotification(rideNotificationId)
-    clearBackgroundStorage()
   }
+
+  // Always clear: a start that failed before the notification id was stored still wrote the route,
+  // which a leftover stale-notification trigger would otherwise resurrect.
+  await clearBackgroundStorage()
 }
 
 export const endRideNotifications = async (rideId: string) => {
