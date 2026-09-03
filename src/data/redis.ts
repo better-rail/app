@@ -21,6 +21,9 @@ export const connectToRedis = async () => {
   logger.info(logNames.redis.connect.success)
 }
 
+/** Raw client for modules that manage their own keys (e.g. the SIRI realtime state). */
+export const getRedisClient = (): RedisClientType | undefined => client
+
 export const addRide = async (ride: Ride): Promise<boolean> => {
   try {
     const promises = Object.entries(omit(ride, "rideId")).map(([key, value]) =>

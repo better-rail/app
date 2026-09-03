@@ -26,14 +26,6 @@ export const startLogger = () => {
         }`
       }),
     ),
-    transports: [
-      new winston.transports.Console(),
-      new winston.transports.MongoDB({
-        db: mongoUrl,
-        dbName: "logs" + (env === "production" ? "" : `-${env}`),
-        format: serializeErrors(),
-        options: { poolSize: 2, useNewUrlParser: true, useUnifiedTopology: true },
-      }),
-    ],
+    transports: [new winston.transports.Console()],
   })
 }

@@ -8,12 +8,11 @@ jobs:
   test-server:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: borales/actions-yarn@v4
-        name: install dependencies
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
         with:
-          cmd: install
-      - uses: borales/actions-yarn@v4
-        name: test server
-        with:
-          cmd: test
+          bun-version: latest
+      - name: install dependencies
+        run: bun install --frozen-lockfile
+      - name: test server
+        run: bun test

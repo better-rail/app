@@ -1,22 +1,14 @@
 import dayjs from "dayjs"
-import { keyBy } from "lodash"
 
 import { minutesInMs } from "../helpers/utils"
 import { Status } from "../../types/notification"
 import { exchangeTrainPrompt } from "../../utils/ride-utils"
-import { exchangeRoute, stations, now, exchangeDuration, ride, getOffInExchangeTime, unsafeChangeTrains } from "./mocks"
+import { exchangeRoute, now, exchangeDuration, ride, getOffInExchangeTime, unsafeChangeTrains } from "./mocks"
 import {
   buildGetOnTrainNotifications,
   buildNextStationNotifications,
   buildGetOffTrainNotifications,
 } from "../../utils/notify-utils"
-
-beforeAll(() => {
-  jest.mock("../../data/stations", () => ({
-    stations,
-    stationsObject: keyBy(stations, "id"),
-  }))
-})
 
 test("build get on notification for exchange train", () => {
   const getOnNotifications = buildGetOnTrainNotifications(exchangeRoute, ride)

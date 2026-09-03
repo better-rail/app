@@ -1,20 +1,12 @@
 import dayjs from "dayjs"
-import { AxiosResponse } from "axios"
 
-import { RailApi } from "./rail-api"
+import { searchTrain } from "./gtfs-route-api"
 import { stationsObject } from "../data/stations"
 import { RouteItem, Station } from "../types/rail"
 import { routeDurationInMs } from "../utils/date-utils"
 import { LanguageCode, railApiLocales } from "../locales/i18n"
-import { RailApiGetRoutesResult } from "../types/rail-response"
 
 export class RouteApi {
-  private api: RailApi
-
-  constructor(api: RailApi) {
-    this.api = api
-  }
-
   async getRoutes(
     originId: number,
     destinationId: number,
@@ -26,26 +18,12 @@ export class RouteApi {
     const hour = dayjs(departureDate).format("HH:mm")
     const date = dayjs(departureDate).format("YYYY-MM-DD")
 
-    const requestBody = {
-      methodName: "searchTrainLuzForDateTime",
-      fromStation: originId,
-      toStation: destinationId,
-      date: date,
-      hour: hour,
-      systemType: "1",
-      scheduleType: "ByDeparture",
-      languageId: railApiLocales[locale],
-    }
-
-    const response: AxiosResponse<RailApiGetRoutesResult> = await this.api.axiosInstance.post(
-      `/rjpa/api/v1/timetable/searchTrainForMobile`,
-      requestBody,
-    )
-    if (!response.data?.result) {
+    const response = await searchTrain(originId, destinationId, date, hour, "ByDeparture")
+    if (!response?.result) {
       throw new Error("Error fetching results")
     }
 
-    const { travels } = response.data.result
+    const { travels } = response.result
 
     // format for usage in the UI
     const formattedRoutes = travels.map((route) => {

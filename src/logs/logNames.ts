@@ -77,4 +77,42 @@ export const logNames = {
       failed: "Failed to get route",
     },
   },
+  db: {
+    pool: {
+      error: "Postgres pool error",
+    },
+  },
+  platforms: {
+    writeFailed: "Failed to record SIRI-observed platforms",
+  },
+  siri: {
+    started: "SIRI poller started",
+    disabled: "SIRI poller disabled (SIRI_URL / SIRI_KEY not set)",
+    pollFailed: "SIRI poll cycle failed",
+    recovered: "SIRI poller recovered",
+    notAuthorized: "SIRI API key is not authorized — check the egress IP allow-list",
+    badStop: "SIRI rejected a stop code; evicting it for this feed",
+    unmatchedJourneys: "SIRI journeys didn't match any GTFS trip",
+    feedSwap: "SIRI poller reloaded stop codes for a new active feed",
+    emptyStopCodes: "No stop codes available for SIRI monitoring in the active feed",
+    snapshotReadFailed: "Failed to read the SIRI snapshot from redis",
+    snapshotWriteFailed: "Failed to write the SIRI snapshot to redis",
+  },
+  gtfs: {
+    noActiveFeed: "No active GTFS feed in the database",
+    feedExpiring: "Active GTFS feed is within 2 days of its validity end date",
+    unmappedStation: "GTFS rail stop has no station mapping",
+    search: {
+      failed: "Failed to run GTFS timetable search",
+    },
+    ingest: {
+      start: "Started GTFS ingest",
+      unchanged: "GTFS feed unchanged since last ingest (checksum match)",
+      loaded: "Loaded new GTFS feed",
+      swapped: "Activated new GTFS feed",
+      failed: "GTFS ingest failed",
+      mappingDrift: "Station mapping drifted from the committed baseline",
+      mappingIncomplete: "Station mapping is incomplete; keeping previous feed",
+    },
+  },
 }

@@ -475,6 +475,27 @@ export const stations: Station[] = [
     russian: "Мазкерет Батья",
     arabic: "مزكيرت باتيا",
   },
+  {
+    id: "4310",
+    hebrew: "טירה - כוכב יאיר",
+    english: "Tira - Kokhav Ya'ir",
+    russian: "Тира – Кохав-Яир",
+    arabic: "الطيرة-كوخاف يائير",
+  },
+  {
+    id: "4300",
+    hebrew: "שומרון - טייבה",
+    english: "Shomron – Tayyiba",
+    russian: "Шомрон – Тайбе",
+    arabic: "هشومرون – الطيبة",
+  },
+  {
+    id: "3900",
+    hebrew: "חדרה - מזרח",
+    english: "Hadera - East",
+    russian: "Хадера – Восток",
+    arabic: "حديرا - شرق",
+  },
 ]
 
 export const stationsObject: Record<string, Station> = keyBy(stations, "id")

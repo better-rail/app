@@ -3,7 +3,8 @@ import { Router } from "express"
 import { buildRide } from "../utils/ride-utils"
 import { RideRequestSchema } from "../types/ride"
 import { createRateLimiter } from "../utils/rate-limiter"
-import { railProxy, handleSearchTrainRequest } from "./proxy"
+import { handleRailApiRequest, handleSearchTrainRequest } from "./rail-api"
+import { siriDebugRouter } from "./siri-debug"
 import { DeleteRideBody, UpdateRideTokenBody, bodyValidator } from "./validations"
 import { endRideNotifications, startRideNotifications, updateRideToken } from "../rides"
 
@@ -31,6 +32,8 @@ rideRouter.delete("/", bodyValidator(DeleteRideBody), async (req, res) => {
 })
 
 router.use("/ride", rideRouter)
+// SIRI pipeline debugging (404s without SIRI_DEBUG_TOKEN — see routes/siri-debug.ts)
+router.use("/siri", siriDebugRouter)
 // Handle the specific search train request with transformation
 router.get(
   "/rail-api/rjpa/api/v1/timetable/searchTrainLuzForDateTime",
@@ -38,7 +41,8 @@ router.get(
   handleSearchTrainRequest,
 )
 
-// Use proxy for all other rail API requests
-router.use("/rail-api", createRateLimiter(10 * 60 * 1000, 1000), railProxy)
+// All other rail API paths: timetable searches from GTFS, retired legacy
+// endpoints answered with an empty payload (no upstream proxy anymore).
+router.use("/rail-api", createRateLimiter(10 * 60 * 1000, 1000), handleRailApiRequest)
 
 export { router }
