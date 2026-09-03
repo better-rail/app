@@ -127,17 +127,20 @@ class WidgetNavigationModule(reactContext: ReactApplicationContext) : ReactConte
             val hasCompleteRoute = originId.isNotEmpty() && destinationId.isNotEmpty() && originId != destinationId
             val mutableFlag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_MUTABLE else 0
             val flags = PendingIntent.FLAG_UPDATE_CURRENT or mutableFlag
+            // Unique request code: PendingIntent identity ignores extras, so a stale callback
+            // from an earlier request must not pick up this request's route.
+            val requestCode = (System.currentTimeMillis() and 0x7FFFFFFF).toInt()
             val successCallback = if (hasCompleteRoute) {
                 val intent = Intent(reactApplicationContext, WidgetPinReceiver::class.java)
                     .putExtra(BaseWidgetConfigActivity.EXTRA_PREFILL_ORIGIN_ID, originId)
                     .putExtra(BaseWidgetConfigActivity.EXTRA_PREFILL_DESTINATION_ID, destinationId)
-                PendingIntent.getBroadcast(reactApplicationContext, 0, intent, flags)
+                PendingIntent.getBroadcast(reactApplicationContext, requestCode, intent, flags)
             } else {
                 val intent = Intent(reactApplicationContext, CompactWidget4x2ConfigActivity::class.java)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     .putExtra(BaseWidgetConfigActivity.EXTRA_PREFILL_ORIGIN_ID, originId)
                     .putExtra(BaseWidgetConfigActivity.EXTRA_PREFILL_DESTINATION_ID, destinationId)
-                PendingIntent.getActivity(reactApplicationContext, 0, intent, flags)
+                PendingIntent.getActivity(reactApplicationContext, requestCode, intent, flags)
             }
             val requested = appWidgetManager.requestPinAppWidget(provider, null, successCallback)
             Log.d("WidgetNavigationModule", "requestPinAppWidget returned $requested (completeRoute=$hasCompleteRoute)")
