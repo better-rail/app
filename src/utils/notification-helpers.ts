@@ -20,6 +20,7 @@ import {
   clearBackgroundStorage,
 } from "./storage/background-storage"
 import { Platform } from "react-native"
+import { RideStartError } from "./helpers/ride-errors"
 
 const rideApi = new RideApi()
 let tokenSubscription: Notifications.Subscription | undefined
@@ -145,33 +146,43 @@ const handleLiveRideNotification = async (data: Record<string, string>) => {
 }
 
 export const startRideNotifications = async (route: RouteItem) => {
-  const token = String((await Notifications.getDevicePushTokenAsync()).data)
-  const rideId = await rideApi.startRide(route, token)
-
-  if (!rideId) {
-    throw new Error("Couldn't start ride")
+  // Getting a push token can fail on its own (no Play Services, FCM unreachable), so mark it as its own stage.
+  let token: string
+  try {
+    token = String((await Notifications.getDevicePushTokenAsync()).data)
+  } catch (error) {
+    throw new RideStartError("push_token", "Couldn't get a device push token", { cause: error })
   }
+
+  const rideId = await rideApi.startRide(route, token)
 
   tokenSubscription?.remove()
   tokenSubscription = Notifications.addPushTokenListener((newToken) => {
     rideApi.updateRideToken(rideId, String(newToken.data))
   })
 
-  await setRideRoute(route)
-  const nextStationId = findClosestStationInRoute(route)
-  const train = getTrainFromStationId(route, nextStationId)
-  const status = getRideStatus(route, train, nextStationId)
+  try {
+    await setRideRoute(route)
+    const nextStationId = findClosestStationInRoute(route)
+    const train = getTrainFromStationId(route, nextStationId)
+    const status = getRideStatus(route, train, nextStationId)
 
-  const state: RideState = {
-    status,
-    nextStationId,
-    delay: train?.delay ?? 0,
+    const state: RideState = {
+      status,
+      nextStationId,
+      delay: train?.delay ?? 0,
+    }
+
+    await setRideDelay(state.delay)
+    const rideNotificationId = await updateNotification(route, state)
+    await setRideNotificationId(rideNotificationId)
+    scheduleStaleNotification()
+  } catch (error) {
+    // The server already created the ride, so end it and drop everything we stored for it. Settle
+    // both: one failing must not skip the other, nor replace the tagged error the reporter needs.
+    await Promise.allSettled([cancelNotifications(), rideApi.endRide(rideId)])
+    throw new RideStartError("notification", "Couldn't display the live ride notification", { cause: error })
   }
-
-  await setRideDelay(state.delay)
-  const rideNotificationId = await updateNotification(route, state)
-  await setRideNotificationId(rideNotificationId)
-  scheduleStaleNotification()
 
   return rideId
 }
@@ -185,8 +196,11 @@ export const cancelNotifications = async () => {
   const rideNotificationId = await getRideNotificationId()
   if (rideNotificationId) {
     notifee.cancelNotification(rideNotificationId)
-    clearBackgroundStorage()
   }
+
+  // Always clear: a start that failed before the notification id was stored still wrote the route,
+  // which a leftover stale-notification trigger would otherwise resurrect.
+  await clearBackgroundStorage()
 }
 
 export const endRideNotifications = async (rideId: string) => {
