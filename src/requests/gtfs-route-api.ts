@@ -505,13 +505,22 @@ export const planTravels = (
   // so far at its change count or below.
   //
   // `hideSlowTrains` additionally drops a route that a *later* departure catches
-  // up with (see isCaughtUp). Nothing is ever hidden because of an earlier
+  // up with (see isCaughtUp), and one that rides the same first train too far
+  // (see sameFirstTrainKey). Nothing is ever hidden because of an earlier
   // departure: a rider standing on the platform can only take what is still to
   // come, so the last slow option before a gap has to stay listed even when the
   // train just before it was far faster.
   chosen.sort((a, b) => b.depTs - a.depTs || a.arrTs - b.arrTs)
   const kept: Candidate[] = []
   const minArrByChanges: number[] = [] // index = change count, value = best arrival among kept
+  const minArrByFirstTrain = new Map<string, number>() // best arrival among kept, per first train
+
+  // Two itineraries boarding the same train at the same time differ only in how far
+  // you ride it: the "direct" Netivot->Herzliya (train 638, arriving 12:41) is the
+  // same 10:43 boarding as changing off it in Tel Aviv (12:13), just 28 min worse.
+  // The fewer-changes exception above doesn't apply — there's no earlier departure
+  // to trade against, so with `hideSlowTrains` we show only the faster one.
+  const sameFirstTrainKey = (c: Candidate) => `${c.travel.trains[0].trainNumber}@${c.depTs}`
 
   // True when a route already kept leaves within the hour after `c`, needs no more
   // changes, and still arrives within the tolerance of it — take that one instead.
@@ -528,13 +537,21 @@ export const planTravels = (
 
   for (const c of chosen) {
     const changes = changesOf(c)
+    const firstTrain = sameFirstTrainKey(c)
     let minArr = Infinity
     for (let k = 0; k <= changes; k++) minArr = Math.min(minArr, minArrByChanges[k] ?? Infinity)
     const keepSlowDirect = changes === 0 && !options.hideSlowTrains
     if (c.arrTs >= minArr && !keepSlowDirect) continue
-    if (options.hideSlowTrains && isCaughtUp(c, changes)) continue
+    if (options.hideSlowTrains) {
+      if (isCaughtUp(c, changes)) continue
+      // Only against a *kept* route: if the faster ride on this train was itself
+      // dropped, this one is the best that's actually listed and has to stay.
+      const minArrSameTrain = minArrByFirstTrain.get(firstTrain)
+      if (minArrSameTrain !== undefined && minArrSameTrain < c.arrTs) continue
+    }
     kept.push(c)
     minArrByChanges[changes] = Math.min(minArrByChanges[changes] ?? Infinity, c.arrTs)
+    minArrByFirstTrain.set(firstTrain, Math.min(minArrByFirstTrain.get(firstTrain) ?? Infinity, c.arrTs))
   }
 
   kept.sort((a, b) => a.depTs - b.depTs)

@@ -298,6 +298,29 @@ describe("planTravels", () => {
     expect(travels[1].arrivalTime).toBe("2026-06-27T09:00:00")
   })
 
+  it("hides the direct ride on a train you can change off sooner, with hideSlowTrains", () => {
+    const trips = table(
+      trip("a", 301, [[3700, "08:00", 1], [2300, "08:20", 2], [1300, "09:00", 1]]),
+      trip("b", 302, [[2300, "08:30", 5], [1300, "08:45", 1]]),
+    )
+    // Same 08:00 boarding either way, so there is no wait to trade against the change.
+    const travels = planTravels(trips, 3700, 1300, ts("07:00"), Infinity, undefined, { hideSlowTrains: true })
+    expect(travels.map((t) => t.trains.map((n: { trainNumber: number }) => n.trainNumber))).toEqual([[301, 302]])
+  })
+
+  it("keeps a slow direct train when the faster ride on it is not itself listed", () => {
+    const trips = table(
+      trip("a", 301, [[3700, "08:00", 1], [2300, "08:20", 2], [1300, "09:00", 1]]),
+      trip("b", 302, [[2300, "08:30", 5], [1300, "08:45", 1]]), // change off 301 -> 08:45
+      // …but this 08:05 pair arrives 08:40, so the change off 301 is dropped and the
+      // slow direct is the only thing left on the 08:00 train — it has to stay.
+      trip("c", 304, [[3700, "08:05", 1], [2400, "08:15", 2]]),
+      trip("d", 305, [[2400, "08:25", 3], [1300, "08:40", 1]]),
+    )
+    const travels = planTravels(trips, 3700, 1300, ts("07:00"), Infinity, undefined, { hideSlowTrains: true })
+    expect(travels.map((t) => t.trains.map((n: { trainNumber: number }) => n.trainNumber))).toEqual([[301], [304, 305]])
+  })
+
   it("does not split a direct train into a transfer that saves nothing", () => {
     const trips = table(
       trip("a", 301, [[3700, "08:00", 1], [2300, "08:20", 2], [1300, "09:00", 1]]),
