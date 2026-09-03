@@ -410,48 +410,69 @@ export const planTravels = (
   const seen = new Set<string>()
   let scanned = 0
 
+  // Earliest-arrival onward journey off this first train, with the 5-min minimum
+  // connection relaxed to 4 min only when keeping 5 min would force a wait over
+  // 30 min (or find nothing) — and only if 4 min actually arrives sooner.
+  type Itinerary = { legs: Leg[]; minConnection: number }
+  const planOnward = (trip: TripData, boardIndex: number): Itinerary | null => {
+    let legs = completeJourney(allTrips, trip, boardIndex, toStation, MIN_CONNECTION_MS)
+    let minConnection = MIN_CONNECTION_MS
+    if (!legs || maxConnectionWaitMs(allTrips, legs) > RELAX_WHEN_WAIT_OVER_MS) {
+      const relaxed = completeJourney(allTrips, trip, boardIndex, toStation, MIN_CONNECTION_RELAXED_MS)
+      if (relaxed && (!legs || journeyArrivalTs(allTrips, relaxed) < journeyArrivalTs(allTrips, legs))) {
+        legs = relaxed
+        minConnection = MIN_CONNECTION_RELAXED_MS
+      }
+    }
+    return legs && legs.length > 0 ? { legs, minConnection } : null
+  }
+
   for (const ft of firstTrains) {
     if (candidates.length >= MAX_RESULTS * 2 || scanned >= MAX_FIRST_TRAINS_SCANNED) break
     scanned++
     const trip = allTrips.get(ft.tripKey)!
 
-    let legs: Leg[] | null = null
-    let effectiveMin = MIN_CONNECTION_MS
+    const itineraries: Itinerary[] = []
     const directAlight = trip.stops.findIndex((s, idx) => idx > ft.boardIndex && s.railId === toStation)
     if (directAlight > ft.boardIndex) {
-      legs = [{ tripKey: ft.tripKey, boardIndex: ft.boardIndex, alightIndex: directAlight }]
-    } else {
-      legs = completeJourney(allTrips, trip, ft.boardIndex, toStation, MIN_CONNECTION_MS)
-      // Relax the 5-min minimum to 4 min only when keeping 5 min would force a wait
-      // over 30 min (or find nothing) — and only if 4 min actually arrives sooner.
-      if (!legs || maxConnectionWaitMs(allTrips, legs) > RELAX_WHEN_WAIT_OVER_MS) {
-        const relaxed = completeJourney(allTrips, trip, ft.boardIndex, toStation, MIN_CONNECTION_RELAXED_MS)
-        if (relaxed && (!legs || journeyArrivalTs(allTrips, relaxed) < journeyArrivalTs(allTrips, legs))) {
-          legs = relaxed
-          effectiveMin = MIN_CONNECTION_RELAXED_MS
-        }
+      itineraries.push({
+        legs: [{ tripKey: ft.tripKey, boardIndex: ft.boardIndex, alightIndex: directAlight }],
+        minConnection: MIN_CONNECTION_MS,
+      })
+      // Riding a direct train to the end isn't always the best use of it: some take
+      // the long way round, and getting off to change arrives sooner (Netivot ->
+      // Herzliya, where train 638 loops via the east and a change in Tel Aviv saves
+      // ~28 min). Offer that too — the direct train stays listed alongside it.
+      const withChange = planOnward(trip, ft.boardIndex)
+      const directArrTs = trip.stops[directAlight].arrTs
+      if (withChange && withChange.legs.length > 1 && journeyArrivalTs(allTrips, withChange.legs) < directArrTs) {
+        itineraries.push(withChange)
       }
+    } else {
+      const onward = planOnward(trip, ft.boardIndex)
+      if (onward) itineraries.push(onward)
     }
-    if (!legs || legs.length === 0) continue
 
-    const key = legs.map((l) => allTrips.get(l.tripKey)!.trainNumber).join("-") + "@" + ft.depTs
-    if (seen.has(key)) continue
-    seen.add(key)
+    for (const { legs, minConnection } of itineraries) {
+      const key = legs.map((l) => allTrips.get(l.tripKey)!.trainNumber).join("-") + "@" + ft.depTs
+      if (seen.has(key)) continue
+      seen.add(key)
 
-    if (legs.length > 1) optimizeTransfers(allTrips, legs, effectiveMin)
-    const trains = legs.map((leg) => buildTrain(allTrips, leg, realtime))
-    const lastLeg = legs[legs.length - 1]
-    candidates.push({
-      travel: {
-        departureTime: trains[0].departureTime,
-        arrivalTime: trains[trains.length - 1].arrivalTime,
-        freeSeats: 0,
-        travelMessages: [],
-        trains,
-      },
-      depTs: ft.depTs,
-      arrTs: allTrips.get(lastLeg.tripKey)!.stops[lastLeg.alightIndex].arrTs,
-    })
+      if (legs.length > 1) optimizeTransfers(allTrips, legs, minConnection)
+      const trains = legs.map((leg) => buildTrain(allTrips, leg, realtime))
+      const lastLeg = legs[legs.length - 1]
+      candidates.push({
+        travel: {
+          departureTime: trains[0].departureTime,
+          arrivalTime: trains[trains.length - 1].arrivalTime,
+          freeSeats: 0,
+          travelMessages: [],
+          trains,
+        },
+        depTs: ft.depTs,
+        arrTs: allTrips.get(lastLeg.tripKey)!.stops[lastLeg.alightIndex].arrTs,
+      })
+    }
   }
 
   // Keep a single itinerary per arrival time (drops same-arrival, earlier-departure

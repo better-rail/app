@@ -283,14 +283,28 @@ describe("planTravels", () => {
     expect(travels[0].trains.map((t: any) => t.trainNumber)).toEqual([200, 201])
   })
 
-  it("prefers a direct train over a transfer for the same first train", () => {
+  it("offers a change off a direct train when it gets there sooner, keeping the direct too", () => {
     const trips = table(
+      // 301 reaches 1300 directly at 09:00, but takes the long way round…
       trip("a", 301, [[3700, "08:00", 1], [2300, "08:20", 2], [1300, "09:00", 1]]),
-      trip("b", 302, [[2300, "08:30", 5], [1300, "08:45", 1]]),
+      trip("b", 302, [[2300, "08:30", 5], [1300, "08:45", 1]]), // …changing at 2300 arrives 08:45
     )
     const travels = planTravels(trips, 3700, 1300, ts("07:00"))
-    // the 08:00 train reaches 1300 directly; we should not split it into a transfer
-    expect(travels[0].trains.map((t: { trainNumber: number }) => t.trainNumber)).toEqual([301])
+    expect(travels.map((t) => t.trains.map((n: { trainNumber: number }) => n.trainNumber))).toEqual([
+      [301, 302], // faster option first
+      [301], // the direct train stays listed
+    ])
+    expect(travels[0].arrivalTime).toBe("2026-06-27T08:45:00")
+    expect(travels[1].arrivalTime).toBe("2026-06-27T09:00:00")
+  })
+
+  it("does not split a direct train into a transfer that saves nothing", () => {
+    const trips = table(
+      trip("a", 301, [[3700, "08:00", 1], [2300, "08:20", 2], [1300, "09:00", 1]]),
+      trip("b", 302, [[2300, "08:30", 5], [1300, "09:05", 1]]), // changing arrives later
+    )
+    const travels = planTravels(trips, 3700, 1300, ts("07:00"))
+    expect(travels.map((t) => t.trains.map((n: { trainNumber: number }) => n.trainNumber))).toEqual([[301]])
   })
 
   describe("realtime (SIRI) injection", () => {
