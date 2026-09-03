@@ -1,8 +1,8 @@
 diff --git a/ios/AppDelegates/ExpoReactNativeFactory.mm b/ios/AppDelegates/ExpoReactNativeFactory.mm
-index 8dec877617b0a971a44a1eeb9d7674ab981c945c..49b7e392c0a5ef9ae91e7d95c3bdf2f7f9dd75ad 100644
+index 8dec877617b0a971a44a1eeb9d7674ab981c945c..d2a37e9307a44f180b2ff6c746b91f0ef757cf7a 100644
 --- a/ios/AppDelegates/ExpoReactNativeFactory.mm
 +++ b/ios/AppDelegates/ExpoReactNativeFactory.mm
-@@ -43,20 +43,28 @@ - (void)host:(nonnull RCTHost *)host didInitializeRuntime:(facebook::jsi::Runtim
+@@ -43,20 +43,38 @@ - (void)host:(nonnull RCTHost *)host didInitializeRuntime:(facebook::jsi::Runtim
  
    // Resolve the React runtime scheduler so ExpoModulesJSI can dispatch work onto
    // the JS thread. Doing it here (rather than inside the xcframework) keeps
@@ -22,8 +22,18 @@ index 8dec877617b0a971a44a1eeb9d7674ab981c945c..49b7e392c0a5ef9ae91e7d95c3bdf2f7
    // so the app still launches; modules that require async dispatch can gate on
    // `JavaScriptRuntime.supportsAsyncScheduling`.
 +  //
-+  // [Better Rail] Backport of the SDK 57 fix for the use-after-free reported as
-+  // Sentry BETTER-RAIL-2G. Drop this patch when upgrading to Expo SDK 57.
++  // [Better Rail] Backport of Expo's SDK 57 fix for a use-after-free. SDK 56 passes
++  // `scheduler.get()` straight through and `expo::RuntimeScheduler` keeps it as a bare
++  // `void *`, so the pointer dangles as soon as the React instance is torn down — by
++  // `RNRestart.Restart()`, a reload, or termination. Any expo/fetch request still in
++  // flight is then cancelled by `ExpoFetchModule`'s `OnDestroy` and rejects its promise
++  // through the freed scheduler. Sentry BETTER-RAIL-2G.
++  //
++  // UPGRADING: `expo::createReactSchedulerHandle` is added by the matching hunk in
++  // `patches/expo-modules-core@56.0.17.patch` — the two patches are a pair, and removing
++  // only one breaks the build. Delete both on the Expo SDK 57 upgrade, where this fix
++  // ships upstream. There is no 56.x to upgrade to instead: `expo@56.0.21` and
++  // `expo-modules-core@56.0.25` are the newest 56.x releases and still carry the bug.
    auto binding = facebook::react::RuntimeSchedulerBinding::getBinding(runtime);
    auto scheduler = binding ? binding->getRuntimeScheduler() : nullptr;
 +  void *schedulerHandle = expo::createReactSchedulerHandle(scheduler);

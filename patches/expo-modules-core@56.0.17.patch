@@ -23,14 +23,21 @@ index 1188204ab9d08d0f60f8b0fd9b149f97861a967b..63c4a9c7d8a9ccf6f847728696e8f9ad
      return try Conversions.unknownToJavaScriptValue(value, appContext: appContext)
    }
 diff --git a/ios/JS/EXReactSchedulerDispatch.h b/ios/JS/EXReactSchedulerDispatch.h
-index c390ad2b915474ae8cef02edcc6cecb45dd507ce..0b62004b9c2ddb1861376fbc3c39defa9366b80a 100644
+index c390ad2b915474ae8cef02edcc6cecb45dd507ce..3a35683e4481c647f807e3e9fe098c718dace0e5 100644
 --- a/ios/JS/EXReactSchedulerDispatch.h
 +++ b/ios/JS/EXReactSchedulerDispatch.h
-@@ -1,27 +1,61 @@
+@@ -1,27 +1,68 @@
  // Copyright 2025-present 650 Industries. All rights reserved.
 +//
-+// [Better Rail] Backport of the SDK 57 fix for the use-after-free reported as
-+// Sentry BETTER-RAIL-2G. Drop this patch when upgrading to Expo SDK 57.
++// [Better Rail] Backport of Expo's SDK 57 fix for a use-after-free. SDK 56 dereferences
++// the React `RuntimeScheduler` pointer without checking that the React instance still
++// owns it, so it crashes when an expo/fetch promise rejects after teardown (reload,
++// `RNRestart.Restart()`, termination). Sentry BETTER-RAIL-2G.
++//
++// UPGRADING: paired with `patches/expo@56.0.12.patch`, which calls
++// `createReactSchedulerHandle` below — remove both together on the Expo SDK 57 upgrade,
++// where this fix ships upstream. Keep the unrelated `DynamicConvertibleType` hunk that
++// shares this patch file (see Sentry BETTER-RAIL-2Q).
  
  #pragma once
  
@@ -96,18 +103,25 @@ index c390ad2b915474ae8cef02edcc6cecb45dd507ce..0b62004b9c2ddb1861376fbc3c39defa
  } // namespace expo
  
 diff --git a/ios/JS/EXReactSchedulerDispatch.mm b/ios/JS/EXReactSchedulerDispatch.mm
-index e9b1554e711d9c1adea32e6ed8fbc1a3e3791cd8..c059a8591bf6f00ee797b07fa304efc3ad6f28b3 100644
+index e9b1554e711d9c1adea32e6ed8fbc1a3e3791cd8..e32d1026d828f3c495e9e1b274a3c3139c29a3d0 100644
 --- a/ios/JS/EXReactSchedulerDispatch.mm
 +++ b/ios/JS/EXReactSchedulerDispatch.mm
-@@ -1,4 +1,7 @@
+@@ -1,4 +1,14 @@
  // Copyright 2025-present 650 Industries. All rights reserved.
 +//
-+// [Better Rail] Backport of the SDK 57 fix for the use-after-free reported as
-+// Sentry BETTER-RAIL-2G. Drop this patch when upgrading to Expo SDK 57.
++// [Better Rail] Backport of Expo's SDK 57 fix for a use-after-free. SDK 56 dereferences
++// the React `RuntimeScheduler` pointer without checking that the React instance still
++// owns it, so it crashes when an expo/fetch promise rejects after teardown (reload,
++// `RNRestart.Restart()`, termination). Sentry BETTER-RAIL-2G.
++//
++// UPGRADING: paired with `patches/expo@56.0.12.patch`, which calls
++// `createReactSchedulerHandle` below — remove both together on the Expo SDK 57 upgrade,
++// where this fix ships upstream. Keep the unrelated `DynamicConvertibleType` hunk that
++// shares this patch file (see Sentry BETTER-RAIL-2Q).
  
  #import "EXReactSchedulerDispatch.h"
  
-@@ -6,9 +9,36 @@
+@@ -6,9 +16,36 @@
  
  namespace expo {
  
