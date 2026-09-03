@@ -44,6 +44,12 @@ class WidgetPinReceiver : BroadcastReceiver() {
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
             try {
+                // A launcher that ran the config activity before this callback already saved
+                // the user's choice; don't overwrite it.
+                if (preferencesRepository.getWidgetData(appWidgetId) != null) {
+                    Log.d(TAG, "Widget $appWidgetId already configured, skipping prefill")
+                    return@launch
+                }
                 cacheRepository.clearWidgetCache(appWidgetId)
                 preferencesRepository.saveWidgetData(
                     appWidgetId,
