@@ -88,6 +88,13 @@ export function setUserLanguage(languageCode: LanguageCode, allowRestart = false
   }
 
   if (allowRestart) {
+    // Restarting tears down the React instance, which cancels every in-flight expo/fetch
+    // request. On iOS those cancellations used to reject through a freed RuntimeScheduler
+    // and crash (Sentry BETTER-RAIL-2G) — keep patches/expo@*.patch and the
+    // EXReactSchedulerDispatch hunks of patches/expo-modules-core@*.patch for as long as
+    // we restart the app from JS (here and in settings-privacy-screen). The fault is in
+    // Expo's scheduler handling, not in RNRestart — upgrading that library doesn't help.
+    //
     // On Android, SharedPreferences.apply() is asynchronous. Without a delay,
     // Runtime.exit(0) in RNRestart can race with the async write and lose the
     // forceRTL preference, causing the UI direction to stay stale after restart.
