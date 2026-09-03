@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { View, Pressable, Platform } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text, StationCard, FavoriteRoutes } from "@/components"
@@ -10,7 +10,7 @@ import { NormalizedStation } from "@/data/stations"
 import { SearchInput } from "./search-input"
 import { RecentSearchesBox } from "./recent-searches-box/recent-searches-box"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { FlashList } from "@shopify/flash-list"
+import { FlashList, FlashListRef } from "@shopify/flash-list"
 import { useFilteredStations } from "@/hooks"
 
 export function SelectStationScreen() {
@@ -25,6 +25,12 @@ export function SelectStationScreen() {
   const insets = useSafeAreaInsets()
   const [searchTerm, setSearchTerm] = useState("")
   const { filteredStations } = useFilteredStations(searchTerm)
+  const listRef = useRef<FlashListRef<NormalizedStation>>(null)
+
+  // Scroll back to the top whenever the search results change.
+  useEffect(() => {
+    listRef.current?.scrollToOffset({ offset: 0, animated: false })
+  }, [searchTerm])
 
   const renderItem = (station: NormalizedStation) => (
     <StationCard
@@ -61,10 +67,13 @@ export function SelectStationScreen() {
       </View>
 
       <FlashList
+        ref={listRef}
         data={filteredStations}
         renderItem={({ item }) => renderItem(item)}
         keyExtractor={(item) => item.id}
         keyboardShouldPersistTaps="handled"
+        // Disabled: otherwise FlashList may scroll the list out of view when results change between keystrokes.
+        maintainVisibleContentPosition={{ disabled: true }}
         ListEmptyComponent={() => (
           <View>
             <RecentSearchesBox selectionType={selectionType} />
