@@ -6,26 +6,16 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.betterrail.widget.data.WidgetData
-import com.betterrail.widget.repository.ModernCacheRepository
-import com.betterrail.widget.repository.ModernWidgetPreferencesRepository
-import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * Success callback for requestPinAppWidget: saves the route from the intent extras so the
  * pinned widget is configured without opening the config activity.
  */
-@AndroidEntryPoint
 class WidgetPinReceiver : BroadcastReceiver() {
-
-    @Inject
-    lateinit var preferencesRepository: ModernWidgetPreferencesRepository
-
-    @Inject
-    lateinit var cacheRepository: ModernCacheRepository
 
     override fun onReceive(context: Context, intent: Intent) {
         val appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
@@ -40,6 +30,13 @@ class WidgetPinReceiver : BroadcastReceiver() {
             Log.w(TAG, "Pin callback without a complete route, leaving widget $appWidgetId unconfigured")
             return
         }
+
+        val entryPoint = EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            ModernBaseWidgetProvider.WidgetProviderEntryPoint::class.java
+        )
+        val preferencesRepository = entryPoint.preferencesRepository()
+        val cacheRepository = entryPoint.cacheRepository()
 
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
