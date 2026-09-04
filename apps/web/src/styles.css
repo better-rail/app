@@ -1,0 +1,326 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "Heebo";
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/assets/fonts/Heebo.woff2") format("woff2");
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Colour roles mirroring the mobile theme (apps/mobile/src/theme). Light on :root, dark under `.dark` (set from the OS preference). */
+:root {
+  --color-bg: #f2f2f7;
+  --color-surface: #ffffff;
+  --color-surface-2: #f9f9fb;
+  --color-surface-3: #ececf1;
+  --color-text: #1c1c1e;
+  --color-text-2: #3a3a3c;
+  --color-muted: #6e6e73;
+  --color-dim: #939aa4;
+  --color-line: #e2e2e8;
+  --color-line-strong: #c9c9d1;
+  --color-brand: #0a81dd;
+  --color-brand-strong: #0972c4;
+  --color-brand-soft: #e6f2fc;
+  --color-brand-text: #0a6fbf;
+  --color-secondary: #fa827e;
+  --color-secondary-soft: #f6eae3;
+  --color-success: #219f07;
+  --color-success-soft: #e4ffdd;
+  --color-danger: #d93a2f;
+  --color-danger-badge: #ee6958;
+  --color-warning: #ff9500;
+  --color-warning-soft: #fff3df;
+  --color-overlay: rgb(0 0 0 / 0.45);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 6px 18px rgb(0 0 0 / 0.05);
+  --shadow-card-hover: 0 2px 4px rgb(0 0 0 / 0.05), 0 10px 26px rgb(0 0 0 / 0.09);
+  --shadow-pop: 0 12px 40px rgb(0 0 0 / 0.16), 0 2px 6px rgb(0 0 0 / 0.08);
+  color-scheme: light;
+}
+
+.dark {
+  --color-bg: #000000;
+  --color-surface: #1c1c1e;
+  --color-surface-2: #242426;
+  --color-surface-3: #2c2c2e;
+  --color-text: #f2f2f7;
+  --color-text-2: #d1d1d6;
+  --color-muted: #a1a1aa;
+  --color-dim: #8e8e93;
+  --color-line: #2f2f33;
+  --color-line-strong: #46464b;
+  --color-brand: #3b9cf0;
+  --color-brand-strong: #58aaf5;
+  --color-brand-soft: #0f2b44;
+  --color-brand-text: #7cbdf7;
+  --color-secondary: #6f68df;
+  --color-secondary-soft: #464552;
+  --color-success: #8fdc7b;
+  --color-success-soft: #475a42;
+  --color-danger: #ff6b5e;
+  --color-danger-badge: #b22e4d;
+  --color-warning: #ffb340;
+  --color-warning-soft: #3a2d12;
+  --color-overlay: rgb(0 0 0 / 0.65);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-card-hover: 0 4px 16px rgb(0 0 0 / 0.5);
+  --shadow-pop: 0 12px 40px rgb(0 0 0 / 0.6);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans: "Heebo", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-surface-2: var(--color-surface-2);
+  --color-surface-3: var(--color-surface-3);
+  --color-text: var(--color-text);
+  --color-text-2: var(--color-text-2);
+  --color-muted: var(--color-muted);
+  --color-dim: var(--color-dim);
+  --color-line: var(--color-line);
+  --color-line-strong: var(--color-line-strong);
+  --color-brand: var(--color-brand);
+  --color-brand-strong: var(--color-brand-strong);
+  --color-brand-soft: var(--color-brand-soft);
+  --color-brand-text: var(--color-brand-text);
+  --color-secondary: var(--color-secondary);
+  --color-secondary-soft: var(--color-secondary-soft);
+  --color-success: var(--color-success);
+  --color-success-soft: var(--color-success-soft);
+  --color-danger: var(--color-danger);
+  --color-danger-badge: var(--color-danger-badge);
+  --color-warning: var(--color-warning);
+  --color-warning-soft: var(--color-warning-soft);
+  --color-overlay: var(--color-overlay);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-card-hover: var(--shadow-card-hover);
+  --shadow-pop: var(--shadow-pop);
+
+  --radius-card: 14px;
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-bg text-text font-sans;
+    letter-spacing: -0.01em;
+    line-height: 1.55;
+    min-height: 100dvh;
+  }
+
+  :lang(he) body,
+  [dir="rtl"] body {
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--color-brand) 25%, transparent);
+  }
+
+  :focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--color-brand) 55%, transparent);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  input[type="date"],
+  input[type="time"] {
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator {
+    opacity: 0.55;
+    cursor: pointer;
+  }
+
+  .dark input[type="date"]::-webkit-calendar-picker-indicator,
+  .dark input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .card {
+    @apply bg-surface rounded-card shadow-card border border-line/60;
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .prose-page {
+    @apply text-[17px] leading-[1.7] text-text-2;
+  }
+
+  .prose-page h2 {
+    @apply text-text mt-8 mb-2 text-xl font-bold;
+  }
+
+  .prose-page h3 {
+    @apply text-text mt-6 mb-2 text-lg font-bold;
+  }
+
+  .prose-page p {
+    @apply mb-3;
+  }
+
+  .prose-page a {
+    @apply text-brand-text underline decoration-brand-text/40 underline-offset-2 hover:decoration-brand-text;
+  }
+
+  .prose-page ul {
+    @apply mb-4 list-disc ps-6;
+  }
+
+  .prose-page li {
+    @apply mb-1;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[13px] font-medium leading-5;
+  }
+
+  .btn,
+  .btn-primary,
+  .btn-secondary,
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-[15px] font-semibold transition-[background-color,transform,box-shadow] duration-200 ease-out-expo active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply bg-brand text-white shadow-[0_1px_2px_rgb(0_0_0/0.15)] hover:bg-brand-strong;
+  }
+
+  .btn-secondary {
+    @apply bg-surface-3 text-text hover:bg-line;
+  }
+
+  .btn-ghost {
+    @apply text-brand-text hover:bg-brand-soft;
+  }
+
+  .icon-btn {
+    @apply inline-flex size-10 items-center justify-center rounded-full text-text-2 transition-colors hover:bg-surface-3 active:scale-95;
+  }
+
+  .link-underline {
+    position: relative;
+    white-space: nowrap;
+  }
+
+  .link-underline::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: -1px;
+    height: 1.5px;
+    border-radius: 1px;
+    background: currentColor;
+    opacity: 0;
+    transform: scaleX(0.4);
+    transform-origin: var(--underline-origin, left center);
+    transition:
+      transform 0.28s var(--ease-out-expo),
+      opacity 0.18s ease-out;
+  }
+
+  [dir="rtl"] .link-underline::after {
+    --underline-origin: right center;
+  }
+
+  .link-underline:hover::after,
+  .link-underline:focus-visible::after {
+    opacity: 0.65;
+    transform: scaleX(1);
+  }
+
+  .station-photo-gradient {
+    background: linear-gradient(to bottom, rgb(0 0 0 / 0.05) 0%, rgb(0 0 0 / 0.65) 100%);
+  }
+}
+
+@layer utilities {
+  .animate-fade-up {
+    animation: fade-up 0.45s var(--ease-out-expo) both;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.25s ease-out both;
+  }
+
+  .animate-slide-in-end {
+    animation: slide-in-end 0.32s var(--ease-out-expo) both;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-end {
+  from {
+    opacity: 0;
+    transform: translateX(var(--slide-from, 24px));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+[dir="rtl"] .animate-slide-in-end {
+  --slide-from: -24px;
+}

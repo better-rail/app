@@ -1,0 +1,26 @@
+[build]
+command = "bun run build"
+publish = "dist/client"
+
+[dev]
+command = "bun run dev"
+targetPort = 3000
+port = 8888
+
+[[headers]]
+for = "/*"
+[headers.values]
+X-Frame-Options = "DENY"
+X-Content-Type-Options = "nosniff"
+Referrer-Policy = "strict-origin-when-cross-origin"
+Permissions-Policy = "interest-cohort=()"
+
+[[headers]]
+for = "/assets/*"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "/stations/*"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
