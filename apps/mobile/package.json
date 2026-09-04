@@ -1,5 +1,5 @@
 {
-  "name": "better-rail",
+  "name": "@better-rail/mobile",
   "version": "0.0.1",
   "private": true,
   "main": "index.js",
@@ -14,9 +14,6 @@
     "ci:test:e2e": "detox test -c ios.sim.release -l verbose --cleanup",
     "ci:build:e2e": "detox build -c ios.sim.release",
     "compile": "tsc --noEmit -p . --pretty",
-    "format": "oxfmt",
-    "format:check": "oxfmt --check",
-    "lint": "oxlint --fix && bun format",
     "test": "bun test",
     "e2e": "maestro test .maestro/flows",
     "adb": "adb reverse tcp:9090 tcp:9090 && adb reverse tcp:3000 tcp:3000 && adb reverse tcp:9001 tcp:9001 && adb reverse tcp:8081 tcp:8081"
@@ -110,27 +107,10 @@
     "babel-plugin-react-compiler": "1.0.0",
     "bufferutil": "4.0.2",
     "detox": "20.7.0",
-    "oxfmt": "0.57.0",
-    "oxlint": "1.72.0",
     "postinstall-prepare": "1.0.1",
     "react-native-console-time-polyfill": "1.2.3",
     "typescript": "~6.0.3",
     "utf-8-validate": "5.0.3"
-  },
-  "engines": {
-    "node": ">=20"
-  },
-  "jest": {
-    "preset": "jest-expo",
-    "setupFiles": [
-      "<rootDir>/node_modules/react-native/jest/setup.js",
-      "<rootDir>/test/setup.ts"
-    ],
-    "testPathIgnorePatterns": [
-      "/node_modules/",
-      "/e2e",
-      "/server"
-    ]
   },
   "detox": {
     "test-runner": "jest",
@@ -163,15 +143,5 @@
         ]
       }
     }
-  },
-  "patchedDependencies": {
-    "react-native-quick-actions-shortcuts@1.0.2": "patches/react-native-quick-actions-shortcuts@1.0.2.patch",
-    "react-native-modal-datetime-picker@18.0.0": "patches/react-native-modal-datetime-picker@18.0.0.patch",
-    "react-native-watch-connectivity@1.1.0": "patches/react-native-watch-connectivity@1.1.0.patch",
-    "react-native-push-notification@8.1.1": "patches/react-native-push-notification@8.1.1.patch",
-    "react-native-prompt-android@1.1.0": "patches/react-native-prompt-android@1.1.0.patch",
-    "react-native-screens@4.25.2": "patches/react-native-screens@4.25.2.patch",
-    "expo-modules-core@56.0.17": "patches/expo-modules-core@56.0.17.patch",
-    "expo@56.0.12": "patches/expo@56.0.12.patch"
   }
 }

@@ -7,12 +7,17 @@
   "sortPackageJson": false,
   "ignorePatterns": [
     "node_modules",
-    "ios-native",
-    "android-native",
+    "apps/mobile/ios-native",
+    "apps/mobile/android-native",
+    "apps/mobile/ios",
+    "apps/mobile/android",
+    "apps/website",
     ".vscode",
-    "package.json",
+    "**/package.json",
     "**/*.xcassets",
-    "assets/icons/AppIcon.icon",
-    "google-services.development.json"
+    "apps/mobile/assets/icons/AppIcon.icon",
+    "apps/mobile/google-services.development.json",
+    "**/dist",
+    ".claude"
   ]
 }

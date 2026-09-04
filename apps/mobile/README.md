@@ -25,8 +25,8 @@ If this is your first time, check out the [Expo local development setup guide](h
 #### Setup Steps
 
 - Fork the repo and clone it to your machine.
-- Run `bun install`.
-- Run `bun start` to start the development server.
+- Run `bun install` from the repository root (this is a Bun workspaces monorepo; the app lives in `apps/mobile`).
+- `cd apps/mobile`, then run `bun start` to start the development server.
 - Android only: run `cp -v google-services{.development,}.json`
 - Run the app with:
   - `bun prebuild --platform ios && bun ios` (to open the iPhone simulator)

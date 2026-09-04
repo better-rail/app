@@ -1,0 +1,5 @@
+[install]
+linker = "hoisted"
+auto = "force"
+exact = true
+minimumReleaseAge = 172800

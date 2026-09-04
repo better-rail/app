@@ -1,6 +1,12 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "import", "promise", "jest"],
+  "plugins": [
+    "react",
+    "typescript",
+    "import",
+    "promise",
+    "jest"
+  ],
   "env": {
     "builtin": true,
     "jest": true
@@ -20,7 +26,18 @@
     "import/default": "off",
     "jest/no-conditional-expect": "off",
     "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn"
+    "react-hooks/exhaustive-deps": "warn",
+    "jest/require-to-throw-message": "off"
   },
-  "ignorePatterns": ["node_modules", "ios-native", "android-native", "scripts", "bin"]
+  "ignorePatterns": [
+    "node_modules",
+    "apps/mobile/ios-native",
+    "apps/mobile/android-native",
+    "apps/mobile/scripts",
+    "apps/mobile/bin",
+    "apps/mobile/ios",
+    "apps/mobile/android",
+    "apps/website",
+    "**/dist"
+  ]
 }

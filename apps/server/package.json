@@ -1,5 +1,5 @@
 {
-  "name": "better-rail-server",
+  "name": "@better-rail/server",
   "version": "1.0.1",
   "description": "Server for Better Rail app",
   "main": "index.ts",
@@ -51,13 +51,5 @@
   "engines": {
     "bun": ">= 1.0.0"
   },
-  "trustedDependencies": [
-    "protobufjs"
-  ],
-  "prettier": {
-    "printWidth": 130,
-    "semi": false,
-    "singleQuote": false,
-    "trailingComma": "all"
-  }
+  "private": true
 }

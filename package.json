@@ -1,0 +1,43 @@
+{
+  "name": "better-rail-monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "mobile:start": "bun run --filter @better-rail/mobile start",
+    "mobile:ios": "bun run --filter @better-rail/mobile ios",
+    "mobile:android": "bun run --filter @better-rail/mobile android",
+    "mobile:prebuild": "bun run --filter @better-rail/mobile prebuild",
+    "mobile:compile": "bun run --filter @better-rail/mobile compile",
+    "mobile:test": "bun run --filter @better-rail/mobile test",
+    "server:dev": "bun run --filter @better-rail/server dev",
+    "server:start": "bun run --filter @better-rail/server start",
+    "server:test": "bun run --filter @better-rail/server test",
+    "website:dev": "bun run --filter @better-rail/website dev",
+    "test": "bun run mobile:test && bun run server:test",
+    "lint": "oxlint && oxfmt --check",
+    "lint:fix": "oxlint --fix && oxfmt"
+  },
+  "devDependencies": {
+    "oxfmt": "0.57.0",
+    "oxlint": "1.72.0"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "trustedDependencies": [
+    "protobufjs"
+  ],
+  "patchedDependencies": {
+    "react-native-quick-actions-shortcuts@1.0.2": "patches/react-native-quick-actions-shortcuts@1.0.2.patch",
+    "react-native-modal-datetime-picker@18.0.0": "patches/react-native-modal-datetime-picker@18.0.0.patch",
+    "react-native-watch-connectivity@1.1.0": "patches/react-native-watch-connectivity@1.1.0.patch",
+    "react-native-push-notification@8.1.1": "patches/react-native-push-notification@8.1.1.patch",
+    "react-native-prompt-android@1.1.0": "patches/react-native-prompt-android@1.1.0.patch",
+    "react-native-screens@4.25.2": "patches/react-native-screens@4.25.2.patch",
+    "expo-modules-core@56.0.17": "patches/expo-modules-core@56.0.17.patch",
+    "expo@56.0.12": "patches/expo@56.0.12.patch"
+  }
+}
