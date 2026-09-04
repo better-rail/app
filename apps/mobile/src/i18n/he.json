@@ -1,6 +1,8 @@
 {
   "common": {
     "cancel": "ביטול",
+    "add": "הוספה",
+    "select": "בחירה",
     "ok": "אישור",
     "done": "סיום",
     "set": "שמירה",
@@ -124,6 +126,11 @@
     "addWidget": "הוספת ווידג׳ט למסך הבית",
     "addWidgetManualTitle": "הוספת הווידג׳ט באופן ידני",
     "addWidgetManualMessage": "לחצו לחיצה ארוכה על אזור ריק במסך הבית, בחרו ״ווידג׳טים״, חפשו את Better Rail וגררו את הווידג׳ט למסך הבית.",
+    "chooseWidgetSize": "בחירת גודל ווידג׳ט",
+    "widgetSizeWide": "רחב (4×2)",
+    "widgetSizeCompact": "קומפקטי (2×2)",
+    "widgetWideDesc": "לוח זמנים מלא עם רכבות קרובות.",
+    "widgetCompactDesc": "מבט מהיר על הרכבת הקרובה הבאה.",
     "shareMessage": "האלטרנטיבה לאפליקציית רכבת ישראל",
     "rateIOS": "דרגו ב- App Store",
     "rateAndroid": "דרגו ב- Play Store",
