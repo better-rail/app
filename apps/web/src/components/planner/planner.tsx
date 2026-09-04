@@ -30,12 +30,14 @@ export function Planner({
   today,
   now,
   className,
+  onChange,
 }: {
   variant: "hero" | "bar"
   initial?: PlannerValue
   today: string
   now: string
   className?: string
+  onChange?: (value: PlannerValue) => void
 }) {
   const t = useT()
   const navigate = useNavigate()
@@ -47,7 +49,10 @@ export function Planner({
 
   // Follow `initial` until the user edits the form (URL changes on the toolbar, stored stations on the hero).
   useEffect(() => {
-    if (initial && (autoNavigate || !dirty)) setValue(initial)
+    if (initial && (autoNavigate || !dirty)) {
+      setValue(initial)
+      onChange?.(initial)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initial?.origin?.id, initial?.destination?.id, initial?.date, initial?.time, autoNavigate])
 
@@ -69,6 +74,7 @@ export function Planner({
     const next = { ...value, ...patch }
     setValue(next)
     setDirty(true)
+    onChange?.(next)
     if ("origin" in patch || "destination" in patch)
       routePlan.set({ originId: next.origin?.id, destinationId: next.destination?.id })
     if (autoNavigate) go(next)
@@ -82,8 +88,8 @@ export function Planner({
 
   if (variant === "bar") {
     return (
-      <div className={cn("flex flex-col gap-2 lg:flex-row lg:items-center", className)}>
-        <div className="grid flex-1 grid-cols-[1fr_auto_1fr] items-center gap-2">
+      <div className={cn("flex flex-col gap-2", className)}>
+        <div className="relative flex flex-col gap-2 pe-12">
           <StationPicker
             kind="origin"
             variant="field"
@@ -92,7 +98,6 @@ export function Planner({
             exclude={value.destination}
             onChange={(origin) => update({ origin })}
           />
-          <SwapButton onClick={swap} disabled={!value.origin || !value.destination} horizontal className="size-10" />
           <StationPicker
             kind="destination"
             variant="field"
@@ -101,15 +106,13 @@ export function Planner({
             exclude={value.origin}
             onChange={(destination) => update({ destination })}
           />
+          <SwapButton
+            onClick={swap}
+            disabled={!value.origin || !value.destination}
+            className="absolute end-0 top-1/2 size-10 -translate-y-1/2"
+          />
         </div>
-        <DateTimePicker
-          compact
-          today={today}
-          now={now}
-          value={value}
-          onChange={(dateTime) => update(dateTime)}
-          className="lg:w-auto"
-        />
+        <DateTimePicker compact today={today} now={now} value={value} onChange={(dateTime) => update(dateTime)} />
       </div>
     )
   }
@@ -123,7 +126,7 @@ export function Planner({
       }}
       aria-label={t("plan.title")}
     >
-      <div className="relative flex flex-col gap-3 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-end lg:gap-3">
+      <div className="relative flex flex-col gap-3">
         <div className={cn("transition-transform duration-300 ease-out-expo", swapping && "scale-[0.97]")}>
           <StationPicker
             kind="origin"
@@ -133,8 +136,8 @@ export function Planner({
             onChange={(origin) => update({ origin })}
           />
         </div>
-        <div className="absolute end-4 top-1/2 z-10 -translate-y-1/2 lg:static lg:mb-[90px] lg:translate-y-0">
-          <SwapButton onClick={swap} disabled={!value.origin || !value.destination} responsive />
+        <div className="absolute end-4 top-1/2 z-10 -translate-y-1/2">
+          <SwapButton onClick={swap} disabled={!value.origin || !value.destination} />
         </div>
         <div className={cn("transition-transform duration-300 ease-out-expo", swapping && "scale-[0.97]")}>
           <StationPicker
@@ -147,15 +150,15 @@ export function Planner({
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
-        <div className="flex-1">
+      <div className="flex flex-col gap-4">
+        <div>
           <span className="mb-1.5 block text-[13px] font-semibold uppercase tracking-wide text-muted">{t("plan.leaveAt")}</span>
           <DateTimePicker today={today} now={now} value={value} onChange={(dateTime) => setValue({ ...value, ...dateTime })} />
         </div>
         <button
           type="submit"
           disabled={!ready}
-          className="btn-primary h-14 w-full text-[17px] lg:w-72"
+          className="btn-primary h-14 w-full text-[17px]"
           title={sameStation ? t("plan.sameStations") : undefined}
         >
           <Search className="size-5" />

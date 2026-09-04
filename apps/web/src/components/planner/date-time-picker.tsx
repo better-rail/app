@@ -36,7 +36,7 @@ export function DateTimePicker({
 
   return (
     <div className={cn("flex flex-wrap items-stretch gap-2", className)}>
-      <label className={cn(fieldClass, "min-w-[150px] flex-1")}>
+      <label className={cn(fieldClass, "min-w-0 flex-[1.2]")}>
         <CalendarDays className="size-[18px] shrink-0 text-dim" />
         <span className="sr-only">{t("plan.date")}</span>
         <input
@@ -47,7 +47,7 @@ export function DateTimePicker({
           className={inputClass}
         />
       </label>
-      <label className={cn(fieldClass, "min-w-[120px] flex-1")}>
+      <label className={cn(fieldClass, "min-w-0 flex-1")}>
         <Clock className="size-[18px] shrink-0 text-dim" />
         <span className="sr-only">{t("plan.time")}</span>
         <input
@@ -61,12 +61,12 @@ export function DateTimePicker({
         type="button"
         onClick={() => onChange({})}
         disabled={isNow}
-        className={cn("btn-secondary shrink-0 gap-1.5 px-3.5", compact ? "h-11" : "h-14", isNow && "!opacity-60")}
+        className={cn("btn-secondary shrink-0 gap-1.5", compact ? "h-11 w-11 px-0" : "h-14 px-3.5", isNow && "!opacity-60")}
         aria-label={t("plan.now")}
         title={t("plan.now")}
       >
         <RotateCcw className="size-4" />
-        {t("plan.now")}
+        {!compact && t("plan.now")}
       </button>
     </div>
   )

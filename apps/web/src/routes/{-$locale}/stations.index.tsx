@@ -89,7 +89,8 @@ function StationsPage() {
               <StationPhotoCard
                 station={station}
                 name={stationName(station, locale)}
-                className="h-32 shadow-card group-hover:shadow-card-hover sm:h-36"
+                heightClass="h-32 sm:h-36"
+                className="shadow-card group-hover:shadow-card-hover"
               />
             </LocaleLink>
           </li>
