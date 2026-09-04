@@ -10,13 +10,28 @@ import android.util.Log
 import android.content.Context
 import android.os.Build
 import com.betterrail.widget.ModernCompactWidget2x2Provider
+import com.betterrail.widget.ModernCompactWidget4x2Provider
 import com.betterrail.widget.BaseWidgetConfigActivity
+import com.betterrail.widget.CompactWidget2x2ConfigActivity
 import com.betterrail.widget.CompactWidget4x2ConfigActivity
 import com.betterrail.widget.WidgetPinReceiver
-import com.betterrail.widget.ModernCompactWidget4x2Provider
 
 @ReactModule(name = WidgetNavigationModule.NAME)
 class WidgetNavigationModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+
+    enum class WidgetFamily(
+        val key: String,
+        val providerClass: Class<*>,
+        val configActivityClass: Class<*>
+    ) {
+        COMPACT("compact", ModernCompactWidget2x2Provider::class.java, CompactWidget2x2ConfigActivity::class.java),
+        WIDE("wide", ModernCompactWidget4x2Provider::class.java, CompactWidget4x2ConfigActivity::class.java);
+
+        companion object {
+            fun fromKey(key: String?): WidgetFamily =
+                entries.firstOrNull { it.key.equals(key, ignoreCase = true) } ?: WIDE
+        }
+    }
 
     override fun getName(): String = NAME
 
@@ -84,21 +99,10 @@ class WidgetNavigationModule(reactContext: ReactApplicationContext) : ReactConte
         try {
             val appWidgetManager = AppWidgetManager.getInstance(reactApplicationContext)
             val families = WritableNativeArray()
-
-            val compact2x2Ids = appWidgetManager.getAppWidgetIds(
-                ComponentName(reactApplicationContext, ModernCompactWidget2x2Provider::class.java)
-            )
-            if (compact2x2Ids.isNotEmpty()) {
-                families.pushString("compact")
+            for (family in WidgetFamily.entries) {
+                val ids = appWidgetManager.getAppWidgetIds(ComponentName(reactApplicationContext, family.providerClass))
+                if (ids.isNotEmpty()) families.pushString(family.key)
             }
-
-            val compact4x2Ids = appWidgetManager.getAppWidgetIds(
-                ComponentName(reactApplicationContext, ModernCompactWidget4x2Provider::class.java)
-            )
-            if (compact4x2Ids.isNotEmpty()) {
-                families.pushString("wide")
-            }
-
             promise.resolve(families)
         } catch (e: Exception) {
             promise.reject("ERROR", "Failed to get installed widgets", e)
@@ -106,12 +110,13 @@ class WidgetNavigationModule(reactContext: ReactApplicationContext) : ReactConte
     }
 
     /**
-     * Pins the 4x2 widget to the home screen. Launchers skip the configure activity for pinned
-     * widgets, so the success callback either saves the given route directly (WidgetPinReceiver)
-     * or opens the config activity pre-filled. Resolves false when pinning isn't supported.
+     * Pins the specified widget (2x2 compact or 4x2 wide) to the home screen. Launchers skip the
+     * configure activity for pinned widgets, so the success callback either saves the given route
+     * directly (WidgetPinReceiver) or opens the config activity pre-filled. Resolves false when
+     * pinning isn't supported.
      */
     @ReactMethod
-    fun requestPinWidget(originId: String, destinationId: String, promise: Promise) {
+    fun requestPinWidget(originId: String, destinationId: String, familyKey: String?, promise: Promise) {
         try {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
                 promise.resolve(false)
@@ -119,11 +124,12 @@ class WidgetNavigationModule(reactContext: ReactApplicationContext) : ReactConte
             }
             val appWidgetManager = AppWidgetManager.getInstance(reactApplicationContext)
             if (!appWidgetManager.isRequestPinAppWidgetSupported) {
-                Log.d("WidgetNavigationModule", "Launcher does not support pinning widgets")
+                Log.d(NAME, "Launcher does not support pinning widgets")
                 promise.resolve(false)
                 return
             }
-            val provider = ComponentName(reactApplicationContext, ModernCompactWidget4x2Provider::class.java)
+            val family = WidgetFamily.fromKey(familyKey)
+            val provider = ComponentName(reactApplicationContext, family.providerClass)
             val hasCompleteRoute = originId.isNotEmpty() && destinationId.isNotEmpty() && originId != destinationId
             val mutableFlag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_MUTABLE else 0
             val flags = PendingIntent.FLAG_UPDATE_CURRENT or mutableFlag
@@ -134,19 +140,20 @@ class WidgetNavigationModule(reactContext: ReactApplicationContext) : ReactConte
                 val intent = Intent(reactApplicationContext, WidgetPinReceiver::class.java)
                     .putExtra(BaseWidgetConfigActivity.EXTRA_PREFILL_ORIGIN_ID, originId)
                     .putExtra(BaseWidgetConfigActivity.EXTRA_PREFILL_DESTINATION_ID, destinationId)
+                    .putExtra(WidgetPinReceiver.EXTRA_PROVIDER_CLASS, family.providerClass.name)
                 PendingIntent.getBroadcast(reactApplicationContext, requestCode, intent, flags)
             } else {
-                val intent = Intent(reactApplicationContext, CompactWidget4x2ConfigActivity::class.java)
+                val intent = Intent(reactApplicationContext, family.configActivityClass)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     .putExtra(BaseWidgetConfigActivity.EXTRA_PREFILL_ORIGIN_ID, originId)
                     .putExtra(BaseWidgetConfigActivity.EXTRA_PREFILL_DESTINATION_ID, destinationId)
                 PendingIntent.getActivity(reactApplicationContext, requestCode, intent, flags)
             }
             val requested = appWidgetManager.requestPinAppWidget(provider, null, successCallback)
-            Log.d("WidgetNavigationModule", "requestPinAppWidget returned $requested (completeRoute=$hasCompleteRoute)")
+            Log.d(NAME, "requestPinAppWidget (${family.key}) returned $requested (completeRoute=$hasCompleteRoute)")
             promise.resolve(requested)
         } catch (e: Exception) {
-            Log.e("WidgetNavigationModule", "Error requesting widget pin", e)
+            Log.e(NAME, "Error requesting widget pin", e)
             promise.resolve(false)
         }
     }

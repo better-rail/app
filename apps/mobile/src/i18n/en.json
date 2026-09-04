@@ -1,6 +1,8 @@
 {
   "common": {
     "cancel": "Cancel",
+    "add": "Add",
+    "select": "Select",
     "ok": "OK",
     "done": "Done",
     "set": "Set",
@@ -124,6 +126,11 @@
     "addWidget": "Add Widget to Home Screen",
     "addWidgetManualTitle": "Add the widget manually",
     "addWidgetManualMessage": "Touch and hold an empty area of your home screen, tap Widgets, find Better Rail and drag the widget to your home screen.",
+    "chooseWidgetSize": "Choose Widget Size",
+    "widgetSizeWide": "Wide (4×2)",
+    "widgetSizeCompact": "Compact (2×2)",
+    "widgetWideDesc": "Full schedule with upcoming train times.",
+    "widgetCompactDesc": "Glanceable view of the next upcoming train.",
     "shareMessage": "The Israel Railways alternative app",
     "rateIOS": "Rate Better Rail",
     "rateAndroid": "Rate Better Rail",

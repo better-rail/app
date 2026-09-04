@@ -55,12 +55,20 @@ class WidgetPinReceiver : BroadcastReceiver() {
                     appWidgetId,
                     WidgetData(originId = originId, destinationId = destinationId)
                 )
-                val updateIntent = Intent(context, ModernCompactWidget4x2Provider::class.java).apply {
+                val providerClassName = intent.getStringExtra(EXTRA_PROVIDER_CLASS)
+                    ?: AppWidgetManager.getInstance(context).getAppWidgetInfo(appWidgetId)?.provider?.className
+                    ?: ModernCompactWidget4x2Provider::class.java.name
+                val providerClass = try {
+                    Class.forName(providerClassName)
+                } catch (_: Exception) {
+                    ModernCompactWidget4x2Provider::class.java
+                }
+                val updateIntent = Intent(context, providerClass).apply {
                     action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
                     putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, intArrayOf(appWidgetId))
                 }
                 context.sendBroadcast(updateIntent)
-                Log.d(TAG, "Widget $appWidgetId configured from pin request: $originId -> $destinationId")
+                Log.d(TAG, "Widget $appWidgetId configured from pin request: $originId -> $destinationId ($providerClassName)")
                 showHomeScreen(context)
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to configure pinned widget $appWidgetId", e)
@@ -72,6 +80,7 @@ class WidgetPinReceiver : BroadcastReceiver() {
 
     companion object {
         private const val TAG = "WidgetPinReceiver"
+        const val EXTRA_PROVIDER_CLASS = "com.betterrail.widget.EXTRA_PROVIDER_CLASS"
 
         fun showHomeScreen(context: Context) {
             try {

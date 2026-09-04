@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Alert, Linking, Platform, PlatformColor, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text } from "@/components"
@@ -11,7 +12,8 @@ import { useRoutePlanStore } from "@/models"
 import { shareApp } from "./helpers/app-share-sheet"
 import { openSupportBetterRail } from "@/utils/helpers/open-support-better-rail"
 import { trackEvent } from "@/services/analytics"
-import { requestPinAndroidWidget } from "@/utils/widget-helpers"
+import { requestPinAndroidWidget, WidgetFamily } from "@/utils/widget-helpers"
+import { WidgetPreviewModal } from "./components/widget-preview-modal"
 
 const storeLink = Platform.select({
   ios: "https://apps.apple.com/app/better-rail/id1562982976?action=write-review",
@@ -22,14 +24,19 @@ export function SettingsScreen() {
   const router = useRouter()
   const isDarkMode = useIsDarkMode()
   const isBetaTester = useIsBetaTester()
+  const [showWidgetModal, setShowWidgetModal] = useState(false)
 
-  const handleAddAndroidWidget = async () => {
+  const pinWidget = async (family: WidgetFamily) => {
     const { origin, destination } = useRoutePlanStore.getState()
-    const pinned = await requestPinAndroidWidget({ originId: origin?.id, destinationId: destination?.id })
-    trackEvent("widget_pin_requested", { source: "settings", supported: pinned })
+    const pinned = await requestPinAndroidWidget({ originId: origin?.id, destinationId: destination?.id, family })
+    trackEvent("widget_pin_requested", { source: "settings", supported: pinned, family })
     if (!pinned) {
       Alert.alert(translate("settings.addWidgetManualTitle") ?? "", translate("settings.addWidgetManualMessage") ?? "")
     }
+  }
+
+  const handleAddAndroidWidget = () => {
+    setShowWidgetModal(true)
   }
 
   return (
@@ -125,6 +132,10 @@ export function SettingsScreen() {
       >
         Better Rail {isBetaTester && "Beta "}v{getVersion()} (Build {getBuildNumber()})
       </Text>
+
+      {Platform.OS === "android" && showWidgetModal && (
+        <WidgetPreviewModal visible={showWidgetModal} onClose={() => setShowWidgetModal(false)} onPin={pinWidget} />
+      )}
     </Screen>
   )
 }
