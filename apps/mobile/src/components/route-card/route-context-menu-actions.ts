@@ -4,13 +4,9 @@ import { translate } from "@/i18n"
 import { shareRouteAction } from "@/utils/helpers/route-share-helpers"
 import { addRouteToCalendar } from "@/utils/helpers/calendar-helpers"
 import type { RouteItem } from "@/services/api"
-import type { RouteContextMenuAction } from "./platform-context-menu"
+import type { ContextMenuAction } from "@/components/context-menu/context-menu"
 
-export const createContextMenuActions = (
-  routeItem: RouteItem,
-  originId: string,
-  destinationId: string,
-): RouteContextMenuAction[] => [
+export const createContextMenuActions = (routeItem: RouteItem, originId: string, destinationId: string): ContextMenuAction[] => [
   {
     title: translate("routeDetails.addToCalendar"),
     systemIcon: "calendar.badge.plus",

@@ -16,7 +16,7 @@ import { useShallow } from "zustand/react/shallow"
 import { useFavoritesStore, useRoutePlanStore } from "@/models"
 import * as Burnt from "burnt"
 import type { RouteItem } from "@/services/api"
-import ContextMenu from "react-native-context-menu-view"
+import { ContextMenu } from "@/components/context-menu/context-menu"
 import { addRouteToCalendar as addRouteToCalendarHelper, CalendarEventConfig } from "@/utils/helpers/calendar-helpers"
 import { createContextMenuActions } from "@/components/route-card/route-context-menu-actions"
 import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
@@ -163,14 +163,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
 
       if (isLiquidGlassSupported) {
         return (
-          <ContextMenu
-            dropdownMenuMode
-            actions={actions}
-            onPress={(event) => {
-              const action = actions[event.nativeEvent.index]
-              action?.onPress?.()
-            }}
-          >
+          <ContextMenu mode="tap" actions={actions}>
             <LiquidGlassView interactive colorScheme="dark" style={{ padding: 12, borderRadius: 50 }}>
               <MenuIcon />
             </LiquidGlassView>
@@ -179,14 +172,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       }
 
       return (
-        <ContextMenu
-          dropdownMenuMode
-          actions={actions}
-          onPress={(event) => {
-            const action = actions[event.nativeEvent.index]
-            action?.onPress?.()
-          }}
-        >
+        <ContextMenu mode="tap" actions={actions}>
           <Image
             source={ellipsisIcon}
             style={{
@@ -242,14 +228,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
           }}
         >
           <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
-          <ContextMenu
-            dropdownMenuMode
-            actions={menuActions}
-            onPress={(event) => {
-              HapticFeedback.trigger("impactMedium")
-              menuActions[event.nativeEvent.index]?.onPress?.()
-            }}
-          >
+          <ContextMenu mode="tap" actions={menuActions} onPressAction={() => HapticFeedback.trigger("impactMedium")}>
             <LiquidGlassView
               interactive
               colorScheme="dark"
@@ -275,14 +254,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     return (
       <>
         <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
-        <ContextMenu
-          dropdownMenuMode
-          actions={menuActions}
-          onPress={(event) => {
-            HapticFeedback.trigger("impactMedium")
-            menuActions[event.nativeEvent.index]?.onPress?.()
-          }}
-        >
+        <ContextMenu mode="tap" actions={menuActions} onPressAction={() => HapticFeedback.trigger("impactMedium")}>
           <Image
             source={ellipsisIcon}
             style={{

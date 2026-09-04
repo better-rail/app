@@ -9,7 +9,7 @@ import { Text } from "@/components/text/text"
 import { format } from "date-fns"
 import { translate } from "@/i18n"
 import { RouteIndicators } from "./route-indicators"
-import { RouteContextMenu, RouteContextMenuAction } from "./platform-context-menu"
+import { ContextMenu, ContextMenuAction } from "@/components/context-menu/context-menu"
 import { createContextMenuActions } from "./route-context-menu-actions"
 import type { RouteItem } from "@/services/api"
 import { useShallow } from "zustand/react/shallow"
@@ -36,7 +36,7 @@ export interface RouteCardProps extends TouchableScaleProps {
   shouldShowDashedLine?: boolean
   isRouteInThePast: boolean
   onLongPress?: () => void
-  contextMenuActions?: RouteContextMenuAction[]
+  contextMenuActions?: ContextMenuAction[]
   routeItem?: RouteItem
   originId?: string
   destinationId?: string
@@ -219,9 +219,9 @@ export function RouteCard(props: RouteCardProps) {
   )
 
   return (
-    <RouteContextMenu actions={generatedContextMenuActions} onLongPress={onLongPress}>
+    <ContextMenu actions={generatedContextMenuActions} previewBorderRadius={12}>
       {cardContent}
-    </RouteContextMenu>
+    </ContextMenu>
   )
 }
 
