@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://better-rail.co.il/sitemap.xml
