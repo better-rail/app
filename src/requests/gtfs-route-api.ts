@@ -63,9 +63,6 @@ const RELAX_WHEN_SAVES_MS = 20 * 60 * 1000
 // Lod at 06:08 changing at HaHagana, against the 06:20 that changes at Herzliya
 // and still gets in eight minutes sooner.
 const CLEARLY_BETTER_MS = 5 * 60 * 1000
-// How soon after a departure the same train has to call at the origin before
-// riding out to meet it counts as pointless rather than as a real alternative.
-const REDUNDANT_BOARDING_WINDOW_MS = 30 * 60 * 1000
 // How much of a rider's day another journey has to save before this one stops
 // being a choice. Counts both ends of it: the extra wait at the origin and the
 // later arrival. Waiting 27 minutes to get in 4 minutes sooner is 31 minutes
@@ -670,27 +667,25 @@ export const planLegs = (
   // train 154), or backwards, riding north to Savidor to catch a southbound
   // train that stops at HaShalom three minutes later.
   //
-  // One condition keeps it honest: the call has to be soon after this departure.
-  // The real cases are a quarter of an hour or so apart; telling someone to wait
-  // 46 minutes for the same train is a different proposition, and both boardings
-  // deserve a listing.
+  // Nothing else is asked of it. How long the rider would have to wait for that
+  // train instead reads like it should matter — an hour on a platform is not the
+  // same proposition as ten minutes — but it does not, because the alternative on
+  // offer is not a better journey, it is the same journey without the detour.
+  // Boarding here leaves later, gets in at the very same minute and saves a
+  // change, so there is nothing for the earlier departure to be worth. The last
+  // train out of Ben Gurion Airport ran to Jerusalem at 23:57 to meet train 700,
+  // which calls at the airport itself 56 minutes later and reaches Herzliya at
+  // 01:17 either way.
   //
-  // The call is *not* required to fall inside the day being listed. It reads as
-  // though it should be — a call past midnight is never a first train here, so
-  // this page loses the option — but the simpler boarding is still offered, on
-  // the next day's page, which the client loads as the rider scrolls. Requiring
-  // it in-day only kept the detour: the last train out of Hadera-West left at
-  // 23:56 towards Netanya to meet a train that calls at Hadera-West itself at
-  // 00:21, arriving no earlier for two changes instead of one.
+  // Nor does the call have to fall inside the day being listed. It reads as though
+  // it should — a call past midnight is never a first train here, so this page
+  // loses the option — but the simpler boarding is still offered, on the next
+  // day's page, which the client loads as the rider scrolls.
   const ridesToCatchATrainThatComesHere = (legs: Leg[], depTs: number): boolean =>
     legs.slice(1).some((leg) => {
       const trip = allTrips.get(leg.tripKey)!
       return trip.stops.some(
-        (stop, i) =>
-          stop.railId === fromStation &&
-          i < leg.alightIndex &&
-          stop.depTs >= depTs &&
-          stop.depTs <= depTs + REDUNDANT_BOARDING_WINDOW_MS,
+        (stop, i) => stop.railId === fromStation && i < leg.alightIndex && stop.depTs >= depTs,
       )
     })
 

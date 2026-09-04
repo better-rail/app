@@ -254,6 +254,22 @@ describe("planTravels", () => {
     expect(travels.map((t: any) => t.trains.map((x: any) => x.trainNumber))).toEqual([[902]])
   })
 
+  it("refuses that ride however long the wait for that train would have been", () => {
+    // Real case: Ben Gurion Airport -> Herzliya, last departure of the night. The
+    // 23:57 runs out to Jerusalem to meet train 700, which calls at the airport
+    // itself 56 minutes later and reaches Herzliya at 01:17 either way. An hour on
+    // a platform is not the same proposition as ten minutes, but that is not what
+    // the rider is choosing between: boarding here leaves later, gets in at the
+    // same minute and saves a change.
+    const trips = table(
+      trip("direct", 7724, [[8600, "23:56", 1], [3500, "24:28", 2]]),
+      trip("out", 7723, [[8600, "23:57", 1], [680, "24:22", 3]]),
+      trip("back", 700, [[680, "24:32", 3], [8600, "24:53", 1], [3700, "25:09", 2], [3500, "25:17", 5]]),
+    )
+    const travels = planTravels(trips, 8600, 3500, ts("00:00"), ts("24:00"))
+    expect(travels.map((t: any) => t.trains.map((x: any) => x.trainNumber))).toEqual([[7724]])
+  })
+
   it("drops an all-night ride round the country even when it is the only option", () => {
     // Real case: Jerusalem -> Pa'ate Modi'in, half an hour's trip, on a Saturday
     // night when nothing else runs. Out to the airport at 23:36, north to Ako,
