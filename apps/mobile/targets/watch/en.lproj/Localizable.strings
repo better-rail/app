@@ -9,6 +9,7 @@
 "platform %@" = "Platform %@";
 "train %@ platform %@" = "Train %@ ・ Platform %@";
 "platform %@ train no. %@" = "PLATFORM %@・TRAIN NO. %@";
+"train no. %@" = "TRAIN NO. %@";
 
 "change" = "Change";
 "stay-at %@" = "Stay at Platform %@";

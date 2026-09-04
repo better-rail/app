@@ -83,7 +83,9 @@ struct FavoriteRouteView: View {
           nextTrain
           HStack {
             Spacer()
-            Text(String(localized: "platform \(String(platform)) train no. \(String(trainNumber))"))
+            Text(platform != 0
+                 ? String(localized: "platform \(String(platform)) train no. \(String(trainNumber))")
+                 : String(localized: "train no. \(String(trainNumber))"))
               .bold()
               .skeletonable()
             Spacer()

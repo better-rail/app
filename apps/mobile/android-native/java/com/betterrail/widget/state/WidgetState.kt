@@ -278,10 +278,11 @@ class WidgetStateRenderer(
     }
     
     private fun renderTrainDetails(context: Context, views: RemoteViews, train: WidgetTrainItem) {
-        val platformText = if (train.platform.isNotEmpty()) {
+        // "0" = platform not assigned yet
+        val platformText = if (train.platform.isNotEmpty() && train.platform != "0") {
             context.getString(R.string.platform_number, train.platform)
         } else {
-            context.getString(R.string.platform_default)
+            ""
         }
         views.setTextViewText(R.id.widget_platform, platformText)
 
@@ -293,7 +294,7 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_number, trainText)
         views.setViewVisibility(
             R.id.widget_dot_separator,
-            if (trainText.isNotEmpty()) android.view.View.VISIBLE else android.view.View.GONE
+            if (trainText.isNotEmpty() && platformText.isNotEmpty()) android.view.View.VISIBLE else android.view.View.GONE
         )
     }
     
