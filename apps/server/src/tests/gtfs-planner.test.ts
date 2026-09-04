@@ -107,8 +107,10 @@ describe("planTravels", () => {
   it("uses the 5-min minimum, skipping an earlier 4-min option when a comfortable change exists", () => {
     const trips = table(
       trip("f1", 10, [[900, "08:00", 1], [2300, "08:30", 1]]),
-      trip("tight", 20, [[2300, "08:34", 1], [999, "09:00", 1]]), // 4-min change, arrives 09:00
-      trip("comfy", 21, [[2300, "08:50", 1], [999, "09:20", 1]]), // 20-min change, arrives 09:20
+      // Both changes cross to another platform, so the standard five-minute floor
+      // is the one in force.
+      trip("tight", 20, [[2300, "08:34", 2], [999, "09:00", 1]]), // 4-min change, arrives 09:00
+      trip("comfy", 21, [[2300, "08:50", 2], [999, "09:20", 1]]), // 20-min change, arrives 09:20
     )
     const travels = planTravels(trips, 900, 999, ts("07:00"))
     // the tight change saves exactly 20 min, which is not *more* than the bar -> keep the safe one
@@ -117,6 +119,8 @@ describe("planTravels", () => {
   })
 
   it("takes a four-minute change only when it actually saves the rider time", () => {
+    // Every change here crosses to platform 2, so four minutes is under the floor
+    // and only the tight tier can buy it.
     const first = trip("f1", 10, [[900, "08:00", 1], [3600, "08:30", 1]])
     const numbers = (trips: DayTrips) => planTravels(trips, 900, 999, ts("07:00"))[0]?.trains.map((t: any) => t.trainNumber)
 
@@ -124,22 +128,47 @@ describe("planTravels", () => {
     // connection you can miss, so the safe one wins.
     const marginal = table(
       first,
-      trip("tight", 20, [[3600, "08:34", 1], [999, "09:00", 1]]), // 4 min
-      trip("safe", 30, [[3600, "08:35", 1], [999, "09:05", 1]]), // 5 min
+      trip("tight", 20, [[3600, "08:34", 2], [999, "09:00", 1]]), // 4 min
+      trip("safe", 30, [[3600, "08:35", 2], [999, "09:05", 1]]), // 5 min
     )
     expect(numbers(marginal)).toEqual([10, 30])
 
     // Same tight change, but now the safe alternative lands 40 minutes later.
     const worthIt = table(
       first,
-      trip("tight", 20, [[3600, "08:34", 1], [999, "09:00", 1]]),
-      trip("safe", 30, [[3600, "08:35", 1], [999, "09:40", 1]]),
+      trip("tight", 20, [[3600, "08:34", 2], [999, "09:00", 1]]),
+      trip("safe", 30, [[3600, "08:35", 2], [999, "09:40", 1]]),
     )
     expect(numbers(worthIt)).toEqual([10, 20])
 
     // And when it is the only connection there is, it is offered.
-    const onlyOption = table(first, trip("tight", 20, [[3600, "08:34", 1], [999, "09:00", 1]]))
+    const onlyOption = table(first, trip("tight", 20, [[3600, "08:34", 2], [999, "09:00", 1]]))
     expect(numbers(onlyOption)).toEqual([10, 20])
+  })
+
+  it("takes a four-minute change as a matter of course when the train is on the same platform", () => {
+    // Staying put costs a minute less than crossing: no bridge, no stairs, no
+    // reading the boards again. The same four minutes that only the tight tier
+    // could buy above is an ordinary change when the next train is already there.
+    const first = trip("f1", 10, [[900, "08:00", 1], [3600, "08:30", 3]])
+    const trips = table(
+      first,
+      trip("stay", 20, [[3600, "08:34", 3], [999, "09:00", 1]]), // 4 min, same platform
+      trip("cross", 30, [[3600, "08:35", 1], [999, "09:05", 1]]), // 5 min, other platform
+    )
+    expect(planTravels(trips, 900, 999, ts("07:00"))[0].trains.map((t: any) => t.trainNumber)).toEqual([10, 20])
+  })
+
+  it("does not treat two unknown platforms as the same platform", () => {
+    // An unknown platform is stored as 0. Two of those are not a match, so this
+    // stays a four-minute crossing and the roomier change wins.
+    const first = trip("f1", 10, [[900, "08:00", 1], [3600, "08:30", 0]])
+    const trips = table(
+      first,
+      trip("unknown", 20, [[3600, "08:34", 0], [999, "09:00", 1]]),
+      trip("cross", 30, [[3600, "08:35", 1], [999, "09:05", 1]]),
+    )
+    expect(planTravels(trips, 900, 999, ts("07:00"))[0].trains.map((t: any) => t.trainNumber)).toEqual([10, 30])
   })
 
   it("accepts a long wait when nothing shorter connects, and drops it when something does", () => {

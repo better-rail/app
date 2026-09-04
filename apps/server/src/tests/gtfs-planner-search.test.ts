@@ -15,6 +15,12 @@ const trip = (tripId: string, trainNumber: number, stops: [number, string, numbe
 })
 const table = (...trips: TripData[]): DayTrips => new Map(trips.map((t) => [t.tripKey, t]))
 
+// The moment a rider can be on the platform for a call. Outside Savidor a stop's
+// departure is padding rather than a time anything happens at, so the connection
+// is measured to its arrival. The generated timetables below give some stops a
+// five-minute dwell precisely so the two differ.
+const boardableTs = (s: StopNode): number => (s.railId === 3700 ? s.depTs : s.arrTs)
+
 /**
  * The search as it stood before the station index: every trip in the table
  * scanned on every round, boarding at its first stop inside the window. The
@@ -51,8 +57,10 @@ const referenceCompleteJourney = (
         const stop = t.stops[i]
         const ready = previous.get(stop.railId)
         if (ready === undefined) continue
-        const wait = stop.depTs - ready.arr
-        if (wait >= limits.minAt(stop.railId) && wait <= limits.maxMs) {
+        const off = allTrips.get(ready.leg.tripKey)!.stops[ready.leg.alightIndex]
+        const wait = boardableTs(stop) - ready.arr
+        const stayingPut = off.platform > 0 && off.platform === stop.platform
+        if (wait >= limits.minAt(stop.railId, stayingPut) && wait <= limits.maxMs) {
           bIdx = i
           break
         }
@@ -102,6 +110,9 @@ const STATIONS = [3700, 3500, 3400, 3300, 3100, 2800, 2100, 5000]
 
 // Times snap to a five-minute grid so trips collide constantly: the same
 // departure at a station, the same arrival at another. Ties are the whole point.
+// A one-minute offset is sprinkled in so the four- and five-minute floors are
+// actually told apart, and platforms vary (0 among them) so the same-platform
+// floor is exercised rather than assumed.
 const randomTable = (seed: number): DayTrips => {
   const rand = rng(seed)
   const pick = <T>(xs: T[]) => xs[Math.floor(rand() * xs.length)]
@@ -120,11 +131,11 @@ const randomTable = (seed: number): DayTrips => {
       const dwell = rand() < 0.3 ? 5 : 0
       stops.push({
         railId: station,
-        platform: 1,
+        platform: Math.floor(rand() * 4),
         arrTs: toEpochMs(DATE, clock * 60),
         depTs: toEpochMs(DATE, (clock + dwell) * 60),
       })
-      clock += dwell + 5 * (1 + Math.floor(rand() * 8))
+      clock += dwell + 5 * (1 + Math.floor(rand() * 8)) - (rand() < 0.25 ? 1 : 0)
     }
     if (stops.length < 2) continue
     trips.push({ tripKey: `${DATE}#t${n}`, trainNumber: 100 + n, stops })

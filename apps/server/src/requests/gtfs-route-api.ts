@@ -25,8 +25,9 @@ import type { RealtimeLookup } from "../siri/types"
 import { RailApiGetRoutesResult, Train, StopStation, RouteStation } from "../types/rail-response"
 import { addDays, parseOffsetSec, railServiceDatesForQuery, toEpochMs } from "../utils/gtfs-time"
 
-// Transfer windows, in real platform-to-platform terms (the feed's own arrival and
-// departure times, not the arrival-time figures the response displays).
+// Transfer windows, in real platform-to-platform terms: from the time the rider
+// is off one train to the time the next one is on the board, both read the way
+// the response displays them.
 //
 // Five minutes is the standard floor. The planner takes the earliest arrival it
 // can find, so a lower floor available everywhere would have it picking a tight
@@ -38,6 +39,12 @@ const MIN_CONNECTION_MS = 5 * 60 * 1000
 // sooner. Refusing it outright put Tel Aviv HaShalom -> Jerusalem an hour behind,
 // along with thirteen other pairs.
 const MIN_CONNECTION_RELAXED_MS = 3 * 60 * 1000
+
+// Staying put costs a minute less than crossing the station: no bridge, no
+// stairs, no reading the boards again. Only when both platforms are actually
+// known — an unknown platform is stored as 0, and two of those are not a match.
+const MIN_CONNECTION_SAME_PLATFORM_MS = 4 * 60 * 1000
+const samePlatform = (off: StopNode, on: StopNode): boolean => off.platform > 0 && off.platform === on.platform
 
 // The ceiling on a single wait. Long layovers are self-limiting: the timetable
 // only makes one worth taking where nothing shorter connects at all.
@@ -51,8 +58,13 @@ const MAX_CONNECTION_MS = 70 * 60 * 1000
  * The ceiling is a single value rather than a preference. Treating a roomier
  * ceiling as a fallback only made journeys slower for no gain.
  */
-type ConnectionLimits = { minAt: (railId: number) => number; maxMs: number }
-const PREFERRED_LIMITS: ConnectionLimits = { minAt: () => MIN_CONNECTION_MS, maxMs: MAX_CONNECTION_MS }
+type ConnectionLimits = { minAt: (railId: number, stayingPut: boolean) => number; maxMs: number }
+const PREFERRED_LIMITS: ConnectionLimits = {
+  minAt: (_railId, stayingPut) => (stayingPut ? MIN_CONNECTION_SAME_PLATFORM_MS : MIN_CONNECTION_MS),
+  maxMs: MAX_CONNECTION_MS,
+}
+// The tight tier is already below the same-platform floor, so it does not bend
+// further: three minutes is three minutes whether or not you have to cross.
 const TIGHT_LIMITS: ConnectionLimits = { minAt: () => MIN_CONNECTION_RELAXED_MS, maxMs: MAX_CONNECTION_MS }
 // How much sooner the tight tier must land before its risk is worth taking.
 const RELAX_WHEN_SAVES_MS = 20 * 60 * 1000
@@ -324,6 +336,12 @@ const invalidateDayCacheForFeed = (feedId: string) => {
 // A boardable call: a trip at one of its stops other than the last. `ord` is the
 // trip's position in the table, which is the order the search has always visited
 // trips in and therefore the order ties between them are settled in.
+//
+// `depTs` here is the time the rider can be on the platform for it — `displayTs`,
+// not the stop's departure. Outside Savidor a stop's departure is padding rather
+// than a time anything happens at, so measuring a connection to it credits the
+// rider with a minute or two that is not there: the 5-minute change at Tel Aviv
+// University on the 07:02 out of Rosh Ha'Ayin is three minutes on the platform.
 type Call = { trip: TripData; ord: number; index: number; depTs: number }
 
 // Calls per station, sorted by departure, so a search round only touches the
@@ -343,7 +361,7 @@ const callsByStation = (allTrips: DayTrips): Map<number, Call[]> => {
       const stop = trip.stops[i]
       let list = calls.get(stop.railId)
       if (!list) calls.set(stop.railId, (list = []))
-      list.push({ trip, ord, index: i, depTs: stop.depTs })
+      list.push({ trip, ord, index: i, depTs: displayTs(stop) })
     }
     ord++
   }
@@ -352,7 +370,7 @@ const callsByStation = (allTrips: DayTrips): Map<number, Call[]> => {
   return calls
 }
 
-/** Index of the first call departing at or after `depTs` in a list sorted by departure. */
+/** Index of the first call boardable at or after `depTs` in a list sorted by that time. */
 const firstCallFrom = (list: Call[], depTs: number): number => {
   let lo = 0
   let hi = list.length
@@ -416,11 +434,16 @@ const completeJourney = (
     for (const [station, ready] of previous) {
       const list = calls.get(station)
       if (!list) continue
-      const earliest = ready.arr + limits.minAt(station)
+      // The floor depends on the call, so the search starts from the loosest one
+      // it could be and each candidate is then held to the floor that applies to
+      // it: staying on the same platform is a minute cheaper than crossing.
+      const off = allTrips.get(ready.leg.tripKey)!.stops[ready.leg.alightIndex]
+      const earliest = ready.arr + Math.min(limits.minAt(station, true), limits.minAt(station, false))
       const latest = ready.arr + limits.maxMs
       for (let k = firstCallFrom(list, earliest); k < list.length && list[k].depTs <= latest; k++) {
         const call = list[k]
         if (call.trip.tripKey === firstTrip.tripKey) continue
+        if (call.depTs < ready.arr + limits.minAt(station, samePlatform(off, call.trip.stops[call.index]))) continue
         const boarding = boardings.get(call.trip)
         if (!boarding || call.index < boarding.index) boardings.set(call.trip, call)
       }
@@ -527,8 +550,8 @@ const optimizeTransfers = (allTrips: DayTrips, legs: Leg[], limits: ConnectionLi
       const st = f1.stops[p1].railId
       const p2 = f2StationIndex.get(st)
       if (p2 === undefined) continue
-      const window = f2.stops[p2].depTs - f1.stops[p1].arrTs
-      if (window < limits.minAt(st) || window > limits.maxMs) continue
+      const window = displayTs(f2.stops[p2]) - f1.stops[p1].arrTs
+      if (window < limits.minAt(st, samePlatform(f1.stops[p1], f2.stops[p2])) || window > limits.maxMs) continue
       const cand = { station: st, window, transferTime: f1.stops[p1].arrTs, p1, p2 }
       if (best === null || isBetterTransfer(cand, best)) best = cand
     }
@@ -685,7 +708,7 @@ export const planLegs = (
     legs.slice(1).some((leg) => {
       const trip = allTrips.get(leg.tripKey)!
       return trip.stops.some(
-        (stop, i) => stop.railId === fromStation && i < leg.alightIndex && stop.depTs >= depTs,
+        (stop, i) => stop.railId === fromStation && i < leg.alightIndex && displayTs(stop) >= depTs,
       )
     })
 
@@ -740,7 +763,7 @@ export const planLegs = (
       // train the rider never boards — which then fed the sort and the
       // same-arrival tiebreak.
       const board = allTrips.get(legs[0].tripKey)!.stops[legs[0].boardIndex]
-      const key = legs.map((l) => allTrips.get(l.tripKey)!.trainNumber).join("-") + "@" + board.depTs
+      const key = legs.map((l) => allTrips.get(l.tripKey)!.trainNumber).join("-") + "@" + displayTs(board)
       if (seen.has(key)) continue
       seen.add(key)
 
@@ -751,7 +774,7 @@ export const planLegs = (
       // start doubling back only after the transfer is optimised (Ashdod-Ad Halom
       // -> Be'er Sheva, riding out at 23:52 to meet train 289, which calls at
       // Ashdod itself at 00:21).
-      if (ridesToCatchATrainThatComesHere(legs, board.depTs)) continue
+      if (ridesToCatchATrainThatComesHere(legs, displayTs(board))) continue
 
       const lastLeg = legs[legs.length - 1]
       candidates.push({
@@ -850,7 +873,7 @@ export const planLegs = (
       for (let i = 0; i < c.legs.length - 1; i++) {
         const off = allTrips.get(c.legs[i].tripKey)!.stops[c.legs[i].alightIndex]
         const on = allTrips.get(c.legs[i + 1].tripKey)!.stops[c.legs[i + 1].boardIndex]
-        total += on.depTs - off.arrTs
+        total += displayTs(on) - off.arrTs
       }
       return total
     }
