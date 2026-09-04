@@ -45,14 +45,18 @@ const main = async () => {
 
   // A known station absent from the feed just has no service — warn, don't fail.
   if (result.unmatched.length) {
-    console.warn(`\n⚠️  ${result.unmatched.length} known stations not matched in this feed (no service?): ${result.unmatched.map((m) => m.railId).join(", ")}`)
+    console.warn(
+      `\n⚠️  ${result.unmatched.length} known stations not matched in this feed (no service?): ${result.unmatched.map((m) => m.railId).join(", ")}`,
+    )
   }
 
   // Every station node is traversed (derived from called stops), so any unclaimed
   // node is a traversed-but-unmapped station — a new station to add to the lists.
   if (result.unclaimedNodes.length) {
     failed = true
-    console.error(`\n❌ ${result.unclaimedNodes.length} traversed GTFS rail stations have no mapping (add them to rail-stations-geo.json + both stations.ts):`)
+    console.error(
+      `\n❌ ${result.unclaimedNodes.length} traversed GTFS rail stations have no mapping (add them to rail-stations-geo.json + both stations.ts):`,
+    )
     for (const n of result.unclaimedNodes) console.error(`  ${n.stopId} "${n.stopName}" (${n.lat}, ${n.lon})`)
   }
 

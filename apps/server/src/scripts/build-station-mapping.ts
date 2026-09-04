@@ -62,14 +62,18 @@ export const buildMapping = async (gtfsDir: string): Promise<StationMappingFile>
   if (flagged.length) {
     console.log(`\n⚠️  ${flagged.length} flagged (review before committing):`)
     for (const m of flagged) {
-      console.log(`  ${m.railId} "${m.hebrew}" -> ${m.gtfsStationId} "${m.gtfsStopName}" (${m.distanceM}m, sim ${m.nameSim}) — ${m.flagReason}`)
+      console.log(
+        `  ${m.railId} "${m.hebrew}" -> ${m.gtfsStationId} "${m.gtfsStopName}" (${m.distanceM}m, sim ${m.nameSim}) — ${m.flagReason}`,
+      )
     }
   }
 
   if (result.unmatched.length) {
     console.log(`\n❌ ${result.unmatched.length} unmatched known stations:`)
     for (const m of result.unmatched) {
-      console.log(`  ${m.railId} "${m.hebrew}" — nearest ${m.gtfsStationId} "${m.gtfsStopName}" (${m.distanceM}m, sim ${m.nameSim})`)
+      console.log(
+        `  ${m.railId} "${m.hebrew}" — nearest ${m.gtfsStationId} "${m.gtfsStopName}" (${m.distanceM}m, sim ${m.nameSim})`,
+      )
     }
   }
 

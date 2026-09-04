@@ -48,7 +48,7 @@ API did — a slow "collector" service is shown even when a faster direct train
 departs a few minutes later and arrives earlier (e.g. Ashkelon 230 07:00→07:56
 next to 622 07:06→07:50). The app's "hide slow trains" toggle is sent as
 `hideSlowTrains: true` in the search request body, and only then are such
-dominated direct trains left out. Itineraries *with* changes are always pruned
+dominated direct trains left out. Itineraries _with_ changes are always pruned
 when a same-or-fewer-changes option departs later and arrives earlier.
 
 **Platforms:** GTFS has no train→platform link (rail `stop_times` reference

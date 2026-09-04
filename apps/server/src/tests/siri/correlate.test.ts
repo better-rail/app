@@ -79,11 +79,24 @@ describe("matchJourney", () => {
   const index = buildCorrelationIndex(
     DATE,
     table(
-      trip("a", 101, "R1", [[3700, "08:00"], [3500, "08:20"], [3400, "08:35"]]),
-      trip("b", 102, "R1", [[3700, "09:00"], [3400, "09:30"]]),
+      trip("a", 101, "R1", [
+        [3700, "08:00"],
+        [3500, "08:20"],
+        [3400, "08:35"],
+      ]),
+      trip("b", 102, "R1", [
+        [3700, "09:00"],
+        [3400, "09:30"],
+      ]),
       // two same-route trips departing the same minute, different destinations
-      trip("c", 201, "R2", [[3700, "10:00"], [3400, "10:35"]]),
-      trip("d", 202, "R2", [[3700, "10:00"], [3500, "10:20"]]),
+      trip("c", 201, "R2", [
+        [3700, "10:00"],
+        [3400, "10:35"],
+      ]),
+      trip("d", 202, "R2", [
+        [3700, "10:00"],
+        [3500, "10:20"],
+      ]),
     ),
   )
   const getIndex = (date: string) => (date === DATE ? index : undefined)

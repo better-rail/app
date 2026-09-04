@@ -16,7 +16,14 @@ import { logNames, logger } from "../logs"
 import { loadDayTrips } from "../requests/gtfs-route-api"
 import { addDays } from "../utils/gtfs-time"
 import { fetchStopMonitoring, redactKey } from "./client"
-import { CorrelationIndex, buildCorrelationIndex, matchJourney, naiveNowMs, siriIsoToNaiveEpoch, visitServiceDate } from "./correlate"
+import {
+  CorrelationIndex,
+  buildCorrelationIndex,
+  matchJourney,
+  naiveNowMs,
+  siriIsoToNaiveEpoch,
+  visitServiceDate,
+} from "./correlate"
 import { recordObservedPlatforms } from "./platform-store"
 import { MatchedVisit, buildSnapshot, readSnapshot, writeRaw, writeSnapshot, writeStatus, writeUnmatched } from "./snapshot"
 import { NormalizedVisit, SiriSnapshot, UnmatchedSample } from "./types"

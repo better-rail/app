@@ -1,12 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": [
-    "react",
-    "typescript",
-    "import",
-    "promise",
-    "jest"
-  ],
+  "plugins": ["react", "typescript", "import", "promise", "jest"],
   "env": {
     "builtin": true,
     "jest": true

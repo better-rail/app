@@ -32,8 +32,7 @@ const FEED_TABLES = ["stops", "station_map", "routes", "trips", "calendar_dates"
 // streams a whole feed through COPY inside one transaction, so it runs without them.
 configurePool({ queryTimeoutMs: 0, statementTimeoutMs: 0 })
 
-const log = (message: string, meta?: unknown) =>
-  console.log(`[ingest] ${message}${meta ? " " + JSON.stringify(meta) : ""}`)
+const log = (message: string, meta?: unknown) => console.log(`[ingest] ${message}${meta ? " " + JSON.stringify(meta) : ""}`)
 
 const argGtfsDir = (): string | null => {
   const idx = process.argv.indexOf("--gtfs")
@@ -81,8 +80,7 @@ async function copyRows<T>(
   await pipeline(source, stream)
 }
 
-const sha256 = (filePath: string): string =>
-  crypto.createHash("sha256").update(fs.readFileSync(filePath)).digest("hex")
+const sha256 = (filePath: string): string => crypto.createHash("sha256").update(fs.readFileSync(filePath)).digest("hex")
 
 const loadFeed = async (feed: RailFeed, checksum: string): Promise<string> => {
   const match = matchStations([...feed.stationNodes.values()])
@@ -99,7 +97,9 @@ const loadFeed = async (feed: RailFeed, checksum: string): Promise<string> => {
     )
   }
   if (match.unmatched.length) {
-    log(`⚠️ ${match.unmatched.length} known station(s) absent from this feed (no service): ${match.unmatched.map((m) => m.railId).join(", ")}`)
+    log(
+      `⚠️ ${match.unmatched.length} known station(s) absent from this feed (no service): ${match.unmatched.map((m) => m.railId).join(", ")}`,
+    )
   }
 
   // GTFS has no train platforms; bake in the scheduled platforms the SIRI poller
@@ -132,7 +132,17 @@ const loadFeed = async (feed: RailFeed, checksum: string): Promise<string> => {
     await copyRows(
       client,
       "stops",
-      ["feed_id", "stop_id", "stop_code", "stop_name", "stop_lat", "stop_lon", "location_type", "parent_station", "platform_code"],
+      [
+        "feed_id",
+        "stop_id",
+        "stop_code",
+        "stop_name",
+        "stop_lat",
+        "stop_lon",
+        "location_type",
+        "parent_station",
+        "platform_code",
+      ],
       [...stopIdsToLoad].map((id) => feed.stops.get(id)).filter((s): s is NonNullable<typeof s> => Boolean(s)),
       (s) => [newFeedId, s.stopId, s.stopCode, s.stopName, s.lat, s.lon, s.locationType, s.parentStation, s.platformCode],
     )
@@ -159,13 +169,11 @@ const loadFeed = async (feed: RailFeed, checksum: string): Promise<string> => {
       (t) => [newFeedId, t.tripId, t.routeId, t.serviceId, t.trainNumber],
     )
 
-    await copyRows(
-      client,
-      "calendar_dates",
-      ["feed_id", "service_id", "service_date"],
-      feed.calendarDates,
-      (c) => [newFeedId, c.serviceId, c.serviceDate],
-    )
+    await copyRows(client, "calendar_dates", ["feed_id", "service_id", "service_date"], feed.calendarDates, (c) => [
+      newFeedId,
+      c.serviceId,
+      c.serviceDate,
+    ])
 
     await copyRows(
       client,
@@ -174,12 +182,12 @@ const loadFeed = async (feed: RailFeed, checksum: string): Promise<string> => {
       feed.stopTimes,
       (st) => {
         const nodeId = feed.platformToStationNode.get(st.stopId)
-        const railId = nodeId ? match.gtfsStationToRailId.get(nodeId) ?? null : null
+        const railId = nodeId ? (match.gtfsStationToRailId.get(nodeId) ?? null) : null
         const trainNumber = feed.trips.get(st.tripId)?.trainNumber
         const key = railId && trainNumber ? platformKey(trainNumber, railId) : null
         // Prefer the SIRI-learned platform, then the previous feed's, then the
         // GTFS platform_code (empty for rail), then none.
-        const platform = key ? platforms.get(key) ?? previousPlatforms.get(key) : undefined
+        const platform = key ? (platforms.get(key) ?? previousPlatforms.get(key)) : undefined
         const platformCode = platform ?? feed.stops.get(st.stopId)?.platformCode ?? null
         return [newFeedId, st.tripId, st.stopSequence, st.stopId, st.arrOffsetSec, st.depOffsetSec, platformCode, railId]
       },
@@ -285,6 +293,8 @@ main()
   .then(() => process.exit(0))
   .catch(async (error) => {
     console.error("[ingest] FAILED:", error)
-    await getPool().end().catch(() => undefined)
+    await getPool()
+      .end()
+      .catch(() => undefined)
     process.exit(1)
   })

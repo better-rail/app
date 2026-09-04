@@ -27,13 +27,19 @@ describe("buildSnapshot", () => {
   // Savidor case: scheduled arr 08:00 / dep 08:04 — the response *displays*
   // 08:04, but delay must be measured against the scheduled arrival.
   it("measures delay against the scheduled arrival, never the displayed time", () => {
-    const ref = tripRef(600, [[3700, "08:00"], [3100, "08:40"]])
+    const ref = tripRef(600, [
+      [3700, "08:00"],
+      [3100, "08:40"],
+    ])
     const snapshot = buildSnapshot([matched(ref, 3700, { expectedArrNaive: ts("08:10"), status: "delayed" })], "1", ts("07:00"))
     expect(snapshot.trains[`${DATE}#600`].stations[3700].delayMin).toBe(10)
   })
 
   it("keeps cancelled/noReport stations without a delay value", () => {
-    const ref = tripRef(600, [[3700, "08:00"], [3100, "08:40"]])
+    const ref = tripRef(600, [
+      [3700, "08:00"],
+      [3100, "08:40"],
+    ])
     const snapshot = buildSnapshot(
       [
         matched(ref, 3700, { expectedArrNaive: ts("08:05"), status: "cancelled" }),
@@ -50,7 +56,11 @@ describe("buildSnapshot", () => {
   })
 
   it("sets the train-level delay from the nearest upcoming stop, else the latest past one", () => {
-    const ref = tripRef(700, [[3700, "08:00"], [3500, "08:20"], [3400, "08:40"]])
+    const ref = tripRef(700, [
+      [3700, "08:00"],
+      [3500, "08:20"],
+      [3400, "08:40"],
+    ])
     const visits = [
       matched(ref, 3700, { expectedArrNaive: ts("08:10") }), // +10
       matched(ref, 3500, { expectedArrNaive: ts("08:28") }), // +8
@@ -69,7 +79,11 @@ describe("buildSnapshot", () => {
   })
 
   it("marks the train cancelled only when 2+ monitored stations all report cancelled", () => {
-    const ref = tripRef(600, [[3700, "08:00"], [3500, "08:20"], [3100, "08:40"]])
+    const ref = tripRef(600, [
+      [3700, "08:00"],
+      [3500, "08:20"],
+      [3100, "08:40"],
+    ])
     const allCancelled = buildSnapshot(
       [matched(ref, 3700, { status: "cancelled" }), matched(ref, 3100, { status: "cancelled" })],
       "1",
@@ -91,7 +105,10 @@ describe("buildSnapshot", () => {
   })
 
   it("keeps the live destination only when it differs from the scheduled one", () => {
-    const ref = tripRef(600, [[3700, "08:00"], [3100, "08:40"]])
+    const ref = tripRef(600, [
+      [3700, "08:00"],
+      [3100, "08:40"],
+    ])
     const curtailed = buildSnapshot([matched(ref, 3700, { destRailId: 3500 })], "1", ts("07:00"))
     expect(curtailed.trains[`${DATE}#600`].liveDestRailId).toBe(3500)
 
@@ -103,7 +120,11 @@ describe("buildSnapshot", () => {
 describe("carry-forward", () => {
   // Train 244: Savidor 11:32 -> Herzliya 11:50 -> Binyamina 12:10. The feed is
   // forward-looking, so Savidor's visit vanishes the moment the train departs.
-  const ref = tripRef(244, [[3700, "11:32"], [3500, "11:50"], [3400, "12:10"]])
+  const ref = tripRef(244, [
+    [3700, "11:32"],
+    [3500, "11:50"],
+    [3400, "12:10"],
+  ])
 
   const beforeDeparture = () =>
     buildSnapshot(
@@ -149,7 +170,12 @@ describe("carry-forward", () => {
   })
 
   it("freezes the whole train once it leaves the feed", () => {
-    const mid = buildSnapshot([matched(ref, 3500, { expectedArrNaive: ts("11:58"), status: "delayed" })], "1", ts("11:35"), beforeDeparture())
+    const mid = buildSnapshot(
+      [matched(ref, 3500, { expectedArrNaive: ts("11:58"), status: "delayed" })],
+      "1",
+      ts("11:35"),
+      beforeDeparture(),
+    )
     const after = buildSnapshot([], "1", ts("12:20"), mid)
     const train = after.trains[`${DATE}#244`]
     expect(train.ended).toBe(true)
@@ -182,14 +208,16 @@ describe("carry-forward", () => {
     // Curtailed at Herzliya: Binyamina's visit (still in the future, +20)
     // vanished from the feed while Herzliya keeps reporting live (+3).
     const before = buildSnapshot(
-      [
-        matched(ref, 3500, { expectedArrNaive: ts("11:53") }),
-        matched(ref, 3400, { expectedArrNaive: ts("12:30") }),
-      ],
+      [matched(ref, 3500, { expectedArrNaive: ts("11:53") }), matched(ref, 3400, { expectedArrNaive: ts("12:30") })],
       "1",
       ts("11:40"),
     )
-    const after = buildSnapshot([matched(ref, 3500, { expectedArrNaive: ts("11:53"), status: "arrived" })], "1", ts("11:55"), before)
+    const after = buildSnapshot(
+      [matched(ref, 3500, { expectedArrNaive: ts("11:53"), status: "arrived" })],
+      "1",
+      ts("11:55"),
+      before,
+    )
     const train = after.trains[`${DATE}#244`]
     expect(train.stations[3400]).toMatchObject({ delayMin: 20, seenAt: ts("11:55") })
     expect(train.latestDelayMin).toBe(3)
@@ -208,7 +236,12 @@ describe("carry-forward", () => {
     expect(after.trains[`${DATE}#244`].cancelled).toBe(true)
 
     // ...but a live visit that stops reporting cancelled clears it (un-cancelled run).
-    const revived = buildSnapshot([matched(ref, 3500, { status: "onTime", expectedArrNaive: ts("11:50") })], "1", ts("11:40"), before)
+    const revived = buildSnapshot(
+      [matched(ref, 3500, { status: "onTime", expectedArrNaive: ts("11:50") })],
+      "1",
+      ts("11:40"),
+      before,
+    )
     expect(revived.trains[`${DATE}#244`].cancelled).toBeUndefined()
   })
 
@@ -220,7 +253,10 @@ describe("carry-forward", () => {
 })
 
 describe("makeRealtimeLookup", () => {
-  const ref = tripRef(600, [[3700, "08:00"], [3100, "08:40"]])
+  const ref = tripRef(600, [
+    [3700, "08:00"],
+    [3100, "08:40"],
+  ])
   const snapshot = buildSnapshot(
     [
       matched(ref, 3700, { expectedArrNaive: ts("08:10"), platform: 4 }),
@@ -237,10 +273,7 @@ describe("makeRealtimeLookup", () => {
 
   it("passes station status and train-level cancellation/destination through", () => {
     const cancelledSnapshot = buildSnapshot(
-      [
-        matched(ref, 3700, { status: "cancelled", destRailId: 3500 }),
-        matched(ref, 3100, { status: "cancelled" }),
-      ],
+      [matched(ref, 3700, { status: "cancelled", destRailId: 3500 }), matched(ref, 3100, { status: "cancelled" })],
       "1",
       ts("07:00"),
     )

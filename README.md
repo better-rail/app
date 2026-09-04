@@ -6,12 +6,12 @@ Better Rail is an open source mobile client for Israel Railways, with an emphasi
 
 This is a Bun workspaces monorepo:
 
-| Path            | What                                                      |
-| --------------- | --------------------------------------------------------- |
-| `apps/mobile`   | The React Native / Expo app ([README](apps/mobile/README.md)) |
-| `apps/server`   | Notification & timetable server ([README](apps/server/README.md)) |
-| `apps/website`  | better-rail.co.il static site ([README](apps/website/README.md)) |
-| `packages/`     | Shared packages (none yet)                                |
+| Path           | What                                                              |
+| -------------- | ----------------------------------------------------------------- |
+| `apps/mobile`  | The React Native / Expo app ([README](apps/mobile/README.md))     |
+| `apps/server`  | Notification & timetable server ([README](apps/server/README.md)) |
+| `apps/website` | better-rail.co.il static site ([README](apps/website/README.md))  |
+| `packages/`    | Shared packages (none yet)                                        |
 
 ## Getting started
 

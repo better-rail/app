@@ -706,9 +706,7 @@ export const planLegs = (
   const ridesToCatchATrainThatComesHere = (legs: Leg[], depTs: number): boolean =>
     legs.slice(1).some((leg) => {
       const trip = allTrips.get(leg.tripKey)!
-      return trip.stops.some(
-        (stop, i) => stop.railId === fromStation && i < leg.alightIndex && displayTs(stop) >= depTs,
-      )
+      return trip.stops.some((stop, i) => stop.railId === fromStation && i < leg.alightIndex && displayTs(stop) >= depTs)
     })
 
   type Itinerary = { legs: Leg[]; arrTs: number }
@@ -744,7 +742,6 @@ export const planLegs = (
     }
 
     for (const { legs } of itineraries) {
-
       // An itinerary is identified by its own trains and its own departure, not by
       // the train we happened to seed the search with. The two can differ: the
       // onward search may reach the destination on a journey that boards a later
@@ -880,8 +877,7 @@ export const planLegs = (
     // Against that standard, one change more is a fair price for leaving at a
     // different time; two more is not. Where the quickest way itself needs three,
     // three is what the trip costs and the cap follows it.
-    const capFor = (quickestChanges: number) =>
-      quickestChanges >= 3 ? quickestChanges : Math.min(quickestChanges + 1, 2)
+    const capFor = (quickestChanges: number) => (quickestChanges >= 3 ? quickestChanges : Math.min(quickestChanges + 1, 2))
 
     const shortest = Math.min(...candidates.map((c) => c.arrTs - c.depTs))
     const absurd = new Set<Candidate>()
@@ -1009,8 +1005,7 @@ export const planLegs = (
       // which falls out of comparing each departure only against what actually
       // departs after it.
       (other.arrTs <= c.arrTs - CLEARLY_BETTER_MS ||
-        c.arrTs - c.depTs - (other.arrTs - other.depTs) >=
-          (leavesTheCorridor(c) ? DETOUR_WASTED_TIME_MS : WASTED_TIME_MS))
+        c.arrTs - c.depTs - (other.arrTs - other.depTs) >= (leavesTheCorridor(c) ? DETOUR_WASTED_TIME_MS : WASTED_TIME_MS))
 
     const outclassed = new Set<Candidate>()
     const survivors: Candidate[] = []

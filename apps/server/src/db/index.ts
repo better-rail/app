@@ -86,9 +86,7 @@ export const getActiveFeed = async (): Promise<ActiveFeed | null> => {
     return activeFeedCache.value
   }
 
-  const { rows } = await query(
-    `SELECT feed_id, feed_start_date, feed_end_date FROM feeds WHERE is_active LIMIT 1`,
-  )
+  const { rows } = await query(`SELECT feed_id, feed_start_date, feed_end_date FROM feeds WHERE is_active LIMIT 1`)
 
   const value: ActiveFeed | null = rows[0]
     ? {

@@ -1,11 +1,4 @@
-import {
-  parseOffsetSec,
-  formatOffset,
-  localIso,
-  toEpochMs,
-  addDays,
-  railServiceDatesForQuery,
-} from "../utils/gtfs-time"
+import { parseOffsetSec, formatOffset, localIso, toEpochMs, addDays, railServiceDatesForQuery } from "../utils/gtfs-time"
 
 describe("gtfs-time", () => {
   it("parses extended times (hours >= 24)", () => {
@@ -47,10 +40,6 @@ describe("gtfs-time", () => {
   it("picks rail service dates for a query window", () => {
     expect(railServiceDatesForQuery("2026-06-27", "14:00")).toEqual(["2026-06-27", "2026-06-28"])
     // Before 04:00 also looks back a day for pre-midnight extended-time trips.
-    expect(railServiceDatesForQuery("2026-06-27", "01:00")).toEqual([
-      "2026-06-26",
-      "2026-06-27",
-      "2026-06-28",
-    ])
+    expect(railServiceDatesForQuery("2026-06-27", "01:00")).toEqual(["2026-06-26", "2026-06-27", "2026-06-28"])
   })
 })
