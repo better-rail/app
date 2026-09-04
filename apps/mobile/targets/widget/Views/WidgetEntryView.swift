@@ -61,14 +61,16 @@ struct WidgetEntryView: View {
                        ? 8 : 2)
                     
                     if (widgetFamily == .systemLarge) {
-                      VStack(alignment: .leading) {
-                        Text("PLATFORM")
-                          .preferredFont(size: 11).fontWeight(.medium)
-                        
-                        Text(String(entry.platform)).font(.system(size: 22, weight: .bold))
+                      if (entry.platform != 0) {
+                        VStack(alignment: .leading) {
+                          Text("PLATFORM")
+                            .preferredFont(size: 11).fontWeight(.medium)
+                          
+                          Text(String(entry.platform)).font(.system(size: 22, weight: .bold))
+                        }
+                        .foregroundColor(.gray)
+                        .padding(.leading, isMediumScreen ? CGFloat(8.0) : 4.0)
                       }
-                      .foregroundColor(.gray)
-                      .padding(.leading, isMediumScreen ? CGFloat(8.0) : 4.0)
 
                       if (UIScreen.main.bounds.width >= 360) {
                         VStack(alignment: .leading) {
@@ -87,8 +89,13 @@ struct WidgetEntryView: View {
                   .font(.system(size: nextTrainFontSize, weight: .bold))
                   
                 if (widgetFamily != .systemLarge) {
-                  Text("Platform \(String(entry.platform))・Train \(String(entry.trainNumber))")
-                    .font(.system(size: 11.5)).fontWeight(.medium).foregroundColor(.white).opacity(/*@START_MENU_TOKEN@*/0.8/*@END_MENU_TOKEN@*/)
+                  if (entry.platform != 0) {
+                    Text("Platform \(String(entry.platform))・Train \(String(entry.trainNumber))")
+                      .font(.system(size: 11.5)).fontWeight(.medium).foregroundColor(.white).opacity(0.8)
+                  } else {
+                    Text("train \(String(entry.trainNumber))")
+                      .font(.system(size: 11.5)).fontWeight(.medium).foregroundColor(.white).opacity(0.8)
+                  }
                 }
                 
               }

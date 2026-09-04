@@ -25,7 +25,9 @@ struct WidgetLargeScheduleView: View {
               Spacer()
               Text(train.arrivalTime).frame(minWidth: 40)
               Spacer()
-              Text("platform \(String(train.platform))")
+              if (train.platform != 0) {
+                Text("platform \(String(train.platform))")
+              }
               Spacer()
               Text(LocalizedStringKey("train \(String(train.trainNumber))"))
               Spacer()
