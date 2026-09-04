@@ -1,2 +1,3 @@
-.env*
-google-services.json
+apps/mobile/.env*
+apps/mobile/google-services.json
+apps/mobile/GoogleService-Info.plist

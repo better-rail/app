@@ -33,7 +33,7 @@ jobs:
       - name: Compute native fingerprint
         id: fingerprint
         run: |
-          HASH=$(node node_modules/@expo/fingerprint/bin/cli.js fingerprint:generate \
+          HASH=$(cd apps/mobile && bunx fingerprint fingerprint:generate \
             --platform ios | jq -re '.hash')
           echo "hash=$HASH" >> "$GITHUB_OUTPUT"
 
@@ -87,7 +87,7 @@ jobs:
 
       - name: Start Metro
         run: |
-          nohup bun start > metro.log 2>&1 &
+          nohup bun run mobile:start > metro.log 2>&1 &
           for i in {1..30}; do
             curl -sf http://localhost:8081/status > /dev/null && break
             sleep 2

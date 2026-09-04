@@ -1,9 +1,5 @@
-[test]
-# Configure test runner
-preload = ["./test/setup.ts"]
-
 [install]
-# Configure package installation
+linker = "hoisted"
 auto = "force"
 exact = true
 minimumReleaseAge = 172800

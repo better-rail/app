@@ -1,0 +1,78 @@
+{
+  "Siri": {
+    "ServiceDelivery": {
+      "ResponseTimestamp": "2026-07-06T08:05:12+03:00",
+      "ProducerRef": "Moran",
+      "StopMonitoringDelivery": [
+        {
+          "-version": "2.8",
+          "ResponseTimestamp": "2026-07-06T08:05:12+03:00",
+          "Status": "true",
+          "MonitoredStopVisit": [
+            {
+              "RecordedAtTime": "2026-07-06T08:05:00+03:00",
+              "ItemIdentifier": 1,
+              "MonitoringRef": "17038",
+              "MonitoredVehicleJourney": {
+                "LineRef": "34073",
+                "DirectionRef": "1",
+                "FramedVehicleJourneyRef": {
+                  "DataFrameRef": "2026-07-06",
+                  "DatedVehicleJourneyRef": "20925867"
+                },
+                "PublishedLineName": "123",
+                "OperatorRef": "2",
+                "OriginRef": "17038",
+                "DestinationRef": "17040",
+                "OriginAimedDepartureTime": "2026-07-06T08:00:00+03:00",
+                "ConfidenceLevel": "veryReliable",
+                "VehicleLocation": {
+                  "Longitude": 34.798579,
+                  "Latitude": 32.083744
+                },
+                "Bearing": 186,
+                "Velocity": 62,
+                "VehicleRef": "9030930",
+                "MonitoredCall": {
+                  "StopPointRef": "17038",
+                  "Order": 1,
+                  "ExpectedArrivalTime": "2026-07-06T08:10:00+03:00",
+                  "ArrivalStatus": "delayed",
+                  "ArrivalPlatformName": "4"
+                }
+              }
+            },
+            {
+              "RecordedAtTime": "2026-07-06T08:05:00+03:00",
+              "ItemIdentifier": 2,
+              "MonitoringRef": { "value": 17040 },
+              "MonitoredVehicleJourney": {
+                "LineRef": { "value": 34073 },
+                "DirectionRef": 1,
+                "FramedVehicleJourneyRef": {
+                  "DataFrameRef": { "value": "2026-07-06" },
+                  "DatedVehicleJourneyRef": 20925867
+                },
+                "OperatorRef": 2,
+                "OriginRef": 17038,
+                "DestinationRef": 17040,
+                "OriginAimedDepartureTime": "2026-07-06T08:00:00+03:00",
+                "VehicleRef": 9030930
+              }
+            }
+          ]
+        },
+        {
+          "-version": "2.8",
+          "ResponseTimestamp": "2026-07-06T08:05:12+03:00",
+          "Status": "false",
+          "ErrorCondition": {
+            "OtherError": {
+              "ErrorText": "No such stop: 99999"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
