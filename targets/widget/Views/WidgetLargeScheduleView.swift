@@ -10,7 +10,7 @@ struct WidgetLargeScheduleView: View {
           VStack {
             Spacer()
             Image(systemName: "tram").padding(.vertical, 1).font(.system(size: 24))
-            Text(statusCode == "300" ? "No more trains for today." : "Something went wrong.")
+            Text(statusCode == "404" ? "Something went wrong." : "No more trains for today.")
             Spacer()
           }.padding(.bottom, 16)
           
