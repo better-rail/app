@@ -60,6 +60,17 @@ observes per (train, station) into the feed-independent `train_platforms` table
 accumulates as trains are observed; the previous feed's platforms are carried
 forward at ingest to fill any holes.
 
+**Performance:** a day's trips are loaded from Postgres once per feed and day and
+indexed per station, so a search round only looks at the trains leaving a
+reachable station inside the connection window. The plan for a (feed, day,
+origin, destination, toggle) is computed once and kept while the feed is active;
+what is cached is the schedule-side itinerary only. Real-time data is never
+cached with it: the SIRI snapshot is read on every request (the poller's redis
+snapshot, re-read every 5 s) and laid over the cached legs as the response is
+built. Postgres calls time out (5 s to connect, 30 s per statement), so a database
+that stops answering yields a 500 rather than a request that never returns; the
+ingest switches the statement limits off for its COPY.
+
 Station numbers differ between the two systems. The canonical IDs everywhere
 (app, native, Live Activity) stay the Israel-Railways `3700`-style IDs; the GTFS
 `stop_id` mapping is confined to the server (`data/station-mapping.json`,

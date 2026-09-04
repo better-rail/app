@@ -20,13 +20,17 @@ import { pipeline } from "stream/promises"
 import { from as copyFrom } from "pg-copy-streams"
 import type { PoolClient } from "pg"
 
-import { applySchema, getActiveFeed, getPool, invalidateActiveFeedCache, query, withTransaction } from "../db"
+import { applySchema, configurePool, getActiveFeed, getPool, invalidateActiveFeedCache, query, withTransaction } from "../db"
 import { parseRailFeed, RailFeed } from "../gtfs/parse"
 import { matchStations } from "../gtfs/station-match"
 import { downloadFeed, extractFeed } from "../gtfs/download"
 import { loadLearnedPlatforms, platformKey } from "../siri/platform-store"
 
 const FEED_TABLES = ["stops", "station_map", "routes", "trips", "calendar_dates", "stop_times"]
+
+// The pool's statement limits are sized for request-time queries; a feed load
+// streams a whole feed through COPY inside one transaction, so it runs without them.
+configurePool({ queryTimeoutMs: 0, statementTimeoutMs: 0 })
 
 const log = (message: string, meta?: unknown) =>
   console.log(`[ingest] ${message}${meta ? " " + JSON.stringify(meta) : ""}`)

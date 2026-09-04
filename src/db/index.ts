@@ -7,6 +7,21 @@ import { logNames, logger } from "../logs"
 
 let pool: Pool | undefined
 
+// Timeouts keep a Postgres that has stopped answering from holding requests open
+// for good: without them a blackholed host queues connection attempts without
+// limit and a hung socket never rejects, so the client sees a hang rather than an
+// error. The statement limits are applied on both sides — pg gives up waiting,
+// and the server cancels the statement too. Zero disables a limit; the ingest
+// turns both statement limits off for its long-running COPY (see configurePool).
+export type PoolTimeouts = { connectionTimeoutMs: number; queryTimeoutMs: number; statementTimeoutMs: number }
+let timeouts: PoolTimeouts = { connectionTimeoutMs: 5_000, queryTimeoutMs: 30_000, statementTimeoutMs: 30_000 }
+
+/** Override the pool's timeouts. Must run before the pool is first used. */
+export const configurePool = (overrides: Partial<PoolTimeouts>) => {
+  if (pool) throw new Error("configurePool must be called before the pool is created")
+  timeouts = { ...timeouts, ...overrides }
+}
+
 /** Lazily-created shared connection pool. */
 export const getPool = (): Pool => {
   if (!pool) {
@@ -15,6 +30,10 @@ export const getPool = (): Pool => {
       max: 10,
       // Railway Postgres terminates idle connections; keep the pool lean.
       idleTimeoutMillis: 30_000,
+      connectionTimeoutMillis: timeouts.connectionTimeoutMs,
+      query_timeout: timeouts.queryTimeoutMs || undefined,
+      statement_timeout: timeouts.statementTimeoutMs || undefined,
+      keepAlive: true,
     })
     // `logger` is undefined until startLogger() runs (e.g. in standalone scripts).
     pool.on("error", (error) => logger?.error(logNames.db.pool.error, { error }))
