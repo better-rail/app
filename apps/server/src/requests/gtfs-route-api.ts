@@ -29,45 +29,44 @@ import { addDays, parseOffsetSec, railServiceDatesForQuery, toEpochMs } from "..
 // is off one train to the time the next one is on the board, both read the way
 // the response displays them.
 //
-// Five minutes is the standard floor. The planner takes the earliest arrival it
-// can find, so a lower floor available everywhere would have it picking a tight
-// change at every opportunity rather than only where one is needed.
+// Five minutes is the floor, and there is no tier beneath it. A change the rider
+// cannot make is not a faster journey, it is a missed train and an hour on a
+// platform: Kfar Sava-Nordau -> Yokne'am runs twice an evening, and offering the
+// later one on three minutes hands someone a connection nobody catches.
 const MIN_CONNECTION_MS = 5 * 60 * 1000
 
-// Three minutes is a change you can make, but only just, so it sits behind the
-// tight tier below — never the default, only to get someone there materially
-// sooner. Refusing it outright put Tel Aviv HaShalom -> Jerusalem an hour behind,
-// along with thirteen other pairs.
-const MIN_CONNECTION_RELAXED_MS = 3 * 60 * 1000
-
-// Staying put costs a minute less than crossing the station: no bridge, no
-// stairs, no reading the boards again. Only when both platforms are actually
-// known — an unknown platform is stored as 0, and two of those are not a match.
+// Four when the rider does not have to cross: no bridge, no stairs, no reading
+// the boards again. Only when both platforms are known — an unknown one is stored
+// as 0, and two of those are not a match.
+//
+// Savidor's platforms come in island pairs, 1-2, 3-4 and 5-6, each pair sharing
+// one face. Stepping over the island is as quick as staying put, so the two
+// halves of a pair count as the same platform there.
 const MIN_CONNECTION_SAME_PLATFORM_MS = 4 * 60 * 1000
-const samePlatform = (off: StopNode, on: StopNode): boolean => off.platform > 0 && off.platform === on.platform
+const sameIsland = (a: number, b: number): boolean => Math.ceil(a / 2) === Math.ceil(b / 2)
+const stayingPut = (off: StopNode, on: StopNode): boolean =>
+  off.platform > 0 &&
+  on.platform > 0 &&
+  (off.platform === on.platform || (off.railId === SAVIDOR_STATION && sameIsland(off.platform, on.platform)))
 
 // The ceiling on a single wait. Long layovers are self-limiting: the timetable
 // only makes one worth taking where nothing shorter connects at all.
 const MAX_CONNECTION_MS = 70 * 60 * 1000
 
 /**
- * What counts as a usable change. Two tiers, differing only in the floor: the
- * planner searches the standard one and buys the tight one only when it saves
- * real time — a three-minute change is one you can miss, so it has to be worth it.
+ * What counts as a usable change. One standard, not a preference: a floor the
+ * rider can actually walk, four minutes where they need not cross and five where
+ * they do. There is no faster tier to fall back on, because a change that cannot
+ * be made buys nothing at all.
  *
- * The ceiling is a single value rather than a preference. Treating a roomier
- * ceiling as a fallback only made journeys slower for no gain.
+ * The ceiling is a single value too. Treating a roomier one as a fallback only
+ * made journeys slower for no gain.
  */
-type ConnectionLimits = { minAt: (railId: number, stayingPut: boolean) => number; maxMs: number }
-const PREFERRED_LIMITS: ConnectionLimits = {
-  minAt: (_railId, stayingPut) => (stayingPut ? MIN_CONNECTION_SAME_PLATFORM_MS : MIN_CONNECTION_MS),
+type ConnectionLimits = { minAt: (railId: number, onTheSameFace: boolean) => number; maxMs: number }
+const CONNECTION_LIMITS: ConnectionLimits = {
+  minAt: (_railId, onTheSameFace) => (onTheSameFace ? MIN_CONNECTION_SAME_PLATFORM_MS : MIN_CONNECTION_MS),
   maxMs: MAX_CONNECTION_MS,
 }
-// The tight tier is already below the same-platform floor, so it does not bend
-// further: three minutes is three minutes whether or not you have to cross.
-const TIGHT_LIMITS: ConnectionLimits = { minAt: () => MIN_CONNECTION_RELAXED_MS, maxMs: MAX_CONNECTION_MS }
-// How much sooner the tight tier must land before its risk is worth taking.
-const RELAX_WHEN_SAVES_MS = 20 * 60 * 1000
 // How much sooner another journey has to get there before this one is giving up
 // real time for nothing. Under five minutes is left alone: setting out a little
 // earlier to arrive a little later is a trade some riders make, and both options
@@ -443,7 +442,7 @@ const completeJourney = (
       for (let k = firstCallFrom(list, earliest); k < list.length && list[k].depTs <= latest; k++) {
         const call = list[k]
         if (call.trip.tripKey === firstTrip.tripKey) continue
-        if (call.depTs < ready.arr + limits.minAt(station, samePlatform(off, call.trip.stops[call.index]))) continue
+        if (call.depTs < ready.arr + limits.minAt(station, stayingPut(off, call.trip.stops[call.index]))) continue
         const boarding = boardings.get(call.trip)
         if (!boarding || call.index < boarding.index) boardings.set(call.trip, call)
       }
@@ -551,7 +550,7 @@ const optimizeTransfers = (allTrips: DayTrips, legs: Leg[], limits: ConnectionLi
       const p2 = f2StationIndex.get(st)
       if (p2 === undefined) continue
       const window = displayTs(f2.stops[p2]) - f1.stops[p1].arrTs
-      if (window < limits.minAt(st, samePlatform(f1.stops[p1], f2.stops[p2])) || window > limits.maxMs) continue
+      if (window < limits.minAt(st, stayingPut(f1.stops[p1], f2.stops[p2])) || window > limits.maxMs) continue
       const cand = { station: st, window, transferTime: f1.stops[p1].arrTs, p1, p2 }
       if (best === null || isBetterTransfer(cand, best)) best = cand
     }
@@ -712,16 +711,10 @@ export const planLegs = (
       )
     })
 
-  type Itinerary = { legs: Leg[]; limits: ConnectionLimits; arrTs: number }
+  type Itinerary = { legs: Leg[]; arrTs: number }
   const planOnward = (trip: TripData, boardIndex: number): Itinerary | null => {
-    const search = (limits: ConnectionLimits): Itinerary | null => {
-      const legs = completeJourney(allTrips, trip, boardIndex, toStation, limits)
-      return legs && legs.length > 0 ? { legs, limits, arrTs: journeyArrivalTs(allTrips, legs) } : null
-    }
-    const preferred = search(PREFERRED_LIMITS)
-    const tight = search(TIGHT_LIMITS)
-    if (tight && (!preferred || tight.arrTs < preferred.arrTs - RELAX_WHEN_SAVES_MS)) return tight
-    return preferred ?? tight
+    const legs = completeJourney(allTrips, trip, boardIndex, toStation, CONNECTION_LIMITS)
+    return legs && legs.length > 0 ? { legs, arrTs: journeyArrivalTs(allTrips, legs) } : null
   }
 
   for (const ft of firstTrains) {
@@ -734,7 +727,6 @@ export const planLegs = (
     if (directAlight > ft.boardIndex) {
       itineraries.push({
         legs: [{ tripKey: ft.tripKey, boardIndex: ft.boardIndex, alightIndex: directAlight }],
-        limits: PREFERRED_LIMITS,
         arrTs: trip.stops[directAlight].arrTs,
       })
       // Riding a direct train to the end isn't always the best use of it: some take
@@ -751,7 +743,7 @@ export const planLegs = (
       if (onward) itineraries.push(onward)
     }
 
-    for (const { legs, limits } of itineraries) {
+    for (const { legs } of itineraries) {
 
       // An itinerary is identified by its own trains and its own departure, not by
       // the train we happened to seed the search with. The two can differ: the
@@ -767,7 +759,7 @@ export const planLegs = (
       if (seen.has(key)) continue
       seen.add(key)
 
-      if (legs.length > 1) optimizeTransfers(allTrips, legs, limits)
+      if (legs.length > 1) optimizeTransfers(allTrips, legs, CONNECTION_LIMITS)
 
       // Tested once the change has been placed, not before: moving where the rider
       // gets off carries the next leg further back up the line, so a journey can
@@ -1211,5 +1203,5 @@ export const searchTrain = async (
 
 export { invalidateDayCacheForFeed, loadDayTrips }
 // The search core alone, for tests that check it against a reference implementation.
-export { completeJourney, PREFERRED_LIMITS, TIGHT_LIMITS }
+export { completeJourney, CONNECTION_LIMITS }
 export type { ConnectionLimits }

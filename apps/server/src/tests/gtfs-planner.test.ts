@@ -118,38 +118,59 @@ describe("planTravels", () => {
     expect(travels[0].arrivalTime).toBe("2026-06-27T09:20:00")
   })
 
-  it("takes a four-minute change only when it actually saves the rider time", () => {
-    // Every change here crosses to platform 2, so four minutes is under the floor
-    // and only the tight tier can buy it.
+  it("never offers a four-minute change the rider has to cross for, however much it would save", () => {
+    // A change under the floor is not a faster journey, it is a missed train — so
+    // there is no tier beneath the floor to fall back on. Every change here goes
+    // to platform 2, so four minutes is short whatever it would buy.
     const first = trip("f1", 10, [[900, "08:00", 1], [3600, "08:30", 1]])
     const numbers = (trips: DayTrips) => planTravels(trips, 900, 999, ts("07:00"))[0]?.trains.map((t: any) => t.trainNumber)
 
-    // The five-minute change gets there only five minutes later — not worth a
-    // connection you can miss, so the safe one wins.
+    // Five minutes later for a change you can actually make.
     const marginal = table(
       first,
-      trip("tight", 20, [[3600, "08:34", 2], [999, "09:00", 1]]), // 4 min
+      trip("short", 20, [[3600, "08:34", 2], [999, "09:00", 1]]), // 4 min
       trip("safe", 30, [[3600, "08:35", 2], [999, "09:05", 1]]), // 5 min
     )
     expect(numbers(marginal)).toEqual([10, 30])
 
-    // Same tight change, but now the safe alternative lands 40 minutes later.
-    const worthIt = table(
+    // Even when the change you can make lands forty minutes behind.
+    const wouldSaveALot = table(
       first,
-      trip("tight", 20, [[3600, "08:34", 2], [999, "09:00", 1]]),
+      trip("short", 20, [[3600, "08:34", 2], [999, "09:00", 1]]),
       trip("safe", 30, [[3600, "08:35", 2], [999, "09:40", 1]]),
     )
-    expect(numbers(worthIt)).toEqual([10, 20])
+    expect(numbers(wouldSaveALot)).toEqual([10, 30])
 
-    // And when it is the only connection there is, it is offered.
-    const onlyOption = table(first, trip("tight", 20, [[3600, "08:34", 2], [999, "09:00", 1]]))
-    expect(numbers(onlyOption)).toEqual([10, 20])
+    // And when it is the only connection there is, the trip simply is not offered.
+    const onlyOption = table(first, trip("short", 20, [[3600, "08:34", 2], [999, "09:00", 1]]))
+    expect(planTravels(onlyOption, 900, 999, ts("07:00"))).toEqual([])
+  })
+
+  it("counts Savidor's island pairs as one platform, but not its other faces", () => {
+    // Savidor's platforms share a face in pairs — 1-2, 3-4, 5-6 — so stepping
+    // across one is as quick as staying put and four minutes is enough. Crossing
+    // between pairs is a different matter.
+    const numbers = (trips: DayTrips) => planTravels(trips, 900, 999, ts("07:00"))[0]?.trains.map((t: any) => t.trainNumber)
+
+    const acrossTheIsland = table(
+      trip("f1", 10, [[900, "08:00", 1], [3700, "08:30", 3]]),
+      trip("step", 20, [[3700, "08:34", 4], [999, "09:00", 1]]), // 4 min, 3 -> 4
+      trip("safe", 30, [[3700, "08:35", 1], [999, "09:05", 1]]),
+    )
+    expect(numbers(acrossTheIsland)).toEqual([10, 20])
+
+    const acrossTheStation = table(
+      trip("f1", 10, [[900, "08:00", 1], [3700, "08:30", 2], [999, "10:00", 1]]),
+      trip("bridge", 20, [[3700, "08:34", 3], [999, "09:00", 1]]), // 4 min, 2 -> 3
+      trip("safe", 30, [[3700, "08:35", 3], [999, "09:05", 1]]),
+    )
+    expect(numbers(acrossTheStation)).toEqual([10, 30])
   })
 
   it("takes a four-minute change as a matter of course when the train is on the same platform", () => {
     // Staying put costs a minute less than crossing: no bridge, no stairs, no
-    // reading the boards again. The same four minutes that only the tight tier
-    // could buy above is an ordinary change when the next train is already there.
+    // reading the boards again. The same four minutes that is refused above, when
+    // it means crossing, is an ordinary change when the train is already there.
     const first = trip("f1", 10, [[900, "08:00", 1], [3600, "08:30", 3]])
     const trips = table(
       first,

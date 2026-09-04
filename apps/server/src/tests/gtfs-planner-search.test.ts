@@ -1,4 +1,4 @@
-import { completeJourney, planTravels, PREFERRED_LIMITS, TIGHT_LIMITS } from "../requests/gtfs-route-api"
+import { completeJourney, planTravels, CONNECTION_LIMITS } from "../requests/gtfs-route-api"
 import type { ConnectionLimits, DayTrips, Leg, StopNode, TripData } from "../requests/gtfs-route-api"
 import { toEpochMs } from "../utils/gtfs-time"
 
@@ -59,7 +59,13 @@ const referenceCompleteJourney = (
         if (ready === undefined) continue
         const off = allTrips.get(ready.leg.tripKey)!.stops[ready.leg.alightIndex]
         const wait = boardableTs(stop) - ready.arr
-        const stayingPut = off.platform > 0 && off.platform === stop.platform
+        // Savidor's platforms are island pairs (1-2, 3-4, 5-6), so the two halves
+        // of one count as the same face there.
+        const stayingPut =
+          off.platform > 0 &&
+          stop.platform > 0 &&
+          (off.platform === stop.platform ||
+            (off.railId === 3700 && Math.ceil(off.platform / 2) === Math.ceil(stop.platform / 2)))
         if (wait >= limits.minAt(stop.railId, stayingPut) && wait <= limits.maxMs) {
           bIdx = i
           break
@@ -154,7 +160,7 @@ describe("search core (station index)", () => {
           if (boardIndex >= first.stops.length - 1) continue
           for (const target of STATIONS) {
             if (target === first.stops[boardIndex].railId) continue
-            for (const limits of [PREFERRED_LIMITS, TIGHT_LIMITS]) {
+            for (const limits of [CONNECTION_LIMITS]) {
               const expected = referenceCompleteJourney(trips, first, boardIndex, target, limits)
               const actual = completeJourney(trips, first, boardIndex, target, limits)
               expect(actual).toEqual(expected)
