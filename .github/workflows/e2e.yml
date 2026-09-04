@@ -33,7 +33,7 @@ jobs:
       - name: Compute native fingerprint
         id: fingerprint
         run: |
-          HASH=$(cd apps/mobile && node node_modules/@expo/fingerprint/bin/cli.js fingerprint:generate \
+          HASH=$(cd apps/mobile && bunx fingerprint fingerprint:generate \
             --platform ios | jq -re '.hash')
           echo "hash=$HASH" >> "$GITHUB_OUTPUT"
 
