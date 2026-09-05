@@ -36,14 +36,13 @@ export function DateTimePicker({
   /** Israel's current time (`HH:mm`) */
   now: string
   className?: string
+  /** The results toolbar: fixed column widths on wide screens */
   compact?: boolean
 }) {
   const t = useT()
   const isNow = !value.date && !value.time
-  const fieldClass = cn(
-    "flex w-full items-center gap-1.5 rounded-xl border border-line bg-surface px-2.5 text-start text-[15px] font-medium transition-colors hover:border-line-strong sm:gap-2 sm:px-3",
-    compact ? "h-11" : "h-14",
-  )
+  const fieldClass =
+    "flex h-14 w-full items-center gap-1.5 rounded-xl border border-line bg-surface px-2.5 text-start text-[15px] font-medium transition-colors hover:border-line-strong sm:gap-2 sm:px-3"
 
   return (
     <div
@@ -61,7 +60,7 @@ export function DateTimePicker({
         type="button"
         onClick={() => onChange({ date: undefined, time: undefined })}
         disabled={isNow}
-        className={cn("btn-secondary gap-1.5 px-0 sm:px-3.5", compact ? "h-11 min-w-11" : "h-14 min-w-14", isNow && "!opacity-60")}
+        className={cn("btn-secondary h-14 min-w-14 gap-1.5 px-0 sm:px-3.5", isNow && "!opacity-60")}
         aria-label={t("plan.now")}
         title={t("plan.now")}
       >

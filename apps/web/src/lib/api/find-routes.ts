@@ -1,8 +1,8 @@
 import { createServerFn } from "@tanstack/react-start"
 import { getRequestHeader } from "@tanstack/react-start/server"
 import { getStationById } from "@/data/stations"
-import { isValidClock, isValidDateKey, naiveFromParts, addDays, dateKey, minutesBetween } from "@/lib/time"
-import { formatTravels, closestRouteIndex } from "./route-format"
+import { isValidClock, isValidDateKey, naiveFromParts, addDays, dateKey } from "@/lib/time"
+import { formatTravels } from "./route-format"
 import type { ApiSearchResult, ResultType, RoutesResult, RoutesSearch } from "./types"
 
 const API_BASE = process.env.RAIL_API_BASE ?? "https://api.better-rail.co.il/api/v1/rail-api"
@@ -73,7 +73,12 @@ export function apiHourFor(hour: string): string {
 export const clientIpFrom = (header: (name: string) => string | null | undefined): string | undefined =>
   header("cf-connecting-ip") ?? header("x-forwarded-for")?.split(",")[0]?.trim() ?? undefined
 
-/** A day's journeys, looking ahead a few days when the requested one has no service. */
+/**
+ * A day's journeys, looking ahead a few days when the requested one has no service.
+ *
+ * Whether those journeys are anywhere near the requested hour is for the caller to judge (`isDifferentHour`): the
+ * hour here is the cache-normalised one (`apiHourFor`), not the rider's.
+ */
 export async function searchRoutes(data: RoutesSearch, clientIp?: string): Promise<RoutesResult> {
   const requestedTime = naiveFromParts(data.date, data.hour)
 
@@ -84,14 +89,7 @@ export async function searchRoutes(data: RoutesSearch, clientIp?: string): Promi
 
     if (routes.length === 0) continue
 
-    let resultType: ResultType = "normal"
-    if (dayOffset > 0) {
-      resultType = "different-date"
-    } else {
-      const closest = routes[closestRouteIndex(routes, requestedTime)]
-      if (closest && Math.abs(minutesBetween(requestedTime, closest.departureTime)) >= 90) resultType = "different-hour"
-    }
-
+    const resultType: ResultType = dayOffset > 0 ? "different-date" : "normal"
     return { routes, resultType, resultDate: date, requestedDate: data.date, fetchedAt: Date.now() }
   }
 

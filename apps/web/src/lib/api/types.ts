@@ -107,7 +107,7 @@ export interface RouteItem {
   trains: Train[]
 }
 
-export type ResultType = "normal" | "different-date" | "different-hour" | "not-found"
+export type ResultType = "normal" | "different-date" | "not-found"
 
 export interface RoutesSearch {
   originId: string

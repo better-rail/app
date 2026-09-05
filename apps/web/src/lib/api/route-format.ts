@@ -123,6 +123,12 @@ export function closestRouteIndex(routes: RouteItem[], time: NaiveTime, by: "dep
   return best
 }
 
+/** Nothing departs within 90 minutes of `time`: the list is the day's timetable rather than the hour asked for. */
+export function isDifferentHour(routes: RouteItem[], time: NaiveTime): boolean {
+  const closest = routes[closestRouteIndex(routes, time)]
+  return closest !== undefined && Math.abs(minutesBetween(time, closest.departureTime)) >= 90
+}
+
 export function isRouteInThePast(route: RouteItem, now: NaiveTime): boolean {
   return route.arrivalTime + route.delay * MINUTE_MS < now
 }

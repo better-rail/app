@@ -9,7 +9,7 @@ import { StationImage } from "@/components/stations/station-image"
 import { getStationById, stationName, type Station } from "@/data/stations"
 import { useLocale, useT, resolveLocale, translate, localePath, type Locale } from "@/i18n"
 import { routesQueryOptions, ROUTES_REFETCH_INTERVAL_MS } from "@/lib/api/queries"
-import { summarizeRoutes, type RouteSummary } from "@/lib/api/route-format"
+import { summarizeRoutes, isDifferentHour, type RouteSummary } from "@/lib/api/route-format"
 import type { RouteItem, RoutesResult, RoutesSearch } from "@/lib/api/types"
 import { heroImagePath, routeSeoText, tripFacts, type TripFacts } from "@/lib/route-seo"
 import { requestOrigin } from "@/lib/request-origin"
@@ -247,6 +247,9 @@ function RoutesPage() {
   const query = useQuery({ ...routesQueryOptions(baseSearch), refetchInterval: ROUTES_REFETCH_INTERVAL_MS })
   const routes = query.data?.routes ?? []
   const resultType = query.data?.resultType ?? "normal"
+  // Judged here rather than on the server: the query is shared across hours (`routesQueryOptions` normalises it), so
+  // only the page knows the hour actually asked for.
+  const differentHour = resultType === "normal" && isDifferentHour(routes, naiveFromParts(data.date, data.hour))
 
   const [extraDays, setExtraDays] = useState(0)
   useEffect(() => setExtraDays(0), [data.date, origin.id, destination.id])
@@ -455,7 +458,7 @@ function RoutesPage() {
               text={t("routes.differentDate", { date: formatLongDate(naiveFromParts(query.data.resultDate, "00:00"), locale) })}
             />
           )}
-          {resultType === "different-hour" && <Notice text={t("routes.differentHour")} />}
+          {differentHour && <Notice text={t("routes.differentHour")} />}
 
           {query.isPending && (
             <div className="flex flex-col gap-3" aria-busy="true">
