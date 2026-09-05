@@ -42,6 +42,12 @@ export const he = {
   "plan.recentSearches": "חיפושים אחרונים",
   "plan.allStations": "כל התחנות",
 
+  "picker.done": "סיום",
+  "picker.prevMonth": "החודש הקודם",
+  "picker.nextMonth": "החודש הבא",
+  "picker.hours": "שעות",
+  "picker.minutes": "דקות",
+
   "routes.title": "{from} ← {to}",
   "routes.departure": "יציאה",
   "routes.arrival": "הגעה",

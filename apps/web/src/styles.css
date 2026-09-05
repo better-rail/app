@@ -142,23 +142,6 @@
     border-radius: 6px;
   }
 
-  input[type="date"],
-  input[type="time"] {
-    appearance: none;
-    -webkit-appearance: none;
-  }
-
-  input[type="date"]::-webkit-calendar-picker-indicator,
-  input[type="time"]::-webkit-calendar-picker-indicator {
-    opacity: 0.55;
-    cursor: pointer;
-  }
-
-  .dark input[type="date"]::-webkit-calendar-picker-indicator,
-  .dark input[type="time"]::-webkit-calendar-picker-indicator {
-    filter: invert(1);
-  }
-
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -291,8 +274,46 @@
     scrollbar-width: thin;
   }
 
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
   .text-balance {
     text-wrap: balance;
+  }
+
+  /* Picker popover: a quick settle from just above its resting place. */
+  .animate-pop {
+    animation: pop 0.22s var(--ease-out-expo) both;
+  }
+
+  /* Picker bottom sheet. */
+  .animate-sheet-up {
+    animation: sheet-up 0.38s var(--ease-out-expo) both;
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
   }
 }
 

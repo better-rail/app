@@ -45,6 +45,12 @@ export const en: Record<TranslationKey, string> = {
   "plan.recentSearches": "Recent searches",
   "plan.allStations": "All stations",
 
+  "picker.done": "Done",
+  "picker.prevMonth": "Previous month",
+  "picker.nextMonth": "Next month",
+  "picker.hours": "Hours",
+  "picker.minutes": "Minutes",
+
   "routes.title": "{from} → {to}",
   "routes.departure": "Departure",
   "routes.arrival": "Arrival",

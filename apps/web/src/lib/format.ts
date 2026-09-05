@@ -1,7 +1,7 @@
 import type { Locale } from "@/i18n"
 import { dateKey, isSameDay, naiveNow, addDays, parseNaive, type NaiveTime } from "./time"
 
-const intlLocale = (locale: Locale) => (locale === "he" ? "he-IL" : "en-GB")
+export const intlLocale = (locale: Locale) => (locale === "he" ? "he-IL" : "en-GB")
 
 /** "שעה ו-20 דק׳" / "1h 20m" style durations from a millisecond count. */
 export function formatDuration(durationMs: number, locale: Locale): string {
@@ -52,7 +52,7 @@ export function formatDayLabel(naive: NaiveTime, locale: Locale, now: NaiveTime 
 
 /**
  * The planner's date field: "היום" / "מחר", or a numeric `05/09/2026` that reads the same in both directions.
- * Both arguments are `YYYY-MM-DD` keys, matching the `<input type="date">` value.
+ * Both arguments are `YYYY-MM-DD` keys, the form the planner stores dates in.
  */
 export function formatDateField(date: string, locale: Locale, today: string): string {
   if (date === today) return locale === "he" ? "היום" : "Today"
