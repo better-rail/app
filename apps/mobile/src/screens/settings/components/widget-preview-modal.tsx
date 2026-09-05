@@ -1,19 +1,10 @@
 import React, { useEffect, useRef, useState } from "react"
-import {
-  Dimensions,
-  Image,
-  Modal,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  Platform,
-  Pressable,
-  ScrollView,
-  View,
-} from "react-native"
+import { Dimensions, Modal, NativeScrollEvent, NativeSyntheticEvent, Platform, Pressable, ScrollView, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
 import { TxKeyPath } from "@/i18n"
 import { WidgetFamily } from "@/utils/widget-helpers"
+import { WidgetPreviewCompact, WidgetPreviewWide } from "./widget-previews"
 
 const CARD_WIDTH = Math.min(Dimensions.get("window").width - 48, 340)
 
@@ -21,7 +12,7 @@ interface WidgetOption {
   family: WidgetFamily
   titleTx: TxKeyPath
   descTx: TxKeyPath
-  image: number
+  component: React.ComponentType
 }
 
 const WIDGETS: WidgetOption[] = [
@@ -29,13 +20,13 @@ const WIDGETS: WidgetOption[] = [
     family: "wide",
     titleTx: "settings.widgetSizeWide",
     descTx: "settings.widgetWideDesc",
-    image: require("../../../../assets/widget-preview-4x2.png"),
+    component: WidgetPreviewWide,
   },
   {
     family: "compact",
     titleTx: "settings.widgetSizeCompact",
     descTx: "settings.widgetCompactDesc",
-    image: require("../../../../assets/widget-preview-2x2.png"),
+    component: WidgetPreviewCompact,
   },
 ]
 
@@ -98,17 +89,20 @@ export function WidgetPreviewModal({ visible, onClose, onPin }: WidgetPreviewMod
               scrollEventThrottle={16}
               nestedScrollEnabled
             >
-              {WIDGETS.map((w) => (
-                <View key={w.family} style={styles.card}>
-                  <View style={styles.imageWrapper}>
-                    <Image source={w.image} style={styles.previewImage} resizeMode="contain" />
+              {WIDGETS.map((w) => {
+                const PreviewComponent = w.component
+                return (
+                  <View key={w.family} style={styles.card}>
+                    <View style={styles.imageWrapper}>
+                      <PreviewComponent />
+                    </View>
+                    <View style={styles.cardInfo}>
+                      <Text style={styles.cardTitle} tx={w.titleTx} />
+                      <Text style={styles.cardDesc} tx={w.descTx} />
+                    </View>
                   </View>
-                  <View style={styles.cardInfo}>
-                    <Text style={styles.cardTitle} tx={w.titleTx} />
-                    <Text style={styles.cardDesc} tx={w.descTx} />
-                  </View>
-                </View>
-              ))}
+                )
+              })}
             </ScrollView>
           </View>
 
@@ -178,10 +172,6 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: "center",
     alignItems: "center",
     marginBottom: theme.spacing[2],
-  },
-  previewImage: {
-    width: "100%",
-    height: "100%",
   },
   cardInfo: {
     alignItems: "center",
