@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Better Rail - בטר רייל בתקשורת</title>
+    <meta name="description" content="ריכוז הכתבות, הראיונות והאזכורים של אפליקציית בטר רייל באמצעי התקשורת." />
+    <link rel="canonical" href="https://better-rail.co.il/press/" />
+
+    <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/Heebo.woff2" crossorigin />
+    <link rel="preload" as="image" href="/assets/images/icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/style.css?v=bb189fcb" />
+
+    <meta property="og:title" content="Better Rail - בטר רייל בתקשורת" />
+    <meta property="og:description" content="ריכוז הכתבות, הראיונות והאזכורים של אפליקציית בטר רייל באמצעי התקשורת." />
+    <meta property="og:image" content="https://better-rail.co.il/assets/images/og-image.png" />
+    <meta property="og:url" content="https://better-rail.co.il/press/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Better Rail" />
+    <meta property="og:locale" content="he_IL" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Better Rail - בטר רייל בתקשורת" />
+    <meta name="twitter:description" content="ריכוז הכתבות, הראיונות והאזכורים של אפליקציית בטר רייל באמצעי התקשורת." />
+    <meta name="twitter:image" content="https://better-rail.co.il/assets/images/og-image.png" />
+    <meta name="twitter:site" content="@better_rail" />
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" href="/assets/favicon/favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="/assets/favicon/favicon-16x16.png" sizes="16x16" />
+    <meta name="theme-color" content="#0a81dd" />
+
+    <style>
+      @font-face {
+        font-family: "Heebo";
+        font-weight: 400;
+        font-display: fallback;
+        src: url("/assets/fonts/Heebo.woff2") format("woff2");
+      }
+
+      @font-face {
+        font-family: "Heebo";
+        font-weight: 700;
+        font-display: fallback;
+        src: url("/assets/fonts/Heebo.woff2") format("woff2");
+      }
+
+      .app-icon {
+        width: 95px;
+        height: 95px;
+        margin: 0 auto 10px;
+        box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.15);
+        background-color: #fff;
+        border-radius: 20px;
+        padding: 19px;
+        text-align: center;
+      }
+
+      .press-list {
+        list-style: none;
+        padding: 0;
+        margin: 22px 0 36px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .press-list li {
+        margin: 0;
+        padding: 0;
+      }
+
+      .press-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 14px 16px;
+        background: #fff;
+        border: 1px solid rgba(0, 0, 0, 0.07);
+        border-radius: 14px;
+        color: inherit;
+        text-decoration: none;
+        box-shadow:
+          0 1px 2px rgba(0, 0, 0, 0.03),
+          0 6px 18px rgba(0, 0, 0, 0.05);
+        transition:
+          box-shadow 0.15s ease-out 0s,
+          border-color 0.15s ease-out 0s;
+      }
+
+      .press-card:focus-visible {
+        outline: 3px solid rgba(10, 129, 221, 0.45);
+        outline-offset: 2px;
+      }
+
+      .press-card-icon {
+        flex: 0 0 auto;
+        width: 28px;
+        height: 28px;
+        margin-top: 4px;
+        object-fit: contain;
+        border-radius: 6px;
+      }
+
+      .press-card-body {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+      }
+
+      .press-card-title {
+        font-size: 17px;
+        font-weight: 700;
+        line-height: 1.45;
+        letter-spacing: -0.2px;
+        color: #1c1c1e;
+        transition: color 0.08s ease-out 0s;
+      }
+
+      .press-card-meta {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        color: #6e6e73;
+      }
+
+      .press-card-outlet {
+        font-weight: 500;
+        color: #3a3a3c;
+      }
+
+      @media (hover: hover) {
+        .press-card:hover {
+          transition-delay: 70ms;
+          border-color: rgba(10, 129, 221, 0.35);
+          box-shadow:
+            0 2px 4px rgba(0, 0, 0, 0.05),
+            0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .press-card:hover .press-card-title {
+          transition-delay: 70ms;
+          color: #0a81dd;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .press-card,
+        .press-card-title {
+          transition: none;
+        }
+      }
+    </style>
+    <script>
+      !(function (t, e) {
+        var o, n, p, r;
+        if (!e.__SV) {
+          window.posthog = e;
+          e._i = [];
+          e.init = function (i, s, a) {
+            function g(t, e) {
+              var o = e.split(".");
+              2 == o.length && ((t = t[o[0]]), (e = o[1]));
+              t[e] = function () {
+                t.push([e].concat(Array.prototype.slice.call(arguments, 0)));
+              };
+            }
+            var u = e;
+            "undefined" != typeof a ? (u = e[a] = []) : (a = "posthog");
+            u.people = u.people || [];
+            u.toString = function (t) {
+              var e = "posthog";
+              return ("posthog" !== a && (e += "." + a), t || (e += " (stub)"), e);
+            };
+            u.people.toString = function () {
+              return u.toString(1) + ".people (stub)";
+            };
+            n =
+              "capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags".split(
+                " ",
+              );
+            for (p = 0; p < n.length; p++) g(u, n[p]);
+            e._i.push([i, s, a]);
+          };
+          e.__SV = 1.2;
+          (o = t.createElement("script")).type = "text/javascript";
+          o.async = !0;
+          o.src = "https://eu-assets.i.posthog.com/static/array.js";
+          (r = t.getElementsByTagName("script")[0]).parentNode.insertBefore(o, r);
+        }
+      })(document, window.posthog || []);
+      posthog.init("phc_86hcnoNOI0EchduJZT2EWStBYa7bNEJKE1f5013nHyH", {
+        api_host: "https://eu.i.posthog.com",
+        disable_session_recording: true,
+        disable_surveys: true,
+        capture_performance: false,
+      });
+    </script>
+  </head>
+  <body class="site-wrapper site-page">
+    <header class="page-header" style="background-color: #f1f1f6">
+      <a href="/">
+        <div class="app-icon">
+          <img src="/assets/images/icon.svg" alt="Better Rail" width="50" height="60" class="app-icon-image" />
+        </div>
+      </a>
+    </header>
+
+    <main class="site-content">
+      <h2 class="site-page-content-title">בטר רייל בתקשורת</h2>
+      <ul class="press-list">
+        <li>
+          <a class="press-card" href="https://www.mako.co.il/nexter-news/Article-1f37abe77fb50a1027.htm" target="_blank" rel="noopener noreferrer">
+            <img class="press-card-icon" src="/assets/press/mako.avif" alt="" width="28" height="28" loading="lazy" decoding="async" />
+            <span class="press-card-body">
+              <span class="press-card-title">רכבת ישראל נגד בטר רייל: &quot;דורשים להסיר אותה מחנויות האפליקציות&quot;</span>
+              <span class="press-card-meta">
+                <span class="press-card-outlet">מאקו</span>
+                <span class="press-card-sep" aria-hidden="true">·</span>
+                <time datetime="2026-09-01">1 בספטמבר 2026</time>
+              </span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a class="press-card" href="https://www.themarker.com/news/transport/2026-09-02/ty-article/.premium/000001a0-6229-df5d-a9b9-622b46480000" target="_blank" rel="noopener noreferrer">
+            <img class="press-card-icon" src="/assets/press/themarker.avif" alt="" width="28" height="28" loading="lazy" decoding="async" />
+            <span class="press-card-body">
+              <span class="press-card-title">למה כולם מורידים את האפליקציה הזאת? כשהרכבת נלחמת במי שעוזר לנוסעים</span>
+              <span class="press-card-meta">
+                <span class="press-card-outlet">TheMarker</span>
+                <span class="press-card-sep" aria-hidden="true">·</span>
+                <time datetime="2026-09-02">2 בספטמבר 2026</time>
+              </span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a class="press-card" href="https://www.israelhayom.co.il/news/transportation/article/21328746" target="_blank" rel="noopener noreferrer">
+            <img class="press-card-icon" src="/assets/press/israelhayom.avif" alt="" width="28" height="28" loading="lazy" decoding="async" />
+            <span class="press-card-body">
+              <span class="press-card-title">בזמן שהנוסעים סובלים: מדוע רכבת ישראל מנסה לחסל אפליקציה חינמית?</span>
+              <span class="press-card-meta">
+                <span class="press-card-outlet">ישראל היום</span>
+                <span class="press-card-sep" aria-hidden="true">·</span>
+                <time datetime="2026-09-01">1 בספטמבר 2026</time>
+              </span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a class="press-card" href="https://www.calcalist.co.il/local_news/article/byhijch00mg" target="_blank" rel="noopener noreferrer">
+            <img class="press-card-icon" src="/assets/press/calcalist.avif" alt="" width="28" height="28" loading="lazy" decoding="async" />
+            <span class="press-card-body">
+              <span class="press-card-title">איום התביעה של רכבת ישראל הקפיץ את Better Rail לראש טבלת ההורדות באפסטור</span>
+              <span class="press-card-meta">
+                <span class="press-card-outlet">כלכליסט</span>
+                <span class="press-card-sep" aria-hidden="true">·</span>
+                <time datetime="2026-09-02">2 בספטמבר 2026</time>
+              </span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a class="press-card" href="https://www.calcalist.co.il/local_news/article/hktxe7euml" target="_blank" rel="noopener noreferrer">
+            <img class="press-card-icon" src="/assets/press/calcalist.avif" alt="" width="28" height="28" loading="lazy" decoding="async" />
+            <span class="press-card-body">
+              <span class="press-card-title">הרכבת מאיימת לתבוע אפליקציית תחב&quot;צ: &quot;גרמה לעומסים ותקלות&quot;</span>
+              <span class="press-card-meta">
+                <span class="press-card-outlet">כלכליסט</span>
+                <span class="press-card-sep" aria-hidden="true">·</span>
+                <time datetime="2026-09-01">1 בספטמבר 2026</time>
+              </span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a class="press-card" href="https://www.globes.co.il/news/article.aspx?did=1001554297" target="_blank" rel="noopener noreferrer">
+            <img class="press-card-icon" src="/assets/press/globes.avif" alt="" width="28" height="28" loading="lazy" decoding="async" />
+            <span class="press-card-body">
+              <span class="press-card-title">רכבת ישראל דרשה להסיר את האפליקציה. אלפים נהרו אליה</span>
+              <span class="press-card-meta">
+                <span class="press-card-outlet">גלובס</span>
+                <span class="press-card-sep" aria-hidden="true">·</span>
+                <time datetime="2026-09-02">2 בספטמבר 2026</time>
+              </span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a class="press-card" href="https://cars.walla.co.il/item/3864932" target="_blank" rel="noopener noreferrer">
+            <img class="press-card-icon" src="/assets/press/walla.svg" alt="" width="28" height="28" loading="lazy" decoding="async" />
+            <span class="press-card-body">
+              <span class="press-card-title">ברכבת ישראל שכחו שהציבור משלם להם משכורת</span>
+              <span class="press-card-meta">
+                <span class="press-card-outlet">וואלה</span>
+                <span class="press-card-sep" aria-hidden="true">·</span>
+                <time datetime="2026-09-02">2 בספטמבר 2026</time>
+              </span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a class="press-card" href="https://www.inn.co.il/news/705332" target="_blank" rel="noopener noreferrer">
+            <img class="press-card-icon" src="/assets/press/inn.avif" alt="" width="28" height="28" loading="lazy" decoding="async" />
+            <span class="press-card-body">
+              <span class="press-card-title">העימות מחריף: Better Rail מסרבת להסיר את האפליקציה ודוחה את דרישות הרכבת</span>
+              <span class="press-card-meta">
+                <span class="press-card-outlet">ערוץ 7</span>
+                <span class="press-card-sep" aria-hidden="true">·</span>
+                <time datetime="2026-09-01">1 בספטמבר 2026</time>
+              </span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a class="press-card" href="https://www.kikar.co.il/laws/tkor48" target="_blank" rel="noopener noreferrer">
+            <img class="press-card-icon" src="/assets/press/kikar.avif" alt="" width="28" height="28" loading="lazy" decoding="async" />
+            <span class="press-card-body">
+              <span class="press-card-title">רכבת ישראל מאיימת בתביעה נגד אפליקציית זמני הרכבות</span>
+              <span class="press-card-meta">
+                <span class="press-card-outlet">כיכר השבת</span>
+                <span class="press-card-sep" aria-hidden="true">·</span>
+                <time datetime="2026-09-01">1 בספטמבר 2026</time>
+              </span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a class="press-card" href="https://www.geektime.co.il/israel-railways-better-rail-strikes-back-10k/" target="_blank" rel="noopener noreferrer">
+            <img class="press-card-icon" src="/assets/press/geektime.avif" alt="" width="28" height="28" loading="lazy" decoding="async" />
+            <span class="press-card-body">
+              <span class="press-card-title">אחרי האיום של הרכבת: עשרת אלפים משתמשים חדשים באפליקציית Better Rail</span>
+              <span class="press-card-meta">
+                <span class="press-card-outlet">גיקטיים</span>
+                <span class="press-card-sep" aria-hidden="true">·</span>
+                <time datetime="2026-09-03">3 בספטמבר 2026</time>
+              </span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a class="press-card" href="https://www.geektime.co.il/israel-railways-vs-better-rail/" target="_blank" rel="noopener noreferrer">
+            <img class="press-card-icon" src="/assets/press/geektime.avif" alt="" width="28" height="28" loading="lazy" decoding="async" />
+            <span class="press-card-body">
+              <span class="press-card-title">רכבת ישראל מאיימת בתביעה על אפליקציה בקוד פתוח שניסתה לעזור לנוסעים</span>
+              <span class="press-card-meta">
+                <span class="press-card-outlet">גיקטיים</span>
+                <span class="press-card-sep" aria-hidden="true">·</span>
+                <time datetime="2026-09-01">1 בספטמבר 2026</time>
+              </span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a class="press-card" href="https://www.kipa.co.il/%D7%97%D7%93%D7%A9%D7%95%D7%AA/1230831-0/" target="_blank" rel="noopener noreferrer">
+            <img class="press-card-icon" src="/assets/press/kipa.avif" alt="" width="28" height="28" loading="lazy" decoding="async" />
+            <span class="press-card-body">
+              <span class="press-card-title">רכבת ישראל איימה, המפתחים עקצו: &quot;בזכותכם הגענו למקום הראשון&quot;</span>
+              <span class="press-card-meta">
+                <span class="press-card-outlet">כיפה</span>
+                <span class="press-card-sep" aria-hidden="true">·</span>
+                <time datetime="2026-09-02">2 בספטמבר 2026</time>
+              </span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a class="press-card" href="https://www.kipa.co.il/%D7%97%D7%93%D7%A9%D7%95%D7%AA/1230758-0/" target="_blank" rel="noopener noreferrer">
+            <img class="press-card-icon" src="/assets/press/kipa.avif" alt="" width="28" height="28" loading="lazy" decoding="async" />
+            <span class="press-card-body">
+              <span class="press-card-title">רכבת ישראל נגד אפליקציית התחבורה הפופולרית: &quot;גרמה לנזק של מאות אלפים&quot;</span>
+              <span class="press-card-meta">
+                <span class="press-card-outlet">כיפה</span>
+                <span class="press-card-sep" aria-hidden="true">·</span>
+                <time datetime="2026-09-01">1 בספטמבר 2026</time>
+              </span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a class="press-card" href="https://www.ice.co.il/law/news/article/1128093" target="_blank" rel="noopener noreferrer">
+            <img class="press-card-icon" src="/assets/press/ice.avif" alt="" width="28" height="28" loading="lazy" decoding="async" />
+            <span class="press-card-body">
+              <span class="press-card-title">רכבת ישראל מאיימת בתביעה: האפליקציה הפופולרית קיבלה מכתב אזהרה</span>
+              <span class="press-card-meta">
+                <span class="press-card-outlet">ICE</span>
+                <span class="press-card-sep" aria-hidden="true">·</span>
+                <time datetime="2026-09-01">1 בספטמבר 2026</time>
+              </span>
+            </span>
+          </a>
+        </li>
+      </ul>
+    </main>
+
+    <hr />
+
+    <footer>
+      <div class="footer-social-links">
+        <a href="https://github.com/better-rail/app" target="_blank" rel="noopener noreferrer"
+          ><img src="/assets/icons/github.svg" width="35" height="35" alt="Github" loading="lazy" decoding="async"
+        /></a>
+        <a href="https://www.x.com/better_rail" target="_blank" rel="noopener noreferrer"
+          ><img
+            src="/assets/icons/twitter.svg"
+            width="35"
+            height="35"
+            alt="Twitter"
+            style="margin-right: 10px"
+            loading="lazy"
+            decoding="async"
+        /></a>
+      </div>
+
+      <div class="footer-links">
+        <a class="footer-links-item underline-hovered-link" href="/about">אודות</a>
+        <a class="footer-links-item underline-hovered-link" href="/press">בתקשורת</a>
+        <a class="footer-links-item underline-hovered-link" href="/image-attributions">קרדיט צילומים</a>
+        <a class="footer-links-item underline-hovered-link" href="/privacy-policy">מדיניות פרטיות</a>
+        <a class="footer-links-item underline-hovered-link" href="/terms">תקנון</a>
+        <a class="footer-links-item underline-hovered-link" href="/contact">יצירת קשר</a>
+      </div>
+    </footer>
+  </body>
+</html>

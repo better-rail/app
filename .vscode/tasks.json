@@ -3,14 +3,14 @@
   "tasks": [
     {
       "type": "shell",
-      "command": "yarn run ios --simulator=\"iPhone 16 Pro\"",
+      "command": "bun run mobile:ios",
       "problemMatcher": [],
       "label": "Run iOS",
       "detail": "Serves the app with iOS"
     },
     {
       "type": "shell",
-      "command": "yarn run android",
+      "command": "bun run mobile:android",
       "problemMatcher": [],
       "label": "Run Android",
       "detail": "Serves the app with Android"

@@ -1,0 +1,36 @@
+      <svg width="86" height="104" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient x1="50%" y1="103.1%" x2="50%" y2="34.3%" id="a">
+            <stop stop-color="#C9C9C9" offset="0%" />
+            <stop stop-color="#B3B3B3" offset="100%" />
+          </linearGradient>
+          <linearGradient x1="50%" y1="101.1%" x2="50%" y2="34.5%" id="b">
+            <stop stop-color="#C9C9C9" offset="0%" />
+            <stop stop-color="#B3B3B3" offset="100%" />
+          </linearGradient>
+          <linearGradient x1="40.8%" y1=".1%" x2="59.4%" y2="105.7%" id="c">
+            <stop stop-color="#2AA4F4" offset="0%" />
+            <stop stop-color="#007AD9" offset="100%" />
+          </linearGradient>
+          <linearGradient x1="45.6%" y1="-1.5%" x2="54.4%" y2="101.8%" id="d">
+            <stop stop-color="#0D61A9" offset="0%" />
+            <stop stop-color="#16528C" offset="100%" />
+          </linearGradient>
+          <linearGradient x1="46.5%" y1="8.5%" x2="55.3%" y2="111.8%" id="e">
+            <stop stop-color="#0D61A9" offset="0%" />
+            <stop stop-color="#16528C" offset="100%" />
+          </linearGradient>
+        </defs>
+        <g fill-rule="nonzero" fill="none">
+          <path fill="url(#a)" d="M74 87h-8l6 17h8z" />
+          <path fill="url(#b)" d="M6 104h8l6-17h-8z" />
+          <path
+            d="M43 0C28 0 17 2 10 5 4 6 0 12 0 18v57c0 8 6 14 14 14h58c8 0 14-6 14-14V18c0-6-4-12-10-13-7-3-18-5-33-5z"
+            fill="url(#c)"
+          />
+          <path d="M72 49H52c-3 0-6-3-6-6V23c0-3 3-6 6-6h20c3 0 6 3 6 6v20c0 3-3 6-6 6z" fill="url(#d)" />
+          <path d="M34 49H14c-3 0-6-3-6-6V23c0-3 3-6 6-6h20c3 0 6 3 6 6v20c0 3-3 6-6 6z" fill="url(#e)" />
+          <circle fill="#FFF" cx="67" cy="74" r="7" />
+          <circle fill="#FFF" cx="18" cy="74" r="7" />
+        </g>
+      </svg>
