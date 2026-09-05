@@ -34,6 +34,8 @@ import { formatDayLabel, formatDurationLong, formatLongDate, formatNumber } from
 const MAX_EXTRA_DAYS = 7
 /** Where the toolbar pins, in pixels — matches its `top-18` class. */
 const TOOLBAR_TOP = 72
+/** Room left between the pinned toolbar and a card scrolled up under it — the "next train" badge sits above the card. */
+const CARD_GAP = 16
 import { pageHead, jsonLd, breadcrumbJsonLd, cacheHeaders, absoluteUrl, originUrl } from "@/lib/seo"
 import { cn } from "@/lib/cn"
 import { searchString } from "@/lib/search"
@@ -295,6 +297,45 @@ function RoutesPage() {
     const { top, bottom } = card.getBoundingClientRect()
     if (returning || top < 0 || bottom > window.innerHeight) card.scrollIntoView({ block: "center", behavior: "instant" })
   }, [search.trip, search.day, selectedDayQuery?.data])
+
+  // The API returns the whole day, so a search for tomorrow at 16:00 would otherwise open on the first train of the
+  // morning. Once the day's cards are in, the one leaving closest to the requested time is brought up under the
+  // toolbar, as the app opens its list — unless it is already on screen, which the next train is for a search for
+  // "now". A trip in the link is what the reader was sent to look at, so on arrival that scroll wins instead.
+  // Measured a frame later, like the details panel: on a cold load the toolbar may still be re-laying out for the
+  // viewport.
+  const scrolledToTime = useRef<string>(undefined)
+  useEffect(() => {
+    const list = listRef.current
+    if (!list || !query.data) return
+    const key = `${origin.id}-${destination.id}@${data.date}T${data.hour}`
+    if (scrolledToTime.current === key) return
+    const arriving = scrolledToTime.current === undefined
+    scrolledToTime.current = key
+    if (arriving && search.trip) return
+
+    const requested = naiveFromParts(data.date, data.hour)
+    requestAnimationFrame(() => {
+      // Below `lg` the list is hidden while a trip's details are open — nothing to scroll to.
+      if (!list.isConnected || list.offsetParent === null) return
+      let card: HTMLElement | undefined
+      let closest = Infinity
+      for (const candidate of Array.from(list.querySelectorAll<HTMLElement>("ol:not([data-day]) [data-route-id]"))) {
+        const distance = Math.abs(Number(candidate.dataset.departure) - requested)
+        if (distance < closest) {
+          card = candidate
+          closest = distance
+        }
+      }
+      if (!card) return
+      const toolbar = toolbarRef.current?.getBoundingClientRect()
+      const { top, bottom } = card.getBoundingClientRect()
+      if (top >= (toolbar?.bottom ?? 0) && bottom <= window.innerHeight) return
+      const offset = TOOLBAR_TOP + (toolbar?.height ?? 0) + CARD_GAP
+      // A jump when the page is new; otherwise the page's own smooth scrolling (which reduced motion turns off).
+      window.scrollTo({ top: window.scrollY + top - offset, behavior: arriving ? "instant" : "auto" })
+    })
+  }, [query.data, data.date, data.hour, origin.id, destination.id, search.trip])
 
   return (
     <div ref={pageRef} className="flex flex-1 flex-col">
