@@ -144,7 +144,7 @@ export function StationPicker({ label, value, onChange, exclude, variant = "card
         aria-expanded={open}
         aria-controls={open ? popoverId : undefined}
         className={cn(
-          "flex h-14 w-full items-center gap-3 rounded-xl border border-line bg-surface px-3.5 text-start shadow-[inset_0_1px_0_rgb(255_255_255/0.5)] transition-colors hover:border-line-strong focus-visible:border-brand focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-brand/20",
+          "flex h-14 w-full items-center gap-3 rounded-xl border border-line bg-surface px-3.5 text-start shadow-[inset_0_1px_0_rgb(255_255_255/0.5)] dark:shadow-none transition-colors hover:border-line-strong focus-visible:border-brand focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-brand/20",
           open && "border-brand ring-3 ring-brand/20",
         )}
       >

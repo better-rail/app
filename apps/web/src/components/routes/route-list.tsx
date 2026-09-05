@@ -1,9 +1,6 @@
-import { useState } from "react"
-import { History } from "lucide-react"
 import type { RouteItem } from "@/lib/api/types"
 import { isRouteInThePast } from "@/lib/api/route-format"
 import type { NaiveTime } from "@/lib/time"
-import { useT } from "@/i18n"
 import { RouteCard } from "./route-card"
 
 export function RouteList({
@@ -24,46 +21,22 @@ export function RouteList({
   /** Set on the appended days — see `RouteCard` */
   day?: string
 }) {
-  const t = useT()
-  const [showPast, setShowPast] = useState(false)
   const visible = hideSlowTrains ? routes.filter((route) => !route.isMuchLonger || route.id === selectedId) : routes
-  const pastCount = visible.filter((route) => isRouteInThePast(route, now)).length
-  const collapsePast =
-    pastCount > 0 &&
-    pastCount < visible.length &&
-    !showPast &&
-    !visible.some((r) => r.id === selectedId && isRouteInThePast(r, now))
 
   return (
     <ol data-day={day} className="flex flex-col gap-3">
-      {collapsePast && (
-        <li>
-          <button
-            type="button"
-            onClick={() => setShowPast(true)}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-line-strong py-2.5 text-[14px] font-medium text-muted transition-colors hover:bg-surface-3 hover:text-text"
-          >
-            <History className="size-4" />
-            {t("routes.showPast")} ({pastCount})
-          </button>
+      {visible.map((route) => (
+        <li key={route.id}>
+          <RouteCard
+            route={route}
+            from={from}
+            to={to}
+            selected={route.id === selectedId}
+            isPast={isRouteInThePast(route, now)}
+            day={day}
+          />
         </li>
-      )}
-      {visible.map((route) => {
-        const isPast = isRouteInThePast(route, now)
-        if (collapsePast && isPast) return null
-        return (
-          <li key={route.id}>
-            <RouteCard
-              route={route}
-              from={from}
-              to={to}
-              selected={route.id === selectedId}
-              isPast={isPast}
-              day={day}
-            />
-          </li>
-        )
-      })}
+      ))}
     </ol>
   )
 }

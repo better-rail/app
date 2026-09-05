@@ -78,7 +78,6 @@ export const he = {
   "routes.unfavorite": "הסרה מהמועדפים",
   "routes.showingFor": "רכבות ל{date}",
   "routes.pastRoutes": "רכבות שכבר יצאו",
-  "routes.showPast": "הצגת רכבות שכבר יצאו",
   "routes.hidePast": "הסתרת רכבות שכבר יצאו",
   "routes.today": "היום",
   "routes.back": "חזרה לרשימה",

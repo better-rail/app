@@ -82,7 +82,6 @@ export const en: Record<TranslationKey, string> = {
   "routes.unfavorite": "Remove from favorites",
   "routes.showingFor": "Trains for {date}",
   "routes.pastRoutes": "Departed trains",
-  "routes.showPast": "Show departed trains",
   "routes.hidePast": "Hide departed trains",
   "routes.today": "Today",
   "routes.back": "Back to list",
