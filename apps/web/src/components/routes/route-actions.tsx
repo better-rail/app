@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { CalendarPlus, Share2 } from "lucide-react"
 import type { RouteItem } from "@/lib/api/types"
 import { stationNameById } from "@/data/stations"
@@ -9,6 +9,14 @@ import { downloadIcs, googleCalendarUrl, type CalendarEvent } from "@/lib/calend
 import { trackEvent } from "@/lib/analytics"
 import { cn } from "@/lib/cn"
 import { Tooltip } from "../tooltip"
+
+/** The box the menu must stay inside: the nearest ancestor that clips its overflow (the details card), else the viewport. */
+function clipBox(element: HTMLElement): { left: number; right: number } {
+  for (let node = element.parentElement; node && node !== document.body; node = node.parentElement) {
+    if (getComputedStyle(node).overflowX !== "visible") return node.getBoundingClientRect()
+  }
+  return { left: 0, right: window.innerWidth }
+}
 
 export function RouteActions({
   route,
@@ -25,7 +33,24 @@ export function RouteActions({
   const locale = useLocale()
   const [copied, setCopied] = useState(false)
   const [calendarOpen, setCalendarOpen] = useState(false)
+  /** Anchored at the button's end edge, growing towards the start — right when the actions sit at the end of the row. */
+  const [alignEnd, setAlignEnd] = useState(true)
   const menuRef = useRef<HTMLDivElement>(null)
+  const menuPanel = useRef<HTMLDivElement>(null)
+
+  // The header wraps on narrow screens, which puts the actions at the start of their own row; from there a menu growing
+  // towards the start runs out of the card and gets clipped. Measured on open, before paint.
+  useLayoutEffect(() => {
+    const anchor = menuRef.current
+    const menu = menuPanel.current
+    if (!calendarOpen || !anchor || !menu) return
+    const rtl = getComputedStyle(menu).direction === "rtl"
+    const bounds = clipBox(anchor)
+    const rect = anchor.getBoundingClientRect()
+    const width = menu.offsetWidth
+    const margin = 8
+    setAlignEnd(rtl ? rect.left + width <= bounds.right - margin : rect.right - width >= bounds.left + margin)
+  }, [calendarOpen])
 
   useEffect(() => {
     if (!calendarOpen) return
@@ -101,8 +126,12 @@ export function RouteActions({
         </Tooltip>
         {calendarOpen && (
           <div
+            ref={menuPanel}
             role="menu"
-            className="animate-fade-up absolute end-0 top-full z-20 mt-1 min-w-[200px] overflow-hidden rounded-xl border border-line bg-surface p-1 shadow-pop"
+            className={cn(
+              "animate-fade-up absolute top-full z-20 mt-1 min-w-[200px] overflow-hidden rounded-xl border border-line bg-surface p-1 shadow-pop",
+              alignEnd ? "end-0" : "start-0",
+            )}
           >
             <a
               role="menuitem"
