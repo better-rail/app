@@ -129,10 +129,14 @@ export const he = {
   "footer.twitter": "X (טוויטר)",
 
   "seo.homeTitle": "Better Rail - זמני רכבת ישראל",
-  "seo.routesTitle": "רכבת מ{from} ל{to} - לוח זמנים | Better Rail",
-  "seo.routesDescription":
-    "זמני הרכבות מ{from} ל{to}: {count} רכבות ביום, משך נסיעה {duration}, רכבת ראשונה ב-{first} ואחרונה ב-{last}. החלפות, רציפים ועיכובים בזמן אמת.",
-  "seo.routesDescriptionEmpty": "לוח זמנים של רכבת ישראל מ{from} ל{to}: זמני יציאה והגעה, החלפות, רציפים ועיכובים בזמן אמת.",
+  "seo.routesTitle": "{from} ← {to} | Better Rail",
+  "seo.routesBlurb": "זמני יציאה והגעה, החלפות, רציפים ועיכובים בזמן אמת.",
+  "seo.routesDuration": "{duration} נסיעה",
+  "seo.routesOn": "רכבות ב{date}",
+  "seo.routesOnFrom": "רכבות ב{date} מ-{time}",
+  "seo.tripTrain": "רכבת {numbers}",
+  "seo.tripTimes": "{departure} ← {arrival}",
+  "seo.heroTagline": "זמני רכבת, רציפים ועיכובים בזמן אמת",
 
   "error.notFound": "העמוד לא נמצא",
   "error.notFoundText": "הקישור שהגעתם דרכו אינו קיים. אפשר לחזור לדף הבית ולתכנן מסלול חדש.",

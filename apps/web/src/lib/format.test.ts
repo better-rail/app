@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import { formatDuration, formatDurationLong, formatDayLabel, formatDateField } from "./format"
+import { formatDuration, formatDurationLong, formatDayLabel, formatDayDate, formatDateField } from "./format"
 import { parseNaive } from "./time"
 
 const MIN = 60_000
@@ -38,5 +38,13 @@ describe("formatDateField", () => {
     expect(formatDateField("2026-09-06", "en", "2026-09-05")).toBe("Tomorrow")
     expect(formatDateField("2026-09-07", "he", "2026-09-05")).toBe("07/09/2026")
     expect(formatDateField("2027-01-01", "en", "2026-12-31")).toBe("Tomorrow")
+  })
+})
+
+describe("formatDayDate", () => {
+  test("weekday and date, no year, no 'today'", () => {
+    const now = parseNaive("2026-09-05T20:56:00")
+    expect(formatDayDate(now, "he")).toBe("יום שבת, 5 בספטמבר")
+    expect(formatDayDate(now, "en")).toBe("Saturday 5 September")
   })
 })

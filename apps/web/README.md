@@ -13,6 +13,11 @@ The better-rail.co.il website and the web version of the Better Rail timetable, 
 - **SEO** — per-page titles/descriptions, canonical + hreflang, Open Graph/Twitter cards, JSON-LD
   (`BreadcrumbList`, `FAQPage`, `TrainTrip` lists, `TrainStation`), a sitemap index at `/sitemap.xml` covering every
   ordered station pair (~4.7k route pages × 2 languages), and CDN cache headers per route.
+- **Link previews** — a route page's Open Graph image is rendered on demand at `/og/routes/<from>/<to>.jpg`: the origin
+  station's photo captioned with the route, or with the departure/arrival times of the journey a shared link selects
+  (`?trip=`). `src/lib/og/hero.ts` lays the picture out as SVG; `src/lib/og/render.ts` rasterises it on the Worker with
+  resvg (WebAssembly) and jpeg-js, reading the photo through the assets binding. The page's title/description follow
+  the same rule (`src/lib/route-seo.ts`).
 
 Better Rail Live, notifications, widgets and the tip jar are intentionally not part of the web app.
 

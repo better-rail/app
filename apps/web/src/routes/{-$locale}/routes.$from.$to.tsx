@@ -1,16 +1,18 @@
 import { createFileRoute, notFound, useRouterState } from "@tanstack/react-router"
-import { useQueries, useQuery, type UseQueryResult } from "@tanstack/react-query"
+import { useQueries, useQuery, type QueryClient, type UseQueryResult } from "@tanstack/react-query"
 import { useEffect, useRef, useState } from "react"
 import { ArrowLeft, ArrowRight, CalendarDays, ChevronDown, Loader2, Star, TrainFront } from "lucide-react"
 import { Planner } from "@/components/planner/planner"
 import { RouteList } from "@/components/routes/route-list"
 import { RouteDetails } from "@/components/routes/route-details"
 import { StationImage } from "@/components/stations/station-image"
-import { getStationById, stationName, stationOgImage, type Station } from "@/data/stations"
+import { getStationById, stationName, type Station } from "@/data/stations"
 import { useLocale, useT, resolveLocale, translate, localePath, type Locale } from "@/i18n"
 import { routesQueryOptions, ROUTES_REFETCH_INTERVAL_MS } from "@/lib/api/queries"
 import { summarizeRoutes, type RouteSummary } from "@/lib/api/route-format"
-import type { RoutesResult } from "@/lib/api/types"
+import type { RouteItem, RoutesResult, RoutesSearch } from "@/lib/api/types"
+import { heroImagePath, routeSeoText, tripFacts, type TripFacts } from "@/lib/route-seo"
+import { requestOrigin } from "@/lib/request-origin"
 import { useHideSlowTrains, useIsFavorite } from "@/hooks/use-stored"
 import { useNow } from "@/hooks/use-now"
 import { useFillToFold } from "@/hooks/use-fill-to-fold"
@@ -28,7 +30,7 @@ import {
   toIsoWithOffset,
   type NaiveTime,
 } from "@/lib/time"
-import { formatDayLabel, formatDurationLong, formatLongDate, formatNumber } from "@/lib/format"
+import { formatDayLabel, formatLongDate } from "@/lib/format"
 
 /** Guards a bogus `day` param from spawning an unbounded number of queries. */
 const MAX_EXTRA_DAYS = 7
@@ -36,7 +38,7 @@ const MAX_EXTRA_DAYS = 7
 const TOOLBAR_TOP = 72
 /** Room left between the pinned toolbar and a card scrolled up under it. */
 const CARD_GAP = 16
-import { pageHead, jsonLd, breadcrumbJsonLd, cacheHeaders, absoluteUrl, originUrl } from "@/lib/seo"
+import { pageHead, jsonLd, breadcrumbJsonLd, cacheHeaders, absoluteUrl, originUrl, SITE_URL } from "@/lib/seo"
 import { cn } from "@/lib/cn"
 import { searchString } from "@/lib/search"
 import { recentRoutes, routePlan } from "@/lib/storage"
@@ -70,7 +72,7 @@ export const Route = createFileRoute("/{-$locale}/routes/$from/$to")({
       day: day && isValidDateKey(day) ? day : undefined,
     }
   },
-  loaderDeps: ({ search }) => ({ date: search.date, time: search.time }),
+  loaderDeps: ({ search }) => ({ date: search.date, time: search.time, trip: search.trip, day: search.day }),
   beforeLoad: ({ params }) => {
     const origin = getStationById(params.from)
     const destination = getStationById(params.to)
@@ -91,12 +93,16 @@ export const Route = createFileRoute("/{-$locale}/routes/$from/$to")({
     }
 
     const routes = result?.routes ?? []
+    const resultDate = result?.resultDate ?? date
     return {
       date,
       hour,
       now,
       summary: summarizeRoutes(routes),
-      resultDate: result?.resultDate ?? date,
+      resultDate,
+      selected: deps.trip ? await selectedTrip(context.queryClient, search, routes, resultDate, deps.trip, deps.day) : null,
+      requested: { date: deps.date, time: deps.time },
+      siteOrigin: requestOrigin(),
       trips: routes.slice(0, 40).map<JsonLdTrip>((route) => ({
         departureTime: toIsoWithOffset(route.departureTime),
         arrivalTime: toIsoWithOffset(route.arrivalTime),
@@ -111,46 +117,84 @@ export const Route = createFileRoute("/{-$locale}/routes/$from/$to")({
     const origin = context.origin ?? getStationById(params.from)
     const destination = context.destination ?? getStationById(params.to)
     if (!origin || !destination) return {}
-    return routesHead({ locale, origin, destination, summary: loaderData?.summary ?? null, trips: loaderData?.trips ?? [] })
+    return routesHead({ locale, origin, destination, data: loaderData })
   },
   headers: () => cacheHeaders(60, 600),
   component: RoutesPage,
 })
 
+interface RoutesHeadData {
+  summary: RouteSummary | null
+  trips: JsonLdTrip[]
+  selected: TripFacts | null
+  requested: { date?: string; time?: string }
+  siteOrigin: string
+}
+
+/**
+ * The journey a link points at, found in the day it was picked from: the first day shown, or — with `day` — one of
+ * the days appended below it, whose timetable is fetched here so the server renders that day too.
+ */
+async function selectedTrip(
+  queryClient: QueryClient,
+  search: RoutesSearch,
+  routes: RouteItem[],
+  resultDate: string,
+  tripId: string,
+  day: string | undefined,
+): Promise<TripFacts | null> {
+  let candidates = routes
+  let date = resultDate
+  if (day) {
+    const offset = daysBetween(parseNaive(resultDate), parseNaive(day))
+    if (offset < 1 || offset > MAX_EXTRA_DAYS) return null
+    date = day
+    try {
+      candidates = (await queryClient.ensureQueryData(routesQueryOptions({ ...search, date: day, hour: "12:00" }))).routes
+    } catch {
+      return null
+    }
+  }
+  const route = candidates.find((candidate) => candidate.id === tripId)
+  return route ? tripFacts(route, date) : null
+}
+
+/**
+ * Title, description and hero image for the link: about the journey when the link selects one, about the route
+ * otherwise. The image is rendered on demand by `/og/routes/…` on the host serving the page, so a preview deploy's
+ * links preview with its own build.
+ */
 function routesHead({
   locale,
   origin,
   destination,
-  summary,
-  trips,
+  data,
 }: {
   locale: Locale
   origin: Station
   destination: Station
-  summary: RouteSummary | null
-  trips: JsonLdTrip[]
+  data: RoutesHeadData | undefined
 }) {
   const from = stationName(origin, locale)
   const to = stationName(destination, locale)
   const path = `/routes/${origin.id}/${destination.id}`
-  const description = summary
-    ? translate(locale, "seo.routesDescription", {
-        from,
-        to,
-        count: formatNumber(summary.count, locale),
-        duration: formatDurationLong(summary.medianDurationMs, locale),
-        first: formatClock(summary.firstDeparture),
-        last: formatClock(summary.lastDeparture),
-      })
-    : translate(locale, "seo.routesDescriptionEmpty", { from, to })
+  const trips = data?.trips ?? []
+  const { title, description } = routeSeoText({
+    locale,
+    origin,
+    destination,
+    trip: data?.selected,
+    summary: data?.summary,
+    requested: data?.requested,
+  })
 
   const { meta, links } = pageHead({
     locale,
     path,
-    title: translate(locale, "seo.routesTitle", { from, to }),
+    title,
     description,
-    image: stationOgImage(origin),
-    imageAlt: translate(locale, "stations.stationTitle", { station: from }),
+    image: `${data?.siteOrigin ?? SITE_URL}${heroImagePath(origin, destination, locale, data?.selected)}`,
+    imageAlt: translate(locale, "routes.title", { from, to }),
   })
 
   const structured: object[] = [

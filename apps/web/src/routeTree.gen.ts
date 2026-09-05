@@ -23,6 +23,7 @@ import { Route as SitemapsPagesRouteImport } from './routes/sitemaps/pages'
 import { Route as Char123LocaleChar125IndexRouteImport } from './routes/{-$locale}/index'
 import { Route as Char123LocaleChar125PrivacyPolicyRouteImport } from './routes/{-$locale}/privacy-policy'
 import { Route as SitemapsRoutesPageRouteImport } from './routes/sitemaps/routes.$page'
+import { Route as OgRoutesFromChar123toChar125DotjpgRouteImport } from './routes/og/routes.$from.{$to}[.]jpg'
 import { Route as Char123LocaleChar125RoutesFromToRouteImport } from './routes/{-$locale}/routes.$from.$to'
 
 const SiteRoute = SiteRouteImport.update({
@@ -98,6 +99,12 @@ const SitemapsRoutesPageRoute = SitemapsRoutesPageRouteImport.update({
   path: '/sitemaps/routes/$page',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OgRoutesFromChar123toChar125DotjpgRoute =
+  OgRoutesFromChar123toChar125DotjpgRouteImport.update({
+    id: '/og/routes/$from/{$to}.jpg',
+    path: '/og/routes/$from/{$to}.jpg',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const Char123LocaleChar125RoutesFromToRoute =
   Char123LocaleChar125RoutesFromToRouteImport.update({
     id: '/routes/$from/$to',
@@ -120,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/{-$locale}/privacy-policy': typeof Char123LocaleChar125PrivacyPolicyRoute
   '/{-$locale}/': typeof Char123LocaleChar125IndexRoute
   '/sitemaps/routes/$page': typeof SitemapsRoutesPageRoute
+  '/og/routes/$from/{$to}.jpg': typeof OgRoutesFromChar123toChar125DotjpgRoute
   '/{-$locale}/routes/$from/$to': typeof Char123LocaleChar125RoutesFromToRoute
 }
 export interface FileRoutesByTo {
@@ -136,6 +144,7 @@ export interface FileRoutesByTo {
   '/{-$locale}/privacy-policy': typeof Char123LocaleChar125PrivacyPolicyRoute
   '/{-$locale}': typeof Char123LocaleChar125IndexRoute
   '/sitemaps/routes/$page': typeof SitemapsRoutesPageRoute
+  '/og/routes/$from/{$to}.jpg': typeof OgRoutesFromChar123toChar125DotjpgRoute
   '/{-$locale}/routes/$from/$to': typeof Char123LocaleChar125RoutesFromToRoute
 }
 export interface FileRoutesById {
@@ -154,6 +163,7 @@ export interface FileRoutesById {
   '/{-$locale}/privacy-policy': typeof Char123LocaleChar125PrivacyPolicyRoute
   '/{-$locale}/': typeof Char123LocaleChar125IndexRoute
   '/sitemaps/routes/$page': typeof SitemapsRoutesPageRoute
+  '/og/routes/$from/{$to}.jpg': typeof OgRoutesFromChar123toChar125DotjpgRoute
   '/{-$locale}/routes/$from/$to': typeof Char123LocaleChar125RoutesFromToRoute
 }
 export interface FileRouteTypes {
@@ -173,6 +183,7 @@ export interface FileRouteTypes {
     | '/{-$locale}/privacy-policy'
     | '/{-$locale}/'
     | '/sitemaps/routes/$page'
+    | '/og/routes/$from/{$to}.jpg'
     | '/{-$locale}/routes/$from/$to'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -189,6 +200,7 @@ export interface FileRouteTypes {
     | '/{-$locale}/privacy-policy'
     | '/{-$locale}'
     | '/sitemaps/routes/$page'
+    | '/og/routes/$from/{$to}.jpg'
     | '/{-$locale}/routes/$from/$to'
   id:
     | '__root__'
@@ -206,6 +218,7 @@ export interface FileRouteTypes {
     | '/{-$locale}/privacy-policy'
     | '/{-$locale}/'
     | '/sitemaps/routes/$page'
+    | '/og/routes/$from/{$to}.jpg'
     | '/{-$locale}/routes/$from/$to'
   fileRoutesById: FileRoutesById
 }
@@ -215,6 +228,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SitemapsPagesRoute: typeof SitemapsPagesRoute
   SitemapsRoutesPageRoute: typeof SitemapsRoutesPageRoute
+  OgRoutesFromChar123toChar125DotjpgRoute: typeof OgRoutesFromChar123toChar125DotjpgRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -317,6 +331,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapsRoutesPageRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/og/routes/$from/{$to}.jpg': {
+      id: '/og/routes/$from/{$to}.jpg'
+      path: '/og/routes/$from/{$to}.jpg'
+      fullPath: '/og/routes/$from/{$to}.jpg'
+      preLoaderRoute: typeof OgRoutesFromChar123toChar125DotjpgRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/{-$locale}/routes/$from/$to': {
       id: '/{-$locale}/routes/$from/$to'
       path: '/routes/$from/$to'
@@ -375,6 +396,8 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SitemapsPagesRoute: SitemapsPagesRoute,
   SitemapsRoutesPageRoute: SitemapsRoutesPageRoute,
+  OgRoutesFromChar123toChar125DotjpgRoute:
+    OgRoutesFromChar123toChar125DotjpgRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

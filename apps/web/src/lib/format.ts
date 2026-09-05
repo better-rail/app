@@ -51,6 +51,16 @@ export function formatDayLabel(naive: NaiveTime, locale: Locale, now: NaiveTime 
 }
 
 /**
+ * "יום שני, 7 בספטמבר" / "Monday, 7 September" — the day a shared journey runs on: no year, and no relative "today"
+ * that would go stale in a link preview.
+ */
+export function formatDayDate(naive: NaiveTime, locale: Locale): string {
+  return new Intl.DateTimeFormat(intlLocale(locale), { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }).format(
+    new Date(naive),
+  )
+}
+
+/**
  * The planner's date field: "היום" / "מחר", or a numeric `05/09/2026` that reads the same in both directions.
  * Both arguments are `YYYY-MM-DD` keys, the form the planner stores dates in.
  */

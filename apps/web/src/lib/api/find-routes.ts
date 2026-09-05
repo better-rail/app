@@ -69,29 +69,35 @@ export function apiHourFor(hour: string): string {
   return hour < "04:00" ? hour : "12:00"
 }
 
-export const findRoutes = createServerFn({ method: "POST" })
-  .validator(validateSearch)
-  .handler(async ({ data }): Promise<RoutesResult> => {
-    const clientIp = getRequestHeader("cf-connecting-ip") ?? getRequestHeader("x-forwarded-for")?.split(",")[0]?.trim()
-    const requestedTime = naiveFromParts(data.date, data.hour)
+/** The rider's address, forwarded so the timetable API sees who is asking rather than the Worker. */
+export const clientIpFrom = (header: (name: string) => string | null | undefined): string | undefined =>
+  header("cf-connecting-ip") ?? header("x-forwarded-for")?.split(",")[0]?.trim() ?? undefined
 
-    for (let dayOffset = 0; dayOffset <= LOOKAHEAD_DAYS; dayOffset++) {
-      const date = dateKey(addDays(requestedTime, dayOffset))
-      const hour = dayOffset === 0 ? apiHourFor(data.hour) : "04:00"
-      const routes = await searchDay(data, date, hour, clientIp)
+/** A day's journeys, looking ahead a few days when the requested one has no service. */
+export async function searchRoutes(data: RoutesSearch, clientIp?: string): Promise<RoutesResult> {
+  const requestedTime = naiveFromParts(data.date, data.hour)
 
-      if (routes.length === 0) continue
+  for (let dayOffset = 0; dayOffset <= LOOKAHEAD_DAYS; dayOffset++) {
+    const date = dateKey(addDays(requestedTime, dayOffset))
+    const hour = dayOffset === 0 ? apiHourFor(data.hour) : "04:00"
+    const routes = await searchDay(data, date, hour, clientIp)
 
-      let resultType: ResultType = "normal"
-      if (dayOffset > 0) {
-        resultType = "different-date"
-      } else {
-        const closest = routes[closestRouteIndex(routes, requestedTime)]
-        if (closest && Math.abs(minutesBetween(requestedTime, closest.departureTime)) >= 90) resultType = "different-hour"
-      }
+    if (routes.length === 0) continue
 
-      return { routes, resultType, resultDate: date, requestedDate: data.date, fetchedAt: Date.now() }
+    let resultType: ResultType = "normal"
+    if (dayOffset > 0) {
+      resultType = "different-date"
+    } else {
+      const closest = routes[closestRouteIndex(routes, requestedTime)]
+      if (closest && Math.abs(minutesBetween(requestedTime, closest.departureTime)) >= 90) resultType = "different-hour"
     }
 
-    return { routes: [], resultType: "not-found", resultDate: data.date, requestedDate: data.date, fetchedAt: Date.now() }
-  })
+    return { routes, resultType, resultDate: date, requestedDate: data.date, fetchedAt: Date.now() }
+  }
+
+  return { routes: [], resultType: "not-found", resultDate: data.date, requestedDate: data.date, fetchedAt: Date.now() }
+}
+
+export const findRoutes = createServerFn({ method: "POST" })
+  .validator(validateSearch)
+  .handler(({ data }) => searchRoutes(data, clientIpFrom(getRequestHeader)))

@@ -15,11 +15,13 @@
   },
   "dependencies": {
     "@better-rail/stations": "workspace:*",
+    "@resvg/resvg-wasm": "2.6.2",
     "@tanstack/react-query": "^5.102.8",
     "@tanstack/react-router": "^1.170.32",
     "@tanstack/react-router-ssr-query": "^1.167.2",
     "@tanstack/react-start": "^1.168.49",
     "fuse.js": "^7.5.0",
+    "jpeg-js": "0.4.4",
     "lucide-react": "^1.0.0",
     "react": "19.2.3",
     "react-dom": "19.2.3"

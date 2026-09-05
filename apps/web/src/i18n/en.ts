@@ -133,11 +133,14 @@ export const en: Record<TranslationKey, string> = {
   "footer.twitter": "X (Twitter)",
 
   "seo.homeTitle": "Better Rail - Israel Railways timetables",
-  "seo.routesTitle": "{from} to {to} train times | Better Rail",
-  "seo.routesDescription":
-    "Train times from {from} to {to}: {count} trains a day, {duration} journey, first train at {first} and last at {last}. Changes, platforms and live delays.",
-  "seo.routesDescriptionEmpty":
-    "Israel Railways timetable from {from} to {to}: departure and arrival times, changes, platforms and live delays.",
+  "seo.routesTitle": "{from} → {to} | Better Rail",
+  "seo.routesBlurb": "Departure and arrival times, changes, platforms and live delays.",
+  "seo.routesDuration": "About {duration} by train",
+  "seo.routesOn": "Trains on {date}",
+  "seo.routesOnFrom": "Trains on {date} from {time}",
+  "seo.tripTrain": "Train {numbers}",
+  "seo.tripTimes": "{departure} → {arrival}",
+  "seo.heroTagline": "Train times, platforms and live delays",
 
   "error.notFound": "Page not found",
   "error.notFoundText": "The link you followed doesn't exist. Head back home and plan a new trip.",
