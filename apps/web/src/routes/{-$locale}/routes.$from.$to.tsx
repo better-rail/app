@@ -34,7 +34,7 @@ import { formatDayLabel, formatDurationLong, formatLongDate, formatNumber } from
 const MAX_EXTRA_DAYS = 7
 /** Where the toolbar pins, in pixels — matches its `top-18` class. */
 const TOOLBAR_TOP = 72
-/** Room left between the pinned toolbar and a card scrolled up under it — the "next train" badge sits above the card. */
+/** Room left between the pinned toolbar and a card scrolled up under it. */
 const CARD_GAP = 16
 import { pageHead, jsonLd, breadcrumbJsonLd, cacheHeaders, absoluteUrl, originUrl } from "@/lib/seo"
 import { cn } from "@/lib/cn"

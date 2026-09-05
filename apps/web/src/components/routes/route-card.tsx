@@ -13,7 +13,6 @@ export function RouteCard({
   to,
   selected,
   isPast,
-  isNext,
   day,
 }: {
   route: RouteItem
@@ -21,8 +20,6 @@ export function RouteCard({
   to: string
   selected: boolean
   isPast: boolean
-  /** The first train that has not departed yet */
-  isNext: boolean
   /** Service day of this card, set on the appended days so the link says which day's trip it selects */
   day?: string
 }) {
@@ -50,12 +47,6 @@ export function RouteCard({
         route.isCancelled && "border-danger/40",
       )}
     >
-      {isNext && !isPast && (
-        <span className="absolute -top-2.5 start-4 rounded-full bg-brand px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white shadow-sm">
-          {t("routes.nextTrain")}
-        </span>
-      )}
-
       <div className="flex items-center gap-3">
         <TimeColumn
           label={t("routes.departure")}

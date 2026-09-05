@@ -123,12 +123,6 @@ export function closestRouteIndex(routes: RouteItem[], time: NaiveTime, by: "dep
   return best
 }
 
-/** First route departing at or after `time` (falls back to the last route). */
-export function nextRouteIndex(routes: RouteItem[], time: NaiveTime): number {
-  const index = routes.findIndex((route) => route.departureTime + route.delay * MINUTE_MS >= time)
-  return index === -1 ? routes.length - 1 : index
-}
-
 export function isRouteInThePast(route: RouteItem, now: NaiveTime): boolean {
   return route.arrivalTime + route.delay * MINUTE_MS < now
 }

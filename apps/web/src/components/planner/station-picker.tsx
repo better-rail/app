@@ -1,4 +1,5 @@
-import { useEffect, useId, useRef, useState } from "react"
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react"
+import { flushSync } from "react-dom"
 import { Search, X, ChevronDown, TrainFront, Clock } from "lucide-react"
 import { stationName, getStationById, type Station } from "@/data/stations"
 import { useLocale, useT } from "@/i18n"
@@ -6,6 +7,7 @@ import { cn } from "@/lib/cn"
 import { useIsDesktop } from "@/hooks/use-media-query"
 import { useRecentRoutes } from "@/hooks/use-stored"
 import { useStationSearch } from "./use-station-search"
+import { PickerPopover, type PickerCloseReason } from "./picker-popover"
 import { StationImage } from "../stations/station-image"
 import { StationPhotoCard } from "../stations/station-card"
 
@@ -15,26 +17,32 @@ export interface StationPickerProps {
   onChange: (station: Station) => void
   /** The station selected in the other field — shown dimmed so it can't be picked twice */
   exclude?: Station
-  /** `card` mimics the app's photo cards; `field` is the compact desktop input */
+  /** `card` mimics the app's photo cards; `field` is the compact input of the results toolbar */
   variant?: "card" | "field"
   autoFocus?: boolean
   className?: string
   kind: "origin" | "destination"
 }
 
+/**
+ * A station field with a searchable list attached. The list lives in the same shell as the date and time pickers: a
+ * panel under the field on desktop, a sheet running most of the screen on phones. Recent picks come first.
+ */
 export function StationPicker({ label, value, onChange, exclude, variant = "card", className, kind }: StationPickerProps) {
   const t = useT()
   const locale = useLocale()
   const isDesktop = useIsDesktop()
+  const popoverId = useId()
+  const listboxId = useId()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState("")
   const [activeIndex, setActiveIndex] = useState(0)
   const { results } = useStationSearch(query)
   const recent = useRecentRoutes()
-  const inputRef = useRef<HTMLInputElement>(null)
-  const listRef = useRef<HTMLUListElement>(null)
-  const rootRef = useRef<HTMLDivElement>(null)
-  const listboxId = useId()
+  const anchor = useRef<HTMLDivElement>(null)
+  const trigger = useRef<HTMLButtonElement>(null)
+  const input = useRef<HTMLInputElement>(null)
+  const list = useRef<HTMLUListElement>(null)
 
   const recentStations = (() => {
     const ids = recent.map((route) => (kind === "origin" ? route.originId : route.destinationId))
@@ -46,44 +54,40 @@ export function StationPicker({ label, value, onChange, exclude, variant = "card
 
   const showRecent = query.trim() === "" && recentStations.length > 0
 
+  // A new query starts the list over: first match highlighted, scrolled back to the top (as the app does).
   useEffect(() => {
-    if (!open) return
-    setQuery("")
     setActiveIndex(0)
-    const frame = requestAnimationFrame(() => inputRef.current?.focus())
-    return () => cancelAnimationFrame(frame)
-  }, [open])
+    list.current?.scrollTo({ top: 0 })
+  }, [query])
 
   useEffect(() => {
-    if (!open) return
-    const onPointerDown = (event: PointerEvent) => {
-      if (rootRef.current && !rootRef.current.contains(event.target as Node)) setOpen(false)
-    }
-    const onKey = (event: KeyboardEvent) => event.key === "Escape" && setOpen(false)
-    document.addEventListener("pointerdown", onPointerDown)
-    document.addEventListener("keydown", onKey)
-    if (!isDesktop) document.body.style.overflow = "hidden"
-    return () => {
-      document.removeEventListener("pointerdown", onPointerDown)
-      document.removeEventListener("keydown", onKey)
-      document.body.style.overflow = ""
-    }
-  }, [open, isDesktop])
-
-  useEffect(() => setActiveIndex(0), [query])
-
-  useEffect(() => {
-    const active = listRef.current?.querySelector<HTMLElement>('[data-active="true"]')
-    active?.scrollIntoView({ block: "nearest" })
+    list.current?.querySelector<HTMLElement>('[data-active="true"]')?.scrollIntoView({ block: "nearest" })
   }, [activeIndex])
+
+  /**
+   * Mounts the picker within the tap itself and puts the caret in the search field there and then: iOS only raises
+   * its keyboard for a focus made inside a user gesture, so the field can't wait for an effect to focus it.
+   */
+  const openPicker = () => {
+    flushSync(() => {
+      setQuery("")
+      setOpen(true)
+    })
+    input.current?.focus({ preventScroll: true })
+  }
+
+  const close = (reason: PickerCloseReason) => {
+    setOpen(false)
+    if (reason !== "dismiss") trigger.current?.focus({ preventScroll: true })
+  }
 
   const select = (station: Station) => {
     if (station.id === exclude?.id) return
     onChange(station)
-    setOpen(false)
+    close("select")
   }
 
-  const onKeyDown = (event: React.KeyboardEvent) => {
+  const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "ArrowDown") {
       event.preventDefault()
       setActiveIndex((index) => Math.min(index + 1, results.length - 1))
@@ -99,13 +103,15 @@ export function StationPicker({ label, value, onChange, exclude, variant = "card
 
   const name = value ? stationName(value, locale) : undefined
 
-  const trigger =
+  const triggerButton =
     variant === "card" ? (
       <button
+        ref={trigger}
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={openPicker}
         aria-haspopup="dialog"
         aria-expanded={open}
+        aria-controls={open ? popoverId : undefined}
         className="group block w-full text-start transition-transform duration-200 ease-out-expo active:scale-[0.98]"
       >
         <span className="mb-1.5 block text-[13px] font-semibold uppercase tracking-wide text-muted">{label}</span>
@@ -120,12 +126,14 @@ export function StationPicker({ label, value, onChange, exclude, variant = "card
       </button>
     ) : (
       <button
+        ref={trigger}
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={openPicker}
         aria-haspopup="dialog"
         aria-expanded={open}
+        aria-controls={open ? popoverId : undefined}
         className={cn(
-          "flex h-14 w-full items-center gap-3 rounded-xl border border-line bg-surface px-3.5 text-start shadow-[inset_0_1px_0_rgb(255_255_255/0.5)] transition-colors hover:border-line-strong",
+          "flex h-14 w-full items-center gap-3 rounded-xl border border-line bg-surface px-3.5 text-start shadow-[inset_0_1px_0_rgb(255_255_255/0.5)] transition-colors hover:border-line-strong focus-visible:border-brand focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-brand/20",
           open && "border-brand ring-3 ring-brand/20",
         )}
       >
@@ -139,113 +147,117 @@ export function StationPicker({ label, value, onChange, exclude, variant = "card
             {name ?? t("plan.selectStation")}
           </span>
         </span>
-        <ChevronDown className="size-4 shrink-0 text-dim" />
+        <ChevronDown
+          className={cn("size-4 shrink-0 text-dim transition-transform duration-200 ease-out-expo", open && "rotate-180")}
+        />
       </button>
     )
 
-  const list = (
-    <>
-      <div className="flex items-center gap-2 border-b border-line px-3 py-2.5">
-        <Search className="size-[18px] shrink-0 text-dim" />
-        <input
-          ref={inputRef}
-          type="search"
-          role="combobox"
-          aria-controls={listboxId}
-          aria-expanded="true"
-          aria-autocomplete="list"
-          aria-activedescendant={results[activeIndex] ? `${listboxId}-${results[activeIndex].id}` : undefined}
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          onKeyDown={onKeyDown}
-          placeholder={t("plan.searchPlaceholder")}
-          autoComplete="off"
-          autoCorrect="off"
-          spellCheck={false}
-          enterKeyHint="done"
-          className="min-w-0 flex-1 bg-transparent text-[16px] outline-none placeholder:text-dim"
-        />
-        {query && (
-          <button type="button" onClick={() => setQuery("")} className="icon-btn size-8" aria-label={t("nav.close")}>
-            <X className="size-4" />
-          </button>
-        )}
-      </div>
+  return (
+    <div ref={anchor} className={cn("relative min-w-0", open && "z-50", className)}>
+      {triggerButton}
 
-      <ul
-        ref={listRef}
-        id={listboxId}
-        role="listbox"
-        aria-label={label}
-        className="scrollbar-thin max-h-[min(60vh,480px)] flex-1 overflow-y-auto p-1.5 lg:max-h-[420px]"
+      <PickerPopover
+        id={popoverId}
+        open={open}
+        onClose={close}
+        label={label}
+        anchorRef={anchor}
+        size="tall"
+        panelClassName="flex w-full min-w-[340px] flex-col overflow-hidden"
       >
-        {showRecent && (
-          <li role="presentation" className="px-2.5 pb-1 pt-2 text-[12px] font-semibold uppercase tracking-wide text-dim">
-            {t("plan.recentSearches")}
-          </li>
-        )}
-        {showRecent &&
-          recentStations.map((station) => (
+        <div className={cn("shrink-0", isDesktop ? "p-2 pb-1.5" : "px-4 pb-2 pt-1")}>
+          <div className="flex h-11 items-center gap-2.5 rounded-xl bg-surface-3 px-3 transition-shadow focus-within:ring-3 focus-within:ring-brand/25">
+            <Search className="size-[18px] shrink-0 text-dim" aria-hidden="true" />
+            <input
+              ref={input}
+              type="search"
+              role="combobox"
+              aria-controls={listboxId}
+              aria-expanded="true"
+              aria-autocomplete="list"
+              aria-activedescendant={results[activeIndex] ? `${listboxId}-${results[activeIndex].id}` : undefined}
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              onKeyDown={onKeyDown}
+              placeholder={t("plan.searchPlaceholder")}
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck={false}
+              enterKeyHint="done"
+              className="min-w-0 flex-1 bg-transparent text-[16px] outline-none placeholder:text-dim [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery("")
+                  input.current?.focus()
+                }}
+                className="-me-1.5 flex size-8 shrink-0 items-center justify-center rounded-full text-dim transition-colors hover:text-text"
+                aria-label={t("plan.clearSearch")}
+              >
+                <span className="flex size-[18px] items-center justify-center rounded-full bg-current">
+                  <X className="size-3 text-surface-3" strokeWidth={3} />
+                </span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        <ul
+          ref={list}
+          id={listboxId}
+          role="listbox"
+          aria-label={label}
+          // Dragging the list puts the keyboard away, so the whole sheet is there to browse.
+          onTouchMove={() => document.activeElement === input.current && input.current?.blur()}
+          className={cn(
+            "scrollbar-thin min-h-0 flex-1 overflow-y-auto overscroll-contain",
+            isDesktop ? "max-h-[420px] p-1.5" : "px-2.5 pb-2",
+          )}
+        >
+          {showRecent && <ListHeading>{t("plan.recentSearches")}</ListHeading>}
+          {showRecent &&
+            recentStations.map((station) => (
+              <StationOption
+                key={`recent-${station.id}`}
+                station={station}
+                name={stationName(station, locale)}
+                active={false}
+                disabled={station.id === exclude?.id}
+                onSelect={select}
+                id={`${listboxId}-recent-${station.id}`}
+                icon={<Clock className="size-4 text-dim" />}
+              />
+            ))}
+          {showRecent && <ListHeading>{t("plan.allStations")}</ListHeading>}
+          {results.map((station, index) => (
             <StationOption
-              key={`recent-${station.id}`}
+              key={station.id}
               station={station}
               name={stationName(station, locale)}
-              active={false}
+              // The keyboard highlight is a desktop affordance; on a phone it would read as a selection.
+              active={isDesktop && index === activeIndex}
+              selected={station.id === value?.id}
               disabled={station.id === exclude?.id}
               onSelect={select}
-              id={`${listboxId}-recent-${station.id}`}
-              icon={<Clock className="size-4 text-dim" />}
+              onHover={() => setActiveIndex(index)}
+              id={`${listboxId}-${station.id}`}
             />
           ))}
-        {showRecent && (
-          <li role="presentation" className="px-2.5 pb-1 pt-3 text-[12px] font-semibold uppercase tracking-wide text-dim">
-            {t("plan.allStations")}
-          </li>
-        )}
-        {results.map((station, index) => (
-          <StationOption
-            key={station.id}
-            station={station}
-            name={stationName(station, locale)}
-            active={index === activeIndex}
-            selected={station.id === value?.id}
-            disabled={station.id === exclude?.id}
-            onSelect={select}
-            onHover={() => setActiveIndex(index)}
-            id={`${listboxId}-${station.id}`}
-          />
-        ))}
-        {results.length === 0 && <li className="px-3 py-8 text-center text-muted">{t("plan.noResults")}</li>}
-      </ul>
-    </>
-  )
-
-  return (
-    <div ref={rootRef} className={cn("relative", open && "z-50", className)}>
-      {trigger}
-
-      {open && isDesktop && (
-        <div
-          role="dialog"
-          aria-label={label}
-          className="animate-fade-up absolute inset-x-0 top-full z-50 mt-2 flex min-w-[320px] flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-pop"
-        >
-          {list}
-        </div>
-      )}
-
-      {open && !isDesktop && (
-        <div role="dialog" aria-modal="true" aria-label={label} className="fixed inset-0 z-50 flex flex-col bg-bg">
-          <div className="flex items-center gap-2 border-b border-line bg-surface px-3 pb-2 pt-[max(env(safe-area-inset-top),12px)]">
-            <span className="flex-1 truncate ps-1 text-[17px] font-bold">{label}</span>
-            <button type="button" onClick={() => setOpen(false)} className="btn-ghost h-9 px-3 text-[15px]">
-              {t("nav.close")}
-            </button>
-          </div>
-          <div className="flex min-h-0 flex-1 flex-col bg-surface">{list}</div>
-        </div>
-      )}
+          {results.length === 0 && <li className="px-3 py-8 text-center text-muted">{t("plan.noResults")}</li>}
+        </ul>
+      </PickerPopover>
     </div>
+  )
+}
+
+function ListHeading({ children }: { children: ReactNode }) {
+  return (
+    <li role="presentation" className="px-2.5 pb-1 pt-3 text-[12px] font-semibold uppercase tracking-wide text-dim first:pt-2">
+      {children}
+    </li>
   )
 }
 
@@ -268,7 +280,7 @@ function StationOption({
   onSelect: (station: Station) => void
   onHover?: () => void
   id: string
-  icon?: React.ReactNode
+  icon?: ReactNode
 }) {
   return (
     <li
@@ -280,9 +292,9 @@ function StationOption({
       onMouseMove={onHover}
       onClick={() => !disabled && onSelect(station)}
       className={cn(
-        "flex cursor-pointer items-center gap-3 rounded-xl px-2.5 py-2 transition-colors",
+        "flex cursor-pointer items-center gap-3 rounded-xl px-2.5 py-2.5 transition-colors lg:py-2",
         active && "bg-brand-soft",
-        !active && "hover:bg-surface-3",
+        !active && "hover:bg-surface-3 active:bg-surface-3",
         disabled && "cursor-not-allowed opacity-40",
       )}
     >

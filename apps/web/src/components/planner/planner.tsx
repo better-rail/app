@@ -94,7 +94,8 @@ export function Planner({
   if (variant === "bar") {
     return (
       <div className={cn("flex flex-col gap-2 lg:flex-row lg:items-center", className)}>
-        <div className="grid flex-1 grid-cols-[1fr_auto_1fr] items-center gap-2">
+        {/* Phones stack the two fields with the swap button beside them; from `sm` they sit either side of it. */}
+        <div className="grid flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
           <StationPicker
             kind="origin"
             variant="field"
@@ -103,7 +104,12 @@ export function Planner({
             exclude={value.destination}
             onChange={(origin) => update({ origin })}
           />
-          <SwapButton onClick={swap} disabled={!value.origin || !value.destination} horizontal className="size-10" />
+          <SwapButton
+            onClick={swap}
+            disabled={!value.origin || !value.destination}
+            responsive="sm"
+            className="row-span-2 size-10 sm:row-span-1"
+          />
           <StationPicker
             kind="destination"
             variant="field"
@@ -113,14 +119,18 @@ export function Planner({
             onChange={(destination) => update({ destination })}
           />
         </div>
-        <DateTimePicker
-          compact
-          today={today}
-          now={now}
-          value={value}
-          onChange={(dateTime) => update(dateTime)}
-          className="lg:w-auto"
-        />
+        {/* Phones get the stations only — the toolbar pins over the list, and two more fields cost too much of the
+            screen. The day is set from the home planner there, and the list's heading names it. */}
+        <div className="hidden sm:block">
+          <DateTimePicker
+            compact
+            today={today}
+            now={now}
+            value={value}
+            onChange={(dateTime) => update(dateTime)}
+            className="lg:w-auto"
+          />
+        </div>
       </div>
     )
   }
@@ -145,7 +155,7 @@ export function Planner({
           />
         </div>
         <div className="absolute end-4 top-1/2 z-10 -translate-y-1/2 lg:static lg:mb-[90px] lg:translate-y-0">
-          <SwapButton onClick={swap} disabled={!value.origin || !value.destination} responsive />
+          <SwapButton onClick={swap} disabled={!value.origin || !value.destination} responsive="lg" />
         </div>
         <div className={cn("transition-transform duration-300 ease-out-expo", swapping && "scale-[0.97]")}>
           <StationPicker

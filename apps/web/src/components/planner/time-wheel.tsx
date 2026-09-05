@@ -20,6 +20,9 @@ export function snapClock(clock: string): string {
  * An hours + minutes drum, the way the app's native picker rolls. Each column is a scroll-snap list — native momentum
  * on touch, the mouse wheel or arrow keys on desktop, a click to jump — with one highlight band behind the centre row.
  * `value` must sit on the minute step (see `snapClock`). Always laid out LTR: "12:30" reads that way in Hebrew too.
+ *
+ * The rows fade out towards the edges with two gradient overlays rather than a `mask-image` on the scroller: WebKit
+ * gives up compositor (async) scrolling for a masked scroll container, which is what made the wheel stutter on iPhones.
  */
 export function TimeWheel({
   value,
@@ -96,6 +99,8 @@ function WheelColumn({
   const mounted = useRef(false)
   /** Where a scroll we started ourselves is heading; its scroll events are not the user's and commit nothing. */
   const programmatic = useRef<number | null>(null)
+  /** A finger is on the column. Nothing is committed until it lifts — a commit re-renders and re-scrolls the wheel. */
+  const pressed = useRef(false)
   const index = Math.max(0, options.indexOf(value))
   const indexRef = useRef(index)
   indexRef.current = index
@@ -160,11 +165,21 @@ function WheelColumn({
     programmatic.current = null
   }
 
+  const nearestRow = (el: HTMLElement) => Math.min(options.length - 1, Math.max(0, Math.round(el.scrollTop / ROW)))
+
+  /** Commits the row under the band once the scroll (and its snap) has come to rest with no finger on the column. */
+  const settleSoon = () => {
+    clearTimeout(settle.current)
+    settle.current = setTimeout(() => {
+      const el = scroller.current
+      if (el && !pressed.current) select(nearestRow(el))
+    }, 150)
+  }
+
   const onScroll = () => {
     const el = scroller.current
     if (!el) return
-    const nearest = Math.min(options.length - 1, Math.max(0, Math.round(el.scrollTop / ROW)))
-    setCentered(nearest)
+    setCentered(nearestRow(el))
     clearTimeout(settle.current)
     if (programmatic.current !== null) {
       if (Math.abs(el.scrollTop - programmatic.current) < 1) {
@@ -175,8 +190,20 @@ function WheelColumn({
       }
       return
     }
-    // Commit once the user's scroll (and its snap) has come to rest.
-    settle.current = setTimeout(() => select(nearest), 120)
+    if (!pressed.current) settleSoon()
+  }
+
+  // Touch events rather than pointer events: a pointer is cancelled the moment the browser turns it into a scroll,
+  // while touches keep reporting until the finger lifts.
+  const onTouchStart = () => {
+    pressed.current = true
+    takeOver()
+  }
+
+  /** Lifted between rows, iOS snaps (more scroll events, so the timer restarts); lifted on one, nothing more comes. */
+  const onTouchEnd = () => {
+    pressed.current = false
+    if (programmatic.current === null) settleSoon()
   }
 
   const onKeyDown = (event: KeyboardEvent) => {
@@ -210,9 +237,11 @@ function WheelColumn({
         onScroll={onScroll}
         onWheel={takeOver}
         onPointerDown={takeOver}
-        onTouchStart={takeOver}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+        onTouchCancel={onTouchEnd}
         onKeyDown={onKeyDown}
-        className="scrollbar-none w-[76px] snap-y snap-mandatory overflow-y-auto overscroll-contain outline-none [mask-image:linear-gradient(to_bottom,transparent,black_30%,black_70%,transparent)]"
+        className="scrollbar-none w-[76px] touch-pan-y snap-y snap-mandatory overflow-y-auto overscroll-contain outline-none"
         style={{ height: rows * ROW }}
       >
         <div style={{ paddingBlock: inset }}>
@@ -233,6 +262,14 @@ function WheelColumn({
           ))}
         </div>
       </div>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[30%] bg-linear-to-b from-surface to-transparent"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[30%] bg-linear-to-t from-surface to-transparent"
+      />
     </div>
   )
 }

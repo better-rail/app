@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import { belongsToRequestedDay, formatTravels, nextRouteIndex, summarizeRoutes, isRouteInThePast } from "./route-format"
+import { belongsToRequestedDay, formatTravels, summarizeRoutes, isRouteInThePast } from "./route-format"
 import { parseNaive } from "@/lib/time"
 import type { ApiTravel } from "./types"
 
@@ -107,10 +107,9 @@ describe("helpers", () => {
     "2026-09-05",
   )
 
-  test("nextRouteIndex picks the first train that has not left", () => {
-    expect(nextRouteIndex(routes, parseNaive("2026-09-05T08:30:00"))).toBe(1)
-    expect(nextRouteIndex(routes, parseNaive("2026-09-05T12:00:00"))).toBe(2)
+  test("isRouteInThePast counts a route that has arrived", () => {
     expect(isRouteInThePast(routes[0], parseNaive("2026-09-05T08:41:00"))).toBe(true)
+    expect(isRouteInThePast(routes[0], parseNaive("2026-09-05T08:30:00"))).toBe(false)
   })
 
   test("summarizeRoutes", () => {

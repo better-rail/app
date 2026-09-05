@@ -41,36 +41,32 @@ export function DateTimePicker({
   const t = useT()
   const isNow = !value.date && !value.time
   const fieldClass = cn(
-    "flex w-full items-center gap-2 rounded-xl border border-line bg-surface px-3 text-start text-[15px] font-medium transition-colors hover:border-line-strong",
+    "flex w-full items-center gap-1.5 rounded-xl border border-line bg-surface px-2.5 text-start text-[15px] font-medium transition-colors hover:border-line-strong sm:gap-2 sm:px-3",
     compact ? "h-11" : "h-14",
   )
 
   return (
-    <div className={cn("flex flex-wrap items-stretch gap-2", className)}>
-      <DateField
-        value={value.date}
-        today={today}
-        onChange={(date) => onChange({ ...value, date })}
-        fieldClass={fieldClass}
-        className="min-w-[150px] flex-1"
-      />
-      <TimeField
-        value={value.time}
-        now={now}
-        onChange={(time) => onChange({ ...value, time })}
-        fieldClass={fieldClass}
-        className="min-w-[120px] flex-1"
-      />
+    <div
+      className={cn(
+        // One row at every width: the fields share the space (the date gets more of a phone's, "31/12/2026" being the
+        // longest label) and "Now" shrinks to its icon there.
+        "grid grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_auto] gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]",
+        compact && "lg:grid-cols-[168px_128px_auto]",
+        className,
+      )}
+    >
+      <DateField value={value.date} today={today} onChange={(date) => onChange({ ...value, date })} fieldClass={fieldClass} />
+      <TimeField value={value.time} now={now} onChange={(time) => onChange({ ...value, time })} fieldClass={fieldClass} />
       <button
         type="button"
         onClick={() => onChange({ date: undefined, time: undefined })}
         disabled={isNow}
-        className={cn("btn-secondary shrink-0 gap-1.5 px-3.5", compact ? "h-11" : "h-14", isNow && "!opacity-60")}
+        className={cn("btn-secondary gap-1.5 px-0 sm:px-3.5", compact ? "h-11 min-w-11" : "h-14 min-w-14", isNow && "!opacity-60")}
         aria-label={t("plan.now")}
         title={t("plan.now")}
       >
         <RotateCcw className="size-4" />
-        {t("plan.now")}
+        <span className="hidden sm:inline">{t("plan.now")}</span>
       </button>
     </div>
   )
@@ -177,7 +173,7 @@ function DateField({ value, today, onChange, fieldClass, className }: FieldProps
   }
 
   return (
-    <div ref={anchor} className={cn("relative", open && "z-50", className)}>
+    <div ref={anchor} className={cn("relative min-w-0", open && "z-50", className)}>
       {isDesktop ? (
         <FieldInput
           ref={input}
@@ -304,7 +300,7 @@ function TimeField({ value, now, onChange, fieldClass, className }: FieldProps<s
   }
 
   return (
-    <div ref={anchor} className={cn("relative", open && "z-50", className)}>
+    <div ref={anchor} className={cn("relative min-w-0", open && "z-50", className)}>
       {isDesktop ? (
         <FieldInput
           ref={input}
@@ -499,8 +495,12 @@ function FieldButton({
       <Icon className="size-[18px] shrink-0 text-dim" />
       <span className="sr-only">{label}</span>
       <span className="min-w-0 flex-1 truncate tabular">{display}</span>
+      {/* No chevron on phones: the icon and the value say enough, and a 360px screen has no room for it. */}
       <ChevronDown
-        className={cn("size-4 shrink-0 text-dim transition-transform duration-200 ease-out-expo", open && "rotate-180")}
+        className={cn(
+          "hidden size-4 shrink-0 text-dim transition-transform duration-200 ease-out-expo sm:block",
+          open && "rotate-180",
+        )}
       />
     </button>
   )

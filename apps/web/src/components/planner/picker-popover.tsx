@@ -25,6 +25,8 @@ export interface PickerPopoverProps {
   children: ReactNode
   /** Extra classes for the desktop panel (padding, width) */
   panelClassName?: string
+  /** The phone sheet: `auto` hugs its content (a calendar, a wheel); `tall` runs from near the top for a scrolling list */
+  size?: "auto" | "tall"
 }
 
 /**
@@ -117,7 +119,7 @@ function AnchoredPanel({ id, anchorRef, panelRef, label, onClose, children, pane
   )
 }
 
-function BottomSheet({ id, panelRef, label, onClose, children }: PickerPopoverProps) {
+function BottomSheet({ id, panelRef, label, onClose, children, size = "auto" }: PickerPopoverProps) {
   const t = useT()
 
   useEscape(onClose)
@@ -139,16 +141,19 @@ function BottomSheet({ id, panelRef, label, onClose, children }: PickerPopoverPr
         role="dialog"
         aria-modal="true"
         aria-label={label}
-        className="animate-sheet-up absolute inset-x-0 bottom-0 rounded-t-[24px] bg-surface pb-[max(env(safe-area-inset-bottom),16px)] shadow-pop"
+        className={cn(
+          "animate-sheet-up absolute inset-x-0 bottom-0 flex flex-col rounded-t-[24px] bg-surface pb-[max(env(safe-area-inset-bottom),16px)] shadow-pop",
+          size === "tall" && "top-[max(env(safe-area-inset-top),2.75rem)]",
+        )}
       >
-        <div aria-hidden="true" className="mx-auto mt-2.5 h-1 w-9 rounded-full bg-line-strong" />
-        <div className="flex items-center justify-between pb-1 pe-3 ps-5 pt-2">
+        <div aria-hidden="true" className="mx-auto mt-2.5 h-1 w-9 shrink-0 rounded-full bg-line-strong" />
+        <div className="flex shrink-0 items-center justify-between pb-1 pe-3 ps-5 pt-2">
           <span className="text-[17px] font-bold">{label}</span>
           <button type="button" onClick={() => onClose("cancel")} className="icon-btn size-9" aria-label={t("nav.close")}>
             <X className="size-5" />
           </button>
         </div>
-        <div className="px-4 pt-1">{children}</div>
+        <div className={cn("flex min-h-0 flex-1 flex-col", size === "auto" && "px-4 pt-1")}>{children}</div>
       </div>
     </div>,
     document.body,

@@ -4,18 +4,24 @@ import { cn } from "@/lib/cn"
 
 const ICON = "size-5 transition-transform duration-500 ease-out-expo group-hover:rotate-180"
 
-/** The app's blue "flip stations" button; `responsive` switches from up/down to left/right arrows at `lg`. */
+/** Up/down arrows below the breakpoint (the fields are stacked there), left/right from it on. */
+const RESPONSIVE_ICONS = {
+  sm: { vertical: "sm:hidden", horizontal: "hidden sm:block" },
+  lg: { vertical: "lg:hidden", horizontal: "hidden lg:block" },
+}
+
+/** The app's blue "flip stations" button; `responsive` names the breakpoint where the arrows turn horizontal. */
 export function SwapButton({
   onClick,
   disabled,
   horizontal = false,
-  responsive = false,
+  responsive,
   className,
 }: {
   onClick: () => void
   disabled?: boolean
   horizontal?: boolean
-  responsive?: boolean
+  responsive?: keyof typeof RESPONSIVE_ICONS
   className?: string
 }) {
   const t = useT()
@@ -33,8 +39,8 @@ export function SwapButton({
     >
       {responsive ? (
         <>
-          <ArrowUpDown className={cn(ICON, "lg:hidden")} />
-          <ArrowLeftRight className={cn(ICON, "hidden lg:block")} />
+          <ArrowUpDown className={cn(ICON, RESPONSIVE_ICONS[responsive].vertical)} />
+          <ArrowLeftRight className={cn(ICON, RESPONSIVE_ICONS[responsive].horizontal)} />
         </>
       ) : horizontal ? (
         <ArrowLeftRight className={ICON} />

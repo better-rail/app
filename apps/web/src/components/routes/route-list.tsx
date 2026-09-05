@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { History } from "lucide-react"
 import type { RouteItem } from "@/lib/api/types"
-import { isRouteInThePast, nextRouteIndex } from "@/lib/api/route-format"
+import { isRouteInThePast } from "@/lib/api/route-format"
 import type { NaiveTime } from "@/lib/time"
 import { useT } from "@/i18n"
 import { RouteCard } from "./route-card"
@@ -27,7 +27,6 @@ export function RouteList({
   const t = useT()
   const [showPast, setShowPast] = useState(false)
   const visible = hideSlowTrains ? routes.filter((route) => !route.isMuchLonger || route.id === selectedId) : routes
-  const nextIndex = nextRouteIndex(visible, now)
   const pastCount = visible.filter((route) => isRouteInThePast(route, now)).length
   const collapsePast =
     pastCount > 0 &&
@@ -49,7 +48,7 @@ export function RouteList({
           </button>
         </li>
       )}
-      {visible.map((route, index) => {
+      {visible.map((route) => {
         const isPast = isRouteInThePast(route, now)
         if (collapsePast && isPast) return null
         return (
@@ -60,7 +59,6 @@ export function RouteList({
               to={to}
               selected={route.id === selectedId}
               isPast={isPast}
-              isNext={index === nextIndex}
               day={day}
             />
           </li>
