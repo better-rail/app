@@ -23,6 +23,10 @@ export function getRouter() {
     parseSearch: parseSearchWith(parseSearchValue),
     stringifySearch: stringifySearchWith(JSON.stringify, parseSearchValue),
     scrollRestoration: true,
+    // Restored and reset positions are jumps, not animations. Left to the default, the page's own
+    // `scroll-behavior: smooth` turns a reload's restore into a scroll from the top that is still in flight when the
+    // routes page positions itself — and WebKit does not abort it, so the page ends up somewhere in between.
+    scrollRestorationBehavior: "instant",
     defaultPreload: "intent",
     defaultPreloadStaleTime: 0,
     defaultNotFoundComponent: NotFound,

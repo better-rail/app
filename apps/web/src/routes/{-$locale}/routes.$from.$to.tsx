@@ -38,6 +38,20 @@ const MAX_EXTRA_DAYS = 7
 const TOOLBAR_TOP = 72
 /** Room left between the pinned toolbar and a card scrolled up under it. */
 const CARD_GAP = 16
+
+/**
+ * How much further the page can scroll before the end of the list column rises above the fold — negative once it
+ * already has. On desktop the details pane is pinned under the toolbar and sized to the fold, so it stays put only
+ * while the column's end is below the fold; past that, the bottom of the grid pushes the pane up under the toolbar
+ * and the top of the card goes out of view. Below `lg` nothing is pinned, and there is no limit.
+ */
+function roomBelowList(details: HTMLElement | null): number {
+  if (!details || getComputedStyle(details).position !== "sticky") return Infinity
+  const grid = details.parentElement
+  if (!grid) return Infinity
+  const paddingBottom = parseFloat(getComputedStyle(grid).paddingBottom) || 0
+  return grid.getBoundingClientRect().bottom - paddingBottom - window.innerHeight
+}
 import { pageHead, jsonLd, breadcrumbJsonLd, cacheHeaders, absoluteUrl, originUrl, SITE_URL } from "@/lib/seo"
 import { cn } from "@/lib/cn"
 import { searchString } from "@/lib/search"
@@ -311,7 +325,8 @@ function RoutesPage() {
 
   // A link can land on a trip far down the list, and on mobile the list is replaced by the details panel — both
   // need the relevant card brought into view. Cards already on screen are left alone, so picking one never yanks
-  // the page around.
+  // the page around — unless the page is scrolled past the end of the list, where the details pane is pushed up
+  // under the toolbar, in which case it is backed up just far enough for the pane to sit where it belongs.
   useEffect(() => {
     const trip = search.trip ?? returnToTrip.current
     const list = listRef.current
@@ -342,7 +357,14 @@ function RoutesPage() {
     scrolledToTrip.current = search.trip
     returnToTrip.current = undefined
     const { top, bottom } = card.getBoundingClientRect()
-    if (returning || top < 0 || bottom > window.innerHeight) card.scrollIntoView({ block: "center", behavior: "instant" })
+    const jump = returning || top < 0 || bottom > window.innerHeight
+    if (jump) card.scrollIntoView({ block: "center", behavior: "instant" })
+    // The last trains of the day sit at the end of the list: centering one of them scrolls the list's end above the
+    // fold and takes the details pane along, so the page is backed up to where the pane is pinned again. The card
+    // is still on screen, as the whole list end is. A jump when we just jumped; otherwise the page's own smooth
+    // scrolling.
+    const room = roomBelowList(detailsRef.current)
+    if (room < 0) window.scrollBy({ top: room, behavior: jump ? "instant" : "auto" })
   }, [search.trip, search.day, selectedDayQuery?.data])
 
   // The API returns the whole day, so a search for tomorrow at 16:00 would otherwise open on the first train of the
@@ -379,8 +401,12 @@ function RoutesPage() {
       const { top, bottom } = card.getBoundingClientRect()
       if (top >= (toolbar?.bottom ?? 0) && bottom <= window.innerHeight) return
       const offset = TOOLBAR_TOP + (toolbar?.height ?? 0) + CARD_GAP
+      // A search late in the evening lands on the last trains: bringing one of those up under the toolbar would
+      // scroll the list's end above the fold and push the details pane up with it, so the scroll stops with the
+      // end of the list at the fold, the requested train just above it — as a list scrolled to its end looks.
+      const delta = Math.min(top - offset, roomBelowList(detailsRef.current))
       // A jump when the page is new; otherwise the page's own smooth scrolling (which reduced motion turns off).
-      window.scrollTo({ top: window.scrollY + top - offset, behavior: arriving ? "instant" : "auto" })
+      window.scrollTo({ top: window.scrollY + delta, behavior: arriving ? "instant" : "auto" })
     })
   }, [query.data, data.date, data.hour, origin.id, destination.id, search.trip])
 
