@@ -340,8 +340,8 @@ function ExchangeBlock({ first, second }: { first: Train; second: Train }) {
   const safe = wait >= SAFE_CHANGE_MINUTES
   const samePlatform = first.destinationPlatform === second.originPlatform
   return (
-    <div className="flex items-start gap-3 rounded-xl bg-secondary-soft px-4 py-3">
-      <span className="mt-0.5 inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-secondary text-white">
+    <div className="flex items-center gap-3 rounded-xl bg-secondary-soft px-4 py-3">
+      <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-secondary text-white">
         <ArrowLeftRight className="size-4" />
       </span>
       <div className="flex flex-col gap-0.5 text-[14.5px]">
