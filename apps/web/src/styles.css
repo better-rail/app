@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "leaflet/dist/leaflet.css";
 
 @font-face {
   font-family: "Heebo";
@@ -135,11 +134,6 @@
     outline: 3px solid color-mix(in srgb, var(--color-brand) 55%, transparent);
     outline-offset: 2px;
     border-radius: 6px;
-  }
-
-  button:not(:disabled),
-  [role="button"]:not([aria-disabled="true"]) {
-    cursor: pointer;
   }
 
   input[type="date"],
@@ -329,43 +323,4 @@
 
 [dir="rtl"] .animate-slide-in-end {
   --slide-from: -24px;
-}
-
-/* Leaflet integration */
-.leaflet-container {
-  font-family: inherit;
-}
-
-.leaflet-div-icon {
-  background: transparent;
-  border: none;
-}
-
-.leaflet-tooltip {
-  transition: none;
-}
-
-.leaflet-tooltip-top::before,
-.leaflet-tooltip-bottom::before {
-  display: none;
-}
-
-.map-tiles-dark {
-  filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9) saturate(0.6);
-}
-
-/* Sidebar content swaps (home <-> results, list <-> details) */
-.animate-sidebar-in {
-  animation: sidebar-in 0.28s var(--ease-out-expo) both;
-}
-
-@keyframes sidebar-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }

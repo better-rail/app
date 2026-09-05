@@ -1,9 +1,6 @@
-import { Outlet, createFileRoute, notFound, redirect, useMatches } from "@tanstack/react-router"
+import { Outlet, createFileRoute, notFound, redirect } from "@tanstack/react-router"
 import { resolveLocale } from "@/i18n"
 import { SiteLayout } from "@/components/site-layout"
-import { MapShell } from "@/components/map/map-shell"
-
-const MAP_ROUTES = ["/{-$locale}/", "/{-$locale}/routes/$from/$to"]
 
 /** Locale prefix layout: `/…` is Hebrew, `/en/…` English; any other first segment is a 404. */
 export const Route = createFileRoute("/{-$locale}")({
@@ -20,16 +17,9 @@ export const Route = createFileRoute("/{-$locale}")({
 
 function LocaleLayout() {
   const { locale } = Route.useRouteContext()
-  const isMapPage = useMatches({ select: (matches) => matches.some((match) => MAP_ROUTES.includes(match.routeId)) })
   return (
-    <SiteLayout locale={locale} footer={isMapPage ? "mobile-only" : true}>
-      {isMapPage ? (
-        <MapShell>
-          <Outlet />
-        </MapShell>
-      ) : (
-        <Outlet />
-      )}
+    <SiteLayout locale={locale}>
+      <Outlet />
     </SiteLayout>
   )
 }

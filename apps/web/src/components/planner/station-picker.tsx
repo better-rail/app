@@ -7,7 +7,7 @@ import { useIsDesktop } from "@/hooks/use-media-query"
 import { useRecentRoutes } from "@/hooks/use-stored"
 import { useStationSearch } from "./use-station-search"
 import { StationImage } from "../stations/station-image"
-import { StationPhotoCard, PLANNER_CARD_HEIGHT } from "../stations/station-card"
+import { StationPhotoCard } from "../stations/station-card"
 
 export interface StationPickerProps {
   label: string
@@ -112,12 +112,7 @@ export function StationPicker({ label, value, onChange, exclude, variant = "card
         {value ? (
           <StationPhotoCard station={value} name={name ?? ""} className="shadow-card group-hover:shadow-card-hover" />
         ) : (
-          <span
-            className={cn(
-              "flex flex-col items-center justify-center gap-2 rounded-card border-2 border-dashed border-line-strong bg-surface-2 text-muted transition-colors group-hover:border-brand/50 group-hover:text-brand-text",
-              PLANNER_CARD_HEIGHT,
-            )}
-          >
+          <span className="flex h-44 flex-col items-center justify-center gap-2 rounded-card border-2 border-dashed border-line-strong bg-surface-2 text-muted transition-colors group-hover:border-brand/50 group-hover:text-brand-text sm:h-48 lg:h-56">
             <TrainFront className="size-8 opacity-60" />
             <span className="font-medium">{t("plan.selectStation")}</span>
           </span>

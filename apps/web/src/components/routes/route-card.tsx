@@ -1,3 +1,4 @@
+import { ChevronLeft, ChevronRight } from "lucide-react"
 import type { RouteItem } from "@/lib/api/types"
 import { formatClock } from "@/lib/time"
 import { formatDuration } from "@/lib/format"
@@ -27,6 +28,7 @@ export function RouteCard({
   const changesText = useChangesText()
   const changes = route.trains.length - 1
   const firstTrain = route.trains[0]
+  const Chevron = locale === "he" ? ChevronLeft : ChevronRight
 
   return (
     <LocaleLink
@@ -38,7 +40,7 @@ export function RouteCard({
       aria-current={selected ? "true" : undefined}
       data-route-id={route.id}
       className={cn(
-        "group relative block rounded-card border bg-surface px-4 py-3 shadow-card transition-[box-shadow,border-color,transform,opacity] duration-200 ease-out-expo hover:shadow-card-hover active:scale-[0.985] lg:px-3 lg:py-2.5",
+        "group relative block rounded-card border bg-surface px-4 py-3 shadow-card transition-[box-shadow,border-color,transform,opacity] duration-200 ease-out-expo hover:shadow-card-hover active:scale-[0.985]",
         selected ? "border-brand ring-2 ring-brand/25" : "border-line/60 hover:border-line-strong",
         isPast && !selected && "opacity-45 hover:opacity-80",
         route.isCancelled && "border-danger/40",
@@ -69,9 +71,11 @@ export function RouteCard({
         </div>
 
         <TimeColumn label={t("routes.arrival")} time={formatClock(route.arrivalTime)} cancelled={route.isCancelled} align="end" />
+
+        <Chevron className="hidden size-5 shrink-0 text-dim transition-transform duration-200 group-hover:translate-x-[var(--nudge)] lg:block [dir=rtl]:[--nudge:-3px] [dir=ltr]:[--nudge:3px]" />
       </div>
 
-      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-line/60 pt-2 text-[12.5px] text-muted lg:mt-1.5 lg:pt-1.5 lg:text-[12px]">
+      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-line/60 pt-2 text-[12.5px] text-muted">
         <span className={cn(firstTrain.originPlatformChanged && "font-bold text-danger")}>
           {firstTrain.originPlatform > 0
             ? t("details.platform", { platform: firstTrain.originPlatform })
@@ -102,14 +106,9 @@ function TimeColumn({
   align: "start" | "end"
 }) {
   return (
-    <div
-      className={cn("flex w-[64px] shrink-0 flex-col leading-none lg:w-[58px]", align === "end" ? "items-end" : "items-start")}
-    >
-      <span className="mb-1 text-[12px] font-medium text-muted lg:text-[11px]">{label}</span>
-      <span
-        className={cn("tabular text-[24px] font-bold tracking-tight lg:text-[22px]", cancelled && "line-through opacity-60")}
-        dir="ltr"
-      >
+    <div className={cn("flex w-[64px] shrink-0 flex-col leading-none", align === "end" ? "items-end" : "items-start")}>
+      <span className="mb-1 text-[12px] font-medium text-muted">{label}</span>
+      <span className={cn("tabular text-[24px] font-bold tracking-tight", cancelled && "line-through opacity-60")} dir="ltr">
         {time}
       </span>
     </div>
