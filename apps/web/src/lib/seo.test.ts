@@ -9,9 +9,11 @@ describe("originUrl", () => {
 
   test("uses the origin the page is served from in the browser", () => {
     const globals = globalThis as { window?: { location: { origin: string } } }
-    globals.window = { location: { origin: "https://deploy-preview-12.netlify.app" } }
+    globals.window = { location: { origin: "https://web-app-better-rail-web.example.workers.dev" } }
     try {
-      expect(originUrl("/routes/3700/680?trip=7717")).toBe("https://deploy-preview-12.netlify.app/routes/3700/680?trip=7717")
+      expect(originUrl("/routes/3700/680?trip=7717")).toBe(
+        "https://web-app-better-rail-web.example.workers.dev/routes/3700/680?trip=7717",
+      )
     } finally {
       delete globals.window
     }

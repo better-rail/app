@@ -72,7 +72,7 @@ export function apiHourFor(hour: string): string {
 export const findRoutes = createServerFn({ method: "POST" })
   .validator(validateSearch)
   .handler(async ({ data }): Promise<RoutesResult> => {
-    const clientIp = getRequestHeader("x-nf-client-connection-ip") ?? getRequestHeader("x-forwarded-for")?.split(",")[0]?.trim()
+    const clientIp = getRequestHeader("cf-connecting-ip") ?? getRequestHeader("x-forwarded-for")?.split(",")[0]?.trim()
     const requestedTime = naiveFromParts(data.date, data.hour)
 
     for (let dayOffset = 0; dayOffset <= LOOKAHEAD_DAYS; dayOffset++) {

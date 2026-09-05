@@ -2,11 +2,10 @@ import { defineConfig } from "vite"
 import { tanstackStart } from "@tanstack/react-start/plugin/vite"
 import viteReact from "@vitejs/plugin-react"
 import tailwindcss from "@tailwindcss/vite"
-import netlify from "@netlify/vite-plugin-tanstack-start"
+import { cloudflare } from "@cloudflare/vite-plugin"
 
-export default defineConfig(({ command }) => ({
+export default defineConfig({
   resolve: { tsconfigPaths: true },
-  // The Netlify adapter is only needed to emit the serverless entry; its dev-time
-  // emulation (Deno edge functions) does not cope with the monorepo's other tsconfigs.
-  plugins: [tailwindcss(), tanstackStart(), ...(command === "build" ? [netlify()] : []), viteReact()],
-}))
+  // The Cloudflare plugin runs the SSR environment in workerd (dev and preview) and emits the Worker + static assets on build.
+  plugins: [cloudflare({ viteEnvironment: { name: "ssr" } }), tailwindcss(), tanstackStart(), viteReact()],
+})

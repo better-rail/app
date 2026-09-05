@@ -1,0 +1,12 @@
+# Applies to static assets only; Worker (SSR) responses get their headers in src/server.ts.
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: interest-cohort=()
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/stations/*
+  Cache-Control: public, max-age=31536000, immutable

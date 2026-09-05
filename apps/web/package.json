@@ -6,6 +6,7 @@
     "dev": "bun run build:assets && vite dev --port 3000",
     "build": "bun run build:assets && vite build",
     "preview": "vite preview",
+    "deploy": "bun run build && wrangler deploy",
     "compile": "tsc --noEmit -p . --pretty",
     "test": "bun test",
     "build:assets": "bun run build:images && bun run build:qr",
@@ -24,7 +25,7 @@
     "react-dom": "19.2.3"
   },
   "devDependencies": {
-    "@netlify/vite-plugin-tanstack-start": "^1.3.19",
+    "@cloudflare/vite-plugin": "1.54.3",
     "@tailwindcss/vite": "^4.3.3",
     "@types/bun": "^1.3.0",
     "@types/qrcode": "^1.5.6",
@@ -35,6 +36,7 @@
     "sharp": "^0.34.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9.3",
-    "vite": "^8.2.2"
+    "vite": "^8.2.2",
+    "wrangler": "4.128.0"
   }
 }

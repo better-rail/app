@@ -143,11 +143,13 @@ export function breadcrumbJsonLd(items: Array<{ name: string; path: string }>, l
   }
 }
 
-/** Browser: always revalidate. Netlify CDN: serve cached HTML for `sMaxAge` seconds and refresh in the background for `swr` more. */
+/**
+ * Browser: always revalidate. Edge (`src/server.ts`): serve the cached response for `sMaxAge` seconds and refresh it in the
+ * background for `swr` more.
+ */
 export function cacheHeaders(sMaxAge: number, swr: number): Record<string, string> {
   return {
     "Cache-Control": "public, max-age=0, must-revalidate",
-    "Netlify-CDN-Cache-Control": `public, s-maxage=${sMaxAge}, stale-while-revalidate=${swr}`,
-    "Netlify-Vary": "query",
+    "CDN-Cache-Control": `public, s-maxage=${sMaxAge}, stale-while-revalidate=${swr}`,
   }
 }

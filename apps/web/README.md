@@ -1,7 +1,7 @@
 # Better Rail Web
 
 The better-rail.co.il website and the web version of the Better Rail timetable, built with
-[TanStack Start](https://tanstack.com/start) (React 19, TanStack Router + Query, Tailwind v4) and deployed to Netlify.
+[TanStack Start](https://tanstack.com/start) (React 19, TanStack Router + Query, Tailwind v4) and deployed to Cloudflare Workers.
 
 ## What's here
 
@@ -23,8 +23,11 @@ bun install           # from the repo root
 bun run web:dev       # http://localhost:3000
 bun run web:test      # unit tests (bun test)
 bun run web:compile   # tsc --noEmit
-bun run web:build     # production build (Netlify adapter)
+bun run web:build     # production build (Cloudflare Workers adapter)
 ```
+
+`bun run preview` (in `apps/web`) serves the production build in a local workerd, which is the closest thing to the deployed
+Worker: edge caching and the `_headers` rules are active there but not in `dev`.
 
 Timetable data comes from the Better Rail server (`https://api.better-rail.co.il`) through a server function
 (`src/lib/api/find-routes.ts`), so the browser never talks to the API directly. Override the base URL with
@@ -51,5 +54,25 @@ public/              static assets (fonts, images, press logos, generated statio
 
 ## Deployment
 
-Netlify builds with `bun run build` and publishes `dist/client`; the SSR handler is emitted as a Netlify function by
-`@netlify/vite-plugin-tanstack-start`. Set the site's base directory to `apps/web`.
+The site is a single Cloudflare Worker (`wrangler.jsonc`, name `better-rail-web`): `@cloudflare/vite-plugin` bundles the
+TanStack Start server entry as the Worker and uploads `dist/client` as its static assets. `src/server.ts` wraps the default
+handler to add the security headers to server-rendered responses and to cache them at the edge (Cache API) according to
+each route's `CDN-Cache-Control` header (`s-maxage` fresh, then `stale-while-revalidate` served stale while a background
+render refreshes it). `public/_headers` covers static assets only.
+
+Builds run on [Workers Builds](https://developers.cloudflare.com/workers/ci-cd/builds/) from the GitHub repo:
+
+| Setting                              | Value                                                                        |
+| ------------------------------------ | ---------------------------------------------------------------------------- |
+| Root directory                       | `apps/web`                                                                   |
+| Build command                        | `bun run build`                                                              |
+| Deploy command                       | `bunx wrangler deploy`                                                       |
+| Non-production branch deploy command | `bunx wrangler versions upload`                                              |
+| Build variable                       | `BUN_VERSION` = `1.3.9` (the image's default Bun is older than our lockfile) |
+
+Pushes to `main` deploy production. With **Builds for non-production branches** enabled (Settings → Build → Branch
+control), every other branch gets a preview version at `https://<branch>-better-rail-web.<account>.workers.dev`, and
+Cloudflare comments the URL on the pull request. The Cache API is inert on `workers.dev` hosts, so previews always render
+fresh.
+
+Manual deploy from a machine that has run `bunx wrangler login`: `bun run deploy`.
