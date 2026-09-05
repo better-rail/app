@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/widget_container_compact"
+    android:id="@+id/widget_container_compact_preview"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -11,7 +11,6 @@
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
         android:src="@drawable/assets_railwaystation" />
-
 
     <!-- Content Overlay -->
     <LinearLayout
@@ -63,7 +62,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/arrival"
+                android:text="@string/station_3600"
                 android:textColor="#FFFFFF"
                 android:textSize="14sp"
                 android:typeface="sans"
@@ -108,7 +107,7 @@
                 android:id="@+id/widget_train_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="--:--"
+                android:text="23:50"
                 android:textColor="#FFFFFF"
                 android:textSize="32sp"
                 android:textStyle="bold"
@@ -128,50 +127,50 @@
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
-        <TextView
-            android:id="@+id/widget_platform"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/platform_default"
-            android:textColor="#FFB6B9BA"
-            android:textSize="12sp"
-            android:typeface="sans"
-            android:fontFamily="@font/heebo_medium"
-            android:shadowColor="#FF000000"
-            android:shadowDx="1"
-            android:shadowDy="1"
-            android:shadowRadius="3" />
+            <TextView
+                android:id="@+id/widget_platform"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/widget_preview_platform"
+                android:textColor="#FFB6B9BA"
+                android:textSize="12sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium"
+                android:shadowColor="#FF000000"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="3" />
 
-        <TextView
-            android:id="@+id/widget_dot_separator"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:gravity="center"
-            android:text="‧"
-            android:textColor="#FFB6B9BA"
-            android:textSize="12sp"
-            android:typeface="sans"
-            android:fontFamily="@font/heebo_medium"
-            android:shadowColor="#FF000000"
-            android:shadowDx="1"
-            android:shadowDy="1"
-            android:shadowRadius="3" />
+            <TextView
+                android:id="@+id/widget_dot_separator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:gravity="center"
+                android:text="‧"
+                android:textColor="#FFB6B9BA"
+                android:textSize="12sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium"
+                android:shadowColor="#FF000000"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="3" />
 
-        <TextView
-            android:id="@+id/widget_train_number"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/train_default"
-            android:textColor="#FFB6B9BA"
-            android:textSize="12sp"
-            android:typeface="sans"
-            android:fontFamily="@font/heebo_medium"
-            android:shadowColor="#FF000000"
-            android:shadowDx="1"
-            android:shadowDy="1"
-            android:shadowRadius="3" />
+            <TextView
+                android:id="@+id/widget_train_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/widget_preview_train"
+                android:textColor="#FFB6B9BA"
+                android:textSize="12sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium"
+                android:shadowColor="#FF000000"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="3" />
 
         </LinearLayout>
 
