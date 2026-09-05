@@ -39,3 +39,25 @@ export async function trackInstalledWidgets() {
 
   setAnalyticsUserProperties(properties)
 }
+
+export type WidgetFamily = "compact" | "wide"
+
+/** Opens the Android pin-widget dialog. Resolves false when the launcher doesn't support it. */
+export async function requestPinAndroidWidget(options?: {
+  originId?: string
+  destinationId?: string
+  family?: WidgetFamily
+}): Promise<boolean> {
+  if (Platform.OS !== "android") return false
+  try {
+    return (
+      (await WidgetNavigation?.requestPinWidget(
+        options?.originId ?? "",
+        options?.destinationId ?? "",
+        options?.family ?? "wide",
+      )) === true
+    )
+  } catch {
+    return false
+  }
+}
