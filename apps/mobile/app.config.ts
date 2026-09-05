@@ -172,10 +172,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       {
         ios: {
           deploymentTarget: "16.4",
-          // Build React Native from source (matches the original bare project). Required so
-          // RCT-Folly is published as a pod — react-native-ios-context-menu/-ios-utilities
-          // hard-depend on it, and RN 0.81's prebuilt artifacts don't expose it standalone.
-          // TODO: Switch to use expo/ui instead of the context menu libs
+          // Required while patches/expo*.patch exist: prebuilt Expo xcframeworks ignore them.
           buildReactNativeFromSource: true,
         },
         android: {

@@ -10,7 +10,7 @@ import { getActionSheetStyleOptions } from "@/utils/helpers/action-sheet-helpers
 import prompt from "react-native-prompt-android"
 import { useShallow } from "zustand/react/shallow"
 import { useFavoritesStore } from "@/models"
-import { ContextMenuView } from "react-native-ios-context-menu"
+import { ContextMenu } from "@/components/context-menu/context-menu"
 
 const borderRadius = Platform.select({ ios: 10, android: 6 })
 
@@ -62,39 +62,21 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
   })()
 
   return (
-    <ContextMenuView
-      onPressMenuItem={({ nativeEvent }) => {
-        const { actionKey } = nativeEvent
-
-        if (actionKey === "route-label") {
-          renamePrompt()
-        } else if (actionKey === "delete-favorite") {
-          deleteRoute()
-        }
-      }}
-      previewConfig={{ borderRadius: 12 }}
-      menuConfig={{
-        menuTitle: "",
-        menuItems: [
-          {
-            actionKey: "route-label",
-            actionTitle: label ? translate("favorites.changeLabel") : translate("favorites.addLabel"),
-            icon: {
-              iconType: "SYSTEM",
-              iconValue: "pencil",
-            },
-          },
-          {
-            actionKey: "delete-favorite",
-            actionTitle: translate("favorites.delete"),
-            menuAttributes: ["destructive"],
-            icon: {
-              iconType: "SYSTEM",
-              iconValue: "star.slash",
-            },
-          },
-        ],
-      }}
+    <ContextMenu
+      actions={[
+        {
+          title: label ? translate("favorites.changeLabel") : translate("favorites.addLabel"),
+          systemIcon: "pencil",
+          onPress: renamePrompt,
+        },
+        {
+          title: translate("favorites.delete"),
+          systemIcon: "star.slash",
+          destructive: true,
+          onPress: deleteRoute,
+        },
+      ]}
+      previewBorderRadius={12}
       style={styles.contextMenu}
     >
       <TouchableScale
@@ -124,7 +106,7 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
           </View>
         </View>
       </TouchableScale>
-    </ContextMenuView>
+    </ContextMenu>
   )
 }
 

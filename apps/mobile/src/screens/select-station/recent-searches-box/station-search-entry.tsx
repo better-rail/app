@@ -2,7 +2,7 @@ import React from "react"
 import { View, Image, Appearance, Platform } from "react-native"
 import type { ImageSourcePropType } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { ContextMenuView } from "react-native-ios-context-menu"
+import { ContextMenu } from "@/components/context-menu/context-menu"
 import TouchableScale from "react-native-touchable-scale"
 import { Text } from "@/components"
 import { translate } from "@/i18n"
@@ -24,29 +24,10 @@ export const StationSearchEntry = (props: StationSearchEntryProps) => (
     tension={Platform.select({ ios: 8, android: undefined })}
     style={styles.searchEntryWrapper}
   >
-    <ContextMenuView
-      onPressMenuItem={({ nativeEvent }) => {
-        const { actionKey } = nativeEvent
-
-        if (actionKey === "hide") {
-          props.onHide()
-        }
-      }}
-      previewConfig={{ borderRadius: 6 }}
-      menuConfig={{
-        menuTitle: props.name,
-        menuItems: [
-          {
-            actionKey: "hide",
-            actionTitle: translate("selectStation.hide"),
-            menuAttributes: ["destructive"],
-            icon: {
-              iconType: "SYSTEM",
-              iconValue: "trash",
-            },
-          },
-        ],
-      }}
+    <ContextMenu
+      title={props.name}
+      previewBorderRadius={6}
+      actions={[{ title: translate("selectStation.hide"), systemIcon: "trash", destructive: true, onPress: props.onHide }]}
     >
       <View style={styles.searchEntryImageWrapper}>
         {props.image ? (
@@ -57,7 +38,7 @@ export const StationSearchEntry = (props: StationSearchEntryProps) => (
           </View>
         )}
       </View>
-    </ContextMenuView>
+    </ContextMenu>
     <Text style={styles.searchEntryText}>{props.name}</Text>
   </TouchableScale>
 )
