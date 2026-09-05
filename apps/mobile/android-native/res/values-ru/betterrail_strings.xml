@@ -45,6 +45,10 @@
     <string name="upcoming">Следующие</string>
     <string name="arrival">Прибытие</string>
     <string name="arrival_caps">Время</string>
+    <string name="widget_preview_platform">Платформа 3</string>
+    <string name="widget_preview_train">Поезд 2350</string>
+    <string name="widget_preview_platform_4x2">Платформа 1</string>
+    <string name="widget_preview_train_4x2">Поезд 2058</string>
 
     <plurals name="upcoming_in_days">
         <item quantity="one">Через %d день</item>

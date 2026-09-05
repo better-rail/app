@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/widget_container_compact_4x2"
+    android:id="@+id/widget_container_compact_4x2_preview"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -11,7 +11,6 @@
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
         android:src="@drawable/assets_railwaystation" />
-
 
     <!-- Main Content Layout -->
     <LinearLayout
@@ -77,7 +76,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="@string/arrival"
+                        android:text="@string/station_5300"
                         android:textColor="#FFFFFF"
                         android:textSize="14sp"
                         android:typeface="sans"
@@ -130,7 +129,7 @@
                         android:id="@+id/widget_next_train_time"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="--:--"
+                        android:text="20:58"
                         android:textColor="#FFFFFF"
                         android:textSize="32sp"
                         android:textStyle="bold"
@@ -167,7 +166,7 @@
                             android:id="@+id/widget_arrival_time"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="--:--"
+                            android:text="21:57"
                             android:textColor="#FF727378"
                             android:textSize="18sp"
                             android:textStyle="bold"
@@ -195,7 +194,7 @@
                     android:id="@+id/widget_platform"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/platform_default"
+                    android:text="@string/widget_preview_platform_4x2"
                     android:textColor="#FFB6B9BA"
                     android:textSize="12sp"
                     android:typeface="sans"
@@ -226,7 +225,7 @@
                     android:id="@+id/widget_train_number"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/train_default"
+                    android:text="@string/widget_preview_train_4x2"
                     android:textColor="#FFB6B9BA"
                     android:textSize="12sp"
                     android:typeface="sans"
@@ -286,15 +285,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginBottom="3dp"
-                    android:visibility="gone">
+                    android:layout_marginBottom="3dp">
 
                     <TextView
                         android:id="@+id/widget_upcoming_train_1"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="13:26"
+                        android:text="21:28"
                         android:textColor="#FFCCCCCC"
                         android:textSize="14sp"
                         android:textStyle="bold"
@@ -310,7 +308,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="13:52"
+                        android:text="22:28"
                         android:textColor="#FF727378"
                         android:textSize="14sp"
                         android:typeface="sans"
@@ -329,15 +327,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginBottom="3dp"
-                    android:visibility="gone">
+                    android:layout_marginBottom="3dp">
 
                     <TextView
                         android:id="@+id/widget_upcoming_train_2"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="13:56"
+                        android:text="22:29"
                         android:textColor="#FFCCCCCC"
                         android:textSize="14sp"
                         android:textStyle="bold"
@@ -353,7 +350,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="14:22"
+                        android:text="23:28"
                         android:textColor="#FF727378"
                         android:textSize="14sp"
                         android:typeface="sans"
@@ -372,15 +369,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginBottom="3dp"
-                    android:visibility="gone">
+                    android:layout_marginBottom="3dp">
 
                     <TextView
                         android:id="@+id/widget_upcoming_train_3"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="14:26"
+                        android:text="23:29"
                         android:textColor="#FFCCCCCC"
                         android:textSize="14sp"
                         android:textStyle="bold"
@@ -396,7 +392,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="14:52"
+                        android:text="00:29"
                         android:textColor="#FF727378"
                         android:textSize="14sp"
                         android:typeface="sans"
