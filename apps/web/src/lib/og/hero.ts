@@ -30,8 +30,6 @@ export interface HeroTrip {
   /** `HH:mm` */
   departure: string
   arrival: string
-  /** "יום שני, 7 בספטמבר" */
-  date: string
   /** "29 דק׳ · החלפה בבנימינה · רציף 2" */
   facts: string
 }
@@ -138,16 +136,14 @@ function routeBlock(content: HeroContent, rtl: boolean, measure: Measure): strin
   ].join("")
 }
 
-/** The date, the times large, the route on one line, then the journey's facts. */
+/** The times large, the route on one line, then the journey's facts. */
 function tripBlock(content: HeroContent, trip: HeroTrip, rtl: boolean, measure: Measure): string {
   const routeLine: Piece[] = [{ text: content.origin }, { arrow: true }, { text: content.destination }]
   const routeStyle: Style = { size: fitSize([routeLine], 40, 26, 700, measure), weight: 700 }
   const timesStyle: Style = { size: 96, weight: 700 }
   const routeBaseline = BOTTOM - 56
   const timesBaseline = routeBaseline - routeStyle.size * 0.75 - 24
-  const dateBaseline = timesBaseline - timesStyle.size * 0.73 - 26
   return [
-    caption(trip.date, dateBaseline, rtl),
     row([{ text: trip.departure }, { arrow: true }, { text: trip.arrival }], timesStyle, timesBaseline, rtl, measure),
     row(routeLine, routeStyle, routeBaseline, rtl, measure),
     caption(trip.facts, BOTTOM, rtl),

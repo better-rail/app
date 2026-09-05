@@ -57,24 +57,23 @@ describe("heroSvg", () => {
     expect(Math.min(...fontSizes(tiny).filter((size) => size > 30))).toBe(40)
   })
 
-  test("trip: the date, the times, the route and the facts", () => {
+  test("trip: the times, the route and the facts", () => {
     const svg = heroSvg(
       {
         ...base,
-        trip: { departure: "20:56", arrival: "21:25", date: "יום שבת, 5 בספטמבר", facts: "29 דק׳ · החלפה אחת · רציף 2" },
+        trip: { departure: "20:56", arrival: "21:25", facts: "29 דק׳ · החלפה אחת · רציף 2" },
       },
       measure,
     )
     expect(texts(svg)).toEqual([
       "Better Rail",
-      "‏יום שבת, 5 בספטמבר",
       "‏20:56",
       "‏21:25",
       "‏חדרה - מערב",
       "‏תל אביב - אוניברסיטה",
       "‏29 דק׳ · החלפה אחת · רציף 2",
     ])
-    expect(fontSizes(svg)).toEqual([28, 30, 96, 96, 40, 40, 30])
+    expect(fontSizes(svg)).toEqual([28, 96, 96, 40, 40, 30])
     // Departure at the right edge, arrival past the arrow to its left.
     expect(svg).toContain(
       '<text x="1136" y="456" font-family="Heebo" font-weight="700" font-size="96" fill="#fff" text-anchor="end">‏20:56',
@@ -92,11 +91,11 @@ describe("heroSvg", () => {
         locale: "en",
         origin: "Be'er Sheva - North/University",
         destination: "Rishon LeTsiyon - Moshe Dayan",
-        trip: { departure: "06:12", arrival: "07:40", date: "Monday, 7 September", facts: "1h 28m · 2 changes" },
+        trip: { departure: "06:12", arrival: "07:40", facts: "1h 28m · 2 changes" },
       },
       measure,
     )
-    expect(fontSizes(svg)).toEqual([28, 30, 96, 96, 31, 31, 30])
+    expect(fontSizes(svg)).toEqual([28, 96, 96, 31, 31, 30])
     expect(svg).toContain("Be&#39;er Sheva - North/University")
   })
 

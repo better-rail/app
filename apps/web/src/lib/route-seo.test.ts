@@ -96,7 +96,7 @@ describe("heroContent", () => {
       destination: "תל אביב - אוניברסיטה",
       tagline: "זמני רכבת, רציפים ועיכובים בזמן אמת",
       photo: "data:x",
-      trip: { departure: "20:56", arrival: "21:25", date: "יום שבת, 5 בספטמבר", facts: "29 דק׳ · החלפה אחת · רציף 2" },
+      trip: { departure: "20:56", arrival: "21:25", facts: "29 דק׳ · החלפה אחת · רציף 2" },
     })
     expect(
       heroContent({ locale: "en", origin: hadera, destination: university, trip: { ...trip, changes: 2 } }).trip?.facts,

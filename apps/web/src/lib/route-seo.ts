@@ -148,7 +148,6 @@ export function heroContent({
     content.trip = {
       departure: formatClock(trip.departureTime),
       arrival: formatClock(trip.arrivalTime),
-      date: formatDayDate(trip.departureTime, locale),
       facts: facts.join(" · "),
     }
   }
