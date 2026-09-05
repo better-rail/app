@@ -96,11 +96,24 @@ describe("heroContent", () => {
       destination: "תל אביב - אוניברסיטה",
       tagline: "זמני רכבת, רציפים ועיכובים בזמן אמת",
       photo: "data:x",
-      trip: { departure: "20:56", arrival: "21:25", facts: "29 דק׳ · החלפה אחת · רציף 2" },
+      trip: { departure: "20:56", arrival: "21:25", facts: "רכבת 7220, 7155 · 29 דק׳ · החלפה אחת · רציף 2" },
     })
     expect(
-      heroContent({ locale: "en", origin: hadera, destination: university, trip: { ...trip, changes: 2 } }).trip?.facts,
-    ).toBe("29 min · 2 changes · Platform 2")
+      heroContent({
+        locale: "en",
+        origin: hadera,
+        destination: university,
+        trip: { ...trip, trainNumbers: [7220, 7155, 6012], changes: 2 },
+      }).trip?.facts,
+    ).toBe("Train 7220, 7155, 6012 · 29 min · 2 changes · Platform 2")
+    expect(
+      heroContent({
+        locale: "en",
+        origin: hadera,
+        destination: university,
+        trip: { ...trip, trainNumbers: [7223], changes: 0, platform: 0 },
+      }).trip?.facts,
+    ).toBe("Train 7223 · 29 min · Direct")
     const route = heroContent({ locale: "en", origin: hadera, destination: university })
     expect(route.trip).toBeUndefined()
     expect(route.tagline).toBe("Train times, platforms and live delays")

@@ -61,7 +61,7 @@ describe("heroSvg", () => {
     const svg = heroSvg(
       {
         ...base,
-        trip: { departure: "20:56", arrival: "21:25", facts: "29 דק׳ · החלפה אחת · רציף 2" },
+        trip: { departure: "20:56", arrival: "21:25", facts: "רכבת 7220, 7155 · 29 דק׳ · החלפה אחת · רציף 2" },
       },
       measure,
     )
@@ -71,7 +71,7 @@ describe("heroSvg", () => {
       "‏21:25",
       "‏חדרה - מערב",
       "‏תל אביב - אוניברסיטה",
-      "‏29 דק׳ · החלפה אחת · רציף 2",
+      "‏רכבת 7220, 7155 · 29 דק׳ · החלפה אחת · רציף 2",
     ])
     expect(fontSizes(svg)).toEqual([28, 96, 96, 40, 40, 30])
     // Departure at the right edge, arrival past the arrow to its left.
@@ -91,7 +91,7 @@ describe("heroSvg", () => {
         locale: "en",
         origin: "Be'er Sheva - North/University",
         destination: "Rishon LeTsiyon - Moshe Dayan",
-        trip: { departure: "06:12", arrival: "07:40", facts: "1h 28m · 2 changes" },
+        trip: { departure: "06:12", arrival: "07:40", facts: "Train 7220, 7155, 6012 · 1h 28m · 2 changes" },
       },
       measure,
     )

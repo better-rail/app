@@ -143,7 +143,12 @@ export function heroContent({
     photo,
   }
   if (trip) {
-    const facts = [formatDuration(trip.durationMs, locale), changesText(locale, trip.changes)]
+    // The same facts as the description, minus the times the picture already sets large.
+    const facts = [
+      translate(locale, "seo.tripTrain", { numbers: trip.trainNumbers.join(", ") }),
+      formatDuration(trip.durationMs, locale),
+      changesText(locale, trip.changes),
+    ]
     if (trip.platform > 0) facts.push(translate(locale, "details.platform", { platform: trip.platform }))
     content.trip = {
       departure: formatClock(trip.departureTime),

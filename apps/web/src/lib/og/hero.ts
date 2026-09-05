@@ -30,7 +30,7 @@ export interface HeroTrip {
   /** `HH:mm` */
   departure: string
   arrival: string
-  /** "29 דק׳ · החלפה בבנימינה · רציף 2" */
+  /** "רכבת 7220, 7155 · 29 דק׳ · החלפה אחת · רציף 2" */
   facts: string
 }
 
