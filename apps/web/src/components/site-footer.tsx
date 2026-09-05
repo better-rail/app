@@ -5,6 +5,7 @@ import { GITHUB_URL, SUPPORT_URL, TWITTER_URL } from "@/lib/seo"
 import { LocaleLink } from "./locale-link"
 import { DownloadBadges } from "./download-badges"
 import { GithubIcon, XIcon } from "./icons"
+import { AppIcon } from "./logo"
 
 export function SiteFooter() {
   const t = useT()
@@ -20,9 +21,11 @@ export function SiteFooter() {
   return (
     <footer className="mt-auto border-t border-line/70 bg-surface-2">
       <div className="container-page grid gap-10 py-12 md:grid-cols-[1.4fr_1fr_1fr]">
-        <div className="flex flex-col gap-4">
+        {/* English lockup: sits at the page's start edge, but reads left-to-right inside so the logo stays left of the
+            name and both line up with the App Store badge in RTL as well. */}
+        <div className="flex flex-col justify-self-start gap-4" dir="ltr">
           <div className="flex items-center gap-2.5 text-lg font-bold">
-            <img src="/assets/images/icon.svg" alt="" className="h-7 w-auto" width={50} height={60} />
+            <AppIcon className="size-9" />
             Better Rail
           </div>
           <DownloadBadges size="sm" />
