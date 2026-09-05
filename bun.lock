@@ -128,7 +128,6 @@
         "pg-copy-streams": "^6.0.6",
         "redis": "^4.6.5",
         "unzipper": "^0.12.3",
-        "uuid": "^9.0.0",
         "winston": "^3.8.2",
         "winston-mongodb": "^5.1.1",
         "zod": "^3.21.4",
@@ -142,7 +141,6 @@
         "@types/pg": "^8.11.6",
         "@types/pg-copy-streams": "^1.2.5",
         "@types/unzipper": "^0.10.10",
-        "@types/uuid": "^9.0.1",
       },
     },
     "apps/website": {
@@ -932,8 +930,6 @@
     "@types/triple-beam": ["@types/triple-beam@1.3.5", "", {}, "sha512-6WaYesThRMCl19iryMYP7/x2OVgCtbIVflDGFpWnb9irXI3UjYE4AzmYuiUKY1AJstGijoY+MgUszMgRxIYTYw=="],
 
     "@types/unzipper": ["@types/unzipper@0.10.11", "", { "dependencies": { "@types/node": "*" } }, "sha512-D25im2zjyMCcgL9ag6N46+wbtJBnXIr7SI4zHf9eJD2Dw2tEB5e+p5MYkrxKIVRscs5QV0EhtU9rgXSPx90oJg=="],
-
-    "@types/uuid": ["@types/uuid@9.0.8", "", {}, "sha512-jg+97EGIcY9AGHJJRaaPVgetKDsrTgbRjQ5Msgjh/DQKEFl0DtyRr/VCOyD1T2R1MNeWPK/u7JoGhlDZnKBAfA=="],
 
     "@types/yargs": ["@types/yargs@17.0.33", "", { "dependencies": { "@types/yargs-parser": "*" } }, "sha512-WpxBCKWPLr4xSsHgz511rFJAM+wS28w2zEO1QDNY5zM/S8ok70NNfztH0xwhqKyaK0OHCbN98LDAZuy1ctxDkA=="],
 
@@ -2878,8 +2874,6 @@
     "react-native/semver": ["semver@7.7.2", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-RF0Fw+rO5AMf9MAyaRXI4AV0Ulj5lMHqVxxdSgiVbixSCXoEmmX/jk0CuJw4+3SqroYO9VoUh+HcuJivvtJemA=="],
 
     "react-native/yargs": ["yargs@17.7.2", "", { "dependencies": { "cliui": "^8.0.1", "escalade": "^3.1.1", "get-caller-file": "^2.0.5", "require-directory": "^2.1.1", "string-width": "^4.2.3", "y18n": "^5.0.5", "yargs-parser": "^21.1.1" } }, "sha512-7dSzzRQ++CKnNI/krKnYRV7JKKPUXMEh61soaHKg9mrWEhzFWhFnxPxGl+69cD1Ou63C13NUPCnmIcrvqCuM6w=="],
-
-    "react-native-ios-context-menu/react-native-ios-utilities": ["react-native-ios-utilities@github:dominicstop/react-native-ios-utilities#1352a26", { "peerDependencies": { "react": "*", "react-native": "*" } }, "dominicstop-react-native-ios-utilities-1352a26"],
 
     "react-native-reanimated/semver": ["semver@7.8.5", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-Y7/KDsb8LjooZpwaqGyulO6DQlksgCncchHGk+sZIY4SBvUocMBEFH5Ur1fI4dV+Jvl0w6cjvucaIi40puRioA=="],
 

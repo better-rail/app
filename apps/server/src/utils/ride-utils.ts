@@ -1,5 +1,4 @@
 import dayjs from "dayjs"
-import { v4 as uuid } from "uuid"
 import { addMinutes, millisecondsToMinutes } from "date-fns"
 import { isEqual, last, isNumber, head, chunk } from "lodash"
 
@@ -16,7 +15,7 @@ import { buildGetOnTrainNotifications, buildNextStationNotifications, buildGetOf
 const SAFE_DURATION_MINS = 3
 
 export const buildRide = (ride: RideRequest): Ride => {
-  const rideId = uuid()
+  const rideId = crypto.randomUUID()
 
   return {
     ...ride,
