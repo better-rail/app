@@ -13,6 +13,7 @@ export const he = {
   "nav.menu": "תפריט",
   "nav.close": "סגירה",
   "nav.home": "דף הבית",
+  "nav.scanToDownload": "סרקו כדי להוריד את האפליקציה",
 
   "home.title": "לוח זמנים רכבת ישראל",
   "home.subtitle": "מסלולים, החלפות ורציפים לכל תחנות הרכבת - בחינם ובקוד פתוח.",

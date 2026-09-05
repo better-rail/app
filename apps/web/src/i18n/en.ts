@@ -16,6 +16,7 @@ export const en: Record<TranslationKey, string> = {
   "nav.menu": "Menu",
   "nav.close": "Close",
   "nav.home": "Home",
+  "nav.scanToDownload": "Scan to download the app",
 
   "home.title": "Israel Railways timetables",
   "home.subtitle": "Routes, changes and platforms for every station - free and open source.",
