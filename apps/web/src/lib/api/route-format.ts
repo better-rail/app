@@ -5,8 +5,9 @@ import type { ApiTravel, ApiTrain, RouteItem, Train } from "./types"
 const HOUR_MS = 60 * 60 * 1000
 const MINUTE_MS = 60 * 1000
 
-export function routeId(trains: Array<Pick<Train, "trainNumber">>, departureTime: NaiveTime): string {
-  return `${trains.map((t) => t.trainNumber).join("-")}-${departureTime}`
+/** URL id for a journey: its train numbers. Unique within a day's results, which is what the `date` param selects. */
+export function routeId(trains: Array<Pick<Train, "trainNumber">>): string {
+  return trains.map((t) => t.trainNumber).join("-")
 }
 
 function formatTrain(train: ApiTrain): Train {
@@ -85,7 +86,7 @@ export function formatTravels(travels: ApiTravel[], requestedDate: string): Rout
       const departureTime = parseNaive(travel.departureTime)
       const arrivalTime = parseNaive(travel.arrivalTime)
       return {
-        id: routeId(trains, departureTime),
+        id: routeId(trains),
         departureTime,
         arrivalTime,
         durationMs: arrivalTime - departureTime,

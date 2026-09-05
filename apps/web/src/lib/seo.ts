@@ -12,7 +12,16 @@ export const SUPPORT_URL = "https://pages.greeninvoice.co.il/payments/links/696f
 export const FEEDBACK_EMAIL = "feedback@better-rail.co.il"
 export const APP_STORE_ID = "1562982976"
 
+/** Canonical URL on `better-rail.co.il` — for anything crawlers read (canonicals, hreflang, structured data, sitemaps). */
 export const absoluteUrl = (path: string) => (path.startsWith("http") ? path : `${SITE_URL}${path}`)
+
+/**
+ * Absolute URL on the origin the page is actually served from, so links people share and copy point back at the
+ * site they are on (a preview deploy, a local dev server). Falls back to the canonical origin while rendering on
+ * the server, where there is nothing to read it from.
+ */
+export const originUrl = (path: string) =>
+  typeof window === "undefined" ? absoluteUrl(path) : new URL(path, window.location.origin).toString()
 
 type MetaTag = Record<string, string>
 type LinkTag = Record<string, string>
@@ -20,7 +29,7 @@ type LinkTag = Record<string, string>
 export interface PageSeo {
   title: string
   description: string
-  /** Site path without locale prefix, e.g. `/stations/herzliya` */
+  /** Site path without locale prefix, e.g. `/routes/3700/3500` */
   path: string
   locale: Locale
   /** When false the page has no English/Hebrew twin and no hreflang alternates are emitted */
@@ -130,18 +139,6 @@ export function breadcrumbJsonLd(items: Array<{ name: string; path: string }>, l
       position: index + 1,
       name: item.name,
       item: absoluteUrl(localePath(locale, item.path)),
-    })),
-  }
-}
-
-export function faqJsonLd(items: Array<{ question: string; answer: string }>) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: items.map((item) => ({
-      "@type": "Question",
-      name: item.question,
-      acceptedAnswer: { "@type": "Answer", text: item.answer },
     })),
   }
 }

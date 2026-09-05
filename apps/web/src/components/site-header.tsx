@@ -14,7 +14,7 @@ function useOtherLocaleHref(locale: Locale): string {
   const { pathname, searchStr } = useRouterState({
     select: (s) => ({ pathname: s.location.pathname, searchStr: s.location.searchStr }),
   })
-  const localizedPrefixes = ["/routes/", "/stations", "/privacy-policy"]
+  const localizedPrefixes = ["/routes/", "/privacy-policy"]
   const stripped = pathname.replace(/^\/en(?=\/|$)/, "") || "/"
   const isLocalized = stripped === "/" || localizedPrefixes.some((prefix) => stripped.startsWith(prefix))
   if (locale === "he") return isLocalized ? `/en${stripped === "/" ? "" : stripped}${searchStr}` : "/en"
@@ -41,10 +41,7 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
     }
   }, [menuOpen])
 
-  const navLinks = [
-    { to: "/{-$locale}", label: t("nav.plan") },
-    { to: "/{-$locale}/stations", label: t("nav.stations") },
-  ]
+  const navLinks = [{ to: "/{-$locale}", label: t("nav.plan") }]
   const siteLinks = [
     { href: "/about", label: t("nav.about") },
     { href: "/press", label: t("nav.press") },

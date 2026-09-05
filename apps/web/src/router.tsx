@@ -1,9 +1,10 @@
-import { createRouter } from "@tanstack/react-router"
+import { createRouter, parseSearchWith, stringifySearchWith } from "@tanstack/react-router"
 import { QueryClient } from "@tanstack/react-query"
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query"
 import { routeTree } from "./routeTree.gen"
 import { NotFound } from "./components/not-found"
 import { ErrorPage } from "./components/error-page"
+import { parseSearchValue } from "./lib/search"
 
 export function getRouter() {
   const queryClient = new QueryClient({
@@ -19,6 +20,8 @@ export function getRouter() {
   const router = createRouter({
     routeTree,
     context: { queryClient },
+    parseSearch: parseSearchWith(parseSearchValue),
+    stringifySearch: stringifySearchWith(JSON.stringify, parseSearchValue),
     scrollRestoration: true,
     defaultPreload: "intent",
     defaultPreloadStaleTime: 0,

@@ -16,11 +16,12 @@ export interface PlannerValue extends DateTimeValue {
   destination?: Station
 }
 
+/**
+ * Both keys are always present so that merging this over the current search clears a stale `?date=&time=` when the
+ * planner is reset back to "now" — TanStack Router drops the undefined ones from the URL.
+ */
 export function routeSearchParams(value: DateTimeValue) {
-  const search: { date?: string; time?: string } = {}
-  if (value.date) search.date = value.date
-  if (value.time) search.time = value.time
-  return search
+  return { date: value.date || undefined, time: value.time || undefined }
 }
 
 /** Trip planner: `hero` is the home-page card, `bar` the results toolbar where changes apply immediately. */
@@ -54,24 +55,34 @@ export function Planner({
   const sameStation = Boolean(value.origin && value.destination && value.origin.id === value.destination.id)
   const ready = Boolean(value.origin && value.destination) && !sameStation
 
-  const go = (next: PlannerValue) => {
+  /**
+   * `keepTrip` leaves the selected trip in the search: a train keeps its id across a date/time change, so the
+   * details panel stays open on it when it is still among the results (and falls back to the empty state when it
+   * is not). Changing a station makes the trip meaningless, so it is dropped.
+   */
+  const go = (next: PlannerValue, keepTrip = false) => {
     if (!next.origin || !next.destination || next.origin.id === next.destination.id) return
     recentRoutes.add({ originId: next.origin.id, destinationId: next.destination.id })
     trackEvent("route_search", { origin: next.origin.id, destination: next.destination.id, variant })
     navigate({
       to: "/{-$locale}/routes/$from/$to",
-      params: { locale, from: next.origin.slug, to: next.destination.slug },
-      search: (prev: Record<string, unknown>) => ({ ...(autoNavigate ? prev : {}), ...routeSearchParams(next), trip: undefined }),
+      params: { locale, from: next.origin.id, to: next.destination.id },
+      search: (prev: Record<string, unknown>) => ({
+        ...(autoNavigate ? prev : {}),
+        ...routeSearchParams(next),
+        ...(keepTrip ? {} : { trip: undefined }),
+      }),
     })
   }
 
   const update = (patch: Partial<PlannerValue>) => {
     const next = { ...value, ...patch }
+    // Compared by id rather than by the patch's keys: the date/time picker echoes the whole value back.
+    const stationsChanged = next.origin?.id !== value.origin?.id || next.destination?.id !== value.destination?.id
     setValue(next)
     setDirty(true)
-    if ("origin" in patch || "destination" in patch)
-      routePlan.set({ originId: next.origin?.id, destinationId: next.destination?.id })
-    if (autoNavigate) go(next)
+    if (stationsChanged) routePlan.set({ originId: next.origin?.id, destinationId: next.destination?.id })
+    if (autoNavigate) go(next, !stationsChanged)
   }
 
   const swap = () => {

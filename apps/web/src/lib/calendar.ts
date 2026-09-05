@@ -16,7 +16,7 @@ export interface CalendarEvent {
 
 export function buildIcs(event: CalendarEvent): string {
   const { route } = event
-  const uid = `${route.id}@better-rail.co.il`
+  const uid = `${route.id}-${route.departureTime}@better-rail.co.il`
   const stamp = new Date()
     .toISOString()
     .replace(/[-:]/g, "")

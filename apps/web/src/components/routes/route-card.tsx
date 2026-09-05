@@ -14,6 +14,7 @@ export function RouteCard({
   selected,
   isPast,
   isNext,
+  day,
 }: {
   route: RouteItem
   from: string
@@ -22,6 +23,8 @@ export function RouteCard({
   isPast: boolean
   /** The first train that has not departed yet */
   isNext: boolean
+  /** Service day of this card, set on the appended days so the link says which day's trip it selects */
+  day?: string
 }) {
   const t = useT()
   const locale = useLocale()
@@ -34,7 +37,7 @@ export function RouteCard({
     <LocaleLink
       to="/{-$locale}/routes/$from/$to"
       params={{ from, to }}
-      search={(prev: Record<string, unknown>) => ({ ...prev, trip: route.id })}
+      search={(prev: Record<string, unknown>) => ({ ...prev, trip: route.id, day })}
       resetScroll={false}
       replace={selected}
       aria-current={selected ? "true" : undefined}

@@ -10,7 +10,7 @@ export function useStationSearch(query: string): { results: Station[]; all: Stat
   const fuse = useMemo(
     () =>
       new Fuse(all, {
-        keys: [{ name: "hebrew", weight: 2 }, { name: "english", weight: 2 }, "alias", "russian", "arabic", "slug"],
+        keys: [{ name: "hebrew", weight: 2 }, { name: "english", weight: 2 }, "alias", "russian", "arabic"],
         threshold: 0.32,
         ignoreLocation: true,
       }),

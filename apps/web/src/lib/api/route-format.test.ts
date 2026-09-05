@@ -55,7 +55,7 @@ describe("formatTravels", () => {
       "2026-09-05",
     )
     expect(routes).toHaveLength(2)
-    expect(routes[0].id).toBe(`100-${parseNaive("2026-09-05T08:24:00")}`)
+    expect(routes[0].id).toBe("100")
     expect(routes[0].durationMs).toBe(36 * 60_000)
     expect(routes[0].isExchange).toBe(false)
     expect(routes[0].trains[0].stopStations[0].stationId).toBe("4600")

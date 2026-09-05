@@ -20,12 +20,9 @@ import { Route as SitePressRouteImport } from './routes/_site/press'
 import { Route as SiteTermsRouteImport } from './routes/_site/terms'
 import { Route as SiteThankYouRouteImport } from './routes/_site/thank-you'
 import { Route as SitemapsPagesRouteImport } from './routes/sitemaps/pages'
-import { Route as SitemapsStationsRouteImport } from './routes/sitemaps/stations'
 import { Route as Char123LocaleChar125IndexRouteImport } from './routes/{-$locale}/index'
 import { Route as Char123LocaleChar125PrivacyPolicyRouteImport } from './routes/{-$locale}/privacy-policy'
 import { Route as SitemapsRoutesPageRouteImport } from './routes/sitemaps/routes.$page'
-import { Route as Char123LocaleChar125StationsIndexRouteImport } from './routes/{-$locale}/stations.index'
-import { Route as Char123LocaleChar125StationsSlugRouteImport } from './routes/{-$locale}/stations.$slug'
 import { Route as Char123LocaleChar125RoutesFromToRouteImport } from './routes/{-$locale}/routes.$from.$to'
 
 const SiteRoute = SiteRouteImport.update({
@@ -84,11 +81,6 @@ const SitemapsPagesRoute = SitemapsPagesRouteImport.update({
   path: '/sitemaps/pages',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SitemapsStationsRoute = SitemapsStationsRouteImport.update({
-  id: '/sitemaps/stations',
-  path: '/sitemaps/stations',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const Char123LocaleChar125IndexRoute =
   Char123LocaleChar125IndexRouteImport.update({
     id: '/',
@@ -106,18 +98,6 @@ const SitemapsRoutesPageRoute = SitemapsRoutesPageRouteImport.update({
   path: '/sitemaps/routes/$page',
   getParentRoute: () => rootRouteImport,
 } as any)
-const Char123LocaleChar125StationsIndexRoute =
-  Char123LocaleChar125StationsIndexRouteImport.update({
-    id: '/stations/',
-    path: '/stations/',
-    getParentRoute: () => Char123LocaleChar125RouteRoute,
-  } as any)
-const Char123LocaleChar125StationsSlugRoute =
-  Char123LocaleChar125StationsSlugRouteImport.update({
-    id: '/stations/$slug',
-    path: '/stations/$slug',
-    getParentRoute: () => Char123LocaleChar125RouteRoute,
-  } as any)
 const Char123LocaleChar125RoutesFromToRoute =
   Char123LocaleChar125RoutesFromToRouteImport.update({
     id: '/routes/$from/$to',
@@ -137,12 +117,9 @@ export interface FileRoutesByFullPath {
   '/terms': typeof SiteTermsRoute
   '/thank-you': typeof SiteThankYouRoute
   '/sitemaps/pages': typeof SitemapsPagesRoute
-  '/sitemaps/stations': typeof SitemapsStationsRoute
   '/{-$locale}/privacy-policy': typeof Char123LocaleChar125PrivacyPolicyRoute
   '/{-$locale}/': typeof Char123LocaleChar125IndexRoute
   '/sitemaps/routes/$page': typeof SitemapsRoutesPageRoute
-  '/{-$locale}/stations/$slug': typeof Char123LocaleChar125StationsSlugRoute
-  '/{-$locale}/stations/': typeof Char123LocaleChar125StationsIndexRoute
   '/{-$locale}/routes/$from/$to': typeof Char123LocaleChar125RoutesFromToRoute
 }
 export interface FileRoutesByTo {
@@ -156,12 +133,9 @@ export interface FileRoutesByTo {
   '/terms': typeof SiteTermsRoute
   '/thank-you': typeof SiteThankYouRoute
   '/sitemaps/pages': typeof SitemapsPagesRoute
-  '/sitemaps/stations': typeof SitemapsStationsRoute
   '/{-$locale}/privacy-policy': typeof Char123LocaleChar125PrivacyPolicyRoute
   '/{-$locale}': typeof Char123LocaleChar125IndexRoute
   '/sitemaps/routes/$page': typeof SitemapsRoutesPageRoute
-  '/{-$locale}/stations/$slug': typeof Char123LocaleChar125StationsSlugRoute
-  '/{-$locale}/stations': typeof Char123LocaleChar125StationsIndexRoute
   '/{-$locale}/routes/$from/$to': typeof Char123LocaleChar125RoutesFromToRoute
 }
 export interface FileRoutesById {
@@ -177,12 +151,9 @@ export interface FileRoutesById {
   '/_site/terms': typeof SiteTermsRoute
   '/_site/thank-you': typeof SiteThankYouRoute
   '/sitemaps/pages': typeof SitemapsPagesRoute
-  '/sitemaps/stations': typeof SitemapsStationsRoute
   '/{-$locale}/privacy-policy': typeof Char123LocaleChar125PrivacyPolicyRoute
   '/{-$locale}/': typeof Char123LocaleChar125IndexRoute
   '/sitemaps/routes/$page': typeof SitemapsRoutesPageRoute
-  '/{-$locale}/stations/$slug': typeof Char123LocaleChar125StationsSlugRoute
-  '/{-$locale}/stations/': typeof Char123LocaleChar125StationsIndexRoute
   '/{-$locale}/routes/$from/$to': typeof Char123LocaleChar125RoutesFromToRoute
 }
 export interface FileRouteTypes {
@@ -199,12 +170,9 @@ export interface FileRouteTypes {
     | '/terms'
     | '/thank-you'
     | '/sitemaps/pages'
-    | '/sitemaps/stations'
     | '/{-$locale}/privacy-policy'
     | '/{-$locale}/'
     | '/sitemaps/routes/$page'
-    | '/{-$locale}/stations/$slug'
-    | '/{-$locale}/stations/'
     | '/{-$locale}/routes/$from/$to'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -218,12 +186,9 @@ export interface FileRouteTypes {
     | '/terms'
     | '/thank-you'
     | '/sitemaps/pages'
-    | '/sitemaps/stations'
     | '/{-$locale}/privacy-policy'
     | '/{-$locale}'
     | '/sitemaps/routes/$page'
-    | '/{-$locale}/stations/$slug'
-    | '/{-$locale}/stations'
     | '/{-$locale}/routes/$from/$to'
   id:
     | '__root__'
@@ -238,12 +203,9 @@ export interface FileRouteTypes {
     | '/_site/terms'
     | '/_site/thank-you'
     | '/sitemaps/pages'
-    | '/sitemaps/stations'
     | '/{-$locale}/privacy-policy'
     | '/{-$locale}/'
     | '/sitemaps/routes/$page'
-    | '/{-$locale}/stations/$slug'
-    | '/{-$locale}/stations/'
     | '/{-$locale}/routes/$from/$to'
   fileRoutesById: FileRoutesById
 }
@@ -252,7 +214,6 @@ export interface RootRouteChildren {
   SiteRoute: typeof SiteRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SitemapsPagesRoute: typeof SitemapsPagesRoute
-  SitemapsStationsRoute: typeof SitemapsStationsRoute
   SitemapsRoutesPageRoute: typeof SitemapsRoutesPageRoute
 }
 
@@ -335,13 +296,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapsPagesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/sitemaps/stations': {
-      id: '/sitemaps/stations'
-      path: '/sitemaps/stations'
-      fullPath: '/sitemaps/stations'
-      preLoaderRoute: typeof SitemapsStationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/{-$locale}/': {
       id: '/{-$locale}/'
       path: '/'
@@ -363,20 +317,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapsRoutesPageRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/{-$locale}/stations/': {
-      id: '/{-$locale}/stations/'
-      path: '/stations'
-      fullPath: '/{-$locale}/stations/'
-      preLoaderRoute: typeof Char123LocaleChar125StationsIndexRouteImport
-      parentRoute: typeof Char123LocaleChar125RouteRoute
-    }
-    '/{-$locale}/stations/$slug': {
-      id: '/{-$locale}/stations/$slug'
-      path: '/stations/$slug'
-      fullPath: '/{-$locale}/stations/$slug'
-      preLoaderRoute: typeof Char123LocaleChar125StationsSlugRouteImport
-      parentRoute: typeof Char123LocaleChar125RouteRoute
-    }
     '/{-$locale}/routes/$from/$to': {
       id: '/{-$locale}/routes/$from/$to'
       path: '/routes/$from/$to'
@@ -390,8 +330,6 @@ declare module '@tanstack/react-router' {
 interface Char123LocaleChar125RouteRouteChildren {
   Char123LocaleChar125PrivacyPolicyRoute: typeof Char123LocaleChar125PrivacyPolicyRoute
   Char123LocaleChar125IndexRoute: typeof Char123LocaleChar125IndexRoute
-  Char123LocaleChar125StationsSlugRoute: typeof Char123LocaleChar125StationsSlugRoute
-  Char123LocaleChar125StationsIndexRoute: typeof Char123LocaleChar125StationsIndexRoute
   Char123LocaleChar125RoutesFromToRoute: typeof Char123LocaleChar125RoutesFromToRoute
 }
 
@@ -400,10 +338,6 @@ const Char123LocaleChar125RouteRouteChildren: Char123LocaleChar125RouteRouteChil
     Char123LocaleChar125PrivacyPolicyRoute:
       Char123LocaleChar125PrivacyPolicyRoute,
     Char123LocaleChar125IndexRoute: Char123LocaleChar125IndexRoute,
-    Char123LocaleChar125StationsSlugRoute:
-      Char123LocaleChar125StationsSlugRoute,
-    Char123LocaleChar125StationsIndexRoute:
-      Char123LocaleChar125StationsIndexRoute,
     Char123LocaleChar125RoutesFromToRoute:
       Char123LocaleChar125RoutesFromToRoute,
   }
@@ -440,7 +374,6 @@ const rootRouteChildren: RootRouteChildren = {
   SiteRoute: SiteRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SitemapsPagesRoute: SitemapsPagesRoute,
-  SitemapsStationsRoute: SitemapsStationsRoute,
   SitemapsRoutesPageRoute: SitemapsRoutesPageRoute,
 }
 export const routeTree = rootRouteImport

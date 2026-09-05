@@ -1,23 +1,24 @@
-import { createFileRoute, notFound, redirect, useRouterState } from "@tanstack/react-router"
-import { useQuery } from "@tanstack/react-query"
-import { useEffect, useState } from "react"
+import { createFileRoute, notFound, useRouterState } from "@tanstack/react-router"
+import { useQueries, useQuery, type UseQueryResult } from "@tanstack/react-query"
+import { useEffect, useRef, useState } from "react"
 import { ArrowLeft, ArrowRight, CalendarDays, ChevronDown, Loader2, Star, TrainFront } from "lucide-react"
 import { Planner } from "@/components/planner/planner"
 import { RouteList } from "@/components/routes/route-list"
 import { RouteDetails } from "@/components/routes/route-details"
-import { RouteSummaryBox, routeFaq } from "@/components/routes/route-summary"
 import { StationImage } from "@/components/stations/station-image"
-import { LocaleLink } from "@/components/locale-link"
-import { resolveStation, stationName, stationOgImage, type Station } from "@/data/stations"
+import { getStationById, stationName, stationOgImage, type Station } from "@/data/stations"
 import { useLocale, useT, resolveLocale, translate, localePath, type Locale } from "@/i18n"
 import { routesQueryOptions, ROUTES_REFETCH_INTERVAL_MS } from "@/lib/api/queries"
 import { summarizeRoutes, type RouteSummary } from "@/lib/api/route-format"
-import type { RouteItem, RoutesResult } from "@/lib/api/types"
+import type { RoutesResult } from "@/lib/api/types"
 import { useHideSlowTrains, useIsFavorite } from "@/hooks/use-stored"
 import { useNow } from "@/hooks/use-now"
+import { useFillToFold } from "@/hooks/use-fill-to-fold"
 import {
   addDays,
   dateKey,
+  daysBetween,
+  parseNaive,
   formatClock,
   isValidClock,
   isValidDateKey,
@@ -28,14 +29,24 @@ import {
   type NaiveTime,
 } from "@/lib/time"
 import { formatDayLabel, formatDurationLong, formatLongDate, formatNumber } from "@/lib/format"
-import { pageHead, jsonLd, breadcrumbJsonLd, faqJsonLd, cacheHeaders, absoluteUrl } from "@/lib/seo"
+
+/** Guards a bogus `day` param from spawning an unbounded number of queries. */
+const MAX_EXTRA_DAYS = 7
+/** Where the toolbar pins, in pixels — matches its `top-18` class. */
+const TOOLBAR_TOP = 72
+import { pageHead, jsonLd, breadcrumbJsonLd, cacheHeaders, absoluteUrl, originUrl } from "@/lib/seo"
 import { cn } from "@/lib/cn"
+import { searchString } from "@/lib/search"
 import { recentRoutes, routePlan } from "@/lib/storage"
 
 interface RoutesPageSearch {
+  /** First day shown in the list */
   date?: string
   time?: string
+  /** Train numbers of the selected journey */
   trip?: string
+  /** Service day of the selected journey, when it is not the first day shown */
+  day?: string
 }
 
 interface JsonLdTrip {
@@ -46,27 +57,22 @@ interface JsonLdTrip {
 }
 
 export const Route = createFileRoute("/{-$locale}/routes/$from/$to")({
-  validateSearch: (search: Record<string, unknown>): RoutesPageSearch => ({
-    date: typeof search.date === "string" && isValidDateKey(search.date) ? search.date : undefined,
-    time: typeof search.time === "string" && isValidClock(search.time) ? search.time : undefined,
-    trip: typeof search.trip === "string" && search.trip ? search.trip : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): RoutesPageSearch => {
+    const date = searchString(search.date)
+    const time = searchString(search.time)
+    const day = searchString(search.day)
+    return {
+      date: date && isValidDateKey(date) ? date : undefined,
+      time: time && isValidClock(time) ? time : undefined,
+      trip: searchString(search.trip),
+      day: day && isValidDateKey(day) ? day : undefined,
+    }
+  },
   loaderDeps: ({ search }) => ({ date: search.date, time: search.time }),
-  beforeLoad: ({ params, search }) => {
-    const origin = resolveStation(params.from)
-    const destination = resolveStation(params.to)
-    if (!origin || !destination) throw notFound()
-    if (origin.slug !== params.from || destination.slug !== params.to) {
-      throw redirect({
-        to: "/{-$locale}/routes/$from/$to",
-        params: { locale: params.locale, from: origin.slug, to: destination.slug },
-        search,
-        replace: true,
-      })
-    }
-    if (origin.id === destination.id) {
-      throw redirect({ to: "/{-$locale}/stations/$slug", params: { locale: params.locale, slug: origin.slug }, replace: true })
-    }
+  beforeLoad: ({ params }) => {
+    const origin = getStationById(params.from)
+    const destination = getStationById(params.to)
+    if (!origin || !destination || origin.id === destination.id) throw notFound()
     return { origin, destination }
   },
   loader: async ({ context, deps }) => {
@@ -100,8 +106,8 @@ export const Route = createFileRoute("/{-$locale}/routes/$from/$to")({
   head: ({ params, loaderData, match }) => {
     const locale = resolveLocale(params.locale) ?? "he"
     const context = match.context as { origin?: Station; destination?: Station }
-    const origin = context.origin ?? resolveStation(params.from)
-    const destination = context.destination ?? resolveStation(params.to)
+    const origin = context.origin ?? getStationById(params.from)
+    const destination = context.destination ?? getStationById(params.to)
     if (!origin || !destination) return {}
     return routesHead({ locale, origin, destination, summary: loaderData?.summary ?? null, trips: loaderData?.trips ?? [] })
   },
@@ -124,7 +130,7 @@ function routesHead({
 }) {
   const from = stationName(origin, locale)
   const to = stationName(destination, locale)
-  const path = `/routes/${origin.slug}/${destination.slug}`
+  const path = `/routes/${origin.id}/${destination.id}`
   const description = summary
     ? translate(locale, "seo.routesDescription", {
         from,
@@ -149,14 +155,11 @@ function routesHead({
     breadcrumbJsonLd(
       [
         { name: translate(locale, "nav.home"), path: "/" },
-        { name: translate(locale, "stations.title"), path: "/stations" },
-        { name: from, path: `/stations/${origin.slug}` },
         { name: translate(locale, "routes.summaryTitle", { from, to }), path },
       ],
       locale,
     ),
   ]
-  if (summary) structured.push(faqJsonLd(routeFaq(summary, origin, destination, locale)))
   if (trips.length > 0) {
     structured.push({
       "@context": "https://schema.org",
@@ -206,17 +209,95 @@ function RoutesPage() {
     routePlan.set({ originId: origin.id, destinationId: destination.id })
   }, [origin.id, destination.id])
 
-  const selected = routes.find((route) => route.id === search.trip)
   const from = stationName(origin, locale)
   const to = stationName(destination, locale)
   const firstDay = naiveFromParts(query.data?.resultDate ?? data.resultDate, "00:00")
-  const shareUrl = absoluteUrl(href)
+
+  // Appended days are the ones the reader asked for, plus however many it takes to reach a trip linked from one of
+  // them — a shared link opens the day it belongs to instead of an empty details panel.
+  const linkedDay = search.day ? daysBetween(firstDay, parseNaive(search.day)) : 0
+  const extraDayCount = Math.min(Math.max(extraDays, linkedDay), MAX_EXTRA_DAYS)
+  const extraDayDates = Array.from({ length: extraDayCount }, (_, index) => dateKey(addDays(startOfDay(firstDay), index + 1)))
+  const extraDayQueries = useQueries({
+    queries: extraDayDates.map((date) =>
+      routesQueryOptions({ originId: origin.id, destinationId: destination.id, date, hour: "12:00" }),
+    ),
+  })
+
+  // `day` says which list the trip was picked from; without it the selection belongs to the first day.
+  const selectedDayQuery = search.day ? extraDayQueries[extraDayDates.indexOf(search.day)] : query
+  const selected = selectedDayQuery?.data?.routes.find((route) => route.id === search.trip)
+  const shareUrl = originUrl(href)
+  const nextDayLabel = formatDayLabel(addDays(startOfDay(firstDay), extraDayCount + 1), locale, now)
   const Arrow = locale === "he" ? ArrowLeft : ArrowRight
 
-  const closeDetails = () => navigate({ search: (prev) => ({ ...prev, trip: undefined }), resetScroll: false })
+  const closeDetails = () => {
+    returnToTrip.current = search.trip
+    navigate({ search: (prev) => ({ ...prev, trip: undefined, day: undefined }), resetScroll: false })
+  }
+
+  // The toolbar changes height with the viewport (one row on wide screens, two when it wraps), so the details panel
+  // reads it from a custom property rather than guessing at an offset that would leave it under the pinned card.
+  const toolbarRef = useRef<HTMLDivElement>(null)
+  const pageRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const toolbar = toolbarRef.current
+    const page = pageRef.current
+    if (!toolbar || !page) return
+    const measure = () => page.style.setProperty("--toolbar-h", `${toolbar.getBoundingClientRect().height}px`)
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(toolbar)
+    return () => observer.disconnect()
+  }, [])
+
+  const listRef = useRef<HTMLElement>(null)
+  const detailsRef = useRef<HTMLDivElement>(null)
+  const scrolledToTrip = useRef<string>(undefined)
+  /** The trip the reader was just looking at, so closing the details lands back on its card. */
+  const returnToTrip = useRef<string>(undefined)
+
+  const paneRef = useRef<HTMLDivElement>(null)
+  useFillToFold(paneRef)
+
+  // A link can land on a trip far down the list, and on mobile the list is replaced by the details panel — both
+  // need the relevant card brought into view. Cards already on screen are left alone, so picking one never yanks
+  // the page around.
+  useEffect(() => {
+    const trip = search.trip ?? returnToTrip.current
+    const list = listRef.current
+    if (!trip || !list) return
+    if (search.trip && scrolledToTrip.current === search.trip) return
+
+    // Below `lg` the details replace the list, so the panel is what needs to come into view. Read that off the
+    // layout rather than a media query, which is still reporting its server value on the first render.
+    if (search.trip && list.offsetParent === null) {
+      scrolledToTrip.current = search.trip
+      const panel = detailsRef.current
+      // Measured on the frame after paint and against the toolbar itself: on a cold load the panel would otherwise
+      // be positioned before the toolbar has settled, leaving its "back to list" button behind the pinned card.
+      if (panel) {
+        requestAnimationFrame(() => {
+          const offset = TOOLBAR_TOP + (toolbarRef.current?.getBoundingClientRect().height ?? 0) + 8
+          window.scrollTo({ top: window.scrollY + panel.getBoundingClientRect().top - offset, behavior: "instant" })
+        })
+      }
+      return
+    }
+
+    // Scoped to the day the trip belongs to: train numbers repeat across the days shown on one page.
+    const dayList = search.day ? `ol[data-day="${CSS.escape(search.day)}"]` : "ol:not([data-day])"
+    const card = list.querySelector(`${dayList} [data-route-id="${CSS.escape(trip)}"]`)
+    if (!card) return
+    const returning = !search.trip
+    scrolledToTrip.current = search.trip
+    returnToTrip.current = undefined
+    const { top, bottom } = card.getBoundingClientRect()
+    if (returning || top < 0 || bottom > window.innerHeight) card.scrollIntoView({ block: "center", behavior: "instant" })
+  }, [search.trip, search.day, selectedDayQuery?.data])
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div ref={pageRef} className="flex flex-1 flex-col">
       {/* Hero: the origin station photo, like the app's route header */}
       <div className="relative h-44 overflow-hidden bg-surface-3 sm:h-52 lg:h-56">
         <StationImage station={origin} priority sizes="100vw" className="absolute inset-0" />
@@ -224,16 +305,7 @@ function RoutesPage() {
           className="absolute inset-0 bg-[linear-gradient(to_bottom,rgb(0_0_0/0.55),rgb(0_0_0/0.2)_45%,rgb(0_0_0/0.6))]"
           aria-hidden="true"
         />
-        <div className="container-page relative flex h-full flex-col justify-between py-4 text-white">
-          <nav aria-label="breadcrumb" className="flex items-center gap-2 text-[13px] font-medium opacity-90">
-            <LocaleLink to="/{-$locale}" className="link-underline">
-              {t("nav.home")}
-            </LocaleLink>
-            <span aria-hidden="true">/</span>
-            <LocaleLink to="/{-$locale}/stations/$slug" params={{ slug: origin.slug }} className="link-underline">
-              {from}
-            </LocaleLink>
-          </nav>
+        <div className="container-page relative flex h-full flex-col justify-end pb-11 pt-4 text-white">
           <div className="flex items-end justify-between gap-4">
             <h1 className="text-balance text-2xl font-bold leading-tight tracking-tight drop-shadow-[0_1px_3px_rgb(0_0_0/0.7)] sm:text-4xl">
               {from}
@@ -254,8 +326,8 @@ function RoutesPage() {
         </div>
       </div>
 
-      {/* Toolbar overlapping the hero */}
-      <div className="container-page relative z-10 -mt-6">
+      {/* Toolbar: overlaps the hero, then pins just below the site header (h-16) once the hero scrolls away */}
+      <div ref={toolbarRef} className="container-page sticky top-18 z-20 -mt-6">
         <div className="card p-3 sm:p-4">
           <Planner
             variant="bar"
@@ -269,6 +341,7 @@ function RoutesPage() {
       <div className="container-page grid flex-1 gap-6 py-6 lg:grid-cols-[minmax(0,440px)_minmax(0,1fr)] lg:gap-8 lg:py-8">
         {/* Results list */}
         <section
+          ref={listRef}
           aria-label={t("routes.title", { from, to })}
           className={cn("flex flex-col gap-4", selected ? "hidden lg:flex" : "flex")}
         >
@@ -326,8 +399,8 @@ function RoutesPage() {
           {routes.length > 0 && (
             <RouteList
               routes={routes}
-              from={origin.slug}
-              to={destination.slug}
+              from={origin.id}
+              to={destination.id}
               selectedId={search.trip}
               now={now}
               hideSlowTrains={hideSlowTrains}
@@ -336,10 +409,11 @@ function RoutesPage() {
 
           {query.isSuccess && (
             <>
-              {Array.from({ length: extraDays }).map((_, index) => (
+              {extraDayQueries.map((dayQuery, index) => (
                 <ExtraDay
-                  key={index}
+                  key={extraDayDates[index]}
                   day={addDays(startOfDay(firstDay), index + 1)}
+                  query={dayQuery}
                   origin={origin}
                   destination={destination}
                   selectedId={search.trip}
@@ -349,52 +423,60 @@ function RoutesPage() {
               ))}
               <button
                 type="button"
-                onClick={() => setExtraDays((days) => days + 1)}
+                onClick={() => setExtraDays(extraDayCount + 1)}
+                aria-label={`${t("routes.nextDay")}: ${nextDayLabel}`}
                 className="btn-ghost h-12 w-full gap-2 border border-dashed border-line-strong text-[15px]"
               >
                 <ChevronDown className="size-4" />
-                {t("routes.nextDay")}: {formatDayLabel(addDays(startOfDay(firstDay), extraDays + 1), locale, now)}
+                {nextDayLabel}
               </button>
             </>
           )}
         </section>
 
-        {/* Details panel (master/detail on desktop, full page on mobile) */}
-        <div className={cn("flex flex-col gap-6", selected ? "flex" : "hidden lg:flex")}>
-          <div className="card overflow-hidden lg:sticky lg:top-20">
-            {selected ? (
-              <>
-                <button
-                  type="button"
-                  onClick={closeDetails}
-                  className="flex w-full items-center gap-2 border-b border-line/70 px-4 py-3 text-[15px] font-semibold text-brand-text hover:bg-surface-2 lg:hidden"
-                >
-                  <Arrow className="size-4 rotate-180" />
-                  {t("routes.back")}
-                </button>
-                <RouteDetails
-                  key={selected.id}
-                  route={selected}
-                  originId={origin.id}
-                  destinationId={destination.id}
-                  shareUrl={shareUrl}
-                  className="animate-fade-in"
-                />
-              </>
-            ) : (
-              <div className="flex min-h-[320px] flex-col items-center justify-center gap-3 p-10 text-center text-muted">
-                <TrainFront className="size-10 opacity-40" />
-                <p className="max-w-xs">{t("routes.selectRoute")}</p>
-              </div>
-            )}
+        {/*
+         * Details panel (master/detail on desktop, full page on mobile). On desktop the list and the card are two
+         * independent panes: this wrapper pins under the toolbar while the list scrolls with the page, and the
+         * pane inside it is sized to the fold and scrolls on its own — the card moves in it as one piece, and
+         * `overscroll-contain` keeps the wheel from leaking into the list. The pane's own padding (undone by the
+         * negative margin) leaves room for the card's shadow inside the clipping box.
+         */}
+        <div
+          ref={detailsRef}
+          className={cn(
+            selected ? "flex" : "hidden lg:flex",
+            "flex-col lg:sticky lg:top-[calc(5rem_+_var(--toolbar-h,5.5rem))] lg:self-start",
+          )}
+        >
+          <div ref={paneRef} className="lg:-m-2 lg:overflow-y-auto lg:overscroll-contain lg:p-2">
+            <div className="card overflow-hidden">
+              {selected ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={closeDetails}
+                    className="flex w-full items-center gap-2 border-b border-line/70 px-4 py-3 text-[15px] font-semibold text-brand-text hover:bg-surface-2 lg:hidden"
+                  >
+                    <Arrow className="size-4 rotate-180" />
+                    {t("routes.back")}
+                  </button>
+                  <RouteDetails
+                    key={selected.id}
+                    route={selected}
+                    originId={origin.id}
+                    destinationId={destination.id}
+                    shareUrl={shareUrl}
+                    className="animate-fade-in"
+                  />
+                </>
+              ) : (
+                <div className="flex min-h-[320px] flex-col items-center justify-center gap-3 p-10 text-center text-muted">
+                  <TrainFront className="size-10 opacity-40" />
+                  <p className="max-w-xs">{t("routes.selectRoute")}</p>
+                </div>
+              )}
+            </div>
           </div>
-          <div className={cn(selected && "hidden lg:block")}>
-            <RouteSummaryBox summary={data.summary} origin={origin} destination={destination} />
-          </div>
-        </div>
-
-        <div className={cn("lg:hidden", selected && "hidden")}>
-          <RouteSummaryBox summary={data.summary} origin={origin} destination={destination} />
         </div>
       </div>
     </div>
@@ -411,6 +493,7 @@ function Notice({ text }: { text: string }) {
 
 function ExtraDay({
   day,
+  query,
   origin,
   destination,
   selectedId,
@@ -418,6 +501,7 @@ function ExtraDay({
   hideSlowTrains,
 }: {
   day: NaiveTime
+  query: UseQueryResult<RoutesResult>
   origin: Station
   destination: Station
   selectedId?: string
@@ -426,10 +510,7 @@ function ExtraDay({
 }) {
   const t = useT()
   const locale = useLocale()
-  const query = useQuery(
-    routesQueryOptions({ originId: origin.id, destinationId: destination.id, date: dateKey(day), hour: "12:00" }),
-  )
-  const routes: RouteItem[] = (query.data?.routes ?? []).filter((route) => dateKey(route.departureTime) === dateKey(day) || true)
+  const routes = query.data?.routes ?? []
 
   return (
     <section className="flex flex-col gap-4 border-t border-line/70 pt-4" aria-label={formatDayLabel(day, locale, now)}>
@@ -449,11 +530,12 @@ function ExtraDay({
       {routes.length > 0 && (
         <RouteList
           routes={routes}
-          from={origin.slug}
-          to={destination.slug}
+          from={origin.id}
+          to={destination.id}
           selectedId={selectedId}
           now={now}
           hideSlowTrains={hideSlowTrains}
+          day={dateKey(day)}
         />
       )}
     </section>

@@ -13,6 +13,7 @@ export function RouteList({
   selectedId,
   now,
   hideSlowTrains,
+  day,
 }: {
   routes: RouteItem[]
   from: string
@@ -20,6 +21,8 @@ export function RouteList({
   selectedId?: string
   now: NaiveTime
   hideSlowTrains: boolean
+  /** Set on the appended days — see `RouteCard` */
+  day?: string
 }) {
   const t = useT()
   const [showPast, setShowPast] = useState(false)
@@ -33,7 +36,7 @@ export function RouteList({
     !visible.some((r) => r.id === selectedId && isRouteInThePast(r, now))
 
   return (
-    <ol className="flex flex-col gap-3">
+    <ol data-day={day} className="flex flex-col gap-3">
       {collapsePast && (
         <li>
           <button
@@ -58,6 +61,7 @@ export function RouteList({
               selected={route.id === selectedId}
               isPast={isPast}
               isNext={index === nextIndex}
+              day={day}
             />
           </li>
         )

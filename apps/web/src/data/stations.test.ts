@@ -1,33 +1,20 @@
 import { describe, expect, test } from "bun:test"
-import {
-  getStationBySlug,
-  resolveStation,
-  slugify,
-  stations,
-  popularRoutes,
-  suggestedDestinations,
-  stationImage,
-} from "./stations"
+import { getStationById, stations, stationImage, stationName, sortedStations } from "./stations"
 
 describe("stations", () => {
-  test("slugs are unique, lowercase and url safe", () => {
-    const slugs = stations.map((s) => s.slug)
-    expect(new Set(slugs).size).toBe(slugs.length)
-    for (const slug of slugs) expect(slug).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/)
+  test("ids are unique and url safe", () => {
+    const ids = stations.map((station) => station.id)
+    expect(new Set(ids).size).toBe(ids.length)
+    for (const id of ids) expect(id).toMatch(/^\d+$/)
   })
 
-  test("slugify handles apostrophes, dashes and slashes", () => {
-    expect(slugify("Tel Aviv - Savidor Center")).toBe("tel-aviv-savidor-center")
-    expect(slugify("Be'er Sheva - North/University")).toBe("beer-sheva-north-university")
-    expect(slugify("Kiryat Malakhi – Yoav")).toBe("kiryat-malakhi-yoav")
-    expect(slugify("Yokne'am - Kfar Yehoshu'a")).toBe("yokneam-kfar-yehoshua")
-  })
-
-  test("resolves slugs and legacy numeric ids", () => {
-    expect(resolveStation("3700")?.slug).toBe("tel-aviv-savidor-center")
-    expect(resolveStation("Tel-Aviv-Savidor-Center")?.id).toBe("3700")
-    expect(resolveStation("nowhere")).toBeUndefined()
-    expect(getStationBySlug("jerusalem-yitzhak-navon")?.id).toBe("680")
+  test("looks stations up by id", () => {
+    expect(getStationById("3700")).toBeDefined()
+    expect(stationName(getStationById("3700")!, "en")).toBe("Tel Aviv - Savidor Center")
+    expect(stationName(getStationById("680")!, "he")).toBe("ירושלים - יצחק נבון")
+    expect(getStationById(3500)?.english).toBe("Herzliya")
+    expect(getStationById("nowhere")).toBeUndefined()
+    expect(getStationById(undefined)).toBeUndefined()
   })
 
   test("every station except Rishon HaRishonim has a web image", () => {
@@ -37,9 +24,10 @@ describe("stations", () => {
     }
   })
 
-  test("suggestions never include the station itself", () => {
-    const tlv = resolveStation("3700")!
-    expect(suggestedDestinations(tlv).some((s) => s.id === tlv.id)).toBe(false)
-    expect(popularRoutes.length).toBeGreaterThan(0)
+  test("sorts by the locale's collation", () => {
+    expect(sortedStations("he").length).toBe(stations.length)
+    expect(sortedStations("en").map((station) => station.english)).toEqual(
+      [...stations].map((station) => station.english).sort(new Intl.Collator("en").compare),
+    )
   })
 })

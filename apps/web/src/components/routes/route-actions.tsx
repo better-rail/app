@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { CalendarPlus, Check, Link2, Share2 } from "lucide-react"
+import { CalendarPlus, Share2 } from "lucide-react"
 import type { RouteItem } from "@/lib/api/types"
 import { stationNameById } from "@/data/stations"
 import { useLocale, useT } from "@/i18n"
@@ -8,6 +8,7 @@ import { formatLongDate } from "@/lib/format"
 import { downloadIcs, googleCalendarUrl, type CalendarEvent } from "@/lib/calendar"
 import { trackEvent } from "@/lib/analytics"
 import { cn } from "@/lib/cn"
+import { Tooltip } from "../tooltip"
 
 export function RouteActions({
   route,
@@ -67,6 +68,7 @@ export function RouteActions({
     await copy()
   }
 
+  /** Desktop browsers without the Web Share API fall back to putting the link on the clipboard. */
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(shareUrl)
@@ -79,24 +81,24 @@ export function RouteActions({
 
   return (
     <div className="flex items-center gap-1">
-      <button type="button" onClick={share} className="icon-btn" aria-label={t("details.share")} title={t("details.share")}>
-        <Share2 className="size-5" />
-      </button>
-      <button type="button" onClick={copy} className="icon-btn" aria-label={t("details.copyLink")} title={t("details.copyLink")}>
-        {copied ? <Check className="size-5 text-success" /> : <Link2 className="size-5" />}
-      </button>
-      <div ref={menuRef} className="relative">
-        <button
-          type="button"
-          onClick={() => setCalendarOpen((open) => !open)}
-          aria-haspopup="menu"
-          aria-expanded={calendarOpen}
-          className={cn("icon-btn", calendarOpen && "bg-surface-3")}
-          aria-label={t("details.addToCalendar")}
-          title={t("details.addToCalendar")}
-        >
-          <CalendarPlus className="size-5" />
+      <Tooltip label={t("details.share")}>
+        <button type="button" onClick={share} className="icon-btn" aria-label={t("details.share")}>
+          <Share2 className="size-5" />
         </button>
+      </Tooltip>
+      <div ref={menuRef} className="relative">
+        <Tooltip label={t("details.addToCalendar")} disabled={calendarOpen}>
+          <button
+            type="button"
+            onClick={() => setCalendarOpen((open) => !open)}
+            aria-haspopup="menu"
+            aria-expanded={calendarOpen}
+            className={cn("icon-btn", calendarOpen && "bg-surface-3")}
+            aria-label={t("details.addToCalendar")}
+          >
+            <CalendarPlus className="size-5" />
+          </button>
+        </Tooltip>
         {calendarOpen && (
           <div
             role="menu"
@@ -125,7 +127,7 @@ export function RouteActions({
               }}
               className="block w-full rounded-lg px-3 py-2 text-start text-[14px] hover:bg-surface-3"
             >
-              {t("details.icsFile")}
+              {t("details.appleCalendar")}
             </button>
           </div>
         )}

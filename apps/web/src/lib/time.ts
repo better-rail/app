@@ -58,6 +58,10 @@ export function minutesBetween(from: NaiveTime, to: NaiveTime): number {
   return Math.round((to - from) / MINUTE)
 }
 
+export function daysBetween(from: NaiveTime, to: NaiveTime): number {
+  return Math.round((startOfDay(to) - startOfDay(from)) / DAY)
+}
+
 export function isSameDay(a: NaiveTime, b: NaiveTime): boolean {
   return startOfDay(a) === startOfDay(b)
 }

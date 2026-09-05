@@ -25,14 +25,10 @@ export function SiteFooter() {
             <img src="/assets/images/icon.svg" alt="" className="h-7 w-auto" width={50} height={60} />
             Better Rail
           </div>
-          <p className="max-w-md text-[14px] leading-relaxed text-muted">{t("footer.dataSource")}</p>
           <DownloadBadges size="sm" />
         </div>
 
         <nav className="flex flex-col gap-2 text-[15px]" aria-label={t("footer.about")}>
-          <LocaleLink to="/{-$locale}/stations" className="link-underline w-fit text-text-2 hover:text-text">
-            {t("footer.stations")}
-          </LocaleLink>
           <LocaleLink to="/{-$locale}/privacy-policy" className="link-underline w-fit text-text-2 hover:text-text">
             {t("footer.privacy")}
           </LocaleLink>

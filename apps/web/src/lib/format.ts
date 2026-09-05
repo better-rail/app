@@ -1,5 +1,5 @@
 import type { Locale } from "@/i18n"
-import { dateKey, isSameDay, naiveNow, addDays, type NaiveTime } from "./time"
+import { dateKey, isSameDay, naiveNow, addDays, parseNaive, type NaiveTime } from "./time"
 
 const intlLocale = (locale: Locale) => (locale === "he" ? "he-IL" : "en-GB")
 
@@ -48,6 +48,17 @@ export function formatDayLabel(naive: NaiveTime, locale: Locale, now: NaiveTime 
   if (isSameDay(naive, now)) return locale === "he" ? `היום · ${formatted}` : `Today · ${formatted}`
   if (isSameDay(naive, addDays(now, 1))) return locale === "he" ? `מחר · ${formatted}` : `Tomorrow · ${formatted}`
   return formatted
+}
+
+/**
+ * The planner's date field: "היום" / "מחר", or a numeric `05/09/2026` that reads the same in both directions.
+ * Both arguments are `YYYY-MM-DD` keys, matching the `<input type="date">` value.
+ */
+export function formatDateField(date: string, locale: Locale, today: string): string {
+  if (date === today) return locale === "he" ? "היום" : "Today"
+  if (date === dateKey(addDays(parseNaive(today), 1))) return locale === "he" ? "מחר" : "Tomorrow"
+  const [year, month, day] = date.split("-")
+  return `${day}/${month}/${year}`
 }
 
 export function formatShortDate(naive: NaiveTime, locale: Locale): string {

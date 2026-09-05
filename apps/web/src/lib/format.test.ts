@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import { formatDuration, formatDurationLong, formatDayLabel } from "./format"
+import { formatDuration, formatDurationLong, formatDayLabel, formatDateField } from "./format"
 import { parseNaive } from "./time"
 
 const MIN = 60_000
@@ -28,5 +28,15 @@ describe("formatDayLabel", () => {
     expect(formatDayLabel(parseNaive("2026-09-05T18:00:00"), "en", now)).toMatch(/^Today · Saturday/)
     expect(formatDayLabel(parseNaive("2026-09-06T02:00:00"), "he", now)).toMatch(/^מחר · /)
     expect(formatDayLabel(parseNaive("2026-09-08T02:00:00"), "en", now)).toBe("Tuesday 8 September")
+  })
+})
+
+describe("formatDateField", () => {
+  test("names today and tomorrow, and stays numeric otherwise", () => {
+    expect(formatDateField("2026-09-05", "he", "2026-09-05")).toBe("היום")
+    expect(formatDateField("2026-09-06", "he", "2026-09-05")).toBe("מחר")
+    expect(formatDateField("2026-09-06", "en", "2026-09-05")).toBe("Tomorrow")
+    expect(formatDateField("2026-09-07", "he", "2026-09-05")).toBe("07/09/2026")
+    expect(formatDateField("2027-01-01", "en", "2026-12-31")).toBe("Tomorrow")
   })
 })

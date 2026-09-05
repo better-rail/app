@@ -16,7 +16,7 @@ export const STATIC_PAGES = [
 ]
 
 /** Pages that exist in every locale. */
-export const LOCALIZED_PAGES = ["/", "/stations", "/privacy-policy"]
+export const LOCALIZED_PAGES = ["/", "/privacy-policy"]
 
 const escapeXml = (value: string) =>
   value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
@@ -66,12 +66,12 @@ export function urlset(entries: SitemapEntry[]): string {
   ].join("\n")
 }
 
-/** Every ordered station pair — the route pages we want indexed. */
+/** Every ordered station id pair — the route pages we want indexed. */
 export function routePairs(): Array<[string, string]> {
   const pairs: Array<[string, string]> = []
   for (const from of stations) {
     for (const to of stations) {
-      if (from.id !== to.id) pairs.push([from.slug, to.slug])
+      if (from.id !== to.id) pairs.push([from.id, to.id])
     }
   }
   return pairs
@@ -80,11 +80,7 @@ export function routePairs(): Array<[string, string]> {
 export const routeSitemapCount = () => Math.ceil(routePairs().length / ROUTES_PER_SITEMAP)
 
 export function sitemapIndex(lastmod: string): string {
-  const files = [
-    "/sitemaps/pages",
-    "/sitemaps/stations",
-    ...Array.from({ length: routeSitemapCount() }, (_, i) => `/sitemaps/routes/${i + 1}`),
-  ]
+  const files = ["/sitemaps/pages", ...Array.from({ length: routeSitemapCount() }, (_, i) => `/sitemaps/routes/${i + 1}`)]
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
@@ -106,18 +102,6 @@ export function pagesSitemap(lastmod: string): string {
     })),
     ...STATIC_PAGES.map<SitemapEntry>((path) => ({ path, localized: false, lastmod, changefreq: "monthly", priority: 0.5 })),
   ])
-}
-
-export function stationsSitemap(lastmod: string): string {
-  return urlset(
-    stations.map<SitemapEntry>((station) => ({
-      path: `/stations/${station.slug}`,
-      localized: true,
-      lastmod,
-      changefreq: "weekly",
-      priority: 0.7,
-    })),
-  )
 }
 
 export function routesSitemap(page: number, lastmod: string): string | null {

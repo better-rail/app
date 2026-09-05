@@ -126,6 +126,12 @@
     letter-spacing: -0.02em;
   }
 
+  button:not(:disabled),
+  summary,
+  [role="option"] {
+    cursor: pointer;
+  }
+
   ::selection {
     background: color-mix(in srgb, var(--color-brand) 25%, transparent);
   }

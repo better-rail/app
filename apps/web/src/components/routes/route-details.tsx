@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react"
-import { AlertTriangle, Ban, Clock, ArrowLeftRight, Expand, Shrink, TrainFront, ChevronDown, ChevronUp } from "lucide-react"
+import { AlertTriangle, ArrowLeft, ArrowRight, Ban, Clock, ArrowLeftRight, Expand, Shrink, TrainFront } from "lucide-react"
 import type { RouteItem, Train } from "@/lib/api/types"
 import { exchangeWaitMinutes } from "@/lib/api/route-format"
 import { addMinutes, formatClock } from "@/lib/time"
@@ -9,6 +9,7 @@ import { useLocale, useT } from "@/i18n"
 import { cn } from "@/lib/cn"
 import { CancelledBadge, DelayBadge, useChangesText } from "./route-badges"
 import { RouteActions } from "./route-actions"
+import { Tooltip } from "../tooltip"
 
 const SAFE_CHANGE_MINUTES = 3
 
@@ -29,6 +30,7 @@ export function RouteDetails({
   const locale = useLocale()
   const changesText = useChangesText()
   const [showFullRoute, setShowFullRoute] = useState(false)
+  const Arrow = locale === "he" ? ArrowLeft : ArrowRight
   const changes = route.trains.length - 1
   const delayedArrival = route.delay > 0 ? addMinutes(route.arrivalTime, route.delay) : undefined
 
@@ -37,7 +39,8 @@ export function RouteDetails({
       <header className="border-b border-line/70 px-4 pb-4 pt-4 sm:px-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <div className="flex items-baseline gap-2" dir="ltr">
+            {/* Reads in the page's direction: departure first, then the arrow, then arrival. */}
+            <div className="flex items-baseline gap-2">
               <span
                 className={cn(
                   "tabular text-[30px] font-bold leading-none tracking-tight",
@@ -46,7 +49,7 @@ export function RouteDetails({
               >
                 {formatClock(route.departureTime)}
               </span>
-              <span className="text-dim">→</span>
+              <Arrow className="size-5 shrink-0 self-center text-dim" />
               <span
                 className={cn(
                   "tabular text-[30px] font-bold leading-none tracking-tight",
@@ -67,7 +70,20 @@ export function RouteDetails({
               {route.isCancelled ? <CancelledBadge /> : route.delay > 0 ? <DelayBadge minutes={route.delay} /> : null}
             </div>
           </div>
-          <RouteActions route={route} originId={originId} destinationId={destinationId} shareUrl={shareUrl} />
+          <div className="flex items-center gap-1">
+            <Tooltip label={showFullRoute ? t("details.hideAllStations") : t("details.showAllStations")}>
+              <button
+                type="button"
+                onClick={() => setShowFullRoute((value) => !value)}
+                aria-pressed={showFullRoute}
+                className="icon-btn"
+                aria-label={showFullRoute ? t("details.hideAllStations") : t("details.showAllStations")}
+              >
+                {showFullRoute ? <Shrink className="size-5" /> : <Expand className="size-5" />}
+              </button>
+            </Tooltip>
+            <RouteActions route={route} originId={originId} destinationId={destinationId} shareUrl={shareUrl} />
+          </div>
         </div>
       </header>
 
@@ -84,15 +100,6 @@ export function RouteDetails({
             showFullRoute={showFullRoute}
           />
         ))}
-
-        <button
-          type="button"
-          onClick={() => setShowFullRoute((value) => !value)}
-          className="btn-ghost mx-auto mt-1 h-10 gap-2 text-[14px]"
-        >
-          {showFullRoute ? <Shrink className="size-4" /> : <Expand className="size-4" />}
-          {showFullRoute ? t("details.hideAllStations") : t("details.showAllStations")}
-        </button>
       </div>
     </section>
   )
@@ -101,7 +108,6 @@ export function RouteDetails({
 function TrainSegment({ train, next, showFullRoute }: { train: Train; next?: Train; showFullRoute: boolean }) {
   const t = useT()
   const locale = useLocale()
-  const [stopsOpen, setStopsOpen] = useState(true)
   const name = (id: string) => stationNameById(id, locale)
 
   const originIndex = train.routeStations.findIndex((s) => s.stationId === train.originStationId)
@@ -135,7 +141,7 @@ function TrainSegment({ train, next, showFullRoute }: { train: Train; next?: Tra
       )}
 
       <ol className="relative flex flex-col">
-        {before.map((station) => (
+        {before.map((station, index) => (
           <StopRow
             key={`before-${station.stationId}`}
             name={name(station.stationId)}
@@ -143,6 +149,7 @@ function TrainSegment({ train, next, showFullRoute }: { train: Train; next?: Tra
             delay={train.delay}
             outside
             cancelled={station.cancelled}
+            first={index === 0}
           />
         ))}
 
@@ -156,39 +163,18 @@ function TrainSegment({ train, next, showFullRoute }: { train: Train; next?: Tra
           lastStop={name(train.lastStopId)}
           lastStopChanged={train.isLastStopChanged}
           cancelled={train.originCancelled}
-          first
+          first={before.length === 0}
         />
 
-        {train.stopStations.length > 0 && (
-          <li className="relative ps-[76px]">
-            <button
-              type="button"
-              onClick={() => setStopsOpen((open) => !open)}
-              aria-expanded={stopsOpen}
-              className="-ms-2 my-0.5 inline-flex items-center gap-1 rounded-md px-2 py-1 text-[13px] font-medium text-brand-text hover:bg-brand-soft"
-            >
-              {stopsOpen ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
-              {t("details.stops", { count: train.stopStations.length })}
-            </button>
-            <TimelineLine />
-          </li>
-        )}
-        {train.stopStations.length === 0 && (
-          <li className="relative h-6 ps-[76px] text-[13px] text-dim">
-            <span className="block py-0.5">{t("details.noStops")}</span>
-            <TimelineLine />
-          </li>
-        )}
-        {stopsOpen &&
-          train.stopStations.map((stop) => (
-            <StopRow
-              key={stop.stationId}
-              name={name(stop.stationId)}
-              time={formatClock(stop.departureTime)}
-              delay={train.delay}
-              cancelled={stop.cancelled}
-            />
-          ))}
+        {train.stopStations.map((stop) => (
+          <StopRow
+            key={stop.stationId}
+            name={name(stop.stationId)}
+            time={formatClock(stop.departureTime)}
+            delay={train.delay}
+            cancelled={stop.cancelled}
+          />
+        ))}
 
         <StationRow
           name={name(train.destinationStationId)}
@@ -198,6 +184,7 @@ function TrainSegment({ train, next, showFullRoute }: { train: Train; next?: Tra
           platformChanged={train.destinationPlatformChanged}
           cancelled={train.destinationCancelled}
           last={after.length === 0}
+          spaced={train.stopStations.length === 0}
         />
 
         {after.map((station, index) => (
@@ -218,8 +205,18 @@ function TrainSegment({ train, next, showFullRoute }: { train: Train; next?: Tra
   )
 }
 
-function TimelineLine({ className }: { className?: string }) {
-  return <span aria-hidden="true" className={cn("absolute inset-y-0 start-[63px] w-[3px] bg-line-strong", className)} />
+/**
+ * The column the timeline runs down: markers of either size are centred on the rule, which keeps them — and the
+ * station names beside them — in one line. `lineClassName` carries the rule's vertical insets, which reach past
+ * the row's padding so consecutive rows join up.
+ */
+function TimelineColumn({ marker, lineClassName }: { marker: ReactNode; lineClassName: string }) {
+  return (
+    <span className="relative flex w-[22px] shrink-0 justify-center self-stretch">
+      <span aria-hidden="true" className={cn("absolute left-1/2 w-[3px] -translate-x-1/2 bg-line-strong", lineClassName)} />
+      {marker}
+    </span>
+  )
 }
 
 function StationRow({
@@ -234,6 +231,7 @@ function StationRow({
   cancelled,
   first,
   last,
+  spaced,
 }: {
   name: string
   time: string
@@ -246,12 +244,13 @@ function StationRow({
   cancelled?: boolean
   first?: boolean
   last?: boolean
+  /** Set when this card follows another one directly, so the two do not sit flush against each other */
+  spaced?: boolean
 }) {
   const t = useT()
   const delayedTime = delay > 0 ? shiftClock(time, delay) : undefined
   return (
-    <li className="relative flex items-start gap-3 rounded-xl bg-surface-2 py-3 pe-3 ps-3">
-      <TimelineLine className={cn(first && "top-1/2", last && "bottom-1/2")} />
+    <li className={cn("flex items-start gap-3 rounded-xl bg-surface-2 p-3", spaced && "mt-3")}>
       <div className="flex w-[44px] shrink-0 flex-col items-end leading-tight" dir="ltr">
         <span
           className={cn("tabular text-[17px] font-bold", (delayedTime || cancelled) && "text-[13px] line-through opacity-60")}
@@ -260,12 +259,20 @@ function StationRow({
         </span>
         {delayedTime && !cancelled && <span className="tabular text-[17px] font-bold text-danger">{delayedTime}</span>}
       </div>
-      <span
-        aria-hidden="true"
-        className="relative z-10 mt-1 flex size-[22px] shrink-0 items-center justify-center rounded-full border-[3px] border-line-strong bg-surface"
-      >
-        <TrainFront className="size-3 text-text-2" />
-      </span>
+      <TimelineColumn
+        // The rule meets the marker rather than the row's midpoint — these cards are as tall as their text, so a
+        // midpoint would leave a gap under a three-line one. 15px is `mt-1` plus half of the 22px marker; the
+        // negative insets reach past the row's `p-3` (and, when `spaced`, its `mt-3`) to join the rows around it.
+        lineClassName={cn(first ? "top-[15px]" : spaced ? "-top-6" : "-top-3", last ? "bottom-[calc(100%_-_15px)]" : "-bottom-3")}
+        marker={
+          <span
+            aria-hidden="true"
+            className="relative z-10 flex size-[22px] items-center justify-center self-start rounded-full border-[3px] border-line-strong bg-surface"
+          >
+            <TrainFront className="size-3 text-text-2" />
+          </span>
+        }
+      />
       <div className="min-w-0 flex-1 leading-snug">
         <p className={cn("text-[16px] font-bold", cancelled && "line-through opacity-60")}>{name}</p>
         <p className="text-[13.5px] text-muted">
@@ -290,6 +297,7 @@ function StopRow({
   delay,
   outside,
   cancelled,
+  first,
   last,
 }: {
   name: string
@@ -297,12 +305,12 @@ function StopRow({
   delay: number
   outside?: boolean
   cancelled?: boolean
+  first?: boolean
   last?: boolean
 }) {
   const delayedTime = delay > 0 ? shiftClock(time, delay) : undefined
   return (
-    <li className={cn("relative flex items-center gap-3 py-1.5 pe-3 ps-3", outside && "opacity-60")}>
-      <TimelineLine className={cn(last && "bottom-1/2")} />
+    <li className={cn("flex items-center gap-3 px-3 py-1.5", outside && "opacity-60")}>
       <div className="flex w-[44px] shrink-0 flex-col items-end leading-tight" dir="ltr">
         <span
           className={cn("tabular text-[14px] font-semibold", (delayedTime || cancelled) && "text-[11px] line-through opacity-60")}
@@ -311,9 +319,14 @@ function StopRow({
         </span>
         {delayedTime && !cancelled && <span className="tabular text-[14px] font-semibold text-danger">{delayedTime}</span>}
       </div>
-      <span
-        aria-hidden="true"
-        className="relative z-10 size-[14px] shrink-0 rounded-full border-[3px] border-line-strong bg-bg"
+      <TimelineColumn
+        lineClassName={cn(first ? "top-1/2" : "-top-1.5", last ? "bottom-1/2" : "-bottom-1.5")}
+        marker={
+          <span
+            aria-hidden="true"
+            className="relative z-10 size-[14px] self-center rounded-full border-[3px] border-line-strong bg-bg"
+          />
+        }
       />
       <p className={cn("min-w-0 flex-1 text-[14.5px] font-medium", cancelled && "line-through opacity-60")}>{name}</p>
     </li>
