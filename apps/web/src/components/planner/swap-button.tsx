@@ -2,7 +2,8 @@ import { ArrowUpDown, ArrowLeftRight } from "lucide-react"
 import { useT } from "@/i18n"
 import { cn } from "@/lib/cn"
 
-const ICON = "size-5 transition-transform duration-500 ease-out-expo group-hover:rotate-180"
+/** Half the button, whatever its size — the app's arrows fill the same share of its button. */
+const ICON = "size-1/2 transition-transform duration-500 ease-out-expo group-hover:rotate-180"
 
 /** Up/down arrows below the breakpoint (the fields are stacked there), left/right from it on. */
 const RESPONSIVE_ICONS = {
@@ -10,7 +11,10 @@ const RESPONSIVE_ICONS = {
   lg: { vertical: "lg:hidden", horizontal: "hidden lg:block" },
 }
 
-/** The app's blue "flip stations" button; `responsive` names the breakpoint where the arrows turn horizontal. */
+/**
+ * The app's blue "flip stations" button; `responsive` names the breakpoint where the arrows turn horizontal. The
+ * caller sets the size (`size-*` in `className`): the icon scales with it.
+ */
 export function SwapButton({
   onClick,
   disabled,
@@ -33,7 +37,7 @@ export function SwapButton({
       aria-label={t("plan.swap")}
       title={t("plan.swap")}
       className={cn(
-        "group inline-flex size-11 items-center justify-center rounded-full bg-brand text-white shadow-[0_2px_8px_rgb(10_129_221/0.4)] transition-[transform,background-color] duration-300 ease-out-expo hover:bg-brand-strong active:scale-90 disabled:opacity-40 disabled:shadow-none",
+        "group inline-flex items-center justify-center rounded-full bg-brand text-white shadow-[0_2px_8px_rgb(10_129_221/0.4)] transition-[scale,background-color] duration-300 ease-out-expo hover:bg-brand-strong active:scale-90 disabled:opacity-40 disabled:shadow-none",
         className,
       )}
     >

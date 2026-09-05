@@ -154,8 +154,17 @@ export function Planner({
             onChange={(origin) => update({ origin })}
           />
         </div>
-        <div className="absolute end-4 top-1/2 z-10 -translate-y-1/2 lg:static lg:mb-[90px] lg:translate-y-0">
-          <SwapButton onClick={swap} disabled={!value.origin || !value.destination} responsive="lg" />
+        {/* Below `lg` the button straddles the seam between the two cards, as in the app: this zero-height row starts at
+            the origin card's bottom edge (the column gap above it is cancelled), and 19px is half of that gap plus the
+            destination's label, so the button is centred on the space between the cards. From `lg` it is a
+            card-height cell between the two, with the button centred on them. */}
+        <div className="relative z-10 -mt-3 h-0 lg:static lg:mt-0 lg:flex lg:h-56 lg:items-center">
+          <SwapButton
+            onClick={swap}
+            disabled={!value.origin || !value.destination}
+            responsive="lg"
+            className="absolute end-2 top-[19px] size-16 -translate-y-1/2 lg:static lg:size-14 lg:translate-y-0"
+          />
         </div>
         <div className={cn("transition-transform duration-300 ease-out-expo", swapping && "scale-[0.97]")}>
           <StationPicker

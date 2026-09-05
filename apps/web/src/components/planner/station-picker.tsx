@@ -43,6 +43,8 @@ export function StationPicker({ label, value, onChange, exclude, variant = "card
   const trigger = useRef<HTMLButtonElement>(null)
   const input = useRef<HTMLInputElement>(null)
   const list = useRef<HTMLUListElement>(null)
+  /** The highlight was just moved with the arrow keys, so the list should scroll to keep it in view. */
+  const keyboardMove = useRef(false)
 
   const recentStations = (() => {
     const ids = recent.map((route) => (kind === "origin" ? route.originId : route.destinationId))
@@ -60,7 +62,10 @@ export function StationPicker({ label, value, onChange, exclude, variant = "card
     list.current?.scrollTo({ top: 0 })
   }, [query])
 
+  // Only after a key press: a hovered row is on screen already, and scrolling it "into view" could move the page.
   useEffect(() => {
+    if (!keyboardMove.current) return
+    keyboardMove.current = false
     list.current?.querySelector<HTMLElement>('[data-active="true"]')?.scrollIntoView({ block: "nearest" })
   }, [activeIndex])
 
@@ -76,28 +81,34 @@ export function StationPicker({ label, value, onChange, exclude, variant = "card
     input.current?.focus({ preventScroll: true })
   }
 
-  const close = (reason: PickerCloseReason) => {
+  /**
+   * Focus goes back to the field for keyboard users only (Enter, or Escape on desktop): moved there after a click or
+   * a tap, the browser would paint a focus ring on the field.
+   */
+  const close = (reason: PickerCloseReason, viaKeyboard = reason === "cancel" && isDesktop) => {
     setOpen(false)
-    if (reason !== "dismiss") trigger.current?.focus({ preventScroll: true })
+    if (viaKeyboard) trigger.current?.focus({ preventScroll: true })
   }
 
-  const select = (station: Station) => {
+  const select = (station: Station, viaKeyboard = false) => {
     if (station.id === exclude?.id) return
     onChange(station)
-    close("select")
+    close("select", viaKeyboard)
   }
 
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "ArrowDown") {
       event.preventDefault()
+      keyboardMove.current = true
       setActiveIndex((index) => Math.min(index + 1, results.length - 1))
     } else if (event.key === "ArrowUp") {
       event.preventDefault()
+      keyboardMove.current = true
       setActiveIndex((index) => Math.max(index - 1, 0))
     } else if (event.key === "Enter") {
       event.preventDefault()
       const station = results[activeIndex]
-      if (station) select(station)
+      if (station) select(station, true)
     }
   }
 
@@ -164,7 +175,9 @@ export function StationPicker({ label, value, onChange, exclude, variant = "card
         label={label}
         anchorRef={anchor}
         size="tall"
-        panelClassName="flex w-full min-w-[340px] flex-col overflow-hidden"
+        animation="fade-up"
+        // `--panel-room` is what the shell measured between the field and the fold, so the list never runs past it.
+        panelClassName="flex w-full min-w-[340px] max-h-(--panel-room) flex-col overflow-hidden"
       >
         <div className={cn("shrink-0", isDesktop ? "p-2 pb-1.5" : "px-4 pb-2 pt-1")}>
           <div className="flex h-11 items-center gap-2.5 rounded-xl bg-surface-3 px-3 transition-shadow focus-within:ring-3 focus-within:ring-brand/25">
