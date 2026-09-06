@@ -377,9 +377,13 @@ function RoutesPage() {
   useEffect(() => {
     const list = listRef.current
     if (!list || !query.data) return
-    const key = `${origin.id}-${destination.id}@${data.date}T${data.hour}`
+    const pair = `${origin.id}-${destination.id}`
+    const key = `${pair}@${data.date}T${data.hour}`
     if (scrolledToTime.current === key) return
     const arriving = scrolledToTime.current === undefined
+    // Swapping the stations (or picking another route) replaces every card on the page: gliding through a list that
+    // is no longer the one on screen reads as a glitch, so only a date/time change on the same route animates.
+    const replaced = arriving || !scrolledToTime.current?.startsWith(`${pair}@`)
     scrolledToTime.current = key
     if (arriving && search.trip) return
 
@@ -405,8 +409,9 @@ function RoutesPage() {
       // scroll the list's end above the fold and push the details pane up with it, so the scroll stops with the
       // end of the list at the fold, the requested train just above it — as a list scrolled to its end looks.
       const delta = Math.min(top - offset, roomBelowList(detailsRef.current))
-      // A jump when the page is new; otherwise the page's own smooth scrolling (which reduced motion turns off).
-      window.scrollTo({ top: window.scrollY + delta, behavior: arriving ? "instant" : "auto" })
+      // A jump when the list is a different one; otherwise the page's own smooth scrolling (which reduced motion
+      // turns off).
+      window.scrollTo({ top: window.scrollY + delta, behavior: replaced ? "instant" : "auto" })
     })
   }, [query.data, data.date, data.hour, origin.id, destination.id, search.trip])
 
