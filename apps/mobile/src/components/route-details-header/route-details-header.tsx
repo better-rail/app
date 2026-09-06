@@ -8,12 +8,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import LinearGradient from "react-native-linear-gradient"
 import { color, spacing } from "@/theme"
 import { StarIcon } from "@/components/star-icon/star-icon"
+import { FilterIcon } from "@/components/filter-icon/filter-icon"
 import { MenuIcon } from "@/components/menu-icon/menu-icon"
 import HapticFeedback from "react-native-haptic-feedback"
 import { stationsObject, stationLocale } from "@/data/stations"
 import { translate } from "@/i18n"
 import { useShallow } from "zustand/react/shallow"
-import { useFavoritesStore, useRoutePlanStore } from "@/models"
+import { useFavoritesStore, useRoutePlanStore, useSettingsStore } from "@/models"
 import * as Burnt from "burnt"
 import type { RouteItem } from "@/services/api"
 import { ContextMenu } from "@/components/context-menu/context-menu"
@@ -22,7 +23,6 @@ import { createContextMenuActions } from "@/components/route-card/route-context-
 import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
 import { HeaderBackButton } from "@/components/header-back-button"
 import { RouteStationNameButton } from "./route-station-name-button"
-import { HIDE_STATION_HOURS } from "@/config/features"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
 const ellipsisIcon = require("../../../assets/ellipsis.regular.png")
@@ -53,6 +53,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     destination: routePlanDestination,
     switchDirection,
   } = useRoutePlanStore(useShallow((s) => ({ origin: s.origin, destination: s.destination, switchDirection: s.switchDirection })))
+  const isFilterActive = useSettingsStore((s) => s.hideSlowTrains || s.maxChanges !== null)
   const router = useRouter()
   const navigation = useNavigation()
   const insets = useSafeAreaInsets()
@@ -68,10 +69,6 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const destinationName = destinationStation?.[stationLocale]
   const routeId = `${originId}${destinationId}`
   const isFavorite = favoriteRoutesData.some((fav) => fav.id === routeId)
-
-  const openStationHoursSheet = () => {
-    router.push({ pathname: "/station-hours", params: { stationId: originId } })
-  }
 
   const scaleStationCards = () => {
     RNAnimated.sequence([
@@ -201,52 +198,16 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       }
     }
 
-    const menuActions = [
-      {
-        title: translate("routes.filter"),
-        systemIcon: "line.3.horizontal.decrease",
-        onPress: () => router.push("/filter"),
-      },
-      ...(HIDE_STATION_HOURS
-        ? []
-        : [
-            {
-              title: translate("routes.stationHours"),
-              systemIcon: "clock",
-              onPress: openStationHoursSheet,
-            },
-          ]),
-    ]
+    const openFilterSheet = () => {
+      HapticFeedback.trigger("impactMedium")
+      router.push("/filter")
+    }
 
     if (isLiquidGlassSupported) {
       return (
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: spacing[4],
-          }}
-        >
+        <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[4] }}>
           <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
-          <ContextMenu mode="tap" actions={menuActions} onPressAction={() => HapticFeedback.trigger("impactMedium")}>
-            <LiquidGlassView
-              interactive
-              colorScheme="dark"
-              tintColor="rgba(51, 51, 51, 0.9)"
-              style={{ padding: 12, borderRadius: 50 }}
-            >
-              <Image
-                source={ellipsisIcon}
-                style={{
-                  width: 23,
-                  height: 23,
-                  resizeMode: "contain",
-                  tintColor: "lightgrey",
-                  opacity: 0.9,
-                }}
-              />
-            </LiquidGlassView>
-          </ContextMenu>
+          <FilterIcon active={isFilterActive} onPress={openFilterSheet} />
         </View>
       )
     }
@@ -254,19 +215,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     return (
       <>
         <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
-        <ContextMenu mode="tap" actions={menuActions} onPressAction={() => HapticFeedback.trigger("impactMedium")}>
-          <Image
-            source={ellipsisIcon}
-            style={{
-              width: 23,
-              height: 23,
-              marginLeft: spacing[2],
-              resizeMode: "contain",
-              tintColor: "lightgrey",
-              opacity: 0.9,
-            }}
-          />
-        </ContextMenu>
+        <FilterIcon style={{ marginLeft: spacing[2] }} active={isFilterActive} onPress={openFilterSheet} />
       </>
     )
   }

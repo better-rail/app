@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import HapticFeedback from "react-native-haptic-feedback"
 import * as Burnt from "burnt"
 import { View, ActivityIndicator, Dimensions, useColorScheme } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { FlashList } from "@shopify/flash-list"
+import { FlashList, type FlashListRef } from "@shopify/flash-list"
 import { useNetworkState } from "expo-network"
 import { useQuery } from "react-query"
 import { closestIndexTo } from "date-fns"
@@ -12,11 +12,13 @@ import { useObserve } from "expo-observe"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useShallow } from "zustand/react/shallow"
 import { useTrainRoutesStore, useRoutePlanStore, useRideStore, useSettingsStore } from "@/models"
+import { filterRouteDataByMaxChanges } from "@/models/settings/settings"
 import { fontScale, spacing } from "@/theme"
 import type { RouteItem } from "@/services/api"
 import { Screen, RouteDetailsHeader, RouteCard } from "@/components"
 import {
   NoTrainsFoundMessage,
+  FilteredTrainsMessage,
   RouteListError,
   RouteListWarning,
   type WarningType,
@@ -121,6 +123,8 @@ export function RouteListScreen() {
   const isRouteActive = useRideStore((s) => s.isRouteActive)
   const rideRoute = useRideStore((s) => s.route)
   const hideSlowTrains = useSettingsStore((s) => s.hideSlowTrains)
+  const maxChanges = useSettingsStore((s) => s.maxChanges)
+  const setMaxChanges = useSettingsStore((s) => s.setMaxChanges)
   const seenTrainInfoPrompt = useSettingsStore((s) => s.seenTrainInfoPrompt)
   const setSeenTrainInfoPrompt = useSettingsStore((s) => s.setSeenTrainInfoPrompt)
   const { showActionSheetWithOptions } = useActionSheet()
@@ -146,7 +150,7 @@ export function RouteListScreen() {
     setLoadedDates(new Set())
   }, [originId, destinationId])
 
-  const flashListRef = useRef(null)
+  const flashListRef = useRef<FlashListRef<RouteData>>(null)
 
   // Prompt the user once to choose whether to show the "Train Info" row on route cards.
   // Gated behind the "show-train-info-prompt" PostHog feature flag; shown at most once per
@@ -280,6 +284,10 @@ export function RouteListScreen() {
     }
   }, [trains.data, currentDate, trains.isSuccess, trains.isLoading, updateResultType])
 
+  // Filtered on loaded data so switching never refetches
+  const displayData = useMemo(() => filterRouteDataByMaxChanges(routeData, maxChanges), [routeData, maxChanges])
+  const allRoutesHiddenByFilter = routeData.some((item) => typeof item !== "string") && displayData.length === 0
+
   // Start over from the requested date
   useEffect(() => {
     const initialDate = new Date(time).toDateString()
@@ -298,20 +306,21 @@ export function RouteListScreen() {
   // Signal EAS Observe per-route TTI once the route results have resolved — either
   // routes are rendered, or we've reached a terminal not-found / error state.
   useEffect(() => {
-    const hasResults = routeData.length > 0
-    const isTerminalEmpty = !trains.isLoading && (resultType === "not-found" || trains.status === "error")
+    const hasResults = displayData.length > 0
+    const isTerminalEmpty =
+      !trains.isLoading && (resultType === "not-found" || trains.status === "error" || allRoutesHiddenByFilter)
     if (hasResults || isTerminalEmpty) {
       markInteractive()
     }
-  }, [routeData.length, trains.isLoading, trains.status, resultType, markInteractive])
+  }, [displayData.length, trains.isLoading, trains.status, resultType, allRoutesHiddenByFilter, markInteractive])
 
   // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
   // returns a route list for the whole day.
   const initialScrollIndex = (() => {
-    if (!trains.isSuccess || routeData.length === 0) return undefined
+    if (!trains.isSuccess || displayData.length === 0) return undefined
 
     // Get only the route items (not date headers)
-    const routeItems = routeData.filter((item): item is RouteItem => typeof item !== "string")
+    const routeItems = displayData.filter((item): item is RouteItem => typeof item !== "string")
 
     if (routeItems.length === 0) return undefined
 
@@ -329,9 +338,21 @@ export function RouteListScreen() {
 
     if (!targetRoute) return undefined
 
-    // Find the actual index in routeData (which includes date headers)
-    return routeData.findIndex((item) => item === targetRoute)
+    // Find the actual index in displayData (which includes date headers)
+    return displayData.findIndex((item) => item === targetRoute)
   })()
+
+  // The list stays mounted across filter changes, so re-anchor it on the closest train ourselves
+  const isFirstRender = useRef(true)
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
+    if (initialScrollIndex === undefined) return
+    flashListRef.current?.scrollToIndex({ index: initialScrollIndex, animated: true })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [maxChanges])
 
   const shouldShowDashedLine = (() => {
     const { width: deviceWidth } = Dimensions.get("screen")
@@ -417,7 +438,7 @@ export function RouteListScreen() {
     let headerIndex = index
     while (headerIndex > 0) {
       headerIndex--
-      const headerItem = routeData[headerIndex]
+      const headerItem = displayData[headerIndex]
       if (typeof headerItem === "string") {
         // Check if the route's departure date matches the header date
         const routeDate = new Date(item.trains[0].departureTime).toDateString()
@@ -466,7 +487,10 @@ export function RouteListScreen() {
   }
 
   const shouldShowWarning =
-    trains.isSuccess && trains.data?.length > 0 && ["different-date", "different-hour"].includes(resultType)
+    trains.isSuccess &&
+    trains.data?.length > 0 &&
+    !allRoutesHiddenByFilter &&
+    ["different-date", "different-hour"].includes(resultType)
 
   // Check if the next day date is currently loading
   const isNextDayLoading = loadingDate === nextDayDate.toDateString()
@@ -504,7 +528,7 @@ export function RouteListScreen() {
         <ActivityIndicator size="large" style={{ marginTop: spacing[6] }} color="grey" />
       )}
 
-      {routeData.length > 0 && (
+      {displayData.length > 0 && (
         <FlashList
           key={`route-list-${hideSlowTrains}`}
           ref={flashListRef}
@@ -514,7 +538,7 @@ export function RouteListScreen() {
               ? item
               : item.trains.map((train) => `${train.trainNumber}-${train.departureTimeString}`).join()
           }
-          data={routeData}
+          data={displayData}
           contentContainerStyle={{
             paddingTop: spacing[4],
             paddingHorizontal: spacing[3],
@@ -522,7 +546,7 @@ export function RouteListScreen() {
           }}
           initialScrollIndex={initialScrollIndex}
           // so the list will re-render when the ride route changes, and so the item will be marked
-          extraData={[rideRoute, routePlanDate, trains.status, loadingDate, hideSlowTrains]}
+          extraData={[rideRoute, routePlanDate, trains.status, loadingDate, hideSlowTrains, maxChanges]}
           ListFooterComponent={
             <DateScroll setTime={loadNextDayData} currenTime={nextDayDate.getTime()} isLoadingDate={isNextDayLoading} />
           }
@@ -537,6 +561,8 @@ export function RouteListScreen() {
           <NoTrainsFoundMessage />
         </View>
       )}
+
+      {allRoutesHiddenByFilter && <FilteredTrainsMessage maxChanges={maxChanges} onShowAll={() => setMaxChanges(null)} />}
 
       {shouldShowWarning && !trains.isLoading && (
         <RouteListWarning routesDate={trains.data[0].trains[0].departureTime} warningType={resultType as WarningType} />
