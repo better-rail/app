@@ -150,7 +150,6 @@ export function RouteCard(props: RouteCardProps) {
         containerStyle,
         props.isActiveRide && styles.activeRideContainer,
         props.isRouteInThePast && styles.pastRideContainer,
-        style,
       ]}
     >
       {/* Header with train information */}
@@ -219,7 +218,8 @@ export function RouteCard(props: RouteCardProps) {
   )
 
   return (
-    <ContextMenu actions={generatedContextMenuActions} previewBorderRadius={12}>
+    // Outer style goes on the wrapper: the native menu host sizes itself to the card's content and drops its margins.
+    <ContextMenu actions={generatedContextMenuActions} previewBorderRadius={12} style={style}>
       {cardContent}
     </ContextMenu>
   )

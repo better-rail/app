@@ -2,6 +2,9 @@ import { create } from "zustand"
 import { TxKeyPath } from "@/i18n"
 import { PopUpMessage } from "@/services/api"
 
+/** Max train changes to show in results; null means no limit. */
+export type MaxChanges = 0 | 1 | null
+
 export interface SettingsState {
   seenUrgentMessagesIds: number[]
   profileCode: number
@@ -9,6 +12,7 @@ export interface SettingsState {
   recordedTipTransactionIds: string[]
   showRouteCardHeader: boolean
   hideSlowTrains: boolean
+  maxChanges: MaxChanges
   seenTrainInfoPrompt: boolean
   seenLawsuitAnnouncement: boolean
 }
@@ -18,6 +22,7 @@ export interface SettingsActions {
   recordTip: (transactionId: string, amount: number) => void
   setShowRouteCardHeader: (show: boolean) => void
   setHideSlowTrains: (hide: boolean) => void
+  setMaxChanges: (maxChanges: MaxChanges) => void
   setSeenUrgentMessagesIds: (messagesIds: number[]) => void
   setSeenTrainInfoPrompt: (seen: boolean) => void
   setSeenLawsuitAnnouncement: (seen: boolean) => void
@@ -32,6 +37,7 @@ const initialSettingsState: SettingsState = {
   recordedTipTransactionIds: [],
   showRouteCardHeader: false,
   hideSlowTrains: false,
+  maxChanges: null,
   seenTrainInfoPrompt: false,
   seenLawsuitAnnouncement: false,
 }
@@ -61,6 +67,10 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     set({ hideSlowTrains: hide })
   },
 
+  setMaxChanges(maxChanges) {
+    set({ maxChanges })
+  },
+
   setSeenUrgentMessagesIds(messagesIds) {
     set({ seenUrgentMessagesIds: messagesIds })
   },
@@ -74,6 +84,24 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
   },
 }))
 
+/** Filters a route list of date headers (strings) and routes, dropping headers left without routes. */
+export function filterRouteDataByMaxChanges<T extends { trains: unknown[] }>(data: (T | string)[], maxChanges: MaxChanges) {
+  if (maxChanges === null) return data
+
+  const result: (T | string)[] = []
+  let pendingHeader: string | null = null
+  for (const item of data) {
+    if (typeof item === "string") {
+      pendingHeader = item
+    } else if (item.trains.length - 1 <= maxChanges) {
+      if (pendingHeader !== null) result.push(pendingHeader)
+      pendingHeader = null
+      result.push(item)
+    }
+  }
+  return result
+}
+
 export function filterUnseenUrgentMessages(messages: PopUpMessage[], seenIds: number[]) {
   return messages.filter((message) => !seenIds.includes(message.id))
 }
@@ -86,6 +114,7 @@ export function getSettingsSnapshot(state: SettingsState) {
     recordedTipTransactionIds: state.recordedTipTransactionIds,
     showRouteCardHeader: state.showRouteCardHeader,
     hideSlowTrains: state.hideSlowTrains,
+    maxChanges: state.maxChanges,
     seenTrainInfoPrompt: state.seenTrainInfoPrompt,
     seenLawsuitAnnouncement: state.seenLawsuitAnnouncement,
   }
@@ -108,6 +137,7 @@ export function hydrateSettingsStore(data: any) {
     recordedTipTransactionIds: processedData.recordedTipTransactionIds ?? [],
     showRouteCardHeader: processedData.showRouteCardHeader ?? false,
     hideSlowTrains: processedData.hideSlowTrains ?? false,
+    maxChanges: processedData.maxChanges ?? null,
     seenTrainInfoPrompt: processedData.seenTrainInfoPrompt ?? false,
     seenLawsuitAnnouncement: processedData.seenLawsuitAnnouncement ?? false,
   })

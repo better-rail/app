@@ -1,5 +1,5 @@
 import { test, expect, beforeEach } from "bun:test"
-import { useSettingsStore, hydrateSettingsStore, getSettingsSnapshot, resetSettingsStore } from "./settings"
+import { useSettingsStore, hydrateSettingsStore, getSettingsSnapshot, resetSettingsStore, filterRouteDataByMaxChanges } from "./settings"
 
 beforeEach(resetSettingsStore)
 
@@ -9,6 +9,7 @@ test("can be created with default state", () => {
   expect(state).toBeTruthy()
   expect(state.profileCode).toBe(1)
   expect(state.hideSlowTrains).toBe(false)
+  expect(state.maxChanges).toBe(null)
 })
 
 test("migrates hideCollectorTrains to hideSlowTrains", () => {
@@ -35,4 +36,15 @@ test("transaction IDs survive persistence and prevent recounting after relaunch"
 
   expect(useSettingsStore.getState().totalTip).toBe(30)
   expect(useSettingsStore.getState().recordedTipTransactionIds).toEqual(["tip-1", "tip-2"])
+})
+
+test("filterRouteDataByMaxChanges drops routes over the limit and orphaned date headers", () => {
+  const direct = { trains: [1] }
+  const oneChange = { trains: [1, 2] }
+  const twoChanges = { trains: [1, 2, 3] }
+  const data = ["Mon", direct, oneChange, "Tue", twoChanges, "Wed", oneChange]
+
+  expect(filterRouteDataByMaxChanges(data, null)).toBe(data)
+  expect(filterRouteDataByMaxChanges(data, 0)).toEqual(["Mon", direct])
+  expect(filterRouteDataByMaxChanges(data, 1)).toEqual(["Mon", direct, oneChange, "Wed", oneChange])
 })
