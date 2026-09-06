@@ -36,6 +36,7 @@ export function FilterIcon(props: FilterIconProps) {
         style={[styles.container, style]}
         accessibilityRole="button"
         accessibilityLabel={translate("routes.filter")}
+        accessibilityState={{ selected: active }}
       >
         <LiquidGlassView interactive colorScheme="dark" tintColor="rgba(51, 51, 51, 0.9)" style={styles.liquidGlass}>
           <FilterGlyph active={active} />
@@ -50,6 +51,7 @@ export function FilterIcon(props: FilterIconProps) {
       style={[styles.container, style]}
       accessibilityRole="button"
       accessibilityLabel={translate("routes.filter")}
+      accessibilityState={{ selected: active }}
       hitSlop={10}
     >
       <FilterGlyph active={active} />

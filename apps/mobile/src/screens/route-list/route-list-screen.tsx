@@ -512,7 +512,7 @@ export function RouteListScreen() {
       )}
 
       {/* Show the loading indicator only when we're loading and there's no data yet */}
-      {trains.isLoading && displayData.length === 0 && (
+      {trains.isLoading && routeData.length === 0 && (
         <ActivityIndicator size="large" style={{ marginTop: spacing[6] }} color="grey" />
       )}
 
@@ -544,14 +544,16 @@ export function RouteListScreen() {
 
       {/* A failed background refetch sets "not-found" in the store directly, bypassing the
           onError guard — so also require that no results are currently displayed. */}
-      {resultType === "not-found" && !trains.isLoading && isInternetReachable && displayData.length === 0 && (
+      {resultType === "not-found" && !trains.isLoading && isInternetReachable && routeData.length === 0 && (
         <View style={{ marginTop: spacing[4] }}>
           <NoTrainsFoundMessage />
         </View>
       )}
 
-      {allRoutesHiddenByFilter && !trains.isLoading && (
-        <FilteredTrainsMessage maxChanges={maxChanges} onShowAll={() => setMaxChanges(null)} />
+      {allRoutesHiddenByFilter && (
+        <FilteredTrainsMessage maxChanges={maxChanges} onShowAll={() => setMaxChanges(null)}>
+          <DateScroll setTime={loadNextDayData} currenTime={nextDayDate.getTime()} isLoadingDate={isNextDayLoading} />
+        </FilteredTrainsMessage>
       )}
 
       {shouldShowWarning && !trains.isLoading && (
