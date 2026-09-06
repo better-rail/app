@@ -6,6 +6,7 @@ export interface SettingsState {
   seenUrgentMessagesIds: number[]
   profileCode: number
   totalTip: number
+  recordedTipTransactionIds: string[]
   showRouteCardHeader: boolean
   hideSlowTrains: boolean
   seenTrainInfoPrompt: boolean
@@ -14,7 +15,7 @@ export interface SettingsState {
 
 export interface SettingsActions {
   setProfileCode: (code: number) => void
-  addTip: (amount: number) => void
+  recordTip: (transactionId: string, amount: number) => void
   setShowRouteCardHeader: (show: boolean) => void
   setHideSlowTrains: (hide: boolean) => void
   setSeenUrgentMessagesIds: (messagesIds: number[]) => void
@@ -28,6 +29,7 @@ const initialSettingsState: SettingsState = {
   seenUrgentMessagesIds: [],
   profileCode: 1,
   totalTip: 0,
+  recordedTipTransactionIds: [],
   showRouteCardHeader: false,
   hideSlowTrains: false,
   seenTrainInfoPrompt: false,
@@ -43,8 +45,12 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     set({ profileCode: code })
   },
 
-  addTip(amount) {
-    set((state) => ({ totalTip: state.totalTip + amount }))
+  recordTip(transactionId, amount) {
+    if (get().recordedTipTransactionIds.includes(transactionId)) return
+    set((state) => ({
+      totalTip: state.totalTip + amount,
+      recordedTipTransactionIds: [...state.recordedTipTransactionIds, transactionId],
+    }))
   },
 
   setShowRouteCardHeader(show) {
@@ -77,6 +83,7 @@ export function getSettingsSnapshot(state: SettingsState) {
     seenUrgentMessagesIds: state.seenUrgentMessagesIds,
     profileCode: state.profileCode,
     totalTip: state.totalTip,
+    recordedTipTransactionIds: state.recordedTipTransactionIds,
     showRouteCardHeader: state.showRouteCardHeader,
     hideSlowTrains: state.hideSlowTrains,
     seenTrainInfoPrompt: state.seenTrainInfoPrompt,
@@ -98,6 +105,7 @@ export function hydrateSettingsStore(data: any) {
     seenUrgentMessagesIds: processedData.seenUrgentMessagesIds ?? [],
     profileCode: processedData.profileCode ?? 1,
     totalTip: processedData.totalTip ?? 0,
+    recordedTipTransactionIds: processedData.recordedTipTransactionIds ?? [],
     showRouteCardHeader: processedData.showRouteCardHeader ?? false,
     hideSlowTrains: processedData.hideSlowTrains ?? false,
     seenTrainInfoPrompt: processedData.seenTrainInfoPrompt ?? false,
