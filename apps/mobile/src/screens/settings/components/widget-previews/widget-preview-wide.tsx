@@ -34,7 +34,7 @@ export function WidgetPreviewWide() {
           </View>
 
           {/* Next Train & Arrival Times */}
-          <View>
+          <View style={styles.wideMiddleSection}>
             <Text style={styles.trainLabel} numberOfLines={1}>
               {translate("settings.widgetPreviewNextTrain")}
             </Text>

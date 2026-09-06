@@ -59,8 +59,9 @@ export const styles = StyleSheet.create((theme, rt) => ({
   // --- Compact (2x2) Layout ---
   compactContent: {
     flex: 1,
-    padding: 10,
-    justifyContent: "space-between",
+    paddingTop: 10,
+    paddingHorizontal: 10,
+    paddingBottom: 8,
   },
   compactStationName: {
     color: "#FFFFFF",
@@ -98,8 +99,9 @@ export const styles = StyleSheet.create((theme, rt) => ({
     ...shadowMedium,
   },
   compactMiddleSection: {
+    flex: 1,
     justifyContent: "flex-end",
-    marginVertical: 2,
+    paddingBottom: 2,
   },
   trainLabel: {
     // Android #FFFF9999 -> salmon header
@@ -144,12 +146,18 @@ export const styles = StyleSheet.create((theme, rt) => ({
   wideContent: {
     flex: 1,
     flexDirection: "row",
-    padding: 10,
+    paddingTop: 10,
+    paddingHorizontal: 10,
+    paddingBottom: 8,
   },
   wideLeftCol: {
     flex: 1.25,
     height: "100%",
-    justifyContent: "space-between",
+  },
+  wideMiddleSection: {
+    flex: 1,
+    justifyContent: "flex-end",
+    paddingBottom: 2,
   },
   wideTimesRow: {
     flexDirection: "row",
