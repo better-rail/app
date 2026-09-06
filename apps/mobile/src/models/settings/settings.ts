@@ -2,7 +2,6 @@ import { create } from "zustand"
 import { TxKeyPath } from "@/i18n"
 import { PopUpMessage } from "@/services/api"
 
-/** Max train changes to show in results; null means no limit. */
 export type MaxChanges = 0 | 1 | null
 
 export interface SettingsState {
@@ -84,7 +83,7 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
   },
 }))
 
-/** Filters a route list of date headers (strings) and routes, dropping headers left without routes. */
+// Drops routes over the limit and date headers left empty
 export function filterRouteDataByMaxChanges<T extends { trains: unknown[] }>(data: (T | string)[], maxChanges: MaxChanges) {
   if (maxChanges === null) return data
 

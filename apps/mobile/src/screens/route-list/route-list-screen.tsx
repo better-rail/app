@@ -284,7 +284,7 @@ export function RouteListScreen() {
     }
   }, [trains.data, currentDate, trains.isSuccess, trains.isLoading, updateResultType])
 
-  // The changes filter is applied on the loaded data so switching it never refetches or remounts the list
+  // Filtered on loaded data so switching never refetches
   const displayData = useMemo(() => filterRouteDataByMaxChanges(routeData, maxChanges), [routeData, maxChanges])
   const allRoutesHiddenByFilter = routeData.some((item) => typeof item !== "string") && displayData.length === 0
 

@@ -218,7 +218,7 @@ export function RouteCard(props: RouteCardProps) {
   )
 
   return (
-    // Outer style goes on the wrapper: the native menu host sizes itself to the card's content and drops its margins.
+    // The native menu host drops the card's own margins
     <ContextMenu actions={generatedContextMenuActions} previewBorderRadius={12} style={style}>
       {cardContent}
     </ContextMenu>

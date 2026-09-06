@@ -38,7 +38,6 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: theme.spacing[5],
-    // Sit slightly above true center so it reads as centered under the header
     paddingBottom: theme.spacing[8] * 4,
   },
   searchIcon: {

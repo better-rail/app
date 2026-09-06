@@ -9,10 +9,6 @@ import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass
 export interface FilterIconProps {
   style?: ViewStyle
   onPress: () => void
-
-  /**
-   * Whether a filter is currently applied
-   */
   active: boolean
 }
 
