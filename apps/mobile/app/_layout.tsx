@@ -71,7 +71,7 @@ disableSentryIfTelemetryDisabled()
 
 // Capture render-phase errors per route via Expo Router's ErrorBoundary. Attaches
 // route context to the event and marks in-flight navigation transactions as errored.
-export const ErrorBoundary = Sentry.wrapExpoRouterErrorBoundary(ExpoErrorBoundary)
+export const ErrorBoundary = ExpoErrorBoundary
 
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
