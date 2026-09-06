@@ -88,6 +88,20 @@ const WASTED_TIME_MS = 10 * 60 * 1000
 // of Ashdod also leaves the corridor, but costs two minutes — and a quieter train
 // is a reason to take it, so it stays.
 const DETOUR_WASTED_TIME_MS = 5 * 60 * 1000
+// How far apart two departures can be and still be one departure to a rider
+// planning the trip. Within it a journey is also measured against what leaves
+// just before it (see nearMissed).
+const SAME_DEPARTURE_MS = 5 * 60 * 1000
+// How far off the direct line a change has to sit before the journey is going the
+// wrong way rather than taking a different way. Measured as an angle at the end it
+// doubles back over, which makes it a question of direction alone: whether the
+// first train carries the rider back the way they came, or past where they were
+// going. Distance cannot answer that on its own, because how far a change sits
+// from the destination says nothing about which way the rider had to travel to
+// reach it. Going by way of a hub is not this, at any distance — Lod to Ashdod
+// through Tel Aviv HaHagana turns 96 degrees, and people make that trip on
+// purpose; riding north out of Atlit for a train to Tel Aviv turns 177.
+const WRONG_WAY_DEGREES = 150
 // An itinerary this much longer than the best way to make the same trip has
 // stopped being a slower option and become a wrong answer: riding one stop up the
 // line to sit 34 minutes and catch the train that would have collected you anyway,
@@ -213,6 +227,30 @@ const kmBetween = (a: number, b: number): number | null => {
     Math.cos((to.lat - from.lat) * rad) / 2 +
     (Math.cos(from.lat * rad) * Math.cos(to.lat * rad) * (1 - Math.cos((to.lon - from.lon) * rad))) / 2
   return 12742 * Math.asin(Math.sqrt(h))
+}
+
+/**
+ * The angle at `vertex` between the direction to `a` and the direction to `b`, in
+ * degrees (0 = the same way, 180 = straight back). Null when any of the three is
+ * unknown to the geo data. Longitude is scaled by the latitude so the two axes
+ * are in the same units; over a country this size that is exact enough to tell
+ * "the way I am going" from "the way I came".
+ */
+const angleAt = (vertex: number, a: number, b: number): number | null => {
+  const o = coords.get(vertex)
+  const pa = coords.get(a)
+  const pb = coords.get(b)
+  if (!o || !pa || !pb) return null
+  const rad = Math.PI / 180
+  const scale = Math.cos(o.lat * rad)
+  const ax = (pa.lon - o.lon) * scale
+  const ay = pa.lat - o.lat
+  const bx = (pb.lon - o.lon) * scale
+  const by = pb.lat - o.lat
+  const na = Math.hypot(ax, ay)
+  const nb = Math.hypot(bx, by)
+  if (na === 0 || nb === 0) return null
+  return Math.acos(Math.max(-1, Math.min(1, (ax * bx + ay * by) / (na * nb)))) / rad
 }
 
 const toPlatform = (platformCode: string | null): number => {
@@ -781,6 +819,98 @@ export const planLegs = (
 
   const changesOf = (c: Candidate) => c.legs.length - 1
 
+  // A change only makes sense at a station between where you start and where you
+  // are going. Two ways it can fall outside that: farther from the destination
+  // than the origin is, which means riding backwards (Hadera-West to Tel Aviv by
+  // way of Binyamina); or farther from the origin than the destination is, which
+  // means riding straight past your stop to double back (Tel Aviv HaHagana to
+  // Kfar Habad by way of Lod-Gane Aviv, eight minutes beyond it on the same
+  // line). Straight-line distance settles both — the question is only where the
+  // station sits, not how the track runs.
+  //
+  // Sometimes going out of the way is the only way, so this only applies when
+  // another journey already covers the same trip. A change genuinely between the
+  // two ends is never touched: Netivot to Herzliya through Tel Aviv is nearer
+  // Herzliya than Netivot is and nearer Netivot than Herzliya is.
+  const endToEnd = kmBetween(fromStation, toStation)
+  const detours = new Map<Candidate, boolean>() // a pure property of the itinerary; settle it once
+  const leavesTheCorridor = (c: Candidate): boolean => {
+    let detour = detours.get(c)
+    if (detour === undefined) {
+      detour =
+        endToEnd !== null &&
+        c.legs.slice(0, -1).some((leg) => {
+          const changeAt = allTrips.get(leg.tripKey)!.stops[leg.alightIndex].railId
+          const toDestination = kmBetween(changeAt, toStation)
+          const fromOrigin = kmBetween(fromStation, changeAt)
+          return (toDestination !== null && toDestination > endToEnd) || (fromOrigin !== null && fromOrigin > endToEnd)
+        })
+      detours.set(c, detour)
+    }
+    return detour
+  }
+
+  // A change that starts the journey in the wrong direction: back past the origin,
+  // or out beyond the destination. One test at each end, and either is enough —
+  // Ashkelon to Netanya by way of Binyamina never turns back on itself at
+  // Ashkelon, it simply runs 40 km past Netanya to come back down.
+  const wrongWay = new Map<Candidate, boolean>() // a pure property of the itinerary; settle it once
+  const ridesTheWrongWay = (c: Candidate): boolean => {
+    let wrong = wrongWay.get(c)
+    if (wrong === undefined) {
+      wrong = c.legs.slice(0, -1).some((leg) => {
+        const changeAt = allTrips.get(leg.tripKey)!.stops[leg.alightIndex].railId
+        const behindTheOrigin = angleAt(fromStation, changeAt, toStation)
+        const beyondTheDestination = angleAt(toStation, changeAt, fromStation)
+        return (
+          (behindTheOrigin !== null && behindTheOrigin >= WRONG_WAY_DEGREES) ||
+          (beyondTheDestination !== null && beyondTheDestination >= WRONG_WAY_DEGREES)
+        )
+      })
+      wrongWay.set(c, wrong)
+    }
+    return wrong
+  }
+
+  // What one journey gives back against another, counted across both ends of the
+  // trip: the difference in when they leave alongside the difference in when they
+  // land — which is the difference in how long they take.
+  const givesBack = (c: Candidate, other: Candidate) => c.arrTs - c.depTs - (other.arrTs - other.depTs)
+  const wastedTimeFor = (c: Candidate) => (leavesTheCorridor(c) ? DETOUR_WASTED_TIME_MS : WASTED_TIME_MS)
+
+  // Two departures this close are one departure to anyone planning a trip: nobody
+  // sets out for the 07:14 when there is a 07:13. So a journey that goes the wrong
+  // way round is also measured against what leaves just before it — on what it
+  // gives back over the whole trip, never on arrival alone, since the earlier
+  // start is a cost the rider pays. Atlit -> Tel Aviv HaShalom is the shape, every
+  // hour of the day: the 07:14 rides *north* to Hof HaCarmel to change onto a
+  // train that gets in at 08:34, a minute behind the direct that gets in at 08:04.
+  //
+  // Only journeys that set out the wrong way are judged like this, and that is the
+  // point of the rule rather than a detail of it. A slower route that runs the
+  // right way is a real alternative — it calls where the direct train does not, it
+  // goes by way of a hub with a seat and a fast train on the other side — and
+  // someone who reaches the platform a minute late is glad it is listed. Lod to
+  // Ashdod through Tel Aviv HaHagana is that trip, and people choose it. A journey
+  // that begins by going backwards offers none of it: it is slower *because* it is
+  // the wrong direction, and the minute it saves the rider buys nothing.
+  //
+  // Five minutes is the width of the window. Wider and the rule takes journeys
+  // that are the best there is for whoever arrives after the earlier train has
+  // gone. Atlit's own 16:22 shows why: nine minutes behind the 16:13 direct and
+  // half an hour slower, it still has anyone who missed the 16:13 in Tel Aviv
+  // before the 17:13 would. Hadera-West -> Tel Aviv University at 21:21 likewise:
+  // it changes at Binyamina and lands 22:03, well behind the 20:56 direct, but 25
+  // minutes after it is another departure altogether, and the next direct does
+  // not leave until 21:56.
+  const nearMissed = (c: Candidate, other: Candidate) =>
+    changesOf(c) > 0 &&
+    ridesTheWrongWay(c) &&
+    changesOf(other) <= changesOf(c) &&
+    other.depTs < c.depTs &&
+    other.depTs >= c.depTs - SAME_DEPARTURE_MS &&
+    givesBack(c, other) >= wastedTimeFor(c)
+
   // Default view: withhold nothing a rider could actually use. Someone on the
   // platform can only board what is still to come, so an option is not dropped merely
   // because something else is faster — not when a later train overtakes it by a
@@ -799,36 +929,6 @@ export const planLegs = (
     // another one leaving no earlier, with no more changes, also arrives no later
     // — which makes this incapable of delaying anyone. Direct trains are never
     // dropped, however far round they go.
-    // A change only makes sense at a station between where you start and where you
-    // are going. Two ways it can fall outside that: farther from the destination
-    // than the origin is, which means riding backwards (Hadera-West to Tel Aviv by
-    // way of Binyamina); or farther from the origin than the destination is, which
-    // means riding straight past your stop to double back (Tel Aviv HaHagana to
-    // Kfar Habad by way of Lod-Gane Aviv, eight minutes beyond it on the same
-    // line). Straight-line distance settles both — the question is only where the
-    // station sits, not how the track runs.
-    //
-    // Sometimes going out of the way is the only way, so this only applies when
-    // another journey already covers the same trip. A change genuinely between the
-    // two ends is never touched: Netivot to Herzliya through Tel Aviv is nearer
-    // Herzliya than Netivot is and nearer Netivot than Herzliya is.
-    const endToEnd = kmBetween(fromStation, toStation)
-    const detours = new Map<Candidate, boolean>() // a pure property of the itinerary; settle it once
-    const leavesTheCorridor = (c: Candidate): boolean => {
-      let detour = detours.get(c)
-      if (detour === undefined) {
-        detour =
-          endToEnd !== null &&
-          c.legs.slice(0, -1).some((leg) => {
-            const changeAt = allTrips.get(leg.tripKey)!.stops[leg.alightIndex].railId
-            const toDestination = kmBetween(changeAt, toStation)
-            const fromOrigin = kmBetween(fromStation, changeAt)
-            return (toDestination !== null && toDestination > endToEnd) || (fromOrigin !== null && fromOrigin > endToEnd)
-          })
-        detours.set(c, detour)
-      }
-      return detour
-    }
 
     // Riding most of the country to make a short trip, and spending the night
     // doing it. Alone among the rules here this one needs nothing to compare
@@ -992,24 +1092,26 @@ export const planLegs = (
     //
     // Direct trains are exempt, and a journey is only ever measured against ones
     // with no more changes than itself, so a change-route can never displace a
-    // simpler one. Walk latest-departure first so everything already seen departs
-    // no earlier, and compare only against survivors, so nothing is dropped in
-    // favour of something itself dropped.
+    // simpler one. The survivor may also be the departure just before (see
+    // nearMissed). Either way it lands no later than what it beats, and landing
+    // with it, leaves later — so walk earliest-arrival first and everything that
+    // could beat a journey has already been seen. Compare only against survivors,
+    // so nothing is dropped in favour of something itself dropped.
     const beatenBy = (c: Candidate, other: Candidate) =>
-      changesOf(other) <= changesOf(c) &&
-      other.depTs >= c.depTs &&
-      other.arrTs <= c.arrTs &&
-      // Getting there meaningfully sooner settles it: a journey at :08 has nothing
-      // to offer while something at :15 leaves after it and still arrives first.
-      // Off-peak, when nothing follows, the :08 is the best there is and stays —
-      // which falls out of comparing each departure only against what actually
-      // departs after it.
-      (other.arrTs <= c.arrTs - CLEARLY_BETTER_MS ||
-        c.arrTs - c.depTs - (other.arrTs - other.depTs) >= (leavesTheCorridor(c) ? DETOUR_WASTED_TIME_MS : WASTED_TIME_MS))
+      nearMissed(c, other) ||
+      (changesOf(other) <= changesOf(c) &&
+        other.depTs >= c.depTs &&
+        other.arrTs <= c.arrTs &&
+        // Getting there meaningfully sooner settles it: a journey at :08 has nothing
+        // to offer while something at :15 leaves after it and still arrives first.
+        // Off-peak, when nothing follows, the :08 is the best there is and stays —
+        // which falls out of comparing each departure only against what actually
+        // departs after it.
+        (other.arrTs <= c.arrTs - CLEARLY_BETTER_MS || givesBack(c, other) >= wastedTimeFor(c)))
 
     const outclassed = new Set<Candidate>()
     const survivors: Candidate[] = []
-    for (const c of [...listed].sort((a, b) => b.depTs - a.depTs || a.arrTs - b.arrTs)) {
+    for (const c of [...listed].sort((a, b) => a.arrTs - b.arrTs || b.depTs - a.depTs)) {
       // Direct trains are exempt from all of it. Every one is a real train leaving
       // the origin for the destination, and a rider looking for one expects to see
       // it whatever else the timetable offers around it.
@@ -1115,8 +1217,16 @@ export const planLegs = (
     bestArrKept = Math.min(bestArrKept, c.arrTs)
   }
 
+  // The toggle hides more than the plain list, never less, so the departure just
+  // before a journey rules it out here too (nearMissed). Walked in departure
+  // order against what is already shown, so that departure has been settled
+  // first — and a journey is only ever dropped in favour of one that is listed.
   kept.sort((a, b) => a.depTs - b.depTs)
-  return kept.slice(0, MAX_RESULTS).map((c) => c.legs)
+  const shown: Candidate[] = []
+  for (const c of kept) {
+    if (!shown.some((other) => nearMissed(c, other))) shown.push(c)
+  }
+  return shown.slice(0, MAX_RESULTS).map((c) => c.legs)
 }
 
 type Travel = RailApiGetRoutesResult["result"]["travels"][number]

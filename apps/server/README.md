@@ -49,7 +49,14 @@ departs a few minutes later and arrives earlier (e.g. Ashkelon 230 07:00→07:56
 next to 622 07:06→07:50). The app's "hide slow trains" toggle is sent as
 `hideSlowTrains: true` in the search request body, and only then are such
 dominated direct trains left out. Itineraries _with_ changes are always pruned
-when a same-or-fewer-changes option departs later and arrives earlier.
+when a same-or-fewer-changes option departs later and arrives earlier. An
+itinerary whose change faces the **wrong way** — 150° or more off the direct line,
+measured at whichever end it doubles back over — is pruned by a departure up to
+five minutes _before_ it as well, since the wrong direction is the whole of why it
+is slower (Atlit 07:14 north to Hof HaCarmel, in at 08:34, next to the 07:13
+direct in at 08:04). Anything less than a turn back the way you came is left
+alone, hub routes included: Lod to Ashdod through Tel Aviv HaHagana turns 96° and
+stays listed.
 
 **Platforms:** GTFS has no train→platform link (rail `stop_times` reference
 station-level stops with an empty `platform_code`). The scheduled platforms are

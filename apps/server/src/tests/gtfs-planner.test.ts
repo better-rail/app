@@ -1187,6 +1187,125 @@ describe("planTravels", () => {
     ])
   })
 
+  it("drops a change-route that leaves a minute behind a direct train and lands half an hour after it", () => {
+    // Real case: Atlit -> Tel Aviv HaShalom, every hour of the day. The 07:14
+    // rides north to Hof HaCarmel — away from Tel Aviv — to change onto train 105,
+    // in at 08:34; the 07:13 direct is in at 08:04. Nobody sets out for the 07:14,
+    // in either view.
+    const trips = table(
+      trip("direct", 153, [
+        [2500, "07:13", 1],
+        [4600, "08:04", 2],
+      ]),
+      trip("north", 152, [
+        [2500, "07:14", 2],
+        [2300, "07:24", 1],
+      ]),
+      trip("back", 105, [
+        [2300, "07:36", 3],
+        [4600, "08:34", 1],
+      ]),
+    )
+    const legs = (travels: any[]) => travels.map((t) => t.trains.map((x: any) => x.trainNumber))
+    expect(legs(planTravels(trips, 2500, 4600, ts("06:00")))).toEqual([[153]])
+    const hidden = planTravels(trips, 2500, 4600, ts("06:00"), Infinity, undefined, { hideSlowTrains: true })
+    expect(legs(hidden)).toEqual([[153]])
+  })
+
+  it("keeps a change-route that leaves well after the direct train before it", () => {
+    // Real case: Hadera-West -> Tel Aviv University on a Saturday night. The 21:21
+    // changes at Binyamina and lands 22:03, well behind the 20:56 direct — but 25
+    // minutes after it is another departure, and the next direct is the 21:56.
+    const trips = table(
+      trip("d1", 7221, [
+        [3100, "20:56", 1],
+        [3600, "21:25", 2],
+      ]),
+      trip("north", 7218, [
+        [3100, "21:21", 2],
+        [2800, "21:32", 3],
+      ]),
+      trip("back", 7153, [
+        [2800, "21:37", 1],
+        [3600, "22:03", 2],
+      ]),
+      trip("d2", 7223, [
+        [3100, "21:56", 1],
+        [3600, "22:25", 2],
+      ]),
+    )
+    const travels = planTravels(trips, 3100, 3600, ts("20:00"))
+    expect(travels.map((t: any) => t.trains.map((x: any) => x.trainNumber))).toEqual([[7221], [7218, 7153], [7223]])
+  })
+
+  it("keeps a near-miss that goes by way of a hub, the way people actually travel", () => {
+    // Lod -> Ashdod through Tel Aviv HaHagana. HaHagana is farther from Ashdod than
+    // Lod is, so it is off the direct line — but it is 96 degrees off, not a turn
+    // back the way you came, and people make this trip on purpose for the fast
+    // train south. The 07:14 stays listed behind the 07:13.
+    const trips = table(
+      trip("direct", 1, [
+        [5000, "07:13", 1],
+        [5800, "07:45", 2],
+      ]),
+      trip("legA", 2, [
+        [5000, "07:14", 2],
+        [4900, "07:30", 1],
+      ]),
+      trip("legB", 3, [
+        [4900, "07:45", 3],
+        [5800, "08:20", 2],
+      ]),
+    )
+    const travels = planTravels(trips, 5000, 5800, ts("06:00"))
+    expect(travels.map((t: any) => t.trains.map((x: any) => x.trainNumber))).toEqual([[1], [2, 3]])
+  })
+
+  it("drops a near-miss that rides out beyond the destination to come back", () => {
+    // The other way a change can face the wrong way: Tel Aviv HaHagana -> Kfar
+    // Habad by way of Lod-Gane Aviv, which is past Kfar Habad on the same line. The
+    // 07:16 rides beyond the stop to double back, a minute behind the 07:15.
+    const trips = table(
+      trip("direct", 1, [
+        [4900, "07:15", 1],
+        [4800, "07:27", 2],
+      ]),
+      trip("legA", 2, [
+        [4900, "07:16", 2],
+        [5150, "07:35", 1],
+      ]),
+      trip("legB", 3, [
+        [5150, "07:45", 3],
+        [4800, "07:58", 2],
+      ]),
+    )
+    const travels = planTravels(trips, 4900, 4800, ts("06:00"))
+    expect(travels.map((t: any) => t.trains.map((x: any) => x.trainNumber))).toEqual([[1]])
+  })
+
+  it("keeps a near-miss that runs the right way, however much slower it is", () => {
+    // The same minute-behind shape, but the change at Hadera-West is on the way
+    // from Binyamina to Tel Aviv rather than back up the line. Slower is then a
+    // real alternative — it stops where the direct does not — so the 07:14 stays
+    // listed even though it takes 35 minutes longer than the 07:13.
+    const trips = table(
+      trip("direct", 1, [
+        [2800, "07:13", 1],
+        [4600, "08:04", 2],
+      ]),
+      trip("legA", 2, [
+        [2800, "07:14", 2],
+        [3100, "07:24", 1],
+      ]),
+      trip("legB", 3, [
+        [3100, "07:50", 1],
+        [4600, "08:40", 2],
+      ]),
+    )
+    const travels = planTravels(trips, 2800, 4600, ts("06:00"))
+    expect(travels.map((t: any) => t.trains.map((x: any) => x.trainNumber))).toEqual([[1], [2, 3]])
+  })
+
   it("caps changes at one more than the quickest way to make the trip", () => {
     // A direct train exists, so a two-change itinerary is past what the trip is
     // worth — however it is timed. One change stays.
