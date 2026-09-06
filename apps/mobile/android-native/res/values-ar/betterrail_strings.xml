@@ -55,6 +55,10 @@
 
     <string name="arrival">وصول</string>
     <string name="arrival_caps">وصول</string>
+    <string name="widget_preview_platform">رصيف 3</string>
+    <string name="widget_preview_train">قطار 2350</string>
+    <string name="widget_preview_platform_4x2">رصيف 1</string>
+    <string name="widget_preview_train_4x2">قطار 2058</string>
 
     <!-- Station names -->
     <string name="station_1500">عكا</string>

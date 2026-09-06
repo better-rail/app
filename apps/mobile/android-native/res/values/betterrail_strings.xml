@@ -50,6 +50,10 @@
 
     <string name="arrival">Arrival</string>
     <string name="arrival_caps">ARRIVAL</string>
+    <string name="widget_preview_platform">Platform 3</string>
+    <string name="widget_preview_train">Train 2350</string>
+    <string name="widget_preview_platform_4x2">Platform 1</string>
+    <string name="widget_preview_train_4x2">Train 2058</string>
 
     <!-- Station names -->
     <string name="station_1500">Ako</string>
