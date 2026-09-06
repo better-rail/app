@@ -9,10 +9,9 @@ import type { MaxChanges } from "@/models/settings/settings"
 type Props = {
   maxChanges: MaxChanges
   onShowAll: () => void
-  children?: React.ReactNode
 }
 
-export function FilteredTrainsMessage({ maxChanges, onShowAll, children }: Props) {
+export function FilteredTrainsMessage({ maxChanges, onShowAll }: Props) {
   const textKey = maxChanges === 0 ? "routes.noDirectTrainsFound" : "routes.noOneChangeTrainsFound"
 
   return (
@@ -29,7 +28,6 @@ export function FilteredTrainsMessage({ maxChanges, onShowAll, children }: Props
       >
         <Text tx="routes.showAllTrains" style={styles.chipText} />
       </Chip>
-      {children ? <View style={styles.footer}>{children}</View> : null}
     </View>
   )
 }
@@ -55,9 +53,6 @@ const styles = StyleSheet.create((theme) => ({
   },
   chip: {
     paddingVertical: theme.spacing[2],
-  },
-  footer: {
-    marginTop: theme.spacing[6],
   },
   chipText: {
     color: color.whiteText,

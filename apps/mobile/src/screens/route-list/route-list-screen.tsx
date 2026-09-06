@@ -550,11 +550,7 @@ export function RouteListScreen() {
         </View>
       )}
 
-      {allRoutesHiddenByFilter && (
-        <FilteredTrainsMessage maxChanges={maxChanges} onShowAll={() => setMaxChanges(null)}>
-          <DateScroll setTime={loadNextDayData} currenTime={nextDayDate.getTime()} isLoadingDate={isNextDayLoading} />
-        </FilteredTrainsMessage>
-      )}
+      {allRoutesHiddenByFilter && <FilteredTrainsMessage maxChanges={maxChanges} onShowAll={() => setMaxChanges(null)} />}
 
       {shouldShowWarning && !trains.isLoading && (
         <RouteListWarning routesDate={trains.data[0].trains[0].departureTime} warningType={resultType as WarningType} />
