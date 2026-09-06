@@ -3,7 +3,7 @@ import HapticFeedback from "react-native-haptic-feedback"
 import * as Burnt from "burnt"
 import { View, ActivityIndicator, Dimensions, useColorScheme } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { FlashList } from "@shopify/flash-list"
+import { FlashList, type FlashListRef } from "@shopify/flash-list"
 import { useNetworkState } from "expo-network"
 import { useQuery } from "react-query"
 import { closestIndexTo } from "date-fns"
@@ -150,7 +150,7 @@ export function RouteListScreen() {
     setLoadedDates(new Set())
   }, [originId, destinationId])
 
-  const flashListRef = useRef(null)
+  const flashListRef = useRef<FlashListRef<RouteData>>(null)
 
   // Prompt the user once to choose whether to show the "Train Info" row on route cards.
   // Gated behind the "show-train-info-prompt" PostHog feature flag; shown at most once per
@@ -341,6 +341,18 @@ export function RouteListScreen() {
     // Find the actual index in displayData (which includes date headers)
     return displayData.findIndex((item) => item === targetRoute)
   })()
+
+  // The list stays mounted across filter changes, so re-anchor it on the closest train ourselves
+  const isFirstRender = useRef(true)
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
+    if (initialScrollIndex === undefined) return
+    flashListRef.current?.scrollToIndex({ index: initialScrollIndex, animated: true })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [maxChanges])
 
   const shouldShowDashedLine = (() => {
     const { width: deviceWidth } = Dimensions.get("screen")
