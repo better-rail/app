@@ -29,6 +29,15 @@ interface TipIAPContextValue {
 
 const TipIAPContext = createContext<TipIAPContextValue | null>(null)
 
+function isDeferredPayment(error: unknown) {
+  return (
+    error != null &&
+    typeof error === "object" &&
+    "code" in error &&
+    (error.code === ErrorCode.DeferredPayment || error.code === ErrorCode.Pending)
+  )
+}
+
 export function useTipIAP() {
   const context = useContext(TipIAPContext)
   if (!context) throw new Error("The tip jar requires TipIAPProvider on iOS")
@@ -42,6 +51,7 @@ export function TipIAPProvider({ children }: React.PropsWithChildren) {
 
 function IOSTipIAPProvider({ children }: React.PropsWithChildren) {
   const [isPurchasing, setIsPurchasing] = useState(false)
+  const [isDeferred, setIsDeferred] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [hasRecovered, setHasRecovered] = useState(false)
   const [showThanksModal, setShowThanksModal] = useState(false)
@@ -78,6 +88,7 @@ function IOSTipIAPProvider({ children }: React.PropsWithChildren) {
       onPaid: (purchase) => {
         if (requestedSku.current === purchase.productId) {
           requestedSku.current = null
+          setIsDeferred(false)
           setIsPurchasing(false)
           setShowThanksModal(true)
         }
@@ -90,7 +101,7 @@ function IOSTipIAPProvider({ children }: React.PropsWithChildren) {
   const handlePurchase = useCallback(
     async (purchase: Purchase) => {
       if (purchase.purchaseState === "pending" && requestedSku.current === purchase.productId) {
-        requestedSku.current = null
+        setIsDeferred(true)
         setIsPurchasing(false)
       }
       await purchaseQueue.handlePurchase(purchase)
@@ -112,7 +123,13 @@ function IOSTipIAPProvider({ children }: React.PropsWithChildren) {
         if (error.code !== ErrorCode.UserCancelled) Sentry.captureException(error)
         return
       }
+      if (isDeferredPayment(error)) {
+        setIsDeferred(true)
+        setIsPurchasing(false)
+        return
+      }
       requestedSku.current = null
+      setIsDeferred(false)
       setIsPurchasing(false)
       if (error.code !== ErrorCode.UserCancelled) {
         toast({ title: translate("settings.purchaseFailed") ?? "", message: error.message, preset: "error" })
@@ -120,6 +137,35 @@ function IOSTipIAPProvider({ children }: React.PropsWithChildren) {
     },
     onError: (error) => Sentry.captureException(error),
   })
+
+  const hasCompleteCatalog = TIP_PRODUCT_IDS.every((sku) => products.some((product) => product.id === sku))
+
+  useEffect(() => {
+    if (!connected || hasCompleteCatalog) return undefined
+    let loading = false
+    const loadCatalog = async () => {
+      if (loading) return
+      loading = true
+      try {
+        await loadProducts({ skus: TIP_PRODUCT_IDS, type: "in-app" })
+      } catch {
+        // useIAP reports the error through onError. Retry empty/partial results too.
+      } finally {
+        loading = false
+      }
+    }
+    void loadCatalog()
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state === "active") void loadCatalog()
+    })
+    const retryTimer = setInterval(() => {
+      if (AppState.currentState === "active") void loadCatalog()
+    }, 5000)
+    return () => {
+      clearInterval(retryTimer)
+      subscription.remove()
+    }
+  }, [connected, hasCompleteCatalog, loadProducts])
 
   useEffect(() => {
     setHasRecovered(false)
@@ -147,9 +193,6 @@ function IOSTipIAPProvider({ children }: React.PropsWithChildren) {
       }
     }
 
-    void loadProducts({ skus: TIP_PRODUCT_IDS, type: "in-app" }).catch(() => {
-      // useIAP forwards the error to onError.
-    })
     void recover()
     const subscription = AppState.addEventListener("change", (state) => {
       if (state === "active") void recover()
@@ -164,7 +207,7 @@ function IOSTipIAPProvider({ children }: React.PropsWithChildren) {
       clearInterval(retryTimer)
       subscription.remove()
     }
-  }, [connected, loadProducts, purchaseQueue])
+  }, [connected, purchaseQueue])
 
   const requestTip = async (sku: string) => {
     if (!connected || !hasRecovered || requestedSku.current || purchaseQueue.hasPending || !TIP_PRODUCT_IDS.includes(sku)) return
@@ -174,8 +217,16 @@ function IOSTipIAPProvider({ children }: React.PropsWithChildren) {
       await requestPurchase({ request: { apple: { sku } }, type: "in-app" })
     } catch (error) {
       const needsMessage = requestedSku.current === sku
+      // StoreKit's Ask to Buy result rejects with deferred-payment, rather than
+      // delivering a pending Purchase. Preserve the request until its terminal event.
+      if (needsMessage && isDeferredPayment(error)) {
+        setIsDeferred(true)
+        setIsPurchasing(false)
+        return
+      }
       if (needsMessage) {
         requestedSku.current = null
+        setIsDeferred(false)
         setIsPurchasing(false)
       }
       if (error && typeof error === "object" && "code" in error && error.code === ErrorCode.UserCancelled) return
@@ -197,7 +248,7 @@ function IOSTipIAPProvider({ children }: React.PropsWithChildren) {
         products,
         connected,
         isPurchasing,
-        canTip: connected && hasRecovered && !isPurchasing && !isProcessing,
+        canTip: connected && hasRecovered && !isPurchasing && !isDeferred && !isProcessing,
         showThanksModal,
         dismissThanks: () => setShowThanksModal(false),
         requestTip,
