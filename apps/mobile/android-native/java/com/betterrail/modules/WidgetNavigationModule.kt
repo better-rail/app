@@ -9,12 +9,17 @@ import android.content.Intent
 import android.util.Log
 import android.content.Context
 import android.os.Build
+import android.os.Bundle
+import android.widget.RemoteViews
+import com.betterrail.R
 import com.betterrail.widget.ModernCompactWidget2x2Provider
 import com.betterrail.widget.ModernCompactWidget4x2Provider
 import com.betterrail.widget.BaseWidgetConfigActivity
 import com.betterrail.widget.CompactWidget2x2ConfigActivity
 import com.betterrail.widget.CompactWidget4x2ConfigActivity
 import com.betterrail.widget.WidgetPinReceiver
+import com.betterrail.widget.data.StationsData
+import com.betterrail.widget.utils.WidgetRTLHelper
 
 @ReactModule(name = WidgetNavigationModule.NAME)
 class WidgetNavigationModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
@@ -149,12 +154,60 @@ class WidgetNavigationModule(reactContext: ReactApplicationContext) : ReactConte
                     .putExtra(BaseWidgetConfigActivity.EXTRA_PREFILL_DESTINATION_ID, destinationId)
                 PendingIntent.getActivity(reactApplicationContext, requestCode, intent, flags)
             }
-            val requested = appWidgetManager.requestPinAppWidget(provider, null, successCallback)
+            val previewBundle = if (hasCompleteRoute) {
+                buildPreviewBundle(originId, destinationId, family)
+            } else null
+            val requested = try {
+                appWidgetManager.requestPinAppWidget(provider, previewBundle, successCallback)
+            } catch (e: Exception) {
+                if (previewBundle != null) {
+                    Log.w(NAME, "requestPinAppWidget failed with previewBundle, retrying without preview extras", e)
+                    appWidgetManager.requestPinAppWidget(provider, null, successCallback)
+                } else {
+                    throw e
+                }
+            }
             Log.d(NAME, "requestPinAppWidget (${family.key}) returned $requested (completeRoute=$hasCompleteRoute)")
             promise.resolve(requested)
         } catch (e: Exception) {
             Log.e(NAME, "Error requesting widget pin", e)
             promise.resolve(false)
+        }
+    }
+
+    private fun buildPreviewBundle(originId: String, destinationId: String, family: WidgetFamily): Bundle? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return null
+        return try {
+            val previewLayoutName = if (family == WidgetFamily.COMPACT) "widget_compact_2x2_preview" else "widget_compact_4x2_preview"
+            val previewLayoutId = reactApplicationContext.resources.getIdentifier(previewLayoutName, "layout", reactApplicationContext.packageName)
+            val fallbackLayoutId = if (family == WidgetFamily.COMPACT) R.layout.widget_compact_2x2 else R.layout.widget_compact_4x2
+            val layoutRes = if (previewLayoutId != 0) previewLayoutId else fallbackLayoutId
+
+            val views = RemoteViews(reactApplicationContext.packageName, layoutRes)
+            WidgetRTLHelper.applyRTLAdjustments(reactApplicationContext, views, layoutRes)
+
+            if (originId.isNotEmpty()) {
+                val originName = StationsData.getStationName(reactApplicationContext, originId)
+                if (originName.isNotEmpty()) {
+                    views.setTextViewText(R.id.widget_station_name, originName)
+                }
+                val bgRes = StationsData.getStationImageResource(originId)
+                views.setImageViewResource(R.id.widget_station_background, bgRes)
+            }
+
+            if (destinationId.isNotEmpty()) {
+                val destName = StationsData.getStationName(reactApplicationContext, destinationId)
+                if (destName.isNotEmpty()) {
+                    views.setTextViewText(R.id.widget_destination, destName)
+                }
+            }
+
+            Bundle().apply {
+                putParcelable(AppWidgetManager.EXTRA_APPWIDGET_PREVIEW, views)
+            }
+        } catch (e: Exception) {
+            Log.w(NAME, "Failed to build preview bundle", e)
+            null
         }
     }
 
