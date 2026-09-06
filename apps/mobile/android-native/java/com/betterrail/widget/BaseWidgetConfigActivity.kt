@@ -23,6 +23,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 abstract class BaseWidgetConfigActivity : AppCompatActivity() {
     companion object {
+        const val EXTRA_PREFILL_ORIGIN_ID = "com.betterrail.widget.PREFILL_ORIGIN_ID"
+        const val EXTRA_PREFILL_DESTINATION_ID = "com.betterrail.widget.PREFILL_DESTINATION_ID"
         private const val FIRST_ITEM_INDEX = 0
     }
 
@@ -370,6 +372,7 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
                 loadExistingWidgetData(existingData!!)
             } else {
                 addButton.text = getString(R.string.widget_add)
+                applyPrefillFromIntent()
             }
             
             Log.d(getLogTag(), "Widget reconfiguration mode: $isReconfiguring")
@@ -380,6 +383,25 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
         }
     }
     
+    private fun applyPrefillFromIntent() {
+        val originId = intent.getStringExtra(EXTRA_PREFILL_ORIGIN_ID).orEmpty()
+        val destinationId = intent.getStringExtra(EXTRA_PREFILL_DESTINATION_ID).orEmpty()
+
+        val originIndex = stationIds.indexOf(originId)
+        val destinationIndex = stationIds.indexOf(destinationId)
+
+        if (originIndex >= 0) {
+            selectedOriginId = originId
+            originSearch.setText(stationNames[originIndex], false)
+        }
+        if (destinationIndex >= 0) {
+            selectedDestinationId = destinationId
+            destinationSearch.setText(stationNames[destinationIndex], false)
+        }
+
+        updateAddButtonState()
+    }
+
     /**
      * Load existing widget data for reconfiguration
      */
@@ -490,6 +512,9 @@ abstract class BaseWidgetConfigActivity : AppCompatActivity() {
                     
                     Log.d(getLogTag(), "Widget $appWidgetId configured successfully")
                     
+                    if (intent.hasExtra(EXTRA_PREFILL_ORIGIN_ID)) {
+                        WidgetPinReceiver.showHomeScreen(this@BaseWidgetConfigActivity)
+                    }
                     finish()
                     
                 } catch (e: Exception) {
