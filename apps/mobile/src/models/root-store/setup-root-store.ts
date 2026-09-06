@@ -38,6 +38,12 @@ function getSnapshot() {
   }
 }
 
+// Purchases must await durable accounting before finishing a StoreKit transaction.
+export async function persistRootStore() {
+  const saved = await storage.save(ROOT_STATE_STORAGE_KEY, getSnapshot())
+  if (!saved) throw new Error("Failed to persist app state")
+}
+
 /**
  * Setup the root state - loads persisted data and subscribes to changes.
  *
