@@ -356,7 +356,7 @@ export function RouteDetailsScreen() {
                 }
               }}
               accessibilityLabel={translate("routeDetails.trainInformation") ?? undefined}
-              accessibilityState={{ disabled: !hasWagonData }}
+              accessibilityHint={!hasWagonData ? (translate("routeDetails.noTrainDetails") ?? undefined) : undefined}
             >
               <LiquidGlassView
                 style={[styles.infoButton, !hasWagonData && styles.infoButtonDisabled]}
