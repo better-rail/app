@@ -30,6 +30,32 @@ To follow these steps, ensure that [Bun](https://bun.sh) is installed (the serve
 - `/types`: all the types are here
 - `/utils`: utility functions used across the server (incl. `gtfs-time.ts`)
 
+### Choosing a data source
+
+`RAIL_DATA_SOURCE` picks where timetable data comes from. It's read once at boot,
+so switching is a Railway variable change + restart — no app release, since every
+client (app, iOS/watch widgets, Android widget) goes through `/api/v1/rail-api`.
+
+| Value | Behaviour |
+| --- | --- |
+| `gtfs` (default) | MOT GTFS over Postgres + SIRI realtime, as described below. Retired endpoints answer with an empty legacy envelope. |
+| `rail` | The pre-migration behaviour: `/rail-api/*` proxies straight to the Israel Railways API, and ride tracking reads its timetable. Needs `RAIL_URL` and `RAIL_API_KEY`. |
+
+Under `rail` the API is geo-fenced, so a deployment whose egress IP isn't in
+Israel also needs `PROXY_URL`. Nothing reads the GTFS feed in that mode, so the
+schema check and "no active feed" alarm are skipped at boot; the SIRI poller is
+still governed by its own `SIRI_POLLER_MODE`.
+
+**What the app loses under `rail`.** `hideSlowTrains` is the GTFS planner's own
+parameter — the app started sending it once the timetable was already served
+in-house, so the rail API has no equivalent and never saw the field. The proxy
+strips it from the request body rather than post an undefined member upstream,
+which leaves the "hide slow trains" toggle inert: the rail API answers with its
+own curated shortlist of itineraries either way. The changes filter is unaffected
+— the app applies that one client-side. Realtime is the other difference: delays,
+live platforms and cancellations come from the rail API's own `trainPosition`
+instead of SIRI.
+
 ### Timetable data: GTFS (Israel MOT)
 
 The train timetable comes from the **Israel MOT GTFS** static feed
@@ -135,6 +161,11 @@ test-fixture source) and `GET /api/v1/siri/unmatched` (correlation misses).
 - `PORT`: port express listens to
 - `REDIS_URL`: connection string for redis
 - `DATABASE_URL`: connection string for Postgres (GTFS timetable store)
+- `RAIL_DATA_SOURCE`: `gtfs` (default) or `rail` — see [Choosing a data source](#choosing-a-data-source)
+- `RAIL_URL`: Israel Railways API base url, used when `RAIL_DATA_SOURCE=rail`
+- `RAIL_API_KEY`: Israel Railways `Ocp-Apim-Subscription-Key`
+- `PROXY_URL`: outbound HTTP proxy for rail API requests, needed when the egress IP isn't in Israel
+- `RAIL_TLS_INSECURE`: `true` skips TLS verification for rail API requests only
 - `APPLE_BUNDLE_ID`: bundle id of the iOS app to send notifications to
 - `APPLE_TEAM_ID`: team id for the developer account associated with the iOS app
 - `APPLE_KEY_ID`: apple notifications key id

@@ -15,6 +15,28 @@ export const appleKeyContent = (process.env.APPLE_KEY_CONTENT as string)?.replac
 export const appleApnHost = process.env.APN_ENV === "production" ? Host.production : Host.development
 export const firebaseAdminAuth = JSON.parse(process.env.FIREBASE_ADMIN_AUTH || "{}")
 
+/**
+ * Where timetable data comes from.
+ *
+ * - "gtfs" (default) — the Ministry of Transport GTFS feed ingested into Postgres,
+ *   enriched with SIRI realtime. Everything is served in-house.
+ * - "rail" — the Israel Railways API, the way the server worked before the GTFS
+ *   migration: `/rail-api/*` proxies straight through, and ride tracking reads its
+ *   timetable. Needs RAIL_URL + RAIL_API_KEY, and PROXY_URL when the deployment's
+ *   egress IP isn't in Israel (the API is geo-fenced).
+ *
+ * Read once at boot — flipping the source is a Railway variable change + restart.
+ */
+export type RailDataSource = "gtfs" | "rail"
+export const railDataSource: RailDataSource = process.env.RAIL_DATA_SOURCE === "rail" ? "rail" : "gtfs"
+export const railUrl = process.env.RAIL_URL as string
+export const railApiKey = process.env.RAIL_API_KEY as string
+export const proxyUrl = process.env.PROXY_URL as string
+// The rail API has served an incomplete TLS chain before. Unlike the old client,
+// which set NODE_TLS_REJECT_UNAUTHORIZED process-wide, this relaxes verification
+// for requests to the rail API only.
+export const railTlsInsecure = process.env.RAIL_TLS_INSECURE === "true"
+
 // SIRI-SM real-time feed (MOT). The API is IP-allow-listed, so only the deployed
 // poller can reach it; when SIRI_URL / SIRI_KEY are unset everything degrades to
 // schedule-only results (delay 0, scheduled platforms).

@@ -2,7 +2,9 @@ import dayjs from "dayjs"
 
 import { searchTrain } from "./gtfs-route-api"
 import { stationsObject } from "../data/stations"
+import { railDataSource } from "../data/config"
 import { RouteItem, Station } from "../types/rail"
+import { searchTrainOnRailApi } from "./rail-api"
 import { routeDurationInMs } from "../utils/date-utils"
 import { LanguageCode, railApiLocales } from "../locales/i18n"
 
@@ -18,7 +20,13 @@ export class RouteApi {
     const hour = dayjs(departureDate).format("HH:mm")
     const date = dayjs(departureDate).format("YYYY-MM-DD")
 
-    const response = await searchTrain(originId, destinationId, date, hour, "ByDeparture")
+    // Both sources answer in the rail API's `{ result: { travels } }` shape, so the
+    // formatting below is the same either way (see data/config.ts on the flag).
+    const response =
+      railDataSource === "rail"
+        ? await searchTrainOnRailApi(originId, destinationId, date, hour, "ByDeparture", locale)
+        : await searchTrain(originId, destinationId, date, hour, "ByDeparture")
+
     if (!response?.result) {
       throw new Error("Error fetching results")
     }

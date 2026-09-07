@@ -1,6 +1,7 @@
 export const logNames = {
   server: {
     listening: "App listening",
+    dataSource: "Serving timetable data from",
   },
   redis: {
     connect: {
@@ -75,6 +76,12 @@ export const logNames = {
     getRoutes: {
       success: "Got route successfully",
       failed: "Failed to get route",
+    },
+  },
+  railApi: {
+    notConfigured: "RAIL_DATA_SOURCE is 'rail' but RAIL_URL / RAIL_API_KEY are unset",
+    proxy: {
+      failed: "Failed to proxy a request to the Israel Railways API",
     },
   },
   db: {
