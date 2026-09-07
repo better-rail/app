@@ -1,4 +1,4 @@
-import { createFileRoute, notFound, useRouterState } from "@tanstack/react-router"
+import { createFileRoute, notFound, useElementScrollRestoration, useRouterState } from "@tanstack/react-router"
 import { useQueries, useQuery, type QueryClient, type UseQueryResult } from "@tanstack/react-query"
 import { useEffect, useRef, useState } from "react"
 import { ArrowLeft, ArrowRight, CalendarDays, ChevronDown, Loader2, Star, TrainFront } from "lucide-react"
@@ -319,6 +319,13 @@ function RoutesPage() {
   const scrolledToTrip = useRef<string>(undefined)
   /** The trip the reader was just looking at, so closing the details lands back on its card. */
   const returnToTrip = useRef<string>(undefined)
+  /**
+   * Whether the router put the page back where the reader left it: a reload (a browser discarding a background tab
+   * and loading it afresh when the reader comes back) or a back/forward navigation restores the position saved for
+   * this history entry. That, not the requested time or the linked trip, is what they came back to, so the arrival
+   * scrolls below stand down. Cleared once the arrival has been handled — a later selection scrolls as usual.
+   */
+  const restored = useRef(useElementScrollRestoration({ getElement: () => window }) !== undefined)
 
   const paneRef = useRef<HTMLDivElement>(null)
   useFillToFold(paneRef)
@@ -332,6 +339,10 @@ function RoutesPage() {
     const list = listRef.current
     if (!trip || !list) return
     if (search.trip && scrolledToTrip.current === search.trip) return
+    if (search.trip && scrolledToTrip.current === undefined && restored.current) {
+      scrolledToTrip.current = search.trip
+      return
+    }
 
     // Below `lg` the details replace the list, so the panel is what needs to come into view. Read that off the
     // layout rather than a media query, which is still reporting its server value on the first render.
@@ -385,7 +396,11 @@ function RoutesPage() {
     // is no longer the one on screen reads as a glitch, so only a date/time change on the same route animates.
     const replaced = arriving || !scrolledToTime.current?.startsWith(`${pair}@`)
     scrolledToTime.current = key
-    if (arriving && search.trip) return
+    if (arriving) {
+      const standDown = Boolean(search.trip) || restored.current
+      restored.current = false
+      if (standDown) return
+    }
 
     const requested = naiveFromParts(data.date, data.hour)
     requestAnimationFrame(() => {
