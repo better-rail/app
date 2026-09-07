@@ -119,6 +119,7 @@
     "carsCount": "%{count} קרונות",
     "seatsCount": "%{count} מושבים",
     "trainInformation": "פרטי רכבת",
+    "noTrainDetails": "פרטי הרכבת עדיין לא זמינים לנסיעה זו.",
     "noWagonInformationAvailable": "לא נמצא מידע על הרכבת"
   },
   "settings": {
