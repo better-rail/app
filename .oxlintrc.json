@@ -31,7 +31,9 @@
     "apps/mobile/bin",
     "apps/mobile/ios",
     "apps/mobile/android",
-    "apps/website",
+    "apps/web/src/routeTree.gen.ts",
+    "apps/web/public",
+    "packages/stations/src/images.ts",
     "**/dist"
   ]
 }

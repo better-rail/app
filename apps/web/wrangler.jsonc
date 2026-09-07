@@ -1,0 +1,17 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "better-rail-web",
+  // Must not be newer than the workerd bundled with the installed wrangler.
+  "compatibility_date": "2026-08-31",
+  "compatibility_flags": ["nodejs_compat"],
+  // Our entry wraps TanStack Start's default handler (`@tanstack/react-start/server-entry`) with edge caching + security headers.
+  "main": "./src/server.ts",
+  // The assets binding lets the Worker read its own static files — the station photos behind the hero images (src/lib/og).
+  "assets": { "binding": "ASSETS" },
+  // Static assets (dist/client) are wired up by @cloudflare/vite-plugin at build time.
+  // Preview URLs (<branch>-better-rail-web.<account>.workers.dev) need the workers.dev subdomain, which is on by default.
+  "observability": { "enabled": true },
+  "upload_source_maps": true,
+  // Keep variables set in the dashboard (e.g. RAIL_API_BASE for a staging API) across deploys.
+  "keep_vars": true,
+}

@@ -19,6 +19,7 @@
     "adb": "adb reverse tcp:9090 tcp:9090 && adb reverse tcp:3000 tcp:3000 && adb reverse tcp:9001 tcp:9001 && adb reverse tcp:8081 tcp:8081"
   },
   "dependencies": {
+    "@better-rail/stations": "workspace:*",
     "@callstack/liquid-glass": "^0.4.3",
     "@expo/react-native-action-sheet": "4.1.1",
     "@expo/ui": "~56.0.26",
