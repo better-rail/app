@@ -9,10 +9,6 @@
     "android": "expo run:android",
     "prebuild": "expo prebuild",
     "prebuild:clean": "expo prebuild --clean",
-    "test:e2e": "detox test -c ios.sim.debug",
-    "build:e2e": "detox build -c ios.sim.debug",
-    "ci:test:e2e": "detox test -c ios.sim.release -l verbose --cleanup",
-    "ci:build:e2e": "detox build -c ios.sim.release",
     "compile": "tsc --noEmit -p . --pretty",
     "test": "bun test",
     "e2e": "maestro test .maestro/flows",
@@ -60,7 +56,6 @@
     "i18n-js": "3.8.0",
     "lodash": "4.18.1",
     "posthog-react-native": "^4.66.2",
-    "ramda": "0.27.1",
     "react": "19.2.3",
     "react-native": "0.85.3",
     "react-native-bouncy-checkbox": "3.0.7",
@@ -98,33 +93,14 @@
     "@bacons/apple-targets": "4.0.7",
     "@types/i18n-js": "3.0.3",
     "@types/lodash": "4.17.25",
-    "@types/ramda": "0.27.32",
     "@types/react": "~19.2.14",
     "@types/react-native-push-notification": "8.1.1",
     "babel-plugin-react-compiler": "1.0.0",
     "bufferutil": "4.0.2",
-    "detox": "20.7.0",
     "postinstall-prepare": "1.0.1",
     "react-native-console-time-polyfill": "1.2.3",
     "typescript": "~6.0.3",
     "utf-8-validate": "5.0.3"
-  },
-  "detox": {
-    "test-runner": "jest",
-    "configurations": {
-      "ios.sim.debug": {
-        "binaryPath": "ios/build/Build/Products/Debug-iphonesimulator/betterrail.app",
-        "build": "xcodebuild -workspace ios/BetterRail.xcworkspace -scheme BetterRail -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build -destination 'name=iPhone 11'",
-        "type": "ios.simulator",
-        "name": "iPhone 11"
-      },
-      "ios.sim.release": {
-        "binaryPath": "ios/build/Build/Products/Release-iphonesimulator/BetterRail.app",
-        "build": "xcodebuild -workspace ios/BetterRail.xcworkspace -scheme BetterRail -configuration Release -sdk iphonesimulator -derivedDataPath ios/build -destination 'name=iPhone 11'",
-        "type": "ios.simulator",
-        "name": "iPhone 11"
-      }
-    }
   },
   "expo": {
     "doctor": {

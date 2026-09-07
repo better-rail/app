@@ -61,13 +61,6 @@ command -v react-native >/dev/null 2>&1 || {
 #   brew install applesimutils
 # }
 
-# IF NEEDED: Ensure detox-cli is installed
-# command -v detox >/dev/null 2>&1 || {
-#   echo "This app requires detox-cli to run end to end tests, but it was not found on your system."
-#   echo "Installing detox globally with npm..."
-#   npm install -g detox-cli
-# }
-
 # IF NEEDED: Ensure phraseapp is installed
 # command -v phraseapp >/dev/null 2>&1 || {
 #   echo "This app requires phraseapp to run localizations, but it was not found on your system."
