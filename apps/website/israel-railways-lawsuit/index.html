@@ -228,6 +228,44 @@
         }
       }
 
+      .update-note {
+        margin: 0 0 22px;
+        padding: 16px 18px;
+        border-radius: 12px;
+        background-color: #e8f6ec;
+        border: 1px solid rgba(38, 138, 74, 0.18);
+      }
+
+      .update-note-label {
+        margin: 0 0 4px;
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: -0.2px;
+        color: #1c7a41;
+      }
+
+      .update-note-text {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+        line-height: 1.55;
+        letter-spacing: -0.3px;
+      }
+
+      .update-note-link {
+        font-weight: 400;
+      }
+
+      @media (min-width: 620px) {
+        .update-note {
+          padding: 18px 22px;
+        }
+
+        .update-note-text {
+          font-size: 19px;
+        }
+      }
+
       .divider {
         width: 60px;
         margin: 26px 0 22px;
@@ -302,6 +340,20 @@
           <p class="byline-role"><time datetime="2026-09-01">1 בספטמבר 2026</time></p>
         </div>
       </div>
+
+      <aside class="update-note">
+        <p class="update-note-label"><time datetime="2026-09-07">עדכון · 7 בספטמבר 2026</time></p>
+        <p class="update-note-text">
+          בטר רייל חזרה למשוך מידע מרכבת ישראל.
+          <a
+            class="underline-hovered-link update-note-link"
+            href="https://x.com/better_rail/status/2096877673888825749"
+            target="_blank"
+            rel="noopener noreferrer"
+            >לפרטים המלאים</a
+          >
+        </p>
+      </aside>
 
       <p class="site-page-content-text lead">קיבלנו מכתב אזהרה לפני תביעה מרכבת ישראל.</p>
 
