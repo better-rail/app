@@ -535,6 +535,8 @@ function RoutesPage() {
               routes={routes}
               from={origin.id}
               to={destination.id}
+              date={search.date}
+              time={search.time}
               selectedId={search.trip}
               now={now}
               hideSlowTrains={hideSlowTrains}
@@ -550,6 +552,8 @@ function RoutesPage() {
                   query={dayQuery}
                   origin={origin}
                   destination={destination}
+                  date={search.date}
+                  time={search.time}
                   selectedId={search.trip}
                   now={now}
                   hideSlowTrains={hideSlowTrains}
@@ -630,6 +634,8 @@ function ExtraDay({
   query,
   origin,
   destination,
+  date,
+  time,
   selectedId,
   now,
   hideSlowTrains,
@@ -638,6 +644,8 @@ function ExtraDay({
   query: UseQueryResult<RoutesResult>
   origin: Station
   destination: Station
+  date?: string
+  time?: string
   selectedId?: string
   now: NaiveTime
   hideSlowTrains: boolean
@@ -666,6 +674,8 @@ function ExtraDay({
           routes={routes}
           from={origin.id}
           to={destination.id}
+          date={date}
+          time={time}
           selectedId={selectedId}
           now={now}
           hideSlowTrains={hideSlowTrains}

@@ -79,12 +79,14 @@ export function isWeekend(naive: NaiveTime): boolean {
 export const isValidDateKey = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(parseNaive(value))
 export const isValidClock = (value: string) => /^([01]\d|2[0-3]):[0-5]\d$/.test(value)
 
+let offsetFormat: Intl.DateTimeFormat | undefined
+
 /** ISO-8601 string with Israel's UTC offset for the given naive time (for structured data / calendars). */
 export function toIsoWithOffset(naive: NaiveTime): string {
   const guess = new Date(naive - 2 * 60 * 60 * 1000)
-  const offsetPart = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Jerusalem", timeZoneName: "longOffset" })
-    .formatToParts(guess)
-    .find((part) => part.type === "timeZoneName")?.value
+  // Built once: the formatter is the expensive part, and the routes loader runs this for dozens of trips at a time.
+  offsetFormat ??= new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Jerusalem", timeZoneName: "longOffset" })
+  const offsetPart = offsetFormat.formatToParts(guess).find((part) => part.type === "timeZoneName")?.value
   const offset = offsetPart && offsetPart !== "GMT" ? offsetPart.replace("GMT", "") : "+02:00"
   return `${new Date(naive).toISOString().slice(0, 19)}${offset}`
 }

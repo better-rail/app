@@ -1,27 +1,29 @@
+import { memo, type MouseEvent } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import type { RouteItem } from "@/lib/api/types"
 import { formatClock } from "@/lib/time"
 import { formatDuration } from "@/lib/format"
 import { useLocale, useT } from "@/i18n"
 import { cn } from "@/lib/cn"
-import { LocaleLink } from "../locale-link"
 import { CancelledBadge, DelayBadge, ShortRouteBadge, SlowTrainBadge, useChangesText } from "./route-badges"
 
-export function RouteCard({
+/**
+ * A plain anchor rather than the router's `Link`, and memoised: a day lists a couple of hundred of these, and a
+ * `Link` apiece meant every one of them re-rendered, rebuilt its location and preloaded the route on hover for
+ * each trip picked. The href comes ready-made from the list, and a plain click hands the trip back to it.
+ */
+export const RouteCard = memo(function RouteCard({
   route,
-  from,
-  to,
+  href,
   selected,
   isPast,
-  day,
+  onSelect,
 }: {
   route: RouteItem
-  from: string
-  to: string
+  href: string
   selected: boolean
   isPast: boolean
-  /** Service day of this card, set on the appended days so the link says which day's trip it selects */
-  day?: string
+  onSelect: (route: RouteItem, selected: boolean) => void
 }) {
   const t = useT()
   const locale = useLocale()
@@ -30,13 +32,18 @@ export function RouteCard({
   const firstTrain = route.trains[0]
   const Chevron = locale === "he" ? ChevronLeft : ChevronRight
 
+  // Modified and non-primary clicks are the browser's (a new tab, say), as they would be on any link.
+  const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (event.defaultPrevented || event.button !== 0) return
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+    event.preventDefault()
+    onSelect(route, selected)
+  }
+
   return (
-    <LocaleLink
-      to="/{-$locale}/routes/$from/$to"
-      params={{ from, to }}
-      search={(prev: Record<string, unknown>) => ({ ...prev, trip: route.id, day })}
-      resetScroll={false}
-      replace={selected}
+    <a
+      href={href}
+      onClick={handleClick}
       aria-current={selected ? "true" : undefined}
       data-route-id={route.id}
       data-departure={route.departureTime}
@@ -85,9 +92,9 @@ export function RouteCard({
           </>
         )}
       </div>
-    </LocaleLink>
+    </a>
   )
-}
+})
 
 function TimeColumn({
   label,

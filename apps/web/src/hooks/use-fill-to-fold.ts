@@ -19,19 +19,28 @@ export function useFillToFold(
     if (!pane) return
     const media = window.matchMedia(breakpoint)
     let frame = 0
+    let applied: string | undefined
+
+    // Written only when it changes: this runs on every scroll frame, and an inline style set to the value it already
+    // has still costs a style recalculation on some engines.
+    const apply = (height: string) => {
+      if (height === applied) return
+      applied = height
+      pane.style.height = height
+    }
 
     const fit = () => {
       frame = 0
       const wrapper = pane.parentElement
       if (!media.matches || !wrapper) {
-        pane.style.height = ""
+        apply("")
         return
       }
       const paneTop = pane.getBoundingClientRect().top
       // Where the pane sits once the wrapper is pinned: the wrapper's sticky `top`, plus the pane's own offset in it.
       const pinnedTop = (parseFloat(getComputedStyle(wrapper).top) || 0) + (paneTop - wrapper.getBoundingClientRect().top)
       const top = Math.max(paneTop, pinnedTop)
-      pane.style.height = `${Math.max(0, Math.round(window.innerHeight - gap - top))}px`
+      apply(`${Math.max(0, Math.round(window.innerHeight - gap - top))}px`)
     }
     const schedule = () => {
       if (!frame) frame = requestAnimationFrame(fit)

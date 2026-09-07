@@ -179,88 +179,94 @@ export function StationPicker({ label, value, onChange, exclude, variant = "card
         // `--panel-room` is what the shell measured between the field and the fold, so the list never runs past it.
         panelClassName="flex w-full min-w-[340px] max-h-(--panel-room) flex-col overflow-hidden"
       >
-        <div className={cn("shrink-0", isDesktop ? "p-2 pb-1.5" : "px-4 pb-2 pt-1")}>
-          <div className="flex h-11 items-center gap-2.5 rounded-xl bg-surface-3 px-3 transition-shadow focus-within:ring-3 focus-within:ring-brand/25">
-            <Search className="size-[18px] shrink-0 text-dim" aria-hidden="true" />
-            <input
-              ref={input}
-              type="search"
-              role="combobox"
-              aria-controls={listboxId}
-              aria-expanded="true"
-              aria-autocomplete="list"
-              aria-activedescendant={results[activeIndex] ? `${listboxId}-${results[activeIndex].id}` : undefined}
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              onKeyDown={onKeyDown}
-              placeholder={t("plan.searchPlaceholder")}
-              autoComplete="off"
-              autoCorrect="off"
-              spellCheck={false}
-              enterKeyHint="done"
-              className="min-w-0 flex-1 bg-transparent text-[16px] outline-none placeholder:text-dim [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
-            />
-            {query && (
-              <button
-                type="button"
-                onClick={() => {
-                  setQuery("")
-                  input.current?.focus()
-                }}
-                className="-me-1.5 flex size-8 shrink-0 items-center justify-center rounded-full text-dim transition-colors hover:text-text"
-                aria-label={t("plan.clearSearch")}
-              >
-                <span className="flex size-[18px] items-center justify-center rounded-full bg-current">
-                  <X className="size-3 text-surface-3" strokeWidth={3} />
-                </span>
-              </button>
-            )}
-          </div>
-        </div>
+        {/* Built only while open: the popover renders nothing when closed, but the station list is a few hundred
+            elements, and the results toolbar has two of these re-rendering with every trip picked. */}
+        {open && (
+          <>
+            <div className={cn("shrink-0", isDesktop ? "p-2 pb-1.5" : "px-4 pb-2 pt-1")}>
+              <div className="flex h-11 items-center gap-2.5 rounded-xl bg-surface-3 px-3 transition-shadow focus-within:ring-3 focus-within:ring-brand/25">
+                <Search className="size-[18px] shrink-0 text-dim" aria-hidden="true" />
+                <input
+                  ref={input}
+                  type="search"
+                  role="combobox"
+                  aria-controls={listboxId}
+                  aria-expanded="true"
+                  aria-autocomplete="list"
+                  aria-activedescendant={results[activeIndex] ? `${listboxId}-${results[activeIndex].id}` : undefined}
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  onKeyDown={onKeyDown}
+                  placeholder={t("plan.searchPlaceholder")}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  enterKeyHint="done"
+                  className="min-w-0 flex-1 bg-transparent text-[16px] outline-none placeholder:text-dim [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+                />
+                {query && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setQuery("")
+                      input.current?.focus()
+                    }}
+                    className="-me-1.5 flex size-8 shrink-0 items-center justify-center rounded-full text-dim transition-colors hover:text-text"
+                    aria-label={t("plan.clearSearch")}
+                  >
+                    <span className="flex size-[18px] items-center justify-center rounded-full bg-current">
+                      <X className="size-3 text-surface-3" strokeWidth={3} />
+                    </span>
+                  </button>
+                )}
+              </div>
+            </div>
 
-        <ul
-          ref={list}
-          id={listboxId}
-          role="listbox"
-          aria-label={label}
-          // Dragging the list puts the keyboard away, so the whole sheet is there to browse.
-          onTouchMove={() => document.activeElement === input.current && input.current?.blur()}
-          className={cn(
-            "scrollbar-thin min-h-0 flex-1 overflow-y-auto overscroll-contain",
-            isDesktop ? "max-h-[420px] p-1.5" : "px-2.5 pb-2",
-          )}
-        >
-          {showRecent && <ListHeading>{t("plan.recentSearches")}</ListHeading>}
-          {showRecent &&
-            recentStations.map((station) => (
-              <StationOption
-                key={`recent-${station.id}`}
-                station={station}
-                name={stationName(station, locale)}
-                active={false}
-                disabled={station.id === exclude?.id}
-                onSelect={select}
-                id={`${listboxId}-recent-${station.id}`}
-                icon={<Clock className="size-4 text-dim" />}
-              />
-            ))}
-          {showRecent && <ListHeading>{t("plan.allStations")}</ListHeading>}
-          {results.map((station, index) => (
-            <StationOption
-              key={station.id}
-              station={station}
-              name={stationName(station, locale)}
-              // The keyboard highlight is a desktop affordance; on a phone it would read as a selection.
-              active={isDesktop && index === activeIndex}
-              selected={station.id === value?.id}
-              disabled={station.id === exclude?.id}
-              onSelect={select}
-              onHover={() => setActiveIndex(index)}
-              id={`${listboxId}-${station.id}`}
-            />
-          ))}
-          {results.length === 0 && <li className="px-3 py-8 text-center text-muted">{t("plan.noResults")}</li>}
-        </ul>
+            <ul
+              ref={list}
+              id={listboxId}
+              role="listbox"
+              aria-label={label}
+              // Dragging the list puts the keyboard away, so the whole sheet is there to browse.
+              onTouchMove={() => document.activeElement === input.current && input.current?.blur()}
+              className={cn(
+                "scrollbar-thin min-h-0 flex-1 overflow-y-auto overscroll-contain",
+                isDesktop ? "max-h-[420px] p-1.5" : "px-2.5 pb-2",
+              )}
+            >
+              {showRecent && <ListHeading>{t("plan.recentSearches")}</ListHeading>}
+              {showRecent &&
+                recentStations.map((station) => (
+                  <StationOption
+                    key={`recent-${station.id}`}
+                    station={station}
+                    name={stationName(station, locale)}
+                    active={false}
+                    disabled={station.id === exclude?.id}
+                    onSelect={select}
+                    id={`${listboxId}-recent-${station.id}`}
+                    icon={<Clock className="size-4 text-dim" />}
+                  />
+                ))}
+              {showRecent && <ListHeading>{t("plan.allStations")}</ListHeading>}
+              {results.map((station, index) => (
+                <StationOption
+                  key={station.id}
+                  station={station}
+                  name={stationName(station, locale)}
+                  // The keyboard highlight is a desktop affordance; on a phone it would read as a selection.
+                  active={isDesktop && index === activeIndex}
+                  selected={station.id === value?.id}
+                  disabled={station.id === exclude?.id}
+                  onSelect={select}
+                  onHover={() => setActiveIndex(index)}
+                  id={`${listboxId}-${station.id}`}
+                />
+              ))}
+              {results.length === 0 && <li className="px-3 py-8 text-center text-muted">{t("plan.noResults")}</li>}
+            </ul>
+          </>
+        )}
       </PickerPopover>
     </div>
   )

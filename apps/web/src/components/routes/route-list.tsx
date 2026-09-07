@@ -1,12 +1,19 @@
+import { useCallback, useMemo } from "react"
+import { useNavigate, useRouter } from "@tanstack/react-router"
 import type { RouteItem } from "@/lib/api/types"
 import { isRouteInThePast } from "@/lib/api/route-format"
 import type { NaiveTime } from "@/lib/time"
+import { useLocaleParam } from "../locale-link"
 import { RouteCard } from "./route-card"
+
+const ROUTES_PATH = "/{-$locale}/routes/$from/$to"
 
 export function RouteList({
   routes,
   from,
   to,
+  date,
+  time,
   selectedId,
   now,
   hideSlowTrains,
@@ -15,12 +22,38 @@ export function RouteList({
   routes: RouteItem[]
   from: string
   to: string
+  /** The page's own `date` and `time` search params, which every card's link carries along */
+  date?: string
+  time?: string
   selectedId?: string
   now: NaiveTime
   hideSlowTrains: boolean
-  /** Set on the appended days — see `RouteCard` */
+  /** Set on the appended days, so a card's link says which day's trip it selects */
   day?: string
 }) {
+  const router = useRouter()
+  const locale = useLocaleParam()
+  const navigate = useNavigate({ from: ROUTES_PATH })
+
+  // Each card links to this page with itself as the trip. Built here, once per list rather than per card per
+  // render: the links depend on the day and the requested time, not on which trip is selected, so picking one
+  // leaves them as they are.
+  const hrefs = useMemo(() => {
+    const params = { locale, from, to }
+    return new Map(
+      routes.map((route) => {
+        const location = router.buildLocation({ to: ROUTES_PATH, params, search: { date, time, trip: route.id, day } })
+        return [route.id, router.history.createHref(location.publicHref)]
+      }),
+    )
+  }, [router, locale, from, to, date, time, day, routes])
+
+  const onSelect = useCallback(
+    (route: RouteItem, selected: boolean) =>
+      navigate({ search: (prev) => ({ ...prev, trip: route.id, day }), replace: selected, resetScroll: false }),
+    [navigate, day],
+  )
+
   const visible = hideSlowTrains ? routes.filter((route) => !route.isMuchLonger || route.id === selectedId) : routes
 
   return (
@@ -29,11 +62,10 @@ export function RouteList({
         <li key={route.id}>
           <RouteCard
             route={route}
-            from={from}
-            to={to}
+            href={hrefs.get(route.id) ?? ""}
             selected={route.id === selectedId}
             isPast={isRouteInThePast(route, now)}
-            day={day}
+            onSelect={onSelect}
           />
         </li>
       ))}

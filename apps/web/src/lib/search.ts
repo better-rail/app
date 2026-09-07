@@ -14,6 +14,12 @@ export function searchString(value: unknown): string | undefined {
  * objects and arrays — throwing for anything else is what keeps those values bare on both sides of the round trip.
  */
 export function parseSearchValue(value: string): unknown {
-  if (!value.startsWith("{") && !value.startsWith("[")) throw new Error("Not a JSON search value")
+  if (!value.startsWith("{") && !value.startsWith("[")) throw NOT_JSON
   return JSON.parse(value)
 }
+
+/**
+ * One instance for every rejection: the router's stringifier probes each value of each link it builds this way, and
+ * a page listing a couple of hundred trips had it capturing a stack trace per value on every navigation.
+ */
+const NOT_JSON = new Error("Not a JSON search value")
