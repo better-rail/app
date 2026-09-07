@@ -16,6 +16,7 @@ import { requestOrigin } from "@/lib/request-origin"
 import { useHideSlowTrains, useIsFavorite } from "@/hooks/use-stored"
 import { useNow } from "@/hooks/use-now"
 import { useFillToFold } from "@/hooks/use-fill-to-fold"
+import { useScrollMemory } from "@/hooks/use-scroll-memory"
 import {
   addDays,
   dateKey,
@@ -320,12 +321,16 @@ function RoutesPage() {
   /** The trip the reader was just looking at, so closing the details lands back on its card. */
   const returnToTrip = useRef<string>(undefined)
   /**
-   * Whether the router put the page back where the reader left it: a reload (a browser discarding a background tab
-   * and loading it afresh when the reader comes back) or a back/forward navigation restores the position saved for
-   * this history entry. That, not the requested time or the linked trip, is what they came back to, so the arrival
-   * scrolls below stand down. Cleared once the arrival has been handled — a later selection scrolls as usual.
+   * Whether the page is going back to where the reader left it rather than arriving: a back/forward navigation, or a
+   * reload they did not ask for (a browser discarding a background tab and loading it afresh when they come back).
+   * The router restores the position it saved for this history entry; a discarded tab never got to save it, so the
+   * page keeps its own (`useScrollMemory`) and puts itself back once the list is in place. Either way that, not the
+   * requested time or the linked trip, is what the reader came back to, so the arrival scrolls below stand down.
+   * Cleared once the arrival has been handled — a later selection scrolls as usual.
    */
-  const restored = useRef(useElementScrollRestoration({ getElement: () => window }) !== undefined)
+  const remembered = useScrollMemory()
+  const routerRestores = useElementScrollRestoration({ getElement: () => window }) !== undefined
+  const restored = useRef(remembered !== undefined || routerRestores)
 
   const paneRef = useRef<HTMLDivElement>(null)
   useFillToFold(paneRef)
@@ -399,6 +404,11 @@ function RoutesPage() {
     if (arriving) {
       const standDown = Boolean(search.trip) || restored.current
       restored.current = false
+      // The page's own memory is the fresher of the two: the router's was saved when the entry was last left, this
+      // one as the reader scrolled. A jump, like the router's restore.
+      if (remembered !== undefined) {
+        requestAnimationFrame(() => window.scrollTo({ top: remembered, behavior: "instant" }))
+      }
       if (standDown) return
     }
 
@@ -428,7 +438,7 @@ function RoutesPage() {
       // turns off).
       window.scrollTo({ top: window.scrollY + delta, behavior: replaced ? "instant" : "auto" })
     })
-  }, [query.data, data.date, data.hour, origin.id, destination.id, search.trip])
+  }, [query.data, data.date, data.hour, origin.id, destination.id, search.trip, remembered])
 
   return (
     <div ref={pageRef} className="flex flex-1 flex-col">
