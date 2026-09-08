@@ -125,7 +125,7 @@ export function Planner({
             onClick={swap}
             disabled={!value.origin || !value.destination}
             responsive="sm"
-            className="row-span-2 size-10 sm:row-span-1"
+            className="row-span-2 size-11 sm:row-span-1"
           />
           <StationPicker
             kind="destination"

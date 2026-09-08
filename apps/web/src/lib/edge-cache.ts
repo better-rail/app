@@ -23,6 +23,11 @@ export interface EdgeCacheOptions {
   cache: EdgeCache | undefined
   ctx?: ExecutionContext
   now?: () => number
+  /**
+   * Folded into the key: a page rendered by one build links that build's hashed scripts, which the next deploy
+   * removes, so a copy must never outlive the build that made it.
+   */
+  build?: string
 }
 
 export interface EdgePolicy {
@@ -99,10 +104,12 @@ function fromCache(cached: Response, status: "HIT" | "STALE"): Response {
 
 /** Serves `request` from the edge cache when it can, rendering (and storing) it otherwise. */
 export async function fetchWithEdgeCache(request: Request, render: Render, options: EdgeCacheOptions): Promise<Response> {
-  const { cache, ctx, now = Date.now } = options
+  const { cache, ctx, now = Date.now, build } = options
   if (!cache || request.method !== "GET") return render(request)
 
-  const key = new Request(request.url, { method: "GET" })
+  const url = new URL(request.url)
+  if (build) url.searchParams.set("__build", build)
+  const key = new Request(url, { method: "GET" })
   const store = (response: Response, policy: EdgePolicy) => cache.put(key, storable(response, policy, now()))
   const background = (work: Promise<unknown>) => {
     const settled = work.catch(() => {})

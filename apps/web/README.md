@@ -36,7 +36,8 @@ Worker: edge caching and the `_headers` rules are active there but not in `dev`.
 
 Timetable data comes from the Better Rail server (`https://api.better-rail.co.il`) through a server function
 (`src/lib/api/find-routes.ts`), so the browser never talks to the API directly. Override the base URL with
-`RAIL_API_BASE` when pointing at a staging server.
+`RAIL_API_BASE` when pointing at a staging server. Locally the Worker runs in workerd, which does not see the shell's
+environment: put the variable in `apps/web/.dev.vars` (gitignored), or run with `CLOUDFLARE_INCLUDE_PROCESS_ENV=true`.
 
 ### Station data & photos
 

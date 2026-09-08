@@ -18,11 +18,15 @@ const SECURITY_HEADERS: Record<string, string> = {
 
 const render = async (request: Request) => withHeaders(await handler.fetch(request), SECURITY_HEADERS)
 
+// Stamped by vite.config.ts: cached pages are keyed by the build that rendered them.
+declare const __BUILD_ID__: string | undefined
+const BUILD_ID = typeof __BUILD_ID__ === "string" ? __BUILD_ID__ : undefined
+
 const edgeCache = (): EdgeCache | undefined =>
   import.meta.env.DEV || typeof caches === "undefined" ? undefined : (caches as unknown as { default?: EdgeCache }).default
 
 export default createServerEntry({
   // Workers call `fetch(request, env, ctx)`; `ctx.waitUntil` keeps cache writes alive after the response is sent.
   fetch: (request: Request, _env?: unknown, ctx?: ExecutionContext) =>
-    fetchWithEdgeCache(request, render, { cache: edgeCache(), ctx }),
+    fetchWithEdgeCache(request, render, { cache: edgeCache(), ctx, build: BUILD_ID }),
 })

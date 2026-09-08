@@ -138,6 +138,18 @@ describe("fetchWithEdgeCache", () => {
     expect(calls()).toBe(2)
   })
 
+  test("a copy from another build is not served", async () => {
+    const { cache } = fakeCache()
+    const { ctx, settle } = fakeCtx()
+    const { render, calls } = renderer(["old", "new"])
+
+    expect(await (await fetchWithEdgeCache(new Request(URL_A), render, { cache, ctx, build: "1" })).text()).toBe("old")
+    await settle()
+    expect(await (await fetchWithEdgeCache(new Request(URL_A), render, { cache, ctx, build: "1" })).text()).toBe("old")
+    expect(await (await fetchWithEdgeCache(new Request(URL_A), render, { cache, ctx, build: "2" })).text()).toBe("new")
+    expect(calls()).toBe(2)
+  })
+
   test("keys on the full URL, query included", async () => {
     const { cache } = fakeCache()
     const { ctx, settle } = fakeCtx()

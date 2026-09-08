@@ -1,4 +1,13 @@
-import { useId, useRef, useState, type ComponentProps, type FocusEvent, type KeyboardEvent, type RefObject } from "react"
+import {
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ComponentProps,
+  type FocusEvent,
+  type KeyboardEvent,
+  type RefObject,
+} from "react"
 import { CalendarDays, ChevronDown, Clock, RotateCcw, type LucideIcon } from "lucide-react"
 import { useLocale, useT } from "@/i18n"
 import { cn } from "@/lib/cn"
@@ -255,6 +264,14 @@ function TimeField({ value, now, onChange, fieldClass, className }: FieldProps<s
   const { input, button, focusTrigger, onInputFocus } = useTrigger(open, openPicker)
 
   const display = open ? draft : (value ?? now)
+
+  // Rolling the wheel rewrites the input while it keeps focus, which parks the caret at the end: the next keystroke
+  // would append to "13:25". Re-selecting keeps typing replacing the value, as it does on focus.
+  useLayoutEffect(() => {
+    const element = input.current
+    if (open && text === null && element && document.activeElement === element) element.select()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft])
 
   const type = (raw: string) => {
     setText(raw)

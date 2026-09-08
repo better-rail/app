@@ -37,6 +37,7 @@ export function RouteActions({
   const [alignEnd, setAlignEnd] = useState(true)
   const menuRef = useRef<HTMLDivElement>(null)
   const menuPanel = useRef<HTMLDivElement>(null)
+  const menuButton = useRef<HTMLButtonElement>(null)
 
   // The header wraps on narrow screens, which puts the actions at the start of their own row; from there a menu growing
   // towards the start runs out of the card and gets clipped. Measured on open, before paint.
@@ -52,13 +53,27 @@ export function RouteActions({
     setAlignEnd(rtl ? rect.left + width <= bounds.right - margin : rect.right - width >= bounds.left + margin)
   }, [calendarOpen])
 
+  // Open: focus goes to the first item, Escape (or a press outside) closes it, and focus returns to the button when
+  // it was closed from the keyboard.
   useEffect(() => {
     if (!calendarOpen) return
+    const button = menuButton.current
+    menuPanel.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus({ preventScroll: true })
     const onPointerDown = (event: PointerEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) setCalendarOpen(false)
     }
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return
+      event.stopPropagation()
+      setCalendarOpen(false)
+      button?.focus({ preventScroll: true })
+    }
     document.addEventListener("pointerdown", onPointerDown)
-    return () => document.removeEventListener("pointerdown", onPointerDown)
+    document.addEventListener("keydown", onKey)
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown)
+      document.removeEventListener("keydown", onKey)
+    }
   }, [calendarOpen])
 
   const origin = stationNameById(originId, locale)
@@ -114,6 +129,7 @@ export function RouteActions({
       <div ref={menuRef} className="relative">
         <Tooltip label={t("details.addToCalendar")} disabled={calendarOpen}>
           <button
+            ref={menuButton}
             type="button"
             onClick={() => setCalendarOpen((open) => !open)}
             aria-haspopup="menu"
