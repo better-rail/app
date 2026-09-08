@@ -23,9 +23,10 @@ To follow these steps, ensure that [Bun](https://bun.sh) is installed (the serve
 - `/logs`: logger and lognames sit here
 - `/requests`: timetable engine (`gtfs-route-api.ts`) and the rides route fetcher
 - `/rides`: notification scheduler
-- `/routes`: express router (incl. the `/rail-api` legacy surface served from GTFS, and the token-guarded `/siri` debug routes)
+- `/routes`: express router (incl. the `/rail-api` legacy surface served from GTFS, `/fares`, and the token-guarded `/siri` debug routes)
 - `/siri`: SIRI-SM real-time pipeline — poller (standalone entrypoint `main.ts`), correlation and the redis snapshot
-- `/scripts`: standalone CLIs — `download-feed`, `ingest-gtfs`, `build-station-mapping`, `verify-mapping`
+- `/fares`: the Israel Railways fares snapshot — validation/normalization (`pull.ts`) and the redis store
+- `/scripts`: standalone CLIs — `download-feed`, `ingest-gtfs`, `build-station-mapping`, `verify-mapping`, `rail-pull`
 - `/tests`: all the tests are here
 - `/types`: all the types are here
 - `/utils`: utility functions used across the server (incl. `gtfs-time.ts`)
@@ -130,6 +131,47 @@ active feed atomically, so the live API never reads a half-loaded feed. It abort
 (keeping the previous feed) if a station that trips actually traverse has no
 mapping.
 
+### Fares: an Israel Railways snapshot
+
+Ticket prices come from **Israel Railways' own tariff**, not from GTFS: the
+rail API's price table is what riders are actually charged, and no MOT dataset
+reproduces it exactly (the reform's fare rules agree with it on 97% of station
+pairs — the rest are the operator's own exceptions). So the server serves a
+**snapshot** of the rail API instead of computing fares, and never calls the
+rail API on a request.
+
+`bun run rail:pull` fetches `GetProfiles` and `GetAllPriceWithNotes` from the
+rail API (needs `RAIL_URL` + `RAIL_API_KEY`, and `PROXY_URL` when the egress IP
+isn't in Israel), validates them, normalizes them and stores the result under
+the redis key `fares:snapshot` with no TTL. It logs what changed against the
+previous snapshot (pairs and profiles added, removed or changed), so a tariff
+reform shows up in the cron output. Run it on a Railway cron — weekly is plenty,
+the tariff moves about once a year — or by hand. To seed a local redis without
+API access, feed it saved payloads:
+
+```bash
+bun run rail:pull -- --profiles ./GetProfiles.json --prices ./GetAllPriceWithNotes.json
+```
+
+The routes read that snapshot (cached in-process for a minute) and are
+independent of `RAIL_DATA_SOURCE`:
+
+```
+GET /api/v1/fares?from=3700&to=5010
+→ { "from": 3700, "to": 5010, "distanceCode": 1,
+    "prices": { "single": 11.5, "daily": 23, "monthly": 323 }, "updatedAt": "2026-09-08T…" }
+
+GET /api/v1/fares/profiles
+→ { "updatedAt": "…", "profiles": [ { "id": 4, "name": { "he": "אזרח ותיק", "en": null, "ar": null, "ru": null },
+                                       "discounts": { "single": 0.5, "daily": 0.5, "monthly": 0.5 }, "note": null }, … ] }
+```
+
+`distanceCode` is the rail API's 1–5 distance ring; `discounts` are the
+fraction taken off each product (1 = free-travel certificate) and `note` is the
+rail API's footnote for the profile in four languages (e.g. that a student's
+discount is applied at RavKav top-up rather than per ride). An unknown pair is
+a 404; until the first pull has run every route answers 503 and logs it.
+
 ### Real-time data: SIRI-SM
 
 Live delays (`trainPosition.calcDiffMinutes`) and platform changes come from the
@@ -162,7 +204,7 @@ test-fixture source) and `GET /api/v1/siri/unmatched` (correlation misses).
 - `REDIS_URL`: connection string for redis
 - `DATABASE_URL`: connection string for Postgres (GTFS timetable store)
 - `RAIL_DATA_SOURCE`: `gtfs` (default) or `rail` — see [Choosing a data source](#choosing-a-data-source)
-- `RAIL_URL`: Israel Railways API base url, used when `RAIL_DATA_SOURCE=rail`
+- `RAIL_URL`: Israel Railways API base url, used when `RAIL_DATA_SOURCE=rail` and by `bun run rail:pull`
 - `RAIL_API_KEY`: Israel Railways `Ocp-Apim-Subscription-Key`
 - `PROXY_URL`: outbound HTTP proxy for rail API requests, needed when the egress IP isn't in Israel
 - `RAIL_TLS_INSECURE`: `true` skips TLS verification for rail API requests only

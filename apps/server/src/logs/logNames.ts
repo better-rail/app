@@ -89,6 +89,12 @@ export const logNames = {
       error: "Postgres pool error",
     },
   },
+  fares: {
+    pulled: "Pulled fares from the Israel Railways API into redis",
+    pullFailed: "Failed to pull fares from the Israel Railways API",
+    readFailed: "Failed to read the fares snapshot from redis",
+    notAvailable: "No fares snapshot in redis — run `bun run rail:pull`",
+  },
   platforms: {
     writeFailed: "Failed to record SIRI-observed platforms",
   },

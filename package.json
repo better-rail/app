@@ -17,6 +17,7 @@
     "server:test": "bun run --filter @better-rail/server test",
     "server:siri": "bun run --filter @better-rail/server siri",
     "server:ingest": "bun run --filter @better-rail/server ingest",
+    "server:rail:pull": "bun run --filter @better-rail/server rail:pull",
     "website:dev": "bun run --filter @better-rail/website dev",
     "test": "bun run mobile:test && bun run server:test",
     "lint": "oxlint && oxfmt --check",
