@@ -18,17 +18,18 @@ import { addDays, dateKey, parseNaive } from "@/lib/time"
 
 const monthKey = ({ year, month }: YearMonth) => `${year}-${month}`
 /** `YYYY-MM-DD` keys sort as strings. */
-const clampMin = (key: string, min: string) => (key < min ? min : key)
+const clamp = (key: string, min: string, max: string) => (key < min ? min : key > max ? max : key)
 
 /**
- * A month grid for picking one day on or after `min`. Sunday-first (Israel's week), Friday and Saturday drawn muted,
- * always six rows so paging months never moves the footer. A single tab stop: the arrow keys walk the days — mirrored
- * under RTL, so "right" still means "later in the row" — Home/End jump within the week, PageUp/PageDown page months,
- * Enter picks.
+ * A month grid for picking one day between `min` and `max`. Sunday-first (Israel's week), Friday and Saturday drawn
+ * muted, always six rows so paging months never moves the footer. A single tab stop: the arrow keys walk the days —
+ * mirrored under RTL, so "right" still means "later in the row" — Home/End jump within the week, PageUp/PageDown page
+ * months, Enter picks.
  */
 export function Calendar({
   value,
   min,
+  max,
   today,
   onSelect,
   autoFocus = false,
@@ -38,6 +39,8 @@ export function Calendar({
   value: string
   /** Earliest selectable day */
   min: string
+  /** Latest selectable day — as far ahead as there is a timetable */
+  max: string
   today: string
   onSelect: (date: string) => void
   /** Focus the selected day once mounted (for keyboard and screen-reader users opening the popover) */
@@ -59,6 +62,7 @@ export function Calendar({
   const weekdays = useMemo(() => weekdayLabels(locale), [locale])
   const tomorrow = dateKey(addDays(parseNaive(today), 1))
   const canGoBack = compareYearMonth(month, yearMonthOf(min)) > 0
+  const canGoForward = compareYearMonth(month, yearMonthOf(max)) < 0
 
   useEffect(() => {
     if (!pendingFocus.current) return
@@ -76,12 +80,12 @@ export function Calendar({
   const goMonth = (delta: number) => {
     const target = shiftMonth(month, delta)
     setMonth(target)
-    setFocused(clampMin(sameDayIn(focused, target), min))
+    setFocused(clamp(sameDayIn(focused, target), min, max))
   }
 
   /** Keyboard: move the tab stop (paging the month with it) and focus it once rendered. */
   const moveFocus = (next: string) => {
-    const clamped = clampMin(next, min)
+    const clamped = clamp(next, min, max)
     setFocused(clamped)
     setMonth(yearMonthOf(clamped))
     pendingFocus.current = true
@@ -111,20 +115,31 @@ export function Calendar({
   return (
     <div className={cn("select-none", className)}>
       <div className="mb-1 flex items-center justify-between ps-1.5">
-        <span key={monthKey(month)} id={titleId} aria-live="polite" className="animate-fade-in text-[16px] font-bold">
-          {monthTitle(month, locale)}
+        {/* The live region itself has to survive the month change — a replaced one is announced by nothing reliably —
+            so only the title inside it is keyed, and that is what fades. */}
+        <span id={titleId} aria-live="polite" className="text-[16px] font-bold">
+          <span key={monthKey(month)} className="animate-fade-in inline-block">
+            {monthTitle(month, locale)}
+          </span>
         </span>
+        {/* 44px on phones, back to 36px in the desktop panel where the pointer is precise and the width is tight. */}
         <div className="flex items-center">
           <button
             type="button"
             onClick={() => goMonth(-1)}
             disabled={!canGoBack}
             aria-label={t("picker.prevMonth")}
-            className="icon-btn size-9 disabled:opacity-30 disabled:hover:bg-transparent"
+            className="icon-btn size-11 disabled:opacity-30 disabled:hover:bg-transparent lg:size-9"
           >
             <ChevronLeft className="size-5 rtl:-scale-x-100" />
           </button>
-          <button type="button" onClick={() => goMonth(1)} aria-label={t("picker.nextMonth")} className="icon-btn size-9">
+          <button
+            type="button"
+            onClick={() => goMonth(1)}
+            disabled={!canGoForward}
+            aria-label={t("picker.nextMonth")}
+            className="icon-btn size-11 disabled:opacity-30 disabled:hover:bg-transparent lg:size-9"
+          >
             <ChevronRight className="size-5 rtl:-scale-x-100" />
           </button>
         </div>
@@ -142,7 +157,8 @@ export function Calendar({
             </div>
           ))}
         </div>
-        <div key={monthKey(month)} className="animate-fade-in flex flex-col gap-0.5">
+        {/* `rowgroup`, so the grid still owns rows: a plain wrapper between them breaks the grid for screen readers. */}
+        <div key={monthKey(month)} role="rowgroup" className="animate-fade-in flex flex-col gap-0.5">
           {weeks.map((week, index) => (
             <div key={index} role="row" className="grid grid-cols-7">
               {week.map((cell) =>
@@ -153,7 +169,7 @@ export function Calendar({
                     label={formatLongDate(parseNaive(cell.key), locale)}
                     selected={cell.key === value}
                     isToday={cell.key === today}
-                    disabled={cell.key < min}
+                    disabled={cell.key < min || cell.key > max}
                     tabbable={cell.key === focused}
                     onSelect={onSelect}
                     onFocus={() => setFocused(cell.key)}
@@ -174,7 +190,7 @@ export function Calendar({
             key={key}
             onClick={() => onSelect(key)}
             className={cn(
-              "h-8 rounded-full px-3 text-[13px] font-semibold transition-colors",
+              "h-10 rounded-full px-3.5 text-[13px] font-semibold transition-colors lg:h-8 lg:px-3",
               key === value ? "bg-brand-soft text-brand-text" : "bg-surface-3 text-text-2 hover:bg-line",
             )}
           >

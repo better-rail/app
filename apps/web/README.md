@@ -5,7 +5,7 @@ The better-rail.co.il website and the web version of the Better Rail timetable, 
 
 ## What's here
 
-- **Trip planner & timetable** — `/`, `/routes/<from>/<to>`, `/stations`, `/stations/<slug>`. Server-rendered for SEO, then
+- **Trip planner & timetable** — `/`, `/routes/<from>/<to>`. Server-rendered for SEO, then
   live-updating (60s polling) in the browser. Hebrew at the root, English under `/en`.
 - **Marketing / legal pages** ported from the old static site — `/about`, `/press`, `/contact`, `/terms`,
   `/image-attributions`, `/israel-railways-lawsuit`, `/privacy-policy` (+ `/en/privacy-policy`), `/thank-you`.

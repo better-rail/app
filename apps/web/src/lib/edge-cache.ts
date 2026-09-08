@@ -36,7 +36,14 @@ export type Render = (request: Request) => Promise<Response>
 const FRESH_UNTIL = "X-Edge-Fresh-Until"
 /** On the stored copy: the `Cache-Control` the browser should get back (the copy's own carries the edge TTL). */
 const BROWSER_CACHE_CONTROL = "X-Edge-Browser-Cache-Control"
+/** On the stored copy: the route's own `CDN-Cache-Control`, put back on the way out. */
+const ROUTE_CDN_CACHE_CONTROL = "X-Edge-Route-CDN-Cache-Control"
 const DEFAULT_BROWSER_CACHE_CONTROL = "public, max-age=0, must-revalidate"
+/**
+ * How long a stale copy is treated as fresh again while one request re-renders it, so a burst of requests at the
+ * end of the fresh window starts one render rather than one each.
+ */
+const REVALIDATE_LEASE_MS = 10_000
 
 const directive = (value: string, name: string): number | undefined => {
   const match = new RegExp(`(?:^|,)\\s*${name}=(\\d+)`, "i").exec(value)
@@ -59,11 +66,18 @@ export function withHeaders(response: Response, headers: Record<string, string>)
   return next
 }
 
-/** The copy that goes into the cache: kept for the whole fresh + stale window, and marked with when freshness ends. */
+/**
+ * The copy that goes into the cache: kept for the whole fresh + stale window, and marked with when freshness ends.
+ * Both cache headers say so — the Cache API reads `CDN-Cache-Control` first, and left as the route set it the copy
+ * would be dropped at the end of the fresh window, never to be served stale.
+ */
 function storable(response: Response, policy: EdgePolicy, now: number): Response {
+  const edge = `public, s-maxage=${policy.sMaxAge + policy.swr}`
   return withHeaders(response, {
     [BROWSER_CACHE_CONTROL]: response.headers.get("Cache-Control") ?? DEFAULT_BROWSER_CACHE_CONTROL,
-    "Cache-Control": `public, s-maxage=${policy.sMaxAge + policy.swr}`,
+    [ROUTE_CDN_CACHE_CONTROL]: response.headers.get("CDN-Cache-Control") ?? "",
+    "Cache-Control": edge,
+    "CDN-Cache-Control": edge,
     [FRESH_UNTIL]: String(now + policy.sMaxAge * 1000),
   })
 }
@@ -74,7 +88,11 @@ function fromCache(cached: Response, status: "HIT" | "STALE"): Response {
     "Cache-Control": cached.headers.get(BROWSER_CACHE_CONTROL) || DEFAULT_BROWSER_CACHE_CONTROL,
     "X-Edge-Cache": status,
   })
+  const routeCdn = cached.headers.get(ROUTE_CDN_CACHE_CONTROL)
+  if (routeCdn) response.headers.set("CDN-Cache-Control", routeCdn)
+  else response.headers.delete("CDN-Cache-Control")
   response.headers.delete(BROWSER_CACHE_CONTROL)
+  response.headers.delete(ROUTE_CDN_CACHE_CONTROL)
   response.headers.delete(FRESH_UNTIL)
   return response
 }
@@ -94,11 +112,17 @@ export async function fetchWithEdgeCache(request: Request, render: Render, optio
   const cached = await cache.match(key).catch(() => undefined)
   if (cached) {
     if (Number(cached.headers.get(FRESH_UNTIL)) > now()) return fromCache(cached, "HIT")
+    // The lease goes in first: the requests arriving while this render runs then find a fresh copy and wait for it.
+    const leased = withHeaders(cached.clone(), { [FRESH_UNTIL]: String(now() + REVALIDATE_LEASE_MS) })
     background(
-      render(request).then((response) => {
-        const policy = edgePolicy(response)
-        return policy ? store(response, policy) : response.body?.cancel()
-      }),
+      cache
+        .put(key, leased)
+        .catch(() => {})
+        .then(() => render(request))
+        .then((response) => {
+          const policy = edgePolicy(response)
+          return policy ? store(response, policy) : response.body?.cancel()
+        }),
     )
     return fromCache(cached, "STALE")
   }

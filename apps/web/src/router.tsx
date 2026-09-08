@@ -28,7 +28,8 @@ export function getRouter() {
     // routes page positions itself — and WebKit does not abort it, so the page ends up somewhere in between.
     scrollRestorationBehavior: "instant",
     defaultPreload: "intent",
-    defaultPreloadStaleTime: 0,
+    // Hovering a link runs its loader; a short window keeps a chip that is hovered twice from running it twice.
+    defaultPreloadStaleTime: 10_000,
     defaultNotFoundComponent: NotFound,
     defaultErrorComponent: ErrorPage,
     defaultStructuralSharing: true,

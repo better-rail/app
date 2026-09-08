@@ -16,9 +16,12 @@ export function naiveFromParts(date: string, time: string): NaiveTime {
   return parseNaive(`${date}T${time}:00`)
 }
 
+let nowFormat: Intl.DateTimeFormat | undefined
+
 /** The current wall-clock time in Israel, as a naive time. */
 export function naiveNow(now: Date = new Date()): NaiveTime {
-  const parts = new Intl.DateTimeFormat("en-GB", {
+  // Built once: a formatter is the expensive part, and this runs on every tick and render that asks for "now".
+  nowFormat ??= new Intl.DateTimeFormat("en-GB", {
     timeZone: "Asia/Jerusalem",
     year: "numeric",
     month: "2-digit",
@@ -27,7 +30,8 @@ export function naiveNow(now: Date = new Date()): NaiveTime {
     minute: "2-digit",
     second: "2-digit",
     hourCycle: "h23",
-  }).formatToParts(now)
+  })
+  const parts = nowFormat.formatToParts(now)
   const get = (type: string) => Number(parts.find((p) => p.type === type)?.value)
   return Date.UTC(get("year"), get("month") - 1, get("day"), get("hour"), get("minute"), get("second"))
 }

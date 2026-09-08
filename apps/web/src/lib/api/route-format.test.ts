@@ -62,6 +62,9 @@ describe("formatTravels", () => {
     expect(routes[0].trains[0].lastStopId).toBe("680")
     expect(routes[1].isExchange).toBe(true)
     expect(routes[1].trains[1].delay).toBe(5)
+    // the journey's departure delay is the first train's, its arrival delay the last train's
+    expect(routes[1].delay).toBe(0)
+    expect(routes[1].arrivalDelay).toBe(5)
     // the 70-minute exchange route is much longer than the 36-minute direct one leaving within the hour
     expect(routes[1].isMuchLonger).toBe(true)
     expect(routes[0].isMuchShorter).toBe(true)

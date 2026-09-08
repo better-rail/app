@@ -3,10 +3,29 @@
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: interest-cohort=()
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+  Strict-Transport-Security: max-age=31536000
 
+# The build's hashed output: a new build means a new URL.
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
+# Copied from public/ under stable names (icons, badges, press kit, photos): a day in the browser, refreshed quietly.
+/assets/favicon/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/assets/icons/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/assets/images/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/assets/press/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/assets/team/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/assets/documents/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/assets/qr/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+# Station photos are re-rendered under the same names when a source photo changes.
 /stations/*
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: public, max-age=604800, stale-while-revalidate=2592000

@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Menu, X } from "lucide-react"
 import { GithubIcon } from "./icons"
 import { trackEvent } from "@/lib/analytics"
@@ -30,17 +30,50 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const platform = useMobilePlatform()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
+  const menuButton = useRef<HTMLButtonElement>(null)
+  const menu = useRef<HTMLDivElement>(null)
+  const header = useRef<HTMLElement>(null)
 
   useEffect(() => setMenuOpen(false), [pathname])
 
+  // The open menu is a modal: the page behind it is inert, focus starts on its first link, stays inside it, and goes
+  // back to the button that opened it when it closes.
   useEffect(() => {
     if (!menuOpen) return
-    const onKey = (event: KeyboardEvent) => event.key === "Escape" && setMenuOpen(false)
+    const panel = menu.current
+    const button = menuButton.current
+    const tabbables = () =>
+      Array.from(panel?.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])') ?? [])
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false)
+        return
+      }
+      if (event.key !== "Tab") return
+      const items = tabbables()
+      if (items.length === 0) return
+      const first = items[0]
+      const last = items[items.length - 1]
+      const active = document.activeElement
+      if (event.shiftKey && (active === first || !panel?.contains(active))) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+    // Everything but the header (the menu lives in it, with the button that closes it) is put out of reach.
+    const outside = Array.from(document.body.children).filter((node) => !node.contains(header.current))
+    for (const node of outside) node.setAttribute("inert", "")
     document.addEventListener("keydown", onKey)
     document.body.style.overflow = "hidden"
+    tabbables()[0]?.focus()
     return () => {
+      for (const node of outside) node.removeAttribute("inert")
       document.removeEventListener("keydown", onKey)
       document.body.style.overflow = ""
+      button?.focus({ preventScroll: true })
     }
   }, [menuOpen])
 
@@ -57,7 +90,7 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
   ]
 
   return (
-    <header className="sticky top-0 z-40">
+    <header ref={header} className="sticky top-0 z-40">
       {/* The blur lives on this bar rather than the header: a backdrop filter would make the header the containing
           block for the fixed mobile menu below, collapsing it to nothing. */}
       <div
@@ -73,7 +106,8 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
           {t("site.skipToContent")}
         </a>
         <nav className="container-page flex h-16 items-center gap-6" aria-label={t("nav.menu")}>
-          <LocaleLink to="/{-$locale}" className="flex items-center gap-2.5 font-bold tracking-tight" aria-label={t("nav.home")}>
+          {/* Named by its visible text: "Better Rail" is what a voice-control user will say to reach it. */}
+          <LocaleLink to="/{-$locale}" className="flex items-center gap-2.5 font-bold tracking-tight">
             <AppIcon className="size-9" />
             <span className="text-[19px]">Better Rail</span>
           </LocaleLink>
@@ -103,7 +137,7 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
           <div className="ms-auto flex items-center gap-1.5">
             <a
               href={otherLocaleHref}
-              className="rounded-lg px-3 py-2 text-[14px] font-semibold text-text-2 transition-colors hover:bg-surface-3 hover:text-text"
+              className="inline-flex min-h-11 items-center rounded-lg px-3 py-2 text-[14px] font-semibold text-text-2 transition-colors hover:bg-surface-3 hover:text-text"
               lang={locale === "he" ? "en" : "he"}
               hrefLang={locale === "he" ? "en" : "he"}
             >
@@ -120,6 +154,7 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
             </a>
             <GetAppButton className="hidden md:block" />
             <button
+              ref={menuButton}
               type="button"
               className="icon-btn md:hidden"
               aria-expanded={menuOpen}
@@ -135,8 +170,12 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
 
       {menuOpen && (
         <div
+          ref={menu}
           id="mobile-menu"
-          className="animate-fade-in fixed inset-x-0 top-16 bottom-0 z-40 bg-bg/95 backdrop-blur-md md:hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t("nav.menu")}
+          className="animate-fade-in fixed inset-x-0 top-16 bottom-0 z-40 overflow-y-auto bg-bg/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden"
         >
           <div className="container-page flex flex-col gap-1 py-4 text-lg font-semibold">
             {navLinks.map((link) => (

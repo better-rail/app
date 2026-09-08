@@ -32,7 +32,9 @@ export function RouteDetails({
   const [showFullRoute, setShowFullRoute] = useState(false)
   const Arrow = locale === "he" ? ArrowLeft : ArrowRight
   const changes = route.trains.length - 1
-  const delayedArrival = route.delay > 0 ? addMinutes(route.arrivalTime, route.delay) : undefined
+  // The arrival moves with the last train's delay, not the first's — on a journey with a change they differ.
+  const delayedArrival = route.arrivalDelay > 0 ? addMinutes(route.arrivalTime, route.arrivalDelay) : undefined
+  const delay = Math.max(route.delay, route.arrivalDelay)
 
   return (
     <section className={cn("flex flex-col", className)} aria-label={t("details.title")}>
@@ -67,7 +69,7 @@ export function RouteDetails({
               </span>
               <span aria-hidden="true">·</span>
               <span>{changesText(changes)}</span>
-              {route.isCancelled ? <CancelledBadge /> : route.delay > 0 ? <DelayBadge minutes={route.delay} /> : null}
+              {route.isCancelled ? <CancelledBadge /> : delay > 0 ? <DelayBadge minutes={delay} /> : null}
             </div>
           </div>
           <div className="flex items-center gap-1">

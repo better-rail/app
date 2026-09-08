@@ -1,4 +1,5 @@
 import {
+  useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -104,10 +105,9 @@ function AnchoredPanel({
     return () => document.removeEventListener("pointerdown", onPointerDown)
   }, [anchorRef, onClose])
 
-  // Measured once on open, before paint. Below the field is where a picker belongs, and a panel that runs a little past
-  // the fold stays there (the page scrolls); it goes above only when more than half of it would be lost below and
-  // there is room up there.
-  useLayoutEffect(() => {
+  // Below the field is where a picker belongs, and a panel that runs a little past the fold stays there (the page
+  // scrolls); it goes above only when more than half of it would be lost below and there is room up there.
+  const measure = useCallback(() => {
     const anchor = anchorRef.current
     const panel = ref.current
     if (!anchor || !panel) return
@@ -116,12 +116,34 @@ function AnchoredPanel({
     const margin = 12
     const gap = 8
     const height = panel.offsetHeight
-    const fitsStart = rtl ? rect.right - panel.offsetWidth >= margin : rect.left + panel.offsetWidth <= window.innerWidth - margin
+    // `clientWidth` rather than `innerWidth`: the latter counts a classic scrollbar as usable space (~15px too many).
+    const viewport = document.documentElement.clientWidth
+    const fitsStart = rtl ? rect.right - panel.offsetWidth >= margin : rect.left + panel.offsetWidth <= viewport - margin
     const roomBelow = window.innerHeight - margin - (rect.bottom + gap)
     const roomAbove = rect.top - gap - margin
     const side = roomBelow < height / 2 && roomAbove >= height ? "top" : "bottom"
-    setPlacement({ align: fitsStart ? "start" : "end", side, room: Math.max(side === "bottom" ? roomBelow : roomAbove, MIN_ROOM) })
+    setPlacement({
+      align: fitsStart ? "start" : "end",
+      side,
+      room: Math.max(side === "bottom" ? roomBelow : roomAbove, MIN_ROOM),
+    })
   }, [anchorRef])
+
+  // Measured before paint, then again whenever the window changes size: rotating a tablet or dragging a window edge
+  // moves the fold, and a panel left with the room it had on open can end up capped to a height that no longer exists.
+  useLayoutEffect(() => {
+    measure()
+    let frame = 0
+    const onResize = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(measure)
+    }
+    window.addEventListener("resize", onResize)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener("resize", onResize)
+    }
+  }, [measure])
 
   /** Tabbing out of the panel closes it. A click on nothing focusable is left to the pointerdown listener. */
   const onBlur = (event: FocusEvent<HTMLDivElement>) => {
@@ -151,8 +173,21 @@ function AnchoredPanel({
   )
 }
 
+/** What a Tab may land on inside the sheet — enough for the pickers' inputs, buttons and roving tab stops. */
+const TABBABLE = 'a[href],button:not([disabled]),input:not([disabled]),select,textarea,[tabindex]:not([tabindex="-1"])'
+
 function BottomSheet({ id, panelRef, label, onClose, children, size = "auto" }: PickerPopoverProps) {
   const t = useT()
+  const root = useRef<HTMLDivElement>(null)
+  const panel = useRef<HTMLDivElement>(null)
+  /** Captured during render: by the time the effects run, `inert` below has already taken focus off the trigger. */
+  const opener = useRef<Element | null>(null)
+  opener.current ??= typeof document === "undefined" ? null : document.activeElement
+
+  const setRefs = (element: HTMLDivElement | null) => {
+    panel.current = element
+    if (panelRef) panelRef.current = element
+  }
 
   useEscape(onClose)
 
@@ -164,11 +199,62 @@ function BottomSheet({ id, panelRef, label, onClose, children, size = "auto" }: 
     }
   }, [])
 
+  /**
+   * `aria-modal` only claims modality — this is what makes it true. The app is hydrated into `document`, so the sheet's
+   * portal is a sibling of the page inside `body`: marking every other child `inert` takes the page behind out of both
+   * the tab order and the accessibility tree (children already inert are left alone, so we can't un-inert someone else's).
+   */
+  useEffect(() => {
+    const behind = Array.from(document.body.children).filter((child) => child !== root.current && !child.hasAttribute("inert"))
+    for (const child of behind) child.setAttribute("inert", "")
+    return () => {
+      for (const child of behind) child.removeAttribute("inert")
+    }
+  }, [])
+
+  /** Tab cycles within the sheet. Listening on `document` also catches focus that started outside it. */
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "Tab" || !panel.current) return
+      const tabbable = panel.current.querySelectorAll<HTMLElement>(TABBABLE)
+      if (!tabbable.length) return
+      const first = tabbable[0]
+      const last = tabbable[tabbable.length - 1]
+      const active = document.activeElement
+      if (!panel.current.contains(active)) {
+        event.preventDefault()
+        const edge = event.shiftKey ? last : first
+        edge.focus()
+      } else if (event.shiftKey && active === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+    document.addEventListener("keydown", onKey)
+    return () => document.removeEventListener("keydown", onKey)
+  }, [])
+
+  /**
+   * Focus goes back to whatever opened the sheet. Declared last on purpose: cleanups run in declaration order, so this
+   * one lands after the `inert` above is lifted — a `focus()` made by the closing handler itself would still have been
+   * on an inert trigger and dropped. Skipped when something already claimed focus.
+   */
+  useEffect(() => {
+    return () => {
+      const active = document.activeElement
+      if (active && active !== document.body) return
+      if (opener.current instanceof HTMLElement) opener.current.focus({ preventScroll: true })
+    }
+  }, [])
+
   return createPortal(
-    <div className="fixed inset-0 z-50">
+    <div ref={root} className="fixed inset-0 z-50">
       <div className="animate-fade-in absolute inset-0 bg-overlay" onClick={() => onClose("dismiss")} />
       <div
-        ref={panelRef}
+        ref={setRefs}
         id={id}
         role="dialog"
         aria-modal="true"
@@ -181,7 +267,8 @@ function BottomSheet({ id, panelRef, label, onClose, children, size = "auto" }: 
         <div aria-hidden="true" className="mx-auto mt-2.5 h-1 w-9 shrink-0 rounded-full bg-line-strong" />
         <div className="flex shrink-0 items-center justify-between pb-1 pe-3 ps-5 pt-2">
           <span className="text-[17px] font-bold">{label}</span>
-          <button type="button" onClick={() => onClose("cancel")} className="icon-btn size-9" aria-label={t("nav.close")}>
+          {/* size-11: the sheet is phones-only, where this is the one way out that isn't a tap on the overlay. */}
+          <button type="button" onClick={() => onClose("cancel")} className="icon-btn size-11" aria-label={t("nav.close")}>
             <X className="size-5" />
           </button>
         </div>

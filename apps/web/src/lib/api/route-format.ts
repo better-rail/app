@@ -91,6 +91,7 @@ export function formatTravels(travels: ApiTravel[], requestedDate: string): Rout
         arrivalTime,
         durationMs: arrivalTime - departureTime,
         delay: trains[0].delay,
+        arrivalDelay: trains[trains.length - 1].delay,
         isExchange: trains.length > 1,
         isCancelled: trains.some((t) => t.isCancelled || t.originCancelled || t.destinationCancelled),
         isMuchLonger: false,
@@ -130,7 +131,7 @@ export function isDifferentHour(routes: RouteItem[], time: NaiveTime): boolean {
 }
 
 export function isRouteInThePast(route: RouteItem, now: NaiveTime): boolean {
-  return route.arrivalTime + route.delay * MINUTE_MS < now
+  return route.arrivalTime + route.arrivalDelay * MINUTE_MS < now
 }
 
 export function routeStops(route: RouteItem): number {

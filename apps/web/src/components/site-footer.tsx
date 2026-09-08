@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router"
-import { useT } from "@/i18n"
+import { useLocale, useT } from "@/i18n"
 import { trackEvent } from "@/lib/analytics"
 import { GITHUB_URL, SUPPORT_URL, TWITTER_URL } from "@/lib/seo"
 import { LocaleLink } from "./locale-link"
@@ -9,6 +9,9 @@ import { AppIcon } from "./logo"
 
 export function SiteFooter() {
   const t = useT()
+  const locale = useLocale()
+  // These pages exist in Hebrew only; from the English site the links say so, and assistive tech switches language.
+  const hebrewOnly = locale === "he" ? {} : { lang: "he", hrefLang: "he" }
   const links = [
     { to: "/about", label: t("footer.about") },
     { to: "/press", label: t("footer.press") },
@@ -19,7 +22,7 @@ export function SiteFooter() {
   ]
 
   return (
-    <footer className="mt-auto border-t border-line/70 bg-surface-2">
+    <footer className="mt-auto border-t border-line/70 bg-surface-2 pb-[env(safe-area-inset-bottom)]">
       <div className="container-page grid gap-10 py-12 md:grid-cols-[1.4fr_1fr_1fr]">
         {/* English lockup: sits at the page's start edge, but reads left-to-right inside so the logo stays left of the
             name and both line up with the App Store badge in RTL as well. */}
@@ -31,12 +34,12 @@ export function SiteFooter() {
           <DownloadBadges size="sm" />
         </div>
 
-        <nav className="flex flex-col gap-2 text-[15px]" aria-label={t("footer.about")}>
-          <LocaleLink to="/{-$locale}/privacy-policy" className="link-underline w-fit text-text-2 hover:text-text">
+        <nav className="flex flex-col gap-1 text-[15px]" aria-label={t("footer.nav")}>
+          <LocaleLink to="/{-$locale}/privacy-policy" className="link-underline w-fit py-1.5 text-text-2 hover:text-text">
             {t("footer.privacy")}
           </LocaleLink>
           {links.map((link) => (
-            <Link key={link.to} to={link.to} className="link-underline w-fit text-text-2 hover:text-text">
+            <Link key={link.to} to={link.to} className="link-underline w-fit py-1.5 text-text-2 hover:text-text" {...hebrewOnly}>
               {link.label}
             </Link>
           ))}

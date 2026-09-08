@@ -104,7 +104,8 @@ export function pagesSitemap(lastmod: string): string {
   ])
 }
 
-export function routesSitemap(page: number, lastmod: string): string | null {
+/** The route pages carry no `lastmod`: a date that moved on every fetch would only teach crawlers to ignore it. */
+export function routesSitemap(page: number): string | null {
   const pairs = routePairs()
   const start = (page - 1) * ROUTES_PER_SITEMAP
   if (page < 1 || start >= pairs.length) return null
@@ -112,7 +113,6 @@ export function routesSitemap(page: number, lastmod: string): string | null {
     pairs.slice(start, start + ROUTES_PER_SITEMAP).map<SitemapEntry>(([from, to]) => ({
       path: `/routes/${from}/${to}`,
       localized: true,
-      lastmod,
       changefreq: "daily",
       priority: 0.6,
     })),
@@ -130,4 +130,12 @@ export const xmlResponse = (body: string | null) =>
         },
       })
 
-export const today = () => new Date().toISOString().slice(0, 10)
+/**
+ * When the site's pages last changed, as far as a crawler is concerned: the build, not today — a `lastmod` that
+ * moves on every fetch is one Google explicitly discounts.
+ */
+export const buildDate = () => BUILD_DATE
+
+// Stamped by vite.config.ts at build time (see `define`); today's date in dev, where nothing is cached anyway.
+declare const __BUILD_DATE__: string | undefined
+const BUILD_DATE = typeof __BUILD_DATE__ === "string" ? __BUILD_DATE__ : new Date().toISOString().slice(0, 10)

@@ -9,6 +9,12 @@ const pad = (value: number) => String(value).padStart(2, "0")
 const HOURS = Array.from({ length: 24 }, (_, index) => pad(index))
 const MINUTES = Array.from({ length: 60 / MINUTE_STEP }, (_, index) => pad(index * MINUTE_STEP))
 
+/**
+ * The stylesheet's reduced-motion rule can't reach a scroll started from script: an explicit `behavior` option beats
+ * CSS `scroll-behavior`, so the wheel has to ask for itself.
+ */
+const prefersReducedMotion = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+
 /** Rounds `HH:mm` to the wheel's minute step, carrying into the hour (23:58 → 00:00). */
 export function snapClock(clock: string): string {
   const [hours, minutes] = clock.split(":").map(Number)
@@ -140,7 +146,7 @@ function WheelColumn({
       return
     }
     programmatic.current = top
-    el.scrollTo({ top, behavior: mounted.current && !atTarget ? "smooth" : "instant" })
+    el.scrollTo({ top, behavior: mounted.current && !atTarget && !prefersReducedMotion() ? "smooth" : "instant" })
     ensureLanding(700)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index])
@@ -244,7 +250,8 @@ function WheelColumn({
         className="scrollbar-none w-[76px] touch-pan-y snap-y snap-mandatory overflow-y-auto overscroll-contain outline-none"
         style={{ height: rows * ROW }}
       >
-        <div style={{ paddingBlock: inset }}>
+        {/* `none`, so the listbox still owns its options: an unlabelled wrapper between them empties the wheel for AT. */}
+        <div role="none" style={{ paddingBlock: inset }}>
           {options.map((option, optionIndex) => (
             <div
               key={option}

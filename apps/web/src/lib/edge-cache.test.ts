@@ -73,7 +73,9 @@ describe("fetchWithEdgeCache", () => {
     expect(miss.headers.get("Cache-Control")).toBe("public, max-age=0, must-revalidate")
     expect(await miss.text()).toBe("v1")
     await settle()
+    // Both cache headers carry the edge TTL: the Cache API reads `CDN-Cache-Control` first when both are present.
     expect(store.get(URL_A)?.headers).toContainEqual(["cache-control", "public, s-maxage=660"])
+    expect(store.get(URL_A)?.headers).toContainEqual(["cdn-cache-control", "public, s-maxage=660"])
 
     time += 59_000
     const hit = await fetchWithEdgeCache(new Request(URL_A, { headers: { Cookie: "irrelevant" } }), render, options)
@@ -107,6 +109,32 @@ describe("fetchWithEdgeCache", () => {
     const hit = await fetchWithEdgeCache(new Request(URL_A), render, options)
     expect(hit.headers.get("X-Edge-Cache")).toBe("HIT")
     expect(await hit.text()).toBe("v2")
+    expect(calls()).toBe(2)
+  })
+
+  test("a burst of stale requests starts one render, not one each", async () => {
+    let time = 1_000_000
+    const { cache } = fakeCache()
+    const { ctx, settle } = fakeCtx()
+    const { render, calls } = renderer(["v1", "v2", "v3"])
+    const options = { cache, ctx, now: () => time }
+
+    await (await fetchWithEdgeCache(new Request(URL_A), render, options)).text()
+    await settle()
+
+    time += 61_000
+    const first = await fetchWithEdgeCache(new Request(URL_A), render, options)
+    expect(first.headers.get("X-Edge-Cache")).toBe("STALE")
+    // The lease is written before the render starts, so the requests right behind see a fresh copy and wait on it.
+    await Promise.resolve()
+    const second = await fetchWithEdgeCache(new Request(URL_A), render, options)
+    expect(second.headers.get("X-Edge-Cache")).toBe("HIT")
+    expect(await second.text()).toBe("v1")
+    await settle()
+    expect(calls()).toBe(2)
+
+    // The lease is short: were the render to fail, the next request past it would try again.
+    expect(await (await fetchWithEdgeCache(new Request(URL_A), render, options)).text()).toBe("v2")
     expect(calls()).toBe(2)
   })
 

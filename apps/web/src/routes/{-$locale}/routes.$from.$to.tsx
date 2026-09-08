@@ -1,7 +1,7 @@
-import { createFileRoute, notFound, useElementScrollRestoration, useRouterState } from "@tanstack/react-router"
+import { createFileRoute, notFound, useElementScrollRestoration, useRouter, useRouterState } from "@tanstack/react-router"
 import { useQueries, useQuery, type QueryClient, type UseQueryResult } from "@tanstack/react-query"
 import { useEffect, useRef, useState } from "react"
-import { ArrowLeft, ArrowRight, CalendarDays, ChevronDown, Loader2, Star, TrainFront } from "lucide-react"
+import { ArrowLeft, ArrowRight, CalendarDays, ChevronDown, CloudOff, Loader2, Star, TrainFront } from "lucide-react"
 import { Planner } from "@/components/planner/planner"
 import { RouteList } from "@/components/routes/route-list"
 import { RouteDetails } from "@/components/routes/route-details"
@@ -15,7 +15,6 @@ import { heroImagePath, routeSeoText, tripFacts, type TripFacts } from "@/lib/ro
 import { requestOrigin } from "@/lib/request-origin"
 import { useHideSlowTrains, useIsFavorite } from "@/hooks/use-stored"
 import { useNow } from "@/hooks/use-now"
-import { useFillToFold } from "@/hooks/use-fill-to-fold"
 import { useScrollMemory } from "@/hooks/use-scroll-memory"
 import {
   addDays,
@@ -57,6 +56,7 @@ import { pageHead, jsonLd, breadcrumbJsonLd, cacheHeaders, absoluteUrl, originUr
 import { cn } from "@/lib/cn"
 import { searchString } from "@/lib/search"
 import { recentRoutes, routePlan } from "@/lib/storage"
+import { Tooltip } from "@/components/tooltip"
 
 interface RoutesPageSearch {
   /** First day shown in the list */
@@ -113,6 +113,7 @@ export const Route = createFileRoute("/{-$locale}/routes/$from/$to")({
       date,
       hour,
       now,
+      apiFailed: result === null,
       summary: summarizeRoutes(routes),
       resultDate,
       selected: deps.trip ? await selectedTrip(context.queryClient, search, routes, resultDate, deps.trip, deps.day) : null,
@@ -134,7 +135,9 @@ export const Route = createFileRoute("/{-$locale}/routes/$from/$to")({
     if (!origin || !destination) return {}
     return routesHead({ locale, origin, destination, data: loaderData })
   },
-  headers: () => cacheHeaders(60, 600),
+  // A page rendered while the timetable API was down must not be handed to everyone for the next ten minutes.
+  headers: ({ loaderData }) =>
+    loaderData?.apiFailed ? { "Cache-Control": "no-store", "CDN-Cache-Control": "no-store" } : cacheHeaders(60, 600),
   component: RoutesPage,
 })
 
@@ -163,9 +166,11 @@ async function selectedTrip(
   if (day) {
     const offset = daysBetween(parseNaive(resultDate), parseNaive(day))
     if (offset < 1 || offset > MAX_EXTRA_DAYS) return null
-    date = day
     try {
-      candidates = (await queryClient.ensureQueryData(routesQueryOptions({ ...search, date: day, hour: "12:00" }))).routes
+      const result = await queryClient.ensureQueryData(routesQueryOptions({ ...search, date: day, hour: "12:00" }))
+      candidates = result.routes
+      // A day with no service falls through to the next one that has some: that is the day the trip runs on.
+      date = result.resultDate
     } catch {
       return null
     }
@@ -253,6 +258,7 @@ function RoutesPage() {
   const data = Route.useLoaderData()
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
+  const router = useRouter()
   const now = useNow(data.now)
   const [hideSlowTrains, setHideSlowTrains] = useHideSlowTrains()
   const [isFavorite, toggleFavorite] = useIsFavorite({ originId: origin.id, destinationId: destination.id })
@@ -273,6 +279,12 @@ function RoutesPage() {
     routePlan.set({ originId: origin.id, destinationId: destination.id })
   }, [origin.id, destination.id])
 
+  // A page for "now" resolves its day on the server, and the edge keeps that copy for a while: opened just after
+  // midnight it can be yesterday's. The loader is run again when the day it settled on is no longer today.
+  useEffect(() => {
+    if (!search.date && dateKey(naiveNow()) !== data.date) router.invalidate()
+  }, [search.date, data.date, router])
+
   const from = stationName(origin, locale)
   const to = stationName(destination, locale)
   const firstDay = naiveFromParts(query.data?.resultDate ?? data.resultDate, "00:00")
@@ -288,16 +300,22 @@ function RoutesPage() {
     ),
   })
 
-  // `day` says which list the trip was picked from; without it the selection belongs to the first day.
-  const selectedDayQuery = search.day ? extraDayQueries[extraDayDates.indexOf(search.day)] : query
+  // `day` says which list the trip was picked from; without it — or when it names no appended day (the toolbar's
+  // date was moved onto it, say) — the selection is looked for in the first day.
+  const selectedDayIndex = search.day ? extraDayDates.indexOf(search.day) : -1
+  const selectedDayQuery = selectedDayIndex >= 0 ? extraDayQueries[selectedDayIndex] : query
   const selected = selectedDayQuery?.data?.routes.find((route) => route.id === search.trip)
   const shareUrl = originUrl(href)
   const nextDayLabel = formatDayLabel(addDays(startOfDay(firstDay), extraDayCount + 1), locale, now)
   const Arrow = locale === "he" ? ArrowLeft : ArrowRight
+  // With the checkbox on, a sparse day can lose every one of its trains; the list says so rather than going blank.
+  const visibleRoutes = hideSlowTrains ? routes.filter((route) => !route.isMuchLonger || route.id === search.trip) : routes
+  const allSlowHidden = routes.length > 0 && visibleRoutes.length === 0
 
+  /** Undoes the selection's history entry, so the browser's back button does not reopen what was just closed. */
   const closeDetails = () => {
     returnToTrip.current = search.trip
-    navigate({ search: (prev) => ({ ...prev, trip: undefined, day: undefined }), resetScroll: false })
+    navigate({ search: (prev) => ({ ...prev, trip: undefined, day: undefined }), replace: true, resetScroll: false })
   }
 
   // The toolbar changes height with the viewport (one row on wide screens, two when it wraps), so the details panel
@@ -332,9 +350,6 @@ function RoutesPage() {
   const routerRestores = useElementScrollRestoration({ getElement: () => window }) !== undefined
   const restored = useRef(remembered !== undefined || routerRestores)
 
-  const paneRef = useRef<HTMLDivElement>(null)
-  useFillToFold(paneRef)
-
   // A link can land on a trip far down the list, and on mobile the list is replaced by the details panel — both
   // need the relevant card brought into view. Cards already on screen are left alone, so picking one never yanks
   // the page around — unless the page is scrolled past the end of the list, where the details pane is pushed up
@@ -360,6 +375,8 @@ function RoutesPage() {
         requestAnimationFrame(() => {
           const offset = TOOLBAR_TOP + (toolbarRef.current?.getBoundingClientRect().height ?? 0) + 8
           window.scrollTo({ top: window.scrollY + panel.getBoundingClientRect().top - offset, behavior: "instant" })
+          // The card that was activated is gone with the list; the reading position follows the trip into the panel.
+          panel.focus({ preventScroll: true })
         })
       }
       return
@@ -375,6 +392,8 @@ function RoutesPage() {
     const { top, bottom } = card.getBoundingClientRect()
     const jump = returning || top < 0 || bottom > window.innerHeight
     if (jump) card.scrollIntoView({ block: "center", behavior: "instant" })
+    // Back from the details on a phone: focus lands on the card it came from rather than at the top of the page.
+    if (returning && card instanceof HTMLElement) card.focus({ preventScroll: true })
     // The last trains of the day sit at the end of the list: centering one of them scrolls the list's end above the
     // fold and takes the details pane along, so the page is backed up to where the pane is pinned again. The card
     // is still on screen, as the whole list end is. A jump when we just jumped; otherwise the page's own smooth
@@ -394,9 +413,16 @@ function RoutesPage() {
     const list = listRef.current
     if (!list || !query.data) return
     const pair = `${origin.id}-${destination.id}`
-    const key = `${pair}@${data.date}T${data.hour}`
+    // Keyed on the search itself: the loader's own clock moves on with every trip picked (`trip` is one of its
+    // deps), and a key built from it would send the list back to "now" a moment after each selection.
+    const key = `${pair}@${search.date ?? "now"}T${search.time ?? "now"}`
     if (scrolledToTime.current === key) return
     const arriving = scrolledToTime.current === undefined
+    // A trip still on the page is what the reader is looking at; the trip effect above owns the scroll while it is.
+    if (!arriving && selected) {
+      scrolledToTime.current = key
+      return
+    }
     // Swapping the stations (or picking another route) replaces every card on the page: gliding through a list that
     // is no longer the one on screen reads as a glitch, so only a date/time change on the same route animates.
     const replaced = arriving || !scrolledToTime.current?.startsWith(`${pair}@`)
@@ -438,7 +464,7 @@ function RoutesPage() {
       // turns off).
       window.scrollTo({ top: window.scrollY + delta, behavior: replaced ? "instant" : "auto" })
     })
-  }, [query.data, data.date, data.hour, origin.id, destination.id, search.trip, remembered])
+  }, [query.data, data.date, data.hour, origin.id, destination.id, search.date, search.time, search.trip, selected, remembered])
 
   return (
     <div ref={pageRef} className="flex flex-1 flex-col">
@@ -494,18 +520,27 @@ function RoutesPage() {
               <CalendarDays className="size-4 text-brand" />
               {formatDayLabel(firstDay, locale, now)}
               {query.isFetching && <Loader2 className="size-3.5 animate-spin text-dim" aria-hidden="true" />}
+              {query.isError && routes.length > 0 && !query.isFetching && (
+                <Tooltip label={t("routes.refreshFailed")} className="ms-1">
+                  <button
+                    type="button"
+                    onClick={() => query.refetch()}
+                    aria-label={`${t("routes.refreshFailed")} ${t("routes.tryAgain")}`}
+                    className="icon-btn size-8 text-warning"
+                  >
+                    <CloudOff className="size-4" />
+                  </button>
+                </Tooltip>
+              )}
             </h2>
-            <label
-              className="flex cursor-pointer select-none items-center gap-2 text-[13.5px] text-muted"
-              title={t("routes.hideSlowTrainsDescription")}
-            >
+            <label className="flex min-h-11 cursor-pointer select-none items-center gap-2 py-2 text-[13.5px] text-muted">
               <input
                 type="checkbox"
                 checked={hideSlowTrains}
                 onChange={(event) => setHideSlowTrains(event.target.checked)}
                 className="size-4 accent-brand"
               />
-              {t("routes.hideSlowTrains")}
+              <span title={t("routes.hideSlowTrainsDescription")}>{t("routes.hideSlowTrains")}</span>
             </label>
           </div>
 
@@ -524,7 +559,9 @@ function RoutesPage() {
             </div>
           )}
 
-          {query.isError && (
+          {/* A refresh that failed leaves the last timetable on screen (with the hint in the heading); the error card
+              is for when there is nothing to show at all. */}
+          {query.isError && routes.length === 0 && (
             <div className="card flex flex-col items-center gap-3 p-8 text-center">
               <p className="text-[15px] text-text-2">{t("routes.error")}</p>
               <button type="button" onClick={() => query.refetch()} className="btn-secondary">
@@ -540,20 +577,28 @@ function RoutesPage() {
             </div>
           )}
 
-          {routes.length > 0 && (
+          {allSlowHidden && (
+            <div className="card flex flex-col items-center gap-3 p-8 text-center text-muted">
+              <p className="text-[15px]">{t("routes.allSlowHidden")}</p>
+              <button type="button" onClick={() => setHideSlowTrains(false)} className="btn-secondary">
+                {t("routes.showSlowTrains")}
+              </button>
+            </div>
+          )}
+
+          {visibleRoutes.length > 0 && (
             <RouteList
-              routes={routes}
+              routes={visibleRoutes}
               from={origin.id}
               to={destination.id}
               date={search.date}
               time={search.time}
               selectedId={search.trip}
               now={now}
-              hideSlowTrains={hideSlowTrains}
             />
           )}
 
-          {query.isSuccess && (
+          {routes.length > 0 && (
             <>
               {extraDayQueries.map((dayQuery, index) => (
                 <ExtraDay
@@ -569,15 +614,19 @@ function RoutesPage() {
                   hideSlowTrains={hideSlowTrains}
                 />
               ))}
-              <button
-                type="button"
-                onClick={() => setExtraDays(extraDayCount + 1)}
-                aria-label={`${t("routes.nextDay")}: ${nextDayLabel}`}
-                className="btn-ghost h-12 w-full gap-2 border border-dashed border-line-strong text-[15px]"
-              >
-                <ChevronDown className="size-4" />
-                {nextDayLabel}
-              </button>
+              {extraDayCount < MAX_EXTRA_DAYS ? (
+                <button
+                  type="button"
+                  onClick={() => setExtraDays(extraDayCount + 1)}
+                  aria-label={`${t("routes.nextDay")}: ${nextDayLabel}`}
+                  className="btn-ghost h-12 w-full gap-2 border border-dashed border-line-strong text-[15px]"
+                >
+                  <ChevronDown className="size-4" />
+                  {nextDayLabel}
+                </button>
+              ) : (
+                <p className="py-2 text-center text-[14px] text-muted">{t("routes.noMoreDays")}</p>
+              )}
             </>
           )}
         </section>
@@ -585,18 +634,28 @@ function RoutesPage() {
         {/*
          * Details panel (master/detail on desktop, full page on mobile). On desktop the list and the card are two
          * independent panes: this wrapper pins under the toolbar while the list scrolls with the page, and the
-         * pane inside it is sized to the fold and scrolls on its own — the card moves in it as one piece, and
-         * `overscroll-contain` keeps the wheel from leaking into the list. The pane's own padding (undone by the
-         * negative margin) leaves room for the card's shadow inside the clipping box.
+         * pane inside it is capped at the room between its pinned position and the fold, so it scrolls on its own
+         * — the card moves in it as one piece, and `overscroll-contain` keeps the wheel from leaking into the list.
+         * The pane's own padding (undone by the negative margin) leaves room for the card's shadow inside the
+         * clipping box. The cap is plain CSS rather than a measurement per scroll frame: it only depends on the
+         * viewport and the toolbar's height, which the custom property already tracks.
          */}
         <div
           ref={detailsRef}
+          tabIndex={-1}
+          aria-label={t("details.title")}
           className={cn(
             selected ? "flex" : "hidden lg:flex",
-            "flex-col lg:sticky lg:top-[calc(5rem_+_var(--toolbar-h,5.5rem))] lg:self-start",
+            "flex-col outline-none lg:sticky lg:top-[calc(5rem_+_var(--toolbar-h,5.5rem))] lg:self-start",
           )}
         >
-          <div ref={paneRef} className="lg:-m-2 lg:overflow-y-auto lg:overscroll-contain lg:p-2">
+          {/* Focusable, so the keyboard can scroll a long journey's stops as the wheel does. */}
+          <div
+            tabIndex={selected ? 0 : -1}
+            role={selected ? "region" : undefined}
+            aria-label={selected ? t("details.title") : undefined}
+            className="rounded-card lg:-m-2 lg:max-h-[calc(100dvh_-_5.5rem_-_var(--toolbar-h,5.5rem))] lg:overflow-y-auto lg:overscroll-contain lg:p-2"
+          >
             <div className="card overflow-hidden">
               {selected ? (
                 <>
@@ -663,6 +722,8 @@ function ExtraDay({
   const t = useT()
   const locale = useLocale()
   const routes = query.data?.routes ?? []
+  const visibleRoutes = hideSlowTrains ? routes.filter((route) => !route.isMuchLonger || route.id === selectedId) : routes
+  const allSlowHidden = routes.length > 0 && visibleRoutes.length === 0
 
   return (
     <section className="flex flex-col gap-4 border-t border-line/70 pt-4" aria-label={formatDayLabel(day, locale, now)}>
@@ -672,23 +733,23 @@ function ExtraDay({
         {query.isFetching && <Loader2 className="size-3.5 animate-spin text-dim" aria-hidden="true" />}
       </h2>
       {query.isPending && <div className="h-[104px] animate-pulse rounded-card bg-surface-3" />}
-      {query.isError && <p className="text-[14px] text-danger">{t("routes.error")}</p>}
+      {query.isError && routes.length === 0 && <p className="text-[14px] text-danger">{t("routes.error")}</p>}
       {query.isSuccess && routes.length === 0 && <p className="text-[14px] text-muted">{t("routes.noTrainsFound")}</p>}
+      {allSlowHidden && <p className="text-[14px] text-muted">{t("routes.allSlowHidden")}</p>}
       {query.isSuccess && query.data.resultDate !== dateKey(day) && routes.length > 0 && (
         <Notice
           text={t("routes.differentDate", { date: formatLongDate(naiveFromParts(query.data.resultDate, "00:00"), locale) })}
         />
       )}
-      {routes.length > 0 && (
+      {visibleRoutes.length > 0 && (
         <RouteList
-          routes={routes}
+          routes={visibleRoutes}
           from={origin.id}
           to={destination.id}
           date={date}
           time={time}
           selectedId={selectedId}
           now={now}
-          hideSlowTrains={hideSlowTrains}
           day={dateKey(day)}
         />
       )}

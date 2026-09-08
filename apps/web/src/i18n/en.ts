@@ -69,6 +69,10 @@ export const en: Record<TranslationKey, string> = {
   "routes.noTrainsFound": "No trains were found for this route in the upcoming days",
   "routes.error": "Something went wrong while loading routes. Please try again in a moment.",
   "routes.tryAgain": "Try again",
+  "routes.refreshFailed": "Couldn't refresh the timetable — showing the last update.",
+  "routes.allSlowHidden": "Every train on this day is a slow one, and slow trains are hidden.",
+  "routes.showSlowTrains": "Show slow trains",
+  "routes.noMoreDays": "That's as far ahead as the timetable goes.",
   "routes.loading": "Looking for trains...",
   "routes.nextDay": "Show trains for the next day",
   "routes.previousDay": "Previous day",
@@ -130,6 +134,7 @@ export const en: Record<TranslationKey, string> = {
   "footer.madeWith": "Built with love by train riders",
   "footer.github": "GitHub",
   "footer.twitter": "X (Twitter)",
+  "footer.nav": "Site links",
 
   "seo.homeTitle": "Better Rail - Israel Railways timetables",
   "seo.routesTitle": "{from} → {to} | Better Rail",

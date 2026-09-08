@@ -66,6 +66,10 @@ export const he = {
   "routes.noTrainsFound": "לא נמצאו רכבות למסלול זה בימים הקרובים",
   "routes.error": "אירעה שגיאה בעת טעינת המסלולים. נסו שוב בעוד רגע.",
   "routes.tryAgain": "נסו שנית",
+  "routes.refreshFailed": "לא הצלחנו לרענן את לוח הזמנים — מוצג העדכון האחרון.",
+  "routes.allSlowHidden": "כל הרכבות ביום הזה איטיות, ורכבות איטיות מוסתרות.",
+  "routes.showSlowTrains": "הצגת רכבות איטיות",
+  "routes.noMoreDays": "עד כאן מגיע לוח הזמנים.",
   "routes.loading": "מחפשים רכבות...",
   "routes.nextDay": "הצגת רכבות ליום המחרת",
   "routes.previousDay": "היום הקודם",
@@ -126,6 +130,7 @@ export const he = {
   "footer.madeWith": "נבנה באהבה על ידי נוסעי רכבת",
   "footer.github": "GitHub",
   "footer.twitter": "X (טוויטר)",
+  "footer.nav": "קישורים באתר",
 
   "seo.homeTitle": "Better Rail - זמני רכבת ישראל",
   "seo.routesTitle": "{from} ← {to} | Better Rail",

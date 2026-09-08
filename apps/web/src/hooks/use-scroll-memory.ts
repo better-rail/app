@@ -54,27 +54,30 @@ export function useScrollMemory(): number | undefined {
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | undefined
-    const save = () => {
+    const save = (key = keyRef.current) => {
       timer = undefined
-      write({ key: keyRef.current, scrollY: window.scrollY })
+      write({ key, scrollY: window.scrollY })
     }
     const onScroll = () => {
+      // The entry the scroll belongs to, read now: a trip picked within the settle time pushes a new one.
+      const key = keyRef.current
       clearTimeout(timer)
-      timer = setTimeout(save, SETTLE_MS)
+      timer = setTimeout(() => save(key), SETTLE_MS)
     }
     const onHidden = () => {
       if (document.visibilityState !== "hidden") return
       clearTimeout(timer)
       save()
     }
+    const onPageHide = () => save()
     window.addEventListener("scroll", onScroll, { passive: true })
     document.addEventListener("visibilitychange", onHidden)
-    window.addEventListener("pagehide", save)
+    window.addEventListener("pagehide", onPageHide)
     return () => {
       clearTimeout(timer)
       window.removeEventListener("scroll", onScroll)
       document.removeEventListener("visibilitychange", onHidden)
-      window.removeEventListener("pagehide", save)
+      window.removeEventListener("pagehide", onPageHide)
     }
   }, [])
 

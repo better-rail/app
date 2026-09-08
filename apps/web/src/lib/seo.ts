@@ -57,6 +57,9 @@ export function pageHead(seo: PageSeo): { meta: MetaTag[]; links: LinkTag[] } {
     { property: "og:site_name", content: SITE_NAME },
     { property: "og:locale", content: ogLocale(seo.locale) },
     { property: "og:image", content: image },
+    // Every image the site offers is 1200×630, so scrapers can lay the large card out before fetching it.
+    { property: "og:image:width", content: "1200" },
+    { property: "og:image:height", content: "630" },
     { name: "twitter:card", content: "summary_large_image" },
     { name: "twitter:site", content: TWITTER_HANDLE },
     { name: "twitter:title", content: seo.title },

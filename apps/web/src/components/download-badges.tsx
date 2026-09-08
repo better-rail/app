@@ -21,6 +21,8 @@ export function DownloadBadges({ className, size = "md" }: { className?: string;
           className={cn(width, "h-auto")}
           width={168}
           height={56}
+          loading="lazy"
+          decoding="async"
         />
       </a>
       <a
@@ -36,6 +38,8 @@ export function DownloadBadges({ className, size = "md" }: { className?: string;
           className={cn(width, "h-auto")}
           width={168}
           height={56}
+          loading="lazy"
+          decoding="async"
         />
       </a>
     </div>

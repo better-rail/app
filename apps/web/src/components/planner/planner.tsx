@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useNavigate } from "@tanstack/react-router"
 import { Search } from "lucide-react"
 import type { Station } from "@/data/stations"
@@ -6,6 +6,8 @@ import { useT } from "@/i18n"
 import { cn } from "@/lib/cn"
 import { recentRoutes, routePlan } from "@/lib/storage"
 import { trackEvent } from "@/lib/analytics"
+import { useNow } from "@/hooks/use-now"
+import { dateKey, formatClock, naiveFromParts } from "@/lib/time"
 import { useLocaleParam } from "../locale-link"
 import { StationPicker } from "./station-picker"
 import { DateTimePicker, type DateTimeValue } from "./date-time-picker"
@@ -28,8 +30,8 @@ export function routeSearchParams(value: DateTimeValue) {
 export function Planner({
   variant,
   initial,
-  today,
-  now,
+  today: loadedToday,
+  now: loadedNow,
   className,
 }: {
   variant: "hero" | "bar"
@@ -41,14 +43,23 @@ export function Planner({
   const t = useT()
   const navigate = useNavigate()
   const locale = useLocaleParam()
+  // The loader's clock is baked into edge-cached HTML, so it is only a seed: `useNow` corrects it after hydration and
+  // keeps it ticking, which is what makes the "Today" label and the calendar's minimum survive midnight and a long visit.
+  const nowNaive = useNow(naiveFromParts(loadedToday, loadedNow))
+  const today = dateKey(nowNaive)
+  const now = formatClock(nowNaive)
   const [value, setValue] = useState<PlannerValue>(initial ?? {})
   const [swapping, setSwapping] = useState(false)
   const [dirty, setDirty] = useState(false)
+  const swapTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const autoNavigate = variant === "bar"
 
-  // Follow `initial` until the user edits the form (URL changes on the toolbar, stored stations on the hero).
+  useEffect(() => () => clearTimeout(swapTimeout.current), [])
+
+  // Follow `initial` until the user edits the form (URL changes on the toolbar, stored stations on the hero). Merged
+  // rather than replaced: the hero's `initial` carries stations only, and a date the user picked has to survive it.
   useEffect(() => {
-    if (initial && (autoNavigate || !dirty)) setValue(initial)
+    if (initial && (autoNavigate || !dirty)) setValue((current) => ({ ...current, ...initial }))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initial?.origin?.id, initial?.destination?.id, initial?.date, initial?.time, autoNavigate])
 
@@ -58,19 +69,24 @@ export function Planner({
   /**
    * `keepTrip` leaves the selected trip in the search: a train keeps its id across a date/time change, so the
    * details panel stays open on it when it is still among the results (and falls back to the empty state when it
-   * is not). Changing a station makes the trip meaningless, so it is dropped.
+   * is not). Changing a station makes the trip (and the `?day=` it was picked from) meaningless, so both are dropped.
+   *
+   * `record` marks a trip the user actually planned — a new pair of stations, or the hero's submit — as opposed to a
+   * date or time nudged on the results toolbar, which must not re-record the route or count as another search.
    */
-  const go = (next: PlannerValue, keepTrip = false) => {
+  const go = (next: PlannerValue, keepTrip = false, record = true) => {
     if (!next.origin || !next.destination || next.origin.id === next.destination.id) return
-    recentRoutes.add({ originId: next.origin.id, destinationId: next.destination.id })
-    trackEvent("route_search", { origin: next.origin.id, destination: next.destination.id, variant })
+    if (record) {
+      recentRoutes.add({ originId: next.origin.id, destinationId: next.destination.id })
+      trackEvent("route_search", { origin: next.origin.id, destination: next.destination.id, variant })
+    }
     navigate({
       to: "/{-$locale}/routes/$from/$to",
       params: { locale, from: next.origin.id, to: next.destination.id },
       search: (prev: Record<string, unknown>) => ({
         ...(autoNavigate ? prev : {}),
         ...routeSearchParams(next),
-        ...(keepTrip ? {} : { trip: undefined }),
+        ...(keepTrip ? {} : { trip: undefined, day: undefined }),
       }),
     })
   }
@@ -82,12 +98,13 @@ export function Planner({
     setValue(next)
     setDirty(true)
     if (stationsChanged) routePlan.set({ originId: next.origin?.id, destinationId: next.destination?.id })
-    if (autoNavigate) go(next, !stationsChanged)
+    if (autoNavigate) go(next, !stationsChanged, stationsChanged)
   }
 
   const swap = () => {
     setSwapping(true)
-    setTimeout(() => setSwapping(false), 350)
+    clearTimeout(swapTimeout.current)
+    swapTimeout.current = setTimeout(() => setSwapping(false), 350)
     update({ origin: value.destination, destination: value.origin })
   }
 
@@ -180,7 +197,9 @@ export function Planner({
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
         <div className="flex-1">
           <span className="mb-1.5 block text-[13px] font-semibold uppercase tracking-wide text-muted">{t("plan.leaveAt")}</span>
-          <DateTimePicker today={today} now={now} value={value} onChange={(dateTime) => setValue({ ...value, ...dateTime })} />
+          {/* Through `update` like the stations: it marks the form dirty, so the stored plan can no longer overwrite
+              the day the user just picked. Nothing is persisted or navigated — the stations haven't changed. */}
+          <DateTimePicker today={today} now={now} value={value} onChange={(dateTime) => update(dateTime)} />
         </div>
         <button
           type="submit"

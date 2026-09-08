@@ -8,6 +8,11 @@ import type { ApiSearchResult, ResultType, RoutesResult, RoutesSearch } from "./
 const API_BASE = process.env.RAIL_API_BASE ?? "https://api.better-rail.co.il/api/v1/rail-api"
 const SEARCH_PATH = "/rjpa/api/v1/timetable/searchTrainForMobile"
 const REQUEST_TIMEOUT_MS = 20_000
+/**
+ * The most a whole search (the requested day plus its look-ahead) may take. The server render waits on it: past this
+ * the page goes out with its error state and a retry button instead of hanging on a slow timetable API.
+ */
+const SEARCH_BUDGET_MS = 12_000
 /** How many extra days to look ahead when the requested day has no service (weekends, holidays). */
 const LOOKAHEAD_DAYS = 3
 
@@ -27,9 +32,15 @@ function validateSearch(input: unknown): RoutesSearch {
   return { originId, destinationId, date, hour, hideSlowTrains: Boolean(data.hideSlowTrains) }
 }
 
-async function searchDay(search: RoutesSearch, date: string, hour: string, clientIp: string | undefined) {
+async function searchDay(
+  search: RoutesSearch,
+  date: string,
+  hour: string,
+  clientIp: string | undefined,
+  timeoutMs = REQUEST_TIMEOUT_MS,
+) {
   const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+  const timeout = setTimeout(() => controller.abort(), timeoutMs)
 
   try {
     const response = await fetch(`${API_BASE}${SEARCH_PATH}`, {
@@ -81,19 +92,22 @@ export const clientIpFrom = (header: (name: string) => string | null | undefined
  */
 export async function searchRoutes(data: RoutesSearch, clientIp?: string): Promise<RoutesResult> {
   const requestedTime = naiveFromParts(data.date, data.hour)
+  const deadline = Date.now() + SEARCH_BUDGET_MS
 
   for (let dayOffset = 0; dayOffset <= LOOKAHEAD_DAYS; dayOffset++) {
     const date = dateKey(addDays(requestedTime, dayOffset))
     const hour = dayOffset === 0 ? apiHourFor(data.hour) : "04:00"
-    const routes = await searchDay(data, date, hour, clientIp)
+    const remaining = deadline - Date.now()
+    if (remaining <= 0) throw new Error("Timetable search timed out")
+    const routes = await searchDay(data, date, hour, clientIp, Math.min(REQUEST_TIMEOUT_MS, remaining))
 
     if (routes.length === 0) continue
 
     const resultType: ResultType = dayOffset > 0 ? "different-date" : "normal"
-    return { routes, resultType, resultDate: date, requestedDate: data.date, fetchedAt: Date.now() }
+    return { routes, resultType, resultDate: date, requestedDate: data.date }
   }
 
-  return { routes: [], resultType: "not-found", resultDate: data.date, requestedDate: data.date, fetchedAt: Date.now() }
+  return { routes: [], resultType: "not-found", resultDate: data.date, requestedDate: data.date }
 }
 
 export const findRoutes = createServerFn({ method: "POST" })

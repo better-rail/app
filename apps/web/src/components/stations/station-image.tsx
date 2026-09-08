@@ -13,10 +13,11 @@ export function StationImage({
   sizes?: string
   priority?: boolean
 }) {
+  const thumb = stationImage(station, 160)
   const small = stationImage(station, 640)
   const large = stationImage(station, 1280)
 
-  if (!small || !large) {
+  if (!thumb || !small || !large) {
     return (
       <div
         className={cn(
@@ -31,9 +32,12 @@ export function StationImage({
   return (
     <img
       src={large}
-      srcSet={`${small} 640w, ${large} 1280w`}
+      srcSet={`${thumb} 160w, ${small} 640w, ${large} 1280w`}
       sizes={sizes}
       alt=""
+      // Landscape photos, all of them: the ratio holds the box open until the picture arrives.
+      width={1280}
+      height={853}
       loading={priority ? "eager" : "lazy"}
       fetchPriority={priority ? "high" : "auto"}
       decoding="async"

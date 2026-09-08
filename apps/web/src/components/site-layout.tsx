@@ -12,7 +12,8 @@ export function SiteLayout({ locale, children, footer = true }: { locale: Locale
       <InsideSiteLayout.Provider value={true}>
         <div className="flex min-h-dvh flex-col">
           <SiteHeader />
-          <main id="main" className="flex flex-1 flex-col">
+          {/* Focusable so the skip link moves the reading position, not just the scroll. */}
+          <main id="main" tabIndex={-1} className="flex flex-1 flex-col">
             {children}
           </main>
           {footer && <SiteFooter />}

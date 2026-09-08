@@ -22,7 +22,7 @@ export function stationNameById(id: string | number, locale: Locale): string {
   return station ? stationName(station, locale) : ""
 }
 
-export type StationImageSize = 640 | 1280
+export type StationImageSize = 160 | 640 | 1280
 
 export function stationImage(station: Station | undefined, size: StationImageSize): string | undefined {
   if (!station?.image) return undefined

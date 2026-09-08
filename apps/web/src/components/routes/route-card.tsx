@@ -74,7 +74,7 @@ export const RouteCard = memo(function RouteCard({
 
         <TimeColumn label={t("routes.arrival")} time={formatClock(route.arrivalTime)} cancelled={route.isCancelled} align="end" />
 
-        <Chevron className="hidden size-5 shrink-0 text-dim transition-transform duration-200 group-hover:translate-x-[var(--nudge)] lg:block [dir=rtl]:[--nudge:-3px] [dir=ltr]:[--nudge:3px]" />
+        <Chevron className="hidden size-5 shrink-0 text-dim transition-transform duration-200 group-hover:translate-x-[3px] rtl:group-hover:-translate-x-[3px] lg:block" />
       </div>
 
       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-line/60 pt-2 text-[12.5px] text-muted">
@@ -122,7 +122,8 @@ function RouteIndicators({ route, changesText }: { route: RouteItem; changesText
   const badges = []
   if (route.isMuchShorter && !route.isMuchLonger) badges.push(<ShortRouteBadge key="short" />)
   if (route.isMuchLonger) badges.push(<SlowTrainBadge key="slow" />)
-  if (route.delay > 0) badges.push(<DelayBadge key="delay" minutes={route.delay} />)
+  const delay = Math.max(route.delay, route.arrivalDelay)
+  if (delay > 0) badges.push(<DelayBadge key="delay" minutes={delay} />)
   if (badges.length === 0) return <span className="text-[13.5px] text-muted">{changesText}</span>
   return <div className="flex flex-wrap items-center justify-center gap-1.5">{badges}</div>
 }

@@ -99,7 +99,10 @@ export interface RouteItem {
   departureTime: NaiveTime
   arrivalTime: NaiveTime
   durationMs: number
+  /** Delay of the first train — what moves the departure (0 when on time / unknown) */
   delay: number
+  /** Delay of the last train — what moves the arrival */
+  arrivalDelay: number
   isExchange: boolean
   isCancelled: boolean
   isMuchLonger: boolean
@@ -125,5 +128,4 @@ export interface RoutesResult {
   /** The date the routes actually belong to (may differ from the requested one) */
   resultDate: string
   requestedDate: string
-  fetchedAt: number
 }

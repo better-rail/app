@@ -4,6 +4,7 @@ import { useLocale, useT } from "@/i18n"
 import { cn } from "@/lib/cn"
 import { formatDateField } from "@/lib/format"
 import { parseDateInput, parseTimeInput } from "@/lib/parse-input"
+import { addDays, dateKey, parseNaive } from "@/lib/time"
 import { useIsDesktop } from "@/hooks/use-media-query"
 import { Calendar } from "./calendar"
 import { PickerPopover, type PickerCloseReason } from "./picker-popover"
@@ -106,6 +107,9 @@ function useTrigger(open: boolean, openPicker: () => void) {
 const contains = (ref: RefObject<HTMLElement | null>, node: EventTarget | null) =>
   node instanceof Node && Boolean(ref.current?.contains(node))
 
+/** How far ahead a day can be picked: Israel Railways publishes a limited window, and beyond it results come back empty. */
+const MAX_DAYS_AHEAD = 90
+
 /** Picking a day applies and closes at once, like a native calendar. */
 function DateField({ value, today, onChange, fieldClass, className }: FieldProps<string> & { today: string }) {
   const t = useT()
@@ -122,11 +126,12 @@ function DateField({ value, today, onChange, fieldClass, className }: FieldProps
   const typed = text === null ? null : parseDateInput(text, today)
   const selected = typed ?? value ?? today
   const display = formatDateField(selected, locale, today)
+  const max = dateKey(addDays(parseNaive(today), MAX_DAYS_AHEAD))
 
-  /** Applies what was typed; unparseable text is dropped. */
+  /** Applies what was typed; text that is unparseable — or past the last day with a timetable — is dropped. */
   const applyTyped = () => {
     setText(null)
-    if (typed && typed !== value) onChange(typed)
+    if (typed && typed !== value && typed <= max) onChange(typed)
   }
 
   const close = (reason: PickerCloseReason) => {
@@ -142,16 +147,14 @@ function DateField({ value, today, onChange, fieldClass, className }: FieldProps
     focusTrigger()
   }
 
+  // Escape belongs to the popover's own listener, which routes "cancel" to `close` here — handling it twice would
+  // apply this field's cancel twice over.
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       // Nothing typed and no picker open: Enter belongs to the form.
       if (!open && text === null) return
       event.preventDefault()
       close("done")
-    } else if (event.key === "Escape") {
-      event.stopPropagation()
-      setText(null)
-      if (open) close("cancel")
     } else if (event.key === "Tab" && open) {
       // Tab moves on to the next field, taking what was typed along; ArrowDown is the way into the picker.
       applyTyped()
@@ -212,6 +215,7 @@ function DateField({ value, today, onChange, fieldClass, className }: FieldProps
         <Calendar
           value={selected}
           min={today}
+          max={max}
           today={today}
           autoFocus={!isDesktop}
           className={isDesktop ? "w-[294px]" : "mx-auto w-full max-w-[360px] pb-2"}
@@ -264,7 +268,10 @@ function TimeField({ value, now, onChange, fieldClass, className }: FieldProps<s
   const close = (reason: PickerCloseReason) => {
     setOpen(false)
     setText(null)
-    if (reason !== "cancel" && touched.current && draft !== value) onChange(draft)
+    // Snapped on the way out, so the minute that is applied is the one the drum was showing all along: typing "16:17"
+    // rolls the wheel to 16:15, and it would be a surprise for the search to run on 16:17.
+    const applied = snapClock(draft)
+    if (reason !== "cancel" && touched.current && applied !== value) onChange(applied)
     if (reason !== "dismiss") focusTrigger()
   }
 
@@ -274,14 +281,12 @@ function TimeField({ value, now, onChange, fieldClass, className }: FieldProps<s
     focusTrigger()
   }
 
+  // As in `DateField`: Escape is the popover's, and arrives here as `close("cancel")`.
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       if (!open && text === null) return
       event.preventDefault()
       close("done")
-    } else if (event.key === "Escape") {
-      event.stopPropagation()
-      close("cancel")
     } else if (event.key === "Tab" && open) {
       close("dismiss")
     } else if (event.key === "ArrowDown" || event.key === "ArrowUp") {

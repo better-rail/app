@@ -6,7 +6,8 @@ import { SiteLayout } from "@/components/site-layout"
 export const Route = createFileRoute("/{-$locale}")({
   beforeLoad: ({ params, location }) => {
     if (params.locale === "he") {
-      throw redirect({ href: location.href.replace(/^\/he(?=\/|$|\?)/, "") || "/", replace: true })
+      // Permanent, so crawlers drop the `/he` form rather than keep both.
+      throw redirect({ href: location.href.replace(/^\/he(?=\/|$|\?)/, "") || "/", replace: true, statusCode: 308 })
     }
     const locale = resolveLocale(params.locale)
     if (!locale) throw notFound()

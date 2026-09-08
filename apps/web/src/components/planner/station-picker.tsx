@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react"
+import { memo, useCallback, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react"
 import { flushSync } from "react-dom"
 import { Search, X, ChevronDown, TrainFront, Clock } from "lucide-react"
 import { stationName, getStationById, type Station } from "@/data/stations"
@@ -19,9 +19,19 @@ export interface StationPickerProps {
   exclude?: Station
   /** `card` mimics the app's photo cards; `field` is the compact input of the results toolbar */
   variant?: "card" | "field"
-  autoFocus?: boolean
   className?: string
   kind: "origin" | "destination"
+}
+
+/** The clock beside a recent pick — a constant, so the memoised rows don't see a new element every render. */
+const RECENT_ICON = <Clock className="size-4 text-dim" />
+
+/** The next selectable row in `direction`, or `from` itself when the list runs out — excluded rows are stepped over. */
+function nextEnabled(options: Station[], excludeId: string | undefined, from: number, direction: 1 | -1): number {
+  for (let index = from + direction; index >= 0 && index < options.length; index += direction) {
+    if (options[index].id !== excludeId) return index
+  }
+  return from
 }
 
 /**
@@ -36,8 +46,9 @@ export function StationPicker({ label, value, onChange, exclude, variant = "card
   const listboxId = useId()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState("")
-  const [activeIndex, setActiveIndex] = useState(0)
-  const { results } = useStationSearch(query)
+  /** The highlighted row in `options`, or -1 for "nothing highlighted yet" — see the Enter branch below. */
+  const [activeIndex, setActiveIndex] = useState(-1)
+  const { results } = useStationSearch(query, open)
   const recent = useRecentRoutes()
   const anchor = useRef<HTMLDivElement>(null)
   const trigger = useRef<HTMLButtonElement>(null)
@@ -55,11 +66,21 @@ export function StationPicker({ label, value, onChange, exclude, variant = "card
   })()
 
   const showRecent = query.trim() === "" && recentStations.length > 0
+  /** Every row of the listbox in the order it is drawn, so the arrow keys and `aria-activedescendant` see the recents. */
+  const options = showRecent ? [...recentStations, ...results] : results
+  /** Where the "all stations" section starts in `options` — the same station can appear in both, with its own index. */
+  const recentCount = showRecent ? recentStations.length : 0
+  const optionId = (index: number) => `${listboxId}-${index}`
 
-  // A new query starts the list over: first match highlighted, scrolled back to the top (as the app does).
+  /**
+   * A new query starts the list over: first selectable match highlighted, scrolled back to the top (as the app does).
+   * An empty query highlights nothing instead, so the phone keyboard's "Done" can't commit a station the user never
+   * saw — and so the highlight never sits on a row that is scrolled out of sight under the recents.
+   */
   useEffect(() => {
-    setActiveIndex(0)
+    setActiveIndex(query.trim() === "" ? -1 : nextEnabled(results, exclude?.id, -1, 1))
     list.current?.scrollTo({ top: 0 })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query])
 
   // Only after a key press: a hovered row is on screen already, and scrolling it "into view" could move the page.
@@ -76,39 +97,56 @@ export function StationPicker({ label, value, onChange, exclude, variant = "card
   const openPicker = () => {
     flushSync(() => {
       setQuery("")
+      setActiveIndex(-1)
       setOpen(true)
     })
     input.current?.focus({ preventScroll: true })
   }
 
   /**
-   * Focus goes back to the field for keyboard users only (Enter, or Escape on desktop): moved there after a click or
-   * a tap, the browser would paint a focus ring on the field.
+   * Focus goes back to the field for every deliberate close (a pick, Escape, the sheet's X), as the date and time
+   * fields do, so the next Tab carries on from the planner rather than from the top of the document. Only a dismiss —
+   * a tap outside or a Tab away — leaves focus where the user put it. A programmatic focus after a pointer press
+   * doesn't match `:focus-visible`, so no ring is painted on the field.
    */
-  const close = (reason: PickerCloseReason, viaKeyboard = reason === "cancel" && isDesktop) => {
+  const close = useCallback((reason: PickerCloseReason) => {
     setOpen(false)
-    if (viaKeyboard) trigger.current?.focus({ preventScroll: true })
-  }
+    if (reason !== "dismiss") trigger.current?.focus({ preventScroll: true })
+  }, [])
 
-  const select = (station: Station, viaKeyboard = false) => {
-    if (station.id === exclude?.id) return
-    onChange(station)
-    close("select", viaKeyboard)
-  }
+  const excludeId = exclude?.id
+
+  const select = useCallback(
+    (station: Station) => {
+      if (station.id === excludeId) return
+      onChange(station)
+      close("select")
+    },
+    [excludeId, onChange, close],
+  )
+
+  /** Stable, so moving the pointer down the list re-renders the picker but not all seventy rows. */
+  const hover = useCallback((index: number) => setActiveIndex(index), [])
 
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "ArrowDown") {
       event.preventDefault()
       keyboardMove.current = true
-      setActiveIndex((index) => Math.min(index + 1, results.length - 1))
+      setActiveIndex((index) => nextEnabled(options, excludeId, index, 1))
     } else if (event.key === "ArrowUp") {
       event.preventDefault()
       keyboardMove.current = true
-      setActiveIndex((index) => Math.max(index - 1, 0))
+      setActiveIndex((index) => nextEnabled(options, excludeId, index, -1))
     } else if (event.key === "Enter") {
       event.preventDefault()
-      const station = results[activeIndex]
-      if (station) select(station, true)
+      // Nothing highlighted: the phone keyboard's "Done" only means "put me away", and no station was ever pointed at.
+      // (The desktop panel sits inside the hero's form, so the press has to be swallowed rather than left to submit it.)
+      if (activeIndex < 0) {
+        if (!isDesktop) input.current?.blur()
+        return
+      }
+      const station = options[activeIndex]
+      if (station) select(station)
     }
   }
 
@@ -193,7 +231,7 @@ export function StationPicker({ label, value, onChange, exclude, variant = "card
                   aria-controls={listboxId}
                   aria-expanded="true"
                   aria-autocomplete="list"
-                  aria-activedescendant={results[activeIndex] ? `${listboxId}-${results[activeIndex].id}` : undefined}
+                  aria-activedescendant={activeIndex >= 0 ? optionId(activeIndex) : undefined}
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   onKeyDown={onKeyDown}
@@ -211,7 +249,8 @@ export function StationPicker({ label, value, onChange, exclude, variant = "card
                       setQuery("")
                       input.current?.focus()
                     }}
-                    className="-me-1.5 flex size-8 shrink-0 items-center justify-center rounded-full text-dim transition-colors hover:text-text"
+                    // The mark stays 18px; the button around it is a 44px touch target inside the 44px search row.
+                    className="-me-1.5 flex size-11 shrink-0 items-center justify-center rounded-full text-dim transition-colors hover:text-text"
                     aria-label={t("plan.clearSearch")}
                   >
                     <span className="flex size-[18px] items-center justify-center rounded-full bg-current">
@@ -234,35 +273,43 @@ export function StationPicker({ label, value, onChange, exclude, variant = "card
                 isDesktop ? "max-h-[420px] p-1.5" : "px-2.5 pb-2",
               )}
             >
+              {/* Both sections are slices of the same `options` array, so every row has one index the arrow keys and
+                  `aria-activedescendant` agree on — including the recents, which used to be unreachable. */}
               {showRecent && <ListHeading>{t("plan.recentSearches")}</ListHeading>}
               {showRecent &&
-                recentStations.map((station) => (
+                recentStations.map((station, index) => (
                   <StationOption
                     key={`recent-${station.id}`}
                     station={station}
                     name={stationName(station, locale)}
-                    active={false}
-                    disabled={station.id === exclude?.id}
+                    index={index}
+                    active={isDesktop && activeIndex === index}
+                    disabled={station.id === excludeId}
                     onSelect={select}
-                    id={`${listboxId}-recent-${station.id}`}
-                    icon={<Clock className="size-4 text-dim" />}
+                    onHover={hover}
+                    id={optionId(index)}
+                    icon={RECENT_ICON}
                   />
                 ))}
               {showRecent && <ListHeading>{t("plan.allStations")}</ListHeading>}
-              {results.map((station, index) => (
-                <StationOption
-                  key={station.id}
-                  station={station}
-                  name={stationName(station, locale)}
-                  // The keyboard highlight is a desktop affordance; on a phone it would read as a selection.
-                  active={isDesktop && index === activeIndex}
-                  selected={station.id === value?.id}
-                  disabled={station.id === exclude?.id}
-                  onSelect={select}
-                  onHover={() => setActiveIndex(index)}
-                  id={`${listboxId}-${station.id}`}
-                />
-              ))}
+              {results.map((station, resultIndex) => {
+                const index = recentCount + resultIndex
+                return (
+                  <StationOption
+                    key={station.id}
+                    station={station}
+                    name={stationName(station, locale)}
+                    index={index}
+                    // The keyboard highlight is a desktop affordance; on a phone it would read as a selection.
+                    active={isDesktop && activeIndex === index}
+                    selected={station.id === value?.id}
+                    disabled={station.id === excludeId}
+                    onSelect={select}
+                    onHover={hover}
+                    id={optionId(index)}
+                  />
+                )
+              })}
               {results.length === 0 && <li className="px-3 py-8 text-center text-muted">{t("plan.noResults")}</li>}
             </ul>
           </>
@@ -280,9 +327,11 @@ function ListHeading({ children }: { children: ReactNode }) {
   )
 }
 
-function StationOption({
+/** Memoised: hovering moves the highlight, and without this every row of the list would reconcile on the way past. */
+const StationOption = memo(function StationOption({
   station,
   name,
+  index,
   active,
   selected,
   disabled,
@@ -293,11 +342,13 @@ function StationOption({
 }: {
   station: Station
   name: string
+  /** Its place in the picker's flat option list — reported back on hover */
+  index: number
   active: boolean
   selected?: boolean
   disabled?: boolean
   onSelect: (station: Station) => void
-  onHover?: () => void
+  onHover: (index: number) => void
   id: string
   icon?: ReactNode
 }) {
@@ -308,7 +359,7 @@ function StationOption({
       aria-selected={selected ?? false}
       aria-disabled={disabled}
       data-active={active}
-      onMouseMove={onHover}
+      onMouseMove={() => onHover(index)}
       onClick={() => !disabled && onSelect(station)}
       className={cn(
         "flex cursor-pointer items-center gap-3 rounded-xl px-2.5 py-2.5 transition-colors lg:py-2",
@@ -325,4 +376,4 @@ function StationOption({
       {selected && <span className="size-2 rounded-full bg-brand" aria-hidden="true" />}
     </li>
   )
-}
+})

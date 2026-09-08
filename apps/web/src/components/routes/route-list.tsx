@@ -16,7 +16,6 @@ export function RouteList({
   time,
   selectedId,
   now,
-  hideSlowTrains,
   day,
 }: {
   routes: RouteItem[]
@@ -27,7 +26,6 @@ export function RouteList({
   time?: string
   selectedId?: string
   now: NaiveTime
-  hideSlowTrains: boolean
   /** Set on the appended days, so a card's link says which day's trip it selects */
   day?: string
 }) {
@@ -54,11 +52,9 @@ export function RouteList({
     [navigate, day],
   )
 
-  const visible = hideSlowTrains ? routes.filter((route) => !route.isMuchLonger || route.id === selectedId) : routes
-
   return (
     <ol data-day={day} className="flex flex-col gap-3">
-      {visible.map((route) => (
+      {routes.map((route) => (
         <li key={route.id}>
           <RouteCard
             route={route}

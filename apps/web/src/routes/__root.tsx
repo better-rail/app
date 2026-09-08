@@ -2,6 +2,8 @@ import { HeadContent, Outlet, Scripts, createRootRouteWithContext, useMatches } 
 import type { QueryClient } from "@tanstack/react-query"
 import type { ReactNode } from "react"
 import appCss from "../styles.css?url"
+import heeboHebrew from "../fonts/Heebo-hebrew.woff2?url"
+import heeboLatin from "../fonts/Heebo-latin.woff2?url"
 import { defaultLocale, dir, htmlLang, isLocale, type Locale } from "@/i18n"
 import { POSTHOG_SNIPPET } from "@/lib/analytics"
 import { APP_STORE_ID, SITE_NAME } from "@/lib/seo"
@@ -19,7 +21,8 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: SITE_NAME },
-      { name: "theme-color", content: "#0a81dd" },
+      { name: "theme-color", content: "#f2f2f7", media: "(prefers-color-scheme: light)" },
+      { name: "theme-color", content: "#000000", media: "(prefers-color-scheme: dark)" },
       { name: "apple-itunes-app", content: `app-id=${APP_STORE_ID}` },
       { name: "application-name", content: SITE_NAME },
       { name: "apple-mobile-web-app-title", content: SITE_NAME },
@@ -27,7 +30,8 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "preload", as: "font", type: "font/woff2", href: "/assets/fonts/Heebo.woff2", crossOrigin: "anonymous" },
+      { rel: "preload", as: "font", type: "font/woff2", href: heeboHebrew, crossOrigin: "anonymous" },
+      { rel: "preload", as: "font", type: "font/woff2", href: heeboLatin, crossOrigin: "anonymous" },
       { rel: "apple-touch-icon", sizes: "180x180", href: "/assets/favicon/apple-touch-icon.png" },
       { rel: "icon", type: "image/png", sizes: "32x32", href: "/assets/favicon/favicon-32x32.png" },
       { rel: "icon", type: "image/png", sizes: "16x16", href: "/assets/favicon/favicon-16x16.png" },

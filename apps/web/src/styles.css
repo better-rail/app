@@ -1,10 +1,26 @@
 @import "tailwindcss";
 
+/*
+ * Heebo as two subsets, the way Google Fonts serves it: the Latin one carries the digits and punctuation every page
+ * sets (clocks, platforms, train numbers), so both are needed and both are preloaded. Referenced from `src/fonts` so
+ * the build hashes their URLs — the immutable cache rule on `/assets` is safe to apply to them.
+ */
 @font-face {
   font-family: "Heebo";
   font-weight: 100 900;
   font-display: swap;
-  src: url("/assets/fonts/Heebo.woff2") format("woff2");
+  src: url("./fonts/Heebo-hebrew.woff2") format("woff2");
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
+}
+
+@font-face {
+  font-family: "Heebo";
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("./fonts/Heebo-latin.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -18,13 +34,16 @@
   --color-text: #1c1c1e;
   --color-text-2: #3a3a3c;
   --color-muted: #6e6e73;
-  --color-dim: #939aa4;
+  --color-dim: #6b7280;
   --color-line: #e2e2e8;
   --color-line-strong: #c9c9d1;
   --color-brand: #0a81dd;
   --color-brand-strong: #0972c4;
   --color-brand-soft: #e6f2fc;
   --color-brand-text: #0a6fbf;
+  /* The fill behind white text (buttons): the accent itself is a shade too light for 15px text to pass AA on it. */
+  --color-brand-fill: #0972c4;
+  --color-brand-fill-strong: #0868b3;
   --color-secondary: #fa827e;
   --color-secondary-soft: #f6eae3;
   --color-success: #219f07;
@@ -55,6 +74,8 @@
   --color-brand-strong: #58aaf5;
   --color-brand-soft: #0f2b44;
   --color-brand-text: #7cbdf7;
+  --color-brand-fill: #1b6fc0;
+  --color-brand-fill-strong: #1f7bd2;
   --color-secondary: #6f68df;
   --color-secondary-soft: #464552;
   --color-success: #8fdc7b;
@@ -88,6 +109,8 @@
   --color-brand-strong: var(--color-brand-strong);
   --color-brand-soft: var(--color-brand-soft);
   --color-brand-text: var(--color-brand-text);
+  --color-brand-fill: var(--color-brand-fill);
+  --color-brand-fill-strong: var(--color-brand-fill-strong);
   --color-secondary: var(--color-secondary);
   --color-secondary-soft: var(--color-secondary-soft);
   --color-success: var(--color-success);
@@ -112,6 +135,12 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     scroll-behavior: smooth;
+    /* Anchor jumps (the skip link) land below the sticky header rather than under it. */
+    scroll-padding-top: 4.5rem;
+    /* A classic scrollbar keeps its gutter while a sheet or the menu locks the page, so nothing jumps sideways. */
+    scrollbar-gutter: stable;
+    /* Taps get their feedback from `active:` styles and the focus ring, not the platform's grey rectangle. */
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
@@ -139,7 +168,11 @@
   :focus-visible {
     outline: 3px solid color-mix(in srgb, var(--color-brand) 55%, transparent);
     outline-offset: 2px;
-    border-radius: 6px;
+  }
+
+  /* Skipped to: the page's landmark takes focus without drawing a ring around the whole page. */
+  main:focus {
+    outline: none;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -147,6 +180,8 @@
     *::before,
     *::after {
       animation-duration: 0.01ms !important;
+      /* A looping spinner would otherwise keep running its now-instant animation. */
+      animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
@@ -155,7 +190,21 @@
 
 @layer components {
   .container-page {
-    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+    @apply mx-auto w-full max-w-6xl;
+    /* `viewport-fit=cover` lets the page run under a phone's notch in landscape; the insets keep the content out of it. */
+    padding-inline: max(1rem, env(safe-area-inset-left), env(safe-area-inset-right));
+  }
+
+  @variant sm {
+    .container-page {
+      padding-inline: max(1.5rem, env(safe-area-inset-left), env(safe-area-inset-right));
+    }
+  }
+
+  @variant lg {
+    .container-page {
+      padding-inline: max(2rem, env(safe-area-inset-left), env(safe-area-inset-right));
+    }
   }
 
   .card {
@@ -206,7 +255,7 @@
   }
 
   .btn-primary {
-    @apply bg-brand text-white shadow-[0_1px_2px_rgb(0_0_0/0.15)] hover:bg-brand-strong;
+    @apply bg-brand-fill text-white shadow-[0_1px_2px_rgb(0_0_0/0.15)] hover:bg-brand-fill-strong;
   }
 
   .btn-secondary {
@@ -218,7 +267,7 @@
   }
 
   .icon-btn {
-    @apply inline-flex size-10 items-center justify-center rounded-full text-text-2 transition-colors hover:bg-surface-3 active:scale-95;
+    @apply inline-flex size-11 items-center justify-center rounded-full text-text-2 transition-colors hover:bg-surface-3 active:scale-95;
   }
 
   .link-underline {
