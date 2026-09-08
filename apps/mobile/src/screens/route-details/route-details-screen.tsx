@@ -110,6 +110,7 @@ export function RouteDetailsScreen() {
 
   return (
     <Screen
+      testID="route-details-screen"
       style={styles.root}
       preset="fixed"
       unsafe={true}
@@ -345,6 +346,7 @@ export function RouteDetailsScreen() {
             }}
           >
             <Pressable
+              testID="train-info-button"
               onPress={() => {
                 if (hasWagonData) {
                   trackEvent("train_info_sheet_opened")

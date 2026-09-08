@@ -41,6 +41,7 @@ export function SettingsScreen() {
 
   return (
     <Screen
+      testID="settings-screen"
       style={styles.root}
       preset="scroll"
       unsafe={true}
@@ -50,6 +51,7 @@ export function SettingsScreen() {
     >
       <View style={SETTING_GROUP}>
         <SettingBox
+          testID="settings-language"
           first
           title={translate("settings.language") ?? ""}
           icon="💬"
@@ -57,6 +59,7 @@ export function SettingsScreen() {
           onPress={() => router.push("/settings/language")}
         />
         <SettingBox
+          testID="settings-appearance"
           last
           title={translate("settings.uiSettings") ?? ""}
           icon="🎨"
@@ -116,6 +119,7 @@ export function SettingsScreen() {
           onPress={() => storeLink && Linking.openURL(storeLink)}
         />
         <SettingBox
+          testID="settings-about"
           last
           title={translate("settings.about") ?? ""}
           icon="ℹ️"

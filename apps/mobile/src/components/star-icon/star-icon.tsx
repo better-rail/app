@@ -23,7 +23,14 @@ export function StarIcon(props: StarIconProps) {
 
   if (isLiquidGlassSupported) {
     return (
-      <Pressable onPress={onPress} style={[styles.container, style]}>
+      <Pressable
+        testID={`favorite-route-button-${filled ? "selected" : "unselected"}`}
+        onPress={onPress}
+        style={[styles.container, style]}
+        accessibilityRole="button"
+        accessibilityLabel={translate("favorites.title") ?? undefined}
+        accessibilityState={{ selected: filled } as AccessibilityState}
+      >
         <LiquidGlassView interactive colorScheme="dark" tintColor="rgba(51, 51, 51, 0.9)" style={styles.liquidGlass}>
           <Image source={starImage} style={[styles.starIcon, styles.starState(filled)]} accessible={false} />
         </LiquidGlassView>
@@ -33,10 +40,11 @@ export function StarIcon(props: StarIconProps) {
 
   return (
     <TouchableOpacity
+      testID={`favorite-route-button-${filled ? "selected" : "unselected"}`}
       onPress={onPress}
       style={[styles.container, style]}
       accessibilityRole="button"
-      accessibilityLabel={translate("favorites.title")}
+      accessibilityLabel={translate("favorites.title") ?? undefined}
       accessibilityState={{ selected: filled } as AccessibilityState}
       hitSlop={10}
     >

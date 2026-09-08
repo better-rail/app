@@ -11,7 +11,9 @@
     "prebuild:clean": "expo prebuild --clean",
     "compile": "tsc --noEmit -p . --pretty",
     "test": "bun test",
-    "e2e": "maestro test .maestro/flows",
+    "e2e": "bun run e2e:ios",
+    "e2e:ios": "maestro test -e MAESTRO_APP_ID=il.co.better-rail .maestro/flows",
+    "e2e:android": "maestro test -e MAESTRO_APP_ID=com.betterrail .maestro/flows",
     "adb": "adb reverse tcp:9090 tcp:9090 && adb reverse tcp:3000 tcp:3000 && adb reverse tcp:9001 tcp:9001 && adb reverse tcp:8081 tcp:8081"
   },
   "dependencies": {

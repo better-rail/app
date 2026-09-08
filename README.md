@@ -52,6 +52,8 @@ Every app can also be driven from the repository root:
 
 ```bash
 bun run mobile:start   # Metro / Expo dev server
+bun run mobile:e2e:ios # Maestro on an installed iOS E2E build
+bun run mobile:e2e:android # Maestro on an installed Android E2E build
 bun run server:dev     # server in watch mode
 bun run website:dev    # static site on :8000
 bun run lint           # oxlint + oxfmt across the repo

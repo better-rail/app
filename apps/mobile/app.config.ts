@@ -10,6 +10,7 @@ import { ExpoConfig, ConfigContext } from "expo/config"
  * project) and the iOS APNs environment. Bundle ids are identical across variants.
  */
 const IS_DEV = process.env.APP_VARIANT === "development"
+const IS_E2E = process.env.EXPO_PUBLIC_E2E === "true"
 
 // Shared identifiers consumed by config plugins and targets/*/expo-target.config.js
 const APP_GROUP = "group.il.co.better-rail"
@@ -53,6 +54,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   owner: "better-rail",
   version: "2.7.12",
   updates: {
+    enabled: !IS_E2E,
     url: "https://u.expo.dev/b7819f45-8466-4c11-8628-3539099e6c78",
   },
   // OTA updates only reach builds with the same runtime version (tied to `version` above), so bump

@@ -28,11 +28,11 @@ yarn-error.log
 **/build/
 *.tsbuildinfo
 
-# Not needed for a mobile build
-/apps/server/
-/apps/website/
+# Keep every Bun workspace package manifest in the archive. Excluding a workspace
+# makes `bun install --frozen-lockfile` rewrite bun.lock before EAS can build.
 /.github/
 /.conductor/
+/.context/
 /.vscode/
 
 # Xcode / Android

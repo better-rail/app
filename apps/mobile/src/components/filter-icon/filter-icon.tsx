@@ -32,6 +32,7 @@ export function FilterIcon(props: FilterIconProps) {
   if (isLiquidGlassSupported) {
     return (
       <Pressable
+        testID={`route-filter-button-${active ? "active" : "inactive"}`}
         onPress={onPress}
         style={[styles.container, style]}
         accessibilityRole="button"
@@ -47,6 +48,7 @@ export function FilterIcon(props: FilterIconProps) {
 
   return (
     <TouchableOpacity
+      testID={`route-filter-button-${active ? "active" : "inactive"}`}
       onPress={onPress}
       style={[styles.container, style]}
       accessibilityRole="button"
