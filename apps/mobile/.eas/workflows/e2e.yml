@@ -33,6 +33,7 @@ jobs:
     env:
       APP_VARIANT: development
       EXPO_PUBLIC_E2E: "true"
+      SENTRY_DISABLE_AUTO_UPLOAD: "true"
     params:
       build_id: ${{ needs.get_android_build.outputs.build_id }}
       profile: e2e
@@ -85,6 +86,7 @@ jobs:
     env:
       APP_VARIANT: development
       EXPO_PUBLIC_E2E: "true"
+      SENTRY_DISABLE_AUTO_UPLOAD: "true"
     params:
       build_id: ${{ needs.get_ios_build.outputs.build_id }}
       profile: e2e
