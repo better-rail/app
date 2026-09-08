@@ -2,6 +2,7 @@ export const logNames = {
   server: {
     listening: "App listening",
     dataSource: "Serving timetable data from",
+    ridesDisabled: "Ride tracking is disabled, existing rides were left untouched",
   },
   redis: {
     connect: {

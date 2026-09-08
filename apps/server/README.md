@@ -172,6 +172,24 @@ rail API's footnote for the profile in four languages (e.g. that a student's
 discount is applied at RavKav top-up rather than per ride). An unknown pair is
 a 404; until the first pull has run every route answers 503 and logs it.
 
+### Ride tracking
+
+Rides are **shared state**: the `rides:*` hashes in redis and the push tokens of
+real passengers. A process that boots with tracking on runs
+`scheduleExistingRides()`, which picks up *every* active ride in redis, schedules
+a second set of notifications for each and deletes the ones it can't reschedule —
+so a local run pointed at the production redis would push duplicates to real
+passengers and end their Live Activities.
+
+Tracking is therefore **opt-in**: `RIDES_ENABLED` decides, and when it's unset the
+fallback is whether `RAILWAY_ENVIRONMENT_NAME`/`_ID` are present — Railway injects
+those into every runtime container, and nothing sets them on a laptop. With it off the
+boot reschedule is skipped — logged as a warning — and `/api/v1/ride/*` answers
+`503 {"success": false, "reason": "rides_disabled"}`, so the process never reads
+or writes ride state at all. Set `RIDES_ENABLED=true` explicitly on the deployed
+service rather than relying on the Railway variable, and locally only while
+testing rides against your own device.
+
 ### Real-time data: SIRI-SM
 
 Live delays (`trainPosition.calcDiffMinutes`) and platform changes come from the
@@ -219,5 +237,6 @@ test-fixture source) and `GET /api/v1/siri/unmatched` (correlation misses).
 - `SIRI_CA_PEM`: PEM chain (intermediate + root, `\n`-escaped) to trust for SIRI requests — moran.mot.gov.il serves an incomplete chain
 - `SIRI_TLS_INSECURE`: `true` skips TLS verification for SIRI requests only (fallback until `SIRI_CA_PEM` is captured)
 - `SIRI_DEBUG_TOKEN`: secret for the `/api/v1/siri/*` debug routes; unset = routes 404
+- `RIDES_ENABLED`: `true`/`false` — whether this process tracks rides; see [Ride tracking](#ride-tracking)
 - `SIRI_POLLER_MODE`: set to `in-process` to run the poller inside the web service instead of the standalone `bun run siri` service
 - `SIRI_POLL_SECONDS` / `SIRI_PREVIEW_INTERVAL` / `SIRI_CHUNK_SIZE` / `SIRI_STALE_SECONDS` / `SIRI_CARRY_SECONDS`: optional tuning (defaults 30 / PT90M / 70 / 600 / 86400)

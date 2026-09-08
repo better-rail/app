@@ -1,5 +1,6 @@
 import { Router } from "express"
 
+import { ridesEnabled } from "../data/config"
 import { buildRide } from "../utils/ride-utils"
 import { RideRequestSchema } from "../types/ride"
 import { createRateLimiter } from "../utils/rate-limiter"
@@ -12,6 +13,12 @@ import { endRideNotifications, startRideNotifications, updateRideToken } from ".
 const router = Router()
 
 const rideRouter = Router()
+// Every route below reads or writes the shared rides state, so they're closed
+// while ride tracking is off (a local run, by default — see data/config.ts).
+rideRouter.use((req, res, next) => {
+  if (!ridesEnabled) return res.status(503).json({ success: false, reason: "rides_disabled" })
+  next()
+})
 rideRouter.use(createRateLimiter(10 * 60 * 1000, 10))
 
 rideRouter.post("/", bodyValidator(RideRequestSchema), async (req, res) => {
