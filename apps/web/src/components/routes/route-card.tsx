@@ -1,5 +1,4 @@
 import { memo, type MouseEvent } from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
 import type { RouteItem } from "@/lib/api/types"
 import { formatClock } from "@/lib/time"
 import { formatDuration } from "@/lib/format"
@@ -30,7 +29,6 @@ export const RouteCard = memo(function RouteCard({
   const changesText = useChangesText()
   const changes = route.trains.length - 1
   const firstTrain = route.trains[0]
-  const Chevron = locale === "he" ? ChevronLeft : ChevronRight
 
   // Modified and non-primary clicks are the browser's (a new tab, say), as they would be on any link.
   const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
@@ -73,8 +71,6 @@ export const RouteCard = memo(function RouteCard({
         </div>
 
         <TimeColumn label={t("routes.arrival")} time={formatClock(route.arrivalTime)} cancelled={route.isCancelled} align="end" />
-
-        <Chevron className="hidden size-5 shrink-0 text-dim transition-transform duration-200 group-hover:translate-x-[3px] rtl:group-hover:-translate-x-[3px] lg:block" />
       </div>
 
       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-line/60 pt-2 text-[12.5px] text-muted">
