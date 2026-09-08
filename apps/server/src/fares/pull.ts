@@ -78,8 +78,8 @@ export const RailPricesResponse = envelope(
 export type RailProfilesResponse = z.infer<typeof RailProfilesResponse>
 export type RailPricesResponse = z.infer<typeof RailPricesResponse>
 
-export const PROFILES_PATH = "/taarif/api/v1/PriceEng/GetProfiles"
-export const PRICES_PATH = "/taarif/api/v1/PriceEng/GetAllPriceWithNotes"
+export const PROFILES_PATH = "/taarif/api/v1/PriceEng/GetProfiles?SystemType=Mobile&RequestId=2"
+export const PRICES_PATH = "/taarif/api/v1/PriceEng/GetAllPriceWithNotes?SystemType=Mobile&RequestId=2"
 
 const parseResponse = async <T extends z.ZodTypeAny>(path: string, response: Response, schema: T): Promise<z.infer<T>> => {
   if (!response.ok) throw new Error(`Israel Railways API responded with ${response.status} for ${path}`)
