@@ -7,3 +7,5 @@ dist
 public/stations
 # generated from src/lib/seo.ts by scripts/build-qr-codes.ts
 public/assets/images/qr
+# local overrides for wrangler dev/preview (e.g. RAIL_API_BASE)
+.dev.vars

@@ -34,12 +34,12 @@ export function SiteFooter() {
           <DownloadBadges size="sm" />
         </div>
 
-        <nav className="flex flex-col gap-1 text-[15px]" aria-label={t("footer.nav")}>
-          <LocaleLink to="/{-$locale}/privacy-policy" className="link-underline w-fit py-1.5 text-text-2 hover:text-text">
+        <nav className="flex flex-col text-[15px]" aria-label={t("footer.nav")}>
+          <LocaleLink to="/{-$locale}/privacy-policy" className="link-underline w-fit py-2.5 text-text-2 hover:text-text">
             {t("footer.privacy")}
           </LocaleLink>
           {links.map((link) => (
-            <Link key={link.to} to={link.to} className="link-underline w-fit py-1.5 text-text-2 hover:text-text" {...hebrewOnly}>
+            <Link key={link.to} to={link.to} className="link-underline w-fit py-2.5 text-text-2 hover:text-text" {...hebrewOnly}>
               {link.label}
             </Link>
           ))}
