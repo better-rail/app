@@ -184,7 +184,27 @@
     "seniorCitizen": "مخضرم ",
     "disabled": "معاق",
     "youth": "شباب",
-    "socialSecurity": "الضمان الاجتماعي"
+    "socialSecurity": "الضمان الاجتماعي",
+    "visuallyImpaired": "ضعيف البصر",
+    "nationalService": "الخدمة الوطنية",
+    "police": "الشرطة",
+    "prisonService": "مصلحة السجون",
+    "terrorVictims": "ضحايا الأعمال العدائية",
+    "visuallyImpairedEscort": "مرافق لضعيف البصر",
+    "zahavKav": "زهاف كاف (67+)",
+    "young": "شاب (18–26)",
+    "peripheryResident": "ساكن الضواحي",
+    "dischargedSoldier": "جندي مسرّح"
+  },
+  "fares": {
+    "title": "أسعار التذاكر",
+    "singleRide": "رحلة واحدة",
+    "dailyPass": "اشتراك يومي",
+    "monthlyPass": "اشتراك شهري",
+    "free": "مجاناً",
+    "monthlyOnlyDiscount": "يسري تخفيض هذا الملف الشخصي على الاشتراك الشهري فقط.",
+    "unavailable": "الأسعار غير متاحة حالياً.",
+    "noFareForRoute": "لم يتم العثور على سعر لهذا المسار."
   },
   "modals": {
     "noTrainsFoundForDate": "لم يتم العثور على القطارات للتاريخ المطلوب",

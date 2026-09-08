@@ -36,6 +36,7 @@ export default function MainLayout() {
       <Stack.Screen name="route-details" options={{ headerShown: false }} />
       <Stack.Screen name="station-hours" options={formSheetOptions} />
       <Stack.Screen name="filter" options={formSheetOptions} />
+      <Stack.Screen name="fares" options={formSheetOptions} />
       <Stack.Screen name="train-info" options={formSheetOptions} />
       <Stack.Screen name="train-info-prompt" options={formSheetOptions} />
       <Stack.Screen name="live-permissions" options={formSheetOptions} />

@@ -1,3 +1,5 @@
 export * from "./rail-api"
 export * from "./rail-api.types"
 export * from "./ride-api"
+export * from "./fares-api"
+export * from "./fares-api.types"

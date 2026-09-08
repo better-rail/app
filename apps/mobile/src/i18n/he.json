@@ -203,7 +203,27 @@
     "seniorCitizen": "אזרח ותיק",
     "disabled": "נכה",
     "youth": "נוער",
-    "socialSecurity": "זכאי ביטוח לאומי"
+    "socialSecurity": "זכאי ביטוח לאומי",
+    "visuallyImpaired": "לקוי ראיה",
+    "nationalService": "שירות לאומי",
+    "police": "משטרה",
+    "prisonService": "שירות בתי הסוהר",
+    "terrorVictims": "נפגעי פעולות איבה",
+    "visuallyImpairedEscort": "מלווה לקוי ראיה",
+    "zahavKav": "זהב קו 67+",
+    "young": "צעיר (18–26)",
+    "peripheryResident": "תושב פריפריה",
+    "dischargedSoldier": "חייל משוחרר"
+  },
+  "fares": {
+    "title": "מחירי נסיעה",
+    "singleRide": "נסיעה בודדת",
+    "dailyPass": "חופשי יומי",
+    "monthlyPass": "חופשי חודשי",
+    "free": "חינם",
+    "monthlyOnlyDiscount": "ההנחה לפרופיל זה חלה על חופשי חודשי בלבד.",
+    "unavailable": "המחירים אינם זמינים כרגע.",
+    "noFareForRoute": "לא נמצא מחיר למסלול זה."
   },
   "modals": {
     "noTrainsFoundForDate": "לא נמצאו רכבות לתאריך המבוקש",

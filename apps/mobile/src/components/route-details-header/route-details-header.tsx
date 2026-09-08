@@ -9,6 +9,7 @@ import LinearGradient from "react-native-linear-gradient"
 import { color, spacing } from "@/theme"
 import { StarIcon } from "@/components/star-icon/star-icon"
 import { FilterIcon } from "@/components/filter-icon/filter-icon"
+import { FaresIcon } from "@/components/fares-icon/fares-icon"
 import { MenuIcon } from "@/components/menu-icon/menu-icon"
 import HapticFeedback from "react-native-haptic-feedback"
 import { stationsObject, stationLocale } from "@/data/stations"
@@ -112,6 +113,11 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     }
   }
 
+  const openFaresSheet = () => {
+    HapticFeedback.trigger("impactMedium")
+    router.push({ pathname: "/fares", params: { originId, destinationId } })
+  }
+
   const routeMenuActions = (() => {
     if (!routeItem) return []
     return createContextMenuActions(routeItem, originId, destinationId)
@@ -155,6 +161,11 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
           title: translate(showEntireRoute ? "routeDetails.hideAllStations" : "routeDetails.showAllStations"),
           systemIcon: showEntireRoute ? "rectangle.compress.vertical" : "rectangle.expand.vertical",
           onPress: () => setShowEntireRoute((prev) => !prev),
+        },
+        {
+          title: translate("fares.title"),
+          systemIcon: "shekelsign.circle",
+          onPress: openFaresSheet,
         },
       ]
 
@@ -207,6 +218,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       return (
         <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[4] }}>
           <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
+          <FaresIcon onPress={openFaresSheet} />
           <FilterIcon active={isFilterActive} onPress={openFilterSheet} />
         </View>
       )
@@ -215,6 +227,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     return (
       <>
         <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
+        <FaresIcon style={{ marginLeft: spacing[2] }} onPress={openFaresSheet} />
         <FilterIcon style={{ marginLeft: spacing[2] }} active={isFilterActive} onPress={openFilterSheet} />
       </>
     )

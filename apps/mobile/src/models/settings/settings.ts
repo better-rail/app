@@ -1,11 +1,11 @@
 import { create } from "zustand"
-import { TxKeyPath } from "@/i18n"
 import { PopUpMessage } from "@/services/api"
 
 export type MaxChanges = 0 | 1 | null
 
 export interface SettingsState {
   seenUrgentMessagesIds: number[]
+  /** The rider's Israel Railways fare profile id (0 = general), shown on the fares sheet. */
   profileCode: number
   totalTip: number
   recordedTipTransactionIds: string[]
@@ -29,9 +29,14 @@ export interface SettingsActions {
 
 export type SettingsStore = SettingsState & SettingsActions
 
+// Israel Railways' "general" profile. The retired fares feature stored 1 for it,
+// an id the rail API never lists — hydration maps that onto 0.
+const GENERAL_PROFILE_CODE = 0
+const migrateProfileCode = (code: unknown): number => (typeof code === "number" && code !== 1 ? code : GENERAL_PROFILE_CODE)
+
 const initialSettingsState: SettingsState = {
   seenUrgentMessagesIds: [],
-  profileCode: 1,
+  profileCode: GENERAL_PROFILE_CODE,
   totalTip: 0,
   recordedTipTransactionIds: [],
   showRouteCardHeader: false,
@@ -131,7 +136,7 @@ export function hydrateSettingsStore(data: any) {
 
   useSettingsStore.setState({
     seenUrgentMessagesIds: processedData.seenUrgentMessagesIds ?? [],
-    profileCode: processedData.profileCode ?? 1,
+    profileCode: migrateProfileCode(processedData.profileCode),
     totalTip: processedData.totalTip ?? 0,
     recordedTipTransactionIds: processedData.recordedTipTransactionIds ?? [],
     showRouteCardHeader: processedData.showRouteCardHeader ?? false,
@@ -141,13 +146,3 @@ export function hydrateSettingsStore(data: any) {
     seenLawsuitAnnouncement: processedData.seenLawsuitAnnouncement ?? false,
   })
 }
-
-export const PROFILE_CODES: { label: TxKeyPath; value: number }[] = [
-  { label: "profileCodes.general", value: 1 },
-  { label: "profileCodes.studentRegular", value: 19 },
-  { label: "profileCodes.studentExtended", value: 3 },
-  { label: "profileCodes.seniorCitizen", value: 4 },
-  { label: "profileCodes.disabled", value: 5 },
-  { label: "profileCodes.youth", value: 33 },
-  { label: "profileCodes.socialSecurity", value: 40 },
-]
