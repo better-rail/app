@@ -471,6 +471,10 @@ function RoutesPage() {
           so the heading is for the document outline only. */}
       <div className="relative h-44 overflow-hidden bg-surface-3 sm:h-52 lg:h-56">
         <StationImage station={origin} priority sizes="100vw" className="absolute inset-0" />
+        <div
+          className="absolute inset-0 bg-[linear-gradient(to_bottom,rgb(0_0_0/0.55),rgb(0_0_0/0.2)_45%,rgb(0_0_0/0.6))]"
+          aria-hidden="true"
+        />
         <h1 className="sr-only">{t("routes.summaryTitle", { from, to })}</h1>
       </div>
 
