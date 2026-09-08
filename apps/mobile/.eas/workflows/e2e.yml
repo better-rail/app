@@ -58,7 +58,7 @@ jobs:
       MAESTRO_APP_ID: com.betterrail
       MAESTRO_CLI_NO_ANALYTICS: "1"
     params:
-      build_id: ${{ needs.repack_android.outputs.build_id || needs.build_android.outputs.build_id }}
+      build_id: ${{ after.repack_android.outputs.build_id || after.build_android.outputs.build_id }}
       flow_path: .maestro/flows
       shards: 1
       retries: 1
@@ -111,7 +111,7 @@ jobs:
       MAESTRO_APP_ID: il.co.better-rail
       MAESTRO_CLI_NO_ANALYTICS: "1"
     params:
-      build_id: ${{ needs.repack_ios.outputs.build_id || needs.build_ios.outputs.build_id }}
+      build_id: ${{ after.repack_ios.outputs.build_id || after.build_ios.outputs.build_id }}
       flow_path: .maestro/flows
       shards: 1
       retries: 1
