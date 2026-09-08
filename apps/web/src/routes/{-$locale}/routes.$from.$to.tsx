@@ -474,8 +474,14 @@ function RoutesPage() {
         <h1 className="sr-only">{t("routes.summaryTitle", { from, to })}</h1>
       </div>
 
-      {/* Toolbar: overlaps the hero, then pins just below the site header (h-16) once the hero scrolls away */}
-      <div ref={toolbarRef} className="container-page sticky top-18 z-20 -mt-6">
+      {/* Toolbar: straddles the hero's bottom edge — half over the photo, half below it — then pins just below the
+          site header (h-16) once the hero scrolls away. The overlap is half the toolbar's measured height; until it is
+          measured, the fallbacks are what the bar is at each width (two stacked fields on a phone, one row plus the
+          date picker's row up to `lg`, a single row from there), so hydration doesn't move it. */}
+      <div
+        ref={toolbarRef}
+        className="container-page sticky top-18 z-20 -mt-[calc(var(--toolbar-h,var(--toolbar-fallback))/2)] [--toolbar-fallback:146px] sm:[--toolbar-fallback:154px] lg:[--toolbar-fallback:90px]"
+      >
         <div className="card p-3 sm:p-4">
           <Planner
             variant="bar"
