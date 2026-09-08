@@ -20,7 +20,6 @@ export const en: Record<TranslationKey, string> = {
 
   "home.title": "Israel Railways timetables",
   "home.subtitle": "Routes, changes and platforms for every station - free and open source.",
-  "home.favorites": "Favorites",
   "home.recent": "Recent searches",
   "home.appTitle": "The app train riders love",
   "home.appSubtitle": "Better Rail is available for iPhone and Android - with widgets, real-time updates and dark mode.",
@@ -82,8 +81,6 @@ export const en: Record<TranslationKey, string> = {
   "routes.hideSlowTrainsDescription":
     "Slow trains are trains whose route and travel time are significantly longer than other trains.",
   "routes.selectRoute": "Select a trip from the list to see its details",
-  "routes.favorite": "Add to favorites",
-  "routes.unfavorite": "Remove from favorites",
   "routes.showingFor": "Trains for {date}",
   "routes.pastRoutes": "Departed trains",
   "routes.hidePast": "Hide departed trains",

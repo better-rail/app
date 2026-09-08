@@ -55,8 +55,8 @@ function PrivacyPage() {
         </p>
         <p>
           Searches you make in the app or on this website are sent only to our servers, and are not forwarded to Israel Railways.
-          These requests contain no identifying information, and we don't store them. On the website, your recent searches and
-          favorite routes are kept only in your own browser.
+          These requests contain no identifying information, and we don't store them. On the website, your recent searches are
+          kept only in your own browser.
         </p>
         <p className="text-[15px] text-dim">Last updated on September 5th, 2026</p>
       </ContentPage>
@@ -92,7 +92,7 @@ function PrivacyPage() {
       </p>
       <p>
         החיפושים באפליקציה ובאתר נשלחים לשרתים שלנו בלבד, ואינם מועברים לרכבת ישראל. בקשות החיפוש אינן כוללות מידע מזהה, ואיננו
-        שומרים אותן. באתר, החיפושים האחרונים והמסלולים המועדפים נשמרים בדפדפן שלכם בלבד.
+        שומרים אותן. באתר, החיפושים האחרונים נשמרים בדפדפן שלכם בלבד.
       </p>
       <p className="text-[15px] text-dim">עודכן לאחרונה ב-5 בספטמבר 2026</p>
     </ContentPage>

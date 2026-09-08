@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { ArrowLeft, ArrowRight, Clock, Star, type LucideIcon } from "lucide-react"
+import { ArrowLeft, ArrowRight, Clock, type LucideIcon } from "lucide-react"
 import { Planner } from "@/components/planner/planner"
 import { LocaleLink } from "@/components/locale-link"
 import { DownloadBadges } from "@/components/download-badges"
 import { getStationById, stationName, type Station } from "@/data/stations"
 import { useLocale, useT, resolveLocale, translate } from "@/i18n"
-import { useFavoriteRoutes, useRecentRoutes, useStoredRoutePlan } from "@/hooks/use-stored"
+import { useRecentRoutes, useStoredRoutePlan } from "@/hooks/use-stored"
 import { dateKey, formatClock, naiveNow } from "@/lib/time"
 import { searchString } from "@/lib/search"
 import { pageHead, jsonLd, websiteJsonLd, organizationJsonLd, mobileAppJsonLd, cacheHeaders } from "@/lib/seo"
@@ -89,19 +89,14 @@ function HomePage() {
   )
 }
 
-/** The routes starred on a results page, plus the last few searches — the home page's shortcuts back into a trip. */
+/** The last few searches — the home page's shortcuts back into a trip. */
 function SavedRoutes() {
   const t = useT()
-  const favorites = toPairs(useFavoriteRoutes())
-  const recent = toPairs(useRecentRoutes()).filter(
-    ([from, to]) => !favorites.some(([f, d]) => f.id === from.id && d.id === to.id),
-  )
-
-  if (favorites.length === 0 && recent.length === 0) return null
+  const recent = toPairs(useRecentRoutes())
+  if (recent.length === 0) return null
   return (
-    <div className="flex animate-fade-in flex-col gap-4">
-      {favorites.length > 0 && <RouteChips title={t("home.favorites")} icon={Star} pairs={favorites} />}
-      {recent.length > 0 && <RouteChips title={t("home.recent")} icon={Clock} pairs={recent} />}
+    <div className="animate-fade-in">
+      <RouteChips title={t("home.recent")} icon={Clock} pairs={recent} />
     </div>
   )
 }

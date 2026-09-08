@@ -17,7 +17,6 @@ export const he = {
 
   "home.title": "לוח זמנים רכבת ישראל",
   "home.subtitle": "מסלולים, החלפות ורציפים לכל תחנות הרכבת - בחינם ובקוד פתוח.",
-  "home.favorites": "מועדפים",
   "home.recent": "חיפושים אחרונים",
   "home.appTitle": "האפליקציה שנוסעי הרכבת אוהבים",
   "home.appSubtitle": "בטר רייל זמינה לאייפון ולאנדרואיד - עם ווידג׳טים, עדכונים בזמן אמת ותמיכה במצב כהה.",
@@ -78,8 +77,6 @@ export const he = {
   "routes.hideSlowTrains": "הסתרת רכבות מאספות",
   "routes.hideSlowTrainsDescription": "רכבות מאספות הן רכבות שמסלול וזמן הנסיעה שלהן ארוכים משמעותית מרכבות אחרות.",
   "routes.selectRoute": "בחרו נסיעה מהרשימה כדי לראות את פרטי המסלול",
-  "routes.favorite": "הוספה למועדפים",
-  "routes.unfavorite": "הסרה מהמועדפים",
   "routes.showingFor": "רכבות ל{date}",
   "routes.pastRoutes": "רכבות שכבר יצאו",
   "routes.hidePast": "הסתרת רכבות שכבר יצאו",

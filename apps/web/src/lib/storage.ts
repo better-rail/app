@@ -1,6 +1,5 @@
 // Per-browser preferences in localStorage. Every access is try/catch-wrapped: storage may be unavailable (private mode, SSR).
 const RECENT_KEY = "better-rail:recent-routes"
-const FAVORITES_KEY = "better-rail:favorite-routes"
 const SLOW_TRAINS_KEY = "better-rail:hide-slow-trains"
 const MAX_RECENT = 6
 
@@ -38,17 +37,6 @@ export const recentRoutes = {
     write(RECENT_KEY, next)
   },
   clear: () => write(RECENT_KEY, []),
-}
-
-export const favoriteRoutes = {
-  get: () => read<StoredRoute[]>(FAVORITES_KEY, []),
-  has: (route: StoredRoute) => favoriteRoutes.get().some((r) => sameRoute(r, route)),
-  toggle(route: StoredRoute) {
-    const current = favoriteRoutes.get()
-    const next = current.some((r) => sameRoute(r, route)) ? current.filter((r) => !sameRoute(r, route)) : [route, ...current]
-    write(FAVORITES_KEY, next)
-    return next.some((r) => sameRoute(r, route))
-  },
 }
 
 export const hideSlowTrainsPreference = {

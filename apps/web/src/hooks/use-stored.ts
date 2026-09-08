@@ -1,6 +1,5 @@
-import { useCallback, useSyncExternalStore } from "react"
+import { useSyncExternalStore } from "react"
 import {
-  favoriteRoutes,
   recentRoutes,
   hideSlowTrainsPreference,
   routePlan,
@@ -11,7 +10,6 @@ import {
 
 const EMPTY: StoredRoute[] = []
 let recentCache: { raw: string; value: StoredRoute[] } | null = null
-let favoritesCache: { raw: string; value: StoredRoute[] } | null = null
 
 /** Memoises by serialised value so `useSyncExternalStore` receives a stable reference. */
 function stable(cache: typeof recentCache, next: StoredRoute[]) {
@@ -26,22 +24,6 @@ export function useRecentRoutes(): StoredRoute[] {
     () => (recentCache = stable(recentCache, recentRoutes.get())).value,
     () => EMPTY,
   )
-}
-
-export function useFavoriteRoutes(): StoredRoute[] {
-  return useSyncExternalStore(
-    subscribeToStorage,
-    () => (favoritesCache = stable(favoritesCache, favoriteRoutes.get())).value,
-    () => EMPTY,
-  )
-}
-
-export function useIsFavorite(route: StoredRoute): [boolean, () => void] {
-  const favorites = useFavoriteRoutes()
-  const isFavorite = favorites.some((r) => r.originId === route.originId && r.destinationId === route.destinationId)
-  const { originId, destinationId } = route
-  const toggle = useCallback(() => favoriteRoutes.toggle({ originId, destinationId }), [originId, destinationId])
-  return [isFavorite, toggle]
 }
 
 export function useHideSlowTrains(): [boolean, (value: boolean) => void] {

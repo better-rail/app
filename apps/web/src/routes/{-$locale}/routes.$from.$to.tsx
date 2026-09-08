@@ -1,7 +1,7 @@
 import { createFileRoute, notFound, useElementScrollRestoration, useRouter, useRouterState } from "@tanstack/react-router"
 import { useQueries, useQuery, type QueryClient, type UseQueryResult } from "@tanstack/react-query"
 import { useEffect, useRef, useState } from "react"
-import { ArrowLeft, ArrowRight, CalendarDays, ChevronDown, CloudOff, Loader2, Star, TrainFront } from "lucide-react"
+import { ArrowLeft, ArrowRight, CalendarDays, ChevronDown, CloudOff, Loader2, TrainFront } from "lucide-react"
 import { Planner } from "@/components/planner/planner"
 import { RouteList } from "@/components/routes/route-list"
 import { RouteDetails } from "@/components/routes/route-details"
@@ -13,7 +13,7 @@ import { summarizeRoutes, isDifferentHour, type RouteSummary } from "@/lib/api/r
 import type { RouteItem, RoutesResult, RoutesSearch } from "@/lib/api/types"
 import { heroImagePath, routeSeoText, tripFacts, type TripFacts } from "@/lib/route-seo"
 import { requestOrigin } from "@/lib/request-origin"
-import { useHideSlowTrains, useIsFavorite } from "@/hooks/use-stored"
+import { useHideSlowTrains } from "@/hooks/use-stored"
 import { useNow } from "@/hooks/use-now"
 import { useScrollMemory } from "@/hooks/use-scroll-memory"
 import {
@@ -261,7 +261,6 @@ function RoutesPage() {
   const router = useRouter()
   const now = useNow(data.now)
   const [hideSlowTrains, setHideSlowTrains] = useHideSlowTrains()
-  const [isFavorite, toggleFavorite] = useIsFavorite({ originId: origin.id, destinationId: destination.id })
   const href = useRouterState({ select: (s) => s.location.href })
 
   const baseSearch = { originId: origin.id, destinationId: destination.id, date: data.date, hour: data.hour }
@@ -468,32 +467,11 @@ function RoutesPage() {
 
   return (
     <div ref={pageRef} className="flex flex-1 flex-col">
-      {/* Hero: the origin station photo, like the app's route header */}
+      {/* Hero: the origin station photo, like the app's route header. The toolbar right under it names the stations,
+          so the heading is for the document outline only. */}
       <div className="relative h-44 overflow-hidden bg-surface-3 sm:h-52 lg:h-56">
         <StationImage station={origin} priority sizes="100vw" className="absolute inset-0" />
-        <div
-          className="absolute inset-0 bg-[linear-gradient(to_bottom,rgb(0_0_0/0.55),rgb(0_0_0/0.2)_45%,rgb(0_0_0/0.6))]"
-          aria-hidden="true"
-        />
-        <div className="container-page relative flex h-full flex-col justify-end pb-11 pt-4 text-white">
-          <div className="flex items-end justify-between gap-4">
-            <h1 className="text-balance text-2xl font-bold leading-tight tracking-tight drop-shadow-[0_1px_3px_rgb(0_0_0/0.7)] sm:text-4xl">
-              {from}
-              <Arrow className="mx-2 inline size-6 opacity-80 sm:size-8" />
-              {to}
-            </h1>
-            <button
-              type="button"
-              onClick={toggleFavorite}
-              aria-pressed={isFavorite}
-              aria-label={isFavorite ? t("routes.unfavorite") : t("routes.favorite")}
-              title={isFavorite ? t("routes.unfavorite") : t("routes.favorite")}
-              className="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-white/15 backdrop-blur-sm transition-colors hover:bg-white/25 active:scale-95"
-            >
-              <Star className={cn("size-5 transition-transform", isFavorite && "fill-yellow-300 text-yellow-300 scale-110")} />
-            </button>
-          </div>
-        </div>
+        <h1 className="sr-only">{t("routes.summaryTitle", { from, to })}</h1>
       </div>
 
       {/* Toolbar: overlaps the hero, then pins just below the site header (h-16) once the hero scrolls away */}
