@@ -3,7 +3,7 @@ import express from "express"
 import { router } from "./routes/api"
 import { applySchema, getActiveFeed } from "./db"
 import { isRailApiConfigured } from "./requests/rail-api"
-import { env, port, railDataSource, siriPollerMode } from "./data/config"
+import { env, port, railDataSource, ridesEnabled, siriPollerMode } from "./data/config"
 import { connectToRedis } from "./data/redis"
 import { connectToApn } from "./utils/apn-utils"
 import { connectToFcm } from "./utils/fcm-utils"
@@ -41,7 +41,10 @@ app.listen(port, async () => {
     }
   }
 
-  scheduleExistingRides()
+  // Off unless this is the deployed service — a local run must never pick up
+  // (and reschedule, or delete) the rides of real passengers. See data/config.ts.
+  if (ridesEnabled) scheduleExistingRides()
+  else logger.warn(logNames.server.ridesDisabled)
 
   // The SIRI poller normally runs as its own Railway service (`bun run siri`);
   // this fallback hosts it here when the MOT-registered egress IP is ours.

@@ -16,6 +16,28 @@ export const appleApnHost = process.env.APN_ENV === "production" ? Host.producti
 export const firebaseAdminAuth = JSON.parse(process.env.FIREBASE_ADMIN_AUTH || "{}")
 
 /**
+ * Whether this process tracks rides.
+ *
+ * Rides are shared state: the redis `rides:*` hashes and real users' push tokens.
+ * A process that starts with tracking on picks up every active ride at boot
+ * (`scheduleExistingRides`), schedules a second set of notifications for each and
+ * deletes the ones it can't reschedule — so a local run pointed at the production
+ * redis would push duplicates to real passengers and end their Live Activities.
+ *
+ * It's therefore opt-in: RIDES_ENABLED decides, and when it's unset the fallback is
+ * "are we the deployed service?" — Railway injects RAILWAY_ENVIRONMENT_NAME/_ID into
+ * every runtime container, and nothing sets them on a laptop. Set RIDES_ENABLED=true
+ * on the deployment anyway, so tracking never hinges on Railway's variable names.
+ *
+ * With it off the boot reschedule is skipped and `/api/v1/ride/*` answers 503, so the
+ * process never reads or writes ride state at all.
+ */
+const isDeployedService = Boolean(
+  process.env.RAILWAY_ENVIRONMENT_NAME || process.env.RAILWAY_ENVIRONMENT_ID || process.env.RAILWAY_ENVIRONMENT,
+)
+export const ridesEnabled = process.env.RIDES_ENABLED ? process.env.RIDES_ENABLED === "true" : isDeployedService
+
+/**
  * Where timetable data comes from.
  *
  * - "gtfs" (default) — the Ministry of Transport GTFS feed ingested into Postgres,
