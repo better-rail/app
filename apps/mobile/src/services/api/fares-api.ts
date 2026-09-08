@@ -2,6 +2,9 @@ import axios, { AxiosInstance, AxiosResponse, isAxiosError } from "axios"
 import { API_CONFIG } from "@/config/api-config"
 import type { FareProfile, FareProfilesResult, RouteFare } from "./fares-api.types"
 
+/** True when the request never reached the server (offline, DNS, timeout) rather than the server answering with an error. */
+export const isConnectionError = (error: unknown) => isAxiosError(error) && !error.response
+
 export class FaresApi {
   axiosInstance: AxiosInstance
 

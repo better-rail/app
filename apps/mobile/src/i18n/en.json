@@ -222,6 +222,7 @@
     "free": "Free",
     "monthlyOnlyDiscount": "The discount for this profile applies to the monthly pass only.",
     "unavailable": "Fares aren't available right now.",
+    "connectionError": "Couldn't reach the server. Check your connection and try again.",
     "noFareForRoute": "No fare found for this route."
   },
   "modals": {

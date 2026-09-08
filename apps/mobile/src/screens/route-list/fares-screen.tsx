@@ -1,4 +1,4 @@
-import { ActivityIndicator, Platform, View } from "react-native"
+import { ActivityIndicator, Platform, Pressable, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { useLocalSearchParams } from "expo-router"
 import { useQuery } from "react-query"
@@ -9,7 +9,7 @@ import { useMountEffect } from "@/hooks/use-mount-effect"
 import { translate, userLocale } from "@/i18n"
 import { useSettingsStore } from "@/models"
 import { SETTING_GROUP, settingsBorderRadius } from "@/screens/settings/settings-styles"
-import { faresApi } from "@/services/api"
+import { faresApi, isConnectionError } from "@/services/api"
 import type { FareProfile } from "@/services/api"
 import { trackEvent } from "@/services/analytics"
 import {
@@ -61,6 +61,15 @@ export function FaresScreen() {
   const passengerProfileLabel = translate("profileCodes.passengerProfile") ?? undefined
   const isLoading = fare.isLoading || profiles.isLoading
   const isUnavailable = fare.isError || profiles.isError
+  // A failed request means one of two different things to the user: the phone couldn't
+  // reach us at all, or the server has no tariff to serve. Only the first is worth retrying.
+  const offline = isConnectionError(fare.error ?? profiles.error)
+
+  const retry = () => {
+    HapticFeedback.trigger("impactLight")
+    if (fare.isError) fare.refetch()
+    if (profiles.isError) profiles.refetch()
+  }
   const note = selectedProfile ? profileNote(selectedProfile, userLocale) : null
   const monthlyOnly = selectedProfile ? hasMonthlyOnlyDiscount(selectedProfile) : false
 
@@ -99,7 +108,14 @@ export function FaresScreen() {
       {isLoading ? (
         <ActivityIndicator size="large" color="grey" style={styles.loader} />
       ) : isUnavailable ? (
-        <Text style={styles.message} tx="fares.unavailable" />
+        <View>
+          <Text style={styles.message} tx={offline ? "fares.connectionError" : "fares.unavailable"} />
+          {offline && (
+            <Pressable onPress={retry} accessibilityRole="button" hitSlop={12}>
+              <Text style={styles.retry} tx="common.tryAgain" />
+            </Pressable>
+          )}
+        </View>
       ) : !fare.data ? (
         <Text style={styles.message} tx="fares.noFareForRoute" />
       ) : (
@@ -225,6 +241,13 @@ const styles = StyleSheet.create((theme) => ({
     textAlign: "center",
     marginVertical: theme.spacing[5],
     color: theme.colors.dim,
+  },
+  retry: {
+    textAlign: "center",
+    marginTop: -theme.spacing[3],
+    marginBottom: theme.spacing[4],
+    fontWeight: "500",
+    color: theme.colors.primary,
   },
   priceRow: {
     flexDirection: "row",
