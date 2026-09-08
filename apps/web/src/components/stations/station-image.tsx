@@ -18,10 +18,11 @@ export function StationImage({
   const large = stationImage(station, 1280)
 
   if (!thumb || !small || !large) {
+    // A `span`: the card variant of the station picker renders this inside a `<button>`.
     return (
-      <div
+      <span
         className={cn(
-          "bg-[linear-gradient(135deg,var(--color-secondary-soft),#ffd9c2)] dark:bg-[linear-gradient(135deg,#464552,#6f68df)]",
+          "block bg-[linear-gradient(135deg,var(--color-secondary-soft),#ffd9c2)] dark:bg-[linear-gradient(135deg,#464552,#6f68df)]",
           className,
         )}
         aria-hidden="true"
