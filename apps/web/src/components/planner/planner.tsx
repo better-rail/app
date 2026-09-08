@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { useNavigate } from "@tanstack/react-router"
-import { Search } from "lucide-react"
+import { Loader2, Search } from "lucide-react"
 import type { Station } from "@/data/stations"
 import { useT } from "@/i18n"
 import { cn } from "@/lib/cn"
@@ -50,6 +50,8 @@ export function Planner({
   const now = formatClock(nowNaive)
   const [value, setValue] = useState<PlannerValue>(initial ?? {})
   const [swapping, setSwapping] = useState(false)
+  /** The hero form has been sent and the results page is still loading — the button says so and locks meanwhile. */
+  const [submitting, setSubmitting] = useState(false)
   const [dirty, setDirty] = useState(false)
   const swapTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const autoNavigate = variant === "bar"
@@ -80,7 +82,8 @@ export function Planner({
       recentRoutes.add({ originId: next.origin.id, destinationId: next.destination.id })
       trackEvent("route_search", { origin: next.origin.id, destination: next.destination.id, variant })
     }
-    navigate({
+    // Settles once the results page has loaded: the router keeps this page on screen until then.
+    return navigate({
       to: "/{-$locale}/routes/$from/$to",
       params: { locale, from: next.origin.id, to: next.destination.id },
       search: (prev: Record<string, unknown>) => ({
@@ -157,7 +160,12 @@ export function Planner({
       className={cn("card flex flex-col gap-4 p-4 sm:p-6", className)}
       onSubmit={(event) => {
         event.preventDefault()
-        go(value)
+        if (submitting) return
+        const navigation = go(value)
+        if (!navigation) return
+        setSubmitting(true)
+        // The planner is normally gone by the time this settles; if the page is still here, the button is given back.
+        navigation.finally(() => setSubmitting(false))
       }}
       aria-label={t("plan.title")}
     >
@@ -203,12 +211,13 @@ export function Planner({
         </div>
         <button
           type="submit"
-          disabled={!ready}
-          className="btn-primary h-14 w-full text-[17px] lg:w-72"
+          disabled={!ready || submitting}
+          aria-busy={submitting}
+          className={cn("btn-primary h-14 w-full text-[17px] lg:w-72", submitting && "disabled:opacity-85")}
           title={sameStation ? t("plan.sameStations") : undefined}
         >
-          <Search className="size-5" />
-          {t("plan.find")}
+          {submitting ? <Loader2 className="size-5 animate-spin" aria-hidden="true" /> : <Search className="size-5" />}
+          {submitting ? t("routes.loading") : t("plan.find")}
         </button>
       </div>
       {sameStation && (
