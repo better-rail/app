@@ -89,3 +89,7 @@ web-build/
 !/apps/mobile/android-native/res/drawable-*/assets_railwaystation.*
 /apps/mobile/android-native/res/drawable-*/node_modules_*
 /apps/mobile/android-native/res/raw/assets_*
+
+# Server database artifacts are unrelated to mobile builds and may contain
+# developer-local data.
+/apps/server/db
