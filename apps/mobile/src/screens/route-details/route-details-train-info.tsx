@@ -120,7 +120,10 @@ export function RouteDetailsTrainInfo() {
   const wagonCount = train.visaWagonData?.totkr
 
   return (
-    <View style={[styles.root, { paddingBottom: Platform.select({ ios: 0, android: insets.bottom + 8 }) }]}>
+    <View
+      testID="train-info-screen"
+      style={[styles.root, { paddingBottom: Platform.select({ ios: 0, android: insets.bottom + 8 }) }]}
+    >
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}>
           {train.trainNumber} {translate("common.toStationName", { stationName: train.lastStop })}

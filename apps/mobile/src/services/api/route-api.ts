@@ -5,6 +5,8 @@ import { RailApiGetRoutesResult } from "./rail-api.types"
 import { formatRouteDuration, isOneHourDifference, routeDurationInMs } from "@/utils/helpers/date-helpers"
 import { RouteItem } from "."
 import { getHours, parse, isSameDay, addDays } from "date-fns"
+import { IS_E2E } from "@/config/e2e"
+import { getE2ERoutes } from "./e2e-route-fixtures"
 
 export class RouteApi {
   private api = railApi
@@ -17,6 +19,10 @@ export class RouteApi {
     options: { hideSlowTrains?: boolean } = {},
   ): Promise<RouteItem[]> {
     if (!originId || !destinationId) throw new Error("Missing origin / destination data")
+
+    if (IS_E2E) {
+      return getE2ERoutes(originId, destinationId, date, hour, options)
+    }
 
     try {
       const requestBody = {

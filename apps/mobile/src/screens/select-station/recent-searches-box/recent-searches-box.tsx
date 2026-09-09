@@ -67,6 +67,7 @@ export function RecentSearchesBox(props: RecentSearchesBoxProps) {
 
           return (
             <StationSearchEntry
+              testID={`recent-station-${entry.id}`}
               name={stationsObject[entry.id][stationLocale]}
               image={stationsObject[entry.id].image}
               onPress={() => onStationPress(entry)}

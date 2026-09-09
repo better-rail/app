@@ -1,0 +1,111 @@
+appId: ${MAESTRO_APP_ID}
+name: Route filters
+tags:
+  - core
+  - routes
+---
+- runFlow: ../subflows/launch-clean.yaml
+- runFlow: ../subflows/select-stations.yaml
+- tapOn:
+    id: "find-routes-button"
+- extendedWaitUntil:
+    visible:
+      id: "route-card-direct"
+    timeout: 30000
+- assertVisible:
+    id: "route-card-exchange"
+
+- assertVisible:
+    id: "route-filter-button-inactive"
+- tapOn:
+    id: "route-filter-button-inactive"
+- assertVisible:
+    id: "route-filter-screen"
+
+# The max-changes filter is local, so this specifically exercises
+# filterRouteDataByMaxChanges without triggering a refetch.
+- tapOn:
+    id: "filter-changes-0"
+- assertVisible:
+    id: "filter-changes-0-selected"
+
+# Dismiss the native form sheet using each platform's standard interaction.
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - back
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - swipe:
+          start: 50%, 20%
+          end: 50%, 90%
+          duration: 800
+
+- extendedWaitUntil:
+    visible:
+      id: "route-filter-button-active"
+    timeout: 10000
+- assertVisible:
+    id: "route-card-direct"
+- extendedWaitUntil:
+    notVisible:
+      id: "route-card-exchange"
+    timeout: 10000
+
+# Reset the local filter and verify the exchange route returns.
+- tapOn:
+    id: "route-filter-button-active"
+- tapOn:
+    id: "filter-changes-any"
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - back
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - swipe:
+          start: 50%, 20%
+          end: 50%, 90%
+          duration: 800
+- extendedWaitUntil:
+    visible:
+      id: "route-card-exchange"
+    timeout: 10000
+
+# hideSlowTrains is server-side in production; the E2E API fixture must honor
+# the forwarded option for this assertion to pass.
+- tapOn:
+    id: "route-filter-button-inactive"
+- assertVisible:
+    id: "filter-hide-slow-trains-off"
+- tapOn:
+    id: "filter-hide-slow-trains-off"
+- assertVisible:
+    id: "filter-hide-slow-trains-on"
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - back
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - swipe:
+          start: 50%, 20%
+          end: 50%, 90%
+          duration: 800
+- extendedWaitUntil:
+    visible:
+      id: "route-card-direct"
+    timeout: 10000
+- extendedWaitUntil:
+    notVisible:
+      id: "route-card-exchange"
+    timeout: 10000

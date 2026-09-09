@@ -11,6 +11,7 @@ import prompt from "react-native-prompt-android"
 import { useShallow } from "zustand/react/shallow"
 import { useFavoritesStore } from "@/models"
 import { ContextMenu } from "@/components/context-menu/context-menu"
+import { IS_E2E } from "@/config/e2e"
 
 const borderRadius = Platform.select({ ios: 10, android: 6 })
 
@@ -63,6 +64,7 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
 
   return (
     <ContextMenu
+      disabled={IS_E2E}
       actions={[
         {
           title: label ? translate("favorites.changeLabel") : translate("favorites.addLabel"),
@@ -80,6 +82,7 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
       style={styles.contextMenu}
     >
       <TouchableScale
+        testID={`favorite-route-${id}`}
         style={style}
         activeScale={0.96}
         friction={8}

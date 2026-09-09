@@ -53,7 +53,13 @@ export function SelectStationScreen() {
   )
 
   return (
-    <Screen style={styles.root} preset="fixed" unsafe={true} statusBarBackgroundColor={isDarkMode ? "#1c1c1e" : "#f2f2f7"}>
+    <Screen
+      testID="select-station-screen"
+      style={styles.root}
+      preset="fixed"
+      unsafe={true}
+      statusBarBackgroundColor={isDarkMode ? "#1c1c1e" : "#f2f2f7"}
+    >
       <View
         style={[
           styles.searchBarWrapper,
@@ -61,7 +67,7 @@ export function SelectStationScreen() {
         ]}
       >
         <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} autoFocus={favoriteRoutesData.length < 2} />
-        <Pressable onPress={() => router.back()}>
+        <Pressable testID="cancel-station-selection" onPress={() => router.back()}>
           <Text style={styles.cancelLink} tx="common.cancel" />
         </Pressable>
       </View>

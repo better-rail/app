@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import LinearGradient from "react-native-linear-gradient"
 import { color, spacing } from "@/theme"
 import { StarIcon } from "@/components/star-icon/star-icon"
+import { IS_E2E } from "@/config/e2e"
 import { FilterIcon } from "@/components/filter-icon/filter-icon"
 import { MenuIcon } from "@/components/menu-icon/menu-icon"
 import HapticFeedback from "react-native-haptic-feedback"
@@ -187,7 +188,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     const handleFavoritePress = () => {
       const favorite = { id: routeId, originId, destinationId }
       if (!isFavorite) {
-        Burnt.alert({ title: translate("favorites.added"), duration: 1.5 })
+        if (!IS_E2E) Burnt.alert({ title: translate("favorites.added"), duration: 1.5 })
         HapticFeedback.trigger("impactMedium")
         addFavorite(favorite)
         trackEvent("favorite_route_added")

@@ -38,6 +38,10 @@ The first run generates the native projects and may take a while.
 
 If you want to contribute and face issues during installation, please reach out to us at feedback@better-rail.co.il and we'll try to help!
 
+### End-to-end tests
+
+The cross-platform Maestro suite and CI instructions live in [`.maestro/README.md`](.maestro/README.md).
+
 ### License
 
 The source code is released under the [AGPL-3.0 license](https://github.com/guytepper/better-rail/blob/main/LICENSE).  

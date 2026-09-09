@@ -7,6 +7,9 @@ export interface ScreenProps {
    */
   children?: React.ReactNode
 
+  /** Stable accessibility identifier used by end-to-end tests. */
+  testID?: string
+
   /**
    * An optional style override useful for padding & margin.
    */

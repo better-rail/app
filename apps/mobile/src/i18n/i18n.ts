@@ -4,6 +4,7 @@ import { setAnalyticsUserProperty } from "@/services/analytics"
 import { setStationLocale } from "@/data/stations"
 import Preferences from "react-native-default-preference"
 import * as storage from "@/utils/storage"
+import { IS_E2E } from "@/config/e2e"
 
 import * as Localization from "expo-localization"
 import i18n from "i18n-js"
@@ -35,6 +36,8 @@ export const deviceLocale = Localization.getLocales()[0].languageCode
 setAnalyticsUserProperty("device_locale", deviceLocale)
 
 export function getInitialLanguage(): LanguageCode {
+  if (IS_E2E) return "en"
+
   if (deviceLocale.startsWith("he")) {
     return "he"
   } else if (deviceLocale.startsWith("ar")) {
