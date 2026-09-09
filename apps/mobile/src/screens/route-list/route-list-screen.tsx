@@ -133,6 +133,10 @@ export function RouteListScreen() {
 
   const [routeData, setRouteData] = useState<RouteData[]>([])
 
+  // Track which stations the current routeData belongs to, so we can replace in-place
+  // when stations change without unmounting the FlashList mid-transition.
+  const [routeDataStations, setRouteDataStations] = useState<{ originId: string; destinationId: string } | null>(null)
+
   // Track the current date and the next day being loaded
   const [currentDate, setCurrentDate] = useState<Date>(new Date(time))
   const [nextDayDate, setNextDayDate] = useState<Date>(() => {
@@ -146,7 +150,9 @@ export function RouteListScreen() {
   const [loadedDates, setLoadedDates] = useState<Set<string>>(new Set())
 
   useEffect(() => {
-    setRouteData([])
+    // Do NOT clear routeData here — clearing it unmounts the FlashList mid-transition,
+    // which causes a Fabric crash on Android (react-native-screens#3249).
+    // New data will replace routeData in-place once the query succeeds.
     setLoadedDates(new Set())
   }, [originId, destinationId])
 
@@ -276,13 +282,24 @@ export function RouteListScreen() {
       // Create a new date string for the current date
       const dateString = currentDate.toDateString()
 
-      // Organize routes by date
+      const stationsChanged =
+        routeDataStations === null ||
+        routeDataStations.originId !== originId ||
+        routeDataStations.destinationId !== destinationId
+
+      // Organize routes by date; replace in-place when stations changed so the
+      // FlashList is never torn down (avoids Fabric crash on Android).
       setRouteData((prevData) => {
-        const newData = organizeRoutesByDate(trains.data, dateString, prevData)
+        const baseData = stationsChanged ? [] : prevData
+        const newData = organizeRoutesByDate(trains.data, dateString, baseData)
         return newData
       })
+
+      if (stationsChanged) {
+        setRouteDataStations({ originId, destinationId })
+      }
     }
-  }, [trains.data, currentDate, trains.isSuccess, trains.isLoading, updateResultType])
+  }, [trains.data, currentDate, trains.isSuccess, trains.isLoading, updateResultType, originId, destinationId, routeDataStations])
 
   // Filtered on loaded data so switching never refetches
   const displayData = useMemo(() => filterRouteDataByMaxChanges(routeData, maxChanges), [routeData, maxChanges])
@@ -292,6 +309,7 @@ export function RouteListScreen() {
   useEffect(() => {
     const initialDate = new Date(time).toDateString()
     setRouteData([])
+    setRouteDataStations(null)
     setLoadedDates(new Set([initialDate]))
 
     // Also make sure the current and next day dates are properly set
