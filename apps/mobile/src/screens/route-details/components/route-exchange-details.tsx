@@ -36,7 +36,8 @@ type RouteExchangeProps = {
 export const RouteExchangeDetails = (props: RouteExchangeProps) => {
   const { stationName, arrivalPlatform, departurePlatform, firstTrain, secondTrain, style } = props
   const router = useRouter()
-  const isRideInProgress = useRideStore((s) => !!s.id)
+  const isRideInProgress = useRideStore((s) => s.loading || !!s.id)
+  const alternatives = alternativeChangeStations(firstTrain, secondTrain)
 
   const onChangeStationPress = () => {
     if (isRideInProgress) {
@@ -45,8 +46,7 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
     }
     HapticFeedback.trigger("impactLight")
     trackEvent("change_station_btn_press")
-    const stationIds = alternativeChangeStations(firstTrain, secondTrain).join(",")
-    router.push({ pathname: "/select-station", params: { selectionType: "via", stationIds } })
+    router.push({ pathname: "/select-station", params: { selectionType: "via", stationIds: alternatives.join(",") } })
   }
 
   const platformDetailText = (() => {
@@ -79,7 +79,8 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
 
   return (
     <View style={[styles.wrapper, style]}>
-      {DISPLAY_EXCHANGE_ICON && (
+      {DISPLAY_EXCHANGE_ICON && alternatives.length === 0 && <ChangeDirectionButton buttonStyle={styles.icon} />}
+      {DISPLAY_EXCHANGE_ICON && alternatives.length > 0 && (
         <ChangeDirectionButton
           testID="change-station-button"
           buttonStyle={styles.icon}

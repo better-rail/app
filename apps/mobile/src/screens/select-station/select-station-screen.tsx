@@ -65,10 +65,11 @@ export function SelectStationScreen() {
       image={station.image}
       style={styles.stationCard}
       onPress={() => {
-        saveRecentSearch({ id: station.id })
         if (selectionType === "origin") {
+          saveRecentSearch({ id: station.id })
           setOrigin(station)
         } else if (selectionType === "destination") {
+          saveRecentSearch({ id: station.id })
           setDestination(station)
         } else if (selectionType === "via") {
           pickChangeStation(station.id)

@@ -720,14 +720,15 @@ const planVia = (
   for (const first of toVia) {
     const last = first[first.length - 1]
     const lastTrip = allTrips.get(last.tripKey)!
-    const arrAtVia = lastTrip.stops[last.alightIndex].arrTs
+    const off = lastTrip.stops[last.alightIndex]
+    const arrAtVia = off.arrTs
 
     let best: Leg[] | null = null
     let bestArr = Infinity
     for (const next of onward) {
       const board = allTrips.get(next[0].tripKey)!.stops[next[0].boardIndex]
       const stayingAboard = next[0].tripKey === last.tripKey && next[0].boardIndex === last.alightIndex
-      if (!stayingAboard && displayTs(board) < arrAtVia + CONNECTION_LIMITS.minAt(viaStation, false)) continue
+      if (!stayingAboard && displayTs(board) < arrAtVia + CONNECTION_LIMITS.minAt(viaStation, stayingPut(off, board))) continue
       const arr = journeyArrivalTs(allTrips, next)
       if (arr < bestArr) {
         bestArr = arr

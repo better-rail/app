@@ -208,5 +208,10 @@ export function getE2ERoutes(
     ),
   ].sort((a, b) => a.departureTime - b.departureTime)
 
-  return options.hideSlowTrains ? routes.filter((route) => !route.isMuchLonger) : routes
+  const viaStation = options.viaStation ? Number(options.viaStation) : undefined
+  return routes.filter((route) => {
+    if (options.hideSlowTrains && route.isMuchLonger) return false
+    if (viaStation === undefined) return true
+    return route.trains.slice(0, -1).some((t) => t.destinationStationId === viaStation)
+  })
 }

@@ -1640,6 +1640,29 @@ describe("viaStation", () => {
     expect(travels[0].trains[0].stopStations.map((s: { stationId: number }) => s.stationId)).toEqual([3500])
   })
 
+  it("allows a four-minute same-platform connection at the via station", () => {
+    const tight = table(
+      trip("in", 401, [
+        [3700, "08:00", 1],
+        [3500, "08:25", 2],
+      ]),
+      trip("same-platform", 402, [
+        [3500, "08:29", 2],
+        [3400, "08:50", 1],
+      ]),
+      trip("other-platform", 403, [
+        [3500, "08:29", 3],
+        [3400, "08:55", 1],
+      ]),
+      trip("later", 404, [
+        [3500, "08:40", 3],
+        [3400, "09:10", 1],
+      ]),
+    )
+    const travels = planTravels(tight, 3700, 3400, ts("07:00"), Infinity, undefined, { viaStation: 3500 })
+    expect(travels.map((t) => t.trains.map((tr) => tr.trainNumber))).toEqual([[401, 402]])
+  })
+
   it("ignores a via station that is the origin or the destination", () => {
     const travels = planTravels(trips, 3700, 3400, ts("07:00"), Infinity, undefined, { viaStation: 3700 })
     expect(travels.map((t) => t.trains[0].trainNumber)).toContain(101)
