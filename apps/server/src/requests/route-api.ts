@@ -14,6 +14,7 @@ export class RouteApi {
     destinationId: number,
     departureDate: string | Date,
     locale: LanguageCode,
+    options: { viaStation?: number } = {},
   ): Promise<RouteItem[]> {
     if (!originId || !destinationId) throw new Error("Missing origin / destination data")
 
@@ -25,7 +26,7 @@ export class RouteApi {
     const response =
       railDataSource === "rail"
         ? await searchTrainOnRailApi(originId, destinationId, date, hour, "ByDeparture", locale)
-        : await searchTrain(originId, destinationId, date, hour, "ByDeparture")
+        : await searchTrain(originId, destinationId, date, hour, "ByDeparture", { viaStation: options.viaStation })
 
     if (!response?.result) {
       throw new Error("Error fetching results")

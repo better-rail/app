@@ -1,11 +1,16 @@
 import React from "react"
-import { View, Image, ViewStyle, Dimensions } from "react-native"
+import { View, Image, ViewStyle, Dimensions, Alert } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text, ChangeDirectionButton } from "@/components"
 import { color, spacing, fontScale } from "@/theme"
 import { intervalToDuration, formatDuration, addMinutes, millisecondsToMinutes, milliseconds, Duration } from "date-fns"
 import { dateFnsLocalization, translate } from "@/i18n"
 import { Train } from "@/services/api"
+import { useRouter } from "expo-router"
+import HapticFeedback from "react-native-haptic-feedback"
+import { trackEvent } from "@/services/analytics"
+import { alternativeChangeStations } from "./alternative-change-stations"
+import { useRideStore } from "@/models"
 
 const importantIcon = require("../../../../assets/important.png")
 const clockIcon = require("../../../../assets/clock.png")
@@ -30,6 +35,19 @@ type RouteExchangeProps = {
 
 export const RouteExchangeDetails = (props: RouteExchangeProps) => {
   const { stationName, arrivalPlatform, departurePlatform, firstTrain, secondTrain, style } = props
+  const router = useRouter()
+  const isRideInProgress = useRideStore((s) => !!s.id)
+
+  const onChangeStationPress = () => {
+    if (isRideInProgress) {
+      Alert.alert(translate("ride.changeStationBlockedTitle"), translate("ride.changeStationBlockedMessage"))
+      return
+    }
+    HapticFeedback.trigger("impactLight")
+    trackEvent("change_station_btn_press")
+    const stationIds = alternativeChangeStations(firstTrain, secondTrain).join(",")
+    router.push({ pathname: "/select-station", params: { selectionType: "via", stationIds } })
+  }
 
   const platformDetailText = (() => {
     if (arrivalPlatform === departurePlatform) {
@@ -50,7 +68,9 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
     return intervalToDuration({ start: arrivalTime, end: departureTime })
   })()
 
-  const exchangeDurationText = formatDuration(exchangeDuration, { locale: dateFnsLocalization })
+  const exchangeDurationText = formatDuration(exchangeDuration, {
+    locale: dateFnsLocalization,
+  })
 
   const isExchangeSafe = (() => {
     const exchangeMs = milliseconds(exchangeDuration)
@@ -59,7 +79,15 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
 
   return (
     <View style={[styles.wrapper, style]}>
-      {DISPLAY_EXCHANGE_ICON && <ChangeDirectionButton buttonStyle={styles.icon} />}
+      {DISPLAY_EXCHANGE_ICON && (
+        <ChangeDirectionButton
+          testID="change-station-button"
+          buttonStyle={styles.icon}
+          onPress={onChangeStationPress}
+          accessibilityLabel={translate("routeDetails.changeStation")}
+          accessibilityHint={translate("routeDetails.changeStationHint")}
+        />
+      )}
       <View>
         <Text style={styles.stationName}>
           {translate("routeDetails.changeAt")}
@@ -71,7 +99,12 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
             <Text style={styles.infoText}>{platformDetailText}</Text>
           </View>
           <View
-            style={[styles.infoDetailWrapper, { marginBottom: isExchangeSafe ? (fontScale > 1 ? spacing[3] : 0) : spacing[1] }]}
+            style={[
+              styles.infoDetailWrapper,
+              {
+                marginBottom: isExchangeSafe ? (fontScale > 1 ? spacing[3] : 0) : spacing[1],
+              },
+            ]}
           >
             <Image style={styles.infoIcon} source={clockIcon} />
             <Text style={styles.infoText}>

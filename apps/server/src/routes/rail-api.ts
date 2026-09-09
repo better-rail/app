@@ -22,16 +22,21 @@ const runTimetableSearch = async (
     hour: unknown
     scheduleType: unknown
     hideSlowTrains?: unknown
+    viaStation?: unknown
   },
 ) => {
   try {
+    const viaStation = Number(params.viaStation)
     const result = await searchTrain(
       Number(params.fromStation),
       Number(params.toStation),
       String(params.date),
       String(params.hour),
       toScheduleType(params.scheduleType),
-      { hideSlowTrains: toFlag(params.hideSlowTrains) },
+      {
+        hideSlowTrains: toFlag(params.hideSlowTrains),
+        viaStation: viaStation > 0 ? viaStation : undefined,
+      },
     )
     res.status(200).json(result)
   } catch (error: any) {
@@ -45,7 +50,7 @@ const runTimetableSearch = async (
 const handleSearchTrainRequest = async (req: Request, res: Response) => {
   if (railDataSource === "rail") return proxySearchTrainRequest(req, res)
 
-  const { fromStation, toStation, date, hour, scheduleType, hideSlowTrains } = req.query
+  const { fromStation, toStation, date, hour, scheduleType, hideSlowTrains, viaStation } = req.query
   await runTimetableSearch(res, {
     fromStation,
     toStation,
@@ -53,6 +58,7 @@ const handleSearchTrainRequest = async (req: Request, res: Response) => {
     hour,
     scheduleType: scheduleType === "1" ? "ByDeparture" : "ByArrival",
     hideSlowTrains,
+    viaStation,
   })
 }
 
@@ -83,8 +89,16 @@ const handleRailApiRequest = async (req: Request, res: Response) => {
   if (railDataSource === "rail") return railProxy(req, res)
 
   if (req.method === "POST" && isTimetableSearchPath(req.path)) {
-    const { fromStation, toStation, date, hour, scheduleType, hideSlowTrains } = req.body ?? {}
-    await runTimetableSearch(res, { fromStation, toStation, date, hour, scheduleType, hideSlowTrains })
+    const { fromStation, toStation, date, hour, scheduleType, hideSlowTrains, viaStation } = req.body ?? {}
+    await runTimetableSearch(res, {
+      fromStation,
+      toStation,
+      date,
+      hour,
+      scheduleType,
+      hideSlowTrains,
+      viaStation,
+    })
     return
   }
 

@@ -193,7 +193,8 @@ export const useRideStore = create<RideStore>((set, get) => ({
       const destinationId = last(route.trains).destinationStationId
       const [date, time] = formatDateForAPI(route.departureTime)
 
-      routeApi.getRoutes(originId.toString(), destinationId.toString(), date, time).then((routes) => {
+      const options = { viaStation: route.viaStationId }
+      routeApi.getRoutes(originId.toString(), destinationId.toString(), date, time, options).then((routes) => {
         const currentRouteTrains = route.trains.map((train) => train.trainNumber).join()
         const currentRoute = routes.find((r) => currentRouteTrains === r.trains.map((train) => train.trainNumber).join())
 

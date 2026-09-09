@@ -6,7 +6,9 @@ import { getSelectedRide } from "../utils/ride-utils"
 export const getRouteForRide = async (ride: Ride) => {
   try {
     const routeApi = new RouteApi()
-    const routes = await routeApi.getRoutes(ride.originId, ride.destinationId, ride.departureDate, ride.locale)
+    const routes = await routeApi.getRoutes(ride.originId, ride.destinationId, ride.departureDate, ride.locale, {
+      viaStation: ride.viaStationId,
+    })
     const selected = getSelectedRide(routes, ride)
     if (!selected) {
       throw new Error("Didn't find the requested route in response")

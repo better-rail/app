@@ -10,15 +10,19 @@ import { isDarkMode, spacing } from "@/theme"
 import { stationLocale, stationsObject } from "@/data/stations"
 import { StationSearchEntry } from "./station-search-entry"
 import { useRouter } from "expo-router"
+import type { SelectionType } from "../select-station-screen"
 
 type RecentSearchesBoxProps = {
-  selectionType: "origin" | "destination"
+  selectionType: SelectionType
 }
 
 export function RecentSearchesBox(props: RecentSearchesBoxProps) {
   const router = useRouter()
   const { setOrigin, setDestination } = useRoutePlanStore(
-    useShallow((s) => ({ setOrigin: s.setOrigin, setDestination: s.setDestination })),
+    useShallow((s) => ({
+      setOrigin: s.setOrigin,
+      setDestination: s.setDestination,
+    })),
   )
   const { entries, save, remove } = useRecentSearchesStore(
     useShallow((s) => ({ entries: s.entries, save: s.save, remove: s.remove })),
@@ -39,6 +43,7 @@ export function RecentSearchesBox(props: RecentSearchesBoxProps) {
   const onStationPress = (entry) => {
     trackEvent("recent_station_selected")
     const station = { id: entry.id, name: entry.id }
+    save({ id: station.id })
 
     if (props.selectionType === "origin") {
       setOrigin(station)
@@ -46,7 +51,6 @@ export function RecentSearchesBox(props: RecentSearchesBoxProps) {
       setDestination(station)
     }
 
-    save({ id: station.id })
     router.back()
   }
 

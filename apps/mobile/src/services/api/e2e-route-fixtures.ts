@@ -114,7 +114,10 @@ function train({
 function route(
   trains: Train[],
   duration: string,
-  flags: Pick<RouteItem, "isMuchLonger" | "isMuchShorter"> = { isMuchLonger: false, isMuchShorter: false },
+  flags: Pick<RouteItem, "isMuchLonger" | "isMuchShorter"> = {
+    isMuchLonger: false,
+    isMuchShorter: false,
+  },
 ): RouteItem {
   const departureTime = trains[0].departureTime
   const arrivalTime = trains[trains.length - 1].arrivalTime
@@ -152,7 +155,7 @@ export function getE2ERoutes(
   destinationId: string,
   date: string,
   hour: string,
-  options: { hideSlowTrains?: boolean } = {},
+  options: { hideSlowTrains?: boolean; viaStation?: string } = {},
 ): RouteItem[] {
   const origin = Number(originId)
   const destination = Number(destinationId)

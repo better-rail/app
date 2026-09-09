@@ -95,6 +95,9 @@
     "unknown": "Unknown",
     "trainNo": "Train No.",
     "changeAt": "Change at ",
+    "noRouteViaStation": "No route changes at this station",
+    "changeStation": "Change at a different station",
+    "changeStationHint": "Pick another station to change trains at",
     "platformStay": "Stay at Platform",
     "platformChange": "Switch to Platform",
     "waitingTime": "Wait around",
@@ -275,6 +278,8 @@
     }
   },
   "ride": {
+    "changeStationBlockedTitle": "Ride in progress",
+    "changeStationBlockedMessage": "Stop the ride to change where you switch trains.",
     "live": "Live",
     "startRide": "Start Ride",
     "startNewRide": "Start New Ride",

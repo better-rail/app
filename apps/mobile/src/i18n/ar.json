@@ -89,6 +89,9 @@
     "unknown": "مجهول",
     "trainNo": "قطار رقم",
     "changeAt": "تبديل في ",
+    "noRouteViaStation": "لا يوجد مسار بتبديل في هذه المحطة",
+    "changeStation": "التبديل في محطة أخرى",
+    "changeStationHint": "اختيار محطة أخرى لتبديل القطار",
     "platformStay": "الرجاء الانتظار في الرصيف",
     "platformChange": "الرجاء الانتقال الى رصيف",
     "waitingTime": "مدة الانتظار",
@@ -225,6 +228,8 @@
     }
   },
   "ride": {
+    "changeStationBlockedTitle": "الرحلة جارية",
+    "changeStationBlockedMessage": "أنهِ الرحلة لتغيير محطة التبديل.",
     "live": "Live",
     "startRide": "ابدأ الركوب",
     "stopRide": "توقف عن الركوب",
