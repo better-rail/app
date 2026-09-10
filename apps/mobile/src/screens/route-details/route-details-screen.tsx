@@ -366,7 +366,7 @@ export function RouteDetailsScreen() {
                 style={[styles.infoButton, !hasWagonData && styles.infoButtonDisabled]}
                 interactive={hasWagonData}
                 effect="regular"
-                tintColor={PlatformColor("tertiarySystemBackground")}
+                tintColor={Platform.OS === "ios" ? PlatformColor("tertiarySystemBackground") : undefined}
               >
                 <Image source={require("../../../assets/info.circle.png")} style={styles.infoButtonIcon} />
               </LiquidGlassView>
@@ -401,8 +401,13 @@ const styles = StyleSheet.create((theme, rt) => ({
     justifyContent: "center",
     borderRadius: Platform.select({ ios: 16, android: 6 }),
     borderCurve: "continuous",
-    backgroundColor: isLiquidGlassSupported ? undefined : theme.colors.tertiaryBackground,
-    elevation: 1,
+    // Android's tertiaryBackground is the screen background — inputBackground is the raised one.
+    backgroundColor: isLiquidGlassSupported
+      ? undefined
+      : Platform.OS === "android"
+        ? theme.colors.inputBackground
+        : theme.colors.tertiaryBackground,
+    elevation: 3,
   },
   infoButtonDisabled: {
     opacity: 0.5,
