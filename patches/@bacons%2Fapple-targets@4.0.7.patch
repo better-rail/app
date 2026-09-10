@@ -1,0 +1,48 @@
+diff --git a/node_modules/@bacons/apple-targets/.bun-tag-b807bbf54acf1255 b/.bun-tag-b807bbf54acf1255
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/build/with-xcode-changes.js b/build/with-xcode-changes.js
+index 343bcb93acde6926388ad54e309922d4962c2a38..320cb187ea7fba874d7de6451f6d69d5f04fa6ae 100644
+--- a/build/with-xcode-changes.js
++++ b/build/with-xcode-changes.js
+@@ -207,23 +207,29 @@ async function applyXcodeChanges(config, project, props) {
+         }
+     }
+     if (targetToUpdate) {
+-        // Remove existing build phases
+-        targetToUpdate.props.buildConfigurationList.props.buildConfigurations.forEach((config) => {
++        // Hold onto the old list: the target is one of its own referrers, so the
++        // removeReference() calls below clear targetToUpdate.props.buildConfigurationList
++        // out from under us.
++        const staleConfigurationList = targetToUpdate.props.buildConfigurationList;
++        // Swap in the replacement *before* tearing down the old list. Building it can walk
++        // every target in the project (a watch app looks up the main app target, which
++        // calls getDefaultConfiguration() on each), so this target must never be left
++        // without a configuration list while that runs.
++        targetToUpdate.props.buildConfigurationList =
++            (0, configuration_list_1.createConfigurationListForType)(project, props);
++        // Remove the old build configurations. Copy the array first -- removeReference()
++        // splices entries out of it, which would make forEach skip every other one.
++        [...staleConfigurationList.props.buildConfigurations].forEach((config) => {
+             config.getReferrers().forEach((ref) => {
+                 ref.removeReference(config.uuid);
+             });
+             config.removeFromProject();
+         });
+-        // Remove existing build configuration list
+-        targetToUpdate.props.buildConfigurationList
+-            .getReferrers()
+-            .forEach((ref) => {
+-            ref.removeReference(targetToUpdate.props.buildConfigurationList.uuid);
++        // Remove the old build configuration list
++        staleConfigurationList.getReferrers().forEach((ref) => {
++            ref.removeReference(staleConfigurationList.uuid);
+         });
+-        targetToUpdate.props.buildConfigurationList.removeFromProject();
+-        // Create new build phases
+-        targetToUpdate.props.buildConfigurationList =
+-            (0, configuration_list_1.createConfigurationListForType)(project, props);
++        staleConfigurationList.removeFromProject();
+     }
+     else {
+         const productType = (0, target_1.productTypeForType)(props.type);
