@@ -16,7 +16,9 @@ import {
   AIRPORT_ICON,
   CITY_BOXES,
   type CityBox,
+  EXTRA_TERMINALS,
   IRREGULAR_STRETCHES,
+  LINE_EXTRAS,
   LINE_GEOMETRY,
   type LabelSide,
   MAP_BOUNDS,
@@ -32,11 +34,12 @@ export type Point = { x: number; y: number }
 /** Stroke width of a line (10.5 px). */
 export const LINE_STROKE = 1.15
 /**
- * Every line is drawn on a ground-coloured casing as wide as the lane pitch
- * (13 px), which keeps the thin gap between parallel lanes and outlines a
- * line where it crosses over another, as the original does.
+ * Every line is drawn on a ground-coloured casing (15.5 px): it keeps the
+ * gap between parallel lanes (13 px apart, so the casing just reaches a
+ * neighbour's edge) and outlines a line where it crosses over another, as
+ * the original does.
  */
-export const LINE_CASING = 1.42
+export const LINE_CASING = 1.7
 /**
  * Bottom-to-top drawing order: at every crossing the original shows which
  * line runs over which (the loop's red over the Tel Aviv lanes, the light
@@ -113,6 +116,13 @@ export type TerminalBadge = { lineId: RailLineId; line: RailLine; center: Point 
 /** A stretch served at irregular intervals, drawn with a stripe along the line. */
 export type IrregularStretch = { lineId: RailLineId; d: string }
 
+/**
+ * A stroke in a line's colour beside its path: line 6's express lane past
+ * the Bat Yam stops, the Rehovot curl where many line 2 trains end. Drawn
+ * like the line; `terminal` gets a terminal dot.
+ */
+export type LineExtra = { lineId: RailLineId; d: string; terminal?: Point }
+
 /** The original's water: the sea as a filled polygon, its shoreline as a ribbon, and the lakes. */
 export type MapWater = {
   sea: string
@@ -131,6 +141,7 @@ export type RailMapModel = {
   cities: CityBox[]
   badges: TerminalBadge[]
   irregular: IrregularStretch[]
+  extras: LineExtra[]
   water: MapWater
   airport: { x: number; y: number; height: number }
 }
@@ -193,10 +204,11 @@ export const buildRailMapModel = (): RailMapModel => {
     }
   })
 
+  const extraTerminals = new Set(EXTRA_TERMINALS.map((t) => `${t.lineId}:${t.stationId}`))
   const markers: StationMarker[] = []
   for (const line of lines) {
     line.stations.forEach((station, i) => {
-      const terminal = i === 0 || i === line.stations.length - 1
+      const terminal = i === 0 || i === line.stations.length - 1 || extraTerminals.has(`${line.lineId}:${station.id}`)
       markers.push({
         stationId: station.id,
         lineId: line.lineId,
@@ -212,6 +224,12 @@ export const buildRailMapModel = (): RailMapModel => {
     anchor: { x: spec.x, y: spec.y },
     maxWidth: spec.maxWidth,
     stationNameOnly: spec.stationNameOnly ?? false,
+  }))
+
+  const extras: LineExtra[] = LINE_EXTRAS.map((e) => ({
+    lineId: e.lineId,
+    d: smoothPathD(toPoints(e.points)),
+    terminal: e.terminal ? { x: e.terminal[0], y: e.terminal[1] } : undefined,
   }))
 
   const sea = toPoints(WATER.sea)
@@ -236,7 +254,18 @@ export const buildRailMapModel = (): RailMapModel => {
     return d ? [{ lineId: s.lineId, d }] : []
   })
 
-  return { bounds: MAP_BOUNDS, lines, markers, labels, cities: CITY_BOXES, badges, irregular, water, airport: AIRPORT_ICON }
+  return {
+    bounds: MAP_BOUNDS,
+    lines,
+    markers,
+    labels,
+    cities: CITY_BOXES,
+    badges,
+    irregular,
+    extras,
+    water,
+    airport: AIRPORT_ICON,
+  }
 }
 
 /**

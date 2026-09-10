@@ -101,6 +101,26 @@ for s in L["irregular"]:
     out.append(f'  {{ lineId: "{s["line"]}", fromStationId: "{s["from"]}", toStationId: "{s["to"]}" }},\n')
 out.append("]\n\n")
 flat=lambda pts: ", ".join(f"{u(x)}, {u(y)}" for x,y in pts)
+out.append('''/**
+ * Stations short of a line's ends where a good share of its trains terminate
+ * (from the timetable: scripts/rail-map-trace/station-patterns.json).
+ */
+export const EXTRA_TERMINALS: { lineId: RailLineId; stationId: string }[] = [
+''')
+for x in L["extraTerminals"]:
+    out.append(f'  {{ lineId: "{x["line"]}", stationId: "{x["station"]}" }},\n')
+out.append("]\n\n")
+out.append('''/**
+ * Strokes drawn in a line's colour beside its path: line 6's express lane
+ * straight through the Bat Yam stops, and the short curl at Rehovot where
+ * many line 2 trains end (with its own terminal dot).
+ */
+export const LINE_EXTRAS: { lineId: RailLineId; points: number[]; terminal?: [number, number] }[] = [
+''')
+for x in L["extras"]:
+    term=f', terminal: [{u(x["terminal"][0])}, {u(x["terminal"][1])}]' if "terminal" in x else ""
+    out.append(f'  {{ lineId: "{x["line"]}", points: [{flat(x["points"])}]{term} }},\n')
+out.append("]\n\n")
 out.append(f'''/** The original's water, in map units: the sea west of the shore, the shoreline itself and the two lakes. */
 export const WATER = {{
   /** Closed polygon: the shore, then the map's top and left edges (flat x,y pairs). */

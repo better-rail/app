@@ -38,19 +38,32 @@ describe("rail map model", () => {
   test("a dot marks every lane that calls at a station, a hollow circle where trains may pass, a ringed dot at a terminal", () => {
     const savidor = model.markers.filter((m) => m.stationId === "3700")
     expect(savidor.length).toBeGreaterThanOrEqual(6)
-    expect(savidor.every((m) => m.kind === "stop")).toBe(true)
+    expect(savidor.every((m) => m.kind === "stop" || m.kind === "terminal")).toBe(true)
     const dimona = model.markers.filter((m) => m.stationId === "7500")
     expect(dimona.map((m) => [m.lineId, m.kind])).toEqual([["8", "terminal"]])
-    // Line 3 passes Kiryat Hayim without calling, the Karmiel and Nahariya locals stop there.
+    // Where a line calls comes from the timetable: a quarter of the Karmiel trains run through Kiryat Hayim.
     const kiryatHayim = Object.fromEntries(model.markers.filter((m) => m.stationId === "700").map((m) => [m.lineId, m.kind]))
-    expect(kiryatHayim).toEqual({ "1": "stop", "3": "irregular", "4": "stop" })
-    // Every line ends in terminals and nothing else is one.
+    expect(kiryatHayim).toEqual({ "1": "stop", "3": "stop", "4": "irregular" })
+    // Most line 2 trains run through Lod – Gane Aviv.
+    expect(model.markers.find((m) => m.stationId === "5150" && m.lineId === "2")?.kind).toBe("irregular")
+    // Every line ends in terminals; the timetable's short workings add terminals along the way.
     for (const line of model.lines) {
       const kinds = model.markers.filter((m) => m.lineId === line.lineId).map((m) => m.kind)
       expect(kinds[0]).toBe("terminal")
       expect(kinds[kinds.length - 1]).toBe("terminal")
-      expect(kinds.slice(1, -1).includes("terminal")).toBe(false)
     }
+    const savidorKinds = Object.fromEntries(model.markers.filter((m) => m.stationId === "3700").map((m) => [m.lineId, m.kind]))
+    expect(savidorKinds["5"]).toBe("terminal")
+    expect(savidorKinds["3"]).toBe("terminal")
+    expect(savidorKinds["2"]).toBe("stop")
+    expect(model.markers.find((m) => m.stationId === "2300" && m.lineId === "11")?.kind).toBe("terminal")
+  })
+
+  test("the express lane past Bat Yam and the Rehovot stub are drawn beside their lines", () => {
+    expect(model.extras.map((e) => e.lineId).sort()).toEqual(["2", "6"])
+    expect(model.extras.find((e) => e.lineId === "2")?.terminal).toBeDefined()
+    expect(model.extras.find((e) => e.lineId === "6")?.terminal).toBeUndefined()
+    expect(model.extras.every((e) => e.d.startsWith("M"))).toBe(true)
   })
 
   test("labels for the big cities' stations drop the city prefix, the rest keep their names", () => {

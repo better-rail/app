@@ -97,14 +97,29 @@ for (const city of m.cities) {
 }
 // Lines in the original's stacking order, each on a ground-coloured casing.
 const stacked = [...m.lines].sort((a, b) => LINE_DRAW_ORDER.indexOf(a.lineId) - LINE_DRAW_ORDER.indexOf(b.lineId))
+const stroke = (d: string, color: string, width: number) =>
+  `<path d="${d}" fill="none" stroke="${color}" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round"/>`
 for (const l of stacked) {
-  svg += `<path d="${l.d}" fill="none" stroke="${palette.background}" stroke-width="${LINE_CASING}" stroke-linecap="round" stroke-linejoin="round"/>`
-  svg += `<path d="${l.d}" fill="none" stroke="${l.line.color}" stroke-width="${LINE_STROKE}" stroke-linecap="round" stroke-linejoin="round"/>`
+  // As in the app: an express lane sits under its line, a terminal stub is painted over it.
+  const own = m.extras.filter((e) => e.lineId === l.lineId)
+  for (const e of own) svg += stroke(e.d, palette.background, LINE_CASING)
+  for (const e of own.filter((e) => !e.terminal)) svg += stroke(e.d, l.line.color, LINE_STROKE)
+  svg += stroke(l.d, palette.background, LINE_CASING)
+  svg += stroke(l.d, l.line.color, LINE_STROKE)
+  for (const e of own.filter((e) => e.terminal)) svg += stroke(e.d, l.line.color, LINE_STROKE)
 }
 for (const s of m.irregular) {
   svg += `<path d="${s.d}" fill="none" stroke="${palette.background}" stroke-width="${IRREGULAR_STRIPE_WIDTH}" stroke-linecap="butt"/>`
 }
+// One marker per spot, as in the app: a lane shared by two lines keeps the more significant kind.
+const rank = { terminal: 2, stop: 1, irregular: 0 }
+const spots = new Map<string, (typeof m.markers)[number]>()
 for (const mk of m.markers) {
+  const key = `${mk.point.x.toFixed(1)}:${mk.point.y.toFixed(1)}`
+  const previous = spots.get(key)
+  if (!previous || rank[mk.kind] > rank[previous.kind]) spots.set(key, mk)
+}
+for (const mk of spots.values()) {
   const { x, y } = mk.point
   if (mk.kind === "irregular") {
     svg += `<circle cx="${x}" cy="${y}" r="${MARKER_RADIUS - IRREGULAR_STOP_STROKE / 2}" fill="none" stroke="${palette.dot}" stroke-width="${IRREGULAR_STOP_STROKE}"/>`
@@ -114,6 +129,11 @@ for (const mk of m.markers) {
   if (mk.kind === "terminal") {
     svg += `<circle cx="${x}" cy="${y}" r="${TERMINAL_RING_RADIUS}" fill="none" stroke="${palette.background}" stroke-width="${TERMINAL_RING_WIDTH}"/>`
   }
+}
+for (const e of m.extras) {
+  if (!e.terminal) continue
+  svg += `<circle cx="${e.terminal.x}" cy="${e.terminal.y}" r="${MARKER_RADIUS}" fill="${palette.dot}"/>`
+  svg += `<circle cx="${e.terminal.x}" cy="${e.terminal.y}" r="${TERMINAL_RING_RADIUS}" fill="none" stroke="${palette.background}" stroke-width="${TERMINAL_RING_WIDTH}"/>`
 }
 for (const b of m.badges) {
   const outline = b.line.badgeStyle === "outline"

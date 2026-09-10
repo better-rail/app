@@ -355,7 +355,7 @@
       "lines": "Each colour is a line, numbered by its badge",
       "stop": "Station where the line calls",
       "irregularStop": "Irregular stops – trains can pass without stopping",
-      "terminal": "Terminal station of the line",
+      "terminal": "Station where trains of the line terminate",
       "irregularService": "Irregular intervals – check the timetable",
       "suspended": "Stretch with no service right now",
       "disruption": "Station affected by a disruption"

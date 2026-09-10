@@ -25,7 +25,7 @@ def cmask(rgb,tol=48):
     if rgb==COLOURS["blue"]:
         yy,xx=np.mgrid[0:H,0:W]
         stub=(xx>=455)&(xx<=492)&(yy>=1660)&(yy<=1716)&((yy-1693)>-(xx-456)+7)
-        m[stub]=False  # decorative terminal stub at Rehovot
+        m[stub]=False  # the Rehovot stub is traced separately (see below)
     if rgb==COLOURS["purple"]:
         m[456:476,505:600]=False  # second purple band at the valley junction (drawing artefact)
     return m

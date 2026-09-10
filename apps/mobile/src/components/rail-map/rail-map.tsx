@@ -260,6 +260,8 @@ export function RailMap({ status, selectedLineId, onSelectLine, focusLineId, sty
 
   const stripes = useMemo(() => model.irregular.map((s) => Skia.Path.MakeFromSVGString(s.d) as SkPath), [model])
 
+  const extras = useMemo(() => model.extras.map((e) => ({ ...e, path: Skia.Path.MakeFromSVGString(e.d) as SkPath })), [model])
+
   const water = useMemo(
     () => ({
       sea: Skia.Path.MakeFromSVGString(model.water.sea) as SkPath,
@@ -355,27 +357,35 @@ export function RailMap({ status, selectedLineId, onSelectLine, focusLineId, sty
                 />
               ))}
 
-              {/* Lines on their casings: the casing keeps the gap between lanes and outlines a line crossing another. */}
-              {orderedLines.map((line) => (
-                <Group key={line.lineId}>
+              {/*
+                Lines on their casings: the casing keeps the gap between lanes and outlines a line crossing
+                another. A line's extra strokes go with it: an express lane beside the line sits under it (the
+                line's casing keeps the gap), a terminal stub is painted over it so the two join without a seam.
+              */}
+              {orderedLines.map((line) => {
+                const color = isDimmed(line.lineId) ? palette.dimLine : line.line.color
+                const own = extras.filter((e) => e.lineId === line.lineId)
+                const stroke = (path: SkPath, key: string, casing: boolean) => (
                   <Path
-                    path={paths.get(line.lineId) as SkPath}
-                    color={palette.background}
+                    key={key}
+                    path={path}
+                    color={casing ? palette.background : color}
                     style="stroke"
-                    strokeWidth={LINE_CASING}
+                    strokeWidth={casing ? LINE_CASING : LINE_STROKE}
                     strokeCap="round"
                     strokeJoin="round"
                   />
-                  <Path
-                    path={paths.get(line.lineId) as SkPath}
-                    color={isDimmed(line.lineId) ? palette.dimLine : line.line.color}
-                    style="stroke"
-                    strokeWidth={LINE_STROKE}
-                    strokeCap="round"
-                    strokeJoin="round"
-                  />
-                </Group>
-              ))}
+                )
+                return (
+                  <Group key={line.lineId}>
+                    {own.map((e, i) => stroke(e.path, `extra-casing-${i}`, true))}
+                    {own.filter((e) => !e.terminal).map((e, i) => stroke(e.path, `express-${i}`, false))}
+                    {stroke(paths.get(line.lineId) as SkPath, "casing", true)}
+                    {stroke(paths.get(line.lineId) as SkPath, "line", false)}
+                    {own.filter((e) => e.terminal).map((e, i) => stroke(e.path, `stub-${i}`, false))}
+                  </Group>
+                )
+              })}
 
               {/* Disrupted stretches: the line fades out where trains do not run. */}
               {disrupted.map((section) =>
@@ -444,6 +454,22 @@ export function RailMap({ status, selectedLineId, onSelectLine, focusLineId, sty
                   </Group>
                 )
               })}
+
+              {/* Terminal dots at the ends of the stubs. */}
+              {extras.map((e, i) =>
+                e.terminal ? (
+                  <Group key={`extra-terminal-${i}`}>
+                    <Circle c={e.terminal} r={MARKER_RADIUS} color={isDimmed(e.lineId) ? palette.dimInk : palette.dot} />
+                    <Circle
+                      c={e.terminal}
+                      r={TERMINAL_RING_RADIUS}
+                      color={palette.background}
+                      style="stroke"
+                      strokeWidth={TERMINAL_RING_WIDTH}
+                    />
+                  </Group>
+                ) : null,
+              )}
 
               {/* Line numbers beside the terminals. */}
               {badges.map((badge) => {

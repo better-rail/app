@@ -21,3 +21,15 @@ bunx oxfmt ../../src/data/rail-map-layout.ts
 `station-seeds.json` holds a rough pixel position per station on the artwork;
 the pipeline matches each station to the dot the original draws on each lane
 from there. Check the result with `scripts/rail-map-preview.ts`.
+
+Where a line calls, runs through, or ends short of its terminus comes from
+the timetable, not the artwork: `station-patterns.json` is derived from the
+GTFS-based Line Explorer export (every train of every line with its stops,
+weekdays and weekends) by
+
+```sh
+LINE_EXPLORER_JSON=/path/to/export.json python3 patterns.py
+```
+
+with `station-codes.json` mapping the MOT station codes to the app's ids.
+Regenerate it when the timetable changes, then rerun `gen_layout.py`.

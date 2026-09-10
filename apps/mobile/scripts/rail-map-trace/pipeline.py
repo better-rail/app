@@ -237,6 +237,14 @@ def fixups(lid,path,idx):
         pa=spts[a]; pb=spts[b]
         corner=(pb[0],pa[1]+(pb[0]-pa[0]))
         path=path[:idx[a]]+[pa,corner,pb]+path[idx[b]+1:]
+    if lid=="6":
+        # Tel Aviv – Rishon: the stopping trains use the original's western lane (the dots), the express
+        # trains the straight trunk, which gen_layout adds as an extra stroke
+        sids=STATION_ORDER["6"]; a=sids.index("4900"); b=sids.index("9800")
+        dots=[min(DOTS,key=lambda d:math.hypot(d[0]-NODES[s][0],d[1]-NODES[s][1])) for s in ("4640","4660","4680","4690")]
+        x0=spts[a][0]; xw=sum(d[0] for d in dots)/4
+        mid=[(x0,spts[a][1]+22),(xw,dots[0][1]-24)]+dots+[(xw,dots[-1][1]+18),(x0,spts[b][1]-30)]
+        path=path[:idx[a]]+[spts[a]]+mid+[spts[b]]+path[idx[b]+1:]
     if lid=="7":
         # the pink turns off the airport's horizontal with a rounded corner, not the trace's sharp one
         i=nearest_index(path,(609,1367)); path=round_corner(path,i,16)
