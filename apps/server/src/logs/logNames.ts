@@ -8,6 +8,7 @@ export const logNames = {
     connect: {
       success: "Connected to redis",
       failed: "Couldn't connect to redis",
+      skipped: "REDIS_URL is not set, skipping redis",
     },
     rides: {
       get: {
@@ -64,6 +65,7 @@ export const logNames = {
   },
   notifications: {
     log: "Got notification",
+    notConfigured: "Push credentials are missing, notifications are disabled",
     apple: {
       success: "Sent notification to APN successully!",
       failed: "Failed to send notificaiton to APN",
