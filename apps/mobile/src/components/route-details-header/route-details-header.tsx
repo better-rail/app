@@ -269,7 +269,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
                 type: "button",
                 label: "",
                 sharesBackground: false,
-                tintColor: isFavorite ? color.palette.orange : undefined,
+                tintColor: isFavorite ? color.palette.orangeMuted : undefined,
                 icon: { type: "sfSymbol", name: "star" },
                 accessibilityLabel: translate("favorites.title") ?? undefined,
                 onPress: handleFavoritePress,
