@@ -272,7 +272,7 @@ export const buildRailMapModel = (dayType: DayType = currentDayType()): RailMapM
   const water: MapWater = {
     sea: `${polylineD(sea)} Z`,
     shore: polylineD(toPoints(WATER.shore)),
-    lakes: WATER.lakes.map((lake) => `${polylineD(toPoints(lake))} Z`),
+    lakes: WATER.lakes.map((lake) => `${smoothPathD(toPoints(lake))} Z`),
     seaLeft: Math.min(...sea.map((p) => p.x)),
     seaRight: Math.max(...sea.map((p) => p.x)),
   }

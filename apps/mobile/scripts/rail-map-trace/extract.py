@@ -180,7 +180,7 @@ wl=label(water,connectivity=1)
 for rp in regionprops(wl):
     if rp.area<3000 or rp.bbox[1]<800: continue
     c=max(find_contours((wl==rp.label).astype(float),0.5),key=len)
-    lakes.append([[round(float(q[1]),1),round(float(q[0]),1)] for q in simplify([(float(q[1]),float(q[0])) for q in c],1.5)])
+    lakes.append([[round(x,1),round(y,1)] for x,y in simplify([(float(q[1]),float(q[0])) for q in c],1.5)])  # contours are (row, col)
 out["water"]={"shore":[[round(x,1),round(y,1)] for x,y in shore_pts],"lakes":lakes}  # shore = the sea's edge
 print("shore pts",len(shore_pts),"from",shore_pts[0],"to",shore_pts[-1],"lakes",[len(l) for l in lakes])
 vis.save("vis.png")
