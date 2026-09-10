@@ -29,6 +29,19 @@ import { RouteStationNameButton } from "./route-station-name-button"
 const arrowIcon = require("../../../assets/arrow-left.png")
 const ellipsisIcon = require("../../../assets/ellipsis.regular.png")
 
+/** A plain Image, not `MenuIcon`: a Touchable child would swallow the menu's tap. */
+function HeaderMenuIcon({ active }: { active?: boolean }) {
+  return (
+    <Image
+      source={ellipsisIcon}
+      accessible
+      accessibilityRole="button"
+      accessibilityLabel={translate("routes.routeActions")}
+      style={[styles.headerMenuIcon, active && styles.headerMenuIconActive]}
+    />
+  )
+}
+
 export interface RouteDetailsHeaderProps {
   originId: string
   destinationId: string
@@ -203,16 +216,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
 
       return (
         <ContextMenu mode="tap" actions={actions}>
-          <Image
-            source={ellipsisIcon}
-            style={{
-              width: 23,
-              height: 23,
-              resizeMode: "contain",
-              tintColor: "lightgrey",
-              opacity: 0.9,
-            }}
-          />
+          <HeaderMenuIcon />
         </ContextMenu>
       )
     }
@@ -227,11 +231,27 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       )
     }
 
+    // Mirrors the iOS 26 toolbar: fares and filter sit behind one ellipsis menu.
+    const routeListActions = [
+      {
+        title: translate("fares.title"),
+        systemIcon: "shekelsign.circle",
+        onPress: openFaresSheet,
+      },
+      {
+        title: isFilterActive ? `${translate("routes.filter")} (${filterCount})` : translate("routes.filter"),
+        systemIcon: "line.3.horizontal.decrease",
+        selected: isFilterActive,
+        onPress: openFilterSheet,
+      },
+    ]
+
     return (
       <>
         <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
-        <FaresIcon style={{ marginLeft: spacing[2] }} onPress={openFaresSheet} />
-        <FilterIcon style={{ marginLeft: spacing[2] }} active={isFilterActive} count={filterCount} onPress={openFilterSheet} />
+        <ContextMenu mode="tap" style={{ marginLeft: spacing[3] }} actions={routeListActions}>
+          <HeaderMenuIcon active={isFilterActive} />
+        </ContextMenu>
       </>
     )
   }
@@ -262,7 +282,12 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
                 badge: isFilterActive
                   ? {
                       value: String(filterCount),
-                      style: { backgroundColor: color.palette.orange, color: color.palette.black, fontSize: 12, fontWeight: "600" },
+                      style: {
+                        backgroundColor: color.palette.orange,
+                        color: color.palette.black,
+                        fontSize: 12,
+                        fontWeight: "600",
+                      },
                     }
                   : undefined,
                 icon: { type: "sfSymbol", name: "ellipsis" },
@@ -376,6 +401,18 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
 }
 
 const styles = StyleSheet.create((theme, rt) => ({
+  headerMenuIcon: {
+    width: 23,
+    height: 23,
+    resizeMode: "contain",
+    tintColor: "lightgrey",
+    opacity: 0.9,
+  },
+  // No badge outside iOS 26, so the glyph itself carries the active filter.
+  headerMenuIconActive: {
+    tintColor: theme.colors.palette.orange,
+    opacity: 1,
+  },
   routeDetailsWrapper: {
     flexDirection: "row",
     justifyContent: "center",
