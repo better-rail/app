@@ -122,11 +122,8 @@ for b in blocks:
         for t in b["lines"]:
             if t["h"]>=25: plane=[t["x0"],t["y0"],t["x1"],t["y1"]]
 IRREGULAR=[{"line":"5","from":"3300","to":"3600"},{"line":"25","from":"3300","to":"3600"}]
-# the sea: everything left of the shore, closed along the map's top and left edges
-edge=T["water"]["shore"]
-sea=[[0,0],[edge[0][0],0]]+edge+[[0,edge[-1][1]]]
-ribbon=[[round(x-7,1),y] for x,y in edge]  # the shoreline ribbon sits just inside the sea's edge
-WATER={"sea":sea,"shore":ribbon,"lakes":T["water"]["lakes"]}
+# the water: the coast (the sea is everything left of it, down to where it meets the map's edge) and the lakes
+WATER={"coast":T["water"]["coast"],"lakes":T["water"]["lakes"]}
 out={"lines":lines,"labels":labels,"irregular":IRREGULAR,"water":WATER,"service":SERVICE,"extras":EXTRAS,"boxes":BOXES,"cities":cities,"badges":badges,"plane":plane,"clusters":CB}
 json.dump(out,open("layout.json","w"),ensure_ascii=False,indent=0)
 for sid,l in sorted(labels.items(),key=lambda t:t[1]["y"]):

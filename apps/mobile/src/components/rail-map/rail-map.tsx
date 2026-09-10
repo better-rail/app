@@ -34,12 +34,13 @@ import {
   IRREGULAR_STOP_STROKE,
   IRREGULAR_STRIPE_WIDTH,
   LABEL_LINE_HEIGHT,
+  LAKE_HALO,
   LATIN_SCALE,
   LINE_CASING,
   LINE_DRAW_ORDER,
   LINE_STROKE,
   MARKER_RADIUS,
-  SHORE_BLUR,
+  SEA_FADE_STOPS,
   SHORE_WIDTH,
   TERMINAL_RING_RADIUS,
   TERMINAL_RING_WIDTH,
@@ -268,11 +269,16 @@ export function RailMap({ status, dayType, selectedLineId, onSelectLine, focusLi
 
   const water = useMemo(
     () => ({
-      sea: Skia.Path.MakeFromSVGString(model.water.sea) as SkPath,
-      shore: Skia.Path.MakeFromSVGString(model.water.shore) as SkPath,
+      bands: model.water.bands.map((b) => ({ ...b, path: Skia.Path.MakeFromSVGString(b.d) as SkPath })),
+      coast: Skia.Path.MakeFromSVGString(model.water.coast) as SkPath,
       lakes: model.water.lakes.map((d) => Skia.Path.MakeFromSVGString(d) as SkPath),
     }),
     [model],
+  )
+  // Opaque stops (the sea mixed into the ground) so the bands' overlaps and anti-aliased edges paint the same colour twice.
+  const seaColors = useMemo(
+    () => SEA_FADE_STOPS.opacities.map((a) => paleColor(palette.sea, palette.background, 1 - a)),
+    [palette],
   )
 
   const disrupted = useMemo(() => collectDisruptedSections(model, status), [model, status])
@@ -336,19 +342,44 @@ export function RailMap({ status, dayType, selectedLineId, onSelectLine, focusLi
           <Canvas style={StyleSheet.absoluteFill}>
             <Fill color={palette.background} />
             <Group transform={transform}>
-              {/* The sea, deeper blue away from the coast, its shoreline, and the lakes. */}
-              <Path path={water.sea}>
-                <LinearGradient
-                  start={vec(model.water.seaLeft, 0)}
-                  end={vec(model.water.seaRight, 0)}
-                  colors={[palette.seaFar, palette.seaNear]}
-                />
-              </Path>
-              <Path path={water.shore} color={palette.shore} style="stroke" strokeWidth={SHORE_WIDTH} strokeJoin="round">
-                <BlurMask blur={SHORE_BLUR} style="normal" />
-              </Path>
+              {/* The sea: flat far out, paling towards the coast and fading out over the land beyond it. */}
+              {water.bands.map((band, i) => (
+                <Path key={`sea-${i}`} path={band.path}>
+                  <LinearGradient
+                    start={vec(band.start.x, band.start.y)}
+                    end={vec(band.end.x, band.end.y)}
+                    colors={seaColors}
+                    positions={SEA_FADE_STOPS.positions}
+                  />
+                </Path>
+              ))}
+              {/* The lakes: the same halo around them, then their flat colour over its inner half. */}
               {water.lakes.map((lake, i) => (
-                <Path key={`lake-${i}`} path={lake} color={palette.lake} />
+                <Path
+                  key={`halo-${i}`}
+                  path={lake}
+                  color={palette.sea}
+                  style="stroke"
+                  strokeWidth={LAKE_HALO.width}
+                  strokeJoin="round"
+                >
+                  <BlurMask blur={LAKE_HALO.blur} style="normal" />
+                </Path>
+              ))}
+              {water.lakes.map((lake, i) => (
+                <Path key={`lake-${i}`} path={lake} color={palette.sea} />
+              ))}
+              {/* The thin ribbon along every shoreline. */}
+              <Path path={water.coast} color={palette.shore} style="stroke" strokeWidth={SHORE_WIDTH} strokeJoin="round" />
+              {water.lakes.map((lake, i) => (
+                <Path
+                  key={`rim-${i}`}
+                  path={lake}
+                  color={palette.shore}
+                  style="stroke"
+                  strokeWidth={SHORE_WIDTH}
+                  strokeJoin="round"
+                />
               ))}
 
               {/* City frames. */}

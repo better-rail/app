@@ -2,6 +2,8 @@ import { describe, expect, test } from "bun:test"
 import { RAIL_LINES } from "@/data/rail-lines"
 import { STATION_LABELS } from "@/data/rail-map-layout"
 import {
+  SEA_FADE,
+  SEA_FADE_STOPS,
   buildRailMapModel,
   currentDayType,
   linePathBetween,
@@ -9,6 +11,7 @@ import {
   mapStationName,
   nearestLine,
   polylineD,
+  seaBands,
   smoothPathD,
 } from "./rail-map-model"
 
@@ -127,6 +130,36 @@ describe("rail map model", () => {
     expect(model.irregular.map((s) => s.lineId).sort()).toEqual(["25", "5"])
     expect(model.irregular.every((s) => s.d.startsWith("M"))).toBe(true)
     expect(model.airport.height).toBeGreaterThan(0)
+  })
+
+  test("the sea is cut into bands along the coast whose gradients follow the horizontal distance from it", () => {
+    const coast = [
+      { x: 40, y: 0 },
+      { x: 40, y: 10 },
+      { x: 30, y: 30 },
+      { x: 0, y: 60 },
+    ]
+    const bands = seaBands(coast)
+    expect(bands).toHaveLength(3)
+    const land = SEA_FADE[0][0]
+    const far = SEA_FADE[SEA_FADE.length - 1][0]
+    // From the map's left edge to the halo's edge on land; a band runs a little into the next.
+    expect(bands[0].d).toBe(`M0 0 L${40 - land} 0 L${40 - land} 10.15 L0 10.15 Z`)
+    expect(bands[2].d.endsWith(" 60 L0 60 Z")).toBe(true)
+    for (const [i, band] of bands.entries()) {
+      const a = coast[i]
+      const b = coast[i + 1]
+      const slope = (b.x - a.x) / (b.y - a.y)
+      const distance = (p: { x: number; y: number }) => a.x + (p.y - a.y) * slope - p.x
+      expect(distance(band.start)).toBeCloseTo(land)
+      expect(distance(band.end)).toBeCloseTo(far)
+    }
+    expect(SEA_FADE_STOPS.positions[0]).toBe(0)
+    expect(SEA_FADE_STOPS.positions[SEA_FADE_STOPS.positions.length - 1]).toBe(1)
+    expect(SEA_FADE_STOPS.opacities[SEA_FADE_STOPS.opacities.length - 1]).toBe(1)
+    expect(model.water.bands.length).toBeGreaterThan(40)
+    expect(model.water.coast.startsWith("M")).toBe(true)
+    expect(model.water.lakes).toHaveLength(2)
   })
 
   test("map names drop parentheticals and, inside a city frame, the city prefix", () => {

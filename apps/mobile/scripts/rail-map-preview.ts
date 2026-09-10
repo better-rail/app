@@ -21,12 +21,13 @@ import {
   IRREGULAR_STOP_STROKE,
   IRREGULAR_STRIPE_WIDTH,
   LABEL_LINE_HEIGHT,
+  LAKE_HALO,
   LATIN_SCALE,
   LINE_CASING,
   LINE_DRAW_ORDER,
   LINE_STROKE,
   MARKER_RADIUS,
-  SHORE_BLUR,
+  SEA_FADE_STOPS,
   SHORE_WIDTH,
   TERMINAL_RING_RADIUS,
   TERMINAL_RING_WIDTH,
@@ -36,7 +37,7 @@ import {
   mapStationName,
   nameFontSize,
 } from "@/components/rail-map/rail-map-model"
-import { RAIL_MAP_PALETTE } from "@/components/rail-map/rail-map-theme"
+import { RAIL_MAP_PALETTE, paleColor } from "@/components/rail-map/rail-map-theme"
 import { LABEL_TEXT_OVERRIDES } from "@/data/rail-map-layout"
 import { stationsObject } from "@/data/stations"
 
@@ -88,12 +89,24 @@ const lineHeight = (size: number) => size * LABEL_LINE_HEIGHT * 1.08
 let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${m.bounds.width} ${m.bounds.height}" font-family="Heebo, Arial, sans-serif">`
 svg += `<rect width="${m.bounds.width}" height="${m.bounds.height}" fill="${palette.background}"/>`
 
-// The sea (deeper blue away from the coast), its shoreline and the lakes.
-svg += `<defs><linearGradient id="sea" x1="${m.water.seaLeft}" y1="0" x2="${m.water.seaRight}" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${palette.seaFar}"/><stop offset="1" stop-color="${palette.seaNear}"/></linearGradient></defs>`
-svg += `<path d="${m.water.sea}" fill="url(#sea)"/>`
-svg += `<defs><filter id="soft" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="${SHORE_BLUR}"/></filter></defs>`
-svg += `<path d="${m.water.shore}" fill="none" stroke="${palette.shore}" stroke-width="${SHORE_WIDTH}" stroke-linejoin="round" filter="url(#soft)"/>`
-for (const lake of m.water.lakes) svg += `<path d="${lake}" fill="${palette.lake}"/>`
+// The sea in bands along the coast, each with the fade's gradient laid along its horizontal distance from the coast.
+const stops = SEA_FADE_STOPS.positions
+  .map(
+    (pos, i) =>
+      `<stop offset="${pos}" stop-color="${paleColor(palette.sea, palette.background, 1 - SEA_FADE_STOPS.opacities[i])}"/>`,
+  )
+  .join("")
+svg += `<defs>${m.water.bands.map((b, i) => `<linearGradient id="sea${i}" x1="${b.start.x}" y1="${b.start.y}" x2="${b.end.x}" y2="${b.end.y}" gradientUnits="userSpaceOnUse">${stops}</linearGradient>`).join("")}</defs>`
+for (const [i, b] of m.water.bands.entries()) svg += `<path d="${b.d}" fill="url(#sea${i})"/>`
+// The lakes: the halo (a blurred stroke, its inner half covered by the lake), the flat lake, then the ribbons.
+svg += `<defs><filter id="halo" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="${LAKE_HALO.blur}"/></filter></defs>`
+for (const lake of m.water.lakes) {
+  svg += `<path d="${lake}" fill="none" stroke="${palette.sea}" stroke-width="${LAKE_HALO.width}" stroke-linejoin="round" filter="url(#halo)"/>`
+}
+for (const lake of m.water.lakes) svg += `<path d="${lake}" fill="${palette.sea}"/>`
+svg += `<path d="${m.water.coast}" fill="none" stroke="${palette.shore}" stroke-width="${SHORE_WIDTH}" stroke-linejoin="round"/>`
+for (const lake of m.water.lakes)
+  svg += `<path d="${lake}" fill="none" stroke="${palette.shore}" stroke-width="${SHORE_WIDTH}" stroke-linejoin="round"/>`
 for (const city of m.cities) {
   svg += `<rect x="${city.x}" y="${city.y}" width="${city.width}" height="${city.height}" rx="${CITY_BOX_RADIUS}" fill="none" stroke="${palette.frame}" stroke-width="${CITY_BOX_STROKE}"/>`
 }

@@ -154,12 +154,15 @@ for x in L["extras"]:
     covers=f', covers: [{", ".join(chr(34)+c+chr(34) for c in x["covers"])}]' if "covers" in x else ""
     out.append(f'  {{ lineId: "{x["line"]}", points: [{flat(x["points"])}]{term}, {req(x["requires"])}{covers} }},\n')
 out.append("]\n\n")
-out.append(f'''/** The original's water, in map units: the sea west of the shore, the shoreline itself and the two lakes. */
+out.append(f'''/**
+ * The original's water, in map units: the coast and the two lakes. The sea is everything west of
+ * the coast, from the map's top edge down to where the coast meets its left edge; each outline is
+ * where the original draws its thin shoreline ribbon.
+ */
 export const WATER = {{
-  /** Closed polygon: the shore, then the map's top and left edges (flat x,y pairs). */
-  sea: [{flat(L["water"]["sea"])}],
-  /** The shoreline, drawn as a pale ribbon. */
-  shore: [{flat(L["water"]["shore"])}],
+  /** The coast from the top of the map to the left edge, top to bottom (flat x,y pairs). */
+  coast: [{flat(L["water"]["coast"])}],
+  /** Closed outlines of the Sea of Galilee and the Dead Sea. */
   lakes: [
 ''')
 for lake in L["water"]["lakes"]:

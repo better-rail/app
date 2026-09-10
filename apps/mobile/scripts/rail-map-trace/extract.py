@@ -155,12 +155,14 @@ for name,rgb in COLOURS.items():
     for b in badges: dr.rectangle([b["x0"],b["y0"],b["x1"],b["y1"]],outline=(0,0,255))
 for d in dots: dr.ellipse([d["x"]-1,d["y"]-1,d["x"]+1,d["y"]+1],fill=(255,255,0))
 # ---- water: the sea's edge, row by row, is the end of the pale-blue fill that starts at the map's
-# left edge (runs broken by the frames' strokes or text are bridged); the original's shoreline
-# ribbon runs a few pixels inside it. Then the two lakes on the right.
+# left edge (runs broken by the frames' strokes or text are bridged). The original's coast is a thin
+# darker ribbon 10 px inside that edge, where the fill has faded to the pale halo that continues onto
+# the land; the lakes are outlined by the same ribbon, so they are traced from their flat body.
 from skimage.measure import find_contours
 bl=im[...,2]-im[...,0]
 water=(bl>=14)&(im[...,2]>=225)&(im[...,1]>=215)&(bl<=70)
 filled=binary_closing(water,disk(9))  # names and frame strokes printed over the sea are holes in it
+RIBBON_INSET=9.8  # the ribbon's centre sits this far inside the pale fill's edge (measured on every clear row)
 coast=[]
 for y in range(0,H,2):
     xs=np.nonzero(filled[y,:470])[0]
@@ -172,16 +174,18 @@ xsr=[p[0] for p in coast]
 med=[sorted(xsr[max(0,i-7):i+8])[len(xsr[max(0,i-7):i+8])//2] for i in range(len(xsr))]
 sm=[]
 for i in range(len(med)):
-    a=max(0,i-4); b=min(len(med),i+5); sm.append((sum(med[a:b])/(b-a),coast[i][1]))
+    a=max(0,i-4); b=min(len(med),i+5); x=sum(med[a:b])/(b-a)-RIBBON_INSET
+    sm.append((max(x,0.0),coast[i][1]))
+    if x<=0: break
 shore_pts=simplify(sm,0.8)
-water=(bl>=14)&(im[...,2]>=225)&(im[...,1]>=215)&(bl<=70)
+body=(im[...,0]<=215)&(im[...,1]>=225)&(im[...,2]>=245)  # the lakes' flat fill and their ribbon, not the halo around them
 lakes=[]
-wl=label(water,connectivity=1)
+wl=label(body,connectivity=1)
 for rp in regionprops(wl):
     if rp.area<3000 or rp.bbox[1]<800: continue
     c=max(find_contours((wl==rp.label).astype(float),0.5),key=len)
     lakes.append([[round(x,1),round(y,1)] for x,y in simplify([(float(q[1]),float(q[0])) for q in c],1.5)])  # contours are (row, col)
-out["water"]={"shore":[[round(x,1),round(y,1)] for x,y in shore_pts],"lakes":lakes}  # shore = the sea's edge
-print("shore pts",len(shore_pts),"from",shore_pts[0],"to",shore_pts[-1],"lakes",[len(l) for l in lakes])
+out["water"]={"coast":[[round(x,1),round(y,1)] for x,y in shore_pts],"lakes":lakes}  # coast = the ribbon's centre line
+print("coast pts",len(shore_pts),"from",shore_pts[0],"to",shore_pts[-1],"lakes",[len(l) for l in lakes])
 vis.save("vis.png")
 json.dump(out,open("trace.json","w"))

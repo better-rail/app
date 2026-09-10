@@ -78,9 +78,48 @@ export const BADGE_SIZE = { width: 2.1, height: 1.2, radius: 0.3, fontSize: 0.95
 /** Corner radius and stroke of the city frames (10 px and 2 px). */
 export const CITY_BOX_RADIUS = 1.1
 export const CITY_BOX_STROKE = 0.22
-/** The shoreline ribbon (9 px), softened at the edges like the original's. */
-export const SHORE_WIDTH = 1.0
-export const SHORE_BLUR = 0.35
+/** The thin darker ribbon the original draws along every shoreline (2.5 px). */
+export const SHORE_WIDTH = 0.27
+/**
+ * The sea's colour, measured across the original: a flat blue far out that
+ * pales towards the coast, and a halo of the same blue fading out over the
+ * land beyond it. Pairs of [distance from the coast in map units (negative
+ * on the land side), share of the sea colour in its mix with the ground].
+ */
+export const SEA_FADE: [number, number][] = [
+  [-4.4, 0],
+  [-3.3, 0.02],
+  [-2.2, 0.1],
+  [-1.65, 0.18],
+  [-1.3, 0.24],
+  [-1.1, 0.29],
+  [-0.77, 0.35],
+  [-0.55, 0.41],
+  [-0.33, 0.45],
+  [0, 0.48],
+  [0.33, 0.49],
+  [1.1, 0.51],
+  [1.65, 0.53],
+  [2.75, 0.57],
+  [3.85, 0.61],
+  [5.5, 0.65],
+  [7.7, 0.71],
+  [11, 0.8],
+  [16.5, 0.9],
+  [22, 0.96],
+  [33, 1],
+]
+/** The gradient stops of SEA_FADE: positions along a band's gradient (0 = land side, 1 = far out) and the sea's share at each. */
+export const SEA_FADE_STOPS = {
+  positions: SEA_FADE.map(([d]) => (d - SEA_FADE[0][0]) / (SEA_FADE[SEA_FADE.length - 1][0] - SEA_FADE[0][0])),
+  opacities: SEA_FADE.map(([, a]) => a),
+}
+/**
+ * The lakes keep their flat colour to the edge; the halo beyond it is the
+ * land side of SEA_FADE, drawn as a stroke along the outline that is blurred
+ * (a Gaussian of this sigma) and then covered by the lake itself.
+ */
+export const LAKE_HALO = { width: 1.36, blur: 1.14 }
 
 export type LinePath = {
   lineId: RailLineId
@@ -129,14 +168,22 @@ export type IrregularStretch = { lineId: RailLineId; d: string }
  */
 export type LineExtra = { lineId: RailLineId; d: string; terminal?: Point }
 
-/** The original's water: the sea as a filled polygon, its shoreline as a ribbon, and the lakes. */
+/**
+ * One stretch of the sea, between two consecutive points of the coast: a
+ * quadrilateral from the map's left edge to just beyond the coast, filled
+ * with a linear gradient of SEA_FADE_STOPS from `start` (the land side of
+ * the halo) to `end` (far out). The gradient follows the horizontal
+ * distance from the coast, which is linear within the band and continuous
+ * into the next, so the bands join without a seam.
+ */
+export type SeaBand = { d: string; start: Point; end: Point }
+
+/** The original's water: the sea in bands along the coast, the shoreline ribbons and the lakes. */
 export type MapWater = {
-  sea: string
-  shore: string
+  bands: SeaBand[]
+  /** The coast, top to bottom. */
+  coast: string
   lakes: string[]
-  /** Horizontal extent of the sea, for its gradient (deeper blue away from the coast). */
-  seaLeft: number
-  seaRight: number
 }
 
 export type RailMapModel = {
@@ -159,6 +206,40 @@ const fmt = (n: number): string => (Math.round(n * 100) / 100).toString()
 /** SVG path data through `points` with straight segments. */
 export const polylineD = (points: Point[]): string =>
   points.map((p, i) => `${i === 0 ? "M" : "L"}${fmt(p.x)} ${fmt(p.y)}`).join(" ")
+
+/**
+ * Cuts the sea into one band per coast segment (see SeaBand). Within a band
+ * the horizontal distance from the coast, D(x, y) = xa + (y − ya)·s − x with
+ * s the segment's slope, is a linear field: its gradient is (−1, s), so a
+ * linear gradient from the point where D is the halo's land-side edge to
+ * the point where D is the far edge of the fade paints it exactly. Each band
+ * overlaps the next a little so no anti-aliased seam shows between them.
+ */
+export const seaBands = (coast: Point[]): SeaBand[] => {
+  const near = SEA_FADE[0][0]
+  const far = SEA_FADE[SEA_FADE.length - 1][0]
+  const overlap = 0.15
+  const bands: SeaBand[] = []
+  for (let i = 0; i + 1 < coast.length; i++) {
+    const a = coast[i]
+    const b = coast[i + 1]
+    if (b.y <= a.y) continue
+    const s = (b.x - a.x) / (b.y - a.y)
+    const last = i + 2 === coast.length
+    const bottom = last ? b.y : b.y + overlap
+    const bottomX = last ? b.x : b.x + s * overlap
+    const d = polylineD([
+      { x: 0, y: a.y },
+      { x: a.x - near, y: a.y },
+      { x: Math.max(0, bottomX - near), y: bottom },
+      { x: 0, y: bottom },
+    ])
+    const k = (far - near) / (1 + s * s)
+    const start = { x: a.x - near, y: a.y }
+    bands.push({ d: `${d} Z`, start, end: { x: start.x - k, y: start.y + s * k } })
+  }
+  return bands
+}
 
 /**
  * SVG path data through `points` with every bend rounded: each interior
@@ -268,13 +349,11 @@ export const buildRailMapModel = (dayType: DayType = currentDayType()): RailMapM
     terminal: e.terminal ? { x: e.terminal[0], y: e.terminal[1] } : undefined,
   }))
 
-  const sea = toPoints(WATER.sea)
+  const coast = toPoints(WATER.coast)
   const water: MapWater = {
-    sea: `${polylineD(sea)} Z`,
-    shore: polylineD(toPoints(WATER.shore)),
+    bands: seaBands(coast),
+    coast: polylineD(coast),
     lakes: WATER.lakes.map((lake) => `${smoothPathD(toPoints(lake))} Z`),
-    seaLeft: Math.min(...sea.map((p) => p.x)),
-    seaRight: Math.max(...sea.map((p) => p.x)),
   }
 
   const byId = new Map(RAIL_LINES.map((l) => [l.id, l]))
