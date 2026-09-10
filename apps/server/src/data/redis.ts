@@ -26,9 +26,9 @@ export const getRedisClient = (): RedisClientType | undefined => client
 
 export const addRide = async (ride: Ride): Promise<boolean> => {
   try {
-    const promises = Object.entries(omit(ride, "rideId")).map(([key, value]) =>
-      client.hSet(getKey(ride.rideId), key, JSON.stringify(value)),
-    )
+    const promises = Object.entries(omit(ride, "rideId"))
+      .filter(([, value]) => value !== undefined)
+      .map(([key, value]) => client.hSet(getKey(ride.rideId), key, JSON.stringify(value)))
     await Promise.all(promises)
 
     logger.info(logNames.redis.rides.add.success, { rideId: ride.rideId, token: ride.token })

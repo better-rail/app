@@ -28,11 +28,11 @@ yarn-error.log
 **/build/
 *.tsbuildinfo
 
-# Not needed for a mobile build
-/apps/server/
-/apps/website/
+# Keep every Bun workspace package manifest in the archive. Excluding a workspace
+# makes `bun install --frozen-lockfile` rewrite bun.lock before EAS can build.
 /.github/
 /.conductor/
+/.context/
 /.vscode/
 
 # Xcode / Android
@@ -89,3 +89,7 @@ web-build/
 !/apps/mobile/android-native/res/drawable-*/assets_railwaystation.*
 /apps/mobile/android-native/res/drawable-*/node_modules_*
 /apps/mobile/android-native/res/raw/assets_*
+
+# Server database artifacts are unrelated to mobile builds and may contain
+# developer-local data.
+/apps/server/db

@@ -129,12 +129,22 @@ export function PlannerScreenHeader() {
           </Chip>
         )}
         {!HIDE_RAIL_SERVICE_UPDATES && !showLawsuitBar && (
-          <TouchableOpacity onPress={openAnnouncements} activeOpacity={0.8} accessibilityLabel={translate("routes.updates")}>
+          <TouchableOpacity
+            testID="open-announcements-button"
+            onPress={openAnnouncements}
+            activeOpacity={0.8}
+            accessibilityLabel={translate("routes.updates")}
+          >
             <Image source={UPDATES_ICON} style={[styles.headerIconImage]} />
           </TouchableOpacity>
         )}
         {!showLawsuitBar && (
-          <TouchableOpacity onPress={openSettings} activeOpacity={0.8} accessibilityLabel={translate("settings.title")}>
+          <TouchableOpacity
+            testID="open-settings-button"
+            onPress={openSettings}
+            activeOpacity={0.8}
+            accessibilityLabel={translate("settings.title")}
+          >
             <Image source={SETTINGS_ICON} style={styles.headerIconImage} />
           </TouchableOpacity>
         )}

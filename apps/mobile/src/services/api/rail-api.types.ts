@@ -106,6 +106,8 @@ export type RouteItem = {
   isMuchShorter: boolean
   isCancelled: boolean
   trains: Train[]
+  // Change station the rider picked
+  viaStationId?: string
 }
 
 export interface Title {

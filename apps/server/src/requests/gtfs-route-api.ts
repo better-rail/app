@@ -62,7 +62,10 @@ const MAX_CONNECTION_MS = 70 * 60 * 1000
  * The ceiling is a single value too. Treating a roomier one as a fallback only
  * made journeys slower for no gain.
  */
-type ConnectionLimits = { minAt: (railId: number, onTheSameFace: boolean) => number; maxMs: number }
+type ConnectionLimits = {
+  minAt: (railId: number, onTheSameFace: boolean) => number
+  maxMs: number
+}
 const CONNECTION_LIMITS: ConnectionLimits = {
   minAt: (_railId, onTheSameFace) => (onTheSameFace ? MIN_CONNECTION_SAME_PLATFORM_MS : MIN_CONNECTION_MS),
   maxMs: MAX_CONNECTION_MS,
@@ -198,6 +201,8 @@ export type PlanOptions = {
   // Drop a direct train that a faster direct train (departing later, arriving
   // earlier) shadows. Off by default; set by the app's "hide slow trains" toggle.
   hideSlowTrains?: boolean
+  // Route every journey through this station
+  viaStation?: number
 }
 
 export type Leg = { tripKey: string; boardIndex: number; alightIndex: number }
@@ -305,7 +310,12 @@ const fetchDayTrips = async (feedId: string, serviceDate: string): Promise<DayTr
     const tripKey = `${serviceDate}#${row.trip_id}`
     let trip = trips.get(tripKey)
     if (!trip) {
-      trip = { tripKey, trainNumber: row.train_number, routeId: row.route_id, stops: [] }
+      trip = {
+        tripKey,
+        trainNumber: row.train_number,
+        routeId: row.route_id,
+        stops: [],
+      }
       trips.set(tripKey, trip)
     }
     trip.stops.push({
@@ -452,7 +462,10 @@ const completeJourney = (
     const s = firstTrip.stops[j]
     const cur = first.get(s.railId)
     if (!cur || s.arrTs < cur.arr) {
-      first.set(s.railId, { arr: s.arrTs, leg: { tripKey: firstTrip.tripKey, boardIndex, alightIndex: j } })
+      first.set(s.railId, {
+        arr: s.arrTs,
+        leg: { tripKey: firstTrip.tripKey, boardIndex, alightIndex: j },
+      })
     }
   }
   rounds.push(first)
@@ -494,7 +507,14 @@ const completeJourney = (
         const s = trip.stops[j]
         const existing = current.get(s.railId)
         if (!existing || s.arrTs < existing.arr) {
-          current.set(s.railId, { arr: s.arrTs, leg: { tripKey: trip.tripKey, boardIndex: call.index, alightIndex: j } })
+          current.set(s.railId, {
+            arr: s.arrTs,
+            leg: {
+              tripKey: trip.tripKey,
+              boardIndex: call.index,
+              alightIndex: j,
+            },
+          })
         }
       }
     }
@@ -589,7 +609,13 @@ const optimizeTransfers = (allTrips: DayTrips, legs: Leg[], limits: ConnectionLi
       if (p2 === undefined) continue
       const window = displayTs(f2.stops[p2]) - f1.stops[p1].arrTs
       if (window < limits.minAt(st, stayingPut(f1.stops[p1], f2.stops[p2])) || window > limits.maxMs) continue
-      const cand = { station: st, window, transferTime: f1.stops[p1].arrTs, p1, p2 }
+      const cand = {
+        station: st,
+        window,
+        transferTime: f1.stops[p1].arrTs,
+        p1,
+        p2,
+      }
       if (best === null || isBetterTransfer(cand, best)) best = cand
     }
 
@@ -671,6 +697,71 @@ const buildTrain = (allTrips: DayTrips, leg: Leg, realtime: RealtimeLookup): Tra
 // epoch ms (already anchored at UTC midnight + offset) -> naive wall-clock ISO
 const localIsoFromTs = (ts: number): string => new Date(ts).toISOString().slice(0, 19)
 
+// Origin -> via, each completed with the earliest onward journey via -> destination.
+// A train running straight through the via station stays one leg.
+const planVia = (
+  allTrips: DayTrips,
+  fromStation: number,
+  viaStation: number,
+  toStation: number,
+  queryTs: number,
+  endTs: number,
+  options: PlanOptions,
+): Leg[][] => {
+  const toVia = planLegs(allTrips, fromStation, viaStation, queryTs, endTs, options)
+  if (toVia.length === 0) return []
+  // Onward journeys may run past midnight
+  const onward = planLegs(allTrips, viaStation, toStation, queryTs, Infinity, options)
+  if (onward.length === 0) return []
+
+  type Candidate = { legs: Leg[]; depTs: number; arrTs: number }
+  const candidates: Candidate[] = []
+  const seen = new Set<string>()
+  for (const first of toVia) {
+    const last = first[first.length - 1]
+    const lastTrip = allTrips.get(last.tripKey)!
+    const off = lastTrip.stops[last.alightIndex]
+    const arrAtVia = off.arrTs
+
+    let best: Leg[] | null = null
+    let bestArr = Infinity
+    for (const next of onward) {
+      const board = allTrips.get(next[0].tripKey)!.stops[next[0].boardIndex]
+      const stayingAboard = next[0].tripKey === last.tripKey && next[0].boardIndex === last.alightIndex
+      if (!stayingAboard && displayTs(board) < arrAtVia + CONNECTION_LIMITS.minAt(viaStation, stayingPut(off, board))) continue
+      const arr = journeyArrivalTs(allTrips, next)
+      if (arr < bestArr) {
+        bestArr = arr
+        best = next
+      }
+    }
+    if (!best) continue
+
+    const legs =
+      best[0].tripKey === last.tripKey
+        ? [...first.slice(0, -1), { ...last, alightIndex: best[0].alightIndex }, ...best.slice(1)]
+        : [...first, ...best]
+    const boardAt = allTrips.get(legs[0].tripKey)!.stops[legs[0].boardIndex]
+    const key = legs.map((l) => allTrips.get(l.tripKey)!.trainNumber).join("-") + "@" + displayTs(boardAt)
+    if (seen.has(key)) continue
+    seen.add(key)
+    candidates.push({ legs, depTs: displayTs(boardAt), arrTs: bestArr })
+  }
+
+  // Same arrival: keep the one leaving latest
+  const bestByArrival = new Map<number, Candidate>()
+  for (const c of candidates) {
+    const held = bestByArrival.get(c.arrTs)
+    if (!held || c.depTs > held.depTs || (c.depTs === held.depTs && c.legs.length < held.legs.length)) {
+      bestByArrival.set(c.arrTs, c)
+    }
+  }
+  return [...bestByArrival.values()]
+    .sort((a, b) => a.depTs - b.depTs || a.arrTs - b.arrTs)
+    .slice(0, MAX_RESULTS)
+    .map((c) => c.legs)
+}
+
 /**
  * Pure planner: the itineraries for origin->destination from queryTs, over an
  * already-loaded trip table, as legs over that table. Lists trains by departure
@@ -686,6 +777,10 @@ export const planLegs = (
   endTs: number = Infinity,
   options: PlanOptions = {},
 ): Leg[][] => {
+  const { viaStation, ...rest } = options
+  if (viaStation !== undefined && viaStation !== fromStation && viaStation !== toStation) {
+    return planVia(allTrips, fromStation, viaStation, toStation, queryTs, endTs, rest)
+  }
   // Candidate first trains: those boardable at the origin within [queryTs, endTs].
   // endTs bounds the response to the requested day so it doesn't bleed into the
   // next one (which the client loads as a separate page) — but it is *inclusive*
@@ -712,7 +807,11 @@ export const planLegs = (
   }
   const firstTrains = [...originCalls.values()]
     .sort((a, b) => a.depTs - b.depTs || a.ord - b.ord)
-    .map((call) => ({ tripKey: call.trip.tripKey, boardIndex: call.index, depTs: call.depTs }))
+    .map((call) => ({
+      tripKey: call.trip.tripKey,
+      boardIndex: call.index,
+      depTs: call.depTs,
+    }))
 
   type Candidate = { legs: Leg[]; depTs: number; arrTs: number }
   let candidates: Candidate[] = []
@@ -762,7 +861,13 @@ export const planLegs = (
     const directAlight = trip.stops.findIndex((s, idx) => idx > ft.boardIndex && s.railId === toStation)
     if (directAlight > ft.boardIndex) {
       itineraries.push({
-        legs: [{ tripKey: ft.tripKey, boardIndex: ft.boardIndex, alightIndex: directAlight }],
+        legs: [
+          {
+            tripKey: ft.tripKey,
+            boardIndex: ft.boardIndex,
+            alightIndex: directAlight,
+          },
+        ],
         arrTs: trip.stops[directAlight].arrTs,
       })
       // Riding a direct train to the end isn't always the best use of it: some take
@@ -935,7 +1040,7 @@ export const planLegs = (
     // against, which is the whole point: where the timetable offers a single way
     // to make a trip, that way sets the standard and so excuses itself, however
     // absurd it is. Jerusalem -> Pa'ate Modi'in on a Saturday night was the only
-    // listing there was — out to the airport at 23:36, north to Ako, and back
+    // listing there was — out to the airport at 23:36, north to Akko, and back
     // down to Modi'in at 05:54, six and a quarter hours for half an hour's trip.
     //
     // Judged on the ground rather than on the timetable: the straight lines from
@@ -1070,7 +1175,7 @@ export const planLegs = (
     // Finally, drop a journey that buys nothing at all: it lands on the same
     // minute as one with fewer changes that leaves no earlier, so taking it means
     // setting out sooner and changing more to arrive at the same moment. Kiryat
-    // Motzkin -> Tel Aviv University is the shape — riding out to Ako at 21:20 to
+    // Motzkin -> Tel Aviv University is the shape — riding out to Akko at 21:20 to
     // wait for train 135, which calls at Kiryat Motzkin at 22:04 and reaches the
     // university at 23:28 either way. Whoever could catch the dropped one can
     // catch the survivor, so this cannot delay anybody.
@@ -1298,12 +1403,16 @@ export const searchTrain = async (
 
   // The plan is a pure function of the feed, the day and the request, so it is
   // computed once and kept for as long as the feed is active.
-  const planKey = `${feed.feedId}#${date}#${fromStation}#${toStation}#${options.hideSlowTrains ? 1 : 0}`
+  const planKey = `${feed.feedId}#${date}#${fromStation}#${toStation}#${options.hideSlowTrains ? 1 : 0}#${options.viaStation ?? ""}`
   const legs = cachedPlan(planKey, () => planLegs(allTrips, fromStation, toStation, queryTs, endTs, options))
 
   // Scheduled platforms are baked into stop_times.platform_code at ingest, so the
   // response already carries them (loadDayTrips reads them) — no per-request API call.
-  return { result: { travels: legs.map((itinerary) => buildTravel(allTrips, itinerary, realtime)) } }
+  return {
+    result: {
+      travels: legs.map((itinerary) => buildTravel(allTrips, itinerary, realtime)),
+    },
+  }
 }
 
 export { invalidateDayCacheForFeed, loadDayTrips }

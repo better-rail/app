@@ -504,7 +504,7 @@ export function RouteListScreen() {
 
     return (
       <RouteCard
-        testID="route-card"
+        testID={`route-card-${item.isExchange ? "exchange" : "direct"}`}
         duration={item.duration}
         isMuchShorter={item.isMuchShorter}
         isMuchLonger={item.isMuchLonger}
@@ -543,6 +543,7 @@ export function RouteListScreen() {
 
   return (
     <Screen
+      testID="route-list-screen"
       style={styles.root}
       preset="fixed"
       unsafe={true}

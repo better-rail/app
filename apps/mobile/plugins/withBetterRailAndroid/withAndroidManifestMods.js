@@ -44,6 +44,16 @@ const withAndroidManifestMods = (config) =>
       $: { "android:name": "com.google.android.gms.permission.AD_ID", "tools:node": "remove" },
     })
 
+    // Package visibility (API 30+): lets Linking.canOpenURL see the X / Instagram apps.
+    manifest.queries = manifest.queries || [{}]
+    manifest.queries[0].intent = [
+      ...(manifest.queries[0].intent || []),
+      ...["twitter", "instagram"].map((scheme) => ({
+        action: [{ $: { "android:name": "android.intent.action.VIEW" } }],
+        data: [{ $: { "android:scheme": scheme } }],
+      })),
+    ]
+
     const app = manifest.application[0]
 
     app.activity = app.activity || []

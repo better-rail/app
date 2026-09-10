@@ -12,7 +12,14 @@ const ts = (clock: string) =>
 const trip = (tripId: string, trainNumber: number, stops: [number, string, number][]): TripData => ({
   tripKey: `${DATE}#${tripId}`,
   trainNumber,
-  stops: stops.map(([railId, clock, platform]): StopNode => ({ railId, platform, arrTs: ts(clock), depTs: ts(clock) })),
+  stops: stops.map(
+    ([railId, clock, platform]): StopNode => ({
+      railId,
+      platform,
+      arrTs: ts(clock),
+      depTs: ts(clock),
+    }),
+  ),
 })
 
 const table = (...trips: TripData[]): DayTrips => new Map(trips.map((t) => [t.tripKey, t]))
@@ -522,7 +529,7 @@ describe("planTravels", () => {
 
   it("drops an all-night ride round the country even when it is the only option", () => {
     // Real case: Jerusalem -> Pa'ate Modi'in, half an hour's trip, on a Saturday
-    // night when nothing else runs. Out to the airport at 23:36, north to Ako,
+    // night when nothing else runs. Out to the airport at 23:36, north to Akko,
     // then back down to Modi'in at 05:54 — 263km of straight lines for a 26km
     // journey, and the only listing there was, which is why nothing else can be
     // relied on to displace it. The morning is on the next page.
@@ -1003,7 +1010,7 @@ describe("planTravels", () => {
   })
 
   it("drops a change-route that lands with a later, simpler one", () => {
-    // Real case: Kiryat Motzkin -> Tel Aviv University. Riding out to Ako at 21:20
+    // Real case: Kiryat Motzkin -> Tel Aviv University. Riding out to Akko at 21:20
     // to wait for train 135 arrives 23:28 — exactly when 135 gets there having
     // picked you up at Kiryat Motzkin at 22:04. Setting out 44 minutes earlier and
     // changing once more buys nothing at all.
@@ -1416,7 +1423,10 @@ describe("planTravels", () => {
       const lookup = (_d: string, trainNumber: number, railId: number) => {
         if (trainNumber !== 101) return { delayMin: 0 }
         // 3700: same as scheduled (1) -> no flag; 3500: 9 vs scheduled 2 -> flag.
-        return { delayMin: 0, platform: railId === 3700 ? 1 : railId === 3500 ? 9 : undefined }
+        return {
+          delayMin: 0,
+          platform: railId === 3700 ? 1 : railId === 3500 ? 9 : undefined,
+        }
       }
       const travels = planTravels(trips(), 3700, 3400, ts("07:00"), Infinity, lookup)
 
@@ -1585,5 +1595,76 @@ describe("planTravels", () => {
       const travels = planTravels(trips, 900, 1400, ts("07:00"))
       expect(changeStation(travels)).toBe(4900)
     })
+  })
+})
+
+describe("viaStation", () => {
+  // 3700 -> 3400 direct, or via 3500 with a change
+  const trips = table(
+    trip("direct", 101, [
+      [3700, "08:00", 1],
+      [3400, "08:30", 1],
+    ]),
+    trip("to-via", 201, [
+      [3700, "08:05", 2],
+      [3500, "08:25", 1],
+    ]),
+    trip("from-via", 202, [
+      [3500, "08:40", 2],
+      [3400, "09:10", 1],
+    ]),
+    trip("from-via-too-soon", 203, [
+      [3500, "08:27", 2],
+      [3400, "08:50", 1],
+    ]),
+  )
+
+  it("routes every journey through the chosen station", () => {
+    const travels = planTravels(trips, 3700, 3400, ts("07:00"), Infinity, undefined, { viaStation: 3500 })
+    expect(travels).toHaveLength(1)
+    expect(travels[0].trains.map((t) => t.trainNumber)).toEqual([201, 202])
+    expect(travels[0].trains[0].destinationStation).toBe(3500)
+  })
+
+  it("keeps a train that runs on through the via station as one leg", () => {
+    const through = table(
+      trip("through", 301, [
+        [3700, "08:00", 1],
+        [3500, "08:20", 1],
+        [3400, "08:40", 1],
+      ]),
+    )
+    const travels = planTravels(through, 3700, 3400, ts("07:00"), Infinity, undefined, { viaStation: 3500 })
+    expect(travels).toHaveLength(1)
+    expect(travels[0].trains).toHaveLength(1)
+    expect(travels[0].trains[0].stopStations.map((s: { stationId: number }) => s.stationId)).toEqual([3500])
+  })
+
+  it("allows a four-minute same-platform connection at the via station", () => {
+    const tight = table(
+      trip("in", 401, [
+        [3700, "08:00", 1],
+        [3500, "08:25", 2],
+      ]),
+      trip("same-platform", 402, [
+        [3500, "08:29", 2],
+        [3400, "08:50", 1],
+      ]),
+      trip("other-platform", 403, [
+        [3500, "08:29", 3],
+        [3400, "08:55", 1],
+      ]),
+      trip("later", 404, [
+        [3500, "08:40", 3],
+        [3400, "09:10", 1],
+      ]),
+    )
+    const travels = planTravels(tight, 3700, 3400, ts("07:00"), Infinity, undefined, { viaStation: 3500 })
+    expect(travels.map((t) => t.trains.map((tr) => tr.trainNumber))).toEqual([[401, 402]])
+  })
+
+  it("ignores a via station that is the origin or the destination", () => {
+    const travels = planTravels(trips, 3700, 3400, ts("07:00"), Infinity, undefined, { viaStation: 3700 })
+    expect(travels.map((t) => t.trains[0].trainNumber)).toContain(101)
   })
 })

@@ -49,6 +49,7 @@ export function RouteDetailsScreen() {
   } = useNavigationParamsStore(
     useShallow((s) => ({ routeItem: s.routeItem, originId: s.originId, destinationId: s.destinationId })),
   )
+  const viaStationId = paramsRouteItem.viaStationId
   const {
     rideRoute,
     id: rideId,
@@ -66,13 +67,14 @@ export function RouteDetailsScreen() {
   // Periodically refetch route data to catch platform changes and delays.
   // Skip when ride is active — the ride polling already handles updates.
   const { data: freshRouteItem } = useQuery(
-    ["routeDetails", originId, destinationId, paramsRouteItem.departureTime, ...trainNumbers],
+    ["routeDetails", originId, destinationId, viaStationId, paramsRouteItem.departureTime, ...trainNumbers],
     async () => {
       const [date, time] = formatDateForAPI(paramsRouteItem.departureTime)
       const originId = paramsRouteItem.trains[0].originStationId.toString()
       const destinationId = paramsRouteItem.trains[paramsRouteItem.trains.length - 1].destinationStationId.toString()
-      const routes = await routeApi.getRoutes(originId, destinationId, date, time)
-      return getSelectedRide(routes, trainNumbers) ?? paramsRouteItem
+      const routes = await routeApi.getRoutes(originId, destinationId, date, time, { viaStation: viaStationId })
+      const fresh = getSelectedRide(routes, trainNumbers)
+      return fresh ? { ...fresh, viaStationId } : paramsRouteItem
     },
     {
       initialData: paramsRouteItem,
@@ -110,6 +112,7 @@ export function RouteDetailsScreen() {
 
   return (
     <Screen
+      testID="route-details-screen"
       style={styles.root}
       preset="fixed"
       unsafe={true}
@@ -345,6 +348,7 @@ export function RouteDetailsScreen() {
             }}
           >
             <Pressable
+              testID="train-info-button"
               onPress={() => {
                 if (hasWagonData) {
                   trackEvent("train_info_sheet_opened")

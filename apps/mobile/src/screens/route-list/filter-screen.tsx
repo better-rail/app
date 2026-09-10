@@ -25,11 +25,12 @@ export function FilterScreen() {
   )
 
   return (
-    <View style={styles.wrapper}>
+    <View testID="route-filter-screen" style={styles.wrapper}>
       <Text style={styles.title}>{translate("routes.filter")}</Text>
 
       <View style={SETTING_GROUP}>
         <SettingBox
+          testID="filter-hide-slow-trains"
           first
           last
           title={translate("routes.hideSlowTrains")}
@@ -45,6 +46,7 @@ export function FilterScreen() {
       <View style={SETTING_GROUP}>
         {CHANGES_OPTIONS.map((option, index) => (
           <SettingBox
+            testID={`filter-changes-${option.value ?? "any"}`}
             key={String(option.value)}
             first={index === 0}
             last={index === CHANGES_OPTIONS.length - 1}

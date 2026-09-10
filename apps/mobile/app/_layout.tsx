@@ -33,6 +33,7 @@ import { ForceUpdateScreen } from "@/screens/force-update/force-update-screen"
 import { openActiveRide } from "@/utils/helpers/open-active-ride"
 import PushNotification from "react-native-push-notification"
 import "react-native-console-time-polyfill"
+import { IS_E2E } from "@/config/e2e"
 
 enableScreens()
 
@@ -46,7 +47,7 @@ const TELEMETRY_DISABLED_STORAGE_KEY = "telemetry_disabled"
 
 Sentry.init({
   dsn: "https://203d8d08bca79bc415c95f41ab496d0b@o4510306230534144.ingest.us.sentry.io/4510307294248960",
-  enabled: !__DEV__,
+  enabled: !__DEV__ && !IS_E2E,
   enableTombstone: true,
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,
@@ -204,6 +205,7 @@ function RootLayout() {
   useEffect(() => {
     identifyPosthogUser()
     trackInstalledWidgets()
+
     storage.load("appLanguage").then((languageCode) => {
       if (languageCode) {
         setUserLanguage(languageCode)

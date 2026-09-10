@@ -95,6 +95,9 @@
     "unknown": "לא ידוע",
     "trainNo": "רכבת מס'",
     "changeAt": "החלפה ב",
+    "noRouteViaStation": "לא נמצא מסלול עם החלפה בתחנה זו",
+    "changeStation": "החלפה בתחנה אחרת",
+    "changeStationHint": "בחירת תחנה אחרת להחלפת רכבת",
     "platformStay": "יש להשאר ברציף",
     "platformChange": "יש לעבור לרציף",
     "waitingTime": "זמן המתנה כ-",
@@ -166,9 +169,7 @@
     "supportLinkError": "לא ניתן לפתוח את עמוד התמיכה.",
     "aboutText": "בטר רייל היא אפליקציית קוד פתוח שנוצרה במטרה להנגיש את זמני רכבת ישראל לציבור",
     "independenceDeclaration": "האפליקצייה מפותחת באופן עצמאי ונכתבת בקוד פתוח",
-    "follow": "עקבו אחרי Better Rail",
     "facebook": "פייסבוק",
-    "twitter": "טוויטר",
     "feedback": "שליחת פידבק",
     "feedbackMailError": "לא ניתן לפתוח את אפליקציית המייל. אפשר לכתוב לנו לכתובת feedback@better-rail.co.il",
     "imageAttribution": "קרדיט תמונות",
@@ -297,6 +298,8 @@
     }
   },
   "ride": {
+    "changeStationBlockedTitle": "נסיעה פעילה",
+    "changeStationBlockedMessage": "יש לסיים את הנסיעה כדי לשנות את תחנת ההחלפה.",
     "live": "נסיעה",
     "startRide": "התחלת נסיעה",
     "startNewRide": "התחלת נסיעה חדשה",

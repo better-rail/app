@@ -92,6 +92,9 @@
     "unknown": "Неизвестный",
     "trainNo": "Поезд номер",
     "changeAt": "Пересадка на ",
+    "noRouteViaStation": "Нет маршрута с пересадкой на этой станции",
+    "changeStation": "Пересадка на другой станции",
+    "changeStationHint": "Выберите другую станцию для пересадки",
     "platformStay": "Остаться на платформе",
     "platformChange": "Перейти на платформу",
     "waitingTime": "Время ожидания",
@@ -156,9 +159,7 @@
     "supportBetterRail": "Поддержать Better Rail",
     "supportLinkError": "Не удалось открыть страницу поддержки.",
     "aboutText": "Better Rail это приложение с открытым исходным кодом, целью которого является сделать расписания Израильских Железных Дорог более доступными для общественности.",
-    "follow": "Следить за Better Rail",
     "facebook": "Facebook",
-    "twitter": "Twitter",
     "sourceCode": "Исходный код",
     "deleteAllData": "Удалить все данные",
     "deleteAllDataConfirm": "Вы уверены, что хотите удалить все локальные данные приложения? Это действие нельзя отменить.",
@@ -250,6 +251,8 @@
     }
   },
   "ride": {
+    "changeStationBlockedTitle": "Поездка активна",
+    "changeStationBlockedMessage": "Завершите поездку, чтобы изменить станцию пересадки.",
     "live": "Live",
     "startRide": "начать поездку",
     "startNewRide": "Начать новую поездку",

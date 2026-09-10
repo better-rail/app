@@ -12,6 +12,8 @@
     "mobile:prebuild": "bun run --filter @better-rail/mobile prebuild",
     "mobile:compile": "bun run --filter @better-rail/mobile compile",
     "mobile:test": "bun run --filter @better-rail/mobile test",
+    "mobile:e2e:ios": "bun run --filter @better-rail/mobile e2e:ios",
+    "mobile:e2e:android": "bun run --filter @better-rail/mobile e2e:android",
     "server:dev": "bun run --filter @better-rail/server dev",
     "server:start": "bun run --filter @better-rail/server start",
     "server:test": "bun run --filter @better-rail/server test",

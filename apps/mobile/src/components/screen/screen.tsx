@@ -22,7 +22,9 @@ function ScreenWithoutScrolling(props: ScreenProps) {
         backgroundColor={props.statusBarBackgroundColor || (isDarkMode ? "#1c1c1e" : "#f2f2f7")}
         animated={true}
       />
-      <View style={[styles.fixedInner, style, styles.insetTop(!!props.unsafe)]}>{props.children}</View>
+      <View testID={props.testID} style={[styles.fixedInner, style, styles.insetTop(!!props.unsafe)]}>
+        {props.children}
+      </View>
     </KeyboardAvoidingView>
   )
 }
@@ -44,7 +46,7 @@ function ScreenWithScrolling(props: ScreenProps) {
         backgroundColor={props.statusBarBackgroundColor || (isDarkMode ? "#1c1c1e" : "#f2f2f7")}
         animated={true}
       />
-      <View style={[styles.scrollOuter, backgroundStyle, styles.insetTop(!!props.unsafe)]}>
+      <View testID={props.testID} style={[styles.scrollOuter, backgroundStyle, styles.insetTop(!!props.unsafe)]}>
         <ScrollView style={[styles.scrollOuter, backgroundStyle]} contentContainerStyle={[styles.scrollInner, style]}>
           {props.children}
         </ScrollView>
