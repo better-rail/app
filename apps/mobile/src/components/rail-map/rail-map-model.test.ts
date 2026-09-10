@@ -69,6 +69,8 @@ describe("rail map model", () => {
     expect(stationLabelLines("Tel Aviv - Savidor Center")).toEqual(["Tel Aviv", "Savidor Center"])
     expect(stationLabelLines("Shomron – Tayyiba")).toEqual(["Shomron", "Tayyiba"])
     expect(stationLabelLines("Ben Gurion Airport")).toEqual(["Ben Gurion", "Airport"])
+    expect(stationLabelLines("Petah Tikva - Kiryat Arye", 9)).toEqual(["Petah", "Tikva", "Kiryat", "Arye"])
+    expect(stationLabelLines("Haifa - Hof HaKarmel", 14, true)).toEqual(["Hof HaKarmel"])
     expect(stationLabelLines("Herzliya")).toEqual(["Herzliya"])
     expect(stationLabelLines("תל אביב - סבידור מרכז")).toEqual(["תל אביב", "סבידור מרכז"])
   })
@@ -79,6 +81,6 @@ describe("rail map model", () => {
       { x: 10, y: 0 },
       { x: 10, y: 10 },
     ])
-    expect(d).toBe("M0 0 L6 0 Q10 0 10 4 L10 10")
+    expect(d).toBe("M0 0 L5 0 Q10 0 10 5 L10 10")
   })
 })

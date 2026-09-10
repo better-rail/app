@@ -22,10 +22,12 @@ import { getStationById } from "@/data/stations"
 import type { RailLineId } from "@/data/rail-lines"
 import type { ServiceStatusSnapshot } from "@/services/api"
 import {
+  LABEL_BREAK_LENGTH,
   LABEL_FONT_SIZE,
   LABEL_LINE_HEIGHT,
   LINE_STROKE,
   MARKER_RADIUS,
+  SMALL_LABEL_BREAK_LENGTH,
   type LinePath,
   type Point,
   type RailMapModel,
@@ -43,11 +45,11 @@ const HEEBO_FONTS = {
 }
 
 /** Blank margin around the drawing, in layout units, so edge labels are not clipped. */
-const PAD = { left: 12, right: 10, top: 4, bottom: 6 }
+const PAD = { left: 3, right: 5, top: 3, bottom: 4 }
 const MIN_ZOOM = 0.9
 const MAX_ZOOM = 4
 /** How close (in layout units) a tap must be to a line to select it. */
-const TAP_TOLERANCE = 3.5
+const TAP_TOLERANCE = 3
 
 export type RailMapProps = {
   /** Live status: flags the stations of every disrupted stretch on the map. */
@@ -292,33 +294,29 @@ export function RailMap({ status, selectedLineId, onSelectLine, focusLineId, sty
                 ),
               )}
 
-              {/* Station markers. */}
+              {/* Station markers: a dot on the line for a stop, a white pill with a dot per lane for an interchange. */}
               {model.markers.map((marker) => {
                 const dim = selectedLineId != null && !selectedStations.has(marker.stationId)
-                const ink = dim ? palette.dimInk : palette.ink
+                const dot = dim ? palette.dimInk : palette.dot
                 if (marker.kind === "single") {
-                  return (
-                    <Group key={marker.stationId}>
-                      <Circle c={marker.center} r={marker.radius} color={palette.background} />
-                      <Circle c={marker.center} r={marker.radius} color={ink} style="stroke" strokeWidth={0.5} />
-                    </Group>
-                  )
+                  return <Circle key={marker.stationId} c={marker.a} r={marker.radius} color={dot} />
                 }
                 const capsule = Skia.Path.Make()
                 capsule.moveTo(marker.a.x, marker.a.y)
                 capsule.lineTo(marker.b.x, marker.b.y)
                 return (
                   <Group key={marker.stationId}>
-                    <Path path={capsule} color={ink} style="stroke" strokeWidth={marker.radius * 2 + 0.6} strokeCap="round" />
+                    <Path path={capsule} color={dot} style="stroke" strokeWidth={marker.radius * 2 + 0.5} strokeCap="round" />
                     <Path
                       path={capsule}
-                      color={dim ? palette.background : palette.markerFill}
+                      color={dim ? palette.dimPill : palette.pill}
                       style="stroke"
                       strokeWidth={marker.radius * 2}
                       strokeCap="round"
                     />
-                    {!dim &&
-                      marker.lanePoints.map((p, i) => <Circle key={i} c={p} r={MARKER_RADIUS * 0.5} color={palette.badgeInk} />)}
+                    {marker.lanePoints.map((p, i) => (
+                      <Circle key={i} c={p} r={MARKER_RADIUS * 0.8} color={dot} />
+                    ))}
                   </Group>
                 )
               })}
@@ -329,8 +327,8 @@ export function RailMap({ status, selectedLineId, onSelectLine, focusLineId, sty
                   ? []
                   : section.points.map((p, i) => (
                       <Group key={`${section.key}-${i}`}>
-                        <Circle c={p} r={1.7} color={palette.badge} />
-                        <Circle c={p} r={1.7} color={palette.background} style="stroke" strokeWidth={0.35} />
+                        <Circle c={p} r={1.5} color={palette.badge} />
+                        <Circle c={p} r={1.5} color={palette.background} style="stroke" strokeWidth={0.3} />
                         <Path path={exclamationPath(p)} color={palette.badgeInk} />
                       </Group>
                     )),
@@ -387,8 +385,8 @@ const collectDisruptedSections = (model: RailMapModel, status?: ServiceStatusSna
 /** A small "!" centred on `p`, sized for the badge disc. */
 const exclamationPath = (p: Point): SkPath => {
   const path = Skia.Path.Make()
-  path.addRRect(Skia.RRectXY(Skia.XYWHRect(p.x - 0.28, p.y - 1.15, 0.56, 1.35), 0.28, 0.28))
-  path.addCircle(p.x, p.y + 0.75, 0.32)
+  path.addRRect(Skia.RRectXY(Skia.XYWHRect(p.x - 0.25, p.y - 1, 0.5, 1.2), 0.25, 0.25))
+  path.addCircle(p.x, p.y + 0.65, 0.28)
   return path
 }
 
@@ -408,7 +406,12 @@ const buildLabel = (
   dimInk: string,
 ): BuiltLabel => {
   const name = getStationById(label.stationId)?.name ?? label.stationId
-  const text = stationLabelLines(name).join("\n")
+  const text = stationLabelLines(
+    name,
+    label.fontScale < 1 ? SMALL_LABEL_BREAK_LENGTH : LABEL_BREAK_LENGTH,
+    label.stationNameOnly,
+  ).join("\n")
+  const fontSize = LABEL_FONT_SIZE * label.fontScale
   const textAlign = label.side === "left" ? TextAlign.Right : label.side === "right" ? TextAlign.Left : TextAlign.Center
   const make = (color: string): SkParagraph => {
     const paragraph = Skia.ParagraphBuilder.Make(
@@ -416,14 +419,14 @@ const buildLabel = (
         textAlign,
         textDirection: isRTL ? TextDirection.RTL : TextDirection.LTR,
         heightMultiplier: LABEL_LINE_HEIGHT,
-        maxLines: 2,
+        maxLines: 4,
       },
       fontMgr,
     )
       .pushStyle({
         color: Skia.Color(color),
         fontFamilies: ["Heebo"],
-        fontSize: LABEL_FONT_SIZE,
+        fontSize,
         heightMultiplier: LABEL_LINE_HEIGHT,
       })
       .addText(text)

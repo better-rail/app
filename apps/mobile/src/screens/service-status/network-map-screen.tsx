@@ -64,6 +64,7 @@ export function NetworkMapScreen() {
           <View style={styles.hint}>
             <Text style={styles.hintText} tx="serviceStatus.networkMapHint" />
             {data && <LiveIndicator realtime={data.realtime} compact />}
+            <Text style={styles.credit} tx="serviceStatus.mapCredit" preset="secondary" />
           </View>
         )}
       </View>
@@ -127,5 +128,9 @@ const styles = StyleSheet.create((theme, rt) => ({
   },
   hintText: {
     color: theme.colors.label,
+  },
+  credit: {
+    textAlign: "center",
+    paddingHorizontal: theme.spacing[3],
   },
 }))

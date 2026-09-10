@@ -71,6 +71,7 @@ export function LineStatusScreen() {
               <Text style={styles.thresholds} preset="small">
                 {translate("serviceStatus.thresholds", { minor: MINOR_DELAY_MINUTES, severe: SEVERE_DELAY_MINUTES })}
               </Text>
+              <Text style={styles.thresholds} tx="serviceStatus.mapCredit" preset="secondary" />
             </>
           )}
         </ScrollView>

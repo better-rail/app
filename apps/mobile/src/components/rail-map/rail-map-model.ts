@@ -6,29 +6,45 @@
  * check the layout. Everything is in layout units (see MAP_BOUNDS).
  *
  * Lines that share track are drawn as parallel lanes: every physical edge
- * knows which lines use it, each line gets a fixed offset from the track's
- * centre line on that edge, and its vertices are the mitred intersections of
- * consecutive offset segments — so a bundle of lines turns a corner together.
+ * knows which lines use it and each line gets a fixed offset from the track's
+ * centre line on that edge. Where the same lanes turn a corner together the
+ * lane vertices are the mitred intersections of the offset segments; where a
+ * branch leaves a bundle its lines start from the lanes they hold in that
+ * bundle, so they peel off the way the original artwork draws them.
  */
 import { RAIL_LINES, type RailLine, type RailLineId } from "@/data/rail-lines"
-import { LINE_LANE_RANK, MAP_BOUNDS, MAP_EDGES, MAP_NODES, type LabelSide, type MapNode } from "@/data/rail-map-layout"
+import {
+  LANE_RANK_OVERRIDES,
+  LINE_LANE_RANK,
+  MAP_BOUNDS,
+  MAP_EDGES,
+  MAP_NODES,
+  type LabelSide,
+  type MapNode,
+} from "@/data/rail-map-layout"
 
 export type Point = { x: number; y: number }
 
-/** Gap between the centres of two neighbouring lanes. */
-export const LANE_WIDTH = 2.1
-/** Stroke width of a line. */
-export const LINE_STROKE = 1.5
-/** Corner radius where a line bends. */
-export const CORNER_RADIUS = 4
-/** Radius of a single-line station marker. */
-export const MARKER_RADIUS = 1.1
+// Proportions measured on the original artwork (1732 px = 100 units).
+/** Gap between the centres of two neighbouring lanes (27.5 px). */
+export const LANE_WIDTH = 1.59
+/** Stroke width of a line (20 px). */
+export const LINE_STROKE = 1.15
+/** Corner radius where a line bends (the original's large, soft corners). */
+export const CORNER_RADIUS = 5
+/** Radius of a station dot (11 px). */
+export const MARKER_RADIUS = 0.64
+/** Half-height of an interchange pill (17 px). */
+export const CAPSULE_RADIUS = 0.98
 /** Label typography, in layout units. */
-export const LABEL_FONT_SIZE = 2.8
-export const LABEL_LINE_HEIGHT = 1.12
-export const LABEL_MAX_WIDTH = 26
+export const LABEL_FONT_SIZE = 2
+export const LABEL_LINE_HEIGHT = 1.1
+export const LABEL_MAX_WIDTH = 19
 /** Single-line names longer than this are broken in two. */
-export const LABEL_BREAK_LENGTH = 12
+export const LABEL_BREAK_LENGTH = 14
+/** Type size of the labels in the tight spots, relative to LABEL_FONT_SIZE, and their shorter line length. */
+export const SMALL_LABEL_SCALE = 0.72
+export const SMALL_LABEL_BREAK_LENGTH = 9
 
 export type LinePath = {
   lineId: RailLineId
@@ -49,9 +65,9 @@ export type StationMarker = {
   /** Points on the lanes of the lines calling at the station. */
   lanePoints: Point[]
   lineIds: RailLineId[]
-  /** A single ring for one line; a capsule spanning the lanes for an interchange. */
+  /** A dot for one line; a pill spanning the lanes for an interchange. */
   kind: "single" | "capsule"
-  /** Capsule end points (equal to `center` for a single marker). */
+  /** Pill end points (equal to the dot for a single marker). */
   a: Point
   b: Point
   radius: number
@@ -65,6 +81,10 @@ export type StationLabel = {
   /** The point the text is anchored at (right edge for "left" labels, left edge for "right", centre for above/below). */
   anchor: Point
   maxWidth: number
+  /** 1 for regular labels, less in the tight spots (see MapNode.small). */
+  fontScale: number
+  /** Drop the city part of the name (see MapNode.stationNameOnly). */
+  stationNameOnly: boolean
 }
 
 export type RailMapModel = {
@@ -135,6 +155,13 @@ const edgeFrame = (a: string, b: string): { dir: Point; normal: Point } => {
   return { dir, normal: { x: -dir.y, y: dir.x } }
 }
 
+const rankOverrides = new Map<string, number>()
+for (const override of LANE_RANK_OVERRIDES) {
+  for (const [a, b] of override.edges) rankOverrides.set(`${override.lineId}@${edgeKey(a, b)}`, override.rank)
+}
+
+const laneRank = (lineId: RailLineId, key: string): number => rankOverrides.get(`${lineId}@${key}`) ?? LINE_LANE_RANK[lineId]
+
 // --- vector helpers ------------------------------------------------------------------
 
 const add = (p: Point, q: Point, k = 1): Point => ({ x: p.x + q.x * k, y: p.y + q.y * k })
@@ -158,23 +185,40 @@ const intersect = (a: Point, b: Point, c: Point, d: Point): Point | undefined =>
 
 const fmt = (n: number): string => (Math.round(n * 100) / 100).toString()
 
-/** A polyline with every interior corner rounded, as an SVG path. */
+const isStraightThrough = (inDir: Point, outDir: Point): boolean =>
+  Math.abs(inDir.x * outDir.y - inDir.y * outDir.x) < 1e-3 && inDir.x * outDir.x + inDir.y * outDir.y > 0
+
+/**
+ * A polyline with every interior corner rounded, as an SVG path. A corner may
+ * use most of a segment that has no corner at its other end, so short legs
+ * between two corners share the leg and long legs get the full radius.
+ */
 export const roundedPathD = (vertices: Point[], radius = CORNER_RADIUS): string => {
   if (vertices.length === 0) return ""
   if (vertices.length === 1) return `M${fmt(vertices[0].x)} ${fmt(vertices[0].y)}`
+
+  const corner = vertices.map((v, i) => {
+    if (i === 0 || i === vertices.length - 1) return false
+    return !isStraightThrough(unit(sub(v, vertices[i - 1])), unit(sub(vertices[i + 1], v)))
+  })
+  // How much of the segment before vertex i a corner at i may use.
+  const available = (i: number, other: number): number => {
+    const segment = len(sub(vertices[i], vertices[other]))
+    return corner[other] ? segment / 2 : segment * 0.9
+  }
+
   const parts: string[] = [`M${fmt(vertices[0].x)} ${fmt(vertices[0].y)}`]
   for (let i = 1; i < vertices.length - 1; i++) {
     const prev = vertices[i - 1]
     const here = vertices[i]
     const next = vertices[i + 1]
-    const inDir = unit(sub(here, prev))
-    const outDir = unit(sub(next, here))
-    const r = Math.min(radius, len(sub(here, prev)) / 2, len(sub(next, here)) / 2)
-    // A straight-through vertex needs no curve.
-    if (Math.abs(inDir.x * outDir.y - inDir.y * outDir.x) < 1e-4 && inDir.x * outDir.x + inDir.y * outDir.y > 0) {
+    if (!corner[i]) {
       parts.push(`L${fmt(here.x)} ${fmt(here.y)}`)
       continue
     }
+    const inDir = unit(sub(here, prev))
+    const outDir = unit(sub(next, here))
+    const r = Math.min(radius, available(i, i - 1), available(i, i + 1))
     const start = add(here, inDir, -r)
     const end = add(here, outDir, r)
     parts.push(`L${fmt(start.x)} ${fmt(start.y)}`, `Q${fmt(here.x)} ${fmt(here.y)} ${fmt(end.x)} ${fmt(end.y)}`)
@@ -184,34 +228,26 @@ export const roundedPathD = (vertices: Point[], radius = CORNER_RADIUS): string 
   return parts.join(" ")
 }
 
-/** The right-hand normal of the edge at a node that carries the most lines (the "trunk" there). */
-const busiestNormal = (nodeId: string, lanesByEdge: Map<string, RailLineId[]>): Point => {
-  let best: { count: number; normal: Point } | undefined
-  for (const next of adjacency.get(nodeId) ?? []) {
-    const count = lanesByEdge.get(edgeKey(nodeId, next))?.length ?? 0
-    if (!best || count > best.count) best = { count, normal: edgeFrame(nodeId, next).normal }
-  }
-  return best?.normal ?? { x: 1, y: 0 }
-}
-
 /**
  * Station names are "City - Station" in every language; on the map they read
- * as two short lines, the way Konovalov sets them, instead of one long one.
+ * as two short lines, the way the original sets them, instead of one long one.
  */
-export const stationLabelLines = (name: string): string[] => {
-  const parts = name
+export const stationLabelLines = (name: string, maxLineLength = LABEL_BREAK_LENGTH, stationNameOnly = false): string[] => {
+  const split = name
     .split(/\s+[-–]\s+/)
     .map((part) => part.trim())
     .filter((part) => part.length > 0)
-  if (parts.length >= 2) return parts.slice(0, 2)
-  // A long single name ("Ben Gurion Airport") breaks at the space nearest its middle.
-  const single = parts[0] ?? name
-  if (single.length <= LABEL_BREAK_LENGTH) return [single]
-  const spaces = [...single.matchAll(/\s/g)].map((m) => m.index as number)
-  if (spaces.length === 0) return [single]
-  const middle = single.length / 2
-  const at = spaces.reduce((best, i) => (Math.abs(i - middle) < Math.abs(best - middle) ? i : best), spaces[0])
-  return [single.slice(0, at), single.slice(at + 1)]
+  const parts = (stationNameOnly && split.length > 1 ? split.slice(1) : split).slice(0, 2)
+  // A long line ("Ben Gurion Airport", "Hod HaSharon") breaks at the space nearest its middle.
+  const broken = (parts.length > 0 ? parts : [name]).flatMap((line) => {
+    if (line.length <= maxLineLength) return [line]
+    const spaces = [...line.matchAll(/\s/g)].map((m) => m.index as number)
+    if (spaces.length === 0) return [line]
+    const middle = line.length / 2
+    const at = spaces.reduce((best, i) => (Math.abs(i - middle) < Math.abs(best - middle) ? i : best), spaces[0])
+    return [line.slice(0, at), line.slice(at + 1)]
+  })
+  return broken.slice(0, 4)
 }
 
 // --- the model ------------------------------------------------------------------------
@@ -235,7 +271,7 @@ export const buildRailMapModel = (): RailMapModel => {
     routes.set(line.id, nodeIds)
   }
 
-  // 2. Which lines share each edge, in lane order.
+  // 2. Which lines share each edge, in lane order (east to west facing south).
   const lanesByEdge = new Map<string, RailLineId[]>()
   for (const [lineId, nodeIds] of routes) {
     for (let i = 0; i < nodeIds.length - 1; i++) {
@@ -245,36 +281,44 @@ export const buildRailMapModel = (): RailMapModel => {
       lanesByEdge.set(key, lanes)
     }
   }
-  for (const lanes of lanesByEdge.values()) lanes.sort((a, b) => LINE_LANE_RANK[a] - LINE_LANE_RANK[b])
+  for (const [key, lanes] of lanesByEdge) lanes.sort((a, b) => laneRank(a, key) - laneRank(b, key))
 
-  const laneOffset = (lineId: RailLineId, a: string, b: string): number => {
-    const lanes = lanesByEdge.get(edgeKey(a, b)) ?? [lineId]
-    return (lanes.indexOf(lineId) - (lanes.length - 1) / 2) * LANE_WIDTH
+  /** Where a line sits on an edge, at a node: the node shifted along the edge's normal by the lane offset. */
+  const lanePosition = (lineId: RailLineId, at: string, other: string): Point => {
+    const key = edgeKey(at, other)
+    const lanes = lanesByEdge.get(key) ?? [lineId]
+    const offset = (lanes.indexOf(lineId) - (lanes.length - 1) / 2) * LANE_WIDTH
+    return add(point(at), edgeFrame(at, other).normal, offset)
   }
 
-  // 3. Offset polylines with mitred joins.
+  const sameLanes = (a: RailLineId[] | undefined, b: RailLineId[] | undefined): boolean =>
+    !!a && !!b && a.length === b.length && a.every((id, i) => id === b[i])
+
+  // 3. Lane polylines: mitred where a bundle bends, anchored to the busier bundle where lanes split or reorder.
   const lines: LinePath[] = []
   const lanePointsByNode = new Map<string, Point[]>()
   const callingByNode = new Map<string, { lineId: RailLineId; point: Point }[]>()
 
   for (const line of RAIL_LINES) {
     const nodeIds = routes.get(line.id) as string[]
-    const segments = nodeIds.slice(0, -1).map((id, i) => {
-      const next = nodeIds[i + 1]
-      const { normal } = edgeFrame(id, next)
-      const offset = laneOffset(line.id, id, next)
-      return { a: add(point(id), normal, offset), b: add(point(next), normal, offset) }
-    })
-
     const vertices: Point[] = nodeIds.map((id, i) => {
-      if (i === 0) return segments[0].a
-      if (i === nodeIds.length - 1) return segments[segments.length - 1].b
-      const before = segments[i - 1]
-      const after = segments[i]
-      const fallback = mid(before.b, after.a)
-      const hit = intersect(before.a, before.b, after.a, after.b)
-      if (!hit || len(sub(hit, point(id))) > MITRE_LIMIT) return fallback
-      return hit
+      if (i === 0) return lanePosition(line.id, id, nodeIds[1])
+      if (i === nodeIds.length - 1) return lanePosition(line.id, id, nodeIds[i - 1])
+      const before = nodeIds[i - 1]
+      const after = nodeIds[i + 1]
+      const lanesIn = lanesByEdge.get(edgeKey(before, id))
+      const lanesOut = lanesByEdge.get(edgeKey(id, after))
+      if (sameLanes(lanesIn, lanesOut)) {
+        const a = lanePosition(line.id, before, id)
+        const b = lanePosition(line.id, id, before)
+        const c = lanePosition(line.id, id, after)
+        const d = lanePosition(line.id, after, id)
+        const hit = intersect(a, b, c, d)
+        return !hit || len(sub(hit, point(id))) > MITRE_LIMIT ? mid(b, c) : hit
+      }
+      // The line keeps the lane it holds in the busier bundle; the other edge peels away from there.
+      const busierIsIn = (lanesIn?.length ?? 0) >= (lanesOut?.length ?? 0)
+      return lanePosition(line.id, id, busierIsIn ? before : after)
     })
 
     const vertexIndex = new Map<string, number>()
@@ -302,7 +346,7 @@ export const buildRailMapModel = (): RailMapModel => {
     const lanePoints = calling.map((c) => c.point)
     const allPoints = lanePointsByNode.get(node.id) ?? lanePoints
 
-    // An interchange capsule lies across the busiest track through the station,
+    // An interchange pill lies across the busiest track through the station,
     // so a branch leaving at an angle does not tilt it; its dots are the lane
     // points projected onto that axis.
     const axis = busiestNormal(node.id, lanesByEdge)
@@ -312,11 +356,15 @@ export const buildRailMapModel = (): RailMapModel => {
     const a = add(center, axis, Math.min(...extents))
     const b = add(center, axis, Math.max(...extents))
     const kind = calling.length > 1 ? "capsule" : "single"
-    const radius = kind === "capsule" ? MARKER_RADIUS + 0.35 : MARKER_RADIUS
-    // Labels clear the lanes across the trunk (a branch's mitred vertex may lie
-    // further out along the track, which is not in the label's way).
-    const reach = allPoints.reduce((max, p) => Math.max(max, Math.abs(along(p))), 0)
-    const halfWidth = reach + radius + 0.4
+    const radius = kind === "capsule" ? CAPSULE_RADIUS : MARKER_RADIUS
+    // Labels clear the drawn marker on their own axis: the pill's horizontal
+    // extent for a label beside it, its vertical extent for one above or below.
+    const ends = kind === "capsule" ? [a, b] : [center]
+    const extent = (pick: (p: Point) => number): number =>
+      Math.max(...allPoints.map((p) => Math.abs(pick(p) - pick(center))), ...ends.map((p) => Math.abs(pick(p) - pick(center)))) +
+      radius +
+      0.3
+    const halfWidth = node.label === "left" || node.label === "right" ? extent((p) => p.x) : extent((p) => p.y)
 
     markers.push({
       stationId: node.id,
@@ -330,8 +378,8 @@ export const buildRailMapModel = (): RailMapModel => {
       halfWidth,
     })
 
-    const gap = 1.2
-    const anchor: Point =
+    const gap = 0.9
+    const base: Point =
       node.label === "left"
         ? { x: node.x - halfWidth - gap, y: node.y }
         : node.label === "right"
@@ -339,16 +387,30 @@ export const buildRailMapModel = (): RailMapModel => {
           : node.label === "above"
             ? { x: node.x, y: node.y - halfWidth - gap }
             : { x: node.x, y: node.y + halfWidth + gap }
+    const anchor = node.labelOffset ? add(base, node.labelOffset) : base
+    const fontScale = node.small ? SMALL_LABEL_SCALE : 1
     labels.push({
       stationId: node.id,
       side: node.label,
       anchor,
-      maxWidth: node.label === "left" || node.label === "right" ? LABEL_MAX_WIDTH : LABEL_MAX_WIDTH * 0.7,
+      maxWidth: LABEL_MAX_WIDTH * fontScale,
+      fontScale,
+      stationNameOnly: node.stationNameOnly === true,
     })
   }
 
   cachedModel = { bounds: MAP_BOUNDS, lines, markers, labels, nodeById }
   return cachedModel
+}
+
+/** The right-hand normal of the edge at a node that carries the most lines (the "trunk" there). */
+const busiestNormal = (nodeId: string, lanesByEdge: Map<string, RailLineId[]>): Point => {
+  let best: { count: number; normal: Point } | undefined
+  for (const next of adjacency.get(nodeId) ?? []) {
+    const count = lanesByEdge.get(edgeKey(nodeId, next))?.length ?? 0
+    if (!best || count > best.count) best = { count, normal: edgeFrame(nodeId, next).normal }
+  }
+  return best?.normal ?? { x: 1, y: 0 }
 }
 
 // --- queries ----------------------------------------------------------------------------
