@@ -3,21 +3,14 @@ import { RouteItem } from "./rail-api.types"
 import { userLocale } from "@/i18n"
 import { head, last } from "lodash"
 import { RideStartError, toRideApiError } from "@/utils/helpers/ride-errors"
+import { serverBaseURL } from "@/config/api-config"
 
 export class RideApi {
   axiosInstance: AxiosInstance
 
   constructor() {
-    const env: string = "production"
-    const envPath = env === "production" ? "" : "-" + env
-    let baseURL = "https://api.better-rail.co.il/api/v1"
-
-    if (env !== "production") {
-      baseURL = `https://better-rail${envPath}.up.railway.app/api/v1`
-    }
-
     this.axiosInstance = axios.create({
-      baseURL,
+      baseURL: serverBaseURL,
       timeout: 30000,
       headers: {
         "Content-Type": "application/json",
