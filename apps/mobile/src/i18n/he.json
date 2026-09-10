@@ -95,6 +95,9 @@
     "unknown": "לא ידוע",
     "trainNo": "רכבת מס'",
     "changeAt": "החלפה ב",
+    "noRouteViaStation": "לא נמצא מסלול עם החלפה בתחנה זו",
+    "changeStation": "החלפה בתחנה אחרת",
+    "changeStationHint": "בחירת תחנה אחרת להחלפת רכבת",
     "platformStay": "יש להשאר ברציף",
     "platformChange": "יש לעבור לרציף",
     "waitingTime": "זמן המתנה כ-",
@@ -276,6 +279,8 @@
     }
   },
   "ride": {
+    "changeStationBlockedTitle": "נסיעה פעילה",
+    "changeStationBlockedMessage": "יש לסיים את הנסיעה כדי לשנות את תחנת ההחלפה.",
     "live": "נסיעה",
     "startRide": "התחלת נסיעה",
     "startNewRide": "התחלת נסיעה חדשה",

@@ -22,7 +22,13 @@ export function ChangeDirectionButton(props: ChangeDirectionButtonProps) {
 
   if (isLiquidGlassSupported) {
     return (
-      <Pressable {...props} style={buttonStyle}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={translate("plan.switchStations")}
+        accessibilityHint={translate("plan.switchStationsHint")}
+        {...props}
+        style={buttonStyle}
+      >
         <LiquidGlassView interactive style={styles.container} tintColor={color.secondary}>
           <Image source={upDownArrowIcon} style={styles.arrowIcon} />
         </LiquidGlassView>
@@ -34,6 +40,7 @@ export function ChangeDirectionButton(props: ChangeDirectionButtonProps) {
     <TouchableOpacity
       style={[styles.container, buttonStyle]}
       activeOpacity={onPress ? 0.9 : 1}
+      accessibilityRole="button"
       accessibilityLabel={translate("plan.switchStations")}
       accessibilityHint={translate("plan.switchStationsHint")}
       {...props}

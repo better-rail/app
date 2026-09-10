@@ -38,6 +38,7 @@ export class RideApi {
         originId: head(route.trains).originStationId,
         destinationId: last(route.trains).destinationStationId,
         trains: route.trains.map((train) => train.trainNumber),
+        viaStationId: route.viaStationId ? Number(route.viaStationId) : undefined,
       })
     } catch (error) {
       throw toRideApiError(error)

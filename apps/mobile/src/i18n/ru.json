@@ -92,6 +92,9 @@
     "unknown": "Неизвестный",
     "trainNo": "Поезд номер",
     "changeAt": "Пересадка на ",
+    "noRouteViaStation": "Нет маршрута с пересадкой на этой станции",
+    "changeStation": "Пересадка на другой станции",
+    "changeStationHint": "Выберите другую станцию для пересадки",
     "platformStay": "Остаться на платформе",
     "platformChange": "Перейти на платформу",
     "waitingTime": "Время ожидания",
@@ -229,6 +232,8 @@
     }
   },
   "ride": {
+    "changeStationBlockedTitle": "Поездка активна",
+    "changeStationBlockedMessage": "Завершите поездку, чтобы изменить станцию пересадки.",
     "live": "Live",
     "startRide": "начать поездку",
     "startNewRide": "Начать новую поездку",

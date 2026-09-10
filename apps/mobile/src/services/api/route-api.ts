@@ -16,7 +16,7 @@ export class RouteApi {
     destinationId: string,
     date: string,
     hour: string,
-    options: { hideSlowTrains?: boolean } = {},
+    options: { hideSlowTrains?: boolean; viaStation?: string } = {},
   ): Promise<RouteItem[]> {
     if (!originId || !destinationId) throw new Error("Missing origin / destination data")
 
@@ -35,6 +35,7 @@ export class RouteApi {
         scheduleType: "ByDeparture",
         languageId: "Hebrew",
         hideSlowTrains: options.hideSlowTrains ?? false,
+        ...(options.viaStation ? { viaStation: parseInt(options.viaStation) } : {}),
       }
 
       const response: AxiosResponse<RailApiGetRoutesResult> = await this.api.axiosInstance.post(
