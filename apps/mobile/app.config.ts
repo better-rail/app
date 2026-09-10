@@ -17,6 +17,7 @@ const APP_GROUP = "group.il.co.better-rail"
 const APPLE_TEAM_ID = "UE6BVYPPFX"
 const IOS_BUNDLE_ID = "il.co.better-rail"
 const ANDROID_PACKAGE = "com.betterrail"
+const IOS_SUPPORTED_LOCALES = ["en", "he", "ar", "ru"]
 
 // iOS registers fonts by the family name baked into each file ("Heebo"), selecting the weight
 // via `fontWeight`. The flat string array is all iOS needs.
@@ -52,7 +53,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   name: "Better Rail",
   slug: "better-rail",
   owner: "better-rail",
-  version: "2.7.12",
+  version: "2.7.13",
   updates: {
     enabled: !IS_E2E,
     url: "https://u.expo.dev/b7819f45-8466-4c11-8628-3539099e6c78",
@@ -155,6 +156,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   plugins: [
     "expo-router",
     "expo-iap",
+    ["expo-localization", { supportedLocales: { ios: IOS_SUPPORTED_LOCALES } }],
     // Required by react-native-unistyles on Android (edge-to-edge insets via the mini runtime).
     "react-native-edge-to-edge",
     [
