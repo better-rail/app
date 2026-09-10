@@ -10,6 +10,7 @@ export const he = {
   "nav.press": "בתקשורת",
   "nav.download": "הורדת האפליקציה",
   "nav.language": "English",
+  "nav.darkMode": "מצב כהה",
   "nav.menu": "תפריט",
   "nav.close": "סגירה",
   "nav.home": "דף הבית",

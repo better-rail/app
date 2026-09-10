@@ -13,6 +13,7 @@ export const en: Record<TranslationKey, string> = {
   "nav.press": "Press",
   "nav.download": "Get the app",
   "nav.language": "עברית",
+  "nav.darkMode": "Dark mode",
   "nav.menu": "Menu",
   "nav.close": "Close",
   "nav.home": "Home",

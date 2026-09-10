@@ -10,6 +10,7 @@ import { GITHUB_URL, APP_STORE_URL, PLAY_STORE_URL } from "@/lib/seo"
 import { AppIcon } from "./logo"
 import { GetAppButton } from "./get-app-button"
 import { LocaleLink } from "./locale-link"
+import { ThemeToggle } from "./theme-toggle"
 
 /** Marketing pages exist in Hebrew only; the language switch on them goes to the other locale's home page. */
 function useOtherLocaleHref(locale: Locale): string {
@@ -143,6 +144,7 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
             >
               {t("nav.language")}
             </a>
+            <ThemeToggle />
             <a
               href={GITHUB_URL}
               target="_blank"

@@ -44,6 +44,16 @@ export const hideSlowTrainsPreference = {
   set: (value: boolean) => write(SLOW_TRAINS_KEY, value),
 }
 
+const THEME_KEY = "better-rail:theme"
+
+export type ThemeOverride = "light" | "dark"
+
+/** An explicit light/dark choice; null follows the OS. */
+export const themePreference = {
+  get: () => read<ThemeOverride | null>(THEME_KEY, null),
+  set: (value: ThemeOverride | null) => write(THEME_KEY, value),
+}
+
 /** Subscribes to changes made through this module (same tab) and by other tabs. */
 export function subscribeToStorage(callback: () => void) {
   if (typeof window === "undefined") return () => {}

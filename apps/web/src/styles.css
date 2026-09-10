@@ -25,7 +25,7 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Colour roles mirroring the mobile theme (apps/mobile/src/theme). Light on :root, dark under `.dark` (set from the OS preference). */
+/* Colour roles mirroring the mobile theme (apps/mobile/src/theme). Light on :root, dark under `.dark`. */
 :root {
   --color-bg: #f2f2f7;
   --color-surface: #ffffff;

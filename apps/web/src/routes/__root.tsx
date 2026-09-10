@@ -12,8 +12,8 @@ interface RouterContext {
   queryClient: QueryClient
 }
 
-/** Applies the dark class before first paint so there is no flash; mirrors the OS setting live. */
-const THEME_SCRIPT = `(function(){try{var m=window.matchMedia('(prefers-color-scheme: dark)');var a=function(){document.documentElement.classList.toggle('dark',m.matches)};a();m.addEventListener('change',a)}catch(e){}})();`
+/** Applies the dark class before first paint from the stored override, else the OS setting; re-applies on changes. */
+const THEME_SCRIPT = `(function(){try{var k='better-rail:theme',m=window.matchMedia('(prefers-color-scheme: dark)');var a=function(){var s=null;try{s=JSON.parse(localStorage.getItem(k))}catch(e){}var d=s==='dark'||(s!=='light'&&m.matches);document.documentElement.classList.toggle('dark',d);var t=document.getElementById('theme-color-override');if(s!=='dark'&&s!=='light'){if(t)t.remove();return}if(!t){t=document.createElement('meta');t.id='theme-color-override';t.name='theme-color';document.head.prepend(t)}t.content=d?'#000000':'#f2f2f7'};a();m.addEventListener('change',a);window.addEventListener('better-rail:storage',a);window.addEventListener('storage',a)}catch(e){}})();`
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   head: () => ({
