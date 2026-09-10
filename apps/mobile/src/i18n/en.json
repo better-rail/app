@@ -348,7 +348,7 @@
     "subtitle": "Israel Railways lines right now",
     "networkMap": "Network map",
     "networkMapHint": "Tap a line to see its status",
-    "mapCredit": "Map after Constantine Konovalov's Israeli railways map (CC BY-SA 4.0)",
+    "mapCredit": "Map after the Israel Railways network map",
     "live": "Live",
     "updatedAt": "Updated %{time}",
     "liveUnavailable": "Live data is currently unavailable",

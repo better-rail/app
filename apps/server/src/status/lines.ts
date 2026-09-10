@@ -285,8 +285,8 @@ export const RAIL_LINES: RailLineDefinition[] = [
   {
     id: "12",
     badge: "8",
-    color: "#00A6A6",
-    textColor: "#FFFFFF",
+    color: "#8FD0CA",
+    textColor: "#1F3D3A",
     badgeStyle: "solid",
     name: { he: "חדרה מזרח – ראש העין", en: "Hadera East – Rosh Ha'Ayin" },
     stationIds: ["3900", "4300", "4310", "8800"],

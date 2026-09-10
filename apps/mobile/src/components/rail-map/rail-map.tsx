@@ -5,8 +5,10 @@ import {
   Circle,
   Fill,
   Group,
+  Line,
   Paragraph,
   Path,
+  RoundedRect,
   Skia,
   TextAlign,
   TextDirection,
@@ -17,38 +19,52 @@ import {
 import { Gesture, GestureDetector } from "react-native-gesture-handler"
 import { useDerivedValue, useSharedValue, withTiming } from "react-native-reanimated"
 import { scheduleOnRN } from "react-native-worklets"
-import { isRTL } from "@/i18n"
-import { getStationById } from "@/data/stations"
+import { userLocale } from "@/i18n"
+import { stationsObject } from "@/data/stations"
 import type { RailLineId } from "@/data/rail-lines"
+import { type CityBox, LABEL_TEXT_OVERRIDES } from "@/data/rail-map-layout"
 import type { ServiceStatusSnapshot } from "@/services/api"
 import {
-  LABEL_BREAK_LENGTH,
+  BADGE_SIZE,
+  CITY_BOX_RADIUS,
+  CITY_BOX_STROKE,
+  CITY_FONT_SIZE,
   LABEL_FONT_SIZE,
   LABEL_LINE_HEIGHT,
+  LATIN_SCALE,
   LINE_STROKE,
-  SMALL_LABEL_BREAK_LENGTH,
+  MARKER_RADIUS,
+  PASS_TICK_LENGTH,
+  PASS_TICK_WIDTH,
   type LinePath,
   type Point,
   type RailMapModel,
   type StationLabel,
+  type TerminalBadge,
   buildRailMapModel,
   linePathBetween,
   lineStationPoints,
+  isRtlScript,
+  mapStationName,
+  nameFontSize,
   nearestLine,
-  stationLabelLines,
 } from "./rail-map-model"
-import { RAIL_MAP_PALETTE, paleColor } from "./rail-map-theme"
+import { RAIL_MAP_PALETTE, type RailMapPalette, paleColor } from "./rail-map-theme"
 
 const HEEBO_FONTS = {
   Heebo: [require("../../../assets/fonts/Heebo-Regular.otf"), require("../../../assets/fonts/Heebo-Medium.otf")],
 }
 
-/** Blank margin around the drawing, in layout units, so edge labels are not clipped. */
-const PAD = { left: 3, right: 5, top: 3, bottom: 4 }
+/** Blank margin around the drawing, in map units, so edge labels are not clipped. */
+const PAD = { left: 3, right: 3, top: 3, bottom: 4 }
 const MIN_ZOOM = 0.9
 const MAX_ZOOM = 4
-/** How close (in layout units) a tap must be to a line to select it. */
+/** How close (in map units) a tap must be to a line to select it. */
 const TAP_TOLERANCE = 3
+
+/** Material's "flight" glyph, 24 × 24, nose up. */
+const PLANE_D =
+  "M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"
 
 export type RailMapProps = {
   /** Live status: flags the stations of every disrupted stretch on the map. */
@@ -65,7 +81,7 @@ export type RailMapProps = {
 type Size = { width: number; height: number }
 
 type Viewport = {
-  /** Layout units → pixels. */
+  /** Map units → pixels. */
   scale: number
   translateX: number
   translateY: number
@@ -238,8 +254,24 @@ export function RailMap({ status, selectedLineId, onSelectLine, focusLineId, sty
 
   const labels = useMemo(() => {
     if (!fontMgr) return []
-    return model.labels.map((label) => buildLabel(label, fontMgr, palette.ink, palette.dimInk))
+    return model.labels.map((label) => buildLabel(label, fontMgr, palette))
   }, [fontMgr, model, palette])
+
+  const cityLabels = useMemo(() => {
+    if (!fontMgr) return []
+    return model.cities.map((city) => buildCityLabel(city, fontMgr, palette))
+  }, [fontMgr, model, palette])
+
+  const badges = useMemo(() => {
+    if (!fontMgr) return []
+    return model.badges.map((badge) => buildBadge(badge, fontMgr, palette))
+  }, [fontMgr, model, palette])
+
+  const plane = useMemo(() => {
+    const airportLabel = labels.find((l) => l.stationId === "8600")
+    const bottom = airportLabel ? airportLabel.y - 0.3 : model.airport.y
+    return planePath(model.airport.x, bottom, model.airport.height)
+  }, [labels, model])
 
   const isDimmed = (lineId: RailLineId) => selectedLineId != null && lineId !== selectedLineId
   const orderedLines = useMemo(
@@ -250,6 +282,17 @@ export function RailMap({ status, selectedLineId, onSelectLine, focusLineId, sty
     () => new Set(selectedLineId ? (model.lines.find((l) => l.lineId === selectedLineId)?.line.stationIds ?? []) : []),
     [model, selectedLineId],
   )
+  // Lanes shared by two lines (5 and 25) carry one dot: draw each spot once, coloured for the selection.
+  const markers = useMemo(() => {
+    const seen = new Map<string, (typeof model.markers)[number] & { dim: boolean }>()
+    for (const marker of model.markers) {
+      const key = `${marker.kind}:${marker.point.x.toFixed(1)}:${marker.point.y.toFixed(1)}`
+      const dim = selectedLineId != null && marker.lineId !== selectedLineId
+      const previous = seen.get(key)
+      if (!previous || (previous.dim && !dim)) seen.set(key, { ...marker, dim })
+    }
+    return [...seen.values()]
+  }, [model, selectedLineId])
 
   return (
     <GestureDetector gesture={gesture}>
@@ -258,6 +301,21 @@ export function RailMap({ status, selectedLineId, onSelectLine, focusLineId, sty
           <Canvas style={StyleSheet.absoluteFill}>
             <Fill color={palette.background} />
             <Group transform={transform}>
+              {/* City frames. */}
+              {model.cities.map((city) => (
+                <RoundedRect
+                  key={city.id}
+                  x={city.x}
+                  y={city.y}
+                  width={city.width}
+                  height={city.height}
+                  r={CITY_BOX_RADIUS}
+                  color={palette.frame}
+                  style="stroke"
+                  strokeWidth={CITY_BOX_STROKE}
+                />
+              ))}
+
               {/* Lines, the selected one on top. */}
               {orderedLines.map((line) => (
                 <Path
@@ -293,18 +351,64 @@ export function RailMap({ status, selectedLineId, onSelectLine, focusLineId, sty
                 ),
               )}
 
-              {/* Station markers: a dot on every lane that calls there, as on the original. */}
-              {model.markers.map((marker) => {
-                const dim = selectedLineId != null && !selectedStations.has(marker.stationId)
-                const dot = dim ? palette.dimInk : palette.dot
+              {/* Station markers: a dot on every lane that calls there, a tick where a line runs through. */}
+              {markers.map((marker) => {
+                const color = marker.dim ? palette.dimInk : palette.dot
+                if (marker.kind === "stop") {
+                  return <Circle key={`${marker.lineId}:${marker.stationId}`} c={marker.point} r={MARKER_RADIUS} color={color} />
+                }
+                const dx = (Math.sin(marker.angle) * PASS_TICK_LENGTH) / 2
+                const dy = (-Math.cos(marker.angle) * PASS_TICK_LENGTH) / 2
                 return (
-                  <Group key={marker.stationId}>
-                    {marker.lanePoints.map((p, i) => (
-                      <Circle key={i} c={p} r={marker.radius} color={dot} />
-                    ))}
+                  <Line
+                    key={`${marker.lineId}:${marker.stationId}`}
+                    p1={{ x: marker.point.x - dx, y: marker.point.y - dy }}
+                    p2={{ x: marker.point.x + dx, y: marker.point.y + dy }}
+                    color={color}
+                    strokeWidth={PASS_TICK_WIDTH}
+                  />
+                )
+              })}
+
+              {/* Line numbers beside the terminals. */}
+              {badges.map((badge) => {
+                const dim = isDimmed(badge.lineId)
+                const outline = badge.line.badgeStyle === "outline"
+                const fill = dim ? palette.dimLine : badge.line.color
+                return (
+                  <Group key={`${badge.lineId}:${badge.x}:${badge.y}`}>
+                    <RoundedRect
+                      x={badge.x}
+                      y={badge.y}
+                      width={BADGE_SIZE.width}
+                      height={BADGE_SIZE.height}
+                      r={BADGE_SIZE.radius}
+                      color={outline ? palette.background : fill}
+                    />
+                    {outline && (
+                      <RoundedRect
+                        x={badge.x + 0.08}
+                        y={badge.y + 0.08}
+                        width={BADGE_SIZE.width - 0.16}
+                        height={BADGE_SIZE.height - 0.16}
+                        r={BADGE_SIZE.radius}
+                        color={fill}
+                        style="stroke"
+                        strokeWidth={0.16}
+                      />
+                    )}
+                    <Paragraph
+                      paragraph={dim ? badge.dimParagraph : badge.paragraph}
+                      x={badge.x}
+                      y={badge.textY}
+                      width={BADGE_SIZE.width}
+                    />
                   </Group>
                 )
               })}
+
+              {/* The aeroplane over Ben Gurion Airport. */}
+              <Path path={plane} color={palette.cityInk} />
 
               {/* Disruption badges on the affected stations. */}
               {disrupted.flatMap((section) =>
@@ -325,6 +429,11 @@ export function RailMap({ status, selectedLineId, onSelectLine, focusLineId, sty
                 const paragraph = dim ? label.dimParagraph : label.paragraph
                 return <Paragraph key={label.stationId} paragraph={paragraph} x={label.x} y={label.y} width={label.width} />
               })}
+
+              {/* City names in the corner of their frames. */}
+              {cityLabels.map((label) => (
+                <Paragraph key={label.id} paragraph={label.paragraph} x={label.x} y={label.y} width={label.width} />
+              ))}
             </Group>
           </Canvas>
         )}
@@ -334,6 +443,8 @@ export function RailMap({ status, selectedLineId, onSelectLine, focusLineId, sty
 }
 
 // --- helpers ----------------------------------------------------------------------------
+
+type FontManager = NonNullable<ReturnType<typeof useFonts>>
 
 type DisruptedSection = {
   key: string
@@ -375,6 +486,28 @@ const exclamationPath = (p: Point): SkPath => {
   return path
 }
 
+/** The aeroplane glyph, `height` tall, centred on `x` with its bottom at `bottom`. */
+const planePath = (x: number, bottom: number, height: number): SkPath => {
+  const path = Skia.Path.MakeFromSVGString(PLANE_D) as SkPath
+  const s = height / 20 // the glyph's ink spans y 2…22 of its 24-unit box
+  const matrix = Skia.Matrix()
+  matrix.translate(x - 12 * s, bottom - 22 * s)
+  matrix.scale(s, s)
+  path.transform(matrix)
+  return path
+}
+
+/** The station's name in the app's language, and in English (or Hebrew for English users) underneath it on the original. */
+const stationNames = (stationId: string, stationNameOnly: boolean): { primary: string; secondary: string } => {
+  const station = stationsObject[stationId]
+  const override = LABEL_TEXT_OVERRIDES[stationId] ?? {}
+  const localized = { he: station?.hebrew, en: station?.english, ru: station?.russian, ar: station?.arabic }
+  const pick = (lang: keyof typeof localized) => override[lang] ?? localized[lang] ?? stationId
+  const primary = mapStationName(pick(userLocale), stationNameOnly)
+  const secondary = mapStationName(pick(userLocale === "en" ? "he" : "en"), stationNameOnly)
+  return { primary, secondary }
+}
+
 type BuiltLabel = {
   stationId: string
   paragraph: SkParagraph
@@ -384,43 +517,76 @@ type BuiltLabel = {
   width: number
 }
 
-const buildLabel = (
-  label: StationLabel,
-  fontMgr: NonNullable<ReturnType<typeof useFonts>>,
-  ink: string,
-  dimInk: string,
-): BuiltLabel => {
-  const name = getStationById(label.stationId)?.name ?? label.stationId
-  const text = stationLabelLines(
-    name,
-    label.fontScale < 1 ? SMALL_LABEL_BREAK_LENGTH : LABEL_BREAK_LENGTH,
-    label.stationNameOnly,
-  ).join("\n")
-  const fontSize = LABEL_FONT_SIZE * label.fontScale
-  const textAlign = label.side === "left" ? TextAlign.Right : label.side === "right" ? TextAlign.Left : TextAlign.Center
-  const make = (color: string): SkParagraph => {
-    const paragraph = Skia.ParagraphBuilder.Make(
-      {
-        textAlign,
-        textDirection: isRTL ? TextDirection.RTL : TextDirection.LTR,
-        heightMultiplier: LABEL_LINE_HEIGHT,
-        maxLines: 4,
-      },
-      fontMgr,
-    )
+type TextRun = { text: string; size: number; color: string; weight?: number }
+
+const makeParagraph = (fontMgr: FontManager, runs: TextRun[], textAlign: TextAlign, maxWidth: number): SkParagraph => {
+  const builder = Skia.ParagraphBuilder.Make(
+    {
+      textAlign,
+      textDirection: isRtlScript(runs[runs.length - 1].text) ? TextDirection.RTL : TextDirection.LTR,
+      maxLines: 6,
+    },
+    fontMgr,
+  )
+  runs.forEach((run, i) => {
+    builder
       .pushStyle({
-        color: Skia.Color(color),
+        color: Skia.Color(run.color),
         fontFamilies: ["Heebo"],
-        fontSize,
+        fontSize: run.size,
+        fontStyle: { weight: run.weight ?? 400 },
         heightMultiplier: LABEL_LINE_HEIGHT,
       })
-      .addText(text)
+      .addText(i < runs.length - 1 ? `${run.text}\n` : run.text)
       .pop()
-      .build()
-    paragraph.layout(label.maxWidth)
-    return paragraph
-  }
-  const paragraph = make(ink)
+  })
+  const paragraph = builder.build()
+  paragraph.layout(maxWidth)
+  return paragraph
+}
+
+/**
+ * A two-part name ("Petah Tikva - Segula") that does not fit on one line is
+ * set as two lines without the dash, the way the original wraps its names.
+ */
+const wrappedName = (fontMgr: FontManager, text: string, size: number, maxWidth: number): string => {
+  if (!/\s[-–]\s/.test(text)) return text
+  const probe = makeParagraph(fontMgr, [{ text, size, color: "#000" }], TextAlign.Left, maxWidth)
+  return probe.getLineMetrics().length > 1 ? text.replace(/\s+[-–]\s+/g, "\n") : text
+}
+
+/** The second language (small) over or under the name (large), the way the original stacks them. */
+const twoLanguageParagraph = (
+  fontMgr: FontManager,
+  primary: TextRun,
+  secondary: TextRun,
+  secondaryBelow: boolean,
+  textAlign: TextAlign,
+  maxWidth: number,
+): SkParagraph =>
+  makeParagraph(
+    fontMgr,
+    secondaryBelow ? [{ ...primary, weight: 500 }, secondary] : [secondary, { ...primary, weight: 500 }],
+    textAlign,
+    maxWidth,
+  )
+
+const buildLabel = (label: StationLabel, fontMgr: FontManager, palette: RailMapPalette): BuiltLabel => {
+  const names = stationNames(label.stationId, label.stationNameOnly)
+  const size = nameFontSize(label.size, names.primary)
+  const primary = wrappedName(fontMgr, names.primary, size, label.maxWidth)
+  const secondary = wrappedName(fontMgr, names.secondary, LABEL_FONT_SIZE.secondary, label.maxWidth)
+  const textAlign = label.side === "left" ? TextAlign.Right : label.side === "right" ? TextAlign.Left : TextAlign.Center
+  const make = (ink: string, secondaryInk: string) =>
+    twoLanguageParagraph(
+      fontMgr,
+      { text: primary, size, color: ink },
+      { text: secondary, size: LABEL_FONT_SIZE.secondary, color: secondaryInk },
+      label.secondaryBelow,
+      textAlign,
+      label.maxWidth,
+    )
+  const paragraph = make(palette.ink, palette.secondaryInk)
   const height = paragraph.getHeight()
   const x =
     label.side === "left"
@@ -430,7 +596,66 @@ const buildLabel = (
         : label.anchor.x - label.maxWidth / 2
   const y =
     label.side === "above" ? label.anchor.y - height : label.side === "below" ? label.anchor.y : label.anchor.y - height / 2
-  return { stationId: label.stationId, paragraph, dimParagraph: make(dimInk), x, y, width: label.maxWidth }
+  return {
+    stationId: label.stationId,
+    paragraph,
+    dimParagraph: make(palette.dimInk, palette.dimInk),
+    x,
+    y,
+    width: label.maxWidth,
+  }
+}
+
+type BuiltCityLabel = { id: string; paragraph: SkParagraph; x: number; y: number; width: number }
+
+const buildCityLabel = (city: CityBox, fontMgr: FontManager, palette: RailMapPalette): BuiltCityLabel => {
+  const primary = city.name[userLocale] ?? city.name.en
+  const secondary = userLocale === "en" ? city.name.he : city.name.en
+  const width = city.width - 2
+  const paragraph = twoLanguageParagraph(
+    fontMgr,
+    { text: primary, size: CITY_FONT_SIZE.primary * (isRtlScript(primary) ? 1 : LATIN_SCALE), color: palette.cityInk },
+    { text: secondary, size: CITY_FONT_SIZE.secondary, color: palette.citySecondaryInk },
+    false,
+    TextAlign.Left,
+    width,
+  )
+  return { id: city.id, paragraph, x: city.labelX, y: city.labelY - paragraph.getHeight(), width }
+}
+
+type BuiltBadge = {
+  lineId: RailLineId
+  line: TerminalBadge["line"]
+  paragraph: SkParagraph
+  dimParagraph: SkParagraph
+  x: number
+  y: number
+  textY: number
+}
+
+const buildBadge = (badge: TerminalBadge, fontMgr: FontManager, palette: RailMapPalette): BuiltBadge => {
+  const outline = badge.line.badgeStyle === "outline"
+  const make = (color: string) => {
+    const paragraph = Skia.ParagraphBuilder.Make({ textAlign: TextAlign.Center, maxLines: 1 }, fontMgr)
+      .pushStyle({ color: Skia.Color(color), fontFamilies: ["Heebo"], fontSize: BADGE_SIZE.fontSize, fontStyle: { weight: 500 } })
+      .addText(badge.line.badge)
+      .pop()
+      .build()
+    paragraph.layout(BADGE_SIZE.width)
+    return paragraph
+  }
+  const paragraph = make(outline ? badge.line.color : badge.line.textColor)
+  const x = badge.center.x - BADGE_SIZE.width / 2
+  const y = badge.center.y - BADGE_SIZE.height / 2
+  return {
+    lineId: badge.lineId,
+    line: badge.line,
+    paragraph,
+    dimParagraph: make(outline ? palette.dimLine : palette.background),
+    x,
+    y,
+    textY: badge.center.y - paragraph.getHeight() / 2,
+  }
 }
 
 const styles = StyleSheet.create({
