@@ -52,7 +52,9 @@ Sentry.init({
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,
   integrations: [
-    Sentry.mobileReplayIntegration({ maskAllText: false, maskAllImages: false, maskAllVectors: false }),
+    // Replay is pointless while Sentry is disabled, and its native video encoder
+    // segfaults in the simulator (SentryOnDemandReplay -> AVAssetWriterInput).
+    ...(__DEV__ ? [] : [Sentry.mobileReplayIntegration({ maskAllText: false, maskAllImages: false, maskAllVectors: false })]),
     // Records navigation breadcrumbs (push/pop, from → to). Needs SDK >= 8.19, since this
     // `init()` runs before the Root Layout mounts and older versions gave up instead of retrying.
     Sentry.expoRouterIntegration(),

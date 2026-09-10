@@ -1,0 +1,555 @@
+{
+  "creationDate": "2026-09-07T23:40:07.4493912+03:00",
+  "version": "4.2.0",
+  "successStatus": 1,
+  "statusCode": 200,
+  "errorMessages": null,
+  "result": {
+    "allSourceToDestination": [
+      {
+        "from_Station_Code_ISR": 3700,
+        "to_Station_Code_ISR": 3500,
+        "distance_Code": 1,
+        "s_Price": 11.5,
+        "d_Price": 23,
+        "m_Price": 323
+      },
+      {
+        "from_Station_Code_ISR": 3700,
+        "to_Station_Code_ISR": 2200,
+        "distance_Code": 4,
+        "s_Price": 30.5,
+        "d_Price": 47,
+        "m_Price": 684
+      },
+      {
+        "from_Station_Code_ISR": 3700,
+        "to_Station_Code_ISR": 5010,
+        "distance_Code": 1,
+        "s_Price": 11.5,
+        "d_Price": 23,
+        "m_Price": 323
+      },
+      {
+        "from_Station_Code_ISR": 3700,
+        "to_Station_Code_ISR": 7500,
+        "distance_Code": 4,
+        "s_Price": 30.5,
+        "d_Price": 47,
+        "m_Price": 684
+      },
+      {
+        "from_Station_Code_ISR": 3500,
+        "to_Station_Code_ISR": 3700,
+        "distance_Code": 1,
+        "s_Price": 11.5,
+        "d_Price": 23,
+        "m_Price": 323
+      },
+      {
+        "from_Station_Code_ISR": 3400,
+        "to_Station_Code_ISR": 1300,
+        "distance_Code": 2,
+        "s_Price": 21,
+        "d_Price": 32.5,
+        "m_Price": 323
+      },
+      {
+        "from_Station_Code_ISR": 2200,
+        "to_Station_Code_ISR": 3700,
+        "distance_Code": 4,
+        "s_Price": 30.5,
+        "d_Price": 47,
+        "m_Price": 684
+      },
+      {
+        "from_Station_Code_ISR": 1300,
+        "to_Station_Code_ISR": 3400,
+        "distance_Code": 2,
+        "s_Price": 21,
+        "d_Price": 32.5,
+        "m_Price": 323
+      },
+      {
+        "from_Station_Code_ISR": 5010,
+        "to_Station_Code_ISR": 3700,
+        "distance_Code": 1,
+        "s_Price": 11.5,
+        "d_Price": 23,
+        "m_Price": 323
+      }
+    ],
+    "allProfileDiscount": [
+      {
+        "ticketType": 1,
+        "profile_ID": 0,
+        "discount_Rate": 0
+      },
+      {
+        "ticketType": 1,
+        "profile_ID": 2,
+        "discount_Rate": 0
+      },
+      {
+        "ticketType": 1,
+        "profile_ID": 3,
+        "discount_Rate": 0
+      },
+      {
+        "ticketType": 1,
+        "profile_ID": 4,
+        "discount_Rate": 0.5
+      },
+      {
+        "ticketType": 1,
+        "profile_ID": 5,
+        "discount_Rate": 0
+      },
+      {
+        "ticketType": 1,
+        "profile_ID": 6,
+        "discount_Rate": 1
+      },
+      {
+        "ticketType": 1,
+        "profile_ID": 10,
+        "discount_Rate": 1
+      },
+      {
+        "ticketType": 1,
+        "profile_ID": 19,
+        "discount_Rate": 0
+      },
+      {
+        "ticketType": 1,
+        "profile_ID": 33,
+        "discount_Rate": 0
+      },
+      {
+        "ticketType": 1,
+        "profile_ID": 34,
+        "discount_Rate": 1
+      },
+      {
+        "ticketType": 1,
+        "profile_ID": 35,
+        "discount_Rate": 1
+      },
+      {
+        "ticketType": 1,
+        "profile_ID": 36,
+        "discount_Rate": 1
+      },
+      {
+        "ticketType": 1,
+        "profile_ID": 37,
+        "discount_Rate": 1
+      },
+      {
+        "ticketType": 1,
+        "profile_ID": 40,
+        "discount_Rate": 0
+      },
+      {
+        "ticketType": 1,
+        "profile_ID": 41,
+        "discount_Rate": 0
+      },
+      {
+        "ticketType": 1,
+        "profile_ID": 43,
+        "discount_Rate": 0
+      },
+      {
+        "ticketType": 1,
+        "profile_ID": 45,
+        "discount_Rate": 1
+      },
+      {
+        "ticketType": 1,
+        "profile_ID": 47,
+        "discount_Rate": 0
+      },
+      {
+        "ticketType": 1,
+        "profile_ID": 48,
+        "discount_Rate": 0
+      },
+      {
+        "ticketType": 1,
+        "profile_ID": 49,
+        "discount_Rate": 1
+      },
+      {
+        "ticketType": 2,
+        "profile_ID": 0,
+        "discount_Rate": 0
+      },
+      {
+        "ticketType": 2,
+        "profile_ID": 2,
+        "discount_Rate": 0
+      },
+      {
+        "ticketType": 2,
+        "profile_ID": 3,
+        "discount_Rate": 0
+      },
+      {
+        "ticketType": 2,
+        "profile_ID": 4,
+        "discount_Rate": 0.5
+      },
+      {
+        "ticketType": 2,
+        "profile_ID": 5,
+        "discount_Rate": 0
+      },
+      {
+        "ticketType": 2,
+        "profile_ID": 6,
+        "discount_Rate": 1
+      },
+      {
+        "ticketType": 2,
+        "profile_ID": 10,
+        "discount_Rate": 1
+      },
+      {
+        "ticketType": 2,
+        "profile_ID": 19,
+        "discount_Rate": 0
+      },
+      {
+        "ticketType": 2,
+        "profile_ID": 33,
+        "discount_Rate": 0
+      },
+      {
+        "ticketType": 2,
+        "profile_ID": 34,
+        "discount_Rate": 1
+      },
+      {
+        "ticketType": 2,
+        "profile_ID": 35,
+        "discount_Rate": 1
+      },
+      {
+        "ticketType": 2,
+        "profile_ID": 36,
+        "discount_Rate": 1
+      },
+      {
+        "ticketType": 2,
+        "profile_ID": 37,
+        "discount_Rate": 1
+      },
+      {
+        "ticketType": 2,
+        "profile_ID": 40,
+        "discount_Rate": 0
+      },
+      {
+        "ticketType": 2,
+        "profile_ID": 41,
+        "discount_Rate": 0
+      },
+      {
+        "ticketType": 2,
+        "profile_ID": 43,
+        "discount_Rate": 0
+      },
+      {
+        "ticketType": 2,
+        "profile_ID": 45,
+        "discount_Rate": 1
+      },
+      {
+        "ticketType": 2,
+        "profile_ID": 47,
+        "discount_Rate": 0
+      },
+      {
+        "ticketType": 2,
+        "profile_ID": 48,
+        "discount_Rate": 0
+      },
+      {
+        "ticketType": 2,
+        "profile_ID": 49,
+        "discount_Rate": 1
+      },
+      {
+        "ticketType": 3,
+        "profile_ID": 0,
+        "discount_Rate": 0
+      },
+      {
+        "ticketType": 3,
+        "profile_ID": 2,
+        "discount_Rate": 0.5
+      },
+      {
+        "ticketType": 3,
+        "profile_ID": 3,
+        "discount_Rate": 0
+      },
+      {
+        "ticketType": 3,
+        "profile_ID": 4,
+        "discount_Rate": 0.5
+      },
+      {
+        "ticketType": 3,
+        "profile_ID": 5,
+        "discount_Rate": 0.5
+      },
+      {
+        "ticketType": 3,
+        "profile_ID": 6,
+        "discount_Rate": 1
+      },
+      {
+        "ticketType": 3,
+        "profile_ID": 10,
+        "discount_Rate": 1
+      },
+      {
+        "ticketType": 3,
+        "profile_ID": 19,
+        "discount_Rate": 0
+      },
+      {
+        "ticketType": 3,
+        "profile_ID": 33,
+        "discount_Rate": 0.5
+      },
+      {
+        "ticketType": 3,
+        "profile_ID": 34,
+        "discount_Rate": 1
+      },
+      {
+        "ticketType": 3,
+        "profile_ID": 35,
+        "discount_Rate": 1
+      },
+      {
+        "ticketType": 3,
+        "profile_ID": 36,
+        "discount_Rate": 1
+      },
+      {
+        "ticketType": 3,
+        "profile_ID": 37,
+        "discount_Rate": 1
+      },
+      {
+        "ticketType": 3,
+        "profile_ID": 40,
+        "discount_Rate": 0.5
+      },
+      {
+        "ticketType": 3,
+        "profile_ID": 41,
+        "discount_Rate": 0.5
+      },
+      {
+        "ticketType": 3,
+        "profile_ID": 43,
+        "discount_Rate": 0
+      },
+      {
+        "ticketType": 3,
+        "profile_ID": 45,
+        "discount_Rate": 1
+      },
+      {
+        "ticketType": 3,
+        "profile_ID": 47,
+        "discount_Rate": 0.33
+      },
+      {
+        "ticketType": 3,
+        "profile_ID": 48,
+        "discount_Rate": 0.5
+      },
+      {
+        "ticketType": 3,
+        "profile_ID": 49,
+        "discount_Rate": 1
+      }
+    ],
+    "priceNotes": [
+      {
+        "id": 1,
+        "profile_Id": 0,
+        "singleNote": false,
+        "dayNote": false,
+        "monthNote": false,
+        "priceNoteHe": "",
+        "priceNoteEn": "",
+        "priceNoteAr": "",
+        "priceNoteRu": "",
+        "profiles": null
+      },
+      {
+        "id": 2,
+        "profile_Id": 3,
+        "singleNote": true,
+        "dayNote": false,
+        "monthNote": false,
+        "priceNoteHe": "*הנחה לזכאים תינתן במעמד הטעינה בערך צבור ובהתאם לזכאות.",
+        "priceNoteEn": "*A discount for eligible persons is given when topping-up accumulated value and according to eligibility.",
+        "priceNoteAr": "*سيُمنح تخفيض للمستحقين عند موعد شحن القيمة المتراكمة وحسب للاستحقاق. ",
+        "priceNoteRu": "*Имеющие право на скидку получат ее при загрузке электронного кошелка «эрех цавур», в соответствии со своим профилем.",
+        "profiles": null
+      },
+      {
+        "id": 3,
+        "profile_Id": 4,
+        "singleNote": true,
+        "dayNote": false,
+        "monthNote": false,
+        "priceNoteHe": "*בקניית כרטיס באמצעות ערך צבור, ייגבה המחיר המלא, כי ההנחה ניתנת בטעינת הערך הצבור.",
+        "priceNoteEn": "*When buying a ticket using accumulated value, the full price will be charged, because the discount is given when topping-up accumulated value.",
+        "priceNoteAr": "* عند شراء تذكرة باستخدام القيمة المتراكمة، سيتم خصم الثمن كاملًا، لأن التخفيض يمُنح عند شحن القيمة المتراكمة.",
+        "priceNoteRu": "* При покупке билета через электронный кошелек будет взиматься полная сумма, поскольку скидка дается при загрузке электронного кошелька.",
+        "profiles": null
+      },
+      {
+        "id": 4,
+        "profile_Id": 5,
+        "singleNote": true,
+        "dayNote": false,
+        "monthNote": false,
+        "priceNoteHe": "*הנחה לזכאים תינתן במעמד הטעינה בערך צבור ובהתאם לזכאות.",
+        "priceNoteEn": "*A discount for eligible persons is given when topping-up accumulated value and according to eligibility.",
+        "priceNoteAr": "*سيُمنح تخفيض للمستحقين عند موعد شحن القيمة المتراكمة وحسب للاستحقاق. ",
+        "priceNoteRu": "*Имеющие право на скидку получат ее при загрузке электронного кошелка «эрех цавур», в соответствии со своим профилем.",
+        "profiles": null
+      },
+      {
+        "id": 5,
+        "profile_Id": 6,
+        "singleNote": false,
+        "dayNote": false,
+        "monthNote": false,
+        "priceNoteHe": "",
+        "priceNoteEn": "",
+        "priceNoteAr": "",
+        "priceNoteRu": "",
+        "profiles": null
+      },
+      {
+        "id": 6,
+        "profile_Id": 19,
+        "singleNote": true,
+        "dayNote": false,
+        "monthNote": false,
+        "priceNoteHe": "*הנחה לזכאים תינתן במעמד הטעינה בערך צבור ובהתאם לזכאות.",
+        "priceNoteEn": "*A discount for eligible persons is given when topping-up accumulated value and according to eligibility.",
+        "priceNoteAr": "*سيُمنح تخفيض للمستحقين عند موعد شحن القيمة المتراكمة وحسب للاستحقاق. \n",
+        "priceNoteRu": "*Имеющие право на скидку получат ее при загрузке электронного кошелка «эрех цавур», в соответствии со своим профилем.",
+        "profiles": null
+      },
+      {
+        "id": 7,
+        "profile_Id": 33,
+        "singleNote": true,
+        "dayNote": false,
+        "monthNote": false,
+        "priceNoteHe": "*הנחה לזכאים תינתן במעמד הטעינה בערך צבור ובהתאם לזכאות.",
+        "priceNoteEn": "*A discount for eligible persons is given when topping-up accumulated value and according to eligibility.",
+        "priceNoteAr": "*عند شراء تذكرة باستخدام القيمة المتراكمة، سيتم خصم الثمن كاملًا، لأن التخفيض يمُنح عند شحن القيمة المتراكمة.    ",
+        "priceNoteRu": "*Имеющие право на скидку получат ее при загрузке электронного кошелка «эрех цавур», в соответствии со своим профилем",
+        "profiles": null
+      },
+      {
+        "id": 8,
+        "profile_Id": 40,
+        "singleNote": true,
+        "dayNote": false,
+        "monthNote": false,
+        "priceNoteHe": "*הנחה לזכאים תינתן במעמד הטעינה בערך צבור ובהתאם לזכאות.",
+        "priceNoteEn": "*A discount for eligible persons is given when topping-up accumulated value and according to eligibility.",
+        "priceNoteAr": "*سيُمنح تخفيض للمستحقين عند موعد شحن القيمة المتراكمة وحسب للاستحقاق. ",
+        "priceNoteRu": "*Имеющие право на скидку получат ее при загрузке электронного кошелка «эрех цавур», в соответствии со своим профилем.",
+        "profiles": null
+      },
+      {
+        "id": 9,
+        "profile_Id": 43,
+        "singleNote": true,
+        "dayNote": false,
+        "monthNote": false,
+        "priceNoteHe": "*הנחה לזכאים תינתן במעמד הטעינה בערך צבור ובהתאם לזכאות.",
+        "priceNoteEn": "*A discount for eligible persons is given when topping-up accumulated value and according to eligibility.",
+        "priceNoteAr": "*سيُمنح تخفيض للمستحقين عند موعد شحن القيمة المتراكمة وحسب للاستحقاق. ",
+        "priceNoteRu": "*Имеющие право на скидку получат ее при загрузке электронного кошелка «эрех цавур», в соответствии со своим профилем.",
+        "profiles": null
+      },
+      {
+        "id": 10,
+        "profile_Id": 45,
+        "singleNote": false,
+        "dayNote": false,
+        "monthNote": false,
+        "priceNoteHe": "",
+        "priceNoteEn": "",
+        "priceNoteAr": "",
+        "priceNoteRu": "",
+        "profiles": null
+      },
+      {
+        "id": 11,
+        "profile_Id": 48,
+        "singleNote": false,
+        "dayNote": false,
+        "monthNote": false,
+        "priceNoteHe": "*הנחה לזכאים תינתן במעמד הטעינה בערך צבור ובהתאם לזכאות.",
+        "priceNoteEn": "*A discount for eligible persons is given when topping-up accumulated value and according to eligibility.",
+        "priceNoteAr": "* عند شراء تذكرة باستخدام القيمة المتراكمة، سيتم خصم الثمن كاملًا، لأن التخفيض يمُنح عند شحن القيمة المتراكمة.",
+        "priceNoteRu": "*Имеющие право на скидку получат ее при загрузке электронного кошелка «эрех цавур», в соответствии со своим профилем.",
+        "profiles": null
+      },
+      {
+        "id": 12,
+        "profile_Id": 47,
+        "singleNote": false,
+        "dayNote": false,
+        "monthNote": false,
+        "priceNoteHe": " *הנחה לזכאים תינתן במעמד הטעינה בערך צבור ובהתאם לזכאות.",
+        "priceNoteEn": " *A discount for eligible persons is given when topping-up accumulated value and according to eligibility.",
+        "priceNoteAr": " * عند شراء تذكرة باستخدام القيمة المتراكمة، سيتم خصم الثمن كاملًا، لأن التخفيض يمُنح عند شحن القيمة المتراكمة.",
+        "priceNoteRu": " *Имеющие право на скидку получат ее при загрузке электронного кошелка «эрех цавур», в соответствии со своим профилем.",
+        "profiles": null
+      },
+      {
+        "id": 13,
+        "profile_Id": 49,
+        "singleNote": false,
+        "dayNote": false,
+        "monthNote": false,
+        "priceNoteHe": "",
+        "priceNoteEn": "",
+        "priceNoteAr": "",
+        "priceNoteRu": "",
+        "profiles": null
+      },
+      {
+        "id": 14,
+        "profile_Id": 41,
+        "singleNote": true,
+        "dayNote": false,
+        "monthNote": false,
+        "priceNoteHe": "*הנחה לזכאים תינתן במעמד הטעינה בערך צבור ובהתאם לזכאות.",
+        "priceNoteEn": "*A discount for eligible persons is given when topping-up accumulated value and according to eligibility.",
+        "priceNoteAr": "*سيُمنح تخفيض للمستحقين عند موعد شحن القيمة المتراكمة وحسب للاستحقاق. ",
+        "priceNoteRu": "*Имеющие право на скидку получат ее при загрузке электронного кошелка «эрех цавур», в соответствии со своим профилем.",
+        "profiles": null
+      }
+    ]
+  }
+}

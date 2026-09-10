@@ -17,6 +17,7 @@ export function ContextMenu(props: ContextMenuProps) {
   const menuActions: MenuAction[] = actions.map((action, index) => ({
     id: String(index),
     title: action.title,
+    state: action.selected ? "on" : undefined,
     attributes: action.destructive ? { destructive: true } : undefined,
   }))
 

@@ -71,6 +71,7 @@
     "addedToCalendar": "Добавлено в календарь",
     "slowTrainsFilterTitle": "Медленные поезда",
     "filter": "Фильтр",
+    "filtersActive": "Фильтр, активных: %{count}",
     "stationHours": "Часы работы",
     "hideSlowTrains": "Скрыть медленные поезда",
     "slowTrainsDescription": "Медленные поезда — это поезда, у которых маршрут и время в пути значительно длиннее, чем у других.",
@@ -189,7 +190,28 @@
     "seniorCitizen": "Пенсионер",
     "disabled": "Инвалид",
     "youth": "Подросток",
-    "socialSecurity": "Льготник Битуах Леуми"
+    "socialSecurity": "Льготник Битуах Леуми",
+    "visuallyImpaired": "Слабовидящий",
+    "nationalService": "Национальная служба",
+    "police": "Полиция",
+    "prisonService": "Служба тюрем",
+    "terrorVictims": "Пострадавшие от терактов",
+    "visuallyImpairedEscort": "Сопровождающий слабовидящего",
+    "zahavKav": "Захав Кав (67+)",
+    "young": "Молодёжь (18–26)",
+    "peripheryResident": "Житель периферии",
+    "dischargedSoldier": "Демобилизованный солдат"
+  },
+  "fares": {
+    "title": "Стоимость проезда",
+    "singleRide": "Разовая поездка",
+    "dailyPass": "Дневной проездной",
+    "monthlyPass": "Месячный проездной",
+    "free": "Бесплатно",
+    "monthlyOnlyDiscount": "Скидка для этого профиля действует только на месячный проездной.",
+    "unavailable": "Цены сейчас недоступны.",
+    "connectionError": "Не удалось связаться с сервером. Проверьте подключение и попробуйте снова.",
+    "noFareForRoute": "Цена для этого маршрута не найдена."
   },
   "modals": {
     "noTrainsFoundForDate": "Нет поездов на указанную дату",

@@ -10,6 +10,8 @@ export interface FilterIconProps {
   style?: ViewStyle
   onPress: () => void
   active: boolean
+  /** How many filters are on. Announced by screen readers; the dot carries it visually. */
+  count?: number
 }
 
 const ICON_COLOR = "lightgrey"
@@ -27,7 +29,8 @@ function FilterGlyph({ active }: { active: boolean }) {
 }
 
 export function FilterIcon(props: FilterIconProps) {
-  const { onPress, active, style } = props
+  const { onPress, active, style, count = 0 } = props
+  const label = active && count > 0 ? translate("routes.filtersActive", { count }) : translate("routes.filter")
 
   if (isLiquidGlassSupported) {
     return (
@@ -36,7 +39,7 @@ export function FilterIcon(props: FilterIconProps) {
         onPress={onPress}
         style={[styles.container, style]}
         accessibilityRole="button"
-        accessibilityLabel={translate("routes.filter")}
+        accessibilityLabel={label}
         accessibilityState={{ selected: active }}
       >
         <LiquidGlassView interactive colorScheme="dark" tintColor="rgba(51, 51, 51, 0.9)" style={styles.liquidGlass}>
@@ -52,7 +55,7 @@ export function FilterIcon(props: FilterIconProps) {
       onPress={onPress}
       style={[styles.container, style]}
       accessibilityRole="button"
-      accessibilityLabel={translate("routes.filter")}
+      accessibilityLabel={label}
       accessibilityState={{ selected: active }}
       hitSlop={10}
     >

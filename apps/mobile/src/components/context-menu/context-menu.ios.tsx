@@ -21,6 +21,7 @@ export function ContextMenu(props: ContextMenuProps) {
       id: String(index),
       title: action.title,
       image: action.systemIcon as MenuAction["image"],
+      state: action.selected ? "on" : undefined,
       attributes: action.destructive ? { destructive: true } : undefined,
     }))
 

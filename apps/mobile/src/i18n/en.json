@@ -74,6 +74,7 @@
     "addedToCalendar": "Added to calendar",
     "slowTrainsFilterTitle": "Slow Trains",
     "filter": "Filter",
+    "filtersActive": "Filter, %{count} active",
     "stationHours": "Station Hours",
     "hideSlowTrains": "Hide Slow Trains",
     "slowTrainsDescription": "Slow trains are trains whose route and travel time are significantly longer than other trains.",
@@ -174,7 +175,6 @@
     "purchaseFailed": "Purchase failed",
     "supportBetterRail": "Support Better Rail",
     "supportLinkError": "Could not open the support page.",
-
     "aboutText": "Better Rail is an open source app that aims to make Israel Railways schedules more accessible to the public.",
     "facebook": "Facebook",
     "sourceCode": "Source Code",
@@ -204,7 +204,28 @@
     "seniorCitizen": "Senior Citizen",
     "disabled": "Disabled",
     "youth": "Youth",
-    "socialSecurity": "Social Security"
+    "socialSecurity": "Social Security",
+    "visuallyImpaired": "Visually Impaired",
+    "nationalService": "National Service",
+    "police": "Police",
+    "prisonService": "Prison Service",
+    "terrorVictims": "Victims of Hostilities",
+    "visuallyImpairedEscort": "Escort (Visually Impaired)",
+    "zahavKav": "Zahav Kav (67+)",
+    "young": "Young Adult (18–26)",
+    "peripheryResident": "Periphery Resident",
+    "dischargedSoldier": "Discharged Soldier"
+  },
+  "fares": {
+    "title": "Ticket fares",
+    "singleRide": "Single ride",
+    "dailyPass": "Daily pass",
+    "monthlyPass": "Monthly pass",
+    "free": "Free",
+    "monthlyOnlyDiscount": "The discount for this profile applies to the monthly pass only.",
+    "unavailable": "Fares aren't available right now.",
+    "connectionError": "Couldn't reach the server. Check your connection and try again.",
+    "noFareForRoute": "No fare found for this route."
   },
   "modals": {
     "noTrainsFoundForDate": "No trains found for the requested date",

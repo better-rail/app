@@ -8,6 +8,7 @@ export const logNames = {
     connect: {
       success: "Connected to redis",
       failed: "Couldn't connect to redis",
+      skipped: "REDIS_URL is not set, skipping redis",
     },
     rides: {
       get: {
@@ -64,6 +65,7 @@ export const logNames = {
   },
   notifications: {
     log: "Got notification",
+    notConfigured: "Push credentials are missing, notifications are disabled",
     apple: {
       success: "Sent notification to APN successully!",
       failed: "Failed to send notificaiton to APN",
@@ -89,6 +91,12 @@ export const logNames = {
     pool: {
       error: "Postgres pool error",
     },
+  },
+  fares: {
+    pulled: "Pulled fares from the Israel Railways API into redis",
+    pullFailed: "Failed to pull fares from the Israel Railways API",
+    readFailed: "Failed to read the fares snapshot from redis",
+    notAvailable: "No fares snapshot in redis — run `bun run rail:pull`",
   },
   platforms: {
     writeFailed: "Failed to record SIRI-observed platforms",

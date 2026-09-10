@@ -13,7 +13,7 @@ import { useNavigationParamsStore } from "@/models/navigation-params/navigation-
 import { useShallow } from "zustand/react/shallow"
 import { useTrainRoutesStore, useRoutePlanStore, useRideStore, useSettingsStore } from "@/models"
 import { filterRouteDataByMaxChanges } from "@/models/settings/settings"
-import { fontScale, spacing } from "@/theme"
+import { color, fontScale, spacing } from "@/theme"
 import type { RouteItem } from "@/services/api"
 import { Screen, RouteDetailsHeader, RouteCard } from "@/components"
 import {

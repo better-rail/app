@@ -1,5 +1,11 @@
 import { test, expect, beforeEach } from "bun:test"
-import { useSettingsStore, hydrateSettingsStore, getSettingsSnapshot, resetSettingsStore, filterRouteDataByMaxChanges } from "./settings"
+import {
+  useSettingsStore,
+  hydrateSettingsStore,
+  getSettingsSnapshot,
+  resetSettingsStore,
+  filterRouteDataByMaxChanges,
+} from "./settings"
 
 beforeEach(resetSettingsStore)
 
@@ -7,9 +13,20 @@ test("can be created with default state", () => {
   const state = useSettingsStore.getState()
 
   expect(state).toBeTruthy()
-  expect(state.profileCode).toBe(1)
+  expect(state.profileCode).toBe(0)
   expect(state.hideSlowTrains).toBe(false)
   expect(state.maxChanges).toBe(null)
+})
+
+test("migrates the legacy 'general' fare profile onto the rail API's id and keeps the others", () => {
+  hydrateSettingsStore({ profileCode: 1 })
+  expect(useSettingsStore.getState().profileCode).toBe(0)
+
+  hydrateSettingsStore({ profileCode: 19 })
+  expect(useSettingsStore.getState().profileCode).toBe(19)
+
+  hydrateSettingsStore({})
+  expect(useSettingsStore.getState().profileCode).toBe(0)
 })
 
 test("migrates hideCollectorTrains to hideSlowTrains", () => {

@@ -9,6 +9,14 @@ import { logNames, logger } from "../logs"
 let client: RedisClientType
 
 export const connectToRedis = async () => {
+  // Without REDIS_URL the client would default to localhost and retry a local
+  // instance forever. Skip the connect instead: reads return null and the
+  // redis-backed routes degrade to 503.
+  if (!redisUrl) {
+    logger.warn(logNames.redis.connect.skipped)
+    return
+  }
+
   client = createClient({ url: redisUrl })
 
   client.on("error", (error) => {
