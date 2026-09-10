@@ -1,6 +1,6 @@
 import { useRef, useEffect } from "react"
 import { Image, ImageBackground, Platform, View, Animated as RNAnimated, Pressable } from "react-native"
-import type { ViewStyle } from "react-native"
+import type { ColorValue, ViewStyle } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { useRouter, useNavigation, Stack } from "expo-router"
 import { trackEvent } from "@/services/analytics"
@@ -269,7 +269,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
                 type: "button",
                 label: "",
                 sharesBackground: false,
-                tintColor: isFavorite ? color.palette.orange : undefined,
+                tintColor: isFavorite ? (color.yellow as ColorValue) : undefined,
                 icon: { type: "sfSymbol", name: "star" },
                 accessibilityLabel: translate("favorites.title") ?? undefined,
                 onPress: handleFavoritePress,
@@ -278,12 +278,12 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
                 type: "menu",
                 label: "",
                 sharesBackground: false,
-                // The default red reads as an alert, so use the filter icon's orange instead.
+                // The default red reads as an alert, so use the star's yellow instead.
                 badge: isFilterActive
                   ? {
                       value: String(filterCount),
                       style: {
-                        backgroundColor: color.palette.orange,
+                        backgroundColor: color.yellow as ColorValue,
                         color: color.palette.black,
                         fontSize: 12,
                         fontWeight: "600",
@@ -410,8 +410,8 @@ const styles = StyleSheet.create((theme, rt) => ({
   },
   // No badge outside iOS 26, so the glyph itself carries the active filter.
   headerMenuIconActive: {
-    tintColor: theme.colors.palette.orange,
-    opacity: 1,
+    tintColor: theme.colors.yellow,
+    opacity: 0.75,
   },
   routeDetailsWrapper: {
     flexDirection: "row",
