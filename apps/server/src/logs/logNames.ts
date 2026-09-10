@@ -106,6 +106,9 @@ export const logNames = {
     snapshotReadFailed: "Failed to read the SIRI snapshot from redis",
     snapshotWriteFailed: "Failed to write the SIRI snapshot to redis",
   },
+  serviceStatus: {
+    failed: "Failed to compute service status",
+  },
   gtfs: {
     noActiveFeed: "No active GTFS feed in the database",
     feedExpiring: "Active GTFS feed is within 2 days of its validity end date",

@@ -120,6 +120,7 @@
   },
   "settings": {
     "title": "اعدادت",
+    "serviceStatus": "حالة الخدمة",
     "language": "لغة",
     "uiSettings": "إعدادات واجهة المستخدم",
     "routeCard": "بطاقة الرحلة",
@@ -254,5 +255,59 @@
     "title": "التحديث مطلوب",
     "description": "يتوفر إصدار جديد من Better Rail. يرجى التحديث للمتابعة.",
     "button": "تحديث الآن"
+  },
+  "serviceStatus": {
+    "title": "حالة الخدمة",
+    "subtitle": "خطوط قطارات إسرائيل الآن",
+    "networkMap": "خريطة الشبكة",
+    "networkMapHint": "اضغط على خط لعرض حالته",
+    "live": "مباشر",
+    "updatedAt": "تم التحديث %{time}",
+    "liveUnavailable": "البيانات المباشرة غير متوفرة حاليًا",
+    "otherLines": "باقي الخطوط",
+    "allLines": "كل الخطوط",
+    "lineDetails": "تفاصيل الخط",
+    "levels": {
+      "goodService": "الخدمة منتظمة",
+      "minorDelays": "تأخيرات طفيفة",
+      "severeDelays": "تأخيرات كبيرة",
+      "partSuspended": "متوقف جزئيًا",
+      "suspended": "متوقف",
+      "noService": "لا توجد خدمة",
+      "unknown": "لا توجد بيانات مباشرة"
+    },
+    "levelDescriptions": {
+      "goodService": "القطارات تعمل وفق الجدول الزمني",
+      "minorDelays": "بعض القطارات متأخرة بضع دقائق",
+      "severeDelays": "القطارات متأخرة بشكل كبير أو أُلغي بعضها",
+      "partSuspended": "جزء من الخط لا تصله الخدمة",
+      "suspended": "لا تعمل قطارات على هذا الخط",
+      "noService": "لا توجد قطارات مجدولة على هذا الخط الآن",
+      "unknown": "بيانات القطارات المباشرة غير متوفرة حاليًا"
+    },
+    "disruptions": {
+      "delays": "قطارات متأخرة",
+      "cancellations": "قطارات ملغاة",
+      "skippedStops": "قطارات لا تتوقف",
+      "curtailment": "قطارات تنتهي مبكرًا",
+      "suspension": "لا توجد خدمة"
+    },
+    "noServiceBetween": "لا توجد خدمة بين %{from} و%{to}",
+    "notStoppingAt": "القطارات لا تتوقف في %{stations}",
+    "affectedStretch": "المقطع المتأثر: %{from} – %{to}",
+    "trainNumber": "قطار %{trainNumber}",
+    "trainRoute": "من %{origin} إلى %{destination}",
+    "departsAt": "ينطلق في %{time}",
+    "minutesLate": "تأخير %{minutes} دقيقة",
+    "cancelled": "أُلغي",
+    "terminatesAt": "ينتهي في %{station}",
+    "skipsStations": "يتخطى %{stations}",
+    "nextStation": "التالية: %{station}",
+    "trainsActive": "%{count} قطارات نشطة",
+    "trainsDelayed": "%{count} متأخرة",
+    "trainsCancelled": "%{count} ملغاة",
+    "thresholds": "التأخير %{minor}+ دقائق يُعدّ طفيفًا، و%{severe}+ دقيقة يُعدّ كبيرًا.",
+    "error": "تعذّر تحميل حالة الخدمة",
+    "errorDescription": "تحقق من الاتصال وحاول مجددًا."
   }
 }

@@ -127,6 +127,7 @@
   },
   "settings": {
     "title": "הגדרות",
+    "serviceStatus": "מצב השירות",
     "language": "שפה",
     "uiSettings": "תצוגה",
     "routeCard": "כרטיסיית נסיעה",
@@ -342,5 +343,59 @@
     "title": "נדרש עדכון",
     "description": "גרסה חדשה של Better Rail זמינה.\n אנא עדכנו כדי להמשיך להשתמש באפליקציה.",
     "button": "עדכנו עכשיו"
+  },
+  "serviceStatus": {
+    "title": "מצב השירות",
+    "subtitle": "קווי רכבת ישראל כרגע",
+    "networkMap": "מפת הרשת",
+    "networkMapHint": "הקישו על קו כדי לראות את מצבו",
+    "live": "בזמן אמת",
+    "updatedAt": "עודכן %{time}",
+    "liveUnavailable": "נתוני זמן אמת אינם זמינים כרגע",
+    "otherLines": "שאר הקווים",
+    "allLines": "כל הקווים",
+    "lineDetails": "פרטי הקו",
+    "levels": {
+      "goodService": "שירות תקין",
+      "minorDelays": "עיכובים קלים",
+      "severeDelays": "עיכובים משמעותיים",
+      "partSuspended": "מושבת חלקית",
+      "suspended": "מושבת",
+      "noService": "אין שירות",
+      "unknown": "אין נתוני זמן אמת"
+    },
+    "levelDescriptions": {
+      "goodService": "הרכבות פועלות לפי לוח הזמנים",
+      "minorDelays": "חלק מהרכבות מאחרות בכמה דקות",
+      "severeDelays": "רכבות מאחרות באופן משמעותי או שחלקן בוטלו",
+      "partSuspended": "חלק מהקו אינו מקבל שירות",
+      "suspended": "לא פועלות רכבות בקו זה",
+      "noService": "אין רכבות מתוכננות בקו זה כרגע",
+      "unknown": "נתוני זמן אמת על הרכבות אינם זמינים כרגע"
+    },
+    "disruptions": {
+      "delays": "רכבות מאחרות",
+      "cancellations": "רכבות שבוטלו",
+      "skippedStops": "רכבות שאינן עוצרות",
+      "curtailment": "רכבות שמסתיימות מוקדם",
+      "suspension": "אין שירות"
+    },
+    "noServiceBetween": "אין שירות בין %{from} ל%{to}",
+    "notStoppingAt": "הרכבות אינן עוצרות ב%{stations}",
+    "affectedStretch": "קטע מושפע: %{from} – %{to}",
+    "trainNumber": "רכבת %{trainNumber}",
+    "trainRoute": "מ%{origin} ל%{destination}",
+    "departsAt": "יוצאת ב־%{time}",
+    "minutesLate": "איחור של %{minutes} דק׳",
+    "cancelled": "בוטלה",
+    "terminatesAt": "מסתיימת ב%{station}",
+    "skipsStations": "מדלגת על %{stations}",
+    "nextStation": "הבאה: %{station}",
+    "trainsActive": "%{count} רכבות פעילות",
+    "trainsDelayed": "%{count} מאחרות",
+    "trainsCancelled": "%{count} בוטלו",
+    "thresholds": "איחור של %{minor}+ דקות נחשב קל, %{severe}+ דקות נחשב משמעותי.",
+    "error": "לא ניתן לטעון את מצב השירות",
+    "errorDescription": "בדקו את החיבור לאינטרנט ונסו שוב."
   }
 }

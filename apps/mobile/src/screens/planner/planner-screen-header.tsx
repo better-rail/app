@@ -22,6 +22,7 @@ const TRAIN_ICON = require("../../../assets/train.ios.png")
 const SPARKLES_ICON = require("../../../assets/sparkles.png")
 const UPDATES_ICON = require("../../../assets/updates.png")
 const SETTINGS_ICON = require("../../../assets/settings.png")
+const SERVICE_STATUS_ICON = require("../../../assets/route.png")
 
 // DEBUG: force-show the "new" badge regardless of its normal display conditions. Set back to false before shipping.
 const DEBUG_FORCE_NEW_BADGE = false
@@ -97,6 +98,11 @@ export function PlannerScreenHeader() {
     trackEvent("settings_icon_pressed")
   }
 
+  const openServiceStatus = () => {
+    router.push("/service-status")
+    trackEvent("service_status_icon_pressed")
+  }
+
   return (
     <>
       <View style={styles.headerWrapper}>
@@ -136,6 +142,16 @@ export function PlannerScreenHeader() {
             accessibilityLabel={translate("routes.updates")}
           >
             <Image source={UPDATES_ICON} style={[styles.headerIconImage]} />
+          </TouchableOpacity>
+        )}
+        {!showLawsuitBar && (
+          <TouchableOpacity
+            testID="open-service-status-button"
+            onPress={openServiceStatus}
+            activeOpacity={0.8}
+            accessibilityLabel={translate("serviceStatus.title") ?? undefined}
+          >
+            <Image source={SERVICE_STATUS_ICON} style={styles.headerIconImage} />
           </TouchableOpacity>
         )}
         {!showLawsuitBar && (

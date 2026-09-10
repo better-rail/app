@@ -60,11 +60,21 @@ export function SettingsScreen() {
         />
         <SettingBox
           testID="settings-appearance"
-          last
           title={translate("settings.uiSettings") ?? ""}
           icon="🎨"
           chevron
           onPress={() => router.push("/settings/ui-settings")}
+        />
+        <SettingBox
+          testID="settings-service-status"
+          last
+          title={translate("settings.serviceStatus") ?? ""}
+          icon="🚦"
+          chevron
+          onPress={() => {
+            trackEvent("service_status_icon_pressed", { source: "settings" })
+            router.push("/service-status")
+          }}
         />
       </View>
 

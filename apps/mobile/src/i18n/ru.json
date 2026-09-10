@@ -124,6 +124,7 @@
   },
   "settings": {
     "title": "Настройки",
+    "serviceStatus": "Состояние движения",
     "language": "Язык приложения",
     "uiSettings": "Настройки интерфейса",
     "routeCard": "Карточка поездки",
@@ -258,5 +259,59 @@
     "title": "Требуется обновление",
     "description": "Доступна новая версия Better Rail. Пожалуйста, обновите приложение, чтобы продолжить.",
     "button": "Обновить"
+  },
+  "serviceStatus": {
+    "title": "Состояние движения",
+    "subtitle": "Линии Израильских железных дорог сейчас",
+    "networkMap": "Карта сети",
+    "networkMapHint": "Нажмите на линию, чтобы увидеть её состояние",
+    "live": "В реальном времени",
+    "updatedAt": "Обновлено %{time}",
+    "liveUnavailable": "Данные в реальном времени сейчас недоступны",
+    "otherLines": "Остальные линии",
+    "allLines": "Все линии",
+    "lineDetails": "Сведения о линии",
+    "levels": {
+      "goodService": "Движение в норме",
+      "minorDelays": "Небольшие задержки",
+      "severeDelays": "Серьёзные задержки",
+      "partSuspended": "Частично приостановлено",
+      "suspended": "Приостановлено",
+      "noService": "Нет движения",
+      "unknown": "Нет данных"
+    },
+    "levelDescriptions": {
+      "goodService": "Поезда ходят по расписанию",
+      "minorDelays": "Некоторые поезда опаздывают на несколько минут",
+      "severeDelays": "Поезда значительно опаздывают или частично отменены",
+      "partSuspended": "На части линии движение не осуществляется",
+      "suspended": "Поезда по этой линии не ходят",
+      "noService": "Сейчас на этой линии нет поездов по расписанию",
+      "unknown": "Данные о поездах в реальном времени сейчас недоступны"
+    },
+    "disruptions": {
+      "delays": "Опаздывающие поезда",
+      "cancellations": "Отменённые поезда",
+      "skippedStops": "Поезда без остановки",
+      "curtailment": "Поезда с сокращённым маршрутом",
+      "suspension": "Нет движения"
+    },
+    "noServiceBetween": "Нет движения между %{from} и %{to}",
+    "notStoppingAt": "Поезда не останавливаются: %{stations}",
+    "affectedStretch": "Затронутый участок: %{from} – %{to}",
+    "trainNumber": "Поезд %{trainNumber}",
+    "trainRoute": "%{origin} – %{destination}",
+    "departsAt": "Отправление %{time}",
+    "minutesLate": "опоздание %{minutes} мин",
+    "cancelled": "Отменён",
+    "terminatesAt": "Следует до %{station}",
+    "skipsStations": "Пропускает %{stations}",
+    "nextStation": "Следующая: %{station}",
+    "trainsActive": "Поездов в движении: %{count}",
+    "trainsDelayed": "опаздывают: %{count}",
+    "trainsCancelled": "отменены: %{count}",
+    "thresholds": "Опоздание от %{minor} минут считается небольшим, от %{severe} минут — серьёзным.",
+    "error": "Не удалось загрузить состояние движения",
+    "errorDescription": "Проверьте подключение и попробуйте снова."
   }
 }

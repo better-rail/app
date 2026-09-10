@@ -56,6 +56,30 @@ own curated shortlist of itineraries either way. The changes filter is unaffecte
 live platforms and cancellations come from the rail API's own `trainPosition`
 instead of SIRI.
 
+### Service status (`GET /api/v1/service-status`)
+
+The app's Service Status screens (line list, network map, per-line details)
+read one endpoint, `GET /api/v1/service-status`, which is derived on demand
+from data the server already has and **never writes anything**: the day's
+trips come through the planner's cached `loadDayTrips` (Postgres `SELECT`
+only) and the live delays through the SIRI snapshot in redis (`GET
+siri:snapshot`). The result is cached in-process for 10 seconds.
+
+Trains are grouped into fourteen lines (`src/status/lines.ts`, e.g. `2`
+Binyamina – Ashkelon, `34` Karmiel – Be'er Sheva, `7` Herzliya – Jerusalem)
+by train number, with a fallback that places an unlisted number on the
+shortest line whose station corridor contains the trip's stop sequence. Each
+line gets a level — `goodService`, `minorDelays` (a running train 5+ min
+late), `severeDelays` (15+ min, half the trains late, or a cancelled train),
+`partSuspended` (a curtailed run or two cancelled trains sharing a stretch),
+`suspended` (every active train cancelled), `noService` (nothing running or
+due within 90 min) or `unknown` (no fresh SIRI snapshot) — plus the
+disruptions behind it, each with the affected stretch (station ids the map
+flags) and the trains concerned. The response contract is the zod schema in
+`src/types/service-status.ts`, mirrored in the app under
+`apps/mobile/src/services/api/service-status.types.ts`; the pure derivation
+(`deriveServiceStatus`) is covered by `src/tests/service-status.test.ts`.
+
 ### Timetable data: GTFS (Israel MOT)
 
 The train timetable comes from the **Israel MOT GTFS** static feed

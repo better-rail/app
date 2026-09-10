@@ -6,6 +6,7 @@ import { RideRequestSchema } from "../types/ride"
 import { createRateLimiter } from "../utils/rate-limiter"
 import { handleRailApiRequest, handleSearchTrainRequest } from "./rail-api"
 import { siriDebugRouter } from "./siri-debug"
+import { handleServiceStatusRequest } from "./service-status"
 import { DeleteRideBody, UpdateRideTokenBody, bodyValidator } from "./validations"
 import { endRideNotifications, startRideNotifications, updateRideToken } from "../rides"
 
@@ -41,6 +42,8 @@ rideRouter.delete("/", bodyValidator(DeleteRideBody), async (req, res) => {
 router.use("/ride", rideRouter)
 // SIRI pipeline debugging (404s without SIRI_DEBUG_TOKEN — see routes/siri-debug.ts)
 router.use("/siri", siriDebugRouter)
+// Network health per line (read-only: GTFS timetable + SIRI snapshot)
+router.get("/service-status", createRateLimiter(60 * 1000, 60), handleServiceStatusRequest)
 // Handle the specific search train request with transformation
 router.get(
   "/rail-api/rjpa/api/v1/timetable/searchTrainLuzForDateTime",

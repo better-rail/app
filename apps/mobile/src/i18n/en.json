@@ -127,6 +127,7 @@
   },
   "settings": {
     "title": "Settings",
+    "serviceStatus": "Service Status",
     "language": "App Language",
     "uiSettings": "Appearance",
     "routeCard": "Route Card",
@@ -341,5 +342,59 @@
     "title": "Update Required",
     "description": "A new version of Better Rail is available. Please update to continue using the app.",
     "button": "Update Now"
+  },
+  "serviceStatus": {
+    "title": "Service Status",
+    "subtitle": "Israel Railways lines right now",
+    "networkMap": "Network map",
+    "networkMapHint": "Tap a line to see its status",
+    "live": "Live",
+    "updatedAt": "Updated %{time}",
+    "liveUnavailable": "Live data is currently unavailable",
+    "otherLines": "Other lines",
+    "allLines": "All lines",
+    "lineDetails": "Line details",
+    "levels": {
+      "goodService": "Good service",
+      "minorDelays": "Minor delays",
+      "severeDelays": "Severe delays",
+      "partSuspended": "Part suspended",
+      "suspended": "Suspended",
+      "noService": "No service",
+      "unknown": "No live data"
+    },
+    "levelDescriptions": {
+      "goodService": "Trains are running to schedule",
+      "minorDelays": "Some trains are running a few minutes late",
+      "severeDelays": "Trains are running significantly late or some are cancelled",
+      "partSuspended": "Part of the line is not being served",
+      "suspended": "No trains are running on this line",
+      "noService": "No trains are scheduled on this line right now",
+      "unknown": "Live train data is not available at the moment"
+    },
+    "disruptions": {
+      "delays": "Delayed trains",
+      "cancellations": "Cancelled trains",
+      "skippedStops": "Trains not stopping",
+      "curtailment": "Trains terminating early",
+      "suspension": "No service"
+    },
+    "noServiceBetween": "No service between %{from} and %{to}",
+    "notStoppingAt": "Trains are not calling at %{stations}",
+    "affectedStretch": "Affected: %{from} – %{to}",
+    "trainNumber": "Train %{trainNumber}",
+    "trainRoute": "%{origin} to %{destination}",
+    "departsAt": "Departs %{time}",
+    "minutesLate": "%{minutes} min late",
+    "cancelled": "Cancelled",
+    "terminatesAt": "Terminates at %{station}",
+    "skipsStations": "Skips %{stations}",
+    "nextStation": "Next: %{station}",
+    "trainsActive": "%{count} trains active",
+    "trainsDelayed": "%{count} delayed",
+    "trainsCancelled": "%{count} cancelled",
+    "thresholds": "Delays of %{minor}+ minutes count as minor, %{severe}+ minutes as severe.",
+    "error": "Couldn't load the service status",
+    "errorDescription": "Check your connection and try again."
   }
 }
