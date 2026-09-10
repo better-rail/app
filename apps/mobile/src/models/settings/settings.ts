@@ -88,6 +88,10 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
   },
 }))
 
+/** How many route filters the user has turned on — the toolbar shows the number, not just that one is on. */
+export const activeFilterCount = (state: Pick<SettingsState, "hideSlowTrains" | "maxChanges">): number =>
+  (state.hideSlowTrains ? 1 : 0) + (state.maxChanges !== null ? 1 : 0)
+
 // Drops routes over the limit and date headers left empty
 export function filterRouteDataByMaxChanges<T extends { trains: unknown[] }>(data: (T | string)[], maxChanges: MaxChanges) {
   if (maxChanges === null) return data
