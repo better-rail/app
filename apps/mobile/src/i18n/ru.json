@@ -71,6 +71,7 @@
     "addedToCalendar": "Добавлено в календарь",
     "slowTrainsFilterTitle": "Медленные поезда",
     "filter": "Фильтр",
+    "filtersActive": "Фильтр, активных: %{count}",
     "stationHours": "Часы работы",
     "hideSlowTrains": "Скрыть медленные поезда",
     "slowTrainsDescription": "Медленные поезда — это поезда, у которых маршрут и время в пути значительно длиннее, чем у других.",

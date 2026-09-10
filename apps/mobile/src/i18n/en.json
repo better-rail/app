@@ -74,6 +74,7 @@
     "addedToCalendar": "Added to calendar",
     "slowTrainsFilterTitle": "Slow Trains",
     "filter": "Filter",
+    "filtersActive": "Filter, %{count} active",
     "stationHours": "Station Hours",
     "hideSlowTrains": "Hide Slow Trains",
     "slowTrainsDescription": "Slow trains are trains whose route and travel time are significantly longer than other trains.",

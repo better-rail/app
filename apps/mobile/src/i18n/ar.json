@@ -68,6 +68,7 @@
     "addedToCalendar": "تمت الإضافة للتقويم",
     "slowTrainsFilterTitle": "قطارات بطيئة",
     "filter": "تصفية",
+    "filtersActive": "تصفية، %{count} نشط",
     "stationHours": "ساعات المحطة",
     "hideSlowTrains": "إخفاء القطارات البطيئة",
     "slowTrainsDescription": "القطارات البطيئة هي قطارات يكون مسارها ووقت الرحلة أطول بكثير من القطارات الأخرى.",

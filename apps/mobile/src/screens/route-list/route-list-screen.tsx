@@ -1,21 +1,21 @@
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import HapticFeedback from "react-native-haptic-feedback"
 import * as Burnt from "burnt"
-import { View, ActivityIndicator, Dimensions, Platform, useColorScheme } from "react-native"
+import { View, ActivityIndicator, Dimensions, useColorScheme } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { FlashList, type FlashListRef } from "@shopify/flash-list"
 import { useNetworkState } from "expo-network"
 import { useQuery } from "react-query"
-import { closestIndexTo, format, isToday } from "date-fns"
-import { useRouter, useLocalSearchParams, Redirect, Stack } from "expo-router"
+import { closestIndexTo } from "date-fns"
+import { useRouter, useLocalSearchParams, Redirect } from "expo-router"
 import { useObserve } from "expo-observe"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useShallow } from "zustand/react/shallow"
-import { useTrainRoutesStore, useRoutePlanStore, useRideStore, useSettingsStore, activeFilterCount } from "@/models"
+import { useTrainRoutesStore, useRoutePlanStore, useRideStore, useSettingsStore } from "@/models"
 import { filterRouteDataByMaxChanges } from "@/models/settings/settings"
-import { color, fontScale, spacing, typography } from "@/theme"
+import { color, fontScale, spacing } from "@/theme"
 import type { RouteItem } from "@/services/api"
-import { Screen, RouteDetailsHeader, RouteCard, DatePickerModal } from "@/components"
+import { Screen, RouteDetailsHeader, RouteCard } from "@/components"
 import {
   NoTrainsFoundMessage,
   FilteredTrainsMessage,
@@ -26,14 +26,13 @@ import {
   DateScroll,
 } from "./components"
 import { flatMap, max, round } from "lodash"
-import { dateFnsLocalization, translate } from "@/i18n"
+import { translate } from "@/i18n"
 import { shareRouteAction } from "@/utils/helpers/route-share-helpers"
 import { addRouteToCalendar } from "@/utils/helpers/calendar-helpers"
 import { getActionSheetStyleOptions } from "@/utils/helpers/action-sheet-helpers"
 import { isRouteInThePast } from "@/utils/helpers/date-helpers"
 import { useActionSheet } from "@expo/react-native-action-sheet"
 import { useFeatureFlag } from "posthog-react-native"
-import { isLiquidGlassSupported } from "@callstack/liquid-glass"
 
 type RouteData = RouteItem | string
 
@@ -120,11 +119,7 @@ export function RouteListScreen() {
   const { resultType, getRoutes, updateResultType } = useTrainRoutesStore(
     useShallow((s) => ({ resultType: s.resultType, getRoutes: s.getRoutes, updateResultType: s.updateResultType })),
   )
-  const {
-    dateType,
-    date: routePlanDate,
-    setDate: setRoutePlanDate,
-  } = useRoutePlanStore(useShallow((s) => ({ dateType: s.dateType, date: s.date, setDate: s.setDate })))
+  const { dateType, date: routePlanDate } = useRoutePlanStore(useShallow((s) => ({ dateType: s.dateType, date: s.date })))
   const isRouteActive = useRideStore((s) => s.isRouteActive)
   const rideRoute = useRideStore((s) => s.route)
   const hideSlowTrains = useSettingsStore((s) => s.hideSlowTrains)
@@ -137,43 +132,6 @@ export function RouteListScreen() {
   const { markInteractive } = useObserve()
 
   const [routeData, setRouteData] = useState<RouteData[]>([])
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
-
-  const useNativeRouteListToolbar = Platform.OS === "ios" && isLiquidGlassSupported
-  const searchedDate = useMemo(() => new Date(time), [time])
-  const isSearchedDateToday = useMemo(() => isToday(searchedDate), [searchedDate])
-  const searchedDateLabel = useMemo(() => format(searchedDate, "EEE, d MMM", { locale: dateFnsLocalization }), [searchedDate])
-  const searchedDateAccessibilityLabel = `${
-    dateType === "departure" ? translate("plan.leaveAt") : translate("plan.arriveAt")
-  }, ${format(searchedDate, "PPPP, HH:mm", { locale: dateFnsLocalization })}`
-  const filterCount = activeFilterCount({ hideSlowTrains, maxChanges })
-  const isFilterActive = filterCount > 0
-  const filterTitle = translate("routes.filter") ?? ""
-  const filterLabel = isFilterActive ? `${filterTitle} (${filterCount})` : filterTitle
-  const filterAccessibilityLabel =
-    (isFilterActive ? translate("routes.filtersActive", { count: filterCount }) : filterTitle) ?? undefined
-
-  const openDatePicker = () => {
-    HapticFeedback.trigger("impactMedium")
-    setRoutePlanDate(searchedDate)
-    setDatePickerVisibility(true)
-  }
-
-  const handleDateConfirm = (nextDate: Date) => {
-    setDatePickerVisibility(false)
-    setRoutePlanDate(nextDate)
-    router.setParams({ time: String(nextDate.getTime()), enableQuery: "true" })
-  }
-
-  const openFaresSheet = () => {
-    HapticFeedback.trigger("impactMedium")
-    router.push({ pathname: "/fares", params: { originId, destinationId } })
-  }
-
-  const openFilterSheet = () => {
-    HapticFeedback.trigger("impactMedium")
-    router.push("/filter")
-  }
 
   // Track the current date and the next day being loaded
   const [currentDate, setCurrentDate] = useState<Date>(new Date(time))
@@ -551,45 +509,6 @@ export function RouteListScreen() {
       statusBarBackgroundColor="transparent"
       translucent
     >
-      {useNativeRouteListToolbar && (
-        <>
-          <Stack.Toolbar>
-            <Stack.Toolbar.Spacer />
-            <Stack.Toolbar.Button accessibilityLabel={translate("fares.title") ?? undefined} onPress={openFaresSheet}>
-              <Stack.Toolbar.Icon sf="shekelsign" />
-              <Stack.Toolbar.Label>{translate("fares.title") ?? ""}</Stack.Toolbar.Label>
-            </Stack.Toolbar.Button>
-            {!isSearchedDateToday && (
-              <Stack.Toolbar.Button
-                style={{ fontFamily: typography.primary, fontSize: 15 }}
-                accessibilityLabel={searchedDateAccessibilityLabel}
-                onPress={openDatePicker}
-              >
-                {searchedDateLabel}
-              </Stack.Toolbar.Button>
-            )}
-            <Stack.Toolbar.Button
-              selected={isFilterActive}
-              accessibilityLabel={filterAccessibilityLabel}
-              onPress={openFilterSheet}
-            >
-              {/* A filled glyph and the count, so an active filter reads without relying on the tint alone. */}
-              <Stack.Toolbar.Icon
-                sf={isFilterActive ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease"}
-              />
-              <Stack.Toolbar.Label>{filterLabel}</Stack.Toolbar.Label>
-            </Stack.Toolbar.Button>
-          </Stack.Toolbar>
-
-          <DatePickerModal
-            isVisible={isDatePickerVisible}
-            onConfirm={handleDateConfirm}
-            onCancel={() => setDatePickerVisibility(false)}
-            minimumDate={new Date()}
-          />
-        </>
-      )}
-
       <RouteDetailsHeader
         screenName="routeList"
         originId={originId}
@@ -632,9 +551,7 @@ export function RouteListScreen() {
           ListFooterComponent={
             <DateScroll setTime={loadNextDayData} currenTime={nextDayDate.getTime()} isLoadingDate={isNextDayLoading} />
           }
-          ListFooterComponentStyle={{
-            paddingBottom: useNativeRouteListToolbar ? spacing[8] + spacing[4] : spacing[3],
-          }}
+          ListFooterComponentStyle={{ paddingBottom: spacing[3] }}
         />
       )}
 
