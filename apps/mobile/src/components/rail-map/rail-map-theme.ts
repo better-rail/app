@@ -21,6 +21,11 @@ export type RailMapPalette = {
   /** The rounded frames around the big cities and their names. */
   frame: string
   cityInk: string
+  /** The sea: its colour away from the coast, near the coast, and the shoreline ribbon; the lakes. */
+  seaFar: string
+  seaNear: string
+  shore: string
+  lake: string
   /** Disruption badge on affected stations ("!" on a disc). */
   badge: string
   badgeInk: string
@@ -35,6 +40,10 @@ export const RAIL_MAP_PALETTE: Record<"light" | "dark", RailMapPalette> = {
     dimInk: "#B5B7BF",
     frame: "#3E4048",
     cityInk: "#2D2E37",
+    seaFar: "#CEEDFF",
+    seaNear: "#E6F5FF",
+    shore: "#C3E9FF",
+    lake: "#CEEDFF",
     badge: "#1D1D1F",
     badgeInk: "#FFFFFF",
   },
@@ -46,6 +55,10 @@ export const RAIL_MAP_PALETTE: Record<"light" | "dark", RailMapPalette> = {
     dimInk: "#5E6474",
     frame: "#B9BCC8",
     cityInk: "#F2F2F7",
+    seaFar: "#17233C",
+    seaNear: "#121B2F",
+    shore: "#1F3050",
+    lake: "#17233C",
     badge: "#F2F2F7",
     badgeInk: "#0F1524",
   },

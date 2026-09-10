@@ -23,6 +23,7 @@ import {
   STATION_LABELS,
   TERMINAL_BADGES,
   type TracedStation,
+  WATER,
 } from "@/data/rail-map-layout"
 
 export type Point = { x: number; y: number }
@@ -30,23 +31,36 @@ export type Point = { x: number; y: number }
 // Proportions measured on the original artwork (913 px = 100 units).
 /** Stroke width of a line (10.5 px). */
 export const LINE_STROKE = 1.15
+/**
+ * Every line is drawn on a ground-coloured casing as wide as the lane pitch
+ * (13 px), which keeps the thin gap between parallel lanes and outlines a
+ * line where it crosses over another, as the original does.
+ */
+export const LINE_CASING = 1.42
+/**
+ * Bottom-to-top drawing order: at every crossing the original shows which
+ * line runs over which (the loop's red over the Tel Aviv lanes, the light
+ * blue over the Lod lanes, the Karmiel pair over the Nahariya pair…).
+ */
+export const LINE_DRAW_ORDER: RailLineId[] = ["3", "7", "1", "2", "3X", "5", "25", "4", "9", "10", "11", "8", "12", "6"]
 /** Radius of the bends: every corner of the traced polylines is rounded to this (12 px) or less. */
 export const CORNER_RADIUS = 1.3
 /** Station dot radius (5.5 px). */
 export const MARKER_RADIUS = 0.6
-/** Ring around a terminal's dot, in the ground colour, and the ring drawn for a stop trains may pass. */
-export const TERMINAL_RING_RADIUS = 0.8
+/** The ground-coloured ring inside a terminal's dot (the dot is as wide as the lane, so the ring sits within it). */
+export const TERMINAL_RING_RADIUS = 0.4
+export const TERMINAL_RING_WIDTH = 0.14
+/** Stroke of the hollow circle marking a stop trains may pass. */
 export const IRREGULAR_STOP_STROKE = 0.22
 /** The stripe along a stretch served at irregular intervals. */
 export const IRREGULAR_STRIPE_WIDTH = 0.3
-/** Font sizes: the original's 21 px and 14 px names. */
-export const LABEL_FONT_SIZE = { big: 2.3, small: 1.55 }
+/** Station names: one size for every station (16 px). */
+export const LABEL_FONT_SIZE = 1.75
 /** Latin and Cyrillic capitals stand taller than Hebrew and Arabic letters: shrink them to the same visual weight. */
 export const LATIN_SCALE = 0.8
 export const isRtlScript = (text: string): boolean => /[\u0590-\u06FF]/.test(text)
-/** The size a name is set at: the label's size, scaled down for Latin/Cyrillic script. */
-export const nameFontSize = (size: "big" | "small", text: string): number =>
-  LABEL_FONT_SIZE[size] * (isRtlScript(text) ? 1 : LATIN_SCALE)
+/** The size a name is set at, scaled down for Latin/Cyrillic script. */
+export const nameFontSize = (text: string): number => LABEL_FONT_SIZE * (isRtlScript(text) ? 1 : LATIN_SCALE)
 export const LABEL_LINE_HEIGHT = 1.02
 /** City names inside the frames (26 px). */
 export const CITY_FONT_SIZE = 2.85
@@ -55,6 +69,9 @@ export const BADGE_SIZE = { width: 2.1, height: 1.2, radius: 0.3, fontSize: 0.95
 /** Corner radius and stroke of the city frames (10 px and 2 px). */
 export const CITY_BOX_RADIUS = 1.1
 export const CITY_BOX_STROKE = 0.22
+/** The shoreline ribbon (9 px), softened at the edges like the original's. */
+export const SHORE_WIDTH = 1.0
+export const SHORE_BLUR = 0.35
 
 export type LinePath = {
   lineId: RailLineId
@@ -88,7 +105,6 @@ export type StationLabel = {
   side: LabelSide
   anchor: Point
   maxWidth: number
-  size: "big" | "small"
   stationNameOnly: boolean
 }
 
@@ -96,6 +112,16 @@ export type TerminalBadge = { lineId: RailLineId; line: RailLine; center: Point 
 
 /** A stretch served at irregular intervals, drawn with a stripe along the line. */
 export type IrregularStretch = { lineId: RailLineId; d: string }
+
+/** The original's water: the sea as a filled polygon, its shoreline as a ribbon, and the lakes. */
+export type MapWater = {
+  sea: string
+  shore: string
+  lakes: string[]
+  /** Horizontal extent of the sea, for its gradient (deeper blue away from the coast). */
+  seaLeft: number
+  seaRight: number
+}
 
 export type RailMapModel = {
   bounds: { width: number; height: number }
@@ -105,6 +131,7 @@ export type RailMapModel = {
   cities: CityBox[]
   badges: TerminalBadge[]
   irregular: IrregularStretch[]
+  water: MapWater
   airport: { x: number; y: number; height: number }
 }
 
@@ -184,9 +211,17 @@ export const buildRailMapModel = (): RailMapModel => {
     side: spec.side,
     anchor: { x: spec.x, y: spec.y },
     maxWidth: spec.maxWidth,
-    size: spec.size,
     stationNameOnly: spec.stationNameOnly ?? false,
   }))
+
+  const sea = toPoints(WATER.sea)
+  const water: MapWater = {
+    sea: `${polylineD(sea)} Z`,
+    shore: polylineD(toPoints(WATER.shore)),
+    lakes: WATER.lakes.map((lake) => `${polylineD(toPoints(lake))} Z`),
+    seaLeft: Math.min(...sea.map((p) => p.x)),
+    seaRight: Math.max(...sea.map((p) => p.x)),
+  }
 
   const byId = new Map(RAIL_LINES.map((l) => [l.id, l]))
   const badges: TerminalBadge[] = TERMINAL_BADGES.map((b) => ({
@@ -201,7 +236,7 @@ export const buildRailMapModel = (): RailMapModel => {
     return d ? [{ lineId: s.lineId, d }] : []
   })
 
-  return { bounds: MAP_BOUNDS, lines, markers, labels, cities: CITY_BOXES, badges, irregular, airport: AIRPORT_ICON }
+  return { bounds: MAP_BOUNDS, lines, markers, labels, cities: CITY_BOXES, badges, irregular, water, airport: AIRPORT_ICON }
 }
 
 /**

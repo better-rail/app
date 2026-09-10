@@ -52,8 +52,6 @@ export type StationLabelSpec = {
   y: number
   /** Wrap width, in map units. */
   maxWidth: number
-  /** The original sets major stations larger. */
-  size: "big" | "small"
   /** Inside a city box the city prefix is dropped ("Tel Aviv - HaShalom" → "HaShalom"). */
   stationNameOnly?: boolean
 }
@@ -64,12 +62,11 @@ export const STATION_LABELS: Record<string, StationLabelSpec> = {
 BIG_OVERRIDE={"4900":"big"}
 Y_OVERRIDE={}
 for sid,l in sorted(L["labels"].items(),key=lambda t:t[1]["y"]):
-    size=BIG_OVERRIDE.get(sid,l["size"])
     mw=l["maxWidth"]
     if sid=="8600": mw=110
     extra=(", stationNameOnly: true" if l["stationNameOnly"] else "")
     y=Y_OVERRIDE.get(sid,l["y"])
-    out.append(f'  "{sid}": {{ side: "{l["side"]}", x: {u(l["x"])}, y: {u(y)}, maxWidth: {u(mw)}, size: "{size}"{extra} }}, // {l["name"]}\n')
+    out.append(f'  "{sid}": {{ side: "{l["side"]}", x: {u(l["x"])}, y: {u(y)}, maxWidth: {u(mw)}{extra} }}, // {l["name"]}\n')
 out.append("}\n\n")
 out.append('''export type CityBox = {
   id: string
@@ -103,6 +100,18 @@ export const IRREGULAR_STRETCHES: { lineId: RailLineId; fromStationId: string; t
 for s in L["irregular"]:
     out.append(f'  {{ lineId: "{s["line"]}", fromStationId: "{s["from"]}", toStationId: "{s["to"]}" }},\n')
 out.append("]\n\n")
+flat=lambda pts: ", ".join(f"{u(x)}, {u(y)}" for x,y in pts)
+out.append(f'''/** The original's water, in map units: the sea west of the shore, the shoreline itself and the two lakes. */
+export const WATER = {{
+  /** Closed polygon: the shore, then the map's top and left edges (flat x,y pairs). */
+  sea: [{flat(L["water"]["sea"])}],
+  /** The shoreline, drawn as a pale ribbon. */
+  shore: [{flat(L["water"]["shore"])}],
+  lakes: [
+''')
+for lake in L["water"]["lakes"]:
+    out.append(f"    [{flat(lake)}],\n")
+out.append("  ],\n}\n\n")
 p=L["plane"]
 out.append(f'''/** The aeroplane above Ben Gurion Airport's name (centre x, bottom y, height). */
 export const AIRPORT_ICON = {{ x: {u((p[0]+p[2])/2)}, y: {u(p[3])}, height: {u(p[3]-p[1])} }}

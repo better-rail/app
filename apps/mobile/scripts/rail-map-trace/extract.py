@@ -21,7 +21,7 @@ def cmask(rgb,tol=48):
         win=np.zeros_like(pale); win[820:1160,330:420]=True
         m=m|(pale&win)
     if rgb==COLOURS["red"]:
-        m[1334:1558,366:378]=False  # second (undotted) red lane south of HaHagana
+        m[1318:1562,352:366]=False  # the original's second red lane (the one with the Bat Yam dots): the app keeps one straight lane
     if rgb==COLOURS["blue"]:
         yy,xx=np.mgrid[0:H,0:W]
         stub=(xx>=455)&(xx<=492)&(yy>=1660)&(yy<=1716)&((yy-1693)>-(xx-456)+7)
@@ -154,5 +154,34 @@ for name,rgb in COLOURS.items():
         dr.ellipse([p[-1][0]-2,p[-1][1]-2,p[-1][0]+2,p[-1][1]+2],outline=(255,0,0))
     for b in badges: dr.rectangle([b["x0"],b["y0"],b["x1"],b["y1"]],outline=(0,0,255))
 for d in dots: dr.ellipse([d["x"]-1,d["y"]-1,d["x"]+1,d["y"]+1],fill=(255,255,0))
+# ---- water: the sea's edge, row by row, is the end of the pale-blue fill that starts at the map's
+# left edge (runs broken by the frames' strokes or text are bridged); the original's shoreline
+# ribbon runs a few pixels inside it. Then the two lakes on the right.
+from skimage.measure import find_contours
+bl=im[...,2]-im[...,0]
+water=(bl>=14)&(im[...,2]>=225)&(im[...,1]>=215)&(bl<=70)
+filled=binary_closing(water,disk(9))  # names and frame strokes printed over the sea are holes in it
+coast=[]
+for y in range(0,H,2):
+    xs=np.nonzero(filled[y,:470])[0]
+    if len(xs)==0 or xs[0]>2: break
+    runs=np.split(xs,np.where(np.diff(xs)>3)[0]+1)
+    coast.append((float(runs[0][-1]),float(y)))
+    if runs[0][-1]<3: break
+xsr=[p[0] for p in coast]
+med=[sorted(xsr[max(0,i-7):i+8])[len(xsr[max(0,i-7):i+8])//2] for i in range(len(xsr))]
+sm=[]
+for i in range(len(med)):
+    a=max(0,i-4); b=min(len(med),i+5); sm.append((sum(med[a:b])/(b-a),coast[i][1]))
+shore_pts=simplify(sm,0.8)
+water=(bl>=14)&(im[...,2]>=225)&(im[...,1]>=215)&(bl<=70)
+lakes=[]
+wl=label(water,connectivity=1)
+for rp in regionprops(wl):
+    if rp.area<3000 or rp.bbox[1]<800: continue
+    c=max(find_contours((wl==rp.label).astype(float),0.5),key=len)
+    lakes.append([[round(float(q[1]),1),round(float(q[0]),1)] for q in simplify([(float(q[1]),float(q[0])) for q in c],1.5)])
+out["water"]={"shore":[[round(x,1),round(y,1)] for x,y in shore_pts],"lakes":lakes}  # shore = the sea's edge
+print("shore pts",len(shore_pts),"from",shore_pts[0],"to",shore_pts[-1],"lakes",[len(l) for l in lakes])
 vis.save("vis.png")
 json.dump(out,open("trace.json","w"))

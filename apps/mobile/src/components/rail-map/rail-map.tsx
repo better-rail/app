@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { type LayoutChangeEvent, StyleSheet, View, type ViewStyle, useColorScheme } from "react-native"
 import {
+  BlurMask,
   Canvas,
   Circle,
   Fill,
   Group,
+  LinearGradient,
   Paragraph,
   Path,
   RoundedRect,
@@ -14,6 +16,7 @@ import {
   type SkParagraph,
   type SkPath,
   useFonts,
+  vec,
 } from "@shopify/react-native-skia"
 import { Gesture, GestureDetector } from "react-native-gesture-handler"
 import { useDerivedValue, useSharedValue, withTiming } from "react-native-reanimated"
@@ -32,9 +35,14 @@ import {
   IRREGULAR_STRIPE_WIDTH,
   LABEL_LINE_HEIGHT,
   LATIN_SCALE,
+  LINE_CASING,
+  LINE_DRAW_ORDER,
   LINE_STROKE,
   MARKER_RADIUS,
+  SHORE_BLUR,
+  SHORE_WIDTH,
   TERMINAL_RING_RADIUS,
+  TERMINAL_RING_WIDTH,
   type LinePath,
   type MarkerKind,
   type Point,
@@ -252,6 +260,15 @@ export function RailMap({ status, selectedLineId, onSelectLine, focusLineId, sty
 
   const stripes = useMemo(() => model.irregular.map((s) => Skia.Path.MakeFromSVGString(s.d) as SkPath), [model])
 
+  const water = useMemo(
+    () => ({
+      sea: Skia.Path.MakeFromSVGString(model.water.sea) as SkPath,
+      shore: Skia.Path.MakeFromSVGString(model.water.shore) as SkPath,
+      lakes: model.water.lakes.map((d) => Skia.Path.MakeFromSVGString(d) as SkPath),
+    }),
+    [model],
+  )
+
   const disrupted = useMemo(() => collectDisruptedSections(model, status), [model, status])
 
   const labels = useMemo(() => {
@@ -276,10 +293,12 @@ export function RailMap({ status, selectedLineId, onSelectLine, focusLineId, sty
   }, [labels, model])
 
   const isDimmed = (lineId: RailLineId) => selectedLineId != null && lineId !== selectedLineId
-  const orderedLines = useMemo(
-    () => [...model.lines].sort((a, b) => Number(a.lineId === selectedLineId) - Number(b.lineId === selectedLineId)),
-    [model, selectedLineId],
-  )
+  // The original's stacking at crossings, with the selected line lifted on top.
+  const orderedLines = useMemo(() => {
+    const rank = (line: LinePath) =>
+      line.lineId === selectedLineId ? LINE_DRAW_ORDER.length : LINE_DRAW_ORDER.indexOf(line.lineId)
+    return [...model.lines].sort((a, b) => rank(a) - rank(b))
+  }, [model, selectedLineId])
   const selectedStations = useMemo(
     () => new Set(selectedLineId ? (model.lines.find((l) => l.lineId === selectedLineId)?.line.stationIds ?? []) : []),
     [model, selectedLineId],
@@ -306,6 +325,21 @@ export function RailMap({ status, selectedLineId, onSelectLine, focusLineId, sty
           <Canvas style={StyleSheet.absoluteFill}>
             <Fill color={palette.background} />
             <Group transform={transform}>
+              {/* The sea, deeper blue away from the coast, its shoreline, and the lakes. */}
+              <Path path={water.sea}>
+                <LinearGradient
+                  start={vec(model.water.seaLeft, 0)}
+                  end={vec(model.water.seaRight, 0)}
+                  colors={[palette.seaFar, palette.seaNear]}
+                />
+              </Path>
+              <Path path={water.shore} color={palette.shore} style="stroke" strokeWidth={SHORE_WIDTH} strokeJoin="round">
+                <BlurMask blur={SHORE_BLUR} style="normal" />
+              </Path>
+              {water.lakes.map((lake, i) => (
+                <Path key={`lake-${i}`} path={lake} color={palette.lake} />
+              ))}
+
               {/* City frames. */}
               {model.cities.map((city) => (
                 <RoundedRect
@@ -321,17 +355,26 @@ export function RailMap({ status, selectedLineId, onSelectLine, focusLineId, sty
                 />
               ))}
 
-              {/* Lines, the selected one on top. */}
+              {/* Lines on their casings: the casing keeps the gap between lanes and outlines a line crossing another. */}
               {orderedLines.map((line) => (
-                <Path
-                  key={line.lineId}
-                  path={paths.get(line.lineId) as SkPath}
-                  color={isDimmed(line.lineId) ? palette.dimLine : line.line.color}
-                  style="stroke"
-                  strokeWidth={LINE_STROKE}
-                  strokeCap="round"
-                  strokeJoin="round"
-                />
+                <Group key={line.lineId}>
+                  <Path
+                    path={paths.get(line.lineId) as SkPath}
+                    color={palette.background}
+                    style="stroke"
+                    strokeWidth={LINE_CASING}
+                    strokeCap="round"
+                    strokeJoin="round"
+                  />
+                  <Path
+                    path={paths.get(line.lineId) as SkPath}
+                    color={isDimmed(line.lineId) ? palette.dimLine : line.line.color}
+                    style="stroke"
+                    strokeWidth={LINE_STROKE}
+                    strokeCap="round"
+                    strokeJoin="round"
+                  />
+                </Group>
               ))}
 
               {/* Disrupted stretches: the line fades out where trains do not run. */}
@@ -388,10 +431,16 @@ export function RailMap({ status, selectedLineId, onSelectLine, focusLineId, sty
                 }
                 return (
                   <Group key={key}>
-                    {marker.kind === "terminal" && (
-                      <Circle c={marker.point} r={TERMINAL_RING_RADIUS} color={palette.background} />
-                    )}
                     <Circle c={marker.point} r={MARKER_RADIUS} color={color} />
+                    {marker.kind === "terminal" && (
+                      <Circle
+                        c={marker.point}
+                        r={TERMINAL_RING_RADIUS}
+                        color={palette.background}
+                        style="stroke"
+                        strokeWidth={TERMINAL_RING_WIDTH}
+                      />
+                    )}
                   </Group>
                 )
               })}
@@ -580,7 +629,7 @@ const wrappedName = (fontMgr: FontManager, text: string, size: number, maxWidth:
 
 const buildLabel = (label: StationLabel, fontMgr: FontManager, palette: RailMapPalette): BuiltLabel => {
   const name = stationName(label.stationId, label.stationNameOnly)
-  const size = nameFontSize(label.size, name)
+  const size = nameFontSize(name)
   const text = wrappedName(fontMgr, name, size, label.maxWidth)
   const textAlign = label.side === "left" ? TextAlign.Right : label.side === "right" ? TextAlign.Left : TextAlign.Center
   const make = (ink: string) => makeParagraph(fontMgr, [{ text, size, color: ink, weight: 500 }], textAlign, label.maxWidth)

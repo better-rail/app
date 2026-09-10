@@ -47,8 +47,8 @@ export function MapLegendScreen() {
       sample: (
         <View style={styles.barRow}>
           <View style={[styles.bar, styles.barEnd, { backgroundColor: SAMPLE.color }]}>
-            <View style={[styles.terminalRing, { backgroundColor: palette.background }]}>
-              <View style={[styles.dot, dot]} />
+            <View style={[styles.dot, dot, styles.terminalDot]}>
+              <View style={[styles.terminalRing, { borderColor: palette.background }]} />
             </View>
           </View>
         </View>
@@ -167,12 +167,15 @@ const styles = StyleSheet.create((theme, rt) => ({
     borderRadius: DOT / 2,
     borderWidth: 2.2,
   },
-  terminalRing: {
-    width: DOT + 5,
-    height: DOT + 5,
-    borderRadius: (DOT + 5) / 2,
+  terminalDot: {
     alignItems: "center",
     justifyContent: "center",
+  },
+  terminalRing: {
+    width: DOT - 3,
+    height: DOT - 3,
+    borderRadius: (DOT - 3) / 2,
+    borderWidth: 1.5,
   },
   stripe: {
     width: SAMPLE_WIDTH,

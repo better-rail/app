@@ -48,7 +48,7 @@ for sid,p in per.items():
     name=station_only(sid,HEB.get(sid,""))
     body=max([t["body"] for t in heb],default=9)
     em=body/0.57
-    labels[sid]={"side":side,"x":round(anchor[0],1),"y":round(anchor[1],1),"maxWidth":round((p["x1"]-p["x0"])*1.15+6),"em":round(em,1),"size":"big" if em>=19.5 else "small","hebLines":len(heb),"engLines":len(eng),"bbox":[p["x0"],p["y0"],p["x1"],p["y1"]],"stationNameOnly":bool(IN_BOX.get(sid)),"name":name}
+    labels[sid]={"side":side,"x":round(anchor[0],1),"y":round(anchor[1],1),"maxWidth":round((p["x1"]-p["x0"])*1.3+6),"em":round(em,1),"size":"big" if em>=19.5 else "small","hebLines":len(heb),"engLines":len(eng),"bbox":[p["x0"],p["y0"],p["x1"],p["y1"]],"stationNameOnly":bool(IN_BOX.get(sid)),"name":name}
 # ---- city labels (unassigned blocks inside boxes)
 cities={}
 for b in blocks:
@@ -86,7 +86,12 @@ for b in blocks:
         for t in b["lines"]:
             if t["h"]>=25: plane=[t["x0"],t["y0"],t["x1"],t["y1"]]
 IRREGULAR=[{"line":"5","from":"3300","to":"3600"},{"line":"25","from":"3300","to":"3600"}]
-out={"lines":lines,"labels":labels,"irregular":IRREGULAR,"boxes":BOXES,"cities":cities,"badges":badges,"plane":plane,"clusters":CB}
+# the sea: everything left of the shore, closed along the map's top and left edges
+edge=T["water"]["shore"]
+sea=[[0,0],[edge[0][0],0]]+edge+[[0,edge[-1][1]]]
+ribbon=[[round(x-7,1),y] for x,y in edge]  # the shoreline ribbon sits just inside the sea's edge
+WATER={"sea":sea,"shore":ribbon,"lakes":T["water"]["lakes"]}
+out={"lines":lines,"labels":labels,"irregular":IRREGULAR,"water":WATER,"boxes":BOXES,"cities":cities,"badges":badges,"plane":plane,"clusters":CB}
 json.dump(out,open("layout.json","w"),ensure_ascii=False,indent=0)
 for sid,l in sorted(labels.items(),key=lambda t:t[1]["y"]):
     print(sid,l["side"],l["x"],l["y"],"w",l["maxWidth"],"em",l["em"],l["size"],"heb",l["hebLines"],"eng",l["engLines"],l["name"])

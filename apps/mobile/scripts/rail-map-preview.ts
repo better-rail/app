@@ -22,9 +22,14 @@ import {
   IRREGULAR_STRIPE_WIDTH,
   LABEL_LINE_HEIGHT,
   LATIN_SCALE,
+  LINE_CASING,
+  LINE_DRAW_ORDER,
   LINE_STROKE,
   MARKER_RADIUS,
+  SHORE_BLUR,
+  SHORE_WIDTH,
   TERMINAL_RING_RADIUS,
+  TERMINAL_RING_WIDTH,
   buildRailMapModel,
   isRtlScript,
   mapStationName,
@@ -81,10 +86,19 @@ const lineHeight = (size: number) => size * LABEL_LINE_HEIGHT * 1.08
 let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${m.bounds.width} ${m.bounds.height}" font-family="Heebo, Arial, sans-serif">`
 svg += `<rect width="${m.bounds.width}" height="${m.bounds.height}" fill="${palette.background}"/>`
 
+// The sea (deeper blue away from the coast), its shoreline and the lakes.
+svg += `<defs><linearGradient id="sea" x1="${m.water.seaLeft}" y1="0" x2="${m.water.seaRight}" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${palette.seaFar}"/><stop offset="1" stop-color="${palette.seaNear}"/></linearGradient></defs>`
+svg += `<path d="${m.water.sea}" fill="url(#sea)"/>`
+svg += `<defs><filter id="soft" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="${SHORE_BLUR}"/></filter></defs>`
+svg += `<path d="${m.water.shore}" fill="none" stroke="${palette.shore}" stroke-width="${SHORE_WIDTH}" stroke-linejoin="round" filter="url(#soft)"/>`
+for (const lake of m.water.lakes) svg += `<path d="${lake}" fill="${palette.lake}"/>`
 for (const city of m.cities) {
   svg += `<rect x="${city.x}" y="${city.y}" width="${city.width}" height="${city.height}" rx="${CITY_BOX_RADIUS}" fill="none" stroke="${palette.frame}" stroke-width="${CITY_BOX_STROKE}"/>`
 }
-for (const l of m.lines) {
+// Lines in the original's stacking order, each on a ground-coloured casing.
+const stacked = [...m.lines].sort((a, b) => LINE_DRAW_ORDER.indexOf(a.lineId) - LINE_DRAW_ORDER.indexOf(b.lineId))
+for (const l of stacked) {
+  svg += `<path d="${l.d}" fill="none" stroke="${palette.background}" stroke-width="${LINE_CASING}" stroke-linecap="round" stroke-linejoin="round"/>`
   svg += `<path d="${l.d}" fill="none" stroke="${l.line.color}" stroke-width="${LINE_STROKE}" stroke-linecap="round" stroke-linejoin="round"/>`
 }
 for (const s of m.irregular) {
@@ -96,8 +110,10 @@ for (const mk of m.markers) {
     svg += `<circle cx="${x}" cy="${y}" r="${MARKER_RADIUS - IRREGULAR_STOP_STROKE / 2}" fill="none" stroke="${palette.dot}" stroke-width="${IRREGULAR_STOP_STROKE}"/>`
     continue
   }
-  if (mk.kind === "terminal") svg += `<circle cx="${x}" cy="${y}" r="${TERMINAL_RING_RADIUS}" fill="${palette.background}"/>`
   svg += `<circle cx="${x}" cy="${y}" r="${MARKER_RADIUS}" fill="${palette.dot}"/>`
+  if (mk.kind === "terminal") {
+    svg += `<circle cx="${x}" cy="${y}" r="${TERMINAL_RING_RADIUS}" fill="none" stroke="${palette.background}" stroke-width="${TERMINAL_RING_WIDTH}"/>`
+  }
 }
 for (const b of m.badges) {
   const outline = b.line.badgeStyle === "outline"
@@ -121,7 +137,7 @@ for (const lb of m.labels) {
   const station = stationsObject[lb.stationId]
   const names = { he: station?.hebrew ?? lb.stationId, en: station?.english ?? lb.stationId }
   const name = mapStationName(LABEL_TEXT_OVERRIDES[lb.stationId]?.[lang] ?? names[lang], lb.stationNameOnly)
-  const size = nameFontSize(lb.size, name)
+  const size = nameFontSize(name)
   const lines = wrap(name, size, lb.maxWidth)
   const height = lines.length * lineHeight(size)
   const anchor = lb.side === "left" ? "end" : lb.side === "right" ? "start" : "middle"

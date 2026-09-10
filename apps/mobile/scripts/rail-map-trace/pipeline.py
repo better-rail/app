@@ -15,6 +15,8 @@ for m in re.finditer(r'id: "([^"]+)",\s*badge: "([^"]+)",\s*color: "([^"]+)",.*?
     ids=[x.strip().strip('"') for x in m.group(4).split(",") if x.strip()]
     LINES.append({"id":m.group(1),"colour":CN[m.group(3)],"stations":ids})
 OVERRIDES={}  # optional manual station points, keyed "lineId:stationId" -> [x, y]
+# stations whose dot the original draws on a second lane the app does not keep: the stop moves onto the lane
+PROJECTED_STOPS={("6","4640"),("6","4660"),("6","4680"),("6","4690")}
 
 def seg_dist(p,a,b):
     ax,ay=a; bx,by=b; px,py=p
@@ -87,8 +89,10 @@ def densify(pts,step=1.0):
         for k in range(1,n+1): out.append((a[0]+(b[0]-a[0])*k/n,a[1]+(b[1]-a[1])*k/n))
     return out
 
-def straighten(pts,tol=2.5,minlen=30):
-    # the original's straight runs are exactly axis-aligned: snap long near-vertical/horizontal runs
+def straighten(pts,tol=2.5,minlen=30,snap=0.7):
+    # the original's straight runs are exactly axis-aligned: snap long near-vertical/horizontal runs.
+    # The run is trimmed to the points already within `snap` of its median, so the curve it leads into
+    # continues without a step.
     pts=[tuple(p) for p in pts]; out=[]; i=0; n=len(pts)
     while i<n:
         best=None
@@ -101,8 +105,16 @@ def straighten(pts,tol=2.5,minlen=30):
             if length>=minlen and (best is None or length>best[0]): best=(length,axis,j,sum(vals)/len(vals))
         if best:
             length,axis,j,med=best
-            a=list(pts[i]); b=list(pts[j]); a[axis]=med; b[axis]=med
-            out.append(tuple(a)); out.append(tuple(b)); i=j+1
+            a,b=i,j
+            while a<b and abs(pts[a][axis]-med)>snap: out.append(pts[a]); a+=1
+            while b>a and abs(pts[b][axis]-med)>snap: b-=1
+            if b-a>=1 and abs(pts[b][1-axis]-pts[a][1-axis])>=minlen*0.6:
+                pa=list(pts[a]); pb=list(pts[b]); pa[axis]=med; pb[axis]=med
+                out.append(tuple(pa)); out.append(tuple(pb))
+                for k in range(b+1,j+1): out.append(pts[k])
+            else:
+                for k in range(a,j+1): out.append(pts[k])
+            i=j+1
         else:
             out.append(pts[i]); i+=1
     return out
@@ -207,6 +219,8 @@ def round_corner(path,i,radius,samples=10):
 def nearest_index(path,p):
     return min(range(len(path)),key=lambda i:math.hypot(path[i][0]-p[0],path[i][1]-p[1]))
 
+STATION_ORDER={l["id"]:l["stations"] for l in LINES}
+
 def fixups(lid,path,idx):
     spts=[path[i] for i in idx]
     if lid=="11":
@@ -215,6 +229,14 @@ def fixups(lid,path,idx):
         k1=next(i for i in range(len(path)) if path[i][1]>540)
         ctrl=[(560,451),(515,451),(497,453),(463,478),(452,499),(450,520),(450,540),(450,560)]
         path=path[:k0]+catmull_rom(ctrl,12)+path[k1:]
+    if lid in ("5","25","2"):
+        # the split above Lod: each lane leaves the 45° diagonal for its vertical with one corner
+        # (the corner is rounded when drawn), exactly as the original sets it
+        sids=[s for s in STATION_ORDER[lid]]
+        a=sids.index("5150"); b=sids.index("5000")
+        pa=spts[a]; pb=spts[b]
+        corner=(pb[0],pa[1]+(pb[0]-pa[0]))
+        path=path[:idx[a]]+[pa,corner,pb]+path[idx[b]+1:]
     if lid=="7":
         # the pink turns off the airport's horizontal with a rounded corner, not the trace's sharp one
         i=nearest_index(path,(609,1367)); path=round_corner(path,i,16)
@@ -225,6 +247,7 @@ def fixups(lid,path,idx):
     return path,idx
 
 result={"lines":{}}
+USED_BY_COLOUR=set()  # (colour, dot): lines sharing a colour take different dots where a station has one per lane
 vis=Image.new("RGB",(913,2576),"white"); dr=ImageDraw.Draw(vis)
 COLRGB={"red":"#ec0000","orange":"#ff7900","green":"#1ac740","lime":"#b1db1e","purple":"#d176ff","blue":"#0082cd","lightblue":"#36c3ff","pink":"#ff5ebf","magenta":"#ff0199","teal":"#8fd0ca"}
 for line in LINES:
@@ -235,20 +258,24 @@ for line in LINES:
         if key in OVERRIDES:
             p=tuple(OVERRIDES[key]); n,d=g.insert(p); spts.append((sid,n,0,"override")); continue
         P=NODES[sid]
+        if (line["id"],sid) in PROJECTED_STOPS:
+            near=min(DOTS,key=lambda d:math.hypot(d[0]-P[0],d[1]-P[1]))
+            n,dd=g.insert(near); spts.append((sid,n,dd,"dot")); continue
         cands=[(math.hypot(d[0]-P[0],d[1]-P[1]),d) for d in lane if d not in used]
-        cands.sort()
-        if cands and cands[0][0]<=45:
-            d0,dot=cands[0]; used.add(dot); n,dd=g.insert(dot); spts.append((sid,n,d0,"dot"))
+        cands=[c for c in cands if c[0]<=45]
+        cands.sort(key=lambda t:((c,t[1]) in USED_BY_COLOUR,t[0]))
+        if cands:
+            d0,dot=cands[0]; used.add(dot); USED_BY_COLOUR.add((c,dot)); n,dd=g.insert(dot); spts.append((sid,n,d0,"dot"))
         else:
             n,dd=g.insert(P); spts.append((sid,n,dd,"proj"))
-            print(f'  {line["id"]} {sid}: no lane dot near {P} (nearest {cands[0][0]:.0f}px) -> projected {dd:.0f}px')
+            print(f'  {line["id"]} {sid}: no lane dot near {P} -> projected {dd:.0f}px')
     path=[]; idx=[]
     for i in range(len(spts)):
         if i==0: path=[g.nodes[spts[0][1]]]; idx=[0]; continue
         seg=g.path(spts[i-1][1],spts[i][1])
         if seg is None:
             print(f'  {line["id"]}: NO PATH {spts[i-1][0]} -> {spts[i][0]}'); seg=[g.nodes[spts[i-1][1]],g.nodes[spts[i][1]]]
-        seg=densify(seg,1.0); seg=smooth(seg,9); seg=rdp(seg,0.45); seg=straighten(seg)
+        seg=densify(seg,1.0); seg=smooth(seg,13); seg=rdp(seg,0.4); seg=straighten(seg)
         path+=seg[1:]; idx.append(len(path)-1)
     path,idx=fixups(line["id"],path,idx)
     result["lines"][line["id"]]={"colour":c,"points":[[round(x,1),round(y,1)] for x,y in path],"stationIndex":{s[0]:i for s,i in zip(spts,idx)},"stationSource":{s[0]:s[3] for s in spts}}
