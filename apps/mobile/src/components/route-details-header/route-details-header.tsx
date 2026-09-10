@@ -1,6 +1,6 @@
 import { useRef, useEffect } from "react"
 import { Image, ImageBackground, Platform, View, Animated as RNAnimated, Pressable } from "react-native"
-import type { ColorValue, ViewStyle } from "react-native"
+import type { ViewStyle } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { useRouter, useNavigation, Stack } from "expo-router"
 import { trackEvent } from "@/services/analytics"
@@ -248,11 +248,44 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
               {
                 type: "button",
                 label: "",
-                selected: isFavorite,
-                tintColor: isFavorite ? (color.yellow as ColorValue) : undefined,
-                icon: { type: "sfSymbol", name: isFavorite ? "star.fill" : "star" },
+                sharesBackground: false,
+                tintColor: isFavorite ? color.palette.orange : undefined,
+                icon: { type: "sfSymbol", name: "star" },
                 accessibilityLabel: translate("favorites.title") ?? undefined,
                 onPress: handleFavoritePress,
+              },
+              {
+                type: "menu",
+                label: "",
+                sharesBackground: false,
+                // The default red reads as an alert, so use the filter icon's orange instead.
+                badge: isFilterActive
+                  ? {
+                      value: String(filterCount),
+                      style: { backgroundColor: color.palette.orange, color: color.palette.black, fontSize: 12, fontWeight: "600" },
+                    }
+                  : undefined,
+                icon: { type: "sfSymbol", name: "ellipsis" },
+                accessibilityLabel: translate("routes.routeActions") ?? undefined,
+                menu: {
+                  items: [
+                    {
+                      type: "action",
+                      label: translate("fares.title") ?? "",
+                      icon: { type: "sfSymbol", name: "shekelsign" },
+                      onPress: openFaresSheet,
+                    },
+                    {
+                      type: "action",
+                      label: isFilterActive
+                        ? `${translate("routes.filter")} (${filterCount})`
+                        : (translate("routes.filter") ?? ""),
+                      icon: { type: "sfSymbol", name: "line.3.horizontal.decrease" },
+                      state: isFilterActive ? "on" : "off",
+                      onPress: openFilterSheet,
+                    },
+                  ],
+                },
               },
             ],
           }}
