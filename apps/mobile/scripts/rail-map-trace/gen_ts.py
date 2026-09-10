@@ -24,14 +24,12 @@ export type TracedStation = {
   id: string
   /** Index of the station's point in the line's `points` (x,y pairs → index into pairs). */
   index: number
-  /** False where the line runs through without calling. */
-  stop: boolean
 }
 
 export type TracedLine = {
   /** Flat x,y pairs along the line, in map units. */
   points: number[]
-  /** Calling points in corridor order. */
+  /** The line's stations in corridor order (whether it calls there is in SERVICE_PATTERNS). */
   stations: TracedStation[]
 }
 
@@ -40,7 +38,7 @@ export const LINE_GEOMETRY: Record<RailLineId, TracedLine> = {
 for lid in ORDER:
     ln=L["lines"][lid]
     pts=", ".join(f"{u(x)}, {u(y)}" for x,y in ln["points"])
-    st=", ".join('{ id: "%s", index: %d, stop: %s }'%(s["id"],s["index"],"true" if s["stop"] else "false") for s in ln["stations"])
+    st=", ".join('{ id: "%s", index: %d }'%(s["id"],s["index"]) for s in ln["stations"])
     out.append(f'  "{lid}": {{\n    points: [\n      {pts},\n    ],\n    stations: [{st}],\n  }},\n')
 out.append("}\n\n")
 out.append('''export type LabelSide = "left" | "right" | "above" | "below"
@@ -89,10 +87,17 @@ for bid,(x0,y0,x1,y1) in L["boxes"].items():
     out.append(f'  {{ id: "{bid}", x: {u(x0)}, y: {u(y0)}, width: {u(x1-x0)}, height: {u(y1-y0)}, labelX: {u(c["x0"])}, labelY: {u(c["y1"])}, name: {{ he: "{n[0]}", en: "{n[1]}", ru: "{n[2]}", ar: "{n[3]}" }} }},\n')
 out.append("]\n\n")
 out.append('''/** Line badges beside the terminals, where the original prints its train-number ranges. */
-export const TERMINAL_BADGES: { lineId: RailLineId; x: number; y: number }[] = [
+export const TERMINAL_BADGES: {
+  lineId: RailLineId
+  x: number
+  y: number
+  /** For a short working: shown only while the day type's pattern has it as a terminal. */
+  requires?: LineStation & { kind: "terminal" | "irregular" }
+}[] = [
 ''')
 for b in L["badges"]:
-    out.append(f'  {{ lineId: "{b["line"]}", x: {u(b["x"])}, y: {u(b["y"])} }},\n')
+    r=f', requires: {{ lineId: "{b["requires"]["line"]}", stationId: "{b["requires"]["station"]}", kind: "{b["requires"]["kind"]}" }}' if "requires" in b else ""
+    out.append(f'  {{ lineId: "{b["line"]}", x: {u(b["x"])}, y: {u(b["y"])}{r} }},\n')
 out.append("]\n\n")
 out.append('''/** Stretches the original draws with the "irregular intervals" marking (check the timetable). */
 export const IRREGULAR_STRETCHES: { lineId: RailLineId; fromStationId: string; toStationId: string }[] = [
@@ -101,25 +106,53 @@ for s in L["irregular"]:
     out.append(f'  {{ lineId: "{s["line"]}", fromStationId: "{s["from"]}", toStationId: "{s["to"]}" }},\n')
 out.append("]\n\n")
 flat=lambda pts: ", ".join(f"{u(x)}, {u(y)}" for x,y in pts)
-out.append('''/**
- * Stations short of a line's ends where a good share of its trains terminate
- * (from the timetable: scripts/rail-map-trace/station-patterns.json).
+out.append('''/** Sunday–Thursday or Friday–Saturday: the timetable, and so the map, differs between them. */
+export type DayType = "weekday" | "weekend"
+
+/** Where a line calls, runs through or ends short of its terminus (a line-station pair). */
+export type LineStation = { lineId: RailLineId; stationId: string }
+
+export type ServicePattern = {
+  /** The lines that run at all. */
+  lines: RailLineId[]
+  /** Stations a fifth or more of a line's passing trains run through. */
+  irregular: LineStation[]
+  /** Stations short of a line's ends where a tenth or more of its trains terminate. */
+  terminals: LineStation[]
+}
+
+/**
+ * The service patterns per day type, from the timetable
+ * (scripts/rail-map-trace/station-patterns.json).
  */
-export const EXTRA_TERMINALS: { lineId: RailLineId; stationId: string }[] = [
+export const SERVICE_PATTERNS: Record<DayType, ServicePattern> = {
 ''')
-for x in L["extraTerminals"]:
-    out.append(f'  {{ lineId: "{x["line"]}", stationId: "{x["station"]}" }},\n')
-out.append("]\n\n")
+for key in ("weekday","weekend"):
+    v=L["service"][key]
+    out.append(f'  {key}: {{\n    lines: [{", ".join(chr(34)+l+chr(34) for l in v["lines"])}],\n')
+    out.append('    irregular: [\n'+"".join(f'      {{ lineId: "{x["line"]}", stationId: "{x["station"]}" }},\n' for x in v["irregular"])+'    ],\n')
+    out.append('    terminals: [\n'+"".join(f'      {{ lineId: "{x["line"]}", stationId: "{x["station"]}" }},\n' for x in v["terminals"])+'    ],\n  },\n')
+out.append("}\n\n")
 out.append('''/**
  * Strokes drawn in a line's colour beside its path: line 6's express lane
  * straight through the Bat Yam stops, and the short curl at Rehovot where
  * many line 2 trains end (with its own terminal dot).
  */
-export const LINE_EXTRAS: { lineId: RailLineId; points: number[]; terminal?: [number, number] }[] = [
+export const LINE_EXTRAS: {
+  lineId: RailLineId
+  points: number[]
+  terminal?: [number, number]
+  /** Drawn only when the day type's pattern has this line-station as a terminal / irregular stop. */
+  requires: LineStation & { kind: "terminal" | "irregular" }
+  /** An express lane stands for the trains running through these stations, which keep plain dots on the line. */
+  covers?: string[]
+}[] = [
 ''')
+req=lambda r: f'requires: {{ lineId: "{r["line"]}", stationId: "{r["station"]}", kind: "{r["kind"]}" }}'
 for x in L["extras"]:
     term=f', terminal: [{u(x["terminal"][0])}, {u(x["terminal"][1])}]' if "terminal" in x else ""
-    out.append(f'  {{ lineId: "{x["line"]}", points: [{flat(x["points"])}]{term} }},\n')
+    covers=f', covers: [{", ".join(chr(34)+c+chr(34) for c in x["covers"])}]' if "covers" in x else ""
+    out.append(f'  {{ lineId: "{x["line"]}", points: [{flat(x["points"])}]{term}, {req(x["requires"])}{covers} }},\n')
 out.append("]\n\n")
 out.append(f'''/** The original's water, in map units: the sea west of the shore, the shoreline itself and the two lakes. */
 export const WATER = {{

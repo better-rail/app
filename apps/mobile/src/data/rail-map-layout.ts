@@ -17,14 +17,12 @@ export type TracedStation = {
   id: string
   /** Index of the station's point in the line's `points` (x,y pairs → index into pairs). */
   index: number
-  /** False where the line runs through without calling. */
-  stop: boolean
 }
 
 export type TracedLine = {
   /** Flat x,y pairs along the line, in map units. */
   points: number[]
-  /** Calling points in corridor order. */
+  /** The line's stations in corridor order (whether it calls there is in SERVICE_PATTERNS). */
   stations: TracedStation[]
 }
 
@@ -40,29 +38,29 @@ export const LINE_GEOMETRY: Record<RailLineId, TracedLine> = {
       150.33, 67.74, 149.99, 72.42, 145.32, 76.17, 141.58,
     ],
     stations: [
-      { id: "1600", index: 0, stop: true },
-      { id: "1500", index: 1, stop: true },
-      { id: "1400", index: 2, stop: true },
-      { id: "700", index: 3, stop: true },
-      { id: "1300", index: 4, stop: false },
-      { id: "1220", index: 10, stop: false },
-      { id: "2100", index: 12, stop: true },
-      { id: "2200", index: 14, stop: false },
-      { id: "2300", index: 15, stop: true },
-      { id: "2500", index: 16, stop: false },
-      { id: "2800", index: 17, stop: true },
-      { id: "2820", index: 18, stop: false },
-      { id: "3100", index: 19, stop: false },
-      { id: "3300", index: 20, stop: false },
-      { id: "3400", index: 21, stop: false },
-      { id: "3500", index: 22, stop: false },
-      { id: "3600", index: 23, stop: false },
-      { id: "3700", index: 24, stop: true },
-      { id: "4600", index: 25, stop: true },
-      { id: "4900", index: 26, stop: true },
-      { id: "8600", index: 38, stop: true },
-      { id: "300", index: 53, stop: false },
-      { id: "400", index: 54, stop: true },
+      { id: "1600", index: 0 },
+      { id: "1500", index: 1 },
+      { id: "1400", index: 2 },
+      { id: "700", index: 3 },
+      { id: "1300", index: 4 },
+      { id: "1220", index: 10 },
+      { id: "2100", index: 12 },
+      { id: "2200", index: 14 },
+      { id: "2300", index: 15 },
+      { id: "2500", index: 16 },
+      { id: "2800", index: 17 },
+      { id: "2820", index: 18 },
+      { id: "3100", index: 19 },
+      { id: "3300", index: 20 },
+      { id: "3400", index: 21 },
+      { id: "3500", index: 22 },
+      { id: "3600", index: 23 },
+      { id: "3700", index: 24 },
+      { id: "4600", index: 25 },
+      { id: "4900", index: 26 },
+      { id: "8600", index: 38 },
+      { id: "300", index: 53 },
+      { id: "400", index: 54 },
     ],
   },
   "2": {
@@ -74,25 +72,25 @@ export const LINE_GEOMETRY: Record<RailLineId, TracedLine> = {
       203.08,
     ],
     stations: [
-      { id: "2800", index: 0, stop: true },
-      { id: "2820", index: 1, stop: true },
-      { id: "3100", index: 2, stop: true },
-      { id: "3300", index: 3, stop: true },
-      { id: "3310", index: 4, stop: false },
-      { id: "3400", index: 5, stop: true },
-      { id: "3500", index: 6, stop: true },
-      { id: "3600", index: 7, stop: true },
-      { id: "3700", index: 8, stop: true },
-      { id: "4600", index: 9, stop: true },
-      { id: "4900", index: 10, stop: true },
-      { id: "4800", index: 17, stop: true },
-      { id: "5150", index: 18, stop: false },
-      { id: "5000", index: 20, stop: true },
-      { id: "5300", index: 26, stop: true },
-      { id: "5200", index: 27, stop: true },
-      { id: "5410", index: 28, stop: true },
-      { id: "5800", index: 31, stop: true },
-      { id: "5900", index: 32, stop: true },
+      { id: "2800", index: 0 },
+      { id: "2820", index: 1 },
+      { id: "3100", index: 2 },
+      { id: "3300", index: 3 },
+      { id: "3310", index: 4 },
+      { id: "3400", index: 5 },
+      { id: "3500", index: 6 },
+      { id: "3600", index: 7 },
+      { id: "3700", index: 8 },
+      { id: "4600", index: 9 },
+      { id: "4900", index: 10 },
+      { id: "4800", index: 17 },
+      { id: "5150", index: 18 },
+      { id: "5000", index: 20 },
+      { id: "5300", index: 26 },
+      { id: "5200", index: 27 },
+      { id: "5410", index: 28 },
+      { id: "5800", index: 31 },
+      { id: "5900", index: 32 },
     ],
   },
   "3": {
@@ -104,30 +102,30 @@ export const LINE_GEOMETRY: Record<RailLineId, TracedLine> = {
       63.42, 175.68, 63.42, 187.19, 63.42, 198.67, 63.42, 210.15, 63.42, 221.64, 63.42, 233.14, 63.42, 237.12,
     ],
     stations: [
-      { id: "1600", index: 0, stop: true },
-      { id: "1500", index: 1, stop: true },
-      { id: "1400", index: 2, stop: true },
-      { id: "700", index: 3, stop: true },
-      { id: "1300", index: 4, stop: true },
-      { id: "1220", index: 8, stop: true },
-      { id: "2100", index: 9, stop: true },
-      { id: "2200", index: 11, stop: true },
-      { id: "2300", index: 13, stop: true },
-      { id: "2500", index: 14, stop: true },
-      { id: "2800", index: 15, stop: true },
-      { id: "3500", index: 16, stop: true },
-      { id: "3600", index: 17, stop: true },
-      { id: "3700", index: 18, stop: true },
-      { id: "4600", index: 19, stop: true },
-      { id: "4900", index: 20, stop: true },
-      { id: "5000", index: 33, stop: true },
-      { id: "5010", index: 34, stop: true },
-      { id: "6900", index: 35, stop: true },
-      { id: "6150", index: 36, stop: true },
-      { id: "7000", index: 37, stop: true },
-      { id: "8550", index: 38, stop: true },
-      { id: "7300", index: 39, stop: true },
-      { id: "7320", index: 40, stop: true },
+      { id: "1600", index: 0 },
+      { id: "1500", index: 1 },
+      { id: "1400", index: 2 },
+      { id: "700", index: 3 },
+      { id: "1300", index: 4 },
+      { id: "1220", index: 8 },
+      { id: "2100", index: 9 },
+      { id: "2200", index: 11 },
+      { id: "2300", index: 13 },
+      { id: "2500", index: 14 },
+      { id: "2800", index: 15 },
+      { id: "3500", index: 16 },
+      { id: "3600", index: 17 },
+      { id: "3700", index: 18 },
+      { id: "4600", index: 19 },
+      { id: "4900", index: 20 },
+      { id: "5000", index: 33 },
+      { id: "5010", index: 34 },
+      { id: "6900", index: 35 },
+      { id: "6150", index: 36 },
+      { id: "7000", index: 37 },
+      { id: "8550", index: 38 },
+      { id: "7300", index: 39 },
+      { id: "7320", index: 40 },
     ],
   },
   "3X": {
@@ -139,24 +137,24 @@ export const LINE_GEOMETRY: Record<RailLineId, TracedLine> = {
       163.2, 61.99, 165.07, 61.99, 171.6, 61.99, 210.16, 61.99, 221.69, 61.99, 233.14, 61.99, 237.11,
     ],
     stations: [
-      { id: "1840", index: 0, stop: true },
-      { id: "1820", index: 1, stop: true },
-      { id: "1400", index: 9, stop: true },
-      { id: "1220", index: 13, stop: true },
-      { id: "2100", index: 14, stop: true },
-      { id: "2200", index: 17, stop: true },
-      { id: "2300", index: 19, stop: true },
-      { id: "3100", index: 20, stop: true },
-      { id: "3500", index: 21, stop: true },
-      { id: "3600", index: 22, stop: true },
-      { id: "3700", index: 23, stop: true },
-      { id: "4600", index: 24, stop: true },
-      { id: "4900", index: 25, stop: true },
-      { id: "5000", index: 36, stop: true },
-      { id: "7000", index: 37, stop: true },
-      { id: "8550", index: 38, stop: false },
-      { id: "7300", index: 39, stop: true },
-      { id: "7320", index: 40, stop: true },
+      { id: "1840", index: 0 },
+      { id: "1820", index: 1 },
+      { id: "1400", index: 9 },
+      { id: "1220", index: 13 },
+      { id: "2100", index: 14 },
+      { id: "2200", index: 17 },
+      { id: "2300", index: 19 },
+      { id: "3100", index: 20 },
+      { id: "3500", index: 21 },
+      { id: "3600", index: 22 },
+      { id: "3700", index: 23 },
+      { id: "4600", index: 24 },
+      { id: "4900", index: 25 },
+      { id: "5000", index: 36 },
+      { id: "7000", index: 37 },
+      { id: "8550", index: 38 },
+      { id: "7300", index: 39 },
+      { id: "7320", index: 40 },
     ],
   },
   "4": {
@@ -166,15 +164,15 @@ export const LINE_GEOMETRY: Record<RailLineId, TracedLine> = {
       43.88, 53.29, 43.66, 54.98, 43.57, 56.9,
     ],
     stations: [
-      { id: "1840", index: 0, stop: true },
-      { id: "1820", index: 1, stop: true },
-      { id: "1400", index: 8, stop: true },
-      { id: "700", index: 9, stop: false },
-      { id: "1300", index: 10, stop: true },
-      { id: "1220", index: 13, stop: true },
-      { id: "2100", index: 14, stop: true },
-      { id: "2200", index: 17, stop: true },
-      { id: "2300", index: 20, stop: true },
+      { id: "1840", index: 0 },
+      { id: "1820", index: 1 },
+      { id: "1400", index: 8 },
+      { id: "700", index: 9 },
+      { id: "1300", index: 10 },
+      { id: "1220", index: 13 },
+      { id: "2100", index: 14 },
+      { id: "2200", index: 17 },
+      { id: "2300", index: 20 },
     ],
   },
   "5": {
@@ -185,17 +183,17 @@ export const LINE_GEOMETRY: Record<RailLineId, TracedLine> = {
       72.64, 186.04,
     ],
     stations: [
-      { id: "3300", index: 0, stop: true },
-      { id: "3400", index: 1, stop: true },
-      { id: "3500", index: 2, stop: true },
-      { id: "3600", index: 3, stop: true },
-      { id: "3700", index: 4, stop: true },
-      { id: "4600", index: 5, stop: true },
-      { id: "4900", index: 6, stop: true },
-      { id: "5150", index: 14, stop: false },
-      { id: "5000", index: 16, stop: true },
-      { id: "5010", index: 17, stop: true },
-      { id: "6300", index: 24, stop: true },
+      { id: "3300", index: 0 },
+      { id: "3400", index: 1 },
+      { id: "3500", index: 2 },
+      { id: "3600", index: 3 },
+      { id: "3700", index: 4 },
+      { id: "4600", index: 5 },
+      { id: "4900", index: 6 },
+      { id: "5150", index: 14 },
+      { id: "5000", index: 16 },
+      { id: "5010", index: 17 },
+      { id: "6300", index: 24 },
     ],
   },
   "25": {
@@ -205,16 +203,16 @@ export const LINE_GEOMETRY: Record<RailLineId, TracedLine> = {
       59.32, 171.6, 59.26, 172.05, 58.98, 173.82, 58.77, 174.35, 58.47, 174.81, 48.95, 184.42,
     ],
     stations: [
-      { id: "3300", index: 0, stop: true },
-      { id: "3400", index: 1, stop: true },
-      { id: "3500", index: 2, stop: true },
-      { id: "3600", index: 3, stop: true },
-      { id: "3700", index: 4, stop: true },
-      { id: "4600", index: 5, stop: true },
-      { id: "4900", index: 6, stop: true },
-      { id: "5150", index: 14, stop: true },
-      { id: "5000", index: 16, stop: true },
-      { id: "5200", index: 21, stop: true },
+      { id: "3300", index: 0 },
+      { id: "3400", index: 1 },
+      { id: "3500", index: 2 },
+      { id: "3600", index: 3 },
+      { id: "3700", index: 4 },
+      { id: "4600", index: 5 },
+      { id: "4900", index: 6 },
+      { id: "5150", index: 14 },
+      { id: "5000", index: 16 },
+      { id: "5200", index: 21 },
     ],
   },
   "6": {
@@ -230,32 +228,32 @@ export const LINE_GEOMETRY: Record<RailLineId, TracedLine> = {
       229.13, 60.57, 230.13, 60.57, 233.13, 60.59, 237.11,
     ],
     stations: [
-      { id: "3500", index: 0, stop: true },
-      { id: "2940", index: 7, stop: true },
-      { id: "2960", index: 8, stop: false },
-      { id: "9200", index: 9, stop: true },
-      { id: "8700", index: 10, stop: true },
-      { id: "8800", index: 16, stop: true },
-      { id: "4250", index: 24, stop: true },
-      { id: "4170", index: 25, stop: true },
-      { id: "4100", index: 26, stop: true },
-      { id: "3600", index: 33, stop: true },
-      { id: "3700", index: 34, stop: true },
-      { id: "4600", index: 35, stop: true },
-      { id: "4900", index: 36, stop: true },
-      { id: "4640", index: 39, stop: true },
-      { id: "4660", index: 40, stop: true },
-      { id: "4680", index: 41, stop: true },
-      { id: "4690", index: 42, stop: true },
-      { id: "9800", index: 45, stop: true },
-      { id: "9000", index: 46, stop: true },
-      { id: "5800", index: 47, stop: true },
-      { id: "5900", index: 48, stop: true },
-      { id: "9600", index: 49, stop: true },
-      { id: "9650", index: 50, stop: true },
-      { id: "9700", index: 57, stop: true },
-      { id: "7300", index: 66, stop: true },
-      { id: "7320", index: 67, stop: true },
+      { id: "3500", index: 0 },
+      { id: "2940", index: 7 },
+      { id: "2960", index: 8 },
+      { id: "9200", index: 9 },
+      { id: "8700", index: 10 },
+      { id: "8800", index: 16 },
+      { id: "4250", index: 24 },
+      { id: "4170", index: 25 },
+      { id: "4100", index: 26 },
+      { id: "3600", index: 33 },
+      { id: "3700", index: 34 },
+      { id: "4600", index: 35 },
+      { id: "4900", index: 36 },
+      { id: "4640", index: 39 },
+      { id: "4660", index: 40 },
+      { id: "4680", index: 41 },
+      { id: "4690", index: 42 },
+      { id: "9800", index: 45 },
+      { id: "9000", index: 46 },
+      { id: "5800", index: 47 },
+      { id: "5900", index: 48 },
+      { id: "9600", index: 49 },
+      { id: "9650", index: 50 },
+      { id: "9700", index: 57 },
+      { id: "7300", index: 66 },
+      { id: "7320", index: 67 },
     ],
   },
   "7": {
@@ -266,22 +264,22 @@ export const LINE_GEOMETRY: Record<RailLineId, TracedLine> = {
       66.91, 149.99, 67.0, 150.03, 67.08, 150.08, 67.16, 150.13, 67.21, 150.16, 68.84, 151.64, 85.52, 168.32, 86.16, 168.89,
     ],
     stations: [
-      { id: "3500", index: 0, stop: true },
-      { id: "3600", index: 1, stop: false },
-      { id: "3700", index: 2, stop: true },
-      { id: "4600", index: 3, stop: false },
-      { id: "4900", index: 4, stop: false },
-      { id: "8600", index: 16, stop: true },
-      { id: "680", index: 31, stop: true },
+      { id: "3500", index: 0 },
+      { id: "3600", index: 1 },
+      { id: "3700", index: 2 },
+      { id: "4600", index: 3 },
+      { id: "4900", index: 4 },
+      { id: "8600", index: 16 },
+      { id: "680", index: 31 },
     ],
   },
   "12": {
     points: [71.89, 83.14, 80.33, 91.62, 81.31, 92.86, 81.77, 93.77, 81.99, 94.74, 82.04, 98.38, 82.04, 104.91, 82.06, 111.39],
     stations: [
-      { id: "3900", index: 0, stop: true },
-      { id: "4300", index: 5, stop: true },
-      { id: "4310", index: 6, stop: true },
-      { id: "8800", index: 7, stop: true },
+      { id: "3900", index: 0 },
+      { id: "4300", index: 5 },
+      { id: "4310", index: 6 },
+      { id: "8800", index: 7 },
     ],
   },
   "9": {
@@ -290,8 +288,8 @@ export const LINE_GEOMETRY: Record<RailLineId, TracedLine> = {
       179.36, 51.25, 179.54, 50.6, 179.65, 50.22, 179.68, 49.8, 179.61,
     ],
     stations: [
-      { id: "5000", index: 0, stop: true },
-      { id: "9100", index: 12, stop: true },
+      { id: "5000", index: 0 },
+      { id: "9100", index: 12 },
     ],
   },
   "10": {
@@ -300,9 +298,9 @@ export const LINE_GEOMETRY: Record<RailLineId, TracedLine> = {
       71.54, 152.18, 71.87, 152.61, 87.08, 167.91,
     ],
     stations: [
-      { id: "400", index: 0, stop: true },
-      { id: "300", index: 1, stop: true },
-      { id: "680", index: 10, stop: true },
+      { id: "400", index: 0 },
+      { id: "300", index: 1 },
+      { id: "680", index: 10 },
     ],
   },
   "11": {
@@ -317,22 +315,22 @@ export const LINE_GEOMETRY: Record<RailLineId, TracedLine> = {
       49.29, 58.78, 49.29, 58.96, 49.29, 59.15, 49.18, 65.66,
     ],
     stations: [
-      { id: "1280", index: 0, stop: true },
-      { id: "1260", index: 1, stop: true },
-      { id: "1250", index: 2, stop: true },
-      { id: "1240", index: 3, stop: true },
-      { id: "1220", index: 16, stop: true },
-      { id: "2100", index: 29, stop: true },
-      { id: "2200", index: 40, stop: true },
-      { id: "2300", index: 52, stop: true },
-      { id: "2500", index: 65, stop: true },
+      { id: "1280", index: 0 },
+      { id: "1260", index: 1 },
+      { id: "1250", index: 2 },
+      { id: "1240", index: 3 },
+      { id: "1220", index: 16 },
+      { id: "2100", index: 29 },
+      { id: "2200", index: 40 },
+      { id: "2300", index: 52 },
+      { id: "2500", index: 65 },
     ],
   },
   "8": {
     points: [64.82, 233.13, 66.92, 233.38, 67.57, 233.63, 68.15, 234.01, 78.95, 244.78, 79.54, 245.29],
     stations: [
-      { id: "7300", index: 0, stop: true },
-      { id: "7500", index: 5, stop: true },
+      { id: "7300", index: 0 },
+      { id: "7500", index: 5 },
     ],
   },
 }
@@ -480,7 +478,13 @@ export const CITY_BOXES: CityBox[] = [
 ]
 
 /** Line badges beside the terminals, where the original prints its train-number ranges. */
-export const TERMINAL_BADGES: { lineId: RailLineId; x: number; y: number }[] = [
+export const TERMINAL_BADGES: {
+  lineId: RailLineId
+  x: number
+  y: number
+  /** For a short working: shown only while the day type's pattern has it as a terminal. */
+  requires?: LineStation & { kind: "terminal" | "irregular" }
+}[] = [
   { lineId: "6", x: 37.79, y: 111.06 },
   { lineId: "3X", x: 58.38, y: 242.17 },
   { lineId: "3", x: 51.31, y: 15.22 },
@@ -497,10 +501,10 @@ export const TERMINAL_BADGES: { lineId: RailLineId; x: number; y: number }[] = [
   { lineId: "7", x: 89.38, y: 170.32 },
   { lineId: "4", x: 68.67, y: 29.03 },
   { lineId: "3X", x: 71.08, y: 29.03 },
-  { lineId: "2", x: 55.53, y: 190.8 },
-  { lineId: "5", x: 38.77, y: 127.16 },
-  { lineId: "3", x: 36.47, y: 127.16 },
-  { lineId: "11", x: 51.26, y: 56.96 },
+  { lineId: "2", x: 55.53, y: 190.8, requires: { lineId: "2", stationId: "5200", kind: "terminal" } },
+  { lineId: "5", x: 38.77, y: 127.16, requires: { lineId: "5", stationId: "3700", kind: "terminal" } },
+  { lineId: "3", x: 36.47, y: 127.16, requires: { lineId: "3", stationId: "3700", kind: "terminal" } },
+  { lineId: "11", x: 51.26, y: 56.96, requires: { lineId: "11", stationId: "2300", kind: "terminal" } },
   { lineId: "11", x: 51.31, y: 67.25 },
   { lineId: "1", x: 48.96, y: 15.22 },
   { lineId: "25", x: 37.79, y: 88.5 },
@@ -512,33 +516,116 @@ export const IRREGULAR_STRETCHES: { lineId: RailLineId; fromStationId: string; t
   { lineId: "25", fromStationId: "3300", toStationId: "3600" },
 ]
 
+/** Sunday–Thursday or Friday–Saturday: the timetable, and so the map, differs between them. */
+export type DayType = "weekday" | "weekend"
+
+/** Where a line calls, runs through or ends short of its terminus (a line-station pair). */
+export type LineStation = { lineId: RailLineId; stationId: string }
+
+export type ServicePattern = {
+  /** The lines that run at all. */
+  lines: RailLineId[]
+  /** Stations a fifth or more of a line's passing trains run through. */
+  irregular: LineStation[]
+  /** Stations short of a line's ends where a tenth or more of its trains terminate. */
+  terminals: LineStation[]
+}
+
 /**
- * Stations short of a line's ends where a good share of its trains terminate
- * (from the timetable: scripts/rail-map-trace/station-patterns.json).
+ * The service patterns per day type, from the timetable
+ * (scripts/rail-map-trace/station-patterns.json).
  */
-export const EXTRA_TERMINALS: { lineId: RailLineId; stationId: string }[] = [
-  { lineId: "1", stationId: "3700" },
-  { lineId: "11", stationId: "2100" },
-  { lineId: "11", stationId: "2300" },
-  { lineId: "2", stationId: "5200" },
-  { lineId: "3", stationId: "3700" },
-  { lineId: "4", stationId: "1220" },
-  { lineId: "5", stationId: "3700" },
-  { lineId: "6", stationId: "3700" },
-  { lineId: "6", stationId: "5800" },
-  { lineId: "6", stationId: "5900" },
-  { lineId: "6", stationId: "9800" },
-  { lineId: "7", stationId: "8600" },
-]
+export const SERVICE_PATTERNS: Record<DayType, ServicePattern> = {
+  weekday: {
+    lines: ["1", "10", "11", "12", "2", "25", "3", "3X", "4", "5", "6", "7", "8", "9"],
+    irregular: [
+      { lineId: "1", stationId: "2500" },
+      { lineId: "1", stationId: "3100" },
+      { lineId: "1", stationId: "3300" },
+      { lineId: "1", stationId: "3500" },
+      { lineId: "2", stationId: "5150" },
+      { lineId: "3X", stationId: "8550" },
+      { lineId: "6", stationId: "4640" },
+      { lineId: "6", stationId: "4690" },
+      { lineId: "7", stationId: "3600" },
+      { lineId: "7", stationId: "4600" },
+      { lineId: "7", stationId: "4900" },
+    ],
+    terminals: [
+      { lineId: "11", stationId: "2100" },
+      { lineId: "11", stationId: "2300" },
+      { lineId: "2", stationId: "5200" },
+      { lineId: "3", stationId: "3700" },
+      { lineId: "4", stationId: "1220" },
+      { lineId: "5", stationId: "3700" },
+      { lineId: "6", stationId: "5800" },
+      { lineId: "6", stationId: "5900" },
+      { lineId: "6", stationId: "9800" },
+      { lineId: "7", stationId: "8600" },
+    ],
+  },
+  weekend: {
+    lines: ["1", "10", "11", "2", "25", "3", "4", "5", "6", "7", "8", "9"],
+    irregular: [
+      { lineId: "1", stationId: "1220" },
+      { lineId: "1", stationId: "1300" },
+      { lineId: "1", stationId: "2200" },
+      { lineId: "1", stationId: "2500" },
+      { lineId: "1", stationId: "2820" },
+      { lineId: "1", stationId: "300" },
+      { lineId: "1", stationId: "3100" },
+      { lineId: "1", stationId: "3300" },
+      { lineId: "1", stationId: "3400" },
+      { lineId: "1", stationId: "3500" },
+      { lineId: "1", stationId: "3600" },
+      { lineId: "1", stationId: "4600" },
+      { lineId: "1", stationId: "4900" },
+      { lineId: "2", stationId: "3310" },
+      { lineId: "4", stationId: "700" },
+      { lineId: "5", stationId: "5150" },
+      { lineId: "6", stationId: "2960" },
+      { lineId: "6", stationId: "4640" },
+      { lineId: "6", stationId: "4690" },
+      { lineId: "7", stationId: "3600" },
+      { lineId: "7", stationId: "4600" },
+      { lineId: "7", stationId: "4900" },
+    ],
+    terminals: [
+      { lineId: "1", stationId: "3700" },
+      { lineId: "11", stationId: "2300" },
+      { lineId: "3", stationId: "3700" },
+      { lineId: "6", stationId: "3700" },
+      { lineId: "6", stationId: "5900" },
+    ],
+  },
+}
 
 /**
  * Strokes drawn in a line's colour beside its path: line 6's express lane
  * straight through the Bat Yam stops, and the short curl at Rehovot where
  * many line 2 trains end (with its own terminal dot).
  */
-export const LINE_EXTRAS: { lineId: RailLineId; points: number[]; terminal?: [number, number] }[] = [
-  { lineId: "6", points: [40.74, 140.33, 40.71, 177.31] },
-  { lineId: "2", points: [52.76, 182.66, 52.25, 183.35, 52.25, 185.32, 51.7, 186.2, 50.93, 186.42], terminal: [50.93, 186.42] },
+export const LINE_EXTRAS: {
+  lineId: RailLineId
+  points: number[]
+  terminal?: [number, number]
+  /** Drawn only when the day type's pattern has this line-station as a terminal / irregular stop. */
+  requires: LineStation & { kind: "terminal" | "irregular" }
+  /** An express lane stands for the trains running through these stations, which keep plain dots on the line. */
+  covers?: string[]
+}[] = [
+  {
+    lineId: "6",
+    points: [40.74, 140.33, 40.71, 177.31],
+    requires: { lineId: "6", stationId: "4640", kind: "irregular" },
+    covers: ["4640", "4660", "4680", "4690"],
+  },
+  {
+    lineId: "2",
+    points: [52.76, 182.66, 52.25, 183.35, 52.25, 185.32, 51.7, 186.2, 50.93, 186.42],
+    terminal: [50.93, 186.42],
+    requires: { lineId: "2", stationId: "5200", kind: "terminal" },
+  },
 ]
 
 /** The original's water, in map units: the sea west of the shore, the shoreline itself and the two lakes. */

@@ -16,28 +16,34 @@ import {
   AIRPORT_ICON,
   CITY_BOXES,
   type CityBox,
-  EXTRA_TERMINALS,
+  type DayType,
   IRREGULAR_STRETCHES,
   LINE_EXTRAS,
   LINE_GEOMETRY,
   type LabelSide,
+  type LineStation,
   MAP_BOUNDS,
+  SERVICE_PATTERNS,
   STATION_LABELS,
   TERMINAL_BADGES,
   type TracedStation,
   WATER,
 } from "@/data/rail-map-layout"
 
+export type { DayType } from "@/data/rail-map-layout"
+
 export type Point = { x: number; y: number }
 
 // Proportions measured on the original artwork (913 px = 100 units).
-/** Stroke width of a line (10.5 px). */
-export const LINE_STROKE = 1.15
+/** Stroke width of a line: a little slimmer than the original's 10.5 px so the lanes (13 px apart) sit further apart. */
+export const LINE_STROKE = 1.0
 /**
  * Every line is drawn on a ground-coloured casing (15.5 px): it keeps the
  * gap between parallel lanes (13 px apart, so the casing just reaches a
  * neighbour's edge) and outlines a line where it crosses over another, as
- * the original does.
+ * the original does. Lines of one colour are cased together, so where one
+ * splits from another (light blue above Lod, red past Bat Yam) there is no
+ * outline between them.
  */
 export const LINE_CASING = 1.7
 /**
@@ -134,6 +140,8 @@ export type MapWater = {
 }
 
 export type RailMapModel = {
+  /** The day type whose timetable the model reflects: which lines run, where they call and end. */
+  dayType: DayType
   bounds: { width: number; height: number }
   lines: LinePath[]
   markers: StationMarker[]
@@ -190,8 +198,27 @@ const toPoints = (flat: number[]): Point[] => {
   return points
 }
 
-export const buildRailMapModel = (): RailMapModel => {
-  const lines: LinePath[] = RAIL_LINES.map((line) => {
+/**
+ * Which timetable applies now: Sunday to Thursday, or Friday and Saturday.
+ * The service day rolls over at 03:00, so the last trains of a Thursday
+ * night still count as weekday service.
+ */
+export const currentDayType = (now: Date = new Date()): DayType => {
+  const serviceDay = new Date(now.getTime() - 3 * 60 * 60 * 1000).getDay()
+  return serviceDay === 5 || serviceDay === 6 ? "weekend" : "weekday"
+}
+
+const key = (ls: LineStation) => `${ls.lineId}:${ls.stationId}`
+
+export const buildRailMapModel = (dayType: DayType = currentDayType()): RailMapModel => {
+  const pattern = SERVICE_PATTERNS[dayType]
+  const served = new Set<RailLineId>(pattern.lines)
+  const irregularStops = new Set(pattern.irregular.map(key))
+  const shortWorkings = new Set(pattern.terminals.map(key))
+  const has = (ls: LineStation & { kind: "terminal" | "irregular" }) =>
+    (ls.kind === "terminal" ? shortWorkings : irregularStops).has(key(ls))
+
+  const lines: LinePath[] = RAIL_LINES.filter((line) => served.has(line.id)).map((line) => {
     const geometry = LINE_GEOMETRY[line.id]
     const vertices = toPoints(geometry.points)
     return {
@@ -204,29 +231,38 @@ export const buildRailMapModel = (): RailMapModel => {
     }
   })
 
-  const extraTerminals = new Set(EXTRA_TERMINALS.map((t) => `${t.lineId}:${t.stationId}`))
+  const shownExtras = LINE_EXTRAS.filter((e) => served.has(e.lineId) && has(e.requires))
+  // An express lane stands for the trains running through: the stops it passes keep plain dots.
+  const covered = new Set(shownExtras.flatMap((e) => (e.covers ?? []).map((stationId) => key({ lineId: e.lineId, stationId }))))
+
   const markers: StationMarker[] = []
   for (const line of lines) {
     line.stations.forEach((station, i) => {
-      const terminal = i === 0 || i === line.stations.length - 1 || extraTerminals.has(`${line.lineId}:${station.id}`)
+      const ls = { lineId: line.lineId, stationId: station.id }
+      const terminal = i === 0 || i === line.stations.length - 1 || shortWorkings.has(key(ls))
+      const irregular = irregularStops.has(key(ls)) && !covered.has(key(ls))
       markers.push({
         stationId: station.id,
         lineId: line.lineId,
         point: line.vertices[station.index],
-        kind: terminal ? "terminal" : station.stop ? "stop" : "irregular",
+        kind: terminal ? "terminal" : irregular ? "irregular" : "stop",
       })
     })
   }
 
-  const labels: StationLabel[] = Object.entries(STATION_LABELS).map(([stationId, spec]) => ({
-    stationId,
-    side: spec.side,
-    anchor: { x: spec.x, y: spec.y },
-    maxWidth: spec.maxWidth,
-    stationNameOnly: spec.stationNameOnly ?? false,
-  }))
+  // Stations only reached by lines that do not run today go with them.
+  const servedStations = new Set(lines.flatMap((l) => l.stations.map((s) => s.id)))
+  const labels: StationLabel[] = Object.entries(STATION_LABELS)
+    .filter(([stationId]) => servedStations.has(stationId))
+    .map(([stationId, spec]) => ({
+      stationId,
+      side: spec.side,
+      anchor: { x: spec.x, y: spec.y },
+      maxWidth: spec.maxWidth,
+      stationNameOnly: spec.stationNameOnly ?? false,
+    }))
 
-  const extras: LineExtra[] = LINE_EXTRAS.map((e) => ({
+  const extras: LineExtra[] = shownExtras.map((e) => ({
     lineId: e.lineId,
     d: smoothPathD(toPoints(e.points)),
     terminal: e.terminal ? { x: e.terminal[0], y: e.terminal[1] } : undefined,
@@ -242,11 +278,13 @@ export const buildRailMapModel = (): RailMapModel => {
   }
 
   const byId = new Map(RAIL_LINES.map((l) => [l.id, l]))
-  const badges: TerminalBadge[] = TERMINAL_BADGES.map((b) => ({
-    lineId: b.lineId,
-    line: byId.get(b.lineId) as RailLine,
-    center: { x: b.x, y: b.y },
-  }))
+  const badges: TerminalBadge[] = TERMINAL_BADGES.filter((b) => served.has(b.lineId) && (!b.requires || has(b.requires))).map(
+    (b) => ({
+      lineId: b.lineId,
+      line: byId.get(b.lineId) as RailLine,
+      center: { x: b.x, y: b.y },
+    }),
+  )
 
   const irregular: IrregularStretch[] = IRREGULAR_STRETCHES.flatMap((s) => {
     const line = lines.find((l) => l.lineId === s.lineId)
@@ -255,6 +293,7 @@ export const buildRailMapModel = (): RailMapModel => {
   })
 
   return {
+    dayType,
     bounds: MAP_BOUNDS,
     lines,
     markers,

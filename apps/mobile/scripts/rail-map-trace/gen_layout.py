@@ -12,15 +12,21 @@ def station_only(sid,name):
         parts=re.split(r"\s+-\s+|\s+–\s+",name,1)
         if len(parts)==2: return parts[1]
     return re.sub(r"\s*\(.*?\)","",name)
-# ---- lines: where a line calls is taken from the timetable (station-patterns.json), not from the artwork's dots
+# ---- lines: the geometry only; where a line calls, runs through or ends short of its terminus, and which
+# lines run at all, is per day type in station-patterns.json (from the timetable)
 PATTERNS=json.load(open(os.path.join(HERE,"station-patterns.json")))
 lines={}
 for lid,ln in L["lines"].items():
-    irregular=set(PATTERNS.get(lid,{}).get("irregular",{}))
-    if lid=="6": irregular-={"4640","4660","4680","4690"}  # the express trains have their own lane
-    lines[lid]={"points":ln["points"],"stations":[{"id":s,"index":i,"stop":s not in irregular} for s,i in ln["stationIndex"].items()]}
-EXTRA_TERMINALS=[{"line":lid,"station":sid} for lid,p in sorted(PATTERNS.items()) for sid in sorted(p.get("terminals",{}))]
-# extra strokes: line 6's express lane straight through Bat Yam; line 2's Rehovot stub (ends in a terminal dot)
+    lines[lid]={"points":ln["points"],"stations":[{"id":s,"index":i} for s,i in ln["stationIndex"].items()]}
+SERVICE={}
+for key,variant in PATTERNS.items():
+    irregular=[]; terminals=[]
+    for lid,p in sorted(variant["patterns"].items()):
+        for sid in sorted(p["irregular"]): irregular.append({"line":lid,"station":sid})
+        for sid in sorted(p["terminals"]): terminals.append({"line":lid,"station":sid})
+    SERVICE[key]={"lines":variant["lines"],"irregular":irregular,"terminals":terminals}
+# extra strokes: line 6's express lane straight through Bat Yam (while its trains run through there); line 2's
+# Rehovot stub (while trains end there), ending in a terminal dot
 def station_point(lid,sid):
     ln=L["lines"][lid]; return ln["points"][ln["stationIndex"][sid]]
 p6a=station_point("6","4900"); p6b=station_point("6","9800")
@@ -38,8 +44,8 @@ stub=[[477,1674],[477,1692],[472,1700],[465,1702]]
 attach=project([480,1666],p2)
 stub_dot=min(([d["x"],d["y"]] for d in T["dots"]),key=lambda d:math.hypot(d[0]-stub[-1][0],d[1]-stub[-1][1]))
 EXTRAS=[
-  {"line":"6","points":[[p6a[0],p6a[1]],[p6b[0],p6b[1]]]},
-  {"line":"2","points":[[round(attach[0],1),round(attach[1],1)]]+stub[:-1]+[stub_dot],"terminal":stub_dot},
+  {"line":"6","points":[[p6a[0],p6a[1]],[p6b[0],p6b[1]]],"requires":{"line":"6","station":"4640","kind":"irregular"},"covers":["4640","4660","4680","4690"]},
+  {"line":"2","points":[[round(attach[0],1),round(attach[1],1)]]+stub[:-1]+[stub_dot],"terminal":stub_dot,"requires":{"line":"2","station":"5200","kind":"terminal"}},
 ]
 # ---- labels: merge blocks per station
 blocks=[b for b in LB["blocks"]]
@@ -101,10 +107,10 @@ for colour,bs in T["badges"].items():
 # manual additions: Karmiel orange (34), Atlit purple (11), Netanya 25 beside 5
 badges.append({"line":"3X","x":649,"y":265,"ref":"manual"})
 # badges the original prints where trains of a line end short of its terminus
-badges.append({"line":"2","x":507,"y":1742,"ref":"manual"})   # Rehovot, clear of the Yavne East name
-badges.append({"line":"5","x":354,"y":1161,"ref":"manual"})   # Tel Aviv Savidor
-badges.append({"line":"3","x":333,"y":1161,"ref":"manual"})
-badges.append({"line":"11","x":468,"y":520,"ref":"manual"})   # Hof HaKarmel
+badges.append({"line":"2","x":507,"y":1742,"ref":"manual","requires":{"line":"2","station":"5200","kind":"terminal"}})   # Rehovot
+badges.append({"line":"5","x":354,"y":1161,"ref":"manual","requires":{"line":"5","station":"3700","kind":"terminal"}})   # Tel Aviv Savidor
+badges.append({"line":"3","x":333,"y":1161,"ref":"manual","requires":{"line":"3","station":"3700","kind":"terminal"}})
+badges.append({"line":"11","x":468,"y":520,"ref":"manual","requires":{"line":"11","station":"2300","kind":"terminal"}})   # Hof HaKarmel
 badges.append({"line":"11","x":468.5,"y":614,"ref":"manual"})
 badges.append({"line":"1","x":447,"y":139,"ref":"manual"})
 for b in list(badges):
@@ -121,7 +127,7 @@ edge=T["water"]["shore"]
 sea=[[0,0],[edge[0][0],0]]+edge+[[0,edge[-1][1]]]
 ribbon=[[round(x-7,1),y] for x,y in edge]  # the shoreline ribbon sits just inside the sea's edge
 WATER={"sea":sea,"shore":ribbon,"lakes":T["water"]["lakes"]}
-out={"lines":lines,"labels":labels,"irregular":IRREGULAR,"water":WATER,"extraTerminals":EXTRA_TERMINALS,"extras":EXTRAS,"boxes":BOXES,"cities":cities,"badges":badges,"plane":plane,"clusters":CB}
+out={"lines":lines,"labels":labels,"irregular":IRREGULAR,"water":WATER,"service":SERVICE,"extras":EXTRAS,"boxes":BOXES,"cities":cities,"badges":badges,"plane":plane,"clusters":CB}
 json.dump(out,open("layout.json","w"),ensure_ascii=False,indent=0)
 for sid,l in sorted(labels.items(),key=lambda t:t[1]["y"]):
     print(sid,l["side"],l["x"],l["y"],"w",l["maxWidth"],"em",l["em"],l["size"],"heb",l["hebLines"],"eng",l["engLines"],l["name"])

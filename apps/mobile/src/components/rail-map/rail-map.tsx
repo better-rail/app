@@ -43,6 +43,7 @@ import {
   SHORE_WIDTH,
   TERMINAL_RING_RADIUS,
   TERMINAL_RING_WIDTH,
+  type DayType,
   type LinePath,
   type MarkerKind,
   type Point,
@@ -50,6 +51,7 @@ import {
   type StationLabel,
   type TerminalBadge,
   buildRailMapModel,
+  currentDayType,
   linePathBetween,
   lineStationPoints,
   isRtlScript,
@@ -77,6 +79,8 @@ const PLANE_D =
 export type RailMapProps = {
   /** Live status: flags the stations of every disrupted stretch on the map. */
   status?: ServiceStatusSnapshot | null
+  /** Whose timetable to draw (which lines run, where they call and end); defaults to today's. */
+  dayType?: DayType
   /** Draw this line in colour and everything else in grey. */
   selectedLineId?: RailLineId | null
   /** Called with the tapped line, or null when tapping empty ground. */
@@ -126,10 +130,10 @@ const clamp = (value: number, min: number, max: number): number => {
   return Math.min(Math.max(value, min), max)
 }
 
-export function RailMap({ status, selectedLineId, onSelectLine, focusLineId, style }: RailMapProps) {
+export function RailMap({ status, dayType, selectedLineId, onSelectLine, focusLineId, style }: RailMapProps) {
   const scheme = useColorScheme()
   const palette = RAIL_MAP_PALETTE[scheme === "dark" ? "dark" : "light"]
-  const model = useMemo(() => buildRailMapModel(), [])
+  const model = useMemo(() => buildRailMapModel(dayType ?? currentDayType()), [dayType])
   const fontMgr = useFonts(HEEBO_FONTS)
   const [size, setSize] = useState<Size>({ width: 0, height: 0 })
 
@@ -295,11 +299,16 @@ export function RailMap({ status, selectedLineId, onSelectLine, focusLineId, sty
   }, [labels, model])
 
   const isDimmed = (lineId: RailLineId) => selectedLineId != null && lineId !== selectedLineId
-  // The original's stacking at crossings, with the selected line lifted on top.
-  const orderedLines = useMemo(() => {
+  // The original's stacking at crossings, with the selected line's group lifted on top. Lines of one
+  // colour are drawn as a group (cased together), so where one splits from another there is no outline.
+  const colourGroups = useMemo(() => {
     const rank = (line: LinePath) =>
       line.lineId === selectedLineId ? LINE_DRAW_ORDER.length : LINE_DRAW_ORDER.indexOf(line.lineId)
-    return [...model.lines].sort((a, b) => rank(a) - rank(b))
+    const groups = new Map<string, LinePath[]>()
+    for (const line of [...model.lines].sort((a, b) => rank(a) - rank(b))) {
+      groups.set(line.line.color, [...(groups.get(line.line.color) ?? []), line])
+    }
+    return [...groups.values()].sort((a, b) => Math.max(...a.map(rank)) - Math.max(...b.map(rank)))
   }, [model, selectedLineId])
   const selectedStations = useMemo(
     () => new Set(selectedLineId ? (model.lines.find((l) => l.lineId === selectedLineId)?.line.stationIds ?? []) : []),
@@ -362,10 +371,8 @@ export function RailMap({ status, selectedLineId, onSelectLine, focusLineId, sty
                 another. A line's extra strokes go with it: an express lane beside the line sits under it (the
                 line's casing keeps the gap), a terminal stub is painted over it so the two join without a seam.
               */}
-              {orderedLines.map((line) => {
-                const color = isDimmed(line.lineId) ? palette.dimLine : line.line.color
-                const own = extras.filter((e) => e.lineId === line.lineId)
-                const stroke = (path: SkPath, key: string, casing: boolean) => (
+              {colourGroups.map((group) => {
+                const stroke = (path: SkPath, key: string, color: string, casing: boolean) => (
                   <Path
                     key={key}
                     path={path}
@@ -376,13 +383,25 @@ export function RailMap({ status, selectedLineId, onSelectLine, focusLineId, sty
                     strokeJoin="round"
                   />
                 )
+                const members = group.map((line) => ({
+                  line,
+                  path: paths.get(line.lineId) as SkPath,
+                  color: isDimmed(line.lineId) ? palette.dimLine : line.line.color,
+                  own: extras.filter((e) => e.lineId === line.lineId),
+                }))
                 return (
-                  <Group key={line.lineId}>
-                    {own.map((e, i) => stroke(e.path, `extra-casing-${i}`, true))}
-                    {own.filter((e) => !e.terminal).map((e, i) => stroke(e.path, `express-${i}`, false))}
-                    {stroke(paths.get(line.lineId) as SkPath, "casing", true)}
-                    {stroke(paths.get(line.lineId) as SkPath, "line", false)}
-                    {own.filter((e) => e.terminal).map((e, i) => stroke(e.path, `stub-${i}`, false))}
+                  <Group key={group[0].line.color}>
+                    {members.flatMap(({ line, path, own }) => [
+                      ...own.map((e, i) => stroke(e.path, `${line.lineId}-extra-casing-${i}`, "", true)),
+                      stroke(path, `${line.lineId}-casing`, "", true),
+                    ])}
+                    {members.flatMap(({ line, path, color, own }) => [
+                      ...own
+                        .filter((e) => !e.terminal)
+                        .map((e, i) => stroke(e.path, `${line.lineId}-express-${i}`, color, false)),
+                      stroke(path, `${line.lineId}-line`, color, false),
+                      ...own.filter((e) => e.terminal).map((e, i) => stroke(e.path, `${line.lineId}-stub-${i}`, color, false)),
+                    ])}
                   </Group>
                 )
               })}

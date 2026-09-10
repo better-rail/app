@@ -3,6 +3,7 @@ import { RAIL_LINES } from "@/data/rail-lines"
 import { STATION_LABELS } from "@/data/rail-map-layout"
 import {
   buildRailMapModel,
+  currentDayType,
   linePathBetween,
   lineStationPoints,
   mapStationName,
@@ -12,7 +13,32 @@ import {
 } from "./rail-map-model"
 
 describe("rail map model", () => {
-  const model = buildRailMapModel()
+  const model = buildRailMapModel("weekday")
+
+  test("the weekend map drops the lines that do not run then, with their stations, stubs and badges", () => {
+    const weekend = buildRailMapModel("weekend")
+    expect(weekend.dayType).toBe("weekend")
+    expect(model.lines.map((l) => l.lineId)).toContain("12")
+    expect(weekend.lines.map((l) => l.lineId)).not.toContain("12")
+    expect(weekend.lines.map((l) => l.lineId)).not.toContain("3X")
+    // Hadera East is only on the eastern line.
+    expect(model.labels.some((l) => l.stationId === "3900")).toBe(true)
+    expect(weekend.labels.some((l) => l.stationId === "3900")).toBe(false)
+    expect(weekend.badges.some((b) => b.lineId === "12")).toBe(false)
+    // Hardly any line 2 train ends at Rehovot on the weekend: no stub, no badge, a plain stop.
+    expect(weekend.extras.map((e) => e.lineId)).toEqual(["6"])
+    expect(weekend.markers.find((m) => m.stationId === "5200" && m.lineId === "2")?.kind).toBe("stop")
+    expect(weekend.badges.filter((b) => b.lineId === "2")).toHaveLength(2)
+    expect(model.badges.filter((b) => b.lineId === "2")).toHaveLength(3)
+  })
+
+  test("the day type follows the Israeli week, with the service day rolling over at 03:00", () => {
+    expect(currentDayType(new Date("2026-09-09T12:00:00"))).toBe("weekday") // Wednesday
+    expect(currentDayType(new Date("2026-09-11T12:00:00"))).toBe("weekend") // Friday
+    expect(currentDayType(new Date("2026-09-12T23:00:00"))).toBe("weekend") // Saturday night
+    expect(currentDayType(new Date("2026-09-11T01:00:00"))).toBe("weekday") // Thursday's last trains
+    expect(currentDayType(new Date("2026-09-13T01:00:00"))).toBe("weekend") // Saturday's last trains
+  })
 
   test("draws every catalogue line along its traced polyline with the calling points in corridor order", () => {
     expect(model.lines.map((l) => l.lineId)).toEqual(RAIL_LINES.map((l) => l.id))
@@ -41,9 +67,13 @@ describe("rail map model", () => {
     expect(savidor.every((m) => m.kind === "stop" || m.kind === "terminal")).toBe(true)
     const dimona = model.markers.filter((m) => m.stationId === "7500")
     expect(dimona.map((m) => [m.lineId, m.kind])).toEqual([["8", "terminal"]])
-    // Where a line calls comes from the timetable: a quarter of the Karmiel trains run through Kiryat Hayim.
-    const kiryatHayim = Object.fromEntries(model.markers.filter((m) => m.stationId === "700").map((m) => [m.lineId, m.kind]))
-    expect(kiryatHayim).toEqual({ "1": "stop", "3": "stop", "4": "irregular" })
+    // Where a line calls comes from the timetable: on weekends a quarter of the Karmiel trains run through Kiryat Hayim.
+    const kiryatHayim = (m: ReturnType<typeof buildRailMapModel>) =>
+      Object.fromEntries(m.markers.filter((mk) => mk.stationId === "700").map((mk) => [mk.lineId, mk.kind]))
+    expect(kiryatHayim(model)).toEqual({ "1": "stop", "3": "stop", "4": "stop" })
+    expect(kiryatHayim(buildRailMapModel("weekend"))["4"]).toBe("irregular")
+    // The express lane stands for line 6's trains running through Bat Yam: the stopping lane keeps plain dots.
+    expect(model.markers.find((m) => m.stationId === "4640" && m.lineId === "6")?.kind).toBe("stop")
     // Most line 2 trains run through Lod – Gane Aviv.
     expect(model.markers.find((m) => m.stationId === "5150" && m.lineId === "2")?.kind).toBe("irregular")
     // Every line ends in terminals; the timetable's short workings add terminals along the way.

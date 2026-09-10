@@ -4,7 +4,7 @@
  * without a device:
  *
  *   bun run --loader=.jpg:file --loader=.jpeg:file --loader=.png:file --loader=.webp:file \
- *     scripts/rail-map-preview.ts /tmp/rail-map.svg [he|en]
+ *     scripts/rail-map-preview.ts /tmp/rail-map.svg [he|en] [weekday|weekend]
  *
  * (The loaders let Bun import the station list, which requires station photos.)
  *
@@ -30,6 +30,7 @@ import {
   SHORE_WIDTH,
   TERMINAL_RING_RADIUS,
   TERMINAL_RING_WIDTH,
+  type DayType,
   buildRailMapModel,
   isRtlScript,
   mapStationName,
@@ -40,8 +41,9 @@ import { LABEL_TEXT_OVERRIDES } from "@/data/rail-map-layout"
 import { stationsObject } from "@/data/stations"
 
 const lang = (process.argv[3] ?? "he") as "he" | "en"
+const dayType = (process.argv[4] ?? "weekday") as DayType
 const palette = RAIL_MAP_PALETTE.light
-const m = buildRailMapModel()
+const m = buildRailMapModel(dayType)
 const S = 9.13
 const W = m.bounds.width * S
 const H = m.bounds.height * S
@@ -99,14 +101,21 @@ for (const city of m.cities) {
 const stacked = [...m.lines].sort((a, b) => LINE_DRAW_ORDER.indexOf(a.lineId) - LINE_DRAW_ORDER.indexOf(b.lineId))
 const stroke = (d: string, color: string, width: number) =>
   `<path d="${d}" fill="none" stroke="${color}" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round"/>`
-for (const l of stacked) {
-  // As in the app: an express lane sits under its line, a terminal stub is painted over it.
-  const own = m.extras.filter((e) => e.lineId === l.lineId)
-  for (const e of own) svg += stroke(e.d, palette.background, LINE_CASING)
-  for (const e of own.filter((e) => !e.terminal)) svg += stroke(e.d, l.line.color, LINE_STROKE)
-  svg += stroke(l.d, palette.background, LINE_CASING)
-  svg += stroke(l.d, l.line.color, LINE_STROKE)
-  for (const e of own.filter((e) => e.terminal)) svg += stroke(e.d, l.line.color, LINE_STROKE)
+// As in the app: lines of one colour are cased together (no outline where one splits from another); an
+// express lane sits under its line, a terminal stub is painted over it.
+const groups = new Map<string, typeof stacked>()
+for (const l of stacked) groups.set(l.line.color, [...(groups.get(l.line.color) ?? []), l])
+for (const group of groups.values()) {
+  for (const l of group) {
+    for (const e of m.extras.filter((e) => e.lineId === l.lineId)) svg += stroke(e.d, palette.background, LINE_CASING)
+    svg += stroke(l.d, palette.background, LINE_CASING)
+  }
+  for (const l of group) {
+    const own = m.extras.filter((e) => e.lineId === l.lineId)
+    for (const e of own.filter((e) => !e.terminal)) svg += stroke(e.d, l.line.color, LINE_STROKE)
+    svg += stroke(l.d, l.line.color, LINE_STROKE)
+    for (const e of own.filter((e) => e.terminal)) svg += stroke(e.d, l.line.color, LINE_STROKE)
+  }
 }
 for (const s of m.irregular) {
   svg += `<path d="${s.d}" fill="none" stroke="${palette.background}" stroke-width="${IRREGULAR_STRIPE_WIDTH}" stroke-linecap="butt"/>`

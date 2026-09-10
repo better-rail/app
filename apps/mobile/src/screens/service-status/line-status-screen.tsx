@@ -3,8 +3,9 @@ import { StyleSheet } from "react-native-unistyles"
 import { Stack, useLocalSearchParams } from "expo-router"
 import { Text } from "@/components"
 import { translate, userLocale } from "@/i18n"
-import { RailMap } from "@/components/rail-map"
+import { RailMap, currentDayType } from "@/components/rail-map"
 import { getRailLine, type RailLineId } from "@/data/rail-lines"
+import { SERVICE_PATTERNS } from "@/data/rail-map-layout"
 import { MINOR_DELAY_MINUTES, SEVERE_DELAY_MINUTES } from "@/services/api"
 import { DisruptionCard } from "./components/disruption-card"
 import { LineBadge } from "./components/line-badge"
@@ -23,12 +24,20 @@ export function LineStatusScreen() {
   const bandColor = line?.color ?? status?.line.color ?? "#8E8E93"
   const bandText = line?.textColor ?? contrastText(bandColor)
   const title = line?.name[userLocale] ?? (status ? lineName(status) : "")
+  // Today's map, unless the line only runs on the other kind of day.
+  const today = currentDayType()
+  const dayType = SERVICE_PATTERNS[today].lines.includes(lineId as RailLineId)
+    ? today
+    : today === "weekday"
+      ? "weekend"
+      : "weekday"
 
   return (
     <View style={styles.root} testID="line-status-screen">
       <Stack.Screen options={{ title }} />
       <RailMap
         status={data}
+        dayType={dayType}
         selectedLineId={(lineId as RailLineId) ?? null}
         focusLineId={(lineId as RailLineId) ?? null}
         style={styles.map}

@@ -350,6 +350,10 @@
     "networkMap": "מפת הרשת",
     "networkMapHint": "הקישו על קו כדי לראות את מצבו",
     "mapCredit": "המפה בעקבות מפת הרשת של רכבת ישראל",
+    "dayType": {
+      "weekday": "א׳–ה׳",
+      "weekend": "ו׳–ש׳"
+    },
     "legend": {
       "title": "מקרא המפה",
       "open": "מקרא",

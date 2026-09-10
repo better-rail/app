@@ -6,7 +6,8 @@ import HapticFeedback from "react-native-haptic-feedback"
 import { Text } from "@/components"
 import { color } from "@/theme"
 import { trackEvent } from "@/services/analytics"
-import { RailMap } from "@/components/rail-map"
+import { type DayType, RailMap, currentDayType } from "@/components/rail-map"
+import { Chip } from "@/components"
 import { getRailLine, type RailLineId } from "@/data/rail-lines"
 import { CHEVRON_ICON } from "@/screens/settings/components/settings-box"
 import { LineBadge } from "./components/line-badge"
@@ -22,6 +23,7 @@ export function NetworkMapScreen() {
   const router = useRouter()
   const { data } = useServiceStatus()
   const [selected, setSelected] = useState<RailLineId | null>(null)
+  const [dayType, setDayType] = useState<DayType>(() => currentDayType())
 
   const onSelectLine = (lineId: RailLineId | null) => {
     if (lineId) HapticFeedback.trigger("impactLight")
@@ -39,7 +41,27 @@ export function NetworkMapScreen() {
 
   return (
     <View style={styles.root} testID="network-map-screen">
-      <RailMap status={data} selectedLineId={selected} onSelectLine={onSelectLine} style={styles.map} />
+      <RailMap status={data} dayType={dayType} selectedLineId={selected} onSelectLine={onSelectLine} style={styles.map} />
+      {/* The timetable differs between the week and the weekend: two maps. */}
+      <View style={styles.dayTypes} pointerEvents="box-none" testID="network-map-day-types">
+        {(["weekday", "weekend"] as const).map((type) => (
+          <Chip
+            key={type}
+            variant={dayType === type ? "primary" : "default"}
+            onPress={() => {
+              if (type === dayType) return
+              HapticFeedback.trigger("impactLight")
+              trackEvent("service_status_day_type_changed", { dayType: type })
+              setDayType(type)
+            }}
+          >
+            <Text
+              style={[styles.dayTypeText, dayType === type && styles.dayTypeTextSelected]}
+              tx={`serviceStatus.dayType.${type}`}
+            />
+          </Chip>
+        ))}
+      </View>
       <View style={styles.footer}>
         {line ? (
           <TouchableHighlight
@@ -84,6 +106,21 @@ const styles = StyleSheet.create((theme, rt) => ({
   },
   map: {
     flex: 1,
+  },
+  dayTypes: {
+    position: "absolute",
+    top: theme.spacing[3],
+    insetInlineEnd: theme.spacing[3],
+    flexDirection: "row",
+    gap: theme.spacing[2],
+  },
+  dayTypeText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: theme.colors.text,
+  },
+  dayTypeTextSelected: {
+    color: theme.colors.whiteText,
   },
   footer: {
     padding: theme.spacing[3],

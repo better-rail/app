@@ -349,6 +349,10 @@
     "networkMap": "Network map",
     "networkMapHint": "Tap a line to see its status",
     "mapCredit": "Map after the Israel Railways network map",
+    "dayType": {
+      "weekday": "Sun–Thu",
+      "weekend": "Fri–Sat"
+    },
     "legend": {
       "title": "Map legend",
       "open": "Legend",
