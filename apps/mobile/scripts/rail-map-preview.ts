@@ -26,7 +26,7 @@ const PAD = { left: 4, right: 6 }
 const S = 17.32 // back to the original's pixel scale
 const W = (m.bounds.width + PAD.left + PAD.right) * S
 const H = m.bounds.height * S
-const BG = "#0f1524"
+const BG = "#f6f6f8"
 const INK = "#1d1d1f"
 const WHITE = "#f4f4f6"
 let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="${-PAD.left} 0 ${m.bounds.width + PAD.left + PAD.right} ${m.bounds.height}" font-family="Heebo, Arial, sans-serif">`
@@ -35,13 +35,7 @@ for (const l of m.lines) {
   svg += `<path d="${l.d}" fill="none" stroke="${l.line.color}" stroke-width="${LINE_STROKE}" stroke-linecap="round" stroke-linejoin="round"/>`
 }
 for (const mk of m.markers) {
-  if (mk.kind === "single") {
-    svg += `<circle cx="${mk.center.x}" cy="${mk.center.y}" r="${MARKER_RADIUS}" fill="${INK}"/>`
-  } else {
-    svg += `<line x1="${mk.a.x}" y1="${mk.a.y}" x2="${mk.b.x}" y2="${mk.b.y}" stroke="${INK}" stroke-width="${mk.radius * 2 + 0.5}" stroke-linecap="round"/>`
-    svg += `<line x1="${mk.a.x}" y1="${mk.a.y}" x2="${mk.b.x}" y2="${mk.b.y}" stroke="${WHITE}" stroke-width="${mk.radius * 2}" stroke-linecap="round"/>`
-    for (const p of mk.lanePoints) svg += `<circle cx="${p.x}" cy="${p.y}" r="${MARKER_RADIUS * 0.8}" fill="${INK}"/>`
-  }
+  for (const p of mk.lanePoints) svg += `<circle cx="${p.x}" cy="${p.y}" r="${MARKER_RADIUS}" fill="${INK}"/>`
 }
 for (const lb of m.labels) {
   const name = names.get(lb.stationId) ?? lb.stationId
@@ -52,7 +46,7 @@ for (const lb of m.labels) {
   const block = lines.length * lh
   const top = lb.side === "above" ? lb.anchor.y - block : lb.side === "below" ? lb.anchor.y : lb.anchor.y - block / 2
   lines.forEach((text, i) => {
-    svg += `<text x="${lb.anchor.x}" y="${top + i * lh + fs * 0.85}" text-anchor="${anchor}" font-size="${fs}" fill="#e8ecf5">${text.replace(/&/g, "&amp;").replace(/'/g, "&#39;")}</text>`
+    svg += `<text x="${lb.anchor.x}" y="${top + i * lh + fs * 0.85}" text-anchor="${anchor}" font-size="${fs}" fill="#2b2b30">${text.replace(/&/g, "&amp;").replace(/'/g, "&#39;")}</text>`
   })
 }
 svg += `</svg>`

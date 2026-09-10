@@ -26,7 +26,6 @@ import {
   LABEL_FONT_SIZE,
   LABEL_LINE_HEIGHT,
   LINE_STROKE,
-  MARKER_RADIUS,
   SMALL_LABEL_BREAK_LENGTH,
   type LinePath,
   type Point,
@@ -294,28 +293,14 @@ export function RailMap({ status, selectedLineId, onSelectLine, focusLineId, sty
                 ),
               )}
 
-              {/* Station markers: a dot on the line for a stop, a white pill with a dot per lane for an interchange. */}
+              {/* Station markers: a dot on every lane that calls there, as on the original. */}
               {model.markers.map((marker) => {
                 const dim = selectedLineId != null && !selectedStations.has(marker.stationId)
                 const dot = dim ? palette.dimInk : palette.dot
-                if (marker.kind === "single") {
-                  return <Circle key={marker.stationId} c={marker.a} r={marker.radius} color={dot} />
-                }
-                const capsule = Skia.Path.Make()
-                capsule.moveTo(marker.a.x, marker.a.y)
-                capsule.lineTo(marker.b.x, marker.b.y)
                 return (
                   <Group key={marker.stationId}>
-                    <Path path={capsule} color={dot} style="stroke" strokeWidth={marker.radius * 2 + 0.5} strokeCap="round" />
-                    <Path
-                      path={capsule}
-                      color={dim ? palette.dimPill : palette.pill}
-                      style="stroke"
-                      strokeWidth={marker.radius * 2}
-                      strokeCap="round"
-                    />
                     {marker.lanePoints.map((p, i) => (
-                      <Circle key={i} c={p} r={MARKER_RADIUS * 0.8} color={dot} />
+                      <Circle key={i} c={p} r={marker.radius} color={dot} />
                     ))}
                   </Group>
                 )

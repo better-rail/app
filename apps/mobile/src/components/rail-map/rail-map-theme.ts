@@ -12,11 +12,8 @@ export type RailMapPalette = {
   background: string
   /** Labels. */
   ink: string
-  /** Station dots and the outline of an interchange pill (dark in both schemes, as on the original). */
+  /** Station dots (dark in both schemes, as on the original). */
   dot: string
-  /** Interchange pill fill, and its dimmed version behind a selected line. */
-  pill: string
-  dimPill: string
   /** Lines and labels that are not the selected line. */
   dimLine: string
   dimInk: string
@@ -27,11 +24,9 @@ export type RailMapPalette = {
 
 export const RAIL_MAP_PALETTE: Record<"light" | "dark", RailMapPalette> = {
   light: {
-    background: "#F2F2F7",
+    background: "#F6F6F8",
     ink: "#1D1D1F",
     dot: "#1D1D1F",
-    pill: "#FFFFFF",
-    dimPill: "#E4E4E9",
     dimLine: "#D2D3D9",
     dimInk: "#A2A4AD",
     badge: "#1D1D1F",
@@ -41,8 +36,6 @@ export const RAIL_MAP_PALETTE: Record<"light" | "dark", RailMapPalette> = {
     background: "#0F1524",
     ink: "#F2F2F7",
     dot: "#14171F",
-    pill: "#F4F4F6",
-    dimPill: "#3A3F4B",
     dimLine: "#343A4A",
     dimInk: "#767C8C",
     badge: "#F2F2F7",

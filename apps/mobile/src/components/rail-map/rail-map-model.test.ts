@@ -81,6 +81,6 @@ describe("rail map model", () => {
       { x: 10, y: 0 },
       { x: 10, y: 10 },
     ])
-    expect(d).toBe("M0 0 L5 0 Q10 0 10 5 L10 10")
+    expect(d).toBe("M0 0 L6.5 0 Q10 0 10 3.5 L10 10")
   })
 })

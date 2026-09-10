@@ -1,14 +1,11 @@
 /**
  * Schematic layout of the Israel Railways network for the Service Status map.
  *
- * A transcription of Constantine Konovalov's "Israeli railways map" (v1.4,
- * November 2022, CC BY-SA 4.0 — https://ckonovalov.com/rail): every station
- * and bend below was measured on the original 1732 × 6061 px artwork and is
- * kept in those pixel coordinates (see `px`), so the drawn shapes match it.
- * Two things differ from the original on purpose: the line set follows the
- * current timetable (see rail-lines.ts), and the eastern line from Hadera East
- * to Rosh Ha'Ayin North, which opened after the map was drawn, is added in
- * the same style.
+ * A transcription of the current edition of Constantine Konovalov's Israeli
+ * railways map (CC BY-SA 4.0 — https://ckonovalov.com/rail), the one with the
+ * present line set, the numbered lines and the eastern line. Every station
+ * and bend below was measured on that artwork (913 × 2576 px) and is kept in
+ * its pixel coordinates (see `px`), so the drawn shapes match it 1:1.
  *
  * Nodes are the app's "3700"-style station ids, plus `J_*` waypoints where a
  * line bends or a branch leaves the trunk. Edges are physical track adjacency;
@@ -35,10 +32,10 @@ export type MapNode = {
 }
 
 /** Layout units: the original artwork scaled to 100 units wide. */
-const PX_PER_UNIT = 17.32
+const PX_PER_UNIT = 9.13
 
-/** Width/height of the map in layout units (the original's 1732 × 6061 px). */
-export const MAP_BOUNDS = { width: 100, height: 350 }
+/** Width/height of the map in layout units (the original's 913 × 2576 px). */
+export const MAP_BOUNDS = { width: 100, height: 282 }
 
 /** A node placed at the original's pixel coordinates. */
 const px = (id: string, x: number, y: number, label?: LabelSide, small?: boolean): MapNode => ({
@@ -58,108 +55,109 @@ const nudge = (node: MapNode, dx: number, dy: number): MapNode => ({
   labelOffset: { x: dx / PX_PER_UNIT, y: dy / PX_PER_UNIT },
 })
 
+const TRUNK_NORTH = 481
+
 export const MAP_NODES: MapNode[] = [
-  // Galilee & the Krayot — the trunk runs straight down at x = 836
-  px("1600", 836, 487, "left"), // Nahariya
-  px("1500", 836, 672, "left"), // Akko
-  px("J_KARMIEL", 836, 752),
-  px("1820", 1035, 752, "above"), // Ahihud
-  px("1840", 1230, 752, "right"), // Karmiel
-  px("1400", 836, 860, "left"), // Kiryat Motzkin
-  px("700", 836, 952, "left"), // Kiryat Hayim
-  px("1300", 836, 1047, "left"), // Hutzot HaMifratz
+  // Galilee & the Krayot — the trunk runs straight down
+  px("1600", TRUNK_NORTH, 138, "left"), // Nahariya
+  px("1500", TRUNK_NORTH, 197, "left"), // Akko
+  px("J_KARMIEL", TRUNK_NORTH, 243),
+  px("1820", 546, 243, "above"), // Ahihud
+  px("1840", 608, 243, "right"), // Karmiel
+  px("1400", TRUNK_NORTH, 280, "left"), // Kiryat Motzkin
+  px("700", TRUNK_NORTH, 320, "left"), // Kiryat Hayim
+  px("1300", TRUNK_NORTH, 360, "left"), // Hutzot HaMifratz
   // Haifa bay — the bundle swings south-west around the bay
-  nudge(px("1220", 790, 1191, "left"), -15, -20), // HaMifrats Central
-  stationOnly(px("2100", 704, 1282, "left", true)), // Haifa Center – HaShmona
-  stationOnly(px("2200", 669, 1348, "left", true)), // Bat Galim
-  stationOnly(px("2300", 681, 1420, "left", true)), // Hof HaKarmel
-  px("2500", 688, 1607, "right"), // Atlit
-  // Jezreel valley — leaves the bay eastwards, then a 45° diagonal to Beit She'an
-  px("J_VALLEY_A", 870, 1268),
-  px("J_VALLEY_B", 935, 1268),
-  px("1240", 1085, 1418, "left"), // Yokne'am – Kfar Yehoshu'a
-  px("1250", 1215, 1550, "left"), // Migdal Ha'emek – Kfar Barukh
-  px("1260", 1350, 1683, "left"), // Afula
-  px("1280", 1480, 1810, "right"), // Beit She'an
+  nudge(px("1220", 468, 426, "left"), -6, -4), // HaMifrats Central
+  stationOnly(px("2100", 440, 457, "left", true)), // Haifa Center – HaShmona
+  stationOnly(px("2200", 421, 488, "left", true)), // Bat Galim
+  stationOnly(px("2300", 424, 521, "left", true)), // Hof HaKarmel
+  px("2500", 431, 600, "right"), // Atlit
+  // Jezreel valley — leaves the bay eastwards as one straight line to Beit She'an
+  px("J_VALLEY", 500, 452),
+  px("1240", 585, 452, "above"), // Yokne'am – Kfar Yehoshu'a
+  px("1250", 674, 452, "below"), // Migdal Ha'emek – Kfar Barukh
+  px("1260", 763, 452, "above"), // Afula
+  px("1280", 852, 452, "below"), // Beit She'an
   // The Carmel & Sharon coast
-  px("2800", 657, 1793, "left"), // Binyamina
-  px("2820", 657, 1887, "left"), // Caesarea – Pardes Hana
-  px("3100", 657, 1980, "left"), // Hadera – West
-  px("3300", 643, 2167, "left"), // Netanya
-  px("3310", 643, 2260, "left"), // Netanya – Sapir
-  px("3400", 643, 2353, "left"), // Bet Yehoshu'a
-  px("3500", 645, 2540, "left"), // Herzliya
-  // The Sharon loop — east along the top, down past Rosh Ha'Ayin, back west into Tel Aviv
-  nudge(px("2940", 793, 2483, "above", true), -14, 0), // Ra'anana West
-  nudge(px("2960", 900, 2483, "above", true), 10, 0), // Ra'anana South
-  px("9200", 1023, 2483, "above", true), // Hod HaSharon – Sokolov
-  px("8700", 1160, 2483, "above", true), // Kfar Sava – Nordau
-  px("J_LOOP_NE", 1210, 2483),
-  px("8800", 1210, 2593, "right"), // Rosh Ha'Ayin – North
-  px("J_LOOP_SE", 1210, 2650),
-  px("4250", 1105, 2650, "below", true), // Petah Tikva – Segula
-  px("4170", 980, 2650, "above", true), // Petah Tikva – Kiryat Arye
-  px("4100", 855, 2650, "below", true), // Bnei Brak
-  px("J_LOOP_SW", 560, 2650),
-  // The eastern line (not on the original): north from Rosh Ha'Ayin, then a 45° diagonal to Hadera East
-  px("J_EAST_S", 1270, 2533),
-  px("4310", 1270, 2350, "right", true), // Tira – Kokhav Ya'ir
-  px("4300", 1270, 2210, "right", true), // Shomron – Tayyiba
-  px("J_EAST_N", 1270, 2150),
-  px("3900", 1050, 1930, "right"), // Hadera – East
+  px("2800", 417, 679, "left"), // Binyamina
+  px("2820", 417, 718, "left"), // Caesarea – Pardes Hana
+  px("3100", 417, 758, "left"), // Hadera – West
+  px("3300", 411, 838, "left"), // Netanya
+  px("3310", 411, 878, "left"), // Netanya – Sapir
+  px("3400", 411, 918, "left"), // Bet Yehoshu'a
+  px("3500", 417, 1000, "left"), // Herzliya
+  // The eastern line — a 45° drop from Hadera East, then straight down into Rosh Ha'Ayin
+  px("3900", 656, 759, "left"), // Hadera – East
+  px("J_EAST_N", 745, 848),
+  px("4300", 750, 898, "right", true), // Shomron – Tayyiba
+  px("4310", 750, 956, "right", true), // Tira – Kokhav Ya'ir
+  px("J_EAST_S", 750, 992),
+  // The Sharon loop — up from Herzliya, east along the top, down past Rosh Ha'Ayin, back west into Tel Aviv
+  px("J_LOOP_W", 462, 968),
+  px("2940", 507, 968, "above", true), // Ra'anana West
+  px("2960", 563, 968, "above", true), // Ra'anana South
+  px("9200", 628, 968, "above", true), // Hod HaSharon – Sokolov
+  px("8700", 678, 968, "above", true), // Kfar Sava – Nordau
+  px("J_LOOP_NE", 736, 968),
+  px("8800", 736, 1017, "right"), // Rosh Ha'Ayin – North
+  px("J_LOOP_SE", 736, 1048),
+  px("4250", 676, 1048, "below", true), // Petah Tikva – Segula
+  px("4170", 600, 1048, "below", true), // Petah Tikva – Kiryat Arye
+  px("4100", 522, 1048, "below", true), // Bnei Brak
+  px("J_LOOP_SW", 372, 1048),
   // Tel Aviv
-  px("3600", 645, 2725, "left"), // University
-  px("3700", 645, 2820, "left"), // Savidor Center
-  px("4600", 645, 2913, "left"), // HaShalom
-  px("4900", 645, 3007, "left"), // HaHagana
+  px("3600", 411, 1077, "left"), // University
+  px("3700", 411, 1145, "left"), // Savidor Center
+  px("4600", 411, 1212, "left"), // HaShalom
+  px("4900", 411, 1281, "left"), // HaHagana
   // The coast south of Tel Aviv — straight down, then east around to Be'er Sheva
-  px("4640", 557, 3100, "left"), // Holon Junction
-  px("4660", 557, 3193, "left"), // Holon – Wolfson
-  px("4680", 557, 3287, "left"), // Bat Yam – Yoseftal
-  px("4690", 557, 3380, "left"), // Bat Yam – Komemiyut
-  px("9800", 557, 3475, "left", true), // Rishon LeTsiyon – Moshe Dayan
-  px("9000", 557, 3755, "left"), // Yavne – West
-  px("5800", 572, 4033, "left"), // Ashdod – Ad Halom
-  px("5900", 572, 4315, "left"), // Ashkelon
-  px("9600", 572, 4595, "left"), // Sderot
-  px("9650", 572, 4875, "left"), // Netivot
-  px("J_NEGEV_SW", 572, 4965),
-  px("9700", 745, 4965, "above"), // Ofakim
-  px("J_NEGEV_SE", 884, 4965),
+  px("4640", 372, 1348, "left"), // Holon Junction
+  px("4660", 372, 1416, "left"), // Holon – Wolfson
+  px("4680", 372, 1484, "left"), // Bat Yam – Yoseftal
+  px("4690", 372, 1552, "left"), // Bat Yam – Komemiyut
+  px("9800", 372, 1620, "left", true), // Rishon LeTsiyon – Moshe Dayan
+  px("9000", 372, 1686, "left"), // Yavne – West
+  px("5800", 379, 1775, "left"), // Ashdod – Ad Halom
+  px("5900", 379, 1855, "left"), // Ashkelon
+  px("9600", 372, 1933, "left"), // Sderot
+  px("9650", 372, 2012, "left"), // Netivot
+  px("J_NEGEV_SW", 372, 2072),
+  px("9700", 462, 2072, "above"), // Ofakim
+  px("J_NEGEV_SE", 554, 2072),
   // Lod & the inland lines — a 45° diagonal out of Tel Aviv, straight down through Lod
-  px("J_LOD_A", 645, 3110),
-  nudge(px("4800", 767, 3232, "left", true), 20, 70), // Kfar Habad
-  nudge(px("5150", 867, 3332, "left", true), 8, 60), // Lod – Gane Aviv
-  px("J_LOD_V", 938, 3403),
-  px("5000", 938, 3567, "right"), // Lod
-  px("J_RISHON", 851, 3640),
-  nudge(px("9100", 722, 3694, "left", true), 35, -55), // Rishon LeTsiyon – HaRishonim
-  px("J_LOD_SW", 895, 3625),
-  px("5300", 778, 3767, "right", true), // Be'er Ya'akov
-  px("5200", 701, 3849, "right"), // Rehovot
-  px("5410", 625, 3925, "right"), // Yavne – East
-  px("J_YAVNE", 590, 3962),
-  px("5010", 967, 3660, "right"), // Ramla
-  px("J_BSH", 996, 3710),
-  px("6300", 1227, 3941, "below"), // Bet Shemesh
-  px("6900", 952, 3940, "right"), // Mazkeret Batya
-  px("6150", 952, 4222, "right"), // Kiryat Malakhi – Yoav
-  px("7000", 952, 4500, "right"), // Kiryat Gat
-  px("8550", 952, 4780, "right"), // Lehavim – Rahat
-  // Ben Gurion Airport, Modi'in & Jerusalem — out of Tel Aviv at 45°, a shallow run past the airport, 45° again
-  px("J_AIR_A", 741, 3060),
-  px("J_AIR_B", 805, 3124),
-  px("8600", 950, 3148, "above", true), // Ben Gurion Airport
-  px("J_AIR_C", 990, 3150),
-  px("J_MOD", 1198, 3358),
-  nudge(px("300", 1252, 3299, "above", true), -40, -10), // Pa'ate Modi'in
-  px("400", 1306, 3245, "right"), // Modi'in – Center
-  px("680", 1443, 3598, "right"), // Jerusalem – Yitzhak Navon
+  px("J_LOD_A", 404, 1330),
+  nudge(px("4800", 480, 1402, "left", true), 4, -8), // Kfar Habad
+  px("5150", 525, 1449, "left", true), // Lod – Gane Aviv
+  px("J_LOD_V", 567, 1491),
+  px("5000", 567, 1567, "right"), // Lod
+  px("J_RISHON", 505, 1615),
+  nudge(px("9100", 455, 1640, "above", true), -8, 0), // Rishon LeTsiyon – HaRishonim
+  px("J_LOD_SW", 547, 1592),
+  nudge(px("5300", 497, 1641, "right", true), 0, 10), // Be'er Ya'akov
+  nudge(px("5200", 456, 1693, "right"), 0, 8), // Rehovot
+  nudge(px("5410", 419, 1730, "right"), 0, 12), // Yavne – East
+  px("J_YAVNE", 389, 1760),
+  px("5010", 579, 1604, "right"), // Ramla
+  px("J_BSH", 592, 1624),
+  px("6300", 664, 1696, "right"), // Bet Shemesh
+  px("6900", 573, 1709, "right", true), // Mazkeret Batya
+  px("6150", 573, 1810, "right"), // Kiryat Malakhi – Yoav
+  px("7000", 573, 1919, "right"), // Kiryat Gat
+  px("8550", 573, 2024, "right"), // Lehavim – Rahat
+  // Ben Gurion Airport, Modi'in & Jerusalem — out of Tel Aviv at 45°, level past the airport, then a "V"
+  px("J_AIR_A", 443, 1300),
+  px("J_AIR_B", 518, 1375),
+  px("8600", 562, 1375, "above"), // Ben Gurion Airport
+  px("J_MOD", 630, 1375),
+  nudge(px("300", 668, 1337, "right", true), 0, 12), // Pa'ate Modi'in
+  px("400", 702, 1303, "right"), // Modi'in – Center
+  px("680", 795, 1540, "right"), // Jerusalem – Yitzhak Navon
   // The Negev
-  px("7300", 925, 5060, "right"), // Be'er Sheva – North/University
-  px("7320", 925, 5155, "below"), // Be'er Sheva – Center
-  px("J_DIMONA", 1055, 5060),
-  px("7500", 1345, 5350, "right"), // Dimona
+  px("7300", 567, 2129, "left"), // Be'er Sheva – North/University
+  px("7320", 567, 2165, "below"), // Be'er Sheva – Center
+  px("J_DIMONA", 620, 2129),
+  px("7500", 726, 2237, "below"), // Dimona
 ]
 
 /** Physical track adjacency (undirected). */
@@ -190,14 +188,14 @@ export const MAP_EDGES: [string, string][] = [
   ["J_KARMIEL", "1820"],
   ["1820", "1840"],
   // Jezreel valley
-  ["1220", "J_VALLEY_A"],
-  ["J_VALLEY_A", "J_VALLEY_B"],
-  ["J_VALLEY_B", "1240"],
+  ["1220", "J_VALLEY"],
+  ["J_VALLEY", "1240"],
   ["1240", "1250"],
   ["1250", "1260"],
   ["1260", "1280"],
   // Sharon loop
-  ["3500", "2940"],
+  ["3500", "J_LOOP_W"],
+  ["J_LOOP_W", "2940"],
   ["2940", "2960"],
   ["2960", "9200"],
   ["9200", "8700"],
@@ -259,8 +257,7 @@ export const MAP_EDGES: [string, string][] = [
   ["4900", "J_AIR_A"],
   ["J_AIR_A", "J_AIR_B"],
   ["J_AIR_B", "8600"],
-  ["8600", "J_AIR_C"],
-  ["J_AIR_C", "J_MOD"],
+  ["8600", "J_MOD"],
   ["J_MOD", "300"],
   ["300", "400"],
   ["J_MOD", "680"],

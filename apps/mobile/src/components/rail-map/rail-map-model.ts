@@ -25,25 +25,25 @@ import {
 
 export type Point = { x: number; y: number }
 
-// Proportions measured on the original artwork (1732 px = 100 units).
-/** Gap between the centres of two neighbouring lanes (27.5 px). */
-export const LANE_WIDTH = 1.59
-/** Stroke width of a line (20 px). */
-export const LINE_STROKE = 1.15
-/** Corner radius where a line bends (the original's large, soft corners). */
-export const CORNER_RADIUS = 5
-/** Radius of a station dot (11 px). */
-export const MARKER_RADIUS = 0.64
-/** Half-height of an interchange pill (17 px). */
-export const CAPSULE_RADIUS = 0.98
+// Proportions measured on the original artwork (913 px = 100 units).
+/** Gap between the centres of two neighbouring lanes (13 px). */
+export const LANE_WIDTH = 1.42
+/** Stroke width of a line (9 px). */
+export const LINE_STROKE = 0.99
+/** Corner radius where a line bends. */
+export const CORNER_RADIUS = 3.5
+/** Radius of a station dot (5.5 px). */
+export const MARKER_RADIUS = 0.6
+/** Half-height of the clearance kept around an interchange's row of dots. */
+export const CAPSULE_RADIUS = 0.9
 /** Label typography, in layout units. */
-export const LABEL_FONT_SIZE = 2
+export const LABEL_FONT_SIZE = 2.1
 export const LABEL_LINE_HEIGHT = 1.1
 export const LABEL_MAX_WIDTH = 19
 /** Single-line names longer than this are broken in two. */
 export const LABEL_BREAK_LENGTH = 14
 /** Type size of the labels in the tight spots, relative to LABEL_FONT_SIZE, and their shorter line length. */
-export const SMALL_LABEL_SCALE = 0.72
+export const SMALL_LABEL_SCALE = 0.65
 export const SMALL_LABEL_BREAK_LENGTH = 9
 
 export type LinePath = {
@@ -65,9 +65,9 @@ export type StationMarker = {
   /** Points on the lanes of the lines calling at the station. */
   lanePoints: Point[]
   lineIds: RailLineId[]
-  /** A dot for one line; a pill spanning the lanes for an interchange. */
+  /** A dot for one line; a row of dots across the lanes for an interchange. */
   kind: "single" | "capsule"
-  /** Pill end points (equal to the dot for a single marker). */
+  /** End points of the row (equal to the dot for a single marker). */
   a: Point
   b: Point
   radius: number
@@ -291,6 +291,31 @@ export const buildRailMapModel = (): RailMapModel => {
     return add(point(at), edgeFrame(at, other).normal, offset)
   }
 
+  /**
+   * Where a line ends. Normally its lane on the edge it arrives by; but a line
+   * that terminates beside a bundle it does not run in (the red loop at
+   * Herzliya, the Rishon shuttle at Lod, the Dimona line at Be'er Sheva North)
+   * sits one lane beyond that bundle, on the side it leaves towards — the way
+   * the original draws those terminals.
+   */
+  const terminalPosition = (lineId: RailLineId, at: string, next: string): Point => {
+    const own = edgeKey(at, next)
+    let busiest: { key: string; other: string; lanes: RailLineId[] } | undefined
+    for (const other of adjacency.get(at) ?? []) {
+      const key = edgeKey(at, other)
+      const lanes = lanesByEdge.get(key) ?? []
+      if (!busiest || lanes.length > busiest.lanes.length) busiest = { key, other, lanes }
+    }
+    if (!busiest || busiest.key === own || busiest.lanes.includes(lineId) || busiest.lanes.length === 0) {
+      return lanePosition(lineId, at, next)
+    }
+    const { normal } = edgeFrame(at, busiest.other)
+    const towards = sub(point(next), point(at))
+    const side = towards.x * normal.x + towards.y * normal.y >= 0 ? 1 : -1
+    const beyond = ((busiest.lanes.length - 1) / 2 + 1) * LANE_WIDTH
+    return add(point(at), normal, side * beyond)
+  }
+
   const sameLanes = (a: RailLineId[] | undefined, b: RailLineId[] | undefined): boolean =>
     !!a && !!b && a.length === b.length && a.every((id, i) => id === b[i])
 
@@ -302,8 +327,8 @@ export const buildRailMapModel = (): RailMapModel => {
   for (const line of RAIL_LINES) {
     const nodeIds = routes.get(line.id) as string[]
     const vertices: Point[] = nodeIds.map((id, i) => {
-      if (i === 0) return lanePosition(line.id, id, nodeIds[1])
-      if (i === nodeIds.length - 1) return lanePosition(line.id, id, nodeIds[i - 1])
+      if (i === 0) return terminalPosition(line.id, id, nodeIds[1])
+      if (i === nodeIds.length - 1) return terminalPosition(line.id, id, nodeIds[i - 1])
       const before = nodeIds[i - 1]
       const after = nodeIds[i + 1]
       const lanesIn = lanesByEdge.get(edgeKey(before, id))
@@ -356,13 +381,14 @@ export const buildRailMapModel = (): RailMapModel => {
     const a = add(center, axis, Math.min(...extents))
     const b = add(center, axis, Math.max(...extents))
     const kind = calling.length > 1 ? "capsule" : "single"
-    const radius = kind === "capsule" ? CAPSULE_RADIUS : MARKER_RADIUS
-    // Labels clear the drawn marker on their own axis: the pill's horizontal
-    // extent for a label beside it, its vertical extent for one above or below.
+    const radius = MARKER_RADIUS
+    const clearance = kind === "capsule" ? CAPSULE_RADIUS : MARKER_RADIUS
+    // Labels clear the row of dots on their own axis: its horizontal extent
+    // for a label beside it, its vertical extent for one above or below.
     const ends = kind === "capsule" ? [a, b] : [center]
     const extent = (pick: (p: Point) => number): number =>
       Math.max(...allPoints.map((p) => Math.abs(pick(p) - pick(center))), ...ends.map((p) => Math.abs(pick(p) - pick(center)))) +
-      radius +
+      clearance +
       0.3
     const halfWidth = node.label === "left" || node.label === "right" ? extent((p) => p.x) : extent((p) => p.y)
 
