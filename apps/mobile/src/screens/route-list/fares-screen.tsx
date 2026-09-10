@@ -87,7 +87,7 @@ export function FaresScreen() {
         disabled={profileList.length === 0}
         actions={profileList.map((profile) => ({
           title: profileName(profile, userLocale),
-          systemIcon: profile.id === selectedProfile?.id ? "checkmark" : undefined,
+          selected: profile.id === selectedProfile?.id,
           onPress: () => selectProfile(profile),
         }))}
       >
