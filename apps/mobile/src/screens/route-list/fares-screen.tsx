@@ -1,5 +1,6 @@
 import { ActivityIndicator, Platform, Pressable, View } from "react-native"
-import { StyleSheet } from "react-native-unistyles"
+import { StyleSheet, useUnistyles } from "react-native-unistyles"
+import Svg, { Circle, Path } from "react-native-svg"
 import { useLocalSearchParams } from "expo-router"
 import { useQuery } from "react-query"
 import HapticFeedback from "react-native-haptic-feedback"
@@ -20,6 +21,7 @@ import {
   isFree,
   profileName,
   profileNote,
+  ridesFree,
 } from "@/utils/helpers/fare-helpers"
 
 // The tariff moves about once a year; the sheet is reopened far more often than that.
@@ -46,7 +48,7 @@ export function FaresScreen() {
     trackEvent("fares_opened", { originId, destinationId })
   })
 
-  const profileList = profiles.data ?? []
+  const profileList = (profiles.data ?? []).filter((profile) => !ridesFree(profile))
   const selectedProfile =
     profileList.find((profile) => profile.id === profileCode) ??
     profileList.find((profile) => profile.id === DEFAULT_PROFILE_ID) ??
@@ -79,30 +81,20 @@ export function FaresScreen() {
 
       {/* A native dropdown menu, so a Touchable child would swallow the tap — plain views only. */}
       <ContextMenu
+        style={styles.profileMenu}
         mode="tap"
         title={passengerProfileLabel}
         disabled={profileList.length === 0}
         actions={profileList.map((profile) => ({
           title: profileName(profile, userLocale),
+          systemIcon: profile.id === selectedProfile?.id ? "checkmark" : undefined,
           onPress: () => selectProfile(profile),
         }))}
       >
-        <View
-          style={styles.profileSelect}
-          accessibilityRole="button"
-          accessibilityLabel={passengerProfileLabel}
-          accessibilityValue={{ text: selectedProfile ? profileName(selectedProfile, userLocale) : undefined }}
-        >
-          <Text style={styles.profileLabel} tx="profileCodes.passengerProfile" />
-          <View style={styles.profileValueWrapper}>
-            <Text style={styles.profileValue}>
-              {selectedProfile ? profileName(selectedProfile, userLocale) : translate("profileCodes.general")}
-            </Text>
-            <View style={styles.chevronWrapper}>
-              <Text style={styles.chevron}>▾</Text>
-            </View>
-          </View>
-        </View>
+        <ProfileSelect
+          label={passengerProfileLabel}
+          value={selectedProfile ? profileName(selectedProfile, userLocale) : translate("profileCodes.general")}
+        />
       </ContextMenu>
 
       {isLoading ? (
@@ -147,9 +139,50 @@ export function FaresScreen() {
           {note && <Text style={styles.hint}>{note}</Text>}
         </>
       )}
-
-      <Text preset="fieldLabel" style={styles.source} tx="profileCodes.dataSource" />
     </View>
+  )
+}
+
+interface ProfileSelectProps {
+  label?: string
+  value: string | null
+}
+
+/**
+ * The menu's trigger. It lives inside a SwiftUI host that measures the React
+ * subtree with no height, so every text here carries an explicit height —
+ * otherwise the labels lay out at 0pt and the row renders blank.
+ */
+function ProfileSelect({ label, value }: ProfileSelectProps) {
+  const { theme } = useUnistyles()
+  return (
+    <View
+      style={styles.profileSelect}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityValue={{ text: value ?? undefined }}
+    >
+      <View style={styles.profileIcon}>
+        <PersonIcon color={theme.colors.palette.blue} />
+      </View>
+      <View style={styles.profileTexts}>
+        <Text style={styles.profileLabel} numberOfLines={1}>
+          {label}
+        </Text>
+        <Text style={styles.profileValue} numberOfLines={1}>
+          {value}
+        </Text>
+      </View>
+    </View>
+  )
+}
+
+function PersonIcon({ color }: { color: string }) {
+  return (
+    <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+      <Circle cx={12} cy={8} r={4.25} stroke={color} strokeWidth={2.2} />
+      <Path d="M4.5 20.5c0-3.6 3.4-6 7.5-6s7.5 2.4 7.5 6" stroke={color} strokeWidth={2.2} strokeLinecap="round" />
+    </Svg>
   )
 }
 
@@ -198,41 +231,48 @@ const styles = StyleSheet.create((theme) => ({
   },
   profileSelect: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    padding: theme.spacing[4],
-    marginBottom: theme.spacing[4],
-    backgroundColor: theme.colors.inputBackground,
+    gap: theme.spacing[3],
+    height: 64,
+    paddingHorizontal: theme.spacing[3],
+    backgroundColor: theme.colors.secondaryBackground,
     borderRadius: settingsBorderRadius,
     borderCurve: "continuous",
-    shadowColor: theme.colors.palette.black,
+    shadowColor: theme.colors.dim,
     shadowOffset: { height: 0, width: 0 },
     shadowOpacity: 0.2,
-    shadowRadius: 0,
+    shadowRadius: 0.25,
     elevation: 1,
   },
-  profileLabel: {
-    fontWeight: "500",
-    color: theme.colors.dim,
+  profileMenu: {
+    marginBottom: theme.spacing[4],
   },
-  profileValueWrapper: {
-    flexDirection: "row",
+  profileIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: "center",
-    gap: theme.spacing[2],
-    flexShrink: 1,
+    justifyContent: "center",
+    backgroundColor: "rgba(0, 122, 255, 0.12)",
+  },
+  profileTexts: {
+    flex: 1,
+    alignItems: "flex-start",
+    gap: 1,
+  },
+  profileLabel: {
+    height: 16,
+    fontSize: 12.5,
+    lineHeight: 16,
+    fontWeight: "500",
+    color: theme.colors.label,
   },
   profileValue: {
-    fontWeight: "500",
+    height: 22,
+    fontSize: 17,
+    lineHeight: 22,
+    fontWeight: "600",
     color: theme.colors.text,
-    flexShrink: 1,
-    textAlign: "right",
-  },
-  chevronWrapper: {
-    justifyContent: "center",
-  },
-  chevron: {
-    color: theme.colors.dim,
-    fontSize: 14,
   },
   loader: {
     marginVertical: theme.spacing[6],
@@ -291,9 +331,5 @@ const styles = StyleSheet.create((theme) => ({
     paddingHorizontal: theme.spacing[2],
     fontSize: 14,
     opacity: 0.8,
-  },
-  source: {
-    textAlign: "center",
-    marginTop: theme.spacing[1],
   },
 }))

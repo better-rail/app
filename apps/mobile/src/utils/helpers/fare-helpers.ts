@@ -62,6 +62,13 @@ export const discountedPrices = (prices: FarePrices, profile: FareProfile | null
     : prices
 
 /**
+ * Police, discharged soldiers and the like ride free on every ticket, so there
+ * is no fare for them to look up — the picker leaves them out.
+ */
+export const ridesFree = (profile: FareProfile): boolean =>
+  isFree(profile.discounts.single) && isFree(profile.discounts.daily) && isFree(profile.discounts.monthly)
+
+/**
  * Several profiles (youth, disabled, periphery residents, …) are discounted on
  * the monthly pass only: a single ride is full price, which surprises riders
  * who just picked their profile — so the screen says so.

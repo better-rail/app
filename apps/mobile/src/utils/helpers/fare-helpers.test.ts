@@ -10,6 +10,7 @@ import {
   normalizeProfileCode,
   profileName,
   profileNote,
+  ridesFree,
 } from "./fare-helpers"
 
 const profile = (overrides: Partial<FareProfile>): FareProfile => ({
@@ -66,6 +67,12 @@ describe("discounts", () => {
     expect(hasMonthlyOnlyDiscount(profile({ discounts: { single: 0, daily: 0, monthly: 0.5 } }))).toBe(true)
     expect(hasMonthlyOnlyDiscount(profile({ discounts: { single: 0.5, daily: 0.5, monthly: 0.5 } }))).toBe(false)
     expect(hasMonthlyOnlyDiscount(profile({ discounts: { single: 0, daily: 0, monthly: 0 } }))).toBe(false)
+  })
+
+  test("recognise a profile that rides free on every ticket", () => {
+    expect(ridesFree(profile({ discounts: { single: 1, daily: 1, monthly: 1 } }))).toBe(true)
+    expect(ridesFree(profile({ discounts: { single: 1, daily: 1, monthly: 0.5 } }))).toBe(false)
+    expect(ridesFree(profile({ discounts: { single: 0, daily: 0, monthly: 0 } }))).toBe(false)
   })
 })
 
