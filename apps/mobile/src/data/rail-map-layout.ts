@@ -352,81 +352,79 @@ export type StationLabelSpec = {
   size: "big" | "small"
   /** Inside a city box the city prefix is dropped ("Tel Aviv - HaShalom" → "HaShalom"). */
   stationNameOnly?: boolean
-  /** The original puts the second language under the name here rather than over it. */
-  secondaryBelow?: boolean
 }
 
 /** Where every station's name goes, measured from the original. */
 export const STATION_LABELS: Record<string, StationLabelSpec> = {
   "1600": { side: "above", x: 52.46, y: 14.13, maxWidth: 6.9, size: "big" }, // נהריה
-  "1500": { side: "left", x: 52.35, y: 20.87, maxWidth: 6.57, size: "small" }, // עכו
-  "1820": { side: "right", x: 59.26, y: 23.71, maxWidth: 5.81, size: "small" }, // אחיהוד
-  "1840": { side: "right", x: 67.47, y: 26.29, maxWidth: 8.98, size: "big" }, // כרמיאל
+  "1500": { side: "left", x: 52.35, y: 21.52, maxWidth: 6.57, size: "small" }, // עכו
+  "1820": { side: "right", x: 59.26, y: 24.32, maxWidth: 5.81, size: "small" }, // אחיהוד
+  "1840": { side: "right", x: 67.47, y: 26.83, maxWidth: 8.98, size: "big" }, // כרמיאל
   "1400": { side: "left", x: 49.51, y: 30.18, maxWidth: 10.08, size: "small" }, // קריית מוצקין
-  "700": { side: "left", x: 49.51, y: 34.56, maxWidth: 8.32, size: "small" }, // קריית חיים
-  "1300": { side: "left", x: 49.51, y: 38.94, maxWidth: 10.84, size: "small" }, // חוצות המפרץ
-  "1220": { side: "left", x: 48.96, y: 43.87, maxWidth: 20.81, size: "small" }, // מרכזית המפרץ
-  "1240": { side: "right", x: 63.64, y: 45.95, maxWidth: 8.98, size: "small" }, // יקנעם - כפר יהושע
-  "2100": { side: "left", x: 45.13, y: 47.54, maxWidth: 17.09, size: "small", stationNameOnly: true }, // מרכז השמונה
+  "700": { side: "left", x: 49.51, y: 35.21, maxWidth: 8.32, size: "small" }, // קריית חיים
+  "1300": { side: "left", x: 49.51, y: 39.59, maxWidth: 10.84, size: "small" }, // חוצות המפרץ
+  "1220": { side: "left", x: 48.96, y: 44.36, maxWidth: 20.81, size: "small" }, // מרכזית המפרץ
+  "1240": { side: "right", x: 63.64, y: 47.1, maxWidth: 8.98, size: "small" }, // יקנעם - כפר יהושע
+  "2100": { side: "left", x: 45.13, y: 48.19, maxWidth: 17.09, size: "small", stationNameOnly: true }, // מרכז השמונה
   "1260": { side: "above", x: 83.68, y: 48.41, maxWidth: 5.15, size: "small" }, // עפולה ר. איתן
-  "1250": { side: "below", x: 73.82, y: 50.27, maxWidth: 9.42, size: "small", secondaryBelow: true }, // מגדל העמק - כפר ברוך
-  "1280": { side: "left", x: 93.98, y: 51.81, maxWidth: 9.64, size: "big", secondaryBelow: true }, // בית שאן
+  "1250": { side: "below", x: 73.82, y: 50.27, maxWidth: 9.42, size: "small" }, // מגדל העמק - כפר ברוך
+  "1280": { side: "left", x: 93.98, y: 51.42, maxWidth: 9.64, size: "big" }, // בית שאן
   "2200": { side: "left", x: 42.94, y: 51.86, maxWidth: 6.24, size: "small", stationNameOnly: true }, // בת גלים
   "2300": { side: "left", x: 42.5, y: 56.46, maxWidth: 8.98, size: "small", stationNameOnly: true }, // חוף הכרמל
-  "2500": { side: "right", x: 50.16, y: 64.62, maxWidth: 7.89, size: "big" }, // עתלית
-  "2800": { side: "left", x: 42.61, y: 73.33, maxWidth: 8.87, size: "big" }, // בנימינה
-  "2820": { side: "left", x: 42.61, y: 78.26, maxWidth: 15.55, size: "small" }, // קיסריה - פרדס חנה
-  "3900": { side: "left", x: 70.97, y: 82.31, maxWidth: 15.55, size: "big" }, // חדרה - מזרח
-  "3100": { side: "left", x: 42.5, y: 82.42, maxWidth: 14.02, size: "small" }, // חדרה - מערב
-  "3300": { side: "left", x: 41.07, y: 90.85, maxWidth: 6.57, size: "big" }, // נתניה
+  "2500": { side: "right", x: 50.16, y: 65.17, maxWidth: 7.89, size: "big" }, // עתלית
+  "2800": { side: "left", x: 42.61, y: 74.04, maxWidth: 8.87, size: "big" }, // בנימינה
+  "2820": { side: "left", x: 42.61, y: 78.92, maxWidth: 15.55, size: "small" }, // קיסריה - פרדס חנה
+  "3900": { side: "left", x: 70.97, y: 83.02, maxWidth: 15.55, size: "big" }, // חדרה - מזרח
+  "3100": { side: "left", x: 42.5, y: 83.02, maxWidth: 14.02, size: "small" }, // חדרה - מערב
+  "3300": { side: "left", x: 41.07, y: 91.57, maxWidth: 6.57, size: "big" }, // נתניה
   "3310": { side: "left", x: 42.61, y: 95.56, maxWidth: 12.16, size: "small" }, // נתניה - ספיר
-  "4300": { side: "right", x: 83.13, y: 97.32, maxWidth: 11.5, size: "small" }, // שומרון - טייבה
-  "3400": { side: "left", x: 41.18, y: 99.89, maxWidth: 8.54, size: "small" }, // בית יהושע
-  "8700": { side: "right", x: 73.71, y: 102.46, maxWidth: 7.34, size: "small" }, // כפר סבא - נורדאו
-  "4310": { side: "right", x: 83.02, y: 103.67, maxWidth: 13.14, size: "small" }, // טירה - כוכב יאיר
+  "4300": { side: "right", x: 83.13, y: 98.52, maxWidth: 11.5, size: "small" }, // שומרון - טייבה
+  "3400": { side: "left", x: 41.18, y: 100.55, maxWidth: 8.54, size: "small" }, // בית יהושע
+  "8700": { side: "right", x: 73.71, y: 103.61, maxWidth: 7.34, size: "small" }, // כפר סבא - נורדאו
+  "4310": { side: "right", x: 83.02, y: 104.82, maxWidth: 13.14, size: "small" }, // טירה - כוכב יאיר
   "2940": { side: "above", x: 55.53, y: 104.93, maxWidth: 5.15, size: "small" }, // רעננה מערב
   "2960": { side: "above", x: 61.61, y: 104.93, maxWidth: 5.37, size: "small" }, // רעננה דרום
   "9200": { side: "above", x: 68.78, y: 105.04, maxWidth: 8.0, size: "small" }, // הוד השרון - סוקולוב
-  "3500": { side: "left", x: 41.07, y: 108.32, maxWidth: 8.87, size: "big" }, // הרצליה
-  "8800": { side: "right", x: 83.02, y: 111.66, maxWidth: 11.06, size: "big" }, // ראש העין - צפון
-  "4100": { side: "below", x: 57.12, y: 115.88, maxWidth: 6.35, size: "small", secondaryBelow: true }, // בני ברק
-  "4170": { side: "below", x: 65.72, y: 115.88, maxWidth: 8.98, size: "small", secondaryBelow: true }, // פתח תקווה  - קריית אריה
-  "4250": { side: "below", x: 74.26, y: 115.88, maxWidth: 8.98, size: "small", secondaryBelow: true }, // פתח תקווה - סגולה
+  "3500": { side: "left", x: 41.07, y: 108.87, maxWidth: 8.87, size: "big" }, // הרצליה
+  "8800": { side: "right", x: 83.02, y: 112.92, maxWidth: 11.06, size: "big" }, // ראש העין - צפון
+  "4100": { side: "below", x: 57.12, y: 115.88, maxWidth: 6.35, size: "small" }, // בני ברק
+  "4170": { side: "below", x: 65.72, y: 115.88, maxWidth: 8.98, size: "small" }, // פתח תקווה  - קריית אריה
+  "4250": { side: "below", x: 74.26, y: 115.88, maxWidth: 8.98, size: "small" }, // פתח תקווה - סגולה
   "3600": { side: "left", x: 39.76, y: 117.85, maxWidth: 13.36, size: "big", stationNameOnly: true }, // אוניברסיטה
-  "3700": { side: "left", x: 39.76, y: 124.42, maxWidth: 14.46, size: "big", stationNameOnly: true }, // סבידור מרכז
-  "4600": { side: "left", x: 39.76, y: 131.87, maxWidth: 8.0, size: "big", stationNameOnly: true }, // השלום
-  "4900": { side: "left", x: 39.65, y: 139.27, maxWidth: 7.56, size: "big", stationNameOnly: true }, // ההגנה
-  "400": { side: "right", x: 78.09, y: 141.84, maxWidth: 16.54, size: "big" }, // מודיעין - מרכז
-  "4640": { side: "left", x: 38.34, y: 147.15, maxWidth: 8.87, size: "small" }, // צומת חולון
+  "3700": { side: "left", x: 39.76, y: 125.19, maxWidth: 14.46, size: "big", stationNameOnly: true }, // סבידור מרכז
+  "4600": { side: "left", x: 39.76, y: 132.42, maxWidth: 8.0, size: "big", stationNameOnly: true }, // השלום
+  "4900": { side: "left", x: 39.65, y: 139.98, maxWidth: 7.56, size: "big", stationNameOnly: true }, // ההגנה
+  "400": { side: "right", x: 78.09, y: 142.06, maxWidth: 16.54, size: "big" }, // מודיעין - מרכז
+  "4640": { side: "left", x: 38.34, y: 147.7, maxWidth: 8.87, size: "small" }, // צומת חולון
   "300": { side: "right", x: 74.04, y: 148.14, maxWidth: 9.97, size: "small" }, // פאתי מודיעין
   "8600": { side: "above", x: 61.34, y: 148.74, maxWidth: 12.05, size: "big" }, // נמל תעופה בן גוריון
-  "4660": { side: "left", x: 38.34, y: 154.05, maxWidth: 11.28, size: "small" }, // חולון - וולפסון
-  "4800": { side: "left", x: 50.49, y: 156.74, maxWidth: 8.0, size: "small", secondaryBelow: true }, //
-  "4680": { side: "left", x: 38.44, y: 161.28, maxWidth: 12.16, size: "small" }, // בת ים - יוספטל
-  "5150": { side: "left", x: 54.87, y: 161.39, maxWidth: 10.51, size: "small", secondaryBelow: true }, // לוד גני אביב
-  "680": { side: "right", x: 88.06, y: 167.63, maxWidth: 10.95, size: "big", stationNameOnly: true }, // יצחק נבון
-  "4690": { side: "left", x: 38.44, y: 168.84, maxWidth: 12.92, size: "small" }, // בת ים - קוממיות
-  "5000": { side: "right", x: 65.72, y: 170.92, maxWidth: 2.96, size: "small" }, // לוד
+  "4660": { side: "left", x: 38.34, y: 154.6, maxWidth: 11.28, size: "small" }, // חולון - וולפסון
+  "4800": { side: "left", x: 50.49, y: 156.19, maxWidth: 8.0, size: "small" }, //
+  "5150": { side: "left", x: 54.87, y: 160.79, maxWidth: 10.51, size: "small" }, // לוד גני אביב
+  "4680": { side: "left", x: 38.44, y: 162.32, maxWidth: 12.16, size: "small" }, // בת ים - יוספטל
+  "680": { side: "right", x: 88.06, y: 168.4, maxWidth: 10.95, size: "big", stationNameOnly: true }, // יצחק נבון
+  "4690": { side: "left", x: 38.44, y: 170.04, maxWidth: 12.92, size: "small" }, // בת ים - קוממיות
+  "5000": { side: "right", x: 65.72, y: 171.41, maxWidth: 2.96, size: "small" }, // לוד
   "5010": { side: "right", x: 65.83, y: 174.97, maxWidth: 4.71, size: "small" }, // רמלה
-  "9800": { side: "left", x: 39.76, y: 175.41, maxWidth: 9.42, size: "small" }, // ראשון לציון - משה דיין
-  "9100": { side: "left", x: 50.27, y: 175.74, maxWidth: 8.87, size: "small" }, // ראשון לציון - הראשונים
-  "5300": { side: "right", x: 55.64, y: 183.13, maxWidth: 4.82, size: "small", secondaryBelow: true }, // באר יעקב
-  "9000": { side: "left", x: 39.65, y: 183.52, maxWidth: 9.86, size: "small" }, // יבנה מערב
-  "5200": { side: "right", x: 51.48, y: 188.39, maxWidth: 8.43, size: "big", secondaryBelow: true }, // רחובות
-  "6900": { side: "right", x: 64.4, y: 189.1, maxWidth: 5.7, size: "small", secondaryBelow: true }, // מזכרת בתיה
-  "6300": { side: "right", x: 72.07, y: 189.49, maxWidth: 8.0, size: "big", secondaryBelow: true }, // בית שמש
-  "5800": { side: "left", x: 39.76, y: 192.33, maxWidth: 6.68, size: "small" }, // אשדוד עד הלום
-  "5410": { side: "right", x: 46.55, y: 192.39, maxWidth: 7.56, size: "small", secondaryBelow: true }, // יבנה מזרח
-  "6150": { side: "right", x: 64.4, y: 198.14, maxWidth: 14.9, size: "small" }, // קריית מלאכי - יואב
-  "5900": { side: "left", x: 39.76, y: 202.68, maxWidth: 8.76, size: "big" }, // אשקלון
-  "7000": { side: "right", x: 64.4, y: 209.58, maxWidth: 7.12, size: "small" }, // קריית גת
-  "9600": { side: "left", x: 39.76, y: 211.12, maxWidth: 5.37, size: "small" }, // שדרות
-  "9650": { side: "left", x: 39.76, y: 219.72, maxWidth: 5.48, size: "small" }, // נתיבות
-  "8550": { side: "right", x: 64.51, y: 220.92, maxWidth: 10.84, size: "small" }, // להבים - רהט
+  "9100": { side: "left", x: 50.27, y: 176.23, maxWidth: 8.87, size: "small" }, // ראשון לציון - הראשונים
+  "9800": { side: "left", x: 39.76, y: 176.51, maxWidth: 9.42, size: "small" }, // ראשון לציון - משה דיין
+  "5300": { side: "right", x: 55.64, y: 182.58, maxWidth: 4.82, size: "small" }, // באר יעקב
+  "9000": { side: "left", x: 39.65, y: 184.67, maxWidth: 9.86, size: "small" }, // יבנה מערב
+  "5200": { side: "right", x: 51.48, y: 187.73, maxWidth: 8.43, size: "big" }, // רחובות
+  "6900": { side: "right", x: 64.4, y: 187.84, maxWidth: 5.7, size: "small" }, // מזכרת בתיה
+  "6300": { side: "right", x: 72.07, y: 188.94, maxWidth: 8.0, size: "big" }, // בית שמש
+  "5410": { side: "right", x: 46.55, y: 191.29, maxWidth: 7.56, size: "small" }, // יבנה מזרח
+  "5800": { side: "left", x: 39.76, y: 193.48, maxWidth: 6.68, size: "small" }, // אשדוד עד הלום
+  "6150": { side: "right", x: 64.4, y: 198.63, maxWidth: 14.9, size: "small" }, // קריית מלאכי - יואב
+  "5900": { side: "left", x: 39.76, y: 203.29, maxWidth: 8.76, size: "big" }, // אשקלון
+  "7000": { side: "right", x: 64.4, y: 210.24, maxWidth: 7.12, size: "small" }, // קריית גת
+  "9600": { side: "left", x: 39.76, y: 211.72, maxWidth: 5.37, size: "small" }, // שדרות
+  "9650": { side: "left", x: 39.76, y: 220.37, maxWidth: 5.48, size: "small" }, // נתיבות
+  "8550": { side: "right", x: 64.51, y: 221.47, maxWidth: 10.84, size: "small" }, // להבים - רהט
   "9700": { side: "above", x: 50.77, y: 226.07, maxWidth: 5.81, size: "small" }, // אופקים
   "7300": { side: "left", x: 59.58, y: 233.63, maxWidth: 15.22, size: "small", stationNameOnly: true }, // צפון/אוניברסיטה
-  "7320": { side: "left", x: 64.07, y: 239.87, maxWidth: 9.64, size: "big", stationNameOnly: true, secondaryBelow: true }, // מרכז
-  "7500": { side: "left", x: 80.18, y: 247.65, maxWidth: 7.89, size: "big", secondaryBelow: true }, // דימונה
+  "7320": { side: "left", x: 64.07, y: 238.99, maxWidth: 9.64, size: "big", stationNameOnly: true }, // מרכז
+  "7500": { side: "left", x: 80.18, y: 247.04, maxWidth: 7.89, size: "big" }, // דימונה
 }
 
 export type CityBox = {
@@ -506,6 +504,12 @@ export const TERMINAL_BADGES: { lineId: RailLineId; x: number; y: number }[] = [
   { lineId: "11", x: 51.31, y: 67.25 },
   { lineId: "1", x: 48.96, y: 15.22 },
   { lineId: "25", x: 37.79, y: 88.5 },
+]
+
+/** Stretches the original draws with the "irregular intervals" marking (check the timetable). */
+export const IRREGULAR_STRETCHES: { lineId: RailLineId; fromStationId: string; toStationId: string }[] = [
+  { lineId: "5", fromStationId: "3300", toStationId: "3600" },
+  { lineId: "25", fromStationId: "3300", toStationId: "3600" },
 ]
 
 /** The aeroplane above Ben Gurion Airport's name (centre x, bottom y, height). */

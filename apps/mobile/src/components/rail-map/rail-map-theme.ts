@@ -11,11 +11,9 @@
 export type RailMapPalette = {
   /** Solid ground. */
   background: string
-  /** Station names in the app's language. */
+  /** Station names. */
   ink: string
-  /** The second language under each name, and the small English on the original. */
-  secondaryInk: string
-  /** Station dots and pass-through ticks (dark in both schemes, as on the original). */
+  /** Station dots and the hollow circles of stops trains may pass (dark in both schemes, as on the original). */
   dot: string
   /** Lines and labels that are not the selected line. */
   dimLine: string
@@ -23,7 +21,6 @@ export type RailMapPalette = {
   /** The rounded frames around the big cities and their names. */
   frame: string
   cityInk: string
-  citySecondaryInk: string
   /** Disruption badge on affected stations ("!" on a disc). */
   badge: string
   badgeInk: string
@@ -33,26 +30,22 @@ export const RAIL_MAP_PALETTE: Record<"light" | "dark", RailMapPalette> = {
   light: {
     background: "#FFFFFF",
     ink: "#2B2E37",
-    secondaryInk: "#9B8484",
     dot: "#120900",
     dimLine: "#DCDDE2",
     dimInk: "#B5B7BF",
     frame: "#3E4048",
     cityInk: "#2D2E37",
-    citySecondaryInk: "#8F7170",
     badge: "#1D1D1F",
     badgeInk: "#FFFFFF",
   },
   dark: {
     background: "#0F1524",
     ink: "#F2F2F7",
-    secondaryInk: "#A99A9A",
     dot: "#14171F",
     dimLine: "#343A4A",
     dimInk: "#5E6474",
     frame: "#B9BCC8",
     cityInk: "#F2F2F7",
-    citySecondaryInk: "#B7A2A1",
     badge: "#F2F2F7",
     badgeInk: "#0F1524",
   },

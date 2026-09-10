@@ -18,13 +18,13 @@ import {
   CITY_BOX_RADIUS,
   CITY_BOX_STROKE,
   CITY_FONT_SIZE,
-  LABEL_FONT_SIZE,
+  IRREGULAR_STOP_STROKE,
+  IRREGULAR_STRIPE_WIDTH,
   LABEL_LINE_HEIGHT,
   LATIN_SCALE,
   LINE_STROKE,
   MARKER_RADIUS,
-  PASS_TICK_LENGTH,
-  PASS_TICK_WIDTH,
+  TERMINAL_RING_RADIUS,
   buildRailMapModel,
   isRtlScript,
   mapStationName,
@@ -87,13 +87,17 @@ for (const city of m.cities) {
 for (const l of m.lines) {
   svg += `<path d="${l.d}" fill="none" stroke="${l.line.color}" stroke-width="${LINE_STROKE}" stroke-linecap="round" stroke-linejoin="round"/>`
 }
+for (const s of m.irregular) {
+  svg += `<path d="${s.d}" fill="none" stroke="${palette.background}" stroke-width="${IRREGULAR_STRIPE_WIDTH}" stroke-linecap="butt"/>`
+}
 for (const mk of m.markers) {
-  if (mk.kind === "stop") svg += `<circle cx="${mk.point.x}" cy="${mk.point.y}" r="${MARKER_RADIUS}" fill="${palette.dot}"/>`
-  else {
-    const dx = (Math.sin(mk.angle) * PASS_TICK_LENGTH) / 2
-    const dy = (-Math.cos(mk.angle) * PASS_TICK_LENGTH) / 2
-    svg += `<line x1="${mk.point.x - dx}" y1="${mk.point.y - dy}" x2="${mk.point.x + dx}" y2="${mk.point.y + dy}" stroke="${palette.dot}" stroke-width="${PASS_TICK_WIDTH}"/>`
+  const { x, y } = mk.point
+  if (mk.kind === "irregular") {
+    svg += `<circle cx="${x}" cy="${y}" r="${MARKER_RADIUS - IRREGULAR_STOP_STROKE / 2}" fill="none" stroke="${palette.dot}" stroke-width="${IRREGULAR_STOP_STROKE}"/>`
+    continue
   }
+  if (mk.kind === "terminal") svg += `<circle cx="${x}" cy="${y}" r="${TERMINAL_RING_RADIUS}" fill="${palette.background}"/>`
+  svg += `<circle cx="${x}" cy="${y}" r="${MARKER_RADIUS}" fill="${palette.dot}"/>`
 }
 for (const b of m.badges) {
   const outline = b.line.badgeStyle === "outline"
@@ -103,23 +107,11 @@ for (const b of m.badges) {
   svg += `<text x="${b.center.x}" y="${b.center.y + BADGE_SIZE.fontSize * 0.36}" text-anchor="middle" font-size="${BADGE_SIZE.fontSize}" font-weight="500" fill="${outline ? b.line.color : b.line.textColor}">${b.line.badge}</text>`
 }
 
-type Block = { lines: { text: string; size: number; color: string; weight: number }[]; height: number }
-const block = (
-  primary: { text: string; size: number; color: string },
-  secondary: { text: string; size: number; color: string },
-  secondaryBelow: boolean,
-  maxWidth: number,
-): Block => {
-  const primaryLines = wrap(primary.text, primary.size, maxWidth).map((text) => ({ ...primary, text, weight: 500 }))
-  const secondaryLines = wrap(secondary.text, secondary.size, maxWidth).map((text) => ({ ...secondary, text, weight: 400 }))
-  const lines = secondaryBelow ? [...primaryLines, ...secondaryLines] : [...secondaryLines, ...primaryLines]
-  return { lines, height: lines.reduce((h, l) => h + lineHeight(l.size), 0) }
-}
-const drawBlock = (b: Block, x: number, top: number, anchor: "start" | "middle" | "end") => {
+const drawLines = (lines: string[], size: number, color: string, x: number, top: number, anchor: "start" | "middle" | "end") => {
   let y = top
-  for (const line of b.lines) {
-    const lh = lineHeight(line.size)
-    svg += `<text x="${x}" y="${y + lh * 0.8}" text-anchor="${anchor}" font-size="${line.size}" font-weight="${line.weight}" fill="${line.color}">${esc(line.text)}</text>`
+  for (const line of lines) {
+    const lh = lineHeight(size)
+    svg += `<text x="${x}" y="${y + lh * 0.8}" text-anchor="${anchor}" font-size="${size}" font-weight="500" fill="${color}">${esc(line)}</text>`
     y += lh
   }
 }
@@ -127,34 +119,20 @@ const drawBlock = (b: Block, x: number, top: number, anchor: "start" | "middle" 
 let airportTop = m.airport.y
 for (const lb of m.labels) {
   const station = stationsObject[lb.stationId]
-  const override = LABEL_TEXT_OVERRIDES[lb.stationId] ?? {}
   const names = { he: station?.hebrew ?? lb.stationId, en: station?.english ?? lb.stationId }
-  const primary = mapStationName(override[lang] ?? names[lang], lb.stationNameOnly)
-  const secondary = mapStationName(
-    override[lang === "he" ? "en" : "he"] ?? names[lang === "he" ? "en" : "he"],
-    lb.stationNameOnly,
-  )
-  const b = block(
-    { text: primary, size: nameFontSize(lb.size, primary), color: palette.ink },
-    { text: secondary, size: LABEL_FONT_SIZE.secondary, color: palette.secondaryInk },
-    lb.secondaryBelow,
-    lb.maxWidth,
-  )
+  const name = mapStationName(LABEL_TEXT_OVERRIDES[lb.stationId]?.[lang] ?? names[lang], lb.stationNameOnly)
+  const size = nameFontSize(lb.size, name)
+  const lines = wrap(name, size, lb.maxWidth)
+  const height = lines.length * lineHeight(size)
   const anchor = lb.side === "left" ? "end" : lb.side === "right" ? "start" : "middle"
-  const top = lb.side === "above" ? lb.anchor.y - b.height : lb.side === "below" ? lb.anchor.y : lb.anchor.y - b.height / 2
+  const top = lb.side === "above" ? lb.anchor.y - height : lb.side === "below" ? lb.anchor.y : lb.anchor.y - height / 2
   if (lb.stationId === "8600") airportTop = top
-  drawBlock(b, lb.anchor.x, top, anchor)
+  drawLines(lines, size, palette.ink, lb.anchor.x, top, anchor)
 }
 for (const city of m.cities) {
-  const primary = city.name[lang]
-  const secondary = lang === "he" ? city.name.en : city.name.he
-  const b = block(
-    { text: primary, size: CITY_FONT_SIZE.primary * (isRtlScript(primary) ? 1 : LATIN_SCALE), color: palette.cityInk },
-    { text: secondary, size: CITY_FONT_SIZE.secondary, color: palette.citySecondaryInk },
-    false,
-    city.width,
-  )
-  drawBlock(b, city.labelX, city.labelY - b.height, "start")
+  const name = city.name[lang]
+  const size = CITY_FONT_SIZE * (isRtlScript(name) ? 1 : LATIN_SCALE)
+  drawLines([name], size, palette.cityInk, city.labelX, city.labelY - lineHeight(size), "start")
 }
 {
   const s = m.airport.height / 20

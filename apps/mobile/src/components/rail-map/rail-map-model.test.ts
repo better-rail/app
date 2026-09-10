@@ -1,7 +1,15 @@
 import { describe, expect, test } from "bun:test"
 import { RAIL_LINES } from "@/data/rail-lines"
 import { STATION_LABELS } from "@/data/rail-map-layout"
-import { buildRailMapModel, linePathBetween, lineStationPoints, mapStationName, nearestLine, polylineD } from "./rail-map-model"
+import {
+  buildRailMapModel,
+  linePathBetween,
+  lineStationPoints,
+  mapStationName,
+  nearestLine,
+  polylineD,
+  smoothPathD,
+} from "./rail-map-model"
 
 describe("rail map model", () => {
   const model = buildRailMapModel()
@@ -27,15 +35,22 @@ describe("rail map model", () => {
     expect(model.labels.map((l) => l.stationId).sort()).toEqual([...onLines].sort())
   })
 
-  test("a dot marks every lane that calls at a station and a tick where a line runs through", () => {
+  test("a dot marks every lane that calls at a station, a hollow circle where trains may pass, a ringed dot at a terminal", () => {
     const savidor = model.markers.filter((m) => m.stationId === "3700")
     expect(savidor.length).toBeGreaterThanOrEqual(6)
     expect(savidor.every((m) => m.kind === "stop")).toBe(true)
     const dimona = model.markers.filter((m) => m.stationId === "7500")
-    expect(dimona.map((m) => [m.lineId, m.kind])).toEqual([["8", "stop"]])
+    expect(dimona.map((m) => [m.lineId, m.kind])).toEqual([["8", "terminal"]])
     // Line 3 passes Kiryat Hayim without calling, the Karmiel and Nahariya locals stop there.
     const kiryatHayim = Object.fromEntries(model.markers.filter((m) => m.stationId === "700").map((m) => [m.lineId, m.kind]))
-    expect(kiryatHayim).toEqual({ "1": "stop", "3": "pass", "4": "stop" })
+    expect(kiryatHayim).toEqual({ "1": "stop", "3": "irregular", "4": "stop" })
+    // Every line ends in terminals and nothing else is one.
+    for (const line of model.lines) {
+      const kinds = model.markers.filter((m) => m.lineId === line.lineId).map((m) => m.kind)
+      expect(kinds[0]).toBe("terminal")
+      expect(kinds[kinds.length - 1]).toBe("terminal")
+      expect(kinds.slice(1, -1).includes("terminal")).toBe(false)
+    }
   })
 
   test("labels for the big cities' stations drop the city prefix, the rest keep their names", () => {
@@ -61,10 +76,13 @@ describe("rail map model", () => {
     expect(nearestLine(model, { x: 5, y: 40 }, 3)).toBeUndefined()
   })
 
-  test("city frames, terminal badges and the aeroplane come from the traced layout", () => {
+  test("city frames, terminal badges, irregular stretches and the aeroplane come from the traced layout", () => {
     expect(model.cities.map((c) => c.id)).toEqual(["haifa", "telaviv", "jerusalem", "beersheva"])
     expect(model.badges.some((b) => b.lineId === "2")).toBe(true)
     expect(model.badges.every((b) => b.line.id === b.lineId)).toBe(true)
+    // The Netanya – Tel Aviv University stretch of the light-blue lane runs at irregular intervals.
+    expect(model.irregular.map((s) => s.lineId).sort()).toEqual(["25", "5"])
+    expect(model.irregular.every((s) => s.d.startsWith("M"))).toBe(true)
     expect(model.airport.height).toBeGreaterThan(0)
   })
 
@@ -83,5 +101,24 @@ describe("rail map model", () => {
         { x: 10, y: 10 },
       ]),
     ).toBe("M0 0 L10.12 0 L10 10")
+  })
+
+  test("smooth paths round every bend, keep straight runs straight and stations on the line", () => {
+    const corner = [
+      { x: 0, y: 0 },
+      { x: 10, y: 0 },
+      { x: 10, y: 10 },
+    ]
+    expect(smoothPathD(corner)).toBe("M0 0 L8.7 0 Q10 0 10 1.3 L10 10")
+    // A station at the corner keeps the curve within half a unit of its dot.
+    expect(smoothPathD(corner, new Set([1]))).toBe("M0 0 L9.5 0 Q10 0 10 0.5 L10 10")
+    expect(
+      smoothPathD([
+        { x: 0, y: 0 },
+        { x: 5, y: 0 },
+        { x: 10, y: 0 },
+      ]),
+    ).toBe("M0 0 L5 0 L10 0")
+    expect(model.lines.every((l) => l.d.includes("Q"))).toBe(true)
   })
 })

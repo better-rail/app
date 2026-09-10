@@ -349,6 +349,17 @@
     "networkMap": "Network map",
     "networkMapHint": "Tap a line to see its status",
     "mapCredit": "Map after the Israel Railways network map",
+    "legend": {
+      "title": "Map legend",
+      "open": "Legend",
+      "lines": "Each colour is a line, numbered by its badge",
+      "stop": "Station where the line calls",
+      "irregularStop": "Irregular stops – trains can pass without stopping",
+      "terminal": "Terminal station of the line",
+      "irregularService": "Irregular intervals – check the timetable",
+      "suspended": "Stretch with no service right now",
+      "disruption": "Station affected by a disruption"
+    },
     "live": "Live",
     "updatedAt": "Updated %{time}",
     "liveUnavailable": "Live data is currently unavailable",

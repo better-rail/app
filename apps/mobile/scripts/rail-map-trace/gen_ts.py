@@ -56,21 +56,18 @@ export type StationLabelSpec = {
   size: "big" | "small"
   /** Inside a city box the city prefix is dropped ("Tel Aviv - HaShalom" → "HaShalom"). */
   stationNameOnly?: boolean
-  /** The original puts the second language under the name here rather than over it. */
-  secondaryBelow?: boolean
 }
 
 /** Where every station's name goes, measured from the original. */
 export const STATION_LABELS: Record<string, StationLabelSpec> = {
 ''')
 BIG_OVERRIDE={"4900":"big"}
-SECONDARY_BELOW={"4100"}
-Y_OVERRIDE={"7320":2190}  # keep the second language clear of the badges under Be'er Sheva Center
+Y_OVERRIDE={}
 for sid,l in sorted(L["labels"].items(),key=lambda t:t[1]["y"]):
     size=BIG_OVERRIDE.get(sid,l["size"])
     mw=l["maxWidth"]
     if sid=="8600": mw=110
-    extra=(", stationNameOnly: true" if l["stationNameOnly"] else "")+(", secondaryBelow: true" if (l["secondaryBelow"] or sid in SECONDARY_BELOW) else "")
+    extra=(", stationNameOnly: true" if l["stationNameOnly"] else "")
     y=Y_OVERRIDE.get(sid,l["y"])
     out.append(f'  "{sid}": {{ side: "{l["side"]}", x: {u(l["x"])}, y: {u(y)}, maxWidth: {u(mw)}, size: "{size}"{extra} }}, // {l["name"]}\n')
 out.append("}\n\n")
@@ -99,6 +96,12 @@ export const TERMINAL_BADGES: { lineId: RailLineId; x: number; y: number }[] = [
 ''')
 for b in L["badges"]:
     out.append(f'  {{ lineId: "{b["line"]}", x: {u(b["x"])}, y: {u(b["y"])} }},\n')
+out.append("]\n\n")
+out.append('''/** Stretches the original draws with the "irregular intervals" marking (check the timetable). */
+export const IRREGULAR_STRETCHES: { lineId: RailLineId; fromStationId: string; toStationId: string }[] = [
+''')
+for s in L["irregular"]:
+    out.append(f'  {{ lineId: "{s["line"]}", fromStationId: "{s["from"]}", toStationId: "{s["to"]}" }},\n')
 out.append("]\n\n")
 p=L["plane"]
 out.append(f'''/** The aeroplane above Ben Gurion Airport's name (centre x, bottom y, height). */

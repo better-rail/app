@@ -5,7 +5,6 @@ import {
   Circle,
   Fill,
   Group,
-  Line,
   Paragraph,
   Path,
   RoundedRect,
@@ -29,14 +28,15 @@ import {
   CITY_BOX_RADIUS,
   CITY_BOX_STROKE,
   CITY_FONT_SIZE,
-  LABEL_FONT_SIZE,
+  IRREGULAR_STOP_STROKE,
+  IRREGULAR_STRIPE_WIDTH,
   LABEL_LINE_HEIGHT,
   LATIN_SCALE,
   LINE_STROKE,
   MARKER_RADIUS,
-  PASS_TICK_LENGTH,
-  PASS_TICK_WIDTH,
+  TERMINAL_RING_RADIUS,
   type LinePath,
+  type MarkerKind,
   type Point,
   type RailMapModel,
   type StationLabel,
@@ -250,6 +250,8 @@ export function RailMap({ status, selectedLineId, onSelectLine, focusLineId, sty
   // --- drawing data --------------------------------------------------------------------
   const paths = useMemo(() => new Map(model.lines.map((l) => [l.lineId, Skia.Path.MakeFromSVGString(l.d) as SkPath])), [model])
 
+  const stripes = useMemo(() => model.irregular.map((s) => Skia.Path.MakeFromSVGString(s.d) as SkPath), [model])
+
   const disrupted = useMemo(() => collectDisruptedSections(model, status), [model, status])
 
   const labels = useMemo(() => {
@@ -284,12 +286,15 @@ export function RailMap({ status, selectedLineId, onSelectLine, focusLineId, sty
   )
   // Lanes shared by two lines (5 and 25) carry one dot: draw each spot once, coloured for the selection.
   const markers = useMemo(() => {
+    const rank: Record<MarkerKind, number> = { terminal: 2, stop: 1, irregular: 0 }
     const seen = new Map<string, (typeof model.markers)[number] & { dim: boolean }>()
     for (const marker of model.markers) {
-      const key = `${marker.kind}:${marker.point.x.toFixed(1)}:${marker.point.y.toFixed(1)}`
+      const key = `${marker.point.x.toFixed(1)}:${marker.point.y.toFixed(1)}`
       const dim = selectedLineId != null && marker.lineId !== selectedLineId
       const previous = seen.get(key)
-      if (!previous || (previous.dim && !dim)) seen.set(key, { ...marker, dim })
+      if (!previous || (previous.dim && !dim) || (previous.dim === dim && rank[marker.kind] > rank[previous.kind])) {
+        seen.set(key, { ...marker, dim })
+      }
     }
     return [...seen.values()]
   }, [model, selectedLineId])
@@ -351,22 +356,43 @@ export function RailMap({ status, selectedLineId, onSelectLine, focusLineId, sty
                 ),
               )}
 
-              {/* Station markers: a dot on every lane that calls there, a tick where a line runs through. */}
+              {/* Stretches served at irregular intervals: a stripe along the line, as in the original's legend. */}
+              {model.irregular.map((stretch, i) =>
+                isDimmed(stretch.lineId) ? null : (
+                  <Path
+                    key={`irregular-${i}`}
+                    path={stripes[i]}
+                    color={palette.background}
+                    style="stroke"
+                    strokeWidth={IRREGULAR_STRIPE_WIDTH}
+                    strokeCap="butt"
+                  />
+                ),
+              )}
+
+              {/* Station markers: a dot where a line calls, a hollow circle where trains may pass, a ringed dot at a terminal. */}
               {markers.map((marker) => {
                 const color = marker.dim ? palette.dimInk : palette.dot
-                if (marker.kind === "stop") {
-                  return <Circle key={`${marker.lineId}:${marker.stationId}`} c={marker.point} r={MARKER_RADIUS} color={color} />
+                const key = `${marker.lineId}:${marker.stationId}`
+                if (marker.kind === "irregular") {
+                  return (
+                    <Circle
+                      key={key}
+                      c={marker.point}
+                      r={MARKER_RADIUS - IRREGULAR_STOP_STROKE / 2}
+                      color={color}
+                      style="stroke"
+                      strokeWidth={IRREGULAR_STOP_STROKE}
+                    />
+                  )
                 }
-                const dx = (Math.sin(marker.angle) * PASS_TICK_LENGTH) / 2
-                const dy = (-Math.cos(marker.angle) * PASS_TICK_LENGTH) / 2
                 return (
-                  <Line
-                    key={`${marker.lineId}:${marker.stationId}`}
-                    p1={{ x: marker.point.x - dx, y: marker.point.y - dy }}
-                    p2={{ x: marker.point.x + dx, y: marker.point.y + dy }}
-                    color={color}
-                    strokeWidth={PASS_TICK_WIDTH}
-                  />
+                  <Group key={key}>
+                    {marker.kind === "terminal" && (
+                      <Circle c={marker.point} r={TERMINAL_RING_RADIUS} color={palette.background} />
+                    )}
+                    <Circle c={marker.point} r={MARKER_RADIUS} color={color} />
+                  </Group>
                 )
               })}
 
@@ -497,15 +523,12 @@ const planePath = (x: number, bottom: number, height: number): SkPath => {
   return path
 }
 
-/** The station's name in the app's language, and in English (or Hebrew for English users) underneath it on the original. */
-const stationNames = (stationId: string, stationNameOnly: boolean): { primary: string; secondary: string } => {
+/** The station's name in the app's language, as the map sets it. */
+const stationName = (stationId: string, stationNameOnly: boolean): string => {
   const station = stationsObject[stationId]
   const override = LABEL_TEXT_OVERRIDES[stationId] ?? {}
   const localized = { he: station?.hebrew, en: station?.english, ru: station?.russian, ar: station?.arabic }
-  const pick = (lang: keyof typeof localized) => override[lang] ?? localized[lang] ?? stationId
-  const primary = mapStationName(pick(userLocale), stationNameOnly)
-  const secondary = mapStationName(pick(userLocale === "en" ? "he" : "en"), stationNameOnly)
-  return { primary, secondary }
+  return mapStationName(override[userLocale] ?? localized[userLocale] ?? stationId, stationNameOnly)
 }
 
 type BuiltLabel = {
@@ -555,38 +578,13 @@ const wrappedName = (fontMgr: FontManager, text: string, size: number, maxWidth:
   return probe.getLineMetrics().length > 1 ? text.replace(/\s+[-–]\s+/g, "\n") : text
 }
 
-/** The second language (small) over or under the name (large), the way the original stacks them. */
-const twoLanguageParagraph = (
-  fontMgr: FontManager,
-  primary: TextRun,
-  secondary: TextRun,
-  secondaryBelow: boolean,
-  textAlign: TextAlign,
-  maxWidth: number,
-): SkParagraph =>
-  makeParagraph(
-    fontMgr,
-    secondaryBelow ? [{ ...primary, weight: 500 }, secondary] : [secondary, { ...primary, weight: 500 }],
-    textAlign,
-    maxWidth,
-  )
-
 const buildLabel = (label: StationLabel, fontMgr: FontManager, palette: RailMapPalette): BuiltLabel => {
-  const names = stationNames(label.stationId, label.stationNameOnly)
-  const size = nameFontSize(label.size, names.primary)
-  const primary = wrappedName(fontMgr, names.primary, size, label.maxWidth)
-  const secondary = wrappedName(fontMgr, names.secondary, LABEL_FONT_SIZE.secondary, label.maxWidth)
+  const name = stationName(label.stationId, label.stationNameOnly)
+  const size = nameFontSize(label.size, name)
+  const text = wrappedName(fontMgr, name, size, label.maxWidth)
   const textAlign = label.side === "left" ? TextAlign.Right : label.side === "right" ? TextAlign.Left : TextAlign.Center
-  const make = (ink: string, secondaryInk: string) =>
-    twoLanguageParagraph(
-      fontMgr,
-      { text: primary, size, color: ink },
-      { text: secondary, size: LABEL_FONT_SIZE.secondary, color: secondaryInk },
-      label.secondaryBelow,
-      textAlign,
-      label.maxWidth,
-    )
-  const paragraph = make(palette.ink, palette.secondaryInk)
+  const make = (ink: string) => makeParagraph(fontMgr, [{ text, size, color: ink, weight: 500 }], textAlign, label.maxWidth)
+  const paragraph = make(palette.ink)
   const height = paragraph.getHeight()
   const x =
     label.side === "left"
@@ -599,7 +597,7 @@ const buildLabel = (label: StationLabel, fontMgr: FontManager, palette: RailMapP
   return {
     stationId: label.stationId,
     paragraph,
-    dimParagraph: make(palette.dimInk, palette.dimInk),
+    dimParagraph: make(palette.dimInk),
     x,
     y,
     width: label.maxWidth,
@@ -609,17 +607,10 @@ const buildLabel = (label: StationLabel, fontMgr: FontManager, palette: RailMapP
 type BuiltCityLabel = { id: string; paragraph: SkParagraph; x: number; y: number; width: number }
 
 const buildCityLabel = (city: CityBox, fontMgr: FontManager, palette: RailMapPalette): BuiltCityLabel => {
-  const primary = city.name[userLocale] ?? city.name.en
-  const secondary = userLocale === "en" ? city.name.he : city.name.en
+  const name = city.name[userLocale] ?? city.name.en
   const width = city.width - 2
-  const paragraph = twoLanguageParagraph(
-    fontMgr,
-    { text: primary, size: CITY_FONT_SIZE.primary * (isRtlScript(primary) ? 1 : LATIN_SCALE), color: palette.cityInk },
-    { text: secondary, size: CITY_FONT_SIZE.secondary, color: palette.citySecondaryInk },
-    false,
-    TextAlign.Left,
-    width,
-  )
+  const size = CITY_FONT_SIZE * (isRtlScript(name) ? 1 : LATIN_SCALE)
+  const paragraph = makeParagraph(fontMgr, [{ text: name, size, color: palette.cityInk, weight: 500 }], TextAlign.Left, width)
   return { id: city.id, paragraph, x: city.labelX, y: city.labelY - paragraph.getHeight(), width }
 }
 

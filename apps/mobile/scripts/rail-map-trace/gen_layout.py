@@ -37,18 +37,18 @@ labels={}
 for sid,p in per.items():
     cx0,cy0,cx1,cy1=CB[sid]
     bcx=(p["x0"]+p["x1"])/2; ccx=(cx0+cx1)/2
-    if bcx<ccx-15 and p["x1"]<=cx1: side="left"; anchor=(p["x1"]+1,(p["y0"]+p["y1"])/2)
-    elif bcx>ccx+15 and p["x0"]>=cx0: side="right"; anchor=(p["x0"]-1,(p["y0"]+p["y1"])/2)
-    elif p["y1"]<cy0+6: side="above"; anchor=(bcx,p["y1"]+1)
-    else: side="below"; anchor=(bcx,p["y0"]-1)
     heb=[t for t in p["lines"] if not (t["mean"][0]>t["mean"][2]+8)]
     eng=[t for t in p["lines"] if (t["mean"][0]>t["mean"][2]+8)]
+    # the app shows one language, so the anchor is where the original's Hebrew name sits (the block includes its English)
+    hb=(min(t["x0"] for t in heb),min(t["y0"] for t in heb),max(t["x1"] for t in heb),max(t["y1"] for t in heb)) if heb else (p["x0"],p["y0"],p["x1"],p["y1"])
+    if bcx<ccx-15 and p["x1"]<=cx1: side="left"; anchor=(p["x1"]+1,(hb[1]+hb[3])/2)
+    elif bcx>ccx+15 and p["x0"]>=cx0: side="right"; anchor=(p["x0"]-1,(hb[1]+hb[3])/2)
+    elif p["y1"]<cy0+6: side="above"; anchor=(bcx,hb[3]+1)
+    else: side="below"; anchor=(bcx,hb[1]-1)
     name=station_only(sid,HEB.get(sid,""))
     body=max([t["body"] for t in heb],default=9)
     em=body/0.57
-    heb_y=min([t["y0"] for t in heb],default=0); eng_y=min([t["y0"] for t in eng],default=0)
-    secondary_below=bool(eng) and bool(heb) and eng_y>heb_y
-    labels[sid]={"side":side,"secondaryBelow":secondary_below,"x":round(anchor[0],1),"y":round(anchor[1],1),"maxWidth":round((p["x1"]-p["x0"])*1.15+6),"em":round(em,1),"size":"big" if em>=19.5 else "small","hebLines":len(heb),"engLines":len(eng),"bbox":[p["x0"],p["y0"],p["x1"],p["y1"]],"stationNameOnly":bool(IN_BOX.get(sid)),"name":name}
+    labels[sid]={"side":side,"x":round(anchor[0],1),"y":round(anchor[1],1),"maxWidth":round((p["x1"]-p["x0"])*1.15+6),"em":round(em,1),"size":"big" if em>=19.5 else "small","hebLines":len(heb),"engLines":len(eng),"bbox":[p["x0"],p["y0"],p["x1"],p["y1"]],"stationNameOnly":bool(IN_BOX.get(sid)),"name":name}
 # ---- city labels (unassigned blocks inside boxes)
 cities={}
 for b in blocks:
@@ -85,10 +85,11 @@ for b in blocks:
     if b["station"]=="8600":
         for t in b["lines"]:
             if t["h"]>=25: plane=[t["x0"],t["y0"],t["x1"],t["y1"]]
-out={"lines":lines,"labels":labels,"boxes":BOXES,"cities":cities,"badges":badges,"plane":plane,"clusters":CB}
+IRREGULAR=[{"line":"5","from":"3300","to":"3600"},{"line":"25","from":"3300","to":"3600"}]
+out={"lines":lines,"labels":labels,"irregular":IRREGULAR,"boxes":BOXES,"cities":cities,"badges":badges,"plane":plane,"clusters":CB}
 json.dump(out,open("layout.json","w"),ensure_ascii=False,indent=0)
 for sid,l in sorted(labels.items(),key=lambda t:t[1]["y"]):
-    print(sid,l["side"],"engBelow" if l["secondaryBelow"] else "engAbove",l["x"],l["y"],"w",l["maxWidth"],"em",l["em"],l["size"],"heb",l["hebLines"],"eng",l["engLines"],l["name"])
+    print(sid,l["side"],l["x"],l["y"],"w",l["maxWidth"],"em",l["em"],l["size"],"heb",l["hebLines"],"eng",l["engLines"],l["name"])
 print("cities",cities); print("badges",badges); print("plane",plane)
 missing=[s for ln in lines.values() for s in [st["id"] for st in ln["stations"]] if s not in labels]
 print("stations without labels",sorted(set(missing)))

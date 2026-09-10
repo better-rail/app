@@ -16,6 +16,7 @@ import {
   AIRPORT_ICON,
   CITY_BOXES,
   type CityBox,
+  IRREGULAR_STRETCHES,
   LINE_GEOMETRY,
   type LabelSide,
   MAP_BOUNDS,
@@ -29,13 +30,17 @@ export type Point = { x: number; y: number }
 // Proportions measured on the original artwork (913 px = 100 units).
 /** Stroke width of a line (10.5 px). */
 export const LINE_STROKE = 1.15
+/** Radius of the bends: every corner of the traced polylines is rounded to this (12 px) or less. */
+export const CORNER_RADIUS = 1.3
 /** Station dot radius (5.5 px). */
 export const MARKER_RADIUS = 0.6
-/** The short tick across a lane where a line passes a station without calling. */
-export const PASS_TICK_LENGTH = 1.0
-export const PASS_TICK_WIDTH = 0.22
-/** Font sizes: the original's 21 px and 14 px names, with 9 px for the second language. */
-export const LABEL_FONT_SIZE = { big: 2.3, small: 1.55, secondary: 0.99 }
+/** Ring around a terminal's dot, in the ground colour, and the ring drawn for a stop trains may pass. */
+export const TERMINAL_RING_RADIUS = 0.8
+export const IRREGULAR_STOP_STROKE = 0.22
+/** The stripe along a stretch served at irregular intervals. */
+export const IRREGULAR_STRIPE_WIDTH = 0.3
+/** Font sizes: the original's 21 px and 14 px names. */
+export const LABEL_FONT_SIZE = { big: 2.3, small: 1.55 }
 /** Latin and Cyrillic capitals stand taller than Hebrew and Arabic letters: shrink them to the same visual weight. */
 export const LATIN_SCALE = 0.8
 export const isRtlScript = (text: string): boolean => /[\u0590-\u06FF]/.test(text)
@@ -43,8 +48,8 @@ export const isRtlScript = (text: string): boolean => /[\u0590-\u06FF]/.test(tex
 export const nameFontSize = (size: "big" | "small", text: string): number =>
   LABEL_FONT_SIZE[size] * (isRtlScript(text) ? 1 : LATIN_SCALE)
 export const LABEL_LINE_HEIGHT = 1.02
-/** City names inside the frames (26 px and 19 px). */
-export const CITY_FONT_SIZE = { primary: 2.85, secondary: 2.05 }
+/** City names inside the frames (26 px). */
+export const CITY_FONT_SIZE = 2.85
 /** Terminal badges (19 × 11 px boxes). */
 export const BADGE_SIZE = { width: 2.1, height: 1.2, radius: 0.3, fontSize: 0.95 }
 /** Corner radius and stroke of the city frames (10 px and 2 px). */
@@ -63,14 +68,19 @@ export type LinePath = {
   stations: TracedStation[]
 }
 
+export type MarkerKind =
+  /** A calling point: a dot. */
+  | "stop"
+  /** The line runs through and trains may pass without stopping: a hollow circle (the original's legend). */
+  | "irregular"
+  /** The line ends here: a dot with a ring. */
+  | "terminal"
+
 export type StationMarker = {
   stationId: string
   lineId: RailLineId
   point: Point
-  /** `stop` is a dot; `pass` is a tick across the lane (the line runs through). */
-  kind: "stop" | "pass"
-  /** Direction of the lane at the marker, radians. */
-  angle: number
+  kind: MarkerKind
 }
 
 export type StationLabel = {
@@ -80,11 +90,12 @@ export type StationLabel = {
   maxWidth: number
   size: "big" | "small"
   stationNameOnly: boolean
-  /** The second language goes under the name instead of over it. */
-  secondaryBelow: boolean
 }
 
 export type TerminalBadge = { lineId: RailLineId; line: RailLine; center: Point }
+
+/** A stretch served at irregular intervals, drawn with a stripe along the line. */
+export type IrregularStretch = { lineId: RailLineId; d: string }
 
 export type RailMapModel = {
   bounds: { width: number; height: number }
@@ -93,6 +104,7 @@ export type RailMapModel = {
   labels: StationLabel[]
   cities: CityBox[]
   badges: TerminalBadge[]
+  irregular: IrregularStretch[]
   airport: { x: number; y: number; height: number }
 }
 
@@ -102,17 +114,42 @@ const fmt = (n: number): string => (Math.round(n * 100) / 100).toString()
 export const polylineD = (points: Point[]): string =>
   points.map((p, i) => `${i === 0 ? "M" : "L"}${fmt(p.x)} ${fmt(p.y)}`).join(" ")
 
+/**
+ * SVG path data through `points` with every bend rounded: each interior
+ * vertex becomes a quadratic curve whose radius is CORNER_RADIUS, or less
+ * where the neighbouring segments are short (so the traced curves stay
+ * smooth) or where the vertex is a station (`fixed`), which must stay on the
+ * line for its dot.
+ */
+export const smoothPathD = (points: Point[], fixed?: Set<number>): string => {
+  if (points.length < 3) return polylineD(points)
+  let d = `M${fmt(points[0].x)} ${fmt(points[0].y)}`
+  for (let i = 1; i < points.length - 1; i++) {
+    const a = points[i - 1]
+    const v = points[i]
+    const b = points[i + 1]
+    const d1 = Math.hypot(v.x - a.x, v.y - a.y)
+    const d2 = Math.hypot(b.x - v.x, b.y - v.y)
+    if (d1 === 0 || d2 === 0) continue
+    const cos = ((v.x - a.x) * (b.x - v.x) + (v.y - a.y) * (b.y - v.y)) / (d1 * d2)
+    if (cos > 0.9994) {
+      // Straight on (under 2°): no bend to round.
+      d += ` L${fmt(v.x)} ${fmt(v.y)}`
+      continue
+    }
+    const r = Math.min(CORNER_RADIUS, d1 / 2, d2 / 2, fixed?.has(i) ? 0.5 : Number.POSITIVE_INFINITY)
+    const s = { x: v.x + ((a.x - v.x) / d1) * r, y: v.y + ((a.y - v.y) / d1) * r }
+    const e = { x: v.x + ((b.x - v.x) / d2) * r, y: v.y + ((b.y - v.y) / d2) * r }
+    d += ` L${fmt(s.x)} ${fmt(s.y)} Q${fmt(v.x)} ${fmt(v.y)} ${fmt(e.x)} ${fmt(e.y)}`
+  }
+  const last = points[points.length - 1]
+  return `${d} L${fmt(last.x)} ${fmt(last.y)}`
+}
+
 const toPoints = (flat: number[]): Point[] => {
   const points: Point[] = []
   for (let i = 0; i + 1 < flat.length; i += 2) points.push({ x: flat[i], y: flat[i + 1] })
   return points
-}
-
-/** Direction of the polyline at vertex `index`, averaged over its neighbours. */
-const directionAt = (vertices: Point[], index: number): number => {
-  const prev = vertices[Math.max(0, index - 1)]
-  const next = vertices[Math.min(vertices.length - 1, index + 1)]
-  return Math.atan2(next.y - prev.y, next.x - prev.x)
 }
 
 export const buildRailMapModel = (): RailMapModel => {
@@ -123,7 +160,7 @@ export const buildRailMapModel = (): RailMapModel => {
       lineId: line.id,
       line,
       vertices,
-      d: polylineD(vertices),
+      d: smoothPathD(vertices, new Set(geometry.stations.map((s) => s.index))),
       stationIndex: new Map(geometry.stations.map((s) => [s.id, s.index])),
       stations: geometry.stations,
     }
@@ -131,15 +168,15 @@ export const buildRailMapModel = (): RailMapModel => {
 
   const markers: StationMarker[] = []
   for (const line of lines) {
-    for (const station of line.stations) {
+    line.stations.forEach((station, i) => {
+      const terminal = i === 0 || i === line.stations.length - 1
       markers.push({
         stationId: station.id,
         lineId: line.lineId,
         point: line.vertices[station.index],
-        kind: station.stop ? "stop" : "pass",
-        angle: directionAt(line.vertices, station.index),
+        kind: terminal ? "terminal" : station.stop ? "stop" : "irregular",
       })
-    }
+    })
   }
 
   const labels: StationLabel[] = Object.entries(STATION_LABELS).map(([stationId, spec]) => ({
@@ -149,7 +186,6 @@ export const buildRailMapModel = (): RailMapModel => {
     maxWidth: spec.maxWidth,
     size: spec.size,
     stationNameOnly: spec.stationNameOnly ?? false,
-    secondaryBelow: spec.secondaryBelow ?? false,
   }))
 
   const byId = new Map(RAIL_LINES.map((l) => [l.id, l]))
@@ -159,15 +195,28 @@ export const buildRailMapModel = (): RailMapModel => {
     center: { x: b.x, y: b.y },
   }))
 
-  return { bounds: MAP_BOUNDS, lines, markers, labels, cities: CITY_BOXES, badges, airport: AIRPORT_ICON }
+  const irregular: IrregularStretch[] = IRREGULAR_STRETCHES.flatMap((s) => {
+    const line = lines.find((l) => l.lineId === s.lineId)
+    const d = line && linePathBetween(line, s.fromStationId, s.toStationId)
+    return d ? [{ lineId: s.lineId, d }] : []
+  })
+
+  return { bounds: MAP_BOUNDS, lines, markers, labels, cities: CITY_BOXES, badges, irregular, airport: AIRPORT_ICON }
 }
 
-/** SVG path data for the stretch of `line` between two of its stations, in either order. */
+/**
+ * SVG path data for the stretch of `line` between two of its stations, in
+ * either order. The bends are rounded the same way as the whole line, so the
+ * stretch lies exactly on it.
+ */
 export const linePathBetween = (line: LinePath, fromStationId: string, toStationId: string): string | undefined => {
   const a = line.stationIndex.get(fromStationId)
   const b = line.stationIndex.get(toStationId)
   if (a === undefined || b === undefined) return undefined
-  return polylineD(line.vertices.slice(Math.min(a, b), Math.max(a, b) + 1))
+  const start = Math.min(a, b)
+  const fixed = new Set<number>()
+  for (const index of line.stationIndex.values()) if (index >= start) fixed.add(index - start)
+  return smoothPathD(line.vertices.slice(start, Math.max(a, b) + 1), fixed)
 }
 
 /** Where the given stations sit on `line` (stations not on the line are skipped). */
