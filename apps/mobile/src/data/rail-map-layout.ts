@@ -97,8 +97,8 @@ export const MAP_NODES: MapNode[] = [
   px("J_LOOP_W", 462, 968),
   px("2940", 507, 968, "above", true), // Ra'anana West
   px("2960", 563, 968, "above", true), // Ra'anana South
-  px("9200", 628, 968, "above", true), // Hod HaSharon – Sokolov
-  px("8700", 678, 968, "above", true), // Kfar Sava – Nordau
+  nudge(px("9200", 628, 968, "above", true), -7, 0), // Hod HaSharon – Sokolov
+  nudge(px("8700", 678, 968, "above", true), 7, 0), // Kfar Sava – Nordau
   px("J_LOOP_NE", 736, 968),
   px("8800", 736, 1017, "right"), // Rosh Ha'Ayin – North
   px("J_LOOP_SE", 736, 1048),
