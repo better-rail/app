@@ -90,7 +90,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     infoPlist: {
       // Only standard HTTPS/TLS — exempt encryption (skips export-compliance docs per submission).
       ITSAppUsesNonExemptEncryption: false,
-      LSApplicationQueriesSchemes: ["twitter"],
+      LSApplicationQueriesSchemes: ["twitter", "instagram"],
       NSUserActivityTypes: ["RouteIntent"],
       NSSupportsLiveActivities: true,
       NSSupportsLiveActivitiesFrequentUpdates: true,
