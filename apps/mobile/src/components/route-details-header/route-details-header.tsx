@@ -1,8 +1,8 @@
 import { useRef, useEffect } from "react"
-import { Image, ImageBackground, View, Animated as RNAnimated, Pressable } from "react-native"
-import type { ViewStyle } from "react-native"
+import { Image, ImageBackground, Platform, View, Animated as RNAnimated, Pressable } from "react-native"
+import type { ColorValue, ViewStyle } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { useRouter, useNavigation } from "expo-router"
+import { useRouter, useNavigation, Stack } from "expo-router"
 import { trackEvent } from "@/services/analytics"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import LinearGradient from "react-native-linear-gradient"
@@ -15,7 +15,7 @@ import HapticFeedback from "react-native-haptic-feedback"
 import { stationsObject, stationLocale } from "@/data/stations"
 import { translate } from "@/i18n"
 import { useShallow } from "zustand/react/shallow"
-import { useFavoritesStore, useRoutePlanStore, useSettingsStore } from "@/models"
+import { useFavoritesStore, useRoutePlanStore, useSettingsStore, activeFilterCount } from "@/models"
 import * as Burnt from "burnt"
 import type { RouteItem } from "@/services/api"
 import { ContextMenu } from "@/components/context-menu/context-menu"
@@ -54,7 +54,8 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     destination: routePlanDestination,
     switchDirection,
   } = useRoutePlanStore(useShallow((s) => ({ origin: s.origin, destination: s.destination, switchDirection: s.switchDirection })))
-  const isFilterActive = useSettingsStore((s) => s.hideSlowTrains || s.maxChanges !== null)
+  const filterCount = useSettingsStore(activeFilterCount)
+  const isFilterActive = filterCount > 0
   const router = useRouter()
   const navigation = useNavigation()
   const insets = useSafeAreaInsets()
@@ -70,6 +71,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const destinationName = destinationStation?.[stationLocale]
   const routeId = `${originId}${destinationId}`
   const isFavorite = favoriteRoutesData.some((fav) => fav.id === routeId)
+  const useNativeRouteListToolbar = screenName === "routeList" && Platform.OS === "ios" && isLiquidGlassSupported
 
   const scaleStationCards = () => {
     RNAnimated.sequence([
@@ -116,6 +118,25 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const openFaresSheet = () => {
     HapticFeedback.trigger("impactMedium")
     router.push({ pathname: "/fares", params: { originId, destinationId } })
+  }
+
+  const handleFavoritePress = () => {
+    const favorite = { id: routeId, originId, destinationId }
+    if (!isFavorite) {
+      Burnt.alert({ title: translate("favorites.added"), duration: 1.5 })
+      HapticFeedback.trigger("impactMedium")
+      addFavorite(favorite)
+      trackEvent("favorite_route_added")
+    } else {
+      HapticFeedback.trigger("impactLight")
+      removeFavorite(favorite.id)
+      trackEvent("favorite_route_removed")
+    }
+  }
+
+  const openFilterSheet = () => {
+    HapticFeedback.trigger("impactMedium")
+    router.push("/filter")
   }
 
   const routeMenuActions = (() => {
@@ -195,31 +216,12 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       )
     }
 
-    const handleFavoritePress = () => {
-      const favorite = { id: routeId, originId, destinationId }
-      if (!isFavorite) {
-        Burnt.alert({ title: translate("favorites.added"), duration: 1.5 })
-        HapticFeedback.trigger("impactMedium")
-        addFavorite(favorite)
-        trackEvent("favorite_route_added")
-      } else {
-        HapticFeedback.trigger("impactLight")
-        removeFavorite(favorite.id)
-        trackEvent("favorite_route_removed")
-      }
-    }
-
-    const openFilterSheet = () => {
-      HapticFeedback.trigger("impactMedium")
-      router.push("/filter")
-    }
-
     if (isLiquidGlassSupported) {
       return (
         <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[4] }}>
           <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
           <FaresIcon onPress={openFaresSheet} />
-          <FilterIcon active={isFilterActive} onPress={openFilterSheet} />
+          <FilterIcon active={isFilterActive} count={filterCount} onPress={openFilterSheet} />
         </View>
       )
     }
@@ -228,13 +230,34 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       <>
         <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
         <FaresIcon style={{ marginLeft: spacing[2] }} onPress={openFaresSheet} />
-        <FilterIcon style={{ marginLeft: spacing[2] }} active={isFilterActive} onPress={openFilterSheet} />
+        <FilterIcon style={{ marginLeft: spacing[2] }} active={isFilterActive} count={filterCount} onPress={openFilterSheet} />
       </>
     )
   }
 
   return (
     <>
+      {useNativeRouteListToolbar && (
+        <Stack.Screen
+          options={{
+            headerShown: true,
+            headerTransparent: true,
+            headerTitle: "",
+            unstable_headerRightItems: () => [
+              {
+                type: "button",
+                label: "",
+                selected: isFavorite,
+                tintColor: isFavorite ? (color.yellow as ColorValue) : undefined,
+                icon: { type: "sfSymbol", name: isFavorite ? "star.fill" : "star" },
+                accessibilityLabel: translate("favorites.title") ?? undefined,
+                onPress: handleFavoritePress,
+              },
+            ],
+          }}
+        />
+      )}
+
       <ImageBackground
         source={originStation?.image}
         style={{
@@ -245,7 +268,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       >
         <LinearGradient style={styles.gradient} colors={["rgba(0, 0, 0, 0.75)", "rgba(0, 0, 0, 0.05)"]} />
 
-        {screenName !== "activeRide" && (
+        {screenName !== "activeRide" && !useNativeRouteListToolbar && (
           <View
             style={{
               position: "absolute",
