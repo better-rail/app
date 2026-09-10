@@ -529,7 +529,7 @@ describe("planTravels", () => {
 
   it("drops an all-night ride round the country even when it is the only option", () => {
     // Real case: Jerusalem -> Pa'ate Modi'in, half an hour's trip, on a Saturday
-    // night when nothing else runs. Out to the airport at 23:36, north to Ako,
+    // night when nothing else runs. Out to the airport at 23:36, north to Akko,
     // then back down to Modi'in at 05:54 — 263km of straight lines for a 26km
     // journey, and the only listing there was, which is why nothing else can be
     // relied on to displace it. The morning is on the next page.
@@ -1010,7 +1010,7 @@ describe("planTravels", () => {
   })
 
   it("drops a change-route that lands with a later, simpler one", () => {
-    // Real case: Kiryat Motzkin -> Tel Aviv University. Riding out to Ako at 21:20
+    // Real case: Kiryat Motzkin -> Tel Aviv University. Riding out to Akko at 21:20
     // to wait for train 135 arrives 23:28 — exactly when 135 gets there having
     // picked you up at Kiryat Motzkin at 22:04. Setting out 44 minutes earlier and
     // changing once more buys nothing at all.
