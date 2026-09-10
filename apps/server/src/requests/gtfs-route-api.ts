@@ -1040,7 +1040,7 @@ export const planLegs = (
     // against, which is the whole point: where the timetable offers a single way
     // to make a trip, that way sets the standard and so excuses itself, however
     // absurd it is. Jerusalem -> Pa'ate Modi'in on a Saturday night was the only
-    // listing there was — out to the airport at 23:36, north to Ako, and back
+    // listing there was — out to the airport at 23:36, north to Akko, and back
     // down to Modi'in at 05:54, six and a quarter hours for half an hour's trip.
     //
     // Judged on the ground rather than on the timetable: the straight lines from
@@ -1175,7 +1175,7 @@ export const planLegs = (
     // Finally, drop a journey that buys nothing at all: it lands on the same
     // minute as one with fewer changes that leaves no earlier, so taking it means
     // setting out sooner and changing more to arrive at the same moment. Kiryat
-    // Motzkin -> Tel Aviv University is the shape — riding out to Ako at 21:20 to
+    // Motzkin -> Tel Aviv University is the shape — riding out to Akko at 21:20 to
     // wait for train 135, which calls at Kiryat Motzkin at 22:04 and reaches the
     // university at 23:28 either way. Whoever could catch the dropped one can
     // catch the survivor, so this cannot delay anybody.
