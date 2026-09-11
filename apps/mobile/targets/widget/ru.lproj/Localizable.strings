@@ -39,3 +39,10 @@
 "Something went wrong." = "Что-то пошло не так.";
 "try again" = "Попробуйте еще раз";
 "critical alert" = "Критическое оповещение";
+
+// apple watch live activity
+"next stop" = "След. станция";
+"%@ stops" = "%@ ост.";
+"get off now" = "Выходить";
+"train short %@" = "Поезд %@";
+"+%@ min" = "+%@ мин";

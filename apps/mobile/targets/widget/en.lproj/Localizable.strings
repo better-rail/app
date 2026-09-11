@@ -48,3 +48,9 @@
 "time left arrival" = "Time left to arrival";
 "connection issues" = "CONNECTION ISSUES";
 "%@ min delay" = "%@ min delay";
+
+// apple watch live activity
+"next stop" = "Next stop";
+"%@ stops" = "%@ stops";
+"get off now" = "Get off";
+"train short %@" = "Train %@";

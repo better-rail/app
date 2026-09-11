@@ -39,3 +39,10 @@
 "Something went wrong." = "هناك خطأ ما.";
 "try again" = "حاول ثانية";
 "critical alert" = "تنبيه بالغ الأهمية";
+
+// apple watch live activity
+"next stop" = "المحطة التالية";
+"%@ stops" = "%@ محطات";
+"get off now" = "انزل هنا";
+"train short %@" = "قطار %@";
+"+%@ min" = "+%@ دقيقة";
