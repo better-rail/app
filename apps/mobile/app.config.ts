@@ -177,8 +177,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       {
         ios: {
           deploymentTarget: "16.4",
-          // Required while patches/expo*.patch exist: prebuilt Expo xcframeworks ignore them.
-          buildReactNativeFromSource: true,
         },
         android: {
           kotlinVersion: "2.1.20",
