@@ -122,7 +122,8 @@ export function RouteDetailsTrainInfo() {
   return (
     <View
       testID="train-info-screen"
-      style={[styles.root, { paddingBottom: Platform.select({ ios: 0, android: insets.bottom + 8 }) }]}
+      collapsable={false}
+      style={{ paddingBottom: Platform.select({ ios: 0, android: insets.bottom + 8 }) }}
     >
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}>
@@ -225,9 +226,6 @@ export function RouteDetailsTrainInfo() {
 }
 
 const styles = StyleSheet.create((theme) => ({
-  root: {
-    flex: 1,
-  },
   headerContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -373,7 +371,6 @@ const styles = StyleSheet.create((theme) => ({
     marginVertical: theme.spacing[4],
   },
   emptyStateContainer: {
-    flex: 1,
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: theme.spacing[5],
