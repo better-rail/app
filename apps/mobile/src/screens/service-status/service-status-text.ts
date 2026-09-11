@@ -14,6 +14,12 @@ export const levelLabel = (level: ServiceStatusLevel): string => translate(`serv
 
 export const levelDescription = (level: ServiceStatusLevel): string => translate(`serviceStatus.levelDescriptions.${level}`) ?? ""
 
+/** What is wrong on the line in words, worst first ("Part suspended, Minor delays"), or its level alone. */
+export const lineLevels = (lineStatus: Pick<LineStatus, "level" | "disruptions">): string => {
+  const levels = [...new Set(lineStatus.disruptions.map((d) => d.level))]
+  return (levels.length > 0 ? levels : [lineStatus.level]).map(levelLabel).join(", ")
+}
+
 export const disruptionTitle = (disruption: Disruption): string =>
   translate(`serviceStatus.disruptions.${disruption.kind}`) ?? disruption.kind
 

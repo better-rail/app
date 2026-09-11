@@ -27,7 +27,6 @@ import type { RailLineId } from "@/data/rail-lines"
 import { type CityBox, LABEL_TEXT_OVERRIDES } from "@/data/rail-map-layout"
 import type { ServiceStatusSnapshot } from "@/services/api"
 import {
-  BADGE_SIZE,
   CITY_BOX_RADIUS,
   CITY_BOX_STROKE,
   CITY_FONT_SIZE,
@@ -49,7 +48,6 @@ import {
   type Point,
   type RailMapModel,
   type StationLabel,
-  type TerminalBadge,
   buildRailMapModel,
   currentDayType,
   linePathBetween,
@@ -333,11 +331,6 @@ export function RailMap({ status, dayType, selectedLineId, onSelectLine, focusLi
     return model.cities.map((city) => buildCityLabel(city, fontMgr, palette))
   }, [fontMgr, model, palette])
 
-  const badges = useMemo(() => {
-    if (!fontMgr) return []
-    return model.badges.map((badge) => buildBadge(badge, fontMgr, palette))
-  }, [fontMgr, model, palette])
-
   const plane = useMemo(() => {
     const airportLabel = labels.find((l) => l.stationId === "8600")
     const bottom = airportLabel ? airportLabel.y - 0.3 : model.airport.y
@@ -547,43 +540,6 @@ export function RailMap({ status, dayType, selectedLineId, onSelectLine, focusLi
                 ) : null,
               )}
 
-              {/* Line numbers beside the terminals. */}
-              {badges.map((badge) => {
-                const dim = isDimmed(badge.lineId)
-                const outline = badge.line.badgeStyle === "outline"
-                const fill = dim ? palette.dimLine : badge.line.color
-                return (
-                  <Group key={`${badge.lineId}:${badge.x}:${badge.y}`}>
-                    <RoundedRect
-                      x={badge.x}
-                      y={badge.y}
-                      width={BADGE_SIZE.width}
-                      height={BADGE_SIZE.height}
-                      r={BADGE_SIZE.radius}
-                      color={outline ? palette.background : fill}
-                    />
-                    {outline && (
-                      <RoundedRect
-                        x={badge.x + 0.08}
-                        y={badge.y + 0.08}
-                        width={BADGE_SIZE.width - 0.16}
-                        height={BADGE_SIZE.height - 0.16}
-                        r={BADGE_SIZE.radius}
-                        color={fill}
-                        style="stroke"
-                        strokeWidth={0.16}
-                      />
-                    )}
-                    <Paragraph
-                      paragraph={dim ? badge.dimParagraph : badge.paragraph}
-                      x={badge.x}
-                      y={badge.textY}
-                      width={BADGE_SIZE.width}
-                    />
-                  </Group>
-                )
-              })}
-
               {/* The aeroplane over Ben Gurion Airport. */}
               <Path path={plane} color={palette.cityInk} />
 
@@ -763,41 +719,6 @@ const buildCityLabel = (city: CityBox, fontMgr: FontManager, palette: RailMapPal
   const size = CITY_FONT_SIZE * (isRtlScript(name) ? 1 : LATIN_SCALE)
   const paragraph = makeParagraph(fontMgr, [{ text: name, size, color: palette.cityInk, weight: 500 }], TextAlign.Left, width)
   return { id: city.id, paragraph, x: city.labelX, y: city.labelY - paragraph.getHeight(), width }
-}
-
-type BuiltBadge = {
-  lineId: RailLineId
-  line: TerminalBadge["line"]
-  paragraph: SkParagraph
-  dimParagraph: SkParagraph
-  x: number
-  y: number
-  textY: number
-}
-
-const buildBadge = (badge: TerminalBadge, fontMgr: FontManager, palette: RailMapPalette): BuiltBadge => {
-  const outline = badge.line.badgeStyle === "outline"
-  const make = (color: string) => {
-    const paragraph = Skia.ParagraphBuilder.Make({ textAlign: TextAlign.Center, maxLines: 1 }, fontMgr)
-      .pushStyle({ color: Skia.Color(color), fontFamilies: ["Heebo"], fontSize: BADGE_SIZE.fontSize, fontStyle: { weight: 500 } })
-      .addText(badge.line.badge)
-      .pop()
-      .build()
-    paragraph.layout(BADGE_SIZE.width)
-    return paragraph
-  }
-  const paragraph = make(outline ? badge.line.color : badge.line.textColor)
-  const x = badge.center.x - BADGE_SIZE.width / 2
-  const y = badge.center.y - BADGE_SIZE.height / 2
-  return {
-    lineId: badge.lineId,
-    line: badge.line,
-    paragraph,
-    dimParagraph: make(outline ? palette.dimLine : palette.background),
-    x,
-    y,
-    textY: badge.center.y - paragraph.getHeight() / 2,
-  }
 }
 
 const styles = StyleSheet.create({

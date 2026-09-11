@@ -86,19 +86,6 @@ for bid,(x0,y0,x1,y1) in L["boxes"].items():
     c=L["cities"][bid]; n=NAMES[bid]
     out.append(f'  {{ id: "{bid}", x: {u(x0)}, y: {u(y0)}, width: {u(x1-x0)}, height: {u(y1-y0)}, labelX: {u(c["x0"])}, labelY: {u(c["y1"])}, name: {{ he: "{n[0]}", en: "{n[1]}", ru: "{n[2]}", ar: "{n[3]}" }} }},\n')
 out.append("]\n\n")
-out.append('''/** Line badges beside the terminals, where the original prints its train-number ranges. */
-export const TERMINAL_BADGES: {
-  lineId: RailLineId
-  x: number
-  y: number
-  /** For a short working: shown only while the day type's pattern has it as a terminal. */
-  requires?: LineStation & { kind: "terminal" | "irregular" }
-}[] = [
-''')
-for b in L["badges"]:
-    r=f', requires: {{ lineId: "{b["requires"]["line"]}", stationId: "{b["requires"]["station"]}", kind: "{b["requires"]["kind"]}" }}' if "requires" in b else ""
-    out.append(f'  {{ lineId: "{b["line"]}", x: {u(b["x"])}, y: {u(b["y"])}{r} }},\n')
-out.append("]\n\n")
 flat=lambda pts: ", ".join(f"{u(x)}, {u(y)}" for x,y in pts)
 out.append('''/**
  * Sunday–Thursday, Friday–Saturday, or the small hours after a weekday: the

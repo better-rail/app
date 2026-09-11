@@ -20,7 +20,7 @@ import {
 describe("rail map model", () => {
   const model = buildRailMapModel("weekday")
 
-  test("the weekend map drops the lines that do not run then, with their stations, stubs and badges", () => {
+  test("the weekend map drops the lines that do not run then, with their stations and stubs", () => {
     const weekend = buildRailMapModel("weekend")
     expect(weekend.dayType).toBe("weekend")
     expect(model.lines.map((l) => l.lineId)).toContain("12")
@@ -29,12 +29,9 @@ describe("rail map model", () => {
     // Hadera East is only on the eastern line.
     expect(model.labels.some((l) => l.stationId === "3900")).toBe(true)
     expect(weekend.labels.some((l) => l.stationId === "3900")).toBe(false)
-    expect(weekend.badges.some((b) => b.lineId === "12")).toBe(false)
-    // Hardly any line 2 train ends at Rehovot on the weekend: no stub, no badge, a plain stop.
+    // Hardly any line 2 train ends at Rehovot on the weekend: no stub, a plain stop.
     expect(weekend.extras.map((e) => e.lineId)).toEqual(["6"])
     expect(weekend.markers.find((m) => m.stationId === "5200" && m.lineId === "2")?.kind).toBe("stop")
-    expect(weekend.badges.filter((b) => b.lineId === "2")).toHaveLength(2)
-    expect(model.badges.filter((b) => b.lineId === "2")).toHaveLength(3)
   })
 
   test("the day type follows the Israeli week, with the service day rolling over at 03:00", () => {
@@ -129,10 +126,8 @@ describe("rail map model", () => {
     expect(nearestLine(model, { x: 5, y: 40 }, 3)).toBeUndefined()
   })
 
-  test("city frames, terminal badges and the aeroplane come from the traced layout", () => {
+  test("city frames and the aeroplane come from the traced layout", () => {
     expect(model.cities.map((c) => c.id)).toEqual(["haifa", "telaviv", "jerusalem", "beersheva"])
-    expect(model.badges.some((b) => b.lineId === "2")).toBe(true)
-    expect(model.badges.every((b) => b.line.id === b.lineId)).toBe(true)
     expect(model.airport.height).toBeGreaterThan(0)
   })
 

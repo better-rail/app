@@ -1,46 +1,41 @@
-import { Image, TouchableHighlight, View } from "react-native"
+import { TouchableHighlight, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
 import { color } from "@/theme"
-import { CHEVRON_ICON } from "@/screens/settings/components/settings-box"
 import type { LineStatus } from "@/services/api"
 import { getRailLine } from "@/data/rail-lines"
-import { LineBadge } from "./line-badge"
-import { levelLabel, lineName } from "../service-status-text"
-import { useStatusLevelColor } from "../service-status-theme"
+import { levelLabel, lineLevels, lineName } from "../service-status-text"
 
-const chevronIcon = require("../../../../assets/chevron.png")
+/** The bar of the line's colour down the row's edge, as TfL Go draws it. */
+export const BAR_WIDTH = 14
 
 type LineStatusRowProps = {
   status: LineStatus
-  first?: boolean
-  last?: boolean
   onPress: () => void
 }
 
-/** One line of the status board: colour bar, badge, name and its current level. */
-export function LineStatusRow({ status, first, last, onPress }: LineStatusRowProps) {
-  const line = getRailLine(status.lineId) ?? { ...status.line, badgeStyle: "solid" as const, textColor: undefined }
-  const levelColor = useStatusLevelColor(status.level)
+/**
+ * One line of the status board, after TfL Go's: the line's colour as a bar down the edge of the
+ * sheet, its name, and what is wrong in words. No background of its own, so the sheet's glass shows.
+ */
+export function LineStatusRow({ status, onPress }: LineStatusRowProps) {
+  const lineColor = getRailLine(status.lineId)?.color ?? status.line.color
 
   return (
     <TouchableHighlight
       underlayColor={color.inputPlaceholderBackground}
       onPress={onPress}
-      style={[styles.row, first && styles.first, last && styles.last]}
+      style={styles.row}
       testID={`service-status-line-${status.lineId}`}
       accessibilityRole="button"
       accessibilityLabel={`${lineName(status)}, ${levelLabel(status.level)}`}
     >
       <View style={styles.inner}>
-        <LineBadge line={line} />
+        <View style={[styles.bar, { backgroundColor: lineColor }]} />
         <View style={styles.texts}>
-          <Text style={styles.name} numberOfLines={1}>
-            {lineName(status)}
-          </Text>
-          <Text style={[styles.level, { color: levelColor }]}>{levelLabel(status.level)}</Text>
+          <Text style={styles.name}>{lineName(status)}</Text>
+          <Text style={styles.levels}>{lineLevels(status)}</Text>
         </View>
-        <Image source={chevronIcon} style={CHEVRON_ICON} />
       </View>
     </TouchableHighlight>
   )
@@ -48,28 +43,27 @@ export function LineStatusRow({ status, first, last, onPress }: LineStatusRowPro
 
 const styles = StyleSheet.create((theme) => ({
   row: {
-    backgroundColor: theme.colors.tertiaryBackground,
-    overflow: "hidden",
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: theme.colors.separator,
   },
-  first: { borderTopStartRadius: 14, borderTopEndRadius: 14 },
-  last: { borderBottomStartRadius: 14, borderBottomEndRadius: 14 },
   inner: {
     flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: theme.spacing[3],
-    paddingVertical: theme.spacing[3],
-    gap: theme.spacing[3],
+    alignItems: "stretch",
+  },
+  bar: {
+    width: BAR_WIDTH,
   },
   texts: {
     flex: 1,
-    gap: 2,
+    paddingHorizontal: theme.spacing[4],
+    paddingVertical: theme.spacing[4],
+    gap: theme.spacing[1],
   },
   name: {
-    fontSize: 17,
-    fontWeight: "600",
+    fontSize: 18,
+    fontWeight: "700",
   },
-  level: {
-    fontSize: 15,
-    fontWeight: "500",
+  levels: {
+    fontSize: 16,
   },
 }))

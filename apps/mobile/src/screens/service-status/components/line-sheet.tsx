@@ -6,7 +6,6 @@ import { Text } from "@/components"
 import { translate, userLocale } from "@/i18n"
 import { getRailLine, type RailLine } from "@/data/rail-lines"
 import type { LineStatus } from "@/services/api"
-import { LineBadge } from "./line-badge"
 import { LineDetails } from "./line-details"
 import { SHEET_DETENTS, SHEET_HEADER_HEIGHT } from "./status-sheet"
 import { levelLabel, lineName } from "../service-status-text"
@@ -89,13 +88,12 @@ type LineHeaderProps = {
   onClose: () => void
 }
 
-/** The band in the line's colour: its badge, name and level, and the button that closes the card. */
+/** The band in the line's colour: its name and level, and the button that closes the card. */
 function LineHeader({ title, line, status, isLoading, bandColor, onClose }: LineHeaderProps) {
   const bandText = line?.textColor ?? contrastText(bandColor)
 
   return (
     <View style={[styles.band, { backgroundColor: bandColor }]} testID="line-status-header">
-      {line && <LineBadge line={{ ...line, color: bandText, textColor: bandColor, badgeStyle: "solid" }} size={40} />}
       <View style={styles.bandTexts}>
         <Text style={[styles.bandTitle, { color: bandText }]} numberOfLines={1}>
           {title}

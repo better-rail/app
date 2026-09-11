@@ -477,39 +477,6 @@ export const CITY_BOXES: CityBox[] = [
   },
 ]
 
-/** Line badges beside the terminals, where the original prints its train-number ranges. */
-export const TERMINAL_BADGES: {
-  lineId: RailLineId
-  x: number
-  y: number
-  /** For a short working: shown only while the day type's pattern has it as a terminal. */
-  requires?: LineStation & { kind: "terminal" | "irregular" }
-}[] = [
-  { lineId: "6", x: 37.79, y: 111.06 },
-  { lineId: "3X", x: 58.38, y: 242.17 },
-  { lineId: "3", x: 51.31, y: 15.22 },
-  { lineId: "3", x: 63.09, y: 242.17 },
-  { lineId: "1", x: 79.35, y: 143.81 },
-  { lineId: "9", x: 55.97, y: 171.63 },
-  { lineId: "8", x: 58.6, y: 235.82 },
-  { lineId: "8", x: 81.6, y: 245.35 },
-  { lineId: "2", x: 41.46, y: 71.03 },
-  { lineId: "2", x: 44.25, y: 203.18 },
-  { lineId: "5", x: 40.09, y: 88.5 },
-  { lineId: "5", x: 74.7, y: 186.09 },
-  { lineId: "7", x: 40.14, y: 111.06 },
-  { lineId: "7", x: 89.38, y: 170.32 },
-  { lineId: "4", x: 68.67, y: 29.03 },
-  { lineId: "3X", x: 71.08, y: 29.03 },
-  { lineId: "2", x: 55.53, y: 190.8, requires: { lineId: "2", stationId: "5200", kind: "terminal" } },
-  { lineId: "5", x: 38.77, y: 127.16, requires: { lineId: "5", stationId: "3700", kind: "terminal" } },
-  { lineId: "3", x: 36.47, y: 127.16, requires: { lineId: "3", stationId: "3700", kind: "terminal" } },
-  { lineId: "11", x: 51.26, y: 56.96, requires: { lineId: "11", stationId: "2300", kind: "terminal" } },
-  { lineId: "11", x: 51.31, y: 67.25 },
-  { lineId: "1", x: 48.96, y: 15.22 },
-  { lineId: "25", x: 37.79, y: 88.5 },
-]
-
 /**
  * Sunday–Thursday, Friday–Saturday, or the small hours after a weekday: the
  * timetable, and so the map, differs between them.

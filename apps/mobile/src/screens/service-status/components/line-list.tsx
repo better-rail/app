@@ -1,22 +1,19 @@
-import { ActivityIndicator, TouchableHighlight, View } from "react-native"
+import { ActivityIndicator, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { useNetworkState } from "expo-network"
 import { Text } from "@/components"
-import { color } from "@/theme"
 import { translate } from "@/i18n"
-import { compareServiceStatusLevels, isDisruptedLevel, type LineStatus, type ServiceStatusLevel } from "@/services/api"
-import { getRailLine } from "@/data/rail-lines"
+import { compareServiceStatusLevels, isDisruptedLevel, type ServiceStatusLevel } from "@/services/api"
 import { RouteListError } from "@/screens/route-list/components/route-list-error"
-import { LineBadge } from "./line-badge"
-import { LineStatusRow } from "./line-status-row"
+import { BAR_WIDTH, LineStatusRow } from "./line-status-row"
 import { StatusError } from "./status-error"
-import { levelLabel, levelDescription } from "../service-status-text"
-import { useStatusLevelColor } from "../service-status-theme"
+import { levelLabel } from "../service-status-text"
+import { contrastText, useStatusLevelColor } from "../service-status-theme"
 import { useServiceStatus } from "../use-service-status"
 
 /**
- * Levels shown as a group of badges under the disrupted lines' rows. Lines with no trains
- * scheduled right now are not a disruption, so they are left out; the map still has them.
+ * Levels summed up in one band under the disrupted lines' rows, without naming the lines. Lines with
+ * no trains scheduled right now are not a disruption, so they are left out; the map still has them.
  */
 const GROUPED_LEVELS: ServiceStatusLevel[] = ["goodService", "unknown"]
 
@@ -24,16 +21,17 @@ type LineListProps = {
   onSelectLine: (lineId: string) => void
 }
 
-/** Every line's status: the disrupted ones on rows of their own, worst first, the rest as badges under their shared level. */
+/**
+ * Every line's status, as TfL Go lays it out: the disrupted ones on full-width rows, worst first,
+ * and a band in the level's colour for the rest, filling the sheet down to its bottom edge.
+ */
 export function LineList({ onSelectLine }: LineListProps) {
   const { isInternetReachable } = useNetworkState()
   const { data, isLoading, isError, refetch } = useServiceStatus()
 
   const lines = data?.lines ?? []
   const disrupted = lines.filter((l) => isDisruptedLevel(l.level)).sort((a, b) => compareServiceStatusLevels(b.level, a.level))
-  const grouped = GROUPED_LEVELS.map((level) => ({ level, lines: lines.filter((l) => l.level === level) })).filter(
-    (group) => group.lines.length > 0,
-  )
+  const grouped = GROUPED_LEVELS.filter((level) => lines.some((l) => l.level === level))
   // Nothing runs right now (the small hours, the weekend): say so, instead of an empty list.
   const nothingRunning = data !== undefined && disrupted.length === 0 && grouped.length === 0
 
@@ -43,121 +41,84 @@ export function LineList({ onSelectLine }: LineListProps) {
       {!isLoading && !data && isInternetReachable === false && <RouteListError errorType="no-internet" />}
       {!isLoading && !data && isError && isInternetReachable !== false && <StatusError onRetry={() => refetch()} />}
 
-      {disrupted.length > 0 && (
-        <View style={styles.group}>
-          {disrupted.map((line, index) => (
-            <LineStatusRow
-              key={line.lineId}
-              status={line}
-              first={index === 0}
-              last={index === disrupted.length - 1}
-              onPress={() => onSelectLine(line.lineId)}
-            />
-          ))}
-        </View>
-      )}
+      {disrupted.map((line) => (
+        <LineStatusRow key={line.lineId} status={line} onPress={() => onSelectLine(line.lineId)} />
+      ))}
 
-      {grouped.map((group) => (
-        <LevelGroup
-          key={group.level}
-          level={group.level}
-          lines={group.lines}
+      {grouped.map((level, index) => (
+        <LevelBand
+          key={level}
+          level={level}
           onlyGroup={disrupted.length === 0 && grouped.length === 1}
-          onPressLine={onSelectLine}
+          fill={index === grouped.length - 1}
         />
       ))}
 
       {nothingRunning && (
-        <LevelGroup level="noService" lines={[]} onlyGroup description={translate("serviceStatus.noServiceNow") ?? ""} />
+        <LevelBand level="noService" onlyGroup fill description={translate("serviceStatus.noServiceNow") ?? ""} />
       )}
     </View>
   )
 }
 
-type LevelGroupProps = {
+type LevelBandProps = {
   level: ServiceStatusLevel
-  lines: LineStatus[]
   /** Nothing is disrupted, so the level is the whole network's headline. */
   onlyGroup: boolean
+  /** The last band: it runs on down to the bottom of the sheet. */
+  fill?: boolean
   description?: string
-  onPressLine?: (lineId: string) => void
 }
 
-/** TfL's "Other lines — Good service" band: one level, every line's badge. */
-function LevelGroup({ level, lines, onlyGroup, description, onPressLine }: LevelGroupProps) {
+/** TfL Go's "Other lines — Good service" band: the level the rest of the lines share, on its colour. */
+function LevelBand({ level, onlyGroup, fill, description }: LevelBandProps) {
   const levelColor = useStatusLevelColor(level)
+  const ink = { color: contrastText(levelColor) }
   return (
-    <View style={styles.levelGroup} testID={`service-status-group-${level}`}>
+    <View
+      style={[styles.band, { backgroundColor: levelColor }, fill && styles.bandFill]}
+      testID={`service-status-group-${level}`}
+    >
       {onlyGroup ? (
-        <Text style={[styles.levelGroupTitle, { color: levelColor }]}>{levelLabel(level)}</Text>
+        <Text style={[styles.bandTitle, ink]}>{levelLabel(level)}</Text>
       ) : (
         <>
-          <Text style={styles.levelGroupTitle} tx="serviceStatus.otherLines" />
-          <Text style={[styles.levelGroupLevel, { color: levelColor }]}>{levelLabel(level)}</Text>
+          <Text style={[styles.bandTitle, ink]} tx="serviceStatus.otherLines" />
+          <Text style={[styles.bandLevel, ink]}>{levelLabel(level)}</Text>
         </>
       )}
-      <Text style={styles.levelGroupDescription} preset="small">
-        {description ?? levelDescription(level)}
-      </Text>
-      {lines.length > 0 && (
-        <View style={styles.badges}>
-          {lines.map((line) => {
-            const catalogue = getRailLine(line.lineId) ?? { ...line.line, badgeStyle: "solid" as const, textColor: undefined }
-            return (
-              <TouchableHighlight
-                key={line.lineId}
-                underlayColor={color.inputPlaceholderBackground}
-                onPress={() => onPressLine?.(line.lineId)}
-                style={styles.badgeTouchable}
-                testID={`service-status-line-${line.lineId}`}
-                accessibilityRole="button"
-                accessibilityLabel={getRailLine(line.lineId)?.name.en ?? line.line.name.en}
-              >
-                <LineBadge line={catalogue} size={36} />
-              </TouchableHighlight>
-            )
-          })}
-        </View>
-      )}
+      {description && <Text style={[styles.bandDescription, ink]}>{description}</Text>}
     </View>
   )
 }
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, rt) => ({
   list: {
-    gap: theme.spacing[4],
+    flex: 1,
   },
   loader: {
-    marginTop: theme.spacing[4],
+    marginVertical: theme.spacing[5],
   },
-  group: {
-    borderRadius: 14,
-    overflow: "hidden",
+  band: {
+    // The text lines up with the rows', past their colour bars.
+    paddingStart: BAR_WIDTH + theme.spacing[4],
+    paddingEnd: theme.spacing[4],
+    paddingVertical: theme.spacing[5],
+    gap: theme.spacing[1],
   },
-  levelGroup: {
-    borderRadius: 14,
-    backgroundColor: theme.colors.tertiaryBackground,
-    padding: theme.spacing[4],
-    gap: 2,
+  bandFill: {
+    flexGrow: 1,
+    paddingBottom: rt.insets.bottom + theme.spacing[5],
   },
-  levelGroupTitle: {
-    fontSize: 17,
-    fontWeight: "600",
+  bandTitle: {
+    fontSize: 18,
+    fontWeight: "700",
   },
-  levelGroupLevel: {
+  bandLevel: {
+    fontSize: 16,
+  },
+  bandDescription: {
     fontSize: 15,
-    fontWeight: "500",
-  },
-  levelGroupDescription: {
-    color: theme.colors.label,
-  },
-  badges: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: theme.spacing[2],
-    marginTop: theme.spacing[2],
-  },
-  badgeTouchable: {
-    borderRadius: 10,
+    opacity: 0.85,
   },
 }))

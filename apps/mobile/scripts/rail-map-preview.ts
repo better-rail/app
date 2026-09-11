@@ -14,7 +14,6 @@
  * measurements, with the browser's line wrapping approximated by width.
  */
 import {
-  BADGE_SIZE,
   CITY_BOX_RADIUS,
   CITY_BOX_STROKE,
   CITY_FONT_SIZE,
@@ -157,13 +156,6 @@ for (const e of m.extras) {
   svg += `<circle cx="${e.terminal.x}" cy="${e.terminal.y}" r="${MARKER_RADIUS}" fill="${palette.dot}"/>`
   svg += `<circle cx="${e.terminal.x}" cy="${e.terminal.y}" r="${TERMINAL_RING_RADIUS}" fill="none" stroke="${palette.background}" stroke-width="${TERMINAL_RING_WIDTH}"/>`
 }
-for (const b of m.badges) {
-  const outline = b.line.badgeStyle === "outline"
-  const x = b.center.x - BADGE_SIZE.width / 2
-  const y = b.center.y - BADGE_SIZE.height / 2
-  svg += `<rect x="${x}" y="${y}" width="${BADGE_SIZE.width}" height="${BADGE_SIZE.height}" rx="${BADGE_SIZE.radius}" fill="${outline ? palette.background : b.line.color}" stroke="${b.line.color}" stroke-width="${outline ? 0.16 : 0}"/>`
-  svg += `<text x="${b.center.x}" y="${b.center.y + BADGE_SIZE.fontSize * 0.36}" text-anchor="middle" font-size="${BADGE_SIZE.fontSize}" font-weight="500" fill="${outline ? b.line.color : b.line.textColor}">${b.line.badge}</text>`
-}
 
 const drawLines = (lines: string[], size: number, color: string, x: number, top: number, anchor: "start" | "middle" | "end") => {
   let y = top
@@ -198,4 +190,4 @@ for (const city of m.cities) {
 }
 svg += `</svg>`
 await Bun.write(process.argv[2] ?? "/tmp/rail-map.svg", svg)
-console.log("lines", m.lines.length, "markers", m.markers.length, "labels", m.labels.length, "badges", m.badges.length)
+console.log("lines", m.lines.length, "markers", m.markers.length, "labels", m.labels.length)

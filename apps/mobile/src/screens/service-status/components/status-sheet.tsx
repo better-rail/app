@@ -3,6 +3,7 @@ import { StyleSheet } from "react-native-unistyles"
 import { TrueSheet, type DidPresentEvent, type SheetDetent } from "@lodev09/react-native-true-sheet"
 import { Text } from "@/components"
 import { LineList } from "./line-list"
+import { BAR_WIDTH } from "./line-status-row"
 import { LiveIndicator } from "./live-indicator"
 import { useServiceStatus } from "../use-service-status"
 
@@ -56,15 +57,14 @@ function ListHeader() {
   return (
     <View style={styles.header}>
       <Text style={styles.title} tx="serviceStatus.subtitle" />
-      {data && <LiveIndicator realtime={data.realtime} compact />}
+      {data && <LiveIndicator realtime={data.realtime} />}
     </View>
   )
 }
 
-const styles = StyleSheet.create((theme, rt) => ({
+const styles = StyleSheet.create((theme) => ({
   content: {
-    padding: theme.spacing[4],
-    paddingBottom: rt.insets.bottom + theme.spacing[5],
+    flexGrow: 1,
   },
   header: {
     minHeight: SHEET_HEADER_HEIGHT,
@@ -72,7 +72,8 @@ const styles = StyleSheet.create((theme, rt) => ({
     alignItems: "center",
     justifyContent: "space-between",
     gap: theme.spacing[3],
-    paddingHorizontal: theme.spacing[4],
+    // The title lines up with the rows' text, past their colour bars; the live label is inset as much.
+    paddingHorizontal: BAR_WIDTH + theme.spacing[4],
     paddingTop: theme.spacing[5],
     paddingBottom: theme.spacing[2],
   },

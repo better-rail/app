@@ -1,8 +1,8 @@
 /**
  * Turns the traced geometry in data/rail-map-layout.ts into what the renderer
  * draws: one polyline per line, a dot (or a pass-through tick) on every lane
- * that reaches a station, the name of every station, the city frames, the
- * terminal badges and the airport glyph.
+ * that reaches a station, the name of every station, the city frames and the
+ * airport glyph.
  *
  * Pure TypeScript with no Skia or React imports: the renderer draws whatever
  * comes out of here, and the same model can be rendered to SVG in a script to
@@ -24,7 +24,6 @@ import {
   MAP_BOUNDS,
   SERVICE_PATTERNS,
   STATION_LABELS,
-  TERMINAL_BADGES,
   type TracedStation,
   WATER,
 } from "@/data/rail-map-layout"
@@ -70,8 +69,6 @@ export const nameFontSize = (text: string): number => LABEL_FONT_SIZE * (isRtlSc
 export const LABEL_LINE_HEIGHT = 1.02
 /** City names inside the frames (26 px). */
 export const CITY_FONT_SIZE = 2.85
-/** Terminal badges (19 × 11 px boxes). */
-export const BADGE_SIZE = { width: 2.1, height: 1.2, radius: 0.3, fontSize: 0.95 }
 /** Corner radius and stroke of the city frames (10 px and 2 px). */
 export const CITY_BOX_RADIUS = 1.1
 export const CITY_BOX_STROKE = 0.22
@@ -153,8 +150,6 @@ export type StationLabel = {
   stationNameOnly: boolean
 }
 
-export type TerminalBadge = { lineId: RailLineId; line: RailLine; center: Point }
-
 /**
  * A stroke in a line's colour beside its path: line 6's express lane past
  * the Bat Yam stops, the Rehovot curl where many line 2 trains end. Drawn
@@ -191,7 +186,6 @@ export type RailMapModel = {
   markers: StationMarker[]
   labels: StationLabel[]
   cities: CityBox[]
-  badges: TerminalBadge[]
   extras: LineExtra[]
   water: MapWater
   airport: { x: number; y: number; height: number }
@@ -361,15 +355,6 @@ export const buildRailMapModel = (dayType: DayType = currentDayType()): RailMapM
     lakes: WATER.lakes.map((lake) => `${smoothPathD(toPoints(lake))} Z`),
   }
 
-  const byId = new Map(RAIL_LINES.map((l) => [l.id, l]))
-  const badges: TerminalBadge[] = TERMINAL_BADGES.filter((b) => served.has(b.lineId) && (!b.requires || has(b.requires))).map(
-    (b) => ({
-      lineId: b.lineId,
-      line: byId.get(b.lineId) as RailLine,
-      center: { x: b.x, y: b.y },
-    }),
-  )
-
   return {
     dayType,
     bounds: MAP_BOUNDS,
@@ -377,7 +362,6 @@ export const buildRailMapModel = (dayType: DayType = currentDayType()): RailMapM
     markers,
     labels,
     cities: CITY_BOXES,
-    badges,
     extras,
     water,
     airport: AIRPORT_ICON,

@@ -5,10 +5,11 @@ import { RAIL_MAP_PALETTE, paleColor } from "@/components/rail-map"
 import { RAIL_LINES } from "@/data/rail-lines"
 import { type TxKeyPath, translate } from "@/i18n"
 import { MINOR_DELAY_MINUTES, SEVERE_DELAY_MINUTES } from "@/services/api"
-import { LineBadge } from "./line-badge"
 
 /** The line whose colour the samples borrow. */
 const SAMPLE = RAIL_LINES.find((l) => l.id === "3") ?? RAIL_LINES[0]
+/** Two lines of different colours, for the sample of the lines themselves. */
+const LINE_SAMPLES = RAIL_LINES.filter((l) => l.id === "2" || l.id === "3")
 
 /** What the markings on the network map mean, after the original map's legend. */
 export function MapLegend() {
@@ -20,9 +21,9 @@ export function MapLegend() {
     {
       key: "serviceStatus.legend.lines",
       sample: (
-        <View style={styles.badges}>
-          {RAIL_LINES.filter((l) => l.id === "2" || l.id === "3X").map((line) => (
-            <LineBadge key={line.id} line={line} size={24} />
+        <View style={styles.lines}>
+          {LINE_SAMPLES.map((line) => (
+            <View key={line.id} style={[styles.bar, { backgroundColor: line.color }]} />
           ))}
         </View>
       ),
@@ -128,8 +129,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     flex: 1,
     fontSize: 15,
   },
-  badges: {
-    flexDirection: "row",
+  lines: {
     gap: theme.spacing[1],
   },
   barRow: {
