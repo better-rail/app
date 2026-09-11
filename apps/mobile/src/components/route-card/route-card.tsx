@@ -220,7 +220,7 @@ export function RouteCard(props: RouteCardProps) {
 
   return (
     // The native menu host drops the card's own margins
-    <ContextMenu actions={generatedContextMenuActions} previewBorderRadius={12} style={style} disabled={IS_E2E}>
+    <ContextMenu actions={generatedContextMenuActions} previewBorderRadius={12} style={style} fillWidth disabled={IS_E2E}>
       {cardContent}
     </ContextMenu>
   )

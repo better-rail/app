@@ -5,16 +5,35 @@ import type { MenuAction } from "@expo/ui/community/menu"
 import { Button, ContextMenu as SwiftUIContextMenu, Group, Host, RNHostView, Section } from "@expo/ui/swift-ui"
 import type { ButtonProps } from "@expo/ui/swift-ui"
 import { contentShape, shapes } from "@expo/ui/swift-ui/modifiers"
+import { FillWidth } from "./fill-width"
 import type { ContextMenuProps } from "./types"
 
 export type { ContextMenuAction, ContextMenuProps } from "./types"
 
 export function ContextMenu(props: ContextMenuProps) {
-  const { children, actions, mode = "longPress", title, previewBorderRadius, style, disabled = false, onPressAction } = props
+  const { children, actions, style, fillWidth = false, disabled = false } = props
 
   if (disabled || actions.length === 0) {
     return style ? <View style={style}>{children}</View> : <>{children}</>
   }
+
+  if (fillWidth) {
+    return (
+      <FillWidth style={style}>
+        {(width) => (
+          <NativeMenu {...props} style={undefined}>
+            <View style={{ width }}>{children}</View>
+          </NativeMenu>
+        )}
+      </FillWidth>
+    )
+  }
+
+  return <NativeMenu {...props} />
+}
+
+function NativeMenu(props: ContextMenuProps) {
+  const { children, actions, mode = "longPress", title, previewBorderRadius, style, onPressAction } = props
 
   if (mode === "tap") {
     const menuActions: MenuAction[] = actions.map((action, index) => ({
