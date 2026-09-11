@@ -4,7 +4,16 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-UDID="${1:-$(xcrun simctl list devices available | awk '/Apple Watch Series 11 \(46mm\)/ {gsub(/[()]/,"",$NF==""?$0:$0); print}' | grep -oE '[0-9A-F-]{36}' | tail -1)}"
+UDID="${1:-$(xcrun simctl list devices available -j | python3 -c '
+import json, sys
+watches = [d for rt, ds in json.load(sys.stdin)["devices"].items() if "watchOS" in rt for d in ds]
+booted = [w for w in watches if w["state"] == "Booted"]
+print(((booted or watches) or [{"udid": ""}])[0]["udid"], end="")
+')}"
+if [ -z "$UDID" ]; then
+  echo "No watchOS simulator available. Create one in Xcode, or pass a UDID." >&2
+  exit 1
+fi
 BUNDLE=il.co.better-rail.preview.lacard
 SAMPLES=("Waiting" "Waiting · delayed" "Exchange" "In transit" "Get off" "Arrived" "Stale")
 HE_SAMPLES=("Hebrew" "Hebrew transit")

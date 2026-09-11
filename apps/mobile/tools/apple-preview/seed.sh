@@ -12,14 +12,26 @@ cd "$(dirname "$0")"
 UDID="${1:?usage: ./seed.sh <watch-simulator-udid>}"
 GROUP=group.il.co.better-rail
 
-# FavoritesModel encodes [FavoriteRoute]; Station encodes {id, <locale key>}.
-read -r -d '' FAVORITES <<'JSON' || true
-[
-  {"origin":{"id":"3100","english":"Hadera - West"},"destination":{"id":"3600","english":"Tel Aviv - University"}},
-  {"origin":{"id":"3600","english":"Tel Aviv - University"},"destination":{"id":"3100","english":"Hadera - West"}},
-  {"origin":{"id":"2300","english":"Haifa - Hof HaKarmel"},"destination":{"id":"2800","english":"Binyamina"},"label":"Weekend"}
+# Station decodes the name key matching the device locale, so every route has to carry all
+# four — a missing one fails the whole [FavoriteRoute] decode and the list comes up empty.
+FAVORITES=$(python3 - <<'PY'
+import json, pathlib
+
+stations = {s["id"]: s for s in json.loads(pathlib.Path("../../targets/widget/stationsData.json").read_text())}
+keys = ("english", "hebrew", "arabic", "russian")
+
+def station(sid):
+    s = stations[str(sid)]
+    return {"id": s["id"], **{k: s[k] for k in keys}}
+
+routes = [
+    {"origin": station(3100), "destination": station(3600)},
+    {"origin": station(3600), "destination": station(3100)},
+    {"origin": station(2300), "destination": station(2800), "label": "Weekend"},
 ]
-JSON
+print(json.dumps(routes, ensure_ascii=False))
+PY
+)
 
 HEX=$(printf '%s' "$FAVORITES" | xxd -p | tr -d '\n')
 xcrun simctl spawn "$UDID" defaults write "$GROUP" favorites -data "$HEX"
