@@ -268,7 +268,8 @@
     "mapCredit": "Карта по мотивам схемы сети Железных дорог Израиля",
     "dayType": {
       "weekday": "Вс–Чт",
-      "weekend": "Пт–Сб"
+      "weekend": "Пт–Сб",
+      "night": "Ночь"
     },
     "legend": {
       "title": "Легенда карты",
@@ -277,7 +278,6 @@
       "stop": "Станция, где линия останавливается",
       "irregularStop": "Нерегулярные остановки — поезда могут проезжать без остановки",
       "terminal": "Станция, где поезда линии заканчивают маршрут",
-      "irregularService": "Нерегулярные интервалы — сверьтесь с расписанием",
       "suspended": "Участок без движения сейчас",
       "disruption": "Станция, затронутая сбоем"
     },
@@ -287,6 +287,7 @@
     "otherLines": "Остальные линии",
     "allLines": "Все линии",
     "lineDetails": "Сведения о линии",
+    "noServiceNow": "Сейчас поезда не запланированы",
     "levels": {
       "goodService": "Движение в норме",
       "minorDelays": "Небольшие задержки",
@@ -316,7 +317,6 @@
     "notStoppingAt": "Поезда не останавливаются: %{stations}",
     "affectedStretch": "Затронутый участок: %{from} – %{to}",
     "trainNumber": "Поезд %{trainNumber}",
-    "trainRoute": "%{origin} – %{destination}",
     "departsAt": "Отправление %{time}",
     "minutesLate": "опоздание %{minutes} мин",
     "cancelled": "Отменён",

@@ -17,7 +17,6 @@ import {
   CITY_BOXES,
   type CityBox,
   type DayType,
-  IRREGULAR_STRETCHES,
   LINE_EXTRAS,
   LINE_GEOMETRY,
   type LabelSide,
@@ -61,8 +60,6 @@ export const TERMINAL_RING_RADIUS = 0.4
 export const TERMINAL_RING_WIDTH = 0.14
 /** Stroke of the hollow circle marking a stop trains may pass. */
 export const IRREGULAR_STOP_STROKE = 0.22
-/** The stripe along a stretch served at irregular intervals. */
-export const IRREGULAR_STRIPE_WIDTH = 0.3
 /** Station names: one size for every station (16 px). */
 export const LABEL_FONT_SIZE = 1.75
 /** Latin and Cyrillic capitals stand taller than Hebrew and Arabic letters: shrink them to the same visual weight. */
@@ -158,9 +155,6 @@ export type StationLabel = {
 
 export type TerminalBadge = { lineId: RailLineId; line: RailLine; center: Point }
 
-/** A stretch served at irregular intervals, drawn with a stripe along the line. */
-export type IrregularStretch = { lineId: RailLineId; d: string }
-
 /**
  * A stroke in a line's colour beside its path: line 6's express lane past
  * the Bat Yam stops, the Rehovot curl where many line 2 trains end. Drawn
@@ -168,9 +162,12 @@ export type IrregularStretch = { lineId: RailLineId; d: string }
  */
 export type LineExtra = { lineId: RailLineId; d: string; terminal?: Point }
 
+/** How far past the map's edges the sea is drawn, in map units, so it never ends in view. */
+export const SEA_REACH = 300
+
 /**
  * One stretch of the sea, between two consecutive points of the coast: a
- * quadrilateral from the map's left edge to just beyond the coast, filled
+ * quadrilateral from far beyond the map's left edge to just beyond the coast, filled
  * with a linear gradient of SEA_FADE_STOPS from `start` (the land side of
  * the halo) to `end` (far out). The gradient follows the horizontal
  * distance from the coast, which is linear within the band and continuous
@@ -195,7 +192,6 @@ export type RailMapModel = {
   labels: StationLabel[]
   cities: CityBox[]
   badges: TerminalBadge[]
-  irregular: IrregularStretch[]
   extras: LineExtra[]
   water: MapWater
   airport: { x: number; y: number; height: number }
@@ -229,10 +225,10 @@ export const seaBands = (coast: Point[]): SeaBand[] => {
     const bottom = last ? b.y : b.y + overlap
     const bottomX = last ? b.x : b.x + s * overlap
     const d = polylineD([
-      { x: 0, y: a.y },
+      { x: -SEA_REACH, y: a.y },
       { x: a.x - near, y: a.y },
-      { x: Math.max(0, bottomX - near), y: bottom },
-      { x: 0, y: bottom },
+      { x: bottomX - near, y: bottom },
+      { x: -SEA_REACH, y: bottom },
     ])
     const k = (far - near) / (1 + s * s)
     const start = { x: a.x - near, y: a.y }
@@ -285,9 +281,15 @@ const toPoints = (flat: number[]): Point[] => {
  * night still count as weekday service.
  */
 export const currentDayType = (now: Date = new Date()): DayType => {
+  // The small hours after a Sunday–Thursday: the night trains, until the morning service starts.
+  const weekday = now.getDay()
+  if (weekday >= 1 && weekday <= 5 && now.getHours() * 60 + now.getMinutes() < NIGHT_UNTIL_MINUTES) return "night"
   const serviceDay = new Date(now.getTime() - 3 * 60 * 60 * 1000).getDay()
   return serviceDay === 5 || serviceDay === 6 ? "weekend" : "weekday"
 }
+
+/** When the night timetable gives way to the morning one (04:30), in minutes past midnight. */
+export const NIGHT_UNTIL_MINUTES = 4 * 60 + 30
 
 const key = (ls: LineStation) => `${ls.lineId}:${ls.stationId}`
 
@@ -296,6 +298,7 @@ export const buildRailMapModel = (dayType: DayType = currentDayType()): RailMapM
   const served = new Set<RailLineId>(pattern.lines)
   const irregularStops = new Set(pattern.irregular.map(key))
   const shortWorkings = new Set(pattern.terminals.map(key))
+  const runThrough = new Set(pattern.skipped.map(key))
   const has = (ls: LineStation & { kind: "terminal" | "irregular" }) =>
     (ls.kind === "terminal" ? shortWorkings : irregularStops).has(key(ls))
 
@@ -321,6 +324,8 @@ export const buildRailMapModel = (dayType: DayType = currentDayType()): RailMapM
     line.stations.forEach((station, i) => {
       const ls = { lineId: line.lineId, stationId: station.id }
       const terminal = i === 0 || i === line.stations.length - 1 || shortWorkings.has(key(ls))
+      // Where the line runs through, the lane keeps no dot at all.
+      if (!terminal && runThrough.has(key(ls))) return
       const irregular = irregularStops.has(key(ls)) && !covered.has(key(ls))
       markers.push({
         stationId: station.id,
@@ -331,8 +336,8 @@ export const buildRailMapModel = (dayType: DayType = currentDayType()): RailMapM
     })
   }
 
-  // Stations only reached by lines that do not run today go with them.
-  const servedStations = new Set(lines.flatMap((l) => l.stations.map((s) => s.id)))
+  // Stations only reached by lines that do not run today, or that today's lines run through, go unnamed.
+  const servedStations = new Set(markers.map((m) => m.stationId))
   const labels: StationLabel[] = Object.entries(STATION_LABELS)
     .filter(([stationId]) => servedStations.has(stationId))
     .map(([stationId, spec]) => ({
@@ -349,7 +354,7 @@ export const buildRailMapModel = (dayType: DayType = currentDayType()): RailMapM
     terminal: e.terminal ? { x: e.terminal[0], y: e.terminal[1] } : undefined,
   }))
 
-  const coast = toPoints(WATER.coast)
+  const coast = extendCoast(toPoints(WATER.coast))
   const water: MapWater = {
     bands: seaBands(coast),
     coast: polylineD(coast),
@@ -365,12 +370,6 @@ export const buildRailMapModel = (dayType: DayType = currentDayType()): RailMapM
     }),
   )
 
-  const irregular: IrregularStretch[] = IRREGULAR_STRETCHES.flatMap((s) => {
-    const line = lines.find((l) => l.lineId === s.lineId)
-    const d = line && linePathBetween(line, s.fromStationId, s.toStationId)
-    return d ? [{ lineId: s.lineId, d }] : []
-  })
-
   return {
     dayType,
     bounds: MAP_BOUNDS,
@@ -379,11 +378,31 @@ export const buildRailMapModel = (dayType: DayType = currentDayType()): RailMapM
     labels,
     cities: CITY_BOXES,
     badges,
-    irregular,
     extras,
     water,
     airport: AIRPORT_ICON,
   }
+}
+
+/**
+ * The coast carried on past the map's top and left edges, so the sea and its
+ * shoreline continue out of view instead of ending where the original ends:
+ * straight north from the top, and on south-west at the last stretch's heading.
+ */
+export const extendCoast = (coast: Point[]): Point[] => {
+  if (coast.length < 2) return coast
+  const first = coast[0]
+  const last = coast[coast.length - 1]
+  // The heading of the coast's last few map units, not just its final short segment.
+  const from = coast.findLast((p) => last.y - p.y >= 6) ?? coast[coast.length - 2]
+  const dx = last.x - from.x
+  const dy = last.y - from.y
+  const length = Math.hypot(dx, dy) || 1
+  return [
+    { x: first.x, y: first.y - SEA_REACH },
+    ...coast,
+    { x: last.x + (dx / length) * SEA_REACH, y: last.y + (dy / length) * SEA_REACH },
+  ]
 }
 
 /**

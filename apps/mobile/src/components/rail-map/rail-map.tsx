@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { type LayoutChangeEvent, StyleSheet, View, type ViewStyle, useColorScheme } from "react-native"
 import {
   BlurMask,
@@ -19,7 +19,7 @@ import {
   vec,
 } from "@shopify/react-native-skia"
 import { Gesture, GestureDetector } from "react-native-gesture-handler"
-import { useDerivedValue, useSharedValue, withTiming } from "react-native-reanimated"
+import { useDerivedValue, useSharedValue, withDecay, withTiming } from "react-native-reanimated"
 import { scheduleOnRN } from "react-native-worklets"
 import { userLocale } from "@/i18n"
 import { stationsObject } from "@/data/stations"
@@ -32,7 +32,6 @@ import {
   CITY_BOX_STROKE,
   CITY_FONT_SIZE,
   IRREGULAR_STOP_STROKE,
-  IRREGULAR_STRIPE_WIDTH,
   LABEL_LINE_HEIGHT,
   LAKE_HALO,
   LATIN_SCALE,
@@ -88,8 +87,12 @@ export type RailMapProps = {
   onSelectLine?: (lineId: RailLineId | null) => void
   /** Scroll and zoom the initial view to this line. */
   focusLineId?: RailLineId | null
+  /** Edges of the view covered by other UI (a translucent header, a sheet): the initial and focused views keep clear of them. */
+  insets?: RailMapInsets
   style?: ViewStyle
 }
+
+export type RailMapInsets = { top?: number; bottom?: number }
 
 type Size = { width: number; height: number }
 
@@ -100,11 +103,15 @@ type Viewport = {
   translateY: number
 }
 
-/** The view that shows the whole map width from the top, or the line's extent when focusing. */
-const initialViewport = (model: RailMapModel, size: Size, focus?: LinePath): Viewport => {
+/** The view that shows the whole map width from below the top inset, or the line's extent between the insets when focusing. */
+const initialViewport = (model: RailMapModel, size: Size, focus?: LinePath, insets?: RailMapInsets): Viewport => {
+  const top = insets?.top ?? 0
+  const bottom = insets?.bottom ?? 0
   const contentWidth = model.bounds.width + PAD.left + PAD.right
   const fitWidth = size.width / contentWidth
-  if (!focus || size.height === 0) return { scale: fitWidth, translateX: PAD.left * fitWidth, translateY: PAD.top * fitWidth }
+  if (!focus || size.height === 0) {
+    return { scale: fitWidth, translateX: PAD.left * fitWidth, translateY: PAD.top * fitWidth + top }
+  }
 
   let minX = Number.POSITIVE_INFINITY
   let minY = Number.POSITIVE_INFINITY
@@ -120,10 +127,12 @@ const initialViewport = (model: RailMapModel, size: Size, focus?: LinePath): Vie
   const margin = 28
   const width = maxX - minX + margin * 2
   const height = maxY - minY + margin
-  const scale = Math.min(Math.max(Math.min(size.width / width, size.height / height), fitWidth * MIN_ZOOM), fitWidth * MAX_ZOOM)
+  // What the insets leave uncovered, never less than a quarter of the view should they be excessive.
+  const visibleHeight = Math.max(size.height - top - bottom, size.height / 4)
+  const scale = Math.min(Math.max(Math.min(size.width / width, visibleHeight / height), fitWidth * MIN_ZOOM), fitWidth * MAX_ZOOM)
   const centerX = (minX + maxX) / 2
   const centerY = (minY + maxY) / 2
-  return { scale, translateX: size.width / 2 - centerX * scale, translateY: size.height / 2 - centerY * scale }
+  return { scale, translateX: size.width / 2 - centerX * scale, translateY: top + visibleHeight / 2 - centerY * scale }
 }
 
 const clamp = (value: number, min: number, max: number): number => {
@@ -131,7 +140,7 @@ const clamp = (value: number, min: number, max: number): number => {
   return Math.min(Math.max(value, min), max)
 }
 
-export function RailMap({ status, dayType, selectedLineId, onSelectLine, focusLineId, style }: RailMapProps) {
+export function RailMap({ status, dayType, selectedLineId, onSelectLine, focusLineId, insets, style }: RailMapProps) {
   const scheme = useColorScheme()
   const palette = RAIL_MAP_PALETTE[scheme === "dark" ? "dark" : "light"]
   const model = useMemo(() => buildRailMapModel(dayType ?? currentDayType()), [dayType])
@@ -149,6 +158,8 @@ export function RailMap({ status, dayType, selectedLineId, onSelectLine, focusLi
   const maxScale = useSharedValue(4)
   const viewportWidth = useSharedValue(0)
   const viewportHeight = useSharedValue(0)
+  const insetTop = useSharedValue(insets?.top ?? 0)
+  const insetBottom = useSharedValue(insets?.bottom ?? 0)
   const contentWidth = model.bounds.width + PAD.left + PAD.right
   const contentHeight = model.bounds.height + PAD.top + PAD.bottom
 
@@ -169,6 +180,13 @@ export function RailMap({ status, dayType, selectedLineId, onSelectLine, focusLi
     [model, focusLineId],
   )
   const laidOut = size.width > 0
+  // The insets in force when a view is next chosen: a change of insets on its own does not move the map.
+  const insetsRef = useRef(insets)
+  useEffect(() => {
+    insetsRef.current = insets
+    insetTop.value = insets?.top ?? 0
+    insetBottom.value = insets?.bottom ?? 0
+  }, [insets, insetTop, insetBottom])
 
   const onLayout = (e: LayoutChangeEvent) => {
     const { width, height } = e.nativeEvent.layout
@@ -179,26 +197,44 @@ export function RailMap({ status, dayType, selectedLineId, onSelectLine, focusLi
     maxScale.value = fitWidth * MAX_ZOOM
     viewportWidth.value = width
     viewportHeight.value = height
-    showViewport(initialViewport(model, { width, height }, focusLine), false)
+    showViewport(initialViewport(model, { width, height }, focusLine, insetsRef.current), false)
   }
 
-  // Glide to the focused line when it changes after the first layout.
+  // Glide to the focused line when it changes after the first layout, and back to the whole network once it clears.
+  const wasFocused = useRef(false)
   useEffect(() => {
-    if (laidOut && focusLine) showViewport(initialViewport(model, size, focusLine), true)
+    if (!laidOut) return
+    if (focusLine) {
+      wasFocused.current = true
+      showViewport(initialViewport(model, size, focusLine, insetsRef.current), true)
+    } else if (wasFocused.current) {
+      wasFocused.current = false
+      showViewport(initialViewport(model, size, undefined, insetsRef.current), true)
+    }
     // `size` is deliberately not a dependency: layout changes are handled by onLayout.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusLine, laidOut, model, showViewport])
 
-  const clampTranslation = (s: number, tx: number, ty: number): [number, number] => {
+  /** How far the drawing may be moved at scale `s`: it stays in the uncovered part of the view, with half of it as overscroll at most. */
+  const translationBounds = (s: number) => {
     "worklet"
-    // Keep the drawing on screen: allow half a viewport of overscroll at most.
     const w = (contentWidth + PAD.left) * s
     const h = contentHeight * s
-    const minX = Math.min(viewportWidth.value - w, viewportWidth.value / 2)
-    const maxX = Math.max(PAD.left * s, viewportWidth.value / 2)
-    const minY = Math.min(viewportHeight.value - h, viewportHeight.value / 2)
-    const maxY = Math.max(0, viewportHeight.value / 2)
-    return [clamp(tx, minX, maxX), clamp(ty, minY, maxY)]
+    const visibleTop = insetTop.value
+    const visibleBottom = viewportHeight.value - insetBottom.value
+    const visibleMid = (visibleTop + visibleBottom) / 2
+    return {
+      minX: Math.min(viewportWidth.value - w, viewportWidth.value / 2),
+      maxX: Math.max(PAD.left * s, viewportWidth.value / 2),
+      minY: Math.min(visibleBottom - h, visibleMid),
+      maxY: Math.max(visibleTop, visibleMid),
+    }
+  }
+
+  const clampTranslation = (s: number, tx: number, ty: number): [number, number] => {
+    "worklet"
+    const b = translationBounds(s)
+    return [clamp(tx, b.minX, b.maxX), clamp(ty, b.minY, b.maxY)]
   }
 
   const pan = Gesture.Pan()
@@ -216,6 +252,12 @@ export function RailMap({ status, dayType, selectedLineId, onSelectLine, focusLi
       )
       translateX.value = tx
       translateY.value = ty
+    })
+    // Let go and the map glides on a little, slowing down, and stops at the edges.
+    .onEnd((e) => {
+      const b = translationBounds(scale.value)
+      translateX.value = withDecay({ velocity: e.velocityX, clamp: [b.minX, b.maxX], deceleration: 0.995 })
+      translateY.value = withDecay({ velocity: e.velocityY, clamp: [b.minY, b.maxY], deceleration: 0.995 })
     })
 
   const pinch = Gesture.Pinch()
@@ -262,8 +304,6 @@ export function RailMap({ status, dayType, selectedLineId, onSelectLine, focusLi
 
   // --- drawing data --------------------------------------------------------------------
   const paths = useMemo(() => new Map(model.lines.map((l) => [l.lineId, Skia.Path.MakeFromSVGString(l.d) as SkPath])), [model])
-
-  const stripes = useMemo(() => model.irregular.map((s) => Skia.Path.MakeFromSVGString(s.d) as SkPath), [model])
 
   const extras = useMemo(() => model.extras.map((e) => ({ ...e, path: Skia.Path.MakeFromSVGString(e.d) as SkPath })), [model])
 
@@ -456,20 +496,6 @@ export function RailMap({ status, dayType, selectedLineId, onSelectLine, focusLi
                       strokeCap="butt"
                     />
                   </Group>
-                ),
-              )}
-
-              {/* Stretches served at irregular intervals: a stripe along the line, as in the original's legend. */}
-              {model.irregular.map((stretch, i) =>
-                isDimmed(stretch.lineId) ? null : (
-                  <Path
-                    key={`irregular-${i}`}
-                    path={stripes[i]}
-                    color={palette.background}
-                    style="stroke"
-                    strokeWidth={IRREGULAR_STRIPE_WIDTH}
-                    strokeCap="butt"
-                  />
                 ),
               )}
 

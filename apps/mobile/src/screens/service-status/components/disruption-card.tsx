@@ -1,9 +1,8 @@
 import { View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
-import { translate } from "@/i18n"
 import type { AffectedTrain, Disruption } from "@/services/api"
-import { clockTime, disruptionSummary, disruptionTitle, levelLabel, stationName, trainConsequence } from "../service-status-text"
+import { disruptionSummary, disruptionTitle, stationName, trainConsequence } from "../service-status-text"
 import { useStatusLevelColor } from "../service-status-theme"
 
 const MAX_TRAINS_SHOWN = 12
@@ -12,7 +11,7 @@ type DisruptionCardProps = {
   disruption: Disruption
 }
 
-/** What is wrong on a line: the stretch affected and the trains it concerns. */
+/** One thing wrong on a line: the stretch affected and the trains it concerns, kept to the essentials. */
 export function DisruptionCard({ disruption }: DisruptionCardProps) {
   const levelColor = useStatusLevelColor(disruption.level)
   const summary = disruptionSummary(disruption)
@@ -23,7 +22,6 @@ export function DisruptionCard({ disruption }: DisruptionCardProps) {
       <View style={styles.header}>
         <View style={[styles.levelDot, { backgroundColor: levelColor }]} />
         <Text style={styles.title}>{disruptionTitle(disruption)}</Text>
-        <Text style={[styles.levelText, { color: levelColor }]}>{levelLabel(disruption.level)}</Text>
       </View>
       {summary && <Text style={styles.summary}>{summary}</Text>}
       {trains.map((train) => (
@@ -38,8 +36,8 @@ export function DisruptionCard({ disruption }: DisruptionCardProps) {
   )
 }
 
+/** A train by where it is heading, as a departure board would put it, and what has become of it. */
 function TrainRow({ train }: { train: AffectedTrain }) {
-  const origin = stationName(train.originStationId)
   const destination = stationName(train.destinationStationId)
   return (
     <View style={styles.train}>
@@ -50,13 +48,7 @@ function TrainRow({ train }: { train: AffectedTrain }) {
       </View>
       <View style={styles.trainTexts}>
         <Text style={styles.trainRoute} numberOfLines={2}>
-          {translate("serviceStatus.trainRoute", { origin, destination })}
-        </Text>
-        <Text style={styles.trainMeta} preset="small">
-          {translate("serviceStatus.departsAt", { time: clockTime(train.departureTime) })}
-          {train.nextStationId && train.status !== "cancelled"
-            ? ` · ${translate("serviceStatus.nextStation", { station: stationName(train.nextStationId) })}`
-            : ""}
+          {destination}
         </Text>
       </View>
       <Text style={[styles.consequence, train.status === "cancelled" && styles.cancelled]} preset="small">
@@ -87,10 +79,6 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
     fontSize: 17,
     fontWeight: "700",
-  },
-  levelText: {
-    fontSize: 14,
-    fontWeight: "600",
   },
   summary: {
     fontSize: 15,
@@ -123,9 +111,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   trainRoute: {
     fontSize: 15,
-  },
-  trainMeta: {
-    color: theme.colors.label,
+    fontWeight: "500",
   },
   consequence: {
     fontWeight: "600",

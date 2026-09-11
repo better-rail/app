@@ -351,7 +351,8 @@
     "mapCredit": "Map after the Israel Railways network map",
     "dayType": {
       "weekday": "Sun–Thu",
-      "weekend": "Fri–Sat"
+      "weekend": "Fri–Sat",
+      "night": "Night"
     },
     "legend": {
       "title": "Map legend",
@@ -360,7 +361,6 @@
       "stop": "Station where the line calls",
       "irregularStop": "Irregular stops – trains can pass without stopping",
       "terminal": "Station where trains of the line terminate",
-      "irregularService": "Irregular intervals – check the timetable",
       "suspended": "Stretch with no service right now",
       "disruption": "Station affected by a disruption"
     },
@@ -370,6 +370,7 @@
     "otherLines": "Other lines",
     "allLines": "All lines",
     "lineDetails": "Line details",
+    "noServiceNow": "No trains are scheduled right now",
     "levels": {
       "goodService": "Good service",
       "minorDelays": "Minor delays",
@@ -399,7 +400,6 @@
     "notStoppingAt": "Trains are not calling at %{stations}",
     "affectedStretch": "Affected: %{from} – %{to}",
     "trainNumber": "Train %{trainNumber}",
-    "trainRoute": "%{origin} to %{destination}",
     "departsAt": "Departs %{time}",
     "minutesLate": "%{minutes} min late",
     "cancelled": "Cancelled",

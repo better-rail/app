@@ -264,7 +264,8 @@
     "mapCredit": "الخريطة مستندة إلى خريطة شبكة سكك حديد إسرائيل",
     "dayType": {
       "weekday": "الأحد–الخميس",
-      "weekend": "الجمعة–السبت"
+      "weekend": "الجمعة–السبت",
+      "night": "ليلاً"
     },
     "legend": {
       "title": "مفتاح الخريطة",
@@ -273,7 +274,6 @@
       "stop": "محطة يتوقف فيها الخط",
       "irregularStop": "توقفات غير منتظمة – قد تمر القطارات دون التوقف",
       "terminal": "محطة تنتهي فيها رحلات قطارات الخط",
-      "irregularService": "فترات غير منتظمة – يُنصح بمراجعة الجدول",
       "suspended": "مقطع بلا خدمة حاليًا",
       "disruption": "محطة متأثرة بخلل"
     },
@@ -283,6 +283,7 @@
     "otherLines": "باقي الخطوط",
     "allLines": "كل الخطوط",
     "lineDetails": "تفاصيل الخط",
+    "noServiceNow": "لا توجد قطارات مجدولة الآن",
     "levels": {
       "goodService": "الخدمة منتظمة",
       "minorDelays": "تأخيرات طفيفة",
@@ -312,7 +313,6 @@
     "notStoppingAt": "القطارات لا تتوقف في %{stations}",
     "affectedStretch": "المقطع المتأثر: %{from} – %{to}",
     "trainNumber": "قطار %{trainNumber}",
-    "trainRoute": "من %{origin} إلى %{destination}",
     "departsAt": "ينطلق في %{time}",
     "minutesLate": "تأخير %{minutes} دقيقة",
     "cancelled": "أُلغي",

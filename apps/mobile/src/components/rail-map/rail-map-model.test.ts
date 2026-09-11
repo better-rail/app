@@ -4,8 +4,10 @@ import { STATION_LABELS } from "@/data/rail-map-layout"
 import {
   SEA_FADE,
   SEA_FADE_STOPS,
+  SEA_REACH,
   buildRailMapModel,
   currentDayType,
+  extendCoast,
   linePathBetween,
   lineStationPoints,
   mapStationName,
@@ -39,8 +41,12 @@ describe("rail map model", () => {
     expect(currentDayType(new Date("2026-09-09T12:00:00"))).toBe("weekday") // Wednesday
     expect(currentDayType(new Date("2026-09-11T12:00:00"))).toBe("weekend") // Friday
     expect(currentDayType(new Date("2026-09-12T23:00:00"))).toBe("weekend") // Saturday night
-    expect(currentDayType(new Date("2026-09-11T01:00:00"))).toBe("weekday") // Thursday's last trains
+    expect(currentDayType(new Date("2026-09-11T01:00:00"))).toBe("night") // Thursday night's trains
+    expect(currentDayType(new Date("2026-09-11T04:29:00"))).toBe("night")
+    expect(currentDayType(new Date("2026-09-11T04:30:00"))).toBe("weekend") // Friday's morning service
+    expect(currentDayType(new Date("2026-09-08T04:30:00"))).toBe("weekday") // Tuesday's morning service
     expect(currentDayType(new Date("2026-09-13T01:00:00"))).toBe("weekend") // Saturday's last trains
+    expect(currentDayType(new Date("2026-09-12T01:00:00"))).toBe("weekend") // Friday night: no trains
   })
 
   test("draws every catalogue line along its traced polyline with the calling points in corridor order", () => {
@@ -70,10 +76,11 @@ describe("rail map model", () => {
     expect(savidor.every((m) => m.kind === "stop" || m.kind === "terminal")).toBe(true)
     const dimona = model.markers.filter((m) => m.stationId === "7500")
     expect(dimona.map((m) => [m.lineId, m.kind])).toEqual([["8", "terminal"]])
-    // Where a line calls comes from the timetable: on weekends a quarter of the Karmiel trains run through Kiryat Hayim.
+    // Where a line calls comes from the timetable: line 3's weekday trains run through Kiryat Hayim (no dot on its
+    // lane), and on weekends a quarter of the Karmiel trains do.
     const kiryatHayim = (m: ReturnType<typeof buildRailMapModel>) =>
       Object.fromEntries(m.markers.filter((mk) => mk.stationId === "700").map((mk) => [mk.lineId, mk.kind]))
-    expect(kiryatHayim(model)).toEqual({ "1": "stop", "3": "stop", "4": "stop" })
+    expect(kiryatHayim(model)).toEqual({ "1": "stop", "4": "stop" })
     expect(kiryatHayim(buildRailMapModel("weekend"))["4"]).toBe("irregular")
     // The express lane stands for line 6's trains running through Bat Yam: the stopping lane keeps plain dots.
     expect(model.markers.find((m) => m.stationId === "4640" && m.lineId === "6")?.kind).toBe("stop")
@@ -122,14 +129,24 @@ describe("rail map model", () => {
     expect(nearestLine(model, { x: 5, y: 40 }, 3)).toBeUndefined()
   })
 
-  test("city frames, terminal badges, irregular stretches and the aeroplane come from the traced layout", () => {
+  test("city frames, terminal badges and the aeroplane come from the traced layout", () => {
     expect(model.cities.map((c) => c.id)).toEqual(["haifa", "telaviv", "jerusalem", "beersheva"])
     expect(model.badges.some((b) => b.lineId === "2")).toBe(true)
     expect(model.badges.every((b) => b.line.id === b.lineId)).toBe(true)
-    // The Netanya – Tel Aviv University stretch of the light-blue lane runs at irregular intervals.
-    expect(model.irregular.map((s) => s.lineId).sort()).toEqual(["25", "5"])
-    expect(model.irregular.every((s) => s.d.startsWith("M"))).toBe(true)
     expect(model.airport.height).toBeGreaterThan(0)
+  })
+
+  test("at night only lines 1 and 7 run, calling at a few stations and running through the rest unnamed", () => {
+    const night = buildRailMapModel("night")
+    expect(night.lines.map((l) => l.lineId).sort()).toEqual(["1", "7"])
+    const calls = (lineId: string) => night.markers.filter((m) => m.lineId === lineId).map((m) => m.stationId)
+    expect(calls("1")).toEqual(["1600", "1500", "1400", "2100", "2300", "2800", "3100", "3300", "3500", "3700", "8600", "400"])
+    expect(calls("7")).toEqual(["3500", "3700", "8600", "680"])
+    const named = new Set(night.labels.map((l) => l.stationId))
+    expect(named.has("3700")).toBe(true) // Tel Aviv Savidor: both lines call
+    expect(named.has("3600")).toBe(false) // Tel Aviv University: both run through
+    expect(named.has("700")).toBe(false) // Kiryat Haim: line 1 runs through, no other line runs
+    expect(night.markers.every((m) => m.kind !== "irregular")).toBe(true)
   })
 
   test("the sea is cut into bands along the coast whose gradients follow the horizontal distance from it", () => {
@@ -143,9 +160,9 @@ describe("rail map model", () => {
     expect(bands).toHaveLength(3)
     const land = SEA_FADE[0][0]
     const far = SEA_FADE[SEA_FADE.length - 1][0]
-    // From the map's left edge to the halo's edge on land; a band runs a little into the next.
-    expect(bands[0].d).toBe(`M0 0 L${40 - land} 0 L${40 - land} 10.15 L0 10.15 Z`)
-    expect(bands[2].d.endsWith(" 60 L0 60 Z")).toBe(true)
+    // From far beyond the map's left edge to the halo's edge on land; a band runs a little into the next.
+    expect(bands[0].d).toBe(`M${-SEA_REACH} 0 L${40 - land} 0 L${40 - land} 10.15 L${-SEA_REACH} 10.15 Z`)
+    expect(bands[2].d.endsWith(` 60 L${-SEA_REACH} 60 Z`)).toBe(true)
     for (const [i, band] of bands.entries()) {
       const a = coast[i]
       const b = coast[i + 1]
@@ -160,6 +177,28 @@ describe("rail map model", () => {
     expect(model.water.bands.length).toBeGreaterThan(40)
     expect(model.water.coast.startsWith("M")).toBe(true)
     expect(model.water.lakes).toHaveLength(2)
+  })
+
+  test("the coast is carried past the map's edges: straight north from the top, on south-west from the bottom", () => {
+    const coast = [
+      { x: 40, y: 0 },
+      { x: 40, y: 10 },
+      { x: 30, y: 30 },
+      { x: 20, y: 40 },
+      { x: 18, y: 41 },
+      { x: 16, y: 42 },
+    ]
+    const extended = extendCoast(coast)
+    expect(extended).toHaveLength(coast.length + 2)
+    expect(extended[0]).toEqual({ x: 40, y: -SEA_REACH })
+    expect(extended.slice(1, -1)).toEqual(coast)
+    const last = extended[extended.length - 1]
+    // On the heading of the last several units of coast, from (30, 30), not of the final short segment.
+    const length = Math.hypot(14, 12)
+    expect(last.x).toBeCloseTo(16 - SEA_REACH * (14 / length))
+    expect(last.y).toBeCloseTo(42 + SEA_REACH * (12 / length))
+    // The whole map's coast now reaches the sea's far edges on both ends.
+    expect(model.water.coast.startsWith(`M47.89 ${-SEA_REACH}`)).toBe(true)
   })
 
   test("map names drop parentheticals and, inside a city frame, the city prefix", () => {

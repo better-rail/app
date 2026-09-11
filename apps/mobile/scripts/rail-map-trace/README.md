@@ -22,14 +22,15 @@ bunx oxfmt ../../src/data/rail-map-layout.ts
 the pipeline matches each station to the dot the original draws on each lane
 from there. Check the result with `scripts/rail-map-preview.ts`.
 
-Where a line calls, runs through, or ends short of its terminus comes from
-the timetable, not the artwork: `station-patterns.json` is derived from the
-GTFS-based Line Explorer export (every train of every line with its stops,
-weekdays and weekends) by
+Where a line calls, runs through, or ends short of its terminus, and which
+lines run at all, comes from the timetable, not the artwork: `station-patterns.json`
+is derived from the GTFS feed the server holds, per day type (Sunday–Thursday,
+Friday–Saturday, and the weeknight trains between 00:15 and 04:30, which get a
+map of their own so their run-through stations do not look irregular by day):
 
 ```sh
-LINE_EXPLORER_JSON=/path/to/export.json python3 patterns.py
+cd apps/server && bun run ../mobile/scripts/rail-map-trace/service-patterns.ts
+bunx oxfmt ../mobile/scripts/rail-map-trace/station-patterns.json
 ```
 
-with `station-codes.json` mapping the MOT station codes to the app's ids.
 Regenerate it when the timetable changes, then rerun `gen_layout.py`.

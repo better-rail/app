@@ -510,14 +510,11 @@ export const TERMINAL_BADGES: {
   { lineId: "25", x: 37.79, y: 88.5 },
 ]
 
-/** Stretches the original draws with the "irregular intervals" marking (check the timetable). */
-export const IRREGULAR_STRETCHES: { lineId: RailLineId; fromStationId: string; toStationId: string }[] = [
-  { lineId: "5", fromStationId: "3300", toStationId: "3600" },
-  { lineId: "25", fromStationId: "3300", toStationId: "3600" },
-]
-
-/** Sunday–Thursday or Friday–Saturday: the timetable, and so the map, differs between them. */
-export type DayType = "weekday" | "weekend"
+/**
+ * Sunday–Thursday, Friday–Saturday, or the small hours after a weekday: the
+ * timetable, and so the map, differs between them.
+ */
+export type DayType = "weekday" | "weekend" | "night"
 
 /** Where a line calls, runs through or ends short of its terminus (a line-station pair). */
 export type LineStation = { lineId: RailLineId; stationId: string }
@@ -529,6 +526,8 @@ export type ServicePattern = {
   irregular: LineStation[]
   /** Stations short of a line's ends where a tenth or more of its trains terminate. */
   terminals: LineStation[]
+  /** Stations the line runs through without calling at all: no dot, and no name unless another line calls. */
+  skipped: LineStation[]
 }
 
 /**
@@ -547,55 +546,74 @@ export const SERVICE_PATTERNS: Record<DayType, ServicePattern> = {
       { lineId: "3X", stationId: "8550" },
       { lineId: "6", stationId: "4640" },
       { lineId: "6", stationId: "4690" },
-      { lineId: "7", stationId: "3600" },
-      { lineId: "7", stationId: "4600" },
-      { lineId: "7", stationId: "4900" },
     ],
     terminals: [
-      { lineId: "11", stationId: "2100" },
       { lineId: "11", stationId: "2300" },
       { lineId: "2", stationId: "5200" },
       { lineId: "3", stationId: "3700" },
+      { lineId: "3X", stationId: "3700" },
       { lineId: "4", stationId: "1220" },
       { lineId: "5", stationId: "3700" },
       { lineId: "6", stationId: "5800" },
       { lineId: "6", stationId: "5900" },
       { lineId: "6", stationId: "9800" },
-      { lineId: "7", stationId: "8600" },
+    ],
+    skipped: [
+      { lineId: "1", stationId: "2820" },
+      { lineId: "1", stationId: "3400" },
+      { lineId: "3", stationId: "1300" },
+      { lineId: "3", stationId: "2500" },
+      { lineId: "3", stationId: "2800" },
+      { lineId: "3", stationId: "700" },
     ],
   },
   weekend: {
-    lines: ["1", "10", "11", "2", "25", "3", "4", "5", "6", "7", "8", "9"],
+    lines: ["1", "10", "11", "2", "3", "4", "5", "6", "7", "8", "9"],
     irregular: [
+      { lineId: "1", stationId: "2820" },
+      { lineId: "1", stationId: "3100" },
+      { lineId: "1", stationId: "3300" },
+      { lineId: "1", stationId: "3400" },
+      { lineId: "1", stationId: "3500" },
+      { lineId: "1", stationId: "700" },
+      { lineId: "2", stationId: "3310" },
+      { lineId: "2", stationId: "5150" },
+      { lineId: "4", stationId: "700" },
+      { lineId: "5", stationId: "5150" },
+      { lineId: "6", stationId: "2960" },
+      { lineId: "6", stationId: "4640" },
+      { lineId: "6", stationId: "4690" },
+    ],
+    terminals: [
+      { lineId: "1", stationId: "3700" },
+      { lineId: "11", stationId: "2300" },
+      { lineId: "2", stationId: "3700" },
+      { lineId: "2", stationId: "4900" },
+      { lineId: "3", stationId: "3700" },
+      { lineId: "6", stationId: "3700" },
+      { lineId: "6", stationId: "5900" },
+    ],
+    skipped: [],
+  },
+  night: {
+    lines: ["1", "7"],
+    irregular: [],
+    terminals: [],
+    skipped: [
       { lineId: "1", stationId: "1220" },
       { lineId: "1", stationId: "1300" },
       { lineId: "1", stationId: "2200" },
       { lineId: "1", stationId: "2500" },
       { lineId: "1", stationId: "2820" },
       { lineId: "1", stationId: "300" },
-      { lineId: "1", stationId: "3100" },
-      { lineId: "1", stationId: "3300" },
       { lineId: "1", stationId: "3400" },
-      { lineId: "1", stationId: "3500" },
       { lineId: "1", stationId: "3600" },
       { lineId: "1", stationId: "4600" },
       { lineId: "1", stationId: "4900" },
-      { lineId: "2", stationId: "3310" },
-      { lineId: "4", stationId: "700" },
-      { lineId: "5", stationId: "5150" },
-      { lineId: "6", stationId: "2960" },
-      { lineId: "6", stationId: "4640" },
-      { lineId: "6", stationId: "4690" },
+      { lineId: "1", stationId: "700" },
       { lineId: "7", stationId: "3600" },
       { lineId: "7", stationId: "4600" },
       { lineId: "7", stationId: "4900" },
-    ],
-    terminals: [
-      { lineId: "1", stationId: "3700" },
-      { lineId: "11", stationId: "2300" },
-      { lineId: "3", stationId: "3700" },
-      { lineId: "6", stationId: "3700" },
-      { lineId: "6", stationId: "5900" },
     ],
   },
 }
@@ -631,7 +649,9 @@ export const LINE_EXTRAS: {
 /**
  * The original's water, in map units: the coast and the two lakes. The sea is everything west of
  * the coast, from the map's top edge down to where the coast meets its left edge; each outline is
- * where the original draws its thin shoreline ribbon.
+ * where the original draws its thin shoreline ribbon. The original cuts both lakes at its right
+ * edge (x = 100); their east shores here are drawn on past it, after the lakes' real shapes, so
+ * they are not cut off when the map is panned.
  */
 export const WATER = {
   /** The coast from the top of the map to the left edge, top to bottom (flat x,y pairs). */
@@ -648,12 +668,14 @@ export const WATER = {
   lakes: [
     [
       99.89, 46.17, 97.48, 46.39, 96.82, 46.17, 95.89, 45.35, 95.45, 44.25, 95.45, 38.77, 95.13, 38.12, 93.59, 36.58, 93.15,
-      35.38, 93.15, 22.02, 93.37, 20.92, 94.3, 19.88, 95.18, 19.55, 99.34, 19.55, 99.89, 19.77,
+      35.38, 93.15, 22.02, 93.37, 20.92, 94.3, 19.88, 95.18, 19.55, 99.34, 19.55, 99.89, 19.77, 103.5, 20.3, 106.5, 22.5, 108.2,
+      26.0, 108.6, 31.0, 108.0, 37.0, 106.3, 42.0, 103.6, 45.3, 100.9, 46.3,
     ],
     [
       99.89, 257.23, 99.34, 257.45, 97.04, 257.34, 95.89, 256.41, 95.45, 255.31, 95.45, 226.07, 95.78, 225.08, 96.99, 223.77,
       97.32, 222.78, 97.21, 220.15, 95.78, 218.4, 95.45, 217.42, 95.45, 199.01, 95.89, 197.92, 97.04, 196.99, 99.34, 196.88,
-      99.89, 197.1,
+      99.89, 197.1, 104.0, 197.6, 109.0, 200.0, 112.5, 205.0, 113.5, 215.0, 113.2, 235.0, 112.0, 248.0, 109.0, 254.5, 104.5,
+      257.0, 100.9, 257.4,
     ],
   ],
 }

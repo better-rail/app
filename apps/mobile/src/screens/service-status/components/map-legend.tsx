@@ -3,14 +3,15 @@ import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
 import { RAIL_MAP_PALETTE, paleColor } from "@/components/rail-map"
 import { RAIL_LINES } from "@/data/rail-lines"
-import type { TxKeyPath } from "@/i18n"
-import { LineBadge } from "./components/line-badge"
+import { type TxKeyPath, translate } from "@/i18n"
+import { MINOR_DELAY_MINUTES, SEVERE_DELAY_MINUTES } from "@/services/api"
+import { LineBadge } from "./line-badge"
 
 /** The line whose colour the samples borrow. */
 const SAMPLE = RAIL_LINES.find((l) => l.id === "3") ?? RAIL_LINES[0]
 
 /** What the markings on the network map mean, after the original map's legend. */
-export function MapLegendScreen() {
+export function MapLegend() {
   const scheme = useColorScheme()
   const palette = RAIL_MAP_PALETTE[scheme === "dark" ? "dark" : "light"]
   const dot = { backgroundColor: palette.dot }
@@ -55,14 +56,6 @@ export function MapLegendScreen() {
       ),
     },
     {
-      key: "serviceStatus.legend.irregularService",
-      sample: (
-        <View style={[styles.bar, { backgroundColor: SAMPLE.color }]}>
-          <View style={[styles.stripe, { backgroundColor: palette.background }]} />
-        </View>
-      ),
-    },
-    {
       key: "serviceStatus.legend.suspended",
       sample: (
         <View style={styles.barRow}>
@@ -74,7 +67,8 @@ export function MapLegendScreen() {
     {
       key: "serviceStatus.legend.disruption",
       sample: (
-        <View style={[styles.bar, { backgroundColor: SAMPLE.color }]}>
+        <View style={styles.layered}>
+          <View style={[styles.bar, styles.layeredBar, { backgroundColor: SAMPLE.color }]} />
           <View style={[styles.disruption, { backgroundColor: palette.badge, borderColor: palette.background }]}>
             <Text style={[styles.disruptionText, { color: palette.badgeInk }]} maxFontSizeMultiplier={1}>
               !
@@ -86,7 +80,7 @@ export function MapLegendScreen() {
   ]
 
   return (
-    <View style={styles.wrapper} testID="map-legend-screen">
+    <View style={styles.wrapper} testID="map-legend">
       <Text style={styles.title} tx="serviceStatus.legend.title" />
       {rows.map((row) => (
         <View key={row.key} style={styles.row}>
@@ -94,7 +88,10 @@ export function MapLegendScreen() {
           <Text style={styles.label} tx={row.key} />
         </View>
       ))}
-      <Text style={styles.credit} tx="serviceStatus.mapCredit" preset="secondary" />
+      <Text style={styles.credit} preset="secondary">
+        {translate("serviceStatus.thresholds", { minor: MINOR_DELAY_MINUTES, severe: SEVERE_DELAY_MINUTES })}
+      </Text>
+      <Text tx="serviceStatus.mapCredit" preset="secondary" />
     </View>
   )
 }
@@ -177,9 +174,15 @@ const styles = StyleSheet.create((theme, rt) => ({
     borderRadius: (DOT - 3) / 2,
     borderWidth: 1.5,
   },
-  stripe: {
+  layered: {
     width: SAMPLE_WIDTH,
-    height: 3,
+    height: 28,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  layeredBar: {
+    position: "absolute",
+    top: (28 - BAR_HEIGHT) / 2,
   },
   disruption: {
     width: 20,

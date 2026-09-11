@@ -16,6 +16,7 @@
         "@callstack/liquid-glass": "^0.4.3",
         "@expo/react-native-action-sheet": "4.1.1",
         "@expo/ui": "~56.0.26",
+        "@lodev09/react-native-true-sheet": "3.11.13",
         "@notifee/react-native": "9.1.8",
         "@react-native-async-storage/async-storage": "2.2.0",
         "@react-native-community/cli": "20.0.0",
@@ -553,6 +554,8 @@
     "@jsdoc/salty": ["@jsdoc/salty@0.2.12", "", { "dependencies": { "lodash": "^4.18.1" } }, "sha512-TuB0x50EoAvEX/UEWITd8Mkn3WhiTjSvbTMCLj0BhsQEl5iUzjXdA0bETEVpTk+5TGTLR6QktI9H4hLviVeaAQ=="],
 
     "@lagregance/i18n-js-require": ["@lagregance/i18n-js-require@4.2.2", "", { "dependencies": { "bignumber.js": "*", "lodash": "*", "make-plural": "*" } }, "sha512-fV3U0YhzeUwmJ/4x2u+Q67DIlVYcQEPTp41iSAO5Az56mIz4G5TnwrrBDpP5x7c6ipr4BAh4H8ZAv1ICjs1/6g=="],
+
+    "@lodev09/react-native-true-sheet": ["@lodev09/react-native-true-sheet@3.11.13", "", { "peerDependencies": { "@radix-ui/react-dialog": ">=1", "@radix-ui/react-presence": ">=1", "@react-navigation/core": ">=7", "react": "*", "react-native": "*", "react-native-reanimated": ">=4", "react-native-worklets": "*" }, "optionalPeers": ["@radix-ui/react-dialog", "@radix-ui/react-presence", "@react-navigation/core", "react-native-reanimated", "react-native-worklets"] }, "sha512-hG0M+YNlgeNWowuemupprj0TqWLDLF5ho9GD0D9yzWG1tTdBcK2gDL1P8S5QlDnT3W8HyJeeCbQ+QFO4QyuMKA=="],
 
     "@lukeed/ms": ["@lukeed/ms@2.0.2", "", {}, "sha512-9I2Zn6+NJLfaGoz9jN3lpwDgAYvfGeNYdbAIjJOqzs4Tpc+VU3Jqq4IofSUBKajiDS8k9fZIg18/z13mpk1bsA=="],
 

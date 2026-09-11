@@ -352,7 +352,8 @@
     "mapCredit": "המפה בעקבות מפת הרשת של רכבת ישראל",
     "dayType": {
       "weekday": "א׳–ה׳",
-      "weekend": "ו׳–ש׳"
+      "weekend": "ו׳–ש׳",
+      "night": "לילה"
     },
     "legend": {
       "title": "מקרא המפה",
@@ -361,7 +362,6 @@
       "stop": "תחנה שבה הקו עוצר",
       "irregularStop": "עצירות לא סדירות – רכבות יכולות לעבור בלי לעצור",
       "terminal": "תחנה שבה רכבות הקו מסיימות את נסיעתן",
-      "irregularService": "מרווחים לא סדירים – כדאי לבדוק את לוח הזמנים",
       "suspended": "קטע ללא שירות כרגע",
       "disruption": "תחנה מושפעת משיבוש"
     },
@@ -371,6 +371,7 @@
     "otherLines": "שאר הקווים",
     "allLines": "כל הקווים",
     "lineDetails": "פרטי הקו",
+    "noServiceNow": "אין רכבות מתוכננות כרגע",
     "levels": {
       "goodService": "שירות תקין",
       "minorDelays": "עיכובים קלים",
@@ -400,7 +401,6 @@
     "notStoppingAt": "הרכבות אינן עוצרות ב%{stations}",
     "affectedStretch": "קטע מושפע: %{from} – %{to}",
     "trainNumber": "רכבת %{trainNumber}",
-    "trainRoute": "מ%{origin} ל%{destination}",
     "departsAt": "יוצאת ב־%{time}",
     "minutesLate": "איחור של %{minutes} דק׳",
     "cancelled": "בוטלה",

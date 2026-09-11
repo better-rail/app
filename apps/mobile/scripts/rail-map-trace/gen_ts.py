@@ -99,15 +99,12 @@ for b in L["badges"]:
     r=f', requires: {{ lineId: "{b["requires"]["line"]}", stationId: "{b["requires"]["station"]}", kind: "{b["requires"]["kind"]}" }}' if "requires" in b else ""
     out.append(f'  {{ lineId: "{b["line"]}", x: {u(b["x"])}, y: {u(b["y"])}{r} }},\n')
 out.append("]\n\n")
-out.append('''/** Stretches the original draws with the "irregular intervals" marking (check the timetable). */
-export const IRREGULAR_STRETCHES: { lineId: RailLineId; fromStationId: string; toStationId: string }[] = [
-''')
-for s in L["irregular"]:
-    out.append(f'  {{ lineId: "{s["line"]}", fromStationId: "{s["from"]}", toStationId: "{s["to"]}" }},\n')
-out.append("]\n\n")
 flat=lambda pts: ", ".join(f"{u(x)}, {u(y)}" for x,y in pts)
-out.append('''/** Sunday–Thursday or Friday–Saturday: the timetable, and so the map, differs between them. */
-export type DayType = "weekday" | "weekend"
+out.append('''/**
+ * Sunday–Thursday, Friday–Saturday, or the small hours after a weekday: the
+ * timetable, and so the map, differs between them.
+ */
+export type DayType = "weekday" | "weekend" | "night"
 
 /** Where a line calls, runs through or ends short of its terminus (a line-station pair). */
 export type LineStation = { lineId: RailLineId; stationId: string }
@@ -119,6 +116,8 @@ export type ServicePattern = {
   irregular: LineStation[]
   /** Stations short of a line's ends where a tenth or more of its trains terminate. */
   terminals: LineStation[]
+  /** Stations the line runs through without calling at all: no dot, and no name unless another line calls. */
+  skipped: LineStation[]
 }
 
 /**
@@ -127,11 +126,12 @@ export type ServicePattern = {
  */
 export const SERVICE_PATTERNS: Record<DayType, ServicePattern> = {
 ''')
-for key in ("weekday","weekend"):
+for key in ("weekday","weekend","night"):
     v=L["service"][key]
     out.append(f'  {key}: {{\n    lines: [{", ".join(chr(34)+l+chr(34) for l in v["lines"])}],\n')
-    out.append('    irregular: [\n'+"".join(f'      {{ lineId: "{x["line"]}", stationId: "{x["station"]}" }},\n' for x in v["irregular"])+'    ],\n')
-    out.append('    terminals: [\n'+"".join(f'      {{ lineId: "{x["line"]}", stationId: "{x["station"]}" }},\n' for x in v["terminals"])+'    ],\n  },\n')
+    for field in ("irregular","terminals","skipped"):
+        out.append(f'    {field}: [\n'+"".join(f'      {{ lineId: "{x["line"]}", stationId: "{x["station"]}" }},\n' for x in v[field])+'    ],\n')
+    out.append('  },\n')
 out.append("}\n\n")
 out.append('''/**
  * Strokes drawn in a line's colour beside its path: line 6's express lane

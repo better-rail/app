@@ -33,7 +33,6 @@ export function LineStatusRow({ status, first, last, onPress }: LineStatusRowPro
       accessibilityLabel={`${lineName(status)}, ${levelLabel(status.level)}`}
     >
       <View style={styles.inner}>
-        <View style={[styles.bar, { backgroundColor: line.color }]} />
         <LineBadge line={line} />
         <View style={styles.texts}>
           <Text style={styles.name} numberOfLines={1}>
@@ -57,14 +56,9 @@ const styles = StyleSheet.create((theme) => ({
   inner: {
     flexDirection: "row",
     alignItems: "center",
-    paddingEnd: theme.spacing[3],
+    paddingHorizontal: theme.spacing[3],
     paddingVertical: theme.spacing[3],
     gap: theme.spacing[3],
-  },
-  bar: {
-    alignSelf: "stretch",
-    width: 6,
-    marginVertical: -theme.spacing[3],
   },
   texts: {
     flex: 1,

@@ -20,11 +20,12 @@ for lid,ln in L["lines"].items():
     lines[lid]={"points":ln["points"],"stations":[{"id":s,"index":i} for s,i in ln["stationIndex"].items()]}
 SERVICE={}
 for key,variant in PATTERNS.items():
-    irregular=[]; terminals=[]
+    irregular=[]; terminals=[]; skipped=[]
     for lid,p in sorted(variant["patterns"].items()):
         for sid in sorted(p["irregular"]): irregular.append({"line":lid,"station":sid})
         for sid in sorted(p["terminals"]): terminals.append({"line":lid,"station":sid})
-    SERVICE[key]={"lines":variant["lines"],"irregular":irregular,"terminals":terminals}
+        for sid in sorted(p.get("skipped",{})): skipped.append({"line":lid,"station":sid})
+    SERVICE[key]={"lines":variant["lines"],"irregular":irregular,"terminals":terminals,"skipped":skipped}
 # extra strokes: line 6's express lane straight through Bat Yam (while its trains run through there); line 2's
 # Rehovot stub (while trains end there), ending in a terminal dot
 def station_point(lid,sid):
@@ -121,10 +122,9 @@ for b in blocks:
     if b["station"]=="8600":
         for t in b["lines"]:
             if t["h"]>=25: plane=[t["x0"],t["y0"],t["x1"],t["y1"]]
-IRREGULAR=[{"line":"5","from":"3300","to":"3600"},{"line":"25","from":"3300","to":"3600"}]
 # the water: the coast (the sea is everything left of it, down to where it meets the map's edge) and the lakes
 WATER={"coast":T["water"]["coast"],"lakes":T["water"]["lakes"]}
-out={"lines":lines,"labels":labels,"irregular":IRREGULAR,"water":WATER,"service":SERVICE,"extras":EXTRAS,"boxes":BOXES,"cities":cities,"badges":badges,"plane":plane,"clusters":CB}
+out={"lines":lines,"labels":labels,"water":WATER,"service":SERVICE,"extras":EXTRAS,"boxes":BOXES,"cities":cities,"badges":badges,"plane":plane,"clusters":CB}
 json.dump(out,open("layout.json","w"),ensure_ascii=False,indent=0)
 for sid,l in sorted(labels.items(),key=lambda t:t[1]["y"]):
     print(sid,l["side"],l["x"],l["y"],"w",l["maxWidth"],"em",l["em"],l["size"],"heb",l["hebLines"],"eng",l["engLines"],l["name"])
