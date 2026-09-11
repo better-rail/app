@@ -135,8 +135,9 @@
                 <!-- Arrival Column -->
                 <LinearLayout
                     android:id="@+id/widget_arrival_container"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:orientation="vertical"
                     android:baselineAlignedChildIndex="1"
                     android:layout_marginStart="14dp">
@@ -172,11 +173,11 @@
                 <!-- Platform Column -->
                 <LinearLayout
                     android:id="@+id/widget_platform_container"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:orientation="vertical"
-                    android:baselineAlignedChildIndex="1"
-                    android:layout_marginStart="14dp">
+                    android:baselineAlignedChildIndex="1">
 
                     <TextView
                         android:id="@+id/widget_platform_label"
@@ -209,11 +210,11 @@
                 <!-- Train No. Column -->
                 <LinearLayout
                     android:id="@+id/widget_train_num_container"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:orientation="vertical"
-                    android:baselineAlignedChildIndex="1"
-                    android:layout_marginStart="14dp">
+                    android:baselineAlignedChildIndex="1">
 
                     <TextView
                         android:id="@+id/widget_train_num_label"
