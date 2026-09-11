@@ -543,7 +543,7 @@ export function RouteListScreen() {
           contentContainerStyle={{
             paddingTop: spacing[4],
             paddingHorizontal: spacing[3],
-            paddingBottom: shouldShowWarning ? spacing[8] + 12 : spacing[3],
+            paddingBottom: shouldShowWarning ? spacing[8] + spacing[5] : spacing[3],
           }}
           initialScrollIndex={initialScrollIndex}
           // so the list will re-render when the ride route changes, and so the item will be marked
