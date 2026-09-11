@@ -132,9 +132,13 @@ export const useFavoritesStore = create<FavoritesStore>((set, get) => ({
   },
 }))
 
-// The watch app sends its reordered list back as user info
-if (Platform.OS === "ios") {
-  watchEvents.addListener("user-info", (payloads) => {
+let watchReorderListener: (() => void) | undefined
+
+// The watch app sends its reordered list back as user info. Registered only after hydration,
+// otherwise a queued payload could be applied to the empty store and then overwritten.
+function listenForWatchReorders() {
+  if (Platform.OS !== "ios" || watchReorderListener) return
+  watchReorderListener = watchEvents.addListener("user-info", (payloads) => {
     const latest = [...payloads].reverse().find((payload) => Array.isArray(payload.favoritesOrder))
     if (latest) useFavoritesStore.getState().reorder(latest.favoritesOrder as string[])
   })
@@ -145,10 +149,12 @@ export function getFavoritesSnapshot(state: FavoritesState) {
 }
 
 export function hydrateFavoritesStore(data: any) {
-  if (!data) return
-  useFavoritesStore.setState({
-    routes: data.routes ?? [],
-  })
-  // Sync favorites after hydration (replaces afterCreate)
-  useFavoritesStore.getState().syncFavorites()
+  if (data) {
+    useFavoritesStore.setState({
+      routes: data.routes ?? [],
+    })
+    // Sync favorites after hydration (replaces afterCreate)
+    useFavoritesStore.getState().syncFavorites()
+  }
+  listenForWatchReorders()
 }
