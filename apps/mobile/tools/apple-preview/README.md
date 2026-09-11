@@ -47,7 +47,8 @@ Everything in this folder is preview-only:
 
 - `Host/` — iOS container app with Live Activity start/stop controls.
 - `WatchCardPreview/` — watchOS app that renders the Smart Stack card at true scale.
-- `Preview/` — sample data and the `#Preview` definitions.
+- `Preview/` — sample data, the `#Preview` definitions, and the mock widget timeline the
+  preview widget serves instead of live routes (scenarios in `MockTimeline.swift`).
 - `project.yml` + `preview.sh` — the generator. `ApplePreview.xcodeproj` is gitignored;
   re-run `preview.sh` whenever `project.yml` changes or you need the project back.
 

@@ -44,6 +44,19 @@ real RN app rebuilds the entire React Native project.
 - `Preview/SampleRoute.swift` generates times relative to now on purpose. A route in the
   past makes `CircularProgressView`'s `ProgressView(timerInterval:)` trap on an inverted
   range and the extension crashes with no visible error beyond an empty card.
+- The preview widget serves `Preview/MockTimeline.swift` instead of live routes
+  (`PREVIEW_MOCK_TIMELINE`, set in `project.yml`). Switch scenarios through the extension's
+  defaults domain and reinstall the app to reload the timeline:
+  ```bash
+  xcrun simctl spawn <udid> defaults write il.co.better-rail.preview.BetterRailWidget previewScenario tomorrow  # tomorrow | empty | error
+  xcrun simctl spawn <udid> defaults write il.co.better-rail.preview.BetterRailWidget previewLabel Work
+  xcrun simctl spawn <udid> defaults delete il.co.better-rail.preview.BetterRailWidget previewScenario
+  ```
+- `Route.intentdefinition` is compiled into the widget bundle by a script phase (compiling it
+  as a source would regenerate `RouteIntent.swift`). Without it iOS treats the widget as
+  non-configurable: no "Edit Widget", and the timeline never gets a route.
+- To add the widget on the simulator: long-press the home screen → Edit → Add Widget →
+  BR Preview, swipe to the size, Add. Long-press the widget → Edit Widget to change the route.
 - `WatchCardPreview` copies the widget's `.lproj` folders into its bundle in a build
   phase — a variant group can only belong to one target.
 - Keep the watch-card `#Preview`s in `WatchCardPreview/`. A widget extension can only host

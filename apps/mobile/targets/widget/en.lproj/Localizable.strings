@@ -54,3 +54,7 @@
 "%@ stops" = "%@ stops";
 "get off now" = "Get off";
 "train short %@" = "Train %@";
+
+// extra large widget
+"DURATION" = "Duration";
+"%@h %@m" = "%@h %@m";

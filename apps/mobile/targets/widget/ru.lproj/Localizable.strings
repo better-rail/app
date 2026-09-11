@@ -54,3 +54,8 @@
 "get off now" = "Выходить";
 "train short %@" = "Поезд %@";
 "+%@ min" = "+%@ мин";
+
+// extra large widget
+"DURATION" = "В пути";
+"%@h %@m" = "%@ ч %@ мин";
+"%@ min" = "%@ мин";

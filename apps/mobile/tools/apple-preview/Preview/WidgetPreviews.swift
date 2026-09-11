@@ -22,6 +22,13 @@ import ActivityKit
   createSnapshotEntry()
 }
 
+@available(iOS 27.0, *)
+#Preview("Widget · extra large", as: .systemExtraLargePortrait) {
+  BetterRailWidget()
+} timeline: {
+  createSnapshotEntry()
+}
+
 #Preview("Widget · rectangular", as: .accessoryRectangular) {
   BetterRailWidget()
 } timeline: {

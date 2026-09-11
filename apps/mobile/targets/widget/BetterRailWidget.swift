@@ -34,6 +34,12 @@ struct Provider: IntentTimelineProvider {
   #endif
 
   func getTimeline(for configuration: RouteIntent, in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
+    #if PREVIEW_MOCK_TIMELINE
+    // Set by tools/apple-preview so the widget renders sample data instead of live routes.
+    completion(previewMockTimeline(for: configuration))
+    return
+    #endif
+
     let routeModel = RouteModel()
     let entriesGenerator = EntriesGenerator()
     
@@ -76,6 +82,18 @@ struct Provider: IntentTimelineProvider {
 struct BetterRailWidget: Widget {
     let kind: String = "BetterRailWidget"
 
+    var supportedFamilies: [WidgetFamily] {
+      #if os(watchOS)
+        return [.accessoryCircular, .accessoryInline, .accessoryRectangular, .accessoryCorner]
+      #else
+        var families: [WidgetFamily] = [.systemSmall, .systemMedium, .systemLarge, .accessoryCircular, .accessoryInline, .accessoryRectangular]
+        if #available(iOS 27.0, *) {
+          families.append(.systemExtraLargePortrait)
+        }
+        return families
+      #endif
+    }
+
     var body: some WidgetConfiguration {
         IntentConfiguration(
           kind: kind,
@@ -87,11 +105,7 @@ struct BetterRailWidget: Widget {
         .configurationDisplayName("Schedule")
         .description("Display the upcoming train times.")
         .contentMarginsDisabledIfAvailable()
-      #if os(watchOS)
-        .supportedFamilies([.accessoryCircular, .accessoryInline, .accessoryRectangular, .accessoryCorner])
-      #else
-        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge, .accessoryCircular, .accessoryInline, .accessoryRectangular])
-      #endif
+        .supportedFamilies(supportedFamilies)
     }
 }
 

@@ -64,6 +64,18 @@ targets:
           - "Base.lproj/Route.intentdefinition"
       - path: Preview/SampleRoute.swift
       - path: Preview/WidgetPreviews.swift
+      - path: Preview/MockTimeline.swift
+    # The compiled intent definition is what makes the widget configurable ("Edit Widget").
+    # Compiling it as a source would regenerate RouteIntent.swift, so it is copied by hand.
+    postCompileScripts:
+      - name: Compile Route.intentdefinition
+        script: |
+          out="$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH"
+          mkdir -p "$out/Base.lproj"
+          "$DEVELOPER_DIR/usr/bin/intentbuilderc" compile \
+            -input "$SRCROOT/../../targets/widget/Base.lproj/Route.intentdefinition" \
+            -output "$out/Base.lproj"
+          cp "$out/Base.lproj/Route.intentdefinition" "$out/Intents.intentdefinition"
     dependencies:
       - sdk: Intents.framework
     info:
@@ -75,6 +87,8 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: il.co.better-rail.preview.BetterRailWidget
+        # Serve Preview/MockTimeline.swift instead of live routes (see Provider.getTimeline).
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) PREVIEW_MOCK_TIMELINE
 
   # Provides the widget's configuration UI (origin / destination pickers).
   StationIntent:
