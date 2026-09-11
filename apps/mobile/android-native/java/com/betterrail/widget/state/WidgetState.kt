@@ -411,26 +411,24 @@ class WidgetStateRenderer(
     }
 
     private fun formatDuration(context: Context, train: WidgetTrainItem): String {
-        if (train.duration.isNotEmpty() && !train.duration.startsWith("-")) {
-            val d = train.duration
-            if (d.endsWith("m") && !d.contains("h")) {
-                val mins = d.removeSuffix("m").toIntOrNull()
-                if (mins != null && mins > 0) {
-                    return context.getString(R.string.duration_minutes, mins)
-                }
-            } else if (!d.contains("-")) {
-                return train.duration
-            }
+        val totalMinutes = calculateMinutesBetween(train.departureTime, train.arrivalTime)
+            ?: parseDurationToMinutes(train.duration)
+            ?: return train.duration
+
+        val hours = totalMinutes / 60
+        val mins = totalMinutes % 60
+
+        return when {
+            hours > 0 -> context.getString(R.string.duration_hours_minutes, hours, mins)
+            else -> context.getString(R.string.duration_minutes, mins)
         }
-        val minutes = calculateMinutesBetween(train.departureTime, train.arrivalTime)
-        if (minutes != null) {
-            return if (minutes >= 60) {
-                context.getString(R.string.duration_hours_minutes, minutes / 60, minutes % 60)
-            } else {
-                context.getString(R.string.duration_minutes, minutes)
-            }
-        }
-        return train.duration
+    }
+
+    private fun parseDurationToMinutes(duration: String): Int? {
+        val hours = Regex("""(\d+)h""").find(duration)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+        val mins = Regex("""(\d+)m""").find(duration)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+        val total = hours * 60 + mins
+        return total.takeIf { it > 0 }
     }
 
     private fun calculateMinutesBetween(from: String, to: String): Int? {
