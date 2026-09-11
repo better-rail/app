@@ -1,0 +1,204 @@
+{
+  "color-space-for-untagged-svg-colors" : "display-p3",
+  "features" : [
+    "refractivity"
+  ],
+  "fill" : {
+    "linear-gradient" : [
+      "display-p3:0.96500,0.98000,1.00000,1.00000",
+      "display-p3:0.83500,0.89500,1.00000,1.00000"
+    ]
+  },
+  "groups" : [
+    {
+      "blur-material" : 0.05,
+      "layers" : [
+        {
+          "glass-specializations" : [
+            {
+              "value" : true
+            },
+            {
+              "appearance" : "tinted",
+              "value" : true
+            }
+          ],
+          "image-name" : "Body.png",
+          "name" : "Blue Beveled Body",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              39
+            ]
+          }
+        }
+      ],
+      "lighting" : "combined",
+      "name" : "Body Shell and Bezels",
+      "refractivity" : {
+        "depth" : 0.12,
+        "enabled" : true,
+        "strength" : 0.07
+      },
+      "shadow" : {
+        "kind" : "layer-color",
+        "opacity" : 0.3
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : false,
+        "value" : 0
+      }
+    },
+    {
+      "blur-material" : 0.12,
+      "layers" : [
+        {
+          "glass" : true,
+          "image-name" : "Window-Left.png",
+          "name" : "Left Window",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              39
+            ]
+          }
+        },
+        {
+          "glass" : true,
+          "image-name" : "Window-Right.png",
+          "name" : "Right Window",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              39
+            ]
+          }
+        }
+      ],
+      "lighting" : "individual",
+      "name" : "Individual Windows",
+      "refractivity" : {
+        "depth" : 0.3,
+        "enabled" : true,
+        "strength" : 0.2
+      },
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.24
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.05
+      }
+    },
+    {
+      "blur-material" : 0.07,
+      "layers" : [
+        {
+          "glass" : true,
+          "image-name" : "Headlight-Left.png",
+          "name" : "Left Headlight",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              39
+            ]
+          }
+        },
+        {
+          "glass" : true,
+          "image-name" : "Headlight-Right.png",
+          "name" : "Right Headlight",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              39
+            ]
+          }
+        }
+      ],
+      "lighting" : "individual",
+      "name" : "Individual Headlights",
+      "refractivity" : {
+        "depth" : 0.2,
+        "enabled" : true,
+        "strength" : 0.14
+      },
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.3
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.05
+      }
+    },
+    {
+      "blur-material" : 0.02,
+      "layers" : [
+        {
+          "glass" : false,
+          "image-name" : "Leg-Left.png",
+          "name" : "Left Rail Leg",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              39
+            ]
+          }
+        },
+        {
+          "glass-specializations" : [
+            {
+              "value" : false
+            },
+            {
+              "appearance" : "tinted",
+              "value" : true
+            }
+          ],
+          "image-name" : "Leg-Right.png",
+          "name" : "Right Rail Leg",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              39
+            ]
+          }
+        }
+      ],
+      "lighting" : "individual",
+      "name" : "Individual Rail Legs",
+      "refractivity" : {
+        "depth" : 0.06,
+        "enabled" : false,
+        "strength" : 0.03
+      },
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.62
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : false,
+        "value" : 0
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}
