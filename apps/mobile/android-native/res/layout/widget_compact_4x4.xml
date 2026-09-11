@@ -9,7 +9,7 @@
     <!-- Top Hero Section: Station Photo + Next Train Metrics -->
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="184dp">
+        android:layout_height="165dp">
 
         <!-- Station Background Image -->
         <ImageView
@@ -112,6 +112,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:baselineAligned="true"
                 android:gravity="bottom">
 
                 <!-- Large Departure Time -->
@@ -119,6 +120,7 @@
                     android:id="@+id/widget_next_train_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
                     android:text="--:--"
                     android:textColor="#FFFFFF"
                     android:textSize="32sp"
@@ -136,6 +138,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
+                    android:baselineAlignedChildIndex="1"
                     android:layout_marginStart="14dp">
 
                     <TextView
@@ -153,6 +156,7 @@
                         android:id="@+id/widget_arrival_time"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:includeFontPadding="false"
                         android:text="--:--"
                         android:textColor="#FFFFFF"
                         android:textSize="19sp"
@@ -171,6 +175,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
+                    android:baselineAlignedChildIndex="1"
                     android:layout_marginStart="14dp">
 
                     <TextView
@@ -188,6 +193,7 @@
                         android:id="@+id/widget_platform_val"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:includeFontPadding="false"
                         android:text="--"
                         android:textColor="#FFFFFF"
                         android:textSize="19sp"
@@ -206,6 +212,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
+                    android:baselineAlignedChildIndex="1"
                     android:layout_marginStart="14dp">
 
                     <TextView
@@ -223,6 +230,7 @@
                         android:id="@+id/widget_train_num_val"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:includeFontPadding="false"
                         android:text="---"
                         android:textColor="#FFFFFF"
                         android:textSize="19sp"
@@ -241,7 +249,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:visibility="gone">
                 <TextView
                     android:id="@+id/widget_platform"
                     android:layout_width="wrap_content"
@@ -290,69 +299,69 @@
             android:layout_marginBottom="4dp">
 
             <TextView
+                android:id="@+id/widget_header_depart"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.15"
                 android:text="@string/depart_caps"
                 android:textColor="#757575"
                 android:textSize="10sp"
-                android:textStyle="bold"
                 android:maxLines="1"
                 android:singleLine="true"
                 android:typeface="sans"
-                android:fontFamily="@font/heebo_bold" />
+                android:fontFamily="@font/heebo_medium" />
 
             <TextView
+                android:id="@+id/widget_header_arrive"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.05"
                 android:text="@string/arrive_caps"
                 android:textColor="#757575"
                 android:textSize="10sp"
-                android:textStyle="bold"
                 android:maxLines="1"
                 android:singleLine="true"
                 android:typeface="sans"
-                android:fontFamily="@font/heebo_bold" />
+                android:fontFamily="@font/heebo_medium" />
 
             <TextView
+                android:id="@+id/widget_header_duration"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.15"
                 android:text="@string/duration_caps"
                 android:textColor="#757575"
                 android:textSize="10sp"
-                android:textStyle="bold"
                 android:maxLines="1"
                 android:singleLine="true"
                 android:typeface="sans"
-                android:fontFamily="@font/heebo_bold" />
+                android:fontFamily="@font/heebo_medium" />
 
             <TextView
+                android:id="@+id/widget_header_platform"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.15"
                 android:text="@string/platform_caps"
                 android:textColor="#757575"
                 android:textSize="10sp"
-                android:textStyle="bold"
                 android:maxLines="1"
                 android:singleLine="true"
                 android:typeface="sans"
-                android:fontFamily="@font/heebo_bold" />
+                android:fontFamily="@font/heebo_medium" />
 
             <TextView
+                android:id="@+id/widget_header_train"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.75"
                 android:text="@string/train_caps"
                 android:textColor="#757575"
                 android:textSize="10sp"
-                android:textStyle="bold"
                 android:maxLines="1"
                 android:singleLine="true"
                 android:typeface="sans"
-                android:fontFamily="@font/heebo_bold"
+                android:fontFamily="@font/heebo_medium"
                 android:gravity="end" />
         </LinearLayout>
 
