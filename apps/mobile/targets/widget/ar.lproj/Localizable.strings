@@ -39,3 +39,18 @@
 "Something went wrong." = "هناك خطأ ما.";
 "try again" = "حاول ثانية";
 "critical alert" = "تنبيه بالغ الأهمية";
+
+// live activity localizations
+"headed to" = "متجه إلى";
+"wait in" = "انتظر في";
+"arrive" = "الوصول";
+"next station" = "المحطة التالية";
+"arrived at" = "وصلت إلى";
+"thanks for riding with better rail" = "شكرًا لسفرك مع Better Rail!";
+
+// apple watch live activity
+"next stop" = "المحطة التالية";
+"%@ stops" = "%@ محطات";
+"get off now" = "انزل هنا";
+"train short %@" = "قطار %@";
+"+%@ min" = "+%@ دقيقة";

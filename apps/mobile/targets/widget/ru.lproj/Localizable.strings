@@ -39,3 +39,18 @@
 "Something went wrong." = "Что-то пошло не так.";
 "try again" = "Попробуйте еще раз";
 "critical alert" = "Критическое оповещение";
+
+// live activity localizations
+"headed to" = "В пути до";
+"wait in" = "Ожидайте на";
+"arrive" = "Прибытие";
+"next station" = "След. станция";
+"arrived at" = "Вы прибыли на";
+"thanks for riding with better rail" = "Спасибо за поездку с Better Rail!";
+
+// apple watch live activity
+"next stop" = "След. станция";
+"%@ stops" = "%@ ост.";
+"get off now" = "Выходить";
+"train short %@" = "Поезд %@";
+"+%@ min" = "+%@ мин";

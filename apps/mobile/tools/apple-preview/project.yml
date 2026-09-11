@@ -1,0 +1,205 @@
+name: ApplePreview
+options:
+  bundleIdPrefix: il.co.better-rail.preview
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: "17.0"
+    watchOS: "10.0"
+
+# Targets compile apps/mobile/targets/** in place — this project keeps no copies.
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    # The simulator silently refuses to render an unsigned .appex's widgets and Live
+    # Activities. Ad-hoc needs no team or provisioning profile.
+    CODE_SIGNING_ALLOWED: "YES"
+    CODE_SIGNING_REQUIRED: "YES"
+    CODE_SIGN_IDENTITY: "-"
+    CODE_SIGN_STYLE: Manual
+    ENABLE_USER_SCRIPT_SANDBOXING: "NO"
+    TARGETED_DEVICE_FAMILY: "1"
+    # RouteIntent.swift / INStation.swift are checked in; don't generate a second set.
+    INTENTS_CODEGEN_LANGUAGE: "None"
+
+targets:
+  # ---------------------------------------------------------------- iOS
+  PreviewHost:
+    type: application
+    platform: iOS
+    sources:
+      - path: Host
+      - path: Preview/SampleRoute.swift
+      - path: ../../targets/widget/Extensions.swift
+      - path: ../../targets/widget/Shared
+      - path: ../../targets/widget/stationsData.json
+      - path: ../../targets/widget/Live Activity/Activity.swift
+      - path: ../../targets/widget/Live Activity/ActivityUtils.swift
+      - path: ../../targets/widget/Live Activity/ActivityNotificationsAPI.swift
+      - path: ../../targets/widget/Live Activity/TokenRegistry.swift
+    dependencies:
+      - target: WidgetExt
+        embed: true
+      - target: StationIntent
+        embed: true
+    info:
+      path: Generated/PreviewHost-Info.plist
+      properties:
+        CFBundleDisplayName: BR Preview
+        NSSupportsLiveActivities: true
+        NSSupportsLiveActivitiesFrequentUpdates: true
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: il.co.better-rail.preview
+
+  WidgetExt:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: ../../targets/widget
+        excludes:
+          - "expo-target.config.js"
+          - "Info.plist"
+          - "Base.lproj/Route.intentdefinition"
+      - path: Preview/SampleRoute.swift
+      - path: Preview/WidgetPreviews.swift
+    dependencies:
+      - sdk: Intents.framework
+    info:
+      path: Generated/WidgetExt-Info.plist
+      properties:
+        CFBundleDisplayName: Better Rail
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: il.co.better-rail.preview.BetterRailWidget
+
+  # Provides the widget's configuration UI (origin / destination pickers).
+  StationIntent:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: ../../targets/intent
+        excludes:
+          - "expo-target.config.js"
+          - "Info.plist"
+          - "Base.lproj/Route.intentdefinition"
+    dependencies:
+      - sdk: Intents.framework
+    info:
+      path: Generated/StationIntent-Info.plist
+      properties:
+        CFBundleDisplayName: StationIntent
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.intents-service
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).IntentHandler
+          NSExtensionAttributes:
+            IntentsSupported: [RouteIntent]
+            IntentsRestrictedWhileLocked: []
+            IntentsRestrictedWhileProtectedDataUnavailable: []
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: il.co.better-rail.preview.StationIntent
+        PRODUCT_MODULE_NAME: StationIntent
+
+  # ---------------------------------------------------------------- watchOS
+  WatchApp:
+    type: application
+    platform: watchOS
+    sources:
+      - path: ../../targets/watch
+        excludes: ["expo-target.config.js", "Info.plist"]
+    dependencies:
+      - target: WatchWidgetExt
+        embed: true
+    info:
+      path: Generated/WatchApp-Info.plist
+      properties:
+        CFBundleDisplayName: Better Rail
+        # Standalone here (the shipping app is a companion) so it runs unpaired.
+        WKApplication: true
+        WKWatchOnly: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: il.co.better-rail.preview.watchkitapp
+        TARGETED_DEVICE_FAMILY: "4"
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        # apple-targets generates AppIcon.appiconset at prebuild; the preview has no icon.
+        ASSETCATALOG_COMPILER_APPICON_NAME: ""
+
+  WatchWidgetExt:
+    type: app-extension
+    platform: watchOS
+    sources:
+      - path: ../../targets/watch-widget
+        excludes:
+          - "expo-target.config.js"
+          - "Info.plist"
+          - "Base.lproj/Route.intentdefinition"
+    dependencies:
+      - sdk: Intents.framework
+    info:
+      path: Generated/WatchWidgetExt-Info.plist
+      properties:
+        CFBundleDisplayName: Better Rail
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: il.co.better-rail.preview.watchkitapp.BetterRailWidget
+        TARGETED_DEVICE_FAMILY: "4"
+
+  WatchCardPreview:
+    type: application
+    platform: watchOS
+    sources:
+      - path: WatchCardPreview
+      - path: Preview/WatchCardSamples.swift
+      - path: ../../targets/widget/Shared/Utilities.swift
+      - path: ../../targets/widget/Live Activity/Views/Watch/WatchActivityCard.swift
+    # A variant group can only belong to one target, so the widget's .lproj folders are
+    # copied into the bundle at build time rather than referenced as sources.
+    postCompileScripts:
+      - name: Copy Localizable.strings
+        script: |
+          for lang in en he ar ru; do
+            dir="$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/$lang.lproj"
+            mkdir -p "$dir"
+            cp "$SRCROOT/../../targets/widget/$lang.lproj/Localizable.strings" "$dir/"
+          done
+    info:
+      path: Generated/WatchCardPreview-Info.plist
+      properties:
+        CFBundleDisplayName: LA Card
+        CFBundleLocalizations: [en, he, ar, ru]
+        WKApplication: true
+        WKWatchOnly: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: il.co.better-rail.preview.lacard
+        TARGETED_DEVICE_FAMILY: "4"
+
+schemes:
+  PreviewHost:
+    build:
+      targets:
+        PreviewHost: all
+        WidgetExt: all
+        StationIntent: all
+    run:
+      config: Debug
+  WatchApp:
+    build:
+      targets:
+        WatchApp: all
+        WatchWidgetExt: all
+    run:
+      config: Debug
+  WatchCardPreview:
+    build:
+      targets:
+        WatchCardPreview: all
+    run:
+      config: Debug
