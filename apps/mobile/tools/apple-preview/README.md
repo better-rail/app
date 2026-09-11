@@ -23,9 +23,12 @@ apps/mobile/tools/apple-preview/preview.sh   # xcodegen + open (needs: brew inst
 
 ## Three ways to look at it
 
-**Xcode Canvas (fastest)** — open `Preview/WidgetPreviews.swift` and hit ⌥⌘↩. Real
-WidgetKit previews for every widget family, the Live Activity lock screen and Dynamic
-Island, and the watch card at Smart Stack size (41 / 45 / 49mm, LTR and RTL).
+**Xcode Canvas (fastest)** — hit ⌥⌘↩ in:
+- `Preview/WidgetPreviews.swift` — every widget family, the Live Activity lock screen and
+  Dynamic Island (scheme `PreviewHost`).
+- `WatchCardPreview/WatchPreviewApp.swift` — the Smart Stack card, rendered on a watch
+  (scheme `WatchCardPreview`). It can't live with the others: `ActivityFamily.small` has no
+  `ActivityPreviewViewKind`, and a widget extension can only host widget previews.
 
 **A real Live Activity** — run `PreviewHost`, pick a status and delay, and start the
 activity. Lock the device (⌘L) for the lock-screen card. The sample route's times are

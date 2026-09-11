@@ -27,7 +27,7 @@ struct WatchPreviewApp: App {
   }
 }
 
-private struct CardChrome: View {
+struct CardChrome: View {
   var data: WatchActivityCardData
 
   // Mirrors the `.containerBackground` the real Live Activity applies for `.small`.
@@ -50,7 +50,7 @@ private struct CardChrome: View {
   }
 }
 
-private struct SingleCard: View {
+struct SingleCard: View {
   var title: String
   var data: WatchActivityCardData
 
@@ -65,7 +65,7 @@ private struct SingleCard: View {
   }
 }
 
-private struct WatchCardGallery: View {
+struct WatchCardGallery: View {
   var body: some View {
     ScrollView {
       VStack(spacing: 10) {
@@ -81,4 +81,44 @@ private struct WatchCardGallery: View {
       .padding(.horizontal, 4)
     }
   }
+}
+
+// MARK: - Previews
+//
+// Xcode has no preview kind for `ActivityFamily.small`, so these render the card view
+// itself — no system Smart Stack chrome. They live in this watchOS target so the canvas
+// draws them on a watch, and because a widget extension can only host widget previews.
+
+#Preview("Waiting") {
+  CardChrome(data: WatchCardSamples.waiting)
+}
+
+#Preview("Waiting · delayed") {
+  CardChrome(data: WatchCardSamples.waitingDelayed)
+}
+
+#Preview("In transit") {
+  CardChrome(data: WatchCardSamples.inTransit)
+}
+
+#Preview("Get off") {
+  CardChrome(data: WatchCardSamples.getOff)
+}
+
+#Preview("Arrived") {
+  CardChrome(data: WatchCardSamples.arrived)
+}
+
+#Preview("Stale") {
+  CardChrome(data: WatchCardSamples.stale)
+}
+
+#Preview("Hebrew") {
+  CardChrome(data: WatchCardSamples.hebrew)
+    .environment(\.locale, .init(identifier: "he"))
+    .environment(\.layoutDirection, .rightToLeft)
+}
+
+#Preview("All states") {
+  WatchCardGallery()
 }

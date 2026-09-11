@@ -46,6 +46,9 @@ real RN app rebuilds the entire React Native project.
   range and the extension crashes with no visible error beyond an empty card.
 - `WatchCardPreview` copies the widget's `.lproj` folders into its bundle in a build
   phase — a variant group can only belong to one target.
+- Keep the watch-card `#Preview`s in `WatchCardPreview/`. A widget extension can only host
+  widget previews, so a plain view preview in `Preview/WidgetPreviews.swift` fails with
+  `UnsupportedPreviewContentInExtensionError`.
 - The watch app is standalone here, so it has no WatchConnectivity peer. Run
   `./seed.sh <watch-udid>` to put sample favourites in the App Group.
 - A paired iPhone + Watch simulator pair does **not** relay Live Activities. The Smart
