@@ -54,3 +54,8 @@
 "get off now" = "انزل هنا";
 "train short %@" = "قطار %@";
 "+%@ min" = "+%@ دقيقة";
+
+// extra large widget
+"DURATION" = "المدة";
+"%@h %@m" = "%@ س %@ د";
+"%@ min" = "%@ دقيقة";

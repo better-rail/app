@@ -66,3 +66,7 @@
 "%@ stops" = "%@ תחנות";
 "get off now" = "לרדת כאן";
 "train short %@" = "רכבת %@";
+
+// extra large widget
+"DURATION" = "משך";
+"%@h %@m" = "%@ שע׳ %@ דק׳";
