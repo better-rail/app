@@ -19,6 +19,8 @@ export interface ContextMenuProps {
   /** Corner radius of the long-press preview */
   previewBorderRadius?: number
   style?: StyleProp<ViewStyle>
+  /** Stretches the content to the available width; native menu hosts otherwise size it to its content */
+  fillWidth?: boolean
   disabled?: boolean
   /** Runs before the selected action's `onPress` */
   onPressAction?: () => void

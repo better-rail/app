@@ -82,6 +82,7 @@ export function FaresScreen() {
       {/* A native dropdown menu, so a Touchable child would swallow the tap — plain views only. */}
       <ContextMenu
         style={styles.profileMenu}
+        fillWidth
         mode="tap"
         title={passengerProfileLabel}
         disabled={profileList.length === 0}
