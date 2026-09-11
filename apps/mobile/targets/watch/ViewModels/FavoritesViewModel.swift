@@ -31,5 +31,11 @@ class FavoritesViewModel: NSObject, ObservableObject, WCSessionDelegate {
       self.model.updateRoutes(routes)
     }
   }
+  
+  /// Reorders locally and queues the new order for the iPhone app.
+  func moveRoutes(ids: [String], before beforeId: String?) {
+    model.move(ids: ids, before: beforeId)
+    session.transferUserInfo(["favoritesOrder": model.routes.map(\.id)])
+  }
 }
 

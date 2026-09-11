@@ -1,7 +1,7 @@
 import { create } from "zustand"
 import { Platform } from "react-native"
 import { setAnalyticsUserProperty } from "@/services/analytics"
-import { getIsWatchAppInstalled, updateApplicationContext, getIsPaired, WatchPayload } from "react-native-watch-connectivity"
+import { getIsWatchAppInstalled, updateApplicationContext, getIsPaired, watchEvents, WatchPayload } from "react-native-watch-connectivity"
 import Shortcuts from "react-native-quick-actions-shortcuts"
 import { stationLocale, stationsObject } from "@/data/stations"
 import { translate } from "@/i18n"
@@ -36,6 +36,7 @@ export interface FavoritesActions {
   add: (route: FavoriteRoute) => void
   remove: (routeId: string) => void
   rename: (routeId: string, newLabel: string) => void
+  reorder: (routeIds: string[]) => void
 }
 
 export type FavoritesStore = FavoritesState & FavoritesActions
@@ -118,7 +119,26 @@ export const useFavoritesStore = create<FavoritesStore>((set, get) => ({
     }))
     get().syncFavorites()
   },
+
+  reorder(routeIds) {
+    set((state) => {
+      const byId = new Map(state.routes.map((route) => [route.id, route]))
+      const ordered = routeIds.map((id) => byId.get(id)).filter((route): route is FavoriteRoute => !!route)
+      // Keep anything the watch didn't know about (e.g. added while offline)
+      const rest = state.routes.filter((route) => !routeIds.includes(route.id))
+      return { routes: [...ordered, ...rest] }
+    })
+    get().syncFavorites()
+  },
 }))
+
+// The watch app sends its reordered list back as user info
+if (Platform.OS === "ios") {
+  watchEvents.addListener("user-info", (payloads) => {
+    const latest = [...payloads].reverse().find((payload) => Array.isArray(payload.favoritesOrder))
+    if (latest) useFavoritesStore.getState().reorder(latest.favoritesOrder as string[])
+  })
+}
 
 export function getFavoritesSnapshot(state: FavoritesState) {
   return { routes: state.routes }
