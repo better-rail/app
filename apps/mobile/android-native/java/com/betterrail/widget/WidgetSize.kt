@@ -44,23 +44,28 @@ enum class WidgetSize(
         actionRefresh = "com.betterrail.widget.modern.compact5x2.ACTION_REFRESH",
         actionWidgetUpdate = "com.betterrail.widget.modern.compact5x2.ACTION_WIDGET_UPDATE",
         actionRouteReversal = "com.betterrail.widget.modern.compact5x2.ACTION_ROUTE_REVERSAL"
+    ),
+    COMPACT_4X4(
+        layoutRes = R.layout.widget_compact_4x4,
+        containerId = R.id.widget_container_compact_4x4,
+        widgetType = "modern_widget4x4",
+        logTag = "ModernCompactWidget4x4Provider",
+        configActivity = CompactWidget4x4ConfigActivity::class.java,
+        actionRefresh = "com.betterrail.widget.modern.compact4x4.ACTION_REFRESH",
+        actionWidgetUpdate = "com.betterrail.widget.modern.compact4x4.ACTION_WIDGET_UPDATE",
+        actionRouteReversal = "com.betterrail.widget.modern.compact4x4.ACTION_ROUTE_REVERSAL"
     );
     
     companion object {
         /**
          * Maximum number of upcoming train rows to display in 4x2 widgets.
-         * 
-         * IMPORTANT: When changing this value, you MUST also update the XML layout file:
-         * android/app/src/main/res/layout/widget_compact_4x2.xml
-         * 
-         * Add/remove LinearLayout entries with IDs following this pattern:
-         * - widget_upcoming_row_[N]     (container)
-         * - widget_upcoming_train_[N]   (departure time TextView)  
-         * - widget_upcoming_arrival_[N] (arrival time TextView)
-         * 
-         * Where N ranges from 1 to MAX_UPCOMING_TRAINS.
          */
         const val MAX_UPCOMING_TRAINS = 5
+
+        /**
+         * Maximum number of upcoming train rows to display in 4x4 widgets.
+         */
+        const val MAX_UPCOMING_TRAINS_4X4 = 9
         
         /**
          * Grid-based layout selection (Android standard)
@@ -77,12 +82,22 @@ enum class WidgetSize(
             
             /** Grid width threshold for 5x2 layout */
             const val GRID_WIDTH_5X2 = 5
+
+            /** Grid height threshold for 4x4 layout */
+            const val GRID_HEIGHT_4X4 = 4
         }
         
         /**
          * Determine optimal widget size based on grid cells (more reliable than pixels)
          */
-        fun getOptimalSize(minWidth: Int, minHeight: Int, maxWidth: Int, maxHeight: Int): WidgetSize {
+        fun getOptimalSize(minWidth: Int, minHeight: Int, maxWidth: Int, maxHeight: Int, defaultSize: WidgetSize? = null): WidgetSize {
+            if (defaultSize == COMPACT_4X4) {
+                val heightDp = minHeight
+                val gridHeight = (heightDp + GridThresholds.CELL_HEIGHT_DP / 2) / GridThresholds.CELL_HEIGHT_DP
+                // Only downgrade if resized to less than 3 rows high
+                if (gridHeight >= 3) return COMPACT_4X4
+            }
+
             // Use minimum dimensions for consistent detection
             val widthDp = minWidth
             val heightDp = minHeight
@@ -92,6 +107,7 @@ enum class WidgetSize(
             val gridHeight = (heightDp + GridThresholds.CELL_HEIGHT_DP / 2) / GridThresholds.CELL_HEIGHT_DP
             
             return when {
+                gridWidth >= GridThresholds.GRID_WIDTH_4X2 && gridHeight >= GridThresholds.GRID_HEIGHT_4X4 -> COMPACT_4X4
                 gridWidth >= GridThresholds.GRID_WIDTH_5X2 -> COMPACT_5X2
                 gridWidth >= GridThresholds.GRID_WIDTH_4X2 -> COMPACT_4X2
                 else -> COMPACT_2X2

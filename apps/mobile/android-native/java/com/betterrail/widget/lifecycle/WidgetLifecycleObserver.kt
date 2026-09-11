@@ -9,6 +9,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.betterrail.widget.ModernCompactWidget2x2Provider
 import com.betterrail.widget.ModernCompactWidget4x2Provider
+import com.betterrail.widget.ModernCompactWidget4x4Provider
 import kotlinx.coroutines.*
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
@@ -109,6 +110,12 @@ class WidgetLifecycleObserver private constructor(
                 ComponentName(application, ModernCompactWidget4x2Provider::class.java)
             )
             allWidgetIds.addAll(compact4x2Ids.toList())
+
+            // Add widgets from ModernCompactWidget4x4Provider
+            val compact4x4Ids = appWidgetManager.getAppWidgetIds(
+                ComponentName(application, ModernCompactWidget4x4Provider::class.java)
+            )
+            allWidgetIds.addAll(compact4x4Ids.toList())
             
         } catch (e: Exception) {
             Log.e(TAG, "Error getting widget IDs", e)

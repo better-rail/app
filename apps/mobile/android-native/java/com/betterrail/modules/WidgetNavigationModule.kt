@@ -14,9 +14,11 @@ import android.widget.RemoteViews
 import com.betterrail.R
 import com.betterrail.widget.ModernCompactWidget2x2Provider
 import com.betterrail.widget.ModernCompactWidget4x2Provider
+import com.betterrail.widget.ModernCompactWidget4x4Provider
 import com.betterrail.widget.BaseWidgetConfigActivity
 import com.betterrail.widget.CompactWidget2x2ConfigActivity
 import com.betterrail.widget.CompactWidget4x2ConfigActivity
+import com.betterrail.widget.CompactWidget4x4ConfigActivity
 import com.betterrail.widget.WidgetPinReceiver
 import com.betterrail.widget.data.StationsData
 import com.betterrail.widget.utils.WidgetRTLHelper
@@ -30,7 +32,8 @@ class WidgetNavigationModule(reactContext: ReactApplicationContext) : ReactConte
         val configActivityClass: Class<*>
     ) {
         COMPACT("compact", ModernCompactWidget2x2Provider::class.java, CompactWidget2x2ConfigActivity::class.java),
-        WIDE("wide", ModernCompactWidget4x2Provider::class.java, CompactWidget4x2ConfigActivity::class.java);
+        WIDE("wide", ModernCompactWidget4x2Provider::class.java, CompactWidget4x2ConfigActivity::class.java),
+        LARGE("large", ModernCompactWidget4x4Provider::class.java, CompactWidget4x4ConfigActivity::class.java);
 
         companion object {
             fun fromKey(key: String?): WidgetFamily =

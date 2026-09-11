@@ -1,0 +1,985 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_container_compact_4x4_preview"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FFFFFF">
+
+    <!-- Top Hero Section: Station Photo + Next Train Metrics -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="184dp">
+
+        <!-- Station Background Image -->
+        <ImageView
+            android:id="@+id/widget_station_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/assets_stationimages_tlvhashalom" />
+
+        <!-- Dark Scrim Overlay -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:background="#B3000000"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="10dp">
+
+            <!-- Origin Station Name -->
+            <TextView
+                android:id="@+id/widget_station_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tel Aviv - HaShalom"
+                android:textColor="#FFFFFF"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_bold"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:shadowColor="#FF000000"
+                android:shadowDx="2"
+                android:shadowDy="2"
+                android:shadowRadius="4" />
+
+            <!-- Destination with Arrow -->
+            <LinearLayout
+                android:id="@+id/widget_destination_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="2dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp">
+
+                <ImageView
+                    android:id="@+id/widget_arrow_icon"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:src="@drawable/ic_arrow_circle"
+                    android:layout_marginEnd="5dp"
+                    android:contentDescription="Arrow to destination" />
+
+                <TextView
+                    android:id="@+id/widget_destination"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Jerusalem - Yitzhak Navon"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13.5sp"
+                    android:typeface="sans"
+                    android:fontFamily="@font/heebo_medium"
+                    android:shadowColor="#FF000000"
+                    android:shadowDx="2"
+                    android:shadowDy="2"
+                    android:shadowRadius="4" />
+            </LinearLayout>
+
+            <!-- Spacer -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <!-- NEXT TRAIN Badge -->
+            <TextView
+                android:id="@+id/widget_train_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="NEXT TRAIN"
+                android:textColor="#FA827E"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_bold"
+                android:shadowColor="#FF000000"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="2"
+                android:layout_marginBottom="2dp" />
+
+            <!-- Metrics Row (Departure, Arrival, Platform, Train No.) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="bottom">
+
+                <!-- Large Departure Time -->
+                <TextView
+                    android:id="@+id/widget_next_train_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="06:32"
+                    android:textColor="#FFFFFF"
+                    android:textSize="32sp"
+                    android:textStyle="bold"
+                    android:typeface="sans"
+                    android:fontFamily="@font/heebo_bold"
+                    android:shadowColor="#FF000000"
+                    android:shadowDx="2"
+                    android:shadowDy="2"
+                    android:shadowRadius="4" />
+
+                <!-- Arrival Column -->
+                <LinearLayout
+                    android:id="@+id/widget_arrival_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="14dp">
+
+                    <TextView
+                        android:id="@+id/widget_arrival_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/arrival_caps"
+                        android:textColor="#B3FFFFFF"
+                        android:textSize="9.5sp"
+                        android:textStyle="bold"
+                        android:typeface="sans"
+                        android:fontFamily="@font/heebo_bold" />
+
+                    <TextView
+                        android:id="@+id/widget_arrival_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="06:58"
+                        android:textColor="#FFFFFF"
+                        android:textSize="19sp"
+                        android:textStyle="bold"
+                        android:typeface="sans"
+                        android:fontFamily="@font/heebo_bold"
+                        android:shadowColor="#FF000000"
+                        android:shadowDx="1"
+                        android:shadowDy="1"
+                        android:shadowRadius="3" />
+                </LinearLayout>
+
+                <!-- Platform Column -->
+                <LinearLayout
+                    android:id="@+id/widget_platform_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="14dp">
+
+                    <TextView
+                        android:id="@+id/widget_platform_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/platform_caps"
+                        android:textColor="#B3FFFFFF"
+                        android:textSize="9.5sp"
+                        android:textStyle="bold"
+                        android:typeface="sans"
+                        android:fontFamily="@font/heebo_bold" />
+
+                    <TextView
+                        android:id="@+id/widget_platform_val"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="1"
+                        android:textColor="#FFFFFF"
+                        android:textSize="19sp"
+                        android:textStyle="bold"
+                        android:typeface="sans"
+                        android:fontFamily="@font/heebo_bold"
+                        android:shadowColor="#FF000000"
+                        android:shadowDx="1"
+                        android:shadowDy="1"
+                        android:shadowRadius="3" />
+                </LinearLayout>
+
+                <!-- Train No. Column -->
+                <LinearLayout
+                    android:id="@+id/widget_train_num_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="14dp">
+
+                    <TextView
+                        android:id="@+id/widget_train_num_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/train_no_caps"
+                        android:textColor="#B3FFFFFF"
+                        android:textSize="9.5sp"
+                        android:textStyle="bold"
+                        android:typeface="sans"
+                        android:fontFamily="@font/heebo_bold" />
+
+                    <TextView
+                        android:id="@+id/widget_train_num_val"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="261"
+                        android:textColor="#FFFFFF"
+                        android:textSize="19sp"
+                        android:textStyle="bold"
+                        android:typeface="sans"
+                        android:fontFamily="@font/heebo_bold"
+                        android:shadowColor="#FF000000"
+                        android:shadowDx="1"
+                        android:shadowDy="1"
+                        android:shadowRadius="3" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- Bottom Schedule Table Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:background="#FFFFFF"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="6dp">
+
+        <!-- Table Column Headers -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="@string/depart_caps"
+                android:textColor="#757575"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_bold" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.05"
+                android:text="@string/arrive_caps"
+                android:textColor="#757575"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_bold" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="@string/duration_caps"
+                android:textColor="#757575"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_bold" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="@string/platform_caps"
+                android:textColor="#757575"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_bold" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.75"
+                android:text="@string/train_caps"
+                android:textColor="#757575"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_bold"
+                android:gravity="end" />
+        </LinearLayout>
+
+        <!-- Row 1 -->
+        <FrameLayout
+            android:id="@+id/widget_upcoming_divider_1"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E5E5EA" />
+
+        <LinearLayout
+            android:id="@+id/widget_upcoming_row_1"
+            android:layout_width="match_parent"
+            android:layout_height="28dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/widget_upcoming_train_1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="06:55"
+                android:textColor="#111111"
+                android:textSize="14.5sp"
+                android:textStyle="bold"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_bold" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_arrival_1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.05"
+                android:text="07:29"
+                android:textColor="#757575"
+                android:textSize="13.5sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_duration_1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="34 min"
+                android:textColor="#757575"
+                android:textSize="13sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_platform_1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="2"
+                android:textColor="#757575"
+                android:textSize="13.5sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_train_num_1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.75"
+                android:text="257"
+                android:textColor="#AEAEB2"
+                android:textSize="13sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium"
+                android:gravity="end" />
+        </LinearLayout>
+
+        <!-- Row 2 -->
+        <FrameLayout
+            android:id="@+id/widget_upcoming_divider_2"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E5E5EA" />
+
+        <LinearLayout
+            android:id="@+id/widget_upcoming_row_2"
+            android:layout_width="match_parent"
+            android:layout_height="28dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/widget_upcoming_train_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="07:18"
+                android:textColor="#111111"
+                android:textSize="14.5sp"
+                android:textStyle="bold"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_bold" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_arrival_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.05"
+                android:text="07:44"
+                android:textColor="#757575"
+                android:textSize="13.5sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_duration_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="26 min"
+                android:textColor="#757575"
+                android:textSize="13sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_platform_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="3"
+                android:textColor="#757575"
+                android:textSize="13.5sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_train_num_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.75"
+                android:text="521"
+                android:textColor="#AEAEB2"
+                android:textSize="13sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium"
+                android:gravity="end" />
+        </LinearLayout>
+
+        <!-- Row 3 -->
+        <FrameLayout
+            android:id="@+id/widget_upcoming_divider_3"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E5E5EA" />
+
+        <LinearLayout
+            android:id="@+id/widget_upcoming_row_3"
+            android:layout_width="match_parent"
+            android:layout_height="28dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/widget_upcoming_train_3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="07:41"
+                android:textColor="#111111"
+                android:textSize="14.5sp"
+                android:textStyle="bold"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_bold" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_arrival_3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.05"
+                android:text="08:22"
+                android:textColor="#757575"
+                android:textSize="13.5sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_duration_3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="41 min"
+                android:textColor="#757575"
+                android:textSize="13sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_platform_3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="2"
+                android:textColor="#757575"
+                android:textSize="13.5sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_train_num_3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.75"
+                android:text="259"
+                android:textColor="#AEAEB2"
+                android:textSize="13sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium"
+                android:gravity="end" />
+        </LinearLayout>
+
+        <!-- Row 4 -->
+        <FrameLayout
+            android:id="@+id/widget_upcoming_divider_4"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E5E5EA" />
+
+        <LinearLayout
+            android:id="@+id/widget_upcoming_row_4"
+            android:layout_width="match_parent"
+            android:layout_height="28dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/widget_upcoming_train_4"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="08:05"
+                android:textColor="#111111"
+                android:textSize="14.5sp"
+                android:textStyle="bold"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_bold" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_arrival_4"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.05"
+                android:text="08:31"
+                android:textColor="#757575"
+                android:textSize="13.5sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_duration_4"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="26 min"
+                android:textColor="#757575"
+                android:textSize="13sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_platform_4"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="3"
+                android:textColor="#757575"
+                android:textSize="13.5sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_train_num_4"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.75"
+                android:text="971"
+                android:textColor="#AEAEB2"
+                android:textSize="13sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium"
+                android:gravity="end" />
+        </LinearLayout>
+
+        <!-- Row 5 -->
+        <FrameLayout
+            android:id="@+id/widget_upcoming_divider_5"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E5E5EA" />
+
+        <LinearLayout
+            android:id="@+id/widget_upcoming_row_5"
+            android:layout_width="match_parent"
+            android:layout_height="28dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/widget_upcoming_train_5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="08:28"
+                android:textColor="#111111"
+                android:textSize="14.5sp"
+                android:textStyle="bold"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_bold" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_arrival_5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.05"
+                android:text="09:02"
+                android:textColor="#757575"
+                android:textSize="13.5sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_duration_5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="34 min"
+                android:textColor="#757575"
+                android:textSize="13sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_platform_5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="–"
+                android:textColor="#757575"
+                android:textSize="13.5sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_train_num_5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.75"
+                android:text="263"
+                android:textColor="#AEAEB2"
+                android:textSize="13sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium"
+                android:gravity="end" />
+        </LinearLayout>
+
+        <!-- Row 6 -->
+        <FrameLayout
+            android:id="@+id/widget_upcoming_divider_6"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E5E5EA" />
+
+        <LinearLayout
+            android:id="@+id/widget_upcoming_row_6"
+            android:layout_width="match_parent"
+            android:layout_height="28dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/widget_upcoming_train_6"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="08:58"
+                android:textColor="#111111"
+                android:textSize="14.5sp"
+                android:textStyle="bold"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_bold" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_arrival_6"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.05"
+                android:text="09:24"
+                android:textColor="#757575"
+                android:textSize="13.5sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_duration_6"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="26 min"
+                android:textColor="#757575"
+                android:textSize="13sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_platform_6"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="3"
+                android:textColor="#757575"
+                android:textSize="13.5sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_train_num_6"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.75"
+                android:text="265"
+                android:textColor="#AEAEB2"
+                android:textSize="13sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium"
+                android:gravity="end" />
+        </LinearLayout>
+
+        <!-- Row 7 -->
+        <FrameLayout
+            android:id="@+id/widget_upcoming_divider_7"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E5E5EA" />
+
+        <LinearLayout
+            android:id="@+id/widget_upcoming_row_7"
+            android:layout_width="match_parent"
+            android:layout_height="28dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/widget_upcoming_train_7"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="09:28"
+                android:textColor="#111111"
+                android:textSize="14.5sp"
+                android:textStyle="bold"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_bold" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_arrival_7"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.05"
+                android:text="10:09"
+                android:textColor="#757575"
+                android:textSize="13.5sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_duration_7"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="41 min"
+                android:textColor="#757575"
+                android:textSize="13sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_platform_7"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="1"
+                android:textColor="#757575"
+                android:textSize="13.5sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_train_num_7"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.75"
+                android:text="267"
+                android:textColor="#AEAEB2"
+                android:textSize="13sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium"
+                android:gravity="end" />
+        </LinearLayout>
+
+        <!-- Row 8 -->
+        <FrameLayout
+            android:id="@+id/widget_upcoming_divider_8"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E5E5EA" />
+
+        <LinearLayout
+            android:id="@+id/widget_upcoming_row_8"
+            android:layout_width="match_parent"
+            android:layout_height="28dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/widget_upcoming_train_8"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="09:58"
+                android:textColor="#111111"
+                android:textSize="14.5sp"
+                android:textStyle="bold"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_bold" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_arrival_8"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.05"
+                android:text="10:24"
+                android:textColor="#757575"
+                android:textSize="13.5sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_duration_8"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="26 min"
+                android:textColor="#757575"
+                android:textSize="13sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_platform_8"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="3"
+                android:textColor="#757575"
+                android:textSize="13.5sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_train_num_8"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.75"
+                android:text="269"
+                android:textColor="#AEAEB2"
+                android:textSize="13sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium"
+                android:gravity="end" />
+        </LinearLayout>
+
+        <!-- Row 9 -->
+        <FrameLayout
+            android:id="@+id/widget_upcoming_divider_9"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E5E5EA" />
+
+        <LinearLayout
+            android:id="@+id/widget_upcoming_row_9"
+            android:layout_width="match_parent"
+            android:layout_height="28dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/widget_upcoming_train_9"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="10:28"
+                android:textColor="#111111"
+                android:textSize="14.5sp"
+                android:textStyle="bold"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_bold" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_arrival_9"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.05"
+                android:text="11:02"
+                android:textColor="#757575"
+                android:textSize="13.5sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_duration_9"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="34 min"
+                android:textColor="#757575"
+                android:textSize="13sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_platform_9"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="2"
+                android:textColor="#757575"
+                android:textSize="13.5sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium" />
+
+            <TextView
+                android:id="@+id/widget_upcoming_train_num_9"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.75"
+                android:text="271"
+                android:textColor="#AEAEB2"
+                android:textSize="13sp"
+                android:typeface="sans"
+                android:fontFamily="@font/heebo_medium"
+                android:gravity="end" />
+        </LinearLayout>
+
+        <!-- Bottom Spacer to absorb extra height when fewer rows are visible -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+</LinearLayout>

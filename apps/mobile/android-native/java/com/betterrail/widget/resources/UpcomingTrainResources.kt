@@ -37,12 +37,24 @@ data class UpcomingTrainResources(
     }
     
     /**
+     * Get all divider view resource IDs
+     * Pattern: widget_upcoming_divider_1, widget_upcoming_divider_2, etc.
+     */
+    fun getDividerIds(): List<Int> = (1..maxRows).map { index ->
+        getResourceId("widget_upcoming_divider_$index")
+    }
+
+    /**
      * Get complete resource mapping for a specific row index (1-based)
      */
     data class RowResources(
         val rowId: Int,
         val trainTimeId: Int, 
-        val arrivalTimeId: Int
+        val arrivalTimeId: Int,
+        val durationId: Int = 0,
+        val platformId: Int = 0,
+        val trainNumberId: Int = 0,
+        val dividerId: Int = 0
     )
     
     /**
@@ -52,7 +64,11 @@ data class UpcomingTrainResources(
         RowResources(
             rowId = getResourceId("widget_upcoming_row_$index"),
             trainTimeId = getResourceId("widget_upcoming_train_$index"),
-            arrivalTimeId = getResourceId("widget_upcoming_arrival_$index")
+            arrivalTimeId = getResourceId("widget_upcoming_arrival_$index"),
+            durationId = getResourceId("widget_upcoming_duration_$index"),
+            platformId = getResourceId("widget_upcoming_platform_$index"),
+            trainNumberId = getResourceId("widget_upcoming_train_num_$index"),
+            dividerId = getResourceId("widget_upcoming_divider_$index")
         )
     }
     
@@ -74,12 +90,6 @@ data class UpcomingTrainResources(
             "id", 
             context.packageName
         )
-        
-        // Log warning if resource not found (helps with debugging)
-        if (resourceId == 0) {
-            android.util.Log.w("UpcomingTrainResources", "Resource not found: $resourceName")
-        }
-        
         return resourceId
     }
     
@@ -88,5 +98,17 @@ data class UpcomingTrainResources(
          * Create instance with default configuration from WidgetSize.MAX_UPCOMING_TRAINS
          */
         fun createDefault(context: Context) = UpcomingTrainResources(context, WidgetSize.MAX_UPCOMING_TRAINS)
+
+        /**
+         * Create instance appropriate for the given layout resource
+         */
+        fun createForLayout(context: Context, layoutResource: Int): UpcomingTrainResources {
+            val maxRows = if (layoutResource == com.betterrail.R.layout.widget_compact_4x4) {
+                WidgetSize.MAX_UPCOMING_TRAINS_4X4
+            } else {
+                WidgetSize.MAX_UPCOMING_TRAINS
+            }
+            return UpcomingTrainResources(context, maxRows)
+        }
     }
 }
