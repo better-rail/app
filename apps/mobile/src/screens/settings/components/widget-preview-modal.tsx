@@ -4,7 +4,7 @@ import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
 import { TxKeyPath } from "@/i18n"
 import { WidgetFamily } from "@/utils/widget-helpers"
-import { WidgetPreviewCompact, WidgetPreviewWide } from "./widget-previews"
+import { WidgetPreviewCompact, WidgetPreviewLarge, WidgetPreviewWide } from "./widget-previews"
 
 const CARD_WIDTH = Math.min(Dimensions.get("window").width - 48, 340)
 
@@ -17,16 +17,22 @@ interface WidgetOption {
 
 const WIDGETS: WidgetOption[] = [
   {
+    family: "compact",
+    titleTx: "settings.widgetSizeCompact",
+    descTx: "settings.widgetCompactDesc",
+    component: WidgetPreviewCompact,
+  },
+  {
     family: "wide",
     titleTx: "settings.widgetSizeWide",
     descTx: "settings.widgetWideDesc",
     component: WidgetPreviewWide,
   },
   {
-    family: "compact",
-    titleTx: "settings.widgetSizeCompact",
-    descTx: "settings.widgetCompactDesc",
-    component: WidgetPreviewCompact,
+    family: "large",
+    titleTx: "settings.widgetSizeLarge",
+    descTx: "settings.widgetLargeDesc",
+    component: WidgetPreviewLarge,
   },
 ]
 
@@ -66,7 +72,7 @@ export function WidgetPreviewModal({ visible, onClose, onPin }: WidgetPreviewMod
   }
 
   const handlePin = () => {
-    const selected = WIDGETS[activeIndex]?.family ?? "wide"
+    const selected = WIDGETS[activeIndex]?.family ?? "compact"
     onPin(selected)
     handleClose()
   }
@@ -158,7 +164,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   carouselWrapper: {
     width: CARD_WIDTH,
-    height: 236,
+    height: 300,
   },
   card: {
     width: CARD_WIDTH,
@@ -168,7 +174,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   imageWrapper: {
     width: "100%",
-    height: 140,
+    height: 214,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: theme.spacing[2],
