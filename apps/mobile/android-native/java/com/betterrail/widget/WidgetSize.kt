@@ -91,21 +91,15 @@ enum class WidgetSize(
          * Determine optimal widget size based on grid cells (more reliable than pixels)
          */
         fun getOptimalSize(minWidth: Int, minHeight: Int, maxWidth: Int, maxHeight: Int, defaultSize: WidgetSize? = null): WidgetSize {
-            if (defaultSize == COMPACT_4X4) {
-                val heightDp = minHeight
-                val gridHeight = (heightDp + GridThresholds.CELL_HEIGHT_DP / 2) / GridThresholds.CELL_HEIGHT_DP
-                // Only downgrade if resized to less than 3 rows high
-                if (gridHeight >= 3) return COMPACT_4X4
+            // Convert to grid cells using Android standard (~70dp per cell)
+            val gridWidth = (minWidth + GridThresholds.CELL_WIDTH_DP / 2) / GridThresholds.CELL_WIDTH_DP
+            val gridHeight = (minHeight + GridThresholds.CELL_HEIGHT_DP / 2) / GridThresholds.CELL_HEIGHT_DP
+
+            // Retain 4x4 if height has not dropped below 3 rows and width is at least 4 columns
+            if (defaultSize == COMPACT_4X4 && gridWidth >= GridThresholds.GRID_WIDTH_4X2 && gridHeight >= 3) {
+                return COMPACT_4X4
             }
 
-            // Use minimum dimensions for consistent detection
-            val widthDp = minWidth
-            val heightDp = minHeight
-            
-            // Convert to grid cells using Android standard (~70dp per cell)
-            val gridWidth = (widthDp + GridThresholds.CELL_WIDTH_DP / 2) / GridThresholds.CELL_WIDTH_DP
-            val gridHeight = (heightDp + GridThresholds.CELL_HEIGHT_DP / 2) / GridThresholds.CELL_HEIGHT_DP
-            
             return when {
                 gridWidth >= GridThresholds.GRID_WIDTH_4X2 && gridHeight >= GridThresholds.GRID_HEIGHT_4X4 -> COMPACT_4X4
                 gridWidth >= GridThresholds.GRID_WIDTH_5X2 -> COMPACT_5X2

@@ -95,7 +95,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="NEXT TRAIN"
+                android:text="@string/next_train"
                 android:textColor="#FA827E"
                 android:textSize="11sp"
                 android:textStyle="bold"

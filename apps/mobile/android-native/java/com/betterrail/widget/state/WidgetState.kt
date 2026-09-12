@@ -348,10 +348,10 @@ class WidgetStateRenderer(
         // Set localized labels for upcoming trains section
         views.setTextViewText(R.id.widget_upcoming_label, context.getString(R.string.upcoming))
         views.setTextViewText(R.id.widget_arrival_label, context.getString(R.string.arrival_caps))
-        views.setTextViewText(R.id.widget_platform_label, context.getString(R.string.platform_caps))
-        views.setTextViewText(R.id.widget_train_num_label, context.getString(R.string.train_no_caps))
 
         if (layoutResource == R.layout.widget_compact_4x4) {
+            views.setTextViewText(R.id.widget_platform_label, context.getString(R.string.platform_caps))
+            views.setTextViewText(R.id.widget_train_num_label, context.getString(R.string.train_no_caps))
             views.setTextViewText(R.id.widget_header_depart, context.getString(R.string.depart_caps))
             views.setTextViewText(R.id.widget_header_arrive, context.getString(R.string.arrive_caps))
             views.setTextViewText(R.id.widget_header_duration, context.getString(R.string.duration_caps))
