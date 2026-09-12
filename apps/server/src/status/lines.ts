@@ -14,6 +14,11 @@
  * The app keeps a display copy of this catalogue in
  * apps/mobile/src/data/rail-lines.ts (ids, badges and colours must stay in sync).
  *
+ * `id` and `badge` are internal keys: Israel Railways publishes no line numbering and the app
+ * shows neither — a passenger sees a line's colour and its name (the two termini). Three ids
+ * differ from their badge (3X→34, 12→8, 8→12); always look a line up, never read one off the
+ * other. See .claude/skills/israel-railways-lines for the numbering the catalogue follows.
+ *
  * Generated from the Line Explorer export — regenerate rather than hand-edit.
  */
 

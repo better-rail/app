@@ -1,8 +1,8 @@
 import { format } from "date-fns"
-import { translate, userLocale } from "@/i18n"
+import { dateFnsLocalization, translate, userLocale } from "@/i18n"
 import { getStationById } from "@/data/stations"
 import { getRailLine } from "@/data/rail-lines"
-import type { AffectedTrain, Disruption, LineStatus, ServiceStatusLevel } from "@/services/api"
+import type { AffectedTrain, Disruption, LineStatus, LocalizedText, ServiceStatusLevel, TravelAlternative } from "@/services/api"
 
 export const stationName = (stationId: string): string => getStationById(stationId)?.name ?? stationId
 
@@ -16,7 +16,8 @@ export const levelDescription = (level: ServiceStatusLevel): string => translate
 
 /** What is wrong on the line in words, worst first ("Part suspended, Minor delays"), or its level alone. */
 export const lineLevels = (lineStatus: Pick<LineStatus, "level" | "disruptions">): string => {
-  const levels = [...new Set(lineStatus.disruptions.map((d) => d.level))]
+  // Extra trains are a good-service card; they are not what is wrong with the line.
+  const levels = [...new Set(lineStatus.disruptions.map((d) => d.level).filter((level) => level !== "goodService"))]
   return (levels.length > 0 ? levels : [lineStatus.level]).map(levelLabel).join(", ")
 }
 
@@ -59,7 +60,33 @@ export const trainConsequence = (train: AffectedTrain): string => {
       return (
         translate("serviceStatus.skipsStations", { stations: (train.skippedStationIds ?? []).map(stationName).join(", ") }) ?? ""
       )
+    case "added":
+      return translate("serviceStatus.addedTrain", { time: clockTime(train.departureTime) }) ?? ""
     default:
       return translate("serviceStatus.minutesLate", { minutes: train.delayMinutes }) ?? ""
   }
+}
+
+/** The user's language, or English, or whatever there is. */
+export const localizedText = (text: LocalizedText): string => text[userLocale] || text.en || text.he || text.ru || text.ar
+
+/** Why the disruption is happening, when the announcement said. */
+export const disruptionReason = (disruption: Disruption): string | undefined =>
+  disruption.reason ? localizedText(disruption.reason) : undefined
+
+/** "Shuttle buses · free of charge": the kind of alternative, and whether it costs anything. */
+export const alternativeLabel = (alternative: TravelAlternative): string => {
+  const mode = translate(`serviceStatus.modes.${alternative.mode}`) ?? alternative.mode
+  return alternative.free ? `${mode} · ${translate("serviceStatus.free")}` : mode
+}
+
+/** "Until Sun, 23 Aug 04:00" for an announced disruption with an end; nothing when open-ended. */
+export const disruptionUntil = (disruption: Disruption): string | undefined => {
+  const to = disruption.validity?.to
+  if (!to) return undefined
+  const date = new Date(to)
+  if (Number.isNaN(date.getTime())) return undefined
+  return (
+    translate("serviceStatus.until", { time: format(date, "EEE, d MMM HH:mm", { locale: dateFnsLocalization }) }) ?? undefined
+  )
 }

@@ -2,9 +2,23 @@
  * service-status.ts — the contract between the server and the app's Service
  * Status screen (line list, network map and the per-line details sheet).
  *
- * Everything here is derived, read-only data: the GTFS timetable in Postgres
- * laid over with the SIRI snapshot the poller keeps in redis. Nothing is
- * persisted — the response is recomputed (and briefly cached) on demand.
+ * Two sources feed it, both read-only:
+ *
+ * - realtime: the GTFS timetable in Postgres laid over with the SIRI snapshot
+ *   the poller keeps in redis — delays, cancellations, curtailments and skipped
+ *   stops, train by train (status/service-status.ts);
+ * - announcements: Israel Railways' published service updates, turned into
+ *   planned disruptions (works, closures, suspensions) by an LLM in the
+ *   service-status service and kept in redis until the announcement goes away
+ *   (service-status/announcements.ts). These carry a reason and, when Israel
+ *   Railways offers one, alternative transport;
+ * - timetable: Israel Railways' own timetable compared with the GTFS schedule by
+ *   the same service (service-status/timetable.ts) — trains gone missing count
+ *   as cancelled, trains with fewer stops as skipping them, trains the schedule
+ *   does not know as extra.
+ *
+ * Nothing is persisted here — the response is recomputed (and briefly cached)
+ * on demand.
  *
  * Station ids are the app's canonical Israel-Railways "3700"-style ids, as
  * strings, so the client can label them with `stations.ts` in any language.
@@ -29,11 +43,21 @@ export const SERVICE_STATUS_LEVELS = [
 
 export type ServiceStatusLevel = (typeof SERVICE_STATUS_LEVELS)[number]
 
-export const DISRUPTION_KINDS = ["delays", "cancellations", "skippedStops", "curtailment", "suspension"] as const
+export const DISRUPTION_KINDS = ["delays", "cancellations", "skippedStops", "curtailment", "suspension", "extraTrains"] as const
 
 export type DisruptionKind = (typeof DISRUPTION_KINDS)[number]
 
-export const AFFECTED_TRAIN_STATUSES = ["delayed", "cancelled", "curtailed", "skippingStops"] as const
+/** Where a disruption was seen: the live feed, an Israel Railways announcement, or their timetable vs the schedule. */
+export const DISRUPTION_SOURCES = ["realtime", "announcement", "timetable"] as const
+
+export type DisruptionSource = (typeof DISRUPTION_SOURCES)[number]
+
+/** The ways Israel Railways offers around a disruption. */
+export const TRANSPORT_MODES = ["shuttle", "bus", "train", "lightRail", "other"] as const
+
+export type TransportMode = (typeof TRANSPORT_MODES)[number]
+
+export const AFFECTED_TRAIN_STATUSES = ["delayed", "cancelled", "curtailed", "skippingStops", "added"] as const
 
 export type AffectedTrainStatus = (typeof AFFECTED_TRAIN_STATUSES)[number]
 
@@ -43,6 +67,14 @@ export const SEVERE_DELAY_MINUTES = 15
 
 const StationId = z.string().regex(/^\d+$/)
 const NaiveIso = z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/)
+
+/** A sentence in every language the app speaks; the app picks the user's. */
+export const LocalizedTextSchema = z.object({
+  he: z.string(),
+  en: z.string(),
+  ru: z.string(),
+  ar: z.string(),
+})
 
 export const AffectedTrainSchema = z.object({
   trainNumber: z.number().int().nonnegative(),
@@ -65,8 +97,20 @@ export const AffectedTrainSchema = z.object({
 export const DisruptionSectionSchema = z.object({
   fromStationId: StationId,
   toStationId: StationId,
-  /** Every station of the stretch, inclusive, in the line's station order. */
+  /**
+   * The stations the disruption concerns, in the line's station order. For a stretch with no
+   * service (suspension, curtailment, cancellations) that is every station of it, inclusive; for
+   * `skippedStops` only the stations trains pass without stopping, which need not be adjacent.
+   */
   stationIds: z.array(StationId).min(1),
+})
+
+/** One way around the disruption that Israel Railways offers. */
+export const TravelAlternativeSchema = z.object({
+  mode: z.enum(TRANSPORT_MODES),
+  /** Whether Israel Railways says it costs nothing (shuttle buses usually do). */
+  free: z.boolean(),
+  description: LocalizedTextSchema,
 })
 
 export const DisruptionSchema = z.object({
@@ -77,7 +121,17 @@ export const DisruptionSchema = z.object({
   level: z.enum(SERVICE_STATUS_LEVELS),
   /** The stretch of the line the map should flag; null when it concerns the whole line or single trains. */
   section: DisruptionSectionSchema.nullable(),
+  /** Live trains the disruption concerns. Empty for an announcement no live train has confirmed yet. */
   trains: z.array(AffectedTrainSchema),
+  source: z.enum(DISRUPTION_SOURCES),
+  /** Why, as Israel Railways put it ("infrastructure works near Zevulun"). Announcements only. */
+  reason: LocalizedTextSchema.optional(),
+  /** Ways around it Israel Railways offers, when it does. Announcements only. */
+  alternatives: z.array(TravelAlternativeSchema).optional(),
+  /** Israel Railways' page about it, when there is one. */
+  link: z.string().url().optional(),
+  /** When the announced disruption is in force (naive wall-clock); `to` is null when open-ended. */
+  validity: z.object({ from: NaiveIso, to: NaiveIso.nullable() }).optional(),
 })
 
 export const LineStatusSchema = z.object({
@@ -114,6 +168,16 @@ export const ServiceStatusSnapshotSchema = z.object({
     /** Real UTC time of the poll behind the snapshot, when there is one. */
     updatedAt: z.string().nullable(),
   }),
+  announcements: z.object({
+    /** Real UTC time Israel Railways' updates were last read into the status, when they have been. */
+    updatedAt: z.string().nullable(),
+  }),
+  timetable: z.object({
+    /** Real UTC time Israel Railways' timetable was last compared with the schedule, when it has been. */
+    checkedAt: z.string().nullable(),
+    /** False when the last comparison is missing or too old to trust. */
+    available: z.boolean(),
+  }),
   network: z.object({
     /** The worst level of any line that has service right now. */
     level: z.enum(SERVICE_STATUS_LEVELS),
@@ -123,6 +187,8 @@ export const ServiceStatusSnapshotSchema = z.object({
   lines: z.array(LineStatusSchema),
 })
 
+export type LocalizedText = z.infer<typeof LocalizedTextSchema>
+export type TravelAlternative = z.infer<typeof TravelAlternativeSchema>
 export type AffectedTrain = z.infer<typeof AffectedTrainSchema>
 export type DisruptionSection = z.infer<typeof DisruptionSectionSchema>
 export type Disruption = z.infer<typeof DisruptionSchema>

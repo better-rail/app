@@ -55,6 +55,8 @@ function add(clock: string, minutes: number): string {
   return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`
 }
 
+const lineByBase = (n: number) => RAIL_LINES.find((l) => l.trainNumbers.includes(n))?.id
+
 describe("line assignment", () => {
   test("known train numbers map to their catalogue line", () => {
     expect(assignLine(line2Train(230))).toBe("2")
@@ -106,6 +108,28 @@ describe("line assignment", () => {
         ]),
       ),
     ).toBeUndefined()
+  })
+
+  test("a four-digit number the catalogue lacks falls back to its base's line when its stops fit no corridor", () => {
+    // 9701 is the Wednesday-night reroute of 701: Herzliya – Ben Gurion, which line 7's corridor holds.
+    expect(
+      assignLine(
+        trip(9701, [
+          [3500, "00:40"],
+          [8600, "01:05"],
+        ]),
+      ),
+    ).toBe("7")
+    // A one-off extra whose stops fit no corridor still lands on its base number's line.
+    expect(
+      assignLine(
+        trip(8135, [
+          [1600, "23:20"],
+          [680, "01:30"],
+        ]),
+      ),
+    ).toBe(lineByBase(135))
+    expect(lineByBase(135)).toBe("1")
   })
 
   test("every catalogue train number belongs to exactly one line", () => {

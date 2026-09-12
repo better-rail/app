@@ -25,6 +25,8 @@ To follow these steps, ensure that [Bun](https://bun.sh) is installed (the serve
 - `/rides`: notification scheduler
 - `/routes`: express router (incl. the `/rail-api` legacy surface served from GTFS, and the token-guarded `/siri` debug routes)
 - `/siri`: SIRI-SM real-time pipeline — poller (standalone entrypoint `main.ts`), correlation and the redis snapshot
+- `/service-status`: the service-status service (standalone entrypoint `main.ts`) — Israel Railways' service updates read into announced disruptions by an LLM, and their timetable compared with the schedule; publishes to redis
+- `/status`: the Service Status derivation and the line catalogue
 - `/scripts`: standalone CLIs — `download-feed`, `ingest-gtfs`, `build-station-mapping`, `verify-mapping`
 - `/tests`: all the tests are here
 - `/types`: all the types are here
@@ -36,10 +38,10 @@ To follow these steps, ensure that [Bun](https://bun.sh) is installed (the serve
 so switching is a Railway variable change + restart — no app release, since every
 client (app, iOS/watch widgets, Android widget) goes through `/api/v1/rail-api`.
 
-| Value | Behaviour |
-| --- | --- |
-| `gtfs` (default) | MOT GTFS over Postgres + SIRI realtime, as described below. Retired endpoints answer with an empty legacy envelope. |
-| `rail` | The pre-migration behaviour: `/rail-api/*` proxies straight to the Israel Railways API, and ride tracking reads its timetable. Needs `RAIL_URL` and `RAIL_API_KEY`. |
+| Value            | Behaviour                                                                                                                                                           |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `gtfs` (default) | MOT GTFS over Postgres + SIRI realtime, as described below. Retired endpoints answer with an empty legacy envelope.                                                 |
+| `rail`           | The pre-migration behaviour: `/rail-api/*` proxies straight to the Israel Railways API, and ride tracking reads its timetable. Needs `RAIL_URL` and `RAIL_API_KEY`. |
 
 Under `rail` the API is geo-fenced, so a deployment whose egress IP isn't in
 Israel also needs `PROXY_URL`. Nothing reads the GTFS feed in that mode, so the
@@ -75,7 +77,15 @@ late), `severeDelays` (15+ min, half the trains late, or a cancelled train),
 `suspended` (every active train cancelled), `noService` (nothing running or
 due within 90 min) or `unknown` (no fresh SIRI snapshot) — plus the
 disruptions behind it, each with the affected stretch (station ids the map
-flags) and the trains concerned. The response contract is the zod schema in
+flags) and the trains concerned. Two more sources, gathered by the
+[service-status service](#the-service-status-service), are laid over the same
+lines: Israel Railways' announced works and closures as
+`announcement`-sourced disruptions, each with a reason, the alternative
+transport offered and a validity window (a live curtailment or cancellation
+inside an announced stretch folds into the announcement); and their timetable
+compared with the schedule, which cancels trains gone missing from it, takes
+stops off trains that lost them, and lists trains the schedule does not know as
+`extraTrains`. The response contract is the zod schema in
 `src/types/service-status.ts`, mirrored in the app under
 `apps/mobile/src/services/api/service-status.types.ts`; the pure derivation
 (`deriveServiceStatus`) is covered by `src/tests/service-status.test.ts`.
@@ -158,7 +168,7 @@ mapping.
 
 Rides are **shared state**: the `rides:*` hashes in redis and the push tokens of
 real passengers. A process that boots with tracking on runs
-`scheduleExistingRides()`, which picks up *every* active ride in redis, schedules
+`scheduleExistingRides()`, which picks up _every_ active ride in redis, schedules
 a second set of notifications for each and deletes the ones it can't reschedule —
 so a local run pointed at the production redis would push duplicates to real
 passengers and end their Live Activities.
@@ -196,6 +206,48 @@ Remote debugging goes through token-guarded routes (404 without
 (poller health + match rates), `GET /api/v1/siri/raw` (last raw payloads — the
 test-fixture source) and `GET /api/v1/siri/unmatched` (correlation misses).
 
+### The service-status service
+
+What the live feed cannot tell about the network's health is gathered by the
+service-status service, its **own Railway service** (`bun run service-status`)
+like the SIRI poller, and published to redis for the web service to lay over
+the status. It needs the rail API (`RAIL_URL`, `RAIL_API_KEY` and, off-shore,
+`PROXY_URL`), redis and Postgres.
+
+**Announcements.** Planned works, station closures and unplanned suspensions
+come from Israel Railways' own `railupdates` feed (the notices the old app
+listed under "service updates"; the `PopUpMessages` endpoint is gone). Every
+`ANNOUNCEMENTS_POLL_SECONDS` (default 5 minutes) the feed is fetched in Hebrew
+and English and fingerprinted, and only when the content changed an OpenAI
+model (`OPENAI_MODEL`, structured output) reads the whole list into
+disruptions: kind (`suspension` of a stretch, or `skippedStops` for closed
+stations), station ids, validity windows, a reason and any alternatives in all
+four languages. Everything the model returns is checked against the line
+catalogue (`service-status/extraction.ts`) and dropped when it does not fit.
+The result goes to `status:announcements` (3-day TTL, refreshed every poll).
+Without `OPENAI_API_KEY` this half idles.
+
+**Timetable check.** Israel Railways does not announce every cancellation, and
+SIRI only sees a train once it reports, but their timetable search always
+reflects what they mean to run. Every `TIMETABLE_CHECK_SECONDS` (default 5
+minutes) the trains still running or due within `TIMETABLE_WINDOW_MINUTES`
+(default 120) are looked up there with as few searches as cover them: one
+search between two stations returns every train of the day calling at both, in
+order, with its full route, so a greedy cover over station pairs (a dozen or
+so, mostly adjacent hub stations such as Savidor → HaShalom) sees them all.
+Trains are matched by number and departure time across the neighbouring
+service dates (the search files a train under the calendar day it leaves the
+pair's first station). A scheduled train the search does not list is
+cancelled; one listing fewer stops skips them; one ending short is curtailed;
+one the schedule has no trip for is extra. A search missing more than 30% of
+its expected trains is a schedule mismatch (the GTFS feed lagging Israel
+Railways' changes) and is not trusted. The result goes to `status:timetable`
+and is laid over the status while younger than `TIMETABLE_STALE_SECONDS`
+(default 900); with it, lines are judged even when SIRI is down.
+
+`GET /api/v1/siri/announcements` and `GET /api/v1/siri/timetable` (same token
+guard as the other debug routes) show the stored states.
+
 ### Enviroment Variables
 
 - `TZ`: should always be "Asia/Jerusalem"
@@ -221,4 +273,7 @@ test-fixture source) and `GET /api/v1/siri/unmatched` (correlation misses).
 - `SIRI_DEBUG_TOKEN`: secret for the `/api/v1/siri/*` debug routes; unset = routes 404
 - `RIDES_ENABLED`: `true`/`false` — whether this process tracks rides; see [Ride tracking](#ride-tracking)
 - `SIRI_POLLER_MODE`: set to `in-process` to run the poller inside the web service instead of the standalone `bun run siri` service
+- `OPENAI_API_KEY`: turns the announcements half of the service-status service on; `OPENAI_MODEL` (default `gpt-5-mini`) and `OPENAI_REASONING_EFFORT` (default `medium`, empty to omit) pick the model
+- `ANNOUNCEMENTS_POLL_SECONDS`: how often the service-status service reads Israel Railways' updates (default 300)
+- `TIMETABLE_CHECK_SECONDS` / `TIMETABLE_WINDOW_MINUTES` / `TIMETABLE_STALE_SECONDS`: the timetable check's cadence, lookahead and freshness (defaults 300 / 120 / 900)
 - `SIRI_POLL_SECONDS` / `SIRI_PREVIEW_INTERVAL` / `SIRI_CHUNK_SIZE` / `SIRI_STALE_SECONDS` / `SIRI_CARRY_SECONDS`: optional tuning (defaults 30 / PT90M / 70 / 600 / 86400)

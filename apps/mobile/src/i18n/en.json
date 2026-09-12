@@ -393,7 +393,8 @@
       "cancellations": "Cancelled trains",
       "skippedStops": "Trains not stopping",
       "curtailment": "Trains terminating early",
-      "suspension": "No service"
+      "suspension": "No service",
+      "extraTrains": "Extra trains"
     },
     "noServiceBetween": "No service between %{from} and %{to}",
     "notStoppingAt": "Trains are not calling at %{stations}",
@@ -409,6 +410,20 @@
     "trainsDelayed": "%{count} delayed",
     "trainsCancelled": "%{count} cancelled",
     "thresholds": "Delays of %{minor}+ minutes count as minor, %{severe}+ minutes as severe.",
+    "announced": "Announced by Israel Railways",
+    "fromTimetable": "Per the Israel Railways timetable",
+    "addedTrain": "Extra, departs %{time}",
+    "alternatives": "Alternative transport",
+    "free": "free of charge",
+    "until": "Until %{time}",
+    "moreInfo": "More on the Israel Railways site",
+    "modes": {
+      "shuttle": "Shuttle buses",
+      "bus": "Bus lines",
+      "train": "Alternative train route",
+      "lightRail": "Light rail",
+      "other": "Other"
+    },
     "error": "Couldn't load the service status",
     "errorDescription": "Check your connection and try again."
   }

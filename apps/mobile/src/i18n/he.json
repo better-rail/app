@@ -394,7 +394,8 @@
       "cancellations": "רכבות שבוטלו",
       "skippedStops": "רכבות שאינן עוצרות",
       "curtailment": "רכבות שמסתיימות מוקדם",
-      "suspension": "אין שירות"
+      "suspension": "אין שירות",
+      "extraTrains": "רכבות נוספות"
     },
     "noServiceBetween": "אין שירות בין %{from} ל%{to}",
     "notStoppingAt": "הרכבות אינן עוצרות ב%{stations}",
@@ -410,6 +411,20 @@
     "trainsDelayed": "%{count} מאחרות",
     "trainsCancelled": "%{count} בוטלו",
     "thresholds": "איחור של %{minor}+ דקות נחשב קל, %{severe}+ דקות נחשב משמעותי.",
+    "announced": "לפי הודעת רכבת ישראל",
+    "fromTimetable": "לפי לוח הזמנים של רכבת ישראל",
+    "addedTrain": "נוספת, יוצאת ב־%{time}",
+    "alternatives": "חלופות נסיעה",
+    "free": "ללא עלות",
+    "until": "עד %{time}",
+    "moreInfo": "עוד באתר רכבת ישראל",
+    "modes": {
+      "shuttle": "היסעים",
+      "bus": "קווי אוטובוס",
+      "train": "מסלול רכבת חלופי",
+      "lightRail": "רכבת קלה",
+      "other": "אחר"
+    },
     "error": "לא ניתן לטעון את מצב השירות",
     "errorDescription": "בדקו את החיבור לאינטרנט ונסו שוב."
   }

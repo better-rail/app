@@ -18,6 +18,7 @@
     "firebase-admin": "^11.7.0",
     "lodash": "^4.17.21",
     "node-schedule": "^2.1.1",
+    "openai": "7.10.0",
     "pg": "^8.11.5",
     "pg-copy-streams": "^6.0.6",
     "redis": "^4.6.5",
@@ -44,7 +45,8 @@
     "download": "bun ./src/scripts/download-feed.ts",
     "ingest": "bun ./src/scripts/ingest-gtfs.ts",
     "build:mapping": "bun ./src/scripts/build-station-mapping.ts",
-    "verify:mapping": "bun ./src/scripts/verify-mapping.ts"
+    "verify:mapping": "bun ./src/scripts/verify-mapping.ts",
+    "service-status": "bun ./src/service-status/main.ts"
   },
   "engines": {
     "bun": ">= 1.0.0"

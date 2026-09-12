@@ -15,6 +15,7 @@ import { NextFunction, Request, Response, Router } from "express"
 import { siriDebugToken } from "../data/config"
 import { getRedisClient } from "../data/redis"
 import { RAW_KEY, SNAPSHOT_KEY, STATUS_KEY, UNMATCHED_KEY } from "../siri/snapshot"
+import { ANNOUNCEMENTS_KEY, TIMETABLE_KEY } from "../service-status/state"
 import { SiriSnapshot } from "../siri/types"
 import { createRateLimiter } from "../utils/rate-limiter"
 
@@ -42,6 +43,18 @@ const readKey = async (key: string): Promise<string | null> => {
 const siriDebugRouter = Router()
 siriDebugRouter.use(createRateLimiter(60 * 1000, 30))
 siriDebugRouter.use(guard)
+
+// What the announcements service last read out of Israel Railways' updates (see service-status/announcements.ts).
+siriDebugRouter.get("/announcements", async (req, res) => {
+  const json = await readKey(ANNOUNCEMENTS_KEY)
+  res.json(json ? JSON.parse(json) : null)
+})
+
+// The latest Israel Railways timetable vs GTFS comparison (see service-status/timetable.ts).
+siriDebugRouter.get("/timetable", async (req, res) => {
+  const json = await readKey(TIMETABLE_KEY)
+  res.json(json ? JSON.parse(json) : null)
+})
 
 siriDebugRouter.get("/status", async (req, res) => {
   const [statusJson, snapshotJson] = await Promise.all([readKey(STATUS_KEY), readKey(SNAPSHOT_KEY)])

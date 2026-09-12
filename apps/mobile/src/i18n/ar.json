@@ -306,7 +306,8 @@
       "cancellations": "قطارات ملغاة",
       "skippedStops": "قطارات لا تتوقف",
       "curtailment": "قطارات تنتهي مبكرًا",
-      "suspension": "لا توجد خدمة"
+      "suspension": "لا توجد خدمة",
+      "extraTrains": "قطارات إضافية"
     },
     "noServiceBetween": "لا توجد خدمة بين %{from} و%{to}",
     "notStoppingAt": "القطارات لا تتوقف في %{stations}",
@@ -322,6 +323,20 @@
     "trainsDelayed": "%{count} متأخرة",
     "trainsCancelled": "%{count} ملغاة",
     "thresholds": "التأخير %{minor}+ دقائق يُعدّ طفيفًا، و%{severe}+ دقيقة يُعدّ كبيرًا.",
+    "announced": "بحسب إعلان قطارات إسرائيل",
+    "fromTimetable": "بحسب جدول مواعيد قطارات إسرائيل",
+    "addedTrain": "إضافي، ينطلق في %{time}",
+    "alternatives": "بدائل السفر",
+    "free": "مجانًا",
+    "until": "حتى %{time}",
+    "moreInfo": "المزيد على موقع قطارات إسرائيل",
+    "modes": {
+      "shuttle": "حافلات نقل بديلة",
+      "bus": "خطوط الحافلات",
+      "train": "مسار قطار بديل",
+      "lightRail": "القطار الخفيف",
+      "other": "أخرى"
+    },
     "error": "تعذّر تحميل حالة الخدمة",
     "errorDescription": "تحقق من الاتصال وحاول مجددًا."
   }

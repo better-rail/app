@@ -472,7 +472,7 @@ export function RailMap({ status, dayType, selectedLineId, onSelectLine, focusLi
 
               {/* Disrupted stretches: the line fades out where trains do not run. */}
               {disrupted.map((section) =>
-                isDimmed(section.lineId) ? null : (
+                isDimmed(section.lineId) || !section.fade ? null : (
                   <Group key={section.key}>
                     <Path
                       path={section.path}
@@ -584,7 +584,9 @@ type DisruptedSection = {
   lineId: RailLineId
   color: string
   path: SkPath
-  /** Where the "!" badges go: every station of the stretch. */
+  /** Whether the line fades along the stretch: trains do not run it. Skipped stops only get badges. */
+  fade: boolean
+  /** Where the "!" badges go: the stations the disruption concerns. */
   points: Point[]
 }
 
@@ -604,6 +606,7 @@ const collectDisruptedSections = (model: RailMapModel, status?: ServiceStatusSna
         lineId: line.lineId,
         color: line.line.color,
         path: Skia.Path.MakeFromSVGString(d) as SkPath,
+        fade: disruption.kind !== "skippedStops",
         points: lineStationPoints(line, stationIds),
       })
     }

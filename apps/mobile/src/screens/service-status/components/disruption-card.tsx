@@ -1,8 +1,18 @@
-import { View } from "react-native"
+import { TouchableOpacity, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
-import type { AffectedTrain, Disruption } from "@/services/api"
-import { disruptionSummary, disruptionTitle, stationName, trainConsequence } from "../service-status-text"
+import type { AffectedTrain, Disruption, TravelAlternative } from "@/services/api"
+import { openLink } from "@/utils/helpers/open-link"
+import {
+  alternativeLabel,
+  disruptionReason,
+  disruptionSummary,
+  disruptionTitle,
+  disruptionUntil,
+  localizedText,
+  stationName,
+  trainConsequence,
+} from "../service-status-text"
 import { useStatusLevelColor } from "../service-status-theme"
 
 const MAX_TRAINS_SHOWN = 12
@@ -11,19 +21,41 @@ type DisruptionCardProps = {
   disruption: Disruption
 }
 
-/** One thing wrong on a line: the stretch affected and the trains it concerns, kept to the essentials. */
+/**
+ * One thing wrong on a line: the stretch affected, why (when Israel Railways said), how to get
+ * around it (when it offered a way), and the trains it concerns, kept to the essentials.
+ */
 export function DisruptionCard({ disruption }: DisruptionCardProps) {
   const levelColor = useStatusLevelColor(disruption.level)
   const summary = disruptionSummary(disruption)
+  const reason = disruptionReason(disruption)
+  const until = disruptionUntil(disruption)
+  const alternatives = disruption.alternatives ?? []
   const trains = disruption.trains.slice(0, MAX_TRAINS_SHOWN)
 
   return (
-    <View style={styles.card}>
+    <View style={styles.card} testID={`disruption-${disruption.id}`}>
       <View style={styles.header}>
         <View style={[styles.levelDot, { backgroundColor: levelColor }]} />
         <Text style={styles.title}>{disruptionTitle(disruption)}</Text>
       </View>
       {summary && <Text style={styles.summary}>{summary}</Text>}
+      {reason && <Text style={styles.reason}>{reason}</Text>}
+      {until && (
+        <Text style={styles.until} preset="small">
+          {until}
+        </Text>
+      )}
+      {disruption.source === "announcement" && <Text style={styles.source} preset="small" tx="serviceStatus.announced" />}
+      {disruption.source === "timetable" && <Text style={styles.source} preset="small" tx="serviceStatus.fromTimetable" />}
+      {alternatives.length > 0 && (
+        <View style={styles.alternatives}>
+          <Text style={styles.alternativesTitle} preset="small" tx="serviceStatus.alternatives" />
+          {alternatives.map((alternative, index) => (
+            <AlternativeRow key={index} alternative={alternative} />
+          ))}
+        </View>
+      )}
       {trains.map((train) => (
         <TrainRow key={`${train.trainNumber}-${train.departureTime}`} train={train} />
       ))}
@@ -32,6 +64,26 @@ export function DisruptionCard({ disruption }: DisruptionCardProps) {
           +{disruption.trains.length - trains.length}
         </Text>
       )}
+      {disruption.link && (
+        <TouchableOpacity
+          onPress={() => openLink(disruption.link as string)}
+          accessibilityRole="link"
+          style={styles.link}
+          testID="disruption-link"
+        >
+          <Text style={styles.linkText} tx="serviceStatus.moreInfo" />
+        </TouchableOpacity>
+      )}
+    </View>
+  )
+}
+
+/** One way around the disruption: what kind, and what Israel Railways said about it. */
+function AlternativeRow({ alternative }: { alternative: TravelAlternative }) {
+  return (
+    <View style={styles.alternative}>
+      <Text style={styles.alternativeMode}>{alternativeLabel(alternative)}</Text>
+      <Text style={styles.alternativeText}>{localizedText(alternative.description)}</Text>
     </View>
   )
 }
@@ -84,6 +136,36 @@ const styles = StyleSheet.create((theme) => ({
     fontSize: 15,
     color: theme.colors.label,
   },
+  reason: {
+    fontSize: 15,
+  },
+  until: {
+    color: theme.colors.label,
+  },
+  source: {
+    color: theme.colors.label,
+  },
+  alternatives: {
+    gap: theme.spacing[2],
+    paddingTop: theme.spacing[2],
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.separator,
+  },
+  alternativesTitle: {
+    fontWeight: "600",
+    color: theme.colors.label,
+  },
+  alternative: {
+    gap: 1,
+  },
+  alternativeMode: {
+    fontSize: 15,
+    fontWeight: "600",
+  },
+  alternativeText: {
+    fontSize: 15,
+    color: theme.colors.label,
+  },
   train: {
     flexDirection: "row",
     alignItems: "center",
@@ -124,5 +206,15 @@ const styles = StyleSheet.create((theme) => ({
   more: {
     color: theme.colors.label,
     textAlign: "center",
+  },
+  link: {
+    paddingTop: theme.spacing[2],
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.separator,
+  },
+  linkText: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: theme.colors.link,
   },
 }))

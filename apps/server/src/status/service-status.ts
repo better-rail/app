@@ -1,16 +1,19 @@
 /**
  * service-status.ts — derives the network's health (per line) from the GTFS
- * timetable and the SIRI snapshot, the way TfL's status board does.
+ * timetable, the SIRI snapshot, Israel Railways' announcements and the check
+ * of their timetable against the schedule, the way TfL's status board does.
  *
  * Read-only by construction: the timetable comes through the planner's cached
- * `loadDayTrips` (SELECT only) and the realtime through `getRealtimeSnapshot`
- * (a redis GET). Nothing is written back anywhere; the result is recomputed on
+ * `loadDayTrips` (SELECT only), the realtime through `getRealtimeSnapshot`
+ * (a redis GET) and the announced disruptions through `getAnnouncementsState`
+ * (another, published by the announcements service). Nothing is written back anywhere; the result is recomputed on
  * demand and cached in-process for a few seconds.
  *
- * `deriveServiceStatus` is pure — feed it trips, a snapshot and "now" — so the
- * thresholds are testable without a database (see tests/service-status.test.ts).
+ * `deriveServiceStatus` is pure — feed it trips, a snapshot, announcements and
+ * "now" — so the thresholds are testable without a database (see
+ * tests/service-status.test.ts and tests/announcements.test.ts).
  */
-import { siriStaleSeconds } from "../data/config"
+import { siriStaleSeconds, timetableStaleSeconds } from "../data/config"
 import { getActiveFeed } from "../db"
 import { logNames, logger } from "../logs"
 import type { DayTrips, StopNode, TripData } from "../requests/gtfs-route-api"
@@ -31,6 +34,9 @@ import {
   compareLevels,
 } from "../types/service-status"
 import { railServiceDatesForQuery, toIsoString } from "../utils/gtfs-time"
+import { type AnnouncedDisruption, announcedDisruptionsForLine } from "../service-status/extraction"
+import { getAnnouncementsState, getTimetableCheck } from "../service-status/state"
+import type { TimetableCheck, TripCheck } from "../service-status/timetable"
 import { RAIL_LINES, type RailLineDefinition, type RailLineId } from "./lines"
 
 // --- windows ----------------------------------------------------------------------
@@ -80,14 +86,28 @@ const matchLineByStops = (trip: TripData): RailLineId | undefined => {
   return best?.id
 }
 
-export const assignLine = (trip: TripData): RailLineId | undefined =>
-  lineByTrainNumber.get(trip.trainNumber) ?? matchLineByStops(trip)
+/**
+ * The line a trip belongs to. The catalogue's explicit numbers first; then, for a four-digit
+ * number the catalogue does not list, the same corridor as its base (the thousands digit is a
+ * calendar variant — 6xxx Friday, 7xxx Saturday night, 8xxx a one-off, 9xxx the Wednesday reroute —
+ * and the last three digits keep the block; see .claude/skills/israel-railways-lines); the stop
+ * sequence settles what neither does, and overrides the numeric hint when it says otherwise.
+ */
+export const assignLine = (trip: TripData): RailLineId | undefined => {
+  const listed = lineByTrainNumber.get(trip.trainNumber)
+  if (listed) return listed
+  const byStops = matchLineByStops(trip)
+  if (byStops) return byStops
+  return trip.trainNumber >= 1000 ? lineByTrainNumber.get(trip.trainNumber % 1000) : undefined
+}
 
 // --- per-trip realtime view ----------------------------------------------------------
 
 type TripView = {
   trip: TripData
   serviceDate: string
+  /** A train Israel Railways runs that the schedule does not know (see service-status/timetable.ts). */
+  added?: boolean
   delayMin: number
   cancelled: boolean
   /** Station ids (numbers) of stops the train will skip, in trip order. */
@@ -104,23 +124,29 @@ type TripView = {
 
 const serviceDateOf = (trip: TripData): string => trip.tripKey.slice(0, trip.tripKey.indexOf("#"))
 
-const viewTrip = (trip: TripData, realtime: TrainRealtime | undefined, nowMs: number): TripView => {
+/**
+ * A train as the live feed and Israel Railways' timetable together see it. Either source can
+ * cancel it, take stops off it or end it short; delays are the feed's alone.
+ */
+const viewTrip = (trip: TripData, realtime: TrainRealtime | undefined, check: TripCheck | undefined, nowMs: number): TripView => {
   const serviceDate = serviceDateOf(trip)
   const first = trip.stops[0]
   const last = trip.stops[trip.stops.length - 1]
   // Israel Railways trains don't run early; negative predictions are noise (same clamp as the planner).
   const delayMin = Math.max(0, realtime?.latestDelayMin ?? 0)
   const delayMs = delayMin * 60_000
-  const cancelled = realtime?.cancelled === true
+  const cancelled = realtime?.cancelled === true || check?.cancelled === true
 
   const skipped: number[] = []
-  if (realtime && !cancelled) {
+  if (!cancelled) {
     for (const stop of trip.stops) {
-      if (realtime.stations[stop.railId]?.status === "cancelled") skipped.push(stop.railId)
+      if (realtime?.stations[stop.railId]?.status === "cancelled" || check?.skipped?.includes(stop.railId)) {
+        skipped.push(stop.railId)
+      }
     }
   }
 
-  const liveDest = realtime?.liveDestRailId
+  const liveDest = realtime?.liveDestRailId ?? check?.curtailedTo
   const curtailedTo =
     liveDest !== undefined && liveDest !== last.railId && trip.stops.some((s) => s.railId === liveDest) ? liveDest : undefined
 
@@ -175,6 +201,14 @@ const sectionOf = (line: RailLineDefinition, railIds: Iterable<number>): Disrupt
   return { fromStationId: stationIds[0], toStationId: stationIds[stationIds.length - 1], stationIds }
 }
 
+/** Just the given stations of the line, in line order — for skipped stops, which need not be adjacent. */
+const stationsOf = (line: RailLineDefinition, railIds: Iterable<number>): DisruptionSection | null => {
+  const wanted = new Set([...railIds].map(stationId))
+  const stationIds = line.stationIds.filter((id) => wanted.has(id))
+  if (stationIds.length === 0) return null
+  return { fromStationId: stationIds[0], toStationId: stationIds[stationIds.length - 1], stationIds }
+}
+
 /** The stops of a curtailed run that will not be served: everything after the live destination. */
 const unservedStops = (view: TripView): number[] => {
   const at = view.trip.stops.findIndex((s) => s.railId === view.curtailedTo)
@@ -193,39 +227,43 @@ const lineEcho = (line: RailLineDefinition): LineStatus["line"] => ({
   stationIds: line.stationIds,
 })
 
-const deriveLine = (line: RailLineDefinition, views: TripView[], nowMs: number, realtimeAvailable: boolean): LineStatus => {
-  const active = views.filter((v) => v.startTs - DEPARTURE_LOOKAHEAD_MS <= nowMs && nowMs <= v.endTs)
-  const hasUpcoming = views.some((v) => v.startTs > nowMs && v.startTs - NO_SERVICE_LOOKAHEAD_MS <= nowMs)
+/** What the live feed says is wrong on the line: every disruption the running trains show. */
+const realtimeDisruptions = (line: RailLineDefinition, views: TripView[]): Disruption[] => {
+  const disruptions: Disruption[] = []
 
+  // Trains Israel Railways runs beyond the schedule (extra trains for an event): worth knowing, nothing wrong.
+  const added = views.filter((v) => v.added)
+  if (added.length > 0) {
+    disruptions.push({
+      id: "extraTrains",
+      kind: "extraTrains",
+      level: "goodService",
+      section: null,
+      trains: [...added].sort((a, b) => a.startTs - b.startTs).map((v) => toAffectedTrain(v, "added")),
+      source: "timetable",
+    })
+  }
+
+  const active = views.filter((v) => !v.added)
   const running = active.filter((v) => !v.cancelled)
   const delayed = running.filter((v) => v.delayMin >= MINOR_DELAY_MINUTES)
   const cancelled = active.filter((v) => v.cancelled)
   const maxDelayMinutes = running.reduce((max, v) => Math.max(max, v.delayMin), 0)
 
-  const base: Omit<LineStatus, "level" | "disruptions"> = {
-    lineId: line.id,
-    trains: { active: active.length, delayed: delayed.length, cancelled: cancelled.length, maxDelayMinutes },
-    line: lineEcho(line),
-  }
-
-  if (active.length === 0) {
-    return { ...base, level: hasUpcoming ? (realtimeAvailable ? "goodService" : "unknown") : "noService", disruptions: [] }
-  }
-  if (!realtimeAvailable) return { ...base, level: "unknown", disruptions: [] }
-
-  const disruptions: Disruption[] = []
-
   // Every train on the line is cancelled — nothing runs.
   if (cancelled.length >= 2 && cancelled.length === active.length) {
     const section = sectionOf(line, line.stationIds.map(Number))
-    disruptions.push({
-      id: `suspension:${sectionKey(section)}`,
-      kind: "suspension",
-      level: "suspended",
-      section,
-      trains: cancelled.map((v) => toAffectedTrain(v, "cancelled")),
-    })
-    return { ...base, level: "suspended", disruptions }
+    return [
+      ...disruptions,
+      {
+        id: `suspension:${sectionKey(section)}`,
+        kind: "suspension",
+        level: "suspended",
+        section,
+        trains: cancelled.map((v) => toAffectedTrain(v, "cancelled")),
+        source: "realtime",
+      },
+    ]
   }
 
   // Runs ending short of their scheduled destination: the stretch beyond is unserved.
@@ -245,6 +283,7 @@ const deriveLine = (line: RailLineDefinition, views: TripView[], nowMs: number, 
       level: "partSuspended",
       section: group.section,
       trains: group.trains,
+      source: "realtime",
     })
   }
 
@@ -262,13 +301,14 @@ const deriveLine = (line: RailLineDefinition, views: TripView[], nowMs: number, 
       level: cancelled.length >= 2 ? "partSuspended" : "severeDelays",
       section,
       trains: cancelled.map((v) => toAffectedTrain(v, "cancelled")),
+      source: "realtime",
     })
   }
 
   // Trains skipping stops: the skipped stations are flagged, service otherwise runs.
   const skipping = running.filter((v) => v.skipped.length > 0)
   if (skipping.length > 0) {
-    const section = sectionOf(
+    const section = stationsOf(
       line,
       skipping.flatMap((v) => v.skipped),
     )
@@ -278,6 +318,7 @@ const deriveLine = (line: RailLineDefinition, views: TripView[], nowMs: number, 
       level: "minorDelays",
       section,
       trains: skipping.map((v) => toAffectedTrain(v, "skippingStops")),
+      source: "realtime",
     })
   }
 
@@ -290,10 +331,71 @@ const deriveLine = (line: RailLineDefinition, views: TripView[], nowMs: number, 
       level: severe ? "severeDelays" : "minorDelays",
       section: null,
       trains: [...delayed].sort((a, b) => b.delayMin - a.delayMin).map((v) => toAffectedTrain(v, "delayed")),
+      source: "realtime",
     })
   }
 
-  disruptions.sort((a, b) => compareLevels(b.level, a.level))
+  return disruptions
+}
+
+const isSubset = (inner: string[], outer: string[]): boolean => inner.every((id) => outer.includes(id))
+
+/**
+ * The announced disruptions and the live ones on one list. A live disruption the announcement
+ * already explains — cancellations, curtailments or a suspension within an announced suspended
+ * stretch, trains skipping announced closed stations — folds into it: the announcement gains
+ * the trains, the map does not flag the stretch twice. Delays always stay their own.
+ */
+const mergeDisruptions = (announced: Disruption[], realtime: Disruption[]): Disruption[] => {
+  const merged = announced.map((d) => ({ ...d, trains: [...d.trains] }))
+  const kept: Disruption[] = []
+  for (const d of realtime) {
+    const explainedBy =
+      d.section === null || d.kind === "delays"
+        ? undefined
+        : merged.find(
+            (a) =>
+              a.section !== null &&
+              (a.kind === "suspension"
+                ? d.kind !== "skippedStops" && isSubset(d.section!.stationIds, a.section.stationIds)
+                : d.kind === "skippedStops" && isSubset(d.section!.stationIds, a.section.stationIds)),
+          )
+    if (explainedBy) explainedBy.trains.push(...d.trains)
+    else kept.push(d)
+  }
+  return [...merged, ...kept].sort((a, b) => compareLevels(b.level, a.level))
+}
+
+const deriveLine = (
+  line: RailLineDefinition,
+  views: TripView[],
+  nowMs: number,
+  /** Whether anything live (the SIRI feed or a fresh timetable check) is there to judge the trains by. */
+  liveAvailable: boolean,
+  announced: AnnouncedDisruption[],
+): LineStatus => {
+  const active = views.filter((v) => v.startTs - DEPARTURE_LOOKAHEAD_MS <= nowMs && nowMs <= v.endTs)
+  const hasUpcoming = views.some((v) => v.startTs > nowMs && v.startTs - NO_SERVICE_LOOKAHEAD_MS <= nowMs)
+
+  const running = active.filter((v) => !v.cancelled)
+  const delayed = running.filter((v) => v.delayMin >= MINOR_DELAY_MINUTES)
+  const cancelled = active.filter((v) => v.cancelled)
+  const maxDelayMinutes = running.reduce((max, v) => Math.max(max, v.delayMin), 0)
+
+  const base: Omit<LineStatus, "level" | "disruptions"> = {
+    lineId: line.id,
+    trains: { active: active.length, delayed: delayed.length, cancelled: cancelled.length, maxDelayMinutes },
+    line: lineEcho(line),
+  }
+
+  // Nothing scheduled for a while: no service, whatever is announced (there is nothing to disrupt).
+  if (active.length === 0 && !hasUpcoming) return { ...base, level: "noService", disruptions: [] }
+
+  const realtime = active.length > 0 && liveAvailable ? realtimeDisruptions(line, active) : []
+  const disruptions = mergeDisruptions(announcedDisruptionsForLine(line, announced, nowMs), realtime)
+
+  // An announcement is knowledge whether or not the live feed is up; without either, the line is unknown.
+  if (disruptions.length === 0) return { ...base, level: liveAvailable ? "goodService" : "unknown", disruptions }
   const level = disruptions.reduce<ServiceStatusLevel>(
     (worst, d) => (compareLevels(d.level, worst) > 0 ? d.level : worst),
     "goodService",
@@ -306,6 +408,12 @@ const deriveLine = (line: RailLineDefinition, views: TripView[], nowMs: number, 
 export type ServiceStatusInput = {
   trips: DayTrips
   snapshot: SiriSnapshot | null
+  /** Israel Railways' announced disruptions (see service-status/announcements.ts); none when the service is off. */
+  announced?: AnnouncedDisruption[]
+  /** Real UTC time the announcements were last read, for the response. */
+  announcementsUpdatedAt?: string | null
+  /** Israel Railways' timetable against the schedule (see service-status/timetable.ts); none when the service is off. */
+  timetable?: TimetableCheck | null
   /** Naive Israel wall-clock epoch ms (see siri/correlate.ts naiveNowMs). */
   nowNaiveMs: number
   /** Real epoch ms, compared with the snapshot's updatedAt for staleness. */
@@ -318,8 +426,19 @@ const emptyCounts = (): Record<ServiceStatusLevel, number> =>
   Object.fromEntries(SERVICE_STATUS_LEVELS.map((level) => [level, 0])) as Record<ServiceStatusLevel, number>
 
 export const deriveServiceStatus = (input: ServiceStatusInput): ServiceStatusSnapshot => {
-  const { trips, snapshot, nowNaiveMs, nowRealMs, serviceDate } = input
+  const {
+    trips,
+    snapshot,
+    announced = [],
+    announcementsUpdatedAt = null,
+    timetable = null,
+    nowNaiveMs,
+    nowRealMs,
+    serviceDate,
+  } = input
   const realtimeAvailable = snapshot !== null && nowRealMs - snapshot.updatedAt <= siriStaleSeconds * 1000
+  const timetableAvailable = timetable !== null && nowRealMs - timetable.updatedAt <= timetableStaleSeconds * 1000
+  const check = timetableAvailable ? timetable : null
 
   const viewsByLine = new Map<RailLineId, TripView[]>(RAIL_LINES.map((l) => [l.id, []]))
   for (const trip of trips.values()) {
@@ -327,10 +446,24 @@ export const deriveServiceStatus = (input: ServiceStatusInput): ServiceStatusSna
     const lineId = assignLine(trip)
     if (!lineId) continue
     const realtime = snapshot?.trains[`${serviceDateOf(trip)}#${trip.trainNumber}`]
-    viewsByLine.get(lineId)?.push(viewTrip(trip, realtime, nowNaiveMs))
+    viewsByLine.get(lineId)?.push(viewTrip(trip, realtime, check?.trains[trip.tripKey], nowNaiveMs))
+  }
+  // Trains the timetable runs that the schedule does not know, on whichever line their stops fit.
+  for (const extra of check?.extras ?? []) {
+    if (extra.stops.length < 2) continue
+    const trip: TripData = {
+      tripKey: `${extra.serviceDate}#extra-${extra.trainNumber}`,
+      trainNumber: extra.trainNumber,
+      stops: extra.stops,
+    }
+    const lineId = assignLine(trip)
+    if (!lineId) continue
+    viewsByLine.get(lineId)?.push({ ...viewTrip(trip, undefined, undefined, nowNaiveMs), added: true })
   }
 
-  const lines = RAIL_LINES.map((line) => deriveLine(line, viewsByLine.get(line.id) ?? [], nowNaiveMs, realtimeAvailable))
+  const lines = RAIL_LINES.map((line) =>
+    deriveLine(line, viewsByLine.get(line.id) ?? [], nowNaiveMs, realtimeAvailable || timetableAvailable, announced),
+  )
 
   const counts = emptyCounts()
   let network: ServiceStatusLevel = "noService"
@@ -345,6 +478,8 @@ export const deriveServiceStatus = (input: ServiceStatusInput): ServiceStatusSna
     generatedAt: new Date(nowRealMs).toISOString(),
     serviceDate,
     realtime: { available: realtimeAvailable, updatedAt: snapshot ? new Date(snapshot.updatedAt).toISOString() : null },
+    announcements: { updatedAt: announcementsUpdatedAt },
+    timetable: { checkedAt: timetable ? new Date(timetable.updatedAt).toISOString() : null, available: timetableAvailable },
     network: { level: network, counts },
     lines,
   }
@@ -371,14 +506,25 @@ const computeServiceStatus = async (): Promise<ServiceStatusSnapshot | null> => 
   // of yesterday still run after midnight, and tomorrow's first departures matter
   // for the "no service" call late in the evening.
   const serviceDates = railServiceDatesForQuery(serviceDate, nowIso.slice(11, 16))
-  const [days, snapshot] = await Promise.all([
+  const [days, snapshot, announcements, timetable] = await Promise.all([
     Promise.all(serviceDates.map((date) => loadDayTrips(feed.feedId, date))),
     getRealtimeSnapshot(),
+    getAnnouncementsState(),
+    getTimetableCheck(),
   ])
   const trips: DayTrips = new Map()
   for (const day of days) for (const [key, trip] of day) trips.set(key, trip)
 
-  return deriveServiceStatus({ trips, snapshot, nowNaiveMs, nowRealMs, serviceDate })
+  return deriveServiceStatus({
+    trips,
+    snapshot,
+    announced: announcements?.disruptions ?? [],
+    announcementsUpdatedAt: announcements?.fetchedAt ?? null,
+    timetable,
+    nowNaiveMs,
+    nowRealMs,
+    serviceDate,
+  })
 }
 
 /** The current status, recomputed at most every few seconds. Null when there is no active feed. */
