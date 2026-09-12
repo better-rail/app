@@ -92,7 +92,7 @@ export const siriPollerMode = process.env.SIRI_POLLER_MODE
  * model turn them into the status schema, so it idles without OPENAI_API_KEY.
  */
 export const openaiApiKey = process.env.OPENAI_API_KEY as string
-export const openaiModel = process.env.OPENAI_MODEL || "gpt-5-mini"
+export const openaiModel = process.env.OPENAI_MODEL || "gpt-5.6-luna"
 // Reasoning effort for the extraction ("minimal" … "high"); empty to send none (non-reasoning models).
 export const openaiReasoningEffort = process.env.OPENAI_REASONING_EFFORT ?? "medium"
 export const announcementsPollSeconds = Number(process.env.ANNOUNCEMENTS_POLL_SECONDS) || 300
