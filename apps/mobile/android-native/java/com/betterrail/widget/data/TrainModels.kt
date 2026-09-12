@@ -107,7 +107,13 @@ data class WidgetTrainItem(
     val changesText: String = "",
     val trainNumber: String = "",
     val departureTimestamp: String = "" // Full ISO timestamp for date calculations
-)
+) {
+    fun hasPlatform(): Boolean = platform.isNotEmpty() && platform != "0"
+
+    fun displayPlatform(fallback: String = "–"): String = if (hasPlatform()) platform else fallback
+
+    fun displayTrainNumber(fallback: String = "–"): String = trainNumber.ifEmpty { fallback }
+}
 
 data class WidgetScheduleData(
     val routes: List<WidgetTrainItem>,

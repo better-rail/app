@@ -58,7 +58,7 @@ abstract class UnifiedWidgetProvider(
         val optimalSize = if (minWidth == 0 && maxWidth == 0) {
             defaultWidgetSize
         } else {
-            WidgetSize.getOptimalSize(minWidth, minHeight, maxWidth, maxHeight)
+            WidgetSize.getOptimalSize(minWidth, minHeight, maxWidth, maxHeight, defaultWidgetSize)
         }
         
         Log.d(getLogTag(), "Widget $appWidgetId: ${WidgetSize.getGridInfo(minWidth, minHeight, maxWidth, maxHeight)}")

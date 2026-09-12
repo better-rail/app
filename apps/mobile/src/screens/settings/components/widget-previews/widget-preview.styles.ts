@@ -2,6 +2,7 @@ import { StyleSheet } from "react-native-unistyles"
 
 export const COMPACT_CARD_SIZE = 140
 export const WIDE_CARD_HEIGHT = 140
+export const LARGE_CARD_HEIGHT = 210
 
 const shadowMedium = {
   textShadowColor: "rgba(0, 0, 0, 0.9)",
@@ -238,5 +239,167 @@ export const styles = StyleSheet.create((theme, rt) => ({
     fontWeight: "bold",
     fontFamily: theme.typography.primary,
     ...shadowMedium,
+  },
+
+  // --- Large (4x4) Layout ---
+  largeContainer: {
+    width: "100%",
+    maxWidth: 284,
+    height: LARGE_CARD_HEIGHT,
+    borderRadius: 16,
+    overflow: "hidden",
+    backgroundColor: "#16181D",
+    elevation: 6,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.35,
+    shadowRadius: 5,
+  },
+  largeHeroSection: {
+    height: 108,
+    position: "relative",
+    backgroundColor: "#16181D",
+    overflow: "hidden",
+  },
+  largeHeroContent: {
+    flex: 1,
+    paddingTop: 8,
+    paddingHorizontal: 10,
+    paddingBottom: 6,
+  },
+  largeStationName: {
+    color: "#FFFFFF",
+    fontSize: 13.5,
+    fontWeight: "bold",
+    fontFamily: theme.typography.primary,
+    ...shadowMedium,
+  },
+  largeDestinationRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginTop: 1,
+  },
+  largeTrainLabel: {
+    color: "#FA827E",
+    fontSize: 8.5,
+    fontWeight: "bold",
+    fontFamily: theme.typography.primary,
+    letterSpacing: 0.4,
+    marginBottom: 1,
+    ...shadowMedium,
+  },
+  largeMetricsRow: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+  },
+  largeTrainTime: {
+    color: "#FFFFFF",
+    fontSize: 22,
+    fontWeight: "bold",
+    fontFamily: theme.typography.primary,
+    lineHeight: 25,
+    ...shadowLarge,
+  },
+  largeMetricCol: {
+    flex: 1,
+    paddingStart: 8,
+  },
+  largeMetricLabel: {
+    color: "rgba(255, 255, 255, 0.7)",
+    fontSize: 7.5,
+    fontWeight: "bold",
+    fontFamily: theme.typography.primary,
+    letterSpacing: 0.3,
+  },
+  largeMetricVal: {
+    color: "#FFFFFF",
+    fontSize: 13,
+    fontWeight: "bold",
+    fontFamily: theme.typography.primary,
+    lineHeight: 15,
+    ...shadowMedium,
+  },
+
+  // Bottom Schedule Section
+  largeScheduleSection: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 10,
+    paddingTop: 5,
+    paddingBottom: 4,
+    justifyContent: "space-between",
+  },
+  largeTableHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 2,
+  },
+  largeColHeader: {
+    color: "#AEAEB2",
+    fontSize: 8.5,
+    fontWeight: "600",
+    fontFamily: theme.typography.primary,
+  },
+  largeColHeaderEnd: {
+    textAlign: rt.rtl ? "left" : "right",
+  },
+  largeDivider: {
+    height: 1,
+    backgroundColor: "#E5E5EA",
+  },
+  largeTableRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    height: 18,
+  },
+  largeRowDepart: {
+    color: "#111111",
+    fontSize: 11,
+    fontWeight: "bold",
+    fontFamily: theme.typography.primary,
+  },
+  largeRowArrive: {
+    color: "#757575",
+    fontSize: 10,
+    fontWeight: "500",
+    fontFamily: theme.typography.primary,
+  },
+  largeRowDuration: {
+    color: "#757575",
+    fontSize: 9.5,
+    fontWeight: "500",
+    fontFamily: theme.typography.primary,
+  },
+  largeRowPlatform: {
+    color: "#757575",
+    fontSize: 10,
+    fontWeight: "500",
+    fontFamily: theme.typography.primary,
+  },
+  largeRowTrain: {
+    color: "#AEAEB2",
+    fontSize: 9.5,
+    fontWeight: "500",
+    fontFamily: theme.typography.primary,
+    textAlign: rt.rtl ? "left" : "right",
+  },
+
+  // Column weights matching native 4x4 layout
+  colDepart: {
+    flex: 1.05,
+  },
+  colArrive: {
+    flex: 0.95,
+  },
+  colDuration: {
+    flex: 1.6,
+  },
+  colPlatform: {
+    flex: 1.0,
+  },
+  colTrain: {
+    flex: 0.65,
+    textAlign: rt.rtl ? "left" : "right",
   },
 }))

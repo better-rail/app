@@ -14,9 +14,11 @@ import android.widget.RemoteViews
 import com.betterrail.R
 import com.betterrail.widget.ModernCompactWidget2x2Provider
 import com.betterrail.widget.ModernCompactWidget4x2Provider
+import com.betterrail.widget.ModernCompactWidget4x4Provider
 import com.betterrail.widget.BaseWidgetConfigActivity
 import com.betterrail.widget.CompactWidget2x2ConfigActivity
 import com.betterrail.widget.CompactWidget4x2ConfigActivity
+import com.betterrail.widget.CompactWidget4x4ConfigActivity
 import com.betterrail.widget.WidgetPinReceiver
 import com.betterrail.widget.data.StationsData
 import com.betterrail.widget.utils.WidgetRTLHelper
@@ -30,7 +32,8 @@ class WidgetNavigationModule(reactContext: ReactApplicationContext) : ReactConte
         val configActivityClass: Class<*>
     ) {
         COMPACT("compact", ModernCompactWidget2x2Provider::class.java, CompactWidget2x2ConfigActivity::class.java),
-        WIDE("wide", ModernCompactWidget4x2Provider::class.java, CompactWidget4x2ConfigActivity::class.java);
+        WIDE("wide", ModernCompactWidget4x2Provider::class.java, CompactWidget4x2ConfigActivity::class.java),
+        LARGE("large", ModernCompactWidget4x4Provider::class.java, CompactWidget4x4ConfigActivity::class.java);
 
         companion object {
             fun fromKey(key: String?): WidgetFamily =
@@ -178,9 +181,17 @@ class WidgetNavigationModule(reactContext: ReactApplicationContext) : ReactConte
     private fun buildPreviewBundle(originId: String, destinationId: String, family: WidgetFamily): Bundle? {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return null
         return try {
-            val previewLayoutName = if (family == WidgetFamily.COMPACT) "widget_compact_2x2_preview" else "widget_compact_4x2_preview"
+            val previewLayoutName = when (family) {
+                WidgetFamily.COMPACT -> "widget_compact_2x2_preview"
+                WidgetFamily.WIDE -> "widget_compact_4x2_preview"
+                WidgetFamily.LARGE -> "widget_compact_4x4_preview"
+            }
             val previewLayoutId = reactApplicationContext.resources.getIdentifier(previewLayoutName, "layout", reactApplicationContext.packageName)
-            val fallbackLayoutId = if (family == WidgetFamily.COMPACT) R.layout.widget_compact_2x2 else R.layout.widget_compact_4x2
+            val fallbackLayoutId = when (family) {
+                WidgetFamily.COMPACT -> R.layout.widget_compact_2x2
+                WidgetFamily.WIDE -> R.layout.widget_compact_4x2
+                WidgetFamily.LARGE -> R.layout.widget_compact_4x4
+            }
             val layoutRes = if (previewLayoutId != 0) previewLayoutId else fallbackLayoutId
 
             val views = RemoteViews(reactApplicationContext.packageName, layoutRes)

@@ -22,6 +22,7 @@ object WidgetRTLHelper {
         val containerId = when (layoutResource) {
             R.layout.widget_compact_2x2 -> R.id.widget_container_compact
             R.layout.widget_compact_4x2 -> R.id.widget_container_compact_4x2
+            R.layout.widget_compact_4x4 -> R.id.widget_container_compact_4x4
             else -> R.id.widget_container_compact
         }
 

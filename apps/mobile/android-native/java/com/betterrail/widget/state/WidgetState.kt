@@ -104,6 +104,9 @@ class WidgetStateRenderer(
         return views
     }
     
+    private fun isMultiTrainLayout(): Boolean =
+        layoutResource == R.layout.widget_compact_4x2 || layoutResource == R.layout.widget_compact_4x4
+
     private fun renderConfiguration(context: Context, views: RemoteViews, state: WidgetState.Configuration) {
         views.setTextViewText(R.id.widget_station_name, state.message)
         views.setTextViewText(R.id.widget_destination, state.subtitle)
@@ -113,8 +116,13 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_number, "")
         views.setViewVisibility(R.id.widget_dot_separator, android.view.View.GONE)
 
-        if (layoutResource == R.layout.widget_compact_4x2) {
+        if (isMultiTrainLayout()) {
             views.setTextViewText(R.id.widget_arrival_time, "--:--")
+        }
+
+        if (layoutResource == R.layout.widget_compact_4x4) {
+            views.setTextViewText(R.id.widget_platform_val, "--")
+            views.setTextViewText(R.id.widget_train_num_val, "---")
         }
 
         hideUpcomingTrains(context, views)
@@ -129,7 +137,7 @@ class WidgetStateRenderer(
         
         renderTrainDetails(context, views, state.nextTrain)
         
-        if (layoutResource == R.layout.widget_compact_4x2) {
+        if (isMultiTrainLayout()) {
             views.setTextViewText(R.id.widget_arrival_time, state.nextTrain.arrivalTime)
             showUpcomingTrains(context, views, state.upcomingTrains)
         }
@@ -147,8 +155,13 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_number, "")
         views.setViewVisibility(R.id.widget_dot_separator, android.view.View.GONE)
 
-        if (layoutResource == R.layout.widget_compact_4x2) {
+        if (isMultiTrainLayout()) {
             views.setTextViewText(R.id.widget_arrival_time, "--:--")
+        }
+
+        if (layoutResource == R.layout.widget_compact_4x4) {
+            views.setTextViewText(R.id.widget_platform_val, "--")
+            views.setTextViewText(R.id.widget_train_num_val, "---")
         }
 
         setStationBackground(views, state.originId)
@@ -165,8 +178,13 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_number, "")
         views.setViewVisibility(R.id.widget_dot_separator, android.view.View.GONE)
 
-        if (layoutResource == R.layout.widget_compact_4x2) {
+        if (isMultiTrainLayout()) {
             views.setTextViewText(R.id.widget_arrival_time, "--:--")
+        }
+
+        if (layoutResource == R.layout.widget_compact_4x4) {
+            views.setTextViewText(R.id.widget_platform_val, "--")
+            views.setTextViewText(R.id.widget_train_num_val, "---")
         }
 
         setStationBackground(views, state.originId)
@@ -183,8 +201,13 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_number, "")
         views.setViewVisibility(R.id.widget_dot_separator, android.view.View.GONE)
 
-        if (layoutResource == R.layout.widget_compact_4x2) {
+        if (isMultiTrainLayout()) {
             views.setTextViewText(R.id.widget_arrival_time, "--:--")
+        }
+
+        if (layoutResource == R.layout.widget_compact_4x4) {
+            views.setTextViewText(R.id.widget_platform_val, "--")
+            views.setTextViewText(R.id.widget_train_num_val, "---")
         }
 
         setStationBackground(views, state.originId)
@@ -202,8 +225,13 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_number, "")
         views.setViewVisibility(R.id.widget_dot_separator, android.view.View.GONE)
 
-        if (layoutResource == R.layout.widget_compact_4x2) {
+        if (isMultiTrainLayout()) {
             views.setTextViewText(R.id.widget_arrival_time, "--:--")
+        }
+
+        if (layoutResource == R.layout.widget_compact_4x4) {
+            views.setTextViewText(R.id.widget_platform_val, "--")
+            views.setTextViewText(R.id.widget_train_num_val, "---")
         }
 
         setStationBackground(views, state.originId)
@@ -220,13 +248,12 @@ class WidgetStateRenderer(
         
         renderTrainDetails(context, views, state.firstTrain)
         
-        if (layoutResource == R.layout.widget_compact_4x2) {
+        if (isMultiTrainLayout()) {
             views.setTextViewText(R.id.widget_arrival_time, state.firstTrain.arrivalTime)
         }
         
         setStationBackground(views, state.originId)
         
-        // Show upcoming trains for 4x2 widget (2x2 widget will ignore this)
         if (state.upcomingTrains.isNotEmpty()) {
             showUpcomingTrains(context, views, state.upcomingTrains)
         } else {
@@ -243,8 +270,13 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_number, "")
         views.setViewVisibility(R.id.widget_dot_separator, android.view.View.GONE)
 
-        if (layoutResource == R.layout.widget_compact_4x2) {
+        if (isMultiTrainLayout()) {
             views.setTextViewText(R.id.widget_arrival_time, "--:--")
+        }
+
+        if (layoutResource == R.layout.widget_compact_4x4) {
+            views.setTextViewText(R.id.widget_platform_val, "--")
+            views.setTextViewText(R.id.widget_train_num_val, "---")
         }
 
         setStationBackground(views, state.originId)
@@ -263,13 +295,12 @@ class WidgetStateRenderer(
         
         renderTrainDetails(context, views, state.firstTrain)
         
-        if (layoutResource == R.layout.widget_compact_4x2) {
+        if (isMultiTrainLayout()) {
             views.setTextViewText(R.id.widget_arrival_time, state.firstTrain.arrivalTime)
         }
         
         setStationBackground(views, state.originId)
         
-        // Show upcoming trains for 4x2 widget
         if (state.upcomingTrains.isNotEmpty()) {
             showUpcomingTrains(context, views, state.upcomingTrains)
         } else {
@@ -278,8 +309,7 @@ class WidgetStateRenderer(
     }
     
     private fun renderTrainDetails(context: Context, views: RemoteViews, train: WidgetTrainItem) {
-        // "0" = platform not assigned yet
-        val platformText = if (train.platform.isNotEmpty() && train.platform != "0") {
+        val platformText = if (train.hasPlatform()) {
             context.getString(R.string.platform_number, train.platform)
         } else {
             ""
@@ -294,46 +324,123 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_number, trainText)
         views.setViewVisibility(
             R.id.widget_dot_separator,
-            if (trainText.isNotEmpty() && platformText.isNotEmpty()) android.view.View.VISIBLE else android.view.View.GONE
+            if (trainText.isNotEmpty() && platformText.isNotEmpty() && layoutResource != R.layout.widget_compact_4x4) android.view.View.VISIBLE else android.view.View.GONE
         )
+
+        if (layoutResource == R.layout.widget_compact_4x4) {
+            views.setTextViewText(R.id.widget_platform_val, train.displayPlatform())
+            views.setTextViewText(R.id.widget_train_num_val, train.displayTrainNumber())
+        }
     }
     
     private fun getTrainTimeId(): Int {
         return when (layoutResource) {
             R.layout.widget_compact_2x2 -> R.id.widget_train_time
-            R.layout.widget_compact_4x2 -> R.id.widget_next_train_time
+            R.layout.widget_compact_4x2,
+            R.layout.widget_compact_4x4 -> R.id.widget_next_train_time
             else -> R.id.widget_train_time
         }
     }
     
     private fun showUpcomingTrains(context: Context, views: RemoteViews, upcomingTrains: List<WidgetTrainItem>) {
-        if (layoutResource != R.layout.widget_compact_4x2) return
+        if (!isMultiTrainLayout()) return
 
         // Set localized labels for upcoming trains section
         views.setTextViewText(R.id.widget_upcoming_label, context.getString(R.string.upcoming))
         views.setTextViewText(R.id.widget_arrival_label, context.getString(R.string.arrival_caps))
 
-        val resourcesHelper = UpcomingTrainResources.createDefault(context)
+        if (layoutResource == R.layout.widget_compact_4x4) {
+            views.setTextViewText(R.id.widget_platform_label, context.getString(R.string.platform_caps))
+            views.setTextViewText(R.id.widget_train_num_label, context.getString(R.string.train_no_caps))
+            views.setTextViewText(R.id.widget_header_depart, context.getString(R.string.depart_caps))
+            views.setTextViewText(R.id.widget_header_arrive, context.getString(R.string.arrive_caps))
+            views.setTextViewText(R.id.widget_header_duration, context.getString(R.string.duration_caps))
+            views.setTextViewText(R.id.widget_header_platform, context.getString(R.string.platform_caps))
+            views.setTextViewText(R.id.widget_header_train, context.getString(R.string.train_caps))
+        }
+
+        val resourcesHelper = UpcomingTrainResources.createForLayout(context, layoutResource)
 
         resourcesHelper.forEachRow { index, resources ->
             if (index < upcomingTrains.size) {
                 val train = upcomingTrains[index]
                 views.setViewVisibility(resources.rowId, android.view.View.VISIBLE)
+                if (resources.dividerId != 0) {
+                    views.setViewVisibility(resources.dividerId, android.view.View.VISIBLE)
+                }
                 views.setTextViewText(resources.trainTimeId, train.departureTime)
                 views.setTextViewText(resources.arrivalTimeId, train.arrivalTime)
+                if (resources.durationId != 0) {
+                    val durationText = formatDuration(context, train)
+                    views.setTextViewText(resources.durationId, durationText)
+                }
+                if (resources.platformId != 0) {
+                    views.setTextViewText(resources.platformId, train.displayPlatform())
+                }
+                if (resources.trainNumberId != 0) {
+                    views.setTextViewText(resources.trainNumberId, train.displayTrainNumber())
+                }
             } else {
                 views.setViewVisibility(resources.rowId, android.view.View.GONE)
+                if (resources.dividerId != 0) {
+                    views.setViewVisibility(resources.dividerId, android.view.View.GONE)
+                }
             }
         }
     }
 
     private fun hideUpcomingTrains(context: Context, views: RemoteViews) {
-        if (layoutResource != R.layout.widget_compact_4x2) return
+        if (!isMultiTrainLayout()) return
 
-        val resourcesHelper = UpcomingTrainResources.createDefault(context)
+        val resourcesHelper = UpcomingTrainResources.createForLayout(context, layoutResource)
         
         resourcesHelper.getRowIds().forEach { rowId ->
             views.setViewVisibility(rowId, android.view.View.GONE)
+        }
+        resourcesHelper.getDividerIds().forEach { dividerId ->
+            if (dividerId != 0) {
+                views.setViewVisibility(dividerId, android.view.View.GONE)
+            }
+        }
+    }
+
+    private fun formatDuration(context: Context, train: WidgetTrainItem): String {
+        val totalMinutes = calculateMinutesBetween(train.departureTime, train.arrivalTime)
+            ?: parseDurationToMinutes(train.duration)
+            ?: return train.duration
+
+        val hours = totalMinutes / 60
+        val mins = totalMinutes % 60
+
+        return when {
+            hours > 0 -> context.getString(R.string.duration_hours_minutes, hours, mins)
+            else -> context.getString(R.string.duration_minutes, mins)
+        }
+    }
+
+    private fun parseDurationToMinutes(duration: String): Int? {
+        val hours = HOURS_RE.find(duration)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+        val mins = MINS_RE.find(duration)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+        val total = hours * 60 + mins
+        return total.takeIf { it > 0 }
+    }
+
+    companion object {
+        private val HOURS_RE = Regex("""(\d+)h""")
+        private val MINS_RE = Regex("""(\d+)m""")
+    }
+
+    private fun calculateMinutesBetween(from: String, to: String): Int? {
+        return try {
+            val fromParts = from.split(":").mapNotNull { it.toIntOrNull() }
+            val toParts = to.split(":").mapNotNull { it.toIntOrNull() }
+            if (fromParts.size == 2 && toParts.size == 2) {
+                val start = fromParts[0] * 60 + fromParts[1]
+                val end = toParts[0] * 60 + toParts[1]
+                if (end >= start) end - start else end + 24 * 60 - start
+            } else null
+        } catch (_: Exception) {
+            null
         }
     }
     
