@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react"
-import { Dimensions, Modal, NativeScrollEvent, NativeSyntheticEvent, Platform, Pressable, ScrollView, View } from "react-native"
+import { Dimensions, I18nManager, Modal, NativeScrollEvent, NativeSyntheticEvent, Platform, Pressable, ScrollView, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
 import { TxKeyPath } from "@/i18n"
@@ -45,29 +45,59 @@ interface WidgetPreviewModalProps {
 export function WidgetPreviewModal({ visible, onClose, onPin }: WidgetPreviewModalProps) {
   const [activeIndex, setActiveIndex] = useState(0)
   const scrollRef = useRef<ScrollView>(null)
+  const isRTLAndroid = Platform.OS === "android" && I18nManager.isRTL
+
+  const getScrollXForIndex = (index: number) => {
+    return isRTLAndroid
+      ? (WIDGETS.length - 1 - index) * CARD_WIDTH
+      : index * CARD_WIDTH
+  }
+
+  const getIndexFromScrollEvent = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const { contentOffset, contentSize, layoutMeasurement } = e.nativeEvent
+    const rawX = contentOffset.x
+    const totalWidth = contentSize?.width && contentSize.width > 0 ? contentSize.width : WIDGETS.length * CARD_WIDTH
+    const viewWidth = layoutMeasurement?.width && layoutMeasurement.width > 0 ? layoutMeasurement.width : CARD_WIDTH
+    const maxScroll = Math.max(0, totalWidth - viewWidth)
+
+    let scrollX = rawX
+    if (isRTLAndroid) {
+      if (rawX < 0) {
+        scrollX = Math.abs(rawX)
+      } else if (maxScroll > 0) {
+        scrollX = maxScroll - rawX
+      } else {
+        scrollX = (WIDGETS.length - 1) * CARD_WIDTH - rawX
+      }
+    }
+    const nextIndex = Math.round(scrollX / CARD_WIDTH)
+    return Math.max(0, Math.min(WIDGETS.length - 1, nextIndex))
+  }
 
   useEffect(() => {
     if (visible) {
       setActiveIndex(0)
-      scrollRef.current?.scrollTo({ x: 0, animated: false })
+      const initialX = isRTLAndroid ? getScrollXForIndex(0) : 0
+      scrollRef.current?.scrollTo({ x: initialX, animated: false })
     }
   }, [visible])
 
   const scrollTo = (index: number) => {
     setActiveIndex(index)
-    scrollRef.current?.scrollTo({ x: index * CARD_WIDTH, animated: true })
+    scrollRef.current?.scrollTo({ x: getScrollXForIndex(index), animated: true })
   }
 
   const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const nextIndex = Math.round(e.nativeEvent.contentOffset.x / CARD_WIDTH)
-    if (nextIndex >= 0 && nextIndex < WIDGETS.length && nextIndex !== activeIndex) {
+    const nextIndex = getIndexFromScrollEvent(e)
+    if (nextIndex !== activeIndex) {
       setActiveIndex(nextIndex)
     }
   }
 
   const handleClose = () => {
     setActiveIndex(0)
-    scrollRef.current?.scrollTo({ x: 0, animated: false })
+    const initialX = isRTLAndroid ? getScrollXForIndex(0) : 0
+    scrollRef.current?.scrollTo({ x: initialX, animated: false })
     onClose()
   }
 
@@ -90,6 +120,7 @@ export function WidgetPreviewModal({ visible, onClose, onPin }: WidgetPreviewMod
               horizontal
               pagingEnabled
               showsHorizontalScrollIndicator={false}
+              onScroll={handleScroll}
               onMomentumScrollEnd={handleScroll}
               onScrollEndDrag={handleScroll}
               scrollEventThrottle={16}

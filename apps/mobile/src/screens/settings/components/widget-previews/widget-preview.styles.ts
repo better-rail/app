@@ -248,9 +248,7 @@ export const styles = StyleSheet.create((theme, rt) => ({
     height: LARGE_CARD_HEIGHT,
     borderRadius: 16,
     overflow: "hidden",
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "rgba(0, 0, 0, 0.08)",
+    backgroundColor: "#16181D",
     elevation: 6,
     shadowColor: "#000000",
     shadowOffset: { width: 0, height: 2 },
@@ -260,6 +258,8 @@ export const styles = StyleSheet.create((theme, rt) => ({
   largeHeroSection: {
     height: 108,
     position: "relative",
+    backgroundColor: "#16181D",
+    overflow: "hidden",
   },
   largeHeroContent: {
     flex: 1,
