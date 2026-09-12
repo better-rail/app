@@ -309,8 +309,7 @@ class WidgetStateRenderer(
     }
     
     private fun renderTrainDetails(context: Context, views: RemoteViews, train: WidgetTrainItem) {
-        // "0" = platform not assigned yet
-        val platformText = if (train.platform.isNotEmpty() && train.platform != "0") {
+        val platformText = if (train.hasPlatform()) {
             context.getString(R.string.platform_number, train.platform)
         } else {
             ""
@@ -329,11 +328,8 @@ class WidgetStateRenderer(
         )
 
         if (layoutResource == R.layout.widget_compact_4x4) {
-            val platVal = if (train.platform.isNotEmpty() && train.platform != "0") train.platform else "–"
-            views.setTextViewText(R.id.widget_platform_val, platVal)
-
-            val trainVal = if (train.trainNumber.isNotEmpty()) train.trainNumber else "–"
-            views.setTextViewText(R.id.widget_train_num_val, trainVal)
+            views.setTextViewText(R.id.widget_platform_val, train.displayPlatform())
+            views.setTextViewText(R.id.widget_train_num_val, train.displayTrainNumber())
         }
     }
     
@@ -379,12 +375,10 @@ class WidgetStateRenderer(
                     views.setTextViewText(resources.durationId, durationText)
                 }
                 if (resources.platformId != 0) {
-                    val plat = if (train.platform.isNotEmpty() && train.platform != "0") train.platform else "–"
-                    views.setTextViewText(resources.platformId, plat)
+                    views.setTextViewText(resources.platformId, train.displayPlatform())
                 }
                 if (resources.trainNumberId != 0) {
-                    val trainNum = if (train.trainNumber.isNotEmpty()) train.trainNumber else "–"
-                    views.setTextViewText(resources.trainNumberId, trainNum)
+                    views.setTextViewText(resources.trainNumberId, train.displayTrainNumber())
                 }
             } else {
                 views.setViewVisibility(resources.rowId, android.view.View.GONE)
@@ -425,10 +419,15 @@ class WidgetStateRenderer(
     }
 
     private fun parseDurationToMinutes(duration: String): Int? {
-        val hours = Regex("""(\d+)h""").find(duration)?.groupValues?.get(1)?.toIntOrNull() ?: 0
-        val mins = Regex("""(\d+)m""").find(duration)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+        val hours = HOURS_RE.find(duration)?.groupValues?.get(1)?.toIntOrNull() ?: 0
+        val mins = MINS_RE.find(duration)?.groupValues?.get(1)?.toIntOrNull() ?: 0
         val total = hours * 60 + mins
         return total.takeIf { it > 0 }
+    }
+
+    companion object {
+        private val HOURS_RE = Regex("""(\d+)h""")
+        private val MINS_RE = Regex("""(\d+)m""")
     }
 
     private fun calculateMinutesBetween(from: String, to: String): Int? {
