@@ -348,6 +348,7 @@ STATIONS AND LINES
 
 REASON AND ALTERNATIVES
 - reason: a short phrase on why, as the update gives it, without dates or station names ("עבודות תשתית מצילות חיים באזור זבולון", "שריפה בקרבת המסילה", "תקלה בתשתית החשמל"). Give the same meaning in Hebrew, English, Russian and Arabic.
+- reason and every alternative description are shown to passengers as a line of their own, so write each as a sentence-case phrase: a capital first letter in English and Russian ("Essential maintenance works", "Shuttles from Haifa to the northern stations"), no trailing full stop.
 - alternatives: only what the update actually offers. Israel Railways' own replacement buses ("היסעים", "מערך היסעים") are mode "shuttle", free when "ללא עלות"; reinforced public bus lines ("יתוגברו קווי אוטובוס") are mode "bus"; a train routing to use instead ("ניתן לנסוע בקו העובר דרך קריית גת") is mode "train"; light rail is "lightRail". Say between which stations when the update does. Empty when none is offered.
 - link: the update's link, if any.
 - confidence "low" when you had to guess stations or dates; such disruptions are not shown.
