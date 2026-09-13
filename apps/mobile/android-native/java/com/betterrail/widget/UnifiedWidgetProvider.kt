@@ -2,6 +2,7 @@ package com.betterrail.widget
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
+import android.content.res.Configuration
 import android.util.Log
 import android.widget.RemoteViews
 import com.betterrail.widget.state.WidgetState
@@ -54,15 +55,27 @@ abstract class UnifiedWidgetProvider(
         val maxWidth = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, 0)
         val maxHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 0)
         
+        val isPortrait = context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+        val currentWidth = if (isPortrait) {
+            if (minWidth > 0) minWidth else maxWidth
+        } else {
+            if (maxWidth > 0) maxWidth else minWidth
+        }
+        val currentHeight = if (isPortrait) {
+            if (maxHeight > 0) maxHeight else minHeight
+        } else {
+            if (minHeight > 0) minHeight else maxHeight
+        }
+
         // Determine optimal size
         val optimalSize = if (minWidth == 0 && maxWidth == 0) {
             defaultWidgetSize
         } else {
-            WidgetSize.getOptimalSize(minWidth, minHeight, maxWidth, maxHeight)
+            WidgetSize.getOptimalSize(currentWidth, currentHeight, defaultWidgetSize)
         }
         
-        Log.d(getLogTag(), "Widget $appWidgetId: ${WidgetSize.getGridInfo(minWidth, minHeight, maxWidth, maxHeight)}")
+        Log.d(getLogTag(), "Widget $appWidgetId: ${WidgetSize.getGridInfo(currentWidth, currentHeight)}")
         
-        return getRenderer(optimalSize).render(context, state)
+        return getRenderer(optimalSize).render(context, state, currentHeight)
     }
 }

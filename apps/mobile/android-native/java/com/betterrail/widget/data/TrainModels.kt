@@ -107,7 +107,25 @@ data class WidgetTrainItem(
     val changesText: String = "",
     val trainNumber: String = "",
     val departureTimestamp: String = "" // Full ISO timestamp for date calculations
-)
+) {
+    fun hasPlatform(): Boolean = platform.isNotEmpty() && platform != "0"
+
+    fun displayPlatform(fallback: String = "-"): String = if (hasPlatform()) platform else fallback
+
+    fun displayTrainNumber(fallback: String = "-"): String = trainNumber.ifEmpty { fallback }
+
+    fun getDaysAway(): Int {
+        if (departureTimestamp.isEmpty()) return 0
+        return try {
+            val formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.getDefault())
+            val trainDateTime = java.time.LocalDateTime.parse(departureTimestamp, formatter)
+            val today = java.time.LocalDate.now()
+            java.time.temporal.ChronoUnit.DAYS.between(today, trainDateTime.toLocalDate()).toInt()
+        } catch (e: Exception) {
+            0
+        }
+    }
+}
 
 data class WidgetScheduleData(
     val routes: List<WidgetTrainItem>,

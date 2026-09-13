@@ -19,6 +19,8 @@ import com.betterrail.widget.lifecycle.WidgetCoroutineManager
 import com.betterrail.widget.state.WidgetState
 import com.betterrail.widget.scheduler.WidgetUpdateScheduler
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.firstOrNull
 import android.util.Log
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -350,6 +352,36 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         }
         
         updateWidgetUI(context, appWidgetManager, appWidgetId, state)
+
+        // Only for 4x3 widget: if today has fewer upcoming trains than table capacity,
+        // fill the remaining slots with tomorrow's upcoming runs so user can see next day's schedule.
+        val maxNeeded = WidgetSize.MAX_UPCOMING_TRAINS_4X3 + 1
+        if (getLayoutResource() == R.layout.widget_compact_4x3 && !isFromTomorrowRequest && daysAway == 0 && upcomingTrains.size < maxNeeded) {
+            try {
+                val tomorrowResource = scheduleRepository.getTomorrowSchedule(appWidgetId, widgetData)
+                    .filter { it !is Resource.Loading }
+                    .firstOrNull()
+
+                if (tomorrowResource is Resource.Success && tomorrowResource.data.routes.isNotEmpty()) {
+                    val tomorrowUpcoming = filterUpcomingTrains(tomorrowResource.data.routes)
+                    if (tomorrowUpcoming.isNotEmpty()) {
+                        val neededCount = maxNeeded - upcomingTrains.size
+                        val combinedTrains = upcomingTrains + tomorrowUpcoming.take(neededCount)
+                        Log.d(getLogTag(), "Appended ${tomorrowUpcoming.take(neededCount).size} tomorrow trains for widget $appWidgetId")
+                        val updatedState = WidgetState.Schedule(
+                            widgetData.originId,
+                            originName,
+                            destinationName,
+                            firstTrain,
+                            combinedTrains.drop(1)
+                        )
+                        updateWidgetUI(context, appWidgetManager, appWidgetId, updatedState)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.w(getLogTag(), "Could not append tomorrow trains for widget $appWidgetId: ${e.message}")
+            }
+        }
     }
     
     /**
