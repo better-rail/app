@@ -139,7 +139,11 @@ class WidgetStateRenderer(
         
         if (isMultiTrainLayout()) {
             views.setTextViewText(R.id.widget_arrival_time, state.nextTrain.arrivalTime)
-            showUpcomingTrains(context, views, state.upcomingTrains)
+            if (state.upcomingTrains.isNotEmpty()) {
+                showUpcomingTrains(context, views, state.upcomingTrains)
+            } else {
+                hideUpcomingTrains(context, views)
+            }
         }
         
         setStationBackground(views, state.originId)
