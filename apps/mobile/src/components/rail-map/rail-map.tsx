@@ -56,6 +56,8 @@ import {
   mapStationName,
   nameFontSize,
   nearestLine,
+  nearestStation,
+  stationPoint,
 } from "./rail-map-model"
 import { RAIL_MAP_PALETTE, type RailMapPalette, paleColor } from "./rail-map-theme"
 
@@ -69,6 +71,12 @@ const MIN_ZOOM = 0.9
 const MAX_ZOOM = 4
 /** How close (in map units) a tap must be to a line to select it. */
 const TAP_TOLERANCE = 3
+/** How close (in map units) a tap must be to a station's dot to select the station; dots sit on lines, so they come first. */
+const STATION_TAP_TOLERANCE = 1.6
+/** How far in the map zooms on a station, relative to the whole width fitting the view. */
+const STATION_ZOOM = 2.6
+/** The halo around a selected station: a soft disc over all its dots, with a crisp rim; `pad` is the room past the outermost dot. */
+const SELECTED_STATION_HALO = { pad: 1.1, rim: 0.22, glow: 1.4 }
 
 /** Material's "flight" glyph, 24 × 24, nose up. */
 const PLANE_D =
@@ -85,6 +93,12 @@ export type RailMapProps = {
   onSelectLine?: (lineId: RailLineId | null) => void
   /** Scroll and zoom the initial view to this line. */
   focusLineId?: RailLineId | null
+  /** Ring this station's dots. */
+  selectedStationId?: string | null
+  /** Called with the tapped station: a dot, or its name. Stations win over the lines their dots sit on. */
+  onSelectStation?: (stationId: string) => void
+  /** Scroll and zoom the view to this station. */
+  focusStationId?: string | null
   /** Edges of the view covered by other UI (a translucent header, a sheet): the initial and focused views keep clear of them. */
   insets?: RailMapInsets
   style?: ViewStyle
@@ -133,12 +147,33 @@ const initialViewport = (model: RailMapModel, size: Size, focus?: LinePath, inse
   return { scale, translateX: size.width / 2 - centerX * scale, translateY: top + visibleHeight / 2 - centerY * scale }
 }
 
+/** The view zoomed in on a point, centred in the part of the view the insets leave uncovered. */
+const pointViewport = (model: RailMapModel, size: Size, point: Point, insets?: RailMapInsets): Viewport => {
+  const top = insets?.top ?? 0
+  const bottom = insets?.bottom ?? 0
+  const fitWidth = size.width / (model.bounds.width + PAD.left + PAD.right)
+  const scale = Math.min(Math.max(fitWidth * STATION_ZOOM, fitWidth * MIN_ZOOM), fitWidth * MAX_ZOOM)
+  const visibleHeight = Math.max(size.height - top - bottom, size.height / 4)
+  return { scale, translateX: size.width / 2 - point.x * scale, translateY: top + visibleHeight / 2 - point.y * scale }
+}
+
 const clamp = (value: number, min: number, max: number): number => {
   "worklet"
   return Math.min(Math.max(value, min), max)
 }
 
-export function RailMap({ status, dayType, selectedLineId, onSelectLine, focusLineId, insets, style }: RailMapProps) {
+export function RailMap({
+  status,
+  dayType,
+  selectedLineId,
+  onSelectLine,
+  focusLineId,
+  selectedStationId,
+  onSelectStation,
+  focusStationId,
+  insets,
+  style,
+}: RailMapProps) {
   const scheme = useColorScheme()
   const palette = RAIL_MAP_PALETTE[scheme === "dark" ? "dark" : "light"]
   const model = useMemo(() => buildRailMapModel(dayType ?? currentDayType()), [dayType])
@@ -177,6 +212,7 @@ export function RailMap({ status, dayType, selectedLineId, onSelectLine, focusLi
     () => (focusLineId ? model.lines.find((l) => l.lineId === focusLineId) : undefined),
     [model, focusLineId],
   )
+  const focusPoint = useMemo(() => (focusStationId ? stationPoint(model, focusStationId) : undefined), [model, focusStationId])
   const laidOut = size.width > 0
   // The insets in force when a view is next chosen: a change of insets on its own does not move the map.
   const insetsRef = useRef(insets)
@@ -195,14 +231,20 @@ export function RailMap({ status, dayType, selectedLineId, onSelectLine, focusLi
     maxScale.value = fitWidth * MAX_ZOOM
     viewportWidth.value = width
     viewportHeight.value = height
-    showViewport(initialViewport(model, { width, height }, focusLine, insetsRef.current), false)
+    const view = focusPoint
+      ? pointViewport(model, { width, height }, focusPoint, insetsRef.current)
+      : initialViewport(model, { width, height }, focusLine, insetsRef.current)
+    showViewport(view, false)
   }
 
-  // Glide to the focused line when it changes after the first layout, and back to the whole network once it clears.
+  // Glide to the focused line or station when it changes after the first layout, and back to the whole network once it clears.
   const wasFocused = useRef(false)
   useEffect(() => {
     if (!laidOut) return
-    if (focusLine) {
+    if (focusPoint) {
+      wasFocused.current = true
+      showViewport(pointViewport(model, size, focusPoint, insetsRef.current), true)
+    } else if (focusLine) {
       wasFocused.current = true
       showViewport(initialViewport(model, size, focusLine, insetsRef.current), true)
     } else if (wasFocused.current) {
@@ -211,7 +253,7 @@ export function RailMap({ status, dayType, selectedLineId, onSelectLine, focusLi
     }
     // `size` is deliberately not a dependency: layout changes are handled by onLayout.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [focusLine, laidOut, model, showViewport])
+  }, [focusLine, focusPoint, laidOut, model, showViewport])
 
   /** How far the drawing may be moved at scale `s`: it stays in the uncovered part of the view, with half of it as overscroll at most. */
   const translationBounds = (s: number) => {
@@ -278,9 +320,20 @@ export function RailMap({ status, dayType, selectedLineId, onSelectLine, focusLi
       translateY.value = ty
     })
 
+  // The names as laid out, for taps on them; filled in once the fonts are loaded (below).
+  const labelsRef = useRef<BuiltLabel[]>([])
+
   const handleTap = (x: number, y: number) => {
+    const p = { x, y }
+    if (onSelectStation) {
+      const station = nearestStation(model, p, STATION_TAP_TOLERANCE)?.stationId ?? labelAt(labelsRef.current, p)
+      if (station) {
+        onSelectStation(station)
+        return
+      }
+    }
     if (!onSelectLine) return
-    const hit = nearestLine(model, { x, y }, TAP_TOLERANCE)
+    const hit = nearestLine(model, p, TAP_TOLERANCE)
     onSelectLine(hit?.lineId ?? null)
   }
 
@@ -325,6 +378,7 @@ export function RailMap({ status, dayType, selectedLineId, onSelectLine, focusLi
     if (!fontMgr) return []
     return model.labels.map((label) => buildLabel(label, fontMgr, palette))
   }, [fontMgr, model, palette])
+  labelsRef.current = labels
 
   const cityLabels = useMemo(() => {
     if (!fontMgr) return []
@@ -367,6 +421,16 @@ export function RailMap({ status, dayType, selectedLineId, onSelectLine, focusLi
     }
     return [...seen.values()]
   }, [model, selectedLineId])
+
+  // One halo over all the station's dots (one per lane through it), centred between them.
+  const selectedStation = useMemo(() => {
+    if (!selectedStationId) return undefined
+    const markers = model.markers.filter((m) => m.stationId === selectedStationId)
+    const centre = stationPoint(model, selectedStationId)
+    if (!centre || markers.length === 0) return undefined
+    const spread = Math.max(...markers.map((m) => Math.hypot(m.point.x - centre.x, m.point.y - centre.y)))
+    return { centre, radius: spread + MARKER_RADIUS + SELECTED_STATION_HALO.pad }
+  }, [model, selectedStationId])
 
   return (
     <GestureDetector gesture={gesture}>
@@ -540,6 +604,28 @@ export function RailMap({ status, dayType, selectedLineId, onSelectLine, focusLi
                 ) : null,
               )}
 
+              {/* The selected station: a soft glow under a translucent disc over its dots, with a crisp rim. */}
+              {selectedStation && (
+                <Group>
+                  <Circle
+                    c={selectedStation.centre}
+                    r={selectedStation.radius + SELECTED_STATION_HALO.glow}
+                    color={palette.selection}
+                    opacity={0.22}
+                  >
+                    <BlurMask blur={SELECTED_STATION_HALO.glow} style="normal" />
+                  </Circle>
+                  <Circle c={selectedStation.centre} r={selectedStation.radius} color={palette.selection} opacity={0.18} />
+                  <Circle
+                    c={selectedStation.centre}
+                    r={selectedStation.radius}
+                    color={palette.selection}
+                    style="stroke"
+                    strokeWidth={SELECTED_STATION_HALO.rim}
+                  />
+                </Group>
+              )}
+
               {/* The aeroplane over Ben Gurion Airport. */}
               <Path path={plane} color={palette.cityInk} />
 
@@ -648,6 +734,16 @@ type BuiltLabel = {
   x: number
   y: number
   width: number
+  /** Where the name's ink is, within the paragraph's box (it is aligned towards the station), for taps on it. */
+  ink: { left: number; top: number; right: number; bottom: number }
+}
+
+/** The station whose name is under `p`, with a little slack around the letters. */
+const labelAt = (labels: BuiltLabel[], p: Point): string | undefined => {
+  const slack = 0.6
+  return labels.find(
+    (l) => p.x >= l.ink.left - slack && p.x <= l.ink.right + slack && p.y >= l.ink.top - slack && p.y <= l.ink.bottom + slack,
+  )?.stationId
 }
 
 type TextRun = { text: string; size: number; color: string; weight?: number }
@@ -704,6 +800,13 @@ const buildLabel = (label: StationLabel, fontMgr: FontManager, palette: RailMapP
         : label.anchor.x - label.maxWidth / 2
   const y =
     label.side === "above" ? label.anchor.y - height : label.side === "below" ? label.anchor.y : label.anchor.y - height / 2
+  const inkWidth = Math.min(paragraph.getLongestLine(), label.maxWidth)
+  const inkLeft =
+    textAlign === TextAlign.Right
+      ? x + label.maxWidth - inkWidth
+      : textAlign === TextAlign.Left
+        ? x
+        : x + (label.maxWidth - inkWidth) / 2
   return {
     stationId: label.stationId,
     paragraph,
@@ -711,6 +814,7 @@ const buildLabel = (label: StationLabel, fontMgr: FontManager, palette: RailMapP
     x,
     y,
     width: label.maxWidth,
+    ink: { left: inkLeft, top: y, right: inkLeft + inkWidth, bottom: y + height },
   }
 }
 

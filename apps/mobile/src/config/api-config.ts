@@ -6,4 +6,5 @@ const serverBaseURL =
 export const API_CONFIG = {
   RAIL_API: `${serverBaseURL}/rail-api`,
   SERVICE_STATUS: `${serverBaseURL}/service-status`,
+  STATIONS: `${serverBaseURL}/stations`,
 }

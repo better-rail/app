@@ -28,6 +28,8 @@ export type RailMapPalette = {
   /** Disruption badge on affected stations ("!" on a disc). */
   badge: string
   badgeInk: string
+  /** The halo around the selected station. */
+  selection: string
 }
 
 export const RAIL_MAP_PALETTE: Record<"light" | "dark", RailMapPalette> = {
@@ -43,6 +45,7 @@ export const RAIL_MAP_PALETTE: Record<"light" | "dark", RailMapPalette> = {
     shore: "#C1E9FF",
     badge: "#1D1D1F",
     badgeInk: "#FFFFFF",
+    selection: "#0A7AFF",
   },
   dark: {
     background: "#0F1524",
@@ -56,6 +59,7 @@ export const RAIL_MAP_PALETTE: Record<"light" | "dark", RailMapPalette> = {
     shore: "#2B4470",
     badge: "#F2F2F7",
     badgeInk: "#0F1524",
+    selection: "#5CA8FF",
   },
 }
 

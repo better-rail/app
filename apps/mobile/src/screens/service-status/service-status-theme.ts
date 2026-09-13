@@ -1,5 +1,6 @@
 import { useColorScheme } from "react-native"
 import type { ServiceStatusLevel } from "@/services/api"
+import type { StationStatusKind } from "./station-status"
 
 /**
  * Status colours as plain strings (they also feed Skia and reanimated, which
@@ -34,3 +35,25 @@ export const contrastText = (hex: string): string => {
   const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
   return luminance > 0.6 ? "#1D1D1F" : "#FFFFFF"
 }
+
+/** The station card's colours: green, orange, red, a colour of its own for planned works, and grey. */
+export const STATION_KIND_COLORS: Record<StationStatusKind, { light: string; dark: string }> = {
+  good: STATUS_LEVEL_COLORS.goodService,
+  delays: STATUS_LEVEL_COLORS.minorDelays,
+  cancellations: STATUS_LEVEL_COLORS.severeDelays,
+  planned: { light: "#3F51B5", dark: "#8C9EFF" },
+  noService: STATUS_LEVEL_COLORS.noService,
+  closed: STATUS_LEVEL_COLORS.noService,
+  unknown: STATUS_LEVEL_COLORS.unknown,
+}
+
+export function useStationKindColor(kind: StationStatusKind): string {
+  const isDark = useColorScheme() === "dark"
+  return STATION_KIND_COLORS[kind][isDark ? "dark" : "light"]
+}
+
+/** A colour as a translucent wash behind text in that colour (two hex digits of alpha appended). */
+export const tinted = (hex: string, alpha = 0.16): string =>
+  `${hex}${Math.round(alpha * 255)
+    .toString(16)
+    .padStart(2, "0")}`

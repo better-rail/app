@@ -109,6 +109,14 @@ export const logNames = {
   serviceStatus: {
     failed: "Failed to compute service status",
   },
+  stationDepartures: {
+    failed: "Failed to compute a station's departures",
+  },
+  stationInfo: {
+    fetchFailed: "Failed to fetch a station's page from the Israel Railways API",
+    cacheReadFailed: "Failed to read a station's page from redis",
+    cacheWriteFailed: "Failed to write a station's page to redis",
+  },
   announcements: {
     started: "Announcements poller started",
     disabled: "Announcements poller idle (OPENAI_API_KEY / RAIL_URL / RAIL_API_KEY not set)",

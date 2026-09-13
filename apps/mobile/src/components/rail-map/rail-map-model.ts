@@ -419,6 +419,26 @@ const segmentDistance = (p: Point, a: Point, b: Point): number => {
   return Math.hypot(p.x - (a.x + t * dx), p.y - (a.y + t * dy))
 }
 
+/** The station whose dot is closest to `p` within `tolerance` map units, for tap selection. */
+export const nearestStation = (model: RailMapModel, p: Point, tolerance: number): StationMarker | undefined => {
+  let best: { marker: StationMarker; distance: number } | undefined
+  for (const marker of model.markers) {
+    const distance = Math.hypot(p.x - marker.point.x, p.y - marker.point.y)
+    if (distance <= tolerance && (!best || distance < best.distance)) best = { marker, distance }
+  }
+  return best?.marker
+}
+
+/** Where the station sits on the map: the middle of its dots (one per lane through it); undefined when no line calls there. */
+export const stationPoint = (model: RailMapModel, stationId: string): Point | undefined => {
+  const points = model.markers.filter((m) => m.stationId === stationId).map((m) => m.point)
+  if (points.length === 0) return undefined
+  return {
+    x: points.reduce((sum, p) => sum + p.x, 0) / points.length,
+    y: points.reduce((sum, p) => sum + p.y, 0) / points.length,
+  }
+}
+
 /** The line closest to `p` within `tolerance` map units, for tap selection. */
 export const nearestLine = (model: RailMapModel, p: Point, tolerance: number): LinePath | undefined => {
   let best: { line: LinePath; distance: number } | undefined

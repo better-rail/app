@@ -194,6 +194,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // The Google Services gradle plugin FCM needs is applied by ./plugins/withBetterRailAndroid
     // (previously came from the @react-native-firebase/app plugin).
     "expo-notifications",
+    // Apple Maps on iOS for the station card's map box (Android would need a Google Maps key here).
+    "react-native-maps",
     [
       "@sentry/react-native/expo",
       {

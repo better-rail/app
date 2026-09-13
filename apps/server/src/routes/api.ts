@@ -7,6 +7,8 @@ import { createRateLimiter } from "../utils/rate-limiter"
 import { handleRailApiRequest, handleSearchTrainRequest } from "./rail-api"
 import { siriDebugRouter } from "./siri-debug"
 import { handleServiceStatusRequest } from "./service-status"
+import { handleStationDeparturesRequest } from "./station-departures"
+import { handleStationInfoRequest } from "./station-info"
 import { DeleteRideBody, UpdateRideTokenBody, bodyValidator } from "./validations"
 import { endRideNotifications, startRideNotifications, updateRideToken } from "../rides"
 
@@ -44,6 +46,10 @@ router.use("/ride", rideRouter)
 router.use("/siri", siriDebugRouter)
 // Network health per line (read-only: GTFS timetable + SIRI snapshot)
 router.get("/service-status", createRateLimiter(60 * 1000, 60), handleServiceStatusRequest)
+// A station's page (entrances and their hours, facilities, notices) from the Israel Railways API, cached
+router.get("/stations/:stationId/info", createRateLimiter(60 * 1000, 120), handleStationInfoRequest)
+// The next trains calling at a station, per line and direction (GTFS timetable + SIRI snapshot)
+router.get("/stations/:stationId/departures", createRateLimiter(60 * 1000, 120), handleStationDeparturesRequest)
 // Handle the specific search train request with transformation
 router.get(
   "/rail-api/rjpa/api/v1/timetable/searchTrainLuzForDateTime",

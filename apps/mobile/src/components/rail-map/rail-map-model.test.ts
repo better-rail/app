@@ -12,9 +12,11 @@ import {
   lineStationPoints,
   mapStationName,
   nearestLine,
+  nearestStation,
   polylineD,
   seaBands,
   smoothPathD,
+  stationPoint,
 } from "./rail-map-model"
 
 describe("rail map model", () => {
@@ -124,6 +126,23 @@ describe("rail map model", () => {
     if (!dimona) throw new Error("Dimona missing")
     expect(nearestLine(model, { x: dimona.point.x - 1, y: dimona.point.y - 1 }, 3)?.lineId).toBe("8")
     expect(nearestLine(model, { x: 5, y: 40 }, 3)).toBeUndefined()
+  })
+
+  test("tapping on a station's dot finds the station, and a station sits in the middle of its dots", () => {
+    const dimona = model.markers.find((m) => m.stationId === "7500")
+    if (!dimona) throw new Error("Dimona missing")
+    expect(nearestStation(model, { x: dimona.point.x + 0.4, y: dimona.point.y - 0.3 }, 1.5)?.stationId).toBe("7500")
+    expect(nearestStation(model, { x: dimona.point.x + 3, y: dimona.point.y }, 1.5)).toBeUndefined()
+    expect(stationPoint(model, "7500")).toEqual(dimona.point)
+    // Savidor has a dot on every lane through it: its point is between them, at their height.
+    const savidor = model.markers.filter((m) => m.stationId === "3700")
+    expect(savidor.length).toBeGreaterThan(1)
+    const point = stationPoint(model, "3700")
+    if (!point) throw new Error("Savidor missing")
+    expect(point.x).toBeGreaterThan(Math.min(...savidor.map((m) => m.point.x)))
+    expect(point.x).toBeLessThan(Math.max(...savidor.map((m) => m.point.x)))
+    // A station no line calls at on this timetable has no point.
+    expect(stationPoint(buildRailMapModel("night"), "4600")).toBeUndefined()
   })
 
   test("city frames and the aeroplane come from the traced layout", () => {
