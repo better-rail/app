@@ -110,9 +110,9 @@ data class WidgetTrainItem(
 ) {
     fun hasPlatform(): Boolean = platform.isNotEmpty() && platform != "0"
 
-    fun displayPlatform(fallback: String = "–"): String = if (hasPlatform()) platform else fallback
+    fun displayPlatform(fallback: String = "-"): String = if (hasPlatform()) platform else fallback
 
-    fun displayTrainNumber(fallback: String = "–"): String = trainNumber.ifEmpty { fallback }
+    fun displayTrainNumber(fallback: String = "-"): String = trainNumber.ifEmpty { fallback }
 }
 
 data class WidgetScheduleData(
