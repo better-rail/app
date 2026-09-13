@@ -44,10 +44,15 @@ export function StationDetails({ stationId, dayType, onSelectLine, onGoNow, scro
   const { data } = useServiceStatus()
   const { data: info, isLoading: infoLoading, isError: infoError } = useStationInfo(stationId)
   const { data: departures } = useStationDepartures(stationId)
-  const status = useMemo(() => stationStatus(data, stationId, dayType), [data, stationId, dayType])
-  const kind = stationStatusKind(status, !!info?.closed)
   // Israel's clock, wherever the phone is: the station is there. Ticks each minute for the countdowns.
   const now = timezoneCorrection(useNow())
+  const status = useMemo(
+    () => stationStatus(data, stationId, dayType, departures, now),
+    // `now` is a new Date each render; its minute is what changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [data, stationId, dayType, departures, now.getTime()],
+  )
+  const kind = stationStatusKind(status, !!info?.closed)
   const clock = wallClockOf(now)
   const openState = info ? stationOpenState(info.entrances, clock) : infoLoading ? undefined : { state: "unknown" as const }
   const dayName = (day: number) => format(addDays(A_SUNDAY, day - 1), "EEE", { locale: dateFnsLocalization })
@@ -71,11 +76,7 @@ export function StationDetails({ stationId, dayType, onSelectLine, onGoNow, scro
 
   return (
     <View style={styles.details} onLayout={onRootLayout} testID="station-details">
-      <Button
-        title={translate("plan.title") ?? "Trip Plan"}
-        onPress={() => onGoNow(stationId)}
-        testID="station-go-now"
-      />
+      <Button title={translate("plan.title") ?? "Trip Plan"} onPress={() => onGoNow(stationId)} testID="station-go-now" />
 
       <StationTiles status={status} kind={kind} openState={openState} today={clock.day} dayName={dayName} onPress={onTilePress} />
 

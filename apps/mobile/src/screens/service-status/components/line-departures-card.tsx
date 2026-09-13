@@ -66,21 +66,17 @@ export function LineDeparturesCard({ line, status, directions, now, onPress }: L
 function DirectionRow({ direction, now }: { direction: StationDepartureDirection; now: Date }) {
   const trains = direction.trains.slice(0, SHOWN)
   const next = trains.find((t) => !t.cancelled)
-  const detail = [
-    next && next.destinationStationId !== direction.towardsStationId ? stationName(next.destinationStationId) : null,
-    next && next.platform > 0 ? translate("serviceStatus.station.platform", { platform: next.platform }) : null,
-  ]
-    .filter(Boolean)
-    .join(" · ")
+  // Where the next train actually goes, as a platform board says it, even when it ends short of the line's end.
+  const towards = next?.destinationStationId ?? direction.towardsStationId
   return (
     <View style={styles.direction} testID={`station-direction-${direction.towardsStationId}`}>
       <View style={styles.directionHeader}>
         <Text style={styles.towards} numberOfLines={1}>
-          {translate("serviceStatus.station.towards", { station: stationName(direction.towardsStationId) })}
+          {translate("serviceStatus.station.towards", { station: stationName(towards) })}
         </Text>
-        {detail.length > 0 && (
+        {next && next.platform > 0 && (
           <Text style={styles.detail} preset="small" numberOfLines={1}>
-            {detail}
+            {translate("serviceStatus.station.platform", { platform: next.platform })}
           </Text>
         )}
       </View>

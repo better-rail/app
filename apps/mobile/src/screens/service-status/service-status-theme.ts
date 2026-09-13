@@ -47,9 +47,9 @@ export const STATION_KIND_COLORS: Record<StationStatusKind, { light: string; dar
   unknown: STATUS_LEVEL_COLORS.unknown,
 }
 
-export function useStationKindColor(kind: StationStatusKind): string {
+export function useStationKindColor(kind: StationStatusKind | undefined): string {
   const isDark = useColorScheme() === "dark"
-  return STATION_KIND_COLORS[kind][isDark ? "dark" : "light"]
+  return STATION_KIND_COLORS[kind ?? "unknown"][isDark ? "dark" : "light"]
 }
 
 /** A colour as a translucent wash behind text in that colour (two hex digits of alpha appended). */

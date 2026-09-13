@@ -12,7 +12,8 @@ export type StationTile = "status" | "open"
 
 type StationTilesProps = {
   status: StationStatus
-  kind: StationStatusKind
+  /** Undefined while the station's next trains are loading and they decide it. */
+  kind: StationStatusKind | undefined
   /** Undefined while the station's page is loading. */
   openState: OpenState | undefined
   /** Israel's day of the week right now (1 = Sunday), so a closed station says "opens 05:00" today and "opens Sun 05:00" otherwise. */
@@ -33,18 +34,24 @@ export function StationTiles({ status, kind, openState, today, dayName, onPress 
     <View style={styles.row} testID="station-tiles">
       <Tile
         label={translate("serviceStatus.station.status") ?? ""}
-        tint={tinted(kindColor)}
+        tint={kind ? tinted(kindColor) : undefined}
         onPress={() => onPress("status")}
         testID="station-tile-status"
       >
-        <Text
-          style={[styles.kind, { color: kindColor }]}
-          numberOfLines={2}
-          maxFontSizeMultiplier={1.2}
-          testID={`station-kind-${kind}`}
-        >
-          {translate(`serviceStatus.station.kinds.${kind}`)}
-        </Text>
+        {kind ? (
+          <Text
+            style={[styles.kind, { color: kindColor }]}
+            numberOfLines={2}
+            maxFontSizeMultiplier={1.2}
+            testID={`station-kind-${kind}`}
+          >
+            {translate(`serviceStatus.station.kinds.${kind}`)}
+          </Text>
+        ) : (
+          <Text style={styles.big} maxFontSizeMultiplier={1.2}>
+            …
+          </Text>
+        )}
       </Tile>
       <Tile label={translate("serviceStatus.station.openNow") ?? ""} onPress={() => onPress("open")} testID="station-tile-open">
         <OpenTile openState={openState} today={today} dayName={dayName} />
