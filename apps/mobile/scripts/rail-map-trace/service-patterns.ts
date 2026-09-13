@@ -2,7 +2,8 @@
  * The service patterns for the Service Status map, from the GTFS feed the
  * server holds: which lines run, where their trains end short of the line's
  * ends, and which stations some or all of them run through — per day type.
- * Writes station-patterns.json, read by gen_layout.py.
+ * Writes station-patterns.json (read by gen_layout.py) and the SERVICE_PATTERNS
+ * block of src/data/rail-map-layout.ts, so a timetable change needs no retrace.
  *
  *     cd apps/server && bun run ../mobile/scripts/rail-map-trace/service-patterns.ts
  *
@@ -12,14 +13,23 @@
  * Thursday's. So the night trains, which run through most stations, do not
  * make those stations look irregular by day.
  *
+ * The 8xxx trains are additions pinned to a date (a holiday eve's timetable,
+ * a Wednesday extra) and would make a whole day type look like that one day,
+ * so they are left out — unless one runs on every date of its day type in the
+ * window, which makes it a standing extra (8718, a daily peak train).
+ *
+ * By day, only the trains leaving between 05:00 and 23:45 shape the map: the
+ * first and last trains of a day keep the night pattern, calling at stations
+ * the hourly service runs through, and would put a dot there.
+ *
  * A line runs on a day type with three or more trains in it (three or more a
  * night, at night, so a stray last train does not count). Of the stations
- * between a train's ends, those practically every train runs through are `skipped`
+ * between a train's ends, those nine in ten trains run through are `skipped`
  * (no dot on the map), those a fifth or more run through are `irregular`, and
  * stations short of the line's ends where a tenth or more of its trains end
  * are `terminals`.
  */
-import { writeFileSync } from "node:fs"
+import { readFileSync, writeFileSync } from "node:fs"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import { getPool } from "../../../server/src/db"
@@ -28,12 +38,15 @@ import { assignLine } from "../../../server/src/status/service-status"
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const PATTERNS = join(HERE, "station-patterns.json")
+const LAYOUT = join(HERE, "../../src/data/rail-map-layout.ts")
 const NIGHT_FROM_SEC = (24 * 60 + 15) * 60
 const NIGHT_UNTIL_SEC = (4 * 60 + 30) * 60
+const DAY_FROM_SEC = 5 * 60 * 60
+const DAY_UNTIL_SEC = (23 * 60 + 45) * 60
 const DAYS_AHEAD = 14
 const MIN_TRIPS_PER_NIGHT = 3
 const MIN_TRAINS = 3
-const SKIPPED_SHARE = 0.97
+const SKIPPED_SHARE = 0.9
 const IRREGULAR_SHARE = 0.2
 const TERMINAL_SHARE = 0.1
 
@@ -93,9 +106,26 @@ const dayOf = (t: Trip): string =>
 
 const byDayType: Record<DayType, Map<string, Trip[]>> = { weekday: new Map(), weekend: new Map(), night: new Map() }
 const days: Record<DayType, Set<string>> = { weekday: new Set(), weekend: new Set(), night: new Set() }
+for (const trip of trips.values()) days[dayTypeOf(trip)].add(dayOf(trip))
+
+// An 8xxx train is an addition pinned to a date, unless it runs on every date of its day type.
+const isAddition = (n: number) => n >= 8000 && n < 9000
+const additionDates = new Map<string, Set<string>>()
 for (const trip of trips.values()) {
+  if (!isAddition(trip.trainNumber)) continue
+  const key = `${trip.trainNumber}|${trip.stops.join(",")}`
+  additionDates.set(key, (additionDates.get(key) ?? new Set()).add(dayOf(trip)))
+}
+const isOneOff = (trip: Trip) =>
+  isAddition(trip.trainNumber) &&
+  (additionDates.get(`${trip.trainNumber}|${trip.stops.join(",")}`)?.size ?? 0) < days[dayTypeOf(trip)].size
+
+const isDaytime = (t: Trip) => t.firstDep >= DAY_FROM_SEC && t.firstDep < DAY_UNTIL_SEC
+
+for (const trip of trips.values()) {
+  if (isOneOff(trip)) continue
   const dayType = dayTypeOf(trip)
-  days[dayType].add(dayOf(trip))
+  if (dayType !== "night" && !isDaytime(trip)) continue
   const lineId = assignLine({
     tripKey: trip.date,
     trainNumber: trip.trainNumber,
@@ -173,6 +203,30 @@ const toJson = (value: unknown, depth = 0): string => {
   return JSON.stringify(value)
 }
 writeFileSync(PATTERNS, `${toJson(patterns)}\n`)
+
+// The same, as the SERVICE_PATTERNS block of the layout (in the shape gen_ts.py writes it).
+const lineStation = (lineId: string, stationId: string) => `      { lineId: "${lineId}", stationId: "${stationId}" },\n`
+const block = (["weekday", "weekend", "night"] as const)
+  .map((dayType) => {
+    const variant = patterns[dayType]
+    const entries = Object.entries(variant.patterns).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+    const field = (name: keyof Pattern) =>
+      `    ${name}: [\n${entries
+        .flatMap(([lineId, p]) =>
+          Object.keys(p[name])
+            .sort()
+            .map((stationId) => lineStation(lineId, stationId)),
+        )
+        .join("")}    ],\n`
+    return `  ${dayType}: {\n    lines: [${variant.lines.map((id) => `"${id}"`).join(", ")}],\n${field("irregular")}${field("terminals")}${field("skipped")}  },\n`
+  })
+  .join("")
+const layout = readFileSync(LAYOUT, "utf8")
+const start = layout.indexOf("export const SERVICE_PATTERNS")
+const end = layout.indexOf("\n}\n", start)
+if (start < 0 || end < 0) throw new Error("SERVICE_PATTERNS block not found in rail-map-layout.ts")
+const open = layout.indexOf("{\n", start) + 2
+writeFileSync(LAYOUT, layout.slice(0, open) + block + layout.slice(end + 1))
 
 const list = (record: Record<string, number>) => Object.keys(record).join(" ") || "-"
 for (const [dayType, variant] of Object.entries(patterns)) {

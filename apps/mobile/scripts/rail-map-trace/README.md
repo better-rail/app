@@ -30,10 +30,14 @@ map of their own so their run-through stations do not look irregular by day):
 
 ```sh
 cd apps/server && bun run ../mobile/scripts/rail-map-trace/service-patterns.ts
-bunx oxfmt ../mobile/scripts/rail-map-trace/station-patterns.json
+cd ../.. && bunx oxfmt apps/mobile/scripts/rail-map-trace/station-patterns.json apps/mobile/src/data/rail-map-layout.ts
 ```
 
-Regenerate it when the timetable changes, then rerun `gen_layout.py`.
+Regenerate it when the timetable changes: the script also rewrites the
+`SERVICE_PATTERNS` block of `rail-map-layout.ts`, so the artwork need not be
+retraced (`gen_layout.py` embeds the same file when it is). Only the trains of
+the day shape the day maps — the first and last trains, which call where the
+hourly service runs through, and the date-pinned 8xxx additions are left out.
 
 The stations a line runs through without calling (the express lines' Netanya,
 Kfar Habad, Be'er Ya'akov …) are read off the traced geometry, where lines that
