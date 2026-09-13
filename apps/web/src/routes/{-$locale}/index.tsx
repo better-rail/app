@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { ArrowLeft, ArrowRight, Clock, type LucideIcon } from "lucide-react"
+import { ArrowLeft, ArrowRight, Clock } from "lucide-react"
 import { Planner } from "@/components/planner/planner"
 import { LocaleLink } from "@/components/locale-link"
 import { DownloadBadges } from "@/components/download-badges"
+import { StationImage } from "@/components/stations/station-image"
 import { getStationById, stationName, type Station } from "@/data/stations"
 import { useLocale, useT, resolveLocale, translate } from "@/i18n"
 import { useRecentRoutes, useStoredRoutePlan } from "@/hooks/use-stored"
+import { recentRoutes } from "@/lib/storage"
 import { dateKey, formatClock, naiveNow } from "@/lib/time"
 import { searchString } from "@/lib/search"
 import { pageHead, jsonLd, websiteJsonLd, organizationJsonLd, mobileAppJsonLd, cacheHeaders } from "@/lib/seo"
@@ -92,11 +94,48 @@ function HomePage() {
 /** The last few searches — the home page's shortcuts back into a trip. */
 function SavedRoutes() {
   const t = useT()
-  const recent = toPairs(useRecentRoutes())
+  const locale = useLocale()
+  const recent = toPairs(useRecentRoutes()).slice(0, 4)
   if (recent.length === 0) return null
+  const Arrow = locale === "he" ? ArrowLeft : ArrowRight
   return (
     <div className="animate-fade-in">
-      <RouteChips title={t("home.recent")} icon={Clock} pairs={recent} />
+      <div className="mb-3 flex items-center justify-between gap-4">
+        <p className="flex items-center gap-1.5 text-[13px] font-semibold text-muted">
+          <Clock className="size-3.5" />
+          {t("home.recent")}
+        </p>
+        <button
+          type="button"
+          onClick={recentRoutes.clear}
+          className="text-[13px] font-medium text-dim transition-colors hover:text-text-2"
+        >
+          {t("home.clearRecent")}
+        </button>
+      </div>
+      {/* A single row that scrolls sideways and bleeds to the page edges, instead of pills wrapping into a ragged block. */}
+      <ul className="scrollbar-none -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6">
+        {recent.map(([from, to]) => (
+          <li key={`${from.id}-${to.id}`} className="shrink-0 snap-start">
+            <LocaleLink
+              to="/{-$locale}/routes/$from/$to"
+              params={{ from: from.id, to: to.id }}
+              className="group flex w-[220px] items-center gap-3 rounded-2xl border border-line/60 bg-surface p-2 pe-4 shadow-card transition-[transform,box-shadow,border-color] duration-200 ease-out-expo hover:-translate-y-0.5 hover:border-brand/30 hover:shadow-card-hover"
+            >
+              <span className="size-12 shrink-0 overflow-hidden rounded-xl">
+                <StationImage station={to} sizes="48px" />
+              </span>
+              <span className="flex min-w-0 flex-col leading-tight">
+                <span className="truncate text-[12px] text-muted">{stationName(from, locale)}</span>
+                <span className="mt-0.5 flex min-w-0 items-center gap-1 text-[14px] font-semibold">
+                  <Arrow className="size-3.5 shrink-0 text-brand" />
+                  <span className="truncate">{stationName(to, locale)}</span>
+                </span>
+              </span>
+            </LocaleLink>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
@@ -108,32 +147,4 @@ function toPairs(routes: Array<{ originId: string; destinationId: string }>): Pa
   return routes
     .map((route) => [getStationById(route.originId), getStationById(route.destinationId)] as const)
     .filter((pair): pair is Pair => Boolean(pair[0] && pair[1]))
-}
-
-function RouteChips({ title, icon: Icon, pairs }: { title: string; icon: LucideIcon; pairs: Pair[] }) {
-  const locale = useLocale()
-  const Arrow = locale === "he" ? ArrowLeft : ArrowRight
-  return (
-    <div>
-      <p className="mb-2 flex items-center gap-1.5 text-[13px] font-semibold uppercase tracking-wide text-muted">
-        <Icon className="size-3.5" />
-        {title}
-      </p>
-      <ul className="flex flex-wrap gap-2">
-        {pairs.map(([from, to]) => (
-          <li key={`${from.id}-${to.id}`}>
-            <LocaleLink
-              to="/{-$locale}/routes/$from/$to"
-              params={{ from: from.id, to: to.id }}
-              className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1.5 text-[14px] font-medium shadow-card transition-colors hover:border-brand/40 hover:text-brand-text"
-            >
-              {stationName(from, locale)}
-              <Arrow className="size-3.5 text-dim" />
-              {stationName(to, locale)}
-            </LocaleLink>
-          </li>
-        ))}
-      </ul>
-    </div>
-  )
 }

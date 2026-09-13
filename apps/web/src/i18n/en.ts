@@ -18,6 +18,7 @@ export const en: Record<TranslationKey, string> = {
   "home.title": "Israel Railways timetables",
   "home.subtitle": "Routes, changes and platforms for every station - free and open source.",
   "home.recent": "Recent searches",
+  "home.clearRecent": "Clear",
   "home.appTitle": "The app train riders love",
   "home.appSubtitle": "Better Rail is available for iPhone and Android - with widgets, real-time updates and dark mode.",
   "home.downloadIos": "Download on the App Store",
