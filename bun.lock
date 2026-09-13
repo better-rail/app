@@ -9,6 +9,10 @@
         "oxlint": "1.72.0",
       },
     },
+    "apps/conductor": {
+      "name": "@better-rail/conductor",
+      "version": "1.0.0",
+    },
     "apps/mobile": {
       "name": "@better-rail/mobile",
       "version": "0.0.1",
@@ -405,6 +409,8 @@
     "@bacons/xcode": ["@bacons/xcode@1.0.0-alpha.32", "", { "dependencies": { "@expo/plist": "^0.0.18", "debug": "^4.3.4", "uuid": "^8.3.2" } }, "sha512-OGpH7+yMbWC2cgYZon5B+VVadH9HsB2V/abtEiplA65XnSuV4GAYAVixOCDc5k182WkfoakfdM0zW6U9cbcsbw=="],
 
     "@better-rail/mobile": ["@better-rail/mobile@workspace:apps/mobile"],
+
+    "@better-rail/conductor": ["@better-rail/conductor@workspace:apps/conductor"],
 
     "@better-rail/server": ["@better-rail/server@workspace:apps/server"],
 
