@@ -9,5 +9,8 @@
     "setup": "bun src/setup.ts",
     "test": "bun test",
     "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sentry/bun": "10.74.0"
   }
 }

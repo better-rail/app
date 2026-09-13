@@ -1,6 +1,4 @@
 .env*
-.station-roles.json
 .conductor-setup.json
 node_modules
-README.md
 src/*.test.ts

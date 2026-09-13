@@ -1,60 +1,57 @@
 # The Conductor
 
-Better Rail's own onboarding bot. A welcome message starts a private, two-step
-flow: choose **iOS or Android** (required), then choose a **favorite station**
-(optional, with **Skip for now**). Choices become permissionless server roles.
-Station names use short lowercase transliterations, such as `hashalom`,
-`hahagana`, and `bet yehoshua`. Members can repeat the flow to change their choices.
+Better Rail's onboarding bot. A button in `#welcome` starts a private, two-step
+flow: choose **iOS or Android** (required), then a **favorite station**
+(optional, with **Skip for now**). Choices become permissionless server roles
+with short lowercase names such as `hashalom` or `bet yehoshua`. Members can
+repeat the flow to change their choices.
 
-The service receives signed Discord HTTP interactions. It does not register
-slash commands, search messages, or need privileged Gateway intents. There is no
-database: Discord stores the role assignments. The flow starts from a button in
-`#welcome`; it does not interrupt the Discord join screen or gate other channels.
+The service receives signed Discord HTTP interactions. It registers no slash
+commands, needs no privileged Gateway intents, and has no database: Discord
+stores the role assignments.
+
+The flow starts from the welcome button. It does not replace Discord's native
+join screen or prevent members from using other public channels before choosing
+a device. The device choice is required to complete this flow.
 
 ## Discord setup
 
-1. Create **The Conductor** in the Discord Developer Portal under the team's
-   ownership. App creation requires accepting Discord's Developer Terms and Policy.
-2. Configure its bot identity and generate its token. Keep it in `.env` locally
-   and Railway's service variables in production; do not paste it into chat.
-3. Install the bot in Better Rail with **Manage Roles**, **View Channels**, and
-   **Send Messages**. No Administrator or moderation permissions are needed.
-4. Keep its role below staff/private access roles and above the flair roles.
-5. Copy `.env.example` to `.env` and fill the application ID, public key, token,
-   guild ID, and public welcome channel ID.
-6. From this directory, run `bun run setup`. This creates/reuses permissionless
-   platform and station roles, posts the welcome message, and saves role IDs to
-   `.station-roles.json`. Repeat setup with `DISCORD_PICKER_MESSAGE_ID` to update
-   the existing message. The previous local setup ID is reused automatically.
-7. Set `DISCORD_PLATFORM_ROLES` and `DISCORD_STATION_ROLES` to the corresponding
-   JSON objects from `.station-roles.json`, locally and on Railway.
-8. Deploy this directory as its own Railway service using the Dockerfile and
-   `railway.json`. Set the Discord **Interactions Endpoint URL** to
+1. Create **Conductor** in the Discord Developer Portal under the team's
+   ownership and generate its bot token. Keep the token in `.env` locally and in
+   Railway's service variables in production.
+2. Install the bot in Better Rail with only **Manage Roles**, **View Channels**,
+   and **Send Messages**.
+3. Keep its role below staff/private access roles and above the flair roles.
+4. Copy `.env.example` to `.env` and fill in the application ID, public key,
+   token, guild ID, and public welcome channel ID.
+5. Run `bun run setup`. It creates or reuses the flair roles, posts or updates
+   the welcome message, and saves the role and message IDs to
+   `.conductor-setup.json`. When running from another machine, set
+   `DISCORD_PICKER_MESSAGE_ID` to update the existing message.
+6. Set `DISCORD_PLATFORM_ROLES` and `DISCORD_STATION_ROLES` to the
+   `platformRoles` and `stationRoles` objects from `.conductor-setup.json`,
+   locally and on Railway.
+7. Deploy `apps/conductor` as its own Railway service (Dockerfile and
+   `railway.json`). Set the Discord **Interactions Endpoint URL** to
    `https://<service-domain>/discord/interactions`. `/health` is the health check.
-9. Put `#welcome` first in the public category and select it for Discord's new
-   member system messages so arriving members find the flow. Pin the welcome
-   message as the server owner if desired.
-
-Only deploy `apps/conductor` as the archive root; it has no external dependencies
-and needs no passenger data, Redis, push credentials, or train API access. Use
-one replica: role changes are serialized per member within this process.
+   Keep one replica: role changes are serialized per member in-process.
+   Set `SENTRY_DSN` to the DSN of the `conductor` Sentry project, which is
+   separate from the mobile app's project.
+8. Put `#welcome` first in the public category and select it for Discord's new
+   member system messages.
 
 ## Verification
 
-Run `bun test`, `bun run check`, and the repository formatter/linter on this
-directory. Tests exercise the signed HTTP endpoint, required device selection,
-optional station skip, role switching, concurrency, signature expiry, replays,
-and refusal to assign roles with expanded permissions.
-
-Before going live, verify in Discord: start, choose iOS, skip station, restart,
-choose Android, choose `hashalom`, switch to `hahagana`, and remove station flair.
-Confirm only the intended platform/station roles changed. As an ordinary new
-member, verify the welcome channel is visible and neither beta nor developer
-channels become accessible from these flair roles.
+Run `bun test` and `bun run check`. Before going live, verify in Discord: start,
+choose iOS, skip station, restart, choose Android, choose `hashalom`, switch to
+`hahagana`, and remove station flair. Confirm only the intended roles changed,
+and that an ordinary new member can see the welcome channel but gains no beta or
+developer channel access from these roles.
 
 ## Maintenance
 
-`src/stations.ts` contains the station catalog, with IDs and Hebrew labels taken
-from the server's station data. Update this catalog when stations change and rerun
-setup. Existing role IDs persist across deployments. Logs deliberately exclude
-bot tokens, interaction tokens, request bodies, and member identifiers.
+`src/stations.ts` mirrors the server's station IDs and Hebrew labels. Update it
+when stations change and rerun setup. Logs and Sentry events exclude bot tokens,
+interaction tokens, request bodies, and member identifiers. Keep Sentry tracing
+off unless outgoing request URLs are scrubbed: webhook URLs contain interaction
+tokens.

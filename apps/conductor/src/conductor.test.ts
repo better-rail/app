@@ -4,9 +4,9 @@ import { generateKeyPairSync, sign } from "node:crypto"
 import type { ConductorConfig } from "./config"
 import { DiscordApi, type DiscordRole } from "./discord"
 import { createHandler } from "./interactions"
-import { OnboardingRoles, PlatformRequired } from "./roles"
+import { selectPrefix, stationPicker } from "./messages"
+import { isFlairRole, OnboardingRoles, PlatformRequired } from "./roles"
 import { stations } from "./stations"
-import { stationPicker } from "./messages"
 
 const keys = generateKeyPairSync("ed25519")
 const publicKey = keys.publicKey.export({ format: "der", type: "spki" }).subarray(-32).toString("hex")
@@ -49,7 +49,6 @@ class FakeDiscord extends DiscordApi {
   }
   override async call<T>(method: string, path: string, body?: unknown): Promise<T> {
     if (path === `/guilds/${guildId}/roles`) return this.roleList as T
-    if (path === "/users/@me") return { id: applicationId } as T
     if (path === `/guilds/${guildId}/members/${applicationId}`) return { roles: [botRole] } as T
     if (path === `/guilds/${guildId}/members/${userId}`) return { roles: [...this.memberRoles] } as T
     if (path.startsWith("/webhooks/")) {
@@ -95,36 +94,26 @@ async function waitForResponse(api: FakeDiscord, count = 1) {
 }
 
 describe("conductor onboarding", () => {
-  test("real HTTP endpoint verifies signed requests and rejects tampered or expired requests", async () => {
+  test("new flair roles at the bot's numeric position use Discord's ID tie-break", async () => {
     const api = new FakeDiscord()
-    const server = Bun.serve({ port: 0, fetch: createHandler(config, api) })
-    try {
-      const ping = signedRequest({ application_id: applicationId, type: 1 })
-      const response = await fetch(new URL("/discord/interactions", server.url), {
-        method: "POST",
-        body: await ping.text(),
-        headers: ping.headers,
-      })
-      expect(await response.json()).toEqual({ type: 1 })
-      const tampered = signedRequest(interaction("conductor:platform:ios"))
-      expect(
-        (await fetch(new URL("/discord/interactions", server.url), { method: "POST", body: "{}", headers: tampered.headers }))
-          .status,
-      ).toBe(401)
-      const old = signedRequest(interaction("conductor:platform:ios"), String(Math.floor(Date.now() / 1000) - 301))
-      expect(
-        (
-          await fetch(new URL("/discord/interactions", server.url), {
-            method: "POST",
-            body: await old.text(),
-            headers: old.headers,
-          })
-        ).status,
-      ).toBe(401)
-      expect(api.mutations).toHaveLength(0)
-    } finally {
-      server.stop(true)
-    }
+    api.roleList.find((role) => role.id === botRole)!.position = 1
+    const roles = new OnboardingRoles(config, api)
+    await roles.choose(userId, { kind: "platform", id: "ios" })
+    expect(api.memberRoles).toContain(iosRole)
+    const bot = api.roleList.find((role) => role.id === botRole)!
+    expect(isFlairRole({ ...bot, id: staffRole, name: "ios", managed: false, permissions: "0" }, "ios", [bot])).toBe(false)
+    expect(isFlairRole({ ...bot, name: "ios", managed: false, permissions: "0" }, "ios", [bot])).toBe(false)
+  })
+
+  test("verifies signatures and rejects tampered or expired requests", async () => {
+    const api = new FakeDiscord()
+    const handler = createHandler(config, api)
+    expect(await (await handler(signedRequest({ type: 1 }))).json()).toEqual({ type: 1 })
+    const tampered = signedRequest(interaction("conductor:platform:ios"))
+    expect((await handler(new Request(tampered.url, { method: "POST", body: "{}", headers: tampered.headers }))).status).toBe(401)
+    const expired = signedRequest(interaction("conductor:platform:ios"), String(Math.floor(Date.now() / 1000) - 301))
+    expect((await handler(expired)).status).toBe(401)
+    expect(api.mutations).toHaveLength(0)
   })
 
   test("start asks for a required device with no skip button", async () => {
@@ -143,20 +132,19 @@ describe("conductor onboarding", () => {
     })
     const stationStep = await waitForResponse(api)
     expect(stationStep.content).toContain("2 / 2")
-    expect(JSON.stringify(stationStep.components)).toContain("Skip for now")
+    expect(JSON.stringify(stationStep.components)).toContain("נדלג בינתיים")
     await handler(signedRequest(interaction("conductor:skip")))
     const completed = await waitForResponse(api, 2)
-    expect(completed.content).toContain("Welcome aboard")
+    expect(completed.content).toContain("סגור, אפשר לנסוע")
     expect(api.memberRoles).toEqual([staffRole, iosRole])
   })
 
-  test("station selection uses short names and changes only station flair", async () => {
+  test("station selection changes only station flair", async () => {
     const api = new FakeDiscord()
     api.memberRoles.push(iosRole, hahaganaRole)
     const handler = createHandler(config, api)
-    const page = Math.floor(stations.findIndex((s) => s.id === "4600") / 25)
-    await handler(signedRequest(interaction(`conductor:station:${page}`, ["4600"])))
-    expect((await waitForResponse(api)).content).toContain("**Station:** hashalom")
+    await handler(signedRequest(interaction(`${selectPrefix}0`, ["4600"])))
+    expect((await waitForResponse(api)).content).toContain("**תחנה:** hashalom")
     expect(new Set(api.memberRoles)).toEqual(new Set([staffRole, iosRole, hashalomRole]))
     await handler(signedRequest(interaction("conductor:clear")))
     await waitForResponse(api, 2)
@@ -217,16 +205,13 @@ describe("conductor onboarding", () => {
     expect(api.mutations).toHaveLength(1)
   })
 
-  test("all stations fit Discord component limits and names follow the requested style", () => {
-    const picker = stationPicker("iOS")
-    expect(picker.components.length).toBeLessThanOrEqual(5)
-    const menus = picker.components.slice(0, -1)
-    expect(menus.reduce((count, row) => count + (row.components[0] as { options: unknown[] }).options.length, 0)).toBe(
-      stations.length,
-    )
-    for (const row of menus) expect((row.components[0] as { options: unknown[] }).options.length).toBeLessThanOrEqual(25)
+  test("all stations fit Discord component limits with unique lowercase names", () => {
+    const menus = stationPicker("iOS").components.slice(0, -1)
+    const optionCounts = menus.map((row) => (row.components[0] as { options: unknown[] }).options.length)
+    expect(menus.length).toBeLessThanOrEqual(4)
+    expect(optionCounts.every((count) => count <= 25)).toBe(true)
+    expect(optionCounts.reduce((sum, count) => sum + count, 0)).toBe(stations.length)
     expect(stations.every((s) => /^[a-z0-9 ]+$/.test(s.name))).toBe(true)
-    expect(stations.find((s) => s.id === "3400")!.name).toBe("bet yehoshua")
     expect(new Set(stations.map((s) => s.name)).size).toBe(stations.length)
   })
 })

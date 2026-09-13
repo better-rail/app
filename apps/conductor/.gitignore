@@ -1,2 +1,4 @@
-.station-roles.json
+.env
+.env.*
+!.env.example
 .conductor-setup.json
