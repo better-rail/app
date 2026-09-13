@@ -1,6 +1,5 @@
 import { ScheduleType } from "./gtfs-route-api"
 import { RailApiGetRoutesResult } from "../types/rail-response"
-import { LanguageCode, railApiLocales } from "../locales/i18n"
 import { proxyUrl, railApiKey, railTlsInsecure, railUrl } from "../data/config"
 
 /**
@@ -60,28 +59,21 @@ export const railApiFetch = async (path: string, options: RailFetchOptions = {})
   throw lastError ?? new Error("Failed to reach the Israel Railways API")
 }
 
-/** The timetable search the ride scheduler runs, in the API's own request shape. */
-export const searchTrainOnRailApi = async (
-  fromStation: number,
-  toStation: number,
-  date: string,
-  hour: string,
-  scheduleType: ScheduleType = "ByDeparture",
-  locale: LanguageCode = LanguageCode.he,
-): Promise<RailApiGetRoutesResult> => {
+export type RailTimetableSearch = {
+  fromStation: number
+  toStation: number
+  date: string
+  hour: string
+  scheduleType: ScheduleType
+  languageId: string
+}
+
+/** A timetable search, in the API's own request shape. */
+export const searchTimetableOnRailApi = async (search: RailTimetableSearch): Promise<RailApiGetRoutesResult> => {
   const response = await railApiFetch("/rjpa/api/v1/timetable/searchTrainForMobile", {
     method: "POST",
     retries: 2,
-    body: JSON.stringify({
-      methodName: "searchTrainLuzForDateTime",
-      fromStation,
-      toStation,
-      date,
-      hour,
-      systemType: "1",
-      scheduleType,
-      languageId: railApiLocales[locale],
-    }),
+    body: JSON.stringify({ methodName: "searchTrainLuzForDateTime", systemType: "1", ...search }),
   })
 
   if (!response.ok) {
