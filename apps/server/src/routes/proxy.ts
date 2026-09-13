@@ -91,8 +91,7 @@ const railProxy = async (req: Request, res: Response) => {
 
 type ViaSearch = { search: RailTimetableSearch; viaStation: number }
 
-// The app's change-station search. Proxying it would drop `viaStation` and return the
-// unchanged journey, so it's built from two searches instead (requests/rail-via.ts).
+// Proxying would drop `viaStation`, so change-station searches go through requests/rail-via.ts.
 const toViaSearch = (body: any): ViaSearch | undefined => {
   const viaStation = Number(body?.viaStation)
   if (!(viaStation > 0)) return undefined

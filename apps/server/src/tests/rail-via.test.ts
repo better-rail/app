@@ -1,5 +1,5 @@
 import { stitchViaTravels } from "../requests/rail-via"
-import type { RailApiRouteItem, Train } from "../types/rail-response"
+import type { RailApiRouteItem, StopStation, Train } from "../types/rail-response"
 
 const DATE = "2026-09-14"
 const NAHARIYA = 1600
@@ -38,6 +38,14 @@ const travel = (...trains: Train[]): RailApiRouteItem => ({
   trains,
 })
 
+const stop = (stationId: number, time: string): StopStation => ({
+  stationId,
+  arrivalTime: `${DATE}T${time}:00`,
+  departureTime: `${DATE}T${time}:00`,
+  platform: 1,
+  crowded: 0,
+})
+
 const trainNumbers = (journey: RailApiRouteItem) => journey.trains.map((t) => t.trainNumber)
 
 describe("stitchViaTravels", () => {
@@ -61,6 +69,26 @@ describe("stitchViaTravels", () => {
     const onward = [travel(train(501, SAVIDOR, JERUSALEM, "10:05", "10:40", [3, 1]))]
 
     expect(trainNumbers(stitchViaTravels(toVia, onward)[0])).toEqual([157, 501])
+  })
+
+  test("allows a four-minute change across a Savidor island", () => {
+    const toVia = [travel(train(157, NAHARIYA, SAVIDOR, "08:15", "10:01", [2, 1]))]
+    const onward = [travel(train(501, SAVIDOR, JERUSALEM, "10:05", "10:40", [2, 1]))]
+
+    expect(trainNumbers(stitchViaTravels(toVia, onward)[0])).toEqual([157, 501])
+  })
+
+  test("keeps a train running straight through the station as one train", () => {
+    const toVia = [travel({ ...train(157, NAHARIYA, SAVIDOR, "08:15", "10:01", [2, 3]), stopStations: [stop(BINYAMINA, "09:26")] })]
+    const onward = [
+      travel(train(157, SAVIDOR, JERUSALEM, "10:03", "10:50", [3, 1])),
+      travel(train(505, SAVIDOR, JERUSALEM, "10:12", "10:55")),
+    ]
+
+    const [joined] = stitchViaTravels(toVia, onward)
+    expect(trainNumbers(joined)).toEqual([157])
+    expect(joined.trains[0]).toMatchObject({ orignStation: NAHARIYA, destinationStation: JERUSALEM, arrivalTime: `${DATE}T10:50:00` })
+    expect(joined.trains[0].stopStations.map((s) => s.stationId)).toEqual([BINYAMINA, SAVIDOR])
   })
 
   test("drops a journey with no onward train inside the connection window", () => {

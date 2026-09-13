@@ -1,21 +1,39 @@
 import dayjs from "dayjs"
 
-import { CONNECTION_LIMITS } from "./gtfs-route-api"
+import { CONNECTION_LIMITS, onTheSameFace } from "./gtfs-route-api"
 import { RailTimetableSearch, searchTimetableOnRailApi } from "./rail-api"
-import { RailApiGetRoutesResult, RailApiRouteItem } from "../types/rail-response"
+import { RailApiGetRoutesResult, RailApiRouteItem, Train } from "../types/rail-response"
 
-/**
- * Change-station searches (`viaStation`) under `RAIL_DATA_SOURCE=rail`. The rail API has
- * no such option, so the journey is built from two searches joined at the chosen station.
- */
+// The rail API has no `viaStation`, so change-station searches join two searches at that station.
 
 const epochMs = (time: string) => new Date(time).getTime()
 
 const byArrivalThenTrains = (a: RailApiRouteItem, b: RailApiRouteItem) =>
   epochMs(a.arrivalTime) - epochMs(b.arrivalTime) || a.trains.length - b.trains.length
 
-// Joins each journey to the station with the onward journey that gets in soonest,
-// inside the GTFS planner's connection window. Direct journeys are listed first.
+// A train running straight through the station stays one leg.
+const throughTrain = (off: Train, on: Train): Train => ({
+  ...on,
+  orignStation: off.orignStation,
+  originPlatform: off.originPlatform,
+  originPlatformChanged: off.originPlatformChanged,
+  departureTime: off.departureTime,
+  freeSeats: Math.min(off.freeSeats, on.freeSeats),
+  trainPosition: off.trainPosition,
+  stopStations: [
+    ...off.stopStations,
+    {
+      stationId: on.orignStation,
+      arrivalTime: off.arrivalTime,
+      departureTime: on.departureTime,
+      platform: on.originPlatform,
+      platformChanged: on.originPlatformChanged,
+      crowded: on.crowded,
+    },
+    ...on.stopStations,
+  ],
+})
+
 export const stitchViaTravels = (toVia: RailApiRouteItem[], onward: RailApiRouteItem[]): RailApiRouteItem[] =>
   toVia
     .flatMap((first) => {
@@ -24,12 +42,18 @@ export const stitchViaTravels = (toVia: RailApiRouteItem[], onward: RailApiRoute
         .filter(({ departureTime, trains: [boarding] }) => {
           const wait = epochMs(departureTime) - epochMs(first.arrivalTime)
           const stayingAboard = boarding.trainNumber === alighting.trainNumber
-          const samePlatform = alighting.destPlatform > 0 && alighting.destPlatform === boarding.originPlatform
-          const minWait = stayingAboard ? 0 : CONNECTION_LIMITS.minAt(boarding.orignStation, samePlatform)
+          const sameFace = onTheSameFace(boarding.orignStation, alighting.destPlatform, boarding.originPlatform)
+          const minWait = stayingAboard ? 0 : CONNECTION_LIMITS.minAt(boarding.orignStation, sameFace)
           return wait >= minWait && wait <= CONNECTION_LIMITS.maxMs
         })
         .sort(byArrivalThenTrains)
       if (!next) return []
+
+      const [boarding, ...onwardTrains] = next.trains
+      const trains =
+        boarding.trainNumber === alighting.trainNumber
+          ? [...first.trains.slice(0, -1), throughTrain(alighting, boarding), ...onwardTrains]
+          : [...first.trains, ...next.trains]
 
       return [
         {
@@ -37,7 +61,7 @@ export const stitchViaTravels = (toVia: RailApiRouteItem[], onward: RailApiRoute
           arrivalTime: next.arrivalTime,
           freeSeats: Math.min(first.freeSeats, next.freeSeats),
           travelMessages: [...(first.travelMessages ?? []), ...(next.travelMessages ?? [])],
-          trains: [...first.trains, ...next.trains],
+          trains,
         },
       ]
     })

@@ -44,10 +44,11 @@ const MIN_CONNECTION_MS = 5 * 60 * 1000
 // halves of a pair count as the same platform there.
 const MIN_CONNECTION_SAME_PLATFORM_MS = 4 * 60 * 1000
 const sameIsland = (a: number, b: number): boolean => Math.ceil(a / 2) === Math.ceil(b / 2)
-const stayingPut = (off: StopNode, on: StopNode): boolean =>
-  off.platform > 0 &&
-  on.platform > 0 &&
-  (off.platform === on.platform || (off.railId === SAVIDOR_STATION && sameIsland(off.platform, on.platform)))
+const onTheSameFace = (railId: number, offPlatform: number, onPlatform: number): boolean =>
+  offPlatform > 0 &&
+  onPlatform > 0 &&
+  (offPlatform === onPlatform || (railId === SAVIDOR_STATION && sameIsland(offPlatform, onPlatform)))
+const stayingPut = (off: StopNode, on: StopNode): boolean => onTheSameFace(off.railId, off.platform, on.platform)
 
 // The ceiling on a single wait. Long layovers are self-limiting: the timetable
 // only makes one worth taking where nothing shorter connects at all.
@@ -1417,5 +1418,5 @@ export const searchTrain = async (
 
 export { invalidateDayCacheForFeed, loadDayTrips }
 // The search core alone, for tests that check it against a reference implementation.
-export { completeJourney, CONNECTION_LIMITS }
+export { completeJourney, CONNECTION_LIMITS, onTheSameFace }
 export type { ConnectionLimits }
