@@ -4,8 +4,9 @@ import { platforms } from "./messages"
 import { stations } from "./stations"
 
 export class PlatformRequired extends Error {}
+export class StationLimit extends Error {}
 
-export type Selection = { kind: "platform"; id: string } | { kind: "station"; id?: string } | { kind: "skip" }
+export type Selection = { kind: "platform"; id: string } | { kind: "station"; ids: string[] } | { kind: "skip" }
 
 // Renamed roles, or roles later given permissions, are never self-assignable.
 // Discord breaks equal-position ties by snowflake: the older role is higher.
@@ -49,19 +50,48 @@ export class OnboardingRoles {
       })
 
     const platformRoles = eligible(platforms, this.config.platformRoles)
+    const stationRoles = eligible(stations, this.config.stationRoles)
     const current = platformRoles.filter(({ role }) => member.roles.includes(role.id))
     if (selection.kind !== "platform" && current.length !== 1) throw new PlatformRequired()
-    if (selection.kind === "skip") return current[0].choice.id
+    if (selection.kind === "skip") {
+      return {
+        platformId: current[0].choice.id,
+        stationIds: stationRoles.filter(({ role }) => member.roles.includes(role.id)).map(({ choice }) => choice.id),
+      }
+    }
 
-    const options = selection.kind === "platform" ? platformRoles : eligible(stations, this.config.stationRoles)
-    const target = selection.id ? options.find(({ choice }) => choice.id === selection.id) : undefined
-    if (selection.id && !target) throw new Error("That role is unavailable")
+    const options = selection.kind === "platform" ? platformRoles : stationRoles
+    const ids = selection.kind === "platform" ? [selection.id] : [...new Set(selection.ids)]
+    if (selection.kind === "station" && ids.length > 2) throw new StationLimit()
+    const targets = ids.map((id) => options.find(({ choice }) => choice.id === id))
+    if (targets.some((target) => !target)) throw new Error("That role is unavailable")
     // Add first so a failed assignment never removes the member's old choice.
-    if (target && !member.roles.includes(target.role.id)) await this.api.call("PUT", `${memberPath}/roles/${target.role.id}`)
+    const added: string[] = []
+    try {
+      for (const target of targets) {
+        if (target && !member.roles.includes(target.role.id)) {
+          await this.api.call("PUT", `${memberPath}/roles/${target.role.id}`)
+          added.push(target.role.id)
+        }
+      }
+    } catch (error) {
+      for (const roleId of added) {
+        await this.api.call("DELETE", `${memberPath}/roles/${roleId}`).catch(() => {
+          console.error("Conductor: could not roll back an incomplete station assignment")
+        })
+      }
+      throw error
+    }
     for (const { role } of options) {
-      if (role.id !== target?.role.id && member.roles.includes(role.id))
+      if (!targets.some((target) => target?.role.id === role.id) && member.roles.includes(role.id))
         await this.api.call("DELETE", `${memberPath}/roles/${role.id}`)
     }
-    return selection.kind === "platform" ? selection.id : current[0].choice.id
+    return {
+      platformId: selection.kind === "platform" ? selection.id : current[0].choice.id,
+      stationIds:
+        selection.kind === "station"
+          ? ids
+          : stationRoles.filter(({ role }) => member.roles.includes(role.id)).map(({ choice }) => choice.id),
+    }
   }
 }

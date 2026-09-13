@@ -4,8 +4,22 @@ import { generateKeyPairSync, sign } from "node:crypto"
 import type { ConductorConfig } from "./config"
 import { DiscordApi, type DiscordRole } from "./discord"
 import { createHandler } from "./interactions"
-import { selectPrefix, stationPicker } from "./messages"
-import { isFlairRole, OnboardingRoles, PlatformRequired } from "./roles"
+import {
+  backButton,
+  draftIds,
+  finishButton,
+  queryInput,
+  queryPrefix,
+  removePrefix,
+  resultPrefix,
+  searchPrefix,
+  searchStations,
+  selectPrefix,
+  stationPicker,
+  stationPages,
+  welcomeMessage,
+} from "./messages"
+import { isFlairRole, OnboardingRoles, PlatformRequired, StationLimit } from "./roles"
 import { stations } from "./stations"
 
 const keys = generateKeyPairSync("ed25519")
@@ -19,13 +33,15 @@ const iosRole = "1548800000000000004"
 const androidRole = "1548800000000000005"
 const hashalomRole = "1548800000000000006"
 const hahaganaRole = "1548800000000000007"
+const hashmonaRole = "1548800000000000008"
+const binyaminaRole = "1548800000000000009"
 const config: ConductorConfig = {
   applicationId,
   guildId,
   publicKey,
   botToken: "test-only",
   platformRoles: { ios: iosRole, android: androidRole },
-  stationRoles: { "4600": hashalomRole, "4900": hahaganaRole },
+  stationRoles: { "4600": hashalomRole, "4900": hahaganaRole, "2100": hashmonaRole, "2800": binyaminaRole },
 }
 
 class FakeDiscord extends DiscordApi {
@@ -33,6 +49,7 @@ class FakeDiscord extends DiscordApi {
   mutations: { method: string; path: string }[] = []
   responses: object[] = []
   failAssignment = false
+  failAssignmentRole?: string
   roleList: DiscordRole[] = [
     { id: staffRole, name: "developer", permissions: "8", position: 10, managed: false },
     { id: botRole, name: "The Conductor", permissions: "268435456", position: 9, managed: true },
@@ -41,6 +58,8 @@ class FakeDiscord extends DiscordApi {
       [androidRole, "android"],
       [hashalomRole, "hashalom"],
       [hahaganaRole, "hahagana"],
+      [hashmonaRole, "hashmona"],
+      [binyaminaRole, "binyamina"],
     ].map(([id, name]) => ({ id, name, permissions: "0", position: 1, managed: false })),
   ]
 
@@ -56,7 +75,7 @@ class FakeDiscord extends DiscordApi {
       return undefined as T
     }
     const role = path.split("/").at(-1)!
-    if (method === "PUT" && this.failAssignment) throw new Error("Assignment failed")
+    if (method === "PUT" && (this.failAssignment || this.failAssignmentRole === role)) throw new Error("Assignment failed")
     this.mutations.push({ method, path })
     if (method === "PUT") this.memberRoles.push(role)
     else if (method === "DELETE") this.memberRoles = this.memberRoles.filter((id) => id !== role)
@@ -65,7 +84,7 @@ class FakeDiscord extends DiscordApi {
 }
 
 let sequence = 0n
-function interaction(customId: string, values?: string[]) {
+function interaction(customId: string, values?: string[], message?: { components: unknown[] }) {
   return {
     id: String(1548800000000000100n + sequence++),
     application_id: applicationId,
@@ -74,7 +93,48 @@ function interaction(customId: string, values?: string[]) {
     token: "test-interaction-token",
     member: { user: { id: userId } },
     data: { custom_id: customId, values },
+    message: { flags: 64, components: message?.components ?? [] },
   }
+}
+
+function defaultSelections(message: ReturnType<typeof stationPicker>) {
+  for (const row of message.components) {
+    for (const component of row.components) {
+      if (component.custom_id.startsWith(finishButton + ":")) {
+        return draftIds(component.custom_id.slice(finishButton.length + 1))
+      }
+    }
+  }
+  return []
+}
+
+function legacyPicker(selected: string[] = []) {
+  return {
+    components: stationPages.map((page, index) => ({
+      components: [
+        {
+          custom_id: selectPrefix + index,
+          options: page.map((station) => ({ value: station.id, default: selected.includes(station.id) })),
+        },
+      ],
+    })),
+  }
+}
+
+function modal(query: string, selected: string[] = [], message?: { components: unknown[] }) {
+  return {
+    ...interaction(queryPrefix + selected.join(","), undefined, message),
+    type: 5,
+    data: {
+      custom_id: queryPrefix + selected.join(","),
+      components: [{ type: 18, component: { type: 4, custom_id: queryInput, value: query } }],
+    },
+  }
+}
+
+async function searchAndPick(handler: ReturnType<typeof createHandler>, query: string, id: string, selected: string[] = []) {
+  const results = await (await handler(signedRequest(modal(query, selected)))).json()
+  return (await handler(signedRequest(interaction(resultPrefix + selected.join(","), [id], results.data)))).json()
 }
 
 function signedRequest(payload: unknown, timestamp = String(Math.floor(Date.now() / 1000))) {
@@ -119,7 +179,7 @@ describe("conductor onboarding", () => {
   test("start asks for a required device with no skip button", async () => {
     const result = await (await createHandler(config, new FakeDiscord())(signedRequest(interaction("conductor:start")))).json()
     expect(result.data.flags).toBe(64)
-    expect(result.data.components[0].components.map((button: { label: string }) => button.label)).toEqual(["iOS", "Android"])
+    expect(result.data.components[0].components.map((button: { label: string }) => button.label)).toEqual(["אייפון", "אנדרואיד"])
     expect(JSON.stringify(result)).not.toContain("conductor:skip")
   })
 
@@ -127,15 +187,16 @@ describe("conductor onboarding", () => {
     const api = new FakeDiscord()
     const handler = createHandler(config, api)
     expect(await (await handler(signedRequest(interaction("conductor:platform:ios")))).json()).toEqual({
-      type: 5,
-      data: { flags: 64 },
+      type: 6,
     })
     const stationStep = await waitForResponse(api)
     expect(stationStep.content).toContain("2 / 2")
-    expect(JSON.stringify(stationStep.components)).toContain("נדלג בינתיים")
+    expect(JSON.stringify(stationStep.components)).toContain("דילוג")
     await handler(signedRequest(interaction("conductor:skip")))
     const completed = await waitForResponse(api, 2)
-    expect(completed.content).toContain("סגור, אפשר לנסוע")
+    expect(completed.content).toContain("תודה רבה!")
+    expect(completed.content).toContain("<#1548778686671757373>")
+    expect(completed.content).toContain("<#1548778257866817626>")
     expect(api.memberRoles).toEqual([staffRole, iosRole])
   })
 
@@ -143,8 +204,11 @@ describe("conductor onboarding", () => {
     const api = new FakeDiscord()
     api.memberRoles.push(iosRole, hahaganaRole)
     const handler = createHandler(config, api)
-    await handler(signedRequest(interaction(`${selectPrefix}0`, ["4600"])))
-    expect((await waitForResponse(api)).content).toContain("**תחנה:** hashalom")
+    const draft = await (await handler(signedRequest(interaction(`${selectPrefix}0`, ["4600"], legacyPicker(["4900"]))))).json()
+    expect(api.memberRoles).toContain(hahaganaRole)
+    expect(api.mutations).toHaveLength(0)
+    await handler(signedRequest(interaction(finishButton, undefined, draft.data)))
+    await waitForResponse(api)
     expect(new Set(api.memberRoles)).toEqual(new Set([staffRole, iosRole, hashalomRole]))
     await handler(signedRequest(interaction("conductor:clear")))
     await waitForResponse(api, 2)
@@ -155,10 +219,141 @@ describe("conductor onboarding", () => {
     const api = new FakeDiscord()
     const roles = new OnboardingRoles(config, api)
     await expect(roles.choose(userId, { kind: "skip" })).rejects.toBeInstanceOf(PlatformRequired)
-    await expect(roles.choose(userId, { kind: "station", id: "4600" })).rejects.toBeInstanceOf(PlatformRequired)
+    await expect(roles.choose(userId, { kind: "station", ids: ["4600"] })).rejects.toBeInstanceOf(PlatformRequired)
     const handler = createHandler(config, api, roles)
     await handler(signedRequest(interaction("conductor:skip")))
-    expect((await waitForResponse(api)).content).toContain("1 / 2")
+    expect((await waitForResponse(api)).content).toContain("עם מה אתם נוסעים")
+    expect(api.mutations).toHaveLength(0)
+  })
+
+  test("two station selections are saved only when Finish is pressed", async () => {
+    const api = new FakeDiscord()
+    api.memberRoles.push(iosRole)
+    const handler = createHandler(config, api)
+    const draft = await (await handler(signedRequest(interaction(`${selectPrefix}0`, ["4600", "4900"], legacyPicker())))).json()
+    expect(draft.type).toBe(7)
+    expect(defaultSelections(draft.data)).toEqual(["4600", "4900"])
+    expect(api.mutations).toHaveLength(0)
+    expect(JSON.stringify(draft.data.components)).toContain("סיום")
+    await handler(signedRequest(interaction(finishButton, undefined, draft.data)))
+    const completed = await waitForResponse(api)
+    expect(completed.components).toEqual([])
+    expect(new Set(api.memberRoles)).toEqual(new Set([staffRole, iosRole, hashalomRole, hahaganaRole]))
+  })
+
+  test("search opens a Hebrew modal and keeps the draft through English and Hebrew queries", async () => {
+    const api = new FakeDiscord()
+    api.memberRoles.push(iosRole)
+    const handler = createHandler(config, api)
+    const opened = await (await handler(signedRequest(interaction(searchPrefix)))).json()
+    expect(opened.type).toBe(9)
+    expect(opened.data.title).toBe("חיפוש תחנה")
+    expect(opened.data.components[0].component.custom_id).toBe(queryInput)
+    const first = await searchAndPick(handler, "ha shalom", "4600")
+    expect(defaultSelections(first.data)).toEqual(["4600"])
+    const second = await searchAndPick(handler, "השמונה", "2100", ["4600"])
+    expect(defaultSelections(second.data)).toEqual(["4600", "2100"])
+    expect(JSON.stringify(second.data)).not.toContain(searchPrefix)
+    expect(api.mutations).toHaveLength(0)
+    await handler(signedRequest(interaction(finishButton + ":4600,2100", undefined, second.data)))
+    await waitForResponse(api)
+    expect(new Set(api.memberRoles)).toEqual(new Set([staffRole, iosRole, hashalomRole, hashmonaRole]))
+  })
+
+  test("empty or broad searches preserve drafts and results stay within Discord limits", async () => {
+    const handler = createHandler(config, new FakeDiscord())
+    for (const query of ["does not exist", " ", "!!!"]) {
+      const result = await (await handler(signedRequest(modal(query, ["4600"])))).json()
+      expect(result.type).toBe(7)
+      expect(result.data.content).toContain("לא מצאתי")
+      expect(defaultSelections(result.data)).toEqual(["4600"])
+      expect(JSON.stringify(result.data.components)).not.toContain(resultPrefix)
+    }
+    const broad = await (await handler(signedRequest(modal("a")))).json()
+    expect(broad.data.components[0].components[0].options).toHaveLength(25)
+    expect(broad.data.content).toContain("שם מדויק יותר")
+    expect(broad.data.components[0].components[0].max_values).toBe(1)
+    const noMessage = modal("שלום")
+    delete (noMessage as { message?: unknown }).message
+    const fallback = await (await handler(signedRequest(noMessage))).json()
+    expect(fallback.type).toBe(4)
+    expect(fallback.data.flags).toBe(64)
+  })
+
+  test("unoffered, duplicate, and third results cannot change draft selections", async () => {
+    const api = new FakeDiscord()
+    const handler = createHandler(config, api)
+    const results = await (await handler(signedRequest(modal("שלום", ["2100"])))).json()
+    const forged = await (await handler(signedRequest(interaction(resultPrefix + "2100", ["4900"], results.data)))).json()
+    expect(defaultSelections(forged.data)).toEqual(["2100"])
+    const duplicate = await searchAndPick(handler, "שלום", "4600", ["4600"])
+    expect(defaultSelections(duplicate.data)).toEqual(["4600"])
+    const third = await searchAndPick(handler, "binyamina", "2800", ["4600", "2100"])
+    expect(defaultSelections(third.data)).toEqual(["4600", "2100"])
+    expect(api.mutations).toHaveLength(0)
+  })
+
+  test("removing the last draft favorite allows Finish to clear saved flair", async () => {
+    const api = new FakeDiscord()
+    api.memberRoles.push(iosRole, hashalomRole)
+    const handler = createHandler(config, api)
+    const empty = await (
+      await handler(signedRequest(interaction(removePrefix + "4600:4600", undefined, stationPicker(["4600"]))))
+    ).json()
+    expect(defaultSelections(empty.data)).toEqual([])
+    expect(JSON.stringify(empty.data)).toContain(finishButton + ":")
+    expect(api.mutations).toHaveLength(0)
+    await handler(signedRequest(interaction(finishButton + ":", undefined, empty.data)))
+    await waitForResponse(api)
+    expect(new Set(api.memberRoles)).toEqual(new Set([staffRole, iosRole]))
+  })
+
+  test("Back discards unsaved drafts, and reopening preselects saved stations", async () => {
+    const api = new FakeDiscord()
+    api.memberRoles.push(iosRole, hahaganaRole)
+    const handler = createHandler(config, api)
+    const draft = await (await handler(signedRequest(interaction(`${selectPrefix}0`, ["4600"], legacyPicker(["4900"]))))).json()
+    const back = await (await handler(signedRequest(interaction(backButton, undefined, draft.data)))).json()
+    expect(back.type).toBe(7)
+    expect(back.data.content).toContain("אייפון או אנדרואיד")
+    expect(api.mutations).toHaveLength(0)
+    await handler(signedRequest(interaction("conductor:platform:android", undefined, back.data)))
+    const reopened = await waitForResponse(api)
+    expect(defaultSelections(reopened as ReturnType<typeof stationPicker>)).toEqual(["4900"])
+    expect(new Set(api.memberRoles)).toEqual(new Set([staffRole, androidRole, hahaganaRole]))
+  })
+
+  test("deselecting all favorites can clear them; Skip preserves existing favorites", async () => {
+    const api = new FakeDiscord()
+    api.memberRoles.push(iosRole, hashalomRole)
+    const handler = createHandler(config, api)
+    await handler(signedRequest(interaction("conductor:skip")))
+    await waitForResponse(api)
+    expect(api.memberRoles).toContain(hashalomRole)
+    const empty = await (await handler(signedRequest(interaction(`${selectPrefix}0`, [], legacyPicker(["4600"]))))).json()
+    expect(defaultSelections(empty.data)).toEqual([])
+    expect(JSON.stringify(empty.data.components)).toContain("סיום")
+    await handler(signedRequest(interaction(finishButton, undefined, empty.data)))
+    await waitForResponse(api, 2)
+    expect(api.memberRoles).toEqual([staffRole, iosRole])
+  })
+
+  test("the role layer enforces the two-station limit and rolls back a partially failed assignment", async () => {
+    const api = new FakeDiscord()
+    api.memberRoles.push(iosRole, hahaganaRole)
+    const roles = new OnboardingRoles(config, api)
+    await expect(roles.choose(userId, { kind: "station", ids: ["4600", "4900", "2100"] })).rejects.toBeInstanceOf(StationLimit)
+    expect(api.mutations).toHaveLength(0)
+    api.failAssignmentRole = hashmonaRole
+    await expect(roles.choose(userId, { kind: "station", ids: ["4600", "2100"] })).rejects.toThrow("Assignment failed")
+    expect(new Set(api.memberRoles)).toEqual(new Set([staffRole, iosRole, hahaganaRole]))
+  })
+
+  test("Finish cannot bypass the device step, even with station selections in the message", async () => {
+    const api = new FakeDiscord()
+    const handler = createHandler(config, api)
+    await handler(signedRequest(interaction(finishButton, undefined, stationPicker(["4600", "4900"]))))
+    expect((await waitForResponse(api)).content).toContain("אייפון או אנדרואיד")
     expect(api.mutations).toHaveLength(0)
   })
 
@@ -177,7 +372,7 @@ describe("conductor onboarding", () => {
     const api = new FakeDiscord()
     api.memberRoles.push(iosRole, hahaganaRole)
     api.failAssignment = true
-    await expect(new OnboardingRoles(config, api).choose(userId, { kind: "station", id: "4600" })).rejects.toThrow(
+    await expect(new OnboardingRoles(config, api).choose(userId, { kind: "station", ids: ["4600"] })).rejects.toThrow(
       "Assignment failed",
     )
     expect(new Set(api.memberRoles)).toEqual(new Set([staffRole, iosRole, hahaganaRole]))
@@ -187,7 +382,7 @@ describe("conductor onboarding", () => {
     const api = new FakeDiscord()
     api.memberRoles.push(iosRole)
     api.roleList.find((r) => r.id === hashalomRole)!.permissions = "8"
-    await expect(new OnboardingRoles(config, api).choose(userId, { kind: "station", id: "4600" })).rejects.toThrow(
+    await expect(new OnboardingRoles(config, api).choose(userId, { kind: "station", ids: ["4600"] })).rejects.toThrow(
       "That role is unavailable",
     )
     expect(api.mutations).toHaveLength(0)
@@ -205,12 +400,17 @@ describe("conductor onboarding", () => {
     expect(api.mutations).toHaveLength(1)
   })
 
-  test("all stations fit Discord component limits with unique lowercase names", () => {
-    const menus = stationPicker("iOS").components.slice(0, -1)
-    const optionCounts = menus.map((row) => (row.components[0] as { options: unknown[] }).options.length)
-    expect(menus.length).toBeLessThanOrEqual(4)
-    expect(optionCounts.every((count) => count <= 25)).toBe(true)
-    expect(optionCounts.reduce((sum, count) => sum + count, 0)).toBe(stations.length)
+  test("every station is searchable in both languages; labels and welcome copy are correct", () => {
+    expect(stationPicker().components).toHaveLength(1)
+    expect(welcomeMessage().content).toContain("לפני שאתם מצטרפים, יש לנו 2 שאלות קצרות")
+    for (const station of stations) {
+      expect(searchStations(station.name).map((s) => s.id)).toContain(station.id)
+      expect(searchStations(station.hebrew).map((s) => s.id)).toContain(station.id)
+      const picker = stationPicker([], false, searchStations(station.name))
+      const options = (picker.components[0].components[0] as { options: { label: string; description: string }[] }).options
+      expect(options.length).toBeLessThanOrEqual(25)
+      expect(options.some((option) => option.label === station.name && option.description === station.hebrew)).toBe(true)
+    }
     expect(stations.every((s) => /^[a-z0-9 ]+$/.test(s.name))).toBe(true)
     expect(new Set(stations.map((s) => s.name)).size).toBe(stations.length)
   })

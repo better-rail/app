@@ -1,10 +1,19 @@
 # The Conductor
 
 Better Rail's onboarding bot. A button in `#welcome` starts a private, two-step
-flow: choose **iOS or Android** (required), then a **favorite station**
-(optional, with **Skip for now**). Choices become permissionless server roles
+flow: choose **iPhone or Android** (required), then **up to two favorite stations**
+(optional, with **דילוג**). Copy and buttons are Hebrew; station labels stay in
+English, with their Hebrew names underneath. Choices become permissionless server roles
 with short lowercase names such as `hashalom` or `bet yehoshua`. Members can
 repeat the flow to change their choices.
+
+The station step starts with **חיפוש תחנה**. A text popup accepts Hebrew or English,
+then a single dropdown shows matching stations (at most 25). Search again to add
+a second favorite. Search ignores spaces and punctuation; broad searches suggest
+a more specific name. Draft station IDs travel in component IDs through the modal. **סיום** saves
+the favorites; **חזרה אחורה** discards the draft and returns to device selection.
+Existing favorites are shown when editing. Remove favorites and press
+**סיום** to remove them. **דילוג** leaves existing favorites unchanged.
 
 The service receives signed Discord HTTP interactions. It registers no slash
 commands, needs no privileged Gateway intents, and has no database: Discord
@@ -43,8 +52,8 @@ a device. The device choice is required to complete this flow.
 ## Verification
 
 Run `bun test` and `bun run check`. Before going live, verify in Discord: start,
-choose iOS, skip station, restart, choose Android, choose `hashalom`, switch to
-`hahagana`, and remove station flair. Confirm only the intended roles changed,
+choose iPhone, skip stations, restart, choose Android, search in Hebrew and English, select two favorites, confirm with **סיום**, edit the pair, and remove station flair.
+Confirm no-results searches can be retried, a third selection is rejected, Back discards drafts, and only the intended roles changed,
 and that an ordinary new member can see the welcome channel but gains no beta or
 developer channel access from these roles.
 
