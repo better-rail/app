@@ -35,12 +35,13 @@ export async function trackInstalledWidgets() {
   } else {
     if (families.includes("compact")) properties.widget_compact = "true"
     if (families.includes("wide")) properties.widget_wide = "true"
+    if (families.includes("large")) properties.widget_large = "true"
   }
 
   setAnalyticsUserProperties(properties)
 }
 
-export type WidgetFamily = "compact" | "wide"
+export type WidgetFamily = "compact" | "wide" | "large"
 
 /** Opens the Android pin-widget dialog. Resolves false when the launcher doesn't support it. */
 export async function requestPinAndroidWidget(options?: {

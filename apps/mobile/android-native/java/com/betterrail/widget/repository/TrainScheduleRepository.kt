@@ -1,9 +1,11 @@
 package com.betterrail.widget.repository
 
 import android.content.Context
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.emitAll
 import com.betterrail.widget.api.RailApiService
 import com.betterrail.widget.repository.ModernCacheRepository
 import com.betterrail.widget.data.WidgetScheduleData
@@ -111,12 +113,14 @@ class TrainScheduleRepository @Inject constructor(
                 }
             )
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             Log.e(TAG, "Exception while fetching schedule for widget $widgetId", e)
             if (cachedData == null) {
                 emit(Resource.Error(e.message ?: "Unknown error"))
             }
         }
     }.catch { error ->
+        if (error is CancellationException) throw error
         Log.e(TAG, "Flow error for widget $widgetId", error)
         emit(Resource.Error(error.message ?: "Unknown error"))
     }
@@ -155,9 +159,7 @@ class TrainScheduleRepository @Inject constructor(
         } else {
             Log.d(TAG, "No cached tomorrow data for widget $widgetId, fetching from API")
             // Continue to API call only if no cache available
-            getSchedule(widgetId, widgetData, date = tomorrow, hour = "05:00").collect { resource ->
-                emit(resource)
-            }
+            emitAll(getSchedule(widgetId, widgetData, date = tomorrow, hour = "05:00"))
         }
     }
 
