@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test"
 import { generateKeyPairSync, sign } from "node:crypto"
 
 import type { ConductorConfig } from "./config"
-import { DiscordApi, type DiscordRole } from "./discord"
+import { DiscordApi, type DiscordChannel, type DiscordRole } from "./discord"
 import { createHandler } from "./interactions"
 import {
   backButton,
@@ -19,6 +19,7 @@ import {
   stationPages,
   welcomeMessage,
 } from "./messages"
+import { everyoneCanView } from "./permissions"
 import { isFlairRole, OnboardingRoles, PlatformRequired, StationLimit } from "./roles"
 import { stations } from "./stations"
 
@@ -50,6 +51,9 @@ class FakeDiscord extends DiscordApi {
   responses: object[] = []
   failAssignment = false
   failAssignmentRole?: string
+  failRemovalOnce?: string
+  failAfterMutationOnce?: { method: string; roleId: string }
+  channelList: DiscordChannel[] = [{ id: "1548800000000000020", type: 0, permission_overwrites: [] }]
   roleList: DiscordRole[] = [
     { id: staffRole, name: "developer", permissions: "8", position: 10, managed: false },
     { id: botRole, name: "The Conductor", permissions: "268435456", position: 9, managed: true },
@@ -67,6 +71,7 @@ class FakeDiscord extends DiscordApi {
     super("test-only")
   }
   override async call<T>(method: string, path: string, body?: unknown): Promise<T> {
+    if (path === `/guilds/${guildId}/channels`) return this.channelList as T
     if (path === `/guilds/${guildId}/roles`) return this.roleList as T
     if (path === `/guilds/${guildId}/members/${applicationId}`) return { roles: [botRole] } as T
     if (path === `/guilds/${guildId}/members/${userId}`) return { roles: [...this.memberRoles] } as T
@@ -76,9 +81,17 @@ class FakeDiscord extends DiscordApi {
     }
     const role = path.split("/").at(-1)!
     if (method === "PUT" && (this.failAssignment || this.failAssignmentRole === role)) throw new Error("Assignment failed")
+    if (method === "DELETE" && this.failRemovalOnce === role) {
+      this.failRemovalOnce = undefined
+      throw new Error("Removal failed")
+    }
     this.mutations.push({ method, path })
-    if (method === "PUT") this.memberRoles.push(role)
+    if (method === "PUT" && !this.memberRoles.includes(role)) this.memberRoles.push(role)
     else if (method === "DELETE") this.memberRoles = this.memberRoles.filter((id) => id !== role)
+    if (this.failAfterMutationOnce?.method === method && this.failAfterMutationOnce.roleId === role) {
+      this.failAfterMutationOnce = undefined
+      throw new Error("Response timed out after mutation")
+    }
     return undefined as T
   }
 }
@@ -161,8 +174,10 @@ describe("conductor onboarding", () => {
     await roles.choose(userId, { kind: "platform", id: "ios" })
     expect(api.memberRoles).toContain(iosRole)
     const bot = api.roleList.find((role) => role.id === botRole)!
-    expect(isFlairRole({ ...bot, id: staffRole, name: "ios", managed: false, permissions: "0" }, "ios", [bot])).toBe(false)
-    expect(isFlairRole({ ...bot, name: "ios", managed: false, permissions: "0" }, "ios", [bot])).toBe(false)
+    expect(
+      isFlairRole({ ...bot, id: staffRole, name: "ios", managed: false, permissions: "0" }, "ios", [bot], api.channelList),
+    ).toBe(false)
+    expect(isFlairRole({ ...bot, name: "ios", managed: false, permissions: "0" }, "ios", [bot], api.channelList)).toBe(false)
   })
 
   test("verifies signatures and rejects tampered or expired requests", async () => {
@@ -336,6 +351,105 @@ describe("conductor onboarding", () => {
     await handler(signedRequest(interaction(finishButton, undefined, empty.data)))
     await waitForResponse(api, 2)
     expect(api.memberRoles).toEqual([staffRole, iosRole])
+  })
+
+  test("empty draft remains saveable after another search", async () => {
+    const api = new FakeDiscord()
+    api.memberRoles.push(iosRole, hashalomRole)
+    const handler = createHandler(config, api)
+    const empty = await (
+      await handler(signedRequest(interaction(removePrefix + "4600:4600", undefined, stationPicker(["4600"]))))
+    ).json()
+    const searched = await (await handler(signedRequest(modal("does not exist", [], empty.data)))).json()
+    expect(JSON.stringify(searched.data.components)).toContain(finishButton + ":")
+    await handler(signedRequest(interaction(finishButton + ":", undefined, searched.data)))
+    await waitForResponse(api)
+    expect(new Set(api.memberRoles)).toEqual(new Set([staffRole, iosRole]))
+  })
+
+  test("failed device removal restores the original device and leaves stations and staff untouched", async () => {
+    const api = new FakeDiscord()
+    api.memberRoles.push(iosRole, hashalomRole)
+    api.failRemovalOnce = iosRole
+    await expect(new OnboardingRoles(config, api).choose(userId, { kind: "platform", id: "android" })).rejects.toThrow(
+      "Removal failed",
+    )
+    expect(new Set(api.memberRoles)).toEqual(new Set([staffRole, iosRole, hashalomRole]))
+  })
+
+  test("failed second station removal restores the original pair", async () => {
+    const api = new FakeDiscord()
+    api.memberRoles.push(iosRole, hashalomRole, hahaganaRole)
+    api.failRemovalOnce = hashalomRole
+    await expect(new OnboardingRoles(config, api).choose(userId, { kind: "station", ids: ["2100", "2800"] })).rejects.toThrow(
+      "Removal failed",
+    )
+    expect(new Set(api.memberRoles)).toEqual(new Set([staffRole, iosRole, hashalomRole, hahaganaRole]))
+  })
+
+  test("uncertain assignment and removal responses are compensated idempotently", async () => {
+    for (const method of ["PUT", "DELETE"]) {
+      const api = new FakeDiscord()
+      api.memberRoles.push(iosRole, hahaganaRole)
+      api.failAfterMutationOnce = { method, roleId: method === "PUT" ? hashalomRole : hahaganaRole }
+      await expect(new OnboardingRoles(config, api).choose(userId, { kind: "station", ids: ["4600"] })).rejects.toThrow(
+        "Response timed out",
+      )
+      expect(new Set(api.memberRoles)).toEqual(new Set([staffRole, iosRole, hahaganaRole]))
+    }
+  })
+
+  test("incomplete rollback is reported and remaining compensation still runs", async () => {
+    const api = new FakeDiscord()
+    api.memberRoles.push(iosRole, hashalomRole, hahaganaRole)
+    api.failRemovalOnce = hashalomRole
+    api.failAssignmentRole = hahaganaRole
+    await expect(new OnboardingRoles(config, api).choose(userId, { kind: "station", ids: ["2100"] })).rejects.toThrow(
+      "rollback was incomplete",
+    )
+    expect(api.memberRoles).not.toContain(hashmonaRole)
+    expect(api.memberRoles).toContain(iosRole)
+    expect(api.memberRoles).toContain(staffRole)
+  })
+
+  test("channel overwrites make a cosmetic role ineligible at setup and runtime", async () => {
+    for (const roleId of [iosRole, hashalomRole]) {
+      for (const bitset of [
+        { allow: "1024", deny: "0" },
+        { allow: "0", deny: "2048" },
+      ]) {
+        const api = new FakeDiscord()
+        api.memberRoles.push(androidRole)
+        api.channelList[0].permission_overwrites.push({ id: roleId, type: 0, ...bitset })
+        const role = api.roleList.find((entry) => entry.id === roleId)!
+        const bot = api.roleList.find((entry) => entry.id === botRole)!
+        expect(isFlairRole(role, role.name, [bot], api.channelList)).toBe(false)
+        await expect(
+          new OnboardingRoles(config, api).choose(
+            userId,
+            roleId === iosRole ? { kind: "platform", id: "ios" } : { kind: "station", ids: ["4600"] },
+          ),
+        ).rejects.toThrow("That role is unavailable")
+        expect(api.mutations).toHaveLength(0)
+      }
+    }
+  })
+
+  test("welcome visibility applies the everyone overwrite to base permissions", () => {
+    const everyone: DiscordRole = { id: guildId, name: "@everyone", permissions: "0", managed: false, position: 0 }
+    const channel: DiscordChannel = { id: "1548800000000000020", type: 0, permission_overwrites: [] }
+    expect(everyoneCanView(channel, everyone)).toBe(false)
+    everyone.permissions = "1024"
+    expect(everyoneCanView(channel, everyone)).toBe(true)
+    channel.permission_overwrites.push({ id: guildId, type: 0, allow: "0", deny: "1024" })
+    expect(everyoneCanView(channel, everyone)).toBe(false)
+    everyone.permissions = "0"
+    channel.permission_overwrites[0] = { id: guildId, type: 0, allow: "1024", deny: "0" }
+    expect(everyoneCanView(channel, everyone)).toBe(true)
+    channel.permission_overwrites[0].type = 1
+    expect(everyoneCanView(channel, everyone)).toBe(false)
+    everyone.permissions = "8"
+    expect(everyoneCanView(channel, everyone)).toBe(true)
   })
 
   test("the role layer enforces the two-station limit and rolls back a partially failed assignment", async () => {

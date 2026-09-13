@@ -4,8 +4,9 @@ Better Rail's onboarding bot. A button in `#welcome` starts a private, two-step
 flow: choose **iPhone or Android** (required), then **up to two favorite stations**
 (optional, with **דילוג**). Copy and buttons are Hebrew; station labels stay in
 English, with their Hebrew names underneath. Choices become permissionless server roles
-with short lowercase names such as `hashalom` or `bet yehoshua`. Members can
-repeat the flow to change their choices.
+with no channel permission overwrites and short lowercase names such as `hashalom` or `bet yehoshua`. Members can
+repeat the flow to change their choices. Failed role mutations attempt to restore
+the original choices; incomplete compensation is reported to Sentry.
 
 The station step starts with **חיפוש תחנה**. A text popup accepts Hebrew or English,
 then a single dropdown shows matching stations (at most 25). Search again to add

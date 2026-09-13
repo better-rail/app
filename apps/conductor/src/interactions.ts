@@ -156,7 +156,7 @@ export function createHandler(
           : matches.length
             ? "מצאתי! בחרו תחנה מהרשימה."
             : "לא מצאתי תחנה נוספת בשם הזה. נסו לחפש שוב בעברית או באנגלית."
-      result = update(stationPicker(selected, selected.length > 0, matches, note))
+      result = update(stationPicker(selected, true, matches, note))
     } else if (customId.startsWith(resultPrefix) && interaction.type === 3) {
       const previous = draftIds(customId.slice(resultPrefix.length))
       const values = interaction.data?.values ?? []

@@ -1,4 +1,6 @@
 export type DiscordRole = { id: string; name: string; permissions: string; position: number; managed: boolean }
+export type DiscordOverwrite = { id: string; type: number; allow: string; deny: string }
+export type DiscordChannel = { id: string; guild_id?: string; type: number; permission_overwrites: DiscordOverwrite[] }
 export type DiscordMember = { roles: string[] }
 
 export class DiscordApi {

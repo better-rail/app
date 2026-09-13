@@ -1,6 +1,7 @@
 import { isSnowflake, loadConfig } from "./config"
-import { DiscordApi, type DiscordMember, type DiscordRole } from "./discord"
+import { DiscordApi, type DiscordChannel, type DiscordMember, type DiscordRole } from "./discord"
 import { platforms, welcomeMessage } from "./messages"
+import { everyoneCanView } from "./permissions"
 import { isFlairRole } from "./roles"
 import { stations } from "./stations"
 
@@ -11,17 +12,14 @@ const api = new DiscordApi(config.botToken)
 const guild = `/guilds/${config.guildId}`
 const bot = await api.call<{ id: string }>("GET", "/users/@me")
 if (bot.id !== config.applicationId) throw new Error("The token does not belong to the configured application")
-const channel = await api.call<{ guild_id: string; type: number; permission_overwrites: { id: string; deny: string }[] }>(
-  "GET",
-  `/channels/${channelId}`,
-)
+const [channel, allRoles, channels] = await Promise.all([
+  api.call<DiscordChannel>("GET", `/channels/${channelId}`),
+  api.call<DiscordRole[]>("GET", `${guild}/roles`),
+  api.call<DiscordChannel[]>("GET", `${guild}/channels`),
+])
 if (channel.guild_id !== config.guildId || channel.type !== 0) throw new Error("Choose a text channel in the Better Rail server")
-if (
-  channel.permission_overwrites.some((overwrite) => overwrite.id === config.guildId && (BigInt(overwrite.deny) & 1024n) !== 0n)
-) {
-  throw new Error("The welcome channel must be visible to everyone")
-}
-const allRoles = await api.call<DiscordRole[]>("GET", `${guild}/roles`)
+const everyone = allRoles.find((role) => role.id === config.guildId)
+if (!everyone || !everyoneCanView(channel, everyone)) throw new Error("The welcome channel must be visible to everyone")
 const botMember = await api.call<DiscordMember>("GET", `${guild}/members/${bot.id}`)
 const botRoles = allRoles.filter((role) => botMember.roles.includes(role.id))
 if (!botRoles.some((role) => (BigInt(role.permissions) & 268435456n) !== 0n)) throw new Error("The bot needs Manage Roles")
@@ -31,8 +29,10 @@ async function provision(choices: readonly { id: string; name: string }[], regis
   for (const choice of choices) {
     const existing =
       allRoles.find((role) => role.id === registry[choice.id]) ?? allRoles.find((role) => role.name === choice.name)
-    if (existing && !isFlairRole(existing, choice.name, botRoles)) {
-      throw new Error(`Cannot use role "${choice.name}"; it must be permissionless and below The Conductor`)
+    if (existing && !isFlairRole(existing, choice.name, botRoles, channels)) {
+      throw new Error(
+        `Cannot use role "${choice.name}"; it must be permissionless, have no channel permissions, and be below The Conductor`,
+      )
     }
     if (existing) result[choice.id] = existing.id
     else {
