@@ -30,9 +30,6 @@
 /assets/documents/*
   ! Cache-Control
   Cache-Control: public, max-age=86400, stale-while-revalidate=604800
-/assets/qr/*
-  ! Cache-Control
-  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
 
 # Station photos are re-rendered under the same names when a source photo changes.
 /stations/*

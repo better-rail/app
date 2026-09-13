@@ -1,5 +1,5 @@
-import { Link } from "@tanstack/react-router"
-import { useLocale, useT } from "@/i18n"
+import { Link, useRouterState } from "@tanstack/react-router"
+import { useLocale, useT, type Locale } from "@/i18n"
 import { trackEvent } from "@/lib/analytics"
 import { GITHUB_URL, SUPPORT_URL, TWITTER_URL } from "@/lib/seo"
 import { LocaleLink } from "./locale-link"
@@ -7,9 +7,22 @@ import { DownloadBadges } from "./download-badges"
 import { GithubIcon, XIcon } from "./icons"
 import { AppIcon } from "./logo"
 
+/** Marketing pages exist in Hebrew only; the language switch on them goes to the other locale's home page. */
+function useOtherLocaleHref(locale: Locale): string {
+  const { pathname, searchStr } = useRouterState({
+    select: (s) => ({ pathname: s.location.pathname, searchStr: s.location.searchStr }),
+  })
+  const localizedPrefixes = ["/routes/", "/privacy-policy"]
+  const stripped = pathname.replace(/^\/en(?=\/|$)/, "") || "/"
+  const isLocalized = stripped === "/" || localizedPrefixes.some((prefix) => stripped.startsWith(prefix))
+  if (locale === "he") return isLocalized ? `/en${stripped === "/" ? "" : stripped}${searchStr}` : "/en"
+  return isLocalized ? `${stripped}${searchStr}` : "/"
+}
+
 export function SiteFooter() {
   const t = useT()
   const locale = useLocale()
+  const otherLocaleHref = useOtherLocaleHref(locale)
   // These pages exist in Hebrew only; from the English site the links say so, and assistive tech switches language.
   const hebrewOnly = locale === "he" ? {} : { lang: "he", hrefLang: "he" }
   const links = [
@@ -43,6 +56,14 @@ export function SiteFooter() {
               {link.label}
             </Link>
           ))}
+          <a
+            href={otherLocaleHref}
+            className="link-underline mt-2 w-fit py-2.5 font-semibold text-text-2 hover:text-text"
+            lang={locale === "he" ? "en" : "he"}
+            hrefLang={locale === "he" ? "en" : "he"}
+          >
+            {t("nav.language")}
+          </a>
         </nav>
 
         <div className="flex flex-col items-start gap-4">
@@ -63,7 +84,6 @@ export function SiteFooter() {
               <XIcon className="size-[18px]" />
             </a>
           </div>
-          <p className="text-[13px] text-dim">{t("footer.madeWith")}</p>
         </div>
       </div>
     </footer>
