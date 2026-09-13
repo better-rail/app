@@ -7,6 +7,7 @@ import com.betterrail.widget.data.WidgetData
 import com.betterrail.widget.data.WidgetTrainItem
 import com.betterrail.widget.data.StationsData
 import com.betterrail.widget.resources.UpcomingTrainResources
+import com.betterrail.widget.WidgetSize
 
 /**
  * Represents the possible states of a train widget
@@ -82,7 +83,7 @@ class WidgetStateRenderer(
     private val widgetType: String
 ) {
     
-    fun render(context: Context, state: WidgetState): RemoteViews {
+    fun render(context: Context, state: WidgetState, heightDp: Int = 0): RemoteViews {
         val localeContext = com.betterrail.widget.utils.LocaleUtils.createLocaleContext(context)
         val views = RemoteViews(localeContext.packageName, layoutResource)
 
@@ -92,13 +93,13 @@ class WidgetStateRenderer(
         when (state) {
             is WidgetState.Configuration -> renderConfiguration(localeContext, views, state)
             is WidgetState.Loading -> renderLoading(localeContext, views, state)
-            is WidgetState.Schedule -> renderSchedule(localeContext, views, state)
+            is WidgetState.Schedule -> renderSchedule(localeContext, views, state, heightDp)
             is WidgetState.Error -> renderError(localeContext, views, state)
             is WidgetState.TomorrowFallback -> renderTomorrowFallback(localeContext, views, state)
             is WidgetState.TomorrowLoading -> renderTomorrowLoading(localeContext, views, state)
-            is WidgetState.TomorrowSchedule -> renderTomorrowSchedule(localeContext, views, state)
+            is WidgetState.TomorrowSchedule -> renderTomorrowSchedule(localeContext, views, state, heightDp)
             is WidgetState.NoTrains -> renderNoTrains(localeContext, views, state)
-            is WidgetState.FutureSchedule -> renderFutureSchedule(localeContext, views, state)
+            is WidgetState.FutureSchedule -> renderFutureSchedule(localeContext, views, state, heightDp)
         }
 
         return views
@@ -128,7 +129,7 @@ class WidgetStateRenderer(
         hideUpcomingTrains(context, views)
     }
 
-    private fun renderSchedule(context: Context, views: RemoteViews, state: WidgetState.Schedule) {
+    private fun renderSchedule(context: Context, views: RemoteViews, state: WidgetState.Schedule, heightDp: Int = 0) {
         views.setTextViewText(R.id.widget_station_name, state.originName)
         views.setTextViewText(R.id.widget_destination, state.destinationName)
         views.setTextViewText(getTrainTimeId(), state.nextTrain.departureTime)
@@ -140,7 +141,7 @@ class WidgetStateRenderer(
         if (isMultiTrainLayout()) {
             views.setTextViewText(R.id.widget_arrival_time, state.nextTrain.arrivalTime)
             if (state.upcomingTrains.isNotEmpty()) {
-                showUpcomingTrains(context, views, state.upcomingTrains)
+                showUpcomingTrains(context, views, state.upcomingTrains, heightDp)
             } else {
                 hideUpcomingTrains(context, views)
             }
@@ -243,7 +244,7 @@ class WidgetStateRenderer(
         hideUpcomingTrains(context, views)
     }
 
-    private fun renderTomorrowSchedule(context: Context, views: RemoteViews, state: WidgetState.TomorrowSchedule) {
+    private fun renderTomorrowSchedule(context: Context, views: RemoteViews, state: WidgetState.TomorrowSchedule, heightDp: Int = 0) {
         views.setTextViewText(R.id.widget_station_name, state.originName)
         views.setTextViewText(R.id.widget_destination, state.destinationName)
         views.setTextViewText(getTrainTimeId(), state.firstTrain.departureTime)
@@ -259,7 +260,7 @@ class WidgetStateRenderer(
         setStationBackground(views, state.originId)
         
         if (state.upcomingTrains.isNotEmpty()) {
-            showUpcomingTrains(context, views, state.upcomingTrains)
+            showUpcomingTrains(context, views, state.upcomingTrains, heightDp)
         } else {
             hideUpcomingTrains(context, views)
         }
@@ -288,7 +289,7 @@ class WidgetStateRenderer(
         hideUpcomingTrains(context, views)
     }
 
-    private fun renderFutureSchedule(context: Context, views: RemoteViews, state: WidgetState.FutureSchedule) {
+    private fun renderFutureSchedule(context: Context, views: RemoteViews, state: WidgetState.FutureSchedule, heightDp: Int = 0) {
         views.setTextViewText(R.id.widget_station_name, state.originName)
         views.setTextViewText(R.id.widget_destination, state.destinationName)
         views.setTextViewText(getTrainTimeId(), state.firstTrain.departureTime)
@@ -306,7 +307,7 @@ class WidgetStateRenderer(
         setStationBackground(views, state.originId)
         
         if (state.upcomingTrains.isNotEmpty()) {
-            showUpcomingTrains(context, views, state.upcomingTrains)
+            showUpcomingTrains(context, views, state.upcomingTrains, heightDp)
         } else {
             hideUpcomingTrains(context, views)
         }
@@ -346,7 +347,12 @@ class WidgetStateRenderer(
         }
     }
     
-    private fun showUpcomingTrains(context: Context, views: RemoteViews, upcomingTrains: List<WidgetTrainItem>) {
+    private fun showUpcomingTrains(
+        context: Context,
+        views: RemoteViews,
+        upcomingTrains: List<WidgetTrainItem>,
+        heightDp: Int = 0
+    ) {
         if (!isMultiTrainLayout()) return
 
         // Set localized labels for upcoming trains section
@@ -363,10 +369,17 @@ class WidgetStateRenderer(
             views.setTextViewText(R.id.widget_header_train, context.getString(R.string.train_caps))
         }
 
+        // Dynamically calculate how many rows fit cleanly without vertical clipping
+        val maxFittingRows = if (layoutResource == R.layout.widget_compact_4x3 && heightDp > 0) {
+            ((heightDp - 210) / 29).coerceIn(1, WidgetSize.MAX_UPCOMING_TRAINS_4X3)
+        } else {
+            WidgetSize.MAX_UPCOMING_TRAINS_4X3
+        }
+
         val resourcesHelper = UpcomingTrainResources.createForLayout(context, layoutResource)
 
         resourcesHelper.forEachRow { index, resources ->
-            if (index < upcomingTrains.size) {
+            if (index < upcomingTrains.size && index < maxFittingRows) {
                 val train = upcomingTrains[index]
                 views.setViewVisibility(resources.rowId, android.view.View.VISIBLE)
                 if (resources.dividerId != 0) {
@@ -374,13 +387,7 @@ class WidgetStateRenderer(
                 }
                 views.setTextViewText(resources.trainTimeId, train.departureTime)
                 if (layoutResource == R.layout.widget_compact_4x3) {
-                    val isTomorrow = train.getDaysAway() >= 1
-                    val timeColor = if (isTomorrow) {
-                        context.getColor(R.color.widget_tomorrow_text)
-                    } else {
-                        0xFF111111.toInt()
-                    }
-                    views.setTextColor(resources.trainTimeId, timeColor)
+                    views.setTextColor(resources.trainTimeId, 0xFF111111.toInt())
                 }
                 views.setTextViewText(resources.arrivalTimeId, train.arrivalTime)
                 if (resources.durationId != 0) {

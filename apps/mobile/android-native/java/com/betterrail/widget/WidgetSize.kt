@@ -65,7 +65,7 @@ enum class WidgetSize(
         /**
          * Maximum number of upcoming train rows to display in 4x3 widgets.
          */
-        const val MAX_UPCOMING_TRAINS_4X3 = 9
+        const val MAX_UPCOMING_TRAINS_4X3 = 16
         
         /**
          * Grid-based layout selection (Android standard)

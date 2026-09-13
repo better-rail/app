@@ -76,6 +76,6 @@ abstract class UnifiedWidgetProvider(
         
         Log.d(getLogTag(), "Widget $appWidgetId: ${WidgetSize.getGridInfo(currentWidth, currentHeight)}")
         
-        return getRenderer(optimalSize).render(context, state)
+        return getRenderer(optimalSize).render(context, state, currentHeight)
     }
 }
