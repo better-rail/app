@@ -7,7 +7,9 @@
  * free shuttles will run"). The model turns each into structured disruptions:
  * what kind, which stations, when, why, and what Israel Railways offers instead.
  * Everything it returns is then checked against the line catalogue here, so a
- * misread station id or an impossible window never reaches the map.
+ * misread station id or an impossible window never reaches the map. A suspended
+ * stretch counts for every line whose track it is on, the express lines that run
+ * through its stations without stopping included (`corridorOf`).
  *
  * Two halves, so the tests can run without a model:
  * - `extractDisruptions` builds the prompt and calls OpenAI (structured output);
@@ -30,7 +32,7 @@ import {
   TRANSPORT_MODES,
   type TravelAlternative,
 } from "../types/service-status"
-import { RAIL_LINES, type RailLineDefinition, type RailLineId } from "../status/lines"
+import { RAIL_LINES, type RailLineDefinition, type RailLineId, corridorOf } from "../status/lines"
 
 // --- what the model is given ---------------------------------------------------------
 
@@ -177,7 +179,7 @@ export const normalizeExtraction = (extraction: Extraction, nowNaiveMs: number):
         continue
       }
       // Nothing in the catalogue runs that stretch: a misread, or a stretch the map does not have.
-      if (!RAIL_LINES.some((line) => line.stationIds.includes(from) && line.stationIds.includes(to))) {
+      if (!RAIL_LINES.some((line) => runsStretch(line, from, to))) {
         drop(`no line runs ${from}–${to}`)
         continue
       }
@@ -188,7 +190,7 @@ export const normalizeExtraction = (extraction: Extraction, nowNaiveMs: number):
         toStationId: to,
         stationIds: [],
         ...base,
-        lineIds: linesNamed(d, (line) => line.stationIds.includes(from) && line.stationIds.includes(to)),
+        lineIds: linesNamed(d, (line) => runsStretch(line, from, to)),
       })
       continue
     }
@@ -221,18 +223,37 @@ const linesNamed = (d: ExtractedDisruption, runs: (line: RailLineDefinition) => 
   return valid
 }
 
+/** Whether the line's track has both ends of the stretch, calling there or running through. */
+const runsStretch = (line: RailLineDefinition, a: string, b: string): boolean => {
+  const corridor = corridorOf(line)
+  return corridor.some((stop) => stop.stationId === a) && corridor.some((stop) => stop.stationId === b)
+}
+
 const windowEndMs = (w: AnnouncedWindow): number => (w.to === null ? naiveMs(w.from) + OPEN_ENDED_WINDOW_MS : naiveMs(w.to))
 
 /** The window in force at `nowNaiveMs`, if any. */
 export const activeWindow = (d: AnnouncedDisruption, nowNaiveMs: number): AnnouncedWindow | undefined =>
   d.windows.find((w) => naiveMs(w.from) <= nowNaiveMs && nowNaiveMs < windowEndMs(w))
 
-/** The stretch of `line` between two of its stations, inclusive, in the line's order — or nothing when either is off it. */
+/**
+ * The part of `line` with no service when the track between `a` and `b` is closed, as the line's
+ * calling stations in order — or nothing when the stretch is not on its track. An end the line
+ * only runs through widens the part to the calling station before or after it: with Netanya to
+ * Tel Aviv closed, a line calling at Binyamina and then Herzliya has no trains from Binyamina on.
+ */
 const stretchOf = (line: RailLineDefinition, a: string, b: string): DisruptionSection | undefined => {
-  const i = line.stationIds.indexOf(a)
-  const j = line.stationIds.indexOf(b)
+  const corridor = corridorOf(line)
+  const i = corridor.findIndex((stop) => stop.stationId === a)
+  const j = corridor.findIndex((stop) => stop.stationId === b)
   if (i < 0 || j < 0) return undefined
-  const stationIds = line.stationIds.slice(Math.min(i, j), Math.max(i, j) + 1)
+  let lo = Math.min(i, j)
+  let hi = Math.max(i, j)
+  while (lo > 0 && !corridor[lo].calls) lo--
+  while (hi < corridor.length - 1 && !corridor[hi].calls) hi++
+  const stationIds = corridor
+    .slice(lo, hi + 1)
+    .filter((stop) => stop.calls)
+    .map((stop) => stop.stationId)
   return { fromStationId: stationIds[0], toStationId: stationIds[stationIds.length - 1], stationIds }
 }
 
@@ -287,7 +308,8 @@ const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Frida
 
 /**
  * The catalogue as the model sees it: every line with its stations in order (ids with Hebrew and
- * English names), then every station with the lines calling at it — the index the model reads
+ * English names, the stations it runs through without stopping marked), then every station with
+ * the lines calling at it and the lines running through it — the index the model reads
  * `lineIds` off.
  */
 export const catalogueText = (): string => {
@@ -295,24 +317,26 @@ export const catalogueText = (): string => {
     const station = stationById.get(id)
     return station ? `${id} ${station.hebrew} (${station.english})` : id
   }
-  const lines = RAIL_LINES.map(
-    (line) =>
-      `line ${line.id} — ${line.name.he} / ${line.name.en}, ${line.stationIds.length} stations:\n  ${line.stationIds
-        .map(label)
-        .join(" › ")}`,
-  )
+  const lines = RAIL_LINES.map((line) => {
+    const stops = corridorOf(line).map((stop) => (stop.calls ? label(stop.stationId) : `(through ${label(stop.stationId)})`))
+    return `line ${line.id} — ${line.name.he} / ${line.name.en}, ${line.stationIds.length} stations:\n  ${stops.join(" › ")}`
+  })
   const index = stations
     .map((s) => {
-      const through = RAIL_LINES.filter((line) => line.stationIds.includes(s.id)).map((line) => line.id)
-      if (through.length === 0) return undefined
+      const calling = RAIL_LINES.filter((line) => line.stationIds.includes(s.id)).map((line) => line.id)
+      const through = RAIL_LINES.filter((line) => corridorOf(line).some((stop) => stop.stationId === s.id && !stop.calls)).map(
+        (line) => line.id,
+      )
+      if (calling.length === 0 && through.length === 0) return undefined
       const aliases = s.alias?.length ? ` | also: ${s.alias.join(", ")}` : ""
-      return `${s.id} ${s.hebrew} | ${s.english}${aliases} → lines ${through.join(", ")}`
+      const runsThrough = through.length ? `; runs through without stopping: ${through.join(", ")}` : ""
+      return `${s.id} ${s.hebrew} | ${s.english}${aliases} → lines ${calling.join(", ")}${runsThrough}`
     })
     .filter((row): row is string => row !== undefined)
-  return `LINES — catalogue id, name, and the stations in order (station id, Hebrew name, English name). A line's trains call at these stations and no others; the first and last are its termini.
+  return `LINES — catalogue id, name, and the stations in order (station id, Hebrew name, English name). A line's trains call at these stations and no others; the first and last are its termini. A station in parentheses marked "through" is one the line's trains pass without stopping: it is on the line's track, so a suspension there cuts this line too.
 ${lines.join("\n")}
 
-STATIONS — station id, names, and the catalogue lines calling there. Only the ids listed here exist.
+STATIONS — station id, names, the catalogue lines calling there, and the lines running through without stopping. Only the ids listed here exist.
 ${index.join("\n")}`
 }
 
@@ -343,7 +367,8 @@ WINDOWS
 STATIONS AND LINES
 - Line ids ("1", "3X", "12" …) are this system's internal keys. Israel Railways publishes no line numbers, and passengers never see these ids; updates name a line by its termini ("קו מודיעין – ירושלים", "קו העמק"). Resolve such names through the LINES list below (by termini and stations), never by any number in the text.
 - Use catalogue station ids only, from the STATIONS index below. Resolve nicknames and abbreviations there (ת"א = תל אביב, פ"ת = פתח תקווה, ראשל"צ = ראשון לציון, "חיפה מרכז" = חיפה מרכז השמונה, "אשדוד" = אשדוד עד הלום, "מרכזית המפרץ" = HaMifrats Central, "קו העמק" = the Valley line, line 11, Beit She'an to Atlit). Never invent an id.
-- lineIds is REQUIRED and never empty: every catalogue line the disruption affects. Read it off the STATIONS index — for a suspension, the lines listed at BOTH ends of the stretch (the lines that run the whole stretch); for closed stations, the lines listed at any of the stations. Then remove a line the update says keeps running ("קו מודיעין-ירושלים יפעל כסדרו" removes line 10). Do not infer lines from names or geography; the index is the only source.
+- lineIds is REQUIRED and never empty: every catalogue line the disruption affects. Read it off the STATIONS index — for a suspension, the lines found at BOTH ends of the stretch, counting a line that runs through an end without stopping as found there (its trains use the same track, so they are cut too); a line found at only one end is not affected. For closed stations, the lines calling at any of them (a line running through without stopping loses nothing). Then remove a line the update says keeps running ("קו מודיעין-ירושלים יפעל כסדרו" removes line 10). Do not infer lines from names or geography; the index is the only source.
+- Worked example. "הופסקה זמנית תנועת הרכבות בין נתניה לתל אביב סבידור מרכז" is 3300→3700. Netanya lists lines 1, 2, 5, 25 calling and 3, 3X running through; Tel Aviv Savidor lists 1, 2, 3, 3X, 5, 25, 6, 7. Found at both ends: lineIds ["1", "2", "3", "3X", "5", "25"]. Lines 6 and 7 are only at Savidor and keep running.
 - A stretch named by a station and a direction ("בין חיפה מרכז לכיוון הצפון") runs to the end of each line in that direction, and the lines fan out: give one suspension per branch, each with its own far end and lineIds. North of Haifa Center (2100) that is the Nahariya branch (to 1600: lines 1, 3), the Karmiel branch (to 1840: lines 3X, 4) and the Valley branch (to 1280: line 11).
 - Worked example. "תופסק תנועת הרכבות בין חיפה מרכז לכיוון הצפון … הרכבות יתחילו ויסיימו את נסיעתן בתחנת חיפה מרכז השמונה. תחנות סגורות לשירות: נהריה, עכו, קריית מוצקין, קריית חיים, חוצות המפרץ, מרכזית המפרץ, כרמיאל, אחיהוד, וקו העמק" yields three suspensions, all with the same windows, reason and alternatives: 2100→1600 with lineIds ["1", "3"]; 2100→1840 with lineIds ["3X", "4"]; 2100→1280 with lineIds ["11"]. The closed stations all lie on those stretches, so no skippedStops entry is needed.
 

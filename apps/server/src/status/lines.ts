@@ -11,6 +11,8 @@
  * `stationIds` is the full ordered corridor of the line (every station any of
  * its trains calls at), as the app's canonical "3700"-style ids, so a trip that
  * carries an unknown train number can still be matched by its stop sequence.
+ * The stations a line runs through without calling (an express line's Netanya)
+ * are in through-stations.ts, generated from the map; `corridorOf` merges both.
  * The app keeps a display copy of this catalogue in
  * apps/mobile/src/data/rail-lines.ts (ids, badges and colours must stay in sync).
  *
@@ -21,6 +23,8 @@
  *
  * Generated from the Line Explorer export — regenerate rather than hand-edit.
  */
+
+import { THROUGH_STATIONS } from "./through-stations"
 
 export type RailLineId = "1" | "2" | "3" | "3X" | "4" | "5" | "25" | "6" | "7" | "12" | "9" | "10" | "11" | "8"
 
@@ -356,3 +360,26 @@ export const RAIL_LINES: RailLineDefinition[] = [
 ]
 
 export const railLineById: ReadonlyMap<RailLineId, RailLineDefinition> = new Map(RAIL_LINES.map((line) => [line.id, line]))
+
+/** One station of a line's track: called at, or run through without stopping. */
+export type CorridorStop = { stationId: string; calls: boolean }
+
+const corridors = new Map<RailLineId, CorridorStop[]>()
+
+/**
+ * The line's whole track in order: every station its trains call at, and between them the
+ * stations they run through without stopping. A suspended stretch cuts a line when both its
+ * ends are on this corridor, whether or not the line calls there.
+ */
+export const corridorOf = (line: RailLineDefinition): CorridorStop[] => {
+  let corridor = corridors.get(line.id)
+  if (corridor) return corridor
+  corridor = []
+  for (const stationId of line.stationIds) {
+    corridor.push({ stationId, calls: true })
+    for (const through of THROUGH_STATIONS[line.id])
+      if (through.after === stationId) corridor.push({ stationId: through.stationId, calls: false })
+  }
+  corridors.set(line.id, corridor)
+  return corridor
+}

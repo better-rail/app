@@ -11,7 +11,8 @@ import {
 } from "../service-status/extraction"
 import { fingerprintOf, pollAnnouncements } from "../service-status/announcements"
 import type { AnnouncementsState } from "../service-status/state"
-import { RAIL_LINES, railLineById } from "../status/lines"
+import { RAIL_LINES, corridorOf, railLineById } from "../status/lines"
+import { THROUGH_STATIONS } from "../status/through-stations"
 import { deriveServiceStatus } from "../status/service-status"
 import { parseOffsetSec, toEpochMs } from "../utils/gtfs-time"
 
@@ -85,6 +86,73 @@ describe("normalizeExtraction", () => {
     )
     expect(d).toMatchObject({ kind: "skippedStops", stationIds: ["1600", "1500"] })
     expect(d.link).toBeUndefined()
+  })
+})
+
+describe("corridorOf", () => {
+  test("the through stations sit between the line's calling stations, and are not calling stations", () => {
+    for (const line of RAIL_LINES) {
+      const calling = new Set(line.stationIds)
+      for (const through of THROUGH_STATIONS[line.id]) {
+        expect(calling.has(through.after)).toBe(true)
+        expect(calling.has(through.stationId)).toBe(false)
+      }
+      const corridor = corridorOf(line)
+      expect(corridor.filter((stop) => stop.calls).map((stop) => stop.stationId)).toEqual(line.stationIds)
+      expect(corridor).toHaveLength(line.stationIds.length + THROUGH_STATIONS[line.id].length)
+    }
+  })
+
+  test("an express line runs through the coastal stations it does not call at", () => {
+    // Line 3 (Nahariya – Be'er Sheva) calls at Binyamina and then Herzliya, passing Netanya on the way.
+    const ids = corridorOf(railLineById.get("3")!).map((stop) => `${stop.stationId}${stop.calls ? "" : "*"}`)
+    expect(ids.slice(ids.indexOf("2800"), ids.indexOf("3500") + 1)).toEqual([
+      "2800",
+      "2820*",
+      "3100*",
+      "3300*",
+      "3310*",
+      "3400*",
+      "3500",
+    ])
+    // Line 2 (Binyamina – Ashkelon) calls everywhere on its track.
+    expect(corridorOf(railLineById.get("2")!).every((stop) => stop.calls)).toBe(true)
+  })
+})
+
+describe("a suspension on a track an express line runs through", () => {
+  // Netanya – Tel Aviv Savidor: lines 1, 2, 5 and 25 call at both; lines 3 and 3X run through Netanya.
+  const netanya = extracted({ fromStationId: "3300", toStationId: "3700", lineIds: ["1", "2", "5", "25", "3", "3X", "6", "7"] })
+  const [announced] = normalizeExtraction({ disruptions: [netanya] }, NOW)
+
+  test("counts for the express lines too, and not for lines found at one end only", () => {
+    expect(announced.lineIds).toEqual(["1", "2", "3", "3X", "5", "25"])
+  })
+
+  test("takes the express line out from its last call before the closed track", () => {
+    const [d] = announcedDisruptionsForLine(railLineById.get("3")!, [announced], NOW)
+    expect(d).toMatchObject({
+      level: "partSuspended",
+      section: { fromStationId: "2800", toStationId: "3700", stationIds: ["2800", "3500", "3600", "3700"] },
+    })
+    const [d1] = announcedDisruptionsForLine(railLineById.get("1")!, [announced], NOW)
+    expect(d1.section).toMatchObject({
+      fromStationId: "3300",
+      toStationId: "3700",
+      stationIds: ["3300", "3400", "3500", "3600", "3700"],
+    })
+    expect(announcedDisruptionsForLine(railLineById.get("6")!, [announced], NOW)).toEqual([])
+  })
+
+  test("a stretch between two run-through stations still places the express line", () => {
+    // Netanya – Bet Yehoshu'a: line 3 calls at neither, but its trains run that track.
+    const [inner] = normalizeExtraction(
+      { disruptions: [extracted({ fromStationId: "3300", toStationId: "3400", lineIds: ["3"] })] },
+      NOW,
+    )
+    expect(inner.lineIds).toEqual(["3"])
+    const [d] = announcedDisruptionsForLine(railLineById.get("3")!, [inner], NOW)
+    expect(d.section?.stationIds).toEqual(["2800", "3500"])
   })
 })
 

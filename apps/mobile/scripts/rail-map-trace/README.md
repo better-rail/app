@@ -34,3 +34,15 @@ bunx oxfmt ../mobile/scripts/rail-map-trace/station-patterns.json
 ```
 
 Regenerate it when the timetable changes, then rerun `gen_layout.py`.
+
+The stations a line runs through without calling (the express lines' Netanya,
+Kfar Habad, Be'er Ya'akov …) are read off the traced geometry, where lines that
+share a track are drawn as neighbouring strands, and written to the server's
+catalogue for the service-status extraction:
+
+```sh
+cd apps/server && bun run ../mobile/scripts/rail-map-trace/through-stations.ts
+bunx oxfmt src/status/through-stations.ts
+```
+
+Regenerate it after retracing the map or changing the line catalogue.
