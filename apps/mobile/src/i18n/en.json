@@ -368,6 +368,9 @@
     "otherLines": "Other lines",
     "allLines": "All lines",
     "lineDetails": "Line details",
+    "allLinesGood": "Good service on all lines",
+    "lineStations": "Stations",
+    "someTrainsSkip": "Some trains don't stop here",
     "noServiceNow": "No trains are scheduled right now",
     "levels": {
       "goodService": "Good service",

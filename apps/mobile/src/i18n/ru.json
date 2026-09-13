@@ -286,6 +286,9 @@
     "otherLines": "Остальные линии",
     "allLines": "Все линии",
     "lineDetails": "Сведения о линии",
+    "allLinesGood": "Все линии работают в штатном режиме",
+    "lineStations": "Станции",
+    "someTrainsSkip": "Некоторые поезда здесь не останавливаются",
     "noServiceNow": "Сейчас поезда не запланированы",
     "levels": {
       "goodService": "Движение в норме",

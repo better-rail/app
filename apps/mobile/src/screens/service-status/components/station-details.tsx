@@ -185,17 +185,12 @@ function Section({
   )
 }
 
-/** A notice from the station's page: what it says, when it was posted, and its link. */
+/** A notice from the station's page. Its date is left off: the page keeps it from the notice's first posting, long stale. */
 function NoticeCard({ notice }: { notice: StationNotice }) {
   return (
     <View style={styles.card} testID={`station-notice-${notice.id}`}>
       {notice.header !== "" && <Text style={styles.noticeHeader}>{notice.header}</Text>}
       {notice.content !== "" && <Text style={styles.noticeContent}>{notice.content}</Text>}
-      {notice.date && (
-        <Text style={styles.noticeDate} preset="small">
-          {notice.date}
-        </Text>
-      )}
     </View>
   )
 }
@@ -278,9 +273,6 @@ const styles = StyleSheet.create((theme) => ({
   },
   noticeContent: {
     fontSize: 15,
-    color: theme.colors.label,
-  },
-  noticeDate: {
     color: theme.colors.label,
   },
   infoRow: {

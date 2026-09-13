@@ -282,6 +282,9 @@
     "otherLines": "باقي الخطوط",
     "allLines": "كل الخطوط",
     "lineDetails": "تفاصيل الخط",
+    "allLinesGood": "خدمة منتظمة على جميع الخطوط",
+    "lineStations": "المحطات",
+    "someTrainsSkip": "بعض القطارات لا تتوقف هنا",
     "noServiceNow": "لا توجد قطارات مجدولة الآن",
     "levels": {
       "goodService": "الخدمة منتظمة",

@@ -104,9 +104,9 @@ export function ServiceStatusScreen() {
     showCard({ kind: "line", id: next })
   }
 
-  const selectStation = (next: string) => {
+  const selectStation = (next: string, source: "map" | "line") => {
     HapticFeedback.trigger("impactLight")
-    trackEvent("service_status_station_pressed", { stationId: next, source: "map" })
+    trackEvent("service_status_station_pressed", { stationId: next, source })
     // A station no line calls at on the map shown is shown on the first of the day's maps one does.
     if (linesCallingAt(next, dayType).length === 0) {
       const servedOn = DAY_TYPES.find((type) => linesCallingAt(next, type).length > 0)
@@ -148,7 +148,7 @@ export function ServiceStatusScreen() {
         onSelectLine={(next) => selectLine(next, "map")}
         selectedStationId={mapStationId}
         focusStationId={mapStationId}
-        onSelectStation={selectStation}
+        onSelectStation={(next) => selectStation(next, "map")}
         insets={{ top: headerHeight, bottom: sheetTop === undefined ? 0 : Math.max(0, windowHeight - sheetTop) }}
         style={styles.map}
       />
@@ -171,6 +171,7 @@ export function ServiceStatusScreen() {
         onClose={closeCard}
         onDismissed={onCardDismissed}
         onSelectLine={(next) => selectLine(next, "station")}
+        onSelectStation={(next) => selectStation(next, "line")}
         onGoNow={goNow}
       />
       <LegendSheet />

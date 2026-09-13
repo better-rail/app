@@ -370,6 +370,9 @@
     "otherLines": "שאר הקווים",
     "allLines": "כל הקווים",
     "lineDetails": "פרטי הקו",
+    "allLinesGood": "שירות תקין בכל הקווים",
+    "lineStations": "תחנות",
+    "someTrainsSkip": "חלק מהרכבות אינן עוצרות כאן",
     "noServiceNow": "אין רכבות מתוכננות כרגע",
     "levels": {
       "goodService": "שירות תקין",

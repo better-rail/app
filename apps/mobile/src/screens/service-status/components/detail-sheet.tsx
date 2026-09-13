@@ -37,6 +37,8 @@ type DetailSheetProps = {
   onDismissed: () => void
   /** A line picked from a station's card. */
   onSelectLine: (lineId: string) => void
+  /** A station picked from a line's card. */
+  onSelectStation: (stationId: string) => void
   /** "Go now" on a station's card. */
   onGoNow: (stationId: string) => void
 }
@@ -46,7 +48,15 @@ type DetailSheetProps = {
  * the list waits behind it, tucked down to its header. It cannot be swiped away, only closed from
  * its button.
  */
-export function DetailSheet({ selection, dayType, onClose, onDismissed, onSelectLine, onGoNow }: DetailSheetProps) {
+export function DetailSheet({
+  selection,
+  dayType,
+  onClose,
+  onDismissed,
+  onSelectLine,
+  onSelectStation,
+  onGoNow,
+}: DetailSheetProps) {
   const scroll = useRef<ScrollView>(null)
   const scheme = useColorScheme()
   const [shown, setShown] = useState(selection)
@@ -101,7 +111,7 @@ export function DetailSheet({ selection, dayType, onClose, onDismissed, onSelect
       testID="detail-sheet"
     >
       <ScrollView ref={scroll} style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {shown?.kind === "line" && <LineDetails lineId={shown.id} />}
+        {shown?.kind === "line" && <LineDetails lineId={shown.id} dayType={dayType} onSelectStation={onSelectStation} />}
         {shown?.kind === "station" && (
           <StationDetails
             stationId={shown.id}

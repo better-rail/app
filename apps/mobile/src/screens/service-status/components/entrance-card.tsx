@@ -2,10 +2,15 @@ import { View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
 import { translate, type TxKeyPath } from "@/i18n"
-import type { StationEntrance, StationHours, StationHoursKind } from "@/services/api"
-import { dayRangeLabel, entranceOpenBadge, hoursOfKind, type OpenBadge, type WallClock } from "../station-hours"
-
-const KINDS: StationHoursKind[] = ["entrance", "ticketOffice", "customerService"]
+import type { StationEntrance, StationHours } from "@/services/api"
+import {
+  dayRangeLabel,
+  entranceOpenBadge,
+  hoursOfKind,
+  type OpenBadge,
+  stationOpenState,
+  type WallClock,
+} from "../station-hours"
 
 type EntranceCardProps = {
   entrance: StationEntrance
@@ -15,41 +20,44 @@ type EntranceCardProps = {
   clock: WallClock
 }
 
-/** One entrance of the station: its hours (and the ticket office's and the desk's), and what is there. */
+/**
+ * One entrance of the station: whether it is open and until when, the gates' hours with today's row
+ * picked out, so a "Closed" on another day's row does not read as now, and what is there. The ticket
+ * office's and the customer-service desk's hours are left off.
+ */
 export function EntranceCard({ entrance, dayName, clock }: EntranceCardProps) {
-  const kinds = KINDS.map((kind) => ({ kind, rows: hoursOfKind(entrance, kind) })).filter(({ rows }) => rows.length > 0)
+  const rows = hoursOfKind(entrance, "entrance")
   const badge = entranceOpenBadge(entrance, clock)
+  const badgeText = badge ? openBadgeText(badge, entrance, clock, dayName) : ""
 
   return (
     <View style={styles.card} testID={`station-entrance-${entrance.id}`}>
       <View style={styles.header}>
         <Text style={styles.name}>{entrance.name}</Text>
-        {badge && <OpenBadgeLabel badge={badge} />}
+        {badge && <OpenBadgeLabel badge={badge} text={badgeText} />}
       </View>
       {entrance.address && entrance.address !== entrance.name && (
         <Text style={styles.address} preset="small">
           {entrance.address}
         </Text>
       )}
-      {kinds.map(({ kind, rows }) => (
-        <View key={kind} style={styles.hoursRow}>
-          <Text style={styles.kind} preset="small">
-            {translate(`serviceStatus.station.${kind === "entrance" ? "entranceHours" : kind}`)}
-          </Text>
-          <View style={styles.hours}>
-            {rows.map((row, index) => (
+      {rows.length > 0 && (
+        <View style={styles.hours}>
+          {rows.map((row, index) => {
+            const today = row.days.includes(clock.day)
+            return (
               <View key={index} style={styles.hoursLine}>
-                <Text style={styles.days} preset="small">
+                <Text style={[styles.days, !today && styles.otherDay, today && styles.today]} preset="small">
                   {dayRangeLabel(row.days, dayName)}
                 </Text>
-                <Text style={[styles.time, row.closed && styles.timeClosed]} preset="small">
+                <Text style={[styles.time, !today && styles.otherDay, today && styles.today]} preset="small">
                   {hoursLabel(row)}
                 </Text>
               </View>
-            ))}
-          </View>
+            )
+          })}
         </View>
-      ))}
+      )}
       {entrance.inactiveElevators && (
         <Text style={styles.elevators} preset="small">
           {translate("serviceStatus.station.elevatorsOut")}: {entrance.inactiveElevators}
@@ -70,13 +78,13 @@ export function EntranceCard({ entrance, dayName, clock }: EntranceCardProps) {
   )
 }
 
-/** Open (green), closing soon (orange) or closed (red), as a dot and a word. */
-function OpenBadgeLabel({ badge }: { badge: OpenBadge }) {
+/** Open (green), closing soon (orange) or closed (red), as a dot and a few words. */
+function OpenBadgeLabel({ badge, text }: { badge: OpenBadge; text: string }) {
   return (
     <View style={styles.badge} testID={`station-entrance-badge-${badge}`}>
       <View style={[styles.badgeDot, styles[`${badge}Dot`]]} />
       <Text style={[styles.badgeText, styles[`${badge}Text`]]} preset="small" numberOfLines={1} maxFontSizeMultiplier={1.3}>
-        {translate(BADGE_KEY[badge])}
+        {text}
       </Text>
     </View>
   )
@@ -87,6 +95,24 @@ const BADGE_KEY = {
   closingSoon: "serviceStatus.station.closingSoon",
   closed: "serviceStatus.station.closedNow",
 } as const satisfies Record<OpenBadge, TxKeyPath>
+
+/** "Open until 22:30", "Closing soon", "Closed · opens at 05:00", or the badge's word alone. */
+const openBadgeText = (badge: OpenBadge, entrance: StationEntrance, clock: WallClock, dayName: (day: number) => string): string => {
+  const word = translate(BADGE_KEY[badge]) ?? ""
+  const state = stationOpenState([entrance], clock)
+  if (badge === "open" && state.state === "open" && state.until) {
+    return `${translate("serviceStatus.station.open")} ${translate("serviceStatus.station.until", { time: state.until })}`
+  }
+  if (badge === "closed" && state.state === "closed" && state.opensAt) {
+    const { day, time } = state.opensAt
+    const opens =
+      day === clock.day
+        ? translate("serviceStatus.station.opensAt", { time })
+        : translate("serviceStatus.station.opensOn", { day: dayName(day), time })
+    return `${word} · ${opens}`
+  }
+  return word
+}
 
 /** "05:00–22:30" (kept left-to-right in a right-to-left sentence), "24 hours", or "Closed", with the page's note. */
 export const hoursLabel = (row: StationHours): string => {
@@ -140,18 +166,7 @@ const styles = StyleSheet.create((theme) => ({
     marginTop: -theme.spacing[2],
     color: theme.colors.label,
   },
-  hoursRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: theme.spacing[3],
-  },
-  kind: {
-    width: 96,
-    fontWeight: "600",
-    color: theme.colors.label,
-  },
   hours: {
-    flex: 1,
     gap: 2,
   },
   hoursLine: {
@@ -166,8 +181,11 @@ const styles = StyleSheet.create((theme) => ({
     fontVariant: ["tabular-nums"],
     textAlign: "right",
   },
-  timeClosed: {
+  otherDay: {
     color: theme.colors.label,
+  },
+  today: {
+    fontWeight: "700",
   },
   elevators: {
     color: theme.colors.error,
