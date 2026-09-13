@@ -1,7 +1,8 @@
 import { Request, Response } from "express"
 
 import { logNames, logger } from "../logs"
-import { railApiFetch } from "../requests/rail-api"
+import { RailTimetableSearch, railApiFetch } from "../requests/rail-api"
+import { searchViaOnRailApi } from "../requests/rail-via"
 
 /**
  * `/rail-api/*` served by proxying the Israel Railways API, the way the server
@@ -88,4 +89,33 @@ const railProxy = async (req: Request, res: Response) => {
   }
 }
 
-export { railProxy, proxySearchTrainRequest }
+type ViaSearch = { search: RailTimetableSearch; viaStation: number }
+
+// The app's change-station search. Proxying it would drop `viaStation` and return the
+// unchanged journey, so it's built from two searches instead (requests/rail-via.ts).
+const toViaSearch = (body: any): ViaSearch | undefined => {
+  const viaStation = Number(body?.viaStation)
+  if (!(viaStation > 0)) return undefined
+
+  return {
+    viaStation,
+    search: {
+      fromStation: Number(body.fromStation),
+      toStation: Number(body.toStation),
+      date: String(body.date),
+      hour: String(body.hour),
+      scheduleType: body.scheduleType === "ByArrival" ? "ByArrival" : "ByDeparture",
+      languageId: String(body.languageId ?? "Hebrew"),
+    },
+  }
+}
+
+const proxyViaSearch = async (res: Response, { search, viaStation }: ViaSearch) => {
+  try {
+    res.status(200).json(await searchViaOnRailApi(search, viaStation))
+  } catch (error: any) {
+    failed(res, error)
+  }
+}
+
+export { railProxy, proxySearchTrainRequest, proxyViaSearch, toViaSearch }

@@ -4,7 +4,7 @@ export type RailApiGetRoutesResult = {
   }
 }
 
-type RailApiRouteItem = {
+export type RailApiRouteItem = {
   departureTime: string
   arrivalTime: string
   freeSeats: number
