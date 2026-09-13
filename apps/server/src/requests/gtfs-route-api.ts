@@ -62,7 +62,10 @@ const MAX_CONNECTION_MS = 70 * 60 * 1000
  * The ceiling is a single value too. Treating a roomier one as a fallback only
  * made journeys slower for no gain.
  */
-type ConnectionLimits = { minAt: (railId: number, onTheSameFace: boolean) => number; maxMs: number }
+type ConnectionLimits = {
+  minAt: (railId: number, onTheSameFace: boolean) => number
+  maxMs: number
+}
 const CONNECTION_LIMITS: ConnectionLimits = {
   minAt: (_railId, onTheSameFace) => (onTheSameFace ? MIN_CONNECTION_SAME_PLATFORM_MS : MIN_CONNECTION_MS),
   maxMs: MAX_CONNECTION_MS,
@@ -88,6 +91,20 @@ const WASTED_TIME_MS = 10 * 60 * 1000
 // of Ashdod also leaves the corridor, but costs two minutes — and a quieter train
 // is a reason to take it, so it stays.
 const DETOUR_WASTED_TIME_MS = 5 * 60 * 1000
+// How far apart two departures can be and still be one departure to a rider
+// planning the trip. Within it a journey is also measured against what leaves
+// just before it (see nearMissed).
+const SAME_DEPARTURE_MS = 5 * 60 * 1000
+// How far off the direct line a change has to sit before the journey is going the
+// wrong way rather than taking a different way. Measured as an angle at the end it
+// doubles back over, which makes it a question of direction alone: whether the
+// first train carries the rider back the way they came, or past where they were
+// going. Distance cannot answer that on its own, because how far a change sits
+// from the destination says nothing about which way the rider had to travel to
+// reach it. Going by way of a hub is not this, at any distance — Lod to Ashdod
+// through Tel Aviv HaHagana turns 96 degrees, and people make that trip on
+// purpose; riding north out of Atlit for a train to Tel Aviv turns 177.
+const WRONG_WAY_DEGREES = 150
 // An itinerary this much longer than the best way to make the same trip has
 // stopped being a slower option and become a wrong answer: riding one stop up the
 // line to sit 34 minutes and catch the train that would have collected you anyway,
@@ -184,6 +201,8 @@ export type PlanOptions = {
   // Drop a direct train that a faster direct train (departing later, arriving
   // earlier) shadows. Off by default; set by the app's "hide slow trains" toggle.
   hideSlowTrains?: boolean
+  // Route every journey through this station
+  viaStation?: number
 }
 
 export type Leg = { tripKey: string; boardIndex: number; alightIndex: number }
@@ -213,6 +232,30 @@ const kmBetween = (a: number, b: number): number | null => {
     Math.cos((to.lat - from.lat) * rad) / 2 +
     (Math.cos(from.lat * rad) * Math.cos(to.lat * rad) * (1 - Math.cos((to.lon - from.lon) * rad))) / 2
   return 12742 * Math.asin(Math.sqrt(h))
+}
+
+/**
+ * The angle at `vertex` between the direction to `a` and the direction to `b`, in
+ * degrees (0 = the same way, 180 = straight back). Null when any of the three is
+ * unknown to the geo data. Longitude is scaled by the latitude so the two axes
+ * are in the same units; over a country this size that is exact enough to tell
+ * "the way I am going" from "the way I came".
+ */
+const angleAt = (vertex: number, a: number, b: number): number | null => {
+  const o = coords.get(vertex)
+  const pa = coords.get(a)
+  const pb = coords.get(b)
+  if (!o || !pa || !pb) return null
+  const rad = Math.PI / 180
+  const scale = Math.cos(o.lat * rad)
+  const ax = (pa.lon - o.lon) * scale
+  const ay = pa.lat - o.lat
+  const bx = (pb.lon - o.lon) * scale
+  const by = pb.lat - o.lat
+  const na = Math.hypot(ax, ay)
+  const nb = Math.hypot(bx, by)
+  if (na === 0 || nb === 0) return null
+  return Math.acos(Math.max(-1, Math.min(1, (ax * bx + ay * by) / (na * nb)))) / rad
 }
 
 const toPlatform = (platformCode: string | null): number => {
@@ -267,7 +310,12 @@ const fetchDayTrips = async (feedId: string, serviceDate: string): Promise<DayTr
     const tripKey = `${serviceDate}#${row.trip_id}`
     let trip = trips.get(tripKey)
     if (!trip) {
-      trip = { tripKey, trainNumber: row.train_number, routeId: row.route_id, stops: [] }
+      trip = {
+        tripKey,
+        trainNumber: row.train_number,
+        routeId: row.route_id,
+        stops: [],
+      }
       trips.set(tripKey, trip)
     }
     trip.stops.push({
@@ -414,7 +462,10 @@ const completeJourney = (
     const s = firstTrip.stops[j]
     const cur = first.get(s.railId)
     if (!cur || s.arrTs < cur.arr) {
-      first.set(s.railId, { arr: s.arrTs, leg: { tripKey: firstTrip.tripKey, boardIndex, alightIndex: j } })
+      first.set(s.railId, {
+        arr: s.arrTs,
+        leg: { tripKey: firstTrip.tripKey, boardIndex, alightIndex: j },
+      })
     }
   }
   rounds.push(first)
@@ -456,7 +507,14 @@ const completeJourney = (
         const s = trip.stops[j]
         const existing = current.get(s.railId)
         if (!existing || s.arrTs < existing.arr) {
-          current.set(s.railId, { arr: s.arrTs, leg: { tripKey: trip.tripKey, boardIndex: call.index, alightIndex: j } })
+          current.set(s.railId, {
+            arr: s.arrTs,
+            leg: {
+              tripKey: trip.tripKey,
+              boardIndex: call.index,
+              alightIndex: j,
+            },
+          })
         }
       }
     }
@@ -551,7 +609,13 @@ const optimizeTransfers = (allTrips: DayTrips, legs: Leg[], limits: ConnectionLi
       if (p2 === undefined) continue
       const window = displayTs(f2.stops[p2]) - f1.stops[p1].arrTs
       if (window < limits.minAt(st, stayingPut(f1.stops[p1], f2.stops[p2])) || window > limits.maxMs) continue
-      const cand = { station: st, window, transferTime: f1.stops[p1].arrTs, p1, p2 }
+      const cand = {
+        station: st,
+        window,
+        transferTime: f1.stops[p1].arrTs,
+        p1,
+        p2,
+      }
       if (best === null || isBetterTransfer(cand, best)) best = cand
     }
 
@@ -633,6 +697,71 @@ const buildTrain = (allTrips: DayTrips, leg: Leg, realtime: RealtimeLookup): Tra
 // epoch ms (already anchored at UTC midnight + offset) -> naive wall-clock ISO
 const localIsoFromTs = (ts: number): string => new Date(ts).toISOString().slice(0, 19)
 
+// Origin -> via, each completed with the earliest onward journey via -> destination.
+// A train running straight through the via station stays one leg.
+const planVia = (
+  allTrips: DayTrips,
+  fromStation: number,
+  viaStation: number,
+  toStation: number,
+  queryTs: number,
+  endTs: number,
+  options: PlanOptions,
+): Leg[][] => {
+  const toVia = planLegs(allTrips, fromStation, viaStation, queryTs, endTs, options)
+  if (toVia.length === 0) return []
+  // Onward journeys may run past midnight
+  const onward = planLegs(allTrips, viaStation, toStation, queryTs, Infinity, options)
+  if (onward.length === 0) return []
+
+  type Candidate = { legs: Leg[]; depTs: number; arrTs: number }
+  const candidates: Candidate[] = []
+  const seen = new Set<string>()
+  for (const first of toVia) {
+    const last = first[first.length - 1]
+    const lastTrip = allTrips.get(last.tripKey)!
+    const off = lastTrip.stops[last.alightIndex]
+    const arrAtVia = off.arrTs
+
+    let best: Leg[] | null = null
+    let bestArr = Infinity
+    for (const next of onward) {
+      const board = allTrips.get(next[0].tripKey)!.stops[next[0].boardIndex]
+      const stayingAboard = next[0].tripKey === last.tripKey && next[0].boardIndex === last.alightIndex
+      if (!stayingAboard && displayTs(board) < arrAtVia + CONNECTION_LIMITS.minAt(viaStation, stayingPut(off, board))) continue
+      const arr = journeyArrivalTs(allTrips, next)
+      if (arr < bestArr) {
+        bestArr = arr
+        best = next
+      }
+    }
+    if (!best) continue
+
+    const legs =
+      best[0].tripKey === last.tripKey
+        ? [...first.slice(0, -1), { ...last, alightIndex: best[0].alightIndex }, ...best.slice(1)]
+        : [...first, ...best]
+    const boardAt = allTrips.get(legs[0].tripKey)!.stops[legs[0].boardIndex]
+    const key = legs.map((l) => allTrips.get(l.tripKey)!.trainNumber).join("-") + "@" + displayTs(boardAt)
+    if (seen.has(key)) continue
+    seen.add(key)
+    candidates.push({ legs, depTs: displayTs(boardAt), arrTs: bestArr })
+  }
+
+  // Same arrival: keep the one leaving latest
+  const bestByArrival = new Map<number, Candidate>()
+  for (const c of candidates) {
+    const held = bestByArrival.get(c.arrTs)
+    if (!held || c.depTs > held.depTs || (c.depTs === held.depTs && c.legs.length < held.legs.length)) {
+      bestByArrival.set(c.arrTs, c)
+    }
+  }
+  return [...bestByArrival.values()]
+    .sort((a, b) => a.depTs - b.depTs || a.arrTs - b.arrTs)
+    .slice(0, MAX_RESULTS)
+    .map((c) => c.legs)
+}
+
 /**
  * Pure planner: the itineraries for origin->destination from queryTs, over an
  * already-loaded trip table, as legs over that table. Lists trains by departure
@@ -648,6 +777,10 @@ export const planLegs = (
   endTs: number = Infinity,
   options: PlanOptions = {},
 ): Leg[][] => {
+  const { viaStation, ...rest } = options
+  if (viaStation !== undefined && viaStation !== fromStation && viaStation !== toStation) {
+    return planVia(allTrips, fromStation, viaStation, toStation, queryTs, endTs, rest)
+  }
   // Candidate first trains: those boardable at the origin within [queryTs, endTs].
   // endTs bounds the response to the requested day so it doesn't bleed into the
   // next one (which the client loads as a separate page) — but it is *inclusive*
@@ -674,7 +807,11 @@ export const planLegs = (
   }
   const firstTrains = [...originCalls.values()]
     .sort((a, b) => a.depTs - b.depTs || a.ord - b.ord)
-    .map((call) => ({ tripKey: call.trip.tripKey, boardIndex: call.index, depTs: call.depTs }))
+    .map((call) => ({
+      tripKey: call.trip.tripKey,
+      boardIndex: call.index,
+      depTs: call.depTs,
+    }))
 
   type Candidate = { legs: Leg[]; depTs: number; arrTs: number }
   let candidates: Candidate[] = []
@@ -724,7 +861,13 @@ export const planLegs = (
     const directAlight = trip.stops.findIndex((s, idx) => idx > ft.boardIndex && s.railId === toStation)
     if (directAlight > ft.boardIndex) {
       itineraries.push({
-        legs: [{ tripKey: ft.tripKey, boardIndex: ft.boardIndex, alightIndex: directAlight }],
+        legs: [
+          {
+            tripKey: ft.tripKey,
+            boardIndex: ft.boardIndex,
+            alightIndex: directAlight,
+          },
+        ],
         arrTs: trip.stops[directAlight].arrTs,
       })
       // Riding a direct train to the end isn't always the best use of it: some take
@@ -781,6 +924,98 @@ export const planLegs = (
 
   const changesOf = (c: Candidate) => c.legs.length - 1
 
+  // A change only makes sense at a station between where you start and where you
+  // are going. Two ways it can fall outside that: farther from the destination
+  // than the origin is, which means riding backwards (Hadera-West to Tel Aviv by
+  // way of Binyamina); or farther from the origin than the destination is, which
+  // means riding straight past your stop to double back (Tel Aviv HaHagana to
+  // Kfar Habad by way of Lod-Gane Aviv, eight minutes beyond it on the same
+  // line). Straight-line distance settles both — the question is only where the
+  // station sits, not how the track runs.
+  //
+  // Sometimes going out of the way is the only way, so this only applies when
+  // another journey already covers the same trip. A change genuinely between the
+  // two ends is never touched: Netivot to Herzliya through Tel Aviv is nearer
+  // Herzliya than Netivot is and nearer Netivot than Herzliya is.
+  const endToEnd = kmBetween(fromStation, toStation)
+  const detours = new Map<Candidate, boolean>() // a pure property of the itinerary; settle it once
+  const leavesTheCorridor = (c: Candidate): boolean => {
+    let detour = detours.get(c)
+    if (detour === undefined) {
+      detour =
+        endToEnd !== null &&
+        c.legs.slice(0, -1).some((leg) => {
+          const changeAt = allTrips.get(leg.tripKey)!.stops[leg.alightIndex].railId
+          const toDestination = kmBetween(changeAt, toStation)
+          const fromOrigin = kmBetween(fromStation, changeAt)
+          return (toDestination !== null && toDestination > endToEnd) || (fromOrigin !== null && fromOrigin > endToEnd)
+        })
+      detours.set(c, detour)
+    }
+    return detour
+  }
+
+  // A change that starts the journey in the wrong direction: back past the origin,
+  // or out beyond the destination. One test at each end, and either is enough —
+  // Ashkelon to Netanya by way of Binyamina never turns back on itself at
+  // Ashkelon, it simply runs 40 km past Netanya to come back down.
+  const wrongWay = new Map<Candidate, boolean>() // a pure property of the itinerary; settle it once
+  const ridesTheWrongWay = (c: Candidate): boolean => {
+    let wrong = wrongWay.get(c)
+    if (wrong === undefined) {
+      wrong = c.legs.slice(0, -1).some((leg) => {
+        const changeAt = allTrips.get(leg.tripKey)!.stops[leg.alightIndex].railId
+        const behindTheOrigin = angleAt(fromStation, changeAt, toStation)
+        const beyondTheDestination = angleAt(toStation, changeAt, fromStation)
+        return (
+          (behindTheOrigin !== null && behindTheOrigin >= WRONG_WAY_DEGREES) ||
+          (beyondTheDestination !== null && beyondTheDestination >= WRONG_WAY_DEGREES)
+        )
+      })
+      wrongWay.set(c, wrong)
+    }
+    return wrong
+  }
+
+  // What one journey gives back against another, counted across both ends of the
+  // trip: the difference in when they leave alongside the difference in when they
+  // land — which is the difference in how long they take.
+  const givesBack = (c: Candidate, other: Candidate) => c.arrTs - c.depTs - (other.arrTs - other.depTs)
+  const wastedTimeFor = (c: Candidate) => (leavesTheCorridor(c) ? DETOUR_WASTED_TIME_MS : WASTED_TIME_MS)
+
+  // Two departures this close are one departure to anyone planning a trip: nobody
+  // sets out for the 07:14 when there is a 07:13. So a journey that goes the wrong
+  // way round is also measured against what leaves just before it — on what it
+  // gives back over the whole trip, never on arrival alone, since the earlier
+  // start is a cost the rider pays. Atlit -> Tel Aviv HaShalom is the shape, every
+  // hour of the day: the 07:14 rides *north* to Hof HaCarmel to change onto a
+  // train that gets in at 08:34, a minute behind the direct that gets in at 08:04.
+  //
+  // Only journeys that set out the wrong way are judged like this, and that is the
+  // point of the rule rather than a detail of it. A slower route that runs the
+  // right way is a real alternative — it calls where the direct train does not, it
+  // goes by way of a hub with a seat and a fast train on the other side — and
+  // someone who reaches the platform a minute late is glad it is listed. Lod to
+  // Ashdod through Tel Aviv HaHagana is that trip, and people choose it. A journey
+  // that begins by going backwards offers none of it: it is slower *because* it is
+  // the wrong direction, and the minute it saves the rider buys nothing.
+  //
+  // Five minutes is the width of the window. Wider and the rule takes journeys
+  // that are the best there is for whoever arrives after the earlier train has
+  // gone. Atlit's own 16:22 shows why: nine minutes behind the 16:13 direct and
+  // half an hour slower, it still has anyone who missed the 16:13 in Tel Aviv
+  // before the 17:13 would. Hadera-West -> Tel Aviv University at 21:21 likewise:
+  // it changes at Binyamina and lands 22:03, well behind the 20:56 direct, but 25
+  // minutes after it is another departure altogether, and the next direct does
+  // not leave until 21:56.
+  const nearMissed = (c: Candidate, other: Candidate) =>
+    changesOf(c) > 0 &&
+    ridesTheWrongWay(c) &&
+    changesOf(other) <= changesOf(c) &&
+    other.depTs < c.depTs &&
+    other.depTs >= c.depTs - SAME_DEPARTURE_MS &&
+    givesBack(c, other) >= wastedTimeFor(c)
+
   // Default view: withhold nothing a rider could actually use. Someone on the
   // platform can only board what is still to come, so an option is not dropped merely
   // because something else is faster — not when a later train overtakes it by a
@@ -799,43 +1034,13 @@ export const planLegs = (
     // another one leaving no earlier, with no more changes, also arrives no later
     // — which makes this incapable of delaying anyone. Direct trains are never
     // dropped, however far round they go.
-    // A change only makes sense at a station between where you start and where you
-    // are going. Two ways it can fall outside that: farther from the destination
-    // than the origin is, which means riding backwards (Hadera-West to Tel Aviv by
-    // way of Binyamina); or farther from the origin than the destination is, which
-    // means riding straight past your stop to double back (Tel Aviv HaHagana to
-    // Kfar Habad by way of Lod-Gane Aviv, eight minutes beyond it on the same
-    // line). Straight-line distance settles both — the question is only where the
-    // station sits, not how the track runs.
-    //
-    // Sometimes going out of the way is the only way, so this only applies when
-    // another journey already covers the same trip. A change genuinely between the
-    // two ends is never touched: Netivot to Herzliya through Tel Aviv is nearer
-    // Herzliya than Netivot is and nearer Netivot than Herzliya is.
-    const endToEnd = kmBetween(fromStation, toStation)
-    const detours = new Map<Candidate, boolean>() // a pure property of the itinerary; settle it once
-    const leavesTheCorridor = (c: Candidate): boolean => {
-      let detour = detours.get(c)
-      if (detour === undefined) {
-        detour =
-          endToEnd !== null &&
-          c.legs.slice(0, -1).some((leg) => {
-            const changeAt = allTrips.get(leg.tripKey)!.stops[leg.alightIndex].railId
-            const toDestination = kmBetween(changeAt, toStation)
-            const fromOrigin = kmBetween(fromStation, changeAt)
-            return (toDestination !== null && toDestination > endToEnd) || (fromOrigin !== null && fromOrigin > endToEnd)
-          })
-        detours.set(c, detour)
-      }
-      return detour
-    }
 
     // Riding most of the country to make a short trip, and spending the night
     // doing it. Alone among the rules here this one needs nothing to compare
     // against, which is the whole point: where the timetable offers a single way
     // to make a trip, that way sets the standard and so excuses itself, however
     // absurd it is. Jerusalem -> Pa'ate Modi'in on a Saturday night was the only
-    // listing there was — out to the airport at 23:36, north to Ako, and back
+    // listing there was — out to the airport at 23:36, north to Akko, and back
     // down to Modi'in at 05:54, six and a quarter hours for half an hour's trip.
     //
     // Judged on the ground rather than on the timetable: the straight lines from
@@ -970,7 +1175,7 @@ export const planLegs = (
     // Finally, drop a journey that buys nothing at all: it lands on the same
     // minute as one with fewer changes that leaves no earlier, so taking it means
     // setting out sooner and changing more to arrive at the same moment. Kiryat
-    // Motzkin -> Tel Aviv University is the shape — riding out to Ako at 21:20 to
+    // Motzkin -> Tel Aviv University is the shape — riding out to Akko at 21:20 to
     // wait for train 135, which calls at Kiryat Motzkin at 22:04 and reaches the
     // university at 23:28 either way. Whoever could catch the dropped one can
     // catch the survivor, so this cannot delay anybody.
@@ -992,24 +1197,26 @@ export const planLegs = (
     //
     // Direct trains are exempt, and a journey is only ever measured against ones
     // with no more changes than itself, so a change-route can never displace a
-    // simpler one. Walk latest-departure first so everything already seen departs
-    // no earlier, and compare only against survivors, so nothing is dropped in
-    // favour of something itself dropped.
+    // simpler one. The survivor may also be the departure just before (see
+    // nearMissed). Either way it lands no later than what it beats, and landing
+    // with it, leaves later — so walk earliest-arrival first and everything that
+    // could beat a journey has already been seen. Compare only against survivors,
+    // so nothing is dropped in favour of something itself dropped.
     const beatenBy = (c: Candidate, other: Candidate) =>
-      changesOf(other) <= changesOf(c) &&
-      other.depTs >= c.depTs &&
-      other.arrTs <= c.arrTs &&
-      // Getting there meaningfully sooner settles it: a journey at :08 has nothing
-      // to offer while something at :15 leaves after it and still arrives first.
-      // Off-peak, when nothing follows, the :08 is the best there is and stays —
-      // which falls out of comparing each departure only against what actually
-      // departs after it.
-      (other.arrTs <= c.arrTs - CLEARLY_BETTER_MS ||
-        c.arrTs - c.depTs - (other.arrTs - other.depTs) >= (leavesTheCorridor(c) ? DETOUR_WASTED_TIME_MS : WASTED_TIME_MS))
+      nearMissed(c, other) ||
+      (changesOf(other) <= changesOf(c) &&
+        other.depTs >= c.depTs &&
+        other.arrTs <= c.arrTs &&
+        // Getting there meaningfully sooner settles it: a journey at :08 has nothing
+        // to offer while something at :15 leaves after it and still arrives first.
+        // Off-peak, when nothing follows, the :08 is the best there is and stays —
+        // which falls out of comparing each departure only against what actually
+        // departs after it.
+        (other.arrTs <= c.arrTs - CLEARLY_BETTER_MS || givesBack(c, other) >= wastedTimeFor(c)))
 
     const outclassed = new Set<Candidate>()
     const survivors: Candidate[] = []
-    for (const c of [...listed].sort((a, b) => b.depTs - a.depTs || a.arrTs - b.arrTs)) {
+    for (const c of [...listed].sort((a, b) => a.arrTs - b.arrTs || b.depTs - a.depTs)) {
       // Direct trains are exempt from all of it. Every one is a real train leaving
       // the origin for the destination, and a rider looking for one expects to see
       // it whatever else the timetable offers around it.
@@ -1115,8 +1322,16 @@ export const planLegs = (
     bestArrKept = Math.min(bestArrKept, c.arrTs)
   }
 
+  // The toggle hides more than the plain list, never less, so the departure just
+  // before a journey rules it out here too (nearMissed). Walked in departure
+  // order against what is already shown, so that departure has been settled
+  // first — and a journey is only ever dropped in favour of one that is listed.
   kept.sort((a, b) => a.depTs - b.depTs)
-  return kept.slice(0, MAX_RESULTS).map((c) => c.legs)
+  const shown: Candidate[] = []
+  for (const c of kept) {
+    if (!shown.some((other) => nearMissed(c, other))) shown.push(c)
+  }
+  return shown.slice(0, MAX_RESULTS).map((c) => c.legs)
 }
 
 type Travel = RailApiGetRoutesResult["result"]["travels"][number]
@@ -1188,12 +1403,16 @@ export const searchTrain = async (
 
   // The plan is a pure function of the feed, the day and the request, so it is
   // computed once and kept for as long as the feed is active.
-  const planKey = `${feed.feedId}#${date}#${fromStation}#${toStation}#${options.hideSlowTrains ? 1 : 0}`
+  const planKey = `${feed.feedId}#${date}#${fromStation}#${toStation}#${options.hideSlowTrains ? 1 : 0}#${options.viaStation ?? ""}`
   const legs = cachedPlan(planKey, () => planLegs(allTrips, fromStation, toStation, queryTs, endTs, options))
 
   // Scheduled platforms are baked into stop_times.platform_code at ingest, so the
   // response already carries them (loadDayTrips reads them) — no per-request API call.
-  return { result: { travels: legs.map((itinerary) => buildTravel(allTrips, itinerary, realtime)) } }
+  return {
+    result: {
+      travels: legs.map((itinerary) => buildTravel(allTrips, itinerary, realtime)),
+    },
+  }
 }
 
 export { invalidateDayCacheForFeed, loadDayTrips }

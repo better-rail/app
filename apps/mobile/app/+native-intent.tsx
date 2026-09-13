@@ -2,19 +2,16 @@
  * Expo Router's native deep-link handler, invoked for every incoming URL before
  * the router navigates.
  *
- * The `widget://` and `liveactivity://` schemes are handled manually in
- * `use-deep-linking.ts`, because resolving them requires app state (the active
- * ride / route plan) rather than a static path. Since these schemes are also
- * registered as app schemes, Expo Router's own linking otherwise tries to
- * resolve the pathless URL, matches it to the index route, and resets the stack
- * back to the planner — clobbering our manual navigation (and popping the active
- * ride modal). Returning `null` tells Expo Router to skip navigation and stay on
- * the current path, leaving these URLs entirely to our handler.
+ * Widget and live-activity links (iOS `widget://` / `liveactivity://`, Android
+ * `betterrail://modern_widget4x2?…`) are handled in `use-deep-linking.ts` since
+ * they depend on app state. Returning `null` stops Expo Router from resolving
+ * them itself, which would reset the stack or land on the not-found screen.
  */
+const MANUAL_DEEP_LINK = /^(widget|liveactivity):\/\/|^betterrail:\/\/((modern_)?widget\w*|liveactivity)([/?#]|$)/
+
 export function redirectSystemPath({ path }: { path: string; initial: boolean }): string | null {
   try {
-    const scheme = path.toLowerCase()
-    if (scheme.startsWith("widget://") || scheme.startsWith("liveactivity://")) {
+    if (MANUAL_DEEP_LINK.test(path.toLowerCase())) {
       return null
     }
   } catch {

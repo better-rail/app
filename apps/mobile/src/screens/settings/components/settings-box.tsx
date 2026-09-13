@@ -24,7 +24,7 @@ export const CHEVRON_ICON: ImageStyle = {
   transform: isRTL ? undefined : [{ rotate: "180deg" }],
 }
 
-export interface SettingBoxProps extends TouchableHighlightProps {
+type SettingBoxSharedProps = Omit<TouchableHighlightProps, "onPress"> & {
   title: string
   icon?: string
   first?: boolean
@@ -32,17 +32,30 @@ export interface SettingBoxProps extends TouchableHighlightProps {
   checkmark?: boolean
   chevron?: boolean
   externalLink?: boolean
-
-  /**
-   * Switch component props
-   */
-  toggle?: boolean
-  onToggle?: (value: boolean) => void
-  toggleValue?: boolean
 }
 
+type ToggleSettingBoxProps = SettingBoxSharedProps & {
+  toggle: true
+  onToggle: (value: boolean) => void
+  toggleValue: boolean
+  onPress?: never
+}
+
+type ActionSettingBoxProps = SettingBoxSharedProps & {
+  toggle?: false
+  onToggle?: never
+  toggleValue?: never
+  onPress?: TouchableHighlightProps["onPress"]
+}
+
+export type SettingBoxProps = ToggleSettingBoxProps | ActionSettingBoxProps
+
 export const SettingBox = function SettingBox(props: SettingBoxProps) {
-  const { title, icon, first, last, externalLink, chevron, checkmark, onPress, toggle, style } = props
+  const { title, icon, first, last, externalLink, chevron, checkmark, onPress, toggle, style, testID } = props
+  const handlePress = toggle ? () => props.onToggle(!props.toggleValue) : onPress
+  const statefulTestID = testID
+    ? `${testID}${toggle ? (props.toggleValue ? "-on" : "-off") : checkmark ? "-selected" : ""}`
+    : undefined
   let boxStyle: ViewStyle = {}
 
   if (!first && Platform.OS === "ios") boxStyle = { borderTopColor: color.background, borderTopWidth: 1 }
@@ -57,9 +70,12 @@ export const SettingBox = function SettingBox(props: SettingBoxProps) {
 
   return (
     <TouchableHighlight
+      testID={statefulTestID}
       underlayColor={color.inputPlaceholderBackground}
-      onPress={onPress}
+      onPress={handlePress}
       style={[styles.settingsBoxBase, boxStyle, style]}
+      accessibilityRole={toggle ? "switch" : "button"}
+      accessibilityState={toggle ? { checked: !!props.toggleValue } : checkmark ? { selected: true } : undefined}
     >
       <View style={styles.settingsBoxWrapper}>
         <View style={styles.settingsBoxDetails}>

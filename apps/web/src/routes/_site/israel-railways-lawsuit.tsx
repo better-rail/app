@@ -72,6 +72,22 @@ function LawsuitPage() {
         </span>
       }
     >
+      <aside className="mb-6 rounded-xl border border-success/20 bg-success-soft px-[18px] py-4 sm:px-[22px] sm:py-[18px]">
+        <p className="!mb-1 text-[14px] font-bold tracking-tight text-success">
+          <time dateTime="2026-09-07">עדכון · 7 בספטמבר 2026</time>
+        </p>
+        <p className="!mb-0 text-[17px] font-bold leading-relaxed tracking-tight sm:text-[19px]">
+          בטר רייל חזרה למשוך מידע מרכבת ישראל.{" "}
+          <a
+            href="https://x.com/better_rail/status/2096877673888825749"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-normal"
+          >
+            לפרטים המלאים
+          </a>
+        </p>
+      </aside>
       <p className="text-[19px] font-bold">קיבלנו מכתב אזהרה לפני תביעה מרכבת ישראל.</p>
       <figure className="mb-7">
         <a

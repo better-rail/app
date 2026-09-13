@@ -1,5 +1,7 @@
 import { Request, Response } from "express"
 import { logNames, logger } from "../logs"
+import { railDataSource } from "../data/config"
+import { proxySearchTrainRequest, railProxy } from "./proxy"
 import { searchTrain, ScheduleType } from "../requests/gtfs-route-api"
 
 const toScheduleType = (value: unknown): ScheduleType =>
@@ -20,16 +22,21 @@ const runTimetableSearch = async (
     hour: unknown
     scheduleType: unknown
     hideSlowTrains?: unknown
+    viaStation?: unknown
   },
 ) => {
   try {
+    const viaStation = Number(params.viaStation)
     const result = await searchTrain(
       Number(params.fromStation),
       Number(params.toStation),
       String(params.date),
       String(params.hour),
       toScheduleType(params.scheduleType),
-      { hideSlowTrains: toFlag(params.hideSlowTrains) },
+      {
+        hideSlowTrains: toFlag(params.hideSlowTrains),
+        viaStation: viaStation > 0 ? viaStation : undefined,
+      },
     )
     res.status(200).json(result)
   } catch (error: any) {
@@ -38,10 +45,12 @@ const runTimetableSearch = async (
   }
 }
 
-// Legacy GET `…/timetable/searchTrainLuzForDateTime` (old clients) — now served
-// from GTFS. scheduleType arrives as "1" (ByDeparture) / "2" (ByArrival).
+// Legacy GET `…/timetable/searchTrainLuzForDateTime` (old clients).
+// scheduleType arrives as "1" (ByDeparture) / "2" (ByArrival).
 const handleSearchTrainRequest = async (req: Request, res: Response) => {
-  const { fromStation, toStation, date, hour, scheduleType, hideSlowTrains } = req.query
+  if (railDataSource === "rail") return proxySearchTrainRequest(req, res)
+
+  const { fromStation, toStation, date, hour, scheduleType, hideSlowTrains, viaStation } = req.query
   await runTimetableSearch(res, {
     fromStation,
     toStation,
@@ -49,6 +58,7 @@ const handleSearchTrainRequest = async (req: Request, res: Response) => {
     hour,
     scheduleType: scheduleType === "1" ? "ByDeparture" : "ByArrival",
     hideSlowTrains,
+    viaStation,
   })
 }
 
@@ -68,15 +78,27 @@ const legacyEnvelope = (result: unknown) => ({
 })
 
 /**
- * `/rail-api/*` — the legacy Israel Railways API surface, now fully served
- * in-house. The timetable search endpoints run on GTFS/Postgres; everything
- * else (railupdates, PopUpMessages, station info) is retired — the upstream
- * proxy is gone — and answers with an empty legacy envelope.
+ * `/rail-api/*` — the legacy Israel Railways API surface.
+ *
+ * Under `RAIL_DATA_SOURCE=gtfs` (the default) it's served in-house: the timetable
+ * search endpoints run on GTFS/Postgres, and everything else (railupdates,
+ * PopUpMessages, station info) is retired and answers with an empty legacy
+ * envelope. Under `RAIL_DATA_SOURCE=rail` every path proxies upstream instead.
  */
 const handleRailApiRequest = async (req: Request, res: Response) => {
+  if (railDataSource === "rail") return railProxy(req, res)
+
   if (req.method === "POST" && isTimetableSearchPath(req.path)) {
-    const { fromStation, toStation, date, hour, scheduleType, hideSlowTrains } = req.body ?? {}
-    await runTimetableSearch(res, { fromStation, toStation, date, hour, scheduleType, hideSlowTrains })
+    const { fromStation, toStation, date, hour, scheduleType, hideSlowTrains, viaStation } = req.body ?? {}
+    await runTimetableSearch(res, {
+      fromStation,
+      toStation,
+      date,
+      hour,
+      scheduleType,
+      hideSlowTrains,
+      viaStation,
+    })
     return
   }
 

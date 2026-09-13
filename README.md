@@ -10,7 +10,7 @@ Better Rail is an open source mobile client for Israel Railways, with an emphasi
 
 ## Overview
 
-Better Rail is built with React Native. We also use Swift, SwiftUI and Kotlin to leverage native platform functionalities.
+Better Rail is built with React Native. We also use Swift and Kotlin to leverage native platform functionalities.
 
 The repository is a Bun workspaces monorepo:
 
@@ -43,7 +43,7 @@ If this is your first time, check out the [Expo local development setup guide](h
 
 The first run generates the native projects and may take a while.
 
-> If you change anything that affects the native layer (config, plugins, native dependencies), run `bun prebuild` (or `bun prebuild:clean`) to regenerate the native projects.
+> If you change anything that affects the native layer (config, plugins, native dependencies), run `bun prebuild` to regenerate the native projects.
 
 If you want to contribute and face issues during installation, please reach out to us at feedback@better-rail.co.il and we'll try to help!
 
@@ -53,6 +53,8 @@ Every app can also be driven from the repository root:
 
 ```bash
 bun run mobile:start   # Metro / Expo dev server
+bun run mobile:e2e:ios # Maestro on an installed iOS E2E build
+bun run mobile:e2e:android # Maestro on an installed Android E2E build
 bun run server:dev     # server in watch mode
 bun run web:dev        # website + web app on :3000
 bun run lint           # oxlint + oxfmt across the repo

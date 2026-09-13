@@ -5,9 +5,12 @@
  *  - withAppNativeModule:      injects the RNBetterRail native module + shared business-logic
  *                              Swift + Route.intentdefinition into the BetterRail app target
  *                              (reproduces the original multi-target membership + intent codegen).
+ *  - withAppBridgingHeader:    recreates the ObjC bridging header so the Swift AppDelegate and
+ *                              SceneDelegate can reach RNShortcuts.
+ *  - withSceneLifecycle:       adopts the UIScene lifecycle (Info.plist manifest + moves the
+ *                              window bootstrap into SceneDelegate). Required by the iOS 27 SDK.
  *  - withAppDelegateShortcuts: adds the react-native-quick-actions-shortcuts performActionFor
  *                              handler to the generated Swift AppDelegate.
- *  - withPodfilePostInstall:   re-applies the BoringSSL flag strip + libc++ C++17 define.
  *
  * URL-scheme/universal-link handling, App Groups, keychain, Live Activity Info.plist keys,
  * fonts and Sentry are handled by app.config.ts + first-party plugins. (iOS push uses APNs
@@ -16,6 +19,7 @@
 const { withAppNativeModule } = require("./withAppNativeModule")
 const { withAppDelegateShortcuts } = require("./withAppDelegateShortcuts")
 const { withAppBridgingHeader } = require("./withAppBridgingHeader")
+const { withSceneLifecycle } = require("./withSceneLifecycle")
 
 // NOTE: the watch app's former SPM deps (EasySkeleton, HTMLString) are vendored into
 // targets/watch/Vendor and compiled directly into the watch target — apple-targets 4.0.7 can't
@@ -24,6 +28,7 @@ const { withAppBridgingHeader } = require("./withAppBridgingHeader")
 const withBetterRailIos = (config) => {
   config = withAppNativeModule(config)
   config = withAppBridgingHeader(config)
+  config = withSceneLifecycle(config)
   config = withAppDelegateShortcuts(config)
   return config
 }

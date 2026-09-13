@@ -1,5 +1,6 @@
 export * from "./route-list-error"
 export * from "./no-trains-found-msg"
+export * from "./filtered-trains-message"
 export * from "./route-list-warning"
 export * from "./date-scroll"
 export * from "./result-date-card"

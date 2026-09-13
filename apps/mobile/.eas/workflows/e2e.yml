@@ -1,0 +1,120 @@
+name: Maestro E2E
+
+on:
+  workflow_dispatch: {}
+  pull_request_labeled:
+    labels: [run-e2e]
+
+jobs:
+  fingerprint:
+    name: Fingerprint native projects
+    type: fingerprint
+    environment: development
+    env:
+      APP_VARIANT: development
+      EXPO_PUBLIC_E2E: "true"
+
+  get_android_build:
+    name: Find compatible Android build
+    needs: [fingerprint]
+    type: get-build
+    params:
+      platform: android
+      profile: e2e
+      fingerprint_hash: ${{ needs.fingerprint.outputs.android_fingerprint_hash }}
+      wait_for_in_progress: true
+
+  repack_android:
+    name: Repack Android JavaScript
+    needs: [get_android_build]
+    if: ${{ needs.get_android_build.outputs.build_id }}
+    type: repack
+    environment: development
+    env:
+      APP_VARIANT: development
+      EXPO_PUBLIC_E2E: "true"
+      SENTRY_DISABLE_AUTO_UPLOAD: "true"
+    params:
+      build_id: ${{ needs.get_android_build.outputs.build_id }}
+      profile: e2e
+      embed_bundle_assets: true
+      js_bundle_only: true
+
+  build_android:
+    name: Build Android E2E app
+    needs: [get_android_build]
+    if: ${{ !needs.get_android_build.outputs.build_id }}
+    type: build
+    params:
+      platform: android
+      profile: e2e
+
+  test_android:
+    name: Test Android
+    after: [repack_android, build_android]
+    type: maestro
+    environment: development
+    env:
+      MAESTRO_APP_ID: com.betterrail
+      MAESTRO_CLI_NO_ANALYTICS: "1"
+    params:
+      build_id: ${{ after.repack_android.outputs.build_id || after.build_android.outputs.build_id }}
+      flow_path: .maestro/flows
+      shards: 1
+      retries: 1
+      retry_failed_only: true
+      record_screen: true
+      maestro_version: 2.0.6
+
+  get_ios_build:
+    name: Find compatible iOS build
+    needs: [fingerprint]
+    type: get-build
+    params:
+      platform: ios
+      profile: e2e
+      simulator: true
+      fingerprint_hash: ${{ needs.fingerprint.outputs.ios_fingerprint_hash }}
+      wait_for_in_progress: true
+
+  repack_ios:
+    name: Repack iOS JavaScript
+    needs: [get_ios_build]
+    if: ${{ needs.get_ios_build.outputs.build_id }}
+    type: repack
+    environment: development
+    env:
+      APP_VARIANT: development
+      EXPO_PUBLIC_E2E: "true"
+      SENTRY_DISABLE_AUTO_UPLOAD: "true"
+    params:
+      build_id: ${{ needs.get_ios_build.outputs.build_id }}
+      profile: e2e
+      embed_bundle_assets: true
+      js_bundle_only: true
+
+  build_ios:
+    name: Build iOS E2E app
+    needs: [get_ios_build]
+    if: ${{ !needs.get_ios_build.outputs.build_id }}
+    type: build
+    params:
+      platform: ios
+      profile: e2e
+
+  test_ios:
+    name: Test iOS
+    after: [repack_ios, build_ios]
+    type: maestro
+    environment: development
+    env:
+      MAESTRO_APP_ID: il.co.better-rail
+      MAESTRO_CLI_NO_ANALYTICS: "1"
+    params:
+      build_id: ${{ after.repack_ios.outputs.build_id || after.build_ios.outputs.build_id }}
+      flow_path: .maestro/flows
+      shards: 1
+      retries: 1
+      retry_failed_only: true
+      record_screen: true
+      maestro_version: 2.0.6

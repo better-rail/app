@@ -23,12 +23,39 @@ To follow these steps, ensure that [Bun](https://bun.sh) is installed (the serve
 - `/logs`: logger and lognames sit here
 - `/requests`: timetable engine (`gtfs-route-api.ts`) and the rides route fetcher
 - `/rides`: notification scheduler
-- `/routes`: express router (incl. the `/rail-api` legacy surface served from GTFS, and the token-guarded `/siri` debug routes)
+- `/routes`: express router (incl. the `/rail-api` legacy surface served from GTFS, `/fares`, and the token-guarded `/siri` debug routes)
 - `/siri`: SIRI-SM real-time pipeline — poller (standalone entrypoint `main.ts`), correlation and the redis snapshot
-- `/scripts`: standalone CLIs — `download-feed`, `ingest-gtfs`, `build-station-mapping`, `verify-mapping`
+- `/fares`: the Israel Railways fares snapshot — validation/normalization (`pull.ts`) and the redis store
+- `/scripts`: standalone CLIs — `download-feed`, `ingest-gtfs`, `build-station-mapping`, `verify-mapping`, `rail-pull`
 - `/tests`: all the tests are here
 - `/types`: all the types are here
 - `/utils`: utility functions used across the server (incl. `gtfs-time.ts`)
+
+### Choosing a data source
+
+`RAIL_DATA_SOURCE` picks where timetable data comes from. It's read once at boot,
+so switching is a Railway variable change + restart — no app release, since every
+client (app, iOS/watch widgets, Android widget) goes through `/api/v1/rail-api`.
+
+| Value | Behaviour |
+| --- | --- |
+| `gtfs` (default) | MOT GTFS over Postgres + SIRI realtime, as described below. Retired endpoints answer with an empty legacy envelope. |
+| `rail` | The pre-migration behaviour: `/rail-api/*` proxies straight to the Israel Railways API, and ride tracking reads its timetable. Needs `RAIL_URL` and `RAIL_API_KEY`. |
+
+Under `rail` the API is geo-fenced, so a deployment whose egress IP isn't in
+Israel also needs `PROXY_URL`. Nothing reads the GTFS feed in that mode, so the
+schema check and "no active feed" alarm are skipped at boot; the SIRI poller is
+still governed by its own `SIRI_POLLER_MODE`.
+
+**What the app loses under `rail`.** `hideSlowTrains` is the GTFS planner's own
+parameter — the app started sending it once the timetable was already served
+in-house, so the rail API has no equivalent and never saw the field. The proxy
+strips it from the request body rather than post an undefined member upstream,
+which leaves the "hide slow trains" toggle inert: the rail API answers with its
+own curated shortlist of itineraries either way. The changes filter is unaffected
+— the app applies that one client-side. Realtime is the other difference: delays,
+live platforms and cancellations come from the rail API's own `trainPosition`
+instead of SIRI.
 
 ### Timetable data: GTFS (Israel MOT)
 
@@ -49,7 +76,14 @@ departs a few minutes later and arrives earlier (e.g. Ashkelon 230 07:00→07:56
 next to 622 07:06→07:50). The app's "hide slow trains" toggle is sent as
 `hideSlowTrains: true` in the search request body, and only then are such
 dominated direct trains left out. Itineraries _with_ changes are always pruned
-when a same-or-fewer-changes option departs later and arrives earlier.
+when a same-or-fewer-changes option departs later and arrives earlier. An
+itinerary whose change faces the **wrong way** — 150° or more off the direct line,
+measured at whichever end it doubles back over — is pruned by a departure up to
+five minutes _before_ it as well, since the wrong direction is the whole of why it
+is slower (Atlit 07:14 north to Hof HaCarmel, in at 08:34, next to the 07:13
+direct in at 08:04). Anything less than a turn back the way you came is left
+alone, hub routes included: Lod to Ashdod through Tel Aviv HaHagana turns 96° and
+stays listed.
 
 **Platforms:** GTFS has no train→platform link (rail `stop_times` reference
 station-level stops with an empty `platform_code`). The scheduled platforms are
@@ -97,6 +131,65 @@ active feed atomically, so the live API never reads a half-loaded feed. It abort
 (keeping the previous feed) if a station that trips actually traverse has no
 mapping.
 
+### Fares: an Israel Railways snapshot
+
+Ticket prices come from **Israel Railways' own tariff**, not from GTFS: the
+rail API's price table is what riders are actually charged, and no MOT dataset
+reproduces it exactly (the reform's fare rules agree with it on 97% of station
+pairs — the rest are the operator's own exceptions). So the server serves a
+**snapshot** of the rail API instead of computing fares, and never calls the
+rail API on a request.
+
+`bun run rail:pull` fetches `GetProfiles` and `GetAllPriceWithNotes` from the
+rail API (needs `RAIL_URL` + `RAIL_API_KEY`, and `PROXY_URL` when the egress IP
+isn't in Israel), validates them, normalizes them and stores the result under
+the redis key `fares:snapshot` with no TTL. It logs what changed against the
+previous snapshot (pairs and profiles added, removed or changed), so a tariff
+reform shows up in the cron output. Run it on a Railway cron — weekly is plenty,
+the tariff moves about once a year — or by hand. To seed a local redis without
+API access, feed it saved payloads:
+
+```bash
+bun run rail:pull -- --profiles ./GetProfiles.json --prices ./GetAllPriceWithNotes.json
+```
+
+The routes read that snapshot (cached in-process for a minute) and are
+independent of `RAIL_DATA_SOURCE`:
+
+```
+GET /api/v1/fares?from=3700&to=5010
+→ { "from": 3700, "to": 5010, "distanceCode": 1,
+    "prices": { "single": 11.5, "daily": 23, "monthly": 323 }, "updatedAt": "2026-09-08T…" }
+
+GET /api/v1/fares/profiles
+→ { "updatedAt": "…", "profiles": [ { "id": 4, "name": { "he": "אזרח ותיק", "en": null, "ar": null, "ru": null },
+                                       "discounts": { "single": 0.5, "daily": 0.5, "monthly": 0.5 }, "note": null }, … ] }
+```
+
+`distanceCode` is the rail API's 1–5 distance ring; `discounts` are the
+fraction taken off each product (1 = free-travel certificate) and `note` is the
+rail API's footnote for the profile in four languages (e.g. that a student's
+discount is applied at RavKav top-up rather than per ride). An unknown pair is
+a 404; until the first pull has run every route answers 503 and logs it.
+
+### Ride tracking
+
+Rides are **shared state**: the `rides:*` hashes in redis and the push tokens of
+real passengers. A process that boots with tracking on runs
+`scheduleExistingRides()`, which picks up *every* active ride in redis, schedules
+a second set of notifications for each and deletes the ones it can't reschedule —
+so a local run pointed at the production redis would push duplicates to real
+passengers and end their Live Activities.
+
+Tracking is therefore **opt-in**: `RIDES_ENABLED` decides, and when it's unset the
+fallback is whether `RAILWAY_ENVIRONMENT_NAME`/`_ID` are present — Railway injects
+those into every runtime container, and nothing sets them on a laptop. With it off the
+boot reschedule is skipped — logged as a warning — and `/api/v1/ride/*` answers
+`503 {"success": false, "reason": "rides_disabled"}`, so the process never reads
+or writes ride state at all. Set `RIDES_ENABLED=true` explicitly on the deployed
+service rather than relying on the Railway variable, and locally only while
+testing rides against your own device.
+
 ### Real-time data: SIRI-SM
 
 Live delays (`trainPosition.calcDiffMinutes`) and platform changes come from the
@@ -128,6 +221,11 @@ test-fixture source) and `GET /api/v1/siri/unmatched` (correlation misses).
 - `PORT`: port express listens to
 - `REDIS_URL`: connection string for redis
 - `DATABASE_URL`: connection string for Postgres (GTFS timetable store)
+- `RAIL_DATA_SOURCE`: `gtfs` (default) or `rail` — see [Choosing a data source](#choosing-a-data-source)
+- `RAIL_URL`: Israel Railways API base url, used when `RAIL_DATA_SOURCE=rail` and by `bun run rail:pull`
+- `RAIL_API_KEY`: Israel Railways `Ocp-Apim-Subscription-Key`
+- `PROXY_URL`: outbound HTTP proxy for rail API requests, needed when the egress IP isn't in Israel
+- `RAIL_TLS_INSECURE`: `true` skips TLS verification for rail API requests only
 - `APPLE_BUNDLE_ID`: bundle id of the iOS app to send notifications to
 - `APPLE_TEAM_ID`: team id for the developer account associated with the iOS app
 - `APPLE_KEY_ID`: apple notifications key id
@@ -139,5 +237,6 @@ test-fixture source) and `GET /api/v1/siri/unmatched` (correlation misses).
 - `SIRI_CA_PEM`: PEM chain (intermediate + root, `\n`-escaped) to trust for SIRI requests — moran.mot.gov.il serves an incomplete chain
 - `SIRI_TLS_INSECURE`: `true` skips TLS verification for SIRI requests only (fallback until `SIRI_CA_PEM` is captured)
 - `SIRI_DEBUG_TOKEN`: secret for the `/api/v1/siri/*` debug routes; unset = routes 404
+- `RIDES_ENABLED`: `true`/`false` — whether this process tracks rides; see [Ride tracking](#ride-tracking)
 - `SIRI_POLLER_MODE`: set to `in-process` to run the poller inside the web service instead of the standalone `bun run siri` service
 - `SIRI_POLL_SECONDS` / `SIRI_PREVIEW_INTERVAL` / `SIRI_CHUNK_SIZE` / `SIRI_STALE_SECONDS` / `SIRI_CARRY_SECONDS`: optional tuning (defaults 30 / PT90M / 70 / 600 / 86400)

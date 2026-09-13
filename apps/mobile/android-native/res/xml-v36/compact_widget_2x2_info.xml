@@ -8,6 +8,7 @@
     android:minResizeWidth="130dp"
     android:minResizeHeight="130dp"
 
+    android:previewLayout="@layout/widget_compact_2x2_preview"
     android:previewImage="@drawable/widget_preview_2x2"
     android:resizeMode="horizontal|vertical"
     android:targetCellWidth="2"

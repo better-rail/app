@@ -1,11 +1,14 @@
 export const logNames = {
   server: {
     listening: "App listening",
+    dataSource: "Serving timetable data from",
+    ridesDisabled: "Ride tracking is disabled, existing rides were left untouched",
   },
   redis: {
     connect: {
       success: "Connected to redis",
       failed: "Couldn't connect to redis",
+      skipped: "REDIS_URL is not set, skipping redis",
     },
     rides: {
       get: {
@@ -62,6 +65,7 @@ export const logNames = {
   },
   notifications: {
     log: "Got notification",
+    notConfigured: "Push credentials are missing, notifications are disabled",
     apple: {
       success: "Sent notification to APN successully!",
       failed: "Failed to send notificaiton to APN",
@@ -77,10 +81,22 @@ export const logNames = {
       failed: "Failed to get route",
     },
   },
+  railApi: {
+    notConfigured: "RAIL_DATA_SOURCE is 'rail' but RAIL_URL / RAIL_API_KEY are unset",
+    proxy: {
+      failed: "Failed to proxy a request to the Israel Railways API",
+    },
+  },
   db: {
     pool: {
       error: "Postgres pool error",
     },
+  },
+  fares: {
+    pulled: "Pulled fares from the Israel Railways API into redis",
+    pullFailed: "Failed to pull fares from the Israel Railways API",
+    readFailed: "Failed to read the fares snapshot from redis",
+    notAvailable: "No fares snapshot in redis — run `bun run rail:pull`",
   },
   platforms: {
     writeFailed: "Failed to record SIRI-observed platforms",

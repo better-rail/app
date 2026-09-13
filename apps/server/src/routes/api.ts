@@ -1,9 +1,11 @@
 import { Router } from "express"
 
+import { ridesEnabled } from "../data/config"
 import { buildRide } from "../utils/ride-utils"
 import { RideRequestSchema } from "../types/ride"
 import { createRateLimiter } from "../utils/rate-limiter"
 import { handleRailApiRequest, handleSearchTrainRequest } from "./rail-api"
+import { faresRouter } from "./fares"
 import { siriDebugRouter } from "./siri-debug"
 import { DeleteRideBody, UpdateRideTokenBody, bodyValidator } from "./validations"
 import { endRideNotifications, startRideNotifications, updateRideToken } from "../rides"
@@ -11,6 +13,12 @@ import { endRideNotifications, startRideNotifications, updateRideToken } from ".
 const router = Router()
 
 const rideRouter = Router()
+// Every route below reads or writes the shared rides state, so they're closed
+// while ride tracking is off (a local run, by default — see data/config.ts).
+rideRouter.use((req, res, next) => {
+  if (!ridesEnabled) return res.status(503).json({ success: false, reason: "rides_disabled" })
+  next()
+})
 rideRouter.use(createRateLimiter(10 * 60 * 1000, 10))
 
 rideRouter.post("/", bodyValidator(RideRequestSchema), async (req, res) => {
@@ -32,6 +40,8 @@ rideRouter.delete("/", bodyValidator(DeleteRideBody), async (req, res) => {
 })
 
 router.use("/ride", rideRouter)
+// Fares, from the Israel Railways snapshot `bun run rail:pull` keeps in redis (see routes/fares.ts)
+router.use("/fares", faresRouter)
 // SIRI pipeline debugging (404s without SIRI_DEBUG_TOKEN — see routes/siri-debug.ts)
 router.use("/siri", siriDebugRouter)
 // Handle the specific search train request with transformation

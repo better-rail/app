@@ -1,10 +1,13 @@
 import { NativeModules, Platform } from "react-native"
 import { RouteItem } from "@/services/api"
 import { RideStartError } from "./helpers/ride-errors"
+import { IS_E2E } from "@/config/e2e"
 
 const { RNBetterRail } = NativeModules
 
 export async function canRunLiveActivities() {
+  if (IS_E2E) return true
+
   const isRunningOnMac = await RNBetterRail.isRunningOnMac()
   const deviceSupported = Platform.OS == "ios" && parseFloat(Platform.Version) >= 16.2
 

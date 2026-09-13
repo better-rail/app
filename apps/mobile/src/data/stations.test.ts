@@ -21,6 +21,16 @@ const appendedStationNames = [
   },
 ]
 
+describe("station names", () => {
+  test("uses the correct English spelling for Akko", () => {
+    setStationLocale("en")
+
+    const station = useStations().find(({ id }) => id === "1500")
+
+    expect(station?.name).toBe("Akko")
+  })
+})
+
 describe("station aliases", () => {
   test("keeps appended co-names out of the displayed station names", () => {
     setStationLocale("he")

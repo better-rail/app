@@ -150,7 +150,7 @@ export const stations: Station[] = [
   {
     id: "1500",
     hebrew: "עכו",
-    english: "Ako",
+    english: "Akko",
     russian: "Акко ",
     arabic: "عكا",
     lat: 32.928339,

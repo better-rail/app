@@ -2,7 +2,8 @@ import express from "express"
 
 import { router } from "./routes/api"
 import { applySchema, getActiveFeed } from "./db"
-import { env, port, siriPollerMode } from "./data/config"
+import { isRailApiConfigured } from "./requests/rail-api"
+import { env, port, railDataSource, ridesEnabled, siriPollerMode } from "./data/config"
 import { connectToRedis } from "./data/redis"
 import { connectToApn } from "./utils/apn-utils"
 import { connectToFcm } from "./utils/fcm-utils"
@@ -25,16 +26,25 @@ app.listen(port, async () => {
   connectToApn()
   connectToFcm()
 
+  logger.info(logNames.server.dataSource, { source: railDataSource })
+  if (railDataSource === "rail" && !isRailApiConfigured()) logger.error(logNames.railApi.notConfigured)
+
   // Ensure the GTFS schema exists (idempotent) and warn if no feed is loaded yet.
-  try {
-    await applySchema()
-    const feed = await getActiveFeed()
-    if (!feed) logger.error(logNames.gtfs.noActiveFeed)
-  } catch (error) {
-    logger.error(logNames.db.pool.error, { error })
+  // Skipped when serving from the rail API, where nothing reads the feed.
+  if (railDataSource === "gtfs") {
+    try {
+      await applySchema()
+      const feed = await getActiveFeed()
+      if (!feed) logger.error(logNames.gtfs.noActiveFeed)
+    } catch (error) {
+      logger.error(logNames.db.pool.error, { error })
+    }
   }
 
-  scheduleExistingRides()
+  // Off unless this is the deployed service — a local run must never pick up
+  // (and reschedule, or delete) the rides of real passengers. See data/config.ts.
+  if (ridesEnabled) scheduleExistingRides()
+  else logger.warn(logNames.server.ridesDisabled)
 
   // The SIRI poller normally runs as its own Railway service (`bun run siri`);
   // this fallback hosts it here when the MOT-registered egress IP is ours.

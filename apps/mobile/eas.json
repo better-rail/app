@@ -29,6 +29,23 @@
         "simulator": true
       }
     },
+    "e2e": {
+      "extends": "base",
+      "distribution": "internal",
+      "environment": "development",
+      "withoutCredentials": true,
+      "env": {
+        "APP_VARIANT": "development",
+        "EXPO_PUBLIC_E2E": "true",
+        "SENTRY_DISABLE_AUTO_UPLOAD": "true"
+      },
+      "ios": {
+        "simulator": true
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    },
     "preview": {
       "extends": "base",
       "distribution": "internal",

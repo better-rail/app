@@ -2,5 +2,6 @@
 declare namespace NodeJS {
   interface ProcessEnv {
     EXPO_PUBLIC_POSTHOG_API_KEY: string
+    EXPO_PUBLIC_E2E?: string
   }
 }

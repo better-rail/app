@@ -7,7 +7,6 @@ import { Stack } from "expo-router/stack"
 import { useRouter } from "expo-router"
 import { ErrorBoundary as ExpoErrorBoundary } from "expo-router"
 import { ThemeProvider, DarkTheme, DefaultTheme } from "expo-router/react-navigation"
-import DeviceInfo from "react-native-device-info"
 import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from "react-query"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet"
@@ -16,7 +15,7 @@ import { enableScreens } from "react-native-screens"
 import { PostHogProvider } from "posthog-react-native"
 import { Observe, ObserveRoot, useObserve } from "expo-observe"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
-import { finishTransaction, getAvailablePurchases, initConnection, useIAP } from "react-native-iap"
+import { TipIAPProvider } from "@/services/iap/tip-iap-provider"
 
 import { initFonts } from "@/theme/fonts"
 import * as storage from "@/utils/storage"
@@ -34,6 +33,7 @@ import { ForceUpdateScreen } from "@/screens/force-update/force-update-screen"
 import { openActiveRide } from "@/utils/helpers/open-active-ride"
 import PushNotification from "react-native-push-notification"
 import "react-native-console-time-polyfill"
+import { IS_E2E } from "@/config/e2e"
 
 enableScreens()
 
@@ -44,15 +44,17 @@ Observe.configure({
 })
 
 const TELEMETRY_DISABLED_STORAGE_KEY = "telemetry_disabled"
-const isEmulator = DeviceInfo.isEmulatorSync()
 
 Sentry.init({
   dsn: "https://203d8d08bca79bc415c95f41ab496d0b@o4510306230534144.ingest.us.sentry.io/4510307294248960",
-  enabled: !__DEV__,
+  enabled: !__DEV__ && !IS_E2E,
+  enableTombstone: true,
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,
   integrations: [
-    Sentry.mobileReplayIntegration({ maskAllText: false, maskAllImages: false, maskAllVectors: false }),
+    // Replay is pointless while Sentry is disabled, and its native video encoder
+    // segfaults in the simulator (SentryOnDemandReplay -> AVAssetWriterInput).
+    ...(__DEV__ ? [] : [Sentry.mobileReplayIntegration({ maskAllText: false, maskAllImages: false, maskAllVectors: false })]),
     // Records navigation breadcrumbs (push/pop, from → to). Needs SDK >= 8.19, since this
     // `init()` runs before the Root Layout mounts and older versions gave up instead of retrying.
     Sentry.expoRouterIntegration(),
@@ -102,28 +104,6 @@ export const queryClient = new QueryClient({
     },
   }),
 })
-
-function IOSIAPConnectionManager() {
-  useIAP()
-
-  useEffect(() => {
-    if (__DEV__) return
-
-    const flushAvailablePurchases = async () => {
-      try {
-        await initConnection()
-        const availablePurchases = await getAvailablePurchases()
-        await Promise.all(availablePurchases.map((purchase) => finishTransaction({ purchase, isConsumable: true })))
-      } catch (error) {
-        console.error("Failed to connect to IAP and finish all available transactions", error)
-      }
-    }
-
-    flushAvailablePurchases()
-  }, [])
-
-  return null
-}
 
 function AppStack() {
   const colorScheme = useColorScheme()
@@ -227,6 +207,7 @@ function RootLayout() {
   useEffect(() => {
     identifyPosthogUser()
     trackInstalledWidgets()
+
     storage.load("appLanguage").then((languageCode) => {
       if (languageCode) {
         setUserLanguage(languageCode)
@@ -255,8 +236,9 @@ function RootLayout() {
         <ActionSheetProvider>
           <SafeAreaProvider initialMetrics={initialWindowMetrics}>
             <PostHogProvider client={posthog} autocapture={{ captureScreens: false }}>
-              {Platform.OS === "ios" && !isEmulator && <IOSIAPConnectionManager />}
-              <AppStack />
+              <TipIAPProvider>
+                <AppStack />
+              </TipIAPProvider>
             </PostHogProvider>
           </SafeAreaProvider>
         </ActionSheetProvider>

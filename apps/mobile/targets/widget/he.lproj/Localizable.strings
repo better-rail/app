@@ -60,3 +60,13 @@
 "BETTER RAIL" = "בטר רייל";
 "connection issues" = "בעיות תקשורת";
 "%@ min delay" = "%@ דק׳ איחור";
+
+// apple watch live activity
+"next stop" = "תחנה הבאה";
+"%@ stops" = "%@ תחנות";
+"get off now" = "לרדת כאן";
+"train short %@" = "רכבת %@";
+
+// extra large widget
+"DURATION" = "משך";
+"%@h %@m" = "%@ שע׳ %@ דק׳";

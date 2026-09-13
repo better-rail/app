@@ -1,12 +1,13 @@
 const { withMainApplication } = require("@expo/config-plugins")
 
 /**
- * Adds @HiltAndroidApp (required for the widget's Hilt DI graph) and the widget lifecycle
- * management (WidgetLifecycleObserver init + memory-pressure cleanup) to the Expo-generated
- * MainApplication.kt.
+ * Adds @HiltAndroidApp (required for the widget's Hilt DI graph), the widget lifecycle
+ * management (WidgetLifecycleObserver init + memory-pressure cleanup) and the local
+ * WidgetNavigationPackage to the Expo-generated MainApplication.kt.
  */
 const IMPORTS = `import android.content.ComponentCallbacks2
 import android.util.Log
+import com.betterrail.modules.WidgetNavigationPackage
 import com.betterrail.widget.lifecycle.WidgetCoroutineManager
 import com.betterrail.widget.lifecycle.WidgetLifecycleObserver
 import com.betterrail.widget.test.TestConfig
@@ -55,6 +56,14 @@ const withMainApplicationHilt = (config) =>
       src = src.replace(/(override fun onCreate\(\)\s*{\s*\n\s*super\.onCreate\(\)\n)/, `$1${ONCREATE_INIT}\n`)
       // lifecycle override methods before the final closing brace of the file
       src = src.replace(/\n}\s*$/, `\n${LIFECYCLE_MEMBERS}}\n`)
+    }
+
+    // Separate guard so it also applies to an already-prebuilt android/ dir.
+    if (!src.includes("WidgetNavigationPackage()")) {
+      if (!src.includes("import com.betterrail.modules.WidgetNavigationPackage")) {
+        src = src.replace(/(package [^\n]+\n)/, "$1\nimport com.betterrail.modules.WidgetNavigationPackage\n")
+      }
+      src = src.replace(/(\/\/ add\(MyReactNativePackage\(\)\)\n)/, "$1          add(WidgetNavigationPackage())\n")
     }
 
     cfg.modResults.contents = src

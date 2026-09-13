@@ -1,4 +1,5 @@
-import { Linking, Platform, PlatformColor, View } from "react-native"
+import { useState } from "react"
+import { Alert, Linking, Platform, PlatformColor, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text } from "@/components"
 import { SettingBox } from "./components/settings-box"
@@ -7,9 +8,13 @@ import { translate, userLocale } from "@/i18n"
 import { useRouter } from "expo-router"
 import { SETTING_GROUP } from "./settings-styles"
 import { useIsDarkMode, useIsBetaTester } from "@/hooks"
+import { useRoutePlanStore } from "@/models"
 import { shareApp } from "./helpers/app-share-sheet"
 import { openSupportBetterRail } from "@/utils/helpers/open-support-better-rail"
 import { trackEvent } from "@/services/analytics"
+import { requestPinAndroidWidget, WidgetFamily } from "@/utils/widget-helpers"
+import { WidgetPreviewModal } from "./components/widget-preview-modal"
+import { SocialLinks } from "./components/social-links"
 
 const storeLink = Platform.select({
   ios: "https://apps.apple.com/app/better-rail/id1562982976?action=write-review",
@@ -20,9 +25,24 @@ export function SettingsScreen() {
   const router = useRouter()
   const isDarkMode = useIsDarkMode()
   const isBetaTester = useIsBetaTester()
+  const [showWidgetModal, setShowWidgetModal] = useState(false)
+
+  const pinWidget = async (family: WidgetFamily) => {
+    const { origin, destination } = useRoutePlanStore.getState()
+    const pinned = await requestPinAndroidWidget({ originId: origin?.id, destinationId: destination?.id, family })
+    trackEvent("widget_pin_requested", { source: "settings", supported: pinned, family })
+    if (!pinned) {
+      Alert.alert(translate("settings.addWidgetManualTitle") ?? "", translate("settings.addWidgetManualMessage") ?? "")
+    }
+  }
+
+  const handleAddAndroidWidget = () => {
+    setShowWidgetModal(true)
+  }
 
   return (
     <Screen
+      testID="settings-screen"
       style={styles.root}
       preset="scroll"
       unsafe={true}
@@ -32,6 +52,7 @@ export function SettingsScreen() {
     >
       <View style={SETTING_GROUP}>
         <SettingBox
+          testID="settings-language"
           first
           title={translate("settings.language") ?? ""}
           icon="💬"
@@ -39,6 +60,7 @@ export function SettingsScreen() {
           onPress={() => router.push("/settings/language")}
         />
         <SettingBox
+          testID="settings-appearance"
           last
           title={translate("settings.uiSettings") ?? ""}
           icon="🎨"
@@ -84,6 +106,12 @@ export function SettingsScreen() {
         </View>
       )}
 
+      {Platform.OS === "android" && (
+        <View style={SETTING_GROUP}>
+          <SettingBox first last title={translate("settings.addWidget") ?? ""} icon="📱" onPress={handleAddAndroidWidget} />
+        </View>
+      )}
+
       <View style={SETTING_GROUP}>
         <SettingBox first title={translate("settings.share") ?? ""} icon="🕺" onPress={shareApp} />
         <SettingBox
@@ -92,6 +120,7 @@ export function SettingsScreen() {
           onPress={() => storeLink && Linking.openURL(storeLink)}
         />
         <SettingBox
+          testID="settings-about"
           last
           title={translate("settings.about") ?? ""}
           icon="ℹ️"
@@ -108,6 +137,12 @@ export function SettingsScreen() {
       >
         Better Rail {isBetaTester && "Beta "}v{getVersion()} (Build {getBuildNumber()})
       </Text>
+
+      <SocialLinks />
+
+      {Platform.OS === "android" && showWidgetModal && (
+        <WidgetPreviewModal visible={showWidgetModal} onClose={() => setShowWidgetModal(false)} onPin={pinWidget} />
+      )}
     </Screen>
   )
 }

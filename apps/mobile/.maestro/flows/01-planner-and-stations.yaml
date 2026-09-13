@@ -1,0 +1,40 @@
+appId: ${MAESTRO_APP_ID}
+name: Planner, station search, switching, and recent stations
+tags:
+  - core
+  - planner
+---
+- runFlow: ../subflows/launch-clean.yaml
+- runFlow: ../subflows/select-stations.yaml
+
+# Direction switching updates both planner cards.
+- tapOn:
+    id: "switch-stations-button"
+- extendedWaitUntil:
+    visible:
+      id: "planner-origin-4600"
+    timeout: 5000
+- assertVisible:
+    id: "planner-destination-680"
+- tapOn:
+    id: "switch-stations-button"
+- extendedWaitUntil:
+    visible:
+      id: "planner-origin-680"
+    timeout: 5000
+- assertVisible:
+    id: "planner-destination-4600"
+
+# Both choices are persisted as recent stations and can be selected without a search.
+- tapOn:
+    id: "planner-origin-card"
+- assertVisible:
+    id: "recent-station-4600"
+- assertVisible:
+    id: "recent-station-680"
+- tapOn:
+    id: "recent-station-4600"
+- assertVisible:
+    id: "planner-origin-4600"
+- assertVisible:
+    id: "planner-destination-4600"

@@ -1,104 +1,25 @@
-import React, { useEffect, useState } from "react"
+import React from "react"
 import { View, Platform, ActivityIndicator } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { Product, Purchase, PurchaseError, useIAP } from "react-native-iap"
 import { Screen, Text } from "@/components"
 import { isDarkMode } from "@/theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { translate } from "@/i18n"
-import { useShallow } from "zustand/react/shallow"
 import { useSettingsStore } from "@/models"
 import { getInstallerPackageNameSync } from "react-native-device-info"
-import { trackPurchase } from "@/services/analytics"
-import { toast } from "burnt"
 import { TipThanksModalNative } from "./components/tip-thanks-modal-native"
-import * as Sentry from "@sentry/react-native"
+
+import { useTipIAP } from "@/services/iap/tip-iap-provider"
+import { TIP_PRODUCT_IDS } from "@/services/iap/tip-purchases"
 
 const installSource = getInstallerPackageNameSync()
 
-const PRODUCT_IDS = ["better_rail_tip_1", "better_rail_tip_2", "better_rail_tip_3", "better_rail_tip_4"]
-
 export function TipJarScreen() {
-  const [isLoading, setIsLoading] = useState(false)
-  const [sortedProducts, setSortedProducts] = useState<Product[]>([])
-  const [showThanksModal, setShowThanksModal] = useState(false)
-  const { totalTip, addTip } = useSettingsStore(useShallow((s) => ({ totalTip: s.totalTip, addTip: s.addTip })))
-
-  const handlePurchaseSuccess = async (purchase: Purchase) => {
-    try {
-      await finishTransaction({ purchase, isConsumable: true })
-
-      setShowThanksModal(true)
-
-      const item = products.find((product) => product.id === purchase.productId)
-      if (item?.price != null) {
-        addTip(item.price)
-
-        try {
-          await trackPurchase({
-            value: item.price,
-            currency: item.currency,
-            tax: 15,
-            items: [
-              {
-                item_name: item.title,
-                item_id: item.id,
-                price: item.price,
-                quantity: 1,
-              },
-            ],
-          })
-        } catch (trackErr) {
-          console.error("Failed to track purchase:", trackErr)
-        }
-      }
-    } catch (err) {
-      console.error("[TipJar] Error in purchase success handler:", err)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handlePurchaseError = (error: PurchaseError) => {
-    setIsLoading(false)
-
-    if (error.code !== "user-cancelled") {
-      toast({ title: translate("settings.purchaseFailed") ?? "", message: error.message, preset: "error" })
-    }
-  }
-
-  const { connected, products, finishTransaction, requestPurchase, fetchProducts } = useIAP({
-    onPurchaseSuccess: handlePurchaseSuccess,
-    onPurchaseError: handlePurchaseError,
-  })
-
-  useEffect(() => {
-    if (connected) {
-      fetchProducts({ skus: PRODUCT_IDS })
-    }
-  }, [connected, fetchProducts])
-
-  useEffect(() => {
-    if (products.length > 0) {
-      setSortedProducts([...products].sort((a, b) => Number(a.price) - Number(b.price)))
-    }
-  }, [products])
-
-  const onTipButtonPress = async (sku: string) => {
-    try {
-      setIsLoading(true)
-
-      // This route is iOS-only; Android uses the external support link instead.
-      await requestPurchase({
-        request: { apple: { sku } },
-        type: "in-app",
-      })
-    } catch (err) {
-      console.error("[TipJar] Error requesting purchase:", err)
-      Sentry.captureException(err)
-      setIsLoading(false)
-    }
-  }
+  const { products, connected, isPurchasing, canTip, showThanksModal, dismissThanks, requestTip } = useTipIAP()
+  const totalTip = useSettingsStore((state) => state.totalTip)
+  const sortedProducts = products
+    .filter((product) => TIP_PRODUCT_IDS.includes(product.id))
+    .sort((a, b) => Number(a.price) - Number(b.price))
 
   return (
     <>
@@ -115,32 +36,36 @@ export function TipJarScreen() {
         <Text tx="settings.tipJarSubtitle" style={styles.tipIntroSubtitle} />
         {installSource === "TestFlight" && <Text tx="settings.testflightMessage" style={styles.testflightMsg} />}
 
-        {sortedProducts.length >= PRODUCT_IDS.length && !isLoading ? (
+        {connected && sortedProducts.length === TIP_PRODUCT_IDS.length && !isPurchasing ? (
           <>
             <TipRow
+              disabled={!canTip}
               title={translate("settings.generousTip") ?? ""}
               amount={sortedProducts[0].displayPrice}
-              onPress={() => onTipButtonPress(sortedProducts[0].id)}
+              onPress={() => requestTip(sortedProducts[0].id)}
             />
             <TipRow
+              disabled={!canTip}
               title={translate("settings.amazingTip") ?? ""}
               amount={sortedProducts[1].displayPrice}
-              onPress={() => onTipButtonPress(sortedProducts[1].id)}
+              onPress={() => requestTip(sortedProducts[1].id)}
             />
             <TipRow
+              disabled={!canTip}
               title={translate("settings.massiveTip") ?? ""}
               amount={sortedProducts[2].displayPrice}
-              onPress={() => onTipButtonPress(sortedProducts[2].id)}
+              onPress={() => requestTip(sortedProducts[2].id)}
             />
             <TipRow
+              disabled={!canTip}
               title={translate("settings.hugeTip") ?? ""}
               amount={sortedProducts[3].displayPrice}
-              onPress={() => onTipButtonPress(sortedProducts[3].id)}
+              onPress={() => requestTip(sortedProducts[3].id)}
             />
 
             {totalTip > 0 && (
               <Text style={styles.totalTips}>
-                {translate("settings.totalTips")}: {totalTip} {products[0].currency === "ILS" ? "₪" : "$"}
+                {translate("settings.totalTips")}: {totalTip} {sortedProducts[0].currency === "ILS" ? "₪" : "$"}
               </Text>
             )}
           </>
@@ -149,21 +74,28 @@ export function TipJarScreen() {
         )}
       </Screen>
 
-      <TipThanksModalNative visible={showThanksModal} onClose={() => setShowThanksModal(false)} />
+      <TipThanksModalNative visible={showThanksModal} onClose={dismissThanks} />
     </>
   )
 }
 
 interface TipRowProps {
+  disabled: boolean
   title: string
   amount: string
   onPress: () => void
 }
 
-const TipRow = ({ title, amount, onPress }: TipRowProps) => (
+const TipRow = ({ title, amount, onPress, disabled }: TipRowProps) => (
   <View style={styles.listRow}>
     <Text>{title}</Text>
-    <TouchableOpacity style={styles.tipButton} onPress={onPress} activeOpacity={0.6}>
+    <TouchableOpacity
+      style={[styles.tipButton, { opacity: disabled ? 0.5 : 1 }]}
+      onPress={onPress}
+      activeOpacity={0.6}
+      disabled={disabled}
+      accessibilityState={{ disabled }}
+    >
       <Text style={styles.tipAmount}>{amount}</Text>
     </TouchableOpacity>
   </View>

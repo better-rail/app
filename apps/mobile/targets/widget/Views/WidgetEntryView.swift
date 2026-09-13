@@ -107,7 +107,7 @@ struct WidgetEntryView: View {
         .padding(.bottom, widgetFamily == .systemLarge ? 8 : 16)
         .padding([.top, .leading])
         
-        if widgetFamily == .systemMedium, let upcomingTrains = entry.upcomingTrains, upcomingTrains.count > 0 {
+        if widgetFamily == .systemMedium, let upcomingTrains = entry.upcomingTrains?.prefix(5), upcomingTrains.count > 0 {
           Spacer()
           
           if (isLargeScreen) {
@@ -153,18 +153,19 @@ struct WidgetEntryView: View {
         Spacer()
         
       }
-      .frame(maxHeight: 170)
       .if(widgetFamily == .systemLarge) {
-        $0.background(WidgetBackground(image: entry.origin.image).frame(height: 170))
+        $0.frame(height: 170)
+      }
+      .if(widgetFamily == .systemLarge) {
+        $0.background(WidgetBackground(image: entry.origin.image, height: 170).frame(height: 170))
       }
       
       if (widgetFamily == .systemLarge) {
         WidgetLargeScheduleView(upcomingTrains: entry.upcomingTrains ?? [], statusCode: entry.departureTime)
-        Spacer()
       }
     }
     .if(widgetFamily != .systemLarge) {
-      $0.widgetBackground(WidgetBackground(image: entry.origin.image).frame(height: 170))
+      $0.widgetBackground(WidgetBackground(image: entry.origin.image))
     }
     .if(widgetFamily == .systemLarge) {
       $0.widgetBackground(Color(UIColor.secondarySystemBackground))

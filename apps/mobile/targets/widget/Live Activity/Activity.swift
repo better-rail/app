@@ -42,6 +42,7 @@ struct BetterRailActivityAttributes: ActivityAttributes {
   var departureDate: Date { isoDateStringToDate(route.departureTime) }
   var arrivalDate: Date { isoDateStringToDate(route.arrivalTime) }
   var trainNumbers: [Int] { route.trains.map { $0.trainNumber } }
+  var viaStationId: Int? { route.viaStationId.flatMap(Int.init) }
   
   var frequentPushesEnabled: Bool = true
 }
@@ -137,7 +138,7 @@ class LiveActivitiesController {
   private func registerLiveActivity(_ activity: LiveActivityRoute, token: String) async {
     let details = activity.attributes
           
-    let ride = Ride(token: token, departureDate: details.departureTime, originId: details.originStationId, destinationId: details.destinationStationId, trains: details.trainNumbers, locale: "en")
+    let ride = Ride(token: token, departureDate: details.departureTime, originId: details.originStationId, destinationId: details.destinationStationId, trains: details.trainNumbers, locale: "en", viaStationId: details.viaStationId)
 
     Task.init {
       do {

@@ -1,0 +1,27 @@
+appId: ${MAESTRO_APP_ID}
+---
+# The E2E build always starts in English, so ASCII input works on Android as
+# well as iOS. Selection and assertions use locale-independent test IDs.
+- tapOn:
+    id: "planner-origin-card"
+- assertVisible:
+    id: "select-station-screen"
+- tapOn:
+    id: "station-search-input"
+- inputText: "Jerusalem"
+- tapOn:
+    id: "station-item-680"
+- assertVisible:
+    id: "planner-origin-680"
+
+- tapOn:
+    id: "planner-destination-card"
+- assertVisible:
+    id: "select-station-screen"
+- tapOn:
+    id: "station-search-input"
+- inputText: "HaShalom"
+- tapOn:
+    id: "station-item-4600"
+- assertVisible:
+    id: "planner-destination-4600"

@@ -31,6 +31,7 @@ struct Route: Identifiable, Codable, Hashable {
     let departureTime: String
     let arrivalTime: String
     let trains: [Train]
+    var viaStationId: String? = nil
     var isExchange: Bool { trains.count > 1 }
     var delay: Int { trains.first?.delay ?? 0 }
     var isTomorrow: Bool {

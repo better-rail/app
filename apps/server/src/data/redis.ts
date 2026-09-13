@@ -9,6 +9,14 @@ import { logNames, logger } from "../logs"
 let client: RedisClientType
 
 export const connectToRedis = async () => {
+  // Without REDIS_URL the client would default to localhost and retry a local
+  // instance forever. Skip the connect instead: reads return null and the
+  // redis-backed routes degrade to 503.
+  if (!redisUrl) {
+    logger.warn(logNames.redis.connect.skipped)
+    return
+  }
+
   client = createClient({ url: redisUrl })
 
   client.on("error", (error) => {
@@ -26,9 +34,9 @@ export const getRedisClient = (): RedisClientType | undefined => client
 
 export const addRide = async (ride: Ride): Promise<boolean> => {
   try {
-    const promises = Object.entries(omit(ride, "rideId")).map(([key, value]) =>
-      client.hSet(getKey(ride.rideId), key, JSON.stringify(value)),
-    )
+    const promises = Object.entries(omit(ride, "rideId"))
+      .filter(([, value]) => value !== undefined)
+      .map(([key, value]) => client.hSet(getKey(ride.rideId), key, JSON.stringify(value)))
     await Promise.all(promises)
 
     logger.info(logNames.redis.rides.add.success, { rideId: ride.rideId, token: ride.token })

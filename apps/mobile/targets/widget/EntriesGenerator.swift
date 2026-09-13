@@ -28,8 +28,8 @@ struct EntriesGenerator {
           // Add tomorrow's first entry as the last entry for today
           entries.append(tomorrowEntries[0])
         } else {
-          // If the first entry is two days in the future, display no trains are available
-          entries = [getEmptyEntry(originId: originId, destinationId: destinationId, label: label, date: lastTrainEntryDate)]
+          // Tomorrow has no trains: show the empty entry once today's last train has left
+          entries.append(getEmptyEntry(originId: originId, destinationId: destinationId, label: label, date: lastTrainEntryDate))
         }
       } else {
         // If there are no trains coming up tomorrow, display an empty entry at the end of today's entries
@@ -84,8 +84,8 @@ struct EntriesGenerator {
         if upcomingRoutes.count > 1 {
           let allUpcomingRoutes = Array(upcomingRoutes[index + 1 ..< upcomingRoutes.count ])
           
-          // Include a maximum of 4 routes in the upcoming routes
-          let routesCount = allUpcomingRoutes.count > 5 ? 5 : allUpcomingRoutes.count
+          // Keep enough for the extra large widget; smaller families take a prefix
+          let routesCount = min(allUpcomingRoutes.count, 9)
           let upcomingRoutes = Array(allUpcomingRoutes[0 ..< routesCount])
           
           entry.upcomingTrains = getUpcomingTrains(entry.isTomorrow, routes: upcomingRoutes)

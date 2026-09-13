@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useMemo, useState } from "react"
-import { Image, Platform, PlatformColor, Pressable, View } from "react-native"
+import { Alert, Image, Platform, PlatformColor, Pressable, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { ScrollView } from "react-native-gesture-handler"
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated"
@@ -49,6 +49,7 @@ export function RouteDetailsScreen() {
   } = useNavigationParamsStore(
     useShallow((s) => ({ routeItem: s.routeItem, originId: s.originId, destinationId: s.destinationId })),
   )
+  const viaStationId = paramsRouteItem.viaStationId
   const {
     rideRoute,
     id: rideId,
@@ -66,13 +67,14 @@ export function RouteDetailsScreen() {
   // Periodically refetch route data to catch platform changes and delays.
   // Skip when ride is active — the ride polling already handles updates.
   const { data: freshRouteItem } = useQuery(
-    ["routeDetails", originId, destinationId, paramsRouteItem.departureTime, ...trainNumbers],
+    ["routeDetails", originId, destinationId, viaStationId, paramsRouteItem.departureTime, ...trainNumbers],
     async () => {
       const [date, time] = formatDateForAPI(paramsRouteItem.departureTime)
       const originId = paramsRouteItem.trains[0].originStationId.toString()
       const destinationId = paramsRouteItem.trains[paramsRouteItem.trains.length - 1].destinationStationId.toString()
-      const routes = await routeApi.getRoutes(originId, destinationId, date, time)
-      return getSelectedRide(routes, trainNumbers) ?? paramsRouteItem
+      const routes = await routeApi.getRoutes(originId, destinationId, date, time, { viaStation: viaStationId })
+      const fresh = getSelectedRide(routes, trainNumbers)
+      return fresh ? { ...fresh, viaStationId } : paramsRouteItem
     },
     {
       initialData: paramsRouteItem,
@@ -110,6 +112,7 @@ export function RouteDetailsScreen() {
 
   return (
     <Screen
+      testID="route-details-screen"
       style={styles.root}
       preset="fixed"
       unsafe={true}
@@ -344,26 +347,30 @@ export function RouteDetailsScreen() {
               gap: spacing[3],
             }}
           >
-            {hasWagonData && (
-              <Pressable
-                onPress={() => {
+            <Pressable
+              testID="train-info-button"
+              onPress={() => {
+                if (hasWagonData) {
                   trackEvent("train_info_sheet_opened")
                   HapticFeedback.trigger("impactLight")
                   useNavigationParamsStore.getState().setTrainInfo(routeItem.trains[0])
                   router.push("/train-info")
-                }}
-                accessibilityLabel={translate("routeDetails.trainInformation")}
+                } else {
+                  Alert.alert(translate("routeDetails.trainInformation") ?? "", translate("routeDetails.noTrainDetails") ?? "")
+                }
+              }}
+              accessibilityLabel={translate("routeDetails.trainInformation") ?? undefined}
+              accessibilityHint={!hasWagonData ? (translate("routeDetails.noTrainDetails") ?? undefined) : undefined}
+            >
+              <LiquidGlassView
+                style={[styles.infoButton, !hasWagonData && styles.infoButtonDisabled]}
+                interactive={hasWagonData}
+                effect="regular"
+                tintColor={Platform.OS === "ios" ? PlatformColor("tertiarySystemBackground") : undefined}
               >
-                <LiquidGlassView
-                  style={styles.infoButton}
-                  interactive
-                  effect="regular"
-                  tintColor={PlatformColor("tertiarySystemBackground")}
-                >
-                  <Image source={require("../../../assets/info.circle.png")} style={styles.infoButtonIcon} />
-                </LiquidGlassView>
-              </Pressable>
-            )}
+                <Image source={require("../../../assets/info.circle.png")} style={styles.infoButtonIcon} />
+              </LiquidGlassView>
+            </Pressable>
 
             <StartRideButton route={routeItem} screenName={screenName} />
           </Animated.View>
@@ -373,7 +380,7 @@ export function RouteDetailsScreen() {
   )
 }
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, rt) => ({
   root: {
     flex: 1,
     backgroundColor: theme.colors.background,
@@ -386,10 +393,24 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.background,
   },
   infoButton: {
-    padding: Platform.select({ ios: 14, android: 18 }),
+    // The text button renders 4pt taller than its minimum at the default font
+    // scale because of its line box and padding. Match that visible surface.
+    width: Math.max(59, 55 * Math.min(rt.fontScale, 1.2)),
+    height: Math.max(59, 55 * Math.min(rt.fontScale, 1.2)),
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: Platform.select({ ios: 16, android: 6 }),
-    backgroundColor: isLiquidGlassSupported ? undefined : theme.colors.tertiaryBackground,
-    elevation: 1,
+    borderCurve: "continuous",
+    // Android's tertiaryBackground is the screen background — inputBackground is the raised one.
+    backgroundColor: isLiquidGlassSupported
+      ? undefined
+      : Platform.OS === "android"
+        ? theme.colors.inputBackground
+        : theme.colors.tertiaryBackground,
+    elevation: 3,
+  },
+  infoButtonDisabled: {
+    opacity: 0.5,
   },
   infoButtonIcon: {
     width: 24,

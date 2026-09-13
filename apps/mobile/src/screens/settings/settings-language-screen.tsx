@@ -37,6 +37,7 @@ export function LanguageScreen() {
 
   return (
     <Screen
+      testID="language-settings-screen"
       style={styles.root}
       preset="scroll"
       unsafe={true}
@@ -45,10 +46,32 @@ export function LanguageScreen() {
       translucent
     >
       <View style={SETTING_GROUP}>
-        <SettingBox first title="עברית" onPress={() => changeLanguage("he")} checkmark={userLocale === "he"} />
-        <SettingBox title="العربية" onPress={() => changeLanguage("ar")} checkmark={userLocale === "ar"} />
-        <SettingBox title="English" onPress={() => changeLanguage("en")} checkmark={userLocale === "en"} />
-        <SettingBox last title="Русский" onPress={() => changeLanguage("ru")} checkmark={userLocale === "ru"} />
+        <SettingBox
+          testID="language-option-he"
+          first
+          title="עברית"
+          onPress={() => changeLanguage("he")}
+          checkmark={userLocale === "he"}
+        />
+        <SettingBox
+          testID="language-option-ar"
+          title="العربية"
+          onPress={() => changeLanguage("ar")}
+          checkmark={userLocale === "ar"}
+        />
+        <SettingBox
+          testID="language-option-en"
+          title="English"
+          onPress={() => changeLanguage("en")}
+          checkmark={userLocale === "en"}
+        />
+        <SettingBox
+          testID="language-option-ru"
+          last
+          title="Русский"
+          onPress={() => changeLanguage("ru")}
+          checkmark={userLocale === "ru"}
+        />
       </View>
     </Screen>
   )

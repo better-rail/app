@@ -6,6 +6,7 @@ import {
   setCachedPosthogProperties,
   setCachedPosthogProperty,
 } from "./posthog-user-properties"
+import { IS_E2E } from "@/config/e2e"
 
 export const posthogOptions: PostHogOptions = {
   host: "https://eu.i.posthog.com",
@@ -23,9 +24,10 @@ const POSTHOG_API_KEY = process.env.EXPO_PUBLIC_POSTHOG_API_KEY
 // run. (This is exactly what took down the first release builds: the EAS env var was misnamed, so
 // the key was undefined.) Never let a missing/misconfigured key crash startup — fall back to a
 // disabled client (placeholder key passes the falsy check; `disabled` makes it a no-op).
-export const posthog = POSTHOG_API_KEY
-  ? new PostHog(POSTHOG_API_KEY, posthogOptions)
-  : new PostHog("phc_disabled_placeholder", { ...posthogOptions, disabled: true })
+export const posthog =
+  POSTHOG_API_KEY && !IS_E2E
+    ? new PostHog(POSTHOG_API_KEY, posthogOptions)
+    : new PostHog("phc_disabled_placeholder", { ...posthogOptions, disabled: true })
 
 type AnalyticsValue = string | number | boolean | null | AnalyticsValue[] | { [key: string]: AnalyticsValue }
 type AnalyticsParams = Record<string, AnalyticsValue>

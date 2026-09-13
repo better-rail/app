@@ -16,8 +16,9 @@ struct Ride: Encodable, Identifiable {
     let trains: [Int]
     let locale: String
     let provider: String
+    let viaStationId: Int?
   
-  init(token: String, departureDate: String, originId: Int, destinationId: Int, trains: [Int], locale: String) {
+  init(token: String, departureDate: String, originId: Int, destinationId: Int, trains: [Int], locale: String, viaStationId: Int? = nil) {
     self.token = token
     self.departureDate = departureDate
     self.originId = originId
@@ -25,6 +26,7 @@ struct Ride: Encodable, Identifiable {
     self.trains = trains
     self.locale = locale
     self.provider = "ios"
+    self.viaStationId = viaStationId
   }
 }
 

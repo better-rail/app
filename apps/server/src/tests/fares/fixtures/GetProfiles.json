@@ -1,0 +1,128 @@
+{
+  "creationDate": "2026-09-07T23:40:07.2126496+03:00",
+  "version": "4.2.0",
+  "successStatus": 1,
+  "statusCode": 200,
+  "errorMessages": null,
+  "result": [
+    {
+      "profile_Id": 0,
+      "heb_Profile_Desc": "כללי",
+      "eng_Desc": null,
+      "arb_Desc": null,
+      "rus_Desc": null
+    },
+    {
+      "profile_Id": 3,
+      "heb_Profile_Desc": "סטודנט מורחב",
+      "eng_Desc": null,
+      "arb_Desc": null,
+      "rus_Desc": null
+    },
+    {
+      "profile_Id": 4,
+      "heb_Profile_Desc": "אזרח ותיק",
+      "eng_Desc": null,
+      "arb_Desc": null,
+      "rus_Desc": null
+    },
+    {
+      "profile_Id": 5,
+      "heb_Profile_Desc": "נכה",
+      "eng_Desc": null,
+      "arb_Desc": null,
+      "rus_Desc": null
+    },
+    {
+      "profile_Id": 6,
+      "heb_Profile_Desc": "לקוי ראיה",
+      "eng_Desc": null,
+      "arb_Desc": null,
+      "rus_Desc": null
+    },
+    {
+      "profile_Id": 19,
+      "heb_Profile_Desc": "סטודנט רגיל",
+      "eng_Desc": null,
+      "arb_Desc": null,
+      "rus_Desc": null
+    },
+    {
+      "profile_Id": 33,
+      "heb_Profile_Desc": "ילד/נוער גיל 5-18",
+      "eng_Desc": null,
+      "arb_Desc": null,
+      "rus_Desc": null
+    },
+    {
+      "profile_Id": 34,
+      "heb_Profile_Desc": "שירות לאומי",
+      "eng_Desc": null,
+      "arb_Desc": null,
+      "rus_Desc": null
+    },
+    {
+      "profile_Id": 36,
+      "heb_Profile_Desc": "משטרה",
+      "eng_Desc": null,
+      "arb_Desc": null,
+      "rus_Desc": null
+    },
+    {
+      "profile_Id": 37,
+      "heb_Profile_Desc": "שירות בתי הסוהר",
+      "eng_Desc": null,
+      "arb_Desc": null,
+      "rus_Desc": null
+    },
+    {
+      "profile_Id": 40,
+      "heb_Profile_Desc": "זכאי ביטוח לאומי",
+      "eng_Desc": null,
+      "arb_Desc": null,
+      "rus_Desc": null
+    },
+    {
+      "profile_Id": 41,
+      "heb_Profile_Desc": "נפגעי פעולות איבה",
+      "eng_Desc": null,
+      "arb_Desc": null,
+      "rus_Desc": null
+    },
+    {
+      "profile_Id": 43,
+      "heb_Profile_Desc": "מלווה לקוי ראיה",
+      "eng_Desc": null,
+      "arb_Desc": null,
+      "rus_Desc": null
+    },
+    {
+      "profile_Id": 45,
+      "heb_Profile_Desc": "זהב קו 67+",
+      "eng_Desc": null,
+      "arb_Desc": null,
+      "rus_Desc": null
+    },
+    {
+      "profile_Id": 47,
+      "heb_Profile_Desc": "צעיר מגיל 18 עד 26",
+      "eng_Desc": null,
+      "arb_Desc": null,
+      "rus_Desc": null
+    },
+    {
+      "profile_Id": 48,
+      "heb_Profile_Desc": "תושב פריפריה",
+      "eng_Desc": null,
+      "arb_Desc": null,
+      "rus_Desc": null
+    },
+    {
+      "profile_Id": 49,
+      "heb_Profile_Desc": "חייל משוחרר",
+      "eng_Desc": null,
+      "arb_Desc": null,
+      "rus_Desc": null
+    }
+  ]
+}

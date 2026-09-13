@@ -6,10 +6,12 @@ import { ContextMenu } from "@/components/context-menu/context-menu"
 import TouchableScale from "react-native-touchable-scale"
 import { Text } from "@/components"
 import { translate } from "@/i18n"
+import { IS_E2E } from "@/config/e2e"
 
 const colorScheme = Appearance.getColorScheme()
 
 type StationSearchEntryProps = {
+  testID?: string
   image: ImageSourcePropType
   name: string
   onHide: () => void
@@ -18,6 +20,7 @@ type StationSearchEntryProps = {
 
 export const StationSearchEntry = (props: StationSearchEntryProps) => (
   <TouchableScale
+    testID={props.testID}
     onPress={props.onPress}
     activeScale={0.96}
     friction={8}
@@ -25,6 +28,7 @@ export const StationSearchEntry = (props: StationSearchEntryProps) => (
     style={styles.searchEntryWrapper}
   >
     <ContextMenu
+      disabled={IS_E2E}
       title={props.name}
       previewBorderRadius={6}
       actions={[{ title: translate("selectStation.hide"), systemIcon: "trash", destructive: true, onPress: props.onHide }]}

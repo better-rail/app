@@ -11,7 +11,7 @@ export function HeaderBackButton() {
 
   if (isLiquidGlassSupported) {
     return (
-      <Pressable onPress={() => router.back()}>
+      <Pressable testID="header-back-button" onPress={() => router.back()}>
         <LiquidGlassView interactive colorScheme="dark" style={styles.liquidWrapper}>
           <Image source={CHEVRON} style={styles.icon} />
         </LiquidGlassView>
@@ -20,7 +20,7 @@ export function HeaderBackButton() {
   }
 
   return (
-    <View style={styles.backButtonWrapper}>
+    <View testID="header-back-button" style={styles.backButtonWrapper}>
       <BackButton tintColor="rgba(211, 211, 211, 0.9)" onPress={() => router.back()} />
     </View>
   )

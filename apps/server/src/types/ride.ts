@@ -13,6 +13,10 @@ export const RideRequestSchema = z.object({
   destinationId: z.number().refine((value) => stationsObject[value], { message: "Destination station doesn't exist" }),
   trains: z.number().array().nonempty(),
   locale: z.nativeEnum(LanguageCode),
+  viaStationId: z
+    .number()
+    .refine((value) => stationsObject[value], { message: "Via station doesn't exist" })
+    .optional(),
 })
 
 export type RideRequest = z.infer<typeof RideRequestSchema>

@@ -1,0 +1,75 @@
+appId: ${MAESTRO_APP_ID}
+name: Settings navigation and persistence
+tags:
+  - core
+  - settings
+---
+- runFlow: ../subflows/launch-clean.yaml
+- tapOn:
+    id: "open-settings-button"
+- assertVisible:
+    id: "settings-screen"
+- tapOn:
+    id: "settings-appearance"
+- assertVisible:
+    id: "appearance-settings-screen"
+- assertVisible:
+    id: "settings-show-train-info-off"
+- tapOn:
+    id: "settings-show-train-info-off"
+- assertVisible:
+    id: "settings-show-train-info-on"
+
+# Confirm the preference survives an app restart.
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: "planner-screen"
+    timeout: 30000
+- tapOn:
+    id: "open-settings-button"
+- tapOn:
+    id: "settings-appearance"
+- assertVisible:
+    id: "settings-show-train-info-on"
+
+# The language picker exposes all supported locales. Relaunch first because iOS
+# has no hardware Back command.
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: "planner-screen"
+    timeout: 30000
+- tapOn:
+    id: "open-settings-button"
+- tapOn:
+    id: "settings-language"
+- assertVisible:
+    id: "language-settings-screen"
+- assertVisible:
+    id: "language-option-he"
+- assertVisible:
+    id: "language-option-ar"
+- assertVisible:
+    id: "language-option-en-selected"
+- assertVisible:
+    id: "language-option-ru"
+
+# Change to an RTL language, allow the app to restart, and verify the persisted
+# locale is restored through the normal startup path.
+- tapOn:
+    id: "language-option-he"
+- tapOn:
+    text: "OK"
+- extendedWaitUntil:
+    visible:
+      id: "planner-screen"
+    timeout: 30000
+- tapOn:
+    id: "open-settings-button"
+- tapOn:
+    id: "settings-language"
+- extendedWaitUntil:
+    visible:
+      id: "language-option-he-selected"
+    timeout: 10000

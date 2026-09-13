@@ -48,6 +48,7 @@ export function UISettingsScreen() {
 
   return (
     <Screen
+      testID="appearance-settings-screen"
       style={styles.root}
       preset="scroll"
       unsafe={true}
@@ -62,6 +63,7 @@ export function UISettingsScreen() {
 
       <View style={SETTING_GROUP}>
         <SettingBox
+          testID="settings-show-train-info"
           first
           last
           title={translate("settings.showRouteCardHeader")}

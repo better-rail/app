@@ -10,7 +10,14 @@ let accessoryWidgetFamilies: [WidgetFamily] = [.accessoryCircular, .accessoryInl
 struct BetterRailWidgetView: View {
   var entry: TrainDetail
   @Environment(\.widgetFamily) var widgetFamily
-  
+
+  var isExtraLarge: Bool {
+    #if os(iOS)
+    if #available(iOS 27.0, *) { return widgetFamily == .systemExtraLargePortrait }
+    #endif
+    return false
+  }
+
   var body: some View {
     if accessoryWidgetFamilies.contains(widgetFamily) {
       AccessoryEntryView(entry: entry)
@@ -19,8 +26,14 @@ struct BetterRailWidgetView: View {
       #if os(watchOS)
         EmptyView()
       #else
-      WidgetEntryView(entry: entry)
-        .widgetURL(URL(string: "widget://route?originId=\(entry.origin.id)&destinationId=\(entry.destination.id)")!)
+      Group {
+        if isExtraLarge {
+          WidgetExtraLargeView(entry: entry)
+        } else {
+          WidgetEntryView(entry: entry)
+        }
+      }
+      .widgetURL(URL(string: "widget://route?originId=\(entry.origin.id)&destinationId=\(entry.destination.id)")!)
       #endif
     }
   }

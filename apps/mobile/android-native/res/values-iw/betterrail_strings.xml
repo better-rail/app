@@ -53,6 +53,10 @@
 
     <string name="arrival">הגעה</string>
     <string name="arrival_caps">הגעה</string>
+    <string name="widget_preview_platform">רציף 3</string>
+    <string name="widget_preview_train">רכבת מס׳ 2350</string>
+    <string name="widget_preview_platform_4x2">רציף 1</string>
+    <string name="widget_preview_train_4x2">רכבת מס׳ 2058</string>
 
     <!-- Station names -->
     <string name="station_1500">עכו</string>

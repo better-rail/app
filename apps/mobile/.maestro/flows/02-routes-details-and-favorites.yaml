@@ -1,0 +1,64 @@
+appId: ${MAESTRO_APP_ID}
+name: Route results, details, train info, and favorites
+tags:
+  - core
+  - routes
+---
+- runFlow: ../subflows/launch-clean.yaml
+- runFlow: ../subflows/select-stations.yaml
+- tapOn:
+    id: "find-routes-button"
+- extendedWaitUntil:
+    visible:
+      id: "route-card-direct"
+    timeout: 30000
+- assertVisible:
+    id: "route-list-screen"
+
+# Save the selected station pair as a favorite.
+- assertVisible:
+    id: "favorite-route-button-unselected"
+- tapOn:
+    id: "favorite-route-button-unselected"
+- assertVisible:
+    id: "favorite-route-button-selected"
+
+# Open the first result and verify its details and native train-info sheet.
+- tapOn:
+    id: "route-card-direct"
+- assertVisible:
+    id: "route-details-screen"
+- extendedWaitUntil:
+    visible:
+      id: "train-info-button"
+    timeout: 10000
+- tapOn:
+    id: "train-info-button"
+- assertVisible:
+    id: "train-info-screen"
+
+# Relaunching keeps persisted favorites but resets navigation to the planner.
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: "planner-screen"
+    timeout: 30000
+- retry:
+    maxRetries: 3
+    commands:
+      - tapOn:
+          id: "planner-origin-card"
+      - extendedWaitUntil:
+          visible:
+            id: "select-station-screen"
+          timeout: 5000
+- extendedWaitUntil:
+    visible:
+      id: "favorite-route-6804600"
+    timeout: 10000
+- tapOn:
+    id: "favorite-route-6804600"
+- assertVisible:
+    id: "planner-origin-680"
+- assertVisible:
+    id: "planner-destination-4600"

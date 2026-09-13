@@ -14,6 +14,7 @@ import { createContextMenuActions } from "./route-context-menu-actions"
 import type { RouteItem } from "@/services/api"
 import { useShallow } from "zustand/react/shallow"
 import { useSettingsStore } from "@/models"
+import { IS_E2E } from "@/config/e2e"
 
 // Setting static height for FlatList getItemLayout
 export let RouteCardHeight = 75
@@ -150,7 +151,6 @@ export function RouteCard(props: RouteCardProps) {
         containerStyle,
         props.isActiveRide && styles.activeRideContainer,
         props.isRouteInThePast && styles.pastRideContainer,
-        style,
       ]}
     >
       {/* Header with train information */}
@@ -219,7 +219,8 @@ export function RouteCard(props: RouteCardProps) {
   )
 
   return (
-    <ContextMenu actions={generatedContextMenuActions} previewBorderRadius={12}>
+    // The native menu host drops the card's own margins
+    <ContextMenu actions={generatedContextMenuActions} previewBorderRadius={12} style={style} fillWidth disabled={IS_E2E}>
       {cardContent}
     </ContextMenu>
   )

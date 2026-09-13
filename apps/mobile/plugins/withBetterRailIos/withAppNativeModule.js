@@ -18,6 +18,7 @@ const path = require("path")
 // [sourceRelativeToRepoRoot, destFileName]
 const SWIFT_FILES = [
   ["ios-native/app/RNBetterRail.swift", "RNBetterRail.swift"],
+  ["ios-native/app/SceneDelegate.swift", "SceneDelegate.swift"],
   ["ios-native/app/Swifty.swift", "Swifty.swift"],
   ["targets/widget/Live Activity/Activity.swift", "Activity.swift"],
   ["targets/widget/Live Activity/ActivityNotificationsAPI.swift", "ActivityNotificationsAPI.swift"],

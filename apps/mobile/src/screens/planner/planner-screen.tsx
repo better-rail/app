@@ -185,7 +185,7 @@ export function PlannerScreen() {
   )
 
   return (
-    <Screen style={styles.root} statusBarBackgroundColor="transparent" translucent>
+    <Screen testID="planner-screen" style={styles.root} statusBarBackgroundColor="transparent" translucent>
       <FlingGestureWrapper onFling={onSwitchPress}>
         <View style={styles.contentWrapper}>
           <PlannerScreenHeader />
@@ -193,7 +193,7 @@ export function PlannerScreen() {
           <Text preset="header" tx="plan.title" style={styles.screenTitle} />
 
           <Text preset="fieldLabel" tx="plan.origin" style={{ marginBottom: spacing[1] }} />
-          <Animated.View style={{ transform: [{ scale: stationCardScale }] }}>
+          <Animated.View testID={`planner-origin-${origin?.id ?? "empty"}`} style={{ transform: [{ scale: stationCardScale }] }}>
             <StationCard
               testID="planner-origin-card"
               name={originData?.name}
@@ -204,11 +204,14 @@ export function PlannerScreen() {
           </Animated.View>
 
           <View style={styles.changeDirectionWrapper}>
-            <ChangeDirectionButton onPress={onSwitchPress} disabled={!origin || !destination} />
+            <ChangeDirectionButton testID="switch-stations-button" onPress={onSwitchPress} disabled={!origin || !destination} />
           </View>
 
           <Text preset="fieldLabel" tx="plan.destination" style={{ marginBottom: spacing[1] }} />
-          <Animated.View style={{ transform: [{ scale: stationCardScale }] }}>
+          <Animated.View
+            testID={`planner-destination-${destination?.id ?? "empty"}`}
+            style={{ transform: [{ scale: stationCardScale }] }}
+          >
             <StationCard
               testID="planner-destination-card"
               name={destinationData?.name}
