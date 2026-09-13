@@ -353,34 +353,42 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         
         updateWidgetUI(context, appWidgetManager, appWidgetId, state)
 
-        // Only for 4x3 widget: if today has fewer upcoming trains than table capacity,
-        // fill the remaining slots with tomorrow's upcoming runs so user can see next day's schedule.
-        val maxNeeded = WidgetSize.MAX_UPCOMING_TRAINS_4X3 + 1
-        if (getLayoutResource() == R.layout.widget_compact_4x3 && !isFromTomorrowRequest && daysAway == 0 && upcomingTrains.size < maxNeeded) {
-            try {
-                val tomorrowResource = scheduleRepository.getTomorrowSchedule(appWidgetId, widgetData)
-                    .filter { it !is Resource.Loading }
-                    .firstOrNull()
+        if (isFromTomorrowRequest || daysAway != 0) return
+        if (!isEffective4x3(context, appWidgetId)) return
 
-                if (tomorrowResource is Resource.Success && tomorrowResource.data.routes.isNotEmpty()) {
-                    val tomorrowUpcoming = filterUpcomingTrains(tomorrowResource.data.routes)
-                    if (tomorrowUpcoming.isNotEmpty()) {
-                        val neededCount = maxNeeded - upcomingTrains.size
-                        val combinedTrains = upcomingTrains + tomorrowUpcoming.take(neededCount)
-                        Log.d(getLogTag(), "Appended ${tomorrowUpcoming.take(neededCount).size} tomorrow trains for widget $appWidgetId")
-                        val updatedState = WidgetState.Schedule(
-                            widgetData.originId,
-                            originName,
-                            destinationName,
-                            firstTrain,
-                            combinedTrains.drop(1)
-                        )
-                        updateWidgetUI(context, appWidgetManager, appWidgetId, updatedState)
-                    }
+        val maxNeeded = WidgetSize.MAX_UPCOMING_TRAINS_4X3 + 1
+        if (upcomingTrains.size >= maxNeeded) return
+
+        try {
+            val tomorrowResource = scheduleRepository.getTomorrowSchedule(appWidgetId, widgetData)
+                .filter { it !is Resource.Loading }
+                .firstOrNull()
+
+            if (tomorrowResource is Resource.Success && tomorrowResource.data.routes.isNotEmpty()) {
+                val tomorrowUpcoming = filterUpcomingTrains(tomorrowResource.data.routes)
+                if (tomorrowUpcoming.isNotEmpty()) {
+                    val neededCount = maxNeeded - upcomingTrains.size
+                    val combinedTrains = upcomingTrains + tomorrowUpcoming.take(neededCount)
+                    val updatedState = WidgetState.Schedule(
+                        widgetData.originId,
+                        originName,
+                        destinationName,
+                        firstTrain,
+                        combinedTrains.drop(1)
+                    )
+                    updateWidgetUI(context, appWidgetManager, appWidgetId, updatedState)
                 }
-            } catch (e: Exception) {
-                Log.w(getLogTag(), "Could not append tomorrow trains for widget $appWidgetId: ${e.message}")
             }
+        } catch (e: Exception) {
+            Log.w(getLogTag(), "Could not append tomorrow trains for widget $appWidgetId: ${e.message}")
+        }
+    }
+
+    private fun isEffective4x3(context: Context, appWidgetId: Int): Boolean {
+        return if (this is UnifiedWidgetProvider) {
+            getEffectiveWidgetSize(context, appWidgetId) == WidgetSize.COMPACT_4X3
+        } else {
+            getLayoutResource() == R.layout.widget_compact_4x3
         }
     }
     
