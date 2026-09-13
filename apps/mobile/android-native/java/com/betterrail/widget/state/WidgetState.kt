@@ -369,6 +369,15 @@ class WidgetStateRenderer(
                     views.setViewVisibility(resources.dividerId, android.view.View.VISIBLE)
                 }
                 views.setTextViewText(resources.trainTimeId, train.departureTime)
+                if (layoutResource == R.layout.widget_compact_4x3) {
+                    val isTomorrow = train.getDaysAway() >= 1
+                    val timeColor = if (isTomorrow) {
+                        context.getColor(R.color.widget_tomorrow_text)
+                    } else {
+                        0xFF111111.toInt()
+                    }
+                    views.setTextColor(resources.trainTimeId, timeColor)
+                }
                 views.setTextViewText(resources.arrivalTimeId, train.arrivalTime)
                 if (resources.durationId != 0) {
                     val durationText = formatDuration(context, train)
