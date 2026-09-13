@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/widget_container_compact_4x4"
+    android:id="@+id/widget_container_compact_4x3_preview"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            android:src="@drawable/assets_railwaystation" />
+            android:src="@drawable/assets_stationimages_tlvhashalom" />
 
         <!-- Dark Scrim Overlay -->
         <LinearLayout
@@ -35,7 +35,7 @@
                 android:id="@+id/widget_station_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/station_3700"
+                android:text="Tel Aviv - HaShalom"
                 android:textColor="#FFFFFF"
                 android:textSize="17sp"
                 android:textStyle="bold"
@@ -72,7 +72,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/arrival"
+                    android:text="Jerusalem - Yitzhak Navon"
                     android:textColor="#FFFFFF"
                     android:textSize="13.5sp"
                     android:typeface="sans"
@@ -121,7 +121,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:includeFontPadding="false"
-                    android:text="--:--"
+                    android:text="06:32"
                     android:textColor="#FFFFFF"
                     android:textSize="32sp"
                     android:textStyle="bold"
@@ -158,7 +158,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
-                        android:text="--:--"
+                        android:text="06:58"
                         android:textColor="#FFFFFF"
                         android:textSize="19sp"
                         android:textStyle="bold"
@@ -195,7 +195,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
-                        android:text="--"
+                        android:text="1"
                         android:textColor="#FFFFFF"
                         android:textSize="19sp"
                         android:textStyle="bold"
@@ -232,7 +232,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
-                        android:text="---"
+                        android:text="261"
                         android:textColor="#FFFFFF"
                         android:textSize="19sp"
                         android:textStyle="bold"
@@ -244,36 +244,6 @@
                         android:shadowRadius="3" />
                 </LinearLayout>
 
-            </LinearLayout>
-
-            <!-- Fallback text for configuration / error states -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:visibility="gone">
-                <TextView
-                    android:id="@+id/widget_platform"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#B3FFFFFF"
-                    android:textSize="11sp"
-                    android:visibility="gone" />
-                <TextView
-                    android:id="@+id/widget_dot_separator"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="‧"
-                    android:textColor="#B3FFFFFF"
-                    android:textSize="11sp"
-                    android:visibility="gone" />
-                <TextView
-                    android:id="@+id/widget_train_number"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#B3FFFFFF"
-                    android:textSize="11sp"
-                    android:visibility="gone" />
             </LinearLayout>
 
         </LinearLayout>
@@ -366,39 +336,26 @@
                 android:gravity="end" />
         </LinearLayout>
 
-        <!-- Empty / Error state placeholder inside table -->
-        <TextView
-            android:id="@+id/widget_upcoming_label"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="@string/upcoming"
-            android:textColor="#757575"
-            android:textSize="13sp"
-            android:visibility="gone" />
-
         <!-- Row 1 -->
         <FrameLayout
             android:id="@+id/widget_upcoming_divider_1"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#E5E5EA"
-            android:visibility="gone" />
+            android:background="#E5E5EA" />
 
         <LinearLayout
             android:id="@+id/widget_upcoming_row_1"
             android:layout_width="match_parent"
             android:layout_height="28dp"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:visibility="gone">
+            android:gravity="center_vertical">
 
             <TextView
                 android:id="@+id/widget_upcoming_train_1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.05"
+                android:text="06:55"
                 android:textColor="#111111"
                 android:textSize="14.5sp"
                 android:textStyle="bold"
@@ -410,6 +367,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.95"
+                android:text="07:29"
                 android:textColor="#757575"
                 android:textSize="13.5sp"
                 android:typeface="sans"
@@ -420,6 +378,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.60"
+                android:text="34 min"
                 android:textColor="#757575"
                 android:textSize="13sp"
                 android:typeface="sans"
@@ -435,6 +394,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.00"
+                android:text="2"
                 android:textColor="#757575"
                 android:textSize="13.5sp"
                 android:typeface="sans"
@@ -447,6 +407,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.65"
+                android:text="257"
                 android:textColor="#AEAEB2"
                 android:textSize="13sp"
                 android:typeface="sans"
@@ -459,22 +420,21 @@
             android:id="@+id/widget_upcoming_divider_2"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#E5E5EA"
-            android:visibility="gone" />
+            android:background="#E5E5EA" />
 
         <LinearLayout
             android:id="@+id/widget_upcoming_row_2"
             android:layout_width="match_parent"
             android:layout_height="28dp"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:visibility="gone">
+            android:gravity="center_vertical">
 
             <TextView
                 android:id="@+id/widget_upcoming_train_2"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.05"
+                android:text="07:18"
                 android:textColor="#111111"
                 android:textSize="14.5sp"
                 android:textStyle="bold"
@@ -486,6 +446,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.95"
+                android:text="07:44"
                 android:textColor="#757575"
                 android:textSize="13.5sp"
                 android:typeface="sans"
@@ -496,6 +457,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.60"
+                android:text="26 min"
                 android:textColor="#757575"
                 android:textSize="13sp"
                 android:typeface="sans"
@@ -511,6 +473,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.00"
+                android:text="3"
                 android:textColor="#757575"
                 android:textSize="13.5sp"
                 android:typeface="sans"
@@ -523,6 +486,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.65"
+                android:text="521"
                 android:textColor="#AEAEB2"
                 android:textSize="13sp"
                 android:typeface="sans"
@@ -535,22 +499,21 @@
             android:id="@+id/widget_upcoming_divider_3"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#E5E5EA"
-            android:visibility="gone" />
+            android:background="#E5E5EA" />
 
         <LinearLayout
             android:id="@+id/widget_upcoming_row_3"
             android:layout_width="match_parent"
             android:layout_height="28dp"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:visibility="gone">
+            android:gravity="center_vertical">
 
             <TextView
                 android:id="@+id/widget_upcoming_train_3"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.05"
+                android:text="07:41"
                 android:textColor="#111111"
                 android:textSize="14.5sp"
                 android:textStyle="bold"
@@ -562,6 +525,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.95"
+                android:text="08:22"
                 android:textColor="#757575"
                 android:textSize="13.5sp"
                 android:typeface="sans"
@@ -572,6 +536,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.60"
+                android:text="41 min"
                 android:textColor="#757575"
                 android:textSize="13sp"
                 android:typeface="sans"
@@ -587,6 +552,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.00"
+                android:text="2"
                 android:textColor="#757575"
                 android:textSize="13.5sp"
                 android:typeface="sans"
@@ -599,6 +565,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.65"
+                android:text="259"
                 android:textColor="#AEAEB2"
                 android:textSize="13sp"
                 android:typeface="sans"
@@ -611,22 +578,21 @@
             android:id="@+id/widget_upcoming_divider_4"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#E5E5EA"
-            android:visibility="gone" />
+            android:background="#E5E5EA" />
 
         <LinearLayout
             android:id="@+id/widget_upcoming_row_4"
             android:layout_width="match_parent"
             android:layout_height="28dp"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:visibility="gone">
+            android:gravity="center_vertical">
 
             <TextView
                 android:id="@+id/widget_upcoming_train_4"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.05"
+                android:text="08:05"
                 android:textColor="#111111"
                 android:textSize="14.5sp"
                 android:textStyle="bold"
@@ -638,6 +604,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.95"
+                android:text="08:31"
                 android:textColor="#757575"
                 android:textSize="13.5sp"
                 android:typeface="sans"
@@ -648,6 +615,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.60"
+                android:text="26 min"
                 android:textColor="#757575"
                 android:textSize="13sp"
                 android:typeface="sans"
@@ -663,6 +631,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.00"
+                android:text="3"
                 android:textColor="#757575"
                 android:textSize="13.5sp"
                 android:typeface="sans"
@@ -675,6 +644,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.65"
+                android:text="971"
                 android:textColor="#AEAEB2"
                 android:textSize="13sp"
                 android:typeface="sans"
@@ -687,22 +657,21 @@
             android:id="@+id/widget_upcoming_divider_5"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#E5E5EA"
-            android:visibility="gone" />
+            android:background="#E5E5EA" />
 
         <LinearLayout
             android:id="@+id/widget_upcoming_row_5"
             android:layout_width="match_parent"
             android:layout_height="28dp"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:visibility="gone">
+            android:gravity="center_vertical">
 
             <TextView
                 android:id="@+id/widget_upcoming_train_5"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.05"
+                android:text="08:28"
                 android:textColor="#111111"
                 android:textSize="14.5sp"
                 android:textStyle="bold"
@@ -714,6 +683,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.95"
+                android:text="09:02"
                 android:textColor="#757575"
                 android:textSize="13.5sp"
                 android:typeface="sans"
@@ -724,6 +694,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.60"
+                android:text="34 min"
                 android:textColor="#757575"
                 android:textSize="13sp"
                 android:typeface="sans"
@@ -739,6 +710,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.00"
+                android:text="-"
                 android:textColor="#757575"
                 android:textSize="13.5sp"
                 android:typeface="sans"
@@ -751,6 +723,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.65"
+                android:text="263"
                 android:textColor="#AEAEB2"
                 android:textSize="13sp"
                 android:typeface="sans"
@@ -763,22 +736,21 @@
             android:id="@+id/widget_upcoming_divider_6"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#E5E5EA"
-            android:visibility="gone" />
+            android:background="#E5E5EA" />
 
         <LinearLayout
             android:id="@+id/widget_upcoming_row_6"
             android:layout_width="match_parent"
             android:layout_height="28dp"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:visibility="gone">
+            android:gravity="center_vertical">
 
             <TextView
                 android:id="@+id/widget_upcoming_train_6"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.05"
+                android:text="08:58"
                 android:textColor="#111111"
                 android:textSize="14.5sp"
                 android:textStyle="bold"
@@ -790,6 +762,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.95"
+                android:text="09:24"
                 android:textColor="#757575"
                 android:textSize="13.5sp"
                 android:typeface="sans"
@@ -800,6 +773,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.60"
+                android:text="26 min"
                 android:textColor="#757575"
                 android:textSize="13sp"
                 android:typeface="sans"
@@ -815,6 +789,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.00"
+                android:text="3"
                 android:textColor="#757575"
                 android:textSize="13.5sp"
                 android:typeface="sans"
@@ -827,6 +802,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.65"
+                android:text="265"
                 android:textColor="#AEAEB2"
                 android:textSize="13sp"
                 android:typeface="sans"
@@ -839,22 +815,21 @@
             android:id="@+id/widget_upcoming_divider_7"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#E5E5EA"
-            android:visibility="gone" />
+            android:background="#E5E5EA" />
 
         <LinearLayout
             android:id="@+id/widget_upcoming_row_7"
             android:layout_width="match_parent"
             android:layout_height="28dp"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:visibility="gone">
+            android:gravity="center_vertical">
 
             <TextView
                 android:id="@+id/widget_upcoming_train_7"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.05"
+                android:text="09:28"
                 android:textColor="#111111"
                 android:textSize="14.5sp"
                 android:textStyle="bold"
@@ -866,6 +841,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.95"
+                android:text="10:09"
                 android:textColor="#757575"
                 android:textSize="13.5sp"
                 android:typeface="sans"
@@ -876,6 +852,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.60"
+                android:text="41 min"
                 android:textColor="#757575"
                 android:textSize="13sp"
                 android:typeface="sans"
@@ -891,6 +868,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.00"
+                android:text="1"
                 android:textColor="#757575"
                 android:textSize="13.5sp"
                 android:typeface="sans"
@@ -903,6 +881,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.65"
+                android:text="267"
                 android:textColor="#AEAEB2"
                 android:textSize="13sp"
                 android:typeface="sans"
@@ -915,22 +894,21 @@
             android:id="@+id/widget_upcoming_divider_8"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#E5E5EA"
-            android:visibility="gone" />
+            android:background="#E5E5EA" />
 
         <LinearLayout
             android:id="@+id/widget_upcoming_row_8"
             android:layout_width="match_parent"
             android:layout_height="28dp"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:visibility="gone">
+            android:gravity="center_vertical">
 
             <TextView
                 android:id="@+id/widget_upcoming_train_8"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.05"
+                android:text="09:58"
                 android:textColor="#111111"
                 android:textSize="14.5sp"
                 android:textStyle="bold"
@@ -942,6 +920,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.95"
+                android:text="10:24"
                 android:textColor="#757575"
                 android:textSize="13.5sp"
                 android:typeface="sans"
@@ -952,6 +931,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.60"
+                android:text="26 min"
                 android:textColor="#757575"
                 android:textSize="13sp"
                 android:typeface="sans"
@@ -967,6 +947,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.00"
+                android:text="3"
                 android:textColor="#757575"
                 android:textSize="13.5sp"
                 android:typeface="sans"
@@ -979,6 +960,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.65"
+                android:text="269"
                 android:textColor="#AEAEB2"
                 android:textSize="13sp"
                 android:typeface="sans"
@@ -991,22 +973,21 @@
             android:id="@+id/widget_upcoming_divider_9"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#E5E5EA"
-            android:visibility="gone" />
+            android:background="#E5E5EA" />
 
         <LinearLayout
             android:id="@+id/widget_upcoming_row_9"
             android:layout_width="match_parent"
             android:layout_height="28dp"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:visibility="gone">
+            android:gravity="center_vertical">
 
             <TextView
                 android:id="@+id/widget_upcoming_train_9"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.05"
+                android:text="10:28"
                 android:textColor="#111111"
                 android:textSize="14.5sp"
                 android:textStyle="bold"
@@ -1018,6 +999,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.95"
+                android:text="11:02"
                 android:textColor="#757575"
                 android:textSize="13.5sp"
                 android:typeface="sans"
@@ -1028,6 +1010,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.60"
+                android:text="34 min"
                 android:textColor="#757575"
                 android:textSize="13sp"
                 android:typeface="sans"
@@ -1043,6 +1026,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.00"
+                android:text="2"
                 android:textColor="#757575"
                 android:textSize="13.5sp"
                 android:typeface="sans"
@@ -1055,6 +1039,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.65"
+                android:text="271"
                 android:textColor="#AEAEB2"
                 android:textSize="13sp"
                 android:typeface="sans"

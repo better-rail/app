@@ -103,8 +103,8 @@ data class UpcomingTrainResources(
          * Create instance appropriate for the given layout resource
          */
         fun createForLayout(context: Context, layoutResource: Int): UpcomingTrainResources {
-            val maxRows = if (layoutResource == com.betterrail.R.layout.widget_compact_4x4) {
-                WidgetSize.MAX_UPCOMING_TRAINS_4X4
+            val maxRows = if (layoutResource == com.betterrail.R.layout.widget_compact_4x3) {
+                WidgetSize.MAX_UPCOMING_TRAINS_4X3
             } else {
                 WidgetSize.MAX_UPCOMING_TRAINS
             }

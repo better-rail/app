@@ -241,7 +241,7 @@ export const styles = StyleSheet.create((theme, rt) => ({
     ...shadowMedium,
   },
 
-  // --- Large (4x4) Layout ---
+  // --- Large (4x3) Layout ---
   largeContainer: {
     width: "100%",
     maxWidth: 284,
@@ -385,7 +385,7 @@ export const styles = StyleSheet.create((theme, rt) => ({
     textAlign: rt.rtl ? "left" : "right",
   },
 
-  // Column weights matching native 4x4 layout
+  // Column weights matching native 4x3 layout
   colDepart: {
     flex: 1.05,
   },

@@ -11,7 +11,7 @@
     <string name="widget_edit">Edit Widget</string>
     <string name="widget_2x2_description">Single Departure Time</string>
     <string name="widget_4x2_description">Multi-Train Schedule</string>
-    <string name="widget_4x4_description">Full Train Schedule</string>
+    <string name="widget_4x3_description">Full Train Schedule</string>
     <string name="select_station">Select Station</string>
     <string name="search_origin_hint">Search origin station...</string>
     <string name="search_destination_hint">Search destination station...</string>

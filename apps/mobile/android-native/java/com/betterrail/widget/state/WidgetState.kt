@@ -105,7 +105,7 @@ class WidgetStateRenderer(
     }
     
     private fun isMultiTrainLayout(): Boolean =
-        layoutResource == R.layout.widget_compact_4x2 || layoutResource == R.layout.widget_compact_4x4
+        layoutResource == R.layout.widget_compact_4x2 || layoutResource == R.layout.widget_compact_4x3
 
     private fun renderConfiguration(context: Context, views: RemoteViews, state: WidgetState.Configuration) {
         views.setTextViewText(R.id.widget_station_name, state.message)
@@ -120,7 +120,7 @@ class WidgetStateRenderer(
             views.setTextViewText(R.id.widget_arrival_time, "--:--")
         }
 
-        if (layoutResource == R.layout.widget_compact_4x4) {
+        if (layoutResource == R.layout.widget_compact_4x3) {
             views.setTextViewText(R.id.widget_platform_val, "--")
             views.setTextViewText(R.id.widget_train_num_val, "---")
         }
@@ -159,7 +159,7 @@ class WidgetStateRenderer(
             views.setTextViewText(R.id.widget_arrival_time, "--:--")
         }
 
-        if (layoutResource == R.layout.widget_compact_4x4) {
+        if (layoutResource == R.layout.widget_compact_4x3) {
             views.setTextViewText(R.id.widget_platform_val, "--")
             views.setTextViewText(R.id.widget_train_num_val, "---")
         }
@@ -182,7 +182,7 @@ class WidgetStateRenderer(
             views.setTextViewText(R.id.widget_arrival_time, "--:--")
         }
 
-        if (layoutResource == R.layout.widget_compact_4x4) {
+        if (layoutResource == R.layout.widget_compact_4x3) {
             views.setTextViewText(R.id.widget_platform_val, "--")
             views.setTextViewText(R.id.widget_train_num_val, "---")
         }
@@ -205,7 +205,7 @@ class WidgetStateRenderer(
             views.setTextViewText(R.id.widget_arrival_time, "--:--")
         }
 
-        if (layoutResource == R.layout.widget_compact_4x4) {
+        if (layoutResource == R.layout.widget_compact_4x3) {
             views.setTextViewText(R.id.widget_platform_val, "--")
             views.setTextViewText(R.id.widget_train_num_val, "---")
         }
@@ -229,7 +229,7 @@ class WidgetStateRenderer(
             views.setTextViewText(R.id.widget_arrival_time, "--:--")
         }
 
-        if (layoutResource == R.layout.widget_compact_4x4) {
+        if (layoutResource == R.layout.widget_compact_4x3) {
             views.setTextViewText(R.id.widget_platform_val, "--")
             views.setTextViewText(R.id.widget_train_num_val, "---")
         }
@@ -274,7 +274,7 @@ class WidgetStateRenderer(
             views.setTextViewText(R.id.widget_arrival_time, "--:--")
         }
 
-        if (layoutResource == R.layout.widget_compact_4x4) {
+        if (layoutResource == R.layout.widget_compact_4x3) {
             views.setTextViewText(R.id.widget_platform_val, "--")
             views.setTextViewText(R.id.widget_train_num_val, "---")
         }
@@ -324,10 +324,10 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_train_number, trainText)
         views.setViewVisibility(
             R.id.widget_dot_separator,
-            if (trainText.isNotEmpty() && platformText.isNotEmpty() && layoutResource != R.layout.widget_compact_4x4) android.view.View.VISIBLE else android.view.View.GONE
+            if (trainText.isNotEmpty() && platformText.isNotEmpty() && layoutResource != R.layout.widget_compact_4x3) android.view.View.VISIBLE else android.view.View.GONE
         )
 
-        if (layoutResource == R.layout.widget_compact_4x4) {
+        if (layoutResource == R.layout.widget_compact_4x3) {
             views.setTextViewText(R.id.widget_platform_val, train.displayPlatform())
             views.setTextViewText(R.id.widget_train_num_val, train.displayTrainNumber())
         }
@@ -337,7 +337,7 @@ class WidgetStateRenderer(
         return when (layoutResource) {
             R.layout.widget_compact_2x2 -> R.id.widget_train_time
             R.layout.widget_compact_4x2,
-            R.layout.widget_compact_4x4 -> R.id.widget_next_train_time
+            R.layout.widget_compact_4x3 -> R.id.widget_next_train_time
             else -> R.id.widget_train_time
         }
     }
@@ -349,7 +349,7 @@ class WidgetStateRenderer(
         views.setTextViewText(R.id.widget_upcoming_label, context.getString(R.string.upcoming))
         views.setTextViewText(R.id.widget_arrival_label, context.getString(R.string.arrival_caps))
 
-        if (layoutResource == R.layout.widget_compact_4x4) {
+        if (layoutResource == R.layout.widget_compact_4x3) {
             views.setTextViewText(R.id.widget_platform_label, context.getString(R.string.platform_caps))
             views.setTextViewText(R.id.widget_train_num_label, context.getString(R.string.train_no_caps))
             views.setTextViewText(R.id.widget_header_depart, context.getString(R.string.depart_caps))

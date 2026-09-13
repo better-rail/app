@@ -45,15 +45,15 @@ enum class WidgetSize(
         actionWidgetUpdate = "com.betterrail.widget.modern.compact5x2.ACTION_WIDGET_UPDATE",
         actionRouteReversal = "com.betterrail.widget.modern.compact5x2.ACTION_ROUTE_REVERSAL"
     ),
-    COMPACT_4X4(
-        layoutRes = R.layout.widget_compact_4x4,
-        containerId = R.id.widget_container_compact_4x4,
-        widgetType = "modern_widget4x4",
-        logTag = "ModernCompactWidget4x4Provider",
-        configActivity = CompactWidget4x4ConfigActivity::class.java,
-        actionRefresh = "com.betterrail.widget.modern.compact4x4.ACTION_REFRESH",
-        actionWidgetUpdate = "com.betterrail.widget.modern.compact4x4.ACTION_WIDGET_UPDATE",
-        actionRouteReversal = "com.betterrail.widget.modern.compact4x4.ACTION_ROUTE_REVERSAL"
+    COMPACT_4X3(
+        layoutRes = R.layout.widget_compact_4x3,
+        containerId = R.id.widget_container_compact_4x3,
+        widgetType = "modern_widget4x3",
+        logTag = "ModernCompactWidget4x3Provider",
+        configActivity = CompactWidget4x3ConfigActivity::class.java,
+        actionRefresh = "com.betterrail.widget.modern.compact4x3.ACTION_REFRESH",
+        actionWidgetUpdate = "com.betterrail.widget.modern.compact4x3.ACTION_WIDGET_UPDATE",
+        actionRouteReversal = "com.betterrail.widget.modern.compact4x3.ACTION_ROUTE_REVERSAL"
     );
     
     companion object {
@@ -63,9 +63,9 @@ enum class WidgetSize(
         const val MAX_UPCOMING_TRAINS = 5
 
         /**
-         * Maximum number of upcoming train rows to display in 4x4 widgets.
+         * Maximum number of upcoming train rows to display in 4x3 widgets.
          */
-        const val MAX_UPCOMING_TRAINS_4X4 = 9
+        const val MAX_UPCOMING_TRAINS_4X3 = 9
         
         /**
          * Grid-based layout selection (Android standard)
@@ -83,8 +83,8 @@ enum class WidgetSize(
             /** Grid width threshold for 5x2 layout */
             const val GRID_WIDTH_5X2 = 5
 
-            /** Grid height threshold for 4x4 layout (3+ rows in portrait evaluate to >= 4 cells) */
-            const val GRID_HEIGHT_4X4 = 4
+            /** Grid height threshold for 4x3 layout (3+ rows in portrait evaluate to >= 4 cells) */
+            const val GRID_HEIGHT_4X3 = 4
         }
         
         /**
@@ -95,13 +95,13 @@ enum class WidgetSize(
             val gridWidth = (widthDp + GridThresholds.CELL_WIDTH_DP / 2) / GridThresholds.CELL_WIDTH_DP
             val gridHeight = (heightDp + GridThresholds.CELL_HEIGHT_DP / 2) / GridThresholds.CELL_HEIGHT_DP
 
-            // Retain 4x4 if height has not dropped below 3 rows and width is at least 4 columns
-            if (defaultSize == COMPACT_4X4 && gridWidth >= GridThresholds.GRID_WIDTH_4X2 && gridHeight >= GridThresholds.GRID_HEIGHT_4X4) {
-                return COMPACT_4X4
+            // Retain 4x3 if height has not dropped below 3 rows and width is at least 4 columns
+            if (defaultSize == COMPACT_4X3 && gridWidth >= GridThresholds.GRID_WIDTH_4X2 && gridHeight >= GridThresholds.GRID_HEIGHT_4X3) {
+                return COMPACT_4X3
             }
 
             return when {
-                gridWidth >= GridThresholds.GRID_WIDTH_4X2 && gridHeight >= GridThresholds.GRID_HEIGHT_4X4 -> COMPACT_4X4
+                gridWidth >= GridThresholds.GRID_WIDTH_4X2 && gridHeight >= GridThresholds.GRID_HEIGHT_4X3 -> COMPACT_4X3
                 gridWidth >= GridThresholds.GRID_WIDTH_5X2 -> COMPACT_5X2
                 gridWidth >= GridThresholds.GRID_WIDTH_4X2 -> COMPACT_4X2
                 else -> COMPACT_2X2

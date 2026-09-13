@@ -9,7 +9,7 @@ import android.os.SystemClock
 import android.util.Log
 import com.betterrail.widget.ModernCompactWidget2x2Provider
 import com.betterrail.widget.ModernCompactWidget4x2Provider
-import com.betterrail.widget.ModernCompactWidget4x4Provider
+import com.betterrail.widget.ModernCompactWidget4x3Provider
 
 /**
  * Manages periodic widget updates using AlarmManager
@@ -72,7 +72,7 @@ object WidgetUpdateScheduler {
         val widgetProviders = listOf(
             ModernCompactWidget2x2Provider::class.java,
             ModernCompactWidget4x2Provider::class.java,
-            ModernCompactWidget4x4Provider::class.java
+            ModernCompactWidget4x3Provider::class.java
         )
         
         var totalWidgets = 0
