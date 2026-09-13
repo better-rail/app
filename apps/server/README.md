@@ -57,6 +57,8 @@ own curated shortlist of itineraries either way. The changes filter is unaffecte
 live platforms and cancellations come from the rail API's own `trainPosition`
 instead of SIRI.
 
+Change-station searches (`viaStation`) aren't proxied: they're joined from two rail API searches at that station (`requests/rail-via.ts`).
+
 ### Timetable data: GTFS (Israel MOT)
 
 The train timetable comes from the **Israel MOT GTFS** static feed
