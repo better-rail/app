@@ -90,13 +90,10 @@ enum class WidgetSize(
         /**
          * Determine optimal widget size based on grid cells (more reliable than pixels)
          */
-        fun getOptimalSize(minWidth: Int, minHeight: Int, maxWidth: Int = minWidth, maxHeight: Int = minHeight, defaultSize: WidgetSize? = null): WidgetSize {
-            val effectiveWidth = if (minWidth > 0) minWidth else maxWidth
-            val effectiveHeight = if (maxHeight > 0) kotlin.math.max(minHeight, maxHeight) else minHeight
-
+        fun getOptimalSize(widthDp: Int, heightDp: Int, defaultSize: WidgetSize? = null): WidgetSize {
             // Convert to grid cells using Android standard (~70dp per cell)
-            val gridWidth = (effectiveWidth + GridThresholds.CELL_WIDTH_DP / 2) / GridThresholds.CELL_WIDTH_DP
-            val gridHeight = (effectiveHeight + GridThresholds.CELL_HEIGHT_DP / 2) / GridThresholds.CELL_HEIGHT_DP
+            val gridWidth = (widthDp + GridThresholds.CELL_WIDTH_DP / 2) / GridThresholds.CELL_WIDTH_DP
+            val gridHeight = (heightDp + GridThresholds.CELL_HEIGHT_DP / 2) / GridThresholds.CELL_HEIGHT_DP
 
             // Retain 4x4 if height has not dropped below 3 rows and width is at least 4 columns
             if (defaultSize == COMPACT_4X4 && gridWidth >= GridThresholds.GRID_WIDTH_4X2 && gridHeight >= GridThresholds.GRID_HEIGHT_4X4) {
@@ -114,13 +111,11 @@ enum class WidgetSize(
         /**
          * Get grid dimensions for debugging
          */
-        fun getGridInfo(minWidth: Int, minHeight: Int, maxWidth: Int = minWidth, maxHeight: Int = minHeight): String {
-            val effectiveWidth = if (minWidth > 0) minWidth else maxWidth
-            val effectiveHeight = if (maxHeight > 0) kotlin.math.max(minHeight, maxHeight) else minHeight
-            val gridWidth = (effectiveWidth + GridThresholds.CELL_WIDTH_DP / 2) / GridThresholds.CELL_WIDTH_DP
-            val gridHeight = (effectiveHeight + GridThresholds.CELL_HEIGHT_DP / 2) / GridThresholds.CELL_HEIGHT_DP
-            val optimalSize = getOptimalSize(minWidth, minHeight, maxWidth, maxHeight)
-            return "Grid: ${gridWidth}x${gridHeight} (${effectiveWidth}x${effectiveHeight}dp) → ${optimalSize.widgetType}"
+        fun getGridInfo(widthDp: Int, heightDp: Int): String {
+            val gridWidth = (widthDp + GridThresholds.CELL_WIDTH_DP / 2) / GridThresholds.CELL_WIDTH_DP
+            val gridHeight = (heightDp + GridThresholds.CELL_HEIGHT_DP / 2) / GridThresholds.CELL_HEIGHT_DP
+            val optimalSize = getOptimalSize(widthDp, heightDp)
+            return "Grid: ${gridWidth}x${gridHeight} (${widthDp}x${heightDp}dp) → ${optimalSize.widgetType}"
         }
         
     }
