@@ -21,6 +21,7 @@ import com.betterrail.widget.scheduler.WidgetUpdateScheduler
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.CancellationException
 import android.util.Log
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -275,6 +276,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                     }
                 }
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 Log.e(getLogTag(), "Exception in loadScheduleData for widget $appWidgetId", e)
                 showErrorState(context, appWidgetManager, appWidgetId, widgetData, e.message ?: "Unknown error")
             }
@@ -380,6 +382,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                 }
             }
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             Log.w(getLogTag(), "Could not append tomorrow trains for widget $appWidgetId: ${e.message}")
         }
     }
@@ -459,6 +462,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                     }
                 }
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 Log.e(getLogTag(), "Exception in loadTomorrowSchedule for widget $appWidgetId", e)
                 showTomorrowFallbackState(context, appWidgetManager, appWidgetId, widgetData)
             }
@@ -601,6 +605,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                 appWidgetManager.updateAppWidget(appWidgetId, views)
                 Log.d(getLogTag(), "Updated widget $appWidgetId UI with state: ${state::class.simpleName}")
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 Log.e(getLogTag(), "Error updating widget $appWidgetId UI", e)
             }
         }
