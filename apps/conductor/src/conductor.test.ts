@@ -313,6 +313,22 @@ describe("conductor onboarding", () => {
     expect(searchStations("השלום")[0].name).toBe("hashalom")
   })
 
+  test("spelling variants auto-select Bet Yehoshua, while unrelated queries remain unmatched", async () => {
+    const api = new FakeDiscord()
+    const handler = createHandler(config, api)
+    for (const query of ["בית יהושוע", "יהושוע", "ביית יהושוע", "beit yehoshua"]) {
+      expect(searchStations(query)[0]?.name).toBe("bet yehoshua")
+      const result = await (await handler(signedRequest(modal(query)))).json()
+      expect(defaultSelections(result.data)).toEqual(["3400"])
+      expect(result.data.content).toContain("בית יהושע")
+    }
+    expect(searchStations("no such station")).toEqual([])
+    expect(searchStations("zzzz")).toEqual([])
+    expect(searchStations("xyz")).toEqual([])
+    expect(searchStations("netanya")[0]?.name).toBe("netanya")
+    expect(api.mutations).toHaveLength(0)
+  })
+
   test("removing the last draft favorite allows Finish to clear saved flair", async () => {
     const api = new FakeDiscord()
     api.memberRoles.push(iosRole, hashalomRole)

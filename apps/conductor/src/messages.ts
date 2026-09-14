@@ -85,15 +85,38 @@ function normalize(text: string) {
     .replace(/[^a-z0-9\u05d0-\u05ea]/g, "")
 }
 
+function editDistance(left: string, right: string) {
+  let previous = Array.from({ length: right.length + 1 }, (_, index) => index)
+  for (let row = 1; row <= left.length; row++) {
+    const current = [row]
+    for (let column = 1; column <= right.length; column++) {
+      current[column] = Math.min(
+        current[column - 1] + 1,
+        previous[column] + 1,
+        previous[column - 1] + Number(left[row - 1] !== right[column - 1]),
+      )
+    }
+    previous = current
+  }
+  return previous[right.length]
+}
+
 export function searchStations(query: string, selected: string[] = []) {
   const term = normalize(query)
   if (!term) return []
   const score = (name: string) => {
     const normalized = normalize(name)
     if (normalized === term) return 0
-    if (!normalized.includes(term)) return Infinity
-    // Prefer a prefix over an interior match, then the more specific station name.
-    return (normalized.startsWith(term) ? 1 : 2) + (normalized.length - term.length) / (normalized.length + 1)
+    if (normalized.includes(term)) {
+      // Exact and substring matches always rank ahead of spelling corrections.
+      return (normalized.startsWith(term) ? 1 : 2) + (normalized.length - term.length) / (normalized.length + 1)
+    }
+    if (term.length < 4) return Infinity
+    // Compare full names, station portions after a city prefix, and individual words.
+    const aliases = [name, ...name.split(/[-()]/), ...name.split(/\s+/)].map(normalize).filter(Boolean)
+    const distance = Math.min(...aliases.map((alias) => editDistance(term, alias)))
+    const tolerance = Math.min(2, Math.max(1, Math.floor(term.length / 5)))
+    return distance <= tolerance ? 3 + distance / term.length : Infinity
   }
   return stations
     .map((station) => ({ station, score: Math.min(score(station.name), score(station.hebrew)) }))
