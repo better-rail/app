@@ -51,7 +51,8 @@ a device. The device choice is required to complete this flow.
    Set `SENTRY_DSN` to the DSN of the `conductor` Sentry project, which is
    separate from the mobile app's project.
 8. Put `#welcome` first in the public category and select it for Discord's new
-   member system messages.
+   member system messages. Ensure `@everyone` has both **View Channel** and
+   **Read Message History** there so new members can see the persistent button.
 
 ## Verification
 
@@ -62,6 +63,16 @@ and that an ordinary new member can see the welcome channel but gains no beta or
 developer channel access from these roles.
 
 ## Maintenance
+
+Discord will start omitting channels the bot cannot view from the HTTP channel
+list on November 16, 2026. From that date, setup and role selection stop before
+any role mutations unless the bot already has Administrator, which guarantees
+visibility across channel overwrites. The current deployment uses limited
+permissions and will therefore stop assigning roles on that date. Before then,
+replace the HTTP-only audit with a complete channel inventory, such as a Gateway
+integration that detects obfuscated channels and refuses incomplete audits.
+This guard does not grant permissions or change the bot's installation permissions.
+See [Discord's announcement](https://docs.discord.com/developers/change-log#channel-obfuscation-for-users-and-bots).
 
 `src/stations.ts` mirrors the server's station IDs and Hebrew labels. Update it
 when stations change and rerun setup. Logs and Sentry events exclude bot tokens,

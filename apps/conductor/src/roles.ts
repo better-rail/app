@@ -1,6 +1,7 @@
 import type { ConductorConfig } from "./config"
 import type { DiscordApi, DiscordChannel, DiscordMember, DiscordRole } from "./discord"
 import { platforms } from "./messages"
+import { requireCompleteChannelAudit } from "./permissions"
 import { stations } from "./stations"
 
 export class PlatformRequired extends Error {}
@@ -53,6 +54,7 @@ export class OnboardingRoles {
       this.api.call<DiscordChannel[]>("GET", `${guild}/channels`),
     ])
     const botRoles = roles.filter((role) => bot.roles.includes(role.id))
+    requireCompleteChannelAudit(botRoles)
     const eligible = (choices: readonly { id: string; name: string }[], registry: Record<string, string>) =>
       choices.flatMap((choice) => {
         const role = roles.find((candidate) => candidate.id === registry[choice.id])

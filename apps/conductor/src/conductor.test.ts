@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test"
+import { describe, expect, spyOn, test } from "bun:test"
 import { generateKeyPairSync, sign } from "node:crypto"
 
 import type { ConductorConfig } from "./config"
@@ -19,8 +19,8 @@ import {
   stationPages,
   welcomeMessage,
 } from "./messages"
-import { everyoneCanView } from "./permissions"
-import { isFlairRole, OnboardingRoles, PlatformRequired, StationLimit } from "./roles"
+import { everyoneCanReadWelcome, requireCompleteChannelAudit } from "./permissions"
+import { isFlairRole, OnboardingRoles, PlatformRequired, type Selection, StationLimit } from "./roles"
 import { stations } from "./stations"
 
 const keys = generateKeyPairSync("ed25519")
@@ -300,6 +300,10 @@ describe("conductor onboarding", () => {
     const duplicate = await (await handler(signedRequest(modal("שלום", ["4600"])))).json()
     expect(defaultSelections(duplicate.data)).toEqual(["4600"])
     expect(duplicate.data.content).toContain("כבר בבחירה")
+    const netanya = stations.find((station) => station.name === "netanya")!
+    const sameExact = await (await handler(signedRequest(modal("netanya", [netanya.id])))).json()
+    expect(defaultSelections(sameExact.data)).toEqual([netanya.id])
+    expect(sameExact.data.content).toContain("כבר בבחירה")
     const third = await (await handler(signedRequest(modal("binyamina", ["4600", "2100"])))).json()
     expect(defaultSelections(third.data)).toEqual(["4600", "2100"])
     expect(api.mutations).toHaveLength(0)
@@ -492,21 +496,55 @@ describe("conductor onboarding", () => {
     }
   })
 
-  test("welcome visibility applies the everyone overwrite to base permissions", () => {
+  test("incomplete HTTP audits disable all role selections at the obfuscation cutoff", async () => {
+    const api = new FakeDiscord()
+    api.memberRoles.push(iosRole)
+    const bot = api.roleList.find((entry) => entry.id === botRole)!
+    const cutoff = Date.UTC(2026, 10, 16)
+    expect(() => requireCompleteChannelAudit([bot], cutoff - 1)).not.toThrow()
+    expect(() => requireCompleteChannelAudit([bot], cutoff)).toThrow("complete channel audit")
+    const clock = spyOn(Date, "now").mockReturnValue(cutoff)
+    try {
+      const roles = new OnboardingRoles(config, api)
+      const selections: Selection[] = [{ kind: "platform", id: "android" }, { kind: "station", ids: ["4600"] }, { kind: "skip" }]
+      for (const selection of selections) {
+        await expect(roles.choose(userId, selection)).rejects.toThrow("complete channel audit")
+      }
+      expect(api.mutations).toHaveLength(0)
+      expect(api.memberRoles).toEqual([staffRole, iosRole])
+      bot.permissions = "8"
+      expect(() => requireCompleteChannelAudit([bot], cutoff)).not.toThrow()
+      await roles.choose(userId, { kind: "station", ids: ["4600"] })
+      expect(api.memberRoles).toContain(hashalomRole)
+    } finally {
+      clock.mockRestore()
+    }
+  })
+
+  test("welcome access requires both visibility and history after everyone overwrites", () => {
     const everyone: DiscordRole = { id: guildId, name: "@everyone", permissions: "0", managed: false, position: 0 }
     const channel: DiscordChannel = { id: "1548800000000000020", type: 0, permission_overwrites: [] }
-    expect(everyoneCanView(channel, everyone)).toBe(false)
-    everyone.permissions = "1024"
-    expect(everyoneCanView(channel, everyone)).toBe(true)
+    expect(everyoneCanReadWelcome(channel, everyone)).toBe(false)
+    everyone.permissions = "66560"
+    expect(everyoneCanReadWelcome(channel, everyone)).toBe(true)
     channel.permission_overwrites.push({ id: guildId, type: 0, allow: "0", deny: "1024" })
-    expect(everyoneCanView(channel, everyone)).toBe(false)
+    expect(everyoneCanReadWelcome(channel, everyone)).toBe(false)
     everyone.permissions = "0"
-    channel.permission_overwrites[0] = { id: guildId, type: 0, allow: "1024", deny: "0" }
-    expect(everyoneCanView(channel, everyone)).toBe(true)
+    channel.permission_overwrites[0] = { id: guildId, type: 0, allow: "66560", deny: "0" }
+    expect(everyoneCanReadWelcome(channel, everyone)).toBe(true)
     channel.permission_overwrites[0].type = 1
-    expect(everyoneCanView(channel, everyone)).toBe(false)
+    expect(everyoneCanReadWelcome(channel, everyone)).toBe(false)
+    channel.permission_overwrites[0].type = 0
+    everyone.permissions = "66560"
+    channel.permission_overwrites[0] = { id: guildId, type: 0, allow: "0", deny: "65536" }
+    expect(everyoneCanReadWelcome(channel, everyone)).toBe(false)
+    channel.permission_overwrites = []
+    everyone.permissions = "1024"
+    expect(everyoneCanReadWelcome(channel, everyone)).toBe(false)
+    everyone.permissions = "65536"
+    expect(everyoneCanReadWelcome(channel, everyone)).toBe(false)
     everyone.permissions = "8"
-    expect(everyoneCanView(channel, everyone)).toBe(true)
+    expect(everyoneCanReadWelcome(channel, everyone)).toBe(true)
   })
 
   test("the role layer enforces the two-station limit and rolls back a partially failed assignment", async () => {
