@@ -1,18 +1,13 @@
-export const startButton = "conductor:start"
 export const platformPrefix = "conductor:platform:"
 export const platforms = [
   { id: "ios", name: "ios", label: "אייפון", emoji: "🍎" },
   { id: "android", name: "android", label: "אנדרואיד", emoji: "🤖" },
 ]
 export function welcomeMessage() {
+  const picker = platformPicker()
   return {
-    content: "## ברוכים הבאים לדיסקורד של בטר רייל!\n\nלפני שאתם מצטרפים, יש לנו שאלה קצרה",
-    components: [
-      {
-        type: 1,
-        components: [{ type: 2, style: 1, label: "המשך", custom_id: startButton }],
-      },
-    ],
+    ...picker,
+    content: "## ברוכים הבאים לדיסקורד של בטר רייל!\n\n" + picker.content,
   }
 }
 

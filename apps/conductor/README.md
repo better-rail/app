@@ -1,7 +1,7 @@
 # The Conductor
 
-Better Rail's onboarding bot. A welcome button starts a private Hebrew flow:
-choose **iPhone or Android**, then receive a thank-you message with links to
+Better Rail's onboarding bot. The public Hebrew welcome message asks members
+to choose **iPhone or Android** directly, then privately shows a thank-you message with links to
 `#feedback` and `#general`. The device choice is required to complete the flow.
 It assigns a permissionless `ios` or `android` role with no channel permission
 overwrites. Members can repeat the flow to change their device.
@@ -16,7 +16,7 @@ stores the device assignment. Role changes are serialized per member. Failed
 mutations attempt to restore the original roles; incomplete compensation is
 reported to Sentry.
 
-The flow starts from the welcome button. It does not replace Discord's native
+The flow starts from the device buttons in the welcome message. It does not replace Discord's native
 join screen or prevent members from using other public channels beforehand.
 
 ## Discord setup
@@ -42,12 +42,13 @@ join screen or prevent members from using other public channels beforehand.
    Set `SENTRY_DSN` to the DSN of the separate `conductor` Sentry project.
 8. Put `#welcome` first in the public category and select it for Discord's new
    member system messages. Ensure `@everyone` has both **View Channel** and
-   **Read Message History** so new members can see the persistent button.
+   **Read Message History** so new members can see the persistent device buttons.
 
 ## Verification
 
 Run `bun test` and `bun run check`. Before going live, verify in Discord:
-start, choose iPhone, see the thank-you message, restart, and choose Android.
+choose iPhone directly from the public welcome message, see the private thank-you
+message, and choose Android to update the device.
 Confirm only the device roles changed, only one device remains assigned, and an
 ordinary new member can see the welcome channel but gains no beta or developer
 channel access. Old station controls should return to device choice.

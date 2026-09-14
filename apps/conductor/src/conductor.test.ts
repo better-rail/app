@@ -3,7 +3,7 @@ import { generateKeyPairSync, sign } from "node:crypto"
 import type { ConductorConfig } from "./config"
 import { DiscordApi, type DiscordChannel, type DiscordRole } from "./discord"
 import { createHandler } from "./interactions"
-import { journeyComplete, platformPicker, startButton, welcomeMessage } from "./messages"
+import { journeyComplete, platformPicker, welcomeMessage } from "./messages"
 import { everyoneCanReadWelcome, requireCompleteChannelAudit } from "./permissions"
 import { isFlairRole, OnboardingRoles } from "./roles"
 
@@ -236,10 +236,10 @@ describe("conductor onboarding", () => {
     expect(api.mutations).toHaveLength(1)
   })
 
-  test("welcome starts a private device choice with no skip or station step", async () => {
+  test("the retired Continue button still opens a private device choice", async () => {
     const api = new FakeDiscord()
     const handler = createHandler(config, api)
-    const start = interaction(startButton)
+    const start = interaction("conductor:start")
     start.message.flags = 0
     const result = await (await handler(signedRequest(start))).json()
     expect(result.type).toBe(4)
@@ -324,8 +324,18 @@ describe("conductor onboarding", () => {
     expect(api.memberRoles).toContain(unrelatedRole)
   })
 
-  test("welcome describes one question and keeps the selected Hebrew greeting", () => {
-    expect(welcomeMessage().content).toBe("## ברוכים הבאים לדיסקורד של בטר רייל!\n\nלפני שאתם מצטרפים, יש לנו שאלה קצרה")
-    expect(welcomeMessage().components[0].components[0].custom_id).toBe(startButton)
+  test("welcome asks for the device directly and completion stays private", async () => {
+    const welcome = welcomeMessage()
+    expect(welcome.content).toBe("## ברוכים הבאים לדיסקורד של בטר רייל!\n\nעם מה אתם נוסעים, אייפון או אנדרואיד?")
+    expect(welcome.components[0].components.map((button) => button.label)).toEqual(["אייפון", "אנדרואיד"])
+    for (const button of welcome.components[0].components) {
+      const api = new FakeDiscord()
+      const selected = interaction(button.custom_id)
+      selected.message.flags = 0
+      const response = await (await createHandler(config, api)(signedRequest(selected))).json()
+      expect(response).toEqual({ type: 5, data: { flags: 64 } })
+      expect(await waitForResponse(api)).toEqual(journeyComplete())
+      expect(api.memberRoles).toEqual([staffRole, button.custom_id.endsWith("ios") ? iosRole : androidRole])
+    }
   })
 })
