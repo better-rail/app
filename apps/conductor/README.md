@@ -12,7 +12,8 @@ The station step starts with **חיפוש תחנה**. A text popup accepts Hebre
 then automatically adds the closest matching station to the draft. Exact names
 rank first, followed by prefix and interior matches. Search again to add a second
 favorite, or remove a choice to retry. Search ignores spaces and punctuation and accepts small spelling differences
-(such as `בית יהושוע` for `בית יהושע`). Spelling corrections rank after literal
+(such as `בית יהושוע` for `בית יהושע`), `קרית` spelling variants, and adjacent
+letter swaps. Spelling corrections rank after literal
 matches; short or unrelated searches are not forced to a station. Draft station IDs travel in component IDs through the modal. **סיום** saves
 the favorites; **חזרה אחורה** discards the draft and returns to device selection.
 Existing favorites are shown when editing. Remove favorites and press

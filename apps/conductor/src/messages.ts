@@ -82,11 +82,13 @@ function normalize(text: string) {
   return text
     .normalize("NFKD")
     .toLowerCase()
+    .replace(/ק(?:י)?רי{1,2}ת/g, "קריית")
     .replace(/[^a-z0-9\u05d0-\u05ea]/g, "")
 }
 
 function editDistance(left: string, right: string) {
   let previous = Array.from({ length: right.length + 1 }, (_, index) => index)
+  let previousPrevious: number[] = []
   for (let row = 1; row <= left.length; row++) {
     const current = [row]
     for (let column = 1; column <= right.length; column++) {
@@ -95,7 +97,12 @@ function editDistance(left: string, right: string) {
         previous[column] + 1,
         previous[column - 1] + Number(left[row - 1] !== right[column - 1]),
       )
+      // Swapping adjacent letters is one typo, rather than two replacements.
+      if (row > 1 && column > 1 && left[row - 1] === right[column - 2] && left[row - 2] === right[column - 1]) {
+        current[column] = Math.min(current[column], previousPrevious[column - 2] + 1)
+      }
     }
+    previousPrevious = previous
     previous = current
   }
   return previous[right.length]

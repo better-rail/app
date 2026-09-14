@@ -329,6 +329,42 @@ describe("conductor onboarding", () => {
     expect(api.mutations).toHaveLength(0)
   })
 
+  test("plausible station spelling variants resolve to the intended station", () => {
+    const variants: [string, string][] = [
+      ["הרצלייה", "herzliya"],
+      ["נהרייה", "nahariya"],
+      ["קיסרייה", "caesarea pardes hana"],
+      ["קרית גת", "kiryat gat"],
+      ["קירית גת", "kiryat gat"],
+      ["קרית ארייה", "kiryat arye"],
+      ["קרית מוצקין", "kiryat motzkin"],
+      ["קרית חיים", "kiryat hayim"],
+      ["קרית מלאכי", "kiryat malakhi yoav"],
+      ["פתח תקוה סגולה", "segula"],
+      ["יוקנעם כפר יהושוע", "yokneam kfar yehoshua"],
+      ["מזכרת בתייה", "mazkeret batya"],
+      ["מרכזית המיפרץ", "hamifrats"],
+      ["חוצות המיפרץ", "hutzot hamifratz"],
+      ["בניימינה", "binyamina"],
+      ["מודיעין מרזכ", "modiin center"],
+      ["נתניה ספירר", "netanya sapir"],
+      ["באר שבע מרזכ", "beer sheva center"],
+      ["herzlia", "herzliya"],
+      ["naharia", "nahariya"],
+      ["caesaria", "caesarea pardes hana"],
+      ["kfar sava", "kfar saba"],
+      ["beer sheba center", "beer sheva center"],
+      ["bet shemseh", "bet shemesh"],
+      ["binyamnia", "binyamina"],
+      ["netayna sapir", "netanya sapir"],
+      ["hof hacarmel", "hof hakarmel"],
+    ]
+    const failures = variants
+      .filter(([query, expected]) => searchStations(query)[0]?.name !== expected)
+      .map(([query, expected]) => ({ query, expected, actual: searchStations(query)[0]?.name ?? null }))
+    expect(failures).toEqual([])
+  })
+
   test("removing the last draft favorite allows Finish to clear saved flair", async () => {
     const api = new FakeDiscord()
     api.memberRoles.push(iosRole, hashalomRole)
