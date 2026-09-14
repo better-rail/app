@@ -6,7 +6,7 @@ import { createHandler } from "./interactions"
 // Reads SENTRY_DSN; must run before Bun.serve so handler crashes are captured.
 Sentry.init()
 const config = loadConfig()
-if (!Object.keys(config.platformRoles).length || !Object.keys(config.stationRoles).length) {
+if (!Object.keys(config.platformRoles).length) {
   console.warn("Conductor: onboarding roles have not been provisioned yet")
 }
 const server = Bun.serve({

@@ -3,7 +3,6 @@ export type ConductorConfig = {
   publicKey: string
   botToken: string
   guildId: string
-  stationRoles: Record<string, string>
   platformRoles: Record<string, string>
 }
 
@@ -24,6 +23,5 @@ export function loadConfig(): ConductorConfig {
     publicKey,
     botToken,
     platformRoles: JSON.parse(env.DISCORD_PLATFORM_ROLES || "{}"),
-    stationRoles: JSON.parse(env.DISCORD_STATION_ROLES || "{}"),
   }
 }

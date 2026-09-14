@@ -3,7 +3,6 @@ import { DiscordApi, type DiscordChannel, type DiscordMember, type DiscordRole }
 import { platforms, welcomeMessage } from "./messages"
 import { everyoneCanReadWelcome, requireCompleteChannelAudit } from "./permissions"
 import { isFlairRole } from "./roles"
-import { stations } from "./stations"
 
 const config = loadConfig()
 const channelId = process.env.DISCORD_CHANNEL_ID
@@ -46,7 +45,6 @@ async function provision(choices: readonly { id: string; name: string }[], regis
 }
 
 const platformRoles = await provision(platforms, config.platformRoles)
-const stationRoles = await provision(stations, config.stationRoles)
 
 const setupFile = Bun.file(".conductor-setup.json")
 const previous = (await setupFile.exists()) ? await setupFile.json() : {}
@@ -61,9 +59,7 @@ const message = await api.call<{ id: string }>(
 )
 await Bun.write(
   setupFile,
-  JSON.stringify({ applicationId: config.applicationId, channelId, messageId: message.id, platformRoles, stationRoles }, null, 2),
+  JSON.stringify({ applicationId: config.applicationId, channelId, messageId: message.id, platformRoles }, null, 2),
 )
 console.info(`Welcome message: https://discord.com/channels/${config.guildId}/${channelId}/${message.id}`)
-console.info(
-  "Copy platformRoles and stationRoles from .conductor-setup.json into DISCORD_PLATFORM_ROLES and DISCORD_STATION_ROLES.",
-)
+console.info("Copy platformRoles from .conductor-setup.json into DISCORD_PLATFORM_ROLES.")
