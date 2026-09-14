@@ -206,8 +206,8 @@ function RootLayout() {
   }, [])
 
   useEffect(() => {
-    identifyPosthogUser()
-    trackInstalledWidgets()
+    // After the widget lookup, so its properties are sent this launch
+    trackInstalledWidgets().finally(identifyPosthogUser)
 
     storage.load("appLanguage").then((languageCode) => {
       if (languageCode) {
