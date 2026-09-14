@@ -22,7 +22,7 @@ export const stationPages = Array.from({ length: Math.ceil(stations.length / 25)
 
 export function welcomeMessage() {
   return {
-    content: "## אהלן שלום\nברוכים הבאים לבטר רייל!\n\nלפני שאתם מצטרפים, יש לנו 2 שאלות קצרות",
+    content: "## ברוכים הבאים לדיסקורד של בטר רייל!\n\nלפני שאתם מצטרפים, יש לנו 2 שאלות קצרות",
     components: [
       {
         type: 1,
