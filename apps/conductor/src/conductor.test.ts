@@ -1,10 +1,10 @@
-import { describe, expect, spyOn, test } from "bun:test"
+import { describe, expect, test } from "bun:test"
 import { generateKeyPairSync, sign } from "node:crypto"
 import type { ConductorConfig } from "./config"
 import { DiscordApi, type DiscordChannel, type DiscordRole } from "./discord"
 import { createHandler } from "./interactions"
 import { journeyComplete, platformPicker, welcomeMessage } from "./messages"
-import { everyoneCanReadWelcome, requireCompleteChannelAudit } from "./permissions"
+import { everyoneCanReadWelcome } from "./permissions"
 import { isFlairRole, OnboardingRoles } from "./roles"
 
 const keys = generateKeyPairSync("ed25519")
@@ -33,7 +33,6 @@ class FakeDiscord extends DiscordApi {
   failAssignmentRole?: string
   failRemovalOnce?: string
   failAfterMutationOnce?: { method: string; roleId: string }
-  channelList: DiscordChannel[] = [{ id: "1548800000000000020", type: 0, permission_overwrites: [] }]
   roleList: DiscordRole[] = [
     { id: staffRole, name: "developer", permissions: "8", position: 10, managed: false },
     { id: botRole, name: "The Conductor", permissions: "268435456", position: 9, managed: true },
@@ -48,7 +47,6 @@ class FakeDiscord extends DiscordApi {
     super("test-only")
   }
   override async call<T>(method: string, path: string, body?: unknown): Promise<T> {
-    if (path === `/guilds/${guildId}/channels`) return this.channelList as T
     if (path === `/guilds/${guildId}/roles`) return this.roleList as T
     if (path === `/guilds/${guildId}/members/${applicationId}`) return { roles: [botRole] } as T
     if (path === `/guilds/${guildId}/members/${userId}`) return { roles: [...this.memberRoles] } as T
@@ -111,10 +109,8 @@ describe("conductor onboarding", () => {
     await roles.choose(userId, "ios")
     expect(api.memberRoles).toContain(iosRole)
     const bot = api.roleList.find((role) => role.id === botRole)!
-    expect(
-      isFlairRole({ ...bot, id: staffRole, name: "ios", managed: false, permissions: "0" }, "ios", [bot], api.channelList),
-    ).toBe(false)
-    expect(isFlairRole({ ...bot, name: "ios", managed: false, permissions: "0" }, "ios", [bot], api.channelList)).toBe(false)
+    expect(isFlairRole({ ...bot, id: staffRole, name: "ios", managed: false, permissions: "0" }, "ios", [bot])).toBe(false)
+    expect(isFlairRole({ ...bot, name: "ios", managed: false, permissions: "0" }, "ios", [bot])).toBe(false)
   })
 
   test("verifies signatures and rejects tampered or expired requests", async () => {
@@ -143,50 +139,6 @@ describe("conductor onboarding", () => {
       api.failAfterMutationOnce = { method, roleId: method === "PUT" ? androidRole : iosRole }
       await expect(new OnboardingRoles(config, api).choose(userId, "android")).rejects.toThrow("Response timed out")
       expect(new Set(api.memberRoles)).toEqual(new Set([staffRole, iosRole, unrelatedRole]))
-    }
-  })
-
-  test("channel overwrites make a cosmetic role ineligible at setup and runtime", async () => {
-    for (const roleId of [iosRole, androidRole]) {
-      for (const bitset of [
-        { allow: "1024", deny: "0" },
-        { allow: "0", deny: "2048" },
-      ]) {
-        const api = new FakeDiscord()
-        api.memberRoles.push(unrelatedRole)
-        api.channelList[0].permission_overwrites.push({ id: roleId, type: 0, ...bitset })
-        const role = api.roleList.find((entry) => entry.id === roleId)!
-        const bot = api.roleList.find((entry) => entry.id === botRole)!
-        expect(isFlairRole(role, role.name, [bot], api.channelList)).toBe(false)
-        await expect(new OnboardingRoles(config, api).choose(userId, roleId === iosRole ? "ios" : "android")).rejects.toThrow(
-          "That role is unavailable",
-        )
-        expect(api.mutations).toHaveLength(0)
-      }
-    }
-  })
-
-  test("incomplete HTTP audits disable all role selections at the obfuscation cutoff", async () => {
-    const api = new FakeDiscord()
-    api.memberRoles.push(iosRole)
-    const bot = api.roleList.find((entry) => entry.id === botRole)!
-    const cutoff = Date.UTC(2026, 10, 16)
-    expect(() => requireCompleteChannelAudit([bot], cutoff - 1)).not.toThrow()
-    expect(() => requireCompleteChannelAudit([bot], cutoff)).toThrow("complete channel audit")
-    const clock = spyOn(Date, "now").mockReturnValue(cutoff)
-    try {
-      const roles = new OnboardingRoles(config, api)
-      for (const platformId of ["ios", "android"]) {
-        await expect(roles.choose(userId, platformId)).rejects.toThrow("complete channel audit")
-      }
-      expect(api.mutations).toHaveLength(0)
-      expect(api.memberRoles).toEqual([staffRole, iosRole])
-      bot.permissions = "8"
-      expect(() => requireCompleteChannelAudit([bot], cutoff)).not.toThrow()
-      await roles.choose(userId, "android")
-      expect(api.memberRoles).toContain(androidRole)
-    } finally {
-      clock.mockRestore()
     }
   })
 

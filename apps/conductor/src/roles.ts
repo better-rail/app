@@ -1,24 +1,14 @@
 import type { ConductorConfig } from "./config"
-import type { DiscordApi, DiscordChannel, DiscordMember, DiscordRole } from "./discord"
+import type { DiscordApi, DiscordMember, DiscordRole } from "./discord"
 import { platforms } from "./messages"
-import { requireCompleteChannelAudit } from "./permissions"
 
 // Renamed roles, or roles later given permissions, are never self-assignable.
 // Discord breaks equal-position ties by snowflake: the older role is higher.
 export const isBelowRole = (role: DiscordRole, higher: DiscordRole) =>
   role.position < higher.position || (role.position === higher.position && BigInt(role.id) > BigInt(higher.id))
 
-export const isFlairRole = (role: DiscordRole, name: string, botRoles: DiscordRole[], channels: DiscordChannel[]) =>
-  role.name === name &&
-  role.permissions === "0" &&
-  !role.managed &&
-  botRoles.some((botRole) => isBelowRole(role, botRole)) &&
-  !channels.some((channel) =>
-    channel.permission_overwrites.some(
-      (overwrite) =>
-        overwrite.type === 0 && overwrite.id === role.id && (BigInt(overwrite.allow) !== 0n || BigInt(overwrite.deny) !== 0n),
-    ),
-  )
+export const isFlairRole = (role: DiscordRole, name: string, botRoles: DiscordRole[]) =>
+  role.name === name && role.permissions === "0" && !role.managed && botRoles.some((botRole) => isBelowRole(role, botRole))
 
 export class OnboardingRoles {
   private pending = new Map<string, Promise<unknown>>()
@@ -41,17 +31,15 @@ export class OnboardingRoles {
   private async update(userId: string, platformId: string) {
     const guild = `/guilds/${this.config.guildId}`
     const memberPath = `${guild}/members/${userId}`
-    const [roles, bot, member, channels] = await Promise.all([
+    const [roles, bot, member] = await Promise.all([
       this.api.call<DiscordRole[]>("GET", `${guild}/roles`),
       this.api.call<DiscordMember>("GET", `${guild}/members/${this.config.applicationId}`),
       this.api.call<DiscordMember>("GET", memberPath),
-      this.api.call<DiscordChannel[]>("GET", `${guild}/channels`),
     ])
     const botRoles = roles.filter((role) => bot.roles.includes(role.id))
-    requireCompleteChannelAudit(botRoles)
     const options = platforms.flatMap((platform) => {
       const role = roles.find((candidate) => candidate.id === this.config.platformRoles[platform.id])
-      return role && isFlairRole(role, platform.name, botRoles, channels) ? [{ platform, role }] : []
+      return role && isFlairRole(role, platform.name, botRoles) ? [{ platform, role }] : []
     })
     const target = options.find(({ platform }) => platform.id === platformId)
     if (!target) throw new Error("That role is unavailable")
