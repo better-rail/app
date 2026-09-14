@@ -88,16 +88,18 @@ function normalize(text: string) {
 export function searchStations(query: string, selected: string[] = []) {
   const term = normalize(query)
   if (!term) return []
+  const score = (name: string) => {
+    const normalized = normalize(name)
+    if (normalized === term) return 0
+    if (!normalized.includes(term)) return Infinity
+    // Prefer a prefix over an interior match, then the more specific station name.
+    return (normalized.startsWith(term) ? 1 : 2) + (normalized.length - term.length) / (normalized.length + 1)
+  }
   return stations
-    .filter(
-      (station) =>
-        !selected.includes(station.id) && [station.name, station.hebrew].some((name) => normalize(name).includes(term)),
-    )
-    .sort(
-      (a, b) =>
-        Number(normalize(b.name) === term || normalize(b.hebrew) === term) -
-        Number(normalize(a.name) === term || normalize(a.hebrew) === term),
-    )
+    .map((station) => ({ station, score: Math.min(score(station.name), score(station.hebrew)) }))
+    .filter((match) => Number.isFinite(match.score) && !selected.includes(match.station.id))
+    .sort((a, b) => a.score - b.score)
+    .map((match) => match.station)
 }
 
 export function stationPicker(
@@ -111,7 +113,7 @@ export function stationPicker(
   return {
     content:
       "## תחנה אהובה? · 2 / 2\nעכשיו בחרו תחנה אחת או שתיים שאהובות עליכם.\n\n**זה לא חובה :)**" +
-      (chosen.length ? "\n\nבחרתם: " + chosen.map((station) => "`" + station.name + "`").join(" · ") : "") +
+      (chosen.length ? "\n\nבחרתם: " + chosen.map((station) => "`" + station.name + "`\n" + station.hebrew).join("\n\n") : "") +
       (note ? "\n\n" + note : ""),
     components: [
       ...(matches.length && selected.length < 2

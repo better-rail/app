@@ -9,9 +9,9 @@ repeat the flow to change their choices. Failed role mutations attempt to restor
 the original choices; incomplete compensation is reported to Sentry.
 
 The station step starts with **חיפוש תחנה**. A text popup accepts Hebrew or English,
-then a single dropdown shows matching stations (at most 25). Search again to add
-a second favorite. Search ignores spaces and punctuation; broad searches suggest
-a more specific name. Draft station IDs travel in component IDs through the modal. **סיום** saves
+then automatically adds the closest matching station to the draft. Exact names
+rank first, followed by prefix and interior matches. Search again to add a second
+favorite, or remove a choice to retry. Search ignores spaces and punctuation. Draft station IDs travel in component IDs through the modal. **סיום** saves
 the favorites; **חזרה אחורה** discards the draft and returns to device selection.
 Existing favorites are shown when editing. Remove favorites and press
 **סיום** to remove them. **דילוג** leaves existing favorites unchanged.

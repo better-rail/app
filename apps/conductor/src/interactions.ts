@@ -149,14 +149,17 @@ export function createHandler(
         row.component ? [row.component] : (row.components ?? []),
       )
       const query = inputs.find((input) => input.custom_id === queryInput)?.value ?? ""
-      const matches = query.length <= 100 ? searchStations(query, selected) : []
-      const note =
-        matches.length > 25
-          ? "יש הרבה תחנות מתאימות. נסו שם מדויק יותר אם התחנה שלכם לא ברשימה."
-          : matches.length
-            ? "מצאתי! בחרו תחנה מהרשימה."
-            : "לא מצאתי תחנה נוספת בשם הזה. נסו לחפש שוב בעברית או באנגלית."
-      result = update(stationPicker(selected, true, matches, note))
+      const match = query.length <= 100 ? searchStations(query)[0] : undefined
+      const alreadySelected = match && selected.includes(match.id)
+      const canAdd = match && !alreadySelected && selected.length < 2
+      const note = alreadySelected
+        ? "התחנה הזאת כבר בבחירה שלכם :)"
+        : selected.length >= 2
+          ? "כבר בחרתם שתי תחנות. הסירו אחת כדי לבחור אחרת."
+          : match
+            ? "הוספתי את `" + match.name + "` לבחירה."
+            : "לא מצאתי תחנה בשם הזה. נסו לחפש שוב בעברית או באנגלית."
+      result = update(stationPicker(canAdd ? [...selected, match.id] : selected, true, [], note))
     } else if (customId.startsWith(resultPrefix) && interaction.type === 3) {
       const previous = draftIds(customId.slice(resultPrefix.length))
       const values = interaction.data?.values ?? []

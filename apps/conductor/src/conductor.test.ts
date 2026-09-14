@@ -145,11 +145,6 @@ function modal(query: string, selected: string[] = [], message?: { components: u
   }
 }
 
-async function searchAndPick(handler: ReturnType<typeof createHandler>, query: string, id: string, selected: string[] = []) {
-  const results = await (await handler(signedRequest(modal(query, selected)))).json()
-  return (await handler(signedRequest(interaction(resultPrefix + selected.join(","), [id], results.data)))).json()
-}
-
 function signedRequest(payload: unknown, timestamp = String(Math.floor(Date.now() / 1000))) {
   const body = JSON.stringify(payload)
   const signature = sign(null, Buffer.from(timestamp + body), keys.privateKey).toString("hex")
@@ -256,7 +251,7 @@ describe("conductor onboarding", () => {
     expect(new Set(api.memberRoles)).toEqual(new Set([staffRole, iosRole, hashalomRole, hahaganaRole]))
   })
 
-  test("search opens a Hebrew modal and keeps the draft through English and Hebrew queries", async () => {
+  test("search auto-selects the closest station in English and Hebrew without changing roles before Finish", async () => {
     const api = new FakeDiscord()
     api.memberRoles.push(iosRole)
     const handler = createHandler(config, api)
@@ -264,9 +259,11 @@ describe("conductor onboarding", () => {
     expect(opened.type).toBe(9)
     expect(opened.data.title).toBe("חיפוש תחנה")
     expect(opened.data.components[0].component.custom_id).toBe(queryInput)
-    const first = await searchAndPick(handler, "ha shalom", "4600")
+    const first = await (await handler(signedRequest(modal("ha shalom")))).json()
     expect(defaultSelections(first.data)).toEqual(["4600"])
-    const second = await searchAndPick(handler, "השמונה", "2100", ["4600"])
+    expect(JSON.stringify(first.data.components)).not.toContain(resultPrefix)
+    expect(first.data.content).toContain("תל אביב - השלום")
+    const second = await (await handler(signedRequest(modal("השמונה", ["4600"])))).json()
     expect(defaultSelections(second.data)).toEqual(["4600", "2100"])
     expect(JSON.stringify(second.data)).not.toContain(searchPrefix)
     expect(api.mutations).toHaveLength(0)
@@ -275,7 +272,7 @@ describe("conductor onboarding", () => {
     expect(new Set(api.memberRoles)).toEqual(new Set([staffRole, iosRole, hashalomRole, hashmonaRole]))
   })
 
-  test("empty or broad searches preserve drafts and results stay within Discord limits", async () => {
+  test("empty searches preserve drafts; broad searches select the best result without a dropdown", async () => {
     const handler = createHandler(config, new FakeDiscord())
     for (const query of ["does not exist", " ", "!!!"]) {
       const result = await (await handler(signedRequest(modal(query, ["4600"])))).json()
@@ -285,9 +282,8 @@ describe("conductor onboarding", () => {
       expect(JSON.stringify(result.data.components)).not.toContain(resultPrefix)
     }
     const broad = await (await handler(signedRequest(modal("a")))).json()
-    expect(broad.data.components[0].components[0].options).toHaveLength(25)
-    expect(broad.data.content).toContain("שם מדויק יותר")
-    expect(broad.data.components[0].components[0].max_values).toBe(1)
+    expect(defaultSelections(broad.data)).toEqual([searchStations("a")[0].id])
+    expect(JSON.stringify(broad.data.components)).not.toContain(resultPrefix)
     const noMessage = modal("שלום")
     delete (noMessage as { message?: unknown }).message
     const fallback = await (await handler(signedRequest(noMessage))).json()
@@ -298,14 +294,23 @@ describe("conductor onboarding", () => {
   test("unoffered, duplicate, and third results cannot change draft selections", async () => {
     const api = new FakeDiscord()
     const handler = createHandler(config, api)
-    const results = await (await handler(signedRequest(modal("שלום", ["2100"])))).json()
+    const results = { data: stationPicker(["2100"], true, searchStations("שלום", ["2100"])) }
     const forged = await (await handler(signedRequest(interaction(resultPrefix + "2100", ["4900"], results.data)))).json()
     expect(defaultSelections(forged.data)).toEqual(["2100"])
-    const duplicate = await searchAndPick(handler, "שלום", "4600", ["4600"])
+    const duplicate = await (await handler(signedRequest(modal("שלום", ["4600"])))).json()
     expect(defaultSelections(duplicate.data)).toEqual(["4600"])
-    const third = await searchAndPick(handler, "binyamina", "2800", ["4600", "2100"])
+    expect(duplicate.data.content).toContain("כבר בבחירה")
+    const third = await (await handler(signedRequest(modal("binyamina", ["4600", "2100"])))).json()
     expect(defaultSelections(third.data)).toEqual(["4600", "2100"])
     expect(api.mutations).toHaveLength(0)
+  })
+
+  test("matching ranks exact station names before partial matches", () => {
+    expect(searchStations("netanya")[0].name).toBe("netanya")
+    expect(searchStations("נתניה - ספיר")[0].name).toBe("netanya sapir")
+    expect(searchStations("bet yehoshua")[0].name).toBe("bet yehoshua")
+    expect(searchStations("ha shalom")[0].name).toBe("hashalom")
+    expect(searchStations("השלום")[0].name).toBe("hashalom")
   })
 
   test("removing the last draft favorite allows Finish to clear saved flair", async () => {
