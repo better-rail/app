@@ -64,6 +64,7 @@ const withAndroidManifestMods = (config) =>
     app.activity.push(
       configActivity(".widget.CompactWidget2x2ConfigActivity"),
       configActivity(".widget.CompactWidget4x2ConfigActivity"),
+      configActivity(".widget.CompactWidget4x3ConfigActivity"),
     )
 
     app.receiver.push(
@@ -78,6 +79,12 @@ const withAndroidManifestMods = (config) =>
         "com.betterrail.widget.modern.compact4x2.ACTION_REFRESH",
         "com.betterrail.widget.modern.compact4x2.ACTION_WIDGET_UPDATE",
         "@xml/compact_widget_4x2_info",
+      ),
+      widgetReceiver(
+        ".widget.ModernCompactWidget4x3Provider",
+        "com.betterrail.widget.modern.compact4x3.ACTION_REFRESH",
+        "com.betterrail.widget.modern.compact4x3.ACTION_WIDGET_UPDATE",
+        "@xml/compact_widget_4x3_info",
       ),
       { $: { "android:name": ".widget.WidgetPinReceiver", "android:exported": "false" } },
       {

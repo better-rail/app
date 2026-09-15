@@ -415,7 +415,10 @@ class RailApiService(
                     val depMinutes = depTimePart[0].toInt() * MINUTES_IN_HOUR + depTimePart[1].toInt()
                     val arrMinutes = arrTimePart[0].toInt() * MINUTES_IN_HOUR + arrTimePart[1].toInt()
                     
-                    val durationMinutes = arrMinutes - depMinutes
+                    var durationMinutes = arrMinutes - depMinutes
+                    if (durationMinutes < 0) {
+                        durationMinutes += 24 * MINUTES_IN_HOUR
+                    }
                     
                     if (durationMinutes >= 60) {
                         val hours = durationMinutes / 60

@@ -18,10 +18,28 @@ struct BetterRailWidgetView: View {
     return false
   }
 
+  // Matches RNBetterRail.getInstalledWidgets
+  var familyName: String {
+    if isExtraLarge { return "extraLargePortrait" }
+    switch widgetFamily {
+    case .systemSmall: return "small"
+    case .systemMedium: return "medium"
+    case .systemLarge: return "large"
+    case .accessoryCircular: return "accessoryCircular"
+    case .accessoryInline: return "accessoryInline"
+    case .accessoryRectangular: return "accessoryRectangular"
+    default: return "unknown"
+    }
+  }
+
+  var deepLinkURL: URL {
+    URL(string: "widget://route?originId=\(entry.origin.id)&destinationId=\(entry.destination.id)&family=\(familyName)")!
+  }
+
   var body: some View {
     if accessoryWidgetFamilies.contains(widgetFamily) {
       AccessoryEntryView(entry: entry)
-        .widgetURL(URL(string: "widget://route?originId=\(entry.origin.id)&destinationId=\(entry.destination.id)")!)
+        .widgetURL(deepLinkURL)
     } else {
       #if os(watchOS)
         EmptyView()
@@ -33,7 +51,7 @@ struct BetterRailWidgetView: View {
           WidgetEntryView(entry: entry)
         }
       }
-      .widgetURL(URL(string: "widget://route?originId=\(entry.origin.id)&destinationId=\(entry.destination.id)")!)
+      .widgetURL(deepLinkURL)
       #endif
     }
   }
