@@ -26,6 +26,13 @@ export function routeSearchParams(value: DateTimeValue) {
   return { date: value.date || undefined, time: value.time || undefined }
 }
 
+/** The station cards' dip on a swap, as in the app: a quick press in, an even settle back, no hold at the bottom. */
+const SWAP_DIP: Keyframe[] = [
+  { scale: 1, easing: "cubic-bezier(0.33, 1, 0.68, 1)" },
+  { scale: 0.96, offset: 0.4, easing: "cubic-bezier(0.65, 0, 0.35, 1)" },
+  { scale: 1 },
+]
+
 /** Trip planner: `hero` is the home-page card, `bar` the results toolbar where changes apply immediately. */
 export function Planner({
   variant,
@@ -49,14 +56,12 @@ export function Planner({
   const today = dateKey(nowNaive)
   const now = formatClock(nowNaive)
   const [value, setValue] = useState<PlannerValue>(initial ?? {})
-  const [swapping, setSwapping] = useState(false)
+  const originCard = useRef<HTMLDivElement>(null)
+  const destinationCard = useRef<HTMLDivElement>(null)
   /** The hero form has been sent and the results page is still loading — the button says so and locks meanwhile. */
   const [submitting, setSubmitting] = useState(false)
   const [dirty, setDirty] = useState(false)
-  const swapTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const autoNavigate = variant === "bar"
-
-  useEffect(() => () => clearTimeout(swapTimeout.current), [])
 
   // Follow `initial` until the user edits the form (URL changes on the toolbar, stored stations on the hero). Merged
   // rather than replaced: the hero's `initial` carries stations only, and a date the user picked has to survive it.
@@ -105,9 +110,10 @@ export function Planner({
   }
 
   const swap = () => {
-    setSwapping(true)
-    clearTimeout(swapTimeout.current)
-    swapTimeout.current = setTimeout(() => setSwapping(false), 350)
+    // Web Animations skip the stylesheet's reduced-motion rule, so it is checked here.
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      for (const card of [originCard.current, destinationCard.current]) card?.animate(SWAP_DIP, 300)
+    }
     update({ origin: value.destination, destination: value.origin })
   }
 
@@ -170,7 +176,7 @@ export function Planner({
       aria-label={t("plan.title")}
     >
       <div className="relative flex flex-col gap-3 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-end lg:gap-3">
-        <div className={cn("transition-transform duration-300 ease-out-expo", swapping && "scale-[0.97]")}>
+        <div ref={originCard}>
           <StationPicker
             kind="origin"
             label={t("plan.origin")}
@@ -191,7 +197,7 @@ export function Planner({
             className="absolute end-2 top-[19px] size-16 -translate-y-1/2 lg:static lg:size-14 lg:translate-y-0"
           />
         </div>
-        <div className={cn("transition-transform duration-300 ease-out-expo", swapping && "scale-[0.97]")}>
+        <div ref={destinationCard}>
           <StationPicker
             kind="destination"
             label={t("plan.destination")}

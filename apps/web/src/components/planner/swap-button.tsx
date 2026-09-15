@@ -37,7 +37,7 @@ export function SwapButton({
       aria-label={t("plan.swap")}
       title={t("plan.swap")}
       className={cn(
-        "inline-flex items-center justify-center rounded-full bg-brand text-white shadow-[0_2px_8px_rgb(10_129_221/0.4)] transition-[scale,background-color] duration-300 ease-out-expo hover:bg-brand-strong active:scale-90 disabled:opacity-40 disabled:shadow-none",
+        "inline-flex items-center justify-center rounded-full bg-brand text-white shadow-[0_2px_8px_rgb(10_129_221/0.4)] transition-[scale,background-color] duration-150 ease-out-expo hover:bg-brand-strong active:scale-90 disabled:opacity-40 disabled:shadow-none",
         className,
       )}
     >
