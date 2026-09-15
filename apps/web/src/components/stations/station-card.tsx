@@ -1,4 +1,4 @@
-import type { ReactNode } from "react"
+import type { ReactNode, Ref } from "react"
 import { cn } from "@/lib/cn"
 import type { Station } from "@/data/stations"
 import { StationImage } from "./station-image"
@@ -13,15 +13,18 @@ export function StationPhotoCard({
   className,
   children,
   compact = false,
+  ref,
 }: {
   station: Station | undefined
   name: string
   className?: string
   children?: ReactNode
   compact?: boolean
+  ref?: Ref<HTMLSpanElement>
 }) {
   return (
     <span
+      ref={ref}
       className={cn(
         "relative block overflow-hidden rounded-card bg-surface-3",
         compact ? "h-24" : "h-44 sm:h-48 lg:h-56",

@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react"
+import { memo, useCallback, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode, type Ref } from "react"
 import { flushSync } from "react-dom"
 import { Search, X, ChevronDown, TrainFront, Clock } from "lucide-react"
 import { stationName, getStationById, type Station } from "@/data/stations"
@@ -21,6 +21,8 @@ export interface StationPickerProps {
   variant?: "card" | "field"
   className?: string
   kind: "origin" | "destination"
+  /** The `card` variant's photo card, which the planner moves when the stations are swapped */
+  cardRef?: Ref<HTMLSpanElement>
 }
 
 /** The clock beside a recent pick — a constant, so the memoised rows don't see a new element every render. */
@@ -38,7 +40,16 @@ function nextEnabled(options: Station[], excludeId: string | undefined, from: nu
  * A station field with a searchable list attached. The list lives in the same shell as the date and time pickers: a
  * panel under the field on desktop, a sheet running most of the screen on phones. Recent picks come first.
  */
-export function StationPicker({ label, value, onChange, exclude, variant = "card", className, kind }: StationPickerProps) {
+export function StationPicker({
+  label,
+  value,
+  onChange,
+  exclude,
+  variant = "card",
+  className,
+  kind,
+  cardRef,
+}: StationPickerProps) {
   const t = useT()
   const locale = useLocale()
   const isDesktop = useIsDesktop()
@@ -165,7 +176,12 @@ export function StationPicker({ label, value, onChange, exclude, variant = "card
       >
         <span className="mb-1.5 block text-[13px] font-semibold uppercase tracking-wide text-muted">{label}</span>
         {value ? (
-          <StationPhotoCard station={value} name={name ?? ""} className="shadow-card group-hover:shadow-card-hover" />
+          <StationPhotoCard
+            ref={cardRef}
+            station={value}
+            name={name ?? ""}
+            className="shadow-card group-hover:shadow-card-hover"
+          />
         ) : (
           <span className="flex h-44 flex-col items-center justify-center gap-2 rounded-card border-2 border-dashed border-line-strong bg-surface-2 text-muted transition-colors group-hover:border-brand/50 group-hover:text-brand-text sm:h-48 lg:h-56">
             <TrainFront className="size-8 opacity-60" />

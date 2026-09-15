@@ -26,12 +26,8 @@ export function routeSearchParams(value: DateTimeValue) {
   return { date: value.date || undefined, time: value.time || undefined }
 }
 
-/** The station cards' dip on a swap, as in the app: a quick press in, an even settle back, no hold at the bottom. */
-const SWAP_DIP: Keyframe[] = [
-  { scale: 1, easing: "cubic-bezier(0.33, 1, 0.68, 1)" },
-  { scale: 0.96, offset: 0.4, easing: "cubic-bezier(0.65, 0, 0.35, 1)" },
-  { scale: 1 },
-]
+/** The swap's glide: the cards leave and land gently, like two things physically trading places. */
+const SWAP_EASING = "cubic-bezier(0.65, 0, 0.35, 1)"
 
 /** Trip planner: `hero` is the home-page card, `bar` the results toolbar where changes apply immediately. */
 export function Planner({
@@ -56,8 +52,9 @@ export function Planner({
   const today = dateKey(nowNaive)
   const now = formatClock(nowNaive)
   const [value, setValue] = useState<PlannerValue>(initial ?? {})
-  const originCard = useRef<HTMLDivElement>(null)
-  const destinationCard = useRef<HTMLDivElement>(null)
+  const originCard = useRef<HTMLSpanElement>(null)
+  const destinationCard = useRef<HTMLSpanElement>(null)
+  const swapAnimations = useRef<Animation[]>([])
   /** The hero form has been sent and the results page is still loading — the button says so and locks meanwhile. */
   const [submitting, setSubmitting] = useState(false)
   const [dirty, setDirty] = useState(false)
@@ -109,10 +106,28 @@ export function Planner({
     if (autoNavigate) go(next, !stationsChanged, stationsChanged)
   }
 
+  /** The photo cards trade places, each gliding home from where the other is on screen — mid-flight too. */
   const swap = () => {
+    const origin = originCard.current
+    const destination = destinationCard.current
     // Web Animations skip the stylesheet's reduced-motion rule, so it is checked here.
-    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      for (const card of [originCard.current, destinationCard.current]) card?.animate(SWAP_DIP, 300)
+    if (origin && destination && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const starts = [destination.getBoundingClientRect(), origin.getBoundingClientRect()]
+      for (const animation of swapAnimations.current) animation.cancel()
+      swapAnimations.current = [origin, destination].map((card, index) => {
+        const start = starts[index]
+        const home = card.getBoundingClientRect()
+        const x = start.x + start.width / 2 - (home.x + home.width / 2)
+        const y = start.y + start.height / 2 - (home.y + home.height / 2)
+        return card.animate(
+          [
+            { translate: `${x}px ${y}px`, scale: start.width / home.width, easing: SWAP_EASING },
+            { scale: index === 0 ? 0.94 : 1.02, offset: 0.5, easing: SWAP_EASING },
+            { translate: "0 0", scale: 1 },
+          ],
+          Math.min(450, 280 + Math.hypot(x, y) / 4),
+        )
+      })
     }
     update({ origin: value.destination, destination: value.origin })
   }
@@ -176,20 +191,19 @@ export function Planner({
       aria-label={t("plan.title")}
     >
       <div className="relative flex flex-col gap-3 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-end lg:gap-3">
-        <div ref={originCard}>
-          <StationPicker
-            kind="origin"
-            label={t("plan.origin")}
-            value={value.origin}
-            exclude={value.destination}
-            onChange={(origin) => update({ origin })}
-          />
-        </div>
+        <StationPicker
+          kind="origin"
+          label={t("plan.origin")}
+          value={value.origin}
+          exclude={value.destination}
+          cardRef={originCard}
+          onChange={(origin) => update({ origin })}
+        />
         {/* Below `lg` the button straddles the seam between the two cards, as in the app: this zero-height row starts at
             the origin card's bottom edge (the column gap above it is cancelled), and 19px is half of that gap plus the
             destination's label, so the button is centred on the space between the cards. From `lg` it is a
             card-height cell between the two, with the button centred on them. */}
-        <div className="relative z-10 -mt-3 h-0 lg:static lg:mt-0 lg:flex lg:h-56 lg:items-center">
+        <div className="relative z-10 -mt-3 h-0 lg:mt-0 lg:flex lg:h-56 lg:items-center">
           <SwapButton
             onClick={swap}
             disabled={!value.origin || !value.destination}
@@ -197,15 +211,14 @@ export function Planner({
             className="absolute end-2 top-[19px] size-16 -translate-y-1/2 lg:static lg:size-14 lg:translate-y-0"
           />
         </div>
-        <div ref={destinationCard}>
-          <StationPicker
-            kind="destination"
-            label={t("plan.destination")}
-            value={value.destination}
-            exclude={value.origin}
-            onChange={(destination) => update({ destination })}
-          />
-        </div>
+        <StationPicker
+          kind="destination"
+          label={t("plan.destination")}
+          value={value.destination}
+          exclude={value.origin}
+          cardRef={destinationCard}
+          onChange={(destination) => update({ destination })}
+        />
       </div>
 
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
