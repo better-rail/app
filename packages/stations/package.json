@@ -1,0 +1,16 @@
+{
+  "name": "@better-rail/stations",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Israel Railways station list and photos shared by the Better Rail apps",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./images": "./src/images.ts"
+  },
+  "files": ["src", "images"],
+  "scripts": {
+    "generate:images": "bun run scripts/generate-images.ts",
+    "test": "bun test"
+  }
+}
