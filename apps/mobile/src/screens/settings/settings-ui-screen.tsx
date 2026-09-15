@@ -58,7 +58,7 @@ export function UISettingsScreen() {
     >
       <Text style={SETTING_GROUP_TITLE} tx="settings.routeCard" />
       <Animated.View style={animatedCardStyle}>
-        <RouteCardPreview style={styles.routeCard} />
+        <RouteCardPreview cardStyle={styles.routeCard} />
       </Animated.View>
 
       <View style={SETTING_GROUP}>
@@ -84,7 +84,6 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.background,
   },
   routeCard: {
-    marginBottom: theme.spacing[4],
     backgroundColor: theme.colors.secondaryBackground,
   },
 }))
