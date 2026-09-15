@@ -32,7 +32,10 @@ export interface RouteCardProps extends TouchableScaleProps {
   isMuchLonger: boolean
   stops: number
   delay: number
+  /** Applied to the wrapper around the card, e.g. margins. */
   style?: ViewStyle
+  /** Applied to the card surface itself, e.g. its background. */
+  cardStyle?: ViewStyle
   isActiveRide: boolean
   shouldShowDashedLine?: boolean
   isRouteInThePast: boolean
@@ -151,6 +154,7 @@ export function RouteCard(props: RouteCardProps) {
         containerStyle,
         props.isActiveRide && styles.activeRideContainer,
         props.isRouteInThePast && styles.pastRideContainer,
+        props.cardStyle,
       ]}
     >
       {/* Header with train information */}
