@@ -3,7 +3,6 @@ import { ArrowLeft, ArrowRight, Clock } from "lucide-react"
 import { Planner } from "@/components/planner/planner"
 import { LocaleLink } from "@/components/locale-link"
 import { DownloadBadges } from "@/components/download-badges"
-import { StationImage } from "@/components/stations/station-image"
 import { getStationById, stationName, type Station } from "@/data/stations"
 import { useLocale, useT, resolveLocale, translate } from "@/i18n"
 import { useRecentRoutes, useStoredRoutePlan } from "@/hooks/use-stored"
@@ -91,7 +90,7 @@ function HomePage() {
   )
 }
 
-/** The last few searches — the home page's shortcuts back into a trip. */
+/** The last few searches as quiet one-line chips: shortcuts back into a trip that leave the planner the focus. */
 function SavedRoutes() {
   const t = useT()
   const locale = useLocale()
@@ -100,38 +99,31 @@ function SavedRoutes() {
   const Arrow = locale === "he" ? ArrowLeft : ArrowRight
   return (
     <div className="animate-fade-in">
-      <div className="mb-3 flex items-center justify-between gap-4">
-        <p className="flex items-center gap-1.5 text-[13px] font-semibold text-muted">
-          <Clock className="size-3.5" />
-          {t("home.recent")}
-        </p>
+      <div className="mb-2 flex items-center gap-2 text-[13px] text-muted">
+        <Clock className="size-3.5" />
+        <span className="font-semibold">{t("home.recent")}</span>
+        <span aria-hidden="true">·</span>
+        {/* The vertical padding stretches the tap target to 40px without pushing the chips down. */}
         <button
           type="button"
           onClick={recentRoutes.clear}
-          className="text-[13px] font-medium text-dim transition-colors hover:text-text-2"
+          className="-my-2.5 py-2.5 font-medium text-dim transition-colors hover:text-text-2"
         >
           {t("home.clearRecent")}
         </button>
       </div>
       {/* A single row that scrolls sideways and bleeds to the page edges, instead of pills wrapping into a ragged block. */}
-      <ul className="scrollbar-none -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6">
+      <ul className="scrollbar-none -mx-4 flex snap-x gap-2 overflow-x-auto px-4 py-1 sm:-mx-6 sm:px-6">
         {recent.map(([from, to]) => (
           <li key={`${from.id}-${to.id}`} className="shrink-0 snap-start">
             <LocaleLink
               to="/{-$locale}/routes/$from/$to"
               params={{ from: from.id, to: to.id }}
-              className="group flex w-[220px] items-center gap-3 rounded-2xl border border-line/60 bg-surface p-2 pe-4 shadow-card transition-[transform,box-shadow,border-color] duration-200 ease-out-expo hover:-translate-y-0.5 hover:border-brand/30 hover:shadow-card-hover"
+              className="group flex h-10 items-center gap-2 whitespace-nowrap rounded-full bg-surface px-4 text-[14px] text-text-2 transition-[box-shadow,scale] duration-200 ease-out-expo hover:ring-1 hover:ring-line-strong active:scale-[0.96]"
             >
-              <span className="size-12 shrink-0 overflow-hidden rounded-xl">
-                <StationImage station={to} sizes="48px" />
-              </span>
-              <span className="flex min-w-0 flex-col leading-tight">
-                <span className="truncate text-[12px] text-muted">{stationName(from, locale)}</span>
-                <span className="mt-0.5 flex min-w-0 items-center gap-1 text-[14px] font-semibold">
-                  <Arrow className="size-3.5 shrink-0 text-brand" />
-                  <span className="truncate">{stationName(to, locale)}</span>
-                </span>
-              </span>
+              {stationName(from, locale)}
+              <Arrow className="size-3.5 shrink-0 text-dim transition-colors group-hover:text-brand" />
+              <span className="font-semibold text-text">{stationName(to, locale)}</span>
             </LocaleLink>
           </li>
         ))}
