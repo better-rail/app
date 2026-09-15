@@ -27,6 +27,8 @@
 
 /* Colour roles mirroring the mobile theme (apps/mobile/src/theme). Light on :root, dark under `.dark`. */
 :root {
+  /* Station photo card height from `lg`; the home hero raises it with the viewport. */
+  --station-card-h: 14rem;
   --color-bg: #f2f2f7;
   --color-surface: #ffffff;
   --color-surface-2: #f9f9fb;

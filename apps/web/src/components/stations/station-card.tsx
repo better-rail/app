@@ -24,7 +24,7 @@ export function StationPhotoCard({
     <span
       className={cn(
         "relative block overflow-hidden rounded-card bg-surface-3",
-        compact ? "h-24" : "h-44 sm:h-48 lg:h-56",
+        compact ? "h-24" : "h-44 sm:h-48 lg:h-(--station-card-h)",
         className,
       )}
     >

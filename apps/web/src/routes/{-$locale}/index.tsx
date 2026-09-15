@@ -50,17 +50,16 @@ function HomePage() {
 
   return (
     <>
-      {/* Fills the first screen below the 60px + 1px-border header so the planner is all you see until you scroll. */}
-      <section className="relative flex min-h-[calc(100dvh-61px)] flex-col overflow-x-clip">
+      {/* Fills the first screen below the 60px + 1px-border header so the planner is all you see until you scroll. The
+          station cards grow with the viewport (see --station-card-h) so the planner uses the space rather than leaving a gap. */}
+      <section className="relative flex min-h-[calc(100dvh-61px)] flex-col overflow-x-clip lg:[--station-card-h:clamp(14rem,100dvh-30rem,30rem)]">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_80%_0%,color-mix(in_srgb,var(--color-brand)_14%,transparent),transparent_70%)]"
         />
-        <div className="container-page relative flex flex-col gap-8 py-8 sm:py-10 lg:py-12">
-          <div className="animate-fade-in">
-            <h1 className="text-balance text-2xl font-bold tracking-tight sm:text-3xl">{t("home.title")}</h1>
-            <p className="mt-1.5 text-[15px] text-muted sm:text-base">{t("home.subtitle")}</p>
-          </div>
+        <div className="container-page relative flex flex-col gap-8 py-6 sm:py-8 lg:py-10">
+          {/* Visually hidden: the planner is the hero, but the page still needs an h1. */}
+          <h1 className="sr-only">{t("home.title")}</h1>
           <Planner variant="hero" today={today} now={now} initial={initial} className="relative z-20 shadow-pop" />
           <SavedRoutes />
         </div>

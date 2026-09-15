@@ -189,7 +189,7 @@ export function Planner({
             the origin card's bottom edge (the column gap above it is cancelled), and 19px is half of that gap plus the
             destination's label, so the button is centred on the space between the cards. From `lg` it is a
             card-height cell between the two, with the button centred on them. */}
-        <div className="relative z-10 -mt-3 h-0 lg:static lg:mt-0 lg:flex lg:h-56 lg:items-center">
+        <div className="relative z-10 -mt-3 h-0 lg:static lg:mt-0 lg:flex lg:h-(--station-card-h) lg:items-center">
           <SwapButton
             onClick={swap}
             disabled={!value.origin || !value.destination}
