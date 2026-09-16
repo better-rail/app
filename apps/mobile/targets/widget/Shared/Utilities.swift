@@ -53,11 +53,16 @@ func formatRouteHour(_ isoDate: String, delay: Int = 0) -> String {
   return formatDateHour(date.addMinutes(delay))
 }
 
+/// AM/PM only for an English app on a device set to a 12-hour clock
+func use12HourClock() -> Bool {
+  let template = DateFormatter.dateFormat(fromTemplate: "j", options: 0, locale: Locale.current) ?? ""
+  return getUserLocale() == .english && template.contains("a")
+}
+
 func formatDateHour(_ date: Date) -> String {
   let formatter = DateFormatter()
-  formatter.locale = Locale(identifier: "he_IL")
-  formatter.setLocalizedDateFormatFromTemplate("HH:mm")
-  formatter.dateFormat = "HH:mm"
+  formatter.locale = Locale(identifier: use12HourClock() ? "en_US" : "he_IL")
+  formatter.dateFormat = use12HourClock() ? "h:mm a" : "HH:mm"
   
   return formatter.string(from: date)
 }

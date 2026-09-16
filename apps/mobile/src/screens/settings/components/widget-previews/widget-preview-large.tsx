@@ -3,6 +3,7 @@ import { Image, View } from "react-native"
 import { Text } from "@/components"
 import { translate } from "@/i18n"
 import { useWidgetPreviewRoute } from "./use-widget-preview-route"
+import { formatClockTime } from "@/utils/helpers/date-helpers"
 import { styles } from "./widget-preview.styles"
 
 const arrowIcon = require("../../../../../assets/arrow-left.png")
@@ -47,14 +48,14 @@ export function WidgetPreviewLarge() {
 
           {/* Metrics Row */}
           <View style={styles.largeMetricsRow}>
-            <Text style={styles.largeTrainTime}>06:32</Text>
+            <Text style={styles.largeTrainTime}>{formatClockTime("06:32")}</Text>
 
             <View style={styles.largeMetricCol}>
               <Text style={styles.largeMetricLabel} numberOfLines={1}>
                 {translate("settings.widgetPreviewArrival")}
               </Text>
               <Text style={styles.largeMetricVal} numberOfLines={1}>
-                06:58
+                {formatClockTime("06:58")}
               </Text>
             </View>
 
@@ -106,10 +107,10 @@ export function WidgetPreviewLarge() {
             <View style={styles.largeDivider} />
             <View style={styles.largeTableRow}>
               <Text style={[styles.largeRowDepart, styles.colDepart]} numberOfLines={1}>
-                {item.depart}
+                {formatClockTime(item.depart)}
               </Text>
               <Text style={[styles.largeRowArrive, styles.colArrive]} numberOfLines={1}>
-                {item.arrive}
+                {formatClockTime(item.arrive)}
               </Text>
               <Text style={[styles.largeRowDuration, styles.colDuration]} numberOfLines={1}>
                 {translate("settings.widgetPreviewDurationMin", { num: item.duration })}

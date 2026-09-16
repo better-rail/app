@@ -51,13 +51,18 @@ export const RouteStationCard = (props: RouteStopCardProps) => {
             <Text style={[styles.routeStationTime, styles.routeStationTimeDelayed]} maxFontSizeMultiplier={1.1}>
               {stopTime}
             </Text>
-            <Text style={[styles.routeStationTime, { minWidth: undefined }]} maxFontSizeMultiplier={1.1}>
+            <Text
+              style={[styles.routeStationTime, { minWidth: undefined }]}
+              maxFontSizeMultiplier={1.1}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+            >
               {delayedTime}
             </Text>
           </>
         ) : (
           <>
-            <Text style={styles.routeStationTime} maxFontSizeMultiplier={1.1}>
+            <Text style={styles.routeStationTime} maxFontSizeMultiplier={1.1} numberOfLines={1} adjustsFontSizeToFit>
               {stopTime}
             </Text>
             {delay > 0 && (
@@ -115,6 +120,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     flex: 1,
     marginStart: theme.spacing[4],
   },
+  // "12:09 PM" is wider than the column, so the text scales down instead of wrapping
   routeStationTime: {
     minWidth: 52 * rt.fontScale,
     marginEnd: theme.spacing[4],

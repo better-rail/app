@@ -128,6 +128,7 @@ struct EntriesGenerator {
       let upcomingTrain = UpcomingTrain(
         departureTime: formatRouteHour(firstRouteTrain.departureTime),
         arrivalTime: formatRouteHour(lastRouteTrain.arrivalTime),
+        durationMinutes: minutesBetween(firstRouteTrain.departureTime, lastRouteTrain.arrivalTime),
         platform: firstRouteTrain.platform,
         trainNumber: firstRouteTrain.trainNumber
       )
