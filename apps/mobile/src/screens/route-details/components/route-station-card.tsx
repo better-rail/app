@@ -48,7 +48,12 @@ export const RouteStationCard = (props: RouteStopCardProps) => {
       <View style={styles.routeStationTimeWrapper}>
         {delayedTime ? (
           <>
-            <Text style={[styles.routeStationTime, styles.routeStationTimeDelayed]} maxFontSizeMultiplier={1.1}>
+            <Text
+              style={[styles.routeStationTime, styles.routeStationTimeDelayed]}
+              maxFontSizeMultiplier={1.1}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+            >
               {stopTime}
             </Text>
             <Text

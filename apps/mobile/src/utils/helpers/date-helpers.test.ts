@@ -22,4 +22,5 @@ test("formatTime renders either clock style", () => {
   expect(calculateDelayedTime(afternoon, 10)).toBe("15:15")
   expect(formatClockTime("15:05")).toBe("15:05")
   expect(formatClockTime("15:05", true)).toBe("3:05 PM")
+  expect(formatClockTime(new Date(2026, 0, 1, 15, 5).toISOString())).toBe("15:05")
 })

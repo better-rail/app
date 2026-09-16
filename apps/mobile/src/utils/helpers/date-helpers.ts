@@ -64,10 +64,11 @@ export function formatTime(date: Date | number, use12Hour: boolean = use12HourCl
   return format(date, use12Hour ? "h:mm a" : "HH:mm")
 }
 
-/** Formats a bare "HH:mm" string, as the API sends for full-route stations */
+/** Formats a bare "HH:mm" string, as the API sends for full-route stations. Also accepts a full date string. */
 export function formatClockTime(time: string, use12Hour: boolean = use12HourClock) {
-  const [hours, minutes] = time.split(":").map(Number)
-  return formatTime(new Date(2000, 0, 1, hours, minutes), use12Hour)
+  const clock = time.match(/^(\d{1,2}):(\d{2})$/)
+  const date = clock ? new Date(2000, 0, 1, Number(clock[1]), Number(clock[2])) : new Date(time)
+  return formatTime(date, use12Hour)
 }
 
 export function isRouteInThePast(arrivalTime: number, delay: number) {
