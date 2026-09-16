@@ -4,8 +4,9 @@ import notifee, { AndroidImportance, EventType, TriggerType } from "@notifee/rea
 import { RideState, RideStatus, getStatusEndDate, rideProgress } from "@/hooks/use-ride-progress"
 import { RideApi, RouteItem } from "@/services/api"
 import { findClosestStationInRoute, getRideStatus, getTrainFromStationId } from "./helpers/ride-helpers"
-import { addMinutes, addSeconds, differenceInMinutes, format } from "date-fns"
-import { getInitialLanguage, translate } from "@/i18n"
+import { addMinutes, addSeconds, differenceInMinutes } from "date-fns"
+import { formatTime } from "./helpers/date-helpers"
+import { getInitialLanguage, resolveUse12HourClock, translate, type LanguageCode } from "@/i18n"
 import i18n from "i18n-js"
 import {
   getRideRoute,
@@ -270,7 +271,8 @@ const getTitleText = (route: RouteItem, state: RideState) => {
   }
 
   const minutes = differenceInMinutes(targetDate, Date.now(), { roundingMethod: "ceil" })
-  const time = format(targetDate, "HH:mm")
+  // a background wake never runs setUserLanguage, so resolve the clock style here
+  const time = formatTime(targetDate, resolveUse12HourClock(i18n.locale as LanguageCode))
   const timeText = "(" + time + ")"
 
   if (state.status === "stale") {

@@ -16,5 +16,6 @@ mock.module("expo-localization", () => {
         temperatureUnit: "celsius",
       },
     ],
+    getCalendars: () => [{ uses24hourClock: true }],
   }
 })

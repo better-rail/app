@@ -46,6 +46,8 @@ struct WidgetEntryView: View {
 
                     Text(entry.departureTime)
                       .foregroundColor(.white)
+                      .lineLimit(1)
+                      .minimumScaleFactor(0.7)
                   }
 
                   if (widgetFamily == .systemMedium ||
@@ -54,7 +56,7 @@ struct WidgetEntryView: View {
                       Text("ARRIVAL")
                         .preferredFont(size: 11).fontWeight(.medium)
                       
-                      Text(entry.arrivalTime).font(.system(size: 22, weight: .bold))
+                      Text(entry.arrivalTime).font(.system(size: 22, weight: .bold)).lineLimit(1).minimumScaleFactor(0.7)
                     }.foregroundColor(.gray)
                     .padding(.leading,
                       widgetFamily == .systemLarge && isMediumScreen
