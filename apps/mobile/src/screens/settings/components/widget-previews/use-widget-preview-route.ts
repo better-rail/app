@@ -1,8 +1,9 @@
+import { stationImages } from "@better-rail/stations/images"
 import { stationLocale, stationsObject } from "@/data/stations"
 import { useFavoritesStore } from "@/models/favorites/favorites"
 import { useRoutePlanStore } from "@/models/route-plan/route-plan"
 
-const defaultOriginImage = require("../../../../../assets/station-images/tlv-center.jpg")
+const defaultOriginImage = stationImages["tlv-center"]
 
 export function useWidgetPreviewRoute() {
   const planOrigin = useRoutePlanStore((s) => s.origin?.id)
