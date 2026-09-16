@@ -1,0 +1,746 @@
+import { createFileRoute, notFound, useElementScrollRestoration, useRouter, useRouterState } from "@tanstack/react-router"
+import { useQueries, useQuery, type QueryClient, type UseQueryResult } from "@tanstack/react-query"
+import { useEffect, useRef, useState } from "react"
+import { ArrowLeft, ArrowRight, CalendarDays, ChevronDown, CloudOff, Loader2, TrainFront } from "lucide-react"
+import { Planner } from "@/components/planner/planner"
+import { RouteList } from "@/components/routes/route-list"
+import { RouteDetails } from "@/components/routes/route-details"
+import { StationImage } from "@/components/stations/station-image"
+import { getStationById, stationName, type Station } from "@/data/stations"
+import { useLocale, useT, resolveLocale, translate, localePath, type Locale } from "@/i18n"
+import { routesQueryOptions, ROUTES_REFETCH_INTERVAL_MS } from "@/lib/api/queries"
+import { summarizeRoutes, isDifferentHour, type RouteSummary } from "@/lib/api/route-format"
+import type { RouteItem, RoutesResult, RoutesSearch } from "@/lib/api/types"
+import { heroImagePath, routeSeoText, tripFacts, type TripFacts } from "@/lib/route-seo"
+import { requestOrigin } from "@/lib/request-origin"
+import { useHideSlowTrains } from "@/hooks/use-stored"
+import { useNow } from "@/hooks/use-now"
+import { useScrollMemory } from "@/hooks/use-scroll-memory"
+import {
+  addDays,
+  dateKey,
+  daysBetween,
+  parseNaive,
+  formatClock,
+  isValidClock,
+  isValidDateKey,
+  naiveFromParts,
+  naiveNow,
+  startOfDay,
+  toIsoWithOffset,
+  type NaiveTime,
+} from "@/lib/time"
+import { formatDayLabel, formatLongDate } from "@/lib/format"
+
+/** Guards a bogus `day` param from spawning an unbounded number of queries. */
+const MAX_EXTRA_DAYS = 7
+/** Where the toolbar pins, in pixels — matches its `top-18` class. */
+const TOOLBAR_TOP = 72
+/** Room left between the pinned toolbar and a card scrolled up under it. */
+const CARD_GAP = 16
+
+/**
+ * How much further the page can scroll before the end of the list column rises above the fold — negative once it
+ * already has. On desktop the details pane is pinned under the toolbar and sized to the fold, so it stays put only
+ * while the column's end is below the fold; past that, the bottom of the grid pushes the pane up under the toolbar
+ * and the top of the card goes out of view. Below `lg` nothing is pinned, and there is no limit.
+ */
+function roomBelowList(details: HTMLElement | null): number {
+  if (!details || getComputedStyle(details).position !== "sticky") return Infinity
+  const grid = details.parentElement
+  if (!grid) return Infinity
+  const paddingBottom = parseFloat(getComputedStyle(grid).paddingBottom) || 0
+  return grid.getBoundingClientRect().bottom - paddingBottom - window.innerHeight
+}
+import { pageHead, jsonLd, breadcrumbJsonLd, cacheHeaders, absoluteUrl, originUrl, SITE_URL } from "@/lib/seo"
+import { cn } from "@/lib/cn"
+import { searchString } from "@/lib/search"
+import { recentRoutes, routePlan } from "@/lib/storage"
+import { Tooltip } from "@/components/tooltip"
+
+interface RoutesPageSearch {
+  /** First day shown in the list */
+  date?: string
+  time?: string
+  /** Train numbers of the selected journey */
+  trip?: string
+  /** Service day of the selected journey, when it is not the first day shown */
+  day?: string
+}
+
+interface JsonLdTrip {
+  departureTime: string
+  arrivalTime: string
+  trainNumber: number
+  changes: number
+}
+
+export const Route = createFileRoute("/{-$locale}/routes/$from/$to")({
+  validateSearch: (search: Record<string, unknown>): RoutesPageSearch => {
+    const date = searchString(search.date)
+    const time = searchString(search.time)
+    const day = searchString(search.day)
+    return {
+      date: date && isValidDateKey(date) ? date : undefined,
+      time: time && isValidClock(time) ? time : undefined,
+      trip: searchString(search.trip),
+      day: day && isValidDateKey(day) ? day : undefined,
+    }
+  },
+  loaderDeps: ({ search }) => ({ date: search.date, time: search.time, trip: search.trip, day: search.day }),
+  beforeLoad: ({ params }) => {
+    const origin = getStationById(params.from)
+    const destination = getStationById(params.to)
+    if (!origin || !destination || origin.id === destination.id) throw notFound()
+    return { origin, destination }
+  },
+  loader: async ({ context, deps }) => {
+    const now = naiveNow()
+    const date = deps.date ?? dateKey(now)
+    const hour = deps.time ?? formatClock(now)
+    const search = { originId: context.origin.id, destinationId: context.destination.id, date, hour }
+
+    let result: RoutesResult | null = null
+    try {
+      result = await context.queryClient.ensureQueryData(routesQueryOptions(search))
+    } catch {
+      // The page still renders (with an error state + retry) when the timetable API is unreachable.
+    }
+
+    const routes = result?.routes ?? []
+    const resultDate = result?.resultDate ?? date
+    return {
+      date,
+      hour,
+      now,
+      apiFailed: result === null,
+      summary: summarizeRoutes(routes),
+      resultDate,
+      selected: deps.trip ? await selectedTrip(context.queryClient, search, routes, resultDate, deps.trip, deps.day) : null,
+      requested: { date: deps.date, time: deps.time },
+      siteOrigin: requestOrigin(),
+      trips: routes.slice(0, 40).map<JsonLdTrip>((route) => ({
+        departureTime: toIsoWithOffset(route.departureTime),
+        arrivalTime: toIsoWithOffset(route.arrivalTime),
+        trainNumber: route.trains[0].trainNumber,
+        changes: route.trains.length - 1,
+      })),
+    }
+  },
+  head: ({ params, loaderData, match }) => {
+    const locale = resolveLocale(params.locale) ?? "he"
+    const context = match.context as { origin?: Station; destination?: Station }
+    const origin = context.origin ?? getStationById(params.from)
+    const destination = context.destination ?? getStationById(params.to)
+    if (!origin || !destination) return {}
+    return routesHead({ locale, origin, destination, data: loaderData })
+  },
+  // A page rendered while the timetable API was down must not be handed to everyone for the next ten minutes.
+  headers: ({ loaderData }) =>
+    loaderData?.apiFailed ? { "Cache-Control": "no-store", "CDN-Cache-Control": "no-store" } : cacheHeaders(60, 600),
+  component: RoutesPage,
+})
+
+interface RoutesHeadData {
+  summary: RouteSummary | null
+  trips: JsonLdTrip[]
+  selected: TripFacts | null
+  requested: { date?: string; time?: string }
+  siteOrigin: string
+}
+
+/**
+ * The journey a link points at, found in the day it was picked from: the first day shown, or — with `day` — one of
+ * the days appended below it, whose timetable is fetched here so the server renders that day too.
+ */
+async function selectedTrip(
+  queryClient: QueryClient,
+  search: RoutesSearch,
+  routes: RouteItem[],
+  resultDate: string,
+  tripId: string,
+  day: string | undefined,
+): Promise<TripFacts | null> {
+  let candidates = routes
+  let date = resultDate
+  if (day) {
+    const offset = daysBetween(parseNaive(resultDate), parseNaive(day))
+    if (offset < 1 || offset > MAX_EXTRA_DAYS) return null
+    try {
+      const result = await queryClient.ensureQueryData(routesQueryOptions({ ...search, date: day, hour: "12:00" }))
+      candidates = result.routes
+      // A day with no service falls through to the next one that has some: that is the day the trip runs on.
+      date = result.resultDate
+    } catch {
+      return null
+    }
+  }
+  const route = candidates.find((candidate) => candidate.id === tripId)
+  return route ? tripFacts(route, date) : null
+}
+
+/**
+ * Title, description and hero image for the link: about the journey when the link selects one, about the route
+ * otherwise. The image is rendered on demand by `/og/routes/…` on the host serving the page, so a preview deploy's
+ * links preview with its own build.
+ */
+function routesHead({
+  locale,
+  origin,
+  destination,
+  data,
+}: {
+  locale: Locale
+  origin: Station
+  destination: Station
+  data: RoutesHeadData | undefined
+}) {
+  const from = stationName(origin, locale)
+  const to = stationName(destination, locale)
+  const path = `/routes/${origin.id}/${destination.id}`
+  const trips = data?.trips ?? []
+  const { title, description } = routeSeoText({
+    locale,
+    origin,
+    destination,
+    trip: data?.selected,
+    summary: data?.summary,
+    requested: data?.requested,
+  })
+
+  const { meta, links } = pageHead({
+    locale,
+    path,
+    title,
+    description,
+    image: `${data?.siteOrigin ?? SITE_URL}${heroImagePath(origin, destination, locale, data?.selected)}`,
+    imageAlt: translate(locale, "routes.title", { from, to }),
+  })
+
+  const structured: object[] = [
+    breadcrumbJsonLd(
+      [
+        { name: translate(locale, "nav.home"), path: "/" },
+        { name: translate(locale, "routes.summaryTitle", { from, to }), path },
+      ],
+      locale,
+    ),
+  ]
+  if (trips.length > 0) {
+    structured.push({
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      name: translate(locale, "routes.summaryTitle", { from, to }),
+      url: absoluteUrl(localePath(locale, path)),
+      itemListElement: trips.map((trip, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        item: {
+          "@type": "TrainTrip",
+          trainNumber: String(trip.trainNumber),
+          departureStation: { "@type": "TrainStation", name: from },
+          arrivalStation: { "@type": "TrainStation", name: to },
+          departureTime: trip.departureTime,
+          arrivalTime: trip.arrivalTime,
+          provider: { "@type": "Organization", name: "Israel Railways" },
+        },
+      })),
+    })
+  }
+
+  return { meta, links, scripts: [jsonLd(structured)] }
+}
+
+function RoutesPage() {
+  const t = useT()
+  const locale = useLocale()
+  const { origin, destination } = Route.useRouteContext()
+  const data = Route.useLoaderData()
+  const search = Route.useSearch()
+  const navigate = Route.useNavigate()
+  const router = useRouter()
+  const now = useNow(data.now)
+  const [hideSlowTrains, setHideSlowTrains] = useHideSlowTrains()
+  const href = useRouterState({ select: (s) => s.location.href })
+
+  const baseSearch = { originId: origin.id, destinationId: destination.id, date: data.date, hour: data.hour }
+  const query = useQuery({ ...routesQueryOptions(baseSearch), refetchInterval: ROUTES_REFETCH_INTERVAL_MS })
+  const routes = query.data?.routes ?? []
+  const resultType = query.data?.resultType ?? "normal"
+  // Judged here rather than on the server: the query is shared across hours (`routesQueryOptions` normalises it), so
+  // only the page knows the hour actually asked for.
+  const differentHour = resultType === "normal" && isDifferentHour(routes, naiveFromParts(data.date, data.hour))
+
+  const [extraDays, setExtraDays] = useState(0)
+  useEffect(() => setExtraDays(0), [data.date, origin.id, destination.id])
+  useEffect(() => {
+    recentRoutes.add({ originId: origin.id, destinationId: destination.id })
+    routePlan.set({ originId: origin.id, destinationId: destination.id })
+  }, [origin.id, destination.id])
+
+  // A page for "now" resolves its day on the server, and the edge keeps that copy for a while: opened just after
+  // midnight it can be yesterday's. The loader is run again when the day it settled on is no longer today.
+  useEffect(() => {
+    if (!search.date && dateKey(naiveNow()) !== data.date) router.invalidate()
+  }, [search.date, data.date, router])
+
+  const from = stationName(origin, locale)
+  const to = stationName(destination, locale)
+  const firstDay = naiveFromParts(query.data?.resultDate ?? data.resultDate, "00:00")
+
+  // Appended days are the ones the reader asked for, plus however many it takes to reach a trip linked from one of
+  // them — a shared link opens the day it belongs to instead of an empty details panel.
+  const linkedDay = search.day ? daysBetween(firstDay, parseNaive(search.day)) : 0
+  const extraDayCount = Math.min(Math.max(extraDays, linkedDay), MAX_EXTRA_DAYS)
+  const extraDayDates = Array.from({ length: extraDayCount }, (_, index) => dateKey(addDays(startOfDay(firstDay), index + 1)))
+  const extraDayQueries = useQueries({
+    queries: extraDayDates.map((date) =>
+      routesQueryOptions({ originId: origin.id, destinationId: destination.id, date, hour: "12:00" }),
+    ),
+  })
+
+  // `day` says which list the trip was picked from; without it — or when it names no appended day (the toolbar's
+  // date was moved onto it, say) — the selection is looked for in the first day.
+  const selectedDayIndex = search.day ? extraDayDates.indexOf(search.day) : -1
+  const selectedDayQuery = selectedDayIndex >= 0 ? extraDayQueries[selectedDayIndex] : query
+  const selected = selectedDayQuery?.data?.routes.find((route) => route.id === search.trip)
+  const shareUrl = originUrl(href)
+  const nextDayLabel = formatDayLabel(addDays(startOfDay(firstDay), extraDayCount + 1), locale, now)
+  const Arrow = locale === "he" ? ArrowLeft : ArrowRight
+  // With the checkbox on, a sparse day can lose every one of its trains; the list says so rather than going blank.
+  const visibleRoutes = hideSlowTrains ? routes.filter((route) => !route.isMuchLonger || route.id === search.trip) : routes
+  const allSlowHidden = routes.length > 0 && visibleRoutes.length === 0
+
+  /** Undoes the selection's history entry, so the browser's back button does not reopen what was just closed. */
+  const closeDetails = () => {
+    returnToTrip.current = search.trip
+    navigate({ search: (prev) => ({ ...prev, trip: undefined, day: undefined }), replace: true, resetScroll: false })
+  }
+
+  // The toolbar changes height with the viewport (one row on wide screens, two when it wraps), so the details panel
+  // reads it from a custom property rather than guessing at an offset that would leave it under the pinned card.
+  const toolbarRef = useRef<HTMLDivElement>(null)
+  const pageRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const toolbar = toolbarRef.current
+    const page = pageRef.current
+    if (!toolbar || !page) return
+    const measure = () => page.style.setProperty("--toolbar-h", `${toolbar.getBoundingClientRect().height}px`)
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(toolbar)
+    return () => observer.disconnect()
+  }, [])
+
+  const listRef = useRef<HTMLElement>(null)
+  const detailsRef = useRef<HTMLDivElement>(null)
+  const scrolledToTrip = useRef<string>(undefined)
+  /** The trip the reader was just looking at, so closing the details lands back on its card. */
+  const returnToTrip = useRef<string>(undefined)
+  /**
+   * Whether the page is going back to where the reader left it rather than arriving: a back/forward navigation, or a
+   * reload they did not ask for (a browser discarding a background tab and loading it afresh when they come back).
+   * The router restores the position it saved for this history entry; a discarded tab never got to save it, so the
+   * page keeps its own (`useScrollMemory`) and puts itself back once the list is in place. Either way that, not the
+   * requested time or the linked trip, is what the reader came back to, so the arrival scrolls below stand down.
+   * Cleared once the arrival has been handled — a later selection scrolls as usual.
+   */
+  const remembered = useScrollMemory()
+  const routerRestores = useElementScrollRestoration({ getElement: () => window }) !== undefined
+  const restored = useRef(remembered !== undefined || routerRestores)
+
+  // A link can land on a trip far down the list, and on mobile the list is replaced by the details panel — both
+  // need the relevant card brought into view. Cards already on screen are left alone, so picking one never yanks
+  // the page around — unless the page is scrolled past the end of the list, where the details pane is pushed up
+  // under the toolbar, in which case it is backed up just far enough for the pane to sit where it belongs.
+  useEffect(() => {
+    const trip = search.trip ?? returnToTrip.current
+    const list = listRef.current
+    if (!trip || !list) return
+    if (search.trip && scrolledToTrip.current === search.trip) return
+    if (search.trip && scrolledToTrip.current === undefined && restored.current) {
+      scrolledToTrip.current = search.trip
+      return
+    }
+
+    // Below `lg` the details replace the list, so the panel is what needs to come into view. Read that off the
+    // layout rather than a media query, which is still reporting its server value on the first render.
+    if (search.trip && list.offsetParent === null) {
+      scrolledToTrip.current = search.trip
+      const panel = detailsRef.current
+      // Measured on the frame after paint and against the toolbar itself: on a cold load the panel would otherwise
+      // be positioned before the toolbar has settled, leaving its "back to list" button behind the pinned card.
+      if (panel) {
+        requestAnimationFrame(() => {
+          const offset = TOOLBAR_TOP + (toolbarRef.current?.getBoundingClientRect().height ?? 0) + 8
+          window.scrollTo({ top: window.scrollY + panel.getBoundingClientRect().top - offset, behavior: "instant" })
+          // The card that was activated is gone with the list; the reading position follows the trip into the panel.
+          panel.focus({ preventScroll: true })
+        })
+      }
+      return
+    }
+
+    // Scoped to the day the trip belongs to: train numbers repeat across the days shown on one page.
+    const dayList = search.day ? `ol[data-day="${CSS.escape(search.day)}"]` : "ol:not([data-day])"
+    const card = list.querySelector(`${dayList} [data-route-id="${CSS.escape(trip)}"]`)
+    if (!card) return
+    const returning = !search.trip
+    scrolledToTrip.current = search.trip
+    returnToTrip.current = undefined
+    const { top, bottom } = card.getBoundingClientRect()
+    const jump = returning || top < 0 || bottom > window.innerHeight
+    if (jump) card.scrollIntoView({ block: "center", behavior: "instant" })
+    // Back from the details on a phone: focus lands on the card it came from rather than at the top of the page.
+    if (returning && card instanceof HTMLElement) card.focus({ preventScroll: true })
+    // The last trains of the day sit at the end of the list: centering one of them scrolls the list's end above the
+    // fold and takes the details pane along, so the page is backed up to where the pane is pinned again. The card
+    // is still on screen, as the whole list end is. A jump when we just jumped; otherwise the page's own smooth
+    // scrolling.
+    const room = roomBelowList(detailsRef.current)
+    if (room < 0) window.scrollBy({ top: room, behavior: jump ? "instant" : "auto" })
+  }, [search.trip, search.day, selectedDayQuery?.data])
+
+  // The API returns the whole day, so a search for tomorrow at 16:00 would otherwise open on the first train of the
+  // morning. Once the day's cards are in, the one leaving closest to the requested time is brought up under the
+  // toolbar, as the app opens its list — unless it is already on screen, which the next train is for a search for
+  // "now". A trip in the link is what the reader was sent to look at, so on arrival that scroll wins instead.
+  // Measured a frame later, like the details panel: on a cold load the toolbar may still be re-laying out for the
+  // viewport.
+  const scrolledToTime = useRef<string>(undefined)
+  useEffect(() => {
+    const list = listRef.current
+    if (!list || !query.data) return
+    const pair = `${origin.id}-${destination.id}`
+    // Keyed on the search itself: the loader's own clock moves on with every trip picked (`trip` is one of its
+    // deps), and a key built from it would send the list back to "now" a moment after each selection.
+    const key = `${pair}@${search.date ?? "now"}T${search.time ?? "now"}`
+    if (scrolledToTime.current === key) return
+    const arriving = scrolledToTime.current === undefined
+    // A trip still on the page is what the reader is looking at; the trip effect above owns the scroll while it is.
+    if (!arriving && selected) {
+      scrolledToTime.current = key
+      return
+    }
+    // Swapping the stations (or picking another route) replaces every card on the page: gliding through a list that
+    // is no longer the one on screen reads as a glitch, so only a date/time change on the same route animates.
+    const replaced = arriving || !scrolledToTime.current?.startsWith(`${pair}@`)
+    scrolledToTime.current = key
+    if (arriving) {
+      const standDown = Boolean(search.trip) || restored.current
+      restored.current = false
+      // The page's own memory is the fresher of the two: the router's was saved when the entry was last left, this
+      // one as the reader scrolled. A jump, like the router's restore.
+      if (remembered !== undefined) {
+        requestAnimationFrame(() => window.scrollTo({ top: remembered, behavior: "instant" }))
+      }
+      if (standDown) return
+    }
+
+    const requested = naiveFromParts(data.date, data.hour)
+    requestAnimationFrame(() => {
+      // Below `lg` the list is hidden while a trip's details are open — nothing to scroll to.
+      if (!list.isConnected || list.offsetParent === null) return
+      let card: HTMLElement | undefined
+      let closest = Infinity
+      for (const candidate of Array.from(list.querySelectorAll<HTMLElement>("ol:not([data-day]) [data-route-id]"))) {
+        const distance = Math.abs(Number(candidate.dataset.departure) - requested)
+        if (distance < closest) {
+          card = candidate
+          closest = distance
+        }
+      }
+      if (!card) return
+      const toolbar = toolbarRef.current?.getBoundingClientRect()
+      const { top, bottom } = card.getBoundingClientRect()
+      if (top >= (toolbar?.bottom ?? 0) && bottom <= window.innerHeight) return
+      const offset = TOOLBAR_TOP + (toolbar?.height ?? 0) + CARD_GAP
+      // A search late in the evening lands on the last trains: bringing one of those up under the toolbar would
+      // scroll the list's end above the fold and push the details pane up with it, so the scroll stops with the
+      // end of the list at the fold, the requested train just above it — as a list scrolled to its end looks.
+      const delta = Math.min(top - offset, roomBelowList(detailsRef.current))
+      // A jump when the list is a different one; otherwise the page's own smooth scrolling (which reduced motion
+      // turns off).
+      window.scrollTo({ top: window.scrollY + delta, behavior: replaced ? "instant" : "auto" })
+    })
+  }, [query.data, data.date, data.hour, origin.id, destination.id, search.date, search.time, search.trip, selected, remembered])
+
+  return (
+    <div ref={pageRef} className="flex flex-1 flex-col">
+      {/* Hero: the origin station photo, like the app's route header. The toolbar right under it names the stations,
+          so the heading is for the document outline only. */}
+      <div className="relative h-44 overflow-hidden bg-surface-3 sm:h-52 lg:h-56">
+        <StationImage station={origin} priority sizes="100vw" className="absolute inset-0" />
+        <div
+          className="absolute inset-0 bg-[linear-gradient(to_bottom,rgb(0_0_0/0.55),rgb(0_0_0/0.2)_45%,rgb(0_0_0/0.6))]"
+          aria-hidden="true"
+        />
+        <h1 className="sr-only">{t("routes.summaryTitle", { from, to })}</h1>
+      </div>
+
+      {/* Toolbar: straddles the hero's bottom edge — half over the photo, half below it — then pins just below the
+          site header (h-16) once the hero scrolls away. The overlap is half the toolbar's measured height; until it is
+          measured, the fallbacks are what the bar is at each width (two stacked fields on a phone, one row plus the
+          date picker's row up to `lg`, a single row from there), so hydration doesn't move it. */}
+      <div
+        ref={toolbarRef}
+        className="container-page sticky top-18 z-20 -mt-[calc(var(--toolbar-h,var(--toolbar-fallback))/2)] [--toolbar-fallback:146px] sm:[--toolbar-fallback:154px] lg:[--toolbar-fallback:90px]"
+      >
+        <div className="card p-3 sm:p-4">
+          <Planner
+            variant="bar"
+            today={dateKey(now)}
+            now={formatClock(now)}
+            initial={{ origin, destination, date: search.date, time: search.time }}
+          />
+        </div>
+      </div>
+
+      <div className="container-page grid flex-1 gap-6 py-6 lg:grid-cols-[minmax(0,440px)_minmax(0,1fr)] lg:gap-8 lg:py-8">
+        {/* Results list */}
+        <section
+          ref={listRef}
+          aria-label={t("routes.title", { from, to })}
+          className={cn("flex flex-col gap-4", selected ? "hidden lg:flex" : "flex")}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="flex items-center gap-2 text-[15px] font-bold text-text-2">
+              <CalendarDays className="size-4 text-brand" />
+              {formatDayLabel(firstDay, locale, now)}
+              {query.isFetching && <Loader2 className="size-3.5 animate-spin text-dim" aria-hidden="true" />}
+              {query.isError && routes.length > 0 && !query.isFetching && (
+                <Tooltip label={t("routes.refreshFailed")} className="ms-1">
+                  <button
+                    type="button"
+                    onClick={() => query.refetch()}
+                    aria-label={`${t("routes.refreshFailed")} ${t("routes.tryAgain")}`}
+                    className="icon-btn size-8 text-warning"
+                  >
+                    <CloudOff className="size-4" />
+                  </button>
+                </Tooltip>
+              )}
+            </h2>
+            <label className="flex min-h-11 cursor-pointer select-none items-center gap-2 py-2 text-[13.5px] text-muted">
+              <input
+                type="checkbox"
+                checked={hideSlowTrains}
+                onChange={(event) => setHideSlowTrains(event.target.checked)}
+                className="size-4 accent-brand"
+              />
+              <span title={t("routes.hideSlowTrainsDescription")}>{t("routes.hideSlowTrains")}</span>
+            </label>
+          </div>
+
+          {resultType === "different-date" && query.data && (
+            <Notice
+              text={t("routes.differentDate", { date: formatLongDate(naiveFromParts(query.data.resultDate, "00:00"), locale) })}
+            />
+          )}
+          {differentHour && <Notice text={t("routes.differentHour")} />}
+
+          {query.isPending && (
+            <div className="flex flex-col gap-3" aria-busy="true">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} className="h-[104px] animate-pulse rounded-card bg-surface-3" />
+              ))}
+            </div>
+          )}
+
+          {/* A refresh that failed leaves the last timetable on screen (with the hint in the heading); the error card
+              is for when there is nothing to show at all. */}
+          {query.isError && routes.length === 0 && (
+            <div className="card flex flex-col items-center gap-3 p-8 text-center">
+              <p className="text-[15px] text-text-2">{t("routes.error")}</p>
+              <button type="button" onClick={() => query.refetch()} className="btn-secondary">
+                {t("routes.tryAgain")}
+              </button>
+            </div>
+          )}
+
+          {query.isSuccess && routes.length === 0 && (
+            <div className="card flex flex-col items-center gap-3 p-10 text-center text-muted">
+              <TrainFront className="size-10 opacity-40" />
+              <p>{t("routes.noTrainsFound")}</p>
+            </div>
+          )}
+
+          {allSlowHidden && (
+            <div className="card flex flex-col items-center gap-3 p-8 text-center text-muted">
+              <p className="text-[15px]">{t("routes.allSlowHidden")}</p>
+              <button type="button" onClick={() => setHideSlowTrains(false)} className="btn-secondary">
+                {t("routes.showSlowTrains")}
+              </button>
+            </div>
+          )}
+
+          {visibleRoutes.length > 0 && (
+            <RouteList
+              routes={visibleRoutes}
+              from={origin.id}
+              to={destination.id}
+              date={search.date}
+              time={search.time}
+              selectedId={search.trip}
+              now={now}
+            />
+          )}
+
+          {routes.length > 0 && (
+            <>
+              {extraDayQueries.map((dayQuery, index) => (
+                <ExtraDay
+                  key={extraDayDates[index]}
+                  day={addDays(startOfDay(firstDay), index + 1)}
+                  query={dayQuery}
+                  origin={origin}
+                  destination={destination}
+                  date={search.date}
+                  time={search.time}
+                  selectedId={search.trip}
+                  now={now}
+                  hideSlowTrains={hideSlowTrains}
+                />
+              ))}
+              {extraDayCount < MAX_EXTRA_DAYS ? (
+                <button
+                  type="button"
+                  onClick={() => setExtraDays(extraDayCount + 1)}
+                  aria-label={`${t("routes.nextDay")}: ${nextDayLabel}`}
+                  className="btn-ghost h-12 w-full gap-2 border border-dashed border-line-strong text-[15px]"
+                >
+                  <ChevronDown className="size-4" />
+                  {nextDayLabel}
+                </button>
+              ) : (
+                <p className="py-2 text-center text-[14px] text-muted">{t("routes.noMoreDays")}</p>
+              )}
+            </>
+          )}
+        </section>
+
+        {/*
+         * Details panel (master/detail on desktop, full page on mobile). On desktop the list and the card are two
+         * independent panes: this wrapper pins under the toolbar while the list scrolls with the page, and the
+         * pane inside it is capped at the room between its pinned position and the fold, so it scrolls on its own
+         * — the card moves in it as one piece, and `overscroll-contain` keeps the wheel from leaking into the list.
+         * The pane's own padding (undone by the negative margin) leaves room for the card's shadow inside the
+         * clipping box. The cap is plain CSS rather than a measurement per scroll frame: it only depends on the
+         * viewport and the toolbar's height, which the custom property already tracks.
+         */}
+        <div
+          ref={detailsRef}
+          tabIndex={-1}
+          aria-label={t("details.title")}
+          className={cn(
+            selected ? "flex" : "hidden lg:flex",
+            "flex-col outline-none lg:sticky lg:top-[calc(5rem_+_var(--toolbar-h,5.5rem))] lg:self-start",
+          )}
+        >
+          {/* Focusable, so the keyboard can scroll a long journey's stops as the wheel does. */}
+          <div
+            tabIndex={selected ? 0 : -1}
+            role={selected ? "region" : undefined}
+            aria-label={selected ? t("details.title") : undefined}
+            className="rounded-card lg:-m-2 lg:max-h-[calc(100dvh_-_5.5rem_-_var(--toolbar-h,5.5rem))] lg:overflow-y-auto lg:overscroll-contain lg:p-2"
+          >
+            <div className="card overflow-hidden">
+              {selected ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={closeDetails}
+                    className="flex w-full items-center gap-2 border-b border-line/70 px-4 py-3 text-[15px] font-semibold text-brand-text hover:bg-surface-2 lg:hidden"
+                  >
+                    <Arrow className="size-4 rotate-180" />
+                    {t("routes.back")}
+                  </button>
+                  <RouteDetails
+                    key={selected.id}
+                    route={selected}
+                    originId={origin.id}
+                    destinationId={destination.id}
+                    shareUrl={shareUrl}
+                    className="animate-fade-in"
+                  />
+                </>
+              ) : (
+                <div className="flex min-h-[320px] flex-col items-center justify-center gap-3 p-10 text-center text-muted">
+                  <TrainFront className="size-10 opacity-40" />
+                  <p className="max-w-xs">{t("routes.selectRoute")}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function Notice({ text }: { text: string }) {
+  return (
+    <p role="status" className="rounded-xl bg-warning-soft px-4 py-3 text-[14.5px] font-medium text-text">
+      {text}
+    </p>
+  )
+}
+
+function ExtraDay({
+  day,
+  query,
+  origin,
+  destination,
+  date,
+  time,
+  selectedId,
+  now,
+  hideSlowTrains,
+}: {
+  day: NaiveTime
+  query: UseQueryResult<RoutesResult>
+  origin: Station
+  destination: Station
+  date?: string
+  time?: string
+  selectedId?: string
+  now: NaiveTime
+  hideSlowTrains: boolean
+}) {
+  const t = useT()
+  const locale = useLocale()
+  const routes = query.data?.routes ?? []
+  const visibleRoutes = hideSlowTrains ? routes.filter((route) => !route.isMuchLonger || route.id === selectedId) : routes
+  const allSlowHidden = routes.length > 0 && visibleRoutes.length === 0
+
+  return (
+    <section className="flex flex-col gap-4 border-t border-line/70 pt-4" aria-label={formatDayLabel(day, locale, now)}>
+      <h2 className="flex items-center gap-2 text-[15px] font-bold text-text-2">
+        <CalendarDays className="size-4 text-brand" />
+        {formatDayLabel(day, locale, now)}
+        {query.isFetching && <Loader2 className="size-3.5 animate-spin text-dim" aria-hidden="true" />}
+      </h2>
+      {query.isPending && <div className="h-[104px] animate-pulse rounded-card bg-surface-3" />}
+      {query.isError && routes.length === 0 && <p className="text-[14px] text-danger">{t("routes.error")}</p>}
+      {query.isSuccess && routes.length === 0 && <p className="text-[14px] text-muted">{t("routes.noTrainsFound")}</p>}
+      {allSlowHidden && <p className="text-[14px] text-muted">{t("routes.allSlowHidden")}</p>}
+      {query.isSuccess && query.data.resultDate !== dateKey(day) && routes.length > 0 && (
+        <Notice
+          text={t("routes.differentDate", { date: formatLongDate(naiveFromParts(query.data.resultDate, "00:00"), locale) })}
+        />
+      )}
+      {visibleRoutes.length > 0 && (
+        <RouteList
+          routes={visibleRoutes}
+          from={origin.id}
+          to={destination.id}
+          date={date}
+          time={time}
+          selectedId={selectedId}
+          now={now}
+          day={dateKey(day)}
+        />
+      )}
+    </section>
+  )
+}
