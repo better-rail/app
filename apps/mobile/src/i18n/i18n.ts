@@ -32,6 +32,13 @@ export let dateFnsLocalization = enUS
 export let dateDelimiter = " "
 export let dateLocale = "en-US"
 export const deviceLocale = Localization.getLocales()[0].languageCode
+/** AM/PM for an English app on an English device whose clock is set to 12-hour. Resolved per launch; a language change restarts the app. */
+export let use12HourClock = false
+
+export function resolveUse12HourClock(languageCode: LanguageCode) {
+  const uses24hourClock = Localization.getCalendars()[0]?.uses24hourClock ?? true
+  return languageCode === "en" && !!deviceLocale?.startsWith("en") && !uses24hourClock
+}
 
 setAnalyticsUserProperty("device_locale", deviceLocale)
 
@@ -83,6 +90,7 @@ export function setUserLanguage(languageCode: LanguageCode, allowRestart = false
   }
 
   userLocale = languageCode
+  use12HourClock = resolveUse12HourClock(languageCode)
   i18n.locale = languageCode
   setStationLocale(languageCode)
 

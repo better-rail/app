@@ -1,6 +1,6 @@
 import { differenceInMilliseconds, format, formatDuration, intervalToDuration, isAfter, isWithinInterval, parse } from "date-fns"
 import { formatInTimeZone } from "date-fns-tz"
-import { dateDelimiter, dateFnsLocalization } from "@/i18n"
+import { dateDelimiter, dateFnsLocalization, use12HourClock } from "@/i18n"
 
 /**
  * Parses a string date as formatted in the Israel Rail API.
@@ -59,6 +59,18 @@ export function formatDateForAPI(date: number) {
   return [formattedDate, formattedTime]
 }
 
+/** Formats a time of day for display in the clock style resolved at launch */
+export function formatTime(date: Date | number, use12Hour: boolean = use12HourClock) {
+  return format(date, use12Hour ? "h:mm a" : "HH:mm")
+}
+
+/** Formats a bare "HH:mm" string, as the API sends for full-route stations. Also accepts a full date string. */
+export function formatClockTime(time: string, use12Hour: boolean = use12HourClock) {
+  const clock = time.match(/^(\d{1,2}):(\d{2})$/)
+  const date = clock ? new Date(2000, 0, 1, Number(clock[1]), Number(clock[2])) : new Date(time)
+  return formatTime(date, use12Hour)
+}
+
 export function isRouteInThePast(arrivalTime: number, delay: number) {
   return isAfter(timezoneCorrection(new Date()).getTime(), arrivalTime + delay * 60000)
 }
@@ -68,8 +80,8 @@ export const calculateDelayedTime = (time: string | Date | number, delay: number
 
   if (typeof time === "string") {
     const [hours, minutes] = time.split(":").map(Number)
-    return format(new Date(new Date().setHours(hours, minutes) + delay * 60000), "HH:mm")
+    return formatTime(new Date().setHours(hours, minutes) + delay * 60000)
   }
 
-  return format(new Date(time).getTime() + delay * 60000, "HH:mm")
+  return formatTime(new Date(time).getTime() + delay * 60000)
 }

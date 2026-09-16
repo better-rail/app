@@ -6,8 +6,8 @@ import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scal
 import { Svg, Line } from "react-native-svg"
 import { color, spacing, fontScale } from "@/theme"
 import { Text } from "@/components/text/text"
-import { format } from "date-fns"
-import { translate } from "@/i18n"
+import { formatTime } from "@/utils/helpers/date-helpers"
+import { translate, use12HourClock } from "@/i18n"
 import { RouteIndicators } from "./route-indicators"
 import { ContextMenu, ContextMenuAction } from "@/components/context-menu/context-menu"
 import { createContextMenuActions } from "./route-context-menu-actions"
@@ -32,7 +32,10 @@ export interface RouteCardProps extends TouchableScaleProps {
   isMuchLonger: boolean
   stops: number
   delay: number
+  /** Applied to the wrapper around the card, e.g. margins. */
   style?: ViewStyle
+  /** Applied to the card surface itself, e.g. its background. */
+  cardStyle?: ViewStyle
   isActiveRide: boolean
   shouldShowDashedLine?: boolean
   isRouteInThePast: boolean
@@ -74,8 +77,8 @@ export function RouteCard(props: RouteCardProps) {
 
   // Format times
   const [formattedDepatureTime, formattedArrivalTime] = (() => {
-    const formattedDepatureTime = format(new Date(departureTime), "HH:mm")
-    const formattedArrivalTime = format(new Date(arrivalTime), "HH:mm")
+    const formattedDepatureTime = formatTime(departureTime)
+    const formattedArrivalTime = formatTime(arrivalTime)
 
     return [formattedDepatureTime, formattedArrivalTime]
   })()
@@ -88,6 +91,8 @@ export function RouteCard(props: RouteCardProps) {
 
   // Check if indicators are bloated (short route badge with delay shown)
   const isBloatedIndicators = isMuchShorter && !isMuchLonger && delay > 0 && !hideSlowTrains
+  // "12:08 PM" needs the room the dashed lines take at the default font size
+  const showDashedLine = shouldShowDashedLine && !isBloatedIndicators && !use12HourClock
 
   // Generate context menu actions if routeItem and IDs are provided
   const generatedContextMenuActions = (() => {
@@ -102,6 +107,7 @@ export function RouteCard(props: RouteCardProps) {
   // Get the main train (first train for departure info)
   const mainTrain = routeItem?.trains?.[0]
   const isCancelled = routeItem?.isCancelled ?? false
+  const timeTextStyle = [styles.timeText, use12HourClock && styles.timeText12h, isCancelled && styles.cancelledTimeText]
 
   const getTrainType = (train: any): string => {
     if (!train?.visaWagonData?.wagons?.[0]?.krsG3) {
@@ -151,6 +157,7 @@ export function RouteCard(props: RouteCardProps) {
         containerStyle,
         props.isActiveRide && styles.activeRideContainer,
         props.isRouteInThePast && styles.pastRideContainer,
+        props.cardStyle,
       ]}
     >
       {/* Header with train information */}
@@ -185,10 +192,10 @@ export function RouteCard(props: RouteCardProps) {
       <View style={styles.routeContent}>
         <View style={{ marginEnd: spacing[3] }}>
           <Text style={styles.timeTypeText} tx="routes.departure" />
-          <Text style={[styles.timeText, isCancelled && styles.cancelledTimeText]}>{formattedDepatureTime}</Text>
+          <Text style={timeTextStyle}>{formattedDepatureTime}</Text>
         </View>
 
-        {shouldShowDashedLine && !isBloatedIndicators && <DashedLine />}
+        {showDashedLine && <DashedLine />}
 
         <View style={{ marginHorizontal: spacing[1] }}>
           <View style={{ alignItems: "center", gap: spacing[0] }}>
@@ -208,11 +215,11 @@ export function RouteCard(props: RouteCardProps) {
           </View>
         </View>
 
-        {shouldShowDashedLine && !isBloatedIndicators && <DashedLine />}
+        {showDashedLine && <DashedLine />}
 
         <View style={{ alignItems: "flex-end", marginStart: spacing[3] }}>
           <Text style={styles.timeTypeText} tx="routes.arrival" />
-          <Text style={[styles.timeText, isCancelled && styles.cancelledTimeText]}>{formattedArrivalTime}</Text>
+          <Text style={timeTextStyle}>{formattedArrivalTime}</Text>
         </View>
       </View>
     </TouchableComponent>
@@ -328,6 +335,9 @@ const styles = StyleSheet.create((theme, rt) => ({
     fontWeight: "700",
     fontSize: 24,
     color: theme.colors.text,
+  },
+  timeText12h: {
+    fontSize: 20,
   },
   cancelledTimeText: {
     textDecorationLine: "line-through",
