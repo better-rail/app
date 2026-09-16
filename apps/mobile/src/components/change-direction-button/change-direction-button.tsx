@@ -29,7 +29,7 @@ export function ChangeDirectionButton(props: ChangeDirectionButtonProps) {
         {...props}
         style={buttonStyle}
       >
-        <LiquidGlassView interactive style={styles.container} tintColor={color.secondary}>
+        <LiquidGlassView interactive style={styles.glassContainer} tintColor={color.secondary}>
           <Image source={upDownArrowIcon} style={styles.arrowIcon} />
         </LiquidGlassView>
       </Pressable>
@@ -64,13 +64,18 @@ const styles = StyleSheet.create((theme, rt) => {
     iconSize = 37
   }
 
+  const shape = {
+    width: buttonSize,
+    height: buttonSize,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 50,
+  } as const
+
   return {
+    glassContainer: shape,
     container: {
-      width: buttonSize,
-      height: buttonSize,
-      justifyContent: "center",
-      alignItems: "center",
-      borderRadius: 50,
+      ...shape,
       backgroundColor: theme.colors.secondary,
       shadowOffset: { width: 0, height: 0.5 },
       shadowColor: theme.colors.palette.black,
