@@ -7,7 +7,8 @@ import { useShallow } from "zustand/react/shallow"
 import { useRideStore } from "@/models"
 import { translate } from "@/i18n"
 import { trackEvent } from "@/services/analytics"
-import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
+import { GlassView } from "expo-glass-effect"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 
 // TODO: add typings to progress
 export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "activeRide" }) {
@@ -86,13 +87,13 @@ const StopButton = (props: { loading: boolean } & PressableProps) => {
   if (isLiquidGlassSupported) {
     return (
       <Pressable disabled={isDisabled} {...props}>
-        <LiquidGlassView interactive style={styles.stopButton} tintColor={PlatformColor("systemRed")}>
+        <GlassView isInteractive style={styles.stopButton} tintColor={PlatformColor("systemRed")}>
           {loading ? (
             <ActivityIndicator color="white" />
           ) : (
             <Image source={require("../../../../assets/stop-rect.png")} style={{ width: 17.5, height: 17.5 }} />
           )}
-        </LiquidGlassView>
+        </GlassView>
       </Pressable>
     )
   }
@@ -119,7 +120,7 @@ const styles = StyleSheet.create((theme) => ({
     height: 42.5,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: theme.colors.stop,
+    backgroundColor: isLiquidGlassSupported ? undefined : theme.colors.stop,
     borderRadius: 30,
   },
 }))

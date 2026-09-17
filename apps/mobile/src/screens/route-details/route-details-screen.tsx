@@ -32,7 +32,8 @@ import { getSelectedRide } from "@/utils/helpers/ride-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const routeApi = new RouteApi()
-import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
+import { GlassView } from "expo-glass-effect"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 import HapticFeedback from "react-native-haptic-feedback"
 import { translate } from "@/i18n"
 import { trackEvent } from "@/services/analytics"
@@ -349,14 +350,14 @@ export function RouteDetailsScreen() {
               accessibilityLabel={translate("routeDetails.trainInformation") ?? undefined}
               accessibilityHint={!hasWagonData ? (translate("routeDetails.noTrainDetails") ?? undefined) : undefined}
             >
-              <LiquidGlassView
+              <GlassView
                 style={[styles.infoButton, !hasWagonData && styles.infoButtonDisabled]}
-                interactive={hasWagonData}
-                effect="regular"
+                isInteractive={hasWagonData}
+                glassEffectStyle="regular"
                 tintColor={Platform.OS === "ios" ? PlatformColor("tertiarySystemBackground") : undefined}
               >
                 <Image source={require("../../../assets/info.circle.png")} style={styles.infoButtonIcon} />
-              </LiquidGlassView>
+              </GlassView>
             </Pressable>
 
             <StartRideButton route={routeItem} screenName={screenName} />

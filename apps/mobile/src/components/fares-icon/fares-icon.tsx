@@ -3,7 +3,8 @@ import { Pressable, Text, type ViewStyle } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { translate } from "@/i18n"
-import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
+import { GlassView } from "expo-glass-effect"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 
 export interface FaresIconProps {
   style?: ViewStyle
@@ -18,11 +19,11 @@ export function FaresIcon(props: FaresIconProps) {
   if (isLiquidGlassSupported) {
     return (
       <Pressable onPress={onPress} style={[styles.container, style]} accessibilityRole="button" accessibilityLabel={label}>
-        <LiquidGlassView interactive colorScheme="dark" tintColor="rgba(51, 51, 51, 0.9)" style={styles.liquidGlass}>
+        <GlassView isInteractive colorScheme="dark" tintColor="rgba(51, 51, 51, 0.9)" style={styles.liquidGlass}>
           <Text style={styles.glyph} accessible={false}>
             ₪
           </Text>
-        </LiquidGlassView>
+        </GlassView>
       </Pressable>
     )
   }

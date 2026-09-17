@@ -3,7 +3,8 @@ import { Platform, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import Animated, { FadeInDown } from "react-native-reanimated"
 import { Stack } from "expo-router"
-import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
+import { GlassView } from "expo-glass-effect"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 import { BottomScreenSheet, Text } from "@/components"
 import { format } from "date-fns"
 import { dateFnsLocalization, translate } from "@/i18n"
@@ -105,9 +106,9 @@ export const RouteListWarning = function RouteListWarning({ routesDate, warningT
       {displayWarningSheet && useNativeToolbar && (
         <Stack.Toolbar>
           <Stack.Toolbar.View hidesSharedBackground>
-            <LiquidGlassView style={styles.toolbarContent} tintColor="rgba(255, 159, 10, 0.55)">
+            <GlassView style={styles.toolbarContent} tintColor="rgba(255, 159, 10, 0.55)">
               {warningContent}
-            </LiquidGlassView>
+            </GlassView>
           </Stack.Toolbar.View>
         </Stack.Toolbar>
       )}
