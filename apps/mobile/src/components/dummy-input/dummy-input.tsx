@@ -3,7 +3,7 @@ import { Platform, TouchableOpacity, ViewStyle, PressableProps } from "react-nat
 import { StyleSheet } from "react-native-unistyles"
 import { color } from "@/theme"
 import { Text } from "@/components/text/text"
-import { isLiquidGlassSupported } from "@callstack/liquid-glass"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 
 export interface DummyInputProps extends PressableProps {
   /**

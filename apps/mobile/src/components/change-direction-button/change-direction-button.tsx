@@ -3,7 +3,8 @@ import { Image, ViewStyle, TouchableOpacity, TouchableOpacityProps, Platform, Pr
 import { StyleSheet } from "react-native-unistyles"
 import { color } from "@/theme"
 import { translate } from "@/i18n"
-import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
+import { GlassView } from "expo-glass-effect"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 
 const upDownArrowIcon = require("../../../assets/up-down-arrow.png")
 
@@ -29,9 +30,9 @@ export function ChangeDirectionButton(props: ChangeDirectionButtonProps) {
         {...props}
         style={buttonStyle}
       >
-        <LiquidGlassView interactive style={styles.glassContainer} tintColor={color.secondary}>
+        <GlassView isInteractive style={styles.glassContainer} tintColor={color.secondary}>
           <Image source={upDownArrowIcon} style={styles.arrowIcon} />
-        </LiquidGlassView>
+        </GlassView>
       </Pressable>
     )
   }

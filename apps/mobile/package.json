@@ -16,7 +16,6 @@
     "adb": "adb reverse tcp:9090 tcp:9090 && adb reverse tcp:3000 tcp:3000 && adb reverse tcp:9001 tcp:9001 && adb reverse tcp:8081 tcp:8081"
   },
   "dependencies": {
-    "@callstack/liquid-glass": "^0.4.3",
     "@expo/react-native-action-sheet": "4.1.1",
     "@expo/ui": "~57.0.17",
     "@notifee/react-native": "9.1.8",
@@ -42,6 +41,7 @@
     "expo-clipboard": "~57.0.1",
     "expo-dev-client": "~57.0.18",
     "expo-font": "~57.0.3",
+    "expo-glass-effect": "~57.0.3",
     "expo-iap": "5.5.0",
     "expo-insights": "~57.0.16",
     "expo-linking": "~57.0.9",

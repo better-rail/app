@@ -2,7 +2,7 @@ import { useMemo } from "react"
 import { Stack } from "expo-router/stack"
 import { ThemeProvider, useTheme } from "expo-router/react-navigation"
 import { color, typography } from "@/theme"
-import { isLiquidGlassSupported } from "@callstack/liquid-glass"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 
 const formSheetOptions = {
   presentation: "formSheet" as const,
