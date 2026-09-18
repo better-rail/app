@@ -4,6 +4,7 @@ import { Text } from "@/components"
 import { translate, TxKeyPath } from "@/i18n"
 import { color, spacing } from "@/theme"
 import type { Train } from "@/services/api"
+import { useSideInsetBleed } from "./side-inset-bleed"
 
 const t = (key: TxKeyPath, options?: object): string => translate(key, options) ?? ""
 
@@ -12,7 +13,6 @@ const WARNING_WRAPPER: ViewStyle = {
   alignItems: "center",
   marginBottom: spacing[4],
   backgroundColor: color.secondary,
-  width: "100%",
 }
 
 const WARNING_TITLE: TextStyle = {
@@ -26,13 +26,16 @@ const WARNING_TEXT: TextStyle = {
   textAlign: "center",
 }
 
-const Warning = ({ emoji, title, text }: { emoji: string; title: string; text: string }) => (
-  <View style={WARNING_WRAPPER}>
-    <Text style={{ fontSize: 48 }}>{emoji}</Text>
-    <Text style={WARNING_TITLE}>{title}</Text>
-    <Text style={WARNING_TEXT}>{text}</Text>
-  </View>
-)
+const Warning = ({ emoji, title, text }: { emoji: string; title: string; text: string }) => {
+  const bleed = useSideInsetBleed()
+  return (
+    <View style={[WARNING_WRAPPER, bleed]}>
+      <Text style={{ fontSize: 48 }}>{emoji}</Text>
+      <Text style={WARNING_TITLE}>{title}</Text>
+      <Text style={WARNING_TEXT}>{text}</Text>
+    </View>
+  )
+}
 
 export const RouteChangeWarnings = ({ train }: { train: Train }) => {
   if (train.isCancelled) {

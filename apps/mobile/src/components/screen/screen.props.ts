@@ -46,6 +46,13 @@ export interface ScreenProps {
   unsafe?: boolean
 
   /**
+   * Skip the left and right safe-area insets, so full-width backgrounds reach the screen edges.
+   * The screen must then inset its own foreground content — iPhone Duo puts the status bar,
+   * camera and navigation bar on a side edge, so the two insets are often different.
+   */
+  edgeToEdge?: boolean
+
+  /**
    * By how much should we offset the keyboard? Defaults to none.
    */
   keyboardOffset?: KeyboardOffsets

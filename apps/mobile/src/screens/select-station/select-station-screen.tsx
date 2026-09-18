@@ -14,6 +14,7 @@ import { useFilteredStations } from "@/hooks"
 import { replaceChangeStation } from "@/screens/route-details/replace-change-station"
 import * as Burnt from "burnt"
 import { translate } from "@/i18n"
+import { sideInsetPadding } from "@/utils/helpers/safe-area-helpers"
 
 export type SelectionType = "origin" | "destination" | "via"
 
@@ -88,6 +89,7 @@ export function SelectStationScreen() {
       style={styles.root}
       preset="fixed"
       unsafe={true}
+      edgeToEdge
       statusBarBackgroundColor={isDarkMode ? "#1c1c1e" : "#f2f2f7"}
     >
       <View style={styles.searchBarWrapper}>
@@ -128,13 +130,15 @@ const styles = StyleSheet.create((theme, rt) => ({
     flex: 1,
   },
   listContent: {
+    ...sideInsetPadding(rt.insets, rt.rtl),
     paddingBottom: rt.insets.bottom + theme.spacing[0],
   },
   searchBarWrapper: {
     flexDirection: "row",
     alignItems: "center",
     paddingTop: rt.insets.top > 20 ? rt.insets.top : Platform.select({ ios: 27.5, android: 12.5 }),
-    paddingHorizontal: theme.spacing[3],
+    // The bar's background spans the full width; its search field and Cancel stay clear of the side bars.
+    ...sideInsetPadding(rt.insets, rt.rtl, theme.spacing[3]),
     paddingBottom: theme.spacing[3],
     marginBottom: theme.spacing[3],
     backgroundColor: theme.colors.background,

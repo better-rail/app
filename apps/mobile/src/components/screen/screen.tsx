@@ -2,6 +2,7 @@ import { KeyboardAvoidingView, Platform, ScrollView, StatusBar, View, useColorSc
 import { StyleSheet } from "react-native-unistyles"
 import { ScreenProps } from "./screen.props"
 import { isNonScrolling, offsets } from "./screen.presets"
+import { sideInsetPadding } from "@/utils/helpers/safe-area-helpers"
 
 const isIos = Platform.OS === "ios"
 
@@ -22,7 +23,7 @@ function ScreenWithoutScrolling(props: ScreenProps) {
         backgroundColor={props.statusBarBackgroundColor || (isDarkMode ? "#1c1c1e" : "#f2f2f7")}
         animated={true}
       />
-      <View testID={props.testID} style={[styles.fixedInner, style, styles.insetTop(!!props.unsafe)]}>
+      <View testID={props.testID} style={[styles.fixedInner, style, styles.insets(!!props.unsafe, !!props.edgeToEdge)]}>
         {props.children}
       </View>
     </KeyboardAvoidingView>
@@ -46,7 +47,10 @@ function ScreenWithScrolling(props: ScreenProps) {
         backgroundColor={props.statusBarBackgroundColor || (isDarkMode ? "#1c1c1e" : "#f2f2f7")}
         animated={true}
       />
-      <View testID={props.testID} style={[styles.scrollOuter, backgroundStyle, styles.insetTop(!!props.unsafe)]}>
+      <View
+        testID={props.testID}
+        style={[styles.scrollOuter, backgroundStyle, styles.insets(!!props.unsafe, !!props.edgeToEdge)]}
+      >
         <ScrollView style={[styles.scrollOuter, backgroundStyle]} contentContainerStyle={[styles.scrollInner, style]}>
           {props.children}
         </ScrollView>
@@ -91,7 +95,9 @@ const styles = StyleSheet.create((theme, rt) => ({
     justifyContent: "flex-start",
     alignItems: "stretch",
   },
-  insetTop: (unsafe: boolean) => ({
+  insets: (unsafe: boolean, edgeToEdge: boolean) => ({
     paddingTop: unsafe ? 0 : rt.insets.top,
+    // Side insets aren't symmetric on iPhone Duo, so pad each side on its own.
+    ...(edgeToEdge ? {} : sideInsetPadding(rt.insets, rt.rtl)),
   }),
 }))

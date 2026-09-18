@@ -1,5 +1,5 @@
 import { useRef, useEffect } from "react"
-import { Image, ImageBackground, Platform, View, Animated as RNAnimated, Pressable } from "react-native"
+import { I18nManager, Image, ImageBackground, Platform, View, Animated as RNAnimated, Pressable } from "react-native"
 import type { ViewStyle } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { useRouter, useNavigation, Stack } from "expo-router"
@@ -25,6 +25,7 @@ import { createContextMenuActions } from "@/components/route-card/route-context-
 import { GlassView } from "expo-glass-effect"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 import { HeaderBackButton } from "@/components/header-back-button"
+import { sideInsetPadding } from "@/utils/helpers/safe-area-helpers"
 import { RouteStationNameButton } from "./route-station-name-button"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
@@ -86,7 +87,8 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const destinationName = destinationStation?.[stationLocale]
   const routeId = `${originId}${destinationId}`
   const isFavorite = favoriteRoutesData.some((fav) => fav.id === routeId)
-  const useNativeRouteListToolbar = screenName === "routeList" && Platform.OS === "ios" && isLiquidGlassSupported
+  // iOS 26+ uses the native navigation bar, which the system can lay out vertically (e.g. on iPhone Duo).
+  const useNativeToolbar = screenName !== "activeRide" && Platform.OS === "ios" && isLiquidGlassSupported
 
   const scaleStationCards = () => {
     RNAnimated.sequence([
@@ -259,7 +261,57 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
 
   return (
     <>
-      {useNativeRouteListToolbar && (
+      {useNativeToolbar && screenName === "routeDetails" && (
+        <Stack.Screen
+          options={{
+            headerShown: true,
+            headerTransparent: true,
+            headerTitle: "",
+            unstable_headerRightItems: () => [
+              {
+                type: "menu",
+                label: translate("routes.routeActions") ?? "",
+                sharesBackground: false,
+                icon: { type: "sfSymbol", name: "ellipsis" },
+                accessibilityLabel: translate("routes.routeActions") ?? undefined,
+                menu: {
+                  items: [
+                    {
+                      type: "action",
+                      label: translate("routes.share") ?? "",
+                      icon: { type: "sfSymbol", name: "square.and.arrow.up" },
+                      onPress: handleShare,
+                    },
+                    {
+                      type: "action",
+                      label: translate("routeDetails.addToCalendar") ?? "",
+                      icon: { type: "sfSymbol", name: "calendar" },
+                      onPress: addToCalendar,
+                    },
+                    {
+                      type: "action",
+                      label: translate(showEntireRoute ? "routeDetails.hideAllStations" : "routeDetails.showAllStations") ?? "",
+                      icon: {
+                        type: "sfSymbol",
+                        name: showEntireRoute ? "rectangle.compress.vertical" : "rectangle.expand.vertical",
+                      },
+                      onPress: () => setShowEntireRoute?.((prev) => !prev),
+                    },
+                    {
+                      type: "action",
+                      label: translate("fares.title") ?? "",
+                      icon: { type: "sfSymbol", name: "shekelsign.circle" },
+                      onPress: openFaresSheet,
+                    },
+                  ],
+                },
+              },
+            ],
+          }}
+        />
+      )}
+
+      {useNativeToolbar && screenName === "routeList" && (
         <Stack.Screen
           options={{
             headerShown: true,
@@ -268,7 +320,8 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
             unstable_headerRightItems: () => [
               {
                 type: "button",
-                label: "",
+                // Titles don't show beside the symbol, but the system uses them in overflow menus.
+                label: translate("favorites.title") ?? "",
                 sharesBackground: false,
                 tintColor: isFavorite ? color.palette.orangeMuted : undefined,
                 icon: { type: "sfSymbol", name: "star" },
@@ -277,7 +330,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
               },
               {
                 type: "menu",
-                label: "",
+                label: translate("routes.routeActions") ?? "",
                 sharesBackground: false,
                 // The default red reads as an alert, so use the filter icon's orange instead.
                 badge: isFilterActive
@@ -328,7 +381,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       >
         <LinearGradient style={styles.gradient} colors={["rgba(0, 0, 0, 0.75)", "rgba(0, 0, 0, 0.05)"]} />
 
-        {screenName !== "activeRide" && !useNativeRouteListToolbar && (
+        {screenName !== "activeRide" && !useNativeToolbar && (
           <View
             style={{
               position: "absolute",
@@ -338,7 +391,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
               flexDirection: "row",
               justifyContent: "space-between",
               alignItems: "center",
-              paddingHorizontal: spacing[4],
+              ...sideInsetPadding(insets, I18nManager.isRTL, spacing[4]),
               zIndex: 1000,
             }}
             accessibilityRole="header"
@@ -356,7 +409,8 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
         )}
       </ImageBackground>
 
-      <View style={{ top: -20, marginBottom: -30, zIndex: 5 }}>
+      {/* The photo spans the full width, but the station buttons stay clear of the side bars. */}
+      <View style={[{ top: -20, marginBottom: -30, zIndex: 5 }, sideInsetPadding(insets, I18nManager.isRTL)]}>
         <View style={[styles.routeDetailsWrapper, style]}>
           <RouteStationNameButton
             disabled={routeEditDisabled}

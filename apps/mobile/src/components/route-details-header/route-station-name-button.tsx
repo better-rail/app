@@ -20,7 +20,7 @@ export function RouteStationNameButton(props: RouteStationNameButtonProps) {
 
   if (isLiquidGlassSupported) {
     return (
-      <Pressable onPress={onPress} disabled={disabled}>
+      <Pressable onPress={onPress} disabled={disabled} style={styles.liquidGlassWrapper}>
         <GlassView isInteractive={!disabled} tintColor={color.secondaryLighter} style={styles.liquidGlass}>
           <Text style={styles.routeDetailsStationText} maxFontSizeMultiplier={1.1}>
             {name}
@@ -46,7 +46,7 @@ export function RouteStationNameButton(props: RouteStationNameButtonProps) {
   )
 }
 
-const styles = StyleSheet.create((theme, rt) => ({
+const styles = StyleSheet.create((theme) => ({
   routeDetailsStationText: {
     color: theme.colors.text,
     opacity: 0.8,
@@ -54,8 +54,12 @@ const styles = StyleSheet.create((theme, rt) => ({
     fontWeight: "600",
     fontSize: 14,
   },
+  // Share the row with the other station instead of taking half the window, which overflows
+  // once the row is narrowed by side safe-area insets (iPhone Duo's side bar column).
+  liquidGlassWrapper: {
+    flex: 1,
+  },
   liquidGlass: {
-    width: rt.screen.width / 2 - theme.spacing[2] * 2,
     padding: theme.spacing[2],
     borderRadius: 25,
   },

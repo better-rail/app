@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react"
 import { Image, Platform, TouchableOpacity, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { useRouter } from "expo-router"
+import { useRouter, Stack, type NativeStackHeaderItem } from "expo-router"
 import * as storage from "@/utils/storage"
 import { trackEvent } from "@/services/analytics"
-import { spacing } from "@/theme"
+import { color, spacing } from "@/theme"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 import { Chip, Text } from "@/components"
 import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore, useRideStore, useSettingsStore, filterUnseenUrgentMessages } from "@/models"
@@ -22,6 +23,10 @@ const TRAIN_ICON = require("../../../assets/train.ios.png")
 const SPARKLES_ICON = require("../../../assets/sparkles.png")
 const UPDATES_ICON = require("../../../assets/updates.png")
 const SETTINGS_ICON = require("../../../assets/settings.png")
+
+// iOS 26+ puts the header actions in the native navigation bar, which the system can lay out
+// vertically on the side (e.g. on iPhone Duo) instead of the custom row below.
+const useNativeToolbar = Platform.OS === "ios" && isLiquidGlassSupported
 
 // DEBUG: force-show the "new" badge regardless of its normal display conditions. Set back to false before shipping.
 const DEBUG_FORCE_NEW_BADGE = false
@@ -97,38 +102,92 @@ export function PlannerScreenHeader() {
     trackEvent("settings_icon_pressed")
   }
 
+  const openActiveRide = () => {
+    useNavigationParamsStore.getState().setRouteDetails({
+      routeItem: rideRoute as any,
+      originId: String(rideOriginId()),
+      destinationId: String(rideDestinationId()),
+    })
+    router.push("/active-ride")
+    trackEvent("open_live_ride_modal_pressed")
+  }
+
+  const showNewChip = DEBUG_FORCE_NEW_BADGE || (showNewBadge && !showLawsuitBar)
+
+  // Same order and visibility as the custom row: ride status, the "new" badge, updates, settings.
+  const nativeHeaderItems = () => {
+    const items: NativeStackHeaderItem[] = []
+    if (rideRoute) {
+      items.push({
+        type: "button",
+        label: translate("ride.live") ?? "",
+        icon: { type: "sfSymbol", name: "tram.fill" },
+        variant: "prominent",
+        tintColor: color.success,
+        onPress: openActiveRide,
+      })
+    }
+    if (showNewChip) {
+      items.push({
+        type: "button",
+        label: translate("common.new") ?? "",
+        icon: { type: "sfSymbol", name: "sparkles" },
+        variant: "prominent",
+        tintColor: color.primary,
+        onPress: () => router.push("/live-announcement"),
+      })
+    }
+    if (!HIDE_RAIL_SERVICE_UPDATES && !showLawsuitBar) {
+      items.push({
+        type: "button",
+        label: translate("routes.updates") ?? "",
+        icon: { type: "sfSymbol", name: "newspaper" },
+        tintColor: color.primary,
+        onPress: openAnnouncements,
+      })
+    }
+    if (!showLawsuitBar) {
+      items.push({
+        type: "button",
+        label: translate("settings.title") ?? "",
+        icon: { type: "sfSymbol", name: "gearshape" },
+        tintColor: color.primary,
+        onPress: openSettings,
+      })
+    }
+    return items
+  }
+
   return (
     <>
+      {useNativeToolbar && (
+        <Stack.Screen
+          options={{
+            headerShown: true,
+            headerTransparent: true,
+            headerTitle: "",
+            unstable_headerRightItems: nativeHeaderItems,
+          }}
+        />
+      )}
       <View style={styles.headerWrapper}>
         <View style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: spacing[2] }}>
           {showUrgentBar && !rideRoute && <ImportantAnnouncementBar title={head(unseenUrgentMessages)?.messageBody ?? ""} />}
           {showLawsuitBar && <LawsuitAnnouncementBar />}
         </View>
-        {rideRoute && (
-          <Chip
-            variant="success"
-            style={{ marginStart: spacing[2] }}
-            onPress={() => {
-              useNavigationParamsStore.getState().setRouteDetails({
-                routeItem: rideRoute as any,
-                originId: String(rideOriginId()),
-                destinationId: String(rideDestinationId()),
-              })
-              router.push("/active-ride")
-              trackEvent("open_live_ride_modal_pressed")
-            }}
-          >
+        {!useNativeToolbar && rideRoute && (
+          <Chip variant="success" style={{ marginStart: spacing[2] }} onPress={openActiveRide}>
             {Platform.OS === "ios" && <Image source={TRAIN_ICON} style={styles.liveButtonImage} />}
             <Text style={{ color: "white", fontWeight: "500", marginVertical: spacing[1] }} tx="ride.live" />
           </Chip>
         )}
-        {(DEBUG_FORCE_NEW_BADGE || (showNewBadge && !showLawsuitBar)) && (
+        {!useNativeToolbar && showNewChip && (
           <Chip variant="primary" style={{ marginStart: spacing[2] }} onPress={() => router.push("/live-announcement")}>
             <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
             <Text style={{ color: "white", fontWeight: "500", marginVertical: spacing[1] }} tx="common.new" />
           </Chip>
         )}
-        {!HIDE_RAIL_SERVICE_UPDATES && !showLawsuitBar && (
+        {!useNativeToolbar && !HIDE_RAIL_SERVICE_UPDATES && !showLawsuitBar && (
           <TouchableOpacity
             testID="open-announcements-button"
             onPress={openAnnouncements}
@@ -138,7 +197,7 @@ export function PlannerScreenHeader() {
             <Image source={UPDATES_ICON} style={[styles.headerIconImage]} />
           </TouchableOpacity>
         )}
-        {!showLawsuitBar && (
+        {!useNativeToolbar && !showLawsuitBar && (
           <TouchableOpacity
             testID="open-settings-button"
             onPress={openSettings}

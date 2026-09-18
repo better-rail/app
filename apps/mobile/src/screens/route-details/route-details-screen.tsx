@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useMemo, useState } from "react"
-import { Alert, Image, Platform, PlatformColor, Pressable, View } from "react-native"
+import { Alert, I18nManager, Image, Platform, PlatformColor, Pressable, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { ScrollView } from "react-native-gesture-handler"
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated"
@@ -29,6 +29,8 @@ import { useNavigationParamsStore } from "@/models/navigation-params/navigation-
 import { useStations } from "@/data/stations"
 import { calculateDelayedTime, formatClockTime, formatDateForAPI, formatTime } from "@/utils/helpers/date-helpers"
 import { getSelectedRide } from "@/utils/helpers/ride-helpers"
+import { logicalSideInsets, sideInsetPadding } from "@/utils/helpers/safe-area-helpers"
+import { SideInsetBleedProvider } from "./components/side-inset-bleed"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const routeApi = new RouteApi()
@@ -116,6 +118,7 @@ export function RouteDetailsScreen() {
       style={styles.root}
       preset="fixed"
       unsafe={true}
+      edgeToEdge
       statusBar="light-content"
       statusBarBackgroundColor="transparent"
       translucent
@@ -132,46 +135,131 @@ export function RouteDetailsScreen() {
         />
 
         <View style={{ flex: 1 }}>
+          {/* The scroll view spans the full width so banner backgrounds can bleed under the side
+              insets; its content stays clear of them. */}
           <ScrollView
-            contentContainerStyle={{ paddingTop: spacing[4], paddingBottom: 80 + insets.bottom }}
+            contentContainerStyle={[
+              { paddingTop: spacing[4], paddingBottom: 80 + insets.bottom },
+              sideInsetPadding(insets, I18nManager.isRTL),
+            ]}
             showsVerticalScrollIndicator={false}
           >
-            {routeItem.isMuchLonger && screenName === "routeDetails" && <LongRouteWarning />}
-            {routeItem.trains.map((train, index) => {
-              // When showing the entire route, we need to organize all stations in order
-              if (showEntireRoute && train.routeStations && train.routeStations.length > 0) {
-                // Get all route stations
-                const allRouteStations = train.routeStations
-                // Find indices of origin and destination stations
-                const originIndex = allRouteStations.findIndex((s) => s.stationId === train.originStationId)
-                const destinationIndex = allRouteStations.findIndex((s) => s.stationId === train.destinationStationId)
-                // Stations the user actually rides through, between origin and destination
-                const betweenStations = allRouteStations.slice(originIndex + 1, destinationIndex)
+            <SideInsetBleedProvider value={logicalSideInsets(insets, I18nManager.isRTL)}>
+              {routeItem.isMuchLonger && screenName === "routeDetails" && <LongRouteWarning />}
+              {routeItem.trains.map((train, index) => {
+                // When showing the entire route, we need to organize all stations in order
+                if (showEntireRoute && train.routeStations && train.routeStations.length > 0) {
+                  // Get all route stations
+                  const allRouteStations = train.routeStations
+                  // Find indices of origin and destination stations
+                  const originIndex = allRouteStations.findIndex((s) => s.stationId === train.originStationId)
+                  const destinationIndex = allRouteStations.findIndex((s) => s.stationId === train.destinationStationId)
+                  // Stations the user actually rides through, between origin and destination
+                  const betweenStations = allRouteStations.slice(originIndex + 1, destinationIndex)
 
+                  return (
+                    <View key={train.trainNumber} style={styles.stationContainer}>
+                      <RouteChangeWarnings train={train} />
+
+                      {/* Stations before origin */}
+                      {allRouteStations.slice(0, originIndex).map((station, idx) => {
+                        const isFirstStation = idx === 0
+                        return (
+                          <View key={`before-${station.stationId}`}>
+                            <RouteStopCard
+                              stationName={allStations.find((c) => c.id === station.stationId.toString())?.name ?? ""}
+                              stopTime={formatClockTime(station.arrivalTime)}
+                              delayedTime={calculateDelayedTime(station.arrivalTime, train.delay)}
+                              style={{ zIndex: 20 - idx, opacity: 0.7 }}
+                              topLineState={isFirstStation ? "hidden" : "idle"}
+                              bottomLineState="idle"
+                              isOutsideUserJourney={true}
+                              isCancelled={station.cancelled}
+                            />
+                          </View>
+                        )
+                      })}
+
+                      {/* Origin station */}
+                      <RouteStationCard
+                        stationName={train.originStationName}
+                        stopTime={formatTime(train.departureTime)}
+                        platform={train.originPlatform}
+                        platformChanged={train.originPlatformChanged}
+                        trainNumber={train.trainNumber}
+                        lastStop={train.lastStop}
+                        lastStopChanged={train.isLastStopChanged}
+                        delay={train.delay}
+                      />
+
+                      {/* Stations between origin and destination */}
+                      {betweenStations.length > 0 ? (
+                        betweenStations.map((station, idx) => (
+                          <View key={`between-${station.stationId}`}>
+                            <RouteStopCard
+                              stationName={allStations.find((c) => c.id === station.stationId.toString())?.name ?? ""}
+                              stopTime={formatClockTime(station.arrivalTime)}
+                              delayedTime={calculateDelayedTime(station.arrivalTime, train.delay)}
+                              style={{ zIndex: 20 - idx }}
+                              topLineState={isRideOnThisRoute ? stations[station.stationId]?.top || "idle" : "idle"}
+                              bottomLineState={isRideOnThisRoute ? stations[station.stationId]?.bottom || "idle" : "idle"}
+                              isCancelled={station.cancelled}
+                            />
+                          </View>
+                        )) // if there are no stops, display a separating line between the route station cards
+                      ) : (
+                        <RouteLine
+                          style={{ start: "35.44%", height: 30 }}
+                          state={isRideOnThisRoute ? stations[train.destinationStationId]?.bottom || "idle" : "idle"}
+                        />
+                      )}
+
+                      {/* Destination station */}
+                      <RouteStationCard
+                        stationName={train.destinationStationName}
+                        stopTime={formatTime(train.arrivalTime)}
+                        delayedTime={calculateDelayedTime(train.arrivalTime, train.delay)}
+                        platform={train.destinationPlatform}
+                        platformChanged={train.destinationPlatformChanged}
+                      />
+
+                      {/* Stations after destination */}
+                      {allRouteStations.slice(destinationIndex + 1).map((station, idx, arr) => {
+                        const isLastStation = idx === arr.length - 1
+                        return (
+                          <View key={`after-${station.stationId}`}>
+                            <RouteStopCard
+                              stationName={allStations.find((c) => c.id === station.stationId.toString())?.name ?? ""}
+                              stopTime={formatClockTime(station.arrivalTime)}
+                              delayedTime={calculateDelayedTime(station.arrivalTime, train.delay)}
+                              style={{ zIndex: 20 - idx, opacity: 0.7 }}
+                              topLineState="idle"
+                              bottomLineState={isLastStation ? "hidden" : "idle"}
+                              isOutsideUserJourney={true}
+                              isCancelled={station.cancelled}
+                            />
+                          </View>
+                        )
+                      })}
+
+                      {routeItem.isExchange && routeItem.trains.length - 1 !== index && (
+                        <RouteExchangeDetails
+                          stationName={train.destinationStationName}
+                          arrivalPlatform={train.destinationPlatform}
+                          departurePlatform={routeItem.trains[index + 1].originPlatform}
+                          firstTrain={train}
+                          secondTrain={routeItem.trains[index + 1]}
+                        />
+                      )}
+                    </View>
+                  )
+                }
+
+                // Original display logic when not showing entire route
                 return (
                   <View key={train.trainNumber} style={styles.stationContainer}>
                     <RouteChangeWarnings train={train} />
 
-                    {/* Stations before origin */}
-                    {allRouteStations.slice(0, originIndex).map((station, idx) => {
-                      const isFirstStation = idx === 0
-                      return (
-                        <View key={`before-${station.stationId}`}>
-                          <RouteStopCard
-                            stationName={allStations.find((c) => c.id === station.stationId.toString())?.name ?? ""}
-                            stopTime={formatClockTime(station.arrivalTime)}
-                            delayedTime={calculateDelayedTime(station.arrivalTime, train.delay)}
-                            style={{ zIndex: 20 - idx, opacity: 0.7 }}
-                            topLineState={isFirstStation ? "hidden" : "idle"}
-                            bottomLineState="idle"
-                            isOutsideUserJourney={true}
-                            isCancelled={station.cancelled}
-                          />
-                        </View>
-                      )
-                    })}
-
-                    {/* Origin station */}
                     <RouteStationCard
                       stationName={train.originStationName}
                       stopTime={formatTime(train.departureTime)}
@@ -183,29 +271,29 @@ export function RouteDetailsScreen() {
                       delay={train.delay}
                     />
 
-                    {/* Stations between origin and destination */}
-                    {betweenStations.length > 0 ? (
-                      betweenStations.map((station, idx) => (
-                        <View key={`between-${station.stationId}`}>
-                          <RouteStopCard
-                            stationName={allStations.find((c) => c.id === station.stationId.toString())?.name ?? ""}
-                            stopTime={formatClockTime(station.arrivalTime)}
-                            delayedTime={calculateDelayedTime(station.arrivalTime, train.delay)}
-                            style={{ zIndex: 20 - idx }}
-                            topLineState={isRideOnThisRoute ? stations[station.stationId]?.top || "idle" : "idle"}
-                            bottomLineState={isRideOnThisRoute ? stations[station.stationId]?.bottom || "idle" : "idle"}
-                            isCancelled={station.cancelled}
+                    {train.stopStations.length > 0
+                      ? train.stopStations.map((stop, idx) => (
+                          <View key={stop.stationId}>
+                            <RouteStopCard
+                              stationName={stop.stationName}
+                              stopTime={formatTime(stop.departureTime)}
+                              delayedTime={calculateDelayedTime(stop.departureTime, train.delay)}
+                              style={{ zIndex: 20 - idx }}
+                              topLineState={isRideOnThisRoute ? stations[stop.stationId]?.top || "idle" : "idle"}
+                              bottomLineState={isRideOnThisRoute ? stations[stop.stationId]?.bottom || "idle" : "idle"}
+                              isCancelled={stop.cancelled}
+                            />
+                          </View>
+                        ))
+                      : // if there are no stops, display a separating line between the route station cards
+                        train.stopStations.length === 0 && (
+                          <RouteLine
+                            style={{ start: "35.44%", height: 30 }}
+                            // TODO: The line state doesn't work properly
+                            state={isRideOnThisRoute ? stations[train.destinationStationId]?.bottom || "idle" : "idle"}
                           />
-                        </View>
-                      )) // if there are no stops, display a separating line between the route station cards
-                    ) : (
-                      <RouteLine
-                        style={{ start: "35.44%", height: 30 }}
-                        state={isRideOnThisRoute ? stations[train.destinationStationId]?.bottom || "idle" : "idle"}
-                      />
-                    )}
+                        )}
 
-                    {/* Destination station */}
                     <RouteStationCard
                       stationName={train.destinationStationName}
                       stopTime={formatTime(train.arrivalTime)}
@@ -213,25 +301,6 @@ export function RouteDetailsScreen() {
                       platform={train.destinationPlatform}
                       platformChanged={train.destinationPlatformChanged}
                     />
-
-                    {/* Stations after destination */}
-                    {allRouteStations.slice(destinationIndex + 1).map((station, idx, arr) => {
-                      const isLastStation = idx === arr.length - 1
-                      return (
-                        <View key={`after-${station.stationId}`}>
-                          <RouteStopCard
-                            stationName={allStations.find((c) => c.id === station.stationId.toString())?.name ?? ""}
-                            stopTime={formatClockTime(station.arrivalTime)}
-                            delayedTime={calculateDelayedTime(station.arrivalTime, train.delay)}
-                            style={{ zIndex: 20 - idx, opacity: 0.7 }}
-                            topLineState="idle"
-                            bottomLineState={isLastStation ? "hidden" : "idle"}
-                            isOutsideUserJourney={true}
-                            isCancelled={station.cancelled}
-                          />
-                        </View>
-                      )
-                    })}
 
                     {routeItem.isExchange && routeItem.trains.length - 1 !== index && (
                       <RouteExchangeDetails
@@ -244,67 +313,8 @@ export function RouteDetailsScreen() {
                     )}
                   </View>
                 )
-              }
-
-              // Original display logic when not showing entire route
-              return (
-                <View key={train.trainNumber} style={styles.stationContainer}>
-                  <RouteChangeWarnings train={train} />
-
-                  <RouteStationCard
-                    stationName={train.originStationName}
-                    stopTime={formatTime(train.departureTime)}
-                    platform={train.originPlatform}
-                    platformChanged={train.originPlatformChanged}
-                    trainNumber={train.trainNumber}
-                    lastStop={train.lastStop}
-                    lastStopChanged={train.isLastStopChanged}
-                    delay={train.delay}
-                  />
-
-                  {train.stopStations.length > 0
-                    ? train.stopStations.map((stop, idx) => (
-                        <View key={stop.stationId}>
-                          <RouteStopCard
-                            stationName={stop.stationName}
-                            stopTime={formatTime(stop.departureTime)}
-                            delayedTime={calculateDelayedTime(stop.departureTime, train.delay)}
-                            style={{ zIndex: 20 - idx }}
-                            topLineState={isRideOnThisRoute ? stations[stop.stationId]?.top || "idle" : "idle"}
-                            bottomLineState={isRideOnThisRoute ? stations[stop.stationId]?.bottom || "idle" : "idle"}
-                            isCancelled={stop.cancelled}
-                          />
-                        </View>
-                      ))
-                    : // if there are no stops, display a separating line between the route station cards
-                      train.stopStations.length === 0 && (
-                        <RouteLine
-                          style={{ start: "35.44%", height: 30 }}
-                          // TODO: The line state doesn't work properly
-                          state={isRideOnThisRoute ? stations[train.destinationStationId]?.bottom || "idle" : "idle"}
-                        />
-                      )}
-
-                  <RouteStationCard
-                    stationName={train.destinationStationName}
-                    stopTime={formatTime(train.arrivalTime)}
-                    delayedTime={calculateDelayedTime(train.arrivalTime, train.delay)}
-                    platform={train.destinationPlatform}
-                    platformChanged={train.destinationPlatformChanged}
-                  />
-
-                  {routeItem.isExchange && routeItem.trains.length - 1 !== index && (
-                    <RouteExchangeDetails
-                      stationName={train.destinationStationName}
-                      arrivalPlatform={train.destinationPlatform}
-                      departurePlatform={routeItem.trains[index + 1].originPlatform}
-                      firstTrain={train}
-                      secondTrain={routeItem.trains[index + 1]}
-                    />
-                  )}
-                </View>
-              )
-            })}
+              })}
+            </SideInsetBleedProvider>
           </ScrollView>
         </View>
 
@@ -313,7 +323,10 @@ export function RouteDetailsScreen() {
             entering={shouldFadeRideButton && FadeInDown}
             exiting={FadeOutDown}
             // zIndex is needed for Android in order to make the button pressable
-            style={{ position: "absolute", left: 0, right: 0, bottom: 0, zIndex: Platform.select({ ios: 0, android: 1 }) }}
+            style={[
+              { position: "absolute", left: 0, right: 0, bottom: 0, zIndex: Platform.select({ ios: 0, android: 1 }) },
+              sideInsetPadding(insets, I18nManager.isRTL),
+            ]}
           >
             <LiveRideSheet progress={progress} screenName={screenName} />
           </Animated.View>
@@ -325,8 +338,9 @@ export function RouteDetailsScreen() {
             exiting={FadeOutDown}
             style={{
               position: "absolute",
-              left: 0,
-              right: insets.right + 18,
+              start: 0,
+              // The side bar column only holds controls at the top, so the ride button can use its bottom.
+              end: 18,
               bottom: Math.max(insets.bottom + 12, 32),
               zIndex: 10,
               flexDirection: "row",

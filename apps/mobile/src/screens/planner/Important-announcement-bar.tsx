@@ -1,13 +1,11 @@
 import { useEffect } from "react"
-import { Dimensions, TouchableOpacity } from "react-native"
+import { TouchableOpacity, useWindowDimensions } from "react-native"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { StyleSheet } from "react-native-unistyles"
 import Animated, { useAnimatedStyle, useSharedValue, withDelay, withTiming } from "react-native-reanimated"
 import { useRouter } from "expo-router"
 import { trackEvent } from "@/services/analytics"
 import { removeHtmlTagsAndEntities } from "@/components/announcements/announcements-utils"
-
-const { width: deviceWidth } = Dimensions.get("screen")
-const barWidth = deviceWidth - 106 // 106 is the padding of the screen + header buttons
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity)
 
@@ -15,6 +13,9 @@ export function ImportantAnnouncementBar({ title }: { title: string }) {
   const router = useRouter()
   const width = useSharedValue(0)
   const opacity = useSharedValue(0)
+  const { width: windowWidth } = useWindowDimensions()
+  const insets = useSafeAreaInsets()
+  const barWidth = windowWidth - insets.left - insets.right - 106 // 106 is the padding of the screen + header buttons
 
   const onStart = () => {
     width.value = withTiming(barWidth, {

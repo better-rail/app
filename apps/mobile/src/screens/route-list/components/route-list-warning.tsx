@@ -124,7 +124,7 @@ export const RouteListWarning = function RouteListWarning({ routesDate, warningT
 const styles = StyleSheet.create((theme, rt) => ({
   // The toolbar host has no intrinsic size, so the custom view needs an explicit width
   toolbarContent: {
-    width: rt.screen.width - 32,
+    width: rt.screen.width - rt.insets.left - rt.insets.right - 32,
     height: 64,
     justifyContent: "center",
     paddingHorizontal: 18,

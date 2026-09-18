@@ -1,5 +1,5 @@
 import React from "react"
-import { View, Image, ViewStyle, Dimensions, Alert } from "react-native"
+import { View, Image, ViewStyle, Alert, useWindowDimensions } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text, ChangeDirectionButton } from "@/components"
 import { color, spacing, fontScale } from "@/theme"
@@ -10,17 +10,16 @@ import { useRouter } from "expo-router"
 import HapticFeedback from "react-native-haptic-feedback"
 import { trackEvent } from "@/services/analytics"
 import { alternativeChangeStations } from "./alternative-change-stations"
+import { useSideInsetBleed } from "./side-inset-bleed"
 import { useRideStore } from "@/models"
 
 const importantIcon = require("../../../../assets/important.png")
 const clockIcon = require("../../../../assets/clock.png")
 const infoIcon = require("../../../../assets/info.png")
 
-const { width: deviceWidth } = Dimensions.get("screen")
-
-// Hide the exchange icon when font scaling is on or if the viewport is too narrow,
+// Hide the exchange icon when font scaling is on or if the window is too narrow,
 // since it might make the station name overflow
-const DISPLAY_EXCHANGE_ICON = fontScale < 1.1 && deviceWidth >= 360
+const displayExchangeIcon = (windowWidth: number) => fontScale < 1.1 && windowWidth >= 360
 
 const SAFE_DURATION_MINS = 3
 
@@ -38,6 +37,9 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
   const router = useRouter()
   const isRideInProgress = useRideStore((s) => s.loading || !!s.id)
   const alternatives = alternativeChangeStations(firstTrain, secondTrain)
+  const { width: windowWidth } = useWindowDimensions()
+  const DISPLAY_EXCHANGE_ICON = displayExchangeIcon(windowWidth)
+  const bleed = useSideInsetBleed({ start: spacing[4], end: spacing[4] })
 
   const onChangeStationPress = () => {
     if (isRideInProgress) {
@@ -78,7 +80,7 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
   })()
 
   return (
-    <View style={[styles.wrapper, style]}>
+    <View style={[styles.wrapper, bleed, style]}>
       {DISPLAY_EXCHANGE_ICON && alternatives.length === 0 && <ChangeDirectionButton buttonStyle={styles.icon} />}
       {DISPLAY_EXCHANGE_ICON && alternatives.length > 0 && (
         <ChangeDirectionButton
@@ -126,13 +128,13 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
   )
 }
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, rt) => ({
+  // Stretches to the list's width; horizontal padding comes from useSideInsetBleed.
   wrapper: {
-    width: "100%",
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    padding: theme.spacing[4],
+    paddingVertical: theme.spacing[4],
     backgroundColor: theme.colors.secondaryLighter,
   },
   icon: {
@@ -142,14 +144,14 @@ const styles = StyleSheet.create((theme) => ({
     elevation: 0,
   },
   infoWrapper: {
-    alignItems: DISPLAY_EXCHANGE_ICON ? "flex-start" : "center",
+    alignItems: displayExchangeIcon(rt.screen.width) ? "flex-start" : "center",
   },
   stationName: {
-    maxWidth: DISPLAY_EXCHANGE_ICON ? "85%" : "100%",
+    maxWidth: displayExchangeIcon(rt.screen.width) ? "85%" : "100%",
     marginBottom: theme.spacing[1],
     fontSize: 18,
     fontWeight: "700",
-    textAlign: DISPLAY_EXCHANGE_ICON ? "left" : "center",
+    textAlign: displayExchangeIcon(rt.screen.width) ? "left" : "center",
   },
   infoDetailWrapper: {
     flexDirection: "row",

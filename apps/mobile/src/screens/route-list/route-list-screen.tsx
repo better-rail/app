@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import HapticFeedback from "react-native-haptic-feedback"
 import * as Burnt from "burnt"
-import { View, ActivityIndicator, Dimensions, useColorScheme } from "react-native"
+import { View, ActivityIndicator, I18nManager, useColorScheme, useWindowDimensions } from "react-native"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { StyleSheet } from "react-native-unistyles"
 import { FlashList, type FlashListRef } from "@shopify/flash-list"
 import { useNetworkState } from "expo-network"
@@ -28,6 +29,7 @@ import {
 import { flatMap, max, round } from "lodash"
 import { translate } from "@/i18n"
 import { shareRouteAction } from "@/utils/helpers/route-share-helpers"
+import { sideInsetPadding } from "@/utils/helpers/safe-area-helpers"
 import { addRouteToCalendar } from "@/utils/helpers/calendar-helpers"
 import { getActionSheetStyleOptions } from "@/utils/helpers/action-sheet-helpers"
 import { isRouteInThePast } from "@/utils/helpers/date-helpers"
@@ -151,6 +153,8 @@ export function RouteListScreen() {
   }, [originId, destinationId])
 
   const flashListRef = useRef<FlashListRef<RouteData>>(null)
+  const insets = useSafeAreaInsets()
+  const { width: windowWidth } = useWindowDimensions()
 
   // Prompt the user once to choose whether to show the "Train Info" row on route cards.
   // Gated behind the "show-train-info-prompt" PostHog feature flag; shown at most once per
@@ -355,8 +359,6 @@ export function RouteListScreen() {
   }, [maxChanges])
 
   const shouldShowDashedLine = (() => {
-    const { width: deviceWidth } = Dimensions.get("screen")
-
     // Get the longest text for duration and delay that will be in the list
     const allTexts = flatMap(trains.data ?? [], ({ delay, duration }) => [
       delay > 0 ? (delay + " " + translate("routes.delayTime")).length : 0,
@@ -365,7 +367,7 @@ export function RouteListScreen() {
     const maxTextLength = max(allTexts)
 
     // Check if there's enough space for the dashed line with that text
-    const shouldShowDashedLineByTextLength = round(deviceWidth / fontScale / 30) >= maxTextLength
+    const shouldShowDashedLineByTextLength = round(windowWidth / fontScale / 30) >= maxTextLength
 
     /**
      * Show the dashed line only when all these conditions are matched:
@@ -373,7 +375,7 @@ export function RouteListScreen() {
      * - Font Scale is 1.2 or less
      * - There's enough space for the dashed line with the longest duration/delay text
      */
-    return fontScale <= 1.2 && deviceWidth >= 360 && shouldShowDashedLineByTextLength
+    return fontScale <= 1.2 && windowWidth >= 360 && shouldShowDashedLineByTextLength
   })()
 
   const handleRouteLongPress = async (routeItem: RouteItem) => {
@@ -505,6 +507,7 @@ export function RouteListScreen() {
       style={styles.root}
       preset="fixed"
       unsafe={true}
+      edgeToEdge
       statusBar="light-content"
       statusBarBackgroundColor="transparent"
       translucent
@@ -516,58 +519,61 @@ export function RouteListScreen() {
         style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
       />
 
-      {/* Only show the no internet error if we're not loading and there's no data */}
-      {!isInternetReachable && !trains.isLoading && !trains.data && <RouteListError errorType="no-internet" />}
+      {/* The photo header spans the full width; everything below stays clear of the side bars. */}
+      <View style={[styles.content, sideInsetPadding(insets, I18nManager.isRTL)]}>
+        {/* Only show the no internet error if we're not loading and there's no data */}
+        {!isInternetReachable && !trains.isLoading && !trains.data && <RouteListError errorType="no-internet" />}
 
-      {/* Only show the request error if we're not loading, internet is available, and there's an error */}
-      {isInternetReachable && !trains.isLoading && trains.status === "error" && !trains.data && (
-        <RouteListError errorType="request-error" />
-      )}
+        {/* Only show the request error if we're not loading, internet is available, and there's an error */}
+        {isInternetReachable && !trains.isLoading && trains.status === "error" && !trains.data && (
+          <RouteListError errorType="request-error" />
+        )}
 
-      {/* Show the loading indicator only when we're loading and there's no data yet */}
-      {trains.isLoading && routeData.length === 0 && (
-        <ActivityIndicator size="large" style={{ marginTop: spacing[6] }} color="grey" />
-      )}
+        {/* Show the loading indicator only when we're loading and there's no data yet */}
+        {trains.isLoading && routeData.length === 0 && (
+          <ActivityIndicator size="large" style={{ marginTop: spacing[6] }} color="grey" />
+        )}
 
-      {displayData.length > 0 && (
-        <FlashList
-          key={`route-list-${hideSlowTrains}`}
-          ref={flashListRef}
-          renderItem={renderRouteCard}
-          keyExtractor={(item) =>
-            typeof item === "string"
-              ? item
-              : item.trains.map((train) => `${train.trainNumber}-${train.departureTimeString}`).join()
-          }
-          data={displayData}
-          contentContainerStyle={{
-            paddingTop: spacing[4],
-            paddingHorizontal: spacing[3],
-            paddingBottom: shouldShowWarning ? spacing[8] + spacing[5] : spacing[3],
-          }}
-          initialScrollIndex={initialScrollIndex}
-          // so the list will re-render when the ride route changes, and so the item will be marked
-          extraData={[rideRoute, routePlanDate, trains.status, loadingDate, hideSlowTrains, maxChanges]}
-          ListFooterComponent={
-            <DateScroll setTime={loadNextDayData} currenTime={nextDayDate.getTime()} isLoadingDate={isNextDayLoading} />
-          }
-          ListFooterComponentStyle={{ paddingBottom: spacing[3] }}
-        />
-      )}
+        {displayData.length > 0 && (
+          <FlashList
+            key={`route-list-${hideSlowTrains}`}
+            ref={flashListRef}
+            renderItem={renderRouteCard}
+            keyExtractor={(item) =>
+              typeof item === "string"
+                ? item
+                : item.trains.map((train) => `${train.trainNumber}-${train.departureTimeString}`).join()
+            }
+            data={displayData}
+            contentContainerStyle={{
+              paddingTop: spacing[4],
+              paddingHorizontal: spacing[3],
+              paddingBottom: shouldShowWarning ? spacing[8] + spacing[5] : spacing[3],
+            }}
+            initialScrollIndex={initialScrollIndex}
+            // so the list will re-render when the ride route changes, and so the item will be marked
+            extraData={[rideRoute, routePlanDate, trains.status, loadingDate, hideSlowTrains, maxChanges]}
+            ListFooterComponent={
+              <DateScroll setTime={loadNextDayData} currenTime={nextDayDate.getTime()} isLoadingDate={isNextDayLoading} />
+            }
+            ListFooterComponentStyle={{ paddingBottom: spacing[3] }}
+          />
+        )}
 
-      {/* A failed background refetch sets "not-found" in the store directly, bypassing the
+        {/* A failed background refetch sets "not-found" in the store directly, bypassing the
           onError guard — so also require that no results are currently displayed. */}
-      {resultType === "not-found" && !trains.isLoading && isInternetReachable && routeData.length === 0 && (
-        <View style={{ marginTop: spacing[4] }}>
-          <NoTrainsFoundMessage />
-        </View>
-      )}
+        {resultType === "not-found" && !trains.isLoading && isInternetReachable && routeData.length === 0 && (
+          <View style={{ marginTop: spacing[4] }}>
+            <NoTrainsFoundMessage />
+          </View>
+        )}
 
-      {allRoutesHiddenByFilter && <FilteredTrainsMessage maxChanges={maxChanges} onShowAll={() => setMaxChanges(null)} />}
+        {allRoutesHiddenByFilter && <FilteredTrainsMessage maxChanges={maxChanges} onShowAll={() => setMaxChanges(null)} />}
 
-      {shouldShowWarning && !trains.isLoading && (
-        <RouteListWarning routesDate={trains.data[0].trains[0].departureTime} warningType={resultType as WarningType} />
-      )}
+        {shouldShowWarning && !trains.isLoading && (
+          <RouteListWarning routesDate={trains.data[0].trains[0].departureTime} warningType={resultType as WarningType} />
+        )}
+      </View>
     </Screen>
   )
 }
@@ -575,6 +581,9 @@ export function RouteListScreen() {
 const styles = StyleSheet.create((theme) => ({
   root: {
     backgroundColor: theme.colors.background,
+    flex: 1,
+  },
+  content: {
     flex: 1,
   },
 }))

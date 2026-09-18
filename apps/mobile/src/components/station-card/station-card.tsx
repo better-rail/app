@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 
 import * as React from "react"
-import { ImageBackground, View, Platform, Dimensions, ImageSourcePropType, ViewStyle, Image, Appearance } from "react-native"
+import { ImageBackground, View, Platform, ImageSourcePropType, ViewStyle, Image, Appearance } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import LinearGradient from "react-native-linear-gradient"
@@ -10,24 +10,13 @@ import { Text } from "@/components/text/text"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 
 const isDarkMode = Appearance.getColorScheme() === "dark"
-const { height: deviceHeight } = Dimensions.get("screen")
-
-export let cardHeight = 120
-
-if (deviceHeight > 600) {
-  cardHeight = 135
-}
-
-if (deviceHeight > 730) {
-  cardHeight = 157.5
-}
-
-if (deviceHeight > 780) {
-  cardHeight = 178.5
-}
-
-if (deviceHeight > 900) {
-  cardHeight = 190
+// Sized from the window, which follows the display the app is on and resizes with it.
+function stationCardHeight(windowHeight: number) {
+  if (windowHeight > 900) return 190
+  if (windowHeight > 780) return 178.5
+  if (windowHeight > 730) return 157.5
+  if (windowHeight > 600) return 135
+  return 120
 }
 
 export interface StationCardProps extends TouchableScaleProps {
@@ -79,7 +68,7 @@ export function StationCard(props: StationCardProps) {
   )
 }
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, rt) => ({
   container: {
     borderRadius: 12,
     backgroundColor: theme.colors.inputPlaceholderBackground,
@@ -89,12 +78,12 @@ const styles = StyleSheet.create((theme) => ({
     elevation: 3,
   },
   imagelessCard: {
-    height: cardHeight,
+    height: stationCardHeight(rt.screen.height),
     justifyContent: "flex-end",
   },
   emptyCardWrapper: {
     width: "100%",
-    height: cardHeight,
+    height: stationCardHeight(rt.screen.height),
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 12,
@@ -107,7 +96,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   background: {
     width: "100%",
-    height: cardHeight,
+    height: stationCardHeight(rt.screen.height),
     justifyContent: "flex-end",
   },
   imageBackgroundImage: {
