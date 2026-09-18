@@ -251,11 +251,10 @@
             poster="/assets/images/releases/2.8/change-station-poster.jpg"
             width="1080"
             height="1080"
-            autoplay
             muted
             loop
             playsinline
-            preload="metadata"
+            preload="none"
             aria-label="בחירת תחנה אחרת להחלפת רכבת, והמסלול מתעדכן בהתאם"
           ></video>
         </figure>
@@ -273,11 +272,10 @@
             poster="/assets/images/releases/2.8/fares-poster.jpg"
             width="1080"
             height="1080"
-            autoplay
             muted
             loop
             playsinline
-            preload="metadata"
+            preload="none"
             aria-label="פתיחת מחירי הנסיעה, עם המחירים המוזלים לאזרח ותיק"
           ></video>
         </figure>
@@ -297,11 +295,10 @@
             poster="/assets/images/releases/2.8/filter-poster.jpg"
             width="1080"
             height="1080"
-            autoplay
             muted
             loop
             playsinline
-            preload="metadata"
+            preload="none"
             aria-label="סינון רכבות ישירות בלבד, והרשימה מתעדכנת בהתאם"
           ></video>
         </figure>
@@ -339,11 +336,10 @@
             poster="/assets/images/releases/2.8/android-widgets-poster.jpg"
             width="1080"
             height="1080"
-            autoplay
             muted
             loop
             playsinline
-            preload="metadata"
+            preload="none"
             aria-label="הוספת ווידג׳ט מההגדרות: בחירת הגודל 4×3 והוספה למסך הבית"
           ></video>
         </figure>
@@ -444,11 +440,21 @@
     </footer>
 
     <script>
+      // Demos load and play only near the viewport, and pause once scrolled away.
+      const demos = document.querySelectorAll(".feature-image video");
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        document.querySelectorAll("video[autoplay]").forEach((video) => {
-          video.pause();
-          video.controls = true;
-        });
+        demos.forEach((video) => (video.controls = true));
+      } else if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver(
+          (entries) =>
+            entries.forEach(({ target, isIntersecting }) =>
+              isIntersecting ? target.play().catch(() => {}) : target.pause(),
+            ),
+          { rootMargin: "200px 0px" },
+        );
+        demos.forEach((video) => observer.observe(video));
+      } else {
+        demos.forEach((video) => video.play().catch(() => {}));
       }
       document.getElementById("ios-badge").addEventListener("click", function () {
         posthog.capture("download_click", { platform: "ios", source: "release-2.8" });
