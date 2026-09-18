@@ -22,7 +22,8 @@ import type { RouteItem } from "@/services/api"
 import { ContextMenu } from "@/components/context-menu/context-menu"
 import { addRouteToCalendar as addRouteToCalendarHelper, CalendarEventConfig } from "@/utils/helpers/calendar-helpers"
 import { createContextMenuActions } from "@/components/route-card/route-context-menu-actions"
-import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
+import { GlassView } from "expo-glass-effect"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 import { HeaderBackButton } from "@/components/header-back-button"
 import { RouteStationNameButton } from "./route-station-name-button"
 
@@ -207,9 +208,9 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       if (isLiquidGlassSupported) {
         return (
           <ContextMenu mode="tap" actions={actions}>
-            <LiquidGlassView interactive colorScheme="dark" style={{ padding: 12, borderRadius: 50 }}>
+            <GlassView isInteractive colorScheme="dark" style={{ padding: 12, borderRadius: 50 }}>
               <MenuIcon />
-            </LiquidGlassView>
+            </GlassView>
           </ContextMenu>
         )
       }
@@ -380,9 +381,9 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
             accessibilityLabel={translate("plan.switchStations")}
             accessibilityHint={translate("plan.switchStationsHint")}
           >
-            <LiquidGlassView interactive={!routeEditDisabled} style={styles.routeInfoCircle} tintColor={color.secondary}>
+            <GlassView isInteractive={!routeEditDisabled} style={styles.routeInfoCircle} tintColor={color.secondary}>
               <Image source={arrowIcon} style={styles.arrowIcon} />
-            </LiquidGlassView>
+            </GlassView>
           </Pressable>
 
           <RouteStationNameButton
@@ -440,7 +441,8 @@ const styles = StyleSheet.create((theme, rt) => ({
     height: 34,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: theme.colors.secondary,
+    // Glass takes its color from `tintColor`; a fill would show as a solid disc behind it.
+    backgroundColor: isLiquidGlassSupported ? undefined : theme.colors.secondary,
     borderRadius: 25,
     elevation: 3,
   },

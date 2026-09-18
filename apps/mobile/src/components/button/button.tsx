@@ -3,7 +3,8 @@ import { View, Pressable, ViewStyle, TextStyle, ButtonProps, Platform, ActivityI
 import { StyleSheet } from "react-native-unistyles"
 import { color, fontScale, spacing } from "@/theme"
 import { Text } from "@/components/text/text"
-import { LiquidGlassView, isLiquidGlassSupported } from "@callstack/liquid-glass"
+import { GlassView } from "expo-glass-effect"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 
 /**
  * Plain (non-Unistyles) base style for the pressable surface.
@@ -57,9 +58,9 @@ export const Button = function Button(props: CustomButtonProps) {
   if (isLiquidGlassSupported) {
     return (
       <Pressable onPress={onPress} disabled={disabled} testID={props.testID}>
-        <LiquidGlassView
-          interactive={!!onPress}
-          style={[styles.liquidGlass, style]}
+        <GlassView
+          isInteractive={!!onPress}
+          style={[styles.liquidGlass, style, styles.liquidGlassNoFill]}
           tintColor={disabled ? color.disabled : (style?.backgroundColor ?? color[variant])}
         >
           <View style={styles.textWrapper}>
@@ -74,7 +75,7 @@ export const Button = function Button(props: CustomButtonProps) {
               </>
             )}
           </View>
-        </LiquidGlassView>
+        </GlassView>
       </Pressable>
     )
   } else {
@@ -149,5 +150,9 @@ const styles = StyleSheet.create((theme, rt) => ({
     borderRadius: 16,
     borderCurve: "continuous",
     justifyContent: "center",
+  },
+  // A caller's `backgroundColor` becomes the glass tint; painting it too shows a solid fill behind the glass.
+  liquidGlassNoFill: {
+    backgroundColor: "transparent",
   },
 }))

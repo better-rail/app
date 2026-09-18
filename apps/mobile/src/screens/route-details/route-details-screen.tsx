@@ -4,7 +4,6 @@ import { Alert, Image, Platform, PlatformColor, Pressable, View } from "react-na
 import { StyleSheet } from "react-native-unistyles"
 import { ScrollView } from "react-native-gesture-handler"
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated"
-import { format } from "date-fns"
 
 import { useShallow } from "zustand/react/shallow"
 import { useRideStore } from "@/models"
@@ -28,12 +27,13 @@ import { RouteApi } from "@/services/api/route-api"
 import { useRouter, usePathname } from "expo-router"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useStations } from "@/data/stations"
-import { calculateDelayedTime, formatDateForAPI } from "@/utils/helpers/date-helpers"
+import { calculateDelayedTime, formatClockTime, formatDateForAPI, formatTime } from "@/utils/helpers/date-helpers"
 import { getSelectedRide } from "@/utils/helpers/ride-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const routeApi = new RouteApi()
-import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
+import { GlassView } from "expo-glass-effect"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 import HapticFeedback from "react-native-haptic-feedback"
 import { translate } from "@/i18n"
 import { trackEvent } from "@/services/analytics"
@@ -159,11 +159,7 @@ export function RouteDetailsScreen() {
                         <View key={`before-${station.stationId}`}>
                           <RouteStopCard
                             stationName={allStations.find((c) => c.id === station.stationId.toString())?.name ?? ""}
-                            stopTime={
-                              typeof station.arrivalTime === "string"
-                                ? station.arrivalTime
-                                : format(new Date(station.arrivalTime), "HH:mm")
-                            }
+                            stopTime={formatClockTime(station.arrivalTime)}
                             delayedTime={calculateDelayedTime(station.arrivalTime, train.delay)}
                             style={{ zIndex: 20 - idx, opacity: 0.7 }}
                             topLineState={isFirstStation ? "hidden" : "idle"}
@@ -178,7 +174,7 @@ export function RouteDetailsScreen() {
                     {/* Origin station */}
                     <RouteStationCard
                       stationName={train.originStationName}
-                      stopTime={format(train.departureTime, "HH:mm")}
+                      stopTime={formatTime(train.departureTime)}
                       platform={train.originPlatform}
                       platformChanged={train.originPlatformChanged}
                       trainNumber={train.trainNumber}
@@ -193,11 +189,7 @@ export function RouteDetailsScreen() {
                         <View key={`between-${station.stationId}`}>
                           <RouteStopCard
                             stationName={allStations.find((c) => c.id === station.stationId.toString())?.name ?? ""}
-                            stopTime={
-                              typeof station.arrivalTime === "string"
-                                ? station.arrivalTime
-                                : format(new Date(station.arrivalTime), "HH:mm")
-                            }
+                            stopTime={formatClockTime(station.arrivalTime)}
                             delayedTime={calculateDelayedTime(station.arrivalTime, train.delay)}
                             style={{ zIndex: 20 - idx }}
                             topLineState={isRideOnThisRoute ? stations[station.stationId]?.top || "idle" : "idle"}
@@ -216,7 +208,7 @@ export function RouteDetailsScreen() {
                     {/* Destination station */}
                     <RouteStationCard
                       stationName={train.destinationStationName}
-                      stopTime={format(train.arrivalTime, "HH:mm")}
+                      stopTime={formatTime(train.arrivalTime)}
                       delayedTime={calculateDelayedTime(train.arrivalTime, train.delay)}
                       platform={train.destinationPlatform}
                       platformChanged={train.destinationPlatformChanged}
@@ -229,11 +221,7 @@ export function RouteDetailsScreen() {
                         <View key={`after-${station.stationId}`}>
                           <RouteStopCard
                             stationName={allStations.find((c) => c.id === station.stationId.toString())?.name ?? ""}
-                            stopTime={
-                              typeof station.arrivalTime === "string"
-                                ? station.arrivalTime
-                                : format(new Date(station.arrivalTime), "HH:mm")
-                            }
+                            stopTime={formatClockTime(station.arrivalTime)}
                             delayedTime={calculateDelayedTime(station.arrivalTime, train.delay)}
                             style={{ zIndex: 20 - idx, opacity: 0.7 }}
                             topLineState="idle"
@@ -265,7 +253,7 @@ export function RouteDetailsScreen() {
 
                   <RouteStationCard
                     stationName={train.originStationName}
-                    stopTime={format(train.departureTime, "HH:mm")}
+                    stopTime={formatTime(train.departureTime)}
                     platform={train.originPlatform}
                     platformChanged={train.originPlatformChanged}
                     trainNumber={train.trainNumber}
@@ -279,7 +267,7 @@ export function RouteDetailsScreen() {
                         <View key={stop.stationId}>
                           <RouteStopCard
                             stationName={stop.stationName}
-                            stopTime={format(stop.departureTime, "HH:mm")}
+                            stopTime={formatTime(stop.departureTime)}
                             delayedTime={calculateDelayedTime(stop.departureTime, train.delay)}
                             style={{ zIndex: 20 - idx }}
                             topLineState={isRideOnThisRoute ? stations[stop.stationId]?.top || "idle" : "idle"}
@@ -299,7 +287,7 @@ export function RouteDetailsScreen() {
 
                   <RouteStationCard
                     stationName={train.destinationStationName}
-                    stopTime={format(train.arrivalTime, "HH:mm")}
+                    stopTime={formatTime(train.arrivalTime)}
                     delayedTime={calculateDelayedTime(train.arrivalTime, train.delay)}
                     platform={train.destinationPlatform}
                     platformChanged={train.destinationPlatformChanged}
@@ -362,14 +350,14 @@ export function RouteDetailsScreen() {
               accessibilityLabel={translate("routeDetails.trainInformation") ?? undefined}
               accessibilityHint={!hasWagonData ? (translate("routeDetails.noTrainDetails") ?? undefined) : undefined}
             >
-              <LiquidGlassView
+              <GlassView
                 style={[styles.infoButton, !hasWagonData && styles.infoButtonDisabled]}
-                interactive={hasWagonData}
-                effect="regular"
+                isInteractive={hasWagonData}
+                glassEffectStyle="regular"
                 tintColor={Platform.OS === "ios" ? PlatformColor("tertiarySystemBackground") : undefined}
               >
                 <Image source={require("../../../assets/info.circle.png")} style={styles.infoButtonIcon} />
-              </LiquidGlassView>
+              </GlassView>
             </Pressable>
 
             <StartRideButton route={routeItem} screenName={screenName} />

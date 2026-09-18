@@ -21,6 +21,8 @@ struct UpcomingTrain: Identifiable {
   var id: Int { trainNumber }
   let departureTime: String
   let arrivalTime: String
+  /// Kept separately since the display strings may be 12-hour
+  let durationMinutes: Int
   let platform: Int
   let trainNumber: Int
 }

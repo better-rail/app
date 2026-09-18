@@ -8,6 +8,7 @@ import com.betterrail.widget.data.WidgetTrainItem
 import com.betterrail.widget.data.StationsData
 import com.betterrail.widget.resources.UpcomingTrainResources
 import com.betterrail.widget.WidgetSize
+import com.betterrail.widget.utils.TimeFormatUtils
 
 /**
  * Represents the possible states of a train widget
@@ -102,7 +103,17 @@ class WidgetStateRenderer(
             is WidgetState.FutureSchedule -> renderFutureSchedule(localeContext, views, state, heightDp)
         }
 
+        applyTimeTextSizes(context, views)
         return views
+    }
+
+    /** "12:46 PM" is wider than "12:46", so the headline times shrink in 12-hour mode to keep one line. */
+    private fun applyTimeTextSizes(context: Context, views: RemoteViews) {
+        if (!TimeFormatUtils.use12HourClock(context)) return
+        views.setTextViewTextSize(getTrainTimeId(), android.util.TypedValue.COMPLEX_UNIT_SP, 25f)
+        if (isMultiTrainLayout()) {
+            views.setTextViewTextSize(R.id.widget_arrival_time, android.util.TypedValue.COMPLEX_UNIT_SP, 15f)
+        }
     }
     
     private fun isMultiTrainLayout(): Boolean =
@@ -132,14 +143,14 @@ class WidgetStateRenderer(
     private fun renderSchedule(context: Context, views: RemoteViews, state: WidgetState.Schedule, heightDp: Int = 0) {
         views.setTextViewText(R.id.widget_station_name, state.originName)
         views.setTextViewText(R.id.widget_destination, state.destinationName)
-        views.setTextViewText(getTrainTimeId(), state.nextTrain.departureTime)
+        views.setTextViewText(getTrainTimeId(), TimeFormatUtils.formatForDisplay(context, state.nextTrain.departureTime))
         views.setTextViewText(R.id.widget_train_label, context.getString(R.string.next_train))
         views.setTextColor(R.id.widget_train_label, context.getColor(R.color.widget_next_train_text))
         
         renderTrainDetails(context, views, state.nextTrain)
         
         if (isMultiTrainLayout()) {
-            views.setTextViewText(R.id.widget_arrival_time, state.nextTrain.arrivalTime)
+            views.setTextViewText(R.id.widget_arrival_time, TimeFormatUtils.formatForDisplay(context, state.nextTrain.arrivalTime))
             if (state.upcomingTrains.isNotEmpty()) {
                 showUpcomingTrains(context, views, state.upcomingTrains, heightDp)
             } else {
@@ -247,14 +258,14 @@ class WidgetStateRenderer(
     private fun renderTomorrowSchedule(context: Context, views: RemoteViews, state: WidgetState.TomorrowSchedule, heightDp: Int = 0) {
         views.setTextViewText(R.id.widget_station_name, state.originName)
         views.setTextViewText(R.id.widget_destination, state.destinationName)
-        views.setTextViewText(getTrainTimeId(), state.firstTrain.departureTime)
+        views.setTextViewText(getTrainTimeId(), TimeFormatUtils.formatForDisplay(context, state.firstTrain.departureTime))
         views.setTextViewText(R.id.widget_train_label, context.getString(R.string.tomorrow))
         views.setTextColor(R.id.widget_train_label, context.getColor(R.color.widget_tomorrow_text))
         
         renderTrainDetails(context, views, state.firstTrain)
         
         if (isMultiTrainLayout()) {
-            views.setTextViewText(R.id.widget_arrival_time, state.firstTrain.arrivalTime)
+            views.setTextViewText(R.id.widget_arrival_time, TimeFormatUtils.formatForDisplay(context, state.firstTrain.arrivalTime))
         }
         
         setStationBackground(views, state.originId)
@@ -292,7 +303,7 @@ class WidgetStateRenderer(
     private fun renderFutureSchedule(context: Context, views: RemoteViews, state: WidgetState.FutureSchedule, heightDp: Int = 0) {
         views.setTextViewText(R.id.widget_station_name, state.originName)
         views.setTextViewText(R.id.widget_destination, state.destinationName)
-        views.setTextViewText(getTrainTimeId(), state.firstTrain.departureTime)
+        views.setTextViewText(getTrainTimeId(), TimeFormatUtils.formatForDisplay(context, state.firstTrain.departureTime))
 
         val labelText = context.resources.getQuantityString(R.plurals.upcoming_in_days, state.daysAway, state.daysAway)
         views.setTextViewText(R.id.widget_train_label, labelText)
@@ -301,7 +312,7 @@ class WidgetStateRenderer(
         renderTrainDetails(context, views, state.firstTrain)
         
         if (isMultiTrainLayout()) {
-            views.setTextViewText(R.id.widget_arrival_time, state.firstTrain.arrivalTime)
+            views.setTextViewText(R.id.widget_arrival_time, TimeFormatUtils.formatForDisplay(context, state.firstTrain.arrivalTime))
         }
         
         setStationBackground(views, state.originId)
@@ -385,11 +396,11 @@ class WidgetStateRenderer(
                 if (resources.dividerId != 0) {
                     views.setViewVisibility(resources.dividerId, android.view.View.VISIBLE)
                 }
-                views.setTextViewText(resources.trainTimeId, train.departureTime)
+                views.setTextViewText(resources.trainTimeId, TimeFormatUtils.formatForDisplay(context, train.departureTime))
                 if (layoutResource == R.layout.widget_compact_4x3) {
                     views.setTextColor(resources.trainTimeId, 0xFF111111.toInt())
                 }
-                views.setTextViewText(resources.arrivalTimeId, train.arrivalTime)
+                views.setTextViewText(resources.arrivalTimeId, TimeFormatUtils.formatForDisplay(context, train.arrivalTime))
                 if (resources.durationId != 0) {
                     val durationText = formatDuration(context, train)
                     views.setTextViewText(resources.durationId, durationText)

@@ -1,7 +1,13 @@
 import { create } from "zustand"
 import { Platform } from "react-native"
 import { setAnalyticsUserProperty } from "@/services/analytics"
-import { getIsWatchAppInstalled, updateApplicationContext, getIsPaired, watchEvents, WatchPayload } from "react-native-watch-connectivity"
+import {
+  getIsWatchAppInstalled,
+  updateApplicationContext,
+  getIsPaired,
+  watchEvents,
+  WatchPayload,
+} from "react-native-watch-connectivity"
 import Shortcuts from "react-native-quick-actions-shortcuts"
 import { stationLocale, stationsObject } from "@/data/stations"
 import { translate } from "@/i18n"

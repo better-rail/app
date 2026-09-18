@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import { PopUpMessage } from "@/services/api"
+import type { PopUpMessage } from "@/services/api"
 
 export type MaxChanges = 0 | 1 | null
 

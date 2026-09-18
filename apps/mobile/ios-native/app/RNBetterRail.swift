@@ -165,8 +165,12 @@ class RNBetterRail: NSObject {
             families.append("accessoryInline")
           case .accessoryRectangular:
             families.append("accessoryRectangular")
-          @unknown default:
-            families.append("unknown")
+          default:
+            if #available(iOS 27.0, *), widget.family == .systemExtraLargePortrait {
+              families.append("extraLargePortrait")
+            } else {
+              families.append("unknown")
+            }
           }
         }
         resolve(families)

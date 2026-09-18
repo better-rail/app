@@ -1,0 +1,30 @@
+export type DiscordRole = { id: string; name: string; permissions: string; position: number; managed: boolean }
+export type DiscordOverwrite = { id: string; type: number; allow: string; deny: string }
+export type DiscordChannel = { id: string; guild_id?: string; type: number; permission_overwrites: DiscordOverwrite[] }
+export type DiscordMember = { roles: string[] }
+
+export class DiscordApi {
+  constructor(private botToken: string) {}
+
+  async call<T>(method: string, path: string, body?: unknown, authenticate = true): Promise<T> {
+    for (let attempt = 1; ; attempt++) {
+      const response = await fetch(`https://discord.com/api/v10${path}`, {
+        method,
+        headers: { "Content-Type": "application/json", ...(authenticate && { Authorization: `Bot ${this.botToken}` }) },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(10_000),
+      })
+      if (response.status === 429 && attempt < 5) {
+        const seconds = Number(((await response.json()) as { retry_after?: number }).retry_after)
+        if (!(seconds <= 10)) throw new Error("Discord is busy; try again shortly")
+        await Bun.sleep(Math.max(100, seconds * 1000))
+        continue
+      }
+      if (!response.ok) {
+        const { message } = (await response.json().catch(() => ({}))) as { message?: string }
+        throw new Error(`Discord ${method} failed (${response.status}${message ? `: ${message}` : ""})`)
+      }
+      return (response.status === 204 ? undefined : await response.json()) as T
+    }
+  }
+}

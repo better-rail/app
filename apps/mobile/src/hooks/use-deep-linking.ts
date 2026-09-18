@@ -6,6 +6,7 @@ import { donateRouteIntent, reloadAllTimelines } from "@/utils/ios-helpers"
 import { useRoutePlanStore } from "@/models/route-plan/route-plan"
 import { openActiveRide } from "@/utils/helpers/open-active-ride"
 import { trackEvent } from "@/services/analytics"
+import { getWidgetFamilyFromURL } from "@/utils/widget-helpers"
 import { getStationById } from "@/data/stations"
 import Shortcuts, { ShortcutItem } from "react-native-quick-actions-shortcuts"
 
@@ -17,6 +18,9 @@ const ShortcutsEmitter = new NativeEventEmitter(Shortcuts)
 export function useDeepLinking(storeReady: boolean) {
   function deepLinkWidgetURL(url: string) {
     if (!storeReady) return
+
+    const family = getWidgetFamilyFromURL(url)
+    trackEvent("deep_link_widget", family ? { family } : undefined)
 
     const { originId, destinationId } = extractURLParams(url)
     const routePlan = useRoutePlanStore.getState()
@@ -43,18 +47,18 @@ export function useDeepLinking(storeReady: boolean) {
 
   function deepLinkLiveActivity() {
     if (!storeReady) return
+    trackEvent("deep_link_live_activity")
     openActiveRide()
   }
 
+  // Tracked past the storeReady guards, since the initial URL is handled twice
   function handleDeepLinkURL(url: string) {
     if (!url) return
     if (url.includes("widget")) {
       deepLinkWidgetURL(url)
-      trackEvent("deep_link_widget")
     }
     if (url.toLowerCase().includes("liveactivity")) {
       deepLinkLiveActivity()
-      trackEvent("deep_link_live_activity")
     }
   }
 

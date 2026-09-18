@@ -71,21 +71,10 @@ struct WidgetScheduleTable: View {
   }
 
   private func durationLabel(_ train: UpcomingTrain) -> String {
-    guard let minutes = minutesBetween(train.departureTime, train.arrivalTime) else { return "" }
+    let minutes = train.durationMinutes
     if minutes >= 60 {
       return String(format: String(localized: "%@h %@m"), String(minutes / 60), String(minutes % 60))
     }
     return String(format: String(localized: "%@ min"), String(minutes))
-  }
-
-  /// Minutes between two "HH:mm" strings, rolling over midnight.
-  private func minutesBetween(_ from: String, _ to: String) -> Int? {
-    func minutes(_ time: String) -> Int? {
-      let parts = time.split(separator: ":").compactMap { Int($0) }
-      guard parts.count == 2 else { return nil }
-      return parts[0] * 60 + parts[1]
-    }
-    guard let start = minutes(from), let end = minutes(to) else { return nil }
-    return end >= start ? end - start : end + 24 * 60 - start
   }
 }
