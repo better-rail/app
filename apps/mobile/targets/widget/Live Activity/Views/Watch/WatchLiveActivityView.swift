@@ -33,6 +33,8 @@ struct WatchLiveActivityView: View {
     if isWaiting { return .platform(vm.train.originPlatform) }
     if vm.status == .arrived { return .none }
     if vm.status == .getOff { return .getOff }
+    // The status row already reads "next station" (stale switches it to "headed to")
+    if vm.stopsLeft <= 1 && !vm.isStale { return .none }
     return .stopsLeft(vm.stopsLeft)
   }
 
