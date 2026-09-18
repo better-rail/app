@@ -72,13 +72,6 @@
         opacity: 0.7;
       }
 
-      .lead {
-        font-size: 19px;
-        font-weight: 700;
-        letter-spacing: -0.4px;
-        margin-bottom: 14px;
-      }
-
       .feature {
         margin-bottom: 22px;
       }
@@ -231,35 +224,24 @@
       <h1 class="site-page-content-title">מה חדש בגרסה 2.8</h1>
       <p class="release-meta"><time datetime="2026-09-13">13 בספטמבר 2026</time></p>
 
-      <p class="site-page-content-text lead">
-        גרסה 2.8 מחזירה את מחירי הנסיעה, מאפשרת לבחור איפה להחליף רכבת ומביאה ווידג׳טים חדשים לאייפון ולשעון.
+      <p class="site-page-content-text">היי ושלום לכל 20 אלף הנוסעים שהורידו את בטר רייל בחודש האחרון :)</p>
+      <p class="site-page-content-text">
+        נתחיל מלהגיד המון תודה לכל מי שתמך בנו בחודש האחרון מול איומי הרכבת.<br />
+        לא שמענו מהרכבת מאז ששלחנו את תגובתנו, אבל אנחנו אופטימיים שלא נצטרך להגיע לבית המשפט.
+      </p>
+      <p class="site-page-content-text">
+        התמיכה הגורפת שקיבלנו נותנת המון רוח גבית ומוטיבציה להמשיך ליצור את אפליקציית הרכבות הכי טובה שיש.
+      </p>
+      <p class="site-page-content-text">
+        חזרנו למשוך מידע מרכבת ישראל אחרי שלא יכולנו להמשיך להנגיש לנוסעי הרכבת מידע ממשרד התחבורה, המספק זמנים
+        שעלולים להיות שגויים. רכבת ישראל היא הגורם היחיד שמספק מידע אמין על רכבות בזמן אמת נכון לעכשיו.
+        <a class="underline-hovered-link" href="/gtfs-siri-issues.html">דיווחנו על הפערים</a> לרכבת ישראל ומשרד התחבורה אך טרם קיבלנו התייחסות.
+      </p>
+      <p class="site-page-content-text">
+        ועכשיו אנחנו חוזרים להתמקד באפליקצייה! רבים מכם שלחו לנו פידבקים, וגרסה 2.8 מוסיפה הרבה מהפיצ׳רים שביקשתם.
       </p>
 
-      <section class="feature">
-        <h2 class="site-page-content-subtitle">מחירי נסיעה</h2>
-        <figure class="feature-image">
-          <video
-            src="/assets/images/releases/2.8/fares.mp4"
-            poster="/assets/images/releases/2.8/fares-poster.jpg"
-            width="1080"
-            height="1080"
-            autoplay
-            muted
-            loop
-            playsinline
-            preload="metadata"
-            aria-label="פתיחת מחירי הנסיעה, עם המחירים המוזלים לאזרח ותיק"
-          ></video>
-        </figure>
-        <p class="site-page-content-text">
-          מחירי הנסיעה חזרו! לחצו על כפתור השקל במסך לוח הזמנים, או על ״מחירי נסיעה״ בתפריט פרטי המסלול, כדי לראות כמה
-          עולים נסיעה בודדת, חופשי יומי וחופשי חודשי.
-        </p>
-        <p class="site-page-content-text">
-          בחרו את פרופיל הנוסע/ת שלכם - סטודנט, אזרח ותיק, נוער ועוד - והמחירים יוצגו אחרי ההנחה. האפליקצייה תזכור את
-          הפרופיל לפעם הבאה.
-        </p>
-      </section>
+      <hr class="divider" />
 
       <section class="feature">
         <h2 class="site-page-content-subtitle">החלפה בתחנה אחרת</h2>
@@ -280,6 +262,30 @@
         <p class="site-page-content-text">
           במסלול עם החלפה, לחצו על החצים בכרטיס ״החלפה ב…״ ובחרו תחנה אחרת שבה עוצרות שתי הרכבות. המסלול יחושב מחדש
           דרך התחנה שבחרתם, וההתראות בזמן הנסיעה יתאימו להחלפה החדשה.
+        </p>
+      </section>
+
+      <section class="feature">
+        <h2 class="site-page-content-subtitle">מחירי נסיעה</h2>
+        <figure class="feature-image">
+          <video
+            src="/assets/images/releases/2.8/fares.mp4"
+            poster="/assets/images/releases/2.8/fares-poster.jpg"
+            width="1080"
+            height="1080"
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            aria-label="פתיחת מחירי הנסיעה, עם המחירים המוזלים לאזרח ותיק"
+          ></video>
+        </figure>
+        <p class="site-page-content-text">
+          לחצו על ״מחירי נסיעה״ בתפריט מסך לוח הזמנים, כדי לראות כמה עולים נסיעה בודדת, חופשי יומי וחופשי חודשי.
+        </p>
+        <p class="site-page-content-text">
+          בחרו את פרופיל הנוסע/ת שלכם - סטודנט, אזרח ותיק, נוער ועוד - והמחירים יוצגו אחרי ההנחה.
         </p>
       </section>
 
@@ -308,7 +314,7 @@
       <hr class="divider" />
 
       <section class="feature">
-        <h2 class="site-page-content-subtitle">ווידג׳ט חדש <span class="platform-tag">iOS 27</span></h2>
+        <h2 class="site-page-content-subtitle">ווידג׳טים חדשים</h2>
         <figure class="feature-image">
           <picture>
             <source type="image/avif" srcset="/assets/images/releases/2.8/widget-xl.avif" />
@@ -324,37 +330,9 @@
           </picture>
         </figure>
         <p class="site-page-content-text">
-          ב-iOS 27 נוסף ווידג׳ט בגודל חדש: כרטיס עם הרכבת הבאה על רקע תמונת תחנת המוצא, ומתחתיו לוח הזמנים המלא. גם
-          הווידג׳ט הגדול קיבל עיצוב חדש.
+          ב-iOS 27 נוסף תמיכה בווידג׳ט גדול במיוחד, והווידג׳ט הגדול הנוכחי קיבל עיצוב חדש. הוספנו תמיכה בעיצוב הווידג׳ט
+          הגדול גם באנדרואיד.
         </p>
-      </section>
-
-      <section class="feature">
-        <h2 class="site-page-content-subtitle">Apple Watch <span class="platform-tag">watchOS</span></h2>
-        <figure class="feature-image">
-          <picture>
-            <source type="image/avif" srcset="/assets/images/releases/2.8/apple-watch.avif" />
-            <source type="image/webp" srcset="/assets/images/releases/2.8/apple-watch.webp" />
-            <img
-              src="/assets/images/releases/2.8/apple-watch.jpg"
-              alt="המסלולים המועדפים בשעון ופרטי הנסיעה ב-Smart Stack"
-              width="1240"
-              height="900"
-              loading="lazy"
-              decoding="async"
-            />
-          </picture>
-        </figure>
-        <p class="site-page-content-text">
-          פרטי הנסיעה ב-Smart Stack של השעון קיבלו עיצוב חדש, שהותאם במיוחד למסך הקטן.
-        </p>
-        <p class="site-page-content-text">
-          ב-watchOS 27 אפשר גם לסדר מחדש את המסלולים המועדפים בגרירה, והסדר החדש מסתנכרן עם האייפון.
-        </p>
-      </section>
-
-      <section class="feature">
-        <h2 class="site-page-content-subtitle">ווידג׳טים באנדרואיד <span class="platform-tag">Android</span></h2>
         <figure class="feature-image">
           <video
             src="/assets/images/releases/2.8/android-widgets.mp4"
@@ -370,9 +348,31 @@
           ></video>
         </figure>
         <p class="site-page-content-text">
-          כפתור חדש בהגדרות, ״הוספת ווידג׳ט למסך הבית״, מוסיף את הווידג׳ט בלחיצה אחת - עם המסלול שבחרתם במסך הראשי.
-          נוסף גם ווידג׳ט גדול בגודל 4×3, עם לוח רכבות מורחב. בנוסף, בבחירת ווידג׳ט מוצגת עכשיו תצוגה מקדימה בשפת
-          המכשיר.
+          עוד באנדרואיד: כפתור ״הוספת ווידג׳ט למסך הבית״ חדש בהגדרות האפליקצייה, שמוסיף את הווידג׳ט בלחיצה.
+        </p>
+      </section>
+
+      <section class="feature">
+        <h2 class="site-page-content-subtitle">Apple Watch</h2>
+        <figure class="feature-image">
+          <picture>
+            <source type="image/avif" srcset="/assets/images/releases/2.8/apple-watch.avif" />
+            <source type="image/webp" srcset="/assets/images/releases/2.8/apple-watch.webp" />
+            <img
+              src="/assets/images/releases/2.8/apple-watch.jpg"
+              alt="המסלולים המועדפים בשעון ופרטי הנסיעה ב-Smart Stack"
+              width="1240"
+              height="900"
+              loading="lazy"
+              decoding="async"
+            />
+          </picture>
+        </figure>
+        <p class="site-page-content-text">
+          פרטי הנסיעה בלייב אקטיביטי באפל ווטצ׳ קיבלו עיצוב חדש.
+        </p>
+        <p class="site-page-content-text">
+          ב-watchOS 27 אפשר גם לסדר מחדש את המסלולים המועדפים בגרירה, והסדר החדש מסתנכרן עם האייפון.
         </p>
       </section>
 
@@ -380,17 +380,12 @@
 
       <h2 class="site-page-content-subtitle">שיפורים ותיקונים</h2>
       <ul class="changes-list">
-        <li class="site-page-content-text">כפתור פרטי הרכבת מוצג תמיד, גם כשהמידע עדיין לא זמין</li>
-        <li class="site-page-content-text">אפשר לחפש תחנות גם לפי שמות נוספים שלהן</li>
-        <li class="site-page-content-text">תוצאות חיפוש התחנות כבר לא נעלמות תוך כדי הקלדה</li>
         <li class="site-page-content-text">
-          ב-iOS 26 ומעלה, הודעת ״לא נמצאו רכבות״ מוצגת בסרגל התחתון בעיצוב Liquid Glass
+          אפשר לחפש תחנות גם לפי שמות נוספים שלהן, כמו ״אקספו״ (תל אביב - אוניברסיטה), ״מטרופול״ (אשדוד - עד הלום) או
+          ״אלי כהן״ (בת ים - יוספטל)
         </li>
         <li class="site-page-content-text">הגדרת השפה של האפליקצייה בהגדרות האייפון חזרה, וחלה גם על הווידג׳טים</li>
-        <li class="site-page-content-text">הווידג׳ט הגדול מציג ״אין עוד רכבות״ אחרי הרכבת האחרונה, במקום שגיאה</li>
-        <li class="site-page-content-text">הווידג׳ט מסתיר את מספר הרציף עד שהוא נקבע</li>
-        <li class="site-page-content-text">קישורים לחשבונות שלנו ב-X ובאינסטגרם במסך ההגדרות</li>
-        <li class="site-page-content-text">תיקון שם תחנת עכו באנגלית</li>
+        <li class="site-page-content-text">תמיכה בתצוגת שעות בפורמט 12 שעות (AM/PM) באנגלית, לפי הגדרת השעון במכשיר</li>
       </ul>
 
       <aside class="release-download">
