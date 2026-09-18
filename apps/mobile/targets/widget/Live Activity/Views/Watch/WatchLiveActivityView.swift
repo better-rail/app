@@ -33,7 +33,8 @@ struct WatchLiveActivityView: View {
     if isWaiting { return .platform(vm.train.originPlatform) }
     if vm.status == .arrived { return .none }
     if vm.status == .getOff { return .getOff }
-    return .stopsLeft(vm.stopsLeft)
+    // With one stop left the status row already reads "next station"
+    return vm.stopsLeft > 1 ? .stopsLeft(vm.stopsLeft) : .none
   }
 
   private var cardData: WatchActivityCardData {

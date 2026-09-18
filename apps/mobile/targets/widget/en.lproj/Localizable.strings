@@ -50,7 +50,6 @@
 "%@ min delay" = "%@ min delay";
 
 // apple watch live activity
-"next stop" = "Next stop";
 "%@ stops" = "%@ stops";
 "get off now" = "Get off";
 "train short %@" = "Train %@";
