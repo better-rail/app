@@ -25,7 +25,7 @@
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="Better Rail" />
     <meta property="og:locale" content="he_IL" />
-    <meta property="article:published_time" content="2026-09-13" />
+    <meta property="article:published_time" content="2026-09-22" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="מה חדש בבטר רייל 2.8" />
@@ -139,6 +139,10 @@
         width: 145px;
       }
 
+      .release-feedback {
+        margin-top: 24px;
+      }
+
       .signature {
         margin-top: 26px;
         line-height: 1.6;
@@ -222,7 +226,7 @@
 
     <main class="site-content">
       <h1 class="site-page-content-title">מה חדש בגרסה 2.8</h1>
-      <p class="release-meta"><time datetime="2026-09-13">13 בספטמבר 2026</time></p>
+      <p class="release-meta"><time datetime="2026-09-22">22 בספטמבר 2026</time></p>
 
       <p class="site-page-content-text">היי ושלום לכל 20 אלף הנוסעים שהורידו את בטר רייל בחודש האחרון :)</p>
       <p class="site-page-content-text">
@@ -404,6 +408,17 @@
         </div>
       </aside>
 
+      <p class="site-page-content-text release-feedback">
+        נשמח לשמוע מכם! מוזמנים לשלוח פידבק ולדבר איתנו ב<a
+          class="underline-hovered-link"
+          href="https://discord.gg/uJ65ABeQsh"
+          target="_blank"
+          rel="noopener noreferrer"
+          >דיסקורד</a
+        >
+        החדש שלנו.
+      </p>
+
       <p class="site-page-content-text signature">
         שתהיה נסיעה טובה,
         <strong>צוות בטר רייל</strong>
@@ -413,9 +428,36 @@
     <hr />
 
     <footer>
+      <a
+        href="https://pages.greeninvoice.co.il/payments/links/696f6413-1068-4002-a0f7-6b9b6676ead5"
+        target="_blank"
+        rel="noopener noreferrer"
+        style="
+          padding-block: 4px;
+          padding-inline: 40px;
+          margin-block: 4px 24px;
+          background: #0972c4;
+          color: white;
+          border-radius: 24px;
+          font-size: 20px;
+        "
+        id="support-badge"
+      >
+        תמכו בנו
+      </a>
       <div class="footer-social-links">
         <a href="https://github.com/better-rail/app" target="_blank" rel="noopener noreferrer"
           ><img src="/assets/icons/github.svg" width="35" height="35" alt="Github" loading="lazy" decoding="async"
+        /></a>
+        <a href="https://discord.gg/uJ65ABeQsh" target="_blank" rel="noopener noreferrer"
+          ><img
+            src="/assets/icons/discord.svg"
+            width="35"
+            height="35"
+            alt="Discord"
+            style="margin-right: 10px"
+            loading="lazy"
+            decoding="async"
         /></a>
         <a href="https://www.x.com/better_rail" target="_blank" rel="noopener noreferrer"
           ><img
@@ -458,6 +500,9 @@
       }
       document.getElementById("ios-badge").addEventListener("click", function () {
         posthog.capture("download_click", { platform: "ios", source: "release-2.8" });
+      });
+      document.getElementById("support-badge").addEventListener("click", function () {
+        posthog.capture("support_click", { source: "release-2.8" });
       });
       document.getElementById("play-store-badge").addEventListener("click", function () {
         posthog.capture("download_click", { platform: "android", source: "release-2.8" });
