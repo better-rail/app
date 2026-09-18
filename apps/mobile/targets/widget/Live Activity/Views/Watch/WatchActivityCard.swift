@@ -116,7 +116,7 @@ struct WatchActivityCard: View {
     case .platform(let platform):
       BadgeLabel(text: "platform \(String(platform))")
     case .stopsLeft(let stops):
-      BadgeLabel(text: "\(String(stops)) stops")
+      BadgeLabel(text: stops <= 1 ? "next stop" : "\(String(stops)) stops")
     case .getOff:
       BadgeLabel(text: "get off now")
     case .none:
