@@ -1,10 +1,11 @@
 import { format } from "date-fns"
 import { dateFnsLocalization, translate, userLocale } from "@/i18n"
-import { getStationById } from "@/data/stations"
+import { stationName } from "@/data/stations"
 import { getRailLine } from "@/data/rail-lines"
 import type { AffectedTrain, Disruption, LineStatus, LocalizedText, ServiceStatusLevel, TravelAlternative } from "@/services/api"
+import type { OpenState } from "./station-hours"
 
-export const stationName = (stationId: string): string => getStationById(stationId)?.name ?? stationId
+export { stationName }
 
 /** The line's name in the current language, falling back to what the server sent. */
 export const lineName = (lineStatus: Pick<LineStatus, "lineId" | "line">): string =>
@@ -88,5 +89,21 @@ export const disruptionUntil = (disruption: Disruption): string | undefined => {
   if (Number.isNaN(date.getTime())) return undefined
   return (
     translate("serviceStatus.until", { time: format(date, "EEE, d MMM HH:mm", { locale: dateFnsLocalization }) }) ?? undefined
+  )
+}
+
+/**
+ * When an open state changes next: "until 22:30" while open, "opens at 05:00" (today) or "opens Sun 05:00"
+ * while closed; nothing when there is no time to name. `dayName` names a day (1 = Sunday).
+ */
+export const openStateDetail = (state: OpenState, today: number, dayName: (day: number) => string): string | null => {
+  if (state.state === "open")
+    return state.until ? (translate("serviceStatus.station.until", { time: state.until }) ?? null) : null
+  if (state.state !== "closed" || !state.opensAt) return null
+  const { day, time } = state.opensAt
+  return (
+    (day === today
+      ? translate("serviceStatus.station.opensAt", { time })
+      : translate("serviceStatus.station.opensOn", { day: dayName(day), time })) ?? null
   )
 }

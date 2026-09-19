@@ -16,6 +16,7 @@ import type {
   StationInfoLocale,
   StationNotice,
 } from "../types/station-info"
+import { railApiLocales } from "../locales/i18n"
 import { railApiFetch } from "./rail-api"
 
 // --- the API's shapes (only what is read) --------------------------------------------
@@ -72,8 +73,6 @@ export type RailStationInfo = {
 }
 
 type RailEnvelope = { result: RailStationInfo | null }
-
-const RAIL_LOCALES: Record<StationInfoLocale, string> = { he: "Hebrew", en: "English", ru: "Russian", ar: "Arabic" }
 
 /** The page's numbered activity types. 1 is the gates (what the old sheet showed); 2 and 3 are read off the site. */
 const HOURS_KINDS: Record<number, StationHoursKind> = { 1: "entrance", 2: "ticketOffice", 3: "customerService" }
@@ -249,7 +248,7 @@ export const normalizeStationInfo = (
 /** The station's page from the API, or null when the API does not know the station. */
 export const fetchStationInfo = async (stationId: string, locale: StationInfoLocale): Promise<StationInfo | null> => {
   const response = await railApiFetch(
-    `/common/api/v1/Stations/GetStationInformation?LanguageId=${RAIL_LOCALES[locale]}&StationId=${stationId}&SystemType=1`,
+    `/common/api/v1/Stations/GetStationInformation?LanguageId=${railApiLocales[locale]}&StationId=${stationId}&SystemType=1`,
     { retries: 2 },
   )
   if (response.status === 404) return null

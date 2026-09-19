@@ -37,6 +37,7 @@ export function LineList({ onSelectLine }: LineListProps) {
   const disrupted = lines.filter((l) => isDisruptedLevel(l.level)).sort((a, b) => compareServiceStatusLevels(b.level, a.level))
   const grouped = GROUPED_LEVELS.filter((level) => lines.some((l) => l.level === level))
   const running = lines.filter((l) => GROUPED_LEVELS.includes(l.level)).sort((a, b) => catalogueIndex(a) - catalogueIndex(b))
+  const allGood = running.every((l) => l.level === "goodService")
   // Nothing runs right now (the small hours, the weekend): say so, instead of an empty list.
   const nothingRunning = data !== undefined && disrupted.length === 0 && grouped.length === 0
   // Nothing is wrong: a word saying so, and every running line on a row of its own rather than one band.
@@ -52,18 +53,13 @@ export function LineList({ onSelectLine }: LineListProps) {
         <LineStatusRow key={line.lineId} status={line} onPress={() => onSelectLine(line.lineId)} />
       ))}
 
-      {!allClear &&
-        grouped.map((level, index) => <LevelBand key={level} level={level} fill={index === grouped.length - 1} />)}
+      {!allClear && grouped.map((level, index) => <LevelBand key={level} level={level} fill={index === grouped.length - 1} />)}
 
       {allClear && (
         <>
           <NetworkSummary
-            level={running.every((l) => l.level === "goodService") ? "goodService" : "unknown"}
-            title={
-              running.every((l) => l.level === "goodService")
-                ? (translate("serviceStatus.allLinesGood") ?? "")
-                : levelLabel("unknown")
-            }
+            level={allGood ? "goodService" : "unknown"}
+            title={allGood ? (translate("serviceStatus.allLinesGood") ?? "") : levelLabel("unknown")}
             detail={activeTrains(running)}
           />
           {running.map((line) => (
@@ -73,7 +69,11 @@ export function LineList({ onSelectLine }: LineListProps) {
       )}
 
       {nothingRunning && (
-        <NetworkSummary level="noService" title={levelLabel("noService")} detail={translate("serviceStatus.noServiceNow") ?? undefined} />
+        <NetworkSummary
+          level="noService"
+          title={levelLabel("noService")}
+          detail={translate("serviceStatus.noServiceNow") ?? undefined}
+        />
       )}
     </View>
   )

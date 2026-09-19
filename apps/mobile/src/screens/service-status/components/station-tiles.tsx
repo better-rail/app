@@ -5,6 +5,7 @@ import { translate } from "@/i18n"
 import { color } from "@/theme"
 import type { OpenState } from "../station-hours"
 import type { StationStatus, StationStatusKind } from "../station-status"
+import { openStateDetail } from "../service-status-text"
 import { tinted, useStationKindColor } from "../service-status-theme"
 
 /** The tiles, each of which scrolls the card to its section when tapped. */
@@ -99,15 +100,7 @@ function OpenTile({
     )
   }
   const open = openState.state === "open"
-  const detail = (() => {
-    if (openState.state === "open")
-      return openState.until ? translate("serviceStatus.station.until", { time: openState.until }) : null
-    if (!openState.opensAt) return null
-    const { day, time } = openState.opensAt
-    return day === today
-      ? translate("serviceStatus.station.opensAt", { time })
-      : translate("serviceStatus.station.opensOn", { day: dayName(day), time })
-  })()
+  const detail = openStateDetail(openState, today, dayName)
   return (
     <View style={styles.open} testID={`station-open-${openState.state}`}>
       <View style={styles.openRow}>

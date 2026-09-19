@@ -29,8 +29,8 @@ const minutesOf = (clock: string): number => {
   return h * 60 + m
 }
 
-const nextDay = (day: number): number => (day % 7) + 1
-const previousDay = (day: number): number => ((day + 5) % 7) + 1
+/** The day `ahead` days after `day` (1 = Sunday … 7 = Saturday), `ahead` may be negative. */
+const dayAfter = (day: number, ahead: number): number => ((day - 1 + ahead + 7 * 7) % 7) + 1
 
 /** Whether `hours` (a row of the table) has the entrance open at `clock`, and until when. */
 const openUnder = (hours: StationHours, clock: WallClock): { until: string | null } | undefined => {
@@ -44,14 +44,14 @@ const openUnder = (hours: StationHours, clock: WallClock): { until: string | nul
     if (spansMidnight ? clock.minutes >= opens : clock.minutes >= opens && clock.minutes < closes) return { until: hours.closes }
   }
   // The small hours of a span that started the day before.
-  if (spansMidnight && hours.days.includes(previousDay(clock.day)) && clock.minutes < closes) return { until: hours.closes }
+  if (spansMidnight && hours.days.includes(dayAfter(clock.day, -1)) && clock.minutes < closes) return { until: hours.closes }
   return undefined
 }
 
 /** The next time any of `rows` opens at or after `clock`, looking a week ahead. */
 const nextOpening = (rows: StationHours[], clock: WallClock): { day: number; time: string } | null => {
   for (let ahead = 0; ahead < 7; ahead++) {
-    const day = ahead === 0 ? clock.day : Array.from({ length: ahead }).reduce<number>((d) => nextDay(d), clock.day)
+    const day = dayAfter(clock.day, ahead)
     const candidates = rows
       .filter((h) => !h.closed && h.days.includes(day))
       .map((h) => (h.allDay ? "00:00" : h.opens))
@@ -75,10 +75,8 @@ export const stationOpenState = (entrances: StationEntrance[], clock: WallClock)
   if (open.length > 0) {
     // The latest closing wins; around the clock beats them all.
     if (open.some((o) => o.until === null)) return { state: "open", until: null }
-    const latest = open
-      .map((o) => o.until as string)
-      .sort((a, b) => lateness(a, clock) - lateness(b, clock))
-      .pop() as string
+    const closings = open.map((o) => o.until as string)
+    const latest = closings.reduce((a, b) => (lateness(b, clock) > lateness(a, clock) ? b : a))
     return { state: "open", until: latest }
   }
   return { state: "closed", opensAt: nextOpening(rows, clock) }
@@ -89,9 +87,8 @@ export const CLOSING_SOON_MINUTES = 30
 
 export type OpenBadge = "open" | "closingSoon" | "closed"
 
-/** How an entrance's badge reads at `clock`; undefined when it lists no hours. */
-export const entranceOpenBadge = (entrance: StationEntrance, clock: WallClock): OpenBadge | undefined => {
-  const state = stationOpenState([entrance], clock)
+/** How an entrance's badge reads for its open state at `clock`; undefined when it lists no hours. */
+export const openBadgeOf = (state: OpenState, clock: WallClock): OpenBadge | undefined => {
   if (state.state === "unknown") return undefined
   if (state.state === "closed") return "closed"
   if (state.until !== null && lateness(state.until, clock) <= CLOSING_SOON_MINUTES) return "closingSoon"

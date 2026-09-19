@@ -6,7 +6,7 @@
  * device that asked about particular lines gets the line named first, so a
  * rider who only cares about one of them knows at a glance.
  */
-import { stationsObject } from "../data/stations"
+import { stationNameIn } from "../data/stations"
 import { LanguageCode, translate } from "../locales/i18n"
 import { railLineById, type RailLineId } from "../status/lines"
 import type { LocalizedText } from "../types/service-status"
@@ -14,21 +14,6 @@ import type { AlertLocale } from "../types/station-alerts"
 import type { StationAlertState } from "./derive"
 
 export type AlertMessage = { title: string; body: string }
-
-const stationNameIn = (stationId: string, locale: AlertLocale): string => {
-  const station = stationsObject[stationId]
-  if (!station) return stationId
-  switch (locale) {
-    case "he":
-      return station.hebrew
-    case "ru":
-      return station.russian
-    case "ar":
-      return station.arabic
-    default:
-      return station.english
-  }
-}
 
 /** The catalogue names lines in Hebrew and English; the other languages get English. */
 const lineNameIn = (lineId: string, locale: AlertLocale): string | undefined => {
@@ -76,7 +61,7 @@ const trouble = (state: StationAlertState, stationId: string, locale: AlertLocal
   }
   if (trains.cancelled >= 2) return t("cancelledTrains", locale, { count: trains.cancelled })
   if (trains.cancelled === 1) return t("cancelledTrain", locale)
-  if (trains.maxDelayMinutes >= 0 && trains.late > 0) {
+  if (trains.late > 0) {
     const key = state.level === "severeDelays" ? "severeDelays" : "delays"
     return t(key, locale, { minutes: trains.maxDelayMinutes })
   }

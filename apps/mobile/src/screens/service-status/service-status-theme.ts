@@ -1,5 +1,6 @@
-import { useColorScheme } from "react-native"
+import { useIsDarkMode } from "@/hooks"
 import type { ServiceStatusLevel } from "@/services/api"
+import { parseHex } from "@/components/rail-map/rail-map-theme"
 import type { StationStatusKind } from "./station-status"
 
 /**
@@ -17,21 +18,13 @@ export const STATUS_LEVEL_COLORS: Record<ServiceStatusLevel, { light: string; da
 }
 
 export function useStatusLevelColor(level: ServiceStatusLevel): string {
-  const isDark = useColorScheme() === "dark"
+  const isDark = useIsDarkMode()
   return STATUS_LEVEL_COLORS[level][isDark ? "dark" : "light"]
 }
 
 /** Text colour that reads on a line's badge/band colour. */
 export const contrastText = (hex: string): string => {
-  const clean = hex.replace("#", "")
-  const full =
-    clean.length === 3
-      ? clean
-          .split("")
-          .map((c) => c + c)
-          .join("")
-      : clean
-  const [r, g, b] = [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16) / 255)
+  const [r, g, b] = parseHex(hex).map((channel) => channel / 255)
   const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
   return luminance > 0.6 ? "#1D1D1F" : "#FFFFFF"
 }
@@ -48,7 +41,7 @@ export const STATION_KIND_COLORS: Record<StationStatusKind, { light: string; dar
 }
 
 export function useStationKindColor(kind: StationStatusKind | undefined): string {
-  const isDark = useColorScheme() === "dark"
+  const isDark = useIsDarkMode()
   return STATION_KIND_COLORS[kind ?? "unknown"][isDark ? "dark" : "light"]
 }
 

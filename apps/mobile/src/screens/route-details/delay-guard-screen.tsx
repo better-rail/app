@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react"
-import { Alert, Linking, ScrollView, View } from "react-native"
+import { useState } from "react"
+import { ScrollView, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { useRouter } from "expo-router"
 import { useShallow } from "zustand/react/shallow"
@@ -7,13 +7,12 @@ import HapticFeedback from "react-native-haptic-feedback"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Button, Chip, Text } from "@/components"
 import { translate } from "@/i18n"
-import { getStationById } from "@/data/stations"
+import { stationName } from "@/data/stations"
 import { delayGuardFor, useSettingsStore } from "@/models"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { DEFAULT_GUARD_MINUTES, GUARD_MINUTES_OPTIONS, guardKey } from "@/services/api"
 import { trackEvent } from "@/services/analytics"
-import { useAppState } from "@/hooks"
-import { type AlertsPermission, getPushPermission, requestPushPermission } from "@/utils/push-subscription-sync"
+import { usePushPermission } from "@/hooks"
 
 /**
  * Delay Guard, as a sheet over a route: the train the rider boards, from how many minutes late
@@ -29,32 +28,15 @@ export function DelayGuardScreen() {
   )
   const existing = draft ? delayGuardFor(guards, draft.trainNumber, draft.originStationId) : undefined
   const [minutes, setMinutes] = useState(existing?.thresholdMinutes ?? draft?.thresholdMinutes ?? DEFAULT_GUARD_MINUTES)
-  const appState = useAppState()
-  const [permission, setPermission] = useState<AlertsPermission>()
-
-  useEffect(() => {
-    if (appState === "active") getPushPermission().then(setPermission)
-  }, [appState])
+  const { ensure } = usePushPermission()
 
   if (!draft) return null
 
-  const origin = getStationById(draft.originStationId)?.name ?? draft.originStationId
-  const destination = getStationById(draft.destinationStationId)?.name ?? draft.destinationStationId
+  const origin = stationName(draft.originStationId)
+  const destination = stationName(draft.destinationStationId)
 
   const save = async () => {
-    let granted = permission
-    if (granted !== "granted") {
-      granted = await requestPushPermission()
-      setPermission(granted)
-      if (granted === "granted") trackEvent("notification_permission_granted", { source: "delay_guard" })
-    }
-    if (granted !== "granted") {
-      Alert.alert(translate("delayGuard.title") ?? "", translate("delayGuard.permissionDenied") ?? "", [
-        { text: translate("common.cancel") ?? "", style: "cancel" },
-        { text: translate("stationAlerts.openSettings") ?? "", onPress: () => Linking.openSettings() },
-      ])
-      return
-    }
+    if (!(await ensure("delay_guard", { title: "delayGuard.title", message: "delayGuard.permissionDenied" }))) return
     HapticFeedback.trigger("notificationSuccess")
     trackEvent(existing ? "delay_guard_updated" : "delay_guard_enabled", { trainNumber: draft.trainNumber, minutes })
     setDelayGuard({

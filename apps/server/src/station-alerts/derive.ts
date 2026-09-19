@@ -18,7 +18,7 @@
  * not pushed again within a few minutes unless it got worse.
  */
 import type { Disruption, LineStatus, LocalizedText, ServiceStatusLevel, ServiceStatusSnapshot } from "../types/service-status"
-import { MINOR_DELAY_MINUTES, SEVERE_DELAY_MINUTES, compareLevels } from "../types/service-status"
+import { MINOR_DELAY_MINUTES, SEVERE_DELAY_MINUTES, compareLevels, isDisruptedLevel, worstLevel } from "../types/service-status"
 import type { StationDepartures } from "../types/station-departures"
 
 // --- the station's state --------------------------------------------------------------
@@ -51,12 +51,6 @@ export type StationAlertState = {
   signature: string
 }
 
-const isDisrupted = (level: ServiceStatusLevel): boolean =>
-  level === "minorDelays" || level === "severeDelays" || level === "partSuspended" || level === "suspended"
-
-const worst = (levels: ServiceStatusLevel[]): ServiceStatusLevel | undefined =>
-  levels.length === 0 ? undefined : levels.reduce((a, b) => (compareLevels(b, a) > 0 ? b : a))
-
 const kindOfDisruption = (d: Pick<Disruption, "kind" | "source">): StationAlertKind => {
   if (d.source === "announcement") return "planned"
   if (d.kind === "skippedStops") return "skippedStops"
@@ -87,7 +81,7 @@ export const deriveStationAlertState = (input: StationAlertInput): StationAlertS
   const named: (AlertHeadline & { level: ServiceStatusLevel })[] = []
   for (const line of lines) {
     for (const d of line.disruptions) {
-      if (!isDisrupted(d.level) || !d.section?.stationIds.includes(stationId)) continue
+      if (!isDisruptedLevel(d.level) || !d.section?.stationIds.includes(stationId)) continue
       named.push({
         id: d.id,
         lineId: line.lineId,
@@ -126,7 +120,7 @@ export const deriveStationAlertState = (input: StationAlertInput): StationAlertS
     else if (lateTrains.length >= LATE_TRAINS_FOR_DELAYS) ownLevel = "minorDelays"
   }
 
-  const here = worst([...named.map((d) => d.level), ...(ownLevel ? [ownLevel] : [])])
+  const here = worstLevel([...named.map((d) => d.level), ...(ownLevel ? [ownLevel] : [])])
   if (here) {
     const top = named[0]
     // A named disruption at least as bad as the station's own trains is the story; else the trains are.
@@ -143,7 +137,7 @@ export const deriveStationAlertState = (input: StationAlertInput): StationAlertS
     return { kind: "noService", level: "noService", trains, signature: "noService" }
   }
   // Trouble elsewhere on a line that the station's own trains do not show is not the station's news.
-  const known = lines.some((l) => l.level === "goodService" || (trainsKnown && isDisrupted(l.level)))
+  const known = lines.some((l) => l.level === "goodService" || (trainsKnown && isDisruptedLevel(l.level)))
   return known
     ? { kind: "good", level: "goodService", trains, signature: "good" }
     : { kind: "unknown", level: "unknown", trains, signature: "unknown" }

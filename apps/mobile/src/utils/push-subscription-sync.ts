@@ -11,8 +11,10 @@
  * foreground.
  */
 import * as Notifications from "expo-notifications"
-import { AppState } from "react-native"
+import { AppState, Platform } from "react-native"
+import { userLocale } from "@/i18n"
 import { useSettingsStore } from "@/models/settings/settings"
+import type { PushDevice } from "@/services/api"
 
 export type AlertsPermission = "granted" | "denied" | "undetermined"
 
@@ -26,24 +28,25 @@ export const requestPushPermission = async (): Promise<AlertsPermission> =>
 
 export const getPushToken = async (): Promise<string> => String((await Notifications.getDevicePushTokenAsync()).data)
 
+/** This device, as every subscription names it. */
+const pushDevice = async (): Promise<PushDevice> => ({
+  token: await getPushToken(),
+  provider: Platform.OS === "ios" ? "ios" : "android",
+  locale: userLocale,
+})
+
 type SyncSpec<T> = {
   /** The list, from the store's state. */
   items: (state: ReturnType<typeof useSettingsStore.getState>) => T[]
   /** Whether the server holds this device's subscription, and setting that. */
   registered: (state: ReturnType<typeof useSettingsStore.getState>) => boolean
   setRegistered: (registered: boolean) => void
-  subscribe: (token: string, items: T[]) => Promise<void>
+  subscribe: (device: PushDevice, items: T[]) => Promise<void>
   unsubscribe: (token: string) => Promise<void>
 }
 
-export type SubscriptionSync = {
-  /** Resolves true when the server is in step, false when a later sync is owed. */
-  sync: () => Promise<boolean>
-  /** Start keeping the server in step for the life of the app. */
-  watch: () => void
-}
-
-export const createSubscriptionSync = <T>(spec: SyncSpec<T>): SubscriptionSync => {
+/** Returns `watch`: start keeping the server in step for the life of the app. */
+export const createSubscriptionSync = <T>(spec: SyncSpec<T>): (() => void) => {
   let inFlight: Promise<boolean> | undefined
   let pending = false
   let needsRetry = false
@@ -58,7 +61,7 @@ export const createSubscriptionSync = <T>(spec: SyncSpec<T>): SubscriptionSync =
         spec.setRegistered(false)
       } else {
         if ((await getPushPermission()) !== "granted") throw new Error("Notifications not allowed")
-        await spec.subscribe(await getPushToken(), items)
+        await spec.subscribe(await pushDevice(), items)
         spec.setRegistered(true)
       }
       needsRetry = false
@@ -117,5 +120,5 @@ export const createSubscriptionSync = <T>(spec: SyncSpec<T>): SubscriptionSync =
     })
   }
 
-  return { sync, watch }
+  return watch
 }

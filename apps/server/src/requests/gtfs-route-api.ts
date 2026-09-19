@@ -23,7 +23,7 @@ import { logNames, logger } from "../logs"
 import { getRealtimeSnapshot, makeRealtimeLookup, zeroRealtimeLookup } from "../siri/snapshot"
 import type { RealtimeLookup } from "../siri/types"
 import { RailApiGetRoutesResult, Train, StopStation, RouteStation } from "../types/rail-response"
-import { addDays, parseOffsetSec, railServiceDatesForQuery, toEpochMs } from "../utils/gtfs-time"
+import { addDays, parseOffsetSec, railServiceDatesForQuery, toEpochMs, toIsoString } from "../utils/gtfs-time"
 
 // Transfer windows, in real platform-to-platform terms: from the time the rider
 // is off one train to the time the next one is on the board, both read the way
@@ -196,6 +196,9 @@ export type TripData = {
 }
 
 export type DayTrips = Map<string, TripData>
+
+/** The service date a trip runs on, off its key ("YYYY-MM-DD#tripId"). */
+export const serviceDateOf = (trip: TripData): string => trip.tripKey.slice(0, trip.tripKey.indexOf("#"))
 
 export type PlanOptions = {
   // Drop a direct train that a faster direct train (departing later, arriving
@@ -639,7 +642,7 @@ const buildTrain = (allTrips: DayTrips, leg: Leg, realtime: RealtimeLookup): Tra
   // Live data (delay + platform changes) from the SIRI snapshot. Delay is the
   // boarding station's when known, else the train's latest — always vs the
   // *scheduled* time, so it composes with the displayed times below.
-  const serviceDate = trip.tripKey.slice(0, trip.tripKey.indexOf("#"))
+  const serviceDate = serviceDateOf(trip)
   const rt = (railId: number) => realtime(serviceDate, trip.trainNumber, railId)
   const livePlatform = (s: StopNode): number => rt(s.railId).platform ?? s.platform
   // A platform "change" needs both sides known: the schedule can be 0 (the
@@ -1416,6 +1419,20 @@ export const searchTrain = async (
 }
 
 export { invalidateDayCacheForFeed, loadDayTrips }
+
+/**
+ * The trips of the service day around a naive Israel wall-clock time and of its neighbours
+ * (the days the planner would load): late trains of yesterday still run after midnight, and
+ * tomorrow's first departures matter late in the evening. One map, keyed by trip key.
+ */
+export const loadTripsAround = async (feedId: string, nowNaiveMs: number): Promise<DayTrips> => {
+  const nowIso = toIsoString(nowNaiveMs)
+  const serviceDates = railServiceDatesForQuery(nowIso.slice(0, 10), nowIso.slice(11, 16))
+  const days = await Promise.all(serviceDates.map((date) => loadDayTrips(feedId, date)))
+  const trips: DayTrips = new Map()
+  for (const day of days) for (const [key, trip] of day) trips.set(key, trip)
+  return trips
+}
 // The search core alone, for tests that check it against a reference implementation.
 export { completeJourney, CONNECTION_LIMITS }
 export type { ConnectionLimits }

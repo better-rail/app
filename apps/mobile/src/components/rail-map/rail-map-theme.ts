@@ -63,7 +63,8 @@ export const RAIL_MAP_PALETTE: Record<"light" | "dark", RailMapPalette> = {
   },
 }
 
-const parseHex = (h: string): number[] => {
+/** The three 0–255 channels of a "#rgb" or "#rrggbb" colour. */
+export const parseHex = (h: string): number[] => {
   const clean = h.replace("#", "")
   const full =
     clean.length === 3

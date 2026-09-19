@@ -287,7 +287,16 @@ export const NIGHT_UNTIL_MINUTES = 4 * 60 + 30
 
 const key = (ls: LineStation) => `${ls.lineId}:${ls.stationId}`
 
+const models = new Map<DayType, RailMapModel>()
+
+/** The map for a day's timetable; built once per day type, since the inputs are static data. */
 export const buildRailMapModel = (dayType: DayType = currentDayType()): RailMapModel => {
+  const built = models.get(dayType) ?? buildModel(dayType)
+  models.set(dayType, built)
+  return built
+}
+
+const buildModel = (dayType: DayType): RailMapModel => {
   const pattern = SERVICE_PATTERNS[dayType]
   const served = new Set<RailLineId>(pattern.lines)
   const irregularStops = new Set(pattern.irregular.map(key))
@@ -348,13 +357,6 @@ export const buildRailMapModel = (dayType: DayType = currentDayType()): RailMapM
     terminal: e.terminal ? { x: e.terminal[0], y: e.terminal[1] } : undefined,
   }))
 
-  const coast = extendCoast(toPoints(WATER.coast))
-  const water: MapWater = {
-    bands: seaBands(coast),
-    coast: polylineD(coast),
-    lakes: WATER.lakes.map((lake) => `${smoothPathD(toPoints(lake))} Z`),
-  }
-
   return {
     dayType,
     bounds: MAP_BOUNDS,
@@ -363,9 +365,23 @@ export const buildRailMapModel = (dayType: DayType = currentDayType()): RailMapM
     labels,
     cities: CITY_BOXES,
     extras,
-    water,
+    water: mapWater(),
     airport: AIRPORT_ICON,
   }
+}
+
+let water: MapWater | undefined
+
+/** The sea, coast and lakes: the same on every day's map, so traced once. */
+const mapWater = (): MapWater => {
+  if (water) return water
+  const coast = extendCoast(toPoints(WATER.coast))
+  water = {
+    bands: seaBands(coast),
+    coast: polylineD(coast),
+    lakes: WATER.lakes.map((lake) => `${smoothPathD(toPoints(lake))} Z`),
+  }
+  return water
 }
 
 /**

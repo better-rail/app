@@ -3,14 +3,8 @@ import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
 import { translate, type TxKeyPath } from "@/i18n"
 import type { StationEntrance, StationHours } from "@/services/api"
-import {
-  dayRangeLabel,
-  entranceOpenBadge,
-  hoursOfKind,
-  type OpenBadge,
-  stationOpenState,
-  type WallClock,
-} from "../station-hours"
+import { openStateDetail } from "../service-status-text"
+import { dayRangeLabel, hoursOfKind, type OpenBadge, openBadgeOf, stationOpenState, type WallClock } from "../station-hours"
 
 type EntranceCardProps = {
   entrance: StationEntrance
@@ -27,8 +21,9 @@ type EntranceCardProps = {
  */
 export function EntranceCard({ entrance, dayName, clock }: EntranceCardProps) {
   const rows = hoursOfKind(entrance, "entrance")
-  const badge = entranceOpenBadge(entrance, clock)
-  const badgeText = badge ? openBadgeText(badge, entrance, clock, dayName) : ""
+  const state = stationOpenState([entrance], clock)
+  const badge = openBadgeOf(state, clock)
+  const badgeText = badge ? openBadgeText(badge, openStateDetail(state, clock.day, dayName)) : ""
 
   return (
     <View style={styles.card} testID={`station-entrance-${entrance.id}`}>
@@ -97,20 +92,11 @@ const BADGE_KEY = {
 } as const satisfies Record<OpenBadge, TxKeyPath>
 
 /** "Open until 22:30", "Closing soon", "Closed · opens at 05:00", or the badge's word alone. */
-const openBadgeText = (badge: OpenBadge, entrance: StationEntrance, clock: WallClock, dayName: (day: number) => string): string => {
+const openBadgeText = (badge: OpenBadge, detail: string | null): string => {
   const word = translate(BADGE_KEY[badge]) ?? ""
-  const state = stationOpenState([entrance], clock)
-  if (badge === "open" && state.state === "open" && state.until) {
-    return `${translate("serviceStatus.station.open")} ${translate("serviceStatus.station.until", { time: state.until })}`
-  }
-  if (badge === "closed" && state.state === "closed" && state.opensAt) {
-    const { day, time } = state.opensAt
-    const opens =
-      day === clock.day
-        ? translate("serviceStatus.station.opensAt", { time })
-        : translate("serviceStatus.station.opensOn", { day: dayName(day), time })
-    return `${word} · ${opens}`
-  }
+  if (!detail) return word
+  if (badge === "open") return `${translate("serviceStatus.station.open")} ${detail}`
+  if (badge === "closed") return `${word} · ${detail}`
   return word
 }
 

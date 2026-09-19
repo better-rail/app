@@ -9,7 +9,7 @@ import { Chip, Text } from "@/components"
 import { trackEvent } from "@/services/analytics"
 import { type DayType, RailMap, currentDayType } from "@/components/rail-map"
 import { getRailLine, type RailLineId } from "@/data/rail-lines"
-import { SERVICE_PATTERNS } from "@/data/rail-map-layout"
+import { DAY_TYPES, SERVICE_PATTERNS } from "@/data/rail-map-layout"
 import { getStationById } from "@/data/stations"
 import { useRoutePlanStore } from "@/models"
 import { DETAIL_SHEET, DetailSheet, type MapSelection } from "./components/detail-sheet"
@@ -18,9 +18,6 @@ import { MapHeaderBlur } from "./components/map-header-blur"
 import { SHEET_OPEN_DETENT, STATUS_SHEET, StatusSheet } from "./components/status-sheet"
 import { linesCallingAt } from "./station-status"
 import { useServiceStatus } from "./use-service-status"
-
-/** The timetables the map can show, in the order of their chips. */
-const DAY_TYPES: DayType[] = ["weekday", "weekend", "night"]
 
 /**
  * The network map, full screen, under a sheet of every line's status, as in Apple Maps. Picking a line on
@@ -144,10 +141,8 @@ export function ServiceStatusScreen() {
         status={data}
         dayType={dayType}
         selectedLineId={mapLineId}
-        focusLineId={mapLineId}
         onSelectLine={(next) => selectLine(next, "map")}
         selectedStationId={mapStationId}
-        focusStationId={mapStationId}
         onSelectStation={(next) => selectStation(next, "map")}
         insets={{ top: headerHeight, bottom: sheetTop === undefined ? 0 : Math.max(0, windowHeight - sheetTop) }}
         style={styles.map}

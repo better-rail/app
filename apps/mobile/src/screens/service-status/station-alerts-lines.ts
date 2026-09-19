@@ -3,10 +3,8 @@
  * for the tests; the card (components/station-alerts-card.tsx) is the UI over it.
  */
 import { RAIL_LINES, type RailLine } from "@/data/rail-lines"
-import type { DayType } from "@/data/rail-map-layout"
+import { DAY_TYPES } from "@/data/rail-map-layout"
 import { linesCallingAt } from "./station-status"
-
-const DAY_TYPES: DayType[] = ["weekday", "weekend", "night"]
 
 /** The lines that call at the station on any of the day's timetables, in catalogue order. */
 export const alertLinesFor = (stationId: string): RailLine[] => {
@@ -24,5 +22,3 @@ export const toggleChoice = <T extends string>(chosen: T[] | null, id: T, all: T
   if (next.length === 0 || all.every((x) => next.includes(x))) return null
   return all.filter((x) => next.includes(x))
 }
-
-export const toggleLine = toggleChoice

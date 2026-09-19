@@ -198,3 +198,14 @@ export type ServiceStatusSnapshot = z.infer<typeof ServiceStatusSnapshotSchema>
 /** Compare two levels: positive when `a` is worse than `b`. */
 export const compareLevels = (a: ServiceStatusLevel, b: ServiceStatusLevel): number =>
   SERVICE_STATUS_LEVELS.indexOf(a) - SERVICE_STATUS_LEVELS.indexOf(b)
+
+/** The worst of the levels; undefined for none. */
+export const worstLevel = (levels: Iterable<ServiceStatusLevel>): ServiceStatusLevel | undefined => {
+  let worst: ServiceStatusLevel | undefined
+  for (const level of levels) if (worst === undefined || compareLevels(level, worst) > 0) worst = level
+  return worst
+}
+
+/** Something is wrong on the line (as opposed to fine, not running, or not known). */
+export const isDisruptedLevel = (level: ServiceStatusLevel): boolean =>
+  level === "minorDelays" || level === "severeDelays" || level === "partSuspended" || level === "suspended"

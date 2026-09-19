@@ -1,6 +1,8 @@
 import { describe, expect, test } from "bun:test"
 import type { StationEntrance, StationHours } from "@/services/api"
-import { dayRangeLabel, entranceOpenBadge, hoursOfKind, stationOpenState, wallClockOf } from "./station-hours"
+import { dayRangeLabel, hoursOfKind, openBadgeOf, stationOpenState, type WallClock, wallClockOf } from "./station-hours"
+
+const badgeAt = (entrance: StationEntrance, clock: WallClock) => openBadgeOf(stationOpenState([entrance], clock), clock)
 
 const hours = (days: number[], opens: string | null, closes: string | null, extra: Partial<StationHours> = {}): StationHours => ({
   kind: "entrance",
@@ -107,32 +109,29 @@ describe("hours labels", () => {
 
 describe("entranceOpenBadge", () => {
   test("open well before closing", () => {
-    expect(entranceOpenBadge(hashalom, { day: 2, minutes: 12 * 60 })).toBe("open")
+    expect(badgeAt(hashalom, { day: 2, minutes: 12 * 60 })).toBe("open")
   })
 
   test("closing soon within half an hour of closing, across midnight too", () => {
-    expect(entranceOpenBadge(hashalom, { day: 6, minutes: 15 * 60 + 31 })).toBe("closingSoon")
-    expect(entranceOpenBadge(hashalom, { day: 6, minutes: 15 * 60 + 30 })).toBe("closingSoon")
-    expect(entranceOpenBadge(hashalom, { day: 6, minutes: 15 * 60 + 29 })).toBe("open")
-    expect(entranceOpenBadge(hashalom, { day: 2, minutes: 23 * 60 + 50 })).toBe("closingSoon")
-    expect(entranceOpenBadge(hashalom, { day: 3, minutes: 5 })).toBe("closingSoon")
+    expect(badgeAt(hashalom, { day: 6, minutes: 15 * 60 + 31 })).toBe("closingSoon")
+    expect(badgeAt(hashalom, { day: 6, minutes: 15 * 60 + 30 })).toBe("closingSoon")
+    expect(badgeAt(hashalom, { day: 6, minutes: 15 * 60 + 29 })).toBe("open")
+    expect(badgeAt(hashalom, { day: 2, minutes: 23 * 60 + 50 })).toBe("closingSoon")
+    expect(badgeAt(hashalom, { day: 3, minutes: 5 })).toBe("closingSoon")
   })
 
   test("closed outside the hours", () => {
-    expect(entranceOpenBadge(hashalom, { day: 7, minutes: 12 * 60 })).toBe("closed")
-    expect(entranceOpenBadge(hashalom, { day: 6, minutes: 16 * 60 })).toBe("closed")
+    expect(badgeAt(hashalom, { day: 7, minutes: 12 * 60 })).toBe("closed")
+    expect(badgeAt(hashalom, { day: 6, minutes: 16 * 60 })).toBe("closed")
   })
 
   test("around the clock never closes soon", () => {
     expect(
-      entranceOpenBadge(entrance([hours([1, 2, 3, 4, 5, 6, 7], null, null, { allDay: true })]), {
-        day: 1,
-        minutes: 23 * 60 + 59,
-      }),
+      badgeAt(entrance([hours([1, 2, 3, 4, 5, 6, 7], null, null, { allDay: true })]), { day: 1, minutes: 23 * 60 + 59 }),
     ).toBe("open")
   })
 
   test("no hours, no badge", () => {
-    expect(entranceOpenBadge(entrance([]), { day: 1, minutes: 600 })).toBeUndefined()
+    expect(badgeAt(entrance([]), { day: 1, minutes: 600 })).toBeUndefined()
   })
 })

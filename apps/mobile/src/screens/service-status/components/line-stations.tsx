@@ -1,6 +1,7 @@
-import { TouchableHighlight, View, useColorScheme } from "react-native"
+import { TouchableHighlight, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
+import { useIsDarkMode } from "@/hooks"
 import { color } from "@/theme"
 import type { RailLine } from "@/data/rail-lines"
 import { type DayType, SERVICE_PATTERNS } from "@/data/rail-map-layout"
@@ -29,7 +30,7 @@ type Stop = {
  * where it calls and the stations a disruption names. Tap one for its card.
  */
 export function LineStations({ line, status, dayType, onSelectStation }: LineStationsProps) {
-  const isDark = useColorScheme() === "dark"
+  const isDark = useIsDarkMode()
   const stops = lineStops(line, status, dayType)
 
   return (
@@ -68,9 +69,7 @@ export function LineStations({ line, status, dayType, onSelectStation }: LineSta
                     {levelLabel(stop.level)}
                   </Text>
                 )}
-                {!stop.level && stop.irregular && (
-                  <Text style={styles.note} preset="small" tx="serviceStatus.someTrainsSkip" />
-                )}
+                {!stop.level && stop.irregular && <Text style={styles.note} preset="small" tx="serviceStatus.someTrainsSkip" />}
               </View>
             </View>
           </TouchableHighlight>

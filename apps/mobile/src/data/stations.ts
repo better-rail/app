@@ -778,3 +778,6 @@ export function getStationById(id: string): NormalizedStation | undefined {
   const station = stationsObject[id]
   return station ? normalizeStation(station) : undefined
 }
+
+/** The station's name in the current language, or the id for a station the app does not know. */
+export const stationName = (id: string): string => getStationById(id)?.name ?? id

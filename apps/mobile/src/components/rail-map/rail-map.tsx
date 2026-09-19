@@ -25,7 +25,7 @@ import { userLocale } from "@/i18n"
 import { stationsObject } from "@/data/stations"
 import type { RailLineId } from "@/data/rail-lines"
 import { type CityBox, LABEL_TEXT_OVERRIDES } from "@/data/rail-map-layout"
-import type { ServiceStatusSnapshot } from "@/services/api"
+import type { LineStatus, ServiceStatusSnapshot } from "@/services/api"
 import {
   CITY_BOX_RADIUS,
   CITY_BOX_STROKE,
@@ -87,18 +87,14 @@ export type RailMapProps = {
   status?: ServiceStatusSnapshot | null
   /** Whose timetable to draw (which lines run, where they call and end); defaults to today's. */
   dayType?: DayType
-  /** Draw this line in colour and everything else in grey. */
+  /** Draw this line in colour and everything else in grey, and scroll and zoom the view to it. */
   selectedLineId?: RailLineId | null
   /** Called with the tapped line, or null when tapping empty ground. */
   onSelectLine?: (lineId: RailLineId | null) => void
-  /** Scroll and zoom the initial view to this line. */
-  focusLineId?: RailLineId | null
-  /** Ring this station's dots. */
+  /** Ring this station's dots, and scroll and zoom the view to it. */
   selectedStationId?: string | null
   /** Called with the tapped station: a dot, or its name. Stations win over the lines their dots sit on. */
   onSelectStation?: (stationId: string) => void
-  /** Scroll and zoom the view to this station. */
-  focusStationId?: string | null
   /** Edges of the view covered by other UI (a translucent header, a sheet): the initial and focused views keep clear of them. */
   insets?: RailMapInsets
   style?: ViewStyle
@@ -167,10 +163,8 @@ export function RailMap({
   dayType,
   selectedLineId,
   onSelectLine,
-  focusLineId,
   selectedStationId,
   onSelectStation,
-  focusStationId,
   insets,
   style,
 }: RailMapProps) {
@@ -209,10 +203,13 @@ export function RailMap({
   )
 
   const focusLine = useMemo(
-    () => (focusLineId ? model.lines.find((l) => l.lineId === focusLineId) : undefined),
-    [model, focusLineId],
+    () => (selectedLineId ? model.lines.find((l) => l.lineId === selectedLineId) : undefined),
+    [model, selectedLineId],
   )
-  const focusPoint = useMemo(() => (focusStationId ? stationPoint(model, focusStationId) : undefined), [model, focusStationId])
+  const focusPoint = useMemo(
+    () => (selectedStationId ? stationPoint(model, selectedStationId) : undefined),
+    [model, selectedStationId],
+  )
   const laidOut = size.width > 0
   // The insets in force when a view is next chosen: a change of insets on its own does not move the map.
   const insetsRef = useRef(insets)
@@ -255,71 +252,6 @@ export function RailMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusLine, focusPoint, laidOut, model, showViewport])
 
-  /** How far the drawing may be moved at scale `s`: it stays in the uncovered part of the view, with half of it as overscroll at most. */
-  const translationBounds = (s: number) => {
-    "worklet"
-    const w = (contentWidth + PAD.left) * s
-    const h = contentHeight * s
-    const visibleTop = insetTop.value
-    const visibleBottom = viewportHeight.value - insetBottom.value
-    const visibleMid = (visibleTop + visibleBottom) / 2
-    return {
-      minX: Math.min(viewportWidth.value - w, viewportWidth.value / 2),
-      maxX: Math.max(PAD.left * s, viewportWidth.value / 2),
-      minY: Math.min(visibleBottom - h, visibleMid),
-      maxY: Math.max(visibleTop, visibleMid),
-    }
-  }
-
-  const clampTranslation = (s: number, tx: number, ty: number): [number, number] => {
-    "worklet"
-    const b = translationBounds(s)
-    return [clamp(tx, b.minX, b.maxX), clamp(ty, b.minY, b.maxY)]
-  }
-
-  const pan = Gesture.Pan()
-    .minPointers(1)
-    .maxPointers(2)
-    .onStart(() => {
-      savedTranslateX.value = translateX.value
-      savedTranslateY.value = translateY.value
-    })
-    .onUpdate((e) => {
-      const [tx, ty] = clampTranslation(
-        scale.value,
-        savedTranslateX.value + e.translationX,
-        savedTranslateY.value + e.translationY,
-      )
-      translateX.value = tx
-      translateY.value = ty
-    })
-    // Let go and the map glides on a little, slowing down, and stops at the edges.
-    .onEnd((e) => {
-      const b = translationBounds(scale.value)
-      translateX.value = withDecay({ velocity: e.velocityX, clamp: [b.minX, b.maxX], deceleration: 0.995 })
-      translateY.value = withDecay({ velocity: e.velocityY, clamp: [b.minY, b.maxY], deceleration: 0.995 })
-    })
-
-  const pinch = Gesture.Pinch()
-    .onStart(() => {
-      savedScale.value = scale.value
-      savedTranslateX.value = translateX.value
-      savedTranslateY.value = translateY.value
-    })
-    .onUpdate((e) => {
-      const next = clamp(savedScale.value * e.scale, minScale.value, maxScale.value)
-      const ratio = next / savedScale.value
-      // Zoom around the fingers' focal point.
-      const [tx, ty] = clampTranslation(
-        next,
-        e.focalX - (e.focalX - savedTranslateX.value) * ratio,
-        e.focalY - (e.focalY - savedTranslateY.value) * ratio,
-      )
-      scale.value = next
-      translateX.value = tx
-      translateY.value = ty
-    })
-
   // The names as laid out, for taps on them; filled in once the fonts are loaded (below).
   const labelsRef = useRef<BuiltLabel[]>([])
 
@@ -337,15 +269,104 @@ export function RailMap({
     onSelectLine(hit?.lineId ?? null)
   }
 
-  const tap = Gesture.Tap()
-    .maxDuration(250)
-    .onEnd((e) => {
-      const x = (e.x - translateX.value) / scale.value
-      const y = (e.y - translateY.value) / scale.value
-      scheduleOnRN(handleTap, x, y)
-    })
+  // The tap handler reads the latest props through a ref, so the gestures need not be rebuilt on every render.
+  const handleTapRef = useRef(handleTap)
+  handleTapRef.current = handleTap
+  const tapAt = useCallback((x: number, y: number) => handleTapRef.current(x, y), [])
 
-  const gesture = Gesture.Race(tap, Gesture.Simultaneous(pan, pinch))
+  // Built once: the worklets read the shared values, which are stable, and the content size, which is constant.
+  const gesture = useMemo(() => {
+    /** How far the drawing may be moved at scale `s`: it stays in the uncovered part of the view, with half of it as overscroll at most. */
+    const translationBounds = (s: number) => {
+      "worklet"
+      const w = (contentWidth + PAD.left) * s
+      const h = contentHeight * s
+      const visibleTop = insetTop.value
+      const visibleBottom = viewportHeight.value - insetBottom.value
+      const visibleMid = (visibleTop + visibleBottom) / 2
+      return {
+        minX: Math.min(viewportWidth.value - w, viewportWidth.value / 2),
+        maxX: Math.max(PAD.left * s, viewportWidth.value / 2),
+        minY: Math.min(visibleBottom - h, visibleMid),
+        maxY: Math.max(visibleTop, visibleMid),
+      }
+    }
+
+    const clampTranslation = (s: number, tx: number, ty: number): [number, number] => {
+      "worklet"
+      const b = translationBounds(s)
+      return [clamp(tx, b.minX, b.maxX), clamp(ty, b.minY, b.maxY)]
+    }
+
+    const pan = Gesture.Pan()
+      .minPointers(1)
+      .maxPointers(2)
+      .onStart(() => {
+        savedTranslateX.value = translateX.value
+        savedTranslateY.value = translateY.value
+      })
+      .onUpdate((e) => {
+        const [tx, ty] = clampTranslation(
+          scale.value,
+          savedTranslateX.value + e.translationX,
+          savedTranslateY.value + e.translationY,
+        )
+        translateX.value = tx
+        translateY.value = ty
+      })
+      // Let go and the map glides on a little, slowing down, and stops at the edges.
+      .onEnd((e) => {
+        const b = translationBounds(scale.value)
+        translateX.value = withDecay({ velocity: e.velocityX, clamp: [b.minX, b.maxX], deceleration: 0.995 })
+        translateY.value = withDecay({ velocity: e.velocityY, clamp: [b.minY, b.maxY], deceleration: 0.995 })
+      })
+
+    const pinch = Gesture.Pinch()
+      .onStart(() => {
+        savedScale.value = scale.value
+        savedTranslateX.value = translateX.value
+        savedTranslateY.value = translateY.value
+      })
+      .onUpdate((e) => {
+        const next = clamp(savedScale.value * e.scale, minScale.value, maxScale.value)
+        const ratio = next / savedScale.value
+        // Zoom around the fingers' focal point.
+        const [tx, ty] = clampTranslation(
+          next,
+          e.focalX - (e.focalX - savedTranslateX.value) * ratio,
+          e.focalY - (e.focalY - savedTranslateY.value) * ratio,
+        )
+        scale.value = next
+        translateX.value = tx
+        translateY.value = ty
+      })
+
+    const tap = Gesture.Tap()
+      .maxDuration(250)
+      .onEnd((e) => {
+        const x = (e.x - translateX.value) / scale.value
+        const y = (e.y - translateY.value) / scale.value
+        scheduleOnRN(tapAt, x, y)
+      })
+
+    return Gesture.Race(tap, Gesture.Simultaneous(pan, pinch))
+  }, [
+    contentWidth,
+    contentHeight,
+    scale,
+    translateX,
+    translateY,
+    savedScale,
+    savedTranslateX,
+    savedTranslateY,
+    minScale,
+    maxScale,
+    viewportWidth,
+    viewportHeight,
+    insetTop,
+    insetBottom,
+    tapAt,
+  ])
 
   const transform = useDerivedValue(() => [
     { translateX: translateX.value },
@@ -358,13 +379,14 @@ export function RailMap({
 
   const extras = useMemo(() => model.extras.map((e) => ({ ...e, path: Skia.Path.MakeFromSVGString(e.d) as SkPath })), [model])
 
+  // The water is the same on every day's map (one object shared by the models), so its paths are made once.
   const water = useMemo(
     () => ({
       bands: model.water.bands.map((b) => ({ ...b, path: Skia.Path.MakeFromSVGString(b.d) as SkPath })),
       coast: Skia.Path.MakeFromSVGString(model.water.coast) as SkPath,
       lakes: model.water.lakes.map((d) => Skia.Path.MakeFromSVGString(d) as SkPath),
     }),
-    [model],
+    [model.water],
   )
   // Opaque stops (the sea mixed into the ground) so the bands' overlaps and anti-aliased edges paint the same colour twice.
   const seaColors = useMemo(
@@ -372,7 +394,9 @@ export function RailMap({
     [palette],
   )
 
-  const disrupted = useMemo(() => collectDisruptedSections(model, status), [model, status])
+  // Keyed on the lines, not the snapshot: a refresh that changes nothing keeps them the same objects.
+  const lineStatuses = status?.lines
+  const disrupted = useMemo(() => collectDisruptedSections(model, lineStatuses), [model, lineStatuses])
 
   const labels = useMemo(() => {
     if (!fontMgr) return []
@@ -633,11 +657,11 @@ export function RailMap({
               {disrupted.flatMap((section) =>
                 isDimmed(section.lineId)
                   ? []
-                  : section.points.map((p, i) => (
+                  : section.badges.map(({ point, glyph }, i) => (
                       <Group key={`${section.key}-${i}`}>
-                        <Circle c={p} r={1.5} color={palette.badge} />
-                        <Circle c={p} r={1.5} color={palette.background} style="stroke" strokeWidth={0.3} />
-                        <Path path={exclamationPath(p)} color={palette.badgeInk} />
+                        <Circle c={point} r={1.5} color={palette.badge} />
+                        <Circle c={point} r={1.5} color={palette.background} style="stroke" strokeWidth={0.3} />
+                        <Path path={glyph} color={palette.badgeInk} />
                       </Group>
                     )),
               )}
@@ -672,14 +696,14 @@ type DisruptedSection = {
   path: SkPath
   /** Whether the line fades along the stretch: trains do not run it. Skipped stops only get badges. */
   fade: boolean
-  /** Where the "!" badges go: the stations the disruption concerns. */
-  points: Point[]
+  /** The "!" badges: on the stations the disruption concerns. */
+  badges: { point: Point; glyph: SkPath }[]
 }
 
-const collectDisruptedSections = (model: RailMapModel, status?: ServiceStatusSnapshot | null): DisruptedSection[] => {
-  if (!status) return []
+const collectDisruptedSections = (model: RailMapModel, lines?: LineStatus[]): DisruptedSection[] => {
+  if (!lines) return []
   const sections: DisruptedSection[] = []
-  for (const lineStatus of status.lines) {
+  for (const lineStatus of lines) {
     const line = model.lines.find((l) => l.lineId === lineStatus.lineId)
     if (!line) continue
     for (const disruption of lineStatus.disruptions) {
@@ -693,7 +717,7 @@ const collectDisruptedSections = (model: RailMapModel, status?: ServiceStatusSna
         color: line.line.color,
         path: Skia.Path.MakeFromSVGString(d) as SkPath,
         fade: disruption.kind !== "skippedStops",
-        points: lineStationPoints(line, stationIds),
+        badges: lineStationPoints(line, stationIds).map((point) => ({ point, glyph: exclamationPath(point) })),
       })
     }
   }

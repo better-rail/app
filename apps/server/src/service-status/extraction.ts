@@ -313,6 +313,12 @@ const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Frida
  * `lineIds` off.
  */
 export const catalogueText = (): string => {
+  if (catalogueTextCache === undefined) catalogueTextCache = buildCatalogueText()
+  return catalogueTextCache
+}
+let catalogueTextCache: string | undefined
+
+const buildCatalogueText = (): string => {
   const label = (id: string): string => {
     const station = stationById.get(id)
     return station ? `${id} ${station.hebrew} (${station.english})` : id

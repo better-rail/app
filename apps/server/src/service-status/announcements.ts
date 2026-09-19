@@ -20,6 +20,7 @@ import { announcementsPollSeconds, openaiApiKey, openaiModel } from "../data/con
 import { logNames, logger } from "../logs"
 import { isRailApiConfigured, railApiFetch } from "../requests/rail-api"
 import { naiveNowMs } from "../siri/correlate"
+import { createPollLoop } from "../utils/poll-loop"
 import { type AnnouncementItem, type Extractor, extractDisruptions, normalizeExtraction } from "./extraction"
 import { type AnnouncementsState, readAnnouncementsState, writeAnnouncementsState } from "./state"
 
@@ -108,11 +109,10 @@ const defaultDeps: PollDeps = {
  */
 export const pollAnnouncements = async (overrides: Partial<PollDeps> = {}): Promise<AnnouncementsState> => {
   const deps = { ...defaultDeps, ...overrides }
-  const items = await deps.fetch()
+  const [items, previous] = await Promise.all([deps.fetch(), deps.previous()])
   const fingerprint = fingerprintOf(items)
   const fetchedAt = deps.nowReal().toISOString()
 
-  const previous = await deps.previous()
   if (previous && previous.fingerprint === fingerprint && previous.model === openaiModel) {
     const state = { ...previous, fetchedAt }
     await deps.write(state)
@@ -142,34 +142,19 @@ export const pollAnnouncements = async (overrides: Partial<PollDeps> = {}): Prom
 
 // --- the loop ------------------------------------------------------------------------
 
-let started = false
-let consecutiveFailures = 0
-
-const cycle = async () => {
-  try {
-    await pollAnnouncements()
-    if (consecutiveFailures > 0) logger?.info(logNames.announcements.recovered, { afterFailures: consecutiveFailures })
-    consecutiveFailures = 0
-  } catch (error) {
-    consecutiveFailures += 1
-    // Only the transition is logged; a long outage would otherwise fill the log.
-    if (consecutiveFailures === 1) logger?.error(logNames.announcements.extractFailed, { error })
-  }
-  const delay =
-    consecutiveFailures === 0
-      ? announcementsPollSeconds * 1000
-      : Math.min(MAX_BACKOFF_MS, announcementsPollSeconds * 1000 * 2 ** (consecutiveFailures - 1))
-  setTimeout(cycle, delay)
-}
+const loop = createPollLoop({
+  run: () => pollAnnouncements(),
+  everyMs: announcementsPollSeconds * 1000,
+  maxBackoffMs: MAX_BACKOFF_MS,
+  log: { failed: logNames.announcements.extractFailed, recovered: logNames.announcements.recovered },
+})
 
 /** Start polling Israel Railways' updates, when there is a model and a rail API to read them with. */
 export const startAnnouncementsPoller = () => {
-  if (started) return
-  started = true
   if (!openaiApiKey || !isRailApiConfigured()) {
     logger?.warn(logNames.announcements.disabled)
     return
   }
   logger?.info(logNames.announcements.started, { model: openaiModel, everySeconds: announcementsPollSeconds })
-  void cycle()
+  loop.start()
 }

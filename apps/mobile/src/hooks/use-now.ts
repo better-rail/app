@@ -8,15 +8,17 @@ export function useNow(): Date {
   const [now, setNow] = useState(() => new Date())
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>
-    const tick = () => {
-      const current = new Date()
-      setNow(current)
-      timer = setTimeout(tick, 60_000 - (current.getTime() % 60_000))
+    const schedule = () => {
+      timer = setTimeout(
+        () => {
+          setNow(new Date())
+          schedule()
+        },
+        60_000 - (Date.now() % 60_000),
+      )
     }
-    timer = setTimeout(tick, 60_000 - (now.getTime() % 60_000))
+    schedule()
     return () => clearTimeout(timer)
-    // The first delay comes from the initial `now`; later ones are re-derived on each tick.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   return now
 }

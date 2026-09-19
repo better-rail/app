@@ -28,6 +28,7 @@ import { isRailApiConfigured, searchTrainOnRailApi } from "../requests/rail-api"
 import { naiveNowMs } from "../siri/correlate"
 import type { RailApiGetRoutesResult, Train } from "../types/rail-response"
 import { addDays, toIsoString } from "../utils/gtfs-time"
+import { createPollLoop } from "../utils/poll-loop"
 import { writeTimetableCheck } from "./state"
 
 // --- what the check publishes ----------------------------------------------------------
@@ -76,6 +77,16 @@ export type TimetableCheck = {
 export type Pair = { from: number; to: number }
 
 const pairKey = (p: Pair) => `${p.from}-${p.to}`
+
+const groupByTrainNumber = <T>(items: T[], numberOf: (item: T) => number): Map<number, T[]> => {
+  const groups = new Map<number, T[]>()
+  for (const item of items) {
+    const list = groups.get(numberOf(item)) ?? []
+    list.push(item)
+    groups.set(numberOf(item), list)
+  }
+  return groups
+}
 
 /** Where a trip calls at `from` and later at `to`; the index of the `from` stop, or -1. */
 const stopIndexOfPair = (trip: TripData, pair: Pair): number => {
@@ -202,14 +213,11 @@ export const checkResponse = (
   window?: { from: number; to: number },
 ): ResponseCheck => {
   const legs = (response.result?.travels ?? []).flatMap((t) => t.trains ?? [])
-  const byNumber = new Map<number, Train[]>()
-  for (const leg of legs) {
-    const list = byNumber.get(Number(leg.trainNumber)) ?? []
-    list.push(leg)
-    byNumber.set(Number(leg.trainNumber), list)
-  }
+  const byNumber = groupByTrainNumber(legs, (leg) => Number(leg.trainNumber))
+  const scheduledByNumber = groupByTrainNumber(allTrips, (trip) => trip.trainNumber)
 
-  const legDeparture = (leg: Train): number => naiveMs(String(leg.departureTime).slice(0, 19))
+  const departures = new Map(legs.map((leg) => [leg, naiveMs(String(leg.departureTime).slice(0, 19))]))
+  const legDeparture = (leg: Train): number => departures.get(leg) ?? naiveMs(String(leg.departureTime).slice(0, 19))
   // A leg leaves from its own origin — the pair's first station for a direct train, but the search
   // also lists legs of connecting itineraries from elsewhere — so the schedule is read at that station.
   const departsLike = (trip: TripData, leg: Train): boolean => {
@@ -245,7 +253,7 @@ export const checkResponse = (
     if (matchedLegs.has(leg) || seen.has(Number(leg.trainNumber))) continue
     const dep = legDeparture(leg)
     if (window && (dep < window.from || dep > window.to)) continue
-    if (allTrips.some((t) => t.trainNumber === Number(leg.trainNumber) && departsLike(t, leg))) continue
+    if ((scheduledByNumber.get(Number(leg.trainNumber)) ?? []).some((t) => departsLike(t, leg))) continue
     const stops = legStops(leg, serviceDate)
     if (stops.length < 2) continue
     seen.add(Number(leg.trainNumber))
@@ -305,16 +313,17 @@ export const runTimetableCheck = async (overrides: Partial<CheckDeps> = {}): Pro
   // so a pair straddling midnight takes a search per day.
   const searches: { pair: Pair; date: string; hour: string; trips: TripData[] }[] = []
   for (const { pair, trips } of coverTrips(due)) {
-    const byDate = new Map<string, TripData[]>()
+    const byDate = new Map<string, { trips: TripData[]; earliest: number }>()
     for (const trip of trips) {
-      const dep = toIsoString(trip.stops[stopIndexOfPair(trip, pair)].depTs)
-      const list = byDate.get(dep.slice(0, 10)) ?? []
-      list.push(trip)
-      byDate.set(dep.slice(0, 10), list)
+      const depTs = trip.stops[stopIndexOfPair(trip, pair)].depTs
+      const date = toIsoString(depTs).slice(0, 10)
+      const dated = byDate.get(date) ?? { trips: [], earliest: depTs }
+      dated.trips.push(trip)
+      dated.earliest = Math.min(dated.earliest, depTs)
+      byDate.set(date, dated)
     }
     for (const [date, dated] of byDate) {
-      const earliest = Math.min(...dated.map((t) => t.stops[stopIndexOfPair(t, pair)].depTs))
-      searches.push({ pair, date, hour: toIsoString(earliest).slice(11, 16), trips: dated })
+      searches.push({ pair, date, hour: toIsoString(dated.earliest).slice(11, 16), trips: dated.trips })
     }
   }
 
@@ -390,35 +399,19 @@ export const runTimetableCheck = async (overrides: Partial<CheckDeps> = {}): Pro
 
 // --- the loop --------------------------------------------------------------------------
 
-const MAX_BACKOFF_MS = 30 * 60_000
-
-let started = false
-let consecutiveFailures = 0
-
-const cycle = async () => {
-  try {
-    await runTimetableCheck()
-    if (consecutiveFailures > 0) logger?.info(logNames.timetableCheck.recovered, { afterFailures: consecutiveFailures })
-    consecutiveFailures = 0
-  } catch (error) {
-    consecutiveFailures += 1
-    if (consecutiveFailures === 1) logger?.error(logNames.timetableCheck.failed, { error })
-  }
-  const delay =
-    consecutiveFailures === 0
-      ? timetableCheckSeconds * 1000
-      : Math.min(MAX_BACKOFF_MS, timetableCheckSeconds * 1000 * 2 ** (consecutiveFailures - 1))
-  setTimeout(cycle, delay)
-}
+const loop = createPollLoop({
+  run: () => runTimetableCheck(),
+  everyMs: timetableCheckSeconds * 1000,
+  maxBackoffMs: 30 * 60_000,
+  log: { failed: logNames.timetableCheck.failed, recovered: logNames.timetableCheck.recovered },
+})
 
 /** Start comparing Israel Railways' timetable with the schedule, when the rail API is reachable. */
 export const startTimetableCheck = () => {
-  if (started) return
-  started = true
   if (!isRailApiConfigured()) {
     logger?.warn(logNames.timetableCheck.disabled)
     return
   }
   logger?.info(logNames.timetableCheck.started, { everySeconds: timetableCheckSeconds, windowMinutes: timetableWindowMinutes })
-  void cycle()
+  loop.start()
 }

@@ -7,16 +7,15 @@
  * placed on lines the way the status is (`assignLine`), and on a direction by where
  * they run along the line's corridor. `deriveStationDepartures` is pure, for the tests.
  */
-import { siriStaleSeconds } from "../data/config"
 import { getActiveFeed } from "../db"
 import { logNames, logger } from "../logs"
 import type { DayTrips, TripData } from "../requests/gtfs-route-api"
-import { loadDayTrips } from "../requests/gtfs-route-api"
+import { loadTripsAround, serviceDateOf } from "../requests/gtfs-route-api"
 import { naiveNowMs } from "../siri/correlate"
-import { getRealtimeSnapshot, makeRealtimeLookup } from "../siri/snapshot"
+import { getRealtimeSnapshot, isSnapshotFresh, makeRealtimeLookup } from "../siri/snapshot"
 import type { SiriSnapshot } from "../siri/types"
 import type { StationDeparture, StationDepartures, StationLineDepartures } from "../types/station-departures"
-import { railServiceDatesForQuery, toIsoString } from "../utils/gtfs-time"
+import { toIsoString } from "../utils/gtfs-time"
 import { RAIL_LINES, type RailLineId, railLineById } from "./lines"
 import { assignLine } from "./service-status"
 
@@ -29,13 +28,17 @@ const PER_DIRECTION = 4
 /** Tel Aviv Savidor Center: the dwell is long enough that the meaningful time is the departure (as the planner shows it). */
 const SAVIDOR_STATION = 3700
 
-const serviceDateOf = (trip: TripData): string => trip.tripKey.slice(0, trip.tripKey.indexOf("#"))
+/** Each station's position along each line's corridor, for placing a trip's stops without a scan. */
+const corridorIndex = new Map<RailLineId, Map<number, number>>(
+  RAIL_LINES.map((line) => [line.id, new Map(line.stationIds.map((id, at) => [Number(id), at]))]),
+)
 
 /** The terminus of `line` the trip heads for, from where its stops sit along the corridor. */
 const towards = (trip: TripData, lineId: RailLineId): string | undefined => {
   const line = railLineById.get(lineId)
-  if (!line) return undefined
-  const positions = trip.stops.map((s) => line.stationIds.indexOf(String(s.railId))).filter((i) => i >= 0)
+  const index = corridorIndex.get(lineId)
+  if (!line || !index) return undefined
+  const positions = trip.stops.map((s) => index.get(s.railId)).filter((i): i is number => i !== undefined)
   if (positions.length < 2) return undefined
   const forward = positions[positions.length - 1] > positions[0]
   return forward ? line.stationIds[line.stationIds.length - 1] : line.stationIds[0]
@@ -54,7 +57,7 @@ export type StationDeparturesInput = {
 export const deriveStationDepartures = (input: StationDeparturesInput): StationDepartures => {
   const { trips, stationId, snapshot, nowNaiveMs, nowRealMs } = input
   const railId = Number(stationId)
-  const realtimeAvailable = snapshot !== null && nowRealMs - snapshot.updatedAt <= siriStaleSeconds * 1000
+  const realtimeAvailable = isSnapshotFresh(snapshot, nowRealMs)
   const lookup = makeRealtimeLookup(snapshot, nowRealMs)
 
   type Candidate = StationDeparture & { expectedTs: number; lineId: RailLineId; towardsStationId: string }
@@ -131,15 +134,7 @@ const computeStationDepartures = async (stationId: string): Promise<StationDepar
   }
   const nowRealMs = Date.now()
   const nowNaiveMs = naiveNowMs()
-  const nowIso = toIsoString(nowNaiveMs)
-  // Today plus the neighbouring service days: late trains of yesterday still run after midnight.
-  const serviceDates = railServiceDatesForQuery(nowIso.slice(0, 10), nowIso.slice(11, 16))
-  const [days, snapshot] = await Promise.all([
-    Promise.all(serviceDates.map((date) => loadDayTrips(feed.feedId, date))),
-    getRealtimeSnapshot(),
-  ])
-  const trips: DayTrips = new Map()
-  for (const day of days) for (const [key, trip] of day) trips.set(key, trip)
+  const [trips, snapshot] = await Promise.all([loadTripsAround(feed.feedId, nowNaiveMs), getRealtimeSnapshot()])
   return deriveStationDepartures({ trips, stationId, snapshot, nowNaiveMs, nowRealMs })
 }
 

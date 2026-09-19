@@ -2,7 +2,7 @@ import { Image, TouchableOpacity, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
 import { translate } from "@/i18n"
-import { getStationById, stationsObject } from "@/data/stations"
+import { stationName, stationsObject } from "@/data/stations"
 import { stationAlertFor, useSettingsStore } from "@/models"
 import { SHEET_HEADER_HEIGHT } from "./status-sheet"
 
@@ -21,7 +21,7 @@ type StationHeaderProps = {
  * followed) and the button that closes the card; how the station is doing is on the tiles below.
  */
 export function StationHeader({ stationId, onClose, onShowAlerts }: StationHeaderProps) {
-  const name = getStationById(stationId)?.name ?? stationId
+  const name = stationName(stationId)
   const image = stationsObject[stationId]?.image
   const followed = useSettingsStore((s) => stationAlertFor(s.stationAlerts, stationId) !== undefined)
 

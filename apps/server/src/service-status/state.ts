@@ -34,70 +34,48 @@ export type AnnouncementsState = {
   items: { id: string; header: string }[]
 }
 
-export const readAnnouncementsState = async (): Promise<AnnouncementsState | null> => {
-  const client = getRedisClient()
-  if (!client) return null
-  try {
-    const raw = await client.get(ANNOUNCEMENTS_KEY)
-    return raw ? (JSON.parse(raw) as AnnouncementsState) : null
-  } catch (error) {
-    logger?.error(logNames.announcements.readFailed, { error })
-    return null
+/** A JSON value under one redis key: read, write (with a TTL) and a short in-process read cache. */
+const redisJsonKey = <T>(key: string, ttlSec: number, log: { readFailed: string; writeFailed: string }) => {
+  let cache: { promise: Promise<T | null>; expiresAt: number } | undefined
+  const read = async (): Promise<T | null> => {
+    const client = getRedisClient()
+    if (!client) return null
+    try {
+      const raw = await client.get(key)
+      return raw ? (JSON.parse(raw) as T) : null
+    } catch (error) {
+      logger?.error(log.readFailed, { error })
+      return null
+    }
   }
-}
-
-export const writeAnnouncementsState = async (state: AnnouncementsState): Promise<void> => {
-  const client = getRedisClient()
-  if (!client) return
-  try {
-    await client.set(ANNOUNCEMENTS_KEY, JSON.stringify(state), { EX: ANNOUNCEMENTS_TTL_SEC })
-  } catch (error) {
-    logger?.error(logNames.announcements.writeFailed, { error })
+  const write = async (value: T): Promise<void> => {
+    const client = getRedisClient()
+    if (!client) return
+    try {
+      await client.set(key, JSON.stringify(value), { EX: ttlSec })
+    } catch (error) {
+      logger?.error(log.writeFailed, { error })
+    }
   }
+  /** The value for the status derivation, read from redis a few times a minute at most. */
+  const get = (): Promise<T | null> => {
+    const now = Date.now()
+    if (cache && cache.expiresAt > now) return cache.promise
+    const promise = read()
+    cache = { promise, expiresAt: now + READ_CACHE_TTL_MS }
+    return promise
+  }
+  return { read, write, get }
 }
 
-let readCache: { promise: Promise<AnnouncementsState | null>; expiresAt: number } | undefined
-
-/** The state for the status derivation, read from redis a few times a minute at most. */
-export const getAnnouncementsState = (): Promise<AnnouncementsState | null> => {
-  const now = Date.now()
-  if (readCache && readCache.expiresAt > now) return readCache.promise
-  const promise = readAnnouncementsState()
-  readCache = { promise, expiresAt: now + READ_CACHE_TTL_MS }
-  return promise
-}
+const announcements = redisJsonKey<AnnouncementsState>(ANNOUNCEMENTS_KEY, ANNOUNCEMENTS_TTL_SEC, logNames.announcements)
+export const readAnnouncementsState = announcements.read
+export const writeAnnouncementsState = announcements.write
+export const getAnnouncementsState = announcements.get
 
 // --- the timetable check -------------------------------------------------------------
 
-export const readTimetableCheck = async (): Promise<TimetableCheck | null> => {
-  const client = getRedisClient()
-  if (!client) return null
-  try {
-    const raw = await client.get(TIMETABLE_KEY)
-    return raw ? (JSON.parse(raw) as TimetableCheck) : null
-  } catch (error) {
-    logger?.error(logNames.timetableCheck.readFailed, { error })
-    return null
-  }
-}
-
-export const writeTimetableCheck = async (check: TimetableCheck): Promise<void> => {
-  const client = getRedisClient()
-  if (!client) return
-  try {
-    await client.set(TIMETABLE_KEY, JSON.stringify(check), { EX: TIMETABLE_TTL_SEC })
-  } catch (error) {
-    logger?.error(logNames.timetableCheck.writeFailed, { error })
-  }
-}
-
-let timetableCache: { promise: Promise<TimetableCheck | null>; expiresAt: number } | undefined
-
-/** The latest timetable check for the status derivation, read from redis a few times a minute at most. */
-export const getTimetableCheck = (): Promise<TimetableCheck | null> => {
-  const now = Date.now()
-  if (timetableCache && timetableCache.expiresAt > now) return timetableCache.promise
-  const promise = readTimetableCheck()
-  timetableCache = { promise, expiresAt: now + READ_CACHE_TTL_MS }
-  return promise
-}
+const timetable = redisJsonKey<TimetableCheck>(TIMETABLE_KEY, TIMETABLE_TTL_SEC, logNames.timetableCheck)
+export const readTimetableCheck = timetable.read
+export const writeTimetableCheck = timetable.write
+export const getTimetableCheck = timetable.get

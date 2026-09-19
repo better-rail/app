@@ -4,38 +4,34 @@
  * is late enough (derive.ts). Runs inside the web service beside the station
  * alerts watcher, under the same opt-in (STATION_ALERTS_ENABLED).
  */
-import { siriStaleSeconds, stationAlertsCheckSeconds } from "../data/config"
+import { stationAlertsCheckSeconds } from "../data/config"
 import { getActiveFeed } from "../db"
 import { logNames, logger } from "../logs"
-import { type DayTrips, loadDayTrips } from "../requests/gtfs-route-api"
+import { type DayTrips, loadTripsAround, serviceDateOf } from "../requests/gtfs-route-api"
 import { naiveNowMs } from "../siri/correlate"
-import { getRealtimeSnapshot, makeRealtimeLookup } from "../siri/snapshot"
+import { getRealtimeSnapshot, isSnapshotFresh, makeRealtimeLookup } from "../siri/snapshot"
 import { guardKey } from "../types/delay-guards"
-import { railServiceDatesForQuery, toIsoString } from "../utils/gtfs-time"
 import { sendAlertPush } from "../station-alerts/notify"
+import { createPollLoop } from "../utils/poll-loop"
 import { type GuardMemory, type GuardedTrip, decideGuard, deriveGuardState } from "./derive"
 import { guardMessage } from "./message"
-import { readGuardMemories, readGuardSubscriptions, removeGuardSubscription, writeGuardMemory } from "./store"
-
-const MAX_BACKOFF_MS = 10 * 60_000
+import { delayGuardStore } from "./store"
 
 export type GuardCheckSummary = { subscriptions: number; guards: number; pushed: number; dropped: number }
 
 /** The runs of every train number on the days in view, for the guards' lookups. */
-const indexByTrain = (days: { serviceDate: string; trips: DayTrips }[]): Map<number, GuardedTrip[]> => {
+const indexByTrain = (trips: DayTrips): Map<number, GuardedTrip[]> => {
   const byTrain = new Map<number, GuardedTrip[]>()
-  for (const { serviceDate, trips } of days) {
-    for (const trip of trips.values()) {
-      const list = byTrain.get(trip.trainNumber) ?? []
-      list.push({ serviceDate, trip })
-      byTrain.set(trip.trainNumber, list)
-    }
+  for (const trip of trips.values()) {
+    const list = byTrain.get(trip.trainNumber) ?? []
+    list.push({ serviceDate: serviceDateOf(trip), trip })
+    byTrain.set(trip.trainNumber, list)
   }
   return byTrain
 }
 
 export const runDelayGuardsCheck = async (): Promise<GuardCheckSummary> => {
-  const subscriptions = await readGuardSubscriptions()
+  const subscriptions = await delayGuardStore.readSubscriptions()
   const summary: GuardCheckSummary = { subscriptions: subscriptions.length, guards: 0, pushed: 0, dropped: 0 }
   if (subscriptions.length === 0) return summary
 
@@ -44,16 +40,14 @@ export const runDelayGuardsCheck = async (): Promise<GuardCheckSummary> => {
 
   const nowRealMs = Date.now()
   const nowNaive = naiveNowMs()
-  const nowIso = toIsoString(nowNaive)
-  const serviceDates = railServiceDatesForQuery(nowIso.slice(0, 10), nowIso.slice(11, 16))
-  const [days, snapshot] = await Promise.all([
-    Promise.all(serviceDates.map(async (serviceDate) => ({ serviceDate, trips: await loadDayTrips(feed.feedId, serviceDate) }))),
+  const [trips, snapshot, memories] = await Promise.all([
+    loadTripsAround(feed.feedId, nowNaive),
     getRealtimeSnapshot(),
+    delayGuardStore.readMemories(),
   ])
-  const byTrain = indexByTrain(days)
-  const live = snapshot !== null && nowRealMs - snapshot.updatedAt <= siriStaleSeconds * 1000
+  const byTrain = indexByTrain(trips)
+  const live = isSnapshotFresh(snapshot, nowRealMs)
   const lookup = makeRealtimeLookup(snapshot, nowRealMs)
-  const memories = await readGuardMemories()
 
   for (const subscription of subscriptions) {
     const memory = memories.get(subscription.token) ?? {}
@@ -97,11 +91,11 @@ export const runDelayGuardsCheck = async (): Promise<GuardCheckSummary> => {
     }
 
     if (unregistered) {
-      await removeGuardSubscription(subscription.token)
+      await delayGuardStore.removeSubscription(subscription.token)
       summary.dropped += 1
       logger?.info(logNames.delayGuards.dropped, { provider: subscription.provider })
     } else if (changed || Object.keys(memory).length !== Object.keys(next).length) {
-      await writeGuardMemory(subscription.token, next)
+      await delayGuardStore.writeMemory(subscription.token, next)
     }
   }
 
@@ -110,25 +104,15 @@ export const runDelayGuardsCheck = async (): Promise<GuardCheckSummary> => {
 
 // --- the loop --------------------------------------------------------------------------
 
-let failures = 0
-let timer: ReturnType<typeof setTimeout> | undefined
-
-const cycle = async () => {
-  let delayMs = stationAlertsCheckSeconds * 1000
-  try {
-    const summary = await runDelayGuardsCheck()
-    if (failures > 0) logger?.info(logNames.delayGuards.recovered, summary)
-    failures = 0
-  } catch (error) {
-    failures += 1
-    if (failures === 1) logger?.error(logNames.delayGuards.checkFailed, { error })
-    delayMs = Math.min(delayMs * 2 ** failures, MAX_BACKOFF_MS)
-  }
-  timer = setTimeout(cycle, delayMs)
-}
+const loop = createPollLoop({
+  run: runDelayGuardsCheck,
+  everyMs: stationAlertsCheckSeconds * 1000,
+  maxBackoffMs: 10 * 60_000,
+  initialDelayMs: 8_000,
+  log: { failed: logNames.delayGuards.checkFailed, recovered: logNames.delayGuards.recovered },
+})
 
 export const startDelayGuards = (): void => {
-  if (timer) return
   logger?.info(logNames.delayGuards.started, { everySeconds: stationAlertsCheckSeconds })
-  timer = setTimeout(cycle, 8_000)
+  loop.start()
 }

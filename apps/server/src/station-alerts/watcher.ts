@@ -23,19 +23,18 @@ import { currentDayType } from "./day-type"
 import { type AlertMemory, decideAlert, deriveStationAlertState } from "./derive"
 import { alertMessage } from "./message"
 import { sendStationAlert } from "./notify"
-import { readMemories, readSubscriptions, removeSubscription, writeMemory } from "./store"
-
-const MAX_BACKOFF_MS = 10 * 60_000
+import { createPollLoop } from "../utils/poll-loop"
+import { stationAlertStore } from "./store"
 
 export type CheckSummary = { subscriptions: number; stations: number; pushed: number; dropped: number }
 
 /** One check over every subscription. Exported for the tests and the debug route. */
 export const runStationAlertsCheck = async (): Promise<CheckSummary> => {
-  const subscriptions = await readSubscriptions()
+  const subscriptions = await stationAlertStore.readSubscriptions()
   const summary: CheckSummary = { subscriptions: subscriptions.length, stations: 0, pushed: 0, dropped: 0 }
   if (subscriptions.length === 0) return summary
 
-  const snapshot = await getServiceStatus()
+  const [snapshot, memories] = await Promise.all([getServiceStatus(), stationAlertStore.readMemories()])
   if (!snapshot) return summary
 
   // The next trains of every subscribed station, once each (the derivation caches the day's trips).
@@ -51,7 +50,6 @@ export const runStationAlertsCheck = async (): Promise<CheckSummary> => {
     }
   }
 
-  const memories = await readMemories()
   const nowMs = Date.now()
   const nowNaive = naiveNowMs()
   const dayType = currentDayType(nowNaive)
@@ -103,11 +101,11 @@ export const runStationAlertsCheck = async (): Promise<CheckSummary> => {
     }
 
     if (unregistered) {
-      await removeSubscription(subscription.token)
+      await stationAlertStore.removeSubscription(subscription.token)
       summary.dropped += 1
       logger?.info(logNames.stationAlerts.dropped, { provider: subscription.provider })
     } else if (changed || Object.keys(memory).length !== Object.keys(next).length) {
-      await writeMemory(subscription.token, next)
+      await stationAlertStore.writeMemory(subscription.token, next)
     }
   }
 
@@ -116,25 +114,15 @@ export const runStationAlertsCheck = async (): Promise<CheckSummary> => {
 
 // --- the loop --------------------------------------------------------------------------
 
-let failures = 0
-let timer: ReturnType<typeof setTimeout> | undefined
-
-const cycle = async () => {
-  let delayMs = stationAlertsCheckSeconds * 1000
-  try {
-    const summary = await runStationAlertsCheck()
-    if (failures > 0) logger?.info(logNames.stationAlerts.recovered, summary)
-    failures = 0
-  } catch (error) {
-    failures += 1
-    if (failures === 1) logger?.error(logNames.stationAlerts.checkFailed, { error })
-    delayMs = Math.min(delayMs * 2 ** failures, MAX_BACKOFF_MS)
-  }
-  timer = setTimeout(cycle, delayMs)
-}
+const loop = createPollLoop({
+  run: runStationAlertsCheck,
+  everyMs: stationAlertsCheckSeconds * 1000,
+  maxBackoffMs: 10 * 60_000,
+  initialDelayMs: 5_000,
+  log: { failed: logNames.stationAlerts.checkFailed, recovered: logNames.stationAlerts.recovered },
+})
 
 export const startStationAlerts = (): void => {
-  if (timer) return
   logger?.info(logNames.stationAlerts.started, { everySeconds: stationAlertsCheckSeconds })
-  timer = setTimeout(cycle, 5_000)
+  loop.start()
 }

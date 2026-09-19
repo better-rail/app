@@ -23,6 +23,7 @@ import { Platform } from "react-native"
 import { RideStartError } from "./helpers/ride-errors"
 import { isStationAlertPayload, openStationAlert } from "./helpers/open-station-alert"
 import { isDelayGuardPayload, openDelayGuard } from "./helpers/open-delay-guard"
+import { getPushToken } from "./push-subscription-sync"
 
 const rideApi = new RideApi()
 let tokenSubscription: Notifications.Subscription | undefined
@@ -206,7 +207,7 @@ export const startRideNotifications = async (route: RouteItem) => {
   // Getting a push token can fail on its own (no Play Services, FCM unreachable), so mark it as its own stage.
   let token: string
   try {
-    token = String((await Notifications.getDevicePushTokenAsync()).data)
+    token = await getPushToken()
   } catch (error) {
     throw new RideStartError("push_token", "Couldn't get a device push token", { cause: error })
   }

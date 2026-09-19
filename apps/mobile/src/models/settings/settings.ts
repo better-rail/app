@@ -1,7 +1,7 @@
 import { create } from "zustand"
 import { TxKeyPath } from "@/i18n"
-import type { DayType } from "@/data/rail-map-layout"
-import { type DelayGuard, GUARD_MINUTES_OPTIONS, type PopUpMessage, guardKey } from "@/services/api"
+import { DAY_TYPES, type DayType } from "@/data/rail-map-layout"
+import { DEFAULT_GUARD_MINUTES, type DelayGuard, GUARD_MINUTES_OPTIONS, type PopUpMessage, guardKey } from "@/services/api"
 
 export type { DelayGuard }
 
@@ -17,7 +17,7 @@ export type StationAlert = {
   dayTypes: DayType[] | null
 }
 
-export const DAY_TYPES: DayType[] = ["weekday", "weekend", "night"]
+export { DAY_TYPES }
 
 export interface SettingsState {
   seenUrgentMessagesIds: number[]
@@ -227,7 +227,9 @@ export function normalizeDelayGuards(data: any): DelayGuard[] {
       continue
     }
     if (guards.some((other) => guardKey(other) === guardKey(g as DelayGuard))) continue
-    const thresholdMinutes = GUARD_MINUTES_OPTIONS.includes(g.thresholdMinutes as number) ? (g.thresholdMinutes as number) : 3
+    const thresholdMinutes = GUARD_MINUTES_OPTIONS.includes(g.thresholdMinutes as number)
+      ? (g.thresholdMinutes as number)
+      : DEFAULT_GUARD_MINUTES
     guards.push({
       trainNumber: g.trainNumber,
       originStationId: g.originStationId,

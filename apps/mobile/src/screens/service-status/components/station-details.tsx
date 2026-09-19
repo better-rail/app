@@ -4,7 +4,7 @@ import { StyleSheet } from "react-native-unistyles"
 import { addDays, format } from "date-fns"
 import { Button, Text } from "@/components"
 import { dateFnsLocalization, translate } from "@/i18n"
-import { getStationById, stationsObject } from "@/data/stations"
+import { stationName, stationsObject } from "@/data/stations"
 import type { DayType } from "@/data/rail-map-layout"
 import type { StationInfo, StationNotice } from "@/services/api"
 import { openLink } from "@/utils/helpers/open-link"
@@ -58,9 +58,14 @@ export function StationDetails({ stationId, dayType, onSelectLine, onGoNow, scro
   const kind = stationStatusKind(status, !!info?.closed)
   const clock = wallClockOf(now)
   const openState = info ? stationOpenState(info.entrances, clock) : infoLoading ? undefined : { state: "unknown" as const }
-  const dayName = (day: number) => format(addDays(A_SUNDAY, day - 1), "EEE", { locale: dateFnsLocalization })
+  // The seven names once, not per row per minute.
+  const dayNames = useMemo(
+    () => Array.from({ length: 7 }, (_, i) => format(addDays(A_SUNDAY, i), "EEE", { locale: dateFnsLocalization })),
+    [],
+  )
+  const dayName = (day: number) => dayNames[day - 1]
   const station = stationsObject[stationId]
-  const name = getStationById(stationId)?.name ?? stationId
+  const name = stationName(stationId)
 
   // Where each section starts, from the top of the card's content, for the tiles.
   const rootTop = useRef(0)
@@ -165,7 +170,7 @@ export function StationDetails({ stationId, dayType, onSelectLine, onGoNow, scro
       {info && <Information info={info} />}
 
       {info && (
-        <Section title="">
+        <Section>
           <LinkRow
             label={translate("serviceStatus.station.moreInfo") ?? ""}
             onPress={() => openLink(info.link)}
@@ -182,13 +187,13 @@ function Section({
   onLayout,
   children,
 }: {
-  title: string
+  title?: string
   onLayout?: (e: LayoutChangeEvent) => void
   children: React.ReactNode
 }) {
   return (
     <View style={styles.section} onLayout={onLayout}>
-      {title !== "" && <Text style={styles.sectionTitle}>{title}</Text>}
+      {title && <Text style={styles.sectionTitle}>{title}</Text>}
       {children}
     </View>
   )

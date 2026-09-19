@@ -1,18 +1,17 @@
-import { useEffect, useState } from "react"
-import { Alert, Linking, ScrollView, View } from "react-native"
+import { Linking, ScrollView, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { useRouter } from "expo-router"
 import { useShallow } from "zustand/react/shallow"
 import HapticFeedback from "react-native-haptic-feedback"
 import { Button, Screen, Text } from "@/components"
 import { translate } from "@/i18n"
-import { getStationById } from "@/data/stations"
+import { getStationById, stationName } from "@/data/stations"
 import { type DelayGuard, type StationAlert, useFavoritesStore, useSettingsStore } from "@/models"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { guardKey } from "@/services/api"
 import { trackEvent } from "@/services/analytics"
-import { useAppState, useIsDarkMode } from "@/hooks"
-import { type AlertsPermission, getStationAlertsPermission, requestStationAlertsPermission } from "@/utils/station-alerts"
+import { useIsDarkMode, usePushPermission } from "@/hooks"
+import { openStationAlert } from "@/utils/helpers/open-station-alert"
 import { StationListItem } from "./station-list-item"
 
 /** "All lines", or how many of them, and the days when not always, for a station's row. */
@@ -35,7 +34,6 @@ export const alertSummary = (alert: StationAlert): string => {
 export function NotificationsSetupScreen() {
   const router = useRouter()
   const isDarkMode = useIsDarkMode()
-  const appState = useAppState()
   const { alerts, setStationAlert, removeStationAlert, guards, removeDelayGuard } = useSettingsStore(
     useShallow((s) => ({
       alerts: s.stationAlerts,
@@ -46,28 +44,14 @@ export function NotificationsSetupScreen() {
     })),
   )
   const favoriteRoutes = useFavoritesStore((s) => s.routes)
-  const [permission, setPermission] = useState<AlertsPermission>()
+  const { permission, ensure } = usePushPermission()
 
-  useEffect(() => {
-    if (appState === "active") getStationAlertsPermission().then(setPermission)
-  }, [appState])
-
-  const requestPermission = async () => {
-    const granted = await requestStationAlertsPermission()
-    setPermission(granted)
-    if (granted === "granted") {
-      trackEvent("notification_permission_granted", { source: "settings" })
-      return
-    }
-    Alert.alert(translate("stationAlerts.settingsTitle") ?? "", translate("stationAlerts.permissionDenied") ?? "", [
-      { text: translate("common.cancel") ?? "", style: "cancel" },
-      { text: translate("stationAlerts.openSettings") ?? "", onPress: () => Linking.openSettings() },
-    ])
-  }
+  const requestPermission = () =>
+    ensure("settings", { title: "stationAlerts.settingsTitle", message: "stationAlerts.permissionDenied" })
 
   const openStation = (stationId: string) => {
     HapticFeedback.trigger("impactLight")
-    router.push({ pathname: "/service-status", params: { stationId } })
+    openStationAlert(stationId)
   }
 
   const remove = (stationId: string) => {
@@ -177,7 +161,7 @@ export function NotificationsSetupScreen() {
                 title={translate("delayGuard.train", { trainNumber: guard.trainNumber, time: guard.departureTime }) ?? ""}
                 subtitle={`${translate("delayGuard.fromTo", {
                   origin: origin?.name ?? guard.originStationId,
-                  destination: getStationById(guard.destinationStationId)?.name ?? guard.destinationStationId,
+                  destination: stationName(guard.destinationStationId),
                 })} · ${translate("delayGuard.minutesLate", { minutes: guard.thresholdMinutes })}`}
                 image={origin?.image}
                 onSelect={() => openGuard(guard)}

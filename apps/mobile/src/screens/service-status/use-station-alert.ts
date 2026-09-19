@@ -1,13 +1,9 @@
-import { useEffect, useState } from "react"
-import { Alert, Linking } from "react-native"
 import { useShallow } from "zustand/react/shallow"
 import HapticFeedback from "react-native-haptic-feedback"
-import { translate } from "@/i18n"
 import type { DayType } from "@/data/rail-map-layout"
 import { type StationAlert, stationAlertFor, useSettingsStore } from "@/models"
 import { trackEvent } from "@/services/analytics"
-import { useAppState } from "@/hooks"
-import { type AlertsPermission, getStationAlertsPermission, requestStationAlertsPermission } from "@/utils/station-alerts"
+import { usePushPermission } from "@/hooks"
 
 /**
  * Following a station: whether it is followed, and turning that on (asking for the notification
@@ -22,29 +18,15 @@ export function useStationAlert(stationId: string, source: string) {
     })),
   )
   const alert: StationAlert | undefined = stationAlertFor(alerts, stationId)
-  const appState = useAppState()
-  const [permission, setPermission] = useState<AlertsPermission>()
-
-  // The permission can change in the device settings while the app is away.
-  useEffect(() => {
-    if (appState === "active") getStationAlertsPermission().then(setPermission)
-  }, [appState])
+  const { permission, ensure } = usePushPermission()
 
   /** Follows the station on every line, once notifications are allowed. Resolves whether it went through. */
   const turnOn = async (): Promise<boolean> => {
-    let granted = permission
-    if (granted !== "granted") {
-      granted = await requestStationAlertsPermission()
-      setPermission(granted)
-      if (granted === "granted") trackEvent("notification_permission_granted", { source: "station_alerts" })
-    }
-    if (granted !== "granted") {
-      Alert.alert(translate("stationAlerts.cardTitle") ?? "", translate("stationAlerts.permissionDenied") ?? "", [
-        { text: translate("common.cancel") ?? "", style: "cancel" },
-        { text: translate("stationAlerts.openSettings") ?? "", onPress: () => Linking.openSettings() },
-      ])
-      return false
-    }
+    const allowed = await ensure("station_alerts", {
+      title: "stationAlerts.cardTitle",
+      message: "stationAlerts.permissionDenied",
+    })
+    if (!allowed) return false
     HapticFeedback.trigger("impactLight")
     trackEvent("station_alert_enabled", { stationId, source })
     setStationAlert(stationId)

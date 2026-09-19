@@ -4,7 +4,7 @@ import { Text } from "@/components"
 import { translate, userLocale } from "@/i18n"
 import type { RailLine } from "@/data/rail-lines"
 import type { LineStatus, StationDeparture, StationDepartureDirection } from "@/services/api"
-import { levelLabel, stationName } from "../service-status-text"
+import { clockTime, levelLabel, stationName } from "../service-status-text"
 import { contrastText } from "../service-status-theme"
 
 /** How many upcoming trains a direction lists. */
@@ -106,7 +106,7 @@ function TrainPill({ train, countdown }: { train: StationDeparture; countdown: n
         ]}
         maxFontSizeMultiplier={1.3}
       >
-        {clockOf(train)}
+        {clockTime(train.time)}
         {train.delayMinutes > 0 && !train.cancelled ? <Text style={styles.delay}>{` +${train.delayMinutes}`}</Text> : null}
       </Text>
       {train.cancelled && (
@@ -128,9 +128,6 @@ const minutesUntil = (train: StationDeparture, now: Date): number => {
   const expected = new Date(train.time).getTime() + train.delayMinutes * 60_000
   return Math.max(0, Math.round((expected - now.getTime()) / 60_000))
 }
-
-/** "HH:mm" of the scheduled time. */
-const clockOf = (train: StationDeparture): string => train.time.slice(11, 16)
 
 const styles = StyleSheet.create((theme) => ({
   card: {

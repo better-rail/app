@@ -482,6 +482,8 @@ export const CITY_BOXES: CityBox[] = [
  * timetable, and so the map, differs between them.
  */
 export type DayType = "weekday" | "weekend" | "night"
+/** The day types, in the order the status screen offers them. */
+export const DAY_TYPES: DayType[] = ["weekday", "weekend", "night"]
 
 /** Where a line calls, runs through or ends short of its terminus (a line-station pair). */
 export type LineStation = { lineId: RailLineId; stationId: string }
