@@ -1,5 +1,11 @@
 import { test, expect, beforeEach } from "bun:test"
-import { useSettingsStore, hydrateSettingsStore, getSettingsSnapshot, resetSettingsStore, filterRouteDataByMaxChanges } from "./settings"
+import {
+  useSettingsStore,
+  hydrateSettingsStore,
+  getSettingsSnapshot,
+  resetSettingsStore,
+  filterRouteDataByMaxChanges,
+} from "./settings"
 
 beforeEach(resetSettingsStore)
 
@@ -47,4 +53,49 @@ test("filterRouteDataByMaxChanges drops routes over the limit and orphaned date 
   expect(filterRouteDataByMaxChanges(data, null)).toBe(data)
   expect(filterRouteDataByMaxChanges(data, 0)).toEqual(["Mon", direct])
   expect(filterRouteDataByMaxChanges(data, 1)).toEqual(["Mon", direct, oneChange, "Wed", oneChange])
+})
+
+test("station alerts: adding, narrowing to lines and days, removing", () => {
+  const store = useSettingsStore.getState()
+  store.setStationAlert("3700")
+  store.setStationAlert("3500", { lineIds: ["1", "2"] })
+  expect(useSettingsStore.getState().stationAlerts).toEqual([
+    { stationId: "3700", lineIds: null, dayTypes: null },
+    { stationId: "3500", lineIds: ["1", "2"], dayTypes: null },
+  ])
+
+  // Changing one choice keeps the other and the station's place; an empty set means every one.
+  store.setStationAlert("3700", { dayTypes: ["night", "night"] })
+  store.setStationAlert("3700", { lineIds: ["7"] })
+  store.setStationAlert("3500", { lineIds: [] })
+  expect(useSettingsStore.getState().stationAlerts).toEqual([
+    { stationId: "3700", lineIds: ["7"], dayTypes: ["night"] },
+    { stationId: "3500", lineIds: null, dayTypes: null },
+  ])
+
+  store.removeStationAlert("3700")
+  expect(useSettingsStore.getState().stationAlerts).toEqual([{ stationId: "3500", lineIds: null, dayTypes: null }])
+})
+
+test("station alerts survive persistence and the old per-station list migrates to every line", () => {
+  useSettingsStore.getState().setStationAlert("3700", { lineIds: ["1"], dayTypes: ["weekday"] })
+  useSettingsStore.getState().setStationAlertsRegistered(true)
+  const snapshot = getSettingsSnapshot(useSettingsStore.getState())
+  resetSettingsStore()
+  hydrateSettingsStore(snapshot)
+  expect(useSettingsStore.getState().stationAlerts).toEqual([{ stationId: "3700", lineIds: ["1"], dayTypes: ["weekday"] }])
+  expect(useSettingsStore.getState().stationAlertsRegistered).toBe(true)
+
+  resetSettingsStore()
+  hydrateSettingsStore({ stationsNotifications: ["3700", "3500", "3700"] })
+  expect(useSettingsStore.getState().stationAlerts).toEqual([
+    { stationId: "3700", lineIds: null, dayTypes: null },
+    { stationId: "3500", lineIds: null, dayTypes: null },
+  ])
+
+  resetSettingsStore()
+  hydrateSettingsStore({
+    stationAlerts: [{ stationId: "3700", lineIds: [], dayTypes: ["night", "sometime"] }, { lineIds: null }, "junk"],
+  })
+  expect(useSettingsStore.getState().stationAlerts).toEqual([{ stationId: "3700", lineIds: null, dayTypes: ["night"] }])
 })

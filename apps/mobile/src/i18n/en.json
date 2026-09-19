@@ -477,5 +477,30 @@
       "scheduled": "Scheduled",
       "location": "Location"
     }
+  },
+  "stationAlerts": {
+    "settingsTitle": "Station Notifications",
+    "cardTitle": "Notifications",
+    "toggle": "Notify me",
+    "cardDescription": "Delays, cancellations and works at this station",
+    "linesHint": "Lines",
+    "allLines": "All lines",
+    "oneLine": "1 line",
+    "someLines": "%{count} lines",
+    "permissionDenied": "Notifications are turned off for Better Rail. Turn them on in your device settings to get station alerts.",
+    "openSettings": "Open Settings",
+    "enableNotifications": "Enable Notifications",
+    "requestPermission": "Allow Better Rail to notify you about disruptions at the stations you choose.",
+    "setupContent": "Better Rail will notify you when trains at your stations are delayed or cancelled, and about planned works.",
+    "stations": "Your stations",
+    "noStations": "No stations yet. Choose stations to be notified about disruptions there.",
+    "tapToChooseLines": "Tap a station to choose which of its lines to hear about.",
+    "selectStations": "Choose Stations",
+    "fromFavorites": "From your favorite routes",
+    "remove": "Remove",
+    "note": "Alerts follow live train data and Israel Railways announcements. It's always worth checking the official sources too.",
+    "daysHint": "When",
+    "always": "Always",
+    "nightHint": "Night: the night trains, from midnight to 04:30 on Sun–Thu."
   }
 }

@@ -3,19 +3,27 @@ import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
 import { translate } from "@/i18n"
 import { getStationById, stationsObject } from "@/data/stations"
+import { stationAlertFor, useSettingsStore } from "@/models"
 import { SHEET_HEADER_HEIGHT } from "./status-sheet"
 
 const CLOSE_ICON = require("../../../../assets/close.png")
+const BELL_ICON = require("../../../../assets/bell.png")
 
 type StationHeaderProps = {
   stationId: string
   onClose: () => void
+  /** The bell was tapped: the card shows its notifications section, where following is switched on and tuned. */
+  onShowAlerts: () => void
 }
 
-/** The station's name with its photo, and the button that closes the card; how it is doing is on the tiles below. */
-export function StationHeader({ stationId, onClose }: StationHeaderProps) {
+/**
+ * The station's name with its photo, the bell that opens its notifications (lit while the station is
+ * followed) and the button that closes the card; how the station is doing is on the tiles below.
+ */
+export function StationHeader({ stationId, onClose, onShowAlerts }: StationHeaderProps) {
   const name = getStationById(stationId)?.name ?? stationId
   const image = stationsObject[stationId]?.image
+  const followed = useSettingsStore((s) => stationAlertFor(s.stationAlerts, stationId) !== undefined)
 
   return (
     <View style={styles.header} testID="station-header">
@@ -25,6 +33,16 @@ export function StationHeader({ stationId, onClose }: StationHeaderProps) {
           {name}
         </Text>
       </View>
+      <TouchableOpacity
+        onPress={onShowAlerts}
+        activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel={translate("stationAlerts.cardTitle") ?? undefined}
+        hitSlop={8}
+        testID={followed ? "station-bell-on" : "station-bell-off"}
+      >
+        <Image source={BELL_ICON} style={[styles.bellIcon, followed ? styles.bellOn : styles.bellOff]} />
+      </TouchableOpacity>
       <TouchableOpacity
         onPress={onClose}
         activeOpacity={0.7}
@@ -63,6 +81,18 @@ const styles = StyleSheet.create((theme) => ({
   title: {
     fontSize: 22,
     fontWeight: "700",
+  },
+  bellIcon: {
+    width: 24,
+    height: 26,
+    marginEnd: theme.spacing[1],
+  },
+  bellOn: {
+    tintColor: theme.colors.primary,
+  },
+  bellOff: {
+    tintColor: theme.colors.dim,
+    opacity: 0.85,
   },
   closeIcon: {
     width: 32,

@@ -18,5 +18,23 @@
       "stayOnPlatform": "Оставайтесь на платформе %{platform}.",
       "changePlatform": "Перейдите на платформу %{platform}."
     }
+  },
+  "stationAlerts": {
+    "onLine": "%{line}: %{text}",
+    "delays": "Поезда опаздывают до %{minutes} минут",
+    "severeDelays": "Серьёзные задержки – поезда опаздывают до %{minutes} минут",
+    "cancelledTrain": "Один из ближайших поездов отменён",
+    "cancelledTrains": "Отменено ближайших поездов: %{count}",
+    "noServiceBetween": "Движение между %{from} и %{to} не осуществляется",
+    "noServiceAt": "Движение на станции %{station} не осуществляется",
+    "terminatingEarly": "Поезда следуют по укороченному маршруту – нет движения между %{from} и %{to}",
+    "terminatingEarlyAt": "Поезда завершают маршрут на станции %{station}",
+    "cancellationsBetween": "Поезда между %{from} и %{to} отменены",
+    "cancellationsAt": "Поезда на станции %{station} отменены",
+    "notStopping": "Некоторые поезда не останавливаются на станции %{station}",
+    "planned": "Плановые работы: %{what}",
+    "plannedWithReason": "Плановые работы: %{what} – %{reason}",
+    "disruption": "Движение нарушено",
+    "resumed": "Движение восстановлено"
   }
 }

@@ -67,13 +67,23 @@ export function SettingsScreen() {
         />
         <SettingBox
           testID="settings-service-status"
-          last
           title={translate("settings.serviceStatus") ?? ""}
           icon="🚦"
           chevron
           onPress={() => {
             trackEvent("service_status_icon_pressed", { source: "settings" })
             router.push("/service-status")
+          }}
+        />
+        <SettingBox
+          testID="settings-station-alerts"
+          last
+          title={translate("stationAlerts.settingsTitle") ?? ""}
+          icon="🔔"
+          chevron
+          onPress={() => {
+            trackEvent("station_alerts_settings_pressed")
+            router.push("/settings/notifications")
           }}
         />
       </View>

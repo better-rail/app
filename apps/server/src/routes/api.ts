@@ -1,12 +1,14 @@
 import { Router } from "express"
 
-import { ridesEnabled } from "../data/config"
+import { ridesEnabled, stationAlertsEnabled } from "../data/config"
 import { buildRide } from "../utils/ride-utils"
 import { RideRequestSchema } from "../types/ride"
+import { StationAlertSubscriptionSchema, StationAlertUnsubscribeSchema } from "../types/station-alerts"
 import { createRateLimiter } from "../utils/rate-limiter"
 import { handleRailApiRequest, handleSearchTrainRequest } from "./rail-api"
 import { siriDebugRouter } from "./siri-debug"
 import { handleServiceStatusRequest } from "./service-status"
+import { handleSubscribeRequest, handleUnsubscribeRequest } from "./station-alerts"
 import { handleStationDeparturesRequest } from "./station-departures"
 import { handleStationInfoRequest } from "./station-info"
 import { DeleteRideBody, UpdateRideTokenBody, bodyValidator } from "./validations"
@@ -42,6 +44,18 @@ rideRouter.delete("/", bodyValidator(DeleteRideBody), async (req, res) => {
 })
 
 router.use("/ride", rideRouter)
+
+// Station alerts: a device's stations (and lines) to push about. Closed while the
+// alerts are off (a local run, by default — see data/config.ts), like the rides.
+const stationAlertsRouter = Router()
+stationAlertsRouter.use((req, res, next) => {
+  if (!stationAlertsEnabled) return res.status(503).json({ success: false, reason: "station_alerts_disabled" })
+  next()
+})
+stationAlertsRouter.use(createRateLimiter(10 * 60 * 1000, 30))
+stationAlertsRouter.put("/", bodyValidator(StationAlertSubscriptionSchema), handleSubscribeRequest)
+stationAlertsRouter.delete("/", bodyValidator(StationAlertUnsubscribeSchema), handleUnsubscribeRequest)
+router.use("/station-alerts", stationAlertsRouter)
 // SIRI pipeline debugging (404s without SIRI_DEBUG_TOKEN — see routes/siri-debug.ts)
 router.use("/siri", siriDebugRouter)
 // Network health per line (read-only: GTFS timetable + SIRI snapshot)

@@ -18,5 +18,23 @@
       "stayOnPlatform": "Stay on Platform %{platform}.",
       "changePlatform": "Change to Platform %{platform}."
     }
+  },
+  "stationAlerts": {
+    "onLine": "%{line}: %{text}",
+    "delays": "Trains are running up to %{minutes} minutes late",
+    "severeDelays": "Severe delays – trains are running up to %{minutes} minutes late",
+    "cancelledTrain": "One of the next trains is cancelled",
+    "cancelledTrains": "%{count} of the next trains are cancelled",
+    "noServiceBetween": "No service between %{from} and %{to}",
+    "noServiceAt": "No service at %{station}",
+    "terminatingEarly": "Trains are terminating early – no service between %{from} and %{to}",
+    "terminatingEarlyAt": "Trains are terminating early at %{station}",
+    "cancellationsBetween": "Trains are cancelled between %{from} and %{to}",
+    "cancellationsAt": "Trains are cancelled at %{station}",
+    "notStopping": "Some trains are not stopping at %{station}",
+    "planned": "Planned works: %{what}",
+    "plannedWithReason": "Planned works: %{what} – %{reason}",
+    "disruption": "Service is disrupted",
+    "resumed": "Good service has resumed"
   }
 }

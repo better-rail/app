@@ -14,6 +14,7 @@ import { timezoneCorrection } from "@/utils/helpers/date-helpers"
 import { DisruptionCard } from "./disruption-card"
 import { EntranceCard } from "./entrance-card"
 import { LineDeparturesCard } from "./line-departures-card"
+import { StationAlertsCard } from "./station-alerts-card"
 import { StationMap } from "./station-map"
 import { type StationTile, StationTiles } from "./station-tiles"
 import { stationOpenState, wallClockOf } from "../station-hours"
@@ -28,10 +29,12 @@ type StationDetailsProps = {
   onGoNow: (stationId: string) => void
   /** Scrolls the card to a position (from the top of its content), opening it up if need be. */
   scrollTo: (y: number) => void
+  /** Where the notifications section sits (from the top of the card's content), for the header's bell. */
+  onAlertsLayout: (y: number) => void
 }
 
 /** The sections a tile takes the card to. */
-type SectionName = "disruptions" | "lines" | "entrances"
+type SectionName = "disruptions" | "lines" | "entrances" | "alerts"
 
 /** A Sunday, to name the days of the week from. */
 const A_SUNDAY = new Date(2023, 0, 1)
@@ -40,7 +43,7 @@ const A_SUNDAY = new Date(2023, 0, 1)
  * A station's card, after TfL Go's: "Go now", the tiles, what is wrong there, the next trains on each
  * line calling, each entrance with its hours and facilities, and the rest of the station's page.
  */
-export function StationDetails({ stationId, dayType, onSelectLine, onGoNow, scrollTo }: StationDetailsProps) {
+export function StationDetails({ stationId, dayType, onSelectLine, onGoNow, scrollTo, onAlertsLayout }: StationDetailsProps) {
   const { data } = useServiceStatus()
   const { data: info, isLoading: infoLoading, isError: infoError } = useStationInfo(stationId)
   const { data: departures } = useStationDepartures(stationId)
@@ -67,6 +70,7 @@ export function StationDetails({ stationId, dayType, onSelectLine, onGoNow, scro
   }
   const onSectionLayout = (section: SectionName) => (e: LayoutChangeEvent) => {
     sectionTops.current[section] = e.nativeEvent.layout.y
+    if (section === "alerts") onAlertsLayout(rootTop.current + e.nativeEvent.layout.y)
   }
   const onTilePress = (tile: StationTile) => {
     const section: SectionName = tile === "open" ? "entrances" : status.disruptions.length > 0 ? "disruptions" : "lines"
@@ -127,6 +131,10 @@ export function StationDetails({ stationId, dayType, onSelectLine, onGoNow, scro
             />
           ))
         )}
+      </Section>
+
+      <Section title={translate("stationAlerts.cardTitle") ?? ""} onLayout={onSectionLayout("alerts")}>
+        <StationAlertsCard stationId={stationId} />
       </Section>
 
       {infoLoading && !info && <ActivityIndicator size="small" color="grey" style={styles.loader} />}

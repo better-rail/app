@@ -18,5 +18,23 @@
       "stayOnPlatform": "ابق في المنصة %{platform}.",
       "changePlatform": "انتقل إلى المنصة %{platform}."
     }
+  },
+  "stationAlerts": {
+    "onLine": "%{line}: %{text}",
+    "delays": "القطارات متأخرة حتى %{minutes} دقيقة",
+    "severeDelays": "تأخيرات كبيرة – القطارات متأخرة حتى %{minutes} دقيقة",
+    "cancelledTrain": "أُلغي أحد القطارات القادمة",
+    "cancelledTrains": "أُلغيت %{count} من القطارات القادمة",
+    "noServiceBetween": "لا توجد خدمة بين %{from} و%{to}",
+    "noServiceAt": "لا توجد خدمة في %{station}",
+    "terminatingEarly": "القطارات تنهي رحلتها مبكرًا – لا توجد خدمة بين %{from} و%{to}",
+    "terminatingEarlyAt": "القطارات تنهي رحلتها في %{station}",
+    "cancellationsBetween": "القطارات ملغاة بين %{from} و%{to}",
+    "cancellationsAt": "القطارات ملغاة في %{station}",
+    "notStopping": "بعض القطارات لا تتوقف في %{station}",
+    "planned": "أعمال مخططة: %{what}",
+    "plannedWithReason": "أعمال مخططة: %{what} – %{reason}",
+    "disruption": "الخدمة متعطلة",
+    "resumed": "عادت الخدمة إلى طبيعتها"
   }
 }

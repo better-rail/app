@@ -18,5 +18,23 @@
       "stayOnPlatform": "השארו ברציף %{platform}.",
       "changePlatform": "עברו לרציף %{platform}."
     }
+  },
+  "stationAlerts": {
+    "onLine": "%{line}: %{text}",
+    "delays": "הרכבות מאחרות עד %{minutes} דקות",
+    "severeDelays": "עיכובים משמעותיים – הרכבות מאחרות עד %{minutes} דקות",
+    "cancelledTrain": "אחת הרכבות הקרובות בוטלה",
+    "cancelledTrains": "%{count} מהרכבות הקרובות בוטלו",
+    "noServiceBetween": "אין שירות בין %{from} ל%{to}",
+    "noServiceAt": "אין שירות ב%{station}",
+    "terminatingEarly": "הרכבות מסיימות את נסיעתן מוקדם – אין שירות בין %{from} ל%{to}",
+    "terminatingEarlyAt": "הרכבות מסיימות את נסיעתן ב%{station}",
+    "cancellationsBetween": "רכבות מבוטלות בין %{from} ל%{to}",
+    "cancellationsAt": "רכבות מבוטלות ב%{station}",
+    "notStopping": "חלק מהרכבות לא עוצרות ב%{station}",
+    "planned": "עבודות מתוכננות: %{what}",
+    "plannedWithReason": "עבודות מתוכננות: %{what} – %{reason}",
+    "disruption": "יש שיבושים בשירות",
+    "resumed": "השירות חזר לסדרו"
   }
 }

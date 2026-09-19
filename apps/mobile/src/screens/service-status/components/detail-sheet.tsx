@@ -58,6 +58,8 @@ export function DetailSheet({
   onGoNow,
 }: DetailSheetProps) {
   const scroll = useRef<ScrollView>(null)
+  // Where a station's notifications section sits, for the bell in its header.
+  const alertsTop = useRef<number | undefined>(undefined)
   const scheme = useColorScheme()
   const [shown, setShown] = useState(selection)
   const { data, isLoading } = useServiceStatus()
@@ -81,7 +83,15 @@ export function DetailSheet({
 
   const header = (() => {
     if (!shown) return undefined
-    if (shown.kind === "station") return <StationHeader stationId={shown.id} onClose={onClose} />
+    if (shown.kind === "station") {
+      return (
+        <StationHeader
+          stationId={shown.id}
+          onClose={onClose}
+          onShowAlerts={() => alertsTop.current !== undefined && scrollTo(alertsTop.current)}
+        />
+      )
+    }
     return (
       <LineHeader
         title={line?.name[userLocale] ?? (status ? lineName(status) : "")}
@@ -119,6 +129,9 @@ export function DetailSheet({
             onSelectLine={onSelectLine}
             onGoNow={onGoNow}
             scrollTo={scrollTo}
+            onAlertsLayout={(y) => {
+              alertsTop.current = y
+            }}
           />
         )}
       </ScrollView>

@@ -1,8 +1,21 @@
 import { create } from "zustand"
 import { TxKeyPath } from "@/i18n"
+import type { DayType } from "@/data/rail-map-layout"
 import { PopUpMessage } from "@/services/api"
 
 export type MaxChanges = 0 | 1 | null
+
+/**
+ * A station to get pushed about when it is disrupted: on every line calling there (null) or only on
+ * some, and always (null) or only on some of the timetable's days (Sun–Thu, Fri–Sat, nights).
+ */
+export type StationAlert = {
+  stationId: string
+  lineIds: string[] | null
+  dayTypes: DayType[] | null
+}
+
+export const DAY_TYPES: DayType[] = ["weekday", "weekend", "night"]
 
 export interface SettingsState {
   seenUrgentMessagesIds: number[]
@@ -14,6 +27,9 @@ export interface SettingsState {
   maxChanges: MaxChanges
   seenTrainInfoPrompt: boolean
   seenLawsuitAnnouncement: boolean
+  stationAlerts: StationAlert[]
+  /** Whether the server holds this device's subscription, so an emptied list is still told to it. */
+  stationAlertsRegistered: boolean
 }
 
 export interface SettingsActions {
@@ -25,6 +41,10 @@ export interface SettingsActions {
   setSeenUrgentMessagesIds: (messagesIds: number[]) => void
   setSeenTrainInfoPrompt: (seen: boolean) => void
   setSeenLawsuitAnnouncement: (seen: boolean) => void
+  /** Adds the station (every line, always), or changes the lines or days of one already there. */
+  setStationAlert: (stationId: string, choice?: Partial<Omit<StationAlert, "stationId">>) => void
+  removeStationAlert: (stationId: string) => void
+  setStationAlertsRegistered: (registered: boolean) => void
 }
 
 export type SettingsStore = SettingsState & SettingsActions
@@ -39,6 +59,8 @@ const initialSettingsState: SettingsState = {
   maxChanges: null,
   seenTrainInfoPrompt: false,
   seenLawsuitAnnouncement: false,
+  stationAlerts: [],
+  stationAlertsRegistered: false,
 }
 
 export const resetSettingsStore = () => useSettingsStore.setState(initialSettingsState)
@@ -81,7 +103,39 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
   setSeenLawsuitAnnouncement(seen) {
     set({ seenLawsuitAnnouncement: seen })
   },
+
+  setStationAlert(stationId, choice = {}) {
+    set((state) => {
+      const at = state.stationAlerts.findIndex((a) => a.stationId === stationId)
+      const current = at >= 0 ? state.stationAlerts[at] : { stationId, lineIds: null, dayTypes: null }
+      const alert: StationAlert = {
+        stationId,
+        lineIds: someOrNull(choice.lineIds === undefined ? current.lineIds : choice.lineIds),
+        dayTypes: someOrNull(choice.dayTypes === undefined ? current.dayTypes : choice.dayTypes),
+      }
+      const rest = state.stationAlerts.filter((a) => a.stationId !== stationId)
+      // Keep the station's place in the list when only its choice changes.
+      if (at >= 0) rest.splice(at, 0, alert)
+      else rest.push(alert)
+      return { stationAlerts: rest }
+    })
+  },
+
+  removeStationAlert(stationId) {
+    set((state) => ({ stationAlerts: state.stationAlerts.filter((a) => a.stationId !== stationId) }))
+  },
+
+  setStationAlertsRegistered(registered) {
+    set({ stationAlertsRegistered: registered })
+  },
 }))
+
+/** A set of ids, without repeats, or null for "every one" when it is empty. */
+const someOrNull = <T>(ids: T[] | null | undefined): T[] | null => (ids && ids.length > 0 ? [...new Set(ids)] : null)
+
+/** A station's alert from the list, when it is on it. */
+export const stationAlertFor = (alerts: StationAlert[], stationId: string): StationAlert | undefined =>
+  alerts.find((a) => a.stationId === stationId)
 
 // Drops routes over the limit and date headers left empty
 export function filterRouteDataByMaxChanges<T extends { trains: unknown[] }>(data: (T | string)[], maxChanges: MaxChanges) {
@@ -116,7 +170,29 @@ export function getSettingsSnapshot(state: SettingsState) {
     maxChanges: state.maxChanges,
     seenTrainInfoPrompt: state.seenTrainInfoPrompt,
     seenLawsuitAnnouncement: state.seenLawsuitAnnouncement,
+    stationAlerts: state.stationAlerts,
+    stationAlertsRegistered: state.stationAlertsRegistered,
   }
+}
+
+/** The alerts as persisted, dropping anything malformed; the old per-station list (every line) migrates. */
+export function normalizeStationAlerts(data: any): StationAlert[] {
+  const raw: unknown[] = Array.isArray(data?.stationAlerts)
+    ? data.stationAlerts
+    : Array.isArray(data?.stationsNotifications)
+      ? data.stationsNotifications.map((stationId: unknown) => ({ stationId, lineIds: null, dayTypes: null }))
+      : []
+  const alerts: StationAlert[] = []
+  for (const item of raw) {
+    const alert = item as Partial<StationAlert> | undefined
+    if (!alert || typeof alert.stationId !== "string" || alerts.some((a) => a.stationId === alert.stationId)) continue
+    const lineIds = Array.isArray(alert.lineIds) ? alert.lineIds.filter((id): id is string => typeof id === "string") : null
+    const dayTypes = Array.isArray(alert.dayTypes)
+      ? alert.dayTypes.filter((day): day is DayType => DAY_TYPES.includes(day as DayType))
+      : null
+    alerts.push({ stationId: alert.stationId, lineIds: someOrNull(lineIds), dayTypes: someOrNull(dayTypes) })
+  }
+  return alerts
 }
 
 export function hydrateSettingsStore(data: any) {
@@ -139,6 +215,8 @@ export function hydrateSettingsStore(data: any) {
     maxChanges: processedData.maxChanges ?? null,
     seenTrainInfoPrompt: processedData.seenTrainInfoPrompt ?? false,
     seenLawsuitAnnouncement: processedData.seenLawsuitAnnouncement ?? false,
+    stationAlerts: normalizeStationAlerts(processedData),
+    stationAlertsRegistered: processedData.stationAlertsRegistered ?? false,
   })
 }
 

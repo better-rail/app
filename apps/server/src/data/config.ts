@@ -38,6 +38,18 @@ const isDeployedService = Boolean(
 export const ridesEnabled = process.env.RIDES_ENABLED ? process.env.RIDES_ENABLED === "true" : isDeployedService
 
 /**
+ * Whether this process watches the subscribed stations and pushes station alerts
+ * (station-alerts/watcher.ts), and takes subscriptions. Shared state and real
+ * riders' push tokens again, so the same opt-in as the rides: STATION_ALERTS_ENABLED,
+ * else "are we the deployed service?". Set it on the deployment explicitly.
+ */
+export const stationAlertsEnabled = process.env.STATION_ALERTS_ENABLED
+  ? process.env.STATION_ALERTS_ENABLED === "true"
+  : isDeployedService
+// How often the subscribed stations are checked (the status itself is cached for a few seconds).
+export const stationAlertsCheckSeconds = Number(process.env.STATION_ALERTS_CHECK_SECONDS) || 60
+
+/**
  * Where timetable data comes from.
  *
  * - "gtfs" (default) — the Ministry of Transport GTFS feed ingested into Postgres,

@@ -3,6 +3,19 @@ export const logNames = {
     listening: "App listening",
     dataSource: "Serving timetable data from",
     ridesDisabled: "Ride tracking is disabled, existing rides were left untouched",
+    stationAlertsDisabled: "Station alerts are disabled, subscriptions are not taken or watched",
+  },
+  stationAlerts: {
+    started: "Station alerts watcher started",
+    checkFailed: "Station alerts check failed",
+    recovered: "Station alerts watcher recovered",
+    pushed: "Pushed a station alert",
+    sendFailed: "Failed to push a station alert",
+    dropped: "Dropped a station alerts subscription whose device is gone",
+    subscribed: "Registered a station alerts subscription",
+    unsubscribed: "Removed a station alerts subscription",
+    storeFailed: "Failed to store a station alerts subscription",
+    corruptSubscription: "Skipped a station alerts subscription that could not be read",
   },
   redis: {
     connect: {

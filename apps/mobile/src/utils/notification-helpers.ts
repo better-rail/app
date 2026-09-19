@@ -21,28 +21,37 @@ import {
 } from "./storage/background-storage"
 import { Platform } from "react-native"
 import { RideStartError } from "./helpers/ride-errors"
+import { isStationAlertPayload, openStationAlert } from "./helpers/open-station-alert"
 
 const rideApi = new RideApi()
 let tokenSubscription: Notifications.Subscription | undefined
 
 // expo-notifications is the sole FCM receiver on Android. Live-ride updates arrive as
 // data-only FCM messages; Notifee owns all display, so suppress expo-notifications from
-// rendering anything itself (prevents an empty/duplicate notification).
+// rendering anything itself (prevents an empty/duplicate notification). Station alerts on
+// iOS are plain APNs alerts the system shows in the background; in the foreground they are
+// the one kind worth a banner.
 Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: false,
-    shouldShowList: false,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-  }),
+  handleNotification: async (notification) => {
+    const stationAlert = Platform.OS === "ios" && isStationAlertPayload(notification.request.content.data)
+    return {
+      shouldShowBanner: stationAlert,
+      shouldShowList: stationAlert,
+      shouldPlaySound: stationAlert,
+      shouldSetBadge: false,
+    }
+  },
 })
+
+/** The Android channel the station alerts are shown on (the server sends them as data messages). */
+export const STATION_ALERTS_CHANNEL = "better-rail-station-alerts"
 
 const BACKGROUND_LIVE_RIDE_TASK = "better-rail-live-ride-notification"
 
 // Pulls the FCM `data` map out of whatever expo-notifications hands us. The wrapper shape
 // differs between the background task and the foreground listener, so probe the known
 // locations. VERIFY the resolved shape on a real device (see migration notes).
-const extractLiveRidePayload = (raw: any): Record<string, string> | null => {
+const extractDataPayload = (raw: any): Record<string, string> | null => {
   const data =
     raw?.notification?.request?.content?.data ??
     raw?.notification?.request?.trigger?.remoteMessage?.data ??
@@ -50,15 +59,22 @@ const extractLiveRidePayload = (raw: any): Record<string, string> | null => {
     raw?.notification?.data ??
     raw?.data ??
     raw
-  return data?.type === "live-ride" ? data : null
+  return data && typeof data === "object" && typeof data.type === "string" ? data : null
+}
+
+/** A data message from the server, of whichever kind: live-ride updates, or a station alert. */
+const handleDataMessage = async (raw: any): Promise<void> => {
+  const data = extractDataPayload(raw)
+  if (!data) return
+  if (data.type === "live-ride") return handleLiveRideNotification(data)
+  if (isStationAlertPayload(data)) return handleStationAlertNotification(data)
 }
 
 // Defined at module scope so it registers when index.js loads this file — including when
 // the app is woken from a killed/background state to process a live-ride data message.
-TaskManager.defineTask(BACKGROUND_LIVE_RIDE_TASK, ({ data, error }) => {
+TaskManager.defineTask(BACKGROUND_LIVE_RIDE_TASK, async ({ data, error }) => {
   if (error) return
-  const payload = extractLiveRidePayload(data)
-  if (payload) return handleLiveRideNotification(payload)
+  await handleDataMessage(data)
 })
 
 export const configureNotifications = async () => {
@@ -78,16 +94,28 @@ export const configureNotifications = async () => {
       vibration: false,
     })
 
+    notifee.createChannel({
+      id: STATION_ALERTS_CHANNEL,
+      name: "Station alerts",
+      description: "Disruptions at the stations you follow",
+      importance: AndroidImportance.HIGH,
+      vibration: true,
+      sound: "default",
+    })
+
     // Background / killed: expo-notifications wakes the JS task defined at module scope.
     await Notifications.registerTaskAsync(BACKGROUND_LIVE_RIDE_TASK)
 
     // Foreground: data messages are delivered to this listener rather than the task.
     Notifications.addNotificationReceivedListener((notification) => {
-      const payload = extractLiveRidePayload(notification)
-      if (payload) handleLiveRideNotification(payload).catch(() => {})
+      handleDataMessage(notification).catch(() => {})
     })
 
     notifee.onBackgroundEvent(async ({ type, detail }) => {
+      if (type === EventType.PRESS && isStationAlertPayload(detail.notification?.data)) {
+        openStationAlert(detail.notification!.data!.stationId as string)
+        return
+      }
       if (type === EventType.DELIVERED && detail.notification?.data?.type === "live-ride-stale") {
         const rideRoute = await getRideRoute()
         if (!rideRoute) return
@@ -104,6 +132,20 @@ export const configureNotifications = async () => {
       }
     })
   }
+}
+
+/** A station alert on Android: shown with Notifee, carrying the station for the tap. */
+const handleStationAlertNotification = async (data: Record<string, string>) => {
+  if (!data.notifee) return
+  await notifee.displayNotification({
+    ...JSON.parse(data.notifee),
+    data: { type: "station-alert", stationId: data.stationId },
+    android: {
+      channelId: STATION_ALERTS_CHANNEL,
+      smallIcon: "notification_icon",
+      pressAction: { id: "default" },
+    },
+  })
 }
 
 /// Maps the server's ride status onto the one we compute locally. The server sends `getOff` a

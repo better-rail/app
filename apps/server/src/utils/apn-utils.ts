@@ -1,4 +1,4 @@
-import { ApnsClient, Notification, Priority, PushType } from "apns2"
+import { ApnsClient, Notification, type NotificationOptions, Priority, PushType } from "apns2"
 
 import { appleKeyId, appleKeyContent, appleTeamId, appleBundleId, appleApnHost } from "../data/config"
 
@@ -19,6 +19,17 @@ export const sendApnNotification = (deviceToken: string, aps: Record<string, unk
     priority,
     type: PushType.liveactivity,
     topic: appleBundleId + ".push-type.liveactivity",
+  })
+
+  return client.send(notification)
+}
+
+/** A plain alert the system shows itself (the station alerts), as opposed to the Live Activity updates above. */
+export const sendApnAlert = (deviceToken: string, options: Omit<NotificationOptions, "type" | "topic">) => {
+  const notification = new Notification(deviceToken, {
+    ...options,
+    type: PushType.alert,
+    topic: appleBundleId,
   })
 
   return client.send(notification)
