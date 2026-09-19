@@ -92,6 +92,7 @@
     "trainInfoPromptFootnote": "אפשר לשנות מאוחר יותר בהגדרות האפליקציה"
   },
   "routeDetails": {
+    "selectRoute": "בחרו נסיעה מהרשימה כדי לראות את פרטי המסלול",
     "platform": "רציף",
     "unknown": "לא ידוע",
     "trainNo": "רכבת מס'",

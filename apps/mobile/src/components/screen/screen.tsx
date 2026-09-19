@@ -2,9 +2,15 @@ import { KeyboardAvoidingView, Platform, ScrollView, StatusBar, View, useColorSc
 import { StyleSheet } from "react-native-unistyles"
 import { ScreenProps } from "./screen.props"
 import { isNonScrolling, offsets } from "./screen.presets"
-import { sideInsetPadding } from "@/utils/helpers/safe-area-helpers"
+import { SafeAreaView } from "react-native-safe-area-context"
 
 const isIos = Platform.OS === "ios"
+
+/**
+ * The side safe-area edges to pad. Side insets aren't symmetric on iPhone Duo (its bars sit on one edge), and
+ * SafeAreaView measures them against this view's own frame, so a sheet that doesn't reach that edge isn't inset.
+ */
+const sideEdges = (props: ScreenProps) => (props.edgeToEdge ? [] : (["left", "right"] as const))
 
 function ScreenWithoutScrolling(props: ScreenProps) {
   const isDarkMode = useColorScheme() === "dark"
@@ -23,9 +29,13 @@ function ScreenWithoutScrolling(props: ScreenProps) {
         backgroundColor={props.statusBarBackgroundColor || (isDarkMode ? "#1c1c1e" : "#f2f2f7")}
         animated={true}
       />
-      <View testID={props.testID} style={[styles.fixedInner, style, styles.insets(!!props.unsafe, !!props.edgeToEdge)]}>
+      <SafeAreaView
+        testID={props.testID}
+        edges={sideEdges(props)}
+        style={[styles.fixedInner, style, styles.insetTop(!!props.unsafe)]}
+      >
         {props.children}
-      </View>
+      </SafeAreaView>
     </KeyboardAvoidingView>
   )
 }
@@ -47,12 +57,11 @@ function ScreenWithScrolling(props: ScreenProps) {
         backgroundColor={props.statusBarBackgroundColor || (isDarkMode ? "#1c1c1e" : "#f2f2f7")}
         animated={true}
       />
-      <View
-        testID={props.testID}
-        style={[styles.scrollOuter, backgroundStyle, styles.insets(!!props.unsafe, !!props.edgeToEdge)]}
-      >
+      <View testID={props.testID} style={[styles.scrollOuter, backgroundStyle, styles.insetTop(!!props.unsafe)]}>
+        {/* The scroll view spans the full width, so absolutely positioned backgrounds reach the screen edges; the
+            side insets pad its content instead. */}
         <ScrollView style={[styles.scrollOuter, backgroundStyle]} contentContainerStyle={[styles.scrollInner, style]}>
-          {props.children}
+          <SafeAreaView edges={sideEdges(props)}>{props.children}</SafeAreaView>
         </ScrollView>
       </View>
     </KeyboardAvoidingView>
@@ -95,9 +104,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     justifyContent: "flex-start",
     alignItems: "stretch",
   },
-  insets: (unsafe: boolean, edgeToEdge: boolean) => ({
+  insetTop: (unsafe: boolean) => ({
     paddingTop: unsafe ? 0 : rt.insets.top,
-    // Side insets aren't symmetric on iPhone Duo, so pad each side on its own.
-    ...(edgeToEdge ? {} : sideInsetPadding(rt.insets, rt.rtl)),
   }),
 }))

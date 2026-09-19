@@ -92,6 +92,7 @@
     "trainInfoPromptFootnote": "You can change this later in the app settings"
   },
   "routeDetails": {
+    "selectRoute": "Select a trip from the list to see its details",
     "platform": "Platform",
     "unknown": "Unknown",
     "trainNo": "Train No.",

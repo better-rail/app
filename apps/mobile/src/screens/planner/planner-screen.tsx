@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from "react"
-import { View, Animated, AppState, Platform, Alert } from "react-native"
+import { View, Animated, AppState, Platform, Alert, ScrollView, I18nManager, useWindowDimensions } from "react-native"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 import type { AppStateStatus } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import {
@@ -27,6 +28,10 @@ import { trackEvent } from "@/services/analytics"
 import { useRouter, useFocusEffect, useIsFocused } from "expo-router"
 import { useObserve } from "expo-observe"
 import { useMountEffect } from "@/hooks"
+import { useIsWideLayout } from "@/hooks/use-is-wide-layout"
+import { FavoriteRoutes } from "@/components/favorite-routes/favorite-routes"
+import { splitAroundFold, type Region } from "@/utils/helpers/fold-helpers"
+import { ReservedRegionsView } from "../../../modules/reserved-regions/src"
 import { PlannerScreenHeader } from "./planner-screen-header"
 import { FlingGestureWrapper } from "./planner-slider-wrapper"
 
@@ -56,6 +61,16 @@ export function PlannerScreen() {
   const now = new Date()
 
   const stations = useStations()
+  const isWide = useIsWideLayout()
+  const [wideRow, setWideRow] = useState<{ width: number; divisions: Region[] }>({ width: 0, divisions: [] })
+  const foldSplit = isWide ? splitAroundFold(wideRow.width, wideRow.divisions, I18nManager.isRTL, 0) : null
+  // The planner and favorites meet on the display's centre line — the hinge — whether the device is flat or
+  // partially folded (then at the fold itself). The planner is capped within its half, so it never stretches into a
+  // desktop-like form.
+  const { width: windowWidth } = useWindowDimensions()
+  const insets = useSafeAreaInsets()
+  // The row starts after the start inset: the left one, or the right one in right-to-left layouts.
+  const centreSplitWidth = windowWidth / 2 - (I18nManager.isRTL ? insets.right : insets.left)
 
   // The datetimepicker docs says the first argument is an event, but we get a date instead
   // https://github.com/react-native-datetimepicker/datetimepicker#onchange-optional
@@ -184,73 +199,129 @@ export function PlannerScreen() {
     { cacheTime: isWeekend(date) ? 0 : 7200000, retry: false, enabled: !!origin && !!destination && isFocused },
   )
 
+  const originField = (
+    <>
+      <Text preset="fieldLabel" tx="plan.origin" style={{ marginBottom: spacing[1] }} />
+      <Animated.View testID={`planner-origin-${origin?.id ?? "empty"}`} style={{ transform: [{ scale: stationCardScale }] }}>
+        <StationCard
+          testID="planner-origin-card"
+          name={originData?.name}
+          image={originData?.image}
+          style={{ marginBottom: spacing[4] }}
+          onPress={() => router.push({ pathname: "/select-station", params: { selectionType: "origin" } })}
+        />
+      </Animated.View>
+    </>
+  )
+
+  const destinationField = (
+    <>
+      <Text preset="fieldLabel" tx="plan.destination" style={{ marginBottom: spacing[1] }} />
+      <Animated.View
+        testID={`planner-destination-${destination?.id ?? "empty"}`}
+        style={{ transform: [{ scale: stationCardScale }] }}
+      >
+        <StationCard
+          testID="planner-destination-card"
+          name={destinationData?.name}
+          image={destinationData?.image}
+          style={{ marginBottom: spacing[4] }}
+          onPress={() => router.push({ pathname: "/select-station", params: { selectionType: "destination" } })}
+        />
+      </Animated.View>
+    </>
+  )
+
+  const swapButton = (
+    <ChangeDirectionButton testID="switch-stations-button" onPress={onSwitchPress} disabled={!origin || !destination} />
+  )
+
+  const timeField = (
+    <>
+      <Text preset="fieldLabel" text={dateTypeDisplayName} style={{ marginBottom: spacing[1] }} />
+      <DummyInput
+        placeholder={translate("plan.now")}
+        value={formattedDate}
+        style={{ marginBottom: spacing[5] }}
+        onPress={() => setDatePickerVisibility(true)}
+        endSection={formattedDate !== translate("plan.now") && <ResetTimeButton onPress={onDateReset} />}
+      />
+    </>
+  )
+
+  const findButton = (
+    <Button
+      testID="find-routes-button"
+      title={translate("plan.find")}
+      onPress={onGetRoutePress}
+      disabled={!origin || !destination || origin.id === destination.id}
+      onDisabledPress={() => {
+        if (origin?.id === destination?.id) {
+          Alert.alert(translate("routes.sameStationsMessage"))
+        }
+      }}
+    />
+  )
+
+  const plannerForm = (
+    <>
+      <PlannerScreenHeader />
+
+      <Text preset="header" tx="plan.title" style={styles.screenTitle} />
+
+      {originField}
+      <View style={styles.changeDirectionWrapper}>{swapButton}</View>
+      {destinationField}
+      {timeField}
+      {findButton}
+    </>
+  )
+
   return (
     <Screen testID="planner-screen" style={styles.root} statusBarBackgroundColor="transparent" translucent>
-      <FlingGestureWrapper onFling={onSwitchPress}>
-        <View style={styles.contentWrapper}>
-          <PlannerScreenHeader />
-
-          <Text preset="header" tx="plan.title" style={styles.screenTitle} />
-
-          <Text preset="fieldLabel" tx="plan.origin" style={{ marginBottom: spacing[1] }} />
-          <Animated.View testID={`planner-origin-${origin?.id ?? "empty"}`} style={{ transform: [{ scale: stationCardScale }] }}>
-            <StationCard
-              testID="planner-origin-card"
-              name={originData?.name}
-              image={originData?.image}
-              style={{ marginBottom: spacing[4] }}
-              onPress={() => router.push({ pathname: "/select-station", params: { selectionType: "origin" } })}
-            />
-          </Animated.View>
-
-          <View style={styles.changeDirectionWrapper}>
-            <ChangeDirectionButton testID="switch-stations-button" onPress={onSwitchPress} disabled={!origin || !destination} />
+      {isWide ? (
+        // Wide (iPhone Duo open, iPad): the planner keeps its phone layout in a column, and the favorite routes
+        // fill the other side — one tap from planning a trip. Partially folded, the two meet at the fold.
+        <ReservedRegionsView
+          style={styles.wideRow}
+          onLayout={(event) => {
+            const { width } = event.nativeEvent.layout
+            setWideRow((row) => (row.width === width ? row : { ...row, width }))
+          }}
+          onDivisionsChange={(event) => {
+            const { divisions } = event.nativeEvent
+            setWideRow((row) => ({ ...row, divisions }))
+          }}
+        >
+          <View style={{ width: foldSplit ? foldSplit.firstColumnWidth : centreSplitWidth }}>
+            <FlingGestureWrapper onFling={onSwitchPress}>
+              <View style={[styles.contentWrapper, styles.widePlanner]}>{plannerForm}</View>
+            </FlingGestureWrapper>
           </View>
-
-          <Text preset="fieldLabel" tx="plan.destination" style={{ marginBottom: spacing[1] }} />
-          <Animated.View
-            testID={`planner-destination-${destination?.id ?? "empty"}`}
-            style={{ transform: [{ scale: stationCardScale }] }}
+          <ScrollView
+            style={[styles.savedRoutesSidebar, foldSplit && { marginStart: foldSplit.gap, borderStartWidth: 0 }]}
+            contentContainerStyle={styles.savedRoutesContent}
           >
-            <StationCard
-              testID="planner-destination-card"
-              name={destinationData?.name}
-              image={destinationData?.image}
-              style={{ marginBottom: spacing[4] }}
-              onPress={() => router.push({ pathname: "/select-station", params: { selectionType: "destination" } })}
+            <FavoriteRoutes
+              onSelect={() => {
+                scaleStationCards()
+                HapticFeedback.trigger("impactLight")
+              }}
             />
-          </Animated.View>
+          </ScrollView>
+        </ReservedRegionsView>
+      ) : (
+        <FlingGestureWrapper onFling={onSwitchPress}>
+          <View style={styles.contentWrapper}>{plannerForm}</View>
+        </FlingGestureWrapper>
+      )}
 
-          <Text preset="fieldLabel" text={dateTypeDisplayName} style={{ marginBottom: spacing[1] }} />
-
-          <DummyInput
-            placeholder={translate("plan.now")}
-            value={formattedDate}
-            style={{ marginBottom: spacing[5] }}
-            onPress={() => setDatePickerVisibility(true)}
-            endSection={formattedDate !== translate("plan.now") && <ResetTimeButton onPress={onDateReset} />}
-          />
-
-          <DatePickerModal
-            isVisible={isDatePickerVisible}
-            onConfirm={handleConfirm}
-            onCancel={() => setDatePickerVisibility(false)}
-            minimumDate={now}
-          />
-
-          <Button
-            testID="find-routes-button"
-            title={translate("plan.find")}
-            onPress={onGetRoutePress}
-            disabled={!origin || !destination || origin.id === destination.id}
-            onDisabledPress={() => {
-              if (origin?.id === destination?.id) {
-                Alert.alert(translate("routes.sameStationsMessage"))
-              }
-            }}
-          />
-        </View>
-      </FlingGestureWrapper>
+      <DatePickerModal
+        isVisible={isDatePickerVisible}
+        onConfirm={handleConfirm}
+        onCancel={() => setDatePickerVisibility(false)}
+        minimumDate={now}
+      />
     </Screen>
   )
 }
@@ -269,6 +340,25 @@ const styles = StyleSheet.create((theme, rt) => ({
   },
   screenTitle: {
     marginBottom: 3,
+  },
+  wideRow: {
+    flex: 1,
+    flexDirection: "row",
+  },
+  widePlanner: {
+    width: "100%",
+    maxWidth: 560,
+    alignSelf: "center",
+  },
+  savedRoutesSidebar: {
+    flex: 1,
+    borderStartWidth: StyleSheet.hairlineWidth,
+    borderStartColor: theme.colors.dimmer,
+  },
+  // Lines the favorites' heading up with the planner's title, below the header row.
+  savedRoutesContent: {
+    paddingTop: 48 + theme.spacing[2],
+    paddingBottom: theme.spacing[5],
   },
   changeDirectionWrapper: {
     width: 65,

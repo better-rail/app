@@ -8,7 +8,7 @@ import { FlashList, type FlashListRef } from "@shopify/flash-list"
 import { useNetworkState } from "expo-network"
 import { useQuery } from "react-query"
 import { closestIndexTo } from "date-fns"
-import { useRouter, useLocalSearchParams, Redirect } from "expo-router"
+import { useRouter, useLocalSearchParams, useIsFocused, Redirect } from "expo-router"
 import { useObserve } from "expo-observe"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useShallow } from "zustand/react/shallow"
@@ -25,11 +25,16 @@ import {
   type WarningType,
   ResultDateCard,
   DateScroll,
+  RouteDetailsPane,
+  routeKey,
 } from "./components"
 import { flatMap, max, round } from "lodash"
 import { translate } from "@/i18n"
 import { shareRouteAction } from "@/utils/helpers/route-share-helpers"
-import { sideInsetPadding } from "@/utils/helpers/safe-area-helpers"
+import { logicalSideInsets } from "@/utils/helpers/safe-area-helpers"
+import { useIsWideLayout } from "@/hooks/use-is-wide-layout"
+import { splitAroundFold, type Region } from "@/utils/helpers/fold-helpers"
+import { ReservedRegionsView } from "../../../modules/reserved-regions/src"
 import { addRouteToCalendar } from "@/utils/helpers/calendar-helpers"
 import { getActionSheetStyleOptions } from "@/utils/helpers/action-sheet-helpers"
 import { isRouteInThePast } from "@/utils/helpers/date-helpers"
@@ -154,7 +159,55 @@ export function RouteListScreen() {
 
   const flashListRef = useRef<FlashListRef<RouteData>>(null)
   const insets = useSafeAreaInsets()
+  const sideInsets = logicalSideInsets(insets, I18nManager.isRTL)
   const { width: windowWidth } = useWindowDimensions()
+
+  // Wide windows (iPhone Duo open, iPad) show the list beside the selected trip's details, as the website does.
+  const isWide = useIsWideLayout()
+  // Partially folded like a book, the split follows the fold instead: a column on either side of it, so neither
+  // the list nor the details sit in the crease (the fold is in the middle, so that's an even split).
+  const [splitRow, setSplitRow] = useState<{ width: number; divisions: Region[] }>({ width: 0, divisions: [] })
+  const foldSplit = isWide ? splitAroundFold(splitRow.width, splitRow.divisions, I18nManager.isRTL, sideInsets.start) : null
+  const listWidth = foldSplit
+    ? foldSplit.firstColumnWidth
+    : isWide
+      ? Math.min(Math.max((windowWidth - sideInsets.start - sideInsets.end) * 0.45, 340), 440)
+      : windowWidth - sideInsets.start - sideInsets.end
+  const [selectedRoute, setSelectedRoute] = useState<RouteItem | null>(null)
+  const [showEntireRoute, setShowEntireRoute] = useState(false)
+  const selectedRouteKey = selectedRoute ? routeKey(selectedRoute) : undefined
+
+  useEffect(() => {
+    setSelectedRoute(null)
+  }, [originId, destinationId])
+
+  const openRouteDetails = (routeItem: RouteItem, instant = false) => {
+    useNavigationParamsStore.getState().setRouteDetails({ routeItem, originId, destinationId })
+    router.push({ pathname: "/route-details", params: instant ? { instant: "1" } : {} })
+  }
+
+  // The split view and the separate screens are two presentations of the same selection, so switching between them
+  // (closing or opening the device, rotating, Split View) swaps one for the other without a navigation transition.
+  // Narrowing continues on the details screen, pushed without animation; widening is handled by that screen, which
+  // hands its trip back here and pops itself.
+  const isFocused = useIsFocused()
+  const wasWide = useRef(isWide)
+  useEffect(() => {
+    // Not while a sheet (fares, filter) or another screen is on top: the swap would land under it.
+    if (wasWide.current && !isWide && selectedRoute && isFocused) openRouteDetails(selectedRoute, true)
+    wasWide.current = isWide
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isWide])
+
+  const splitHandoff = useNavigationParamsStore((s) => s.splitHandoff)
+  useEffect(() => {
+    if (!splitHandoff) return
+    useNavigationParamsStore.getState().setSplitHandoff(null)
+    if (isWide) {
+      setSelectedRoute(splitHandoff)
+      setShowEntireRoute(false)
+    }
+  }, [splitHandoff, isWide])
 
   // Prompt the user once to choose whether to show the "Train Info" row on route cards.
   // Gated behind the "show-train-info-prompt" PostHog feature flag; shown at most once per
@@ -367,7 +420,7 @@ export function RouteListScreen() {
     const maxTextLength = max(allTexts)
 
     // Check if there's enough space for the dashed line with that text
-    const shouldShowDashedLineByTextLength = round(windowWidth / fontScale / 30) >= maxTextLength
+    const shouldShowDashedLineByTextLength = round(listWidth / fontScale / 30) >= maxTextLength
 
     /**
      * Show the dashed line only when all these conditions are matched:
@@ -375,7 +428,7 @@ export function RouteListScreen() {
      * - Font Scale is 1.2 or less
      * - There's enough space for the dashed line with the longest duration/delay text
      */
-    return fontScale <= 1.2 && windowWidth >= 360 && shouldShowDashedLineByTextLength
+    return fontScale <= 1.2 && listWidth >= 360 && shouldShowDashedLineByTextLength
   })()
 
   const handleRouteLongPress = async (routeItem: RouteItem) => {
@@ -475,8 +528,13 @@ export function RouteListScreen() {
         isActiveRide={isRouteActive(item)}
         isRouteInThePast={isRouteInThePast(arrivalTime, item.delay)}
         onPress={() => {
-          useNavigationParamsStore.getState().setRouteDetails({ routeItem: item, originId, destinationId })
-          router.push("/route-details")
+          if (isWide) {
+            HapticFeedback.trigger("selection")
+            setSelectedRoute(item)
+            setShowEntireRoute(false)
+          } else {
+            openRouteDetails(item)
+          }
         }}
         onLongPress={() => handleRouteLongPress(item)}
         routeItem={item}
@@ -484,6 +542,7 @@ export function RouteListScreen() {
         destinationId={destinationId}
         shouldShowDashedLine={shouldShowDashedLine}
         style={{ marginBottom: spacing[3] }}
+        cardStyle={isWide && selectedRouteKey === routeKey(item) ? styles.selectedCard : undefined}
       />
     )
   }
@@ -517,63 +576,105 @@ export function RouteListScreen() {
         originId={originId}
         destinationId={destinationId}
         style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
+        // On wide layouts the toolbar also carries the selected trip's actions, as the route details screen does.
+        routeItem={isWide ? (selectedRoute ?? undefined) : undefined}
+        splitColumns={isWide ? { firstWidth: listWidth, gap: foldSplit?.gap ?? 0 } : null}
+        showEntireRoute={showEntireRoute}
+        setShowEntireRoute={setShowEntireRoute}
       />
 
       {/* The photo header spans the full width; everything below stays clear of the side bars. */}
-      <View style={[styles.content, sideInsetPadding(insets, I18nManager.isRTL)]}>
-        {/* Only show the no internet error if we're not loading and there's no data */}
-        {!isInternetReachable && !trains.isLoading && !trains.data && <RouteListError errorType="no-internet" />}
+      <ReservedRegionsView
+        onLayout={(event) => {
+          const { width } = event.nativeEvent.layout
+          setSplitRow((row) => (row.width === width ? row : { ...row, width }))
+        }}
+        onDivisionsChange={(event) => {
+          const { divisions } = event.nativeEvent
+          setSplitRow((row) => ({ ...row, divisions }))
+        }}
+        style={[
+          styles.content,
+          isWide && styles.splitContent,
+          // In the split the details pane reaches the end edge itself, so its banners can bleed under the inset.
+          { paddingStart: sideInsets.start, paddingEnd: isWide ? 0 : sideInsets.end },
+        ]}
+      >
+        <View style={isWide ? { width: listWidth } : styles.content}>
+          {/* Only show the no internet error if we're not loading and there's no data */}
+          {!isInternetReachable && !trains.isLoading && !trains.data && <RouteListError errorType="no-internet" />}
 
-        {/* Only show the request error if we're not loading, internet is available, and there's an error */}
-        {isInternetReachable && !trains.isLoading && trains.status === "error" && !trains.data && (
-          <RouteListError errorType="request-error" />
-        )}
+          {/* Only show the request error if we're not loading, internet is available, and there's an error */}
+          {isInternetReachable && !trains.isLoading && trains.status === "error" && !trains.data && (
+            <RouteListError errorType="request-error" />
+          )}
 
-        {/* Show the loading indicator only when we're loading and there's no data yet */}
-        {trains.isLoading && routeData.length === 0 && (
-          <ActivityIndicator size="large" style={{ marginTop: spacing[6] }} color="grey" />
-        )}
+          {/* Show the loading indicator only when we're loading and there's no data yet */}
+          {trains.isLoading && routeData.length === 0 && (
+            <ActivityIndicator size="large" style={{ marginTop: spacing[6] }} color="grey" />
+          )}
 
-        {displayData.length > 0 && (
-          <FlashList
-            key={`route-list-${hideSlowTrains}`}
-            ref={flashListRef}
-            renderItem={renderRouteCard}
-            keyExtractor={(item) =>
-              typeof item === "string"
-                ? item
-                : item.trains.map((train) => `${train.trainNumber}-${train.departureTimeString}`).join()
-            }
-            data={displayData}
-            contentContainerStyle={{
-              paddingTop: spacing[4],
-              paddingHorizontal: spacing[3],
-              paddingBottom: shouldShowWarning ? spacing[8] + spacing[5] : spacing[3],
-            }}
-            initialScrollIndex={initialScrollIndex}
-            // so the list will re-render when the ride route changes, and so the item will be marked
-            extraData={[rideRoute, routePlanDate, trains.status, loadingDate, hideSlowTrains, maxChanges]}
-            ListFooterComponent={
-              <DateScroll setTime={loadNextDayData} currenTime={nextDayDate.getTime()} isLoadingDate={isNextDayLoading} />
-            }
-            ListFooterComponentStyle={{ paddingBottom: spacing[3] }}
+          {displayData.length > 0 && (
+            <FlashList
+              key={`route-list-${hideSlowTrains}`}
+              ref={flashListRef}
+              renderItem={renderRouteCard}
+              keyExtractor={(item) =>
+                typeof item === "string"
+                  ? item
+                  : item.trains.map((train) => `${train.trainNumber}-${train.departureTimeString}`).join()
+              }
+              data={displayData}
+              contentContainerStyle={{
+                paddingTop: spacing[4],
+                paddingHorizontal: spacing[3],
+                paddingBottom: shouldShowWarning ? spacing[8] + spacing[5] : spacing[3],
+              }}
+              initialScrollIndex={initialScrollIndex}
+              // so the list will re-render when the ride route changes, and so the item will be marked
+              extraData={[
+                rideRoute,
+                routePlanDate,
+                trains.status,
+                loadingDate,
+                hideSlowTrains,
+                maxChanges,
+                selectedRouteKey,
+                isWide,
+              ]}
+              ListFooterComponent={
+                <DateScroll setTime={loadNextDayData} currenTime={nextDayDate.getTime()} isLoadingDate={isNextDayLoading} />
+              }
+              ListFooterComponentStyle={{ paddingBottom: spacing[3] }}
+            />
+          )}
+
+          {/* A failed background refetch sets "not-found" in the store directly, bypassing the
+          onError guard — so also require that no results are currently displayed. */}
+          {resultType === "not-found" && !trains.isLoading && isInternetReachable && routeData.length === 0 && (
+            <View style={{ marginTop: spacing[4] }}>
+              <NoTrainsFoundMessage />
+            </View>
+          )}
+
+          {allRoutesHiddenByFilter && <FilteredTrainsMessage maxChanges={maxChanges} onShowAll={() => setMaxChanges(null)} />}
+
+          {shouldShowWarning && !trains.isLoading && (
+            <RouteListWarning routesDate={trains.data[0].trains[0].departureTime} warningType={resultType as WarningType} />
+          )}
+        </View>
+
+        {isWide && (
+          <RouteDetailsPane
+            routeItem={selectedRoute}
+            originId={originId}
+            destinationId={destinationId}
+            showEntireRoute={showEntireRoute}
+            endInset={sideInsets.end}
+            style={foldSplit ? { marginStart: foldSplit.gap, borderStartWidth: 0 } : undefined}
           />
         )}
-
-        {/* A failed background refetch sets "not-found" in the store directly, bypassing the
-          onError guard — so also require that no results are currently displayed. */}
-        {resultType === "not-found" && !trains.isLoading && isInternetReachable && routeData.length === 0 && (
-          <View style={{ marginTop: spacing[4] }}>
-            <NoTrainsFoundMessage />
-          </View>
-        )}
-
-        {allRoutesHiddenByFilter && <FilteredTrainsMessage maxChanges={maxChanges} onShowAll={() => setMaxChanges(null)} />}
-
-        {shouldShowWarning && !trains.isLoading && (
-          <RouteListWarning routesDate={trains.data[0].trains[0].departureTime} warningType={resultType as WarningType} />
-        )}
-      </View>
+      </ReservedRegionsView>
     </Screen>
   )
 }
@@ -585,5 +686,12 @@ const styles = StyleSheet.create((theme) => ({
   },
   content: {
     flex: 1,
+  },
+  splitContent: {
+    flexDirection: "row",
+  },
+  selectedCard: {
+    outlineWidth: 2,
+    outlineColor: theme.colors.primary,
   },
 }))

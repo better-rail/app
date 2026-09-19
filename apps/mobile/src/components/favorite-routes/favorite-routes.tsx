@@ -12,10 +12,12 @@ import { FavoriteRouteBox } from "./favorite-route-box"
 
 export interface FavoriteRoutesProps {
   style?: ViewStyle
+  /** Called once a favorite has been picked as the planned route. Defaults to going back, as from station search. */
+  onSelect?: () => void
 }
 
 export function FavoriteRoutes(props: FavoriteRoutesProps) {
-  const { style } = props
+  const { style, onSelect } = props
   const router = useRouter()
   const stations = useStations()
   const { setOrigin, setDestination } = useRoutePlanStore(
@@ -32,7 +34,8 @@ export function FavoriteRoutes(props: FavoriteRoutesProps) {
     setOrigin(origin)
     setDestination(destination)
 
-    router.back()
+    if (onSelect) onSelect()
+    else router.back()
   }
 
   const favorites = (() => {

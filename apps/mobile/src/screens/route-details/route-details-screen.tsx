@@ -1,47 +1,16 @@
-/* eslint-disable react-native/no-inline-styles */
-import React, { useEffect, useMemo, useState } from "react"
-import { Alert, I18nManager, Image, Platform, PlatformColor, Pressable, View } from "react-native"
+import React, { useEffect, useRef, useState } from "react"
+import { I18nManager, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { ScrollView } from "react-native-gesture-handler"
-import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated"
-
 import { useShallow } from "zustand/react/shallow"
-import { useRideStore } from "@/models"
-import { useRideProgress } from "@/hooks/use-ride-progress"
-import { spacing } from "@/theme"
-import { RouteDetailsHeader, Screen } from "@/components"
-import {
-  LiveRideSheet,
-  LongRouteWarning,
-  RouteChangeWarnings,
-  RouteExchangeDetails,
-  RouteLine,
-  RouteStationCard,
-  RouteStopCard,
-  StartRideButton,
-} from "./components"
-
-import { useQuery } from "react-query"
-import type { RouteItem } from "@/services/api"
-import { RouteApi } from "@/services/api/route-api"
-import { useRouter, usePathname } from "expo-router"
-import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
-import { useStations } from "@/data/stations"
-import { calculateDelayedTime, formatClockTime, formatDateForAPI, formatTime } from "@/utils/helpers/date-helpers"
-import { getSelectedRide } from "@/utils/helpers/ride-helpers"
-import { logicalSideInsets, sideInsetPadding } from "@/utils/helpers/safe-area-helpers"
-import { SideInsetBleedProvider } from "./components/side-inset-bleed"
+import { usePathname, useNavigation, useRouter, useIsFocused } from "expo-router"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-
-const routeApi = new RouteApi()
-import { GlassView } from "expo-glass-effect"
-import { isLiquidGlassSupported } from "@/utils/liquid-glass"
-import HapticFeedback from "react-native-haptic-feedback"
-import { translate } from "@/i18n"
-import { trackEvent } from "@/services/analytics"
+import { RouteDetailsHeader, Screen } from "@/components"
+import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
+import { logicalSideInsets } from "@/utils/helpers/safe-area-helpers"
+import { useIsWideLayout } from "@/hooks/use-is-wide-layout"
+import { RouteDetailsBody, useRouteDetailsData } from "./route-details-body"
 
 export function RouteDetailsScreen() {
-  const router = useRouter()
   const pathname = usePathname()
   const screenName = pathname.includes("active-ride") ? "activeRide" : "routeDetails"
   const {
@@ -51,66 +20,29 @@ export function RouteDetailsScreen() {
   } = useNavigationParamsStore(
     useShallow((s) => ({ routeItem: s.routeItem, originId: s.originId, destinationId: s.destinationId })),
   )
-  const viaStationId = paramsRouteItem.viaStationId
-  const {
-    rideRoute,
-    id: rideId,
-    isRouteActive,
-    stopRide,
-  } = useRideStore(useShallow((s) => ({ rideRoute: s.route, id: s.id, isRouteActive: s.isRouteActive, stopRide: s.stopRide })))
-  const canRunLiveActivities = useRideStore((s) => s.canRunLiveActivities)
-  const allStations = useStations()
-
-  // we re-run this check every time the ride changes
-  const isRideOnThisRoute = useMemo(() => isRouteActive(paramsRouteItem), [rideRoute])
-
-  const trainNumbers = paramsRouteItem.trains.map((t) => t.trainNumber)
-
-  // Periodically refetch route data to catch platform changes and delays.
-  // Skip when ride is active — the ride polling already handles updates.
-  const { data: freshRouteItem } = useQuery(
-    ["routeDetails", originId, destinationId, viaStationId, paramsRouteItem.departureTime, ...trainNumbers],
-    async () => {
-      const [date, time] = formatDateForAPI(paramsRouteItem.departureTime)
-      const originId = paramsRouteItem.trains[0].originStationId.toString()
-      const destinationId = paramsRouteItem.trains[paramsRouteItem.trains.length - 1].destinationStationId.toString()
-      const routes = await routeApi.getRoutes(originId, destinationId, date, time, { viaStation: viaStationId })
-      const fresh = getSelectedRide(routes, trainNumbers)
-      return fresh ? { ...fresh, viaStationId } : paramsRouteItem
-    },
-    {
-      initialData: paramsRouteItem,
-      refetchInterval: 60_000,
-      enabled: !isRideOnThisRoute,
-    },
-  )
-
-  // if the ride is on this route, we use the ride's route, since it has the latest data
-  // otherwise we use the freshly fetched route data
-  const routeItem = (() => {
-    if (isRideOnThisRoute) return rideRoute as unknown as RouteItem
-    return freshRouteItem ?? paramsRouteItem
-  })()
-
-  const progress = useRideProgress({ route: routeItem, enabled: isRideOnThisRoute })
-  const { stations } = progress
-
+  const data = useRouteDetailsData(paramsRouteItem, originId, destinationId)
   const insets = useSafeAreaInsets()
-
-  const hasWagonData = routeItem.trains[0]?.visaWagonData?.wagons?.length > 0
-  const [shouldFadeRideButton, setShouldFadeRideButton] = useState(false)
   const [showEntireRoute, setShowEntireRoute] = useState(false)
 
+  // Opened from the route list, this screen stands in for its split view while the window is narrow. When the
+  // window widens (the device opens or rotates), hand the trip back for the split to show and leave without a
+  // transition, so the layout simply changes under the user.
+  const router = useRouter()
+  const navigation = useNavigation()
+  const isWide = useIsWideLayout()
+  const isFocused = useIsFocused()
+  const wasWide = useRef(isWide)
   useEffect(() => {
-    // allow button fade only after the view mounts; disable the animation when the view appears initally.
-    setShouldFadeRideButton(true)
-  }, [])
-
-  useEffect(() => {
-    if (rideId && progress.status === "arrived") {
-      stopRide(rideId)
-    }
-  }, [progress.status, rideId])
+    const widened = !wasWide.current && isWide
+    wasWide.current = isWide
+    if (!widened || screenName !== "routeDetails" || !isFocused) return
+    const { routes, index } = navigation.getState() ?? { routes: [], index: 0 }
+    if (routes[index - 1]?.name !== "route-list") return
+    useNavigationParamsStore.getState().setSplitHandoff(data.routeItem)
+    navigation.setOptions({ animation: "none" })
+    router.back()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isWide])
 
   return (
     <Screen
@@ -125,7 +57,7 @@ export function RouteDetailsScreen() {
     >
       <View style={{ flex: 1 }}>
         <RouteDetailsHeader
-          routeItem={routeItem}
+          routeItem={data.routeItem}
           originId={originId}
           destinationId={destinationId}
           screenName={screenName}
@@ -134,255 +66,18 @@ export function RouteDetailsScreen() {
           style={styles.headerContainer}
         />
 
-        <View style={{ flex: 1 }}>
-          {/* The scroll view spans the full width so banner backgrounds can bleed under the side
-              insets; its content stays clear of them. */}
-          <ScrollView
-            contentContainerStyle={[
-              { paddingTop: spacing[4], paddingBottom: 80 + insets.bottom },
-              sideInsetPadding(insets, I18nManager.isRTL),
-            ]}
-            showsVerticalScrollIndicator={false}
-          >
-            <SideInsetBleedProvider value={logicalSideInsets(insets, I18nManager.isRTL)}>
-              {routeItem.isMuchLonger && screenName === "routeDetails" && <LongRouteWarning />}
-              {routeItem.trains.map((train, index) => {
-                // When showing the entire route, we need to organize all stations in order
-                if (showEntireRoute && train.routeStations && train.routeStations.length > 0) {
-                  // Get all route stations
-                  const allRouteStations = train.routeStations
-                  // Find indices of origin and destination stations
-                  const originIndex = allRouteStations.findIndex((s) => s.stationId === train.originStationId)
-                  const destinationIndex = allRouteStations.findIndex((s) => s.stationId === train.destinationStationId)
-                  // Stations the user actually rides through, between origin and destination
-                  const betweenStations = allRouteStations.slice(originIndex + 1, destinationIndex)
-
-                  return (
-                    <View key={train.trainNumber} style={styles.stationContainer}>
-                      <RouteChangeWarnings train={train} />
-
-                      {/* Stations before origin */}
-                      {allRouteStations.slice(0, originIndex).map((station, idx) => {
-                        const isFirstStation = idx === 0
-                        return (
-                          <View key={`before-${station.stationId}`}>
-                            <RouteStopCard
-                              stationName={allStations.find((c) => c.id === station.stationId.toString())?.name ?? ""}
-                              stopTime={formatClockTime(station.arrivalTime)}
-                              delayedTime={calculateDelayedTime(station.arrivalTime, train.delay)}
-                              style={{ zIndex: 20 - idx, opacity: 0.7 }}
-                              topLineState={isFirstStation ? "hidden" : "idle"}
-                              bottomLineState="idle"
-                              isOutsideUserJourney={true}
-                              isCancelled={station.cancelled}
-                            />
-                          </View>
-                        )
-                      })}
-
-                      {/* Origin station */}
-                      <RouteStationCard
-                        stationName={train.originStationName}
-                        stopTime={formatTime(train.departureTime)}
-                        platform={train.originPlatform}
-                        platformChanged={train.originPlatformChanged}
-                        trainNumber={train.trainNumber}
-                        lastStop={train.lastStop}
-                        lastStopChanged={train.isLastStopChanged}
-                        delay={train.delay}
-                      />
-
-                      {/* Stations between origin and destination */}
-                      {betweenStations.length > 0 ? (
-                        betweenStations.map((station, idx) => (
-                          <View key={`between-${station.stationId}`}>
-                            <RouteStopCard
-                              stationName={allStations.find((c) => c.id === station.stationId.toString())?.name ?? ""}
-                              stopTime={formatClockTime(station.arrivalTime)}
-                              delayedTime={calculateDelayedTime(station.arrivalTime, train.delay)}
-                              style={{ zIndex: 20 - idx }}
-                              topLineState={isRideOnThisRoute ? stations[station.stationId]?.top || "idle" : "idle"}
-                              bottomLineState={isRideOnThisRoute ? stations[station.stationId]?.bottom || "idle" : "idle"}
-                              isCancelled={station.cancelled}
-                            />
-                          </View>
-                        )) // if there are no stops, display a separating line between the route station cards
-                      ) : (
-                        <RouteLine
-                          style={{ start: "35.44%", height: 30 }}
-                          state={isRideOnThisRoute ? stations[train.destinationStationId]?.bottom || "idle" : "idle"}
-                        />
-                      )}
-
-                      {/* Destination station */}
-                      <RouteStationCard
-                        stationName={train.destinationStationName}
-                        stopTime={formatTime(train.arrivalTime)}
-                        delayedTime={calculateDelayedTime(train.arrivalTime, train.delay)}
-                        platform={train.destinationPlatform}
-                        platformChanged={train.destinationPlatformChanged}
-                      />
-
-                      {/* Stations after destination */}
-                      {allRouteStations.slice(destinationIndex + 1).map((station, idx, arr) => {
-                        const isLastStation = idx === arr.length - 1
-                        return (
-                          <View key={`after-${station.stationId}`}>
-                            <RouteStopCard
-                              stationName={allStations.find((c) => c.id === station.stationId.toString())?.name ?? ""}
-                              stopTime={formatClockTime(station.arrivalTime)}
-                              delayedTime={calculateDelayedTime(station.arrivalTime, train.delay)}
-                              style={{ zIndex: 20 - idx, opacity: 0.7 }}
-                              topLineState="idle"
-                              bottomLineState={isLastStation ? "hidden" : "idle"}
-                              isOutsideUserJourney={true}
-                              isCancelled={station.cancelled}
-                            />
-                          </View>
-                        )
-                      })}
-
-                      {routeItem.isExchange && routeItem.trains.length - 1 !== index && (
-                        <RouteExchangeDetails
-                          stationName={train.destinationStationName}
-                          arrivalPlatform={train.destinationPlatform}
-                          departurePlatform={routeItem.trains[index + 1].originPlatform}
-                          firstTrain={train}
-                          secondTrain={routeItem.trains[index + 1]}
-                        />
-                      )}
-                    </View>
-                  )
-                }
-
-                // Original display logic when not showing entire route
-                return (
-                  <View key={train.trainNumber} style={styles.stationContainer}>
-                    <RouteChangeWarnings train={train} />
-
-                    <RouteStationCard
-                      stationName={train.originStationName}
-                      stopTime={formatTime(train.departureTime)}
-                      platform={train.originPlatform}
-                      platformChanged={train.originPlatformChanged}
-                      trainNumber={train.trainNumber}
-                      lastStop={train.lastStop}
-                      lastStopChanged={train.isLastStopChanged}
-                      delay={train.delay}
-                    />
-
-                    {train.stopStations.length > 0
-                      ? train.stopStations.map((stop, idx) => (
-                          <View key={stop.stationId}>
-                            <RouteStopCard
-                              stationName={stop.stationName}
-                              stopTime={formatTime(stop.departureTime)}
-                              delayedTime={calculateDelayedTime(stop.departureTime, train.delay)}
-                              style={{ zIndex: 20 - idx }}
-                              topLineState={isRideOnThisRoute ? stations[stop.stationId]?.top || "idle" : "idle"}
-                              bottomLineState={isRideOnThisRoute ? stations[stop.stationId]?.bottom || "idle" : "idle"}
-                              isCancelled={stop.cancelled}
-                            />
-                          </View>
-                        ))
-                      : // if there are no stops, display a separating line between the route station cards
-                        train.stopStations.length === 0 && (
-                          <RouteLine
-                            style={{ start: "35.44%", height: 30 }}
-                            // TODO: The line state doesn't work properly
-                            state={isRideOnThisRoute ? stations[train.destinationStationId]?.bottom || "idle" : "idle"}
-                          />
-                        )}
-
-                    <RouteStationCard
-                      stationName={train.destinationStationName}
-                      stopTime={formatTime(train.arrivalTime)}
-                      delayedTime={calculateDelayedTime(train.arrivalTime, train.delay)}
-                      platform={train.destinationPlatform}
-                      platformChanged={train.destinationPlatformChanged}
-                    />
-
-                    {routeItem.isExchange && routeItem.trains.length - 1 !== index && (
-                      <RouteExchangeDetails
-                        stationName={train.destinationStationName}
-                        arrivalPlatform={train.destinationPlatform}
-                        departurePlatform={routeItem.trains[index + 1].originPlatform}
-                        firstTrain={train}
-                        secondTrain={routeItem.trains[index + 1]}
-                      />
-                    )}
-                  </View>
-                )
-              })}
-            </SideInsetBleedProvider>
-          </ScrollView>
-        </View>
-
-        {isRideOnThisRoute && (
-          <Animated.View
-            entering={shouldFadeRideButton && FadeInDown}
-            exiting={FadeOutDown}
-            // zIndex is needed for Android in order to make the button pressable
-            style={[
-              { position: "absolute", left: 0, right: 0, bottom: 0, zIndex: Platform.select({ ios: 0, android: 1 }) },
-              sideInsetPadding(insets, I18nManager.isRTL),
-            ]}
-          >
-            <LiveRideSheet progress={progress} screenName={screenName} />
-          </Animated.View>
-        )}
-
-        {(Platform.OS === "android" || canRunLiveActivities) && !isRideOnThisRoute && (
-          <Animated.View
-            entering={shouldFadeRideButton && FadeInDown.delay(100)}
-            exiting={FadeOutDown}
-            style={{
-              position: "absolute",
-              start: 0,
-              // The side bar column only holds controls at the top, so the ride button can use its bottom.
-              end: 18,
-              bottom: Math.max(insets.bottom + 12, 32),
-              zIndex: 10,
-              flexDirection: "row",
-              justifyContent: "flex-end",
-              alignItems: "center",
-              gap: spacing[3],
-            }}
-          >
-            <Pressable
-              testID="train-info-button"
-              onPress={() => {
-                if (hasWagonData) {
-                  trackEvent("train_info_sheet_opened")
-                  HapticFeedback.trigger("impactLight")
-                  useNavigationParamsStore.getState().setTrainInfo(routeItem.trains[0])
-                  router.push("/train-info")
-                } else {
-                  Alert.alert(translate("routeDetails.trainInformation") ?? "", translate("routeDetails.noTrainDetails") ?? "")
-                }
-              }}
-              accessibilityLabel={translate("routeDetails.trainInformation") ?? undefined}
-              accessibilityHint={!hasWagonData ? (translate("routeDetails.noTrainDetails") ?? undefined) : undefined}
-            >
-              <GlassView
-                style={[styles.infoButton, !hasWagonData && styles.infoButtonDisabled]}
-                isInteractive={hasWagonData}
-                glassEffectStyle="regular"
-                tintColor={Platform.OS === "ios" ? PlatformColor("tertiarySystemBackground") : undefined}
-              >
-                <Image source={require("../../../assets/info.circle.png")} style={styles.infoButtonIcon} />
-              </GlassView>
-            </Pressable>
-
-            <StartRideButton route={routeItem} screenName={screenName} />
-          </Animated.View>
-        )}
+        <RouteDetailsBody
+          data={data}
+          screenName={screenName}
+          showEntireRoute={showEntireRoute}
+          sideInsets={logicalSideInsets(insets, I18nManager.isRTL)}
+        />
       </View>
     </Screen>
   )
 }
 
-const styles = StyleSheet.create((theme, rt) => ({
+const styles = StyleSheet.create((theme) => ({
   root: {
     flex: 1,
     backgroundColor: theme.colors.background,
@@ -390,33 +85,5 @@ const styles = StyleSheet.create((theme, rt) => ({
   headerContainer: {
     paddingHorizontal: theme.spacing[3],
     marginBottom: theme.spacing[3],
-  },
-  stationContainer: {
-    backgroundColor: theme.colors.background,
-  },
-  infoButton: {
-    // The text button renders 4pt taller than its minimum at the default font
-    // scale because of its line box and padding. Match that visible surface.
-    width: Math.max(59, 55 * Math.min(rt.fontScale, 1.2)),
-    height: Math.max(59, 55 * Math.min(rt.fontScale, 1.2)),
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: Platform.select({ ios: 16, android: 6 }),
-    borderCurve: "continuous",
-    // Android's tertiaryBackground is the screen background — inputBackground is the raised one.
-    backgroundColor: isLiquidGlassSupported
-      ? undefined
-      : Platform.OS === "android"
-        ? theme.colors.inputBackground
-        : theme.colors.tertiaryBackground,
-    elevation: 3,
-  },
-  infoButtonDisabled: {
-    opacity: 0.5,
-  },
-  infoButtonIcon: {
-    width: 24,
-    height: 24,
-    tintColor: theme.colors.text,
   },
 }))

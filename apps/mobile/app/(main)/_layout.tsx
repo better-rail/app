@@ -40,7 +40,14 @@ export default function MainLayout() {
           }}
         />
         <Stack.Screen name="route-list" options={{ headerShown: false }} />
-        <Stack.Screen name="route-details" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="route-details"
+          // `instant` swaps the route list's split view for this screen when the window narrows, with no push to see.
+          options={({ route }) => ({
+            headerShown: false,
+            ...((route.params as { instant?: string } | undefined)?.instant ? { animation: "none" as const } : {}),
+          })}
+        />
         <Stack.Screen name="station-hours" options={formSheetOptions} />
         <Stack.Screen name="filter" options={formSheetOptions} />
         <Stack.Screen name="fares" options={formSheetOptions} />

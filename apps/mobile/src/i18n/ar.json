@@ -86,6 +86,7 @@
     "trainInfoPromptFootnote": "يمكنك تغيير ذلك لاحقًا في إعدادات التطبيق"
   },
   "routeDetails": {
+    "selectRoute": "اختر رحلة من القائمة لعرض تفاصيلها",
     "platform": "رصيف",
     "unknown": "مجهول",
     "trainNo": "قطار رقم",
