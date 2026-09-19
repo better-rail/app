@@ -36,5 +36,11 @@
     "plannedWithReason": "أعمال مخططة: %{what} – %{reason}",
     "disruption": "الخدمة متعطلة",
     "resumed": "عادت الخدمة إلى طبيعتها"
+  },
+  "delayGuard": {
+    "title": "القطار %{trainNumber} في %{time} من %{origin} إلى %{destination}",
+    "delayed": "متأخر %{minutes} دقيقة، متوقع في %{expected}.",
+    "cancelled": "أُلغي. تحقق من مسار آخر.",
+    "reminder": "قد يتقلص التأخير – تابعه."
   }
 }

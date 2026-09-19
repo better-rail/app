@@ -1,7 +1,9 @@
 import { create } from "zustand"
 import { TxKeyPath } from "@/i18n"
 import type { DayType } from "@/data/rail-map-layout"
-import { PopUpMessage } from "@/services/api"
+import { type DelayGuard, GUARD_MINUTES_OPTIONS, type PopUpMessage, guardKey } from "@/services/api"
+
+export type { DelayGuard }
 
 export type MaxChanges = 0 | 1 | null
 
@@ -30,6 +32,9 @@ export interface SettingsState {
   stationAlerts: StationAlert[]
   /** Whether the server holds this device's subscription, so an emptied list is still told to it. */
   stationAlertsRegistered: boolean
+  /** Trains to be told about when they run late (Delay Guard). */
+  delayGuards: DelayGuard[]
+  delayGuardsRegistered: boolean
 }
 
 export interface SettingsActions {
@@ -45,6 +50,10 @@ export interface SettingsActions {
   setStationAlert: (stationId: string, choice?: Partial<Omit<StationAlert, "stationId">>) => void
   removeStationAlert: (stationId: string) => void
   setStationAlertsRegistered: (registered: boolean) => void
+  /** Adds the guard, or changes one already there (same train and boarding station). */
+  setDelayGuard: (guard: DelayGuard) => void
+  removeDelayGuard: (key: string) => void
+  setDelayGuardsRegistered: (registered: boolean) => void
 }
 
 export type SettingsStore = SettingsState & SettingsActions
@@ -61,6 +70,8 @@ const initialSettingsState: SettingsState = {
   seenLawsuitAnnouncement: false,
   stationAlerts: [],
   stationAlertsRegistered: false,
+  delayGuards: [],
+  delayGuardsRegistered: false,
 }
 
 export const resetSettingsStore = () => useSettingsStore.setState(initialSettingsState)
@@ -128,7 +139,30 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
   setStationAlertsRegistered(registered) {
     set({ stationAlertsRegistered: registered })
   },
+
+  setDelayGuard(guard) {
+    set((state) => {
+      const key = guardKey(guard)
+      const at = state.delayGuards.findIndex((g) => guardKey(g) === key)
+      const rest = state.delayGuards.filter((g) => guardKey(g) !== key)
+      if (at >= 0) rest.splice(at, 0, guard)
+      else rest.push(guard)
+      return { delayGuards: rest }
+    })
+  },
+
+  removeDelayGuard(key) {
+    set((state) => ({ delayGuards: state.delayGuards.filter((g) => guardKey(g) !== key) }))
+  },
+
+  setDelayGuardsRegistered(registered) {
+    set({ delayGuardsRegistered: registered })
+  },
 }))
+
+/** The guard for a train boarded at a station, when there is one. */
+export const delayGuardFor = (guards: DelayGuard[], trainNumber: number, originStationId: string): DelayGuard | undefined =>
+  guards.find((g) => g.trainNumber === trainNumber && g.originStationId === originStationId)
 
 /** A set of ids, without repeats, or null for "every one" when it is empty. */
 const someOrNull = <T>(ids: T[] | null | undefined): T[] | null => (ids && ids.length > 0 ? [...new Set(ids)] : null)
@@ -172,7 +206,37 @@ export function getSettingsSnapshot(state: SettingsState) {
     seenLawsuitAnnouncement: state.seenLawsuitAnnouncement,
     stationAlerts: state.stationAlerts,
     stationAlertsRegistered: state.stationAlertsRegistered,
+    delayGuards: state.delayGuards,
+    delayGuardsRegistered: state.delayGuardsRegistered,
   }
+}
+
+/** The guards as persisted, dropping anything malformed. */
+export function normalizeDelayGuards(data: any): DelayGuard[] {
+  const raw: unknown[] = Array.isArray(data?.delayGuards) ? data.delayGuards : []
+  const guards: DelayGuard[] = []
+  for (const item of raw) {
+    const g = item as Partial<DelayGuard> | undefined
+    if (
+      !g ||
+      typeof g.trainNumber !== "number" ||
+      typeof g.originStationId !== "string" ||
+      typeof g.destinationStationId !== "string" ||
+      typeof g.departureTime !== "string"
+    ) {
+      continue
+    }
+    if (guards.some((other) => guardKey(other) === guardKey(g as DelayGuard))) continue
+    const thresholdMinutes = GUARD_MINUTES_OPTIONS.includes(g.thresholdMinutes as number) ? (g.thresholdMinutes as number) : 3
+    guards.push({
+      trainNumber: g.trainNumber,
+      originStationId: g.originStationId,
+      destinationStationId: g.destinationStationId,
+      departureTime: g.departureTime,
+      thresholdMinutes,
+    })
+  }
+  return guards
 }
 
 /** The alerts as persisted, dropping anything malformed; the old per-station list (every line) migrates. */
@@ -217,6 +281,8 @@ export function hydrateSettingsStore(data: any) {
     seenLawsuitAnnouncement: processedData.seenLawsuitAnnouncement ?? false,
     stationAlerts: normalizeStationAlerts(processedData),
     stationAlertsRegistered: processedData.stationAlertsRegistered ?? false,
+    delayGuards: normalizeDelayGuards(processedData),
+    delayGuardsRegistered: processedData.delayGuardsRegistered ?? false,
   })
 }
 

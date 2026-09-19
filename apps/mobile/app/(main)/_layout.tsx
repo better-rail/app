@@ -39,6 +39,7 @@ export default function MainLayout() {
       <Stack.Screen name="train-info" options={formSheetOptions} />
       <Stack.Screen name="train-info-prompt" options={formSheetOptions} />
       <Stack.Screen name="live-permissions" options={formSheetOptions} />
+      <Stack.Screen name="delay-guard" options={formSheetOptions} />
     </Stack>
   )
 }

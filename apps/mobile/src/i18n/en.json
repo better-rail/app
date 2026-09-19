@@ -502,5 +502,22 @@
     "daysHint": "When",
     "always": "Always",
     "nightHint": "Night: the night trains, from midnight to 04:30 on Sun–Thu."
+  },
+  "delayGuard": {
+    "title": "Delay Guard",
+    "intro": "Get notified when this train runs late, so you can still catch it if you're running behind.",
+    "train": "Train %{trainNumber} · %{time}",
+    "fromTo": "%{origin} → %{destination}",
+    "notifyFrom": "Notify me from",
+    "minutes": "%{minutes} min",
+    "minutesLate": "%{minutes} min late",
+    "reminder": "Keep in mind: trains can make up time, so a delay can shrink before you arrive.",
+    "save": "Turn on Delay Guard",
+    "update": "Save",
+    "remove": "Turn off",
+    "on": "Delay Guard is on for this train",
+    "settingsTitle": "Delay Guard",
+    "noGuards": "No trains yet. Open a train's menu on the route list to guard it.",
+    "permissionDenied": "Notifications are turned off for Better Rail. Turn them on in your device settings to use Delay Guard."
   }
 }

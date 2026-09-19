@@ -23,39 +23,40 @@ export type SendResult = "sent" | "failed" | "unregistered"
 const UNREGISTERED_FCM_CODES = new Set(["messaging/registration-token-not-registered", "messaging/invalid-registration-token"])
 const UNREGISTERED_APN_REASONS = new Set(["BadDeviceToken", "Unregistered", "DeviceTokenNotForTopic"])
 
-export const sendStationAlert = async (
+/**
+ * An alert to one device: the words, plus the data the app reads to open the right screen
+ * (`data.type` says which). `collapseId` keeps only the latest of a kind on a phone that was offline.
+ */
+export const sendAlertPush = async (
   token: string,
   provider: AlertProvider,
-  stationId: string,
   message: AlertMessage,
+  data: Record<string, string> & { type: string },
+  collapseId: string,
 ): Promise<SendResult> => {
   if (provider === "ios") {
     try {
       await sendApnAlert(token, {
         alert: { title: message.title, body: message.body },
         sound: "default",
-        threadId: `station-${stationId}`,
-        collapseId: `station-${stationId}`,
+        threadId: collapseId,
+        collapseId,
         priority: Priority.immediate,
-        data: { type: "station-alert", stationId },
+        data,
       })
       return "sent"
     } catch (error) {
       const reason = (error as { reason?: string })?.reason
       if (reason && UNREGISTERED_APN_REASONS.has(reason)) return "unregistered"
-      logger?.error(logNames.stationAlerts.sendFailed, { provider, stationId, error })
+      logger?.error(logNames.stationAlerts.sendFailed, { provider, type: data.type, error })
       return "failed"
     }
   }
 
   const fcm: Message = {
     token,
-    data: {
-      type: "station-alert",
-      stationId,
-      notifee: JSON.stringify({ title: message.title, body: message.body }),
-    },
-    android: { priority: "high", ttl: 60 * 60 * 1000, collapseKey: `station-${stationId}` },
+    data: { ...data, notifee: JSON.stringify({ title: message.title, body: message.body }) },
+    android: { priority: "high", ttl: 60 * 60 * 1000, collapseKey: collapseId },
   }
   try {
     await sendFcmNotification(fcm)
@@ -63,7 +64,10 @@ export const sendStationAlert = async (
   } catch (error) {
     const code = (error as FirebaseError)?.code
     if (code && UNREGISTERED_FCM_CODES.has(code)) return "unregistered"
-    logger?.error(logNames.stationAlerts.sendFailed, { provider, stationId, error })
+    logger?.error(logNames.stationAlerts.sendFailed, { provider, type: data.type, error })
     return "failed"
   }
 }
+
+export const sendStationAlert = (token: string, provider: AlertProvider, stationId: string, message: AlertMessage) =>
+  sendAlertPush(token, provider, message, { type: "station-alert", stationId }, `station-${stationId}`)

@@ -36,5 +36,11 @@
     "plannedWithReason": "Planned works: %{what} – %{reason}",
     "disruption": "Service is disrupted",
     "resumed": "Good service has resumed"
+  },
+  "delayGuard": {
+    "title": "Train %{trainNumber} at %{time} from %{origin} to %{destination}",
+    "delayed": "Running %{minutes} min late, now expected at %{expected}.",
+    "cancelled": "Cancelled. Check for another route.",
+    "reminder": "Delays can shrink – keep an eye on it."
   }
 }

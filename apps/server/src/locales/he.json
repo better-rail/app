@@ -36,5 +36,11 @@
     "plannedWithReason": "עבודות מתוכננות: %{what} – %{reason}",
     "disruption": "יש שיבושים בשירות",
     "resumed": "השירות חזר לסדרו"
+  },
+  "delayGuard": {
+    "title": "רכבת %{trainNumber} ב-%{time} מ%{origin} ל%{destination}",
+    "delayed": "מאחרת ב-%{minutes} דק', צפויה לצאת ב-%{expected}.",
+    "cancelled": "בוטלה. בדקו מסלול חלופי.",
+    "reminder": "שימו לב: עיכובים יכולים להתקצר."
   }
 }

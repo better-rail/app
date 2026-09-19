@@ -38,8 +38,8 @@ const isDeployedService = Boolean(
 export const ridesEnabled = process.env.RIDES_ENABLED ? process.env.RIDES_ENABLED === "true" : isDeployedService
 
 /**
- * Whether this process watches the subscribed stations and pushes station alerts
- * (station-alerts/watcher.ts), and takes subscriptions. Shared state and real
+ * Whether this process watches the subscribed stations and guarded trains and pushes
+ * about them (station-alerts/watcher.ts, delay-guards/watcher.ts), and takes subscriptions. Shared state and real
  * riders' push tokens again, so the same opt-in as the rides: STATION_ALERTS_ENABLED,
  * else "are we the deployed service?". Set it on the deployment explicitly.
  */

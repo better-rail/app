@@ -11,6 +11,7 @@ import { logNames, logger, startLogger } from "./logs"
 import { startSiriPoller } from "./siri/poller"
 import { scheduleExistingRides } from "./utils/ride-utils"
 import { startStationAlerts } from "./station-alerts/watcher"
+import { startDelayGuards } from "./delay-guards/watcher"
 
 const app = express()
 app.use(express.json())
@@ -48,8 +49,10 @@ app.listen(port, async () => {
   else logger.warn(logNames.server.ridesDisabled)
 
   // Same opt-in: the watcher pushes to real riders' devices. Needs the GTFS status.
-  if (stationAlertsEnabled && railDataSource === "gtfs") startStationAlerts()
-  else logger.warn(logNames.server.stationAlertsDisabled)
+  if (stationAlertsEnabled && railDataSource === "gtfs") {
+    startStationAlerts()
+    startDelayGuards()
+  } else logger.warn(logNames.server.stationAlertsDisabled)
 
   // The SIRI poller normally runs as its own Railway service (`bun run siri`);
   // this fallback hosts it here when the MOT-registered egress IP is ours.

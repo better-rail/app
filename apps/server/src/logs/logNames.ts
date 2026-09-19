@@ -3,7 +3,7 @@ export const logNames = {
     listening: "App listening",
     dataSource: "Serving timetable data from",
     ridesDisabled: "Ride tracking is disabled, existing rides were left untouched",
-    stationAlertsDisabled: "Station alerts are disabled, subscriptions are not taken or watched",
+    stationAlertsDisabled: "Station alerts and Delay Guard are disabled, subscriptions are not taken or watched",
   },
   stationAlerts: {
     started: "Station alerts watcher started",
@@ -16,6 +16,17 @@ export const logNames = {
     unsubscribed: "Removed a station alerts subscription",
     storeFailed: "Failed to store a station alerts subscription",
     corruptSubscription: "Skipped a station alerts subscription that could not be read",
+  },
+  delayGuards: {
+    started: "Delay Guard watcher started",
+    checkFailed: "Delay Guard check failed",
+    recovered: "Delay Guard watcher recovered",
+    pushed: "Pushed a Delay Guard alert",
+    dropped: "Dropped a Delay Guard subscription whose device is gone",
+    subscribed: "Registered a Delay Guard subscription",
+    unsubscribed: "Removed a Delay Guard subscription",
+    storeFailed: "Failed to store a Delay Guard subscription",
+    corruptSubscription: "Skipped a Delay Guard subscription that could not be read",
   },
   redis: {
     connect: {

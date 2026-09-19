@@ -99,3 +99,33 @@ test("station alerts survive persistence and the old per-station list migrates t
   })
   expect(useSettingsStore.getState().stationAlerts).toEqual([{ stationId: "3700", lineIds: null, dayTypes: ["night"] }])
 })
+
+test("delay guards: adding, changing the threshold, removing, persisting", () => {
+  const store = useSettingsStore.getState()
+  const guard = {
+    trainNumber: 230,
+    originStationId: "3500",
+    destinationStationId: "5900",
+    departureTime: "08:30",
+    thresholdMinutes: 3,
+  }
+  store.setDelayGuard(guard)
+  store.setDelayGuard({ ...guard, trainNumber: 232, departureTime: "09:00" })
+  store.setDelayGuard({ ...guard, thresholdMinutes: 5 })
+  expect(useSettingsStore.getState().delayGuards).toEqual([
+    { ...guard, thresholdMinutes: 5 },
+    { ...guard, trainNumber: 232, departureTime: "09:00" },
+  ])
+
+  const snapshot = getSettingsSnapshot(useSettingsStore.getState())
+  resetSettingsStore()
+  hydrateSettingsStore(snapshot)
+  expect(useSettingsStore.getState().delayGuards).toHaveLength(2)
+
+  useSettingsStore.getState().removeDelayGuard("230@3500")
+  expect(useSettingsStore.getState().delayGuards).toEqual([{ ...guard, trainNumber: 232, departureTime: "09:00" }])
+
+  resetSettingsStore()
+  hydrateSettingsStore({ delayGuards: [{ ...guard, thresholdMinutes: 99 }, { trainNumber: "x" }, guard] })
+  expect(useSettingsStore.getState().delayGuards).toEqual([{ ...guard, thresholdMinutes: 3 }])
+})

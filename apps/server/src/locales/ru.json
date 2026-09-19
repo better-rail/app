@@ -36,5 +36,11 @@
     "plannedWithReason": "Плановые работы: %{what} – %{reason}",
     "disruption": "Движение нарушено",
     "resumed": "Движение восстановлено"
+  },
+  "delayGuard": {
+    "title": "Поезд %{trainNumber} в %{time} из %{origin} в %{destination}",
+    "delayed": "Опаздывает на %{minutes} мин, ожидается в %{expected}.",
+    "cancelled": "Отменён. Проверьте другой маршрут.",
+    "reminder": "Задержка может сократиться – следите за ней."
   }
 }

@@ -3,11 +3,13 @@ import { Router } from "express"
 import { ridesEnabled, stationAlertsEnabled } from "../data/config"
 import { buildRide } from "../utils/ride-utils"
 import { RideRequestSchema } from "../types/ride"
+import { DelayGuardSubscriptionSchema, DelayGuardUnsubscribeSchema } from "../types/delay-guards"
 import { StationAlertSubscriptionSchema, StationAlertUnsubscribeSchema } from "../types/station-alerts"
 import { createRateLimiter } from "../utils/rate-limiter"
 import { handleRailApiRequest, handleSearchTrainRequest } from "./rail-api"
 import { siriDebugRouter } from "./siri-debug"
 import { handleServiceStatusRequest } from "./service-status"
+import { handleGuardSubscribeRequest, handleGuardUnsubscribeRequest } from "./delay-guards"
 import { handleSubscribeRequest, handleUnsubscribeRequest } from "./station-alerts"
 import { handleStationDeparturesRequest } from "./station-departures"
 import { handleStationInfoRequest } from "./station-info"
@@ -56,6 +58,17 @@ stationAlertsRouter.use(createRateLimiter(10 * 60 * 1000, 30))
 stationAlertsRouter.put("/", bodyValidator(StationAlertSubscriptionSchema), handleSubscribeRequest)
 stationAlertsRouter.delete("/", bodyValidator(StationAlertUnsubscribeSchema), handleUnsubscribeRequest)
 router.use("/station-alerts", stationAlertsRouter)
+
+// Delay Guard: the trains a device wants to hear about when they run late. Same gate as the station alerts.
+const delayGuardsRouter = Router()
+delayGuardsRouter.use((req, res, next) => {
+  if (!stationAlertsEnabled) return res.status(503).json({ success: false, reason: "station_alerts_disabled" })
+  next()
+})
+delayGuardsRouter.use(createRateLimiter(10 * 60 * 1000, 30))
+delayGuardsRouter.put("/", bodyValidator(DelayGuardSubscriptionSchema), handleGuardSubscribeRequest)
+delayGuardsRouter.delete("/", bodyValidator(DelayGuardUnsubscribeSchema), handleGuardUnsubscribeRequest)
+router.use("/delay-guards", delayGuardsRouter)
 // SIRI pipeline debugging (404s without SIRI_DEBUG_TOKEN — see routes/siri-debug.ts)
 router.use("/siri", siriDebugRouter)
 // Network health per line (read-only: GTFS timetable + SIRI snapshot)

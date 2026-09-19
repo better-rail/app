@@ -7,7 +7,9 @@ import HapticFeedback from "react-native-haptic-feedback"
 import { Button, Screen, Text } from "@/components"
 import { translate } from "@/i18n"
 import { getStationById } from "@/data/stations"
-import { type StationAlert, useFavoritesStore, useSettingsStore } from "@/models"
+import { type DelayGuard, type StationAlert, useFavoritesStore, useSettingsStore } from "@/models"
+import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
+import { guardKey } from "@/services/api"
 import { trackEvent } from "@/services/analytics"
 import { useAppState, useIsDarkMode } from "@/hooks"
 import { type AlertsPermission, getStationAlertsPermission, requestStationAlertsPermission } from "@/utils/station-alerts"
@@ -34,11 +36,13 @@ export function NotificationsSetupScreen() {
   const router = useRouter()
   const isDarkMode = useIsDarkMode()
   const appState = useAppState()
-  const { alerts, setStationAlert, removeStationAlert } = useSettingsStore(
+  const { alerts, setStationAlert, removeStationAlert, guards, removeDelayGuard } = useSettingsStore(
     useShallow((s) => ({
       alerts: s.stationAlerts,
       setStationAlert: s.setStationAlert,
       removeStationAlert: s.removeStationAlert,
+      guards: s.delayGuards,
+      removeDelayGuard: s.removeDelayGuard,
     })),
   )
   const favoriteRoutes = useFavoritesStore((s) => s.routes)
@@ -76,6 +80,18 @@ export function NotificationsSetupScreen() {
     HapticFeedback.trigger("impactLight")
     trackEvent("station_alert_enabled", { stationId, source: "favorites" })
     setStationAlert(stationId)
+  }
+
+  const openGuard = (guard: DelayGuard) => {
+    HapticFeedback.trigger("impactLight")
+    useNavigationParamsStore.getState().setDelayGuardDraft(guard)
+    router.push("/delay-guard")
+  }
+
+  const removeGuard = (guard: DelayGuard) => {
+    HapticFeedback.trigger("impactLight")
+    trackEvent("delay_guard_disabled", { trainNumber: guard.trainNumber, source: "settings" })
+    removeDelayGuard(guardKey(guard))
   }
 
   // Stations of the favourite routes not followed yet, as suggestions.
@@ -149,6 +165,28 @@ export function NotificationsSetupScreen() {
             })}
           </View>
         )}
+
+        <View style={styles.section}>
+          <Text tx="delayGuard.settingsTitle" style={styles.sectionTitle} />
+          {guards.length === 0 && <Text tx="delayGuard.noGuards" style={styles.empty} />}
+          {guards.map((guard) => {
+            const origin = getStationById(guard.originStationId)
+            return (
+              <StationListItem
+                key={guardKey(guard)}
+                title={translate("delayGuard.train", { trainNumber: guard.trainNumber, time: guard.departureTime }) ?? ""}
+                subtitle={`${translate("delayGuard.fromTo", {
+                  origin: origin?.name ?? guard.originStationId,
+                  destination: getStationById(guard.destinationStationId)?.name ?? guard.destinationStationId,
+                })} · ${translate("delayGuard.minutesLate", { minutes: guard.thresholdMinutes })}`}
+                image={origin?.image}
+                onSelect={() => openGuard(guard)}
+                onRemove={() => removeGuard(guard)}
+                testID={`delay-guard-${guardKey(guard)}`}
+              />
+            )
+          })}
+        </View>
 
         <Text tx="stationAlerts.note" style={styles.note} preset="small" />
       </ScrollView>

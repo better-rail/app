@@ -32,7 +32,9 @@ import { useForceUpdate } from "@/hooks/use-force-update"
 import { ForceUpdateScreen } from "@/screens/force-update/force-update-screen"
 import { openActiveRide } from "@/utils/helpers/open-active-ride"
 import { isStationAlertPayload, openStationAlert } from "@/utils/helpers/open-station-alert"
+import { isDelayGuardPayload, openDelayGuard } from "@/utils/helpers/open-delay-guard"
 import { watchStationAlerts } from "@/utils/station-alerts"
+import { watchDelayGuards } from "@/utils/delay-guards"
 import * as Notifications from "expo-notifications"
 import notifee, { EventType } from "@notifee/react-native"
 import PushNotification from "react-native-push-notification"
@@ -177,9 +179,11 @@ function RootLayout() {
   useEffect(() => {
     if (!storeReady) return undefined
     watchStationAlerts()
+    watchDelayGuards()
 
     const openFromData = (data: unknown) => {
       if (isStationAlertPayload(data)) openStationAlert(data.stationId)
+      else if (isDelayGuardPayload(data)) openDelayGuard(data)
     }
     const response = Notifications.addNotificationResponseReceivedListener((event) =>
       openFromData(event.notification.request.content.data),

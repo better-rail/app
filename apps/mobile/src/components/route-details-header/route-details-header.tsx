@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react"
 import { Image, ImageBackground, View, Animated as RNAnimated, Pressable } from "react-native"
+import { openDelayGuardSheet } from "@/utils/helpers/delay-guard-helpers"
 import type { ViewStyle } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { useRouter, useNavigation } from "expo-router"
@@ -156,6 +157,11 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
           title: translate(showEntireRoute ? "routeDetails.hideAllStations" : "routeDetails.showAllStations"),
           systemIcon: showEntireRoute ? "rectangle.compress.vertical" : "rectangle.expand.vertical",
           onPress: () => setShowEntireRoute((prev) => !prev),
+        },
+        {
+          title: translate("delayGuard.title") ?? "",
+          systemIcon: "bell.badge",
+          onPress: () => routeItem && openDelayGuardSheet(routeItem, "route_details"),
         },
       ]
 

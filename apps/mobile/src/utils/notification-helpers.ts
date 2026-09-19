@@ -22,6 +22,7 @@ import {
 import { Platform } from "react-native"
 import { RideStartError } from "./helpers/ride-errors"
 import { isStationAlertPayload, openStationAlert } from "./helpers/open-station-alert"
+import { isDelayGuardPayload, openDelayGuard } from "./helpers/open-delay-guard"
 
 const rideApi = new RideApi()
 let tokenSubscription: Notifications.Subscription | undefined
@@ -33,18 +34,20 @@ let tokenSubscription: Notifications.Subscription | undefined
 // the one kind worth a banner.
 Notifications.setNotificationHandler({
   handleNotification: async (notification) => {
-    const stationAlert = Platform.OS === "ios" && isStationAlertPayload(notification.request.content.data)
+    const data = notification.request.content.data
+    const alert = Platform.OS === "ios" && (isStationAlertPayload(data) || isDelayGuardPayload(data))
     return {
-      shouldShowBanner: stationAlert,
-      shouldShowList: stationAlert,
-      shouldPlaySound: stationAlert,
+      shouldShowBanner: alert,
+      shouldShowList: alert,
+      shouldPlaySound: alert,
       shouldSetBadge: false,
     }
   },
 })
 
-/** The Android channel the station alerts are shown on (the server sends them as data messages). */
+/** The Android channels the station alerts and Delay Guard are shown on (the server sends them as data messages). */
 export const STATION_ALERTS_CHANNEL = "better-rail-station-alerts"
+export const DELAY_GUARD_CHANNEL = "better-rail-delay-guard"
 
 const BACKGROUND_LIVE_RIDE_TASK = "better-rail-live-ride-notification"
 
@@ -67,7 +70,8 @@ const handleDataMessage = async (raw: any): Promise<void> => {
   const data = extractDataPayload(raw)
   if (!data) return
   if (data.type === "live-ride") return handleLiveRideNotification(data)
-  if (isStationAlertPayload(data)) return handleStationAlertNotification(data)
+  if (isStationAlertPayload(data)) return handleAlertNotification(data, STATION_ALERTS_CHANNEL)
+  if (isDelayGuardPayload(data)) return handleAlertNotification(data, DELAY_GUARD_CHANNEL)
 }
 
 // Defined at module scope so it registers when index.js loads this file — including when
@@ -103,6 +107,15 @@ export const configureNotifications = async () => {
       sound: "default",
     })
 
+    notifee.createChannel({
+      id: DELAY_GUARD_CHANNEL,
+      name: "Delay Guard",
+      description: "Your usual trains running late",
+      importance: AndroidImportance.HIGH,
+      vibration: true,
+      sound: "default",
+    })
+
     // Background / killed: expo-notifications wakes the JS task defined at module scope.
     await Notifications.registerTaskAsync(BACKGROUND_LIVE_RIDE_TASK)
 
@@ -112,9 +125,10 @@ export const configureNotifications = async () => {
     })
 
     notifee.onBackgroundEvent(async ({ type, detail }) => {
-      if (type === EventType.PRESS && isStationAlertPayload(detail.notification?.data)) {
-        openStationAlert(detail.notification!.data!.stationId as string)
-        return
+      if (type === EventType.PRESS) {
+        const data = detail.notification?.data
+        if (isStationAlertPayload(data)) return openStationAlert(data.stationId)
+        if (isDelayGuardPayload(data)) return openDelayGuard(data)
       }
       if (type === EventType.DELIVERED && detail.notification?.data?.type === "live-ride-stale") {
         const rideRoute = await getRideRoute()
@@ -134,14 +148,15 @@ export const configureNotifications = async () => {
   }
 }
 
-/** A station alert on Android: shown with Notifee, carrying the station for the tap. */
-const handleStationAlertNotification = async (data: Record<string, string>) => {
+/** A server alert on Android (station alert, Delay Guard): shown with Notifee, carrying its data for the tap. */
+const handleAlertNotification = async (data: Record<string, string>, channelId: string) => {
   if (!data.notifee) return
+  const { notifee: words, ...payload } = data
   await notifee.displayNotification({
-    ...JSON.parse(data.notifee),
-    data: { type: "station-alert", stationId: data.stationId },
+    ...JSON.parse(words),
+    data: payload,
     android: {
-      channelId: STATION_ALERTS_CHANNEL,
+      channelId,
       smallIcon: "notification_icon",
       pressAction: { id: "default" },
     },
