@@ -4,7 +4,7 @@
  * are running. Pure, for the tests.
  */
 import { type RailLine, RAIL_LINES } from "@/data/rail-lines"
-import { type DayType, SERVICE_PATTERNS } from "@/data/rail-map-layout"
+import { type DayType, SERVICE_PATTERNS } from "@/data/rail-service-patterns"
 import {
   type Disruption,
   type LineStatus,

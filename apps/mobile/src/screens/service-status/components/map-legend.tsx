@@ -8,14 +8,14 @@ import { MINOR_DELAY_MINUTES, SEVERE_DELAY_MINUTES } from "@/services/api"
 
 /** The line whose colour the samples borrow. */
 const SAMPLE = RAIL_LINES.find((l) => l.id === "3") ?? RAIL_LINES[0]
-/** Two lines of different colours, for the sample of the lines themselves. */
+/** Two lines of different colours, for the sample of the lines themselves and of a shared station. */
 const LINE_SAMPLES = RAIL_LINES.filter((l) => l.id === "2" || l.id === "3")
 
-/** What the markings on the network map mean, after the original map's legend. */
+/** What the markings on the network map mean. */
 export function MapLegend() {
   const scheme = useColorScheme()
   const palette = RAIL_MAP_PALETTE[scheme === "dark" ? "dark" : "light"]
-  const dot = { backgroundColor: palette.dot }
+  const ring = { borderColor: palette.marker, backgroundColor: palette.markerFill }
 
   const rows: { key: TxKeyPath; sample: React.ReactNode }[] = [
     {
@@ -31,27 +31,41 @@ export function MapLegend() {
     {
       key: "serviceStatus.legend.stop",
       sample: (
-        <View style={[styles.bar, { backgroundColor: SAMPLE.color }]}>
-          <View style={[styles.dot, dot]} />
+        <View style={styles.layered}>
+          <View style={[styles.bar, styles.layeredBar, { backgroundColor: SAMPLE.color }]} />
+          <View style={[styles.tick, { backgroundColor: palette.marker }]} />
+        </View>
+      ),
+    },
+    {
+      key: "serviceStatus.legend.interchange",
+      sample: (
+        <View style={styles.layered}>
+          <View style={styles.lines}>
+            {LINE_SAMPLES.map((line) => (
+              <View key={line.id} style={[styles.bar, { backgroundColor: line.color }]} />
+            ))}
+          </View>
+          <View style={[styles.capsule, ring]} />
         </View>
       ),
     },
     {
       key: "serviceStatus.legend.irregularStop",
       sample: (
-        <View style={[styles.bar, { backgroundColor: SAMPLE.color }]}>
-          <View style={[styles.ring, { borderColor: palette.dot }]} />
+        <View style={styles.layered}>
+          <View style={[styles.bar, styles.layeredBar, { backgroundColor: SAMPLE.color }]} />
+          <View style={[styles.disc, { borderColor: palette.dimInk, backgroundColor: palette.markerFill }]} />
         </View>
       ),
     },
     {
       key: "serviceStatus.legend.terminal",
       sample: (
-        <View style={styles.barRow}>
-          <View style={[styles.bar, styles.barEnd, { backgroundColor: SAMPLE.color }]}>
-            <View style={[styles.dot, dot, styles.terminalDot]}>
-              <View style={[styles.terminalRing, { borderColor: palette.background }]} />
-            </View>
+        <View style={styles.layered}>
+          <View style={[styles.bar, styles.layeredBar, styles.barEnd, { backgroundColor: SAMPLE.color }]} />
+          <View style={[styles.disc, ring, styles.terminal]}>
+            <View style={[styles.terminalDot, { backgroundColor: palette.marker }]} />
           </View>
         </View>
       ),
@@ -92,14 +106,15 @@ export function MapLegend() {
       <Text style={styles.credit} preset="secondary">
         {translate("serviceStatus.thresholds", { minor: MINOR_DELAY_MINUTES, severe: SEVERE_DELAY_MINUTES })}
       </Text>
-      <Text tx="serviceStatus.mapCredit" preset="secondary" />
     </View>
   )
 }
 
 const SAMPLE_WIDTH = 76
-const BAR_HEIGHT = 11
-const DOT = 12
+const SAMPLE_HEIGHT = 32
+const BAR_HEIGHT = 8
+const CAPSULE = 20
+const RING = 3
 
 const styles = StyleSheet.create((theme, rt) => ({
   wrapper: {
@@ -121,7 +136,7 @@ const styles = StyleSheet.create((theme, rt) => ({
   },
   sample: {
     width: SAMPLE_WIDTH,
-    height: 28,
+    height: SAMPLE_HEIGHT,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -130,7 +145,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     fontSize: 15,
   },
   lines: {
-    gap: theme.spacing[1],
+    gap: 6,
   },
   barRow: {
     flexDirection: "row",
@@ -141,53 +156,59 @@ const styles = StyleSheet.create((theme, rt) => ({
     width: SAMPLE_WIDTH,
     height: BAR_HEIGHT,
     borderRadius: BAR_HEIGHT / 2,
-    alignItems: "center",
-    justifyContent: "center",
   },
   barEnd: {
-    width: SAMPLE_WIDTH * 0.7,
-    alignItems: "flex-end",
-    paddingEnd: 1,
+    width: SAMPLE_WIDTH / 2 + BAR_HEIGHT,
+    alignSelf: "flex-start",
   },
   half: {
     width: SAMPLE_WIDTH / 2,
     borderRadius: 0,
   },
-  dot: {
-    width: DOT,
-    height: DOT,
-    borderRadius: DOT / 2,
-  },
-  ring: {
-    width: DOT,
-    height: DOT,
-    borderRadius: DOT / 2,
-    borderWidth: 2.2,
-  },
-  terminalDot: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  terminalRing: {
-    width: DOT - 3,
-    height: DOT - 3,
-    borderRadius: (DOT - 3) / 2,
-    borderWidth: 1.5,
-  },
   layered: {
     width: SAMPLE_WIDTH,
-    height: 28,
+    height: SAMPLE_HEIGHT,
     alignItems: "center",
     justifyContent: "center",
   },
   layeredBar: {
     position: "absolute",
-    top: (28 - BAR_HEIGHT) / 2,
+    top: (SAMPLE_HEIGHT - BAR_HEIGHT) / 2,
+  },
+  tick: {
+    position: "absolute",
+    width: 3,
+    height: 10,
+    top: SAMPLE_HEIGHT / 2 - BAR_HEIGHT / 2 - 10,
+  },
+  capsule: {
+    position: "absolute",
+    width: CAPSULE,
+    height: CAPSULE + BAR_HEIGHT + 6,
+    borderRadius: CAPSULE / 2,
+    borderWidth: RING,
+  },
+  disc: {
+    position: "absolute",
+    width: CAPSULE,
+    height: CAPSULE,
+    borderRadius: CAPSULE / 2,
+    borderWidth: RING,
+  },
+  terminal: {
+    left: SAMPLE_WIDTH / 2 - CAPSULE / 2,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  terminalDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
   },
   disruption: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: CAPSULE + 2,
+    height: CAPSULE + 2,
+    borderRadius: CAPSULE / 2 + 1,
     borderWidth: 1.5,
     alignItems: "center",
     justifyContent: "center",

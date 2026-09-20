@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import { TxKeyPath } from "@/i18n"
-import { DAY_TYPES, type DayType } from "@/data/rail-map-layout"
+import { DAY_TYPES, type DayType } from "@/data/rail-service-patterns"
 import { DEFAULT_GUARD_MINUTES, type DelayGuard, GUARD_MINUTES_OPTIONS, type PopUpMessage, guardKey } from "@/services/api"
 
 export type { DelayGuard }

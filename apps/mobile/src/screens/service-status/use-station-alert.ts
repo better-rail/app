@@ -1,6 +1,6 @@
 import { useShallow } from "zustand/react/shallow"
 import HapticFeedback from "react-native-haptic-feedback"
-import type { DayType } from "@/data/rail-map-layout"
+import type { DayType } from "@/data/rail-service-patterns"
 import { type StationAlert, stationAlertFor, useSettingsStore } from "@/models"
 import { trackEvent } from "@/services/analytics"
 import { usePushPermission } from "@/hooks"

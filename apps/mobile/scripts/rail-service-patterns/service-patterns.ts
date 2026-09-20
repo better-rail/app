@@ -2,10 +2,10 @@
  * The service patterns for the Service Status map, from the GTFS feed the
  * server holds: which lines run, where their trains end short of the line's
  * ends, and which stations some or all of them run through — per day type.
- * Writes station-patterns.json (read by gen_layout.py) and the SERVICE_PATTERNS
- * block of src/data/rail-map-layout.ts, so a timetable change needs no retrace.
+ * Writes station-patterns.json and the SERVICE_PATTERNS
+ * block of src/data/rail-service-patterns.ts.
  *
- *     cd apps/server && bun run ../mobile/scripts/rail-map-trace/service-patterns.ts
+ *     cd apps/server && bun run ../mobile/scripts/rail-service-patterns/service-patterns.ts
  *
  * The trains of the next two weeks are sorted into the day types: `night` is
  * the trains leaving between 00:15 and 04:30 after a Sunday–Thursday, `weekend`
@@ -38,7 +38,7 @@ import { assignLine } from "../../../server/src/status/service-status"
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const PATTERNS = join(HERE, "station-patterns.json")
-const LAYOUT = join(HERE, "../../src/data/rail-map-layout.ts")
+const LAYOUT = join(HERE, "../../src/data/rail-service-patterns.ts")
 const NIGHT_FROM_SEC = (24 * 60 + 15) * 60
 const NIGHT_UNTIL_SEC = (4 * 60 + 30) * 60
 const DAY_FROM_SEC = 5 * 60 * 60
@@ -204,7 +204,7 @@ const toJson = (value: unknown, depth = 0): string => {
 }
 writeFileSync(PATTERNS, `${toJson(patterns)}\n`)
 
-// The same, as the SERVICE_PATTERNS block of the layout (in the shape gen_ts.py writes it).
+// The same, as the SERVICE_PATTERNS block of rail-service-patterns.ts.
 const lineStation = (lineId: string, stationId: string) => `      { lineId: "${lineId}", stationId: "${stationId}" },\n`
 const block = (["weekday", "weekend", "night"] as const)
   .map((dayType) => {
@@ -224,7 +224,7 @@ const block = (["weekday", "weekend", "night"] as const)
 const layout = readFileSync(LAYOUT, "utf8")
 const start = layout.indexOf("export const SERVICE_PATTERNS")
 const end = layout.indexOf("\n}\n", start)
-if (start < 0 || end < 0) throw new Error("SERVICE_PATTERNS block not found in rail-map-layout.ts")
+if (start < 0 || end < 0) throw new Error("SERVICE_PATTERNS block not found in rail-service-patterns.ts")
 const open = layout.indexOf("{\n", start) + 2
 writeFileSync(LAYOUT, layout.slice(0, open) + block + layout.slice(end + 1))
 

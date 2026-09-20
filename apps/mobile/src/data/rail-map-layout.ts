@@ -1,654 +1,254 @@
 /**
- * Geometry of the Service Status map, traced from Israel Railways' current
- * network map (the artwork the map is modelled on) so lines, bends and station
- * dots sit exactly where the original draws them.
+ * The Service Status map's layout: an octilinear schematic laid out by hand on a
+ * grid, the way TfL Go draws the Tube for a phone — tall, narrow, every line
+ * running horizontally, vertically or at 45°, and no geography.
  *
- * Units: the original's pixels divided by 9.13, so the drawing is 100 units wide.
- * Every line is an explicit polyline (flat x,y pairs) with the index of each of
- * its calling points in that polyline; `stop` is false where the line passes a
- * station without calling, which the original marks with a short tick instead
- * of a dot. Regenerate rather than hand-edit: the numbers come from the trace.
+ * Everything here is in grid cells (CELL map units each). Every station and
+ * junction is a node; every line is a route through nodes, with the
+ * occasional bend point in between so each hop is straight, vertical or
+ * diagonal (a test checks). Where lines share a hop they are drawn as
+ * parallel lanes, ordered west to east by LANE_RANK; the model
+ * (components/rail-map/rail-map-model.ts) works out the offsets, the bends
+ * and the station markers from this.
  */
 import type { RailLineId } from "./rail-lines"
 
-export const MAP_BOUNDS = { width: 100, height: 282.15 }
-
-export type TracedStation = {
-  id: string
-  /** Index of the station's point in the line's `points` (x,y pairs → index into pairs). */
-  index: number
-}
-
-export type TracedLine = {
-  /** Flat x,y pairs along the line, in map units. */
-  points: number[]
-  /** The line's stations in corridor order (whether it calls there is in SERVICE_PATTERNS). */
-  stations: TracedStation[]
-}
-
-export const LINE_GEOMETRY: Record<RailLineId, TracedLine> = {
-  "1": {
-    points: [
-      54.74, 15.14, 54.75, 21.65, 54.76, 30.69, 54.76, 35.07, 54.76, 39.43, 54.71, 41.73, 54.6, 43.59, 54.36, 44.91, 54.11, 45.76,
-      53.73, 46.59, 53.0, 47.79, 52.11, 48.86, 49.56, 51.48, 48.66, 52.71, 48.0, 54.05, 47.75, 56.91, 47.75, 65.66, 47.75, 74.39,
-      47.75, 78.64, 47.75, 83.02, 47.75, 91.79, 47.75, 100.55, 47.75, 109.53, 47.75, 118.13, 47.75, 125.52, 47.75, 132.92, 47.75,
-      140.33, 47.95, 142.83, 48.21, 143.7, 48.63, 144.51, 49.35, 145.52, 49.93, 146.2, 52.74, 149.0, 53.67, 149.84, 54.81, 150.6,
-      55.86, 151.01, 58.27, 151.26, 60.24, 151.26, 61.41, 151.36, 64.73, 151.3, 66.05, 151.05, 66.11, 151.02, 66.24, 150.96,
-      66.37, 150.91, 66.5, 150.85, 66.62, 150.79, 66.74, 150.72, 66.86, 150.65, 66.98, 150.58, 67.1, 150.49, 67.21, 150.42, 67.32,
-      150.33, 67.74, 149.99, 72.42, 145.32, 76.17, 141.58,
-    ],
-    stations: [
-      { id: "1600", index: 0 },
-      { id: "1500", index: 1 },
-      { id: "1400", index: 2 },
-      { id: "700", index: 3 },
-      { id: "1300", index: 4 },
-      { id: "1220", index: 10 },
-      { id: "2100", index: 12 },
-      { id: "2200", index: 14 },
-      { id: "2300", index: 15 },
-      { id: "2500", index: 16 },
-      { id: "2800", index: 17 },
-      { id: "2820", index: 18 },
-      { id: "3100", index: 19 },
-      { id: "3300", index: 20 },
-      { id: "3400", index: 21 },
-      { id: "3500", index: 22 },
-      { id: "3600", index: 23 },
-      { id: "3700", index: 24 },
-      { id: "4600", index: 25 },
-      { id: "4900", index: 26 },
-      { id: "8600", index: 38 },
-      { id: "300", index: 53 },
-      { id: "400", index: 54 },
-    ],
-  },
-  "2": {
-    points: [
-      43.58, 74.4, 43.59, 78.76, 43.59, 83.14, 43.59, 91.89, 43.59, 96.28, 43.59, 100.65, 43.59, 109.38, 43.59, 118.12, 43.59,
-      125.52, 43.59, 132.92, 43.59, 140.31, 43.59, 141.62, 43.84, 143.81, 44.33, 145.35, 44.94, 146.59, 45.59, 147.55, 46.68,
-      148.86, 52.02, 154.21, 56.97, 159.16, 60.57, 162.76, 60.57, 171.61, 60.56, 172.84, 60.45, 173.71, 60.25, 174.47, 59.91,
-      175.15, 58.83, 176.54, 55.17, 180.23, 49.99, 185.45, 45.93, 189.54, 42.9, 192.63, 42.46, 193.37, 42.17, 194.34, 42.17,
-      203.08,
-    ],
-    stations: [
-      { id: "2800", index: 0 },
-      { id: "2820", index: 1 },
-      { id: "3100", index: 2 },
-      { id: "3300", index: 3 },
-      { id: "3310", index: 4 },
-      { id: "3400", index: 5 },
-      { id: "3500", index: 6 },
-      { id: "3600", index: 7 },
-      { id: "3700", index: 8 },
-      { id: "4600", index: 9 },
-      { id: "4900", index: 10 },
-      { id: "4800", index: 17 },
-      { id: "5150", index: 18 },
-      { id: "5000", index: 20 },
-      { id: "5300", index: 26 },
-      { id: "5200", index: 27 },
-      { id: "5410", index: 28 },
-      { id: "5800", index: 31 },
-      { id: "5900", index: 32 },
-    ],
-  },
-  "3": {
-    points: [
-      53.33, 15.14, 53.34, 21.64, 53.42, 30.68, 53.34, 35.05, 53.34, 39.43, 53.34, 41.95, 53.07, 44.25, 52.64, 45.65, 51.83,
-      47.05, 48.42, 50.62, 47.35, 52.16, 46.68, 53.65, 46.47, 54.65, 46.33, 56.9, 46.33, 65.72, 46.33, 74.39, 46.33, 109.4, 46.33,
-      118.13, 46.33, 125.52, 46.33, 132.92, 46.33, 140.32, 46.42, 140.79, 46.46, 142.5, 46.59, 143.26, 47.36, 145.08, 48.02,
-      146.13, 48.99, 147.24, 61.02, 159.28, 61.93, 160.37, 62.52, 161.3, 62.86, 162.02, 63.07, 162.65, 63.4, 164.4, 63.4, 171.59,
-      63.42, 175.68, 63.42, 187.19, 63.42, 198.67, 63.42, 210.15, 63.42, 221.64, 63.42, 233.14, 63.42, 237.12,
-    ],
-    stations: [
-      { id: "1600", index: 0 },
-      { id: "1500", index: 1 },
-      { id: "1400", index: 2 },
-      { id: "700", index: 3 },
-      { id: "1300", index: 4 },
-      { id: "1220", index: 8 },
-      { id: "2100", index: 9 },
-      { id: "2200", index: 11 },
-      { id: "2300", index: 13 },
-      { id: "2500", index: 14 },
-      { id: "2800", index: 15 },
-      { id: "3500", index: 16 },
-      { id: "3600", index: 17 },
-      { id: "3700", index: 18 },
-      { id: "4600", index: 19 },
-      { id: "4900", index: 20 },
-      { id: "5000", index: 33 },
-      { id: "5010", index: 34 },
-      { id: "6900", index: 35 },
-      { id: "6150", index: 36 },
-      { id: "7000", index: 37 },
-      { id: "8550", index: 38 },
-      { id: "7300", index: 39 },
-      { id: "7320", index: 40 },
-    ],
-  },
-  "3X": {
-    points: [
-      66.51, 27.31, 59.72, 27.29, 55.09, 27.32, 54.22, 27.4, 53.14, 27.7, 52.77, 27.91, 52.54, 28.13, 52.16, 28.81, 51.95, 29.69,
-      51.92, 30.69, 51.92, 42.17, 51.52, 44.56, 51.28, 45.16, 50.65, 46.29, 47.29, 49.79, 46.08, 51.57, 45.68, 52.38, 45.4, 53.21,
-      45.05, 54.87, 45.02, 56.9, 45.02, 83.15, 45.02, 109.39, 45.02, 118.12, 45.02, 125.52, 45.02, 132.92, 45.02, 140.33, 45.03,
-      142.26, 45.18, 143.24, 45.83, 145.22, 46.83, 146.87, 47.34, 147.46, 59.97, 160.18, 60.59, 160.94, 61.36, 162.16, 61.74,
-      163.2, 61.99, 165.07, 61.99, 171.6, 61.99, 210.16, 61.99, 221.69, 61.99, 233.14, 61.99, 237.11,
-    ],
-    stations: [
-      { id: "1840", index: 0 },
-      { id: "1820", index: 1 },
-      { id: "1400", index: 9 },
-      { id: "1220", index: 13 },
-      { id: "2100", index: 14 },
-      { id: "2200", index: 17 },
-      { id: "2300", index: 19 },
-      { id: "3100", index: 20 },
-      { id: "3500", index: 21 },
-      { id: "3600", index: 22 },
-      { id: "3700", index: 23 },
-      { id: "4600", index: 24 },
-      { id: "4900", index: 25 },
-      { id: "5000", index: 36 },
-      { id: "7000", index: 37 },
-      { id: "8550", index: 38 },
-      { id: "7300", index: 39 },
-      { id: "7320", index: 40 },
-    ],
-  },
-  "4": {
-    points: [
-      66.51, 25.91, 59.73, 25.94, 54.33, 26.02, 53.45, 26.14, 52.27, 26.58, 51.53, 27.13, 51.0, 28.0, 50.66, 29.04, 50.49, 30.69,
-      50.49, 35.07, 50.49, 39.43, 50.46, 43.37, 50.1, 44.46, 49.45, 45.51, 46.2, 48.95, 44.88, 50.82, 44.38, 51.84, 44.01, 52.78,
-      43.88, 53.29, 43.66, 54.98, 43.57, 56.9,
-    ],
-    stations: [
-      { id: "1840", index: 0 },
-      { id: "1820", index: 1 },
-      { id: "1400", index: 8 },
-      { id: "700", index: 9 },
-      { id: "1300", index: 10 },
-      { id: "1220", index: 13 },
-      { id: "2100", index: 14 },
-      { id: "2200", index: 17 },
-      { id: "2300", index: 20 },
-    ],
-  },
-  "5": {
-    points: [
-      42.17, 91.89, 42.17, 100.65, 42.17, 109.39, 42.17, 118.13, 42.17, 125.52, 42.17, 132.91, 42.17, 140.31, 42.17, 141.18,
-      42.35, 143.37, 42.53, 144.34, 43.31, 146.52, 43.72, 147.31, 44.29, 148.17, 45.15, 149.21, 56.0, 160.14, 64.84, 168.98,
-      64.84, 171.6, 64.84, 175.68, 64.84, 176.89, 64.94, 177.55, 65.16, 178.19, 65.63, 178.98, 66.52, 179.99, 72.04, 185.51,
-      72.64, 186.04,
-    ],
-    stations: [
-      { id: "3300", index: 0 },
-      { id: "3400", index: 1 },
-      { id: "3500", index: 2 },
-      { id: "3600", index: 3 },
-      { id: "3700", index: 4 },
-      { id: "4600", index: 5 },
-      { id: "4900", index: 6 },
-      { id: "5150", index: 14 },
-      { id: "5000", index: 16 },
-      { id: "5010", index: 17 },
-      { id: "6300", index: 24 },
-    ],
-  },
-  "25": {
-    points: [
-      42.17, 91.89, 42.17, 100.65, 42.17, 109.39, 42.17, 118.13, 42.17, 125.52, 42.17, 132.91, 42.17, 140.31, 42.17, 141.18,
-      42.35, 143.37, 42.53, 144.34, 43.31, 146.52, 43.72, 147.31, 44.29, 148.17, 45.15, 149.21, 56.0, 160.14, 59.32, 163.47,
-      59.32, 171.6, 59.26, 172.05, 58.98, 173.82, 58.77, 174.35, 58.47, 174.81, 48.95, 184.42,
-    ],
-    stations: [
-      { id: "3300", index: 0 },
-      { id: "3400", index: 1 },
-      { id: "3500", index: 2 },
-      { id: "3600", index: 3 },
-      { id: "3700", index: 4 },
-      { id: "4600", index: 5 },
-      { id: "4900", index: 6 },
-      { id: "5150", index: 14 },
-      { id: "5000", index: 16 },
-      { id: "5200", index: 21 },
-    ],
-  },
-  "6": {
-    points: [
-      50.58, 109.38, 50.62, 108.32, 50.79, 107.56, 51.12, 106.96, 51.52, 106.55, 52.25, 106.22, 53.01, 106.07, 55.59, 106.02,
-      61.69, 106.02, 68.87, 106.02, 74.26, 106.02, 78.2, 106.07, 79.18, 106.27, 79.86, 106.63, 80.32, 107.25, 80.59, 108.11,
-      80.59, 111.4, 80.55, 112.69, 80.36, 113.46, 80.02, 114.03, 79.49, 114.45, 78.97, 114.63, 78.42, 114.76, 75.36, 114.76,
-      74.24, 114.9, 65.66, 114.84, 57.09, 114.84, 42.72, 114.84, 41.77, 115.25, 41.42, 115.53, 41.22, 115.81, 41.02, 116.21,
-      40.85, 116.76, 40.74, 118.12, 40.74, 125.52, 40.74, 132.92, 40.74, 140.33, 40.74, 142.74, 39.38, 145.09, 39.38, 147.72,
-      39.38, 155.12, 39.38, 162.52, 39.39, 169.9, 39.38, 171.87, 40.74, 174.02, 40.71, 177.31, 40.74, 184.7, 40.74, 194.35, 40.74,
-      203.09, 40.74, 211.84, 40.74, 220.41, 40.78, 224.64, 41.16, 225.62, 41.48, 226.09, 41.89, 226.46, 42.5, 226.78, 43.38,
-      226.89, 50.7, 226.89, 57.39, 226.96, 58.82, 227.22, 59.53, 227.52, 59.87, 227.81, 60.14, 228.18, 60.33, 228.59, 60.47,
-      229.13, 60.57, 230.13, 60.57, 233.13, 60.59, 237.11,
-    ],
-    stations: [
-      { id: "3500", index: 0 },
-      { id: "2940", index: 7 },
-      { id: "2960", index: 8 },
-      { id: "9200", index: 9 },
-      { id: "8700", index: 10 },
-      { id: "8800", index: 16 },
-      { id: "4250", index: 24 },
-      { id: "4170", index: 25 },
-      { id: "4100", index: 26 },
-      { id: "3600", index: 33 },
-      { id: "3700", index: 34 },
-      { id: "4600", index: 35 },
-      { id: "4900", index: 36 },
-      { id: "4640", index: 39 },
-      { id: "4660", index: 40 },
-      { id: "4680", index: 41 },
-      { id: "4690", index: 42 },
-      { id: "9800", index: 45 },
-      { id: "9000", index: 46 },
-      { id: "5800", index: 47 },
-      { id: "5900", index: 48 },
-      { id: "9600", index: 49 },
-      { id: "9650", index: 50 },
-      { id: "9700", index: 57 },
-      { id: "7300", index: 66 },
-      { id: "7320", index: 67 },
-    ],
-  },
-  "7": {
-    points: [
-      49.2, 109.38, 49.18, 118.13, 49.18, 125.52, 49.18, 132.91, 49.18, 140.31, 49.18, 141.07, 49.35, 142.61, 49.51, 143.14,
-      49.89, 143.86, 50.42, 144.61, 51.0, 145.29, 53.72, 148.02, 54.56, 148.76, 55.53, 149.39, 56.63, 149.68, 57.95, 149.78,
-      61.41, 149.78, 66.27, 149.85, 66.36, 149.85, 66.46, 149.86, 66.55, 149.87, 66.65, 149.89, 66.74, 149.91, 66.82, 149.95,
-      66.91, 149.99, 67.0, 150.03, 67.08, 150.08, 67.16, 150.13, 67.21, 150.16, 68.84, 151.64, 85.52, 168.32, 86.16, 168.89,
-    ],
-    stations: [
-      { id: "3500", index: 0 },
-      { id: "3600", index: 1 },
-      { id: "3700", index: 2 },
-      { id: "4600", index: 3 },
-      { id: "4900", index: 4 },
-      { id: "8600", index: 16 },
-      { id: "680", index: 31 },
-    ],
-  },
-  "12": {
-    points: [71.89, 83.14, 80.33, 91.62, 81.31, 92.86, 81.77, 93.77, 81.99, 94.74, 82.04, 98.38, 82.04, 104.91, 82.06, 111.39],
-    stations: [
-      { id: "3900", index: 0 },
-      { id: "4300", index: 5 },
-      { id: "4310", index: 6 },
-      { id: "8800", index: 7 },
-    ],
-  },
-  "9": {
-    points: [
-      57.81, 171.6, 57.82, 172.23, 57.71, 172.95, 57.49, 173.6, 57.16, 174.19, 56.81, 174.62, 53.32, 178.12, 52.43, 178.95, 51.77,
-      179.36, 51.25, 179.54, 50.6, 179.65, 50.22, 179.68, 49.8, 179.61,
-    ],
-    stations: [
-      { id: "5000", index: 0 },
-      { id: "9100", index: 12 },
-    ],
-  },
-  "10": {
-    points: [
-      77.16, 142.56, 73.42, 146.3, 71.85, 147.89, 71.54, 148.34, 71.33, 148.85, 71.06, 149.84, 71.03, 150.49, 71.24, 151.48,
-      71.54, 152.18, 71.87, 152.61, 87.08, 167.91,
-    ],
-    stations: [
-      { id: "400", index: 0 },
-      { id: "300", index: 1 },
-      { id: "680", index: 10 },
-    ],
-  },
-  "11": {
-    points: [
-      93.37, 49.34, 83.59, 49.38, 73.84, 49.4, 64.1, 49.4, 56.41, 49.4, 56.14, 49.4, 55.93, 49.4, 55.75, 49.38, 55.6, 49.36,
-      55.47, 49.34, 55.35, 49.33, 55.24, 49.33, 55.12, 49.35, 54.98, 49.38, 54.83, 49.43, 54.65, 49.51, 54.44, 49.62, 54.18,
-      49.76, 53.89, 49.93, 53.57, 50.13, 53.23, 50.36, 52.88, 50.6, 52.53, 50.85, 52.17, 51.12, 51.83, 51.38, 51.51, 51.64, 51.2,
-      51.89, 50.94, 52.14, 50.71, 52.35, 50.51, 52.56, 50.35, 52.76, 50.21, 52.96, 50.09, 53.15, 49.98, 53.34, 49.89, 53.54,
-      49.81, 53.72, 49.74, 53.9, 49.68, 54.09, 49.62, 54.27, 49.56, 54.47, 49.51, 54.65, 49.45, 54.85, 49.41, 55.04, 49.38, 55.24,
-      49.35, 55.42, 49.33, 55.62, 49.32, 55.82, 49.31, 56.0, 49.31, 56.2, 49.3, 56.39, 49.3, 56.58, 49.3, 56.77, 49.29, 56.96,
-      49.28, 57.14, 49.28, 57.33, 49.28, 57.51, 49.28, 57.69, 49.28, 57.88, 49.28, 58.06, 49.28, 58.24, 49.28, 58.42, 49.29, 58.6,
-      49.29, 58.78, 49.29, 58.96, 49.29, 59.15, 49.18, 65.66,
-    ],
-    stations: [
-      { id: "1280", index: 0 },
-      { id: "1260", index: 1 },
-      { id: "1250", index: 2 },
-      { id: "1240", index: 3 },
-      { id: "1220", index: 16 },
-      { id: "2100", index: 29 },
-      { id: "2200", index: 40 },
-      { id: "2300", index: 52 },
-      { id: "2500", index: 65 },
-    ],
-  },
-  "8": {
-    points: [64.82, 233.13, 66.92, 233.38, 67.57, 233.63, 68.15, 234.01, 78.95, 244.78, 79.54, 245.29],
-    stations: [
-      { id: "7300", index: 0 },
-      { id: "7500", index: 5 },
-    ],
-  },
-}
+/** Map units per grid cell. The finished drawing is about 100 units wide. */
+export const CELL = 4
 
 export type LabelSide = "left" | "right" | "above" | "below"
 
-export type StationLabelSpec = {
-  /** Which side of the anchor the text sits on: `left` means the text ends at the anchor. */
-  side: LabelSide
+export type MapNode = {
   x: number
   y: number
-  /** Wrap width, in map units. */
-  maxWidth: number
-  /** Inside a city box the city prefix is dropped ("Tel Aviv - HaShalom" → "HaShalom"). */
-  stationNameOnly?: boolean
+  /** Which side of the station the name should go, if it fits there (see placeLabels); junctions have none. */
+  label?: LabelSide
 }
 
-/** Where every station's name goes, measured from the original. */
-export const STATION_LABELS: Record<string, StationLabelSpec> = {
-  "1600": { side: "above", x: 52.46, y: 14.13, maxWidth: 7.78 }, // נהריה
-  "1500": { side: "left", x: 52.35, y: 21.52, maxWidth: 7.34 }, // עכו
-  "1820": { side: "right", x: 59.26, y: 24.32, maxWidth: 6.46 }, // אחיהוד
-  "1840": { side: "right", x: 67.47, y: 26.83, maxWidth: 10.08 }, // כרמיאל
-  "1400": { side: "left", x: 49.51, y: 30.18, maxWidth: 11.39 }, // קריית מוצקין
-  "700": { side: "left", x: 49.51, y: 35.21, maxWidth: 9.31 }, // קריית חיים
-  "1300": { side: "left", x: 49.51, y: 39.59, maxWidth: 12.16 }, // חוצות המפרץ
-  "1220": { side: "left", x: 48.96, y: 44.36, maxWidth: 23.44 }, // מרכזית המפרץ
-  "1240": { side: "right", x: 63.64, y: 47.1, maxWidth: 10.08 }, // יקנעם - כפר יהושע
-  "2100": { side: "left", x: 45.13, y: 48.19, maxWidth: 19.17, stationNameOnly: true }, // מרכז השמונה
-  "1260": { side: "above", x: 83.68, y: 48.41, maxWidth: 5.81 }, // עפולה ר. איתן
-  "1250": { side: "below", x: 73.82, y: 50.27, maxWidth: 10.62 }, // מגדל העמק - כפר ברוך
-  "1280": { side: "left", x: 93.98, y: 51.42, maxWidth: 10.73 }, // בית שאן
-  "2200": { side: "left", x: 42.94, y: 51.86, maxWidth: 6.9, stationNameOnly: true }, // בת גלים
-  "2300": { side: "left", x: 42.5, y: 56.46, maxWidth: 10.08, stationNameOnly: true }, // חוף הכרמל
-  "2500": { side: "right", x: 50.16, y: 65.17, maxWidth: 8.76 }, // עתלית
-  "2800": { side: "left", x: 42.61, y: 74.04, maxWidth: 9.86 }, // בנימינה
-  "2820": { side: "left", x: 42.61, y: 78.92, maxWidth: 17.42 }, // קיסריה - פרדס חנה
-  "3900": { side: "left", x: 70.97, y: 83.02, maxWidth: 17.42 }, // חדרה - מזרח
-  "3100": { side: "left", x: 42.5, y: 83.02, maxWidth: 15.77 }, // חדרה - מערב
-  "3300": { side: "left", x: 41.07, y: 91.57, maxWidth: 7.34 }, // נתניה
-  "3310": { side: "left", x: 42.61, y: 95.56, maxWidth: 13.58 }, // נתניה - ספיר
-  "4300": { side: "right", x: 83.13, y: 98.52, maxWidth: 12.92 }, // שומרון - טייבה
-  "3400": { side: "left", x: 41.18, y: 100.55, maxWidth: 9.64 }, // בית יהושע
-  "8700": { side: "right", x: 73.71, y: 103.61, maxWidth: 8.21 }, // כפר סבא - נורדאו
-  "4310": { side: "right", x: 83.02, y: 104.82, maxWidth: 14.79 }, // טירה - כוכב יאיר
-  "2940": { side: "above", x: 55.53, y: 104.93, maxWidth: 5.81 }, // רעננה מערב
-  "2960": { side: "above", x: 61.61, y: 104.93, maxWidth: 5.91 }, // רעננה דרום
-  "9200": { side: "above", x: 68.78, y: 105.04, maxWidth: 8.87 }, // הוד השרון - סוקולוב
-  "3500": { side: "left", x: 41.07, y: 108.87, maxWidth: 9.86 }, // הרצליה
-  "8800": { side: "right", x: 83.02, y: 112.92, maxWidth: 12.49 }, // ראש העין - צפון
-  "4100": { side: "below", x: 57.12, y: 115.88, maxWidth: 7.01 }, // בני ברק
-  "4170": { side: "below", x: 65.72, y: 115.88, maxWidth: 10.08 }, // פתח תקווה  - קריית אריה
-  "4250": { side: "below", x: 74.26, y: 115.88, maxWidth: 10.08 }, // פתח תקווה - סגולה
-  "3600": { side: "left", x: 39.76, y: 117.85, maxWidth: 15.01, stationNameOnly: true }, // אוניברסיטה
-  "3700": { side: "left", x: 39.76, y: 125.19, maxWidth: 16.32, stationNameOnly: true }, // סבידור מרכז
-  "4600": { side: "left", x: 39.76, y: 132.42, maxWidth: 8.87, stationNameOnly: true }, // השלום
-  "4900": { side: "left", x: 39.65, y: 139.98, maxWidth: 8.54, stationNameOnly: true }, // ההגנה
-  "400": { side: "right", x: 78.09, y: 142.06, maxWidth: 18.62 }, // מודיעין - מרכז
-  "4640": { side: "left", x: 38.34, y: 147.7, maxWidth: 9.86 }, // צומת חולון
-  "300": { side: "right", x: 74.04, y: 148.14, maxWidth: 11.17 }, // פאתי מודיעין
-  "8600": { side: "above", x: 61.34, y: 148.74, maxWidth: 12.05 }, // נמל תעופה בן גוריון
-  "4660": { side: "left", x: 38.34, y: 154.6, maxWidth: 12.6 }, // חולון - וולפסון
-  "4800": { side: "left", x: 50.49, y: 156.19, maxWidth: 8.87 }, //
-  "5150": { side: "left", x: 54.87, y: 160.79, maxWidth: 11.72 }, // לוד גני אביב
-  "4680": { side: "left", x: 38.44, y: 162.32, maxWidth: 13.58 }, // בת ים - יוספטל
-  "680": { side: "right", x: 88.06, y: 168.4, maxWidth: 12.38, stationNameOnly: true }, // יצחק נבון
-  "4690": { side: "left", x: 38.44, y: 170.04, maxWidth: 14.46 }, // בת ים - קוממיות
-  "5000": { side: "right", x: 65.72, y: 171.41, maxWidth: 3.18 }, // לוד
-  "5010": { side: "right", x: 65.83, y: 174.97, maxWidth: 5.26 }, // רמלה
-  "9100": { side: "left", x: 50.27, y: 176.23, maxWidth: 9.86 }, // ראשון לציון - הראשונים
-  "9800": { side: "left", x: 39.76, y: 176.51, maxWidth: 10.62 }, // ראשון לציון - משה דיין
-  "5300": { side: "right", x: 55.64, y: 182.58, maxWidth: 5.37 }, // באר יעקב
-  "9000": { side: "left", x: 39.65, y: 184.67, maxWidth: 11.06 }, // יבנה מערב
-  "5200": { side: "right", x: 51.48, y: 187.73, maxWidth: 9.53 }, // רחובות
-  "6900": { side: "right", x: 64.4, y: 187.84, maxWidth: 6.35 }, // מזכרת בתיה
-  "6300": { side: "right", x: 72.07, y: 188.94, maxWidth: 8.87 }, // בית שמש
-  "5410": { side: "right", x: 46.55, y: 191.29, maxWidth: 8.54 }, // יבנה מזרח
-  "5800": { side: "left", x: 39.76, y: 193.48, maxWidth: 7.45 }, // אשדוד עד הלום
-  "6150": { side: "right", x: 64.4, y: 198.63, maxWidth: 16.76 }, // קריית מלאכי - יואב
-  "5900": { side: "left", x: 39.76, y: 203.29, maxWidth: 9.75 }, // אשקלון
-  "7000": { side: "right", x: 64.4, y: 210.24, maxWidth: 7.89 }, // קריית גת
-  "9600": { side: "left", x: 39.76, y: 211.72, maxWidth: 5.91 }, // שדרות
-  "9650": { side: "left", x: 39.76, y: 220.37, maxWidth: 6.02 }, // נתיבות
-  "8550": { side: "right", x: 64.51, y: 221.47, maxWidth: 12.16 }, // להבים - רהט
-  "9700": { side: "above", x: 50.77, y: 226.07, maxWidth: 6.46 }, // אופקים
-  "7300": { side: "left", x: 59.58, y: 233.63, maxWidth: 17.2, stationNameOnly: true }, // צפון/אוניברסיטה
-  "7320": { side: "left", x: 64.07, y: 238.99, maxWidth: 10.73, stationNameOnly: true }, // מרכז
-  "7500": { side: "left", x: 80.18, y: 247.04, maxWidth: 8.76 }, // דימונה
+/** A bend point inside a hop, in cells. */
+export type Waypoint = [number, number]
+/** A route: node ids (stations and junctions) with bend points between them. */
+export type Route = (string | Waypoint)[]
+
+export const JUNCTION_MODIIN = "j-modiin"
+/** Where the Karmiel pair crosses onto the west of the trunk, north of Kiryat Motzkin. */
+export const JUNCTION_KARMIEL = "j-karmiel"
+
+/**
+ * Where everything sits. The coast runs down the left; the trunk is the column
+ * at x = 10 from Nahariya to Be'er Sheva; branches go off it east and west.
+ */
+export const NODES: Record<string, MapNode> = {
+  // Galilee and the Krayot
+  "1600": { x: 10, y: 0, label: "left" }, // Nahariya
+  "1500": { x: 10, y: 1.5, label: "left" }, // Akko
+  "1840": { x: 17, y: 1, label: "right" }, // Karmiel
+  "1820": { x: 13, y: 1, label: "above" }, // Ahihud
+  [JUNCTION_KARMIEL]: { x: 10, y: 3 },
+  "1400": { x: 10, y: 5, label: "left" }, // Kiryat Motzkin
+  "700": { x: 10, y: 7, label: "left" }, // Kiryat Hayim
+  "1300": { x: 10, y: 9, label: "left" }, // Hutzot HaMifratz
+  "1220": { x: 10, y: 11, label: "left" }, // HaMifrats Central
+  // Haifa
+  "2100": { x: 10, y: 13, label: "left" }, // Haifa Center - HaShmona
+  "2200": { x: 10, y: 15, label: "left" }, // Bat Galim
+  "2300": { x: 10, y: 17, label: "left" }, // Hof HaKarmel
+  // The valley line
+  "1240": { x: 14, y: 13, label: "below" }, // Yokne'am - Kfar Yehoshu'a
+  "1250": { x: 17, y: 13, label: "above" }, // Migdal Ha'emek - Kfar Barukh
+  "1260": { x: 20, y: 13, label: "below" }, // Afula
+  "1280": { x: 23, y: 13, label: "above" }, // Beit She'an
+  // The coast
+  "2500": { x: 10, y: 20, label: "left" }, // Atlit
+  "2800": { x: 10, y: 23, label: "left" }, // Binyamina
+  "2820": { x: 10, y: 25, label: "left" }, // Caesarea - Pardes Hana
+  "3100": { x: 10, y: 27, label: "left" }, // Hadera - West
+  "3300": { x: 10, y: 30, label: "left" }, // Netanya
+  "3310": { x: 10, y: 32, label: "left" }, // Netanya - Sapir
+  "3400": { x: 10, y: 34, label: "left" }, // Bet Yehoshu'a
+  "3500": { x: 10, y: 37, label: "left" }, // Herzliya
+  // The eastern line
+  "3900": { x: 22, y: 27, label: "right" }, // Hadera - East
+  "4300": { x: 22, y: 31, label: "right" }, // Shomron - Tayibe
+  "4310": { x: 22, y: 34, label: "right" }, // Tira - Kokhav Ya'ir
+  "8800": { x: 21, y: 38, label: "right" }, // Rosh Ha'Ayin - North
+  // The Sharon loop
+  "2940": { x: 13, y: 35, label: "above" }, // Ra'anana West
+  "2960": { x: 15, y: 35, label: "below" }, // Ra'anana South
+  "9200": { x: 17, y: 35, label: "above" }, // Hod HaSharon - Sokolov
+  "8700": { x: 19, y: 35, label: "below" }, // Kfar Sava - Nordau
+  "4250": { x: 17, y: 40, label: "below" }, // Petah Tikva - Segula
+  "4170": { x: 15, y: 40, label: "above" }, // Petah Tikva - Kiryat Arye
+  "4100": { x: 13, y: 40, label: "below" }, // Bnei Brak
+  // Tel Aviv
+  "3600": { x: 10, y: 40, label: "left" }, // University
+  "3700": { x: 10, y: 42, label: "left" }, // Savidor Center
+  "4600": { x: 10, y: 44, label: "left" }, // HaShalom
+  "4900": { x: 10, y: 46, label: "left" }, // HaHagana
+  // Holon, Bat Yam and Rishon LeTsiyon
+  "4640": { x: 7, y: 49, label: "left" }, // Holon Junction
+  "4660": { x: 5, y: 51, label: "left" }, // Holon - Wolfson
+  "4680": { x: 4, y: 52, label: "left" }, // Bat Yam - Yoseftal
+  "4690": { x: 4, y: 54, label: "left" }, // Bat Yam - Komemiyut
+  "9800": { x: 4, y: 56, label: "left" }, // Rishon LeTsiyon - Moshe Dayan
+  "9100": { x: 6, y: 53, label: "above" }, // Rishon LeTsiyon - HaRishonim
+  // Lod, Ramla and the airport
+  "4800": { x: 10, y: 49.5, label: "right" }, // Kfar Habad
+  "5150": { x: 10, y: 51, label: "right" }, // Lod - Gane Aviv
+  "5000": { x: 10, y: 53, label: "right" }, // Lod
+  "5010": { x: 10, y: 55, label: "right" }, // Ramla
+  "8600": { x: 13, y: 49, label: "right" }, // Ben Gurion Airport
+  [JUNCTION_MODIIN]: { x: 15, y: 51 },
+  "300": { x: 17, y: 50, label: "below" }, // Pa'ate Modi'in
+  "400": { x: 20, y: 50, label: "right" }, // Modi'in - Center
+  "680": { x: 21, y: 53, label: "right" }, // Jerusalem - Yitzhak Navon
+  "6300": { x: 16, y: 58, label: "right" }, // Bet Shemesh
+  // Rehovot and the southern coast
+  "5300": { x: 8, y: 55, label: "left" }, // Be'er Ya'akov
+  "5200": { x: 8, y: 57, label: "left" }, // Rehovot
+  "5410": { x: 8, y: 61, label: "left" }, // Yavne - East
+  "9000": { x: 4, y: 61, label: "left" }, // Yavne - West
+  "5800": { x: 6, y: 63, label: "left" }, // Ashdod - Ad Halom
+  "5900": { x: 6, y: 66, label: "left" }, // Ashkelon
+  "9600": { x: 6, y: 69, label: "left" }, // Sderot
+  "9650": { x: 6, y: 72, label: "left" }, // Netivot
+  "9700": { x: 6, y: 75, label: "left" }, // Ofakim
+  // The south
+  "6900": { x: 10, y: 59, label: "right" }, // Mazkeret Batya
+  "6150": { x: 10, y: 63, label: "right" }, // Kiryat Malakhi - Yoav
+  "7000": { x: 10, y: 67, label: "right" }, // Kiryat Gat
+  "8550": { x: 10, y: 73, label: "right" }, // Lehavim - Rahat
+  "7300": { x: 10, y: 79, label: "left" }, // Be'er Sheva - North/University
+  "7320": { x: 10, y: 81, label: "left" }, // Be'er Sheva - Center
+  "7500": { x: 14, y: 83, label: "right" }, // Dimona
 }
 
-export type CityBox = {
+// Stretches several lines share, so their bends are written once.
+const HAIFA_TO_HERZLIYA: Route = ["1220", "2100", "2200", "2300", "2500", "2800", "2820", "3100", "3300", "3310", "3400", "3500"]
+const TEL_AVIV: Route = ["3600", "3700", "4600", "4900"]
+const TO_LOD: Route = ["4800", "5150", "5000"]
+const TO_BEER_SHEVA: Route = ["5010", "6900", "6150", "7000", "8550", "7300", "7320"]
+// Bends sit clear of the stations, so the markers there are on straight track.
+const KARMIEL: Route = ["1840", "1820", [12, 1], JUNCTION_KARMIEL, "1400"]
+const NAHARIYA: Route = ["1600", "1500", JUNCTION_KARMIEL, "1400", "700", "1300"]
+const TO_ASHKELON_FROM_LOD: Route = ["5300", "5200", "5410", "5800", "5900"]
+
+/**
+ * Every line's way through the nodes, calling or not (the stations a line runs
+ * through without calling are the route's stations missing from its
+ * catalogue corridor). Bend points keep every hop octilinear.
+ */
+export const ROUTES: Record<RailLineId, Route> = {
+  "1": [...NAHARIYA, ...HAIFA_TO_HERZLIYA, ...TEL_AVIV, "8600", JUNCTION_MODIIN, [16, 50], "300", "400"],
+  "2": ["2800", "2820", "3100", "3300", "3310", "3400", "3500", ...TEL_AVIV, ...TO_LOD, ...TO_ASHKELON_FROM_LOD],
+  "3": [...NAHARIYA, ...HAIFA_TO_HERZLIYA, ...TEL_AVIV, ...TO_LOD, ...TO_BEER_SHEVA],
+  "3X": [...KARMIEL, "700", "1300", ...HAIFA_TO_HERZLIYA, ...TEL_AVIV, ...TO_LOD, ...TO_BEER_SHEVA],
+  "4": [...KARMIEL, "700", "1300", "1220", "2100", "2200", "2300"],
+  "5": ["3300", "3310", "3400", "3500", ...TEL_AVIV, ...TO_LOD, "5010", [13, 58], "6300"],
+  "25": ["3300", "3310", "3400", "3500", ...TEL_AVIV, ...TO_LOD, "5300", "5200"],
+  "6": [
+    "3500",
+    [11, 36],
+    [12, 35],
+    "2940",
+    "2960",
+    "9200",
+    "8700",
+    [21, 37],
+    "8800",
+    [19, 40],
+    "4250",
+    "4170",
+    "4100",
+    ...TEL_AVIV,
+    "4640",
+    "4660",
+    "4680",
+    "4690",
+    "9800",
+    "9000",
+    "5800",
+    "5900",
+    "9600",
+    "9650",
+    "9700",
+    "7300",
+    "7320",
+  ],
+  "7": ["3500", ...TEL_AVIV, "8600", JUNCTION_MODIIN, [17, 53], "680"],
+  "12": ["3900", "4300", "4310", [22, 37], "8800"],
+  "9": ["5000", "9100"],
+  "10": ["400", "300", [16, 50], JUNCTION_MODIIN, [17, 53], "680"],
+  "11": ["1280", "1260", "1250", "1240", [12, 11], "1220", "2100", "2200", "2300", "2500"],
+  "8": ["7300", "7500"],
+}
+
+/**
+ * The order of the lanes where lines share a hop, west to east (south to
+ * north on a horizontal hop, as seen going away from Nahariya), after the
+ * Israel Railways network map: every line starts and ends at the edge of its
+ * bundle, so no lane moves when one joins or leaves. Lines of one colour
+ * share a lane (5 and 25).
+ */
+export const LANE_RANK: Record<RailLineId, number> = {
+  "9": -3,
+  "6": -2,
+  "5": -1,
+  "25": -1,
+  "2": 0,
+  "4": 0.5,
+  "3X": 1,
+  "3": 2,
+  "1": 3,
+  "7": 4,
+  "10": 7,
+  "11": 8,
+  "12": 8,
+  "8": 9,
+}
+
+/**
+ * Where a line's lane differs from LANE_RANK: on the hops between the listed
+ * nodes, and at those nodes. The Sharon loop leaves Herzliya on the east; at
+ * the airport lines 1 and 7 swap under the station (line 1 turns north for
+ * Modi'in at the junction beyond it); line 5 crosses to the east of the Lod
+ * bundle after Lod, for Bet Shemesh; and the Modi'in pair keeps line 10
+ * inside the junction's fork.
+ */
+export const LANE_RANK_OVERRIDES: { lineId: RailLineId; nodes: string[]; rank: number }[] = [
+  { lineId: "6", nodes: ["3500"], rank: 100 },
+  { lineId: "5", nodes: ["5000", "5010", "6300"], rank: 2.5 },
+  { lineId: "7", nodes: ["8600", JUNCTION_MODIIN], rank: 2.5 },
+  { lineId: "10", nodes: [JUNCTION_MODIIN, "300", "400"], rank: 2.9 },
+]
+
+export type CityFrame = {
   id: string
-  x: number
-  y: number
-  width: number
-  height: number
-  /** Bottom-left corner of the city name inside the box. */
-  labelX: number
-  labelY: number
+  /** The stations inside the frame; they drop the city from their names ("Tel Aviv - HaShalom" → "HaShalom"). */
+  stations: string[]
   name: { he: string; en: string; ru: string; ar: string }
 }
 
-/** The rounded frames the original draws around the big cities' stations. */
-export const CITY_BOXES: CityBox[] = [
-  {
-    id: "haifa",
-    x: 16.98,
-    y: 42.17,
-    width: 39.65,
-    height: 16.54,
-    labelX: 18.62,
-    labelY: 57.17,
-    name: { he: "חיפה", en: "Haifa", ru: "Хайфа", ar: "حيفا" },
-  },
+/** The rounded frames around the big cities' stations, named once, as the railways' map draws them. */
+export const CITY_FRAMES: CityFrame[] = [
+  { id: "haifa", stations: ["2100", "2200", "2300"], name: { he: "חיפה", en: "Haifa", ru: "Хайфа", ar: "حيفا" } },
   {
     id: "telaviv",
-    x: 16.98,
-    y: 116.32,
-    width: 34.06,
-    height: 25.85,
-    labelX: 18.51,
-    labelY: 140.64,
-    name: { he: "תל־אביב", en: "Tel Aviv", ru: "Тель-Авив", ar: "تل أبيب" },
+    stations: ["3600", "3700", "4600", "4900"],
+    name: { he: "תל אביב", en: "Tel Aviv", ru: "Тель-Авив", ar: "تل أبيب" },
   },
-  {
-    id: "jerusalem",
-    x: 82.26,
-    y: 163.09,
-    width: 15.99,
-    height: 17.31,
-    labelX: 83.9,
-    labelY: 178.64,
-    name: { he: "ירושלים", en: "Jerusalem", ru: "Иерусалим", ar: "القدس" },
-  },
+  { id: "jerusalem", stations: ["680"], name: { he: "ירושלים", en: "Jerusalem", ru: "Иерусалим", ar: "القدس" } },
   {
     id: "beersheva",
-    x: 40.09,
-    y: 231.11,
-    width: 26.73,
-    height: 17.42,
-    labelX: 42.28,
-    labelY: 246.33,
+    stations: ["7300", "7320"],
     name: { he: "באר שבע", en: "Be'er Sheva", ru: "Беэр-Шева", ar: "بئر السبع" },
   },
 ]
 
-/**
- * Sunday–Thursday, Friday–Saturday, or the small hours after a weekday: the
- * timetable, and so the map, differs between them.
- */
-export type DayType = "weekday" | "weekend" | "night"
-/** The day types, in the order the status screen offers them. */
-export const DAY_TYPES: DayType[] = ["weekday", "weekend", "night"]
-
-/** Where a line calls, runs through or ends short of its terminus (a line-station pair). */
-export type LineStation = { lineId: RailLineId; stationId: string }
-
-export type ServicePattern = {
-  /** The lines that run at all. */
-  lines: RailLineId[]
-  /** Stations a fifth or more of a line's passing trains run through. */
-  irregular: LineStation[]
-  /** Stations short of a line's ends where a tenth or more of its trains terminate. */
-  terminals: LineStation[]
-  /** Stations the line runs through without calling at all: no dot, and no name unless another line calls. */
-  skipped: LineStation[]
+/** The one name the map shortens: the airport, which gets the aeroplane glyph beside it as well. */
+export const MAP_NAME_OVERRIDES: Record<string, Record<"he" | "en" | "ru" | "ar", string>> = {
+  "8600": { he: "נתב״ג", en: "TLV Airport", ru: "Аэропорт TLV", ar: "مطار TLV" },
 }
 
-/**
- * The service patterns per day type, from the timetable
- * (scripts/rail-map-trace/station-patterns.json).
- */
-export const SERVICE_PATTERNS: Record<DayType, ServicePattern> = {
-  weekday: {
-    lines: ["1", "10", "11", "12", "2", "25", "3", "3X", "4", "5", "6", "7", "8", "9"],
-    irregular: [
-      { lineId: "1", stationId: "2500" },
-      { lineId: "2", stationId: "5150" },
-      { lineId: "3X", stationId: "8550" },
-      { lineId: "6", stationId: "4640" },
-      { lineId: "6", stationId: "4690" },
-    ],
-    terminals: [
-      { lineId: "11", stationId: "2300" },
-      { lineId: "2", stationId: "5200" },
-      { lineId: "3", stationId: "3700" },
-      { lineId: "3X", stationId: "3700" },
-      { lineId: "4", stationId: "1220" },
-      { lineId: "5", stationId: "3700" },
-      { lineId: "6", stationId: "5800" },
-      { lineId: "6", stationId: "5900" },
-      { lineId: "6", stationId: "9800" },
-    ],
-    skipped: [
-      { lineId: "1", stationId: "2820" },
-      { lineId: "1", stationId: "3100" },
-      { lineId: "1", stationId: "3300" },
-      { lineId: "1", stationId: "3400" },
-      { lineId: "1", stationId: "3500" },
-      { lineId: "3", stationId: "1300" },
-      { lineId: "3", stationId: "2500" },
-      { lineId: "3", stationId: "2800" },
-      { lineId: "3", stationId: "700" },
-    ],
-  },
-  weekend: {
-    lines: ["1", "10", "11", "2", "3", "4", "5", "6", "7", "8", "9"],
-    irregular: [
-      { lineId: "1", stationId: "2820" },
-      { lineId: "1", stationId: "3100" },
-      { lineId: "1", stationId: "3300" },
-      { lineId: "1", stationId: "3400" },
-      { lineId: "1", stationId: "3500" },
-      { lineId: "2", stationId: "3310" },
-      { lineId: "2", stationId: "5150" },
-      { lineId: "4", stationId: "700" },
-      { lineId: "5", stationId: "5150" },
-      { lineId: "6", stationId: "2960" },
-      { lineId: "6", stationId: "4640" },
-      { lineId: "6", stationId: "4690" },
-    ],
-    terminals: [
-      { lineId: "1", stationId: "3700" },
-      { lineId: "3", stationId: "3700" },
-      { lineId: "6", stationId: "3700" },
-    ],
-    skipped: [{ lineId: "1", stationId: "700" }],
-  },
-  night: {
-    lines: ["1", "7"],
-    irregular: [],
-    terminals: [],
-    skipped: [
-      { lineId: "1", stationId: "1220" },
-      { lineId: "1", stationId: "1300" },
-      { lineId: "1", stationId: "2200" },
-      { lineId: "1", stationId: "2500" },
-      { lineId: "1", stationId: "2820" },
-      { lineId: "1", stationId: "300" },
-      { lineId: "1", stationId: "3400" },
-      { lineId: "1", stationId: "3600" },
-      { lineId: "1", stationId: "4600" },
-      { lineId: "1", stationId: "4900" },
-      { lineId: "1", stationId: "700" },
-      { lineId: "7", stationId: "3600" },
-      { lineId: "7", stationId: "4600" },
-      { lineId: "7", stationId: "4900" },
-    ],
-  },
-}
-
-/**
- * Strokes drawn in a line's colour beside its path: line 6's express lane
- * straight through the Bat Yam stops, and the short curl at Rehovot where
- * many line 2 trains end (with its own terminal dot).
- */
-export const LINE_EXTRAS: {
-  lineId: RailLineId
-  points: number[]
-  terminal?: [number, number]
-  /** Drawn only when the day type's pattern has this line-station as a terminal / irregular stop. */
-  requires: LineStation & { kind: "terminal" | "irregular" }
-  /** An express lane stands for the trains running through these stations, which keep plain dots on the line. */
-  covers?: string[]
-}[] = [
-  {
-    lineId: "6",
-    points: [40.74, 140.33, 40.71, 177.31],
-    requires: { lineId: "6", stationId: "4640", kind: "irregular" },
-    covers: ["4640", "4660", "4680", "4690"],
-  },
-  {
-    lineId: "2",
-    points: [52.76, 182.66, 52.25, 183.35, 52.25, 185.32, 51.7, 186.2, 50.93, 186.42],
-    terminal: [50.93, 186.42],
-    requires: { lineId: "2", stationId: "5200", kind: "terminal" },
-  },
-]
-
-/**
- * The original's water, in map units: the coast and the two lakes. The sea is everything west of
- * the coast, from the map's top edge down to where the coast meets its left edge; each outline is
- * where the original draws its thin shoreline ribbon. The original cuts both lakes at its right
- * edge (x = 100); their east shores here are drawn on past it, after the lakes' real shapes, so
- * they are not cut off when the map is panned.
- */
-export const WATER = {
-  /** The coast from the top of the map to the left edge, top to bottom (flat x,y pairs). */
-  coast: [
-    47.89, 0.0, 47.89, 28.04, 47.78, 30.01, 47.88, 40.31, 47.7, 41.4, 47.34, 42.5, 46.51, 44.25, 45.63, 45.56, 42.92, 48.63,
-    41.13, 51.7, 40.72, 53.01, 39.99, 56.74, 39.34, 67.69, 39.36, 69.0, 39.75, 70.97, 38.94, 73.17, 38.48, 80.18, 38.15, 82.15,
-    38.14, 88.5, 37.67, 91.13, 36.83, 104.93, 36.36, 109.97, 36.2, 114.35, 35.4, 124.86, 35.62, 127.05, 35.17, 129.24, 34.92,
-    131.43, 34.65, 136.69, 34.37, 139.1, 34.23, 143.48, 33.91, 146.77, 32.29, 171.74, 31.96, 173.93, 31.89, 177.0, 31.6, 181.82,
-    31.36, 183.79, 31.28, 186.42, 30.45, 193.65, 29.28, 200.66, 27.17, 209.64, 25.22, 215.99, 23.96, 219.72, 22.07, 224.53, 19.29,
-    230.89, 15.18, 238.77, 12.46, 243.37, 9.91, 247.32, 6.07, 252.79, 3.33, 256.3, 2.32, 257.39, 0.43, 258.93, 0.01, 259.36, 0.0,
-    259.58,
-  ],
-  /** Closed outlines of the Sea of Galilee and the Dead Sea. */
-  lakes: [
-    [
-      99.89, 46.17, 97.48, 46.39, 96.82, 46.17, 95.89, 45.35, 95.45, 44.25, 95.45, 38.77, 95.13, 38.12, 93.59, 36.58, 93.15,
-      35.38, 93.15, 22.02, 93.37, 20.92, 94.3, 19.88, 95.18, 19.55, 99.34, 19.55, 99.89, 19.77, 103.5, 20.3, 106.5, 22.5, 108.2,
-      26.0, 108.6, 31.0, 108.0, 37.0, 106.3, 42.0, 103.6, 45.3, 100.9, 46.3,
-    ],
-    [
-      99.89, 257.23, 99.34, 257.45, 97.04, 257.34, 95.89, 256.41, 95.45, 255.31, 95.45, 226.07, 95.78, 225.08, 96.99, 223.77,
-      97.32, 222.78, 97.21, 220.15, 95.78, 218.4, 95.45, 217.42, 95.45, 199.01, 95.89, 197.92, 97.04, 196.99, 99.34, 196.88,
-      99.89, 197.1, 104.0, 197.6, 109.0, 200.0, 112.5, 205.0, 113.5, 215.0, 113.2, 235.0, 112.0, 248.0, 109.0, 254.5, 104.5,
-      257.0, 100.9, 257.4,
-    ],
-  ],
-}
-
-/** The aeroplane above Ben Gurion Airport's name (centre x, bottom y, height). */
-export const AIRPORT_ICON = { x: 61.39, y: 144.14, height: 3.18 }
-
-/** Names the original shortens on the map. */
-export const LABEL_TEXT_OVERRIDES: Record<string, Partial<Record<"he" | "en" | "ru" | "ar", string>>> = {
-  "8600": { he: "נתב״ג" },
-  "1260": { he: "עפולה", en: "Afula" },
-}
+/** The aeroplane beside Ben Gurion Airport's name: which station, and the glyph's height in cells. */
+export const AIRPORT = { stationId: "8600", height: 0.75 }

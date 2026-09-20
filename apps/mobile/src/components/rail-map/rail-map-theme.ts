@@ -3,28 +3,22 @@
  * cannot consume PlatformColor / DynamicColorIOS values (same constraint as
  * screens/route-details/components/use-route-colors.tsx), so the map keeps
  * its own light/dark pairs and picks one with the current colour scheme.
- *
- * The map is drawn on a solid ground: white in light mode (the original's
- * colours as they are), a deep navy in dark mode. The water is one colour
- * mixed into the ground by the amounts the original fades it with (SEA_FADE
- * in rail-map-model.ts), so the same fade works on both grounds.
  */
 export type RailMapPalette = {
   /** Solid ground. */
   background: string
   /** Station names. */
   ink: string
-  /** Station dots and the hollow circles of stops trains may pass (dark in both schemes, as on the original). */
-  dot: string
-  /** Lines and labels that are not the selected line. */
+  /** The ring of a station capsule and the ticks beside lone lines. */
+  marker: string
+  /** The fill of a station capsule. */
+  markerFill: string
+  /** Lines, names and markers that are not the selected line's. */
   dimLine: string
   dimInk: string
-  /** The rounded frames around the big cities and their names. */
+  /** The frames around the big cities and their names. */
   frame: string
   cityInk: string
-  /** The water's colour (the sea far from the coast, the lakes) and the thin ribbon along every shoreline. */
-  sea: string
-  shore: string
   /** Disruption badge on affected stations ("!" on a disc). */
   badge: string
   badgeInk: string
@@ -35,30 +29,28 @@ export type RailMapPalette = {
 export const RAIL_MAP_PALETTE: Record<"light" | "dark", RailMapPalette> = {
   light: {
     background: "#FFFFFF",
-    ink: "#2B2E37",
-    dot: "#120900",
-    dimLine: "#DCDDE2",
-    dimInk: "#B5B7BF",
+    ink: "#1D1F26",
+    marker: "#1D1F26",
+    markerFill: "#FFFFFF",
+    dimLine: "#E1E2E6",
+    dimInk: "#B9BBC3",
     frame: "#B4B6BE",
-    cityInk: "#4A4D56",
-    sea: "#CEEDFF",
-    shore: "#C1E9FF",
+    cityInk: "#6E717C",
     badge: "#1D1D1F",
     badgeInk: "#FFFFFF",
     selection: "#0A7AFF",
   },
   dark: {
-    background: "#0F1524",
+    background: "#0E1220",
     ink: "#F2F2F7",
-    dot: "#14171F",
-    dimLine: "#343A4A",
-    dimInk: "#5E6474",
+    marker: "#F2F2F7",
+    markerFill: "#0E1220",
+    dimLine: "#2C3242",
+    dimInk: "#5A6070",
     frame: "#4C5468",
-    cityInk: "#C9CCD6",
-    sea: "#1B2A48",
-    shore: "#2B4470",
+    cityInk: "#A9AEBD",
     badge: "#F2F2F7",
-    badgeInk: "#0F1524",
+    badgeInk: "#0E1220",
     selection: "#5CA8FF",
   },
 }

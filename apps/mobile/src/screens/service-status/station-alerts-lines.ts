@@ -3,7 +3,7 @@
  * for the tests; the card (components/station-alerts-card.tsx) is the UI over it.
  */
 import { RAIL_LINES, type RailLine } from "@/data/rail-lines"
-import { DAY_TYPES } from "@/data/rail-map-layout"
+import { DAY_TYPES } from "@/data/rail-service-patterns"
 import { linesCallingAt } from "./station-status"
 
 /** The lines that call at the station on any of the day's timetables, in catalogue order. */

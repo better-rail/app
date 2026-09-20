@@ -347,7 +347,6 @@
     "subtitle": "Line status",
     "networkMap": "Network map",
     "networkMapHint": "Tap a line to see its status",
-    "mapCredit": "Map after the Israel Railways network map",
     "dayType": {
       "weekday": "Sun–Thu",
       "weekend": "Fri–Sat",
@@ -357,7 +356,8 @@
       "title": "Map legend",
       "open": "Legend",
       "lines": "Each colour is a line",
-      "stop": "Station where the line calls",
+      "stop": "Station on a line",
+      "interchange": "Station shared by several lines",
       "irregularStop": "Irregular stops – trains can pass without stopping",
       "terminal": "Station where trains of the line terminate",
       "suspended": "Stretch with no service right now",

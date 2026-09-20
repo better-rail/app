@@ -3,7 +3,7 @@
  * apps/server/src/types/station-alerts.ts; keep the two in sync.
  */
 import type { LanguageCode } from "@/i18n"
-import type { DayType } from "@/data/rail-map-layout"
+import type { DayType } from "@/data/rail-service-patterns"
 
 /**
  * A station the device wants pushes about: the lines those are limited to (null: every line calling
