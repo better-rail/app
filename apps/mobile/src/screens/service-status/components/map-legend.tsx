@@ -117,6 +117,9 @@ const RING = 3
 /** The badge's diameter, in the capsule's proportion to the map's (radius 0.92 to a capsule 1.55 wide), and its glyph unit. */
 const BADGE = Math.round((CAPSULE * 2 * 0.92) / 1.55)
 const BADGE_UNIT = BADGE / 2 / 1.4
+const BADGE_RING = 1.5
+/** The disc's centre, measured from inside its ring, where its children are positioned from. */
+const BADGE_MIDDLE = BADGE / 2 - BADGE_RING
 
 const styles = StyleSheet.create((theme, rt) => ({
   wrapper: {
@@ -212,19 +215,19 @@ const styles = StyleSheet.create((theme, rt) => ({
     width: BADGE,
     height: BADGE,
     borderRadius: BADGE / 2,
-    borderWidth: 1.5,
+    borderWidth: BADGE_RING,
     alignItems: "center",
   },
   exclamationBar: {
     position: "absolute",
-    top: BADGE / 2 - 0.95 * BADGE_UNIT,
+    top: BADGE_MIDDLE - 0.95 * BADGE_UNIT,
     width: 0.48 * BADGE_UNIT,
     height: 1.15 * BADGE_UNIT,
     borderRadius: 0.24 * BADGE_UNIT,
   },
   exclamationDot: {
     position: "absolute",
-    top: BADGE / 2 + 0.35 * BADGE_UNIT,
+    top: BADGE_MIDDLE + 0.35 * BADGE_UNIT,
     width: 0.54 * BADGE_UNIT,
     height: 0.54 * BADGE_UNIT,
     borderRadius: 0.27 * BADGE_UNIT,
