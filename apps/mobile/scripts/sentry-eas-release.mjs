@@ -54,7 +54,8 @@ export function findPreviousCommit(releases, { currentRelease, releasePrefix }) 
 }
 
 export function buildCommitSpec(previousCommit, currentCommit) {
-  return `${SENTRY_REPOSITORY}@${previousCommit}..${currentCommit}`
+  const commitRange = previousCommit ? `${previousCommit}..${currentCommit}` : currentCommit
+  return `${SENTRY_REPOSITORY}@${commitRange}`
 }
 
 function run(command, args, { dryRun = false } = {}) {
@@ -132,7 +133,7 @@ async function main() {
     throw new Error("EAS_BUILD_GIT_COMMIT_HASH is required to associate Sentry commits.")
   }
 
-  if (!authToken && process.env.SENTRY_EAS_RELEASE_DRY_RUN !== "true") {
+  if (!authToken) {
     throw new Error("SENTRY_AUTH_TOKEN is required to associate Sentry commits.")
   }
 
@@ -159,19 +160,16 @@ async function main() {
     })
   }
 
-  if (!previousCommit) {
-    throw new Error(
-      `No previous commit-associated ${platform} release was found. ` +
-        "Bootstrap one release before relying on the EAS success hook.",
-    )
-  }
-
   const sentryCli = require.resolve("@sentry/cli/bin/sentry-cli")
   const dryRun = process.env.SENTRY_EAS_RELEASE_DRY_RUN === "true"
 
   if (previousCommit === currentCommit) {
     console.log(`[Sentry] ${release} was built from the same commit as the previous ${platform} release.`)
   } else {
+    if (!previousCommit) {
+      console.log(`[Sentry] No previous ${platform} release was found; bootstrapping from ${currentCommit}.`)
+    }
+
     run(
       process.execPath,
       [
@@ -198,7 +196,7 @@ async function main() {
   console.log(`[Sentry] Associated ${SENTRY_REPOSITORY} commits with ${release}.`)
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((error) => {
     console.error(`[Sentry] Failed to associate EAS release commits: ${error.message}`)
     process.exitCode = 1
