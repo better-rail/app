@@ -2,6 +2,7 @@ import { create } from "zustand"
 import type { PopUpMessage } from "@/services/api"
 
 export type MaxChanges = 0 | 1 | null
+export const TRAIN_INFO_PROMPT_SEARCH_THRESHOLD = 2
 
 export interface SettingsState {
   seenUrgentMessagesIds: number[]
@@ -79,6 +80,7 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
   },
 
   recordTrainSearch() {
+    if (get().trainSearchCount >= TRAIN_INFO_PROMPT_SEARCH_THRESHOLD) return
     set((state) => ({ trainSearchCount: state.trainSearchCount + 1 }))
   },
 
@@ -146,6 +148,12 @@ export function hydrateSettingsStore(data: any) {
   }
   delete processedData.hideCollectorTrains
 
+  const persistedTrainSearchCount = processedData.trainSearchCount
+  const trainSearchCount =
+    Number.isSafeInteger(persistedTrainSearchCount) && persistedTrainSearchCount >= 0
+      ? Math.min(persistedTrainSearchCount, TRAIN_INFO_PROMPT_SEARCH_THRESHOLD)
+      : 0
+
   useSettingsStore.setState({
     seenUrgentMessagesIds: processedData.seenUrgentMessagesIds ?? [],
     profileCode: migrateProfileCode(processedData.profileCode),
@@ -154,7 +162,7 @@ export function hydrateSettingsStore(data: any) {
     showRouteCardHeader: processedData.showRouteCardHeader ?? false,
     hideSlowTrains: processedData.hideSlowTrains ?? false,
     maxChanges: processedData.maxChanges ?? null,
-    trainSearchCount: processedData.trainSearchCount ?? 0,
+    trainSearchCount,
     seenTrainInfoPrompt: processedData.seenTrainInfoPrompt ?? false,
     seenLawsuitAnnouncement: processedData.seenLawsuitAnnouncement ?? false,
   })

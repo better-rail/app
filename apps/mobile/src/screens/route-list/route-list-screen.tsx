@@ -12,7 +12,7 @@ import { useObserve } from "expo-observe"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useShallow } from "zustand/react/shallow"
 import { useTrainRoutesStore, useRoutePlanStore, useRideStore, useSettingsStore } from "@/models"
-import { filterRouteDataByMaxChanges } from "@/models/settings/settings"
+import { filterRouteDataByMaxChanges, TRAIN_INFO_PROMPT_SEARCH_THRESHOLD } from "@/models/settings/settings"
 import { color, fontScale, spacing } from "@/theme"
 import type { RouteItem } from "@/services/api"
 import { Screen, RouteDetailsHeader, RouteCard } from "@/components"
@@ -160,20 +160,12 @@ export function RouteListScreen() {
   const flashListRef = useRef<FlashListRef<RouteData>>(null)
   const hasRecordedSearch = useRef(false)
 
-  // Count each visit that performs a train search. Keeping this at the results-screen
-  // boundary also covers searches opened from widgets and home-screen shortcuts.
-  useEffect(() => {
-    if (!canSearchForTrains || hasRecordedSearch.current) return
-    hasRecordedSearch.current = true
-    recordTrainSearch()
-  }, [canSearchForTrains, recordTrainSearch])
-
   // Prompt the user once to choose whether to show the "Train Info" row on route cards.
   // Gated behind the "show-train-info-prompt" PostHog feature flag and delayed until the
   // user has searched for trains at least twice. It is shown at most once per user.
   const trainInfoPromptFlag = useFeatureFlag("show-train-info-prompt")
   useEffect(() => {
-    if (!trainInfoPromptFlag || trainSearchCount < 2 || seenTrainInfoPrompt) return
+    if (!trainInfoPromptFlag || trainSearchCount < TRAIN_INFO_PROMPT_SEARCH_THRESHOLD || seenTrainInfoPrompt) return
 
     // Wait for the route-list push transition to settle before presenting the sheet.
     const timeout = setTimeout(() => {
@@ -239,6 +231,12 @@ export function RouteListScreen() {
         setLoadingDate(null)
       },
       onSuccess: (data) => {
+        // Count only completed searches, and only once for this results-screen visit.
+        if (!hasRecordedSearch.current) {
+          hasRecordedSearch.current = true
+          recordTrainSearch()
+        }
+
         // Check if we need to update the date based on the actual routes
         if (data && data.length > 0) {
           const firstRouteDate = new Date(data[0].trains[0].departureTime).toDateString()

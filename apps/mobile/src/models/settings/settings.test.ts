@@ -22,6 +22,7 @@ test("can be created with default state", () => {
 test("counts train searches and persists the count", () => {
   useSettingsStore.getState().recordTrainSearch()
   useSettingsStore.getState().recordTrainSearch()
+  useSettingsStore.getState().recordTrainSearch()
 
   const snapshot = getSettingsSnapshot(useSettingsStore.getState())
   resetSettingsStore()
@@ -30,10 +31,17 @@ test("counts train searches and persists the count", () => {
   expect(useSettingsStore.getState().trainSearchCount).toBe(2)
 })
 
-test("defaults the train search count for existing persisted settings", () => {
+test("normalizes persisted train search counts", () => {
   hydrateSettingsStore({})
-
   expect(useSettingsStore.getState().trainSearchCount).toBe(0)
+
+  for (const trainSearchCount of ["1", -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY, Number.MAX_SAFE_INTEGER + 1]) {
+    hydrateSettingsStore({ trainSearchCount })
+    expect(useSettingsStore.getState().trainSearchCount).toBe(0)
+  }
+
+  hydrateSettingsStore({ trainSearchCount: 10 })
+  expect(useSettingsStore.getState().trainSearchCount).toBe(2)
 })
 
 test("migrates the legacy 'general' fare profile onto the rail API's id and keeps the others", () => {
