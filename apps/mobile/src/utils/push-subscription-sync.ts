@@ -1,6 +1,6 @@
 /**
  * Keeping a server-side push subscription in step with a list the user keeps in
- * the settings store: the station alerts and the Delay Guard trains both work
+ * the settings store: the station alerts and the Delay Notifications trains both work
  * this way (see station-alerts.ts and delay-guards.ts).
  *
  * The server needs this device's push token, language and the full list, and a

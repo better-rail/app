@@ -1,5 +1,5 @@
 /**
- * message.ts — the words of a Delay Guard push, in the device's language: the
+ * message.ts — the words of a Delay Notifications push, in the device's language: the
  * train, how late it is and when it now leaves, and the reminder that a delay
  * can shrink again, so the rider does not bank on it.
  */

@@ -1,5 +1,5 @@
 /**
- * store.ts — the Delay Guard subscriptions and what each device was told per
+ * store.ts — the Delay Notifications subscriptions and what each device was told per
  * guard (see derive.ts GuardMemory), in redis. See utils/subscription-store.ts.
  */
 import { logNames } from "../logs"

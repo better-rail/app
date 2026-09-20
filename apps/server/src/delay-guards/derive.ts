@@ -8,13 +8,21 @@
  * by a few minutes more (a few times at most), and once if the train is
  * cancelled. Nothing is said before the watch window opens, or once the train
  * has left the station. Each service date starts afresh.
+ *
+ * The window is kept short on purpose: a delay read an hour or more ahead is
+ * often gone by departure, and a rider told early would plan around a number
+ * that no longer holds. It opens ten minutes before the scheduled departure,
+ * plus the minutes the rider is willing to be late by, since that is how much
+ * later they may plan to leave.
  */
 import type { TripData } from "../requests/gtfs-route-api"
 import type { RealtimeLookup } from "../siri/types"
 import type { DelayGuard } from "../types/delay-guards"
 
-/** How long before the scheduled departure the train is watched. */
-export const WATCH_BEFORE_MS = 3 * 60 * 60_000
+/** How long before the scheduled departure the train is watched, on top of the rider's threshold. */
+export const WATCH_LEAD_MS = 10 * 60_000
+/** When the watch opens for a guard: its lead plus the threshold, before the scheduled departure. */
+export const watchBeforeMs = (thresholdMinutes: number): number => WATCH_LEAD_MS + thresholdMinutes * 60_000
 /** How long after the (delayed) departure the train still counts as catchable. */
 export const WATCH_AFTER_MS = 5 * 60_000
 /** A delay has to be seen this long before it is pushed. */
@@ -59,7 +67,7 @@ export const deriveGuardState = (
     const rt = lookup(serviceDate, trip.trainNumber, origin)
     const delayMin = rt.delayMin
     const cancelled = rt.trainCancelled === true || rt.status === "cancelled"
-    const opensAt = stop.depTs - WATCH_BEFORE_MS
+    const opensAt = stop.depTs - watchBeforeMs(guard.thresholdMinutes)
     const closesAt = stop.depTs + delayMin * 60_000 + WATCH_AFTER_MS
     if (nowNaiveMs < opensAt || nowNaiveMs > closesAt) continue
     return { status: "watching", serviceDate, scheduledDepTs: stop.depTs, delayMin, cancelled, live }

@@ -1,5 +1,5 @@
 /**
- * delay-guards.ts — the contract of Delay Guard: a train the rider usually takes,
+ * delay-guards.ts — the contract of Delay Notifications: a train the rider usually takes,
  * boarded at a station, to be told about when it runs late enough that they could
  * still catch it (PUT /api/v1/delay-guards).
  *

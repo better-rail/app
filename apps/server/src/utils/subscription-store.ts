@@ -1,6 +1,6 @@
 /**
  * subscription-store.ts — push subscriptions and what each device was last told,
- * in redis (as the rides are), for the station alerts and Delay Guard.
+ * in redis (as the rides are), for the station alerts and Delay Notifications.
  *
  * Two hashes, both keyed by the device's push token: one holds what each device
  * asked for, the other what it was told per item (a station, a guarded train). A

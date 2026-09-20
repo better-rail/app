@@ -46,7 +46,7 @@ Notifications.setNotificationHandler({
   },
 })
 
-/** The Android channels the station alerts and Delay Guard are shown on (the server sends them as data messages). */
+/** The Android channels the station alerts and Delay Notifications are shown on (the server sends them as data messages). */
 export const STATION_ALERTS_CHANNEL = "better-rail-station-alerts"
 export const DELAY_GUARD_CHANNEL = "better-rail-delay-guard"
 
@@ -110,7 +110,7 @@ export const configureNotifications = async () => {
 
     notifee.createChannel({
       id: DELAY_GUARD_CHANNEL,
-      name: "Delay Guard",
+      name: "Delay Notifications",
       description: "Your usual trains running late",
       importance: AndroidImportance.HIGH,
       vibration: true,
@@ -149,7 +149,7 @@ export const configureNotifications = async () => {
   }
 }
 
-/** A server alert on Android (station alert, Delay Guard): shown with Notifee, carrying its data for the tap. */
+/** A server alert on Android (station alert, Delay Notifications): shown with Notifee, carrying its data for the tap. */
 const handleAlertNotification = async (data: Record<string, string>, channelId: string) => {
   if (!data.notifee) return
   const { notifee: words, ...payload } = data

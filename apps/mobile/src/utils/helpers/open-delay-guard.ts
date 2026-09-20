@@ -3,7 +3,7 @@ import { getStationById } from "@/data/stations"
 import { useRoutePlanStore } from "@/models/route-plan/route-plan"
 import { trackEvent } from "@/services/analytics"
 
-/** The data a Delay Guard push carries (see apps/server/src/delay-guards/watcher.ts). */
+/** The data a Delay Notifications push carries (see apps/server/src/delay-guards/watcher.ts). */
 export type DelayGuardPayload = {
   type: "delay-guard"
   trainNumber: string
@@ -16,7 +16,7 @@ export const isDelayGuardPayload = (data: unknown): data is DelayGuardPayload =>
   return d?.type === "delay-guard" && typeof d.originStationId === "string" && typeof d.destinationStationId === "string"
 }
 
-/** A tapped Delay Guard push opens the trains from the boarding station to the destination, now. */
+/** A tapped Delay Notifications push opens the trains from the boarding station to the destination, now. */
 export const openDelayGuard = (payload: DelayGuardPayload) => {
   const origin = getStationById(payload.originStationId)
   const destination = getStationById(payload.destinationStationId)

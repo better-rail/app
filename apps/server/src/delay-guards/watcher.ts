@@ -1,5 +1,5 @@
 /**
- * watcher.ts — the Delay Guard check loop: every cycle, every guarded train in
+ * watcher.ts — the Delay Notifications check loop: every cycle, every guarded train in
  * its watch window is looked up in the SIRI snapshot and its rider told when it
  * is late enough (derive.ts). Runs inside the web service beside the station
  * alerts watcher, under the same opt-in (STATION_ALERTS_ENABLED).

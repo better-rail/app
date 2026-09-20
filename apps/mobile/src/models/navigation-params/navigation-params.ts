@@ -1,7 +1,7 @@
 import { create } from "zustand"
 import type { DelayGuard, RouteItem, Train } from "@/services/api"
 
-/** What the Delay Guard sheet is about: a train from a route, or a guard already kept. */
+/** What the Delay Notifications sheet is about: a train from a route, or a guard already kept. */
 export type DelayGuardDraft = Omit<DelayGuard, "thresholdMinutes"> & { thresholdMinutes?: number }
 
 type NavigationParamsStore = {

@@ -1,5 +1,5 @@
 /**
- * Delay Guard — the server's subscription for the trains the user wants to hear about when
+ * Delay Notifications — the server's subscription for the trains the user wants to hear about when
  * they run late (settings store `delayGuards`), kept in step by push-subscription-sync.ts.
  */
 import { useSettingsStore } from "@/models/settings/settings"

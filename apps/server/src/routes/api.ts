@@ -49,7 +49,7 @@ rideRouter.delete("/", bodyValidator(DeleteRideBody), async (req, res) => {
 
 router.use("/ride", rideRouter)
 
-// Push subscriptions — station alerts (a device's stations and lines) and Delay Guard (the trains it
+// Push subscriptions — station alerts (a device's stations and lines) and Delay Notifications (the trains it
 // wants to hear about when they run late). Both closed while the watchers are off, like the rides.
 const pushAlertsGate = requireEnabled(stationAlertsEnabled, "station_alerts_disabled")
 router.use("/station-alerts", pushAlertsGate, createRateLimiter(10 * 60 * 1000, 30), stationAlertsRouter)

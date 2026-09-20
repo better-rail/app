@@ -9,7 +9,8 @@ import {
   MAX_DELAY_PUSHES,
   REGROWTH_MIN,
   WATCH_AFTER_MS,
-  WATCH_BEFORE_MS,
+  WATCH_LEAD_MS,
+  watchBeforeMs,
   decideGuard,
   deriveGuardState,
 } from "../delay-guards/derive"
@@ -49,19 +50,25 @@ const lookupWith =
   () => ({ delayMin, ...extra })
 
 describe("a guarded train's state", () => {
-  test("is watched from three hours before its departure until a few minutes after it (delay included)", () => {
+  test("is watched from ten minutes plus the threshold before its departure until a few minutes after it (delay included)", () => {
     const state = (clock: string, delay = 0) => deriveGuardState(guard, [run], lookupWith(delay), true, ts(clock))
-    expect(state("05:29").status).toBe("outsideWindow")
-    expect(state("05:31").status).toBe("watching")
+    // threshold 3: opens 13 minutes before 08:30
+    expect(state("08:16").status).toBe("outsideWindow")
+    expect(state("08:18").status).toBe("watching")
     expect(state("08:34").status).toBe("watching")
     expect(state("08:36").status).toBe("outsideWindow")
     expect(state("08:44", 10).status).toBe("watching")
-    expect(WATCH_BEFORE_MS).toBe(3 * 60 * 60_000)
+    expect(WATCH_LEAD_MS).toBe(10 * 60_000)
+    expect(watchBeforeMs(15)).toBe(25 * 60_000)
     expect(WATCH_AFTER_MS).toBe(5 * 60_000)
+
+    const patient = { ...guard, thresholdMinutes: 15 }
+    expect(deriveGuardState(patient, [run], lookupWith(0), true, ts("08:04")).status).toBe("outsideWindow")
+    expect(deriveGuardState(patient, [run], lookupWith(0), true, ts("08:06")).status).toBe("watching")
   })
 
   test("reads the delay and cancellation at the boarding station", () => {
-    const late = deriveGuardState(guard, [run], lookupWith(7), true, ts("08:00"))
+    const late = deriveGuardState(guard, [run], lookupWith(7), true, ts("08:20"))
     expect(late).toMatchObject({
       status: "watching",
       serviceDate: DATE,
@@ -69,7 +76,7 @@ describe("a guarded train's state", () => {
       cancelled: false,
       scheduledDepTs: ts("08:30"),
     })
-    const cancelled = deriveGuardState(guard, [run], lookupWith(0, { trainCancelled: true }), true, ts("08:00"))
+    const cancelled = deriveGuardState(guard, [run], lookupWith(0, { trainCancelled: true }), true, ts("08:20"))
     expect(cancelled).toMatchObject({ status: "watching", cancelled: true })
   })
 

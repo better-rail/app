@@ -32,7 +32,7 @@ export interface SettingsState {
   stationAlerts: StationAlert[]
   /** Whether the server holds this device's subscription, so an emptied list is still told to it. */
   stationAlertsRegistered: boolean
-  /** Trains to be told about when they run late (Delay Guard). */
+  /** Trains to be told about when they run late (Delay Notifications). */
   delayGuards: DelayGuard[]
   delayGuardsRegistered: boolean
 }

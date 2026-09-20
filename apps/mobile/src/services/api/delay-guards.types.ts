@@ -1,5 +1,5 @@
 /**
- * The Delay Guard contract — what PUT /api/v1/delay-guards takes. Mirrors
+ * The Delay Notifications contract — what PUT /api/v1/delay-guards takes. Mirrors
  * apps/server/src/types/delay-guards.ts; keep the two in sync.
  */
 import type { LanguageCode } from "@/i18n"

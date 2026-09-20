@@ -15,7 +15,7 @@ import { trackEvent } from "@/services/analytics"
 import { usePushPermission } from "@/hooks"
 
 /**
- * Delay Guard, as a sheet over a route: the train the rider boards, from how many minutes late
+ * Delay Notifications, as a sheet over a route: the train the rider boards, from how many minutes late
  * they want to hear, and the reminder that a delay can shrink again. Saving keeps the guard in the
  * settings store; the server watches the train from then on (apps/server/src/delay-guards).
  */

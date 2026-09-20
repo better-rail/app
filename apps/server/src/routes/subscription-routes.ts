@@ -1,6 +1,6 @@
 /**
  * subscription-routes.ts — PUT / DELETE of a device's push subscription, for the
- * station alerts and Delay Guard.
+ * station alerts and Delay Notifications.
  *
  * A PUT replaces the device's whole subscription, so the app sends its full list
  * every time; what the device was told so far is kept for the items that stay.

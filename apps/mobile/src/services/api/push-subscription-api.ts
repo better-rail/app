@@ -16,7 +16,7 @@ export type PushSubscriptionApi<Subscription extends PushDevice> = {
   unsubscribe: (token: string) => Promise<void>
 }
 
-/** A PUT / DELETE endpoint keeping a device's push subscription (station alerts, Delay Guard). */
+/** A PUT / DELETE endpoint keeping a device's push subscription (station alerts, Delay Notifications). */
 export const createPushSubscriptionApi = <Subscription extends PushDevice>(
   baseURL: string,
   name: string,
