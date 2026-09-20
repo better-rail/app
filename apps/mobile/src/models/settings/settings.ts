@@ -12,6 +12,7 @@ export interface SettingsState {
   showRouteCardHeader: boolean
   hideSlowTrains: boolean
   maxChanges: MaxChanges
+  trainSearchCount: number
   seenTrainInfoPrompt: boolean
   seenLawsuitAnnouncement: boolean
 }
@@ -22,6 +23,7 @@ export interface SettingsActions {
   setShowRouteCardHeader: (show: boolean) => void
   setHideSlowTrains: (hide: boolean) => void
   setMaxChanges: (maxChanges: MaxChanges) => void
+  recordTrainSearch: () => void
   setSeenUrgentMessagesIds: (messagesIds: number[]) => void
   setSeenTrainInfoPrompt: (seen: boolean) => void
   setSeenLawsuitAnnouncement: (seen: boolean) => void
@@ -42,6 +44,7 @@ const initialSettingsState: SettingsState = {
   showRouteCardHeader: false,
   hideSlowTrains: false,
   maxChanges: null,
+  trainSearchCount: 0,
   seenTrainInfoPrompt: false,
   seenLawsuitAnnouncement: false,
 }
@@ -73,6 +76,10 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
 
   setMaxChanges(maxChanges) {
     set({ maxChanges })
+  },
+
+  recordTrainSearch() {
+    set((state) => ({ trainSearchCount: state.trainSearchCount + 1 }))
   },
 
   setSeenUrgentMessagesIds(messagesIds) {
@@ -123,6 +130,7 @@ export function getSettingsSnapshot(state: SettingsState) {
     showRouteCardHeader: state.showRouteCardHeader,
     hideSlowTrains: state.hideSlowTrains,
     maxChanges: state.maxChanges,
+    trainSearchCount: state.trainSearchCount,
     seenTrainInfoPrompt: state.seenTrainInfoPrompt,
     seenLawsuitAnnouncement: state.seenLawsuitAnnouncement,
   }
@@ -146,6 +154,7 @@ export function hydrateSettingsStore(data: any) {
     showRouteCardHeader: processedData.showRouteCardHeader ?? false,
     hideSlowTrains: processedData.hideSlowTrains ?? false,
     maxChanges: processedData.maxChanges ?? null,
+    trainSearchCount: processedData.trainSearchCount ?? 0,
     seenTrainInfoPrompt: processedData.seenTrainInfoPrompt ?? false,
     seenLawsuitAnnouncement: processedData.seenLawsuitAnnouncement ?? false,
   })

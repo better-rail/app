@@ -16,6 +16,24 @@ test("can be created with default state", () => {
   expect(state.profileCode).toBe(0)
   expect(state.hideSlowTrains).toBe(false)
   expect(state.maxChanges).toBe(null)
+  expect(state.trainSearchCount).toBe(0)
+})
+
+test("counts train searches and persists the count", () => {
+  useSettingsStore.getState().recordTrainSearch()
+  useSettingsStore.getState().recordTrainSearch()
+
+  const snapshot = getSettingsSnapshot(useSettingsStore.getState())
+  resetSettingsStore()
+  hydrateSettingsStore(snapshot)
+
+  expect(useSettingsStore.getState().trainSearchCount).toBe(2)
+})
+
+test("defaults the train search count for existing persisted settings", () => {
+  hydrateSettingsStore({})
+
+  expect(useSettingsStore.getState().trainSearchCount).toBe(0)
 })
 
 test("migrates the legacy 'general' fare profile onto the rail API's id and keeps the others", () => {
