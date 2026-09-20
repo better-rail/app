@@ -85,9 +85,8 @@ export function MapLegend() {
         <View style={styles.layered}>
           <View style={[styles.bar, styles.layeredBar, { backgroundColor: SAMPLE.color }]} />
           <View style={[styles.disruption, { backgroundColor: palette.badge, borderColor: palette.background }]}>
-            <Text style={[styles.disruptionText, { color: palette.badgeInk }]} maxFontSizeMultiplier={1}>
-              !
-            </Text>
+            <View style={[styles.exclamationBar, { backgroundColor: palette.badgeInk }]} />
+            <View style={[styles.exclamationDot, { backgroundColor: palette.badgeInk }]} />
           </View>
         </View>
       ),
@@ -115,6 +114,9 @@ const SAMPLE_HEIGHT = 32
 const BAR_HEIGHT = 8
 const CAPSULE = 20
 const RING = 3
+/** The badge's diameter, in the capsule's proportion to the map's (radius 0.92 to a capsule 1.55 wide), and its glyph unit. */
+const BADGE = Math.round((CAPSULE * 2 * 0.92) / 1.55)
+const BADGE_UNIT = BADGE / 2 / 1.4
 
 const styles = StyleSheet.create((theme, rt) => ({
   wrapper: {
@@ -205,18 +207,27 @@ const styles = StyleSheet.create((theme, rt) => ({
     height: 7,
     borderRadius: 3.5,
   },
+  // The badge as the map draws it: a disc a little wider than the capsule, with a shaped "!" (see exclamationPath).
   disruption: {
-    width: CAPSULE + 2,
-    height: CAPSULE + 2,
-    borderRadius: CAPSULE / 2 + 1,
+    width: BADGE,
+    height: BADGE,
+    borderRadius: BADGE / 2,
     borderWidth: 1.5,
     alignItems: "center",
-    justifyContent: "center",
   },
-  disruptionText: {
-    fontSize: 13,
-    fontWeight: "800",
-    lineHeight: 16,
+  exclamationBar: {
+    position: "absolute",
+    top: BADGE / 2 - 0.95 * BADGE_UNIT,
+    width: 0.48 * BADGE_UNIT,
+    height: 1.15 * BADGE_UNIT,
+    borderRadius: 0.24 * BADGE_UNIT,
+  },
+  exclamationDot: {
+    position: "absolute",
+    top: BADGE / 2 + 0.35 * BADGE_UNIT,
+    width: 0.54 * BADGE_UNIT,
+    height: 0.54 * BADGE_UNIT,
+    borderRadius: 0.27 * BADGE_UNIT,
   },
   credit: {
     marginTop: theme.spacing[2],
