@@ -73,10 +73,10 @@ export const NODES: Record<string, MapNode> = {
   "4310": { x: 22, y: 34, label: "right" }, // Tira - Kokhav Ya'ir
   "8800": { x: 21, y: 38, label: "right" }, // Rosh Ha'Ayin - North
   // The Sharon loop
-  "2940": { x: 13, y: 35, label: "above" }, // Ra'anana West
-  "2960": { x: 15, y: 35, label: "below" }, // Ra'anana South
-  "9200": { x: 17, y: 35, label: "above" }, // Hod HaSharon - Sokolov
-  "8700": { x: 19, y: 35, label: "below" }, // Kfar Sava - Nordau
+  "2940": { x: 13, y: 35, label: "below" }, // Ra'anana West
+  "2960": { x: 15, y: 35, label: "above" }, // Ra'anana South
+  "9200": { x: 17, y: 35, label: "below" }, // Hod HaSharon - Sokolov
+  "8700": { x: 19, y: 35, label: "above" }, // Kfar Sava - Nordau
   "4250": { x: 17, y: 40, label: "below" }, // Petah Tikva - Segula
   "4170": { x: 15, y: 40, label: "above" }, // Petah Tikva - Kiryat Arye
   "4100": { x: 13, y: 40, label: "below" }, // Bnei Brak
