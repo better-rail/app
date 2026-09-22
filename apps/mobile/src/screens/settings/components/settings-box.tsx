@@ -4,7 +4,7 @@ import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
 import { isRTL } from "@/i18n"
 import { color, spacing } from "@/theme"
-import { isLiquidGlassSupported } from "@callstack/liquid-glass"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 import { settingsBorderRadius } from "@/screens/settings/settings-styles"
 
 const chevronIcon = require("../../../../assets/chevron.png")

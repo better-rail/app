@@ -12,7 +12,7 @@ import { useObserve } from "expo-observe"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useShallow } from "zustand/react/shallow"
 import { useTrainRoutesStore, useRoutePlanStore, useRideStore, useSettingsStore } from "@/models"
-import { filterRouteDataByMaxChanges } from "@/models/settings/settings"
+import { filterRouteDataByMaxChanges, TRAIN_INFO_PROMPT_SEARCH_THRESHOLD } from "@/models/settings/settings"
 import { color, fontScale, spacing } from "@/theme"
 import type { RouteItem } from "@/services/api"
 import { Screen, RouteDetailsHeader, RouteCard } from "@/components"
@@ -116,6 +116,7 @@ export function RouteListScreen() {
   const destinationId = rawParams.destinationId
   const time = parseInt(rawParams.time as string, 10)
   const enableQuery = rawParams.enableQuery === "true"
+  const canSearchForTrains = enableQuery && !!originId && !!destinationId
   const { resultType, getRoutes, updateResultType } = useTrainRoutesStore(
     useShallow((s) => ({ resultType: s.resultType, getRoutes: s.getRoutes, updateResultType: s.updateResultType })),
   )
@@ -125,8 +126,14 @@ export function RouteListScreen() {
   const hideSlowTrains = useSettingsStore((s) => s.hideSlowTrains)
   const maxChanges = useSettingsStore((s) => s.maxChanges)
   const setMaxChanges = useSettingsStore((s) => s.setMaxChanges)
-  const seenTrainInfoPrompt = useSettingsStore((s) => s.seenTrainInfoPrompt)
-  const setSeenTrainInfoPrompt = useSettingsStore((s) => s.setSeenTrainInfoPrompt)
+  const { trainSearchCount, recordTrainSearch, seenTrainInfoPrompt, setSeenTrainInfoPrompt } = useSettingsStore(
+    useShallow((s) => ({
+      trainSearchCount: s.trainSearchCount,
+      recordTrainSearch: s.recordTrainSearch,
+      seenTrainInfoPrompt: s.seenTrainInfoPrompt,
+      setSeenTrainInfoPrompt: s.setSeenTrainInfoPrompt,
+    })),
+  )
   const { showActionSheetWithOptions } = useActionSheet()
   const colorScheme = useColorScheme()
   const { markInteractive } = useObserve()
@@ -151,13 +158,14 @@ export function RouteListScreen() {
   }, [originId, destinationId])
 
   const flashListRef = useRef<FlashListRef<RouteData>>(null)
+  const hasRecordedSearch = useRef(false)
 
   // Prompt the user once to choose whether to show the "Train Info" row on route cards.
-  // Gated behind the "show-train-info-prompt" PostHog feature flag; shown at most once per
-  // user (tracked via seenTrainInfoPrompt).
+  // Gated behind the "show-train-info-prompt" PostHog feature flag and delayed until the
+  // user has searched for trains at least twice. It is shown at most once per user.
   const trainInfoPromptFlag = useFeatureFlag("show-train-info-prompt")
   useEffect(() => {
-    if (!trainInfoPromptFlag || seenTrainInfoPrompt) return
+    if (!trainInfoPromptFlag || trainSearchCount < TRAIN_INFO_PROMPT_SEARCH_THRESHOLD || seenTrainInfoPrompt) return
 
     // Wait for the route-list push transition to settle before presenting the sheet.
     const timeout = setTimeout(() => {
@@ -166,8 +174,7 @@ export function RouteListScreen() {
     }, 600)
 
     return () => clearTimeout(timeout)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [trainInfoPromptFlag])
+  }, [router, seenTrainInfoPrompt, setSeenTrainInfoPrompt, trainInfoPromptFlag, trainSearchCount])
 
   // Function to get the next day date
   const getNextDayDate = (): Date => nextDayDate
@@ -209,7 +216,7 @@ export function RouteListScreen() {
       return result
     },
     {
-      enabled: enableQuery && !!originId && !!destinationId,
+      enabled: canSearchForTrains,
       retry: false,
       // Periodically refresh to catch platform changes and delays
       refetchInterval: 60_000,
@@ -224,6 +231,12 @@ export function RouteListScreen() {
         setLoadingDate(null)
       },
       onSuccess: (data) => {
+        // Count only completed searches, and only once for this results-screen visit.
+        if (!hasRecordedSearch.current) {
+          hasRecordedSearch.current = true
+          recordTrainSearch()
+        }
+
         // Check if we need to update the date based on the actual routes
         if (data && data.length > 0) {
           const firstRouteDate = new Date(data[0].trains[0].departureTime).toDateString()

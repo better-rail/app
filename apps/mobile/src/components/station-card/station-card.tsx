@@ -7,7 +7,7 @@ import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scal
 import LinearGradient from "react-native-linear-gradient"
 import { color } from "@/theme"
 import { Text } from "@/components/text/text"
-import { isLiquidGlassSupported } from "@callstack/liquid-glass"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 
 const isDarkMode = Appearance.getColorScheme() === "dark"
 const { height: deviceHeight } = Dimensions.get("screen")

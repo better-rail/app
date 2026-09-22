@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router"
 import { useLocale, useT, type Locale } from "@/i18n"
 import { trackEvent } from "@/lib/analytics"
-import { GITHUB_URL, SUPPORT_URL, TWITTER_URL } from "@/lib/seo"
+import { DISCORD_URL, GITHUB_URL, SUPPORT_URL, TWITTER_URL } from "@/lib/seo"
 import { LocaleLink } from "./locale-link"
 import { DownloadBadges } from "./download-badges"
 import { GithubIcon, XIcon } from "./icons"
@@ -79,6 +79,9 @@ export function SiteFooter() {
           <div className="flex items-center gap-2">
             <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className="icon-btn" aria-label={t("footer.github")}>
               <GithubIcon className="size-5" />
+            </a>
+            <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" className="icon-btn" aria-label="Discord">
+              <img src="/assets/icons/discord.svg" alt="" width={20} height={20} className="size-5 dark:invert" />
             </a>
             <a href={TWITTER_URL} target="_blank" rel="noopener noreferrer" className="icon-btn" aria-label={t("footer.twitter")}>
               <XIcon className="size-[18px]" />

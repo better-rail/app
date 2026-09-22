@@ -22,6 +22,7 @@ import { Route as SiteThankYouRouteImport } from './routes/_site/thank-you'
 import { Route as SitemapsPagesRouteImport } from './routes/sitemaps/pages'
 import { Route as Char123LocaleChar125IndexRouteImport } from './routes/{-$locale}/index'
 import { Route as Char123LocaleChar125PrivacyPolicyRouteImport } from './routes/{-$locale}/privacy-policy'
+import { Route as SiteReleases2Dot8RouteImport } from './routes/_site/releases/2[.]8'
 import { Route as SitemapsRoutesPageRouteImport } from './routes/sitemaps/routes.$page'
 import { Route as OgRoutesFromChar123toChar125DotjpgRouteImport } from './routes/og/routes.$from.{$to}[.]jpg'
 import { Route as Char123LocaleChar125RoutesFromToRouteImport } from './routes/{-$locale}/routes.$from.$to'
@@ -94,6 +95,11 @@ const Char123LocaleChar125PrivacyPolicyRoute =
     path: '/privacy-policy',
     getParentRoute: () => Char123LocaleChar125RouteRoute,
   } as any)
+const SiteReleases2Dot8Route = SiteReleases2Dot8RouteImport.update({
+  id: '/releases/2.8',
+  path: '/releases/2.8',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SitemapsRoutesPageRoute = SitemapsRoutesPageRouteImport.update({
   id: '/sitemaps/routes/$page',
   path: '/sitemaps/routes/$page',
@@ -126,6 +132,7 @@ export interface FileRoutesByFullPath {
   '/sitemaps/pages': typeof SitemapsPagesRoute
   '/{-$locale}/privacy-policy': typeof Char123LocaleChar125PrivacyPolicyRoute
   '/{-$locale}/': typeof Char123LocaleChar125IndexRoute
+  '/releases/2.8': typeof SiteReleases2Dot8Route
   '/sitemaps/routes/$page': typeof SitemapsRoutesPageRoute
   '/og/routes/$from/{$to}.jpg': typeof OgRoutesFromChar123toChar125DotjpgRoute
   '/{-$locale}/routes/$from/$to': typeof Char123LocaleChar125RoutesFromToRoute
@@ -143,6 +150,7 @@ export interface FileRoutesByTo {
   '/sitemaps/pages': typeof SitemapsPagesRoute
   '/{-$locale}/privacy-policy': typeof Char123LocaleChar125PrivacyPolicyRoute
   '/{-$locale}': typeof Char123LocaleChar125IndexRoute
+  '/releases/2.8': typeof SiteReleases2Dot8Route
   '/sitemaps/routes/$page': typeof SitemapsRoutesPageRoute
   '/og/routes/$from/{$to}.jpg': typeof OgRoutesFromChar123toChar125DotjpgRoute
   '/{-$locale}/routes/$from/$to': typeof Char123LocaleChar125RoutesFromToRoute
@@ -162,6 +170,7 @@ export interface FileRoutesById {
   '/sitemaps/pages': typeof SitemapsPagesRoute
   '/{-$locale}/privacy-policy': typeof Char123LocaleChar125PrivacyPolicyRoute
   '/{-$locale}/': typeof Char123LocaleChar125IndexRoute
+  '/_site/releases/2.8': typeof SiteReleases2Dot8Route
   '/sitemaps/routes/$page': typeof SitemapsRoutesPageRoute
   '/og/routes/$from/{$to}.jpg': typeof OgRoutesFromChar123toChar125DotjpgRoute
   '/{-$locale}/routes/$from/$to': typeof Char123LocaleChar125RoutesFromToRoute
@@ -182,6 +191,7 @@ export interface FileRouteTypes {
     | '/sitemaps/pages'
     | '/{-$locale}/privacy-policy'
     | '/{-$locale}/'
+    | '/releases/2.8'
     | '/sitemaps/routes/$page'
     | '/og/routes/$from/{$to}.jpg'
     | '/{-$locale}/routes/$from/$to'
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/sitemaps/pages'
     | '/{-$locale}/privacy-policy'
     | '/{-$locale}'
+    | '/releases/2.8'
     | '/sitemaps/routes/$page'
     | '/og/routes/$from/{$to}.jpg'
     | '/{-$locale}/routes/$from/$to'
@@ -217,6 +228,7 @@ export interface FileRouteTypes {
     | '/sitemaps/pages'
     | '/{-$locale}/privacy-policy'
     | '/{-$locale}/'
+    | '/_site/releases/2.8'
     | '/sitemaps/routes/$page'
     | '/og/routes/$from/{$to}.jpg'
     | '/{-$locale}/routes/$from/$to'
@@ -324,6 +336,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char123LocaleChar125PrivacyPolicyRouteImport
       parentRoute: typeof Char123LocaleChar125RouteRoute
     }
+    '/_site/releases/2.8': {
+      id: '/_site/releases/2.8'
+      path: '/releases/2.8'
+      fullPath: '/releases/2.8'
+      preLoaderRoute: typeof SiteReleases2Dot8RouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/sitemaps/routes/$page': {
       id: '/sitemaps/routes/$page'
       path: '/sitemaps/routes/$page'
@@ -376,6 +395,7 @@ interface SiteRouteChildren {
   SitePressRoute: typeof SitePressRoute
   SiteTermsRoute: typeof SiteTermsRoute
   SiteThankYouRoute: typeof SiteThankYouRoute
+  SiteReleases2Dot8Route: typeof SiteReleases2Dot8Route
 }
 
 const SiteRouteChildren: SiteRouteChildren = {
@@ -386,6 +406,7 @@ const SiteRouteChildren: SiteRouteChildren = {
   SitePressRoute: SitePressRoute,
   SiteTermsRoute: SiteTermsRoute,
   SiteThankYouRoute: SiteThankYouRoute,
+  SiteReleases2Dot8Route: SiteReleases2Dot8Route,
 }
 
 const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)

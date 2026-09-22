@@ -124,6 +124,19 @@ enum WatchCardSamples {
     isRTL: true
   )
 
+  static let hebrewLastStop = WatchActivityCardData(
+    statusLabel: "next station",
+    stationName: "ירושלים - יצחק נבון",
+    badge: .none,
+    trainNumber: 6743,
+    targetDate: Date().addingTimeInterval(80 * 60),
+    delay: 0,
+    isStale: false,
+    isArrived: false,
+    accentColor: systemGreen,
+    isRTL: true
+  )
+
   static let all: [(String, WatchActivityCardData)] = [
     ("Waiting", waiting),
     ("Waiting · delayed", waitingDelayed),
@@ -134,5 +147,6 @@ enum WatchCardSamples {
     ("Stale", stale),
     ("Hebrew", hebrew),
     ("Hebrew transit", hebrewTransit),
+    ("Hebrew last stop", hebrewLastStop),
   ]
 }

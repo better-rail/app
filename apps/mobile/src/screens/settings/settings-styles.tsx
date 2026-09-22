@@ -1,6 +1,6 @@
 import { TextStyle, ViewStyle } from "react-native"
 import { color, spacing } from "@/theme"
-import { isLiquidGlassSupported } from "@callstack/liquid-glass"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 
 const borderRadius = isLiquidGlassSupported ? 16 : 10
 export const settingsBorderRadius = borderRadius

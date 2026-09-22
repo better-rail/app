@@ -2,6 +2,7 @@ import { create } from "zustand"
 import type { PopUpMessage } from "@/services/api"
 
 export type MaxChanges = 0 | 1 | null
+export const TRAIN_INFO_PROMPT_SEARCH_THRESHOLD = 2
 
 export interface SettingsState {
   seenUrgentMessagesIds: number[]
@@ -12,6 +13,7 @@ export interface SettingsState {
   showRouteCardHeader: boolean
   hideSlowTrains: boolean
   maxChanges: MaxChanges
+  trainSearchCount: number
   seenTrainInfoPrompt: boolean
   seenLawsuitAnnouncement: boolean
 }
@@ -22,6 +24,7 @@ export interface SettingsActions {
   setShowRouteCardHeader: (show: boolean) => void
   setHideSlowTrains: (hide: boolean) => void
   setMaxChanges: (maxChanges: MaxChanges) => void
+  recordTrainSearch: () => void
   setSeenUrgentMessagesIds: (messagesIds: number[]) => void
   setSeenTrainInfoPrompt: (seen: boolean) => void
   setSeenLawsuitAnnouncement: (seen: boolean) => void
@@ -42,6 +45,7 @@ const initialSettingsState: SettingsState = {
   showRouteCardHeader: false,
   hideSlowTrains: false,
   maxChanges: null,
+  trainSearchCount: 0,
   seenTrainInfoPrompt: false,
   seenLawsuitAnnouncement: false,
 }
@@ -73,6 +77,11 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
 
   setMaxChanges(maxChanges) {
     set({ maxChanges })
+  },
+
+  recordTrainSearch() {
+    if (get().trainSearchCount >= TRAIN_INFO_PROMPT_SEARCH_THRESHOLD) return
+    set((state) => ({ trainSearchCount: state.trainSearchCount + 1 }))
   },
 
   setSeenUrgentMessagesIds(messagesIds) {
@@ -123,6 +132,7 @@ export function getSettingsSnapshot(state: SettingsState) {
     showRouteCardHeader: state.showRouteCardHeader,
     hideSlowTrains: state.hideSlowTrains,
     maxChanges: state.maxChanges,
+    trainSearchCount: state.trainSearchCount,
     seenTrainInfoPrompt: state.seenTrainInfoPrompt,
     seenLawsuitAnnouncement: state.seenLawsuitAnnouncement,
   }
@@ -138,6 +148,12 @@ export function hydrateSettingsStore(data: any) {
   }
   delete processedData.hideCollectorTrains
 
+  const persistedTrainSearchCount = processedData.trainSearchCount
+  const trainSearchCount =
+    Number.isSafeInteger(persistedTrainSearchCount) && persistedTrainSearchCount >= 0
+      ? Math.min(persistedTrainSearchCount, TRAIN_INFO_PROMPT_SEARCH_THRESHOLD)
+      : 0
+
   useSettingsStore.setState({
     seenUrgentMessagesIds: processedData.seenUrgentMessagesIds ?? [],
     profileCode: migrateProfileCode(processedData.profileCode),
@@ -146,6 +162,7 @@ export function hydrateSettingsStore(data: any) {
     showRouteCardHeader: processedData.showRouteCardHeader ?? false,
     hideSlowTrains: processedData.hideSlowTrains ?? false,
     maxChanges: processedData.maxChanges ?? null,
+    trainSearchCount,
     seenTrainInfoPrompt: processedData.seenTrainInfoPrompt ?? false,
     seenLawsuitAnnouncement: processedData.seenLawsuitAnnouncement ?? false,
   })

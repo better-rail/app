@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useMemo, useState } from "react"
-import { Alert, Image, Platform, PlatformColor, Pressable, View } from "react-native"
+import { Alert, Image, Platform, Pressable, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { ScrollView } from "react-native-gesture-handler"
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated"
@@ -32,7 +32,9 @@ import { getSelectedRide } from "@/utils/helpers/ride-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const routeApi = new RouteApi()
-import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
+const preventLongPressNavigation = () => undefined
+import { GlassView } from "expo-glass-effect"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 import HapticFeedback from "react-native-haptic-feedback"
 import { translate } from "@/i18n"
 import { trackEvent } from "@/services/analytics"
@@ -336,6 +338,9 @@ export function RouteDetailsScreen() {
           >
             <Pressable
               testID="train-info-button"
+              // Without an onLongPress handler, Pressable treats a long hold as
+              // a regular press on release and presents the sheet mid-gesture.
+              onLongPress={preventLongPressNavigation}
               onPress={() => {
                 if (hasWagonData) {
                   trackEvent("train_info_sheet_opened")
@@ -349,14 +354,13 @@ export function RouteDetailsScreen() {
               accessibilityLabel={translate("routeDetails.trainInformation") ?? undefined}
               accessibilityHint={!hasWagonData ? (translate("routeDetails.noTrainDetails") ?? undefined) : undefined}
             >
-              <LiquidGlassView
+              <GlassView
                 style={[styles.infoButton, !hasWagonData && styles.infoButtonDisabled]}
-                interactive={hasWagonData}
-                effect="regular"
-                tintColor={Platform.OS === "ios" ? PlatformColor("tertiarySystemBackground") : undefined}
+                isInteractive={hasWagonData}
+                glassEffectStyle="regular"
               >
                 <Image source={require("../../../assets/info.circle.png")} style={styles.infoButtonIcon} />
-              </LiquidGlassView>
+              </GlassView>
             </Pressable>
 
             <StartRideButton route={routeItem} screenName={screenName} />

@@ -3,7 +3,8 @@ import { View, Pressable, ViewStyle, TextStyle, ButtonProps, Platform, ActivityI
 import { StyleSheet } from "react-native-unistyles"
 import { color, fontScale, spacing } from "@/theme"
 import { Text } from "@/components/text/text"
-import { LiquidGlassView, isLiquidGlassSupported } from "@callstack/liquid-glass"
+import { GlassView } from "expo-glass-effect"
+import { isLiquidGlassSupported, useGlassTint } from "@/utils/liquid-glass"
 
 /**
  * Plain (non-Unistyles) base style for the pressable surface.
@@ -42,6 +43,7 @@ export interface CustomButtonProps extends ButtonProps {
 export const Button = function Button(props: CustomButtonProps) {
   const [isPressed, setIsPressed] = useState(false)
   const { title, onPress, loading = false, disabled, textStyle, containerStyle, size, icon, style, variant = "primary" } = props
+  const glassTint = useGlassTint(disabled ? "disabled" : variant)
 
   const PRESSABLE_STYLE = (() => {
     let modifiedStyles = Object.assign({}, PRESSABLE_BASE, style)
@@ -57,10 +59,10 @@ export const Button = function Button(props: CustomButtonProps) {
   if (isLiquidGlassSupported) {
     return (
       <Pressable onPress={onPress} disabled={disabled} testID={props.testID}>
-        <LiquidGlassView
-          interactive={!!onPress}
-          style={[styles.liquidGlass, style]}
-          tintColor={disabled ? color.disabled : (style?.backgroundColor ?? color[variant])}
+        <GlassView
+          isInteractive={!!onPress}
+          style={[styles.liquidGlass, style, styles.liquidGlassNoFill]}
+          tintColor={!disabled && typeof style?.backgroundColor === "string" ? style.backgroundColor : glassTint}
         >
           <View style={styles.textWrapper}>
             {loading ? (
@@ -74,7 +76,7 @@ export const Button = function Button(props: CustomButtonProps) {
               </>
             )}
           </View>
-        </LiquidGlassView>
+        </GlassView>
       </Pressable>
     )
   } else {
@@ -149,5 +151,9 @@ const styles = StyleSheet.create((theme, rt) => ({
     borderRadius: 16,
     borderCurve: "continuous",
     justifyContent: "center",
+  },
+  // A caller's `backgroundColor` becomes the glass tint; painting it too shows a solid fill behind the glass.
+  liquidGlassNoFill: {
+    backgroundColor: "transparent",
   },
 }))

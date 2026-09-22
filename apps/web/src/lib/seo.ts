@@ -7,6 +7,7 @@ export const DEFAULT_OG_IMAGE = `${SITE_URL}/assets/images/og-image.png`
 export const APP_STORE_URL = "https://apps.apple.com/il/app/better-rail/id1562982976"
 export const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.betterrail"
 export const GITHUB_URL = "https://github.com/better-rail/app"
+export const DISCORD_URL = "https://discord.gg/uJ65ABeQsh"
 export const TWITTER_URL = "https://www.x.com/better_rail"
 export const SUPPORT_URL = "https://pages.greeninvoice.co.il/payments/links/696f6413-1068-4002-a0f7-6b9b6676ead5"
 export const FEEDBACK_EMAIL = "feedback@better-rail.co.il"
@@ -35,6 +36,7 @@ export interface PageSeo {
   /** When false the page has no English/Hebrew twin and no hreflang alternates are emitted */
   localized?: boolean
   image?: string
+  twitterImage?: string
   imageAlt?: string
   type?: "website" | "article"
   noindex?: boolean
@@ -46,6 +48,7 @@ export interface PageSeo {
 export function pageHead(seo: PageSeo): { meta: MetaTag[]; links: LinkTag[] } {
   const canonical = absoluteUrl(localePath(seo.locale, seo.path))
   const image = absoluteUrl(seo.image ?? DEFAULT_OG_IMAGE)
+  const twitterImage = absoluteUrl(seo.twitterImage ?? seo.image ?? DEFAULT_OG_IMAGE)
 
   const meta: MetaTag[] = [
     { title: seo.title },
@@ -64,7 +67,7 @@ export function pageHead(seo: PageSeo): { meta: MetaTag[]; links: LinkTag[] } {
     { name: "twitter:site", content: TWITTER_HANDLE },
     { name: "twitter:title", content: seo.title },
     { name: "twitter:description", content: seo.description },
-    { name: "twitter:image", content: image },
+    { name: "twitter:image", content: twitterImage },
   ]
 
   if (seo.imageAlt) {

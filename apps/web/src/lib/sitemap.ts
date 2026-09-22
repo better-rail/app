@@ -13,6 +13,7 @@ export const STATIC_PAGES = [
   "/image-attributions",
   "/israel-railways-lawsuit",
   "/gtfs-siri-issues.html",
+  "/releases/2.8/",
 ]
 
 /** Pages that exist in every locale. */

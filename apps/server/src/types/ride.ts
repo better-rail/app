@@ -6,7 +6,7 @@ import { LanguageCode } from "../locales/i18n"
 import { stationsObject } from "../data/stations"
 
 export const RideRequestSchema = z.object({
-  token: z.string(),
+  token: z.string().min(1),
   provider: z.nativeEnum(Provider),
   departureDate: z.string().refine((value) => dayjs(value).isValid(), { message: "Departure date isn't valid" }),
   originId: z.number().refine((value) => stationsObject[value], { message: "Origin station doesn't exist" }),
@@ -22,7 +22,7 @@ export const RideRequestSchema = z.object({
 export type RideRequest = z.infer<typeof RideRequestSchema>
 
 export const RideSchema = RideRequestSchema.extend({
-  rideId: z.string(),
+  rideId: z.string().min(1),
   lastNotificationId: z.number(),
 })
 
