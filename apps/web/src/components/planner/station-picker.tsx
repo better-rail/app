@@ -372,6 +372,9 @@ const StationOption = memo(function StationOption({
     <li
       id={id}
       role="option"
+      // A pointer press must focus the row before the search input blurs. Otherwise the panel's blur handler
+      // dismisses it and unmounts this row before its click can select the station.
+      tabIndex={-1}
       aria-selected={selected ?? false}
       aria-disabled={disabled}
       data-active={active}
