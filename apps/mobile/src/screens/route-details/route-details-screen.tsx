@@ -32,6 +32,7 @@ import { getSelectedRide } from "@/utils/helpers/ride-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const routeApi = new RouteApi()
+const preventLongPressNavigation = () => undefined
 import { GlassView } from "expo-glass-effect"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 import HapticFeedback from "react-native-haptic-feedback"
@@ -337,6 +338,9 @@ export function RouteDetailsScreen() {
           >
             <Pressable
               testID="train-info-button"
+              // Without an onLongPress handler, Pressable treats a long hold as
+              // a regular press on release and presents the sheet mid-gesture.
+              onLongPress={preventLongPressNavigation}
               onPress={() => {
                 if (hasWagonData) {
                   trackEvent("train_info_sheet_opened")
