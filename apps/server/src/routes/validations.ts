@@ -14,10 +14,10 @@ export const bodyValidator: <TBody>(zodSchema: ZodSchema<TBody>) => RequestHandl
   }
 
 export const UpdateRideTokenBody = z.object({
-  rideId: z.string(),
-  token: z.string(),
+  rideId: z.string().min(1),
+  token: z.string().min(1),
 })
 
 export const DeleteRideBody = z.object({
-  rideId: z.string(),
+  rideId: z.string().min(1),
 })

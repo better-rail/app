@@ -58,6 +58,7 @@ private func mockEntry(from departure: Date, origin: Station, destination: Stati
       return UpcomingTrain(
         departureTime: formatDateHour(time),
         arrivalTime: formatDateHour(time.addMinutes(duration)),
+        durationMinutes: duration,
         platform: platform,
         trainNumber: number
       )

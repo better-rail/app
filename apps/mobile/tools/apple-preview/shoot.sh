@@ -16,7 +16,7 @@ if [ -z "$UDID" ]; then
 fi
 BUNDLE=il.co.better-rail.preview.lacard
 SAMPLES=("Waiting" "Waiting · delayed" "Exchange" "In transit" "Get off" "Arrived" "Stale")
-HE_SAMPLES=("Hebrew" "Hebrew transit")
+HE_SAMPLES=("Hebrew" "Hebrew transit" "Hebrew last stop")
 
 xcrun simctl boot "$UDID" 2>/dev/null || true
 xcrun simctl bootstatus "$UDID" -b >/dev/null
