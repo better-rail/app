@@ -3,8 +3,6 @@ import { useQueries, useQuery, type QueryClient, type UseQueryResult } from "@ta
 import { useEffect, useRef, useState } from "react"
 import { ArrowLeft, ArrowRight, CalendarDays, ChevronDown, CloudOff, Loader2, TrainFront } from "lucide-react"
 import { Planner } from "@/components/planner/planner"
-import { AppIcon } from "@/components/logo"
-import { LocaleLink } from "@/components/locale-link"
 import { RouteList } from "@/components/routes/route-list"
 import { RouteDetails } from "@/components/routes/route-details"
 import { getStationById, stationName, type Station } from "@/data/stations"
@@ -479,22 +477,12 @@ function RoutesPage() {
         >
           {t("site.skipToContent")}
         </a>
-        <div className="container-page flex items-start gap-2.5 sm:gap-3 lg:items-center">
-          <LocaleLink
-            to="/{-$locale}"
-            search={{ from: origin.id, to: destination.id }}
-            aria-label={t("nav.home")}
-            title={t("nav.home")}
-            className="flex size-11 shrink-0 items-center justify-center rounded-xl transition-[background-color,scale] duration-200 hover:bg-surface-2 active:scale-[0.96]"
-          >
-            <AppIcon className="size-9" transitionName="brand-icon" />
-          </LocaleLink>
+        <div className="container-page">
           <Planner
             variant="results"
             today={dateKey(now)}
             now={formatClock(now)}
             initial={{ origin, destination, date: search.date, time: search.time }}
-            className="min-w-0 flex-1"
           />
         </div>
       </header>
