@@ -6,6 +6,7 @@ import {
   type ComponentProps,
   type FocusEvent,
   type KeyboardEvent,
+  type ReactNode,
   type RefObject,
 } from "react"
 import { CalendarDays, ChevronDown, Clock, RotateCcw, type LucideIcon } from "lucide-react"
@@ -49,7 +50,6 @@ export function DateTimePicker({
   /** Slightly shorter desktop controls in the results planner. */
   dense?: boolean
 }) {
-  const t = useT()
   const isNow = !value.date && !value.time
   const fieldClass = cn(
     "flex h-14 w-full items-center gap-1.5 rounded-xl border border-line bg-surface px-2.5 text-start text-[15px] font-medium transition-colors hover:border-line-strong sm:gap-2 sm:px-3",
@@ -60,28 +60,20 @@ export function DateTimePicker({
     <div
       className={cn(
         // One row at every width: the fields share the space (the date gets more of a phone's, "31/12/2026" being the
-        // longest label) and "Now" shrinks to its icon there.
-        "grid grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_auto] gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]",
+        // longest label). The reset control lives inside the time field.
+        "grid grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] gap-2 sm:grid-cols-2",
         className,
       )}
     >
       <DateField value={value.date} today={today} onChange={(date) => onChange({ ...value, date })} fieldClass={fieldClass} />
-      <TimeField value={value.time} now={now} onChange={(time) => onChange({ ...value, time })} fieldClass={fieldClass} />
-      <button
-        type="button"
-        onClick={() => onChange({ date: undefined, time: undefined })}
-        disabled={isNow}
-        className={cn(
-          "btn-secondary h-14 min-w-14 gap-1.5 px-0 sm:px-3.5",
-          dense && "h-11 min-w-11 sm:h-14 lg:h-12",
-          isNow && "!opacity-60",
-        )}
-        aria-label={t("plan.now")}
-        title={t("plan.now")}
-      >
-        <RotateCcw className="size-4" />
-        <span className="hidden sm:inline">{t("plan.now")}</span>
-      </button>
+      <TimeField
+        value={value.time}
+        now={now}
+        onChange={(time) => onChange({ ...value, time })}
+        onReset={() => onChange({ date: undefined, time: undefined })}
+        resetDisabled={isNow}
+        fieldClass={fieldClass}
+      />
     </div>
   )
 }
@@ -248,7 +240,15 @@ function DateField({ value, today, onChange, fieldClass, className }: FieldProps
  * The wheel and the keyboard both edit a draft that is applied when the picker closes (unless cancelled), so the
  * results toolbar refetches once per visit rather than on every tick.
  */
-function TimeField({ value, now, onChange, fieldClass, className }: FieldProps<string> & { now: string }) {
+function TimeField({
+  value,
+  now,
+  onChange,
+  onReset,
+  resetDisabled,
+  fieldClass,
+  className,
+}: FieldProps<string> & { now: string; onReset: () => void; resetDisabled: boolean }) {
   const t = useT()
   const isDesktop = useIsDesktop()
   const popoverId = useId()
@@ -325,6 +325,28 @@ function TimeField({ value, now, onChange, fieldClass, className }: FieldProps<s
     else setText(null)
   }
 
+  const resetButton = (
+    <button
+      type="button"
+      data-reset
+      onClick={() => {
+        setOpen(false)
+        setText(null)
+        touched.current = false
+        onReset()
+      }}
+      disabled={resetDisabled}
+      className={cn(
+        "flex size-9 shrink-0 items-center justify-center rounded-lg text-dim transition-colors hover:bg-surface-3 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-brand/20 disabled:opacity-60 disabled:hover:bg-transparent",
+        !isDesktop && "absolute end-1.5 top-1/2 -translate-y-1/2 sm:end-10",
+      )}
+      aria-label={t("plan.now")}
+      title={t("plan.now")}
+    >
+      <RotateCcw className="size-4" />
+    </button>
+  )
+
   return (
     <div ref={anchor} className={cn("relative min-w-0", open && "z-50", className)}>
       {isDesktop ? (
@@ -336,6 +358,7 @@ function TimeField({ value, now, onChange, fieldClass, className }: FieldProps<s
           open={open}
           popoverId={popoverId}
           className={fieldClass}
+          trailingAction={resetButton}
           onChange={type}
           onOpen={() => !open && openPicker()}
           onToggle={toggle}
@@ -352,8 +375,10 @@ function TimeField({ value, now, onChange, fieldClass, className }: FieldProps<s
           open={open}
           onClick={openPicker}
           className={fieldClass}
+          displayClassName="me-10"
         />
       )}
+      {!isDesktop && resetButton}
       <PickerPopover
         id={popoverId}
         open={open}
@@ -399,6 +424,7 @@ function FieldInput({
   open,
   popoverId,
   className,
+  trailingAction,
   onChange,
   onOpen,
   onToggle,
@@ -413,6 +439,7 @@ function FieldInput({
   open: boolean
   popoverId: string
   className: string
+  trailingAction?: ReactNode
   onChange: (text: string) => void
   /** A press anywhere in the field — also reopens the picker when the input already had focus */
   onOpen: () => void
@@ -439,7 +466,7 @@ function FieldInput({
       onMouseDown={(event) => {
         // The icon and padding act like the input itself (its own presses are handled below).
         const input = ref.current
-        if (!input || event.target === input || (event.target as Element).closest("[data-toggle]")) return
+        if (!input || event.target === input || (event.target as Element).closest("[data-toggle], [data-reset]")) return
         event.preventDefault()
         if (document.activeElement !== input) input.focus()
         else if (!open) reopen(input)
@@ -482,6 +509,7 @@ function FieldInput({
         onKeyDown={onKeyDown}
         className={cn("min-w-0 flex-1 bg-transparent tabular outline-none", locale === "he" ? "text-right" : "text-left")}
       />
+      {trailingAction}
       <span
         data-toggle
         aria-hidden="true"
@@ -504,8 +532,9 @@ function FieldButton({
   display,
   open,
   className,
+  displayClassName,
   ...button
-}: ComponentProps<"button"> & { icon: LucideIcon; label: string; display: string; open: boolean }) {
+}: ComponentProps<"button"> & { icon: LucideIcon; label: string; display: string; open: boolean; displayClassName?: string }) {
   return (
     <button
       type="button"
@@ -520,7 +549,7 @@ function FieldButton({
     >
       <Icon className="size-[18px] shrink-0 text-dim" />
       <span className="sr-only">{label}</span>
-      <span className="min-w-0 flex-1 truncate tabular">{display}</span>
+      <span className={cn("min-w-0 flex-1 truncate tabular", displayClassName)}>{display}</span>
       {/* No chevron on phones: the icon and the value say enough, and a 360px screen has no room for it. */}
       <ChevronDown
         className={cn(

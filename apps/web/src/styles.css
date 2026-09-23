@@ -269,6 +269,12 @@
     }
   }
 
+  @media (min-width: 1024px) and (max-width: 1599px) {
+    .container-page {
+      max-width: 1100px;
+    }
+  }
+
   .card {
     @apply bg-surface rounded-card shadow-card border border-line/60;
   }
