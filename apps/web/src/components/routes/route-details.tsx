@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react"
-import { AlertTriangle, ArrowLeft, ArrowRight, Ban, Clock, ArrowLeftRight, Expand, Shrink, TrainFront } from "lucide-react"
+import { AlertTriangle, ArrowLeft, ArrowRight, Ban, Clock, ArrowLeftRight, ListChevronsUpDown, ListChevronsDownUp, TrainFront } from "lucide-react"
 import type { RouteItem, Train } from "@/lib/api/types"
 import { exchangeWaitMinutes } from "@/lib/api/route-format"
 import { addMinutes, formatClock } from "@/lib/time"
@@ -81,7 +81,7 @@ export function RouteDetails({
                 className="icon-btn"
                 aria-label={showFullRoute ? t("details.hideAllStations") : t("details.showAllStations")}
               >
-                {showFullRoute ? <Shrink className="size-5" /> : <Expand className="size-5" />}
+                {showFullRoute ? <ListChevronsDownUp className="size-5" /> : <ListChevronsUpDown className="size-5" />}
               </button>
             </Tooltip>
             <RouteActions route={route} originId={originId} destinationId={destinationId} shareUrl={shareUrl} />
