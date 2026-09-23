@@ -4,7 +4,7 @@ import { StyleSheet } from "react-native-unistyles"
 import { color, fontScale, spacing } from "@/theme"
 import { Text } from "@/components/text/text"
 import { GlassView } from "expo-glass-effect"
-import { isLiquidGlassSupported } from "@/utils/liquid-glass"
+import { isLiquidGlassSupported, useGlassTint } from "@/utils/liquid-glass"
 
 /**
  * Plain (non-Unistyles) base style for the pressable surface.
@@ -43,6 +43,7 @@ export interface CustomButtonProps extends ButtonProps {
 export const Button = function Button(props: CustomButtonProps) {
   const [isPressed, setIsPressed] = useState(false)
   const { title, onPress, loading = false, disabled, textStyle, containerStyle, size, icon, style, variant = "primary" } = props
+  const glassTint = useGlassTint(disabled ? "disabled" : variant)
 
   const PRESSABLE_STYLE = (() => {
     let modifiedStyles = Object.assign({}, PRESSABLE_BASE, style)
@@ -61,7 +62,7 @@ export const Button = function Button(props: CustomButtonProps) {
         <GlassView
           isInteractive={!!onPress}
           style={[styles.liquidGlass, style, styles.liquidGlassNoFill]}
-          tintColor={disabled ? color.disabled : (style?.backgroundColor ?? color[variant])}
+          tintColor={!disabled && typeof style?.backgroundColor === "string" ? style.backgroundColor : glassTint}
         >
           <View style={styles.textWrapper}>
             {loading ? (

@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useMemo, useState } from "react"
-import { Alert, Image, Platform, PlatformColor, Pressable, View } from "react-native"
+import { Alert, Image, Platform, Pressable, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { ScrollView } from "react-native-gesture-handler"
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated"
@@ -358,7 +358,6 @@ export function RouteDetailsScreen() {
                 style={[styles.infoButton, !hasWagonData && styles.infoButtonDisabled]}
                 isInteractive={hasWagonData}
                 glassEffectStyle="regular"
-                tintColor={Platform.OS === "ios" ? PlatformColor("tertiarySystemBackground") : undefined}
               >
                 <Image source={require("../../../assets/info.circle.png")} style={styles.infoButtonIcon} />
               </GlassView>

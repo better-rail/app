@@ -1,0 +1,470 @@
+@import "tailwindcss";
+
+/*
+ * Heebo as two subsets, the way Google Fonts serves it: the Latin one carries the digits and punctuation every page
+ * sets (clocks, platforms, train numbers), so both are needed and both are preloaded. Referenced from `src/fonts` so
+ * the build hashes their URLs — the immutable cache rule on `/assets` is safe to apply to them.
+ */
+@font-face {
+  font-family: "Heebo";
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("./fonts/Heebo-hebrew.woff2") format("woff2");
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
+}
+
+@font-face {
+  font-family: "Heebo";
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("./fonts/Heebo-latin.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+.results-planner {
+  background-color: var(--color-surface);
+  background-color: color-mix(in srgb, var(--color-surface) 72%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  backdrop-filter: blur(18px) saturate(150%);
+}
+
+/* Keep the persistent header fixed while the route snapshot moves underneath it. */
+[data-site-header] {
+  view-transition-name: site-header;
+}
+
+::view-transition-group(site-header),
+::view-transition-new(site-header) {
+  animation: none;
+}
+
+::view-transition-old(site-header) {
+  display: none;
+}
+
+/* The station photos and swap button follow the route in either direction while the surrounding page changes. */
+@keyframes route-page-out {
+  to {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes route-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+::view-transition-old(root) {
+  animation: 160ms ease-in both route-page-out;
+}
+
+::view-transition-new(root) {
+  animation: 300ms 60ms var(--ease-out-expo) both route-page-in;
+}
+
+::view-transition-group(station-origin),
+::view-transition-group(station-destination),
+::view-transition-group(station-swap) {
+  animation-duration: 360ms;
+  animation-timing-function: var(--ease-out-expo);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-group(station-origin),
+  ::view-transition-group(station-destination),
+  ::view-transition-group(station-swap) {
+    animation-duration: 0.01ms;
+    animation-delay: 0ms;
+  }
+}
+
+/* Colour roles mirroring the mobile theme (apps/mobile/src/theme). Light on :root, dark under `.dark`. */
+:root {
+  --color-bg: #f2f2f7;
+  --color-surface: #ffffff;
+  --color-surface-2: #f9f9fb;
+  --color-surface-3: #ececf1;
+  --color-text: #1c1c1e;
+  --color-text-2: #3a3a3c;
+  --color-muted: #6e6e73;
+  --color-dim: #6b7280;
+  --color-line: #e2e2e8;
+  --color-line-strong: #c9c9d1;
+  --color-brand: #0a81dd;
+  --color-brand-strong: #0972c4;
+  --color-brand-soft: #e6f2fc;
+  --color-brand-text: #0a6fbf;
+  /* The fill behind white text (buttons): the accent itself is a shade too light for 15px text to pass AA on it. */
+  --color-brand-fill: #0972c4;
+  --color-brand-fill-strong: #0868b3;
+  --color-secondary: #fa827e;
+  --color-secondary-soft: #f6eae3;
+  --color-success: #219f07;
+  --color-success-soft: #e4ffdd;
+  --color-danger: #d93a2f;
+  --color-danger-badge: #ee6958;
+  --color-warning: #ff9500;
+  --color-warning-soft: #fff3df;
+  --color-overlay: rgb(0 0 0 / 0.45);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 6px 18px rgb(0 0 0 / 0.05);
+  --shadow-card-hover: 0 2px 4px rgb(0 0 0 / 0.05), 0 10px 26px rgb(0 0 0 / 0.09);
+  --shadow-pop: 0 12px 40px rgb(0 0 0 / 0.16), 0 2px 6px rgb(0 0 0 / 0.08);
+  color-scheme: light;
+}
+
+.dark {
+  --color-bg: #000000;
+  --color-surface: #1c1c1e;
+  --color-surface-2: #242426;
+  --color-surface-3: #2c2c2e;
+  --color-text: #f2f2f7;
+  --color-text-2: #d1d1d6;
+  --color-muted: #a1a1aa;
+  --color-dim: #8e8e93;
+  --color-line: #2f2f33;
+  --color-line-strong: #46464b;
+  --color-brand: #3b9cf0;
+  --color-brand-strong: #58aaf5;
+  --color-brand-soft: #0f2b44;
+  --color-brand-text: #7cbdf7;
+  --color-brand-fill: #1b6fc0;
+  --color-brand-fill-strong: #1f7bd2;
+  --color-secondary: #6f68df;
+  --color-secondary-soft: #464552;
+  --color-success: #8fdc7b;
+  --color-success-soft: #475a42;
+  --color-danger: #ff6b5e;
+  --color-danger-badge: #b22e4d;
+  --color-warning: #ffb340;
+  --color-warning-soft: #3a2d12;
+  --color-overlay: rgb(0 0 0 / 0.65);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-card-hover: 0 4px 16px rgb(0 0 0 / 0.5);
+  --shadow-pop: 0 12px 40px rgb(0 0 0 / 0.6);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans: "Heebo", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-surface-2: var(--color-surface-2);
+  --color-surface-3: var(--color-surface-3);
+  --color-text: var(--color-text);
+  --color-text-2: var(--color-text-2);
+  --color-muted: var(--color-muted);
+  --color-dim: var(--color-dim);
+  --color-line: var(--color-line);
+  --color-line-strong: var(--color-line-strong);
+  --color-brand: var(--color-brand);
+  --color-brand-strong: var(--color-brand-strong);
+  --color-brand-soft: var(--color-brand-soft);
+  --color-brand-text: var(--color-brand-text);
+  --color-brand-fill: var(--color-brand-fill);
+  --color-brand-fill-strong: var(--color-brand-fill-strong);
+  --color-secondary: var(--color-secondary);
+  --color-secondary-soft: var(--color-secondary-soft);
+  --color-success: var(--color-success);
+  --color-success-soft: var(--color-success-soft);
+  --color-danger: var(--color-danger);
+  --color-danger-badge: var(--color-danger-badge);
+  --color-warning: var(--color-warning);
+  --color-warning-soft: var(--color-warning-soft);
+  --color-overlay: var(--color-overlay);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-card-hover: var(--shadow-card-hover);
+  --shadow-pop: var(--shadow-pop);
+
+  --radius-card: 14px;
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+    /* Anchor jumps (the skip link) land below the sticky header rather than under it. */
+    scroll-padding-top: 4.5rem;
+    /* A classic scrollbar keeps its gutter while a sheet or the menu locks the page, so nothing jumps sideways. */
+    scrollbar-gutter: stable;
+    /* Taps get their feedback from `active:` styles and the focus ring, not the platform's grey rectangle. */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-bg text-text font-sans;
+    letter-spacing: -0.01em;
+    line-height: 1.55;
+    min-height: 100dvh;
+  }
+
+  :lang(he) body,
+  [dir="rtl"] body {
+    letter-spacing: -0.02em;
+  }
+
+  button:not(:disabled),
+  summary,
+  [role="option"] {
+    cursor: pointer;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--color-brand) 25%, transparent);
+  }
+
+  :focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--color-brand) 55%, transparent);
+    outline-offset: 2px;
+  }
+
+  /* Skipped to: the page's landmark takes focus without drawing a ring around the whole page. */
+  main:focus {
+    outline: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      /* A looping spinner would otherwise keep running its now-instant animation. */
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl;
+    /* `viewport-fit=cover` lets the page run under a phone's notch in landscape; the insets keep the content out of it. */
+    padding-inline: max(1rem, env(safe-area-inset-left), env(safe-area-inset-right));
+  }
+
+  @variant sm {
+    .container-page {
+      padding-inline: max(1.5rem, env(safe-area-inset-left), env(safe-area-inset-right));
+    }
+  }
+
+  @variant lg {
+    .container-page {
+      padding-inline: max(2rem, env(safe-area-inset-left), env(safe-area-inset-right));
+    }
+  }
+
+  @media (min-width: 1024px) and (max-width: 1599px) {
+    .container-page {
+      max-width: 1100px;
+    }
+  }
+
+  .card {
+    @apply bg-surface rounded-card shadow-card border border-line/60;
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .prose-page {
+    @apply text-[17px] leading-[1.7] text-text-2;
+  }
+
+  .prose-page h2 {
+    @apply text-text mt-8 mb-2 text-xl font-bold;
+  }
+
+  .prose-page h3 {
+    @apply text-text mt-6 mb-2 text-lg font-bold;
+  }
+
+  .prose-page p {
+    @apply mb-3;
+  }
+
+  .prose-page a {
+    @apply text-brand-text underline decoration-brand-text/40 underline-offset-2 hover:decoration-brand-text;
+  }
+
+  .prose-page ul {
+    @apply mb-4 list-disc ps-6;
+  }
+
+  .prose-page li {
+    @apply mb-1;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[13px] font-medium leading-5;
+  }
+
+  .btn,
+  .btn-primary,
+  .btn-secondary,
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-[15px] font-semibold transition-[background-color,transform,box-shadow] duration-200 ease-out-expo active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply bg-brand-fill text-white shadow-[0_1px_2px_rgb(0_0_0/0.15)] hover:bg-brand-fill-strong;
+  }
+
+  .btn-secondary {
+    @apply bg-surface-3 text-text hover:bg-line;
+  }
+
+  .btn-ghost {
+    @apply text-brand-text hover:bg-brand-soft;
+  }
+
+  .icon-btn {
+    @apply inline-flex size-11 items-center justify-center rounded-full text-text-2 transition-colors hover:bg-surface-3 active:scale-95;
+  }
+
+  .link-underline {
+    position: relative;
+    white-space: nowrap;
+  }
+
+  .link-underline::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: -1px;
+    height: 1.5px;
+    border-radius: 1px;
+    background: currentColor;
+    opacity: 0;
+    transform: scaleX(0.4);
+    transform-origin: var(--underline-origin, left center);
+    transition:
+      transform 0.28s var(--ease-out-expo),
+      opacity 0.18s ease-out;
+  }
+
+  [dir="rtl"] .link-underline::after {
+    --underline-origin: right center;
+  }
+
+  .link-underline:hover::after,
+  .link-underline:focus-visible::after {
+    opacity: 0.65;
+    transform: scaleX(1);
+  }
+
+  .station-photo-gradient {
+    background: linear-gradient(to bottom, rgb(0 0 0 / 0.05) 0%, rgb(0 0 0 / 0.65) 100%);
+  }
+}
+
+@layer utilities {
+  .animate-fade-up {
+    animation: fade-up 0.45s var(--ease-out-expo) both;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.25s ease-out both;
+  }
+
+  .animate-slide-in-end {
+    animation: slide-in-end 0.32s var(--ease-out-expo) both;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Picker popover: a quick settle from just above its resting place. */
+  .animate-pop {
+    animation: pop 0.22s var(--ease-out-expo) both;
+  }
+
+  /* Picker bottom sheet. */
+  .animate-sheet-up {
+    animation: sheet-up 0.38s var(--ease-out-expo) both;
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-end {
+  from {
+    opacity: 0;
+    transform: translateX(var(--slide-from, 24px));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+[dir="rtl"] .animate-slide-in-end {
+  --slide-from: -24px;
+}

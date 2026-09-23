@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import { Platform, PlatformColor, View, type ViewStyle, useColorScheme } from "react-native"
+import { Platform, View, type ViewStyle, useColorScheme } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { BlurView } from "expo-blur"
 import { GlassView } from "expo-glass-effect"
@@ -25,10 +25,7 @@ export function BottomScreenSheet({ children, style }: BottomScreenSheetProps) {
         />
       )}
       {Platform.OS === "ios" && isLiquidGlassSupported && (
-        <GlassView
-          style={styles.overlay}
-          tintColor={isDarkMode ? PlatformColor("systemThickMaterialDark") : PlatformColor("systemThickMaterialLight")}
-        />
+        <GlassView style={styles.overlay} colorScheme={isDarkMode ? "dark" : "light"} />
       )}
     </View>
   )
