@@ -24,7 +24,7 @@ await Promise.all(
     const input = resolve(source, file)
     const key = file.replace(/\.[^.]+$/, "")
     const outputs = [
-      // The thumbnail next to a station's name in the picker and the toolbar fields (44px, at up to 3x).
+      // The smallest source-set image for station photo cards on narrow screens.
       { path: resolve(target, `${key}-160.webp`), render: () => sharp(input).resize({ width: 160 }).webp({ quality: 80 }) },
       { path: resolve(target, `${key}-640.webp`), render: () => sharp(input).resize({ width: 640 }).webp({ quality: 78 }) },
       {

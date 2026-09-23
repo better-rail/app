@@ -8,7 +8,6 @@ import { useIsDesktop } from "@/hooks/use-media-query"
 import { useRecentRoutes } from "@/hooks/use-stored"
 import { useStationSearch } from "./use-station-search"
 import { PickerPopover, type PickerCloseReason } from "./picker-popover"
-import { StationImage } from "../stations/station-image"
 import { StationPhotoCard } from "../stations/station-card"
 
 export interface StationPickerProps {
@@ -202,10 +201,6 @@ export function StationPicker({
           open && "border-brand ring-3 ring-brand/20",
         )}
       >
-        <span className="relative size-9 shrink-0 overflow-hidden rounded-lg bg-surface-3">
-          {value && <StationImage station={value} sizes="72px" className="absolute inset-0" />}
-          {!value && <TrainFront className="absolute inset-0 m-auto size-5 text-dim" />}
-        </span>
         <span className="flex min-w-0 flex-1 flex-col leading-tight">
           <span className="text-[12px] font-semibold uppercase tracking-wide text-muted">{label}</span>
           <span className={cn("truncate text-[16px] font-semibold", !value && "text-dim")}>
@@ -387,9 +382,6 @@ const StationOption = memo(function StationOption({
         disabled && "cursor-not-allowed opacity-40",
       )}
     >
-      <span className="relative size-11 shrink-0 overflow-hidden rounded-lg bg-surface-3">
-        <StationImage station={station} sizes="88px" className="absolute inset-0" />
-      </span>
       <span className="min-w-0 flex-1 truncate text-[16px] font-semibold">{name}</span>
       {icon}
       {selected && <span className="size-2 rounded-full bg-brand" aria-hidden="true" />}
