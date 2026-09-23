@@ -25,6 +25,47 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* The station photos and app icon follow the route in either direction while the surrounding page changes. */
+@keyframes route-page-out {
+  to {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes route-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+::view-transition-old(root) {
+  animation: 160ms ease-in both route-page-out;
+}
+
+::view-transition-new(root) {
+  animation: 300ms 60ms var(--ease-out-expo) both route-page-in;
+}
+
+::view-transition-group(station-origin),
+::view-transition-group(station-destination),
+::view-transition-group(brand-icon) {
+  animation-duration: 360ms;
+  animation-timing-function: var(--ease-out-expo);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-group(station-origin),
+  ::view-transition-group(station-destination),
+  ::view-transition-group(brand-icon) {
+    animation-duration: 0.01ms;
+    animation-delay: 0ms;
+  }
+}
+
 /* Colour roles mirroring the mobile theme (apps/mobile/src/theme). Light on :root, dark under `.dark`. */
 :root {
   --color-bg: #f2f2f7;

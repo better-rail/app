@@ -29,7 +29,7 @@ export function routeSearchParams(value: DateTimeValue) {
 /** The swap's glide: the cards leave and land gently, like two things physically trading places. */
 const SWAP_EASING = "cubic-bezier(0.65, 0, 0.35, 1)"
 
-/** Trip planner: `hero` is the home-page card, `bar` the results toolbar where changes apply immediately. */
+/** Trip planner: `hero` is the home card; `results` applies changes immediately. */
 export function Planner({
   variant,
   initial,
@@ -37,7 +37,7 @@ export function Planner({
   now: loadedNow,
   className,
 }: {
-  variant: "hero" | "bar"
+  variant: "hero" | "results"
   initial?: PlannerValue
   today: string
   now: string
@@ -58,9 +58,9 @@ export function Planner({
   /** The hero form has been sent and the results page is still loading — the button says so and locks meanwhile. */
   const [submitting, setSubmitting] = useState(false)
   const [dirty, setDirty] = useState(false)
-  const autoNavigate = variant === "bar"
+  const autoNavigate = variant !== "hero"
 
-  // Follow `initial` until the user edits the form (URL changes on the toolbar, stored stations on the hero). Merged
+  // Follow `initial` until the user edits the form (URL changes on results, stored stations on the hero). Merged
   // rather than replaced: the hero's `initial` carries stations only, and a date the user picked has to survive it.
   useEffect(() => {
     if (initial && (autoNavigate || !dirty)) setValue((current) => ({ ...current, ...initial }))
@@ -132,44 +132,51 @@ export function Planner({
     update({ origin: value.destination, destination: value.origin })
   }
 
-  if (variant === "bar") {
+  if (variant === "results") {
     return (
-      <div className={cn("flex flex-col gap-2 lg:flex-row lg:items-center", className)}>
-        {/* Phones stack the two fields with the swap button beside them; from `sm` they sit either side of it. */}
-        <div className="grid flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
+      <div
+        className={cn(
+          "grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-center gap-2 lg:grid-cols-[minmax(0,1fr)_2.5rem_minmax(0,1fr)_minmax(330px,1.5fr)] lg:gap-3",
+          className,
+        )}
+      >
+        <div className="relative col-span-2 grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-center gap-2 lg:col-span-3 lg:grid-cols-[minmax(0,1fr)_2.5rem_minmax(0,1fr)] lg:gap-3">
           <StationPicker
             kind="origin"
-            variant="field"
+            variant="header"
             label={t("plan.origin")}
             value={value.origin}
             exclude={value.destination}
+            cardRef={originCard}
             onChange={(origin) => update({ origin })}
           />
-          <SwapButton
-            onClick={swap}
-            disabled={!value.origin || !value.destination}
-            responsive="sm"
-            className="row-span-2 size-11 sm:row-span-1"
-          />
+          <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center lg:pointer-events-auto lg:static">
+            <SwapButton
+              onClick={swap}
+              disabled={!value.origin || !value.destination}
+              horizontal
+              className="pointer-events-auto size-10 border-2 border-bg"
+            />
+          </div>
           <StationPicker
             kind="destination"
-            variant="field"
+            variant="header"
             label={t("plan.destination")}
             value={value.destination}
             exclude={value.origin}
+            cardRef={destinationCard}
             onChange={(destination) => update({ destination })}
           />
         </div>
-        {/* Phones get the stations only — the toolbar pins over the list, and two more fields cost too much of the
-            screen. The day is set from the home planner there, and the list's heading names it. */}
-        <div className="hidden sm:block">
+        <div className="col-span-2 min-w-0 lg:col-span-1">
+          <span className="sr-only">{t("plan.leaveAt")}</span>
           <DateTimePicker
-            compact
             today={today}
             now={now}
             value={value}
             onChange={(dateTime) => update(dateTime)}
-            className="lg:w-auto"
+            dense
+            className="w-full"
           />
         </div>
       </div>

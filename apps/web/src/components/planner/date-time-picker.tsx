@@ -37,7 +37,7 @@ export function DateTimePicker({
   today,
   now,
   className,
-  compact = false,
+  dense = false,
 }: {
   value: DateTimeValue
   onChange: (value: DateTimeValue) => void
@@ -46,13 +46,15 @@ export function DateTimePicker({
   /** Israel's current time (`HH:mm`) */
   now: string
   className?: string
-  /** The results toolbar: fixed column widths on wide screens */
-  compact?: boolean
+  /** Slightly shorter desktop controls in the results planner. */
+  dense?: boolean
 }) {
   const t = useT()
   const isNow = !value.date && !value.time
-  const fieldClass =
-    "flex h-14 w-full items-center gap-1.5 rounded-xl border border-line bg-surface px-2.5 text-start text-[15px] font-medium transition-colors hover:border-line-strong sm:gap-2 sm:px-3"
+  const fieldClass = cn(
+    "flex h-14 w-full items-center gap-1.5 rounded-xl border border-line bg-surface px-2.5 text-start text-[15px] font-medium transition-colors hover:border-line-strong sm:gap-2 sm:px-3",
+    dense && "h-11 sm:h-14 lg:h-12",
+  )
 
   return (
     <div
@@ -60,7 +62,6 @@ export function DateTimePicker({
         // One row at every width: the fields share the space (the date gets more of a phone's, "31/12/2026" being the
         // longest label) and "Now" shrinks to its icon there.
         "grid grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_auto] gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]",
-        compact && "lg:grid-cols-[168px_128px_auto]",
         className,
       )}
     >
@@ -70,7 +71,11 @@ export function DateTimePicker({
         type="button"
         onClick={() => onChange({ date: undefined, time: undefined })}
         disabled={isNow}
-        className={cn("btn-secondary h-14 min-w-14 gap-1.5 px-0 sm:px-3.5", isNow && "!opacity-60")}
+        className={cn(
+          "btn-secondary h-14 min-w-14 gap-1.5 px-0 sm:px-3.5",
+          dense && "h-11 min-w-11 sm:h-14 lg:h-12",
+          isNow && "!opacity-60",
+        )}
         aria-label={t("plan.now")}
         title={t("plan.now")}
       >

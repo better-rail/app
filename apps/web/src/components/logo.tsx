@@ -1,8 +1,9 @@
 import { cn } from "@/lib/cn"
 
-export function AppIcon({ className }: { className?: string }) {
+export function AppIcon({ className, transitionName }: { className?: string; transitionName?: string }) {
   return (
     <span
+      style={transitionName ? { viewTransitionName: transitionName } : undefined}
       className={cn(
         "inline-flex shrink-0 items-center justify-center rounded-[22%] bg-white shadow-[0_0_8px_rgb(0_0_0/0.15)] dark:bg-surface-3",
         className,

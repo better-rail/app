@@ -6,6 +6,9 @@ import { NotFound } from "./components/not-found"
 import { ErrorPage } from "./components/error-page"
 import { parseSearchValue } from "./lib/search"
 
+const isHome = (path: string) => path === "/" || path === "/en" || path === "/en/"
+const isResults = (path: string) => /^\/(?:en\/)?routes\/[^/]+\/[^/]+\/?$/.test(path)
+
 export function getRouter() {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -33,6 +36,14 @@ export function getRouter() {
     defaultNotFoundComponent: NotFound,
     defaultErrorComponent: ErrorPage,
     defaultStructuralSharing: true,
+  })
+
+  // Link options cover clicks, but browser Back/Forward do not carry them. Set the transition for the home/results
+  // route pair as the router begins any navigation, without animating trip picks or date/time changes on results.
+  router.subscribe("onBeforeNavigate", ({ fromLocation, toLocation }) => {
+    const from = fromLocation?.pathname
+    const to = toLocation.pathname
+    router.shouldViewTransition = Boolean(from && ((isHome(from) && isResults(to)) || (isResults(from) && isHome(to))))
   })
 
   setupRouterSsrQueryIntegration({ router, queryClient })

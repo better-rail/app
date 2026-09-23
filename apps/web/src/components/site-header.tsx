@@ -26,7 +26,7 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
         <nav className="container-page flex h-15 items-center gap-6" aria-label={t("nav.menu")}>
           {/* Named by its visible text: "Better Rail" is what a voice-control user will say to reach it. */}
           <LocaleLink to="/{-$locale}" className="flex min-h-11 items-center gap-2.5 font-bold tracking-tight">
-            <AppIcon className="size-9" />
+            <AppIcon className="size-9" transitionName="brand-icon" />
             <span className="text-[19px]">Better Rail</span>
           </LocaleLink>
 

@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode, type Ref } from "react"
 import { flushSync } from "react-dom"
-import { Search, X, ChevronDown, TrainFront, Clock } from "lucide-react"
+import { Search, X, TrainFront, Clock, ChevronDown } from "lucide-react"
 import { stationName, getStationById, type Station } from "@/data/stations"
 import { useLocale, useT } from "@/i18n"
 import { cn } from "@/lib/cn"
@@ -16,11 +16,11 @@ export interface StationPickerProps {
   onChange: (station: Station) => void
   /** The station selected in the other field — shown dimmed so it can't be picked twice */
   exclude?: Station
-  /** `card` mimics the app's photo cards; `field` is the compact input of the results toolbar */
-  variant?: "card" | "field"
+  /** `header` puts a photo-backed selector in the results header. */
+  variant?: "card" | "header"
   className?: string
   kind: "origin" | "destination"
-  /** The `card` variant's photo card, which the planner moves when the stations are swapped */
+  /** The photo card, which the planner moves when the stations are swapped. */
   cardRef?: Ref<HTMLSpanElement>
 }
 
@@ -161,57 +161,48 @@ export function StationPicker({
   }
 
   const name = value ? stationName(value, locale) : undefined
+  const inHeader = variant === "header"
 
-  const triggerButton =
-    variant === "card" ? (
-      <button
-        ref={trigger}
-        type="button"
-        onClick={openPicker}
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        aria-controls={open ? popoverId : undefined}
-        className="group block w-full text-start transition-transform duration-200 ease-out-expo active:scale-[0.98]"
-      >
-        <span className="mb-1.5 block text-[13px] font-semibold uppercase tracking-wide text-muted">{label}</span>
-        {value ? (
-          <StationPhotoCard
-            ref={cardRef}
-            station={value}
-            name={name ?? ""}
-            className="shadow-card group-hover:shadow-card-hover"
-          />
-        ) : (
-          <span className="flex h-44 flex-col items-center justify-center gap-2 rounded-card border-2 border-dashed border-line-strong bg-surface-2 text-muted transition-colors group-hover:border-brand/50 group-hover:text-brand-text sm:h-48 lg:h-56">
-            <TrainFront className="size-8 opacity-60" />
-            <span className="font-medium">{t("plan.selectStation")}</span>
-          </span>
-        )}
-      </button>
-    ) : (
-      <button
-        ref={trigger}
-        type="button"
-        onClick={openPicker}
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        aria-controls={open ? popoverId : undefined}
-        className={cn(
-          "flex h-14 w-full items-center gap-3 rounded-xl border border-line bg-surface px-3.5 text-start shadow-[inset_0_1px_0_rgb(255_255_255/0.5)] dark:shadow-none transition-colors hover:border-line-strong focus-visible:border-brand focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-brand/20",
-          open && "border-brand ring-3 ring-brand/20",
-        )}
-      >
-        <span className="flex min-w-0 flex-1 flex-col leading-tight">
-          <span className="text-[12px] font-semibold uppercase tracking-wide text-muted">{label}</span>
-          <span className={cn("truncate text-[16px] font-semibold", !value && "text-dim")}>
-            {name ?? t("plan.selectStation")}
-          </span>
+  const triggerButton = (
+    <button
+      ref={trigger}
+      type="button"
+      onClick={openPicker}
+      aria-haspopup="dialog"
+      aria-expanded={open}
+      aria-controls={open ? popoverId : undefined}
+      aria-label={inHeader ? `${label}: ${name ?? t("plan.selectStation")}` : undefined}
+      className="group block w-full text-start transition-transform duration-200 ease-out-expo active:scale-[0.98]"
+    >
+      <span className={cn("mb-1.5 block text-[13px] font-semibold uppercase tracking-wide text-muted", inHeader && "sr-only")}>
+        {label}
+      </span>
+      {value ? (
+        <StationPhotoCard
+          ref={cardRef}
+          station={value}
+          name={name ?? ""}
+          size={inHeader ? "header" : "default"}
+          transitionName={`station-${kind}`}
+          className="shadow-card group-hover:shadow-card-hover"
+        >
+          {inHeader && (
+            <ChevronDown className="size-4 shrink-0 text-white drop-shadow-[0_1px_3px_rgb(0_0_0/0.8)]" aria-hidden="true" />
+          )}
+        </StationPhotoCard>
+      ) : (
+        <span
+          className={cn(
+            "flex flex-col items-center justify-center gap-2 rounded-card border-2 border-dashed border-line-strong bg-surface-2 text-muted transition-colors group-hover:border-brand/50 group-hover:text-brand-text",
+            inHeader ? "h-13 sm:h-14" : "h-44 sm:h-48 lg:h-56",
+          )}
+        >
+          <TrainFront className={cn("opacity-60", inHeader ? "size-4" : "size-8")} />
+          <span className={cn("font-medium", inHeader && "text-sm")}>{t("plan.selectStation")}</span>
         </span>
-        <ChevronDown
-          className={cn("size-4 shrink-0 text-dim transition-transform duration-200 ease-out-expo", open && "rotate-180")}
-        />
-      </button>
-    )
+      )}
+    </button>
+  )
 
   return (
     <div ref={anchor} className={cn("relative min-w-0", open && "z-50", className)}>

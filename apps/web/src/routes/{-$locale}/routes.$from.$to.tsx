@@ -3,9 +3,10 @@ import { useQueries, useQuery, type QueryClient, type UseQueryResult } from "@ta
 import { useEffect, useRef, useState } from "react"
 import { ArrowLeft, ArrowRight, CalendarDays, ChevronDown, CloudOff, Loader2, TrainFront } from "lucide-react"
 import { Planner } from "@/components/planner/planner"
+import { AppIcon } from "@/components/logo"
+import { LocaleLink } from "@/components/locale-link"
 import { RouteList } from "@/components/routes/route-list"
 import { RouteDetails } from "@/components/routes/route-details"
-import { StationImage } from "@/components/stations/station-image"
 import { getStationById, stationName, type Station } from "@/data/stations"
 import { useLocale, useT, resolveLocale, translate, localePath, type Locale } from "@/i18n"
 import { routesQueryOptions, ROUTES_REFETCH_INTERVAL_MS } from "@/lib/api/queries"
@@ -34,15 +35,18 @@ import { formatDayLabel, formatLongDate } from "@/lib/format"
 
 /** Guards a bogus `day` param from spawning an unbounded number of queries. */
 const MAX_EXTRA_DAYS = 7
-/** Where the toolbar pins, in pixels — matches its `top-18` class. */
-const TOOLBAR_TOP = 72
-/** Room left between the pinned toolbar and a card scrolled up under it. */
+/** Room left above a card scrolled into view. */
 const CARD_GAP = 16
+
+/** The pinned route controls can wrap on a phone, so scroll targets read their actual height. */
+function resultsTop(): number {
+  return (document.querySelector("[data-results-header]")?.getBoundingClientRect().height ?? 0) + 16
+}
 
 /**
  * How much further the page can scroll before the end of the list column rises above the fold — negative once it
- * already has. On desktop the details pane is pinned under the toolbar and sized to the fold, so it stays put only
- * while the column's end is below the fold; past that, the bottom of the grid pushes the pane up under the toolbar
+ * already has. On desktop the details pane is pinned near the top of the fold, so it stays put only
+ * while the column's end is below the fold; past that, the bottom of the grid pushes the pane above the viewport
  * and the top of the card goes out of view. Below `lg` nothing is pinned, and there is no limit.
  */
 function roomBelowList(details: HTMLElement | null): number {
@@ -317,23 +321,10 @@ function RoutesPage() {
     navigate({ search: (prev) => ({ ...prev, trip: undefined, day: undefined }), replace: true, resetScroll: false })
   }
 
-  // The toolbar changes height with the viewport (one row on wide screens, two when it wraps), so the details panel
-  // reads it from a custom property rather than guessing at an offset that would leave it under the pinned card.
-  const toolbarRef = useRef<HTMLDivElement>(null)
-  const pageRef = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    const toolbar = toolbarRef.current
-    const page = pageRef.current
-    if (!toolbar || !page) return
-    const measure = () => page.style.setProperty("--toolbar-h", `${toolbar.getBoundingClientRect().height}px`)
-    measure()
-    const observer = new ResizeObserver(measure)
-    observer.observe(toolbar)
-    return () => observer.disconnect()
-  }, [])
-
   const listRef = useRef<HTMLElement>(null)
   const detailsRef = useRef<HTMLDivElement>(null)
+  const headerRef = useRef<HTMLElement>(null)
+  const pageRef = useRef<HTMLDivElement>(null)
   const scrolledToTrip = useRef<string>(undefined)
   /** The trip the reader was just looking at, so closing the details lands back on its card. */
   const returnToTrip = useRef<string>(undefined)
@@ -349,10 +340,21 @@ function RoutesPage() {
   const routerRestores = useElementScrollRestoration({ getElement: () => window }) !== undefined
   const restored = useRef(remembered !== undefined || routerRestores)
 
+  useEffect(() => {
+    const header = headerRef.current
+    const page = pageRef.current
+    if (!header || !page) return
+    const measure = () => page.style.setProperty("--results-header-h", `${header.getBoundingClientRect().height}px`)
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(header)
+    return () => observer.disconnect()
+  }, [])
+
   // A link can land on a trip far down the list, and on mobile the list is replaced by the details panel — both
   // need the relevant card brought into view. Cards already on screen are left alone, so picking one never yanks
   // the page around — unless the page is scrolled past the end of the list, where the details pane is pushed up
-  // under the toolbar, in which case it is backed up just far enough for the pane to sit where it belongs.
+  // past the end of the list, in which case it is backed up just far enough for the pane to sit where it belongs.
   useEffect(() => {
     const trip = search.trip ?? returnToTrip.current
     const list = listRef.current
@@ -368,11 +370,10 @@ function RoutesPage() {
     if (search.trip && list.offsetParent === null) {
       scrolledToTrip.current = search.trip
       const panel = detailsRef.current
-      // Measured on the frame after paint and against the toolbar itself: on a cold load the panel would otherwise
-      // be positioned before the toolbar has settled, leaving its "back to list" button behind the pinned card.
+      // Wait until after paint so the details pane has its final position before scrolling to it.
       if (panel) {
         requestAnimationFrame(() => {
-          const offset = TOOLBAR_TOP + (toolbarRef.current?.getBoundingClientRect().height ?? 0) + 8
+          const offset = resultsTop() + 8
           window.scrollTo({ top: window.scrollY + panel.getBoundingClientRect().top - offset, behavior: "instant" })
           // The card that was activated is gone with the list; the reading position follows the trip into the panel.
           panel.focus({ preventScroll: true })
@@ -451,11 +452,10 @@ function RoutesPage() {
         }
       }
       if (!card) return
-      const toolbar = toolbarRef.current?.getBoundingClientRect()
       const { top, bottom } = card.getBoundingClientRect()
-      if (top >= (toolbar?.bottom ?? 0) && bottom <= window.innerHeight) return
-      const offset = TOOLBAR_TOP + (toolbar?.height ?? 0) + CARD_GAP
-      // A search late in the evening lands on the last trains: bringing one of those up under the toolbar would
+      if (top >= resultsTop() && bottom <= window.innerHeight) return
+      const offset = resultsTop() + CARD_GAP
+      // A search late in the evening lands on the last trains: bringing one of those up to the top would
       // scroll the list's end above the fold and push the details pane up with it, so the scroll stops with the
       // end of the list at the fold, the requested train just above it — as a list scrolled to its end looks.
       const delta = Math.min(top - offset, roomBelowList(detailsRef.current))
@@ -467,38 +467,42 @@ function RoutesPage() {
 
   return (
     <div ref={pageRef} className="flex flex-1 flex-col">
-      {/* Hero: the origin station photo, like the app's route header. The toolbar right under it names the stations,
-          so the heading is for the document outline only. */}
-      <div className="relative h-44 overflow-hidden bg-surface-3 sm:h-52 lg:h-56">
-        <StationImage station={origin} priority sizes="100vw" className="absolute inset-0" />
-        <div
-          className="absolute inset-0 bg-[linear-gradient(to_bottom,rgb(0_0_0/0.55),rgb(0_0_0/0.2)_45%,rgb(0_0_0/0.6))]"
-          aria-hidden="true"
-        />
-        <h1 className="sr-only">{t("routes.summaryTitle", { from, to })}</h1>
-      </div>
-
-      {/* Toolbar: straddles the hero's bottom edge — half over the photo, half below it — then pins just below the
-          site header (h-16) once the hero scrolls away. The overlap is half the toolbar's measured height; until it is
-          measured, the fallbacks are what the bar is at each width (two stacked fields on a phone, one row plus the
-          date picker's row up to `lg`, a single row from there), so hydration doesn't move it. */}
-      <div
-        ref={toolbarRef}
-        className="container-page sticky top-18 z-20 -mt-[calc(var(--toolbar-h,var(--toolbar-fallback))/2)] [--toolbar-fallback:146px] sm:[--toolbar-fallback:154px] lg:[--toolbar-fallback:90px]"
+      <h1 className="sr-only">{t("routes.summaryTitle", { from, to })}</h1>
+      <header
+        ref={headerRef}
+        data-results-header
+        className="sticky top-0 z-40 border-b border-line/70 bg-bg/95 py-2 shadow-[0_2px_12px_rgb(0_0_0/0.04)] backdrop-blur-md"
       >
-        <div className="card p-3 sm:p-4">
+        <a
+          href="#results-list"
+          className="sr-only focus:not-sr-only focus:absolute focus:start-4 focus:top-2 focus:z-50 focus:rounded-lg focus:bg-surface focus:px-3 focus:py-2 focus:shadow-pop"
+        >
+          {t("site.skipToContent")}
+        </a>
+        <div className="container-page flex items-start gap-2.5 sm:gap-3 lg:items-center">
+          <LocaleLink
+            to="/{-$locale}"
+            search={{ from: origin.id, to: destination.id }}
+            aria-label={t("nav.home")}
+            title={t("nav.home")}
+            className="flex size-11 shrink-0 items-center justify-center rounded-xl transition-[background-color,scale] duration-200 hover:bg-surface-2 active:scale-[0.96]"
+          >
+            <AppIcon className="size-9" transitionName="brand-icon" />
+          </LocaleLink>
           <Planner
-            variant="bar"
+            variant="results"
             today={dateKey(now)}
             now={formatClock(now)}
             initial={{ origin, destination, date: search.date, time: search.time }}
+            className="min-w-0 flex-1"
           />
         </div>
-      </div>
+      </header>
 
       <div className="container-page grid flex-1 gap-6 py-6 lg:grid-cols-[minmax(0,440px)_minmax(0,1fr)] lg:gap-8 lg:py-8">
         {/* Results list */}
         <section
+          id="results-list"
           ref={listRef}
           aria-label={t("routes.title", { from, to })}
           className={cn("flex flex-col gap-4", selected ? "hidden lg:flex" : "flex")}
@@ -621,12 +625,12 @@ function RoutesPage() {
 
         {/*
          * Details panel (master/detail on desktop, full page on mobile). On desktop the list and the card are two
-         * independent panes: this wrapper pins under the toolbar while the list scrolls with the page, and the
+         * independent panes: this wrapper pins near the top while the list scrolls with the page, and the
          * pane inside it is capped at the room between its pinned position and the fold, so it scrolls on its own
          * — the card moves in it as one piece, and `overscroll-contain` keeps the wheel from leaking into the list.
          * The pane's own padding (undone by the negative margin) leaves room for the card's shadow inside the
          * clipping box. The cap is plain CSS rather than a measurement per scroll frame: it only depends on the
-         * viewport and the toolbar's height, which the custom property already tracks.
+         * viewport height.
          */}
         <div
           ref={detailsRef}
@@ -634,7 +638,7 @@ function RoutesPage() {
           aria-label={t("details.title")}
           className={cn(
             selected ? "flex" : "hidden lg:flex",
-            "flex-col outline-none lg:sticky lg:top-[calc(5rem_+_var(--toolbar-h,5.5rem))] lg:self-start",
+            "flex-col outline-none lg:sticky lg:top-[calc(var(--results-header-h,72px)+16px)] lg:self-start",
           )}
         >
           {/* Focusable, so the keyboard can scroll a long journey's stops as the wheel does. */}
@@ -642,7 +646,7 @@ function RoutesPage() {
             tabIndex={selected ? 0 : -1}
             role={selected ? "region" : undefined}
             aria-label={selected ? t("details.title") : undefined}
-            className="rounded-card lg:-m-2 lg:max-h-[calc(100dvh_-_5.5rem_-_var(--toolbar-h,5.5rem))] lg:overflow-y-auto lg:overscroll-contain lg:p-2"
+            className="rounded-card lg:-m-2 lg:max-h-[calc(100dvh_-_var(--results-header-h,72px)_-_2rem)] lg:overflow-y-auto lg:overscroll-contain lg:p-2"
           >
             <div className="card overflow-hidden">
               {selected ? (
