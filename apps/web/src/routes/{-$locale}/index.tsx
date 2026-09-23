@@ -57,7 +57,7 @@ function HomePage() {
         <div className="container-page relative flex flex-col gap-8 py-6 sm:py-8 lg:py-10">
           {/* Visually hidden: the planner is the hero, but the page still needs an h1. */}
           <h1 className="sr-only">{t("home.title")}</h1>
-          <Planner variant="hero" today={today} now={now} initial={initial} className="relative z-20 shadow-pop" />
+          <Planner variant="hero" today={today} now={now} initial={initial} className="relative z-20" />
           <SavedRoutes />
         </div>
       </section>

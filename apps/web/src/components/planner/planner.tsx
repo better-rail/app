@@ -155,6 +155,7 @@ export function Planner({
               onClick={swap}
               disabled={!value.origin || !value.destination}
               horizontal
+              transitionName="station-swap"
               className="pointer-events-auto size-10 border-2 border-bg"
             />
           </div>
@@ -185,7 +186,7 @@ export function Planner({
 
   return (
     <form
-      className={cn("card flex flex-col gap-4 p-4 sm:p-6", className)}
+      className={cn("flex flex-col gap-4", className)}
       onSubmit={(event) => {
         event.preventDefault()
         if (submitting) return
@@ -215,6 +216,7 @@ export function Planner({
             onClick={swap}
             disabled={!value.origin || !value.destination}
             responsive="lg"
+            transitionName="station-swap"
             className="absolute end-2 top-[19px] size-16 -translate-y-1/2 lg:static lg:size-14 lg:translate-y-0"
           />
         </div>

@@ -20,12 +20,14 @@ export function SwapButton({
   disabled,
   horizontal = false,
   responsive,
+  transitionName,
   className,
 }: {
   onClick: () => void
   disabled?: boolean
   horizontal?: boolean
   responsive?: keyof typeof RESPONSIVE_ICONS
+  transitionName?: string
   className?: string
 }) {
   const t = useT()
@@ -36,6 +38,7 @@ export function SwapButton({
       disabled={disabled}
       aria-label={t("plan.swap")}
       title={t("plan.swap")}
+      style={transitionName ? { viewTransitionName: transitionName } : undefined}
       className={cn(
         "inline-flex items-center justify-center rounded-full bg-brand text-white shadow-[0_2px_8px_rgb(10_129_221/0.4)] transition-[scale,background-color] duration-150 ease-out-expo hover:bg-brand-strong active:scale-90 disabled:opacity-40 disabled:shadow-none",
         className,

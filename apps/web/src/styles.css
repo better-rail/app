@@ -32,7 +32,21 @@
   backdrop-filter: blur(18px) saturate(150%);
 }
 
-/* The station photos and app icon follow the route in either direction while the surrounding page changes. */
+/* Keep the persistent header fixed while the route snapshot moves underneath it. */
+[data-site-header] {
+  view-transition-name: site-header;
+}
+
+::view-transition-group(site-header),
+::view-transition-new(site-header) {
+  animation: none;
+}
+
+::view-transition-old(site-header) {
+  display: none;
+}
+
+/* The station photos and swap button follow the route in either direction while the surrounding page changes. */
 @keyframes route-page-out {
   to {
     opacity: 0;
@@ -57,7 +71,7 @@
 
 ::view-transition-group(station-origin),
 ::view-transition-group(station-destination),
-::view-transition-group(brand-icon) {
+::view-transition-group(station-swap) {
   animation-duration: 360ms;
   animation-timing-function: var(--ease-out-expo);
 }
@@ -67,7 +81,7 @@
   ::view-transition-new(root),
   ::view-transition-group(station-origin),
   ::view-transition-group(station-destination),
-  ::view-transition-group(brand-icon) {
+  ::view-transition-group(station-swap) {
     animation-duration: 0.01ms;
     animation-delay: 0ms;
   }
