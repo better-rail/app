@@ -25,6 +25,13 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+.results-planner {
+  background-color: var(--color-surface);
+  background-color: color-mix(in srgb, var(--color-surface) 72%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  backdrop-filter: blur(18px) saturate(150%);
+}
+
 /* The station photos and app icon follow the route in either direction while the surrounding page changes. */
 @keyframes route-page-out {
   to {

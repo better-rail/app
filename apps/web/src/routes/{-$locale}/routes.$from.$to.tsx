@@ -36,9 +36,11 @@ const MAX_EXTRA_DAYS = 7
 /** Room left above a card scrolled into view. */
 const CARD_GAP = 16
 
-/** The pinned route controls can wrap on a phone, so scroll targets read their actual height. */
+/** Scroll targets stay below both pinned bars. */
 function resultsTop(): number {
-  return (document.querySelector("[data-results-header]")?.getBoundingClientRect().height ?? 0) + 16
+  const header = document.querySelector("[data-site-header]")?.getBoundingClientRect().height ?? 0
+  const planner = document.querySelector("[data-results-planner]")?.getBoundingClientRect().height ?? 0
+  return header + planner + 16
 }
 
 /**
@@ -321,7 +323,7 @@ function RoutesPage() {
 
   const listRef = useRef<HTMLElement>(null)
   const detailsRef = useRef<HTMLDivElement>(null)
-  const headerRef = useRef<HTMLElement>(null)
+  const plannerRef = useRef<HTMLElement>(null)
   const pageRef = useRef<HTMLDivElement>(null)
   const scrolledToTrip = useRef<string>(undefined)
   /** The trip the reader was just looking at, so closing the details lands back on its card. */
@@ -339,13 +341,18 @@ function RoutesPage() {
   const restored = useRef(remembered !== undefined || routerRestores)
 
   useEffect(() => {
-    const header = headerRef.current
+    const planner = plannerRef.current
+    const header = document.querySelector<HTMLElement>("[data-site-header]")
     const page = pageRef.current
-    if (!header || !page) return
-    const measure = () => page.style.setProperty("--results-header-h", `${header.getBoundingClientRect().height}px`)
+    if (!planner || !page) return
+    const measure = () => {
+      page.style.setProperty("--results-header-h", `${header?.getBoundingClientRect().height ?? 60}px`)
+      page.style.setProperty("--results-planner-h", `${planner.getBoundingClientRect().height}px`)
+    }
     measure()
     const observer = new ResizeObserver(measure)
-    observer.observe(header)
+    observer.observe(planner)
+    if (header) observer.observe(header)
     return () => observer.disconnect()
   }, [])
 
@@ -388,7 +395,7 @@ function RoutesPage() {
     scrolledToTrip.current = search.trip
     returnToTrip.current = undefined
     const { top, bottom } = card.getBoundingClientRect()
-    const jump = returning || top < 0 || bottom > window.innerHeight
+    const jump = returning || top < resultsTop() || bottom > window.innerHeight
     if (jump) card.scrollIntoView({ block: "center", behavior: "instant" })
     // Back from the details on a phone: focus lands on the card it came from rather than at the top of the page.
     if (returning && card instanceof HTMLElement) card.focus({ preventScroll: true })
@@ -466,17 +473,12 @@ function RoutesPage() {
   return (
     <div ref={pageRef} className="flex flex-1 flex-col">
       <h1 className="sr-only">{t("routes.summaryTitle", { from, to })}</h1>
-      <header
-        ref={headerRef}
-        data-results-header
-        className="sticky top-0 z-40 border-b border-line/70 bg-bg/95 py-2 shadow-[0_2px_12px_rgb(0_0_0/0.04)] backdrop-blur-md"
+      <section
+        ref={plannerRef}
+        data-results-planner
+        aria-label={t("plan.title")}
+        className="results-planner sticky top-[var(--results-header-h,60px)] z-30 border-b border-line/70 py-2 shadow-[0_2px_12px_rgb(0_0_0/0.04)]"
       >
-        <a
-          href="#results-list"
-          className="sr-only focus:not-sr-only focus:absolute focus:start-4 focus:top-2 focus:z-50 focus:rounded-lg focus:bg-surface focus:px-3 focus:py-2 focus:shadow-pop"
-        >
-          {t("site.skipToContent")}
-        </a>
         <div className="container-page">
           <Planner
             variant="results"
@@ -485,8 +487,7 @@ function RoutesPage() {
             initial={{ origin, destination, date: search.date, time: search.time }}
           />
         </div>
-      </header>
-
+      </section>
       <div className="container-page grid flex-1 gap-6 py-6 lg:grid-cols-[minmax(0,440px)_minmax(0,1fr)] lg:gap-8 lg:py-8">
         {/* Results list */}
         <section
@@ -626,7 +627,7 @@ function RoutesPage() {
           aria-label={t("details.title")}
           className={cn(
             selected ? "flex" : "hidden lg:flex",
-            "flex-col outline-none lg:sticky lg:top-[calc(var(--results-header-h,72px)+16px)] lg:self-start",
+            "flex-col outline-none lg:sticky lg:top-[calc(var(--results-header-h,60px)+var(--results-planner-h,72px)+16px)] lg:self-start",
           )}
         >
           {/* Focusable, so the keyboard can scroll a long journey's stops as the wheel does. */}
@@ -634,7 +635,7 @@ function RoutesPage() {
             tabIndex={selected ? 0 : -1}
             role={selected ? "region" : undefined}
             aria-label={selected ? t("details.title") : undefined}
-            className="rounded-card lg:-m-2 lg:max-h-[calc(100dvh_-_var(--results-header-h,72px)_-_2rem)] lg:overflow-y-auto lg:overscroll-contain lg:p-2"
+            className="rounded-card lg:-m-2 lg:max-h-[calc(100dvh_-_var(--results-header-h,60px)_-_var(--results-planner-h,72px)_-_2rem)] lg:overflow-y-auto lg:overscroll-contain lg:p-2"
           >
             <div className="card overflow-hidden">
               {selected ? (

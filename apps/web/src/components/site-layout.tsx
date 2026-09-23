@@ -6,22 +6,12 @@ import { SiteFooter } from "./site-footer"
 /** True while rendering inside a `SiteLayout`, so nested fallbacks (404 / error) don't add a second header and footer. */
 const InsideSiteLayout = createContext(false)
 
-export function SiteLayout({
-  locale,
-  children,
-  footer = true,
-  showHeader = true,
-}: {
-  locale: Locale
-  children: ReactNode
-  footer?: boolean
-  showHeader?: boolean
-}) {
+export function SiteLayout({ locale, children, footer = true }: { locale: Locale; children: ReactNode; footer?: boolean }) {
   return (
     <LocaleContext.Provider value={locale}>
       <InsideSiteLayout.Provider value={true}>
         <div className="flex min-h-dvh flex-col">
-          {showHeader && <SiteHeader />}
+          <SiteHeader />
           {/* Focusable so the skip link moves the reading position, not just the scroll. */}
           <main id="main" tabIndex={-1} className="flex flex-1 flex-col">
             {children}

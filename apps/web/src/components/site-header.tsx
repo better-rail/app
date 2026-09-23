@@ -10,7 +10,7 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
   const t = useT()
 
   return (
-    <header className="sticky top-0 z-40">
+    <header data-site-header className="sticky top-0 z-40">
       <div
         className={cn(
           "border-b backdrop-blur-md transition-colors",

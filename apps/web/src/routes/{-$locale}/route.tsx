@@ -1,4 +1,4 @@
-import { Outlet, createFileRoute, notFound, redirect, useMatches } from "@tanstack/react-router"
+import { Outlet, createFileRoute, notFound, redirect } from "@tanstack/react-router"
 import { resolveLocale } from "@/i18n"
 import { SiteLayout } from "@/components/site-layout"
 
@@ -18,11 +18,8 @@ export const Route = createFileRoute("/{-$locale}")({
 
 function LocaleLayout() {
   const { locale } = Route.useRouteContext()
-  const onResultsPage = useMatches({
-    select: (matches) => matches.some((match) => match.routeId === "/{-$locale}/routes/$from/$to"),
-  })
   return (
-    <SiteLayout locale={locale} showHeader={!onResultsPage}>
+    <SiteLayout locale={locale}>
       <Outlet />
     </SiteLayout>
   )
