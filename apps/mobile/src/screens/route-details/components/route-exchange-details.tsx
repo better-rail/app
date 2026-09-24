@@ -73,7 +73,15 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
 
   return (
     <View style={[styles.wrapper, style]}>
-      {alternatives.length === 0 && <ChangeDirectionButton buttonStyle={styles.icon} />}
+      {alternatives.length === 0 && (
+        <ChangeDirectionButton
+          buttonStyle={styles.icon}
+          disabled
+          accessible={false}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+        />
+      )}
       {alternatives.length > 0 && (
         <ChangeDirectionButton
           testID="change-station-button"
