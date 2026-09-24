@@ -31,6 +31,7 @@ const stations: Station[] = [
     lat: 32.083715,
     lon: 34.798247,
     image: require("../../assets/station-images/tlv-center.jpg"),
+    alias: ["ארלוזרוב"],
   },
   {
     id: "3500",

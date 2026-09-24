@@ -3,6 +3,7 @@ import Fuse from "fuse.js"
 import { setStationLocale, useStations } from "./stations"
 
 const appendedStationNames = [
+  { id: "3700", canonicalName: "תל אביב - סבידור מרכז", keywords: ["ארלוזרוב"] },
   { id: "1280", canonicalName: "בית שאן", keywords: ["דוד לוי", "David Levy", "Давид Леви", "دڤيد لِڤي"] },
   {
     id: "3600",
