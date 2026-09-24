@@ -1,92 +1,97 @@
 //
-//  TokenRegistry keep tracks of the current ride Ids and their activity tokens
-//  It makes sure we don't register new rides if they already exist, and whether we shuold update
-//  a token for a ride in the API if the token has changed over the course of an activity.
+//  TokenRegistry tracks each Live Activity's push token and server ride ID, keyed by activity ID,
+//  so a token (or its rotation) is always tied to the activity it belongs to and never starts a second ride.
 //
 
 import Foundation
 
-struct RideToken: Hashable {
-  let rideId: String
-  let token: String
+struct ActivityRegistration {
+  var token: String?
+  /// nil until the server answers the start request.
+  var rideId: String?
+  var failed = false
 }
 
-enum TokenRegistryResponse {
-  case registeredNew
-  case registeredUpdate
-  case alreadyExists
-  case deleted
+/// What the server needs after an activity reports a push token.
+enum TokenRegistration {
+  case startRide
+  case updateToken(rideId: String)
+  case nothing
+}
+
+enum RideRegistrationResult {
+  case registered(rideId: String)
   case failed
+  case ended
+  case timedOut
 }
 
-/// keeps track of the activity token registrations, and makes sure we don't register the same token twice
 actor TokenRegistry {
-  private var registeredTokens: Set<RideToken> = Set()
-    
-  func registerTokenIfNew(rideId: String, token: String) -> TokenRegistryResponse {
-    let rideToken = RideToken(rideId: rideId, token: token)
-    
-    if registeredTokens.contains(rideToken) {
-      return .alreadyExists
-    } else {
-      let existingRide = registeredTokens.first(where: { $0.token == token } )
-      
-      // check if the Ride Id exists but the token is different
-      if (existingRide != nil && existingRide!.token != token) {
-        registeredTokens.remove(existingRide!)
-        registeredTokens.insert(rideToken)
-        return .registeredUpdate
-      } else {
-        registeredTokens.insert(rideToken)
-        return .registeredNew
-      }
-     }
-  }
-  
-  func updateRideId(rideId: String, token: String) -> TokenRegistryResponse {
+  private var registrations: [String: ActivityRegistration] = [:]
+  /// Removed activities, so a token that arrives late can't re-register one and start an orphan ride.
+  private var endedActivityIds: Set<String> = []
 
-    if let existingRide = registeredTokens.first(where: { $0.token == token } ) {
-      registeredTokens.remove(existingRide)
-      let updatedToken = RideToken(rideId: rideId, token: token)
-      registeredTokens.insert(updatedToken)
-      return .registeredUpdate
+  /// Called right after requesting an activity, so `awaitRideId` can tell "no token yet" from "ended".
+  func track(activityId: String) {
+    if registrations[activityId] == nil {
+      registrations[activityId] = ActivityRegistration()
     }
-    
-    return .failed
   }
-  
-  func deleteRideToken(rideId: String) -> TokenRegistryResponse {
-    if let rideToken = registeredTokens.first(where: { $0.rideId == rideId } ) {
-      registeredTokens.remove(rideToken)
-      return .deleted
+
+  func registerToken(activityId: String, token: String) -> TokenRegistration {
+    if endedActivityIds.contains(activityId) { return .nothing }
+
+    var registration = registrations[activityId] ?? ActivityRegistration()
+    if registration.token == token { return .nothing }
+
+    let isFirstToken = registration.token == nil
+    registration.token = token
+    registrations[activityId] = registration
+
+    if isFirstToken { return .startRide }
+    // A rotation during the start request is sent once `setRideId` returns the latest token.
+    guard let rideId = registration.rideId else { return .nothing }
+    return .updateToken(rideId: rideId)
+  }
+
+  /// Stores the server's ride ID and returns the activity's latest token, or nil if the activity ended meanwhile.
+  func setRideId(activityId: String, rideId: String) -> String? {
+    guard var registration = registrations[activityId] else { return nil }
+    registration.rideId = rideId
+    registrations[activityId] = registration
+    return registration.token
+  }
+
+  func markFailed(activityId: String) {
+    registrations[activityId]?.failed = true
+  }
+
+  func delete(activityId: String) {
+    registrations.removeValue(forKey: activityId)
+    endedActivityIds.insert(activityId)
+  }
+
+  func deleteRide(rideId: String) {
+    if let activityId = registrations.first(where: { $0.value.rideId == rideId })?.key {
+      delete(activityId: activityId)
     }
-    
-    return .failed
   }
-  
-  func getTokens() -> Set<RideToken> {
-    return registeredTokens
-  }
-  
-  func awaitNewTokenRegistration() async -> RideToken {
-    return await withUnsafeContinuation { continuation in
-      Task.detached {
-        while true {
-          let existingTokens = await self.registeredTokens
-          try await Task.sleep(nanoseconds: 1_000_000_000) // sleep for 1 second
-          
-          // check if any new token was registered
-          if await self.registeredTokens.subtracting(existingTokens).count > 0 {
-            // get the newly registered token and resume the continuation
-            if let token = await self.registeredTokens.subtracting(existingTokens).first {
-              if (token.rideId != "") {
-                continuation.resume(returning: token)
-                return
-              }
-            }
-          }
-        }
+
+  func awaitRideId(activityId: String, timeout: TimeInterval) async -> RideRegistrationResult {
+    let deadline = Date().addingTimeInterval(timeout)
+
+    while true {
+      guard let registration = registrations[activityId] else { return .ended }
+      if let rideId = registration.rideId { return .registered(rideId: rideId) }
+      if registration.failed { return .failed }
+
+      // Check and drop in one actor turn, so a ride ID landing later makes `setRideId` return nil and end the server ride.
+      if Date() >= deadline {
+        delete(activityId: activityId)
+        return .timedOut
       }
+
+      try? await Task.sleep(nanoseconds: 250_000_000)
     }
   }
 }
