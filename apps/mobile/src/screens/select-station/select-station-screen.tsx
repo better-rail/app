@@ -42,7 +42,6 @@ export function SelectStationScreen() {
   const [replacingStationId, setReplacingStationId] = useState<string>()
   const queryClient = useQueryClient()
   const setRouteItem = useNavigationParamsStore((s) => s.setRouteItem)
-  const isDismissed = useRef(false)
   const { filteredStations } = useFilteredStations(searchTerm)
   const listData = allowedStations ?? filteredStations
   const listRef = useRef<FlashListRef<NormalizedStation>>(null)
@@ -55,14 +54,6 @@ export function SelectStationScreen() {
     )
   }, [selectionType, allowedStations, queryClient])
 
-  useEffect(
-    () =>
-      navigation.addListener("beforeRemove", () => {
-        isDismissed.current = true
-      }),
-    [navigation],
-  )
-
   // Scroll back to the top whenever the search results change.
   useEffect(() => {
     listRef.current?.scrollToOffset({ offset: 0, animated: false })
@@ -72,9 +63,9 @@ export function SelectStationScreen() {
     if (replacingStationId) return
     setReplacingStationId(stationId)
     const replacement = await fetchChangeStationRoute(queryClient, stationId).catch(() => null)
-    // The picker was closed mid-search
-    if (isDismissed.current) return
     setReplacingStationId(undefined)
+    // The picker was closed or covered by another screen mid-search
+    if (!navigation.isFocused()) return
     if (!replacement) {
       Burnt.alert({ title: translate("routeDetails.noRouteViaStation"), preset: "error", message: "" })
       return
