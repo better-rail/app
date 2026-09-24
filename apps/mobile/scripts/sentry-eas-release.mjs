@@ -15,10 +15,12 @@ export const SENTRY_REPOSITORY = "better-rail/app"
 const DEFAULT_SENTRY_URL = "https://sentry.io/"
 const APP_DIR = fileURLToPath(new URL("..", import.meta.url))
 
+/** Run commit association only for production EAS builds with uploads enabled. */
 export function shouldAssociateCommits(env) {
   return env.EAS_BUILD === "true" && env.EAS_BUILD_PROFILE === "production" && env.SENTRY_DISABLE_AUTO_UPLOAD !== "true"
 }
 
+/** Select the application identifier used as the Sentry release prefix. */
 export function getPlatformIdentifier(platform, expoConfig) {
   if (platform === "android") {
     return expoConfig.android?.package
@@ -82,6 +84,7 @@ function readNativeBuildVersion(platform, identifier) {
   throw new Error(`Unsupported EAS_BUILD_PLATFORM=${platform}.`)
 }
 
+/** Find the most recent earlier release for this platform with an associated commit. */
 export function findPreviousCommit(releases, { currentRelease, releasePrefix }) {
   return releases.find(
     (release) =>
@@ -91,6 +94,7 @@ export function findPreviousCommit(releases, { currentRelease, releasePrefix }) 
   )?.lastCommit.id
 }
 
+/** Build a Sentry repository revision or revision range for set-commits. */
 export function buildCommitSpec(previousCommit, currentCommit) {
   const commitRange = previousCommit ? `${previousCommit}..${currentCommit}` : currentCommit
   return `${SENTRY_REPOSITORY}@${commitRange}`
