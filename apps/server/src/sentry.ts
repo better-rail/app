@@ -27,7 +27,16 @@ const scrubEvent = (event: ErrorEvent) => {
   return event
 }
 
-const scrubBreadcrumb = (breadcrumb: Breadcrumb) => scrubTokens(breadcrumb) as Breadcrumb
+const scrubBreadcrumb = (breadcrumb: Breadcrumb) => {
+  // Outgoing request queries can carry credentials (SIRI takes its key as `?Key=`), so keep only the path.
+  if (breadcrumb.data) {
+    delete breadcrumb.data["http.query"]
+    delete breadcrumb.data["http.fragment"]
+    if (typeof breadcrumb.data.url === "string") breadcrumb.data.url = breadcrumb.data.url.split(/[?#]/)[0]
+  }
+
+  return scrubTokens(breadcrumb) as Breadcrumb
+}
 
 /** Reads SENTRY_DSN, so it stays off locally. Tracing stays off: spans would carry push tokens unscrubbed. */
 export const initSentry = (options: Parameters<typeof Sentry.init>[0] = {}) => {

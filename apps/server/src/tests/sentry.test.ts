@@ -71,3 +71,14 @@ test("sends a repeated failure once per throttle window, and ignores warnings", 
 
   expect(await logged()).toHaveLength(1)
 })
+
+test("drops query strings from outgoing request breadcrumbs", async () => {
+  Sentry.addBreadcrumb({
+    category: "http",
+    data: { url: "https://siri.example/json?Key=SECRETKEY&MonitoringRef=1", "http.query": "?Key=SECRETKEY" },
+  })
+  logger.error("SIRI poll failed", { error: new Error("timeout") })
+
+  const [event] = await logged()
+  expect(event.breadcrumbs?.at(-1)?.data).toEqual({ url: "https://siri.example/json" })
+})
