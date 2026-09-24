@@ -28,6 +28,8 @@ enum RideRegistrationResult {
 
 actor TokenRegistry {
   private var registrations: [String: ActivityRegistration] = [:]
+  /// Removed activities, so a token that arrives late can't re-register one and start an orphan ride.
+  private var endedActivityIds: Set<String> = []
 
   /// Called right after requesting an activity, so `awaitRideId` can tell "no token yet" from "ended".
   func track(activityId: String) {
@@ -37,6 +39,8 @@ actor TokenRegistry {
   }
 
   func registerToken(activityId: String, token: String) -> TokenRegistration {
+    if endedActivityIds.contains(activityId) { return .nothing }
+
     var registration = registrations[activityId] ?? ActivityRegistration()
     if registration.token == token { return .nothing }
 
@@ -64,11 +68,12 @@ actor TokenRegistry {
 
   func delete(activityId: String) {
     registrations.removeValue(forKey: activityId)
+    endedActivityIds.insert(activityId)
   }
 
   func deleteRide(rideId: String) {
     if let activityId = registrations.first(where: { $0.value.rideId == rideId })?.key {
-      registrations.removeValue(forKey: activityId)
+      delete(activityId: activityId)
     }
   }
 
