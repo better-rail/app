@@ -139,12 +139,12 @@ export const normalizeRailFares = (
   const normalizedProfiles: FareProfile[] = profiles.result
     .map((p) => {
       const rail = discounts.get(p.profile_Id) ?? { single: 0, daily: 0, monthly: 0 }
-      const { discounts: rates, applied } = withTopUpDiscounts(p.profile_Id, rail)
+      const { discounts: rates, atTopUp } = withTopUpDiscounts(p.profile_Id, rail)
       return {
         id: p.profile_Id,
         name: { he: p.heb_Profile_Desc.trim(), en: text(p.eng_Desc), ar: text(p.arb_Desc), ru: text(p.rus_Desc) },
         discounts: rates,
-        discountAtTopUp: applied,
+        discountAtTopUp: atTopUp,
         note: notes.get(p.profile_Id) ?? null,
       }
     })

@@ -60,7 +60,9 @@ describe("normalizeRailFares", () => {
     expect(byId(40).discounts).toEqual({ single: 0.5, daily: 0, monthly: 0.5 })
     expect(byId(41).discounts).toEqual({ single: 0.5, daily: 0, monthly: 0.5 })
     expect(byId(43).discounts).toEqual({ single: 0.5, daily: 0, monthly: 0 })
-    expect([33, 19, 3, 5, 40, 41, 43].every((id) => byId(id).discountAtTopUp)).toBe(true)
+    expect([33, 19, 3, 5, 40, 41].every((id) => byId(id).discountAtTopUp)).toBe(true)
+    // The escort's discount is on the ticket itself, not at top-up.
+    expect(byId(43).discountAtTopUp).toBe(false)
     // Periphery residents really are monthly-only.
     expect(byId(48).discounts).toEqual({ single: 0, daily: 0, monthly: 0.5 })
     expect(byId(48).discountAtTopUp).toBe(false)
@@ -88,14 +90,14 @@ describe("withTopUpDiscounts", () => {
   it("only fills in a 0 rate, so a rate the rail API publishes wins", () => {
     expect(withTopUpDiscounts(33, { single: 0, daily: 0, monthly: 0.5 })).toEqual({
       discounts: { single: 0.5, daily: 0, monthly: 0.5 },
-      applied: true,
+      atTopUp: true,
     })
     expect(withTopUpDiscounts(33, { single: 0.4, daily: 0, monthly: 0.5 })).toEqual({
       discounts: { single: 0.4, daily: 0, monthly: 0.5 },
-      applied: false,
+      atTopUp: false,
     })
     const rates = { single: 0, daily: 0, monthly: 0.5 }
-    expect(withTopUpDiscounts(48, rates)).toEqual({ discounts: rates, applied: false })
+    expect(withTopUpDiscounts(48, rates)).toEqual({ discounts: rates, atTopUp: false })
   })
 })
 
