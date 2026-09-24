@@ -4,6 +4,10 @@ import { Message } from "firebase-admin/lib/messaging/messaging-api"
 import { firebaseAdminAuth } from "../data/config"
 import { logNames, logger } from "../logs"
 
+// FCM answers with these when Google's side hiccups; its docs say to retry.
+const TRANSIENT_CODES = new Set(["messaging/internal-error", "messaging/server-unavailable"])
+const RETRY_DELAY_MS = 1_000
+
 export const isFcmConfigured = () => Boolean(firebaseAdminAuth?.project_id)
 
 export const connectToFcm = () => {
@@ -19,5 +23,11 @@ export const connectToFcm = () => {
 }
 
 export const sendFcmNotification = async (message: Message) => {
-  return admin.messaging().send(message)
+  try {
+    return await admin.messaging().send(message)
+  } catch (error) {
+    if (!TRANSIENT_CODES.has((error as { code?: string })?.code ?? "")) throw error
+    await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS))
+    return admin.messaging().send(message)
+  }
 }
