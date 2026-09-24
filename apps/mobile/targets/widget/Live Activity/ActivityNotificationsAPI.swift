@@ -55,6 +55,8 @@ class ActivityNotificationsAPI {
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
     request.httpBody = httpBody
+    // Leave room within LiveActivitiesController.rideStartTimeout for the push token to arrive first.
+    request.timeoutInterval = 15
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
     do {

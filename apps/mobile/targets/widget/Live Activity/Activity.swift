@@ -51,21 +51,20 @@ class LiveActivitiesController {
   typealias LiveActivityRoute = Activity<BetterRailActivityAttributes>
   static let shared = LiveActivitiesController()
   static var env: String = "production"
-  static var rideId: String = ""
   static var route: Route? = nil
   static var tokenRegistry = TokenRegistry()
   static var currentActivity: Activity<BetterRailActivityAttributes>? = nil
   static var lastUpdateTime: Date? = nil
-  
-  /// Throws when the system refuses the activity, so the caller doesn't wait for a push token that never comes.
-  func startLiveActivity(route: Route) async throws {
+  /// How long a start waits for the push token and the server's ride ID.
+  static let rideStartTimeout: TimeInterval = 30
+
+  /// Returns the new activity's ID. Throws when the system refuses the activity, so the caller doesn't wait for a push token that never comes.
+  func startLiveActivity(route: Route) async throws -> String {
     guard ActivityAuthorizationInfo().areActivitiesEnabled else {
       throw NSError(domain: "live-activity", code: 1002, userInfo: [NSLocalizedDescriptionKey: "Live Activities are disabled."])
     }
 
     let route = trimmedForActivity(route)
-    // The new activity's first token must register without a ride ID; only the server response assigns one.
-    LiveActivitiesController.rideId = ""
 
     do {
       let initialContentState = try getActivityCurrentState(route: route)
@@ -75,11 +74,13 @@ class LiveActivitiesController {
       let activityContent = ActivityContent(state: initialContentState, staleDate: Date().addMinutes(2))
 
       let activity = try Activity.request(attributes: activityAttributes, content: activityContent, pushType: .token)
+      await LiveActivitiesController.tokenRegistry.track(activityId: activity.id)
       LiveActivitiesController.route = route
       LiveActivitiesController.currentActivity = activity
       LiveActivitiesController.lastUpdateTime = Date()
 
       print("Requested live activity, details: \(activity.attributes)")
+      return activity.id
     } catch (let error) {
       print("Error occurred during live activity initial request \(error.localizedDescription).")
       throw error
@@ -122,9 +123,10 @@ class LiveActivitiesController {
 
               case .dismissed, .ended:
                   print("activity has ended")
-                  // Skip activities already cleaned up (ended from the app), so a late event can't end a newer ride.
+                  // Dropping the registration also releases a start still waiting on this activity.
+                  await LiveActivitiesController.tokenRegistry.delete(activityId: activity.id)
                   if activity.id == LiveActivitiesController.currentActivity?.id {
-                    await endLiveActivity(rideId: LiveActivitiesController.rideId)
+                    clearCurrentActivity()
                   }
 
             case .stale:
@@ -142,52 +144,70 @@ class LiveActivitiesController {
         // Listen to push token updates of each active activity.
         for await token in activity.pushTokenUpdates {
           let decodedToken = token.map { String(format: "%02x", $0) }.joined()
-          let rideId = LiveActivitiesController.rideId
-          
-          let registerResponse = await LiveActivitiesController.tokenRegistry.registerTokenIfNew(rideId: rideId, token: decodedToken)
-          
-          if (registerResponse == .registeredNew) {
-            await registerLiveActivity(activity, token: decodedToken)
-          } else if (registerResponse == .registeredUpdate) {
-            await updateLiveActivityToken(rideId: rideId, token: decodedToken)
+
+          switch await LiveActivitiesController.tokenRegistry.registerToken(activityId: activity.id, token: decodedToken) {
+          case .startRide:
+            registerLiveActivity(activity, token: decodedToken)
+          case .updateToken(let rideId):
+            await ActivityNotificationsAPI.updateRideToken(rideId: rideId, token: decodedToken)
+          case .nothing:
+            break
           }
         }
     }
   }
 
 
-  private func registerLiveActivity(_ activity: LiveActivityRoute, token: String) async {
+  private func registerLiveActivity(_ activity: LiveActivityRoute, token: String) {
     let details = activity.attributes
           
     let ride = Ride(token: token, departureDate: details.departureTime, originId: details.originStationId, destinationId: details.destinationStationId, trains: details.trainNumbers, locale: "en", viaStationId: details.viaStationId)
 
     Task.init {
-      if let rideId = await ActivityNotificationsAPI.startRide(ride: ride) {
-        LiveActivitiesController.rideId = rideId
-        await LiveActivitiesController.tokenRegistry.updateRideId(rideId: rideId, token: token)
-
-        print("Live activity (\(activity.id)) registered.")
-      } else {
-        // startRide returns nil on any server failure; flag it so the RN promise rejects instead of hanging.
-        await LiveActivitiesController.tokenRegistry.updateRideId(rideId: "ERROR", token: token)
+      // startRide returns nil on any server failure; flag it so the waiting start rejects.
+      guard let rideId = await ActivityNotificationsAPI.startRide(ride: ride) else {
+        await LiveActivitiesController.tokenRegistry.markFailed(activityId: activity.id)
+        return
       }
+
+      guard let latestToken = await LiveActivitiesController.tokenRegistry.setRideId(activityId: activity.id, rideId: rideId) else {
+        // The activity ended (or the start timed out) while the request was in flight.
+        _ = try? await ActivityNotificationsAPI.endRide(rideId: rideId)
+        return
+      }
+
+      if latestToken != token {
+        await ActivityNotificationsAPI.updateRideToken(rideId: rideId, token: latestToken)
+      }
+
+      print("Live activity (\(activity.id)) registered.")
     }
   }
-  
-  private func updateLiveActivityToken(rideId: String, token: String) async {
-    await ActivityNotificationsAPI.updateRideToken(rideId: rideId, token: token)
+
+  func endLiveActivity(rideId: String) async {
+    // Clear before awaiting `end`, so the `.ended` event it triggers finds nothing left to clean up.
+    let activity = LiveActivitiesController.currentActivity
+    clearCurrentActivity()
+
+    await LiveActivitiesController.tokenRegistry.deleteRide(rideId: rideId)
+    await activity?.end(dismissalPolicy: .immediate)
+    print("Ride (\(rideId)) ended.")
   }
 
-  func endLiveActivity(rideId: String) async -> TokenRegistryResponse {
-    await LiveActivitiesController.currentActivity?.end(dismissalPolicy: .immediate)
+  /// Ends an activity whose ride never started.
+  func endLiveActivity(activityId: String) async {
+    let activity = Activity<BetterRailActivityAttributes>.activities.first(where: { $0.id == activityId })
+    if activityId == LiveActivitiesController.currentActivity?.id {
+      clearCurrentActivity()
+    }
+
+    await LiveActivitiesController.tokenRegistry.delete(activityId: activityId)
+    await activity?.end(dismissalPolicy: .immediate)
+  }
+
+  private func clearCurrentActivity() {
     LiveActivitiesController.currentActivity = nil
     LiveActivitiesController.route = nil
     LiveActivitiesController.lastUpdateTime = nil
-    LiveActivitiesController.rideId = ""
-
-    let deleteResult = await LiveActivitiesController.tokenRegistry.deleteRideToken(rideId: rideId)
-    print("Ride (\(rideId)) ended.")
-    
-    return deleteResult
   }
 }
