@@ -1,7 +1,17 @@
 /* eslint-disable react-native/no-inline-styles */
 
 import * as React from "react"
-import { ImageBackground, View, Platform, Dimensions, ImageSourcePropType, ViewStyle, Image, Appearance } from "react-native"
+import {
+  ActivityIndicator,
+  ImageBackground,
+  View,
+  Platform,
+  Dimensions,
+  ImageSourcePropType,
+  ViewStyle,
+  Image,
+  Appearance,
+} from "react-native"
 import { StyleSheet, withUnistyles } from "react-native-unistyles"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import LinearGradient from "react-native-linear-gradient"
@@ -35,9 +45,16 @@ export interface StationCardProps extends TouchableScaleProps {
   name: string
   image: ImageSourcePropType
   style?: ViewStyle
+  loading?: boolean
 }
 export function StationCard(props: StationCardProps) {
-  const { name, image, style, ...rest } = props
+  const { name, image, style, loading, ...rest } = props
+
+  const loadingOverlay = loading && (
+    <View style={styles.loadingOverlay}>
+      <ActivityIndicator size="large" color="white" />
+    </View>
+  )
 
   if (!name) {
     return (
@@ -62,6 +79,7 @@ export function StationCard(props: StationCardProps) {
         <LinearGradient style={styles.gardient} colors={["rgba(0, 0, 0, 0.05)", "rgba(0, 0, 0, 0.3)"]} />
 
         <Text style={styles.text}>{name}</Text>
+        {loadingOverlay}
       </ThemedTouchableScale>
     )
   }
@@ -75,6 +93,7 @@ export function StationCard(props: StationCardProps) {
         />
 
         <Text style={styles.text}>{name}</Text>
+        {loadingOverlay}
       </ImageBackground>
     </ThemedTouchableScale>
   )
@@ -128,6 +147,13 @@ const styles = StyleSheet.create((theme) => ({
   },
   emptyCardText: {
     color: theme.colors.dim,
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.45)",
+    borderRadius: isLiquidGlassSupported ? 14 : 6,
   },
   gardient: {
     height: "100%",

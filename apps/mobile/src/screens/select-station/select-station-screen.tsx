@@ -1,17 +1,18 @@
 import React, { useEffect, useMemo, useRef, useState } from "react"
-import { View, Pressable, Platform, ActivityIndicator } from "react-native"
+import { View, Pressable, Platform } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text, StationCard, FavoriteRoutes } from "@/components"
 import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore, useRecentSearchesStore, useFavoritesStore } from "@/models"
 import { useRouter, useLocalSearchParams } from "expo-router"
-import { spacing, isDarkMode } from "@/theme"
+import { isDarkMode } from "@/theme"
 import { NormalizedStation, useStations } from "@/data/stations"
 import { SearchInput } from "./search-input"
 import { RecentSearchesBox } from "./recent-searches-box/recent-searches-box"
 import { FlashList, FlashListRef } from "@shopify/flash-list"
 import { useFilteredStations } from "@/hooks"
-import { replaceChangeStation } from "@/screens/route-details/replace-change-station"
+import { replaceChangeStation, prefetchChangeStations } from "@/screens/route-details/replace-change-station"
+import { useQueryClient } from "react-query"
 import * as Burnt from "burnt"
 import { translate } from "@/i18n"
 
@@ -36,10 +37,19 @@ export function SelectStationScreen() {
   const recentSearchEntries = useRecentSearchesStore((s) => s.entries)
   const favoriteRoutesData = useFavoritesStore((s) => s.routes)
   const [searchTerm, setSearchTerm] = useState("")
-  const [isReplacing, setIsReplacing] = useState(false)
+  const [replacingStationId, setReplacingStationId] = useState<string>()
+  const queryClient = useQueryClient()
   const { filteredStations } = useFilteredStations(searchTerm)
   const listData = allowedStations ?? filteredStations
   const listRef = useRef<FlashListRef<NormalizedStation>>(null)
+
+  useEffect(() => {
+    if (selectionType !== "via" || !allowedStations) return
+    prefetchChangeStations(
+      queryClient,
+      allowedStations.map((s) => s.id),
+    )
+  }, [selectionType, allowedStations, queryClient])
 
   // Scroll back to the top whenever the search results change.
   useEffect(() => {
@@ -47,10 +57,10 @@ export function SelectStationScreen() {
   }, [searchTerm])
 
   const pickChangeStation = async (stationId: string) => {
-    if (isReplacing) return
-    setIsReplacing(true)
-    const replaced = await replaceChangeStation(stationId).catch(() => false)
-    setIsReplacing(false)
+    if (replacingStationId) return
+    setReplacingStationId(stationId)
+    const replaced = await replaceChangeStation(queryClient, stationId).catch(() => false)
+    setReplacingStationId(undefined)
     if (!replaced) {
       Burnt.alert({ title: translate("routeDetails.noRouteViaStation"), preset: "error", message: "" })
       return
@@ -64,6 +74,8 @@ export function SelectStationScreen() {
       name={station.name}
       image={station.image}
       style={styles.stationCard}
+      loading={station.id === replacingStationId}
+      disabled={!!replacingStationId}
       onPress={() => {
         if (selectionType === "origin") {
           saveRecentSearch({ id: station.id })
@@ -106,7 +118,7 @@ export function SelectStationScreen() {
         keyExtractor={(item) => item.id}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.listContent}
-        ListFooterComponent={isReplacing ? <ActivityIndicator style={{ marginTop: spacing[3] }} /> : null}
+        extraData={replacingStationId}
         // Disabled: otherwise FlashList may scroll the list out of view when results change between keystrokes.
         maintainVisibleContentPosition={{ disabled: true }}
         ListEmptyComponent={() =>
