@@ -55,10 +55,17 @@ class RNBetterRail: NSObject {
     do {
       let route = try decoder.decode(Route.self, from: routeJSON.data(using: .utf8)!)
       Task {
-        await LiveActivitiesController.shared.startLiveActivity(route: route)
+        let knownTokens = await LiveActivitiesController.tokenRegistry.getTokens()
+
+        do {
+          try await LiveActivitiesController.shared.startLiveActivity(route: route)
+        } catch {
+          reject("error", "An error occurred while starting activity from RN", error)
+          return
+        }
 
         // wait for the token to have it's ride Id assigned
-        let newToken = await LiveActivitiesController.tokenRegistry.awaitNewTokenRegistration()
+        let newToken = await LiveActivitiesController.tokenRegistry.awaitNewTokenRegistration(since: knownTokens)
         
         // handle an errored ride
         if (newToken.rideId == "ERROR") {
@@ -71,7 +78,8 @@ class RNBetterRail: NSObject {
           // Create the NSError object
           let error = NSError(domain: errorDomain, code: errorCode, userInfo: errorUserInfo)
     
-          await LiveActivitiesController.tokenRegistry.deleteRideToken(rideId: "ERROR")
+          // Also end the on-device activity, since the server won't be pushing updates to it.
+          _ = await LiveActivitiesController.shared.endLiveActivity(rideId: "ERROR")
           reject("error", "An error occurred while starting activity from RN", error)
         } else {
           resolve(newToken.rideId)

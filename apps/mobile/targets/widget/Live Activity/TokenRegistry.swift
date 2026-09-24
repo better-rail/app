@@ -25,22 +25,20 @@ actor TokenRegistry {
     
   func registerTokenIfNew(rideId: String, token: String) -> TokenRegistryResponse {
     let rideToken = RideToken(rideId: rideId, token: token)
-    
+
     if registeredTokens.contains(rideToken) {
       return .alreadyExists
-    } else {
-      let existingRide = registeredTokens.first(where: { $0.token == token } )
-      
-      // check if the Ride Id exists but the token is different
-      if (existingRide != nil && existingRide!.token != token) {
-        registeredTokens.remove(existingRide!)
-        registeredTokens.insert(rideToken)
-        return .registeredUpdate
-      } else {
-        registeredTokens.insert(rideToken)
-        return .registeredNew
-      }
-     }
+    }
+
+    // A registered ride whose token rotated: swap the token instead of starting a second ride.
+    if !rideId.isEmpty, let existingRide = registeredTokens.first(where: { $0.rideId == rideId }) {
+      registeredTokens.remove(existingRide)
+      registeredTokens.insert(rideToken)
+      return .registeredUpdate
+    }
+
+    registeredTokens.insert(rideToken)
+    return .registeredNew
   }
   
   func updateRideId(rideId: String, token: String) -> TokenRegistryResponse {
@@ -68,25 +66,14 @@ actor TokenRegistry {
     return registeredTokens
   }
   
-  func awaitNewTokenRegistration() async -> RideToken {
-    return await withUnsafeContinuation { continuation in
-      Task.detached {
-        while true {
-          let existingTokens = await self.registeredTokens
-          try await Task.sleep(nanoseconds: 1_000_000_000) // sleep for 1 second
-          
-          // check if any new token was registered
-          if await self.registeredTokens.subtracting(existingTokens).count > 0 {
-            // get the newly registered token and resume the continuation
-            if let token = await self.registeredTokens.subtracting(existingTokens).first {
-              if (token.rideId != "") {
-                continuation.resume(returning: token)
-                return
-              }
-            }
-          }
-        }
+  /// Waits for a token that isn't in `baseline` to get a ride ID (or "ERROR").
+  /// Diffing against a fixed baseline means a registration can't slip between polls.
+  func awaitNewTokenRegistration(since baseline: Set<RideToken>) async -> RideToken {
+    while true {
+      if let token = registeredTokens.subtracting(baseline).first(where: { !$0.rideId.isEmpty }) {
+        return token
       }
+      try? await Task.sleep(nanoseconds: 500_000_000)
     }
   }
 }
