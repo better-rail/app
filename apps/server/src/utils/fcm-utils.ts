@@ -4,8 +4,8 @@ import { Message } from "firebase-admin/lib/messaging/messaging-api"
 import { firebaseAdminAuth } from "../data/config"
 import { logNames, logger } from "../logs"
 
-// FCM answers with these when Google's side hiccups; its docs say to retry.
-const TRANSIENT_CODES = new Set(["messaging/internal-error", "messaging/server-unavailable"])
+// FCM answers 500 when Google's side hiccups; its docs say to retry. The SDK already retries 503 itself.
+const TRANSIENT_CODES = new Set(["messaging/internal-error"])
 const RETRY_DELAY_MS = 1_000
 
 export const isFcmConfigured = () => Boolean(firebaseAdminAuth?.project_id)
