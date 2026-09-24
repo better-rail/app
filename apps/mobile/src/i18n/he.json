@@ -210,7 +210,7 @@
     "general": "כללי",
     "studentRegular": "סטודנט רגיל",
     "studentExtended": "סטודנט מורחב",
-    "seniorCitizen": "אזרח ותיק",
+    "seniorCitizen": "אזרחית ותיקה (62–66)",
     "disabled": "נכה",
     "youth": "נוער",
     "socialSecurity": "זכאי ביטוח לאומי",
@@ -232,6 +232,7 @@
     "monthlyPass": "חופשי חודשי",
     "free": "חינם",
     "monthlyOnlyDiscount": "ההנחה לפרופיל זה חלה על חופשי חודשי בלבד.",
+    "topUpDiscount": "ההנחה ניתנת בטעינת ערך צבור לרב-קו, לא בקניית כרטיס.",
     "unavailable": "המחירים אינם זמינים כרגע.",
     "connectionError": "לא הצלחנו להתחבר לשרת. בדקו את החיבור לאינטרנט ונסו שוב.",
     "noFareForRoute": "לא נמצא מחיר למסלול זה."

@@ -191,7 +191,7 @@
     "general": "جنرال لواء ",
     "studentRegular": "طالب عادي ",
     "studentExtended": "طالب ممتد ",
-    "seniorCitizen": "مخضرم ",
+    "seniorCitizen": "امرأة 62–66",
     "disabled": "معاق",
     "youth": "شباب",
     "socialSecurity": "الضمان الاجتماعي",
@@ -213,6 +213,7 @@
     "monthlyPass": "اشتراك شهري",
     "free": "مجاناً",
     "monthlyOnlyDiscount": "يسري تخفيض هذا الملف الشخصي على الاشتراك الشهري فقط.",
+    "topUpDiscount": "يُمنح التخفيض عند شحن القيمة المتراكمة في راف-كاف، وليس عند شراء التذكرة.",
     "unavailable": "الأسعار غير متاحة حالياً.",
     "connectionError": "تعذّر الاتصال بالخادم. تحقّق من اتصالك وحاول ثانية.",
     "noFareForRoute": "لم يتم العثور على سعر لهذا المسار."
