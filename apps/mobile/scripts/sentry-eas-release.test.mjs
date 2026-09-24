@@ -3,7 +3,8 @@ import { test } from "node:test"
 
 import { getAndroidBuildVersion, getIosBuildVersion, getReleaseName } from "./sentry-eas-release.mjs"
 
-test("Android uses the version code written into the native project by EAS", () => {
+/** Guard against accidentally using the stale app-config versionCode on EAS. */
+function testAndroidRemoteVersion() {
   const gradleFile = `defaultConfig {
     versionCode 199
     versionName "2.8.2"
@@ -20,9 +21,10 @@ test("Android uses the version code written into the native project by EAS", () 
     }),
     "com.betterrail@2.8.2+199",
   )
-})
+}
 
-test("iOS reads the main app Release build number, not an extension build number", () => {
+/** Ensure an extension's build number cannot be selected for the main app release. */
+function testIosAppTargetVersion() {
   const projectFile = `/* Release */ = {
     buildSettings = {
       CURRENT_PROJECT_VERSION = 4;
@@ -39,4 +41,7 @@ test("iOS reads the main app Release build number, not an extension build number
   };`
 
   assert.equal(getIosBuildVersion(projectFile, "il.co.better-rail"), "200")
-})
+}
+
+test("Android uses the version code written into the native project by EAS", testAndroidRemoteVersion)
+test("iOS reads the main app Release build number, not an extension build number", testIosAppTargetVersion)

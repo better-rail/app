@@ -31,6 +31,7 @@ export function getPlatformIdentifier(platform, expoConfig) {
   return undefined
 }
 
+/** Match the release name used by Sentry's native source map upload. */
 export function getReleaseName({ platform, appVersion, buildVersion, expoConfig, sentryRelease }) {
   if (sentryRelease) {
     return sentryRelease
@@ -44,6 +45,7 @@ export function getReleaseName({ platform, appVersion, buildVersion, expoConfig,
   return `${identifier}@${appVersion}+${buildVersion}`
 }
 
+/** Read the versionCode after EAS applies its remote version to build.gradle. */
 export function getAndroidBuildVersion(gradleFile) {
   const versionCode = gradleFile.match(/^\s*versionCode\s+(\d+)\s*$/m)?.[1]
   if (!versionCode) {
@@ -52,6 +54,7 @@ export function getAndroidBuildVersion(gradleFile) {
   return versionCode
 }
 
+/** Find the Release build number for the app, excluding widget and watch targets. */
 export function getIosBuildVersion(projectFile, bundleIdentifier) {
   const configurations = projectFile.matchAll(/\/\* Release \*\/ = \{[\s\S]*?buildSettings = \{([\s\S]*?)\};\s*name = Release;/g)
   for (const [, settings] of configurations) {
@@ -64,6 +67,7 @@ export function getIosBuildVersion(projectFile, bundleIdentifier) {
   throw new Error(`Could not read CURRENT_PROJECT_VERSION for ${bundleIdentifier} from the iOS project.`)
 }
 
+/** Read the build number from the generated native project used for this build. */
 function readNativeBuildVersion(platform, identifier) {
   if (platform === "android") {
     return getAndroidBuildVersion(readFileSync(join(APP_DIR, "android/app/build.gradle"), "utf8"))
@@ -153,6 +157,7 @@ async function fetchProjectReleases(authToken) {
   return response.json()
 }
 
+/** Associate the EAS build commit with the uploaded Sentry release. */
 async function main() {
   if (!shouldAssociateCommits(process.env)) {
     console.log("[Sentry] Skipping commit association for this EAS build.")
