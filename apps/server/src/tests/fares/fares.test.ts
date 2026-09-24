@@ -2,6 +2,7 @@ import pricesFixture from "./fixtures/GetAllPriceWithNotes.json"
 import profilesFixture from "./fixtures/GetProfiles.json"
 import { RailPricesResponse, RailProfilesResponse, diffFareSnapshots, normalizeRailFares } from "../../fares/pull"
 import { findFare } from "../../fares/store"
+import { withTopUpDiscounts } from "../../fares/top-up-discounts"
 import { pairKey } from "../../fares/types"
 import { FareQuery } from "../../routes/fares"
 
@@ -46,6 +47,23 @@ describe("normalizeRailFares", () => {
     expect(snapshot.profiles.find((p) => p.id === 6)!.discounts).toEqual({ single: 1, daily: 1, monthly: 1 })
     expect(snapshot.profiles.find((p) => p.id === 47)!.discounts).toEqual({ single: 0, daily: 0, monthly: 0.33 })
     expect(snapshot.profiles.find((p) => p.id === 0)!.discounts).toEqual({ single: 0, daily: 0, monthly: 0 })
+    expect(senior.discountAtTopUp).toBe(false)
+    expect(snapshot.profiles.find((p) => p.id === 47)!.discountAtTopUp).toBe(false)
+  })
+
+  it("fills in the discounts the rail API reports as 0 because they are given at top-up", () => {
+    const byId = (id: number) => snapshot.profiles.find((p) => p.id === id)!
+    expect(byId(33).discounts).toEqual({ single: 0.5, daily: 0.5, monthly: 0.5 })
+    expect(byId(19).discounts).toEqual({ single: 0.33, daily: 0.33, monthly: 0 })
+    expect(byId(3).discounts).toEqual({ single: 0.5, daily: 0.5, monthly: 0.5 })
+    expect(byId(5).discounts).toEqual({ single: 0.5, daily: 0.5, monthly: 0.5 })
+    expect(byId(40).discounts).toEqual({ single: 0.5, daily: 0.5, monthly: 0.5 })
+    expect(byId(41).discounts).toEqual({ single: 0.5, daily: 0.5, monthly: 0.5 })
+    expect(byId(43).discounts).toEqual({ single: 0.5, daily: 0, monthly: 0 })
+    expect([33, 19, 3, 5, 40, 41, 43].every((id) => byId(id).discountAtTopUp)).toBe(true)
+    // Periphery residents really are monthly-only.
+    expect(byId(48).discounts).toEqual({ single: 0, daily: 0, monthly: 0.5 })
+    expect(byId(48).discountAtTopUp).toBe(false)
   })
 
   it("attaches the footnotes in four languages, null when the rail API has none", () => {
@@ -63,6 +81,21 @@ describe("normalizeRailFares", () => {
     const noPairs = { ...prices, result: { ...prices.result, allSourceToDestination: [] } }
     expect(() => normalizeRailFares(profiles, noPairs, PULLED_AT)).toThrow("no station pairs")
     expect(() => normalizeRailFares({ ...profiles, result: [] }, prices, PULLED_AT)).toThrow("no profiles")
+  })
+})
+
+describe("withTopUpDiscounts", () => {
+  it("only fills in a 0 rate, so a rate the rail API publishes wins", () => {
+    expect(withTopUpDiscounts(33, { single: 0.4, daily: 0, monthly: 0.5 })).toEqual({
+      discounts: { single: 0.4, daily: 0.5, monthly: 0.5 },
+      applied: true,
+    })
+    expect(withTopUpDiscounts(33, { single: 0.5, daily: 0.5, monthly: 0.5 })).toEqual({
+      discounts: { single: 0.5, daily: 0.5, monthly: 0.5 },
+      applied: false,
+    })
+    const rates = { single: 0, daily: 0, monthly: 0.5 }
+    expect(withTopUpDiscounts(48, rates)).toEqual({ discounts: rates, applied: false })
   })
 })
 
@@ -84,6 +117,7 @@ describe("diffFareSnapshots", () => {
       id: 99,
       name: { he: "חדש", en: null, ar: null, ru: null },
       discounts: { single: 0, daily: 0, monthly: 0 },
+      discountAtTopUp: false,
       note: null,
     })
 
