@@ -2,7 +2,7 @@ import { Ride } from "../types/ride"
 import { Scheduler } from "./scheduler"
 import { deleteRide } from "../data/redis"
 import { logNames, logger } from "../logs"
-import { RideNotInTimeError, rideFailureReason } from "../utils/errors"
+import { NotFoundRouteForRide, RideNotInTimeError, rideFailureReason } from "../utils/errors"
 
 const schedulers: Record<string, Scheduler> = {}
 
@@ -28,8 +28,9 @@ export const startRideNotifications = async (ride: Ride, isExisting: boolean = f
   } catch (error) {
     const reason = rideFailureReason(error)
 
-    // Warn, not error: the ride is outside the startable window, which isn't a server fault — but still log it.
-    if (error instanceof RideNotInTimeError) {
+    // Warn, not error: a ride outside the startable window isn't a server fault, and a missing
+    // route's cause was already logged as an error by getRouteForRide.
+    if (error instanceof RideNotInTimeError || error instanceof NotFoundRouteForRide) {
       rideLogger.warn(registerRideLog.failed, { reason, ...ride })
     } else {
       rideLogger.error(registerRideLog.failed, { error, reason, ...ride })
