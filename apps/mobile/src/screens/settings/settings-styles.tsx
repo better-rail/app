@@ -1,4 +1,4 @@
-import { TextStyle, ViewStyle } from "react-native"
+import { ViewStyle } from "react-native"
 import { color, spacing } from "@/theme"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 
@@ -15,12 +15,4 @@ export const SETTING_GROUP: ViewStyle = {
   shadowRadius: 0.25,
   shadowOpacity: 0.2,
   elevation: 1,
-}
-
-export const SETTING_GROUP_TITLE: TextStyle = {
-  marginStart: spacing[3],
-  marginBottom: spacing[0],
-  color: color.label,
-  fontSize: 16,
-  fontWeight: "600",
 }

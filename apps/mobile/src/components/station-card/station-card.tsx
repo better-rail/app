@@ -2,13 +2,14 @@
 
 import * as React from "react"
 import { ImageBackground, View, Platform, Dimensions, ImageSourcePropType, ViewStyle, Image, Appearance } from "react-native"
-import { StyleSheet } from "react-native-unistyles"
+import { StyleSheet, withUnistyles } from "react-native-unistyles"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import LinearGradient from "react-native-linear-gradient"
 import { color } from "@/theme"
 import { Text } from "@/components/text/text"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 
+const ThemedTouchableScale = withUnistyles(TouchableScale)
 const isDarkMode = Appearance.getColorScheme() === "dark"
 const { height: deviceHeight } = Dimensions.get("screen")
 
@@ -40,18 +41,18 @@ export function StationCard(props: StationCardProps) {
 
   if (!name) {
     return (
-      <TouchableScale style={[styles.container, style]} activeScale={0.95} friction={9} {...rest}>
+      <ThemedTouchableScale style={[styles.container, style]} activeScale={0.95} friction={9} {...rest}>
         <View style={styles.emptyCardWrapper}>
           <Image source={require("../../../assets/railway-station.png")} style={styles.emptyCardImage} />
           <Text style={styles.emptyCardText} tx="plan.selectStation" />
         </View>
-      </TouchableScale>
+      </ThemedTouchableScale>
     )
   }
 
   if (!image) {
     return (
-      <TouchableScale style={[styles.container, styles.imagelessCard, style]} activeScale={0.95} friction={9} {...rest}>
+      <ThemedTouchableScale style={[styles.container, styles.imagelessCard, style]} activeScale={0.95} friction={9} {...rest}>
         <LinearGradient
           style={styles.gardient}
           end={{ x: 1, y: 0 }}
@@ -61,12 +62,12 @@ export function StationCard(props: StationCardProps) {
         <LinearGradient style={styles.gardient} colors={["rgba(0, 0, 0, 0.05)", "rgba(0, 0, 0, 0.3)"]} />
 
         <Text style={styles.text}>{name}</Text>
-      </TouchableScale>
+      </ThemedTouchableScale>
     )
   }
 
   return (
-    <TouchableScale style={[styles.container, style]} activeScale={0.95} friction={9} {...rest}>
+    <ThemedTouchableScale style={[styles.container, style]} activeScale={0.95} friction={9} {...rest}>
       <ImageBackground imageStyle={styles.imageBackgroundImage} source={image} style={styles.background}>
         <LinearGradient
           style={styles.gardient}
@@ -75,7 +76,7 @@ export function StationCard(props: StationCardProps) {
 
         <Text style={styles.text}>{name}</Text>
       </ImageBackground>
-    </TouchableScale>
+    </ThemedTouchableScale>
   )
 }
 
