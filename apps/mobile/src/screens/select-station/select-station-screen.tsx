@@ -4,14 +4,15 @@ import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text, StationCard, FavoriteRoutes } from "@/components"
 import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore, useRecentSearchesStore, useFavoritesStore } from "@/models"
-import { useRouter, useLocalSearchParams } from "expo-router"
+import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
+import { useRouter, useLocalSearchParams, useNavigation } from "expo-router"
 import { isDarkMode } from "@/theme"
 import { NormalizedStation, useStations } from "@/data/stations"
 import { SearchInput } from "./search-input"
 import { RecentSearchesBox } from "./recent-searches-box/recent-searches-box"
 import { FlashList, FlashListRef } from "@shopify/flash-list"
 import { useFilteredStations } from "@/hooks"
-import { replaceChangeStation, prefetchChangeStations } from "@/screens/route-details/replace-change-station"
+import { fetchChangeStationRoute, prefetchChangeStations } from "@/screens/route-details/replace-change-station"
 import { useQueryClient } from "react-query"
 import * as Burnt from "burnt"
 import { translate } from "@/i18n"
@@ -20,6 +21,7 @@ export type SelectionType = "origin" | "destination" | "via"
 
 export function SelectStationScreen() {
   const router = useRouter()
+  const navigation = useNavigation()
   const { selectionType, stationIds } = useLocalSearchParams<{ selectionType: SelectionType; stationIds?: string }>()
   const allStations = useStations()
   const allowedStations = useMemo(() => {
@@ -39,6 +41,8 @@ export function SelectStationScreen() {
   const [searchTerm, setSearchTerm] = useState("")
   const [replacingStationId, setReplacingStationId] = useState<string>()
   const queryClient = useQueryClient()
+  const setRouteItem = useNavigationParamsStore((s) => s.setRouteItem)
+  const isDismissed = useRef(false)
   const { filteredStations } = useFilteredStations(searchTerm)
   const listData = allowedStations ?? filteredStations
   const listRef = useRef<FlashListRef<NormalizedStation>>(null)
@@ -51,6 +55,14 @@ export function SelectStationScreen() {
     )
   }, [selectionType, allowedStations, queryClient])
 
+  useEffect(
+    () =>
+      navigation.addListener("beforeRemove", () => {
+        isDismissed.current = true
+      }),
+    [navigation],
+  )
+
   // Scroll back to the top whenever the search results change.
   useEffect(() => {
     listRef.current?.scrollToOffset({ offset: 0, animated: false })
@@ -59,12 +71,15 @@ export function SelectStationScreen() {
   const pickChangeStation = async (stationId: string) => {
     if (replacingStationId) return
     setReplacingStationId(stationId)
-    const replaced = await replaceChangeStation(queryClient, stationId).catch(() => false)
+    const replacement = await fetchChangeStationRoute(queryClient, stationId).catch(() => null)
+    // The picker was closed mid-search
+    if (isDismissed.current) return
     setReplacingStationId(undefined)
-    if (!replaced) {
+    if (!replacement) {
       Burnt.alert({ title: translate("routeDetails.noRouteViaStation"), preset: "error", message: "" })
       return
     }
+    setRouteItem({ ...replacement, viaStationId: stationId })
     router.back()
   }
 

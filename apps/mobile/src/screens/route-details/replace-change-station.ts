@@ -28,25 +28,22 @@ function replacementQuery(stationId: string) {
   return { queryKey, queryFn }
 }
 
+// getRoutes also returns [] on network errors, so an empty result shouldn't stick
+function forgetIfEmpty(queryClient: QueryClient, queryKey: unknown[]) {
+  if (queryClient.getQueryData(queryKey) === null) queryClient.removeQueries(queryKey, { exact: true })
+}
+
 // Warm the cache so picking a station doesn't wait on the multi-leg search
 export function prefetchChangeStations(queryClient: QueryClient, stationIds: string[]) {
   for (const stationId of stationIds.slice(0, MAX_PREFETCH)) {
     const { queryKey, queryFn } = replacementQuery(stationId)
-    queryClient.prefetchQuery(queryKey, queryFn, { staleTime: STALE_TIME })
+    queryClient.prefetchQuery(queryKey, queryFn, { staleTime: STALE_TIME }).then(() => forgetIfEmpty(queryClient, queryKey))
   }
 }
 
-export async function replaceChangeStation(queryClient: QueryClient, stationId: string): Promise<boolean> {
+export async function fetchChangeStationRoute(queryClient: QueryClient, stationId: string): Promise<RouteItem | null> {
   const { queryKey, queryFn } = replacementQuery(stationId)
-  const replacement = await queryClient.fetchQuery(queryKey, queryFn, {
-    staleTime: STALE_TIME,
-  })
-  if (!replacement) {
-    // Don't keep a failed search around, so a retry hits the network again
-    queryClient.removeQueries(queryKey, { exact: true })
-    return false
-  }
-
-  useNavigationParamsStore.getState().setRouteItem({ ...replacement, viaStationId: stationId })
-  return true
+  const replacement = await queryClient.fetchQuery(queryKey, queryFn, { staleTime: STALE_TIME })
+  forgetIfEmpty(queryClient, queryKey)
+  return replacement
 }
