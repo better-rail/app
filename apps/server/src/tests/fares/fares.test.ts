@@ -53,12 +53,12 @@ describe("normalizeRailFares", () => {
 
   it("fills in the discounts the rail API reports as 0 because they are given at top-up", () => {
     const byId = (id: number) => snapshot.profiles.find((p) => p.id === id)!
-    expect(byId(33).discounts).toEqual({ single: 0.5, daily: 0.5, monthly: 0.5 })
-    expect(byId(19).discounts).toEqual({ single: 0.33, daily: 0.33, monthly: 0 })
-    expect(byId(3).discounts).toEqual({ single: 0.5, daily: 0.5, monthly: 0.5 })
-    expect(byId(5).discounts).toEqual({ single: 0.5, daily: 0.5, monthly: 0.5 })
-    expect(byId(40).discounts).toEqual({ single: 0.5, daily: 0.5, monthly: 0.5 })
-    expect(byId(41).discounts).toEqual({ single: 0.5, daily: 0.5, monthly: 0.5 })
+    expect(byId(33).discounts).toEqual({ single: 0.5, daily: 0, monthly: 0.5 })
+    expect(byId(19).discounts).toEqual({ single: 0.33, daily: 0, monthly: 0 })
+    expect(byId(3).discounts).toEqual({ single: 0.5, daily: 0, monthly: 0 })
+    expect(byId(5).discounts).toEqual({ single: 0.5, daily: 0, monthly: 0.5 })
+    expect(byId(40).discounts).toEqual({ single: 0.5, daily: 0, monthly: 0.5 })
+    expect(byId(41).discounts).toEqual({ single: 0.5, daily: 0, monthly: 0.5 })
     expect(byId(43).discounts).toEqual({ single: 0.5, daily: 0, monthly: 0 })
     expect([33, 19, 3, 5, 40, 41, 43].every((id) => byId(id).discountAtTopUp)).toBe(true)
     // Periphery residents really are monthly-only.
@@ -86,12 +86,12 @@ describe("normalizeRailFares", () => {
 
 describe("withTopUpDiscounts", () => {
   it("only fills in a 0 rate, so a rate the rail API publishes wins", () => {
-    expect(withTopUpDiscounts(33, { single: 0.4, daily: 0, monthly: 0.5 })).toEqual({
-      discounts: { single: 0.4, daily: 0.5, monthly: 0.5 },
+    expect(withTopUpDiscounts(33, { single: 0, daily: 0, monthly: 0.5 })).toEqual({
+      discounts: { single: 0.5, daily: 0, monthly: 0.5 },
       applied: true,
     })
-    expect(withTopUpDiscounts(33, { single: 0.5, daily: 0.5, monthly: 0.5 })).toEqual({
-      discounts: { single: 0.5, daily: 0.5, monthly: 0.5 },
+    expect(withTopUpDiscounts(33, { single: 0.4, daily: 0, monthly: 0.5 })).toEqual({
+      discounts: { single: 0.4, daily: 0, monthly: 0.5 },
       applied: false,
     })
     const rates = { single: 0, daily: 0, monthly: 0.5 }

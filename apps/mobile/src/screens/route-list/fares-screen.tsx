@@ -20,7 +20,6 @@ import {
   hasMonthlyOnlyDiscount,
   isFree,
   profileName,
-  profileNote,
   ridesFree,
 } from "@/utils/helpers/fare-helpers"
 
@@ -73,8 +72,8 @@ export function FaresScreen() {
     if (profiles.isError) profiles.refetch()
   }
   const monthlyOnly = selectedProfile ? hasMonthlyOnlyDiscount(selectedProfile) : false
-  // The rail API's footnote (always about top-up) reads as legalese, so it's replaced with our own wording.
-  const topUp = selectedProfile ? selectedProfile.discountAtTopUp || profileNote(selectedProfile, userLocale) !== null : false
+  // The rail API's footnote reads as legalese and is also attached to monthly-only profiles, so it isn't shown.
+  const topUp = selectedProfile?.discountAtTopUp ?? false
 
   return (
     <View style={styles.wrapper}>

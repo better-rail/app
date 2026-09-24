@@ -11,24 +11,25 @@
  *
  * A rate here only fills in a product the rail API reports as 0; a non-zero
  * rate from the API always wins, so a reform they publish takes effect on the
- * next pull without touching this file. The daily pass is bought from the same
- * stored value, so it gets the single-ride rate.
+ * next pull without touching this file. Only the single ride is listed: the
+ * daily and monthly passes are contracts the rail API prices directly, and
+ * its 0 there is deliberate (youth get no daily discount, senior women do).
  */
 import { FarePrices } from "./types"
 
 export const TOP_UP_DISCOUNTS: Record<number, Partial<FarePrices>> = {
-  // סטודנט מורחב: semester/annual pass holders — 50% at top-up, 45–50% on the pass.
-  3: { single: 0.5, daily: 0.5, monthly: 0.5 },
+  // סטודנט מורחב: semester/annual pass holders; the pass itself is a bundle, not the monthly fare shown.
+  3: { single: 0.5 },
   // נכה
-  5: { single: 0.5, daily: 0.5 },
+  5: { single: 0.5 },
   // סטודנט רגיל
-  19: { single: 0.33, daily: 0.33 },
+  19: { single: 0.33 },
   // ילד/נוער 5–18
-  33: { single: 0.5, daily: 0.5 },
+  33: { single: 0.5 },
   // זכאי ביטוח לאומי
-  40: { single: 0.5, daily: 0.5 },
+  40: { single: 0.5 },
   // נפגעי פעולות איבה
-  41: { single: 0.5, daily: 0.5 },
+  41: { single: 0.5 },
   // מלווה לקוי ראיה: 50% on a single ticket when riding with the blind person.
   43: { single: 0.5 },
 }
