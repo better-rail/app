@@ -73,9 +73,8 @@ export function FaresScreen() {
     if (profiles.isError) profiles.refetch()
   }
   const monthlyOnly = selectedProfile ? hasMonthlyOnlyDiscount(selectedProfile) : false
-  // The rail API's own footnote reads as a disclaimer; for a top-up profile say plainly how the discount arrives.
-  const topUp = selectedProfile?.discountAtTopUp ?? false
-  const note = selectedProfile && !topUp ? profileNote(selectedProfile, userLocale) : null
+  // The rail API's footnote (always about top-up) reads as legalese, so it's replaced with our own wording.
+  const topUp = selectedProfile ? selectedProfile.discountAtTopUp || profileNote(selectedProfile, userLocale) !== null : false
 
   return (
     <View style={styles.wrapper}>
@@ -140,7 +139,6 @@ export function FaresScreen() {
 
           {monthlyOnly && <Text style={styles.hint} tx="fares.monthlyOnlyDiscount" />}
           {topUp && <Text style={styles.hint} tx="fares.topUpDiscount" />}
-          {note && <Text style={styles.hint}>{note}</Text>}
         </>
       )}
     </View>

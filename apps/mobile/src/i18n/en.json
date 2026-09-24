@@ -231,7 +231,7 @@
     "monthlyPass": "Monthly pass",
     "free": "Free",
     "monthlyOnlyDiscount": "The discount for this profile applies to the monthly pass only.",
-    "topUpDiscount": "The discount is given as bonus stored value when topping up your RavKav; the ticket itself is charged at full price.",
+    "topUpDiscount": "The discount is applied when you load stored value onto your RavKav, not when buying the ticket. Tickets show the full price, but your stored value goes further.",
     "unavailable": "Fares aren't available right now.",
     "connectionError": "Couldn't reach the server. Check your connection and try again.",
     "noFareForRoute": "No fare found for this route."
