@@ -6,7 +6,7 @@ import { RouteCardHeight, RouteCardHeightWithHeader } from "@/components/route-c
 import { SettingBox } from "./components/settings-box"
 import { spacing } from "@/theme"
 import { translate } from "@/i18n"
-import { SETTING_GROUP, SETTING_GROUP_TITLE } from "./settings-styles"
+import { SETTING_GROUP } from "./settings-styles"
 import { useIsDarkMode } from "@/hooks"
 import { useShallow } from "zustand/react/shallow"
 import { useSettingsStore } from "@/models"
@@ -56,7 +56,7 @@ export function UISettingsScreen() {
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
       translucent
     >
-      <Text style={SETTING_GROUP_TITLE} tx="settings.routeCard" />
+      <Text style={styles.groupTitle} tx="settings.routeCard" />
       <Animated.View style={animatedCardStyle}>
         <RouteCardPreview cardStyle={styles.routeCard} />
       </Animated.View>
@@ -85,5 +85,11 @@ const styles = StyleSheet.create((theme) => ({
   },
   routeCard: {
     backgroundColor: theme.colors.secondaryBackground,
+  },
+  groupTitle: {
+    marginStart: theme.spacing[3],
+    color: theme.colors.label,
+    fontSize: 16,
+    fontWeight: "600",
   },
 }))

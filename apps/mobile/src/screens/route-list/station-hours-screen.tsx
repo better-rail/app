@@ -4,7 +4,7 @@ import { StyleSheet } from "react-native-unistyles"
 import { ScrollView } from "react-native-gesture-handler"
 import HapticFeedback from "react-native-haptic-feedback"
 import { Chip, Text } from "@/components"
-import { color, fontScale, spacing } from "@/theme"
+import { fontScale, spacing } from "@/theme"
 import { useQuery } from "react-query"
 import { railApi } from "@/services/api"
 import { dateFnsLocalization, isRTL, userLocale } from "@/i18n"
@@ -55,7 +55,7 @@ export function StationHoursScreen() {
                   }}
                   key={gate.stationGateId}
                 >
-                  <Text style={{ color: selected ? color.whiteText : color.text, textAlign: "center" }}>{gate.gateName}</Text>
+                  <Text style={[styles.gateText, selected && styles.selectedGateText]}>{gate.gateName}</Text>
                 </Chip>
               )
             })}
@@ -72,9 +72,9 @@ export function StationHoursScreen() {
                       <View style={{ flexDirection: "row", alignItems: "center", gap: isRTL ? spacing[3] : 0 }}>
                         <Text style={styles.hourText}>{activityHour.startHour}</Text>
                         {isRTL ? (
-                          <Image source={ARROW_LEFT} style={{ width: 12.5, height: 12.5, tintColor: color.text }} />
+                          <Image source={ARROW_LEFT} style={styles.arrow} />
                         ) : (
-                          <Text style={{ color: color.text, fontSize: fontScale * 18 }}>{" - "}</Text>
+                          <Text style={styles.separatorText}>{" - "}</Text>
                         )}
                         <Text style={styles.hourText}>{activityHour.endHour}</Text>
                       </View>
@@ -103,6 +103,22 @@ const styles = StyleSheet.create((theme, rt) => ({
   hourText: {
     fontSize: rt.fontScale * 20,
     color: theme.colors.text,
+  },
+  gateText: {
+    color: theme.colors.text,
+    textAlign: "center",
+  },
+  selectedGateText: {
+    color: theme.colors.whiteText,
+  },
+  arrow: {
+    width: 12.5,
+    height: 12.5,
+    tintColor: theme.colors.text,
+  },
+  separatorText: {
+    color: theme.colors.text,
+    fontSize: rt.fontScale * 18,
   },
 }))
 

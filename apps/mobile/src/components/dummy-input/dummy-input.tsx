@@ -1,7 +1,6 @@
 import * as React from "react"
 import { Platform, TouchableOpacity, ViewStyle, PressableProps } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { color } from "@/theme"
 import { Text } from "@/components/text/text"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 
@@ -46,8 +45,8 @@ export const DummyInput = function DummyInput(props: DummyInputProps) {
         activeOpacity={0.75}
         {...rest}
       >
-        <Text style={[styles.text, value && { color: color.text }]}>{label}</Text>
-        <Text style={value && { color: color.text }}>{value || placeholder}</Text>
+        <Text style={[styles.text, value && styles.valueText]}>{label}</Text>
+        <Text style={value && styles.valueText}>{value || placeholder}</Text>
       </TouchableOpacity>
     )
   }
@@ -58,7 +57,7 @@ export const DummyInput = function DummyInput(props: DummyInputProps) {
       activeOpacity={0.75}
       {...rest}
     >
-      <Text style={[styles.text, value && { color: color.text }]}>{value || placeholder}</Text>
+      <Text style={[styles.text, value && styles.valueText]}>{value || placeholder}</Text>
       {endSection}
     </TouchableOpacity>
   )
@@ -82,5 +81,8 @@ const styles = StyleSheet.create((theme) => ({
     fontSize: 16,
     textAlign: "left",
     color: theme.colors.dim,
+  },
+  valueText: {
+    color: theme.colors.text,
   },
 }))
