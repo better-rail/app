@@ -80,13 +80,18 @@ actor TokenRegistry {
   func awaitRideId(activityId: String, timeout: TimeInterval) async -> RideRegistrationResult {
     let deadline = Date().addingTimeInterval(timeout)
 
-    while Date() < deadline {
+    while true {
       guard let registration = registrations[activityId] else { return .ended }
       if let rideId = registration.rideId { return .registered(rideId: rideId) }
       if registration.failed { return .failed }
+
+      // Check and drop in one actor turn, so a ride ID landing later makes `setRideId` return nil and end the server ride.
+      if Date() >= deadline {
+        delete(activityId: activityId)
+        return .timedOut
+      }
+
       try? await Task.sleep(nanoseconds: 250_000_000)
     }
-
-    return .timedOut
   }
 }
