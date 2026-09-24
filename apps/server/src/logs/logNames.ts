@@ -105,6 +105,7 @@ export const logNames = {
     started: "SIRI poller started",
     disabled: "SIRI poller disabled (SIRI_URL / SIRI_KEY not set)",
     pollFailed: "SIRI poll cycle failed",
+    outage: "SIRI poller keeps failing — live data is stale",
     recovered: "SIRI poller recovered",
     notAuthorized: "SIRI API key is not authorized — check the egress IP allow-list",
     badStop: "SIRI rejected a stop code; evicting it for this feed",
