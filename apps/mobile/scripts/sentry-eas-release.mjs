@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "node:child_process"
+import { readFileSync, readdirSync } from "node:fs"
 import { createRequire } from "node:module"
-import { pathToFileURL } from "node:url"
+import { join } from "node:path"
+import { fileURLToPath, pathToFileURL } from "node:url"
 
 const require = createRequire(import.meta.url)
 
@@ -11,11 +13,14 @@ export const SENTRY_PROJECT = "better-rail"
 export const SENTRY_REPOSITORY = "better-rail/app"
 
 const DEFAULT_SENTRY_URL = "https://sentry.io/"
+const APP_DIR = fileURLToPath(new URL("..", import.meta.url))
 
+/** Run commit association only for production EAS builds with uploads enabled. */
 export function shouldAssociateCommits(env) {
   return env.EAS_BUILD === "true" && env.EAS_BUILD_PROFILE === "production" && env.SENTRY_DISABLE_AUTO_UPLOAD !== "true"
 }
 
+/** Select the application identifier used as the Sentry release prefix. */
 export function getPlatformIdentifier(platform, expoConfig) {
   if (platform === "android") {
     return expoConfig.android?.package
@@ -28,6 +33,7 @@ export function getPlatformIdentifier(platform, expoConfig) {
   return undefined
 }
 
+/** Match the release name used by Sentry's native source map upload. */
 export function getReleaseName({ platform, appVersion, buildVersion, expoConfig, sentryRelease }) {
   if (sentryRelease) {
     return sentryRelease
@@ -35,15 +41,50 @@ export function getReleaseName({ platform, appVersion, buildVersion, expoConfig,
 
   const identifier = getPlatformIdentifier(platform, expoConfig)
   if (!identifier || !appVersion || !buildVersion) {
-    throw new Error(
-      "Could not determine the Sentry release. EAS_BUILD_PLATFORM, EAS_BUILD_APP_VERSION, " +
-        "EAS_BUILD_APP_BUILD_VERSION, and the platform application identifier are required.",
-    )
+    throw new Error("Could not determine the Sentry release from the Expo app version and native build version.")
   }
 
   return `${identifier}@${appVersion}+${buildVersion}`
 }
 
+/** Read the versionCode after EAS applies its remote version to build.gradle. */
+export function getAndroidBuildVersion(gradleFile) {
+  const versionCode = gradleFile.match(/^\s*versionCode\s+(\d+)\s*$/m)?.[1]
+  if (!versionCode) {
+    throw new Error("Could not read versionCode from android/app/build.gradle.")
+  }
+  return versionCode
+}
+
+/** Find the Release build number for the app, excluding widget and watch targets. */
+export function getIosBuildVersion(projectFile, bundleIdentifier) {
+  const configurations = projectFile.matchAll(/\/\* Release \*\/ = \{[\s\S]*?buildSettings = \{([\s\S]*?)\};\s*name = Release;/g)
+  for (const [, settings] of configurations) {
+    const identifier = settings.match(/^\s*PRODUCT_BUNDLE_IDENTIFIER = "?([^";]+)"?;/m)?.[1]
+    if (identifier === bundleIdentifier) {
+      const buildNumber = settings.match(/^\s*CURRENT_PROJECT_VERSION = "?([^";]+)"?;/m)?.[1]
+      if (buildNumber) return buildNumber
+    }
+  }
+  throw new Error(`Could not read CURRENT_PROJECT_VERSION for ${bundleIdentifier} from the iOS project.`)
+}
+
+/** Read the build number from the generated native project used for this build. */
+function readNativeBuildVersion(platform, identifier) {
+  if (platform === "android") {
+    return getAndroidBuildVersion(readFileSync(join(APP_DIR, "android/app/build.gradle"), "utf8"))
+  }
+
+  if (platform === "ios") {
+    const project = readdirSync(join(APP_DIR, "ios")).find((entry) => entry.endsWith(".xcodeproj"))
+    if (!project) throw new Error("Could not find an iOS Xcode project.")
+    return getIosBuildVersion(readFileSync(join(APP_DIR, "ios", project, "project.pbxproj"), "utf8"), identifier)
+  }
+
+  throw new Error(`Unsupported EAS_BUILD_PLATFORM=${platform}.`)
+}
+
+/** Find the most recent earlier release for this platform with an associated commit. */
 export function findPreviousCommit(releases, { currentRelease, releasePrefix }) {
   return releases.find(
     (release) =>
@@ -53,6 +94,7 @@ export function findPreviousCommit(releases, { currentRelease, releasePrefix }) 
   )?.lastCommit.id
 }
 
+/** Build a Sentry repository revision or revision range for set-commits. */
 export function buildCommitSpec(previousCommit, currentCommit) {
   const commitRange = previousCommit ? `${previousCommit}..${currentCommit}` : currentCommit
   return `${SENTRY_REPOSITORY}@${commitRange}`
@@ -119,6 +161,7 @@ async function fetchProjectReleases(authToken) {
   return response.json()
 }
 
+/** Associate the EAS build commit with the uploaded Sentry release. */
 async function main() {
   if (!shouldAssociateCommits(process.env)) {
     console.log("[Sentry] Skipping commit association for this EAS build.")
@@ -139,17 +182,16 @@ async function main() {
 
   const expoConfig = readExpoConfig()
   const identifier = getPlatformIdentifier(platform, expoConfig)
-  const release = getReleaseName({
-    platform,
-    appVersion: process.env.EAS_BUILD_APP_VERSION,
-    buildVersion: process.env.EAS_BUILD_APP_BUILD_VERSION,
-    expoConfig,
-    sentryRelease: process.env.SENTRY_RELEASE,
-  })
-
   if (!identifier) {
     throw new Error(`No application identifier is configured for EAS_BUILD_PLATFORM=${platform}.`)
   }
+  const release = getReleaseName({
+    platform,
+    appVersion: expoConfig.version,
+    buildVersion: process.env.SENTRY_RELEASE ? undefined : readNativeBuildVersion(platform, identifier),
+    expoConfig,
+    sentryRelease: process.env.SENTRY_RELEASE,
+  })
 
   let previousCommit = process.env.SENTRY_EAS_RELEASE_PREVIOUS_COMMIT
   if (!previousCommit) {
