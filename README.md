@@ -64,12 +64,9 @@ EAS commands run from `apps/mobile`.
 
 ### Contributing
 
-Pull requests are currently limited to collaborators in order to avoid spam.
-
-If you found a bug or have an idea, please [open an issue](https://github.com/guytepper/better-rail/issues/new/choose) and we can discuss it from there.
-
-Want to contribute to the app? Join our [Discord](https://discord.gg/uJ65ABeQsh) and share your ideas with us.
-
+Pull requests are currently limited to collaborators in order to avoid spam.  
+If you found a bug or have an idea, please [open an issue](https://github.com/guytepper/better-rail/issues/new/choose) and we can discuss it from there.  
+Want to contribute to the app? Join our [Discord](https://discord.gg/uJ65ABeQsh) and share your ideas with us.  
 To report a security issue, please email us at feedback@better-rail.co.il
 
 ### License
