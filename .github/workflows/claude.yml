@@ -1,49 +1,106 @@
-name: Claude Code
+name: Claude maintainer review
 
 on:
-  issue_comment:
-    types: [created]
-  pull_request_review_comment:
-    types: [created]
-  issues:
-    types: [opened, assigned]
-  pull_request_review:
-    types: [submitted]
+  workflow_dispatch:
+    inputs:
+      task:
+        description: Fixed read-only review task
+        required: true
+        default: review-main
+        type: choice
+        options:
+          - review-main
+          - inspect-ci
+
+permissions:
+  contents: read
+  deployments: read
+  pull-requests: read
+  issues: read
+  checks: read
+  actions: read
+
+concurrency:
+  group: claude-maintainer-review
+  cancel-in-progress: false
 
 jobs:
   claude:
-    if: |
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
-      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: read
-      issues: read
-      id-token: write
-      actions: read # Required for Claude to read CI results on PRs
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
+    name: Read-only Claude review
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: claude-maintainer
 
-      - name: Run Claude Code
+    steps:
+      - name: Verify protected Claude environment
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          environment_json="$(
+            curl --fail --silent --show-error \
+              --header "Authorization: Bearer $GH_TOKEN" \
+              --header "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/environments/claude-maintainer"
+          )"
+          jq -e '
+            .deployment_branch_policy.protected_branches == true and
+            any(.protection_rules[]?; .type == "required_reviewers" and (.reviewers | length > 0))
+          ' <<<"$environment_json" >/dev/null
+
+      - name: Validate task selection
+        shell: bash
+        env:
+          CLAUDE_TASK: ${{ inputs.task }}
+        run: |
+          set -euo pipefail
+          case "$CLAUDE_TASK" in
+            review-main|inspect-ci) ;;
+            *) exit 1 ;;
+          esac
+
+      - name: Reject debug logging
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${RUNNER_DEBUG:-}" != "1"
+          test "${ACTIONS_STEP_DEBUG:-}" != "true"
+
+      - name: Checkout trusted main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Run read-only Claude review
         id: claude
-        uses: anthropics/claude-code-action@v1
+        uses: anthropics/claude-code-action@9171db3e57d6a3140a37ddc2ba92788584e0ead6
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ github.token }}
+          base_branch: main
+          prompt: ${{ inputs.task == 'inspect-ci' && 'Inspect the current main branch CI and release configuration for bounded security and reliability risks. Report findings only; do not modify files or contact external services.' || 'Review the current main branch for correctness, security, and privacy risks. Report findings only; do not modify files or contact external services.' }}
+          claude_args: "--max-turns 4 --bare --permission-mode dontAsk --setting-sources user --allowedTools Read,Grep,Glob --disallowedTools Bash,Edit,Write,NotebookEdit,WebFetch,WebSearch,mcp__*"
+          settings: '{"permissions":{"blockReadsOutsideWorkingDirectories":true,"disableBypassPermissionsMode":"disable","disableAutoMode":"disable"}}'
+          display_report: false
+          show_full_output: false
+          include_fix_links: false
+          classify_inline_comments: false
+          track_progress: false
 
-          # This is an optional setting that allows Claude to read CI results on PRs
-          additional_permissions: |
-            actions: read
-
-          # Optional: Give a custom prompt to Claude. If this is not specified, Claude will perform the instructions specified in the comment that tagged it.
-          # prompt: 'Update the pull request description to include a summary of changes.'
-
-          # Optional: Add claude_args to customize behavior and configuration
-          # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
-          # or https://code.claude.com/docs/en/cli-reference for available options
-          # claude_args: '--allowed-tools Bash(gh pr:*)'
+      - name: Record bounded run metadata
+        if: always() && (inputs.task == 'review-main' || inputs.task == 'inspect-ci')
+        shell: bash
+        env:
+          CLAUDE_TASK: ${{ inputs.task }}
+        run: |
+          set -euo pipefail
+          {
+            echo "## Claude maintainer run"
+            echo "- Task: \`$CLAUDE_TASK\`"
+            echo "- Ref: \`$GITHUB_REF\`"
+            echo "- Actor: \`$GITHUB_ACTOR\`"
+            echo "- Run: \`$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID\`"
+          } >> "$GITHUB_STEP_SUMMARY"
