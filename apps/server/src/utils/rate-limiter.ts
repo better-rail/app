@@ -1,6 +1,7 @@
 import rateLimit from "express-rate-limit"
 import type { Request } from "express"
 import { env } from "../data/config"
+import { sendApiError } from "../api-error"
 
 type RateLimitDiscriminator = (request: Request) => string | undefined
 
@@ -29,6 +30,13 @@ const createRateLimiter = (windowMs: number, max: number, discriminator?: RateLi
     standardHeaders: true,
     skip: () => env !== "production",
     keyGenerator: (request) => getRateLimitKey(request, discriminator),
+    handler: (_request, response) =>
+      sendApiError(response, {
+        status: 429,
+        code: "RATE_LIMITED",
+        message: "Too many requests",
+        retryable: true,
+      }),
   })
 }
 

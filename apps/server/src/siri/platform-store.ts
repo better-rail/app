@@ -58,7 +58,10 @@ export const recordObservedPlatforms = async (observations: PlatformObservation[
       params,
     )
   } catch (error) {
-    logger?.error(logNames.platforms.writeFailed, { error, observations: changed.size })
+    logger?.error(logNames.platforms.writeFailed, {
+      errorType: error instanceof Error ? error.name : "unknown",
+      observations: changed.size,
+    })
     return 0
   }
 

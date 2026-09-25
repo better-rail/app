@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto"
+
 import dayjs from "dayjs"
 import { Logger } from "winston"
 import { head, isEmpty, omit } from "lodash"
@@ -23,20 +25,22 @@ export class Scheduler {
   logger: Logger
   private ride: Ride
   private route: RouteItem
+  private requestId: string
   private updateDelayJob?: Job
   private sendNotificationsJob?: Job
   private lastSentNotification?: NotificationPayload
   private notificationsToSend: NotificationPayload[]
 
-  private constructor(ride: Ride, route: RouteItem, logger: Logger) {
+  private constructor(ride: Ride, route: RouteItem, logger: Logger, requestId: string) {
     this.ride = ride
     this.route = route
+    this.requestId = requestId
     this.logger = logger
     this.notificationsToSend = this.buildRideNotifications(true)
   }
 
-  static async create(ride: Ride, isExisting: boolean, logger: Logger) {
-    const route = await getRouteForRide(ride)
+  static async create(ride: Ride, isExisting: boolean, logger: Logger, requestId: string = randomUUID()) {
+    const route = await getRouteForRide(ride, requestId)
     if (!route) {
       if (isExisting) {
         await deleteRide(ride.rideId)
@@ -46,12 +50,7 @@ export class Scheduler {
     }
 
     if (env === "production" && dayjs(route.arrivalTime).add(route.delay, "minutes").isBefore(dayjs())) {
-      logger.info(logNames.scheduler.rideInPast, {
-        date: ride.departureDate,
-        origin: ride.originId,
-        destination: ride.destinationId,
-        trains: ride.trains,
-      })
+      logger.info(logNames.scheduler.rideInPast, { requestId })
       if (isExisting) {
         await deleteRide(ride.rideId)
       }
@@ -60,12 +59,7 @@ export class Scheduler {
     }
 
     if (env === "production" && dayjs(route.departureTime).add(route.delay, "minutes").diff(dayjs(), "minutes") > 60) {
-      logger.info(logNames.scheduler.rideInFuture, {
-        date: ride.departureDate,
-        origin: ride.originId,
-        destination: ride.destinationId,
-        trains: ride.trains,
-      })
+      logger.info(logNames.scheduler.rideInFuture, { requestId })
       if (isExisting) {
         await deleteRide(ride.rideId)
       }
@@ -77,7 +71,7 @@ export class Scheduler {
       await addRide(ride)
     }
 
-    const instance = new Scheduler(ride, route, logger)
+    const instance = new Scheduler(ride, route, logger, requestId)
     return instance
   }
 
@@ -187,13 +181,13 @@ export class Scheduler {
     const second = rideUpdateSecond(this.ride.rideId)
     const rule = new RecurrenceRule()
     rule.second = second
-    this.logger.info(logNames.scheduler.updateDelay.register, { second })
+    this.logger.info(logNames.scheduler.updateDelay.register, { requestId: this.requestId })
     this.updateDelayJob = scheduleJob(rule, async () => {
       if (isEmpty(this.notificationsToSend)) {
         return this.stopUpdateDelayJob()
       }
 
-      const newRoute = await getRouteForRide(this.ride)
+      const newRoute = await getRouteForRide(this.ride, this.requestId)
       if (!newRoute) return
 
       this.route = newRoute

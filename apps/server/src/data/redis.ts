@@ -21,7 +21,7 @@ export const connectToRedis = async () => {
 
   client.on("error", (error) => {
     if (!isEmpty(error)) {
-      logger.error(logNames.redis.connect.failed, { error })
+      logger.error(logNames.redis.connect.failed, { errorType: error instanceof Error ? error.name : "unknown" })
     }
   })
 
@@ -39,10 +39,10 @@ export const addRide = async (ride: Ride): Promise<boolean> => {
       .map(([key, value]) => client.hSet(getKey(ride.rideId), key, JSON.stringify(value)))
     await Promise.all(promises)
 
-    logger.info(logNames.redis.rides.add.success, { rideId: ride.rideId, token: ride.token })
+    logger.info(logNames.redis.rides.add.success, { persisted: true })
     return true
   } catch (error) {
-    logger.error(logNames.redis.rides.add.failed, { error, rideId: ride.rideId, token: ride.token })
+    logger.error(logNames.redis.rides.add.failed, { errorType: error instanceof Error ? error.name : "unknown" })
     return false
   }
 }
@@ -57,12 +57,12 @@ export const updateLastRideNotification = async (rideId: string, notificationId:
     await client.hSet(getKey(rideId), "lastNotificationId", notificationId)
 
     if (notificationId !== 0) {
-      logger.info(logNames.redis.rides.updateNotificationId.success, { rideId, id: notificationId })
+      logger.info(logNames.redis.rides.updateNotificationId.success, { updated: true })
     }
 
     return true
   } catch (error) {
-    logger.error(logNames.redis.rides.updateNotificationId.failed, { error, rideId, id: notificationId })
+    logger.error(logNames.redis.rides.updateNotificationId.failed, { errorType: error instanceof Error ? error.name : "unknown" })
     return false
   }
 }
@@ -71,10 +71,10 @@ export const updateRideToken = async (rideId: string, token: string) => {
   try {
     await client.hSet(getKey(rideId), "token", token)
 
-    logger.info(logNames.redis.rides.updateToken.success, { rideId, token })
+    logger.info(logNames.redis.rides.updateToken.success, { updated: true })
     return true
   } catch (error) {
-    logger.error(logNames.redis.rides.updateToken.failed, { error, rideId, token })
+    logger.error(logNames.redis.rides.updateToken.failed, { errorType: error instanceof Error ? error.name : "unknown" })
     return false
   }
 }
@@ -86,13 +86,13 @@ export const getRide = async (rideId: string, shouldLog: boolean = true) => {
     const ride = { ...parsed, rideId } as Ride
 
     if (shouldLog) {
-      logger.info(logNames.redis.rides.get.success, { rideId })
+      logger.info(logNames.redis.rides.get.success, { found: true })
     }
 
     return ride
   } catch (error) {
     if (shouldLog) {
-      logger.error(logNames.redis.rides.get.failed, { error, rideId })
+      logger.error(logNames.redis.rides.get.failed, { errorType: error instanceof Error ? error.name : "unknown" })
     }
 
     return null
@@ -108,7 +108,7 @@ export const deleteRide = async (rideId: string) => {
       throw new Error("Redis didn't delete ride")
     }
 
-    logger.info(logNames.redis.rides.delete.success, { rideId })
+    logger.info(logNames.redis.rides.delete.success, { deleted: true })
     return success
   } catch (error) {
     try {
@@ -116,11 +116,11 @@ export const deleteRide = async (rideId: string) => {
       if (!isRideExists) {
         return true
       } else {
-        logger.error(logNames.redis.rides.delete.failed, { error, rideId })
+        logger.error(logNames.redis.rides.delete.failed, { errorType: error instanceof Error ? error.name : "unknown" })
         return false
       }
-    } catch {
-      logger.error(logNames.redis.rides.delete.failed, { error, rideId })
+    } catch (error) {
+      logger.error(logNames.redis.rides.delete.failed, { errorType: error instanceof Error ? error.name : "unknown" })
       return false
     }
   }
@@ -145,7 +145,7 @@ export const getAllRides = async (): Promise<Ride[] | null> => {
     logger.info(logNames.redis.rides.getAll.success)
     return rides
   } catch (error) {
-    logger.error(logNames.redis.rides.getAll.failed, { error })
+    logger.error(logNames.redis.rides.getAll.failed, { errorType: error instanceof Error ? error.name : "unknown" })
     return null
   }
 }

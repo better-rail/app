@@ -1,7 +1,9 @@
 import { Request, Response } from "express"
 
 import { logNames, logger } from "../logs"
-import { RailTimetableSearch, railApiFetch } from "../requests/rail-api"
+import { apiContractV1 } from "../data/config"
+import { ApiError, getRequestId, sendApiError, toApiError } from "../api-error"
+import { hasProviderApplicationError, isRailTimeoutError, RailTimetableSearch, railApiFetch } from "../requests/rail-api"
 import { searchViaOnRailApi } from "../requests/rail-via"
 
 /**
@@ -10,9 +12,13 @@ import { searchViaOnRailApi } from "../requests/rail-via"
  * — see routes/rail-api.ts, which picks between this and the GTFS handlers.
  */
 
-const failed = (res: Response, error: any) => {
-  logger?.error(logNames.railApi.proxy.failed, { error })
-  res.status(500).json({ error: "Failed to fetch rail data", message: error.message })
+const failed = (res: Response, error: unknown) => {
+  const input = toApiError(error)
+  logger?.error(logNames.railApi.proxy.failed, { code: input.code, requestId: getRequestId(res) })
+  sendApiError(res, {
+    ...input,
+    legacy: { error: "Failed to fetch rail data" },
+  })
 }
 
 /**
@@ -22,6 +28,29 @@ const failed = (res: Response, error: any) => {
  * undefined member upstream; the toggle is simply inert while this source is
  * selected, since the rail API returns its own curated shortlist of itineraries.
  */
+const upstreamError = () =>
+  new ApiError({ status: 502, code: "UPSTREAM_UNAVAILABLE", message: "Rail data is temporarily unavailable", retryable: true })
+
+const parseUpstreamJson = async (response: globalThis.Response): Promise<unknown> => {
+  if (!response.ok && apiContractV1) throw upstreamError()
+  let data: unknown
+  try {
+    data = await response.json()
+  } catch (error) {
+    if (isRailTimeoutError(error)) {
+      throw new ApiError({ status: 504, code: "UPSTREAM_TIMEOUT", message: "The rail data service timed out", retryable: true })
+    }
+    throw new ApiError({
+      status: 502,
+      code: "UPSTREAM_INVALID_RESPONSE",
+      message: "Rail data returned an invalid response",
+      retryable: true,
+    })
+  }
+  if (apiContractV1 && hasProviderApplicationError(data)) throw upstreamError()
+  return data
+}
+
 const withoutServerOnlyParams = (body: unknown) => {
   if (!body || typeof body !== "object") return body
   const { hideSlowTrains, ...rest } = body as Record<string, unknown>
@@ -54,9 +83,9 @@ const proxySearchTrainRequest = async (req: Request, res: Response) => {
       }),
     })
 
-    const data = await response.json()
+    const data = await parseUpstreamJson(response)
     res.status(response.status).json(data)
-  } catch (error: any) {
+  } catch (error: unknown) {
     failed(res, error)
   }
 }
@@ -82,9 +111,9 @@ const railProxy = async (req: Request, res: Response) => {
       body: req.method !== "GET" ? JSON.stringify(withoutServerOnlyParams(req.body)) : undefined,
     })
 
-    const data = await response.json()
+    const data = await parseUpstreamJson(response)
     res.status(response.status).json(data)
-  } catch (error: any) {
+  } catch (error: unknown) {
     failed(res, error)
   }
 }
@@ -112,7 +141,7 @@ const toViaSearch = (body: any): ViaSearch | undefined => {
 const proxyViaSearch = async (res: Response, { search, viaStation }: ViaSearch) => {
   try {
     res.status(200).json(await searchViaOnRailApi(search, viaStation))
-  } catch (error: any) {
+  } catch (error: unknown) {
     failed(res, error)
   }
 }

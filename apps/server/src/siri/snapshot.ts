@@ -159,7 +159,7 @@ const setKey = async (key: string, value: string, ttlSec: number) => {
   try {
     await getRedisClient()?.set(key, value, { EX: ttlSec })
   } catch (error) {
-    logger?.error(logNames.siri.snapshotWriteFailed, { error, key })
+    logger?.error(logNames.siri.snapshotWriteFailed, { errorType: error instanceof Error ? error.name : "unknown" })
   }
 }
 
@@ -188,7 +188,7 @@ export const readSnapshot = async (): Promise<SiriSnapshot | null> => {
     const raw = await getRedisClient()?.get(SNAPSHOT_KEY)
     return raw ? (JSON.parse(raw) as SiriSnapshot) : null
   } catch (error) {
-    logger?.error(logNames.siri.snapshotReadFailed, { error })
+    logger?.error(logNames.siri.snapshotReadFailed, { errorType: error instanceof Error ? error.name : "unknown" })
     return null
   }
 }

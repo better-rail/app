@@ -41,10 +41,14 @@ const sendAppleNotification = async (payload: NotificationPayload, route: RouteI
 
   try {
     await sendApnNotification(payload.token, aps, priority)
-    logger.info(logNames.notifications.apple.success, { payload })
+    logger.info(logNames.notifications.apple.success, { provider: "ios", status: payload.state.status })
     return true
   } catch (error) {
-    logger.error(logNames.notifications.apple.failed, { error, payload })
+    logger.error(logNames.notifications.apple.failed, {
+      errorType: error instanceof Error ? error.name : "unknown",
+      provider: "ios",
+      status: payload.state.status,
+    })
     return false
   }
 }
@@ -75,12 +79,16 @@ const sendAndroidNotification = async (payload: NotificationPayload, route: Rout
 
   try {
     const messageId = await sendFcmNotification(message)
-    logger.info(logNames.notifications.android.success, { payload, messageId })
+    logger.info(logNames.notifications.android.success, { provider: "android", messageId })
     return true
   } catch (error) {
     const firebaseError = error as FirebaseError
     if (firebaseError.code !== "messaging/registration-token-not-registered") {
-      logger.error(logNames.notifications.android.failed, { error, payload })
+      logger.error(logNames.notifications.android.failed, {
+        errorType: error instanceof Error ? error.name : "unknown",
+        provider: "android",
+        status: payload.state.status,
+      })
     }
     return false
   }

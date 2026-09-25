@@ -61,10 +61,25 @@ const shouldSend = (key: string) => {
 }
 
 // apns2 rejects with a plain `{ reason, statusCode }` object rather than an Error.
+const SAFE_REASONS = new Set([
+  "BadDeviceToken",
+  "DeviceTokenNotForTopic",
+  "Unregistered",
+  "messaging/registration-token-not-registered",
+  "internal_error",
+  "timetable_unavailable",
+  "route_not_found",
+  "ride_in_past",
+  "ride_in_future",
+  "rides_disabled",
+  "route_lookup_failed",
+])
+const safeReason = (value: unknown) => (typeof value === "string" && SAFE_REASONS.has(value) ? value : "provider_error")
+
 const describeError = (error: unknown) => {
-  if (error instanceof Error) return error.message
-  if (error && typeof error === "object" && "reason" in error) return String(error.reason)
-  return error === undefined ? "" : String(error)
+  if (error instanceof Error) return /^[A-Za-z][A-Za-z0-9_.-]{0,63}$/.test(error.name) ? error.name : "Error"
+  if (error && typeof error === "object" && "reason" in error) return safeReason((error as { reason: unknown }).reason)
+  return "UnknownError"
 }
 
 /** Reports `logger.error` calls to Sentry, so existing call sites need no changes. */
@@ -84,13 +99,13 @@ export class SentryTransport extends Transport {
         fingerprint,
         tags: {
           log: info.message,
-          ...(typeof extra.reason === "string" && { ride_start_reason: extra.reason }),
+          ...(typeof extra.reason === "string" && { ride_start_reason: safeReason(extra.reason) }),
           ...(typeof extra.provider === "string" && { provider: extra.provider }),
         },
-        extra: { ...extra, ...(error !== undefined && !(error instanceof Error) && { error }) },
+        extra: scrubTokens({ ...extra, ...(error !== undefined && { errorType: errorDescription }) }) as ErrorEvent["extra"],
       }
 
-      if (error instanceof Error) Sentry.captureException(error, context)
+      if (error instanceof Error) Sentry.captureException(new Error(errorDescription), context)
       else
         Sentry.captureMessage(errorDescription ? `${info.message}: ${errorDescription}` : info.message, {
           ...context,

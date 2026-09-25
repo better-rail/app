@@ -1,5 +1,4 @@
 import express from "express"
-import * as Sentry from "@sentry/bun"
 
 import { initSentry } from "./sentry"
 import { router } from "./routes/api"
@@ -12,50 +11,59 @@ import { connectToFcm } from "./utils/fcm-utils"
 import { logNames, logger, startLogger } from "./logs"
 import { startSiriPoller } from "./siri/poller"
 import { scheduleExistingRides } from "./utils/ride-utils"
+import { asyncHandler, errorHandler, notFoundHandler, requestIdMiddleware, sentryErrorHandler } from "./api-error"
+import { metricsMiddleware } from "./metrics"
+import { readinessHandler, type ReadinessDependencies } from "./readiness"
 
-initSentry()
+export const createApp = (readinessDependencies?: ReadinessDependencies) => {
+  const app = express()
+  app.use(requestIdMiddleware)
+  app.use(metricsMiddleware)
+  app.use(express.json())
 
-const app = express()
-app.use(express.json())
+  app.use("/api/v1", router)
 
-app.use("/api/v1", router)
+  app.get("/isAlive", (_req, res) => {
+    res.status(200).send("App is ready! 🚂")
+  })
+  app.get("/ready", asyncHandler(readinessHandler(readinessDependencies)))
 
-app.get("/isAlive", (req, res) => {
-  res.status(200).send("App is ready! 🚂")
-})
+  app.use(notFoundHandler)
+  app.use(sentryErrorHandler)
+  app.use(errorHandler)
+  return app
+}
 
-// After the routes, so it sees their unhandled errors.
-Sentry.setupExpressErrorHandler(app)
+export const startServer = () => {
+  initSentry()
+  const app = createApp()
 
-app.listen(port, async () => {
-  startLogger()
-  await connectToRedis()
-  connectToApn()
-  connectToFcm()
+  app.listen(port, async () => {
+    startLogger()
+    await connectToRedis()
+    connectToApn()
+    connectToFcm()
 
-  logger.info(logNames.server.dataSource, { source: railDataSource })
-  if (railDataSource === "rail" && !isRailApiConfigured()) logger.error(logNames.railApi.notConfigured)
+    logger.info(logNames.server.dataSource, { source: railDataSource })
+    if (railDataSource === "rail" && !isRailApiConfigured()) logger.error(logNames.railApi.notConfigured)
 
-  // Ensure the GTFS schema exists (idempotent) and warn if no feed is loaded yet.
-  // Skipped when serving from the rail API, where nothing reads the feed.
-  if (railDataSource === "gtfs") {
-    try {
-      await applySchema()
-      const feed = await getActiveFeed()
-      if (!feed) logger.error(logNames.gtfs.noActiveFeed)
-    } catch (error) {
-      logger.error(logNames.db.pool.error, { error })
+    if (railDataSource === "gtfs") {
+      try {
+        await applySchema()
+        const feed = await getActiveFeed()
+        if (!feed) logger.error(logNames.gtfs.noActiveFeed)
+      } catch (error) {
+        logger.error(logNames.db.pool.error, { errorType: error instanceof Error ? error.name : "unknown" })
+      }
     }
-  }
 
-  // Off unless this is the deployed service — a local run must never pick up
-  // (and reschedule, or delete) the rides of real passengers. See data/config.ts.
-  if (ridesEnabled) scheduleExistingRides()
-  else logger.warn(logNames.server.ridesDisabled)
+    if (ridesEnabled) scheduleExistingRides()
+    else logger.warn(logNames.server.ridesDisabled)
 
-  // The SIRI poller normally runs as its own Railway service (`bun run siri`);
-  // this fallback hosts it here when the MOT-registered egress IP is ours.
-  if (siriPollerMode === "in-process") startSiriPoller()
+    if (siriPollerMode === "in-process") startSiriPoller()
 
-  logger.info(logNames.server.listening, { port, env })
-})
+    logger.info(logNames.server.listening, { port, env })
+  })
+}
+
+if (require.main === module) startServer()

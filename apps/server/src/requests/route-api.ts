@@ -2,7 +2,7 @@ import dayjs from "dayjs"
 
 import { searchTrain } from "./gtfs-route-api"
 import { stationsObject } from "../data/stations"
-import { railDataSource } from "../data/config"
+import { apiContractV1, railDataSource } from "../data/config"
 import { RouteItem, Station } from "../types/rail"
 import { searchTimetableOnRailApi } from "./rail-api"
 import { searchViaOnRailApi } from "./rail-via"
@@ -34,7 +34,10 @@ export class RouteApi {
     }
     const response =
       railDataSource === "gtfs"
-        ? await searchTrain(originId, destinationId, date, hour, "ByDeparture", { viaStation: options.viaStation })
+        ? await searchTrain(originId, destinationId, date, hour, "ByDeparture", {
+            viaStation: options.viaStation,
+            requireActiveFeed: apiContractV1,
+          })
         : options.viaStation
           ? await searchViaOnRailApi(railSearch, options.viaStation)
           : await searchTimetableOnRailApi(railSearch)

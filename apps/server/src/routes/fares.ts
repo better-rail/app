@@ -14,36 +14,64 @@ import { z } from "zod"
 import { findFare, getFareSnapshot } from "../fares/store"
 import { logNames, logger } from "../logs"
 import { createRateLimiter } from "../utils/rate-limiter"
+import { asyncHandler, getRequestId, sendApiError } from "../api-error"
 
 const stationId = z.coerce.number().int().positive()
 export const FareQuery = z.object({ from: stationId, to: stationId })
 
 const unavailable = (res: Response) => {
-  logger?.error(logNames.fares.notAvailable)
-  res.status(503).json({ error: "Fares are not available yet" })
+  logger?.error(logNames.fares.notAvailable, { requestId: getRequestId(res) })
+  sendApiError(res, {
+    status: 503,
+    code: "FARES_UNAVAILABLE",
+    message: "Fare data is temporarily unavailable",
+    retryable: true,
+    legacy: { error: "Fares are not available yet" },
+  })
 }
 
 const faresRouter = Router()
 faresRouter.use(createRateLimiter(10 * 60 * 1000, 1000))
 
-faresRouter.get("/profiles", async (req: Request, res: Response) => {
-  const snapshot = await getFareSnapshot()
-  if (!snapshot) return unavailable(res)
-  res.json({ updatedAt: snapshot.pulledAt, profiles: snapshot.profiles })
-})
+faresRouter.get(
+  "/profiles",
+  asyncHandler(async (_req, res) => {
+    const snapshot = await getFareSnapshot()
+    if (!snapshot) return unavailable(res)
+    res.json({ updatedAt: snapshot.pulledAt, profiles: snapshot.profiles })
+  }),
+)
 
-faresRouter.get("/", async (req: Request, res: Response) => {
-  const query = FareQuery.safeParse(req.query)
-  if (!query.success) return res.status(400).json({ error: "Expected numeric `from` and `to` station ids" })
+faresRouter.get(
+  "/",
+  asyncHandler(async (req: Request, res: Response) => {
+    const query = FareQuery.safeParse(req.query)
+    if (!query.success) {
+      return sendApiError(res, {
+        status: 400,
+        code: "VALIDATION_ERROR",
+        message: "Expected numeric `from` and `to` station ids",
+        retryable: false,
+      })
+    }
 
-  const snapshot = await getFareSnapshot()
-  if (!snapshot) return unavailable(res)
+    const snapshot = await getFareSnapshot()
+    if (!snapshot) return unavailable(res)
 
-  const { from, to } = query.data
-  const fare = findFare(snapshot, from, to)
-  if (!fare) return res.status(404).json({ error: "No fare for this station pair" })
+    const { from, to } = query.data
+    const fare = findFare(snapshot, from, to)
+    if (!fare) {
+      return sendApiError(res, {
+        status: 404,
+        code: "NOT_FOUND",
+        message: "No fare is available for this station pair",
+        retryable: false,
+        legacy: { error: "No fare for this station pair" },
+      })
+    }
 
-  res.json({ from, to, distanceCode: fare.distanceCode, prices: fare.prices, updatedAt: snapshot.pulledAt })
-})
+    res.json({ from, to, distanceCode: fare.distanceCode, prices: fare.prices, updatedAt: snapshot.pulledAt })
+  }),
+)
 
 export { faresRouter }

@@ -2,11 +2,19 @@ import { ZodSchema, z } from "zod"
 import { RequestHandler } from "express"
 import { ParamsDictionary } from "express-serve-static-core"
 
+import { sendApiError } from "../api-error"
+
 export const bodyValidator: <TBody>(zodSchema: ZodSchema<TBody>) => RequestHandler<ParamsDictionary, any, TBody, any> =
   (schema) => (req, res, next) => {
     const result = schema.safeParse(req.body)
     if (!result.success) {
-      return res.status(400).send("Body doesn't match schema")
+      return sendApiError(res, {
+        status: 400,
+        code: "VALIDATION_ERROR",
+        message: "Request body does not match the expected schema",
+        retryable: false,
+        legacy: { error: "Body doesn't match schema" },
+      })
     }
 
     req.body = result.data

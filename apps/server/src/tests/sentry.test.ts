@@ -47,11 +47,12 @@ test("reports logger.error with its error, tags and no push token", async () => 
   })
 
   const [event] = await logged()
-  expect(event.exception?.values?.[0]?.value).toBe("redis is down")
-  expect(event.fingerprint).toEqual(["Failed to schedule ride", "redis is down"])
+  expect(event.exception?.values?.[0]?.value).toBe("Error")
+  expect(event.fingerprint).toEqual(["Failed to schedule ride", "Error"])
   expect(event.tags).toMatchObject({ log: "Failed to schedule ride", ride_start_reason: "internal_error", provider: "ios" })
   // Stack frames carry source lines (this test's literal), not runtime values, so check the rest.
   expect(JSON.stringify({ ...event, exception: undefined })).not.toContain("secret-token")
+  expect(event.extra?.errorType).toBe("Error")
 })
 
 test("reports apns2's plain-object rejection as a message", async () => {
@@ -62,6 +63,13 @@ test("reports apns2's plain-object rejection as a message", async () => {
   const [event] = await logged()
   expect(event.message).toBe("Failed to send Apple notification: BadDeviceToken")
   expect(JSON.stringify(event)).not.toContain("secret-device")
+})
+
+test("normalizes untrusted provider reasons", async () => {
+  logger.error("Provider failure", { error: { reason: "sql=secret-token" } })
+  const [event] = await logged()
+  expect(event.message).toBe("Provider failure: provider_error")
+  expect(JSON.stringify(event)).not.toContain("secret-token")
 })
 
 test("sends a repeated failure once per throttle window, and ignores warnings", async () => {

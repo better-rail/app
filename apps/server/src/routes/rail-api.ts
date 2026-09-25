@@ -1,6 +1,7 @@
 import { Request, Response } from "express"
 import { logNames, logger } from "../logs"
-import { railDataSource } from "../data/config"
+import { apiContractV1, railDataSource } from "../data/config"
+import { getRequestId, sendApiError, toApiError } from "../api-error"
 import { proxySearchTrainRequest, proxyViaSearch, railProxy, toViaSearch } from "./proxy"
 import { searchTrain, ScheduleType } from "../requests/gtfs-route-api"
 
@@ -36,12 +37,17 @@ const runTimetableSearch = async (
       {
         hideSlowTrains: toFlag(params.hideSlowTrains),
         viaStation: viaStation > 0 ? viaStation : undefined,
+        requireActiveFeed: apiContractV1,
       },
     )
     res.status(200).json(result)
-  } catch (error: any) {
-    logger?.error(logNames.gtfs.search.failed, { error })
-    res.status(500).json({ error: "Failed to fetch rail data", message: error.message })
+  } catch (error: unknown) {
+    const input = toApiError(error)
+    logger?.error(logNames.gtfs.search.failed, { code: input.code, requestId: getRequestId(res) })
+    sendApiError(res, {
+      ...input,
+      legacy: { error: "Failed to fetch rail data" },
+    })
   }
 }
 

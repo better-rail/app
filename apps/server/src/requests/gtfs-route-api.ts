@@ -18,6 +18,7 @@
  * (delay 0), which clients already treat as on-time.
  */
 import stationsGeo from "../data/rail-stations-geo.json"
+import { ApiError } from "../api-error"
 import { getActiveFeed, query } from "../db"
 import { logNames, logger } from "../logs"
 import { getRealtimeSnapshot, makeRealtimeLookup, zeroRealtimeLookup } from "../siri/snapshot"
@@ -204,6 +205,14 @@ export type PlanOptions = {
   hideSlowTrains?: boolean
   // Route every journey through this station
   viaStation?: number
+  requireActiveFeed?: boolean
+}
+
+export class NoActiveFeedError extends ApiError {
+  constructor() {
+    super({ status: 503, code: "NO_ACTIVE_FEED", message: "The timetable is temporarily unavailable", retryable: true })
+    this.name = "NoActiveFeedError"
+  }
 }
 
 export type Leg = { tripKey: string; boardIndex: number; alightIndex: number }
@@ -1374,6 +1383,7 @@ export const searchTrain = async (
   const feed = await getActiveFeed()
   if (!feed) {
     logger?.error(logNames.gtfs.noActiveFeed)
+    if (options.requireActiveFeed) throw new NoActiveFeedError()
     return { result: { travels: [] } }
   }
 

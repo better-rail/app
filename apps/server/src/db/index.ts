@@ -36,7 +36,7 @@ export const getPool = (): Pool => {
       keepAlive: true,
     })
     // `logger` is undefined until startLogger() runs (e.g. in standalone scripts).
-    pool.on("error", (error) => logger?.error(logNames.db.pool.error, { error }))
+    pool.on("error", (error) => logger?.error(logNames.db.pool.error, { errorType: error.name }))
   }
   return pool
 }

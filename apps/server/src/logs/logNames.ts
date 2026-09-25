@@ -75,6 +75,9 @@ export const logNames = {
       failed: "Failed to send notificaiton to FCM",
     },
   },
+  api: {
+    requestFailed: "API request failed",
+  },
   routeApi: {
     getRoutes: {
       success: "Got route successfully",

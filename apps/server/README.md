@@ -18,6 +18,7 @@ To follow these steps, ensure that [Bun](https://bun.sh) is installed (the serve
 
 - `/data`: stations, redis, Postgres and env configurations (incl. `station-mapping.json`, `rail-stations-geo.json`)
 - `/db`: Postgres pool, schema (`schema.sql`) and active-feed helpers
+- `/api-error.ts`, `/metrics.ts`, `/readiness.ts`: request IDs, bounded metrics, and dependency health
 - `/gtfs`: GTFS feed download, parsing (rail subset) and station matching
 - `/locales`: language files for notifications
 - `/logs`: logger and lognames sit here
@@ -59,7 +60,14 @@ instead of SIRI.
 
 Change-station searches (`viaStation`) aren't proxied: they're joined from two rail API searches at that station (`requests/rail-via.ts`).
 
-### Timetable data: GTFS (Israel MOT)
+### HTTP contract and readiness
+
+`GET /isAlive` is a process liveness check and remains independent of Postgres, Redis, and SIRI. `GET /ready` is a bounded dependency check: a missing or failed required GTFS feed returns `503` with `status: "not_ready"`; optional Redis or SIRI degradation returns `200` with `status: "degraded"`. The response contains only fixed dependency states and the request ID.
+
+Every response receives an `X-Request-Id` header. JSON failures include a finite `code`, public `message`, `requestId`, and `retryable` value without provider, SQL, station, ride, or token text. `API_CONTRACT_V1=false` temporarily restores the legacy no-feed timetable status during rollback; successful response shapes remain unchanged.
+
+Request metrics are process-local and bounded to route families, methods, status codes, error codes, and latency buckets. Raw paths, query strings, request IDs, station IDs, ride IDs, and exception messages are never metric labels.
+
 
 The train timetable comes from the **Israel MOT GTFS** static feed
 (`Gtfs_10_days.zip` — the current canonical export with `calendar_dates`,

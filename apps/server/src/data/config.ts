@@ -5,6 +5,7 @@ config()
 type Enviroment = "production" | "test"
 
 export const env: Enviroment = (process.env.NODE_ENV as Enviroment) || "test"
+export const apiContractV1 = process.env.API_CONTRACT_V1 !== "false"
 export const port = process.env.PORT || 3000
 export const redisUrl = process.env.REDIS_URL as string
 export const databaseUrl = process.env.DATABASE_URL as string

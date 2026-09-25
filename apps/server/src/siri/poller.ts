@@ -281,9 +281,12 @@ const runLoop = async () => {
   } catch (error) {
     consecutiveFailures++
     lastError = redactKey(String((error as Error)?.message ?? error))
-    if (consecutiveFailures === 1) logger?.warn(logNames.siri.pollFailed, { error: lastError })
+    if (consecutiveFailures === 1) logger?.warn(logNames.siri.pollFailed, { errorType: "poll_error" })
     if (consecutiveFailures === OUTAGE_FAILURES) {
-      logger?.error(logNames.siri.outage, { error: lastError, failures: consecutiveFailures })
+      logger?.error(logNames.siri.outage, {
+        errorType: "poll_error",
+        failures: consecutiveFailures,
+      })
     }
     delayMs = Math.min(siriPollSeconds * 1000 * 2 ** consecutiveFailures, MAX_BACKOFF_MS)
   }

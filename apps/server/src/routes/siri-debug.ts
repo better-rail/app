@@ -17,6 +17,7 @@ import { getRedisClient } from "../data/redis"
 import { RAW_KEY, SNAPSHOT_KEY, STATUS_KEY, UNMATCHED_KEY } from "../siri/snapshot"
 import { SiriSnapshot } from "../siri/types"
 import { createRateLimiter } from "../utils/rate-limiter"
+import { asyncHandler } from "../api-error"
 
 const guard = (req: Request, res: Response, next: NextFunction) => {
   const token = req.headers["x-debug-token"]
@@ -43,31 +44,40 @@ const siriDebugRouter = Router()
 siriDebugRouter.use(createRateLimiter(60 * 1000, 30))
 siriDebugRouter.use(guard)
 
-siriDebugRouter.get("/status", async (req, res) => {
-  const [statusJson, snapshotJson] = await Promise.all([readKey(STATUS_KEY), readKey(SNAPSHOT_KEY)])
-  const status = statusJson ? JSON.parse(statusJson) : null
+siriDebugRouter.get(
+  "/status",
+  asyncHandler(async (req, res) => {
+    const [statusJson, snapshotJson] = await Promise.all([readKey(STATUS_KEY), readKey(SNAPSHOT_KEY)])
+    const status = statusJson ? JSON.parse(statusJson) : null
 
-  let snapshot = null
-  if (snapshotJson) {
-    const parsed = JSON.parse(snapshotJson) as SiriSnapshot
-    snapshot = {
-      updatedAt: parsed.updatedAt,
-      ageSec: Math.round((Date.now() - parsed.updatedAt) / 1000),
-      feedId: parsed.feedId,
-      trainsTracked: Object.keys(parsed.trains).length,
+    let snapshot = null
+    if (snapshotJson) {
+      const parsed = JSON.parse(snapshotJson) as SiriSnapshot
+      snapshot = {
+        updatedAt: parsed.updatedAt,
+        ageSec: Math.round((Date.now() - parsed.updatedAt) / 1000),
+        feedId: parsed.feedId,
+        trainsTracked: Object.keys(parsed.trains).length,
+      }
     }
-  }
 
-  res.json({ pollerSeen: status !== null, status, snapshot })
-})
+    res.json({ pollerSeen: status !== null, status, snapshot })
+  }),
+)
 
 // The last poll's raw SIRI chunk bodies — download and promote to test fixtures.
-siriDebugRouter.get("/raw", async (req, res) => {
-  res.type("application/json").send((await readKey(RAW_KEY)) ?? "[]")
-})
+siriDebugRouter.get(
+  "/raw",
+  asyncHandler(async (_req, res) => {
+    res.type("application/json").send((await readKey(RAW_KEY)) ?? "[]")
+  }),
+)
 
-siriDebugRouter.get("/unmatched", async (req, res) => {
-  res.type("application/json").send((await readKey(UNMATCHED_KEY)) ?? "[]")
-})
+siriDebugRouter.get(
+  "/unmatched",
+  asyncHandler(async (_req, res) => {
+    res.type("application/json").send((await readKey(UNMATCHED_KEY)) ?? "[]")
+  }),
+)
 
 export { siriDebugRouter }
