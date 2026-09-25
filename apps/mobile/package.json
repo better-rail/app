@@ -10,6 +10,7 @@
     "android": "expo run:android",
     "prebuild": "expo prebuild",
     "compile": "tsc --noEmit -p . --pretty",
+    "config": "expo config --type public --json",
     "test": "bun test",
     "e2e": "bun run e2e:ios",
     "e2e:ios": "maestro test -e MAESTRO_APP_ID=il.co.better-rail .maestro/flows",

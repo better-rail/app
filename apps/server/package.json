@@ -44,6 +44,7 @@
     "siri": "bun ./src/siri/main.ts",
     "rail:pull": "bun ./src/scripts/rail-pull.ts",
     "test": "bun test",
+    "check": "tsc --noEmit -p tsconfig.json --pretty false",
     "download": "bun ./src/scripts/download-feed.ts",
     "ingest": "bun ./src/scripts/ingest-gtfs.ts",
     "build:mapping": "bun ./src/scripts/build-station-mapping.ts",
