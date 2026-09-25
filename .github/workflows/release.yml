@@ -1,145 +1,142 @@
-name: Publish to Play Store
+name: Mobile internal release candidate
 
 on:
-  issue_comment:
-    types: [created]
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Platform to build
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - android
+          - ios
 
 permissions:
-  pull-requests: write
+  contents: read
+  deployments: read
+
+concurrency:
+  group: mobile-internal-release
+  cancel-in-progress: false
 
 jobs:
-  android:
-    runs-on: ubuntu-latest
-    if: |
-      github.event.issue.pull_request &&
-      contains(github.event.comment.body, '/publish') &&
-      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)
-
+  build:
+    name: Build signed internal candidate
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    environment: mobile-release
     env:
-      ANDROID_KEYSTORE_PATH: /var/tmp/keystore.jks
-      ANDROID_PLAY_STORE_JSON_PATH: /var/tmp/store_service_account.json
-      POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
-      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      RELEASE_APPROVED_SHA: ${{ vars.MOBILE_RELEASE_APPROVED_SHA }}
 
     steps:
-      - name: "Add start reaction"
-        uses: actions/github-script@v8
-        with:
-          script: |
-            github.rest.reactions.createForIssueComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              comment_id: context.payload.comment.id,
-              content: 'eyes'
-            });
-
-      - name: "Checkout"
-        uses: actions/checkout@v5
-        with:
-          ref: refs/pull/${{ github.event.issue.number }}/head
-
-      - name: "Vars"
-        id: vars
-        run: |
-          NODE_VERSION=$(jq -r '.engines.node' package.json)
-          VERSION_CODE=$(grep -oP 'versionCode\s+\K\d+' apps/mobile/android/app/build.gradle)
-          VERSION_NAME=$(grep -oP 'versionName\s+"\K[^"]+' apps/mobile/android/app/build.gradle)
-
-          cat << EOF > ${{ env.ANDROID_PLAY_STORE_JSON_PATH }}
-          ${{ secrets.ANDROID_PLAY_STORE_JSON_KEY }}
-          EOF
-          cat << EOF > apps/mobile/android/app/google-services.json
-          ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON_KEY }}
-          EOF
-
-          echo -n ${{ secrets.ANDROID_KEYSTORE_BASE64 }} | base64 -d > ${{ env.ANDROID_KEYSTORE_PATH }}
-
-          echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
-          echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
-          echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
-
-      - name: "Setup Bun"
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - name: "Setup Java"
-        uses: actions/setup-java@v5
-        with:
-          distribution: "temurin"
-          java-version: "21"
-          cache: "gradle"
-          cache-dependency-path: apps/mobile/android/**/*.gradle*
-
-      - name: "Pre-reqs"
-        run: |
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew install cocoapods
-
-      - name: "Cache node_modules"
-        uses: actions/cache@v5
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package.json', '**/bun.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: "Build React Native app"
-        run: bun install
-
-      - name: "Fastlane: Validate key"
-        working-directory: apps/mobile/android
-        run: |
-          fastlane run opt_out_usage
-          fastlane run validate_play_store_json_key json_key:${{ env.ANDROID_PLAY_STORE_JSON_PATH }}
-
-      - name: "Fastlane: Verify version code"
-        working-directory: apps/mobile/android
-        run: |
-          fastlane verify_version \
-            json_key:${{ env.ANDROID_PLAY_STORE_JSON_PATH }} \
-            version_code:${{ steps.vars.outputs.version_code }} \
-            version_name:${{ steps.vars.outputs.version_name }}
-
-      - name: "Fastlane: Build"
-        working-directory: apps/mobile/android
+      - name: Verify protected release environment
+        shell: bash
         env:
-          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          fastlane deploy_internal \
-            json_key:${{ env.ANDROID_PLAY_STORE_JSON_PATH }} \
-            gradle_file:${{ github.workspace }}/apps/mobile/android/app/build.gradle
+          set -euo pipefail
+          environment_json="$(
+            curl --fail --silent --show-error \
+              --header "Authorization: Bearer $GH_TOKEN" \
+              --header "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/environments/mobile-release"
+          )"
+          jq -e '
+            .deployment_branch_policy.protected_branches == true and
+            any(.protection_rules[]?; .type == "required_reviewers" and (.reviewers | length > 0))
+          ' <<<"$environment_json" >/dev/null
 
-      - name: "Notification"
-        if: always()
-        env:
-          STATUS_TEXT: ${{ job.status == 'success' && 'SUCCESS 🎉' || job.status == 'failure' && 'FAILURE ❌' || job.status == 'cancelled' && 'CANCELLED 🤔' || job.status }}
-        run: |
-          curl "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_API_KEY }}/sendMessage" \
-            --header "Content-Type: application/json" \
-            --request POST \
-            --data "{
-              \"chat_id\": \"${{ secrets.TELEGRAM_CHAT_ID }}\",
-              \"text\": \"Android Release ${{ steps.vars.outputs.version_name }} (Build ${{ steps.vars.outputs.version_code }}): ${{ env.STATUS_TEXT }}\n\nCommit: ${{ github.sha }}\nWorkflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
-            }"
-
-      - name: "Add job done reaction"
-        if: always()
-        uses: actions/github-script@v8
+      - name: Checkout trusted source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          script: |
-            const reactions = {
-              success: 'hooray',
-              failure: '-1',
-              cancelled: 'confused'
-            };
-            const content = reactions['${{ job.status }}'] || 'confused';
+          ref: ${{ github.sha }}
+          persist-credentials: false
 
-            github.rest.reactions.createForIssueComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              comment_id: context.payload.comment.id,
-              content: content
-            });
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
+        with:
+          bun-version: 1.3.10
+
+      - name: Setup EAS CLI
+        uses: expo/expo-github-action@c7b66a9c327a43a8fa7c0158e7f30d6040d2481e
+        with:
+          eas-version: 24.8.0
+          eas-cache: false
+          packager: bun
+
+      - name: Verify trusted source
+        shell: bash
+        env:
+          RELEASE_REF: ${{ github.ref }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          test -n "$RELEASE_APPROVED_SHA"
+          test "$RELEASE_APPROVED_SHA" = "$RELEASE_SHA"
+          test "$RELEASE_REF" = "refs/heads/main"
+          test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Validate source
+        run: |
+          bun test ./.github/workflows/release.test.ts
+          bun run mobile:test
+          bun --cwd apps/mobile test ./test/i18n.test.ts
+
+      - name: Verify source was not modified
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code
+          git diff --cached --exit-code
+          test -z "$(git status --porcelain)"
+
+      - name: Build signed internal candidate
+        working-directory: apps/mobile
+        shell: bash
+        env:
+          EAS_PLATFORM: ${{ inputs.platform }}
+          EXPO_TOKEN: ${{ secrets.MOBILE_INTERNAL_EAS_TOKEN }}
+        run: |
+          set -uo pipefail
+          result_file="${RUNNER_TEMP}/eas-build-result.json"
+          set +e
+          eas build --non-interactive --json --profile preview --platform "$EAS_PLATFORM" > "$result_file"
+          build_status=$?
+          set -e
+          if [ ! -s "$result_file" ]; then
+            if [ "$build_status" -ne 0 ]; then
+              exit "$build_status"
+            fi
+            exit 1
+          fi
+          EAS_BUILD_RESULT="$result_file" node --input-type=module <<'NODE'
+          import fs from "node:fs"
+          import { summarizeEasBuilds } from "./scripts/summarize-eas-builds.mjs"
+
+          const summary = summarizeEasBuilds(fs.readFileSync(process.env.EAS_BUILD_RESULT, "utf8"), process.env.EAS_PLATFORM, process.env.GITHUB_SHA)
+          const rows = summary.map(build => `| ${build.platform} | ${build.id} | ${build.status} | ${build.appVersion ?? ""} | ${build.appBuildVersion ?? ""} |`).join("\n")
+          const output = [
+            "## Mobile internal release candidate",
+            "",
+            `- Git SHA: \`${process.env.GITHUB_SHA}\``,
+            `- Git ref: \`${process.env.GITHUB_REF}\``,
+            `- Initiator: \`${process.env.GITHUB_ACTOR}\``,
+            `- EAS profile: \`preview\``,
+            `- Workflow: ${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
+            "",
+            "| Platform | EAS build ID | Status | App version | Build version |",
+            "|---|---|---|---|---|",
+            rows,
+            "",
+          ].join("\n")
+
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, output)
+          console.log(output)
+          NODE
+          exit "$build_status"
