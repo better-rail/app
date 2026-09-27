@@ -9,7 +9,7 @@ import { Train } from "@/services/api"
 import { useRouter } from "expo-router"
 import HapticFeedback from "react-native-haptic-feedback"
 import { trackEvent } from "@/services/analytics"
-import { alternativeChangeStations } from "./alternative-change-stations"
+import { alternativeChangeStations, easyPlatformChanges, trainStartStation } from "./alternative-change-stations"
 import { useRideStore } from "@/models"
 
 const importantIcon = require("../../../../assets/important.png")
@@ -34,13 +34,28 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
   const alternatives = alternativeChangeStations(firstTrain, secondTrain)
 
   const onChangeStationPress = () => {
+    const platformChanges = Object.entries(easyPlatformChanges(firstTrain, secondTrain, alternatives))
+    const idsWith = (change: string) =>
+      platformChanges
+        .filter(([, c]) => c === change)
+        .map(([id]) => id)
+        .join(",")
     if (isRideInProgress) {
       Alert.alert(translate("ride.changeStationBlockedTitle"), translate("ride.changeStationBlockedMessage"))
       return
     }
     HapticFeedback.trigger("impactLight")
     trackEvent("change_station_btn_press")
-    router.push({ pathname: "/select-station", params: { selectionType: "via", stationIds: alternatives.join(",") } })
+    router.push({
+      pathname: "/select-station",
+      params: {
+        selectionType: "via",
+        stationIds: alternatives.join(","),
+        trainStartId: trainStartStation(secondTrain),
+        samePlatformIds: idsWith("same"),
+        acrossPlatformIds: idsWith("across"),
+      },
+    })
   }
 
   const platformDetailText = (() => {

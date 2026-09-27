@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react"
 import { View, Pressable, Platform } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text, StationCard, FavoriteRoutes } from "@/components"
+import type { StationCardBadge } from "@/components/station-card/station-card"
 import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore, useRecentSearchesStore, useFavoritesStore } from "@/models"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
@@ -17,12 +18,21 @@ import { useQueryClient } from "react-query"
 import * as Burnt from "burnt"
 import { translate } from "@/i18n"
 
+const STAR_ICON = require("../../../assets/star-fill.png")
+const CHECKMARK_ICON = require("../../../assets/checkmark.png")
+
 export type SelectionType = "origin" | "destination" | "via"
 
 export function SelectStationScreen() {
   const router = useRouter()
   const navigation = useNavigation()
-  const { selectionType, stationIds } = useLocalSearchParams<{ selectionType: SelectionType; stationIds?: string }>()
+  const { selectionType, stationIds, trainStartId, samePlatformIds, acrossPlatformIds } = useLocalSearchParams<{
+    selectionType: SelectionType
+    stationIds?: string
+    trainStartId?: string
+    samePlatformIds?: string
+    acrossPlatformIds?: string
+  }>()
   const allStations = useStations()
   const allowedStations = useMemo(() => {
     if (!stationIds) return undefined
@@ -74,11 +84,28 @@ export function SelectStationScreen() {
     router.back()
   }
 
+  const samePlatformSet = useMemo(() => new Set(samePlatformIds?.split(",")), [samePlatformIds])
+  const acrossPlatformSet = useMemo(() => new Set(acrossPlatformIds?.split(",")), [acrossPlatformIds])
+  const changeBadges = (stationId: string) => {
+    if (selectionType !== "via") return undefined
+    const badges: StationCardBadge[] = []
+    if (stationId === trainStartId) {
+      badges.push({ label: translate("routeDetails.trainStartsHere") ?? "", icon: STAR_ICON, tone: "highlight" })
+    }
+    if (samePlatformSet.has(stationId)) {
+      badges.push({ label: translate("routeDetails.samePlatform") ?? "", icon: CHECKMARK_ICON })
+    } else if (acrossPlatformSet.has(stationId)) {
+      badges.push({ label: translate("routeDetails.acrossPlatform") ?? "", icon: CHECKMARK_ICON })
+    }
+    return badges
+  }
+
   const renderItem = (station: NormalizedStation) => (
     <StationCard
       testID={`station-item-${station.id}`}
       name={station.name}
       image={station.image}
+      badges={changeBadges(station.id)}
       style={styles.stationCard}
       loading={station.id === replacingStationId}
       disabled={!!replacingStationId}
