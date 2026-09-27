@@ -1,11 +1,12 @@
 import { Text } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
+import { formatHourTime } from "./hour-format"
 import type { HourBubbleTextProps } from "./hour-bubble-text.types"
 
 // Non-iOS: no SwiftUI numeric transition, so the hour just swaps
 export function HourBubbleText({ hour }: HourBubbleTextProps) {
   if (hour === null) return null
-  return <Text style={styles.text}>{`${hour.toString().padStart(2, "0")}:00`}</Text>
+  return <Text style={styles.text}>{formatHourTime(hour)}</Text>
 }
 
 const styles = StyleSheet.create((theme) => ({

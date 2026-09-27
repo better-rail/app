@@ -12,7 +12,8 @@ import Animated, {
 } from "react-native-reanimated"
 import { scheduleOnRN } from "react-native-worklets"
 import { StyleSheet } from "react-native-unistyles"
-import { isRTL, translate } from "@/i18n"
+import { isRTL, translate, use12HourClock } from "@/i18n"
+import { formatHourLabel, formatHourTime } from "./hour-format"
 import { HourBubbleText } from "./hour-bubble-text"
 
 export type HourIndexEntry = { hour: number; index: number }
@@ -25,7 +26,8 @@ type HourIndexBarProps = {
 }
 
 const BUBBLE_HEIGHT = 56
-const BUBBLE_WIDTH = 86
+// Wider for "12:00 PM"
+const BUBBLE_WIDTH = use12HourClock ? 116 : 86
 // Far enough from the bar that the scrubbing thumb doesn't cover it
 const BUBBLE_GAP = 56
 // The bubble grows out of the bar, so it starts shifted toward it
@@ -33,8 +35,6 @@ const ENTER_OFFSET = (isRTL ? -1 : 1) * 40
 const SPRING = { damping: 18, stiffness: 260, mass: 0.8 }
 // Let the bubble finish growing before the list jump, which can stall a frame or two
 const FIRST_JUMP_DELAY = 120
-
-const formatHour = (hour: number) => hour.toString().padStart(2, "0")
 
 /** A contacts-style side index that jumps the route list to the first train of each hour. */
 export function HourIndexBar({ entries, topHour, onSelect }: HourIndexBarProps) {
@@ -168,7 +168,7 @@ export function HourIndexBar({ entries, topHour, onSelect }: HourIndexBarProps) 
           accessible
           accessibilityRole="adjustable"
           accessibilityLabel={translate("routes.hourIndex") ?? undefined}
-          accessibilityValue={{ text: currentHour >= 0 ? `${formatHour(currentHour)}:00` : undefined }}
+          accessibilityValue={{ text: currentHour >= 0 ? formatHourTime(currentHour) : undefined }}
           accessibilityActions={[{ name: "increment" }, { name: "decrement" }]}
           onAccessibilityAction={(e) => step(e.nativeEvent.actionName === "increment" ? 1 : -1)}
         >
@@ -199,7 +199,7 @@ function HourLabel(props: { hour: number; index: number; activeIndex: SharedValu
 
   return (
     <Animated.View style={animatedStyle}>
-      <Text style={styles.label}>{formatHour(hour)}</Text>
+      <Text style={styles.label}>{formatHourLabel(hour)}</Text>
     </Animated.View>
   )
 }

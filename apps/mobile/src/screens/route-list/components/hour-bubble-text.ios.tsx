@@ -1,6 +1,7 @@
 import { Host, Text } from "@expo/ui/swift-ui"
 import { animation, Animation, contentTransition, font, monospacedDigit } from "@expo/ui/swift-ui/modifiers"
 import { primaryFont } from "@/theme/typography"
+import { formatHourTime } from "./hour-format"
 import type { HourBubbleTextProps } from "./hour-bubble-text.types"
 
 /** The bubble's hour label, rolling digits with SwiftUI's numeric text transition. */
@@ -17,7 +18,7 @@ export function HourBubbleText({ hour, countsDown }: HourBubbleTextProps) {
           animation(Animation.spring({ response: 0.3, dampingFraction: 0.85 }), hour),
         ]}
       >
-        {`${hour.toString().padStart(2, "0")}:00`}
+        {formatHourTime(hour)}
       </Text>
     </Host>
   )
