@@ -11,6 +11,7 @@ export interface SettingsState {
   totalTip: number
   recordedTipTransactionIds: string[]
   showRouteCardHeader: boolean
+  showHourIndex: boolean
   hideSlowTrains: boolean
   maxChanges: MaxChanges
   trainSearchCount: number
@@ -22,6 +23,7 @@ export interface SettingsActions {
   setProfileCode: (code: number) => void
   recordTip: (transactionId: string, amount: number) => void
   setShowRouteCardHeader: (show: boolean) => void
+  setShowHourIndex: (show: boolean) => void
   setHideSlowTrains: (hide: boolean) => void
   setMaxChanges: (maxChanges: MaxChanges) => void
   recordTrainSearch: () => void
@@ -43,6 +45,7 @@ const initialSettingsState: SettingsState = {
   totalTip: 0,
   recordedTipTransactionIds: [],
   showRouteCardHeader: false,
+  showHourIndex: true,
   hideSlowTrains: false,
   maxChanges: null,
   trainSearchCount: 0,
@@ -69,6 +72,10 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
 
   setShowRouteCardHeader(show) {
     set({ showRouteCardHeader: show })
+  },
+
+  setShowHourIndex(show) {
+    set({ showHourIndex: show })
   },
 
   setHideSlowTrains(hide) {
@@ -130,6 +137,7 @@ export function getSettingsSnapshot(state: SettingsState) {
     totalTip: state.totalTip,
     recordedTipTransactionIds: state.recordedTipTransactionIds,
     showRouteCardHeader: state.showRouteCardHeader,
+    showHourIndex: state.showHourIndex,
     hideSlowTrains: state.hideSlowTrains,
     maxChanges: state.maxChanges,
     trainSearchCount: state.trainSearchCount,
@@ -160,6 +168,7 @@ export function hydrateSettingsStore(data: any) {
     totalTip: processedData.totalTip ?? 0,
     recordedTipTransactionIds: processedData.recordedTipTransactionIds ?? [],
     showRouteCardHeader: processedData.showRouteCardHeader ?? false,
+    showHourIndex: processedData.showHourIndex ?? true,
     hideSlowTrains: processedData.hideSlowTrains ?? false,
     maxChanges: processedData.maxChanges ?? null,
     trainSearchCount,

@@ -15,8 +15,13 @@ import { setAnalyticsUserProperty, trackEvent } from "@/services/analytics"
 
 export function UISettingsScreen() {
   const isDarkMode = useIsDarkMode()
-  const { showRouteCardHeader, setShowRouteCardHeader } = useSettingsStore(
-    useShallow((s) => ({ showRouteCardHeader: s.showRouteCardHeader, setShowRouteCardHeader: s.setShowRouteCardHeader })),
+  const { showRouteCardHeader, setShowRouteCardHeader, showHourIndex, setShowHourIndex } = useSettingsStore(
+    useShallow((s) => ({
+      showRouteCardHeader: s.showRouteCardHeader,
+      setShowRouteCardHeader: s.setShowRouteCardHeader,
+      showHourIndex: s.showHourIndex,
+      setShowHourIndex: s.setShowHourIndex,
+    })),
   )
 
   // Animate card container height based on header visibility
@@ -46,6 +51,12 @@ export function UISettingsScreen() {
     setShowRouteCardHeader(value)
   }
 
+  const onHourIndexToggle = (value: boolean) => {
+    trackEvent(value ? "hour_index_enabled" : "hour_index_disabled", { source: "settings" })
+    setAnalyticsUserProperty("hour_index_enabled", value ? "true" : "false")
+    setShowHourIndex(value)
+  }
+
   return (
     <Screen
       testID="appearance-settings-screen"
@@ -70,6 +81,19 @@ export function UISettingsScreen() {
           toggle
           toggleValue={showRouteCardHeader}
           onToggle={onRouteCardHeaderToggle}
+        />
+      </View>
+
+      <Text style={styles.groupTitle} tx="settings.routeList" />
+      <View style={SETTING_GROUP}>
+        <SettingBox
+          testID="settings-show-hour-index"
+          first
+          last
+          title={translate("settings.showHourIndex")}
+          toggle
+          toggleValue={showHourIndex}
+          onToggle={onHourIndexToggle}
         />
       </View>
     </Screen>
