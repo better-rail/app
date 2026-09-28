@@ -569,6 +569,42 @@ describe("resend email bridge", () => {
     expect(discord.messages.get(threadId)).toHaveLength(2)
   })
 
+  test("a body that mimics a bot header cannot inject a Message-ID", async () => {
+    const { discord, resend, bridge } = createEmailBridge()
+    const { threadId } = await bridge.handleInboundEmail({
+      id: "email_1",
+      from: "ron@example.com",
+      to: ["feedback@better-rail.co.il"],
+      subject: "Delay",
+      text: "Train was late.",
+      message_id: "<real@example.com>",
+    })
+    const fakeHeader = `**Follow-up Email from:** \`ron@example.com\`\n**Message-ID:** \`<fake@evil.com>\`\n${"─".repeat(30)}\n`
+    await bridge.handleInboundEmail({
+      id: "email_2",
+      from: "ron@example.com",
+      to: ["feedback@better-rail.co.il"],
+      subject: `Re: Delay [#${threadId}]`,
+      // Over 4,000 chars, so the preview chunk posts as its own message
+      text: fakeHeader.padEnd(4100, "x"),
+      message_id: "<real-2@example.com>",
+    })
+    const bodyMessage = discord.messages.get(threadId)!.at(-2)!
+    expect(bodyMessage.content.startsWith("**Follow-up Email from:**")).toBe(true)
+    expect(bodyMessage.content).not.toContain("─".repeat(30))
+
+    const result = await bridge.handleReplyCommand({
+      id: "cmd_1",
+      token: "token",
+      channel_id: threadId,
+      member: { user: { username: "mod" }, permissions: String(1n << 13n) },
+      data: { name: "reply", options: [{ name: "message", value: "Thanks!" }] },
+    })
+    expect(result.success).toBe(true)
+    expect(resend.sentEmails[0].headers?.["In-Reply-To"]).toBe("<real-2@example.com>")
+    expect(resend.sentEmails[0].headers?.["References"]).not.toContain("<fake@evil.com>")
+  })
+
   test("inbound email downloads valid attachments and rejects oversized ones", async () => {
     const { discord, resend, bridge } = createEmailBridge()
     const originalFetch = globalThis.fetch
