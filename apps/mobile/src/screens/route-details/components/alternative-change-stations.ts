@@ -14,7 +14,8 @@ export function alternativeChangeStations(firstTrain: Train, secondTrain: Train)
 
 // The station the onward train starts its run from, where it usually waits at the platform before leaving
 export function trainStartStation(train: Train): string | undefined {
-  const firstStop = train.routeStations[0]
+  if (train.isCancelled) return undefined
+  const firstStop = train.routeStations.find((s) => !s.cancelled)
   return firstStop ? String(firstStop.stationId) : undefined
 }
 

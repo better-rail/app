@@ -27,6 +27,16 @@ describe("trainStartStation", () => {
     expect(trainStartStation(train(4, 6, [9, 3, 4, 5, 6]))).toBe("9")
   })
 
+  it("skips stops cancelled in realtime", () => {
+    const t = train(4, 6, [9, 3, 4, 5, 6])
+    t.routeStations[0].cancelled = true
+    expect(trainStartStation(t)).toBe("3")
+  })
+
+  it("returns undefined for a cancelled train", () => {
+    expect(trainStartStation({ ...train(4, 6, [9, 3, 4]), isCancelled: true })).toBeUndefined()
+  })
+
   it("returns undefined without a run", () => {
     expect(trainStartStation(train(4, 6, []))).toBeUndefined()
   })
