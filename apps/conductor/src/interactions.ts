@@ -97,10 +97,11 @@ export function createHandler(
       if (request.method !== "POST") return new Response("Method not allowed", { status: 405, headers: { Allow: "POST" } })
       const body = Buffer.from(await request.arrayBuffer())
 
-      if (config.resendWebhookSecret) {
-        if (!verifyResendSignature(request, body, config.resendWebhookSecret)) {
-          return new Response("Invalid signature", { status: 401 })
-        }
+      if (!config.resendWebhookSecret) {
+        return new Response("Webhook secret not configured", { status: 503 })
+      }
+      if (!verifyResendSignature(request, body, config.resendWebhookSecret)) {
+        return new Response("Invalid signature", { status: 401 })
       }
 
       try {

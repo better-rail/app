@@ -637,6 +637,46 @@ describe("resend email bridge", () => {
     expect(threadMessages[0].content).toContain("OLED dark mode")
   })
 
+  test("POST /resend/webhook rejects with 503 when resendWebhookSecret is missing", async () => {
+    const discord = new FakeDiscord()
+    const resend = new FakeResend()
+    const bridge = new EmailBridge(emailConfig, discord, resend)
+
+    const unconfiguredConfig = { ...emailConfig, resendWebhookSecret: undefined }
+    const handler = createHandler(unconfiguredConfig, discord, new OnboardingRoles(unconfiguredConfig, discord), resend, bridge)
+
+    const request = new Request("http://localhost/resend/webhook", {
+      method: "POST",
+      body: JSON.stringify({ type: "email.received", data: { email_id: "any" } }),
+    })
+
+    const response = await handler(request)
+    expect(response.status).toBe(503)
+    expect(await response.text()).toContain("Webhook secret not configured")
+  })
+
+  test("POST /resend/webhook rejects with 401 when signature is invalid", async () => {
+    const discord = new FakeDiscord()
+    const resend = new FakeResend()
+    const bridge = new EmailBridge(emailConfig, discord, resend)
+
+    const handler = createHandler(emailConfig, discord, new OnboardingRoles(emailConfig, discord), resend, bridge)
+
+    const request = new Request("http://localhost/resend/webhook", {
+      method: "POST",
+      headers: {
+        "svix-id": "msg_invalid",
+        "svix-timestamp": String(Math.floor(Date.now() / 1000)),
+        "svix-signature": "v1,invalid_signature_hex",
+      },
+      body: JSON.stringify({ type: "email.received", data: { email_id: "any" } }),
+    })
+
+    const response = await handler(request)
+    expect(response.status).toBe(401)
+    expect(await response.text()).toContain("Invalid signature")
+  })
+
   test("slash command /reply sends email via Resend and patches confirmation in thread", async () => {
     const discord = new FakeDiscord()
     const resend = new FakeResend()
