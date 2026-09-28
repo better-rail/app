@@ -14,6 +14,9 @@ export type SlashCommandInteraction = {
   }
 }
 
+export const MAX_ATTACHMENT_BYTES = 25 * 1024 * 1024 // 25 MB Discord upload limit
+export const ATTACHMENT_DOWNLOAD_TIMEOUT_MS = 15_000
+
 export function extractThreadId(
   subject?: string,
   headers?: Record<string, string | string[]>,
@@ -218,10 +221,52 @@ export class EmailBridge {
         try {
           let blob: Blob | undefined
           if (att.download_url) {
-            const resp = await fetch(att.download_url)
-            if (resp.ok) blob = await resp.blob()
+            const resp = await fetch(att.download_url, {
+              signal: AbortSignal.timeout(ATTACHMENT_DOWNLOAD_TIMEOUT_MS),
+            })
+            if (!resp.ok) {
+              throw new Error(`HTTP ${resp.status} downloading attachment`)
+            }
+            if (!resp.body) {
+              throw new Error("Missing response body downloading attachment")
+            }
+
+            const contentLength = Number(resp.headers.get("content-length") || 0)
+            if (contentLength > MAX_ATTACHMENT_BYTES) {
+              throw new Error(`Attachment exceeds maximum size of ${MAX_ATTACHMENT_BYTES} bytes`)
+            }
+
+            const reader = resp.body.getReader()
+            const chunks: Uint8Array[] = []
+            let totalBytes = 0
+
+            try {
+              while (true) {
+                const { done, value } = await reader.read()
+                if (done) break
+                if (value) {
+                  totalBytes += value.length
+                  if (totalBytes > MAX_ATTACHMENT_BYTES) {
+                    await reader.cancel()
+                    throw new Error(`Attachment exceeded maximum size of ${MAX_ATTACHMENT_BYTES} bytes`)
+                  }
+                  chunks.push(value)
+                }
+              }
+            } catch (readErr) {
+              await reader.cancel().catch(() => {})
+              throw readErr
+            }
+
+            blob = new Blob([Buffer.concat(chunks)], {
+              type: att.content_type || resp.headers.get("content-type") || "application/octet-stream",
+            })
           } else if (att.content) {
-            blob = new Blob([Buffer.from(att.content, "base64")], {
+            const buffer = Buffer.from(att.content, "base64")
+            if (buffer.length > MAX_ATTACHMENT_BYTES) {
+              throw new Error(`Attachment exceeds maximum size of ${MAX_ATTACHMENT_BYTES} bytes`)
+            }
+            blob = new Blob([buffer], {
               type: att.content_type || "application/octet-stream",
             })
           }

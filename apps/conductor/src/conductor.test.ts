@@ -851,5 +851,96 @@ describe("resend email bridge", () => {
     expect(resend.sentEmails[0].to).toEqual(["customer@domain.com"])
     expect(resend.sentEmails[0].text).toContain("Resolution after long internal discussion")
   })
+
+  test("inbound email with attachment download_url downloads and attaches file", async () => {
+    const discord = new FakeDiscord()
+    const resend = new FakeResend()
+    const bridge = new EmailBridge(emailConfig, discord, resend)
+
+    const originalFetch = globalThis.fetch
+    try {
+      globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+        if (typeof input === "string" && input.includes("attachment.pdf")) {
+          return new Response(new Uint8Array([1, 2, 3, 4]), {
+            status: 200,
+            headers: { "content-type": "application/pdf" },
+          })
+        }
+        return originalFetch(input, init)
+      }) as typeof fetch
+
+      const email: ResendReceivedEmail = {
+        id: "email_att_1",
+        from: "attachment_user@example.com",
+        to: ["feedback@better-rail.co.il"],
+        subject: "With Attachment",
+        text: "See attached invoice",
+        attachments: [
+          {
+            id: "att_1",
+            filename: "invoice.pdf",
+            content_type: "application/pdf",
+            download_url: "https://files.resend.com/attachment.pdf",
+          },
+        ],
+      }
+
+      const res = await bridge.handleInboundEmail(email)
+      expect(res.created).toBe(true)
+
+      const messages = discord.messages.get(res.threadId) || []
+      expect(messages.length).toBe(2)
+      expect(messages[1].content).toContain("**Attachment:** `invoice.pdf`")
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+
+  test("inbound email with oversized attachment download_url safely rejects attachment", async () => {
+    const discord = new FakeDiscord()
+    const resend = new FakeResend()
+    const bridge = new EmailBridge(emailConfig, discord, resend)
+
+    const originalFetch = globalThis.fetch
+    try {
+      globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+        if (typeof input === "string" && input.includes("huge.zip")) {
+          return new Response("huge payload", {
+            status: 200,
+            headers: {
+              "content-type": "application/zip",
+              "content-length": String(30 * 1024 * 1024), // 30 MB (exceeds 25 MB limit)
+            },
+          })
+        }
+        return originalFetch(input, init)
+      }) as typeof fetch
+
+      const email: ResendReceivedEmail = {
+        id: "email_att_2",
+        from: "attachment_user@example.com",
+        to: ["feedback@better-rail.co.il"],
+        subject: "With Huge Attachment",
+        text: "See attached huge file",
+        attachments: [
+          {
+            id: "att_huge",
+            filename: "huge.zip",
+            content_type: "application/zip",
+            download_url: "https://files.resend.com/huge.zip",
+          },
+        ],
+      }
+
+      const res = await bridge.handleInboundEmail(email)
+      expect(res.created).toBe(true)
+
+      const messages = discord.messages.get(res.threadId) || []
+      // Initial message is posted, but oversized attachment is rejected safely
+      expect(messages.length).toBe(1)
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
 })
 
