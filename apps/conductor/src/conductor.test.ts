@@ -1,10 +1,12 @@
 import { describe, expect, test } from "bun:test"
-import { generateKeyPairSync, sign } from "node:crypto"
+import { createHmac, generateKeyPairSync, sign } from "node:crypto"
 import type { ConductorConfig } from "./config"
-import { DiscordApi, type DiscordChannel, type DiscordRole } from "./discord"
+import { DiscordApi, type DiscordChannel, type DiscordMessage, type DiscordRole } from "./discord"
+import { chunkEmailBody, EmailBridge, extractSenderEmail, extractThreadId, htmlToText } from "./email-bridge"
 import { createHandler } from "./interactions"
 import { journeyComplete, platformPicker, welcomeMessage } from "./messages"
 import { everyoneCanReadWelcome } from "./permissions"
+import { ResendApi, type ResendReceivedEmail, type ResendSendEmailOptions, verifyResendSignature } from "./resend"
 import { isFlairRole, OnboardingRoles } from "./roles"
 
 const keys = generateKeyPairSync("ed25519")
@@ -43,6 +45,10 @@ class FakeDiscord extends DiscordApi {
     ].map(([id, name]) => ({ id, name, permissions: "0", position: 1, managed: false })),
   ]
 
+  channels = new Map<string, DiscordChannel>()
+  messages = new Map<string, DiscordMessage[]>()
+  threadCounter = 1000n
+
   constructor() {
     super("test-only")
   }
@@ -54,6 +60,73 @@ class FakeDiscord extends DiscordApi {
       this.responses.push(body as object)
       return undefined as T
     }
+
+    const threadMatch = path.match(/^\/channels\/(\d+)\/threads$/)
+    if (method === "POST" && threadMatch) {
+      const parentId = threadMatch[1]
+      const threadId = String(1548800000000000000n + this.threadCounter++)
+      const b = body as { name: string; type: number }
+      const channel: DiscordChannel = {
+        id: threadId,
+        guild_id: guildId,
+        parent_id: parentId,
+        name: b.name,
+        type: b.type,
+        permission_overwrites: [],
+      }
+      this.channels.set(threadId, channel)
+      return channel as T
+    }
+
+    const channelMatch = path.match(/^\/channels\/(\d+)$/)
+    if (channelMatch) {
+      const channelId = channelMatch[1]
+      if (method === "GET") {
+        const ch = this.channels.get(channelId)
+        if (!ch) throw new Error("Channel not found")
+        return ch as T
+      }
+      if (method === "PATCH") {
+        const ch = this.channels.get(channelId)
+        if (!ch) throw new Error("Channel not found")
+        if (body && typeof body === "object" && "archived" in body) {
+          if (!ch.thread_metadata) ch.thread_metadata = {}
+          ch.thread_metadata.archived = (body as { archived: boolean }).archived
+        }
+        Object.assign(ch, body)
+        return ch as T
+      }
+    }
+
+    const messagesMatch = path.match(/^\/channels\/(\d+)\/messages(?:\?.*)?$/)
+    if (messagesMatch) {
+      const channelId = messagesMatch[1]
+      if (method === "GET") {
+        return (this.messages.get(channelId) || []) as T
+      }
+      if (method === "POST") {
+        let content = ""
+        if (typeof FormData !== "undefined" && body instanceof FormData) {
+          const payloadJson = body.get("payload_json")
+          if (typeof payloadJson === "string") {
+            content = JSON.parse(payloadJson).content || ""
+          }
+        } else if (body && typeof body === "object" && "content" in body) {
+          content = (body as { content: string }).content
+        }
+        const msg: DiscordMessage = {
+          id: String(1548800000000000000n + this.threadCounter++),
+          channel_id: channelId,
+          content,
+          author: { id: applicationId, username: "The Conductor", bot: true },
+        }
+        const list = this.messages.get(channelId) || []
+        list.push(msg)
+        this.messages.set(channelId, list)
+        return msg as T
+      }
+    }
+
     const role = path.split("/").at(-1)!
     if (method === "PUT" && (this.failAssignment || this.failAssignmentRole === role)) throw new Error("Assignment failed")
     if (method === "DELETE" && this.failRemovalOnce === role) {
@@ -291,3 +364,313 @@ describe("conductor onboarding", () => {
     }
   })
 })
+
+const feedbackChannelId = "1548785837758615692"
+const emailConfig: ConductorConfig = {
+  ...config,
+  resendApiKey: "test-resend-key",
+  resendWebhookSecret: "whsec_mfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSw",
+  emailFeedbackChannelId: feedbackChannelId,
+}
+
+class FakeResend extends ResendApi {
+  receivedEmails = new Map<string, ResendReceivedEmail>()
+  sentEmails: ResendSendEmailOptions[] = []
+
+  constructor() {
+    super("test-resend-key")
+  }
+
+  override async getReceivedEmail(emailId: string): Promise<ResendReceivedEmail> {
+    const email = this.receivedEmails.get(emailId)
+    if (!email) throw new Error(`Email ${emailId} not found`)
+    return email
+  }
+
+  override async sendEmail(options: ResendSendEmailOptions): Promise<{ id: string }> {
+    this.sentEmails.push(options)
+    return { id: "re_test_sent_1" }
+  }
+}
+
+function signedResendRequest(payload: unknown, secret: string, timestamp = String(Math.floor(Date.now() / 1000))) {
+  const body = Buffer.from(JSON.stringify(payload))
+  const key = secret.startsWith("whsec_") ? Buffer.from(secret.slice(6), "base64") : Buffer.from(secret, "utf-8")
+  const svixId = "msg_test_123"
+  const toSign = Buffer.concat([Buffer.from(`${svixId}.${timestamp}.`), body])
+  const signature = createHmac("sha256", key).update(toSign).digest("base64")
+  return new Request("http://localhost/resend/webhook", {
+    method: "POST",
+    body,
+    headers: {
+      "svix-id": svixId,
+      "svix-timestamp": timestamp,
+      "svix-signature": `v1,${signature}`,
+      "Content-Type": "application/json",
+    },
+  })
+}
+
+describe("resend email bridge", () => {
+  test("verifyResendSignature accepts valid signature and rejects tampered or expired requests", () => {
+    const secret = "whsec_mfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSw"
+    const payload = { test: true }
+    const valid = signedResendRequest(payload, secret)
+    const validBody = Buffer.from(JSON.stringify(payload))
+    expect(verifyResendSignature(valid, validBody, secret)).toBe(true)
+
+    // Tampered body
+    const tamperedBody = Buffer.from(JSON.stringify({ test: false }))
+    expect(verifyResendSignature(valid, tamperedBody, secret)).toBe(false)
+
+    // Expired timestamp
+    const expired = signedResendRequest(payload, secret, String(Math.floor(Date.now() / 1000) - 400))
+    expect(verifyResendSignature(expired, validBody, secret)).toBe(false)
+
+    // Wrong secret
+    expect(verifyResendSignature(valid, validBody, "whsec_wrongsecret123456789012345678901234")).toBe(false)
+  })
+
+  test("extractThreadId extracts thread IDs correctly", () => {
+    const threadId = "1548800000000001001"
+    expect(extractThreadId(`Re: Station search bug [#${threadId}]`)).toBe(threadId)
+    expect(extractThreadId("No thread ID here")).toBeUndefined()
+
+    expect(extractThreadId(undefined, { "in-reply-to": `<thread-${threadId}@better-rail.co.il>` })).toBe(threadId)
+    expect(extractThreadId(undefined, { references: `some-id <thread-${threadId}@better-rail.co.il>` })).toBe(threadId)
+    expect(extractThreadId(undefined, undefined, [`feedback+${threadId}@better-rail.co.il`])).toBe(threadId)
+    expect(
+      extractThreadId(
+        "Changed subject line",
+        undefined,
+        undefined,
+        `Thanks for looking into this!\n\nBetter Rail Support • Ref: [#${threadId}]`,
+      ),
+    ).toBe(threadId)
+  })
+
+  test("extractSenderEmail parses plain and bracketed addresses", () => {
+    expect(extractSenderEmail("David Cohen <david@example.com>")).toBe("david@example.com")
+    expect(extractSenderEmail("david@example.com")).toBe("david@example.com")
+  })
+
+  test("htmlToText converts HTML to clean plaintext", () => {
+    const html = "<p>Hello <b>team</b>,</p><p>The app is <i>great</i>!<br/>Thanks.</p>"
+    const text = htmlToText(html)
+    expect(text).toContain("Hello team,")
+    expect(text).toContain("The app is great!\nThanks.")
+  })
+
+  test("chunkEmailBody chunks body text cleanly and produces overflow file for large emails", () => {
+    const shortText = "Just a short message"
+    const shortResult = chunkEmailBody(shortText)
+    expect(shortResult.chunks).toEqual([shortText])
+    expect(shortResult.overflowFile).toBeUndefined()
+
+    // Medium email (2,500 chars) -> 2 chunks
+    const mediumText = "Line of text.\n".repeat(180)
+    const mediumResult = chunkEmailBody(mediumText)
+    expect(mediumResult.chunks.length).toBeGreaterThan(1)
+    expect(mediumResult.overflowFile).toBeUndefined()
+
+    // Large email (> 4,000 chars) -> preview chunk + overflow file
+    const largeText = "A".repeat(5000)
+    const largeResult = chunkEmailBody(largeText)
+    expect(largeResult.chunks).toHaveLength(1)
+    expect(largeResult.chunks[0]).toContain("exceeds 4,000 characters")
+    expect(largeResult.overflowFile?.filename).toBe("email_body.txt")
+    expect(largeResult.overflowFile?.content).toBe(largeText)
+  })
+
+  test("inbound email creates new thread in #email-feedback with email subject and header", async () => {
+    const discord = new FakeDiscord()
+    const resend = new FakeResend()
+    const bridge = new EmailBridge(emailConfig, discord, resend)
+
+    const email: ResendReceivedEmail = {
+      id: "email_1",
+      from: "Ron <ron@example.com>",
+      to: ["feedback@better-rail.co.il"],
+      subject: "Train schedule issue at Savidor",
+      text: "Hello, train 402 was delayed by 20 minutes today.",
+    }
+
+    const result = await bridge.handleInboundEmail(email)
+    expect(result.created).toBe(true)
+    const thread = discord.channels.get(result.threadId)
+    expect(thread).toBeDefined()
+    expect(thread?.name).toBe("Train schedule issue at Savidor")
+    expect(thread?.parent_id).toBe(feedbackChannelId)
+
+    const messages = discord.messages.get(result.threadId) || []
+    expect(messages.length).toBeGreaterThan(0)
+    expect(messages[0].content).toContain("**New Email from:** `Ron <ron@example.com>`")
+    expect(messages[0].content).toContain("Train schedule issue at Savidor")
+    expect(messages[0].content).toContain("Hello, train 402 was delayed by 20 minutes today.")
+  })
+
+  test("inbound email routes follow-up to existing thread and unarchives if needed", async () => {
+    const discord = new FakeDiscord()
+    const resend = new FakeResend()
+    const bridge = new EmailBridge(emailConfig, discord, resend)
+
+    const existingThreadId = "1548800000000001050"
+    discord.channels.set(existingThreadId, {
+      id: existingThreadId,
+      guild_id: guildId,
+      parent_id: feedbackChannelId,
+      name: "Delayed Train",
+      type: 11,
+      permission_overwrites: [],
+      thread_metadata: { archived: true },
+    })
+
+    const followUpEmail: ResendReceivedEmail = {
+      id: "email_2",
+      from: "Ron <ron@example.com>",
+      to: ["feedback@better-rail.co.il"],
+      subject: `Re: Delayed Train [#${existingThreadId}]`,
+      text: "Any updates on this ticket?",
+    }
+
+    const result = await bridge.handleInboundEmail(followUpEmail)
+    expect(result.created).toBe(false)
+    expect(result.threadId).toBe(existingThreadId)
+    expect(discord.channels.get(existingThreadId)?.thread_metadata?.archived).toBe(false)
+
+    const messages = discord.messages.get(existingThreadId) || []
+    expect(messages.length).toBe(1)
+    expect(messages[0].content).toContain("**Follow-up Email from:** `Ron <ron@example.com>`")
+    expect(messages[0].content).toContain("Any updates on this ticket?")
+  })
+
+  test("POST /resend/webhook endpoint processes incoming email end-to-end", async () => {
+    const discord = new FakeDiscord()
+    const resend = new FakeResend()
+    const bridge = new EmailBridge(emailConfig, discord, resend)
+
+    resend.receivedEmails.set("msg_received_999", {
+      id: "msg_received_999",
+      from: "Noa <noa@example.com>",
+      to: ["feedback@better-rail.co.il"],
+      subject: "Dark mode request",
+      text: "Please add an OLED dark mode!",
+    })
+
+    const handler = createHandler(emailConfig, discord, new OnboardingRoles(emailConfig, discord), resend, bridge)
+    const request = signedResendRequest(
+      {
+        type: "email.received",
+        data: { email_id: "msg_received_999" },
+      },
+      emailConfig.resendWebhookSecret!,
+    )
+
+    const response = await handler(request)
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ ok: true })
+
+    const createdThreads = Array.from(discord.channels.values()).filter((c) => c.name === "Dark mode request")
+    expect(createdThreads).toHaveLength(1)
+    const threadMessages = discord.messages.get(createdThreads[0].id) || []
+    expect(threadMessages[0].content).toContain("OLED dark mode")
+  })
+
+  test("slash command /reply sends email via Resend and patches confirmation in thread", async () => {
+    const discord = new FakeDiscord()
+    const resend = new FakeResend()
+    const bridge = new EmailBridge(emailConfig, discord, resend)
+
+    const threadId = "1548800000000001099"
+    discord.channels.set(threadId, {
+      id: threadId,
+      guild_id: guildId,
+      parent_id: feedbackChannelId,
+      name: "Ticket purchase crash",
+      type: 11,
+      permission_overwrites: [],
+    })
+
+    // Seed starter message with original customer email
+    discord.messages.set(threadId, [
+      {
+        id: "msg_starter_1",
+        channel_id: threadId,
+        content: "**New Email from:** `Yael <yael@example.com>`\n**Subject:** Ticket purchase crash\n──────────────────────────────\nApp crashed at checkout",
+        author: { id: applicationId, username: "The Conductor", bot: true },
+      },
+    ])
+
+    const slashInteraction = {
+      id: "interaction_reply_1",
+      application_id: applicationId,
+      guild_id: guildId,
+      channel_id: threadId,
+      type: 2, // APPLICATION_COMMAND
+      token: "reply-token-123",
+      member: { user: { id: userId, username: "danny" } },
+      data: {
+        name: "reply",
+        options: [{ name: "message", value: "We just published an update that fixes this crash!" }],
+      },
+    }
+
+    const handler = createHandler(emailConfig, discord, new OnboardingRoles(emailConfig, discord), resend, bridge)
+    const response = await (await handler(signedRequest(slashInteraction))).json()
+    expect(response).toEqual({ type: 5 })
+
+    // Wait for async reply to deliver to Resend and patch Discord response
+    await waitForResponse(discord)
+    expect(resend.sentEmails).toHaveLength(1)
+    expect(resend.sentEmails[0].to).toEqual(["yael@example.com"])
+    expect(resend.sentEmails[0].subject).toBe(`Re: Ticket purchase crash [#${threadId}]`)
+    expect(resend.sentEmails[0].text).toContain("We just published an update that fixes this crash!")
+    expect(resend.sentEmails[0].text).toContain(`Better Rail Support • Ref: [#${threadId}]`)
+    expect(resend.sentEmails[0].headers?.["In-Reply-To"]).toBe(`<thread-${threadId}@better-rail.co.il>`)
+
+    expect(discord.responses).toHaveLength(1)
+    const patchContent = (discord.responses[0] as { content: string }).content
+    expect(patchContent).toContain("yael@example.com")
+    expect(patchContent).toContain("We just published an update that fixes this crash!")
+  })
+
+  test("slash command /reply rejects when executed outside an #email-feedback thread", async () => {
+    const discord = new FakeDiscord()
+    const resend = new FakeResend()
+    const bridge = new EmailBridge(emailConfig, discord, resend)
+
+    const randomChannelId = "1548800000000001999"
+    discord.channels.set(randomChannelId, {
+      id: randomChannelId,
+      guild_id: guildId,
+      parent_id: "999999999999999999", // not the feedback channel
+      name: "general-chat",
+      type: 0,
+      permission_overwrites: [],
+    })
+
+    const slashInteraction = {
+      id: "interaction_reply_2",
+      application_id: applicationId,
+      guild_id: guildId,
+      channel_id: randomChannelId,
+      type: 2,
+      token: "reply-token-456",
+      member: { user: { id: userId, username: "danny" } },
+      data: {
+        name: "reply",
+        options: [{ name: "message", value: "Hello outside feedback" }],
+      },
+    }
+
+    const handler = createHandler(emailConfig, discord, new OnboardingRoles(emailConfig, discord), resend, bridge)
+    const response = await (await handler(signedRequest(slashInteraction))).json()
+    expect(response).toEqual({ type: 5 })
+
+    await waitForResponse(discord)
+    expect(resend.sentEmails).toHaveLength(0)
+    const patchContent = (discord.responses[0] as { content: string }).content
+    expect(patchContent).toContain("only be used inside an #email-feedback thread")
+  })
+})
+

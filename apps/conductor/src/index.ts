@@ -11,7 +11,7 @@ if (!Object.keys(config.platformRoles).length) {
 }
 const server = Bun.serve({
   port: Number(process.env.PORT) || 3000,
-  maxRequestBodySize: 64_000,
+  maxRequestBodySize: 1_000_000,
   fetch: createHandler(config),
 })
 console.info(`The Conductor is listening on port ${server.port}`)

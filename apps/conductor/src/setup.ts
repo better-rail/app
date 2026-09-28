@@ -42,7 +42,8 @@ async function provision(choices: readonly { id: string; name: string }[], regis
 
 const platformRoles = await provision(platforms, config.platformRoles)
 
-const setupFile = Bun.file(".conductor-setup.json")
+const setupFilePath = new URL("../.conductor-setup.json", import.meta.url)
+const setupFile = Bun.file(setupFilePath)
 const previous = (await setupFile.exists()) ? await setupFile.json() : {}
 const messageId =
   process.env.DISCORD_PICKER_MESSAGE_ID ||
@@ -54,8 +55,27 @@ const message = await api.call<{ id: string }>(
   welcomeMessage(),
 )
 await Bun.write(
-  setupFile,
+  setupFilePath,
   JSON.stringify({ applicationId: config.applicationId, channelId, messageId: message.id, platformRoles }, null, 2),
 )
 console.info(`Welcome message: https://discord.com/channels/${config.guildId}/${channelId}/${message.id}`)
 console.info("Copy platformRoles from .conductor-setup.json into DISCORD_PLATFORM_ROLES.")
+
+try {
+  await api.call("POST", `/applications/${config.applicationId}/guilds/${config.guildId}/commands`, {
+    name: "reply",
+    description: "Reply directly to the customer via email",
+    options: [
+      {
+        name: "message",
+        description: "The message to send to the customer",
+        type: 3,
+        required: true,
+      },
+    ],
+  })
+  console.info("Registered /reply slash command on Discord guild")
+} catch (cmdErr) {
+  console.warn("Could not register /reply command:", (cmdErr as Error).message)
+}
+
