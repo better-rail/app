@@ -98,11 +98,19 @@ class FakeDiscord extends DiscordApi {
       }
     }
 
-    const messagesMatch = path.match(/^\/channels\/(\d+)\/messages(?:\?.*)?$/)
+    const messagesMatch = path.match(/^\/channels\/(\d+)\/messages(?:\?(.*))?$/)
     if (messagesMatch) {
       const channelId = messagesMatch[1]
       if (method === "GET") {
-        return (this.messages.get(channelId) || []) as T
+        let all = [...(this.messages.get(channelId) || [])].reverse()
+        const query = new URLSearchParams(messagesMatch[2] || "")
+        const before = query.get("before")
+        const limit = Number(query.get("limit") || 50)
+        if (before) {
+          const idx = all.findIndex((m) => m.id === before)
+          if (idx !== -1) all = all.slice(idx + 1)
+        }
+        return all.slice(0, limit) as T
       }
       if (method === "POST") {
         let content = ""
@@ -730,6 +738,65 @@ describe("resend email bridge", () => {
     }
     const res2 = await (await handler(signedRequest(interaction2))).json()
     expect(res2).toEqual({ type: 5 })
+  })
+
+  test("slash command /reply finds customer email in long thread with > 100 messages", async () => {
+    const discord = new FakeDiscord()
+    const resend = new FakeResend()
+    const bridge = new EmailBridge(emailConfig, discord, resend)
+
+    const threadId = "1548800000000001098"
+    discord.channels.set(threadId, {
+      id: threadId,
+      guild_id: guildId,
+      parent_id: feedbackChannelId,
+      name: "Long Discussion",
+      type: 11,
+      permission_overwrites: [],
+    })
+
+    const initialMessage = {
+      id: "1548800000000000001",
+      channel_id: threadId,
+      content:
+        "**New Email from:** `customer@domain.com`\n**Subject:** Long Discussion\n──────────────────────────────\nInitial message",
+      author: { id: applicationId, username: "The Conductor", bot: true },
+    }
+
+    // Add 110 internal discussion messages after the initial email
+    const threadMessages: DiscordMessage[] = [initialMessage]
+    for (let i = 2; i <= 112; i++) {
+      threadMessages.push({
+        id: String(1548800000000000000n + BigInt(i)),
+        channel_id: threadId,
+        content: `Team discussion comment #${i}`,
+        author: { id: "user_internal", username: "dev", bot: false },
+      })
+    }
+    discord.messages.set(threadId, threadMessages)
+
+    const slashInteraction = {
+      id: "interaction_reply_long",
+      application_id: applicationId,
+      guild_id: guildId,
+      channel_id: threadId,
+      type: 2,
+      token: "reply-token-long",
+      member: { user: { id: userId, username: "danny" } },
+      data: {
+        name: "reply",
+        options: [{ name: "message", value: "Resolution after long internal discussion" }],
+      },
+    }
+
+    const handler = createHandler(emailConfig, discord, new OnboardingRoles(emailConfig, discord), resend, bridge)
+    const response = await (await handler(signedRequest(slashInteraction))).json()
+    expect(response).toEqual({ type: 5 })
+
+    await waitForResponse(discord)
+    expect(resend.sentEmails).toHaveLength(1)
+    expect(resend.sentEmails[0].to).toEqual(["customer@domain.com"])
+    expect(resend.sentEmails[0].text).toContain("Resolution after long internal discussion")
   })
 })
 

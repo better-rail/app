@@ -254,19 +254,28 @@ export class EmailBridge {
       return { success: false, message: "Reply message cannot be empty." }
     }
 
-    const messages = await this.discordApi
-      .call<DiscordMessage[]>("GET", `/channels/${channelId}/messages?limit=25`)
-      .catch(() => [])
-
     let recipientEmail: string | undefined
-    for (const msg of [...messages].reverse()) {
-      if (msg.content.includes("**New Email from:**") || msg.content.includes("**Follow-up Email from:**")) {
-        const fromMatch = msg.content.match(/\*\*(?:New|Follow-up) Email from:\*\* `([^`]+)`/)
-        if (fromMatch) {
-          recipientEmail = extractSenderEmail(fromMatch[1])
-          break
+    let beforeId: string | undefined
+
+    for (let page = 0; page < 5; page++) {
+      const url = `/channels/${channelId}/messages?limit=100${beforeId ? `&before=${beforeId}` : ""}`
+      const messages = await this.discordApi.call<DiscordMessage[]>("GET", url).catch(() => [])
+      if (!messages || messages.length === 0) break
+
+      for (const msg of messages) {
+        if (msg.content.includes("**New Email from:**") || msg.content.includes("**Follow-up Email from:**")) {
+          const fromMatch = msg.content.match(/\*\*(?:New|Follow-up) Email from:\*\* `([^`]+)`/)
+          if (fromMatch) {
+            recipientEmail = extractSenderEmail(fromMatch[1])
+            break
+          }
         }
       }
+      if (recipientEmail) break
+
+      const nextBeforeId = messages[messages.length - 1]?.id
+      if (!nextBeforeId || nextBeforeId === beforeId) break
+      beforeId = nextBeforeId
     }
 
     if (!recipientEmail || !recipientEmail.includes("@")) {
