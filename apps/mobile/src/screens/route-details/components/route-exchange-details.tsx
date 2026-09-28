@@ -1,5 +1,5 @@
 import React from "react"
-import { View, Image, ViewStyle, Dimensions, Alert } from "react-native"
+import { View, Image, ViewStyle, Alert } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text, ChangeDirectionButton } from "@/components"
 import { color, spacing, fontScale } from "@/theme"
@@ -15,12 +15,6 @@ import { useRideStore } from "@/models"
 const importantIcon = require("../../../../assets/important.png")
 const clockIcon = require("../../../../assets/clock.png")
 const infoIcon = require("../../../../assets/info.png")
-
-const { width: deviceWidth } = Dimensions.get("screen")
-
-// Hide the exchange icon when font scaling is on or if the viewport is too narrow,
-// since it might make the station name overflow
-const DISPLAY_EXCHANGE_ICON = fontScale < 1.1 && deviceWidth >= 360
 
 const SAFE_DURATION_MINS = 3
 
@@ -79,8 +73,16 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
 
   return (
     <View style={[styles.wrapper, style]}>
-      {DISPLAY_EXCHANGE_ICON && alternatives.length === 0 && <ChangeDirectionButton buttonStyle={styles.icon} />}
-      {DISPLAY_EXCHANGE_ICON && alternatives.length > 0 && (
+      {alternatives.length === 0 && (
+        <ChangeDirectionButton
+          buttonStyle={styles.icon}
+          disabled
+          accessible={false}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+        />
+      )}
+      {alternatives.length > 0 && (
         <ChangeDirectionButton
           testID="change-station-button"
           buttonStyle={styles.icon}
@@ -89,15 +91,17 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
           accessibilityHint={translate("routeDetails.changeStationHint")}
         />
       )}
-      <View>
-        <Text style={styles.stationName}>
+      <View style={styles.details}>
+        <Text style={styles.stationName} maxFontSizeMultiplier={1.2}>
           {translate("routeDetails.changeAt")}
           {stationName}
         </Text>
         <View style={styles.infoWrapper}>
           <View style={[styles.infoDetailWrapper, { marginBottom: spacing[1] }]}>
             <Image style={styles.infoIcon} source={importantIcon} />
-            <Text style={styles.infoText}>{platformDetailText}</Text>
+            <Text style={styles.infoText} maxFontSizeMultiplier={1.2}>
+              {platformDetailText}
+            </Text>
           </View>
           <View
             style={[
@@ -108,14 +112,14 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
             ]}
           >
             <Image style={styles.infoIcon} source={clockIcon} />
-            <Text style={styles.infoText}>
+            <Text style={styles.infoText} maxFontSizeMultiplier={1.2}>
               {translate("routeDetails.waitingTime")} {exchangeDurationText}
             </Text>
           </View>
           {!isExchangeSafe && (
             <View style={[styles.infoDetailWrapper, { marginBottom: fontScale > 1 ? spacing[3] : 0 }]}>
               <Image style={[styles.infoIcon, { tintColor: color.error }]} source={infoIcon} />
-              <Text style={[styles.infoText, { color: color.error }]} preset="bold">
+              <Text style={[styles.infoText, { color: color.error }]} preset="bold" maxFontSizeMultiplier={1.2}>
                 {translate("routeDetails.unsafeChange")}
               </Text>
             </View>
@@ -136,20 +140,24 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.secondaryLighter,
   },
   icon: {
-    marginHorizontal: theme.spacing[4],
+    marginEnd: theme.spacing[2],
+    flexShrink: 0,
     transform: [{ rotate: "90deg" }, { scale: 0.95 }],
     shadowOpacity: 0,
     elevation: 0,
   },
+  details: {
+    flexShrink: 1,
+    minWidth: 0,
+  },
   infoWrapper: {
-    alignItems: DISPLAY_EXCHANGE_ICON ? "flex-start" : "center",
+    alignItems: "flex-start",
   },
   stationName: {
-    maxWidth: DISPLAY_EXCHANGE_ICON ? "85%" : "100%",
     marginBottom: theme.spacing[1],
     fontSize: 18,
     fontWeight: "700",
-    textAlign: DISPLAY_EXCHANGE_ICON ? "left" : "center",
+    textAlign: "left",
   },
   infoDetailWrapper: {
     flexDirection: "row",
@@ -157,6 +165,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   infoText: {
     fontSize: 16,
+    flexShrink: 1,
   },
   infoIcon: {
     width: 25,

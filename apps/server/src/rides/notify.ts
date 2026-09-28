@@ -65,7 +65,9 @@ const sendAndroidNotification = async (payload: NotificationPayload, route: Rout
   }
 
   if (payload.alert) {
+    // A stable id makes a retried or re-sent alert replace the banner instead of stacking a second one.
     message.data!.notifee = JSON.stringify({
+      id: `live-ride-alert-${payload.id}`,
       title: payload.alert.title,
       body: payload.alert.text,
     })

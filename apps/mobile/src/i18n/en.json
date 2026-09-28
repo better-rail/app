@@ -209,7 +209,7 @@
     "general": "General",
     "studentRegular": "Student",
     "studentExtended": "Student Extended",
-    "seniorCitizen": "Senior Citizen",
+    "seniorCitizen": "Senior Woman (62–66)",
     "disabled": "Disabled",
     "youth": "Youth",
     "socialSecurity": "Social Security",
@@ -231,6 +231,7 @@
     "monthlyPass": "Monthly pass",
     "free": "Free",
     "monthlyOnlyDiscount": "The discount for this profile applies to the monthly pass only.",
+    "topUpDiscount": "The discount is applied when topping up RavKav stored value, not when buying a ticket.",
     "unavailable": "Fares aren't available right now.",
     "connectionError": "Couldn't reach the server. Check your connection and try again.",
     "noFareForRoute": "No fare found for this route."

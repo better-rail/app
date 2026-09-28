@@ -36,6 +36,7 @@ export const stations: Station[] = [
     lat: 32.083715,
     lon: 34.798247,
     image: "tlv-center",
+    alias: ["ארלוזרוב"],
   },
   {
     id: "3500",

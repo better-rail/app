@@ -1,14 +1,25 @@
 /* eslint-disable react-native/no-inline-styles */
 
 import * as React from "react"
-import { ImageBackground, View, Platform, Dimensions, ImageSourcePropType, ViewStyle, Image, Appearance } from "react-native"
-import { StyleSheet } from "react-native-unistyles"
+import {
+  ActivityIndicator,
+  ImageBackground,
+  View,
+  Platform,
+  Dimensions,
+  ImageSourcePropType,
+  ViewStyle,
+  Image,
+  Appearance,
+} from "react-native"
+import { StyleSheet, withUnistyles } from "react-native-unistyles"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import LinearGradient from "react-native-linear-gradient"
 import { color } from "@/theme"
 import { Text } from "@/components/text/text"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 
+const ThemedTouchableScale = withUnistyles(TouchableScale)
 const isDarkMode = Appearance.getColorScheme() === "dark"
 const { height: deviceHeight } = Dimensions.get("screen")
 
@@ -34,24 +45,31 @@ export interface StationCardProps extends TouchableScaleProps {
   name: string
   image: ImageSourcePropType
   style?: ViewStyle
+  loading?: boolean
 }
 export function StationCard(props: StationCardProps) {
-  const { name, image, style, ...rest } = props
+  const { name, image, style, loading, ...rest } = props
+
+  const loadingOverlay = loading && (
+    <View style={styles.loadingOverlay}>
+      <ActivityIndicator size="large" color="white" />
+    </View>
+  )
 
   if (!name) {
     return (
-      <TouchableScale style={[styles.container, style]} activeScale={0.95} friction={9} {...rest}>
+      <ThemedTouchableScale style={[styles.container, style]} activeScale={0.95} friction={9} {...rest}>
         <View style={styles.emptyCardWrapper}>
           <Image source={require("../../../assets/railway-station.png")} style={styles.emptyCardImage} />
           <Text style={styles.emptyCardText} tx="plan.selectStation" />
         </View>
-      </TouchableScale>
+      </ThemedTouchableScale>
     )
   }
 
   if (!image) {
     return (
-      <TouchableScale style={[styles.container, styles.imagelessCard, style]} activeScale={0.95} friction={9} {...rest}>
+      <ThemedTouchableScale style={[styles.container, styles.imagelessCard, style]} activeScale={0.95} friction={9} {...rest}>
         <LinearGradient
           style={styles.gardient}
           end={{ x: 1, y: 0 }}
@@ -61,12 +79,13 @@ export function StationCard(props: StationCardProps) {
         <LinearGradient style={styles.gardient} colors={["rgba(0, 0, 0, 0.05)", "rgba(0, 0, 0, 0.3)"]} />
 
         <Text style={styles.text}>{name}</Text>
-      </TouchableScale>
+        {loadingOverlay}
+      </ThemedTouchableScale>
     )
   }
 
   return (
-    <TouchableScale style={[styles.container, style]} activeScale={0.95} friction={9} {...rest}>
+    <ThemedTouchableScale style={[styles.container, style]} activeScale={0.95} friction={9} {...rest}>
       <ImageBackground imageStyle={styles.imageBackgroundImage} source={image} style={styles.background}>
         <LinearGradient
           style={styles.gardient}
@@ -74,8 +93,9 @@ export function StationCard(props: StationCardProps) {
         />
 
         <Text style={styles.text}>{name}</Text>
+        {loadingOverlay}
       </ImageBackground>
-    </TouchableScale>
+    </ThemedTouchableScale>
   )
 }
 
@@ -127,6 +147,13 @@ const styles = StyleSheet.create((theme) => ({
   },
   emptyCardText: {
     color: theme.colors.dim,
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.45)",
+    borderRadius: isLiquidGlassSupported ? 14 : 6,
   },
   gardient: {
     height: "100%",

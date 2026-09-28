@@ -1,5 +1,5 @@
 diff --git a/build/getDevicePushTokenAsync.js b/build/getDevicePushTokenAsync.js
-index f0875c5eaa84d45d646edd1ad5f21a962f68ab02..eea98fba79369545af2658b54051244bb1947eb2 100644
+index f0875c5eaa84d45d646edd1ad5f21a962f68ab02..7a6040963c98d48d22f7ff669175928f35c63063 100644
 --- a/build/getDevicePushTokenAsync.js
 +++ b/build/getDevicePushTokenAsync.js
 @@ -12,16 +12,20 @@ export async function getDevicePushTokenAsync() {
@@ -38,8 +38,7 @@ index 2ed08923e84fcc2dbcb0e4295bf5f1198cc60e58..012191127a3e81271eda9e4f2394c5b6
 @@ -17,15 +17,20 @@ export async function getDevicePushTokenAsync(): Promise<DevicePushToken> {
    }
    warnOfExpoGoPushUsage();
--
-+
+ 
 +  // Reuse an in-flight request, but never retain a settled promise. In particular, a rejected
 +  // promise must be cleared so a transient native registration failure can be retried.
 +  const tokenPromise = nativeTokenPromise ?? PushTokenManager.getDevicePushTokenAsync();
@@ -63,6 +62,5 @@ index 2ed08923e84fcc2dbcb0e4295bf5f1198cc60e58..012191127a3e81271eda9e4f2394c5b6
 +      nativeTokenPromise = null;
 +    }
    }
--
-+
+ 
    // @ts-ignore: TS thinks Platform.OS could be anything and can't decide what type is it

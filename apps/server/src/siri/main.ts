@@ -13,6 +13,9 @@ import { applySchema } from "../db"
 import { connectToRedis } from "../data/redis"
 import { logNames, logger, startLogger } from "../logs"
 import { startSiriPoller } from "./poller"
+import { initSentry } from "../sentry"
+
+initSentry()
 
 const app = express()
 

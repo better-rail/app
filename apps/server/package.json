@@ -6,6 +6,7 @@
   "license": "AGPL-3.0",
   "dependencies": {
     "@lagregance/i18n-js-require": "^4.2.2",
+    "@sentry/bun": "10.74.0",
     "apns2": "^11.2.0",
     "axios": "^1.3.5",
     "axios-retry": "^3.4.0",
@@ -24,6 +25,7 @@
     "unzipper": "^0.12.3",
     "winston": "^3.8.2",
     "winston-mongodb": "^5.1.1",
+    "winston-transport": "^4.9.0",
     "zod": "^3.21.4"
   },
   "devDependencies": {
