@@ -124,6 +124,8 @@ export function createHandler(
     const interaction: Interaction = JSON.parse(body.toString())
     if (interaction.type === 1) return Response.json({ type: 1 })
 
+    for (const [id, entry] of handled) if (entry.at < Date.now() - 300_000) handled.delete(id)
+
     // Slash command /reply
     if (interaction.type === 2 && interaction.data?.name === "reply") {
       if (interaction.guild_id !== config.guildId) {
@@ -148,7 +150,6 @@ export function createHandler(
         data: { content: "🚂 אני הכרטיסן של Better Rail. התחילו שם, בערוץ קבלת הפנים.", flags: 64 },
       })
     }
-    for (const [id, entry] of handled) if (entry.at < Date.now() - 300_000) handled.delete(id)
     const duplicate = handled.get(interaction.id)
     if (duplicate) return Response.json(duplicate.result)
 

@@ -672,5 +672,64 @@ describe("resend email bridge", () => {
     const patchContent = (discord.responses[0] as { content: string }).content
     expect(patchContent).toContain("only be used inside an #email-feedback thread")
   })
+
+  test("handled map cleans up expired entries across slash command invocations", async () => {
+    const discord = new FakeDiscord()
+    const resend = new FakeResend()
+    const bridge = new EmailBridge(emailConfig, discord, resend)
+
+    const threadId = "1548800000000001099"
+    discord.channels.set(threadId, {
+      id: threadId,
+      guild_id: guildId,
+      parent_id: feedbackChannelId,
+      name: "Feedback",
+      type: 11,
+      permission_overwrites: [],
+    })
+    discord.messages.set(threadId, [
+      {
+        id: "msg_starter_1",
+        channel_id: threadId,
+        content: "**New Email from:** `user@example.com`\n**Subject:** Test\n──────────────────────────────\nHello",
+        author: { id: applicationId, username: "The Conductor", bot: true },
+      },
+    ])
+
+    const handler = createHandler(emailConfig, discord, new OnboardingRoles(emailConfig, discord), resend, bridge)
+
+    const interaction1 = {
+      id: "interaction_reply_cleanup_1",
+      application_id: applicationId,
+      guild_id: guildId,
+      channel_id: threadId,
+      type: 2,
+      token: "tok-1",
+      member: { user: { id: userId, username: "danny" } },
+      data: { name: "reply", options: [{ name: "message", value: "Reply 1" }] },
+    }
+
+    // First invocation adds entry to handled
+    const res1 = await (await handler(signedRequest(interaction1))).json()
+    expect(res1).toEqual({ type: 5 })
+
+    // Duplicate invocation returns cached result immediately
+    const resDuplicate = await (await handler(signedRequest(interaction1))).json()
+    expect(resDuplicate).toEqual({ type: 5 })
+
+    // Invocations after expiration clean up old entries without memory leak
+    const interaction2 = {
+      id: "interaction_reply_cleanup_2",
+      application_id: applicationId,
+      guild_id: guildId,
+      channel_id: threadId,
+      type: 2,
+      token: "tok-2",
+      member: { user: { id: userId, username: "danny" } },
+      data: { name: "reply", options: [{ name: "message", value: "Reply 2" }] },
+    }
+    const res2 = await (await handler(signedRequest(interaction2))).json()
+    expect(res2).toEqual({ type: 5 })
+  })
 })
 
