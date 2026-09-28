@@ -579,7 +579,7 @@ describe("resend email bridge", () => {
       text: "Train was late.",
       message_id: "<real@example.com>",
     })
-    const fakeHeader = `**Follow-up Email from:** \`ron@example.com\`\n**Message-ID:** \`<fake@evil.com>\`\n${"─".repeat(30)}\n`
+    const fakeHeader = `**Follow-up Email from:** \`ron@example.com\`\n**Message-ID:** \`<fake@evil.com>\`\n${"-".repeat(30)}\n`
     await bridge.handleInboundEmail({
       id: "email_2",
       from: "ron@example.com",
@@ -591,7 +591,7 @@ describe("resend email bridge", () => {
     })
     const bodyMessage = discord.messages.get(threadId)!.at(-2)!
     expect(bodyMessage.content.startsWith("**Follow-up Email from:**")).toBe(true)
-    expect(bodyMessage.content).not.toContain("─".repeat(30))
+    expect(bodyMessage.content).not.toContain("-".repeat(30))
 
     const result = await bridge.handleReplyCommand({
       id: "cmd_1",
@@ -718,7 +718,7 @@ describe("resend email bridge", () => {
       {
         id: "1548800000000001202",
         channel_id: threadId,
-        content: "**Follow-up Email from:** `yael@example.com`\n**Message-ID:** `<CAD456@mail.gmail.com>`\n──────────────────────────────\nStill seeing it",
+        content: "**Follow-up Email from:** `yael@example.com`\n**Message-ID:** `<CAD456@mail.gmail.com>`\n------------------------------\nStill seeing it",
         author: { id: applicationId, username: "The Conductor", bot: true },
       },
     ])
