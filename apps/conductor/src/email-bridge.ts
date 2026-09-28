@@ -19,6 +19,9 @@ export type SlashCommandInteraction = {
 
 export const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024 // 10 MB Discord upload limit (unboosted)
 export const ATTACHMENT_DOWNLOAD_TIMEOUT_MS = 15_000
+const HEADER_SEPARATOR = "-".repeat(30)
+// Also matches the "─" separator used by messages posted before the switch to "-"
+const HEADER_SEPARATOR_RE = /^(?:-{30}|─{30})$/m
 
 export function extractThreadId(
   subject?: string,
@@ -85,7 +88,7 @@ function extractEmailMessageId(email: ResendReceivedEmail): string | undefined {
 function extractHeaderMessageId(content?: string): string | undefined {
   if (!content) return undefined
   if (!/^\*\*(?:New|Follow-up) Email from:\*\*/.test(content)) return undefined
-  const separatorIdx = content.indexOf("──────────────────────────────")
+  const separatorIdx = content.search(HEADER_SEPARATOR_RE)
   if (separatorIdx === -1) return undefined
   const headerPart = content.slice(0, separatorIdx)
   const match = headerPart.match(/\*\*Message-ID:\*\*\s*(?:`([^`\r\n]+)`|([^\s\r\n]+))/)
@@ -252,7 +255,7 @@ export function formatEmailHeader(
   if (messageId) {
     lines.push(`**Message-ID:** \`${messageId}\``)
   }
-  lines.push("──────────────────────────────")
+  lines.push(HEADER_SEPARATOR)
   return lines.join("\n")
 }
 
@@ -313,7 +316,7 @@ export class EmailBridge {
           channel.parent_id === feedbackChannelId &&
           (channel.guild_id ? channel.guild_id === this.config.guildId : true)
         ) {
-          const originalSender = (await this.findThreadEmailContext(candidateThreadId)).recipientEmail?.toLowerCase()
+          const originalSender = (await this.findStarterEmail(candidateThreadId)).recipientEmail?.toLowerCase()
           const currentSender = extractSenderEmail(email.from).toLowerCase()
           if (originalSender && originalSender === currentSender) {
             targetThreadId = candidateThreadId
@@ -349,7 +352,10 @@ export class EmailBridge {
     }
 
     const bodyContent = rawBody || "(No message body)"
-    const { chunks, overflowFile } = chunkEmailBody(bodyContent)
+    const parsed = chunkEmailBody(bodyContent)
+    const overflowFile = parsed.overflowFile
+    // Shorten separator runs so a body chunk can't pass as a header message
+    const chunks = parsed.chunks.map((c) => c.replace(/-{30,}|─{30,}/g, (run) => run[0].repeat(10)))
     const messageId = extractEmailMessageId(email)
     const header = formatEmailHeader(email.from, email.subject, isFollowUp, messageId)
 
@@ -452,7 +458,7 @@ export class EmailBridge {
     }
 
     const subject = formatReplySubject(threadContext.subject)
-    const emailBody = `${replyText}\n\n──────────────\nBetter Rail Support • Ref: [#${channelId}]`
+    const emailBody = `${replyText}\n\n--------------\nBetter Rail Support • Ref: [#${channelId}]`
 
     const headers: Record<string, string> = {}
     const threadRef = `<thread-${channelId}@better-rail.co.il>`
@@ -487,29 +493,31 @@ export class EmailBridge {
     }
   }
 
+  private async findStarterEmail(
+    threadId: string,
+  ): Promise<{ recipientEmail?: string; subject?: string; messageId?: string }> {
+    const starterMessages = await this.discordApi
+      .call<DiscordMessage[]>("GET", `/channels/${threadId}/messages?after=${threadId}&limit=1`)
+      .catch(() => [] as DiscordMessage[])
+
+    const starterMsg = starterMessages[0]
+    if (!starterMsg || !this.isBotAuthor(starterMsg)) return {}
+    const match = starterMsg.content?.match(/^\*\*New Email from:\*\*\s*`([^`]+)`/)
+    if (!match) return {}
+    return {
+      recipientEmail: extractSenderEmail(match[1]),
+      subject: extractHeaderSubject(starterMsg.content),
+      messageId: extractHeaderMessageId(starterMsg.content),
+    }
+  }
+
   private async findThreadEmailContext(threadId: string): Promise<{
     recipientEmail?: string
     subject?: string
     messageId?: string
     allMessageIds: string[]
   }> {
-    const starterMessages = await this.discordApi
-      .call<DiscordMessage[]>("GET", `/channels/${threadId}/messages?after=${threadId}&limit=1`)
-      .catch(() => [] as DiscordMessage[])
-
-    let recipientEmail: string | undefined
-    let subject: string | undefined
-    let starterMessageId: string | undefined
-
-    const starterMsg = starterMessages[0]
-    if (starterMsg && this.isBotAuthor(starterMsg)) {
-      const match = starterMsg.content?.match(/^\*\*New Email from:\*\*\s*`([^`]+)`/)
-      if (match) {
-        recipientEmail = extractSenderEmail(match[1])
-        subject = extractHeaderSubject(starterMsg.content)
-        starterMessageId = extractHeaderMessageId(starterMsg.content)
-      }
-    }
+    const { recipientEmail, subject, messageId: starterMessageId } = await this.findStarterEmail(threadId)
 
     const messages = await this.discordApi
       .call<DiscordMessage[]>("GET", `/channels/${threadId}/messages?limit=20`)
