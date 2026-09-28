@@ -84,22 +84,26 @@ export function useDeepLinking(storeReady: boolean) {
   }
 
   useEffect(() => {
-    let linkingListener: EmitterSubscription
-    let shortcutsListener: EmitterSubscription
-
     Linking.getInitialURL().then(handleDeepLinkURL)
 
-    linkingListener = Linking.addEventListener("url", ({ url }) => {
+    const linkingListener = Linking.addEventListener("url", ({ url }) => {
       handleDeepLinkURL(url)
     })
 
-    if (storeReady) {
-      Shortcuts.getInitialShortcut().then(openHomeScreenShortcut)
-      shortcutsListener = ShortcutsEmitter.addListener("onShortcutItemPressed", openHomeScreenShortcut)
-    }
-
     return () => {
       linkingListener?.remove()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!storeReady) return
+
+    let shortcutsListener: EmitterSubscription
+
+    Shortcuts.getInitialShortcut().then(openHomeScreenShortcut)
+    shortcutsListener = ShortcutsEmitter.addListener("onShortcutItemPressed", openHomeScreenShortcut)
+
+    return () => {
       shortcutsListener?.remove()
     }
   }, [storeReady])
