@@ -316,6 +316,8 @@ export class EmailBridge {
       if (!messages || messages.length === 0) break
 
       for (const msg of messages) {
+        if (!this.isBotAuthor(msg)) continue
+
         if (msg.content.includes("**New Email from:**") || msg.content.includes("**Follow-up Email from:**")) {
           const fromMatch = msg.content.match(/\*\*(?:New|Follow-up) Email from:\*\* `([^`]+)`/)
           if (fromMatch) {
@@ -368,6 +370,8 @@ export class EmailBridge {
       if (!messages || messages.length === 0) break
 
       for (const msg of messages) {
+        if (!this.isBotAuthor(msg)) continue
+
         if (msg.content.includes("**New Email from:**")) {
           const fromMatch = msg.content.match(/\*\*New Email from:\*\* `([^`]+)`/)
           if (fromMatch) {
@@ -381,5 +385,11 @@ export class EmailBridge {
       beforeId = nextBeforeId
     }
     return undefined
+  }
+
+  private isBotAuthor(msg: DiscordMessage): boolean {
+    if (!msg.author?.bot) return false
+    if (this.config.applicationId && msg.author.id !== this.config.applicationId) return false
+    return true
   }
 }

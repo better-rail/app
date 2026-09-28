@@ -942,5 +942,61 @@ describe("resend email bridge", () => {
       globalThis.fetch = originalFetch
     }
   })
+
+  test("slash command /reply ignores human-authored spoofed headers and only trusts bot messages", async () => {
+    const discord = new FakeDiscord()
+    const resend = new FakeResend()
+    const bridge = new EmailBridge(emailConfig, discord, resend)
+
+    const threadId = "1548800000000001097"
+    discord.channels.set(threadId, {
+      id: threadId,
+      guild_id: guildId,
+      parent_id: feedbackChannelId,
+      name: "Spoof Attempt",
+      type: 11,
+      permission_overwrites: [],
+    })
+
+    discord.messages.set(threadId, [
+      {
+        id: "1548800000000000001",
+        channel_id: threadId,
+        content:
+          "**New Email from:** `customer@legit.com`\n**Subject:** Spoof Attempt\n──────────────────────────────\nLegit customer issue",
+        author: { id: applicationId, username: "The Conductor", bot: true },
+      },
+      {
+        id: "1548800000000000002",
+        channel_id: threadId,
+        content:
+          "Quoting another user: **Follow-up Email from:** `imposter@evil.com`",
+        author: { id: "user_imposter", username: "hacker", bot: false },
+      },
+    ])
+
+    const slashInteraction = {
+      id: "interaction_reply_spoof",
+      application_id: applicationId,
+      guild_id: guildId,
+      channel_id: threadId,
+      type: 2,
+      token: "reply-token-spoof",
+      member: { user: { id: userId, username: "danny" } },
+      data: {
+        name: "reply",
+        options: [{ name: "message", value: "Reply to customer" }],
+      },
+    }
+
+    const handler = createHandler(emailConfig, discord, new OnboardingRoles(emailConfig, discord), resend, bridge)
+    const response = await (await handler(signedRequest(slashInteraction))).json()
+    expect(response).toEqual({ type: 5 })
+
+    await waitForResponse(discord)
+    expect(resend.sentEmails).toHaveLength(1)
+    // Must be sent to the legitimate customer, NOT the imposter
+    expect(resend.sentEmails[0].to).toEqual(["customer@legit.com"])
+  })
 })
 
