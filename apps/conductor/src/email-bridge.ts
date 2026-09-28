@@ -84,10 +84,16 @@ function extractEmailMessageId(email: ResendReceivedEmail): string | undefined {
 
 function extractHeaderMessageId(content?: string): string | undefined {
   if (!content) return undefined
-  const match = content.match(/\*\*Message-ID:\*\*\s*(?:`([^`]+)`|(\S+))/)
-  const id = match ? (match[1] || match[2])?.trim() : undefined
-  if (!id) return undefined
-  return id.startsWith("<") && id.endsWith(">") ? id : `<${id}>`
+  if (!/^\*\*(?:New|Follow-up) Email from:\*\*/.test(content)) return undefined
+  const separatorIdx = content.indexOf("──────────────────────────────")
+  if (separatorIdx === -1) return undefined
+  const headerPart = content.slice(0, separatorIdx)
+  const match = headerPart.match(/\*\*Message-ID:\*\*\s*(?:`([^`\r\n]+)`|([^\s\r\n]+))/)
+  const raw = match ? (match[1] || match[2])?.trim() : undefined
+  if (!raw) return undefined
+  const id = raw.startsWith("<") && raw.endsWith(">") ? raw : `<${raw}>`
+  if (!/^<[^<>\s\r\n]{1,256}>$/.test(id)) return undefined
+  return id
 }
 
 function extractHeaderSubject(content?: string): string | undefined {
@@ -95,11 +101,14 @@ function extractHeaderSubject(content?: string): string | undefined {
   const match = content.match(/\*\*Subject:\*\*\s*(.+)$/m)
   if (!match) return undefined
   const subject = match[1].trim()
-  return subject === "(No Subject)" ? undefined : subject
+  return subject === "(No Subject)" ? "" : subject
 }
 
 export function formatReplySubject(originalSubject?: string): string {
-  const clean = (originalSubject || "").replace(/\[#?\d+\]/g, "").trim()
+  const clean = (originalSubject || "")
+    .replace(/\[#\d{17,20}\]/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim()
   if (!clean || clean === "(No Subject)") {
     return "Re: Email Feedback"
   }
@@ -109,11 +118,21 @@ export function formatReplySubject(originalSubject?: string): string {
   return `Re: ${clean}`
 }
 
+export function detectTextDirection(text: string): {
+  dir: "ltr" | "rtl"
+  align: "left" | "right"
+  lang: "en" | "he" | "ar"
+} {
+  const match = text.match(
+    /([\u0590-\u05FF\uFB1D-\uFB4F])|([\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF])|([a-zA-Z\u00C0-\u024F])/u,
+  )
+  if (match?.[1]) return { dir: "rtl", align: "right", lang: "he" }
+  if (match?.[2]) return { dir: "rtl", align: "right", lang: "ar" }
+  return { dir: "ltr", align: "left", lang: "en" }
+}
+
 export function formatEmailHtml(text: string, threadId: string): string {
-  const isRtl = /[\u0590-\u05FF\u0600-\u06FF]/.test(text)
-  const dir = isRtl ? "rtl" : "ltr"
-  const align = isRtl ? "right" : "left"
-  const lang = isRtl ? "he" : "en"
+  const { dir, align, lang } = detectTextDirection(text)
 
   const escapeHtml = (str: string) =>
     str
@@ -294,7 +313,7 @@ export class EmailBridge {
           channel.parent_id === feedbackChannelId &&
           (channel.guild_id ? channel.guild_id === this.config.guildId : true)
         ) {
-          const originalSender = (await this.findBotEmailSender(candidateThreadId))?.toLowerCase()
+          const originalSender = (await this.findThreadEmailContext(candidateThreadId)).recipientEmail?.toLowerCase()
           const currentSender = extractSenderEmail(email.from).toLowerCase()
           if (originalSender && originalSender === currentSender) {
             targetThreadId = candidateThreadId
@@ -459,60 +478,59 @@ export class EmailBridge {
     })
 
     const senderName = interaction.member?.user?.username || "A team member"
-    const preview = replyText.length > 1800 ? `${replyText.slice(0, 1800)}...` : replyText
+    const quoted = replyText.replace(/\n/g, "\n> ")
+    const fullMessage = `**Email reply sent to** \`${recipientEmail}\` by **${senderName}**:\n> ${quoted}`
+    const finalMessage = fullMessage.length > 2000 ? `${fullMessage.slice(0, 1997)}...` : fullMessage
     return {
       success: true,
-      message: `**Email reply sent to** \`${recipientEmail}\` by **${senderName}**:\n> ${preview.replace(/\n/g, "\n> ")}`,
+      message: finalMessage,
     }
   }
 
-  async findThreadEmailContext(threadId: string): Promise<{
+  private async findThreadEmailContext(threadId: string): Promise<{
     recipientEmail?: string
     subject?: string
     messageId?: string
     allMessageIds: string[]
   }> {
+    const starterMessages = await this.discordApi
+      .call<DiscordMessage[]>("GET", `/channels/${threadId}/messages?after=${threadId}&limit=1`)
+      .catch(() => [] as DiscordMessage[])
+
+    let recipientEmail: string | undefined
+    let subject: string | undefined
+    let starterMessageId: string | undefined
+
+    const starterMsg = starterMessages[0]
+    if (starterMsg && this.isBotAuthor(starterMsg)) {
+      const match = starterMsg.content?.match(/^\*\*New Email from:\*\*\s*`([^`]+)`/)
+      if (match) {
+        recipientEmail = extractSenderEmail(match[1])
+        subject = extractHeaderSubject(starterMsg.content)
+        starterMessageId = extractHeaderMessageId(starterMsg.content)
+      }
+    }
+
     const messages = await this.discordApi
       .call<DiscordMessage[]>("GET", `/channels/${threadId}/messages?limit=20`)
       .catch(() => [] as DiscordMessage[])
 
     const botMessages = messages.filter((m) => this.isBotAuthor(m))
-    const messageIds: string[] = []
+    const recentMessageIds: string[] = []
     let latestMessageId: string | undefined
-    let recipientEmail: string | undefined
-    let subject: string | undefined
-    let starterMessageId: string | undefined
 
     for (const msg of botMessages) {
       const msgId = extractHeaderMessageId(msg.content)
       if (msgId) {
         if (!latestMessageId) latestMessageId = msgId
-        if (!messageIds.includes(msgId)) messageIds.unshift(msgId)
-      }
-      const newEmailMatch = msg.content?.match(/^\*\*New Email from:\*\*\s*`([^`]+)`/)
-      if (newEmailMatch) {
-        recipientEmail = extractSenderEmail(newEmailMatch[1])
-        subject = extractHeaderSubject(msg.content)
-        if (msgId) starterMessageId = msgId
+        if (!recentMessageIds.includes(msgId)) recentMessageIds.push(msgId)
       }
     }
 
-    if (!recipientEmail || !subject) {
-      const starterMessages = await this.discordApi
-        .call<DiscordMessage[]>("GET", `/channels/${threadId}/messages?after=${threadId}&limit=1`)
-        .catch(() => [] as DiscordMessage[])
-      const firstMsg = starterMessages[0]
-      if (firstMsg && this.isBotAuthor(firstMsg)) {
-        const match = firstMsg.content?.match(/^\*\*New Email from:\*\*\s*`([^`]+)`/)
-        if (match) {
-          recipientEmail = extractSenderEmail(match[1])
-          subject = extractHeaderSubject(firstMsg.content)
-          const starterMsgId = extractHeaderMessageId(firstMsg.content)
-          if (starterMsgId) {
-            starterMessageId = starterMsgId
-            if (!messageIds.includes(starterMsgId)) messageIds.unshift(starterMsgId)
-          }
-        }
+    const allMessageIds = starterMessageId ? [starterMessageId] : []
+    for (const id of recentMessageIds.reverse()) {
+      if (!allMessageIds.includes(id)) {
+        allMessageIds.push(id)
       }
     }
 
@@ -520,13 +538,8 @@ export class EmailBridge {
       recipientEmail,
       subject,
       messageId: latestMessageId || starterMessageId,
-      allMessageIds: messageIds,
+      allMessageIds,
     }
-  }
-
-  private async findBotEmailSender(threadId: string): Promise<string | undefined> {
-    const ctx = await this.findThreadEmailContext(threadId)
-    return ctx.recipientEmail
   }
 
   private isBotAuthor(msg: DiscordMessage): boolean {

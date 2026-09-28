@@ -4,6 +4,7 @@ import type { ConductorConfig } from "./config"
 import { DiscordApi, type DiscordChannel, type DiscordMessage, type DiscordRole } from "./discord"
 import {
   chunkEmailBody,
+  detectTextDirection,
   EmailBridge,
   extractSenderEmail,
   extractThreadId,
@@ -500,12 +501,19 @@ describe("resend email bridge", () => {
     expect(extractSenderEmail("David Cohen <david@example.com>")).toBe("david@example.com")
     expect(extractSenderEmail("david@example.com")).toBe("david@example.com")
 
+    expect(formatReplySubject("Train 402 [2]")).toBe("Re: Train 402 [2]")
+    expect(formatReplySubject("Bug [#1548800000000001001]")).toBe("Re: Bug")
     expect(formatReplySubject("Train delay")).toBe("Re: Train delay")
     expect(formatReplySubject("Re: Train delay")).toBe("Re: Train delay")
     expect(formatReplySubject("")).toBe("Re: Email Feedback")
 
-    expect(formatEmailHtml("שלום", threadId)).toContain('dir="rtl"')
+    expect(detectTextDirection("שלום")).toEqual({ dir: "rtl", align: "right", lang: "he" })
+    expect(detectTextDirection("Hello")).toEqual({ dir: "ltr", align: "left", lang: "en" })
+    expect(detectTextDirection("Train to תל אביב is on time")).toEqual({ dir: "ltr", align: "left", lang: "en" })
+    expect(detectTextDirection("רכבת ל-Savidor יוצאת כעת")).toEqual({ dir: "rtl", align: "right", lang: "he" })
+    expect(detectTextDirection("مرحبا بكم")).toEqual({ dir: "rtl", align: "right", lang: "ar" })
     expect(formatEmailHtml("Hello", threadId)).toContain('dir="ltr"')
+    expect(formatEmailHtml("שלום", threadId)).toContain('dir="rtl"')
 
     const text = htmlToText("<p>Hello <b>team</b>,</p><p>The app is <i>great</i>!<br/>Thanks.</p>")
     expect(text).toContain("Hello team,")
@@ -653,22 +661,28 @@ describe("resend email bridge", () => {
         content: "**New Email from:** `yael@example.com`\n**Subject:** Ticket purchase crash\n**Message-ID:** `<CAD123@mail.gmail.com>`\n──────────────────────────────\nApp crashed",
         author: { id: applicationId, username: "The Conductor", bot: true },
       },
-      ...Array.from({ length: 25 }, (_, i) => ({
+      ...Array.from({ length: 104 }, (_, i) => ({
         id: String(1548800000000001002n + BigInt(i)),
         channel_id: threadId,
         content: `Internal discussion comment #${i + 2}`,
         author: { id: "dev_user", username: "dev", bot: false },
       })),
       {
-        id: "1548800000000001106",
+        id: "1548800000000001200",
         channel_id: threadId,
         content: "Quote: **Follow-up Email from:** `imposter@evil.com`",
         author: { id: "user_imposter", username: "hacker", bot: false },
       },
       {
-        id: "1548800000000001107",
+        id: "1548800000000001201",
         channel_id: threadId,
-        content: "*(2/2)*\nAttacker body line:\n**New Email from:** `body_attacker@evil.com`",
+        content: "*(2/2)*\nAttacker body line:\n**New Email from:** `body_attacker@evil.com`\n**Message-ID:** `<injected@evil.com>\r\nBcc: evil@attacker.com`",
+        author: { id: applicationId, username: "The Conductor", bot: true },
+      },
+      {
+        id: "1548800000000001202",
+        channel_id: threadId,
+        content: "**Follow-up Email from:** `yael@example.com`\n**Message-ID:** `<CAD456@mail.gmail.com>`\n──────────────────────────────\nStill seeing it",
         author: { id: applicationId, username: "The Conductor", bot: true },
       },
     ])
@@ -694,7 +708,7 @@ describe("resend email bridge", () => {
     expect(await (await handler(signedRequest(cmd))).json()).toEqual({ type: 5 })
     expect(await (await handler(signedRequest(cmd))).json()).toEqual({ type: 5 })
 
-    await waitForResponse(discord, 3)
+    const replyResponse = await waitForResponse(discord, 3)
     expect(resend.sentEmails).toHaveLength(1)
     expect(resend.sentEmails[0].to).toEqual(["yael@example.com"])
     expect(resend.sentEmails[0].subject).toBe("Re: Ticket purchase crash")
@@ -702,10 +716,12 @@ describe("resend email bridge", () => {
     expect(resend.sentEmails[0].text).toContain("Fixed in the new update!")
     expect(resend.sentEmails[0].text).toContain(`Better Rail Support • Ref: [#${threadId}]`)
     expect(resend.sentEmails[0].html).toContain('dir="ltr"')
-    expect(resend.sentEmails[0].headers?.["In-Reply-To"]).toBe("<CAD123@mail.gmail.com>")
+    expect(resend.sentEmails[0].headers?.["In-Reply-To"]).toBe("<CAD456@mail.gmail.com>")
     expect(resend.sentEmails[0].headers?.["References"]).toContain("<CAD123@mail.gmail.com>")
+    expect(resend.sentEmails[0].headers?.["References"]).toContain("<CAD456@mail.gmail.com>")
+    expect(resend.sentEmails[0].headers?.["References"]).not.toContain("<injected@evil.com>")
     expect(resend.sentEmails[0].headers?.["References"]).toContain(`<thread-${threadId}@better-rail.co.il>`)
-    expect((discord.responses[2] as { content: string }).content).toContain("yael@example.com")
+    expect(replyResponse.content).toContain("yael@example.com")
 
     const hebrewCmd = replyCommand(threadId, "היי יעל, בדקנו והתקלה סודרה!", "cmd_reply_hebrew")
     await handler(signedRequest(hebrewCmd))
@@ -713,6 +729,12 @@ describe("resend email bridge", () => {
     expect(resend.sentEmails).toHaveLength(2)
     expect(resend.sentEmails[1].html).toContain('dir="rtl"')
     expect(resend.sentEmails[1].html).toContain("היי יעל, בדקנו והתקלה סודרה!")
+
+    const longCmd = replyCommand(threadId, "line\n".repeat(600), "cmd_reply_long")
+    await handler(signedRequest(longCmd))
+    const longResponse = await waitForResponse(discord, 5)
+    expect(longResponse.content.length).toBeLessThanOrEqual(2000)
+    expect(longResponse.content).toContain("...")
   })
 })
 
