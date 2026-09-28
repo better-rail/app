@@ -65,7 +65,7 @@ export function extractSenderEmail(from: string): string {
   return from.trim()
 }
 
-export function extractEmailMessageId(email: ResendReceivedEmail): string | undefined {
+function extractEmailMessageId(email: ResendReceivedEmail): string | undefined {
   if (email.message_id && typeof email.message_id === "string" && email.message_id.trim()) {
     const trimmed = email.message_id.trim()
     return trimmed.startsWith("<") && trimmed.endsWith(">") ? trimmed : `<${trimmed}>`
@@ -82,7 +82,7 @@ export function extractEmailMessageId(email: ResendReceivedEmail): string | unde
   return undefined
 }
 
-export function extractHeaderMessageId(content?: string): string | undefined {
+function extractHeaderMessageId(content?: string): string | undefined {
   if (!content) return undefined
   const match = content.match(/\*\*Message-ID:\*\*\s*(?:`([^`]+)`|(\S+))/)
   const id = match ? (match[1] || match[2])?.trim() : undefined
@@ -90,7 +90,7 @@ export function extractHeaderMessageId(content?: string): string | undefined {
   return id.startsWith("<") && id.endsWith(">") ? id : `<${id}>`
 }
 
-export function extractHeaderSubject(content?: string): string | undefined {
+function extractHeaderSubject(content?: string): string | undefined {
   if (!content) return undefined
   const match = content.match(/\*\*Subject:\*\*\s*(.+)$/m)
   if (!match) return undefined
