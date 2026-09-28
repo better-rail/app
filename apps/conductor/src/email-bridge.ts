@@ -7,14 +7,17 @@ export type SlashCommandInteraction = {
   token: string
   guild_id?: string
   channel_id?: string
-  member?: { user?: { id?: string; username?: string } }
+  member?: {
+    user?: { id?: string; username?: string }
+    permissions?: string
+  }
   data?: {
     name?: string
     options?: Array<{ name: string; value: string | number | boolean }>
   }
 }
 
-export const MAX_ATTACHMENT_BYTES = 25 * 1024 * 1024 // 25 MB Discord upload limit
+export const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024 // 10 MB Discord upload limit (unboosted)
 export const ATTACHMENT_DOWNLOAD_TIMEOUT_MS = 15_000
 
 export function extractThreadId(
@@ -143,7 +146,10 @@ async function downloadAttachment(url: string, contentType?: string): Promise<Bl
       const { done, value } = await reader.read()
       if (done) break
       totalBytes += value.length
-      if (totalBytes > MAX_ATTACHMENT_BYTES) throw new Error(`Attachment exceeds ${MAX_ATTACHMENT_BYTES} bytes`)
+      if (totalBytes > MAX_ATTACHMENT_BYTES) {
+        await reader.cancel()
+        throw new Error(`Attachment exceeds ${MAX_ATTACHMENT_BYTES} bytes`)
+      }
       chunks.push(value)
     }
   } finally {
@@ -181,7 +187,7 @@ export class EmailBridge {
           channel.parent_id === feedbackChannelId &&
           (channel.guild_id ? channel.guild_id === this.config.guildId : true)
         ) {
-          const originalSender = (await this.findBotEmailSender(candidateThreadId, true))?.toLowerCase()
+          const originalSender = (await this.findBotEmailSender(candidateThreadId))?.toLowerCase()
           const currentSender = extractSenderEmail(email.from).toLowerCase()
           if (originalSender && originalSender === currentSender) {
             targetThreadId = candidateThreadId
@@ -223,49 +229,63 @@ export class EmailBridge {
     if (chunks.length === 1 && !overflowFile && (header + "\n" + chunks[0]).length <= 1900) {
       await this.discordApi.call("POST", `/channels/${targetThreadId}/messages`, {
         content: `${header}\n${chunks[0]}`,
+        allowed_mentions: { parse: [] },
       })
     } else {
       await this.discordApi.call("POST", `/channels/${targetThreadId}/messages`, {
         content: header,
+        allowed_mentions: { parse: [] },
       })
       for (let i = 0; i < chunks.length; i++) {
         const prefix = chunks.length > 1 ? `*(${i + 1}/${chunks.length})*\n` : ""
         await this.discordApi.call("POST", `/channels/${targetThreadId}/messages`, {
           content: `${prefix}${chunks[i]}`,
+          allowed_mentions: { parse: [] },
         })
       }
     }
 
     if (overflowFile) {
       const form = new FormData()
-      form.append("payload_json", JSON.stringify({ content: "**Attached full unedited email body:**" }))
+      form.append(
+        "payload_json",
+        JSON.stringify({
+          content: "**Attached full unedited email body:**",
+          allowed_mentions: { parse: [] },
+        }),
+      )
       form.append("files[0]", new Blob([overflowFile.content], { type: "text/plain" }), overflowFile.filename)
       await this.discordApi.call("POST", `/channels/${targetThreadId}/messages`, form)
     }
 
     if (email.attachments && email.attachments.length > 0) {
-      for (let idx = 0; idx < email.attachments.length; idx++) {
-        const att = email.attachments[idx]
-        try {
-          let blob: Blob | undefined
-          if (att.download_url) {
-            blob = await downloadAttachment(att.download_url, att.content_type)
-          } else if (att.content) {
-            const buffer = Buffer.from(att.content, "base64")
-            if (buffer.length > MAX_ATTACHMENT_BYTES) {
-              throw new Error(`Attachment exceeds ${MAX_ATTACHMENT_BYTES} bytes`)
-            }
-            blob = new Blob([buffer], { type: att.content_type || "application/octet-stream" })
+      try {
+        const receivedAttachments = await this.resendApi.listReceivedEmailAttachments(email.id).catch(() => [])
+        for (let idx = 0; idx < receivedAttachments.length; idx++) {
+          const att = receivedAttachments[idx]
+          if (!att.download_url) continue
+          if (att.size && att.size > MAX_ATTACHMENT_BYTES) {
+            console.warn(`Conductor: skipping attachment ${att.filename} (${att.size} bytes exceeds limit)`)
+            continue
           }
-          if (blob) {
+          try {
+            const blob = await downloadAttachment(att.download_url, att.content_type)
             const form = new FormData()
-            form.append("payload_json", JSON.stringify({ content: `**Attachment:** \`${att.filename || "attachment"}\`` }))
+            form.append(
+              "payload_json",
+              JSON.stringify({
+                content: `**Attachment:** \`${att.filename || "attachment"}\``,
+                allowed_mentions: { parse: [] },
+              }),
+            )
             form.append("files[0]", blob, att.filename || `attachment_${idx + 1}`)
             await this.discordApi.call("POST", `/channels/${targetThreadId}/messages`, form)
+          } catch (attErr) {
+            console.error(`Conductor: failed to attach file ${att.filename}:`, (attErr as Error).message)
           }
-        } catch (attErr) {
-          console.error(`Conductor: failed to attach file ${att.filename}:`, (attErr as Error).message)
         }
+      } catch (listErr) {
+        console.error("Conductor: failed to list email attachments:", (listErr as Error).message)
       }
     }
 
@@ -283,6 +303,13 @@ export class EmailBridge {
     const channel = await this.discordApi.call<DiscordChannel>("GET", `/channels/${channelId}`).catch(() => undefined)
     if (!channel || channel.parent_id !== feedbackChannelId) {
       return { success: false, message: "`/reply` can only be used inside an #email-feedback thread." }
+    }
+
+    const perms = BigInt(interaction.member?.permissions || "0")
+    const MANAGE_MESSAGES = 1n << 13n
+    const ADMINISTRATOR = 1n << 3n
+    if ((perms & MANAGE_MESSAGES) === 0n && (perms & ADMINISTRATOR) === 0n) {
+      return { success: false, message: "You do not have permission to use `/reply`." }
     }
 
     const messageOption = interaction.data?.options?.find((opt) => opt.name === "message")?.value
@@ -321,29 +348,16 @@ export class EmailBridge {
     }
   }
 
-  private async findBotEmailSender(threadId: string, onlyOriginal = false): Promise<string | undefined> {
-    let beforeId: string | undefined
-    for (let page = 0; page < 5; page++) {
-      const url = `/channels/${threadId}/messages?limit=100${beforeId ? `&before=${beforeId}` : ""}`
-      const messages = await this.discordApi.call<DiscordMessage[]>("GET", url).catch(() => [])
-      if (!messages || messages.length === 0) break
+  private async findBotEmailSender(threadId: string): Promise<string | undefined> {
+    const messages = await this.discordApi
+      .call<DiscordMessage[]>("GET", `/channels/${threadId}/messages?after=${threadId}&limit=1`)
+      .catch(() => [] as DiscordMessage[])
+    const firstMsg = messages[0]
+    if (!firstMsg || !this.isBotAuthor(firstMsg)) return undefined
 
-      for (const msg of messages) {
-        if (!this.isBotAuthor(msg)) continue
-
-        const isMatch = onlyOriginal
-          ? msg.content.includes("**New Email from:**")
-          : msg.content.includes("**New Email from:**") || msg.content.includes("**Follow-up Email from:**")
-
-        if (isMatch) {
-          const fromMatch = msg.content.match(/\*\*(?:New|Follow-up) Email from:\*\* `([^`]+)`/)
-          if (fromMatch) return extractSenderEmail(fromMatch[1])
-        }
-      }
-
-      const nextBeforeId = messages[messages.length - 1]?.id
-      if (!nextBeforeId || nextBeforeId === beforeId) break
-      beforeId = nextBeforeId
+    const match = firstMsg.content?.match(/^\*\*New Email from:\*\*\s*`([^`]+)`/)
+    if (match) {
+      return extractSenderEmail(match[1])
     }
     return undefined
   }

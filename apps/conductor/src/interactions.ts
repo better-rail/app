@@ -38,6 +38,8 @@ export function createHandler(
   })
   const handled = new Map<string, { at: number; result: unknown }>()
 
+  const handledWebhooks = new Map<string, number>()
+
   async function finish(token: string, userId: string, platformId: string) {
     let message: object
     try {
@@ -69,7 +71,7 @@ export function createHandler(
       await api.call(
         "PATCH",
         `/webhooks/${config.applicationId}/${interaction.token}/messages/@original`,
-        { content: result.message },
+        { content: result.message, allowed_mentions: { parse: [] } },
         false,
       )
     } catch (error) {
@@ -82,10 +84,20 @@ export function createHandler(
         .call(
           "PATCH",
           `/webhooks/${config.applicationId}/${interaction.token}/messages/@original`,
-          { content: `Failed to send reply: ${(error as Error).message}` },
+          { content: `Failed to send reply: ${(error as Error).message}`, allowed_mentions: { parse: [] } },
           false,
         )
         .catch(() => {})
+    }
+  }
+
+  async function processInboundEmail(emailId: string) {
+    try {
+      const email = await resend.getReceivedEmail(emailId)
+      await emailBridge.handleInboundEmail(email)
+    } catch (err) {
+      console.error("Conductor: failed to process inbound email:", (err as Error).message)
+      Sentry.captureException(err, { tags: { webhook: "resend" } })
     }
   }
 
@@ -97,24 +109,35 @@ export function createHandler(
       if (request.method !== "POST") return new Response("Method not allowed", { status: 405, headers: { Allow: "POST" } })
       const body = Buffer.from(await request.arrayBuffer())
 
-      if (!config.resendWebhookSecret) {
-        return new Response("Webhook secret not configured", { status: 503 })
+      if (!config.resendWebhookSecret || !config.resendApiKey) {
+        return new Response("Webhook not configured", { status: 503 })
       }
       if (!verifyResendSignature(request, body, config.resendWebhookSecret)) {
         return new Response("Invalid signature", { status: 401 })
       }
 
+      for (const [key, at] of handledWebhooks) {
+        if (at < Date.now() - 300_000) handledWebhooks.delete(key)
+      }
+
       try {
         const event: ResendEmailReceivedEvent = JSON.parse(body.toString())
+        const dedupKey = request.headers.get("svix-id") || event.data?.email_id
+        if (dedupKey && handledWebhooks.has(dedupKey)) {
+          return Response.json({ ok: true })
+        }
+        if (dedupKey) {
+          handledWebhooks.set(dedupKey, Date.now())
+        }
+
         if (event.type === "email.received" && event.data?.email_id) {
-          const email = await resend.getReceivedEmail(event.data.email_id)
-          await emailBridge.handleInboundEmail(email)
+          void processInboundEmail(event.data.email_id)
         }
         return Response.json({ ok: true })
       } catch (err) {
-        console.error("Conductor: failed to process Resend webhook:", (err as Error).message)
+        console.error("Conductor: failed to parse Resend webhook:", (err as Error).message)
         Sentry.captureException(err, { tags: { webhook: "resend" } })
-        return Response.json({ ok: false, error: (err as Error).message }, { status: 500 })
+        return new Response("Internal Server Error", { status: 500 })
       }
     }
 

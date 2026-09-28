@@ -65,6 +65,7 @@ try {
   await api.call("POST", `/applications/${config.applicationId}/guilds/${config.guildId}/commands`, {
     name: "reply",
     description: "Reply directly to the customer via email",
+    default_member_permissions: "8192",
     options: [
       {
         name: "message",

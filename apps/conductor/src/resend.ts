@@ -19,6 +19,15 @@ export type ResendEmailReceivedEvent = {
   }
 }
 
+export type ResendReceivedAttachment = {
+  id: string
+  filename: string
+  size: number
+  content_type: string
+  download_url?: string
+  expires_at?: string
+}
+
 export type ResendReceivedEmail = {
   id: string
   from: string
@@ -31,8 +40,8 @@ export type ResendReceivedEmail = {
     id: string
     filename: string
     content_type: string
+    size?: number
     download_url?: string
-    content?: string
   }>
 }
 
@@ -97,12 +106,30 @@ export class ResendApi {
         Authorization: `Bearer ${this.apiKey}`,
         "Content-Type": "application/json",
       },
+      signal: AbortSignal.timeout(10_000),
     })
     if (!response.ok) {
       const err = await response.json().catch(() => ({}))
       throw new Error(`Resend getReceivedEmail failed (${response.status}): ${JSON.stringify(err)}`)
     }
     return (await response.json()) as ResendReceivedEmail
+  }
+
+  async listReceivedEmailAttachments(emailId: string): Promise<ResendReceivedAttachment[]> {
+    const response = await this.fetchFn(`https://api.resend.com/emails/receiving/${emailId}/attachments`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${this.apiKey}`,
+        "Content-Type": "application/json",
+      },
+      signal: AbortSignal.timeout(10_000),
+    })
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}))
+      throw new Error(`Resend listReceivedEmailAttachments failed (${response.status}): ${JSON.stringify(err)}`)
+    }
+    const result = (await response.json()) as { data?: ResendReceivedAttachment[] }
+    return result.data || []
   }
 
   async sendEmail(options: ResendSendEmailOptions): Promise<{ id: string }> {
@@ -113,6 +140,7 @@ export class ResendApi {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(options),
+      signal: AbortSignal.timeout(10_000),
     })
     if (!response.ok) {
       const err = await response.json().catch(() => ({}))
