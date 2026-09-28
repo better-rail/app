@@ -2,7 +2,18 @@ import { describe, expect, test } from "bun:test"
 import { createHmac, generateKeyPairSync, sign } from "node:crypto"
 import type { ConductorConfig } from "./config"
 import { DiscordApi, type DiscordChannel, type DiscordMessage, type DiscordRole } from "./discord"
-import { chunkEmailBody, EmailBridge, extractSenderEmail, extractThreadId, htmlToText } from "./email-bridge"
+import {
+  chunkEmailBody,
+  EmailBridge,
+  extractEmailMessageId,
+  extractHeaderMessageId,
+  extractHeaderSubject,
+  extractSenderEmail,
+  extractThreadId,
+  formatEmailHtml,
+  formatReplySubject,
+  htmlToText,
+} from "./email-bridge"
 import { createHandler } from "./interactions"
 import { journeyComplete, platformPicker, welcomeMessage } from "./messages"
 import { everyoneCanReadWelcome } from "./permissions"
@@ -492,6 +503,37 @@ describe("resend email bridge", () => {
     expect(extractSenderEmail("David Cohen <david@example.com>")).toBe("david@example.com")
     expect(extractSenderEmail("david@example.com")).toBe("david@example.com")
 
+    expect(extractEmailMessageId({ id: "1", from: "a@b.com", to: [], message_id: "<msg_1@gmail.com>" })).toBe("<msg_1@gmail.com>")
+    expect(extractEmailMessageId({ id: "2", from: "a@b.com", to: [], message_id: "msg_2@gmail.com" })).toBe("<msg_2@gmail.com>")
+    expect(extractEmailMessageId({ id: "3", from: "a@b.com", to: [], headers: { "message-id": "<msg_3@gmail.com>" } })).toBe("<msg_3@gmail.com>")
+    expect(extractEmailMessageId({ id: "4", from: "a@b.com", to: [] })).toBeUndefined()
+
+    expect(extractHeaderMessageId("**Message-ID:** `<msg_test@gmail.com>`")).toBe("<msg_test@gmail.com>")
+    expect(extractHeaderMessageId("**Message-ID:** msg_test@gmail.com")).toBe("<msg_test@gmail.com>")
+    expect(extractHeaderMessageId("No message ID")).toBeUndefined()
+
+    expect(extractHeaderSubject("**Subject:** Test subject\n")).toBe("Test subject")
+    expect(extractHeaderSubject("**Subject:** (No Subject)\n")).toBeUndefined()
+    expect(extractHeaderSubject("No subject")).toBeUndefined()
+
+    expect(formatReplySubject("Train delay")).toBe("Re: Train delay")
+    expect(formatReplySubject("Re: Train delay")).toBe("Re: Train delay")
+    expect(formatReplySubject("RE: Train delay")).toBe("RE: Train delay")
+    expect(formatReplySubject("Bug [#12345]")).toBe("Re: Bug")
+    expect(formatReplySubject("")).toBe("Re: Email Feedback")
+
+    const rtlHtml = formatEmailHtml("שלום, בדקנו את הנושא!", threadId)
+    expect(rtlHtml).toContain('dir="rtl"')
+    expect(rtlHtml).toContain("direction: rtl")
+    expect(rtlHtml).toContain("text-align: right")
+    expect(rtlHtml).toContain("שלום, בדקנו את הנושא!")
+    expect(rtlHtml).toContain(`Ref: [#${threadId}]`)
+
+    const ltrHtml = formatEmailHtml("Hello, we fixed it!", threadId)
+    expect(ltrHtml).toContain('dir="ltr"')
+    expect(ltrHtml).toContain("direction: ltr")
+    expect(ltrHtml).toContain("text-align: left")
+
     const text = htmlToText("<p>Hello <b>team</b>,</p><p>The app is <i>great</i>!<br/>Thanks.</p>")
     expect(text).toContain("Hello team,")
     expect(text).toContain("The app is great!\nThanks.")
@@ -511,11 +553,13 @@ describe("resend email bridge", () => {
       to: ["feedback@better-rail.co.il"],
       subject: "Train schedule issue at Savidor",
       text: "Train 402 was delayed by 20 minutes today.",
+      message_id: "<msg-ron-1@example.com>",
     })
     expect(initial.created).toBe(true)
     const threadId = initial.threadId
     expect(discord.channels.get(threadId)?.parent_id).toBe(feedbackChannelId)
     expect(discord.messages.get(threadId)?.[0].content).toContain("Train schedule issue at Savidor")
+    expect(discord.messages.get(threadId)?.[0].content).toContain("**Message-ID:** `<msg-ron-1@example.com>`")
 
     discord.channels.get(threadId)!.thread_metadata = { archived: true }
     const followUp = await bridge.handleInboundEmail({
@@ -524,11 +568,13 @@ describe("resend email bridge", () => {
       to: ["feedback@better-rail.co.il"],
       subject: `Re: Train schedule issue at Savidor [#${threadId}]`,
       text: "Any updates on this ticket?",
+      headers: { "message-id": "<msg-ron-2@example.com>" },
     })
     expect(followUp.created).toBe(false)
     expect(followUp.threadId).toBe(threadId)
     expect(discord.channels.get(threadId)?.thread_metadata?.archived).toBe(false)
     expect(discord.messages.get(threadId)).toHaveLength(2)
+    expect(discord.messages.get(threadId)?.[1].content).toContain("**Message-ID:** `<msg-ron-2@example.com>`")
 
     const hijack = await bridge.handleInboundEmail({
       id: "email_hijack",
@@ -631,7 +677,7 @@ describe("resend email bridge", () => {
       {
         id: "1548800000000001001",
         channel_id: threadId,
-        content: "**New Email from:** `yael@example.com`\n**Subject:** Ticket purchase crash\n──────────────────────────────\nApp crashed",
+        content: "**New Email from:** `yael@example.com`\n**Subject:** Ticket purchase crash\n**Message-ID:** `<CAD123@mail.gmail.com>`\n──────────────────────────────\nApp crashed",
         author: { id: applicationId, username: "The Conductor", bot: true },
       },
       ...Array.from({ length: 104 }, (_, i) => ({
@@ -670,6 +716,7 @@ describe("resend email bridge", () => {
     expect(await (await handler(signedRequest(unprivileged))).json()).toEqual({ type: 5 })
     expect((await waitForResponse(discord, 2)).content).toContain("do not have permission")
 
+    discord.channels.get(threadId)!.name = "[Renamed By Mod] App crash investigation"
     const cmd = replyCommand(threadId, "Fixed in the new update!", "cmd_reply_thread")
     expect(await (await handler(signedRequest(cmd))).json()).toEqual({ type: 5 })
     expect(await (await handler(signedRequest(cmd))).json()).toEqual({ type: 5 })
@@ -677,11 +724,25 @@ describe("resend email bridge", () => {
     await waitForResponse(discord, 3)
     expect(resend.sentEmails).toHaveLength(1)
     expect(resend.sentEmails[0].to).toEqual(["yael@example.com"])
-    expect(resend.sentEmails[0].subject).toBe(`Re: Ticket purchase crash [#${threadId}]`)
+    expect(resend.sentEmails[0].subject).toBe("Re: Ticket purchase crash")
+    expect(resend.sentEmails[0].reply_to).toBe(`feedback+${threadId}@better-rail.co.il`)
     expect(resend.sentEmails[0].text).toContain("Fixed in the new update!")
     expect(resend.sentEmails[0].text).toContain(`Better Rail Support • Ref: [#${threadId}]`)
-    expect(resend.sentEmails[0].headers?.["In-Reply-To"]).toBe(`<thread-${threadId}@better-rail.co.il>`)
+    expect(resend.sentEmails[0].html).toContain('dir="ltr"')
+    expect(resend.sentEmails[0].html).toContain("Fixed in the new update!")
+    expect(resend.sentEmails[0].headers?.["In-Reply-To"]).toBe("<CAD123@mail.gmail.com>")
+    expect(resend.sentEmails[0].headers?.["References"]).toContain("<CAD123@mail.gmail.com>")
+    expect(resend.sentEmails[0].headers?.["References"]).toContain(`<thread-${threadId}@better-rail.co.il>`)
     expect((discord.responses[2] as { content: string }).content).toContain("yael@example.com")
+
+    const hebrewCmd = replyCommand(threadId, "היי יעל, בדקנו והתקלה סודרה!", "cmd_reply_hebrew")
+    await handler(signedRequest(hebrewCmd))
+    await waitForResponse(discord, 4)
+    expect(resend.sentEmails).toHaveLength(2)
+    expect(resend.sentEmails[1].html).toContain('dir="rtl"')
+    expect(resend.sentEmails[1].html).toContain("direction: rtl")
+    expect(resend.sentEmails[1].html).toContain("text-align: right")
+    expect(resend.sentEmails[1].html).toContain("היי יעל, בדקנו והתקלה סודרה!")
   })
 })
 

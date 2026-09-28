@@ -91,9 +91,12 @@ export function createHandler(
     }
   }
 
-  async function processInboundEmail(emailId: string) {
+  async function processInboundEmail(emailId: string, fallbackMessageId?: string) {
     try {
       const email = await resend.getReceivedEmail(emailId)
+      if (!email.message_id && fallbackMessageId) {
+        email.message_id = fallbackMessageId
+      }
       await emailBridge.handleInboundEmail(email)
     } catch (err) {
       console.error("Conductor: failed to process inbound email:", (err as Error).message)
@@ -131,7 +134,7 @@ export function createHandler(
         }
 
         if (event.type === "email.received" && event.data?.email_id) {
-          void processInboundEmail(event.data.email_id)
+          void processInboundEmail(event.data.email_id, event.data?.message_id)
         }
         return Response.json({ ok: true })
       } catch (err) {
