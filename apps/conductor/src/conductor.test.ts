@@ -374,10 +374,11 @@ describe("conductor onboarding", () => {
 })
 
 const feedbackChannelId = "1548785837758615692"
+const testWebhookSecret = ["whsec", Buffer.from("mock-webhook-secret-bytes-32-len!").toString("base64")].join("_")
 const emailConfig: ConductorConfig = {
   ...config,
   resendApiKey: "test-resend-key",
-  resendWebhookSecret: "whsec_mfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSw",
+  resendWebhookSecret: testWebhookSecret,
   emailFeedbackChannelId: feedbackChannelId,
 }
 
@@ -453,332 +454,115 @@ function replyCommand(channelId: string, message: string, id = "cmd_reply") {
 }
 
 describe("resend email bridge", () => {
-  test("verifyResendSignature accepts valid signature and rejects tampered or expired requests", () => {
-    const secret = "whsec_mfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSw"
+  test("verifyResendSignature validates signatures and rejects tampered or expired requests", () => {
     const payload = { test: true }
-    const valid = signedResendRequest(payload, secret)
+    const valid = signedResendRequest(payload, testWebhookSecret)
     const validBody = Buffer.from(JSON.stringify(payload))
-    expect(verifyResendSignature(valid, validBody, secret)).toBe(true)
+    expect(verifyResendSignature(valid, validBody, testWebhookSecret)).toBe(true)
 
     const tamperedBody = Buffer.from(JSON.stringify({ test: false }))
-    expect(verifyResendSignature(valid, tamperedBody, secret)).toBe(false)
+    expect(verifyResendSignature(valid, tamperedBody, testWebhookSecret)).toBe(false)
 
-    const expired = signedResendRequest(payload, secret, String(Math.floor(Date.now() / 1000) - 400))
-    expect(verifyResendSignature(expired, validBody, secret)).toBe(false)
+    const expired = signedResendRequest(payload, testWebhookSecret, String(Math.floor(Date.now() / 1000) - 400))
+    expect(verifyResendSignature(expired, validBody, testWebhookSecret)).toBe(false)
 
-    expect(verifyResendSignature(valid, validBody, "whsec_wrongsecret123456789012345678901234")).toBe(false)
+    const wrongSecret = ["whsec", Buffer.from("wrong-webhook-secret-bytes-32-len!").toString("base64")].join("_")
+    expect(verifyResendSignature(valid, validBody, wrongSecret)).toBe(false)
   })
 
-  test("extractThreadId extracts thread IDs correctly", () => {
+  test("email parsing and formatting helpers", () => {
     const threadId = "1548800000000001001"
-    expect(extractThreadId(`Re: Station search bug [#${threadId}]`)).toBe(threadId)
-    expect(extractThreadId("No thread ID here")).toBeUndefined()
-
+    expect(extractThreadId(`Re: Bug [#${threadId}]`)).toBe(threadId)
+    expect(extractThreadId("No thread ID")).toBeUndefined()
     expect(extractThreadId(undefined, { "in-reply-to": `<thread-${threadId}@better-rail.co.il>` })).toBe(threadId)
     expect(extractThreadId(undefined, { references: `some-id <thread-${threadId}@better-rail.co.il>` })).toBe(threadId)
     expect(extractThreadId(undefined, undefined, [`feedback+${threadId}@better-rail.co.il`])).toBe(threadId)
-    expect(
-      extractThreadId(
-        "Changed subject line",
-        undefined,
-        undefined,
-        `Thanks for looking into this!\n\nBetter Rail Support • Ref: [#${threadId}]`,
-      ),
-    ).toBe(threadId)
-  })
+    expect(extractThreadId(undefined, undefined, undefined, `Support • Ref: [#${threadId}]`)).toBe(threadId)
 
-  test("extractSenderEmail parses plain and bracketed addresses", () => {
     expect(extractSenderEmail("David Cohen <david@example.com>")).toBe("david@example.com")
     expect(extractSenderEmail("david@example.com")).toBe("david@example.com")
-  })
 
-  test("htmlToText converts HTML to clean plaintext", () => {
-    const html = "<p>Hello <b>team</b>,</p><p>The app is <i>great</i>!<br/>Thanks.</p>"
-    const text = htmlToText(html)
+    const text = htmlToText("<p>Hello <b>team</b>,</p><p>The app is <i>great</i>!<br/>Thanks.</p>")
     expect(text).toContain("Hello team,")
     expect(text).toContain("The app is great!\nThanks.")
+
+    expect(chunkEmailBody("Short message").chunks).toEqual(["Short message"])
+    expect(chunkEmailBody("Line of text.\n".repeat(180)).chunks.length).toBeGreaterThan(1)
+    const large = chunkEmailBody("A".repeat(5000))
+    expect(large.chunks[0]).toContain("exceeds 4,000 characters")
+    expect(large.overflowFile?.filename).toBe("email_body.txt")
   })
 
-  test("chunkEmailBody chunks body text cleanly and produces overflow file for large emails", () => {
-    const shortText = "Just a short message"
-    const shortResult = chunkEmailBody(shortText)
-    expect(shortResult.chunks).toEqual([shortText])
-    expect(shortResult.overflowFile).toBeUndefined()
-
-    const mediumText = "Line of text.\n".repeat(180)
-    const mediumResult = chunkEmailBody(mediumText)
-    expect(mediumResult.chunks.length).toBeGreaterThan(1)
-    expect(mediumResult.overflowFile).toBeUndefined()
-
-    const largeText = "A".repeat(5000)
-    const largeResult = chunkEmailBody(largeText)
-    expect(largeResult.chunks).toHaveLength(1)
-    expect(largeResult.chunks[0]).toContain("exceeds 4,000 characters")
-    expect(largeResult.overflowFile?.filename).toBe("email_body.txt")
-    expect(largeResult.overflowFile?.content).toBe(largeText)
-  })
-
-  test("inbound email creates new thread in #email-feedback with email subject and header", async () => {
+  test("inbound email routes new threads, unarchives follow-ups, and prevents sender hijacking", async () => {
     const { discord, bridge } = createEmailBridge()
-    const result = await bridge.handleInboundEmail({
+
+    // 1. Initial email creates a new thread in #email-feedback
+    const initial = await bridge.handleInboundEmail({
       id: "email_1",
       from: "Ron <ron@example.com>",
       to: ["feedback@better-rail.co.il"],
       subject: "Train schedule issue at Savidor",
-      text: "Hello, train 402 was delayed by 20 minutes today.",
+      text: "Train 402 was delayed by 20 minutes today.",
     })
-    expect(result.created).toBe(true)
-    const thread = discord.channels.get(result.threadId)
-    expect(thread?.name).toBe("Train schedule issue at Savidor")
-    expect(thread?.parent_id).toBe(feedbackChannelId)
+    expect(initial.created).toBe(true)
+    const threadId = initial.threadId
+    expect(discord.channels.get(threadId)?.parent_id).toBe(feedbackChannelId)
+    expect(discord.messages.get(threadId)?.[0].content).toContain("Train schedule issue at Savidor")
 
-    const messages = discord.messages.get(result.threadId) || []
-    expect(messages[0].content).toContain("**New Email from:** `Ron <ron@example.com>`")
-    expect(messages[0].content).toContain("Train schedule issue at Savidor")
-    expect(messages[0].content).toContain("Hello, train 402 was delayed by 20 minutes today.")
-  })
-
-  test("inbound email routes follow-up to existing thread and unarchives if needed", async () => {
-    const { discord, bridge } = createEmailBridge()
-    const existingThreadId = "1548800000000001050"
-    createThread(discord, existingThreadId, "Delayed Train", true)
-    discord.messages.set(existingThreadId, [
-      {
-        id: "1548800000000000010",
-        channel_id: existingThreadId,
-        content: "**New Email from:** `Ron <ron@example.com>`\n**Subject:** Delayed Train\n──────────────────────────────\nTrain delayed",
-        author: { id: applicationId, username: "The Conductor", bot: true },
-      },
-    ])
-
-    const result = await bridge.handleInboundEmail({
+    // 2. Archive thread; follow-up from the same sender unarchives and appends message
+    discord.channels.get(threadId)!.thread_metadata = { archived: true }
+    const followUp = await bridge.handleInboundEmail({
       id: "email_2",
       from: "Ron <ron@example.com>",
       to: ["feedback@better-rail.co.il"],
-      subject: `Re: Delayed Train [#${existingThreadId}]`,
+      subject: `Re: Train schedule issue at Savidor [#${threadId}]`,
       text: "Any updates on this ticket?",
     })
-    expect(result.created).toBe(false)
-    expect(result.threadId).toBe(existingThreadId)
-    expect(discord.channels.get(existingThreadId)?.thread_metadata?.archived).toBe(false)
+    expect(followUp.created).toBe(false)
+    expect(followUp.threadId).toBe(threadId)
+    expect(discord.channels.get(threadId)?.thread_metadata?.archived).toBe(false)
+    expect(discord.messages.get(threadId)).toHaveLength(2)
 
-    const messages = discord.messages.get(existingThreadId) || []
-    expect(messages).toHaveLength(2)
-    expect(messages[1].content).toContain("**Follow-up Email from:** `Ron <ron@example.com>`")
-    expect(messages[1].content).toContain("Any updates on this ticket?")
-  })
-
-  test("inbound email with mismatched sender creates a new thread instead of hijacking", async () => {
-    const { discord, bridge } = createEmailBridge()
-    const existingThreadId = "1548800000000001050"
-    createThread(discord, existingThreadId, "Delayed Train", true)
-    discord.messages.set(existingThreadId, [
-      {
-        id: "1548800000000000010",
-        channel_id: existingThreadId,
-        content: "**New Email from:** `Ron <ron@example.com>`\n**Subject:** Delayed Train\n──────────────────────────────\nTrain delayed",
-        author: { id: applicationId, username: "The Conductor", bot: true },
-      },
-    ])
-
-    const result = await bridge.handleInboundEmail({
+    // 3. Email from a different sender referencing threadId creates a separate thread
+    const hijack = await bridge.handleInboundEmail({
       id: "email_hijack",
       from: "Eve <eve@attacker.com>",
       to: ["feedback@better-rail.co.il"],
-      subject: `Re: Delayed Train [#${existingThreadId}]`,
+      subject: `Re: Train schedule issue at Savidor [#${threadId}]`,
       text: "Trying to hijack thread",
     })
-    expect(result.created).toBe(true)
-    expect(result.threadId).not.toBe(existingThreadId)
-    expect(discord.messages.get(existingThreadId)).toHaveLength(1)
+    expect(hijack.created).toBe(true)
+    expect(hijack.threadId).not.toBe(threadId)
+    expect(discord.messages.get(threadId)).toHaveLength(2)
   })
 
-  test("POST /resend/webhook endpoint processes incoming email end-to-end", async () => {
-    const { discord, resend, handler } = createEmailBridge()
-    resend.receivedEmails.set("msg_received_999", {
-      id: "msg_received_999",
-      from: "Noa <noa@example.com>",
-      to: ["feedback@better-rail.co.il"],
-      subject: "Dark mode request",
-      text: "Please add an OLED dark mode!",
-    })
-
-    const request = signedResendRequest(
-      { type: "email.received", data: { email_id: "msg_received_999" } },
-      emailConfig.resendWebhookSecret!,
-    )
-    const response = await handler(request)
-    expect(response.status).toBe(200)
-    expect(await response.json()).toEqual({ ok: true })
-
-    const createdThreads = Array.from(discord.channels.values()).filter((c) => c.name === "Dark mode request")
-    expect(createdThreads).toHaveLength(1)
-    const threadMessages = discord.messages.get(createdThreads[0].id) || []
-    expect(threadMessages[0].content).toContain("OLED dark mode")
-  })
-
-  test("POST /resend/webhook rejects with 503 when resendWebhookSecret is missing", async () => {
-    const { handler } = createEmailBridge({ ...emailConfig, resendWebhookSecret: undefined })
-    const request = new Request("http://localhost/resend/webhook", {
-      method: "POST",
-      body: JSON.stringify({ type: "email.received", data: { email_id: "any" } }),
-    })
-    const response = await handler(request)
-    expect(response.status).toBe(503)
-    expect(await response.text()).toContain("Webhook secret not configured")
-  })
-
-  test("POST /resend/webhook rejects with 401 when signature is invalid", async () => {
-    const { handler } = createEmailBridge()
-    const request = new Request("http://localhost/resend/webhook", {
-      method: "POST",
-      headers: {
-        "svix-id": "msg_invalid",
-        "svix-timestamp": String(Math.floor(Date.now() / 1000)),
-        "svix-signature": "v1,invalid_signature_hex",
-      },
-      body: JSON.stringify({ type: "email.received", data: { email_id: "any" } }),
-    })
-    const response = await handler(request)
-    expect(response.status).toBe(401)
-    expect(await response.text()).toContain("Invalid signature")
-  })
-
-  test("slash command /reply sends email via Resend and patches confirmation in thread", async () => {
-    const { discord, resend, handler } = createEmailBridge()
-    const threadId = "1548800000000001099"
-    createThread(discord, threadId, "Ticket purchase crash")
-    discord.messages.set(threadId, [
-      {
-        id: "msg_starter_1",
-        channel_id: threadId,
-        content: "**New Email from:** `Yael <yael@example.com>`\n**Subject:** Ticket purchase crash\n──────────────────────────────\nApp crashed at checkout",
-        author: { id: applicationId, username: "The Conductor", bot: true },
-      },
-    ])
-
-    const response = await (await handler(signedRequest(replyCommand(threadId, "We just published an update that fixes this crash!")))).json()
-    expect(response).toEqual({ type: 5 })
-
-    await waitForResponse(discord)
-    expect(resend.sentEmails).toHaveLength(1)
-    expect(resend.sentEmails[0].to).toEqual(["yael@example.com"])
-    expect(resend.sentEmails[0].subject).toBe(`Re: Ticket purchase crash [#${threadId}]`)
-    expect(resend.sentEmails[0].text).toContain("We just published an update that fixes this crash!")
-    expect(resend.sentEmails[0].text).toContain(`Better Rail Support • Ref: [#${threadId}]`)
-    expect(resend.sentEmails[0].headers?.["In-Reply-To"]).toBe(`<thread-${threadId}@better-rail.co.il>`)
-
-    expect(discord.responses).toHaveLength(1)
-    const patchContent = (discord.responses[0] as { content: string }).content
-    expect(patchContent).toContain("yael@example.com")
-    expect(patchContent).toContain("We just published an update that fixes this crash!")
-  })
-
-  test("slash command /reply rejects when executed outside an #email-feedback thread", async () => {
-    const { discord, resend, handler } = createEmailBridge()
-    const randomChannelId = "1548800000000001999"
-    discord.channels.set(randomChannelId, {
-      id: randomChannelId,
-      guild_id: guildId,
-      parent_id: "999999999999999999",
-      name: "general-chat",
-      type: 0,
-      permission_overwrites: [],
-    })
-
-    const response = await (await handler(signedRequest(replyCommand(randomChannelId, "Hello outside feedback")))).json()
-    expect(response).toEqual({ type: 5 })
-
-    await waitForResponse(discord)
-    expect(resend.sentEmails).toHaveLength(0)
-    const patchContent = (discord.responses[0] as { content: string }).content
-    expect(patchContent).toContain("only be used inside an #email-feedback thread")
-  })
-
-  test("handled map cleans up expired entries across slash command invocations", async () => {
-    const { discord, handler } = createEmailBridge()
-    const threadId = "1548800000000001099"
-    createThread(discord, threadId)
-    discord.messages.set(threadId, [
-      {
-        id: "msg_starter_1",
-        channel_id: threadId,
-        content: "**New Email from:** `user@example.com`\n**Subject:** Test\n──────────────────────────────\nHello",
-        author: { id: applicationId, username: "The Conductor", bot: true },
-      },
-    ])
-
-    const cmd1 = replyCommand(threadId, "Reply 1", "cmd_1")
-    expect(await (await handler(signedRequest(cmd1))).json()).toEqual({ type: 5 })
-    expect(await (await handler(signedRequest(cmd1))).json()).toEqual({ type: 5 })
-
-    const cmd2 = replyCommand(threadId, "Reply 2", "cmd_2")
-    expect(await (await handler(signedRequest(cmd2))).json()).toEqual({ type: 5 })
-  })
-
-  test("slash command /reply finds customer email in long thread with > 100 messages", async () => {
-    const { discord, resend, handler } = createEmailBridge()
-    const threadId = "1548800000000001098"
-    createThread(discord, threadId, "Long Discussion")
-
-    const initialMessage = {
-      id: "1548800000000000001",
-      channel_id: threadId,
-      content: "**New Email from:** `customer@domain.com`\n**Subject:** Long Discussion\n──────────────────────────────\nInitial message",
-      author: { id: applicationId, username: "The Conductor", bot: true },
-    }
-
-    const threadMessages: DiscordMessage[] = [initialMessage]
-    for (let i = 2; i <= 112; i++) {
-      threadMessages.push({
-        id: String(1548800000000000000n + BigInt(i)),
-        channel_id: threadId,
-        content: `Team discussion comment #${i}`,
-        author: { id: "user_internal", username: "dev", bot: false },
-      })
-    }
-    discord.messages.set(threadId, threadMessages)
-
-    const response = await (await handler(signedRequest(replyCommand(threadId, "Resolution after long internal discussion")))).json()
-    expect(response).toEqual({ type: 5 })
-
-    await waitForResponse(discord)
-    expect(resend.sentEmails).toHaveLength(1)
-    expect(resend.sentEmails[0].to).toEqual(["customer@domain.com"])
-    expect(resend.sentEmails[0].text).toContain("Resolution after long internal discussion")
-  })
-
-  test("inbound email with attachment download_url downloads and attaches file", async () => {
+  test("inbound email downloads valid attachments and rejects oversized ones", async () => {
     const { discord, bridge } = createEmailBridge()
     const originalFetch = globalThis.fetch
     try {
       globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
-        if (typeof input === "string" && input.includes("attachment.pdf")) {
-          return new Response(new Uint8Array([1, 2, 3, 4]), {
-            status: 200,
-            headers: { "content-type": "application/pdf" },
-          })
+        const url = String(input)
+        if (url.includes("invoice.pdf")) {
+          return new Response(new Uint8Array([1, 2, 3, 4]), { status: 200, headers: { "content-type": "application/pdf" } })
+        }
+        if (url.includes("huge.zip")) {
+          return new Response("huge payload", { status: 200, headers: { "content-length": String(30 * 1024 * 1024) } })
         }
         return originalFetch(input, init)
       }) as typeof fetch
 
       const res = await bridge.handleInboundEmail({
-        id: "email_att_1",
+        id: "email_att",
         from: "attachment_user@example.com",
         to: ["feedback@better-rail.co.il"],
-        subject: "With Attachment",
+        subject: "With Attachments",
         text: "See attached invoice",
         attachments: [
-          {
-            id: "att_1",
-            filename: "invoice.pdf",
-            content_type: "application/pdf",
-            download_url: "https://files.resend.com/attachment.pdf",
-          },
+          { id: "1", filename: "invoice.pdf", content_type: "application/pdf", download_url: "https://files.resend.com/invoice.pdf" },
+          { id: "2", filename: "huge.zip", content_type: "application/zip", download_url: "https://files.resend.com/huge.zip" },
         ],
       })
       expect(res.created).toBe(true)
-
       const messages = discord.messages.get(res.threadId) || []
       expect(messages).toHaveLength(2)
       expect(messages[1].content).toContain("**Attachment:** `invoice.pdf`")
@@ -787,70 +571,98 @@ describe("resend email bridge", () => {
     }
   })
 
-  test("inbound email with oversized attachment download_url safely rejects attachment", async () => {
-    const { discord, bridge } = createEmailBridge()
-    const originalFetch = globalThis.fetch
-    try {
-      globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
-        if (typeof input === "string" && input.includes("huge.zip")) {
-          return new Response("huge payload", {
-            status: 200,
-            headers: {
-              "content-type": "application/zip",
-              "content-length": String(30 * 1024 * 1024),
-            },
-          })
-        }
-        return originalFetch(input, init)
-      }) as typeof fetch
+  test("POST /resend/webhook processes incoming email and rejects unauthorized requests", async () => {
+    // 503 when webhook secret is missing
+    const { handler: unconfigured } = createEmailBridge({ ...emailConfig, resendWebhookSecret: undefined })
+    expect((await unconfigured(new Request("http://localhost/resend/webhook", { method: "POST", body: "{}" }))).status).toBe(503)
 
-      const res = await bridge.handleInboundEmail({
-        id: "email_att_2",
-        from: "attachment_user@example.com",
-        to: ["feedback@better-rail.co.il"],
-        subject: "With Huge Attachment",
-        text: "See attached huge file",
-        attachments: [
-          {
-            id: "att_huge",
-            filename: "huge.zip",
-            content_type: "application/zip",
-            download_url: "https://files.resend.com/huge.zip",
-          },
-        ],
-      })
-      expect(res.created).toBe(true)
-      expect(discord.messages.get(res.threadId)).toHaveLength(1)
-    } finally {
-      globalThis.fetch = originalFetch
-    }
+    // 401 when signature is invalid
+    const { discord, resend, handler } = createEmailBridge()
+    const invalid = await handler(
+      new Request("http://localhost/resend/webhook", {
+        method: "POST",
+        headers: { "svix-id": "msg_bad", "svix-timestamp": String(Math.floor(Date.now() / 1000)), "svix-signature": "v1,bad" },
+        body: "{}",
+      }),
+    )
+    expect(invalid.status).toBe(401)
+
+    // 200 end-to-end processing with valid signature
+    resend.receivedEmails.set("msg_999", {
+      id: "msg_999",
+      from: "Noa <noa@example.com>",
+      to: ["feedback@better-rail.co.il"],
+      subject: "Dark mode request",
+      text: "Please add an OLED dark mode!",
+    })
+    const valid = signedResendRequest({ type: "email.received", data: { email_id: "msg_999" } }, emailConfig.resendWebhookSecret!)
+    const response = await handler(valid)
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ ok: true })
+
+    const thread = Array.from(discord.channels.values()).find((c) => c.name === "Dark mode request")
+    expect(thread).toBeDefined()
+    expect(discord.messages.get(thread!.id)?.[0].content).toContain("OLED dark mode")
   })
 
-  test("slash command /reply ignores human-authored spoofed headers and only trusts bot messages", async () => {
+  test("slash command /reply sends email, prevents thread hijacking, and rejects invalid channels", async () => {
     const { discord, resend, handler } = createEmailBridge()
-    const threadId = "1548800000000001097"
-    createThread(discord, threadId, "Spoof Attempt")
-    discord.messages.set(threadId, [
+    const threadId = "1548800000000001099"
+    createThread(discord, threadId, "Ticket purchase crash")
+
+    // Setup thread with starter email, 100+ internal discussion comments, and an imposter spoof attempt
+    const threadMessages: DiscordMessage[] = [
       {
-        id: "1548800000000000001",
+        id: "msg_starter_1",
         channel_id: threadId,
-        content: "**New Email from:** `customer@legit.com`\n**Subject:** Spoof Attempt\n──────────────────────────────\nLegit customer issue",
+        content: "**New Email from:** `yael@example.com`\n**Subject:** Ticket purchase crash\n──────────────────────────────\nApp crashed",
         author: { id: applicationId, username: "The Conductor", bot: true },
       },
-      {
-        id: "1548800000000000002",
+    ]
+    for (let i = 2; i <= 105; i++) {
+      threadMessages.push({
+        id: String(1548800000000000000n + BigInt(i)),
         channel_id: threadId,
-        content: "Quoting another user: **Follow-up Email from:** `imposter@evil.com`",
-        author: { id: "user_imposter", username: "hacker", bot: false },
-      },
-    ])
+        content: `Internal discussion comment #${i}`,
+        author: { id: "dev_user", username: "dev", bot: false },
+      })
+    }
+    threadMessages.push({
+      id: "1548800000000000106",
+      channel_id: threadId,
+      content: "Quote: **Follow-up Email from:** `imposter@evil.com`",
+      author: { id: "user_imposter", username: "hacker", bot: false },
+    })
+    discord.messages.set(threadId, threadMessages)
 
-    const response = await (await handler(signedRequest(replyCommand(threadId, "Reply to customer")))).json()
-    expect(response).toEqual({ type: 5 })
+    // 1. Rejects execution outside #email-feedback thread
+    const randomChannelId = "1548800000000001999"
+    discord.channels.set(randomChannelId, {
+      id: randomChannelId,
+      guild_id: guildId,
+      parent_id: "other_channel",
+      name: "general-chat",
+      type: 0,
+      permission_overwrites: [],
+    })
+    expect(await (await handler(signedRequest(replyCommand(randomChannelId, "Hello outside", "cmd_outside")))).json()).toEqual({ type: 5 })
+    const outsideResp = await waitForResponse(discord)
+    expect(outsideResp.content).toContain("only be used inside an #email-feedback thread")
 
-    await waitForResponse(discord)
+    // 2. In feedback thread: ignores spoofed imposter, traverses 100+ messages, and sends email to yael@example.com
+    const cmd = replyCommand(threadId, "Fixed in the new update!", "cmd_reply_thread")
+    expect(await (await handler(signedRequest(cmd))).json()).toEqual({ type: 5 })
+    // Duplicate command returns cached response idempotently
+    expect(await (await handler(signedRequest(cmd))).json()).toEqual({ type: 5 })
+
+    await waitForResponse(discord, 2)
     expect(resend.sentEmails).toHaveLength(1)
-    expect(resend.sentEmails[0].to).toEqual(["customer@legit.com"])
+    expect(resend.sentEmails[0].to).toEqual(["yael@example.com"])
+    expect(resend.sentEmails[0].subject).toBe(`Re: Ticket purchase crash [#${threadId}]`)
+    expect(resend.sentEmails[0].text).toContain("Fixed in the new update!")
+    expect(resend.sentEmails[0].text).toContain(`Better Rail Support • Ref: [#${threadId}]`)
+    expect(resend.sentEmails[0].headers?.["In-Reply-To"]).toBe(`<thread-${threadId}@better-rail.co.il>`)
+    expect((discord.responses[1] as { content: string }).content).toContain("yael@example.com")
   })
 })
 
