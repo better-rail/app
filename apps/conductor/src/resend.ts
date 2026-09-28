@@ -36,6 +36,7 @@ export type ResendReceivedEmail = {
   html?: string
   text?: string
   headers?: Record<string, string | string[]>
+  message_id?: string
   attachments?: Array<{
     id: string
     filename: string
@@ -50,6 +51,7 @@ export type ResendSendEmailOptions = {
   to: string[]
   subject: string
   text: string
+  html?: string
   reply_to?: string
   headers?: Record<string, string>
   attachments?: Array<{
