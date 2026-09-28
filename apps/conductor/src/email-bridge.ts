@@ -150,10 +150,18 @@ export class EmailBridge {
           channel.parent_id === feedbackChannelId &&
           (channel.guild_id ? channel.guild_id === this.config.guildId : true)
         ) {
-          targetThreadId = candidateThreadId
-          isFollowUp = true
-          if (channel.thread_metadata?.archived) {
-            await this.discordApi.call("PATCH", `/channels/${candidateThreadId}`, { archived: false }).catch(() => {})
+          const originalSender = await this.getThreadOriginalSender(candidateThreadId)
+          const currentSender = extractSenderEmail(email.from).toLowerCase()
+          if (originalSender && originalSender === currentSender) {
+            targetThreadId = candidateThreadId
+            isFollowUp = true
+            if (channel.thread_metadata?.archived) {
+              await this.discordApi.call("PATCH", `/channels/${candidateThreadId}`, { archived: false }).catch(() => {})
+            }
+          } else {
+            console.warn(
+              `Conductor: sender mismatch for thread ${candidateThreadId} (original: ${originalSender}, received: ${currentSender}), opening a new thread instead`,
+            )
           }
         }
       } catch (err) {
@@ -305,5 +313,28 @@ export class EmailBridge {
       success: true,
       message: `**Email reply sent to** \`${recipientEmail}\` by **${senderName}**:\n> ${replyText.replace(/\n/g, "\n> ")}`,
     }
+  }
+
+  private async getThreadOriginalSender(threadId: string): Promise<string | undefined> {
+    let beforeId: string | undefined
+    for (let page = 0; page < 5; page++) {
+      const url = `/channels/${threadId}/messages?limit=100${beforeId ? `&before=${beforeId}` : ""}`
+      const messages = await this.discordApi.call<DiscordMessage[]>("GET", url).catch(() => [])
+      if (!messages || messages.length === 0) break
+
+      for (const msg of messages) {
+        if (msg.content.includes("**New Email from:**")) {
+          const fromMatch = msg.content.match(/\*\*New Email from:\*\* `([^`]+)`/)
+          if (fromMatch) {
+            return extractSenderEmail(fromMatch[1]).toLowerCase()
+          }
+        }
+      }
+
+      const nextBeforeId = messages[messages.length - 1]?.id
+      if (!nextBeforeId || nextBeforeId === beforeId) break
+      beforeId = nextBeforeId
+    }
+    return undefined
   }
 }

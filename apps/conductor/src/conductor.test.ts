@@ -533,6 +533,16 @@ describe("resend email bridge", () => {
       thread_metadata: { archived: true },
     })
 
+    discord.messages.set(existingThreadId, [
+      {
+        id: "1548800000000000010",
+        channel_id: existingThreadId,
+        content:
+          "**New Email from:** `Ron <ron@example.com>`\n**Subject:** Delayed Train\n──────────────────────────────\nTrain delayed",
+        author: { id: applicationId, username: "The Conductor", bot: true },
+      },
+    ])
+
     const followUpEmail: ResendReceivedEmail = {
       id: "email_2",
       from: "Ron <ron@example.com>",
@@ -547,9 +557,52 @@ describe("resend email bridge", () => {
     expect(discord.channels.get(existingThreadId)?.thread_metadata?.archived).toBe(false)
 
     const messages = discord.messages.get(existingThreadId) || []
-    expect(messages.length).toBe(1)
-    expect(messages[0].content).toContain("**Follow-up Email from:** `Ron <ron@example.com>`")
-    expect(messages[0].content).toContain("Any updates on this ticket?")
+    expect(messages.length).toBe(2)
+    expect(messages[1].content).toContain("**Follow-up Email from:** `Ron <ron@example.com>`")
+    expect(messages[1].content).toContain("Any updates on this ticket?")
+  })
+
+  test("inbound email with mismatched sender creates a new thread instead of hijacking", async () => {
+    const discord = new FakeDiscord()
+    const resend = new FakeResend()
+    const bridge = new EmailBridge(emailConfig, discord, resend)
+
+    const existingThreadId = "1548800000000001050"
+    discord.channels.set(existingThreadId, {
+      id: existingThreadId,
+      guild_id: guildId,
+      parent_id: feedbackChannelId,
+      name: "Delayed Train",
+      type: 11,
+      permission_overwrites: [],
+      thread_metadata: { archived: true },
+    })
+    discord.messages.set(existingThreadId, [
+      {
+        id: "1548800000000000010",
+        channel_id: existingThreadId,
+        content:
+          "**New Email from:** `Ron <ron@example.com>`\n**Subject:** Delayed Train\n──────────────────────────────\nTrain delayed",
+        author: { id: applicationId, username: "The Conductor", bot: true },
+      },
+    ])
+
+    const attackerEmail: ResendReceivedEmail = {
+      id: "email_hijack",
+      from: "Eve <eve@attacker.com>",
+      to: ["feedback@better-rail.co.il"],
+      subject: `Re: Delayed Train [#${existingThreadId}]`,
+      text: "Trying to hijack thread",
+    }
+
+    const result = await bridge.handleInboundEmail(attackerEmail)
+    // Must create a new thread and NOT reuse Ron's thread
+    expect(result.created).toBe(true)
+    expect(result.threadId).not.toBe(existingThreadId)
+
+    // Ron's thread must not have been tampered with
+    const ronMessages = discord.messages.get(existingThreadId) || []
+    expect(ronMessages.length).toBe(1)
   })
 
   test("POST /resend/webhook endpoint processes incoming email end-to-end", async () => {
