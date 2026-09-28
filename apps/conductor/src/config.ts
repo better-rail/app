@@ -1,4 +1,4 @@
-export const SUPPORT_EMAIL_FROM = "Better Rail Feedback <feedback@better-rail.co.il>"
+export const SUPPORT_EMAIL_FROM = "Better Rail <feedback@better-rail.co.il>"
 
 export type ConductorConfig = {
   applicationId: string

@@ -127,6 +127,34 @@ export function formatEmailHeader(from: string, subject?: string, isFollowUp = f
   return `**New Email from:** \`${from}\`\n**Subject:** ${subject || "(No Subject)"}\n──────────────────────────────`
 }
 
+async function downloadAttachment(url: string, contentType?: string): Promise<Blob> {
+  const resp = await fetch(url, { signal: AbortSignal.timeout(ATTACHMENT_DOWNLOAD_TIMEOUT_MS) })
+  if (!resp.ok || !resp.body) throw new Error(`HTTP ${resp.status} downloading attachment`)
+
+  const contentLength = Number(resp.headers.get("content-length") || 0)
+  if (contentLength > MAX_ATTACHMENT_BYTES) throw new Error(`Attachment exceeds ${MAX_ATTACHMENT_BYTES} bytes`)
+
+  const reader = resp.body.getReader()
+  const chunks: Uint8Array[] = []
+  let totalBytes = 0
+
+  try {
+    for (;;) {
+      const { done, value } = await reader.read()
+      if (done) break
+      totalBytes += value.length
+      if (totalBytes > MAX_ATTACHMENT_BYTES) throw new Error(`Attachment exceeds ${MAX_ATTACHMENT_BYTES} bytes`)
+      chunks.push(value)
+    }
+  } finally {
+    reader.releaseLock()
+  }
+
+  return new Blob([Buffer.concat(chunks)], {
+    type: contentType || resp.headers.get("content-type") || "application/octet-stream",
+  })
+}
+
 export class EmailBridge {
   constructor(
     private config: ConductorConfig,
@@ -153,7 +181,7 @@ export class EmailBridge {
           channel.parent_id === feedbackChannelId &&
           (channel.guild_id ? channel.guild_id === this.config.guildId : true)
         ) {
-          const originalSender = await this.getThreadOriginalSender(candidateThreadId)
+          const originalSender = (await this.findBotEmailSender(candidateThreadId, true))?.toLowerCase()
           const currentSender = extractSenderEmail(email.from).toLowerCase()
           if (originalSender && originalSender === currentSender) {
             targetThreadId = candidateThreadId
@@ -221,61 +249,17 @@ export class EmailBridge {
         try {
           let blob: Blob | undefined
           if (att.download_url) {
-            const resp = await fetch(att.download_url, {
-              signal: AbortSignal.timeout(ATTACHMENT_DOWNLOAD_TIMEOUT_MS),
-            })
-            if (!resp.ok) {
-              throw new Error(`HTTP ${resp.status} downloading attachment`)
-            }
-            if (!resp.body) {
-              throw new Error("Missing response body downloading attachment")
-            }
-
-            const contentLength = Number(resp.headers.get("content-length") || 0)
-            if (contentLength > MAX_ATTACHMENT_BYTES) {
-              throw new Error(`Attachment exceeds maximum size of ${MAX_ATTACHMENT_BYTES} bytes`)
-            }
-
-            const reader = resp.body.getReader()
-            const chunks: Uint8Array[] = []
-            let totalBytes = 0
-
-            try {
-              while (true) {
-                const { done, value } = await reader.read()
-                if (done) break
-                if (value) {
-                  totalBytes += value.length
-                  if (totalBytes > MAX_ATTACHMENT_BYTES) {
-                    await reader.cancel()
-                    throw new Error(`Attachment exceeded maximum size of ${MAX_ATTACHMENT_BYTES} bytes`)
-                  }
-                  chunks.push(value)
-                }
-              }
-            } catch (readErr) {
-              await reader.cancel().catch(() => {})
-              throw readErr
-            }
-
-            blob = new Blob([Buffer.concat(chunks)], {
-              type: att.content_type || resp.headers.get("content-type") || "application/octet-stream",
-            })
+            blob = await downloadAttachment(att.download_url, att.content_type)
           } else if (att.content) {
             const buffer = Buffer.from(att.content, "base64")
             if (buffer.length > MAX_ATTACHMENT_BYTES) {
-              throw new Error(`Attachment exceeds maximum size of ${MAX_ATTACHMENT_BYTES} bytes`)
+              throw new Error(`Attachment exceeds ${MAX_ATTACHMENT_BYTES} bytes`)
             }
-            blob = new Blob([buffer], {
-              type: att.content_type || "application/octet-stream",
-            })
+            blob = new Blob([buffer], { type: att.content_type || "application/octet-stream" })
           }
           if (blob) {
             const form = new FormData()
-            form.append(
-              "payload_json",
-              JSON.stringify({ content: `**Attachment:** \`${att.filename || "attachment"}\`` }),
-            )
+            form.append("payload_json", JSON.stringify({ content: `**Attachment:** \`${att.filename || "attachment"}\`` }))
             form.append("files[0]", blob, att.filename || `attachment_${idx + 1}`)
             await this.discordApi.call("POST", `/channels/${targetThreadId}/messages`, form)
           }
@@ -307,32 +291,7 @@ export class EmailBridge {
       return { success: false, message: "Reply message cannot be empty." }
     }
 
-    let recipientEmail: string | undefined
-    let beforeId: string | undefined
-
-    for (let page = 0; page < 5; page++) {
-      const url = `/channels/${channelId}/messages?limit=100${beforeId ? `&before=${beforeId}` : ""}`
-      const messages = await this.discordApi.call<DiscordMessage[]>("GET", url).catch(() => [])
-      if (!messages || messages.length === 0) break
-
-      for (const msg of messages) {
-        if (!this.isBotAuthor(msg)) continue
-
-        if (msg.content.includes("**New Email from:**") || msg.content.includes("**Follow-up Email from:**")) {
-          const fromMatch = msg.content.match(/\*\*(?:New|Follow-up) Email from:\*\* `([^`]+)`/)
-          if (fromMatch) {
-            recipientEmail = extractSenderEmail(fromMatch[1])
-            break
-          }
-        }
-      }
-      if (recipientEmail) break
-
-      const nextBeforeId = messages[messages.length - 1]?.id
-      if (!nextBeforeId || nextBeforeId === beforeId) break
-      beforeId = nextBeforeId
-    }
-
+    const recipientEmail = await this.findBotEmailSender(channelId)
     if (!recipientEmail || !recipientEmail.includes("@")) {
       return { success: false, message: "Could not find original customer email in this thread." }
     }
@@ -362,7 +321,7 @@ export class EmailBridge {
     }
   }
 
-  private async getThreadOriginalSender(threadId: string): Promise<string | undefined> {
+  private async findBotEmailSender(threadId: string, onlyOriginal = false): Promise<string | undefined> {
     let beforeId: string | undefined
     for (let page = 0; page < 5; page++) {
       const url = `/channels/${threadId}/messages?limit=100${beforeId ? `&before=${beforeId}` : ""}`
@@ -372,11 +331,13 @@ export class EmailBridge {
       for (const msg of messages) {
         if (!this.isBotAuthor(msg)) continue
 
-        if (msg.content.includes("**New Email from:**")) {
-          const fromMatch = msg.content.match(/\*\*New Email from:\*\* `([^`]+)`/)
-          if (fromMatch) {
-            return extractSenderEmail(fromMatch[1]).toLowerCase()
-          }
+        const isMatch = onlyOriginal
+          ? msg.content.includes("**New Email from:**")
+          : msg.content.includes("**New Email from:**") || msg.content.includes("**Follow-up Email from:**")
+
+        if (isMatch) {
+          const fromMatch = msg.content.match(/\*\*(?:New|Follow-up) Email from:\*\* `([^`]+)`/)
+          if (fromMatch) return extractSenderEmail(fromMatch[1])
         }
       }
 
