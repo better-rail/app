@@ -49,7 +49,7 @@ const initialSettingsState: SettingsState = {
   totalTip: 0,
   recordedTipTransactionIds: [],
   showRouteCardHeader: false,
-  showHourIndex: true,
+  showHourIndex: false,
   colorScheme: "automatic",
   hideSlowTrains: false,
   maxChanges: null,
@@ -191,7 +191,7 @@ export function hydrateSettingsStore(data: any) {
     totalTip: processedData.totalTip ?? 0,
     recordedTipTransactionIds: processedData.recordedTipTransactionIds ?? [],
     showRouteCardHeader: processedData.showRouteCardHeader ?? false,
-    showHourIndex: processedData.showHourIndex ?? true,
+    showHourIndex: processedData.showHourIndex ?? false,
     colorScheme: ["automatic", "light", "dark"].includes(
       processedData.colorScheme,
     )
