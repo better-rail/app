@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react"
 import { Modal, Pressable, View, type ViewStyle } from "react-native"
-import { StyleSheet } from "react-native-unistyles"
+import { StyleSheet, useUnistyles } from "react-native-unistyles"
 import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore } from "@/models"
 import { dateLocale, translate } from "@/i18n"
-import { color, isDarkMode } from "@/theme"
+import { color } from "@/theme"
 import DatePicker from "react-native-date-picker"
 import { Button } from "@/components/button/button"
 import { Text } from "@/components/text/text"
@@ -18,6 +18,9 @@ export interface DatePickerModalProps {
 }
 
 export function DatePickerModal({ isVisible, onConfirm, onCancel, minimumDate }: DatePickerModalProps) {
+  const { rt } = useUnistyles()
+  const isDarkMode = rt.themeName === "dark"
+  const rippleColor = isDarkMode ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.1)"
   const { setDateType, dateType } = useRoutePlanStore(useShallow((s) => ({ setDateType: s.setDateType, dateType: s.dateType })))
   const [selectedTab, setSelectedTab] = useState(dateType === "arrival" ? 1 : 0)
   const [modalDate, setModalDate] = useState(new Date())
@@ -43,14 +46,14 @@ export function DatePickerModal({ isVisible, onConfirm, onCancel, minimumDate }:
               <Pressable
                 style={[styles.tab, selectedTab === 0 ? styles.activeTab : styles.inactiveTab]}
                 onPress={() => onDateTypeChange(0)}
-                android_ripple={{ color: "rgba(0,0,0,0.1)" }}
+                android_ripple={{ color: rippleColor }}
               >
                 <Text tx="plan.leaveAt" style={styles.tabText} />
               </Pressable>
               <Pressable
                 style={[styles.tab, selectedTab === 1 ? styles.activeTab : styles.inactiveTab]}
                 onPress={() => onDateTypeChange(1)}
-                android_ripple={{ color: "rgba(0,0,0,0.1)" }}
+                android_ripple={{ color: rippleColor }}
               >
                 <Text tx="plan.arriveAt" style={styles.tabText} />
               </Pressable>
@@ -112,7 +115,7 @@ const styles = StyleSheet.create((theme, rt) => ({
   tab: {
     flex: 1,
     height: 40,
-    backgroundColor: rt.colorScheme === "dark" ? "#1c1c1e" : "#fff",
+    backgroundColor: rt.themeName === "dark" ? "#1c1c1e" : "#fff",
     borderBottomWidth: 2,
   },
   activeTab: {
@@ -125,7 +128,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     fontFamily: "sans-serif-medium",
     fontSize: 14,
     fontWeight: "600",
-    color: rt.colorScheme === "dark" ? theme.colors.palette.white : theme.colors.palette.black,
+    color: rt.themeName === "dark" ? theme.colors.palette.white : theme.colors.palette.black,
     textAlign: "center",
     textTransform: "uppercase",
     lineHeight: 40,
@@ -140,9 +143,9 @@ const styles = StyleSheet.create((theme, rt) => ({
     height: 40,
   },
   cancelButton: {
-    backgroundColor: rt.colorScheme === "dark" ? "#1c1c1e" : "#fff",
+    backgroundColor: rt.themeName === "dark" ? "#1c1c1e" : "#fff",
     borderWidth: 1,
-    borderColor: rt.colorScheme === "dark" ? "#111111" : "#e5e5e9",
+    borderColor: rt.themeName === "dark" ? "#111111" : "#e5e5e9",
   },
   cancelButtonContainer: {
     marginEnd: theme.spacing[1],

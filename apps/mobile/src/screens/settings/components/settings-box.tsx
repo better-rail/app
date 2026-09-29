@@ -1,6 +1,6 @@
 import React from "react"
 import { Image, View, ViewStyle, ImageStyle, TouchableHighlight, TouchableHighlightProps, Platform, Switch } from "react-native"
-import { StyleSheet } from "react-native-unistyles"
+import { StyleSheet, useUnistyles } from "react-native-unistyles"
 import { Text } from "@/components"
 import { isRTL } from "@/i18n"
 import { color, spacing } from "@/theme"
@@ -51,6 +51,7 @@ type ActionSettingBoxProps = SettingBoxSharedProps & {
 export type SettingBoxProps = ToggleSettingBoxProps | ActionSettingBoxProps
 
 export const SettingBox = function SettingBox(props: SettingBoxProps) {
+  const { theme, rt } = useUnistyles()
   const { title, icon, first, last, externalLink, chevron, checkmark, onPress, toggle, style, testID } = props
   const handlePress = toggle ? () => props.onToggle(!props.toggleValue) : onPress
   const statefulTestID = testID
@@ -58,7 +59,12 @@ export const SettingBox = function SettingBox(props: SettingBoxProps) {
     : undefined
   let boxStyle: ViewStyle = {}
 
-  if (!first && Platform.OS === "ios") boxStyle = { borderTopColor: color.background, borderTopWidth: 1 }
+  if (!first && Platform.OS === "ios") {
+    boxStyle = {
+      borderTopColor: rt.themeName === "dark" ? theme.colors.inputPlaceholderBackground : theme.colors.background,
+      borderTopWidth: 1,
+    }
+  }
 
   if (first) {
     boxStyle = { borderTopLeftRadius: settingsBorderRadius, borderTopRightRadius: settingsBorderRadius, ...boxStyle }
@@ -71,7 +77,7 @@ export const SettingBox = function SettingBox(props: SettingBoxProps) {
   return (
     <TouchableHighlight
       testID={statefulTestID}
-      underlayColor={color.inputPlaceholderBackground}
+      underlayColor={theme.colors.inputPlaceholderBackground}
       onPress={handlePress}
       style={[styles.settingsBoxBase, boxStyle, style]}
       accessibilityRole={toggle ? "switch" : "button"}

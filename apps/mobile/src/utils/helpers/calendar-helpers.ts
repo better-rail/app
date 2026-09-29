@@ -18,11 +18,20 @@ export function createEventConfig(routeItem: RouteItem): CalendarEventConfig {
   }
 
   const origin = routeItem.trains[0].originStationName
-  const trainNumber = routeItem.trains[0].trainNumber
   const destination = routeItem.trains[routeItem.trains.length - 1].destinationStationName
 
   const title = translate("plan.rideTo", { destination })
-  const notes = translate("plan.trainFromToStation", { trainNumber, origin, destination })
+  const notes = routeItem.trains
+    .flatMap((train, index) => {
+      const leg = translate("plan.trainFromToStation", {
+        trainNumber: train.trainNumber,
+        origin: train.originStationName,
+        destination: train.destinationStationName,
+      })
+
+      return index === 0 ? [leg] : [`${translate("routeDetails.changeAt")}${train.originStationName}`, leg]
+    })
+    .join("\n")
 
   return {
     title,

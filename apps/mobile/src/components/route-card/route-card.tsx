@@ -313,7 +313,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     width: 20,
     height: 14,
     marginLeft: theme.spacing[1],
-    tintColor: rt.colorScheme === "dark" ? "white" : "black",
+    tintColor: rt.themeName === "dark" ? "white" : "black",
   },
   activeRideContainer: {
     backgroundColor: theme.colors.greenBackground,
