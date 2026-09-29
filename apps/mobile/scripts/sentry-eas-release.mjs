@@ -15,9 +15,13 @@ export const SENTRY_REPOSITORY = "better-rail/app"
 const DEFAULT_SENTRY_URL = "https://sentry.io/"
 const APP_DIR = fileURLToPath(new URL("..", import.meta.url))
 
-/** Run commit association only for production EAS builds with uploads enabled. */
+/** Run commit association only for production EAS builds with uploads enabled. Local builds set EAS_BUILD=1. */
 export function shouldAssociateCommits(env) {
-  return env.EAS_BUILD === "true" && env.EAS_BUILD_PROFILE === "production" && env.SENTRY_DISABLE_AUTO_UPLOAD !== "true"
+  return (
+    (env.EAS_BUILD === "true" || env.EAS_BUILD === "1") &&
+    env.EAS_BUILD_PROFILE === "production" &&
+    env.SENTRY_DISABLE_AUTO_UPLOAD !== "true"
+  )
 }
 
 /** Select the application identifier used as the Sentry release prefix. */
