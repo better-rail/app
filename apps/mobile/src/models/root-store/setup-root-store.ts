@@ -1,6 +1,7 @@
 import * as storage from "@/utils/storage"
 import { Appearance } from "react-native"
 import { UnistylesRuntime } from "react-native-unistyles"
+import { setAnalyticsUserProperty } from "@/services/analytics"
 import {
   useRoutePlanStore,
   getRoutePlanSnapshot,
@@ -100,6 +101,8 @@ export async function setupRootStore() {
       UnistylesRuntime.setAdaptiveThemes(false)
       UnistylesRuntime.setTheme(colorScheme)
     }
+    // Report the resolved scheme the rider actually sees, not the system one.
+    setAnalyticsUserProperty("color_scheme", Appearance.getColorScheme() ?? "unspecified")
   }
   applyColorScheme(useSettingsStore.getState().colorScheme)
 
