@@ -3,12 +3,13 @@ import { Alert, Platform, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Screen } from "@/components"
 import { SettingBox } from "./components/settings-box"
-import { isDarkMode } from "@/theme"
+import { useIsDarkMode } from "@/hooks"
 import { changeUserLanguage, translate, userLocale } from "@/i18n"
 import HapticFeedback from "react-native-haptic-feedback"
 import { SETTING_GROUP } from "./settings-styles"
 
 export function LanguageScreen() {
+  const isDarkMode = useIsDarkMode()
   const [clickCounter, setClickCounter] = useState(0)
 
   const changeLanguage = async (langaugeCode) => {

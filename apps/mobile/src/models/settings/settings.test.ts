@@ -17,6 +17,19 @@ test("can be created with default state", () => {
   expect(state.hideSlowTrains).toBe(false)
   expect(state.maxChanges).toBe(null)
   expect(state.trainSearchCount).toBe(0)
+  expect(state.colorScheme).toBe("automatic")
+})
+
+test("persists and restores the color scheme preference", () => {
+  useSettingsStore.getState().setColorScheme("dark")
+  const snapshot = getSettingsSnapshot(useSettingsStore.getState())
+  resetSettingsStore()
+  hydrateSettingsStore(snapshot)
+
+  expect(useSettingsStore.getState().colorScheme).toBe("dark")
+
+  hydrateSettingsStore({ colorScheme: "invalid" })
+  expect(useSettingsStore.getState().colorScheme).toBe("automatic")
 })
 
 test("counts train searches and persists the count", () => {

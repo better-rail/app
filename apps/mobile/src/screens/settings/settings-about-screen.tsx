@@ -4,7 +4,7 @@ import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text } from "@/components"
 import { SettingBox } from "./components/settings-box"
 
-import { isDarkMode } from "@/theme"
+import { useIsDarkMode } from "@/hooks"
 import { openLink } from "@/utils/helpers/open-link"
 import { deviceLocale, translate, userLocale } from "@/i18n"
 import { useRouter } from "expo-router"
@@ -25,6 +25,7 @@ Device Locale: ${deviceLocale}
 
 export function AboutScreen() {
   const router = useRouter()
+  const isDarkMode = useIsDarkMode()
   return (
     <Screen
       style={styles.root}

@@ -2,7 +2,7 @@ import React from "react"
 import { View, Platform, ActivityIndicator } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text } from "@/components"
-import { isDarkMode } from "@/theme"
+import { useIsDarkMode } from "@/hooks"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { translate } from "@/i18n"
 import { useSettingsStore } from "@/models"
@@ -15,6 +15,7 @@ import { TIP_PRODUCT_IDS } from "@/services/iap/tip-purchases"
 const installSource = getInstallerPackageNameSync()
 
 export function TipJarScreen() {
+  const isDarkMode = useIsDarkMode()
   const { products, connected, isPurchasing, canTip, showThanksModal, dismissThanks, requestTip } = useTipIAP()
   const totalTip = useSettingsStore((state) => state.totalTip)
   const sortedProducts = products

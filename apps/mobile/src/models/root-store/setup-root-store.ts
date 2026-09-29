@@ -1,4 +1,6 @@
 import * as storage from "@/utils/storage"
+import { Appearance } from "react-native"
+import { UnistylesRuntime } from "react-native-unistyles"
 import {
   useRoutePlanStore,
   getRoutePlanSnapshot,
@@ -13,7 +15,13 @@ import {
   resetRecentSearchesStore,
 } from "@/models/recent-searches/recent-searches"
 import { useFavoritesStore, getFavoritesSnapshot, hydrateFavoritesStore, resetFavoritesStore } from "@/models/favorites/favorites"
-import { useSettingsStore, getSettingsSnapshot, hydrateSettingsStore, resetSettingsStore } from "@/models/settings/settings"
+import {
+  useSettingsStore,
+  getSettingsSnapshot,
+  hydrateSettingsStore,
+  resetSettingsStore,
+  type ColorSchemePreference,
+} from "@/models/settings/settings"
 import { useRideStore, getRideSnapshot, hydrateRideStore, initializeRideStore, resetRideStore } from "@/models/ride/ride"
 import { useUserStore, getUserSnapshot, hydrateUserStore, resetUserStore } from "@/models/user/user"
 
@@ -83,6 +91,18 @@ export async function setupRootStore() {
     }
   }
 
+  // Restore both native colors and Unistyles before rendering the first screen.
+  const applyColorScheme = (colorScheme: ColorSchemePreference) => {
+    Appearance.setColorScheme(colorScheme === "automatic" ? "unspecified" : colorScheme)
+    if (colorScheme === "automatic") {
+      UnistylesRuntime.setAdaptiveThemes(true)
+    } else {
+      UnistylesRuntime.setAdaptiveThemes(false)
+      UnistylesRuntime.setTheme(colorScheme)
+    }
+  }
+  applyColorScheme(useSettingsStore.getState().colorScheme)
+
   // Run afterCreate equivalents
   initializeRideStore()
 
@@ -108,7 +128,10 @@ export async function setupRootStore() {
   useRoutePlanStore.subscribe(persist)
   useRecentSearchesStore.subscribe(persist)
   useFavoritesStore.subscribe(persist)
-  useSettingsStore.subscribe(persist)
+  useSettingsStore.subscribe((state, previousState) => {
+    if (state.colorScheme !== previousState.colorScheme) applyColorScheme(state.colorScheme)
+    persist()
+  })
   useRideStore.subscribe(persist)
   useUserStore.subscribe(persist)
 }

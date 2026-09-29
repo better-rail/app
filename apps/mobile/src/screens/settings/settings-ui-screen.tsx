@@ -4,6 +4,7 @@ import { StyleSheet } from "react-native-unistyles"
 import { RouteCardPreview, Screen, Text } from "@/components"
 import { RouteCardHeight, RouteCardHeightWithHeader } from "@/components/route-card/route-card"
 import { SettingBox } from "./components/settings-box"
+import { ColorSchemePicker } from "./components/color-scheme-picker"
 import { spacing } from "@/theme"
 import { translate } from "@/i18n"
 import { SETTING_GROUP } from "./settings-styles"
@@ -15,8 +16,13 @@ import { setAnalyticsUserProperty, trackEvent } from "@/services/analytics"
 
 export function UISettingsScreen() {
   const isDarkMode = useIsDarkMode()
-  const { showRouteCardHeader, setShowRouteCardHeader } = useSettingsStore(
-    useShallow((s) => ({ showRouteCardHeader: s.showRouteCardHeader, setShowRouteCardHeader: s.setShowRouteCardHeader })),
+  const { showRouteCardHeader, setShowRouteCardHeader, colorScheme, setColorScheme } = useSettingsStore(
+    useShallow((s) => ({
+      showRouteCardHeader: s.showRouteCardHeader,
+      setShowRouteCardHeader: s.setShowRouteCardHeader,
+      colorScheme: s.colorScheme,
+      setColorScheme: s.setColorScheme,
+    })),
   )
 
   // Animate card container height based on header visibility
@@ -56,6 +62,10 @@ export function UISettingsScreen() {
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
       translucent
     >
+      <View style={SETTING_GROUP}>
+        <ColorSchemePicker value={colorScheme} onChange={setColorScheme} />
+      </View>
+
       <Text style={styles.groupTitle} tx="settings.routeCard" />
       <Animated.View style={animatedCardStyle}>
         <RouteCardPreview cardStyle={styles.routeCard} />
@@ -66,7 +76,7 @@ export function UISettingsScreen() {
           testID="settings-show-train-info"
           first
           last
-          title={translate("settings.showRouteCardHeader")}
+          title={translate("settings.showRouteCardHeader") ?? ""}
           toggle
           toggleValue={showRouteCardHeader}
           onToggle={onRouteCardHeaderToggle}

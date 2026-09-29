@@ -10,7 +10,6 @@ import {
   ImageSourcePropType,
   ViewStyle,
   Image,
-  Appearance,
 } from "react-native"
 import { StyleSheet, withUnistyles } from "react-native-unistyles"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
@@ -18,9 +17,9 @@ import LinearGradient from "react-native-linear-gradient"
 import { color } from "@/theme"
 import { Text } from "@/components/text/text"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
+import { useIsDarkMode } from "@/hooks"
 
 const ThemedTouchableScale = withUnistyles(TouchableScale)
-const isDarkMode = Appearance.getColorScheme() === "dark"
 const { height: deviceHeight } = Dimensions.get("screen")
 
 export let cardHeight = 120
@@ -48,6 +47,7 @@ export interface StationCardProps extends TouchableScaleProps {
   loading?: boolean
 }
 export function StationCard(props: StationCardProps) {
+  const isDarkMode = useIsDarkMode()
   const { name, image, style, loading, ...rest } = props
 
   const loadingOverlay = loading && (

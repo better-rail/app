@@ -84,10 +84,7 @@ const createColors = (appearance: Appearance) => {
     label: nativeColor(PlatformColor("secondaryLabel"), android.label),
     placeholder: nativeColor(PlatformColor("placeholderText"), android.placeholder),
     whiteText: nativeColor(dark ? palette.offWhite : palette.white, android.whiteText),
-    inputPlaceholderBackground: nativeColor(
-      dark ? PlatformColor("systemGray4") : palette.lighterGrey,
-      android.inputPlaceholderBackground,
-    ),
+    inputPlaceholderBackground: nativeColor(dark ? "#3a3a3c" : palette.lighterGrey, android.inputPlaceholderBackground),
     disabled: nativeColor(PlatformColor(dark ? "systemGray3" : "systemGray2"), android.disabled),
     link: nativeColor(PlatformColor("link"), android.link),
     separator: nativeColor(PlatformColor("separator"), android.separator),

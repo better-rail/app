@@ -6,7 +6,7 @@ import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore, useRecentSearchesStore, useFavoritesStore } from "@/models"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useRouter, useLocalSearchParams, useNavigation } from "expo-router"
-import { isDarkMode } from "@/theme"
+import { useIsDarkMode } from "@/hooks"
 import { NormalizedStation, useStations } from "@/data/stations"
 import { SearchInput } from "./search-input"
 import { RecentSearchesBox } from "./recent-searches-box/recent-searches-box"
@@ -20,6 +20,7 @@ import { translate } from "@/i18n"
 export type SelectionType = "origin" | "destination" | "via"
 
 export function SelectStationScreen() {
+  const isDarkMode = useIsDarkMode()
   const router = useRouter()
   const navigation = useNavigation()
   const { selectionType, stationIds } = useLocalSearchParams<{ selectionType: SelectionType; stationIds?: string }>()
@@ -159,7 +160,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     borderBottomWidth: 0.75,
     borderBottomColor: Platform.select({
       ios: theme.colors.dimmer,
-      android: isDarkMode ? "#3a3a3c" : "lightgrey",
+      android: rt.themeName === "dark" ? "#3a3a3c" : "lightgrey",
     }),
   },
   stationCard: {

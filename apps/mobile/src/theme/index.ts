@@ -8,6 +8,5 @@ export * from "./timing"
 
 export const fontScale = PixelRatio.getFontScale()
 const colorScheme = Appearance.getColorScheme()
-export const isDarkMode = colorScheme === "dark"
 
-setAnalyticsUserProperties({ color_scheme: colorScheme, font_scale: `${fontScale}` })
+setAnalyticsUserProperties({ color_scheme: colorScheme ?? "unspecified", font_scale: `${fontScale}` })
