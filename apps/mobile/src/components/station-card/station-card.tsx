@@ -11,7 +11,6 @@ import {
   ViewStyle,
   Image,
   Appearance,
-  Pressable,
 } from "react-native"
 import { StyleSheet, withUnistyles } from "react-native-unistyles"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
@@ -54,33 +53,21 @@ export type StationCardBadge = {
   label: string
   icon?: ImageSourcePropType
   tone?: "highlight" | "neutral"
-  /** Shows an info icon; tapping the badge calls this instead of pressing the card */
-  onInfoPress?: () => void
 }
-
-const INFO_ICON = require("../../../assets/info.circle.png")
 export function StationCard(props: StationCardProps) {
   const { name, image, style, loading, badges, ...rest } = props
 
   const badgeRow = !!badges?.length && (
     <View style={styles.badges}>
-      {badges.map(({ label, icon, tone, onInfoPress }) => {
+      {badges.map(({ label, icon, tone }) => {
         const highlight = tone === "highlight"
-        const contentStyle = highlight && styles.badgeHighlightContent
         return (
-          <Pressable
-            key={label}
-            style={[styles.badge, highlight && styles.badgeHighlight]}
-            onPress={onInfoPress}
-            disabled={!onInfoPress}
-            hitSlop={8}
-          >
-            {icon && <Image source={icon} style={[styles.badgeIcon, contentStyle]} />}
-            <Text style={[styles.badgeText, contentStyle]} maxFontSizeMultiplier={1.2}>
+          <View key={label} style={[styles.badge, highlight && styles.badgeHighlight]}>
+            {icon && <Image source={icon} style={[styles.badgeIcon, highlight && styles.badgeHighlightContent]} />}
+            <Text style={[styles.badgeText, highlight && styles.badgeHighlightContent]} maxFontSizeMultiplier={1.2}>
               {label}
             </Text>
-            {onInfoPress && <Image source={INFO_ICON} style={[styles.badgeIcon, contentStyle]} />}
-          </Pressable>
+          </View>
         )
       })}
     </View>

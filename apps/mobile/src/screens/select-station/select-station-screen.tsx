@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react"
-import { View, Pressable, Platform, Alert } from "react-native"
+import { View, Pressable, Platform, Alert, Image } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text, StationCard, FavoriteRoutes } from "@/components"
 import type { StationCardBadge } from "@/components/station-card/station-card"
@@ -20,6 +20,7 @@ import { translate } from "@/i18n"
 
 const STAR_ICON = require("../../../assets/star-fill.png")
 const CHECKMARK_ICON = require("../../../assets/checkmark.png")
+const INFO_ICON = require("../../../assets/info.circle.png")
 
 export type SelectionType = "origin" | "destination" | "via"
 
@@ -84,6 +85,7 @@ export function SelectStationScreen() {
     router.back()
   }
 
+  const hasTrainStart = selectionType === "via" && !!allowedStations?.some((s) => s.id === trainStartId)
   const showTrainStartInfo = () =>
     Alert.alert(translate("routeDetails.trainStartsHereInfoTitle") ?? "", translate("routeDetails.trainStartsHereInfo") ?? "")
 
@@ -97,7 +99,6 @@ export function SelectStationScreen() {
         label: translate("routeDetails.trainStartsHere") ?? "",
         icon: STAR_ICON,
         tone: "highlight",
-        onInfoPress: showTrainStartInfo,
       })
     }
     if (samePlatformSet.has(stationId)) {
@@ -114,11 +115,6 @@ export function SelectStationScreen() {
       name={station.name}
       image={station.image}
       badges={changeBadges(station.id)}
-      {...(selectionType === "via" &&
-        station.id === trainStartId && {
-          accessibilityActions: [{ name: "info", label: translate("routeDetails.trainStartsHereInfoTitle") ?? "" }],
-          onAccessibilityAction: showTrainStartInfo,
-        })}
       style={styles.stationCard}
       loading={station.id === replacingStationId}
       disabled={!!replacingStationId}
@@ -155,6 +151,18 @@ export function SelectStationScreen() {
         <Pressable testID="cancel-station-selection" onPress={() => router.back()}>
           <Text style={styles.cancelLink} tx="common.cancel" />
         </Pressable>
+        {hasTrainStart && (
+          <Pressable
+            testID="train-start-info-button"
+            style={styles.infoButton}
+            onPress={showTrainStartInfo}
+            hitSlop={12}
+            accessibilityRole="button"
+            accessibilityLabel={translate("routeDetails.trainStartsHereInfoTitle") ?? ""}
+          >
+            <Image source={INFO_ICON} style={styles.infoIcon} />
+          </Pressable>
+        )}
       </View>
 
       <FlashList
@@ -209,5 +217,13 @@ const styles = StyleSheet.create((theme, rt) => ({
   cancelLink: {
     marginStart: theme.spacing[3],
     color: theme.colors.link,
+  },
+  infoButton: {
+    marginStart: "auto",
+  },
+  infoIcon: {
+    width: 24,
+    height: 24,
+    tintColor: theme.colors.link,
   },
 }))
