@@ -1,4 +1,4 @@
-import { PixelRatio } from "react-native"
+import { PixelRatio, Appearance } from "react-native"
 import { setAnalyticsUserProperties } from "@/services/analytics"
 
 export * from "./color"
@@ -7,5 +7,7 @@ export * from "./typography"
 export * from "./timing"
 
 export const fontScale = PixelRatio.getFontScale()
+const colorScheme = Appearance.getColorScheme()
+export const isDarkMode = colorScheme === "dark"
 
 setAnalyticsUserProperties({ font_scale: `${fontScale}` })

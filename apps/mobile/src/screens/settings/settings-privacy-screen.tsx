@@ -5,7 +5,7 @@ import { StyleSheet } from "react-native-unistyles"
 import { Screen } from "@/components"
 import { SettingBox } from "./components/settings-box"
 import { SETTING_GROUP } from "./settings-styles"
-import { useIsDarkMode } from "@/hooks"
+import { isDarkMode } from "@/theme"
 import { useShallow } from "zustand/react/shallow"
 import { useUserStore, clearAllData } from "@/models"
 import { translate } from "@/i18n"
@@ -17,7 +17,6 @@ import * as storage from "@/utils/storage"
 const TELEMETRY_DISABLED_STORAGE_KEY = "telemetry_disabled"
 
 export function PrivacyScreen() {
-  const isDarkMode = useIsDarkMode()
   const { disableTelemetry, setDisableTelemetry } = useUserStore(
     useShallow((s) => ({ disableTelemetry: s.disableTelemetry, setDisableTelemetry: s.setDisableTelemetry })),
   )

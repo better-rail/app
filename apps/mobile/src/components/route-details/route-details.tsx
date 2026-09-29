@@ -1,12 +1,13 @@
 import * as React from "react"
-import { Image, ImageBackground, View, ViewStyle, ImageStyle } from "react-native"
+import { Image, ImageBackground, View, ViewStyle, ImageStyle, Appearance } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import LinearGradient from "react-native-linear-gradient"
 import { Text } from "@/components/text/text"
 import { stationsObject, stationLocale } from "@/data/stations"
-import { useIsDarkMode } from "@/hooks"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
+
+const colorScheme = Appearance.getColorScheme()
 
 export interface RouteDetailsProps {
   originId: string
@@ -19,7 +20,6 @@ export interface RouteDetailsProps {
  * Describe your component here
  */
 export const RouteDetails = function RouteDetails(props: RouteDetailsProps) {
-  const isDarkMode = useIsDarkMode()
   const { originId, destinationId, imageStyle, style } = props
 
   const originName = stationsObject[originId][stationLocale]
@@ -30,7 +30,7 @@ export const RouteDetails = function RouteDetails(props: RouteDetailsProps) {
       <ImageBackground source={stationsObject[originId].image} style={[styles.imageBackground, imageStyle]}>
         <LinearGradient
           style={styles.gradient}
-          colors={[isDarkMode ? "rgba(0, 0, 0, .5)" : "rgba(0, 0, 0, .25)", "rgba(0, 0, 0, 0)"]}
+          colors={[colorScheme === "dark" ? "rgba(0, 0, 0, .5)" : "rgba(0, 0, 0, .25)", "rgba(0, 0, 0, 0)"]}
         />
       </ImageBackground>
 

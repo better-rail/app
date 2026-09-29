@@ -1,7 +1,7 @@
 import * as storage from "@/utils/storage"
 import { Appearance } from "react-native"
 import { UnistylesRuntime } from "react-native-unistyles"
-import { setAnalyticsUserProperty } from "@/services/analytics"
+import { syncAnalyticsUserProperties } from "@/services/analytics"
 import {
   useRoutePlanStore,
   getRoutePlanSnapshot,
@@ -31,6 +31,7 @@ import { useUserStore, getUserSnapshot, hydrateUserStore, resetUserStore } from 
  */
 const ROOT_STATE_STORAGE_KEY = "root"
 const TELEMETRY_DISABLED_STORAGE_KEY = "telemetry_disabled"
+let appearanceAnalyticsSubscription: ReturnType<typeof Appearance.addChangeListener> | undefined
 
 /**
  * Collects a full snapshot of all stores for persistence.
@@ -101,10 +102,18 @@ export async function setupRootStore() {
       UnistylesRuntime.setAdaptiveThemes(false)
       UnistylesRuntime.setTheme(colorScheme)
     }
-    // Report the resolved scheme the rider actually sees, not the system one.
-    setAnalyticsUserProperty("color_scheme", Appearance.getColorScheme() ?? "unspecified")
+    syncAnalyticsUserProperties({
+      color_scheme: Appearance.getColorScheme() ?? "unspecified",
+      color_scheme_preference: colorScheme,
+    })
   }
   applyColorScheme(useSettingsStore.getState().colorScheme)
+
+  appearanceAnalyticsSubscription?.remove()
+  appearanceAnalyticsSubscription = Appearance.addChangeListener(({ colorScheme }) => {
+    if (useSettingsStore.getState().colorScheme !== "automatic") return
+    syncAnalyticsUserProperties({ color_scheme: colorScheme ?? "unspecified", color_scheme_preference: "automatic" })
+  })
 
   // Run afterCreate equivalents
   initializeRideStore()
