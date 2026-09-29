@@ -514,6 +514,15 @@ describe("resend email bridge", () => {
     expect(detectTextDirection("مرحبا بكم")).toEqual({ dir: "rtl", align: "right", lang: "ar" })
     expect(formatEmailHtml("Hello", threadId)).toContain('dir="ltr"')
     expect(formatEmailHtml("שלום", threadId)).toContain('dir="rtl"')
+    expect(formatEmailHtml("<script>alert('xss')</script>", threadId)).toContain("&lt;script&gt;")
+    expect(formatEmailHtml("", threadId)).toContain("(Empty message)")
+    expect(formatEmailHtml("Hello", threadId)).toContain(`Ref: [#${threadId}]`)
+
+    const longHtml = formatEmailHtml("Word ".repeat(300), threadId)
+    expect(longHtml).toContain("\r\n")
+    for (const line of longHtml.split("\r\n")) {
+      expect(line.length).toBeLessThanOrEqual(998)
+    }
 
     const text = htmlToText("<p>Hello <b>team</b>,</p><p>The app is <i>great</i>!<br/>Thanks.</p>")
     expect(text).toContain("Hello team,")

@@ -121,65 +121,13 @@ export function formatReplySubject(originalSubject?: string): string {
   return `Re: ${clean}`
 }
 
-export function detectTextDirection(text: string): {
-  dir: "ltr" | "rtl"
-  align: "left" | "right"
-  lang: "en" | "he" | "ar"
-} {
-  const match = text.match(
-    /([\u0590-\u05FF\uFB1D-\uFB4F])|([\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF])|([a-zA-Z\u00C0-\u024F])/u,
-  )
-  if (match?.[1]) return { dir: "rtl", align: "right", lang: "he" }
-  if (match?.[2]) return { dir: "rtl", align: "right", lang: "ar" }
-  return { dir: "ltr", align: "left", lang: "en" }
-}
+import {
+  detectTextDirection,
+  formatEmailHtml,
+  type TextDirectionInfo,
+} from "./templates/reply"
 
-export function formatEmailHtml(text: string, threadId: string): string {
-  const { dir, align, lang } = detectTextDirection(text)
-
-  const escapeHtml = (str: string) =>
-    str
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-
-  const paragraphs = text
-    .split(/\n{2,}/)
-    .map((p) => p.trim())
-    .filter(Boolean)
-    .map(
-      (p) =>
-        `<p style="margin: 0 0 16px 0; line-height: 1.6; font-size: 16px; color: #1f2937;">${escapeHtml(p).replace(/\n/g, "<br />")}</p>`,
-    )
-    .join("\n")
-
-  return `<!DOCTYPE html>
-<html lang="${lang}" dir="${dir}">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-</head>
-<body style="margin: 0; padding: 0; background-color: #ffffff; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;">
-  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;">
-    <tr>
-      <td align="${align}" dir="${dir}" style="padding: 20px 16px; direction: ${dir}; text-align: ${align};">
-        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; border-collapse: collapse; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-          <tr>
-            <td dir="${dir}" style="direction: ${dir}; text-align: ${align}; font-size: 16px; line-height: 1.6; color: #1f2937;">
-              ${paragraphs || '<p style="margin: 0 0 16px 0;">(Empty message)</p>'}
-              <div style="border-top: 1px solid #e5e7eb; margin: 24px 0 12px 0;"></div>
-              <p style="margin: 0; font-size: 13px; line-height: 1.4; color: #6b7280;">Better Rail Support &bull; Ref: [#${escapeHtml(threadId)}]</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`
-}
+export { detectTextDirection, formatEmailHtml, type TextDirectionInfo }
 
 export function htmlToText(html: string): string {
   return html
