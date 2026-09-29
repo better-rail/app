@@ -2,6 +2,7 @@ import { create } from "zustand"
 import type { PopUpMessage } from "@/services/api"
 
 export type MaxChanges = 0 | 1 | null
+export type ColorSchemePreference = "automatic" | "light" | "dark"
 export const TRAIN_INFO_PROMPT_SEARCH_THRESHOLD = 2
 
 export interface SettingsState {
@@ -11,6 +12,7 @@ export interface SettingsState {
   totalTip: number
   recordedTipTransactionIds: string[]
   showRouteCardHeader: boolean
+  colorScheme: ColorSchemePreference
   hideSlowTrains: boolean
   maxChanges: MaxChanges
   trainSearchCount: number
@@ -22,6 +24,7 @@ export interface SettingsActions {
   setProfileCode: (code: number) => void
   recordTip: (transactionId: string, amount: number) => void
   setShowRouteCardHeader: (show: boolean) => void
+  setColorScheme: (colorScheme: ColorSchemePreference) => void
   setHideSlowTrains: (hide: boolean) => void
   setMaxChanges: (maxChanges: MaxChanges) => void
   recordTrainSearch: () => void
@@ -43,6 +46,7 @@ const initialSettingsState: SettingsState = {
   totalTip: 0,
   recordedTipTransactionIds: [],
   showRouteCardHeader: false,
+  colorScheme: "automatic",
   hideSlowTrains: false,
   maxChanges: null,
   trainSearchCount: 0,
@@ -69,6 +73,10 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
 
   setShowRouteCardHeader(show) {
     set({ showRouteCardHeader: show })
+  },
+
+  setColorScheme(colorScheme) {
+    set({ colorScheme })
   },
 
   setHideSlowTrains(hide) {
@@ -130,6 +138,7 @@ export function getSettingsSnapshot(state: SettingsState) {
     totalTip: state.totalTip,
     recordedTipTransactionIds: state.recordedTipTransactionIds,
     showRouteCardHeader: state.showRouteCardHeader,
+    colorScheme: state.colorScheme,
     hideSlowTrains: state.hideSlowTrains,
     maxChanges: state.maxChanges,
     trainSearchCount: state.trainSearchCount,
@@ -160,6 +169,7 @@ export function hydrateSettingsStore(data: any) {
     totalTip: processedData.totalTip ?? 0,
     recordedTipTransactionIds: processedData.recordedTipTransactionIds ?? [],
     showRouteCardHeader: processedData.showRouteCardHeader ?? false,
+    colorScheme: ["automatic", "light", "dark"].includes(processedData.colorScheme) ? processedData.colorScheme : "automatic",
     hideSlowTrains: processedData.hideSlowTrains ?? false,
     maxChanges: processedData.maxChanges ?? null,
     trainSearchCount,

@@ -159,7 +159,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     borderBottomWidth: 0.75,
     borderBottomColor: Platform.select({
       ios: theme.colors.dimmer,
-      android: isDarkMode ? "#3a3a3c" : "lightgrey",
+      android: rt.themeName === "dark" ? "#3a3a3c" : "lightgrey",
     }),
   },
   stationCard: {

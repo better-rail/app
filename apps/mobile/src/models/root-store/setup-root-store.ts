@@ -1,4 +1,7 @@
 import * as storage from "@/utils/storage"
+import { Appearance } from "react-native"
+import { UnistylesRuntime } from "react-native-unistyles"
+import { syncAnalyticsUserProperties } from "@/services/analytics"
 import {
   useRoutePlanStore,
   getRoutePlanSnapshot,
@@ -13,7 +16,13 @@ import {
   resetRecentSearchesStore,
 } from "@/models/recent-searches/recent-searches"
 import { useFavoritesStore, getFavoritesSnapshot, hydrateFavoritesStore, resetFavoritesStore } from "@/models/favorites/favorites"
-import { useSettingsStore, getSettingsSnapshot, hydrateSettingsStore, resetSettingsStore } from "@/models/settings/settings"
+import {
+  useSettingsStore,
+  getSettingsSnapshot,
+  hydrateSettingsStore,
+  resetSettingsStore,
+  type ColorSchemePreference,
+} from "@/models/settings/settings"
 import { useRideStore, getRideSnapshot, hydrateRideStore, initializeRideStore, resetRideStore } from "@/models/ride/ride"
 import { useUserStore, getUserSnapshot, hydrateUserStore, resetUserStore } from "@/models/user/user"
 
@@ -22,6 +31,7 @@ import { useUserStore, getUserSnapshot, hydrateUserStore, resetUserStore } from 
  */
 const ROOT_STATE_STORAGE_KEY = "root"
 const TELEMETRY_DISABLED_STORAGE_KEY = "telemetry_disabled"
+let appearanceAnalyticsSubscription: ReturnType<typeof Appearance.addChangeListener> | undefined
 
 /**
  * Collects a full snapshot of all stores for persistence.
@@ -83,6 +93,28 @@ export async function setupRootStore() {
     }
   }
 
+  // Restore both native colors and Unistyles before rendering the first screen.
+  const applyColorScheme = (colorScheme: ColorSchemePreference) => {
+    Appearance.setColorScheme(colorScheme === "automatic" ? "unspecified" : colorScheme)
+    if (colorScheme === "automatic") {
+      UnistylesRuntime.setAdaptiveThemes(true)
+    } else {
+      UnistylesRuntime.setAdaptiveThemes(false)
+      UnistylesRuntime.setTheme(colorScheme)
+    }
+    syncAnalyticsUserProperties({
+      color_scheme: Appearance.getColorScheme() ?? "unspecified",
+      color_scheme_preference: colorScheme,
+    })
+  }
+  applyColorScheme(useSettingsStore.getState().colorScheme)
+
+  appearanceAnalyticsSubscription?.remove()
+  appearanceAnalyticsSubscription = Appearance.addChangeListener(({ colorScheme }) => {
+    if (useSettingsStore.getState().colorScheme !== "automatic") return
+    syncAnalyticsUserProperties({ color_scheme: colorScheme ?? "unspecified", color_scheme_preference: "automatic" })
+  })
+
   // Run afterCreate equivalents
   initializeRideStore()
 
@@ -108,7 +140,10 @@ export async function setupRootStore() {
   useRoutePlanStore.subscribe(persist)
   useRecentSearchesStore.subscribe(persist)
   useFavoritesStore.subscribe(persist)
-  useSettingsStore.subscribe(persist)
+  useSettingsStore.subscribe((state, previousState) => {
+    if (state.colorScheme !== previousState.colorScheme) applyColorScheme(state.colorScheme)
+    persist()
+  })
   useRideStore.subscribe(persist)
   useUserStore.subscribe(persist)
 }
