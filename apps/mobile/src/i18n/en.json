@@ -101,7 +101,7 @@
     "changeStationHint": "Pick another station to change trains at",
     "trainStartsHere": "Train starts here",
     "trainStartsHereInfoTitle": "Changing where the train starts",
-    "trainStartsHereInfo": "In general, we recommend changing where your next train starts its trip (marked “Train starts here”). It usually waits at the platform before leaving, so you can board early, find a seat and wait inside.",
+    "trainStartsHereInfo": "In general, we recommend changing where your next train starts its trip (marked “Train starts here”).\nIt usually waits at the platform before leaving, so you can board early, find a seat and wait inside.",
     "samePlatform": "Same platform",
     "acrossPlatform": "Across the platform",
     "platformStay": "Stay at Platform",
