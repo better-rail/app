@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react"
-import { View, Pressable, Platform } from "react-native"
+import { View, Pressable, Platform, Alert } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text, StationCard, FavoriteRoutes } from "@/components"
 import type { StationCardBadge } from "@/components/station-card/station-card"
@@ -84,13 +84,21 @@ export function SelectStationScreen() {
     router.back()
   }
 
+  const showTrainStartInfo = () =>
+    Alert.alert(translate("routeDetails.trainStartsHereInfoTitle") ?? "", translate("routeDetails.trainStartsHereInfo") ?? "")
+
   const samePlatformSet = useMemo(() => new Set(samePlatformIds?.split(",")), [samePlatformIds])
   const acrossPlatformSet = useMemo(() => new Set(acrossPlatformIds?.split(",")), [acrossPlatformIds])
   const changeBadges = (stationId: string) => {
     if (selectionType !== "via") return undefined
     const badges: StationCardBadge[] = []
     if (stationId === trainStartId) {
-      badges.push({ label: translate("routeDetails.trainStartsHere") ?? "", icon: STAR_ICON, tone: "highlight" })
+      badges.push({
+        label: translate("routeDetails.trainStartsHere") ?? "",
+        icon: STAR_ICON,
+        tone: "highlight",
+        onInfoPress: showTrainStartInfo,
+      })
     }
     if (samePlatformSet.has(stationId)) {
       badges.push({ label: translate("routeDetails.samePlatform") ?? "", icon: CHECKMARK_ICON })
@@ -106,6 +114,11 @@ export function SelectStationScreen() {
       name={station.name}
       image={station.image}
       badges={changeBadges(station.id)}
+      {...(selectionType === "via" &&
+        station.id === trainStartId && {
+          accessibilityActions: [{ name: "info", label: translate("routeDetails.trainStartsHereInfoTitle") ?? "" }],
+          onAccessibilityAction: showTrainStartInfo,
+        })}
       style={styles.stationCard}
       loading={station.id === replacingStationId}
       disabled={!!replacingStationId}
