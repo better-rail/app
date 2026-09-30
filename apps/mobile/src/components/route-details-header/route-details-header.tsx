@@ -59,15 +59,10 @@ export interface RouteDetailsHeaderProps {
   eventConfig?: CalendarEventConfig
   showEntireRoute?: boolean
   setShowEntireRoute?: React.Dispatch<React.SetStateAction<boolean>>
-  /**
-   * The route list's split view: the width of its first column (from the start inset) and the gap before the second
-   * (the fold, when partially folded). The station buttons then line up with the columns below them.
-   */
-  splitColumns?: { firstWidth: number; gap: number } | null
 }
 
 export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
-  const { routeItem, originId, destinationId, screenName, style, showEntireRoute, setShowEntireRoute, splitColumns } = props
+  const { routeItem, originId, destinationId, screenName, style, showEntireRoute, setShowEntireRoute } = props
   const {
     routes: favoriteRoutesData,
     add: addFavorite,
@@ -97,22 +92,6 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const isFavorite = favoriteRoutesData.some((fav) => fav.id === routeId)
   // iOS 26+ uses the native navigation bar, which the system can lay out vertically (e.g. on iPhone Duo).
   const useNativeToolbar = screenName !== "activeRide" && Platform.OS === "ios" && isLiquidGlassSupported
-
-  // Lined up with the split view's columns: the origin button over the list and the destination over the details.
-  // They meet on the boundary between the columns (the fold, when partially folded) with the same gap as on phones,
-  // so the arrow centred there overlaps both ends.
-  const rowPadding = spacing[3]
-  const splitLayout = splitColumns
-    ? (() => {
-        const boundary = splitColumns.firstWidth - rowPadding + splitColumns.gap / 2
-        return {
-          origin: { flex: 0, width: boundary - BUTTON_GAP / 2 },
-          destination: { marginStart: BUTTON_GAP },
-          arrow: { start: rowPadding + boundary - ARROW_SIZE / 2 },
-          row: { gap: 0 },
-        }
-      })()
-    : null
 
   const scaleStationCards = () => {
     RNAnimated.sequence([
@@ -469,13 +448,12 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
 
       {/* The photo spans the full width, but the station buttons stay clear of the side bars. */}
       <View style={[{ top: -20, marginBottom: -30, zIndex: 5 }, sideInsetPadding(insets, I18nManager.isRTL)]}>
-        <View style={[styles.routeDetailsWrapper, style, splitLayout?.row]}>
+        <View style={[styles.routeDetailsWrapper, style]}>
           <RouteStationNameButton
             disabled={routeEditDisabled}
             onPress={changeOriginStation}
             buttonScale={stationCardScale}
             style={styles.routeDetailsStation}
-            wrapperStyle={splitLayout?.origin}
             name={originName}
             accessibilityLabel={`${translate("plan.origin")}: ${originName}`}
             accessibilityHint={translate("plan.selectStation")}
@@ -489,7 +467,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
               right: spacing[2],
             }}
             onPress={swapDirection}
-            style={[styles.routeInfoCircleWrapper, splitLayout?.arrow]}
+            style={styles.routeInfoCircleWrapper}
             disabled={routeEditDisabled}
             accessibilityLabel={translate("plan.switchStations")}
             accessibilityHint={translate("plan.switchStationsHint")}
@@ -504,7 +482,6 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
             onPress={changeDestinationStation}
             buttonScale={stationCardScale}
             style={styles.routeDetailsStation}
-            wrapperStyle={splitLayout?.destination}
             name={destinationName}
             accessibilityLabel={`${translate("plan.destination")}: ${destinationName}`}
             accessibilityHint={translate("plan.selectStation")}

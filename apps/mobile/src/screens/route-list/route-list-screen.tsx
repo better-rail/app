@@ -8,7 +8,7 @@ import { FlashList, type FlashListRef } from "@shopify/flash-list"
 import { useNetworkState } from "expo-network"
 import { useQuery } from "react-query"
 import { closestIndexTo } from "date-fns"
-import { useRouter, useLocalSearchParams, useIsFocused, Redirect } from "expo-router"
+import { useRouter, useLocalSearchParams, Redirect } from "expo-router"
 import { useObserve } from "expo-observe"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useShallow } from "zustand/react/shallow"
@@ -25,16 +25,13 @@ import {
   type WarningType,
   ResultDateCard,
   DateScroll,
-  RouteDetailsPane,
   routeKey,
 } from "./components"
 import { flatMap, max, round } from "lodash"
 import { translate } from "@/i18n"
 import { shareRouteAction } from "@/utils/helpers/route-share-helpers"
 import { logicalSideInsets } from "@/utils/helpers/safe-area-helpers"
-import { useIsWideLayout } from "@/hooks/use-is-wide-layout"
-import { splitAroundFold, type Region } from "@/utils/helpers/fold-helpers"
-import { ReservedRegionsView } from "../../../modules/reserved-regions/src"
+import { useSplitViewStore } from "@/components/split-view/split-view-store"
 import { addRouteToCalendar } from "@/utils/helpers/calendar-helpers"
 import { getActionSheetStyleOptions } from "@/utils/helpers/action-sheet-helpers"
 import { isRouteInThePast } from "@/utils/helpers/date-helpers"
@@ -168,53 +165,31 @@ export function RouteListScreen() {
   const insets = useSafeAreaInsets()
   const sideInsets = logicalSideInsets(insets, I18nManager.isRTL)
   const { width: windowWidth } = useWindowDimensions()
+  // The list's own width — its column of the split view, or the window — once laid out.
+  const [measuredListWidth, setMeasuredListWidth] = useState<number | null>(null)
+  const listWidth = measuredListWidth ?? windowWidth - sideInsets.start - sideInsets.end
 
-  // Wide windows (iPhone Duo open, iPad) show the list beside the selected trip's details, as the website does.
-  const isWide = useIsWideLayout()
-  // Partially folded like a book, the split follows the fold instead: a column on either side of it, so neither
-  // the list nor the details sit in the crease (the fold is in the middle, so that's an even split).
-  const [splitRow, setSplitRow] = useState<{ width: number; divisions: Region[] }>({ width: 0, divisions: [] })
-  const foldSplit = isWide ? splitAroundFold(splitRow.width, splitRow.divisions, I18nManager.isRTL, sideInsets.start) : null
-  const listWidth = foldSplit
-    ? foldSplit.firstColumnWidth
-    : isWide
-      ? Math.min(Math.max((windowWidth - sideInsets.start - sideInsets.end) * 0.45, 340), 440)
-      : windowWidth - sideInsets.start - sideInsets.end
-  const [selectedRoute, setSelectedRoute] = useState<RouteItem | null>(null)
-  const [showEntireRoute, setShowEntireRoute] = useState(false)
+  // While the split view is expanded (iPhone Duo's open inner display, iPad) the selected trip's details show in
+  // the pane beside the list, so a tap picks the trip instead of opening the route details screen.
+  const { isSplitExpanded, selectedRoute, showEntireRoute, setSelection, setShowEntireRoute } = useSplitViewStore(
+    useShallow((s) => ({
+      isSplitExpanded: s.isExpanded,
+      selectedRoute: s.selection?.route,
+      showEntireRoute: s.showEntireRoute,
+      setSelection: s.setSelection,
+      setShowEntireRoute: s.setShowEntireRoute,
+    })),
+  )
   const selectedRouteKey = selectedRoute ? routeKey(selectedRoute) : undefined
 
   useEffect(() => {
-    setSelectedRoute(null)
-  }, [originId, destinationId])
+    setSelection(null)
+  }, [originId, destinationId, setSelection])
 
-  const openRouteDetails = (routeItem: RouteItem, instant = false) => {
+  const openRouteDetails = (routeItem: RouteItem) => {
     useNavigationParamsStore.getState().setRouteDetails({ routeItem, originId, destinationId })
-    router.push({ pathname: "/route-details", params: instant ? { instant: "1" } : {} })
+    router.push("/route-details")
   }
-
-  // The split view and the separate screens are two presentations of the same selection, so switching between them
-  // (closing or opening the device, rotating, Split View) swaps one for the other without a navigation transition.
-  // Narrowing continues on the details screen, pushed without animation; widening is handled by that screen, which
-  // hands its trip back here and pops itself.
-  const isFocused = useIsFocused()
-  const wasWide = useRef(isWide)
-  useEffect(() => {
-    // Not while a sheet (fares, filter) or another screen is on top: the swap would land under it.
-    if (wasWide.current && !isWide && selectedRoute && isFocused) openRouteDetails(selectedRoute, true)
-    wasWide.current = isWide
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isWide])
-
-  const splitHandoff = useNavigationParamsStore((s) => s.splitHandoff)
-  useEffect(() => {
-    if (!splitHandoff) return
-    useNavigationParamsStore.getState().setSplitHandoff(null)
-    if (isWide) {
-      setSelectedRoute(splitHandoff)
-      setShowEntireRoute(false)
-    }
-  }, [splitHandoff, isWide])
   const hasRecordedSearch = useRef(false)
 
   // Prompt the user once to choose whether to show the "Train Info" row on route cards.
@@ -541,10 +516,9 @@ export function RouteListScreen() {
         isActiveRide={isRouteActive(item)}
         isRouteInThePast={isRouteInThePast(arrivalTime, item.delay)}
         onPress={() => {
-          if (isWide) {
+          if (isSplitExpanded) {
             HapticFeedback.trigger("selection")
-            setSelectedRoute(item)
-            setShowEntireRoute(false)
+            setSelection({ route: item, originId, destinationId })
           } else {
             openRouteDetails(item)
           }
@@ -555,7 +529,7 @@ export function RouteListScreen() {
         destinationId={destinationId}
         shouldShowDashedLine={shouldShowDashedLine}
         style={{ marginBottom: spacing[3] }}
-        cardStyle={isWide && selectedRouteKey === routeKey(item) ? styles.selectedCard : undefined}
+        cardStyle={isSplitExpanded && selectedRouteKey === routeKey(item) ? styles.selectedCard : undefined}
       />
     )
   }
@@ -589,31 +563,22 @@ export function RouteListScreen() {
         originId={originId}
         destinationId={destinationId}
         style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
-        // On wide layouts the toolbar also carries the selected trip's actions, as the route details screen does.
-        routeItem={isWide ? (selectedRoute ?? undefined) : undefined}
-        splitColumns={isWide ? { firstWidth: listWidth, gap: foldSplit?.gap ?? 0 } : null}
+        // Beside the split view's pane, the toolbar also carries the selected trip's actions, as the route details
+        // screen does.
+        routeItem={isSplitExpanded ? selectedRoute : undefined}
         showEntireRoute={showEntireRoute}
         setShowEntireRoute={setShowEntireRoute}
       />
 
       {/* The photo header spans the full width; everything below stays clear of the side bars. */}
-      <ReservedRegionsView
-        onLayout={(event) => {
-          const { width } = event.nativeEvent.layout
-          setSplitRow((row) => (row.width === width ? row : { ...row, width }))
-        }}
-        onDivisionsChange={(event) => {
-          const { divisions } = event.nativeEvent
-          setSplitRow((row) => ({ ...row, divisions }))
-        }}
-        style={[
-          styles.content,
-          isWide && styles.splitContent,
-          // In the split the details pane reaches the end edge itself, so its banners can bleed under the inset.
-          { paddingStart: sideInsets.start, paddingEnd: isWide ? 0 : sideInsets.end },
-        ]}
-      >
-        <View style={isWide ? { width: listWidth } : styles.content}>
+      <View style={[styles.content, { paddingStart: sideInsets.start, paddingEnd: sideInsets.end }]}>
+        <View
+          style={styles.content}
+          onLayout={(event) => {
+            const { width } = event.nativeEvent.layout
+            setMeasuredListWidth((current) => (current === width ? current : width))
+          }}
+        >
           {/* Only show the no internet error if we're not loading and there's no data */}
           {!isInternetReachable && !trains.isLoading && !trains.data && <RouteListError errorType="no-internet" />}
 
@@ -653,7 +618,7 @@ export function RouteListScreen() {
                 hideSlowTrains,
                 maxChanges,
                 selectedRouteKey,
-                isWide,
+                isSplitExpanded,
               ]}
               ListFooterComponent={
                 <DateScroll setTime={loadNextDayData} currenTime={nextDayDate.getTime()} isLoadingDate={isNextDayLoading} />
@@ -676,18 +641,7 @@ export function RouteListScreen() {
             <RouteListWarning routesDate={trains.data[0].trains[0].departureTime} warningType={resultType as WarningType} />
           )}
         </View>
-
-        {isWide && (
-          <RouteDetailsPane
-            routeItem={selectedRoute}
-            originId={originId}
-            destinationId={destinationId}
-            showEntireRoute={showEntireRoute}
-            endInset={sideInsets.end}
-            style={foldSplit ? { marginStart: foldSplit.gap, borderStartWidth: 0 } : undefined}
-          />
-        )}
-      </ReservedRegionsView>
+      </View>
     </Screen>
   )
 }
@@ -699,9 +653,6 @@ const styles = StyleSheet.create((theme) => ({
   },
   content: {
     flex: 1,
-  },
-  splitContent: {
-    flexDirection: "row",
   },
   selectedCard: {
     outlineWidth: 2,
