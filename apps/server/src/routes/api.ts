@@ -13,31 +13,48 @@ import { endRideNotifications, startRideNotifications, updateRideToken } from ".
 const router = Router()
 
 const rideRouter = Router()
+const rideRateLimitWindowMs = 10 * 60 * 1000
 // Every route below reads or writes the shared rides state, so they're closed
 // while ride tracking is off (a local run, by default — see data/config.ts).
 rideRouter.use((req, res, next) => {
   if (!ridesEnabled) return res.status(503).json({ success: false, reason: "rides_disabled" })
   next()
 })
-rideRouter.use(createRateLimiter(10 * 60 * 1000, 10))
+// Separate devices sharing a mobile carrier IP into independent buckets.
+rideRouter.use(createRateLimiter(rideRateLimitWindowMs, 1000))
 
-rideRouter.post("/", bodyValidator(RideRequestSchema), async (req, res) => {
-  const ride = buildRide(req.body)
-  const result = await startRideNotifications(ride)
-  res.status(result.success ? 200 : 500).json(result)
-})
+rideRouter.post(
+  "/",
+  bodyValidator(RideRequestSchema),
+  createRateLimiter(rideRateLimitWindowMs, 10, (request) => request.body.token),
+  async (req, res) => {
+    const ride = buildRide(req.body)
+    const result = await startRideNotifications(ride)
+    res.status(result.success ? 200 : 500).json(result)
+  },
+)
 
-rideRouter.patch("/updateToken", bodyValidator(UpdateRideTokenBody), async (req, res) => {
-  const { rideId, token } = req.body
-  const success = await updateRideToken(rideId, token)
-  res.status(success ? 200 : 500).send({ success })
-})
+rideRouter.patch(
+  "/updateToken",
+  bodyValidator(UpdateRideTokenBody),
+  createRateLimiter(rideRateLimitWindowMs, 10, (request) => request.body.rideId),
+  async (req, res) => {
+    const { rideId, token } = req.body
+    const success = await updateRideToken(rideId, token)
+    res.status(success ? 200 : 500).send({ success })
+  },
+)
 
-rideRouter.delete("/", bodyValidator(DeleteRideBody), async (req, res) => {
-  const { rideId } = req.body
-  const success = await endRideNotifications(rideId)
-  res.status(success ? 200 : 500).send({ success })
-})
+rideRouter.delete(
+  "/",
+  bodyValidator(DeleteRideBody),
+  createRateLimiter(rideRateLimitWindowMs, 10, (request) => request.body.rideId),
+  async (req, res) => {
+    const { rideId } = req.body
+    const success = await endRideNotifications(rideId)
+    res.status(success ? 200 : 500).send({ success })
+  },
+)
 
 router.use("/ride", rideRouter)
 // Fares, from the Israel Railways snapshot `bun run rail:pull` keeps in redis (see routes/fares.ts)

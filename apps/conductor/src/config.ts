@@ -1,9 +1,14 @@
+export const SUPPORT_EMAIL_FROM = "Better Rail <feedback@better-rail.co.il>"
+
 export type ConductorConfig = {
   applicationId: string
   publicKey: string
   botToken: string
   guildId: string
   platformRoles: Record<string, string>
+  resendApiKey?: string
+  resendWebhookSecret?: string
+  emailFeedbackChannelId?: string
 }
 
 export const isSnowflake = (value: unknown): value is string => typeof value === "string" && /^\d{17,20}$/.test(value)
@@ -23,5 +28,8 @@ export function loadConfig(): ConductorConfig {
     publicKey,
     botToken,
     platformRoles: JSON.parse(env.DISCORD_PLATFORM_ROLES || "{}"),
+    resendApiKey: env.RESEND_API_KEY,
+    resendWebhookSecret: env.RESEND_WEBHOOK_SECRET,
+    emailFeedbackChannelId: env.DISCORD_EMAIL_FEEDBACK_CHANNEL_ID,
   }
 }

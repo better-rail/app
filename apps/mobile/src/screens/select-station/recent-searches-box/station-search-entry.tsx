@@ -1,5 +1,5 @@
 import React from "react"
-import { View, Image, Appearance, Platform } from "react-native"
+import { View, Image, Platform } from "react-native"
 import type { ImageSourcePropType } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { ContextMenu } from "@/components/context-menu/context-menu"
@@ -7,8 +7,6 @@ import TouchableScale from "react-native-touchable-scale"
 import { Text } from "@/components"
 import { translate } from "@/i18n"
 import { IS_E2E } from "@/config/e2e"
-
-const colorScheme = Appearance.getColorScheme()
 
 type StationSearchEntryProps = {
   testID?: string
@@ -47,7 +45,7 @@ export const StationSearchEntry = (props: StationSearchEntryProps) => (
   </TouchableScale>
 )
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, rt) => ({
   searchEntryWrapper: {
     alignItems: "center",
   },
@@ -55,7 +53,7 @@ const styles = StyleSheet.create((theme) => ({
     shadowOffset: { width: 0, height: 0 },
     shadowColor: "rgba(0,0,0,.3)",
     shadowRadius: 1.5,
-    shadowOpacity: colorScheme === "light" ? 0.5 : 0,
+    shadowOpacity: rt.themeName === "light" ? 0.5 : 0,
     backgroundColor: theme.colors.inputPlaceholderBackground,
     borderRadius: Platform.select({ ios: 10, android: 4 }),
     borderCurve: "continuous",

@@ -89,7 +89,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     shadowOffset: { width: 0, height: 1 },
     shadowColor: theme.colors.dim,
     shadowRadius: 1,
-    shadowOpacity: rt.colorScheme === "dark" ? 0 : 0.45,
+    shadowOpacity: rt.themeName === "dark" ? 0 : 0.45,
     elevation: 1,
     zIndex: 0,
   },

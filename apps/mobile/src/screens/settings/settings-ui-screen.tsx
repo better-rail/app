@@ -1,22 +1,29 @@
 import React, { useEffect } from "react"
-import { Platform, View } from "react-native"
+import { Appearance, Platform, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { RouteCardPreview, Screen, Text } from "@/components"
 import { RouteCardHeight, RouteCardHeightWithHeader } from "@/components/route-card/route-card"
 import { SettingBox } from "./components/settings-box"
+import { ColorSchemePicker } from "./components/color-scheme-picker"
 import { spacing } from "@/theme"
 import { translate } from "@/i18n"
-import { SETTING_GROUP, SETTING_GROUP_TITLE } from "./settings-styles"
+import { SETTING_GROUP } from "./settings-styles"
 import { useIsDarkMode } from "@/hooks"
 import { useShallow } from "zustand/react/shallow"
 import { useSettingsStore } from "@/models"
+import type { ColorSchemePreference } from "@/models/settings/settings"
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
 import { setAnalyticsUserProperty, trackEvent } from "@/services/analytics"
 
 export function UISettingsScreen() {
   const isDarkMode = useIsDarkMode()
-  const { showRouteCardHeader, setShowRouteCardHeader } = useSettingsStore(
-    useShallow((s) => ({ showRouteCardHeader: s.showRouteCardHeader, setShowRouteCardHeader: s.setShowRouteCardHeader })),
+  const { showRouteCardHeader, setShowRouteCardHeader, colorScheme, setColorScheme } = useSettingsStore(
+    useShallow((s) => ({
+      showRouteCardHeader: s.showRouteCardHeader,
+      setShowRouteCardHeader: s.setShowRouteCardHeader,
+      colorScheme: s.colorScheme,
+      setColorScheme: s.setColorScheme,
+    })),
   )
 
   // Animate card container height based on header visibility
@@ -46,6 +53,17 @@ export function UISettingsScreen() {
     setShowRouteCardHeader(value)
   }
 
+  const onColorSchemeChange = (preference: ColorSchemePreference) => {
+    if (preference === colorScheme) return
+    setColorScheme(preference)
+    trackEvent("color_scheme_changed", {
+      source: "settings",
+      previous_preference: colorScheme,
+      color_scheme_preference: preference,
+      color_scheme: Appearance.getColorScheme() ?? "unspecified",
+    })
+  }
+
   return (
     <Screen
       testID="appearance-settings-screen"
@@ -56,7 +74,11 @@ export function UISettingsScreen() {
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
       translucent
     >
-      <Text style={SETTING_GROUP_TITLE} tx="settings.routeCard" />
+      <View style={SETTING_GROUP}>
+        <ColorSchemePicker value={colorScheme} onChange={onColorSchemeChange} />
+      </View>
+
+      <Text style={styles.groupTitle} tx="settings.routeCard" />
       <Animated.View style={animatedCardStyle}>
         <RouteCardPreview cardStyle={styles.routeCard} />
       </Animated.View>
@@ -66,7 +88,7 @@ export function UISettingsScreen() {
           testID="settings-show-train-info"
           first
           last
-          title={translate("settings.showRouteCardHeader")}
+          title={translate("settings.showRouteCardHeader") ?? ""}
           toggle
           toggleValue={showRouteCardHeader}
           onToggle={onRouteCardHeaderToggle}
@@ -85,5 +107,11 @@ const styles = StyleSheet.create((theme) => ({
   },
   routeCard: {
     backgroundColor: theme.colors.secondaryBackground,
+  },
+  groupTitle: {
+    marginStart: theme.spacing[3],
+    color: theme.colors.label,
+    fontSize: 16,
+    fontWeight: "600",
   },
 }))

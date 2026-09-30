@@ -115,6 +115,7 @@ export const fetchStopMonitoring = async (
     const { visits, errors } = parseStopMonitoringResponse(JSON.parse(rawBody))
     return { visits, errors, rawBody }
   } catch (error) {
+    if (controller.signal.aborted) throw new Error(`SIRI request timed out after ${REQUEST_TIMEOUT_MS / 1000}s`)
     throw new Error(redactKey(String((error as Error)?.message ?? error)))
   } finally {
     clearTimeout(timeout)

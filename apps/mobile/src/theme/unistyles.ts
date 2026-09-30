@@ -35,7 +35,7 @@ StyleSheet.configure({
   },
   breakpoints,
   settings: {
-    // Follow the OS appearance automatically (the app's `userInterfaceStyle` is "automatic").
+    // Follow the OS by default; the saved appearance setting can override this at runtime.
     adaptiveThemes: true,
   },
 })

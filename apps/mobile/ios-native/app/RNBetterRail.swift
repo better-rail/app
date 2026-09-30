@@ -55,27 +55,32 @@ class RNBetterRail: NSObject {
     do {
       let route = try decoder.decode(Route.self, from: routeJSON.data(using: .utf8)!)
       Task {
-        await LiveActivitiesController.shared.startLiveActivity(route: route)
+        let controller = LiveActivitiesController.shared
+        let activityId: String
 
-        // wait for the token to have it's ride Id assigned
-        let newToken = await LiveActivitiesController.tokenRegistry.awaitNewTokenRegistration()
-        
-        // handle an errored ride
-        if (newToken.rideId == "ERROR") {
-          let errorDomain = "live-activity"
-          let errorCode = 1001
-          let errorUserInfo: [String: Any] = [
-              NSLocalizedDescriptionKey: "Live Activity Server failed to start a new live activity.",
-          ]
-    
-          // Create the NSError object
-          let error = NSError(domain: errorDomain, code: errorCode, userInfo: errorUserInfo)
-    
-          await LiveActivitiesController.tokenRegistry.deleteRideToken(rideId: "ERROR")
+        do {
+          activityId = try await controller.startLiveActivity(route: route)
+        } catch {
           reject("error", "An error occurred while starting activity from RN", error)
-        } else {
-          resolve(newToken.rideId)
+          return
         }
+
+        let result = await LiveActivitiesController.tokenRegistry.awaitRideId(activityId: activityId, timeout: LiveActivitiesController.rideStartTimeout)
+        if case .registered(let rideId) = result {
+          resolve(rideId)
+          return
+        }
+
+        // The server won't be pushing updates to it, so don't leave the activity on screen.
+        await controller.endLiveActivity(activityId: activityId)
+
+        let (code, description): (Int, String) = switch result {
+          case .failed: (1001, "Live Activity Server failed to start a new live activity.")
+          case .ended: (1003, "The live activity ended before its ride started.")
+          default: (1004, "Timed out waiting for the live activity push token or ride ID.")
+        }
+        let error = NSError(domain: "live-activity", code: code, userInfo: [NSLocalizedDescriptionKey: description])
+        reject("error", "An error occurred while starting activity from RN", error)
       }
     } catch {
       print("Error decoding JSON: \(String(describing: error))")
@@ -87,18 +92,11 @@ class RNBetterRail: NSObject {
   @objc func endActivity(_ rideId: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
     Task {
       // delete the activity on the device
-      let rideEndResult = await LiveActivitiesController.shared.endLiveActivity(rideId: rideId)
-      // delete the activity on the server
-      
-      if (rideEndResult == .deleted) {
-        resolve(true)
-        
-        Task {
-          try await ActivityNotificationsAPI.endRide(rideId: rideId)
-        }
-      } else {
-        resolve(false)
-      }
+      await LiveActivitiesController.shared.endLiveActivity(rideId: rideId)
+      resolve(true)
+
+      // End it on the server even if this session didn't register it (e.g. the app was relaunched mid-ride).
+      _ = try? await ActivityNotificationsAPI.endRide(rideId: rideId)
     }
   }
   

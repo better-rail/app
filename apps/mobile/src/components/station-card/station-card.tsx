@@ -1,14 +1,24 @@
 /* eslint-disable react-native/no-inline-styles */
 
 import * as React from "react"
-import { ImageBackground, View, Platform, ImageSourcePropType, ViewStyle, Image, Appearance } from "react-native"
-import { StyleSheet } from "react-native-unistyles"
+import {
+  ActivityIndicator,
+  ImageBackground,
+  View,
+  Platform,
+  ImageSourcePropType,
+  ViewStyle,
+  Image,
+  Appearance,
+} from "react-native"
+import { StyleSheet, withUnistyles } from "react-native-unistyles"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import LinearGradient from "react-native-linear-gradient"
 import { color } from "@/theme"
 import { Text } from "@/components/text/text"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 
+const ThemedTouchableScale = withUnistyles(TouchableScale)
 const isDarkMode = Appearance.getColorScheme() === "dark"
 // Sized from the window, which follows the display the app is on and resizes with it.
 function stationCardHeight(windowHeight: number) {
@@ -23,24 +33,54 @@ export interface StationCardProps extends TouchableScaleProps {
   name: string
   image: ImageSourcePropType
   style?: ViewStyle
+  loading?: boolean
+  badges?: StationCardBadge[]
+}
+
+export type StationCardBadge = {
+  label: string
+  icon?: ImageSourcePropType
+  tone?: "highlight" | "neutral"
 }
 export function StationCard(props: StationCardProps) {
-  const { name, image, style, ...rest } = props
+  const { name, image, style, loading, badges, ...rest } = props
+
+  const badgeRow = !!badges?.length && (
+    <View style={styles.badges}>
+      {badges.map(({ label, icon, tone }) => {
+        const highlight = tone === "highlight"
+        return (
+          <View key={label} style={[styles.badge, highlight && styles.badgeHighlight]}>
+            {icon && <Image source={icon} style={[styles.badgeIcon, highlight && styles.badgeHighlightContent]} />}
+            <Text style={[styles.badgeText, highlight && styles.badgeHighlightContent]} maxFontSizeMultiplier={1.2}>
+              {label}
+            </Text>
+          </View>
+        )
+      })}
+    </View>
+  )
+
+  const loadingOverlay = loading && (
+    <View style={styles.loadingOverlay}>
+      <ActivityIndicator size="large" color="white" />
+    </View>
+  )
 
   if (!name) {
     return (
-      <TouchableScale style={[styles.container, style]} activeScale={0.95} friction={9} {...rest}>
+      <ThemedTouchableScale style={[styles.container, style]} activeScale={0.95} friction={9} {...rest}>
         <View style={styles.emptyCardWrapper}>
           <Image source={require("../../../assets/railway-station.png")} style={styles.emptyCardImage} />
           <Text style={styles.emptyCardText} tx="plan.selectStation" />
         </View>
-      </TouchableScale>
+      </ThemedTouchableScale>
     )
   }
 
   if (!image) {
     return (
-      <TouchableScale style={[styles.container, styles.imagelessCard, style]} activeScale={0.95} friction={9} {...rest}>
+      <ThemedTouchableScale style={[styles.container, styles.imagelessCard, style]} activeScale={0.95} friction={9} {...rest}>
         <LinearGradient
           style={styles.gardient}
           end={{ x: 1, y: 0 }}
@@ -49,22 +89,32 @@ export function StationCard(props: StationCardProps) {
         />
         <LinearGradient style={styles.gardient} colors={["rgba(0, 0, 0, 0.05)", "rgba(0, 0, 0, 0.3)"]} />
 
+        {badgeRow}
         <Text style={styles.text}>{name}</Text>
-      </TouchableScale>
+        {loadingOverlay}
+      </ThemedTouchableScale>
     )
   }
 
   return (
-    <TouchableScale style={[styles.container, style]} activeScale={0.95} friction={9} {...rest}>
+    <ThemedTouchableScale
+      style={[styles.container, style]}
+      activeScale={0.95}
+      friction={9}
+      accessibilityLabel={badges?.length ? [name, ...badges.map((b) => b.label)].join(", ") : undefined}
+      {...rest}
+    >
       <ImageBackground imageStyle={styles.imageBackgroundImage} source={image} style={styles.background}>
         <LinearGradient
           style={styles.gardient}
           colors={["rgba(0, 0, 0, 0.05)", isDarkMode ? "rgba(0, 0, 0, 0.75)" : "rgba(0, 0, 0, 0.65)"]}
         />
 
+        {badgeRow}
         <Text style={styles.text}>{name}</Text>
+        {loadingOverlay}
       </ImageBackground>
-    </TouchableScale>
+    </ThemedTouchableScale>
   )
 }
 
@@ -114,8 +164,51 @@ const styles = StyleSheet.create((theme, rt) => ({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
   },
+  badges: {
+    position: "absolute",
+    top: theme.spacing[2],
+    start: theme.spacing[2],
+    end: theme.spacing[2],
+    alignItems: "flex-end",
+    gap: theme.spacing[1],
+  },
+  badge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingHorizontal: theme.spacing[2],
+    paddingVertical: 3,
+    borderRadius: 999,
+    backgroundColor: "rgba(255, 255, 255, 0.92)",
+    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.3)",
+  },
+  badgeHighlight: {
+    backgroundColor: theme.colors.success,
+  },
+  badgeIcon: {
+    width: 13,
+    height: 13,
+    resizeMode: "contain",
+    tintColor: theme.colors.palette.black,
+  },
+  badgeText: {
+    color: theme.colors.palette.black,
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  badgeHighlightContent: {
+    color: theme.colors.palette.white,
+    tintColor: theme.colors.palette.white,
+  },
   emptyCardText: {
     color: theme.colors.dim,
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.45)",
+    borderRadius: isLiquidGlassSupported ? 14 : 6,
   },
   gardient: {
     height: "100%",

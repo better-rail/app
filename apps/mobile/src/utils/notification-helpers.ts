@@ -22,6 +22,8 @@ import {
 } from "./storage/background-storage"
 import { Platform } from "react-native"
 import { RideStartError } from "./helpers/ride-errors"
+import { getDevicePushTokenWithAuthRetry } from "./helpers/push-token-auth-retry"
+import { trackEvent } from "@/services/analytics"
 
 const rideApi = new RideApi()
 let tokenSubscription: Notifications.Subscription | undefined
@@ -150,7 +152,10 @@ export const startRideNotifications = async (route: RouteItem) => {
   // Getting a push token can fail on its own (no Play Services, FCM unreachable), so mark it as its own stage.
   let token: string
   try {
-    token = String((await Notifications.getDevicePushTokenAsync()).data)
+    const pushToken = await getDevicePushTokenWithAuthRetry(Notifications.getDevicePushTokenAsync, (outcome) =>
+      trackEvent("push_token_auth_retry", { outcome }),
+    )
+    token = String(pushToken.data)
   } catch (error) {
     throw new RideStartError("push_token", "Couldn't get a device push token", { cause: error })
   }

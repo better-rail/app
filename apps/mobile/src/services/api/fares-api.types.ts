@@ -23,6 +23,8 @@ export interface FareProfile {
   name: FareLocalized
   /** 1 is a free-travel certificate. */
   discounts: FarePrices
+  /** The single/daily discount is given as bonus stored value at RavKav top-up, not on the ticket. Absent from older servers. */
+  discountAtTopUp?: boolean
   /** The rail API's footnote for the profile (e.g. the discount is applied at RavKav top-up). */
   note: FareLocalized | null
 }

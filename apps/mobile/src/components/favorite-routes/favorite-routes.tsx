@@ -83,7 +83,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     borderBottomWidth: 0.5,
     borderColor: Platform.select({
       ios: theme.colors.inputPlaceholderBackground,
-      android: rt.colorScheme === "dark" ? "#3a3a3c" : "lightgrey",
+      android: rt.themeName === "dark" ? "#3a3a3c" : "lightgrey",
     }),
   },
   routesContainer: {

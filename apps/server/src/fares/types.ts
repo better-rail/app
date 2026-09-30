@@ -18,6 +18,8 @@ export type FareProfile = {
   name: Localized
   /** Discount rate per product, 0–1; 1 is a free-travel certificate. */
   discounts: FarePrices
+  /** The single/daily rate is given as bonus stored value at RavKav top-up, not on the ticket (fares/top-up-discounts.ts). */
+  discountAtTopUp: boolean
   /** The rail API's footnote for this profile (e.g. "discount is given at top-up"), if any. */
   note: Localized | null
 }

@@ -2,6 +2,8 @@ import { create } from "zustand"
 import type { PopUpMessage } from "@/services/api"
 
 export type MaxChanges = 0 | 1 | null
+export type ColorSchemePreference = "automatic" | "light" | "dark"
+export const TRAIN_INFO_PROMPT_SEARCH_THRESHOLD = 2
 
 export interface SettingsState {
   seenUrgentMessagesIds: number[]
@@ -10,8 +12,10 @@ export interface SettingsState {
   totalTip: number
   recordedTipTransactionIds: string[]
   showRouteCardHeader: boolean
+  colorScheme: ColorSchemePreference
   hideSlowTrains: boolean
   maxChanges: MaxChanges
+  trainSearchCount: number
   seenTrainInfoPrompt: boolean
   seenLawsuitAnnouncement: boolean
 }
@@ -20,8 +24,10 @@ export interface SettingsActions {
   setProfileCode: (code: number) => void
   recordTip: (transactionId: string, amount: number) => void
   setShowRouteCardHeader: (show: boolean) => void
+  setColorScheme: (colorScheme: ColorSchemePreference) => void
   setHideSlowTrains: (hide: boolean) => void
   setMaxChanges: (maxChanges: MaxChanges) => void
+  recordTrainSearch: () => void
   setSeenUrgentMessagesIds: (messagesIds: number[]) => void
   setSeenTrainInfoPrompt: (seen: boolean) => void
   setSeenLawsuitAnnouncement: (seen: boolean) => void
@@ -40,8 +46,10 @@ const initialSettingsState: SettingsState = {
   totalTip: 0,
   recordedTipTransactionIds: [],
   showRouteCardHeader: false,
+  colorScheme: "automatic",
   hideSlowTrains: false,
   maxChanges: null,
+  trainSearchCount: 0,
   seenTrainInfoPrompt: false,
   seenLawsuitAnnouncement: false,
 }
@@ -67,12 +75,21 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     set({ showRouteCardHeader: show })
   },
 
+  setColorScheme(colorScheme) {
+    set({ colorScheme })
+  },
+
   setHideSlowTrains(hide) {
     set({ hideSlowTrains: hide })
   },
 
   setMaxChanges(maxChanges) {
     set({ maxChanges })
+  },
+
+  recordTrainSearch() {
+    if (get().trainSearchCount >= TRAIN_INFO_PROMPT_SEARCH_THRESHOLD) return
+    set((state) => ({ trainSearchCount: state.trainSearchCount + 1 }))
   },
 
   setSeenUrgentMessagesIds(messagesIds) {
@@ -121,8 +138,10 @@ export function getSettingsSnapshot(state: SettingsState) {
     totalTip: state.totalTip,
     recordedTipTransactionIds: state.recordedTipTransactionIds,
     showRouteCardHeader: state.showRouteCardHeader,
+    colorScheme: state.colorScheme,
     hideSlowTrains: state.hideSlowTrains,
     maxChanges: state.maxChanges,
+    trainSearchCount: state.trainSearchCount,
     seenTrainInfoPrompt: state.seenTrainInfoPrompt,
     seenLawsuitAnnouncement: state.seenLawsuitAnnouncement,
   }
@@ -138,14 +157,22 @@ export function hydrateSettingsStore(data: any) {
   }
   delete processedData.hideCollectorTrains
 
+  const persistedTrainSearchCount = processedData.trainSearchCount
+  const trainSearchCount =
+    Number.isSafeInteger(persistedTrainSearchCount) && persistedTrainSearchCount >= 0
+      ? Math.min(persistedTrainSearchCount, TRAIN_INFO_PROMPT_SEARCH_THRESHOLD)
+      : 0
+
   useSettingsStore.setState({
     seenUrgentMessagesIds: processedData.seenUrgentMessagesIds ?? [],
     profileCode: migrateProfileCode(processedData.profileCode),
     totalTip: processedData.totalTip ?? 0,
     recordedTipTransactionIds: processedData.recordedTipTransactionIds ?? [],
     showRouteCardHeader: processedData.showRouteCardHeader ?? false,
+    colorScheme: ["automatic", "light", "dark"].includes(processedData.colorScheme) ? processedData.colorScheme : "automatic",
     hideSlowTrains: processedData.hideSlowTrains ?? false,
     maxChanges: processedData.maxChanges ?? null,
+    trainSearchCount,
     seenTrainInfoPrompt: processedData.seenTrainInfoPrompt ?? false,
     seenLawsuitAnnouncement: processedData.seenLawsuitAnnouncement ?? false,
   })

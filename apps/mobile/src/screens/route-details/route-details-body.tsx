@@ -35,6 +35,7 @@ import {
 import { SideInsetBleedProvider } from "./components/side-inset-bleed"
 
 const routeApi = new RouteApi()
+const preventLongPressNavigation = () => undefined
 const NO_BLEED = { start: 0, end: 0 }
 
 /**
@@ -350,6 +351,9 @@ export function RouteDetailsBody({
         >
           <Pressable
             testID="train-info-button"
+            // Without an onLongPress handler, Pressable treats a long hold as
+            // a regular press on release and presents the sheet mid-gesture.
+            onLongPress={preventLongPressNavigation}
             onPress={() => {
               if (hasWagonData) {
                 trackEvent("train_info_sheet_opened")

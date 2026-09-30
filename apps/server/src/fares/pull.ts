@@ -8,12 +8,16 @@
  *   profile) — ticket types 1/2/3 being single/daily/monthly — and per-profile
  *   footnotes in four languages.
  *
+ * Profiles whose discount is given at RavKav top-up come back with a 0 rate
+ * on single/daily tickets; top-up-discounts.ts fills those in.
+ *
  * The payloads are validated before anything is written, so a changed API
  * fails the pull loudly instead of publishing a half-empty snapshot.
  */
 import { z } from "zod"
 
 import { railApiFetch } from "../requests/rail-api"
+import { withTopUpDiscounts } from "./top-up-discounts"
 import { FarePair, FarePrices, FareProfile, FareSnapshot, Localized, pairKey } from "./types"
 
 const envelope = <T extends z.ZodTypeAny>(result: T) =>
@@ -133,12 +137,17 @@ export const normalizeRailFares = (
   }
 
   const normalizedProfiles: FareProfile[] = profiles.result
-    .map((p) => ({
-      id: p.profile_Id,
-      name: { he: p.heb_Profile_Desc.trim(), en: text(p.eng_Desc), ar: text(p.arb_Desc), ru: text(p.rus_Desc) },
-      discounts: discounts.get(p.profile_Id) ?? { single: 0, daily: 0, monthly: 0 },
-      note: notes.get(p.profile_Id) ?? null,
-    }))
+    .map((p) => {
+      const rail = discounts.get(p.profile_Id) ?? { single: 0, daily: 0, monthly: 0 }
+      const { discounts: rates, atTopUp } = withTopUpDiscounts(p.profile_Id, rail)
+      return {
+        id: p.profile_Id,
+        name: { he: p.heb_Profile_Desc.trim(), en: text(p.eng_Desc), ar: text(p.arb_Desc), ru: text(p.rus_Desc) },
+        discounts: rates,
+        discountAtTopUp: atTopUp,
+        note: notes.get(p.profile_Id) ?? null,
+      }
+    })
     .sort((a, b) => a.id - b.id)
 
   const pairs: Record<string, FarePair> = {}

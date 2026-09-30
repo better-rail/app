@@ -6,7 +6,7 @@ import { useRoutePlanStore, useRecentSearchesStore } from "@/models"
 import { trackEvent } from "@/services/analytics"
 import { ScrollView } from "react-native-gesture-handler"
 import { Text } from "@/components"
-import { isDarkMode, spacing } from "@/theme"
+import { spacing } from "@/theme"
 import { stationLocale, stationsObject } from "@/data/stations"
 import { StationSearchEntry } from "./station-search-entry"
 import { useRouter } from "expo-router"
@@ -102,7 +102,7 @@ const RecentSearchesPlacerholder = () => (
   </View>
 )
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, rt) => ({
   recentSearchesTitle: {
     fontWeight: "500",
     opacity: 0.8,
@@ -115,7 +115,7 @@ const styles = StyleSheet.create((theme) => ({
     borderBottomWidth: 0.5,
     borderColor: Platform.select({
       ios: theme.colors.inputPlaceholderBackground,
-      android: isDarkMode ? "#3a3a3c" : "lightgrey",
+      android: rt.themeName === "dark" ? "#3a3a3c" : "lightgrey",
     }),
   },
   scrollView: {
