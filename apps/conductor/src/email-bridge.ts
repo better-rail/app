@@ -193,6 +193,15 @@ export function chunkEmailBody(
   return { chunks: chunks.length ? chunks : ["(Empty message)"] }
 }
 
+export function cleanQuotedReply(text: string): string {
+  let cleaned = text.replace(
+    /(?:\r?\n[ \t]*>[ \t]*)*(?:\r?\n[ \t]*>[ \t]*(?:--|--------------)[ \t]*)?\r?\n[ \t]*>[ \t]*Better Rail Support[^\r\n]*/gi,
+    "",
+  )
+  cleaned = cleaned.replace(/(?:\r?\n[ \t]*>[ \t]*)+\s*$/g, "")
+  return cleaned.trimEnd()
+}
+
 export function formatEmailHeader(
   from: string,
   subject?: string,
@@ -299,7 +308,7 @@ export class EmailBridge {
       targetThreadId = newThread.id
     }
 
-    const bodyContent = rawBody || "(No message body)"
+    const bodyContent = cleanQuotedReply(rawBody) || "(No message body)"
     const parsed = chunkEmailBody(bodyContent)
     const overflowFile = parsed.overflowFile
     // Shorten separator runs so a body chunk can't pass as a header message
@@ -407,7 +416,7 @@ export class EmailBridge {
 
     const subject = formatReplySubject(threadContext.subject)
     const emailBody = enforceRfcLineLength(
-      `${replyText}\n\n--------------\nBetter Rail Support • Ref: [#${channelId}]`,
+      `${replyText}\n\n-- \nBetter Rail Support • Ref: [#${channelId}]`,
     )
 
     const headers: Record<string, string> = {}

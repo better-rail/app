@@ -4,6 +4,7 @@ import type { ConductorConfig } from "./config"
 import { DiscordApi, type DiscordChannel, type DiscordMessage, type DiscordRole } from "./discord"
 import {
   chunkEmailBody,
+  cleanQuotedReply,
   detectTextDirection,
   EmailBridge,
   enforceRfcLineLength,
@@ -539,6 +540,12 @@ describe("resend email bridge", () => {
     for (const line of enforceRfcLineLength("< " + "word ".repeat(300)).split("\r\n")) {
       expect(Buffer.byteLength(line)).toBeLessThanOrEqual(998)
     }
+
+    expect(
+      cleanQuotedReply(
+        "סבבה\n\nOn Wed, 30 Sept 2026, Better Rail wrote:\n\n> אנחנו נסדר את זה.\n>\n> Better Rail Support • Ref: [#123]\n>",
+      ),
+    ).toBe("סבבה\n\nOn Wed, 30 Sept 2026, Better Rail wrote:\n\n> אנחנו נסדר את זה.")
 
     const text = htmlToText("<p>Hello <b>team</b>,</p><p>The app is <i>great</i>!<br/>Thanks.</p>")
     expect(text).toContain("Hello team,")
