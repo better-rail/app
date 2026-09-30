@@ -518,8 +518,10 @@ describe("resend email bridge", () => {
     expect(formatEmailHtml("", threadId)).toContain("(Empty message)")
     expect(formatEmailHtml("Hello", threadId)).toContain(`Ref: [#${threadId}]`)
 
-    const longUrl = "https://better-rail.co.il/" + "x".repeat(1200)
-    expect(formatEmailHtml(longUrl, threadId)).toContain(longUrl)
+    const longUrl = "https://better-rail.co.il/" + "x".repeat(850)
+    const longHtml = formatEmailHtml(longUrl, threadId)
+    expect(longHtml).toContain(longUrl)
+    expect(longHtml).toMatch(/<p dir="ltr" style="[^"]*">https:\/\/better-rail\.co\.il\//)
 
     const crlf = formatEmailHtml("A\r\n\r\nB\r\nC", threadId)
     expect(crlf).not.toContain("\r<br")

@@ -25,6 +25,13 @@ export function escapeHtml(str: string): string {
     .replace(/"/g, "&quot;")
 }
 
+function isInsideTag(str: string, index: number): boolean {
+  const lastOpen = str.lastIndexOf("<", index)
+  if (lastOpen === -1) return false
+  const lastClose = str.lastIndexOf(">", index)
+  return lastOpen > lastClose
+}
+
 export function enforceRfcLineLength(content: string, maxBytes = 900): string {
   const safeLines: string[] = []
 
@@ -32,7 +39,10 @@ export function enforceRfcLineLength(content: string, maxBytes = 900): string {
     let remaining = line
     while (Buffer.byteLength(remaining) > maxBytes) {
       let splitAt = remaining.lastIndexOf(" ", Math.min(remaining.length, maxBytes))
-      while (splitAt !== -1 && Buffer.byteLength(remaining.slice(0, splitAt)) > maxBytes) {
+      while (
+        splitAt !== -1 &&
+        (Buffer.byteLength(remaining.slice(0, splitAt)) > maxBytes || isInsideTag(remaining, splitAt))
+      ) {
         splitAt = remaining.lastIndexOf(" ", splitAt - 1)
       }
       if (splitAt === -1) break
