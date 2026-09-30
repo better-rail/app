@@ -4,6 +4,7 @@ import { acrossTheIsland } from "@/data/island-platforms"
 const MIN_CONNECTION_MINUTES = 5
 const MIN_CONNECTION_SAME_PLATFORM_MINUTES = 4
 const DAY_MINUTES = 24 * 60
+const SAVIDOR_STATION_ID = 3700
 
 const minutesOfDay = (time?: string) => {
   const [hours, minutes] = (time ?? "").split(":").map(Number)
@@ -20,7 +21,12 @@ function canConnectAt(firstTrain: Train, secondTrain: Train, stationId: number):
   // Past midnight the clock wraps, so a gap over half a day means the second train left first
   const wait = (onAt - offAt + DAY_MINUTES) % DAY_MINUTES
   if (wait > DAY_MINUTES / 2) return false
-  const stayingPut = off.platform === on.platform || acrossTheIsland(String(stationId), off.platform, on.platform)
+  // Same rule as the server's planner: known platforms, and only Savidor's islands count as staying put
+  const stayingPut =
+    off.platform > 0 &&
+    on.platform > 0 &&
+    (off.platform === on.platform ||
+      (stationId === SAVIDOR_STATION_ID && acrossTheIsland(String(stationId), off.platform, on.platform)))
   return wait >= (stayingPut ? MIN_CONNECTION_SAME_PLATFORM_MINUTES : MIN_CONNECTION_MINUTES)
 }
 

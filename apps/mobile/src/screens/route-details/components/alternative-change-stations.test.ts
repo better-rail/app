@@ -46,6 +46,17 @@ describe("alternativeChangeStations", () => {
     expect(alternativeChangeStations(first, second)).toEqual(["3"])
   })
 
+  it("gives the shorter wait only to known platforms, and across an island only at Savidor", () => {
+    const times: [string[], string[]] = [
+      ["10:00", "10:10", "10:20", "10:30", "10:40"],
+      ["10:14", "10:24", "10:34", "10:50", "11:00"],
+    ]
+    // 4 minutes at each: unknown platforms at 2, University's island at 3600, Savidor's island at 3700.
+    const first = train(1, 4, [1, 2, 3600, 3700, 4], [1, 0, 1, 3, 1], times[0])
+    const second = train(4, 6, [2, 3600, 3700, 4, 6], [0, 2, 4, 1, 1], times[1])
+    expect(alternativeChangeStations(first, second)).toEqual(["3700"])
+  })
+
   it("handles a change that crosses midnight", () => {
     const first = train(1, 4, [1, 2, 4], [], ["23:40", "23:55", "00:10"])
     const second = train(4, 6, [2, 4, 6], [], ["00:05", "00:20", "00:40"])
