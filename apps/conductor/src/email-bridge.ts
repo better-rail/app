@@ -202,7 +202,7 @@ export function formatEmailHeader(
   return [
     `**${isFollowUp ? "Follow-up" : "New"} Email from:** \`${from.slice(0, 300)}\``,
     ...(!isFollowUp ? [`**Subject:** ${(subject || "(No Subject)").slice(0, 300)}`] : []),
-    ...(messageId ? [`**Message-ID:** \`${messageId.slice(0, 200)}\``] : []),
+    ...(messageId ? [`**Message-ID:** \`${messageId}\``] : []),
     HEADER_SEPARATOR,
   ].join("\n")
 }
