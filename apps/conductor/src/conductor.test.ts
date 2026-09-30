@@ -518,10 +518,20 @@ describe("resend email bridge", () => {
     expect(formatEmailHtml("", threadId)).toContain("(Empty message)")
     expect(formatEmailHtml("Hello", threadId)).toContain(`Ref: [#${threadId}]`)
 
-    const longHtml = formatEmailHtml("Word ".repeat(300), threadId)
-    expect(longHtml).toContain("\r\n")
-    for (const line of longHtml.split("\r\n")) {
-      expect(line.length).toBeLessThanOrEqual(998)
+    const longUrl = "https://better-rail.co.il/" + "x".repeat(1200)
+    expect(formatEmailHtml(longUrl, threadId)).toContain(longUrl)
+
+    const crlf = formatEmailHtml("A\r\n\r\nB\r\nC", threadId)
+    expect(crlf).not.toContain("\r<br")
+    expect(crlf).toContain("A</p>")
+    expect(crlf).toContain("B<br />\r\nC</p>")
+
+    expect(formatEmailHtml("Use {{threadId}} literally", threadId)).toContain("Use {{threadId}} literally")
+
+    for (const sample of ["Word ".repeat(300), "שלום ".repeat(300)]) {
+      for (const line of formatEmailHtml(sample, threadId).split("\r\n")) {
+        expect(Buffer.byteLength(line)).toBeLessThanOrEqual(998)
+      }
     }
 
     const text = htmlToText("<p>Hello <b>team</b>,</p><p>The app is <i>great</i>!<br/>Thanks.</p>")

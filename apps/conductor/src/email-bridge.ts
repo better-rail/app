@@ -123,11 +123,17 @@ export function formatReplySubject(originalSubject?: string): string {
 
 import {
   detectTextDirection,
+  enforceRfcLineLength,
   formatEmailHtml,
   type TextDirectionInfo,
 } from "./templates/reply"
 
-export { detectTextDirection, formatEmailHtml, type TextDirectionInfo }
+export {
+  detectTextDirection,
+  enforceRfcLineLength,
+  formatEmailHtml,
+  type TextDirectionInfo,
+}
 
 export function htmlToText(html: string): string {
   return html
@@ -193,18 +199,12 @@ export function formatEmailHeader(
   isFollowUp = false,
   messageId?: string,
 ): string {
-  const lines: string[] = []
-  if (isFollowUp) {
-    lines.push(`**Follow-up Email from:** \`${from}\``)
-  } else {
-    lines.push(`**New Email from:** \`${from}\``)
-    lines.push(`**Subject:** ${subject || "(No Subject)"}`)
-  }
-  if (messageId) {
-    lines.push(`**Message-ID:** \`${messageId}\``)
-  }
-  lines.push(HEADER_SEPARATOR)
-  return lines.join("\n")
+  return [
+    `**${isFollowUp ? "Follow-up" : "New"} Email from:** \`${from.slice(0, 300)}\``,
+    ...(!isFollowUp ? [`**Subject:** ${(subject || "(No Subject)").slice(0, 300)}`] : []),
+    ...(messageId ? [`**Message-ID:** \`${messageId.slice(0, 200)}\``] : []),
+    HEADER_SEPARATOR,
+  ].join("\n")
 }
 
 async function downloadAttachment(url: string, contentType?: string): Promise<Blob> {
@@ -406,7 +406,9 @@ export class EmailBridge {
     }
 
     const subject = formatReplySubject(threadContext.subject)
-    const emailBody = `${replyText}\n\n--------------\nBetter Rail Support • Ref: [#${channelId}]`
+    const emailBody = enforceRfcLineLength(
+      `${replyText}\n\n--------------\nBetter Rail Support • Ref: [#${channelId}]`,
+    )
 
     const headers: Record<string, string> = {}
     const threadRef = `<thread-${channelId}@better-rail.co.il>`

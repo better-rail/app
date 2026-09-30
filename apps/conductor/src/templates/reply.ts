@@ -25,17 +25,19 @@ export function escapeHtml(str: string): string {
     .replace(/"/g, "&quot;")
 }
 
-export function enforceRfcLineLength(content: string, maxLineLength = 900): string {
-  const lines = content.split(/\r?\n/)
+export function enforceRfcLineLength(content: string, maxBytes = 900): string {
   const safeLines: string[] = []
 
-  for (const line of lines) {
+  for (const line of content.split(/\r?\n/)) {
     let remaining = line
-    while (remaining.length > maxLineLength) {
-      const splitIdx = remaining.lastIndexOf(" ", maxLineLength)
-      const at = splitIdx > maxLineLength * 0.3 ? splitIdx : maxLineLength
-      safeLines.push(remaining.slice(0, at))
-      remaining = remaining.slice(at).trimStart()
+    while (Buffer.byteLength(remaining) > maxBytes) {
+      let splitAt = remaining.lastIndexOf(" ", Math.min(remaining.length, maxBytes))
+      while (splitAt !== -1 && Buffer.byteLength(remaining.slice(0, splitAt)) > maxBytes) {
+        splitAt = remaining.lastIndexOf(" ", splitAt - 1)
+      }
+      if (splitAt === -1) break
+      safeLines.push(remaining.slice(0, splitAt))
+      remaining = remaining.slice(splitAt).trimStart()
     }
     safeLines.push(remaining)
   }
@@ -44,9 +46,10 @@ export function enforceRfcLineLength(content: string, maxLineLength = 900): stri
 }
 
 export function formatEmailHtml(text: string, threadId: string): string {
-  const { dir, align, lang } = detectTextDirection(text)
+  const normalized = text.replace(/\r\n/g, "\n")
+  const { dir, align, lang } = detectTextDirection(normalized)
 
-  const paragraphs = text
+  const paragraphs = normalized
     .split(/\n{2,}/)
     .map((p) => p.trim())
     .filter(Boolean)
@@ -64,8 +67,8 @@ export function formatEmailHtml(text: string, threadId: string): string {
     .replaceAll("{{lang}}", lang)
     .replaceAll("{{dir}}", dir)
     .replaceAll("{{align}}", align)
-    .replaceAll("{{content}}", content)
     .replaceAll("{{threadId}}", escapeHtml(threadId))
+    .replaceAll("{{content}}", content)
 
   return enforceRfcLineLength(html)
 }
