@@ -6,7 +6,6 @@ import {
   ImageBackground,
   View,
   Platform,
-  Dimensions,
   ImageSourcePropType,
   ViewStyle,
   Image,
@@ -21,25 +20,7 @@ import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 
 const ThemedTouchableScale = withUnistyles(TouchableScale)
 const isDarkMode = Appearance.getColorScheme() === "dark"
-const { height: deviceHeight } = Dimensions.get("screen")
-
-export let cardHeight = 120
-
-if (deviceHeight > 600) {
-  cardHeight = 135
-}
-
-if (deviceHeight > 730) {
-  cardHeight = 157.5
-}
-
-if (deviceHeight > 780) {
-  cardHeight = 178.5
-}
-
-if (deviceHeight > 900) {
-  cardHeight = 190
-}
+export const cardHeight = 155
 
 export interface StationCardProps extends TouchableScaleProps {
   name: string
@@ -130,105 +111,110 @@ export function StationCard(props: StationCardProps) {
   )
 }
 
-const styles = StyleSheet.create((theme) => ({
-  container: {
-    borderRadius: 12,
-    backgroundColor: theme.colors.inputPlaceholderBackground,
-    shadowColor: theme.colors.palette.black,
-    shadowOffset: { height: 1, width: 0 },
-    shadowOpacity: 0.2,
-    elevation: 3,
-  },
-  imagelessCard: {
-    height: cardHeight,
-    justifyContent: "flex-end",
-  },
-  emptyCardWrapper: {
-    width: "100%",
-    height: cardHeight,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 12,
-  },
-  emptyCardImage: {
-    width: 48,
-    height: 48,
-    marginBottom: theme.spacing[2],
-    tintColor: theme.colors.dim,
-  },
-  background: {
-    width: "100%",
-    height: cardHeight,
-    justifyContent: "flex-end",
-  },
-  imageBackgroundImage: {
-    borderRadius: isLiquidGlassSupported ? 14 : 6,
-  },
-  text: {
-    marginStart: theme.spacing[3],
-    marginBottom: theme.spacing[2],
-    color: theme.colors.palette.white,
-    fontFamily: theme.typography.primary,
-    fontSize: 22,
-    fontWeight: "700",
-    textAlign: "left",
-    textShadowColor: theme.colors.palette.black,
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
-  },
-  badges: {
-    position: "absolute",
-    top: theme.spacing[2],
-    start: theme.spacing[2],
-    end: theme.spacing[2],
-    alignItems: "flex-end",
-    gap: theme.spacing[1],
-  },
-  badge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    paddingHorizontal: theme.spacing[2],
-    paddingVertical: 3,
-    borderRadius: 999,
-    backgroundColor: "rgba(255, 255, 255, 0.92)",
-    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.3)",
-  },
-  badgeHighlight: {
-    backgroundColor: theme.colors.success,
-  },
-  badgeIcon: {
-    width: 13,
-    height: 13,
-    resizeMode: "contain",
-    tintColor: theme.colors.palette.black,
-  },
-  badgeText: {
-    color: theme.colors.palette.black,
-    fontSize: 13,
-    fontWeight: "600",
-  },
-  badgeHighlightContent: {
-    color: theme.colors.palette.white,
-    tintColor: theme.colors.palette.white,
-  },
-  emptyCardText: {
-    color: theme.colors.dim,
-  },
-  loadingOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.45)",
-    borderRadius: isLiquidGlassSupported ? 14 : 6,
-  },
-  gardient: {
-    height: "100%",
-    position: "absolute",
-    left: 0,
-    right: 0,
-    top: 0,
-    opacity: 1,
-    borderRadius: isLiquidGlassSupported ? 12 : 6,
-  },
-}))
+const styles = StyleSheet.create((theme, rt) => {
+  const height = Math.round(Math.min(175, Math.max(125, rt.screen.height < 680 ? 128 : rt.screen.width * 0.38)))
+
+  return {
+    container: {
+      borderRadius: 12,
+      backgroundColor: theme.colors.inputPlaceholderBackground,
+      shadowColor: theme.colors.palette.black,
+      shadowOffset: { height: 1, width: 0 },
+      shadowOpacity: 0.2,
+      elevation: 3,
+    },
+    imagelessCard: {
+      width: "100%",
+      height,
+      justifyContent: "flex-end",
+    },
+    emptyCardWrapper: {
+      width: "100%",
+      height,
+      justifyContent: "center",
+      alignItems: "center",
+      borderRadius: 12,
+    },
+    emptyCardImage: {
+      width: 48,
+      height: 48,
+      marginBottom: theme.spacing[2],
+      tintColor: theme.colors.dim,
+    },
+    background: {
+      width: "100%",
+      height,
+      justifyContent: "flex-end",
+    },
+    imageBackgroundImage: {
+      borderRadius: isLiquidGlassSupported ? 14 : 6,
+    },
+    text: {
+      marginStart: theme.spacing[3],
+      marginBottom: theme.spacing[2],
+      color: theme.colors.palette.white,
+      fontFamily: theme.typography.primary,
+      fontSize: 22,
+      fontWeight: "700",
+      textAlign: "left",
+      textShadowColor: theme.colors.palette.black,
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 3,
+    },
+    badges: {
+      position: "absolute",
+      top: theme.spacing[2],
+      start: theme.spacing[2],
+      end: theme.spacing[2],
+      alignItems: "flex-end",
+      gap: theme.spacing[1],
+    },
+    badge: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 5,
+      paddingHorizontal: theme.spacing[2],
+      paddingVertical: 3,
+      borderRadius: 999,
+      backgroundColor: "rgba(255, 255, 255, 0.92)",
+      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.3)",
+    },
+    badgeHighlight: {
+      backgroundColor: theme.colors.success,
+    },
+    badgeIcon: {
+      width: 13,
+      height: 13,
+      resizeMode: "contain",
+      tintColor: theme.colors.palette.black,
+    },
+    badgeText: {
+      color: theme.colors.palette.black,
+      fontSize: 13,
+      fontWeight: "600",
+    },
+    badgeHighlightContent: {
+      color: theme.colors.palette.white,
+      tintColor: theme.colors.palette.white,
+    },
+    emptyCardText: {
+      color: theme.colors.dim,
+    },
+    loadingOverlay: {
+      ...StyleSheet.absoluteFillObject,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: "rgba(0, 0, 0, 0.45)",
+      borderRadius: isLiquidGlassSupported ? 14 : 6,
+    },
+    gardient: {
+      height: "100%",
+      position: "absolute",
+      left: 0,
+      right: 0,
+      top: 0,
+      opacity: 1,
+      borderRadius: isLiquidGlassSupported ? 12 : 6,
+    },
+  }
+})

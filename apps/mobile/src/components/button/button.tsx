@@ -124,7 +124,6 @@ const styles = StyleSheet.create((theme, rt) => ({
     borderCurve: "continuous",
     overflow: "hidden",
     elevation: 1,
-    flex: 1,
   },
   textWrapper: {
     display: "flex",

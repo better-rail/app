@@ -77,7 +77,12 @@ export function DatePickerModal({ isVisible, onConfirm, onCancel, minimumDate }:
                 textStyle={{ color: isDarkMode ? color.dim : color.primary }}
                 size="small"
               />
-              <Button title={translate("common.set")} onPress={() => onConfirm(modalDate)} size="small" />
+              <Button
+                title={translate("common.set")}
+                onPress={() => onConfirm(modalDate)}
+                size="small"
+                containerStyle={styles.setButtonContainer}
+              />
             </View>
           </View>
         </View>
@@ -148,6 +153,10 @@ const styles = StyleSheet.create((theme, rt) => ({
     borderColor: rt.themeName === "dark" ? "#111111" : "#e5e5e9",
   },
   cancelButtonContainer: {
+    flex: 1,
     marginEnd: theme.spacing[1],
+  },
+  setButtonContainer: {
+    flex: 1,
   },
 }))
