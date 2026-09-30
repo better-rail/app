@@ -2,11 +2,22 @@ import { describe, expect, it } from "bun:test"
 import { alternativeChangeStations, easyPlatformChanges, trainStartStation } from "./alternative-change-stations"
 import type { Train } from "@/services/api"
 
-const train = (originStationId: number, destinationStationId: number, run: number[], platforms: number[] = []) =>
+const train = (
+  originStationId: number,
+  destinationStationId: number,
+  run: number[],
+  platforms: number[] = [],
+  times: string[] = [],
+) =>
   ({
     originStationId,
     destinationStationId,
-    routeStations: run.map((stationId, i) => ({ stationId, arrivalTime: "", crowded: 0, platform: platforms[i] ?? 0 })),
+    routeStations: run.map((stationId, i) => ({
+      stationId,
+      arrivalTime: times[i] ?? "",
+      crowded: 0,
+      platform: platforms[i] ?? 0,
+    })),
   }) as unknown as Train
 
 describe("alternativeChangeStations", () => {
@@ -19,6 +30,26 @@ describe("alternativeChangeStations", () => {
 
   it("returns nothing when the runs share only the change station", () => {
     expect(alternativeChangeStations(train(1, 4, [1, 2, 4]), train(4, 6, [4, 6]))).toEqual([])
+  })
+
+  it("skips stations the second train leaves before the first gets there", () => {
+    // Hadera -> Rishon: train 339 starts at Herzliya (3500) and loops back to Tel Aviv before 423 reaches Herzliya.
+    const first = train(3100, 3700, [3100, 3500, 3600, 3700], [1, 4, 2, 3], ["18:08", "18:27", "18:35", "18:42"])
+    const second = train(3700, 9800, [3500, 3600, 3700, 9800], [1, 4, 6, 1], ["18:03", "18:47", "18:54", "19:19"])
+    expect(alternativeChangeStations(first, second)).toEqual(["3600"])
+  })
+
+  it("skips stations where the wait is too short to change trains", () => {
+    const first = train(1, 4, [1, 2, 3, 4], [1, 1, 1, 1], ["10:00", "10:10", "10:20", "10:30"])
+    const second = train(4, 6, [2, 3, 4, 6], [2, 1, 1, 1], ["10:13", "10:24", "10:40", "10:50"])
+    // Station 2: 3 minutes across platforms. Station 3: 4 minutes on the same platform.
+    expect(alternativeChangeStations(first, second)).toEqual(["3"])
+  })
+
+  it("handles a change that crosses midnight", () => {
+    const first = train(1, 4, [1, 2, 4], [], ["23:40", "23:55", "00:10"])
+    const second = train(4, 6, [2, 4, 6], [], ["00:05", "00:20", "00:40"])
+    expect(alternativeChangeStations(first, second)).toEqual(["2"])
   })
 })
 
