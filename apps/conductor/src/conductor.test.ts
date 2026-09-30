@@ -6,6 +6,7 @@ import {
   chunkEmailBody,
   detectTextDirection,
   EmailBridge,
+  enforceRfcLineLength,
   extractSenderEmail,
   extractThreadId,
   formatEmailHtml,
@@ -519,9 +520,9 @@ describe("resend email bridge", () => {
     expect(formatEmailHtml("Hello", threadId)).toContain(`Ref: [#${threadId}]`)
 
     const longUrl = "https://better-rail.co.il/" + "x".repeat(850)
-    const longHtml = formatEmailHtml(longUrl, threadId)
-    expect(longHtml).toContain(longUrl)
-    expect(longHtml).toMatch(/<p dir="ltr" style="[^"]*">https:\/\/better-rail\.co\.il\//)
+    expect(formatEmailHtml(longUrl, threadId)).toContain(
+      `<p dir="ltr" style="margin: 0 0 16px 0; line-height: 1.6; font-size: 16px; color: #1f2937; direction: ltr; text-align: left;">${longUrl}</p>`,
+    )
 
     const crlf = formatEmailHtml("A\r\n\r\nB\r\nC", threadId)
     expect(crlf).not.toContain("\r<br")
@@ -534,6 +535,9 @@ describe("resend email bridge", () => {
       for (const line of formatEmailHtml(sample, threadId).split("\r\n")) {
         expect(Buffer.byteLength(line)).toBeLessThanOrEqual(998)
       }
+    }
+    for (const line of enforceRfcLineLength("< " + "word ".repeat(300)).split("\r\n")) {
+      expect(Buffer.byteLength(line)).toBeLessThanOrEqual(998)
     }
 
     const text = htmlToText("<p>Hello <b>team</b>,</p><p>The app is <i>great</i>!<br/>Thanks.</p>")

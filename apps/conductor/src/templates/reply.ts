@@ -32,7 +32,7 @@ function isInsideTag(str: string, index: number): boolean {
   return lastOpen > lastClose
 }
 
-export function enforceRfcLineLength(content: string, maxBytes = 900): string {
+export function enforceRfcLineLength(content: string, maxBytes = 900, isHtml = false): string {
   const safeLines: string[] = []
 
   for (const line of content.split(/\r?\n/)) {
@@ -41,7 +41,7 @@ export function enforceRfcLineLength(content: string, maxBytes = 900): string {
       let splitAt = remaining.lastIndexOf(" ", Math.min(remaining.length, maxBytes))
       while (
         splitAt !== -1 &&
-        (Buffer.byteLength(remaining.slice(0, splitAt)) > maxBytes || isInsideTag(remaining, splitAt))
+        (Buffer.byteLength(remaining.slice(0, splitAt)) > maxBytes || (isHtml && isInsideTag(remaining, splitAt)))
       ) {
         splitAt = remaining.lastIndexOf(" ", splitAt - 1)
       }
@@ -80,5 +80,5 @@ export function formatEmailHtml(text: string, threadId: string): string {
     .replaceAll("{{threadId}}", escapeHtml(threadId))
     .replaceAll("{{content}}", content)
 
-  return enforceRfcLineLength(html)
+  return enforceRfcLineLength(html, 900, true)
 }
