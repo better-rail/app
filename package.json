@@ -41,7 +41,11 @@
     "react-native-watch-connectivity@1.1.0": "patches/react-native-watch-connectivity@1.1.0.patch",
     "react-native-push-notification@8.1.1": "patches/react-native-push-notification@8.1.1.patch",
     "react-native-prompt-android@1.1.0": "patches/react-native-prompt-android@1.1.0.patch",
-    "react-native-screens@4.26.2": "patches/react-native-screens@4.26.2.patch",
-    "expo-notifications@57.0.21": "patches/expo-notifications@57.0.21.patch"
+    "react-native-screens@4.28.0": "patches/react-native-screens@4.28.0.patch",
+    "expo-notifications@58.0.9": "patches/expo-notifications@58.0.9.patch"
+  },
+  "overrides": {
+    "react-native": "0.88.0-rc.3",
+    "react": "19.3.0"
   }
 }

@@ -177,8 +177,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       {
         ios: {
           deploymentTarget: "16.4",
-          // UIScene lifecycle, required by the iOS 27 SDK. Remove on SDK 58 (default there).
-          enableSceneSupport: true,
         },
         android: {
           kotlinVersion: "2.1.20",

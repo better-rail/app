@@ -1,8 +1,8 @@
 diff --git a/build/getDevicePushTokenAsync.js b/build/getDevicePushTokenAsync.js
-index f0875c5eaa84d45d646edd1ad5f21a962f68ab02..7a6040963c98d48d22f7ff669175928f35c63063 100644
+index 1c46e07..23be746 100644
 --- a/build/getDevicePushTokenAsync.js
 +++ b/build/getDevicePushTokenAsync.js
-@@ -12,16 +12,20 @@ export async function getDevicePushTokenAsync() {
+@@ -11,15 +11,19 @@ let nativeTokenPromise = null;
          throw new UnavailabilityError('ExpoNotifications', 'getDevicePushTokenAsync');
      }
      warnOfExpoGoPushUsage();
@@ -14,15 +14,14 @@ index f0875c5eaa84d45d646edd1ad5f21a962f68ab02..7a6040963c98d48d22f7ff669175928f
 -    if (nativeTokenPromise) {
 -        // Reuse existing Promise
 -        devicePushToken = await nativeTokenPromise;
-+    try {
-+        devicePushToken = await tokenPromise;
-     }
--    else {
+-    } else {
 -        // Create a new Promise and clear it afterwards
 -        nativeTokenPromise = PushTokenManager.getDevicePushTokenAsync();
 -        devicePushToken = await nativeTokenPromise;
 -        nativeTokenPromise = null;
-+    finally {
++    try {
++        devicePushToken = await tokenPromise;
++    } finally {
 +        // A second request may have started after this one settled. Only clear the promise that this
 +        // invocation actually awaited so the newer request remains deduplicated.
 +        if (nativeTokenPromise === tokenPromise) {
@@ -30,9 +29,9 @@ index f0875c5eaa84d45d646edd1ad5f21a962f68ab02..7a6040963c98d48d22f7ff669175928f
 +        }
      }
      // @ts-ignore: TS thinks Platform.OS could be anything and can't decide what type is it
-     return { type: Platform.OS, data: devicePushToken };
+     return {
 diff --git a/src/getDevicePushTokenAsync.ts b/src/getDevicePushTokenAsync.ts
-index 2ed08923e84fcc2dbcb0e4295bf5f1198cc60e58..012191127a3e81271eda9e4f2394c5b637d62a3a 100644
+index 12b9df9..5662878 100644
 --- a/src/getDevicePushTokenAsync.ts
 +++ b/src/getDevicePushTokenAsync.ts
 @@ -17,15 +17,20 @@ export async function getDevicePushTokenAsync(): Promise<DevicePushToken> {
