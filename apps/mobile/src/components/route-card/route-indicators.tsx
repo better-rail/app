@@ -14,6 +14,7 @@ export const RouteIndicators = ({
   stopsText,
   isRideActive,
   hideShortRouteBadge,
+  hasChanges = false,
   isCancelled = false,
 }) => {
   if (isCancelled) {
@@ -27,7 +28,15 @@ export const RouteIndicators = ({
         <View style={[styles.shortRouteBadge, isRideActive && styles.shortRouteBadgeActive]}>
           <Text style={styles.shortRouteBadgeText} tx="routes.shortRoute" />
         </View>
-        {delay > 0 && <DelayBadge delay={delay} onlyNumber />}
+        {delay > 0 ? (
+          <DelayBadge delay={delay} onlyNumber />
+        ) : (
+          hasChanges && (
+            <Text style={styles.stopsText} maxFontSizeMultiplier={1}>
+              {stopsText}
+            </Text>
+          )
+        )}
       </View>
     )
   } else if (delay > 0) {
