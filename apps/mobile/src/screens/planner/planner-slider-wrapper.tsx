@@ -28,23 +28,28 @@ export function FlingGestureWrapper(props: FlingGestureWrapperProps) {
     }
   })
 
-  const gesture = Gesture.Pan().onEnd((e) => {
-    const direction = isRTL ? -1 : 1
+  const gesture = Gesture.Pan()
+    .activeOffsetX([-20, 20])
+    .failOffsetY([-10, 10])
+    .onEnd((e) => {
+      const direction = isRTL ? -1 : 1
 
-    // Only trigger if the velocity is high enough and in the correct direction
-    if (Math.abs(e.velocityX) > 800 && Math.sign(e.velocityX) === direction) {
-      slideOffset.value = withSequence(
-        withTiming(direction * 12, { duration: 100 }),
-        withSpring(0, { damping: 10, stiffness: 100 }),
-      )
-      runOnJS(onFling)()
-      runOnJS(trackEvent)("switch_stations_fling")
-    }
-  })
+      // Only trigger if the velocity is high enough and in the correct direction
+      if (Math.abs(e.velocityX) > 800 && Math.sign(e.velocityX) === direction) {
+        slideOffset.value = withSequence(
+          withTiming(direction * 12, { duration: 100 }),
+          withSpring(0, { damping: 10, stiffness: 100 }),
+        )
+        runOnJS(onFling)()
+        runOnJS(trackEvent)("switch_stations_fling")
+      }
+    })
 
   return (
     <GestureDetector gesture={gesture}>
-      <Animated.ScrollView style={animatedStyle}>{children}</Animated.ScrollView>
+      <Animated.ScrollView style={[{ flex: 1 }, animatedStyle]} contentContainerStyle={{ flexGrow: 1 }}>
+        {children}
+      </Animated.ScrollView>
     </GestureDetector>
   )
 }
