@@ -342,6 +342,7 @@ const stations: Station[] = [
     lat: 32.102938,
     lon: 34.830131,
     image: require("../../assets/station-images/bnei-brak.jpg"),
+    alias: ["רמת החייל", "Ramat HaHayal", "Рамат-ха-Хаяль", "رمات هحيال"],
   },
   {
     id: "3600",

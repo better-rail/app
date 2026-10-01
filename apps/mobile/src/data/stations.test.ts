@@ -25,6 +25,11 @@ const appendedStationNames = [
     canonicalName: "אשדוד עד הלום",
     keywords: ["מטרופול", "Metropol", "Метропол", "متروپول"],
   },
+  {
+    id: "4100",
+    canonicalName: "בני ברק",
+    keywords: ["רמת החייל", "Ramat HaHayal", "Рамат-ха-Хаяль", "رمات هحيال"],
+  },
 ]
 
 describe("station names", () => {
