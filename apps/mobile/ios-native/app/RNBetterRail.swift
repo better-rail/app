@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 import Intents
 import WidgetKit
 import ActivityKit
@@ -141,6 +142,17 @@ class RNBetterRail: NSObject {
       resolve(true)
     } else {
       resolve(false)
+    }
+  }
+
+  /// Matches native UI direction to the in-app language when it differs from the app's iOS language.
+  /// TODO: remove once react-native-screens ships the trait-based header direction fix (#4395, PR #4552).
+  @objc func setLayoutDirection(_ isRTL: Bool) {
+    guard #available(iOS 17.0, *) else { return }
+    DispatchQueue.main.async {
+      for case let scene as UIWindowScene in UIApplication.shared.connectedScenes {
+        scene.traitOverrides.layoutDirection = isRTL ? .rightToLeft : .leftToRight
+      }
     }
   }
 
