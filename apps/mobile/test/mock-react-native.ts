@@ -60,6 +60,10 @@ mock.module("react-native", () => {
       removeEventListener: mock(),
     },
     NativeModules: {},
+    Settings: {
+      get: mock(),
+      set: mock(),
+    },
     NativeEventEmitter: mock(),
     I18nManager: {
       isRTL: false,

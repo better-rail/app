@@ -1,7 +1,7 @@
 import "@/i18n"
 import "@/utils/ignore-warnings"
 import React, { useState, useEffect, useRef } from "react"
-import { AppState, Platform, useColorScheme } from "react-native"
+import { AppState, I18nManager, Platform, useColorScheme } from "react-native"
 import { useDeepLinking } from "@/hooks/use-deep-linking"
 import { Stack } from "expo-router/stack"
 import { useRouter } from "expo-router"
@@ -22,7 +22,13 @@ import * as storage from "@/utils/storage"
 import { setupRootStore, RoutesNotFoundError } from "@/models"
 import { useRideStore } from "@/models/ride/ride"
 import { useFavoritesStore } from "@/models/favorites/favorites"
-import { setInitialLanguage, setUserLanguage } from "@/i18n/i18n"
+import {
+  changeUserLanguage,
+  getLanguageChangedInIOSSettings,
+  isRTLLanguage,
+  setInitialLanguage,
+  setUserLanguage,
+} from "@/i18n/i18n"
 import { translate } from "@/i18n"
 import { posthog } from "@/services/analytics"
 import { identifyPosthogUser, setAnalyticsUserProperty, trackEvent } from "@/services/analytics"
@@ -209,8 +215,15 @@ function RootLayout() {
     // After the widget lookup, so its properties are sent this launch
     trackInstalledWidgets().finally(identifyPosthogUser)
 
-    storage.load("appLanguage").then((languageCode) => {
-      if (languageCode) {
+    storage.load("appLanguage").then((storedLanguageCode) => {
+      const iosSettingsLanguage = getLanguageChangedInIOSSettings()
+      const languageCode = iosSettingsLanguage ?? storedLanguageCode
+
+      // forceRTL only applies after a reload
+      if (iosSettingsLanguage && isRTLLanguage(iosSettingsLanguage) !== I18nManager.isRTL) {
+        changeUserLanguage(iosSettingsLanguage)
+      } else if (languageCode) {
+        if (iosSettingsLanguage) storage.save("appLanguage", iosSettingsLanguage)
         setUserLanguage(languageCode)
         setLocaleReady(true)
         setAnalyticsUserProperty("user_locale", languageCode)
