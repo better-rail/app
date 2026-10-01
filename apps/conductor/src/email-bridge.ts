@@ -1,6 +1,7 @@
 import { type ConductorConfig, isSnowflake, SUPPORT_EMAIL_FROM } from "./config"
 import type { DiscordApi, DiscordChannel, DiscordMessage } from "./discord"
 import type { ResendApi, ResendReceivedEmail } from "./resend"
+import { enforceRfcLineLength, formatEmailHtml } from "./templates/reply"
 
 export type SlashCommandInteraction = {
   id: string
@@ -121,19 +122,12 @@ export function formatReplySubject(originalSubject?: string): string {
   return `Re: ${clean}`
 }
 
-import {
-  detectTextDirection,
-  enforceRfcLineLength,
-  formatEmailHtml,
-  type TextDirectionInfo,
-} from "./templates/reply"
-
 export {
   detectTextDirection,
   enforceRfcLineLength,
   formatEmailHtml,
   type TextDirectionInfo,
-}
+} from "./templates/reply"
 
 export function htmlToText(html: string): string {
   return html
@@ -193,13 +187,37 @@ export function chunkEmailBody(
   return { chunks: chunks.length ? chunks : ["(Empty message)"] }
 }
 
+const QUOTED_BLANK_RE = /^[ \t]*>[ \t>]*$/
+const FOOTER_SEPARATOR_RE = /^[ \t>]*-{2,}[ \t]*$/
+// Our footer at any quote depth, or unquoted when an HTML-only reply was converted to text
+const FOOTER_RE = /^[ \t>]*Better Rail Support[^\w\r\n]{0,8}Ref:\s*\[#\d+\][ \t]*$/i
+
 export function cleanQuotedReply(text: string): string {
-  let cleaned = text.replace(
-    /(?:\r?\n[ \t]*>[ \t]*)*(?:\r?\n[ \t]*>[ \t]*(?:--|--------------)[ \t]*)?\r?\n[ \t]*>[ \t]*Better Rail Support[^\r\n]*/gi,
-    "",
-  )
-  cleaned = cleaned.replace(/(?:\r?\n[ \t]*>[ \t]*)+\s*$/g, "")
-  return cleaned.trimEnd()
+  const kept: string[] = []
+  const isFooterResidue = (line: string) => QUOTED_BLANK_RE.test(line) || FOOTER_SEPARATOR_RE.test(line)
+  for (const line of text.split(/\r?\n/)) {
+    if (FOOTER_RE.test(line)) {
+      while (kept.length && isFooterResidue(kept[kept.length - 1])) kept.pop()
+      continue
+    }
+    kept.push(line)
+  }
+  while (kept.length && (QUOTED_BLANK_RE.test(kept[kept.length - 1]) || !kept[kept.length - 1].trim())) kept.pop()
+  return kept.join("\n")
+}
+
+// Caps a header field for Discord's 2000-char limit without splitting surrogate pairs
+function truncateField(value: string, max: number): string {
+  const chars = Array.from(value)
+  return chars.length > max ? `${chars.slice(0, max - 1).join("")}…` : value
+}
+
+// Keeps the address intact, since findStarterEmail reads it back from the header
+function formatSender(from: string, max = 300): string {
+  if (Array.from(from).length <= max) return from
+  const address = extractSenderEmail(from)
+  if (!address.includes("@") || address === from.trim()) return truncateField(from, max)
+  return `${truncateField(from, max - address.length - 3)} <${address}>`
 }
 
 export function formatEmailHeader(
@@ -209,8 +227,8 @@ export function formatEmailHeader(
   messageId?: string,
 ): string {
   return [
-    `**${isFollowUp ? "Follow-up" : "New"} Email from:** \`${from.slice(0, 300)}\``,
-    ...(!isFollowUp ? [`**Subject:** ${(subject || "(No Subject)").slice(0, 300)}`] : []),
+    `**${isFollowUp ? "Follow-up" : "New"} Email from:** \`${formatSender(from)}\``,
+    ...(!isFollowUp ? [`**Subject:** ${truncateField(subject || "(No Subject)", 1000)}`] : []),
     ...(messageId ? [`**Message-ID:** \`${messageId}\``] : []),
     HEADER_SEPARATOR,
   ].join("\n")
@@ -310,7 +328,8 @@ export class EmailBridge {
 
     const bodyContent = cleanQuotedReply(rawBody) || "(No message body)"
     const parsed = chunkEmailBody(bodyContent)
-    const overflowFile = parsed.overflowFile
+    // The attachment is the raw body, before quoted-footer cleanup
+    const overflowFile = parsed.overflowFile && { ...parsed.overflowFile, content: rawBody }
     // Shorten separator runs so a body chunk can't pass as a header message
     const chunks = parsed.chunks.map((c) => c.replace(/-{30,}|─{30,}/g, (run) => run[0].repeat(10)))
     const messageId = extractEmailMessageId(email)
@@ -415,9 +434,8 @@ export class EmailBridge {
     }
 
     const subject = formatReplySubject(threadContext.subject)
-    const emailBody = enforceRfcLineLength(
-      `${replyText}\n\n-- \nBetter Rail Support • Ref: [#${channelId}]`,
-    )
+    // Not "-- ", which clients strip as a signature when quoting, taking the Ref fallback with it
+    const emailBody = enforceRfcLineLength(`${replyText}\n\n--------------\nBetter Rail Support • Ref: [#${channelId}]`)
 
     const headers: Record<string, string> = {}
     const threadRef = `<thread-${channelId}@better-rail.co.il>`

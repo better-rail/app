@@ -2,6 +2,9 @@ import replyTemplate from "./reply.html" with { type: "text" }
 
 const template = String(replyTemplate)
 
+// Leaves room for the <p> opening tag and <br /> under the 998-byte RFC 5322 line limit
+const HTML_TEXT_LINE_BYTES = 800
+
 export type TextDirectionInfo = {
   dir: "ltr" | "rtl"
   align: "left" | "right"
@@ -10,7 +13,7 @@ export type TextDirectionInfo = {
 
 export function detectTextDirection(text: string): TextDirectionInfo {
   const match = text.match(
-    /([\u0590-\u05FF\uFB1D-\uFB4F])|([\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF])|([a-zA-Z\u00C0-\u024F])/u,
+    /([֐-׿יִ-ﭏ])|([؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿])|([a-zA-ZÀ-ɏ])/u,
   )
   if (match?.[1]) return { dir: "rtl", align: "right", lang: "he" }
   if (match?.[2]) return { dir: "rtl", align: "right", lang: "ar" }
@@ -25,34 +28,52 @@ export function escapeHtml(str: string): string {
     .replace(/"/g, "&quot;")
 }
 
-function isInsideTag(str: string, index: number): boolean {
-  const lastOpen = str.lastIndexOf("<", index)
-  if (lastOpen === -1) return false
-  const lastClose = str.lastIndexOf(">", index)
-  return lastOpen > lastClose
+// Greedily packs words into lines of at most maxBytes; a longer word gets a line of its own
+function packWords(words: string[], maxBytes: number): string[] {
+  const lines: string[] = []
+  let current: string | undefined
+  let currentBytes = 0
+  for (const word of words) {
+    const wordBytes = Buffer.byteLength(word)
+    if (current !== undefined && currentBytes + 1 + wordBytes <= maxBytes) {
+      current += ` ${word}`
+      currentBytes += 1 + wordBytes
+    } else {
+      if (current !== undefined) lines.push(current)
+      current = word
+      currentBytes = wordBytes
+    }
+  }
+  if (current !== undefined) lines.push(current)
+  return lines
 }
 
-export function enforceRfcLineLength(content: string, maxBytes = 900, isHtml = false): string {
-  const safeLines: string[] = []
+// Wraps plain text at spaces; unbreakable runs (long URLs) are left for the transport encoding
+export function enforceRfcLineLength(content: string, maxBytes = 900): string {
+  return content
+    .split(/\r?\n/)
+    .flatMap((line) => (Buffer.byteLength(line) <= maxBytes ? [line] : packWords(line.split(" "), maxBytes)))
+    .join("\r\n")
+}
 
-  for (const line of content.split(/\r?\n/)) {
-    let remaining = line
-    while (Buffer.byteLength(remaining) > maxBytes) {
-      let splitAt = remaining.lastIndexOf(" ", Math.min(remaining.length, maxBytes))
-      while (
-        splitAt !== -1 &&
-        (Buffer.byteLength(remaining.slice(0, splitAt)) > maxBytes || (isHtml && isInsideTag(remaining, splitAt)))
-      ) {
-        splitAt = remaining.lastIndexOf(" ", splitAt - 1)
-      }
-      if (splitAt === -1) break
-      safeLines.push(remaining.slice(0, splitAt))
-      remaining = remaining.slice(splitAt).trimStart()
+// Escapes a word, splitting overlong ones with <wbr\n>, which breaks the source line without visible whitespace
+function escapeHtmlWord(word: string): string {
+  const pieces: string[] = []
+  let piece = ""
+  let pieceBytes = 0
+  for (const char of word) {
+    const escaped = escapeHtml(char)
+    const bytes = Buffer.byteLength(escaped)
+    if (piece && pieceBytes + bytes > HTML_TEXT_LINE_BYTES) {
+      pieces.push(piece)
+      piece = ""
+      pieceBytes = 0
     }
-    safeLines.push(remaining)
+    piece += escaped
+    pieceBytes += bytes
   }
-
-  return safeLines.join("\r\n")
+  pieces.push(piece)
+  return pieces.join("<wbr\n>")
 }
 
 export function formatEmailHtml(text: string, threadId: string): string {
@@ -63,22 +84,25 @@ export function formatEmailHtml(text: string, threadId: string): string {
     .split(/\n{2,}/)
     .map((p) => p.trim())
     .filter(Boolean)
+  const toHtml = (p: string) =>
+    p
+      .split("\n")
+      .map((line) => packWords(line.split(" ").map(escapeHtmlWord), HTML_TEXT_LINE_BYTES).join("\n"))
+      .join("<br />\n")
+
+  const content = (paragraphs.length ? paragraphs.map(toHtml) : ["(Empty message)"])
     .map(
       (p) =>
-        `<p dir="${dir}" style="margin: 0 0 16px 0; line-height: 1.6; font-size: 16px; color: #1f2937; direction: ${dir}; text-align: ${align};">${escapeHtml(p).replace(/\n/g, "<br />\n")}</p>`,
+        `<p dir="${dir}" style="margin: 0 0 16px 0; line-height: 1.6; font-size: 16px; color: #1f2937; direction: ${dir}; text-align: ${align};">${p}</p>`,
     )
     .join("\n")
 
-  const content =
-    paragraphs ||
-    `<p dir="${dir}" style="margin: 0 0 16px 0; line-height: 1.6; font-size: 16px; color: #1f2937; direction: ${dir}; text-align: ${align};">(Empty message)</p>`
-
-  const html = template
+  // Function replacers keep "$&"-style patterns in the content literal
+  return template
     .replaceAll("{{lang}}", lang)
     .replaceAll("{{dir}}", dir)
     .replaceAll("{{align}}", align)
-    .replaceAll("{{threadId}}", escapeHtml(threadId))
-    .replaceAll("{{content}}", content)
-
-  return enforceRfcLineLength(html, 900, true)
+    .replaceAll("{{threadId}}", () => escapeHtml(threadId))
+    .replaceAll("{{content}}", () => content)
+    .replace(/\r?\n/g, "\r\n")
 }
