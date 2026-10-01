@@ -3,12 +3,13 @@ import HapticFeedback from "react-native-haptic-feedback"
 import * as Burnt from "burnt"
 import { View, ActivityIndicator, Dimensions, useColorScheme } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { FlashList, type FlashListRef } from "@shopify/flash-list"
+import { FlashList, type FlashListRef, type ViewToken } from "@shopify/flash-list"
 import { useNetworkState } from "expo-network"
 import { useQuery } from "react-query"
 import { closestIndexTo } from "date-fns"
 import { useRouter, useLocalSearchParams, Redirect } from "expo-router"
 import { useObserve } from "expo-observe"
+import { useSharedValue } from "react-native-reanimated"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useShallow } from "zustand/react/shallow"
 import { useTrainRoutesStore, useRoutePlanStore, useRideStore, useSettingsStore } from "@/models"
@@ -24,6 +25,8 @@ import {
   type WarningType,
   ResultDateCard,
   DateScroll,
+  HourIndexBar,
+  type HourIndexEntry,
 } from "./components"
 import { flatMap, max, round } from "lodash"
 import { translate } from "@/i18n"
@@ -35,6 +38,9 @@ import { useActionSheet } from "@expo/react-native-action-sheet"
 import { useFeatureFlag } from "posthog-react-native"
 
 type RouteData = RouteItem | string
+
+// Report the top row as soon as it scrolls in, so the hour index highlight keeps up
+const VIEWABILITY_CONFIG = { minimumViewTime: 0, itemVisiblePercentThreshold: 50 }
 
 // Organize routes into a flat list of date headers followed by their routes.
 // Kept at module scope for a stable reference — as a component-scoped function its
@@ -124,6 +130,7 @@ export function RouteListScreen() {
   const isRouteActive = useRideStore((s) => s.isRouteActive)
   const rideRoute = useRideStore((s) => s.route)
   const hideSlowTrains = useSettingsStore((s) => s.hideSlowTrains)
+  const hourIndexEnabled = useSettingsStore((s) => s.showHourIndex)
   const maxChanges = useSettingsStore((s) => s.maxChanges)
   const setMaxChanges = useSettingsStore((s) => s.setMaxChanges)
   const { trainSearchCount, recordTrainSearch, seenTrainInfoPrompt, setSeenTrainInfoPrompt } = useSettingsStore(
@@ -300,6 +307,41 @@ export function RouteListScreen() {
   // Filtered on loaded data so switching never refetches
   const displayData = useMemo(() => filterRouteDataByMaxChanges(routeData, maxChanges), [routeData, maxChanges])
   const allRoutesHiddenByFilter = routeData.some((item) => typeof item !== "string") && displayData.length === 0
+
+  // The hour index covers the day currently at the top of the list, and highlights its hour.
+  // The hour lives in a shared value so scrolling doesn't re-render the screen.
+  const [visibleDate, setVisibleDate] = useState<string | null>(null)
+  const topHour = useSharedValue(-1)
+  const onViewableItemsChanged = ({ viewableItems }: { viewableItems: ViewToken<RouteData>[] }) => {
+    const first = viewableItems[0]?.item
+    if (!first) return
+    setVisibleDate(typeof first === "string" ? first : new Date(first.trains[0].departureTime).toDateString())
+    const firstRoute = viewableItems.find((token) => typeof token.item !== "string")?.item as RouteItem | undefined
+    if (firstRoute) topHour.value = new Date(firstRoute.trains[0].departureTime).getHours()
+  }
+
+  const hourIndexEntries = useMemo(() => {
+    const entries: HourIndexEntry[] = []
+    const targetDate = visibleDate ?? displayData.find((item) => typeof item === "string")
+    let date: string | null = null
+    displayData.forEach((item, index) => {
+      if (typeof item === "string") {
+        date = item
+        return
+      }
+      if (date !== targetDate) return
+      const hour = new Date(item.trains[0].departureTime).getHours()
+      if (entries.at(-1)?.hour !== hour) entries.push({ hour, index })
+    })
+    return entries
+  }, [displayData, visibleDate])
+  const showHourIndex = hourIndexEnabled && hourIndexEntries.length >= 4
+
+  const scrollToHour = ({ index }: HourIndexEntry) => {
+    // Keep the date header in view when jumping to the first train of the day
+    const target = typeof displayData[index - 1] === "string" ? index - 1 : index
+    flashListRef.current?.scrollToIndex({ index: target, animated: false })
+  }
 
   // Start over from the requested date
   useEffect(() => {
@@ -543,29 +585,37 @@ export function RouteListScreen() {
       )}
 
       {displayData.length > 0 && (
-        <FlashList
-          key={`route-list-${hideSlowTrains}`}
-          ref={flashListRef}
-          renderItem={renderRouteCard}
-          keyExtractor={(item) =>
-            typeof item === "string"
-              ? item
-              : item.trains.map((train) => `${train.trainNumber}-${train.departureTimeString}`).join()
-          }
-          data={displayData}
-          contentContainerStyle={{
-            paddingTop: spacing[4],
-            paddingHorizontal: spacing[3],
-            paddingBottom: shouldShowWarning ? spacing[8] + spacing[5] : spacing[3],
-          }}
-          initialScrollIndex={initialScrollIndex}
-          // so the list will re-render when the ride route changes, and so the item will be marked
-          extraData={[rideRoute, routePlanDate, trains.status, loadingDate, hideSlowTrains, maxChanges]}
-          ListFooterComponent={
-            <DateScroll setTime={loadNextDayData} currenTime={nextDayDate.getTime()} isLoadingDate={isNextDayLoading} />
-          }
-          ListFooterComponentStyle={{ paddingBottom: spacing[3] }}
-        />
+        <View style={styles.listContainer}>
+          <FlashList
+            key={`route-list-${hideSlowTrains}`}
+            ref={flashListRef}
+            renderItem={renderRouteCard}
+            keyExtractor={(item) =>
+              typeof item === "string"
+                ? item
+                : item.trains.map((train) => `${train.trainNumber}-${train.departureTimeString}`).join()
+            }
+            data={displayData}
+            onViewableItemsChanged={onViewableItemsChanged}
+            viewabilityConfig={VIEWABILITY_CONFIG}
+            // The native scroll indicator would sit on top of the hour index
+            showsVerticalScrollIndicator={!showHourIndex}
+            contentContainerStyle={{
+              paddingTop: spacing[4],
+              paddingStart: spacing[3],
+              paddingEnd: showHourIndex ? spacing[5] + spacing[1] : spacing[3],
+              paddingBottom: shouldShowWarning ? spacing[8] + spacing[5] : spacing[3],
+            }}
+            initialScrollIndex={initialScrollIndex}
+            // so the list will re-render when the ride route changes, and so the item will be marked
+            extraData={[rideRoute, routePlanDate, trains.status, loadingDate, hideSlowTrains, maxChanges]}
+            ListFooterComponent={
+              <DateScroll setTime={loadNextDayData} currenTime={nextDayDate.getTime()} isLoadingDate={isNextDayLoading} />
+            }
+            ListFooterComponentStyle={{ paddingBottom: spacing[3] }}
+          />
+          {showHourIndex && <HourIndexBar entries={hourIndexEntries} topHour={topHour} onSelect={scrollToHour} />}
+        </View>
       )}
 
       {/* A failed background refetch sets "not-found" in the store directly, bypassing the
@@ -588,6 +638,9 @@ export function RouteListScreen() {
 const styles = StyleSheet.create((theme) => ({
   root: {
     backgroundColor: theme.colors.background,
+    flex: 1,
+  },
+  listContainer: {
     flex: 1,
   },
 }))
