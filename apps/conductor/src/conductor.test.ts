@@ -557,6 +557,7 @@ describe("resend email bridge", () => {
       "Thanks\n\n> > Earlier",
     )
     expect(cleanQuotedReply(`Thanks\n\nWe fixed it.\nBetter Rail Support • Ref: [#${threadId}]`)).toBe("Thanks\n\nWe fixed it.")
+    expect(cleanQuotedReply(`Thanks\n\n> We fixed it.\n>\n> --------------\n> Ref: [#${threadId}]`)).toBe("Thanks\n\n> We fixed it.")
     expect(cleanQuotedReply("> Better Rail Support is great")).toBe("> Better Rail Support is great")
 
     const text = htmlToText("<p>Hello <b>team</b>,</p><p>The app is <i>great</i>!<br/>Thanks.</p>")
@@ -813,7 +814,8 @@ describe("resend email bridge", () => {
     expect(resend.sentEmails[0].subject).toBe("Re: Ticket purchase crash")
     expect(resend.sentEmails[0].reply_to).toBe(`feedback+${threadId}@better-rail.co.il`)
     expect(resend.sentEmails[0].text).toContain("Fixed in the new update!")
-    expect(resend.sentEmails[0].text).toContain(`Better Rail Support • Ref: [#${threadId}]`)
+    expect(resend.sentEmails[0].text).toEndWith(`\r\n--------------\r\nRef: [#${threadId}]`)
+    expect(resend.sentEmails[0].html).not.toContain("Better Rail Support &bull;")
     expect(resend.sentEmails[0].html).toContain('dir="ltr"')
     expect(resend.sentEmails[0].headers?.["In-Reply-To"]).toBe("<CAD456@mail.gmail.com>")
     expect(resend.sentEmails[0].headers?.["References"]).toContain("<CAD123@mail.gmail.com>")

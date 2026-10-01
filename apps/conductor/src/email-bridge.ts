@@ -189,8 +189,9 @@ export function chunkEmailBody(
 
 const QUOTED_BLANK_RE = /^[ \t]*>[ \t>]*$/
 const FOOTER_SEPARATOR_RE = /^[ \t>]*-{2,}[ \t]*$/
-// Our footer at any quote depth, or unquoted when an HTML-only reply was converted to text
-const FOOTER_RE = /^[ \t>]*Better Rail Support[^\w\r\n]{0,8}Ref:\s*\[#\d+\][ \t]*$/i
+// Our footer at any quote depth, or unquoted when an HTML-only reply was converted to text.
+// The "Better Rail Support" label is optional, since older replies still carry it
+const FOOTER_RE = /^[ \t>]*(?:Better Rail Support[^\w\r\n]{0,8})?Ref:\s*\[#\d+\][ \t]*$/i
 
 export function cleanQuotedReply(text: string): string {
   const kept: string[] = []
@@ -435,7 +436,7 @@ export class EmailBridge {
 
     const subject = formatReplySubject(threadContext.subject)
     // Not "-- ", which clients strip as a signature when quoting, taking the Ref fallback with it
-    const emailBody = enforceRfcLineLength(`${replyText}\n\n--------------\nBetter Rail Support • Ref: [#${channelId}]`)
+    const emailBody = enforceRfcLineLength(`${replyText}\n\n--------------\nRef: [#${channelId}]`)
 
     const headers: Record<string, string> = {}
     const threadRef = `<thread-${channelId}@better-rail.co.il>`
