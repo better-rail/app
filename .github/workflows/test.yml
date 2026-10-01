@@ -27,3 +27,12 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun test
         working-directory: apps/server
+
+  test-conductor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun test && bun run check
+        working-directory: apps/conductor
