@@ -13,7 +13,7 @@ export type TextDirectionInfo = {
 
 export function detectTextDirection(text: string): TextDirectionInfo {
   const match = text.match(
-    /([֐-׿יִ-ﭏ])|([؀-ۿݐ-ݿࢠ-ࣿﭐ-﷿ﹰ-﻿])|([a-zA-ZÀ-ɏ])/u,
+    /([\u0590-\u05FF\uFB1D-\uFB4F])|([\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF])|([a-zA-Z\u00C0-\u024F])/u,
   )
   if (match?.[1]) return { dir: "rtl", align: "right", lang: "he" }
   if (match?.[2]) return { dir: "rtl", align: "right", lang: "ar" }
