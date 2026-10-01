@@ -215,7 +215,7 @@ function RootLayout() {
     // After the widget lookup, so its properties are sent this launch
     trackInstalledWidgets().finally(identifyPosthogUser)
 
-    storage.load("appLanguage").then((storedLanguageCode) => {
+    storage.load("appLanguage").then(async (storedLanguageCode) => {
       const iosSettingsLanguage = getLanguageChangedInIOSSettings()
       const languageCode = iosSettingsLanguage ?? storedLanguageCode
 
@@ -223,7 +223,8 @@ function RootLayout() {
       if (iosSettingsLanguage && isRTLLanguage(iosSettingsLanguage) !== I18nManager.isRTL) {
         changeUserLanguage(iosSettingsLanguage)
       } else if (languageCode) {
-        if (iosSettingsLanguage) storage.save("appLanguage", iosSettingsLanguage)
+        // Saved before setUserLanguage marks it synced, or a lost write reverts the choice next launch
+        if (iosSettingsLanguage) await storage.save("appLanguage", iosSettingsLanguage)
         setUserLanguage(languageCode)
         setLocaleReady(true)
         setAnalyticsUserProperty("user_locale", languageCode)
