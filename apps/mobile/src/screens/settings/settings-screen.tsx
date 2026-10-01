@@ -6,7 +6,7 @@ import { SettingBox } from "./components/settings-box"
 import { getVersion, getBuildNumber } from "react-native-device-info"
 import { translate, userLocale } from "@/i18n"
 import { useRouter } from "expo-router"
-import { SETTING_GROUP } from "./settings-styles"
+import { settingsStyles } from "./settings-styles"
 import { useIsDarkMode, useIsBetaTester } from "@/hooks"
 import { useRoutePlanStore } from "@/models"
 import { shareApp } from "./helpers/app-share-sheet"
@@ -50,7 +50,7 @@ export function SettingsScreen() {
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
       translucent
     >
-      <View style={SETTING_GROUP}>
+      <View style={settingsStyles.group}>
         <SettingBox
           testID="settings-language"
           first
@@ -69,7 +69,7 @@ export function SettingsScreen() {
         />
       </View>
 
-      <View style={SETTING_GROUP}>
+      <View style={settingsStyles.group}>
         {Platform.OS === "ios" ? (
           <SettingBox
             first
@@ -95,7 +95,7 @@ export function SettingsScreen() {
       </View>
 
       {Platform.OS === "ios" && userLocale !== "ar" && (
-        <View style={SETTING_GROUP}>
+        <View style={settingsStyles.group}>
           <SettingBox
             first
             last
@@ -107,12 +107,12 @@ export function SettingsScreen() {
       )}
 
       {Platform.OS === "android" && (
-        <View style={SETTING_GROUP}>
+        <View style={settingsStyles.group}>
           <SettingBox first last title={translate("settings.addWidget") ?? ""} icon="📱" onPress={handleAddAndroidWidget} />
         </View>
       )}
 
-      <View style={SETTING_GROUP}>
+      <View style={settingsStyles.group}>
         <SettingBox first title={translate("settings.share") ?? ""} icon="🕺" onPress={shareApp} />
         <SettingBox
           title={Platform.select({ ios: translate("settings.rateIOS"), android: translate("settings.rateAndroid") }) ?? ""}
