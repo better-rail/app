@@ -613,6 +613,7 @@ const stations: Station[] = [
     lat: 32.622003,
     lon: 35.294721,
     image: require("../../assets/station-images/afula.jpg"),
+    alias: ["רפאל איתן", "רפול", "Rafael Eitan", "Raful", "Рафаэль Эйтан", "رفائيل إيتان"],
   },
   {
     id: "1280",
