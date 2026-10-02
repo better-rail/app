@@ -14,12 +14,21 @@ import {
 import LinearGradient from "react-native-linear-gradient"
 import TouchableScale, { type TouchableScaleProps } from "react-native-touchable-scale"
 import { StyleSheet, withUnistyles } from "react-native-unistyles"
-import { getStationCardHeight } from "./station-card-height"
 import { Text } from "@/components/text/text"
 import { color } from "@/theme"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 
-export { getStationCardHeight }
+export function getStationCardHeight(screenHeight: number, screenWidth?: number): number {
+  if (screenWidth && (screenWidth >= 600 || screenWidth > screenHeight)) {
+    return Math.round(Math.min(175, Math.max(125, screenHeight < 680 ? 128 : screenWidth * 0.38)))
+  }
+
+  if (screenHeight > 900) return 190
+  if (screenHeight > 780) return 178.5
+  if (screenHeight > 730) return 157.5
+  if (screenHeight > 600) return 135
+  return 120
+}
 
 const ThemedTouchableScale = withUnistyles(TouchableScale)
 const isDarkMode = Appearance.getColorScheme() === "dark"
