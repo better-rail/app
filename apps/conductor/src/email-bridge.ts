@@ -1,6 +1,7 @@
 import { type ConductorConfig, isSnowflake, SUPPORT_EMAIL_FROM } from "./config"
 import type { DiscordApi, DiscordChannel, DiscordMessage } from "./discord"
 import type { ResendApi, ResendReceivedEmail } from "./resend"
+import { enforceRfcLineLength, formatEmailHtml } from "./templates/reply"
 
 export type SlashCommandInteraction = {
   id: string
@@ -121,65 +122,12 @@ export function formatReplySubject(originalSubject?: string): string {
   return `Re: ${clean}`
 }
 
-export function detectTextDirection(text: string): {
-  dir: "ltr" | "rtl"
-  align: "left" | "right"
-  lang: "en" | "he" | "ar"
-} {
-  const match = text.match(
-    /([\u0590-\u05FF\uFB1D-\uFB4F])|([\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF])|([a-zA-Z\u00C0-\u024F])/u,
-  )
-  if (match?.[1]) return { dir: "rtl", align: "right", lang: "he" }
-  if (match?.[2]) return { dir: "rtl", align: "right", lang: "ar" }
-  return { dir: "ltr", align: "left", lang: "en" }
-}
-
-export function formatEmailHtml(text: string, threadId: string): string {
-  const { dir, align, lang } = detectTextDirection(text)
-
-  const escapeHtml = (str: string) =>
-    str
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-
-  const paragraphs = text
-    .split(/\n{2,}/)
-    .map((p) => p.trim())
-    .filter(Boolean)
-    .map(
-      (p) =>
-        `<p style="margin: 0 0 16px 0; line-height: 1.6; font-size: 16px; color: #1f2937;">${escapeHtml(p).replace(/\n/g, "<br />")}</p>`,
-    )
-    .join("\n")
-
-  return `<!DOCTYPE html>
-<html lang="${lang}" dir="${dir}">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-</head>
-<body style="margin: 0; padding: 0; background-color: #ffffff; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;">
-  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;">
-    <tr>
-      <td align="${align}" dir="${dir}" style="padding: 20px 16px; direction: ${dir}; text-align: ${align};">
-        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; border-collapse: collapse; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-          <tr>
-            <td dir="${dir}" style="direction: ${dir}; text-align: ${align}; font-size: 16px; line-height: 1.6; color: #1f2937;">
-              ${paragraphs || '<p style="margin: 0 0 16px 0;">(Empty message)</p>'}
-              <div style="border-top: 1px solid #e5e7eb; margin: 24px 0 12px 0;"></div>
-              <p style="margin: 0; font-size: 13px; line-height: 1.4; color: #6b7280;">Better Rail Support &bull; Ref: [#${escapeHtml(threadId)}]</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`
-}
+export {
+  detectTextDirection,
+  enforceRfcLineLength,
+  formatEmailHtml,
+  type TextDirectionInfo,
+} from "./templates/reply"
 
 export function htmlToText(html: string): string {
   return html
@@ -239,24 +187,52 @@ export function chunkEmailBody(
   return { chunks: chunks.length ? chunks : ["(Empty message)"] }
 }
 
+const QUOTED_BLANK_RE = /^[ \t]*>[ \t>]*$/
+const FOOTER_SEPARATOR_RE = /^[ \t>]*-{2,}[ \t]*$/
+// Our footer at any quote depth, or unquoted when an HTML-only reply was converted to text.
+// The "Better Rail Support" label is optional, since older replies still carry it
+const FOOTER_RE = /^[ \t>]*(?:Better Rail Support[^\w\r\n]{0,8})?Ref:\s*\[#\d+\][ \t]*$/i
+
+export function cleanQuotedReply(text: string): string {
+  const kept: string[] = []
+  const isFooterResidue = (line: string) => QUOTED_BLANK_RE.test(line) || FOOTER_SEPARATOR_RE.test(line)
+  for (const line of text.split(/\r?\n/)) {
+    if (FOOTER_RE.test(line)) {
+      while (kept.length && isFooterResidue(kept[kept.length - 1])) kept.pop()
+      continue
+    }
+    kept.push(line)
+  }
+  while (kept.length && (QUOTED_BLANK_RE.test(kept[kept.length - 1]) || !kept[kept.length - 1].trim())) kept.pop()
+  return kept.join("\n")
+}
+
+// Caps a header field for Discord's 2000-char limit without splitting surrogate pairs
+function truncateField(value: string, max: number): string {
+  const chars = Array.from(value)
+  return chars.length > max ? `${chars.slice(0, max - 1).join("")}…` : value
+}
+
+// Keeps the address intact, since findStarterEmail reads it back from the header
+function formatSender(from: string, max = 300): string {
+  if (Array.from(from).length <= max) return from
+  const address = extractSenderEmail(from)
+  if (!address.includes("@") || address === from.trim()) return truncateField(from, max)
+  return `${truncateField(from, max - address.length - 3)} <${address}>`
+}
+
 export function formatEmailHeader(
   from: string,
   subject?: string,
   isFollowUp = false,
   messageId?: string,
 ): string {
-  const lines: string[] = []
-  if (isFollowUp) {
-    lines.push(`**Follow-up Email from:** \`${from}\``)
-  } else {
-    lines.push(`**New Email from:** \`${from}\``)
-    lines.push(`**Subject:** ${subject || "(No Subject)"}`)
-  }
-  if (messageId) {
-    lines.push(`**Message-ID:** \`${messageId}\``)
-  }
-  lines.push(HEADER_SEPARATOR)
-  return lines.join("\n")
+  return [
+    `**${isFollowUp ? "Follow-up" : "New"} Email from:** \`${formatSender(from)}\``,
+    ...(!isFollowUp ? [`**Subject:** ${truncateField(subject || "(No Subject)", 1000)}`] : []),
+    ...(messageId ? [`**Message-ID:** \`${messageId}\``] : []),
+    HEADER_SEPARATOR,
+  ].join("\n")
 }
 
 async function downloadAttachment(url: string, contentType?: string): Promise<Blob> {
@@ -351,9 +327,10 @@ export class EmailBridge {
       targetThreadId = newThread.id
     }
 
-    const bodyContent = rawBody || "(No message body)"
+    const bodyContent = cleanQuotedReply(rawBody) || "(No message body)"
     const parsed = chunkEmailBody(bodyContent)
-    const overflowFile = parsed.overflowFile
+    // The attachment is the raw body, before quoted-footer cleanup
+    const overflowFile = parsed.overflowFile && { ...parsed.overflowFile, content: rawBody }
     // Shorten separator runs so a body chunk can't pass as a header message
     const chunks = parsed.chunks.map((c) => c.replace(/-{30,}|─{30,}/g, (run) => run[0].repeat(10)))
     const messageId = extractEmailMessageId(email)
@@ -458,7 +435,8 @@ export class EmailBridge {
     }
 
     const subject = formatReplySubject(threadContext.subject)
-    const emailBody = `${replyText}\n\n--------------\nBetter Rail Support • Ref: [#${channelId}]`
+    // Not "-- ", which clients strip as a signature when quoting, taking the Ref fallback with it
+    const emailBody = enforceRfcLineLength(`${replyText}\n\n--------------\nRef: [#${channelId}]`)
 
     const headers: Record<string, string> = {}
     const threadRef = `<thread-${channelId}@better-rail.co.il>`

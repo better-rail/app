@@ -4,8 +4,10 @@ import type { ConductorConfig } from "./config"
 import { DiscordApi, type DiscordChannel, type DiscordMessage, type DiscordRole } from "./discord"
 import {
   chunkEmailBody,
+  cleanQuotedReply,
   detectTextDirection,
   EmailBridge,
+  enforceRfcLineLength,
   extractSenderEmail,
   extractThreadId,
   formatEmailHtml,
@@ -57,6 +59,7 @@ class FakeDiscord extends DiscordApi {
   channels = new Map<string, DiscordChannel>()
   messages = new Map<string, DiscordMessage[]>()
   threadCounter = 1000n
+  uploads: Blob[] = []
 
   constructor() {
     super("test-only")
@@ -133,6 +136,8 @@ class FakeDiscord extends DiscordApi {
           if (typeof payloadJson === "string") {
             content = JSON.parse(payloadJson).content || ""
           }
+          const file = body.get("files[0]")
+          if (file instanceof Blob) this.uploads.push(file)
         } else if (body && typeof body === "object" && "content" in body) {
           content = (body as { content: string }).content
         }
@@ -514,6 +519,46 @@ describe("resend email bridge", () => {
     expect(detectTextDirection("مرحبا بكم")).toEqual({ dir: "rtl", align: "right", lang: "ar" })
     expect(formatEmailHtml("Hello", threadId)).toContain('dir="ltr"')
     expect(formatEmailHtml("שלום", threadId)).toContain('dir="rtl"')
+    expect(formatEmailHtml("<script>alert('xss')</script>", threadId)).toContain("&lt;script&gt;")
+    expect(formatEmailHtml("", threadId)).toContain("(Empty message)")
+    expect(formatEmailHtml("Hello", threadId)).toContain(`Ref: [#${threadId}]`)
+
+    const longUrl = "https://better-rail.co.il/" + "x".repeat(750)
+    expect(formatEmailHtml(longUrl, threadId)).toContain(
+      `<p dir="ltr" style="margin: 0 0 16px 0; line-height: 1.6; font-size: 16px; color: #1f2937; direction: ltr; text-align: left;">${longUrl}</p>`,
+    )
+    expect(formatEmailHtml("It costs $$5 and $& and $' end", threadId)).toContain("It costs $$5 and $&amp; and $' end</p>")
+
+    const crlf = formatEmailHtml("A\r\n\r\nB\r\nC", threadId)
+    expect(crlf).not.toContain("\r<br")
+    expect(crlf).toContain("A</p>")
+    expect(crlf).toContain("B<br />\r\nC</p>")
+
+    expect(formatEmailHtml("Use {{threadId}} literally", threadId)).toContain("Use {{threadId}} literally")
+
+    for (const sample of ["Word ".repeat(300), "שלום ".repeat(300), "https://x.co/" + "&".repeat(1200), "😀".repeat(1200)]) {
+      for (const line of formatEmailHtml(sample, threadId).split("\r\n")) {
+        expect(Buffer.byteLength(line)).toBeLessThanOrEqual(998)
+      }
+    }
+    for (const line of enforceRfcLineLength("< " + "word ".repeat(300)).split("\r\n")) {
+      expect(Buffer.byteLength(line)).toBeLessThanOrEqual(998)
+    }
+
+    const unbreakable = "https://x.co/" + "a".repeat(1200)
+    expect(enforceRfcLineLength(`See ${unbreakable} now`)).toBe(`See\r\n${unbreakable}\r\nnow`)
+
+    expect(
+      cleanQuotedReply(
+        `סבבה\n\nOn Wed, 30 Sept 2026, Better Rail wrote:\n\n> אנחנו נסדר את זה.\n>\n> --------------\n> Better Rail Support • Ref: [#${threadId}]\n>`,
+      ),
+    ).toBe("סבבה\n\nOn Wed, 30 Sept 2026, Better Rail wrote:\n\n> אנחנו נסדר את זה.")
+    expect(cleanQuotedReply(`Thanks\n\n> > Earlier\n> >\n> > Better Rail Support • Ref: [#${threadId}]`)).toBe(
+      "Thanks\n\n> > Earlier",
+    )
+    expect(cleanQuotedReply(`Thanks\n\nWe fixed it.\nBetter Rail Support • Ref: [#${threadId}]`)).toBe("Thanks\n\nWe fixed it.")
+    expect(cleanQuotedReply(`Thanks\n\n> We fixed it.\n>\n> --------------\n> Ref: [#${threadId}]`)).toBe("Thanks\n\n> We fixed it.")
+    expect(cleanQuotedReply("> Better Rail Support is great")).toBe("> Better Rail Support is great")
 
     const text = htmlToText("<p>Hello <b>team</b>,</p><p>The app is <i>great</i>!<br/>Thanks.</p>")
     expect(text).toContain("Hello team,")
@@ -603,6 +648,25 @@ describe("resend email bridge", () => {
     expect(result.success).toBe(true)
     expect(resend.sentEmails[0].headers?.["In-Reply-To"]).toBe("<real-2@example.com>")
     expect(resend.sentEmails[0].headers?.["References"]).not.toContain("<fake@evil.com>")
+  })
+
+  test("long headers keep the sender address, and the overflow attachment is the raw body", async () => {
+    const { discord, bridge } = createEmailBridge()
+    const rawBody = `${"Long report. ".repeat(400)}\n\n> Earlier\n> Better Rail Support • Ref: [#1548800000000001001]`
+    const { threadId } = await bridge.handleInboundEmail({
+      id: "email_long",
+      from: `${"N".repeat(400)} <long@example.com>`,
+      to: ["feedback@better-rail.co.il"],
+      subject: `${"s".repeat(998)}😀 tail`,
+      text: rawBody,
+    })
+    const messages = discord.messages.get(threadId)!
+    expect(messages[0].content).toContain("… <long@example.com>`")
+    expect(messages[0].content).toContain("😀…")
+    expect(messages[0].content).not.toMatch(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])/)
+    expect(messages[0].content.length).toBeLessThanOrEqual(2000)
+    expect(messages.at(-1)!.content).toContain("unedited")
+    expect(await discord.uploads.at(-1)!.text()).toBe(rawBody)
   })
 
   test("inbound email downloads valid attachments and rejects oversized ones", async () => {
@@ -750,7 +814,8 @@ describe("resend email bridge", () => {
     expect(resend.sentEmails[0].subject).toBe("Re: Ticket purchase crash")
     expect(resend.sentEmails[0].reply_to).toBe(`feedback+${threadId}@better-rail.co.il`)
     expect(resend.sentEmails[0].text).toContain("Fixed in the new update!")
-    expect(resend.sentEmails[0].text).toContain(`Better Rail Support • Ref: [#${threadId}]`)
+    expect(resend.sentEmails[0].text).toEndWith(`\r\n--------------\r\nRef: [#${threadId}]`)
+    expect(resend.sentEmails[0].html).not.toContain("Better Rail Support &bull;")
     expect(resend.sentEmails[0].html).toContain('dir="ltr"')
     expect(resend.sentEmails[0].headers?.["In-Reply-To"]).toBe("<CAD456@mail.gmail.com>")
     expect(resend.sentEmails[0].headers?.["References"]).toContain("<CAD123@mail.gmail.com>")
