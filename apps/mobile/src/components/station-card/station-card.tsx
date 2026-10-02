@@ -14,9 +14,12 @@ import {
 import LinearGradient from "react-native-linear-gradient"
 import TouchableScale, { type TouchableScaleProps } from "react-native-touchable-scale"
 import { StyleSheet, withUnistyles } from "react-native-unistyles"
+import { getStationCardHeight } from "./station-card-height"
 import { Text } from "@/components/text/text"
 import { color } from "@/theme"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
+
+export { getStationCardHeight }
 
 const ThemedTouchableScale = withUnistyles(TouchableScale)
 const isDarkMode = Appearance.getColorScheme() === "dark"
@@ -34,10 +37,11 @@ export type StationCardBadge = {
   icon?: ImageSourcePropType
   tone?: "highlight" | "neutral"
 }
+
 export function StationCard(props: StationCardProps) {
   const { name, image, style, loading, badges, ...rest } = props
   const { width, height: screenHeight } = useWindowDimensions()
-  const cardHeight = Math.round(Math.min(175, Math.max(125, screenHeight < 680 ? 128 : width * 0.38)))
+  const cardHeight = getStationCardHeight(screenHeight, width)
 
   const badgeRow = !!badges?.length && (
     <View style={styles.badges}>
