@@ -3,6 +3,7 @@
 import {
   ActivityIndicator,
   Appearance,
+  Dimensions,
   Image,
   ImageBackground,
   Platform,
@@ -49,7 +50,8 @@ export type StationCardBadge = {
 
 export function StationCard(props: StationCardProps) {
   const { name, image, style, loading, badges, ...rest } = props
-  const { width, height: screenHeight } = useWindowDimensions()
+  const { width } = useWindowDimensions()
+  const screenHeight = Dimensions.get("screen").height
   const cardHeight = getStationCardHeight(screenHeight, width)
 
   const badgeRow = !!badges?.length && (
