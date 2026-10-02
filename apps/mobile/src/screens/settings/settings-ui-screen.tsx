@@ -7,7 +7,7 @@ import { SettingBox } from "./components/settings-box"
 import { ColorSchemePicker } from "./components/color-scheme-picker"
 import { spacing } from "@/theme"
 import { translate } from "@/i18n"
-import { SETTING_GROUP } from "./settings-styles"
+import { settingsStyles } from "./settings-styles"
 import { useIsDarkMode } from "@/hooks"
 import { useShallow } from "zustand/react/shallow"
 import { useSettingsStore } from "@/models"
@@ -74,7 +74,7 @@ export function UISettingsScreen() {
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
       translucent
     >
-      <View style={SETTING_GROUP}>
+      <View style={settingsStyles.group}>
         <ColorSchemePicker value={colorScheme} onChange={onColorSchemeChange} />
       </View>
 
@@ -83,7 +83,7 @@ export function UISettingsScreen() {
         <RouteCardPreview cardStyle={styles.routeCard} />
       </Animated.View>
 
-      <View style={SETTING_GROUP}>
+      <View style={settingsStyles.group}>
         <SettingBox
           testID="settings-show-train-info"
           first
