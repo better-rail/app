@@ -40,7 +40,15 @@ export default function MainLayout() {
           }}
         />
         <Stack.Screen name="route-list" options={{ headerShown: false }} />
-        <Stack.Screen name="route-details" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="route-details"
+          // The route list opens this screen in place of the split view's pane as the device closes; that push has
+          // nothing to animate from, so it asks for no transition.
+          options={({ route }) => ({
+            headerShown: false,
+            animation: (route.params as { transition?: string } | undefined)?.transition === "none" ? "none" : undefined,
+          })}
+        />
         <Stack.Screen name="station-hours" options={formSheetOptions} />
         <Stack.Screen name="filter" options={formSheetOptions} />
         <Stack.Screen name="fares" options={formSheetOptions} />

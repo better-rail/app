@@ -20,6 +20,8 @@ export type { WarningType }
 export interface RouteListModalProps {
   routesDate: number
   warningType: WarningType
+  /** The width the banner may fill: the route list's own, which is its split view column on wide layouts. */
+  width: number
 }
 
 /**
@@ -28,7 +30,7 @@ export interface RouteListModalProps {
  *
  * For iOS we'll display a native alert, for Android we'll show modal
  */
-export const RouteListWarning = function RouteListWarning({ routesDate, warningType }: RouteListModalProps) {
+export const RouteListWarning = function RouteListWarning({ routesDate, warningType, width }: RouteListModalProps) {
   const [warningVisible, setWarningVisible] = useState(false)
   const [displayWarningSheet, setDisplayWarningSheet] = useState(false)
   const formattedRoutesDate = format(routesDate, "eeee, dd/MM/yyyy", {
@@ -104,9 +106,10 @@ export const RouteListWarning = function RouteListWarning({ routesDate, warningT
         />
       )}
       {displayWarningSheet && useNativeToolbar && (
-        <Stack.Toolbar>
+        // Remounted when the width changes (the device folds or unfolds), as the toolbar keeps its first layout.
+        <Stack.Toolbar key={width}>
           <Stack.Toolbar.View hidesSharedBackground>
-            <GlassView style={styles.toolbarContent} tintColor="rgba(255, 159, 10, 0.55)">
+            <GlassView style={[styles.toolbarContent, { width: width - 32 }]} tintColor="rgba(255, 159, 10, 0.55)">
               {warningContent}
             </GlassView>
           </Stack.Toolbar.View>
@@ -121,10 +124,9 @@ export const RouteListWarning = function RouteListWarning({ routesDate, warningT
   )
 }
 
-const styles = StyleSheet.create((theme, rt) => ({
-  // The toolbar host has no intrinsic size, so the custom view needs an explicit width
+const styles = StyleSheet.create(() => ({
+  // The toolbar host has no intrinsic size, so the custom view gets an explicit width (set inline, from the list's)
   toolbarContent: {
-    width: rt.screen.width - rt.insets.left - rt.insets.right - 32,
     height: 64,
     justifyContent: "center",
     paddingHorizontal: 18,

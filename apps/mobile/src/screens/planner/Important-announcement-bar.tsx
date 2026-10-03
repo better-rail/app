@@ -1,6 +1,5 @@
 import { useEffect } from "react"
-import { TouchableOpacity, useWindowDimensions } from "react-native"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { TouchableOpacity } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import Animated, { useAnimatedStyle, useSharedValue, withDelay, withTiming } from "react-native-reanimated"
 import { useRouter } from "expo-router"
@@ -9,13 +8,16 @@ import { removeHtmlTagsAndEntities } from "@/components/announcements/announceme
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity)
 
-export function ImportantAnnouncementBar({ title }: { title: string }) {
+interface ImportantAnnouncementBarProps {
+  title: string
+  /** The width the bar grows to: the room its header row has, whether that's a screen or a split view column. */
+  width: number
+}
+
+export function ImportantAnnouncementBar({ title, width: barWidth }: ImportantAnnouncementBarProps) {
   const router = useRouter()
   const width = useSharedValue(0)
   const opacity = useSharedValue(0)
-  const { width: windowWidth } = useWindowDimensions()
-  const insets = useSafeAreaInsets()
-  const barWidth = windowWidth - insets.left - insets.right - 106 // 106 is the padding of the screen + header buttons
 
   const onStart = () => {
     width.value = withTiming(barWidth, {
@@ -32,7 +34,9 @@ export function ImportantAnnouncementBar({ title }: { title: string }) {
 
   useEffect(() => {
     onStart()
-  }, [])
+    // Grown, the bar follows its room as the layout changes (the device folds or unfolds).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [barWidth])
 
   const WrapperAnimatedStyle = useAnimatedStyle(() => ({
     width: width.value,

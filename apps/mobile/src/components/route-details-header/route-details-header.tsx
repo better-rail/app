@@ -26,6 +26,7 @@ import { GlassView } from "expo-glass-effect"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 import { HeaderBackButton } from "@/components/header-back-button"
 import { sideInsetPadding } from "@/utils/helpers/safe-area-helpers"
+import { useSplitViewStore } from "@/components/split-view/split-view-store"
 import { RouteStationNameButton } from "./route-station-name-button"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
@@ -79,6 +80,10 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const navigation = useNavigation()
   const insets = useSafeAreaInsets()
   const routeEditDisabled = screenName !== "routeList"
+  // Beside the split view's pane the header shares a column with the list, and its buttons sit in the system's bar,
+  // so the photo only needs to carry the station names.
+  const isSplitExpanded = useSplitViewStore((s) => s.isExpanded)
+  const photoHeight = screenName === "activeRide" ? 155 : isSplitExpanded ? 110 : 200
 
   const stationCardScale = useRef(new RNAnimated.Value(1)).current
 
@@ -412,7 +417,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
         source={originStation?.image}
         style={{
           width: "100%",
-          height: screenName !== "activeRide" ? 200 : 155,
+          height: photoHeight,
           zIndex: 0,
         }}
       >

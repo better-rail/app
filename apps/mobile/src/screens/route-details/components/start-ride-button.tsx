@@ -15,7 +15,9 @@ import { trackEvent } from "@/services/analytics"
 import { requestStoreReview } from "@/utils/helpers/store-review-helpers"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 
-const { width: deviceWidth } = Dimensions.get("screen")
+// Tablets can't start a ride from the active ride screen. iOS says so by idiom: a window width would also match an
+// open iPhone Duo, and would be whatever it was at launch.
+const isTablet = Platform.OS === "ios" ? Platform.isPad : Dimensions.get("screen").width > 768
 
 interface StartRideButtonProps {
   route: RouteItem
@@ -43,7 +45,7 @@ export function StartRideButton(props: StartRideButtonProps) {
    * Check that the device isn't a tablet.
    * The user can only initiate a ride from the route details screen.
    */
-  if (deviceWidth > 768 && screenName !== "routeDetails") return null
+  if (isTablet && screenName !== "routeDetails") return null
 
   /**
    * Check if the ride is 60 minutes away or less from now, and not after the arrival time.

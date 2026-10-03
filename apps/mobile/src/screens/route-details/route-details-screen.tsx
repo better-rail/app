@@ -8,6 +8,7 @@ import { RouteDetailsHeader, Screen } from "@/components"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { logicalSideInsets } from "@/utils/helpers/safe-area-helpers"
 import { useSplitViewStore } from "@/components/split-view/split-view-store"
+import { routeKey } from "@/screens/route-list/components/route-details-pane"
 import { RouteDetailsBody, useRouteDetailsData } from "./route-details-body"
 
 export function RouteDetailsScreen() {
@@ -22,7 +23,11 @@ export function RouteDetailsScreen() {
   )
   const data = useRouteDetailsData(paramsRouteItem, originId, destinationId)
   const insets = useSafeAreaInsets()
-  const [showEntireRoute, setShowEntireRoute] = useState(false)
+  // Opened in place of the split view's pane as the device closes, the screen keeps the pane's full-route view.
+  const [showEntireRoute, setShowEntireRoute] = useState(() => {
+    const { selection, showEntireRoute: paneShowsEntireRoute } = useSplitViewStore.getState()
+    return !!selection && !!paramsRouteItem && routeKey(selection.route) === routeKey(paramsRouteItem) && paneShowsEntireRoute
+  })
 
   // Opened from the route list, this screen shows what the split view's pane shows beside the list once the split
   // view expands (the device opens or rotates). Hand the trip to the pane then and leave without a transition, so
@@ -39,6 +44,7 @@ export function RouteDetailsScreen() {
     const { routes, index } = navigation.getState() ?? { routes: [], index: 0 }
     if (routes[index - 1]?.name !== "route-list") return
     useSplitViewStore.getState().setSelection({ route: data.routeItem, originId, destinationId })
+    useSplitViewStore.getState().setShowEntireRoute(showEntireRoute)
     navigation.setOptions({ animation: "none" })
     router.back()
     // eslint-disable-next-line react-hooks/exhaustive-deps

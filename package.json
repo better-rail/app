@@ -42,7 +42,8 @@
     "react-native-push-notification@8.1.1": "patches/react-native-push-notification@8.1.1.patch",
     "react-native-prompt-android@1.1.0": "patches/react-native-prompt-android@1.1.0.patch",
     "react-native-screens@4.28.0": "patches/react-native-screens@4.28.0.patch",
-    "expo-notifications@58.0.9": "patches/expo-notifications@58.0.9.patch"
+    "expo-notifications@58.0.9": "patches/expo-notifications@58.0.9.patch",
+    "react-native-nitro-modules@0.35.7": "patches/react-native-nitro-modules@0.35.7.patch"
   },
   "overrides": {
     "react-native": "0.88.0-rc.3",

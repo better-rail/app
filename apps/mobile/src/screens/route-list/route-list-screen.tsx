@@ -8,7 +8,7 @@ import { FlashList, type FlashListRef } from "@shopify/flash-list"
 import { useNetworkState } from "expo-network"
 import { useQuery } from "react-query"
 import { closestIndexTo } from "date-fns"
-import { useRouter, useLocalSearchParams, Redirect } from "expo-router"
+import { useRouter, useLocalSearchParams, useIsFocused, Redirect } from "expo-router"
 import { useObserve } from "expo-observe"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useShallow } from "zustand/react/shallow"
@@ -171,25 +171,47 @@ export function RouteListScreen() {
 
   // While the split view is expanded (iPhone Duo's open inner display, iPad) the selected trip's details show in
   // the pane beside the list, so a tap picks the trip instead of opening the route details screen.
-  const { isSplitExpanded, selectedRoute, showEntireRoute, setSelection, setShowEntireRoute } = useSplitViewStore(
-    useShallow((s) => ({
-      isSplitExpanded: s.isExpanded,
-      selectedRoute: s.selection?.route,
-      showEntireRoute: s.showEntireRoute,
-      setSelection: s.setSelection,
-      setShowEntireRoute: s.setShowEntireRoute,
-    })),
-  )
+  const { isSplitExpanded, selectedRoute, showEntireRoute, setSelection, setShowEntireRoute, setRouteListMounted } =
+    useSplitViewStore(
+      useShallow((s) => ({
+        isSplitExpanded: s.isExpanded,
+        selectedRoute: s.selection?.route,
+        showEntireRoute: s.showEntireRoute,
+        setSelection: s.setSelection,
+        setShowEntireRoute: s.setShowEntireRoute,
+        setRouteListMounted: s.setRouteListMounted,
+      })),
+    )
   const selectedRouteKey = selectedRoute ? routeKey(selectedRoute) : undefined
 
   useEffect(() => {
+    setRouteListMounted(true)
+    return () => setRouteListMounted(false)
+  }, [setRouteListMounted])
+
+  useEffect(() => {
     setSelection(null)
+    // Another search starts afresh, and so does coming back to the list from the planner.
+    return () => setSelection(null)
   }, [originId, destinationId, setSelection])
 
-  const openRouteDetails = (routeItem: RouteItem) => {
+  const openRouteDetails = (routeItem: RouteItem, transition?: "none") => {
     useNavigationParamsStore.getState().setRouteDetails({ routeItem, originId, destinationId })
-    router.push("/route-details")
+    router.push(transition ? { pathname: "/route-details", params: { transition } } : "/route-details")
   }
+
+  // Closing the device collapses the split view and takes the pane, and the trip it showed, off screen. Open that
+  // trip's details screen in its place, without a transition, so the layout simply changes under the user; opening
+  // the device again, the details screen hands the trip back to the pane the same way.
+  const isFocused = useIsFocused()
+  const wasSplitExpanded = useRef(isSplitExpanded)
+  useEffect(() => {
+    const collapsed = wasSplitExpanded.current && !isSplitExpanded
+    wasSplitExpanded.current = isSplitExpanded
+    if (!collapsed || !selectedRoute || !isFocused) return
+    openRouteDetails(selectedRoute, "none")
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSplitExpanded])
   const hasRecordedSearch = useRef(false)
 
   // Prompt the user once to choose whether to show the "Train Info" row on route cards.
@@ -606,7 +628,8 @@ export function RouteListScreen() {
               contentContainerStyle={{
                 paddingTop: spacing[4],
                 paddingHorizontal: spacing[3],
-                paddingBottom: shouldShowWarning ? spacing[8] + spacing[5] : spacing[3],
+                // Clear of the warning banner in the bottom toolbar (64pt tall, floating above the home indicator).
+                paddingBottom: shouldShowWarning ? 64 + spacing[6] + insets.bottom : spacing[3],
               }}
               initialScrollIndex={initialScrollIndex}
               // so the list will re-render when the ride route changes, and so the item will be marked
@@ -638,7 +661,11 @@ export function RouteListScreen() {
           {allRoutesHiddenByFilter && <FilteredTrainsMessage maxChanges={maxChanges} onShowAll={() => setMaxChanges(null)} />}
 
           {shouldShowWarning && !trains.isLoading && (
-            <RouteListWarning routesDate={trains.data[0].trains[0].departureTime} warningType={resultType as WarningType} />
+            <RouteListWarning
+              routesDate={trains.data[0].trains[0].departureTime}
+              warningType={resultType as WarningType}
+              width={listWidth}
+            />
           )}
         </View>
       </View>

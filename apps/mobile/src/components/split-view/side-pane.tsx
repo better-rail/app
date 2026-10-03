@@ -1,6 +1,5 @@
 import { I18nManager, ScrollView, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { usePathname } from "expo-router"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HapticFeedback from "react-native-haptic-feedback"
 import { useShallow } from "zustand/react/shallow"
@@ -14,13 +13,17 @@ import { useSplitViewStore } from "./split-view-store"
  * one tap from planning a trip, and the selected trip's details beside the route list.
  */
 export function SidePane() {
-  const pathname = usePathname()
   const insets = useSafeAreaInsets()
-  const { selection, showEntireRoute } = useSplitViewStore(
-    useShallow((s) => ({ selection: s.selection, showEntireRoute: s.showEntireRoute })),
+  const { isRouteListMounted, selection, showEntireRoute } = useSplitViewStore(
+    useShallow((s) => ({
+      isRouteListMounted: s.isRouteListMounted,
+      selection: s.selection,
+      showEntireRoute: s.showEntireRoute,
+    })),
   )
 
-  if (pathname.startsWith("/route-list") || pathname.startsWith("/route-details")) {
+  // Judged by the stack, not the current path: a filter or fares sheet over the list is no reason to swap the pane.
+  if (isRouteListMounted) {
     return <RouteDetailsPane selection={selection} showEntireRoute={showEntireRoute} />
   }
 

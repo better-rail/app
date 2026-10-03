@@ -160,6 +160,7 @@
     "react-native-watch-connectivity@1.1.0": "patches/react-native-watch-connectivity@1.1.0.patch",
     "react-native-prompt-android@1.1.0": "patches/react-native-prompt-android@1.1.0.patch",
     "react-native-quick-actions-shortcuts@1.0.2": "patches/react-native-quick-actions-shortcuts@1.0.2.patch",
+    "react-native-nitro-modules@0.35.7": "patches/react-native-nitro-modules@0.35.7.patch",
     "react-native-push-notification@8.1.1": "patches/react-native-push-notification@8.1.1.patch",
     "expo-notifications@58.0.9": "patches/expo-notifications@58.0.9.patch",
   },
