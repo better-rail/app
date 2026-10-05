@@ -6,7 +6,6 @@ import {
   ImageBackground,
   View,
   Platform,
-  Dimensions,
   ImageSourcePropType,
   ViewStyle,
   Image,
@@ -21,24 +20,14 @@ import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 
 const ThemedTouchableScale = withUnistyles(TouchableScale)
 const isDarkMode = Appearance.getColorScheme() === "dark"
-const { height: deviceHeight } = Dimensions.get("screen")
 
-export let cardHeight = 120
-
-if (deviceHeight > 600) {
-  cardHeight = 135
-}
-
-if (deviceHeight > 730) {
-  cardHeight = 157.5
-}
-
-if (deviceHeight > 780) {
-  cardHeight = 178.5
-}
-
-if (deviceHeight > 900) {
-  cardHeight = 190
+// The stylesheet passes rt.screen.height, so the height updates when a foldable changes its screen size.
+function getCardHeight(screenHeight: number) {
+  if (screenHeight > 900) return 190
+  if (screenHeight > 780) return 178.5
+  if (screenHeight > 730) return 157.5
+  if (screenHeight > 600) return 135
+  return 120
 }
 
 export interface StationCardProps extends TouchableScaleProps {
@@ -130,7 +119,7 @@ export function StationCard(props: StationCardProps) {
   )
 }
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, rt) => ({
   container: {
     borderRadius: 12,
     backgroundColor: theme.colors.inputPlaceholderBackground,
@@ -140,12 +129,12 @@ const styles = StyleSheet.create((theme) => ({
     elevation: 3,
   },
   imagelessCard: {
-    height: cardHeight,
+    height: getCardHeight(rt.screen.height),
     justifyContent: "flex-end",
   },
   emptyCardWrapper: {
     width: "100%",
-    height: cardHeight,
+    height: getCardHeight(rt.screen.height),
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 12,
@@ -158,7 +147,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   background: {
     width: "100%",
-    height: cardHeight,
+    height: getCardHeight(rt.screen.height),
     justifyContent: "flex-end",
   },
   imageBackgroundImage: {

@@ -19,3 +19,7 @@ bun test && bun run check
 ```
 Keep Sentry tracing off; URLs hold tokens.
 
+## Deployment
+
+Railway deploys the `Conductor` service from `main` whenever a merge touches `apps/conductor/**`.
+Build and health check settings live in the Railway service settings (root directory `/apps/conductor`, Dockerfile, `/health`).

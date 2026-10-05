@@ -89,8 +89,8 @@ export function RouteCard(props: RouteCardProps) {
     return `${stops} ${translate("routes.changes")}`
   })()
 
-  // Check if indicators are bloated (short route badge with delay shown)
-  const isBloatedIndicators = isMuchShorter && !isMuchLonger && delay > 0 && !hideSlowTrains
+  // Check if indicators are bloated (short route badge with delay or changes shown)
+  const isBloatedIndicators = isMuchShorter && !isMuchLonger && (delay > 0 || stops > 0) && !hideSlowTrains
   // "12:08 PM" needs the room the dashed lines take at the default font size
   const showDashedLine = shouldShowDashedLine && !isBloatedIndicators && !use12HourClock
 
@@ -210,6 +210,7 @@ export function RouteCard(props: RouteCardProps) {
               stopsText={stopsText}
               isRideActive={props.isActiveRide}
               hideShortRouteBadge={hideSlowTrains}
+              hasChanges={stops > 0}
               isCancelled={isCancelled}
             />
           </View>

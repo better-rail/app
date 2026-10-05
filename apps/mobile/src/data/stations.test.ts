@@ -16,9 +16,19 @@ const appendedStationNames = [
     keywords: ["אלי כהן", "Eli Cohen", "Эли Коэн", "إلي كوهين"],
   },
   {
+    id: "1260",
+    canonicalName: "עפולה ר. איתן",
+    keywords: ["רפאל איתן", "רפול", "Rafael Eitan", "Raful", "Рафаэль Эйтан", "رفائيل إيتان"],
+  },
+  {
     id: "5800",
     canonicalName: "אשדוד עד הלום",
     keywords: ["מטרופול", "Metropol", "Метропол", "متروپول"],
+  },
+  {
+    id: "4100",
+    canonicalName: "בני ברק",
+    keywords: ["רמת החייל", "Ramat HaHayal", "Рамат-ха-Хаяль", "رمات هحيال"],
   },
 ]
 

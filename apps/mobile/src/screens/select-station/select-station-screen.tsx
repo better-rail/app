@@ -165,25 +165,28 @@ export function SelectStationScreen() {
         )}
       </View>
 
-      <FlashList
-        ref={listRef}
-        data={listData}
-        renderItem={({ item }) => renderItem(item)}
-        keyExtractor={(item) => item.id}
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={styles.listContent}
-        extraData={replacingStationId}
-        // Disabled: otherwise FlashList may scroll the list out of view when results change between keystrokes.
-        maintainVisibleContentPosition={{ disabled: true }}
-        ListEmptyComponent={() =>
-          allowedStations ? null : (
-            <View>
-              <RecentSearchesBox selectionType={selectionType} />
-              {recentSearchEntries.length > 1 && <FavoriteRoutes />}
-            </View>
-          )
-        }
-      />
+      <View style={styles.listContainer}>
+        <FlashList
+          ref={listRef}
+          data={listData}
+          renderItem={({ item }) => renderItem(item)}
+          keyExtractor={(item) => item.id}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={styles.listContent}
+          ListFooterComponent={<View style={styles.listFooter} />}
+          extraData={replacingStationId}
+          // Disabled: otherwise FlashList may scroll the list out of view when results change between keystrokes.
+          maintainVisibleContentPosition={{ disabled: true }}
+          ListEmptyComponent={() =>
+            allowedStations ? null : (
+              <View>
+                <RecentSearchesBox selectionType={selectionType} />
+                {recentSearchEntries.length > 1 && <FavoriteRoutes />}
+              </View>
+            )
+          }
+        />
+      </View>
     </Screen>
   )
 }
@@ -193,8 +196,17 @@ const styles = StyleSheet.create((theme, rt) => ({
     backgroundColor: theme.colors.secondaryBackground,
     flex: 1,
   },
+  // Android is edge-to-edge, so the keyboard doesn't resize the screen (iOS uses Screen's KeyboardAvoidingView).
+  listContainer: {
+    flex: 1,
+    paddingBottom: Platform.OS === "android" && rt.insets.ime > 0 ? rt.insets.ime + rt.insets.bottom : 0,
+  },
   listContent: {
-    paddingBottom: rt.insets.bottom + theme.spacing[0],
+    paddingBottom: theme.spacing[0],
+  },
+  // A native view, since FlashList doesn't apply contentContainerStyle changes without a re-render.
+  listFooter: {
+    height: rt.insets.ime > 0 ? 0 : rt.insets.bottom,
   },
   searchBarWrapper: {
     flexDirection: "row",
