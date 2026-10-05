@@ -36,15 +36,25 @@ targets:
       - path: ../../targets/widget/Live Activity/ActivityUtils.swift
       - path: ../../targets/widget/Live Activity/ActivityNotificationsAPI.swift
       - path: ../../targets/widget/Live Activity/TokenRegistry.swift
+      - path: ../../targets/notification-service/ArrivalAlarm.swift
     dependencies:
       - target: WidgetExt
         embed: true
       - target: StationIntent
         embed: true
+      - target: NotificationServiceExt
+        embed: true
+    entitlements:
+      path: Generated/PreviewHost.entitlements
+      properties:
+        com.apple.security.application-groups: [group.il.co.better-rail]
+        # Lets a real APNs push reach the notification service extension on a device.
+        aps-environment: development
     info:
       path: Generated/PreviewHost-Info.plist
       properties:
         CFBundleDisplayName: BR Preview
+        NSAlarmKitUsageDescription: Rings before your stop.
         NSSupportsLiveActivities: true
         NSSupportsLiveActivitiesFrequentUpdates: true
         UILaunchScreen: {}
@@ -117,6 +127,28 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: il.co.better-rail.preview.StationIntent
         PRODUCT_MODULE_NAME: StationIntent
+
+  # Moves the arrival alarm when an arrival-alarm push arrives.
+  NotificationServiceExt:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: ../../targets/notification-service
+        excludes: ["expo-target.config.js", "Info.plist"]
+    entitlements:
+      path: Generated/NotificationServiceExt.entitlements
+      properties:
+        com.apple.security.application-groups: [group.il.co.better-rail]
+    info:
+      path: Generated/NotificationServiceExt-Info.plist
+      properties:
+        CFBundleDisplayName: Better Rail Notifications
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.usernotifications.service
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).NotificationService
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: il.co.better-rail.preview.NotificationService
 
   # ---------------------------------------------------------------- watchOS
   WatchApp:
@@ -202,6 +234,7 @@ schemes:
         PreviewHost: all
         WidgetExt: all
         StationIntent: all
+        NotificationServiceExt: all
     run:
       config: Debug
   WatchApp:

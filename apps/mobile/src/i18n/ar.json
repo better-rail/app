@@ -286,7 +286,21 @@
     "notificationPermission1": "لكي نبقيكم على علم في الوقت الحقيقي بتقدم القطار، يُرجى السماح لنا بإرسال الإشعارات.",
     "notificationPermission2": "نستخدم آلية إشعار فعّالة ولا نرسل إشعارات غير ضرورية.",
     "notificationPermission3": "الإشعارات",
-    "notificationPermission4": "إشعارات دقيقة"
+    "notificationPermission4": "إشعارات دقيقة",
+    "alarmButton": "منبّه الوصول",
+    "alarmMenuTitle": "يُحدَّث وقت المنبّه تلقائيًا حسب التأخيرات. سيصلك إشعار صامت عند كل تغيير.",
+    "alarmLeadOption": "%{minutes} دقائق قبل الوصول",
+    "alarmTurnOff": "إيقاف المنبّه",
+    "alarmSetFor": "المنبّه في %{time}",
+    "alarmTitle": "اقتربت من %{station}",
+    "alarmStop": "إيقاف",
+    "alarmTooLateTitle": "الوصول قريب جدًا",
+    "alarmTooLateMessage": "يصل القطار خلال أقل من %{minutes} دقائق. اختر وقتًا أقصر.",
+    "alarmDeniedTitle": "المنبّهات متوقفة",
+    "alarmDeniedMessage": "لكي يرنّ المنبّه قبل محطتك، اسمح لـ Better Rail بجدولة المنبّهات من الإعدادات.",
+    "alarmNoUpdatesTitle": "لن يتغيّر المنبّه حسب التأخيرات",
+    "alarmNoUpdatesMessage": "اسمح بالإشعارات من الإعدادات كي يتغيّر المنبّه عند تأخر القطار، حتى عندما يكون Better Rail مغلقًا.",
+    "alarmFailed": "تعذّر ضبط المنبّه. حاول مرة أخرى."
   },
   "forceUpdate": {
     "title": "التحديث مطلوب",

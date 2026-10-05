@@ -21,6 +21,7 @@ import {
   clearBackgroundStorage,
 } from "./storage/background-storage"
 import { Platform } from "react-native"
+import * as iOSHelpers from "./ios-helpers"
 import { RideStartError } from "./helpers/ride-errors"
 import { getDevicePushTokenWithAuthRetry } from "./helpers/push-token-auth-retry"
 import { trackEvent } from "@/services/analytics"
@@ -41,6 +42,7 @@ Notifications.setNotificationHandler({
 })
 
 const BACKGROUND_LIVE_RIDE_TASK = "better-rail-live-ride-notification"
+const BACKGROUND_ARRIVAL_ALARM_TASK = "better-rail-arrival-alarm-notification"
 
 // Pulls the FCM `data` map out of whatever expo-notifications hands us. The wrapper shape
 // differs between the background task and the foreground listener, so probe the known
@@ -64,7 +66,36 @@ TaskManager.defineTask(BACKGROUND_LIVE_RIDE_TASK, ({ data, error }) => {
   if (payload) return handleLiveRideNotification(payload)
 })
 
+type ArrivalAlarmPush = { rideId: string; alarmId: string; fireDate: number }
+
+// Finds the `alarm` object of an arrival-alarm push, wherever expo-notifications nested it.
+const findArrivalAlarmPush = (raw: unknown, depth = 0): ArrivalAlarmPush | null => {
+  if (!raw || typeof raw !== "object" || depth > 5) return null
+  const alarm = (raw as Record<string, any>).alarm
+  if (alarm && typeof alarm.rideId === "string" && typeof alarm.alarmId === "string" && typeof alarm.fireDate === "number") {
+    return alarm
+  }
+
+  for (const value of Object.values(raw)) {
+    const found = findArrivalAlarmPush(value, depth + 1)
+    if (found) return found
+  }
+  return null
+}
+
+// iOS: the arrival-alarm push also wakes a suspended app, a fallback for when the notification
+// service extension couldn't move the alarm. Moving it twice to the same time is harmless.
+TaskManager.defineTask(BACKGROUND_ARRIVAL_ALARM_TASK, ({ data, error }) => {
+  if (error || Platform.OS !== "ios") return
+  const push = findArrivalAlarmPush(data)
+  if (push) return iOSHelpers.moveArrivalAlarm(push).catch(() => {})
+})
+
 export const configureNotifications = async () => {
+  if (Platform.OS === "ios" && iOSHelpers.isArrivalAlarmSupported()) {
+    await Notifications.registerTaskAsync(BACKGROUND_ARRIVAL_ALARM_TASK)
+  }
+
   if (Platform.OS === "android") {
     notifee.createChannel({
       id: "better-rail",

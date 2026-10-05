@@ -1,0 +1,13 @@
+{
+  "aps": {
+    "alert": { "title": "Alarm moved to 08:42", "body": "It will ring 7 minutes before arriving at Tel Aviv - HaHagana." },
+    "mutable-content": 1,
+    "interruption-level": "passive"
+  },
+  "alarm": {
+    "rideId": "preview-ride",
+    "alarmId": "6f1c7a52-58f1-4b47-9c55-6c1d5d1d2a11",
+    "fireDate": 0,
+    "failedBody": "Your arrival time changed. Open Better Rail to update the alarm."
+  }
+}

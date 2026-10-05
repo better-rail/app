@@ -19,6 +19,14 @@ const IOS_BUNDLE_ID = "il.co.better-rail"
 const ANDROID_PACKAGE = "com.betterrail"
 const IOS_SUPPORTED_LOCALES = ["en", "he", "ar", "ru"]
 
+// Shown in the system prompt the first time a rider turns on the arrival alarm (AlarmKit).
+const ALARMKIT_USAGE_DESCRIPTIONS = {
+  en: "Better Rail rings a few minutes before you arrive, following the train's delays.",
+  he: "Better Rail תצלצל כמה דקות לפני ההגעה, לפי העיכובים של הרכבת.",
+  ar: "يرنّ Better Rail قبل وصولك ببضع دقائق، حسب تأخيرات القطار.",
+  ru: "Better Rail подаст сигнал за несколько минут до прибытия с учётом задержек поезда.",
+}
+
 // iOS registers fonts by the family name baked into each file ("Heebo"), selecting the weight
 // via `fontWeight`. The flat string array is all iOS needs.
 const HEEBO_FONTS_IOS = [
@@ -103,6 +111,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       NSContactsUsageDescription: "We need access to your contacts to import and manage contacts within our app.",
       NSRemindersFullAccessUsageDescription: "We need full access to reminders to create alerts for your train rides.",
       NSRemindersUsageDescription: "Allow $(PRODUCT_NAME) to access your reminders.",
+      NSAlarmKitUsageDescription: ALARMKIT_USAGE_DESCRIPTIONS.en,
       NSAppTransportSecurity: {
         NSAllowsLocalNetworking: true,
         NSExceptionDomains: {
@@ -116,6 +125,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       "aps-environment": IS_DEV ? "development" : "production",
     },
   },
+
+  locales: Object.fromEntries(
+    Object.entries(ALARMKIT_USAGE_DESCRIPTIONS).map(([locale, text]) => [locale, { ios: { NSAlarmKitUsageDescription: text } }]),
+  ),
 
   android: {
     package: ANDROID_PACKAGE,
