@@ -68,7 +68,7 @@ export async function enableArrivalAlarm(leadMinutes: number): Promise<EnableArr
     return "failed"
   }
 
-  useRideStore.setState({ arrivalAlarm: alarm })
+  useRideStore.setState({ arrivalAlarm: alarm, pendingArrivalAlarmRemoval: undefined })
   trackEvent("arrival_alarm_enabled", { lead_minutes: leadMinutes })
 
   // The extension can only move the alarm through a notification the rider allows.
@@ -87,8 +87,18 @@ export async function disableArrivalAlarm() {
   useRideStore.setState({ arrivalAlarm: undefined })
   trackEvent("arrival_alarm_disabled", { lead_minutes: arrivalAlarm.leadMinutes })
 
-  if (rideId) {
-    rideApi.removeRideAlarm(rideId)
+  // Retried on the next foreground, since the server would otherwise keep pushing moves for a gone alarm.
+  if (rideId && !(await rideApi.removeRideAlarm(rideId))) {
+    useRideStore.setState({ pendingArrivalAlarmRemoval: rideId })
+  }
+}
+
+async function retryArrivalAlarmRemoval(pendingRideId: string, rideId: string | undefined) {
+  // An ended ride took its server-side alarm with it.
+  if (pendingRideId === rideId && !(await rideApi.removeRideAlarm(pendingRideId))) return
+
+  if (useRideStore.getState().pendingArrivalAlarmRemoval === pendingRideId) {
+    useRideStore.setState({ pendingArrivalAlarmRemoval: undefined })
   }
 }
 
@@ -125,7 +135,10 @@ export async function syncArrivalAlarmWithServer() {
 
 /** Catches up with what happened to the alarm while the app wasn't running */
 async function refreshArrivalAlarm() {
-  const { id: rideId, arrivalAlarm: alarm } = useRideStore.getState()
+  const { id: rideId, arrivalAlarm: alarm, pendingArrivalAlarmRemoval } = useRideStore.getState()
+  if (pendingArrivalAlarmRemoval) {
+    retryArrivalAlarmRemoval(pendingArrivalAlarmRemoval, rideId)
+  }
   if (!alarm) return
 
   // The ride ended without the app noticing.
