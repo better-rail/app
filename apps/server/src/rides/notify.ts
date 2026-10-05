@@ -5,7 +5,9 @@ import { FirebaseError } from "firebase-admin"
 
 import { logNames } from "../logs"
 import { RouteItem } from "../types/rail"
-import { sendApnNotification } from "../utils/apn-utils"
+import { Ride, RideAlarm } from "../types/ride"
+import { buildAlarmMovedTexts } from "../utils/alarm-utils"
+import { sendApnAlarmNotification, sendApnNotification } from "../utils/apn-utils"
 import { sendFcmNotification } from "../utils/fcm-utils"
 import { Message } from "firebase-admin/lib/messaging/messaging-api"
 import { NotificationPayload, Provider, Status } from "../types/notification"
@@ -82,6 +84,31 @@ const sendAndroidNotification = async (payload: NotificationPayload, route: Rout
     if (firebaseError.code !== "messaging/registration-token-not-registered") {
       logger.error(logNames.notifications.android.failed, { error, payload })
     }
+    return false
+  }
+}
+
+export const sendAlarmMovedNotification = async (
+  ride: Ride,
+  alarm: RideAlarm,
+  route: RouteItem,
+  fireDate: number,
+  logger: Logger,
+) => {
+  const { title, body, failedBody } = buildAlarmMovedTexts(alarm, route, fireDate)
+
+  try {
+    await sendApnAlarmNotification(alarm.token, {
+      alert: { title, body },
+      collapseId: `arrival-alarm-${ride.rideId}`,
+      data: {
+        alarm: { rideId: ride.rideId, alarmId: alarm.alarmId, fireDate: Math.floor(fireDate / 1000), failedBody },
+      },
+    })
+    logger.info(logNames.notifications.alarm.success, { fireDate })
+    return true
+  } catch (error) {
+    logger.error(logNames.notifications.alarm.failed, { error, fireDate })
     return false
   }
 }

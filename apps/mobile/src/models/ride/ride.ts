@@ -4,6 +4,7 @@ import type AndroidHelpersModule from "@/utils/notification-helpers"
 import iOSHelpers, { ActivityAuthorizationInfo } from "@/utils/ios-helpers"
 import { RouteItem } from "@/services/api"
 import { RouteApi } from "@/services/api/route-api"
+import { RideApi } from "@/services/api/ride-api"
 import { head, last } from "lodash"
 import { formatDateForAPI } from "@/utils/helpers/date-helpers"
 import { addMinutes } from "date-fns"
@@ -47,6 +48,14 @@ const startRideHandler = (route: RouteItem): Promise<string> =>
 const endRideHandler = (routeId: string): Promise<boolean> =>
   Platform.OS === "ios" ? iOSHelpers.endLiveActivity(routeId) : androidHelpers().endRideNotifications(routeId)
 
+export type ArrivalAlarm = {
+  rideId: string
+  alarmId: string
+  leadMinutes: number
+  /** When it rings, in ms */
+  fireDate: number
+}
+
 export interface RideState {
   loading: boolean
   id: string | undefined
@@ -55,6 +64,9 @@ export interface RideState {
   notifeeSettings: { notifications: number; alarms: number } | undefined
   rideCount: number
   canRunLiveActivities: boolean
+  arrivalAlarm: ArrivalAlarm | undefined
+  /** A ride whose server-side alarm couldn't be removed yet, so it doesn't keep pushing moves */
+  pendingArrivalAlarmRemoval: string | undefined
 }
 
 export interface RideActions {
@@ -85,9 +97,20 @@ const initialRideState: RideState = {
   notifeeSettings: undefined,
   rideCount: 0,
   canRunLiveActivities: false,
+  arrivalAlarm: undefined,
+  pendingArrivalAlarmRemoval: undefined,
 }
 
-export const resetRideStore = () => useRideStore.setState(initialRideState)
+export const resetRideStore = () => {
+  const { id, arrivalAlarm } = useRideStore.getState()
+  // Deleting all data mustn't leave an alarm that rings, or that the server keeps moving.
+  if (arrivalAlarm) {
+    iOSHelpers.cancelArrivalAlarm()
+    if (id) new RideApi().removeRideAlarm(id)
+  }
+
+  useRideStore.setState(initialRideState)
+}
 
 export const useRideStore = create<RideStore>((set, get) => ({
   ...initialRideState,
@@ -155,7 +178,12 @@ export const useRideStore = create<RideStore>((set, get) => ({
     const { canRunLiveActivities } = get()
     if (Platform.OS === "ios" && !canRunLiveActivities) return
 
-    set({ loading: true, id: undefined, route: undefined })
+    // The ride's alarm goes with it. Its server side is removed with the ride.
+    if (get().arrivalAlarm) {
+      iOSHelpers.cancelArrivalAlarm()
+    }
+
+    set({ loading: true, id: undefined, route: undefined, arrivalAlarm: undefined, pendingArrivalAlarmRemoval: undefined })
 
     await endRideHandler(rideId)
     set({ loading: false })
@@ -247,6 +275,8 @@ export function hydrateRideStore(data: any) {
     notifeeSettings: data.notifeeSettings ?? undefined,
     rideCount: data.rideCount ?? 0,
     canRunLiveActivities: data.canRunLiveActivities ?? false,
+    arrivalAlarm: data.arrivalAlarm ?? undefined,
+    pendingArrivalAlarmRemoval: data.pendingArrivalAlarmRemoval ?? undefined,
   })
 }
 

@@ -352,7 +352,21 @@
     "notificationPermission1": "על מנת שנוכל לעדכן אתכם בזמן אמת על התקדמות הרכבת, יש לאפשר לנו לשלוח נוטיפקציות למכשירכם.",
     "notificationPermission2": "אנחנו משתמשים במנגנון נוטיפיקציות חסכוני, ולא שולחים נוטיפקציות מיותרות.",
     "notificationPermission3": "התראות",
-    "notificationPermission4": "התראות מתוזמנות"
+    "notificationPermission4": "התראות מתוזמנות",
+    "alarmButton": "התראת הגעה",
+    "alarmMenuTitle": "שעת הצלצול מתעדכנת אוטומטית בהתאם לעיכובים. על כל שינוי תקבלו התראה שקטה.",
+    "alarmLeadOption": "%{minutes} דקות לפני ההגעה",
+    "alarmTurnOff": "ביטול התראת ההגעה",
+    "alarmSetFor": "צלצול ב־%{time}",
+    "alarmTitle": "מתקרבים ל%{station}",
+    "alarmStop": "עצירה",
+    "alarmTooLateTitle": "ההגעה קרובה מדי",
+    "alarmTooLateMessage": "הרכבת מגיעה בעוד פחות מ־%{minutes} דקות. בחרו זמן קצר יותר.",
+    "alarmDeniedTitle": "התראת ההגעה כבויה",
+    "alarmDeniedMessage": "כדי שנצלצל לפני התחנה, אפשרו ל־Better Rail לתזמן שעונים מעוררים בהגדרות.",
+    "alarmNoUpdatesTitle": "הצלצול לא יזוז לפי העיכובים",
+    "alarmNoUpdatesMessage": "אפשרו התראות בהגדרות כדי שהצלצול יזוז כשהרכבת מתעכבת, גם כש־Better Rail סגורה.",
+    "alarmFailed": "לא הצלחנו להגדיר את התראת ההגעה. נסו שוב."
   },
   "paywall": {
     "betterCommute": "לא תאמינו איך נסיעה ברכבת יכולה להראות 😎",

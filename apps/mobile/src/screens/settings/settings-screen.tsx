@@ -15,6 +15,8 @@ import { trackEvent } from "@/services/analytics"
 import { requestPinAndroidWidget, WidgetFamily } from "@/utils/widget-helpers"
 import { WidgetPreviewModal } from "./components/widget-preview-modal"
 import { SocialLinks } from "./components/social-links"
+import { scheduleTestArrivalAlarm } from "@/models/ride/arrival-alarm"
+import { isArrivalAlarmSupported } from "@/utils/ios-helpers"
 
 const storeLink = Platform.select({
   ios: "https://apps.apple.com/app/better-rail/id1562982976?action=write-review",
@@ -128,6 +130,12 @@ export function SettingsScreen() {
           onPress={() => router.push("/settings/about")}
         />
       </View>
+
+      {__DEV__ && isArrivalAlarmSupported() && (
+        <View style={settingsStyles.group}>
+          <SettingBox first last title="Test arrival alarm (10s)" icon="⏰" onPress={() => scheduleTestArrivalAlarm(10)} />
+        </View>
+      )}
 
       <Text
         style={[

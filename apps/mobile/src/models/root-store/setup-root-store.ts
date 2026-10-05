@@ -24,6 +24,7 @@ import {
   type ColorSchemePreference,
 } from "@/models/settings/settings"
 import { useRideStore, getRideSnapshot, hydrateRideStore, initializeRideStore, resetRideStore } from "@/models/ride/ride"
+import { initializeArrivalAlarm } from "@/models/ride/arrival-alarm"
 import { useUserStore, getUserSnapshot, hydrateUserStore, resetUserStore } from "@/models/user/user"
 
 /**
@@ -117,6 +118,7 @@ export async function setupRootStore() {
 
   // Run afterCreate equivalents
   initializeRideStore()
+  initializeArrivalAlarm()
 
   // Re-persist immediately to normalize the data format.
   // This ensures any data saved by the old MobX State Tree format
