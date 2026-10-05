@@ -34,6 +34,7 @@ import { shareRouteAction } from "@/utils/helpers/route-share-helpers"
 import { addRouteToCalendar } from "@/utils/helpers/calendar-helpers"
 import { getActionSheetStyleOptions } from "@/utils/helpers/action-sheet-helpers"
 import { isRouteInThePast } from "@/utils/helpers/date-helpers"
+import { isHourIndexSupported } from "@/utils/hour-index"
 import { useActionSheet } from "@expo/react-native-action-sheet"
 import { useFeatureFlag } from "posthog-react-native"
 
@@ -335,7 +336,7 @@ export function RouteListScreen() {
     })
     return entries
   }, [displayData, visibleDate])
-  const showHourIndex = hourIndexEnabled && hourIndexEntries.length >= 4
+  const showHourIndex = isHourIndexSupported() && hourIndexEnabled && hourIndexEntries.length >= 4
 
   const scrollToHour = ({ index }: HourIndexEntry) => {
     // Keep the date header in view when jumping to the first train of the day

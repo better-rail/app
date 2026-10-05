@@ -26,8 +26,8 @@ type HourIndexBarProps = {
 }
 
 const BUBBLE_HEIGHT = 56
-// Wider for "12:00 PM"
-const BUBBLE_WIDTH = use12HourClock ? 116 : 86
+// Wider for "12:00 PM". A function, since the clock format is resolved after this module loads
+const bubbleWidth = () => (use12HourClock ? 116 : 86)
 // Far enough from the bar that the scrubbing thumb doesn't cover it
 const BUBBLE_GAP = 56
 // The bubble grows out of the bar, so it starts shifted toward it
@@ -182,7 +182,13 @@ export function HourIndexBar({ entries, topHour, onSelect }: HourIndexBarProps) 
       </GestureDetector>
 
       {/* Animated props stay on plain RN styles; Unistyles styles live on the inner views */}
-      <Animated.View style={[plainStyles.bubble, bubbleStyle]} pointerEvents="none">
+      {/* Hidden from screen readers, which get the hour from the bar's value */}
+      <Animated.View
+        style={[plainStyles.bubble, { width: bubbleWidth() }, bubbleStyle]}
+        pointerEvents="none"
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      >
         <View style={styles.bubble}>
           <HourBubbleText hour={bubble.hour} countsDown={bubble.countsDown} />
         </View>
@@ -216,13 +222,8 @@ const plainStyles = RNStyleSheet.create({
     position: "absolute",
     top: 0,
     end: BUBBLE_GAP,
-    width: BUBBLE_WIDTH,
     height: BUBBLE_HEIGHT,
     opacity: 0,
-    shadowColor: "#000",
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
   },
 })
 
@@ -258,5 +259,6 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.secondaryBackground,
     alignItems: "center",
     justifyContent: "center",
+    boxShadow: "0 4px 24px rgba(0, 0, 0, 0.15)",
   },
 }))

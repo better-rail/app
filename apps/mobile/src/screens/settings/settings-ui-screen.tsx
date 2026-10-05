@@ -14,6 +14,7 @@ import { useSettingsStore } from "@/models"
 import type { ColorSchemePreference } from "@/models/settings/settings"
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
 import { setAnalyticsUserProperty, trackEvent } from "@/services/analytics"
+import { isHourIndexSupported } from "@/utils/hour-index"
 
 export function UISettingsScreen() {
   const isDarkMode = useIsDarkMode()
@@ -104,18 +105,22 @@ export function UISettingsScreen() {
         />
       </View>
 
-      <Text style={styles.groupTitle} tx="settings.routeList" />
-      <View style={settingsStyles.group}>
-        <SettingBox
-          testID="settings-show-hour-index"
-          first
-          last
-          title={translate("settings.showHourIndex") ?? ""}
-          toggle
-          toggleValue={showHourIndex}
-          onToggle={onHourIndexToggle}
-        />
-      </View>
+      {isHourIndexSupported() && (
+        <>
+          <Text style={styles.groupTitle} tx="settings.routeList" />
+          <View style={settingsStyles.group}>
+            <SettingBox
+              testID="settings-show-hour-index"
+              first
+              last
+              title={translate("settings.showHourIndex") ?? ""}
+              toggle
+              toggleValue={showHourIndex}
+              onToggle={onHourIndexToggle}
+            />
+          </View>
+        </>
+      )}
     </Screen>
   )
 }
