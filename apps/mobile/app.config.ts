@@ -21,10 +21,10 @@ const IOS_SUPPORTED_LOCALES = ["en", "he", "ar", "ru"]
 
 // Shown in the system prompt the first time a rider turns on the arrival alarm (AlarmKit).
 const ALARMKIT_USAGE_DESCRIPTIONS = {
-  en: "Better Rail rings a few minutes before you arrive, following the train's delays.",
-  he: "Better Rail תצלצל כמה דקות לפני ההגעה, לפי העיכובים של הרכבת.",
-  ar: "يرنّ Better Rail قبل وصولك ببضع دقائق، حسب تأخيرات القطار.",
-  ru: "Better Rail подаст сигнал за несколько минут до прибытия с учётом задержек поезда.",
+  en: "Better Rail rings a few minutes before your train reaches your destination. If the train is delayed, the alarm will ring later to match.",
+  he: "בטר רייל תצלצל כמה דקות לפני הגעת הרכבת ליעד. אם הרכבת מתעכבת, הצלצול יידחה בהתאם.",
+  ar: "يرنّ Better Rail قبل بضع دقائق من وصول القطار إلى وجهتك. إذا تأخّر القطار، يتأجّل التنبيه وفقًا لذلك.",
+  ru: "Better Rail подаст сигнал за несколько минут до прибытия поезда в пункт назначения. Если поезд задерживается, сигнал сдвинется на более позднее время.",
 }
 
 // iOS registers fonts by the family name baked into each file ("Heebo"), selecting the weight
