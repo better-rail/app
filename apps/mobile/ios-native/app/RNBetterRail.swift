@@ -3,6 +3,7 @@ import UIKit
 import Intents
 import WidgetKit
 import ActivityKit
+import AlarmKit
 
 /// A set of common functions to be called from the RN app
 @objc(RNBetterRail)
@@ -136,6 +137,101 @@ class RNBetterRail: NSObject {
     ])
   }
   
+  // MARK - Arrival alarm methods
+  @objc func arrivalAlarmAuthorization(_ resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+    guard #available(iOS 26.0, *), !ProcessInfo.processInfo.isiOSAppOnMac else {
+      resolve("unsupported")
+      return
+    }
+
+    resolve(alarmAuthorizationName(AlarmManager.shared.authorizationState))
+  }
+
+  @objc func requestArrivalAlarmAuthorization(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
+    guard #available(iOS 26.0, *), !ProcessInfo.processInfo.isiOSAppOnMac else {
+      resolve("unsupported")
+      return
+    }
+
+    Task {
+      do {
+        resolve(alarmAuthorizationName(try await AlarmManager.shared.requestAuthorization()))
+      } catch {
+        reject("error", "Couldn't request alarm authorization", error)
+      }
+    }
+  }
+
+  /// alarm - { rideId, alarmId, title, stopText, fireDate (ms) }. Resolves with when it will ring, in ms.
+  @objc func scheduleArrivalAlarm(_ alarm: NSDictionary, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
+    guard #available(iOS 26.0, *) else {
+      reject("unsupported", "Alarms need iOS 26", nil)
+      return
+    }
+
+    guard let rideId = alarm["rideId"] as? String,
+          let alarmId = (alarm["alarmId"] as? String).flatMap(UUID.init(uuidString:)),
+          let title = alarm["title"] as? String,
+          let stopText = alarm["stopText"] as? String,
+          let fireDate = (alarm["fireDate"] as? NSNumber)?.doubleValue
+    else {
+      reject("invalid", "Invalid arrival alarm", nil)
+      return
+    }
+
+    let state = ArrivalAlarmState(rideId: rideId, alarmId: alarmId, title: title, stopText: stopText, fireDate: Date(timeIntervalSince1970: fireDate / 1000))
+    Task {
+      do {
+        let scheduled = try await ArrivalAlarmScheduler.schedule(state)
+        resolve(scheduled.fireDate.timeIntervalSince1970 * 1000)
+      } catch {
+        reject("error", "Couldn't schedule the arrival alarm", error)
+      }
+    }
+  }
+
+  /// Applies the `alarm` object of an arrival-alarm push, for when the notification service extension couldn't.
+  @objc func moveArrivalAlarm(_ push: NSDictionary, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
+    guard #available(iOS 26.0, *), let push = ArrivalAlarmPush(userInfo: ["alarm": push]) else {
+      resolve(false)
+      return
+    }
+
+    Task {
+      resolve(await ArrivalAlarmScheduler.move(push))
+    }
+  }
+
+  @objc func cancelArrivalAlarm() {
+    guard #available(iOS 26.0, *) else { return }
+    ArrivalAlarmScheduler.cancel()
+  }
+
+  /// Resolves with { rideId, alarmId, fireDate (ms), isScheduled }, or nil when there's no alarm.
+  @objc func getArrivalAlarm(_ resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+    guard #available(iOS 26.0, *), let state = ArrivalAlarmStore.load() else {
+      resolve(nil)
+      return
+    }
+
+    let isScheduled = ArrivalAlarmScheduler.isScheduled(state)
+    resolve([
+      "rideId": state.rideId,
+      "alarmId": state.alarmId.uuidString.lowercased(),
+      "fireDate": state.fireDate.timeIntervalSince1970 * 1000,
+      "isScheduled": isScheduled,
+    ])
+  }
+
+  @available(iOS 26.0, *)
+  private func alarmAuthorizationName(_ state: AlarmManager.AuthorizationState) -> String {
+    switch state {
+    case .authorized: return "authorized"
+    case .denied: return "denied"
+    default: return "notDetermined"
+    }
+  }
+
   @available(iOS 14.0, *)
   @objc func isRunningOnMac(_ resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
     if ProcessInfo.processInfo.isiOSAppOnMac {

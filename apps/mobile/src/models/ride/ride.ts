@@ -47,6 +47,14 @@ const startRideHandler = (route: RouteItem): Promise<string> =>
 const endRideHandler = (routeId: string): Promise<boolean> =>
   Platform.OS === "ios" ? iOSHelpers.endLiveActivity(routeId) : androidHelpers().endRideNotifications(routeId)
 
+export type ArrivalAlarm = {
+  rideId: string
+  alarmId: string
+  leadMinutes: number
+  /** When it rings, in ms */
+  fireDate: number
+}
+
 export interface RideState {
   loading: boolean
   id: string | undefined
@@ -55,6 +63,7 @@ export interface RideState {
   notifeeSettings: { notifications: number; alarms: number } | undefined
   rideCount: number
   canRunLiveActivities: boolean
+  arrivalAlarm: ArrivalAlarm | undefined
 }
 
 export interface RideActions {
@@ -85,6 +94,7 @@ const initialRideState: RideState = {
   notifeeSettings: undefined,
   rideCount: 0,
   canRunLiveActivities: false,
+  arrivalAlarm: undefined,
 }
 
 export const resetRideStore = () => useRideStore.setState(initialRideState)
@@ -155,7 +165,12 @@ export const useRideStore = create<RideStore>((set, get) => ({
     const { canRunLiveActivities } = get()
     if (Platform.OS === "ios" && !canRunLiveActivities) return
 
-    set({ loading: true, id: undefined, route: undefined })
+    // The ride's alarm goes with it. Its server side is removed with the ride.
+    if (get().arrivalAlarm) {
+      iOSHelpers.cancelArrivalAlarm()
+    }
+
+    set({ loading: true, id: undefined, route: undefined, arrivalAlarm: undefined })
 
     await endRideHandler(rideId)
     set({ loading: false })
@@ -247,6 +262,7 @@ export function hydrateRideStore(data: any) {
     notifeeSettings: data.notifeeSettings ?? undefined,
     rideCount: data.rideCount ?? 0,
     canRunLiveActivities: data.canRunLiveActivities ?? false,
+    arrivalAlarm: data.arrivalAlarm ?? undefined,
   })
 }
 

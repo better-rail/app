@@ -28,6 +28,7 @@ const SWIFT_FILES = [
   ["targets/widget/Shared/RouteModel.swift", "RouteModel.swift"],
   ["targets/widget/Shared/StationModel.swift", "StationModel.swift"],
   ["targets/widget/Shared/Utilities.swift", "Utilities.swift"],
+  ["targets/notification-service/ArrivalAlarm.swift", "ArrivalAlarm.swift"],
 ]
 const OBJC_FILES = [["ios-native/app/RNBetterRail.m", "RNBetterRail.m"]]
 const INTENT_DEF = ["targets/widget/Base.lproj/Route.intentdefinition", "Route.intentdefinition"]

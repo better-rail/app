@@ -32,3 +32,26 @@ export const sendApnNotification = (deviceToken: string, aps: Record<string, unk
 
   return client.send(notification)
 }
+
+/// A visible push to the app's device token. The notification service extension moves the arrival alarm before it's shown.
+export const sendApnAlarmNotification = (
+  deviceToken: string,
+  options: { alert: { title: string; body: string }; data: Record<string, unknown>; collapseId: string },
+) => {
+  const notification = new Notification(deviceToken, {
+    type: PushType.alert,
+    topic: appleBundleId,
+    priority: Priority.immediate,
+    alert: options.alert,
+    data: options.data,
+    collapseId: options.collapseId,
+    threadId: options.collapseId,
+    mutableContent: true,
+    // Wakes a suspended (not force-quit) app too, in case the extension couldn't move the alarm.
+    contentAvailable: true,
+    // Lands quietly in Notification Center: no sound, no banner, no screen wake.
+    aps: { "interruption-level": "passive" },
+  })
+
+  return client.send(notification)
+}

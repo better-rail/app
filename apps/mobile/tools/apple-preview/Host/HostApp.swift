@@ -5,6 +5,8 @@ import ActivityKit
 /// Start/stop a Live Activity here to see the real card, including on a paired watch.
 @main
 struct HostApp: App {
+  @UIApplicationDelegateAdaptor(PushTokenDelegate.self) private var pushTokenDelegate
+
   var body: some Scene {
     WindowGroup {
       HostView()
@@ -40,6 +42,8 @@ private struct HostView: View {
           }
           .disabled(activity == nil)
         }
+
+        ArrivalAlarmSection()
 
         Section {
           Text("Lock the device (⌘L) to see the lock-screen card. The Smart Stack card is what a paired Apple Watch shows.")

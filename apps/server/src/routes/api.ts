@@ -7,8 +7,8 @@ import { createRateLimiter } from "../utils/rate-limiter"
 import { handleRailApiRequest, handleSearchTrainRequest } from "./rail-api"
 import { faresRouter } from "./fares"
 import { siriDebugRouter } from "./siri-debug"
-import { DeleteRideBody, UpdateRideTokenBody, bodyValidator } from "./validations"
-import { endRideNotifications, startRideNotifications, updateRideToken } from "../rides"
+import { DeleteRideBody, RemoveRideAlarmBody, SetRideAlarmBody, UpdateRideTokenBody, bodyValidator } from "./validations"
+import { endRideNotifications, removeRideAlarm, setRideAlarm, startRideNotifications, updateRideToken } from "../rides"
 
 const router = Router()
 
@@ -52,6 +52,28 @@ rideRouter.delete(
   async (req, res) => {
     const { rideId } = req.body
     const success = await endRideNotifications(rideId)
+    res.status(success ? 200 : 500).send({ success })
+  },
+)
+
+// The app re-sends the alarm whenever it comes to the foreground, so allow more than the other ride routes.
+rideRouter.put(
+  "/alarm",
+  bodyValidator(SetRideAlarmBody),
+  createRateLimiter(rideRateLimitWindowMs, 30, (request) => request.body.rideId),
+  async (req, res) => {
+    const { rideId, ...alarm } = req.body
+    const fireDate = await setRideAlarm(rideId, alarm)
+    res.status(fireDate === undefined ? 404 : 200).send({ success: fireDate !== undefined, fireDate })
+  },
+)
+
+rideRouter.delete(
+  "/alarm",
+  bodyValidator(RemoveRideAlarmBody),
+  createRateLimiter(rideRateLimitWindowMs, 30, (request) => request.body.rideId),
+  async (req, res) => {
+    const success = await removeRideAlarm(req.body.rideId)
     res.status(success ? 200 : 500).send({ success })
   },
 )

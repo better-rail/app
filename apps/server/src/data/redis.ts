@@ -3,7 +3,7 @@ import { RedisClientType } from "@redis/client"
 import { compact, isEmpty, mapValues, omit } from "lodash"
 
 import { redisUrl } from "./config"
-import { Ride } from "../types/ride"
+import { Ride, RideAlarm } from "../types/ride"
 import { logNames, logger } from "../logs"
 
 let client: RedisClientType
@@ -75,6 +75,22 @@ export const updateRideToken = async (rideId: string, token: string) => {
     return true
   } catch (error) {
     logger.error(logNames.redis.rides.updateToken.failed, { error, rideId, token })
+    return false
+  }
+}
+
+export const updateRideAlarm = async (rideId: string, alarm: RideAlarm | undefined) => {
+  try {
+    if (alarm) {
+      await client.hSet(getKey(rideId), "alarm", JSON.stringify(alarm))
+    } else {
+      await client.hDel(getKey(rideId), "alarm")
+    }
+
+    logger.info(logNames.redis.rides.updateAlarm.success, { rideId, fireDate: alarm?.fireDate })
+    return true
+  } catch (error) {
+    logger.error(logNames.redis.rides.updateAlarm.failed, { error, rideId })
     return false
   }
 }

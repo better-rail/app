@@ -105,7 +105,52 @@ export async function isRideActive(routeId: string) {
   return []
 }
 
+export type ArrivalAlarmAuthorization = "unsupported" | "notDetermined" | "denied" | "authorized"
+
+/** AlarmKit needs iOS 26, and a binary that has the native module (an OTA update can reach an older one) */
+export const isArrivalAlarmSupported = () =>
+  Platform.OS === "ios" && parseFloat(String(Platform.Version)) >= 26 && typeof RNBetterRail?.scheduleArrivalAlarm === "function"
+
+export async function arrivalAlarmAuthorization(): Promise<ArrivalAlarmAuthorization> {
+  return RNBetterRail.arrivalAlarmAuthorization()
+}
+
+export async function requestArrivalAlarmAuthorization(): Promise<ArrivalAlarmAuthorization> {
+  return RNBetterRail.requestArrivalAlarmAuthorization()
+}
+
+/** Schedules the alarm, replacing one with the same id. Resolves with when it will ring, in ms. */
+export async function scheduleArrivalAlarm(alarm: {
+  rideId: string
+  alarmId: string
+  fireDate: number
+  title: string
+  stopText: string
+}): Promise<number> {
+  return RNBetterRail.scheduleArrivalAlarm(alarm)
+}
+
+/** Applies an arrival-alarm push (`fireDate` in seconds, as the server sends it). False when it couldn't move the alarm. */
+export async function moveArrivalAlarm(push: { rideId: string; alarmId: string; fireDate: number }): Promise<boolean> {
+  return RNBetterRail.moveArrivalAlarm(push)
+}
+
+export function cancelArrivalAlarm() {
+  RNBetterRail.cancelArrivalAlarm()
+}
+
+/** The alarm as the device has it, which the notification service extension may have moved */
+export async function getArrivalAlarm(): Promise<{
+  rideId: string
+  alarmId: string
+  fireDate: number
+  isScheduled: boolean
+} | null> {
+  return RNBetterRail.getArrivalAlarm()
+}
+
 export default {
+  cancelArrivalAlarm,
   donateRouteIntent,
   reloadAllTimelines,
   monitorLiveActivities,
