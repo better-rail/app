@@ -1,4 +1,4 @@
-import { Pressable, Animated as RNAnimated } from "react-native"
+import { Pressable, Animated as RNAnimated, type ViewStyle } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import { Text } from "@/components/text/text"
@@ -13,14 +13,16 @@ interface RouteStationNameButtonProps extends TouchableScaleProps {
   onPress: () => void
   name: string
   buttonScale: RNAnimated.Value
+  /** Sizes the button within its row, e.g. to line it up with a column below. */
+  wrapperStyle?: ViewStyle
 }
 
 export function RouteStationNameButton(props: RouteStationNameButtonProps) {
-  const { disabled, onPress, name, style, buttonScale, ...rest } = props
+  const { disabled, onPress, name, style, buttonScale, wrapperStyle, ...rest } = props
 
   if (isLiquidGlassSupported) {
     return (
-      <Pressable onPress={onPress} disabled={disabled} style={styles.liquidGlassWrapper}>
+      <Pressable onPress={onPress} disabled={disabled} style={[styles.liquidGlassWrapper, wrapperStyle]}>
         <GlassView isInteractive={!disabled} tintColor={color.secondaryLighter} style={styles.liquidGlass}>
           <Text style={styles.routeDetailsStationText} maxFontSizeMultiplier={1.1}>
             {name}
@@ -36,7 +38,7 @@ export function RouteStationNameButton(props: RouteStationNameButtonProps) {
       activeScale={0.95}
       disabled={disabled}
       onPress={onPress}
-      style={[style, { transform: [{ scale: buttonScale }] }]}
+      style={[style, wrapperStyle, { transform: [{ scale: buttonScale }] }]}
       {...rest}
     >
       <Text style={styles.routeDetailsStationText} maxFontSizeMultiplier={1.1}>

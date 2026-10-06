@@ -1,5 +1,5 @@
 diff --git a/android/src/main/java/com/swmansion/rnscreens/Screen.kt b/android/src/main/java/com/swmansion/rnscreens/Screen.kt
-index 96631b07486cc0416cfc758bef372756e6240e23..0d6321fb95ce1bda4602af081732286745e33e0f 100644
+index 96631b0..0d6321f 100644
 --- a/android/src/main/java/com/swmansion/rnscreens/Screen.kt
 +++ b/android/src/main/java/com/swmansion/rnscreens/Screen.kt
 @@ -466,28 +466,22 @@ class Screen(
@@ -80,7 +80,7 @@ index 96631b07486cc0416cfc758bef372756e6240e23..0d6321fb95ce1bda4602af0817322867
      @SuppressLint("ClickableViewAccessibility")
      override fun onTouchEvent(event: MotionEvent?): Boolean =
 diff --git a/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt b/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt
-index 2372cac68d83deeb0a384d56c69b814c3bed9673..e95f200dbda5b5c1cdd1350b3dd47b244e581c70 100644
+index 2372cac..e95f200 100644
 --- a/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt
 +++ b/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt
 @@ -83,6 +83,8 @@ class ScreenStack(
@@ -92,117 +92,3 @@ index 2372cac68d83deeb0a384d56c69b814c3bed9673..e95f200dbda5b5c1cdd1350b3dd47b24
          super.endViewTransition(view)
  
          disappearingTransitioningChildren.remove(view)
-diff --git a/ios/gamma/split/RNSSplitNavigationController.mm b/ios/gamma/split/RNSSplitNavigationController.mm
-index b884a59a2ee5ce9bc37ae8b075e9efe645bf5c7e..64eecc59e76491d356d57285592392696df546b3 100644
---- a/ios/gamma/split/RNSSplitNavigationController.mm
-+++ b/ios/gamma/split/RNSSplitNavigationController.mm
-@@ -28,6 +28,10 @@ - (void)viewDidLoad
- {
-   [super viewDidLoad];
- 
-+  // Nothing is ever pushed onto a column's navigation controller except the other column, when the split view
-+  // collapses onto the secondary column; swiping back to it would show that column as a screen of its own.
-+  self.interactivePopGestureRecognizer.enabled = NO;
-+
-   if (_frameObserver == nil) {
-     _frameObserver = [[RNSSplitNavigationControllerFrameObserver alloc]
-         initWithSplitNavigationController:self
-diff --git a/ios/gamma/split/RNSSplitScreenController.mm b/ios/gamma/split/RNSSplitScreenController.mm
-index f97140a2ca7f97a50c5f6203106596b9f275080b..8cbee4ac6387afc9c6613d8f352f1b8df8f68916 100644
---- a/ios/gamma/split/RNSSplitScreenController.mm
-+++ b/ios/gamma/split/RNSSplitScreenController.mm
-@@ -13,6 +13,10 @@ - (instancetype)initWithSplitScreenComponentView:(RNSSplitScreenComponentView *)
- {
-   if (self = [super init]) {
-     _splitScreenComponentView = splitScreenComponentView;
-+    // Collapsing onto the secondary column pushes this controller onto the primary column's navigation controller,
-+    // which would give it a back button (and a pop gesture, see RNSSplitNavigationController) leading to the other
-+    // column as a screen of its own. The columns are only ever side by side, so hide that button.
-+    self.navigationItem.hidesBackButton = YES;
-   }
- 
-   return self;
-@@ -68,7 +72,6 @@ - (void)setNeedsLifecycleStateUpdate
- - (void)viewDidLayoutSubviews
- {
-   [super viewDidLayoutSubviews];
--
-   [self updateShadowTreeState];
- }
- 
-@@ -89,10 +92,32 @@ - (void)updateShadowTreeState
-     return;
-   }
- 
--  UIView *ancestorView = [self findSplitHostController].view;
-+  RNSSplitHostController *hostController = [self findSplitHostController];
-+  UIView *ancestorView = hostController.view;
-   RCTAssert(ancestorView != nil, @"[RNScreens] Expected to find RNSSplitHost component for RNSSplitScreen component");
- 
--  [[self shadowStateProxy] updateShadowStateOfComponent:_splitScreenComponentView inContextOfAncestorView:ancestorView];
-+  CGRect frame = [_splitScreenComponentView convertRect:_splitScreenComponentView.bounds toView:ancestorView];
-+  // Beside a primary column, UIKit (iOS 27) can lay the secondary column's view out over the whole split view and
-+  // draw the primary column on top of it. React lays the column's content out for the part that is actually visible,
-+  // so right-to-left content does not end up behind the primary column.
-+  if (!hostController.isCollapsed && hostController.displayMode == UISplitViewControllerDisplayModeOneBesideSecondary &&
-+      [hostController viewControllerForColumn:UISplitViewControllerColumnSecondary] == self.navigationController) {
-+    UIView *primaryView = [hostController viewControllerForColumn:UISplitViewControllerColumnPrimary].view;
-+    if (primaryView.window != nil) {
-+      CGRect primaryFrame = [primaryView convertRect:primaryView.bounds toView:ancestorView];
-+      CGRect overlap = CGRectIntersection(frame, primaryFrame);
-+      if (!CGRectIsNull(overlap) && overlap.size.width > 0 && overlap.size.width < frame.size.width) {
-+        if (CGRectGetMinX(primaryFrame) > CGRectGetMinX(frame)) {
-+          frame.size.width = CGRectGetMinX(primaryFrame) - CGRectGetMinX(frame);
-+        } else {
-+          CGFloat maxX = CGRectGetMaxX(frame);
-+          frame.origin.x = CGRectGetMaxX(primaryFrame);
-+          frame.size.width = maxX - frame.origin.x;
-+        }
-+      }
-+    }
-+  }
-+  [[self shadowStateProxy] updateShadowStateWithFrame:frame];
- }
- 
- - (void)columnPositioningDidChangeInSplitViewController:(UISplitViewController *)splitViewController
-diff --git a/src/components/gamma/split/SplitScreen.tsx b/src/components/gamma/split/SplitScreen.tsx
-index 52b7d211a23e907b76a80069d6a8c45911d599e9..cd3c0ba74a1eecf5ce12e2bac4e4a97f42097aca 100644
---- a/src/components/gamma/split/SplitScreen.tsx
-+++ b/src/components/gamma/split/SplitScreen.tsx
-@@ -1,5 +1,5 @@
- import React from 'react';
--import { StyleSheet } from 'react-native';
-+import { I18nManager, StyleSheet } from 'react-native';
- import SplitScreenNativeComponent from '../../../fabric/gamma/split/SplitScreenNativeComponent';
- import { SplitScreenProps } from './SplitScreen.types';
- 
-@@ -11,7 +11,7 @@ function Column(props: SplitScreenProps) {
-     <SplitScreenNativeComponent
-       columnType="column"
-       {...props}
--      style={StyleSheet.absoluteFill}>
-+      style={styles.column}>
-       {props.children}
-     </SplitScreenNativeComponent>
-   );
-@@ -35,6 +35,20 @@ function Inspector(props: SplitScreenProps) {
-  * EXPERIMENTAL API, MIGHT CHANGE W/O ANY NOTICE
-  */
- // TODO: refactor to drop `Screen` suffix as the API name is really long at the moment
-+const styles = StyleSheet.create({
-+  // Pinned to the physical left edge only, where UIKit keeps every column's view. The column's size comes
-+  // from the native split view (see RNSSplitScreenComponentDescriptor); with both edges set, a right-to-left
-+  // layout resolves the position from the right edge instead, which both moves the view out of its native
-+  // column and breaks touch targeting (the native offset is added on top). React Native swaps `left` and
-+  // `right` under right-to-left, so the physical left is `right` there.
-+  column: {
-+    position: 'absolute',
-+    top: 0,
-+    bottom: 0,
-+    ...(I18nManager.isRTL && I18nManager.doLeftAndRightSwapInRTL ? { right: 0 } : { left: 0 }),
-+  },
-+});
-+
- const SplitScreen = {
-   Column,
-   Inspector,

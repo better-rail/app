@@ -42,11 +42,10 @@ export default function MainLayout() {
         <Stack.Screen name="route-list" options={{ headerShown: false }} />
         <Stack.Screen
           name="route-details"
-          // The route list opens this screen in place of the split view's pane as the device closes; that push has
-          // nothing to animate from, so it asks for no transition.
+          // `instant` swaps the route list's split view for this screen when the window narrows, with no push to see.
           options={({ route }) => ({
             headerShown: false,
-            animation: (route.params as { transition?: string } | undefined)?.transition === "none" ? "none" : undefined,
+            ...((route.params as { instant?: string } | undefined)?.instant ? { animation: "none" as const } : {}),
           })}
         />
         <Stack.Screen name="station-hours" options={formSheetOptions} />

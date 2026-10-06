@@ -7,8 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { RouteDetailsHeader, Screen } from "@/components"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { logicalSideInsets } from "@/utils/helpers/safe-area-helpers"
-import { useSplitViewStore } from "@/components/split-view/split-view-store"
-import { routeKey } from "@/screens/route-list/components/route-details-pane"
+import { useIsWideLayout } from "@/hooks/use-is-wide-layout"
 import { RouteDetailsBody, useRouteDetailsData } from "./route-details-body"
 
 export function RouteDetailsScreen() {
@@ -23,32 +22,27 @@ export function RouteDetailsScreen() {
   )
   const data = useRouteDetailsData(paramsRouteItem, originId, destinationId)
   const insets = useSafeAreaInsets()
-  // Opened in place of the split view's pane as the device closes, the screen keeps the pane's full-route view.
-  const [showEntireRoute, setShowEntireRoute] = useState(() => {
-    const { selection, showEntireRoute: paneShowsEntireRoute } = useSplitViewStore.getState()
-    return !!selection && !!paramsRouteItem && routeKey(selection.route) === routeKey(paramsRouteItem) && paneShowsEntireRoute
-  })
+  const [showEntireRoute, setShowEntireRoute] = useState(false)
 
-  // Opened from the route list, this screen shows what the split view's pane shows beside the list once the split
-  // view expands (the device opens or rotates). Hand the trip to the pane then and leave without a transition, so
-  // the layout simply changes under the user.
+  // Opened from the route list, this screen stands in for its split view while the window is narrow. When the
+  // window widens (the device opens or rotates), hand the trip back for the split to show and leave without a
+  // transition, so the layout simply changes under the user.
   const router = useRouter()
   const navigation = useNavigation()
-  const isSplitExpanded = useSplitViewStore((s) => s.isExpanded)
+  const isWide = useIsWideLayout()
   const isFocused = useIsFocused()
-  const wasExpanded = useRef(isSplitExpanded)
+  const wasWide = useRef(isWide)
   useEffect(() => {
-    const expanded = !wasExpanded.current && isSplitExpanded
-    wasExpanded.current = isSplitExpanded
-    if (!expanded || screenName !== "routeDetails" || !isFocused) return
+    const widened = !wasWide.current && isWide
+    wasWide.current = isWide
+    if (!widened || screenName !== "routeDetails" || !isFocused) return
     const { routes, index } = navigation.getState() ?? { routes: [], index: 0 }
     if (routes[index - 1]?.name !== "route-list") return
-    useSplitViewStore.getState().setSelection({ route: data.routeItem, originId, destinationId })
-    useSplitViewStore.getState().setShowEntireRoute(showEntireRoute)
+    useNavigationParamsStore.getState().setSplitHandoff(data.routeItem)
     navigation.setOptions({ animation: "none" })
     router.back()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSplitExpanded])
+  }, [isWide])
 
   return (
     <Screen

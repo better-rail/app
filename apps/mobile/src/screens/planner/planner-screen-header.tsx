@@ -27,8 +27,6 @@ const SETTINGS_ICON = require("../../../assets/settings.png")
 // iOS 26+ puts the header actions in the native navigation bar, which the system can lay out
 // vertically on the side (e.g. on iPhone Duo) instead of the custom row below.
 const useNativeToolbar = Platform.OS === "ios" && isLiquidGlassSupported
-// The room the native navigation bar's buttons take at the end of the header row, which they overlay.
-const NATIVE_HEADER_BUTTONS_WIDTH = 74
 
 // DEBUG: force-show the "new" badge regardless of its normal display conditions. Set back to false before shipping.
 const DEBUG_FORCE_NEW_BADGE = false
@@ -51,9 +49,6 @@ export function PlannerScreenHeader() {
   const seenUrgentMessagesIds = useSettingsStore((s) => s.seenUrgentMessagesIds)
   const router = useRouter()
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
-  // The announcement bars' row, measured so they fill it: the screen on a phone, their column in a split view.
-  const [barsRowWidth, setBarsRowWidth] = useState(0)
-  const barWidth = Math.max(0, barsRowWidth - (useNativeToolbar ? NATIVE_HEADER_BUTTONS_WIDTH : 0))
   const [canShowLawsuitBar] = useState(
     () => Boolean(origin && destination) && !useSettingsStore.getState().seenLawsuitAnnouncement,
   )
@@ -176,13 +171,8 @@ export function PlannerScreenHeader() {
         />
       )}
       <View style={styles.headerWrapper}>
-        <View
-          style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: spacing[2] }}
-          onLayout={(event) => setBarsRowWidth(event.nativeEvent.layout.width)}
-        >
-          {showUrgentBar && !rideRoute && barWidth > 0 && (
-            <ImportantAnnouncementBar title={head(unseenUrgentMessages)?.messageBody ?? ""} width={barWidth} />
-          )}
+        <View style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: spacing[2] }}>
+          {showUrgentBar && !rideRoute && <ImportantAnnouncementBar title={head(unseenUrgentMessages)?.messageBody ?? ""} />}
           {showLawsuitBar && <LawsuitAnnouncementBar />}
         </View>
         {!useNativeToolbar && rideRoute && (

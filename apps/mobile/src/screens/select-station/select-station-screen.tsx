@@ -167,28 +167,25 @@ export function SelectStationScreen() {
         )}
       </View>
 
-      {/* On a wide window (iPhone Duo open, iPad) the list keeps a readable width in the middle. */}
-      <View style={styles.listFrame}>
-        <FlashList
-          ref={listRef}
-          data={listData}
-          renderItem={({ item }) => renderItem(item)}
-          keyExtractor={(item) => item.id}
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={styles.listContent}
-          extraData={replacingStationId}
-          // Disabled: otherwise FlashList may scroll the list out of view when results change between keystrokes.
-          maintainVisibleContentPosition={{ disabled: true }}
-          ListEmptyComponent={() =>
-            allowedStations ? null : (
-              <View>
-                <RecentSearchesBox selectionType={selectionType} />
-                {recentSearchEntries.length > 1 && <FavoriteRoutes />}
-              </View>
-            )
-          }
-        />
-      </View>
+      <FlashList
+        ref={listRef}
+        data={listData}
+        renderItem={({ item }) => renderItem(item)}
+        keyExtractor={(item) => item.id}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={styles.listContent}
+        extraData={replacingStationId}
+        // Disabled: otherwise FlashList may scroll the list out of view when results change between keystrokes.
+        maintainVisibleContentPosition={{ disabled: true }}
+        ListEmptyComponent={() =>
+          allowedStations ? null : (
+            <View>
+              <RecentSearchesBox selectionType={selectionType} />
+              {recentSearchEntries.length > 1 && <FavoriteRoutes />}
+            </View>
+          )
+        }
+      />
     </Screen>
   )
 }
@@ -197,12 +194,6 @@ const styles = StyleSheet.create((theme, rt) => ({
   root: {
     backgroundColor: theme.colors.secondaryBackground,
     flex: 1,
-  },
-  listFrame: {
-    flex: 1,
-    width: "100%",
-    maxWidth: 680,
-    alignSelf: "center",
   },
   listContent: {
     ...sideInsetPadding(rt.insets, rt.rtl),
