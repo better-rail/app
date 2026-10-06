@@ -15,7 +15,7 @@ import { acrossTheIsland } from "@/data/island-platforms"
 const importantIcon = require("../../../../assets/important.png")
 const clockIcon = require("../../../../assets/clock.png")
 const infoIcon = require("../../../../assets/info.png")
-const checkmarkIcon = require("../../../../assets/checkmark.png")
+const walkingIcon = require("../../../../assets/walking.png")
 
 const SAFE_DURATION_MINS = 3
 
@@ -124,7 +124,7 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
           </View>
           {isAcrossTheIsland && (
             <View style={[styles.infoDetailWrapper, { marginBottom: spacing[1] }]}>
-              <Image style={[styles.infoIcon, { tintColor: color.success }]} source={checkmarkIcon} />
+              <Image style={styles.infoIcon} source={walkingIcon} />
               <Text style={styles.infoText} maxFontSizeMultiplier={1.2}>
                 {translate("routeDetails.acrossPlatform")}
               </Text>
