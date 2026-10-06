@@ -120,6 +120,20 @@ object ArrivalAlarmScheduler {
     }
 
     /**
+     * The stored alarm, or null when there's none. Revoking the exact alarm permission cancels the
+     * pending alarm without telling the app, so a scheduled alarm that can no longer ring is dropped here.
+     */
+    @Synchronized
+    fun current(context: Context): ArrivalAlarmState? {
+        val state = ArrivalAlarmStore.load(context) ?: return null
+        if (state.isScheduled && !canScheduleExactAlarms(context)) {
+            ArrivalAlarmStore.save(context, null)
+            return null
+        }
+        return state
+    }
+
+    /**
      * Called when the alarm goes off. Returns the alarm to ring, or null when it was cancelled or moved in the
      * meantime: a broadcast already on its way when the alarm moved carries the old date.
      */

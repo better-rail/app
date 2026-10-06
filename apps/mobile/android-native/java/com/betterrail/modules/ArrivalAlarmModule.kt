@@ -9,7 +9,6 @@ import androidx.core.app.NotificationManagerCompat
 import com.betterrail.alarm.ArrivalAlarmScheduler
 import com.betterrail.alarm.ArrivalAlarmService
 import com.betterrail.alarm.ArrivalAlarmState
-import com.betterrail.alarm.ArrivalAlarmStore
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
@@ -78,7 +77,7 @@ class ArrivalAlarmModule(reactContext: ReactApplicationContext) : ReactContextBa
     /** Resolves with { rideId, alarmId, fireDate (ms), isScheduled }, or null when there's no alarm. */
     @ReactMethod
     fun getArrivalAlarm(promise: Promise) {
-        val state = ArrivalAlarmStore.load(reactApplicationContext)
+        val state = ArrivalAlarmScheduler.current(reactApplicationContext)
         if (state == null) {
             promise.resolve(null)
             return
