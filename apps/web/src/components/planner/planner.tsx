@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { useNavigate } from "@tanstack/react-router"
+import { useQueryClient } from "@tanstack/react-query"
 import { Loader2, Search } from "lucide-react"
 import type { Station } from "@/data/stations"
 import { useT } from "@/i18n"
@@ -7,6 +8,7 @@ import { cn } from "@/lib/cn"
 import { recentRoutes, routePlan } from "@/lib/storage"
 import { trackEvent } from "@/lib/analytics"
 import { useNow } from "@/hooks/use-now"
+import { routesQueryOptions } from "@/lib/api/queries"
 import { dateKey, formatClock, naiveFromParts } from "@/lib/time"
 import { useLocaleParam } from "../locale-link"
 import { StationPicker } from "./station-picker"
@@ -45,6 +47,7 @@ export function Planner({
 }) {
   const t = useT()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const locale = useLocaleParam()
   // The loader's clock is baked into edge-cached HTML, so it is only a seed: `useNow` corrects it after hydration and
   // keeps it ticking, which is what makes the "Today" label and the calendar's minimum survive midnight and a long visit.
@@ -69,6 +72,19 @@ export function Planner({
 
   const sameStation = Boolean(value.origin && value.destination && value.origin.id === value.destination.id)
   const ready = Boolean(value.origin && value.destination) && !sameStation
+
+  // As in the app, the timetable is fetched as soon as the form is complete, so the results page's loader finds it
+  // in the cache and submitting is instant. Same key as the loader builds. Not re-run as the clock ticks: a stale
+  // entry still serves the loader at once, and the results page refreshes it itself.
+  const originId = value.origin?.id
+  const destinationId = value.destination?.id
+  useEffect(() => {
+    if (variant !== "hero" || !ready || !originId || !destinationId) return
+    void queryClient.prefetchQuery(
+      routesQueryOptions({ originId, destinationId, date: value.date || today, hour: value.time || now }),
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [variant, ready, originId, destinationId, value.date, value.time, today, queryClient])
 
   /**
    * `keepTrip` leaves the selected trip in the search: a train keeps its id across a date/time change, so the
