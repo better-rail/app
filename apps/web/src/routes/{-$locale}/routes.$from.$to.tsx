@@ -33,14 +33,19 @@ import { formatDayLabel, formatLongDate } from "@/lib/format"
 
 /** Guards a bogus `day` param from spawning an unbounded number of queries. */
 const MAX_EXTRA_DAYS = 7
-/** Room left above a card scrolled into view. */
-const CARD_GAP = 16
+/** The list's `gap-3`: a card brought up under the toolbar sits this far below it, so the card before it is hidden. */
+const CARD_GAP = 12
+
+/** Where the pinned bars end. */
+function barsBottom(): number {
+  const header = document.querySelector("[data-site-header]")?.getBoundingClientRect().height ?? 0
+  const planner = document.querySelector("[data-results-planner]")?.getBoundingClientRect().height ?? 0
+  return header + planner
+}
 
 /** Scroll targets stay below both pinned bars. */
 function resultsTop(): number {
-  const header = document.querySelector("[data-site-header]")?.getBoundingClientRect().height ?? 0
-  const planner = document.querySelector("[data-results-planner]")?.getBoundingClientRect().height ?? 0
-  return header + planner + 16
+  return barsBottom() + 16
 }
 
 /**
@@ -462,7 +467,7 @@ function RoutesPage() {
       if (!card) return
       const { top, bottom } = card.getBoundingClientRect()
       if (top >= resultsTop() && bottom <= window.innerHeight) return
-      const offset = resultsTop() + CARD_GAP
+      const offset = barsBottom() + CARD_GAP
       // A search late in the evening lands on the last trains: bringing one of those up to the top would
       // scroll the list's end above the fold and push the details pane up with it, so the scroll stops with the
       // end of the list at the fold, the requested train just above it — as a list scrolled to its end looks.
