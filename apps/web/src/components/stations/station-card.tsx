@@ -14,6 +14,7 @@ export function StationPhotoCard({
   children,
   size = "default",
   transitionName,
+  priority,
   ref,
 }: {
   station: Station | undefined
@@ -22,6 +23,8 @@ export function StationPhotoCard({
   children?: ReactNode
   size?: "default" | "header"
   transitionName?: string
+  /** Above the fold and wanted now: skips lazy loading. */
+  priority?: boolean
   ref?: Ref<HTMLSpanElement>
 }) {
   return (
@@ -34,7 +37,7 @@ export function StationPhotoCard({
         className,
       )}
     >
-      <StationImage station={station} className="absolute inset-0" />
+      <StationImage station={station} priority={priority} className="absolute inset-0" />
       <span className="station-photo-gradient absolute inset-0" aria-hidden="true" />
       <span
         className={cn(

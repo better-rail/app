@@ -1,11 +1,26 @@
 import { stationImage, type Station } from "@/data/stations"
 import { cn } from "@/lib/cn"
 
+const DEFAULT_SIZES = "(min-width: 1024px) 640px, 100vw"
+
+const warmed = new Set<string>()
+
+/** Fetches a station's photo into the browser cache, so a card mounted for it a moment later paints on its first frame. */
+export function preloadStationImage(station: Station | undefined, sizes = DEFAULT_SIZES) {
+  const large = stationImage(station, 1280)
+  if (!large || typeof Image === "undefined" || warmed.has(large)) return
+  warmed.add(large)
+  const img = new Image()
+  img.sizes = sizes
+  img.srcset = `${stationImage(station, 160)} 160w, ${stationImage(station, 640)} 640w, ${large} 1280w`
+  img.src = large
+}
+
 /** Responsive station photo with a fallback tint when a station has no picture yet. */
 export function StationImage({
   station,
   className,
-  sizes = "(min-width: 1024px) 640px, 100vw",
+  sizes = DEFAULT_SIZES,
   priority = false,
 }: {
   station: Station | undefined
@@ -41,7 +56,8 @@ export function StationImage({
       height={853}
       loading={priority ? "eager" : "lazy"}
       fetchPriority={priority ? "high" : "auto"}
-      decoding="async"
+      // Sync for a priority photo: a cached one then paints with the card instead of a frame after it.
+      decoding={priority ? "sync" : "async"}
       className={cn("h-full w-full object-cover", className)}
     />
   )

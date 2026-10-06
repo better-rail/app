@@ -9,6 +9,7 @@ import { useRecentRoutes } from "@/hooks/use-stored"
 import { useStationSearch } from "./use-station-search"
 import { PickerPopover, type PickerCloseReason } from "./picker-popover"
 import { StationPhotoCard } from "../stations/station-card"
+import { preloadStationImage } from "../stations/station-image"
 
 export interface StationPickerProps {
   label: string
@@ -92,6 +93,12 @@ export function StationPicker({
     list.current?.scrollTo({ top: 0 })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query])
+
+  // The highlighted row is the likely pick: fetch its photo now so the card doesn't flash grey when it lands.
+  useEffect(() => {
+    if (activeIndex >= 0) preloadStationImage(options[activeIndex])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeIndex])
 
   // Only after a key press: a hovered row is on screen already, and scrolling it "into view" could move the page.
   useEffect(() => {
@@ -184,6 +191,7 @@ export function StationPicker({
           name={name ?? ""}
           size={inHeader ? "header" : "default"}
           transitionName={`station-${kind}`}
+          priority
           className="shadow-card group-hover:shadow-card-hover"
         >
           {inHeader && (
@@ -365,6 +373,8 @@ const StationOption = memo(function StationOption({
       aria-disabled={disabled}
       data-active={active}
       onMouseMove={() => onHover(index)}
+      // Touch has no hover, so the press itself is the earliest warning of the pick.
+      onPointerDown={() => preloadStationImage(station)}
       onClick={() => !disabled && onSelect(station)}
       className={cn(
         "flex cursor-pointer items-center gap-3 rounded-xl px-2.5 py-2.5 transition-colors lg:py-2",

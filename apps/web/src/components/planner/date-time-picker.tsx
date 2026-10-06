@@ -60,7 +60,7 @@ export function DateTimePicker({
     <div
       className={cn(
         // One row at every width: the fields share the space (the date gets more of a phone's, "31/12/2026" being the
-        // longest label). The reset control lives inside the time field.
+        // longest label). The reset control lives inside the time field, shown once the planner is off "now".
         "grid grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] gap-2 sm:grid-cols-2",
         className,
       )}
@@ -71,7 +71,7 @@ export function DateTimePicker({
         now={now}
         onChange={(time) => onChange({ ...value, time })}
         onReset={() => onChange({ date: undefined, time: undefined })}
-        resetDisabled={isNow}
+        canReset={!isNow}
         fieldClass={fieldClass}
       />
     </div>
@@ -245,10 +245,10 @@ function TimeField({
   now,
   onChange,
   onReset,
-  resetDisabled,
+  canReset,
   fieldClass,
   className,
-}: FieldProps<string> & { now: string; onReset: () => void; resetDisabled: boolean }) {
+}: FieldProps<string> & { now: string; onReset: () => void; canReset: boolean }) {
   const t = useT()
   const isDesktop = useIsDesktop()
   const popoverId = useId()
@@ -325,7 +325,7 @@ function TimeField({
     else setText(null)
   }
 
-  const resetButton = (
+  const resetButton = canReset && (
     <button
       type="button"
       data-reset
@@ -334,10 +334,11 @@ function TimeField({
         setText(null)
         touched.current = false
         onReset()
+        // The button unmounts with the reset; focus would otherwise drop to the page.
+        focusTrigger()
       }}
-      disabled={resetDisabled}
       className={cn(
-        "flex size-9 shrink-0 items-center justify-center rounded-lg text-dim transition-colors hover:bg-surface-3 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-brand/20 disabled:opacity-60 disabled:hover:bg-transparent",
+        "flex size-9 shrink-0 items-center justify-center rounded-lg text-dim transition-colors hover:bg-surface-3 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-brand/20",
         !isDesktop && "absolute end-1.5 top-1/2 -translate-y-1/2 sm:end-10",
       )}
       aria-label={t("plan.now")}
@@ -375,7 +376,7 @@ function TimeField({
           open={open}
           onClick={openPicker}
           className={fieldClass}
-          displayClassName="me-10"
+          displayClassName={canReset ? "me-10" : undefined}
         />
       )}
       {!isDesktop && resetButton}
