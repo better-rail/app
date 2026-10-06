@@ -60,6 +60,7 @@ export function Planner({
   const swapAnimations = useRef<Animation[]>([])
   /** The hero form has been sent and the results page is still loading — the button says so and locks meanwhile. */
   const [submitting, setSubmitting] = useState(false)
+  const navigating = useRef(false)
   const [dirty, setDirty] = useState(false)
   const autoNavigate = variant !== "hero"
 
@@ -205,12 +206,19 @@ export function Planner({
       className={cn("flex flex-col gap-4", className)}
       onSubmit={(event) => {
         event.preventDefault()
-        if (submitting) return
+        if (navigating.current) return
         const navigation = go(value)
         if (!navigation) return
-        setSubmitting(true)
+        navigating.current = true
+        // A prefetched timetable settles within a frame, and the button must not flash "looking for trains" on
+        // the way out: the state only shows when the loader is still working after a beat.
+        const delay = setTimeout(() => setSubmitting(true), 75)
         // The planner is normally gone by the time this settles; if the page is still here, the button is given back.
-        navigation.finally(() => setSubmitting(false))
+        navigation.finally(() => {
+          clearTimeout(delay)
+          navigating.current = false
+          setSubmitting(false)
+        })
       }}
       aria-label={t("plan.title")}
     >
