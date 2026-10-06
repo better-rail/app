@@ -16,6 +16,7 @@ export const he = {
   "home.subtitle": "מסלולים, החלפות ורציפים לכל תחנות הרכבת - בחינם ובקוד פתוח.",
   "home.recent": "חיפושים אחרונים",
   "home.clearRecent": "ניקוי",
+  "home.reverseRoute": "לכיוון ההפוך",
   "home.downloadIos": "הורדה לאייפון",
   "home.downloadAndroid": "הורדה לאנדרואיד",
   "home.announcement": "רכבת ישראל מאיימת לתבוע את בטר רייל",

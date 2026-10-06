@@ -2,6 +2,7 @@ import { useSyncExternalStore } from "react"
 import {
   recentRoutes,
   hideSlowTrainsPreference,
+  recentTrayPreference,
   routePlan,
   subscribeToStorage,
   type StoredRoute,
@@ -29,6 +30,11 @@ export function useRecentRoutes(): StoredRoute[] {
 export function useHideSlowTrains(): [boolean, (value: boolean) => void] {
   const value = useSyncExternalStore(subscribeToStorage, hideSlowTrainsPreference.get, () => false)
   return [value, hideSlowTrainsPreference.set]
+}
+
+export function useRecentTrayOpen(): [boolean, (value: boolean) => void] {
+  const value = useSyncExternalStore(subscribeToStorage, recentTrayPreference.get, () => false)
+  return [value, recentTrayPreference.set]
 }
 
 const EMPTY_PLAN: StoredRoutePlan = {}

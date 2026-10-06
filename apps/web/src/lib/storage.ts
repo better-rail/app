@@ -1,7 +1,8 @@
 // Per-browser preferences in localStorage. Every access is try/catch-wrapped: storage may be unavailable (private mode, SSR).
 const RECENT_KEY = "better-rail:recent-routes"
 const SLOW_TRAINS_KEY = "better-rail:hide-slow-trains"
-const MAX_RECENT = 6
+// Room for four cards once a route and its return trip are merged.
+const MAX_RECENT = 8
 
 export interface StoredRoute {
   originId: string
@@ -42,6 +43,14 @@ export const recentRoutes = {
 export const hideSlowTrainsPreference = {
   get: () => read<boolean>(SLOW_TRAINS_KEY, false),
   set: (value: boolean) => write(SLOW_TRAINS_KEY, value),
+}
+
+const RECENT_TRAY_KEY = "better-rail:recent-tray-open"
+
+/** Whether the home page's recent-searches tray is expanded; collapsed until the rider opens it. */
+export const recentTrayPreference = {
+  get: () => read<boolean>(RECENT_TRAY_KEY, false),
+  set: (value: boolean) => write(RECENT_TRAY_KEY, value),
 }
 
 const THEME_KEY = "better-rail:theme"

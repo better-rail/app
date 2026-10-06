@@ -19,6 +19,7 @@ export const en: Record<TranslationKey, string> = {
   "home.subtitle": "Routes, changes and platforms for every station - free and open source.",
   "home.recent": "Recent searches",
   "home.clearRecent": "Clear",
+  "home.reverseRoute": "Reverse direction",
   "home.downloadIos": "Download on the App Store",
   "home.downloadAndroid": "Get it on Google Play",
   "home.announcement": "Israel Railways threatens to sue Better Rail",
