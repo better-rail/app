@@ -256,7 +256,8 @@ class ArrivalAlarmService : Service() {
         const val CHANNEL_ID = "better-rail-arrival-alarm"
         private const val NOTIFICATION_ID = 7301
         private const val RING_DURATION_MS = 2 * 60 * 1000L
-        private const val BRAND_COLOR = 0xFFFBA928.toInt()
+        // The app's primary blue, matching the full-screen alarm.
+        private const val BRAND_COLOR = 0xFF0C83FF.toInt()
         private val VIBRATION_PATTERN = longArrayOf(0, 800, 600)
 
         private val ALARM_AUDIO: AudioAttributes = AudioAttributes.Builder()
