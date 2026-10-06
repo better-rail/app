@@ -2,7 +2,7 @@ import { useState, type ReactNode } from "react"
 import { AlertTriangle, ArrowLeft, ArrowRight, Ban, Clock, ArrowLeftRight, ListChevronsUpDown, ListChevronsDownUp, TrainFront } from "lucide-react"
 import type { RouteItem, Train } from "@/lib/api/types"
 import { exchangeWaitMinutes } from "@/lib/api/route-format"
-import { addMinutes, formatClock } from "@/lib/time"
+import { formatClock } from "@/lib/time"
 import { formatDuration } from "@/lib/format"
 import { stationNameById } from "@/data/stations"
 import { useLocale, useT } from "@/i18n"
@@ -32,8 +32,6 @@ export function RouteDetails({
   const [showFullRoute, setShowFullRoute] = useState(false)
   const Arrow = locale === "he" ? ArrowLeft : ArrowRight
   const changes = route.trains.length - 1
-  // The arrival moves with the last train's delay, not the first's — on a journey with a change they differ.
-  const delayedArrival = route.arrivalDelay > 0 ? addMinutes(route.arrivalTime, route.arrivalDelay) : undefined
   const delay = Math.max(route.delay, route.arrivalDelay)
 
   return (
@@ -42,34 +40,19 @@ export function RouteDetails({
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             {/* Reads in the page's direction: departure first, then the arrow, then arrival. */}
-            <div className="flex items-baseline gap-2">
-              <span
-                className={cn(
-                  "tabular text-[30px] font-bold leading-none tracking-tight",
-                  route.isCancelled && "line-through opacity-60",
-                )}
-              >
-                {formatClock(route.departureTime)}
-              </span>
-              <Arrow className="size-5 shrink-0 self-center text-dim" />
-              <span
-                className={cn(
-                  "tabular text-[30px] font-bold leading-none tracking-tight",
-                  route.isCancelled && "line-through opacity-60",
-                )}
-              >
-                {formatClock(route.arrivalTime)}
-              </span>
-              {delayedArrival && <span className="tabular text-[15px] font-bold text-danger">{formatClock(delayedArrival)}</span>}
+            <div className="flex items-center gap-2">
+              <HeaderTime time={route.departureTime} cancelled={route.isCancelled} />
+              <Arrow className="size-5 shrink-0 text-dim" />
+              <HeaderTime time={route.arrivalTime} cancelled={route.isCancelled} />
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-2 text-[14px] text-muted">
+              {route.isCancelled ? <CancelledBadge /> : delay > 0 ? <DelayBadge minutes={delay} /> : null}
               <span className="inline-flex items-center gap-1">
                 <Clock className="size-4" />
                 {formatDuration(route.durationMs, locale)}
               </span>
               <span aria-hidden="true">·</span>
               <span>{changesText(changes)}</span>
-              {route.isCancelled ? <CancelledBadge /> : delay > 0 ? <DelayBadge minutes={delay} /> : null}
             </div>
           </div>
           <div className="flex items-center gap-1">
@@ -104,6 +87,15 @@ export function RouteDetails({
         ))}
       </div>
     </section>
+  )
+}
+
+/** A headline clock. Shows the scheduled time, like the route cards — the delay badge and station rows carry the shift. */
+function HeaderTime({ time, cancelled }: { time: number; cancelled: boolean }) {
+  return (
+    <span className={cn("tabular text-[30px] font-bold leading-none tracking-tight", cancelled && "line-through opacity-60")}>
+      {formatClock(time)}
+    </span>
   )
 }
 
