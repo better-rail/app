@@ -126,7 +126,7 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
             <View style={[styles.infoDetailWrapper, { marginBottom: spacing[1] }]}>
               <Image style={[styles.infoIcon, { tintColor: color.success }]} source={checkmarkIcon} />
               <Text style={styles.infoText} maxFontSizeMultiplier={1.2}>
-                {translate("routeDetails.acrossPlatformInfo")}
+                {translate("routeDetails.acrossPlatform")}
               </Text>
             </View>
           )}
