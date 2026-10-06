@@ -14,17 +14,21 @@ import { useSettingsStore } from "@/models"
 import type { ColorSchemePreference } from "@/models/settings/settings"
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
 import { setAnalyticsUserProperty, trackEvent } from "@/services/analytics"
+import { isHourIndexSupported } from "@/utils/hour-index"
 
 export function UISettingsScreen() {
   const isDarkMode = useIsDarkMode()
-  const { showRouteCardHeader, setShowRouteCardHeader, colorScheme, setColorScheme } = useSettingsStore(
-    useShallow((s) => ({
-      showRouteCardHeader: s.showRouteCardHeader,
-      setShowRouteCardHeader: s.setShowRouteCardHeader,
-      colorScheme: s.colorScheme,
-      setColorScheme: s.setColorScheme,
-    })),
-  )
+  const { showRouteCardHeader, setShowRouteCardHeader, showHourIndex, setShowHourIndex, colorScheme, setColorScheme } =
+    useSettingsStore(
+      useShallow((s) => ({
+        showRouteCardHeader: s.showRouteCardHeader,
+        setShowRouteCardHeader: s.setShowRouteCardHeader,
+        showHourIndex: s.showHourIndex,
+        setShowHourIndex: s.setShowHourIndex,
+        colorScheme: s.colorScheme,
+        setColorScheme: s.setColorScheme,
+      })),
+    )
 
   // Animate card container height based on header visibility
   const cardHeight = useSharedValue(showRouteCardHeader ? RouteCardHeightWithHeader : RouteCardHeight)
@@ -51,6 +55,12 @@ export function UISettingsScreen() {
       setAnalyticsUserProperty("route_card_header_enabled", "false")
     }
     setShowRouteCardHeader(value)
+  }
+
+  const onHourIndexToggle = (value: boolean) => {
+    trackEvent(value ? "hour_index_enabled" : "hour_index_disabled", { source: "settings" })
+    setAnalyticsUserProperty("hour_index_enabled", value ? "true" : "false")
+    setShowHourIndex(value)
   }
 
   const onColorSchemeChange = (preference: ColorSchemePreference) => {
@@ -94,6 +104,23 @@ export function UISettingsScreen() {
           onToggle={onRouteCardHeaderToggle}
         />
       </View>
+
+      {isHourIndexSupported() && (
+        <>
+          <Text style={styles.groupTitle} tx="settings.routeList" />
+          <View style={settingsStyles.group}>
+            <SettingBox
+              testID="settings-show-hour-index"
+              first
+              last
+              title={translate("settings.showHourIndex") ?? ""}
+              toggle
+              toggleValue={showHourIndex}
+              onToggle={onHourIndexToggle}
+            />
+          </View>
+        </>
+      )}
     </Screen>
   )
 }
