@@ -26,6 +26,7 @@ import {
   ResultDateCard,
   DateScroll,
   HourIndexBar,
+  HOUR_INDEX_MAX_FONT_SCALE,
   type HourIndexEntry,
 } from "./components"
 import { flatMap, max, round } from "lodash"
@@ -336,7 +337,8 @@ export function RouteListScreen() {
     })
     return entries
   }, [displayData, visibleDate])
-  const showHourIndex = isHourIndexSupported() && hourIndexEnabled && hourIndexEntries.length >= 4
+  const showHourIndex =
+    isHourIndexSupported() && hourIndexEnabled && hourIndexEntries.length >= 4 && fontScale <= HOUR_INDEX_MAX_FONT_SCALE
 
   const scrollToHour = ({ index }: HourIndexEntry) => {
     // Keep the date header in view when jumping to the first train of the day

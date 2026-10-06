@@ -34,8 +34,8 @@ const ENTER_OFFSET = (isRTL ? -1 : 1) * 40
 const SPRING = { damping: 18, stiffness: 260, mass: 0.8 }
 const LABEL_SIZE = 11
 const LABEL_LINE_HEIGHT = 17
-// Wider labels would overlap the cards, which leave only a narrow gutter for the bar
-const MAX_LABEL_SCALE = 1.3
+// Past this, the cards' text spills into the bar's narrow gutter, so the bar is hidden
+export const HOUR_INDEX_MAX_FONT_SCALE = 1.3
 // Keeps the first and last labels off the list's edges
 const VERTICAL_INSET = 16
 // Let the bubble finish growing before the list jump, which can stall a frame or two
@@ -56,7 +56,7 @@ export function HourIndexBar({ entries, topHour, onSelect }: HourIndexBarProps) 
   const { fontScale } = useWindowDimensions()
   const [availableHeight, setAvailableHeight] = useState(0)
   const fitScale = availableHeight > 0 ? (availableHeight - VERTICAL_INSET) / (count * LABEL_LINE_HEIGHT) : Infinity
-  const labelScale = Math.min(fontScale, MAX_LABEL_SCALE, fitScale)
+  const labelScale = Math.min(fontScale, HOUR_INDEX_MAX_FONT_SCALE, fitScale)
 
   // Scrubbing can outpace list rendering, so jumps are coalesced to the latest hour per frame
   const pendingHour = useRef<number | null>(null)
