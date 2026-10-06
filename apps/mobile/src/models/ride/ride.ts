@@ -14,6 +14,7 @@ import notifee, { NotificationSettings } from "@notifee/react-native"
 import { trackEvent } from "@/services/analytics"
 import { showErrorAlert } from "@/utils/helpers/error-alert"
 import { rideStartErrorLevel, rideStartErrorTags } from "@/utils/helpers/ride-errors"
+import { isSameRoute } from "@/utils/helpers/ride-helpers"
 
 const routeApi = new RouteApi()
 
@@ -234,15 +235,7 @@ export const useRideStore = create<RideStore>((set, get) => ({
   },
 
   isRouteActive(routeItem) {
-    const currentRoute = get().route
-    if (!currentRoute) return false
-
-    return (
-      currentRoute.departureTime === routeItem.departureTime &&
-      currentRoute.trains[0].trainNumber === routeItem.trains[0].trainNumber &&
-      currentRoute.trains[currentRoute.trains.length - 1].destinationStationId ===
-        routeItem.trains[routeItem.trains.length - 1].destinationStationId
-    )
+    return isSameRoute(get().route, routeItem)
   },
 
   originId() {

@@ -1,6 +1,6 @@
 import { test, expect } from "bun:test"
 import { buildRoute, MINUTE } from "../../../test/fixtures/ride-route"
-import { findClosestStationInRoute, getPreviousTrainFromStationId, getRideStatus, getTrainFromStationId } from "./ride-helpers"
+import { findClosestStationInRoute, getPreviousTrainFromStationId, getRideStatus, getTrainFromStationId, isSameRoute } from "./ride-helpers"
 
 test("finds the train a stop station belongs to", () => {
   const route = buildRoute(10 * MINUTE)
@@ -83,4 +83,12 @@ test("has arrived once the final leg reached its destination", () => {
   const route = buildRoute(-70 * MINUTE)
 
   expect(getRideStatus(route, route.trains[1], 3)).toBe("arrived")
+})
+
+test("matches the active ride only against the same trip", () => {
+  const route = { ...buildRoute(10 * MINUTE), departureTime: 1000 }
+
+  expect(isSameRoute(undefined, route)).toBe(false)
+  expect(isSameRoute(route, { ...route })).toBe(true)
+  expect(isSameRoute(route, { ...route, departureTime: 2000 })).toBe(false)
 })
