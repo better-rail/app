@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router"
 import { ArrowLeft, ArrowRight, Clock } from "lucide-react"
 import { Planner } from "@/components/planner/planner"
 import { LocaleLink } from "@/components/locale-link"
-import { DownloadBadges } from "@/components/download-badges"
 import { getStationById, stationName, type Station } from "@/data/stations"
 import { useLocale, useT, resolveLocale, translate } from "@/i18n"
 import { useRecentRoutes, useStoredRoutePlan } from "@/hooks/use-stored"
@@ -48,45 +47,18 @@ function HomePage() {
   }
 
   return (
-    <>
-      <section className="relative overflow-x-clip">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_80%_0%,color-mix(in_srgb,var(--color-brand)_14%,transparent),transparent_70%)]"
-        />
-        <div className="container-page relative flex flex-col gap-8 py-6 sm:py-8 lg:py-10">
-          {/* Visually hidden: the planner is the hero, but the page still needs an h1. */}
-          <h1 className="sr-only">{t("home.title")}</h1>
-          <Planner variant="hero" today={today} now={now} initial={initial} className="relative z-20" />
-          <SavedRoutes />
-        </div>
-      </section>
-
-      <section className="border-t border-line/70 bg-surface-2">
-        <div className="container-page grid items-center gap-10 py-14 sm:py-20 lg:grid-cols-2 lg:gap-16">
-          <div>
-            <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">{t("home.appTitle")}</h2>
-            <p className="mt-3 text-lg text-muted">{t("home.appSubtitle")}</p>
-            <DownloadBadges className="mt-6" />
-          </div>
-          <picture className="mx-auto w-full max-w-[420px]">
-            <source
-              type="image/webp"
-              srcSet="/assets/images/iphone-screenshot.webp 1x, /assets/images/iphone-screenshot@2x.webp 2x"
-            />
-            <img
-              src="/assets/images/iphone-screenshot.png"
-              alt=""
-              width={457}
-              height={565}
-              className="w-full drop-shadow-2xl"
-              loading="lazy"
-              decoding="async"
-            />
-          </picture>
-        </div>
-      </section>
-    </>
+    <section className="relative overflow-x-clip">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_80%_0%,color-mix(in_srgb,var(--color-brand)_14%,transparent),transparent_70%)]"
+      />
+      <div className="container-page relative flex flex-col gap-8 py-6 sm:py-8 lg:py-10">
+        {/* Visually hidden: the planner is the hero, but the page still needs an h1. */}
+        <h1 className="sr-only">{t("home.title")}</h1>
+        <Planner variant="hero" today={today} now={now} initial={initial} className="relative z-20" />
+        <SavedRoutes />
+      </div>
+    </section>
   )
 }
 
