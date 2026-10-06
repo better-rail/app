@@ -12,7 +12,7 @@ import Animated, {
 } from "react-native-reanimated"
 import { scheduleOnRN } from "react-native-worklets"
 import { StyleSheet } from "react-native-unistyles"
-import { isRTL, translate, use12HourClock } from "@/i18n"
+import { isRTL, translate } from "@/i18n"
 import { formatHourLabel, formatHourTime } from "./hour-format"
 import { HourBubbleText } from "./hour-bubble-text"
 
@@ -26,8 +26,7 @@ type HourIndexBarProps = {
 }
 
 const BUBBLE_HEIGHT = 56
-// Wider for "12:00 PM". A function, since the clock format is resolved after this module loads
-const bubbleWidth = () => (use12HourClock ? 116 : 86)
+const BUBBLE_WIDTH = 86
 // Far enough from the bar that the scrubbing thumb doesn't cover it
 const BUBBLE_GAP = 56
 // The bubble grows out of the bar, so it starts shifted toward it
@@ -184,7 +183,7 @@ export function HourIndexBar({ entries, topHour, onSelect }: HourIndexBarProps) 
       {/* Animated props stay on plain RN styles; Unistyles styles live on the inner views */}
       {/* Hidden from screen readers, which get the hour from the bar's value */}
       <Animated.View
-        style={[plainStyles.bubble, { width: bubbleWidth() }, bubbleStyle]}
+        style={[plainStyles.bubble, bubbleStyle]}
         pointerEvents="none"
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"
@@ -222,6 +221,7 @@ const plainStyles = RNStyleSheet.create({
     position: "absolute",
     top: 0,
     end: BUBBLE_GAP,
+    width: BUBBLE_WIDTH,
     height: BUBBLE_HEIGHT,
     opacity: 0,
   },
