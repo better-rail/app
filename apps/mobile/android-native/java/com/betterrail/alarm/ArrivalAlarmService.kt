@@ -63,6 +63,8 @@ class ArrivalAlarmService : Service() {
 
         // Within 5 seconds of the start, and before anything that could be slow.
         if (!startInForeground(state)) {
+            // Keep the fallback notification up until the rider stops it.
+            isStopped = true
             stopSelf()
             return START_NOT_STICKY
         }
@@ -244,6 +246,8 @@ class ArrivalAlarmService : Service() {
         wakeLock = null
 
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
+        // The fallback notification isn't the foreground one, so stopForeground leaves it.
+        (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).cancel(NOTIFICATION_ID)
         stopSelf()
 
         if (instance === this) instance = null

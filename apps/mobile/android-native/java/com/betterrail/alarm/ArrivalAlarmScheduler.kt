@@ -71,6 +71,9 @@ object ArrivalAlarmScheduler {
     // A date in the past rings right away, since the rider is already late.
     private const val MIN_DELAY_MS = 5_000L
 
+    // A restored alarm this late still rings before arrival, since the shortest lead time is 3 minutes.
+    private const val RESTORE_GRACE_MS = 2 * 60 * 1000L
+
     fun canScheduleExactAlarms(context: Context): Boolean =
         Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager(context).canScheduleExactAlarms()
 
@@ -153,12 +156,13 @@ object ArrivalAlarmScheduler {
         val state = ArrivalAlarmStore.load(context) ?: return
         if (!state.isScheduled) return
 
-        if (state.fireDate <= System.currentTimeMillis()) {
+        if (state.fireDate < System.currentTimeMillis() - RESTORE_GRACE_MS) {
             // The phone was off when it should have rung; ringing now would be too late to help.
             ArrivalAlarmStore.save(context, state.copy(isScheduled = false))
             return
         }
 
+        // A date that just passed (an app update or a reboot around the fire time) rings right away.
         try {
             schedule(context, state)
         } catch (e: Exception) {
