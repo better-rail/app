@@ -1,4 +1,4 @@
-import { useT } from "@/i18n"
+import { useLocale, useT } from "@/i18n"
 import { cn } from "@/lib/cn"
 import { AppIcon } from "./logo"
 import { StoreLinks } from "./store-links"
@@ -8,6 +8,7 @@ import { ThemeToggle } from "./theme-toggle"
 /** Logo, theme toggle and store links only; every other link lives in the footer. */
 export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
   const t = useT()
+  const locale = useLocale()
 
   return (
     // The blur sits on the header itself: its view-transition-name makes it a backdrop root, so a child's blur sees nothing.
@@ -25,10 +26,10 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
         {t("site.skipToContent")}
       </a>
       <nav className="container-page flex h-15 items-center gap-6" aria-label={t("nav.menu")}>
-        {/* Named by its visible text: "Better Rail" is what a voice-control user will say to reach it. */}
         <LocaleLink to="/{-$locale}" className="flex min-h-11 items-center gap-2.5 font-bold tracking-tight">
           <AppIcon className="size-9" />
-          <span className="text-[19px]">Better Rail</span>
+          {/* The Latin wordmark reads oddly in the Hebrew header, so there it's icon-only. */}
+          <span className={locale === "en" ? "text-[19px]" : "sr-only"}>{t("site.nameHebrew")}</span>
         </LocaleLink>
 
         <div className="ms-auto flex items-center gap-0.5">
