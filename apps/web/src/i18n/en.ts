@@ -74,7 +74,12 @@ export const en: Record<TranslationKey, string> = {
   "routes.previousDay": "Previous day",
   "routes.differentDate": "No trains were found for the requested date. Showing trains from {date}.",
   "routes.differentHour": "No trains were found around the requested time. Showing other times on the same day.",
-  "routes.hideSlowTrains": "Hide slow trains",
+  "routes.slowHidden": "{count} slow trains hidden",
+  "routes.slowHiddenOne": "1 slow train hidden",
+  "routes.slowShown": "Includes {count} slow trains",
+  "routes.slowShownOne": "Includes 1 slow train",
+  "routes.show": "Show",
+  "routes.hide": "Hide",
   "routes.hideSlowTrainsDescription":
     "Slow trains are trains whose route and travel time are significantly longer than other trains.",
   "routes.selectRoute": "Select a trip from the list to see its details",

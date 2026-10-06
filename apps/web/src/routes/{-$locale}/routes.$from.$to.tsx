@@ -1,7 +1,7 @@
 import { createFileRoute, notFound, useElementScrollRestoration, useRouter, useRouterState } from "@tanstack/react-router"
 import { useQueries, useQuery, type QueryClient, type UseQueryResult } from "@tanstack/react-query"
 import { useDeferredValue, useEffect, useRef, useState, ViewTransition } from "react"
-import { ArrowLeft, ArrowRight, CalendarDays, ChevronDown, CloudOff, Loader2, TrainFront } from "lucide-react"
+import { ArrowLeft, ArrowRight, CalendarDays, ChevronDown, CloudOff, Eye, EyeOff, Loader2, TrainFront } from "lucide-react"
 import { Planner } from "@/components/planner/planner"
 import { RouteList } from "@/components/routes/route-list"
 import { RouteDetails } from "@/components/routes/route-details"
@@ -319,9 +319,15 @@ function RoutesPage() {
   // The stored flag reaches React through `useSyncExternalStore`, which never renders as a transition; deferring it
   // is what lets the list's `<ViewTransition>`s animate the cards it hides and brings back.
   const filterSlowTrains = useDeferredValue(hideSlowTrains)
-  // With the checkbox on, a sparse day can lose every one of its trains; the list says so rather than going blank.
+  // With the filter on, a sparse day can lose every one of its trains; the list says so rather than going blank.
   const visibleRoutes = filterSlowTrains ? routes.filter((route) => !route.isMuchLonger || route.id === search.trip) : routes
   const allSlowHidden = routes.length > 0 && visibleRoutes.length === 0
+  // Counted over every day on the page, since the filter applies to all of them.
+  const slowCount = [query, ...extraDayQueries].reduce(
+    (sum, dayQuery) =>
+      sum + (dayQuery.data?.routes.filter((route) => route.isMuchLonger && route.id !== search.trip).length ?? 0),
+    0,
+  )
 
   /** Undoes the selection's history entry, so the browser's back button does not reopen what was just closed. */
   const closeDetails = () => {
@@ -504,8 +510,8 @@ function RoutesPage() {
           aria-label={t("routes.title", { from, to })}
           className={cn("flex flex-col gap-4", selected ? "hidden lg:flex" : "flex")}
         >
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="flex items-center gap-2 text-[15px] font-bold text-text-2">
+          <div className="flex flex-col gap-1">
+            <h2 className="flex min-h-11 items-center gap-2 text-[15px] font-bold text-text-2">
               <CalendarDays className="size-4 text-brand" />
               {formatDayLabel(firstDay, locale, now)}
               {query.isFetching && <Loader2 className="size-3.5 animate-spin text-dim" aria-hidden="true" />}
@@ -522,15 +528,9 @@ function RoutesPage() {
                 </Tooltip>
               )}
             </h2>
-            <label className="flex min-h-11 cursor-pointer select-none items-center gap-2 py-2 text-[13.5px] text-muted">
-              <input
-                type="checkbox"
-                checked={hideSlowTrains}
-                onChange={(event) => setHideSlowTrains(event.target.checked)}
-                className="size-4 accent-brand"
-              />
-              <span title={t("routes.hideSlowTrainsDescription")}>{t("routes.hideSlowTrains")}</span>
-            </label>
+            {slowCount > 0 && !allSlowHidden && (
+              <SlowTrainsSummary count={slowCount} hidden={hideSlowTrains} onToggle={() => setHideSlowTrains(!hideSlowTrains)} />
+            )}
           </div>
 
           {resultType === "different-date" && query.data && (
@@ -680,6 +680,30 @@ function RoutesPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+/** Says how many slow trains the filter is hiding (or letting through), with the switch to flip it. */
+function SlowTrainsSummary({ count, hidden, onToggle }: { count: number; hidden: boolean; onToggle: () => void }) {
+  const t = useT()
+  const Icon = hidden ? EyeOff : Eye
+  const text = hidden
+    ? count === 1
+      ? t("routes.slowHiddenOne")
+      : t("routes.slowHidden", { count })
+    : count === 1
+      ? t("routes.slowShownOne")
+      : t("routes.slowShown", { count })
+
+  return (
+    <p role="status" className="flex items-center gap-2 text-[13.5px] text-muted">
+      <Icon className="size-4 shrink-0" aria-hidden="true" />
+      <span title={t("routes.hideSlowTrainsDescription")}>{text}</span>
+      <span aria-hidden="true">·</span>
+      <button type="button" onClick={onToggle} className="link-underline font-semibold text-brand">
+        {hidden ? t("routes.show") : t("routes.hide")}
+      </button>
+    </p>
   )
 }
 
