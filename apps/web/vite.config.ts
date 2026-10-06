@@ -5,7 +5,8 @@ import tailwindcss from "@tailwindcss/vite"
 import { cloudflare } from "@cloudflare/vite-plugin"
 
 export default defineConfig({
-  resolve: { tsconfigPaths: true },
+  // The hoisted TanStack packages would otherwise load the root React (the mobile app's version) next to this app's.
+  resolve: { tsconfigPaths: true, dedupe: ["react", "react-dom"] },
   // The sitemap's `lastmod` (the day the site was built) and the id that keys edge-cached pages to this build.
   define: {
     __BUILD_DATE__: JSON.stringify(new Date().toISOString().slice(0, 10)),

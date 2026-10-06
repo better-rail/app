@@ -43,7 +43,9 @@ export function getRouter() {
   router.subscribe("onBeforeNavigate", ({ fromLocation, toLocation }) => {
     const from = fromLocation?.pathname
     const to = toLocation.pathname
-    router.shouldViewTransition = Boolean(from && ((isHome(from) && isResults(to)) || (isResults(from) && isHome(to))))
+    // Typed so the page animation in styles.css skips the transitions React starts for in-page `<ViewTransition>`s.
+    const page = Boolean(from && ((isHome(from) && isResults(to)) || (isResults(from) && isHome(to))))
+    router.shouldViewTransition = page ? { types: ["page"] } : false
   })
 
   setupRouterSsrQueryIntegration({ router, queryClient })

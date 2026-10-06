@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react"
+import { useCallback, useMemo, ViewTransition } from "react"
 import { useNavigate, useRouter } from "@tanstack/react-router"
 import type { RouteItem } from "@/lib/api/types"
 import { isRouteInThePast } from "@/lib/api/route-format"
@@ -54,16 +54,19 @@ export function RouteList({
 
   return (
     <ol data-day={day} className="flex flex-col gap-3">
+      {/* Animates only in a React transition — the page's deferred slow-trains filter; see `routes.$from.$to.tsx`. */}
       {routes.map((route) => (
-        <li key={route.id}>
-          <RouteCard
-            route={route}
-            href={hrefs.get(route.id) ?? ""}
-            selected={route.id === selectedId}
-            isPast={isRouteInThePast(route, now)}
-            onSelect={onSelect}
-          />
-        </li>
+        <ViewTransition key={route.id} default="route-card">
+          <li>
+            <RouteCard
+              route={route}
+              href={hrefs.get(route.id) ?? ""}
+              selected={route.id === selectedId}
+              isPast={isRouteInThePast(route, now)}
+              onSelect={onSelect}
+            />
+          </li>
+        </ViewTransition>
       ))}
     </ol>
   )

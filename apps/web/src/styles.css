@@ -61,12 +61,60 @@
   }
 }
 
-::view-transition-old(root) {
+html:active-view-transition-type(page)::view-transition-old(root) {
   animation: 160ms ease-in both route-page-out;
 }
 
-::view-transition-new(root) {
+html:active-view-transition-type(page)::view-transition-new(root) {
   animation: 300ms 60ms var(--ease-out-expo) both route-page-in;
+}
+
+/* Without transition types the router starts an untyped transition, which still gets the page animation. */
+@supports not selector(:active-view-transition-type(a)) {
+  ::view-transition-old(root) {
+    animation: 160ms ease-in both route-page-out;
+  }
+
+  ::view-transition-new(root) {
+    animation: 300ms 60ms var(--ease-out-expo) both route-page-in;
+  }
+}
+
+/* Route cards (React `<ViewTransition default="route-card">`): the rest slide into place as some leave or arrive. */
+@keyframes route-card-out {
+  to {
+    opacity: 0;
+    scale: 0.96;
+  }
+}
+
+@keyframes route-card-in {
+  from {
+    opacity: 0;
+    scale: 0.96;
+  }
+}
+
+::view-transition-group(.route-card) {
+  animation-duration: 320ms;
+  animation-timing-function: var(--ease-out-expo);
+}
+
+/* Existing cards move without cross-fading their selection or refreshed content. */
+::view-transition-old(.route-card):not(:only-child) {
+  display: none;
+}
+
+::view-transition-new(.route-card):not(:only-child) {
+  animation: none;
+}
+
+::view-transition-old(.route-card):only-child {
+  animation: 160ms ease-in both route-card-out;
+}
+
+::view-transition-new(.route-card):only-child {
+  animation: 280ms 80ms var(--ease-out-expo) both route-card-in;
 }
 
 ::view-transition-group(station-origin),
@@ -81,7 +129,10 @@
   ::view-transition-new(root),
   ::view-transition-group(station-origin),
   ::view-transition-group(station-destination),
-  ::view-transition-group(station-swap) {
+  ::view-transition-group(station-swap),
+  ::view-transition-group(.route-card),
+  ::view-transition-old(.route-card),
+  ::view-transition-new(.route-card) {
     animation-duration: 0.01ms;
     animation-delay: 0ms;
   }

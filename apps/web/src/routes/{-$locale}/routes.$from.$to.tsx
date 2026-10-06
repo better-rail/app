@@ -1,6 +1,6 @@
 import { createFileRoute, notFound, useElementScrollRestoration, useRouter, useRouterState } from "@tanstack/react-router"
 import { useQueries, useQuery, type QueryClient, type UseQueryResult } from "@tanstack/react-query"
-import { useEffect, useRef, useState } from "react"
+import { useDeferredValue, useEffect, useRef, useState, ViewTransition } from "react"
 import { ArrowLeft, ArrowRight, CalendarDays, ChevronDown, CloudOff, Loader2, TrainFront } from "lucide-react"
 import { Planner } from "@/components/planner/planner"
 import { RouteList } from "@/components/routes/route-list"
@@ -311,8 +311,11 @@ function RoutesPage() {
   const shareUrl = originUrl(href)
   const nextDayLabel = formatDayLabel(addDays(startOfDay(firstDay), extraDayCount + 1), locale, now)
   const Arrow = locale === "he" ? ArrowLeft : ArrowRight
+  // The stored flag reaches React through `useSyncExternalStore`, which never renders as a transition; deferring it
+  // is what lets the list's `<ViewTransition>`s animate the cards it hides and brings back.
+  const filterSlowTrains = useDeferredValue(hideSlowTrains)
   // With the checkbox on, a sparse day can lose every one of its trains; the list says so rather than going blank.
-  const visibleRoutes = hideSlowTrains ? routes.filter((route) => !route.isMuchLonger || route.id === search.trip) : routes
+  const visibleRoutes = filterSlowTrains ? routes.filter((route) => !route.isMuchLonger || route.id === search.trip) : routes
   const allSlowHidden = routes.length > 0 && visibleRoutes.length === 0
 
   /** Undoes the selection's history entry, so the browser's back button does not reopen what was just closed. */
@@ -559,12 +562,14 @@ function RoutesPage() {
           )}
 
           {allSlowHidden && (
-            <div className="card flex flex-col items-center gap-3 p-8 text-center text-muted">
-              <p className="text-[15px]">{t("routes.allSlowHidden")}</p>
-              <button type="button" onClick={() => setHideSlowTrains(false)} className="btn-secondary">
-                {t("routes.showSlowTrains")}
-              </button>
-            </div>
+            <ViewTransition default="route-card">
+              <div className="card flex flex-col items-center gap-3 p-8 text-center text-muted">
+                <p className="text-[15px]">{t("routes.allSlowHidden")}</p>
+                <button type="button" onClick={() => setHideSlowTrains(false)} className="btn-secondary">
+                  {t("routes.showSlowTrains")}
+                </button>
+              </div>
+            </ViewTransition>
           )}
 
           {visibleRoutes.length > 0 && (
@@ -582,29 +587,32 @@ function RoutesPage() {
           {routes.length > 0 && (
             <>
               {extraDayQueries.map((dayQuery, index) => (
-                <ExtraDay
-                  key={extraDayDates[index]}
-                  day={addDays(startOfDay(firstDay), index + 1)}
-                  query={dayQuery}
-                  origin={origin}
-                  destination={destination}
-                  date={search.date}
-                  time={search.time}
-                  selectedId={search.trip}
-                  now={now}
-                  hideSlowTrains={hideSlowTrains}
-                />
+                <ViewTransition key={extraDayDates[index]} default="route-card">
+                  <ExtraDay
+                    day={addDays(startOfDay(firstDay), index + 1)}
+                    query={dayQuery}
+                    origin={origin}
+                    destination={destination}
+                    date={search.date}
+                    time={search.time}
+                    selectedId={search.trip}
+                    now={now}
+                    hideSlowTrains={filterSlowTrains}
+                  />
+                </ViewTransition>
               ))}
               {extraDayCount < MAX_EXTRA_DAYS ? (
-                <button
-                  type="button"
-                  onClick={() => setExtraDays(extraDayCount + 1)}
-                  aria-label={`${t("routes.nextDay")}: ${nextDayLabel}`}
-                  className="btn-ghost h-12 w-full gap-2 border border-dashed border-line-strong text-[15px]"
-                >
-                  <ChevronDown className="size-4" />
-                  {nextDayLabel}
-                </button>
+                <ViewTransition default="route-card">
+                  <button
+                    type="button"
+                    onClick={() => setExtraDays(extraDayCount + 1)}
+                    aria-label={`${t("routes.nextDay")}: ${nextDayLabel}`}
+                    className="btn-ghost h-12 w-full gap-2 border border-dashed border-line-strong text-[15px]"
+                  >
+                    <ChevronDown className="size-4" />
+                    {nextDayLabel}
+                  </button>
+                </ViewTransition>
               ) : (
                 <p className="py-2 text-center text-[14px] text-muted">{t("routes.noMoreDays")}</p>
               )}
@@ -654,7 +662,6 @@ function RoutesPage() {
                     originId={origin.id}
                     destinationId={destination.id}
                     shareUrl={shareUrl}
-                    className="animate-fade-in"
                   />
                 </>
               ) : (

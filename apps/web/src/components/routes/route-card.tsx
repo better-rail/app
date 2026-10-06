@@ -46,7 +46,7 @@ export const RouteCard = memo(function RouteCard({
       data-route-id={route.id}
       data-departure={route.departureTime}
       className={cn(
-        "group relative block rounded-card border bg-surface px-4 py-3 shadow-card transition-[box-shadow,border-color,transform,opacity] duration-200 ease-out-expo hover:shadow-card-hover active:scale-[0.985]",
+        "group relative block rounded-card border bg-surface px-4 py-3 shadow-card transition-[box-shadow,border-color,transform] duration-200 ease-out-expo hover:shadow-card-hover active:scale-[0.985]",
         selected ? "border-brand ring-2 ring-brand/25" : "border-line/60 hover:border-line-strong",
         isPast && !selected && "opacity-45 hover:opacity-80",
         route.isCancelled && "border-danger/40",
