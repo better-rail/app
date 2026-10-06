@@ -361,8 +361,11 @@
     "alarmTooLateMessage": "הרכבת מגיעה בעוד פחות מ־%{minutes} דקות. בחרו זמן קצר יותר.",
     "alarmDeniedTitle": "התראת ההגעה כבויה",
     "alarmDeniedMessage": "כדי שנצלצל לפני התחנה, אפשרו ל־Better Rail לתזמן שעונים מעוררים בהגדרות.",
+    "alarmDeniedMessageAndroid": "כדי שנצלצל לפני התחנה, אפשרו ל־Better Rail להגדיר שעונים מעוררים ולשלוח התראות בהגדרות.",
     "alarmNoUpdatesTitle": "הצלצול לא יזוז לפי העיכובים",
     "alarmNoUpdatesMessage": "אפשרו התראות בהגדרות כדי שהצלצול יזוז כשהרכבת מתעכבת, גם כש־Better Rail סגורה.",
+    "alarmFullScreenTitle": "להציג את הצלצול במסך הנעילה?",
+    "alarmFullScreenMessage": "הצלצול יישמע בכל מקרה. אפשרו התראות במסך מלא כדי שיתפוס את כל המסך גם כשהטלפון נעול.",
     "alarmFailed": "לא הצלחנו להגדיר את התראת ההגעה. נסו שוב."
   },
   "paywall": {

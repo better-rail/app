@@ -6,7 +6,7 @@ import { FirebaseError } from "firebase-admin"
 import { logNames } from "../logs"
 import { RouteItem } from "../types/rail"
 import { Ride, RideAlarm } from "../types/ride"
-import { buildAlarmMovedTexts } from "../utils/alarm-utils"
+import { buildAlarmMovedTexts, buildAndroidAlarmMessage } from "../utils/alarm-utils"
 import { sendApnAlarmNotification, sendApnNotification } from "../utils/apn-utils"
 import { sendFcmNotification } from "../utils/fcm-utils"
 import { Message } from "firebase-admin/lib/messaging/messaging-api"
@@ -95,20 +95,26 @@ export const sendAlarmMovedNotification = async (
   fireDate: number,
   logger: Logger,
 ) => {
-  const { title, body, failedBody } = buildAlarmMovedTexts(alarm, route, fireDate)
+  const texts = buildAlarmMovedTexts(alarm, route, fireDate)
+  const { title, body, failedBody } = texts
 
   try {
-    await sendApnAlarmNotification(alarm.token, {
-      alert: { title, body },
-      collapseId: `arrival-alarm-${ride.rideId}`,
-      data: {
-        alarm: { rideId: ride.rideId, alarmId: alarm.alarmId, fireDate: Math.floor(fireDate / 1000), failedBody },
-      },
-    })
-    logger.info(logNames.notifications.alarm.success, { fireDate })
+    if (ride.provider === Provider.android) {
+      await sendFcmNotification(buildAndroidAlarmMessage(ride.rideId, alarm, texts, fireDate, Date.now()))
+    } else {
+      await sendApnAlarmNotification(alarm.token, {
+        alert: { title, body },
+        collapseId: `arrival-alarm-${ride.rideId}`,
+        data: {
+          alarm: { rideId: ride.rideId, alarmId: alarm.alarmId, fireDate: Math.floor(fireDate / 1000), failedBody },
+        },
+      })
+    }
+
+    logger.info(logNames.notifications.alarm.success, { fireDate, provider: ride.provider })
     return true
   } catch (error) {
-    logger.error(logNames.notifications.alarm.failed, { error, fireDate })
+    logger.error(logNames.notifications.alarm.failed, { error, fireDate, provider: ride.provider })
     return false
   }
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Pressable, type PressableProps, Image, ActivityIndicator, PlatformColor, View } from "react-native"
+import { Pressable, type PressableProps, Image, ActivityIndicator, PlatformColor, Platform, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text, BottomScreenSheet } from "@/components"
 import { useRouter } from "expo-router"
@@ -9,7 +9,7 @@ import { translate } from "@/i18n"
 import { trackEvent } from "@/services/analytics"
 import { GlassView } from "expo-glass-effect"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
-import { isArrivalAlarmSupported } from "@/utils/ios-helpers"
+import { isArrivalAlarmSupported } from "@/utils/arrival-alarm-native"
 import { formatTime } from "@/utils/helpers/date-helpers"
 import { ArrivalAlarmButton } from "./arrival-alarm-button"
 
@@ -55,7 +55,7 @@ export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "a
       </View>
 
       <View style={styles.buttons}>
-        {id && isArrivalAlarmSupported() && isLiquidGlassSupported && <ArrivalAlarmButton />}
+        {id && isArrivalAlarmSupported() && (isLiquidGlassSupported || Platform.OS === "android") && <ArrivalAlarmButton />}
         <StopButton
           loading={!id}
           onPress={() => {

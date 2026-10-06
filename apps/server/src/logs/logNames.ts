@@ -87,8 +87,8 @@ export const logNames = {
       failed: "Failed to send notificaiton to FCM",
     },
     alarm: {
-      success: "Sent arrival alarm update to APN",
-      failed: "Failed to send arrival alarm update to APN",
+      success: "Sent arrival alarm update",
+      failed: "Failed to send arrival alarm update",
     },
   },
   routeApi: {

@@ -1,4 +1,4 @@
-import { AppState } from "react-native"
+import { AppState, Platform } from "react-native"
 import * as Notifications from "expo-notifications"
 import { addMinutes } from "date-fns"
 import { last } from "lodash"
@@ -8,12 +8,13 @@ import { RideApi } from "@/services/api/ride-api"
 import { trackEvent } from "@/services/analytics"
 import {
   arrivalAlarmAuthorization,
+  canUseFullScreenAlarm,
   cancelArrivalAlarm,
   getArrivalAlarm,
   isArrivalAlarmSupported,
   requestArrivalAlarmAuthorization,
   scheduleArrivalAlarm,
-} from "@/utils/ios-helpers"
+} from "@/utils/arrival-alarm-native"
 import { getStationById } from "@/data/stations"
 import { ArrivalAlarm, useRideStore } from "./ride"
 
@@ -44,7 +45,13 @@ const schedule = (alarm: ArrivalAlarm, route: RouteItem) =>
     stopText: translate("ride.alarmStop"),
   })
 
-export type EnableArrivalAlarmResult = "enabled" | "enabledWithoutUpdates" | "tooLate" | "denied" | "failed"
+export type EnableArrivalAlarmResult =
+  | "enabled"
+  | "enabledWithoutUpdates"
+  | "enabledWithoutFullScreen"
+  | "tooLate"
+  | "denied"
+  | "failed"
 
 export async function enableArrivalAlarm(leadMinutes: number): Promise<EnableArrivalAlarmResult> {
   const { id: rideId, route } = useRideStore.getState()
@@ -71,12 +78,26 @@ export async function enableArrivalAlarm(leadMinutes: number): Promise<EnableArr
   useRideStore.setState({ arrivalAlarm: alarm, pendingArrivalAlarmRemoval: undefined })
   trackEvent("arrival_alarm_enabled", { lead_minutes: leadMinutes })
 
+  if (Platform.OS === "android") {
+    // Moves arrive as data messages, which reach the app without the notification permission.
+    syncArrivalAlarmWithServer()
+    return androidFullScreenResult()
+  }
+
   // The extension can only move the alarm through a notification the rider allows.
   const { granted } = await Notifications.requestPermissionsAsync()
   // Not awaited: the alarm already rings without the server, it just won't follow delays yet.
   syncArrivalAlarmWithServer()
 
   return granted ? "enabled" : "enabledWithoutUpdates"
+}
+
+/** Asks once to let the alarm take over the lock screen; without it, it still rings as a heads-up notification. */
+async function androidFullScreenResult(): Promise<EnableArrivalAlarmResult> {
+  if (useRideStore.getState().arrivalAlarmFullScreenPrompted || (await canUseFullScreenAlarm())) return "enabled"
+
+  useRideStore.setState({ arrivalAlarmFullScreenPrompted: true })
+  return "enabledWithoutFullScreen"
 }
 
 export async function disableArrivalAlarm() {

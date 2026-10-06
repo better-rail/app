@@ -359,8 +359,11 @@
     "alarmTooLateMessage": "The train arrives in less than %{minutes} minutes. Pick a shorter time.",
     "alarmDeniedTitle": "Alarms are off",
     "alarmDeniedMessage": "To ring before your stop, allow Better Rail to schedule alarms in Settings.",
+    "alarmDeniedMessageAndroid": "To ring before your stop, allow Better Rail to set alarms and send notifications in Settings.",
     "alarmNoUpdatesTitle": "The alarm won't follow delays",
     "alarmNoUpdatesMessage": "Allow notifications in Settings so the alarm can move when the train is late, even while Better Rail is closed.",
+    "alarmFullScreenTitle": "Show the alarm on the lock screen?",
+    "alarmFullScreenMessage": "The alarm rings either way. Allow full-screen notifications so it also fills the screen while your phone is locked.",
     "alarmFailed": "Couldn't set the alarm. Please try again."
   },
   "paywall": {

@@ -5,6 +5,7 @@ import iOSHelpers, { ActivityAuthorizationInfo } from "@/utils/ios-helpers"
 import { RouteItem } from "@/services/api"
 import { RouteApi } from "@/services/api/route-api"
 import { RideApi } from "@/services/api/ride-api"
+import { cancelArrivalAlarm } from "@/utils/arrival-alarm-native"
 import { head, last } from "lodash"
 import { formatDateForAPI } from "@/utils/helpers/date-helpers"
 import { addMinutes } from "date-fns"
@@ -67,6 +68,8 @@ export interface RideState {
   arrivalAlarm: ArrivalAlarm | undefined
   /** A ride whose server-side alarm couldn't be removed yet, so it doesn't keep pushing moves */
   pendingArrivalAlarmRemoval: string | undefined
+  /** Android: the rider was already asked to let the alarm take over the lock screen */
+  arrivalAlarmFullScreenPrompted: boolean
 }
 
 export interface RideActions {
@@ -99,13 +102,14 @@ const initialRideState: RideState = {
   canRunLiveActivities: false,
   arrivalAlarm: undefined,
   pendingArrivalAlarmRemoval: undefined,
+  arrivalAlarmFullScreenPrompted: false,
 }
 
 export const resetRideStore = () => {
   const { id, arrivalAlarm } = useRideStore.getState()
   // Deleting all data mustn't leave an alarm that rings, or that the server keeps moving.
   if (arrivalAlarm) {
-    iOSHelpers.cancelArrivalAlarm()
+    cancelArrivalAlarm()
     if (id) new RideApi().removeRideAlarm(id)
   }
 
@@ -180,7 +184,7 @@ export const useRideStore = create<RideStore>((set, get) => ({
 
     // The ride's alarm goes with it. Its server side is removed with the ride.
     if (get().arrivalAlarm) {
-      iOSHelpers.cancelArrivalAlarm()
+      cancelArrivalAlarm()
     }
 
     set({ loading: true, id: undefined, route: undefined, arrivalAlarm: undefined, pendingArrivalAlarmRemoval: undefined })
@@ -277,6 +281,7 @@ export function hydrateRideStore(data: any) {
     canRunLiveActivities: data.canRunLiveActivities ?? false,
     arrivalAlarm: data.arrivalAlarm ?? undefined,
     pendingArrivalAlarmRemoval: data.pendingArrivalAlarmRemoval ?? undefined,
+    arrivalAlarmFullScreenPrompted: data.arrivalAlarmFullScreenPrompted ?? false,
   })
 }
 
