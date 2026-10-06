@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { View, Text, StyleSheet as RNStyleSheet, type LayoutChangeEvent } from "react-native"
+import { View, Text, StyleSheet as RNStyleSheet, useWindowDimensions, type LayoutChangeEvent } from "react-native"
 import { Gesture, GestureDetector } from "react-native-gesture-handler"
 import HapticFeedback from "react-native-haptic-feedback"
 import Animated, {
@@ -32,6 +32,12 @@ const BUBBLE_GAP = 56
 // The bubble grows out of the bar, so it starts shifted toward it
 const ENTER_OFFSET = (isRTL ? -1 : 1) * 40
 const SPRING = { damping: 18, stiffness: 260, mass: 0.8 }
+const LABEL_SIZE = 11
+const LABEL_LINE_HEIGHT = 17
+// Wider labels would overlap the cards, which leave only a narrow gutter for the bar
+const MAX_LABEL_SCALE = 1.3
+// Keeps the first and last labels off the list's edges
+const VERTICAL_INSET = 16
 // Let the bubble finish growing before the list jump, which can stall a frame or two
 const FIRST_JUMP_DELAY = 120
 
@@ -39,11 +45,18 @@ const FIRST_JUMP_DELAY = 120
 export function HourIndexBar({ entries, topHour, onSelect }: HourIndexBarProps) {
   const barHeight = useSharedValue(0)
   const barTop = useSharedValue(0)
+  const containerHeight = useSharedValue(0)
   const activeIndex = useSharedValue(-1)
   const bubbleY = useSharedValue(0)
   const visible = useSharedValue(0)
   const count = entries.length
   const hours = entries.map((entry) => entry.hour)
+
+  // Labels follow the system text size, but shrink so every hour fits in the list's height
+  const { fontScale } = useWindowDimensions()
+  const [availableHeight, setAvailableHeight] = useState(0)
+  const fitScale = availableHeight > 0 ? (availableHeight - VERTICAL_INSET) / (count * LABEL_LINE_HEIGHT) : Infinity
+  const labelScale = Math.min(fontScale, MAX_LABEL_SCALE, fitScale)
 
   // Scrubbing can outpace list rendering, so jumps are coalesced to the latest hour per frame
   const pendingHour = useRef<number | null>(null)
@@ -104,7 +117,9 @@ export function HourIndexBar({ entries, topHour, onSelect }: HourIndexBarProps) 
     if (i === activeIndex.value) return
     activeIndex.value = i
 
-    const targetY = barTop.value + i * rowHeight + rowHeight / 2 - BUBBLE_HEIGHT / 2
+    const rowCenter = barTop.value + i * rowHeight + rowHeight / 2
+    // Kept inside the list, since the edge rows can sit close to it
+    const targetY = Math.min(Math.max(rowCenter - BUBBLE_HEIGHT / 2, 0), containerHeight.value - BUBBLE_HEIGHT)
     if (isFirstTouch) {
       bubbleY.value = targetY
       visible.value = withSpring(1, SPRING)
@@ -143,6 +158,11 @@ export function HourIndexBar({ entries, topHour, onSelect }: HourIndexBarProps) 
     }
   })
 
+  const onContainerLayout = (e: LayoutChangeEvent) => {
+    containerHeight.value = e.nativeEvent.layout.height
+    setAvailableHeight(e.nativeEvent.layout.height)
+  }
+
   const onLayout = (e: LayoutChangeEvent) => {
     barHeight.value = e.nativeEvent.layout.height
     barTop.value = e.nativeEvent.layout.y
@@ -158,7 +178,7 @@ export function HourIndexBar({ entries, topHour, onSelect }: HourIndexBarProps) 
   }
 
   return (
-    <View style={styles.container} pointerEvents="box-none">
+    <View style={styles.container} pointerEvents="box-none" onLayout={onContainerLayout}>
       <GestureDetector gesture={gesture}>
         <View
           style={styles.bar}
@@ -175,7 +195,7 @@ export function HourIndexBar({ entries, topHour, onSelect }: HourIndexBarProps) 
             <View style={styles.indicatorFill} />
           </Animated.View>
           {entries.map((entry, i) => (
-            <HourLabel key={entry.hour} hour={entry.hour} index={i} activeIndex={activeIndex} />
+            <HourLabel key={entry.hour} hour={entry.hour} index={i} activeIndex={activeIndex} scale={labelScale} />
           ))}
         </View>
       </GestureDetector>
@@ -196,15 +216,20 @@ export function HourIndexBar({ entries, topHour, onSelect }: HourIndexBarProps) 
   )
 }
 
-function HourLabel(props: { hour: number; index: number; activeIndex: SharedValue<number> }) {
-  const { hour, index, activeIndex } = props
+function HourLabel(props: { hour: number; index: number; activeIndex: SharedValue<number>; scale: number }) {
+  const { hour, index, activeIndex, scale } = props
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: withTiming(activeIndex.value === index ? 1.3 : 1, { duration: 120 }) }],
   }))
 
   return (
     <Animated.View style={animatedStyle}>
-      <Text style={styles.label}>{formatHourLabel(hour)}</Text>
+      <Text
+        style={[styles.label, { fontSize: LABEL_SIZE * scale, lineHeight: LABEL_LINE_HEIGHT * scale }]}
+        allowFontScaling={false}
+      >
+        {formatHourLabel(hour)}
+      </Text>
     </Animated.View>
   )
 }
@@ -227,11 +252,12 @@ const plainStyles = RNStyleSheet.create({
   },
 })
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, rt) => ({
   container: {
     position: "absolute",
     top: 0,
-    bottom: 0,
+    // Clear of the home indicator / navigation bar the list scrolls under
+    bottom: rt.insets.bottom,
     end: 0,
     justifyContent: "center",
   },
@@ -247,10 +273,8 @@ const styles = StyleSheet.create((theme) => ({
   },
   label: {
     fontFamily: theme.typography.primary,
-    fontSize: 11,
     fontWeight: "600",
     fontVariant: ["tabular-nums"],
-    lineHeight: 17,
     color: theme.colors.primary,
   },
   bubble: {

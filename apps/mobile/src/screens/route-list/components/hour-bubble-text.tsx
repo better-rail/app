@@ -6,7 +6,12 @@ import type { HourBubbleTextProps } from "./hour-bubble-text.types"
 // Non-iOS: no SwiftUI numeric transition, so the hour just swaps
 export function HourBubbleText({ hour }: HourBubbleTextProps) {
   if (hour === null) return null
-  return <Text style={styles.text}>{formatHourBubble(hour)}</Text>
+  // Capped so the hour still fits the fixed-size bubble at large text sizes
+  return (
+    <Text style={styles.text} maxFontSizeMultiplier={1.3}>
+      {formatHourBubble(hour)}
+    </Text>
+  )
 }
 
 const styles = StyleSheet.create((theme) => ({
