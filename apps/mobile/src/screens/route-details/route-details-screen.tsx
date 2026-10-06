@@ -241,6 +241,7 @@ export function RouteDetailsScreen() {
                         departurePlatform={routeItem.trains[index + 1].originPlatform}
                         firstTrain={train}
                         secondTrain={routeItem.trains[index + 1]}
+                        isRideOnThisRoute={isRideOnThisRoute}
                       />
                     )}
                   </View>
@@ -301,6 +302,7 @@ export function RouteDetailsScreen() {
                       departurePlatform={routeItem.trains[index + 1].originPlatform}
                       firstTrain={train}
                       secondTrain={routeItem.trains[index + 1]}
+                      isRideOnThisRoute={isRideOnThisRoute}
                     />
                   )}
                 </View>
