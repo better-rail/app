@@ -3,9 +3,6 @@ import { useLocale, useT, type Locale } from "@/i18n"
 import { trackEvent } from "@/lib/analytics"
 import { DISCORD_URL, GITHUB_URL, SUPPORT_URL, TWITTER_URL } from "@/lib/seo"
 import { LocaleLink } from "./locale-link"
-import { DownloadBadges } from "./download-badges"
-import { GithubIcon, XIcon } from "./icons"
-import { AppIcon } from "./logo"
 
 /** Marketing pages exist in Hebrew only; the language switch on them goes to the other locale's home page. */
 function useOtherLocaleHref(locale: Locale): string {
@@ -30,64 +27,67 @@ export function SiteFooter() {
     { to: "/press", label: t("footer.press") },
     { to: "/israel-railways-lawsuit", label: t("footer.lawsuit") },
     { to: "/image-attributions", label: t("footer.attributions") },
+    { to: "/privacy-policy", label: t("footer.privacy") },
     { to: "/terms", label: t("footer.terms") },
     { to: "/contact", label: t("footer.contact") },
   ]
 
+  const socials = [
+    { href: GITHUB_URL, icon: "github", label: t("footer.github") },
+    { href: DISCORD_URL, icon: "discord", label: "Discord" },
+    { href: TWITTER_URL, icon: "twitter", label: t("footer.twitter") },
+  ]
+  const linkClass = "link-underline py-1 text-[17px] text-brand-text"
+
   return (
-    <footer className="mt-auto border-t border-line/70 bg-surface-2 pb-[env(safe-area-inset-bottom)]">
-      <div className="container-page grid gap-10 py-12 md:grid-cols-[1.4fr_1fr_1fr]">
-        {/* English lockup: sits at the page's start edge, but reads left-to-right inside so the logo stays left of the
-            name and both line up with the App Store badge in RTL as well. */}
-        <div className="flex flex-col justify-self-start gap-4" dir="ltr">
-          <div className="flex items-center gap-2.5 text-lg font-bold">
-            <AppIcon className="size-9" />
-            Better Rail
-          </div>
-          <DownloadBadges size="sm" />
+    <footer className="mt-auto pb-[max(1rem,env(safe-area-inset-bottom))]">
+      <div className="container-page flex flex-col items-center py-12 text-center">
+        <a
+          href={SUPPORT_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => trackEvent("support_click")}
+          className="rounded-full bg-brand-fill px-7 py-1 text-xl font-medium text-white transition-colors hover:bg-brand-fill-strong"
+        >
+          {t("footer.support")}
+        </a>
+
+        <div className="mt-6 flex items-center gap-3">
+          {socials.map((social) => (
+            <a
+              key={social.icon}
+              href={social.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={social.label}
+              className="rounded-full transition-transform active:scale-95"
+            >
+              <img src={`/assets/icons/${social.icon}.svg`} alt="" width={35} height={35} className="size-[35px] dark:invert" />
+            </a>
+          ))}
         </div>
 
-        <nav className="flex flex-col text-[15px]" aria-label={t("footer.nav")}>
-          <LocaleLink to="/{-$locale}/privacy-policy" className="link-underline w-fit py-2.5 text-text-2 hover:text-text">
-            {t("footer.privacy")}
-          </LocaleLink>
-          {links.map((link) => (
-            <Link key={link.to} to={link.to} className="link-underline w-fit py-2.5 text-text-2 hover:text-text" {...hebrewOnly}>
-              {link.label}
-            </Link>
-          ))}
+        <nav className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1" aria-label={t("footer.nav")}>
+          {links.map((link) =>
+            link.to === "/privacy-policy" ? (
+              <LocaleLink key={link.to} to="/{-$locale}/privacy-policy" className={linkClass}>
+                {link.label}
+              </LocaleLink>
+            ) : (
+              <Link key={link.to} to={link.to} className={linkClass} {...hebrewOnly}>
+                {link.label}
+              </Link>
+            ),
+          )}
           <a
             href={otherLocaleHref}
-            className="link-underline mt-2 w-fit py-2.5 font-semibold text-text-2 hover:text-text"
+            className={`${linkClass} font-semibold`}
             lang={locale === "he" ? "en" : "he"}
             hrefLang={locale === "he" ? "en" : "he"}
           >
             {t("nav.language")}
           </a>
         </nav>
-
-        <div className="flex flex-col items-start gap-4">
-          <a
-            href={SUPPORT_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => trackEvent("support_click")}
-            className="btn-primary rounded-full px-6"
-          >
-            {t("footer.support")} 💙
-          </a>
-          <div className="flex items-center gap-2">
-            <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className="icon-btn" aria-label={t("footer.github")}>
-              <GithubIcon className="size-5" />
-            </a>
-            <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" className="icon-btn" aria-label="Discord">
-              <img src="/assets/icons/discord.svg" alt="" width={20} height={20} className="size-5 dark:invert" />
-            </a>
-            <a href={TWITTER_URL} target="_blank" rel="noopener noreferrer" className="icon-btn" aria-label={t("footer.twitter")}>
-              <XIcon className="size-[18px]" />
-            </a>
-          </div>
-        </div>
       </div>
     </footer>
   )
