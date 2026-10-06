@@ -77,8 +77,8 @@ class ArrivalAlarmActivity : Activity() {
             window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
         }
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        window.statusBarColor = BACKGROUND
-        window.navigationBarColor = BACKGROUND
+        window.statusBarColor = BACKGROUND_TOP
+        window.navigationBarColor = BACKGROUND_BOTTOM
     }
 
     private fun buildContent(state: ArrivalAlarmState): LinearLayout {
@@ -90,7 +90,7 @@ class ArrivalAlarmActivity : Activity() {
 
         val icon = ImageView(this).apply {
             setImageResource(R.drawable.arrival_alarm_icon)
-            setColorFilter(BRAND)
+            setColorFilter(ICON)
             layoutParams = LinearLayout.LayoutParams(dp(72), dp(72)).apply { bottomMargin = dp(24) }
         }
 
@@ -116,12 +116,12 @@ class ArrivalAlarmActivity : Activity() {
         val stop = Button(this).apply {
             text = state.stopText
             isAllCaps = false
-            setTextColor(Color.BLACK)
+            setTextColor(Color.WHITE)
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 22f)
             typeface = Typeface.create(heebo, Typeface.BOLD)
             stateListAnimator = null
             background = GradientDrawable().apply {
-                setColor(BRAND)
+                setColor(BUTTON)
                 cornerRadius = dp(40).toFloat()
             }
             layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, dp(80)).apply { topMargin = dp(96) }
@@ -134,7 +134,7 @@ class ArrivalAlarmActivity : Activity() {
         return LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
-            setBackgroundColor(BACKGROUND)
+            background = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(BACKGROUND_TOP, BACKGROUND_BOTTOM))
             setPadding(dp(32), dp(32), dp(32), dp(32))
             addView(icon)
             addView(time)
@@ -146,7 +146,10 @@ class ArrivalAlarmActivity : Activity() {
     private fun dp(value: Int) = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value.toFloat(), resources.displayMetrics).toInt()
 
     companion object {
-        private const val BRAND = 0xFFFBA928.toInt()
-        private const val BACKGROUND = 0xFF111214.toInt()
+        // The app's blues: primary for the button, its lighter tint for the icon, on a deep navy.
+        private const val BUTTON = 0xFF0C83FF.toInt()
+        private const val ICON = 0xFF47A0FF.toInt()
+        private const val BACKGROUND_TOP = 0xFF0D2550.toInt()
+        private const val BACKGROUND_BOTTOM = 0xFF061233.toInt()
     }
 }
