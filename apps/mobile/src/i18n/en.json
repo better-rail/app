@@ -105,6 +105,7 @@
     "trainStartsHereInfo": "In general, we recommend changing where your next train starts its trip (marked “Train starts here”).\nIt usually waits at the platform before leaving, so you can board early, find a seat and wait inside.",
     "samePlatform": "Same platform",
     "acrossPlatform": "Across the platform",
+    "acrossPlatformInfo": "No need for the bridge or underpass, the next train arrives on the other side of the platform",
     "platformStay": "Stay at Platform",
     "platformChange": "Switch to Platform",
     "waitingTime": "Wait around",
