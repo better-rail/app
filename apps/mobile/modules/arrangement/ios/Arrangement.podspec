@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
-  s.name           = 'ReservedRegions'
+  s.name           = 'Arrangement'
   s.version        = '1.0.0'
-  s.summary        = "Reports a view's reserved regions, such as iPhone Duo's fold, to React Native"
+  s.summary        = "Lays two React Native panes out with iOS 27.1's UIArrangementViewController, e.g. around iPhone Duo's fold"
   s.author         = 'Better Rail'
   s.homepage       = 'https://better-rail.co.il'
   s.license        = 'MIT'

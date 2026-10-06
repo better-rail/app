@@ -33,8 +33,12 @@ import { translate } from "@/i18n"
 import { shareRouteAction } from "@/utils/helpers/route-share-helpers"
 import { logicalSideInsets } from "@/utils/helpers/safe-area-helpers"
 import { useIsWideLayout } from "@/hooks/use-is-wide-layout"
-import { splitAroundFold, type Region } from "@/utils/helpers/fold-helpers"
-import { ReservedRegionsView } from "../../../modules/reserved-regions/src"
+import {
+  ArrangementView,
+  arrangementColumns,
+  isArrangementAvailable,
+  type ArrangementLayout,
+} from "../../../modules/arrangement/src"
 import { addRouteToCalendar } from "@/utils/helpers/calendar-helpers"
 import { getActionSheetStyleOptions } from "@/utils/helpers/action-sheet-helpers"
 import { isRouteInThePast } from "@/utils/helpers/date-helpers"
@@ -169,17 +173,20 @@ export function RouteListScreen() {
   const sideInsets = logicalSideInsets(insets, I18nManager.isRTL)
   const { width: windowWidth } = useWindowDimensions()
 
-  // Wide windows (iPhone Duo open, iPad) show the list beside the selected trip's details, as the website does.
-  const isWide = useIsWideLayout()
-  // Partially folded like a book, the split follows the fold instead: a column on either side of it, so neither
-  // the list nor the details sit in the crease (the fold is in the middle, so that's an even split).
-  const [splitRow, setSplitRow] = useState<{ width: number; divisions: Region[] }>({ width: 0, divisions: [] })
-  const foldSplit = isWide ? splitAroundFold(splitRow.width, splitRow.divisions, I18nManager.isRTL, sideInsets.start) : null
-  const listWidth = foldSplit
-    ? foldSplit.firstColumnWidth
-    : isWide
-      ? Math.min(Math.max((windowWidth - sideInsets.start - sideInsets.end) * 0.45, 340), 440)
-      : windowWidth - sideInsets.start - sideInsets.end
+  // Wide windows (iPhone Duo open, iPad) show the list beside the selected trip's details, as the website does. On
+  // iOS 27.1+ UIKit's arrangement decides: it places the details beside the list when there's room, either side of
+  // the fold when partially folded, and animates between those layouts as the device opens, folds and closes. Until
+  // it first reports, and where it isn't available, the window's width decides.
+  const isWideWindow = useIsWideLayout()
+  const [arrangement, setArrangement] = useState<ArrangementLayout | null>(null)
+  const isWide = isArrangementAvailable && arrangement ? !arrangement.secondaryHidden : isWideWindow
+  const columns = arrangementColumns(arrangement)
+  const listWidth =
+    isArrangementAvailable && isWide && columns
+      ? columns.firstWidth
+      : isWide
+        ? Math.min(Math.max((windowWidth - sideInsets.start - sideInsets.end) * 0.45, 340), 440)
+        : windowWidth - sideInsets.start - sideInsets.end
   const [selectedRoute, setSelectedRoute] = useState<RouteItem | null>(null)
   const [showEntireRoute, setShowEntireRoute] = useState(false)
   const selectedRouteKey = selectedRoute ? routeKey(selectedRoute) : undefined
@@ -573,6 +580,75 @@ export function RouteListScreen() {
     return <Redirect href="/" />
   }
 
+  const listContent = (
+    <>
+      {/* Only show the no internet error if we're not loading and there's no data */}
+      {!isInternetReachable && !trains.isLoading && !trains.data && <RouteListError errorType="no-internet" />}
+
+      {/* Only show the request error if we're not loading, internet is available, and there's an error */}
+      {isInternetReachable && !trains.isLoading && trains.status === "error" && !trains.data && (
+        <RouteListError errorType="request-error" />
+      )}
+
+      {/* Show the loading indicator only when we're loading and there's no data yet */}
+      {trains.isLoading && routeData.length === 0 && (
+        <ActivityIndicator size="large" style={{ marginTop: spacing[6] }} color="grey" />
+      )}
+
+      {displayData.length > 0 && (
+        <FlashList
+          key={`route-list-${hideSlowTrains}`}
+          ref={flashListRef}
+          renderItem={renderRouteCard}
+          keyExtractor={(item) =>
+            typeof item === "string"
+              ? item
+              : item.trains.map((train) => `${train.trainNumber}-${train.departureTimeString}`).join()
+          }
+          data={displayData}
+          contentContainerStyle={{
+            paddingTop: spacing[4],
+            paddingHorizontal: spacing[3],
+            paddingBottom: shouldShowWarning ? spacing[8] + spacing[5] : spacing[3],
+          }}
+          initialScrollIndex={initialScrollIndex}
+          // so the list will re-render when the ride route changes, and so the item will be marked
+          extraData={[rideRoute, routePlanDate, trains.status, loadingDate, hideSlowTrains, maxChanges, selectedRouteKey, isWide]}
+          ListFooterComponent={
+            <DateScroll setTime={loadNextDayData} currenTime={nextDayDate.getTime()} isLoadingDate={isNextDayLoading} />
+          }
+          ListFooterComponentStyle={{ paddingBottom: spacing[3] }}
+        />
+      )}
+
+      {/* A failed background refetch sets "not-found" in the store directly, bypassing the
+      onError guard — so also require that no results are currently displayed. */}
+      {resultType === "not-found" && !trains.isLoading && isInternetReachable && routeData.length === 0 && (
+        <View style={{ marginTop: spacing[4] }}>
+          <NoTrainsFoundMessage />
+        </View>
+      )}
+
+      {allRoutesHiddenByFilter && <FilteredTrainsMessage maxChanges={maxChanges} onShowAll={() => setMaxChanges(null)} />}
+
+      {shouldShowWarning && !trains.isLoading && (
+        <RouteListWarning routesDate={trains.data[0].trains[0].departureTime} warningType={resultType as WarningType} />
+      )}
+    </>
+  )
+
+  const detailsPane = (
+    <RouteDetailsPane
+      routeItem={selectedRoute}
+      originId={originId}
+      destinationId={destinationId}
+      showEntireRoute={showEntireRoute}
+      endInset={sideInsets.end}
+      // Beside the fold, the gap already separates the two, so there's no divider.
+      style={columns && columns.gap > 0 ? { borderStartWidth: 0 } : undefined}
+    />
+  )
+
   return (
     <Screen
       testID="route-list-screen"
@@ -591,103 +667,37 @@ export function RouteListScreen() {
         style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
         // On wide layouts the toolbar also carries the selected trip's actions, as the route details screen does.
         routeItem={isWide ? (selectedRoute ?? undefined) : undefined}
-        splitColumns={isWide ? { firstWidth: listWidth, gap: foldSplit?.gap ?? 0 } : null}
+        splitColumns={isWide ? { firstWidth: listWidth, gap: columns?.gap ?? 0 } : null}
         showEntireRoute={showEntireRoute}
         setShowEntireRoute={setShowEntireRoute}
       />
 
       {/* The photo header spans the full width; everything below stays clear of the side bars. */}
-      <ReservedRegionsView
-        onLayout={(event) => {
-          const { width } = event.nativeEvent.layout
-          setSplitRow((row) => (row.width === width ? row : { ...row, width }))
-        }}
-        onDivisionsChange={(event) => {
-          const { divisions } = event.nativeEvent
-          setSplitRow((row) => ({ ...row, divisions }))
-        }}
+      <View
         style={[
           styles.content,
-          isWide && styles.splitContent,
+          !isArrangementAvailable && isWide && styles.splitContent,
           // In the split the details pane reaches the end edge itself, so its banners can bleed under the inset.
           { paddingStart: sideInsets.start, paddingEnd: isWide ? 0 : sideInsets.end },
         ]}
       >
-        <View style={isWide ? { width: listWidth } : styles.content}>
-          {/* Only show the no internet error if we're not loading and there's no data */}
-          {!isInternetReachable && !trains.isLoading && !trains.data && <RouteListError errorType="no-internet" />}
-
-          {/* Only show the request error if we're not loading, internet is available, and there's an error */}
-          {isInternetReachable && !trains.isLoading && trains.status === "error" && !trains.data && (
-            <RouteListError errorType="request-error" />
-          )}
-
-          {/* Show the loading indicator only when we're loading and there's no data yet */}
-          {trains.isLoading && routeData.length === 0 && (
-            <ActivityIndicator size="large" style={{ marginTop: spacing[6] }} color="grey" />
-          )}
-
-          {displayData.length > 0 && (
-            <FlashList
-              key={`route-list-${hideSlowTrains}`}
-              ref={flashListRef}
-              renderItem={renderRouteCard}
-              keyExtractor={(item) =>
-                typeof item === "string"
-                  ? item
-                  : item.trains.map((train) => `${train.trainNumber}-${train.departureTimeString}`).join()
-              }
-              data={displayData}
-              contentContainerStyle={{
-                paddingTop: spacing[4],
-                paddingHorizontal: spacing[3],
-                paddingBottom: shouldShowWarning ? spacing[8] + spacing[5] : spacing[3],
-              }}
-              initialScrollIndex={initialScrollIndex}
-              // so the list will re-render when the ride route changes, and so the item will be marked
-              extraData={[
-                rideRoute,
-                routePlanDate,
-                trains.status,
-                loadingDate,
-                hideSlowTrains,
-                maxChanges,
-                selectedRouteKey,
-                isWide,
-              ]}
-              ListFooterComponent={
-                <DateScroll setTime={loadNextDayData} currenTime={nextDayDate.getTime()} isLoadingDate={isNextDayLoading} />
-              }
-              ListFooterComponentStyle={{ paddingBottom: spacing[3] }}
-            />
-          )}
-
-          {/* A failed background refetch sets "not-found" in the store directly, bypassing the
-          onError guard — so also require that no results are currently displayed. */}
-          {resultType === "not-found" && !trains.isLoading && isInternetReachable && routeData.length === 0 && (
-            <View style={{ marginTop: spacing[4] }}>
-              <NoTrainsFoundMessage />
-            </View>
-          )}
-
-          {allRoutesHiddenByFilter && <FilteredTrainsMessage maxChanges={maxChanges} onShowAll={() => setMaxChanges(null)} />}
-
-          {shouldShowWarning && !trains.isLoading && (
-            <RouteListWarning routesDate={trains.data[0].trains[0].departureTime} warningType={resultType as WarningType} />
-          )}
-        </View>
-
-        {isWide && (
-          <RouteDetailsPane
-            routeItem={selectedRoute}
-            originId={originId}
-            destinationId={destinationId}
-            showEntireRoute={showEntireRoute}
-            endInset={sideInsets.end}
-            style={foldSplit ? { marginStart: foldSplit.gap, borderStartWidth: 0 } : undefined}
+        {isArrangementAvailable ? (
+          <ArrangementView
+            style={styles.content}
+            primary={<View style={styles.content}>{listContent}</View>}
+            secondary={detailsPane}
+            // The list is what matters: without room for both, the details give way (to their own screen).
+            primaryWidth={{ minimum: 340, preferred: 0.45, maximum: 440, layoutPriority: 1000 }}
+            secondaryWidth={{ minimum: 320, layoutPriority: 250 }}
+            onArrangementChange={setArrangement}
           />
+        ) : (
+          <>
+            <View style={isWide ? { width: listWidth } : styles.content}>{listContent}</View>
+            {isWide && detailsPane}
+          </>
         )}
-      </ReservedRegionsView>
+      </View>
     </Screen>
   )
 }
