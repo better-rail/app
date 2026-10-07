@@ -83,6 +83,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // Consumed by @bacons/apple-targets for signing the generated extension/widget/watch targets.
     appleTeamId: APPLE_TEAM_ID,
     supportsTablet: false,
+    // better-rail.co.il route links open in the app, and Handoff works both ways (apps/web serves the AASA file).
+    associatedDomains: ["applinks:better-rail.co.il", "activitycontinuation:better-rail.co.il"],
     // Icon Composer (Liquid Glass) icon — a string path, per Expo's requirement. The .icon
     // bundle carries its own light/dark/tinted appearance specializations, so it replaces the
     // light/dark/tinted PNG object. Named "AppIcon" (not "Icon") so the project-wide
@@ -150,11 +152,22 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         category: ["DEFAULT", "BROWSABLE"],
         data: [{ scheme: "betterrail" }],
       },
+      // App Links: better-rail.co.il route pages open in the app (apps/web serves assetlinks.json).
+      {
+        action: "VIEW",
+        autoVerify: true,
+        category: ["DEFAULT", "BROWSABLE"],
+        data: [
+          { scheme: "https", host: "better-rail.co.il", pathPrefix: "/routes/" },
+          { scheme: "https", host: "better-rail.co.il", pathPrefix: "/en/routes/" },
+        ],
+      },
     ],
   },
 
   plugins: [
-    "expo-router",
+    // headOrigin: the site expo-router/head offers screens to for Handoff (see WebsiteHandoff).
+    ["expo-router", { headOrigin: "https://better-rail.co.il" }],
     "expo-iap",
     ["expo-localization", { supportedLocales: { ios: IOS_SUPPORTED_LOCALES } }],
     // Required by react-native-unistyles on Android (edge-to-edge insets via the mini runtime).

@@ -15,7 +15,7 @@ import { useTrainRoutesStore, useRoutePlanStore, useRideStore, useSettingsStore 
 import { filterRouteDataByMaxChanges, TRAIN_INFO_PROMPT_SEARCH_THRESHOLD } from "@/models/settings/settings"
 import { color, fontScale, spacing } from "@/theme"
 import type { RouteItem } from "@/services/api"
-import { Screen, RouteDetailsHeader, RouteCard } from "@/components"
+import { Screen, RouteDetailsHeader, RouteCard, WebsiteHandoff } from "@/components"
 import {
   NoTrainsFoundMessage,
   FilteredTrainsMessage,
@@ -522,6 +522,7 @@ export function RouteListScreen() {
       statusBarBackgroundColor="transparent"
       translucent
     >
+      <WebsiteHandoff originId={originId} destinationId={destinationId} time={time} />
       <RouteDetailsHeader
         screenName="routeList"
         originId={originId}

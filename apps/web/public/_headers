@@ -34,3 +34,7 @@
 # Station photos are re-rendered under the same names when a source photo changes.
 /stations/*
   Cache-Control: public, max-age=604800, stale-while-revalidate=2592000
+
+# Universal links + Handoff with the iOS app. Apple fetches it without an extension, so the type has to be set here.
+/.well-known/apple-app-site-association
+  Content-Type: application/json

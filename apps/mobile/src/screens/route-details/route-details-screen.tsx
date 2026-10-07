@@ -9,7 +9,7 @@ import { useShallow } from "zustand/react/shallow"
 import { useRideStore } from "@/models"
 import { useRideProgress } from "@/hooks/use-ride-progress"
 import { spacing } from "@/theme"
-import { RouteDetailsHeader, Screen } from "@/components"
+import { RouteDetailsHeader, Screen, WebsiteHandoff } from "@/components"
 import {
   LiveRideSheet,
   LongRouteWarning,
@@ -121,6 +121,14 @@ export function RouteDetailsScreen() {
       statusBarBackgroundColor="transparent"
       translucent
     >
+      {routeItem && originId && destinationId && (
+        <WebsiteHandoff
+          originId={originId}
+          destinationId={destinationId}
+          time={routeItem.departureTime}
+          trainNumbers={routeItem.trains.map((train) => train.trainNumber)}
+        />
+      )}
       <View style={{ flex: 1 }}>
         <RouteDetailsHeader
           routeItem={routeItem}

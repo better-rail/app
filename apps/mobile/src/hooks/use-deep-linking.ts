@@ -8,6 +8,7 @@ import { openActiveRide } from "@/utils/helpers/open-active-ride"
 import { trackEvent } from "@/services/analytics"
 import { getWidgetFamilyFromURL } from "@/utils/widget-helpers"
 import { getStationById } from "@/data/stations"
+import { isWebsiteURL, parseWebsiteRouteURL } from "@/utils/helpers/web-links"
 import Shortcuts, { ShortcutItem } from "react-native-quick-actions-shortcuts"
 
 const ShortcutsEmitter = new NativeEventEmitter(Shortcuts)
@@ -51,9 +52,43 @@ export function useDeepLinking(storeReady: boolean) {
     openActiveRide()
   }
 
+  /** better-rail.co.il links, from universal links or Handoff. Other pages just open the app. */
+  function deepLinkWebsiteURL(url: string) {
+    if (!storeReady) return
+
+    const route = parseWebsiteRouteURL(url)
+    trackEvent("deep_link_website", { page: route ? "routes" : "other" })
+    if (!route) return
+
+    const origin = getStationById(route.originId)
+    const destination = getStationById(route.destinationId)
+    if (!origin || !destination || origin.id === destination.id) return
+
+    const routePlan = useRoutePlanStore.getState()
+    routePlan.setOrigin(origin)
+    routePlan.setDestination(destination)
+    routePlan.setDate(new Date(route.time))
+    // The website searches by departure time only.
+    routePlan.setDateType("departure")
+
+    router.push({
+      pathname: "/route-list",
+      params: {
+        originId: origin.id,
+        destinationId: destination.id,
+        time: String(route.time),
+        enableQuery: "true",
+      },
+    })
+  }
+
   // Tracked past the storeReady guards, since the initial URL is handled twice
   function handleDeepLinkURL(url: string) {
     if (!url) return
+    if (isWebsiteURL(url)) {
+      deepLinkWebsiteURL(url)
+      return
+    }
     if (url.includes("widget")) {
       deepLinkWidgetURL(url)
     }
