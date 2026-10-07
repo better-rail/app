@@ -38,6 +38,7 @@ import { isRouteInThePast } from "@/utils/helpers/date-helpers"
 import { isHourIndexSupported } from "@/utils/hour-index"
 import { useActionSheet } from "@expo/react-native-action-sheet"
 import { useFeatureFlag } from "posthog-react-native"
+import { routeListDayQueryKey } from "./route-list-query"
 
 type RouteData = RouteItem | string
 
@@ -219,7 +220,7 @@ export function RouteListScreen() {
   const { isInternetReachable } = useNetworkState()
 
   const trains = useQuery(
-    ["origin", originId, "destination", destinationId, "time", currentDate.getTime(), "hideSlowTrains", hideSlowTrains],
+    routeListDayQueryKey(originId, destinationId, currentDate.getTime(), hideSlowTrains),
     async () => {
       const result = await getRoutes(originId, destinationId, currentDate.getTime())
       return result

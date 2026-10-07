@@ -29,6 +29,7 @@ import { useObserve } from "expo-observe"
 import { useMountEffect } from "@/hooks"
 import { PlannerScreenHeader } from "./planner-screen-header"
 import { FlingGestureWrapper } from "./planner-slider-wrapper"
+import { routeListDayQueryKey } from "@/screens/route-list/route-list-query"
 
 export function PlannerScreen() {
   const router = useRouter()
@@ -173,7 +174,7 @@ export function PlannerScreen() {
 
   // Prefetch routes so the route list loads instantly.
   useQuery(
-    ["origin", origin?.id, "destination", destination?.id, "time", date.getTime(), "hideSlowTrains", hideSlowTrains],
+    routeListDayQueryKey(origin?.id, destination?.id, date.getTime(), hideSlowTrains),
     () => getRoutes(origin?.id, destination?.id, date.getTime()),
     /**
      *  TODO: Temporary fix for displaying "no trains found" modal, omitting cache during the weekend.
