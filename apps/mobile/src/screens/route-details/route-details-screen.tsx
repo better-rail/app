@@ -28,7 +28,7 @@ import { useRouter, usePathname } from "expo-router"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useStations } from "@/data/stations"
 import { calculateDelayedTime, formatClockTime, formatDateForAPI, formatTime } from "@/utils/helpers/date-helpers"
-import { getSelectedRide, isSameRoute } from "@/utils/helpers/ride-helpers"
+import { getCurrentTrainIndex, getSelectedRide, isSameRoute } from "@/utils/helpers/ride-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const routeApi = new RouteApi()
@@ -95,7 +95,7 @@ export function RouteDetailsScreen() {
 
   const insets = useSafeAreaInsets()
 
-  const hasWagonData = routeItem.trains[0]?.visaWagonData?.wagons?.length > 0
+  const hasWagonData = routeItem.trains.some((train) => train.visaWagonData?.wagons?.length > 0)
   const [shouldFadeRideButton, setShouldFadeRideButton] = useState(false)
   const [showEntireRoute, setShowEntireRoute] = useState(false)
 
@@ -346,7 +346,7 @@ export function RouteDetailsScreen() {
                 if (hasWagonData) {
                   trackEvent("train_info_sheet_opened")
                   HapticFeedback.trigger("impactLight")
-                  useNavigationParamsStore.getState().setTrainInfo(routeItem.trains[0])
+                  useNavigationParamsStore.getState().setTrainInfo(routeItem.trains, getCurrentTrainIndex(routeItem))
                   router.push("/train-info")
                 } else {
                   Alert.alert(translate("routeDetails.trainInformation") ?? "", translate("routeDetails.noTrainDetails") ?? "")
