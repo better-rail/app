@@ -16,7 +16,7 @@ import { requestPinAndroidWidget, WidgetFamily } from "@/utils/widget-helpers"
 import { WidgetPreviewModal } from "./components/widget-preview-modal"
 import { SocialLinks } from "./components/social-links"
 import { scheduleTestArrivalAlarm } from "@/models/ride/arrival-alarm"
-import { isArrivalAlarmSupported } from "@/utils/ios-helpers"
+import { isArrivalAlarmSupported } from "@/utils/arrival-alarm-native"
 
 const storeLink = Platform.select({
   ios: "https://apps.apple.com/app/better-rail/id1562982976?action=write-review",
