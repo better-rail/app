@@ -6,6 +6,7 @@ import { Text } from "@/components"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import type { Train, Wagon } from "@/services/api/rail-api.types"
 import { translate } from "@/i18n"
+import { palette } from "@/theme/palette"
 import { getTrainDirection } from "@/utils/helpers/direction-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HapticFeedback from "react-native-haptic-feedback"
@@ -238,6 +239,8 @@ export function RouteDetailsTrainInfo() {
           testID="train-info-train-picker"
           values={trains.map((t) => t.trainNumber.toString())}
           selectedIndex={selectedIndex}
+          // Android only: a light blue keeps the dark selected label readable
+          tintColor={`${palette.blue}33`}
           onChange={(event) => {
             HapticFeedback.trigger("impactLight")
             setSelectedIndex(event.nativeEvent.selectedSegmentIndex)
