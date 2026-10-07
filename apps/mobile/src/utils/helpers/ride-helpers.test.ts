@@ -1,6 +1,12 @@
 import { test, expect } from "bun:test"
 import { buildRoute, MINUTE } from "../../../test/fixtures/ride-route"
-import { findClosestStationInRoute, getPreviousTrainFromStationId, getRideStatus, getTrainFromStationId } from "./ride-helpers"
+import {
+  findClosestStationInRoute,
+  getCurrentTrainIndex,
+  getPreviousTrainFromStationId,
+  getRideStatus,
+  getTrainFromStationId,
+} from "./ride-helpers"
 
 test("finds the train a stop station belongs to", () => {
   const route = buildRoute(10 * MINUTE)
@@ -83,4 +89,27 @@ test("has arrived once the final leg reached its destination", () => {
   const route = buildRoute(-70 * MINUTE)
 
   expect(getRideStatus(route, route.trains[1], 3)).toBe("arrived")
+})
+
+test("the current train is the first leg until it arrives at the change station", () => {
+  expect(getCurrentTrainIndex(buildRoute(10 * MINUTE))).toBe(0)
+  // 15 minutes in: still riding the first leg
+  expect(getCurrentTrainIndex(buildRoute(-15 * MINUTE))).toBe(0)
+})
+
+test("the current train switches to the next leg once the first one arrived", () => {
+  // 35 minutes in: the first leg arrived at minute 30, waiting for the second leg
+  expect(getCurrentTrainIndex(buildRoute(-35 * MINUTE))).toBe(1)
+})
+
+test("the current train accounts for the first leg's delay", () => {
+  // 35 minutes in, but the first leg is 10 minutes late and arrives at minute 40
+  const route = buildRoute(-35 * MINUTE)
+  route.trains[0].delay = 10
+
+  expect(getCurrentTrainIndex(route)).toBe(0)
+})
+
+test("the current train stays on the last leg once the route is over", () => {
+  expect(getCurrentTrainIndex(buildRoute(-70 * MINUTE))).toBe(1)
 })
