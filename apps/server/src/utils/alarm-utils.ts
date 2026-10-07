@@ -1,4 +1,5 @@
 import { last } from "lodash"
+import { Message } from "firebase-admin/lib/messaging/messaging-api"
 
 import { RouteItem } from "../types/rail"
 import { RideAlarm } from "../types/ride"
@@ -39,6 +40,35 @@ const stationName = (stationId: number, locale: LanguageCode) => {
   if (!station) return ""
   return station[railApiLocales[locale].toLowerCase() as "hebrew" | "english" | "russian" | "arabic"]
 }
+
+/**
+ * A data-only FCM message: it wakes the app's background task, which moves the alarm and shows the texts.
+ * FCM data values must be strings.
+ */
+export const buildAndroidAlarmMessage = (
+  rideId: string,
+  alarm: RideAlarm,
+  texts: ReturnType<typeof buildAlarmMovedTexts>,
+  fireDate: number,
+  now: number,
+): Message => ({
+  token: alarm.token,
+  data: {
+    type: "arrival-alarm",
+    rideId,
+    alarmId: alarm.alarmId,
+    fireDate: String(Math.floor(fireDate / 1000)),
+    title: texts.title,
+    body: texts.body,
+    failedBody: texts.failedBody,
+  },
+  android: {
+    priority: "high",
+    // Only the latest move matters, and none does once the alarm rang.
+    collapseKey: `arrival-alarm-${rideId}`,
+    ttl: Math.max(0, fireDate - now),
+  },
+})
 
 export const buildAlarmMovedTexts = (alarm: RideAlarm, route: RouteItem, fireDate: number) => {
   const destinationId = last(route.trains)?.destinationStationId ?? 0

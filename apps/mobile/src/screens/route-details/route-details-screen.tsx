@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Alert, Image, Platform, PlatformColor, Pressable, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { ScrollView } from "react-native-gesture-handler"
@@ -28,7 +28,7 @@ import { useRouter, usePathname } from "expo-router"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useStations } from "@/data/stations"
 import { calculateDelayedTime, formatClockTime, formatDateForAPI, formatTime } from "@/utils/helpers/date-helpers"
-import { getCurrentTrainIndex, getSelectedRide } from "@/utils/helpers/ride-helpers"
+import { getCurrentTrainIndex, getSelectedRide, isSameRoute } from "@/utils/helpers/ride-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 const routeApi = new RouteApi()
@@ -54,14 +54,13 @@ export function RouteDetailsScreen() {
   const {
     rideRoute,
     id: rideId,
-    isRouteActive,
     stopRide,
-  } = useRideStore(useShallow((s) => ({ rideRoute: s.route, id: s.id, isRouteActive: s.isRouteActive, stopRide: s.stopRide })))
+  } = useRideStore(useShallow((s) => ({ rideRoute: s.route, id: s.id, stopRide: s.stopRide })))
   const canRunLiveActivities = useRideStore((s) => s.canRunLiveActivities)
   const allStations = useStations()
 
-  // we re-run this check every time the ride changes
-  const isRideOnThisRoute = useMemo(() => isRouteActive(paramsRouteItem), [rideRoute])
+  // Derived from both inputs: openActiveRide can swap the params under a mounted screen
+  const isRideOnThisRoute = isSameRoute(rideRoute, paramsRouteItem)
 
   const trainNumbers = paramsRouteItem.trains.map((t) => t.trainNumber)
 
@@ -241,6 +240,7 @@ export function RouteDetailsScreen() {
                         departurePlatform={routeItem.trains[index + 1].originPlatform}
                         firstTrain={train}
                         secondTrain={routeItem.trains[index + 1]}
+                        isRideOnThisRoute={isRideOnThisRoute}
                       />
                     )}
                   </View>
@@ -301,6 +301,7 @@ export function RouteDetailsScreen() {
                       departurePlatform={routeItem.trains[index + 1].originPlatform}
                       firstTrain={train}
                       secondTrain={routeItem.trains[index + 1]}
+                      isRideOnThisRoute={isRideOnThisRoute}
                     />
                   )}
                 </View>

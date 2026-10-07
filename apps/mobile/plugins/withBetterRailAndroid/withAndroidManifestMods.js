@@ -117,6 +117,41 @@ const withAndroidManifestMods = (config) =>
       },
     })
 
+    // Arrival alarm: the exact alarm fires the receiver, which starts the ringing service, whose
+    // notification opens the full-screen alarm. The receiver also restores the alarm after a reboot.
+    app.receiver.push({
+      $: { "android:name": ".alarm.ArrivalAlarmReceiver", "android:exported": "false" },
+      "intent-filter": [
+        {
+          action: [
+            { $: { "android:name": "android.intent.action.BOOT_COMPLETED" } },
+            { $: { "android:name": "android.intent.action.MY_PACKAGE_REPLACED" } },
+            { $: { "android:name": "android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" } },
+          ],
+        },
+      ],
+    })
+    app.service.push({
+      $: {
+        "android:name": ".alarm.ArrivalAlarmService",
+        "android:exported": "false",
+        // Allowed for apps holding the exact alarm permission, to keep an alarm ringing.
+        "android:foregroundServiceType": "systemExempted",
+      },
+    })
+    app.activity.push({
+      $: {
+        "android:name": ".alarm.ArrivalAlarmActivity",
+        "android:exported": "false",
+        "android:theme": "@android:style/Theme.Material.NoActionBar",
+        "android:showWhenLocked": "true",
+        "android:turnScreenOn": "true",
+        "android:excludeFromRecents": "true",
+        "android:launchMode": "singleInstance",
+        "android:taskAffinity": "",
+      },
+    })
+
     app["meta-data"].push({
       $: {
         "android:name": "com.google.firebase.messaging.default_notification_icon",

@@ -3,6 +3,16 @@ import { isEqual } from "lodash"
 import type { RideStatus } from "@/hooks/use-ride-progress"
 import type { RouteItem, Train } from "@/services/api"
 
+// Whether two routes are the same trip: departure time, first train and final destination
+export function isSameRoute(a: RouteItem | undefined, b: RouteItem) {
+  if (!a) return false
+  return (
+    a.departureTime === b.departureTime &&
+    a.trains[0].trainNumber === b.trains[0].trainNumber &&
+    a.trains[a.trains.length - 1].destinationStationId === b.trains[b.trains.length - 1].destinationStationId
+  )
+}
+
 /**
  * Find the closest station to the current time.
  */

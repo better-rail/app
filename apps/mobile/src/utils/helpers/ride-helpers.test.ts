@@ -6,6 +6,7 @@ import {
   getPreviousTrainFromStationId,
   getRideStatus,
   getTrainFromStationId,
+  isSameRoute,
 } from "./ride-helpers"
 
 test("finds the train a stop station belongs to", () => {
@@ -112,4 +113,12 @@ test("the current train accounts for the first leg's delay", () => {
 
 test("the current train stays on the last leg once the route is over", () => {
   expect(getCurrentTrainIndex(buildRoute(-70 * MINUTE))).toBe(1)
+})
+
+test("matches the active ride only against the same trip", () => {
+  const route = { ...buildRoute(10 * MINUTE), departureTime: 1000 }
+
+  expect(isSameRoute(undefined, route)).toBe(false)
+  expect(isSameRoute(route, { ...route })).toBe(true)
+  expect(isSameRoute(route, { ...route, departureTime: 2000 })).toBe(false)
 })

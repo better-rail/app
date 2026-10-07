@@ -10,11 +10,12 @@ import { useRouter } from "expo-router"
 import HapticFeedback from "react-native-haptic-feedback"
 import { trackEvent } from "@/services/analytics"
 import { alternativeChangeStations, easyPlatformChanges, trainStartStation } from "./alternative-change-stations"
-import { useRideStore } from "@/models"
+import { acrossTheIsland } from "@/data/island-platforms"
 
 const importantIcon = require("../../../../assets/important.png")
 const clockIcon = require("../../../../assets/clock.png")
 const infoIcon = require("../../../../assets/info.png")
+const walkingIcon = require("../../../../assets/walking.png")
 
 const SAFE_DURATION_MINS = 3
 
@@ -24,13 +25,13 @@ type RouteExchangeProps = {
   departurePlatform: number
   firstTrain: Train
   secondTrain: Train
+  isRideOnThisRoute: boolean
   style?: ViewStyle
 }
 
 export const RouteExchangeDetails = (props: RouteExchangeProps) => {
-  const { stationName, arrivalPlatform, departurePlatform, firstTrain, secondTrain, style } = props
+  const { stationName, arrivalPlatform, departurePlatform, firstTrain, secondTrain, isRideOnThisRoute, style } = props
   const router = useRouter()
-  const isRideInProgress = useRideStore((s) => s.loading || !!s.id)
   const alternatives = alternativeChangeStations(firstTrain, secondTrain)
 
   const onChangeStationPress = () => {
@@ -40,7 +41,7 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
         .filter(([, c]) => c === change)
         .map(([id]) => id)
         .join(",")
-    if (isRideInProgress) {
+    if (isRideOnThisRoute) {
       Alert.alert(translate("ride.changeStationBlockedTitle"), translate("ride.changeStationBlockedMessage"))
       return
     }
@@ -65,6 +66,9 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
       return `${translate("routeDetails.platformChange")} ${departurePlatform}`
     }
   })()
+
+  // Both platforms share one island, so there's no bridge or underpass to cross
+  const isAcrossTheIsland = acrossTheIsland(String(firstTrain.destinationStationId), arrivalPlatform, departurePlatform)
 
   const exchangeDuration = (() => {
     const arrivalTime = addMinutes(firstTrain.arrivalTime, firstTrain.delay)
@@ -118,6 +122,14 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
               {platformDetailText}
             </Text>
           </View>
+          {isAcrossTheIsland && (
+            <View style={[styles.infoDetailWrapper, { marginBottom: spacing[1] }]}>
+              <Image style={styles.infoIcon} source={walkingIcon} />
+              <Text style={styles.infoText} maxFontSizeMultiplier={1.2}>
+                {translate("routeDetails.acrossPlatform")}
+              </Text>
+            </View>
+          )}
           <View
             style={[
               styles.infoDetailWrapper,

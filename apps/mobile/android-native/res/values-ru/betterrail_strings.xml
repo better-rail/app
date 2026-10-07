@@ -140,4 +140,8 @@
     <!-- Test stations for mock data -->
     <string name="station_9999">Тестовая станция отправления</string>
     <string name="station_8888">Тестовая станция назначения</string>
+
+    <!-- Arrival alarm -->
+    <string name="arrival_alarm_channel_name">Сигнал о прибытии</string>
+    <string name="arrival_alarm_channel_description">Звучит перед вашей станцией во время поездки в реальном времени</string>
 </resources>
