@@ -16,9 +16,7 @@ export function isSameRoute(a: RouteItem | undefined, b: RouteItem) {
 /**
  * Find the closest station to the current time.
  */
-export function findClosestStationInRoute(route: RouteItem) {
-  const now = Date.now()
-
+export function findClosestStationInRoute(route: RouteItem, now: number = Date.now()) {
   for (let train of route.trains) {
     const delay = train.delay
 
@@ -93,6 +91,7 @@ export function getRideStatus(
   train: Train | undefined,
   nextStationId: number,
   delay: number = train?.delay ?? 0,
+  now: number = Date.now(),
 ): RideStatus {
   // the station isn't part of any train in this route - we can't tell where the ride is
   if (!train) return "loading"
@@ -105,10 +104,10 @@ export function getRideStatus(
     const previousTrain = getPreviousTrainFromStationId(route, nextStationId)
     if (previousTrain) {
       const arrivalTimeToExchangeStation = addMinutes(previousTrain.arrivalTime, delay)
-      const timeToExchange = differenceInSeconds(arrivalTimeToExchangeStation, new Date())
+      const timeToExchange = differenceInSeconds(arrivalTimeToExchangeStation, now)
 
       if (timeToExchange <= 0) {
-        return getRideStatus(route, previousTrain, nextStationId)
+        return getRideStatus(route, previousTrain, nextStationId, previousTrain.delay, now)
       }
     }
   }
@@ -116,9 +115,9 @@ export function getRideStatus(
   if (train.destinationStationId === nextStationId) {
     const nextTrain = getTrainFromStationId(route, nextStationId)
     const arrivalTime = addMinutes(train.arrivalTime, delay)
-    const timeToArrival = differenceInSeconds(arrivalTime, new Date())
+    const timeToArrival = differenceInSeconds(arrivalTime, now)
 
-    if (nextTrain && addMinutes(nextTrain.departureTime, delay).getTime() >= Date.now()) {
+    if (nextTrain && addMinutes(nextTrain.departureTime, delay).getTime() >= now) {
       return "inExchange"
     } else if (timeToArrival >= 0) {
       return "inTransit"

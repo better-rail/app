@@ -1,97 +1,71 @@
-import { RouteItem } from "@/services/api"
-import { useQueryClient } from "react-query"
+import type { RouteItem } from "@/services/api"
+import { useQuery } from "react-query"
 import { useEffect, useState } from "react"
-import { formatDateForAPI } from "@/utils/helpers/date-helpers"
+import { AppState } from "react-native"
 import { RouteApi } from "@/services/api/route-api"
-import { findClosestStationInRoute, getSelectedRide, getTrainFromStationId } from "@/utils/helpers/ride-helpers"
+import { findClosestStationInRoute, getTrainFromStationId } from "@/utils/helpers/ride-helpers"
 import { useShallow } from "zustand/react/shallow"
-import { useRoutePlanStore, useRideStore } from "@/models"
+import { useRideStore } from "@/models/ride/ride"
+import { refetchRideRoute } from "./refetch-ride-route"
 
 const api = new RouteApi()
 
 /**
- * This function is used to find the next station in the route
+ * Track progress against the displayed route and refresh an active ride's live data.
  */
 export function useRideRoute(route: RouteItem) {
-  const routePlanDate = useRoutePlanStore((s) => s.date)
-  const { isRouteActive, setRoute } = useRideStore(useShallow((s) => ({ isRouteActive: s.isRouteActive, setRoute: s.setRoute })))
+  // Select the value itself: the stable store action can be memoized by React
+  // Compiler even when the active ride it reads has changed.
+  const { isActive, setRoute } = useRideStore(useShallow((s) => ({ isActive: s.isRouteActive(route), setRoute: s.setRoute })))
+  const [now, setNow] = useState(Date.now)
+  const originId = route.trains[0].originStationId
+  const destinationId = route.trains[route.trains.length - 1].destinationStationId
+  const trainNumbers = route.trains.map((train) => train.trainNumber)
 
-  // we'll need this to update the query cached routes when we refetch routes
-  const queryClient = useQueryClient()
-
-  const [nextStationId, setNextStationId] = useState<number>(route.trains[0].originStationId)
-  const [delay, setDelay] = useState<number>(0)
-  // the route `nextStationId` was resolved against. keeping the two together guarantees the
-  // station is always present in the route our consumers look it up in - a refetch can change
-  // the stop stations, and pairing a fresh station id with a stale route is what makes the
-  // lookup return undefined.
-  const [activeRoute, setActiveRoute] = useState<RouteItem>(route)
-
-  const { originId, destinationId, date, time } = getRouteDetails(route)
-
-  const refetchRoute = async () => {
-    // fetch route - needed for getting delay information
-    const routes = await api.getRoutes(originId, destinationId, date, time)
-
-    // update the query cached routes
-    queryClient.setQueryData(
-      ["origin", originId, "destination", destinationId, "time", new Date(routePlanDate.getDate())],
-      routes,
-    )
-
-    const updatedRoute = getSelectedRide(
-      routes,
-      route.trains.map((t) => t.trainNumber),
-    )
-
-    return updatedRoute
-  }
-
-  const updateRide = async () => {
-    const updatedRoute = await refetchRoute()
-
-    if (!updatedRoute) return
-
-    if (isRouteActive(route)) {
-      // update the ride store route if the route item has an active ride
-      setRoute(updatedRoute)
-    }
-
-    const stationId = findClosestStationInRoute(updatedRoute)
-    setActiveRoute(updatedRoute)
-    setNextStationId(stationId)
-    setDelay(getTrainFromStationId(updatedRoute, stationId)?.delay ?? 0)
-  }
+  // Route details already polls inactive routes. React Query also refreshes on app focus,
+  // and keeps requests for different transfer selections in separate cache entries.
+  useQuery(
+    ["rideRoute", originId, destinationId, route.departureTime, route.viaStationId, ...trainNumbers],
+    () => refetchRideRoute(api, route),
+    {
+      enabled: isActive,
+      refetchInterval: 60_000,
+      onSuccess: (updatedRoute) => {
+        const currentRoute = useRideStore.getState().route
+        // A pending refresh mustn't replace a newer transfer selection or a different ride.
+        if (
+          updatedRoute &&
+          currentRoute &&
+          useRideStore.getState().isRouteActive(updatedRoute) &&
+          currentRoute.viaStationId === updatedRoute.viaStationId &&
+          currentRoute.trains.map((train) => train.trainNumber).join() === trainNumbers.join()
+        ) {
+          setRoute(updatedRoute)
+        }
+      },
+    },
+  )
 
   useEffect(() => {
-    // set up timer to run every minute
-    const timer = setInterval(() => {
-      updateRide()
-    }, 60 * 1000)
-
-    // set the route details immidiately on mount
-    const stationId = findClosestStationInRoute(route)
-    setActiveRoute(route)
-    setNextStationId(stationId)
-    setDelay(getTrainFromStationId(route, stationId)?.delay ?? 0)
-
-    // then check if there's a delay
-    updateRide()
-
-    // clear the timer when the component unmounts
-    return () => clearInterval(timer)
+    const updateNow = () => setNow(Date.now())
+    const timer = setInterval(updateNow, 60_000)
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state === "active") updateNow()
+    })
+    return () => {
+      clearInterval(timer)
+      subscription.remove()
+    }
   }, [])
 
-  return { delay, nextStationId, activeRoute }
-}
+  useEffect(() => {
+    setNow(Date.now())
+  }, [route])
 
-/**
- * This function is used to extract ride details from the route needed for API calls
- */
-function getRouteDetails(route: RouteItem) {
-  const originId = route.trains[0].originStationId.toString()
-  const destinationId = route.trains[route.trains.length - 1].destinationStationId.toString()
-  const [date, time] = formatDateForAPI(route.departureTime)
+  // Derive these together from the current prop, so selecting a transfer updates the
+  // countdown immediately and a fresh station is never paired with an older route.
+  const nextStationId = findClosestStationInRoute(route, now)
+  const delay = getTrainFromStationId(route, nextStationId)?.delay ?? 0
 
-  return { originId, destinationId, date, time }
+  return { delay, nextStationId, activeRoute: route, now }
 }
