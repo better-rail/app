@@ -153,9 +153,10 @@ export function chunkEmailBody(
   text: string,
   maxChunk = 1800,
 ): { chunks: string[]; overflowFile?: { filename: string; content: string } } {
+  // Quote formatting must not change whether the email needs an overflow attachment.
   if (text.length > 4000) {
     const preview =
-      text.slice(0, maxChunk).trimEnd() +
+      formatDiscordQuotes(text).slice(0, maxChunk).trimEnd() +
       "\n\n*(Full email body exceeds 4,000 characters; full copy attached below)*"
     return {
       chunks: [preview],
@@ -167,7 +168,7 @@ export function chunkEmailBody(
   }
 
   const chunks: string[] = []
-  let remaining = text
+  let remaining = formatDiscordQuotes(text)
   let inQuote = false
 
   while (remaining.length > 0) {
@@ -357,7 +358,7 @@ export class EmailBridge {
     }
 
     const bodyContent = cleanQuotedReply(rawBody) || "(No message body)"
-    const parsed = chunkEmailBody(formatDiscordQuotes(bodyContent))
+    const parsed = chunkEmailBody(bodyContent)
     // The attachment is the raw body, before quoted-footer cleanup
     const overflowFile = parsed.overflowFile && { ...parsed.overflowFile, content: rawBody }
     // Shorten separator runs so a body chunk can't pass as a header message
