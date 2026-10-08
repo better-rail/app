@@ -1,8 +1,6 @@
-import { describe, expect, test } from "bun:test"
-// The core entry skips react-dom batching, which crashes under bun
-import { QueryClient } from "react-query/core"
+import { describe, expect, mock, test } from "bun:test"
 import type { RouteItem, Train } from "@/services/api"
-import { patchRouteList, routeListDayQueryKey, routeListQueryKey } from "./route-list-query"
+import { patchRoutes, publishFreshRoutes, subscribeToFreshRoutes } from "./route-list-query"
 
 const route = (departureTime: number, trainNumbers: number[], delay = 0) =>
   ({
@@ -13,44 +11,46 @@ const route = (departureTime: number, trainNumbers: number[], delay = 0) =>
     trains: trainNumbers.map((trainNumber) => ({ trainNumber, delay, platform: 1 }) as unknown as Train),
   }) as RouteItem
 
-describe("patchRouteList", () => {
-  test("updates every matching route in every cached list for the pair", () => {
-    const queryClient = new QueryClient()
-    const listKey = (time: number) => routeListDayQueryKey("3700", "2300", time, false)
-    queryClient.setQueryData(listKey(1), [route(100, [160], 4), route(200, [110], 4)])
-    queryClient.setQueryData(listKey(2), [route(100, [160], 4)])
-    queryClient.setQueryData([...routeListQueryKey("4600", "3700"), "time", 1], [route(100, [160], 4)])
+describe("patchRoutes", () => {
+  test("updates matching routes across date headers, keeping list-relative flags", () => {
+    const list = ["Tue Oct 07 2026", route(100, [160], 4), "Wed Oct 08 2026", route(200, [110], 4), route(300, [112], 4)]
 
-    patchRouteList(queryClient, "3700", "2300", [{ ...route(100, [160], 2), isMuchShorter: false }, route(200, [110], 6)])
+    const [today, first, tomorrow, second, untouched] = patchRoutes(list, [
+      { ...route(100, [160], 2), isMuchShorter: false },
+      route(200, [110], 6),
+    ]) as [string, RouteItem, string, RouteItem, RouteItem]
 
-    const [patched, second] = queryClient.getQueryData<RouteItem[]>(listKey(1))!
-    expect(patched.delay).toBe(2)
-    expect(patched.trains[0].delay).toBe(2)
-    // List-relative flags stay as the list computed them
-    expect(patched.isMuchShorter).toBe(true)
+    expect([today, tomorrow]).toEqual(["Tue Oct 07 2026", "Wed Oct 08 2026"])
+    expect(first.delay).toBe(2)
+    expect(first.trains[0].delay).toBe(2)
+    expect(first.isMuchShorter).toBe(true)
     expect(second.delay).toBe(6)
-    expect(queryClient.getQueryData<RouteItem[]>(listKey(2))![0].delay).toBe(2)
-    expect(queryClient.getQueryData<RouteItem[]>([...routeListQueryKey("4600", "3700"), "time", 1])![0].delay).toBe(4)
+    expect(untouched.delay).toBe(4)
   })
 
-  test("leaves routes with different trains alone", () => {
-    const queryClient = new QueryClient()
-    const key = [...routeListQueryKey("3700", "2300"), "time", 1]
-    queryClient.setQueryData(key, [route(100, [160, 520], 4)])
+  test("leaves routes with different trains or departure alone", () => {
+    const list = [route(100, [160, 520], 4), route(100, [161], 4)]
 
-    patchRouteList(queryClient, "3700", "2300", [route(100, [160, 530], 2)])
+    const patched = patchRoutes(list, [route(100, [160, 530], 2), route(200, [161], 2)])
 
-    expect(queryClient.getQueryData<RouteItem[]>(key)![0].delay).toBe(4)
+    expect(patched.map((item) => item.delay)).toEqual([4, 4])
   })
+})
 
-  test("leaves a list that never loaded alone", () => {
-    const queryClient = new QueryClient()
-    const key = routeListDayQueryKey("3700", "2300", 1, false)
-    // An errored or disabled list query has no data
-    queryClient.getQueryCache().build(queryClient, { queryKey: key })
+describe("publishFreshRoutes", () => {
+  test("reaches only subscribers of the same station pair", () => {
+    const onRoutes = mock()
+    const onOtherRoutes = mock()
+    const unsubscribe = subscribeToFreshRoutes({ originId: "3700", destinationId: "2300", onRoutes })
+    const unsubscribeOther = subscribeToFreshRoutes({ originId: "4600", destinationId: "3700", onRoutes: onOtherRoutes })
 
-    patchRouteList(queryClient, "3700", "2300", [route(100, [160], 2)])
+    publishFreshRoutes("3700", "2300", [route(100, [160], 2)])
+    publishFreshRoutes("3700", "2300", [])
+    unsubscribe()
+    unsubscribeOther()
+    publishFreshRoutes("3700", "2300", [route(100, [160], 2)])
 
-    expect(queryClient.getQueryState(key)?.status).toBe("idle")
+    expect(onRoutes).toHaveBeenCalledTimes(1)
+    expect(onOtherRoutes).not.toHaveBeenCalled()
   })
 })

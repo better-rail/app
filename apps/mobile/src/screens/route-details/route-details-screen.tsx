@@ -21,7 +21,7 @@ import {
   StartRideButton,
 } from "./components"
 
-import { useQuery, useQueryClient } from "react-query"
+import { useQuery } from "react-query"
 import type { RouteItem } from "@/services/api"
 import { RouteApi } from "@/services/api/route-api"
 import { useRouter, usePathname } from "expo-router"
@@ -30,7 +30,7 @@ import { useStations } from "@/data/stations"
 import { calculateDelayedTime, formatClockTime, formatDateForAPI, formatTime } from "@/utils/helpers/date-helpers"
 import { getSelectedRide, isSameRoute } from "@/utils/helpers/ride-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { patchRouteList } from "@/screens/route-list/route-list-query"
+import { publishFreshRoutes } from "@/screens/route-list/route-list-query"
 
 const routeApi = new RouteApi()
 const preventLongPressNavigation = () => undefined
@@ -59,7 +59,6 @@ export function RouteDetailsScreen() {
   } = useRideStore(useShallow((s) => ({ rideRoute: s.route, id: s.id, stopRide: s.stopRide })))
   const canRunLiveActivities = useRideStore((s) => s.canRunLiveActivities)
   const allStations = useStations()
-  const queryClient = useQueryClient()
 
   // Derived from both inputs: openActiveRide can swap the params under a mounted screen
   const isRideOnThisRoute = isSameRoute(rideRoute, paramsRouteItem)
@@ -76,7 +75,7 @@ export function RouteDetailsScreen() {
       const toId = paramsRouteItem.trains[paramsRouteItem.trains.length - 1].destinationStationId.toString()
       const routes = await routeApi.getRoutes(fromId, toId, date, time, { viaStation: viaStationId })
       // A change-station search isn't what the list shows
-      if (!viaStationId && originId && destinationId) patchRouteList(queryClient, originId, destinationId, routes)
+      if (!viaStationId && originId && destinationId) publishFreshRoutes(originId, destinationId, routes)
       const fresh = getSelectedRide(routes, trainNumbers)
       return fresh ? { ...fresh, viaStationId } : paramsRouteItem
     },
