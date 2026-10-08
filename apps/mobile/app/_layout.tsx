@@ -7,7 +7,7 @@ import { Stack } from "expo-router/stack"
 import { useRouter } from "expo-router"
 import { ErrorBoundary as ExpoErrorBoundary } from "expo-router"
 import { ThemeProvider, DarkTheme, DefaultTheme } from "expo-router/react-navigation"
-import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from "react-query"
+import { QueryClient, QueryClientProvider, QueryCache, MutationCache, focusManager } from "react-query"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet"
 import * as Sentry from "@sentry/react-native"
@@ -110,6 +110,13 @@ export const queryClient = new QueryClient({
       })
     },
   }),
+})
+
+// React Native has no window focus events: treat returning to the app as focus,
+// so live data (delays, platforms) refetches right away instead of on the next interval
+focusManager.setEventListener((handleFocus) => {
+  const subscription = AppState.addEventListener("change", (state) => handleFocus(state === "active"))
+  return () => subscription.remove()
 })
 
 function AppStack() {

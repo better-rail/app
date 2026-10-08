@@ -154,6 +154,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       "android.permission.WAKE_LOCK",
       "android.permission.SCHEDULE_EXACT_ALARM",
       "android.permission.RECEIVE_BOOT_COMPLETED",
+      // Arrival alarm: rings from a foreground service and takes over the lock screen.
+      "android.permission.FOREGROUND_SERVICE",
+      "android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED",
+      "android.permission.USE_FULL_SCREEN_INTENT",
       "android.permission.READ_CALENDAR",
       "android.permission.WRITE_CALENDAR",
     ],

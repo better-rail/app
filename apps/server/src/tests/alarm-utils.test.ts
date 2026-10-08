@@ -3,7 +3,7 @@ import { RideAlarm } from "../types/ride"
 import { partiallyMock } from "./helpers/types"
 import { LanguageCode } from "../locales/i18n"
 import { RouteItem } from "../types/rail"
-import { buildAlarmMovedTexts, getAlarmFireDate, getAlarmMove } from "../utils/alarm-utils"
+import { buildAlarmMovedTexts, buildAndroidAlarmMessage, getAlarmFireDate, getAlarmMove } from "../utils/alarm-utils"
 
 // 2026-10-05 08:30 in Israel
 const arrivalTime = Date.UTC(2026, 9, 5, 5, 30)
@@ -52,5 +52,25 @@ describe("arrival alarm", () => {
     const texts = buildAlarmMovedTexts(alarm(0), routeWithDelay([6]), arrivalTime - minutesInMs(1))
     expect(texts.title).toBe("Alarm moved to 08:29")
     expect(texts.body).toBe("It will ring 7 minutes before arriving at Tel Aviv - Savidor Center.")
+  })
+
+  it("sends Android a data-only message that expires when the alarm rings", () => {
+    const fireDate = arrivalTime - minutesInMs(3)
+    const texts = buildAlarmMovedTexts(alarm(0), routeWithDelay([4]), fireDate)
+    const message = buildAndroidAlarmMessage("ride-1", alarm(0), texts, fireDate, now)
+
+    expect(message).toMatchObject({
+      token: "device-token",
+      data: {
+        type: "arrival-alarm",
+        rideId: "ride-1",
+        alarmId: alarm(0).alarmId,
+        fireDate: String(fireDate / 1000),
+        title: texts.title,
+      },
+      android: { priority: "high", collapseKey: "arrival-alarm-ride-1", ttl: fireDate - now },
+    })
+    expect(message).not.toHaveProperty("notification")
+    expect(Object.values(message.data!).every((value) => typeof value === "string")).toBe(true)
   })
 })

@@ -143,4 +143,8 @@
     <!-- Test stations for mock data -->
     <string name="station_9999">محطة بداية للاختبار</string>
     <string name="station_8888">محطة وصول للاختبار</string>
+
+    <!-- Arrival alarm -->
+    <string name="arrival_alarm_channel_name">منبّه الوصول</string>
+    <string name="arrival_alarm_channel_description">يرنّ قبل محطتك أثناء الرحلة المباشرة</string>
 </resources>

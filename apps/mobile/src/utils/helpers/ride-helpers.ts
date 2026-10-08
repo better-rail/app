@@ -69,6 +69,16 @@ export function getPreviousTrainFromStationId(route: RouteItem, stationId: numbe
   else return route.trains[trainIndex - 1]
 }
 
+/**
+ * The index of the train the rider is on, or should board next: the first train that hasn't
+ * reached its destination yet (delay included). Once a leg arrives at the change station,
+ * the next leg becomes the current one. Falls back to the last train once the route is over.
+ */
+export function getCurrentTrainIndex(route: RouteItem, now: number = Date.now()): number {
+  const index = route.trains.findIndex((train) => addMinutes(train.arrivalTime, train.delay ?? 0).getTime() > now)
+  return index === -1 ? route.trains.length - 1 : index
+}
+
 export function getSelectedRide(routes: RouteItem[], rideTrainNumbers: number[]) {
   return routes.find((route) =>
     isEqual(
