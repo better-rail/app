@@ -1,4 +1,5 @@
 import { NativeModules, Platform } from "react-native"
+import { getVersion } from "react-native-device-info"
 import { RouteItem } from "@/services/api"
 import { RideStartError } from "./helpers/ride-errors"
 import { IS_E2E } from "@/config/e2e"
@@ -107,9 +108,12 @@ export async function isRideActive(routeId: string) {
 
 export type ArrivalAlarmAuthorization = "unsupported" | "notDetermined" | "denied" | "authorized"
 
-/** AlarmKit needs iOS 26, and a binary that has the native module (an OTA update can reach an older one) */
+/** AlarmKit needs iOS 26, and a binary that has the native module (an OTA update can reach an older one). Ships with v3. */
 export const isArrivalAlarmSupported = () =>
-  Platform.OS === "ios" && parseFloat(String(Platform.Version)) >= 26 && typeof RNBetterRail?.scheduleArrivalAlarm === "function"
+  Platform.OS === "ios" &&
+  parseFloat(String(Platform.Version)) >= 26 &&
+  typeof RNBetterRail?.scheduleArrivalAlarm === "function" &&
+  Number(getVersion().split(".")[0]) >= 3
 
 export async function arrivalAlarmAuthorization(): Promise<ArrivalAlarmAuthorization> {
   return RNBetterRail.arrivalAlarmAuthorization()
