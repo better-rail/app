@@ -38,6 +38,7 @@ import { isRouteInThePast } from "@/utils/helpers/date-helpers"
 import { isHourIndexSupported } from "@/utils/hour-index"
 import { useActionSheet } from "@expo/react-native-action-sheet"
 import { useFeatureFlag } from "posthog-react-native"
+import { patchRoutes, routeListDayQueryKey, subscribeToFreshRoutes } from "./route-list-query"
 
 type RouteData = RouteItem | string
 
@@ -166,6 +167,17 @@ export function RouteListScreen() {
     setLoadedDates(new Set())
   }, [originId, destinationId])
 
+  // Polling only covers the latest loaded day; route details refreshes reach every loaded day
+  useEffect(
+    () =>
+      subscribeToFreshRoutes({
+        originId,
+        destinationId,
+        onRoutes: (routes) => setRouteData((prevData) => patchRoutes(prevData, routes)),
+      }),
+    [originId, destinationId],
+  )
+
   const flashListRef = useRef<FlashListRef<RouteData>>(null)
   const hasRecordedSearch = useRef(false)
 
@@ -219,7 +231,7 @@ export function RouteListScreen() {
   const { isInternetReachable } = useNetworkState()
 
   const trains = useQuery(
-    ["origin", originId, "destination", destinationId, "time", currentDate.getTime(), "hideSlowTrains", hideSlowTrains],
+    routeListDayQueryKey(originId, destinationId, currentDate.getTime(), hideSlowTrains),
     async () => {
       const result = await getRoutes(originId, destinationId, currentDate.getTime())
       return result

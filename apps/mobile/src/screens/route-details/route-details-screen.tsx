@@ -30,6 +30,7 @@ import { useStations } from "@/data/stations"
 import { calculateDelayedTime, formatClockTime, formatDateForAPI, formatTime } from "@/utils/helpers/date-helpers"
 import { getCurrentTrainIndex, getSelectedRide, isSameRoute } from "@/utils/helpers/ride-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { publishFreshRoutes } from "@/screens/route-list/route-list-query"
 
 const routeApi = new RouteApi()
 const preventLongPressNavigation = () => undefined
@@ -70,9 +71,11 @@ export function RouteDetailsScreen() {
     ["routeDetails", originId, destinationId, viaStationId, paramsRouteItem.departureTime, ...trainNumbers],
     async () => {
       const [date, time] = formatDateForAPI(paramsRouteItem.departureTime)
-      const originId = paramsRouteItem.trains[0].originStationId.toString()
-      const destinationId = paramsRouteItem.trains[paramsRouteItem.trains.length - 1].destinationStationId.toString()
-      const routes = await routeApi.getRoutes(originId, destinationId, date, time, { viaStation: viaStationId })
+      const fromId = paramsRouteItem.trains[0].originStationId.toString()
+      const toId = paramsRouteItem.trains[paramsRouteItem.trains.length - 1].destinationStationId.toString()
+      const routes = await routeApi.getRoutes(fromId, toId, date, time, { viaStation: viaStationId })
+      // A change-station search isn't what the list shows
+      if (!viaStationId && originId && destinationId) publishFreshRoutes(originId, destinationId, routes)
       const fresh = getSelectedRide(routes, trainNumbers)
       return fresh ? { ...fresh, viaStationId } : paramsRouteItem
     },
