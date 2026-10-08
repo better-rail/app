@@ -168,19 +168,25 @@ export function chunkEmailBody(
 
   const chunks: string[] = []
   let remaining = text
+  let inQuote = false
 
   while (remaining.length > 0) {
-    if (remaining.length <= maxChunk) {
-      chunks.push(remaining)
+    const prefix = inQuote ? ">>> " : ""
+    const chunkLimit = maxChunk - prefix.length
+    if (remaining.length <= chunkLimit) {
+      chunks.push(prefix + remaining)
       break
     }
-    let splitAt = remaining.lastIndexOf("\n", maxChunk)
-    if (splitAt === -1 || splitAt < maxChunk * 0.4) {
-      splitAt = remaining.lastIndexOf(" ", maxChunk)
+    let splitAt = remaining.lastIndexOf("\n", chunkLimit)
+    if (splitAt === -1 || splitAt < chunkLimit * 0.4) {
+      splitAt = remaining.lastIndexOf(" ", chunkLimit)
     }
-    if (splitAt === -1) splitAt = maxChunk
+    if (splitAt === -1 || splitAt < chunkLimit * 0.4) splitAt = chunkLimit
 
-    chunks.push(remaining.slice(0, splitAt).trim())
+    const chunk = remaining.slice(0, splitAt).trim()
+    chunks.push(prefix + chunk)
+    // Discord's multiline quote runs to the end of a message; restart it in the next chunk.
+    inQuote ||= /^>>> /m.test(chunk)
     remaining = remaining.slice(splitAt).trimStart()
   }
 
@@ -205,6 +211,29 @@ export function cleanQuotedReply(text: string): string {
   }
   while (kept.length && (QUOTED_BLANK_RE.test(kept[kept.length - 1]) || !kept[kept.length - 1].trim())) kept.pop()
   return kept.join("\n")
+}
+
+export function formatDiscordQuotes(text: string): string {
+  const lines = text.split(/\r?\n/)
+  const quotePrefix = /^[ \t]*(?:>[ \t]*)+/
+  let quoteStart = lines.length
+  for (let i = lines.length - 1; i >= 0; i--) {
+    if (quotePrefix.test(lines[i])) quoteStart = i
+    else if (lines[i].trim()) break
+  }
+
+  return lines
+    .map((line, i) => {
+      const quoted = quotePrefix.test(line)
+      const content = quoted ? line.replace(quotePrefix, "") : line
+      // Use one continuous quote for trailing email history, including blank paragraphs.
+      if (i === quoteStart) return `>>> ${content}`
+      if (i > quoteStart) return content
+      // Earlier quotes may have an inline reply after them, so keep their boundaries.
+      // Empty quote lines need invisible content or Discord displays a literal ">".
+      return quoted ? `> ${content || "\u200b"}` : line
+    })
+    .join("\n")
 }
 
 // Caps a header field for Discord's 2000-char limit without splitting surrogate pairs
@@ -328,7 +357,7 @@ export class EmailBridge {
     }
 
     const bodyContent = cleanQuotedReply(rawBody) || "(No message body)"
-    const parsed = chunkEmailBody(bodyContent)
+    const parsed = chunkEmailBody(formatDiscordQuotes(bodyContent))
     // The attachment is the raw body, before quoted-footer cleanup
     const overflowFile = parsed.overflowFile && { ...parsed.overflowFile, content: rawBody }
     // Shorten separator runs so a body chunk can't pass as a header message
