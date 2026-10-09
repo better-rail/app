@@ -102,6 +102,7 @@
     "bufferutil": "4.0.2",
     "postinstall-prepare": "1.0.1",
     "react-native-console-time-polyfill": "1.2.3",
+    "react-test-renderer": "19.2.3",
     "typescript": "~6.0.3",
     "utf-8-validate": "5.0.3"
   },

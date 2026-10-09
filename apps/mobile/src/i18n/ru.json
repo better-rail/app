@@ -235,6 +235,8 @@
     "noFareForRoute": "Цена для этого маршрута не найдена."
   },
   "modals": {
+    "noTrainsFoundForRequestedDate": "Поезда не найдены — %{date}",
+    "showingTrainsForDate": "Показаны поезда — %{date}",
     "noTrainsFoundForDate": "Нет поездов на указанную дату",
     "foundTrainsAtDate": "Отображены поезда на ",
     "noTrainsFoundForHour": "Поезда не найдены в указанное время",

@@ -231,6 +231,8 @@
     "noFareForRoute": "لم يتم العثور على سعر لهذا المسار."
   },
   "modals": {
+    "noTrainsFoundForRequestedDate": "لم يتم العثور على قطارات ليوم %{date}",
+    "showingTrainsForDate": "تُعرض قطارات ليوم %{date}",
     "noTrainsFoundForDate": "لم يتم العثور على القطارات للتاريخ المطلوب",
     "foundTrainsAtDate": " هنالك قطارات ابتداءً مِن",
     "noTrainsFoundForHour": "لم يتم العثور على قطارات حول الوقت المطلوب",
