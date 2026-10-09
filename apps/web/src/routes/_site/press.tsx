@@ -52,6 +52,14 @@ const articles = [
     dateText: "2 בספטמבר 2026",
   },
   {
+    href: "https://www.mako.co.il/nexter-news/Article-1f37abe77fb50a1027.htm",
+    icon: "mako.avif",
+    title: 'רכבת ישראל נגד בטר רייל: "דורשים להסיר אותה מחנויות האפליקציות"',
+    outlet: "מאקו",
+    date: "2026-09-01",
+    dateText: "1 בספטמבר 2026",
+  },
+  {
     href: "https://www.israelhayom.co.il/news/transportation/article/21328746",
     icon: "israelhayom.avif",
     title: "בזמן שהנוסעים סובלים: מדוע רכבת ישראל מנסה לחסל אפליקציה חינמית?",
