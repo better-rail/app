@@ -3,6 +3,7 @@ import {
   recentRoutes,
   hideSlowTrainsPreference,
   recentTrayPreference,
+  appBannerDismissed,
   routePlan,
   subscribeToStorage,
   type StoredRoute,
@@ -35,6 +36,12 @@ export function useHideSlowTrains(): [boolean, (value: boolean) => void] {
 export function useRecentTrayOpen(): [boolean, (value: boolean) => void] {
   const value = useSyncExternalStore(subscribeToStorage, recentTrayPreference.get, () => false)
   return [value, recentTrayPreference.set]
+}
+
+/** Dismissed reads as true during SSR and before hydration, so the banner only ever appears on the client. */
+export function useAppBannerDismissed(): [boolean, (value: boolean) => void] {
+  const value = useSyncExternalStore(subscribeToStorage, appBannerDismissed.get, () => true)
+  return [value, appBannerDismissed.set]
 }
 
 const EMPTY_PLAN: StoredRoutePlan = {}

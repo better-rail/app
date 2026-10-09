@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { Planner } from "@/components/planner/planner"
-import { RecentRoutes } from "@/components/routes/recent-routes"
+import { RecentRoutes, RecentRoutesColumn } from "@/components/routes/recent-routes"
+import { AppPromo } from "@/components/app-promo"
 import { getStationById } from "@/data/stations"
 import { useT, resolveLocale, translate } from "@/i18n"
 import { useStoredRoutePlan } from "@/hooks/use-stored"
@@ -45,17 +46,22 @@ function HomePage() {
   }
 
   return (
-    <section className="relative overflow-x-clip">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_80%_0%,color-mix(in_srgb,var(--color-brand)_14%,transparent),transparent_70%)]"
-      />
-      <div className="container-page relative py-6 sm:py-8 lg:py-10">
-        {/* Visually hidden: the planner is the hero, but the page still needs an h1. */}
-        <h1 className="sr-only">{t("home.title")}</h1>
-        <Planner variant="hero" today={today} now={now} initial={initial} className="relative z-20" />
-      </div>
-      <RecentRoutes />
-    </section>
+    <>
+      <section className="relative overflow-x-clip">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_80%_0%,color-mix(in_srgb,var(--color-brand)_14%,transparent),transparent_70%)]"
+        />
+        {/* From `xl` the recent searches move out of the tray into a column beside the planner. */}
+        <div className="container-page relative py-6 sm:py-8 lg:py-10 xl:grid xl:max-w-7xl xl:grid-cols-[minmax(0,1fr)_320px] xl:gap-10 xl:py-12">
+          {/* Visually hidden: the planner is the hero, but the page still needs an h1. */}
+          <h1 className="sr-only">{t("home.title")}</h1>
+          <Planner variant="hero" today={today} now={now} initial={initial} className="relative z-20" />
+          <RecentRoutesColumn className="hidden xl:flex" />
+        </div>
+        <RecentRoutes className="xl:hidden" />
+      </section>
+      <AppPromo />
+    </>
   )
 }

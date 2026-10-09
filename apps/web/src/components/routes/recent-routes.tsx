@@ -10,19 +10,64 @@ import { useRecentRoutes, useRecentTrayOpen } from "@/hooks/use-stored"
 
 type Pair = readonly [Station, Station]
 
+/** A route and its return trip share one card; at most four. */
+function useRecentPairs() {
+  return toPairs(useRecentRoutes()).slice(0, 4)
+}
+
+/** Destinations pictured by earlier cards, so two neighbours don't show the same photo. */
+const takenBefore = (recent: Pair[], index: number) => recent.slice(0, index).map(([, to]) => to.id)
+
 /**
- * Recent searches in a collapsible tray below the planner: a slim title row until opened, then photo cards. A route
- * and its return trip share one card.
+ * Recent searches beside the planner on wide screens: the cards stacked in a column, always open. Empty state is
+ * drawn rather than skipped, so the hero doesn't jump from one column to two once the stored routes hydrate.
  */
-export function RecentRoutes() {
+export function RecentRoutesColumn({ className }: { className?: string }) {
   const t = useT()
-  const recent = toPairs(useRecentRoutes()).slice(0, 4)
+  const recent = useRecentPairs()
+  return (
+    <aside className={cn("flex-col", className)} aria-labelledby="recent-routes-column-title">
+      <div className="flex min-h-10 items-center justify-between gap-2">
+        <h2 id="recent-routes-column-title" className="text-[15px] font-semibold text-text">
+          {t("home.recent")}
+        </h2>
+        {recent.length > 0 && (
+          <button
+            type="button"
+            onClick={recentRoutes.clear}
+            className="-my-2.5 animate-fade-in py-2.5 text-[13px] font-medium text-dim transition-colors hover:text-text-2"
+          >
+            {t("home.clearRecent")}
+          </button>
+        )}
+      </div>
+      {recent.length === 0 ? (
+        <p className="mt-3 flex flex-1 items-center justify-center rounded-card border border-dashed border-line px-6 py-10 text-center text-[14px] text-dim">
+          {t("home.recentEmpty")}
+        </p>
+      ) : (
+        <ul className="mt-3 flex animate-fade-in flex-col gap-3">
+          {recent.map((pair, index) => (
+            <RecentRouteCard key={pairKey(pair[0].id, pair[1].id)} pair={pair} taken={takenBefore(recent, index)} compact />
+          ))}
+        </ul>
+      )}
+    </aside>
+  )
+}
+
+/**
+ * Recent searches in a collapsible tray below the planner: a slim title row until opened, then photo cards.
+ */
+export function RecentRoutes({ className }: { className?: string }) {
+  const t = useT()
+  const recent = useRecentPairs()
   const [open, setOpen] = useRecentTrayOpen()
   if (recent.length === 0) return null
-  const taken = (index: number) => recent.slice(0, index).map(([, to]) => to.id)
+  const taken = (index: number) => takenBefore(recent, index)
   return (
     <section
-      className="animate-fade-in border-t border-line/60 bg-surface/60 dark:bg-surface/40"
+      className={cn("animate-fade-in border-t border-line/60 bg-surface/60 dark:bg-surface/40", className)}
       aria-labelledby="recent-routes-title"
     >
       <div className="container-page py-4 lg:py-5">
@@ -78,8 +123,8 @@ export function RecentRoutes() {
   )
 }
 
-/** `taken`: destinations pictured by earlier cards, so two neighbours don't show the same photo. */
-function RecentRouteCard({ pair, taken }: { pair: Pair; taken: string[] }) {
+/** `taken`: destinations pictured by earlier cards; `compact` is the side column's shorter card. */
+function RecentRouteCard({ pair, taken, compact = false }: { pair: Pair; taken: string[]; compact?: boolean }) {
   const t = useT()
   const locale = useLocale()
   const [reversed, setReversed] = useState(false)
@@ -90,19 +135,30 @@ function RecentRouteCard({ pair, taken }: { pair: Pair; taken: string[] }) {
       <LocaleLink
         to="/{-$locale}/routes/$from/$to"
         params={{ from: from.id, to: to.id }}
-        className="group relative block h-28 overflow-hidden lg:h-32 rounded-card bg-surface-3 shadow-card transition-[box-shadow,scale] duration-200 ease-out-expo hover:shadow-card-hover active:scale-[0.98]"
+        className={cn(
+          "group relative block overflow-hidden rounded-card",
+          compact ? "h-20" : "h-28 lg:h-32",
+          " bg-surface-3 shadow-card transition-[box-shadow,scale] duration-200 ease-out-expo hover:shadow-card-hover active:scale-[0.98]",
+        )}
       >
         <StationImage
           station={photo}
-          sizes="(min-width: 1024px) 320px, 50vw"
+          sizes={compact ? "320px" : "(min-width: 1024px) 320px, 50vw"}
           className="absolute inset-0 transition-transform duration-500 ease-out-expo group-hover:scale-[1.04]"
         />
         <span className="station-photo-gradient absolute inset-0" aria-hidden="true" />
         {/* An extra scrim under the names: bright photos wash out the smaller origin line. */}
         <span className="absolute inset-x-0 bottom-0 h-2/3 bg-linear-to-t from-black/45 to-transparent" aria-hidden="true" />
-        <span className="absolute inset-x-0 bottom-0 flex flex-col gap-0.5 p-3 pe-12 leading-tight text-white drop-shadow-[0_1px_3px_rgb(0_0_0/0.8)]">
-          <span className="truncate text-[14px] font-semibold text-white/75">{stationName(from, locale)}</span>
-          <span className="truncate text-[17px] font-bold">{stationName(to, locale)}</span>
+        <span
+          className={cn(
+            "absolute inset-x-0 bottom-0 flex flex-col gap-0.5 pe-12 leading-tight text-white drop-shadow-[0_1px_3px_rgb(0_0_0/0.8)]",
+            compact ? "p-2.5" : "p-3",
+          )}
+        >
+          <span className={cn("truncate font-semibold text-white/75", compact ? "text-[13px]" : "text-[14px]")}>
+            {stationName(from, locale)}
+          </span>
+          <span className={cn("truncate font-bold", compact ? "text-[16px]" : "text-[17px]")}>{stationName(to, locale)}</span>
         </span>
       </LocaleLink>
       {/* A sibling of the link, not inside it: interactive content can't nest. Mouse users see it on hover. */}

@@ -53,6 +53,14 @@ export const recentTrayPreference = {
   set: (value: boolean) => write(RECENT_TRAY_KEY, value),
 }
 
+const APP_BANNER_KEY = "better-rail:app-banner-dismissed"
+
+/** Whether the rider closed the install-the-app banner; once true it never returns. */
+export const appBannerDismissed = {
+  get: () => read<boolean>(APP_BANNER_KEY, false),
+  set: (value: boolean) => write(APP_BANNER_KEY, value),
+}
+
 const THEME_KEY = "better-rail:theme"
 
 export type ThemeOverride = "light" | "dark"

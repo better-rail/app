@@ -2,6 +2,7 @@ import { createContext, useContext, type ReactNode } from "react"
 import { LocaleContext, useLocale, type Locale } from "@/i18n"
 import { SiteHeader } from "./site-header"
 import { SiteFooter } from "./site-footer"
+import { AppBanner } from "./app-banner"
 
 /** True while rendering inside a `SiteLayout`, so nested fallbacks (404 / error) don't add a second header and footer. */
 const InsideSiteLayout = createContext(false)
@@ -17,6 +18,7 @@ export function SiteLayout({ locale, children, footer = true }: { locale: Locale
             {children}
           </main>
           {footer && <SiteFooter />}
+          <AppBanner />
         </div>
       </InsideSiteLayout.Provider>
     </LocaleContext.Provider>

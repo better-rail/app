@@ -463,6 +463,37 @@ html:active-view-transition-type(page)::view-transition-new(root) {
   .animate-sheet-up {
     animation: sheet-up 0.38s var(--ease-out-expo) both;
   }
+
+  /* The install-the-app banner rising from the bottom edge, and sinking back when dismissed. */
+  .animate-banner-up {
+    animation: banner-up 0.5s var(--ease-out-expo) both;
+  }
+
+  .animate-banner-down {
+    animation: banner-down 0.26s ease-in both;
+  }
+}
+
+@keyframes banner-up {
+  from {
+    opacity: 0;
+    transform: translateY(calc(100% + 1.5rem));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes banner-down {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(calc(100% + 1.5rem));
+  }
 }
 
 @keyframes pop {

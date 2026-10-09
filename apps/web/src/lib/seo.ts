@@ -3,7 +3,7 @@ import { ogLocale, localePath, type Locale } from "@/i18n"
 export const SITE_URL = "https://better-rail.co.il"
 export const SITE_NAME = "Better Rail"
 export const TWITTER_HANDLE = "@better_rail"
-export const DEFAULT_OG_IMAGE = `${SITE_URL}/assets/images/og-image.png`
+export const DEFAULT_OG_IMAGE = `${SITE_URL}/assets/images/og-image-he.png`
 export const APP_STORE_URL = "https://apps.apple.com/il/app/better-rail/id1562982976"
 export const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.betterrail"
 export const GITHUB_URL = "https://github.com/better-rail/app"

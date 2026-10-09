@@ -33,7 +33,7 @@ export function StationPhotoCard({
       style={transitionName ? { viewTransitionName: transitionName } : undefined}
       className={cn(
         "relative block overflow-hidden rounded-card bg-surface-3",
-        size === "header" ? "h-13 sm:h-14" : "h-44 sm:h-48 lg:h-56",
+        size === "header" ? "h-13 sm:h-14" : "h-44 sm:h-48 lg:h-56 xl:h-64",
         className,
       )}
     >

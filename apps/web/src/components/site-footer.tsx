@@ -24,8 +24,6 @@ export function SiteFooter() {
   const hebrewOnly = locale === "he" ? {} : { lang: "he", hrefLang: "he" }
   const links = [
     { to: "/about", label: t("footer.about") },
-    { to: "/press", label: t("footer.press") },
-    { to: "/israel-railways-lawsuit", label: t("footer.lawsuit") },
     { to: "/image-attributions", label: t("footer.attributions") },
     { to: "/privacy-policy", label: t("footer.privacy") },
     { to: "/terms", label: t("footer.terms") },
