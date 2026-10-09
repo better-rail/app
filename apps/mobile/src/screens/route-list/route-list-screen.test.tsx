@@ -35,6 +35,7 @@ mock.module("@/components", () => ({
   Text: ({ text, children, ...props }: { text?: string; children?: React.ReactNode }) =>
     React.createElement("Text", props, text ?? children),
   RouteDetailsHeader: () => null,
+  WebsiteHandoff: () => null,
   RouteCard: "RouteCard",
   Button: "Button",
 }))

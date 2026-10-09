@@ -7,7 +7,7 @@ import { FlashList, type FlashListRef, type ViewToken } from "@shopify/flash-lis
 import { useNetworkState } from "expo-network"
 import { useQuery, useQueryClient } from "react-query"
 import { addDays } from "date-fns"
-import { useRouter, useLocalSearchParams, Redirect } from "expo-router"
+import { useRouter, useLocalSearchParams, useIsFocused, Redirect } from "expo-router"
 import { useObserve } from "expo-observe"
 import { useSharedValue } from "react-native-reanimated"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
@@ -16,7 +16,8 @@ import { useTrainRoutesStore, useRoutePlanStore, useRideStore, useSettingsStore 
 import { filterRouteDataByMaxChanges, TRAIN_INFO_PROMPT_SEARCH_THRESHOLD } from "@/models/settings/settings"
 import { color, fontScale, spacing } from "@/theme"
 import type { RouteItem } from "@/services/api"
-import { Screen, RouteDetailsHeader, RouteCard } from "@/components"
+import { RouteApi } from "@/services/api/route-api"
+import { Screen, RouteDetailsHeader, RouteCard, WebsiteHandoff } from "@/components"
 import {
   NoTrainsFoundMessage,
   FilteredTrainsMessage,
@@ -33,7 +34,7 @@ import { translate } from "@/i18n"
 import { shareRouteAction } from "@/utils/helpers/route-share-helpers"
 import { addRouteToCalendar } from "@/utils/helpers/calendar-helpers"
 import { getActionSheetStyleOptions } from "@/utils/helpers/action-sheet-helpers"
-import { isRouteInThePast } from "@/utils/helpers/date-helpers"
+import { formatDateForAPI, isRouteInThePast } from "@/utils/helpers/date-helpers"
 import { isHourIndexSupported } from "@/utils/hour-index"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 import { useActionSheet } from "@expo/react-native-action-sheet"
@@ -54,7 +55,14 @@ import {
 const VIEWABILITY_CONFIG = { minimumViewTime: 0, itemVisiblePercentThreshold: 50 }
 
 export function RouteListScreen() {
-  const params = useLocalSearchParams<{ originId: string; destinationId: string; time: string; enableQuery?: string }>()
+  const params = useLocalSearchParams<{
+    originId: string
+    destinationId: string
+    time: string
+    enableQuery?: string
+    trip?: string
+    viaStationId?: string
+  }>()
   const hideSlowTrains = useSettingsStore((s) => s.hideSlowTrains)
   const time = Number(params.time)
   if (!params.originId || !params.destinationId || !Number.isFinite(time)) return <Redirect href="/" />
@@ -67,6 +75,8 @@ export function RouteListScreen() {
       time={time}
       enableQuery={params.enableQuery === "true"}
       hideSlowTrains={hideSlowTrains}
+      trip={params.trip}
+      viaStationId={params.viaStationId}
     />
   )
 }
@@ -77,16 +87,21 @@ function RouteListResults({
   time,
   enableQuery,
   hideSlowTrains,
+  trip,
+  viaStationId,
 }: {
   originId: string
   destinationId: string
   time: number
   enableQuery: boolean
   hideSlowTrains: boolean
+  trip?: string
+  viaStationId?: string
 }) {
   const router = useRouter()
   const queryClient = useQueryClient()
   const getRoutes = useTrainRoutesStore((s) => s.getRoutes)
+  const isFocused = useIsFocused()
   const { dateType, date: routePlanDate } = useRoutePlanStore(useShallow((s) => ({ dateType: s.dateType, date: s.date })))
   const isRouteActive = useRideStore((s) => s.isRouteActive)
   const rideRoute = useRideStore((s) => s.route)
@@ -164,6 +179,48 @@ function RouteListResults({
     },
   )
 
+  // Keep trip restoration tied to the requested day while the list loads other days.
+  const requestedDayQueryKey = routeListDayQueryKey(originId, destinationId, time, hideSlowTrains)
+  const websiteTripRoutes = useQuery(
+    viaStationId ? ["websiteTrip", originId, destinationId, time, viaStationId] : requestedDayQueryKey,
+    async () => {
+      if (!viaStationId) {
+        return getRoutes(originId, destinationId, time, {
+          hideSlowTrains,
+          previousResult: queryClient.getQueryData<RouteSearchResult>(requestedDayQueryKey),
+        })
+      }
+      const [date, hour] = formatDateForAPI(time)
+      return new RouteApi().getRoutes(originId, destinationId, date, hour, { viaStation: viaStationId })
+    },
+    {
+      enabled: enableQuery && !!trip && isFocused,
+      retry: false,
+      select: (data) => (Array.isArray(data) ? data : data.routes),
+    },
+  )
+
+  const openedWebsiteTrip = useRef<string | null>(null)
+  useEffect(() => {
+    if (!isFocused || !trip || !websiteTripRoutes.isSuccess || !websiteTripRoutes.data) return
+    const key = `${originId}/${destinationId}/${time}/${trip}/${viaStationId ?? ""}`
+    if (openedWebsiteTrip.current === key) return
+    // Handle unavailable trips once so polling doesn't open details later.
+    openedWebsiteTrip.current = key
+    const routeItem = websiteTripRoutes.data.find(
+      (route) =>
+        new Date(route.departureTime).toDateString() === new Date(time).toDateString() &&
+        route.trains.map((train) => train.trainNumber).join("-") === trip,
+    )
+    if (!routeItem) return
+    useNavigationParamsStore.getState().setRouteDetails({
+      routeItem: { ...routeItem, viaStationId },
+      originId,
+      destinationId,
+    })
+    router.push("/route-details")
+  }, [isFocused, trip, websiteTripRoutes.isSuccess, websiteTripRoutes.data, originId, destinationId, time, viaStationId, router])
+
   // This also handles cached results, for which onSuccess is not called on initial display.
   useEffect(() => {
     if (!trains.data) return
@@ -187,6 +244,8 @@ function RouteListResults({
   // The hour index covers the day currently at the top of the list, and highlights its hour.
   // The hour lives in a shared value so scrolling doesn't re-render the screen.
   const [visibleDate, setVisibleDate] = useState<string | null>(null)
+  const handoffDate = new Date(visibleDate ?? displayData.find((item) => typeof item === "string") ?? currentDate.getTime())
+  handoffDate.setHours(currentDate.getHours(), currentDate.getMinutes(), 0, 0)
   const topHour = useSharedValue(-1)
   const onViewableItemsChanged = ({ viewableItems }: { viewableItems: ViewToken<RouteData>[] }) => {
     const first = viewableItems[0]?.item
@@ -387,6 +446,7 @@ function RouteListResults({
       statusBarBackgroundColor="transparent"
       translucent
     >
+      <WebsiteHandoff originId={originId} destinationId={destinationId} time={handoffDate.getTime()} />
       <RouteDetailsHeader
         screenName="routeList"
         originId={originId}
