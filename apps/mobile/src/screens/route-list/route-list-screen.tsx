@@ -230,7 +230,9 @@ function RouteListResults({
 
   const loadingDate = trains.isLoading ? currentDate.toDateString() : null
   const loadNextDayData = () => {
-    if (!trains.isFetching) setCurrentDate(nextDayDate)
+    if (trains.isFetching) return
+    if (nextDayDate.getTime() === currentDate.getTime()) trains.refetch()
+    else setCurrentDate(nextDayDate)
   }
 
   // Filtered on loaded data so switching never refetches

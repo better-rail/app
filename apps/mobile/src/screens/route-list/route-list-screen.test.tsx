@@ -216,6 +216,38 @@ describe("Friday search with Sunday trains", () => {
     expect(renderer!.root.findAllByProps({ testID: "route-list-warning" })).toHaveLength(0)
   })
 
+  test("a failed next-day load can be retried immediately while preserving the fallback warning", async () => {
+    timetable = spyOn(RouteApi.prototype, "getRoutes").mockImplementation(async (_origin, _destination, date) => {
+      if (date === "2026-10-12") throw new Error("Offline")
+      return date === "2026-10-11" ? sundayRoutes : []
+    })
+    await renderScreen()
+    const nextDayButton = () => renderer!.root.findByType(TestFlashList).props.ListFooterComponent
+
+    await act(async () => {
+      nextDayButton().props.setTime()
+      await Bun.sleep(0)
+    })
+    expectSundayWarning()
+
+    const mondayRoutes = getE2ERoutes("1600", "3100", "2026-10-12", "09:11")
+    timetable.mockImplementation(async (_origin, _destination, date) => {
+      if (date === "2026-10-12") return mondayRoutes
+      return date === "2026-10-11" ? sundayRoutes : []
+    })
+    await act(async () => {
+      nextDayButton().props.setTime()
+      await Bun.sleep(0)
+    })
+    expect(renderer!.root.findByType(TestFlashList).props.data).toEqual([
+      new Date(sundayRoutes[0].departureTime).toDateString(),
+      ...sundayRoutes,
+      new Date(mondayRoutes[0].departureTime).toDateString(),
+      ...mondayRoutes,
+    ])
+    expect(renderer!.root.findByProps({ testID: "route-list-warning" })).toBeDefined()
+  })
+
   test("a network failure shows a request error instead of searching another date", async () => {
     post.mockRejectedValue(new Error("Offline"))
     await renderScreen()
