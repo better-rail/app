@@ -129,6 +129,7 @@ export function RouteDetailsScreen() {
           destinationId={destinationId}
           time={routeItem.departureTime}
           trainNumbers={routeItem.trains.map((train) => train.trainNumber)}
+          viaStationId={routeItem.viaStationId}
         />
       )}
       <View style={{ flex: 1 }}>

@@ -10,11 +10,12 @@ interface WebsiteHandoffProps {
   destinationId: string
   time: number
   trainNumbers?: Array<string | number>
+  viaStationId?: string
 }
 
-export function WebsiteHandoff({ originId, destinationId, time, trainNumbers }: WebsiteHandoffProps) {
+export function WebsiteHandoff({ originId, destinationId, time, trainNumbers, viaStationId }: WebsiteHandoffProps) {
   const id = useId()
-  const url = websiteRouteURL({ originId, destinationId, time, trainNumbers, locale: userLocale })
+  const url = websiteRouteURL({ originId, destinationId, time, trainNumbers, viaStationId, locale: userLocale })
   const arrow = isRTL ? "←" : "→"
   const title = `${stationsObject[originId]?.[stationLocale] ?? ""} ${arrow} ${stationsObject[destinationId]?.[stationLocale] ?? ""}`
 

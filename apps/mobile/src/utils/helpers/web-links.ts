@@ -24,6 +24,7 @@ export interface WebsiteRoute {
   destinationId: string
   time: number
   trip?: string
+  viaStationId?: string
 }
 
 export function parseWebsiteRouteURL(url: string): WebsiteRoute | null {
@@ -49,8 +50,15 @@ export function parseWebsiteRouteURL(url: string): WebsiteRoute | null {
   const time = isValid(requested) && format(requested, "yyyy-MM-dd HH:mm") === input ? requested.getTime() : now.getTime()
 
   const trip = parsed.searchParams.get("trip")
+  const viaStationId = parsed.searchParams.get("viaStation")
 
-  return { originId, destinationId, time, ...(trip && /^\d+(?:-\d+)*$/.test(trip) ? { trip } : {}) }
+  return {
+    originId,
+    destinationId,
+    time,
+    ...(trip && /^\d+(?:-\d+)*$/.test(trip) ? { trip } : {}),
+    ...(viaStationId && /^\d+$/.test(viaStationId) ? { viaStationId } : {}),
+  }
 }
 
 export function websiteRouteURL({
@@ -58,17 +66,20 @@ export function websiteRouteURL({
   destinationId,
   time,
   trainNumbers,
+  viaStationId,
   locale,
 }: {
   originId: string
   destinationId: string
   time: number
   trainNumbers?: Array<string | number>
+  viaStationId?: string
   locale: LanguageCode
 }) {
   const prefix = locale === "he" ? "" : "/en"
   const when = Number.isFinite(time) ? time : Date.now()
   const params = new URLSearchParams({ date: format(when, "yyyy-MM-dd"), time: format(when, "HH:mm") })
   if (trainNumbers?.length) params.set("trip", trainNumbers.join("-"))
+  if (viaStationId) params.set("viaStation", viaStationId)
   return `${WEBSITE_ORIGIN}${prefix}/routes/${originId}/${destinationId}?${params}`
 }

@@ -65,6 +65,7 @@ export function useDeepLinking(storeReady: boolean) {
     const origin = getStationById(route.originId)
     const destination = getStationById(route.destinationId)
     if (!origin || !destination || origin.id === destination.id) return
+    const viaStation = route.viaStationId ? getStationById(route.viaStationId) : undefined
 
     const routePlan = useRoutePlanStore.getState()
     routePlan.setOrigin(origin)
@@ -81,6 +82,7 @@ export function useDeepLinking(storeReady: boolean) {
         time: String(route.time),
         enableQuery: "true",
         ...(route.trip ? { trip: route.trip } : {}),
+        ...(viaStation ? { viaStationId: viaStation.id } : {}),
       },
     })
   }
