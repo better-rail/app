@@ -250,6 +250,8 @@
     "noFareForRoute": "לא נמצא מחיר למסלול זה."
   },
   "modals": {
+    "noTrainsFoundForRequestedDate": "לא נמצאו רכבות ל%{date}",
+    "showingTrainsForDate": "מוצגות רכבות ל%{date}",
     "noTrainsFoundForDate": "לא נמצאו רכבות לתאריך המבוקש",
     "foundTrainsAtDate": "קיימות רכבות החל מ",
     "noTrainsFoundForHour": "לא נמצאו רכבות עבור השעה המבוקשת",

@@ -227,14 +227,17 @@ export const useRideStore = create<RideStore>((set, get) => ({
       const [date, time] = formatDateForAPI(route.departureTime)
 
       const options = { viaStation: route.viaStationId }
-      routeApi.getRoutes(originId.toString(), destinationId.toString(), date, time, options).then((routes) => {
-        const currentRouteTrains = route.trains.map((train) => train.trainNumber).join()
-        const currentRoute = routes.find((r) => currentRouteTrains === r.trains.map((train) => train.trainNumber).join())
+      routeApi
+        .getRoutes(originId.toString(), destinationId.toString(), date, time, options)
+        .then((routes) => {
+          const currentRouteTrains = route.trains.map((train) => train.trainNumber).join()
+          const currentRoute = routes.find((r) => currentRouteTrains === r.trains.map((train) => train.trainNumber).join())
 
-        if (currentRoute && Date.now() >= addMinutes(currentRoute.arrivalTime, last(currentRoute.trains).delay).getTime()) {
-          get().stopRide(rideId)
-        }
-      })
+          if (currentRoute && Date.now() >= addMinutes(currentRoute.arrivalTime, last(currentRoute.trains).delay).getTime()) {
+            get().stopRide(rideId)
+          }
+        })
+        .catch((error) => console.error("Failed to check ride arrival", error))
     }
   },
 
