@@ -7,7 +7,7 @@ import { FlashList, type FlashListRef, type ViewToken } from "@shopify/flash-lis
 import { useNetworkState } from "expo-network"
 import { useQuery } from "react-query"
 import { closestIndexTo } from "date-fns"
-import { useRouter, useLocalSearchParams, Redirect } from "expo-router"
+import { useRouter, useLocalSearchParams, useIsFocused, Redirect } from "expo-router"
 import { useObserve } from "expo-observe"
 import { useSharedValue } from "react-native-reanimated"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
@@ -16,7 +16,7 @@ import { useTrainRoutesStore, useRoutePlanStore, useRideStore, useSettingsStore 
 import { filterRouteDataByMaxChanges, TRAIN_INFO_PROMPT_SEARCH_THRESHOLD } from "@/models/settings/settings"
 import { color, fontScale, spacing } from "@/theme"
 import type { RouteItem } from "@/services/api"
-import { Screen, RouteDetailsHeader, RouteCard } from "@/components"
+import { Screen, RouteDetailsHeader, RouteCard, WebsiteHandoff } from "@/components"
 import {
   NoTrainsFoundMessage,
   FilteredTrainsMessage,
@@ -120,7 +120,14 @@ function organizeRoutesByDate(routes: RouteItem[], currentDateStr: string, exist
 
 export function RouteListScreen() {
   const router = useRouter()
-  const rawParams = useLocalSearchParams<{ originId: string; destinationId: string; time: string; enableQuery?: string }>()
+  const isFocused = useIsFocused()
+  const rawParams = useLocalSearchParams<{
+    originId: string
+    destinationId: string
+    time: string
+    enableQuery?: string
+    trip?: string
+  }>()
   const originId = rawParams.originId
   const destinationId = rawParams.destinationId
   const time = parseInt(rawParams.time as string, 10)
@@ -292,6 +299,24 @@ export function RouteListScreen() {
       },
     },
   )
+
+  const openedWebsiteTrip = useRef<string | null>(null)
+  useEffect(() => {
+    const trip = rawParams.trip
+    if (!isFocused || !trip || !trains.isSuccess || !trains.data) return
+    const key = `${originId}/${destinationId}/${time}/${trip}`
+    if (openedWebsiteTrip.current === key) return
+    // Handle unavailable trips once so polling doesn't open details later.
+    openedWebsiteTrip.current = key
+    const routeItem = trains.data.find(
+      (route) =>
+        new Date(route.departureTime).toDateString() === new Date(time).toDateString() &&
+        route.trains.map((train) => train.trainNumber).join("-") === trip,
+    )
+    if (!routeItem) return
+    useNavigationParamsStore.getState().setRouteDetails({ routeItem, originId, destinationId })
+    router.push("/route-details")
+  }, [isFocused, rawParams.trip, trains.isSuccess, trains.data, originId, destinationId, time, router])
 
   // Update the loading date when the current date changes
   useEffect(() => {
@@ -579,6 +604,7 @@ export function RouteListScreen() {
       statusBarBackgroundColor="transparent"
       translucent
     >
+      <WebsiteHandoff originId={originId} destinationId={destinationId} time={time} />
       <RouteDetailsHeader
         screenName="routeList"
         originId={originId}
