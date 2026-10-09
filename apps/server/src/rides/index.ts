@@ -1,4 +1,4 @@
-import { Ride } from "../types/ride"
+import { Ride, RideAlarmRequest } from "../types/ride"
 import { Scheduler } from "./scheduler"
 import { deleteRide } from "../data/redis"
 import { logNames, logger } from "../logs"
@@ -61,6 +61,43 @@ export const updateRideToken = async (rideId: string, token: string) => {
     logger.error(logNames.scheduler.updateRideToken.failed, { error, rideId, token })
     return false
   }
+}
+
+/** Returns when the alarm should ring, or undefined when the ride isn't tracked */
+export const setRideAlarm = async (rideId: string, alarm: RideAlarmRequest) => {
+  const scheduler = schedulers[rideId]
+
+  try {
+    if (!scheduler) {
+      throw new Error("Scheduler not found")
+    }
+
+    const fireDate = await scheduler.setAlarm(alarm)
+    if (fireDate === undefined) {
+      throw new Error("Couldn't save the alarm")
+    }
+
+    scheduler.logger.info(logNames.scheduler.setAlarm.success, { fireDate, leadMinutes: alarm.leadMinutes })
+    return fireDate
+  } catch (error) {
+    logger.error(logNames.scheduler.setAlarm.failed, { error, rideId })
+    return undefined
+  }
+}
+
+export const removeRideAlarm = async (rideId: string) => {
+  const scheduler = schedulers[rideId]
+  // The ride already ended, and its alarm with it.
+  if (!scheduler) return true
+
+  const success = await scheduler.removeAlarm()
+  if (success) {
+    scheduler.logger.info(logNames.scheduler.removeAlarm.success)
+  } else {
+    logger.error(logNames.scheduler.removeAlarm.failed, { rideId })
+  }
+
+  return success
 }
 
 export const endRideNotifications = async (rideId: string) => {

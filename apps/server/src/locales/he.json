@@ -17,6 +17,13 @@
       "unsafeChange": "החלפה זו אינה בטוחה.",
       "stayOnPlatform": "השארו ברציף %{platform}.",
       "changePlatform": "עברו לרציף %{platform}."
+    },
+    "alarm": {
+      "moved": {
+        "title": "הצלצול הועבר ל־%{time}",
+        "description": "הוא יצלצל %{minutes} דקות לפני ההגעה ל%{station}."
+      },
+      "failed": "זמן ההגעה השתנה. פתחו את בטר רייל כדי לעדכן את התראת ההגעה."
     }
   }
 }

@@ -37,7 +37,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     paddingVertical: 1,
     paddingHorizontal: theme.spacing[2],
     borderRadius: 6,
-    backgroundColor: rt.colorScheme === "light" ? "#EE6958" : "#B22E4D",
+    backgroundColor: rt.themeName === "light" ? "#EE6958" : "#B22E4D",
   },
   badgeText: {
     fontSize: 14,

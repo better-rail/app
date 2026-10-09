@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react"
-import { View, Pressable, Platform } from "react-native"
+import { View, Pressable, Platform, Alert, Image } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text, StationCard, FavoriteRoutes } from "@/components"
+import type { StationCardBadge } from "@/components/station-card/station-card"
 import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore, useRecentSearchesStore, useFavoritesStore } from "@/models"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
@@ -17,12 +18,22 @@ import { useQueryClient } from "react-query"
 import * as Burnt from "burnt"
 import { translate } from "@/i18n"
 
+const STAR_ICON = require("../../../assets/star-fill.png")
+const CHECKMARK_ICON = require("../../../assets/checkmark.png")
+const INFO_ICON = require("../../../assets/info.circle.png")
+
 export type SelectionType = "origin" | "destination" | "via"
 
 export function SelectStationScreen() {
   const router = useRouter()
   const navigation = useNavigation()
-  const { selectionType, stationIds } = useLocalSearchParams<{ selectionType: SelectionType; stationIds?: string }>()
+  const { selectionType, stationIds, trainStartId, samePlatformIds, acrossPlatformIds } = useLocalSearchParams<{
+    selectionType: SelectionType
+    stationIds?: string
+    trainStartId?: string
+    samePlatformIds?: string
+    acrossPlatformIds?: string
+  }>()
   const allStations = useStations()
   const allowedStations = useMemo(() => {
     if (!stationIds) return undefined
@@ -74,11 +85,36 @@ export function SelectStationScreen() {
     router.back()
   }
 
+  const hasTrainStart = selectionType === "via" && !!allowedStations?.some((s) => s.id === trainStartId)
+  const showTrainStartInfo = () =>
+    Alert.alert(translate("routeDetails.trainStartsHereInfoTitle") ?? "", translate("routeDetails.trainStartsHereInfo") ?? "")
+
+  const samePlatformSet = useMemo(() => new Set(samePlatformIds?.split(",")), [samePlatformIds])
+  const acrossPlatformSet = useMemo(() => new Set(acrossPlatformIds?.split(",")), [acrossPlatformIds])
+  const changeBadges = (stationId: string) => {
+    if (selectionType !== "via") return undefined
+    const badges: StationCardBadge[] = []
+    if (stationId === trainStartId) {
+      badges.push({
+        label: translate("routeDetails.trainStartsHere") ?? "",
+        icon: STAR_ICON,
+        tone: "highlight",
+      })
+    }
+    if (samePlatformSet.has(stationId)) {
+      badges.push({ label: translate("routeDetails.samePlatform") ?? "", icon: CHECKMARK_ICON })
+    } else if (acrossPlatformSet.has(stationId)) {
+      badges.push({ label: translate("routeDetails.acrossPlatform") ?? "", icon: CHECKMARK_ICON })
+    }
+    return badges
+  }
+
   const renderItem = (station: NormalizedStation) => (
     <StationCard
       testID={`station-item-${station.id}`}
       name={station.name}
       image={station.image}
+      badges={changeBadges(station.id)}
       style={styles.stationCard}
       loading={station.id === replacingStationId}
       disabled={!!replacingStationId}
@@ -115,27 +151,42 @@ export function SelectStationScreen() {
         <Pressable testID="cancel-station-selection" onPress={() => router.back()}>
           <Text style={styles.cancelLink} tx="common.cancel" />
         </Pressable>
+        {hasTrainStart && (
+          <Pressable
+            testID="train-start-info-button"
+            style={styles.infoButton}
+            onPress={showTrainStartInfo}
+            hitSlop={12}
+            accessibilityRole="button"
+            accessibilityLabel={translate("routeDetails.trainStartsHereInfoTitle") ?? ""}
+          >
+            <Image source={INFO_ICON} style={styles.infoIcon} />
+          </Pressable>
+        )}
       </View>
 
-      <FlashList
-        ref={listRef}
-        data={listData}
-        renderItem={({ item }) => renderItem(item)}
-        keyExtractor={(item) => item.id}
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={styles.listContent}
-        extraData={replacingStationId}
-        // Disabled: otherwise FlashList may scroll the list out of view when results change between keystrokes.
-        maintainVisibleContentPosition={{ disabled: true }}
-        ListEmptyComponent={() =>
-          allowedStations ? null : (
-            <View>
-              <RecentSearchesBox selectionType={selectionType} />
-              {recentSearchEntries.length > 1 && <FavoriteRoutes />}
-            </View>
-          )
-        }
-      />
+      <View style={styles.listContainer}>
+        <FlashList
+          ref={listRef}
+          data={listData}
+          renderItem={({ item }) => renderItem(item)}
+          keyExtractor={(item) => item.id}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={styles.listContent}
+          ListFooterComponent={<View style={styles.listFooter} />}
+          extraData={replacingStationId}
+          // Disabled: otherwise FlashList may scroll the list out of view when results change between keystrokes.
+          maintainVisibleContentPosition={{ disabled: true }}
+          ListEmptyComponent={() =>
+            allowedStations ? null : (
+              <View>
+                <RecentSearchesBox selectionType={selectionType} />
+                {recentSearchEntries.length > 1 && <FavoriteRoutes />}
+              </View>
+            )
+          }
+        />
+      </View>
     </Screen>
   )
 }
@@ -145,8 +196,17 @@ const styles = StyleSheet.create((theme, rt) => ({
     backgroundColor: theme.colors.secondaryBackground,
     flex: 1,
   },
+  // Android is edge-to-edge, so the keyboard doesn't resize the screen (iOS uses Screen's KeyboardAvoidingView).
+  listContainer: {
+    flex: 1,
+    paddingBottom: Platform.OS === "android" && rt.insets.ime > 0 ? rt.insets.ime + rt.insets.bottom : 0,
+  },
   listContent: {
-    paddingBottom: rt.insets.bottom + theme.spacing[0],
+    paddingBottom: theme.spacing[0],
+  },
+  // A native view, since FlashList doesn't apply contentContainerStyle changes without a re-render.
+  listFooter: {
+    height: rt.insets.ime > 0 ? 0 : rt.insets.bottom,
   },
   searchBarWrapper: {
     flexDirection: "row",
@@ -159,7 +219,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     borderBottomWidth: 0.75,
     borderBottomColor: Platform.select({
       ios: theme.colors.dimmer,
-      android: isDarkMode ? "#3a3a3c" : "lightgrey",
+      android: rt.themeName === "dark" ? "#3a3a3c" : "lightgrey",
     }),
   },
   stationCard: {
@@ -169,5 +229,13 @@ const styles = StyleSheet.create((theme, rt) => ({
   cancelLink: {
     marginStart: theme.spacing[3],
     color: theme.colors.link,
+  },
+  infoButton: {
+    marginStart: "auto",
+  },
+  infoIcon: {
+    width: 24,
+    height: 24,
+    tintColor: theme.colors.link,
   },
 }))

@@ -1,30 +1,44 @@
-import Head from "expo-router/head"
+import { useCallback, useId } from "react"
+import { useFocusEffect } from "expo-router"
 import { isRTL, userLocale } from "@/i18n"
 import { stationLocale, stationsObject } from "@/data/stations"
 import { websiteRouteURL } from "@/utils/helpers/web-links"
+import { websiteHandoff } from "@/utils/website-handoff"
 
 interface WebsiteHandoffProps {
   originId: string
   destinationId: string
   time: number
   trainNumbers?: Array<string | number>
+  viaStationId?: string
 }
 
-/**
- * Offers the routes on screen to Safari on the user's other Apple devices (Handoff), as the matching
- * better-rail.co.il page. Only while the screen is focused; a no-op off iOS.
- */
-export function WebsiteHandoff({ originId, destinationId, time, trainNumbers }: WebsiteHandoffProps) {
-  const url = websiteRouteURL({ originId, destinationId, time, trainNumbers, locale: userLocale })
+export function WebsiteHandoff({ originId, destinationId, time, trainNumbers, viaStationId }: WebsiteHandoffProps) {
+  const id = useId()
+  const url = websiteRouteURL({ originId, destinationId, time, trainNumbers, viaStationId, locale: userLocale })
   const arrow = isRTL ? "←" : "→"
   const title = `${stationsObject[originId]?.[stationLocale] ?? ""} ${arrow} ${stationsObject[destinationId]?.[stationLocale] ?? ""}`
 
-  return (
-    <Head>
-      <title>{title}</title>
-      <meta property="og:url" content={url} />
-      <meta property="expo:handoff" content="true" />
-      <meta property="expo:spotlight" content="false" />
-    </Head>
+  const validRoute =
+    !!stationsObject[originId] && !!stationsObject[destinationId] && originId !== destinationId && Number.isFinite(time)
+
+  useFocusEffect(
+    useCallback(() => {
+      const activityModule = websiteHandoff
+      if (!activityModule || !validRoute) return
+      // Head's internal screen href cannot restore a journey on another device.
+      activityModule.createActivity({
+        id,
+        activityType: activityModule.activities.INDEXED_ROUTE,
+        title,
+        webpageURL: url,
+        userInfo: { href: url },
+        isEligibleForHandoff: true,
+        isEligibleForSearch: false,
+      })
+      return () => activityModule.revokeActivity(id)
+    }, [id, title, url, validRoute]),
   )
+
+  return null
 }

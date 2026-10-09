@@ -1,15 +1,6 @@
 import { isWebsiteURL } from "@/utils/helpers/web-links"
 
-/**
- * Expo Router's native deep-link handler, invoked for every incoming URL before
- * the router navigates.
- *
- * Widget and live-activity links (iOS `widget://` / `liveactivity://`, Android
- * `betterrail://modern_widget4x2?…`) and better-rail.co.il links (universal links,
- * Handoff) are handled in `use-deep-linking.ts` since they depend on app state.
- * Returning `null` stops Expo Router from resolving them itself, which would
- * reset the stack or land on the not-found screen.
- */
+// Defer widget, live-activity and website navigation to useDeepLinking until app state loads.
 const MANUAL_DEEP_LINK = /^(widget|liveactivity):\/\/|^betterrail:\/\/((modern_)?widget\w*|liveactivity)([/?#]|$)/
 
 export function redirectSystemPath({ path }: { path: string; initial: boolean }): string | null {

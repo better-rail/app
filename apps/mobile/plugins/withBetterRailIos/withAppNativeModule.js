@@ -7,9 +7,10 @@ const path = require("path")
  * shares with the widget into the generated BetterRail app target — reproducing the original
  * bare project's multi-target membership.
  *
- * The Route.intentdefinition is added to the app target's Sources phase with
- * INTENTS_CODEGEN_LANGUAGE=Swift so Xcode generates RouteIntent/INStation for the app (exactly
- * as before), avoiding any hand-written or pre-generated intent boilerplate.
+ * The localized Route.intentdefinition (Base + he/ar/ru Route.strings) is added to the app
+ * target's Sources phase with INTENTS_CODEGEN_LANGUAGE=Swift so Xcode generates
+ * RouteIntent/INStation for the app (exactly as before), avoiding any hand-written or
+ * pre-generated intent boilerplate.
  *
  * Single source of truth: the shared files are read from ./targets/widget (consumed by the
  * widget target too); only app-only files live in ./ios-native/app.
@@ -28,9 +29,15 @@ const SWIFT_FILES = [
   ["targets/widget/Shared/RouteModel.swift", "RouteModel.swift"],
   ["targets/widget/Shared/StationModel.swift", "StationModel.swift"],
   ["targets/widget/Shared/Utilities.swift", "Utilities.swift"],
+  ["targets/notification-service/ArrivalAlarm.swift", "ArrivalAlarm.swift"],
 ]
 const OBJC_FILES = [["ios-native/app/RNBetterRail.m", "RNBetterRail.m"]]
-const INTENT_DEF = ["targets/widget/Base.lproj/Route.intentdefinition", "Route.intentdefinition"]
+// The intent definition is localized: Base.lproj holds the definition, and each other locale
+// ships a Route.strings with the translated titles. App Store Connect flags the build with
+// ITMS-90626 if a locale the app supports has no translation for the intent title.
+const INTENT_DEF_DIR = "targets/widget"
+const INTENT_DEF_NAME = "Route.intentdefinition"
+const INTENT_DEF_LOCALES = ["he", "ar", "ru"]
 // Bundled (not compiled) — StationModel.load() reads this from Bundle.main at runtime.
 const RESOURCE_FILES = [["ios-native/app/stationsData.json", "stationsData.json"]]
 
@@ -65,9 +72,34 @@ const withAppNativeModule = (config) =>
       proj.addSourceFile(destName, { target: targetKey }, groupKey)
     }
 
-    // Intent definition -> Sources phase (triggers RouteIntent codegen).
-    copy(INTENT_DEF[0], INTENT_DEF[1])
-    proj.addSourceFile(INTENT_DEF[1], { target: targetKey }, groupKey)
+    // Intent definition -> Sources phase (triggers RouteIntent codegen), as a variant group
+    // holding the Base definition plus each locale's Route.strings — the same shape Xcode
+    // gives a localized intent definition.
+    const intentFiles = [
+      ["Base", INTENT_DEF_NAME, "file.intentdefinition"],
+      ...INTENT_DEF_LOCALES.map((locale) => [locale, "Route.strings", "text.plist.strings"]),
+    ]
+    for (const [locale, fileName] of intentFiles) {
+      const relPath = path.join(`${locale}.lproj`, fileName)
+      fs.mkdirSync(path.join(destDir, `${locale}.lproj`), { recursive: true })
+      copy(path.join(INTENT_DEF_DIR, relPath), relPath)
+    }
+    // Idempotent: skip if a non-clean prebuild already added the variant group.
+    if (!proj.findPBXVariantGroupKey({ name: INTENT_DEF_NAME })) {
+      const variantKey = proj.pbxCreateVariantGroup(INTENT_DEF_NAME)
+      proj.addToPbxGroup(variantKey, groupKey)
+      for (const [locale, fileName, fileType] of intentFiles) {
+        const file = proj.addFile(`${locale}.lproj/${fileName}`, variantKey, { lastKnownFileType: fileType })
+        if (!file) throw new Error(`[withBetterRailIos] failed to add ${locale}.lproj/${fileName}`)
+        // Xcode names variant children after their locale.
+        proj.pbxFileReferenceSection()[file.fileRef].name = locale
+        proj.pbxFileReferenceSection()[`${file.fileRef}_comment`] = locale
+      }
+      const buildFile = { uuid: proj.generateUuid(), fileRef: variantKey, basename: INTENT_DEF_NAME, target: targetKey }
+      proj.addToPbxBuildFileSection(buildFile)
+      proj.addToPbxSourcesBuildPhase(buildFile)
+    }
+    for (const locale of INTENT_DEF_LOCALES) proj.addKnownRegion(locale)
 
     // Bundled resources -> Copy Bundle Resources phase (loaded via Bundle.main at runtime).
     // NOTE: we deliberately avoid proj.addResourceFile(). In xcode@3.0.1 it unconditionally

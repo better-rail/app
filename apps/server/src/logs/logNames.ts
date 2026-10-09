@@ -35,6 +35,10 @@ export const logNames = {
         success: "Updated token for ride in redis",
         failed: "Failed to update token for ride in redis",
       },
+      updateAlarm: {
+        success: "Updated arrival alarm for ride in redis",
+        failed: "Failed to update arrival alarm for ride in redis",
+      },
     },
   },
   scheduler: {
@@ -62,6 +66,14 @@ export const logNames = {
       success: "Updated ride token for ride",
       failed: "Failed to update ride token for ride",
     },
+    setAlarm: {
+      success: "Set arrival alarm for ride",
+      failed: "Failed to set arrival alarm for ride",
+    },
+    removeAlarm: {
+      success: "Removed arrival alarm for ride",
+      failed: "Failed to remove arrival alarm for ride",
+    },
   },
   notifications: {
     log: "Got notification",
@@ -73,6 +85,10 @@ export const logNames = {
     android: {
       success: "Sent notification to FCM successully!",
       failed: "Failed to send notificaiton to FCM",
+    },
+    alarm: {
+      success: "Sent arrival alarm update",
+      failed: "Failed to send arrival alarm update",
     },
   },
   routeApi: {

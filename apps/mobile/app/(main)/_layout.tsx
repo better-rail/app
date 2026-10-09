@@ -22,6 +22,7 @@ export default function MainLayout() {
       <Stack
         screenOptions={{
           headerBackButtonDisplayMode: "minimal",
+          headerBackButtonMenuEnabled: false,
           headerTitleStyle: {
             fontSize: 20,
             fontFamily: typography.primary,

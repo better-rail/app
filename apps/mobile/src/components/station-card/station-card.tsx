@@ -6,7 +6,6 @@ import {
   ImageBackground,
   View,
   Platform,
-  Dimensions,
   ImageSourcePropType,
   ViewStyle,
   Image,
@@ -21,24 +20,14 @@ import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 
 const ThemedTouchableScale = withUnistyles(TouchableScale)
 const isDarkMode = Appearance.getColorScheme() === "dark"
-const { height: deviceHeight } = Dimensions.get("screen")
 
-export let cardHeight = 120
-
-if (deviceHeight > 600) {
-  cardHeight = 135
-}
-
-if (deviceHeight > 730) {
-  cardHeight = 157.5
-}
-
-if (deviceHeight > 780) {
-  cardHeight = 178.5
-}
-
-if (deviceHeight > 900) {
-  cardHeight = 190
+// The stylesheet passes rt.screen.height, so the height updates when a foldable changes its screen size.
+function getCardHeight(screenHeight: number) {
+  if (screenHeight > 900) return 190
+  if (screenHeight > 780) return 178.5
+  if (screenHeight > 730) return 157.5
+  if (screenHeight > 600) return 135
+  return 120
 }
 
 export interface StationCardProps extends TouchableScaleProps {
@@ -46,9 +35,32 @@ export interface StationCardProps extends TouchableScaleProps {
   image: ImageSourcePropType
   style?: ViewStyle
   loading?: boolean
+  badges?: StationCardBadge[]
+}
+
+export type StationCardBadge = {
+  label: string
+  icon?: ImageSourcePropType
+  tone?: "highlight" | "neutral"
 }
 export function StationCard(props: StationCardProps) {
-  const { name, image, style, loading, ...rest } = props
+  const { name, image, style, loading, badges, ...rest } = props
+
+  const badgeRow = !!badges?.length && (
+    <View style={styles.badges}>
+      {badges.map(({ label, icon, tone }) => {
+        const highlight = tone === "highlight"
+        return (
+          <View key={label} style={[styles.badge, highlight && styles.badgeHighlight]}>
+            {icon && <Image source={icon} style={[styles.badgeIcon, highlight && styles.badgeHighlightContent]} />}
+            <Text style={[styles.badgeText, highlight && styles.badgeHighlightContent]} maxFontSizeMultiplier={1.2}>
+              {label}
+            </Text>
+          </View>
+        )
+      })}
+    </View>
+  )
 
   const loadingOverlay = loading && (
     <View style={styles.loadingOverlay}>
@@ -78,6 +90,7 @@ export function StationCard(props: StationCardProps) {
         />
         <LinearGradient style={styles.gardient} colors={["rgba(0, 0, 0, 0.05)", "rgba(0, 0, 0, 0.3)"]} />
 
+        {badgeRow}
         <Text style={styles.text}>{name}</Text>
         {loadingOverlay}
       </ThemedTouchableScale>
@@ -85,13 +98,20 @@ export function StationCard(props: StationCardProps) {
   }
 
   return (
-    <ThemedTouchableScale style={[styles.container, style]} activeScale={0.95} friction={9} {...rest}>
+    <ThemedTouchableScale
+      style={[styles.container, style]}
+      activeScale={0.95}
+      friction={9}
+      accessibilityLabel={badges?.length ? [name, ...badges.map((b) => b.label)].join(", ") : undefined}
+      {...rest}
+    >
       <ImageBackground imageStyle={styles.imageBackgroundImage} source={image} style={styles.background}>
         <LinearGradient
           style={styles.gardient}
           colors={["rgba(0, 0, 0, 0.05)", isDarkMode ? "rgba(0, 0, 0, 0.75)" : "rgba(0, 0, 0, 0.65)"]}
         />
 
+        {badgeRow}
         <Text style={styles.text}>{name}</Text>
         {loadingOverlay}
       </ImageBackground>
@@ -99,7 +119,7 @@ export function StationCard(props: StationCardProps) {
   )
 }
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, rt) => ({
   container: {
     borderRadius: 12,
     backgroundColor: theme.colors.inputPlaceholderBackground,
@@ -109,12 +129,12 @@ const styles = StyleSheet.create((theme) => ({
     elevation: 3,
   },
   imagelessCard: {
-    height: cardHeight,
+    height: getCardHeight(rt.screen.height),
     justifyContent: "flex-end",
   },
   emptyCardWrapper: {
     width: "100%",
-    height: cardHeight,
+    height: getCardHeight(rt.screen.height),
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 12,
@@ -127,7 +147,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   background: {
     width: "100%",
-    height: cardHeight,
+    height: getCardHeight(rt.screen.height),
     justifyContent: "flex-end",
   },
   imageBackgroundImage: {
@@ -144,6 +164,42 @@ const styles = StyleSheet.create((theme) => ({
     textShadowColor: theme.colors.palette.black,
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
+  },
+  badges: {
+    position: "absolute",
+    top: theme.spacing[2],
+    start: theme.spacing[2],
+    end: theme.spacing[2],
+    alignItems: "flex-end",
+    gap: theme.spacing[1],
+  },
+  badge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingHorizontal: theme.spacing[2],
+    paddingVertical: 3,
+    borderRadius: 999,
+    backgroundColor: "rgba(255, 255, 255, 0.92)",
+    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.3)",
+  },
+  badgeHighlight: {
+    backgroundColor: theme.colors.success,
+  },
+  badgeIcon: {
+    width: 13,
+    height: 13,
+    resizeMode: "contain",
+    tintColor: theme.colors.palette.black,
+  },
+  badgeText: {
+    color: theme.colors.palette.black,
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  badgeHighlightContent: {
+    color: theme.colors.palette.white,
+    tintColor: theme.colors.palette.white,
   },
   emptyCardText: {
     color: theme.colors.dim,

@@ -17,6 +17,13 @@
       "unsafeChange": "Это изменение не гарантировано.",
       "stayOnPlatform": "Оставайтесь на платформе %{platform}.",
       "changePlatform": "Перейдите на платформу %{platform}."
+    },
+    "alarm": {
+      "moved": {
+        "title": "Сигнал перенесён на %{time}",
+        "description": "Он прозвучит за %{minutes} мин. до прибытия на станцию %{station}."
+      },
+      "failed": "Время прибытия изменилось. Откройте Better Rail, чтобы обновить сигнал."
     }
   }
 }

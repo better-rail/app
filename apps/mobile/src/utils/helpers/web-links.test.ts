@@ -10,7 +10,7 @@ test("recognizes better-rail.co.il links only", () => {
 
 test("parses a routes page link with a date and time", () => {
   const route = parseWebsiteRouteURL("https://better-rail.co.il/en/routes/3700/4600?date=2026-10-06&time=09:30&trip=101-202")
-  expect(route).toEqual({ originId: "3700", destinationId: "4600", time: new Date(2026, 9, 6, 9, 30).getTime() })
+  expect(route).toEqual({ originId: "3700", destinationId: "4600", time: new Date(2026, 9, 6, 9, 30).getTime(), trip: "101-202" })
 })
 
 test("a routes page link without a date searches from now", () => {

@@ -21,6 +21,7 @@ import {
   clearBackgroundStorage,
 } from "./storage/background-storage"
 import { Platform } from "react-native"
+import { getArrivalAlarm, isArrivalAlarmSupported, moveArrivalAlarm } from "./arrival-alarm-native"
 import { RideStartError } from "./helpers/ride-errors"
 import { getDevicePushTokenWithAuthRetry } from "./helpers/push-token-auth-retry"
 import { trackEvent } from "@/services/analytics"
@@ -41,11 +42,12 @@ Notifications.setNotificationHandler({
 })
 
 const BACKGROUND_LIVE_RIDE_TASK = "better-rail-live-ride-notification"
+const BACKGROUND_ARRIVAL_ALARM_TASK = "better-rail-arrival-alarm-notification"
 
 // Pulls the FCM `data` map out of whatever expo-notifications hands us. The wrapper shape
 // differs between the background task and the foreground listener, so probe the known
 // locations. VERIFY the resolved shape on a real device (see migration notes).
-const extractLiveRidePayload = (raw: any): Record<string, string> | null => {
+const extractFcmData = (raw: any): Record<string, string> | null => {
   const data =
     raw?.notification?.request?.content?.data ??
     raw?.notification?.request?.trigger?.remoteMessage?.data ??
@@ -53,18 +55,78 @@ const extractLiveRidePayload = (raw: any): Record<string, string> | null => {
     raw?.notification?.data ??
     raw?.data ??
     raw
-  return data?.type === "live-ride" ? data : null
+  return typeof data?.type === "string" ? data : null
+}
+
+const handleFcmData = (data: Record<string, string> | null) => {
+  if (data?.type === "live-ride") return handleLiveRideNotification(data)
+  if (data?.type === "arrival-alarm") return handleAndroidArrivalAlarmPush(data)
 }
 
 // Defined at module scope so it registers when index.js loads this file — including when
 // the app is woken from a killed/background state to process a live-ride data message.
 TaskManager.defineTask(BACKGROUND_LIVE_RIDE_TASK, ({ data, error }) => {
   if (error) return
-  const payload = extractLiveRidePayload(data)
-  if (payload) return handleLiveRideNotification(payload)
+  return handleFcmData(extractFcmData(data))
+})
+
+const ARRIVAL_ALARM_UPDATES_CHANNEL = "better-rail-alarm-updates"
+
+// Android: the server sends a data message when the arrival time changed. Move the alarm, then tell
+// the rider quietly, like the passive notification iOS shows.
+const handleAndroidArrivalAlarmPush = async (data: Record<string, string>) => {
+  const push = { rideId: data.rideId, alarmId: data.alarmId, fireDate: Number(data.fireDate) }
+  if (!push.rideId || !push.alarmId || !Number.isFinite(push.fireDate)) return
+
+  // A push for an alarm the rider turned off or changed, or that already rang.
+  const current = await getArrivalAlarm().catch(() => null)
+  if (current?.alarmId !== push.alarmId || !current.isScheduled) return
+
+  const moved = await moveArrivalAlarm(push).catch(() => false)
+  await notifee.displayNotification({
+    id: `arrival-alarm-${push.rideId}`,
+    title: data.title,
+    body: moved ? data.body : data.failedBody,
+    android: {
+      channelId: ARRIVAL_ALARM_UPDATES_CHANNEL,
+      smallIcon: "notification_icon",
+      pressAction: { id: "default" },
+      // Pointless once the alarm rang.
+      timeoutAfter: Math.max(push.fireDate * 1000 - Date.now(), 60 * 1000),
+    },
+  })
+}
+
+type ArrivalAlarmPush = { rideId: string; alarmId: string; fireDate: number }
+
+// Finds the `alarm` object of an arrival-alarm push, wherever expo-notifications nested it.
+const findArrivalAlarmPush = (raw: unknown, depth = 0): ArrivalAlarmPush | null => {
+  if (!raw || typeof raw !== "object" || depth > 5) return null
+  const alarm = (raw as Record<string, any>).alarm
+  if (alarm && typeof alarm.rideId === "string" && typeof alarm.alarmId === "string" && typeof alarm.fireDate === "number") {
+    return alarm
+  }
+
+  for (const value of Object.values(raw)) {
+    const found = findArrivalAlarmPush(value, depth + 1)
+    if (found) return found
+  }
+  return null
+}
+
+// iOS: the arrival-alarm push also wakes a suspended app, a fallback for when the notification
+// service extension couldn't move the alarm. Moving it twice to the same time is harmless.
+TaskManager.defineTask(BACKGROUND_ARRIVAL_ALARM_TASK, ({ data, error }) => {
+  if (error || Platform.OS !== "ios") return
+  const push = findArrivalAlarmPush(data)
+  if (push) return moveArrivalAlarm(push).catch(() => {})
 })
 
 export const configureNotifications = async () => {
+  if (Platform.OS === "ios" && isArrivalAlarmSupported()) {
+    await Notifications.registerTaskAsync(BACKGROUND_ARRIVAL_ALARM_TASK)
+  }
+
   if (Platform.OS === "android") {
     notifee.createChannel({
       id: "better-rail",
@@ -84,10 +146,19 @@ export const configureNotifications = async () => {
     // Background / killed: expo-notifications wakes the JS task defined at module scope.
     await Notifications.registerTaskAsync(BACKGROUND_LIVE_RIDE_TASK)
 
+    if (isArrivalAlarmSupported()) {
+      notifee.createChannel({
+        id: ARRIVAL_ALARM_UPDATES_CHANNEL,
+        name: "Better Rail Alarm Updates",
+        description: "Tells you when the arrival alarm moved because of a delay",
+        importance: AndroidImportance.LOW,
+        vibration: false,
+      })
+    }
+
     // Foreground: data messages are delivered to this listener rather than the task.
     Notifications.addNotificationReceivedListener((notification) => {
-      const payload = extractLiveRidePayload(notification)
-      if (payload) handleLiveRideNotification(payload).catch(() => {})
+      handleFcmData(extractFcmData(notification))?.catch(() => {})
     })
 
     notifee.onBackgroundEvent(async ({ type, detail }) => {

@@ -85,6 +85,11 @@ export const Route = createFileRoute("/_site/image-attributions")({
           McKaby - תחנת נתניה תחת רשיון <a href={CC3}>CC BY-SA 4.0</a>
         </li>
       </ul>
+      <h3>אייקונים</h3>
+      <p>
+        אייקון ההולך/ת ברגל במסך פרטי המסלול הוא מתוך <a href="https://github.com/jdecked/twemoji">Twemoji</a>, תחת רשיון{" "}
+        <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.
+      </p>
     </ContentPage>
   ),
 })

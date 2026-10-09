@@ -1,10 +1,12 @@
-import { useRef } from "react"
+import { useRef, useState } from "react"
 import { View, ScrollView, Platform, Pressable, LayoutChangeEvent } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
+import SegmentedControl from "@expo/ui/community/segmented-control"
 import { Text } from "@/components"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
-import type { Wagon } from "@/services/api/rail-api.types"
+import type { Train, Wagon } from "@/services/api/rail-api.types"
 import { translate } from "@/i18n"
+import { palette } from "@/theme/palette"
 import { getTrainDirection } from "@/utils/helpers/direction-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HapticFeedback from "react-native-haptic-feedback"
@@ -52,9 +54,7 @@ function WagonItem({
   )
 }
 
-export function RouteDetailsTrainInfo() {
-  const train = useNavigationParamsStore((s) => s.train)
-  const insets = useSafeAreaInsets()
+function TrainWagons({ train }: { train: Train }) {
   const sortedWagons = (() => {
     if (!train.visaWagonData?.wagons || train.visaWagonData.wagons.length === 0) {
       return []
@@ -120,11 +120,7 @@ export function RouteDetailsTrainInfo() {
   const wagonCount = train.visaWagonData?.totkr
 
   return (
-    <View
-      testID="train-info-screen"
-      collapsable={false}
-      style={{ paddingBottom: Platform.select({ ios: 0, android: insets.bottom + 8 }) }}
-    >
+    <>
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}>
           {train.trainNumber} {translate("common.toStationName", { stationName: train.lastStop })}
@@ -221,11 +217,49 @@ export function RouteDetailsTrainInfo() {
           <Text style={styles.emptyStateText}>{translate("routeDetails.noWagonInformationAvailable")}</Text>
         </View>
       )}
+    </>
+  )
+}
+
+export function RouteDetailsTrainInfo() {
+  const trains = useNavigationParamsStore((s) => s.trains)
+  const initialTrainIndex = useNavigationParamsStore((s) => s.initialTrainIndex)
+  const insets = useSafeAreaInsets()
+  const [selectedIndex, setSelectedIndex] = useState(initialTrainIndex)
+  const train = trains[selectedIndex]
+
+  return (
+    <View
+      testID="train-info-screen"
+      collapsable={false}
+      style={{ paddingBottom: Platform.select({ ios: 0, android: insets.bottom + 8 }) }}
+    >
+      {trains.length > 1 && (
+        <SegmentedControl
+          testID="train-info-train-picker"
+          values={trains.map((t) => t.trainNumber.toString())}
+          selectedIndex={selectedIndex}
+          // Android only: a light blue keeps the dark selected label readable
+          tintColor={`${palette.blue}33`}
+          onChange={(event) => {
+            HapticFeedback.trigger("impactLight")
+            setSelectedIndex(event.nativeEvent.selectedSegmentIndex)
+          }}
+          style={styles.trainPicker}
+        />
+      )}
+
+      {/* keyed by train so the wagon scroll position and layout cache reset when switching trains */}
+      {train && <TrainWagons key={train.trainNumber} train={train} />}
     </View>
   )
 }
 
 const styles = StyleSheet.create((theme) => ({
+  trainPicker: {
+    marginHorizontal: theme.spacing[5],
+    marginTop: theme.spacing[5],
+  },
   headerContainer: {
     flexDirection: "row",
     alignItems: "center",

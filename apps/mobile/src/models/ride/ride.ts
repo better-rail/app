@@ -4,6 +4,8 @@ import type AndroidHelpersModule from "@/utils/notification-helpers"
 import iOSHelpers, { ActivityAuthorizationInfo } from "@/utils/ios-helpers"
 import { RouteItem } from "@/services/api"
 import { RouteApi } from "@/services/api/route-api"
+import { RideApi } from "@/services/api/ride-api"
+import { cancelArrivalAlarm } from "@/utils/arrival-alarm-native"
 import { head, last } from "lodash"
 import { formatDateForAPI } from "@/utils/helpers/date-helpers"
 import { addMinutes } from "date-fns"
@@ -13,6 +15,7 @@ import notifee, { NotificationSettings } from "@notifee/react-native"
 import { trackEvent } from "@/services/analytics"
 import { showErrorAlert } from "@/utils/helpers/error-alert"
 import { rideStartErrorLevel, rideStartErrorTags } from "@/utils/helpers/ride-errors"
+import { isSameRoute } from "@/utils/helpers/ride-helpers"
 
 const routeApi = new RouteApi()
 
@@ -47,6 +50,14 @@ const startRideHandler = (route: RouteItem): Promise<string> =>
 const endRideHandler = (routeId: string): Promise<boolean> =>
   Platform.OS === "ios" ? iOSHelpers.endLiveActivity(routeId) : androidHelpers().endRideNotifications(routeId)
 
+export type ArrivalAlarm = {
+  rideId: string
+  alarmId: string
+  leadMinutes: number
+  /** When it rings, in ms */
+  fireDate: number
+}
+
 export interface RideState {
   loading: boolean
   id: string | undefined
@@ -55,6 +66,11 @@ export interface RideState {
   notifeeSettings: { notifications: number; alarms: number } | undefined
   rideCount: number
   canRunLiveActivities: boolean
+  arrivalAlarm: ArrivalAlarm | undefined
+  /** A ride whose server-side alarm couldn't be removed yet, so it doesn't keep pushing moves */
+  pendingArrivalAlarmRemoval: string | undefined
+  /** Android: the rider was already asked to let the alarm take over the lock screen */
+  arrivalAlarmFullScreenPrompted: boolean
 }
 
 export interface RideActions {
@@ -85,9 +101,21 @@ const initialRideState: RideState = {
   notifeeSettings: undefined,
   rideCount: 0,
   canRunLiveActivities: false,
+  arrivalAlarm: undefined,
+  pendingArrivalAlarmRemoval: undefined,
+  arrivalAlarmFullScreenPrompted: false,
 }
 
-export const resetRideStore = () => useRideStore.setState(initialRideState)
+export const resetRideStore = () => {
+  const { id, arrivalAlarm } = useRideStore.getState()
+  // Deleting all data mustn't leave an alarm that rings, or that the server keeps moving.
+  if (arrivalAlarm) {
+    cancelArrivalAlarm()
+    if (id) new RideApi().removeRideAlarm(id)
+  }
+
+  useRideStore.setState(initialRideState)
+}
 
 export const useRideStore = create<RideStore>((set, get) => ({
   ...initialRideState,
@@ -155,7 +183,12 @@ export const useRideStore = create<RideStore>((set, get) => ({
     const { canRunLiveActivities } = get()
     if (Platform.OS === "ios" && !canRunLiveActivities) return
 
-    set({ loading: true, id: undefined, route: undefined })
+    // The ride's alarm goes with it. Its server side is removed with the ride.
+    if (get().arrivalAlarm) {
+      cancelArrivalAlarm()
+    }
+
+    set({ loading: true, id: undefined, route: undefined, arrivalAlarm: undefined, pendingArrivalAlarmRemoval: undefined })
 
     await endRideHandler(rideId)
     set({ loading: false })
@@ -194,27 +227,22 @@ export const useRideStore = create<RideStore>((set, get) => ({
       const [date, time] = formatDateForAPI(route.departureTime)
 
       const options = { viaStation: route.viaStationId }
-      routeApi.getRoutes(originId.toString(), destinationId.toString(), date, time, options).then((routes) => {
-        const currentRouteTrains = route.trains.map((train) => train.trainNumber).join()
-        const currentRoute = routes.find((r) => currentRouteTrains === r.trains.map((train) => train.trainNumber).join())
+      routeApi
+        .getRoutes(originId.toString(), destinationId.toString(), date, time, options)
+        .then((routes) => {
+          const currentRouteTrains = route.trains.map((train) => train.trainNumber).join()
+          const currentRoute = routes.find((r) => currentRouteTrains === r.trains.map((train) => train.trainNumber).join())
 
-        if (currentRoute && Date.now() >= addMinutes(currentRoute.arrivalTime, last(currentRoute.trains).delay).getTime()) {
-          get().stopRide(rideId)
-        }
-      })
+          if (currentRoute && Date.now() >= addMinutes(currentRoute.arrivalTime, last(currentRoute.trains).delay).getTime()) {
+            get().stopRide(rideId)
+          }
+        })
+        .catch((error) => console.error("Failed to check ride arrival", error))
     }
   },
 
   isRouteActive(routeItem) {
-    const currentRoute = get().route
-    if (!currentRoute) return false
-
-    return (
-      currentRoute.departureTime === routeItem.departureTime &&
-      currentRoute.trains[0].trainNumber === routeItem.trains[0].trainNumber &&
-      currentRoute.trains[currentRoute.trains.length - 1].destinationStationId ===
-        routeItem.trains[routeItem.trains.length - 1].destinationStationId
-    )
+    return isSameRoute(get().route, routeItem)
   },
 
   originId() {
@@ -247,6 +275,9 @@ export function hydrateRideStore(data: any) {
     notifeeSettings: data.notifeeSettings ?? undefined,
     rideCount: data.rideCount ?? 0,
     canRunLiveActivities: data.canRunLiveActivities ?? false,
+    arrivalAlarm: data.arrivalAlarm ?? undefined,
+    pendingArrivalAlarmRemoval: data.pendingArrivalAlarmRemoval ?? undefined,
+    arrivalAlarmFullScreenPrompted: data.arrivalAlarmFullScreenPrompted ?? false,
   })
 }
 

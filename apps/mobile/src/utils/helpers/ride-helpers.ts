@@ -3,12 +3,20 @@ import { isEqual } from "lodash"
 import type { RideStatus } from "@/hooks/use-ride-progress"
 import type { RouteItem, Train } from "@/services/api"
 
+// Whether two routes are the same trip: departure time, first train and final destination
+export function isSameRoute(a: RouteItem | undefined, b: RouteItem) {
+  if (!a) return false
+  return (
+    a.departureTime === b.departureTime &&
+    a.trains[0].trainNumber === b.trains[0].trainNumber &&
+    a.trains[a.trains.length - 1].destinationStationId === b.trains[b.trains.length - 1].destinationStationId
+  )
+}
+
 /**
  * Find the closest station to the current time.
  */
-export function findClosestStationInRoute(route: RouteItem) {
-  const now = Date.now()
-
+export function findClosestStationInRoute(route: RouteItem, now: number = Date.now()) {
   for (let train of route.trains) {
     const delay = train.delay
 
@@ -59,6 +67,16 @@ export function getPreviousTrainFromStationId(route: RouteItem, stationId: numbe
   else return route.trains[trainIndex - 1]
 }
 
+/**
+ * The index of the train the rider is on, or should board next: the first train that hasn't
+ * reached its destination yet (delay included). Once a leg arrives at the change station,
+ * the next leg becomes the current one. Falls back to the last train once the route is over.
+ */
+export function getCurrentTrainIndex(route: RouteItem, now: number = Date.now()): number {
+  const index = route.trains.findIndex((train) => addMinutes(train.arrivalTime, train.delay ?? 0).getTime() > now)
+  return index === -1 ? route.trains.length - 1 : index
+}
+
 export function getSelectedRide(routes: RouteItem[], rideTrainNumbers: number[]) {
   return routes.find((route) =>
     isEqual(
@@ -73,6 +91,7 @@ export function getRideStatus(
   train: Train | undefined,
   nextStationId: number,
   delay: number = train?.delay ?? 0,
+  now: number = Date.now(),
 ): RideStatus {
   // the station isn't part of any train in this route - we can't tell where the ride is
   if (!train) return "loading"
@@ -85,10 +104,10 @@ export function getRideStatus(
     const previousTrain = getPreviousTrainFromStationId(route, nextStationId)
     if (previousTrain) {
       const arrivalTimeToExchangeStation = addMinutes(previousTrain.arrivalTime, delay)
-      const timeToExchange = differenceInSeconds(arrivalTimeToExchangeStation, new Date())
+      const timeToExchange = differenceInSeconds(arrivalTimeToExchangeStation, now)
 
       if (timeToExchange <= 0) {
-        return getRideStatus(route, previousTrain, nextStationId)
+        return getRideStatus(route, previousTrain, nextStationId, previousTrain.delay, now)
       }
     }
   }
@@ -96,9 +115,9 @@ export function getRideStatus(
   if (train.destinationStationId === nextStationId) {
     const nextTrain = getTrainFromStationId(route, nextStationId)
     const arrivalTime = addMinutes(train.arrivalTime, delay)
-    const timeToArrival = differenceInSeconds(arrivalTime, new Date())
+    const timeToArrival = differenceInSeconds(arrivalTime, now)
 
-    if (nextTrain && addMinutes(nextTrain.departureTime, delay).getTime() >= Date.now()) {
+    if (nextTrain && addMinutes(nextTrain.departureTime, delay).getTime() >= now) {
       return "inExchange"
     } else if (timeToArrival >= 0) {
       return "inTransit"

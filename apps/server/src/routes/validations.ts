@@ -1,4 +1,5 @@
 import { ZodSchema, z } from "zod"
+import { RideAlarmRequestSchema } from "../types/ride"
 import { RequestHandler } from "express"
 import { ParamsDictionary } from "express-serve-static-core"
 
@@ -19,5 +20,13 @@ export const UpdateRideTokenBody = z.object({
 })
 
 export const DeleteRideBody = z.object({
+  rideId: z.string().min(1),
+})
+
+export const SetRideAlarmBody = RideAlarmRequestSchema.extend({
+  rideId: z.string().min(1),
+})
+
+export const RemoveRideAlarmBody = z.object({
   rideId: z.string().min(1),
 })

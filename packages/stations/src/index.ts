@@ -347,6 +347,7 @@ export const stations: Station[] = [
     lat: 32.102938,
     lon: 34.830131,
     image: "bnei-brak",
+    alias: ["רמת החייל", "Ramat HaHayal", "Рамат-ха-Хаяль", "رمات هحيال"],
   },
   {
     id: "3600",
@@ -618,6 +619,7 @@ export const stations: Station[] = [
     lat: 32.622003,
     lon: 35.294721,
     image: "afula",
+    alias: ["רפאל איתן", "רפול", "Rafael Eitan", "Raful", "Рафаэль Эйтан", "رفائيل إيتان"],
   },
   {
     id: "1280",

@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Alert, Image, Platform, Pressable, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { ScrollView } from "react-native-gesture-handler"
@@ -28,8 +28,9 @@ import { useRouter, usePathname } from "expo-router"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useStations } from "@/data/stations"
 import { calculateDelayedTime, formatClockTime, formatDateForAPI, formatTime } from "@/utils/helpers/date-helpers"
-import { getSelectedRide } from "@/utils/helpers/ride-helpers"
+import { getCurrentTrainIndex, getSelectedRide, isSameRoute } from "@/utils/helpers/ride-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { publishFreshRoutes } from "@/screens/route-list/route-list-query"
 
 const routeApi = new RouteApi()
 const preventLongPressNavigation = () => undefined
@@ -54,14 +55,13 @@ export function RouteDetailsScreen() {
   const {
     rideRoute,
     id: rideId,
-    isRouteActive,
     stopRide,
-  } = useRideStore(useShallow((s) => ({ rideRoute: s.route, id: s.id, isRouteActive: s.isRouteActive, stopRide: s.stopRide })))
+  } = useRideStore(useShallow((s) => ({ rideRoute: s.route, id: s.id, stopRide: s.stopRide })))
   const canRunLiveActivities = useRideStore((s) => s.canRunLiveActivities)
   const allStations = useStations()
 
-  // we re-run this check every time the ride changes
-  const isRideOnThisRoute = useMemo(() => isRouteActive(paramsRouteItem), [rideRoute])
+  // Derived from both inputs: openActiveRide can swap the params under a mounted screen
+  const isRideOnThisRoute = isSameRoute(rideRoute, paramsRouteItem)
 
   const trainNumbers = paramsRouteItem.trains.map((t) => t.trainNumber)
 
@@ -71,9 +71,11 @@ export function RouteDetailsScreen() {
     ["routeDetails", originId, destinationId, viaStationId, paramsRouteItem.departureTime, ...trainNumbers],
     async () => {
       const [date, time] = formatDateForAPI(paramsRouteItem.departureTime)
-      const originId = paramsRouteItem.trains[0].originStationId.toString()
-      const destinationId = paramsRouteItem.trains[paramsRouteItem.trains.length - 1].destinationStationId.toString()
-      const routes = await routeApi.getRoutes(originId, destinationId, date, time, { viaStation: viaStationId })
+      const fromId = paramsRouteItem.trains[0].originStationId.toString()
+      const toId = paramsRouteItem.trains[paramsRouteItem.trains.length - 1].destinationStationId.toString()
+      const routes = await routeApi.getRoutes(fromId, toId, date, time, { viaStation: viaStationId })
+      // A change-station search isn't what the list shows
+      if (!viaStationId && originId && destinationId) publishFreshRoutes(originId, destinationId, routes)
       const fresh = getSelectedRide(routes, trainNumbers)
       return fresh ? { ...fresh, viaStationId } : paramsRouteItem
     },
@@ -96,7 +98,7 @@ export function RouteDetailsScreen() {
 
   const insets = useSafeAreaInsets()
 
-  const hasWagonData = routeItem.trains[0]?.visaWagonData?.wagons?.length > 0
+  const hasWagonData = routeItem.trains.some((train) => train.visaWagonData?.wagons?.length > 0)
   const [shouldFadeRideButton, setShouldFadeRideButton] = useState(false)
   const [showEntireRoute, setShowEntireRoute] = useState(false)
 
@@ -127,6 +129,7 @@ export function RouteDetailsScreen() {
           destinationId={destinationId}
           time={routeItem.departureTime}
           trainNumbers={routeItem.trains.map((train) => train.trainNumber)}
+          viaStationId={routeItem.viaStationId}
         />
       )}
       <View style={{ flex: 1 }}>
@@ -249,6 +252,7 @@ export function RouteDetailsScreen() {
                         departurePlatform={routeItem.trains[index + 1].originPlatform}
                         firstTrain={train}
                         secondTrain={routeItem.trains[index + 1]}
+                        isRideOnThisRoute={isRideOnThisRoute}
                       />
                     )}
                   </View>
@@ -309,6 +313,7 @@ export function RouteDetailsScreen() {
                       departurePlatform={routeItem.trains[index + 1].originPlatform}
                       firstTrain={train}
                       secondTrain={routeItem.trains[index + 1]}
+                      isRideOnThisRoute={isRideOnThisRoute}
                     />
                   )}
                 </View>
@@ -353,7 +358,7 @@ export function RouteDetailsScreen() {
                 if (hasWagonData) {
                   trackEvent("train_info_sheet_opened")
                   HapticFeedback.trigger("impactLight")
-                  useNavigationParamsStore.getState().setTrainInfo(routeItem.trains[0])
+                  useNavigationParamsStore.getState().setTrainInfo(routeItem.trains, getCurrentTrainIndex(routeItem))
                   router.push("/train-info")
                 } else {
                   Alert.alert(translate("routeDetails.trainInformation") ?? "", translate("routeDetails.noTrainDetails") ?? "")

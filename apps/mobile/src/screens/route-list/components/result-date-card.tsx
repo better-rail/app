@@ -6,8 +6,8 @@ import { localizedDate } from "@/i18n"
 
 export const ResultDateCard = function ResultDateCard(props: { date: string; isLoading?: boolean }) {
   return (
-    <View style={styles.dateContainer}>
-      <Text text={localizedDate(props.date)} style={styles.dateText} />
+    <View testID="route-results-date" style={styles.dateContainer}>
+      <Text text={localizedDate(props.date)} style={styles.dateText} accessibilityRole="header" />
       {props.isLoading && <ActivityIndicator size="small" color={color.primary} style={styles.indicator} />}
     </View>
   )
@@ -22,7 +22,9 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: "center",
     alignContent: "center",
     paddingBottom: theme.spacing[2],
-    height: "100%",
+    minHeight: 40,
+    paddingTop: theme.spacing[2],
+    backgroundColor: theme.colors.background,
     justifyContent: "center",
     flexDirection: "row",
   },
