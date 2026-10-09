@@ -21,7 +21,7 @@ export interface TrainRoutesActions {
     originId: string,
     destinationId: string,
     time: number,
-    options?: { hideSlowTrains?: boolean; previousResult?: RouteSearchResult },
+    options?: { hideSlowTrains?: boolean },
   ) => Promise<RouteSearchResult>
 }
 
@@ -54,7 +54,6 @@ export const useTrainRoutesStore = create<TrainRoutesStore>((set) => ({
         destinationId,
         time,
         options.hideSlowTrains ?? useSettingsStore.getState().hideSlowTrains,
-        options.previousResult,
       )
       set({ routes: result.routes, status: "done" })
       return result

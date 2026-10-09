@@ -5,7 +5,7 @@ import { View, ActivityIndicator, Dimensions, useColorScheme } from "react-nativ
 import { StyleSheet } from "react-native-unistyles"
 import { FlashList, type FlashListRef, type ViewToken } from "@shopify/flash-list"
 import { useNetworkState } from "expo-network"
-import { useQuery, useQueryClient } from "react-query"
+import { useQuery } from "react-query"
 import { addDays } from "date-fns"
 import { useRouter, useLocalSearchParams, useIsFocused, Redirect } from "expo-router"
 import { useObserve } from "expo-observe"
@@ -99,7 +99,6 @@ function RouteListResults({
   viaStationId?: string
 }) {
   const router = useRouter()
-  const queryClient = useQueryClient()
   const getRoutes = useTrainRoutesStore((s) => s.getRoutes)
   const isFocused = useIsFocused()
   const { dateType, date: routePlanDate } = useRoutePlanStore(useShallow((s) => ({ dateType: s.dateType, date: s.date })))
@@ -169,7 +168,6 @@ function RouteListResults({
     () =>
       getRoutes(originId, destinationId, currentDate.getTime(), {
         hideSlowTrains,
-        previousResult: queryClient.getQueryData<RouteSearchResult>(queryKey),
       }),
     {
       enabled: enableQuery,
@@ -187,7 +185,6 @@ function RouteListResults({
       if (!viaStationId) {
         return getRoutes(originId, destinationId, time, {
           hideSlowTrains,
-          previousResult: queryClient.getQueryData<RouteSearchResult>(requestedDayQueryKey),
         })
       }
       const [date, hour] = formatDateForAPI(time)

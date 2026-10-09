@@ -1,4 +1,4 @@
-import { addDays, closestTo, differenceInCalendarDays, differenceInMinutes } from "date-fns"
+import { addDays, closestTo, differenceInMinutes } from "date-fns"
 import type { RouteItem } from "@/services/api"
 import type { RouteApi } from "@/services/api/route-api"
 import { formatDateForAPI } from "@/utils/helpers/date-helpers"
@@ -28,14 +28,9 @@ export async function searchRoutes(
   destinationId: string,
   requestedTime: number,
   hideSlowTrains: boolean,
-  previousResult?: RouteSearchResult,
 ): Promise<RouteSearchResult> {
-  // Refresh the resolved timetable without forgetting which date the rider requested.
-  const previousOffset =
-    previousResult?.requestedTime === requestedTime ? differenceInCalendarDays(previousResult.resolvedTime, requestedTime) : 0
-  const firstOffset = previousOffset >= 0 && previousOffset < 4 ? previousOffset : 0
-
-  for (let dayOffset = firstOffset; dayOffset < 4; dayOffset++) {
+  // Recheck the requested day on every refresh in case its timetable has recovered.
+  for (let dayOffset = 0; dayOffset < 4; dayOffset++) {
     const resolvedTime = addDays(requestedTime, dayOffset).getTime()
     const [date, hour] = formatDateForAPI(resolvedTime)
     const routes = await api.getRoutes(originId, destinationId, date, hour, { hideSlowTrains })

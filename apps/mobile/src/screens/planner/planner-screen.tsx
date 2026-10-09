@@ -18,7 +18,7 @@ import HapticFeedback from "react-native-haptic-feedback"
 import { spacing } from "@/theme"
 import { useStations } from "@/data/stations"
 import { translate, useFormattedDate } from "@/i18n"
-import { useQuery, useQueryClient } from "react-query"
+import { useQuery } from "react-query"
 import { differenceInHours, parseISO } from "date-fns"
 import { save, load } from "@/utils/storage"
 import { donateRouteIntent } from "@/utils/ios-helpers"
@@ -28,12 +28,10 @@ import { useObserve } from "expo-observe"
 import { useMountEffect } from "@/hooks"
 import { PlannerScreenHeader } from "./planner-screen-header"
 import { FlingGestureWrapper } from "./planner-slider-wrapper"
-import type { RouteSearchResult } from "@/models/train-routes/search-routes"
 import { routeListDayQueryKey } from "@/screens/route-list/route-list-query"
 
 export function PlannerScreen() {
   const router = useRouter()
-  const queryClient = useQueryClient()
   const { markInteractive } = useObserve()
   const { date, origin, destination, setDate, switchDirection } = useRoutePlanStore(
     useShallow((s) => ({
@@ -171,7 +169,6 @@ export function PlannerScreen() {
     () =>
       getRoutes(origin?.id, destination?.id, date.getTime(), {
         hideSlowTrains,
-        previousResult: queryClient.getQueryData<RouteSearchResult>(queryKey),
       }),
     { cacheTime: 7200000, retry: false, enabled: !!origin && !!destination && isFocused },
   )

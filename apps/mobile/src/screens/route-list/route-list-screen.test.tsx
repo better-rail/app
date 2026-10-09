@@ -7,6 +7,7 @@ import { getE2ERoutes } from "@/services/api/e2e-route-fixtures"
 import { routeListDayQueryKey, type RouteData } from "./route-list-query"
 
 const friday = new Date(2026, 9, 9, 9, 11)
+const fridayRoutes = getE2ERoutes("1600", "3100", "2026-10-09", "09:11")
 const sundayRoutes = getE2ERoutes("1600", "3100", "2026-10-11", "04:40")
 const queryKey = routeListDayQueryKey("1600", "3100", friday.getTime(), false)
 const post = mock()
@@ -157,7 +158,7 @@ function expectSundayWarning() {
 }
 
 describe("Friday search with Sunday trains", () => {
-  test.each(["fresh", "cached"])("%s results show the date warning and keep it through refreshes", async (source) => {
+  test.each(["fresh", "cached"])("%s warnings survive refreshes and clear when Friday trains return", async (source) => {
     timetable = spyOn(RouteApi.prototype, "getRoutes").mockImplementation(async (_origin, _destination, date) =>
       date === "2026-10-11" ? sundayRoutes : [],
     )
@@ -200,6 +201,19 @@ describe("Friday search with Sunday trains", () => {
     })
     expectSundayWarning()
     expect(alert).toHaveBeenCalledTimes(1)
+
+    timetable.mockImplementation(async (_origin, _destination, date) => {
+      if (date === "2026-10-09") return fridayRoutes
+      return date === "2026-10-11" ? sundayRoutes : []
+    })
+    await act(async () => {
+      await client.refetchQueries(queryKey, { exact: true })
+      await Bun.sleep(0)
+    })
+    const list = renderer!.root.findByType(TestFlashList)
+    expect(list.props.data).toEqual([friday.toDateString(), ...fridayRoutes])
+    expect(list.props.stickyHeaderIndices).toEqual([])
+    expect(renderer!.root.findAllByProps({ testID: "route-list-warning" })).toHaveLength(0)
   })
 
   test("a network failure shows a request error instead of searching another date", async () => {
