@@ -10,7 +10,8 @@ import { SearchInput } from "@/screens/select-station/search-input"
 import { translate } from "@/i18n"
 import { useSettingsStore } from "@/models"
 import { useStations } from "@/data/stations"
-import { useFilteredStations, useIsDarkMode } from "@/hooks"
+import { useFilteredStations, useIsDarkMode, usePushPermission } from "@/hooks"
+import { STATION_ALERTS_CHANNEL } from "@/utils/push-channels"
 import { trackEvent } from "@/services/analytics"
 import { StationListItem } from "./station-list-item"
 
@@ -30,16 +31,20 @@ export function NotificationsSelectStationsScreen() {
   const { filteredStations } = useFilteredStations(searchTerm)
   const displayedStations = searchTerm === "" ? stations : filteredStations
   const followed = alerts.map((a) => a.stationId)
+  const { ensure } = usePushPermission(STATION_ALERTS_CHANNEL)
 
-  const onSelected = (stationId: string) => {
+  const onSelected = async (stationId: string) => {
     HapticFeedback.trigger("impactLight")
     if (followed.includes(stationId)) {
       trackEvent("station_alert_disabled", { stationId, source: "select_stations" })
       removeStationAlert(stationId)
-    } else {
-      trackEvent("station_alert_enabled", { stationId, source: "select_stations" })
-      setStationAlert(stationId)
+      return
     }
+    // Asked before the first station is added, as the station card does.
+    if (!(await ensure("select_stations", { title: "stationAlerts.settingsTitle", message: "stationAlerts.permissionDenied" })))
+      return
+    trackEvent("station_alert_enabled", { stationId, source: "select_stations" })
+    setStationAlert(stationId)
   }
 
   return (
@@ -61,7 +66,7 @@ export function NotificationsSelectStationsScreen() {
               title={item.name}
               image={item.image}
               selected={(selected as string[]).includes(item.id)}
-              onSelect={() => onSelected(item.id)}
+              onSelect={() => void onSelected(item.id)}
               style={styles.listItem}
               testID={`station-alert-option-${item.id}`}
             />

@@ -1,4 +1,4 @@
-import { Linking, ScrollView, View } from "react-native"
+import { Linking, Pressable, ScrollView, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { useRouter } from "expo-router"
 import { useShallow } from "zustand/react/shallow"
@@ -11,6 +11,8 @@ import { useNavigationParamsStore } from "@/models/navigation-params/navigation-
 import { guardKey } from "@/services/api"
 import { trackEvent } from "@/services/analytics"
 import { useIsDarkMode, usePushPermission } from "@/hooks"
+import { DELAY_GUARD_CHANNEL, STATION_ALERTS_CHANNEL } from "@/utils/push-channels"
+import { usePushSyncStatus } from "@/utils/push-subscription-sync"
 import { openStationAlert } from "@/utils/helpers/open-station-alert"
 import { StationListItem } from "./station-list-item"
 
@@ -45,9 +47,20 @@ export function NotificationsSetupScreen() {
   )
   const favoriteRoutes = useFavoritesStore((s) => s.routes)
   const { permission, ensure } = usePushPermission()
+  // A muted Android channel of either feature, while the app's own permission is on.
+  const stationsPermission = usePushPermission(STATION_ALERTS_CHANNEL).permission
+  const guardsPermission = usePushPermission(DELAY_GUARD_CHANNEL).permission
+  const syncStatus = usePushSyncStatus()
+  const syncFailed = Object.values(syncStatus).includes("failed")
+  const syncOffline = !syncFailed && Object.values(syncStatus).includes("offline")
 
   const requestPermission = () =>
     ensure("settings", { title: "stationAlerts.settingsTitle", message: "stationAlerts.permissionDenied" })
+
+  const hasItems = alerts.length > 0 || guards.length > 0
+  const appAllowed = permission === "granted"
+  const stationsMuted = appAllowed && stationsPermission !== undefined && stationsPermission !== "granted"
+  const guardsMuted = appAllowed && guardsPermission !== undefined && guardsPermission !== "granted"
 
   const openStation = (stationId: string) => {
     HapticFeedback.trigger("impactLight")
@@ -60,8 +73,10 @@ export function NotificationsSetupScreen() {
     removeStationAlert(stationId)
   }
 
-  const add = (stationId: string) => {
+  const add = async (stationId: string) => {
     HapticFeedback.trigger("impactLight")
+    // Asked before the station is added, as the station card does.
+    if (!(await ensure("favorites", { title: "stationAlerts.settingsTitle", message: "stationAlerts.permissionDenied" }))) return
     trackEvent("station_alert_enabled", { stationId, source: "favorites" })
     setStationAlert(stationId)
   }
@@ -90,8 +105,14 @@ export function NotificationsSetupScreen() {
         <View style={styles.intro}>
           <Text style={styles.emoji}>🔔</Text>
           <Text
-            tx={permission === "granted" ? "stationAlerts.setupContent" : "stationAlerts.requestPermission"}
-            style={styles.introText}
+            tx={
+              appAllowed || permission === undefined
+                ? "stationAlerts.setupContent"
+                : hasItems
+                  ? "stationAlerts.offWarning"
+                  : "stationAlerts.requestPermission"
+            }
+            style={[styles.introText, !appAllowed && permission !== undefined && hasItems && styles.warning]}
           />
         </View>
 
@@ -103,8 +124,16 @@ export function NotificationsSetupScreen() {
           />
         )}
 
+        {appAllowed && syncFailed && (
+          <Text tx="stationAlerts.syncFailed" style={[styles.status, styles.warning]} preset="small" testID="push-sync-failed" />
+        )}
+        {appAllowed && syncOffline && (
+          <Text tx="stationAlerts.syncOffline" style={styles.status} preset="small" testID="push-sync-offline" />
+        )}
+
         <View style={styles.section}>
           <Text tx="stationAlerts.stations" style={styles.sectionTitle} />
+          {stationsMuted && alerts.length > 0 && <MutedNotice tx="stationAlerts.channelMuted" testID="station-alerts-muted" />}
           {alerts.length === 0 ? (
             <Text tx="stationAlerts.noStations" style={styles.empty} />
           ) : (
@@ -142,7 +171,7 @@ export function NotificationsSetupScreen() {
                   key={stationId}
                   title={station.name}
                   image={station.image}
-                  onSelect={() => add(stationId)}
+                  onSelect={() => void add(stationId)}
                   testID={`station-alert-suggested-${stationId}`}
                 />
               )
@@ -152,6 +181,7 @@ export function NotificationsSetupScreen() {
 
         <View style={styles.section}>
           <Text tx="delayGuard.settingsTitle" style={styles.sectionTitle} />
+          {guardsMuted && guards.length > 0 && <MutedNotice tx="delayGuard.channelMuted" testID="delay-guards-muted" />}
           {guards.length === 0 && <Text tx="delayGuard.noGuards" style={styles.empty} />}
           {guards.map((guard) => {
             const origin = getStationById(guard.originStationId)
@@ -175,6 +205,16 @@ export function NotificationsSetupScreen() {
         <Text tx="stationAlerts.note" style={styles.note} preset="small" />
       </ScrollView>
     </Screen>
+  )
+}
+
+/** A feature's own notifications are muted in the device settings: say so, with the way there. */
+function MutedNotice({ tx, testID }: { tx: "stationAlerts.channelMuted" | "delayGuard.channelMuted"; testID: string }) {
+  return (
+    <Pressable onPress={() => Linking.openSettings()} accessibilityRole="button" testID={testID}>
+      <Text tx={tx} style={styles.warning} preset="small" />
+      <Text tx="stationAlerts.openSettings" style={styles.link} preset="small" />
+    </Pressable>
   )
 }
 
@@ -212,5 +252,16 @@ const styles = StyleSheet.create((theme) => ({
   note: {
     textAlign: "center",
     opacity: 0.8,
+  },
+  status: {
+    textAlign: "center",
+    color: theme.colors.label,
+  },
+  warning: {
+    color: theme.colors.error,
+  },
+  link: {
+    color: theme.colors.primary,
+    fontWeight: "600",
   },
 }))

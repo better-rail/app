@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Linking, Pressable, Switch, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Chip, Text } from "@/components"
@@ -20,6 +21,8 @@ type StationAlertsCardProps = {
 export function StationAlertsCard({ stationId }: StationAlertsCardProps) {
   const { alert, permission, turnOn, turnOff, setLines, setDays } = useStationAlert(stationId, "station_card")
   const lines = alertLinesFor(stationId)
+  // On while the permission dialog is up, so the switch does not snap back under it.
+  const [turningOn, setTurningOn] = useState(false)
 
   const chooseAllLines = () => {
     if (alert && alert.lineIds !== null) setLines(null)
@@ -54,10 +57,11 @@ export function StationAlertsCard({ stationId }: StationAlertsCardProps) {
           <Text style={styles.description} preset="small" tx="stationAlerts.cardDescription" />
         </View>
         <Switch
-          value={!!alert}
+          value={!!alert || turningOn}
           onValueChange={(on) => {
-            if (on) void turnOn()
-            else turnOff()
+            if (!on) return turnOff()
+            setTurningOn(true)
+            void turnOn().finally(() => setTurningOn(false))
           }}
           testID="station-alerts-switch"
         />

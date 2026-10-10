@@ -4,6 +4,7 @@ import type { DayType } from "@/data/rail-service-patterns"
 import { type StationAlert, stationAlertFor, useSettingsStore } from "@/models"
 import { trackEvent } from "@/services/analytics"
 import { usePushPermission } from "@/hooks"
+import { STATION_ALERTS_CHANNEL } from "@/utils/push-channels"
 
 /**
  * Following a station: whether it is followed, and turning that on (asking for the notification
@@ -18,7 +19,7 @@ export function useStationAlert(stationId: string, source: string) {
     })),
   )
   const alert: StationAlert | undefined = stationAlertFor(alerts, stationId)
-  const { permission, ensure } = usePushPermission()
+  const { permission, ensure } = usePushPermission(STATION_ALERTS_CHANNEL)
 
   /** Follows the station on every line, once notifications are allowed. Resolves whether it went through. */
   const turnOn = async (): Promise<boolean> => {

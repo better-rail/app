@@ -4,12 +4,15 @@
  */
 import { useSettingsStore } from "@/models/settings/settings"
 import { stationAlertsApi } from "@/services/api"
+import { STATION_ALERTS_CHANNEL } from "./push-channels"
 import { createSubscriptionSync } from "./push-subscription-sync"
 
 export const watchStationAlerts = createSubscriptionSync({
+  name: "station_alerts",
+  channelId: STATION_ALERTS_CHANNEL,
   items: (state) => state.stationAlerts,
-  registered: (state) => state.stationAlertsRegistered,
-  setRegistered: (registered) => useSettingsStore.getState().setStationAlertsRegistered(registered),
+  registeredToken: (state) => state.stationAlertsToken,
+  setRegisteredToken: (token) => useSettingsStore.getState().setStationAlertsToken(token),
   subscribe: (device, alerts) =>
     stationAlertsApi.subscribe({
       ...device,

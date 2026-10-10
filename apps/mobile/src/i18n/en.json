@@ -501,7 +501,11 @@
     "note": "Alerts follow live train data and Israel Railways announcements. It's always worth checking the official sources too.",
     "daysHint": "When",
     "always": "Always",
-    "nightHint": "Night: the night trains, from midnight to 04:30 on Sun–Thu."
+    "nightHint": "Night: the night trains, from midnight to 04:30 on Sun–Thu.",
+    "offWarning": "Notifications are off for Better Rail, so you won't get alerts for the stations and trains below.",
+    "channelMuted": "Station alerts are muted in your device settings, so you won't get them.",
+    "syncFailed": "This device couldn't be registered for notifications yet. Better Rail will keep trying.",
+    "syncOffline": "You're offline. Your notification choices will be sent once you're back online."
   },
   "delayGuard": {
     "title": "Delay Notifications",
@@ -518,6 +522,8 @@
     "on": "Delay Notifications are on for this train",
     "settingsTitle": "Delay Notifications",
     "noGuards": "No trains yet. Open a train's menu on the route list to get notified about it.",
-    "permissionDenied": "Notifications are turned off for Better Rail. Turn them on in your device settings to use Delay Notifications."
+    "permissionDenied": "Notifications are turned off for Better Rail. Turn them on in your device settings to use Delay Notifications.",
+    "channelMuted": "Delay Notifications are muted in your device settings, so you won't get them.",
+    "onButOff": "Saved for this train, but notifications are turned off, so you won't be notified."
   }
 }

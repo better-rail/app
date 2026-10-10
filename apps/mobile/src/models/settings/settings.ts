@@ -30,11 +30,15 @@ export interface SettingsState {
   seenTrainInfoPrompt: boolean
   seenLawsuitAnnouncement: boolean
   stationAlerts: StationAlert[]
-  /** Whether the server holds this device's subscription, so an emptied list is still told to it. */
-  stationAlertsRegistered: boolean
+  /**
+   * The push token the server holds this device's subscription under (null: none), so an emptied
+   * list, a revoked permission or a new token can still be told to it. "" is a subscription made
+   * by an older build, whose token was not kept: the current one is assumed.
+   */
+  stationAlertsToken: string | null
   /** Trains to be told about when they run late (Delay Notifications). */
   delayGuards: DelayGuard[]
-  delayGuardsRegistered: boolean
+  delayGuardsToken: string | null
 }
 
 export interface SettingsActions {
@@ -49,11 +53,11 @@ export interface SettingsActions {
   /** Adds the station (every line, always), or changes the lines or days of one already there. */
   setStationAlert: (stationId: string, choice?: Partial<Omit<StationAlert, "stationId">>) => void
   removeStationAlert: (stationId: string) => void
-  setStationAlertsRegistered: (registered: boolean) => void
+  setStationAlertsToken: (token: string | null) => void
   /** Adds the guard, or changes one already there (same train and boarding station). */
   setDelayGuard: (guard: DelayGuard) => void
   removeDelayGuard: (key: string) => void
-  setDelayGuardsRegistered: (registered: boolean) => void
+  setDelayGuardsToken: (token: string | null) => void
 }
 
 export type SettingsStore = SettingsState & SettingsActions
@@ -69,9 +73,9 @@ const initialSettingsState: SettingsState = {
   seenTrainInfoPrompt: false,
   seenLawsuitAnnouncement: false,
   stationAlerts: [],
-  stationAlertsRegistered: false,
+  stationAlertsToken: null,
   delayGuards: [],
-  delayGuardsRegistered: false,
+  delayGuardsToken: null,
 }
 
 export const resetSettingsStore = () => useSettingsStore.setState(initialSettingsState)
@@ -136,8 +140,8 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     set((state) => ({ stationAlerts: state.stationAlerts.filter((a) => a.stationId !== stationId) }))
   },
 
-  setStationAlertsRegistered(registered) {
-    set({ stationAlertsRegistered: registered })
+  setStationAlertsToken(token) {
+    set({ stationAlertsToken: token })
   },
 
   setDelayGuard(guard) {
@@ -155,8 +159,8 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     set((state) => ({ delayGuards: state.delayGuards.filter((g) => guardKey(g) !== key) }))
   },
 
-  setDelayGuardsRegistered(registered) {
-    set({ delayGuardsRegistered: registered })
+  setDelayGuardsToken(token) {
+    set({ delayGuardsToken: token })
   },
 }))
 
@@ -205,10 +209,16 @@ export function getSettingsSnapshot(state: SettingsState) {
     seenTrainInfoPrompt: state.seenTrainInfoPrompt,
     seenLawsuitAnnouncement: state.seenLawsuitAnnouncement,
     stationAlerts: state.stationAlerts,
-    stationAlertsRegistered: state.stationAlertsRegistered,
+    stationAlertsToken: state.stationAlertsToken,
     delayGuards: state.delayGuards,
-    delayGuardsRegistered: state.delayGuardsRegistered,
+    delayGuardsToken: state.delayGuardsToken,
   }
+}
+
+/** The token a subscription is held under, as persisted; an older build's `…Registered: true` kept none (""). */
+export function normalizeRegisteredToken(token: unknown, legacyRegistered: unknown): string | null {
+  if (typeof token === "string") return token
+  return legacyRegistered === true ? "" : null
 }
 
 /** The guards as persisted, dropping anything malformed. */
@@ -282,9 +292,9 @@ export function hydrateSettingsStore(data: any) {
     seenTrainInfoPrompt: processedData.seenTrainInfoPrompt ?? false,
     seenLawsuitAnnouncement: processedData.seenLawsuitAnnouncement ?? false,
     stationAlerts: normalizeStationAlerts(processedData),
-    stationAlertsRegistered: processedData.stationAlertsRegistered ?? false,
+    stationAlertsToken: normalizeRegisteredToken(processedData.stationAlertsToken, processedData.stationAlertsRegistered),
     delayGuards: normalizeDelayGuards(processedData),
-    delayGuardsRegistered: processedData.delayGuardsRegistered ?? false,
+    delayGuardsToken: normalizeRegisteredToken(processedData.delayGuardsToken, processedData.delayGuardsRegistered),
   })
 }
 

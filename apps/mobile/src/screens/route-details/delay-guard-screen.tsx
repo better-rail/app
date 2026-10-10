@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { ScrollView, View } from "react-native"
+import { Linking, Pressable, ScrollView, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { useRouter } from "expo-router"
 import { useShallow } from "zustand/react/shallow"
@@ -13,6 +13,7 @@ import { useNavigationParamsStore } from "@/models/navigation-params/navigation-
 import { DEFAULT_GUARD_MINUTES, GUARD_MINUTES_OPTIONS, guardKey } from "@/services/api"
 import { trackEvent } from "@/services/analytics"
 import { usePushPermission } from "@/hooks"
+import { DELAY_GUARD_CHANNEL } from "@/utils/push-channels"
 
 /**
  * Delay Notifications, as a sheet over a route: the train the rider boards, from how many minutes late
@@ -28,7 +29,8 @@ export function DelayGuardScreen() {
   )
   const existing = draft ? delayGuardFor(guards, draft.trainNumber, draft.originStationId) : undefined
   const [minutes, setMinutes] = useState(existing?.thresholdMinutes ?? draft?.thresholdMinutes ?? DEFAULT_GUARD_MINUTES)
-  const { ensure } = usePushPermission()
+  const { permission, ensure } = usePushPermission(DELAY_GUARD_CHANNEL)
+  const notificationsOff = permission !== undefined && permission !== "granted"
 
   if (!draft) return null
 
@@ -69,7 +71,13 @@ export function DelayGuardScreen() {
         <Text style={styles.trainRoute} preset="small">
           {translate("delayGuard.fromTo", { origin, destination })}
         </Text>
-        {existing && <Text style={styles.onText} preset="small" tx="delayGuard.on" />}
+        {existing && !notificationsOff && <Text style={styles.onText} preset="small" tx="delayGuard.on" />}
+        {existing && notificationsOff && (
+          <Pressable onPress={() => Linking.openSettings()} accessibilityRole="button" testID="delay-guard-notifications-off">
+            <Text style={styles.offText} preset="small" tx="delayGuard.onButOff" />
+            <Text style={styles.link} preset="small" tx="stationAlerts.openSettings" />
+          </Pressable>
+        )}
       </View>
 
       <View style={styles.section}>
@@ -159,6 +167,14 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.success,
     fontWeight: "600",
     marginTop: 4,
+  },
+  offText: {
+    color: theme.colors.error,
+    marginTop: 4,
+  },
+  link: {
+    color: theme.colors.primary,
+    fontWeight: "600",
   },
   section: {
     gap: theme.spacing[2],

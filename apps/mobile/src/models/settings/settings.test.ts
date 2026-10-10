@@ -79,12 +79,18 @@ test("station alerts: adding, narrowing to lines and days, removing", () => {
 
 test("station alerts survive persistence and the old per-station list migrates to every line", () => {
   useSettingsStore.getState().setStationAlert("3700", { lineIds: ["1"], dayTypes: ["weekday"] })
-  useSettingsStore.getState().setStationAlertsRegistered(true)
+  useSettingsStore.getState().setStationAlertsToken("device-token-1234567890")
   const snapshot = getSettingsSnapshot(useSettingsStore.getState())
   resetSettingsStore()
   hydrateSettingsStore(snapshot)
   expect(useSettingsStore.getState().stationAlerts).toEqual([{ stationId: "3700", lineIds: ["1"], dayTypes: ["weekday"] }])
-  expect(useSettingsStore.getState().stationAlertsRegistered).toBe(true)
+  expect(useSettingsStore.getState().stationAlertsToken).toBe("device-token-1234567890")
+
+  // An older build kept only whether it was registered: the token is unknown ("").
+  resetSettingsStore()
+  hydrateSettingsStore({ stationAlertsRegistered: true, delayGuardsRegistered: false })
+  expect(useSettingsStore.getState().stationAlertsToken).toBe("")
+  expect(useSettingsStore.getState().delayGuardsToken).toBeNull()
 
   resetSettingsStore()
   hydrateSettingsStore({ stationsNotifications: ["3700", "3500", "3700"] })

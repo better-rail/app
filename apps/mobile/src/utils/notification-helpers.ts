@@ -24,6 +24,7 @@ import { RideStartError } from "./helpers/ride-errors"
 import { isStationAlertPayload, openStationAlert } from "./helpers/open-station-alert"
 import { isDelayGuardPayload, openDelayGuard } from "./helpers/open-delay-guard"
 import { getPushToken } from "./push-subscription-sync"
+import { DELAY_GUARD_CHANNEL, STATION_ALERTS_CHANNEL } from "./push-channels"
 
 const rideApi = new RideApi()
 let tokenSubscription: Notifications.Subscription | undefined
@@ -46,9 +47,7 @@ Notifications.setNotificationHandler({
   },
 })
 
-/** The Android channels the station alerts and Delay Notifications are shown on (the server sends them as data messages). */
-export const STATION_ALERTS_CHANNEL = "better-rail-station-alerts"
-export const DELAY_GUARD_CHANNEL = "better-rail-delay-guard"
+export { DELAY_GUARD_CHANNEL, STATION_ALERTS_CHANNEL }
 
 const BACKGROUND_LIVE_RIDE_TASK = "better-rail-live-ride-notification"
 
@@ -84,38 +83,39 @@ TaskManager.defineTask(BACKGROUND_LIVE_RIDE_TASK, async ({ data, error }) => {
 
 export const configureNotifications = async () => {
   if (Platform.OS === "android") {
-    notifee.createChannel({
-      id: "better-rail",
-      name: "Better Rail",
-      description: "Get live ride notifications",
-      importance: AndroidImportance.HIGH,
-      sound: "default",
-    })
-
-    notifee.createChannel({
-      id: "better-rail-live",
-      name: "Better Rail Live",
-      description: "Get live ride persistent notification",
-      vibration: false,
-    })
-
-    notifee.createChannel({
-      id: STATION_ALERTS_CHANNEL,
-      name: "Station alerts",
-      description: "Disruptions at the stations you follow",
-      importance: AndroidImportance.HIGH,
-      vibration: true,
-      sound: "default",
-    })
-
-    notifee.createChannel({
-      id: DELAY_GUARD_CHANNEL,
-      name: "Delay Notifications",
-      description: "Your usual trains running late",
-      importance: AndroidImportance.HIGH,
-      vibration: true,
-      sound: "default",
-    })
+    // Awaited: Android 13+ shows the notification permission prompt only once a channel exists,
+    // and the alerts' channels have to be there before the first alert arrives.
+    await Promise.all([
+      notifee.createChannel({
+        id: "better-rail",
+        name: "Better Rail",
+        description: "Get live ride notifications",
+        importance: AndroidImportance.HIGH,
+        sound: "default",
+      }),
+      notifee.createChannel({
+        id: "better-rail-live",
+        name: "Better Rail Live",
+        description: "Get live ride persistent notification",
+        vibration: false,
+      }),
+      notifee.createChannel({
+        id: STATION_ALERTS_CHANNEL,
+        name: "Station alerts",
+        description: "Disruptions at the stations you follow",
+        importance: AndroidImportance.HIGH,
+        vibration: true,
+        sound: "default",
+      }),
+      notifee.createChannel({
+        id: DELAY_GUARD_CHANNEL,
+        name: "Delay Notifications",
+        description: "Your usual trains running late",
+        importance: AndroidImportance.HIGH,
+        vibration: true,
+        sound: "default",
+      }),
+    ])
 
     // Background / killed: expo-notifications wakes the JS task defined at module scope.
     await Notifications.registerTaskAsync(BACKGROUND_LIVE_RIDE_TASK)
@@ -209,7 +209,9 @@ export const startRideNotifications = async (route: RouteItem) => {
   try {
     token = await getPushToken()
   } catch (error) {
-    throw new RideStartError("push_token", "Couldn't get a device push token", { cause: error })
+    throw new RideStartError("push_token", "Couldn't get a device push token", {
+      cause: error,
+    })
   }
 
   const rideId = await rideApi.startRide(route, token)
@@ -327,7 +329,9 @@ const getTitleText = (route: RouteItem, state: RideState) => {
     return translate("plan.rideTo", { destination: getRideDestination(route) })
   }
 
-  const minutes = differenceInMinutes(targetDate, Date.now(), { roundingMethod: "ceil" })
+  const minutes = differenceInMinutes(targetDate, Date.now(), {
+    roundingMethod: "ceil",
+  })
   const time = format(targetDate, "HH:mm")
   const timeText = "(" + time + ")"
 
@@ -368,7 +372,10 @@ const getBodyText = (route: RouteItem, state: RideState) => {
 
     // rideProgress reports [0, 0] when the station isn't in the route, which would render
     // "get off in 0 stops" - fall back rather than showing a nonsense count
-    if (stopsLeft <= 0) return translate("plan.rideTo", { destination: getRideDestination(route) })
+    if (stopsLeft <= 0)
+      return translate("plan.rideTo", {
+        destination: getRideDestination(route),
+      })
 
     if (stopsLeft === 1) return translate("ride.getOffNextStop")
     else return translate("ride.getOffInStops", { stopsLeft })

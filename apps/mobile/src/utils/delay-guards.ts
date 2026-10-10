@@ -4,12 +4,15 @@
  */
 import { useSettingsStore } from "@/models/settings/settings"
 import { delayGuardsApi } from "@/services/api"
+import { DELAY_GUARD_CHANNEL } from "./push-channels"
 import { createSubscriptionSync } from "./push-subscription-sync"
 
 export const watchDelayGuards = createSubscriptionSync({
+  name: "delay_guards",
+  channelId: DELAY_GUARD_CHANNEL,
   items: (state) => state.delayGuards,
-  registered: (state) => state.delayGuardsRegistered,
-  setRegistered: (registered) => useSettingsStore.getState().setDelayGuardsRegistered(registered),
+  registeredToken: (state) => state.delayGuardsToken,
+  setRegisteredToken: (token) => useSettingsStore.getState().setDelayGuardsToken(token),
   subscribe: (device, guards) => delayGuardsApi.subscribe({ ...device, guards }),
   unsubscribe: delayGuardsApi.unsubscribe,
 })
