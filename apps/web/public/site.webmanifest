@@ -1,0 +1,15 @@
+{
+  "name": "Better Rail",
+  "short_name": "Better Rail",
+  "description": "לוח זמנים רכבת ישראל",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#f2f2f7",
+  "theme_color": "#0a81dd",
+  "lang": "he",
+  "dir": "rtl",
+  "icons": [
+    { "src": "/assets/favicon/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/assets/favicon/icon-original.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

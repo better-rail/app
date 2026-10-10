@@ -1,0 +1,96 @@
+// Per-browser preferences in localStorage. Every access is try/catch-wrapped: storage may be unavailable (private mode, SSR).
+const RECENT_KEY = "better-rail:recent-routes"
+const SLOW_TRAINS_KEY = "better-rail:hide-slow-trains"
+// Room for four cards once a route and its return trip are merged.
+const MAX_RECENT = 8
+
+export interface StoredRoute {
+  originId: string
+  destinationId: string
+}
+
+function read<T>(key: string, fallback: T): T {
+  if (typeof window === "undefined") return fallback
+  try {
+    const raw = window.localStorage.getItem(key)
+    return raw ? (JSON.parse(raw) as T) : fallback
+  } catch {
+    return fallback
+  }
+}
+
+function write(key: string, value: unknown) {
+  if (typeof window === "undefined") return
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value))
+    window.dispatchEvent(new Event("better-rail:storage"))
+  } catch {
+    // storage is a convenience — ignore failures
+  }
+}
+
+const sameRoute = (a: StoredRoute, b: StoredRoute) => a.originId === b.originId && a.destinationId === b.destinationId
+
+export const recentRoutes = {
+  get: () => read<StoredRoute[]>(RECENT_KEY, []),
+  add(route: StoredRoute) {
+    const next = [route, ...recentRoutes.get().filter((r) => !sameRoute(r, route))].slice(0, MAX_RECENT)
+    write(RECENT_KEY, next)
+  },
+  clear: () => write(RECENT_KEY, []),
+}
+
+export const hideSlowTrainsPreference = {
+  get: () => read<boolean>(SLOW_TRAINS_KEY, false),
+  set: (value: boolean) => write(SLOW_TRAINS_KEY, value),
+}
+
+const RECENT_TRAY_KEY = "better-rail:recent-tray-open"
+
+/** Whether the home page's recent-searches tray is expanded; collapsed until the rider opens it. */
+export const recentTrayPreference = {
+  get: () => read<boolean>(RECENT_TRAY_KEY, false),
+  set: (value: boolean) => write(RECENT_TRAY_KEY, value),
+}
+
+const APP_BANNER_KEY = "better-rail:app-banner-dismissed"
+
+/** Whether the rider closed the install-the-app banner; once true it never returns. */
+export const appBannerDismissed = {
+  get: () => read<boolean>(APP_BANNER_KEY, false),
+  set: (value: boolean) => write(APP_BANNER_KEY, value),
+}
+
+const THEME_KEY = "better-rail:theme"
+
+export type ThemeOverride = "light" | "dark"
+
+/** An explicit light/dark choice; null follows the OS. */
+export const themePreference = {
+  get: () => read<ThemeOverride | null>(THEME_KEY, null),
+  set: (value: ThemeOverride | null) => write(THEME_KEY, value),
+}
+
+/** Subscribes to changes made through this module (same tab) and by other tabs. */
+export function subscribeToStorage(callback: () => void) {
+  if (typeof window === "undefined") return () => {}
+  window.addEventListener("better-rail:storage", callback)
+  window.addEventListener("storage", callback)
+  return () => {
+    window.removeEventListener("better-rail:storage", callback)
+    window.removeEventListener("storage", callback)
+  }
+}
+
+const ROUTE_PLAN_KEY = "better-rail:route-plan"
+
+export interface StoredRoutePlan {
+  originId?: string
+  destinationId?: string
+}
+
+/** The stations currently picked in the planner — restored on the next visit, like the app does. */
+export const routePlan = {
+  get: () => read<StoredRoutePlan>(ROUTE_PLAN_KEY, {}),
+  set: (plan: StoredRoutePlan) => write(ROUTE_PLAN_KEY, plan),
+}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Pressable, type PressableProps, Image, ActivityIndicator, PlatformColor, Platform, View } from "react-native"
+import { Pressable, type PressableProps, Image, ActivityIndicator, Platform, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text, BottomScreenSheet } from "@/components"
 import { useRouter } from "expo-router"
@@ -8,7 +8,7 @@ import { useRideStore } from "@/models"
 import { translate } from "@/i18n"
 import { trackEvent } from "@/services/analytics"
 import { GlassView } from "expo-glass-effect"
-import { isLiquidGlassSupported } from "@/utils/liquid-glass"
+import { isLiquidGlassSupported, useGlassTint } from "@/utils/liquid-glass"
 import { isArrivalAlarmSupported } from "@/utils/arrival-alarm-native"
 import { formatTime } from "@/utils/helpers/date-helpers"
 import { ArrivalAlarmButton } from "./arrival-alarm-button"
@@ -73,6 +73,7 @@ export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "a
 }
 
 const StopButton = (props: { loading: boolean } & PressableProps) => {
+  const glassTint = useGlassTint("stop")
   const { loading } = props
   const [isDisabled, setIsDisabled] = useState(loading)
 
@@ -102,7 +103,7 @@ const StopButton = (props: { loading: boolean } & PressableProps) => {
   if (isLiquidGlassSupported) {
     return (
       <Pressable disabled={isDisabled} {...props}>
-        <GlassView isInteractive style={styles.stopButton} tintColor={PlatformColor("systemRed")}>
+        <GlassView isInteractive style={styles.stopButton} tintColor={glassTint}>
           {loading ? (
             <ActivityIndicator color="white" />
           ) : (

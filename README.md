@@ -14,11 +14,12 @@ Better Rail is built with React Native. We also use Swift and Kotlin to leverage
 
 The repository is a Bun workspaces monorepo:
 
-| Path           | What                                                              |
-| -------------- | ----------------------------------------------------------------- |
-| `apps/mobile`  | The React Native / Expo app ([README](apps/mobile/README.md))     |
-| `apps/server`  | Notification & timetable server ([README](apps/server/README.md)) |
-| `apps/website` | better-rail.co.il static site ([README](apps/website/README.md))  |
+| Path                | What                                                                                   |
+| ------------------- | -------------------------------------------------------------------------------------- |
+| `apps/mobile`       | The React Native / Expo app ([README](apps/mobile/README.md))                          |
+| `apps/server`       | Notification & timetable server ([README](apps/server/README.md))                      |
+| `apps/web`          | better-rail.co.il — TanStack Start site & web timetable ([README](apps/web/README.md)) |
+| `packages/stations` | Station list + photos shared by every app                                              |
 
 ### Installation
 
@@ -55,7 +56,7 @@ bun run mobile:start   # Metro / Expo dev server
 bun run mobile:e2e:ios # Maestro on an installed iOS E2E build
 bun run mobile:e2e:android # Maestro on an installed Android E2E build
 bun run server:dev     # server in watch mode
-bun run website:dev    # static site on :8000
+bun run web:dev        # website + web app on :3000
 bun run lint           # oxlint + oxfmt across the repo
 bun run test           # mobile + server tests
 ```

@@ -2,9 +2,8 @@ import { Pressable, Animated as RNAnimated } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import { Text } from "@/components/text/text"
-import { color } from "@/theme"
 import { GlassView } from "expo-glass-effect"
-import { isLiquidGlassSupported } from "@/utils/liquid-glass"
+import { isLiquidGlassSupported, useGlassTint } from "@/utils/liquid-glass"
 
 const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale)
 
@@ -17,11 +16,12 @@ interface RouteStationNameButtonProps extends TouchableScaleProps {
 
 export function RouteStationNameButton(props: RouteStationNameButtonProps) {
   const { disabled, onPress, name, style, buttonScale, ...rest } = props
+  const glassTint = useGlassTint("secondaryLighter")
 
   if (isLiquidGlassSupported) {
     return (
       <Pressable onPress={onPress} disabled={disabled}>
-        <GlassView isInteractive={!disabled} tintColor={color.secondaryLighter} style={styles.liquidGlass}>
+        <GlassView isInteractive={!disabled} tintColor={glassTint} style={styles.liquidGlass}>
           <Text style={styles.routeDetailsStationText} maxFontSizeMultiplier={1.1}>
             {name}
           </Text>
