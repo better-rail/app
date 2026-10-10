@@ -33,7 +33,8 @@
     "node": ">=20"
   },
   "trustedDependencies": [
-    "protobufjs"
+    "protobufjs",
+    "@shopify/react-native-skia"
   ],
   "patchedDependencies": {
     "react-native-quick-actions-shortcuts@1.0.2": "patches/react-native-quick-actions-shortcuts@1.0.2.patch",
@@ -42,6 +43,7 @@
     "react-native-push-notification@8.1.1": "patches/react-native-push-notification@8.1.1.patch",
     "react-native-prompt-android@1.1.0": "patches/react-native-prompt-android@1.1.0.patch",
     "react-native-screens@4.26.2": "patches/react-native-screens@4.26.2.patch",
-    "expo-notifications@57.0.21": "patches/expo-notifications@57.0.21.patch"
+    "expo-notifications@57.0.21": "patches/expo-notifications@57.0.21.patch",
+    "@bacons/apple-targets@4.0.7": "patches/@bacons%2Fapple-targets@4.0.7.patch"
   }
 }

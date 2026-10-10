@@ -61,7 +61,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   name: "Better Rail",
   slug: "better-rail",
   owner: "better-rail",
-  version: "2.8.4",
+  version: "2.9.0",
   updates: {
     enabled: !IS_E2E,
     url: "https://u.expo.dev/b7819f45-8466-4c11-8628-3539099e6c78",
@@ -221,6 +221,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // The Google Services gradle plugin FCM needs is applied by ./plugins/withBetterRailAndroid
     // (previously came from the @react-native-firebase/app plugin).
     "expo-notifications",
+    // Apple Maps on iOS for the station card's map box (Android would need a Google Maps key here).
+    "react-native-maps",
     [
       "@sentry/react-native/expo",
       {

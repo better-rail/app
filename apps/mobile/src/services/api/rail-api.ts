@@ -7,7 +7,7 @@ import {
   AnnouncementApiResult,
   PopUpMessagesApiResult,
   StationInfoApiResult,
-  StationInfo,
+  LegacyStationInfo,
 } from "./rail-api.types"
 import { API_CONFIG } from "@/config/api-config"
 import { setAnalyticsUserProperty } from "@/services/analytics"
@@ -47,7 +47,7 @@ export class RailApi {
     )
   }
 
-  async getStationInfo(languageCode: LanguageCode, stationId: string): Promise<StationInfo> {
+  async getStationInfo(languageCode: LanguageCode, stationId: string): Promise<LegacyStationInfo> {
     const languageId = railApiLocales[languageCode]
 
     const response: AxiosResponse<StationInfoApiResult> = await this.axiosInstance.get(

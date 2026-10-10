@@ -16,5 +16,9 @@ export const serverBaseURL =
 
 export const API_CONFIG = {
   RAIL_API: `${serverBaseURL}/rail-api`,
+  SERVICE_STATUS: `${serverBaseURL}/service-status`,
+  STATIONS: `${serverBaseURL}/stations`,
+  STATION_ALERTS: `${serverBaseURL}/station-alerts`,
+  DELAY_GUARDS: `${serverBaseURL}/delay-guards`,
   FARES: `${serverBaseURL}/fares`,
 }

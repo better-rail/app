@@ -37,6 +37,12 @@ import { monitorLiveActivities } from "@/utils/ios-helpers"
 import { useForceUpdate } from "@/hooks/use-force-update"
 import { ForceUpdateScreen } from "@/screens/force-update/force-update-screen"
 import { openActiveRide } from "@/utils/helpers/open-active-ride"
+import { isStationAlertPayload, openStationAlert } from "@/utils/helpers/open-station-alert"
+import { isDelayGuardPayload, openDelayGuard } from "@/utils/helpers/open-delay-guard"
+import { watchStationAlerts } from "@/utils/station-alerts"
+import { watchDelayGuards } from "@/utils/delay-guards"
+import * as Notifications from "expo-notifications"
+import notifee, { EventType } from "@notifee/react-native"
 import PushNotification from "react-native-push-notification"
 import "react-native-console-time-polyfill"
 import { IS_E2E } from "@/config/e2e"
@@ -133,6 +139,7 @@ function AppStack() {
         <Stack.Screen name="settings" options={{ presentation: "modal" }} />
         <Stack.Screen name="active-ride" options={{ presentation: "modal" }} />
         <Stack.Screen name="announcements" options={{ presentation: "modal" }} />
+        <Stack.Screen name="service-status" options={{ presentation: "fullScreenModal" }} />
         <Stack.Screen
           name="lawsuit"
           options={{
@@ -181,6 +188,39 @@ function RootLayout() {
           monitorLiveActivities()
         }
       })
+  }, [storeReady])
+
+  // Station alerts: keep the server's subscription in step, and open the station a tapped alert is about.
+  // iOS shows the alerts itself, so taps come through expo-notifications; on Android Notifee shows them.
+  useEffect(() => {
+    if (!storeReady) return undefined
+    watchStationAlerts()
+    watchDelayGuards()
+
+    const openFromData = (data: unknown) => {
+      if (isStationAlertPayload(data)) openStationAlert(data.stationId)
+      else if (isDelayGuardPayload(data)) openDelayGuard(data)
+    }
+    const response = Notifications.addNotificationResponseReceivedListener((event) =>
+      openFromData(event.notification.request.content.data),
+    )
+    Notifications.getLastNotificationResponseAsync().then((event) => {
+      if (!event) return
+      openFromData(event.notification.request.content.data)
+      Notifications.clearLastNotificationResponseAsync().catch(() => {})
+    })
+
+    const unsubscribeNotifee = notifee.onForegroundEvent(({ type, detail }) => {
+      if (type === EventType.PRESS) openFromData(detail.notification?.data)
+    })
+    if (Platform.OS === "android") {
+      notifee.getInitialNotification().then((initial) => openFromData(initial?.notification.data))
+    }
+
+    return () => {
+      response.remove()
+      unsubscribeNotifee()
+    }
   }, [storeReady])
 
   useEffect(() => {

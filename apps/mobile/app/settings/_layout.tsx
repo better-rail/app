@@ -46,6 +46,14 @@ export default function SettingsLayout() {
       <Stack.Screen name="tip-jar" options={{ title: translate("settings.tipJar") ?? "", headerTitleStyle: iOSTitleStyle }} />
       <Stack.Screen name="about" options={{ title: translate("settings.about") ?? "", headerTitleStyle: iOSTitleStyle }} />
       <Stack.Screen name="privacy" options={{ title: translate("settings.privacy") ?? "", headerTitleStyle: iOSTitleStyle }} />
+      <Stack.Screen
+        name="notifications"
+        options={{ title: translate("stationAlerts.settingsTitle") ?? "", headerTitleStyle: iOSTitleStyle }}
+      />
+      <Stack.Screen
+        name="notifications-stations"
+        options={{ title: translate("stationAlerts.selectStations") ?? "", headerShown: false }}
+      />
     </Stack>
   )
 }

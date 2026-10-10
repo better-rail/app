@@ -23,6 +23,9 @@ import {
 import { Platform } from "react-native"
 import { getArrivalAlarm, isArrivalAlarmSupported, moveArrivalAlarm } from "./arrival-alarm-native"
 import { RideStartError } from "./helpers/ride-errors"
+import { isStationAlertPayload, openStationAlert } from "./helpers/open-station-alert"
+import { isDelayGuardPayload, openDelayGuard } from "./helpers/open-delay-guard"
+import { DELAY_GUARD_CHANNEL, STATION_ALERTS_CHANNEL } from "./push-channels"
 import { getDevicePushTokenWithAuthRetry } from "./helpers/push-token-auth-retry"
 import { trackEvent } from "@/services/analytics"
 
@@ -31,15 +34,23 @@ let tokenSubscription: Notifications.Subscription | undefined
 
 // expo-notifications is the sole FCM receiver on Android. Live-ride updates arrive as
 // data-only FCM messages; Notifee owns all display, so suppress expo-notifications from
-// rendering anything itself (prevents an empty/duplicate notification).
+// rendering anything itself (prevents an empty/duplicate notification). Station alerts on
+// iOS are plain APNs alerts the system shows in the background; in the foreground they are
+// the one kind worth a banner.
 Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: false,
-    shouldShowList: false,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-  }),
+  handleNotification: async (notification) => {
+    const data = notification.request.content.data
+    const alert = Platform.OS === "ios" && (isStationAlertPayload(data) || isDelayGuardPayload(data))
+    return {
+      shouldShowBanner: alert,
+      shouldShowList: alert,
+      shouldPlaySound: alert,
+      shouldSetBadge: false,
+    }
+  },
 })
+
+export { DELAY_GUARD_CHANNEL, STATION_ALERTS_CHANNEL }
 
 const BACKGROUND_LIVE_RIDE_TASK = "better-rail-live-ride-notification"
 const BACKGROUND_ARRIVAL_ALARM_TASK = "better-rail-arrival-alarm-notification"
@@ -55,17 +66,20 @@ const extractFcmData = (raw: any): Record<string, string> | null => {
     raw?.notification?.data ??
     raw?.data ??
     raw
-  return typeof data?.type === "string" ? data : null
+  return data && typeof data === "object" && typeof data.type === "string" ? data : null
 }
 
+/** A data message from the server: live-ride and arrival-alarm updates, a station alert or a Delay Notification. */
 const handleFcmData = (data: Record<string, string> | null) => {
   if (data?.type === "live-ride") return handleLiveRideNotification(data)
   if (data?.type === "arrival-alarm") return handleAndroidArrivalAlarmPush(data)
+  if (isStationAlertPayload(data)) return handleAlertNotification(data, STATION_ALERTS_CHANNEL)
+  if (isDelayGuardPayload(data)) return handleAlertNotification(data, DELAY_GUARD_CHANNEL)
 }
 
 // Defined at module scope so it registers when index.js loads this file — including when
 // the app is woken from a killed/background state to process a live-ride data message.
-TaskManager.defineTask(BACKGROUND_LIVE_RIDE_TASK, ({ data, error }) => {
+TaskManager.defineTask(BACKGROUND_LIVE_RIDE_TASK, async ({ data, error }) => {
   if (error) return
   return handleFcmData(extractFcmData(data))
 })
@@ -128,20 +142,39 @@ export const configureNotifications = async () => {
   }
 
   if (Platform.OS === "android") {
-    notifee.createChannel({
-      id: "better-rail",
-      name: "Better Rail",
-      description: "Get live ride notifications",
-      importance: AndroidImportance.HIGH,
-      sound: "default",
-    })
-
-    notifee.createChannel({
-      id: "better-rail-live",
-      name: "Better Rail Live",
-      description: "Get live ride persistent notification",
-      vibration: false,
-    })
+    // Awaited: Android 13+ shows the notification permission prompt only once a channel exists,
+    // and the alerts' channels have to be there before the first alert arrives.
+    await Promise.all([
+      notifee.createChannel({
+        id: "better-rail",
+        name: "Better Rail",
+        description: "Get live ride notifications",
+        importance: AndroidImportance.HIGH,
+        sound: "default",
+      }),
+      notifee.createChannel({
+        id: "better-rail-live",
+        name: "Better Rail Live",
+        description: "Get live ride persistent notification",
+        vibration: false,
+      }),
+      notifee.createChannel({
+        id: STATION_ALERTS_CHANNEL,
+        name: "Station alerts",
+        description: "Disruptions at the stations you follow",
+        importance: AndroidImportance.HIGH,
+        vibration: true,
+        sound: "default",
+      }),
+      notifee.createChannel({
+        id: DELAY_GUARD_CHANNEL,
+        name: "Delay Notifications",
+        description: "Your usual trains running late",
+        importance: AndroidImportance.HIGH,
+        vibration: true,
+        sound: "default",
+      }),
+    ])
 
     // Background / killed: expo-notifications wakes the JS task defined at module scope.
     await Notifications.registerTaskAsync(BACKGROUND_LIVE_RIDE_TASK)
@@ -162,6 +195,11 @@ export const configureNotifications = async () => {
     })
 
     notifee.onBackgroundEvent(async ({ type, detail }) => {
+      if (type === EventType.PRESS) {
+        const data = detail.notification?.data
+        if (isStationAlertPayload(data)) return openStationAlert(data.stationId)
+        if (isDelayGuardPayload(data)) return openDelayGuard(data)
+      }
       if (type === EventType.DELIVERED && detail.notification?.data?.type === "live-ride-stale") {
         const rideRoute = await getRideRoute()
         if (!rideRoute) return
@@ -178,6 +216,21 @@ export const configureNotifications = async () => {
       }
     })
   }
+}
+
+/** A server alert on Android (station alert, Delay Notifications): shown with Notifee, carrying its data for the tap. */
+const handleAlertNotification = async (data: Record<string, string>, channelId: string) => {
+  if (!data.notifee) return
+  const { notifee: words, ...payload } = data
+  await notifee.displayNotification({
+    ...JSON.parse(words),
+    data: payload,
+    android: {
+      channelId,
+      smallIcon: "notification_icon",
+      pressAction: { id: "default" },
+    },
+  })
 }
 
 /// Maps the server's ride status onto the one we compute locally. The server sends `getOff` a
@@ -228,7 +281,9 @@ export const startRideNotifications = async (route: RouteItem) => {
     )
     token = String(pushToken.data)
   } catch (error) {
-    throw new RideStartError("push_token", "Couldn't get a device push token", { cause: error })
+    throw new RideStartError("push_token", "Couldn't get a device push token", {
+      cause: error,
+    })
   }
 
   const rideId = await rideApi.startRide(route, token)
@@ -388,7 +443,10 @@ const getBodyText = (route: RouteItem, state: RideState) => {
 
     // rideProgress reports [0, 0] when the station isn't in the route, which would render
     // "get off in 0 stops" - fall back rather than showing a nonsense count
-    if (stopsLeft <= 0) return translate("plan.rideTo", { destination: getRideDestination(route) })
+    if (stopsLeft <= 0)
+      return translate("plan.rideTo", {
+        destination: getRideDestination(route),
+      })
 
     if (stopsLeft === 1) return translate("ride.getOffNextStop")
     else return translate("ride.getOffInStops", { stopsLeft })

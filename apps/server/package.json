@@ -5,6 +5,7 @@
   "main": "index.ts",
   "license": "AGPL-3.0",
   "dependencies": {
+    "@anthropic-ai/sdk": "0.128.0",
     "@lagregance/i18n-js-require": "^4.2.2",
     "@sentry/bun": "10.74.0",
     "apns2": "^11.2.0",
@@ -47,7 +48,8 @@
     "download": "bun ./src/scripts/download-feed.ts",
     "ingest": "bun ./src/scripts/ingest-gtfs.ts",
     "build:mapping": "bun ./src/scripts/build-station-mapping.ts",
-    "verify:mapping": "bun ./src/scripts/verify-mapping.ts"
+    "verify:mapping": "bun ./src/scripts/verify-mapping.ts",
+    "service-status": "bun ./src/service-status/main.ts"
   },
   "engines": {
     "bun": ">= 1.0.0"
